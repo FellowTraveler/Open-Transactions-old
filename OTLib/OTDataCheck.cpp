@@ -1,0 +1,178 @@
+
+/************************************************************************************
+ *    
+ *  OTDataCheck.cpp
+ *  
+ *		Open Transactions:  Library, Protocol, Server, and Test Client
+ *    
+ *    			-- Anonymous Numbered Accounts
+ *    			-- Untraceable Digital Cash
+ *    			-- Triple-Signed Receipts
+ *    			-- Basket Currencies
+ *    			-- Signed XML Contracts
+ *    
+ *    Copyright (C) 2010 by "Fellow Traveler" (A pseudonym)
+ *    
+ *    EMAIL:
+ *    F3llowTraveler@gmail.com --- SEE PGP PUBLIC KEY IN CREDITS FILE.
+ *    
+ *    KEY FINGERPRINT:
+ *    9DD5 90EB 9292 4B48 0484  7910 0308 00ED F951 BB8E
+ *    
+ *    WEBSITE:
+ *    http://www.OpenTransactions.org
+ *    
+ *    OFFICIAL PROJECT WIKI:
+ *    http://wiki.github.com/FellowTraveler/Open-Transactions/
+ *    
+ *     ----------------------------------------------------------------
+ *    
+ *    Open Transactions was written including these libraries:
+ *    
+ *       Lucre          --- Copyright (C) 1999-2009 Ben Laurie.
+ *                          http://anoncvs.aldigital.co.uk/lucre/
+ *       irrXML         --- Copyright (C) 2002-2005 Nikolaus Gebhardt
+ *                          http://irrlicht.sourceforge.net/author.html	
+ *       easyzlib       --- Copyright (C) 2008 First Objective Software, Inc.
+ *                          Used with permission. http://www.firstobject.com/
+ *       PGP to OpenSSL --- Copyright (c) 2010 Mounir IDRASSI 
+ *                          Used with permission. http://www.idrix.fr
+ *    
+ *     ----------------------------------------------------------------
+ *
+ *    Open Transactions links to these libraries:
+ *    
+ *       OpenSSL        --- (Version 0.9.8l at time of writing.) 
+ *                          http://openssl.org/about/
+ *       zlib           --- Copyright (C) 1995-2004 Jean-loup Gailly and Mark Adler
+ *    
+ *     ----------------------------------------------------------------
+ *
+ *    LICENSE:
+ *        This program is free software: you can redistribute it and/or modify
+ *        it under the terms of the GNU Affero General Public License as
+ *        published by the Free Software Foundation, either version 3 of the
+ *        License, or (at your option) any later version.
+ *    
+ *        You should have received a copy of the GNU Affero General Public License
+ *        along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *    	
+ *    	  If you would like to use this software outside of the free software
+ *    	  license, please contact FellowTraveler.
+ *   
+ *        This library is also "dual-license", meaning that Ben Laurie's license
+ *        must also be included and respected, since the code for Lucre is also
+ *        included with Open Transactions.
+ *        The Laurie requirements are light, but if there is any problem with his
+ *        license, simply remove the Lucre code. Although there are no other blind
+ *        token algorithms in Open Transactions (yet), the other functionality will
+ *        continue to operate .
+ *    
+ *    OpenSSL WAIVER:
+ *        This program is released under the AGPL with the additional exemption 
+ *    	  that compiling, linking, and/or using OpenSSL is allowed.
+ *    
+ *    DISCLAIMER:
+ *        This program is distributed in the hope that it will be useful,
+ *        but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *        GNU Affero General Public License for more details.
+ *    	
+ ************************************************************************************/
+
+
+extern "C"
+{
+#include <stdio.h>
+}
+
+#include "OTDataCheck.h"
+
+void AppendChecksum( BYTE* buffer, uint32_t & size )
+{
+	uint32_t i;
+	BYTE total = 0;
+	
+//	fprintf(stderr, "Appending checksum. Size: %d ", size);
+
+	for( i = 0; i < size; i++ )
+	{
+		total += buffer[i];
+//		fprintf(stderr, "%d ", buffer[i]);
+	}
+	
+//	fprintf(stderr, "  VALUE: %d\n", (255 - total));
+
+	buffer[size++] = 255 - total;
+}
+
+
+BYTE CalcChecksum( BYTE* buffer, uint32_t size )
+{
+	uint32_t i;
+	BYTE total = 0;
+	
+//	fprintf(stderr, "Calculating checksum. Size: %d ", size);
+	
+	for( i = 0; i < size; i++ )
+	{
+		total += buffer[i];
+//		fprintf(stderr, "%d ", buffer[i]);
+	}
+//	fprintf(stderr, "  VALUE: %d\n", (255 - total));
+	
+	return (255 - total);
+}
+
+BYTE CalcChecksum( const BYTE * const buffer, const uint32_t size )
+{
+	uint32_t i;
+	BYTE total = 0;
+	
+//	fprintf(stderr, "Calculating checksum. Size: %d\n", size);
+	
+	for( i = 0; i < size; i++ )
+	{
+		total += buffer[i];
+//		fprintf(stderr, "%d ", buffer[i]);
+	}
+//	fprintf(stderr, "  TOTAL: %d\n", (255 - total));
+	
+	return (255 - total);
+}
+
+BOOL IsChecksumValid( BYTE* buffer, uint32_t size )
+{
+	uint32_t i;
+	BYTE total = 0;
+
+//	fprintf(stderr, "Validating checksum. Size: %d\n", size);
+
+	for( i = 0; i < size; i++ )
+	{
+		total += buffer[i];
+		
+//		fprintf(stderr, "%d ", buffer[i]);
+	}
+	if( total == 255 )
+	{
+//		fprintf(stderr, "VALID\n");
+		return TRUE;
+	}
+	else
+	{
+		int nTotal = total;
+//		fprintf(stderr, "INVALID:  %d\n", nTotal);
+		return FALSE;
+	}
+}
+
+
+
+
+
+
+
+
+
+

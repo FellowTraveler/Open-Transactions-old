@@ -1,0 +1,147 @@
+/************************************************************************************
+ *    
+ *  OTMessage.h
+ *  
+ *		Open Transactions:  Library, Protocol, Server, and Test Client
+ *    
+ *    			-- Anonymous Numbered Accounts
+ *    			-- Untraceable Digital Cash
+ *    			-- Triple-Signed Receipts
+ *    			-- Basket Currencies
+ *    			-- Signed XML Contracts
+ *    
+ *    Copyright (C) 2010 by "Fellow Traveler" (A pseudonym)
+ *    
+ *    EMAIL:
+ *    F3llowTraveler@gmail.com --- SEE PGP PUBLIC KEY IN CREDITS FILE.
+ *    
+ *    KEY FINGERPRINT:
+ *    9DD5 90EB 9292 4B48 0484  7910 0308 00ED F951 BB8E
+ *    
+ *    WEBSITE:
+ *    http://www.OpenTransactions.org
+ *    
+ *    OFFICIAL PROJECT WIKI:
+ *    http://wiki.github.com/FellowTraveler/Open-Transactions/
+ *    
+ *     ----------------------------------------------------------------
+ *    
+ *    Open Transactions was written including these libraries:
+ *    
+ *       Lucre          --- Copyright (C) 1999-2009 Ben Laurie.
+ *                          http://anoncvs.aldigital.co.uk/lucre/
+ *       irrXML         --- Copyright (C) 2002-2005 Nikolaus Gebhardt
+ *                          http://irrlicht.sourceforge.net/author.html	
+ *       easyzlib       --- Copyright (C) 2008 First Objective Software, Inc.
+ *                          Used with permission. http://www.firstobject.com/
+ *       PGP to OpenSSL --- Copyright (c) 2010 Mounir IDRASSI 
+ *                          Used with permission. http://www.idrix.fr
+ *    
+ *     ----------------------------------------------------------------
+ *
+ *    Open Transactions links to these libraries:
+ *    
+ *       OpenSSL        --- (Version 0.9.8l at time of writing.) 
+ *                          http://openssl.org/about/
+ *       zlib           --- Copyright (C) 1995-2004 Jean-loup Gailly and Mark Adler
+ *    
+ *     ----------------------------------------------------------------
+ *
+ *    LICENSE:
+ *        This program is free software: you can redistribute it and/or modify
+ *        it under the terms of the GNU Affero General Public License as
+ *        published by the Free Software Foundation, either version 3 of the
+ *        License, or (at your option) any later version.
+ *    
+ *        You should have received a copy of the GNU Affero General Public License
+ *        along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *    	
+ *    	  If you would like to use this software outside of the free software
+ *    	  license, please contact FellowTraveler.
+ *   
+ *        This library is also "dual-license", meaning that Ben Laurie's license
+ *        must also be included and respected, since the code for Lucre is also
+ *        included with Open Transactions.
+ *        The Laurie requirements are light, but if there is any problem with his
+ *        license, simply remove the Lucre code. Although there are no other blind
+ *        token algorithms in Open Transactions (yet), the other functionality will
+ *        continue to operate .
+ *    
+ *    OpenSSL WAIVER:
+ *        This program is released under the AGPL with the additional exemption 
+ *    	  that compiling, linking, and/or using OpenSSL is allowed.
+ *    
+ *    DISCLAIMER:
+ *        This program is distributed in the hope that it will be useful,
+ *        but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *        GNU Affero General Public License for more details.
+ *    	
+ ************************************************************************************/
+
+
+#ifndef __OTMESSAGE_H__
+#define __OTMESSAGE_H__
+
+#include "irlxml/irrXML.h"
+using namespace irr; // irrXML is located in the namespace irr::io
+using namespace io;
+
+#include "OTContract.h"
+
+
+
+
+
+class OTMessage : public OTContract 
+{
+protected:
+	
+	bool SaveContractWallet(FILE * fl);
+	int ProcessXMLNode(IrrXMLReader*& xml);
+
+	bool SignContract(const EVP_PKEY * pkey, OTSignature & theSignature,
+							  const OTString & strHashType);
+	void UpdateContents();
+
+	bool m_bIsSigned;
+	
+public:
+	OTMessage();
+	virtual ~OTMessage();
+
+	bool VerifyContractID();
+
+	// for some inexplicable reason, polymorphism appears to fail and I can't sign
+	// a message without casting it as a contract first. So I'm explicitly overriding
+	// the method here so try and force the issue.
+	virtual bool SignContract(const OTPseudonym & theNym);
+
+	OTString	m_strCommand;		// perhaps @register is the string for "reply to register" a-ha
+	OTString	m_strServerID;		// This is sent with every message for security reasons.
+	OTString	m_strNymID;			// The hash of the user's public key... or x509 cert.
+	OTString	m_strNymID2;		// If the user requests public key of another user.
+	OTString	m_strNymPublicKey;  // The user's public key... or x509 cert.
+	OTString	m_strAssetID;		// The hash of the contract for whatever digital asset is referenced.
+	OTString	m_strAcctID;		// The unique ID of an asset account.
+	OTString	m_strType;			// .
+	OTString	m_strRequestNum;    // Every user has a request number. This prevents messages from
+									// being intercepted and repeated by attackers.
+	
+	OTASCIIArmor m_ascInReferenceTo;// If the server responds to a user command, he sends 
+									// it back to the user here in ascii armored format.
+	OTASCIIArmor m_ascPayload;		// If the reply needs to include a payload (such as a new account
+									// or a message envelope or request from another user etc) then
+									// it can be put here in ascii-armored format.
+
+
+	bool		m_bSuccess;			// When the server replies to the client, this may be true or false
+	bool		m_bBool;			// Some commands need to send a bool. This variable is for those.
+};
+
+
+#endif // __OTMESSAGE_H__
+
+
+
+
