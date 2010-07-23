@@ -1,0 +1,15 @@
+Whenever you create a new asset account, the wallet will download the
+account file and store it here based on asset account ID. (A randomly-
+generated and previously-unused hash value.) Account IDs are NOT based
+on a hash of the account file itself, since the hash changes everytime
+the balance changes.
+
+Whenever your account balance changes, the new account file will be stored
+here and overwrite the last one.
+
+IMPORTANT TODO:  Need more failsafe mechanisms, like keeping a backup of the
+file automatically.  What if software crashes during file write? You can request
+another copy from the server, but still.  These are questions that have to be
+answered when database/security considerations are raised by the community
+during the client/GUI development phase.
+

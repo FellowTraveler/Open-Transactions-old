@@ -1,0 +1,45 @@
+
+
+WHAT IS "Open Transactions" ?
+
+-- It's a solid, easy-to-use, CRYPTO and DIGITAL CASH LIBRARY.
+-- Including a FULLY OPERATIONAL client and server (command line for now--that's where you come in)...
+-- It's OPEN SOURCE, and encapsulates a COMPLETE PROTOCOL FOR TRANSACTIONS.
+-- It's object-oriented, and written in C++ on Mac/UNIX using OpenSSL.
+-- Including: 
+................SECURE NUMBERED ACCOUNTS
+................UNTRACEABLE DIGITAL CASH 
+................TRIPLE-SIGNED RECEIPTS
+................BASKET CURRENCIES
+................SIGNED XML CONTRACTS, and more...
+
+
+IN DETAIL, THE SOFTWARE FEATURES:
+
+-- ANONYMOUS, NUMBERED ACCOUNTS, secured by public key cryptography. Your PGP key is your key, and the hash of it is your User ID. Each user can create an unlimited number of asset accounts, of any type, each with its own randomly-generated ID. No other information is stored. As long as you connect over Tor and take other similar precautions, there's no way to connect any of those accounts to you. You can also create as many User IDs as you wish, with your wallet software managing all your Pseudonyms and Asset Accounts across multiple transaction servers and multiple asset types.
+
+-- UNTRACEABLE DIGITAL CASH: Fully implemented! Cash withdrawals of any asset type, using Lucre. (Ben Laurie's implementation of Wagner's variant on Chaumian blinding.) Once cash is withdrawn, the server has no way of tracking it or linking it back to its next deposit. I've got Lucre wrapped up in C++ classes and XML contracts and all the rest of the protocol, and it's fully functional with denominations and everything.
+
+-- PGP FOR MONEY. The idea is to build this so that it supports many cash algorithms, not just Lucre. I'd like to add Chaum's version, Brands' version, etc. So that, just like PGP, the software should support as many of the top algorithms as possible, and make it easy to swap them out when necessary.
+
+-- TRIPLE-SIGNED RECEIPTS for account-to-account transfers. This allows the client and server to agree on balances while simultaneously not storing any transaction history. (Client may choose to store his own transaction history.) No money can ever be transferred or withdrawn without an authorizing signature from the account owner. See Trubanc for an example of this, as well as, I presume, Ricardo by Systemics.
+
+-- EVERYONE A POTENTIAL ISSUER. Any user can design and issue his own currency: Simply upload the currency contract to any server. Anyone else with a copy of that contract can open an asset account denominated in the new currency type. The currency contract is simply an XML file with your digital signature on it, and the new currency ID is a hash of that same contract. The currency ID is unique to each contract and consistent across all servers. It's impossible to change any details of the contract, including the URL, the signature, or the public key, without entirely changing the contract's ID.
+
+-- BASKET CURRENCIES. My new server software allows you to distribute the risk of a single currency across MULTIPLE ISSUERS. How is this possible? Users can define "basket" currencies, which the server treats the same as any other currency, but which, behind the scenes, are each simply a list of 5, 10, or 100 OTHER currency contracts. The issuance is simply delegated to a basket of other currencies. Users can easily exchange in and out of these basket currencies using their wallet software. (Or define their own baskets.) This means that the currency which ends up in general use will not have 1 trusted issuer, but instead 10 or 100 issuers! Basket currencies are already fully operational and do not require any additional system resources compared to normal currencies. Baskets are an important example of the distribution of risk that I believe is necessary to make digital cash unstoppable online.
+
+-- DISTRIBUTION OF RISK ACROSS MULTIPLE TRANSACTION SERVERS, IN MULTIPLE JURISDICTIONS. The wallet software can store an entire list of transaction servers. Every new server contract that you import to the wallet puts a new server on the list. There will be many such servers, run by multiple entities and run in multiple jurisdictions. Many will run openly and with full access to their local court system. Others will run on anonymous networks. Users will be able to individually choose a server for a certain transaction -- or even distribute their assets transparently across a list of different servers.
+
+-- DISTRIBUTED ACCOUNTS. Your wallet software could display a single asset account to you, which it is actually distributing across a list of 10 or 100 servers behind the scenes, using the open transactions protocol. Of course, you choose the servers, the number, the algorithm, etc... and it's a trust market.
+
+-- SEPARATION OF POWERS. The entities operating the servers are not actually issuing any currencies. Meanwhile the Issuers are not operating any transaction servers. Neither one of them is performing exchanges in or out of the normal banking system, since those services are handled by exchange providers in the various local jurisdictions (all separate entities.) This provides a lot more legal legitimacy and protection to all of the entities involved. Meanwhile all risk is distributed. The issuers distribute their risk across multiple storage companies, and the users distribute their risk across multiple issuers (using basket currencies) and across multiple transaction servers (via their wallet software.)
+
+-- THE ISSUER OF ANY CURRENCY CAN EARN A PROFIT, from issuer fees, which will be clearly described in the currency contract and collected automatically by the software (and signed off by the user.) These fees can be used to cover auditing costs, insurance costs, bonding costs, etc. Eventually cost of insurance will probably regulate the market, and fractional reserve layers will appear, eliminating all user fees.
+
+-- THE OPERATOR OF ANY SERVER CAN EARN A PROFIT from transaction fees, which are clearly described in the server contract and executed automatically by the software. Simply by obtaining a server contract, a user therefore knows the server's ID, the hostname and port information for connecting, as well as the public key to use for encrypting and verifying signatures for all communications with the server. Meanwhile the server knows, since the user has connected, that means the user has explicitly chosen to load the server contract and agreed to transact according to its terms.
+
+-- This works because the public key or signature on any contract cannot be tampered with, (or indeed ANY of the contents of the contract), without also changing the contract's ID, since the ID is calculated as a hash of the contract. Users have strong security that the address they are connected to, and the server they are communicating with, is the same entity who signed the contract in the first place. And the contract clearly describes all the legal terms in addition to the necessary technical info such as keys, currency symbols, and so on.
+
+Not only can the server process the currencies according to the issuer's and operator's wishes (according to their contracts), but the contracts are also fully admissible in court.
+
+This product includes software developed by Ben Laurie for use in the Lucre project.

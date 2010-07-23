@@ -1,0 +1,6 @@
+Whenever you use the "getmint" command inside the command line wallet,
+it will ask you for an asset type ID. (Matching the appropriate currency
+contract.)  Then it will try to look up the minting keys for that asset
+type on the server, and store them here in this directory in a file named
+with the same asset type ID.
+

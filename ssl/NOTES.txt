@@ -1,0 +1,18 @@
+So far, this directory should have a Makefile, and some configuration files
+
+The config files have .cnf as the extension.
+
+The Makefile needs them to be there.  It goes through and creates all the various keys
+and certs and client/server CA keys blah blah.
+
+This is all just for testing for right now.  Use this folder to create your keys.
+Edit the configure files first, all that you want, then run Make.
+
+-----
+
+In addition to the Makefile and the .cnf files, which you should never erase,
+you may also notice some .pem files and so on.  That's because I generated some
+test certs to go with the distribution.
+
+THE PASSWORD, FOR ALL CERTS, IS test (LOWER CASE).
+

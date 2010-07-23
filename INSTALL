@@ -1,0 +1,148 @@
+OpenTransactions
+
+
+ --- Open Transactions is currently built on a Mac OSX 10.6.4 (Snow Leopard)
+ 
+ --- OpenSSL of version at least (Version 0.9.8l) is necessary since the SAMY hash 
+     uses WHRLPOOL. (XOR'd with SHA-512.) WHIRLPOOL is a new addition to OpenSSL.
+	 
+ --- OTLib itself is only a library.  There are also a client and server which use it
+     as a dylib, and they expect it to be in /usr/local/lib (at least, according to the
+     current xcode project files.)
+ 
+ --- Make sure you link the OTLib library project with libcrypto.a and libssl.a
+     (They should already be in the project file that way.)
+	 
+ --- Let me know if there are any problems, since this is new software; this will be a
+     living document.
+ 
+
+
+TO BUILD:
+--- In ALL THREE PROJECTS (OTLib, transaction, and testwallet) edit the project file
+    and find ALL occurrences of the word REDACTED. In those places, you will need to adjust
+    the path to match whatever you are using on your own system.
+
+    Come to think of it, you will need to do this with the 2 utility projects as well.
+    util/otcreatemint and util/signcontract.  
+ 
+ ***I redacted my name, so you can easily find it with grep, edit the file, and fix the
+    path.  Once you do this, the projects will be able to find the library and all the
+    headers, etc.  Just search for REDACTED.
+
+--- Open OTLib in XCode.  SHIFT-COMMAND-K  (Make all clean) Then COMMAND-B (BUILD)
+
+--- AT THIS POINT, YOU SHOULD BE READY TO BUILD THE CLIENT AND SERVER.
+
+--- Once the library is built, copy OTLib/build/Debug/libOTLib.dylib to /usr/local/lib
+    For good measure, copy it to ./testwallet and ./transaction as well.
+
+--- OPEN transaction and testwallet projects in XCode, and build them the same way.
+    (SHIFT-COMMAND-K followed by COMMAND-B)
+
+
+
+You will have to edit inside the .xcodeproj files for ALL of the projects, 
+if you're using XCode, and search for the word REDACTED.  In that place, 
+make sure you put the correct path for the project to work on your system.  
+You'll see what I mean.
+
+Also, to build in XCode, you may need to make sure the libssl.a and libcrypto.a
+are in your project (not sure if that's essential or if you can just link.)
+
+The link should already be in your project file as -lssl -lcrypto
+
+And you may need to make sure that libOTLib.dylib is in your project folders,
+as well as your /usr/local/lib folder.
+
+Eventually OTLib will be statically linked, not dynamically, but this is just for testing.
+
+If you are building and it says "No file or directory" that means you haven't done
+what I said above about the REDACTED thing.
+
+
+
+
+TO RUN:
+
+The client and server expect to be run from the command line in the same folder 
+as the .xcodeproj file is in (ie each prefers its own main folder.) 
+For either:
+
+cd testwallet       (for client) 
+-- OR -- 
+cd transaction      (for server)
+
+(Assuming you have already built the projects, including the OTLib library first.)
+
+
+
+EXECUTING THE BINARIES:
+
+If you are in the transaction folder, then run it like this:
+./build/Debug/transaction
+
+if you are in the testwallet folder, then run the wallet like this:
+./build/Debug/testwallet
+
+OR copy the binary up to the testwallet or transaction folder from its build/Debug
+folder and RUN IT FROM THERE. I have to fix the path and config file stuff, and I
+just haven't done it yet, so YOU have to make sure you are in the right folder when
+you run it.
+
+
+You don't have to specify a hostname and port, because the server contract
+already contains that information.
+
+In the server contract that comes with this test distribution,
+the hostname is localhost and port is 7085
+
+
+
+USING THE SOFTWARE:
+
+I already created your user account. The password is test (always)
+
+==> With the server, all you can do is watch the output as it runs.
+
+==> But with the client, there is a command-line interface. 
+
+**** READ:  docs/CLIENT-COMMANDS.txt  for a list of the Wallet's commands.
+I will soon add that file to a help command inside the wallet.
+
+
+You can create asset accounts, and issue assets, 
+transfer assets, get inbox, process inbox,
+withdraw cash, deposit cash, etc.
+getcontract, getmint, etc.
+
+You can also create basket currencies and exchange between normal asset accounts
+and basket accounts. (To the server it's just another account type.)
+
+REMEMBER:  If you move some assets, and you don't see the change show up in your 
+account, then you probably just need to type "get" (to get the latest copy of the 
+account after a change has just been made.)
+
+Obviously a nice client will do this automatically.
+
+
+
+Let's organize to make a pretty GUI for various platforms, eh?
+
+
+------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

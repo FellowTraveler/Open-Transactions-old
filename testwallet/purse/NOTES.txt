@@ -1,0 +1,12 @@
+Whenever you withdraw cash from the server, it will create a purse file
+here in this directory, containing all the tokens. If the purse file already
+exists (the filename is the Asset Type ID) then the wallet will load it up,
+add the new tokens, and save it again.  So this file will continue to grow.
+
+No matter how many accounts you have, all withdrawals of the same asset type
+will go into the same purse with the asset type as its name.
+
+How to handle these purses, and how to auto-back-them-up so IMPORTANT CASH DATA
+is not lost, is an issue to be discussed when a NICE PRETTY CLIENT GUI is being
+developed. *prod*
+

@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<wallet name="testuser test wallet file" version="1.0">
+
+<pseudonym name="Test User"
+ nymID="5bce5c3e8c18d05a36fb31845830fba3b45542ac1010739037a00714205fc99bd716a3ee94f3c5ff66a8b0fa6d887af962ef3df31e3e353c0263d68b09897726"
+ file="nyms/5bce5c3e8c18d05a36fb31845830fba3b45542ac1010739037a00714205fc99bd716a3ee94f3c5ff66a8b0fa6d887af962ef3df31e3e353c0263d68b09897726">
+
+<notaryProvider name="Transactions.com"
+ serverID="0bb39523d6b54381c5477aeae808cb51dfbada7bd256e3a0298273a59772f5ad93cd5dee4e6061283dcffd1447719d96fd00b81b8945d01430fdfe68d8adb51f"
+ contract="contracts/transactionscom.xml" /> 
+
+<assetAccount name=""
+ file="accounts/5bdb6bd436190b24e29e89bb250241de164c16f477f3cb97d23e68e5ccde5fd72b5cc6af2f3689a538fcb268cc78d8028ff9a660e1fd3bdfbe1d65dbc29ec6c0"
+ userID="5bce5c3e8c18d05a36fb31845830fba3b45542ac1010739037a00714205fc99bd716a3ee94f3c5ff66a8b0fa6d887af962ef3df31e3e353c0263d68b09897726"
+ accountID="5bdb6bd436190b24e29e89bb250241de164c16f477f3cb97d23e68e5ccde5fd72b5cc6af2f3689a538fcb268cc78d8028ff9a660e1fd3bdfbe1d65dbc29ec6c0"
+ serverID="0bb39523d6b54381c5477aeae808cb51dfbada7bd256e3a0298273a59772f5ad93cd5dee4e6061283dcffd1447719d96fd00b81b8945d01430fdfe68d8adb51f" /> 
+
+</wallet>

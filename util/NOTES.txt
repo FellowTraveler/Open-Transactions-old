@@ -1,0 +1,28 @@
+
+
+
+After building otcreatemint, place it in the transactions folder.
+Whenever a new asset type is created (issued by a user) the server needs
+to create the mint to go along with it. The problem is, the key generation takes
+a long time -- so I put it in a separate process (otcreatemint.)
+
+For now, after you issue an asset type, you need to run otcreatemint by hand
+on the server side if you want to do withdrawals and deposits with that digital 
+asset type.
+
+In a future version, the server will fire off otcreatemint automatically whenever
+an asset type is created. The user can then call getmint to get a copy of the file.
+The call to getmint won't work right away (there will be a delay while the keys are
+generated.) But after a while it WILL work, and then the user can grab the mint file,
+and then he can make withdrawal requests in that asset type.
+
+
+
+
+
+After building signcontract, put it in the testwallet folder if you want. You can
+use it to sign ANY unsigned contract, with ANY Nym as long as you have the password.
+
+You can also use the wallet to sign contracts.
+
+

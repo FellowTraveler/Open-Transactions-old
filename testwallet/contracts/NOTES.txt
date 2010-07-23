@@ -1,0 +1,9 @@
+Whenever you are using the command line wallet, and you type the
+"getcontract" command, it will ask you for the contract ID (or
+Asset Type ID -- same thing.) Then it will download the contract
+from the server, and save it here in this folder named using that
+same ID.
+
+Eventually the ID / file could be moved to any other database system
+that the community decides upon.
+

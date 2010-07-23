@@ -1,0 +1,71 @@
+
+
+You have to run from the proper working directory.
+And all the right folders have to be there... certs, accounts, etc.
+ 
+For the client (testwallet), make sure you are inside the testwallet folder. 
+
+If you are running a debug version, then type ./build/Debug/testwallet
+Make sure you are in the testwallet folder (For now. Config file coming soon.)
+
+
+load         -- Load wallet.xml from testwallet directory. (Do this first.)
+stat         -- Display wallet contents.
+connect      -- Connect to the first server on the wallet's list.
+
+(Yes, that's just a 'c' by itself down there.)
+
+c            -- Sends a checkServerID command. (If a server doesn't respond
+                to a command, send one of these and watch both responses come back.)
+                This is OTLib's "Ping". It's the wallet pinging the notary.
+ 
+r            -- Register a new user account (with first Nym in wallet.)
+                (Register will fail for you because I already registered with this Nym. 
+                So you can just start using it, since it's already registered.)
+ 
+u            -- Sends a checkUser command (retrieves public key based on userID)
+
+g            -- Ask the server to send me the current request number.
+                If you get errors that the request number is wrong, use this and
+                then try again.
+
+issue        -- Issue new currency. (Will ask for currency contract.)
+
+(I already uploaded the silver contract, which is why you see it in your wallet
+as though you are the issuer of that currency -- because you are.)
+
+getcontract  -- Get server's copy of any currency contract by asset type ID.
+getmint      -- Get server's copy of public Mint file (contains public keys for 
+                each asset type. Need this to make withdrawal requests.)
+
+a            -- create asset account. (Of any type, including any Basket Type.)
+get          -- Get latest copy of one of my asset accounts by account ID.
+
+n            -- Ask the server to send me a new transaction number.
+                If you ever get an error related to transaction number, just use this.
+
+t            -- Initiate transfer from my account to another account's inbox 
+                (and my outbox). 
+i            -- getInbox from the server so I can decide what to do with it.
+
+w            -- Withdraw cash. (Will ask for Account ID and amount.)
+d            -- Deposit cash.  (Will ask for Account ID and Cash Note.)
+p            -- Deposit purse full of cash. (Will ask for Account ID and Purse.)
+
+basket       -- Create basket currency. (Will ask for basket type details.)
+exchange     -- Exchange from asset accounts, in and out of basket accounts.
+
+
+
+Some other commands:
+
+signcontract -- Allows you to input a contract and sign it with the current Nym.
+
+decrypt      -- If you have already loaded your Nym, you can use this to decrypt messages.
+decode       -- Decodes base64-encoded data.
+encode       -- Base64-encodes
+
+1            -- Sends a type 1 header command to the server, with no payload.
+2            -- Sends a deliberately-malformed command to the server.
+3            -- Sends a signed XML message in the payload, but with no XML requests.
+

@@ -1,16 +1,14 @@
 /************************************************************************************
  *    
- *
- *          INSTALLATION INSTRUCTIONS APPEAR AFTER THIS IMPORTANT NOTICE
- *
+ *  OTMessageBuffer.cpp
  *  
- *		Open Transactions:  Library, Protocol, Server, and Test Client
+ *              Open Transactions:  Library, Protocol, Server, and Test Client
  *    
- *    			-- Anonymous Numbered Accounts
- *    			-- Untraceable Digital Cash
- *    			-- Triple-Signed Receipts
- *    			-- Basket Currencies
- *    			-- Signed XML Contracts
+ *                      -- Anonymous Numbered Accounts
+ *                      -- Untraceable Digital Cash
+ *                      -- Triple-Signed Receipts
+ *                      -- Basket Currencies
+ *                      -- Signed XML Contracts
  *    
  *    Copyright (C) 2010 by "Fellow Traveler" (A pseudonym)
  *    
@@ -33,12 +31,13 @@
  *       Lucre          --- Copyright (C) 1999-2009 Ben Laurie.
  *                          http://anoncvs.aldigital.co.uk/lucre/
  *       irrXML         --- Copyright (C) 2002-2005 Nikolaus Gebhardt
- *                          http://irrlicht.sourceforge.net/author.html	
+ *                          http://irrlicht.sourceforge.net/author.html 
  *       easyzlib       --- Copyright (C) 2008 First Objective Software, Inc.
  *                          Used with permission. http://www.firstobject.com/
  *       PGP to OpenSSL --- Copyright (c) 2010 Mounir IDRASSI 
  *                          Used with permission. http://www.idrix.fr
- *    
+ *       SFSocket       --- Copyright (C) 2009 Matteo Bertozzi
+ *                          Used with permission. http://th30z.netsons.org/
  *     ----------------------------------------------------------------
  *
  *    Open Transactions links to these libraries:
@@ -57,94 +56,69 @@
  *    
  *        You should have received a copy of the GNU Affero General Public License
  *        along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *    	
- *    	  If you would like to use this software outside of the free software
- *    	  license, please contact FellowTraveler.
+ *      
+ *        If you would like to use this software outside of the free software
+ *        license, please contact FellowTraveler. (Unfortunately many will run
+ *        anonymously and untraceably, so who could really stop them?)
  *   
  *        This library is also "dual-license", meaning that Ben Laurie's license
  *        must also be included and respected, since the code for Lucre is also
  *        included with Open Transactions.
  *        The Laurie requirements are light, but if there is any problem with his
- *        license, simply remove the Lucre code. Although there are no other blind
- *        token algorithms in Open Transactions (yet), the other functionality will
- *        continue to operate .
+ *        license, simply remove the deposit/withdraw commands. Although there are 
+ *        no other blind token algorithms in Open Transactions (yet), the other 
+ *        functionality will continue to operate.
  *    
  *    OpenSSL WAIVER:
  *        This program is released under the AGPL with the additional exemption 
- *    	  that compiling, linking, and/or using OpenSSL is allowed.
+ *        that compiling, linking, and/or using OpenSSL is allowed.
  *    
  *    DISCLAIMER:
  *        This program is distributed in the hope that it will be useful,
  *        but WITHOUT ANY WARRANTY; without even the implied warranty of
  *        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *        GNU Affero General Public License for more details.
- *    	
+ *      
  ************************************************************************************/
- 
- 
- --- Open Transactions is currently built on a Mac OSX 10.6.4 (Snow Leopard)
- 
- --- OpenSSL of version at least (Version 0.9.8l) is necessary since the SAMY hash 
-     uses WHRLPOOL. (XOR'd with SHA-512.) WHIRLPOOL is a new addition to OpenSSL.
-	 
- --- OTLib itself is only a library.  There are also a client and server which use it
-     as a dylib, and they expect it to be in /usr/local/lib (at least, according to the
-     current xcode project files.)
- 
- --- Make sure you link the OTLib library project with libcrypto.a and libssl.a
-     (They should already be in the project file that way.)
-	 
- --- Let me know if there are any problems, since this is new software; this will be a
-     living document.
+
+#include <list>
+
+#include "OTMessageBuffer.h"
+
+
+
+
+
+void OTMessageBuffer::AddToList(OTMessage & theMessage)
+{
+	m_listMessages.push_back(&theMessage);
+}
+
+
+
+// YOU are responsible to delete the OTMessage object
+// once you receive the pointer that comes back from this function.
+OTMessage * OTMessageBuffer::GetNextMessage()
+{
+	if (m_listMessages.empty())
+		return NULL;
 	
- --- Open the XCode project, build all, and then copy ./build/Debug/libOTLib.dylib to /usr/local/lib.
- 
- 
- --- AT THIS POINT, YOU SHOULD BE READY TO INSTALL THE CLIENT AND SERVER.
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
+	OTMessage * pMsg = m_listMessages.front();
+	
+	m_listMessages.pop_front();
+	return pMsg;
+}
+
+
+
+
+OTMessageBuffer::OTMessageBuffer()
+{
+	
+}
+
+OTMessageBuffer::~OTMessageBuffer()
+{
+	
+}
+

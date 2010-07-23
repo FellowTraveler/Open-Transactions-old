@@ -36,6 +36,8 @@
  *                          Used with permission. http://www.firstobject.com/
  *       PGP to OpenSSL --- Copyright (c) 2010 Mounir IDRASSI 
  *                          Used with permission. http://www.idrix.fr
+ *       SFSocket       --- Copyright (C) 2009 Matteo Bertozzi
+ *                          Used with permission. http://th30z.netsons.org/
  *    
  *     ----------------------------------------------------------------
  *
@@ -57,7 +59,8 @@
  *        along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *    	
  *    	  If you would like to use this software outside of the free software
- *    	  license, please contact FellowTraveler.
+ *    	  license, please contact FellowTraveler. (Unfortunately many will run
+ *        anonymously and untraceably, so who could really stop them?)
  *   
  *        This library is also "dual-license", meaning that Ben Laurie's license
  *        must also be included and respected, since the code for Lucre is also
@@ -65,7 +68,7 @@
  *        The Laurie requirements are light, but if there is any problem with his
  *        license, simply remove the Lucre code. Although there are no other blind
  *        token algorithms in Open Transactions (yet), the other functionality will
- *        continue to operate .
+ *        continue to operate.
  *    
  *    OpenSSL WAIVER:
  *        This program is released under the AGPL with the additional exemption 
@@ -79,22 +82,9 @@
  *    	
  ************************************************************************************
  
- 
-
-NOTES on the Version:
-
-  0.1  --- The original goal was just proof-of-concept. There are many TODOs listed on 
-           the project page, as well as throughout the code.  But it all works!!!
-		   
-		   A WARNING: This software is new-spanking-new.  The project has not yet been
-           audited for security or tested for any extended period of time. Thus far, it 
-           must be considered as for experimental purposes only.
-		   
-
 
 
 Public key for "FellowTraveler", author:
-
 
 
 -----BEGIN PGP PUBLIC KEY BLOCK-----
@@ -267,7 +257,7 @@ Paul C. Sutton	paul@openssl.org	paul@awe.com	UK
  
  *  easyzlib release 1.0 --- (Compression)
  *  
- *  Copyright (C) 2008 First Objective Software, Inc. All rights reserved
+ *  Copyright (C) 2008 First Objective Software, Inc. (Used with permission.)
  *  
  *  This entire notice must be retained in this source code
  *  Redistributing this source code requires written permission
@@ -276,14 +266,15 @@ Paul C. Sutton	paul@openssl.org	paul@awe.com	UK
  *  Latest fixes enhancements and documentation at www.firstobject.com
  ***************************************************************************/
  
+
  
  
 /**************************************************************************
  *   ZLIB
  *
  * (Open Transactions does not actually contain the zlib code, but
- * merely links to it. Nevertheless, these credits are provided in respect
- * of the people who worked on the project.)
+ * merely links to it via easyzlib. Nevertheless, these credits are 
+ * provided in respect of the people who worked on the project.)
  *
  *
  *  'zlib' general purpose compression library
@@ -320,7 +311,8 @@ Paul C. Sutton	paul@openssl.org	paul@awe.com	UK
  * An implementation of conversion from PGP public key format to OpenSSL equivalent
  * Support of RSA, DSA and Elgamal public keys
  *
- * Copyright (c) 2010 Mounir IDRASSI <mounir.idrassi@idrix.fr>. All rights reserved.
+ * Copyright (c) 2010 Mounir IDRASSI            http://www.idrix.fr 
+ * Used with permission.
  *
  * This program is distributed in the hope that it will be useful, 
  * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
@@ -332,12 +324,31 @@ Paul C. Sutton	paul@openssl.org	paul@awe.com	UK
 
 
 
+
+
+
+/*     (SSL Sockets)
+ *
+ *       SFSocket       --- Copyright (C) 2009 Matteo Bertozzi
+ *                          Used with permission. http://th30z.netsons.org/
+ *
+ *                          Useful as a tool for learning SSL sockets. Good work.
+ *
+ *                          (Also new software, but fine for this test release.)
+ */
+
+
+
+
+
+
+
 /**************************************************************************
 
  irrXML  ---  (XML Parser)
 
-	The irrXML license is based on the zlib license. Basically, this means you can do with
-	irrXML whatever you want:
+	The irrXML license is based on the zlib license. Basically, this means you 
+        can do with irrXML whatever you want:
 
 	Copyright (C) 2002-2005 Nikolaus Gebhardt
 
@@ -371,6 +382,50 @@ Paul C. Sutton	paul@openssl.org	paul@awe.com	UK
 	irrXML 1.0, this has now been done.
 
 */
+
+
+
+/*
+  It seems appropriate to mention a few other people who deserve mentioning.
+
+  Jim Bell, of course. His story is partially the reason for this software.
+  I still don't understand why he was stink-bombing IRS offices instead of
+  writing code. But he definitely made his mark. 
+
+  Kudos to Dr. Douglas Jackson for his sacrifices and accomplishments. May 
+  this software protect future innovators from persecution, in a diversity
+  of jurisdictions.  And check out e-gold.com, as well as goldmoney.com, 
+  igolder, pecunix, and all the other digital gold reserve outfits.
+  May they all soon be traded as a single basket currency using this new
+  software.
+
+  Kudos to David Chaum, David Wagner, and Ben Laurie, who brought us Lucre.
+
+  Kudos to Ian Grigg for his many advancements in financial cryptography.  
+  Check out his website at http://iang.org
+
+  Kudos to Phil Zimmermann for writing and releasing PGP. The man who put
+  power into the hands of the people. Many people in corrupt jurisdictions
+  now have PGP to thank for their lives. Let's do the same for their money.
+
+  Bill St. Clair, whose Trubanc was truly inspirational. Check out Trubanc
+  at http://trubanc.com:8080/
+
+  Patrick Chkoreff, whose Loom is operational and is what showed me the
+  idea of separation of powers. Check out https://Loom.cc for more info.
+
+  Andrew McMeikan's PKTP, which can be found here:   http://pktp.co.cc/
+ 
+  Ryan Fugger's Ripple project, which will probably figure more into the
+  client development of OpenTransactions.    http://ripple-project.org/
+
+  And of course SAMY, who wrote the famous MySpace worm, and who suggested
+  using two message digest algorithms XOR'd together in case one is ever
+  broken and needs to be swapped out.  Thus the SAMY hash is named in his
+  honor, and utilizes WHIRLPOOL XOR'd with SHA-512.
+*/
+
+
 
 
 
