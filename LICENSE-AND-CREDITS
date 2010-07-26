@@ -43,7 +43,7 @@
  *
  *    Open Transactions links to these libraries:
  *    
- *       OpenSSL        --- (Version 0.9.8l at time of writing.) 
+ *       OpenSSL        --- (Version 1.0.0a at time of writing.) 
  *                          http://openssl.org/about/
  *       zlib           --- Copyright (C) 1995-2004 Jean-loup Gailly and Mark Adler
  *    
@@ -306,7 +306,8 @@ Paul C. Sutton	paul@openssl.org	paul@awe.com	UK
 
 
 
-/* (PGP-to-OpenSSL Conversion)
+/*
+ * (PGP-to-OpenSSL Conversion)
  *
  * An implementation of conversion from PGP public key format to OpenSSL equivalent
  * Support of RSA, DSA and Elgamal public keys
@@ -388,21 +389,23 @@ Paul C. Sutton	paul@openssl.org	paul@awe.com	UK
 /*
   It seems appropriate to mention a few other people who deserve mentioning.
 
-  Jim Bell, of course. His story is partially the reason for this software.
-  I still don't understand why he was stink-bombing IRS offices instead of
-  writing code. But he definitely made his mark. 
-
   Kudos to Dr. Douglas Jackson for his sacrifices and accomplishments. May 
   this software protect future innovators from persecution, in a diversity
   of jurisdictions.  And check out e-gold.com, as well as goldmoney.com, 
   igolder, pecunix, and all the other digital gold reserve outfits.
   May they all soon be traded as a single basket currency using this new
   software.
+  
+  Thank you to David Chaum, for inventing digital cash in the first place.
 
-  Kudos to David Chaum, David Wagner, and Ben Laurie, who brought us Lucre.
+  Kudos to David Wagner, and Ben Laurie, who brought us Lucre.
 
   Kudos to Ian Grigg for his many advancements in financial cryptography.  
   Check out his website at http://iang.org
+
+  J. Orlin Grabbe and his writings have been inspirational. He will be missed. 
+  His DMT as well as critiques of it were useful to me.
+  http://www.orlingrabbe.com/
 
   Kudos to Phil Zimmermann for writing and releasing PGP. The man who put
   power into the hands of the people. Many people in corrupt jurisdictions
@@ -418,6 +421,12 @@ Paul C. Sutton	paul@openssl.org	paul@awe.com	UK
  
   Ryan Fugger's Ripple project, which will probably figure more into the
   client development of OpenTransactions.    http://ripple-project.org/
+
+  Jim Bell, of course. His story is partially the reason for this software.
+  I still don't understand why he was stink-bombing IRS offices instead of
+  writing code. But he definitely made his mark. 
+
+  Tim May for writing the Cyphernomicon.
 
   And of course SAMY, who wrote the famous MySpace worm, and who suggested
   using two message digest algorithms XOR'd together in case one is ever

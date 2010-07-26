@@ -11,10 +11,6 @@
 		5073E0CB09E734E500EC74B6 /* OTLib.cp in Sources */ = {isa = PBXBuildFile; fileRef = 5073E0C409E734A800EC74B6 /* OTLib.cp */; };
 		8306A36F11C202D200A8AFDC /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8306A36D11C202D100A8AFDC /* libcrypto.a */; };
 		8306A37011C202D200A8AFDC /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8306A36E11C202D200A8AFDC /* libssl.a */; };
-		8306A3DA11C20EA800A8AFDC /* whrlpool.h in Headers */ = {isa = PBXBuildFile; fileRef = 8306A3D011C20EA800A8AFDC /* whrlpool.h */; };
-		8306A3DD11C20EA800A8AFDC /* wp_block.c in Sources */ = {isa = PBXBuildFile; fileRef = 8306A3D311C20EA800A8AFDC /* wp_block.c */; };
-		8306A3DF11C20EA800A8AFDC /* wp_dgst.c in Sources */ = {isa = PBXBuildFile; fileRef = 8306A3D511C20EA800A8AFDC /* wp_dgst.c */; };
-		8306A3E111C20EA800A8AFDC /* wp_locl.h in Headers */ = {isa = PBXBuildFile; fileRef = 8306A3D711C20EA800A8AFDC /* wp_locl.h */; };
 		8306A52D11C2627C00A8AFDC /* OTEnvelope.h in Headers */ = {isa = PBXBuildFile; fileRef = 8306A52B11C2627C00A8AFDC /* OTEnvelope.h */; };
 		8306A52E11C2627C00A8AFDC /* OTEnvelope.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8306A52C11C2627C00A8AFDC /* OTEnvelope.cpp */; };
 		8339D9F611DD3A8F007BED46 /* easyzlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 8339D9F411DD3A8F007BED46 /* easyzlib.c */; };
@@ -84,11 +80,6 @@
 		50B2938909F016FC00694E55 /* OTLibPriv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OTLibPriv.h; sourceTree = "<group>"; };
 		8306A36D11C202D100A8AFDC /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libcrypto.a; sourceTree = "<group>"; };
 		8306A36E11C202D200A8AFDC /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libssl.a; sourceTree = "<group>"; };
-		8306A3D011C20EA800A8AFDC /* whrlpool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = whrlpool.h; sourceTree = "<group>"; };
-		8306A3D311C20EA800A8AFDC /* wp_block.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = wp_block.c; sourceTree = "<group>"; };
-		8306A3D511C20EA800A8AFDC /* wp_dgst.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = wp_dgst.c; sourceTree = "<group>"; };
-		8306A3D711C20EA800A8AFDC /* wp_locl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wp_locl.h; sourceTree = "<group>"; };
-		8306A3D811C20EA800A8AFDC /* wp_test.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = wp_test.c; sourceTree = "<group>"; };
 		8306A52B11C2627C00A8AFDC /* OTEnvelope.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OTEnvelope.h; sourceTree = "<group>"; };
 		8306A52C11C2627C00A8AFDC /* OTEnvelope.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OTEnvelope.cpp; sourceTree = "<group>"; };
 		8339D9F411DD3A8F007BED46 /* easyzlib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = easyzlib.c; sourceTree = "<group>"; };
@@ -123,8 +114,6 @@
 		839231A211B9B50A00AF54AF /* OTServerContract.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OTServerContract.h; sourceTree = "<group>"; };
 		8392393D11BC5ED100AF54AF /* OTAccount.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OTAccount.cpp; sourceTree = "<group>"; };
 		8392393E11BC5ED100AF54AF /* OTAccount.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OTAccount.h; sourceTree = "<group>"; };
-		8394C6B911F77BBC00E8D23B /* CREDITS.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CREDITS.txt; sourceTree = "<group>"; };
-		8394C73311F7FA5600E8D23B /* INSTALL.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = INSTALL.txt; sourceTree = "<group>"; };
 		83A158A911B0B86E00B05397 /* OTData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OTData.cpp; sourceTree = "<group>"; };
 		83A158AD11B0B87C00B05397 /* OTData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OTData.h; sourceTree = "<group>"; };
 		83A158B111B0B88300B05397 /* OTDataCheck.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OTDataCheck.cpp; sourceTree = "<group>"; };
@@ -188,7 +177,6 @@
 				8306A36E11C202D200A8AFDC /* libssl.a */,
 				8392314B11B9B02500AF54AF /* irlxml */,
 				83C0953811B238BB00FDCACD /* Lucre */,
-				8306A3CA11C20EA800A8AFDC /* whrlpool */,
 				5073E0CA09E734BC00EC74B6 /* Configuration Files */,
 				08FB77ACFE841707C02AAC07 /* Source */,
 				8339D9F411DD3A8F007BED46 /* easyzlib.c */,
@@ -209,8 +197,6 @@
 		08FB77ACFE841707C02AAC07 /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				8394C6B911F77BBC00E8D23B /* CREDITS.txt */,
-				8394C73311F7FA5600E8D23B /* INSTALL.txt */,
 				83BF09BE11D4988600372F8D /* OTPurse.h */,
 				83BF09BF11D4988600372F8D /* OTPurse.cpp */,
 				83BF07AE11CF6C2400372F8D /* OTToken.h */,
@@ -277,18 +263,6 @@
 			name = "Configuration Files";
 			sourceTree = "<group>";
 		};
-		8306A3CA11C20EA800A8AFDC /* whrlpool */ = {
-			isa = PBXGroup;
-			children = (
-				8306A3D011C20EA800A8AFDC /* whrlpool.h */,
-				8306A3D311C20EA800A8AFDC /* wp_block.c */,
-				8306A3D511C20EA800A8AFDC /* wp_dgst.c */,
-				8306A3D711C20EA800A8AFDC /* wp_locl.h */,
-				8306A3D811C20EA800A8AFDC /* wp_test.c */,
-			);
-			path = whrlpool;
-			sourceTree = "<group>";
-		};
 		8392314B11B9B02500AF54AF /* irlxml */ = {
 			isa = PBXGroup;
 			children = (
@@ -342,8 +316,6 @@
 				839231A411B9B50A00AF54AF /* OTAssetContract.h in Headers */,
 				839231A611B9B50A00AF54AF /* OTServerContract.h in Headers */,
 				8392394011BC5ED100AF54AF /* OTAccount.h in Headers */,
-				8306A3DA11C20EA800A8AFDC /* whrlpool.h in Headers */,
-				8306A3E111C20EA800A8AFDC /* wp_locl.h in Headers */,
 				8306A52D11C2627C00A8AFDC /* OTEnvelope.h in Headers */,
 				83BFFA8711C83A0B00372F8D /* OTTransaction.h in Headers */,
 				83BFFA8D11C83A2A00372F8D /* OTLedger.h in Headers */,
@@ -423,8 +395,6 @@
 				839231A311B9B50A00AF54AF /* OTAssetContract.cpp in Sources */,
 				839231A511B9B50A00AF54AF /* OTServerContract.cpp in Sources */,
 				8392393F11BC5ED100AF54AF /* OTAccount.cpp in Sources */,
-				8306A3DD11C20EA800A8AFDC /* wp_block.c in Sources */,
-				8306A3DF11C20EA800A8AFDC /* wp_dgst.c in Sources */,
 				8306A52E11C2627C00A8AFDC /* OTEnvelope.cpp in Sources */,
 				83BFFA8811C83A0B00372F8D /* OTTransaction.cpp in Sources */,
 				83BFFA8E11C83A2A00372F8D /* OTLedger.cpp in Sources */,
@@ -495,7 +465,7 @@
 				OTHER_LDFLAGS = "";
 				PREBINDING = NO;
 				SDKROOT = macosx10.6;
-				USER_HEADER_SEARCH_PATHS = "\"/usr/local/ssl/include/openssl\" /usr/include/ \"/Users/REDACTED/XCode Projects/\"";
+				USER_HEADER_SEARCH_PATHS = "\"/usr/local/ssl/include/openssl\" /usr/include/ \"/Users/Chris/Projects/Open-Transactions/\"";
 			};
 			name = Debug;
 		};
@@ -510,7 +480,7 @@
 				OTHER_LDFLAGS = "";
 				PREBINDING = NO;
 				SDKROOT = macosx10.6;
-				USER_HEADER_SEARCH_PATHS = "/usr/include/ \"/Users/REDACTED/XCode Projects/\"";
+				USER_HEADER_SEARCH_PATHS = "/usr/include/ \"/Users/Chris/Projects/Open-Transactions/\"";
 			};
 			name = Release;
 		};

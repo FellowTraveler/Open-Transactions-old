@@ -37,12 +37,14 @@
  *                          Used with permission. http://www.firstobject.com/
  *       PGP to OpenSSL --- Copyright (c) 2010 Mounir IDRASSI 
  *                          Used with permission. http://www.idrix.fr
+ *       SFSocket       --- Copyright (C) 2009 Matteo Bertozzi
+ *                          Used with permission. http://th30z.netsons.org/
  *    
  *     ----------------------------------------------------------------
  *
  *    Open Transactions links to these libraries:
  *    
- *       OpenSSL        --- (Version 0.9.8l at time of writing.) 
+ *       OpenSSL        --- (Version 1.0.0a at time of writing.) 
  *                          http://openssl.org/about/
  *       zlib           --- Copyright (C) 1995-2004 Jean-loup Gailly and Mark Adler
  *    
@@ -94,7 +96,7 @@ extern "C"
 	
 	// Just trying to get Whirlpool working since they added it to OpenSSL
 	//
-	
+
 	static int init(EVP_MD_CTX *ctx)
 	{ return WHIRLPOOL_Init((WHIRLPOOL_CTX*)ctx->md_data); }
 	
@@ -120,7 +122,7 @@ extern "C"
 		WHIRLPOOL_BBLOCK/8,
 		sizeof(EVP_MD *)+sizeof(WHIRLPOOL_CTX),
 	};
-	
+
 }
 
 #include <iostream>

@@ -33,18 +33,19 @@
  *       Lucre          --- Copyright (C) 1999-2009 Ben Laurie.
  *                          http://anoncvs.aldigital.co.uk/lucre/
  *       irrXML         --- Copyright (C) 2002-2005 Nikolaus Gebhardt
- *                          http://irrlicht.sourceforge.net/author.html 
+ *                          http://irrlicht.sourceforge.net/author.html	
  *       easyzlib       --- Copyright (C) 2008 First Objective Software, Inc.
  *                          Used with permission. http://www.firstobject.com/
  *       PGP to OpenSSL --- Copyright (c) 2010 Mounir IDRASSI 
  *                          Used with permission. http://www.idrix.fr
  *       SFSocket       --- Copyright (C) 2009 Matteo Bertozzi
  *                          Used with permission. http://th30z.netsons.org/
+ *    
  *     ----------------------------------------------------------------
  *
  *    Open Transactions links to these libraries:
  *    
- *       OpenSSL        --- (Version 0.9.8l at time of writing.) 
+ *       OpenSSL        --- (Version 1.0.0a at time of writing.) 
  *                          http://openssl.org/about/
  *       zlib           --- Copyright (C) 1995-2004 Jean-loup Gailly and Mark Adler
  *    

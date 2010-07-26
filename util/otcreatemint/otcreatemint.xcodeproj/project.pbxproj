@@ -8,8 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		834F388311EEFF05001CFD0F /* libOTLib.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 834F388211EEFF05001CFD0F /* libOTLib.dylib */; };
-		834F38FA11EF0C7F001CFD0F /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 834F38F811EF0C7F001CFD0F /* libcrypto.a */; };
-		834F38FB11EF0C7F001CFD0F /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 834F38F911EF0C7F001CFD0F /* libssl.a */; };
 		8DD76F650486A84900D96B5E /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 08FB7796FE84155DC02AAC07 /* main.cpp */; settings = {ATTRIBUTES = (); }; };
 		8DD76F6A0486A84900D96B5E /* otcreatemint.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = C6859E8B029090EE04C91782 /* otcreatemint.1 */; };
 /* End PBXBuildFile section */
@@ -30,8 +28,6 @@
 /* Begin PBXFileReference section */
 		08FB7796FE84155DC02AAC07 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		834F388211EEFF05001CFD0F /* libOTLib.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libOTLib.dylib; sourceTree = "<group>"; };
-		834F38F811EF0C7F001CFD0F /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libcrypto.a; sourceTree = "<group>"; };
-		834F38F911EF0C7F001CFD0F /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libssl.a; sourceTree = "<group>"; };
 		8DD76F6C0486A84900D96B5E /* otcreatemint */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = otcreatemint; sourceTree = BUILT_PRODUCTS_DIR; };
 		C6859E8B029090EE04C91782 /* otcreatemint.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = otcreatemint.1; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -42,8 +38,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				834F388311EEFF05001CFD0F /* libOTLib.dylib in Frameworks */,
-				834F38FA11EF0C7F001CFD0F /* libcrypto.a in Frameworks */,
-				834F38FB11EF0C7F001CFD0F /* libssl.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -53,8 +47,6 @@
 		08FB7794FE84155DC02AAC07 /* otcreatemint */ = {
 			isa = PBXGroup;
 			children = (
-				834F38F811EF0C7F001CFD0F /* libcrypto.a */,
-				834F38F911EF0C7F001CFD0F /* libssl.a */,
 				834F388211EEFF05001CFD0F /* libOTLib.dylib */,
 				08FB7795FE84155DC02AAC07 /* Source */,
 				C6859E8C029090F304C91782 /* Documentation */,
@@ -179,6 +171,10 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = (
+					"-lssl",
+					"-lcrypto",
+				);
 				PREBINDING = NO;
 				SDKROOT = macosx10.6;
 				USER_HEADER_SEARCH_PATHS = "/Users/REDACTED/Projects/Open-Transactions/OTLib";
@@ -192,6 +188,10 @@
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				OTHER_LDFLAGS = (
+					"-lssl",
+					"-lcrypto",
+				);
 				PREBINDING = NO;
 				SDKROOT = macosx10.6;
 				USER_HEADER_SEARCH_PATHS = "/Users/REDACTED/Projects/Open-Transactions/OTLib";
