@@ -4,7 +4,7 @@
 # location
 #
 
-PROGRAM = transaction 
+PROGRAM = signcontract 
 
 #
 # Command line parameters: Edit these parameters so that you can 
@@ -24,14 +24,13 @@ PROGRAM = transaction
 
 INCLUDEDIRS = \
 	-I/usr/local/ssl/include \
-	-I../OTLib/irlxml \
-	-I../OTLib \
-	-I./SSL-Example \
+	-I../../OTLib/irlxml \
+	-I../../OTLib \
 	-I./
 
 
 LIBDIRS = \
-	-L ../OTLib
+	-L../../OTLib
 
 
 LIBS = $(LIBDIRS) -lssl $(LIBDIRS) -lcrypto $(LIBDIRS) -lOTLib $(LIBDIRS) -lssl $(LIBDIRS) -lcrypto $(LIBDIRS) -lOTLib 
@@ -52,20 +51,12 @@ LIBS = $(LIBDIRS) -lssl $(LIBDIRS) -lcrypto $(LIBDIRS) -lOTLib $(LIBDIRS) -lssl 
 # directory information to be passed to the linker.
 #
 
-CSOURCES = ./SSL-Example/SFSocket.c
-
 CXXSOURCES = \
-			 OTClientConnection.cpp \
-			 OTServer.cpp \
-			 server.cpp \
-			 OTMessageBuffer.cpp
+			 main.cpp
 			 
 CXXOBJECTS = $(CXXSOURCES:.cpp=.o)  # expands to list of object files
-COBJECTS   = $(CSOURCES:.c=.o)
 CXXFLAGS   = $(INCLUDEDIRS)
-CFLAGS     = $(INCLUDEDIRS)
 CXX = g++
-CC = gcc
 LDFLAGS = $(LIBDIRS) $(LIBS)
 
 #
@@ -80,25 +71,16 @@ all: $(PROGRAM)
 # executing its link command.
 #
 
-$(PROGRAM): $(CXXOBJECTS) $(COBJECTS) 
-	$(CXX) -ldl $(CXXOBJECTS) $(COBJECTS) $(LIBS) -o $@
+$(PROGRAM): $(CXXOBJECTS)
+	$(CXX) -ldl $(CXXOBJECTS) $(LIBS) -o $@
 
 #
 # Object targets: rules that define objects, their dependencies, and
 # a list of commands for compilation.
 #
 
-SFSocket.o: ./SSL-Example/SFSocket.c ./SSL-Example/SFSocket.h
-	$(CC) $(CFLAGS) -c -o ./SSL-Example/SFSocket.o ./SSL-Example/SFSocket.c
-
-OTClientConnection.o: OTClientConnection.cpp OTClientConnection.h
-	$(CXX) $(CXXFLAGS) -c -o OTClientConnection.o OTClientConnection.cpp
-OTServer.o: OTServer.cpp OTServer.h
-	$(CXX) $(CXXFLAGS) -c -o OTServer.o OTServer.cpp
-server.o: server.cpp
-	$(CXX) $(CXXFLAGS) -c -o server.o server.cpp
-OTMessageBuffer.o: OTMessageBuffer.cpp OTMessageBuffer.h
-	$(CXX) $(CXXFLAGS) -c -o OTMessageBuffer.o OTMessageBuffer.cpp
+main.o: main.cpp
+	$(CXX) $(CXXFLAGS) -c -o main.o main.cpp
 
 
 #
@@ -106,7 +88,7 @@ OTMessageBuffer.o: OTMessageBuffer.cpp OTMessageBuffer.h
 #
 
 clean:
-	$(RM) -f $(CXXOBJECTS) $(COBJECTS) $(PROGRAM)
+	$(RM) -f $(CXXOBJECTS) $(PROGRAM)
 
 #
 # Run target: "make -f Makefile.Linux run" to execute the application

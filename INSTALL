@@ -15,7 +15,7 @@ OpenTransactions
 
 
 
-TO BUILD ON Ubuntu LINUX:
+TO BUILD:
 
 --- Make sure OpenSSL 1.0.0a is installed, earlier versions don't have
     WHIRLPOOL.
@@ -44,32 +44,7 @@ make
 
 
 
-TO BUILD ON Mac OS X using XCODE:
-
---- In ALL THREE PROJECTS (OTLib, transaction, and testwallet) edit the project
-    file and find ALL occurrences of the word REDACTED. In those places, you 
-    will need to adjust the path to match whatever you are using on your own 
-    system.
-    Come to think of it, you will need to do this with the 2 utility projects 
-    as well:
-    util/otcreatemint and util/signcontract.  
-
-    For example:
-
-    cd transaction
-    cd transaction.xcodeproj
-    fgrep -n -R REDACTED *
- 
-    If you use vi:  vi project.pbxproj
-
-    Edit the file project.pbxproj with a text editor and fix the path.  
-    Wherever you see REDACTED, just change it so that the path you see reflects 
-    what it should be on YOUR system. You will see what I mean when you see the
-    path that is already there. Once you do this, the projects will be able to 
-    find the library and all the headers, etc.  Just search for REDACTED and 
-    you will see what to do.
-
---- Make sure you have at least version 1.0.0a of OpenSSL installed.
+--- Make sure! You have at least version 1.0.0a of OpenSSL installed.
 
    (HOW did I install OpenSSL?  My Mac already came with an old version of it.
    So first I downloaded the OpenSSL latest build, and followed the instructions
@@ -85,34 +60,6 @@ TO BUILD ON Mac OS X using XCODE:
    download and build.  Make sure the "make install" for the OpenSSL download 
    is done using sudo. sudo make install.) 
     
---- OTLib expects libcrypto.a and libssl.a. If you open the project, you can 
-    see those files are listed in red, because the actual .a files are missing.
-    (I deleted them before distributing this code.) So just find the .a files 
-    on your system and copy them into the OTLib folder before building.
-
---- Open OTLib in XCode.  SHIFT-COMMAND-K  (Make all clean) 
-    Then COMMAND-B (BUILD)
-
---- AT THIS POINT, YOU SHOULD BE READY TO BUILD THE CLIENT AND SERVER.
-
---- Once the library is built, copy OTLib/build/Debug/libOTLib.dylib 
-    to /usr/local/lib
-    For good measure, copy it to ./testwallet and ./transaction as well.
-    In fact, copy it to util/signcontract and util/otcreatemint as well.
-
---- OPEN transaction and testwallet projects in XCode, and build them the same 
-    way.
-    (SHIFT-COMMAND-K followed by COMMAND-B)
-    You can also build the createmint and signcontract utilities projects in the same way.
-
---- Copy the binaries to their own home folder:
-
-    - After building transaction, copy it from the build folder:
-      cp transaction/build/Debug/transaction transaction/
-    
-    - Similarly, after building testwallet, copy it from its build folder:
-      cp testwallet/build/Debug/testwallet testwallet/  
-
 
 
 
@@ -143,12 +90,6 @@ if you are in the testwallet folder, then run the wallet like this:
 I have to fix the path and config file stuff, and I just haven't done it yet, 
 so YOU have to make sure you are in the right folder when you run it.
 
-If you built on Mac, make sure you copy the binary to the folder (from 
-build/Debug) before running, or it won't be there. 
-Without copying it, you could run it like this:
-./build/Debug/transaction
-OR
-./build/Debug/testwallet
 
 You don't have to specify a hostname and port, because the server contract
 already contains that information.

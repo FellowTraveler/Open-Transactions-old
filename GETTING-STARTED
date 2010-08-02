@@ -8,7 +8,7 @@ GETTING STARTED:
 1) See LICENSE-AND-CREDITS file, which should be in the same
    folder as this README file. You agree to the terms.  
 
-2) See INSTALL for instructions on building the 3 projects in XCode.
+2) See INSTALL for instructions on building the 3 projects.
 
 3) You can *ignore* the ssl folder and the docs/SOCKETNOTES.txt file unless 
    you want to wipe and re-create the test certs and keys for the client and 

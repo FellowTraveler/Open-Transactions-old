@@ -31,7 +31,7 @@ INCLUDEDIRS = \
 
 
 LIBDIRS = \
-	-L ../OTLib
+	-L../OTLib
 
 
 LIBS = $(LIBDIRS) -lssl $(LIBDIRS) -lcrypto $(LIBDIRS) -lOTLib $(LIBDIRS) -lssl $(LIBDIRS) -lcrypto $(LIBDIRS) -lOTLib 

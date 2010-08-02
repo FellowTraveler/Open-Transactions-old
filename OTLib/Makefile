@@ -4,7 +4,7 @@
 # location
 #
 
-PROGRAM = OTLib.a 
+PROGRAM = libOTLib.a 
 
 #
 # Command line parameters: Edit these parameters so that you can 
