@@ -91,16 +91,16 @@ extern "C"
 #include <string.h>
 #include <stdio.h>
 
-#include "SSL-EXAMPLE/SFSocket.h"
+#include "SSL-Example/SFSocket.h"
 }
 
 
 // TODO REALLY NEED to move this crap to a config file...
 // ALso, FYI, the below paths may not work unless you put a fully-qualified path (which I haven't.)
 
-#define CA_FILE             "/Users/Chris/Projects/Open-Transactions/transaction/SSL-Example/ca.crt"
-#define DH_FILE             "/Users/Chris/Projects/Open-Transactions/transaction/SSL-Example/dh_param_1024.pem"
-#define KEY_FILE            "/Users/Chris/Projects/Open-Transactions/transaction/SSL-Example/server.pem"
+#define CA_FILE             "/Users/REDACTED/Projects/Open-Transactions/transaction/SSL-Example/ca.crt"
+#define DH_FILE             "/Users/REDACTED/Projects/Open-Transactions/transaction/SSL-Example/dh_param_1024.pem"
+#define KEY_FILE            "/Users/REDACTED/Projects/Open-Transactions/transaction/SSL-Example/server.pem"
 #define KEY_PASSWORD        "test"
 // NOTE: this SSL connection is entirely different from the user's cert/pubkey that he uses for his UserID while 
 // talking to the server. I may be using the same key for that, but this code here is not about my wallet talking

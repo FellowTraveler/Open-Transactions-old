@@ -99,6 +99,7 @@ extern "C"
 #include "OTPayload.h"
 #include "OTClientConnection.h"
 #include "OTServer.h"
+#include "OTAsymmetricKey.h"
 
 
 

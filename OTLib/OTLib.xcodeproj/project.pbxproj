@@ -82,6 +82,7 @@
 		8306A36E11C202D200A8AFDC /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libssl.a; sourceTree = "<group>"; };
 		8306A52B11C2627C00A8AFDC /* OTEnvelope.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OTEnvelope.h; sourceTree = "<group>"; };
 		8306A52C11C2627C00A8AFDC /* OTEnvelope.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OTEnvelope.cpp; sourceTree = "<group>"; };
+		830CAA9612066B2A00A8599A /* Makefile.linux */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Makefile.linux; sourceTree = "<group>"; };
 		8339D9F411DD3A8F007BED46 /* easyzlib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = easyzlib.c; sourceTree = "<group>"; };
 		8339D9F511DD3A8F007BED46 /* easyzlib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = easyzlib.h; sourceTree = "<group>"; };
 		839228AE11B46C8300AF54AF /* OTASCIIArmor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OTASCIIArmor.h; sourceTree = "<group>"; };
@@ -174,6 +175,7 @@
 			isa = PBXGroup;
 			children = (
 				8306A36D11C202D100A8AFDC /* libcrypto.a */,
+				830CAA9612066B2A00A8599A /* Makefile.linux */,
 				8306A36E11C202D200A8AFDC /* libssl.a */,
 				8392314B11B9B02500AF54AF /* irlxml */,
 				83C0953811B238BB00FDCACD /* Lucre */,

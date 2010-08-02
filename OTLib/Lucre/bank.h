@@ -1,10 +1,13 @@
 //-*-C++-*-
 
+extern "C"
+{
 #include <openssl/bio.h>
 #include <openssl/dh.h>
 #include <openssl/sha.h>
 #include <memory.h>
 #include <assert.h>
+}
 
 //#define SAMY_DIGEST_LENGTH		64	// 64 bytes aka 512 bits output for the SAMY hash.
 //#define DIGEST_LENGTH		SAMY_DIGEST_LENGTH

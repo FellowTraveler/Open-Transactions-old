@@ -444,8 +444,8 @@ void OTAccount::UpdateContents()
 	m_xmlUnsigned.Concatenate("<?xml version=\"%s\"?>\n\n", "1.0");		
 	
 	m_xmlUnsigned.Concatenate("<assetAccount\n version=\"%s\"\n type=\"%s\"\n accountID=\"%s\"\n userID=\"%s\"\n"
-							  " assetTypeID=\"%s\"\n serverID=\"%s\" >\n\n", m_strVersion.Get(), strAcctType.Get(),
-							  ACCOUNT_ID.Get(), USER_ID.Get(), strAssetTYPEID.Get(), SERVER_ID.Get());		
+							  " serverID=\"%s\"\n assetTypeID=\"%s\" >\n\n", m_strVersion.Get(), strAcctType.Get(),
+							  ACCOUNT_ID.Get(), USER_ID.Get(), SERVER_ID.Get(), strAssetTYPEID.Get());		
 	
 	m_xmlUnsigned.Concatenate("<balance date=\"%s\" amount=\"%s\"/>\n\n", m_BalanceDate.Get(),
 							  m_BalanceAmount.Get());

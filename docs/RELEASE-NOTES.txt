@@ -1,16 +1,22 @@
 
 NOTES on the Version:
 
-  0.1  --- The original goal was just proof-of-concept. There are many TODOs listed on 
-           the project page, as well as throughout the code.  But it all works!!!
+  0.11 --- Added LINUX support... Makefiles and a few fixes related to Linux. 
+           OT now runs on TWO platforms: Linux and OS X.
+           (The pre-built binaries in the distribution are for Mac.) 
+
+  0.1  --- The original goal was just proof-of-concept. There are many TODOs 
+           listed on the project page, as well as throughout the code.  But 
+           it all works!!!
 		   
-	   A WARNING: This software is brand-spanking-new.  The project has not yet been
-           audited for security or tested for any extended period of time. Thus far, it 
-           must be considered as for experimental purposes only.
+   A WARNING: This software is brand-spanking-new.  The project has not yet been
+   audited for security or tested for any extended period of time. Thus far, it 
+   must be considered as for experimental purposes only.
 		   
-       --- There are still a few values that are hardcoded (in the client and the server), 
-           unfortunately, but it's all documented and I have everything set up already to 
-           run, so you don't have to mess with them. This will be fixed next release.
+       --- There are still a few values that are hardcoded (in the client and 
+           the server), unfortunately, but it's all documented and I have 
+           everything set up already to run, so you don't have to mess with 
+           them. This will be fixed next release.
  
 ----------------------------------------------------------------------
 

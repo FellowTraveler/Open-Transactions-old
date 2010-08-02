@@ -1,5 +1,9 @@
 #include "bank.h"
+
+extern "C"
+{
 #include <openssl/asn1.h>
+}
 
 static BIO *dout;
 static BIO *mout;

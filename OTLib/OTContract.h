@@ -120,7 +120,7 @@ class OTContract
 protected:
 	OTString		m_strName;     // Contract name as shown in the wallet.
 	OTString		m_strFilename; // Filename for this contract
-	OTIdentifier	m_ID;	   // Hashed public key as shown in the wallet.
+	OTIdentifier		m_ID;	   	// Hash of m_xmlUnsigned.
 	OTStringXML		m_xmlUnsigned; // The Unsigned Clear Text (XML contents without signatures.)
 	OTString		m_strRawFile;  // The complete raw file including signatures.
 	OTString		m_strSigHashType; // The Hash algorithm used for the signature

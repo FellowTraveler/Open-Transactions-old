@@ -84,6 +84,7 @@
 
 extern "C"
 {
+#include <string.h>
 #include <stdlib.h>
 
 #include <inttypes.h>  //uint8_t

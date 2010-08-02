@@ -3,12 +3,13 @@
 WHAT IS "Open Transactions" ?
 
 -- It's a solid, easy-to-use, CRYPTO and DIGITAL CASH LIBRARY.
--- Including a FULLY OPERATIONAL client and server (command line for now--that's where you come in)...
+-- Including an operational CLIENT and SERVER...
 -- It's OPEN SOURCE, and encapsulates a COMPLETE PROTOCOL FOR TRANSACTIONS.
--- It's object-oriented, and written in C++ on Mac/UNIX using OpenSSL.
--- Including: 
+-- It's object-oriented, and written in C++ using OpenSSL. 
+-- Mac OS X (Snow Leopard) as well as Ubuntu Linux 2.6
+-- Including:
+................UNTRACEABLE DIGITAL CASH (blinded tokens) 
 ................SECURE NUMBERED ACCOUNTS
-................UNTRACEABLE DIGITAL CASH 
 ................TRIPLE-SIGNED RECEIPTS
 ................BASKET CURRENCIES
 ................SIGNED XML CONTRACTS, and more...

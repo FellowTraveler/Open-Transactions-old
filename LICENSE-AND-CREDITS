@@ -22,7 +22,7 @@
  *    http://www.OpenTransactions.org
  *    
  *    OFFICIAL PROJECT WIKI:
- *    http://wiki.github.com/FellowTraveler/Open-Transactions/
+ *    http://wiki.github.com/FellowTraveler/Open-Transactions/wiki 
  *    
  *     ----------------------------------------------------------------
  *    
@@ -427,6 +427,8 @@ Paul C. Sutton	paul@openssl.org	paul@awe.com	UK
   writing code. But he definitely made his mark. 
 
   Tim May for writing the Cyphernomicon.
+
+  Robert A. Hettinga for his writings:  http://www.philodox.com/
 
   And of course SAMY, who wrote the famous MySpace worm, and who suggested
   using two message digest algorithms XOR'd together in case one is ever

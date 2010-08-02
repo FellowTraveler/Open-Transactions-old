@@ -35,6 +35,7 @@
 		830EC8D911F8B8FE00198F04 /* OTServerConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OTServerConnection.cpp; sourceTree = "<group>"; };
 		830EC8DA11F8B8FE00198F04 /* OTServerConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OTServerConnection.h; sourceTree = "<group>"; };
 		830EC8E311F8BF0A00198F04 /* client.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = client.cpp; sourceTree = "<group>"; };
+		8352C5111206A93500ABBED7 /* Makefile.linux */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Makefile.linux; sourceTree = "<group>"; };
 		839226A511B34D4C00AF54AF /* OTWallet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OTWallet.h; sourceTree = "<group>"; };
 		839226A611B34D4C00AF54AF /* OTWallet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OTWallet.cpp; sourceTree = "<group>"; };
 		8392273211B3644100AF54AF /* libOTLib.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libOTLib.dylib; sourceTree = "<group>"; };
@@ -74,6 +75,7 @@
 			isa = PBXGroup;
 			children = (
 				8392273211B3644100AF54AF /* libOTLib.dylib */,
+				8352C5111206A93500ABBED7 /* Makefile.linux */,
 				83C095C111B3276900FDCACD /* irlxml */,
 				83C095BB11B2860700FDCACD /* wallet.xml */,
 				83923E9A11BE0C0D00AF54AF /* OTMessageBuffer.cpp */,

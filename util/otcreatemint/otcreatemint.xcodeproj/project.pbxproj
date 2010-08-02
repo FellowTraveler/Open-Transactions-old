@@ -28,6 +28,7 @@
 /* Begin PBXFileReference section */
 		08FB7796FE84155DC02AAC07 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		834F388211EEFF05001CFD0F /* libOTLib.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libOTLib.dylib; sourceTree = "<group>"; };
+		8352C5261206B0A900ABBED7 /* Makefile.linux */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Makefile.linux; sourceTree = "<group>"; };
 		8DD76F6C0486A84900D96B5E /* otcreatemint */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = otcreatemint; sourceTree = BUILT_PRODUCTS_DIR; };
 		C6859E8B029090EE04C91782 /* otcreatemint.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = otcreatemint.1; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -58,6 +59,7 @@
 		08FB7795FE84155DC02AAC07 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				8352C5261206B0A900ABBED7 /* Makefile.linux */,
 				08FB7796FE84155DC02AAC07 /* main.cpp */,
 			);
 			name = Source;

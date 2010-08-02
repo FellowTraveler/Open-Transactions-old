@@ -166,7 +166,7 @@ public:
 
 
 
-#endif __OTBASKET_H__
+#endif // __OTBASKET_H__
 
 /*
  

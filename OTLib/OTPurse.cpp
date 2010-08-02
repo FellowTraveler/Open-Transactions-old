@@ -82,6 +82,12 @@
  ************************************************************************************/
 
 
+extern "C"
+{
+#include <string.h>
+}
+
+
 #include "irlxml/irrXML.h"
 
 using namespace irr;

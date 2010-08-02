@@ -1,21 +1,57 @@
 OpenTransactions
 
 
- --- Open Transactions is currently built on a Mac OSX 10.6.4 (Snow Leopard)
+ --- Open Transactions is currently built on:
+     - Mac OSX 10.6.4 (Snow Leopard)
+     - Ubuntu Linux 2.6.32.
  
- --- OpenSSL version Version 1.0.0a (at least) is necessary, since the SAMY hash 
-     uses WHRLPOOL. (XOR'd with SHA-512.) WHIRLPOOL is a new addition to OpenSSL.
+ --- OpenSSL version 1.0.0a (at least) is necessary, since the SAMY hash 
+     uses WHRLPOOL. (XOR'd with SHA-512.) WHIRLPOOL is a new addition to 
+     OpenSSL.
  
- --- Let me know if there are any problems, since this is new software; this will be a
-     living document.
+ --- Let me know if there are any problems, since this is new software; this 
+     will be a living document.
  
 
 
-TO BUILD:
---- In ALL THREE PROJECTS (OTLib, transaction, and testwallet) edit the project file
-    and find ALL occurrences of the word REDACTED. In those places, you will need to adjust
-    the path to match whatever you are using on your own system.
-    Come to think of it, you will need to do this with the 2 utility projects as well.
+
+TO BUILD ON Ubuntu LINUX:
+
+--- Make sure OpenSSL 1.0.0a is installed, earlier versions don't have
+    WHIRLPOOL.
+
+--- Find libssl.a and libcrypto.a and copy them to the OTLib folder.
+
+--- cd (change directory) to the Open-Transactions folder.
+
+--- Edit (using vi or whatever) transaction/server.cpp and search for the
+    word REDACTED. When you find it, fix the path there to whatever is
+    appropriate for your system. This bit of hardcoding will be removed in
+    a future release, but for now, it's necessary.
+
+--- Build the Library:
+cd OTLib;
+make
+
+--- Build the server:
+cd ../transaction;
+make
+
+--- Build the client:
+cd ../testwallet;
+make
+
+
+
+
+TO BUILD ON Mac OS X using XCODE:
+
+--- In ALL THREE PROJECTS (OTLib, transaction, and testwallet) edit the project
+    file and find ALL occurrences of the word REDACTED. In those places, you 
+    will need to adjust the path to match whatever you are using on your own 
+    system.
+    Come to think of it, you will need to do this with the 2 utility projects 
+    as well:
     util/otcreatemint and util/signcontract.  
 
     For example:
@@ -23,33 +59,59 @@ TO BUILD:
     cd transaction
     cd transaction.xcodeproj
     fgrep -n -R REDACTED *
+ 
+    If you use vi:  vi project.pbxproj
 
-    Edit the file project.pbxproj with a text editor and fix the path.  Wherever you
-    see REDACTED, just change it so that the path you see reflects what it should be
-    on YOUR system. Once you do this, the projects will be able to find the library
-    and all the headers, etc.  Just search for REDACTED and you will see what to do.
+    Edit the file project.pbxproj with a text editor and fix the path.  
+    Wherever you see REDACTED, just change it so that the path you see reflects 
+    what it should be on YOUR system. You will see what I mean when you see the
+    path that is already there. Once you do this, the projects will be able to 
+    find the library and all the headers, etc.  Just search for REDACTED and 
+    you will see what to do.
 
+--- Make sure you have at least version 1.0.0a of OpenSSL installed.
 
---- OTLib expects libcrypto.a and libssl.a. If you open the project, you can see those files
-    are listed in red, because the actual .a files are missing.  (I deleted them before 
-    distributing this code.) So just find the .a files on your system and copy them into the
-    OTLib folder before building.  I'm using OpenSSL 1.0.0a now, so you should have at least
-    that version as well.
+   (HOW did I install OpenSSL?  My Mac already came with an old version of it.
+   So first I downloaded the OpenSSL latest build, and followed the instructions
+   to install that. I also installed a program called "MacPorts" (google it) and
+   used that to install OpenSSL as well, which went into the /opt folder. 
+   I also had to search my computer for libssl.a and libcrypto.a (using 
+   spotlight in finder) and, after backing up the old files, I overwrote them 
+   with the new ones. I did the same for the header files and the dylib files.  
+   Most notably, the Mac development version of OpenSSL is in the /Developer 
+   SDK folders. I replaced the headers and libraries and dylibs in there and 
+   wherever else I could find that I could replace them.  I got the NEW dylib 
+   files from the MacPorts install, and I got the NEW .a files from the OpenSSL 
+   download and build.  Make sure the "make install" for the OpenSSL download 
+   is done using sudo. sudo make install.) 
+    
+--- OTLib expects libcrypto.a and libssl.a. If you open the project, you can 
+    see those files are listed in red, because the actual .a files are missing.
+    (I deleted them before distributing this code.) So just find the .a files 
+    on your system and copy them into the OTLib folder before building.
 
---- Open OTLib in XCode.  SHIFT-COMMAND-K  (Make all clean) Then COMMAND-B (BUILD)
+--- Open OTLib in XCode.  SHIFT-COMMAND-K  (Make all clean) 
+    Then COMMAND-B (BUILD)
 
 --- AT THIS POINT, YOU SHOULD BE READY TO BUILD THE CLIENT AND SERVER.
 
---- Once the library is built, copy OTLib/build/Debug/libOTLib.dylib to /usr/local/lib
+--- Once the library is built, copy OTLib/build/Debug/libOTLib.dylib 
+    to /usr/local/lib
     For good measure, copy it to ./testwallet and ./transaction as well.
     In fact, copy it to util/signcontract and util/otcreatemint as well.
 
---- OPEN transaction and testwallet projects in XCode, and build them the same way.
+--- OPEN transaction and testwallet projects in XCode, and build them the same 
+    way.
     (SHIFT-COMMAND-K followed by COMMAND-B)
     You can also build the createmint and signcontract utilities projects in the same way.
 
+--- Copy the binaries to their own home folder:
 
-Eventually OTLib will be statically linked, not dynamically, but this is just for testing.
+    - After building transaction, copy it from the build folder:
+      cp transaction/build/Debug/transaction transaction/
+    
+    - Similarly, after building testwallet, copy it from its build folder:
+      cp testwallet/build/Debug/testwallet testwallet/  
 
 
 
@@ -64,23 +126,29 @@ cd testwallet       (for client)
 -- OR -- 
 cd transaction      (for server)
 
-(Assuming you have already built the projects, including the OTLib library first.)
+(Assuming you have already built the projects, including OTLib first.)
 
 
 
 EXECUTING THE BINARIES:
 
 If you are in the transaction folder, then run it like this:
-./build/Debug/transaction
+./transaction
+
 
 if you are in the testwallet folder, then run the wallet like this:
+./testwallet
+
+
+I have to fix the path and config file stuff, and I just haven't done it yet, 
+so YOU have to make sure you are in the right folder when you run it.
+
+If you built on Mac, make sure you copy the binary to the folder (from 
+build/Debug) before running, or it won't be there. 
+Without copying it, you could run it like this:
+./build/Debug/transaction
+OR
 ./build/Debug/testwallet
-
-OR copy the binary up to the testwallet or transaction folder from its build/Debug
-folder and RUN IT FROM THERE. I have to fix the path and config file stuff, and I
-just haven't done it yet, so YOU have to make sure you are in the right folder when
-you run it.
-
 
 You don't have to specify a hostname and port, because the server contract
 already contains that information.
@@ -106,10 +174,11 @@ withdraw cash, deposit cash, getcontract, getmint.
 You can also create basket currencies and exchange between normal asset accounts
 and basket accounts. (To the server it's just another account type.)
 
-REMEMBER:  If you move some assets, and you don't see the change show up in your 
-account, then you probably just need to type "get" (to get the latest copy of the 
-account after a change has just been made.) Another useful command is 'i' for
-grabbing the inbox of any specific account. Then "get", and see the balances change.
+REMEMBER: If you move some assets, and you don't see the change show up in your 
+account, then you probably just need to type "get" (to get the latest copy of 
+the account after a change has just been made.) Another useful command is 'i' 
+for grabbing the inbox of any specific account. Then "get", and see the balances
+change.
 
 Obviously a nice client will do this automatically.
 

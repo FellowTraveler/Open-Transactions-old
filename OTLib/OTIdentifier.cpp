@@ -87,6 +87,7 @@
 extern "C"
 {
 #include <stdio.h>
+#include <string.h>
 #include <openssl/evp.h>
 #include <openssl/objects.h>
 #include <openssl/sha.h>
