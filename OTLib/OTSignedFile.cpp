@@ -82,6 +82,9 @@
  *      
  ************************************************************************************/
 
+#include <cstring>
+
+
 #include "irlxml/irrXML.h"
 
 using namespace irr;

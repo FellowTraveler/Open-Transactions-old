@@ -9,7 +9,7 @@ NOTES on the Version:
 
            High-level C++ Interface
 
-           !Spent Token Database is fully operational!
+           Spent Token Database is fully operational!
 
            Mints and Tokens now support Expiration AND Series. 
 
