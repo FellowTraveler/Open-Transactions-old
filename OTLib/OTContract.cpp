@@ -155,10 +155,33 @@ OTContract::OTContract(const OTIdentifier & theID)
 }
 
 
+// The name, filename, version, and ID loaded by the wallet
+// are NOT released here, since they are used immediately after
+// the Release() call in LoadContract(). Really I just want to
+// "Release" the stuff that is about to be loaded, not the stuff
+// that I need to load it!
+void OTContract::Release()
+{
+	// !! Notice I don't release the m_strFilename here!!
+	// Because in LoadContract, we want to release all the members, and then load up from the file.
+	// So if I release the filename, now I can't load up from the file cause I just blanked it. DUh.
+	//
+	// m_strFilename.Release();
+	
+	m_strSigHashType = OTIdentifier::DefaultHashAlgorithm;
+	m_xmlUnsigned.Release();
+	m_strRawFile.Release();
+	
+	ReleaseSignatures();
+}
+
+
 OTContract::~OTContract()
 {
 	// TODO: Go through the existing list of signatures at this point, and delete them all.
 	// TODO: Go through the existing list of nyms at this point, and delete them all.
+	
+	Release();
 }
 
 void OTContract::GetFilename(OTString & strFilename)
@@ -1117,7 +1140,10 @@ bool OTContract::SaveContract(OTString & strContract)
 	{
 		if (pSig = *ii)
 		{
-			strContract.Concatenate("-----BEGIN %s SIGNATURE-----\n", m_strContractType.Get());
+			strContract.Concatenate("-----BEGIN %s SIGNATURE-----\n"
+									"Version: Open Transactions 0.2\n"
+									"Comment: http://github.com/FellowTraveler/Open-Transactions/wiki\n\n", 
+									m_strContractType.Get());
 			strContract.Concatenate("%s", pSig->Get());
 			strContract.Concatenate("-----END %s SIGNATURE-----\n\n", m_strContractType.Get());
 		}
@@ -1156,23 +1182,6 @@ bool OTContract::SaveContract(const char * szFilename)
 	return true;	
 }
 
-
-// The name, filename, version, and ID loaded by the wallet
-// are NOT released here, since they are used immediately after
-// the Release() call in LoadContract(). Really I just want to
-// "Release" the stuff that is about to be loaded, not the stuff
-// that I need to load it!
-void OTContract::Release()
-{
-	// Notice I don't release the filename here.
-	// Because in LoadContract, we want to release all the members, and then load up from the file.
-	// So if I release the filename, now I can't load up from the file cause I just blanked it. DUh.
-	m_strSigHashType = OTIdentifier::DefaultHashAlgorithm;
-	m_xmlUnsigned.Release();
-	m_strRawFile.Release();
-	
-	ReleaseSignatures();
-}
 
 
 // Just like it says. If you have a contract in string form, pass it in
@@ -1366,9 +1375,11 @@ bool OTContract::ParseRawFile()
 			{
 				if (bSignatureMode)
 				{
-					if (line.compare(0,8,"Version:") == 0 || line.length()<2)
+					if (line.compare(0,8,"Version:") == 0 || 
+						line.compare(0,8,"Comment:") == 0 || 
+						line.length()<2)
 					{
-						fprintf(stderr, "Skipping version line...\n");
+						fprintf(stderr, "Skipping version section...\n");
 						
 						if (!m_strRawFile.sgets(buffer1, 2048))
 						{

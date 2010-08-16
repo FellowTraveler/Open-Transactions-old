@@ -126,7 +126,7 @@ public:
 	uint32_t  GetSize() const;
 
    bool IsEmpty() const;
-   void Release();
+   virtual void Release();
    void Assign(const OTData &theSource);
    void Assign(const void * pNewData, uint32_t lNewSize);
 	

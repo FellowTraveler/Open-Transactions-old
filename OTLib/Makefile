@@ -58,30 +58,33 @@ IRRXMLSOURCES = irlxml/irrXML.cpp
 CSOURCES = easyzlib.c
 
 CXXSOURCES = $(LUCRESOURCES) $(IRRXMLSOURCES) \
+			 OTData.cpp \
+			 OTString.cpp \
+			 OTStringXML.cpp \
+			 OTASCIIArmor.cpp \
+			 OTContract.cpp \
+			 OTSignedFile.cpp \
+			 OTPseudonym.cpp \
+			 OTMint.cpp \
+			 OTInstrument.cpp \
+			 OTCheque.cpp \
 			 OTPurse.cpp \
 			 OTToken.cpp \
-			 OTMint.cpp \
 			 OTTransactionType.cpp \
 			 OTItem.cpp \
 			 OTBasket.cpp \
 			 OTTransaction.cpp \
 			 OTLedger.cpp \
 			 OTAccount.cpp \
-		     OTEnvelope.cpp \
+		     	OTEnvelope.cpp \
 			 OTAssetContract.cpp \
 			 OTServerContract.cpp \
 			 OTPayload.cpp \
 			 OTMessage.cpp \
-			 OTContract.cpp \
-			 OTPseudonym.cpp \
-			 OTStringXML.cpp \
 			 OTIdentifier.cpp \
 			 OTAsymmetricKey.cpp \
-			 OTASCIIArmor.cpp \
 			 OTSignature.cpp \
-			 OTData.cpp \
-			 OTDataCheck.cpp \
-			 OTString.cpp
+			 OTDataCheck.cpp
 			 
 CXXOBJECTS = $(CXXSOURCES:.cpp=.o)  # expands to list of object files
 COBJECTS   = $(CSOURCES:.c=.o)
@@ -120,10 +123,32 @@ irlxml/irrXML.o: irlxml/irrXML.cpp irlxml/irrXML.h
 bankimp.o: Lucre/bankimp.cpp Lucre/bank.h
 	$(CXX) $(CXXFLAGS) -c -o Lucre/bankimp.o Lucre/bankimp.cpp
 
-OTPurse.o: OTPurse.cpp OTPurse.h
-	$(CXX) $(CXXFLAGS) -c -o OTPurse.o OTPurse.cpp
+OTData.o: OTData.cpp OTData.h
+	$(CXX) $(CXXFLAGS) -c -o OTData.o OTData.cpp
+OTString.o: OTString.cpp OTString.h
+	$(CXX) $(CXXFLAGS) -c -o OTString.o OTString.cpp
+OTStringXML.o: OTStringXML.cpp OTStringXML.h
+	$(CXX) $(CXXFLAGS) -c -o OTStringXML.o OTStringXML.cpp
+OTIdentifier.o: OTIdentifier.cpp OTIdentifier.h
+	$(CXX) $(CXXFLAGS) -c -o OTIdentifier.o OTIdentifier.cpp
+OTASCIIArmor.o: OTASCIIArmor.cpp OTASCIIArmor.h
+	$(CXX) $(CXXFLAGS) -c -o OTASCIIArmor.o OTASCIIArmor.cpp
+OTSignature.o: OTSignature.cpp OTSignature.h
+	$(CXX) $(CXXFLAGS) -c -o OTSignature.o OTSignature.cpp
+OTPseudonym.o: OTPseudonym.cpp OTPseudonym.h
+	$(CXX) $(CXXFLAGS) -c -o OTPseudonym.o OTPseudonym.cpp
+OTContract.o: OTContract.cpp OTContract.h
+	$(CXX) $(CXXFLAGS) -c -o OTContract.o OTContract.cpp
+OTSignedFile.o: OTSignedFile.cpp OTSignedFile.h
+	$(CXX) $(CXXFLAGS) -c -o OTSignedFile.o OTSignedFile.cpp
+OTInstrument.o: OTInstrument.cpp OTInstrument.h
+	$(CXX) $(CXXFLAGS) -c -o OTInstrument.o OTInstrument.cpp
+OTCheque.o: OTCheque.cpp OTCheque.h
+	$(CXX) $(CXXFLAGS) -c -o OTCheque.o OTCheque.cpp
 OTToken.o: OTToken.cpp OTToken.h
 	$(CXX) $(CXXFLAGS) -c -o OTToken.o OTToken.cpp
+OTPurse.o: OTPurse.cpp OTPurse.h
+	$(CXX) $(CXXFLAGS) -c -o OTPurse.o OTPurse.cpp
 OTMint.o: OTMint.cpp OTMint.h
 	$(CXX) $(CXXFLAGS) -c -o OTMint.o OTMint.cpp
 OTTransactionType.o: OTTransactionType.cpp OTTransactionType.h
@@ -148,26 +173,10 @@ OTPayload.o: OTPayload.cpp OTPayload.h
 	$(CXX) $(CXXFLAGS) -c -o OTPayload.o OTPayload.cpp
 OTMessage.o: OTMessage.cpp OTMessage.h
 	$(CXX) $(CXXFLAGS) -c -o OTMessage.o OTMessage.cpp
-OTContract.o: OTContract.cpp OTContract.h
-	$(CXX) $(CXXFLAGS) -c -o OTContract.o OTContract.cpp
-OTPseudonym.o: OTPseudonym.cpp OTPseudonym.h
-	$(CXX) $(CXXFLAGS) -c -o OTPseudonym.o OTPseudonym.cpp
-OTStringXML.o: OTStringXML.cpp OTStringXML.h
-	$(CXX) $(CXXFLAGS) -c -o OTStringXML.o OTStringXML.cpp
-OTIdentifier.o: OTIdentifier.cpp OTIdentifier.h
-	$(CXX) $(CXXFLAGS) -c -o OTIdentifier.o OTIdentifier.cpp
 OTAsymmetricKey.o: OTAsymmetricKey.cpp OTAsymmetricKey.h
 	$(CXX) $(CXXFLAGS) -c -o OTAsymmetricKey.o OTAsymmetricKey.cpp
-OTASCIIArmor.o: OTASCIIArmor.cpp OTASCIIArmor.h
-	$(CXX) $(CXXFLAGS) -c -o OTASCIIArmor.o OTASCIIArmor.cpp
-OTSignature.o: OTSignature.cpp OTSignature.h
-	$(CXX) $(CXXFLAGS) -c -o OTSignature.o OTSignature.cpp
-OTData.o: OTData.cpp OTData.h
-	$(CXX) $(CXXFLAGS) -c -o OTData.o OTData.cpp
 OTDataCheck.o: OTDataCheck.cpp OTDataCheck.h
 	$(CXX) $(CXXFLAGS) -c -o OTDataCheck.o OTDataCheck.cpp
-OTString.o: OTString.cpp OTString.h
-	$(CXX) $(CXXFLAGS) -c -o OTString.o OTString.cpp
 
 
 #

@@ -1,41 +1,68 @@
 
 NOTES on the Version:
 
-  0.11 --- Added LINUX support... Makefiles and a few fixes related to Linux. 
-           OT now runs on TWO platforms: Linux and OS X.
-           (The pre-built binaries in the distribution are for Mac.) 
+// ---------------------------------------------------------------------
 
-  0.1  --- The original goal was just proof-of-concept. There are many TODOs 
-           listed on the project page, as well as throughout the code.  But 
-           it all works!!!
+   0.2 --- Major Release!  ALL NEW:
+
+           JNI Interface (High-level Java API)
+
+           High-level C++ Interface
+
+           !Spent Token Database is fully operational!
+
+           Mints and Tokens now support Expiration AND Series. 
+
+           New Financial Instruments: Cheques and Vouchers.
+
+           Reserve accounts are now working to store the backing funds
+           for cash withdrawals and vouchers (cashier's cheques.)
+
+           Transaction numbers are fully working now.
+           
+           Nym files are now signed (to prevent tampering.)
+
+           Hardcoding of paths was fixed, using config files and
+           command-line arguments now, so you can use the software 
+           without having to change the code.
+
+           Path separators were improved to support Windows-style paths
+           (though I haven't tried to actually build on Windows.)
+
+           Numerous bug fixes. Including a big one: discarding
+           token signature after unblinding.
+
+
+// ---------------------------------------------------------------------
+
+  0.11 --- Added LINUX support... 
+
+           Added Makefiles, and a few fixes related to Linux. 
+           
+           OT now runs on TWO platforms: LINUX and Mac OS X.
+
+// ---------------------------------------------------------------------
+
+  0.1  --- The original goal was just proof-of-concept. There are many
+           TODOs listed on the project page, as well as throughout the
+           code.  But it all works!!!
 		   
-   A WARNING: This software is brand-spanking-new.  The project has not yet been
-   audited for security or tested for any extended period of time. Thus far, it 
-   must be considered as for experimental purposes only.
+   A WARNING: This software is brand-spanking-new.  The project has not
+yet been audited for security or tested for any extended period of time.
+Thus far, it must be considered as for experimental purposes only.
 		   
-       --- There are still a few values that are hardcoded (in the client and 
-           the server), unfortunately, but it's all documented and I have 
-           everything set up already to run, so you don't have to mess with 
-           them. This will be fixed next release.
+       --- There are still a few values that are hardcoded (in the client
+           and the server), unfortunately, but it's all documented and I
+           have everything set up already to run, so you don't have to
+           mess with them. This will be fixed next release.
  
 ----------------------------------------------------------------------
 
 The server expects its OWN cert to be in the  transaction/certs folder.
-The filename should be the serverID.  (I HAVE ALREADY PLACED IT THERE.)
+The filename should be the server_user_ID from notaryServer.xml
+(I HAVE ALREADY PLACED IT THERE.)
 
-This is the file that includes the server's public and private key.
-
-----------------------------------------------------------------------
-
-
-In OTServer::OTServer(), the server ID is hardcoded.
-
-The current value is:
-	m_strServerID = "0bb39523d6b54381c5477aeae808cb51dfbada7bd256e3a0298273a59772f5ad93cd5dee4e6061283dcffd1447719d96fd00b81b8945d01430fdfe68d8adb51f";
-
-I DON'T *THINK* THIS IS NECESSARY ANYMORE.  I am now reading this ID
-out of the notaryServer.xml (config) file on the server side. But until
-it's tested, we have to assume that something will go wrong unless the
-ID continues to be hardcoded here. (I'll get to it. Rushing this release.)
+This is the file that includes the server's public AND private key.
 
 ----------------------------------------------------------------------
+

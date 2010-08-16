@@ -192,7 +192,7 @@ protected:
 	// return -1 if error, 0 if nothing, and 1 if the node was processed.
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
 	
-	void UpdateContents(); // Before transmission or serialization, this is where the transaction saves its contents 
+	virtual void UpdateContents(); // Before transmission or serialization, this is where the transaction saves its contents 
 	
 public:
 	OTTransaction(const OTLedger & theOwner);
@@ -220,7 +220,7 @@ public:
 	inline int	GetItemCount() { return m_listItems.size(); }
 	void AddItem(OTItem & theItem); // You have to allocate the item on the heap and then pass it in as a reference. 
 									// OTTransaction will take care of it from there and will delete it in destructor.
-	bool SaveContractWallet(FILE * fl);	
+	virtual bool SaveContractWallet(FILE * fl);	
 };
 
 

@@ -117,7 +117,8 @@ OTAssetContract::OTAssetContract(OTString & name, OTString & filename, OTString 
 
 OTAssetContract::~OTAssetContract()
 {
-
+	// OTContract::~OTContract is called here automatically, and it calls Release.
+	// So I don't need to call it here again when it's already called by the parent.
 }
 
 // Make sure you escape any lines that begin with dashes using "- "

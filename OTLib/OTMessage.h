@@ -99,12 +99,12 @@ class OTMessage : public OTContract
 {
 protected:
 	
-	bool SaveContractWallet(FILE * fl);
-	int ProcessXMLNode(IrrXMLReader*& xml);
+	virtual bool SaveContractWallet(FILE * fl);
+	virtual int ProcessXMLNode(IrrXMLReader*& xml);
 
 	bool SignContract(const EVP_PKEY * pkey, OTSignature & theSignature,
 							  const OTString & strHashType);
-	void UpdateContents();
+	virtual void UpdateContents();
 
 	bool m_bIsSigned;
 	

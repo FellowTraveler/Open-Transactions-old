@@ -287,6 +287,7 @@ OTItem::~OTItem()
 }
 
 
+
 // return -1 if error, 0 if nothing, and 1 if the node was processed.
 int OTItem::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 {
@@ -338,6 +339,15 @@ int OTItem::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 			m_Type = OTItem::deposit;
 		else if (strType.Compare("atDeposit"))
 			m_Type = OTItem::atDeposit;
+		else if (strType.Compare("withdrawVoucher"))
+			m_Type = OTItem::withdrawVoucher;
+		else if (strType.Compare("atWithdrawVoucher"))
+			m_Type = OTItem::atWithdrawVoucher;
+		else if (strType.Compare("depositCheque"))
+			m_Type = OTItem::depositCheque;
+		else if (strType.Compare("atDepositCheque"))
+			m_Type = OTItem::atDepositCheque;
+		
 		else
 			m_Type = OTItem::error_state;
 		 
@@ -429,6 +439,7 @@ int OTItem::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 
 
 
+
 void OTItem::UpdateContents() // Before transmission or serialization, this is where the ledger saves its contents 
 {
 	OTString strFromAcctID(GetPurportedAccountID()), strToAcctID(GetDestinationAcctID()), strServerID(GetPurportedServerID()), 
@@ -465,6 +476,13 @@ void OTItem::UpdateContents() // Before transmission or serialization, this is w
 		case OTItem::deposit:
 			strType.Set("deposit");
 			break;
+		case OTItem::withdrawVoucher:
+			strType.Set("withdrawVoucher");
+			break;
+		case OTItem::depositCheque:
+			strType.Set("depositCheque");
+			break;
+			
 		case OTItem::atTransaction:
 			strType.Set("atTransaction");
 			break;
@@ -495,6 +513,13 @@ void OTItem::UpdateContents() // Before transmission or serialization, this is w
 		case OTItem::atDeposit:
 			strType.Set("atDeposit");
 			break;
+		case OTItem::atWithdrawVoucher:
+			strType.Set("atWithdrawVoucher");
+			break;
+		case OTItem::atDepositCheque:
+			strType.Set("atDepositCheque");
+			break;
+
 		default:
 			strType.Set("error-unknown");
 			break;

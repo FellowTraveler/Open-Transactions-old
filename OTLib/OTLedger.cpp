@@ -107,6 +107,7 @@ using namespace io;
 #include "OTTransaction.h"
 #include "OTLedger.h"
 
+#include "OTPseudonym.h"
 
 
 // the below four functions (load/save in/outbox) assume that the ID is already set
@@ -120,7 +121,8 @@ bool OTLedger::LoadInbox()
 	
 	m_Type = OTLedger::inbox;
 
-	m_strFilename.Format("inbox/%s", strID.Get()); // todo don't hardcode this path
+	m_strFilename.Format("%s%sinbox%s%s", OTPseudonym::OTPath.Get(), OTPseudonym::OTPathSeparator.Get(),
+						 OTPseudonym::OTPathSeparator.Get(), strID.Get());
 	
 	// Try to load the ledger from disk.
 	if (false == LoadContract())
@@ -144,7 +146,8 @@ bool OTLedger::LoadOutbox()
 	
 	m_Type = OTLedger::outbox;
 	
-	m_strFilename.Format("outbox/%s", strID.Get()); // todo don't hardcode this path
+	m_strFilename.Format("%s%soutbox%s%s", OTPseudonym::OTPath.Get(), OTPseudonym::OTPathSeparator.Get(),
+						 OTPseudonym::OTPathSeparator.Get(), strID.Get());
 	
 	if (false == LoadContract())
 	{
@@ -162,7 +165,8 @@ bool OTLedger::SaveInbox()
 	OTString strID;
 	GetIdentifier(strID);
 	
-	m_strFilename.Format("inbox/%s", strID.Get()); // todo don't hardcode this path
+	m_strFilename.Format("%s%sinbox%s%s", OTPseudonym::OTPath.Get(), OTPseudonym::OTPathSeparator.Get(),
+						 OTPseudonym::OTPathSeparator.Get(), strID.Get());
 	
 	if (false == SaveContract((const char*)m_strFilename.Get()))
 	{
@@ -180,7 +184,8 @@ bool OTLedger::SaveOutbox()
 	OTString strID;
 	GetIdentifier(strID);
 	
-	m_strFilename.Format("outbox/%s", strID.Get()); // todo don't hardcode this path
+	m_strFilename.Format("%s%soutbox%s%s", OTPseudonym::OTPath.Get(), OTPseudonym::OTPathSeparator.Get(),
+						 OTPseudonym::OTPathSeparator.Get(), strID.Get());
 	
 	if (false == SaveContract((const char*)m_strFilename.Get()))
 	{
@@ -218,10 +223,12 @@ bool OTLedger::GenerateLedger(const OTIdentifier & theAcctID,
 	
 	switch (theType) {
 		case OTLedger::inbox:
-			m_strFilename.Format("inbox/%s", strID.Get()); // todo don't hardcode this path
+			m_strFilename.Format("%s%sinbox%s%s", OTPseudonym::OTPath.Get(), OTPseudonym::OTPathSeparator.Get(),
+								 OTPseudonym::OTPathSeparator.Get(), strID.Get());
 			break;
 		case OTLedger::outbox:
-			m_strFilename.Format("outbox/%s", strID.Get()); // todo don't hardcode this path
+			m_strFilename.Format("%s%soutbox%s%s", OTPseudonym::OTPath.Get(), OTPseudonym::OTPathSeparator.Get(),
+								 OTPseudonym::OTPathSeparator.Get(), strID.Get());
 			break;
 		case OTLedger::message:
 //			fprintf(stderr, "Generating message ledger...\n");
@@ -334,7 +341,7 @@ mapOfTransactions & OTLedger::GetTransactionMap()
 
 bool OTLedger::RemoveTransaction(long lTransactionNum) // if false, transaction wasn't found.
 {
-	// loop through the items that make up this transaction and print them out here, base64-encoded, of course.
+	// loop through the transactions that make up this ledger and remove one of them.
 	OTTransaction * pTransaction = NULL;
 	
 	for (mapOfTransactions::iterator ii = m_mapTransactions.begin(); ii != m_mapTransactions.end(); ++ii)

@@ -197,7 +197,7 @@ public:
 	void GetReferenceString(OTString & theStr) const;
 	void SetReferenceString(const OTString & theStr);
 	
-	bool SaveContractWallet(FILE * fl);
+	virtual bool SaveContractWallet(FILE * fl);
 };
 
 

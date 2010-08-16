@@ -139,6 +139,16 @@ private:
 									// one that has previously been issued to the Nym by the Server.
 	
 public:
+	
+	// OTPath is where all the subdirectories can be found.
+	// On the client side, this is loaded in the wallet file.
+	// But I don't have it in the wallet class because I need
+	// it accessible all over the library, server, and client.
+	// So I put it here instead.
+	static OTString	OTPath;
+	static OTString	OTPathSeparator;
+	
+	// ------------------------------------------------
 	OTPseudonym();
 	OTPseudonym(OTIdentifier & nymID);
 	OTPseudonym(OTString & strNymID);
@@ -163,9 +173,15 @@ public:
 	// ascii-armored string.
 	bool SetPublicKey(const OTASCIIArmor & strKey);
 	
-	bool LoadFromString(const OTString & strNym);
+	
+	// The signer is whoever wanted to make sure these nym files haven't changed.
+	// Usually that means the server nym.  Most of the time, m_nymServer will be used as signer.
+	bool LoadSignedNymfile(OTPseudonym & SIGNER_NYM);
+	bool SaveSignedNymfile(OTPseudonym & SIGNER_NYM);
 	
 	bool LoadNymfile(const char * szFilename=NULL);
+	bool LoadFromString(const OTString & strNym);
+
 	bool LoadPublicKey();
 	bool Loadx509CertAndPrivateKey();
 	
@@ -185,15 +201,19 @@ public:
 	void GetIdentifier(OTString & theIdentifier) const;
 	void SetIdentifier(const OTString & theIdentifier);
 	
-	void HarvestTransactionNumbers(OTPseudonym & theOtherNym); // OtherNym is used as container for server to send us new transaction numbers
+	void HarvestTransactionNumbers(OTPseudonym & SIGNER_NYM, OTPseudonym & theOtherNym); // OtherNym is used as container for server to send us new transaction numbers
 
-	void IncrementRequestNum(const OTString & strServerID); // Increment the counter or create a new one for this serverID starting at 1
-	void OnUpdateRequestNum(const OTString & strServerID, long lNewRequestNumber); // if the server sends us a @getRequest
+	void IncrementRequestNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID); // Increment the counter or create a new one for this serverID starting at 1
+	void OnUpdateRequestNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, long lNewRequestNumber); // if the server sends us a @getRequest
 	bool GetCurrentRequestNum(const OTString & strServerID, long &lReqNum); // get the current request number for the serverID
 
 	inline mapOfTransNums & GetMapTransNum() { return m_mapTransNum; }
-	void AddTransactionNum(const OTString & strServerID, long lTransNum, bool bSave); // We have received a new trans num from server. Store it.
-	bool GetNextTransactionNum(const OTString & strServerID, long &lTransNum); // Get the next available transaction number for the serverID
+	bool AddTransactionNum(const OTString & strServerID, long lTransNum);
+	bool AddTransactionNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, long lTransNum, bool bSave); // We have received a new trans num from server. Store it.
+	bool GetNextTransactionNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, long &lTransNum); // Get the next available transaction number for the serverID
+
+	bool VerifyTransactionNum(const OTString & strServerID, const long & lTransNum); // server verifies that nym was issued this TransNum
+	bool RemoveTransactionNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, const long & lTransNum); // server removes spent number from nym file.
 
 	const OTAsymmetricKey & GetPublicKey() const;
 	const OTAsymmetricKey & GetPrivateKey() const;

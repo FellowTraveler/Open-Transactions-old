@@ -82,6 +82,12 @@
  *    	
  ************************************************************************************/
 
+
+extern "C" 
+{
+#include <sys/stat.h>	
+}
+
 #include "irlxml/irrXML.h"
 
 using namespace irr;
@@ -92,6 +98,7 @@ using namespace io;
 #include "OTToken.h"
 #include "OTEnvelope.h"
 #include "OTMint.h"
+#include "OTPseudonym.h"
 #include "OTPurse.h"
 
 
@@ -128,16 +135,6 @@ const int OTToken::nMinimumPrototokenCount = 1;
 // has the customer's signature on it who deposited that cash, if it indeed has already been spent.
 
 
-void OTToken::Release()
-{
-	m_Signature.Release();
-	m_ascSpendable.Release();
-	
-	ReleasePrototokens();
-	
-	InitToken();
-}
-
 void OTToken::InitToken()
 {
 	m_State			= blankToken;
@@ -147,35 +144,51 @@ void OTToken::InitToken()
 	
 	m_bSavePrivateKeys = false;
 	
-	m_strContractType.Set("TOKEN");
+	m_nSeries		= 0;
+	
+	m_strContractType.Set("CASH");
 }
 
-OTToken::OTToken() : OTContract()
+OTToken::OTToken() : OTInstrument()
 {
 	InitToken();
 }
 
-OTToken::OTToken(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID) : OTContract()
+OTToken::OTToken(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID) : OTInstrument(SERVER_ID, ASSET_ID)
 {
 	InitToken();
 	
-	m_ServerID		= SERVER_ID;
-	m_AssetTypeID	= ASSET_ID;
+	// m_ServerID and m_AssetTypeID are now in the parent class (OTInstrument)
+	// So they are initialized there now.
 }
 
-OTToken::OTToken(const OTPurse & thePurse) : OTContract()
+OTToken::OTToken(const OTPurse & thePurse) : OTInstrument()
 {
 	InitToken();
 
+	// These are in the parent class, OTInstrument.
+	// I set them here because the "Purse" argument only exists 
+	// in this subclass constructor, not the base.
 	m_ServerID		= thePurse.GetServerID();
 	m_AssetTypeID	= thePurse.GetAssetID();
 }
 
+void OTToken::Release()
+{
+	m_Signature.Release();
+	m_ascSpendable.Release();
+	
+	ReleasePrototokens();
+		
+	OTInstrument::Release(); // since I've overridden the base class, I call it now...
 
+	InitToken();
+}
 
 OTToken::~OTToken()
 {
-	Release();
+	// OTContract::~OTContract is called here automatically, and it calls Release() already.
+	// So I don't need to call Release() here again, since it's already called by the parent.
 }
 
 
@@ -186,6 +199,172 @@ bool OTToken::SaveContractWallet(FILE * fl)
 
 	return true;
 }
+
+
+
+// Note: ALL failures will return true, even if the token has NOT already been
+// spent, and the failure was actually due to a directory creation error. Why,
+// you might ask? Because no matter WHAT is causing the failure, any return of
+// false is a signal that the token is SAFE TO ACCEPT AS TENDER. If there was a
+// temporary file system error, someone could suddenly deposit the same token
+// over and over again and this method would return "false" (Token is "not already
+// spent.")
+//
+// We simply cannot risk that, so false is not returned unless execution reaches
+// the very bottom of this method. Every other error acts as if the token is
+// no good, for security reasons. If the token really IS good, the user can submit
+// it again later and it will work.
+//
+bool OTToken::IsTokenAlreadySpent(OTString & theCleartextToken)
+{
+	// DIRECTORY IS PRESENT?
+	struct stat st;
+	
+	OTString strTokenDirectoryPath;
+	OTString strAssetID(GetAssetID());
+	strTokenDirectoryPath.Format("%s%sspent%s%s.%d", 
+								 OTPseudonym::OTPath.Get(), OTPseudonym::OTPathSeparator.Get(),
+								 OTPseudonym::OTPathSeparator.Get(),
+								 strAssetID.Get(), GetSeries());
+	
+	bool bDirIsPresent = (stat(strTokenDirectoryPath.Get(), &st) == 0);
+	
+	// ----------------------------------------------------------------------------
+	
+	// IF NO, CREATE IT
+	if (!bDirIsPresent)
+	{
+		if (mkdir(strTokenDirectoryPath.Get(), 0700) == -1) 
+		{
+			fprintf(stderr, "OTToken::IsTokenAlreadySpent: Unable to create %s.\n",
+					strTokenDirectoryPath.Get());
+			return true;	// all errors must return true in this function.
+//			return false;	// DANGEROUS! 
+		}
+		
+		// Now we have created it, so let's check again...
+		bDirIsPresent = (stat(strTokenDirectoryPath.Get(), &st) == 0);
+	}
+	
+	// ----------------------------------------------------------------------------
+	
+	// At this point if the folder still doesn't exist, nothing we can do. We
+	// already tried to create the folder, and SUCCEEDED, and then STILL failed 
+	// to find it (if this is still false.)
+	if (!bDirIsPresent)
+	{
+		fprintf(stderr, "IsTokenAlreadySpent: Unable to find newly-created token directory: %s\n", 
+				strTokenDirectoryPath.Get());
+		return true;	// all errors must return true in this function.
+//		return false;	// DANGEROUS
+	}
+	
+	
+	// Calculate the filename (a hash of the Lucre cleartext token ID)
+	OTIdentifier theTokenHash;
+	theTokenHash.CalculateDigest(theCleartextToken);
+	
+	// Grab the new hash into a string (for use as a filename)
+	OTString strTokenHash(theTokenHash);
+	
+	// Construct the full path of the spent token using the directory path (created above.)
+	OTString strTokenPath;
+	strTokenPath.Format("%s/%s", strTokenDirectoryPath.Get(), strTokenHash.Get());
+	
+	// See if the spent token file ALREADY EXISTS...
+	bool bTokenIsPresent = (stat(strTokenPath.Get(), &st) == 0);
+	
+	// If so, we're trying to record a token that was already recorded...
+	if (bTokenIsPresent)
+	{
+		fprintf(stderr, "\nOTToken::IsTokenAlreadySpent: Token was already spent: %s\n", 
+				strTokenPath.Get());
+		return true;	// all errors must return true in this function.
+						// But this is not an error. Token really WAS already
+	}					// spent, and this true is for real. The others are just
+						// for security reasons because of this one.
+	
+	// This is the ideal case: the token was NOT already spent, it was good,
+	// so we can return false and the depositor can be credited appropriately.
+	// IsTokenAlreadySpent?  NO. They can only POSSIBLY get a false out of this
+	// method if they actually reached the bottom (here)
+	return false;
+}
+
+bool OTToken::RecordTokenAsSpent(OTString & theCleartextToken)
+{
+	// DIRECTORY IS PRESENT?
+	struct stat st;
+	
+	OTString strTokenDirectoryPath, strAssetID(GetAssetID());
+	
+	strTokenDirectoryPath.Format("%s%sspent%s%s.%d", 
+								 OTPseudonym::OTPath.Get(), OTPseudonym::OTPathSeparator.Get(),
+								 OTPseudonym::OTPathSeparator.Get(),
+								 strAssetID.Get(), GetSeries());
+	
+	bool bDirIsPresent = (stat(strTokenDirectoryPath.Get(), &st) == 0);
+	
+	// ----------------------------------------------------------------------------
+	
+	// IF NO, CREATE IT
+	if (!bDirIsPresent)
+	{
+		if (mkdir(strTokenDirectoryPath.Get(), 0700) == -1) 
+		{
+			fprintf(stderr, "OTToken::RecordTokenAsSpent: Unable to create %s.\n",
+					strTokenDirectoryPath.Get());
+			return false;
+		}
+		
+		// Now we have created it, so let's check again...
+		bDirIsPresent = (stat(strTokenDirectoryPath.Get(), &st) == 0);
+	}
+	
+	// ----------------------------------------------------------------------------
+	
+	// At this point if the folder still doesn't exist, nothing we can do. We
+	// already tried to create the folder, and SUCCEEDED, and then STILL failed 
+	// to find it (if this is still false.)
+	if (!bDirIsPresent)
+	{
+		fprintf(stderr, "Unable to find newly-created token directory: %s\n", strTokenDirectoryPath.Get());
+		return false;
+	}
+	
+	// Calculate the filename (a hash of the Lucre cleartext token ID)
+	OTIdentifier theTokenHash;
+	theTokenHash.CalculateDigest(theCleartextToken);
+
+	// Grab the new hash into a string (for use as a filename)
+	OTString strTokenHash(theTokenHash);
+	
+	// Construct the full path of the spent token using the directory path (created above.)
+	OTString strTokenPath;
+	strTokenPath.Format("%s/%s", strTokenDirectoryPath.Get(), strTokenHash.Get());
+	
+	// See if the spent token file ALREADY EXISTS...
+	bool bTokenIsPresent = (stat(strTokenPath.Get(), &st) == 0);
+
+	// If so, we're trying to record a token that was already recorded...
+	if (bTokenIsPresent)
+	{
+		fprintf(stderr, "OTToken::RecordTokenAsSpent: Trying to record token as spent,"
+				" but it was already recorded: %s\n", strTokenPath.Get());
+		return false;
+	}
+	
+	// FINISHED:
+	
+	// We actually save the token itself into the file, which is named based
+	// on a hash of the Lucre data.
+	// The success of that operation is also now the success of this one.
+	return SaveContract(strTokenPath.Get());
+	
+	// Note: we COULD save just the Lucre data.  But for now I'm saving the entire token.
+}
+
+
 
 bool OTToken::ReassignOwnership(const OTPseudonym & oldOwner, const OTPseudonym & newOwner)
 {
@@ -236,7 +415,7 @@ bool OTToken::GetSpendableString(OTPseudonym & theOwner, OTString & theString) c
 void OTToken::UpdateContents()
 {
 	if (m_State == OTToken::spendableToken)
-		m_strContractType.Set("NOTE");
+		m_strContractType.Set("CASH");
 	
 	OTString ASSET_TYPE_ID(m_AssetTypeID), SERVER_ID(m_ServerID);
 	
@@ -262,6 +441,9 @@ void OTToken::UpdateContents()
 			break;
 	}
 
+	long lFrom = m_VALID_FROM, lTo = m_VALID_TO;
+
+	
 	// I release this because I'm about to repopulate it.
 	m_xmlUnsigned.Release();
 	
@@ -269,17 +451,34 @@ void OTToken::UpdateContents()
 	
 	m_xmlUnsigned.Concatenate("<token\n version=\"%s\"\n state=\"%s\"\n denomination=\"%ld\"\n"
 							  " assetTypeID=\"%s\"\n"
-							  " serverID=\"%s\" >\n\n", m_strVersion.Get(), strState.Get(), GetDenomination(), 
+							  " serverID=\"%s\"\n"
+							  " series=\"%d\"\n"
+							  " validFrom=\"%ld\"\n"
+							  " validTo=\"%ld\""							  
+							  " >\n\n", 
+							  m_strVersion.Get(), strState.Get(), GetDenomination(), 
 							  ASSET_TYPE_ID.Get(), 
-							  SERVER_ID.Get());		
+							  SERVER_ID.Get(),
+							  m_nSeries, lFrom, lTo );		
 
-	if (OTToken::signedToken == m_State || OTToken::spendableToken == m_State)
+	// signed tokens, as well as spendable tokens, both carry a TokenID
+	// (The spendable token contains the unblinded version.)
+	if (OTToken::signedToken	== m_State || 
+		OTToken::spendableToken	== m_State)
 	{
 		m_xmlUnsigned.Concatenate("<tokenID>\n%s</tokenID>\n\n", m_ascSpendable.Get());
+	}
+	
+	// Only signedTokens carry the signature, which is discarded in spendable tokens.
+	// (Because it is not used past the unblinding stage anyway, and because it could
+	// be used to track the token.)
+	if (OTToken::signedToken == m_State)
+	{
 		m_xmlUnsigned.Concatenate("<tokenSignature>\n%s</tokenSignature>\n\n", m_Signature.Get());
 	}
 	
-	if ((OTToken::protoToken == m_State || OTToken::signedToken == m_State) && m_nTokenCount)
+	if ((OTToken::protoToken == m_State || 
+		 OTToken::signedToken == m_State)	&& m_nTokenCount)
 	{
 		m_xmlUnsigned.Concatenate("<protopurse count=\"%d\" chosenIndex=\"%d\">\n\n", m_nTokenCount, m_nChosenIndex);
 		
@@ -342,6 +541,10 @@ int OTToken::ProcessXMLNode(IrrXMLReader*& xml)
 		m_strVersion	= xml->getAttributeValue("version");					
 		strState		= xml->getAttributeValue("state");
 
+		m_nSeries		= atoi(xml->getAttributeValue("series"));
+		m_VALID_FROM	= atol(xml->getAttributeValue("validFrom"));
+		m_VALID_TO		= atol(xml->getAttributeValue("validTo"));
+		
 		SetDenomination(atol(xml->getAttributeValue("denomination")));
 
 		if (strState.Compare("blankToken"))
@@ -635,46 +838,6 @@ bool OTToken::GetPrivatePrototoken(OTASCIIArmor & ascPrototoken, int nTokenIndex
 }
 
 
-// **** VERIFY THE TOKEN WHEN REDEEMED AT THE SERVER
-// Lucre step 5: token verifies when it is redeemed by merchant.
-// IMPORTANT: while stored on the client side, the tokens are
-// encrypted to the client side nym. But when he redeems them to
-// the server, he re-encrypts them first to the SERVER's public nym.
-// So by the time it comes to verify, we are opening this envelope
-// with the Server's Nym.
-bool OTToken::VerifyToken(OTPseudonym & theNotary, OTMint & theMint)
-{
-	//fprintf(stderr,"%s <bank info> <coin>\n",argv[0]);
-    SetDumper(stderr);
-	
-	if (OTToken::spendableToken != m_State)
-	{
-		fprintf(stderr, "Expected spendable token in OTToken::VerifyToken\n");
-		return false;
-	}
-
-	// load the bank and coin info into the bios
-	// The Mint private info is encrypted in m_ascPrivate. So I need to extract that
-	// first before I can use it.
-	OTEnvelope theEnvelope(m_ascSpendable);
-	
-	OTString strContents; // output from opening the envelope.
-	// Decrypt the Envelope into strContents    
-	if (!theEnvelope.Open(theNotary, strContents))
-		return false;
-	
-	// pass the cleartext Lucre spendable coin data to the Mint to be verified.
-    if (theMint.VerifyToken(theNotary, strContents, GetDenomination()))  // Here's the boolean output: coin is verified!
-	{
-		fprintf(stderr, "Token verified!\n");
-		return true;
-	}
-	else {
-		fprintf(stderr,"Bad coin!\n");
-		return false;
-	}
-}
-
 
 
 // Lucre step 2 (client generates coin request)
@@ -690,6 +853,11 @@ bool OTToken::GenerateTokenRequest(const OTPseudonym & theNym, OTMint & theMint,
 		fprintf(stderr, "Blank token expected in OTToken::GenerateTokenRequest\n");
 		return false;
 	}
+	
+	// We are supposed to set these values here.
+	// The server actually sets them again, for security reasons.
+	// But we should still set them since server may choose to reject the request.
+	SetSeriesAndExpiration(theMint.GetSeries(), theMint.GetValidFrom(), theMint.GetValidTo());
 	
     SetDumper(stderr);
 	
@@ -840,7 +1008,8 @@ inline bool OTToken::ChooseIndex(const int nIndex)
 
 
 
-// The Mint has signed the token, and is sending it back to the client.
+// The Mint has signed the token, and is sending it back to the client. 
+// (we're near Lucre step 3 with this function)
 void OTToken::SetSignature(const OTASCIIArmor & theSignature, int nTokenIndex)
 {
 	// The server sets the signature, and then sends the token back to the
@@ -891,8 +1060,8 @@ bool OTToken::ProcessToken(const OTPseudonym & theNym, OTMint & theMint, OTToken
 		return false;
 	}
 	
+	// Lucre
     SetDumper(stderr);
-	
     BIO *bioBank			= BIO_new(BIO_s_mem()); // input
     BIO *bioSignature		= BIO_new(BIO_s_mem()); // input
     BIO *bioPrivateRequest	= BIO_new(BIO_s_mem()); // input
@@ -910,7 +1079,7 @@ bool OTToken::ProcessToken(const OTPseudonym & theNym, OTMint & theMint, OTToken
 	OTString strSignature(m_Signature);
 	BIO_puts(bioSignature, strSignature.Get());
 	
-	// I need the Private coin request also. (Only the client has this prototoken.)
+	// I need the Private coin request also. (Only the client has this private coin request data.)
 	OTASCIIArmor thePrototoken;		// The server sets m_nChosenIndex when it signs the token.
 	bool bFoundToken = theRequest.GetPrivatePrototoken(thePrototoken, m_nChosenIndex);
 	
@@ -937,14 +1106,17 @@ bool OTToken::ProcessToken(const OTPseudonym & theNym, OTMint & theMint, OTToken
 		
 		// TODO make sure I'm not leaking memory with these ReadNumbers
 		// Probably need to be calling some free function for each one.
+		
+		// Apparently reading the request id here and then just discarding it...
 		ReadNumber(bioSignature,"request=");
 		
+		// Versus the signature data, which is read into bnSignature apparently.
 		BIGNUM * bnSignature	= ReadNumber(bioSignature,"signature=");
 		DumpNumber("signature=", bnSignature);
 		
-		// Produce the final unblinded token.
-		Coin coin;
-		req.ProcessResponse(&coin, bank, bnSignature);
+		// Produce the final unblinded token in Coin coin, and write it to bioCoin...
+		Coin coin; // Coin Request, processes into Coin, with Bank and Signature passed in.
+		req.ProcessResponse(&coin, bank, bnSignature); // Notice still apparently "request" info is discarded.
 		coin.WriteBIO(bioCoin);
 		
 		// convert bioCoin to a C-style string...
@@ -969,9 +1141,15 @@ bool OTToken::ProcessToken(const OTPseudonym & theNym, OTMint & theMint, OTToken
 			// Now the coin is encrypted from here on out, and otherwise ready-to-spend.
 			m_State			= OTToken::spendableToken;
 			bReturnValue	= true;
+			
+			// Lastly, we free the signature data, which is no longer needed, and which could be
+			// otherwise used to trace the token. (Which we don't want.)
+			m_Signature.Release();
 		}
 		
 	}
+	// Todo log error here if the private prototoken is not found. (Very strange if so!!)
+	//  else {}
 	
 	// Cleanup openssl resources.
 	BIO_free_all(bioBank);	
@@ -981,5 +1159,83 @@ bool OTToken::ProcessToken(const OTPseudonym & theNym, OTMint & theMint, OTToken
 
 	return bReturnValue;	
 }
+
+
+
+
+// **** VERIFY THE TOKEN WHEN REDEEMED AT THE SERVER
+// Lucre step 5: token verifies when it is redeemed by merchant.
+// IMPORTANT: while stored on the client side, the tokens are
+// encrypted to the client side nym. But when he redeems them to
+// the server, he re-encrypts them first to the SERVER's public nym.
+// So by the time it comes to verify, we are opening this envelope
+// with the Server's Nym.
+bool OTToken::VerifyToken(OTPseudonym & theNotary, OTMint & theMint)
+{
+	//fprintf(stderr,"%s <bank info> <coin>\n",argv[0]);
+    SetDumper(stderr);
+	
+	if (OTToken::spendableToken != m_State)
+	{
+		fprintf(stderr, "Expected spendable token in OTToken::VerifyToken\n");
+		return false;
+	}
+	
+	// load the bank and coin info into the bios
+	// The Mint private info is encrypted in m_ascPrivate. So I need to extract that
+	// first before I can use it.
+	OTEnvelope theEnvelope(m_ascSpendable);
+	
+	OTString strContents; // output from opening the envelope.
+	// Decrypt the Envelope into strContents    
+	if (!theEnvelope.Open(theNotary, strContents))
+		return false; // todo log error, etc.
+	
+	// Verify that the series is correct...
+	// (Otherwise, someone passed us the wrong Mint and the
+	// thing won't verify anyway, since we'd have the wrong keys.)
+	if (m_nSeries		!= theMint.GetSeries() ||
+		// Someone might, however, in a clever attack, choose to leave
+		// the series intact, but change the expiration dates, so that the
+		// mint keys continue to work properly for this token, but then
+		// when we check the date, it APPEARS good, when really the dates
+		// were altered! To prevent this, we explicitly verify the series
+		// information on the token against the same info on the mint,
+		// BEFORE checking the date.
+		m_VALID_FROM	!= theMint.GetValidFrom() ||
+		m_VALID_TO		!= theMint.GetValidTo())
+	{
+		fprintf(stderr, "Token series information doesn't match Mint series information!\n");
+		return false;
+	}
+	
+	// Verify whether token has expired...expiration date is validated here.
+	// We know the series is correct or the key wouldn't verify below... and
+	// we know that the dates are correct because we compared them against the
+	// mint of that series above. So now we just make sure that the CURRENT date
+	// and time is within the range described on the token.
+	if (!VerifyCurrentDate())
+	{
+		fprintf(stderr, "Token is expired!\n");
+		return false;
+	}
+	
+	// pass the cleartext Lucre spendable coin data to the Mint to be verified.
+    if (theMint.VerifyToken(theNotary, strContents, GetDenomination()))  // Here's the boolean output: coin is verified!
+	{
+		fprintf(stderr, "Token verified!\n");
+		return true;
+	}
+	else {
+		fprintf(stderr,"Bad coin!\n");
+		return false;
+	}
+}
+
+
+
+
+
+
 
 

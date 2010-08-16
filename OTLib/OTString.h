@@ -180,7 +180,7 @@ public:
 
    void WriteToFile(FILE * fl = NULL) const;
 
-   void Release(void);
+   virtual void Release(void);
 
    // Implementation
 private:

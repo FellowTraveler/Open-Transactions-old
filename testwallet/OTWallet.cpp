@@ -111,6 +111,10 @@ OTAssetContract		* g_pTemporaryContract = NULL;
 OTServerContract	* g_pServerContract = NULL;
 
 
+
+
+
+
 OTWallet::OTWallet() : m_Connection(*this)
 {
 	m_pWithdrawalPurse = NULL;
@@ -123,6 +127,8 @@ OTWallet::~OTWallet()
 	//2) Go through the map of Contracts and delete them. (They were dynamically allocated.)
 	//3) Go through the map of Servers and delete them. (They were dynamically allocated.)
 	//4) Go through the map of Accounts and delete them. (They were dynamically allocated.)
+	
+	// (Usually this object dies only when the app dies anyway.)
 }
 
 
@@ -174,15 +180,67 @@ bool OTWallet::SignContractWithFirstNymOnList(OTContract & theContract)
 // Whereas in a nice user interface, you would loop through all the servers in 
 // the wallet and display them in a nice list on the screen, and the user could
 // just click on one, and you would just call Wallet.Connect(ServerID) and do your thing.
-bool OTWallet::ConnectToTheFirstServerOnList()
+bool OTWallet::ConnectToTheFirstServerOnList(OTString & strCA_FILE, OTString & strKEY_FILE, OTString & strKEY_PASSWORD)
 {
 	if (g_pTemporaryNym && g_pServerContract)
 	{
-		return m_Connection.Connect(*g_pTemporaryNym, *g_pServerContract);
+		return m_Connection.Connect(*g_pTemporaryNym, *g_pServerContract,
+									strCA_FILE, strKEY_FILE, strKEY_PASSWORD);
 	}
 	
 	return false;
 }
+
+
+// Pass in the Server ID and get the pointer back.
+OTServerContract * OTWallet::GetServerContract(const OTIdentifier & SERVER_ID)
+{
+	OTContract * pServer = NULL;
+
+	for (mapOfServers::iterator ii = m_mapServers.begin(); ii != m_mapServers.end(); ++ii)
+	{
+		if (pServer = (*ii).second) // if not null
+		{
+			OTIdentifier id_CurrentContract;
+			pServer->GetIdentifier(id_CurrentContract);
+			
+			if (id_CurrentContract == SERVER_ID)
+				return (OTServerContract *)pServer;
+		}
+		else {
+			fprintf(stderr, "NULL server pointer in OTWallet::m_mapServers, OTWallet::GetServerContract");
+		}
+	}
+	
+	return NULL;
+}
+
+
+// The wallet presumably has multiple Nyms listed within.
+// I should be able to pass in a Nym ID and, if the Nym is there,
+// the wallet returns a pointer to that nym.
+OTPseudonym * OTWallet::GetNymByID(const OTIdentifier & NYM_ID)
+{
+	OTPseudonym * pNym = NULL;
+	
+	for (mapOfNyms::iterator ii = m_mapNyms.begin(); ii != m_mapNyms.end(); ++ii)
+	{		
+		if (pNym = (*ii).second) // if not null
+		{
+			OTIdentifier id_CurrentNym;
+			pNym->GetIdentifier(id_CurrentNym);
+			
+			if (id_CurrentNym == NYM_ID)
+				return pNym;
+		}
+		else {
+			fprintf(stderr, "NULL pseudonym pointer in OTWallet::GetNymByID.");
+		}		
+	}	
+	
+	return NULL;
+}
+
 
 
 void OTWallet::DisplayStatistics(OTString & strOutput)
@@ -533,6 +591,9 @@ bool OTWallet::LoadWallet(const char * szFilename)
 	if (NULL == szFilename)
 		return false;
 		
+	// Save this for later...
+	m_strFilename = szFilename;
+	
 	IrrXMLReader* xml = createIrrXMLReader(szFilename);
 		
 	// parse the file until end reached
@@ -540,7 +601,6 @@ bool OTWallet::LoadWallet(const char * szFilename)
 	{
 		// strings for storing the data that we want to read out of the file
 		OTString NymName;
-		OTString NymFile;
 		OTString NymID;
 		
 		OTString AssetName;
@@ -565,41 +625,42 @@ bool OTWallet::LoadWallet(const char * szFilename)
 			{
 				if (!strcmp("wallet", xml->getNodeName()))
 				{
-					m_strName = xml->getAttributeValue("name");					
-					m_strVersion = xml->getAttributeValue("version");					
+					m_strName				= xml->getAttributeValue("name");					
+//					OTPseudonym::OTPath		= xml->getAttributeValue("path");					
+					m_strVersion			= xml->getAttributeValue("version");					
 					
 					fprintf(stderr, "\nLoading wallet: %s, version: %s\n", m_strName.Get(), m_strVersion.Get());
 				}
 				else if (!strcmp("pseudonym", xml->getNodeName()))
 				{
 					NymName = xml->getAttributeValue("name");// user-assigned name for GUI usage				
-					NymFile = xml->getAttributeValue("file");// another XML file. Need to store stuff for nyms.
 					NymID = xml->getAttributeValue("nymID"); // message digest from hash of x.509 cert
 					
-					fprintf(stderr, "\n\n** Pseudonym ** (wallet listing): %s\nID: %s\nfile: %s\n",
-							NymName.Get(), NymID.Get(), NymFile.Get());
+					fprintf(stderr, "\n\n** Pseudonym ** (wallet listing): %s\nID: %s\n",
+							NymName.Get(), NymID.Get());
 
-					OTPseudonym * pNym = new OTPseudonym(NymName, NymFile, NymID);
+					OTPseudonym * pNym = new OTPseudonym(NymName, NymID, NymID);
 										
-					if (pNym && pNym->LoadNymfile((char*)(NymFile.Get())))
+					if (pNym && pNym->Loadx509CertAndPrivateKey())
 					{
-						if (pNym->Loadx509CertAndPrivateKey()) 
-						{							
-							if (pNym->VerifyPseudonym()) 
+						if (pNym->VerifyPseudonym()) 
+						{
+							if (pNym->LoadSignedNymfile(*pNym)) 
 							{
 								m_mapNyms[NymID.Get()] = pNym;
+
 								g_pTemporaryNym = pNym; // TODO remove this temporary line used for testing only.
 							}
 							else {
-								fprintf(stderr, "Error verifying public key from x509 against Nym ID in OTWallet::LoadWallet\n");
+								fprintf(stderr, "Error creating or loading Nym in OTWallet::LoadWallet\n");
 							}
 						}
 						else {
-							fprintf(stderr, "Error loading x509 file for Pseudonym in OTWallet::LoadWallet\n");
+							fprintf(stderr, "Error verifying public key against Nym ID in OTWallet::LoadWallet\n");
 						}
 					}
 					else {
-						fprintf(stderr, "Error creating or loading Nym in OTWallet::LoadWallet\n");
+						fprintf(stderr, "Error loading x509 file for Pseudonym in OTWallet::LoadWallet\n");
 					}
 				}
 				else if (!strcmp("assetType", xml->getNodeName()))

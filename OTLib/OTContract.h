@@ -118,13 +118,13 @@ class OTContract
 	friend class OTPayload;
 	
 protected:
-	OTString		m_strName;     // Contract name as shown in the wallet.
-	OTString		m_strFilename; // Filename for this contract
-	OTIdentifier		m_ID;	   	// Hash of m_xmlUnsigned.
-	OTStringXML		m_xmlUnsigned; // The Unsigned Clear Text (XML contents without signatures.)
-	OTString		m_strRawFile;  // The complete raw file including signatures.
-	OTString		m_strSigHashType; // The Hash algorithm used for the signature
-	OTString		m_strContractType; // CONTRACT, MESSAGE, TRANSACTION, LEDGER, TRANSACTION ITEM 
+	OTString		m_strName;			// Contract name as shown in the wallet.
+	OTString		m_strFilename;		// Filename for this contract
+	OTIdentifier	m_ID;				// Hash of the contract, including signatures. (the "raw file")
+	OTStringXML		m_xmlUnsigned;		// The Unsigned Clear Text (XML contents without signatures.)
+	OTString		m_strRawFile;		// The complete raw file including signatures.
+	OTString		m_strSigHashType;	// The Hash algorithm used for the signature
+	OTString		m_strContractType;	// CONTRACT, MESSAGE, TRANSACTION, LEDGER, TRANSACTION ITEM 
 
 	mapOfNyms		m_mapNyms;	// The default behavior for a contract, though occasionally overridden,
 								// is to contain its own public keys internally, located on standard XML tags.
@@ -202,7 +202,7 @@ public:
 	// becomes necessary.)
 	
 	virtual ~OTContract();
-	void Release();
+	virtual void Release();
 	void ReleaseSignatures();
 
 	// This function is for those times when you already have the unsigned version 

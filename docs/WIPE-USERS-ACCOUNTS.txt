@@ -1,0 +1,85 @@
+
+
+TO CLEAR THE SERVER INSTALLATION OF ALL: User Accounts, Asset Types, Asset Accounts, Spent Tokens, etc and therefore START FRESH yet with the SAME test keys, (but all new user data) follow these steps:
+
+
+In the Open-Transactions/transaction folder:
+
+rm accounts/*
+rm contracts/*
+rm inbox/*
+rm outbox/*
+rm mints/*
+rm pubkeys/*
+rm useraccounts/*
+rm -R spent/*
+
+Do NOT touch the certs folder.
+
+In the nyms folder (Open-Transactions/transaction/nyms), remove EVERY FILE EXCEPT THE SERVER NYM, WHICH IS THIS ONE (IN THE TEST DATA):
+c8d51447808b8c5bcb63e27e707383ba81449dfd518f492096dbdb46ff60a89148cca60ea4093c7acacd4019a21aa054b96fd4f252c535a717edf91ae816868c
+
+
+Then edit notaryServer.xml and remove all of the extra user data such as asset types, etc. It should look like this when you're done:
+
+<?xml version="1.0"?>
+<notaryServer version="1.0"
+ serverID="0bb39523d6b54381c5477aeae808cb51dfbada7bd256e3a0298273a59772f5ad93cd5dee4e6061283dcffd1447719d96fd00b81b8945d01430fdfe68d8adb51f"
+ serverUserID="c8d51447808b8c5bcb63e27e707383ba81449dfd518f492096dbdb46ff60a89148cca60ea4093c7acacd4019a21aa054b96fd4f252c535a717edf91ae816868c"
+ transactionNum="0" >
+
+</notaryServer>
+
+-----------------------------------------------------------
+
+SAME THING on the CLIENT SIDE:
+
+To keep your test keys, yet erase all the asset accounts and "start fresh" with a blank installation (and the same test keys and Nyms already generated) then follow these steps for the TEST WALLET:
+
+In the Open-Transactions/testwallet directory:
+
+
+rm accounts/*
+
+In the testwallet/contracts folder, do NOT remove transactionscom.xml, since that is your server contract. (It's the test server contract that tries to connect to a server on localhost.) There is a backup of this file in the sample-contracts directory.
+Remove all the other files in the contracts folder, except transactionscom.xml as just described.
+
+Do NOT touch the certs folder.
+
+rm mints/*
+
+Do NOT touch the nyms folder.  You keep your nym on the client side, and use it to create your user account on the server. If you erase your own nym, then you cannot use it to create your user account when you connect to the Open Transactions server.
+
+rm purse/*
+
+edit wallet.xml with your favorite editor...
+-- keep the pseudonym.
+-- keep the notaryProvider
+-- delete all the asset types (you can re-issue them)
+-- delete all the asset accounts (you can create as many new ones as you want.)
+
+It will look like this when you are done:
+
+<?xml version="1.0"?>
+<wallet name="Fellow Traveler's test wallet" version="1.0">
+
+<pseudonym name="Test User"
+ nymID="5bce5c3e8c18d05a36fb31845830fba3b45542ac1010739037a00714205fc99bd716a3ee94f3c5ff66a8b0fa6d887af962ef3df31e3e353c0263d68b09897726"
+ file="/Users/REDACTED/Projects/Open-Transactions/testwallet/nyms/5bce5c3e8c18d05a36fb31845830fba3b45542ac1010739037a00714205fc99bd716a3ee94f3c5ff66a8b0fa6d887af962ef3df31e3e353c0263d68b09897726">
+
+<notaryProvider name="Transactions.com"
+ serverID="0bb39523d6b54381c5477aeae808cb51dfbada7bd256e3a0298273a59772f5ad93cd5dee4e6061283dcffd1447719d96fd00b81b8945d01430fdfe68d8adb51f"
+ contract="contracts/transactionscom.xml" /> 
+
+</wallet>
+
+
+Make sure the path in the above wallet.xml file is correct based on your own system.
+
+----------------------------------------------------------
+
+Now you can run the software fresh, as if zero users had ever connected to it!
+
+(Yet while continuing to use the test keys and test nym that came with the distribution.)
+
+ 

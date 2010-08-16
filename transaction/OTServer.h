@@ -85,24 +85,31 @@
 #ifndef __OTSERVER_H__
 #define __OTSERVER_H__
 
+#include <map>
+
 #include "OTString.h"
 #include "OTPseudonym.h"
-#include "OTMint.h"
+//#include "OTMint.h"
 #include "OTAssetContract.h"
 
 class OTMessage;
 class OTClientConnection;
 class OTAccount;
 class OTTransaction;
+class OTMint;
 
 // these correspond--same IDs.
-typedef std::map<std::string, OTMint *>		mapOfMints;
-typedef std::map<std::string, std::string>	mapOfBaskets;
+typedef std::multimap<std::string, OTMint *>	mapOfMints;
+typedef std::map<std::string, std::string>		mapOfBaskets;
+typedef std::map<std::string, OTAccount *>		mapOfAccounts; // server side these are keyed by asset type ID
 
 class OTServer
 {
-	OTString	m_strVersion;
-	OTString	m_strServerID;
+	OTString	m_strVersion;		// Unused currently.
+	
+	OTString	m_strServerID;		// A hash of the server contract
+	OTString	m_strServerUserID;	// A hash of the public key that signed the server contract.
+	
 	long		m_lTransactionNumber;	// This stores the last VALID AND ISSUED transaction number.
 
 	
@@ -111,6 +118,8 @@ class OTServer
 	
 	mapOfContracts	m_mapContracts;	// The asset types supported by this server.
 	mapOfMints		m_mapMints;		// The mints for each asset type.
+	
+	mapOfAccounts	m_mapVoucherAccounts; // the voucher accounts (see GetVoucherAccount below for details)
 	
 	mapOfBaskets	m_mapBaskets;	// this map connects BASKET_ID with BASKET_ACCOUNT_ID (so you can look up the server's
 									// basket issuer account ID, which is *different* on each server, using the Basket Currency's
@@ -121,7 +130,16 @@ public:
 	OTServer();
 	~OTServer();
 	
-	OTMint * GetMint(const OTIdentifier & ASSET_TYPE_ID); // Each asset contract has its own Mint.
+	OTMint * GetMint(const OTIdentifier & ASSET_TYPE_ID, int nSeries); // Each asset contract has its own series of Mints
+	
+	// Whenever the server issues a voucher (like a cashier's cheque), it puts the funds in one
+	// of these voucher accounts (one for each asset type ID). Then it issues the cheque from the
+	// same account.
+	// TODO: also should save the cheque itself to a folder, where the folder is named based on the date 
+	// that the cheque will expire.  This way, the server operator can go back later, or have a script,
+	// to retrieve the cheques from the expired folders, and total them. The server operator is free to
+	// remove that total from the Voucher Account once the cheque has expired: it is his money now.
+	OTAccount * GetVoucherAccount(const OTIdentifier & ASSET_TYPE_ID);
 	
 	// When a user uploads an asset contract, the server adds it to the list (and verifies the user's key against the
 	// contract.) This way the server has a directory with all the asset contracts that it supports, saved by their ID.
@@ -143,7 +161,7 @@ public:
 	void Init(); // Loads the main file...
 	
 	bool LoadMainFile(); // Called in Init. Loads transaction number.
-	bool SaveMainFile(); // Called in GetNextTransactionNumber.
+	bool SaveMainFile(); // Called in IssueNextTransactionNumber.
 	
 	bool ProcessUserCommand(OTClientConnection & theConnection, OTMessage & theMessage, OTMessage & MsgOut);
 	bool ValidateServerIDfromUser(OTString & strServerID);
@@ -163,8 +181,9 @@ public:
 	void UserCmdGetMint(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut);
 	void UserCmdProcessInbox(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut);
 
-	bool VerifyTransactionNumber(long &lTransactionNumber); // verify a transaction number. passed by reference for speed :P
-	bool GetNextTransactionNumber(long &lTransactionNumber); // issue the next transaction number	
+	bool IssueNextTransactionNumber(OTPseudonym & theNym, long &lTransactionNumber, bool bStoreTheNumber=true);
+	bool VerifyTransactionNumber(OTPseudonym & theNym, const long &lTransactionNumber);	// Verify a transaction number. passed by reference for speed :P
+	bool RemoveTransactionNumber(OTPseudonym & theNym, const long &lTransactionNumber);	// A nym has just used a transaction number. Remove it from his file.
 	
 	// If the server receives a notarizeTransactions command, it will be accompanied by a payload
 	// containing a ledger to be notarized.  UserCmdNotarizeTransactions will loop through that ledger,

@@ -10,8 +10,8 @@ Then copy the appropriate files to the client and server SSL-Example folders.
 with all the test passwords set to "test". So if you just want to try it out, you're
 already GOOD TO GO! 
 
-** But if you would like to erase all the certs, these are instructions for re-creating
-them in a format that the software will use.
+** But if you would like to erase all the certs, these are the instructions for
+re-creating them in a format that the software will use.
 
 
 ===> HOW IS THIS ALL DONE?

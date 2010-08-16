@@ -1,26 +1,26 @@
+-----BEGIN SIGNED FILE-----
+Hash: SAMY
+
 <?xml version="1.0"?>
 
-<OTuser version="1.0"
- nymID="5bce5c3e8c18d05a36fb31845830fba3b45542ac1010739037a00714205fc99bd716a3ee94f3c5ff66a8b0fa6d887af962ef3df31e3e353c0263d68b09897726">
+<signedFile
+ version="1.0"
+ localDir="nyms"
+ filename="5bce5c3e8c18d05a36fb31845830fba3b45542ac1010739037a00714205fc99bd716a3ee94f3c5ff66a8b0fa6d887af962ef3df31e3e353c0263d68b09897726" >
 
-<requestNum
- serverID="0bb39523d6b54381c5477aeae808cb51dfbada7bd256e3a0298273a59772f5ad93cd5dee4e6061283dcffd1447719d96fd00b81b8945d01430fdfe68d8adb51f"
- currentRequestNum="55"/>
+<filePayload>
+eJzN0s9KBDEMBnDP8xTLPICbNk2bwv65ePGiIL5A2qQguCPOzoq+vR0UYd/Acz4+
+fgnZHT9Pr5sPm88vb9N+dLcwHg/DsHt8vpxtvh4Mm+nrdH+3H6lUo4rG1bECCcZW
+0HEgRmhFsASi4KU6cJAwAyYBSC54oFZzLppcFDTLoWGl1mIULtAkKnOSlqO3htrQ
+GRoSVvARNfZI5pySj+MqnO39Yufl4XIaNp3apSsNSsFMvscLBWRXKaQkJsbAtZDT
+7lNJRT1FQwGf2ScUWnsbiWasSmoWLEJ0nlFra+pCb3FZc2wKUNgVzoEUXOgLa7PI
+yqK9vvUj1cs827Q8/fn2I+O4Xc3LLNNZ6tJP+v/c17j9GMKvevvzDIfh5htiX59f
+</filePayload>
 
-<transactionNum
- serverID="0bb39523d6b54381c5477aeae808cb51dfbada7bd256e3a0298273a59772f5ad93cd5dee4e6061283dcffd1447719d96fd00b81b8945d01430fdfe68d8adb51f"
- transactionNum="298"/>
+</signedFile>
+-----BEGIN FILE SIGNATURE-----
+suqrVPRSFXNR2UqZVlFWGnETObDTqDfGTqU3pWxRAXH5GkW6MqMrcJf+HiY/IAhY
+dAMzeNTpUMV0ghDPpPEXBSPpq6/YjAJNU1Lw1G6kbr7xsLkBic63Ihv3uO38FreH
+X1EuNssgxSJ4wMQwU+YmvtcxI1LvqMeZz222XjNi4iE=
+-----END FILE SIGNATURE-----
 
-<transactionNum
- serverID="0bb39523d6b54381c5477aeae808cb51dfbada7bd256e3a0298273a59772f5ad93cd5dee4e6061283dcffd1447719d96fd00b81b8945d01430fdfe68d8adb51f"
- transactionNum="297"/>
-
-<transactionNum
- serverID="0bb39523d6b54381c5477aeae808cb51dfbada7bd256e3a0298273a59772f5ad93cd5dee4e6061283dcffd1447719d96fd00b81b8945d01430fdfe68d8adb51f"
- transactionNum="296"/>
-
-<transactionNum
- serverID="0bb39523d6b54381c5477aeae808cb51dfbada7bd256e3a0298273a59772f5ad93cd5dee4e6061283dcffd1447719d96fd00b81b8945d01430fdfe68d8adb51f"
- transactionNum="289"/>
-
-</OTuser>

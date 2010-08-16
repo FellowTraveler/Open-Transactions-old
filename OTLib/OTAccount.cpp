@@ -111,7 +111,6 @@ using namespace io;
 #include "OTStringXML.h"
 #include "OTPseudonym.h"
 
-
 // TODO:  add an override so that OTAccount, when it loads up, it performs the check to
 // see the ServerID, look at the Server Contract and make sure the server hashes match.
 // 
@@ -123,7 +122,8 @@ bool OTAccount::LoadContract()
 {
 	OTString strID;
 	GetIdentifier(strID);
-	m_strFilename.Format("accounts/%s", strID.Get());
+	m_strFilename.Format("%s%saccounts%s%s", OTPseudonym::OTPath.Get(), OTPseudonym::OTPathSeparator.Get(),
+						 OTPseudonym::OTPathSeparator.Get(), strID.Get());
 
 	return OTContract::LoadContract();
 }
@@ -132,7 +132,8 @@ bool OTAccount::SaveAccount()
 {
 	OTString strID;
 	GetIdentifier(strID);
-	m_strFilename.Format("accounts/%s", strID.Get()); // Todo stop hardcoding the path.
+	m_strFilename.Format("%s%saccounts%s%s", OTPseudonym::OTPath.Get(), OTPseudonym::OTPathSeparator.Get(),
+						 OTPseudonym::OTPathSeparator.Get(), strID.Get());
 	
 	// the const char * version (used here) expects a filename.
 	// If I passed in the OTString it would try to save to that string instead of opening the file.
@@ -140,42 +141,60 @@ bool OTAccount::SaveAccount()
 	return SaveContract(strTemp.Get());
 }
 
-// Debit a certain amount from the account (presumably the same amount is being added somewhere)
+// Debit a certain amount from the account (presumably the same amount is being credited somewhere else)
 bool OTAccount::Debit(long lAmount)
 {
+	/* // TODO: Decide whether or not to allow negative Debits and negative Credits. (Currrently allowed.)
+	if (lAmount < 0)
+		return false;
+	 */
+	
 	long lOldBalance = atol(m_BalanceAmount.Get());
 	
-	long lNewBalance = lOldBalance - lAmount;
+	long lNewBalance = lOldBalance - lAmount;	// The MINUS here is the big difference between Debit and Credit
 	
 	// This is where issuer accounts get a pass. They just go negative.
-	if (lNewBalance < 0 && (OTAccount::simple == m_AcctType))
-		return false;
-	else
-	{
+	if ((lNewBalance < 0)					&&	// IF the new balance is less than zero...
+		(OTAccount::simple == m_AcctType)	&&	// AND it's a normal account... (not an issuer)
+		(lNewBalance < lOldBalance))			// AND the new balance is even less than the old balance...
+		return false;							// THEN FAIL. The "new less than old" requirement is recent,
+	else										// and it means that we now allow <0 debits on normal accounts,
+	{											// AS LONG AS the result is a HIGHER BALANCE  :-)
 		m_BalanceAmount.Format("%ld", lNewBalance);
 		return true;	
 	}
 }
 
 
-// Credit a certain amount from the account (presumably the same amount is being subtracted somewhere)
+// Credit a certain amount to the account (presumably the same amount is being debited somewhere else)
 bool OTAccount::Credit(long lAmount)
 {
+	/* // TODO: Decide whether or not to allow negative Debits and negative Credits. (Currrently allowed.)
+	 if (lAmount < 0)
+	 return false;
+	 */
+
 	long lOldBalance = atol(m_BalanceAmount.Get());
 	
-	long lNewBalance = lOldBalance + lAmount;
+	long lNewBalance = lOldBalance + lAmount;  // The PLUS here is the big difference between Debit and Credit.
 	
 	// If the balance gets too big, it may flip to negative due to us using long int.
-	// We'll just explicitly check that it's not negative in order to prevent that.
-	// Issuers, of course, get a pass here as well in order to continue functioning 
-	// with negative balances.
-	if (lNewBalance > 0 || (OTAccount::simple != m_AcctType))
-	{
+	// We'll maybe explicitly check that it's not negative in order to prevent that. TODO.
+//	if (lNewBalance > 0 || (OTAccount::simple != m_AcctType))
+//	{
+//		m_BalanceAmount.Format("%ld", lNewBalance);
+//		return true;		
+//	}
+
+	// This is where issuer accounts get a pass. They just go negative.
+	if ((lNewBalance < 0)					&&	// IF the new balance is less than zero...
+		(OTAccount::simple == m_AcctType)	&&	// AND it's a normal account... (not an issuer)
+		(lNewBalance < lOldBalance))			// AND the new balance is even less than the old balance...
+		return false;							// THEN FAIL. The "new less than old" requirement is recent,
+	else										// and it means that we now allow <0 debits on normal accounts,
+	{											// AS LONG AS the result is a HIGHER BALANCE  :-)
 		m_BalanceAmount.Format("%ld", lNewBalance);
-		return true;		
-	}
-	else {
-		return false;
+		return true;
 	}
 }
 
@@ -292,7 +311,8 @@ OTAccount * OTAccount::LoadExistingAccount(const OTIdentifier & theAccountID, co
 		
 		OTString strAcctID(theAccountID);
 		
-		pAccount->m_strFilename.Format("accounts/%s", strAcctID.Get());
+		pAccount->m_strFilename.Format("%s%saccounts%s%s", OTPseudonym::OTPath.Get(), OTPseudonym::OTPathSeparator.Get(),
+									   OTPseudonym::OTPathSeparator.Get(), strAcctID.Get());
 		
 		if (pAccount->LoadContract() && pAccount->VerifyContractID())
 			return pAccount;
@@ -305,6 +325,8 @@ OTAccount * OTAccount::LoadExistingAccount(const OTIdentifier & theAccountID, co
 	return NULL;
 }
 
+
+// static method (call it without an instance, using notation: OTAccount::GenerateNewAccount)
 OTAccount * OTAccount::GenerateNewAccount(const OTIdentifier & theUserID,	const OTIdentifier & theServerID, 
 										  const OTPseudonym & theServerNym,	const OTMessage & theMessage,
 										  const OTAccount::AccountType eAcctType/*=OTAccount::simple*/)
@@ -324,6 +346,16 @@ OTAccount * OTAccount::GenerateNewAccount(const OTIdentifier & theUserID,	const 
 }
 
 
+
+
+/*
+ 
+ Just make sure theMessage has these members populated:
+theMessage.m_strNymID;
+theMessage.m_strAssetID; 
+theMessage.m_strServerID;
+ */
+// The above method uses this one internally...
 bool OTAccount::GenerateNewAccount(const OTPseudonym & theServer, const OTMessage & theMessage,
 								   const OTAccount::AccountType eAcctType/*=OTAccount::simple*/)
 {
@@ -356,7 +388,8 @@ bool OTAccount::GenerateNewAccount(const OTPseudonym & theServer, const OTMessag
 	m_strName.Set(strID); // So it's not blank. The user can always change it.
 	
 	// Next we create the full path filename for the account using the ID.
-	m_strFilename.Format("accounts/%s", strID.Get());
+	m_strFilename.Format("%s%saccounts%s%s", OTPseudonym::OTPath.Get(), OTPseudonym::OTPathSeparator.Get(),
+						 OTPseudonym::OTPathSeparator.Get(), strID.Get());
 	
 	// Then we try to load it, in order to make sure that it doesn't already exist.
 	if (LoadContractRawFile())
@@ -459,8 +492,8 @@ bool OTAccount::SaveContractWallet(FILE * fl)
 {
 	OTString strAccountID(GetPurportedAccountID()), strServerID(GetPurportedServerID()), strUserID(GetUserID());
 	
-	fprintf(fl, "<assetAccount name=\"%s\"\n file=\"%s\"\n userID=\"%s\"\n accountID=\"%s\"\n serverID=\"%s\" /> "
-			"\n\n", m_strName.Get(), m_strFilename.Get(), strUserID.Get(), strAccountID.Get(), strServerID.Get());	
+	fprintf(fl, "<assetAccount name=\"%s\"\n file=\"%s\"\n userID=\"%s\"\n serverID=\"%s\"\n accountID=\"%s\"  /> "
+			"\n\n", m_strName.Get(), m_strFilename.Get(), strUserID.Get(), strServerID.Get(), strAccountID.Get());	
 	
 	return true;
 }

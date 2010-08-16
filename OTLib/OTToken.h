@@ -90,6 +90,7 @@
 #include <string>
 
 #include "OTContract.h"
+#include "OTInstrument.h"
 #include "OTASCIIArmor.h"
 #include "OTSignature.h"
 
@@ -97,6 +98,7 @@ class OTString;
 class OTIdentifier;
 class OTMint;
 class OTPurse;
+class OTPseudonym;
 
 typedef std::map  <int, OTASCIIArmor *>	mapOfPrototokens;
 
@@ -133,7 +135,7 @@ typedef std::map  <int, OTASCIIArmor *>	mapOfPrototokens;
 
 // This class implements the Lucre coins.
 //
-class OTToken : public OTContract 
+class OTToken : public OTInstrument 
 {
 public:
 	enum tokenState {
@@ -159,10 +161,6 @@ protected:
 	long				m_lDenomination;// The actual value of the token is between issuer and trader.
 										// The token must have a denomination so we know which Mint Key to verify it with.
 	
-	OTIdentifier		m_AssetTypeID;	// Hash of the asset contract (the asset contract ID or asset type.)
-	OTIdentifier		m_ServerID;		// Server ID of the transaction notary
-	
-	
 	// --------------- Prototoken stuff below here.....
 	
 	mapOfPrototokens	m_mapPublic;	// in protoToken state, this object stores N prototokens in order to fulfill the protocol
@@ -173,29 +171,27 @@ protected:
 										// (The server opens the other (N-1) prototokens to verify the amount is correct and
 										// that the IDs are random enough.)
 
-	
-	// TODO:  BASKETS
-	
-	// TODO: add an EXPIRATION DATE to the token.
+	// -----------------------------------------------------------
+	// Expiration dates are necessary because otherwise the spent token database must be stored
+	// forever. This may be useful in some applications, but in most, a 1-year or 1-month expiration
+	// date will be perfectly fine, especially with auto-exchanges performed by the wallet. Suddenly
+	// it becomes much more feasible a proposition to effectively run a token server, without having
+	// to hold those spent tokens forever.
 	//
-	// All tokens must have expiration dates, the terms of which are described in their contract
-	// and enforced by the wallet. (For example your wallet should update your coins periodically
-	// as they approach the expiration date.)
+	// EXPIRATION DATES are in the parent:
 	//
-	// This is necessary because otherwise the spent token database must be stored forever. This
-	// may be useful in some applications, but in most, a 1-year or 1-month expiration date will
-	// be perfectly fine, especially with auto-exchanges performed by the wallet. Suddenly it becomes
-	// much more feasible a proposition to effectively run a token server, without having to hold
-	// those spent tokens forever.
+	// time_t			m_VALID_FROM;	// (In the parent)
+	// time_t			m_VALID_TO;		// (In the parent)
 	//
-	// The expiration date is easy to add, but not necessary for proof-of-concept, so I'm skipping it
-	// for now. But it's an essential feature.
+	// Tokens (and Mints) also have a SERIES:
+	//
+	int					m_nSeries;
 	
 
-	tokenState m_State;
+	tokenState			m_State;
 
 	
-	bool	m_bSavePrivateKeys; // Determines whether it serializes private keys 1 time (yes if true)
+	bool				m_bSavePrivateKeys; // Determines whether it serializes private keys 1 time (yes if true)
 
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
 	
@@ -209,10 +205,11 @@ public:
 	OTToken(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID);
 	OTToken(const OTPurse & thePurse);
 	virtual ~OTToken();
-	void Release();
+	
+	virtual void Release();
 	void ReleasePrototokens();
 
-	void UpdateContents(); // Before transmission or serialization, this is where the token saves its contents 	
+	virtual void UpdateContents(); // Before transmission or serialization, this is where the token saves its contents 	
 
 	// Will save the private keys on next serialization (not just public keys)
 	// (SignContract sets m_bSavePrivateKeys back to false again.)
@@ -227,11 +224,7 @@ public:
 	
 	bool GetSpendableString(OTPseudonym & theOwner, OTString & theString) const;
 	
-	inline const OTIdentifier & GetAssetID() const { return m_AssetTypeID; }
-	
 	inline OTToken::tokenState GetState() const { return m_State; }
-	
-	inline const OTIdentifier & GetServerID() const { return m_ServerID; }
 	
 	// ------------------------------------------------------------------------
 
@@ -244,12 +237,20 @@ public:
 							  long lDenomination, int nTokenCount=nMinimumPrototokenCount);
 
 	// Lucre Step 3: Mint signs token (in OTMint)
+	inline int	GetSeries() const { return m_nSeries; }
+	inline void SetSeriesAndExpiration  // (Called by the mint when signing.)
+		(int nSeries, time_t VALID_FROM, time_t VALID_TO)
+	{	m_nSeries = nSeries; 	m_VALID_FROM = VALID_FROM;	m_VALID_TO = VALID_TO; }
 	
 	// Lucre step 4: client unblinds token -- now it's ready for use.
 	bool ProcessToken(const OTPseudonym & theNym, OTMint & theMint, OTToken & theRequest);
 
 	// Lucre step 5: token verifies when it is redeemed by merchant.
+	//				 Now including spent token database!
 	bool VerifyToken(OTPseudonym & theNotary, OTMint & theMint);
+	bool IsTokenAlreadySpent(OTString & theCleartextToken); // Spent Token Database
+	bool RecordTokenAsSpent(OTString & theCleartextToken);  // Spent Token Database
+	
 
 	// ------------------------------------------------------------------------
 	
@@ -274,7 +275,7 @@ public:
 	bool GetPrototoken(OTASCIIArmor & ascPrototoken, int nTokenIndex);
 	bool GetPrivatePrototoken(OTASCIIArmor & ascPrototoken, int nTokenIndex);
 	
-	bool SaveContractWallet(FILE * fl);
+	virtual bool SaveContractWallet(FILE * fl);
 };
 
 

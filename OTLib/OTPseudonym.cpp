@@ -112,6 +112,7 @@ using namespace io;
 
 #include "OTASCIIArmor.h"
 #include "OTPseudonym.h"
+#include "OTSignedFile.h"
 
 /*
 typedef std::deque<long>							dequeOfTransNums;
@@ -119,13 +120,116 @@ typedef std::map<std::string, dequeOfTransNums *>	mapOfTransNums;
 */
 
 
-// We have received a new trans num from server. Store it.
-void OTPseudonym::AddTransactionNum(const OTString & strServerID, long lTransNum, bool bSave) 
+// ---------------------------------------------------------------------------------
+// This is the "global" path to the subdirectories. The wallet file is probably also there.
+OTString OTPseudonym::OTPath("."); // it defaults to '.' but then it is set by the client and server.
+
+// All my paths now use the global path above, and are constructed using
+// the path separator below. So the filesystem aspect of Open Transactions
+// should be a LOT more portable to Windows, though I haven't actually tried
+// it on Windows.
+#ifdef WINDOWS
+OTString OTPseudonym::OTPathSeparator("\\");
+#else
+OTString OTPseudonym::OTPathSeparator("/");
+#endif
+
+// ---------------------------------------------------------------------------------
+
+
+// On the server side: A user has submitted a specific transaction number. 
+// Verify whether he actually has a right to use it.
+bool OTPseudonym::VerifyTransactionNum(const OTString & strServerID, const long & lTransNum)
+{
+	std::string strID	= strServerID.Get();
+	
+	// The Pseudonym has a deque of transaction numbers for each servers.
+	// These deques are mapped by Server ID.
+	// 
+	// So let's loop through all the deques I have, and if the server ID on the map
+	// matches the Server ID that was passed in, then find the transaction number on
+	// that list, and then return true. Else return false.
+	for (mapOfTransNums::iterator ii = m_mapTransNum.begin();  ii != m_mapTransNum.end(); ++ii)
+	{
+		// if the ServerID passed in matches the serverID for the current deque
+		if ( strID == ii->first )
+		{
+			dequeOfTransNums * pDeque = (ii->second);
+			
+			if (pDeque && !(pDeque->empty())) // there are some numbers for that server ID
+			{
+				// Let's loop through them and see if the culprit is there
+				for (int i = 0; i < pDeque->size(); i++)
+				{
+					// Found it!
+					if (lTransNum == pDeque->at(i))
+					{
+						return true;
+					}
+				}
+			}
+			break;			
+		}
+	}
+	
+	return false;	
+}
+
+// On the server side: A user has submitted a specific transaction number. 
+// Remove it from his file so he can't use it again.
+bool OTPseudonym::RemoveTransactionNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, const long & lTransNum)
+{
+	bool bRetVal = false;
+	std::string strID	= strServerID.Get();
+	
+	// The Pseudonym has a deque of transaction numbers for each servers.
+	// These deques are mapped by Server ID.
+	// 
+	// So let's loop through all the deques I have, and if the server ID on the map
+	// matches the Server ID that was passed in, then find the transaction number on
+	// that list, and then remove it, and return true. Else return false.
+	for (mapOfTransNums::iterator ii = m_mapTransNum.begin();  ii != m_mapTransNum.end(); ++ii)
+	{
+		// if the ServerID passed in matches the serverID for the current deque
+		if ( strID == ii->first )
+		{
+			dequeOfTransNums * pDeque = (ii->second);
+			
+			if (pDeque && !(pDeque->empty())) // there are some numbers for that server ID
+			{
+				// Let's loop through them and see if the culprit is there
+				for (int i = 0; i < pDeque->size(); i++)
+				{
+					// Found it!
+					if (lTransNum == pDeque->at(i))
+					{
+						pDeque->erase(pDeque->begin() + i);
+						bRetVal = true;
+						break;
+					}
+				}
+			}
+			break;			
+		}
+	}
+	
+	if (bRetVal)
+	{
+		SaveSignedNymfile(SIGNER_NYM);
+	}
+	
+	return bRetVal;
+}
+
+
+// No signer needed for this one, and save is false.
+// This version is ONLY for cases where we're not saving inside this function.
+bool OTPseudonym::AddTransactionNum(const OTString & strServerID, long lTransNum) 
 {
 	bool bSuccessFindingServerID = false, bSuccess = false;
 	std::string strID	= strServerID.Get();
 	
-	// The Pseudonym has a deque of transaction numbers for each servers.
+	// The Pseudonym has a deque of transaction numbers for each server.
 	// These deques are mapped by Server ID.
 	// 
 	// So let's loop through all the deques I have, and if the server ID on the map
@@ -152,7 +256,7 @@ void OTPseudonym::AddTransactionNum(const OTString & strServerID, long lTransNum
 	if (!bSuccessFindingServerID)
 	{
 		dequeOfTransNums * pDeque = new dequeOfTransNums;
-
+		
 		if (pDeque)
 		{
 			m_mapTransNum[strID] = pDeque;
@@ -160,16 +264,30 @@ void OTPseudonym::AddTransactionNum(const OTString & strServerID, long lTransNum
 			bSuccess = true;
 		}
 	}
-	
-	if (bSuccess && bSave)
-	{
-		SavePseudonym();
-	}	
+
+	return bSuccess;	
 }
 
 
+// Client side: We have received a new trans num from server. Store it.
+// Now the server uses this too, for storing these numbers so it can verify them later.
+bool OTPseudonym::AddTransactionNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, long lTransNum, bool bSave) 
+{
+	bool bSuccess = AddTransactionNum(strServerID, lTransNum);
+	
+	if (bSuccess && bSave)
+	{
+		SaveSignedNymfile(SIGNER_NYM);
+	}	
+	
+	return bSuccess;
+}
+
+
+// Client side.
 // Get the next available transaction number for the serverID
-bool OTPseudonym::GetNextTransactionNum(const OTString & strServerID, long &lTransNum)
+// The lTransNum parameter is for the return value.
+bool OTPseudonym::GetNextTransactionNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, long &lTransNum)
 {
 	bool bRetVal		= false;
 	std::string strID	= strServerID.Get();
@@ -201,11 +319,14 @@ bool OTPseudonym::GetNextTransactionNum(const OTString & strServerID, long &lTra
 	
 	if (bRetVal)
 	{
-		SavePseudonym();
+		SaveSignedNymfile(SIGNER_NYM);
 	}
 	
 	return bRetVal;
 }
+
+
+
 
 void OTPseudonym::ReleaseTransactionNumbers()
 {
@@ -261,7 +382,7 @@ bool OTPseudonym::GetCurrentRequestNum(const OTString & strServerID, long &lReqN
 // I will research a good, free, secure database (or encrypt everything
 // before storing it there) and soon these "load/save" commands will use that
 // instead of the filesystem.
-void OTPseudonym::IncrementRequestNum(const OTString & strServerID)
+void OTPseudonym::IncrementRequestNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID)
 {
 	bool bSuccess = false;
 
@@ -316,7 +437,7 @@ void OTPseudonym::IncrementRequestNum(const OTString & strServerID)
 	
 	if (bSuccess)
 	{
-		SavePseudonym();
+		SaveSignedNymfile(SIGNER_NYM);
 	}
 }
 
@@ -324,15 +445,16 @@ void OTPseudonym::DisplayStatistics(OTString & strOutput)
 {
 	OTString strTemp;
 	
-	strOutput.Concatenate("NYM STATISTICS:\n");
+	strOutput.Concatenate("\nPSEUDONYM(s):\n\n");
 	
 	strTemp.Format("Name: %s\n", m_strName.Get());			strOutput.Concatenate(strTemp);
-	strTemp.Format("Nymfile: %s\n", m_strNymfile.Get());	strOutput.Concatenate(strTemp);	
-	strTemp.Format("Certfile: %s\n", m_strCertfile.Get());	strOutput.Concatenate(strTemp);
-	strTemp.Format("Version: %s\n", m_strVersion.Get());	strOutput.Concatenate(strTemp);
+	strTemp.Format("Version: %s\n\n", m_strVersion.Get());	strOutput.Concatenate(strTemp);
+	
 	OTString theStringID;
 	GetIdentifier(theStringID);
 	strTemp.Format("ID: %s\n", theStringID.Get());			strOutput.Concatenate(strTemp);
+	strTemp.Format("Nymfile: %s\n", m_strNymfile.Get());	strOutput.Concatenate(strTemp);	
+	strTemp.Format("Certfile: %s\n\n", m_strCertfile.Get());	strOutput.Concatenate(strTemp);
 	
 	for (mapOfRequestNums::iterator ii = m_mapRequestNum.begin();  ii != m_mapRequestNum.end(); ++ii)
 	{
@@ -366,7 +488,7 @@ void OTPseudonym::DisplayStatistics(OTString & strOutput)
 }
 
 // if the server sends us a @getRequest
-void OTPseudonym::OnUpdateRequestNum(const OTString & strServerID, long lNewRequestNumber)
+void OTPseudonym::OnUpdateRequestNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, long lNewRequestNumber)
 {
 	bool bSuccess = false;
 	
@@ -420,7 +542,7 @@ void OTPseudonym::OnUpdateRequestNum(const OTString & strServerID, long lNewRequ
 	
 	if (bSuccess)
 	{
-		SavePseudonym();
+		SaveSignedNymfile(SIGNER_NYM);
 	}
 	
 }
@@ -668,7 +790,8 @@ bool OTPseudonym::LoadPublicKey()
 	
 	GetIdentifier(strID);
 	
-	strPubKeyFile.Format("pubkeys/%s", strID.Get());
+	strPubKeyFile.Format("%s%spubkeys%s%s", OTPseudonym::OTPath.Get(), OTPseudonym::OTPathSeparator.Get(),
+						 OTPseudonym::OTPathSeparator.Get(), strID.Get());
 	
 	// This loads up the ascii-armored Public Key.
 	// On the client side, the entire x509 is stored.
@@ -713,7 +836,8 @@ bool OTPseudonym::SavePseudonym()
 	{
 		OTString nymID;
 		GetIdentifier(nymID);
-		m_strNymfile.Format("nyms/%s", nymID.Get());
+		m_strNymfile.Format("%s%snyms%s%s", OTPseudonym::OTPath.Get(), OTPseudonym::OTPathSeparator.Get(),
+							OTPseudonym::OTPathSeparator.Get(), nymID.Get());
 	}
 	
 	fprintf(stderr, "Saving nym to: %s\n", m_strNymfile.Get());
@@ -824,7 +948,7 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
 }
 
 // OtherNym is used as container for server to send us new transaction numbers
-void OTPseudonym::HarvestTransactionNumbers(OTPseudonym & theOtherNym)
+void OTPseudonym::HarvestTransactionNumbers(OTPseudonym & SIGNER_NYM, OTPseudonym & theOtherNym)
 {
 	bool bSuccess = false;
 	std::string	strServerID;
@@ -844,7 +968,7 @@ void OTPseudonym::HarvestTransactionNumbers(OTPseudonym & theOtherNym)
 			{
 				lTransactionNumber = pDeque->at(i);
 				
-				AddTransactionNum(OTstrServerID, lTransactionNumber, false); // bSave = false (but saved below...)
+				AddTransactionNum(SIGNER_NYM, OTstrServerID, lTransactionNumber, false); // bSave = false (but saved below...)
 				
 				bSuccess = true;
 			}
@@ -853,7 +977,7 @@ void OTPseudonym::HarvestTransactionNumbers(OTPseudonym & theOtherNym)
 
 	if (bSuccess)
 	{
-		SavePseudonym();
+		SaveSignedNymfile(SIGNER_NYM);
 	}
 }
 
@@ -919,7 +1043,7 @@ bool OTPseudonym::LoadFromString(const OTString & strNym)
 					fprintf(stderr, "\nTransaction Number %s available for ServerID: %s\n",
 							TransNumAvailable.Get(), TransNumServerID.Get());
 					
-					AddTransactionNum(TransNumServerID, atol(TransNumAvailable.Get()), false); // bSave = false. Don't want to try to save to disk AS WE'RE LOADING. 
+					AddTransactionNum(TransNumServerID, atol(TransNumAvailable.Get())); // This version doesn't save to disk. Why save to disk AS WE'RE LOADING? 
 				}
 				else
 				{
@@ -941,24 +1065,101 @@ bool OTPseudonym::LoadFromString(const OTString & strNym)
 }
 
 
-// This code reads up the file, discards the bookends, and saves only the gibberish itself.
-bool OTPseudonym::LoadNymfile(const char * szFilename/*=NULL*/)
-{		
-	if (NULL != szFilename)
+
+
+bool OTPseudonym::LoadSignedNymfile(OTPseudonym & SIGNER_NYM)
+{
+	// Get the Nym's ID in string form
+	OTString nymID;
+	GetIdentifier(nymID);
+	
+	// Create an OTSignedFile object, giving it the filename (the ID) and the local directory ("nyms")
+	OTSignedFile	theNymfile("nyms", nymID);
+	
+	// We verify:
+	//
+	// 1. That the file even exists and loads.
+	// 2. That the local subdir and filename match the versions inside the file.
+	// 3. That the signature matches for the signer nym who was passed in.
+	//
+	if (theNymfile.LoadFile() && 
+		theNymfile.VerifyFile() &&
+		theNymfile.VerifySignature(SIGNER_NYM))
 	{
-		m_strNymfile = szFilename;
-		std::ifstream in(m_strNymfile.Get());
-		
-		std::stringstream buffer;
-		buffer << in.rdbuf();
-		
-		std::string contents(buffer.str());
-		
-		OTString strRawFile = contents.c_str();
-		
-		if (strRawFile.GetLength())
-			return LoadFromString(strRawFile);
+		if (theNymfile.GetFilePayload().GetLength())
+			return LoadFromString(theNymfile.GetFilePayload());
 	}
+	
+	return false;
+}
+
+bool OTPseudonym::SaveSignedNymfile(OTPseudonym & SIGNER_NYM)
+{
+	// Get the Nym's ID in string form
+	OTString nymID;
+	GetIdentifier(nymID);
+
+	// Create an OTSignedFile object, giving it the filename (the ID) and the local directory ("nyms")
+	OTSignedFile	theNymfile("nyms", nymID);
+	theNymfile.GetFilename(m_strNymfile);
+	
+	fprintf(stderr, "Saving nym to: %s\n", m_strNymfile.Get());
+	
+	// First we save this nym to a string...
+	// Specifically, the file payload string on the OTSignedFile object.
+	SavePseudonym(theNymfile.GetFilePayload());
+
+	// Now the OTSignedFile contains the path, the filename, AND the
+	// contents of the Nym itself, saved to a string inside the OTSignedFile object.
+	
+	if (theNymfile.SignContract(SIGNER_NYM) && 
+		theNymfile.SaveContract())
+	{
+		return theNymfile.SaveFile();
+	}
+	
+	return false;
+}
+
+
+
+
+
+// Each Nym has a public key file, as well as a nym file. Why two separate files?
+// Because they are often used for different purposes and are being loaded/saved 
+// for their own reasons. The Nymfile contains the user ID, which is a hash of the
+// public key, so the it knows how to find the right pubkey file (filename is the
+// hash) and it knows how to validate the contents (by hashing them.) The Nymfile
+// also contains the transaction numbers that have been issued to that nym, so 
+// the server might later load it up in order to verify that a specific transaction
+// number is indeed on that list (and then remove it from the list.)
+bool OTPseudonym::LoadNymfile(const char * szFilename/*=NULL*/)
+{
+	// If no filename was passed in (user might have designated one) then we create
+	// the filename by appending the Nym's ID to the path.
+	if (NULL == szFilename)
+	{
+		OTString strID;
+		GetIdentifier(strID);
+		m_strNymfile.Format((char *)"%s%snyms%s%s", OTPseudonym::OTPath.Get(), OTPseudonym::OTPathSeparator.Get(),
+							OTPseudonym::OTPathSeparator.Get(), strID.Get());
+	}
+	else {
+		m_strNymfile = szFilename;
+	}
+
+	
+	std::ifstream in(m_strNymfile.Get());
+	
+	std::stringstream buffer;
+	buffer << in.rdbuf();
+	
+	std::string contents(buffer.str());
+	
+	OTString strRawFile = contents.c_str();
+	
+	if (strRawFile.GetLength())
+		return LoadFromString(strRawFile);
 		
 	return false;
 }
@@ -968,7 +1169,8 @@ bool OTPseudonym::Loadx509CertAndPrivateKey()
 {
 	OTString strID;
 	GetIdentifier(strID);
-	m_strCertfile.Format((char *)"certs/%s", strID.Get());
+	m_strCertfile.Format((char *)"%s%scerts%s%s", OTPseudonym::OTPath.Get(), OTPseudonym::OTPathSeparator.Get(),
+						 OTPseudonym::OTPathSeparator.Get(), strID.Get());
 	
 	// This loads up the ascii-armored Cert from the certfile, minus the ------ bookends.
 	// Later we will use this to create a hash and verify against the NymID that was in the wallet.

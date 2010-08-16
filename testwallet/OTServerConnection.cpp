@@ -175,7 +175,8 @@ void OTServerConnection::Initialize()
 
 // the hostname is not a reference, because I want people to be able
 // to pass in a C-style string and have it still work.
-bool OTServerConnection::Connect(OTPseudonym & theNym, OTServerContract & theServerContract)
+bool OTServerConnection::Connect(OTPseudonym & theNym, OTServerContract & theServerContract,
+								 OTString & strCA_FILE, OTString & strKEY_FILE, OTString & strKEY_PASSWORD)
 {
 	// We're already connected!
 	if (IsConnected())
@@ -202,9 +203,9 @@ bool OTServerConnection::Connect(OTPseudonym & theNym, OTServerContract & theSer
         fprintf(stderr, "Alloc Failed\n");
         return false;
     }
-	
+		
     // Initialize SSL client Socket
-    if (SFSocketInit(socket, CA_FILE, NULL, KEY_FILE, KEY_PASSWORD, NULL) < 0) {
+    if (SFSocketInit(socket, strCA_FILE.Get(), NULL, strKEY_FILE.Get(), strKEY_PASSWORD.Get(), NULL) < 0) {
 	    fprintf(stderr, "Init Failed\n");
         return false;
     }
@@ -243,7 +244,7 @@ void OTServerConnection::OnServerResponseToGetRequestNumber(long lNewRequestNumb
 		
 		OTString strServerID;
 		m_pServerContract->GetIdentifier(strServerID);
-		m_pNym->OnUpdateRequestNum(strServerID, lNewRequestNumber);
+		m_pNym->OnUpdateRequestNum(*m_pNym, strServerID, lNewRequestNumber);
 	}
 	else {
 		fprintf(stderr, "Expected m_pNym or m_pServerContract to be not null in "
@@ -900,7 +901,47 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 			// ------------------------------------------------------------------------
 		}
 		
-		// withdraw 
+		// deposit cheque
+		else if (buf[0] == 'q')
+		{
+			fprintf(stderr, "User has instructed to deposit a cheque...\n");
+			
+			// ------------------------------------------------------------------------------			
+			// if successful setting up the command payload...
+			
+			if (g_Client.ProcessUserCommand(OTClient::notarizeCheque, theMessage, 
+											*g_pTemporaryNym, *g_pServerContract,
+											NULL)) // NULL pAccount on this command.
+			{
+				bSendCommand = true;
+				bSendPayload = true;				
+			}
+			else
+				fprintf(stderr, "Error processing deposit cheque command in ProcessMessage: %c\n", buf[0]);
+			// ------------------------------------------------------------------------
+		}
+		
+		// withdraw voucher
+		else if (buf[0] == 'v')
+		{
+			fprintf(stderr, "User has instructed to withdraw a voucher (like a cashier's cheque)...\n");
+			
+			// ------------------------------------------------------------------------------			
+			// if successful setting up the command payload...
+			
+			if (g_Client.ProcessUserCommand(OTClient::withdrawVoucher, theMessage, 
+											*g_pTemporaryNym, *g_pServerContract,
+											NULL)) // NULL pAccount on this command.
+			{
+				bSendCommand = true;
+				bSendPayload = true;				
+			}
+			else
+				fprintf(stderr, "Error processing withdraw voucher command in ProcessMessage: %c\n", buf[0]);
+			// ------------------------------------------------------------------------
+		}
+		
+		// withdraw cash
 		else if (buf[0] == 'w')
 		{
 			fprintf(stderr, "(User has instructed to withdraw cash...)\n");

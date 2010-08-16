@@ -328,7 +328,7 @@ void OTBasket::ReleaseBasket()
 	
 bool OTBasket::SaveContractWallet(FILE * fl)
 {
-	
+	return true;
 }
 
 

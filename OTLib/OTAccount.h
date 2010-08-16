@@ -118,7 +118,7 @@ protected:
 	// return -1 if error, 0 if nothing, and 1 if the node was processed.
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
 
-	void UpdateContents();
+	virtual void UpdateContents();
 	OTAccount(const OTIdentifier & theUserID, const OTIdentifier & theServerID);
 	OTAccount();
 
@@ -150,7 +150,7 @@ public:
 	virtual bool LoadContract(); // overriding this so I can set the filename automatically inside based on ID.
 	bool SaveAccount(); // generates filename based on accounts path and account ID. Saves to the standard location for an acct.
 		
-	bool SaveContractWallet(FILE * fl);
+	virtual bool SaveContractWallet(FILE * fl);
 };
 
 typedef std::list <OTAccount *>	listOfAccounts;

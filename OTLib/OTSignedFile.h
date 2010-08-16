@@ -1,6 +1,6 @@
 /************************************************************************************
  *    
- *  OTServerConnection.h
+ *  OTSignedFile.h
  *  
  *              Open Transactions:  Library, Protocol, Server, and Test Client
  *    
@@ -82,102 +82,81 @@
  *      
  ************************************************************************************/
 
-#ifndef __OT_SERVERCONNECTION_H__
-#define __OT_SERVERCONNECTION_H__
+#ifndef __OT_SIGNED_FILE_H__
+#define __OT_SIGNED_FILE_H__
 
-extern "C"
-{
-#include "SSL-Example/SFSocket.h"	
-}
+#include "OTString.h"
+#include "OTContract.h"
 
-extern "C" 
+
+class OTSignedFile : public OTContract 
 {	
-#define TYPE_1_CMD_1	1
-#define TYPE_1_CMD_2	2
-#define TYPE_1_CMD_3	3
-#define TYPE_1_CMD_4	4
+protected:
+	OTString		m_strSignedFilePayload;	// This class exists to wrap another and save it in signed form.
+											// The "payload" (the wrapped contents) are stored in this member.
 	
-#define CMD_TYPE_1		1
+	OTString		m_strLocalDir;			// The local subdirectory where the file is, such as "nyms" or "certs"
+	OTString		m_strSignedFilename;	// The file stores its own name. Later, when loading it back up, you can
+											// see that the name matches internally, and that the signature matches,
+											// therefore, no one has switched the file or meddled with its contents.
+
+	OTString		m_strPurportedLocalDir;	// This is the subdirectory according to the file.
+	OTString		m_strPurportedFilename;	// This is the filename according to the file.
 	
-#define OT_CMD_HEADER_SIZE  9
-
-typedef unsigned char	BYTE;
-typedef unsigned short	USHORT;
-
-union u_header
-{
-	BYTE buf[OT_CMD_HEADER_SIZE];
-	struct {
-		BYTE		type_id;	// 1 byte
-		BYTE		command_id;	// 1 byte
-		BYTE		filler[2];	// 2 extra bytes here so the size begins on a 4-byte boundary
-		uint32_t	size;		// 4 bytes to describe size of payload
-		BYTE		checksum;	// 1 byte
-	} fields;	// total of 9 bytes
-};
+	// THOUGHT: What if someone switched the file for an older version of itself? Seems to me that he could
+	// make the server accept the file, in that case. Like maybe an account file with a higher balance?
+	// Similarly, what if someone erased a spent token file? Then the software would accept it as a new
+	// token once again. Also, the cash account would be deducted twice for the same token, which means it
+	// would no longer contain enough to cover all the tokens...
+	// Therefore it seems to me that, even with the files signed, there are still attacks possible when
+	// the attacker has write/erase access to the filesystem. I'd like to make it impervious even to that.
 	
-}
-
-
-class OTMessage;
-
-#include "OTMessageBuffer.h"
-#include "OTPseudonym.h"
-#include "OTServerContract.h"
-
-
-// Update: The actual connection information is now read out of the server contract!!
-//#define HOSTNAME        "localhost"
-//#define PORT            7085
-
-class OTPseudonym;
-class OTAccount;
-class OTWallet;
-class OTString;
-
-class OTServerConnection 
-{
-	static void Initialize();
-	static bool s_bInitialized;
-	
-	OTMessageBuffer m_listIn;
-	OTMessageBuffer m_listOut;
-
-	SFSocket * m_pSocket;
-	
-	OTPseudonym			*	m_pNym;
-	OTServerContract	*	m_pServerContract;
-	OTWallet			*	m_pWallet;
+	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
 	
 public:
-	OTServerConnection(OTWallet & theWallet);
-	OTServerConnection(OTWallet & theWallet, SFSocket * pSock);
-	~OTServerConnection();
 	
-	bool GetServerID(OTIdentifier & theID);
+	// These assume SetFilename() was already called, or at least one of the constructors that uses it. 
+	bool LoadFile();
+	bool SaveFile();
 	
-	inline OTPseudonym		*	GetNym()			{ return m_pNym; }
-	inline OTServerContract	*	GetServerContract()	{ return m_pServerContract; }
-	inline OTWallet			*	GetWallet()			{ return m_pWallet; }
+	OTSignedFile();
+	OTSignedFile(const OTString & LOCAL_SUBDIR, const OTString & FILE_NAME);
+	OTSignedFile(const char * LOCAL_SUBDIR, const OTString & FILE_NAME);
+	OTSignedFile(const char * LOCAL_SUBDIR, const char * FILE_NAME);
+	virtual ~OTSignedFile();
 	
-	inline bool IsConnected() { return ((NULL == m_pSocket)?false:true); }
+	bool VerifyFile();	// Returns true or false, whether actual subdir/file matches purported subdir/file.
+						// (You should still verify the signature on it as well, if you are doing this.)
 	
-	bool Connect(OTPseudonym & theNym, OTServerContract & theServerContract,
-				 OTString & strCA_FILE, OTString & strKEY_FILE, OTString & strKEY_PASSWORD);
+	virtual void Release();
+	virtual void UpdateContents(); 
 	
-	void OnServerResponseToGetRequestNumber(long lNewRequestNumber);
+	void SetFilename(const OTString & LOCAL_SUBDIR, const OTString & FILE_NAME);
 	
-	void ProcessMessageOut(char *buf, int * pnExpectReply);
-	void ProcessMessageOut(OTMessage & theMessage);
-	
-	bool ProcessInBuffer(OTMessage & theServerReply);
-	bool ProcessReply(u_header & theCMD, OTMessage & theServerReply);
-	bool ProcessType1Cmd(u_header & theCMD, OTMessage & theServerReply);
-	
-	// Assuming we are connected, then we have the nym for signing and we
-	// have the connection for sending.
-	bool SignAndSend(OTMessage & theMessage);
-	
+	inline OTString & GetFilePayload() { return m_strSignedFilePayload; } 
+	inline void SetFilePayload(const OTString &strArg) { m_strSignedFilePayload = strArg; }
+
+	virtual bool SaveContractWallet(FILE * fl);
 };
 
-#endif // __OT_SERVERCONNECTION_H__
+#endif // __OT_SIGNED_FILE_H__
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

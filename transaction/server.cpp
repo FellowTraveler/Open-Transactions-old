@@ -95,13 +95,28 @@ extern "C"
 }
 
 
-// TODO REALLY NEED to move this crap to a config file...
-// ALso, FYI, the below paths may not work unless you put a fully-qualified path (which I haven't.)
+// TODO move this crap to a config file...
+// ALso, FYI, the below paths may not work unless you put a fully-qualified path for 
+// the global path in OTPseudonym::OTPath (which I haven't.)
 
-#define CA_FILE             "/Users/REDACTED/Projects/Open-Transactions/transaction/SSL-Example/ca.crt"
-#define DH_FILE             "/Users/REDACTED/Projects/Open-Transactions/transaction/SSL-Example/dh_param_1024.pem"
-#define KEY_FILE            "/Users/REDACTED/Projects/Open-Transactions/transaction/SSL-Example/server.pem"
 #define KEY_PASSWORD        "test"
+
+#ifdef WINDOWS
+
+#define SERVER_PATH_DEFAULT	"C:\\Users\\REDACTED\\Projects\\Open-Transactions\\transaction"
+#define CA_FILE             "SSL-Example\\ca.crt"
+#define DH_FILE             "SSL-Example\\dh_param_1024.pem"
+#define KEY_FILE            "SSL-Example\\server.pem"
+
+#else
+
+#define SERVER_PATH_DEFAULT	"/Users/REDACTED/Projects/Open-Transactions/transaction"
+#define CA_FILE             "SSL-Example/ca.crt"
+#define DH_FILE             "SSL-Example/dh_param_1024.pem"
+#define KEY_FILE            "SSL-Example/server.pem"
+
+#endif
+
 // NOTE: this SSL connection is entirely different from the user's cert/pubkey that he uses for his UserID while 
 // talking to the server. I may be using the same key for that, but this code here is not about my wallet talking
 // to its mint. Rather, it's about an SSL client app talking to an SSL server, at a lower layer, before my app's
@@ -146,7 +161,47 @@ OTServer theServer;
 
 int main (int argc, char **argv) 
 {
-    SFSocket *socket;
+	fprintf(stdout, "\n\nWelcome to Open Transactions, version %s.\n\n", "0.2");
+	
+	// -----------------------------------------------------------------------
+
+	OTString strCAFile, strDHFile, strKeyFile, strSSLPassword;
+
+	if (argc < 2)
+	{
+		fprintf(stdout, "Usage:  transaction <SSL-password> <full path to transaction folder>\n\n"
+				"(Password defaults to '%s' if left blank on the command line.)\n"
+				"(Folder defaults to '%s' if left blank.)\n", KEY_PASSWORD, SERVER_PATH_DEFAULT);
+		
+		strSSLPassword.Set(KEY_PASSWORD);
+		OTPseudonym::OTPath.Set(SERVER_PATH_DEFAULT);
+	}
+	else if (argc < 3)
+	{
+		fprintf(stdout, "Usage:  transaction <SSL-password> <full path to transaction folder>\n\n"
+				"(Folder defaults to '%s' if left blank.)\n", SERVER_PATH_DEFAULT);
+		
+		strSSLPassword.Set(argv[1]);
+		OTPseudonym::OTPath.Set(SERVER_PATH_DEFAULT);
+	}
+	else 
+	{
+		strSSLPassword.Set(argv[1]);
+		OTPseudonym::OTPath.Set(argv[2]);
+	}	
+	
+	strCAFile. Format("%s%s%s", OTPseudonym::OTPath.Get(), OTPseudonym::OTPathSeparator.Get(), CA_FILE);
+	strDHFile. Format("%s%s%s", OTPseudonym::OTPath.Get(), OTPseudonym::OTPathSeparator.Get(), DH_FILE);
+	strKeyFile.Format("%s%s%s", OTPseudonym::OTPath.Get(), OTPseudonym::OTPathSeparator.Get(), KEY_FILE);
+	
+	fprintf(stdout, 
+			"\n\nNow loading the server nym, which will also ask you for a password, to unlock\n"
+			"its private key. (This password will also be 'test' if you are using the test files.)\n");
+	
+	// -----------------------------------------------------------------------
+	
+	
+	SFSocket *socket;
 	listOfConnections theConnections;
 	
     // Initialize SSL
@@ -157,9 +212,16 @@ int main (int argc, char **argv)
         printf("Alloc Failed\n");
         return(1);
     }
-
+	
+	
     // Initialize SSL Socket
-    if (SFSocketInit(socket, CA_FILE, DH_FILE, KEY_FILE, KEY_PASSWORD, NULL) < 0)
+    if (SFSocketInit(socket,
+					 strCAFile.Get(), 
+					 strDHFile.Get(), 
+					 strKeyFile.Get(), 
+					 strSSLPassword.Get(), 
+					 NULL) 
+		< 0)
     {
         printf("Init Context Failed\n");
         return(2);
@@ -186,7 +248,8 @@ int main (int argc, char **argv)
 	theServer.Init();
 	
 	
-    do {
+    do 
+	{
         SFSocket * clientSocket = NULL;
 
         // Accept Client Connection

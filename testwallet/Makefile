@@ -100,7 +100,7 @@ client.o: client.cpp
 	$(CXX) $(CXXFLAGS) -c -o client.o client.cpp
 OTMessageBuffer.o: OTMessageBuffer.cpp OTMessageBuffer.h
 	$(CXX) $(CXXFLAGS) -c -o OTMessageBuffer.o OTMessageBuffer.cpp
-OTWallet.o: OTWallet.cpp OTWallet.h
+OTWallet.o: OTWallet.cpp
 	$(CXX) $(CXXFLAGS) -c -o OTWallet.o OTWallet.cpp
 
 

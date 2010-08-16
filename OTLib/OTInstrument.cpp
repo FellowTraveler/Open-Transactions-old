@@ -1,14 +1,14 @@
 /************************************************************************************
  *    
- *  OTServerContract.h
+ *  OTInstrument.cpp
  *  
- *		Open Transactions:  Library, Protocol, Server, and Test Client
+ *              Open Transactions:  Library, Protocol, Server, and Test Client
  *    
- *    			-- Anonymous Numbered Accounts
- *    			-- Untraceable Digital Cash
- *    			-- Triple-Signed Receipts
- *    			-- Basket Currencies
- *    			-- Signed XML Contracts
+ *                      -- Anonymous Numbered Accounts
+ *                      -- Untraceable Digital Cash
+ *                      -- Triple-Signed Receipts
+ *                      -- Basket Currencies
+ *                      -- Signed XML Contracts
  *    
  *    Copyright (C) 2010 by "Fellow Traveler" (A pseudonym)
  *    
@@ -57,56 +57,101 @@
  *    
  *        You should have received a copy of the GNU Affero General Public License
  *        along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *    	
- *    	  If you would like to use this software outside of the free software
- *    	  license, please contact FellowTraveler.
+ *      
+ *        If you would like to use this software outside of the free software
+ *        license, please contact FellowTraveler. (Unfortunately many will run
+ *        anonymously and untraceably, so who could really stop them?)
  *   
  *        This library is also "dual-license", meaning that Ben Laurie's license
  *        must also be included and respected, since the code for Lucre is also
  *        included with Open Transactions.
  *        The Laurie requirements are light, but if there is any problem with his
- *        license, simply remove the Lucre code. Although there are no other blind
- *        token algorithms in Open Transactions (yet), the other functionality will
- *        continue to operate .
+ *        license, simply remove the deposit/withdraw commands. Although there are 
+ *        no other blind token algorithms in Open Transactions (yet), the other 
+ *        functionality will continue to operate.
  *    
  *    OpenSSL WAIVER:
  *        This program is released under the AGPL with the additional exemption 
- *    	  that compiling, linking, and/or using OpenSSL is allowed.
+ *        that compiling, linking, and/or using OpenSSL is allowed.
  *    
  *    DISCLAIMER:
  *        This program is distributed in the hope that it will be useful,
  *        but WITHOUT ANY WARRANTY; without even the implied warranty of
  *        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *        GNU Affero General Public License for more details.
- *    	
+ *      
  ************************************************************************************/
 
 
-#ifndef __OTSERVERCONTRACT_H__
-#define __OTSERVERCONTRACT_H__
+#include "irlxml/irrXML.h"
 
-#include "OTContract.h"
+using namespace irr;
+using namespace io;
 
-class OTString;
 
-class OTServerContract : public OTContract {
-protected:
+#include "OTIdentifier.h"
+#include "OTInstrument.h"
+
+using namespace std;
+
+
+// Verify the current date against the VALID FROM / TO dates.
+bool OTInstrument::VerifyCurrentDate()
+{
+	const time_t CURRENT_TIME =	time(NULL);
 	
-	OTString	m_strHostname;
-	int			m_nPort;
-	OTString	m_strURL;
+	if ((CURRENT_TIME >= m_VALID_FROM) && (CURRENT_TIME <= m_VALID_TO))
+		return true;
+	else
+		return false;
+}
+
+
+void OTInstrument::InitInstrument()
+{	
+	m_VALID_FROM	= 0;
+	m_VALID_TO		= 0;	
 	
-	// return -1 if error, 0 if nothing, and 1 if the node was processed.
-	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);	
-public:
-	OTServerContract();
-	OTServerContract(OTString & name, OTString & filename, OTString & strID);
+	m_strContractType.Set("INSTRUMENT");	// should never happen in practice...
+}
 
-	bool GetConnectInfo(OTString & strHostname, int & nPort);
-	
-	virtual ~OTServerContract();
+OTInstrument::OTInstrument() : OTContract()
+{
+	InitInstrument();
 
-	virtual bool SaveContractWallet(FILE * fl);
-};
 
-#endif // __OTSERVERCONTRACT_H__
+}
+
+OTInstrument::OTInstrument(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID) : OTContract()
+{
+	InitInstrument();
+
+	m_ServerID		= SERVER_ID;
+	m_AssetTypeID	= ASSET_ID;
+}
+
+OTInstrument::~OTInstrument()
+{
+	//Release();
+	// OTContract::~OTContract is called here automatically, and it calls Release() already.
+	// So I don't need to call Release() here again, since it's already called by the parent.
+}
+
+
+void OTInstrument::Release()
+{		
+	// Release any dynamically allocated instrument members here.
+
+	// Next give the base class a chance to do the same...
+	OTContract::Release(); // since I've overridden the base class, I call it now...
+
+	// Initialize everything back to 0
+	InitInstrument();
+}
+
+
+bool OTInstrument::SaveContractWallet(FILE * fl)
+{
+	return true;
+}
+

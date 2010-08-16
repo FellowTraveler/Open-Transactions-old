@@ -124,14 +124,18 @@ public:
 		atBalance,
 		outboxhash,	// this item is a hash of an outbox (unused for now)
 		atOutboxhash,
-		withdrawal,	// withdrawal
+		withdrawal,	// this item is a cash withdrawal (of chaumian blinded tokens)
 		atWithdrawal,
-		deposit,	// deposit
+		deposit,	// this item is a cash deposit (of a purse containing blinded tokens.)
 		atDeposit,
+		withdrawVoucher,// this item is a request to purchase a voucher (a cashier's cheque)
+		atWithdrawVoucher,
+		depositCheque,	// this item is a cheque deposit
+		atDepositCheque,
 		error_state // error state versus error status
 	};
 
-	// FOR EXAMPLE:  A client may sent a TRANSFER request, setting type to Transfer and status to Request.
+	// FOR EXAMPLE:  A client may send a TRANSFER request, setting type to Transfer and status to Request.
 	//				 The server may respond with type atTransfer and status Acknowledgment.
 	//							Make sense?
 	
@@ -153,7 +157,7 @@ protected:
 	// return -1 if error, 0 if nothing, and 1 if the node was processed.
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
 	
-	void UpdateContents(); // Before transmission or serialization, this is where the ledger saves its contents 
+	virtual void UpdateContents(); // Before transmission or serialization, this is where the ledger saves its contents 
 
 	OTIdentifier	m_AcctToID;			// DESTINATION ACCOUNT for transfers. NOT the account holder.
 	
@@ -174,6 +178,8 @@ public:
 	inline OTItem::itemStatus GetStatus() const { return m_Status; }
 	inline void SetStatus(const OTItem::itemStatus & theVal) { m_Status = theVal; }
 	inline OTItem::itemType GetType() const { return m_Type; }
+	
+	inline long GetAmount() const { return m_lAmount; }
 	
 	void GetNote(OTString & theStr) const;
 	void SetNote(const OTString & theStr);
@@ -198,7 +204,7 @@ public:
 	void InitItem();
 	
 	
-	bool SaveContractWallet(FILE * fl);
+	virtual bool SaveContractWallet(FILE * fl);
 	
 };
 

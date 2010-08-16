@@ -112,11 +112,11 @@ extern "C"
 #include "OTBasket.h"
 
 #include "OTTransaction.h"
+#include "OTCheque.h"
 
 
 extern OTWallet g_Wallet;
 extern OTPseudonym * g_pTemporaryNym;
-	
 
 // Without regard to WHAT those transactions ARE that are in my inbox,
 // just process and accept them all!!!  (This is AUTO-ACCEPT functionality
@@ -130,7 +130,7 @@ void OTClient::AcceptEntireInbox(OTLedger & theInbox, OTServerConnection & theCo
 
 	OTString strServerID(theServerID);
 	long lStoredTransactionNumber=0;
-	bool bGotTransNum = pNym->GetNextTransactionNum(strServerID, lStoredTransactionNumber);
+	bool bGotTransNum = pNym->GetNextTransactionNum(*pNym, strServerID, lStoredTransactionNumber);
 	
 	if (!bGotTransNum)
 	{
@@ -183,8 +183,16 @@ void OTClient::AcceptEntireInbox(OTLedger & theInbox, OTServerConnection & theCo
 			// So I DON'T want to create it with my account ID on it.
 			if (pOriginalItem)
 			{
-				if (OTItem::transfer	== pOriginalItem->m_Type && 
-					OTItem::request		== pOriginalItem->m_Status)
+				if ((OTItem::request == pOriginalItem->m_Status) &&
+					
+					// In a real client, the user would pick and choose which items he wanted
+					// to accept or reject. We, on the other hand, are blindly accepting all of
+					// these types:
+					(OTItem::transfer		== pOriginalItem->m_Type  || // I'm accepting a transfer that was sent to me.
+					 OTItem::accept			== pOriginalItem->m_Type  || // I'm accepting a notice that someone accepted my transfer.
+					 OTItem::reject			== pOriginalItem->m_Type  || // I'm accepting a notice that someone rejected my transfer.
+					 OTItem::depositCheque	== pOriginalItem->m_Type)	 // I'm accepting a notice that someone cashed a cheque I wrote.
+					)
 				{
 					OTItem * pAcceptItem = OTItem::CreateItemFromTransaction(*pAcceptTransaction, OTItem::accept);
 					// the transaction will handle cleaning up the transaction item.
@@ -193,7 +201,7 @@ void OTClient::AcceptEntireInbox(OTLedger & theInbox, OTServerConnection & theCo
 					// Set up the "accept" transaction item to be sent to the server 
 					// (this item references and accepts another item by its transaction number--
 					//  one that is already there in my inbox)
-					OTString strNote("Thanks for that money!");
+					OTString strNote("Thanks for that money!"); // this message is from when only transfer worked.
 					pAcceptItem->SetNote(strNote);
 					pAcceptItem->SetReferenceToNum(pOriginalItem->GetTransactionNum()); // This is critical. Server needs this to look up the original.
 					// Don't need to set transaction num on item since the constructor already got it off the owner transaction.
@@ -207,7 +215,8 @@ void OTClient::AcceptEntireInbox(OTLedger & theInbox, OTServerConnection & theCo
 					pAcceptItem->SaveContract();
 				}
 				else {
-					fprintf(stderr, "Unrecognized item type while processing inbox. (Only transfers accepted at this point.)\n");
+					fprintf(stderr, "Unrecognized item type while processing inbox.\n"
+							"(Only transfers, cheques, and accepts are operational inbox items at this time.)\n");
 				}
 				delete pOriginalItem; // make sure we clean this up...
 				pOriginalItem = NULL;
@@ -356,7 +365,7 @@ void OTClient::HarvestTransactionNumbers(OTTransaction & theTransaction, OTPseud
 					
 					if (thePseudonym.LoadFromString(strAttachment))
 					{
-						theNym.HarvestTransactionNumbers(thePseudonym);
+						theNym.HarvestTransactionNumbers(theNym, thePseudonym);
 					}
 				}
 			}
@@ -400,7 +409,7 @@ void OTClient::ProcessDepositResponse(OTTransaction & theTransaction, OTServerCo
 
 
 // It's definitely a withdrawal, we just need to iterate through the items in the transaction and
-// grab any cash tokens that are inside, to save inside a purse.
+// grab any cash tokens that are inside, to save inside a purse.  Also want to display any vouchers.
 void OTClient::ProcessWithdrawalResponse(OTTransaction & theTransaction, OTServerConnection & theConnection, OTMessage & theReply)
 {
 	const OTIdentifier ACCOUNT_ID(theReply.m_strAcctID);
@@ -418,8 +427,32 @@ void OTClient::ProcessWithdrawalResponse(OTTransaction & theTransaction, OTServe
 	// if pointer not null, and it's a withdrawal, and it's an acknowledgement (not a rejection or error)
 	for (listOfItems::iterator ii = theTransaction.GetItemList().begin(); ii != theTransaction.GetItemList().end(); ++ii)
 	{
-		if ((pItem = *ii) && (OTItem::atWithdrawal == pItem->GetType()) 
-			&& (OTItem::acknowledgement == pItem->GetStatus()))
+		pItem = *ii;
+		
+		// If we got a reply to a voucher withdrawal, we'll just display the the voucher
+		// on the screen (if the server sent us one...)
+		if ((pItem) && 
+			(OTItem::atWithdrawVoucher	== pItem->GetType()) &&
+			(OTItem::acknowledgement	== pItem->GetStatus()))
+		{ 
+			OTString	strVoucher;
+			pItem->GetAttachment(strVoucher);
+			
+			OTCheque	theVoucher;
+			if (theVoucher.LoadContractFromString(strVoucher))
+			{
+				fprintf(stdout, "\nReceived voucher from server:\n\n%s\n\n", strVoucher.Get());				
+			}
+		}
+		
+		// ----------------------------------------------------------------------------------------
+		
+		// If the item is a response to a cash withdrawal, we want to save the coins into a purse
+		// somewhere on the computer. That's cash! Gotta keep it safe.
+		
+		else if ((pItem) && 
+				 (OTItem::atWithdrawal		== pItem->GetType()) &&
+				 (OTItem::acknowledgement	== pItem->GetStatus()))
 		{ 
 			OTString	strPurse;
 			pItem->GetAttachment(strPurse);
@@ -436,11 +469,13 @@ void OTClient::ProcessWithdrawalResponse(OTTransaction & theTransaction, OTServe
 				
 				OTString strMintPath, ASSET_ID(thePurse.GetAssetID());
 				
-				strMintPath.Format("mints/%s", ASSET_ID.Get()); // todo stop hardcoding paths
+				strMintPath.Format("%s%smints%s%s", OTPseudonym::OTPath.Get(), OTPseudonym::OTPathSeparator.Get(),
+								   OTPseudonym::OTPathSeparator.Get(), ASSET_ID.Get());
 				OTMint theMint(ASSET_ID, strMintPath, ASSET_ID);
 
 				OTString strPursePath;
-				strPursePath.Format("purse/%s", ASSET_ID.Get());
+				strPursePath.Format("%s%spurse%s%s", OTPseudonym::OTPath.Get(), OTPseudonym::OTPathSeparator.Get(), 
+									OTPseudonym::OTPathSeparator.Get(), ASSET_ID.Get());
 				
 				// Unlike the purse which we read out of a message,
 				// now we try to open a purse as a file on the client side,
@@ -605,7 +640,7 @@ bool OTClient::ProcessServerReply(OTServerConnection & theConnection, OTMessage 
 		OTPseudonym theMessageNym;
 		
 		if (theMessageNym.LoadFromString(strMessageNym))
-			pNym->HarvestTransactionNumbers(theMessageNym);
+			pNym->HarvestTransactionNumbers(*pNym, theMessageNym);
 		
 		return true;
 	}
@@ -648,7 +683,8 @@ bool OTClient::ProcessServerReply(OTServerConnection & theConnection, OTMessage 
 		OTString strContract(theReply.m_ascPayload);
 		
 		OTString strFilename;
-		strFilename.Format("contracts/%s", theReply.m_strAssetID.Get()); // todo: stop hardcoding paths
+		strFilename.Format("%s%scontracts%s%s", OTPseudonym::OTPath.Get(), OTPseudonym::OTPathSeparator.Get(), 
+						   OTPseudonym::OTPathSeparator.Get(), theReply.m_strAssetID.Get());
 		
 		// Load the contract object from that string.	
 		OTAssetContract * pContract = new OTAssetContract(theReply.m_strAssetID, strFilename, theReply.m_strAssetID);
@@ -668,8 +704,7 @@ bool OTClient::ProcessServerReply(OTServerConnection & theConnection, OTMessage 
 				pWallet->AddAssetContract(*pContract);
 				pContract = NULL; // Success. The wallet "owns" it now, no need to clean it up.
 
-				//TODO stop hardcoding wallet file name
-				g_Wallet.SaveWallet("wallet.xml");
+				g_Wallet.SaveWallet(g_Wallet.m_strFilename.Get());
 			}
 		}
 		// cleanup
@@ -686,7 +721,8 @@ bool OTClient::ProcessServerReply(OTServerConnection & theConnection, OTMessage 
 		OTString strMint(theReply.m_ascPayload);
 		
 		OTString strFilename;
-		strFilename.Format("mints/%s", theReply.m_strAssetID.Get()); // todo: stop hardcoding paths
+		strFilename.Format("%s%smints%s%s", OTPseudonym::OTPath.Get(), OTPseudonym::OTPathSeparator.Get(), 
+						   OTPseudonym::OTPathSeparator.Get(), theReply.m_strAssetID.Get());
 		
 		// Load the account object from that string.				
 		OTMint theMint(theReply.m_strAssetID, strFilename, theReply.m_strAssetID);
@@ -722,7 +758,8 @@ bool OTClient::ProcessServerReply(OTServerConnection & theConnection, OTMessage 
 				// (3) Save the Account to file
 				OTString strPath, strID;
 				pAccount->GetIdentifier(strID);
-				strPath.Format((char*)"accounts/%s", strID.Get()); //TODO stop hardcoding accounts directory.
+				strPath.Format((char*)"%s%saccounts%s%s", OTPseudonym::OTPath.Get(), OTPseudonym::OTPathSeparator.Get(), 
+							   OTPseudonym::OTPathSeparator.Get(), strID.Get());
 				pAccount->SaveContract(strPath.Get()); // Saving to strPath would save the account into the 
 				// strPath variable. (Which we don't want to do...)
 				// Instead of passing an OTString, I pass a char*.
@@ -739,8 +776,7 @@ bool OTClient::ProcessServerReply(OTServerConnection & theConnection, OTMessage 
 				
 				g_Wallet.AddAccount(*pAccount);
 				
-				//TODO stop hardcoding wallet file name
-				g_Wallet.SaveWallet("wallet.xml");
+				g_Wallet.SaveWallet(g_Wallet.m_strFilename.Get());
 				
 				return true;
 			}
@@ -812,7 +848,8 @@ bool OTClient::ProcessServerReply(OTServerConnection & theConnection, OTMessage 
 				// (3) Save the Account to file
 				OTString strPath, strID;
 				pAccount->GetIdentifier(strID);
-				strPath.Format((char*)"accounts/%s", strID.Get()); //TODO stop hardcoding accounts directory.
+				strPath.Format((char*)"%s%saccounts%s%s", OTPseudonym::OTPath.Get(), OTPseudonym::OTPathSeparator.Get(), 
+							   OTPseudonym::OTPathSeparator.Get(), strID.Get());
 				pAccount->SaveContract(strPath.Get()); // Saving to strPath would save the account into the 
 				// strPath variable. (Which we don't want to do...)
 				// Instead of passing an OTString, I pass a char*.
@@ -829,8 +866,7 @@ bool OTClient::ProcessServerReply(OTServerConnection & theConnection, OTMessage 
 				
 				g_Wallet.AddAccount(*pAccount);
 				
-				//TODO stop hardcoding wallet file name
-				g_Wallet.SaveWallet("wallet.xml");
+				g_Wallet.SaveWallet(g_Wallet.m_strFilename.Get());
 				
 				return true;
 			}
@@ -974,7 +1010,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		// (0) Set up the REQUEST NUMBER and then INCREMENT IT
 		theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
 		theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-		theNym.IncrementRequestNum(strServerID); // since I used it for a server request, I have to increment it
+		theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
 
 //		fprintf(stderr, "DEBUG: Sending request number: %ld\n", lRequestNumber);
 		
@@ -1023,7 +1059,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			// (0) Set up the REQUEST NUMBER and then INCREMENT IT
 			theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
 			theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-			theNym.IncrementRequestNum(strServerID); // since I used it for a server request, I have to increment it
+			theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
 			
 			// (1) Set up member variables 
 			theMessage.m_strCommand			= "issueAssetType";
@@ -1071,7 +1107,8 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		
 		// load up the asset contract
 		OTString strContractPath;
-		strContractPath.Format("contracts/%s", str_BASKET_CONTRACT_ID.Get()); // todo stop hardcoding paths
+		strContractPath.Format("%s%scontracts%s%s", OTPseudonym::OTPath.Get(), OTPseudonym::OTPathSeparator.Get(), 
+							   OTPseudonym::OTPathSeparator.Get(), str_BASKET_CONTRACT_ID.Get());
 		OTAssetContract * pContract = new OTAssetContract(str_BASKET_CONTRACT_ID, strContractPath, str_BASKET_CONTRACT_ID);
 		
 		if (pContract && pContract->LoadContract() && pContract->VerifyContract()) 
@@ -1159,7 +1196,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		// (0) Set up the REQUEST NUMBER and then INCREMENT IT
 		theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
 		theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-		theNym.IncrementRequestNum(strServerID); // since I used it for a server request, I have to increment it
+		theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
 		
 		// (1) Set up member variables
 		theMessage.m_strCommand		= "exchangeBasket";
@@ -1253,7 +1290,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		// (0) Set up the REQUEST NUMBER and then INCREMENT IT
 		theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
 		theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-		theNym.IncrementRequestNum(strServerID); // since I used it for a server request, I have to increment it
+		theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
 		
 		// (1) Set up member variables 
 		theMessage.m_strCommand			= "issueBasket";
@@ -1285,7 +1322,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		// (0) Set up the REQUEST NUMBER and then INCREMENT IT
 		theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
 		theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-		theNym.IncrementRequestNum(strServerID); // since I used it for a server request, I have to increment it
+		theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
 		
 		// (1) Set up member variables 
 		theMessage.m_strCommand			= "createAccount";
@@ -1306,8 +1343,6 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 	
 	else if (OTClient::notarizeTransfer == requestedCommand) // NOTARIZE TRANSFER
 	{	
-		// We're going to assume the transaction is a transfer for testing purposes
-		
 		// Eventually these sorts of things will be handled with callback functions
 		// I'll just use a callback here.
 		// That way, whatever user interface people want to implement for obtaining
@@ -1337,7 +1372,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 						SERVER_ID(strServerID),		USER_ID(theNym);
 	
 		long lStoredTransactionNumber=0;
-		bool bGotTransNum = theNym.GetNextTransactionNum(strServerID, lStoredTransactionNumber);
+		bool bGotTransNum = theNym.GetNextTransactionNum(theNym, strServerID, lStoredTransactionNumber);
 		
 		if (bGotTransNum)
 		{
@@ -1382,7 +1417,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			// (0) Set up the REQUEST NUMBER and then INCREMENT IT
 			theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
 			theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-			theNym.IncrementRequestNum(strServerID); // since I used it for a server request, I have to increment it
+			theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
 			
 			// (1) Set up member variables 
 			theMessage.m_strCommand			= "notarizeTransactions";
@@ -1407,7 +1442,6 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		else {
 			fprintf(stderr, "No transaction numbers were available. Suggest requesting the server for one.\n");
 		}
-
 	}
 	
 	// ------------------------------------------------------------------------
@@ -1424,7 +1458,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		// (0) Set up the REQUEST NUMBER and then INCREMENT IT
 		theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
 		theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-		theNym.IncrementRequestNum(strServerID); // since I used it for a server request, I have to increment it
+		theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
 		
 		// (1) Set up member variables 
 		theMessage.m_strCommand			= "getInbox";
@@ -1475,7 +1509,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		// (0) Set up the REQUEST NUMBER and then INCREMENT IT
 		theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
 		theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-		theNym.IncrementRequestNum(strServerID); // since I used it for a server request, I have to increment it
+		theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
 		
 		// (1) Set up member variables 
 		theMessage.m_strCommand			= "processInbox";
@@ -1507,7 +1541,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		// (0) Set up the REQUEST NUMBER and then INCREMENT IT
 		theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
 		theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-		theNym.IncrementRequestNum(strServerID); // since I used it for a server request, I have to increment it
+		theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
 		
 		// (1) Set up member variables 
 		theMessage.m_strCommand			= "getAccount";
@@ -1539,7 +1573,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		// (0) Set up the REQUEST NUMBER and then INCREMENT IT
 		theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
 		theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-		theNym.IncrementRequestNum(strServerID); // since I used it for a server request, I have to increment it
+		theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
 		
 		// (1) Set up member variables 
 		theMessage.m_strCommand			= "getContract";
@@ -1571,7 +1605,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		// (0) Set up the REQUEST NUMBER and then INCREMENT IT
 		theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
 		theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-		theNym.IncrementRequestNum(strServerID); // since I used it for a server request, I have to increment it
+		theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
 		
 		// (1) Set up member variables 
 		theMessage.m_strCommand			= "getMint";
@@ -1590,6 +1624,273 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 	
 	// ------------------------------------------------------------------------
 	
+
+	else if (OTClient::notarizeCheque == requestedCommand) // DEPOSIT CHEQUE
+	{	
+		OTString strFromAcct;
+		
+		if (!pAccount)
+		{
+			// Eventually these sorts of things will be handled with callback functions
+			// I'll just use a callback here.
+			// That way, whatever user interface people want to implement for obtaining
+			// the account numbers for the message, is up to the programmer.
+			fprintf(stdout, "Please enter an account to deposit to: ");
+			// User input.
+			// I need a from account, Yes even in a deposit, it's still the "From" account.
+			// The "To" account is only used for a transfer. (And perhaps for a 2-way trade.)
+			
+			// User input.
+			// I need a from account
+			strFromAcct.OTfgets(stdin);
+			
+			const OTIdentifier ACCOUNT_ID(strFromAcct);
+			
+			if (pAccount = g_Wallet.GetAccount(ACCOUNT_ID))
+			{
+				CONTRACT_ID = pAccount->GetAssetTypeID();
+				CONTRACT_ID.GetString(strContractID);
+			}
+		}
+		
+		OTIdentifier ACCT_FROM_ID(strFromAcct), SERVER_ID(strServerID), USER_ID(theNym);
+		
+		OTCheque theCheque(SERVER_ID, CONTRACT_ID);
+		
+		fprintf(stdout, "Please enter plaintext cheque, terminate with ~ on a new line:\n> ");
+		OTString strCheque;
+		char decode_buffer[200];
+		
+		do {
+			fgets(decode_buffer, sizeof(decode_buffer), stdin);
+			
+			if (decode_buffer[0] != '~')
+			{
+				strCheque.Concatenate("%s", decode_buffer);
+				fprintf(stdout, "> ");
+			}
+		} while (decode_buffer[0] != '~');
+		
+		
+		long lStoredTransactionNumber=0;
+		bool bGotTransNum = theNym.GetNextTransactionNum(theNym, strServerID, lStoredTransactionNumber);
+		
+		if (!bGotTransNum)
+		{
+			fprintf(stderr, "No Transaction Numbers were available. Try requesting the server for a new one.\n");
+		}
+		else if (theCheque.LoadContractFromString(strCheque))
+		{
+			// Create a transaction
+			OTTransaction * pTransaction = OTTransaction::GenerateTransaction (USER_ID, ACCT_FROM_ID, SERVER_ID, 
+																			   OTTransaction::deposit, lStoredTransactionNumber); 
+			
+			// set up the transaction item (each transaction may have multiple items...)
+			OTItem * pItem		= OTItem::CreateItemFromTransaction(*pTransaction, OTItem::depositCheque);
+			
+			OTString strNote("Deposit this cheque, please!");
+			pItem->SetNote(strNote);
+			
+			strCheque.Release();
+			theCheque.SaveContract(strCheque);
+									
+			// Add the cheque string as the attachment on the transaction item.
+			pItem->SetAttachment(strCheque); // The cheque is contained in the reference string.
+			
+			// sign the item
+			pItem->SignContract(theNym);
+			pItem->SaveContract();
+			
+			// the Transaction "owns" the item now and will handle cleaning it up.
+			pTransaction->AddItem(*pItem); // the Transaction's destructor will cleanup the item. It "owns" it now.
+			
+			// sign the transaction
+			pTransaction->SignContract(theNym);
+			pTransaction->SaveContract();
+			
+			// set up the ledger
+			OTLedger theLedger(USER_ID, ACCT_FROM_ID, SERVER_ID);
+			theLedger.GenerateLedger(ACCT_FROM_ID, SERVER_ID, OTLedger::message); // bGenerateLedger defaults to false, which is correct.
+			theLedger.AddTransaction(*pTransaction); // now the ledger "owns" and will handle cleaning up the transaction.
+			
+			// sign the ledger
+			theLedger.SignContract(theNym);
+			theLedger.SaveContract();
+			
+			// extract the ledger in ascii-armored form... encoding...
+			OTString		strLedger(theLedger);
+			OTASCIIArmor	ascLedger(strLedger);
+			
+			// (0) Set up the REQUEST NUMBER and then INCREMENT IT
+			theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
+			theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
+			theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
+			
+			// (1) Set up member variables 
+			theMessage.m_strCommand			= "notarizeTransactions";
+			theMessage.m_strNymID			= strNymID;
+			theMessage.m_strServerID		= strServerID;
+			theMessage.m_strAcctID			= strFromAcct;
+			theMessage.m_ascPayload			= ascLedger;
+			
+			// (2) Sign the Message 
+			theMessage.SignContract(theNym);		
+			
+			// (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+			theMessage.SaveContract();
+			
+			bSendCommand = true;
+		} 
+	} // else if (OTClient::notarizeCheque == requestedCommand) // DEPOSIT CHEQUE
+	
+	
+	// ------------------------------------------------------------------------
+		
+	else if (OTClient::withdrawVoucher == requestedCommand) // WITHDRAW VOUCHER
+	{		
+		OTString		strFromAcct;
+		OTIdentifier	ACCOUNT_ID;
+		
+		if (!pAccount)
+		{
+			fprintf(stdout, "Please enter a From account: ");
+			// User input.
+			// I need a from account
+			strFromAcct.OTfgets(stdin);
+			
+			ACCOUNT_ID.SetString(strFromAcct);
+			
+			if (pAccount = g_Wallet.GetAccount(ACCOUNT_ID))
+			{
+				CONTRACT_ID = pAccount->GetAssetTypeID();
+				CONTRACT_ID.GetString(strContractID);
+			}
+		}
+		else {
+			pAccount->GetIdentifier(strFromAcct);
+			pAccount->GetIdentifier(ACCOUNT_ID);
+			CONTRACT_ID = pAccount->GetAssetTypeID();
+			CONTRACT_ID.GetString(strContractID);			
+		}
+	
+		const OTIdentifier SERVER_ID(strServerID), USER_ID(strNymID);
+		
+		long lStoredTransactionNumber=0;
+		bool bGotTransNum = theNym.GetNextTransactionNum(theNym, strServerID, lStoredTransactionNumber);
+
+		if ((NULL != pAccount) && bGotTransNum)
+		{
+			// Recipient
+			fprintf(stdout, "Enter a User ID for the recipient of this cheque (defaults to blank): ");
+			OTString strRecipientUserID;
+			strRecipientUserID.OTfgets(stdin);
+			const OTIdentifier RECIPIENT_USER_ID(strRecipientUserID.Get());
+			
+			// -----------------------------------------------------------------------
+
+			// Amount
+			fprintf(stdout, "Enter an amount: ");
+			OTString strAmount;
+			strAmount.OTfgets(stdin);
+			const long lAmount = atol(strAmount.Get());
+			
+			// -----------------------------------------------------------------------
+			
+			// Memo
+			fprintf(stdout, "Enter a memo for your check: ");
+			OTString strChequeMemo;
+			strChequeMemo.OTfgets(stdin);
+			
+			// -----------------------------------------------------------------------
+
+			// Expiration (ignored by server -- it sets its own for its vouchers.)
+			const	time_t	VALID_FROM	= time(NULL); // This time is set to TODAY NOW
+			const	time_t	VALID_TO	= VALID_FROM + 15552000; // 6 months.
+						
+			// -----------------------------------------------------------------------
+			// The server only uses the memo, amount, and recipient from this cheque when it
+			// constructs the actual voucher.
+			OTCheque theRequestVoucher(SERVER_ID, CONTRACT_ID);
+			bool bIssueCheque = theRequestVoucher.IssueCheque(lAmount, lStoredTransactionNumber,// server actually ignores this and supplies its own transaction number for any voucher.
+															  VALID_FROM, VALID_TO, ACCOUNT_ID, USER_ID, strChequeMemo,
+															  (strRecipientUserID.GetLength() > 2) ? &(RECIPIENT_USER_ID) : NULL);
+			
+			if (bIssueCheque)
+			{
+				// Create a transaction
+				OTTransaction * pTransaction = OTTransaction::GenerateTransaction (USER_ID, ACCOUNT_ID, SERVER_ID, 
+																				   OTTransaction::withdrawal, lStoredTransactionNumber); 
+				
+				// set up the transaction item (each transaction may have multiple items...)
+				OTItem * pItem		= OTItem::CreateItemFromTransaction(*pTransaction, OTItem::withdrawVoucher);
+				pItem->m_lAmount	= lAmount;
+				OTString strNote("Withdraw Voucher: ");
+				pItem->SetNote(strNote);
+				
+				// Add the voucher request string as the attachment on the transaction item.
+				OTString strVoucher;
+				theRequestVoucher.SignContract(theNym);
+				theRequestVoucher.SaveContract();
+				theRequestVoucher.SaveContract(strVoucher);			
+				pItem->SetAttachment(strVoucher); // The voucher request is contained in the reference string.
+				
+				// sign the item
+				pItem->SignContract(theNym);
+				pItem->SaveContract();
+				
+				pTransaction->AddItem(*pItem); // the Transaction's destructor will cleanup the item. It "owns" it now.
+				
+				// sign the transaction
+				pTransaction->SignContract(theNym);
+				pTransaction->SaveContract();
+				
+				
+				// set up the ledger
+				OTLedger theLedger(USER_ID, ACCOUNT_ID, SERVER_ID);
+				theLedger.GenerateLedger(ACCOUNT_ID, SERVER_ID, OTLedger::message); // bGenerateLedger defaults to false, which is correct.
+				theLedger.AddTransaction(*pTransaction);
+				
+				// sign the ledger
+				theLedger.SignContract(theNym);
+				theLedger.SaveContract();
+				
+				// extract the ledger in ascii-armored form
+				OTString		strLedger(theLedger);
+				OTASCIIArmor	ascLedger; // I can't pass strLedger into this constructor because I want to encode it
+				
+				// Encoding...
+				ascLedger.SetString(strLedger);
+				
+				
+				// (0) Set up the REQUEST NUMBER and then INCREMENT IT
+				theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
+				theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
+				theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
+				
+				// (1) Set up member variables 
+				theMessage.m_strCommand			= "notarizeTransactions";
+				theMessage.m_strNymID			= strNymID;
+				theMessage.m_strServerID		= strServerID;
+				theMessage.m_strAcctID			= strFromAcct;
+				theMessage.m_ascPayload			= ascLedger;
+				
+				// (2) Sign the Message 
+				theMessage.SignContract(theNym);		
+				
+				// (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+				theMessage.SaveContract();
+				
+				bSendCommand = true;
+			}
+		}
+		else {
+			fprintf(stderr, "No Transaction Numbers were available. Suggest requesting the server for a new one.\n");
+		}
+		
+	}
+	
+	// ------------------------------------------------------------------------
+	
 	
 	
 	else if (OTClient::notarizeWithdrawal == requestedCommand) // NOTARIZE WITHDRAWAL
@@ -1598,9 +1899,9 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		// I'll just use a callback here.
 		// That way, whatever user interface people want to implement for obtaining
 		// the account numbers for the message, is up to the programmer.
-
+		
 		OTString strFromAcct;
-
+		
 		if (!pAccount)
 		{
 			fprintf(stdout, "Please enter a From account: ");
@@ -1617,19 +1918,19 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			}
 		}
 		
-		 fprintf(stdout, "Please enter an amount: ");
-		 // User input.
-		 // I need an amount
-		 OTString strAmount;
-		 strAmount.OTfgets(stdin);
+		fprintf(stdout, "Please enter an amount: ");
+		// User input.
+		// I need an amount
+		OTString strAmount;
+		strAmount.OTfgets(stdin);
 		
 		long lAmount = atol(strAmount.Get());
 		
 		OTIdentifier ACCT_FROM_ID(strFromAcct), SERVER_ID(strServerID), USER_ID(theNym);
 		
 		long lStoredTransactionNumber=0;
-		bool bGotTransNum = theNym.GetNextTransactionNum(strServerID, lStoredTransactionNumber);
-
+		bool bGotTransNum = theNym.GetNextTransactionNum(theNym, strServerID, lStoredTransactionNumber);
+		
 		if (bGotTransNum)
 		{
 			// Create a transaction
@@ -1647,7 +1948,8 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			const OTPseudonym * pServerNym = theServer.GetContractPublicNym();
 			
 			OTString strMintPath;
-			strMintPath.Format("mints/%s", strContractID.Get()); // todo stop hardcoding paths
+			strMintPath.Format("%s%smints%s%s", OTPseudonym::OTPath.Get(), OTPseudonym::OTPathSeparator.Get(), 
+							   OTPseudonym::OTPathSeparator.Get(), strContractID.Get()); 
 			OTMint theMint(strContractID, strMintPath, strContractID);
 			
 			if (pServerNym && theMint.LoadContract() && theMint.VerifyMint((OTPseudonym&)*pServerNym))
@@ -1664,22 +1966,22 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 				while (lTokenAmount = theMint.GetLargestDenomination(lAmount))
 				{
 					lAmount -= lTokenAmount;
-
+					
 					// Create the relevant token request with same server/asset ID as the purse.
 					// the purse does NOT own the token at this point. the token's constructor
 					// just uses it to copy some IDs, since they must match.
 					OTToken theToken(*pPurse);
-
+					
 					// GENERATE new token, sign it and save it. 
 					theToken.GenerateTokenRequest(theNym, theMint, lTokenAmount);
 					theToken.SignContract(theNym);
 					theToken.SaveContract();
-
+					
 					// Now the proto-token is generated, let's add it to a purse
 					// By pushing theToken into pPurse with *pServerNym, I encrypt it to pServerNym.
 					// So now only the server Nym can decrypt that token and pop it out of that purse.
 					pPurse->Push(*pServerNym, theToken);	
-
+					
 					// I'm saving my own copy of all this, encrypted to my nym
 					// instead of the server's, so I can get to my private coin data.
 					// The server's copy of theToken is already Pushed, so I can re-use
@@ -1691,7 +1993,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 					
 					pPurseMyCopy->Push(theNym, theToken);	// Now my copy of the purse has a version of the token,
 				}
-
+				
 				pPurse->SignContract(theNym);
 				pPurse->SaveContract(); // I think this one is unnecessary.
 				
@@ -1707,17 +2009,18 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 				pPurseMyCopy->SaveContract();			// the private keys for unblinding the server response.
 				// This thing is neat and tidy. The wallet can just save it as an ascii-armored string as a
 				// purse field inside the wallet file.  It doesn't do that for now (TODO) but it easily could.
-
+				
 				
 				// Add the purse to the wallet
 				// (We will need it to look up the private coin info for unblinding the token,
 				//  when the response comes from the server.)
 				g_Wallet.AddPendingWithdrawal(*pPurseMyCopy);
+				
 				delete pPurse;
 				pPurse			= NULL; // We're done with this one.
 				pPurseMyCopy	= NULL; // The wallet owns my copy now and will handle cleaning it up.
 				
-
+				
 				// sign the item
 				pItem->SignContract(theNym);
 				pItem->SaveContract();
@@ -1749,7 +2052,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 				// (0) Set up the REQUEST NUMBER and then INCREMENT IT
 				theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
 				theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-				theNym.IncrementRequestNum(strServerID); // since I used it for a server request, I have to increment it
+				theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
 				
 				// (1) Set up member variables 
 				theMessage.m_strCommand			= "notarizeTransactions";
@@ -1770,7 +2073,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		else {
 			fprintf(stderr, "No Transaction Numbers were available. Suggest requesting the server for a new one.\n");
 		}
-
+		
 	}
 	
 	// ------------------------------------------------------------------------
@@ -1811,11 +2114,8 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		
 		const OTPseudonym * pServerNym = theServer.GetContractPublicNym();
 		
-		OTString strMintPath;
-		strMintPath.Format("mints/%s", strContractID.Get()); // todo stop hardcoding paths
-		
 		long lStoredTransactionNumber=0;
-		bool bGotTransNum = theNym.GetNextTransactionNum(strServerID, lStoredTransactionNumber);
+		bool bGotTransNum = theNym.GetNextTransactionNum(theNym, strServerID, lStoredTransactionNumber);
 		
 		if (!bGotTransNum)
 		{
@@ -1936,7 +2236,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 				// (0) Set up the REQUEST NUMBER and then INCREMENT IT
 				theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
 				theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-				theNym.IncrementRequestNum(strServerID); // since I used it for a server request, I have to increment it
+				theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
 				
 				// (1) Set up member variables 
 				theMessage.m_strCommand			= "notarizeTransactions";
@@ -1999,11 +2299,8 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		
 		const OTPseudonym * pServerNym = theServer.GetContractPublicNym();
 		
-		OTString strMintPath;
-		strMintPath.Format("mints/%s", strContractID.Get()); // todo stop hardcoding paths
-		
 		long lStoredTransactionNumber=0;
-		bool bGotTransNum = theNym.GetNextTransactionNum(strServerID, lStoredTransactionNumber);
+		bool bGotTransNum = theNym.GetNextTransactionNum(theNym, strServerID, lStoredTransactionNumber);
 		
 		if (!bGotTransNum)
 		{
@@ -2125,7 +2422,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 				// (0) Set up the REQUEST NUMBER and then INCREMENT IT
 				theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
 				theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-				theNym.IncrementRequestNum(strServerID); // since I used it for a server request, I have to increment it
+				theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
 				
 				// (1) Set up member variables 
 				theMessage.m_strCommand			= "notarizeTransactions";
@@ -2156,7 +2453,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		// (0) Set up the REQUEST NUMBER and then INCREMENT IT
 		theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
 		theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-		theNym.IncrementRequestNum(strServerID); // since I used it for a server request, I have to increment it
+		theNym.IncrementRequestNum(theNym, strServerID); // since I used it for a server request, I have to increment it
 		
 		// (1) Set up member variables 
 		theMessage.m_strCommand			= "getTransactionNum";

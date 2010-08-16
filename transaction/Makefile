@@ -34,7 +34,8 @@ LIBDIRS = \
 	-L../OTLib
 
 
-LIBS = $(LIBDIRS) -lssl $(LIBDIRS) -lcrypto $(LIBDIRS) -lOTLib $(LIBDIRS) -lssl $(LIBDIRS) -lcrypto $(LIBDIRS) -lOTLib 
+LIBS = $(LIBDIRS) -lssl $(LIBDIRS) -lcrypto $(LIBDIRS) -lOTLib $(LIBDIRS) -lssl $(LIBDIRS) -lcrypto $(LIBDIRS) -lOTLib $(LIBDIRS) -lssl $(LIBDIRS) -lcrypto $(LIBDIRS) -lOTLib $(LIBDIRS) -lssl $(LIBDIRS) -lcrypto $(LIBDIRS) -lOTLib
+ 
 
 #
 # The CXXSOURCES macro contains a list of source files.
@@ -55,10 +56,10 @@ LIBS = $(LIBDIRS) -lssl $(LIBDIRS) -lcrypto $(LIBDIRS) -lOTLib $(LIBDIRS) -lssl 
 CSOURCES = ./SSL-Example/SFSocket.c
 
 CXXSOURCES = \
-			 OTClientConnection.cpp \
-			 OTServer.cpp \
-			 server.cpp \
-			 OTMessageBuffer.cpp
+	OTClientConnection.cpp \
+	OTServer.cpp \
+	server.cpp \
+	OTMessageBuffer.cpp
 			 
 CXXOBJECTS = $(CXXSOURCES:.cpp=.o)  # expands to list of object files
 COBJECTS   = $(CSOURCES:.c=.o)
@@ -91,10 +92,10 @@ $(PROGRAM): $(CXXOBJECTS) $(COBJECTS)
 SFSocket.o: ./SSL-Example/SFSocket.c ./SSL-Example/SFSocket.h
 	$(CC) $(CFLAGS) -c -o ./SSL-Example/SFSocket.o ./SSL-Example/SFSocket.c
 
-OTClientConnection.o: OTClientConnection.cpp OTClientConnection.h
-	$(CXX) $(CXXFLAGS) -c -o OTClientConnection.o OTClientConnection.cpp
 OTServer.o: OTServer.cpp OTServer.h
 	$(CXX) $(CXXFLAGS) -c -o OTServer.o OTServer.cpp
+OTClientConnection.o: OTClientConnection.cpp OTClientConnection.h
+	$(CXX) $(CXXFLAGS) -c -o OTClientConnection.o OTClientConnection.cpp
 server.o: server.cpp
 	$(CXX) $(CXXFLAGS) -c -o server.o server.cpp
 OTMessageBuffer.o: OTMessageBuffer.cpp OTMessageBuffer.h

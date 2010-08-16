@@ -15,6 +15,7 @@ extern "C"
 #include "OTIdentifier.h"
 #include "OTPseudonym.h"
 #include "OTAssetContract.h"
+#include "OTSignedFile.h"
 
 
 // Run this program from inside the testwallet directory.
@@ -35,15 +36,28 @@ int main (int argc, char * const argv[])
 	OTString strNymID(argv[1]), strContractFile(argv[2]);
 	OTString NymName(strNymID), NymFile;
 	
-	NymFile.Format("nyms/%s", strNymID.Get());
+	NymFile.Format("%s%snyms%s%s", OTPseudonym::OTPath.Get(), OTPseudonym::OTPathSeparator.Get(),
+				   OTPseudonym::OTPathSeparator.Get(), strNymID.Get());
 	
 	OTPseudonym theNym(NymName, NymFile, strNymID);
 	
-	if (theNym.LoadNymfile((char*)(NymFile.Get())))
+	OTSignedFile theFile("nyms", strNymID.Get());
+	
+	if (theFile.LoadFile())
 	{
-		if (theNym.Loadx509CertAndPrivateKey()) 
+		OTString strFileContents(theFile.GetFilePayload());
+		
+		if (theNym.Loadx509CertAndPrivateKey() && theNym.VerifyPseudonym()) 
 		{							
-			if (theNym.VerifyPseudonym()) 
+			// LoadFile() loads the OTSignedFile that contains the nym.
+			// VerifyFile() insures that the name I thought it would have, and
+			//              where it was found, matches the name inside the file.
+			// VerifySignature() makes sure that the Nym signed it. 
+			//				(Won't work on server sign where Nyms don't sign themselves.)
+			// LoadFromString() loads the Nym object out of the string from the OTSignedFile.
+			//
+			if (theFile.LoadFile() && theFile.VerifyFile() && 
+				theFile.VerifySignature(theNym) && theNym.LoadFromString(strFileContents)) 
 			{
 				std::ifstream in(strContractFile.Get());
 				

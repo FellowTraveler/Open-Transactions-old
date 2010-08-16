@@ -111,7 +111,7 @@ typedef std::deque <OTASCIIArmor *> dequeOfTokens;
 class OTPurse : public OTContract 
 {
 protected:
-	void UpdateContents(); // Before transmission or serialization, this is where the Purse saves its contents 
+	virtual void UpdateContents(); // Before transmission or serialization, this is where the Purse saves its contents 
 
 	dequeOfTokens	m_dequeTokens;
 	
@@ -141,10 +141,10 @@ public:
 	inline const OTIdentifier & GetAssetID() const { return m_AssetID; }
 	
 	void InitPurse();
-	void Release();
+	virtual void Release();
 	void ReleaseTokens();
 	
-	bool SaveContractWallet(FILE * fl);	
+	virtual bool SaveContractWallet(FILE * fl);	
 };
 
 

@@ -169,11 +169,15 @@ public:
 		
 		notarizeTransfer,	// Request the server to transfer from one account to another.
 		
-		notarizeWithdrawal,	// Request the server to withdraw from an asset account and return digital cash to the wallet.
+		notarizeWithdrawal,	// Request the server to withdraw from an asset account and return digital cash tokens to the wallet.
 		
+		withdrawVoucher,	// Request the server to withdraw from an asset account and issue a voucher (cashier's cheque)
+
 		notarizeDeposit,	// Request the server to accept some digital cash and deposit it to an asset account.
 		
 		notarizePurse,		// Same as the above, but sends an entire purse of tokens at once instead of sending individual tokens.
+		
+		notarizeCheque,		// Deposit like the above, but deposits a cheque instead of cash tokens.
 		
 		badID
 	};

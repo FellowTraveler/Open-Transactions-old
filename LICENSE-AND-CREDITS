@@ -1,8 +1,8 @@
 
 
-/************************************************************************************
+/*************************************************************************
  *    
- *    Open Transactions 0.1 --	Library, Protocol, Server, and Test Client
+ *    Open Transactions 0.2 --	Library, Protocol, Server, and Test Client
  *    
  *    			-- Anonymous Numbered Accounts
  *    			-- Untraceable Digital Cash
@@ -151,6 +151,102 @@ Public key for "FellowTraveler", author:
  B+djl7t/g2GIz2q2JeuxWBjvYWclRhPs8xx1D97Kb+3pUUU=
  =6+N5
  -----END PGP PUBLIC KEY BLOCK-----
+
+
+
+
+
+
+
+"Because you say, 'I am rich, and increased with goods, and I need nothing,' 
+and you don’t know that you are wretched, and miserable, and poor, and blind, 
+and naked.
+"I counsel you to buy from me gold refined by fire, so that you may be rich, 
+and white garments so that you may clothe yourself and the shame of your 
+nakedness may not be seen, and salve to anoint your eyes, so that you may see."
+Rev. 3:17-18
+
+"The silver is mine, and the gold is mine, says the LORD of hosts."
+Haggai 2:8 
+
+"A foolish man built his house upon the sand and the rain descended, 
+and the rivers came, and the winds blew, and they dashed against that 
+house; and it fell, and its fall was great."
+Luke 7:25-26
+
+Precious treasure and oil are in a wise man's dwelling, 
+but a foolish man devours it.
+Proverbs 21:20
+
+"By your wisdom and your understanding you have made wealth for 
+yourself, and have gathered gold and silver into your treasuries"
+Ezekiel 28:4
+
+"You shall not have different weights in your bag, a great and a small.
+You shall not have different measures in your house, a great and a small.
+But you shall have a perfect and just weight, a perfect and just measure 
+you shall have: That your days may be lengthened in the land which the 
+LORD your God gives you."
+Deuteronomy 25:13  
+
+"You shall not steal."
+Exodus 20:15  
+
+"Different weights, and different measures, both of them are alike 
+abomination to the LORD."
+Proverbs 20:10
+
+"Be not deceived; God is not mocked: for whatsoever a man sows, 
+he shall also reap."
+Galatians 6:7 
+
+"You shall not lend upon usury to your brother; usury of money, 
+usury of victuals, usury of any thing that is lent upon usury."
+Deuteronomy 23:19  
+
+"The rich rule over the poor, and the borrower is servant to the lender."
+Proverbs 22:7  
+
+"You are bought with a price; be you not the servants of men."
+1 Corinthians 7:23 
+
+"You cannot serve both God and mammon."
+Luke 16:13
+
+"Now the Lord is the Spirit, and where the Spirit of the Lord is, there
+is liberty."
+2 Corinthians 3:17
+
+"Proclaim liberty throughout all the land unto all its inhabitants."
+Leviticus 25:10
+
+
+"...And you had turned, and had done right in my sight, in 
+proclaiming liberty, every man to his neighbor; and you had made a 
+covenant before me in the house which is called by my name.
+    "But you turned and a polluted my name, and caused every man his
+servant, and every man his handmaid, whom you had set at liberty, to 
+return, and brought them into subjection, to be your servants and 
+handmaids.
+    "Therefore thus says the Lord; You have not hearkened unto me, 
+in proclaiming a liberty, every one to his brother, and every man to his
+neighbor: behold, I proclaim a liberty for you, says the Lord, to the 
+sword, to the pestilence, and to the famine; and I will make you to be 
+removed into all the kingdoms of the earth."
+Jeremiah 34:15-17
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -389,12 +485,11 @@ Paul C. Sutton	paul@openssl.org	paul@awe.com	UK
 /*
   It seems appropriate to mention a few other people who deserve mentioning.
 
-  Kudos to Dr. Douglas Jackson for his sacrifices and accomplishments. May 
-  this software protect future innovators from persecution, in a diversity
+  Tip of the hat to Dr. Douglas Jackson for his sacrifices and accomplishments. 
+  May this software protect future innovators from persecution, in a diversity
   of jurisdictions.  And check out e-gold.com, as well as goldmoney.com, 
-  igolder, pecunix, and all the other digital gold reserve outfits.
-  May they all soon be traded as a single basket currency using this new
-  software.
+  igolder, pecunix, and all the other digital gold reserve outfits. May they
+  all soon be traded as a single basket currency using this new software.
   
   Thank you to David Chaum, for inventing digital cash in the first place.
 

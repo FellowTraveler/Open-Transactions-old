@@ -141,7 +141,10 @@ OTPurse::OTPurse(const OTIdentifier & SERVER_ID,
 
 OTPurse::~OTPurse()
 {
-	Release();
+//	Release();
+	// OTContract::~OTContract is called here automatically, and it calls Release() already.
+	// So I don't need to call Release() here again, since it's already called by the parent.
+
 }
 
 void OTPurse::InitPurse()
@@ -153,6 +156,8 @@ void OTPurse::InitPurse()
 void OTPurse::Release()
 {
 	ReleaseTokens();
+	
+	OTContract::Release();
 }
 
 

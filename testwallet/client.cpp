@@ -100,17 +100,86 @@ extern "C"
 #include "OTWallet.h"
 #include "OTPseudonym.h"
 #include "OTEnvelope.h"
+#include "OTCheque.h"
 
 extern OTClient		g_Client;
 extern OTWallet		g_Wallet;
 extern OTPseudonym *g_pTemporaryNym;
 
+
+
+
+
+// TODO REALLY NEED to move this crap to a config file...
+// ALso, FYI, the below paths may not work unless you put a fully-qualified path (which I haven't.)
+#define KEY_PASSWORD        "test"  // RIGHT NOW THE PASSWORD FOR CONNECTING TO THE SERVER IS HARDCODED HERE.  TODO: config file, password prompt.
+
+#ifdef WINDOWS
+
+#define SERVER_PATH_DEFAULT	"C:\\Users\\REDACTED\\Projects\\Open-Transactions\\testwallet"
+#define CA_FILE             "SSL-Example\\ca.crt"
+#define KEY_FILE            "SSL-Example\\client.pem"
+
+#else
+
+#define SERVER_PATH_DEFAULT	"/Users/REDACTED/Projects/Open-Transactions/testwallet"
+#define CA_FILE             "SSL-Example/ca.crt"
+#define KEY_FILE            "SSL-Example/client.pem"
+
+#endif
+
+// NOTE: this SSL connection is entirely different from the user's cert/pubkey that he uses for his UserID while 
+// talking to the server. I may be using the same key for that, but this code here is not about my wallet talking
+// to its mint. Rather, it's about an SSL client app talking to an SSL server, at a lower layer, before my app's
+// intelligence takes over.  Just like when you use SSH to connect somewhere on a terminal. There is some immediate
+// key negotiation going on. Once connected, you might run software that asks you for a public key, which could be
+// AN ENTIRELY DIFFERENT PUBLIC KEY. THAT is where, metaphorically, your Public Key / User ID comes into play.
+
+
+
+
+
+
 int main (int argc, char **argv) 
 {
+	
+	// -----------------------------------------------------------------------
+	
+	OTString strCAFile, strKeyFile, strSSLPassword;
+	
+	if (argc < 2)
+	{
+		fprintf(stdout, "\n\nUsage:  testwallet <SSL-password> <full path to testwallet folder>\n\n"
+				"(Password defaults to '%s' if left blank.)\n"
+				"(Folder defaults to '%s' if left blank.)\n", KEY_PASSWORD, SERVER_PATH_DEFAULT);
+		
+		strSSLPassword.Set(KEY_PASSWORD);
+		OTPseudonym::OTPath.Set(SERVER_PATH_DEFAULT);
+	}
+	else if (argc < 3)
+	{
+		fprintf(stdout, "\n\nUsage:  transaction <SSL-password> <full path to transaction folder>\n\n"
+				"(Folder defaults to '%s' if left blank.)\n", SERVER_PATH_DEFAULT);
+		
+		strSSLPassword.Set(argv[1]);
+		OTPseudonym::OTPath.Set(SERVER_PATH_DEFAULT);
+	}
+	else 
+	{
+		strSSLPassword.Set(argv[1]);
+		OTPseudonym::OTPath.Set(argv[2]);
+	}	
+	
+	strCAFile. Format("%s%s%s", OTPseudonym::OTPath.Get(), OTPseudonym::OTPathSeparator.Get(), CA_FILE);
+	strKeyFile.Format("%s%s%s", OTPseudonym::OTPath.Get(), OTPseudonym::OTPathSeparator.Get(), KEY_FILE);
+	
+	
+	// -----------------------------------------------------------------------
 
+	
+	
 	// ------------------------------------------------------------------------------
 	
-	// theServer is connected. From here we go into the client loop.
 	//
 	// Basically, loop:
 	//
@@ -130,7 +199,9 @@ int main (int argc, char **argv)
 	
 	int nExpectResponse = 0;
 	
-	fprintf(stderr,"Starting client loop. u_header size in C code is %d.\n", OT_CMD_HEADER_SIZE);
+	fprintf(stderr,"\n\nWelcome to Open Transactions, version %s.\n"
+			"You may wish to 'load' then 'connect' then 'stat'.\n", "0.2");
+//	fprintf(stderr,"Starting client loop. u_header size in C code is %d.\n", OT_CMD_HEADER_SIZE);
 	
 	for(;;)
 	{
@@ -159,6 +230,123 @@ int main (int argc, char **argv)
 			g_Wallet.LoadWallet("wallet.xml");
 //			g_Wallet.SaveWallet("NEWwallet.xml"); // todo remove this test code.
 			
+			continue;
+		}
+		
+		else if (strLine.compare(0,6,"cheque") == 0)
+		{
+			if (NULL == g_pTemporaryNym)
+			{
+				fprintf(stdout, "No Nym yet available to sign the cheque with. Try 'load'.\n");
+				continue;
+			}
+
+			fprintf(stdout, "Enter the ID for your Asset Account that the cheque will be drawn on: ");
+			OTString strTemp;
+			strTemp.OTfgets(stdin);
+
+			const OTIdentifier ACCOUNT_ID(strTemp), USER_ID(*g_pTemporaryNym);
+			OTAccount * pAccount = g_Wallet.GetAccount(ACCOUNT_ID);
+			
+			if (NULL == pAccount)
+			{
+				fprintf(stderr, "That account isn't loaded right now. Try 'load'.\n");
+				continue;
+			}
+			
+			// To write a cheque, we need to burn one of our transaction numbers. (Presumably the wallet
+			// is also storing a couple of these, since they are needed to perform any transaction.)
+			//
+			// I don't have to contact the server to write a cheque -- as long as I already have a transaction
+			// number I can use to write it. Otherwise I'd have to ask the server to send me one first.
+			OTString strServerID(pAccount->GetRealServerID());
+			long lTransactionNumber=0;
+			
+			if (false == g_pTemporaryNym->GetNextTransactionNum(*g_pTemporaryNym, strServerID, lTransactionNumber))
+			{
+				fprintf(stdout, "Cheques are written offline, but you still need a transaction number\n"
+						"(and you have none, currently.) Try using 'n' to request another transaction number.\n");
+				continue;
+			}
+
+			
+			OTCheque theCheque(pAccount->GetRealServerID(), pAccount->GetAssetTypeID());
+			
+			// Recipient
+			fprintf(stdout, "Enter a User ID for the recipient of this cheque (defaults to blank): ");
+			OTString strRecipientUserID;
+			strRecipientUserID.OTfgets(stdin);
+			const OTIdentifier RECIPIENT_USER_ID(strRecipientUserID.Get());
+			
+			// Amount
+			fprintf(stdout, "Enter an amount: ");
+			strTemp.Release();
+			strTemp.OTfgets(stdin);
+			const long lAmount = atol(strTemp.Get());
+			
+			// -----------------------------------------------------------------------
+			
+			// Memo
+			fprintf(stdout, "Enter a memo for your check: ");
+			OTString strChequeMemo;
+			strChequeMemo.OTfgets(stdin);
+
+			// -----------------------------------------------------------------------
+			
+			// Valid date range (in seconds)
+			fprintf(stdout, 
+					" 6 minutes	==      360 Seconds\n"
+					"10 minutes	==      600 Seconds\n"
+					"1 hour		==     3600 Seconds\n"
+					"1 day		==    86400 Seconds\n"
+					"30 days		==  2592000 Seconds\n"
+					"3 months	==  7776000 Seconds\n"
+					"6 months	== 15552000 Seconds\n\n"
+					);
+
+			long lExpirationInSeconds = 3600;
+			fprintf(stdout, "How many seconds before cheque expires? (defaults to 1 hour: %ld): ", lExpirationInSeconds);
+			strTemp.Release();
+			strTemp.OTfgets(stdin);
+			
+			if (strTemp.GetLength() > 1)
+				lExpirationInSeconds = atol(strTemp.Get());
+			
+			
+			// -----------------------------------------------------------------------
+			
+			time_t	VALID_FROM	= time(NULL); // This time is set to TODAY NOW
+
+			fprintf(stdout, "Cheque may be cashed STARTING date (defaults to now, in seconds) [%ld]: ", VALID_FROM);
+			strTemp.Release();
+			strTemp.OTfgets(stdin);
+			
+			if (strTemp.GetLength() > 2)
+				VALID_FROM = atol(strTemp.Get());
+			
+			
+			const time_t VALID_TO = VALID_FROM + lExpirationInSeconds; // now + 3600
+
+			// -----------------------------------------------------------------------
+
+			bool bIssueCheque = theCheque.IssueCheque(lAmount, lTransactionNumber, VALID_FROM, VALID_TO, 
+													  ACCOUNT_ID, USER_ID, strChequeMemo,
+													  (strRecipientUserID.GetLength() > 2) ? &(RECIPIENT_USER_ID) : NULL);
+			
+			if (bIssueCheque)
+			{
+				theCheque.SignContract(*g_pTemporaryNym);
+				theCheque.SaveContract();
+				
+				OTString strCheque;
+				theCheque.SaveContract(strCheque);
+				
+				fprintf(stdout, "\n\nOUTPUT:\n\n\n%s\n", strCheque.Get());
+			}
+			else {
+				fprintf(stdout, "Failed trying to issue the cheque!\n");
+			}
+
 			continue;
 		}
 		
@@ -285,10 +473,11 @@ int main (int argc, char **argv)
 		else if (strLine.compare(0,7,"connect") == 0)
 		{
 			fprintf(stderr, "User has instructed to connect to the first server available in the wallet.\n");
-			
-			bool bConnected = g_Wallet.ConnectToTheFirstServerOnList(); // Wallet, after loading, should contain a list of server
-																		// contracts. Let's pull the hostname and port out of
-																		// the first contract, and connect to that server.
+						
+			// Wallet, after loading, should contain a list of server
+			// contracts. Let's pull the hostname and port out of
+			// the first contract, and connect to that server.
+			bool bConnected = g_Wallet.ConnectToTheFirstServerOnList(strCAFile, strKeyFile, strSSLPassword); 
 			
 			if (bConnected)
 				fprintf(stderr, "Success. (Connected to the first notary server on your wallet's list.)\n");

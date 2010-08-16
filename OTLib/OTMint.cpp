@@ -94,15 +94,40 @@ using namespace io;
 #include "OTMint.h"
 #include "OTPseudonym.h"
 #include "OTASCIIArmor.h"
+#include "OTMessage.h"
 
 
+
+
+// Verify the current date against the VALID FROM / EXPIRATION dates.
+// (As opposed to tokens, which are verified against the valid from/to dates.)
+bool OTMint::Expired() const
+{
+	const time_t CURRENT_TIME =	time(NULL);
+	
+	if ((CURRENT_TIME >= m_VALID_FROM) && (CURRENT_TIME <= m_EXPIRATION))
+		return false;
+	else
+		return true;
+}
 
 void OTMint::InitMint()
 {
+	m_strContractType.Set("MINT");
+	
+	m_pReserveAcct	= NULL;
+
 	m_nDenominationCount = 0;
 	
 	m_bSavePrivateKeys = false; // Determines whether it serializes private keys (no if false)
 
+	// Mints expire and new ones are rotated in.
+	// All tokens have the same series, and validity dates,
+	// of the mint that created them.
+	m_nSeries		= 0;
+	m_VALID_FROM	= 0;
+	m_VALID_TO		= 0;	
+	m_EXPIRATION	= 0;
 }
 
 void OTMint::ReleaseDenominations()
@@ -127,6 +152,16 @@ void OTMint::Release()
 {
 	ReleaseDenominations();
 	
+	m_CashAccountID.Release();
+	
+	if (m_pReserveAcct)
+	{
+		delete m_pReserveAcct;
+		m_pReserveAcct = NULL;
+	}
+
+	OTContract::Release(); // I overrode the parent, so now I give him a chance to clean up.
+
 	InitMint();
 }
 
@@ -144,7 +179,8 @@ OTMint::OTMint() : OTContract()
 
 OTMint::~OTMint()
 {
-	Release();
+	// OTContract::~OTContract is called here automatically, and it calls Release() already.
+	// So I don't need to call Release() here again, since it's already called by the parent.
 }
 
 
@@ -398,20 +434,34 @@ bool OTMint::AddDenomination(OTPseudonym & theNotary, long lDenomination, int nP
 }
 
 
+
+
+
+
 // The default behavior of this function does NOT save the private keys. It only
 // serializes the public keys, and it is safe to send the object to the client.
 // If the server needs to save the private keys, then call SetSavePrivateKeys() first.
 void OTMint::UpdateContents()
 {
-	OTString SERVER_ID(m_ServerID), ASSET_ID(m_AssetID);
-		
+	OTString SERVER_ID(m_ServerID), ASSET_ID(m_AssetID), CASH_ACCOUNT_ID(m_CashAccountID);
+	
+	long lFrom = m_VALID_FROM, lTo = m_VALID_TO, lExpiration = m_EXPIRATION;
+	
 	// I release this because I'm about to repopulate it.
 	m_xmlUnsigned.Release();
 	
 	m_xmlUnsigned.Concatenate("<?xml version=\"%s\"?>\n\n", "1.0");		
 	
-	m_xmlUnsigned.Concatenate("<mint version=\"%s\"\n serverID=\"%s\"\n assetTypeID=\"%s\" >\n\n", 
-							  m_strVersion.Get(), SERVER_ID.Get(), ASSET_ID.Get());		
+	m_xmlUnsigned.Concatenate("<mint version=\"%s\"\n serverID=\"%s\"\n assetTypeID=\"%s\"\n"
+							  " cashAcctID=\"%s\"\n"
+							  " series=\"%d\"\n"
+							  " expiration=\"%ld\"\n"
+							  " validFrom=\"%ld\"\n"
+							  " validTo=\"%ld\""
+							  " >\n\n", 
+							  m_strVersion.Get(), SERVER_ID.Get(), ASSET_ID.Get(),
+							  CASH_ACCOUNT_ID.Get(),
+							  m_nSeries, lExpiration, lFrom, lTo );
 	
 	OTASCIIArmor	armorPublicKey;
 	m_keyPublic.GetPublicKey(armorPublicKey);
@@ -473,19 +523,40 @@ int OTMint::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	if (!strcmp("mint", xml->getNodeName())) 
 	{
-		OTString strServerID, strAssetID;
+		OTString strServerID, strAssetID, strCashAcctID;
 		
 		m_strVersion	= xml->getAttributeValue("version");					
 		strServerID		= xml->getAttributeValue("serverID");
 		strAssetID		= xml->getAttributeValue("assetTypeID");
+		strCashAcctID	= xml->getAttributeValue("cashAcctID");
+		
+		m_nSeries		= atoi(xml->getAttributeValue("series"));
+		m_EXPIRATION	= atol(xml->getAttributeValue("expiration"));
+		m_VALID_FROM	= atol(xml->getAttributeValue("validFrom"));
+		m_VALID_TO		= atol(xml->getAttributeValue("validTo"));
 		
 		m_ServerID.SetString(strServerID);
 		m_AssetID.SetString(strAssetID);
+		m_CashAccountID.SetString(strCashAcctID);
 				
+		if (m_pReserveAcct)
+		{
+			delete m_pReserveAcct;
+			m_pReserveAcct = NULL;
+		}
+		
+		// Every Mint has its own cash account. Here we load ours so it's ready for transactions.
+		if (strCashAcctID.Exists())
+			m_pReserveAcct = OTAccount::LoadExistingAccount(m_CashAccountID, m_ServerID);
+
 		fprintf(stderr, 
 				//	"\n===> Loading XML for mint into memory structures..."
-				"\n\nMint version: %s\n Server ID: %s\n Asset Type ID: %s\n", 
-				m_strVersion.Get(), strServerID.Get(), strAssetID.Get());
+				"\n\nMint version: %s\n Server ID: %s\n Asset Type ID: %s\n Cash Acct ID: %s\n"
+				"%s loading Cash Account into memory for pointer: OTMint::m_pReserveAcct\n"
+				" Series: %d\n Expiration: %ld\n Valid From: %ld\n Valid To: %ld\n", 
+				m_strVersion.Get(), strServerID.Get(), strAssetID.Get(), strCashAcctID.Get(),
+				(m_pReserveAcct != NULL) ? "SUCCESS" : "FAILURE",
+				m_nSeries, m_EXPIRATION, m_VALID_FROM, m_VALID_TO);
 		
 		nReturnVal = 1;
 	}
@@ -748,6 +819,11 @@ bool OTMint::SignToken(OTPseudonym & theNotary, OTToken & theToken, OTString & t
 				// He will probably set it onto the token.
 				theOutput.Set(sig_buf, sig_len);
 				bReturnValue = true;
+				
+				// This is also where we set the expiration date on the token.
+				// The client should have already done this, but we are explicitly
+				// setting the values here to prevent any funny business.
+				theToken.SetSeriesAndExpiration(m_nSeries, m_VALID_FROM, m_VALID_TO);
 			}
 		}
 	}
@@ -765,7 +841,7 @@ bool OTMint::SignToken(OTPseudonym & theNotary, OTToken & theToken, OTString & t
 bool OTMint::VerifyToken(OTPseudonym & theNotary, OTString & theCleartextToken, long lDenomination)
 {
 	bool bReturnValue = false;
-	//fprintf(stderr,"%s <bank info> <coin>\n",argv[0]);
+	//fprintf(stderr, "%s <bank info> <coin>\n", argv[0]);
     SetDumper(stderr);
 	
 	BIO *bioBank	= BIO_new(BIO_s_mem()); // input
@@ -812,16 +888,72 @@ bool OTMint::VerifyToken(OTPseudonym & theNotary, OTString & theCleartextToken, 
 	return bReturnValue;
 }
 
+
+
+/*
+ 
+ // Just make sure theMessage has these members populated:
+ //
+ // theMessage.m_strNymID;
+ // theMessage.m_strAssetID; 
+ // theMessage.m_strServerID;
+ 
+ // static method (call it without an instance, using notation: OTAccount::GenerateNewAccount)
+ OTAccount * OTAccount::GenerateNewAccount(	const OTIdentifier & theUserID,	const OTIdentifier & theServerID, 
+ const OTPseudonym & theServerNym,	const OTMessage & theMessage,
+ const OTAccount::AccountType eAcctType=OTAccount::simple)
+ 
+ 
+ // The above method uses this one internally...
+ bool OTAccount::GenerateNewAccount(const OTPseudonym & theServer, const OTMessage & theMessage,
+ const OTAccount::AccountType eAcctType=OTAccount::simple)
+ 
+ 
+ OTAccount * pAcct = NULL;
+ pAcct = OTAccount::LoadExistingAccount(ACCOUNT_ID, SERVER_ID);
+ */
+
+
+
 // Lucre step 1: generate new mint
 // Make sure the issuer here has a private key
-// theMint.GenerateNewMint(ASSET_ID, m_nymServer, 1, 5, 10, 20, 50, 100, 500, 1000, 10000, 100000);
-void OTMint::GenerateNewMint(const OTIdentifier & theAssetID, OTPseudonym & theNotary, 
+// theMint.GenerateNewMint(nSeries, VALID_FROM, VALID_TO, ASSET_ID, m_nymServer, 1, 5, 10, 20, 50, 100, 500, 1000, 10000, 100000);
+void OTMint::GenerateNewMint(int nSeries, time_t VALID_FROM, time_t VALID_TO, time_t MINT_EXPIRATION,
+							 const OTIdentifier & theAssetID, OTPseudonym & theNotary, 
 							 long nDenom1, long nDenom2, long nDenom3, long nDenom4, long nDenom5,
 							 long nDenom6, long nDenom7, long nDenom8, long nDenom9, long nDenom10)
 {
 	Release();
 	
-	m_AssetID = theAssetID;
+	m_AssetID		= theAssetID;
+	
+	m_nSeries		= nSeries;
+	m_VALID_FROM	= VALID_FROM;
+	m_VALID_TO		= VALID_TO;
+	m_EXPIRATION	= MINT_EXPIRATION;
+	
+	
+	OTIdentifier SERVER_ID(theNotary);
+	
+	// Normally asset accounts are created based on an incoming message, 
+	// so I'm just simulating that in order to make sure it gets its
+	// necessary input values, such as asset type, server ID, etc.
+	OTMessage theMessage;
+	SERVER_ID.GetString(theMessage.m_strNymID);
+	theAssetID.GetString(theMessage.m_strAssetID);
+	SERVER_ID.GetString(theMessage.m_strServerID);
+	 
+	m_pReserveAcct	= OTAccount::GenerateNewAccount(SERVER_ID, SERVER_ID, theNotary, theMessage);
+
+	if (m_pReserveAcct)
+	{
+		m_pReserveAcct->GetIdentifier(m_CashAccountID);
+		fprintf(stderr, "Successfully created cash reserve account for new mint.\n");
+	}
+	else {
+		fprintf(stderr, "Error creating cash reserve account for new mint.\n");
+	}
+
 	
 	if (nDenom1)
 	{

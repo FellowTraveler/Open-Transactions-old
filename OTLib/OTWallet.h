@@ -1,6 +1,6 @@
 /************************************************************************************
  *    
- *  OTServerConnection.h
+ *  OTWallet.h
  *  
  *              Open Transactions:  Library, Protocol, Server, and Test Client
  *    
@@ -82,102 +82,92 @@
  *      
  ************************************************************************************/
 
-#ifndef __OT_SERVERCONNECTION_H__
-#define __OT_SERVERCONNECTION_H__
+#ifndef __OTWALLET_H__
+#define __OTWALLET_H__
 
-extern "C"
-{
-#include "SSL-Example/SFSocket.h"	
-}
 
-extern "C" 
-{	
-#define TYPE_1_CMD_1	1
-#define TYPE_1_CMD_2	2
-#define TYPE_1_CMD_3	3
-#define TYPE_1_CMD_4	4
-	
-#define CMD_TYPE_1		1
-	
-#define OT_CMD_HEADER_SIZE  9
-
-typedef unsigned char	BYTE;
-typedef unsigned short	USHORT;
-
-union u_header
-{
-	BYTE buf[OT_CMD_HEADER_SIZE];
-	struct {
-		BYTE		type_id;	// 1 byte
-		BYTE		command_id;	// 1 byte
-		BYTE		filler[2];	// 2 extra bytes here so the size begins on a 4-byte boundary
-		uint32_t	size;		// 4 bytes to describe size of payload
-		BYTE		checksum;	// 1 byte
-	} fields;	// total of 9 bytes
-};
-	
-}
+#include "OTPseudonym.h"
+#include "OTContract.h"
+#include "OTAssetContract.h"
+#include "OTServerContract.h"
+#include "OTServerConnection.h"
+#include "OTAccount.h"
 
 
 class OTMessage;
+class OTPurse;
 
-#include "OTMessageBuffer.h"
-#include "OTPseudonym.h"
-#include "OTServerContract.h"
+//typedef std::map<std::string, OTPseudonym *>		mapOfNyms; // in OTContract.h now.
+typedef std::map<std::string, OTServerContract *>	mapOfServers;
+typedef std::map<std::string, OTAccount *>			mapOfAccounts;
 
-
-// Update: The actual connection information is now read out of the server contract!!
-//#define HOSTNAME        "localhost"
-//#define PORT            7085
-
-class OTPseudonym;
-class OTAccount;
-class OTWallet;
-class OTString;
-
-class OTServerConnection 
+class OTWallet
 {
-	static void Initialize();
-	static bool s_bInitialized;
-	
-	OTMessageBuffer m_listIn;
-	OTMessageBuffer m_listOut;
+private:
+	mapOfNyms		m_mapNyms;
+	mapOfContracts	m_mapContracts;
+	mapOfServers	m_mapServers;
+	mapOfAccounts	m_mapAccounts;
 
-	SFSocket * m_pSocket;
+	OTString m_strName;
+	OTString m_strVersion;
 	
-	OTPseudonym			*	m_pNym;
-	OTServerContract	*	m_pServerContract;
-	OTWallet			*	m_pWallet;
-	
+	OTPurse	*	m_pWithdrawalPurse; // While waiting on server response to withdrawal, store private coin data here for unblinding
 public:
-	OTServerConnection(OTWallet & theWallet);
-	OTServerConnection(OTWallet & theWallet, SFSocket * pSock);
-	~OTServerConnection();
+	OTString m_strFilename;
+
+	// Right now this wallet just supports a SINGLE server connection.
+	// Eventually it will be a whole list of server connections.
+	// For now one is good enough for testing.
+	// All commands for the server will be sent here.
+	//
+	// Here was the problem, you see: You can't attach the connection to the Nym,
+	// because the same Nym might have connections to different servers. And you can't
+	// attach it to the server contract, because the user might access that server
+	// through multiple nym accounts on the same server.
+	// So I decided the wallet should manage the connections, and when new connections
+	// are made, the serverconnection object will be given a pointer at that time to
+	// the server and nym for that connection.  That way the two are always available
+	// for processing the commands.
 	
-	bool GetServerID(OTIdentifier & theID);
+	OTServerConnection m_Connection;
 	
-	inline OTPseudonym		*	GetNym()			{ return m_pNym; }
-	inline OTServerContract	*	GetServerContract()	{ return m_pServerContract; }
-	inline OTWallet			*	GetWallet()			{ return m_pWallet; }
+	// Eventually, the wallet will have a LIST of these server connections,
+	// and any use of the connection will first require to look up the right one
+	// on that list, based on ID. This will return a pointer, and then you do the
+	// same call you normally did from there.
 	
-	inline bool IsConnected() { return ((NULL == m_pSocket)?false:true); }
+	OTWallet();
+	~OTWallet();
 	
-	bool Connect(OTPseudonym & theNym, OTServerContract & theServerContract,
-				 OTString & strCA_FILE, OTString & strKEY_FILE, OTString & strKEY_PASSWORD);
+	void DisplayStatistics(OTString & strOutput);
 	
-	void OnServerResponseToGetRequestNumber(long lNewRequestNumber);
+	OTPseudonym *		GetNymByID(const OTIdentifier & NYM_ID);
 	
-	void ProcessMessageOut(char *buf, int * pnExpectReply);
-	void ProcessMessageOut(OTMessage & theMessage);
+	OTServerContract *	GetServerContract(const OTIdentifier & SERVER_ID);
 	
-	bool ProcessInBuffer(OTMessage & theServerReply);
-	bool ProcessReply(u_header & theCMD, OTMessage & theServerReply);
-	bool ProcessType1Cmd(u_header & theCMD, OTMessage & theServerReply);
+	void				AddAssetContract(const OTAssetContract & theContract);
+	OTAssetContract *	GetAssetContract(const OTIdentifier & theContractID);
 	
-	// Assuming we are connected, then we have the nym for signing and we
-	// have the connection for sending.
-	bool SignAndSend(OTMessage & theMessage);
+	OTAccount * GetAccount(const OTIdentifier & theAccountID);
+	void AddAccount(OTAccount & theAcct);
+
+	// While waiting on server response to a withdrawal, we keep the private coin
+	// data here so we can unblind the response.
+	// This information is so important (as important as the digital cash token
+	// itself, until the unblinding is done) that we need to save the file right away.
+	void AddPendingWithdrawal(const OTPurse & thePurse);
+	void RemovePendingWithdrawal();
+	inline OTPurse * GetPendingWithdrawal() const { return m_pWithdrawalPurse; }
 	
+	bool LoadWallet(const char * szFilename);
+	int SaveWallet(const char * szFilename);
+	
+	bool ConnectToTheFirstServerOnList(OTString & strCA_FILE, OTString & strKEY_FILE, OTString & strKEY_PASSWORD);
+	
+	bool SignContractWithFirstNymOnList(OTContract & theContract);
 };
 
-#endif // __OT_SERVERCONNECTION_H__
+#endif // __OTWALLET_H__
+
+

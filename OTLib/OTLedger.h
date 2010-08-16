@@ -114,7 +114,7 @@ protected:
 	// return -1 if error, 0 if nothing, and 1 if the node was processed.
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
 	
-	void UpdateContents(); // Before transmission or serialization, this is where the ledger saves its contents 
+	virtual void UpdateContents(); // Before transmission or serialization, this is where the ledger saves its contents 
 	
 public:
 	
@@ -158,7 +158,7 @@ public:
 	bool GenerateLedger(const OTIdentifier & theAcctID, const OTIdentifier & theServerID, 
 						const ledgerType theType, bool bCreateFile=false); 
 
-	bool SaveContractWallet(FILE * fl);
+	virtual bool SaveContractWallet(FILE * fl);
 	
 };
 

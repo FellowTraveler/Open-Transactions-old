@@ -2726,7 +2726,6 @@ bool OTMessage::SaveContractWallet(FILE * fl)
 	else {
 		return false;
 	}
-	
 }
 
 

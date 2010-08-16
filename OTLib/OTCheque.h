@@ -1,6 +1,6 @@
 /************************************************************************************
  *    
- *  OTWallet.h
+ *  OTCheque.h
  *  
  *              Open Transactions:  Library, Protocol, Server, and Test Client
  *    
@@ -82,81 +82,69 @@
  *      
  ************************************************************************************/
 
-#ifndef __OTWALLET_H__
-#define __OTWALLET_H__
+#ifndef __OT_CHEQUE_H__
+#define __OT_CHEQUE_H__
+
+#include <ctime>
 
 
-#include "OTPseudonym.h"
-#include "OTContract.h"
-#include "OTAssetContract.h"
-#include "OTServerContract.h"
-#include "OTServerConnection.h"
-#include "OTAccount.h"
+#include "OTInstrument.h"
+#include "OTIdentifier.h"
+#include "OTString.h"
 
 
-class OTMessage;
-class OTPurse;
 
-//typedef std::map<std::string, OTPseudonym *>		mapOfNyms; // in OTContract.h now.
-typedef std::map<std::string, OTServerContract *>	mapOfServers;
-typedef std::map<std::string, OTAccount *>			mapOfAccounts;
-
-class OTWallet
+class OTCheque : public OTInstrument
 {
-private:
-	mapOfNyms		m_mapNyms;
-	mapOfContracts	m_mapContracts;
-	mapOfServers	m_mapServers;
-	mapOfAccounts	m_mapAccounts;
+protected:
+	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
 
-	OTString m_strName;
-	OTString m_strVersion;
+	long		m_lAmount;
+	long		m_lTransactionNum;	// A cheque can be written offline, provided you have a transaction
+									// number handy to write it with. Necessary to prevent double-spending. 
+	bool		m_bHasRecipient;
 	
-	OTPurse	*	m_pWithdrawalPurse; // While waiting on server response to withdrawal, store private coin data here for unblinding
+	OTString	m_strMemo;
+	
+	OTIdentifier	m_SENDER_ACCT_ID;	// The asset account the cheque is drawn on.
+	OTIdentifier	m_SENDER_USER_ID;	// This ID must match the user ID on the asset account, 
+										// AND must verify the cheque signature with that user's key.
+	OTIdentifier	m_RECIPIENT_USER_ID;// Optional. If present, must match depositor's user ID.
+	
 public:
-	// Right now this wallet just supports a SINGLE server connection.
-	// Eventually it will be a whole list of server connections.
-	// For now one is good enough for testing.
-	// All commands for the server will be sent here.
-	//
-	// Here was the problem, you see: You can't attach the connection to the Nym,
-	// because the same Nym might have connections to different servers. And you can't
-	// attach it to the server contract, because the user might access that server
-	// through multiple nym accounts on the same server.
-	// So I decided the wallet should manage the connections, and when new connections
-	// are made, the serverconnection object will be given a pointer at that time to
-	// the server and nym for that connection.  That way the two are always available
-	// for processing the commands.
+	inline void SetAsVoucher() { m_strContractType = "VOUCHER"; }
 	
-	OTServerConnection m_Connection;
+	inline OTString & GetMemo() { return m_strMemo; }
 	
-	OTWallet();
-	~OTWallet();
+	inline long GetAmount() const { return m_lAmount; }
+	inline long GetTransactionNum() const { return m_lTransactionNum; }
 	
-	void DisplayStatistics(OTString & strOutput);
+	inline OTIdentifier & GetSenderAcctID()		{ return m_SENDER_ACCT_ID; }
+	inline OTIdentifier & GetSenderUserID()		{ return m_SENDER_USER_ID; }
+	inline OTIdentifier & GetRecipientUserID()	{ return m_RECIPIENT_USER_ID; }
 	
-	void				AddAssetContract(const OTAssetContract & theContract);
-	OTAssetContract *	GetAssetContract(const OTIdentifier & theContractID);
+	inline bool HasRecipient() const { return m_bHasRecipient; }
 	
-	OTAccount * GetAccount(const OTIdentifier & theAccountID);
-	void AddAccount(OTAccount & theAcct);
+	void InitCheque();
 
-	// While waiting on server response to a withdrawal, we keep the private coin
-	// data here so we can unblind the response.
-	// This information is so important (as important as the digital cash token
-	// itself, until the unblinding is done) that we need to save the file right away.
-	void AddPendingWithdrawal(const OTPurse & thePurse);
-	void RemovePendingWithdrawal();
-	inline OTPurse * GetPendingWithdrawal() const { return m_pWithdrawalPurse; }
+	OTCheque();
+	OTCheque(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID);
+	virtual ~OTCheque();
 	
-	bool LoadWallet(const char * szFilename);
-	int SaveWallet(const char * szFilename);
-	
-	bool ConnectToTheFirstServerOnList();
-	
-	bool SignContractWithFirstNymOnList(OTContract & theContract);
+	// Calling this function is like writing a check...
+	bool IssueCheque(const long	& lAmount,	const long & lTransactionNum,
+					 const time_t & VALID_FROM, const time_t & VALID_TO,// The expiration date (valid from/to dates) of the cheque
+					 const OTIdentifier & SENDER_ACCT_ID,			// The asset account the cheque is drawn on.
+					 const OTIdentifier & SENDER_USER_ID,			// This ID must match the user ID on the asset account, 
+															// AND must verify the cheque signature with that user's key.
+					 const OTString & strMemo,	// Optional memo field.
+					 const OTIdentifier * pRECIPIENT_USER_ID=NULL);	// Recipient optional. (Might be a blank cheque.)
+
+	virtual void Release();
+	virtual void UpdateContents(); // Before transmission or serialization, this is where the token saves its contents 	
+
+	virtual bool SaveContractWallet(FILE * fl);
 };
 
-#endif // __OTWALLET_H__
 
-
+#endif // __OT_CHEQUE_H__
