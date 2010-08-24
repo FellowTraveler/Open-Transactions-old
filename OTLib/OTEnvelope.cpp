@@ -81,19 +81,21 @@
  *    	
  ************************************************************************************/
 
+#include <cstdio>
+#include <cstdlib>
 
 extern "C"
-{
-#include <stdio.h>
-#include <stdlib.h>
-	
+{	
 #include <openssl/evp.h>
 #include <openssl/pem.h>
 #include <openssl/rsa.h>
 #include <openssl/err.h>
-	
+
+#ifdef _WIN32
+#include <WinSock.h>
+#else
 #include <arpa/inet.h> /* For htonl() */
-	
+#endif
 }
 
 #include "OTAsymmetricKey.h"

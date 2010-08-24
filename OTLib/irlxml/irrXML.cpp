@@ -2,6 +2,8 @@
 // This file is part of the "Irrlicht Engine" and the "irrXML" project.
 // For conditions of distribution and use, see copyright notice in irrlicht.h and/or irrXML.h
 
+#include <cstdio>
+
 #include "irrXML.h"
 #include "irrString.h"
 #include "irrArray.h"
@@ -23,7 +25,11 @@ public:
 		: File(0), Size(0), Close(true)
 	{
 		// open file
+#ifdef _WIN32
+		errno_t err = fopen_s(&File, filename, "rb");
+#else
 		File = fopen(filename, "rb");
+#endif
 
 		if (File)
 			getFileSize();
@@ -41,7 +47,11 @@ public:
 	virtual ~CFileReadCallBack()
 	{
 		if (Close && File)
+//#ifdef _WIN32
+//			fclose_s(File);
+//#else
 			fclose(File);
+//#endif
 	}
 
 	//! Reads an amount of bytes from the file.
@@ -50,7 +60,11 @@ public:
 		if (!File)
 			return 0;
 
+#ifdef _WIN32 // dest buf, dest size, element size, count, file
+		return (int)fread_s(buffer, sizeToRead+1, 1, sizeToRead, File);
+#else
 		return (int)fread(buffer, 1, sizeToRead, File);
+#endif
 	}
 
 	//! Returns size of file in bytes
@@ -64,9 +78,18 @@ private:
 	//! retrieves the file size of the open file
 	void getFileSize()
 	{
+//#ifdef _WIN32
+//		fseek_s(File, 0, SEEK_END);
+//#else
 		fseek(File, 0, SEEK_END);
+//#endif
+		
 		Size = ftell(File);
+//#ifdef _WIN32
+//		fseek_s(File, 0, SEEK_SET);
+//#else
 		fseek(File, 0, SEEK_SET);
+//#endif
 	}
 
 	FILE* File;

@@ -82,11 +82,9 @@
  *      
  ************************************************************************************/
 
-extern "C"
-{
-#include "stdio.h"	
-#include "string.h"	
-}
+
+#include <cstdio>
+#include <cstring>	
 
 #include "OTWallet.h"
 
@@ -336,8 +334,13 @@ int OTWallet::SaveWallet(const char * szFilename)
 		return 0;
 	}
 	
+#ifdef _WIN32
+	FILE * fl = NULL;
+	errno_t err = fopen_s(&fl, szFilename, "wb");
+#else
 	FILE * fl = fopen(szFilename, "w");
-	
+#endif
+
 	if (NULL == fl)
 	{
 		fprintf(stderr, "Error opening file in OTWallet::SaveWallet: %s\n", szFilename);
@@ -587,14 +590,13 @@ OTAssetContract * OTWallet::GetAssetContract(const OTIdentifier & theContractID)
 
 bool OTWallet::LoadWallet(const char * szFilename)
 {
-
 	if (NULL == szFilename)
 		return false;
 		
 	// Save this for later...
-	m_strFilename = szFilename;
-	
-	IrrXMLReader* xml = createIrrXMLReader(szFilename);
+	m_strFilename.Format("%s%s%s", OTPseudonym::OTPath.Get(), OTPseudonym::OTPathSeparator.Get(), szFilename); // _WIN32
+
+	IrrXMLReader* xml = createIrrXMLReader(m_strFilename.Get()); // _WIN32
 		
 	// parse the file until end reached
 	while(xml && xml->read())
@@ -645,8 +647,12 @@ bool OTWallet::LoadWallet(const char * szFilename)
 					{
 						if (pNym->VerifyPseudonym()) 
 						{
+//          Use this instead for generating new Nym:   if (false == pNym->LoadSignedNymfile(*pNym))         
+
 							if (pNym->LoadSignedNymfile(*pNym)) 
 							{
+//   pNym->SaveSignedNymfile(*pNym); // Leave this commented out. Only for generating new Nyms. 
+								
 								m_mapNyms[NymID.Get()] = pNym;
 
 								g_pTemporaryNym = pNym; // TODO remove this temporary line used for testing only.

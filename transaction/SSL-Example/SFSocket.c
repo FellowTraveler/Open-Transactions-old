@@ -11,16 +11,30 @@
  *                          (Also new software, but fine for this test release.)
  */
 
-#include <openssl/err.h>
-#include <openssl/ssl.h>
 
+#ifdef _WIN32
+#include <stdio.h>
+#include <stdlib.h>
+#include <stddef.h>
+#include <io.h>
+#include <winsock2.h>
+
+typedef int socklen_t;
+
+#define strcasecmp _stricmp
+
+#else
 #include <netinet/tcp.h>
-#include <netinet/in.h>
+#include <netinet/in.h>f
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <netdb.h>
+#endif
+
+#include <openssl/err.h>
+#include <openssl/ssl.h>
 
 #include "SFSocket.h"
 
@@ -50,7 +64,12 @@ struct _SFSocket {
 static int __SFSocketSetPasswordCallback (char *buf, int size, 
                                           int rwflag, void *password)
 {
+#ifdef _WIN32
+    strncpy_s(buf, size, (char *)password, size);
+#else
     strncpy(buf, (char *)password, size);
+#endif
+
     buf[size - 1] = '\0';
     return(strlen(buf));
 }
@@ -59,7 +78,12 @@ static int __SFSocketLoadDHParams (SFSocket *socket, const char *dhFile) {
     BIO *bio;
     DH *dh;
 
-    if ((bio = BIO_new_file(dhFile, "r")) == NULL)
+#ifdef _WIN32
+//    if ((bio = BIO_new_file(dhFile, "r")) == NULL) // Maybe I can keep it after all..
+    if ((bio = BIO_new_file(dhFile, "rb")) == NULL) // _WIN32
+#else
+	if ((bio = BIO_new_file(dhFile, "r")) == NULL)
+#endif
         return(-1);
 
     if ((dh = PEM_read_bio_DHparams(bio, NULL, NULL, NULL)) == NULL) {
@@ -190,44 +214,6 @@ int SFSocketInit (SFSocket *socket,
     return(0);
 }
 
-int SFSocketListen (SFSocket *serverSocket, unsigned int address, int port) {
-    struct sockaddr_in *saddr;
-    SSL_CTX *ctx;
-    int sock;
-
-    /* Require Authentication */
-    if ((ctx = SFSocketContext(serverSocket)) != NULL) {
-        SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER | 
-                                SSL_VERIFY_FAIL_IF_NO_PEER_CERT, 0);
-    }
-
-    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-        return(-1);
-
-    /* Setup Socket Address */
-    saddr = SFSocketAddress(serverSocket);
-    memset(saddr, 0, sizeof(struct sockaddr_in));
-    saddr->sin_addr.s_addr = address;
-    saddr->sin_family = AF_INET;
-    saddr->sin_port = htons(port);
-
-    /* Bind */
-    if (bind(sock, (struct sockaddr *)saddr, sizeof(struct sockaddr_in)) < 0) {
-        close(sock);
-        return(-2);
-    }
-
-    /* Listen */
-    listen(sock, 15);
-
-    /* Set Socket Descriptor */
-    SFSocketSetDescriptor(serverSocket, sock);
-
-    return(0);
-}
-
-
-
 
 int SFSocketRead (SFSocket *socket, void *buf, int len) 
 {
@@ -254,7 +240,18 @@ int SFSocketRead (SFSocket *socket, void *buf, int len)
 	stat=select(SFSocketDescriptor(socket)+1, &read_flags,&write_flags,(fd_set*)0,&waitd);
 	
 	
-	
+#ifdef _WIN32
+	if (SOCKET_ERROR == stat)
+	{
+		fprintf(stderr, "Error during select()\n");
+	}
+	else if (0 == stat)
+	{
+		// This means the timeout occurred and there were no new connections
+		// (Which is normal, don't want to log every single time that happens.)
+	}
+	else
+#endif
 	if (FD_ISSET(SFSocketDescriptor(socket), &read_flags)) 
 	{
 		FD_CLR(SFSocketDescriptor(socket), &read_flags);
@@ -273,18 +270,95 @@ int SFSocketRead (SFSocket *socket, void *buf, int len)
 			//		}
 			
 		}
-		
+
+#ifdef _WIN32
+		return(recv(SFSocketDescriptor(socket), buf, len, 0));
+#else
 		return(read(SFSocketDescriptor(socket), buf, len));
+#endif
 	}
 	
-						   
+
 	return 0;
 }
+
+
+
+int SFSocketListen (SFSocket *serverSocket, unsigned int address, int port) {
+    struct sockaddr_in *saddr;
+    SSL_CTX *ctx;
+    int sock;
+
+    /* Require Authentication */
+    if ((ctx = SFSocketContext(serverSocket)) != NULL) {
+        SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER |
+                                SSL_VERIFY_FAIL_IF_NO_PEER_CERT, 0);
+
+//        SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, 0); 
+    }
+
+#ifdef _WIN32
+    if (INVALID_SOCKET == (sock = socket(AF_INET, SOCK_STREAM, 0)) )
+#else
+	if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+#endif
+		return(-1);
+
+    /* Setup Socket Address */
+    saddr = SFSocketAddress(serverSocket);
+    memset(saddr, 0, sizeof(struct sockaddr_in));
+    saddr->sin_addr.s_addr = address;
+    saddr->sin_family = AF_INET;
+    saddr->sin_port = htons(port);
+
+    /* Bind */
+#ifdef _WIN32
+    if ( SOCKET_ERROR == bind(sock, (struct sockaddr *)saddr, sizeof(struct sockaddr_in)) )
+#else
+	if (bind(sock, (struct sockaddr *)saddr, sizeof(struct sockaddr_in)) < 0)
+#endif
+	{
+#ifdef _WIN32
+		closesocket(sock);
+#else
+		close(sock);
+#endif
+		fprintf(stderr, "Error binding to port.\n");
+		return(-2);
+    }
+
+    /* Listen */
+#ifdef _WIN32
+    if (SOCKET_ERROR != listen(sock, 15))
+	{
+		/* Set Socket Descriptor */
+		SFSocketSetDescriptor(serverSocket, sock);
+
+		return(0);
+	}
+	else
+	{
+		fprintf(stderr, "Error listening to socket.\n");
+		return (-3);
+	}
+#else
+    listen(sock, 15);
+
+	/* Set Socket Descriptor */
+	SFSocketSetDescriptor(serverSocket, sock);
+
+	return(0);
+#endif
+}
+
+
+
+
 
 SFSocket *SFSocketAccept (SFSocket *socket) {
     struct sockaddr_in *addr;
     SFSocket *clientSocket;
-    socklen_t addrlen;
+    socklen_t addrlen = sizeof(struct sockaddr); // _WIN32
     SSL_CTX *ctx;
     int sock;
 
@@ -319,10 +393,22 @@ SFSocket *SFSocketAccept (SFSocket *socket) {
 	FD_SET(SFSocketDescriptor(socket), &read_flags);
 		
 	// Now call select
-	stat=select(SFSocketDescriptor(socket)+1, &read_flags,&write_flags,(fd_set*)0,&waitd);
+	stat = select(SFSocketDescriptor(socket)+1, &read_flags,&write_flags,(fd_set*)0,&waitd);
 
-	
-	
+#ifdef _WIN32
+	if (SOCKET_ERROR == stat)
+	{
+		fprintf(stderr, "Error during select()\n");
+	}
+	else if (0 == stat)
+	{
+		// This means the timeout occurred and there were no new connections
+		// (Which is normal, don't want to log every single time that happens.)
+		SFSocketRelease(clientSocket);
+		return(NULL);
+	}
+	else
+#endif
 	if (FD_ISSET(SFSocketDescriptor(socket), &read_flags)) 
 	{
 		FD_CLR(SFSocketDescriptor(socket), &read_flags);
@@ -331,9 +417,16 @@ SFSocket *SFSocketAccept (SFSocket *socket) {
 		// If read returns an error then the socket
 		// must be dead so you must close it.
 		
-		if ((sock = accept(SFSocketDescriptor(socket), 
-						   (struct sockaddr *)addr, &addrlen)) <= 0)
+		
+		sock = accept(SFSocketDescriptor(socket), (struct sockaddr *)addr, &addrlen);
+
+#ifdef _WIN32
+		if (INVALID_SOCKET == sock)
+#else
+		if (sock <= 0)
+#endif
 		{
+//			fprintf(stderr, "Error accepting new connection.\n");
 			SFSocketRelease(clientSocket);
 			return(NULL);
 		}
@@ -458,6 +551,10 @@ int SFSocketWrite (SFSocket *socket, const void *buf, int len) {
     if ((ssl = SFSocketSSL(socket)) != NULL)
         return(SSL_write(ssl, buf, len));
 
-    return(write(SFSocketDescriptor(socket), buf, len));
+#ifdef _WIN32
+    return(send(SFSocketDescriptor(socket), buf, len, 0));
+#else
+	return(write(SFSocketDescriptor(socket), buf, len));
+#endif
 }
 

@@ -88,7 +88,7 @@ using namespace irr;
 using namespace io;
 
 
-#include "bank.h"  // Lucre
+#include "Lucre/bank.h"  // Lucre
 
 #include "OTToken.h"
 #include "OTMint.h"

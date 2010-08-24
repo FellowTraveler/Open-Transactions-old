@@ -82,14 +82,20 @@
  *      
  ************************************************************************************/
 
-extern "C"
+#include <cstring>
+#include <cstdio>
+
+extern "C" 
 {
+#ifdef _WIN32
+#include <WinSock.h>
+#define strcasecmp _stricmp
+#else
 #include <netinet/in.h>
-#include <string.h>
-#include <stdio.h>
-	
+#endif
+
 #include "SSL-Example/SFSocket.h"
-};
+}
 
 
 #include "OTServerConnection.h"
@@ -311,8 +317,12 @@ bool OTServerConnection::ProcessInBuffer(OTMessage & theServerReply)
 	for (nread = 0;  nread < OT_CMD_HEADER_SIZE;  nread += err)
 	{
 		err = SFSocketRead(m_pSocket, theCMD.buf + nread, OT_CMD_HEADER_SIZE - nread);
-		
+
+#ifdef _WIN32
+		if (0 == err || SOCKET_ERROR == err) // 0 is a disconnect. error is error. otherwise err contains bytes read.
+#else
 		if (err <= 0)
+#endif
 		{
 			break;
 		}
@@ -380,10 +390,14 @@ bool OTServerConnection::ProcessReply(u_header & theCMD, OTMessage & theServerRe
 		{
 			err = SFSocketRead(m_pSocket, buffer, sizeJunkData);
 			
-			if (err >= 0)
+			if (err > 0) // _WIN32
 				nread += err;
 			
+#ifdef _WIN32
+			if (0 == err || SOCKET_ERROR == err) // 0 means disconnect. error means error. >0 means bytes read.
+#else
 			if (err <= 0)
+#endif
 				break;
 		}
 		
@@ -414,7 +428,12 @@ bool OTServerConnection::ProcessType1Cmd(u_header & theCMD, OTMessage & theServe
 	for (nread = 0;  nread < theCMD.fields.size;  nread += err)
 	{
 		err = SFSocketRead(m_pSocket, (unsigned char *)thePayload.GetPayloadPointer() + nread, theCMD.fields.size - nread);
+
+#ifdef _WIN32
+		if (0 == err || SOCKET_ERROR == 0) // 0 means disconnect. error means error. otherwise, err contains bytes read.
+#else
 		if (err <= 0)
+#endif
 			break;
 	}
 	
@@ -454,7 +473,11 @@ bool OTServerConnection::ProcessType1Cmd(u_header & theCMD, OTMessage & theServe
 	// a signed OTMessage
 	if (TYPE_1_CMD_1 == theCMD.fields.command_id) 
 	{
+#ifdef _WIN32
+		if (OTPAYLOAD_GetMessage(thePayload, theServerReply))
+#else
 		if (thePayload.GetMessage(theServerReply))
+#endif
 		{
 			fprintf(stderr, "Successfully retrieved payload message...\n");
 			
@@ -628,7 +651,12 @@ void OTServerConnection::ProcessMessageOut(OTMessage & theMessage)
 	for (nwritten = 0;  nwritten < nHeaderSize;  nwritten += err)
 	{
 		err = SFSocketWrite(m_pSocket, theCMD.buf + nwritten, nHeaderSize - nwritten);
+
+#ifdef _WIN32
+		if (0 == err || SOCKET_ERROR == err) //  0 is disonnect. error is error. >0 is bytes written.
+#else
 		if (err <= 0)
+#endif
 			break;
 	}
 
@@ -638,7 +666,12 @@ void OTServerConnection::ProcessMessageOut(OTMessage & theMessage)
 	for (nwritten = 0;  nwritten < nPayloadSize;  nwritten += err)
 	{
 		err = SFSocketWrite(m_pSocket, (unsigned char *)thePayload.GetPayloadPointer() + nwritten, nPayloadSize - nwritten);
+
+#ifdef _WIN32
+		if (0 == err || SOCKET_ERROR == err) //  0 is disonnect. error is error. >0 is bytes written.
+#else
 		if (err <= 0)
+#endif
 			break;
 	}		
 	fprintf(stderr, "Message sent...\n\n");
@@ -1278,8 +1311,13 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 		for (nwritten = 0;  nwritten < nHeaderSize;  nwritten += err)
 		{
 			err = SFSocketWrite(m_pSocket, theCMD.buf + nwritten, nHeaderSize - nwritten);
-			if (err <= 0)
-				break;
+
+#ifdef _WIN32
+		if (0 == err || SOCKET_ERROR == err) //  0 is disonnect. error is error. >0 is bytes written.
+#else
+		if (err <= 0)
+#endif				
+			break;
 		}
 		
 		int n0 = theCMD.buf[0], n1 = theCMD.buf[1], n2 = theCMD.buf[2], n3 = theCMD.buf[3], n4 = theCMD.buf[4], n5 = theCMD.buf[5], n6 = theCMD.buf[6];

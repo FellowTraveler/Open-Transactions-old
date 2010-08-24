@@ -82,26 +82,32 @@
  *      
  ************************************************************************************/
 
+#include <cstring>
+#include <cstdio>
+
 
 extern "C" 
 {
+#ifdef _WIN32
+#include <WinSock.h>
+#define strcasecmp _stricmp
+#else
 #include <netinet/in.h>
-#include <string.h>
-#include <stdio.h>
-	
-#include "SFSocket.h"
+#endif
+
+#include "SSL-Example/SFSocket.h"
 }
 
 
 #include "main.h"
 #include "OTDataCheck.h"
 #include "OTEnvelope.h"
-#include "OTPayload.h"
 #include "OTClientConnection.h"
 #include "OTServer.h"
 #include "OTAsymmetricKey.h"
 
 
+#include "OTPayload.h"
 
 
 /*
@@ -218,7 +224,12 @@ void OTClientConnection::ProcessBuffer()
 		{
 			err = SFSocketRead(m_pSocket, 
 							   theCMD.buf + nread, OT_CMD_HEADER_SIZE - nread);
+
+#ifdef _WIN32
+			if (0 == err || SOCKET_ERROR == err) // 0 is a disconnect. error is error. otherwise err contains bytes read.
+#else
 			if (err <= 0)
+#endif
 			{
 				break;
 			}
@@ -303,8 +314,12 @@ void OTClientConnection::ReadBytesIntoBuffer()
 						   nNumberOfBytesToRead - nread);
 		
 		// if we don't read anything more, stop reading and move on
+#ifdef _WIN32
+		if (0 == err || SOCKET_ERROR == err) // 0 means disconnect. error means error. >0 means bytes read.
+#else
 		if (err <= 0)
-			break;
+#endif
+		break;
 	}
 	
 	// If we read anything, up to 4K, we add it to the m_Buffer.
@@ -377,10 +392,14 @@ void OTClientConnection::ProcessMessage(u_header & theCMD)
 		{
 			err = SFSocketRead(m_pSocket, buffer, sizeJunkData);
 			
-			if (err >= 0)
+			if (err > 0)
 				nread += err;
 
+#ifdef _WIN32
+			if (0 == err || SOCKET_ERROR == err) // 0 means disconnect. error means error. >0 means bytes read.
+#else
 			if (err <= 0)
+#endif
 				break;
 		}
 		
@@ -499,7 +518,11 @@ bool OTClientConnection::ProcessType1Cmd(u_header & theCMD, OTMessage & theMessa
 	// a signed OTMessage
 	if (TYPE_1_CMD_1 == theCMD.fields.command_id) 
 	{
+#ifdef _WIN32
+		if (OTPAYLOAD_GetMessage(thePayload, theMessage))
+#else
 		if (thePayload.GetMessage(theMessage))
+#endif
 		{
 			fprintf(stderr, "Successfully retrieved payload message...\n");
 			
@@ -661,7 +684,12 @@ void OTClientConnection::ProcessReply(OTMessage &theReply)
 		for (nwritten = 0;  nwritten < nHeaderSize;  nwritten += err)
 		{
 			err = SFSocketWrite(m_pSocket, theCMD.buf + nwritten, nHeaderSize - nwritten);
+
+#ifdef _WIN32
+			if (0 == err || SOCKET_ERROR == err) // 0 means disconnect. error means error. >0 means bytes read.
+#else
 			if (err <= 0)
+#endif
 				break;
 		}
 	}
@@ -675,7 +703,12 @@ void OTClientConnection::ProcessReply(OTMessage &theReply)
 		for (nwritten = 0;  nwritten < nPayloadSize;  nwritten += err)
 		{
 			err = SFSocketWrite(m_pSocket, (unsigned char *)thePayload.GetPayloadPointer() + nwritten, nPayloadSize - nwritten);
+
+#ifdef _WIN32
+			if (0 == err || SOCKET_ERROR == err) // 0 means disconnect. error means error. >0 means bytes read.
+#else
 			if (err <= 0)
+#endif
 				break;
 		}		
 	}

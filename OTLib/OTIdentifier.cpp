@@ -86,8 +86,6 @@
 
 extern "C"
 {
-#include <stdio.h>
-#include <string.h>
 #include <openssl/evp.h>
 #include <openssl/objects.h>
 #include <openssl/sha.h>
@@ -125,6 +123,9 @@ extern "C"
 	};
 
 }
+
+#include <cstdio>
+#include <cstring>
 
 #include <iostream>
 #include <string>
@@ -572,7 +573,16 @@ void OTIdentifier::SetString(const OTString & theStr)
 	
 	char ca[3] = "";
 	
-	unsigned char tempArray[MAX_STRING_LENGTH] = "";
+	// _WIN32
+	static unsigned char * tempArray = NULL;
+	
+	if (NULL == tempArray)
+	{
+		tempArray = new unsigned char[MAX_STRING_LENGTH];
+	}
+
+	tempArray[0] = '\0';
+	// _end _WIN32
 	
 	unsigned int shTemp = 0;
 	int i = 0;
@@ -593,8 +603,12 @@ void OTIdentifier::SetString(const OTString & theStr)
 		ca[1] = d;
 		ca[2] = 0;
 	
+#ifdef _WIN32
+		sscanf_s(ca, "%2x", &shTemp);
+#else
 		sscanf(ca, "%2x", &shTemp);
-		
+#endif
+
 		// at this point, the string has been converted into the unsigned int.
 		
 		// Even though the number is stored in an unsigned int right now,
@@ -640,7 +654,7 @@ void OTIdentifier::GetString(OTString & theStr) const
 	{
 		cByte = ((unsigned char *)GetPointer())[i];
 		
-		int n = (int) cByte;
+		int n = cByte;
 		
 		theStr.Concatenate("%02x", n);
 	}

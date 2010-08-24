@@ -85,8 +85,33 @@
 extern "C" 
 {
 #include <openssl/rand.h>
+
+#ifdef _WIN32
+#include <sys/timeb.h>
+#include <sys/types.h>
+#include <winsock.h>
+	/*
+void gettimeofday(struct timeval* t,void* timezone)
+{       struct _timeb timebuffer;
+        _ftime64_s( &timebuffer );
+        t->tv_sec=timebuffer.time;
+        t->tv_usec=1000*timebuffer.millitm;
+}
+*/
+
+int gettimeofday
+      (struct timeval* tp, void* tzp) {
+    DWORD t;
+    t = timeGetTime();
+    tp->tv_sec = t / 1000;
+    tp->tv_usec = t % 1000;
+    /* 0 indicates success. */
+    return 0;
+}
+#else
 #include <unistd.h>
 #include <sys/time.h>
+#endif
 }
 
 
@@ -284,13 +309,26 @@ char* myGetTimeOfDay(char* buffer, int bufferLength)
 	{
 		timeval tv;
 		gettimeofday( &tv, NULL );
+
+#ifdef _WIN32
+		time_t temp_Time = tv.tv_sec;
+		strftime( buffer, 20,
+				 "%Y/%m/%d %H:%M:%S", localtime(&temp_Time ));
+#else
 		strftime( buffer, 20,
 				 "%Y/%m/%d %H:%M:%S", localtime(&tv.tv_sec) );
+#endif
 		ostrstream ostr;
 		ostr << ':' << setfill('0') << setw(6) << tv.tv_usec
 		<< ends;
 		char* sp = ostr.str();
+
+#ifdef _WIN32
+		strcat_s(buffer, strlen(sp), sp);
+#else
 		strcat(buffer, sp);
+#endif		
+		
 		delete [] sp;
 	}
 	return buffer;

@@ -4,7 +4,7 @@
 # location
 #
 
-PROGRAM = testwallet 
+PROGRAM = testwallet.exe  
 
 #
 # Command line parameters: Edit these parameters so that you can 

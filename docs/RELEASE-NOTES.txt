@@ -3,6 +3,41 @@ NOTES on the Version:
 
 // ---------------------------------------------------------------------
 
+   0.21 --- Windows release!
+
+           Open Transactions now supports Windows, LINUX, and Mac OS X.
+           (In the same code base.)
+           
+           This distribution comes with gcc Makefiles for Mac and Linux,
+           as well as XCode project files for Mac and Microsoft VC++ project
+           files for Windows.
+           
+           The Windows port was at the request of an Android developer who
+           has begun work on a wallet (client app) that he calls "FiatCash".
+           He will be building it on Windows, in Java, using the Open
+           Transactions JNI interface to talk to the library. When complete,
+           the wallet software will run on Android phones.
+           
+           INVOICES: Imagine that you hand someone an invoice. He runs it
+           through his bank account and the money is automatically transferred
+           to you, with receipts on both sides. This is the same thing as
+           a cheque with a negative amount. Thus, "negative cheques" can be
+           used as invoices. (Already operational.)
+           
+           Assorted:
+           
+           Many of the C Standard Library includes were replaced with their
+           C++ standard library versions.
+           
+           Other cleanups were made including some fixes to OTString (which
+           used to have some large stack-allocations) as well as a bug fix
+           in the socket code for the server / test client.
+
+           The client cert expired, so I re-created all the certs. If you have
+           any problem with your own, just install the new version to fix it.
+           
+// ---------------------------------------------------------------------
+
    0.2 --- Major Release!  ALL NEW:
 
            JNI Interface (High-level Java API)

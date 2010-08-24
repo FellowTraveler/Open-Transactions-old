@@ -1,0 +1,16 @@
+-----BEGIN SIGNED LEDGER-----
+Hash: SAMY
+
+<accountLedger version="1.0"
+ type="outbox"
+ accountID="4390abdafabeda1b117ba350c0be3dac0d0ba55204b1386196eebf4b06891976fe88848b93e54f3972779480da7872fd4cf75737f0ad7e22d6a35aada85ece52"
+ userID="aa4c73aa4b2658a195fb7ecb1bd242fd1759eaeab0bbd6d0b51f835373b7e5088eb57e804c98e9529a79792d022c3689f1f8d40b5daaf4edb20c64e5b838d0ca"
+serverID="6147e7dead777e4671020f5ae7d8abb1b84d8c2dae630f7557778129beb5b2bb082c813af3412e77cb865cd91eb213df5cc979367528b7634453113d77fd5953" >
+
+</accountLedger>
+-----BEGIN LEDGER SIGNATURE-----
+AuhgT40LtNauXc12KHoTqqueP8l4djjSLGFedbB8kyMxOIvTJnSkkAFu0V/l/On4
+80ieRrHo7lICTxzb/fnQIQA/DvAr8LzvSUPirz9Ou6kkrp8kk3Frdo3fLqrX1OA3
+KSLgK1RuqwzNj2NGyaPtky9cchdx0fZKo7WUfd0+nWo=
+-----END LEDGER SIGNATURE-----
+

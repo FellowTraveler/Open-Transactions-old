@@ -85,10 +85,8 @@
 #ifndef __OTPSEUDONYM_H__
 #define __OTPSEUDONYM_H__
 
-extern "C"
-{
-#include <stdio.h>
-}
+#include <cstdio>
+
 
 #include <map>
 #include <deque>

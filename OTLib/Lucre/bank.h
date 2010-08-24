@@ -7,6 +7,10 @@ extern "C"
 #include <openssl/sha.h>
 #include <memory.h>
 #include <assert.h>
+
+#ifdef _WIN32
+#include <malloc.h>
+#endif
 }
 
 //#define SAMY_DIGEST_LENGTH		64	// 64 bytes aka 512 bits output for the SAMY hash.

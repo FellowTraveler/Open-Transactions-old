@@ -85,11 +85,20 @@
  ************************************************************************************/
 
 
+#ifdef _WIN32
+#include "OTLib/stdafx.h"
+#endif
+
+#include <cstring>
+#include <cstdio>
+
 extern "C" 
 {
+#ifdef _WIN32
+#include <WinSock.h>
+#else
 #include <netinet/in.h>
-#include <string.h>
-#include <stdio.h>
+#endif
 
 #include "SSL-Example/SFSocket.h"
 }
@@ -101,9 +110,8 @@ extern "C"
 
 #define KEY_PASSWORD        "test"
 
-#ifdef WINDOWS
-
-#define SERVER_PATH_DEFAULT	"C:\\Users\\REDACTED\\Projects\\Open-Transactions\\transaction"
+#ifdef _WIN32
+#define SERVER_PATH_DEFAULT	"C:\\Users\\REDACTED\\Documents\\Visual Studio 2010\\Projects\\Open-Transactions\\transaction"
 #define CA_FILE             "SSL-Example\\ca.crt"
 #define DH_FILE             "SSL-Example\\dh_param_1024.pem"
 #define KEY_FILE            "SSL-Example\\server.pem"
@@ -161,7 +169,17 @@ OTServer theServer;
 
 int main (int argc, char **argv) 
 {
-	fprintf(stdout, "\n\nWelcome to Open Transactions, version %s.\n\n", "0.2");
+#ifdef _WIN32
+	WSADATA wsaData;
+	WORD wVersionRequested = MAKEWORD( 2, 2 );
+	if (0 != WSAStartup( wVersionRequested, &wsaData ))
+	{
+		fprintf(stderr, "Error calling WSAStartup.\n");
+		exit(1);
+	}
+#endif
+
+	fprintf(stdout, "\n\nWelcome to Open Transactions, version %s.\n\n", "0.21");
 	
 	// -----------------------------------------------------------------------
 
@@ -189,11 +207,11 @@ int main (int argc, char **argv)
 		strSSLPassword.Set(argv[1]);
 		OTPseudonym::OTPath.Set(argv[2]);
 	}	
-	
+
 	strCAFile. Format("%s%s%s", OTPseudonym::OTPath.Get(), OTPseudonym::OTPathSeparator.Get(), CA_FILE);
 	strDHFile. Format("%s%s%s", OTPseudonym::OTPath.Get(), OTPseudonym::OTPathSeparator.Get(), DH_FILE);
 	strKeyFile.Format("%s%s%s", OTPseudonym::OTPath.Get(), OTPseudonym::OTPathSeparator.Get(), KEY_FILE);
-	
+
 	fprintf(stdout, 
 			"\n\nNow loading the server nym, which will also ask you for a password, to unlock\n"
 			"its private key. (This password will also be 'test' if you are using the test files.)\n");
@@ -344,6 +362,10 @@ int main (int argc, char **argv)
 
     // Close and Release Socket Resources
     SFSocketRelease(socket);
+
+#ifdef _WIN32
+	WSACleanup();
+#endif
 
     return(0);
 }

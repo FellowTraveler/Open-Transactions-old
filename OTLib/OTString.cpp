@@ -83,15 +83,13 @@
 
 
 
+#include <cstdarg>
+#include <cstdio>
+#include <cstring> // The C one 
+#include <cstdlib>
+#include <cctype>
 
-extern "C" 
-{
-#include <stdarg.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <ctype.h>
-}
+#include <string> // The C++ one 
 
 #include "OTString.h"
 #include "OTIdentifier.h"
@@ -110,7 +108,7 @@ unchecked buffer overflows. The better strncpy function has the problem that it 
 properly terminate the string. The following strlcpy and strlcat functions are simple 
 implementations that manage the problems of their original ANSI ancestors.
 
- #include <string.h>
+// #include <string.h>
 
 size_t strlcpy(char *d, const char *s, size_t bufsize)
 {
@@ -450,8 +448,18 @@ bool OTString::Contains(const OTString& strCompare) const
 
 void OTString::OTfgets(FILE * fl)
 {
-	char buffer[MAX_STRING_LENGTH];
+	// _WIN32
+	static char * buffer = NULL;
 	
+	if (NULL == buffer)
+	{
+		buffer = new char[MAX_STRING_LENGTH];
+	}
+
+	buffer[0] = '\0';
+	// _end _WIN32
+
+
 	if (fgets(buffer, MAX_STRING_LENGTH-1, fl))
 	{
 		buffer[strlen(buffer)-1] = '\0';
@@ -546,11 +554,64 @@ void OTString::Set(const OTString & strBuf)
 void OTString::Format(const char *arg, ...)
 {
    va_list args;
-   char    new_string[MAX_STRING_LENGTH];
+
+   	// _WIN32
+	static char * new_string = NULL;
+	
+	if (NULL == new_string)
+	{
+		new_string = new char[MAX_STRING_LENGTH];
+	}
+
+	new_string[0] = '\0';
+	// _end _WIN32
 
    va_start(args, arg);
-   vsprintf(new_string, arg, args);
+
+#ifdef _WIN32
+	vsprintf_s(new_string, MAX_STRING_LENGTH, arg, args);
+#else
+	vsprintf(new_string, arg, args);
+#endif
+
    va_end(args);
+
+   Set(new_string);
+}
+
+
+// append a string at the end of the current buffer.
+void OTString::Concatenate(const OTString & strBuf)
+{
+    // _WIN32
+	static char * new_string = NULL;
+	
+	if (NULL == new_string)
+	{
+		new_string = new char[MAX_STRING_LENGTH];
+	}
+
+	new_string[0] = '\0';
+	// _end _WIN32
+
+   if (Exists())
+#ifdef _WIN32
+   {
+	   const char * pBuf = strBuf.Get();
+      sprintf_s(new_string, MAX_STRING_LENGTH, "%s%s", m_strBuffer, pBuf);
+   }
+#else
+      sprintf(new_string, "%s%s", m_strBuffer, strBuf.Get());
+#endif
+   else
+#ifdef _WIN32
+   {
+      const char * pBuf = strBuf.Get();
+	   strcpy_s(new_string, MAX_STRING_LENGTH, pBuf);
+   }
+#else
+      strcpy(new_string, strBuf.Get());
+#endif
 
    Set(new_string);
 }
@@ -559,17 +620,53 @@ void OTString::Format(const char *arg, ...)
 void OTString::Concatenate(const char *arg, ...)
 {
 	va_list	args;
-	char	arg_string[MAX_STRING_LENGTH];
-	char	new_string[MAX_STRING_LENGTH];
 
-   va_start(args, arg);
-   vsprintf(arg_string, arg, args);
+	// _WIN32
+	static char * new_string = NULL;
+	
+	if (NULL == new_string)
+	{
+		new_string = new char[MAX_STRING_LENGTH];
+	}
+
+	new_string[0] = '\0';
+	// _end _WIN32
+
+	// _WIN32
+	static char * arg_string = NULL;
+	
+	if (NULL == arg_string)
+	{
+		arg_string = new char[MAX_STRING_LENGTH];
+	}
+
+	arg_string[0] = '\0';
+	// _end _WIN32
+
+	va_start(args, arg);
+
+
+#ifdef _WIN32
+	vsprintf_s(arg_string, MAX_STRING_LENGTH, arg, args);
+#else
+	vsprintf(arg_string, arg, args);
+#endif
+
    va_end(args);
 
 	if (Exists())
+#ifdef _WIN32
+		sprintf_s(new_string, MAX_STRING_LENGTH, "%s%s", m_strBuffer, arg_string);
+#else
 		sprintf(new_string, "%s%s", m_strBuffer, arg_string);
+#endif // _WIN32
 	else
+#ifdef _WIN32
+		strcpy_s(new_string, MAX_STRING_LENGTH, arg_string);
+#else
 		strcpy(new_string, arg_string);
+#endif // _WIN32
+
 	
 	Set(new_string);
 }
@@ -589,18 +686,6 @@ void OTString::Concatenate(const char *arg_string)
 }
  */
 
-// append a string at the end of the current buffer.
-void OTString::Concatenate(const OTString & strBuf)
-{
-   char new_string[MAX_STRING_LENGTH];
-
-   if (Exists())
-      sprintf(new_string, "%s%s", m_strBuffer, strBuf.Get());
-   else
-      strcpy(new_string, strBuf.Get());
-
-   Set(new_string);
-}
 
 
 
@@ -637,7 +722,13 @@ char *str_dup1(const char *str)
   char *str_new;
 
   str_new = new char [strlen(str) + 1];
+
+#ifdef _WIN32
+  strcpy_s(str_new, strlen(str), str);
+#else
   strcpy(str_new, str);
+#endif
+
   return str_new;
 }
 
@@ -646,7 +737,13 @@ char *str_dup2(const char *str, uint32_t length)
 	char *str_new;
 
 	str_new = new char [length + 1];
+
+#ifdef _WIN32
+	strncpy_s(str_new, length+1, str, length);
+#else
 	strncpy(str_new, str, length);
+#endif
+
 	str_new[length] = 0;
   
 	return str_new;

@@ -1,0 +1,24 @@
+-----BEGIN SIGNED FILE-----
+Hash: SAMY
+
+<?xml version="1.0"?>
+
+<signedFile
+ version="1.0"
+ localDir="nyms"
+ filename="3b607ceb1793acc7417048fc23387735cf5ca75d0f2e7bc227c1a04163bd8f24933b94f68e26e585c2dd50af76d75fcc1248008bcbbcb9e32ae324fc79e90e77" >
+
+<filePayload>
+eJxVjjsKAjEQQK33FLIH0MlMkklgVxsbKxsvkExmQPADuyh6exUr4b3qNW/YPi/n
+5UOn+XS7jr1bQb/ddN1wON5nnf5Dt7y+Lvvd2FONwKLVcaYiwt4x+GSCRImZgliQ
+wqGBoXIVRBZXwLtItSVDn4lq9haTYtSQgmBrAYpxbBxMxKFPAKlK/ZCVsHz0Jpw1
+gzL338P1b3HTLd6CTzac
+</filePayload>
+
+</signedFile>
+-----BEGIN FILE SIGNATURE-----
+YRSR2nBkRxRidPpi15BzCG56hK7oQEIOVKWNxlCzIz8blHAfT7FuB3q6B+dZoVvQ
+XnzkU3xoLmDE/ZF6bLiSiI2VsyY85e4cExURTyZ1AQ9ltJ7Q2eP68uwrSEYrx9D8
++TUS10S40CzA/SR8pCnkBQ8zBcodobxwPO0BrPZjYpI=
+-----END FILE SIGNATURE-----
+

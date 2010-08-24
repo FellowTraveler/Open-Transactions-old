@@ -87,10 +87,10 @@
 #ifndef __OTDATA_H__
 #define __OTDATA_H__
 
-extern "C"
-{
+extern "C" {
 #include <stdint.h>	
 }
+
 
 class OTData
 {

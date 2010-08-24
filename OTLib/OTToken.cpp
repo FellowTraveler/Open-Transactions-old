@@ -85,7 +85,13 @@
 
 extern "C" 
 {
+
+#ifdef _WIN32
+#include <direct.h>
 #include <sys/stat.h>	
+#else
+#include <sys/stat.h>	
+#endif
 }
 
 #include "irlxml/irrXML.h"
@@ -93,7 +99,7 @@ extern "C"
 using namespace irr;
 using namespace io;
 
-#include "bank.h"  // Lucre
+#include "Lucre/bank.h"  // Lucre
 
 #include "OTToken.h"
 #include "OTEnvelope.h"
@@ -234,7 +240,11 @@ bool OTToken::IsTokenAlreadySpent(OTString & theCleartextToken)
 	// IF NO, CREATE IT
 	if (!bDirIsPresent)
 	{
+#ifdef _WIN32
+		if (_mkdir(strTokenDirectoryPath.Get()) == -1) 
+#else
 		if (mkdir(strTokenDirectoryPath.Get(), 0700) == -1) 
+#endif
 		{
 			fprintf(stderr, "OTToken::IsTokenAlreadySpent: Unable to create %s.\n",
 					strTokenDirectoryPath.Get());
@@ -310,7 +320,11 @@ bool OTToken::RecordTokenAsSpent(OTString & theCleartextToken)
 	// IF NO, CREATE IT
 	if (!bDirIsPresent)
 	{
+#ifdef _WIN32
+		if (_mkdir(strTokenDirectoryPath.Get()) == -1) 
+#else
 		if (mkdir(strTokenDirectoryPath.Get(), 0700) == -1) 
+#endif
 		{
 			fprintf(stderr, "OTToken::RecordTokenAsSpent: Unable to create %s.\n",
 					strTokenDirectoryPath.Get());

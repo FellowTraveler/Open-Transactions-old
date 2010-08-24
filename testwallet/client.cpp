@@ -82,15 +82,25 @@
  *      
  ************************************************************************************/
 
-extern "C"
-{
-#include <netinet/in.h>
-#include <string.h>
-#include <stdio.h>
-	
-#include "SSL-Example/SFSocket.h"
-};
+#include <cstring>
+#include <cstdio>
 
+
+extern "C" 
+{
+#ifdef _WIN32
+#include <WinSock.h>
+#else
+#include <netinet/in.h>
+#endif
+
+#include "SSL-Example/SFSocket.h"
+}
+
+
+#ifdef _WIN32
+void OT_Sleep(int nMS);
+#endif
 
 #include "OTString.h"
 #include "OTClient.h"
@@ -107,16 +117,13 @@ extern OTWallet		g_Wallet;
 extern OTPseudonym *g_pTemporaryNym;
 
 
-
-
-
 // TODO REALLY NEED to move this crap to a config file...
 // ALso, FYI, the below paths may not work unless you put a fully-qualified path (which I haven't.)
 #define KEY_PASSWORD        "test"  // RIGHT NOW THE PASSWORD FOR CONNECTING TO THE SERVER IS HARDCODED HERE.  TODO: config file, password prompt.
 
-#ifdef WINDOWS
+#ifdef _WIN32
 
-#define SERVER_PATH_DEFAULT	"C:\\Users\\REDACTED\\Projects\\Open-Transactions\\testwallet"
+#define SERVER_PATH_DEFAULT	"C:\\Users\\REDACTED\\Documents\\Visual Studio 2010\\Projects\\Open-Transactions\\testwallet"
 #define CA_FILE             "SSL-Example\\ca.crt"
 #define KEY_FILE            "SSL-Example\\client.pem"
 
@@ -143,6 +150,12 @@ extern OTPseudonym *g_pTemporaryNym;
 int main (int argc, char **argv) 
 {
 	
+#ifdef _WIN32
+WSADATA wsaData;
+WORD wVersionRequested = MAKEWORD( 2, 2 );
+int err = WSAStartup( wVersionRequested, &wsaData );
+#endif
+
 	// -----------------------------------------------------------------------
 	
 	OTString strCAFile, strKeyFile, strSSLPassword;
@@ -200,7 +213,7 @@ int main (int argc, char **argv)
 	int nExpectResponse = 0;
 	
 	fprintf(stderr,"\n\nWelcome to Open Transactions, version %s.\n"
-			"You may wish to 'load' then 'connect' then 'stat'.\n", "0.2");
+			"You may wish to 'load' then 'connect' then 'stat'.\n", "0.21");
 //	fprintf(stderr,"Starting client loop. u_header size in C code is %d.\n", OT_CMD_HEADER_SIZE);
 	
 	for(;;)
@@ -226,8 +239,12 @@ int main (int argc, char **argv)
 		if (strLine.compare(0,4,"load") == 0)
 		{
 			fprintf(stderr, "User has instructed to load wallet.xml...\n");
-			
-			g_Wallet.LoadWallet("wallet.xml");
+#ifdef _WIN32			
+			g_Wallet.LoadWallet("wallet-Windows.xml");
+#else
+                        g_Wallet.LoadWallet("wallet.xml");
+#endif
+ 
 //			g_Wallet.SaveWallet("NEWwallet.xml"); // todo remove this test code.
 			
 			continue;
@@ -498,8 +515,12 @@ int main (int argc, char **argv)
 		g_Wallet.m_Connection.ProcessMessageOut(buf, &nExpectResponse);
 		
 		// 3) Sleep for 1 second.
+#ifdef _WIN32
+		OT_Sleep(1000);
+#else
 		sleep (1);
-		
+#endif
+
 		bool bFoundMessage = false;
 
 		// 4) While there are messages to be read in response from the server,
@@ -525,6 +546,10 @@ int main (int argc, char **argv)
 	} // for
 	
 	fprintf(stderr,"Finished running client.\n");
+
+#ifdef _WIN32
+	WSACleanup();
+#endif
 
 	return retVal;
 }

@@ -67,7 +67,7 @@
  *        The Laurie requirements are light, but if there is any problem with his
  *        license, simply remove the Lucre code. Although there are no other blind
  *        token algorithms in Open Transactions (yet), the other functionality will
- *        continue to operate .
+ *        continue to operate.
  *    
  *    OpenSSL WAIVER:
  *        This program is released under the AGPL with the additional exemption 
@@ -88,13 +88,18 @@
 // #include "whatever.h" -- all necessary #includes go here.
 // Be sure to use 'extern "C" {   }' as a wrapper for straight 'C' headers.
 
-extern "C" 
-{
-#include <stdio.h>
+#include <cstdio>
+#include <cstdarg>
+
+extern "C" {
 #include <stdint.h>
 }
 
+//#ifdef _WIN32
+//#define MAX_STRING_LENGTH   631072
+//#else
 #define MAX_STRING_LENGTH   1262144
+//#endif // _WIN32
 
 
 // If you've already strlen'd the string,

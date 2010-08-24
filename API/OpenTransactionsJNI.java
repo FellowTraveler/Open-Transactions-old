@@ -49,82 +49,82 @@ class OpenTransactionsJNI
 	public native void createUserAccount(String SERVER_ID, String USER_ID);
 	
 	public native void checkUser(String SERVER_ID,
-								 String USER_ID,
-								 String USER_ID_CHECK);
+		 String USER_ID,
+		 String USER_ID_CHECK);
 	
 	public native void getRequest(String SERVER_ID,
-								  String USER_ID);
+	  String USER_ID);
 	
 	public native void issueAssetType(String SERVER_ID,
-									  String USER_ID,
-									  String THE_CONTRACT);
+	  String USER_ID,
+	  String THE_CONTRACT);
 	
 	public native void getContract(String SERVER_ID,
-								   String USER_ID,
-								   String ASSET_ID);
+	   String USER_ID,
+	   String ASSET_ID);
 	
 	public native void getMint(String SERVER_ID,
-							   String USER_ID,
-							   String ASSET_ID);
+	   String USER_ID,
+	   String ASSET_ID);
 	
 	public native void createAssetAccount(String SERVER_ID,
-										  String USER_ID,
-										  String ASSET_TYPE);
+	  String USER_ID,
+	  String ASSET_TYPE);
 	
 	public native void getAccount(String SERVER_ID,
-								  String USER_ID,
-								  String ACCT_ID);
+	  String USER_ID,
+	  String ACCT_ID);
 	
 	public native void issueBasket(String SERVER_ID,
-								   String USER_ID,
-								   String BASKET_INFO);
+	   String USER_ID,
+	   String BASKET_INFO);
 	
 	public native void exchangeBasket(String SERVER_ID,
-									  String USER_ID,
-									  String BASKET_ASSET_ID,
-									  String BASKET_INFO);
+	  String USER_ID,
+	  String BASKET_ASSET_ID,
+	  String BASKET_INFO);
 	
 	public native void getTransactionNumber(String SERVER_ID,
-											String USER_ID);
+		String USER_ID);
 	
 	public native void notarizeWithdrawal(String SERVER_ID,
-										  String USER_ID,
-										  String ACCT_ID,
-										  String AMOUNT);
+	  String USER_ID,
+	  String ACCT_ID,
+	  String AMOUNT);
 	
 	public native void notarizeDeposit(String SERVER_ID,
-									   String USER_ID,
-									   String ACCT_ID,
-									   String THE_PURSE);
-	
+	   String USER_ID,
+	   String ACCT_ID,
+	   String THE_PURSE);
+
 	public native void notarizeTransfer(String SERVER_ID,
-										String USER_ID,
-										String ACCT_FROM,
-										String ACCT_TO,
-										String AMOUNT,
-										String NOTE);
+		String USER_ID,
+		String ACCT_FROM,
+		String ACCT_TO,
+		String AMOUNT,
+		String NOTE);
 	
 	public native void getInbox(String SERVER_ID,
-								String USER_ID,
-								String ACCT_ID);
+		String USER_ID,
+		String ACCT_ID);
 	
 	public native void processInbox(String SERVER_ID,
-									String USER_ID,
-									String ACCT_ID,
-									String ACCT_LEDGER);
+		String USER_ID,
+		String ACCT_ID,
+		String ACCT_LEDGER);
 	
 	public native void withdrawVoucher(String SERVER_ID,
-								String USER_ID,
-								String ACCT_ID,
-								String RECIPIENT_USER_ID,
-								String CHEQUE_MEMO,
-								String AMOUNT);
+		String USER_ID,
+		String ACCT_ID,
+		String RECIPIENT_USER_ID,
+		String CHEQUE_MEMO,
+		String AMOUNT);
 	
 	public native void depositCheque(String SERVER_ID,
-									   String USER_ID,
-									   String ACCT_ID,
-									   String THE_CHEQUE);
-	
+	   String USER_ID,
+	   String ACCT_ID,
+	   String THE_CHEQUE);
+
 	
 	// -----------------------------------------------------------
 

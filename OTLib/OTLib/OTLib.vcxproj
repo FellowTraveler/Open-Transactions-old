@@ -1,0 +1,150 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{726DCDCE-002E-47FD-87A6-557EF9BFB5D2}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>OTLib</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>C:\Users\REDACTED\Documents\Visual Studio 2010\Projects\OTLib\Lucre;C:\OpenSSL-Win32\include;$(IncludePath)</IncludePath>
+    <LibraryPath />
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\easyzlib.h" />
+    <ClInclude Include="..\irlxml\irrXML.h" />
+    <ClInclude Include="..\Lucre\bank.h" />
+    <ClInclude Include="..\OTAccount.h" />
+    <ClInclude Include="..\OTASCIIArmor.h" />
+    <ClInclude Include="..\OTAssetContract.h" />
+    <ClInclude Include="..\OTAsymmetricKey.h" />
+    <ClInclude Include="..\OTBasket.h" />
+    <ClInclude Include="..\OTCheque.h" />
+    <ClInclude Include="..\OTContract.h" />
+    <ClInclude Include="..\OTData.h" />
+    <ClInclude Include="..\OTDataCheck.h" />
+    <ClInclude Include="..\OTEnvelope.h" />
+    <ClInclude Include="..\OTglobal.h" />
+    <ClInclude Include="..\OTIdentifier.h" />
+    <ClInclude Include="..\OTInstrument.h" />
+    <ClInclude Include="..\OTItem.h" />
+    <ClInclude Include="..\OTLedger.h" />
+    <ClInclude Include="..\OTMessage.h" />
+    <ClInclude Include="..\OTMint.h" />
+    <ClInclude Include="..\OTPayload.h" />
+    <ClInclude Include="..\OTPseudonym.h" />
+    <ClInclude Include="..\OTPurse.h" />
+    <ClInclude Include="..\OTServerContract.h" />
+    <ClInclude Include="..\OTSignature.h" />
+    <ClInclude Include="..\OTSignedFile.h" />
+    <ClInclude Include="..\OTString.h" />
+    <ClInclude Include="..\OTStringXML.h" />
+    <ClInclude Include="..\OTToken.h" />
+    <ClInclude Include="..\OTTransaction.h" />
+    <ClInclude Include="..\OTTransactionType.h" />
+    <ClInclude Include="..\OTWallet.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\easyzlib.c" />
+    <ClCompile Include="..\irlxml\irrXML.cpp" />
+    <ClCompile Include="..\Lucre\bankimp.cpp" />
+    <ClCompile Include="..\OTAccount.cpp" />
+    <ClCompile Include="..\OTASCIIArmor.cpp" />
+    <ClCompile Include="..\OTAssetContract.cpp" />
+    <ClCompile Include="..\OTAsymmetricKey.cpp" />
+    <ClCompile Include="..\OTBasket.cpp" />
+    <ClCompile Include="..\OTCheque.cpp" />
+    <ClCompile Include="..\OTContract.cpp" />
+    <ClCompile Include="..\OTData.cpp" />
+    <ClCompile Include="..\OTDataCheck.cpp" />
+    <ClCompile Include="..\OTEnvelope.cpp" />
+    <ClCompile Include="..\OTIdentifier.cpp" />
+    <ClCompile Include="..\OTInstrument.cpp" />
+    <ClCompile Include="..\OTItem.cpp" />
+    <ClCompile Include="..\OTLedger.cpp" />
+    <ClCompile Include="..\OTMessage.cpp" />
+    <ClCompile Include="..\OTMint.cpp" />
+    <ClCompile Include="..\OTPayload.cpp" />
+    <ClCompile Include="..\OTPseudonym.cpp" />
+    <ClCompile Include="..\OTPurse.cpp" />
+    <ClCompile Include="..\OTServerContract.cpp" />
+    <ClCompile Include="..\OTSignature.cpp" />
+    <ClCompile Include="..\OTSignedFile.cpp" />
+    <ClCompile Include="..\OTString.cpp" />
+    <ClCompile Include="..\OTStringXML.cpp" />
+    <ClCompile Include="..\OTToken.cpp" />
+    <ClCompile Include="..\OTTransaction.cpp" />
+    <ClCompile Include="..\OTTransactionType.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

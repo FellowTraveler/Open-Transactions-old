@@ -85,17 +85,18 @@
 
 extern "C" 
 {
-#include "stdio.h"
-	
 #include <memory.h>
-#include <string.h>
-#include <math.h>
+
 #include <openssl/bio.h>
 #include <openssl/evp.h>
 #include <openssl/pem.h>
 #include <openssl/dsa.h>
 #include <openssl/err.h>
 }
+
+#include <cstdio>
+#include <cstring>
+#include <cmath>
 
 #include "OTData.h"
 #include "OTString.h"
@@ -803,8 +804,13 @@ bool OTAsymmetricKey::LoadPublicKeyFromCertFile(const OTString & strFilename)
 	
 	// Read public key
 	fprintf (stderr, "\nReading public key from certfile: %s\n", strFilename.Get()); 
+
+#ifdef _WIN32
+	errno_t err = fopen_s(&fp, strFilename.Get(), "rb"); 
+#else
 	fp = fopen (strFilename.Get(), "r"); 
-	
+#endif
+
 	if (fp == NULL) 
 	{ 
 		fprintf (stderr, "Error opening cert file in OTContract::VerifySignatureFromCertFile: %s\n",
@@ -1013,10 +1019,14 @@ bool OTAsymmetricKey::LoadPrivateKey(const OTString & strFilename)
 {
 	Release();
 	
-	FILE * fp; 
+	FILE * fp = NULL; // _WIN32 
 	
 	// Read private key 
+#ifdef _WIN32
+	errno_t err = fopen_s(&fp, strFilename.Get(), "rb"); 
+#else
 	fp = fopen (strFilename.Get(), "r"); 
+#endif
 	
 	if (NULL == fp)
 	{ 

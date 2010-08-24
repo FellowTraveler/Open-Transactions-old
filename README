@@ -6,13 +6,14 @@ WHAT IS Open Transactions ?
 -- Including an operational CLIENT and SERVER. 
 -- It's OPEN SOURCE, and encapsulates a COMPLETE PROTOCOL for transactions.
 -- It's object-oriented, and written in C++ using OpenSSL.
--- With a high-level API in C++, as well as Java! (JNI interface)
--- Easy Makefiles for Mac OS X and LINUX
+-- High-level API in Java! (JNI) 
+-- Builds on: **Windows, Mac OS X and LINUX**   
 -- Featuring: 
 ................UNTRACEABLE DIGITAL CASH (real blinded tokens.)
-................SECURE NUMBERED ACCOUNTS (an account is a public key.)
+................SECURE NUMBERED ACCOUNTS (an account is a pgp key.)
 ................TRIPLE-SIGNED RECEIPTS
 ................BASKET CURRENCIES
+................ANYONE AN ISSUER
 ................SIGNED XML CONTRACTS
 ................MANY DIGITAL INSTRUMENTS: Cheques, Cash, Vouchers, Transfers...
 

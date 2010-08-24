@@ -1,0 +1,27 @@
+-----BEGIN SIGNED FILE-----
+Hash: SAMY
+
+<?xml version="1.0"?>
+
+<signedFile
+ version="1.0"
+ localDir="nyms"
+ filename="aa4c73aa4b2658a195fb7ecb1bd242fd1759eaeab0bbd6d0b51f835373b7e5088eb57e804c98e9529a79792d022c3689f1f8d40b5daaf4edb20c64e5b838d0ca" >
+
+<filePayload>
+eJzV1E1qAzEMBeCu5xRhDtDYsmXJkJ9NN920UHoByZah0EzpJCnt7esQKOQGnY0X
+1jN8PIQ3++/D++rL5uPbx7Qd/b0b97th2Dy/no823w6G1fRzeHzYjiKxUOinQkIW
+n7EpWVGvFSK06gmziYk61ZqqU/SNAwYKPYaO2RTJ2MWS2TJCFsqUoTqAEhLn1uM1
+9mdVpEWrCq6kaKgcuLoi40U42+fZjqen82FYdWqXXmjJRzKqJpWILCbyDlxD6Xcs
+2oUcKxeoYim4Rog9xh6ydpKCqmMo7IO0ED0YUVFOWGr2puBDbVhKp4ZECKyUQowY
+fB8QtYoZQy+pnOfZptPLn6+3l8f1xXyaZTpKOfVK/5/7FrcdY3JLVCMuUk2LVC9z
+r/0i1eGqXl+/5t1w9wsi86JQ
+</filePayload>
+
+</signedFile>
+-----BEGIN FILE SIGNATURE-----
+eswHnoB4twHQ2X2fDE5yeQDJ8tQwHIou/AHtb/fy3ZLdEkPEK54S6xUZkj+b6K7h
+u857OIE+/f08LUrg5oLFlcFBRJXeIA6XJrfUg1NnjoucM5EaXab/7iM5T76n32Uq
++GoOa06k0ghbCDEFTGyL/g/q30lxCfUg4bdfG/MeuyQ=
+-----END FILE SIGNATURE-----
+

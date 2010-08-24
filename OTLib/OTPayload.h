@@ -89,6 +89,11 @@
 class OTMessage;
 class OTEnvelope;
 
+#ifdef _WIN32
+class OTPayload;
+bool OTPAYLOAD_GetMessage(OTPayload & thePayload, OTMessage & theMessage);
+#endif
+
 class OTPayload : public OTData 
 {
 
@@ -104,8 +109,8 @@ public:
 	// pass in an OTMessage and if the Payload
 	// contains a message, and checksum validates,
 	// it will set it for you and return true.
-	bool GetMessage(OTMessage & theMessage) const;
 	bool SetMessage(const OTMessage & theMessage); // Message copied into payload to prepare for sending.
+	bool GetMessage(OTMessage & theMessage) const;
 
 	bool GetEnvelope(OTEnvelope & theEnvelope) const; // Envelope retrieved from payload.
 	bool SetEnvelope(const OTEnvelope & theEnvelope); // Envelope copied into payload to prepare for sending.

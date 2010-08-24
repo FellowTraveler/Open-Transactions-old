@@ -83,11 +83,8 @@
  ************************************************************************************/
 
 
-extern "C" 
-{
-#include <string.h>	
-}
-
+#include <cstdio>
+#include <cstring>
 #include <ctime>
 
 
@@ -558,12 +555,23 @@ bool OTServer::SaveMainFile()
 	{
 //		fprintf(stderr, "Null filename sent to OTServer::SaveMainFile\n");
 //		return false;
-		strMainFilePath.Format("%s%snotaryServer.xml", OTPseudonym::OTPath.Get(),
-							   OTPseudonym::OTPathSeparator.Get());
+		strMainFilePath.Format(
+#ifdef _WIN32 
+		"%s%snotaryServer-Windows.xml",
+#else
+                "%s%snotaryServer.xml",
+#endif
+		OTPseudonym::OTPath.Get(), OTPseudonym::OTPathSeparator.Get());
 	}
-	
+
+#ifdef _WIN32
+	errno_t err;
+	FILE * fl;
+	err = fopen_s(&fl, strMainFilePath.Get(), "wb");
+#else
 	FILE * fl = fopen(strMainFilePath.Get(), "w");
-	
+#endif
+
 	if (NULL == fl)
 	{
 		fprintf(stderr, "Error opening file in OTServer::SaveMainFile: %s\n", strMainFilePath.Get());
@@ -685,7 +693,12 @@ bool OTServer::LoadMainFile()
 	{
 		//		fprintf(stderr, "Null filename sent to OTServer::LoadMainFile\n");
 		//		return false;
-		strMainFilePath.Format("%s%snotaryServer.xml", 
+		strMainFilePath.Format(
+#ifdef _WIN32
+			"%s%snotaryServer-Windows.xml",
+#else 
+                        "%s%snotaryServer.xml", 
+#endif
 			OTPseudonym::OTPath.Get(), OTPseudonym::OTPathSeparator.Get());
 	}
 	
@@ -729,6 +742,10 @@ bool OTServer::LoadMainFile()
 					if (!m_nymServer.Loadx509CertAndPrivateKey())
 					{
 						fprintf(stderr, "Error loading server certificate and keys.\n");
+					}
+					if (!m_nymServer.VerifyPseudonym())
+					{
+						fprintf(stderr, "Error verifying server nym.\n");
 					}
 					else {
 						// This file will be saved during the course of operation

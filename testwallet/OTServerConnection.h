@@ -87,6 +87,8 @@
 
 extern "C"
 {
+#include <stdint.h>	
+
 #include "SSL-Example/SFSocket.h"	
 }
 

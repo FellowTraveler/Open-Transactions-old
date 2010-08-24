@@ -1,0 +1,22 @@
+-----BEGIN SIGNED ACCOUNT-----
+Hash: SAMY
+
+<?xml version="1.0"?>
+
+<assetAccount
+ version="1.0"
+ type="simple"
+ accountID="b2c5bce19c7ae5e2b0eb1114118d491ca2e8c8f58964ba87ebf64acce8cba2ecea402a5d034664e23cf434f2e515dac899bfc4d2a844bb4f4519aad7e67f2f75"
+ userID="3b607ceb1793acc7417048fc23387735cf5ca75d0f2e7bc227c1a04163bd8f24933b94f68e26e585c2dd50af76d75fcc1248008bcbbcb9e32ae324fc79e90e77"
+ serverID="3b607ceb1793acc7417048fc23387735cf5ca75d0f2e7bc227c1a04163bd8f24933b94f68e26e585c2dd50af76d75fcc1248008bcbbcb9e32ae324fc79e90e77"
+ assetTypeID="228751b439c8481c5d6038ed5aaa16ed3efc1d191e0c04fa58136eff45d72ef88b27c9764a897eabdbf8abc8982b34f1a9b7f01103d517a2c89dce09ee52021c" >
+
+<balance date="2010/08/23 17:13:44:863290" amount="9"/>
+
+</assetAccount>
+-----BEGIN ACCOUNT SIGNATURE-----
+LymDX5eWVkKy9Zy93QkYSxwOQLFzvpvWdLhaIqKDvMwQuRhKDweBlLJDYSzmSbN9
+wEQvlKmYPSc81fpLjijUlsmfnzpTL7FEUa9usLhvPImqYT+bfkJxWvis0Ah+9eXz
+j0SUhGV5aD7Qrk10dfhGfpyeFj2mBuOLP0vLi8FOz1o=
+-----END ACCOUNT SIGNATURE-----
+

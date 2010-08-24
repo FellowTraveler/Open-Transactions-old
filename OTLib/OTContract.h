@@ -85,9 +85,10 @@
 #ifndef __OTCONTRACT_H__
 #define __OTCONTRACT_H__
 
+#include <cstdio>	
+
 extern "C" 
 {
-#include <stdio.h>	
 #include <openssl/evp.h>	
 }
 

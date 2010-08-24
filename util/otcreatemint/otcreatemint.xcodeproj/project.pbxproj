@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		834F388311EEFF05001CFD0F /* libOTLib.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 834F388211EEFF05001CFD0F /* libOTLib.dylib */; };
+		83AC196C120FF90600C5A816 /* Makefile in Sources */ = {isa = PBXBuildFile; fileRef = 83AC196B120FF90600C5A816 /* Makefile */; };
 		8DD76F650486A84900D96B5E /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 08FB7796FE84155DC02AAC07 /* main.cpp */; settings = {ATTRIBUTES = (); }; };
 		8DD76F6A0486A84900D96B5E /* otcreatemint.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = C6859E8B029090EE04C91782 /* otcreatemint.1 */; };
 /* End PBXBuildFile section */
@@ -28,7 +29,7 @@
 /* Begin PBXFileReference section */
 		08FB7796FE84155DC02AAC07 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		834F388211EEFF05001CFD0F /* libOTLib.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libOTLib.dylib; sourceTree = "<group>"; };
-		8352C5261206B0A900ABBED7 /* Makefile.linux */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Makefile.linux; sourceTree = "<group>"; };
+		83AC196B120FF90600C5A816 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		8DD76F6C0486A84900D96B5E /* otcreatemint */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = otcreatemint; sourceTree = BUILT_PRODUCTS_DIR; };
 		C6859E8B029090EE04C91782 /* otcreatemint.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = otcreatemint.1; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -49,6 +50,7 @@
 			isa = PBXGroup;
 			children = (
 				834F388211EEFF05001CFD0F /* libOTLib.dylib */,
+				83AC196B120FF90600C5A816 /* Makefile */,
 				08FB7795FE84155DC02AAC07 /* Source */,
 				C6859E8C029090F304C91782 /* Documentation */,
 				1AB674ADFE9D54B511CA2CBB /* Products */,
@@ -59,7 +61,6 @@
 		08FB7795FE84155DC02AAC07 /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				8352C5261206B0A900ABBED7 /* Makefile.linux */,
 				08FB7796FE84155DC02AAC07 /* main.cpp */,
 			);
 			name = Source;
@@ -125,6 +126,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8DD76F650486A84900D96B5E /* main.cpp in Sources */,
+				83AC196C120FF90600C5A816 /* Makefile in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

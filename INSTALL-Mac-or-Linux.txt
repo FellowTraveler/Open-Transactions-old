@@ -1,0 +1,154 @@
+
+
+OpenTransactions for MAC and LINUX
+
+
+ --- Open Transactions is currently built on:
+     - Linux Ubuntu 2.6.32 using gcc.
+     - Mac OS X 10.6.4 (Snow Leopard) using XCode as well as gcc
+     - Windows 7 using MS Visual C++ 2010 Express.
+ 
+ --- OpenSSL version 1.0.0a (at least) is necessary, since the SAMY hash 
+     uses WHRLPOOL. (XOR'd with SHA-512.) WHIRLPOOL is a new addition to 
+     OpenSSL.
+ 
+ --- Let me know if there are any problems, since this is new software;
+     this will be a living document.
+ 
+
+
+
+PRE-BUILD:
+
+--- Make sure OpenSSL 1.0.0a is installed, earlier versions don't have
+    WHIRLPOOL.
+
+--- Find libssl.a and libcrypto.a and copy them to the OTLib folder.
+
+--- cd (change directory) to the Open-Transactions folder.
+
+--- Transaction server and client both still have a hardcoded path in the source code. 
+    (It's just a default path and IS configurable on the command line.)
+
+    Search the code for the word REDACTED, which appears once in the client and 
+    once in the server for each platform.
+
+    The relevant source files: transaction/server.cpp and testwallet/client.cpp
+
+    Replace the REDACTED (entire path) with whatever path is appropriate for your system.
+
+    NOTE: You can also replace the path with "." if you want it to run from the current folder
+    by default, but this may not work on all systems, since some libraries may require fully-
+    qualified paths.
+
+--- Config files:
+
+The same "REDACTED" corrections should be made in the server config file: 
+transaction/notaryServer.xml
+
+As well as the client config file:          
+testwallet/wallet.xml
+
+On Mac, if you use the XCode project files that I distributed, you have to fix
+those as well. (You COULD just use the Makefile, if you prefer. XCode not necessary.)
+
+They are:
+Open-Transactions/OTLib/OTLib.xcodeproj/project.pbxproj
+Open-Transactions/testwallet/testwallet.xcodeproj/project.pbxproj
+Open-Transactions/transaction/transaction.xcodeproj/project.pbxproj
+
+
+So make sure to edit all of those files and correct the paths within by searching 
+each for the word 'REDACTED'.
+
+------------------------------------------------------------------------
+
+
+NOW YOU ARE READY TO COMPILE THE CODE:
+
+--- Build the Library:
+cd OTLib;
+make
+
+--- Build the server:
+cd ../transaction;
+make
+
+--- Build the client:
+cd ../testwallet;
+make
+
+
+(If you choose to use the XCode project instead of the Makefile, be warned that you have to 
+edit the XCode project file to fix the REDACTED issue. You'd also have to deal with dylibs, etc.
+Due to this inconvenience, I have insured that the Makefile works the same on Linux and Mac, so you
+can avoid XCode for building entirely, if you prefer.)
+
+
+--- Make sure! You have at least version 1.0.0a of OpenSSL installed.
+
+   (HOW did I install OpenSSL?  My Mac already came with an old version of it. So first I downloaded the OpenSSL latest build, and followed the instructions to install that. I also installed a program called "MacPorts" (google it) and used that to install OpenSSL as well, which went into the /opt folder.  I also had to search my computer for libssl.a and libcrypto.a (using  spotlight in finder) and, after backing up the old files, I overwrote them with the new ones. I did the same for the header files and the dylib files. Most notably, the Mac development version of OpenSSL is in the /Developer SDK folders. I replaced the headers and libraries and dylibs in there and wherever else I could find that I could replace them.  I got the NEW dylib files from the MacPorts install, and I got the NEW .a files from the OpenSSL download and build.  Make sure the "make install" for the OpenSSL download is done using sudo. sudo make install.) 
+
+
+
+TO RUN:
+
+The client and server expect to be run from the command line in their respective folders. 
+
+cd testwallet       (for client) 
+cd transaction      (for server)
+
+(Assuming you have already built the projects, including OTLib first.)
+
+If you are in the transaction folder, then run it like this:
+./transaction.exe
+
+
+if you are in the testwallet folder, then run the wallet like this:
+./testwallet.exe
+
+
+You don't have to specify a hostname and port, because the server contract
+already contains that information.
+
+(In the server contract that comes with this test distribution,
+the hostname is localhost and port is 7085.)
+
+
+
+USING THE SOFTWARE:
+
+I already created your user account. The password is test (always)
+
+==> With the server, all you can do is watch the output as it runs.
+
+==> But with the client, there is a command-line interface. 
+
+**** READ:  docs/CLIENT-COMMANDS.txt  for a list of the Wallet's commands.
+I will soon add that file to a help command inside the wallet.
+You can create asset accounts, issue new asset types, 
+transfer assets, get inbox, process inbox,
+withdraw cash, deposit cash, getcontract, getmint.
+You can also create basket currencies and exchange between normal 
+asset accounts and basket accounts. (To the server it's just another 
+account type.)  You can also write and deposit cheques, and withdraw 
+vouchers. 
+
+REMEMBER: If you move some assets, and you don't see the change show up in your 
+account, then you probably just need to type "get" (to get the latest copy of the 
+account after a change has just been made.) Another useful command is 'i' for 
+grabbing the inbox of any specific account. Then "get", and then "stat" to see 
+the balances change.
+
+Obviously a nice client will do this automatically.
+
+
+
+Let's organize to make a pretty GUI for various platforms, eh?
+
+
+------------------------------------
+
+
+
+

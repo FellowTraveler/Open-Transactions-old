@@ -1,0 +1,21 @@
+#see http://shanesbrain.net/2008/7/9/using-xcode-with-git
+# xcode noise
+build/*
+*.xcconfig
+*.xcclassmodel/*
+*.o
+*.a
+*.dylib 
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.pch
+*.perspectivev3
+
+# old skool
+.svn
+
+# osx noise
+.DS_Store
+profile
+

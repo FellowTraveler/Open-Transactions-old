@@ -85,23 +85,20 @@
 #ifndef _DATA_CHECK_H_
 #define _DATA_CHECK_H_
 
-typedef unsigned char BYTE;
-typedef bool BOOL;
+typedef unsigned char OT_BYTE;
+typedef bool OT_BOOL;
 
-#define TRUE true
-#define FALSE false
 
-extern "C" 
-{
+extern "C" {
 #include <stdint.h>	
 }
 
-void AppendChecksum( BYTE* buffer, uint32_t & size );
+void AppendChecksum( OT_BYTE* buffer, uint32_t & size );
 
-BYTE CalcChecksum( BYTE* buffer, uint32_t size );
+OT_BYTE CalcChecksum( OT_BYTE* buffer, uint32_t size );
 
-BYTE CalcChecksum( const BYTE * const buffer, const uint32_t size );
+OT_BYTE CalcChecksum( const OT_BYTE * const buffer, const uint32_t size );
 
-BOOL IsChecksumValid( BYTE* buffer, uint32_t size );
+OT_BOOL IsChecksumValid( OT_BYTE* buffer, uint32_t size );
 
 #endif

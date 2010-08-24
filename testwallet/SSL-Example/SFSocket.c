@@ -10,9 +10,18 @@
  *                          (Also new software, but fine for this test release.)
  */
 
-#include <openssl/err.h>
-#include <openssl/ssl.h>
+#ifdef _WIN32
+#include <stdio.h>
+#include <stdlib.h>
+#include <stddef.h>
+#include <io.h>
+#include <winsock2.h>
 
+typedef int socklen_t;
+
+#define strcasecmp _stricmp
+
+#else
 #include <netinet/tcp.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
@@ -20,6 +29,10 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <netdb.h>
+#endif
+
+#include <openssl/err.h>
+#include <openssl/ssl.h>
 
 #include "SFSocket.h"
 
@@ -34,7 +47,12 @@
 
 #define SFSocketDescriptor(socket)              ((socket)->sock)
 #define SFSocketSetDescriptor(socket, fd)       (socket)->sock = (fd)
+
+#ifdef _WIN32
+#define SFSocketClearDescriptor(socket)         (socket)->sock = (INVALID_SOCKET)
+#else
 #define SFSocketClearDescriptor(socket)         (socket)->sock = (-1)
+#endif
 
 #define SFSocketAddress(socket)                 (&(socket)->address)
 
@@ -49,7 +67,12 @@ struct _SFSocket {
 static int __SFSocketSetPasswordCallback (char *buf, int size, 
                                           int rwflag, void *password)
 {
+#ifdef _WIN32
+    strncpy_s(buf, size, (char *)password, size);
+#else
     strncpy(buf, (char *)password, size);
+#endif
+
     buf[size - 1] = '\0';
     return(strlen(buf));
 }
@@ -58,8 +81,13 @@ static int __SFSocketLoadDHParams (SFSocket *socket, const char *dhFile) {
     BIO *bio;
     DH *dh;
 
-    if ((bio = BIO_new_file(dhFile, "r")) == NULL)
-        return(-1);
+#ifdef _WIN32
+//    if ((bio = BIO_new_file(dhFile, "r")) == NULL)
+    if ((bio = BIO_new_file(dhFile, "rb")) == NULL) // _WIN32
+#else
+	if ((bio = BIO_new_file(dhFile, "r")) == NULL)
+#endif
+		return(-1);
 
     if ((dh = PEM_read_bio_DHparams(bio, NULL, NULL, NULL)) == NULL) {
         BIO_free(bio);
@@ -128,10 +156,17 @@ void SFSocketRelease (SFSocket *socket) {
         socket->sslSock = NULL;
     }
 
+#ifdef _WIN32
+    if (socket->sock != INVALID_SOCKET) {
+        closesocket(socket->sock);
+        socket->sock = INVALID_SOCKET;
+    }
+#else
     if (socket->sock != -1) {
         close(socket->sock);
         socket->sock = -1;
     }
+#endif
 
     free(socket);
 }
@@ -299,14 +334,27 @@ int SFSocketConnectToHost (SFSocket *clientSocket, const char *host, int port) {
     addr->sin_family = AF_INET;
     addr->sin_port = htons(port);
 
-    if ((sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
-        return(-2);
+#ifdef _WIN32
+    if ( INVALID_SOCKET == (sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) )
+#else
+	if ((sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
+#endif
+		return(-2);
 
     /* Connect to Host */
-    if (connect(sock, (struct sockaddr *)addr, sizeof(struct sockaddr_in)) < 0)
-    {
-        close(sock);        
-        return(-3);
+#ifdef _WIN32
+	if (SOCKET_ERROR == connect(sock, (struct sockaddr *)addr, sizeof(struct sockaddr_in)) )
+#else
+	if (connect(sock, (struct sockaddr *)addr, sizeof(struct sockaddr_in)) < 0)
+#endif
+	{
+#ifdef _WIN32
+		errno_t theError = WSAGetLastError();
+        closesocket(sock);
+#else
+		close(sock);
+#endif
+		return(-3);
     }
 
     /* Set Socket Descriptor */
@@ -320,7 +368,11 @@ int SFSocketConnectToHost (SFSocket *clientSocket, const char *host, int port) {
         if ((ssl = SSL_new(ctx)) == NULL) {
             ERR_print_errors_fp(stderr);
             SFSocketClearDescriptor(clientSocket);
-            close(sock);
+#ifdef _WIN32
+            closesocket(sock);
+#else
+			close(sock);
+#endif
             return(-4);
         }
 
@@ -328,8 +380,12 @@ int SFSocketConnectToHost (SFSocket *clientSocket, const char *host, int port) {
         if ((bio = BIO_new_socket(sock, BIO_NOCLOSE)) == NULL) {
             SFSocketClearDescriptor(clientSocket);
             SSL_free(ssl);
-            close(sock);
-            return(-5);
+#ifdef _WIN32
+            closesocket(sock);
+#else
+			close(sock);
+#endif
+			return(-5);
         }
 
         /* SSL Connect */
@@ -378,8 +434,18 @@ int SFSocketRead (SFSocket *socket, void *buf, int len)
 	// Now call select
 	stat=select(SFSocketDescriptor(socket)+1, &read_flags,&write_flags,(fd_set*)0,&waitd);
 	
-	
-	
+#ifdef _WIN32
+	if (SOCKET_ERROR == stat)
+	{
+		fprintf(stderr, "Error during select()\n");
+	}
+	else if (0 == stat)
+	{
+		// This means the timeout occurred and there were no new connections
+		// (Which is normal, don't want to log every single time that happens.)
+	}
+	else
+#endif
 	if (FD_ISSET(SFSocketDescriptor(socket), &read_flags)) 
 	{
 		FD_CLR(SFSocketDescriptor(socket), &read_flags);
@@ -399,7 +465,11 @@ int SFSocketRead (SFSocket *socket, void *buf, int len)
 			
 		}
 		
+#ifdef _WIN32
+		return(recv(SFSocketDescriptor(socket), buf, len, 0));
+#else
 		return(read(SFSocketDescriptor(socket), buf, len));
+#endif
 	}
 	
 	
@@ -411,6 +481,10 @@ int SFSocketWrite (SFSocket *socket, const void *buf, int len) {
     if ((ssl = SFSocketSSL(socket)) != NULL)
         return(SSL_write(ssl, buf, len));
 
-    return(write(SFSocketDescriptor(socket), buf, len));
+#ifdef _WIN32
+    return(send(SFSocketDescriptor(socket), buf, len, 0));
+#else
+	return(write(SFSocketDescriptor(socket), buf, len));
+#endif
 }
 

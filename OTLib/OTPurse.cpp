@@ -82,10 +82,7 @@
  ************************************************************************************/
 
 
-extern "C"
-{
-#include <string.h>
-}
+#include <cstring>
 
 
 #include "irlxml/irrXML.h"

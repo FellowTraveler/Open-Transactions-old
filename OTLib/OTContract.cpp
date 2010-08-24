@@ -84,8 +84,7 @@
 
 extern "C"
 {
-#include <stdio.h>	
-#include <string.h>
+
 
 #include <openssl/pem.h>	
 #include <openssl/err.h>
@@ -93,6 +92,9 @@ extern "C"
 #include <openssl/rsa.h>
 #include <openssl/rand.h>
 }
+
+#include <cstdio>	
+#include <cstring>
 
 #include <iostream>
 #include <fstream>
@@ -914,12 +916,16 @@ bool OTContract::VerifySignature(const EVP_PKEY * pkey, const OTSignature & theS
 // theSignature will contain the output.
 bool OTContract::SignContract(const char * szFilename, OTSignature & theSignature)
 {	
-	FILE * fp; 
+	FILE * fp = NULL; // _WIN32
 	EVP_PKEY * pkey = NULL; 
 		
 	// Read private key 
+#ifdef _WIN32
+	errno_t err = fopen_s(&fp, szFilename, "rb"); 
+#else
 	fp = fopen (szFilename, "r"); 
-	
+#endif
+
 	if (NULL == fp)
 	{ 
 		fprintf (stderr, "Error opening private key in OTContract::SignContract.\n"); 
@@ -1025,8 +1031,13 @@ bool OTContract::VerifySignature(const char * szFilename, const OTSignature & th
 	
 	// Read public key
 	fprintf (stderr, "Reading public key from certfile in order to verify signature...\n"); 
+
+#ifdef _WIN32
+	errno_t err = fopen_s(&fp, szFilename, "rb"); 
+#else
 	fp = fopen (szFilename, "r"); 
-	
+#endif
+
 	if (fp == NULL) 
 	{ 
 		fprintf (stderr, "Error opening cert file in OTContract::VerifySignature.\n"); 
@@ -1163,8 +1174,14 @@ bool OTContract::SaveContract(const char * szFilename)
 		return false;
 	}
 	
-	FILE * fl = fopen(szFilename, "w");
-	
+	FILE* fl = NULL; // _WIN32
+
+#ifdef _WIN32
+	errno_t err = fopen_s(&fl, szFilename, "wb"); 
+#else
+	fl = fopen (szFilename, "w"); 
+#endif
+
 	if (NULL == fl)
 	{
 		fprintf(stderr, "Error opening file in OTContract::SaveContract: %s\n", szFilename);
@@ -1660,8 +1677,8 @@ bool OTContract::InsertNym(const OTString & strKeyName, const OTString & strKeyV
  * 
  */
 /*
-#include <stdio.h>
-#include <string.h>
+// inside a comment here #include <stdio.h>
+// inside a comment here #include <string.h>
 #include <openssl/err.h>
 #include <openssl/evp.h>
 #include <openssl/rsa.h>

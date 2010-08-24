@@ -83,17 +83,15 @@
  ************************************************************************************/
 
 
-extern "C"
-{
-#include <stdio.h>
-}
+#include <cstdio>
+
 
 #include "OTDataCheck.h"
 
-void AppendChecksum( BYTE* buffer, uint32_t & size )
+void AppendChecksum( OT_BYTE* buffer, uint32_t & size )
 {
 	uint32_t i;
-	BYTE total = 0;
+	OT_BYTE total = 0;
 	
 //	fprintf(stderr, "Appending checksum. Size: %d ", size);
 
@@ -109,10 +107,10 @@ void AppendChecksum( BYTE* buffer, uint32_t & size )
 }
 
 
-BYTE CalcChecksum( BYTE* buffer, uint32_t size )
+OT_BYTE CalcChecksum( OT_BYTE* buffer, uint32_t size )
 {
 	uint32_t i;
-	BYTE total = 0;
+	OT_BYTE total = 0;
 	
 //	fprintf(stderr, "Calculating checksum. Size: %d ", size);
 	
@@ -126,10 +124,10 @@ BYTE CalcChecksum( BYTE* buffer, uint32_t size )
 	return (255 - total);
 }
 
-BYTE CalcChecksum( const BYTE * const buffer, const uint32_t size )
+OT_BYTE CalcChecksum( const OT_BYTE * const buffer, const uint32_t size )
 {
 	uint32_t i;
-	BYTE total = 0;
+	OT_BYTE total = 0;
 	
 //	fprintf(stderr, "Calculating checksum. Size: %d\n", size);
 	
@@ -143,10 +141,10 @@ BYTE CalcChecksum( const BYTE * const buffer, const uint32_t size )
 	return (255 - total);
 }
 
-BOOL IsChecksumValid( BYTE* buffer, uint32_t size )
+OT_BOOL IsChecksumValid( OT_BYTE* buffer, uint32_t size )
 {
 	uint32_t i;
-	BYTE total = 0;
+	OT_BYTE total = 0;
 
 //	fprintf(stderr, "Validating checksum. Size: %d\n", size);
 
@@ -159,13 +157,13 @@ BOOL IsChecksumValid( BYTE* buffer, uint32_t size )
 	if( total == 255 )
 	{
 //		fprintf(stderr, "VALID\n");
-		return TRUE;
+		return true;
 	}
 	else
 	{
 		int nTotal = total;
 //		fprintf(stderr, "INVALID:  %d\n", nTotal);
-		return FALSE;
+		return false;
 	}
 }
 

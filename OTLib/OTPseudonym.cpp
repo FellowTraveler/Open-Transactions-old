@@ -85,12 +85,11 @@
 
 extern "C"
 {
-#include "stdio.h"	
-#include "string.h"	
-
 #include <openssl/sha.h>
 }
 
+#include "cstdio"	
+#include "cstring"	
 
 #include <iostream>
 #include <fstream>
@@ -128,7 +127,7 @@ OTString OTPseudonym::OTPath("."); // it defaults to '.' but then it is set by t
 // the path separator below. So the filesystem aspect of Open Transactions
 // should be a LOT more portable to Windows, though I haven't actually tried
 // it on Windows.
-#ifdef WINDOWS
+#ifdef _WIN32
 OTString OTPseudonym::OTPathSeparator("\\");
 #else
 OTString OTPseudonym::OTPathSeparator("/");
@@ -634,7 +633,7 @@ bool OTPseudonym::LoadPseudonym()
 
 
 /*
- <pseudonym name="Lovedrop" 
+ <pseudonym name="REDACTED" 
  nymID="0094e344f6f437c55458873218b14651c4f0ecc88fc7b714fa3b98a83fdf8767"
  file="client.pem" />  <!-- ascii-armored x509 certificate -->
  
@@ -735,7 +734,12 @@ bool OTPseudonym::SavePseudonymWallet(FILE * fl) const
 //
 bool OTPseudonym::SavePublicKey(const OTString & strPath) const
 {
+#ifdef _WIN32
+	FILE * fl = NULL;
+	errno_t err = fopen_s(&fl, strPath.Get(), "wb");
+#else
 	FILE * fl  = fopen(strPath.Get(), "w");
+#endif
 	bool bSave = false;
 	
 	if (NULL != fl)
@@ -850,7 +854,12 @@ bool OTPseudonym::SavePseudonym(const char * strPath)
 	if (NULL == strPath)
 		return false;
 	
+#ifdef _WIN32
+	FILE * fl = NULL;
+	errno_t err = fopen_s(&fl, strPath, "wb");
+#else
 	FILE * fl  = fopen(strPath, "w");
+#endif
 	bool bSave = false;
 	
 	if (NULL != fl)
@@ -1082,9 +1091,10 @@ bool OTPseudonym::LoadSignedNymfile(OTPseudonym & SIGNER_NYM)
 	// 2. That the local subdir and filename match the versions inside the file.
 	// 3. That the signature matches for the signer nym who was passed in.
 	//
-	if (theNymfile.LoadFile() && 
-		theNymfile.VerifyFile() &&
-		theNymfile.VerifySignature(SIGNER_NYM))
+	if (theNymfile.LoadFile()  
+		&& theNymfile.VerifyFile() 
+		&& theNymfile.VerifySignature(SIGNER_NYM) 
+		)
 	{
 		if (theNymfile.GetFilePayload().GetLength())
 			return LoadFromString(theNymfile.GetFilePayload());

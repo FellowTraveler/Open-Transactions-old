@@ -1,0 +1,293 @@
+
+
+OpenTransactions for WINDOWS
+
+
+ --- Open Transactions is currently built on:
+     - Windows 7 using MS Visual C++ 2010 Express.
+     - Mac OS X 10.6.4 (Snow Leopard) using XCode as well as gcc
+     - Linux Ubuntu 2.6.32 using gcc.
+ 
+ --- OpenSSL version 1.0.0a (at least) is necessary, since the SAMY hash 
+     uses WHRLPOOL. (XOR'd with SHA-512.) WHIRLPOOL is a new addition to 
+     OpenSSL.
+ 
+ --- Let me know if there are any problems, since this is new software;
+     this will be a living document.
+ 
+
+FOR MICROSOFT WINDOWS:
+
+1) I used Microsoft Visual C++ 2010 Express, which is free, to build Open 
+Transactions on Windows 7, which I run on my Mac at home (in a virtual 
+machine, in a little window next to all my Mac apps.) I think it would have
+worked fine with VS 2008, but 2010 is the one I installed.
+
+(The irony of sitting on a Mac and working on Windows software was not 
+lost on me.)
+
+------------
+
+2) I had to install OpenSSL for Windows, (version 1.0.0 at least is necessary 
+for Open Transactions to function properly.) The download page is here:
+http://www.slproweb.com/products/Win32OpenSSL.html
+
+(I found it by looking here: http://www.openssl.org/related/binaries.html)
+
+The specific OpenSSL version that I installed was this one:
+
+Win32 OpenSSL v1.0.0a
+http://www.slproweb.com/download/Win32OpenSSL-1_0_0a.exe
+
+This installed OpenSSL to the folder: C:\OpenSSL-Win32
+
+------------
+
+3) Then I had to download these header files:
+http://code.google.com/p/msinttypes/downloads/detail?name=msinttypes-r26.zip&can=2&q=
+
+Once you download the header files, unzip them so that they appear in your
+C:\OpenSSL-Win32\include folder, (which we will later add to the path in the
+library project.)
+
+Those were headers that are included in Unix but not Windows, so you just
+have to download them separately and put them into an include folder.
+
+------------
+
+4) Then I created a Win32 command-line application and chose 'library' as the type.
+
+Then I copied all of the OTLib files into the new Win32 OTLib folder for my
+new project.
+
+--- I also created Visual C++ projects for transaction and testwallet (the server and
+client.) I created them as normal command-line applications, and I copied the files of
+each to their respective folders and added to each project as appropriate.
+
+------------
+
+5) Transaction server and client both still have a hardcoded path in the source code. 
+(It's just a default path and IS configurable on the command line.)
+
+Search the code for the word REDACTED, which appears once in the client and 
+once in the server for each platform.
+
+The relevant source code: Open-Transactions\transaction\server.cpp and 
+Open-Transactions\testwallet\client.cpp
+
+Replace the REDACTED (entire path) with whatever path is appropriate for your system.
+
+NOTE: You can also replace the path with "." if you want it to run from the current folder
+by default, but this may not work on all systems, since some libraries may require fully-
+qualified paths.
+
+CONFIG FILES:
+The same "REDACTED" corrections should be made in the server config file: 
+Open-Transactions\transaction\notaryServer-Windows.xml
+
+As well as the client config file:  
+Open-Transactions\testwallet\wallet-Windows.xml
+
+On Windows, if you use the VC++ project files that I distributed, you have to fix
+those as well. They are:
+Open-Transactions\testwallet\testwallet\testwallet.vcxproj
+Open-Transactions\transaction\transaction\transaction.vcxproj
+Open-Transactions\OTLib\OTLib\OTLib.vcxproj
+
+
+So make sure to edit all of those and correct the paths within by searching 
+each for the word 'REDACTED'.
+
+
+------
+
+6) The VC++ projects should be set up with precompiled headers turned OFF. 
+
+(Under C/C++, click on Precompiled Headers and made sure I set "Precompiled
+Header" to "Not Using Precompiled Headers".)
+
+NOTE: You should be able to use any good C++ compiler for Windows that you want to.
+As long as you get the right headers and libraries etc. But VC++ 2010 is what I
+used, since it was free.
+
+
+
+------
+
+7) OTLIB INCLUDE DIRECTORIES
+
+Under VC++ Directories -> Include Directories, the value is set to:
+C:\Users\REDACTED\Documents\Visual Studio 2010\Projects\OTLib\Lucre;
+C:\OpenSSL-Win32\include;
+$(IncludePath)
+
+(I added newlines to make it easier for you to decipher.)  Make sure your own
+project includes the OpenSSL path and the Lucre path as appropriate for your system.
+
+-----
+
+8) DIRECTORIES for TESTWALLET (the client software)
+
+The VC++ project for testwallet, under VC++ Directories -> Include Directories, 
+it is set to:
+C:\OpenSSL-Win32\include;
+C:\Users\REDACTED\Documents\Visual Studio 2010\Projects\Open-Transactions\OTLib;
+$(IncludePath)
+
+Again, I added newlines above to make it easier to read. When I copied it, this 
+was all on a single line.
+
+Just underneath that are the Library Directories. Mine is set to:
+C:\OpenSSL-Win32\lib\VC;
+C:\Users\REDACTED\Documents\Visual Studio 2010\Projects\Open-Transactions\OTLib\Debug;
+$(LibraryPath)
+
+Notice a couple things. (1) the newlines again, you must remove those. 
+(2) I am specifying the OTLib\Debug folder as part of the library path. 
+That's because so far I've only been coding in Debug Mode, so I had the 
+debug testwallet looking in the debug folder for the debug library (which 
+is statically linked.)  
+THE SAME IS TRUE ON THE SERVER SIDE.
+
+Notice also that OpenSSL has to be on the "Include Library" path for each project.
+
+-----
+
+9) TESTWALLET LINKER SETTINGS
+
+Here are the libraries I had to link against in order to get testwallet running:
+Linker -> Input -> Additional Dependencies:
+winmm.lib;ws2_32.lib;libeay32MTd.lib;ssleay32MTd.lib;OTLib.lib;%(AdditionalDependencies)
+
+- winmm.lib is a windows library and ws2_32.lib is Winsock2.
+
+- (OTLib is the Open Transactions library that testwallet needs to link against 
+for all the OT calls that it makes.)
+
+- libeay32 is the OpenSSL crypto lib for Windows.
+- ssleay32 is the OpenSSL SSL lib for Windows.
+
+When you install OpenSSL, it puts a bunch of different versions of these static 
+libraries into the C:\OpenSSL-Win32\lib\VC folder. Each one is for a different 
+build...  the suffixes stand for:
+
+MT  static lib
+MD dynamic lib
+MTd static lib, debug version
+MDd dynamic lib, debug version
+
+As you can see, since I am linking statically, in debug mode, I currently have 
+my project configured to link THOSE specific versions of the OpenSSL libs.  
+(libeay32MTd.lib and ssleay32MTd.lib. If I linked the wrong versions, there 
+would definitely be problems.)
+
+-------
+
+10) TRANSACTION 
+
+- transaction (the server) has the same "VC++ Directories -> Linker Input" 
+as testwallet does:
+winmm.lib;ws2_32.lib;libeay32MTd.lib;ssleay32MTd.lib;OTLib.lib;%(AdditionalDependencies)
+
+Also the include directories and library directories are the same:
+
+- transaction's "VC++ Directories -> Include Directories":
+C:\OpenSSL-Win32\include;C:\Users\REDACTED\Documents\Visual Studio 2010\Projects\Open-Transactions\OTLib;$(IncludePath)
+
+- Library Directories:
+C:\OpenSSL-Win32\lib\VC;C:\Users\REDACTED\Documents\Visual Studio 2010\Projects\Open-Transactions\OTLib\Debug;$(LibraryPath)
+
+Obviously you will have to edit these to make them appropriate for your own system.
+
+
+---------
+
+In addition the code is now littered with "#ifdef _WIN32" directives...
+
+----------
+
+Also in addition, the file:
+Open-Transactions\transaction\transaction\applink.c
+
+...was added as part of making OpenSSL functional. I'm sure it's the same version 
+of the file that you will have also with your own OpenSSL installation, so you won't 
+need to replace that file. But I still wanted to make a note of it for the install notes.
+
+There are other files in that folder that will be necessary to build on Windows,
+no matter which compiler you are using.
+
+-----------
+
+
+Open Transactions now works on Linux, Windows, and Mac!
+
+I was actually running it in the DOS prompt, but the JNI will be where the real fun begins.
+
+-------------
+
+
+TO RUN:
+
+The client and server expect to be run from the command line in their respective folders. 
+
+(Assuming you have already built the projects, including OTLib first.)
+
+SERVER
+to enter the right folder:             cd Open-Transactions\transaction
+to run:                                .\transaction.exe
+OR if you just built it in debug mode: .\Debug\transaction.exe
+
+
+CLIENT
+to enter the right folder:             cd Open-Transactions\testwallet
+to run:                                .\testwallet.exe
+OR if you just built it in debug mode: .\Debug\testwallet.exe
+
+
+You don't have to specify a hostname and port, because the server contract
+already contains that information.
+
+(In the server contract that comes with this test distribution,
+the hostname is localhost and port is 7085.)
+
+
+
+USING THE SOFTWARE:
+
+I already created your user account. The password is test (always)
+
+==> With the server, all you can do is watch the output as it runs.
+
+==> But with the client, there is a command-line interface. 
+
+    UNFORTUNATELY the command-line interface is nearly unusable on Windows.
+    (THE REASON this software was ported to Windows was so a Java developer
+    could get started on an Android client.)
+
+**** READ:  docs\CLIENT-COMMANDS.txt  for a list of the Wallet's commands.
+I will soon add that file to a help command inside the wallet.
+You can create asset accounts, issue new asset types, 
+transfer assets, get inbox, process inbox,
+withdraw cash, deposit cash, getcontract, getmint.
+You can also create basket currencies and exchange between normal 
+asset accounts and basket accounts. (To the server it's just another 
+account type.)  You can also write and deposit cheques, and withdraw 
+vouchers. 
+
+REMEMBER: If you move some assets, and you don't see the change show up in your 
+account, then you probably just need to type "get" (to get the latest copy of the 
+account after a change has just been made.) Another useful command is 'i' for 
+grabbing the inbox of any specific account. Then "get", and then "stat" to see 
+the balances change.
+
+Obviously a nice client will do this automatically.
+
+
+
+Let's organize to make a pretty GUI for various platforms, eh?
+
+
+------------------------------------
+
+
+ 

@@ -5,7 +5,7 @@
 #ifndef __IRR_XML_H_INCLUDED__
 #define __IRR_XML_H_INCLUDED__
 
-#include <stdio.h>
+#include <cstdio>
 
 /** \mainpage irrXML 1.2 API documentation
  <div align="center"><img src="logobig.png" ></div>

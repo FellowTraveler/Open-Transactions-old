@@ -1,5 +1,9 @@
 #include "bank.h"
 
+#ifdef _WIN32
+#include <cstring>
+#endif
+
 extern "C"
 {
 #include <openssl/asn1.h>
@@ -114,7 +118,7 @@ PublicBank::PublicBank(Bank &bank)
     m_pDH->pub_key=BN_dup(bank.pub_key());
     }
 
-void Bank::cb(int n, int, void */*arg*/)
+void Bank::cb(int n, int, void * /*arg*/)
     {
     if(!mout)
 	return;

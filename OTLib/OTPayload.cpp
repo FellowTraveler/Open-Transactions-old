@@ -81,10 +81,9 @@
  *    	
  ************************************************************************************/
 
-extern "C"
-{
-#include <string.h>
-}
+
+#include <cstring>
+
 
 #include "OTDataCheck.h"
 
@@ -148,7 +147,7 @@ bool OTPayload::SetEnvelope(const OTEnvelope & theEnvelope)
 			memcpy((void *)GetPointer(), theArmor.Get(), lSize);
 			
 			// Add the checksum, success.
-			AppendChecksum( (BYTE*)GetPointer(), lSize );
+			AppendChecksum( (OT_BYTE*)GetPointer(), lSize );
 			return true;
 		}
 	}
@@ -167,7 +166,7 @@ bool OTPayload::SetMessage(const OTMessage & theMessage)
 		memcpy((void *)GetPointer(), theMessage.m_strRawFile.Get(), lSize);
 		
 		// Add the checksum
-		AppendChecksum( (BYTE*)GetPointer(), lSize );
+		AppendChecksum( (OT_BYTE*)GetPointer(), lSize );
 		return true;
 	}
 	return false;
@@ -187,11 +186,11 @@ bool OTPayload::GetEnvelope(OTEnvelope & theEnvelope) const
 	if (0 == lSize)
 		return false;
 	
-	if (IsChecksumValid((BYTE*)GetPointer(), (uint32_t)lSize))
+	if (IsChecksumValid((OT_BYTE*)GetPointer(), (uint32_t)lSize))
 	{
 		// We add the null-terminator ourselves at this point, for security reasons,
 		// since we will process the data, soon after this function, as a string.
-		((BYTE *)GetPointer())[lIndex] = 0;
+		((OT_BYTE *)GetPointer())[lIndex] = 0;
 		
 		theEnvelope.m_dataContents.Release();
 		
@@ -218,6 +217,13 @@ bool OTPayload::GetEnvelope(OTEnvelope & theEnvelope) const
 	}	
 }
 
+#ifdef _WIN32
+bool OTPAYLOAD_GetMessage(OTPayload & thePayload, OTMessage & theMessage)
+{
+	return thePayload.GetMessage(theMessage);
+}
+#endif
+
 // Message retrieved from Payload
 bool OTPayload::GetMessage(OTMessage & theMessage) const
 {
@@ -229,11 +235,11 @@ bool OTPayload::GetMessage(OTMessage & theMessage) const
 	if (0 == lSize)
 		return false;
 	
-	if (IsChecksumValid((BYTE*)GetPointer(), (uint32_t)lSize))
+	if (IsChecksumValid((OT_BYTE*)GetPointer(), (uint32_t)lSize))
 	{
 		// We add the null-terminator ourselves at this point, for security reasons,
 		// since we will process the data, after this point, as a string.
-		((BYTE *)GetPointer())[lIndex] = 0;
+		((OT_BYTE *)GetPointer())[lIndex] = 0;
 		
 		theMessage.Release();
 		
