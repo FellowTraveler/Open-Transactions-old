@@ -106,6 +106,7 @@ extern "C"
 #include "OTWallet.h"
 #include "OTPseudonym.h"
 #include "OTMessage.h"
+#include "OTMessageBuffer.h"
 #include "OTWallet.h"
 #include "OTClient.h"
 #include "OTEnvelope.h"
@@ -113,13 +114,6 @@ extern "C"
 
 
 int allow_debug = 1;
-
-extern OTPseudonym			* g_pTemporaryNym; 
-extern OTAssetContract		* g_pTemporaryContract;
-extern OTServerContract		* g_pServerContract;
-
-OTClient g_Client;
-OTWallet g_Wallet;
 
 /*
  union u_header
@@ -277,20 +271,22 @@ bool OTServerConnection::GetServerID(OTIdentifier & theID)
 // There might be MORE THAN ONE connection per wallet, or only one,
 // but either way the connections need a pointer to the wallet
 // they are associated with, so they can access those accounts.
-OTServerConnection::OTServerConnection(OTWallet & theWallet, SFSocket * pSock)
+OTServerConnection::OTServerConnection(OTWallet & theWallet, OTClient & theClient, SFSocket * pSock)
 {
 	m_pSocket			= pSock;
 	m_pNym				= NULL;
 	m_pServerContract	= NULL;
 	m_pWallet			= &theWallet;
+	m_pClient			= &theClient;
 }
 
-OTServerConnection::OTServerConnection(OTWallet & theWallet)
+OTServerConnection::OTServerConnection(OTWallet & theWallet, OTClient & theClient)
 {
 	m_pSocket			= NULL;
 	m_pNym				= NULL;
 	m_pServerContract	= NULL;
 	m_pWallet			= &theWallet;
+	m_pClient			= &theClient;
 }
 
 OTServerConnection::~OTServerConnection()
@@ -745,7 +741,7 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 		// But this is just an empty OTMessage.
 		
 		// When a message is signed, it updates its m_xmlUnsigned contents to the values in the members variables
-		g_Wallet.SignContractWithFirstNymOnList(theMessage);
+		m_pWallet->SignContractWithFirstNymOnList(theMessage);
 		
 		// SaveContract takes m_xmlUnsigned and wraps it with the signatures and ------- BEGIN  bookends
 		// If you don't pass a string in, then SaveContract saves the new version to its member, m_strRawFile
@@ -769,7 +765,7 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 	// AND theClient object is able to process that request into
 	// a payload, THEN we create the header and send it all down the pipe.
 	
-	if (false == bHandledIt && g_pTemporaryNym && g_pServerContract)
+	if (false == bHandledIt && m_pNym && m_pServerContract)
 	{
 		// check server ID command
 		if (buf[0] == 'c')
@@ -779,8 +775,8 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 			
-			if (g_Client.ProcessUserCommand(OTClient::checkServerID, theMessage, 
-											*g_pTemporaryNym, *g_pServerContract,
+			if (m_pClient->ProcessUserCommand(OTClient::checkServerID, theMessage, 
+											*m_pNym, *m_pServerContract,
 											NULL)) // NULL pAccount on this command.
 			{				
 				bSendCommand = true;
@@ -799,8 +795,8 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 			
-			if (g_Client.ProcessUserCommand(OTClient::createUserAccount, theMessage, 
-											*g_pTemporaryNym, *g_pServerContract,
+			if (m_pClient->ProcessUserCommand(OTClient::createUserAccount, theMessage, 
+											*m_pNym, *m_pServerContract,
 											NULL)) // NULL pAccount on this command.
 			{
 				bSendCommand = true;
@@ -822,8 +818,8 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 			
-			if (g_Client.ProcessUserCommand(OTClient::checkUser, theMessage, 
-											*g_pTemporaryNym, *g_pServerContract,
+			if (m_pClient->ProcessUserCommand(OTClient::checkUser, theMessage, 
+											*m_pNym, *m_pServerContract,
 											NULL)) // NULL pAccount on this command.
 			{
 				bSendCommand = true;
@@ -842,8 +838,8 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 			
-			if (g_Client.ProcessUserCommand(OTClient::createAccount, theMessage, 
-											*g_pTemporaryNym, *g_pServerContract,
+			if (m_pClient->ProcessUserCommand(OTClient::createAccount, theMessage, 
+											*m_pNym, *m_pServerContract,
 											NULL)) // NULL pAccount on this command.
 			{
 				bSendCommand = true;
@@ -862,8 +858,8 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 			
-			if (g_Client.ProcessUserCommand(OTClient::issueAssetType, theMessage, 
-											*g_pTemporaryNym, *g_pServerContract,
+			if (m_pClient->ProcessUserCommand(OTClient::issueAssetType, theMessage, 
+											*m_pNym, *m_pServerContract,
 											NULL)) // NULL pAccount on this command.
 			{
 				bSendCommand = true;
@@ -882,8 +878,8 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 			
-			if (g_Client.ProcessUserCommand(OTClient::issueBasket, theMessage, 
-											*g_pTemporaryNym, *g_pServerContract,
+			if (m_pClient->ProcessUserCommand(OTClient::issueBasket, theMessage, 
+											*m_pNym, *m_pServerContract,
 											NULL)) // NULL pAccount on this command.
 			{
 				bSendCommand = true;
@@ -902,8 +898,8 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 			
-			if (g_Client.ProcessUserCommand(OTClient::exchangeBasket, theMessage, 
-											*g_pTemporaryNym, *g_pServerContract,
+			if (m_pClient->ProcessUserCommand(OTClient::exchangeBasket, theMessage, 
+											*m_pNym, *m_pServerContract,
 											NULL)) // NULL pAccount on this command.
 			{
 				bSendCommand = true;
@@ -922,8 +918,8 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 			
-			if (g_Client.ProcessUserCommand(OTClient::getInbox, theMessage, 
-											*g_pTemporaryNym, *g_pServerContract,
+			if (m_pClient->ProcessUserCommand(OTClient::getInbox, theMessage, 
+											*m_pNym, *m_pServerContract,
 											NULL)) // NULL pAccount on this command.
 			{
 				bSendCommand = true;
@@ -942,8 +938,8 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 			
-			if (g_Client.ProcessUserCommand(OTClient::notarizeCheque, theMessage, 
-											*g_pTemporaryNym, *g_pServerContract,
+			if (m_pClient->ProcessUserCommand(OTClient::notarizeCheque, theMessage, 
+											*m_pNym, *m_pServerContract,
 											NULL)) // NULL pAccount on this command.
 			{
 				bSendCommand = true;
@@ -962,8 +958,8 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 			
-			if (g_Client.ProcessUserCommand(OTClient::withdrawVoucher, theMessage, 
-											*g_pTemporaryNym, *g_pServerContract,
+			if (m_pClient->ProcessUserCommand(OTClient::withdrawVoucher, theMessage, 
+											*m_pNym, *m_pServerContract,
 											NULL)) // NULL pAccount on this command.
 			{
 				bSendCommand = true;
@@ -982,8 +978,8 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 			
-			if (g_Client.ProcessUserCommand(OTClient::notarizeWithdrawal, theMessage, 
-											*g_pTemporaryNym, *g_pServerContract,
+			if (m_pClient->ProcessUserCommand(OTClient::notarizeWithdrawal, theMessage, 
+											*m_pNym, *m_pServerContract,
 											NULL)) // NULL pAccount on this command.
 			{
 				bSendCommand = true;
@@ -1002,8 +998,8 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 			
-			if (g_Client.ProcessUserCommand(OTClient::notarizeDeposit, theMessage, 
-											*g_pTemporaryNym, *g_pServerContract,
+			if (m_pClient->ProcessUserCommand(OTClient::notarizeDeposit, theMessage, 
+											*m_pNym, *m_pServerContract,
 											NULL)) // NULL pAccount on this command.
 			{
 				bSendCommand = true;
@@ -1022,8 +1018,8 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 			
-			if (g_Client.ProcessUserCommand(OTClient::notarizePurse, theMessage, 
-											*g_pTemporaryNym, *g_pServerContract,
+			if (m_pClient->ProcessUserCommand(OTClient::notarizePurse, theMessage, 
+											*m_pNym, *m_pServerContract,
 											NULL)) // NULL pAccount on this command.
 			{
 				bSendCommand = true;
@@ -1042,7 +1038,7 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 			
-			if (g_pTemporaryNym)
+			if (m_pNym)
 			{
 				OTString strMessage("Well well well, this is just a little bit of plaintext.\nNotice there are NO NEWLINES at the start.\n"
 									"I'm just trying to make it as long as i can, so that\nI can test the envelope and armor functionality.\n");
@@ -1054,7 +1050,7 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 				fprintf(stdout, "ASCII ARMOR:\n------>%s<--------\n", ascMessage.Get());
 
 				OTEnvelope theEnvelope;
-				theEnvelope.Seal(*g_pTemporaryNym, strMessage);
+				theEnvelope.Seal(*m_pNym, strMessage);
 				
 				ascMessage.Release();
 				
@@ -1065,12 +1061,12 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 				strMessage.Release();
 				
 				OTEnvelope the2Envelope(ascMessage);
-				the2Envelope.Open(*g_pTemporaryNym, strMessage);
+				the2Envelope.Open(*m_pNym, strMessage);
 				
 				fprintf(stdout, "DECRYPTED PLAIN TEXT:\n------>%s<--------\n", strMessage.Get());
 				
 				OTEnvelope the3Envelope;
-				the3Envelope.Seal(*g_pTemporaryNym, strMessage.Get());
+				the3Envelope.Seal(*m_pNym, strMessage.Get());
 				
 				ascMessage.Release();
 				
@@ -1081,12 +1077,12 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 				strMessage.Release();
 				
 				OTEnvelope the4Envelope(ascMessage);
-				the4Envelope.Open(*g_pTemporaryNym, strMessage);
+				the4Envelope.Open(*m_pNym, strMessage);
 				
 				fprintf(stdout, "RE-DECRYPTED PLAIN TEXT:\n------>%s<--------\n", strMessage.Get());
 				
 				OTEnvelope the5Envelope;
-				the5Envelope.Seal(*g_pTemporaryNym, strMessage.Get());
+				the5Envelope.Seal(*m_pNym, strMessage.Get());
 				
 				ascMessage.Release();
 				
@@ -1097,7 +1093,7 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 				strMessage.Release();
 				
 				OTEnvelope the6Envelope(ascMessage);
-				the6Envelope.Open(*g_pTemporaryNym, strMessage);
+				the6Envelope.Open(*m_pNym, strMessage);
 				
 				fprintf(stdout, "RE-RE-DECRYPTED PLAIN TEXT:\n------>%s<--------\n", strMessage.Get());
 				
@@ -1114,8 +1110,8 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 			
-			if (g_Client.ProcessUserCommand(OTClient::getAccount, theMessage, 
-											*g_pTemporaryNym,  *g_pServerContract,
+			if (m_pClient->ProcessUserCommand(OTClient::getAccount, theMessage, 
+											*m_pNym,  *m_pServerContract,
 											NULL)) // NULL pAccount on this command.
 			{
 				bSendCommand = true;
@@ -1134,8 +1130,8 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 			
-			if (g_Client.ProcessUserCommand(OTClient::getContract, theMessage, 
-											*g_pTemporaryNym, *g_pServerContract,
+			if (m_pClient->ProcessUserCommand(OTClient::getContract, theMessage, 
+											*m_pNym, *m_pServerContract,
 											NULL)) // NULL pAccount on this command.
 			{
 				bSendCommand = true;
@@ -1185,7 +1181,7 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 			} while (decode_buffer[0] != '~');
 			
 			OTAssetContract theContract;
-			theContract.CreateContract(strContract, *g_pTemporaryNym);
+			theContract.CreateContract(strContract, *m_pNym);
 			
 			// re-using strContract here for output this time.
 			strContract.Release();
@@ -1204,8 +1200,8 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 			
-			if (g_Client.ProcessUserCommand(OTClient::getMint, theMessage, 
-											*g_pTemporaryNym,  *g_pServerContract,
+			if (m_pClient->ProcessUserCommand(OTClient::getMint, theMessage, 
+											*m_pNym,  *m_pServerContract,
 											NULL)) // NULL pAccount on this command.
 			{
 				bSendCommand = true;
@@ -1224,8 +1220,8 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 			
-			if (g_Client.ProcessUserCommand(OTClient::notarizeTransfer, theMessage, 
-											*g_pTemporaryNym,  *g_pServerContract,
+			if (m_pClient->ProcessUserCommand(OTClient::notarizeTransfer, theMessage, 
+											*m_pNym,  *m_pServerContract,
 											NULL)) // NULL pAccount on this command.
 			{
 				bSendCommand = true;
@@ -1244,8 +1240,8 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 			
-			if (g_Client.ProcessUserCommand(OTClient::getRequest, theMessage, 
-											*g_pTemporaryNym, *g_pServerContract,
+			if (m_pClient->ProcessUserCommand(OTClient::getRequest, theMessage, 
+											*m_pNym, *m_pServerContract,
 											NULL)) // NULL pAccount on this command.
 			{
 				bSendCommand = true;
@@ -1264,8 +1260,8 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 			// ------------------------------------------------------------------------------			
 			// if successful setting up the command payload...
 			
-			if (g_Client.ProcessUserCommand(OTClient::getTransactionNum, theMessage, 
-											*g_pTemporaryNym,  *g_pServerContract,
+			if (m_pClient->ProcessUserCommand(OTClient::getTransactionNum, theMessage, 
+											*m_pNym,  *m_pServerContract,
 											NULL)) // NULL pAccount on this command.
 			{
 				bSendCommand = true;
@@ -1286,7 +1282,7 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 			}		
 			return;
 		}
-	} //if (false == bHandledIt && g_pTemporaryNym && g_pTemporaryContract && g_pServerContract)
+	} //if (false == bHandledIt && m_pNym && m_pServerContract)
 	
 	else if (false == bHandledIt)
 	{

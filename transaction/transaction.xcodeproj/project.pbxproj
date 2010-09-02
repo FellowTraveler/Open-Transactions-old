@@ -7,11 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		830EC91611F8CA6200198F04 /* server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 830EC91511F8CA6200198F04 /* server.cpp */; };
+		830EC91611F8CA6200198F04 /* testserver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 830EC91511F8CA6200198F04 /* testserver.cpp */; };
 		8392266811B341F800AF54AF /* libOTLib.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8392266711B341F800AF54AF /* libOTLib.dylib */; };
 		839237A011BB4ACC00AF54AF /* OTServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8392379F11BB4ACC00AF54AF /* OTServer.cpp */; };
 		83923C1E11BDC57300AF54AF /* SFSocket.c in Sources */ = {isa = PBXBuildFile; fileRef = 83923C1A11BDC57300AF54AF /* SFSocket.c */; };
-		83923CE711BDD2A900AF54AF /* OTMessageBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 83923CE611BDD2A900AF54AF /* OTMessageBuffer.cpp */; };
 		83923CF411BDDAB900AF54AF /* OTClientConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 83923CF311BDDAB900AF54AF /* OTClientConnection.cpp */; };
 		83AC1788120BCFCA00C5A816 /* Makefile in Sources */ = {isa = PBXBuildFile; fileRef = 83AC1787120BCFCA00C5A816 /* Makefile */; };
 		8DD76F6A0486A84900D96B5E /* transaction.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = C6859E8B029090EE04C91782 /* transaction.1 */; };
@@ -31,15 +30,13 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		830EC91511F8CA6200198F04 /* server.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = server.cpp; sourceTree = "<group>"; };
+		830EC91511F8CA6200198F04 /* testserver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testserver.cpp; sourceTree = "<group>"; };
 		8392262711B3415D00AF54AF /* main.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = main.h; sourceTree = "<group>"; };
 		8392266711B341F800AF54AF /* libOTLib.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libOTLib.dylib; sourceTree = "<group>"; };
 		8392379E11BB4ACC00AF54AF /* OTServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OTServer.h; sourceTree = "<group>"; };
 		8392379F11BB4ACC00AF54AF /* OTServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OTServer.cpp; sourceTree = "<group>"; };
 		83923C1A11BDC57300AF54AF /* SFSocket.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SFSocket.c; sourceTree = "<group>"; };
 		83923C1B11BDC57300AF54AF /* SFSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SFSocket.h; sourceTree = "<group>"; };
-		83923CE511BDD2A900AF54AF /* OTMessageBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OTMessageBuffer.h; sourceTree = "<group>"; };
-		83923CE611BDD2A900AF54AF /* OTMessageBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OTMessageBuffer.cpp; sourceTree = "<group>"; };
 		83923CF211BDDAB900AF54AF /* OTClientConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OTClientConnection.h; sourceTree = "<group>"; };
 		83923CF311BDDAB900AF54AF /* OTClientConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OTClientConnection.cpp; sourceTree = "<group>"; };
 		83AC1787120BCFCA00C5A816 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
@@ -80,9 +77,7 @@
 				8392379F11BB4ACC00AF54AF /* OTServer.cpp */,
 				83923C0C11BDC57300AF54AF /* SSL-Example */,
 				8392262711B3415D00AF54AF /* main.h */,
-				830EC91511F8CA6200198F04 /* server.cpp */,
-				83923CE511BDD2A900AF54AF /* OTMessageBuffer.h */,
-				83923CE611BDD2A900AF54AF /* OTMessageBuffer.cpp */,
+				830EC91511F8CA6200198F04 /* testserver.cpp */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -157,9 +152,8 @@
 			files = (
 				839237A011BB4ACC00AF54AF /* OTServer.cpp in Sources */,
 				83923C1E11BDC57300AF54AF /* SFSocket.c in Sources */,
-				83923CE711BDD2A900AF54AF /* OTMessageBuffer.cpp in Sources */,
 				83923CF411BDDAB900AF54AF /* OTClientConnection.cpp in Sources */,
-				830EC91611F8CA6200198F04 /* server.cpp in Sources */,
+				830EC91611F8CA6200198F04 /* testserver.cpp in Sources */,
 				83AC1788120BCFCA00C5A816 /* Makefile in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

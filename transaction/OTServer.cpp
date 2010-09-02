@@ -1854,11 +1854,17 @@ void OTServer::NotarizeTransfer(OTPseudonym & theNym, OTAccount & theFromAccount
 
 		// Set the ID on the To Account based on what the transaction request said. (So we can load it up.)
 		OTAccount * pDestinationAcct = OTAccount::LoadExistingAccount(pItem->GetDestinationAcctID(), SERVER_ID);
-		
+	
+		// Only accept transfers with positive amounts.
+		if (0 > pItem->m_lAmount) 
+		{
+			fprintf(stderr, "Attempt to transfer negative balance.\n");
+		}
+	
 		// I'm using the operator== because it exists.
 		// If the ID on the "from" account that was passed in,
 		// does not match the "Acct From" ID on this transaction item
-		if (!(IDFromAccount == pItem->GetPurportedAccountID()))
+		else if (!(IDFromAccount == pItem->GetPurportedAccountID()))
 		{
 			fprintf(stderr, "Error: 'From' account ID on the transaction does not match 'from' account ID on the transaction item.\n");
 		} 
@@ -2224,11 +2230,16 @@ void OTServer::NotarizeWithdrawal(OTPseudonym & theNym, OTAccount & theAccount,
 		
 		OTMint		* pMint = NULL;
 		OTAccount	* pMintCashReserveAcct = NULL;
-		
+	
+		if (0 > pItem->m_lAmount)
+		{
+			fprintf(stderr, "Attempt to withdraw a negative amount.\n");
+		}
+	
 		// I'm using the operator== because it exists.
 		// If the ID on the "from" account that was passed in,
 		// does not match the "Acct From" ID on this transaction item
-		if (!(ACCOUNT_ID == pItem->GetPurportedAccountID()))
+		else if (!(ACCOUNT_ID == pItem->GetPurportedAccountID()))
 		{
 			fprintf(stderr, "Error: 'From' account ID on the transaction does not match 'from' account ID on the withdrawal item.\n");
 		} 

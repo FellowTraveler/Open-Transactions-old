@@ -92,7 +92,6 @@ extern "C"
 	
 }
 
-#include "OTClient.h"
 
 #include "OTString.h"
 #include "OTIdentifier.h"
@@ -103,7 +102,6 @@ extern "C"
 #include "OTAccount.h"
 #include "OTMessage.h"
 #include "OTPayload.h"
-#include "OTWallet.h"
 #include "OTEnvelope.h"
 #include "OTItem.h"
 #include "OTLedger.h"
@@ -114,9 +112,30 @@ extern "C"
 #include "OTTransaction.h"
 #include "OTCheque.h"
 
+#include "OTWallet.h"
+#include "OTClient.h"
 
-extern OTWallet g_Wallet;
-extern OTPseudonym * g_pTemporaryNym;
+
+
+
+void OTClient::ProcessMessageOut(char *buf, int * pnExpectReply)
+{
+	m_pConnection->ProcessMessageOut(buf, pnExpectReply);
+}
+
+
+void OTClient::ProcessMessageOut(OTMessage & theMessage)
+{
+	m_pConnection->ProcessMessageOut(theMessage);
+}
+
+bool OTClient::ProcessInBuffer(OTMessage & theServerReply)
+{
+	m_pConnection->ProcessInBuffer(theServerReply);
+}
+
+
+
 
 // Without regard to WHAT those transactions ARE that are in my inbox,
 // just process and accept them all!!!  (This is AUTO-ACCEPT functionality
@@ -577,8 +596,10 @@ void OTClient::ProcessWithdrawalResponse(OTTransaction & theTransaction, OTServe
 // Perhaps we just tried to create an account -- this could be
 // our new account! Let's make sure we receive it and save it
 // to disk somewhere.
-bool OTClient::ProcessServerReply(OTServerConnection & theConnection, OTMessage & theReply)
+bool OTClient::ProcessServerReply(OTMessage & theReply)
 {
+	OTServerConnection & theConnection = (*m_pConnection);
+	
 	const OTIdentifier ACCOUNT_ID(theReply.m_strAcctID);
 	OTIdentifier SERVER_ID;
 	theConnection.GetServerID(SERVER_ID);
@@ -704,7 +725,7 @@ bool OTClient::ProcessServerReply(OTServerConnection & theConnection, OTMessage 
 				pWallet->AddAssetContract(*pContract);
 				pContract = NULL; // Success. The wallet "owns" it now, no need to clean it up.
 
-				g_Wallet.SaveWallet(g_Wallet.m_strFilename.Get());
+				m_pWallet->SaveWallet(m_pWallet->m_strFilename.Get());
 			}
 		}
 		// cleanup
@@ -752,7 +773,7 @@ bool OTClient::ProcessServerReply(OTServerConnection & theConnection, OTMessage 
 			if (pAccount->LoadContractFromString(strAcctContents) && pAccount->VerifyAccount(*pServerNym))
 			{
 				// (2) Sign the Account 
-				pAccount->SignContract(*g_pTemporaryNym);		
+				pAccount->SignContract(*pNym);		
 				pAccount->SaveContract();
 				
 				// (3) Save the Account to file
@@ -774,9 +795,9 @@ bool OTClient::ProcessServerReply(OTServerConnection & theConnection, OTMessage 
 				// Also maybe should check to see if I was expecting this message
 				// in the first place.
 				
-				g_Wallet.AddAccount(*pAccount);
+				m_pWallet->AddAccount(*pAccount);
 				
-				g_Wallet.SaveWallet(g_Wallet.m_strFilename.Get());
+				m_pWallet->SaveWallet(m_pWallet->m_strFilename.Get());
 				
 				return true;
 			}
@@ -842,7 +863,7 @@ bool OTClient::ProcessServerReply(OTServerConnection & theConnection, OTMessage 
 				// (2) Sign the Account
 				pAccount->ReleaseSignatures();	// So I don't get the annoying failure to verify message from the server's signature.
 												// Will eventually end up keeping the signature, however, just for reasons of proof. todo.
-				pAccount->SignContract(*g_pTemporaryNym);		
+				pAccount->SignContract(*pNym);		
 				pAccount->SaveContract();
 				
 				// (3) Save the Account to file
@@ -864,9 +885,9 @@ bool OTClient::ProcessServerReply(OTServerConnection & theConnection, OTMessage 
 				// Also maybe should check to see if I was expecting this message
 				// in the first place.
 				
-				g_Wallet.AddAccount(*pAccount);
+				m_pWallet->AddAccount(*pAccount);
 				
-				g_Wallet.SaveWallet(g_Wallet.m_strFilename.Get());
+				m_pWallet->SaveWallet(m_pWallet->m_strFilename.Get());
 				
 				return true;
 			}
@@ -1646,7 +1667,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			
 			const OTIdentifier ACCOUNT_ID(strFromAcct);
 			
-			if (pAccount = g_Wallet.GetAccount(ACCOUNT_ID))
+			if (pAccount = m_pWallet->GetAccount(ACCOUNT_ID))
 			{
 				CONTRACT_ID = pAccount->GetAssetTypeID();
 				CONTRACT_ID.GetString(strContractID);
@@ -1760,7 +1781,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			
 			ACCOUNT_ID.SetString(strFromAcct);
 			
-			if (pAccount = g_Wallet.GetAccount(ACCOUNT_ID))
+			if (pAccount = m_pWallet->GetAccount(ACCOUNT_ID))
 			{
 				CONTRACT_ID = pAccount->GetAssetTypeID();
 				CONTRACT_ID.GetString(strContractID);
@@ -1911,7 +1932,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			
 			const OTIdentifier ACCOUNT_ID(strFromAcct);
 			
-			if (pAccount = g_Wallet.GetAccount(ACCOUNT_ID))
+			if (pAccount = m_pWallet->GetAccount(ACCOUNT_ID))
 			{
 				CONTRACT_ID = pAccount->GetAssetTypeID();
 				CONTRACT_ID.GetString(strContractID);
@@ -2014,7 +2035,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 				// Add the purse to the wallet
 				// (We will need it to look up the private coin info for unblinding the token,
 				//  when the response comes from the server.)
-				g_Wallet.AddPendingWithdrawal(*pPurseMyCopy);
+				m_pWallet->AddPendingWithdrawal(*pPurseMyCopy);
 				
 				delete pPurse;
 				pPurse			= NULL; // We're done with this one.
@@ -2101,7 +2122,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			
 			const OTIdentifier ACCOUNT_ID(strFromAcct);
 			
-			if (pAccount = g_Wallet.GetAccount(ACCOUNT_ID))
+			if (pAccount = m_pWallet->GetAccount(ACCOUNT_ID))
 			{
 				CONTRACT_ID = pAccount->GetAssetTypeID();
 				CONTRACT_ID.GetString(strContractID);
@@ -2286,7 +2307,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			
 			const OTIdentifier ACCOUNT_ID(strFromAcct);
 			
-			if (pAccount = g_Wallet.GetAccount(ACCOUNT_ID))
+			if (pAccount = m_pWallet->GetAccount(ACCOUNT_ID))
 			{
 				CONTRACT_ID = pAccount->GetAssetTypeID();
 				CONTRACT_ID.GetString(strContractID);
@@ -2379,7 +2400,6 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 					fprintf(stderr, "Error loading token from purse.\n");
 					break;
 				}
-
 			}
 			
 			if (bSuccess)
@@ -2512,15 +2532,69 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 }
 
 
-OTClient::OTClient()
+// used for testing.
+// Once the wallet is loaded, we are assuming there is at least one server
+// contract in the wallet, and we are asking the wallet to look it up,
+// find the hostname and port inside that contract, and establish a connection
+// to the server.
+//
+// Whereas in a nice user interface, you would loop through all the servers in 
+// the wallet and display them in a nice list on the screen, and the user could
+// just click on one, and you would just call Wallet.Connect(ServerID) and do your thing.
+bool OTClient::ConnectToTheFirstServerOnList(OTPseudonym & theNym,
+											 OTString & strCA_FILE, OTString & strKEY_FILE, OTString & strKEY_PASSWORD)
 {
+	OTIdentifier	SERVER_ID;
+	OTString		SERVER_NAME;
+	
+	if (m_pWallet && m_pWallet->GetServer(0, SERVER_ID, SERVER_NAME))
+	{
+		OTServerContract *	pServer = m_pWallet->GetServerContract(SERVER_ID);
+		
+		if (NULL != pServer)
+			return m_pConnection->Connect(theNym, *pServer, strCA_FILE, strKEY_FILE, strKEY_PASSWORD);
+	}
+	
+	return false;
+}
+
+
+// Need to call this before using.
+bool OTClient::InitClient(OTWallet & theWallet)
+{
+	// already done
+	if (m_bInitialized)
+		return false;
+	
+	m_bInitialized	= true;
+	
+	m_pConnection	= new OTServerConnection(theWallet, *this);
+	m_pWallet		= &theWallet;
+
 	// openssl initialization
 	ERR_load_crypto_strings();  // Todo deal with error logging mechanism later.
 	OpenSSL_add_all_algorithms();  // Is this really necessary to make these function calls? I'll leave it.
+	
+	return true;
+}
+
+
+OTClient::OTClient()
+{
+	m_pConnection	= NULL;
+	m_pWallet		= NULL;
+	
+	m_bInitialized = false;
 }
 
 OTClient::~OTClient()
 {
+	if (NULL != m_pConnection)
+	{
+		delete m_pConnection;
+		m_pConnection = NULL;
+	}
+	
 	// openssl cleanup
 	CRYPTO_cleanup_all_ex_data();
 	RAND_cleanup();

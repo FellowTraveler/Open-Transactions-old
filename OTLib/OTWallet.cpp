@@ -86,14 +86,16 @@
 #include <cstdio>
 #include <cstring>	
 
+#include "OTIdentifier.h"
+#include "OTString.h"
+#include "OTPseudonym.h"
+
 #include "OTWallet.h"
 
-#include "OTString.h"
 #include "OTAssetContract.h"
 #include "OTServerContract.h"
 #include "OTContract.h"
 #include "OTAccount.h"
-#include "OTPseudonym.h"
 #include "OTEnvelope.h"
 #include "OTPurse.h"
 
@@ -104,16 +106,11 @@ using namespace io;
 
 
 // TODO remove this pTemporaryNym variable, used for testing only.
-OTPseudonym			* g_pTemporaryNym = NULL; 
-OTAssetContract		* g_pTemporaryContract = NULL;
-OTServerContract	* g_pServerContract = NULL;
+extern OTPseudonym			* g_pTemporaryNym; 
 
 
 
-
-
-
-OTWallet::OTWallet() : m_Connection(*this)
+OTWallet::OTWallet()
 {
 	m_pWithdrawalPurse = NULL;
 }
@@ -169,26 +166,6 @@ bool OTWallet::SignContractWithFirstNymOnList(OTContract & theContract)
 }
 
 
-// used for testing.
-// Once the wallet is loaded, we are assuming there is at least one server
-// contract in the wallet, and we are asking the wallet to look it up,
-// find the hostname and port inside that contract, and establish a connection
-// to the server.
-//
-// Whereas in a nice user interface, you would loop through all the servers in 
-// the wallet and display them in a nice list on the screen, and the user could
-// just click on one, and you would just call Wallet.Connect(ServerID) and do your thing.
-bool OTWallet::ConnectToTheFirstServerOnList(OTString & strCA_FILE, OTString & strKEY_FILE, OTString & strKEY_PASSWORD)
-{
-	if (g_pTemporaryNym && g_pServerContract)
-	{
-		return m_Connection.Connect(*g_pTemporaryNym, *g_pServerContract,
-									strCA_FILE, strKEY_FILE, strKEY_PASSWORD);
-	}
-	
-	return false;
-}
-
 
 // Pass in the Server ID and get the pointer back.
 OTServerContract * OTWallet::GetServerContract(const OTIdentifier & SERVER_ID)
@@ -237,6 +214,130 @@ OTPseudonym * OTWallet::GetNymByID(const OTIdentifier & NYM_ID)
 	}	
 	
 	return NULL;
+}
+
+
+// used by high-level wrapper.
+int OTWallet::GetNymCount()
+{
+	return m_mapNyms.size();
+}
+
+int OTWallet::GetServerCount()
+{
+	return m_mapServers.size();
+}
+
+int OTWallet::GetAssetTypeCount()
+{
+	return m_mapContracts.size();
+}
+
+int OTWallet::GetAccountCount()
+{
+	return m_mapAccounts.size();
+}
+
+
+// used by high-level wrapper.
+bool OTWallet::GetNym(const int iIndex, OTIdentifier & NYM_ID, OTString & NYM_NAME)
+{
+	// if iIndex is within proper bounds (0 through count minus 1)
+	if (iIndex < GetNymCount() && iIndex >= 0)
+	{
+		OTPseudonym * pNym	= NULL;
+		int iCurrentIndex	= (-1);
+		
+		for (mapOfNyms::iterator ii = m_mapNyms.begin(); ii != m_mapNyms.end(); ++ii)
+		{	
+			iCurrentIndex++; // On first iteration, this becomes 0 here. (For 0 index.) Increments thereafter.
+			
+			if ((iIndex == iCurrentIndex) && (pNym = (*ii).second)) // if not null
+			{
+				pNym->GetIdentifier(NYM_ID);
+				NYM_NAME.Set(pNym->GetNymName());
+				return true;
+			}
+		}	
+	}
+	
+	return false;
+}
+
+
+// used by high-level wrapper.
+bool OTWallet::GetServer(const int iIndex, OTIdentifier & THE_ID, OTString & THE_NAME)
+{
+	// if iIndex is within proper bounds (0 through count minus 1)
+	if (iIndex < GetServerCount() && iIndex >= 0)
+	{
+		OTServerContract * pServer	= NULL;
+		int iCurrentIndex	= (-1);
+		
+		for (mapOfServers::iterator ii = m_mapServers.begin(); ii != m_mapServers.end(); ++ii)
+		{	
+			iCurrentIndex++; // On first iteration, this becomes 0 here. (For 0 index.) Increments thereafter.
+			
+			if ((iIndex == iCurrentIndex) && (pServer = (*ii).second)) // if not null
+			{
+				pServer->GetIdentifier(THE_ID);
+				pServer->GetName(THE_NAME);
+				return true;
+			}
+		}	
+	}
+	
+	return false;
+}
+
+// used by high-level wrapper.
+bool OTWallet::GetAssetType(const int iIndex, OTIdentifier & THE_ID, OTString & THE_NAME)
+{
+	// if iIndex is within proper bounds (0 through count minus 1)
+	if (iIndex < GetAssetTypeCount() && iIndex >= 0)
+	{
+		OTAssetContract	* pAssetType = NULL;
+		int iCurrentIndex	= (-1);
+		
+		for (mapOfContracts::iterator ii = m_mapContracts.begin(); ii != m_mapContracts.end(); ++ii)
+		{	
+			iCurrentIndex++; // On first iteration, this becomes 0 here. (For 0 index.) Increments thereafter.
+			
+			if ((iIndex == iCurrentIndex) && (pAssetType = (*ii).second)) // if not null
+			{
+				pAssetType->GetIdentifier(THE_ID);
+				pAssetType->GetName(THE_NAME);
+				return true;
+			}
+		}	
+	}
+	
+	return false;
+}
+
+// used by high-level wrapper.
+bool OTWallet::GetAccount(const int iIndex, OTIdentifier & THE_ID, OTString & THE_NAME)
+{
+	// if iIndex is within proper bounds (0 through count minus 1)
+	if (iIndex < GetAccountCount() && iIndex >= 0)
+	{
+		OTAccount * pAccount	= NULL;
+		int iCurrentIndex	= (-1);
+		
+		for (mapOfAccounts::iterator ii = m_mapAccounts.begin(); ii != m_mapAccounts.end(); ++ii)
+		{	
+			iCurrentIndex++; // On first iteration, this becomes 0 here. (For 0 index.) Increments thereafter.
+			
+			if ((iIndex == iCurrentIndex) && (pAccount = (*ii).second)) // if not null
+			{
+				pAccount->GetIdentifier(THE_ID);
+				pAccount->GetName(THE_NAME);
+				return true;
+			}
+		}	
+	}
+	
+	return false;
 }
 
 
@@ -591,10 +692,14 @@ OTAssetContract * OTWallet::GetAssetContract(const OTIdentifier & theContractID)
 bool OTWallet::LoadWallet(const char * szFilename)
 {
 	if (NULL == szFilename)
+	{
+		fprintf(stderr, "NULL filename in OTWallet::LoadWallet.\n");
 		return false;
-		
+	}	
+	
 	// Save this for later...
 	m_strFilename.Format("%s%s%s", OTPseudonym::OTPath.Get(), OTPseudonym::OTPathSeparator.Get(), szFilename); // _WIN32
+	fprintf(stderr, "NULL filename in OTWallet::LoadWallet.\n");
 
 	IrrXMLReader* xml = createIrrXMLReader(m_strFilename.Get()); // _WIN32
 		
@@ -690,7 +795,6 @@ bool OTWallet::LoadWallet(const char * szFilename)
 								fprintf(stderr, "** Asset Contract Verified **\n-----------------------------------------------------------------------------\n\n");
 								
 								m_mapContracts[AssetID.Get()] = pContract;
-								g_pTemporaryContract = pContract; // TODO remove this temporary line used for testing only
 							}
 							else
 							{
@@ -724,7 +828,6 @@ bool OTWallet::LoadWallet(const char * szFilename)
 							// Moved them temporarily so I could regenerate some newly-signed contracts
 							// for testing only.
 							m_mapServers[ServerID.Get()] = pContract;
-							g_pServerContract = pContract; // TODO remove this temporary line used for testing only
 
 							if (pContract->VerifyContract())
 							{

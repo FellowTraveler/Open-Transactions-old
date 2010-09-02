@@ -136,6 +136,7 @@ class OTPseudonym;
 class OTAccount;
 class OTWallet;
 class OTString;
+class OTClient;
 
 class OTServerConnection 
 {
@@ -150,10 +151,11 @@ class OTServerConnection
 	OTPseudonym			*	m_pNym;
 	OTServerContract	*	m_pServerContract;
 	OTWallet			*	m_pWallet;
+	OTClient			*	m_pClient;
 	
 public:
-	OTServerConnection(OTWallet & theWallet);
-	OTServerConnection(OTWallet & theWallet, SFSocket * pSock);
+	OTServerConnection(OTWallet & theWallet, OTClient & theClient);
+	OTServerConnection(OTWallet & theWallet, OTClient & theClient, SFSocket * pSock);
 	~OTServerConnection();
 	
 	bool GetServerID(OTIdentifier & theID);

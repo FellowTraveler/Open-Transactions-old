@@ -85,12 +85,12 @@
 #ifndef __OTWALLET_H__
 #define __OTWALLET_H__
 
+#include <map>
 
 #include "OTPseudonym.h"
 #include "OTContract.h"
 #include "OTAssetContract.h"
 #include "OTServerContract.h"
-#include "OTServerConnection.h"
 #include "OTAccount.h"
 
 
@@ -115,30 +115,25 @@ private:
 	OTPurse	*	m_pWithdrawalPurse; // While waiting on server response to withdrawal, store private coin data here for unblinding
 public:
 	OTString m_strFilename;
-
-	// Right now this wallet just supports a SINGLE server connection.
-	// Eventually it will be a whole list of server connections.
-	// For now one is good enough for testing.
-	// All commands for the server will be sent here.
-	//
-	// Here was the problem, you see: You can't attach the connection to the Nym,
-	// because the same Nym might have connections to different servers. And you can't
-	// attach it to the server contract, because the user might access that server
-	// through multiple nym accounts on the same server.
-	// So I decided the wallet should manage the connections, and when new connections
-	// are made, the serverconnection object will be given a pointer at that time to
-	// the server and nym for that connection.  That way the two are always available
-	// for processing the commands.
-	
-	OTServerConnection m_Connection;
-	
-	// Eventually, the wallet will have a LIST of these server connections,
-	// and any use of the connection will first require to look up the right one
-	// on that list, based on ID. This will return a pointer, and then you do the
-	// same call you normally did from there.
 	
 	OTWallet();
 	~OTWallet();
+	
+	//------------------------------------------------------------
+
+	// Used by high-level wrapper.
+	
+	int GetNymCount(); 
+	int GetServerCount();
+	int GetAssetTypeCount(); 
+	int GetAccountCount(); 
+
+	bool GetNym			(const int iIndex, OTIdentifier & NYM_ID, OTString & NYM_NAME);
+	bool GetServer		(const int iIndex, OTIdentifier & THE_ID, OTString & THE_NAME);
+	bool GetAssetType	(const int iIndex, OTIdentifier & THE_ID, OTString & THE_NAME);
+	bool GetAccount		(const int iIndex, OTIdentifier & THE_ID, OTString & THE_NAME);
+	
+	//------------------------------------------------------------
 	
 	void DisplayStatistics(OTString & strOutput);
 	
@@ -162,8 +157,6 @@ public:
 	
 	bool LoadWallet(const char * szFilename);
 	int SaveWallet(const char * szFilename);
-	
-	bool ConnectToTheFirstServerOnList(OTString & strCA_FILE, OTString & strKEY_FILE, OTString & strKEY_PASSWORD);
 	
 	bool SignContractWithFirstNymOnList(OTContract & theContract);
 };

@@ -10,11 +10,390 @@
 // I want people to be able to have a high-level C++ interface as well.
 // So I coded the high-level interface in C++, and then I call it 1-for-1
 // in Java. That way, the high-level interface is available in both languages.
-//
-// TODO: the Java class should be a singleton, since it uses a class-wide
-// g_OpenTransactions.  (Not really an issue since I don't see anyone using this
-// interface two different times in the same application.)
-OpenTransactions g_OpenTransactions;
+
+
+
+
+/*
+ * Method:    InitOTAPI
+ * Class:     OpenTransactionsJNI
+ * Signature: (Ljava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_OpenTransactionsJNI_InitOTAPI
+(JNIEnv * env, jclass, jstring jstrClientDirectory)
+{
+	// THE "WORKING DIRECTORY" WHERE ALL THE FILES CAN BE FOUND
+	const char * pBuf = env->GetStringUTFChars(jstrClientDirectory, 0);
+	OTString strDirectory(pBuf);		// <==== strDirectory is an OTString	
+	env->ReleaseStringUTFChars(jstrClientDirectory, pBuf);
+	
+	OT_API_Init(strDirectory);
+}
+
+
+
+
+/*
+ * Method:    getAccount
+ * Class:     OpenTransactionsJNI
+ * Signature: (ILjava/lang/StringBuffer;Ljava/lang/StringBuffer;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_OpenTransactionsJNI_getAccount__ILjava_lang_StringBuffer_2Ljava_lang_StringBuffer_2
+(JNIEnv *env, jobject, jint jintIndex, jobject jstrbufID, jobject jstrbufName)
+{
+	jboolean retVal= JNI_FALSE;
+	
+	OTIdentifier	THE_ID;
+	OTString		THE_NAME;
+	
+	bool bSuccess = OT_API_getAccount((int)jintIndex, THE_ID, THE_NAME);
+	
+	if (bSuccess)
+	{
+		OTString THE_ID_STR(THE_ID);
+		
+		// We now have the ID and name, in OT form. Let's convert them to Java...
+		
+		// Grab the ID and Name into jstring format.
+		jstring jstrID		= (jstring)env->NewStringUTF((const char *)THE_ID_STR.Get());
+		jstring jstrName	= (jstring)env->NewStringUTF((const char *)THE_NAME.Get());
+		
+		// Grab the class for each stringbuffer.
+		jclass jbufIDclass		= env->GetObjectClass(jstrbufID);
+		jclass jbufNameclass	= env->GetObjectClass(jstrbufName);
+		
+		// Zero the original StringBuffers, so we can replace them with the result
+		jmethodID setLengthID_ID, setLengthID_NAME;
+		setLengthID_ID		= env->GetMethodID(jbufIDclass, "setLength", "(I)V");
+		setLengthID_NAME	= env->GetMethodID(jbufNameclass, "setLength", "(I)V");
+		
+		// Actually zero them out here...
+		env->CallVoidMethod(jstrbufID, setLengthID_ID, (jint) 0);
+		env->CallVoidMethod(jstrbufName, setLengthID_NAME, (jint) 0);
+		
+		// ------------------------------------------------------------
+		
+		jmethodID mid;   
+		
+		// Lookup the append method on the StringBuffer output object, so we can call it.
+		mid = env->GetMethodID(jbufIDclass, "append","(Ljava/lang/String;)Ljava/lang/StringBuffer;");
+		if (0 == mid)
+		{
+			fprintf(stderr, "Java_OpenTransactionsJNI_getAccount: GetMethodID for jstrbufID returned 0\n");
+			return JNI_FALSE;
+		}
+		
+		// Actually call the object's method
+		env->CallObjectMethod(jstrbufID, mid, jstrID);
+		
+		
+		// ------------------------------------------------------------
+		
+		// Lookup the append method on the StringBuffer output object, so we can call it.
+		mid = env->GetMethodID(jbufNameclass, "append","(Ljava/lang/String;)Ljava/lang/StringBuffer;");
+		if (0 == mid)
+		{
+			fprintf(stderr, "Java_OpenTransactionsJNI_getAccount: GetMethodID for jstrbufName returned 0\n");
+			return JNI_FALSE;
+		}
+		
+		// Actually call the object's method
+		env->CallObjectMethod(jstrbufName, mid, jstrName);
+		
+		// ------------------------------------------------------------
+		
+		retVal = JNI_TRUE;
+	}
+	
+	return retVal;
+}
+
+
+
+/*
+ * Method:    getAccountCount
+ * Class:     OpenTransactionsJNI
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_OpenTransactionsJNI_getAccountCount
+(JNIEnv *, jobject)
+{
+	int nCount = OT_API_getAccountCount();
+	
+	return (jint)nCount;	
+}
+
+
+
+/*
+ * Method:    getServer
+ * Class:     OpenTransactionsJNI
+ * Signature: (ILjava/lang/StringBuffer;Ljava/lang/StringBuffer;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_OpenTransactionsJNI_getServer
+(JNIEnv *env, jobject, jint jintIndex, jobject jstrbufID, jobject jstrbufName)
+{
+	jboolean retVal= JNI_FALSE;
+	
+	OTIdentifier	THE_ID;
+	OTString		THE_NAME;
+	
+	bool bSuccess = OT_API_getServer((int)jintIndex, THE_ID, THE_NAME);
+	
+	if (bSuccess)
+	{
+		OTString THE_ID_STR(THE_ID);
+		
+		// We now have the ID and name, in OT form. Let's convert them to Java...
+		
+		// Grab the ID and Name into jstring format.
+		jstring jstrID		= (jstring)env->NewStringUTF((const char *)THE_ID_STR.Get());
+		jstring jstrName	= (jstring)env->NewStringUTF((const char *)THE_NAME.Get());
+		
+		// Grab the class for each stringbuffer.
+		jclass jbufIDclass		= env->GetObjectClass(jstrbufID);
+		jclass jbufNameclass	= env->GetObjectClass(jstrbufName);
+		
+		// Zero the original StringBuffers, so we can replace them with the result
+		jmethodID setLengthID_ID, setLengthID_NAME;
+		setLengthID_ID		= env->GetMethodID(jbufIDclass, "setLength", "(I)V");
+		setLengthID_NAME	= env->GetMethodID(jbufNameclass, "setLength", "(I)V");
+		
+		// Actually zero them out here...
+		env->CallVoidMethod(jstrbufID, setLengthID_ID, (jint) 0);
+		env->CallVoidMethod(jstrbufName, setLengthID_NAME, (jint) 0);
+		
+		// ------------------------------------------------------------
+		
+		jmethodID mid;   
+		
+		// Lookup the append method on the StringBuffer output object, so we can call it.
+		mid = env->GetMethodID(jbufIDclass, "append","(Ljava/lang/String;)Ljava/lang/StringBuffer;");
+		if (0 == mid)
+		{
+			fprintf(stderr, "Java_OpenTransactionsJNI_getServer: GetMethodID for jstrbufID returned 0\n");
+			return JNI_FALSE;
+		}
+		
+		// Actually call the object's method
+		env->CallObjectMethod(jstrbufID, mid, jstrID);
+		
+		
+		// ------------------------------------------------------------
+		
+		// Lookup the append method on the StringBuffer output object, so we can call it.
+		mid = env->GetMethodID(jbufNameclass, "append","(Ljava/lang/String;)Ljava/lang/StringBuffer;");
+		if (0 == mid)
+		{
+			fprintf(stderr, "Java_OpenTransactionsJNI_getServer: GetMethodID for jstrbufName returned 0\n");
+			return JNI_FALSE;
+		}
+		
+		// Actually call the object's method
+		env->CallObjectMethod(jstrbufName, mid, jstrName);
+		
+		// ------------------------------------------------------------
+		
+		retVal = JNI_TRUE;
+	}
+	
+	return retVal;
+}
+
+/*
+ * Method:    getServerCount
+ * Class:     OpenTransactionsJNI
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_OpenTransactionsJNI_getServerCount
+(JNIEnv *, jobject)
+{
+	int nCount = OT_API_getServerCount();
+	
+	return (jint)nCount;	
+}
+
+/*
+ * Method:    getAssetType
+ * Class:     OpenTransactionsJNI
+ * Signature: (ILjava/lang/StringBuffer;Ljava/lang/StringBuffer;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_OpenTransactionsJNI_getAssetType
+(JNIEnv *env, jobject, jint jintIndex, jobject jstrbufID, jobject jstrbufName)
+{
+	jboolean retVal= JNI_FALSE;
+	
+	OTIdentifier	THE_ID;
+	OTString		THE_NAME;
+	
+	bool bSuccess = OT_API_getAssetType((int)jintIndex, THE_ID, THE_NAME);
+	
+	if (bSuccess)
+	{
+		OTString THE_ID_STR(THE_ID);
+		
+		// We now have the ID and name, in OT form. Let's convert them to Java...
+		
+		// Grab the ID and Name into jstring format.
+		jstring jstrID		= (jstring)env->NewStringUTF((const char *)THE_ID_STR.Get());
+		jstring jstrName	= (jstring)env->NewStringUTF((const char *)THE_NAME.Get());
+		
+		// Grab the class for each stringbuffer.
+		jclass jbufIDclass		= env->GetObjectClass(jstrbufID);
+		jclass jbufNameclass	= env->GetObjectClass(jstrbufName);
+		
+		// Zero the original StringBuffers, so we can replace them with the result
+		jmethodID setLengthID_ID, setLengthID_NAME;
+		setLengthID_ID		= env->GetMethodID(jbufIDclass, "setLength", "(I)V");
+		setLengthID_NAME	= env->GetMethodID(jbufNameclass, "setLength", "(I)V");
+		
+		// Actually zero them out here...
+		env->CallVoidMethod(jstrbufID, setLengthID_ID, (jint) 0);
+		env->CallVoidMethod(jstrbufName, setLengthID_NAME, (jint) 0);
+		
+		// ------------------------------------------------------------
+		
+		jmethodID mid;   
+		
+		// Lookup the append method on the StringBuffer output object, so we can call it.
+		mid = env->GetMethodID(jbufIDclass, "append","(Ljava/lang/String;)Ljava/lang/StringBuffer;");
+		if (0 == mid)
+		{
+			fprintf(stderr, "Java_OpenTransactionsJNI_getAssetType: GetMethodID for jstrbufID returned 0\n");
+			return JNI_FALSE;
+		}
+		
+		// Actually call the object's method
+		env->CallObjectMethod(jstrbufID, mid, jstrID);
+		
+		
+		// ------------------------------------------------------------
+		
+		// Lookup the append method on the StringBuffer output object, so we can call it.
+		mid = env->GetMethodID(jbufNameclass, "append","(Ljava/lang/String;)Ljava/lang/StringBuffer;");
+		if (0 == mid)
+		{
+			fprintf(stderr, "Java_OpenTransactionsJNI_getAssetType: GetMethodID for jstrbufName returned 0\n");
+			return JNI_FALSE;
+		}
+		
+		// Actually call the object's method
+		env->CallObjectMethod(jstrbufName, mid, jstrName);
+		
+		// ------------------------------------------------------------
+		
+		retVal = JNI_TRUE;
+	}
+	
+	return retVal;
+}
+
+/*
+ * Method:    getAssetTypeCount
+ * Class:     OpenTransactionsJNI
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_OpenTransactionsJNI_getAssetTypeCount
+(JNIEnv *, jobject)
+{
+	int nCount = OT_API_getAssetTypeCount();
+	
+	return (jint)nCount;	
+}
+
+
+
+
+
+
+/*
+ * Method:    getNym
+ * Class:     OpenTransactionsJNI
+ * Signature: (ILjava/lang/StringBuffer;Ljava/lang/StringBuffer;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_OpenTransactionsJNI_getNym
+(JNIEnv *env, jobject, jint jintIndex, jobject jstrbufID, jobject jstrbufName)
+{
+	jboolean retVal= JNI_FALSE;
+	
+	OTIdentifier	THE_ID;
+	OTString		THE_NAME;
+	
+	bool bSuccess = OT_API_getNym((int)jintIndex, THE_ID, THE_NAME);
+	
+	if (bSuccess)
+	{
+		OTString THE_ID_STR(THE_ID);
+		
+		// We now have the ID and name, in OT form. Let's convert them to Java...
+
+		// Grab the ID and Name into jstring format.
+		jstring jstrID		= (jstring)env->NewStringUTF((const char *)THE_ID_STR.Get());
+		jstring jstrName	= (jstring)env->NewStringUTF((const char *)THE_NAME.Get());
+
+		// Grab the class for each stringbuffer.
+		jclass jbufIDclass		= env->GetObjectClass(jstrbufID);
+		jclass jbufNameclass	= env->GetObjectClass(jstrbufName);
+
+		// Zero the original StringBuffers, so we can replace them with the result
+		jmethodID setLengthID_ID, setLengthID_NAME;
+		setLengthID_ID		= env->GetMethodID(jbufIDclass, "setLength", "(I)V");
+		setLengthID_NAME	= env->GetMethodID(jbufNameclass, "setLength", "(I)V");
+		
+		// Actually zero them out here...
+		env->CallVoidMethod(jstrbufID, setLengthID_ID, (jint) 0);
+		env->CallVoidMethod(jstrbufName, setLengthID_NAME, (jint) 0);
+		
+		// ------------------------------------------------------------
+	
+		jmethodID mid;   
+
+		// Lookup the append method on the StringBuffer output object, so we can call it.
+		mid = env->GetMethodID(jbufIDclass, "append","(Ljava/lang/String;)Ljava/lang/StringBuffer;");
+		if (0 == mid)
+		{
+			fprintf(stderr, "Java_OpenTransactionsJNI_getNym: GetMethodID for jstrbufID returned 0\n");
+			return JNI_FALSE;
+		}
+		
+		// Actually call the object's method
+		env->CallObjectMethod(jstrbufID, mid, jstrID);
+		
+		
+		// ------------------------------------------------------------
+		
+		// Lookup the append method on the StringBuffer output object, so we can call it.
+		mid = env->GetMethodID(jbufNameclass, "append","(Ljava/lang/String;)Ljava/lang/StringBuffer;");
+		if (0 == mid)
+		{
+			fprintf(stderr, "Java_OpenTransactionsJNI_getNym: GetMethodID for jstrbufName returned 0\n");
+			return JNI_FALSE;
+		}
+		
+		// Actually call the object's method
+		env->CallObjectMethod(jstrbufName, mid, jstrName);
+		
+		// ------------------------------------------------------------
+		
+		retVal = JNI_TRUE;
+	}
+	
+	return retVal;
+}
+
+/*
+ * Method:    getNymCount
+ * Class:     OpenTransactionsJNI
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_OpenTransactionsJNI_getNymCount
+(JNIEnv *, jobject)
+{
+	int nCount = OT_API_getNymCount();
+
+	return (jint)nCount;
+}
+
 
 
 
@@ -29,7 +408,7 @@ OpenTransactions g_OpenTransactions;
  jstring s = (jstring)env->CallObjectMethod(obj, mid);
  
  // Get C-style NULL-terminated string
- const char *buf = env->GetStringUTFChars(WALLET_PATH, 0); 
+ const char *buf = (char *)env->GetStringUTFChars(WALLET_PATH, 0); 
  */
 
 // ---------------------------------------------------------
@@ -44,7 +423,7 @@ JNIEXPORT void JNICALL Java_OpenTransactionsJNI_loadWallet
 (JNIEnv * env, jobject, jstring WALLET_PATH)
 {
     // Get C-style NULL-terminated string
-	const char *buf = env->GetStringUTFChars(WALLET_PATH, 0);
+	const char *buf = (char *)env->GetStringUTFChars(WALLET_PATH, 0);
 	
     // Copy the C-string here to an OTString...
 	OTString strPath(buf);
@@ -54,7 +433,7 @@ JNIEXPORT void JNICALL Java_OpenTransactionsJNI_loadWallet
 	env->ReleaseStringUTFChars(WALLET_PATH, buf);
 
 	// Load the wallet...
-	bool bLoaded = g_OpenTransactions.loadWallet(strPath);
+	bool bLoaded = OT_API_loadWallet(strPath);
 	
 	// TODO possibly return the bool here.
 }
@@ -98,27 +477,52 @@ JNIEXPORT void JNICALL Java_OpenTransactionsJNI_addServerContract
 /*
  * Method:    connectServer
  * Class:     OpenTransactionsJNI
- * Signature: (Ljava/lang/String;)V
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z
  */
-JNIEXPORT void JNICALL Java_OpenTransactionsJNI_connectServer
-  (JNIEnv *env, jobject, jstring jstrServerID)
-
+JNIEXPORT jboolean JNICALL Java_OpenTransactionsJNI_connectServer
+(JNIEnv *env, jobject, jstring jstrServerID, jstring jstrUserID, 
+ jstring jstrCAFile, jstring jstrKeyFile, jstring jstrKeyPassword)
 {
-    // Get C-style NULL-terminated string
-	const char *buf = env->GetStringUTFChars(jstrServerID, 0);
+	jboolean retVal= JNI_FALSE;
+
+	char *pBuf = NULL;
 	
-    // Copy the C-string here to an OTString...
-	OTString strServerID(buf);
-	//	printf("%s\n", buf);
+	// SERVER ID
+	pBuf = (char *)env->GetStringUTFChars(jstrServerID, 0);
+	OTString strServerID(pBuf);
+	env->ReleaseStringUTFChars(jstrServerID, pBuf);
+	OTIdentifier SERVER_ID(strServerID);	// <==== SERVER_ID is an OTIdentifier
 	
-	// Release the buffer, don't need it anymore...
-	env->ReleaseStringUTFChars(jstrServerID, buf);
+	// USER ID
+	pBuf = (char *)env->GetStringUTFChars(jstrUserID, 0);
+	OTString strUserID(pBuf);
+	env->ReleaseStringUTFChars(jstrUserID, pBuf);
+	OTIdentifier USER_ID(strUserID);		// <==== USER_ID is an OTIdentifier	
 	
-	// Load the wallet...
-	OTIdentifier SERVER_ID(strServerID);
-	bool bConnected = g_OpenTransactions.connectServer(SERVER_ID);
 	
-	// todo:  return the bool here.
+	// THE CA FILE
+	pBuf = (char *)env->GetStringUTFChars(jstrCAFile, 0);
+	OTString strCA_FILE(pBuf);		// <==== strCA_FILE is an OTString	
+	env->ReleaseStringUTFChars(jstrCAFile, pBuf);
+	
+	// THE KEY FILE
+	pBuf = (char *)env->GetStringUTFChars(jstrKeyFile, 0);
+	OTString strKEY_FILE(pBuf);		// <==== strKEY_FILE is an OTString	
+	env->ReleaseStringUTFChars(jstrKeyFile, pBuf);
+	
+	// THE KEY PASSWORD
+	pBuf = (char *)env->GetStringUTFChars(jstrKeyPassword, 0);
+	OTString strKEY_PASSWORD(pBuf);		// <==== strKEY_PASSWORD is an OTString	
+	env->ReleaseStringUTFChars(jstrKeyPassword, pBuf);
+	
+	
+	bool bConnected = OT_API_connectServer(SERVER_ID, USER_ID,
+							  strCA_FILE, strKEY_FILE, strKEY_PASSWORD);
+
+	if (bConnected)
+		retVal = JNI_TRUE;
+	
+	return retVal;
 }
 
 
@@ -131,7 +535,7 @@ JNIEXPORT void JNICALL Java_OpenTransactionsJNI_connectServer
 JNIEXPORT void JNICALL Java_OpenTransactionsJNI_processSockets
 (JNIEnv *, jobject)
 {
-	g_OpenTransactions.processSockets();
+	OT_API_processSockets();
 }
 
 
@@ -149,19 +553,19 @@ JNIEXPORT void JNICALL Java_OpenTransactionsJNI_checkServerID
 	char *pBuf = NULL;
 	
 	// SERVER ID
-	pBuf = env->GetStringUTFChars(jstrServerID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrServerID, 0);
 	OTString strServerID(pBuf);
 	env->ReleaseStringUTFChars(jstrServerID, pBuf);
 	OTIdentifier SERVER_ID(strServerID);	// <==== SERVER_ID is an OTIdentifier
 	
 	// USER ID
-	pBuf = env->GetStringUTFChars(jstrUserID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrUserID, 0);
 	OTString strUserID(pBuf);
 	env->ReleaseStringUTFChars(jstrUserID, pBuf);
 	OTIdentifier USER_ID(strUserID);		// <==== USER_ID is an OTIdentifier	
 	
 	// Finally we make the call to the C++ high-level interface...
-	g_OpenTransactions.checkServerID(SERVER_ID, USER_ID);
+	OT_API_checkServerID(SERVER_ID, USER_ID);
 }
 
 
@@ -176,19 +580,19 @@ JNIEXPORT void JNICALL Java_OpenTransactionsJNI_createUserAccount
 	char *pBuf = NULL;
 	
 	// SERVER ID
-	pBuf = env->GetStringUTFChars(jstrServerID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrServerID, 0);
 	OTString strServerID(pBuf);
 	env->ReleaseStringUTFChars(jstrServerID, pBuf);
 	OTIdentifier SERVER_ID(strServerID);	// <==== SERVER_ID is an OTIdentifier
 	
 	// USER ID
-	pBuf = env->GetStringUTFChars(jstrUserID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrUserID, 0);
 	OTString strUserID(pBuf);
 	env->ReleaseStringUTFChars(jstrUserID, pBuf);
 	OTIdentifier USER_ID(strUserID);		// <==== USER_ID is an OTIdentifier	
 	
 	// Finally we make the call to the C++ high-level interface...
-	g_OpenTransactions.createUserAccount(SERVER_ID, USER_ID);	
+	OT_API_createUserAccount(SERVER_ID, USER_ID);	
 }
 
 /*
@@ -202,25 +606,25 @@ JNIEXPORT void JNICALL Java_OpenTransactionsJNI_checkUser
 	char *pBuf = NULL;
 	
 	// SERVER ID
-	pBuf = env->GetStringUTFChars(jstrServerID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrServerID, 0);
 	OTString strServerID(pBuf);
 	env->ReleaseStringUTFChars(jstrServerID, pBuf);
 	OTIdentifier SERVER_ID(strServerID);	// <==== SERVER_ID is an OTIdentifier
 	
 	// USER ID
-	pBuf = env->GetStringUTFChars(jstrUserID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrUserID, 0);
 	OTString strUserID(pBuf);
 	env->ReleaseStringUTFChars(jstrUserID, pBuf);
 	OTIdentifier USER_ID(strUserID);		// <==== USER_ID is an OTIdentifier	
 	
 	// USER ID CHECK
-	pBuf = env->GetStringUTFChars(jstrUserID2, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrUserID2, 0);
 	OTString strUserID2(pBuf);
 	env->ReleaseStringUTFChars(jstrUserID2, pBuf);
 	OTIdentifier USER_ID_CHECK(strUserID2);		// <==== USER_ID_CHECK is an OTIdentifier	
 	
 	// Finally we make the call to the C++ high-level interface...
-	g_OpenTransactions.checkUser(SERVER_ID, USER_ID, USER_ID_CHECK);	
+	OT_API_checkUser(SERVER_ID, USER_ID, USER_ID_CHECK);	
 }
 
 
@@ -235,19 +639,19 @@ JNIEXPORT void JNICALL Java_OpenTransactionsJNI_getRequest
 	char *pBuf = NULL;
 	
 	// SERVER ID
-	pBuf = env->GetStringUTFChars(jstrServerID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrServerID, 0);
 	OTString strServerID(pBuf);
 	env->ReleaseStringUTFChars(jstrServerID, pBuf);
 	OTIdentifier SERVER_ID(strServerID);	// <==== SERVER_ID is an OTIdentifier
 	
 	// USER ID
-	pBuf = env->GetStringUTFChars(jstrUserID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrUserID, 0);
 	OTString strUserID(pBuf);
 	env->ReleaseStringUTFChars(jstrUserID, pBuf);
 	OTIdentifier USER_ID(strUserID);		// <==== USER_ID is an OTIdentifier	
 	
 	// Finally we make the call to the C++ high-level interface...
-	g_OpenTransactions.getRequest(SERVER_ID, USER_ID);		
+	OT_API_getRequest(SERVER_ID, USER_ID);		
 }
 
 
@@ -262,24 +666,24 @@ JNIEXPORT void JNICALL Java_OpenTransactionsJNI_issueAssetType
 	char *pBuf = NULL;
 	
 	// SERVER ID
-	pBuf = env->GetStringUTFChars(jstrServerID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrServerID, 0);
 	OTString strServerID(pBuf);
 	env->ReleaseStringUTFChars(jstrServerID, pBuf);
 	OTIdentifier SERVER_ID(strServerID);	// <==== SERVER_ID is an OTIdentifier
 	
 	// USER ID
-	pBuf = env->GetStringUTFChars(jstrUserID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrUserID, 0);
 	OTString strUserID(pBuf);
 	env->ReleaseStringUTFChars(jstrUserID, pBuf);
 	OTIdentifier USER_ID(strUserID);		// <==== USER_ID is an OTIdentifier	
 	
 	// THE CONTRACT
-	pBuf = env->GetStringUTFChars(jstrTheContract, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrTheContract, 0);
 	OTString strTheContract(pBuf);		// <==== strTheContract is an OTString	
 	env->ReleaseStringUTFChars(jstrTheContract, pBuf);
 	
 	// Finally we make the call to the C++ high-level interface...
-	g_OpenTransactions.issueAssetType(SERVER_ID, USER_ID, strTheContract);		
+	OT_API_issueAssetType(SERVER_ID, USER_ID, strTheContract);		
 }
 
 
@@ -294,25 +698,25 @@ JNIEXPORT void JNICALL Java_OpenTransactionsJNI_getContract
 	char *pBuf = NULL;
 	
 	// SERVER ID
-	pBuf = env->GetStringUTFChars(jstrServerID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrServerID, 0);
 	OTString strServerID(pBuf);
 	env->ReleaseStringUTFChars(jstrServerID, pBuf);
 	OTIdentifier SERVER_ID(strServerID);	// <==== SERVER_ID is an OTIdentifier
 	
 	// USER ID
-	pBuf = env->GetStringUTFChars(jstrUserID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrUserID, 0);
 	OTString strUserID(pBuf);
 	env->ReleaseStringUTFChars(jstrUserID, pBuf);
 	OTIdentifier USER_ID(strUserID);		// <==== USER_ID is an OTIdentifier	
 	
 	// ASSET ID
-	pBuf = env->GetStringUTFChars(jstrAssetID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrAssetID, 0);
 	OTString strAssetID(pBuf);
 	env->ReleaseStringUTFChars(jstrAssetID, pBuf);
 	OTIdentifier ASSET_ID(strAssetID);		// <==== ASSET_ID is an OTIdentifier	
 	
 	// Finally we make the call to the C++ high-level interface...
-	g_OpenTransactions.getContract(SERVER_ID, USER_ID, ASSET_ID);		
+	OT_API_getContract(SERVER_ID, USER_ID, ASSET_ID);		
 }
 
 
@@ -327,25 +731,25 @@ JNIEXPORT void JNICALL Java_OpenTransactionsJNI_getMint
 	char *pBuf = NULL;
 	
 	// SERVER ID
-	pBuf = env->GetStringUTFChars(jstrServerID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrServerID, 0);
 	OTString strServerID(pBuf);
 	env->ReleaseStringUTFChars(jstrServerID, pBuf);
 	OTIdentifier SERVER_ID(strServerID);	// <==== SERVER_ID is an OTIdentifier
 	
 	// USER ID
-	pBuf = env->GetStringUTFChars(jstrUserID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrUserID, 0);
 	OTString strUserID(pBuf);
 	env->ReleaseStringUTFChars(jstrUserID, pBuf);
 	OTIdentifier USER_ID(strUserID);		// <==== USER_ID is an OTIdentifier	
 	
 	// ASSET ID
-	pBuf = env->GetStringUTFChars(jstrAssetID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrAssetID, 0);
 	OTString strAssetID(pBuf);
 	env->ReleaseStringUTFChars(jstrAssetID, pBuf);
 	OTIdentifier ASSET_ID(strAssetID);		// <==== ASSET_ID is an OTIdentifier	
 	
 	// Finally we make the call to the C++ high-level interface...
-	g_OpenTransactions.getMint(SERVER_ID, USER_ID, ASSET_ID);			
+	OT_API_getMint(SERVER_ID, USER_ID, ASSET_ID);			
 }
 
 
@@ -360,25 +764,25 @@ JNIEXPORT void JNICALL Java_OpenTransactionsJNI_createAssetAccount
 	char *pBuf = NULL;
 	
 	// SERVER ID
-	pBuf = env->GetStringUTFChars(jstrServerID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrServerID, 0);
 	OTString strServerID(pBuf);
 	env->ReleaseStringUTFChars(jstrServerID, pBuf);
 	OTIdentifier SERVER_ID(strServerID);	// <==== SERVER_ID is an OTIdentifier
 	
 	// USER ID
-	pBuf = env->GetStringUTFChars(jstrUserID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrUserID, 0);
 	OTString strUserID(pBuf);
 	env->ReleaseStringUTFChars(jstrUserID, pBuf);
 	OTIdentifier USER_ID(strUserID);		// <==== USER_ID is an OTIdentifier	
 	
 	// ASSET ID
-	pBuf = env->GetStringUTFChars(jstrAssetID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrAssetID, 0);
 	OTString strAssetID(pBuf);
 	env->ReleaseStringUTFChars(jstrAssetID, pBuf);
 	OTIdentifier ASSET_ID(strAssetID);		// <==== ASSET_ID is an OTIdentifier	
 	
 	// Finally we make the call to the C++ high-level interface...
-	g_OpenTransactions.createAssetAccount(SERVER_ID, USER_ID, ASSET_ID);			
+	OT_API_createAssetAccount(SERVER_ID, USER_ID, ASSET_ID);			
 }
 
 
@@ -393,25 +797,25 @@ JNIEXPORT void JNICALL Java_OpenTransactionsJNI_getAccount
 	char *pBuf = NULL;
 	
 	// SERVER ID
-	pBuf = env->GetStringUTFChars(jstrServerID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrServerID, 0);
 	OTString strServerID(pBuf);
 	env->ReleaseStringUTFChars(jstrServerID, pBuf);
 	OTIdentifier SERVER_ID(strServerID);	// <==== SERVER_ID is an OTIdentifier
 	
 	// USER ID
-	pBuf = env->GetStringUTFChars(jstrUserID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrUserID, 0);
 	OTString strUserID(pBuf);
 	env->ReleaseStringUTFChars(jstrUserID, pBuf);
 	OTIdentifier USER_ID(strUserID);		// <==== USER_ID is an OTIdentifier	
 	
 	// ACCOUNT ID
-	pBuf = env->GetStringUTFChars(jstrAcctID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrAcctID, 0);
 	OTString strAcctID(pBuf);
 	env->ReleaseStringUTFChars(jstrAcctID, pBuf);
 	OTIdentifier ACCT_ID(strAcctID);		// <==== ACCT_ID is an OTIdentifier	
 	
 	// Finally we make the call to the C++ high-level interface...
-	g_OpenTransactions.getAccount(SERVER_ID, USER_ID, ACCT_ID);				
+	OT_API_getAccount(SERVER_ID, USER_ID, ACCT_ID);				
 }
 
 
@@ -426,24 +830,24 @@ JNIEXPORT void JNICALL Java_OpenTransactionsJNI_issueBasket
 	char *pBuf = NULL;
 	
 	// SERVER ID
-	pBuf = env->GetStringUTFChars(jstrServerID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrServerID, 0);
 	OTString strServerID(pBuf);
 	env->ReleaseStringUTFChars(jstrServerID, pBuf);
 	OTIdentifier SERVER_ID(strServerID);	// <==== SERVER_ID is an OTIdentifier
 	
 	// USER ID
-	pBuf = env->GetStringUTFChars(jstrUserID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrUserID, 0);
 	OTString strUserID(pBuf);
 	env->ReleaseStringUTFChars(jstrUserID, pBuf);
 	OTIdentifier USER_ID(strUserID);		// <==== USER_ID is an OTIdentifier	
 	
 	// BASKET INFO
-	pBuf = env->GetStringUTFChars(jstrBasketInfo, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrBasketInfo, 0);
 	OTString strBasketInfo(pBuf);		// <==== strBasketInfo is an OTString
 	env->ReleaseStringUTFChars(jstrBasketInfo, pBuf);
 	
 	// Finally we make the call to the C++ high-level interface...
-	g_OpenTransactions.issueBasket(SERVER_ID, USER_ID, strBasketInfo);					
+	OT_API_issueBasket(SERVER_ID, USER_ID, strBasketInfo);					
 }
 
 
@@ -458,30 +862,30 @@ JNIEXPORT void JNICALL Java_OpenTransactionsJNI_exchangeBasket
 	char *pBuf = NULL;
 	
 	// SERVER ID
-	pBuf = env->GetStringUTFChars(jstrServerID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrServerID, 0);
 	OTString strServerID(pBuf);
 	env->ReleaseStringUTFChars(jstrServerID, pBuf);
 	OTIdentifier SERVER_ID(strServerID);	// <==== SERVER_ID is an OTIdentifier
 	
 	// USER ID
-	pBuf = env->GetStringUTFChars(jstrUserID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrUserID, 0);
 	OTString strUserID(pBuf);
 	env->ReleaseStringUTFChars(jstrUserID, pBuf);
 	OTIdentifier USER_ID(strUserID);		// <==== USER_ID is an OTIdentifier	
 	
 	// ASSET ID
-	pBuf = env->GetStringUTFChars(jstrAssetID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrAssetID, 0);
 	OTString strAssetID(pBuf);
 	env->ReleaseStringUTFChars(jstrAssetID, pBuf);
 	OTIdentifier ASSET_ID(strAssetID);		// <==== ASSET_ID is an OTIdentifier	
 	
 	// BASKET INFO
-	pBuf = env->GetStringUTFChars(jstrBasketInfo, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrBasketInfo, 0);
 	OTString strBasketInfo(pBuf);		// <==== strBasketInfo is an OTString
 	env->ReleaseStringUTFChars(jstrBasketInfo, pBuf);
 		
 	// Finally we make the call to the C++ high-level interface...
-	g_OpenTransactions.exchangeBasket(SERVER_ID, USER_ID, ASSET_ID, strBasketInfo);			
+	OT_API_exchangeBasket(SERVER_ID, USER_ID, ASSET_ID, strBasketInfo);			
 	
 }
 
@@ -497,19 +901,19 @@ JNIEXPORT void JNICALL Java_OpenTransactionsJNI_getTransactionNumber
 	char *pBuf = NULL;
 	
 	// SERVER ID
-	pBuf = env->GetStringUTFChars(jstrServerID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrServerID, 0);
 	OTString strServerID(pBuf);
 	env->ReleaseStringUTFChars(jstrServerID, pBuf);
 	OTIdentifier SERVER_ID(strServerID);	// <==== SERVER_ID is an OTIdentifier
 	
 	// USER ID
-	pBuf = env->GetStringUTFChars(jstrUserID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrUserID, 0);
 	OTString strUserID(pBuf);
 	env->ReleaseStringUTFChars(jstrUserID, pBuf);
 	OTIdentifier USER_ID(strUserID);		// <==== USER_ID is an OTIdentifier	
 	
 	// Finally we make the call to the C++ high-level interface...
-	g_OpenTransactions.getTransactionNumber(SERVER_ID, USER_ID);		
+	OT_API_getTransactionNumber(SERVER_ID, USER_ID);		
 }
 
 /*
@@ -523,30 +927,30 @@ JNIEXPORT void JNICALL Java_OpenTransactionsJNI_notarizeWithdrawal
 	char *pBuf = NULL;
 	
 	// SERVER ID
-	pBuf = env->GetStringUTFChars(jstrServerID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrServerID, 0);
 	OTString strServerID(pBuf);
 	env->ReleaseStringUTFChars(jstrServerID, pBuf);
 	OTIdentifier SERVER_ID(strServerID);	// <==== SERVER_ID is an OTIdentifier
 	
 	// USER ID
-	pBuf = env->GetStringUTFChars(jstrUserID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrUserID, 0);
 	OTString strUserID(pBuf);
 	env->ReleaseStringUTFChars(jstrUserID, pBuf);
 	OTIdentifier USER_ID(strUserID);		// <==== USER_ID is an OTIdentifier	
 	
 	// ACCOUNT ID
-	pBuf = env->GetStringUTFChars(jstrAcctID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrAcctID, 0);
 	OTString strAcctID(pBuf);
 	env->ReleaseStringUTFChars(jstrAcctID, pBuf);
 	OTIdentifier ACCT_ID(strAcctID);		// <==== ACCT_ID is an OTIdentifier	
 	
 	// AMOUNT
-	pBuf = env->GetStringUTFChars(jstrAmount, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrAmount, 0);
 	OTString strAmount(pBuf);				// <==== strAmount is an OTString	
 	env->ReleaseStringUTFChars(jstrAmount, pBuf);
 	
 	// Finally we make the call to the C++ high-level interface...
-	g_OpenTransactions.notarizeWithdrawal(SERVER_ID, USER_ID, ACCT_ID, strAmount);				
+	OT_API_notarizeWithdrawal(SERVER_ID, USER_ID, ACCT_ID, strAmount);				
 }
 
 
@@ -561,30 +965,30 @@ JNIEXPORT void JNICALL Java_OpenTransactionsJNI_notarizeDeposit
 	char *pBuf = NULL;
 	
 	// SERVER ID
-	pBuf = env->GetStringUTFChars(jstrServerID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrServerID, 0);
 	OTString strServerID(pBuf);
 	env->ReleaseStringUTFChars(jstrServerID, pBuf);
 	OTIdentifier SERVER_ID(strServerID);	// <==== SERVER_ID is an OTIdentifier
 	
 	// USER ID
-	pBuf = env->GetStringUTFChars(jstrUserID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrUserID, 0);
 	OTString strUserID(pBuf);
 	env->ReleaseStringUTFChars(jstrUserID, pBuf);
 	OTIdentifier USER_ID(strUserID);		// <==== USER_ID is an OTIdentifier	
 	
 	// ACCOUNT ID
-	pBuf = env->GetStringUTFChars(jstrAcctID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrAcctID, 0);
 	OTString strAcctID(pBuf);
 	env->ReleaseStringUTFChars(jstrAcctID, pBuf);
 	OTIdentifier ACCT_ID(strAcctID);		// <==== ACCT_ID is an OTIdentifier	
 	
 	// PURSE
-	pBuf = env->GetStringUTFChars(jstrPurse, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrPurse, 0);
 	OTString strPurse(pBuf);				// <==== strPurse is an OTString	
 	env->ReleaseStringUTFChars(jstrPurse, pBuf);
 	
 	// Finally we make the call to the C++ high-level interface...
-	g_OpenTransactions.notarizeDeposit(SERVER_ID, USER_ID, ACCT_ID, strPurse);				
+	OT_API_notarizeDeposit(SERVER_ID, USER_ID, ACCT_ID, strPurse);				
 }
 
 
@@ -601,43 +1005,41 @@ JNIEXPORT void JNICALL Java_OpenTransactionsJNI_notarizeTransfer
 	char *pBuf = NULL;
 	
 	// SERVER ID
-	pBuf = env->GetStringUTFChars(jstrServerID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrServerID, 0);
 	OTString strServerID(pBuf);
 	env->ReleaseStringUTFChars(jstrServerID, pBuf);
 	OTIdentifier SERVER_ID(strServerID);	// <==== SERVER_ID is an OTIdentifier
 	
 	// USER ID
-	pBuf = env->GetStringUTFChars(jstrUserID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrUserID, 0);
 	OTString strUserID(pBuf);
 	env->ReleaseStringUTFChars(jstrUserID, pBuf);
 	OTIdentifier USER_ID(strUserID);		// <==== USER_ID is an OTIdentifier	
 	
 	// ACCOUNT FROM ID
-	pBuf = env->GetStringUTFChars(jstrAcctFromID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrAcctFromID, 0);
 	OTString strAcctFromID(pBuf);
 	env->ReleaseStringUTFChars(jstrAcctFromID, pBuf);
 	OTIdentifier ACCT_FROM_ID(strAcctFromID);	// <==== ACCT_FROM_ID is an OTIdentifier	
 	
 	// ACCOUNT TO ID
-	pBuf = env->GetStringUTFChars(jstrAcctToID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrAcctToID, 0);
 	OTString strAcctToID(pBuf);
 	env->ReleaseStringUTFChars(jstrAcctToID, pBuf);
 	OTIdentifier ACCT_TO_ID(strAcctToID);		// <==== ACCT_TO_ID is an OTIdentifier	
 	
 	// AMOUNT
-	pBuf = env->GetStringUTFChars(jstrAmount, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrAmount, 0);
 	OTString strAmount(pBuf);				// <==== strAmount is an OTString	
 	env->ReleaseStringUTFChars(jstrAmount, pBuf);
 	
 	// NOTE
-	pBuf = env->GetStringUTFChars(jstrNote, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrNote, 0);
 	OTString strNote(pBuf);					// <==== strNote is an OTString	
 	env->ReleaseStringUTFChars(jstrNote, pBuf);
 	
 	// Finally we make the call to the C++ high-level interface...
-	g_OpenTransactions.notarizeWithdrawal(SERVER_ID, USER_ID, 
-										  ACCT_FROM_ID, ACCT_TO_ID, 
-										  strAmount, strNote);				
+	OT_API_notarizeTransfer(SERVER_ID, USER_ID, ACCT_FROM_ID, ACCT_TO_ID, strAmount, strNote);				
 }
 
 
@@ -652,25 +1054,25 @@ JNIEXPORT void JNICALL Java_OpenTransactionsJNI_getInbox
 	char *pBuf = NULL;
 	
 	// SERVER ID
-	pBuf = env->GetStringUTFChars(jstrServerID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrServerID, 0);
 	OTString strServerID(pBuf);
 	env->ReleaseStringUTFChars(jstrServerID, pBuf);
 	OTIdentifier SERVER_ID(strServerID);	// <==== SERVER_ID is an OTIdentifier
 	
 	// USER ID
-	pBuf = env->GetStringUTFChars(jstrUserID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrUserID, 0);
 	OTString strUserID(pBuf);
 	env->ReleaseStringUTFChars(jstrUserID, pBuf);
 	OTIdentifier USER_ID(strUserID);		// <==== USER_ID is an OTIdentifier	
 	
 	// ACCOUNT ID
-	pBuf = env->GetStringUTFChars(jstrAcctID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrAcctID, 0);
 	OTString strAcctID(pBuf);
 	env->ReleaseStringUTFChars(jstrAcctID, pBuf);
 	OTIdentifier ACCT_ID(strAcctID);		// <==== ACCT_ID is an OTIdentifier	
 	
 	// Finally we make the call to the C++ high-level interface...
-	g_OpenTransactions.getInbox(SERVER_ID, USER_ID, ACCT_ID);				
+	OT_API_getInbox(SERVER_ID, USER_ID, ACCT_ID);				
 }
 
 
@@ -685,30 +1087,30 @@ JNIEXPORT void JNICALL Java_OpenTransactionsJNI_processInbox
 	char *pBuf = NULL;
 	
 	// SERVER ID
-	pBuf = env->GetStringUTFChars(jstrServerID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrServerID, 0);
 	OTString strServerID(pBuf);
 	env->ReleaseStringUTFChars(jstrServerID, pBuf);
 	OTIdentifier SERVER_ID(strServerID);	// <==== SERVER_ID is an OTIdentifier
 	
 	// USER ID
-	pBuf = env->GetStringUTFChars(jstrUserID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrUserID, 0);
 	OTString strUserID(pBuf);
 	env->ReleaseStringUTFChars(jstrUserID, pBuf);
 	OTIdentifier USER_ID(strUserID);		// <==== USER_ID is an OTIdentifier	
 	
 	// ACCOUNT ID
-	pBuf = env->GetStringUTFChars(jstrAcctID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrAcctID, 0);
 	OTString strAcctID(pBuf);
 	env->ReleaseStringUTFChars(jstrAcctID, pBuf);
 	OTIdentifier ACCT_ID(strAcctID);		// <==== ACCT_ID is an OTIdentifier	
 	
 	// LEDGER
-	pBuf = env->GetStringUTFChars(jstrLedger, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrLedger, 0);
 	OTString strLedger(pBuf);				// <==== strLedger is an OTString	
 	env->ReleaseStringUTFChars(jstrLedger, pBuf);
 	
 	// Finally we make the call to the C++ high-level interface...
-	g_OpenTransactions.processInbox(SERVER_ID, USER_ID, ACCT_ID, strLedger);				
+	OT_API_processInbox(SERVER_ID, USER_ID, ACCT_ID, strLedger);				
 }
 
 
@@ -728,41 +1130,41 @@ JNIEXPORT void JNICALL Java_OpenTransactionsJNI_withdrawVoucher
 	char *pBuf = NULL;
 	
 	// SERVER ID
-	pBuf = env->GetStringUTFChars(jstrServerID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrServerID, 0);
 	OTString strServerID(pBuf);
 	env->ReleaseStringUTFChars(jstrServerID, pBuf);
 	OTIdentifier SERVER_ID(strServerID);	// <==== SERVER_ID is an OTIdentifier
 	
 	// USER ID
-	pBuf = env->GetStringUTFChars(jstrUserID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrUserID, 0);
 	OTString strUserID(pBuf);
 	env->ReleaseStringUTFChars(jstrUserID, pBuf);
 	OTIdentifier USER_ID(strUserID);		// <==== USER_ID is an OTIdentifier	
 	
 	// ACCOUNT ID
-	pBuf = env->GetStringUTFChars(jstrAcctID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrAcctID, 0);
 	OTString strAcctID(pBuf);
 	env->ReleaseStringUTFChars(jstrAcctID, pBuf);
 	OTIdentifier ACCT_ID(strAcctID);		// <==== ACCT_ID is an OTIdentifier	
 	
 	// RECIPIENT USER ID
-	pBuf = env->GetStringUTFChars(jstrRecipientUserID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrRecipientUserID, 0);
 	OTString strRecipientUserID(pBuf);
 	env->ReleaseStringUTFChars(jstrRecipientUserID, pBuf);
 	OTIdentifier RECIPIENT_USER_ID(strRecipientUserID);// <==== RECIPIENT_USER_ID is an OTIdentifier	
 	
 	// MEMO
-	pBuf = env->GetStringUTFChars(jstrMemo, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrMemo, 0);
 	OTString strMemo(pBuf);				// <==== strMemo is an OTString	
 	env->ReleaseStringUTFChars(jstrMemo, pBuf);
 	
 	// AMOUNT
-	pBuf = env->GetStringUTFChars(jstrAmount, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrAmount, 0);
 	OTString strAmount(pBuf);				// <==== strAmount is an OTString	
 	env->ReleaseStringUTFChars(jstrAmount, pBuf);
 	
 	// Finally we make the call to the C++ high-level interface...
-	g_OpenTransactions.withdrawVoucher(SERVER_ID, USER_ID, ACCT_ID, RECIPIENT_USER_ID, strMemo, strAmount);				
+	OT_API_withdrawVoucher(SERVER_ID, USER_ID, ACCT_ID, RECIPIENT_USER_ID, strMemo, strAmount);				
 }
 
 
@@ -777,30 +1179,30 @@ JNIEXPORT void JNICALL Java_OpenTransactionsJNI_depositCheque
 	char *pBuf = NULL;
 	
 	// SERVER ID
-	pBuf = env->GetStringUTFChars(jstrServerID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrServerID, 0);
 	OTString strServerID(pBuf);
 	env->ReleaseStringUTFChars(jstrServerID, pBuf);
 	OTIdentifier SERVER_ID(strServerID);	// <==== SERVER_ID is an OTIdentifier
 	
 	// USER ID
-	pBuf = env->GetStringUTFChars(jstrUserID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrUserID, 0);
 	OTString strUserID(pBuf);
 	env->ReleaseStringUTFChars(jstrUserID, pBuf);
 	OTIdentifier USER_ID(strUserID);		// <==== USER_ID is an OTIdentifier	
 	
 	// ACCOUNT ID
-	pBuf = env->GetStringUTFChars(jstrAcctID, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrAcctID, 0);
 	OTString strAcctID(pBuf);
 	env->ReleaseStringUTFChars(jstrAcctID, pBuf);
 	OTIdentifier ACCT_ID(strAcctID);		// <==== ACCT_ID is an OTIdentifier	
 	
 	// CHEQUE
-	pBuf = env->GetStringUTFChars(jstrCheque, 0);
+	pBuf = (char *)env->GetStringUTFChars(jstrCheque, 0);
 	OTString strCheque(pBuf);				// <==== strCheque is an OTString	
 	env->ReleaseStringUTFChars(jstrCheque, pBuf);
 	
 	// Finally we make the call to the C++ high-level interface...
-	g_OpenTransactions.depositCheque(SERVER_ID, USER_ID, ACCT_ID, strCheque);				
+	OT_API_depositCheque(SERVER_ID, USER_ID, ACCT_ID, strCheque);				
 }
 
 

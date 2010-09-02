@@ -1266,6 +1266,8 @@ bool OTPseudonym::SetPublicKey(const OTString & strKey, bool bEscaped/*=true*/)
 }
 
 
+
+
 // This version handles the ascii-armored text WITHOUT the bookends
 bool OTPseudonym::SetPublicKey(const OTASCIIArmor & strKey)
 {

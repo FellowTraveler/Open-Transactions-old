@@ -4,7 +4,7 @@
 # location
 #
 
-PROGRAM = testwallet.exe  
+PROGRAM = libOT_JNI_API.jnilib  
 
 #
 # Command line parameters: Edit these parameters so that you can 
@@ -23,18 +23,18 @@ PROGRAM = testwallet.exe
 #
 
 INCLUDEDIRS = \
-	-I/usr/local/ssl/include \
-	-I../OTLib/irlxml \
 	-I../OTLib \
-	-I./SSL-Example \
+	-I/usr/local/ssl/include \
+	-I/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Headers \
 	-I./
 
 
 LIBDIRS = \
+	-L./ \
 	-L../OTLib
 
 
-LIBS = $(LIBDIRS) -lssl $(LIBDIRS) -lcrypto $(LIBDIRS) -lOTLib $(LIBDIRS) -lssl $(LIBDIRS) -lcrypto $(LIBDIRS) -lOTLib 
+LIBS = $(LIBDIRS) -lssl $(LIBDIRS) -lcrypto $(LIBDIRS) -lOTLib $(LIBDIRS) -lssl $(LIBDIRS) -lcrypto $(LIBDIRS) -lOTLib $(LIBDIRS) -lOTAPI
 
 #
 # The CXXSOURCES macro contains a list of source files.
@@ -52,21 +52,12 @@ LIBS = $(LIBDIRS) -lssl $(LIBDIRS) -lcrypto $(LIBDIRS) -lOTLib $(LIBDIRS) -lssl 
 # directory information to be passed to the linker.
 #
 
-CSOURCES = ./SSL-Example/SFSocket.c
-
 CXXSOURCES = \
-			 OTServerConnection.cpp \
-			 OTClient.cpp \
-			 client.cpp \
-			 OTMessageBuffer.cpp \
-			 OTWallet.cpp
-			 
+			 OpenTransactionsJNI.cpp
+
 CXXOBJECTS = $(CXXSOURCES:.cpp=.o)  # expands to list of object files
-COBJECTS   = $(CSOURCES:.c=.o)
 CXXFLAGS   = $(INCLUDEDIRS)
-CFLAGS     = $(INCLUDEDIRS)
 CXX = g++
-CC = gcc
 LDFLAGS = $(LIBDIRS) $(LIBS)
 
 #
@@ -82,27 +73,15 @@ all: $(PROGRAM)
 #
 
 $(PROGRAM): $(CXXOBJECTS) $(COBJECTS) 
-	$(CXX) -ldl $(CXXOBJECTS) $(COBJECTS) $(LIBS) -o $@
+	g++ $(LDFLAGS) -dynamiclib -o $(PROGRAM) $(CXXOBJECTS)
 
 #
 # Object targets: rules that define objects, their dependencies, and
 # a list of commands for compilation.
 #
 
-SFSocket.o: ./SSL-Example/SFSocket.c ./SSL-Example/SFSocket.h
-	$(CC) $(CFLAGS) -c -o ./SSL-Example/SFSocket.o ./SSL-Example/SFSocket.c
-
-OTServerConnection.o: OTServerConnection.cpp OTServerConnection.h
-	$(CXX) $(CXXFLAGS) -c -o OTServerConnection.o OTServerConnection.cpp
-OTClient.o: OTClient.cpp OTClient.h
-	$(CXX) $(CXXFLAGS) -c -o OTClient.o OTClient.cpp
-client.o: client.cpp
-	$(CXX) $(CXXFLAGS) -c -o client.o client.cpp
-OTMessageBuffer.o: OTMessageBuffer.cpp OTMessageBuffer.h
-	$(CXX) $(CXXFLAGS) -c -o OTMessageBuffer.o OTMessageBuffer.cpp
-OTWallet.o: OTWallet.cpp
-	$(CXX) $(CXXFLAGS) -c -o OTWallet.o OTWallet.cpp
-
+OpenTransactionsJNI.o: OpenTransactionsJNI.cpp
+	$(CXX) $(CXXFLAGS) -c -o OpenTransactionsJNI.o OpenTransactionsJNI.cpp
 
 #
 # Clean target: "make -f Makefile.Linux clean" to remove unwanted objects and executables.

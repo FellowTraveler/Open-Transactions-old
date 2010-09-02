@@ -111,9 +111,11 @@ void OT_Sleep(int nMS);
 #include "OTPseudonym.h"
 #include "OTEnvelope.h"
 #include "OTCheque.h"
+#include "OpenTransactions.h"
 
 extern OTClient		g_Client;
 extern OTWallet		g_Wallet;
+
 extern OTPseudonym *g_pTemporaryNym;
 
 
@@ -149,7 +151,7 @@ extern OTPseudonym *g_pTemporaryNym;
 
 int main (int argc, char **argv) 
 {
-	
+	// various Initialization...
 #ifdef _WIN32
 WSADATA wsaData;
 WORD wVersionRequested = MAKEWORD( 2, 2 );
@@ -167,7 +169,9 @@ int err = WSAStartup( wVersionRequested, &wsaData );
 				"(Folder defaults to '%s' if left blank.)\n", KEY_PASSWORD, SERVER_PATH_DEFAULT);
 		
 		strSSLPassword.Set(KEY_PASSWORD);
-		OTPseudonym::OTPath.Set(SERVER_PATH_DEFAULT);
+		
+		OTString strClientPath(SERVER_PATH_DEFAULT);
+        OT_API_Init(strClientPath);
 	}
 	else if (argc < 3)
 	{
@@ -175,12 +179,16 @@ int err = WSAStartup( wVersionRequested, &wsaData );
 				"(Folder defaults to '%s' if left blank.)\n", SERVER_PATH_DEFAULT);
 		
 		strSSLPassword.Set(argv[1]);
-		OTPseudonym::OTPath.Set(SERVER_PATH_DEFAULT);
+		
+		OTString strClientPath(SERVER_PATH_DEFAULT);
+        OT_API_Init(strClientPath);
 	}
 	else 
 	{
 		strSSLPassword.Set(argv[1]);
-		OTPseudonym::OTPath.Set(argv[2]);
+		
+		OTString strClientPath(argv[2]);
+        OT_API_Init(strClientPath);
 	}	
 	
 	strCAFile. Format("%s%s%s", OTPseudonym::OTPath.Get(), OTPseudonym::OTPathSeparator.Get(), CA_FILE);
@@ -491,10 +499,16 @@ int err = WSAStartup( wVersionRequested, &wsaData );
 		{
 			fprintf(stderr, "User has instructed to connect to the first server available in the wallet.\n");
 						
+			if (NULL == g_pTemporaryNym)
+			{
+				fprintf(stdout, "No Nym yet available to connect with. Try 'load'.\n");
+				continue;
+			}
+			
 			// Wallet, after loading, should contain a list of server
 			// contracts. Let's pull the hostname and port out of
 			// the first contract, and connect to that server.
-			bool bConnected = g_Wallet.ConnectToTheFirstServerOnList(strCAFile, strKeyFile, strSSLPassword); 
+			bool bConnected = g_Client.ConnectToTheFirstServerOnList(*g_pTemporaryNym, strCAFile, strKeyFile, strSSLPassword); 
 			
 			if (bConnected)
 				fprintf(stderr, "Success. (Connected to the first notary server on your wallet's list.)\n");
@@ -505,14 +519,14 @@ int err = WSAStartup( wVersionRequested, &wsaData );
 			continue;
 		}
 		
-		if (!g_Wallet.m_Connection.IsConnected())
+		if (!g_Client.IsConnected())
 		{
 			fprintf(stdout, "(You are not connected to a notary server--you cannot send commands.)\n");
 			continue;
 		}
 			
 		// 2) Process it out as an OTMessage to the server. It goes down the pipe.
-		g_Wallet.m_Connection.ProcessMessageOut(buf, &nExpectResponse);
+		g_Client.ProcessMessageOut(buf, &nExpectResponse);
 		
 		// 3) Sleep for 1 second.
 #ifdef _WIN32
@@ -531,7 +545,7 @@ int err = WSAStartup( wVersionRequested, &wsaData );
 			
 			// If this returns true, that means a Message was
 			// received and processed into an OTMessage object (theMsg)
-			bFoundMessage = g_Wallet.m_Connection.ProcessInBuffer(theMsg);
+			bFoundMessage = g_Client.ProcessInBuffer(theMsg);
 			
 			if (true == bFoundMessage)
 			{
@@ -539,7 +553,7 @@ int err = WSAStartup( wVersionRequested, &wsaData );
 //				theMsg.SaveContract(strReply);
 //				fprintf(stderr, "\n\n**********************************************\n"
 //						"Successfully in-processed server response.\n\n%s\n", strReply.Get());
-				g_Client.ProcessServerReply(g_Wallet.m_Connection, theMsg);
+				g_Client.ProcessServerReply(theMsg);
 			}
 		
 		} while (true == bFoundMessage);

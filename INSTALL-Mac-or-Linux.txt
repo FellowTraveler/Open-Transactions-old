@@ -70,14 +70,44 @@ NOW YOU ARE READY TO COMPILE THE CODE:
 cd OTLib;
 make
 
+output will be libOTLib.a
+(The other projects/Makefiles will expect that library to be built.)
+
 --- Build the server:
 cd ../transaction;
 make
 
 --- Build the client:
 cd ../testwallet;
-make
+make -f Makefile.testwallet
 
+---------------------------------------------------------------
+
+With the above steps, the library, server, and test client are now built and ready to run.
+
+
+--- OPTIONAL: C++ and Java high-level APIs!!! (API Makefile only tested yet for Mac, not Linux.)
+
+output: libOTAPI.a and libOT_JNI_API.jnilib
+
+NOTE: Make sure to edit OpenTransactionsJNI.java for REDACTED.
+ALso make sure to edit the Makefiles and fix the Java header include path.
+Specifically I had to put the path where jni.h is located, which may be different
+on your machine.
+
+cd ../testwallet;
+make -f Makefile.CPP_API;
+javac OpenTransactionsJNI.java;
+javah -jni OpenTransactionsJNI;
+make -f Makefile.JNI_API
+
+- For your C++ applications, include OpenTransactions.h and link to libOTAPI.a
+
+- For Java, use OpenTransactionsJNI.java, which dynamically loads libOT_JNI_API.jnilib
+
+More detailed notes in Open-Transactions/testwallet/A-README.txt
+
+--------------------------------------------------------
 
 (If you choose to use the XCode project instead of the Makefile, be warned that you have to 
 edit the XCode project file to fix the REDACTED issue. You'd also have to deal with dylibs, etc.

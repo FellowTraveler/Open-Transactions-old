@@ -17,7 +17,6 @@
 		8339D9F711DD3A8F007BED46 /* easyzlib.h in Headers */ = {isa = PBXBuildFile; fileRef = 8339D9F511DD3A8F007BED46 /* easyzlib.h */; };
 		8377234D1216B401003712F8 /* OTSignedFile.h in Headers */ = {isa = PBXBuildFile; fileRef = 8377234B1216B401003712F8 /* OTSignedFile.h */; };
 		8377234E1216B401003712F8 /* OTSignedFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8377234C1216B401003712F8 /* OTSignedFile.cpp */; };
-		8377250D1218263F003712F8 /* Makefile in Sources */ = {isa = PBXBuildFile; fileRef = 8377250C1218263F003712F8 /* Makefile */; };
 		839228B011B46C8300AF54AF /* OTASCIIArmor.h in Headers */ = {isa = PBXBuildFile; fileRef = 839228AE11B46C8300AF54AF /* OTASCIIArmor.h */; };
 		839228B111B46C8300AF54AF /* OTSignature.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 839228AF11B46C8300AF54AF /* OTSignature.cpp */; };
 		83922B3F11B5DABE00AF54AF /* OTASCIIArmor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 83922B3D11B5DABE00AF54AF /* OTASCIIArmor.cpp */; };
@@ -76,6 +75,11 @@
 		83C0956811B238BC00FDCACD /* bankimp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 83C0954B11B238BC00FDCACD /* bankimp.cpp */; };
 		83C0956E11B238BC00FDCACD /* coin-request.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 83C0955511B238BC00FDCACD /* coin-request.cpp */; };
 		83C0957011B238BC00FDCACD /* coin-unblind.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 83C0955811B238BC00FDCACD /* coin-unblind.cpp */; };
+		83C5F49D122E0B7000964E36 /* OTWallet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 83C5F49B122E0B7000964E36 /* OTWallet.cpp */; };
+		83C5F49E122E0B7000964E36 /* OTWallet.h in Headers */ = {isa = PBXBuildFile; fileRef = 83C5F49C122E0B7000964E36 /* OTWallet.h */; };
+		83C5F4B8122E0CBC00964E36 /* OTMessageBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 83C5F4B6122E0CBC00964E36 /* OTMessageBuffer.cpp */; };
+		83C5F4B9122E0CBC00964E36 /* OTMessageBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 83C5F4B7122E0CBC00964E36 /* OTMessageBuffer.h */; };
+		83E651D4122E32B200320598 /* Makefile in Sources */ = {isa = PBXBuildFile; fileRef = 83E651D3122E32B200320598 /* Makefile */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -93,7 +97,6 @@
 		8339D9F511DD3A8F007BED46 /* easyzlib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = easyzlib.h; sourceTree = "<group>"; };
 		8377234B1216B401003712F8 /* OTSignedFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OTSignedFile.h; sourceTree = "<group>"; };
 		8377234C1216B401003712F8 /* OTSignedFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OTSignedFile.cpp; sourceTree = "<group>"; };
-		8377250C1218263F003712F8 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		839228AE11B46C8300AF54AF /* OTASCIIArmor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OTASCIIArmor.h; sourceTree = "<group>"; };
 		839228AF11B46C8300AF54AF /* OTSignature.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OTSignature.cpp; sourceTree = "<group>"; };
 		83922B3D11B5DABE00AF54AF /* OTASCIIArmor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OTASCIIArmor.cpp; sourceTree = "<group>"; };
@@ -160,6 +163,11 @@
 		83C0954B11B238BC00FDCACD /* bankimp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bankimp.cpp; sourceTree = "<group>"; };
 		83C0955511B238BC00FDCACD /* coin-request.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "coin-request.cpp"; sourceTree = "<group>"; };
 		83C0955811B238BC00FDCACD /* coin-unblind.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "coin-unblind.cpp"; sourceTree = "<group>"; };
+		83C5F49B122E0B7000964E36 /* OTWallet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OTWallet.cpp; sourceTree = "<group>"; };
+		83C5F49C122E0B7000964E36 /* OTWallet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OTWallet.h; sourceTree = "<group>"; };
+		83C5F4B6122E0CBC00964E36 /* OTMessageBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OTMessageBuffer.cpp; sourceTree = "<group>"; };
+		83C5F4B7122E0CBC00964E36 /* OTMessageBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OTMessageBuffer.h; sourceTree = "<group>"; };
+		83E651D3122E32B200320598 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		D2AAC09D05546B4700DB518D /* libOTLib.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libOTLib.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -187,7 +195,7 @@
 		0867D691FE84028FC02AAC07 /* OTLib */ = {
 			isa = PBXGroup;
 			children = (
-				8377250C1218263F003712F8 /* Makefile */,
+				83E651D3122E32B200320598 /* Makefile */,
 				8306A36D11C202D100A8AFDC /* libcrypto.a */,
 				8306A36E11C202D200A8AFDC /* libssl.a */,
 				8392314B11B9B02500AF54AF /* irlxml */,
@@ -212,6 +220,8 @@
 		08FB77ACFE841707C02AAC07 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				83C5F49C122E0B7000964E36 /* OTWallet.h */,
+				83C5F49B122E0B7000964E36 /* OTWallet.cpp */,
 				8377234B1216B401003712F8 /* OTSignedFile.h */,
 				8377234C1216B401003712F8 /* OTSignedFile.cpp */,
 				83AC18D3120D5E8400C5A816 /* OTInstrument.h */,
@@ -246,6 +256,8 @@
 				83C0929E11B0C1B700FDCACD /* OTPayload.cpp */,
 				8392319B11B9B40300AF54AF /* OTMessage.h */,
 				8392319C11B9B40300AF54AF /* OTMessage.cpp */,
+				83C5F4B7122E0CBC00964E36 /* OTMessageBuffer.h */,
+				83C5F4B6122E0CBC00964E36 /* OTMessageBuffer.cpp */,
 				8392317A11B9B0B200AF54AF /* OTContract.h */,
 				8392317911B9B0B200AF54AF /* OTContract.cpp */,
 				8392318911B9B10900AF54AF /* OTPseudonym.h */,
@@ -350,6 +362,8 @@
 				83AC18D5120D5E8400C5A816 /* OTInstrument.h in Headers */,
 				83AC18DB120D5E9D00C5A816 /* OTCheque.h in Headers */,
 				8377234D1216B401003712F8 /* OTSignedFile.h in Headers */,
+				83C5F49E122E0B7000964E36 /* OTWallet.h in Headers */,
+				83C5F4B9122E0CBC00964E36 /* OTMessageBuffer.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -432,7 +446,9 @@
 				83AC18D6120D5E8400C5A816 /* OTInstrument.cpp in Sources */,
 				83AC18DC120D5E9D00C5A816 /* OTCheque.cpp in Sources */,
 				8377234E1216B401003712F8 /* OTSignedFile.cpp in Sources */,
-				8377250D1218263F003712F8 /* Makefile in Sources */,
+				83C5F49D122E0B7000964E36 /* OTWallet.cpp in Sources */,
+				83C5F4B8122E0CBC00964E36 /* OTMessageBuffer.cpp in Sources */,
+				83E651D4122E32B200320598 /* Makefile in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

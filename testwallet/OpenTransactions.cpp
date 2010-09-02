@@ -10,40 +10,89 @@
 
 #include "OTString.h"
 
-#include "OpenTransactions.h"
 
+#include "OTPseudonym.h"
 
-#include "OTString.h"
 #include "OTClient.h"
 #include "OTServerConnection.h"
 #include "OTMessage.h"
 #include "OTWallet.h"
-#include "OTPseudonym.h"
 #include "OTEnvelope.h"
+
+#include "OTTransaction.h"
+#include "OTMint.h"
+#include "OTToken.h"
+#include "OTPurse.h"
+#include "OTLedger.h"
+#include "OTCheque.h"
+
+#include "OpenTransactions.h"
 
 // Todo: convert these from globals to OpenTransactions member variables
 // (So you can instantiate it multiple times, though I don't see that being
 // needed... most real world apps will only use this interface once...)
-extern OTClient		g_Client;
-extern OTWallet		g_Wallet;
-//extern OTPseudonym *g_pTemporaryNym;
+
+OTWallet		g_Wallet;
+OTClient		g_Client;
+
+OTPseudonym *g_pTemporaryNym = NULL;
 
 
 
-OpenTransactions::OpenTransactions()
+
+int OT_API_getNymCount()
 {
-	
+	return g_Wallet.GetNymCount();
 }
 
-OpenTransactions::~OpenTransactions()
+int OT_API_getServerCount()
 {
+	return g_Wallet.GetServerCount();
+}
+
+int OT_API_getAssetTypeCount()
+{
+	return g_Wallet.GetAssetTypeCount();
+}
+
+int OT_API_getAccountCount()
+{
+	return g_Wallet.GetAccountCount();
+}
+
+bool OT_API_getNym(int iIndex, OTIdentifier & NYM_ID, OTString & NYM_NAME)
+{
+	return g_Wallet.GetNym(iIndex, NYM_ID, NYM_NAME);
+}
+
+bool OT_API_getServer(int iIndex, OTIdentifier & THE_ID, OTString & THE_NAME)
+{
+	return g_Wallet.GetServer(iIndex, THE_ID, THE_NAME);
+}
+
+bool OT_API_getAssetType(int iIndex, OTIdentifier & THE_ID, OTString & THE_NAME)
+{
+	return g_Wallet.GetAssetType(iIndex, THE_ID, THE_NAME);
+}
+
+bool OT_API_getAccount(int iIndex, OTIdentifier & THE_ID, OTString & THE_NAME)
+{
+	return g_Wallet.GetAccount(iIndex, THE_ID, THE_NAME);
+}
+
+
+// Need to call this before using OT.
+bool OT_API_Init(OTString & strClientPath)
+{
+	OTPseudonym::OTPath.Set(strClientPath.Get());
 	
+	return g_Client.InitClient(g_Wallet);
 }
 
 
 
-// "~/Projects/Open-Transactions/testwallet/wallet.xml" (wallet filename is passed as a full path)
-bool OpenTransactions::loadWallet(OTString & strPath)
+// "wallet.xml" (path set above.)
+bool OT_API_loadWallet(OTString & strPath)
 {
 	return g_Wallet.LoadWallet(strPath.Get());
 }
@@ -52,16 +101,31 @@ bool OpenTransactions::loadWallet(OTString & strPath)
 // Eventually this connects to the server denoted by SERVER_ID
 // But for right now, it just connects to the first server in the list.
 // TODO: make it connect to the server ID instead of the first one in the list.
-bool OpenTransactions::connectServer(OTIdentifier & SERVER_ID)
+bool OT_API_connectServer(OTIdentifier & SERVER_ID, OTIdentifier	& USER_ID,
+									 OTString & strCA_FILE, OTString & strKEY_FILE, OTString & strKEY_PASSWORD)
 {
-	bool bConnected = g_Wallet.ConnectToTheFirstServerOnList(); // Wallet, after loading, should contain a list of server
-																// contracts. Let's pull the hostname and port out of
-																// the first contract, and connect to that server.
+	// Wallet, after loading, should contain a list of server
+	// contracts. Let's pull the hostname and port out of
+	// the first contract, and connect to that server.
+	
+	OTPseudonym * pNym = g_Wallet.GetNymByID(USER_ID);
+	
+	if (!pNym)
+	{
+		fprintf(stdout, "No Nym loaded but tried to connect to server.\n");
+		return false;
+	}
+		
+	bool bConnected = g_Client.ConnectToTheFirstServerOnList(*pNym, strCA_FILE, strKEY_FILE, strKEY_PASSWORD); 
 	
 	if (bConnected)
+	{
 		fprintf(stdout, "Success. (Connected to the first notary server on your wallet's list.)\n");
+		return true;
+	}
 	else {
 		fprintf(stdout, "Either the wallet is not loaded, or there was an error connecting to server.\n");
+		return false;
 	}
 }
 
@@ -76,7 +140,7 @@ bool OpenTransactions::connectServer(OTIdentifier & SERVER_ID)
 //
 // Perhaps once per second, and more often immediately following
 // a request.  (Usually only one response comes for each request.)
-bool OpenTransactions::processSockets()
+bool OT_API_processSockets()
 {
 	bool bFoundMessage = false, bSuccess = false;
 	
@@ -88,7 +152,7 @@ bool OpenTransactions::processSockets()
 		
 		// If this returns true, that means a Message was
 		// received and processed into an OTMessage object (theMsg)
-		bFoundMessage = g_Wallet.m_Connection.ProcessInBuffer(theMsg);
+		bFoundMessage = g_Client.ProcessInBuffer(theMsg);
 		
 		if (true == bFoundMessage)
 		{
@@ -98,7 +162,7 @@ bool OpenTransactions::processSockets()
 			//				theMsg.SaveContract(strReply);
 			//				fprintf(stderr, "\n\n**********************************************\n"
 			//						"Successfully in-processed server response.\n\n%s\n", strReply.Get());
-			g_Client.ProcessServerReply(g_Wallet.m_Connection, theMsg);
+			g_Client.ProcessServerReply(theMsg);
 		}
 		
 	} while (true == bFoundMessage);
@@ -109,7 +173,7 @@ bool OpenTransactions::processSockets()
 
 
 
-void OpenTransactions::exchangeBasket(OTIdentifier	& SERVER_ID,
+void OT_API_exchangeBasket(OTIdentifier	& SERVER_ID,
 									  OTIdentifier	& USER_ID,
 									  OTIdentifier	& BASKET_ASSET_ID,
 									  OTString		& BASKET_INFO)
@@ -158,7 +222,7 @@ void OpenTransactions::exchangeBasket(OTIdentifier	& SERVER_ID,
 	// (0) Set up the REQUEST NUMBER and then INCREMENT IT
 	pNym->GetCurrentRequestNum(strServerID, lRequestNumber);
 	theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-	pNym->IncrementRequestNum(strServerID); // since I used it for a server request, I have to increment it
+	pNym->IncrementRequestNum(*pNym, strServerID); // since I used it for a server request, I have to increment it
 	
 	// (1) set up member variables 
 	theMessage.m_strCommand			= "exchangeBasket";
@@ -175,14 +239,14 @@ void OpenTransactions::exchangeBasket(OTIdentifier	& SERVER_ID,
 	theMessage.SaveContract();
 	
 	// (Send it)
-	g_Wallet.m_Connection.ProcessMessageOut(theMessage);		
+	g_Client.ProcessMessageOut(theMessage);		
 }
 
 
 
 
 
-void OpenTransactions::getTransactionNumber(OTIdentifier & SERVER_ID,
+void OT_API_getTransactionNumber(OTIdentifier & SERVER_ID,
 											OTIdentifier & USER_ID)
 {
 	// -----------------------------------------------------------------
@@ -216,17 +280,17 @@ void OpenTransactions::getTransactionNumber(OTIdentifier & SERVER_ID,
 									*pNym, *pServer,
 									NULL)) // NULL pAccount on this command.
 	{				
-		g_Wallet.m_Connection.ProcessMessageOut(theMessage);
+		g_Client.ProcessMessageOut(theMessage);
 	}
 	else
-		fprintf(stderr, "Error processing getTransactionNumber command in OpenTransactions::getTransactionNumber\n");
+		fprintf(stderr, "Error processing getTransactionNumber command in OT_API_getTransactionNumber\n");
 }
 
 
 
 
 
-void OpenTransactions::notarizeWithdrawal(OTIdentifier	& SERVER_ID,
+void OT_API_notarizeWithdrawal(OTIdentifier	& SERVER_ID,
 										  OTIdentifier	& USER_ID,
 										  OTIdentifier	& ACCT_ID,
 										  OTString		& AMOUNT)
@@ -284,7 +348,7 @@ void OpenTransactions::notarizeWithdrawal(OTIdentifier	& SERVER_ID,
 	OTString strServerID(SERVER_ID), strNymID(USER_ID), strFromAcct(ACCT_ID);
 	
 	long lStoredTransactionNumber=0;
-	bool bGotTransNum = pNym->GetNextTransactionNum(strServerID, lStoredTransactionNumber);
+	bool bGotTransNum = pNym->GetNextTransactionNum(*pNym, strServerID, lStoredTransactionNumber);
 	
 	if (bGotTransNum)
 	{
@@ -403,7 +467,7 @@ void OpenTransactions::notarizeWithdrawal(OTIdentifier	& SERVER_ID,
 			// (0) Set up the REQUEST NUMBER and then INCREMENT IT
 			pNym->GetCurrentRequestNum(strServerID, lRequestNumber);
 			theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-			pNym->IncrementRequestNum(strServerID); // since I used it for a server request, I have to increment it
+			pNym->IncrementRequestNum(*pNym, strServerID); // since I used it for a server request, I have to increment it
 			
 			// (1) Set up member variables 
 			theMessage.m_strCommand			= "notarizeTransactions";
@@ -419,7 +483,7 @@ void OpenTransactions::notarizeWithdrawal(OTIdentifier	& SERVER_ID,
 			theMessage.SaveContract();
 			
 			// (Send it)
-			g_Wallet.m_Connection.ProcessMessageOut(theMessage);	
+			g_Client.ProcessMessageOut(theMessage);	
 		}
 	}
 	else {
@@ -431,7 +495,7 @@ void OpenTransactions::notarizeWithdrawal(OTIdentifier	& SERVER_ID,
 
 
 
-void OpenTransactions::notarizeDeposit(OTIdentifier	& SERVER_ID,
+void OT_API_notarizeDeposit(OTIdentifier	& SERVER_ID,
 									   OTIdentifier	& USER_ID,
 									   OTIdentifier	& ACCT_ID,
 									   OTString		& THE_PURSE)
@@ -491,7 +555,7 @@ void OpenTransactions::notarizeDeposit(OTIdentifier	& SERVER_ID,
 	const OTPseudonym * pServerNym = pServer->GetContractPublicNym();
 	
 	long lStoredTransactionNumber=0;
-	bool bGotTransNum = pNym->GetNextTransactionNum(strServerID, lStoredTransactionNumber);
+	bool bGotTransNum = pNym->GetNextTransactionNum(*pNym, strServerID, lStoredTransactionNumber);
 	
 	if (!bGotTransNum)
 	{
@@ -596,7 +660,7 @@ void OpenTransactions::notarizeDeposit(OTIdentifier	& SERVER_ID,
 			// (0) Set up the REQUEST NUMBER and then INCREMENT IT
 			pNym->GetCurrentRequestNum(strServerID, lRequestNumber);
 			theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-			pNym->IncrementRequestNum(strServerID); // since I used it for a server request, I have to increment it
+			pNym->IncrementRequestNum(*pNym, strServerID); // since I used it for a server request, I have to increment it
 			
 			// (1) Set up member variables 
 			theMessage.m_strCommand			= "notarizeTransactions";
@@ -612,7 +676,7 @@ void OpenTransactions::notarizeDeposit(OTIdentifier	& SERVER_ID,
 			theMessage.SaveContract();
 			
 			// (Send it)
-			g_Wallet.m_Connection.ProcessMessageOut(theMessage);	
+			g_Client.ProcessMessageOut(theMessage);	
 			
 		} // bSuccess
 		else {
@@ -624,7 +688,7 @@ void OpenTransactions::notarizeDeposit(OTIdentifier	& SERVER_ID,
 
 
 
-void OpenTransactions::withdrawVoucher(OTIdentifier	& SERVER_ID,
+void OT_API_withdrawVoucher(OTIdentifier	& SERVER_ID,
 									OTIdentifier	& USER_ID,
 									OTIdentifier	& ACCT_ID,
 									OTIdentifier	& RECIPIENT_USER_ID,
@@ -682,7 +746,7 @@ void OpenTransactions::withdrawVoucher(OTIdentifier	& SERVER_ID,
 	OTString strServerID(SERVER_ID), strNymID(USER_ID), strFromAcct(ACCT_ID);
 	
 	long lStoredTransactionNumber=0;
-	bool bGotTransNum = pNym->GetNextTransactionNum(strServerID, lStoredTransactionNumber);
+	bool bGotTransNum = pNym->GetNextTransactionNum(*pNym, strServerID, lStoredTransactionNumber);
 	
 	if (bGotTransNum)
 	{
@@ -702,13 +766,13 @@ void OpenTransactions::withdrawVoucher(OTIdentifier	& SERVER_ID,
 		// constructs the actual voucher.
 		OTCheque theRequestVoucher(SERVER_ID, CONTRACT_ID);
 		bool bIssueCheque = theRequestVoucher.IssueCheque(lAmount, lStoredTransactionNumber,// server actually ignores this and supplies its own transaction number for any voucher.
-														  VALID_FROM, VALID_TO, ACCOUNT_ID, USER_ID, strChequeMemo,
+														  VALID_FROM, VALID_TO, ACCT_ID, USER_ID, strChequeMemo,
 														  (strRecipientUserID.GetLength() > 2) ? &(RECIPIENT_USER_ID) : NULL);
 		
 		if (bIssueCheque)
 		{
 			// Create a transaction
-			OTTransaction * pTransaction = OTTransaction::GenerateTransaction (USER_ID, ACCOUNT_ID, SERVER_ID, 
+			OTTransaction * pTransaction = OTTransaction::GenerateTransaction (USER_ID, ACCT_ID, SERVER_ID, 
 																			   OTTransaction::withdrawal, lStoredTransactionNumber); 
 			
 			// set up the transaction item (each transaction may have multiple items...)
@@ -736,8 +800,8 @@ void OpenTransactions::withdrawVoucher(OTIdentifier	& SERVER_ID,
 			
 			
 			// set up the ledger
-			OTLedger theLedger(USER_ID, ACCOUNT_ID, SERVER_ID);
-			theLedger.GenerateLedger(ACCOUNT_ID, SERVER_ID, OTLedger::message); // bGenerateLedger defaults to false, which is correct.
+			OTLedger theLedger(USER_ID, ACCT_ID, SERVER_ID);
+			theLedger.GenerateLedger(ACCT_ID, SERVER_ID, OTLedger::message); // bGenerateLedger defaults to false, which is correct.
 			theLedger.AddTransaction(*pTransaction);
 			
 			// sign the ledger
@@ -748,6 +812,7 @@ void OpenTransactions::withdrawVoucher(OTIdentifier	& SERVER_ID,
 			OTString		strLedger(theLedger);
 			OTASCIIArmor	ascLedger(strLedger);
 			
+			long lRequestNumber = 0;
 			
 			// (0) Set up the REQUEST NUMBER and then INCREMENT IT
 			pNym->GetCurrentRequestNum(strServerID, lRequestNumber);
@@ -768,7 +833,7 @@ void OpenTransactions::withdrawVoucher(OTIdentifier	& SERVER_ID,
 			theMessage.SaveContract();
 			
 			// (Send it)
-			g_Wallet.m_Connection.ProcessMessageOut(theMessage);	
+			g_Client.ProcessMessageOut(theMessage);	
 		}
 	}
 	else {
@@ -780,9 +845,9 @@ void OpenTransactions::withdrawVoucher(OTIdentifier	& SERVER_ID,
 
 
 
-void OpenTransactions::depositCheque(OTIdentifier	& SERVER_ID,
+void OT_API_depositCheque(OTIdentifier	& SERVER_ID,
 									   OTIdentifier	& USER_ID,
-									   OTIdentifier	& ACCT_FROM_ID,
+									   OTIdentifier	& ACCT_ID,
 									   OTString		& THE_CHEQUE)
 {
 	// -----------------------------------------------------------------
@@ -846,7 +911,7 @@ void OpenTransactions::depositCheque(OTIdentifier	& SERVER_ID,
 	else if (theCheque.LoadContractFromString(THE_CHEQUE))
 	{
 		// Create a transaction
-		OTTransaction * pTransaction = OTTransaction::GenerateTransaction (USER_ID, ACCT_FROM_ID, SERVER_ID, 
+		OTTransaction * pTransaction = OTTransaction::GenerateTransaction (USER_ID, ACCT_ID, SERVER_ID, 
 																		   OTTransaction::deposit, lStoredTransactionNumber); 
 		
 		// set up the transaction item (each transaction may have multiple items...)
@@ -873,8 +938,8 @@ void OpenTransactions::depositCheque(OTIdentifier	& SERVER_ID,
 		pTransaction->SaveContract();
 		
 		// set up the ledger
-		OTLedger theLedger(USER_ID, ACCT_FROM_ID, SERVER_ID);
-		theLedger.GenerateLedger(ACCT_FROM_ID, SERVER_ID, OTLedger::message); // bGenerateLedger defaults to false, which is correct.
+		OTLedger theLedger(USER_ID, ACCT_ID, SERVER_ID);
+		theLedger.GenerateLedger(ACCT_ID, SERVER_ID, OTLedger::message); // bGenerateLedger defaults to false, which is correct.
 		theLedger.AddTransaction(*pTransaction); // now the ledger "owns" and will handle cleaning up the transaction.
 		
 		// sign the ledger
@@ -904,7 +969,7 @@ void OpenTransactions::depositCheque(OTIdentifier	& SERVER_ID,
 		theMessage.SaveContract();
 			
 		// (Send it)
-		g_Wallet.m_Connection.ProcessMessageOut(theMessage);	
+		g_Client.ProcessMessageOut(theMessage);	
 		
 	} // bSuccess
 }
@@ -915,7 +980,7 @@ void OpenTransactions::depositCheque(OTIdentifier	& SERVER_ID,
 
 
 
-void OpenTransactions::notarizeTransfer(OTIdentifier	& SERVER_ID,
+void OT_API_notarizeTransfer(OTIdentifier	& SERVER_ID,
 										OTIdentifier	& USER_ID,
 										OTIdentifier	& ACCT_FROM,
 										OTIdentifier	& ACCT_TO,
@@ -969,7 +1034,7 @@ void OpenTransactions::notarizeTransfer(OTIdentifier	& SERVER_ID,
 				strFromAcct(ACCT_FROM), strToAcct(ACCT_TO);
 
 	long lStoredTransactionNumber=0;
-	bool bGotTransNum = pNym->GetNextTransactionNum(strServerID, lStoredTransactionNumber);
+	bool bGotTransNum = pNym->GetNextTransactionNum(*pNym, strServerID, lStoredTransactionNumber);
 	
 	if (bGotTransNum)
 	{
@@ -1018,7 +1083,7 @@ void OpenTransactions::notarizeTransfer(OTIdentifier	& SERVER_ID,
 		// (0) Set up the REQUEST NUMBER and then INCREMENT IT
 		pNym->GetCurrentRequestNum(strServerID, lRequestNumber);
 		theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-		pNym->IncrementRequestNum(strServerID); // since I used it for a server request, I have to increment it
+		pNym->IncrementRequestNum(*pNym, strServerID); // since I used it for a server request, I have to increment it
 		
 		// (1) Set up member variables 
 		theMessage.m_strCommand			= "notarizeTransactions";
@@ -1034,7 +1099,7 @@ void OpenTransactions::notarizeTransfer(OTIdentifier	& SERVER_ID,
 		theMessage.SaveContract();
 
 		// (Send it)
-		g_Wallet.m_Connection.ProcessMessageOut(theMessage);	
+		g_Client.ProcessMessageOut(theMessage);	
 	}
 	else {
 		fprintf(stderr, "No transaction numbers were available. Suggest requesting the server for one.\n");
@@ -1045,7 +1110,7 @@ void OpenTransactions::notarizeTransfer(OTIdentifier	& SERVER_ID,
 
 
 
-void OpenTransactions::getInbox(OTIdentifier & SERVER_ID,
+void OT_API_getInbox(OTIdentifier & SERVER_ID,
 								OTIdentifier & USER_ID,
 								OTIdentifier & ACCT_ID)
 {
@@ -1093,7 +1158,7 @@ void OpenTransactions::getInbox(OTIdentifier & SERVER_ID,
 	// (0) Set up the REQUEST NUMBER and then INCREMENT IT
 	pNym->GetCurrentRequestNum(strServerID, lRequestNumber);
 	theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-	pNym->IncrementRequestNum(strServerID); // since I used it for a server request, I have to increment it
+	pNym->IncrementRequestNum(*pNym, strServerID); // since I used it for a server request, I have to increment it
 	
 	// (1) set up member variables 
 	theMessage.m_strCommand			= "getInbox";
@@ -1108,14 +1173,14 @@ void OpenTransactions::getInbox(OTIdentifier & SERVER_ID,
 	theMessage.SaveContract();
 	
 	// (Send it)
-	g_Wallet.m_Connection.ProcessMessageOut(theMessage);	
+	g_Client.ProcessMessageOut(theMessage);	
 }
 
 
 
 
 
-void OpenTransactions::processInbox(OTIdentifier	& SERVER_ID,
+void OT_API_processInbox(OTIdentifier	& SERVER_ID,
 									OTIdentifier	& USER_ID,
 									OTIdentifier	& ACCT_ID,
 									OTString		& ACCT_LEDGER)
@@ -1164,7 +1229,7 @@ void OpenTransactions::processInbox(OTIdentifier	& SERVER_ID,
 	// (0) Set up the REQUEST NUMBER and then INCREMENT IT
 	pNym->GetCurrentRequestNum(strServerID, lRequestNumber);
 	theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-	pNym->IncrementRequestNum(strServerID); // since I used it for a server request, I have to increment it
+	pNym->IncrementRequestNum(*pNym, strServerID); // since I used it for a server request, I have to increment it
 	
 	// (1) set up member variables 
 	theMessage.m_strCommand			= "processInbox";
@@ -1183,13 +1248,13 @@ void OpenTransactions::processInbox(OTIdentifier	& SERVER_ID,
 	theMessage.SaveContract();
 	
 	// (Send it)
-	g_Wallet.m_Connection.ProcessMessageOut(theMessage);	
+	g_Client.ProcessMessageOut(theMessage);	
 }
 
 
 
 
-void OpenTransactions::issueBasket(OTIdentifier	& SERVER_ID,
+void OT_API_issueBasket(OTIdentifier	& SERVER_ID,
 								   OTIdentifier	& USER_ID,
 								   OTString		& BASKET_INFO)
 {
@@ -1222,10 +1287,13 @@ void OpenTransactions::issueBasket(OTIdentifier	& SERVER_ID,
 	
 	OTString strServerID(SERVER_ID), strNymID(USER_ID);
 
+	OTMessage theMessage;
+	long lRequestNumber = 0;
+	
 	// (0) Set up the REQUEST NUMBER and then INCREMENT IT
 	pNym->GetCurrentRequestNum(strServerID, lRequestNumber);
 	theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-	pNym->IncrementRequestNum(strServerID); // since I used it for a server request, I have to increment it
+	pNym->IncrementRequestNum(*pNym, strServerID); // since I used it for a server request, I have to increment it
 	
 	// (1) Set up member variables 
 	theMessage.m_strCommand			= "issueBasket";
@@ -1241,12 +1309,12 @@ void OpenTransactions::issueBasket(OTIdentifier	& SERVER_ID,
 	theMessage.SaveContract();
 	
 	// (Send it)
-	g_Wallet.m_Connection.ProcessMessageOut(theMessage);
+	g_Client.ProcessMessageOut(theMessage);
 }
 
 
 
-void OpenTransactions::issueAssetType(OTIdentifier	&	SERVER_ID,
+void OT_API_issueAssetType(OTIdentifier	&	SERVER_ID,
 									  OTIdentifier	&	USER_ID,
 									  OTString		&	THE_CONTRACT)
 {
@@ -1291,7 +1359,7 @@ void OpenTransactions::issueAssetType(OTIdentifier	&	SERVER_ID,
 		// (0) Set up the REQUEST NUMBER and then INCREMENT IT
 		pNym->GetCurrentRequestNum(strServerID, lRequestNumber);
 		theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-		pNym->IncrementRequestNum(strServerID); // since I used it for a server request, I have to increment it
+		pNym->IncrementRequestNum(*pNym, strServerID); // since I used it for a server request, I have to increment it
 		
 		// (1) set up member variables 
 		theMessage.m_strCommand			= "issueAssetType";
@@ -1309,13 +1377,13 @@ void OpenTransactions::issueAssetType(OTIdentifier	&	SERVER_ID,
 		theMessage.SaveContract();
 		
 		// (Send it)
-		g_Wallet.m_Connection.ProcessMessageOut(theMessage);
+		g_Client.ProcessMessageOut(theMessage);
 	}
 }
 
 
 
-void OpenTransactions::getContract(OTIdentifier & SERVER_ID,
+void OT_API_getContract(OTIdentifier & SERVER_ID,
 								   OTIdentifier & USER_ID,
 								   OTIdentifier & ASSET_ID)
 {
@@ -1363,7 +1431,7 @@ void OpenTransactions::getContract(OTIdentifier & SERVER_ID,
 	// (0) Set up the REQUEST NUMBER and then INCREMENT IT
 	pNym->GetCurrentRequestNum(strServerID, lRequestNumber);
 	theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-	pNym->IncrementRequestNum(strServerID); // since I used it for a server request, I have to increment it
+	pNym->IncrementRequestNum(*pNym, strServerID); // since I used it for a server request, I have to increment it
 	
 	// (1) set up member variables 
 	theMessage.m_strCommand			= "getContract";
@@ -1378,7 +1446,7 @@ void OpenTransactions::getContract(OTIdentifier & SERVER_ID,
 	theMessage.SaveContract();
 	
 	// (Send it)
-	g_Wallet.m_Connection.ProcessMessageOut(theMessage);	
+	g_Client.ProcessMessageOut(theMessage);	
 }
 
 
@@ -1386,7 +1454,7 @@ void OpenTransactions::getContract(OTIdentifier & SERVER_ID,
 
 
 
-void OpenTransactions::getMint(OTIdentifier & SERVER_ID,
+void OT_API_getMint(OTIdentifier & SERVER_ID,
 							   OTIdentifier & USER_ID,
 							   OTIdentifier & ASSET_ID)
 {
@@ -1434,7 +1502,7 @@ void OpenTransactions::getMint(OTIdentifier & SERVER_ID,
 	// (0) Set up the REQUEST NUMBER and then INCREMENT IT
 	pNym->GetCurrentRequestNum(strServerID, lRequestNumber);
 	theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-	pNym->IncrementRequestNum(strServerID); // since I used it for a server request, I have to increment it
+	pNym->IncrementRequestNum(*pNym, strServerID); // since I used it for a server request, I have to increment it
 	
 	// (1) set up member variables 
 	theMessage.m_strCommand			= "getMint";
@@ -1449,14 +1517,14 @@ void OpenTransactions::getMint(OTIdentifier & SERVER_ID,
 	theMessage.SaveContract();
 	
 	// (Send it)
-	g_Wallet.m_Connection.ProcessMessageOut(theMessage);	
+	g_Client.ProcessMessageOut(theMessage);	
 }
 
 
 
 
 
-void OpenTransactions::createAssetAccount(OTIdentifier & SERVER_ID,
+void OT_API_createAssetAccount(OTIdentifier & SERVER_ID,
 										  OTIdentifier & USER_ID,
 										  OTIdentifier & ASSET_ID)
 {	
@@ -1504,7 +1572,7 @@ void OpenTransactions::createAssetAccount(OTIdentifier & SERVER_ID,
 	// (0) Set up the REQUEST NUMBER and then INCREMENT IT
 	pNym->GetCurrentRequestNum(strServerID, lRequestNumber);
 	theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-	pNym->IncrementRequestNum(strServerID); // since I used it for a server request, I have to increment it
+	pNym->IncrementRequestNum(*pNym, strServerID); // since I used it for a server request, I have to increment it
 	
 	// (1) set up member variables 
 	theMessage.m_strCommand			= "createAccount";
@@ -1519,14 +1587,14 @@ void OpenTransactions::createAssetAccount(OTIdentifier & SERVER_ID,
 	theMessage.SaveContract();
 	
 	// (Send it)
-	g_Wallet.m_Connection.ProcessMessageOut(theMessage);
+	g_Client.ProcessMessageOut(theMessage);
 }
 
 
 
 
 
-void OpenTransactions::getAccount(OTIdentifier	& SERVER_ID,
+void OT_API_getAccount(OTIdentifier	& SERVER_ID,
 								  OTIdentifier	& USER_ID,
 								  OTIdentifier	& ACCT_ID)
 {	
@@ -1574,7 +1642,7 @@ void OpenTransactions::getAccount(OTIdentifier	& SERVER_ID,
 	// (0) Set up the REQUEST NUMBER and then INCREMENT IT
 	pNym->GetCurrentRequestNum(strServerID, lRequestNumber);
 	theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-	pNym->IncrementRequestNum(strServerID); // since I used it for a server request, I have to increment it
+	pNym->IncrementRequestNum(*pNym, strServerID); // since I used it for a server request, I have to increment it
 	
 	// (1) set up member variables 
 	theMessage.m_strCommand			= "getAccount";
@@ -1589,11 +1657,11 @@ void OpenTransactions::getAccount(OTIdentifier	& SERVER_ID,
 	theMessage.SaveContract();
 	
 	// (Send it)
-	g_Wallet.m_Connection.ProcessMessageOut(theMessage);
+	g_Client.ProcessMessageOut(theMessage);
 }
 
 
-void OpenTransactions::getRequest(OTIdentifier	& SERVER_ID,
+void OT_API_getRequest(OTIdentifier	& SERVER_ID,
 								  OTIdentifier	& USER_ID)
 {	
 	// -----------------------------------------------------------------
@@ -1627,18 +1695,18 @@ void OpenTransactions::getRequest(OTIdentifier	& SERVER_ID,
 									*pNym, *pServer,
 									NULL)) // NULL pAccount on this command.
 	{				
-		g_Wallet.m_Connection.ProcessMessageOut(theMessage);
+		g_Client.ProcessMessageOut(theMessage);
 	}
 	else
-		fprintf(stderr, "Error processing getRequest command in OpenTransactions::getRequest\n");
+		fprintf(stderr, "Error processing getRequest command in OT_API_getRequest\n");
 	
 }
 
 
 
-void OpenTransactions::checkUser(OTIdentifier SERVER_ID,
-								 OTIdentifier USER_ID,
-								 OTIdentifier USER_ID_CHECK)
+void OT_API_checkUser(OTIdentifier & SERVER_ID,
+								 OTIdentifier & USER_ID,
+								 OTIdentifier & USER_ID_CHECK)
 {	
 	// -----------------------------------------------------------------
 	
@@ -1661,7 +1729,7 @@ void OpenTransactions::checkUser(OTIdentifier SERVER_ID,
 	// (0) Set up the REQUEST NUMBER and then INCREMENT IT
 	pNym->GetCurrentRequestNum(strServerID, lRequestNumber);
 	theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-	pNym->IncrementRequestNum(strServerID); // since I used it for a server request, I have to increment it
+	pNym->IncrementRequestNum(*pNym, strServerID); // since I used it for a server request, I have to increment it
 	
 	// (1) set up member variables 
 	theMessage.m_strCommand			= "checkUser";
@@ -1676,11 +1744,11 @@ void OpenTransactions::checkUser(OTIdentifier SERVER_ID,
 	theMessage.SaveContract();
 		
 	// (Send it)
-	g_Wallet.m_Connection.ProcessMessageOut(theMessage);
+	g_Client.ProcessMessageOut(theMessage);
 }
 
 
-void OpenTransactions::createUserAccount(OTIdentifier	& SERVER_ID,
+void OT_API_createUserAccount(OTIdentifier	& SERVER_ID,
 										 OTIdentifier	& USER_ID)
 {	
 	// -----------------------------------------------------------------
@@ -1714,15 +1782,15 @@ void OpenTransactions::createUserAccount(OTIdentifier	& SERVER_ID,
 									*pNym, *pServer,
 									NULL)) // NULL pAccount on this command.
 	{				
-		g_Wallet.m_Connection.ProcessMessageOut(theMessage);
+		g_Client.ProcessMessageOut(theMessage);
 	}
 	else
-		fprintf(stderr, "Error processing createUserAccount command in OpenTransactions::createUserAccount\n");
+		fprintf(stderr, "Error processing createUserAccount command in OT_API_createUserAccount\n");
 	
 }
 
 
-void OpenTransactions::checkServerID(OTIdentifier	& SERVER_ID,
+void OT_API_checkServerID(OTIdentifier	& SERVER_ID,
 									 OTIdentifier	& USER_ID)
 {	
 	// -----------------------------------------------------------------
@@ -1756,10 +1824,10 @@ void OpenTransactions::checkServerID(OTIdentifier	& SERVER_ID,
 									*pNym, *pServer,
 									NULL)) // NULL pAccount on this command.
 	{				
-		g_Wallet.m_Connection.ProcessMessageOut(theMessage);
+		g_Client.ProcessMessageOut(theMessage);
 	}
 	else
-		fprintf(stderr, "Error processing checkServerID command in OpenTransactions::checkServerID\n");
+		fprintf(stderr, "Error processing checkServerID command in OT_API_checkServerID\n");
 	
 }
 

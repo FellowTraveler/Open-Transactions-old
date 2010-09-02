@@ -94,6 +94,9 @@ class OTMessage;
 class OTServerConnection;
 class OTLedger;
 class OTTransaction;
+class OTWallet;
+
+#include "OTServerConnection.h"
 
 // This class represents the "test client"
 //
@@ -104,6 +107,9 @@ class OTTransaction;
 
 class OTClient
 {
+private:
+	OTWallet * m_pWallet;
+	
 public:
 	enum OT_CLIENT_CMD_TYPE 
 	{
@@ -182,8 +188,46 @@ public:
 		badID
 	};
 	
+	// Right now this wallet just supports a SINGLE server connection.
+	// Eventually it will be a whole list of server connections.
+	// For now one is good enough for testing.
+	// All commands for the server will be sent here.
+	//
+	// Here was the problem, you see: You can't attach the connection to the Nym,
+	// because the same Nym might have connections to different servers. And you can't
+	// attach it to the server contract, because the user might access that server
+	// through multiple nym accounts on the same server.
+	// So I decided the wallet should manage the connections, and when new connections
+	// are made, the serverconnection object will be given a pointer at that time to
+	// the server and nym for that connection.  That way the two are always available
+	// for processing the commands.
+	
+	OTServerConnection * m_pConnection;
+	
+	inline bool IsConnected() { return m_pConnection->IsConnected(); }
+
+	bool ConnectToTheFirstServerOnList(OTPseudonym & theNym,
+									   OTString & strCA_FILE, OTString & strKEY_FILE, OTString & strKEY_PASSWORD);
+
+	// Eventually, the wallet will have a LIST of these server connections,
+	// and any use of the connection will first require to look up the right one
+	// on that list, based on ID. This will return a pointer, and then you do the
+	// same call you normally did from there.
+
 	OTClient();
 	~OTClient();
+	
+	bool InitClient(OTWallet & theWallet); // Need to call this before using.
+	bool m_bInitialized; // this will be false until InitClient() is called.
+	
+	// ------------------------------------------------------------
+	// These functions manipulate the internal m_pConnection member:
+	void ProcessMessageOut(char *buf, int * pnExpectReply);
+	void ProcessMessageOut(OTMessage & theMessage);
+	bool ProcessInBuffer(OTMessage & theServerReply);
+
+	// ------------------------------------------------------------
+	// These functions are for command processing:
 	
 	bool ProcessUserCommand(OT_CLIENT_CMD_TYPE requestedCommand,
 							OTMessage & theMessage,
@@ -192,7 +236,7 @@ public:
 							OTServerContract & theServer,
 							OTAccount * pAccount=0);
 
-	bool ProcessServerReply(OTServerConnection & theConnection, OTMessage & theReply);
+	bool ProcessServerReply(OTMessage & theReply);
 
 	void ProcessIncomingTransactions(OTServerConnection & theConnection, OTMessage & theReply);
 	void ProcessWithdrawalResponse(OTTransaction & theTransaction, OTServerConnection & theConnection, OTMessage & theReply);

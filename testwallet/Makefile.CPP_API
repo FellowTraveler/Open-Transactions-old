@@ -4,7 +4,7 @@
 # location
 #
 
-PROGRAM = transaction.exe  
+PROGRAM = libOTAPI.a  
 
 #
 # Command line parameters: Edit these parameters so that you can 
@@ -34,8 +34,7 @@ LIBDIRS = \
 	-L../OTLib
 
 
-LIBS = $(LIBDIRS) -lssl $(LIBDIRS) -lcrypto $(LIBDIRS) -lOTLib $(LIBDIRS) -lssl $(LIBDIRS) -lcrypto $(LIBDIRS) -lOTLib $(LIBDIRS) -lssl $(LIBDIRS) -lcrypto $(LIBDIRS) -lOTLib $(LIBDIRS) -lssl $(LIBDIRS) -lcrypto $(LIBDIRS) -lOTLib
- 
+LIBS = $(LIBDIRS) -lssl $(LIBDIRS) -lcrypto $(LIBDIRS) -lOTLib $(LIBDIRS) -lssl $(LIBDIRS) -lcrypto $(LIBDIRS) -lOTLib 
 
 #
 # The CXXSOURCES macro contains a list of source files.
@@ -56,10 +55,10 @@ LIBS = $(LIBDIRS) -lssl $(LIBDIRS) -lcrypto $(LIBDIRS) -lOTLib $(LIBDIRS) -lssl 
 CSOURCES = ./SSL-Example/SFSocket.c
 
 CXXSOURCES = \
-	OTClientConnection.cpp \
-	OTServer.cpp \
-	testserver.cpp
-			 
+			 OpenTransactions.cpp \
+			 OTServerConnection.cpp \
+			 OTClient.cpp
+
 CXXOBJECTS = $(CXXSOURCES:.cpp=.o)  # expands to list of object files
 COBJECTS   = $(CSOURCES:.c=.o)
 CXXFLAGS   = $(INCLUDEDIRS)
@@ -81,7 +80,7 @@ all: $(PROGRAM)
 #
 
 $(PROGRAM): $(CXXOBJECTS) $(COBJECTS) 
-	$(CXX) -ldl $(CXXOBJECTS) $(COBJECTS) $(LIBS) -o $@
+	ar rc $(PROGRAM) $(CXXOBJECTS) $(COBJECTS)
 
 #
 # Object targets: rules that define objects, their dependencies, and
@@ -91,13 +90,12 @@ $(PROGRAM): $(CXXOBJECTS) $(COBJECTS)
 SFSocket.o: ./SSL-Example/SFSocket.c ./SSL-Example/SFSocket.h
 	$(CC) $(CFLAGS) -c -o ./SSL-Example/SFSocket.o ./SSL-Example/SFSocket.c
 
-OTServer.o: OTServer.cpp OTServer.h
-	$(CXX) $(CXXFLAGS) -c -o OTServer.o OTServer.cpp
-OTClientConnection.o: OTClientConnection.cpp OTClientConnection.h
-	$(CXX) $(CXXFLAGS) -c -o OTClientConnection.o OTClientConnection.cpp
-testserver.o: testserver.cpp
-	$(CXX) $(CXXFLAGS) -c -o testserver.o testserver.cpp
-
+OTServerConnection.o: OTServerConnection.cpp OTServerConnection.h
+	$(CXX) $(CXXFLAGS) -c -o OTServerConnection.o OTServerConnection.cpp
+OTClient.o: OTClient.cpp OTClient.h
+	$(CXX) $(CXXFLAGS) -c -o OTClient.o OTClient.cpp
+OpenTransactions.o: OpenTransactions.cpp
+	$(CXX) $(CXXFLAGS) -c -o OpenTransactions.o OpenTransactions.cpp
 
 #
 # Clean target: "make -f Makefile.Linux clean" to remove unwanted objects and executables.

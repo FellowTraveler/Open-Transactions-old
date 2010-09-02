@@ -63,6 +63,7 @@ CXXSOURCES = $(LUCRESOURCES) $(IRRXMLSOURCES) \
 			 OTStringXML.cpp \
 			 OTASCIIArmor.cpp \
 			 OTContract.cpp \
+			 OTWallet.cpp \
 			 OTSignedFile.cpp \
 			 OTPseudonym.cpp \
 			 OTMint.cpp \
@@ -76,15 +77,17 @@ CXXSOURCES = $(LUCRESOURCES) $(IRRXMLSOURCES) \
 			 OTTransaction.cpp \
 			 OTLedger.cpp \
 			 OTAccount.cpp \
-		     	OTEnvelope.cpp \
+			 OTEnvelope.cpp \
 			 OTAssetContract.cpp \
 			 OTServerContract.cpp \
 			 OTPayload.cpp \
 			 OTMessage.cpp \
+			 OTMessageBuffer.cpp \
 			 OTIdentifier.cpp \
 			 OTAsymmetricKey.cpp \
 			 OTSignature.cpp \
 			 OTDataCheck.cpp
+			 
 			 
 CXXOBJECTS = $(CXXSOURCES:.cpp=.o)  # expands to list of object files
 COBJECTS   = $(CSOURCES:.c=.o)
@@ -139,6 +142,8 @@ OTPseudonym.o: OTPseudonym.cpp OTPseudonym.h
 	$(CXX) $(CXXFLAGS) -c -o OTPseudonym.o OTPseudonym.cpp
 OTContract.o: OTContract.cpp OTContract.h
 	$(CXX) $(CXXFLAGS) -c -o OTContract.o OTContract.cpp
+OTWallet.o: OTWallet.cpp OTWallet.h 
+	$(CXX) $(CXXFLAGS) -c -o OTWallet.o OTWallet.cpp
 OTSignedFile.o: OTSignedFile.cpp OTSignedFile.h
 	$(CXX) $(CXXFLAGS) -c -o OTSignedFile.o OTSignedFile.cpp
 OTInstrument.o: OTInstrument.cpp OTInstrument.h
@@ -173,6 +178,8 @@ OTPayload.o: OTPayload.cpp OTPayload.h
 	$(CXX) $(CXXFLAGS) -c -o OTPayload.o OTPayload.cpp
 OTMessage.o: OTMessage.cpp OTMessage.h
 	$(CXX) $(CXXFLAGS) -c -o OTMessage.o OTMessage.cpp
+OTMessageBuffer.o: OTMessageBuffer.cpp OTMessageBuffer.h
+	$(CXX) $(CXXFLAGS) -c -o OTMessageBuffer.o OTMessageBuffer.cpp
 OTAsymmetricKey.o: OTAsymmetricKey.cpp OTAsymmetricKey.h
 	$(CXX) $(CXXFLAGS) -c -o OTAsymmetricKey.o OTAsymmetricKey.cpp
 OTDataCheck.o: OTDataCheck.cpp OTDataCheck.h

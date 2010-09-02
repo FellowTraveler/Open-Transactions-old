@@ -9,6 +9,14 @@ extern "C" {
 #endif
 /*
  * Class:     OpenTransactionsJNI
+ * Method:    InitOTAPI
+ * Signature: (Ljava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_OpenTransactionsJNI_InitOTAPI
+  (JNIEnv *, jclass, jstring);
+
+/*
+ * Class:     OpenTransactionsJNI
  * Method:    loadWallet
  * Signature: (Ljava/lang/String;)V
  */
@@ -42,10 +50,10 @@ JNIEXPORT void JNICALL Java_OpenTransactionsJNI_addServerContract
 /*
  * Class:     OpenTransactionsJNI
  * Method:    connectServer
- * Signature: (Ljava/lang/String;)V
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z
  */
-JNIEXPORT void JNICALL Java_OpenTransactionsJNI_connectServer
-  (JNIEnv *, jobject, jstring);
+JNIEXPORT jboolean JNICALL Java_OpenTransactionsJNI_connectServer
+  (JNIEnv *, jobject, jstring, jstring, jstring, jstring, jstring);
 
 /*
  * Class:     OpenTransactionsJNI
@@ -124,7 +132,7 @@ JNIEXPORT void JNICALL Java_OpenTransactionsJNI_createAssetAccount
  * Method:    getAccount
  * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
  */
-JNIEXPORT void JNICALL Java_OpenTransactionsJNI_getAccount
+JNIEXPORT void JNICALL Java_OpenTransactionsJNI_getAccount__Ljava_lang_String_2Ljava_lang_String_2Ljava_lang_String_2
   (JNIEnv *, jobject, jstring, jstring, jstring);
 
 /*
@@ -206,6 +214,70 @@ JNIEXPORT void JNICALL Java_OpenTransactionsJNI_withdrawVoucher
  */
 JNIEXPORT void JNICALL Java_OpenTransactionsJNI_depositCheque
   (JNIEnv *, jobject, jstring, jstring, jstring, jstring);
+
+/*
+ * Class:     OpenTransactionsJNI
+ * Method:    getNymCount
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_OpenTransactionsJNI_getNymCount
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     OpenTransactionsJNI
+ * Method:    getNym
+ * Signature: (ILjava/lang/StringBuffer;Ljava/lang/StringBuffer;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_OpenTransactionsJNI_getNym
+  (JNIEnv *, jobject, jint, jobject, jobject);
+
+/*
+ * Class:     OpenTransactionsJNI
+ * Method:    getServerCount
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_OpenTransactionsJNI_getServerCount
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     OpenTransactionsJNI
+ * Method:    getServer
+ * Signature: (ILjava/lang/StringBuffer;Ljava/lang/StringBuffer;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_OpenTransactionsJNI_getServer
+  (JNIEnv *, jobject, jint, jobject, jobject);
+
+/*
+ * Class:     OpenTransactionsJNI
+ * Method:    getAssetTypeCount
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_OpenTransactionsJNI_getAssetTypeCount
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     OpenTransactionsJNI
+ * Method:    getAssetType
+ * Signature: (ILjava/lang/StringBuffer;Ljava/lang/StringBuffer;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_OpenTransactionsJNI_getAssetType
+  (JNIEnv *, jobject, jint, jobject, jobject);
+
+/*
+ * Class:     OpenTransactionsJNI
+ * Method:    getAccountCount
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_OpenTransactionsJNI_getAccountCount
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     OpenTransactionsJNI
+ * Method:    getAccount
+ * Signature: (ILjava/lang/StringBuffer;Ljava/lang/StringBuffer;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_OpenTransactionsJNI_getAccount__ILjava_lang_StringBuffer_2Ljava_lang_StringBuffer_2
+  (JNIEnv *, jobject, jint, jobject, jobject);
 
 #ifdef __cplusplus
 }

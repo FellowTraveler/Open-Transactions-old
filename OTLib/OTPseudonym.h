@@ -147,6 +147,9 @@ public:
 	static OTString	OTPathSeparator;
 	
 	// ------------------------------------------------
+	
+	inline OTString & GetNymName() { return m_strName; }
+	
 	OTPseudonym();
 	OTPseudonym(OTIdentifier & nymID);
 	OTPseudonym(OTString & strNymID);
@@ -198,7 +201,7 @@ public:
 	
 	void GetIdentifier(OTString & theIdentifier) const;
 	void SetIdentifier(const OTString & theIdentifier);
-	
+
 	void HarvestTransactionNumbers(OTPseudonym & SIGNER_NYM, OTPseudonym & theOtherNym); // OtherNym is used as container for server to send us new transaction numbers
 
 	void IncrementRequestNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID); // Increment the counter or create a new one for this serverID starting at 1
