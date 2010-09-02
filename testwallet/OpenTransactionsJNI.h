@@ -9,14 +9,6 @@ extern "C" {
 #endif
 /*
  * Class:     OpenTransactionsJNI
- * Method:    InitOTAPI
- * Signature: (Ljava/lang/String;)V
- */
-JNIEXPORT void JNICALL Java_OpenTransactionsJNI_InitOTAPI
-  (JNIEnv *, jclass, jstring);
-
-/*
- * Class:     OpenTransactionsJNI
  * Method:    loadWallet
  * Signature: (Ljava/lang/String;)V
  */
@@ -132,7 +124,7 @@ JNIEXPORT void JNICALL Java_OpenTransactionsJNI_createAssetAccount
  * Method:    getAccount
  * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
  */
-JNIEXPORT void JNICALL Java_OpenTransactionsJNI_getAccount__Ljava_lang_String_2Ljava_lang_String_2Ljava_lang_String_2
+JNIEXPORT void JNICALL Java_OpenTransactionsJNI_getAccount
   (JNIEnv *, jobject, jstring, jstring, jstring);
 
 /*
@@ -273,11 +265,19 @@ JNIEXPORT jint JNICALL Java_OpenTransactionsJNI_getAccountCount
 
 /*
  * Class:     OpenTransactionsJNI
- * Method:    getAccount
+ * Method:    getAccountByIndex
  * Signature: (ILjava/lang/StringBuffer;Ljava/lang/StringBuffer;)Z
  */
-JNIEXPORT jboolean JNICALL Java_OpenTransactionsJNI_getAccount__ILjava_lang_StringBuffer_2Ljava_lang_StringBuffer_2
+JNIEXPORT jboolean JNICALL Java_OpenTransactionsJNI_getAccountByIndex
   (JNIEnv *, jobject, jint, jobject, jobject);
+
+/*
+ * Class:     OpenTransactionsJNI
+ * Method:    InitOTAPI
+ * Signature: (Ljava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_OpenTransactionsJNI_InitOTAPI
+  (JNIEnv *, jclass, jstring);
 
 #ifdef __cplusplus
 }

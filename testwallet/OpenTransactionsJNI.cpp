@@ -33,12 +33,14 @@ JNIEXPORT void JNICALL Java_OpenTransactionsJNI_InitOTAPI
 
 
 
+
+
 /*
- * Method:    getAccount
+ * Method:    getAccountByIndex
  * Class:     OpenTransactionsJNI
  * Signature: (ILjava/lang/StringBuffer;Ljava/lang/StringBuffer;)Z
  */
-JNIEXPORT jboolean JNICALL Java_OpenTransactionsJNI_getAccount__ILjava_lang_StringBuffer_2Ljava_lang_StringBuffer_2
+JNIEXPORT jboolean JNICALL Java_OpenTransactionsJNI_getAccountByIndex
 (JNIEnv *env, jobject, jint jintIndex, jobject jstrbufID, jobject jstrbufName)
 {
 	jboolean retVal= JNI_FALSE;

@@ -39,7 +39,16 @@ The specific OpenSSL version that I installed was this one:
 Win32 OpenSSL v1.0.0a
 http://www.slproweb.com/download/Win32OpenSSL-1_0_0a.exe
 
-This installed OpenSSL to the folder: C:\OpenSSL-Win32
+
+IMPORTANT: While the default install folder for OpenSSL is "C:\OpenSSL-Win32",
+I HAVE INSTEAD INSTALLED IT HERE:   "C:\~\OpenSSL-Win32"
+This is at the request of our only known Windows developer.
+
+THEREFORE, make sure you install OpenSSL to that folder, again: C:\~\OpenSSL-Win32
+
+...since that is where the project will assume that it can be found. If you prefer
+to install to the default location, be warned that you need to update the path in
+various files in the project for it to work.
 
 ------------
 
@@ -47,7 +56,7 @@ This installed OpenSSL to the folder: C:\OpenSSL-Win32
 http://code.google.com/p/msinttypes/downloads/detail?name=msinttypes-r26.zip&can=2&q=
 
 Once you download the header files, unzip them so that they appear in your
-C:\OpenSSL-Win32\include folder, (which we will later add to the path in the
+C:\~\OpenSSL-Win32\include folder, (which we will later add to the path in the
 library project.)
 
 Those were headers that are included in Unix but not Windows, so you just
@@ -56,6 +65,8 @@ have to download them separately and put them into an include folder.
 ------------
 
 4) Then I created a Win32 command-line application and chose 'library' as the type.
+(You won't have to do this since it's already done: I have included the project files 
+with this distribution.)
 
 Then I copied all of the OTLib files into the new Win32 OTLib folder for my
 new project.
@@ -69,34 +80,36 @@ each to their respective folders and added to each project as appropriate.
 5) Transaction server and client both still have a hardcoded path in the source code. 
 (It's just a default path and IS configurable on the command line.)
 
-Search the code for the word REDACTED, which appears once in the client and 
+Search the code for "C:\\", which appears once in the client and 
 once in the server for each platform.
 
 The relevant source code: Open-Transactions\transaction\server.cpp and 
 Open-Transactions\testwallet\client.cpp
 
 Replace the REDACTED (entire path) with whatever path is appropriate for your system.
+The path needs to be whatever is appropriate for your system. But the idea is for you
+to use C:\~\Open-Transactions as your main folder. If you do that, all the paths are
+ALREADY set up for you correctly.
 
-NOTE: You can also replace the path with "." if you want it to run from the current folder
-by default, but this may not work on all systems, since some libraries may require fully-
-qualified paths.
+(Otherwise you'd have to search the project and fix them all, which is not a big deal
+if you prefer to do that.)
 
 CONFIG FILES:
-The same "REDACTED" corrections should be made in the server config file: 
+Any path corrections should be unnecessary if you install to C:\~\Open-Transactions
+but if you prefer to use different directories, you will have to fix the path in 
+these locations:
+ 
+The server config file: 
 Open-Transactions\transaction\notaryServer-Windows.xml
 
 As well as the client config file:  
 Open-Transactions\testwallet\wallet-Windows.xml
 
-On Windows, if you use the VC++ project files that I distributed, you have to fix
-those as well. They are:
+On Windows, if you use the VC++ project files that I distributed, the paths are in 
+these files: 
 Open-Transactions\testwallet\testwallet\testwallet.vcxproj
 Open-Transactions\transaction\transaction\transaction.vcxproj
 Open-Transactions\OTLib\OTLib\OTLib.vcxproj
-
-
-So make sure to edit all of those and correct the paths within by searching 
-each for the word 'REDACTED'.
 
 
 ------
@@ -116,9 +129,11 @@ used, since it was free.
 
 7) OTLIB INCLUDE DIRECTORIES
 
-Under VC++ Directories -> Include Directories, the value is set to:
-C:\Users\REDACTED\Documents\Visual Studio 2010\Projects\OTLib\Lucre;
-C:\OpenSSL-Win32\include;
+Under VC++ Directories -> Include Directories, the value is set to: 
+(SEPARATED ONTO MULTIPLE LINES FOR READABILITY...)
+
+C:\~\Open-Transactions\OTLib\Lucre;
+C:\~\OpenSSL-Win32\include;
 $(IncludePath)
 
 (I added newlines to make it easier for you to decipher.)  Make sure your own
@@ -130,20 +145,20 @@ project includes the OpenSSL path and the Lucre path as appropriate for your sys
 
 The VC++ project for testwallet, under VC++ Directories -> Include Directories, 
 it is set to:
-C:\OpenSSL-Win32\include;
-C:\Users\REDACTED\Documents\Visual Studio 2010\Projects\Open-Transactions\OTLib;
+C:\~\OpenSSL-Win32\include;
+C:\~\Open-Transactions\OTLib;
 $(IncludePath)
 
 Again, I added newlines above to make it easier to read. When I copied it, this 
 was all on a single line.
 
 Just underneath that are the Library Directories. Mine is set to:
-C:\OpenSSL-Win32\lib\VC;
-C:\Users\REDACTED\Documents\Visual Studio 2010\Projects\Open-Transactions\OTLib\Debug;
+C:\~\OpenSSL-Win32\lib\VC;
+C:\~\Open-Transactions\OTLib\OTLib\Debug;
 $(LibraryPath)
 
 Notice a couple things. (1) the newlines again, you must remove those. 
-(2) I am specifying the OTLib\Debug folder as part of the library path. 
+(2) I am specifying the OTLib\OTLib\Debug folder as part of the library path. 
 That's because so far I've only been coding in Debug Mode, so I had the 
 debug testwallet looking in the debug folder for the debug library (which 
 is statically linked.)  
@@ -181,6 +196,32 @@ my project configured to link THOSE specific versions of the OpenSSL libs.
 (libeay32MTd.lib and ssleay32MTd.lib. If I linked the wrong versions, there 
 would definitely be problems.)
 
+
+*************
+
+OPTIONAL: HIGH-LEVEL API -- Now available in C++ and Java!!
+
+Notice there are a few extra folders in Open-Transactions\testwallet:
+
+CPP_API_Windows
+JNI_API_Windows
+
+Each contains an MS Visual Studio 2010 Express project. Description:
+
+CPP_API_Windows -- Build this first. It's the OT Library, but with the socket code
+                   added as well as the high-level C++ interface. After you build it,
+                   you can include the static lib it generates into any C++ project.
+                   Just make sure you include OpenTransactions.h in your project.
+
+JNI_API_Windows -- There is also a Java JNI interface. Build this next and it will create
+                   the DLL. Then you can use OpenTransactionsJNI.java in your java projects,
+                   and it will load the DLL as appropriate (make sure it's on the classpath.)
+                   NOTE: You have to install the JDK for Windows in order to build this. It
+                   uses jni.h which won't otherwise be on your machine.
+
+Now you can include Open Transactions in your Java or C++ projects on Windows, with
+a very easy, high-level interface. A trained monkey could do it!
+
 -------
 
 10) TRANSACTION 
@@ -192,10 +233,10 @@ winmm.lib;ws2_32.lib;libeay32MTd.lib;ssleay32MTd.lib;OTLib.lib;%(AdditionalDepen
 Also the include directories and library directories are the same:
 
 - transaction's "VC++ Directories -> Include Directories":
-C:\OpenSSL-Win32\include;C:\Users\REDACTED\Documents\Visual Studio 2010\Projects\Open-Transactions\OTLib;$(IncludePath)
+C:\~\OpenSSL-Win32\include;C:\~\Open-Transactions\OTLib;$(IncludePath)
 
 - Library Directories:
-C:\OpenSSL-Win32\lib\VC;C:\Users\REDACTED\Documents\Visual Studio 2010\Projects\Open-Transactions\OTLib\Debug;$(LibraryPath)
+C:\~\OpenSSL-Win32\lib\VC;C:\~\Open-Transactions\OTLib\Debug;$(LibraryPath)
 
 Obviously you will have to edit these to make them appropriate for your own system.
 
@@ -231,6 +272,9 @@ TO RUN:
 The client and server expect to be run from the command line in their respective folders. 
 
 (Assuming you have already built the projects, including OTLib first.)
+
+NOTE: Make sure you fix the paths in testwallet\wallet-Windows.xml and 
+transaction\notaryServer-Windows.xml
 
 SERVER
 to enter the right folder:             cd Open-Transactions\transaction

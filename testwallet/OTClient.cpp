@@ -131,7 +131,7 @@ void OTClient::ProcessMessageOut(OTMessage & theMessage)
 
 bool OTClient::ProcessInBuffer(OTMessage & theServerReply)
 {
-	m_pConnection->ProcessInBuffer(theServerReply);
+	return m_pConnection->ProcessInBuffer(theServerReply);
 }
 
 

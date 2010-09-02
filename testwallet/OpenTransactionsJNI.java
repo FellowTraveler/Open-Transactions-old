@@ -11,39 +11,111 @@
 
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
-
 
 public class OpenTransactionsJNI 
-{     
+{   		
+	// UNIX
+	/*
+	private static final String DLL_NAME		= "OT_JNI_API";
+	private static final String WALLET_PATH		= "/Users/REDACTED/Projects/Open-Transactions/testwallet";	
+	private static final String WALLET			= "wallet.xml";
+	private static final String CA_FILE			= "SSL-Example/ca.crt";
+	private static final String KEY_FILE		= "SSL-Example/client.pem";
+	*/
 	
-	public static void main(String args[]) {
+	// WINDOWS
+	// The C++ code uses these paths so I want to make sure it's compatible, so I changed to \\ instead of /
+//	private static final String DLL_PATH		= "C:\\~\\Open-Transactions\\testwallet\\JNI_API_Windows\\Debug\\JNI_API_Windows.dll";
+	private static final String DLL_NAME		= "JNI_API_Windows";
+	private static final String WALLET_PATH		= "C:\\~\\Open-Transactions\\testwallet";	
+	private static final String WALLET			= "wallet-Windows.xml";
+	private static final String CA_FILE			= "SSL-Example\\ca.crt";
+	private static final String KEY_FILE		= "SSL-Example\\client.pem";
+	
+	
+
+	private static final String KEY_PASSWORD	= "test";
+	
+	private static final String SERVER_ID 		= "6147e7dead777e4671020f5ae7d8abb1b84d8c2dae630f7557778129beb5b2bb082c813af3412e77cb865cd91eb213df5cc979367528b7634453113d77fd5953";
+	private static final String USER_ID 		= "aa4c73aa4b2658a195fb7ecb1bd242fd1759eaeab0bbd6d0b51f835373b7e5088eb57e804c98e9529a79792d022c3689f1f8d40b5daaf4edb20c64e5b838d0ca";
+	private static final String ACCT_ID			= "046adc320eada132f102b44ac9a9885bccd586e538bf3e734d34a8f622a6707d2eb7a99452247b85c7e00f3d31b96bc530f33216531125b6298d1d2be703d022";	
+
+	// Remember the path and wallet we used.
+	private static 		 String dllPath			= DLL_NAME;
+	private static 		 String wallet			= WALLET;	
+	
+	private static 		 String serverID		= SERVER_ID;	
+	private static 		 String userID			= USER_ID;	
+	private static 		 String accountID		= ACCT_ID;	
+	
+	/**
+	 * Constructor.
+	 */
+	public OpenTransactionsJNI() 
+	{
+		// Call the other constructor to load the library.
+		this (DLL_NAME, WALLET_PATH, WALLET);
 		
-		OpenTransactionsJNI.InitOT("/Users/REDACTED/Projects/Open-Transactions/testwallet");
-		
-		OpenTransactionsJNI theAPI = new OpenTransactionsJNI();
-		
-		theAPI.loadWallet("wallet.xml");
-		
-		theAPI.connectServer("6147e7dead777e4671020f5ae7d8abb1b84d8c2dae630f7557778129beb5b2bb082c813af3412e77cb865cd91eb213df5cc979367528b7634453113d77fd5953",
-							 "aa4c73aa4b2658a195fb7ecb1bd242fd1759eaeab0bbd6d0b51f835373b7e5088eb57e804c98e9529a79792d022c3689f1f8d40b5daaf4edb20c64e5b838d0ca",
-							 "SSL-Example/ca.crt",
-							 "SSL-Example/client.pem",
-							 "test");
+		// NOTE: The other constructor doesn't do this automatically.
+		connectServer(SERVER_ID, USER_ID, CA_FILE, KEY_FILE, KEY_PASSWORD);				
 	}
 	
+	/**
+	 * 
+	 * Constructor allows path and wallet to be specified.
+	 * 
+	 * NOTE: This constructor doesn't call connect server automatically.
+	 *
+	 * @param dllPath
+	 * @param clientFolder
+	 * @param wallet
+	 */
+	public OpenTransactionsJNI(String dllPath, String clientFolder, String wallet) 
+	{		
+		super ();
+		
+		// Load the library.
+		loadLibrary (dllPath, clientFolder, wallet);				
+	}
 	
-	protected static native void InitOTAPI(String CLIENT_FOLDER);
-
+	/**
+	 * 
+	 * @param path
+	 * @param wallet
+	 */
+	public void loadLibrary (String dllPath, String clientFolder, String wallet)
+	{
+		// Remember the path and wallet.
+		OpenTransactionsJNI.dllPath = dllPath;
+		OpenTransactionsJNI.wallet  = wallet;
+		
+		// Load the library
+		loadLibrary (dllPath, clientFolder);
+		
+		// Load the wallet.
+		loadWallet(wallet);
+	}
+	
+	///////////////////////////////////////////////////////////////////////////////
+	// JNI functions.
+	///////////////////////////////////////////////////////////////////////////////
 	
 	// Step 1... Load the Open Transactions library
-	public static void InitOT(String CLIENT_FOLDER)
+	public void loadLibrary (String dllPath, String clientFolder)
 	{
-		System.loadLibrary("OT_JNI_API"); 
-		
-		InitOTAPI(CLIENT_FOLDER);
+		try {
+			// Load the dll.
+			System.loadLibrary (dllPath); 
+			//System.load (dllPath); 
+			
+			// init client folder
+			InitOTAPI(clientFolder);
+		}
+		catch (Throwable th) {
+			// There was a problem.
+			th.printStackTrace();
+		}
 	}
 	
 	// Step 2...  Instantiate an OpenTransactionsJNI object, then call loadWallet...
@@ -69,7 +141,6 @@ public class OpenTransactionsJNI
 	// Make sure you call this regularly, so Open Transactions has the chance
 	// to process any server communications.
 	public native void processSockets();
-	
 	
 	// Step 7: Run some commands! (everything below)
 	
@@ -171,7 +242,7 @@ public class OpenTransactionsJNI
 		{
 			// I know that IDs are strings 128 bytes long. Name () defaults to 16 bytes long.
 			// (StringBuffer will resize itself as necessary.)
-			StringBuffer	strbufID	= new StringBuffer(128), 
+			StringBuffer strbufID = new StringBuffer(128), 
 			strbufName	= new StringBuffer();
 			
 			if (getNym(i, strbufID, strbufName))
@@ -240,7 +311,7 @@ public class OpenTransactionsJNI
 	
 	public native int			getAccountCount();
 	// iIndex is input, jstrbufID and jstrbufName are output.
-	public native boolean		getAccount(int iIndex, StringBuffer jstrbufID, StringBuffer jstrbufName);
+	public native boolean		getAccountByIndex(int iIndex, StringBuffer jstrbufID, StringBuffer jstrbufName);
 	public Map<String,String>	getMapOfAccounts()
 	{
 		Map<String,String> returnValue = new HashMap<String,String>(5); // "typical size" will be 5. (FYI to HashMap.)
@@ -252,63 +323,45 @@ public class OpenTransactionsJNI
 			StringBuffer	strbufID	= new StringBuffer(128), 
 			strbufName	= new StringBuffer();
 			
-			if (getAccount(i, strbufID, strbufName))
+			if (getAccountByIndex(i, strbufID, strbufName))
 			{
 				returnValue.put(strbufID.toString(), strbufName.toString());				
 			}
 		}
 		
 		return returnValue;
+	}	
+	
+	///////////////////////////////////////////////////////////////////////////////
+	// JNI Static functions.
+	///////////////////////////////////////////////////////////////////////////////
+	
+	/**
+	 * Going native.
+	 * 
+	 * @param CLIENT_FOLDER
+	 */
+	protected static native void InitOTAPI(String CLIENT_FOLDER);
+	
+	/**
+	 * Main
+	 * 
+	 * @param args
+	 */
+	public static void main(String args[]) 
+	{
+		OpenTransactionsJNI ot = new OpenTransactionsJNI();
+		
+		// getAccount will fail unless the request numbers are synced.
+		// (They usually are already, but I'm just making sure here.)
+		ot.getRequest(serverID, userID);
+
+		ot.getAccount(serverID, userID, accountID);
+		
+		Map<String,String> nyms = ot.getMapOfNyms();
+		System.out.println(nyms.toString());	
 	}
-	
-	
-	// -----------------------------------------------------------
-	
-	// CALLBACK INTERFACE:  COMING SOON!!!
-	
-	// The above functions all return void because all they do
-	// is SEND THE MESSAGE to the server.
-	//
-	// Later on, as you are calling processSockets(), server replies will
-	// come in. When that happens, I will provide CALLBACK FUNCTIONS so that you
-	// can have your actions occur at that time.
-	//
-	// What callback functions you will need, and what informational functions you
-	// will need, is something that you will have to work with me on. I will be VERY
-	// responsive to developer needs on this high-level interface...
-	
 }
-
-
-
-// Return:
-//
-// Java String object containing environment variable value
-// ========================================================================
-//JNIEXPORT jstring JNICALL 
-//Java_SysInfo_getenv__Ljava_lang_String_2 
-//(JNIEnv *env, jclass clazz, jstring EVName)
-//{
-//	// Check Java String object argument (environment variable name) to see
-//	// if null reference passed.
-//	if (EVName == 0)
-//		return 0;
-//
-//	// Get ASCII representation of environment variable name.
-//	const char *_EVName = env->GetStringUTFChars (EVName, 0);
-//
-//	// Get environment variable value.
-//	const char *EVValue = getenv (_EVName);
-//
-//	// Release memory used to hold ASCII representation.
-//	env->ReleaseStringUTFChars (EVName, _EVName);
-//
-//	// Return a null reference if there is no environment variable value 
-//	// otherwise return this value.
-//	return (EVValue == 0) ? 0 : env->NewStringUTF (EVValue);
-//}
-
-
 
 
 

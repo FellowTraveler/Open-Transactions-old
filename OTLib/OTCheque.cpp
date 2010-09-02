@@ -287,6 +287,9 @@ bool OTCheque::IssueCheque(const long & lAmount, const long & lTransactionNum,
 		m_bHasRecipient		= true;
 		m_RECIPIENT_USER_ID	= *pRECIPIENT_USER_ID;
 	}
+
+	if (m_lAmount < 0)
+		m_strContractType.Set("INVOICE");
 	
 	return true;
 }

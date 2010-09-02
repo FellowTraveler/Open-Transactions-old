@@ -86,9 +86,7 @@ make -f Makefile.testwallet
 With the above steps, the library, server, and test client are now built and ready to run.
 
 
---- OPTIONAL: C++ and Java high-level APIs!!! (API Makefile only tested yet for Mac, not Linux.)
-
-output: libOTAPI.a and libOT_JNI_API.jnilib
+--- OPTIONAL: C++ and Java HIGH-LEVEL APIs!!!
 
 NOTE: Make sure to edit OpenTransactionsJNI.java for REDACTED.
 ALso make sure to edit the Makefiles and fix the Java header include path.
@@ -97,11 +95,15 @@ on your machine.
 
 cd ../testwallet;
 make -f Makefile.CPP_API;
-javac OpenTransactionsJNI.java;
-javah -jni OpenTransactionsJNI;
-make -f Makefile.JNI_API
+javac OpenTransactionsJNI.java
 
-- For your C++ applications, include OpenTransactions.h and link to libOTAPI.a
+Next, the Makefile is dependent upon your platform:
+
+MAC:   make -f Makefile.JNI_API_MAC_OSX
+LINUX: make -f Makefile.JNI_API_Linux
+
+
+- For writing your C++ applications, include OpenTransactions.h and link to libOTAPI.a
 
 - For Java, use OpenTransactionsJNI.java, which dynamically loads libOT_JNI_API.jnilib
 
@@ -119,7 +121,7 @@ can avoid XCode for building entirely, if you prefer.)
 
    (HOW did I install OpenSSL?  My Mac already came with an old version of it. So first I downloaded the OpenSSL latest build, and followed the instructions to install that. I also installed a program called "MacPorts" (google it) and used that to install OpenSSL as well, which went into the /opt folder.  I also had to search my computer for libssl.a and libcrypto.a (using  spotlight in finder) and, after backing up the old files, I overwrote them with the new ones. I did the same for the header files and the dylib files. Most notably, the Mac development version of OpenSSL is in the /Developer SDK folders. I replaced the headers and libraries and dylibs in there and wherever else I could find that I could replace them.  I got the NEW dylib files from the MacPorts install, and I got the NEW .a files from the OpenSSL download and build.  Make sure the "make install" for the OpenSSL download is done using sudo. sudo make install.) 
 
-
+---------------------------------------------------------
 
 TO RUN:
 
@@ -129,6 +131,10 @@ cd testwallet       (for client)
 cd transaction      (for server)
 
 (Assuming you have already built the projects, including OTLib first.)
+
+NOTE: Make sure you fix the paths in testwallet/wallet.xml and
+transaction/notaryServer.xml before running...
+
 
 If you are in the transaction folder, then run it like this:
 ./transaction.exe

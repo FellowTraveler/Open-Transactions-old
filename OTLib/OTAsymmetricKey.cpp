@@ -799,8 +799,11 @@ bool OTAsymmetricKey::LoadPublicKeyFromCertFile(const OTString & strFilename)
 {
 	Release();
 	
-	FILE * fp		= NULL; 
 	X509 *	x509	= NULL; 
+
+	
+	/*
+	FILE * fp		= NULL; 
 	
 	// Read public key
 	fprintf (stderr, "\nReading public key from certfile: %s\n", strFilename.Get()); 
@@ -821,6 +824,19 @@ bool OTAsymmetricKey::LoadPublicKeyFromCertFile(const OTString & strFilename)
 	x509 = PEM_read_X509(fp, NULL, NULL, NULL); 
 	
 	fclose (fp); 
+	*/
+	
+	
+	BIO *bio;
+	bio = BIO_new( BIO_s_file() );
+	BIO_read_filename( bio, strFilename.Get() );
+	
+	x509 = PEM_read_bio_X509(bio, NULL, NULL, NULL); 
+
+	BIO_free_all(bio);
+	
+	
+	
 	
 	if (x509 == NULL) 
 	{ 
@@ -1019,6 +1035,7 @@ bool OTAsymmetricKey::LoadPrivateKey(const OTString & strFilename)
 {
 	Release();
 	
+	/*
 	FILE * fp = NULL; // _WIN32 
 	
 	// Read private key 
@@ -1037,6 +1054,18 @@ bool OTAsymmetricKey::LoadPrivateKey(const OTString & strFilename)
     m_pKey = PEM_read_PrivateKey(fp, NULL, NULL, NULL); 
 	
 	fclose (fp); 
+	*/
+	
+
+	BIO *bio;
+	bio = BIO_new( BIO_s_file() );
+	BIO_read_filename( bio, strFilename.Get() );
+	
+	m_pKey = PEM_read_bio_PrivateKey( bio, NULL, NULL, NULL );
+	
+	BIO_free_all(bio);
+	
+	
 	
 	if (NULL == m_pKey) 
 	{ 
@@ -1053,3 +1082,22 @@ const EVP_PKEY * OTAsymmetricKey::GetKey() const
 {
 	return m_pKey;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

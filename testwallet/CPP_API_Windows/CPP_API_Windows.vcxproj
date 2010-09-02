@@ -10,19 +10,32 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\main.h" />
+    <ClInclude Include="..\OpenTransactions.h" />
+    <ClInclude Include="..\OTClient.h" />
+    <ClInclude Include="..\OTServerConnection.h" />
+    <ClInclude Include="..\SSL-Example\SFSocket.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OpenTransactions.cpp" />
+    <ClCompile Include="..\OTClient.cpp" />
+    <ClCompile Include="..\OTServerConnection.cpp" />
+    <ClCompile Include="..\SSL-Example\SFSocket.c" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{F2881EAA-A190-474E-A2CE-65C8B191DB14}</ProjectGuid>
+    <ProjectGuid>{B1CC610E-632B-4703-A455-D579342C99CA}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>testwallet</RootNamespace>
+    <RootNamespace>CPP_API_Windows</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
@@ -38,12 +51,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>C:\~\OpenSSL-Win32\lib\VC;C:\~\Open-Transactions\OTLib\OTLib\Debug;$(LibraryPath)</LibraryPath>
     <IncludePath>C:\~\OpenSSL-Win32\include;C:\~\Open-Transactions\OTLib;$(IncludePath)</IncludePath>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LinkIncremental>false</LinkIncremental>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LibraryPath>C:\~\OpenSSL-Win32\lib\VC;C:\~\Open-Transactions\OTLib\OTLib\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -51,12 +62,11 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>winmm.lib;ws2_32.lib;libeay32MTd.lib;ssleay32MTd.lib;OTLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -67,37 +77,15 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <None Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\main.h" />
-    <ClInclude Include="..\OpenTransactions.h" />
-    <ClInclude Include="..\OTClient.h" />
-    <ClInclude Include="..\OTServerConnection.h" />
-    <ClInclude Include="..\SSL-Example\SFSocket.h" />
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="targetver.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\OpenTransactions.cpp" />
-    <ClCompile Include="..\OTClient.cpp" />
-    <ClCompile Include="..\OTServerConnection.cpp" />
-    <ClCompile Include="..\SSL-Example\SFSocket.c" />
-    <ClCompile Include="..\testclient.cpp" />
-    <ClCompile Include="applink.c" />
-    <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="testwallet.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

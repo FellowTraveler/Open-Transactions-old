@@ -2,7 +2,7 @@
 
 /*************************************************************************
  *    
- *    Open Transactions 0.21 --	Library, Protocol, Server, and Test Client
+ *    Open Transactions 0.22 --	Library, Protocol, Server, and Test Client
  *    
  *    			-- Anonymous Numbered Accounts
  *    			-- Untraceable Digital Cash

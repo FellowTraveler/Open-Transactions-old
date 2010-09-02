@@ -699,7 +699,6 @@ bool OTWallet::LoadWallet(const char * szFilename)
 	
 	// Save this for later...
 	m_strFilename.Format("%s%s%s", OTPseudonym::OTPath.Get(), OTPseudonym::OTPathSeparator.Get(), szFilename); // _WIN32
-	fprintf(stderr, "NULL filename in OTWallet::LoadWallet.\n");
 
 	IrrXMLReader* xml = createIrrXMLReader(m_strFilename.Get()); // _WIN32
 		

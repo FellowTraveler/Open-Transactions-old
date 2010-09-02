@@ -125,7 +125,7 @@ extern OTPseudonym *g_pTemporaryNym;
 
 #ifdef _WIN32
 
-#define SERVER_PATH_DEFAULT	"C:\\Users\\REDACTED\\Documents\\Visual Studio 2010\\Projects\\Open-Transactions\\testwallet"
+#define SERVER_PATH_DEFAULT	"C:\\~\\Open-Transactions\\testwallet"
 #define CA_FILE             "SSL-Example\\ca.crt"
 #define KEY_FILE            "SSL-Example\\client.pem"
 
@@ -152,11 +152,6 @@ extern OTPseudonym *g_pTemporaryNym;
 int main (int argc, char **argv) 
 {
 	// various Initialization...
-#ifdef _WIN32
-WSADATA wsaData;
-WORD wVersionRequested = MAKEWORD( 2, 2 );
-int err = WSAStartup( wVersionRequested, &wsaData );
-#endif
 
 	// -----------------------------------------------------------------------
 	

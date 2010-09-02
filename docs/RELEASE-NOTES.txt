@@ -3,6 +3,24 @@ NOTES on the Version:
 
 // ---------------------------------------------------------------------
 
+            Now it's easier than ever to use Open Transactions in your
+            Java and C++ applications, for Mac, Linux, and Windows!
+
+   0.22 --- EASY Makefiles and project files are now available for the
+            JNI Java interface, as well as the high-level C++ API.
+            
+            Makefiles are supplied for MAC and LINUX, as well as project
+            files for XCode on Mac and MS Visual C++ 2010 Express on Windows. 
+ 
+            "FiatCash" (the first client, on Android) is humming along
+            and hopefully we'll have some basic version soon up on Github.
+
+            Negative transactions are no longer allowed for vouchers,
+            account transfers, or cash withdrawals. They are still, however,
+            allowed for cheques, which serve as invoices.
+
+            Various global variable issues were cleaned up...
+
    0.21 --- Windows release!
 
            Open Transactions now supports Windows, LINUX, and Mac OS X.

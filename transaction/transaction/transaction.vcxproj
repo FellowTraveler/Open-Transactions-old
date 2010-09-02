@@ -39,8 +39,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\OpenSSL-Win32\include;C:\Users\REDACTED\Documents\Visual Studio 2010\Projects\Open-Transactions\OTLib;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\OpenSSL-Win32\lib\VC;C:\Users\REDACTED\Documents\Visual Studio 2010\Projects\Open-Transactions\OTLib\Debug;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\~\OpenSSL-Win32\include;C:\~\Open-Transactions\OTLib;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\~\OpenSSL-Win32\lib\VC;C:\~\Open-Transactions\OTLib\OTLib\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -82,7 +82,6 @@
   <ItemGroup>
     <ClInclude Include="..\main.h" />
     <ClInclude Include="..\OTClientConnection.h" />
-    <ClInclude Include="..\OTMessageBuffer.h" />
     <ClInclude Include="..\OTServer.h" />
     <ClInclude Include="..\SSL-Example\SFSocket.h" />
     <ClInclude Include="stdafx.h" />
@@ -90,10 +89,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\OTClientConnection.cpp" />
-    <ClCompile Include="..\OTMessageBuffer.cpp" />
     <ClCompile Include="..\OTServer.cpp" />
-    <ClCompile Include="..\server.cpp" />
     <ClCompile Include="..\SSL-Example\SFSocket.c" />
+    <ClCompile Include="..\testserver.cpp" />
     <ClCompile Include="applink.c" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="transaction.cpp" />

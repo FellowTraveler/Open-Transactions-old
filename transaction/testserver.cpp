@@ -111,7 +111,7 @@ extern "C"
 #define KEY_PASSWORD        "test"
 
 #ifdef _WIN32
-#define SERVER_PATH_DEFAULT	"C:\\Users\\REDACTED\\Documents\\Visual Studio 2010\\Projects\\Open-Transactions\\transaction"
+#define SERVER_PATH_DEFAULT	"C:\\~\\Open-Transactions\\transaction"
 #define CA_FILE             "SSL-Example\\ca.crt"
 #define DH_FILE             "SSL-Example\\dh_param_1024.pem"
 #define KEY_FILE            "SSL-Example\\server.pem"
