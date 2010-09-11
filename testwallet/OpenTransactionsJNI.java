@@ -16,15 +16,14 @@ import java.util.Map;
 public class OpenTransactionsJNI 
 {   		
 	// UNIX
-	/*
 	private static final String DLL_NAME		= "OT_JNI_API";
-	private static final String WALLET_PATH		= "/Users/REDACTED/Projects/Open-Transactions/testwallet";	
+	private static final String WALLET_PATH		= "/home/ben/git-work/Open-Transactions/testwallet";	
 	private static final String WALLET			= "wallet.xml";
 	private static final String CA_FILE			= "SSL-Example/ca.crt";
 	private static final String KEY_FILE		= "SSL-Example/client.pem";
-	*/
 	
 	// WINDOWS
+/*
 	// The C++ code uses these paths so I want to make sure it's compatible, so I changed to \\ instead of /
 //	private static final String DLL_PATH		= "C:\\~\\Open-Transactions\\testwallet\\JNI_API_Windows\\Debug\\JNI_API_Windows.dll";
 	private static final String DLL_NAME		= "JNI_API_Windows";
@@ -32,7 +31,7 @@ public class OpenTransactionsJNI
 	private static final String WALLET			= "wallet-Windows.xml";
 	private static final String CA_FILE			= "SSL-Example\\ca.crt";
 	private static final String KEY_FILE		= "SSL-Example\\client.pem";
-	
+*/	
 	
 
 	private static final String KEY_PASSWORD	= "test";

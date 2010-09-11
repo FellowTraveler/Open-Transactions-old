@@ -23,7 +23,7 @@ PROGRAM = libOTLib.a
 #
 
 INCLUDEDIRS = \
-	-I/usr/local/ssl/include \
+	-I/home/ben/work/openssl-1.0.0/include \
 	-I./irlxml \
 	-I./Lucre \
 	-I./
@@ -87,8 +87,7 @@ CXXSOURCES = $(LUCRESOURCES) $(IRRXMLSOURCES) \
 			 OTAsymmetricKey.cpp \
 			 OTSignature.cpp \
 			 OTDataCheck.cpp
-			 
-			 
+
 CXXOBJECTS = $(CXXSOURCES:.cpp=.o)  # expands to list of object files
 COBJECTS   = $(CSOURCES:.c=.o)
 CXXFLAGS   = $(INCLUDEDIRS)
@@ -123,7 +122,7 @@ easyzlib.o: easyzlib.c easyzlib.h
 irlxml/irrXML.o: irlxml/irrXML.cpp irlxml/irrXML.h
 	$(CXX) $(CXXFLAGS) -c -o irlxml/irrXML.o irlxml/irrXML.cpp
 
-bankimp.o: Lucre/bankimp.cpp Lucre/bank.h
+Lucre/bankimp.o: Lucre/bankimp.cpp Lucre/bank.h
 	$(CXX) $(CXXFLAGS) -c -o Lucre/bankimp.o Lucre/bankimp.cpp
 
 OTData.o: OTData.cpp OTData.h
@@ -189,6 +188,10 @@ OTDataCheck.o: OTDataCheck.cpp OTDataCheck.h
 #
 # Clean target: "make -f Makefile.Linux clean" to remove unwanted objects and executables.
 #
+
+.ifndef RM
+RM=rm
+.endif
 
 clean:
 	$(RM) -f $(CXXOBJECTS) $(COBJECTS) $(PROGRAM)

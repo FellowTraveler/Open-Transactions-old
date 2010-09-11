@@ -22,10 +22,10 @@ typedef int socklen_t;
 #define strcasecmp _stricmp
 
 #else
+#include <sys/types.h>
 #include <netinet/tcp.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
-#include <sys/types.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <netdb.h>

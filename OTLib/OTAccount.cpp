@@ -119,7 +119,6 @@ int gettimeofday
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <strstream>
 #include <iomanip>
 #include <cstring>
 
@@ -318,10 +317,10 @@ char* myGetTimeOfDay(char* buffer, int bufferLength)
 		strftime( buffer, 20,
 				 "%Y/%m/%d %H:%M:%S", localtime(&tv.tv_sec) );
 #endif
-		ostrstream ostr;
+		ostringstream ostr;
 		ostr << ':' << setfill('0') << setw(6) << tv.tv_usec
 		<< ends;
-		char* sp = ostr.str();
+		const char* sp = ostr.str().c_str();
 
 #ifdef _WIN32
 		strcat_s(buffer, strlen(sp), sp);

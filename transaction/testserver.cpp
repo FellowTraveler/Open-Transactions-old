@@ -118,7 +118,7 @@ extern "C"
 
 #else
 
-#define SERVER_PATH_DEFAULT	"/Users/REDACTED/Projects/Open-Transactions/transaction"
+#define SERVER_PATH_DEFAULT	"/home/ben/git-work/Open-Transactions/transaction"
 #define CA_FILE             "SSL-Example/ca.crt"
 #define DH_FILE             "SSL-Example/dh_param_1024.pem"
 #define KEY_FILE            "SSL-Example/server.pem"

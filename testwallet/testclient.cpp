@@ -131,7 +131,8 @@ extern OTPseudonym *g_pTemporaryNym;
 
 #else
 
-#define SERVER_PATH_DEFAULT	"/Users/REDACTED/Projects/Open-Transactions/testwallet"
+//#define SERVER_PATH_DEFAULT	"/Users/REDACTED/Projects/Open-Transactions/testwallet"
+#define SERVER_PATH_DEFAULT	"/home/ben/git-work/Open-Transactions/testwallet"
 #define CA_FILE             "SSL-Example/ca.crt"
 #define KEY_FILE            "SSL-Example/client.pem"
 

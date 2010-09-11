@@ -19,3 +19,9 @@ build/*
 .DS_Store
 profile
 
+# emacs noise
+*~
+
+# targets
+testwallet/testwallet.exe
+transaction/transaction.exe

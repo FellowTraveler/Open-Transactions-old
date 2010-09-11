@@ -23,7 +23,7 @@ PROGRAM = transaction.exe
 #
 
 INCLUDEDIRS = \
-	-I/usr/local/ssl/include \
+	-I/home/ben/work/openssl-1.0.0/include \
 	-I../OTLib/irlxml \
 	-I../OTLib \
 	-I./SSL-Example \
@@ -31,11 +31,11 @@ INCLUDEDIRS = \
 
 
 LIBDIRS = \
-	-L../OTLib
+	-L../OTLib 
 
 
-LIBS = $(LIBDIRS) -lssl $(LIBDIRS) -lcrypto $(LIBDIRS) -lOTLib $(LIBDIRS) -lssl $(LIBDIRS) -lcrypto $(LIBDIRS) -lOTLib $(LIBDIRS) -lssl $(LIBDIRS) -lcrypto $(LIBDIRS) -lOTLib $(LIBDIRS) -lssl $(LIBDIRS) -lcrypto $(LIBDIRS) -lOTLib
- 
+LIBS = $(LIBDIRS) -lOTLib /home/ben/work/openssl-1.0.0/libssl.a \
+	/home/ben/work/openssl-1.0.0/libcrypto.a
 
 #
 # The CXXSOURCES macro contains a list of source files.
@@ -53,13 +53,13 @@ LIBS = $(LIBDIRS) -lssl $(LIBDIRS) -lcrypto $(LIBDIRS) -lOTLib $(LIBDIRS) -lssl 
 # directory information to be passed to the linker.
 #
 
-CSOURCES = ./SSL-Example/SFSocket.c
+CSOURCES = SSL-Example/SFSocket.c
 
 CXXSOURCES = \
 	OTClientConnection.cpp \
 	OTServer.cpp \
 	testserver.cpp
-			 
+
 CXXOBJECTS = $(CXXSOURCES:.cpp=.o)  # expands to list of object files
 COBJECTS   = $(CSOURCES:.c=.o)
 CXXFLAGS   = $(INCLUDEDIRS)
@@ -81,14 +81,14 @@ all: $(PROGRAM)
 #
 
 $(PROGRAM): $(CXXOBJECTS) $(COBJECTS) 
-	$(CXX) -ldl $(CXXOBJECTS) $(COBJECTS) $(LIBS) -o $@
+	$(CXX) $(CXXOBJECTS) $(COBJECTS) $(LIBS) -o $@
 
 #
 # Object targets: rules that define objects, their dependencies, and
 # a list of commands for compilation.
 #
 
-SFSocket.o: ./SSL-Example/SFSocket.c ./SSL-Example/SFSocket.h
+SSL-Example/SFSocket.o: ./SSL-Example/SFSocket.c ./SSL-Example/SFSocket.h
 	$(CC) $(CFLAGS) -c -o ./SSL-Example/SFSocket.o ./SSL-Example/SFSocket.c
 
 OTServer.o: OTServer.cpp OTServer.h
@@ -102,6 +102,10 @@ testserver.o: testserver.cpp
 #
 # Clean target: "make -f Makefile.Linux clean" to remove unwanted objects and executables.
 #
+
+.ifndef RM
+RM=rm
+.endif
 
 clean:
 	$(RM) -f $(CXXOBJECTS) $(COBJECTS) $(PROGRAM)
