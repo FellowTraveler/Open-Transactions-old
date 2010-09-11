@@ -206,7 +206,7 @@ int OTCheque::ProcessXMLNode(IrrXMLReader*& xml)
 		
 		fprintf(stderr, 
 				//	"\n===> Loading XML for token into memory structures..."
-				"\n\nCheque Amount: %ld.  Transaction Number: %ld\n Valid From: %ld\n Valid To: %ld\n"
+				"\n\nCheque Amount: %ld.  Transaction Number: %ld\n Valid From: %d\n Valid To: %d\n"
 				" AssetTypeID: %s\n ServerID: %s\n"
 				" senderAcctID: %s\n senderUserID: %s\n "
 				" Has Recipient? %s. If yes, UserID of Recipient:\n%s\n", 

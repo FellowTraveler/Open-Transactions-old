@@ -90,8 +90,8 @@ CXXSOURCES = $(LUCRESOURCES) $(IRRXMLSOURCES) \
 
 CXXOBJECTS = $(CXXSOURCES:.cpp=.o)  # expands to list of object files
 COBJECTS   = $(CSOURCES:.c=.o)
-CXXFLAGS   = $(INCLUDEDIRS)
-CFLAGS     = $(INCLUDEDIRS)
+CXXFLAGS   = $(INCLUDEDIRS) -Wall -Werror
+CFLAGS     = $(INCLUDEDIRS) -Wall -Werror
 CXX = g++
 CC = gcc
 LDFLAGS = $(LIBDIRS) $(LIBS)

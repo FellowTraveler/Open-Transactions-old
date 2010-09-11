@@ -345,7 +345,7 @@ bool OTLedger::RemoveTransaction(long lTransactionNum) // if false, transaction 
 	
 	for (mapOfTransactions::iterator ii = m_mapTransactions.begin(); ii != m_mapTransactions.end(); ++ii)
 	{
-		if (pTransaction = (*ii).second) // if pointer not null
+		if ((pTransaction = (*ii).second)) // if pointer not null
 		{			
 			if (pTransaction->GetTransactionNum() == lTransactionNum)
 			{
@@ -373,7 +373,7 @@ OTTransaction * OTLedger::GetTransaction(long lTransactionNum)
 	
 	for (mapOfTransactions::iterator ii = m_mapTransactions.begin(); ii != m_mapTransactions.end(); ++ii)
 	{
-		if (pTransaction = (*ii).second) // if pointer not null
+		if ((pTransaction = (*ii).second)) // if pointer not null
 		{			
 			if (pTransaction->GetTransactionNum() == lTransactionNum)
 				return pTransaction;
@@ -402,7 +402,7 @@ OTTransaction * OTLedger::GetPendingTransaction(long lTransactionNum)
 	
 	for (mapOfTransactions::iterator ii = m_mapTransactions.begin(); ii != m_mapTransactions.end(); ++ii)
 	{
-		if (pTransaction = (*ii).second) // if pointer not null
+		if ((pTransaction = (*ii).second)) // if pointer not null
 		{	
 			if (pTransaction->GetReferenceToNum() == lTransactionNum)
 				return pTransaction;
@@ -453,7 +453,7 @@ void OTLedger::UpdateContents() // Before transmission or serialization, this is
 	for (mapOfTransactions::iterator ii = m_mapTransactions.begin(); 
 		 ii != m_mapTransactions.end(); ++ii)
 	{
-		if (pTransaction = (*ii).second) // if pointer not null
+		if ((pTransaction = (*ii).second)) // if pointer not null
 		{
 			OTString strTransaction;
 			pTransaction->SaveContract(strTransaction);

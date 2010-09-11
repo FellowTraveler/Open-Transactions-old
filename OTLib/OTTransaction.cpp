@@ -261,7 +261,7 @@ OTItem * OTTransaction::GetItem(const OTItem::itemType theType)
 
 	for (listOfItems::iterator ii = m_listItems.begin(); ii != m_listItems.end(); ++ii)
 	{
-		if (pItem = *ii) // if pointer not null
+		if ((pItem = *ii)) // if pointer not null
 		{
 			if (theType == pItem->m_Type)
 				return pItem;
@@ -453,7 +453,7 @@ void OTTransaction::UpdateContents()
 	
 	for (listOfItems::iterator ii = m_listItems.begin(); ii != m_listItems.end(); ++ii)
 	{
-		if (pItem = *ii) // if pointer not null
+		if ((pItem = *ii)) // if pointer not null
 		{
 			OTString strItem;
 			pItem->SaveContract(strItem);

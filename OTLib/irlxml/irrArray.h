@@ -23,7 +23,7 @@ class array
 public:
 
 	array()
-		: data(0), used(0), allocated(0),
+		: data(0), allocated(0), used(0),
 			free_when_destroyed(true), is_sorted(true)
 	{
 	}

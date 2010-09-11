@@ -499,7 +499,7 @@ void OTToken::UpdateContents()
 		OTASCIIArmor * pPrototoken = NULL;
 		for (mapOfPrototokens::iterator ii = m_mapPublic.begin(); ii != m_mapPublic.end(); ++ii)
 		{
-			if (pPrototoken = (*ii).second) // if pointer not null
+			if ((pPrototoken = (*ii).second)) // if pointer not null
 			{
 				m_xmlUnsigned.Concatenate("<prototoken>\n%s</prototoken>\n\n", pPrototoken->Get());
 			}
@@ -516,7 +516,7 @@ void OTToken::UpdateContents()
 		OTASCIIArmor * pPrototoken = NULL;
 		for (mapOfPrototokens::iterator ii = m_mapPrivate.begin(); ii != m_mapPrivate.end(); ++ii)
 		{
-			if (pPrototoken = (*ii).second) // if pointer not null
+			if ((pPrototoken = (*ii).second)) // if pointer not null
 			{
 				m_xmlUnsigned.Concatenate("<privatePrototoken>\n%s</privatePrototoken>\n\n", pPrototoken->Get());
 			}
@@ -807,7 +807,7 @@ bool OTToken::GetPrototoken(OTASCIIArmor & ascPrototoken, int nTokenIndex)
 	
 	for (mapOfPrototokens::iterator ii = m_mapPublic.begin(); ii != m_mapPublic.end(); ++ii)
 	{
-		if (pPrototoken = (*ii).second) // if pointer not null
+		if ((pPrototoken = (*ii).second)) // if pointer not null
 		{			
 			const bool bSuccess = (nTokenIndex == (*ii).first);
 //			fprintf(stderr, "DEBUG OTToken::GetPrototoken ABOUT TO ENTER, index: %d\n", nTokenIndex);
@@ -837,7 +837,7 @@ bool OTToken::GetPrivatePrototoken(OTASCIIArmor & ascPrototoken, int nTokenIndex
 	
 	for (mapOfPrototokens::iterator ii = m_mapPrivate.begin(); ii != m_mapPrivate.end(); ++ii)
 	{
-		if (pPrototoken = (*ii).second) // if pointer not null
+		if ((pPrototoken = (*ii).second)) // if pointer not null
 		{			
 			const bool bSuccess = (nTokenIndex == (*ii).first);
 			
@@ -976,7 +976,7 @@ void OTToken::ReleasePrototokens()
 	
 	for (mapOfPrototokens::iterator ii = m_mapPublic.begin(); ii != m_mapPublic.end(); ++ii)
 	{		
-		if (pPrototoken = (*ii).second)
+		if ((pPrototoken = (*ii).second))
 		{
 			delete pPrototoken;
 			pPrototoken		= NULL;
@@ -990,7 +990,7 @@ void OTToken::ReleasePrototokens()
 	
 	for (mapOfPrototokens::iterator ii = m_mapPrivate.begin(); ii != m_mapPrivate.end(); ++ii)
 	{		
-		if (pPrototoken = (*ii).second)
+		if ((pPrototoken = (*ii).second))
 		{
 			delete pPrototoken;
 			pPrototoken		= NULL;

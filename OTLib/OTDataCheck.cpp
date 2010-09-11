@@ -161,8 +161,7 @@ OT_BOOL IsChecksumValid( OT_BYTE* buffer, uint32_t size )
 	}
 	else
 	{
-		int nTotal = total;
-//		fprintf(stderr, "INVALID:  %d\n", nTotal);
+//		fprintf(stderr, "INVALID:  %d\n", total);
 		return false;
 	}
 }

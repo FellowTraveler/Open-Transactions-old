@@ -100,7 +100,7 @@ OTStringXML::~OTStringXML()
 	
 }
 
-int OTStringXML::read(void* buffer, int sizeToRead)
+int OTStringXML::read(void* buffer, unsigned sizeToRead)
 {
 	if (buffer && sizeToRead && Exists())
 	{

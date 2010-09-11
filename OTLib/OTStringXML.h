@@ -98,7 +98,7 @@ public:
 	OTStringXML(const OTString & strValue);
 	virtual ~OTStringXML();
 	
-	int read(void* buffer, int sizeToRead);
+	int read(void* buffer, unsigned sizeToRead);
 	int getSize();
 };
 

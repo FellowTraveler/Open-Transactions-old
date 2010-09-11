@@ -168,7 +168,7 @@ OTASCIIArmor::OTASCIIArmor() : OTString()
 
 
 extern "C" {
-char *base64_encode(const uint8_t* input, size_t in_len, int bLineBreaks)
+char *base64_encode(const uint8_t* input, int in_len, int bLineBreaks)
 {
     char *buf = NULL;
 	
@@ -343,7 +343,7 @@ bool OTASCIIArmor::GetString(OTString & theData, bool bLineBreaks) const //bLine
 		 {
 			 delete [] pDest;
 			 pDest = NULL;
-			 fprintf(stderr, "corrupted pSrc passed to ezuncompress OTASCIIArmor::GetString, size: %ld\n", outSize);
+			 fprintf(stderr, "corrupted pSrc passed to ezuncompress OTASCIIArmor::GetString, size: %d\n", outSize);
 			 abort();
 			 return false;
 		 }

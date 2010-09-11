@@ -31,7 +31,7 @@ public:
 
 	//! Constructor
 	CXMLReaderImpl(IFileReadCallBack* callback, bool deleteCallBack = true)
-		: TextData(0), P(0), TextSize(0), TextBegin(0), CurrentNodeType(EXN_NONE),
+		: TextData(0), P(0), TextBegin(0), TextSize(0), CurrentNodeType(EXN_NONE),
 		SourceFormat(ETF_ASCII), TargetFormat(ETF_ASCII)
 	{
 		if (!callback)

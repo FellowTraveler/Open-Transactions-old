@@ -650,7 +650,7 @@ void OTIdentifier::GetString(OTString & theStr) const
 	
 	unsigned char cByte = 0;
 	
-	for(long i = 0; i < GetSize(); i++)
+	for(uint32_t i = 0; i < GetSize(); i++)
 	{
 		cByte = ((unsigned char *)GetPointer())[i];
 		

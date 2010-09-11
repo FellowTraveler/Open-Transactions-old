@@ -174,7 +174,7 @@ OTServerContract * OTWallet::GetServerContract(const OTIdentifier & SERVER_ID)
 
 	for (mapOfServers::iterator ii = m_mapServers.begin(); ii != m_mapServers.end(); ++ii)
 	{
-		if (pServer = (*ii).second) // if not null
+		if ((pServer = (*ii).second)) // if not null
 		{
 			OTIdentifier id_CurrentContract;
 			pServer->GetIdentifier(id_CurrentContract);
@@ -200,7 +200,7 @@ OTPseudonym * OTWallet::GetNymByID(const OTIdentifier & NYM_ID)
 	
 	for (mapOfNyms::iterator ii = m_mapNyms.begin(); ii != m_mapNyms.end(); ++ii)
 	{		
-		if (pNym = (*ii).second) // if not null
+		if ((pNym = (*ii).second)) // if not null
 		{
 			OTIdentifier id_CurrentNym;
 			pNym->GetIdentifier(id_CurrentNym);
@@ -350,7 +350,7 @@ void OTWallet::DisplayStatistics(OTString & strOutput)
 	
 	for (mapOfNyms::iterator ii = m_mapNyms.begin(); ii != m_mapNyms.end(); ++ii)
 	{		
-		if (pNym = (*ii).second)
+		if ((pNym = (*ii).second))
 		{
 			pNym->DisplayStatistics(strOutput);
 		}
@@ -407,7 +407,7 @@ void OTWallet::DisplayStatistics(OTString & strOutput)
 	
 	for (mapOfAccounts::iterator ii = m_mapAccounts.begin(); ii != m_mapAccounts.end(); ++ii)
 	{
-		if (pAccount = (*ii).second)
+		if ((pAccount = (*ii).second))
 		{
 			OTString strContents;
 			pAccount->SaveContents(strContents);
@@ -462,7 +462,7 @@ int OTWallet::SaveWallet(const char * szFilename)
 	
 	for (mapOfNyms::iterator ii = m_mapNyms.begin(); ii != m_mapNyms.end(); ++ii)
 	{		
-		if (pNym = (*ii).second)
+		if ((pNym = (*ii).second))
 		{
 			pNym->SavePseudonymWallet(fl);
 		}
@@ -478,7 +478,7 @@ int OTWallet::SaveWallet(const char * szFilename)
 	
 	for (mapOfContracts::iterator ii = m_mapContracts.begin(); ii != m_mapContracts.end(); ++ii)
 	{
-		if (pContract = (*ii).second)
+		if ((pContract = (*ii).second))
 		{
 			pContract->SaveContractWallet(fl);
 
@@ -518,7 +518,7 @@ int OTWallet::SaveWallet(const char * szFilename)
 	
 	for (mapOfServers::iterator ii = m_mapServers.begin(); ii != m_mapServers.end(); ++ii)
 	{
-		if (pServer = (*ii).second)
+		if ((pServer = (*ii).second))
 		{
 			pServer->SaveContractWallet(fl);
 			/*
@@ -554,7 +554,7 @@ int OTWallet::SaveWallet(const char * szFilename)
 	
 	for (mapOfAccounts::iterator ii = m_mapAccounts.begin(); ii != m_mapAccounts.end(); ++ii)
 	{
-		if (pAccount = (*ii).second)
+		if ((pAccount = (*ii).second))
 		{
 			pAccount->SaveContractWallet(fl);
 
@@ -609,7 +609,7 @@ void OTWallet::AddAccount(OTAccount & theAcct)
 	
 	for (mapOfAccounts::iterator ii = m_mapAccounts.begin(); ii != m_mapAccounts.end(); ++ii)
 	{
-		if (pAccount = (*ii).second) // if pointer not null
+		if ((pAccount = (*ii).second)) // if pointer not null
 		{
 			pAccount->GetIdentifier(anAccountID);
 			
@@ -638,7 +638,7 @@ OTAccount * OTWallet::GetAccount(const OTIdentifier & theAccountID)
 	
 	for (mapOfAccounts::iterator ii = m_mapAccounts.begin(); ii != m_mapAccounts.end(); ++ii)
 	{
-		if (pAccount = (*ii).second) // if pointer not null
+		if ((pAccount = (*ii).second)) // if pointer not null
 		{
 			pAccount->GetIdentifier(anAccountID);
 			
@@ -677,7 +677,7 @@ OTAssetContract * OTWallet::GetAssetContract(const OTIdentifier & theContractID)
 	
 	for (mapOfContracts::iterator ii = m_mapContracts.begin(); ii != m_mapContracts.end(); ++ii)
 	{
-		if (pContract = (*ii).second) // if pointer not null
+		if ((pContract = (*ii).second)) // if pointer not null
 		{
 			pContract->GetIdentifier(aContractID);
 			
@@ -723,6 +723,9 @@ bool OTWallet::LoadWallet(const char * szFilename)
 		
 		switch(xml->getNodeType())
 		{
+			default:
+				fprintf(stderr, "Unknown XML type in OTWallet::LoadWallet.\n");
+				break;
 			case EXN_TEXT:
 				// in this xml file, the only text which occurs is the messageText
 				//messageText = xml->getNodeData();

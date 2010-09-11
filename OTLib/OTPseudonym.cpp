@@ -158,7 +158,7 @@ bool OTPseudonym::VerifyTransactionNum(const OTString & strServerID, const long 
 			if (pDeque && !(pDeque->empty())) // there are some numbers for that server ID
 			{
 				// Let's loop through them and see if the culprit is there
-				for (int i = 0; i < pDeque->size(); i++)
+				for (unsigned i = 0; i < pDeque->size(); i++)
 				{
 					// Found it!
 					if (lTransNum == pDeque->at(i))
@@ -197,7 +197,7 @@ bool OTPseudonym::RemoveTransactionNum(OTPseudonym & SIGNER_NYM, const OTString 
 			if (pDeque && !(pDeque->empty())) // there are some numbers for that server ID
 			{
 				// Let's loop through them and see if the culprit is there
-				for (int i = 0; i < pDeque->size(); i++)
+				for (unsigned i = 0; i < pDeque->size(); i++)
 				{
 					// Found it!
 					if (lTransNum == pDeque->at(i))
@@ -473,7 +473,7 @@ void OTPseudonym::DisplayStatistics(OTString & strOutput)
 		
 		if (pDeque && !(pDeque->empty()))
 		{
-			for (int i = 0; i < pDeque->size(); i++)
+			for (unsigned i = 0; i < pDeque->size(); i++)
 			{
 				long lTransactionNumber = pDeque->at(i);
 				
@@ -935,7 +935,7 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
 		
 		if (pDeque && !(pDeque->empty()))
 		{
-			for (int i = 0; i < pDeque->size(); i++)
+			for (unsigned i = 0; i < pDeque->size(); i++)
 			{
 				lTransactionNumber = pDeque->at(i);
 				
@@ -973,7 +973,7 @@ void OTPseudonym::HarvestTransactionNumbers(OTPseudonym & SIGNER_NYM, OTPseudony
 
 		if (pDeque && !(pDeque->empty()))
 		{
-			for (int i = 0; i < pDeque->size(); i++)
+			for (unsigned i = 0; i < pDeque->size(); i++)
 			{
 				lTransactionNumber = pDeque->at(i);
 				
@@ -1012,6 +1012,9 @@ bool OTPseudonym::LoadFromString(const OTString & strNym)
 		
 		switch(xml->getNodeType())
 		{
+			default:
+				fprintf(stderr, "Unknown XML type in OTPseudonym::LoadFromString.\n");
+				break;
 			case EXN_TEXT:
 				// in this xml file, the only text which occurs is the messageText
 				//messageText = xml->getNodeData();

@@ -293,7 +293,7 @@ const OTPseudonym * OTContract::GetContractPublicNym()
 	
 	for (mapOfNyms::iterator ii = m_mapNyms.begin(); ii != m_mapNyms.end(); ++ii)
 	{		
-		if (pNym = (*ii).second)
+		if ((pNym = (*ii).second))
 		{
 			if ((*ii).first == "contract") // TODO have a place for hardcoded values like this.
 			{							   // We're saying here that every contract has to have a key tag called "contract"
@@ -319,7 +319,7 @@ const OTAsymmetricKey * OTContract::GetContractPublicKey()
 	
 	for (mapOfNyms::iterator ii = m_mapNyms.begin(); ii != m_mapNyms.end(); ++ii)
 	{		
-		if (pNym = (*ii).second)
+		if ((pNym = (*ii).second))
 		{
 			if ((*ii).first == "contract") // TODO have a place for hardcoded values like this.
 			{							   // We're saying here that every contract has a key tag called "contract"
@@ -457,7 +457,7 @@ bool OTContract::SignContract(const OTPseudonym & theNym)
 	bool bSigned = false;
 	OTSignature * pSig = NULL;
 
-	if (pSig = new OTSignature())
+	if ((pSig = new OTSignature()))
 	{
 		bSigned = SignContract(theNym, *pSig);
 
@@ -566,7 +566,7 @@ bool OTContract::SignContractDefaultHash(const EVP_PKEY * pkey, OTSignature & th
 	
 	
 	// XOR the two together
-	for (int i = 0; i < (uDigest1Len > uDigest2Len ? uDigest2Len : uDigest1Len); i++)
+	for (unsigned i = 0; i < (uDigest1Len > uDigest2Len ? uDigest2Len : uDigest1Len); i++)
 	{
 		pDigest[i] = ((pOutputHash1[i]) ^ (pOutputHash2[i]));
 	}
@@ -671,7 +671,7 @@ bool OTContract::VerifyContractDefaultHash(const EVP_PKEY * pkey, const OTSignat
 	EVP_MD_CTX_cleanup(&mdHash2_ctx); // cleanup
 	
 	// XOR the two together
-	for (int i = 0; i < (uDigest1Len > uDigest2Len ? uDigest2Len : uDigest1Len); i++)
+	for (unsigned i = 0; i < (uDigest1Len > uDigest2Len ? uDigest2Len : uDigest1Len); i++)
 	{
 		pDigest[i] = ((pOutputHash1[i]) ^ (pOutputHash2[i]));
 	}
@@ -970,7 +970,7 @@ bool OTContract::VerifySignature(const OTPseudonym & theNym)
 	for (listOfSignatures::iterator ii = m_listSignatures.begin(); 
 		 ii != m_listSignatures.end(); ++ii)
 	{
-		if (pSig = *ii)
+		if ((pSig = *ii))
 		{
 			if (VerifySignature(theNym, *pSig))
 				return true;
@@ -1149,7 +1149,7 @@ bool OTContract::SaveContract(OTString & strContract)
 	for (listOfSignatures::iterator ii = m_listSignatures.begin(); 
 		 ii != m_listSignatures.end(); ++ii)
 	{
-		if (pSig = *ii)
+		if ((pSig = *ii))
 		{
 			strContract.Concatenate("-----BEGIN %s SIGNATURE-----\n"
 									"Version: Open Transactions 0.2\n"
@@ -1360,7 +1360,7 @@ bool OTContract::ParseRawFile()
 				bSignatureMode = true;
 				bContentMode   = false;
 				
-				if (pSig = new OTSignature())
+				if ((pSig = new OTSignature()))
 				{
 					m_listSignatures.push_back(pSig);
 				}
@@ -1503,12 +1503,11 @@ bool OTContract::LoadContractXML()
 	{
 		switch(xml->getNodeType())
 		{
-			case EXN_TEXT:
-//				else
+			default:
 				{
 					// unknown element type
-					fprintf(stderr, "unknown text element type in OTContract::LoadContractXML: %s, value: %s\n", 
-							xml->getNodeName(), xml->getNodeData());
+					fprintf(stderr, "unknown element type in OTContract::LoadContractXML: %s, type: %d, value: %s\n", 
+						xml->getNodeName(), xml->getNodeType(), xml->getNodeData());
 				}
 				break;
 			case EXN_ELEMENT:

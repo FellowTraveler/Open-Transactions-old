@@ -155,7 +155,7 @@ int OTServerContract::ProcessXMLNode(IrrXMLReader*& xml)
 	// -- Note you can choose not to call the parent if
 	// you don't want to use any of those xml tags.
 	
-	if (nReturnVal = OTContract::ProcessXMLNode(xml))
+	if ((nReturnVal = OTContract::ProcessXMLNode(xml)))
 		return nReturnVal;
 	
 	if (!strcmp("notaryProviderContract", xml->getNodeName()))

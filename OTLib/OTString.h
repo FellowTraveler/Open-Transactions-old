@@ -177,7 +177,7 @@ public:
 
 	// true  == there are more lines to read.
 	// false == this is the last line. Like EOF.
-	bool sgets(char * szBuffer, int nBufSize);
+	bool sgets(char * szBuffer, unsigned nBufSize);
 	
    char sgetc(void);
    void sungetc(void);

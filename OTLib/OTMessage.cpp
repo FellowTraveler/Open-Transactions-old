@@ -1063,7 +1063,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		OTString oldMessage(m_ascInReferenceTo);
 		fprintf(stderr, "\nCommand: %s  %s\nNymID:    %s\nServerID: %s\n\n\n", 
 				m_strCommand.Get(), (m_bSuccess ? "SUCCESS" : "FAILED"), m_strNymID.Get(), 
-				m_strServerID.Get(), oldMessage.Get());
+				m_strServerID.Get());
 		
 		nReturnVal = 1;
 	}

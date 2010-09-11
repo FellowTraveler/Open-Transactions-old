@@ -285,7 +285,10 @@ PgpKeys ExportRsaKey(unsigned char *pbData, int dataLength)
 			else if( (packetLength > 223) && (packetLength < 255))
 				packetLength = (1 << (packetLength & 0x1f)); 
 			else if(packetLength == 255) 
-				packetLength = (pbData[i++]<<24) + (pbData[i++]<<16) + (pbData[i++]<<8) + pbData[i++];
+			{
+				packetLength = (pbData[i]<<24) + (pbData[i+1]<<16) + (pbData[i+2]<<8) + pbData[i+3];
+				i+=4;
+			}
 		}
 		else
 		{
@@ -294,9 +297,15 @@ PgpKeys ExportRsaKey(unsigned char *pbData, int dataLength)
 			if(packetLength == 0) 
 				packetLength = pbData[i++];
 			else if(packetLength == 1) 
-				packetLength = (pbData[i++]<<8) + pbData[i++];
+			{
+				packetLength = (pbData[i]<<8) + pbData[i+1];
+				i+=2;
+			}
 			else if(packetLength == 2) 
-				packetLength = (pbData[i++]<<24) + (pbData[i++]<<16) + (pbData[i++]<<8) + pbData[i++];
+			{
+				packetLength = (pbData[i]<<24) + (pbData[i+1]<<16) + (pbData[i+2]<<8) + pbData[i+3];
+				i+=4;
+			}
 			else 
 				packetLength = dataLength - 1;
 		}

@@ -751,7 +751,7 @@ char *str_dup2(const char *str, uint32_t length)
 
 // true  == there are more lines to read.
 // false == this is the last line. Like EOF.
-bool OTString::sgets(char * szBuffer, int nBufSize)
+bool OTString::sgets(char * szBuffer, unsigned nBufSize)
 {
 	if (NULL == szBuffer)
 	{

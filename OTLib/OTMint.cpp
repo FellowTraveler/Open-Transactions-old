@@ -245,7 +245,7 @@ bool OTMint::GetPrivate(OTASCIIArmor & theArmor, long lDenomination)
 	
 	for (mapOfArmor::iterator ii = m_mapPrivate.begin(); ii != m_mapPrivate.end(); ++ii)
 	{		
-		if (pArmor = (*ii).second) // if pArmor not null
+		if ((pArmor = (*ii).second)) // if pArmor not null
 		{
 			if ((*ii).first == lDenomination) // if this denomination (say, 50) matches the one passed in...
 			{							   
@@ -269,7 +269,7 @@ bool OTMint::GetPublic(OTASCIIArmor & theArmor, long lDenomination)
 	
 	for (mapOfArmor::iterator ii = m_mapPublic.begin(); ii != m_mapPublic.end(); ++ii)
 	{		
-		if (pArmor = (*ii).second) // if pArmor not null
+		if ((pArmor = (*ii).second)) // if pArmor not null
 		{
 			if ((*ii).first == lDenomination) // if this denomination (say, 50) matches the one passed in...
 			{							   
@@ -322,7 +322,7 @@ long OTMint::GetDenomination(int nIndex)
 	
 	for (mapOfArmor::iterator ii = m_mapPublic.begin(); ii != m_mapPublic.end(); ++ii, nIterateIndex++)
 	{		
-		if (pArmor = (*ii).second) // if pArmor not null
+		if ((pArmor = (*ii).second)) // if pArmor not null
 		{
 			if (nIndex == nIterateIndex)
 				return (*ii).first;
@@ -475,7 +475,7 @@ void OTMint::UpdateContents()
 			m_bSavePrivateKeys = false;  // reset this back to false again. Use SetSavePrivateKeys() to set it true.
 			for (mapOfArmor::iterator ii = m_mapPrivate.begin(); ii != m_mapPrivate.end(); ++ii)
 			{		
-				if (pArmor = (*ii).second) // if pArmor not null
+				if ((pArmor = (*ii).second)) // if pArmor not null
 				{
 					m_xmlUnsigned.Concatenate("<mintPrivateInfo denomination=\"%ld\">\n"
 											  "%s</mintPrivateInfo>\n\n", 
@@ -488,7 +488,7 @@ void OTMint::UpdateContents()
 		}
 		for (mapOfArmor::iterator ii = m_mapPublic.begin(); ii != m_mapPublic.end(); ++ii)
 		{		
-			if (pArmor = (*ii).second) // if pArmor not null
+			if ((pArmor = (*ii).second)) // if pArmor not null
 			{
 				m_xmlUnsigned.Concatenate("<mintPublicInfo denomination=\"%ld\">\n"
 										  "%s</mintPublicInfo>\n\n", 
@@ -553,7 +553,7 @@ int OTMint::ProcessXMLNode(IrrXMLReader*& xml)
 				//	"\n===> Loading XML for mint into memory structures..."
 				"\n\nMint version: %s\n Server ID: %s\n Asset Type ID: %s\n Cash Acct ID: %s\n"
 				"%s loading Cash Account into memory for pointer: OTMint::m_pReserveAcct\n"
-				" Series: %d\n Expiration: %ld\n Valid From: %ld\n Valid To: %ld\n", 
+				" Series: %d\n Expiration: %d\n Valid From: %d\n Valid To: %d\n", 
 				m_strVersion.Get(), strServerID.Get(), strAssetID.Get(), strCashAcctID.Get(),
 				(m_pReserveAcct != NULL) ? "SUCCESS" : "FAILURE",
 				m_nSeries, m_EXPIRATION, m_VALID_FROM, m_VALID_TO);
@@ -792,8 +792,6 @@ bool OTMint::SignToken(OTPseudonym & theNotary, OTToken & theToken, OTString & t
 			// Add the null terminator by hand (just in case.)
 			sig_buf[sig_len]	= '\0';
 			
-			int sig_str_len = strlen(sig_buf);
-
 			if (sig_len)
 			{ // ***********************************************
 //				fprintf(stderr, "\n--------------------------------------\n"

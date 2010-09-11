@@ -220,7 +220,7 @@ namespace io
 		/** \param buffer: Pointer to buffer where to read bytes will be written to.
 		\param sizeToRead: Amount of bytes to read from the file.
 		\return Returns how much bytes were read. */
-		virtual int read(void* buffer, int sizeToRead) = 0;
+		virtual int read(void* buffer, unsigned sizeToRead) = 0;
 
 		//! Returns size of file in bytes
 		virtual int getSize() = 0;

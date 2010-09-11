@@ -292,10 +292,8 @@ bool OTEnvelope::Open(const OTPseudonym & theRecipient, OTString & theContents)
 	
 	retval = true;
 	
-out_free:
     free(ek);
 	
-out:
     return retval;
 	
 }

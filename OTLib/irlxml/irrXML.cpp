@@ -55,7 +55,7 @@ public:
 	}
 
 	//! Reads an amount of bytes from the file.
-	virtual int read(void* buffer, int sizeToRead)
+	virtual int read(void* buffer, unsigned sizeToRead)
 	{
 		if (!File)
 			return 0;
