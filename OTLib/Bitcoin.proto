@@ -1,0 +1,43 @@
+package OTDB;
+
+message BitcoinAcct_InternalPB {
+  optional string gui_label = 1;
+  optional string server_id = 2;
+  optional string acct_id = 3;
+  optional string bitcoin_acct_name = 4;
+}
+
+message BitcoinServer_InternalPB {
+  optional string gui_label = 1;
+  optional string server_id = 2;
+  optional string server_type = 3;
+  optional string server_host = 4;
+  optional string server_port = 5;
+  optional string bitcoin_username = 6;
+  optional string bitcoin_password = 7;
+}
+
+message RippleServer_InternalPB {
+  optional string gui_label = 1;
+  optional string server_id = 2;
+  optional string server_type = 3;
+  optional string server_host = 4;
+  optional string server_port = 5;
+  optional string ripple_username = 6;
+  optional string ripple_password = 7;
+  optional string namefield_id = 8;
+  optional string passfield_id = 9;
+}
+
+
+message LoomServer_InternalPB {
+  optional string gui_label = 1;
+  optional string server_id = 2;
+  optional string server_type = 3;
+  optional string server_host = 4;
+  optional string server_port = 5;
+  optional string loom_username = 6;
+  optional string namefield_id = 7;
+}
+
+

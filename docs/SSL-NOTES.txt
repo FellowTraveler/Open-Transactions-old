@@ -1,0 +1,293 @@
+
+There are certain files (keys, etc) that need to be in the SSL-Example folder 
+(for client AND server -- both have their own different versions of that folder).
+
+You can generate those files in the ssl folder by typing make. (Already done FYI.) 
+Then copy the appropriate files to the client and server SSL-Example folders.
+
+
+** I have generated these files already and put them in the appropriate directories,
+with all the test passwords set to "test". So if you just want to try it out, you're
+already GOOD TO GO! 
+
+** But if you would like to erase all the certs, these are the instructions for
+re-creating them in a format that the software will use.
+
+
+===> HOW IS THIS ALL DONE?
+
+1) Go to the main project folder and then:  cd ssl
+
+
+1.1 (optional) To erase the certs that I generated: 
+
+   make dhparamclean; make certclean   
+
+ONLY IF YOU WANT TO WIPE THE CERTS I GENERATED.
+Make sure if you do this, to wipe them out of the client and server SSL-Example folders
+as well (the crt and pem files.)
+
+2) To generate certs, dhparams, (everything), Just type "make" and hit enter.
+
+3) Once they are created, some of the certs need to be copied to the server's SSL-Example
+folder, and some of the files need to be copied to the client's SSL-Example folder:
+
+cd ..
+
+(now we are in the main project folder again: Open-Transactions)
+
+===> TO COPY THE SERVER FILES:
+cp ./ssl/rootcert.pem ~/.ot/server_data/certs/special/ca.crt; 
+cp ./ssl/dh1024.pem ~/.ot/server_data/certs/special/dh_param_1024.pem; 
+cat ./ssl/servercert.pem ./ssl/serverkey.pem ./ssl/serverCAcert.pem ./ssl/rootcert.pem >~/.ot/server_data/certs/special/server.pem; 
+
+------------------------------------
+
+A copy of that server.pem also needs to go into the ~/.ot/server_data/certs folder,
+under the filename of the server's User ID. I have already put it there, but since
+you're recreating, you need to put the new one there:
+(From within Open-Transactions folder still, as current directory...)
+
+cp ~/.ot/server_data/certs/special/server.pem ~/.ot/server_data/certs/SERVER_USER_ID_GOES_HERE
+
+
+NOTE:
+Just use the existing server user ID for the old cert (that you are currently replacing
+with new certs by following this process.)
+
+In other words, the file already exists, and you are simply copying the new one 
+into the old one's filename, under the old one's ID. Why? Because that is part of
+this process -- you will rename the file to the new ID later, once you get to that
+step.
+
+------------------------------------
+
+===> Next: TO COPY THE CLIENT FILES:
+
+cp ./ssl/rootcert.pem ~/.ot/client_data/certs/special/ca.crt; 
+cp ./ssl/client.pem ~/.ot/client_data/certs/special/client.pem; 
+
+------------------------------------
+
+Next:
+A copy of the client.pem also needs to go into the ~/.ot/client_data/certs folder.
+
+(This is for the actual User account on the server, versus in the SSL-Example 
+folder where we also happen to be using the same cert for the lower-level SSL
+socket code. As we transition away from test client to a real client, we won't
+have that anymore.)
+
+To copy it:
+cp ./ssl/client.pem ~/.ot/client_data/certs/USER_ID_AKA_NYM_ID_GOES_HERE
+
+
+
+------------------------------------
+
+
+4) Make sure the HARDCODED DEFAULT values are correct in the source code.
+
+ACTUALLY: The code is ALREADY set up correctly, so you shouldn't have to do 
+anything here. But I still record this here for my own notes. You can skip it.
+
+These are only defaults, and they are now configurable also on the command line:
+
+testserver.cpp, near the top:
+#define CA_FILE             "certs/special/ca.crt"
+#define DH_FILE             "certs/special/dh_param_1024.pem"
+#define KEY_FILE            "certs/special/server.pem"
+
+------------------------------------
+
+===> Some defaults are also HARDCODED on the CLIENT...
+
+NOTE: Again, this is ALREADY set up correctly. But this is just for my notes, and again,
+these are also all configurable on the command line:
+
+testclient.cpp, near the top:
+#define CA_FILE             "certs/special/ca.crt"
+#define KEY_FILE            "certs/special/client.pem"
+#define KEY_PASSWORD        "test"  // RIGHT NOW THE PASSWORD FOR CONNECTING TO THE
+                                    // SERVER IS HARDCODED HERE.  TODO: config file, password prompt.
+
+------------------------------------
+
+5) By generating new certs, you have caused the server's User ID, as well
+as the client's default User ID, to be changed. (The IDs are a hash of the
+public key, so by changing the key, you therefore also have changed the ID.)
+
+Therefore, when you first load the server, it will complain that the server's User ID
+doesn't match the hash of the public key for the server's Nym (since the key has been changed.)
+
+Similarly, when you first load the client, it will complain that the user's ID doesn't match
+the user's public key either, for the same reason.
+
+==> When this happens, just look at what the new ID is (it will show the old one 
+followed by the new one) and then edit transaction/notaryServer.xml in order to update the
+server's User ID, and also edit testwallet/wallet.xml, in order to update the client's Nym ID.
+
+IMPORTANT: The ID may appear multiple times in the file, for example in the testwallet,
+the Nym ID appears also as a filename and also as a "User ID" so make sure you replace all
+occurrences of the old ID with the new one.
+
+------------------------------------
+
+Next:
+Now you have the new Server cert, and the new Server User ID, but the cert is still saved
+under a filename based on the OLD ID!!  So next we need to rename that file:
+
+mv ~/.ot/server_data/certs/OLD_SERVER_USER_ID   ~/.ot/server_data/certs/NEW_SERVER_USER_ID
+
+------------------------------------
+
+Next:
+
+At this time, if you load the wallet, it will be unable, because NOW, the Nym ID
+no longer matches the FILENAMES in certs/ and nyms/. So rename:
+
+mv ~/.ot/client_data/certs/OLD_NYM_ID ~/.ot/client_data/certs/NEW_NYM_ID
+
+mv ~/.ot/client_data/nyms/OLD_NYM_ID ~/.ot/client_data/certs/NEW_NYM_ID
+
+
+ALSO: edit ~/.ot/client_data/nyms/NEW_NYM_ID and ~/.ot/server_data/nyms/NEW_SERVER_USER_ID
+In BOTH of those files, make sure the "filename" variable matches the name of
+the file. You will have to update this variable from the old ID just as you had
+to rename the file.
+
+------------------------------------
+
+NYM FILE MUST BE RE-CREATEDÉ (Explanation immediately below, ACTIONS below the line.)
+
+Since the Nym ID is a hash of the cert, the cert file is  easy to verify. The software
+just loads it up, hashes it, and compares to the ID.
+
+==> But the Nym file is not so easy to verify, since it uses the same ID, which
+will obviously NOT come from a hash of the nymfile as well. (Meaning, if you hash
+the public key to get the ID, then you can't reasonably expect a hash of the nymfile
+to ALSO result in the SAME ID. Different files will result in different hashes. But
+both files are still identified by Nym ID. One is verified by hashing the file again to 
+compare to the ID. The other must be verified in another way: By storing the ID inside
+the file and then signing the file with the server's Nym. Later on the Server can 
+verify the signature and therefore trust the ID stored within the signed file.)
+
+The Nym is stored in an OTSignedFile. The ID is inside the signed file. (It's
+not enough just to put a Nym there with the right filename. What if the file was swapped?
+So you HAVE to put the ID *inside* the signed file.)
+
+An attacker cannot edit the nymfile and alter the ID, without also invalidating the server's
+signature on the file.
+
+------------------------------------
+
+==> So therefore the Nymfile has to be re-created... and re-signedÉ
+
+Until I add an "AddNym" API function, for now I have a line of code in OTServer.cpp
+(for the server nym) and a similar couple of lines of code in the OTLib (in OTWallet.cpp).
+
+==> All you have to do is:
+
+1) Uncomment that line of code in each of the above projects.  Use this code to find it:
+
+fgrep -n SaveSignedNymfile transaction/*.cpp OTLib/*.cpp | grep Uncomment
+
+In OTWallet you will also have to comment one line out. You will see it next to the other.
+
+2) Update the relevant nymfiles so the "filename" value stored within is set to
+   the NEW Nym ID (aka User ID) instead of the old one. (This will cause the signature
+   to break when you run.)
+
+3) Recompile OTLib and transaction projects.
+
+4) Run both projects once, to regenerate the nymfiles. You will notice the signature failing
+   when you run, as it loads up and fails to verify.  (IT WILL GENERATE THE NEW NYM AND SAVE
+   IT TO THE FILE AT THIS TIME, DUE TO THE CODE MOD WE JUST MADE.)
+
+5) Stop the software. When you run it again, you will see the signature WORKS this time--
+   (it fails the first time and succeeds the second time) because the file is now fixed!
+
+6) Edit the code AGAIN, and COMMENT THE LINE BACK OUT! 
+
+Normally the server, or wallet, loads a nym, verifies the signature, and DUMPS it if it fails
+to verify. 
+
+But with the code uncommented (as discussed), it will instead load it and then SAVE IT AGAIN
+WITH A NEW SIGNATURE, REGARDLESS OF WHETHER IT VERIFIED WHILE LOADING. (SO THIS IS DANGEROUS --
+AN EMPLOYEE COULD DO THIS SURREPTITIOUSLY TO SIGN THINGS -- YOU MUST HAVE A SECURE AUDITING
+PROCESS ON YOUR CODE, AND RUN IT IN A SECURE ENVIRONMENT!!  (Security experts, chime in?)
+If you do not feel safe about your code, then you should not feel safe about your cash on 
+the server running it.)
+
+==> This process makes it easy to create new NymFiles until the "GenerateNym" function is added
+to the API.
+
+
+------------------------------------
+
+NEXT STEP:  All the nym files are fixed now, and certs, etc. But because the Nyms
+have a new public key, that means the CONTRACTS must be RE-SIGNED!
+
+Here's what I just did for the SERVER CONTRACT:
+
+1) Edited the server contract to remove the PGP signature information from top and bottom.
+2) While editing, I replaced the contents of the first key (or cert) with the new one.
+   To be clear: the first cert in the server.pem file should also be the first cert in
+   the server's contract.
+3) BECAUSE I just changed the server's contract, I had to RE-SIGN THE CONTRACT.
+   So I used the signcontract utility to do this. (I had to copy the server's cert and
+   nym into the testwallet cert and nym folders so that the signcontract utility, which
+   was in the testwallet folder, would find them.)
+4) This will cause the SERVER CONTRACT to have a new hash, and thus a new SERVER ID.
+   So the server USER Id got changed (the nym ID) and now the Server ID as well (contract hash).
+5) I ran the testwallet and tried to load the new server contract (with the new signature.)
+   It FAILED loading the contract because the hash of the contract didn't match the old ID.
+   (Expected.) But when it failed, it gave me the new ID, so I copied that and edited the 
+   wallet file to update the server ID. Upon loading it a second time, it SUCCEEDED!
+6) Next I edited the notaryServer.xml file to fix the server ID there as well.
+   The server User ID had already been updated when I generated the certs (above.)
+
+Similar above steps must be repeated for each asset contract, (using the user's default
+nym instead of the server nym.)  
+
+(It is the users who upload the asset contracts. The user cannot issue any currency unless
+HE has signed the asset contract that he's uploading. Therefore, unless the user's nym is
+used to sign those contracts, he cannot upload them and test the issuing -- and therefore
+trading -- on the system.)
+
+
+----------------------
+
+
+Obviously these functions will all be really easy with better client software. For now we
+are dealing with test software. Pitch in?
+
+
+------------------------------------
+
+
+My own notes:
+
+openssl x509 -inform PEM  -text -in clientcert.pem
+
+openssl x509 -inform PEM  -text -in my-ca.crt
+
+openssl verify -CAfile my-ca.crt my-cert.crt
+
+--------------------------------------
+
+Some more notes, on converting PGP keys to OpenSSL format:
+
+Gpgsm utility can exports keys and certificate in PCSC12:
+
+gpgsm -o  secret-gpg-key.p12 --export-secret-key-p12 0xXXXXXXXX
+
+You have to extract Key and Certificates separately:
+
+openssl pkcs12 -in secret-gpg-key.p12 -nocerts -out gpg-key.pem
+openssl pkcs12 -in secret-gpg-key.p12 -nokeys -out gpg-certs.pem
+
+there you go
+
+
+
+

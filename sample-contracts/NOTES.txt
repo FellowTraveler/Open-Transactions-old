@@ -1,0 +1,33 @@
+
+
+transactionscom.xml is actually a signed contract, so it will work.
+
+silver.xml and tokens.xml are also signed. But unlike the server contract, 
+they are signed by the USER. That's because it's users who issue currencies,
+not the server.  So if you wipe all the certs and recreate them, be warned,
+you will not be able to use these currency contracts for ISSUING anymore.
+
+You will still be able to use them for creating asset accounts of the same
+type, but you will NOT be able to use them for issuing new asset types.
+
+This is because the contract key INSIDE the contract is the same one that
+was used to sign the contract.  ONLY that user can issue the curency, though
+ANY other user can open an asset account to TRADE in that currency.
+
+To sign a contract with the wallet:
+
+1) Load the wallet up and connect to the server.
+
+2) type "signcontract" and the wallet will ask you to enter an unsigned contract.
+
+3) The new signed contract will be displayed on the screen.
+
+4) From there, you can copy that, and issue a currency by typing "issue". It will 
+   ask you to enter the (signed) currency contract, then send a message to the server
+   in order to create the new asset type.
+
+
+There is also a signcontract command line utility.
+
+
+ 

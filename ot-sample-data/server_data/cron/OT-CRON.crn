@@ -1,0 +1,59 @@
+-----BEGIN SIGNED CRON-----
+Hash: SAMY
+
+<?xml version="1.0"?>
+
+<cron
+ version="1.0"
+ serverID="8dlRJnGCjqU5jw7bZaw2AF112UrCZiFfBS9CnJrMWSp" >
+
+<transactionNum value="2042" />
+
+<transactionNum value="2043" />
+
+<transactionNum value="2044" />
+
+<transactionNum value="2045" />
+
+<transactionNum value="2046" />
+
+<transactionNum value="2047" />
+
+<transactionNum value="2048" />
+
+<transactionNum value="2049" />
+
+<transactionNum value="2050" />
+
+<transactionNum value="2051" />
+
+<transactionNum value="2052" />
+
+<transactionNum value="2053" />
+
+<transactionNum value="2054" />
+
+<transactionNum value="2055" />
+
+<transactionNum value="2056" />
+
+<transactionNum value="2057" />
+
+<transactionNum value="2058" />
+
+<transactionNum value="2059" />
+
+<transactionNum value="2060" />
+
+<transactionNum value="2061" />
+
+</cron>
+-----BEGIN CRON SIGNATURE-----
+Version: Open Transactions 0.70a
+Comment: http://github.com/FellowTraveler/Open-Transactions/wiki
+
+CoABklx82gJE+HPBoPvgirN9Sqf9KXnw12EmrliswW727xPwbasOW5e6Xeh65Y2V
+ZE+W/sRONmyJCm4xuVQW1/QhW2QHILO3CWKPYnAYjT55jj/Ng+gR5O92mXbawFH0
+MgL1H71E0R7u5TbGpuPjfCAz0JjPoa3twbVs/Mz5iV3t2Mw=
+-----END CRON SIGNATURE-----
+

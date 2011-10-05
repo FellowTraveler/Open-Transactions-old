@@ -1,0 +1,24 @@
+
+There must be a nymfile in here for each User Account.  
+(User ID is consistent across multiple servers.)
+
+The filename can be whatever you want, as long as the 
+same filename is the one listed in the wallet file.
+
+The nymfile stores the current request number for any 
+given server, as well as any transaction numbers that 
+user has downloaded (from any server.)
+
+IMPORTANT: the Nymfile contains a NymID field. That field
+MUST contain the same NymID that the wallet is expecting
+to find after it loads the wallet file.
+Otherwise you will see an error client that the NymID
+didn't match the one in the wallet. That's okay, just
+make sure to edit both files to have the same NymID.
+
+(It will be expecting a specific ID based on a hash of your
+public key for that user.)
+
+There needs to be a nice PRETTY client GUI that handles
+this stuff transparently.
+

@@ -1,0 +1,207 @@
+
+Welcome to Open Transactions.
+
+See LICENSE-AND-CREDITS file, which should be in the same
+folder as this README file. You agree to the terms. 
+
+Online install instructions:
+https://github.com/FellowTraveler/Open-Transactions/wiki/Install
+
+-------------------------------------------------------------------------
+
+GETTING STARTED:
+
+
+1) For most, assuming you have all the necessary libraries installed already, 
+   (OpenSSL 1.0.0, MsgPack, Protocol Buffers, and ZeroMQ) then you just type  
+   this to build:
+   
+    make
+   (It will auto-detect platform, etc.)
+
+Then:  sudo make install
+
+
+If you also want the Java version (for the Moneychanger GUI) then do
+this next:
+
+    make clean && make java
+
+2) To run the server, type:
+       ot_server
+
+(It will give you instructions.)
+
+3) To run the test client, type:
+       ot -?
+
+(It will give you instructions.)
+
+** PASSWORD ** is test (always) 
+
+
+4) To run the Moneychanger client, just make sure the libotapi.jnilib aka
+libotapi.so is in the same folder as the Moneychanger jar file and lib folder,
+then double-click the jar file.
+
+It will want to know where the data folder is:  ~/.ot/client_data
+
+-------------------------------------------------------------------------
+
+
+IN MORE DETAIL:
+
+      INSTALL-Mac-Linux-FreeBSD.txt
+(or)  INSTALL-Windows.txt
+(or)  INSTALL-Android.txt
+
+-------------------------------------------------------------------
+
+Open Transactions requires OpenSSL version 1.0.0.
+
+	* To check current version:  openssl version
+
+	* To upgrade on Mac:    sudo port install openssl
+	  If that doesn't work: sudo port install openssl-devel
+
+	* On Linux: 
+NOTE for 64-bit Linux: MAKE SURE you configure OpenSSL explicitly for 64-bit and for shared binaries, THEN re-build it. (OpenSSL does not come built with those options by default, on 64bit Linux.)
+Again: For 64-bit Linux, run: "./configure -m64 shared" in the openssl folder BEFORE building OpenSSL 1.0.0, and then it should work when you build and run Open-Transactions.)
+		wget http://www.openssl.org/source/openssl-1.0.0d.tar.gz
+		tar -xf openssl-1.0.0d.tar.gz
+		cd openssl-1.0.0d
+		./config
+		make
+		sudo make install
+
+	* On FreeBSD (as root):  
+	  cd /usr/ports/security/openssl/ && make install clean
+
+---------------------------------------------------------------
+
+
+INSTALL:  MsgPack Library (data packing library now used by OT.)
+
+Available here:  msgpack.org
+To install from command line:  port install msgpack
+(OR) brew install msgpack
+
+Install instructions for all platforms:
+http://wiki.msgpack.org/display/MSGPACK/QuickStart+for+C+Language
+
+---------------------------------------------------------------
+
+INSTALL: Google's Protocol Buffers library (another data packer.)
+
+Available here: 
+http://code.google.com/p/protobuf/downloads/list
+
+---------------------------------------------------------------
+
+INSTALL: ZeroMQ (transport library)
+
+Available here: 
+http://www.zeromq.org/intro:get-the-software
+
+port install zmq
+
+---------------------------------------------------------------
+
+DOWNLOAD OPEN TRANSACTIONS
+
+git clone git://github.com/FellowTraveler/Open-Transactions.git
+
+Source code (FYI): 
+https://github.com/FellowTraveler/Open-Transactions
+
+----------------------------------------------------------------
+
+BUILD OPEN TRANSACTIONS
+
+cd Open-Transactions && make clean && make
+
+
+FOR JAVA MODE (If using Moneychanger Java GUI):
+
+make clean && make java
+
+---------------------------------------------------------------
+
+BUILD THE API
+
+To build the API for a specific language, try:
+
+make java
+make python
+make php5
+make perl5
+make ruby
+make c
+make d
+
+Etc. Use "make clean" between builds.
+
+See testwallet/API-README.txt for full instructions on building
+the API for the various different languages. (There are more languages
+available.)
+
+---------------------------------------------------------------
+
+DEVELOPER RESOURCES
+
+The OT API, with notes:
+https://github.com/FellowTraveler/Open-Transactions/wiki/API
+
+Use cases for the OT API:
+https://github.com/FellowTraveler/Open-Transactions/wiki/Use-Cases
+
+---------------------------------------------------------------
+
+TO START THE SERVER
+
+cd transaction && ./transaction.exe
+
+OR:  ot_server   will work from any folder, if you did make install.
+
+The server requires a password and a path when it starts up. 
+(It will tell you what to do.)
+
+FYI, the data folder for the server is: 
+~/.ot/server_data
+
+If you want to back up a copy of it, then you can feel free
+to play around with the data files, knowing you can refresh them 
+at any time.
+
+---------------------------------------------------------------
+
+TO RUN THE TEST CLIENT
+
+Once the server is running, then try the testwallet in a
+separate terminal:
+
+cd Open-Transactions && cd testwallet && ./testwallet.exe
+
+OR: ot    will work from any folder, if you did make install.
+
+Again, it will ask you to enter a password and a path. 
+Don't worry, it gives clear instructions.
+
+To use the testwallet, read ~/.ot/CLIENT-COMMANDS.txt
+Online:
+https://github.com/FellowTraveler/Open-Transactions/wiki/Test-Wallet-commands
+
+Note: the test wallet and the API are really just different build 
+options for the same client-side code, which is located in the 
+Open-Transactions/testwallet folder.
+
+The data folder for the client is: 
+~/.ot/client_data
+
+Fresh copies of all data is located in Open-Transactions/ot-sample-data
+
+
+
+
+
+

@@ -1,0 +1,5 @@
+protoc --cpp_out=. *.proto
+mv Bitcoin.pb.cc Bitcoin.pb.cpp
+mv Generics.pb.cc Generics.pb.cpp
+mv Markets.pb.cc Markets.pb.cpp
+mv Moneychanger.pb.cc Moneychanger.pb.cpp

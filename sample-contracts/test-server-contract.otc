@@ -1,0 +1,127 @@
+-----BEGIN SIGNED CONTRACT-----
+Hash: SAMY
+
+<?xml version="1.0"?>
+<notaryProviderContract version="1.0">
+
+<entity shortname="OT Test Server" 
+longname="Open Transactions Test Server" 
+email="FellowTraveler@rayservers.net"
+serverURL="https://github.com/FellowTraveler/Open-Transactions/wiki"/>
+
+<notaryServer hostname="ft.vm.to" 
+ port="7084"
+ URL="https://github.com/FellowTraveler/Open-Transactions/wiki" />
+
+<condition name="backing">
+  Neither FellowTraveler, nor Open Transactions, actually issue any
+  currencies or digital assets, and does not back any of the same. 
+  You are solely responsible for whom you choose to trade with. 
+</condition>
+
+<condition name="audit">
+  Open Transactions software is open source, and
+  code audits are randomly performed by hackers in the 
+  open source community. Fellow Traveler also uses Valgrind. 
+</condition>
+
+<condition name="rate">
+  There is no rate: I wrote this as free software for the open source
+  community. However, funding or coding contributions are welcome. 
+</condition>
+
+<condition name="liability">
+  Issuers are solely liable to perform according to
+  the conditions specified in their asset contracts.
+</condition>
+
+<condition name="mint">
+  Float - the total quantity of any digital asset outstanding -
+  is created by the issuer from his own mint, and signed by his private key.
+  
+  Disbursements from the Mint account are to be made on receipt of
+  duly signed and public authorization from the Issuer.  All
+  disbursements from the Mint account are to be made to the single
+  Currency Comptroller account identified by the authorization.
+
+  From time to time, the Currency Comptroller may direct the
+  Currency Manager to return digital assets to the Mint
+  for the express purpose of reducing the float. Digital assets
+  so delivered are to be deposited into the Mint account,
+  thus reducing the float by that amount.
+</condition>
+
+<condition name="privacy">
+  The purchase, redemption and trading at Transactions.com normally
+  are done on the basis of strong privacy. We will never release any of
+  your information unless compelled by law.
+</condition>
+
+<!-- KEYS -->
+
+<key name="contract">
+- -----BEGIN CERTIFICATE-----
+MIICgjCCAeugAwIBAgIJAMaLd1ZsqDvKMA0GCSqGSIb3DQEBBQUAMHMxCzAJBgNV
+BAYTAlVTMREwDwYDVQQIEwhWaXJnaW5pYTEQMA4GA1UEBxMHRmFpcmZheDERMA8G
+A1UEChMIWm9yay5vcmcxGDAWBgNVBAsTD1NlcnZlciBEaXZpc2lvbjESMBAGA1UE
+AxMJU2VydmVyIENBMB4XDTEwMDkyOTAyNDMyN1oXDTIwMDkyNjAyNDMyN1owXjEL
+MAkGA1UEBhMCVVMxETAPBgNVBAgTCFZpcmdpbmlhMRAwDgYDVQQHEwdGYWlyZmF4
+MREwDwYDVQQKEwhab3JrLm9yZzEXMBUGA1UEAxMOc3BsYXQuem9yay5vcmcwgZ8w
+DQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAOADov3TvgzuCxpSYs1lb9nKoDFIButv
+EJKFfT/EpPwrVuMP2vZ0ahy0BoVA4uH+FQwjLYJEBTIDO+IxuRc4Bxn42nUKCrBI
+QpitNlAMcv6PnNrCVyAn7GQ59bifHkV7NzWpLH0xFpLwa7GieCC4kz2GuhLDsaDq
+eS2K9WlWtpjzAgMBAAGjMzAxMAkGA1UdEwQCMAAwJAYDVR0RBB0wG4IOc3BsYXQu
+em9yay5vcmeCCWxvY2FsaG9zdDANBgkqhkiG9w0BAQUFAAOBgQBQ/NgyjFEtBWsF
+omfXVPX7aHKa4UkyHp6a2nCEEdSecNsAbe+s72yESpAwwc7KZCooBRvDX3P4O1bS
+bCzXFePdm7wisgV23DqycxmDAySbsn58dhKvRXf9Xy8l+mziYN6O+KAWXqvrO9W4
+KyHHBsoH+23N4dE7ho1sNBnrhvSmXw==
+- -----END CERTIFICATE-----
+</key>
+
+<key name="certification">
+- -----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: PGP Desktop 10.0.1 - not licensed for commercial use: www.pgp.com
+
+mQGiBDn6yYURBADM3qphMoDpvpp3Lk2KW0bpA+i1ne6Hwm24lW9w1dIJrw8CEc+S
+vAEhoGOAJNTO209NFYxcM+sA8XHp5aJpFHSbI536sfzbSVe3/MwdJ8JZXtbzcbHv
+ToBs1wScGTet2SGL6I9S3p7XUfprCYezBPRMCPOTxqR8pptotYOGXZoPZQCg/y0q
+CZjPJclqDY8Hf0X+DWnOMAkEAI4GnOpSq838/oElDAuZcLOvpTqTZ922pG1EJQmj
+Vh4P6br3ocrWnJSonkqFPLjihsVwGumO/hkyptrgqRV/vR9BmK1LKz901VaXbXPZ
+Lcns+XAg5sXxZcz87Dl4AduTF59ahHkc2bR7HqrvzRkXoQ/Q4ViLOifFISXXPKx8
+3OazA/9Ip4W+gr8e/oub7MQFJZcyOfcN1KDFIjnObVIabpIlKPcTeEHGvd/WUHOJ
+PQQr1+WGZY1W9UjLo171ssL2/x2bXaqJ4Ukgf4aQpRb5lUqekCKgine6eUA1XjTw
+J+a/J3xP54/iEuqdDZYGuX5j0/EJCqbY7gggPNkDNH82XdfQ+7QzUmFjaGVsIFdp
+bGxtZXIgW2NlcnRpZmljYXRpb25dIDxyYWNoZWxAd2lsbG1lci5vcmc+iE4EEBEC
+AA4FAjn6yYUECwMCAQIZAQAKCRC30ABpXpgYMFTFAJ0WqZwUXbD0H7YCGR7rI8jB
+Rh8E2wCePBrQBC1+shZrXCY0proYCkYfWdA=
+=UObU
+- -----END PGP PUBLIC KEY BLOCK-----
+</key>
+
+<key name="serverCertification">
+- -----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: PGP Desktop 10.0.1 - not licensed for commercial use: www.pgp.com
+
+mQGiBDmhGRERBAC9F7VF7ZNcwhffdFS2Sg0AcsF9gdhEEggZmBT1ezM5BYEO4lvN
+EJjezFilNxMLE3mP9E95mtRUEEtIx4ViyAGjVPwRBVQA2BNf+rbvCReBhhlJTFkN
+GOSHd65k4mDCflJAn7EX2OpST9tEAhpBs82w4OxlHIxmnav8iyD0O07sHwCgzYJI
+Xv3TEqERh0eDPEQ80MqGYEkD/Aj12tRhZYhYlVtEmJ4MrET9Ezuyhn8kQv89iBNK
+u2mN//LK4cqfJos1SJ3qXT16AHQQvfI0AUsI1ZQ+piq9pZ+sUMwpRnoQHM5SKux5
+UYcIM9aklW0zYAt+WjyrQBhN0eW0uzF40NVZHIH592dz/1RbNKf0hSDKBeCERTxk
+/zRDA/9rgvwyclIq4VTgA9AgwHC+JrKwbtJsawb4eYZPSbDe/pl2bQT9haTuLBKs
+Olz57Er5Vto6DWb1hs8gzb107u7CGYholr/tyjiPRhDvOcVQpZudkCE/1UXpawT/
+P4tPUvrBIVNK5SmHVRz6nsJxMxYm6Pr14+t8mgS1jrr/TxFTW7Q+U3lzdGVtaWNz
+IE9wZW5QR1AgU09YIFtvcGVyYXRvcl0gKGRzczEpIDxzZXJ2ZXJAc3lzdGVtaWNz
+LmNvbT6IVgQTEQIAFgUCOaEZEQQLCgQDAxUDAgMWAgECF4AACgkQKfOLUygtdArw
+3QCeJ8bEfVFS2etPkFus6esJfZ0+2OUAoK4AIIjFB+9CsoEkCn4dJBRTUKen
+=L806
+- -----END PGP PUBLIC KEY BLOCK-----
+</key>
+-----BEGIN CONTRACT SIGNATURE-----
+Version: Open Transactions 0.63
+Comment: http://github.com/FellowTraveler/Open-Transactions/wiki
+
+CoABwGTFH0qXdzN9THMKGv8IcwjT8UtvIApzvQVtrK+wC6F5SzPp0CY+G5a/w+Gr
+IcAEJPeHTEphgauP1EU/PhNOzseIq4wPgxVbhIckQ+4BR87U98bhTZx9ggnzTV9M
+x+4BKk/cxkQxlfQVPxEevx1M0salHHGqEEb+OkeExXq4oNE=
+-----END CONTRACT SIGNATURE-----

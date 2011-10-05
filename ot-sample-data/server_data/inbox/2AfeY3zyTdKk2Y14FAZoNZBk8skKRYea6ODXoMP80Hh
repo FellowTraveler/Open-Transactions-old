@@ -1,0 +1,45 @@
+-----BEGIN SIGNED LEDGER-----
+Hash: SAMY
+
+<accountLedger version="1.0"
+ type="inbox"
+ accountID="2AfeY3zyTdKk2Y14FAZoNZBk8skKRYea6ODXoMP80Hh"
+ userID="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV"
+serverID="8dlRJnGCjqU5jw7bZaw2AF112UrCZiFfBS9CnJrMWSp" >
+
+<transaction>
+eJx9lEmSo0gQRff0JWS5lVUhBglIqywzJiHEKCZJ7BiCeRIECHGZumpTWYvO7kXH
+8nu8b+FuHh/59de334cTJVnf2LKki8LGsVjdZnlHNvTPInIKhux9Y7PaHUF+wD5o
+hiCCedts4KsDH2+fSgJ6C0Qg7+AbsokDCOw8bUD88YYRGEXQJMEQayGIonZsoCx8
+vOFsAu7E8nJipcTvGHlk/Vb3uZIeSsW6g+BgCLdWM+ndKVvBcQD9b8rBLsTTv6bA
+cdvAnRqmxqpFVvaw2T9lp1rmpZd0mX7AwFupFZr+cHRcWedG4ouHuy+eVOgHT5w9
+Yhju9ryfHxPOZvjm3GtXu1u5Lz3qY72+dUfTq5w3Flj7BE0EnPZTpd42P9eZ/Kvw
+EwHnuSqH0WhL1s0qsJB2KV8ZTbdzvZ3LA5k/28dRJ3ih7WyXL0Z8yl16lwpjlxkL
+03jIK0GZV1LZ85lJVFqXH/X+3klmWz0elyd3h9be5obQk9lDUcs7cUiXByjJfQtS
+Zzbw6oJYhR+nlu+yvPioM4J372fzKJ6uTszvmLvycPU6H8eScKxbarScXtZGv1ih
+m3EnUr7nD0Q5tJrvimf3+pgG/pDY+4gi0OIi4KTjWqN5xslqS1Z4dX75xRF4W1C6
+ZpxcnVeLpdc8Rq6nRMqWOL6SDTAKXEifKeWMj1qh8jOhRi0ZWVGiTgSmnhRtPvGT
+dtPZc/yUrDzlzlGMjEszYRczzctnXwn5QelFonCZLAQkZiWtO0oHUja3EjPSIr7N
+ZaW9ZOxUPUUB7eBOxBGLC936VGpWSBHdmHGYM81LcjanCwrlhoOM3RxYzMN6vDPC
+dBTthDNv5e7Vo697aWoDcqFyvyROzvFkBGbu6YQcTJrGtELgdck4Wsqus6wLfVQZ
+Wj0c4cu+59uLbx/2wSJEkXNB0jF4UKXT3KKgCPFFncMqkaCnbBOZj5hmrzeDdsD7
+YTuSHKhQeXSpW8oW0+7ugFxaJCSgKcWF6iEaI0eRtxmr2uPMJz25pfSnFOP3o5oB
+DtPx22sX72Uz6WmK9uGrt8ys850rgvu32YgHYlRqA+JxsAwE1NrFwOo8pGxHDqBR
+ksxJY9I5oxO7uU4MunQonqvMJBnsDvmB/me3V+XL7/iJfImPL7nxGSXsuininwTx
+QD+s1983RgeajfOPwbDZfacwhG/rGjTwfZNB2L2jaJrDbAy/R22NHkFVtc8VmUAF
+evS3wbevBugzL3NkdWA5tUJzTliysGFQbCo7li+IY9yQ10j1eHOU198nLTsfD4Cj
+MH4clh6rOvqw9cYSIKU/27au5i9DyLAbv4dwi1GyYkjboIJZO9V4fB5tCMlDOGCF
+L6u+TaPcPM9WLjCHVkA8pXA4CqMouxEbqQwu+d7T9MmMsG0kFqewlmSDbjQbloVj
+a+nHn9GJuvB/g0P+BuYZ09A=
+</transaction>
+
+</accountLedger>
+-----BEGIN LEDGER SIGNATURE-----
+Version: Open Transactions 0.71
+Comment: http://github.com/FellowTraveler/Open-Transactions/wiki
+
+CoABUj45KirWtrpIE4VL7FLLyhaNuBfEAtOnClSZ/TC24+6Us6KdZDaEficJPqDn
+Svrxe4wm2EHMvymI6ps/YRCn1f5ykz1NOo6vinxwlF3Yzebq6+jLXJL29Ip35ZMD
+UUwVdsMlLIVYvEiMjFOP8lgbzyQpgFQXomJEI9prONGP9HU=
+-----END LEDGER SIGNATURE-----
+

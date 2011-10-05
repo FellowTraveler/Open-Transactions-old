@@ -1,0 +1,52 @@
+# default settings for our example. see chapter 3 section 3 for more details
+[ ca ]
+default_ca	= exampleca
+
+[ exampleca ]
+dir              = /opt/exampleca
+certificate      = $dir/cacert.pem
+database         = $dir/index.txt
+new_certs_dir    = $dir/certs
+private_key      = $dir/private/cakey.pem
+serial           = $dir/serial
+ 
+default_crl_days = 7
+default_days     = 365
+default_md       = sha1
+ 
+policy           = exampleca_policy
+x509_extensions  = certificate_extensions
+ 
+[ exampleca_policy ]
+commonName             = supplied
+stateOrProvinceName    = supplied
+countryName            = supplied
+emailAddress           = supplied
+organizationName       = supplied
+organizationalUnitName = optional
+ 
+[ req ]
+default_bits		= 2048
+default_keyfile 	= privkey.pem
+default_md              = sha1
+
+prompt                  = no
+distinguished_name	= req_distinguished_name
+x509_extensions		= req_extensions
+
+# the following sections are specific to the request we're building
+
+[ certificate_extensions ]
+basicConstraints = CA:true
+subjectKeyIdentifier=hash
+authorityKeyIdentifier=keyid:always,issuer:always
+
+[ req_distinguished_name ]
+countryName         = US
+stateOrProvinceName = Virginia
+localityName        = Fairfax
+organizationName    = Zork.org
+commonName          = Root CA
+
+[ req_extensions ]
+basicConstraints = CA:true

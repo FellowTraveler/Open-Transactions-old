@@ -1,0 +1,414 @@
+
+NOTES on the Version:
+
+// --------------------------------------------------------------------
+
+   0.72b--- Bug fix in Basket Exchange (which is now working in the GUI!)
+
+   0.72a--- More bug fixes. Plus: added more options to the ini files.
+
+   0.72 --- This release was all debugging. It's downright embarrassing,
+            all the bugs I still had to fix. A new version of the GUI is
+            coming soon, with matching fixes.
+
+   0.71 --- Massive upgrades to the command-line utility for OT, as well
+            as the addition of "make install". Lots of debugging.
+            Default data folders are now ~/.ot/server_data and ~/.ot/client_data
+
+   0.70 --- Added finalReceipt, basketReceipt, plus related internal changes.
+            Also added messages for DELETING accounts and nyms. 
+
+   0.69 --- Bug fixes in preparation for the new MARKETS screen...
+
+   0.68 --- Minor bug fixes at the request of client developers.
+
+   0.67 --- Output now goes to a logfile (in the config file) or stderr.
+            No more logs to standard output. OT client no longer hangs if
+            server isn't running. Client and Server now both use ini files
+            as well as config files.
+
+   0.66 --- Added the rest of the Market API, since the GUI will soon
+            support it!
+
+   0.65 --- THE SAMPLE DATA WAS ALL RE-GENERATED... So grab it, plus the
+            latest version of the code. What all changed?
+ 
+            I added default packing to all OTASCIIArmor strings. I think
+            OT should now be binary compatible across all platforms, but
+            we'll see. Oh and, due to this, re-generated all sample data.
+
+            ===> Also added bindings for **the D programming language**
+                 http://www.digitalmars.com/d/2.0/overview.html
+
+            ===> Also added .ot_ini files! (What sorts of options would 
+                 YOU like to see in the configuration files for OT?)
+
+            Also did some bug fixes in OTString, OTMint, and createmint.
+
+   0.64 --- Added default packing (currently protobuf) to all binary
+            to base64 encoding. I had a recent complaint about binary
+            incompatibility across platform, and this is either the
+            complete fix, or at least a strong beginning of a drive to
+            ensure binary compatibility across all platforms.
+
+   0.63 --- Open Transactions has entirely been converted to the NEW
+            STORAGE CLASS. (This means you can easily switch to different
+            storage systems, instead of using the filesystem, just by sub-
+            classing the OTDB::Storage class and overriding a few methods.)
+
+            ==> IN OTHER NEWS: OT now uses the ZeroMQ library for transport!
+            To learn more about OT's new transport capabilities, check out
+            this guide:  http://zguide.zeromq.org/page:all
+
+   0.62 --- Load/SaveWallet uses the new Storage class. Dynamic casting
+            was added to the storable objects. Pack/Unpack were debugged.
+            Store/Query now supports plain strings. Contact ID was added.
+            Storable objects now use smart pointers for internals.
+
+   0.61 --- Added new Storage context class! Currently filesystem supported
+            only, BUT you can now add any new storage you want simply by
+            subclassing OTDB::Storage and implementing a few methods!! Many
+            other storage methods can now quickly and easily be added.
+
+            Furthermore, the Storage object was designed to make it easy to
+            swap Packing libraries. OT now supports MsgPack IN ADDITION TO
+            Google's Protobuf library. Soon these will also be used to
+            clear up any binary incompatibilities between different
+            systems running OT. (So the contracts will work on all systems
+            equally.)
+
+   0.60 --- Added password callback! Works in the API, in Java, etc.
+
+   0.59 --- Fixed ANOTHER old bug in receipt verification.
+
+   0.58 --- Added API stub for Import Nym
+
+   0.57 --- Fixed an old bug in receipt verification.
+
+   0.56 --- "Verify Last Signed Receipt against intermediary files" has
+            officially been added to the API. Also added more ability to
+            manipulate Tokens through the API. Also some debugging in 
+            balance agreement (cleaned up an old bug that prevented
+            transactions while certain receipt types were in the inbox.) 
+
+   0.55 --- Minor release, goes along with Moneychanger (new Java GUI.)
+
+   0.54 --- OT now stores the last 1024 logs internally, and makes them
+            available via the API. Various other API debugging was done.
+
+   0.53 --- API functions for Nym outbox, and for checking success status
+            of a transaction message. Various other API fixes preparing
+            for the upcoming test GUI.
+
+   0.52 --- API functions for deleting Nyms, Accounts, and Contracts.
+
+   0.51 --- API functions for Mail and Transactions.
+
+   0.50 --- BASE-62-ENCODED IDs (much more compact.)
+
+   0.45 --- Added a few API functions and updated the Windows build.
+
+   0.44 --- RECEIPT VERIFICATION. Goes with the below change. Client-side
+            receipts are now saved after every transaction, and whenever
+            account/inbox/outbox files are downloaded, they're verified
+            against the last signed receipt.
+
+   0.43 --- BALANCE AGREEMENT / NO ACCOUNT HISTORY has been added!
+            Just make sure you grab the outbox and inbox, and the account
+            file, before doing a transaction, since they are needed
+            for balance agreement, which is now operational and required.
+
+   0.42 --- More bug fixes, plus added OT_API_CreateNym() (finally).
+
+   0.41 --- Bug fixes in support of API, added various transaction
+            types, receipt types, item types, to get full transfer
+            receipt process working end-to-end.
+
+   0.40 --- More additions to the API, plus many under-the-hood fixes.
+
+   0.39 --- Continually updating the API based on developer feedback.
+
+   0.38 --- Added Payment Plans, Markets, and Baskets to the API. Also
+            added message buffer access to the API, so you can read all
+            the server replies if you want to (or flush them...)
+
+   0.37 --- Added build option DSP=1, for using custom builds of OpenSSL,
+            and for turning off all the output logs.
+
+   0.36 --- Top-level build targets added for API in Python, Ruby, PHP,
+            and Perl!  It's now this easy to build the API:
+
+            cd Open-Transactions
+            make clean
+
+           Then, from the same folder:
+
+            make ruby
+            make python
+            make php5
+            make perl5
+     
+           (More languages are supported, but for now these are the ones
+           available at the top level.)    
+ 
+   0.35 --- Huge additions to the API! See testwallet/OTAPI_funcdef.h
+            for the complete interface, with NOTES above each function.
+ 
+            That same interface is also wrapped by SWIG, and available
+            in Java, Python, Ruby, Perl, Php, Lisp, etc, so those OTAPI
+            functions are relevant to ALL developers...
+
+            People have asked about documentation so hopefully the API,
+            plus the notes within, will answer any questions for now
+            until more professional docs can be written. As always, feel
+            free to contact me with any questions.
+
+            This release continues my push to make the library EASY and
+            ACCESSIBLE to all developers, in all languages, on all
+            platforms.  There are already multiple developers who are
+            starting to play around with client software using the OTAPI,
+            and I am very responsive to their needs.
+
+            *** The latest SECURITY notes..
+
+            ..Any new software requires testing with users AND peer review!
+              Open Transactions was recently reviewed by Ben Laurie, and
+              I accepted all the changes that he submitted. It's a good
+              start!  This process must continue.
+
+            ..In this release I have replaced all instances of strcpy
+              with strlcpy/strcpy_s, and all instances of sprintf with
+              snprintf/sprintf_s, and all instances of vsprintf with
+              vsnprintf/vsprintf_s, and all instances of strcat with
+              strlcat/strcat_s.  It's important to make sure there are no
+              buffer overflows in this code.
+
+            ..I also set up the code with Valgrind, and went through all
+              the warnings, adding comments, fixes, and exclusions where
+              appropriate or necessary. This process will continue, but
+              it's important to run code scanners on this sort of software!
+            
+   0.34 --- (Various additions to the API at developer request.)
+ 
+   0.33 --- Slicker build process. This release is all about having an
+            EASY BUILD PROCESS, and is based on real-world feedback I've
+            been getting from YOU, my testers: 
+
+        *   For ALL users: XmlRpc++ is now part of the distribution,
+            and is part of the build process. Various users had trouble
+            installing this library separately, so I integrated it into
+            the project. Now it's built-in! 
+
+        *   For ALL users: Platform now auto-detected by MUCH easier/
+            slicker Makefiles. 
+            (And as with the last release, I was able to eliminate 
+            several Makefiles.) To build (from main folder), just type: 
+
+             make 
+
+   (You may prefer 'make rpc', to build in the preferred XmlRpc mode.)
+
+         *   To build the API: 
+             cd testwallet; 
+             make -f Makefile.API TRANSPORT=XmlRpc LANGUAGE=c 
+             make -f Makefile.API TRANSPORT=XmlRpc LANGUAGE=ruby 
+             make -f Makefile.API TRANSPORT=XmlRpc LANGUAGE=java 
+             make -f Makefile.API TRANSPORT=XmlRpc LANGUAGE=python 
+             make -f Makefile.API TRANSPORT=XmlRpc LANGUAGE=perl5 
+             make -f Makefile.API TRANSPORT=XmlRpc LANGUAGE=php5 
+             make -f Makefile.API TRANSPORT=XmlRpc LANGUAGE=lisp 
+             Etc... 
+             Slick, eh? In all the above cases, the platform is
+             automatically detected. 
+             See testwallet/API-README.txt for more notes. 
+
+        *   For MAC users: The Makefiles had been using the wrong
+            location for OpenSSL (at least, for the Macports 1.0.0a
+            version) so I fixed this. The previous Makefiles referenced
+            the default location, where (the wrong) version 0.9.8 can be
+            found. (The new version looks in /opt, as used by MacPorts.) 
+
+         *   For LINUX users: Now, OT attempts to link 64-bit libs where
+             appropriate. 
+
+         *   For FREEBSD users: The full new Makefile is now FULLY
+             operational on FreeBSD, including the utilities
+             "createmint.exe" and "signcontract.exe", which were
+             previously unsupported on FreeBSD. 
+
+  // ---------------------------------------------------------------------
+
+   0.31 --- Native API, with easy Makefiles, added for C, C++, Objective-C,
+            C#, Java, Lisp, Ruby, Python, Perl, PHP, and Tcl. Also
+            supporting JRuby, Jython, and any other languages on the JVM. 
+
+            Transport is now implemented as a CALLBACK FUNCTION, which
+            means it is now VERY EASY to swap out to different forms of
+            transport (though XmlRpc is probably the last form we'll ever
+            need.)
+
+  // ---------------------------------------------------------------------
+
+   0.30 --- MAJOR RELEASE! Markets, Payment Plans, and OT as a Web Service!
+
+          *** Open Transactions is now officially a WEB SERVICE! The
+              server, client, and API now support *XML-RPC/HTTP*, in
+              addition to the TCP/SSL mode from before. Open Transactions
+              also now comes with an easy mechanism for substituting your
+              own transport mechanism, using a callback function. (ALL
+              transport protocols are welcome in Open Transactions...)
+
+          *** Open Transactions now supports real MARKETS with full-
+              featured 2-way trades! These markets can do LIMIT orders,
+              STOP orders, DAY orders, FILL-OR-KILL orders, STOP LIMITS,
+              etc. Markets also have SCALE, which means bulk pricing, and
+              arbitrage.
+
+          *** Open Transactions now supports PAYMENT PLANS. As long as both
+              parties have signed the contract, the server will continue
+              processing it according to its terms, placing receipts in the
+              inboxes of the two parties until the payments are done.
+
+          *** All data files were removed to a data folder, and all file
+              paths were removed from data files (filenames are generated
+              now, when needed.)  This all means datafiles are much easier
+              now to work with.
+
+// ---------------------------------------------------------------------
+
+   0.25 --- All file pointers were removed and replaced with C++ fstreams.
+            
+            An all new logging class, with errors, asserts, and multi-
+            verbosity output. See the OTLog.h and .cpp files for more.
+            (Centralizing the output and logging also helps porting
+            efforts.)
+
+            All the test certs were regenerated, and the contracts were
+            re-signed, etc. This time they will last for 10 years, instead
+            of 30 days. Slight fix to the Open-Transactions/ssl Makefile.
+
+   0.24 --- FreeBSD working!
+
+   0.23 --- Android version! (In support of our upcoming Android client.)
+            UPDATE: this port is still ongoing, NOT perfect! Android has
+            many custom things and limitations.
+
+   0.22 --- EASY Makefiles and project files are now available for the
+            JNI Java interface, as well as the high-level C++ API.
+            
+            Now it's easier than ever to use Open Transactions in your
+            Java and C++ applications, for Mac, Linux, and Windows!
+
+            Makefiles are supplied for MAC and LINUX, as well as project
+            files for XCode on Mac and MS Visual C++ 2010 Express on
+            Windows. 
+ 
+            "FiatCash" (the first client, on Android) is humming along
+            and hopefully we'll have some basic version soon up on Github.
+
+            Negative transactions are no longer allowed for vouchers,
+            account transfers, or cash withdrawals. They are still,
+            however, allowed for cheques, which serve as invoices.
+
+            Various global variable issues were cleaned up...
+
+   0.21 --- Windows release!
+
+           Open Transactions now supports Windows, LINUX, and Mac OS X.
+           (In the same code base.)
+           
+           This distribution comes with gcc Makefiles for Mac and Linux,
+           as well as XCode project files for Mac and Microsoft VC++
+           project files for Windows.
+           
+           The Windows port was at the request of an Android developer who
+           has begun work on a wallet (client app) that he calls
+           "FiatCash".
+           He will be building it on Windows, in Java, using the Open
+           Transactions JNI interface to talk to the library. When
+           complete, the wallet software will run on Android phones.
+           
+           INVOICES: Imagine that you hand someone an invoice. He runs it
+           through his bank account and the money is automatically
+           transferred to you, with receipts on both sides. This is the
+           same thing as a cheque with a negative amount. Thus, "negative
+           cheques" can be used as invoices. (Already operational.)
+           
+           Assorted:
+           
+           Many of the C Standard Library includes were replaced with their
+           C++ standard library versions.
+           
+           Other cleanups were made including some fixes to OTString (which
+           used to have some large stack-allocations) as well as a bug fix
+           in the socket code for the server / test client.
+
+           The client cert expired, so I re-created all the certs. If you
+           have any problem with your own, just install the new version to
+           fix it.
+           
+// ---------------------------------------------------------------------
+
+   0.2 --- Major Release!  ALL NEW:
+
+           JNI Interface (High-level Java API)
+
+           High-level C++ Interface
+
+           Spent Token Database is fully operational!
+
+           Mints and Tokens now support Expiration AND Series. 
+
+           New Financial Instruments: Cheques and Vouchers.
+
+           Reserve accounts are now working to store the backing funds
+           for cash withdrawals and vouchers (cashier's cheques.)
+
+           Transaction numbers are fully working now.
+           
+           Nym files are now signed (to prevent tampering.)
+
+           Hardcoding of paths was fixed, using config files and
+           command-line arguments now, so you can use the software 
+           without having to change the code.
+
+           Path separators were improved to support Windows-style paths
+           (though I haven't tried to actually build on Windows.)
+
+           Numerous bug fixes. Including a big one: discarding
+           token signature after unblinding.
+
+
+// ---------------------------------------------------------------------
+
+  0.11 --- Added LINUX support... 
+
+           Added Makefiles, and a few fixes related to Linux. 
+           
+           OT now runs on TWO platforms: LINUX and Mac OS X.
+
+// ---------------------------------------------------------------------
+
+  0.1  --- The original goal was just proof-of-concept. There are many
+           TODOs listed on the project page, as well as throughout the
+           code.  But it all works!!!
+		   
+   A WARNING: This software is brand-spanking-new.  The project has not
+yet been audited for security or tested for any extended period of time.
+Thus far, it must be considered as for experimental purposes only.
+		   
+       --- There are still a few values that are hardcoded (in the client
+           and the server), unfortunately, but it's all documented and I
+           have everything set up already to run, so you don't have to
+           mess with them. This will be fixed next release.
+ 
+----------------------------------------------------------------------
+
+The server expects its OWN cert to be in the  transaction/certs folder.
+The filename should be the server_user_ID from notaryServer.xml
+(I HAVE ALREADY PLACED IT THERE.)
+
+This is the file that includes the server's public AND private key.
+
+----------------------------------------------------------------------
+
