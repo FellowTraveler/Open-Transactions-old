@@ -2,7 +2,7 @@ Open Transactions v0.72b
 (Scroll to the bottom to see the complete AGPLv3.)
 /************************************************************
 -----BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hash: SHA256
 
  *                 OPEN TRANSACTIONS
  *
@@ -16,7 +16,7 @@ Hash: SHA1
  *    	 -- Basket Currencies, Markets, Payment Plans.
  *    	 -- Signed, XML, Ricardian-style Contracts.
  *    
- *  Copyright (C) 2010-2011 by "Fellow Traveler" (A pseudonym)
+ *  Copyright (C) 2010-2012 by "Fellow Traveler" (A pseudonym)
  *
  *  EMAIL:
  *  FellowTraveler@rayservers.net --- SEE PGP KEY BELOW.
@@ -104,23 +104,22 @@ Hash: SHA1
  *   warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
  *   PURPOSE.  See the GNU Affero General Public License for
  *   more details.
- 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.11 (Darwin)
 
-iQIcBAEBAgAGBQJOiDLNAAoJEAMIAO35UbuOHZ8P/2FButaqcu7+z2wYmYKwm2Ki
-hECaUkzqOiT/FJZGBmNTiXxsBc8G1c2mPjB+MUT0cuow8+THBwzhifXRP2mmz03K
-7QqPc8I01q2wtG9C/BnfTLJ/rmkWHcrUsSMQe4nLW4F7fVB9A74J0Jivzq3ItC9F
-R/dBqj84zRM0jObW04ndXuJsvGtN3Arp8hujanLfuepOj8Bayu04awuGvmVOBW+U
-GqAxKnhW984QlEttydwMgmpDdDtNoBNWeGJKlkYV+T7z2M1ajAaLRje5+FyZZ5cU
-BCIp+RKUCLx4jUKCTBh2D9gXog/H5fXNGkpA8IrY9zFp0QABvNfNQLmwTeAT8mEp
-Dji07lfPqXu4AezHoWv8n56ew8W2gpTypCX9tL1HnPhCYOAzV+/EVLZqzpJliJV3
-0dwmO3W0aOsmTjXV2w5Ll4sx2UBi+d4eoVUGE1xYEpDpNoD1NLtysTJILRwFsQAX
-5X+LLzyoIRV+Sx/2N1S3l2fTZNK9EGVbjzJruASphiIrjk3NBQaThIIOLHqsPaTH
-RhRoCDpmm80uzWZJr0Mi7JAQmgSmralZAT8tCrD2VYq9mL9RHhwQ/fyXttFEEN+s
-DN/7M35z/u3wy3GikVknlzPcm+q4NaZMZJiynh5GeU++A0APh15clYqOsB5Zxe8O
-qg/U8uXzgLQuLbFxBjyr
-=utx2
+iQIcBAEBCAAGBQJOjvvMAAoJEAMIAO35UbuOOnEQAJigzghh8KAjYhbrvzaDgev0
+3FpcUb+19d4QaB6t7/89UfJ8z3bXovz2OwnUrp4IqMqIeZLuPVg+O4Mz1zXkoCiS
+m+fXonWOAHv+KDfF3M0biGTuFwu2a8lXKfZldioToASAKpg+uFlLGh2uHfbQ5dl/
+NA/Rqh9Ymp8ORCTejc/OAQE17P83hUhBaTbu2lbo+xMuyFh9Yuca3tpRiDUOkwRA
+sFEymfY3zrkWkRPSIRVEOVBIWf+O1uDHvtLONNrDfnsPQW20n56OV/4verD+E6GL
+7b92Wua5+wXBm4WEloalbI8XKO3lca9PqdUfFwOVMec2usI/KP8Lhu6SGfCICbUp
+Be8NHRySg2gockRa8ZBQd7NmpadmOAV7Za2qe7mPSoO9vTcnB9/RF0tvMpcWl0tj
+Scdq+QNoVGLwz5/jJZXo20eAICU0v1+5xVaZi+9B+dzQ4XIaxuQma7Unokehcz3d
+UhdxaDOcdLSR/5yHM/rhyakOG07SUU/Amu/T5XMF5FbUvWFJEgbBx2k9HZqybI7m
+EInE39QRepSmNlHtTHy4k57UlAL7FnDJHGifKnuafdU+hV8jAzU9jgNrjyjO9OGM
+gux09jKExEI9ff/ukvlVkDoIpGGMLNXy3ius7/9ZRP2I8eMYMIQWTue50o9DU5Ow
+8BErVzwFDmgFe49PHXW9
+=wZeA
 -----END PGP SIGNATURE-----
 **************************************************************/
  

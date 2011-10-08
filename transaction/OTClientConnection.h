@@ -6,7 +6,7 @@
 
 /************************************************************
  -----BEGIN PGP SIGNED MESSAGE-----
- Hash: SHA1
+ Hash: SHA256
  
  *                 OPEN TRANSACTIONS
  *
@@ -20,15 +20,14 @@
  *    	 -- Basket Currencies, Markets, Payment Plans.
  *    	 -- Signed, XML, Ricardian-style Contracts.
  *    
- *  Copyright (C) 2010-2011 by "Fellow Traveler" (A pseudonym)
+ *  Copyright (C) 2010-2012 by "Fellow Traveler" (A pseudonym)
  *
  *  EMAIL:
- *  FellowTraveler@rayservers.net --- SEE PGP KEY BELOW.
- *  F3llowTraveler@gmail.com --- (not preferred.)
+ *  FellowTraveler@rayservers.net
  *  
  *  BITCOIN:  1NtTPVVjDsUfDWybS4BwvHpG2pdS9RnYyQ
  *
- *  KEY FINGERPRINT:
+ *  KEY FINGERPRINT (PGP Key in license file):
  *  9DD5 90EB 9292 4B48 0484  7910 0308 00ED F951 BB8E
  *
  *  OFFICIAL PROJECT WIKI(s):
@@ -108,23 +107,22 @@
  *   warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
  *   PURPOSE.  See the GNU Affero General Public License for
  *   more details.
- 
  -----BEGIN PGP SIGNATURE-----
  Version: GnuPG v1.4.11 (Darwin)
  
- iQIcBAEBAgAGBQJOiDLNAAoJEAMIAO35UbuOHZ8P/2FButaqcu7+z2wYmYKwm2Ki
- hECaUkzqOiT/FJZGBmNTiXxsBc8G1c2mPjB+MUT0cuow8+THBwzhifXRP2mmz03K
- 7QqPc8I01q2wtG9C/BnfTLJ/rmkWHcrUsSMQe4nLW4F7fVB9A74J0Jivzq3ItC9F
- R/dBqj84zRM0jObW04ndXuJsvGtN3Arp8hujanLfuepOj8Bayu04awuGvmVOBW+U
- GqAxKnhW984QlEttydwMgmpDdDtNoBNWeGJKlkYV+T7z2M1ajAaLRje5+FyZZ5cU
- BCIp+RKUCLx4jUKCTBh2D9gXog/H5fXNGkpA8IrY9zFp0QABvNfNQLmwTeAT8mEp
- Dji07lfPqXu4AezHoWv8n56ew8W2gpTypCX9tL1HnPhCYOAzV+/EVLZqzpJliJV3
- 0dwmO3W0aOsmTjXV2w5Ll4sx2UBi+d4eoVUGE1xYEpDpNoD1NLtysTJILRwFsQAX
- 5X+LLzyoIRV+Sx/2N1S3l2fTZNK9EGVbjzJruASphiIrjk3NBQaThIIOLHqsPaTH
- RhRoCDpmm80uzWZJr0Mi7JAQmgSmralZAT8tCrD2VYq9mL9RHhwQ/fyXttFEEN+s
- DN/7M35z/u3wy3GikVknlzPcm+q4NaZMZJiynh5GeU++A0APh15clYqOsB5Zxe8O
- qg/U8uXzgLQuLbFxBjyr
- =utx2
+ iQIcBAEBCAAGBQJOjvvUAAoJEAMIAO35UbuOBlMP/1LX0xJ9CrTOe1G/mgc+VygT
+ JPVZDAbQDL/lJXOZMbaPJ/GaLXyEnTViHp97ERrlVuBQz+9uonIKCmPqAGYGVBG1
+ MGV2QcscXU2aOUT1VPf2OYEOIul0h8FX2lixfqouH9/OkVsGRLr79Zu8z3zdsO4R
+ ktQtjZEU6lnL2t6cmp/cuXlQnbz1xvxd56xNDR11YP07Z4x+CuDB4EAK+P9TfCwn
+ tqq5yJmxJM9HtMoi3cUU7kXodKm1n1YZt7O46DOxHqbXqErHChN1ekSK0fXad614
+ Gmh+5JfvHjx5XoFWMxb46aAAcUiG8+QpFBcKtSYP2X96k1ylgxMCzrK60ec/MxKV
+ BzvP00OJ6PzzrTlcUaCgJ8ZX+0scOMvW0XKioEorozKSWNFvT4Drc4Thhy8u9ET3
+ ru1enNFrjdxKjw2+ZTQcKSZjSRx2kMQ2od/dkqUlhe/M1cHGhseH6ls7pItrkykE
+ ufZ9GlZoxYE+FRatIBPneT9WwsvFFvH+i6cQ/MM9pbTr19g6VPzVZ4U9E65BbTDB
+ czITynH+uMtJLbprtCdQlsI+vqTgYNoY8AUsmnr1qUkp020qGlvwfCJVrooisTmm
+ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
+ 6h9BYZFTZrh/OwBXCdAv
+ =MUfS
  -----END PGP SIGNATURE-----
  **************************************************************/
 
