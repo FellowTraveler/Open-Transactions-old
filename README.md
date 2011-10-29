@@ -160,8 +160,8 @@ relevant parties including the server.
 -- Open Transactions is free software (GNU), written in C++,
 object-oriented, and includes a high-level API in Java, Ruby,
 Python, C, D, C++, Obj-C, C#, Lisp, Perl, PHP, and Tcl. (Also
-supporting JRuby, Jython, and any other language available on the
-JVM.)
+supporting JRuby, Jython, Groovy, and any other language available
+on the JVM.)
 
 -- The software is fully cross-platform: Linux, Mac OS X, FreeBSD,
 Android, and Windows are supported with makefiles, project files,
