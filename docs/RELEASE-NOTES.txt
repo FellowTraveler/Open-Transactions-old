@@ -3,6 +3,8 @@ NOTES on the Version:
 
 // --------------------------------------------------------------------
 
+   0.73 --- Client side scripts!  See Open-Transactions/testwallet/test.ot
+
    0.72b--- Bug fix in Basket Exchange (which is now working in the GUI!)
 
    0.72a--- More bug fixes. Plus: added more options to the ini files.

@@ -95,8 +95,8 @@ C_COMPILER = cc
 
 # The LIBS macro contains a list of libraries that the the
 # executable must be linked against.
-API_LIBS =  -lssl -lcrypto  -lOTLib -lssl -lcrypto  -lOTLib  -lssl -lcrypto -lOTLib  -lssl -lcrypto -lprotobuf -lmsgpack -lzmq -lOTLib
-API_DEBUG_LIBS = -lssl -lcrypto -lOTLibd -lssl -lcrypto -lOTLibd  -lssl -lcrypto -lOTLibd -lssl -lcrypto -lprotobuf -lmsgpack -lzmq -lOTLibd
+API_LIBS =  -lssl -lcrypto  -lOTLib -lssl -lcrypto  -lboost_thread-mt -lOTLib  -lssl -lcrypto -lOTLib  -lssl -lcrypto -lprotobuf -lmsgpack -lzmq -lOTLib
+API_DEBUG_LIBS = -lssl -lcrypto -lOTLibd -lssl -lcrypto -lboost_thread-mt -lOTLibd  -lssl -lcrypto -lOTLibd -lssl -lcrypto -lprotobuf -lmsgpack -lzmq -lOTLibd
 #
 # FT: I tested this. The above version worked on Linux, and the below version did not.
 #
@@ -221,6 +221,7 @@ LIBDIRS = $(PLATFORM_LIBDIRS)  $(SSL_LIBDIRS) $(OT_LIBDIRS)
 CSOURCES = $(API_CSOURCES)
 
 CXXSOURCES = \
+                         OTAPI.cpp \
                          OpenTransactions.cpp \
                          OTServerConnection.cpp \
                          OTClient.cpp \
@@ -316,6 +317,8 @@ OTClient.o: OTClient.cpp OTClient.h
 	$(CXX) $(CFLAGS) -o OTClient.o OTClient.cpp
 OpenTransactions.o: OpenTransactions.cpp OpenTransactions.h
 	$(CXX) $(CFLAGS) -o OpenTransactions.o OpenTransactions.cpp
+OTAPI.o: OTAPI.cpp OTAPI.h
+	$(CXX) $(CFLAGS) -o OTAPI.o OTAPI.cpp
 
 xmlrpcxx_client.o: xmlrpcxx_client.cpp
 	$(CXX) $(CFLAGS) -o xmlrpcxx_client.o xmlrpcxx_client.cpp

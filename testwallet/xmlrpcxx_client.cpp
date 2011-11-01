@@ -167,6 +167,10 @@
 
 #include <iostream>
 
+#include <istream>
+#include <ostream>
+#include <iterator>
+
 
 extern "C" 
 {
@@ -226,6 +230,26 @@ void OT_Sleep(int nMS);
 #include "OTPaymentPlan.h"
 #include "OTLog.h"
 
+#include "OTScript.h"
+
+
+// Normally you're supposed to include OTAPI.h, NOT OTAPI_funcdef.h
+// Then again, normally you use it when building in API mode, and from
+// external to the OT API dll.  In this case, I'm using it in command-line
+// mode, which is normally the one time when OTAPI.cpp wasn't being linked.
+//
+// Well, now it IS being linked, since I needed to be able to make its C
+// functions available to the script interpreter for the new OTScript work.
+// And those functions aren't working when I #include "OTAPI.h" since
+// apparently chaiscript isn't cool with C functions. So here, in this one
+// file, I do what I normally am not supposed to do: I directly include OTAPI_funcdef.h
+// so that the functions appear here as C++ functions instead of C. That way
+// I can add them to the script interpreter, and make the API calls available
+// to the OT scripts on the client side.
+//
+#include "OTAPI_funcdef.h"
+
+
 // ---------------------------------------------------------------------------
 
 
@@ -233,7 +257,7 @@ void OT_Sleep(int nMS);
 // This global variable contains an OTWallet, an OTClient, etc. 
 // It's the C++ high-level interace to OT. 
 // Any client software will have an instance of this.
-OT_API g_OT_API; 
+extern OT_API g_OT_API; 
 // Note: Must call OT_API::Init() followed by g_OT_API.Init() in the main function, before using OT.
 
 
@@ -367,6 +391,195 @@ bool SetupPointersForWalletMyNymAndServerContract(std::string & str_ServerID,
 
 
 
+void RegisterAPIWithScript(OTScript & theScript)
+{
+	using namespace chaiscript;
+	
+	// In the future, this will be polymorphic.
+	// But for now, I'm forcing things...
+	
+	OTScriptChai * pScript = dynamic_cast<OTScriptChai *> (&theScript);
+
+	if (NULL != pScript)
+	{
+		pScript->chai.add(fun(&OT_API_CreateNym), "OT_API_CreateNym");
+        pScript->chai.add(fun(&OT_API_AddServerContract), "OT_API_AddServerContract");
+        pScript->chai.add(fun(&OT_API_AddAssetContract), "OT_API_AddAssetContract");
+        pScript->chai.add(fun(&OT_API_GetServerCount), "OT_API_GetServerCount");
+        pScript->chai.add(fun(&OT_API_GetAssetTypeCount), "OT_API_GetAssetTypeCount");
+        pScript->chai.add(fun(&OT_API_GetAccountCount), "OT_API_GetAccountCount");
+        pScript->chai.add(fun(&OT_API_GetNymCount), "OT_API_GetNymCount");
+        pScript->chai.add(fun(&OT_API_GetServer_ID), "OT_API_GetServer_ID");
+        pScript->chai.add(fun(&OT_API_GetServer_Name), "OT_API_GetServer_Name");
+        pScript->chai.add(fun(&OT_API_GetAssetType_ID), "OT_API_GetAssetType_ID");
+        pScript->chai.add(fun(&OT_API_GetAssetType_Name), "OT_API_GetAssetType_Name");
+
+		pScript->chai.add(fun(&OT_API_GetAccountWallet_ID), "OT_API_GetAccountWallet_ID");
+		pScript->chai.add(fun(&OT_API_GetAccountWallet_Name), "OT_API_GetAccountWallet_Name");
+		pScript->chai.add(fun(&OT_API_GetAccountWallet_Balance), "OT_API_GetAccountWallet_Balance");
+		pScript->chai.add(fun(&OT_API_GetAccountWallet_Type), "OT_API_GetAccountWallet_Type");
+		pScript->chai.add(fun(&OT_API_GetAccountWallet_AssetTypeID), "OT_API_GetAccountWallet_AssetTypeID");
+		pScript->chai.add(fun(&OT_API_GetAccountWallet_ServerID), "OT_API_GetAccountWallet_ServerID");
+		pScript->chai.add(fun(&OT_API_GetAccountWallet_NymID), "OT_API_GetAccountWallet_NymID");
+		pScript->chai.add(fun(&OT_API_VerifyAccountReceipt), "OT_API_VerifyAccountReceipt");
+		pScript->chai.add(fun(&OT_API_GetNym_TransactionNumCount), "OT_API_GetNym_TransactionNumCount");
+		
+		pScript->chai.add(fun(&OT_API_GetNym_ID), "OT_API_GetNym_ID");
+		pScript->chai.add(fun(&OT_API_GetNym_Name), "OT_API_GetNym_Name");
+		pScript->chai.add(fun(&OT_API_GetNym_Stats), "OT_API_GetNym_Stats");
+		pScript->chai.add(fun(&OT_API_IsNym_RegisteredAtServer), "OT_API_IsNym_RegisteredAtServer");
+		
+		pScript->chai.add(fun(&OT_API_GetNym_MailCount), "OT_API_GetNym_MailCount");
+		pScript->chai.add(fun(&OT_API_GetNym_MailContentsByIndex), "OT_API_GetNym_MailContentsByIndex");
+		pScript->chai.add(fun(&OT_API_GetNym_MailSenderIDByIndex), "OT_API_GetNym_MailSenderIDByIndex");
+		pScript->chai.add(fun(&OT_API_GetNym_MailServerIDByIndex), "OT_API_GetNym_MailServerIDByIndex");
+		pScript->chai.add(fun(&OT_API_Nym_RemoveMailByIndex), "OT_API_Nym_RemoveMailByIndex");
+		pScript->chai.add(fun(&OT_API_Nym_VerifyMailByIndex), "OT_API_Nym_VerifyMailByIndex");
+		pScript->chai.add(fun(&OT_API_GetNym_OutmailCount), "OT_API_GetNym_OutmailCount");
+		pScript->chai.add(fun(&OT_API_GetNym_OutmailContentsByIndex), "OT_API_GetNym_OutmailContentsByIndex");
+		pScript->chai.add(fun(&OT_API_GetNym_OutmailRecipientIDByIndex), "OT_API_GetNym_OutmailRecipientIDByIndex");
+		pScript->chai.add(fun(&OT_API_GetNym_OutmailServerIDByIndex), "OT_API_GetNym_OutmailServerIDByIndex");
+		pScript->chai.add(fun(&OT_API_Nym_RemoveOutmailByIndex), "OT_API_Nym_RemoveOutmailByIndex");
+		pScript->chai.add(fun(&OT_API_Nym_VerifyOutmailByIndex), "OT_API_Nym_VerifyOutmailByIndex");
+		pScript->chai.add(fun(&OT_API_Wallet_CanRemoveServer), "OT_API_Wallet_CanRemoveServer");
+		pScript->chai.add(fun(&OT_API_Wallet_RemoveServer), "OT_API_Wallet_RemoveServer");
+		pScript->chai.add(fun(&OT_API_Wallet_CanRemoveAssetType), "OT_API_Wallet_CanRemoveAssetType");
+		pScript->chai.add(fun(&OT_API_Wallet_RemoveAssetType), "OT_API_Wallet_RemoveAssetType");
+		pScript->chai.add(fun(&OT_API_Wallet_CanRemoveNym), "OT_API_Wallet_CanRemoveNym");
+		pScript->chai.add(fun(&OT_API_Wallet_RemoveNym), "OT_API_Wallet_RemoveNym");
+		pScript->chai.add(fun(&OT_API_Wallet_CanRemoveAccount), "OT_API_Wallet_CanRemoveAccount");
+		pScript->chai.add(fun(&OT_API_Wallet_ImportNym), "OT_API_Wallet_ImportNym");
+
+		pScript->chai.add(fun(&OT_API_SetNym_Name), "OT_API_SetNym_Name");
+		pScript->chai.add(fun(&OT_API_SetAccountWallet_Name), "OT_API_SetAccountWallet_Name");
+		pScript->chai.add(fun(&OT_API_SetAssetType_Name), "OT_API_SetAssetType_Name");
+		pScript->chai.add(fun(&OT_API_SetServer_Name), "OT_API_SetServer_Name");
+		
+		pScript->chai.add(fun(&OT_API_VerifyAndRetrieveXMLContents), "OT_API_VerifyAndRetrieveXMLContents");
+		pScript->chai.add(fun(&OT_API_WriteCheque), "OT_API_WriteCheque");
+//		pScript->chai.add(fun(&OT_API_ProposePaymentPlan), "OT_API_ProposePaymentPlan");
+		pScript->chai.add(fun(&OT_API_ConfirmPaymentPlan), "OT_API_ConfirmPaymentPlan");
+		
+		pScript->chai.add(fun(&OT_API_LoadUserPubkey), "OT_API_LoadUserPubkey");
+		pScript->chai.add(fun(&OT_API_LoadPubkey), "OT_API_LoadPubkey");
+		pScript->chai.add(fun(&OT_API_VerifyUserPrivateKey), "OT_API_VerifyUserPrivateKey");
+		pScript->chai.add(fun(&OT_API_LoadPurse), "OT_API_LoadPurse");
+		pScript->chai.add(fun(&OT_API_LoadMint), "OT_API_LoadMint");
+		pScript->chai.add(fun(&OT_API_LoadAssetContract), "OT_API_LoadAssetContract");
+		pScript->chai.add(fun(&OT_API_LoadServerContract), "OT_API_LoadServerContract");
+		pScript->chai.add(fun(&OT_API_Mint_IsStillGood), "OT_API_Mint_IsStillGood");
+		
+		pScript->chai.add(fun(&OT_API_IsBasketCurrency), "OT_API_IsBasketCurrency");
+		pScript->chai.add(fun(&OT_API_Basket_GetMemberCount), "OT_API_Basket_GetMemberCount");
+		pScript->chai.add(fun(&OT_API_Basket_GetMemberType), "OT_API_Basket_GetMemberType");
+		pScript->chai.add(fun(&OT_API_Basket_GetMinimumTransferAmount), "OT_API_Basket_GetMinimumTransferAmount");
+		pScript->chai.add(fun(&OT_API_Basket_GetMemberMinimumTransferAmount), "OT_API_Basket_GetMemberMinimumTransferAmount");
+		
+		pScript->chai.add(fun(&OT_API_LoadAssetAccount), "OT_API_LoadAssetAccount");
+		pScript->chai.add(fun(&OT_API_LoadInbox), "OT_API_LoadInbox");
+		pScript->chai.add(fun(&OT_API_LoadOutbox), "OT_API_LoadOutbox");
+		
+		pScript->chai.add(fun(&OT_API_Ledger_GetCount), "OT_API_Ledger_GetCount");
+		pScript->chai.add(fun(&OT_API_Ledger_CreateResponse), "OT_API_Ledger_CreateResponse");
+		pScript->chai.add(fun(&OT_API_Ledger_GetTransactionByIndex), "OT_API_Ledger_GetTransactionByIndex");
+		pScript->chai.add(fun(&OT_API_Ledger_GetTransactionByID), "OT_API_Ledger_GetTransactionByID");
+		pScript->chai.add(fun(&OT_API_Ledger_GetTransactionIDByIndex), "OT_API_Ledger_GetTransactionIDByIndex");
+		pScript->chai.add(fun(&OT_API_Ledger_AddTransaction), "OT_API_Ledger_AddTransaction");
+		pScript->chai.add(fun(&OT_API_Transaction_CreateResponse), "OT_API_Transaction_CreateResponse");
+		pScript->chai.add(fun(&OT_API_Ledger_FinalizeResponse), "OT_API_Ledger_FinalizeResponse");
+		pScript->chai.add(fun(&OT_API_Transaction_GetType), "OT_API_Transaction_GetType");
+		pScript->chai.add(fun(&OT_API_Transaction_GetVoucher), "OT_API_Transaction_GetVoucher");
+		pScript->chai.add(fun(&OT_API_Transaction_GetSuccess), "OT_API_Transaction_GetSuccess");
+		pScript->chai.add(fun(&OT_API_Transaction_GetBalanceAgreementSuccess), "OT_API_Transaction_GetBalanceAgreementSuccess");
+		pScript->chai.add(fun(&OT_API_Transaction_GetDateSigned), "OT_API_Transaction_GetDateSigned");
+		pScript->chai.add(fun(&OT_API_Transaction_GetAmount), "OT_API_Transaction_GetAmount");
+		pScript->chai.add(fun(&OT_API_Pending_GetNote), "OT_API_Pending_GetNote");
+		
+		pScript->chai.add(fun(&OT_API_Transaction_GetSenderUserID), "OT_API_Transaction_GetSenderUserID");
+		pScript->chai.add(fun(&OT_API_Transaction_GetSenderAcctID), "OT_API_Transaction_GetSenderAcctID");
+		pScript->chai.add(fun(&OT_API_Transaction_GetRecipientUserID), "OT_API_Transaction_GetRecipientUserID");
+		pScript->chai.add(fun(&OT_API_Transaction_GetRecipientAcctID), "OT_API_Transaction_GetRecipientAcctID");
+		pScript->chai.add(fun(&OT_API_Transaction_GetDisplayReferenceToNum), "OT_API_Transaction_GetDisplayReferenceToNum");
+		
+		pScript->chai.add(fun(&OT_API_CreatePurse), "OT_API_CreatePurse");
+		pScript->chai.add(fun(&OT_API_SavePurse), "OT_API_SavePurse");
+		pScript->chai.add(fun(&OT_API_Purse_GetTotalValue), "OT_API_Purse_GetTotalValue");
+		pScript->chai.add(fun(&OT_API_Purse_Count), "OT_API_Purse_Count");
+		pScript->chai.add(fun(&OT_API_Purse_Peek), "OT_API_Purse_Peek");
+		pScript->chai.add(fun(&OT_API_Purse_Pop), "OT_API_Purse_Pop");
+		pScript->chai.add(fun(&OT_API_Purse_Push), "OT_API_Purse_Push");
+		pScript->chai.add(fun(&OT_API_Wallet_ImportPurse), "OT_API_Wallet_ImportPurse");
+		pScript->chai.add(fun(&OT_API_exchangePurse), "OT_API_exchangePurse");
+		pScript->chai.add(fun(&OT_API_Token_ChangeOwner), "OT_API_Token_ChangeOwner");
+		
+		pScript->chai.add(fun(&OT_API_Token_GetID), "OT_API_Token_GetID");
+		pScript->chai.add(fun(&OT_API_Token_GetDenomination), "OT_API_Token_GetDenomination");
+		pScript->chai.add(fun(&OT_API_Token_GetSeries), "OT_API_Token_GetSeries");
+		pScript->chai.add(fun(&OT_API_Token_GetValidFrom), "OT_API_Token_GetValidFrom");
+		pScript->chai.add(fun(&OT_API_Token_GetValidTo), "OT_API_Token_GetValidTo");
+		pScript->chai.add(fun(&OT_API_Token_GetAssetID), "OT_API_Token_GetAssetID");
+		pScript->chai.add(fun(&OT_API_Token_GetServerID), "OT_API_Token_GetServerID");
+		
+		pScript->chai.add(fun(&OT_API_checkServerID), "OT_API_checkServerID");
+		pScript->chai.add(fun(&OT_API_createUserAccount), "OT_API_createUserAccount");
+		pScript->chai.add(fun(&OT_API_deleteUserAccount), "OT_API_deleteUserAccount");
+		pScript->chai.add(fun(&OT_API_deleteAssetAccount), "OT_API_deleteAssetAccount");
+		pScript->chai.add(fun(&OT_API_checkUser), "OT_API_checkUser");
+		pScript->chai.add(fun(&OT_API_sendUserMessage), "OT_API_sendUserMessage");
+		
+		pScript->chai.add(fun(&OT_API_getRequest), "OT_API_getRequest");
+		pScript->chai.add(fun(&OT_API_getTransactionNumber), "OT_API_getTransactionNumber");
+		pScript->chai.add(fun(&OT_API_issueAssetType), "OT_API_issueAssetType");
+		pScript->chai.add(fun(&OT_API_getContract), "OT_API_getContract");
+		pScript->chai.add(fun(&OT_API_getMint), "OT_API_getMint");
+		pScript->chai.add(fun(&OT_API_createAssetAccount), "OT_API_createAssetAccount");
+		pScript->chai.add(fun(&OT_API_getAccount), "OT_API_getAccount");
+		pScript->chai.add(fun(&OT_API_GenerateBasketCreation), "OT_API_GenerateBasketCreation");
+		
+		pScript->chai.add(fun(&OT_API_AddBasketCreationItem), "OT_API_AddBasketCreationItem");
+		pScript->chai.add(fun(&OT_API_issueBasket), "OT_API_issueBasket");
+		pScript->chai.add(fun(&OT_API_GenerateBasketExchange), "OT_API_GenerateBasketExchange");
+		pScript->chai.add(fun(&OT_API_AddBasketExchangeItem), "OT_API_AddBasketExchangeItem");
+		pScript->chai.add(fun(&OT_API_exchangeBasket), "OT_API_exchangeBasket");
+		pScript->chai.add(fun(&OT_API_notarizeWithdrawal), "OT_API_notarizeWithdrawal");
+		pScript->chai.add(fun(&OT_API_notarizeDeposit), "OT_API_notarizeDeposit");
+		pScript->chai.add(fun(&OT_API_notarizeTransfer), "OT_API_notarizeTransfer");
+		pScript->chai.add(fun(&OT_API_getInbox), "OT_API_getInbox");
+		pScript->chai.add(fun(&OT_API_getOutbox), "OT_API_getOutbox");
+		pScript->chai.add(fun(&OT_API_getNymbox), "OT_API_getNymbox");
+		pScript->chai.add(fun(&OT_API_LoadNymbox), "OT_API_LoadNymbox");
+		pScript->chai.add(fun(&OT_API_processInbox), "OT_API_processInbox");
+		pScript->chai.add(fun(&OT_API_processNymbox), "OT_API_processNymbox");
+		pScript->chai.add(fun(&OT_API_withdrawVoucher), "OT_API_withdrawVoucher");
+		
+		pScript->chai.add(fun(&OT_API_depositCheque), "OT_API_depositCheque");
+		pScript->chai.add(fun(&OT_API_depositPaymentPlan), "OT_API_depositPaymentPlan");
+//		pScript->chai.add(fun(&OT_API_issueMarketOffer), "OT_API_issueMarketOffer");
+		pScript->chai.add(fun(&OT_API_getMarketList), "OT_API_getMarketList");
+		pScript->chai.add(fun(&OT_API_getMarketOffers), "OT_API_getMarketOffers");
+		pScript->chai.add(fun(&OT_API_getMarketRecentTrades), "OT_API_getMarketRecentTrades");
+		pScript->chai.add(fun(&OT_API_getNym_MarketOffers), "OT_API_getNym_MarketOffers");
+		pScript->chai.add(fun(&OT_API_cancelMarketOffer), "OT_API_cancelMarketOffer");
+		pScript->chai.add(fun(&OT_API_cancelPaymentPlan), "OT_API_cancelPaymentPlan");
+		
+		pScript->chai.add(fun(&OT_API_PopMessageBuffer), "OT_API_PopMessageBuffer");
+		pScript->chai.add(fun(&OT_API_FlushMessageBuffer), "OT_API_FlushMessageBuffer");
+		pScript->chai.add(fun(&OT_API_Message_GetCommand), "OT_API_Message_GetCommand");
+		pScript->chai.add(fun(&OT_API_Message_GetSuccess), "OT_API_Message_GetSuccess");
+		pScript->chai.add(fun(&OT_API_Message_GetDepth), "OT_API_Message_GetDepth");
+		pScript->chai.add(fun(&OT_API_Message_GetTransactionSuccess), "OT_API_Message_GetTransactionSuccess");
+		pScript->chai.add(fun(&OT_API_Message_GetBalanceAgreementSuccess), "OT_API_Message_GetBalanceAgreementSuccess");
+		pScript->chai.add(fun(&OT_API_Message_GetLedger), "OT_API_Message_GetLedger");
+		pScript->chai.add(fun(&OT_API_Message_GetNewAssetTypeID), "OT_API_Message_GetNewAssetTypeID");
+		pScript->chai.add(fun(&OT_API_Message_GetNewIssuerAcctID), "OT_API_Message_GetNewIssuerAcctID");
+		pScript->chai.add(fun(&OT_API_Message_GetNewAcctID), "OT_API_Message_GetNewAcctID");
+	}
+	else {
+		OTLog::Error("Failed dynamic casting OTScript to OTScriptChai \n");
+	}
+
+}
+
 
 
 
@@ -393,8 +606,8 @@ void HandleCommandLineArguments( int argc, char* argv[], AnyOption * opt)
     opt->addUsage( "" );
     opt->addUsage( "OT CLI Usage:  " );
     opt->addUsage( "" );
-    opt->addUsage( "ot  --stat            (Prints the wallet contents)" );
-    opt->addUsage( "ot  [-h|-?|--help]    (Prints this help) " );
+    opt->addUsage( "ot  --stat (Prints the wallet contents)    ot --prompt (Enter the OT prompt)" );
+    opt->addUsage( "ot  [-h|-?|--help]    (Prints this help)   ot --script (assumes script until eof)" );
     opt->addUsage( "The '|' symbol means use --balance or -b, use --withdraw or -w, etc." );
     opt->addUsage( "The brackets '[]' show required arguments, where default values are" );
     opt->addUsage( "normally expected to be found in:   ~/.ot/command-line-ot.opt" );
@@ -456,6 +669,8 @@ void HandleCommandLineArguments( int argc, char* argv[], AnyOption * opt)
     opt->setCommandFlag(  "refresh" ,  'r');   // refresh intermediary files from server + verify against last receipt.
     opt->setCommandFlag(  "refreshnym"    );   // refresh intermediary files from server + verify against last receipt.
     opt->setCommandFlag(  "stat" );            // print out the wallet contents.
+    opt->setCommandFlag(  "prompt" );          // Enter the OT prompt.
+    opt->setCommandOption("script" );          // Process a script from stdin until eof.
     
     opt->setCommandFlag("help", 'h');   // the Help screen.
     opt->setCommandFlag('?');           // the Help screen.
@@ -708,65 +923,88 @@ int main(int argc, char* argv[])
         //
         
         if( opt->getValue( 'w' ) != NULL  || opt->getValue( "withdraw" ) != NULL  )
-        { bIsCommandProvided = true; cout << "withdraw amount = " << opt->getValue( 'w' ) << endl ; }
+        { bIsCommandProvided = true; cerr << "withdraw amount = " << opt->getValue( 'w' ) << endl ; }
         else if( opt->getValue( 't' ) != NULL  || opt->getValue( "transfer" ) != NULL  )
-        { bIsCommandProvided = true; cout << "transfer amount = " << opt->getValue( 't' ) << endl ; }
+        { bIsCommandProvided = true; cerr << "transfer amount = " << opt->getValue( 't' ) << endl ; }
         else if( opt->getValue( 'c' ) != NULL  || opt->getValue( "cheque" ) != NULL  )
-        { bIsCommandProvided = true; cout << "cheque amount = " << opt->getValue( 'c' ) << endl ; }
+        { bIsCommandProvided = true; cerr << "cheque amount = " << opt->getValue( 'c' ) << endl ; }
         else if(  opt->getFlag( "marketoffer" ) == true  )
-        { bIsCommandProvided = true; cout << "marketoffer flag set " << endl ; }
+        { bIsCommandProvided = true; cerr << "marketoffer flag set " << endl ; }
         else if( opt->getValue( 'v' ) != NULL  || opt->getValue( "voucher" ) != NULL  )
-        { bIsCommandProvided = true; cout << "voucher amount = " << opt->getValue( 'v' ) << endl ; }
+        { bIsCommandProvided = true; cerr << "voucher amount = " << opt->getValue( 'v' ) << endl ; }
         else if( opt->getFlag( "depositcheque" ) )
-        { bIsCommandProvided = true; cout << "deposit cheque flag set " << endl ; }
+        { bIsCommandProvided = true; cerr << "deposit cheque flag set " << endl ; }
         else if( opt->getFlag( "depositpurse" ) ) 
-        { bIsCommandProvided = true; cout << "deposit purse flag set " << endl ; }
+        { bIsCommandProvided = true; cerr << "deposit purse flag set " << endl ; }
         else if( opt->getFlag( "deposittokens" ) ) 
-        { bIsCommandProvided = true; cout << "deposit tokens flag set " << endl ; }
+        { bIsCommandProvided = true; cerr << "deposit tokens flag set " << endl ; }
         else if( opt->getFlag( "proposepaymentplan" ) ) 
-        { bIsCommandProvided = true; cout << "proposepaymentplan flag set " << endl ; }
+        { bIsCommandProvided = true; cerr << "proposepaymentplan flag set " << endl ; }
         else if( opt->getFlag( "confirmpaymentplan" ) ) 
-        { bIsCommandProvided = true; cout << "confirm payment plan flag set " << endl ; }
+        { bIsCommandProvided = true; cerr << "confirm payment plan flag set " << endl ; }
         else if( opt->getFlag( "activatepaymentplan" ) ) 
-        { bIsCommandProvided = true; cout << "activate payment plan flag set " << endl ; }
+        { bIsCommandProvided = true; cerr << "activate payment plan flag set " << endl ; }
         else if( opt->getFlag( 'b' )  || opt->getFlag( "balance" )  )
-        { bIsCommandProvided = true; cout << "balance flag set " << endl ; }
+        { bIsCommandProvided = true; cerr << "balance flag set " << endl ; }
         else if( opt->getFlag( 'i' )  || opt->getFlag( "inbox" )  )
-        { bIsCommandProvided = true; cout << "inbox flag set " << endl ; }
+        { bIsCommandProvided = true; cerr << "inbox flag set " << endl ; }
         else if( opt->getFlag( 'p' ) || opt->getFlag( "purse" )  )
-        { bIsCommandProvided = true; cout << "purse flag set " << endl ; }
+        { bIsCommandProvided = true; cerr << "purse flag set " << endl ; }
         else if( opt->getFlag( 's' ) || opt->getFlag( "sign" ))
-        { bIsCommandProvided = true; cout << "sign flag set " << endl ; }
+        { bIsCommandProvided = true; cerr << "sign flag set " << endl ; }
         else if( opt->getFlag( "verify" )  )
-        { bIsCommandProvided = true; cout << "verify flag set " << endl; }
+        { bIsCommandProvided = true; cerr << "verify flag set " << endl; }
         else if( opt->getFlag( "stat" )   )
-        { bIsCommandProvided = true; cout << "stat flag set "  << endl ; }
+        { bIsCommandProvided = true; cerr << "stat flag set "  << endl ; }
+        else if( opt->getFlag( "prompt" )   )
+        { bIsCommandProvided = true; cerr << "prompt flag set "  << endl ; }
+        else if( opt->getValue( "script" )  != NULL )
+        { bIsCommandProvided = true; cerr << "script filename = " << opt->getValue( "script" ) << endl ; }
         else if( opt->getFlag( 'r' ) || opt->getFlag( "refresh" )   )
-        { bIsCommandProvided = true; cout << "refresh flag set "  << endl ; }
+        { bIsCommandProvided = true; cerr << "refresh flag set "  << endl ; }
         else if( opt->getFlag( "refreshnym" )   )
-        { bIsCommandProvided = true; cout << "refreshnym flag set "  << endl ; }
+        { bIsCommandProvided = true; cerr << "refreshnym flag set "  << endl ; }
         
-        cout << endl ;
+        cerr << endl ;
     }
     else
         bIsCommandProvided = false;
     
     // -----------------------------------------------------
     //
-	if( false == bIsCommandProvided)   // If no command was provided (though other command-line options may have been...) 
-    {                           // then print some helpful information, and drop into the OT prompt. (Loop.)
-//      opt->printUsage();
-        
-        OTLog::Output(0, "\nLOOKING FOR INSTRUCTIONS for the OT COMMAND LINE?\n"
-                      "Try:   quit\n"
-                      "Followed by:  ot -?\n"
-                      "or:    ot -h\n"
-                      "or:    ot --help\n"
-                      "\n"
-                      "(NOW ENTERING OT PROMPT) \n"
-                      "Type \"Help\" at the OT> prompt to see contents of ~/.ot/CLIENT-COMMANDS.txt\n\n");
-        
-        // This causes us to drop into the OT prompt.
+	if( false == bIsCommandProvided )   // If no command was provided (though other command-line options may have been...) 
+    {                           // then we expect a script to come in through stdin, and we run it through the script interpreter!
+		OTLog::Output(0, "\n\nTry \"ot --help\" for instructions.\n\n ==> Expecting ot script from standard input. (Terminate with CTRL-D):\n\n");
+		
+		// ----------------------------------------
+		// don't skip the whitespace while reading
+		std::cin >> std::noskipws;
+		
+		// use stream iterators to copy the stream to a string
+		std::istream_iterator<char> it(std::cin);
+		std::istream_iterator<char> end;
+		std::string results(it, end);
+		
+		// -----------------------------------------------
+		
+//		std::string strScript ="print(\"Hello, world\")";
+		
+		OTScript_SharedPtr pScript = OTScriptFactory(results);
+		
+		if (pScript)
+		{
+			RegisterAPIWithScript(*pScript);
+			
+			pScript->ExecuteScript();
+		}
+		else {
+			OTLog::Error("Error running script!!\n");
+		}
+		
+		// --------------------------------------------------------------------					
+		
+		OT_Main_Cleanup();
+		return 0;
 	}
     else // Else a command WAS provided at the command line, so we execute a single time, once just for that command.
     {         
@@ -954,7 +1192,7 @@ int main(int argc, char* argv[])
         /*  GET THE ACTUAL ARGUMENTS AFTER THE OPTIONS */
         //
 //        for( int i = 0 ; i < opt->getArgc() ; i++ ){
-//            cout << "arg = " <<  opt->getArgv( i ) << endl ;
+//            cerr << "arg = " <<  opt->getArgv( i ) << endl ;
 //        }        
     
           
@@ -991,12 +1229,82 @@ int main(int argc, char* argv[])
         
         // COMMANDS
         
-        if( opt->getValue( 'w' ) != NULL  || opt->getValue( "withdraw" ) != NULL  )
+		
+        if( opt->getValue( "script" )  != NULL  )
+        {
+			std::string strFilename = opt->getValue( "script" );
+			
+			std::ifstream t(strFilename.c_str());
+			std::stringstream buffer;
+			buffer << t.rdbuf();
+			
+			std::string results = buffer.str();
+									
+			// ----------------------------------------
+			
+			OTScript_SharedPtr pScript = OTScriptFactory(results);
+			
+			
+			if (pScript)
+			{
+				RegisterAPIWithScript(*pScript); // for the special client-side API functions we make available to all scripts on client-side.
+
+				OTParty * pPartyMyNym  = NULL;
+				OTParty * pPartyHisNym = NULL;
+				//
+				OTCleanup<OTParty> angelMyNym;
+				OTCleanup<OTParty> angelHisNym;
+				
+				if (NULL != pMyNym)
+				{
+					pPartyMyNym = new OTParty ("MyNym", *pMyNym, pMyAccount);
+					angelMyNym.SetCleanupTargetPointer(pPartyMyNym);
+					OT_ASSERT(NULL != pPartyMyNym);
+					// ------------------------------------------
+					pScript-> AddParty("MyNym", *pPartyMyNym);
+				}
+				else 
+				{
+					OTLog::Error("MyNym variable isn't set...\n");
+				}
+				
+				if (NULL != pHisNym)
+				{
+					pPartyHisNym = new OTParty ("HisNym", *pHisNym, pHisAccount);
+					angelHisNym.SetCleanupTargetPointer(pPartyHisNym);
+					OT_ASSERT(NULL != pPartyHisNym);
+					// ------------------------------------------
+					pScript-> AddParty("HisNym", *pPartyHisNym);
+				}
+				else 
+				{
+					OTLog::Error("HisNym variable isn't set...\n");
+				}				
+				// -------------------------
+				
+				OTLog::Output(0, "Script output:\n\n");
+				
+				pScript->ExecuteScript();
+			}
+			// ---------------------------------------------------------------
+			else 
+			{
+				OTLog::Error("Error running script!!\n");
+			}
+			
+			// --------------------------------------------------------------------					
+			
+			OT_Main_Cleanup();
+			return 0;
+
+            // ------------------------------------------------------------------------
+        }
+        else if( opt->getValue( 'w' ) != NULL  || opt->getValue( "withdraw" ) != NULL  )
         {
             const long lAmount = atol(opt->getValue( 'w' ));
-
+			
             OTLog::Output(0, "(User has instructed to withdraw cash...)\n");
-
+			
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
@@ -1191,7 +1499,7 @@ int main(int argc, char* argv[])
         }
         else if( opt->getFlag( 'i' )  || opt->getFlag( "inbox" )  )
         {
-            cout << "DISPLAY INBOX CONTENTS HERE... (When I code this. What can I say? Use the GUI.)" << endl ;
+            cerr << "DISPLAY INBOX CONTENTS HERE... (When I code this. What can I say? Use the GUI.)" << endl ;
         }
         else if( opt->getFlag( 's' ) || opt->getFlag( "sign" ))
         {
@@ -1203,11 +1511,11 @@ int main(int argc, char* argv[])
         }
         else if( opt->getFlag( 'p' ) || opt->getFlag( "purse" )  )
         {
-            cout << "User wants to display purse contents (not coded yet here.)" << endl ;
+            cerr << "User wants to display purse contents (not coded yet here.)" << endl ;
         }
         else if( opt->getFlag( "verify" )  )
         {
-            cout << "User wants to verify a signature on a contract (not coded yet here) " << endl ;
+            cerr << "User wants to verify a signature on a contract (not coded yet here) " << endl ;
         }
         else if( opt->getFlag( "stat" )   )
         {
@@ -1217,6 +1525,10 @@ int main(int argc, char* argv[])
             pWallet->DisplayStatistics(strStat);
             OTLog::vOutput(0, "%s\n", strStat.Get());
         }
+        else if( opt->getFlag( "prompt" )   )
+        {
+            OTLog::Output(0, "User has instructed to enter the OT prompt...\n");
+		}
         else if(opt->getFlag( 'b' ) || opt->getFlag( "balance" )   )
         {            
             OTLog::vOutput(0, "\n ACCT BALANCE (server-side): %ld\n\n", pMyAccount->GetBalance());
@@ -1369,8 +1681,12 @@ int main(int argc, char* argv[])
 			}
 		} // if bSendCommand		
         
-        OT_Main_Cleanup();
-        return 0;
+		
+		if ( !opt->getFlag( "prompt" ) ) // If the user selected to enter the OT prompt, then we drop down below... (otherwise return.)
+		{
+			OT_Main_Cleanup();
+			return 0;
+		}
     } // Command line interface (versus below, which is the PROMPT interface.)
     
     // ****************************************************************************
@@ -1386,7 +1702,15 @@ int main(int argc, char* argv[])
     
     
     
-    
+	OTLog::Output(0, "\nLOOKING FOR INSTRUCTIONS for the OT COMMAND LINE?\n"
+				  "Try:   quit\n"
+				  "Followed by:  ot -?\n"
+				  "or:    ot -h\n"
+				  "or:    ot --help\n"
+				  "\n"
+				  "(NOW ENTERING OT PROMPT) \n"
+				  "Type \"Help\" at the OT> prompt to see contents of ~/.ot/CLIENT-COMMANDS.txt\n\n");
+	
     
     // -----------------------------------------------------------------------
 	//
@@ -1494,9 +1818,29 @@ int main(int argc, char* argv[])
 		{
 			continue;
 		}
+		
+		// --------------------------------------------------------------------
+		
 		else if (strLine.compare(0,4,"test") == 0)
-		{
-            
+		{			
+			std::string strScript ="print(\"Hello, world\")";
+			
+            OTScript_SharedPtr pScript = OTScriptFactory(strScript);
+			
+			if (pScript)
+			{
+				RegisterAPIWithScript(*pScript);
+				
+				pScript->ExecuteScript();
+			}
+			else {
+				OTLog::Error("Error running script!!\n");
+			}
+
+			// --------------------------------------------------------------------			
+			
+			
+			/*
             // TODO: Make sure there's no issues with a known plaintext attack.
             // (Not here, but I am doing a similar thing in OTASCIIArmor to maintain a minimum size,
             // due to a bug in some other library that I can't recall at this time.)
@@ -1515,7 +1859,9 @@ int main(int argc, char* argv[])
 			OTString theFixedText(theArmoredText);
 			
 			OTLog::vOutput(0, "Uncompressed, etc text:\n%s\n", theFixedText.Get());
+			 */
 
+			
 			/*
 			OTIdentifier	SERVER_ID;
 			OTString		SERVER_NAME;

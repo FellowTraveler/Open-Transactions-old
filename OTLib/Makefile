@@ -89,19 +89,26 @@ endif
 # installed to that location by MacPorts.
 #
 ifeq ($(OT_PLATFORM), darwin)
-SSL_INCLUDEDIRS = -I/opt/local/include
+CHAISCRIPT_INCLUDEDIR = -I/usr/local/include
+
+SSL_INCLUDEDIRS = -I/opt/local/include $(CHAISCRIPT_INCLUDEDIR)
 SSL_LIBDIRS = -L/opt/local/lib
+
 endif
 
 ifeq ($(OT_PLATFORM), linux)
-SSL_INCLUDEDIRS = -I/usr/local/ssl/include
+CHAISCRIPT_INCLUDEDIR = -I/usr/local/include
+
+SSL_INCLUDEDIRS = -I/usr/local/ssl/include $(CHAISCRIPT_INCLUDEDIR)
 SSL_LIBDIRS = -L/usr/local/ssl/$(LINUX_LIBDIR)
 endif
 
 ifeq ($(OT_PLATFORM), freebsd)
+#CHAISCRIPT_INCLUDEDIR = -I/usr/local/include
 SSL_INCLUDEDIRS = -I/usr/local/include
 SSL_LIBDIRS = -L/usr/local/lib
 #SSL_LIBDIRS = -L/usr/ports/security/openssl/work/openssl-1.0.0d
+
 endif
 
 
@@ -123,8 +130,8 @@ INCLUDEDIRS = $(PLATFORM_INCLUDEDIRS) $(SSL_INCLUDEDIRS) $(OT_INCLUDEDIRS)
 LIBDIRS = $(PLATFORM_LIBDIRS)  $(SSL_LIBDIRS) $(OT_LIBDIRS)
 
 
-LIBS = -lssl -lcrypto -lprotobuf -lmsgpack
-DEBUG_LIBS = -lssl -lcrypto -lprotobuf -lmsgpack
+LIBS = -lssl -lcrypto -lprotobuf -lmsgpack -llibboost_thread-mt
+DEBUG_LIBS = -lssl -lcrypto -lprotobuf -lmsgpack -llibboost_thread-mt
 
 #
 # The CXXSOURCES macro contains a list of source files.
@@ -193,6 +200,7 @@ CXXSOURCES = $(BIGINTSOURCES) $(LUCRESOURCES) $(IRRXMLSOURCES) \
 			 OTIdentifier.cpp \
 			 OTAsymmetricKey.cpp \
 			 OTSignature.cpp \
+			 OTScript.cpp \
 			 OTStorage.cpp \
 			 OTDataCheck.cpp \
 			 Generics.pb.cpp \
@@ -346,6 +354,8 @@ OTPaymentPlan.o: OTPaymentPlan.cpp OTPaymentPlan.h
 	$(CXX) $(CXXFLAGS) -c -o OTPaymentPlan.o OTPaymentPlan.cpp
 OTStorage.o: OTStorage.cpp OTStorage.h
 	$(CXX) $(CXXFLAGS) -c -o OTStorage.o OTStorage.cpp
+OTScript.o: OTScript.cpp OTScript.h
+	$(CXX) $(CXXFLAGS) -c -o OTScript.o OTScript.cpp
 Generics.pb.o: Generics.pb.cpp Generics.pb.h
 	$(CXX) $(CXXFLAGS) -c -o Generics.pb.o Generics.pb.cpp
 Markets.pb.o: Markets.pb.cpp Markets.pb.h

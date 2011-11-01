@@ -1,0 +1,13 @@
+#! /usr/local/bin/ot --script 
+
+print("HELLO World (from script file!!)")
+
+
+print(MyNym)
+
+print (OT_API_GetNymCount())
+
+print("Test 3")
+
+
+ 

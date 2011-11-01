@@ -131,6 +131,10 @@
 #define __OT_SCRIPT_H__
 
 #include <string>
+#include <tr1/memory>
+
+#include <chaiscript/chaiscript.hpp>
+
 
 class OTString;
 class OTIdentifier;
@@ -251,6 +255,9 @@ public:
 
 // ------------------------------------------------------------
 
+class OTPseudonym;
+class OTAccount;
+
 // Party is always either an Owner Nym, or an Owner Entity formed by Contract.
 //
 // Either way, the agents are there to represent the interests of the parties.
@@ -271,15 +278,23 @@ class OTParty
     
     bool m_bPartyIsNym;
     
+    OTPseudonym * m_pNym; // If Party is or has a Nym, here is the pointer to said Nym.
+    OTAccount * m_pAccount; // If Party has an account, here it is. NOTE: In the future, there may be a LIST of accounts.
+    
 public:
 	OTParty();
+	OTParty(const std::string str_PartyName, OTPseudonym & theNym, OTAccount * pAccount=NULL);
 	
 	virtual ~OTParty();
 	
+    OTParty(const OTParty & rhs);
+    
+    OTParty& operator= (const OTParty & rhs);
+
     // -------------------------------------------------
     // as used "IN THE SCRIPT."
     //
-    bool GetPartyName(std::string & str_party_name_output) const; // "sales_director", "marketer", etc
+    std::string GetPartyName(bool * pBoolSuccess=NULL) const; // "sales_director", "marketer", etc
     void SetPartyName(const std::string & str_party_name_input);
     
 	// --------------------
@@ -292,11 +307,11 @@ public:
 	// ------------------------------
 	// ACTUAL PARTY OWNER
     //
-	bool GetNymID(OTIdentifier& theOutput) const; // If the party is a Nym, this is the Nym's ID. Otherwise this is false.
-	bool GetEntityID(OTIdentifier& theOutput) const; // If party is an entity, this is the entity's ID. Otherwise false.
+    std::string GetNymID(bool * pBoolSuccess=NULL) const; // If the party is a Nym, this is the Nym's ID. Otherwise this is false.
+    std::string GetEntityID(bool * pBoolSuccess=NULL) const; // If party is an entity, this is the entity's ID. Otherwise false.
 	// ----------------------------
     
-    bool GetPartyID(OTIdentifier& theOutput) const; // If party is a Nym, this is the NymID. Else return EntityID().
+    std::string GetPartyID(bool * pBoolSuccess=NULL) const; // If party is a Nym, this is the NymID. Else return EntityID().
 
     // --------------------------------------------------
     // Some agents are passive (voting groups) and cannot behave actively, and so cannot do
@@ -332,6 +347,9 @@ typedef std::map<std::string, OTParty *> mapOfParties;
 
 
 
+
+
+
 // ------------------------------------------------------------
 
 // A script should be "Dumb", meaning that you just stick it with its
@@ -348,8 +366,10 @@ typedef std::map<std::string, OTParty *> mapOfParties;
 // and not with OTScript itself.
 //
 
+
 class OTScript 
 {
+protected:
     std::string     m_str_script;
     
     mapOfParties    m_mapParties; // no need to clean this up. Script doesn't own the parties, just references them.
@@ -357,6 +377,8 @@ class OTScript
 	// List 
 	// Construction -- Destruction
 public:
+    
+
 	OTScript();
 	OTScript(const OTString & strValue);
 	OTScript(const char * new_string);
@@ -387,11 +409,40 @@ public:
     // parties. Therefore there's no need to separately input any accounts or assets to
     // a script, since the necessary ones are already present inside their respective parties.
     
-    bool ExecuteScript();
+    virtual bool ExecuteScript()=0;
 };
 
+typedef std::tr1::shared_ptr<OTScript> OTScript_SharedPtr;
+
+OTScript_SharedPtr OTScriptFactory(const std::string & script_contents, const std::string * p_script_type=NULL);
 
 
+
+// ********************************************************************
+//
+// SUBCLASS:  CHAI SCRIPT
+//
+// ********************************************************************
+
+
+
+class OTScriptChai : public OTScript
+{    
+public:
+    
+	OTScriptChai();
+	OTScriptChai(const OTString & strValue);
+	OTScriptChai(const char * new_string);
+	OTScriptChai(const char * new_string, size_t sizeLength);
+	OTScriptChai(const std::string & new_string);
+	
+	virtual ~OTScriptChai();
+
+    virtual bool ExecuteScript();
+    // ------------------------
+    
+    chaiscript::ChaiScript chai;
+};
 
 
 

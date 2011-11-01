@@ -1,4 +1,4 @@
-Open Transactions v0.72b
+Open Transactions v0.73
 (Scroll to the bottom to see the complete AGPLv3.)
 /************************************************************
 -----BEGIN PGP SIGNED MESSAGE-----

@@ -202,7 +202,7 @@ int      OTLog::__latency_send_ms = 200; // number of ms to wait before retrying
 int      OTLog::__latency_receive_ms = 200; // number of ms to wait before retrying receive.
 
 
-OTString OTLog::__Version = "0.72b";
+OTString OTLog::__Version = "0.73";
 
 
 

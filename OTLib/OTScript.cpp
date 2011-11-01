@@ -126,12 +126,25 @@
  -----END PGP SIGNATURE-----
  **************************************************************/
 
+#include <algorithm>
+//#include <memory>
+#include <tr1/memory>
 
-#include "OTScript.h"
+//#include <boost/shared_ptr.hpp>
 
 
+// -------------------
 #include "OTString.h"
 #include "OTIdentifier.h"
+
+#include "OTStorage.h"
+
+#include "OTPseudonym.h"
+
+#include "OTLog.h"
+
+#include "OTScript.h"
+#include "OTAccount.h"
 
 
 OTAgent::OTAgent() : m_bRepresentsSelf(true), m_bIsAnIndividual(true)
@@ -235,7 +248,7 @@ bool OTAgent::IsAGroup() const
 
 bool OTAgent::GetNymID(OTIdentifier& theOutput) const
 {
-    if (IsIndividual())
+    if (IsAnIndividual())
     {
         // TODO: Probably have the NymID STORED in the agent. Or a pointer to the NYM ITSELF.
         // 
@@ -250,7 +263,7 @@ bool OTAgent::GetNymID(OTIdentifier& theOutput) const
 
 bool OTAgent::GetRoleID(OTIdentifier& theOutput) const
 {
-    if (IsIndividual() && DoesRepresentAnEntity())
+    if (IsAnIndividual() && DoesRepresentAnEntity())
     {
         // TODO: Probably have the role ID STORED in the agent,
         // and set it here.
@@ -384,29 +397,70 @@ bool OTAgent::GetPartyID(OTIdentifier& theOutput) const
 // std::string * m_pstr_party_name;
 
 
-OTParty::OTParty() : m_pstr_party_name(NULL), m_bPartyIsNym(true)
+OTParty::OTParty()
+: m_pstr_party_name(NULL), m_bPartyIsNym(false), m_pNym(NULL), m_pAccount(NULL)
 {
     
 }
+
+OTParty::OTParty(const std::string str_PartyName, OTPseudonym & theNym, OTAccount * pAccount/*=NULL*/)
+ : m_pstr_party_name(NULL), m_bPartyIsNym(true), m_pNym(&theNym), m_pAccount(pAccount)
+{
+    m_pstr_party_name = new std::string(str_PartyName);
+    
+}
+
+
+OTParty::OTParty(const OTParty & rhs)
+{
+    this->SetPartyName(rhs.GetPartyName());
+    m_bPartyIsNym = rhs.m_bPartyIsNym;
+    m_pNym = rhs.m_pNym;
+    m_pAccount = rhs.m_pAccount;
+}
+
+OTParty& OTParty::operator= (const OTParty & rhs)
+{
+    this->SetPartyName(rhs.GetPartyName());
+    m_bPartyIsNym = rhs.m_bPartyIsNym;
+    m_pNym = rhs.m_pNym;
+    m_pAccount = rhs.m_pAccount;
+
+    return *this;
+}
+
 
 OTParty::~OTParty()
 {
     if (NULL != m_pstr_party_name)
         delete m_pstr_party_name;
+    
+    // Don't cleanup the nym or account here, since Party doesn't own them.
+    // (He has pointers for reference uses only.)
 }
 
 // -------------------------------------------------
 // as used "IN THE SCRIPT."
 //
-bool OTParty::GetPartyName(std::string & str_party_name_output) const
+std::string OTParty::GetPartyName(bool * pBoolSuccess/*=NULL*/) const
 {
+    std::string retVal("");
+    
  // "sales_director", "marketer", etc
     if (NULL == m_pstr_party_name)
-        return false;
+    {
+        if (NULL != pBoolSuccess)
+            *pBoolSuccess = false;
+
+        return retVal;
+    }
     
-    str_party_name_output = *m_pstr_party_name;
+    if (NULL != pBoolSuccess)
+        *pBoolSuccess = true;
     
-    return true;
+    retVal = *m_pstr_party_name;
+    
+    return retVal;
 }
 
 void OTParty::SetPartyName(const std::string & str_party_name_input)
@@ -436,43 +490,68 @@ bool OTParty::IsEntity() const
 // ------------------------------
 // ACTUAL PARTY OWNER
 //
-bool OTParty::GetNymID(OTIdentifier& theOutput) const
+std::string OTParty::GetNymID(bool * pBoolSuccess/*=NULL*/) const
 {
+    std::string retVal("");
+    
     // If the party is a Nym, this is the Nym's ID. Otherwise this is false.
-    if (IsNym())
+    if (IsNym() && (NULL != m_pNym))
     {
         // theOutput = NYM ID HERE
-
+        OTString strID;
+        m_pNym->GetIdentifier(strID);
+         
+        if (NULL != pBoolSuccess)
+            *pBoolSuccess = true;
+        
         // RETURN TRUE in this block.
+        retVal = strID.Get();
+        
+        return retVal;
     }
     
-    return false;
+    if (NULL != pBoolSuccess)
+        *pBoolSuccess = false;
+    
+    return retVal; // empty ID on failure.
 }
 
-bool OTParty::GetEntityID(OTIdentifier& theOutput) const
+std::string OTParty::GetEntityID(bool * pBoolSuccess/*=NULL*/) const
 {
+    std::string retVal("");
+    
     // If party is an entity, this is the entity's ID. Otherwise false.
     if (IsEntity())
     {
         // theOutput = ENTITY ID HERE
+        OTString strID("ENTITY_ID_GOES_HERE");
+        
+        if (/* TODO: CALL HERE TO GET ENTITY_ID FROM ENTITY,  && */ NULL != pBoolSuccess)
+            *pBoolSuccess = true;
         
         // RETURN TRUE in this block.
+        retVal = strID.Get();
+        
+        return retVal;
     }
     
-    return false;
+    if (NULL != pBoolSuccess)
+        *pBoolSuccess = false;
+
+    return retVal;
 }
 
 // ----------------------------
 
-bool OTParty::GetPartyID(OTIdentifier& theOutput) const
+std::string OTParty::GetPartyID(bool * pBoolSuccess/*=NULL*/) const
 {
     // If party is a Nym, this is the NymID. Else return EntityID().
     // if error, return false.
     
     if (IsNym())
-        return GetNymID(theOutput);
+        return GetNymID(pBoolSuccess);
 
-    return GetEntityID(theOutput);
+    return GetEntityID(pBoolSuccess);
 }
 
 // --------------------------------------------------
@@ -523,7 +602,79 @@ bool OTParty::HasActiveAgent() const
 //
 
 
+
+
+// Note: any relevant assets or asset accounts are listed by their owner / contributor
+// parties. Therefore there's no need to separately input any accounts or assets to
+// a script, since the necessary ones are already present inside their respective parties.
+//
+//bool OTScript::ExecuteScript()
+//{
+//    return true;
+//}
+
+
+
+/*
+ 
+ To use:
+ 
+ const char * default_script_language = "chai";
+
+ ...
+ 
+ OTParty theParty(theNym);
+ 
+ // (Set up theParty here, with his asset accounts, etc)
+ // Then...
+ //
+ OTScript_SharedPtr pScript = OTScript::Factory(default_script_language, strScript);
+ 
+ if (pScript)
+ {
+    pScript->AddParty("mynym", &theParty);
+    pScript->Execute();
+ }
+ 
+ 
+ MIGHT WANT TO ADD an AddParty(string, Nym) function, which automatically wraps the Nym in a party.
+ That way you can basically treat a Nym like a party to an agreement.
+ 
+ */
+
+
+
+
+
+OTScript_SharedPtr OTScriptFactory(const std::string & script_contents, const std::string * p_script_type/*=NULL*/)
+{
+//    OTScript::SharedPtr retVal;
+    OTScript_SharedPtr retVal;
+  
+    // if the type is explicitly set to "chai", or if the type is 0 length, then 
+    // use chaiscript as the default interpreter in that case as well.
+    if ((NULL == p_script_type) || 
+        (0 == p_script_type->size()) || 
+        (0 == p_script_type->compare("chai")) ) // todo no hardcoding.
+        retVal = std::tr1::dynamic_pointer_cast<OTScript> 
+            (std::tr1::shared_ptr<OTScriptChai>(new OTScriptChai(script_contents)));
     
+    // Here's how it would look for various scripting languages:
+    //
+//    else if (0 == p_script_type->compare("lua"))
+//        retVal = std::dynamic_pointer_cast<OTScript> (std::make_shared<OTScriptLua>(script_contents));
+//    else if (0 == p_script_type->compare("angelscript"))
+//        retVal = std::dynamic_pointer_cast<OTScript> (std::make_shared<OTScriptAngel>(script_contents));
+//    else if (0 == p_script_type->compare("guru"))
+//        retVal = std::dynamic_pointer_cast<OTScript> (std::make_shared<OTScriptGuru>(script_contents));
+    else
+        OTLog::vError("OTScript::Factory: Script language (%s) not found.\n", p_script_type->c_str());
+        
+    return retVal;
+}
+
+ 
+
 
 // std::string m_str_script;
 
@@ -532,22 +683,23 @@ OTScript::OTScript()
     
 }
 
-OTScript::OTScript(const OTString & strValue)
+OTScript::OTScript(const OTString & strValue) : m_str_script(strValue.Get())
 {
     
 }
 
-OTScript::OTScript(const char * new_string)
+OTScript::OTScript(const char * new_string) : m_str_script(new_string)
 {
     
 }
 
-OTScript::OTScript(const char * new_string, size_t sizeLength)
+OTScript::OTScript(const char * new_string, size_t sizeLength) 
+    : m_str_script(new_string, sizeLength)
 {
     
 }
 
-OTScript::OTScript(const std::string & new_string)
+OTScript::OTScript(const std::string & new_string) : m_str_script(new_string)
 {
     
 }
@@ -561,22 +713,25 @@ OTScript::~OTScript()
 
 void OTScript::SetScript(const OTString & strValue)
 {
-    
+    if (strValue.Exists())
+        m_str_script = strValue.Get();
 }
 
 void OTScript::SetScript(const char * new_string)
 {
-    
+    if (NULL != new_string)
+        m_str_script = new_string;    
 }
 
 void OTScript::SetScript(const char * new_string, size_t sizeLength)
 {
-    
+    if (NULL != new_string)
+        m_str_script.assign(new_string, sizeLength);
 }
 
 void OTScript::SetScript(const std::string & new_string)
 {
-    
+    m_str_script = new_string;
 }
     
 // ---------------------------------------------------
@@ -594,38 +749,135 @@ void OTScript::AddParty(const std::string str_party_name, OTParty & theParty)
 {
     // typedef std::map<std::string, OTParty *> mapOfParties;
 
-    m_mapParties.insert( std::pair<std::string, OTParty *>(str_party_name, &theParty)) );
+    m_mapParties.insert( std::pair<std::string, OTParty *>(str_party_name, &theParty)) ;
     
     // We're just storing these pointers for reference value. Script doesn't actually Own the
     // parties, and isn't responsible to clean them up.
 }
     
-// Note: any relevant assets or asset accounts are listed by their owner / contributor
-// parties. Therefore there's no need to separately input any accounts or assets to
-// a script, since the necessary ones are already present inside their respective parties.
+
+
+
+// ********************************************************************
 //
-bool OTScript::ExecuteScript()
+// SUBCLASS:  CHAI SCRIPT
+//
+// ********************************************************************
+
+/*
+double x_function(int i, double j)
 {
+    return i * j;
+}
+
+int main()
+{
+    chaiscript::ChaiScript chai;
+    chai.add(chaiscript::fun(&x_function), "x_function");
+    
+    double d = chai.eval<double>("x_function(3, 4.75);");
+}
+*/
+
+
+bool OTScriptChai::ExecuteScript()
+{
+    using namespace chaiscript;
+    
+    if (m_str_script.size() > 0)
+    {        
+        // --------------------
+        
+        /*
+        chai.add(user_type<OTParty>(), "OTParty");        
+        chai.add(constructor<OTParty()>(), "OTParty");
+        chai.add(constructor<OTParty(const OTParty&)>(), "OTParty");
+        chai.add(fun<OTParty&(OTParty::*)(const OTParty&)>(&OTParty::operator=), "=");
+        // -----------------------------------------------------
+        chai.add(fun(&OTParty::GetPartyName), "GetPartyName");
+        chai.add(fun(&OTParty::GetNymID), "GetNymID");
+        chai.add(fun(&OTParty::GetEntityID), "GetEntityID");
+        chai.add(fun(&OTParty::GetPartyID), "GetPartyID");
+        chai.add(fun(&OTParty::HasActiveAgent), "HasActiveAgent");
+        */
+        
+        // etc
+        
+//      chai.add(m); // Here we add the OTParty class to the chaiscript engine.
+
+        for (mapOfParties::iterator ii = m_mapParties.begin(); 
+             ii != m_mapParties.end();
+             ++ii)
+        {
+            OTParty * pParty = (*ii).second;
+            
+            OT_ASSERT(NULL != pParty);
+            
+            std::string party_name = pParty->GetPartyName();
+            std::string party_id = pParty->GetPartyID();
+            
+//            std::cerr << " TESTING PARTY: " << party_name << std::endl;
+            
+            if (NULL != pParty)
+            {
+                chai.add(var(party_id), party_name.size() > 0 ? party_name.c_str() : "ERROR");
+                
+            }
+            else
+                OTLog::Error("Party should not have been NULL...\n");
+//            chai.add(chaiscript::var(&d), "d");
+
+        }
+        
+        // --------------------
+
+        // Here we add the mapOfParties user-defined type to the chaiscript engine.
+//        chai.add(user_type<mapOfParties>(), "mapOfParties");
+
+        // --------------------
+        
+        // Here we add the m_mapParties member variable itself
+//        chai.add_global_const(const_var(m_mapParties), "Parties");
+        
+        // --------------------
+        
+        chai.eval(m_str_script.c_str());
+    }
+    
     return true;
 }
 
-/*
- 
- To use:
- 
- OTParty theParty(theNym);
- 
- OTScript theScript(strScript); 
- theScript.AddParty("mynym", &theParty);
- 
- theScript.Execute();
- 
- 
- MIGHT WANT TO ADD an AddParty(string, Nym) function, which automatically wraps the Nym in a party.
-That way you can basically treat a Nym like a party to an agreement.
- 
- */
 
+
+OTScriptChai::OTScriptChai() : OTScript()
+{
+    
+}
+
+OTScriptChai::OTScriptChai(const OTString & strValue) : OTScript(strValue)
+{
+    
+}
+
+OTScriptChai::OTScriptChai(const char * new_string) : OTScript(new_string)
+{
+    
+}
+
+OTScriptChai::OTScriptChai(const char * new_string, size_t sizeLength) : OTScript(new_string, sizeLength)
+{
+    
+}
+
+OTScriptChai::OTScriptChai(const std::string & new_string) : OTScript(new_string)
+{
+    
+}
+	
+OTScriptChai::~OTScriptChai()
+{
+    
+}
 
 
 

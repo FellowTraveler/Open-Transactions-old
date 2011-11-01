@@ -404,12 +404,12 @@ bool OT_API::LoadConfigFile(const OTString & strMainPath)
                     
                     if (strOutput.Exists())
                     {
-                        OTLog::vOutput(0, "Setting logfile to: %s\n", strOutput.Get());
+                        OTLog::vOutput(1, "Setting logfile to: %s\n", strOutput.Get());
                         OTLog::SetLogfile(strOutput.Get());
                     }
                 }
                 else
-                    OTLog::vOutput(0, "Current logfile is: %s\n", OTLog::Logfile());
+                    OTLog::vOutput(1, "Current logfile is: %s\n", OTLog::Logfile());
                 // ---------------------------------------------
                 // LOG LEVEL
                 //
@@ -417,11 +417,11 @@ bool OT_API::LoadConfigFile(const OTString & strMainPath)
                 
                 if (NULL != pVal2)
                 {
-                    OTLog::vOutput(0, "Setting log level to: %d\n", atoi(pVal2));
+                    OTLog::vOutput(1, "Setting log level to: %d\n", atoi(pVal2));
                     OTLog::SetLogLevel(atoi(pVal2));
                 }
                 else
-                    OTLog::vOutput(0, "Current log level is: %d\n", OTLog::GetLogLevel());
+                    OTLog::vOutput(1, "Current log level is: %d\n", OTLog::GetLogLevel());
             }
             // ---------------------------------------------
             // LATENCY (SENDING)
@@ -430,7 +430,7 @@ bool OT_API::LoadConfigFile(const OTString & strMainPath)
                 
                 if ((NULL != pVal) && (atoi(pVal)))
                 {
-                    OTLog::vOutput(0, "Setting latency send_no_tries to: %d\n", atoi(pVal));
+                    OTLog::vOutput(1, "Setting latency send_no_tries to: %d\n", atoi(pVal));
                     OTLog::SetLatencySendNoTries(atoi(pVal));
                 }
             }
@@ -439,7 +439,7 @@ bool OT_API::LoadConfigFile(const OTString & strMainPath)
                 
                 if ((NULL != pVal) && (atoi(pVal)))
                 {
-                    OTLog::vOutput(0, "Setting latency send_ms to: %d\n", atoi(pVal));
+                    OTLog::vOutput(1, "Setting latency send_ms to: %d\n", atoi(pVal));
                     OTLog::SetLatencySendMs(atoi(pVal));
                 }
             }
@@ -450,7 +450,7 @@ bool OT_API::LoadConfigFile(const OTString & strMainPath)
                 
                 if ((NULL != pVal) && (atoi(pVal)))
                 {
-                    OTLog::vOutput(0, "Setting latency receive_no_tries to: %d\n", atoi(pVal));                    
+                    OTLog::vOutput(1, "Setting latency receive_no_tries to: %d\n", atoi(pVal));                    
                     OTLog::SetLatencyReceiveNoTries(atoi(pVal));
                 }
             }
@@ -459,7 +459,7 @@ bool OT_API::LoadConfigFile(const OTString & strMainPath)
                 
                 if ((NULL != pVal) && (atoi(pVal)))
                 {
-                    OTLog::vOutput(0, "Setting latency receive_ms to: %d\n", atoi(pVal));
+                    OTLog::vOutput(1, "Setting latency receive_ms to: %d\n", atoi(pVal));
                     OTLog::SetLatencyReceiveMs(atoi(pVal));
                 }
             }
