@@ -1,7 +1,10 @@
 /************************************************************************************
  *    
- *  OTAgreement.h
+ *  OTSmartContract.h
  *  
+ * OTSmartContract is derived from OTCronItem.  
+ * It handles re-occuring, (scriptable) smart contracts.
+ *
  */
 
 /************************************************************
@@ -127,144 +130,57 @@
  **************************************************************/
 
 
-// OTAgreement is derived from OTCronItem.  It handles re-occuring billing.
 
-#ifndef __OTAGREEMENT_H__
-#define __OTAGREEMENT_H__
+#ifndef __OT_SMART_CONTRACT_H__
+#define __OT_SMART_CONTRACT_H__
 
 #include "OTIdentifier.h"
 #include "OTString.h"
 //#include "OTPseudonym.h"
 #include "OTCronItem.h"
 
-// An Agreement occurs between TWO PEOPLE, and is for a CONSIDERATION.
-// Thus, we add the RECIPIENT (already have SENDER from OTTrackable.)
 
-// While other instruments are derived from OTTrackable (like OTCheque) in order
-// to gain a transaction number and sender user/acct, Agreements are derived from
-// a further subclass of trackable: OTCronItem. 
-//
-// OTCronItems are allowed to be posted on the OTCron object, which performs regular
-// processing on a timely basis to the items that are posted there. In this way, 
-// payment authorizations can be posted (and expire properly), and trades can be
-// posted with valid date ranges, and payment plans can be instituted, and so on.
-//
-// OTAgreement is derived from OTCronItem because it allows people to post Agreements
-// on OTCron until a certain expiration period, so that third parties can query the
-// server and verify the agreements, and so that copies of the agreement, stamped
-// with the server's signature, can be made available to the parties and to 3rd parties.
-// 
 
 class OTPseudonym;
 
-class OTAgreement : public OTCronItem
+
+
+class OTSmartContract : public OTCronItem
 {
 private:
-	OTIdentifier	m_RECIPIENT_ACCT_ID;
-	OTIdentifier	m_RECIPIENT_USER_ID;
+	// In OTSmartContract, none of this normal crap is used.
+	// The Sender/Recipient are unused. 
+	// The Opening and Closing Trans#s are unused.
+	//
+	// Instead, all that stuff goes through OTParty list (each with agents
+	// and accounts) and OTBylaw list (each with clauses and variables.)
+	// Todo: convert existing payment plan and markets to use this system since
+	// it is much cleaner.
+	//
+//	OTIdentifier	m_RECIPIENT_ACCT_ID;
+//	OTIdentifier	m_RECIPIENT_USER_ID;
 	
 protected:
-	OTString		m_strConsideration;	// Presumably an agreement is in return for some consideration. Memo here.
-
-    OTString        m_strMerchantSignedCopy; // The merchant sends it over, then the payer confirms it, which adds
-    // his own transaction numbers and signs it. This, unfortunately, invalidates the merchant's version, so we store
-    // a copy of the merchant's signed agreement INSIDE our own. The server can do the hard work of comparing them, though
-    // such will probably occur through a comparison function I'll have to add right here in this class.
     
     virtual void onFinalReceipt(OTCronItem & theOrigCronItem, const long & lNewTransactionNumber,
                                 OTPseudonym & theOriginator,
                                 OTPseudonym * pRemover);
     virtual void onRemovalFromCron();
 
-    std::deque<long> m_dequeRecipientClosingNumbers; // Numbers used for CLOSING a transaction. (finalReceipt.)
-
 public:
 	// --------------------------------------------------------------------------
 
-    void SetMerchantSignedCopy(const OTString & strMerchantCopy) { m_strMerchantSignedCopy = strMerchantCopy; }
-    const OTString & GetMerchantSignedCopy() { return m_strMerchantSignedCopy; }
-    
-    // SetAgreement replaced with the 2 functions below. See notes even lower.
-    //
-//	bool	SetAgreement(const long & lTransactionNum,	const OTString & strConsideration,
-//							 const time_t & VALID_FROM=0,	const time_t & VALID_TO=0);
+	virtual bool AddParty(OTParty & theParty); // Takes ownership. Overrides from OTScriptable.
 
-    bool    SetProposal(OTPseudonym & MERCHANT_NYM, const OTString & strConsideration,
-                        const time_t & VALID_FROM=0,	const time_t & VALID_TO=0);
-    
-    bool    Confirm(OTPseudonym & MERCHANT_NYM, OTPseudonym & PAYER_NYM);  // Merchant Nym is passed here so we can verify the signature before confirming.
-    
-    
-    // What should be the process here?
-    
-    /*
-        FIRST: (Construction)
-     OTAgreement(const OTIdentifier & SERVER_ID,			const OTIdentifier & ASSET_ID);
-       OR:
-     OTAgreement(const OTIdentifier & SERVER_ID,			const OTIdentifier & ASSET_ID,
-                const OTIdentifier & SENDER_ACCT_ID,	const OTIdentifier & SENDER_USER_ID,
-                const OTIdentifier & RECIPIENT_ACCT_ID,	const OTIdentifier & RECIPIENT_USER_ID);
-       OR:
-     OTPaymentPlan * pPlan = new OTPaymentPlan(pAccount->GetRealServerID(), 
-                                    pAccount->GetAssetTypeID(),
-                                    pAccount->GetRealAccountID(),	
-                                    pAccount->GetUserID(),
-                                    RECIPIENT_ACCT_ID, RECIPIENT_USER_ID);
-     // --------------------------------------------------------------------------------------------------------
-     THEN:  (Agreement)
-     
-     bool bSuccessSetAgreement = pPlan->SetAgreement(lTransactionNumber, PLAN_CONSIDERATION, VALID_FROM, VALID_TO);
-     // --------------------------------------------------------------------------------------------------------
-     THEN, (OTPaymentPlan) adds TWO OPTIONS (additional and independent of each other):
-     
-     bool		SetInitialPayment(const long & lAmount, time_t tTimeUntilInitialPayment=0); // default: now.
-     // --------------------------------------------------------------------------------------------------------
-     bool		SetPaymentPlan(const long & lPaymentAmount, time_t tTimeUntilPlanStart=LENGTH_OF_MONTH_IN_SECONDS,
-                                time_t tBetweenPayments=LENGTH_OF_MONTH_IN_SECONDS, // Default: 30 days.
-                                time_t tPlanLength=0, int nMaxPayments=0);
+	// FROM PAYMENT PLAN:
+//    bool    SetProposal(OTPseudonym & MERCHANT_NYM, const OTString & strConsideration,
+//                        const time_t & VALID_FROM=0,	const time_t & VALID_TO=0);
+//    
+//    bool    Confirm(OTPseudonym & MERCHANT_NYM, OTPseudonym & PAYER_NYM);  // Merchant Nym is passed here so we can verify the signature before confirming.
 
-     
-     // ********************************************************************************
-     
-     The new process is the same, but it adds some additional transaction numbers...
-     
-     HERE IS THE WAY I ENVISION IT BEING CALLED:
-     
-     ---- The MERCHANT does these steps: -----
-     
-     Step one, though it says PaymentPlan, is basically the OTAgreement constructor. 
-     Its primary concern is with determining the server, payer, payee, accounts, etc.
-     
-     1) OTPaymentPlan * pPlan = 
-        new OTPaymentPlan(pAccount->GetRealServerID(), 
-            pAccount->GetAssetTypeID(),
-            pAccount->GetRealAccountID(),	
-            pAccount->GetUserID(),
-            RECIPIENT_ACCT_ID, RECIPIENT_USER_ID);
-
-    STILL, this is the MERCHANT. Step two is concerned with the specific terms of the offer.
-     
-     2) bool bOffer = 
-            pPlan->SetProposal(MERCHANT_NYM,
-                        PLAN_CONSIDERATION, VALID_FROM, VALID_TO);
-      (lMerchantTransactionNumber, lMerchantClosingNumber are set internally using the MERCHANT_NYM.)
-     
-     ==> Optionally, the merchant also calls SetInitialPayment and/or SetPaymentPlan at this time.
-     ==> Next, the merchant signs it, and sends to the recipient.
-     
-     THE RECIPIENT:
-     
-     3) bool bConfirmation =  pPlan->Confirm(MERCHANT_NYM, PAYER_NYM);
-
-     (Transaction number and closing number are retrieved from Nym at this time.)
-     
-     NO NEED TO SIGN ANYTHING AFTER THIS POINT, and the Payment Plan should store a copy of itself at this time.
-    (That is, STORE A COPY of the Merchant's signed version, since the above call to Confirm will change the plan
-     and sign it again. The server is left with the chore of comparing the two against each other, which I will
-     probably have to code right here in this class!  TOdo.)
-     
-     */
-    
+    // -----------------------------------------
+    // These notes are from OTAgreement/OTPaymentPlan but they are still relevant:
+	//
     // This function verifies both Nyms and both signatures.
     // Due to the peculiar nature of how OTAgreement/OTPaymentPlan works, there are two signed
     // copies stored. The merchant signs first, adding his transaction numbers (2), and then he
@@ -277,51 +193,17 @@ public:
     // The two versions of the contract can also be compared to each other, to make sure that none of
     // the vital terms, values, clauses, etc are different between the two.
     //
-    virtual bool VerifyAgreement(OTPseudonym & RECIPIENT_NYM, OTPseudonym & SENDER_NYM)=0;
+    virtual bool VerifySmartContract(OTPseudonym & VERIFIER_NYM);
     
-    virtual bool Compare(const OTAgreement & rhs) const;
+    virtual bool Compare(const OTSmartContract & rhs) const;
     
 	// --------------------------------------------------------------------------
-	
-	inline const OTIdentifier &	GetRecipientAcctID() const { return m_RECIPIENT_ACCT_ID; }
-	inline const OTIdentifier &	GetRecipientUserID() const { return m_RECIPIENT_USER_ID; }
-	inline void		SetRecipientAcctID(const OTIdentifier & ACCT_ID)	{ m_RECIPIENT_ACCT_ID = ACCT_ID; }
-	inline void		SetRecipientUserID(const OTIdentifier & USER_ID)	{ m_RECIPIENT_USER_ID = USER_ID; }
-	
-	// --------------------------------------------------------------------------
-
-    // The recipient must also provide an opening and closing transaction number(s).
-    //
-    long    GetRecipientClosingTransactionNoAt(unsigned int nIndex) const;
-    int     GetRecipientCountClosingNumbers() const;
-    
-    void    AddRecipientClosingTransactionNo(const long & lClosingTransactionNo);
-    // ----------------------------------------------------------------------------
-    
-    // This is a higher-level than the above functions. It calls them.
-    // Below is the abstraction, above is the implementation.
-    
-    long    GetRecipientOpeningNum() const;
-    long    GetRecipientClosingNum() const;
-    
-    // ----------------------------------------------------------------------------
-	// From OTCronItem (parent class of this)
+ 	// From OTCronItem (parent class of this)
 	/*
 	 inline void SetCronPointer(OTCron & theCron) { m_pCron = &theCron; }	 
 
 	 inline void SetCreationDate(const time_t & CREATION_DATE) { m_CREATION_DATE = CREATION_DATE; }
-	 inline const time_t & GetCreationDate() const { return m_CREATION_DATE; }
-     
-     // ------------------------------------------------------
-     // These are for:
-     // std::deque<long> m_dequeClosingNumbers; 
-     // 
-     // They are numbers used for CLOSING a transaction. (finalReceipt, someday more.)
-     
-     long    GetClosingTransactionNoAt(int nIndex) const;
-     int     GetCountClosingNumbers() const;
-     
-     void    AddClosingTransactionNo(const long & lClosingTransactionNo);
+	 inline const time_t & GetCreationDate() const { return m_CREATION_DATE; }     
 	 */
     virtual bool CanRemoveItemFromCron(OTPseudonym & theNym);
 	
@@ -366,23 +248,17 @@ public:
 	 */
     
     /*
-     From OTContract, I have:
+     OTScriptable is above OTInstrument, and then finally OTContract.
 
      virtual bool SignContract (const OTPseudonym & theNym);
-
      */
     
     // -------------------------------------
     
-	OTAgreement();
-	OTAgreement(const OTIdentifier & SERVER_ID,			const OTIdentifier & ASSET_ID);
-	OTAgreement(const OTIdentifier & SERVER_ID,			const OTIdentifier & ASSET_ID,
-				const OTIdentifier & SENDER_ACCT_ID,	const OTIdentifier & SENDER_USER_ID,
-				const OTIdentifier & RECIPIENT_ACCT_ID,	const OTIdentifier & RECIPIENT_USER_ID);
-	virtual ~OTAgreement();
-	
-	void InitAgreement();
-	
+	OTSmartContract();
+	OTSmartContract(const OTIdentifier & SERVER_ID);
+	virtual ~OTSmartContract();
+		
 	virtual void Release();
 	
 	
@@ -396,4 +272,4 @@ public:
 };
 
 
-#endif // __OTAGREEMENT_H__
+#endif // __OT_SMART_CONTRACT_H__

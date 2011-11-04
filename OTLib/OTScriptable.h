@@ -1,7 +1,8 @@
 /************************************************************************************
  *    
- *  OTScript.h
- *  
+ *  OTScriptable.h
+ * 
+ *  This is just like OTContract, except it also has "Bylaws" and "Parties".
  */
 
 /************************************************************
@@ -127,157 +128,49 @@
  **************************************************************/
 
 
-#ifndef __OT_SCRIPT_H__
-#define __OT_SCRIPT_H__
+#ifndef __OTSCRIPTABLE_H__
+#define __OTSCRIPTABLE_H__
 
-#include <string>
-#include <tr1/memory>
 
-#include <chaiscript/chaiscript.hpp>
-
+#include "OTContract.h"
 
 #include "OTBylaw.h"
+#include "OTScript.h"
 
-// ------------------------------------------------------------
-
-// A script should be "Dumb", meaning that you just stick it with its
-// parties and other resources, and it EXPECTS them to be the correct
-// ones.  It uses them low-level style.
-//
-// Any verification should be done at a higher level, in OTSmartContract.
-// There, multiple parties might be loaded, as well as multiple scripts
-// (clauses) and that is where the proper resources, accounts, etc are
-// instantiated and validated before any use.
-// 
-// Thus by the time you get down to OTScript, all that validation is already
-// done.  The programmatic user will interact with OTSmartContract, likely,
-// and not with OTScript itself.
-//
+#include "OTString.h"
 
 
-class OTScript 
+class OTScriptable : public OTContract
 {
 protected:
-    std::string     m_str_script;
-    
-    mapOfParties    m_mapParties; // no need to clean this up. Script doesn't own the parties, just references them.
-    
-	// List 
-	// Construction -- Destruction
+	mapOfParties		m_mapParties;	// The parties to the contract. Could be Nyms, or other entities. May be rep'd by an Agent.
+	
+	mapOfBylaws			m_mapBylaws;	// The Bylaws for this contract.
+	// -------------------------------------------------------------------
+
+	// return -1 if error, 0 if nothing, and 1 if the node was processed.
+	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
 public:
-    
-
-	OTScript();
-	OTScript(const OTString & strValue);
-	OTScript(const char * new_string);
-	OTScript(const char * new_string, size_t sizeLength);
-	OTScript(const std::string & new_string);
 	
-	virtual ~OTScript();
+	virtual bool AddParty(OTParty & theParty); // Takes ownership.
+	virtual bool AddBylaw(OTBylaw & theBylaw);
+
+	// ----------------
 	
-    void SetScript(const OTString & strValue);
-    void SetScript(const char * new_string);
-    void SetScript(const char * new_string, size_t sizeLength);
-    void SetScript(const std::string & new_string);
+	OTScriptable();
 
-	// ---------------------------------------------------
-    
-    // The same OTSmartContract that loads all the clauses (scripts) will
-    // also load all the parties, so it will call this function whenever before it
-    // needs to actually run a script.
-    //
-    // NOTE: OTScript does NOT take ownership of the party, since there could be
-    // multiple scripts (with all scripts and parties being owned by a OTSmartContract.)
-    // Therefore it's ASSUMED that the owner OTSmartContract will handle all the work of
-    // cleaning up the mess!  theParty is passed as reference to insure it already exists.
-    //
-    void AddParty(const std::string str_party_name, OTParty & theParty);
+	virtual ~OTScriptable();
 
-    // Note: any relevant assets or asset accounts are listed by their owner / contributor
-    // parties. Therefore there's no need to separately input any accounts or assets to
-    // a script, since the necessary ones are already present inside their respective parties.
-    
-    virtual bool ExecuteScript()=0;
-};
+	virtual void Release();
+	virtual void UpdateContents();
+//	virtual bool SaveContractWallet(FILE * fl);	
+	virtual bool SaveContractWallet(std::ofstream & ofs);
 
-typedef std::tr1::shared_ptr<OTScript> OTScript_SharedPtr;
-
-OTScript_SharedPtr OTScriptFactory(const std::string & script_contents, const std::string * p_script_type=NULL);
-
-
-
-// ********************************************************************
-//
-// SUBCLASS:  CHAI SCRIPT
-//
-// ********************************************************************
-
-
-
-class OTScriptChai : public OTScript
-{    
-public:
-    
-	OTScriptChai();
-	OTScriptChai(const OTString & strValue);
-	OTScriptChai(const char * new_string);
-	OTScriptChai(const char * new_string, size_t sizeLength);
-	OTScriptChai(const std::string & new_string);
-	
-	virtual ~OTScriptChai();
-
-    virtual bool ExecuteScript();
-    // ------------------------
-    
-    chaiscript::ChaiScript chai;
 };
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// ------------------------------------------------------------------
-
-#endif // __OT_SCRIPT_H__
-
-
-
-
+#endif // __OTSCRIPTABLE_H__
 

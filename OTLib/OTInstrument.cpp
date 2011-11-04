@@ -182,14 +182,14 @@ void OTInstrument::InitInstrument()
 	m_strContractType.Set("INSTRUMENT");	// should never happen in practice...
 }
 
-OTInstrument::OTInstrument() : OTContract()
+OTInstrument::OTInstrument() : OTScriptable()
 {
 	InitInstrument();
 
 
 }
 
-OTInstrument::OTInstrument(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID) : OTContract()
+OTInstrument::OTInstrument(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID) : OTScriptable()
 {
 	InitInstrument();
 
@@ -210,7 +210,7 @@ void OTInstrument::Release()
 	// Release any dynamically allocated instrument members here.
 
 	// Next give the base class a chance to do the same...
-	OTContract::Release(); // since I've overridden the base class, I call it now...
+	OTScriptable::Release(); // since I've overridden the base class, I call it now...
 
 	// Initialize everything back to 0
 	InitInstrument();

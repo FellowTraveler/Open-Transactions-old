@@ -154,12 +154,16 @@ extern "C"
 #include "OTStringXML.h"
 //#include "OTStorage.h"
 
+
 class OTPseudonym;
 class OTIdentifier;
 
 
-typedef std::list <OTSignature *>				listOfSignatures;
-typedef std::map  <std::string, OTPseudonym *>	mapOfNyms;
+typedef std::list	<OTSignature *>					listOfSignatures;
+typedef std::map	<std::string, OTPseudonym *>	mapOfNyms;
+typedef std::map	<std::string, std::string>		mapOfStrings;
+
+
 
 class OTContract
 {
@@ -191,15 +195,20 @@ protected:
 	
 	listOfSignatures	m_listSignatures;  // The PGP signatures at the bottom of the XML file.
 	
-	OTString		m_strVersion; // The version of this Contract file, in case the format changes in the future.
+	OTString			m_strVersion; // The version of this Contract file, in case the format changes in the future.
 	
+	// -------------------------------------------------------------------
+	//
+
 	bool LoadContractXML(); // The XML file is in m_xmlUnsigned. Load it from there into members here.
 	
 	bool LoadEncodedTextField(irr::io::IrrXMLReader*& xml, OTString &strOutput);
 	bool LoadEncodedTextField(irr::io::IrrXMLReader*& xml, OTASCIIArmor &ascOutput);
 	
-	bool LoadEncodedTextFieldByName(irr::io::IrrXMLReader*& xml, OTString &strOutput, const char *& szName);
-	bool LoadEncodedTextFieldByName(irr::io::IrrXMLReader*& xml, OTASCIIArmor &ascOutput, const char *& szName);
+	bool LoadEncodedTextFieldByName(irr::io::IrrXMLReader*& xml, OTString &strOutput, 
+									const char *& szName, mapOfStrings * mapExtraVars = NULL);
+	bool LoadEncodedTextFieldByName(irr::io::IrrXMLReader*& xml, OTASCIIArmor &ascOutput, 
+									const char *& szName, mapOfStrings * mapExtraVars = NULL);
 	
 	// return -1 if error, 0 if nothing, and 1 if the node was processed.
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);

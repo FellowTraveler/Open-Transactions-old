@@ -135,10 +135,10 @@
 #include <fstream>
 
 #include "OTIdentifier.h"
-#include "OTContract.h"
+#include "OTScriptable.h"
 
 
-class OTInstrument : public OTContract 
+class OTInstrument : public OTScriptable 
 {	
 protected:	
 	OTIdentifier		m_AssetTypeID;	// Every cheque or cash note has an Asset Type
@@ -148,8 +148,9 @@ protected:
 	time_t			m_VALID_FROM;	// The date, in seconds, when the instrument is valid FROM.
 	time_t			m_VALID_TO;		// The date, in seconds, when the instrument expires.
 	
-	// overridden in child classes, not here.
+	
 //	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
+	
 	inline void SetValidFrom(time_t TIME_FROM)	{ m_VALID_FROM	= TIME_FROM; }
 	inline void SetValidTo(time_t TIME_TO)		{ m_VALID_TO	= TIME_TO; }
 	

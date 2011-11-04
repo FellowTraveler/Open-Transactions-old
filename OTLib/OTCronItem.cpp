@@ -1047,10 +1047,18 @@ int OTCronItem::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 	//
 	// -- Note you can choose not to call the parent if
 	// you don't want to use any of those xml tags.
-	// As I do below, in the case of OTAccount.
-	//if (nReturnVal = OTContract::ProcessXMLNode(xml))
-	//	return nReturnVal;
+	//
+	
+	// In this case, I don't need to call the parent. But I'm going to 
+	// call the grand-grand-parent (scriptable.)
+	//
+	nReturnVal = OTScriptable::ProcessXMLNode(xml);
+	
+	if (nReturnVal != 0) // -1 is error, and 1 is "found it". Either way, return.
+		return nReturnVal;	// 0 means "nothing happened, keep going."
     
+	// ---------
+	
     if (!strcmp("closingTransactionNumber", xml->getNodeName())) 
 	{		
         OTString strClosingNumber = xml->getAttributeValue("value");

@@ -168,6 +168,7 @@ CXXSOURCES = $(BIGINTSOURCES) $(LUCRESOURCES) $(IRRXMLSOURCES) \
 			 OTStringXML.cpp \
 			 OTASCIIArmor.cpp \
 			 OTContract.cpp \
+			 OTSmartContract.cpp \
 			 OTWallet.cpp \
 			 OTSignedFile.cpp \
 			 OTPseudonym.cpp \
@@ -201,6 +202,8 @@ CXXSOURCES = $(BIGINTSOURCES) $(LUCRESOURCES) $(IRRXMLSOURCES) \
 			 OTAsymmetricKey.cpp \
 			 OTSignature.cpp \
 			 OTScript.cpp \
+			 OTScriptable.cpp \
+			 OTBylaw.cpp \
 			 OTStorage.cpp \
 			 OTDataCheck.cpp \
 			 Generics.pb.cpp \
@@ -294,6 +297,8 @@ OTPseudonym.o: OTPseudonym.cpp OTPseudonym.h
 	$(CXX) $(CXXFLAGS) -c -o OTPseudonym.o OTPseudonym.cpp
 OTContract.o: OTContract.cpp OTContract.h
 	$(CXX) $(CXXFLAGS) -c -o OTContract.o OTContract.cpp
+OTSmartContract.o: OTSmartContract.cpp OTSmartContract.h
+	$(CXX) $(CXXFLAGS) -c -o OTSmartContract.o OTSmartContract.cpp
 OTWallet.o: OTWallet.cpp OTWallet.h 
 	$(CXX) $(CXXFLAGS) -c -o OTWallet.o OTWallet.cpp
 OTSignedFile.o: OTSignedFile.cpp OTSignedFile.h
@@ -354,6 +359,10 @@ OTPaymentPlan.o: OTPaymentPlan.cpp OTPaymentPlan.h
 	$(CXX) $(CXXFLAGS) -c -o OTPaymentPlan.o OTPaymentPlan.cpp
 OTStorage.o: OTStorage.cpp OTStorage.h
 	$(CXX) $(CXXFLAGS) -c -o OTStorage.o OTStorage.cpp
+OTBylaw.o: OTBylaw.cpp OTBylaw.h
+	$(CXX) $(CXXFLAGS) -c -o OTBylaw.o OTBylaw.cpp
+OTScriptable.o: OTScriptable.cpp OTScriptable.h
+	$(CXX) $(CXXFLAGS) -c -o OTScriptable.o OTScriptable.cpp
 OTScript.o: OTScript.cpp OTScript.h
 	$(CXX) $(CXXFLAGS) -c -o OTScript.o OTScript.cpp
 Generics.pb.o: Generics.pb.cpp Generics.pb.h

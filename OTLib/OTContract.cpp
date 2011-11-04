@@ -2013,6 +2013,7 @@ bool OTContract::LoadEncodedTextField(IrrXMLReader*& xml, OTASCIIArmor & ascOutp
 		// Sometimes the XML reads up the data with a prepended newline.
 		// This screws up my own objects which expect a consistent in/out
 		// So I'm checking here for that prepended newline, and removing it.
+		//
 		char cNewline;
 		if (strNodeData.Exists() && strNodeData.GetLength() > 2 && strNodeData.At(0, cNewline))
 		{
@@ -2038,13 +2039,14 @@ bool OTContract::LoadEncodedTextField(IrrXMLReader*& xml, OTASCIIArmor & ascOutp
 
 
 // Loads it up and also decodes it to a string.
-bool OTContract::LoadEncodedTextFieldByName(IrrXMLReader*& xml, OTString & strOutput, const char *& szName)
+bool OTContract::LoadEncodedTextFieldByName(IrrXMLReader*& xml, OTString & strOutput, 
+											const char *& szName, mapOfStrings * mapExtraVars/*=NULL*/)
 {
 	OT_ASSERT(NULL != szName);
 	
 	OTASCIIArmor ascOutput;
 	
-	if (LoadEncodedTextFieldByName(xml, ascOutput, szName) && ascOutput.GetLength() > 2)
+	if (LoadEncodedTextFieldByName(xml, ascOutput, szName, mapExtraVars) && ascOutput.GetLength() > 2)
 	{
 		return ascOutput.GetString(strOutput, true); // linebreaks = true
 	}
@@ -2053,7 +2055,8 @@ bool OTContract::LoadEncodedTextFieldByName(IrrXMLReader*& xml, OTString & strOu
 }
 
 // Loads it up and keeps it encoded in an ascii-armored object.
-bool OTContract::LoadEncodedTextFieldByName(IrrXMLReader*& xml, OTASCIIArmor & ascOutput, const char *& szName)
+bool OTContract::LoadEncodedTextFieldByName(IrrXMLReader*& xml, OTASCIIArmor & ascOutput, 
+											const char *& szName, mapOfStrings * mapExtraVars/*=NULL*/)
 {
 	OT_ASSERT(NULL != szName);
 
@@ -2066,6 +2069,27 @@ bool OTContract::LoadEncodedTextFieldByName(IrrXMLReader*& xml, OTASCIIArmor & a
 	{
 		if (!strcmp(pElementExpected, xml->getNodeName()))
 		{
+			// ----------------------------------------
+			
+			if (NULL != mapExtraVars) // If the caller wants values for certain names expected to be on this node.
+			{
+				for (mapOfStrings::iterator ii = mapExtraVars->begin(); ii != mapExtraVars->end(); ++ii)
+				{
+					std::string first	= ((*ii).first);
+//					std::string second	= ((*ii).second);
+					
+					OTString strTemp = xml->getAttributeValue(first.c_str());
+					
+					if (strTemp.Exists())
+					{
+						mapExtraVars->erase(first);
+						mapExtraVars->insert(std::pair<std::string, std::string>(first, strTemp.Get()));
+					}
+				}
+			} // Any attribute names passed in, now have their corresponding values set on mapExtraVars (for caller.)
+			
+			// ----------------------------------------
+			
 			if (false == LoadEncodedTextField(xml, ascOutput))
 			{
 				OTLog::vError("OTContract::LoadEncodedTextFieldByName: Error loading %s field.\n",
