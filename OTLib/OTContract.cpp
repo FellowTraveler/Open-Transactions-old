@@ -514,12 +514,9 @@ bool OTContract::VerifyContractID()
 		
 const OTPseudonym * OTContract::GetContractPublicNym()
 {
-	OTPseudonym * pNym = NULL;
-	
-	for (mapOfNyms::iterator ii = m_mapNyms.begin(); ii != m_mapNyms.end(); ++ii)
+	FOR_EACH(mapOfNyms, m_mapNyms)
 	{		
-		pNym = (*ii).second;
-		
+		OTPseudonym * pNym = (*it).second;
 		OT_ASSERT_MSG(NULL != pNym, "NULL pseudonym pointer in OTContract::GetContractPublicNym.\n");
 		
 		if ((*ii).first == "contract") // TODO have a place for hardcoded values like this.
@@ -529,7 +526,7 @@ const OTPseudonym * OTContract::GetContractPublicNym()
 		}
 	}
 	
-	return pNym;	
+	return NULL;	
 }
 
 
@@ -537,24 +534,20 @@ const OTPseudonym * OTContract::GetContractPublicNym()
 // I will return it here -- or NULL.
 const OTAsymmetricKey * OTContract::GetContractPublicKey()
 {
-	OTPseudonym		* pNym = NULL;
-	OTAsymmetricKey * pKey = NULL;
-	
-	for (mapOfNyms::iterator ii = m_mapNyms.begin(); ii != m_mapNyms.end(); ++ii)
+	FOR_EACH(mapOfNyms, m_mapNyms)
 	{		
-		pNym = (*ii).second;
-		
+		OTPseudonym	* pNym = (*it).second;
 		OT_ASSERT_MSG(NULL != pNym, "NULL pseudonym pointer in OTContract::GetContractPublicKey.\n");
 		
 		if ((*ii).first == "contract") // TODO have a place for hardcoded values like this.
 		{							   // We're saying here that every contract has a key tag called "contract"
 									   // where the official public key can be found for it and for any contract.
-			pKey = (OTAsymmetricKey *)		&(pNym->GetPublicKey());
-			return (const OTAsymmetricKey *)pKey;
+			OTAsymmetricKey * pKey = (OTAsymmetricKey *) &(pNym->GetPublicKey()); //todo fix this cast.
+			return const_cast<OTAsymmetricKey *>(pKey);
 		}
 	}
 	
-	return pKey;
+	return NULL;
 }
 
 
@@ -1247,13 +1240,9 @@ void OTContract::ReleaseSignatures()
 
 bool OTContract::VerifySignature(const OTPseudonym & theNym)
 {
-	OTSignature * pSig = NULL;
-	
-	for (listOfSignatures::iterator ii = m_listSignatures.begin(); 
-		 ii != m_listSignatures.end(); ++ii)
+	FOR_EACH(listOfSignatures, m_listSignatures)
 	{
-		pSig = *ii;
-		
+		OTSignature * pSig = *it;
 		OT_ASSERT(NULL != pSig);
 		
 		if (VerifySignature(theNym, *pSig))
@@ -1493,13 +1482,9 @@ bool OTContract::SaveContract(OTString & strContract)
 	
 	// ---------------------------------------------------------------
 	
-	OTSignature * pSig = NULL;
-	
-	for (listOfSignatures::iterator ii = m_listSignatures.begin(); 
-		 ii != m_listSignatures.end(); ++ii)
+	FOR_EACH(listOfSignatures, m_listSignatures)
 	{
-		pSig = *ii;
-		
+		OTSignature * pSig = *it;
 		OT_ASSERT(NULL != pSig);
 		
 		strContract.Concatenate("-----BEGIN %s SIGNATURE-----\n"
@@ -2073,10 +2058,10 @@ bool OTContract::LoadEncodedTextFieldByName(IrrXMLReader*& xml, OTASCIIArmor & a
 			
 			if (NULL != mapExtraVars) // If the caller wants values for certain names expected to be on this node.
 			{
-				for (mapOfStrings::iterator ii = mapExtraVars->begin(); ii != mapExtraVars->end(); ++ii)
+				FOR_EACH(mapOfStrings, mapExtraVars)
 				{
-					std::string first	= ((*ii).first);
-//					std::string second	= ((*ii).second);
+					std::string first	= ((*it).first);
+//					std::string second	= ((*it).second);
 					
 					OTString strTemp = xml->getAttributeValue(first.c_str());
 					

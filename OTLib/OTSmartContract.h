@@ -134,6 +134,7 @@
 #ifndef __OT_SMART_CONTRACT_H__
 #define __OT_SMART_CONTRACT_H__
 
+
 #include "OTIdentifier.h"
 #include "OTString.h"
 //#include "OTPseudonym.h"
@@ -141,6 +142,7 @@
 
 
 
+class OTParty;
 class OTPseudonym;
 
 
@@ -171,7 +173,7 @@ public:
 	// --------------------------------------------------------------------------
 
 	virtual bool AddParty(OTParty & theParty); // Takes ownership. Overrides from OTScriptable.
-
+	
 	// FROM PAYMENT PLAN:
 //    bool    SetProposal(OTPseudonym & MERCHANT_NYM, const OTString & strConsideration,
 //                        const time_t & VALID_FROM=0,	const time_t & VALID_TO=0);
@@ -253,6 +255,10 @@ public:
      virtual bool SignContract (const OTPseudonym & theNym);
      */
     
+    // -------------------------------------
+    
+	void ExecuteClauses (mapOfClauses & theClauses);
+	
     // -------------------------------------
     
 	OTSmartContract();

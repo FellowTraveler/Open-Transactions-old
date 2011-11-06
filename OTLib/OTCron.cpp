@@ -223,10 +223,9 @@ bool OTCron::GetNym_OfferList(OTASCIIArmor & ascOutput, const OTIdentifier & NYM
 	
 	// -----------------------------------------------------------
 	
-	for (mapOfMarkets::iterator ii = m_mapMarkets.begin(); ii != m_mapMarkets.end(); ++ii)
+	FOR_EACH(mapOfMarkets, m_mapMarkets)
 	{
-		OTMarket * pMarket = (*ii).second;
-		
+		OTMarket * pMarket = (*it).second;
 		OT_ASSERT(NULL != pMarket);
 		
         int nNymOfferCount = 0;
@@ -305,10 +304,9 @@ bool OTCron::GetMarketList (OTASCIIArmor & ascOutput, int & nMarketCount)
 
 	// -----------------------------------------------------------
 	    
-	for (mapOfMarkets::iterator ii = m_mapMarkets.begin(); ii != m_mapMarkets.end(); ++ii)
+	FOR_EACH(mapOfMarkets, m_mapMarkets)
 	{
-		pMarket = (*ii).second;
-		
+		pMarket = (*it).second;
 		OT_ASSERT(NULL != pMarket);
 		
 		OTDB::MarketData * pMarketData  = dynamic_cast<OTDB::MarketData *>(OTDB::CreateObject(OTDB::STORED_OBJ_MARKET_DATA));
@@ -615,11 +613,9 @@ void OTCron::UpdateContents()
 	// -------------------------------------------------------------
 	
 	// Save the Market entries (the markets themselves are saved in a markets folder.)
-	OTMarket * pMarket = NULL;
-	for (mapOfMarkets::iterator ii = m_mapMarkets.begin(); ii != m_mapMarkets.end(); ++ii)
+	FOR_EACH(mapOfMarkets, m_mapMarkets)
 	{
-		pMarket = (*ii).second;
-		
+		OTMarket * pMarket = (*it).second;
 		OT_ASSERT(NULL != pMarket);
 		
 		OTIdentifier	MARKET_ID(*pMarket);
@@ -643,11 +639,9 @@ void OTCron::UpdateContents()
 	
 	
 	// Save the Cron Items
-	OTCronItem * pItem = NULL;
-	for (mapOfCronItems::iterator ii = m_mapCronItems.begin(); ii != m_mapCronItems.end(); ++ii)
+	FOR_EACH(mapOfCronItems, m_mapCronItems)
 	{
-		pItem = (*ii).second;
-		
+		OTCronItem * pItem = (*it).second;
 		OT_ASSERT(NULL != pItem);
 		
 		OTString strItem(*pItem);		// Extract the cron item contract into string form.
@@ -662,10 +656,9 @@ void OTCron::UpdateContents()
 	
 	long lTransactionNumber = 0;
 	
-	for (listOfTransactionNumbers::iterator iii = m_listTransactionNumbers.begin(); 
-		 iii != m_listTransactionNumbers.end(); ++iii)
+	FOR_EACH(listOfTransactionNumbers, m_listTransactionNumbers)
 	{	
-		lTransactionNumber = *iii;
+		lTransactionNumber = *it;
 		
 		m_xmlUnsigned.Concatenate("<transactionNum value=\"%ld\" />\n\n", 
 						   lTransactionNumber);
@@ -697,12 +690,10 @@ void OTCron::ProcessCronItems()
 	// loop through the cron items and tell each one to ProcessCron().
 	// If the item returns true, that means leave it on the list. Otherwise,
 	// if it returns false, that means "it's done: remove it."
-	OTCronItem * pItem = NULL;
-	
-	for (mapOfCronItems::iterator ii = m_mapCronItems.begin(); ii != m_mapCronItems.end(); )
+
+	FOR_EACH(mapOfCronItems, m_mapCronItems)
 	{
-		pItem = (*ii).second;
-		
+		OTCronItem * pItem = (*it).second;
 		OT_ASSERT(NULL != pItem);
 		
         bool bVerifySig     = pItem->VerifySignature(*m_pServerNym);

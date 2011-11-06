@@ -131,6 +131,8 @@
 #ifndef __OTSCRIPTABLE_H__
 #define __OTSCRIPTABLE_H__
 
+#include <string>
+
 
 #include "OTContract.h"
 
@@ -156,7 +158,15 @@ public:
 	virtual bool AddBylaw(OTBylaw & theBylaw);
 
 	// ----------------
+	// Look up all clauses matching a specific hook.
+	// (Across all Bylaws) Automatically removes any duplicates.
+	// That is, you can have multiple clauses registered to the same
+	// hook name, but you can NOT have the same clause name repeated
+	// multiple times in the results. Each clause can only trigger once.
+	//
+	bool GetHooks(const std::string str_Name, mapOfClauses & theResults); 
 	
+	// ----------------
 	OTScriptable();
 
 	virtual ~OTScriptable();

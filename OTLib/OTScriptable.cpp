@@ -160,6 +160,9 @@ bool OTScriptable::AddParty(OTParty & theParty)
 	{
 		// Careful:  This ** DOES ** TAKE OWNERSHIP!  theParty will get deleted when this OTScriptable is.
 		m_mapParties.insert( std::pair<std::string, OTParty *>(str_party_name, &theParty)) ;
+		
+		theParty.SetOwnerAgreement(*this);
+		
 		return true;
 	}
 	else 
@@ -179,6 +182,9 @@ bool OTScriptable::AddBylaw(OTBylaw & theBylaw)
 	{
 		// Careful:  This ** DOES ** TAKE OWNERSHIP!  theBylaw will get deleted when this OTScriptable is.
 		m_mapBylaws.insert( std::pair<std::string, OTBylaw *>(str_name, &theBylaw)) ;
+
+		theBylaw.SetOwnerAgreement(*this);
+		
 		return true;
 	}
 	else 
@@ -217,7 +223,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 	// then we just return either way.  But if it comes back
 	// as '0', then nothing happened, and we'll continue executing.
 	//
-	// -- Note you can choose not to call the parent if
+	// -- Note: you can choose not to call the parent, if
 	// you don't want to use any of those xml tags.
 	
 	if (nReturnVal == 1 || nReturnVal == (-1))
@@ -228,9 +234,11 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 	{
 		OTString strName			= xml->getAttributeValue("name"); // Party name (in script code)
 		OTString strOwnerType		= xml->getAttributeValue("ownerType"); // "nym" or "entity"
-		OTString strOwnerID			= xml->getAttributeValue("ownerID"); // Nym or Entity ID.
+		OTString strOwnerID			= xml->getAttributeValue("ownerID"); // Nym or Entity ID. todo security probably make these separate variables.
 		
 		OTString strOpeningTransNo	= xml->getAttributeValue("openingTransNo"); // the closing #s are on the asset accounts.
+		
+		OTString strAuthAgent		= xml->getAttributeValue("authorizingAgent"); // When an agent activates this contract, it's HIS opening trans# that's used.
 		
 		OTString strNumAgents		= xml->getAttributeValue("numAgents"); // number of agents on this party.
 		OTString strNumAccounts		= xml->getAttributeValue("numAccounts"); // number of accounts for this party.
@@ -254,7 +262,8 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		
 		OTParty * pParty = new 	OTParty(strName.Exists() ? strName.Get() : "PARTY_ERROR_NAME",
 										strOwnerType.Compare("nym") ? true : false, 
-										strOwnerID.Exists() ? strOwnerID.Get() : "PARTY_ERROR_OWNER_ID");
+										strOwnerID.Exists() ? strOwnerID.Get() : "PARTY_ERROR_OWNER_ID",
+										strAuthAgent.Exists() ? strAuthAgent.Get() : "");
 		OT_ASSERT(NULL != pParty);
 		
 		pParty->SetOpeningTransNo(lOpeningTransNo);
@@ -328,6 +337,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 				{
 					OTString strAcctName		= xml->getAttributeValue("name"); // Acct name (if needed in script code)
 					OTString strAcctID			= xml->getAttributeValue("acctID"); // Asset Acct ID
+					OTString strAgentName		= xml->getAttributeValue("agentName"); // Name of agent who controls this account.
 					OTString strClosingTransNo	= xml->getAttributeValue("closingTransNo"); // the closing #s are on the asset accounts.
 					
 					long lClosingTransNo = 0;
@@ -342,14 +352,15 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 					}
 					// ----------------------------------
 					
-					if (!strAcctName.Exists() || !strAcctID.Exists())
+					if (!strAcctName.Exists() || !strAcctID.Exists() || !strAgentName.Exists())
 					{
-						OTLog::Error("OTScriptable::ProcessXMLNode: Expected missing AcctID or Name in partyaccount.\n");
+						OTLog::Error("OTScriptable::ProcessXMLNode: Expected missing AcctID or Name or AgentName in partyaccount.\n");
 						delete pParty; pParty=NULL;
 						return (-1);
 					}
-
-					if (false == pParty->AddAccount(strAcctName, strAcctID, lClosingTransNo))
+					// ----------------------------------
+										
+					if (false == pParty->AddAccount(strAgentName, strAcctName, strAcctID, lClosingTransNo))
 					{
 						OTLog::Error("OTScriptable::ProcessXMLNode: Failed adding account to party.\n");
 						delete pParty; pParty=NULL;
@@ -397,23 +408,119 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		
 		nReturnVal = 1;
 	}
+	
+	// ----------------------------------------------------------------------------------
+	
 	else if (!strcmp("bylaw", xml->getNodeName())) 
 	{
 		OTString strName		= xml->getAttributeValue("name"); // bylaw name
 		OTString strLanguage	= xml->getAttributeValue("language"); // The script language used in this bylaw.
 		
-		OTString strTemp		= xml->getAttributeValue("numClauses"); // number of clauses on this bylaw.
-
-		
-		// TODO: read constants and variables for this bylaw. (For the scripts to utilize.)
+		OTString strNumVariable	= xml->getAttributeValue("numVariables"); // number of variables on this bylaw.
+		OTString strNumClauses	= xml->getAttributeValue("numClauses"); // number of clauses on this bylaw.
+		OTString strNumHooks	= xml->getAttributeValue("numHooks"); // hooks to server events.
 		
 		OTBylaw * pBylaw = new OTBylaw(strName.Exists() ? strName.Get() : "BYLAW_ERROR_NAME", 
 									   strLanguage.Exists() ? strLanguage.Get() : "BYLAW_ERROR_LANGUAGE" );
 		
 		OT_ASSERT(NULL != pBylaw);
 		
+		// ---------------------------------------------------------------------------
+		//
+		// LOAD VARIABLES AND CONSTANTS.
+		//
 		int nCount	= 0;
-		if (strTemp.Exists() && ( (nCount = atoi(strTemp.Get()) > 0 )))
+		if (strNumVariable.Exists() && ( (nCount = atoi(strNumVariable.Get()) > 0 )))
+		{
+			while (nCount-- > 0)
+			{
+				xml->read();
+				
+				if ((xml->getNodeType() == EXN_ELEMENT) && (!strcmp("variable", xml->getNodeName())))
+				{
+					OTString strVarName		= xml->getAttributeValue("name"); // Variable name (if needed in script code)
+					OTString strVarValue	= xml->getAttributeValue("value"); // Value stored in variable
+					OTString strVarType		= xml->getAttributeValue("type"); // string or long
+					OTString strVarAccess	= xml->getAttributeValue("access"); // constant, persistent, or important.
+					
+					// ----------------------------------
+					
+					if (!strVarName.Exists() || !strVarType.Exists() || !strVarAccess.Exists())
+					{
+						OTLog::Error("OTScriptable::ProcessXMLNode: Expected missing name, type, or access type in variable.\n");
+						delete pBylaw; pBylaw=NULL;
+						return (-1);
+					}
+					// ----------------------------------
+					//
+					// VARIABLE TYPE AND ACCESS TYPE
+					//
+					OTVariable::OTVariable_Type theVarType = OTVariable::Var_Error_Type;
+					
+					if (strVarType.Compare("long"))
+						theVarType = OTVariable::Var_Long;
+					else if (strVarType.Compare("string"))
+						theVarType = OTVariable::Var_String;
+					// ---------
+					
+					OTVariable::OTVariable_Access theVarAccess = OTVariable::Var_Error_Access;
+					
+					if (strVarAccess.Compare("constant"))
+						theVarAccess = OTVariable::Var_Constant;
+					else if (strVarAccess.Compare("persistent"))
+						theVarAccess = OTVariable::Var_Persistent;
+					else if (strVarAccess.Compare("important"))
+						theVarAccess = OTVariable::Var_Important;
+					// ---------
+					
+					if ((OTVariable::Var_Error_Access == theVarAccess) || 
+						(OTVariable::Var_Error_Type == theVarType))
+					{
+						OTLog::vError("OTScriptable::ProcessXMLNode: Error loading variable to bylaw: "
+									  "bad type (%s) or access type (%s).\n", strVarType.Get(), strVarAccess.Get());
+						delete pBylaw; pBylaw=NULL;
+						return (-1);
+					}
+					// ---------------------------------------
+
+					const long lVarValue = ( ((OTVariable::Var_Long == theVarType) && strVarValue.Exists()) ? 
+											(atol(strVarValue.Get())) : 0);
+					
+					bool bAddedVar = false;
+					
+					if (OTVariable::Var_Long == theVarType)
+						bAddedVar = pBylaw->AddVariable(strVarName.Get(), lVarValue, theVarAccess);
+					else if (OTVariable::Var_String == theVarType)
+						bAddedVar = pBylaw->AddVariable(strVarName.Get(), strVarValue.Exists() ? strVarValue.Get() : "", theVarAccess);
+					else
+					{
+						OTLog::Error("OTScriptable::ProcessXMLNode: Wrong variable type... "
+									 "somehow AFTER I should have already detected it...\n");
+						delete pBylaw; pBylaw=NULL;
+						return (-1);
+					}
+					// -------------------------------
+					if (false == bAddedVar)
+					{
+						OTLog::Error("OTScriptable::ProcessXMLNode: Failed adding variable to bylaw.\n");
+						delete pBylaw; pBylaw=NULL;
+						return (-1);
+					}
+				}				
+				else 
+				{
+					OTLog::Error("Expected variable element in bylaw, OTScriptable::ProcessXMLNode\n");
+					delete pBylaw; pBylaw=NULL;
+					return (-1); // error condition
+				}
+			} // while
+		}
+		
+		// ---------------------------------------------------------------------------
+		// LOAD CLAUSES
+		//
+		nCount	= 0;
+		if (strNumClauses.Exists() && ( (nCount = atoi(strNumClauses.Get()) > 0 )))
 		{			
 			while (nCount-- > 0)
 			{				
@@ -481,8 +588,53 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 					return (-1); // error condition
 				}
 			} // while
+		} // if strNumClauses.Exists() && nCount > 0
+
+		
+		// ---------------------------------------------------------------------------
+		//
+		// LOAD HOOKS.
+		//
+		int nCount	= 0;
+		if (strNumHooks.Exists() && ( (nCount = atoi(strNumHooks.Get()) > 0 )))
+		{
+			while (nCount-- > 0)
+			{
+				xml->read();
+				
+				if ((xml->getNodeType() == EXN_ELEMENT) && (!strcmp("hook", xml->getNodeName())))
+				{
+					OTString strHookName	= xml->getAttributeValue("name"); // Name of standard hook such as OnActivate, OnDeactivate, etc
+					OTString strClause		= xml->getAttributeValue("clause"); // Name of clause on this Bylaw that should trigger when that hook occurs.
+					
+					// ----------------------------------
+					
+					if (!strHookName.Exists() || !strClause.Exists())
+					{
+						OTLog::Error("OTScriptable::ProcessXMLNode: Expected missing name or clause while loading hook.\n");
+						delete pBylaw; pBylaw=NULL;
+						return (-1);
+					}
+					// ---------------------------------------
+
+					if (false == pBylaw->AddHook(strHookName.Get(), strClause.Get()))
+					{
+						OTLog::Error("OTScriptable::ProcessXMLNode: Failed adding hook to bylaw.\n");
+						delete pBylaw; pBylaw=NULL;
+						return (-1);
+					}
+					// ---------------------------------------
+				}				
+				else 
+				{
+					OTLog::Error("Expected hook element in bylaw, OTScriptable::ProcessXMLNode\n");
+					delete pBylaw; pBylaw=NULL;
+					return (-1); // error condition
+				}
+			} // while
 		}
-		// --------------------------------
+
+		// ---------------------------------------------------------------
 		
 		if (AddBylaw(*pBylaw))
 			OTLog::vOutput(2, "OTScriptable: Loaded Bylaw: %s\n", 
@@ -502,6 +654,29 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 }
 
 
+
+// Look up all clauses matching a specific hook.
+//
+bool OTScriptable::GetHooks(const std::string str_Name, mapOfClauses & theResults)
+{
+	bool bReturnVal = false;
+	
+	FOR_EACH(mapOfBylaws, m_mapBylaws)
+	{
+		OTBylaw * pBylaw = (*it).second;
+		OT_ASSERT(NULL != pBylaw);
+		// -------------------------
+		
+		// Look up all clauses matching a specific hook.
+		//
+		if (pBylaw->GetHooks(str_Name, theResults))
+			bReturnVal = true;
+	}
+	
+	return bReturnVal;
+}
+
+
 void OTScriptable::UpdateContents() // Before transmission or serialization, this is where the contract updates its contents 
 {		
 	// I release this because I'm about to repopulate it.
@@ -510,19 +685,17 @@ void OTScriptable::UpdateContents() // Before transmission or serialization, thi
 	m_xmlUnsigned.Concatenate("<scriptableContract>\n\n");
 	
 	
-	for (mapOfParties::iterator ii = m_mapParties.begin(); ii != m_mapParties.end(); ++ii)
+	FOR_EACH(mapOfParties, m_mapParties)
 	{
-		OTParty * pParty = (*ii).second;
-		
+		OTParty * pParty = (*it).second;
 		OT_ASSERT(NULL != pParty);
 		
 		pParty->Serialize(m_xmlUnsigned);		
 	}
 	
-	for (mapOfBylaws::iterator ii = m_mapBylaws.begin(); ii != m_mapBylaws.end(); ++ii)
+	FOR_EACH(mapOfBylaws, m_mapBylaws)
 	{
 		OTBylaw * pBylaw = (*ii).second;
-		
 		OT_ASSERT(NULL != pBylaw);
 		
 		pBylaw->Serialize(m_xmlUnsigned);

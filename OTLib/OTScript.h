@@ -161,6 +161,7 @@ protected:
     std::string     m_str_script;
     
     mapOfParties    m_mapParties; // no need to clean this up. Script doesn't own the parties, just references them.
+    mapOfVariables  m_mapVariables; // no need to clean this up. Script doesn't own the variables, just references them.
     
 	// List 
 	// Construction -- Destruction
@@ -191,8 +192,9 @@ public:
     // Therefore it's ASSUMED that the owner OTSmartContract will handle all the work of
     // cleaning up the mess!  theParty is passed as reference to insure it already exists.
     //
-    void AddParty(const std::string str_party_name, OTParty & theParty);
-
+    void AddParty       (const std::string str_party_name,    OTParty & theParty);
+    void AddVariable    (const std::string str_var_name,      OTVariable & theVar);
+    
     // Note: any relevant assets or asset accounts are listed by their owner / contributor
     // parties. Therefore there's no need to separately input any accounts or assets to
     // a script, since the necessary ones are already present inside their respective parties.

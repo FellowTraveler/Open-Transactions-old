@@ -406,7 +406,7 @@ bool OTCronItem::SaveCronReceipt()
 // This gives each item a chance to drop a final receipt,
 // and clean up any memory, before being destroyed.
 //
-void OTCronItem::HookRemovalFromCron(OTPseudonym * pRemover)
+void OTCronItem::HookRemovalFromCron(OTPseudonym * pRemover) // sometimes NULL.
 {
     OTCron * pCron  = GetCron();
     OT_ASSERT(NULL != pCron);

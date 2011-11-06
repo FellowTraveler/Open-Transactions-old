@@ -137,7 +137,6 @@
 
 #include "OTString.h"
 
-
 class OTIdentifier;
 
 // ------------------------------------------------------------------
@@ -153,6 +152,9 @@ class OTIdentifier;
 
 class OTPseudonym;
 class OTParty;
+
+class OTSmartContract;
+
 
 class OTAgent 
 {
@@ -189,8 +191,8 @@ private:
 	
 public:
 	OTAgent();
-	OTAgent(const std::string str_agent_name, OTPseudonym & theNym, bNymRepresentsSelf=true, 
-	/*IF false, then: ENTITY and ROLE parameters go here.*/);
+	OTAgent(const std::string str_agent_name, OTPseudonym & theNym, bool bNymRepresentsSelf=true); 
+	/*IF false, then: ENTITY and ROLE parameters go here.*/
 	//
 	// Someday another constructor here like the above, for
 	// instantiating with an Entity/Group instead of with a Nym.	
@@ -205,10 +207,25 @@ public:
 	
 	void Serialize(OTString & strAppend);
 
+	// For pointers I don't own, but store for convenience.
+	// This clears them once we're done processing, so I don't
+	// end up stuck with bad pointers on the next go-around.
+	//
+	void ClearTemporaryPointers() { m_pNym = NULL; } /* Someday clear entity/role ptr here? And do NOT
+													    clear party ptr here (since it's not temporary.)  */
+	
+	// This only harvests IF the Nym matches.
+	//
+	bool HarvestClosingNumber(OTPseudonym & theNym, const OTString & strServerID, const long & lClosingNumber);
+
     // ---------------------------------
 
     void SetParty(OTParty & theOwnerParty); // This happens when the agent is added to the party.
 	
+	void SetNymPointer(OTPseudonym & theNym) { m_pNym = &theNym; }
+	
+	bool IsValidSigner(OTPseudonym & theNym);
+
 	// ---------------------------------
     // Only one of these can be true:
     // (I wrestle with making these 2 calls private, since technically it should be irrelevant to the external.)
@@ -251,7 +268,8 @@ public:
     // Basically if !IsIndividual(), then GetSignerID() will fail and thus anything needing it as part of the
     // script would also therefore be impossible.
     //
-    bool GetSignerID(OTIdentifier& theOutput) const; // If IsIndividual() and DoesRepresentAnEntity() then this returns GetRoleID().
+    bool GetSignerID(OTIdentifier& theOutput) const;
+	// If IsIndividual() and DoesRepresentAnEntity() then this returns GetRoleID().
 	// else if Individual() and DoesRepresentHimself() then this returns GetNymID().
 	// else (if IsGroup()) then return false;
 	
@@ -296,6 +314,26 @@ public:
     // which becomes accessible when that Nym is loaded based on the Entity ID.
     // This also makes sure that Nyms and Entities don't ever share IDs, so the
     // IDs become more and more interchangeable.
+	
+	
+	OTPseudonym * LoadNym(OTPseudonym & theServerNym);
+	
+	bool DropFinalReceiptToNymbox(OTSmartContract & theSmartContract,
+								  const long & lNewTransactionNumber,
+								  const OTString & strOrigCronItem,
+								  OTString * pstrNote=NULL,
+								  OTString * pstrAttachment=NULL);
+
+	bool DropFinalReceiptToInbox(mapOfNyms * pNymMap,
+								 const OTString & strServerID,
+								 OTPseudonym & theServerNym,
+								 OTSmartContract & theSmartContract,
+								 const OTIdentifier & theAccountID,
+								 const long & lNewTransactionNumber,
+								 const long & lClosingNumber,
+								 const OTString & strOrigCronItem,
+								 OTString * pstrNote=NULL,
+								 OTString * pstrAttachment=NULL);
 };
 
 
@@ -345,6 +383,8 @@ class OTPartyAccount
 	OTString	m_strName;			// Name of the account (for use in scripts.)
 	OTString	m_strAcctID;		// The Account ID itself.
 
+	OTString	m_strAgentName;		// The name of the agent who has rights to this account.
+	
 	// -------------------------
 
 	// Entity, role, and Nym information are not stored here.
@@ -358,13 +398,19 @@ class OTPartyAccount
 	
 public:
 	OTPartyAccount();
-	OTPartyAccount(const std::string str_account_name, const OTAccount & theAccount, long lClosingTransNo);
-	OTPartyAccount(const OTString & strName, const OTString & strAcctID, long lClosingTransNo);
+	OTPartyAccount(const std::string str_account_name, const OTString & strAgentName, const OTAccount & theAccount, long lClosingTransNo);
+	OTPartyAccount(const OTString & strName, const OTString & strAgentName, const OTString & strAcctID, long lClosingTransNo);
 	
 	virtual ~OTPartyAccount();
 	
 	void Serialize(OTString & strAppend);
 
+	// For pointers I don't own, but store for convenience.
+	// This clears them once we're done processing, so I don't
+	// end up stuck with bad pointers on the next go-around.
+	//
+	void ClearTemporaryPointers() { m_pAccount = NULL; }
+	
 	// --------
 	
 	void SetParty(OTParty & theOwnerParty); // This happens when the partyaccount is added to the party. (so I have a ptr back)
@@ -372,6 +418,16 @@ public:
 	const OTString & GetName() { return m_strName; } // account's name as used in a script.
 	
 	long GetClosingTransNo() { return m_lClosingTransNo; }
+	// -----------
+	
+	bool DropFinalReceiptToInbox(mapOfNyms * pNymMap,
+								 const OTString & strServerID,
+								 OTPseudonym & theServerNym,
+								 OTSmartContract & theSmartContract,
+								 const long & lNewTransactionNumber,
+								 const OTString & strOrigCronItem,
+								 OTString * pstrNote=NULL,
+								 OTString * pstrAttachment=NULL);
 };
 
 
@@ -382,6 +438,7 @@ typedef std::map<std::string, OTPartyAccount *> mapOfPartyAccounts;
 
 // ------------------------------------------------------------
 
+class OTScriptable;
 
 // Party is always either an Owner Nym, or an Owner Entity formed by Contract.
 //
@@ -404,7 +461,8 @@ class OTParty
     bool m_bPartyIsNym;  // true, is "nym". false, is "entity".
     
 	std::string	m_str_owner_id;  // Nym ID or Entity ID.
-		
+	std::string m_str_authorizing_agent; // Contains the name of the authorizing agent (the one who supplied the opening Trans#)
+	
 	mapOfAgents			m_mapAgents; // These are owned.
 	mapOfPartyAccounts	m_mapPartyAccounts; // These are owned. Each contains a Closing Transaction#.
 	
@@ -416,9 +474,11 @@ class OTParty
 	// signed agreement INSIDE each party. The server can do the hard work of comparing them all, though such will
 	// probably occur through a comparison function I'll have to add right here in this class.
 	
+	OTScriptable *	m_pOwnerAgreement; // This Party is owned by an agreement (OTScriptable-derived.) Convenience pointer.
+
 public:
 	OTParty();
-	OTParty(const char * szName, bool bIsOwnerNym, const char * szOwnerID);
+	OTParty(const char * szName, bool bIsOwnerNym, const char * szOwnerID, const char * szAuthAgent);
 	OTParty(const std::string str_PartyName, OTPseudonym & theNym, OTAccount * pAccount=NULL);
 	
 	virtual ~OTParty();
@@ -427,6 +487,37 @@ public:
 //    OTParty& operator= (const OTParty & rhs);
 	
 	void Serialize(OTString & strAppend);
+	
+	// Clears temp pointers when I'm done with them, so I don't get stuck
+	// with bad addresses.
+	//
+	void ClearTemporaryPointers();
+	
+	void HarvestClosingNumbers(OTPseudonym & theNym, const OTString & strServerID);
+	
+	// ---------------------
+	// Iterates through the agents.
+	//
+	bool DropFinalReceiptToNymboxes(const long & lNewTransactionNumber,
+									const OTString & strOrigCronItem,
+									OTString * pstrNote=NULL,
+									OTString * pstrAttachment=NULL);
+	// -------------------------------------------
+	// Iterates through the accounts.
+	//
+	bool DropFinalReceiptToInboxes(mapOfNyms * pNymMap,
+								   const OTString & strServerID,
+								   OTPseudonym & theServerNym,
+								   const long & lNewTransactionNumber,
+								   const OTString & strOrigCronItem,
+								   OTString * pstrNote=NULL,
+								   OTString * pstrAttachment=NULL);
+	// ---------------------
+	
+	// This pointer isn't owned -- just stored for convenience.
+	//
+	OTScriptable * GetOwnerAgreement() { return m_pOwnerAgreement; }
+	void SetOwnerAgreement(OTScriptable& theOwner) { m_pOwnerAgreement = &theOwner; }
 	
 	// ---------------------
 	
@@ -474,16 +565,24 @@ public:
     // do those actions otherwise will fail.
     // It's almost a separate kind of party but not worthy of a separate class.
     //
+	bool HasAgent(OTPseudonym & theNym); // If Nym is agent for Party, set agent's pointer to Nym and return true.
     bool HasActiveAgent() const;
-
+	
+	OTAgent * GetAgent(const std::string & str_agent_name);
+	
 	int  GetAgentCount() const { return m_mapAgents.size(); }
-    
 	bool AddAgent(OTAgent& theAgent);
+	
+	bool HasAuthorizingAgent(OTPseudonym & theNym); // If Nym is authorizing agent for Party, set agent's pointer to Nym and return true.
+	OTPseudonym * LoadAuthorizingAgentNym(OTPseudonym & theSignerNym); // Load the authorizing agent from storage. Set agent's pointer to Nym.
+
 	// ----------------------------------------
 	
 	bool AddAccount(OTPartyAccount& thePartyAcct);
-	bool AddAccount(const OTString& strName, const OTString & strAcctID, const long lClosingTransNo);
-	bool AddAccount(const char * szAcctName, OTAccount& theAccount, const long lClosingTransNo);
+	bool AddAccount(const OTString& strAgentName, const OTString& strName, 
+					const OTString & strAcctID, const long lClosingTransNo);
+	bool AddAccount(const OTString& strAgentName, const char * szAcctName,
+					OTAccount& theAccount, const long lClosingTransNo);
 	
 	int GetAccountCount() const { return m_mapPartyAccounts.size(); }
 		
@@ -509,17 +608,71 @@ class OTBylaw;
 // ------------------------------------------------------------
 
 
+class OTVariable
+{
+public:
+	enum OTVariable_Type 
+	{
+		Var_String,		// std::string
+		Var_Long,		// Long integer.
+		Var_Error_Type	// should never happen.
+	};
+	
+	enum OTVariable_Access
+	{
+		Var_Constant,		// Constant -- you cannot change this value.
+		Var_Persistent,		// Persistent -- changing value doesn't require notice to parties.
+		Var_Important,		// Important -- changing value requires notice to parties.
+		Var_Error_Access	// should never happen.
+	};
+	
+private:
+	OTString	m_strName;		// Name of this variable.
+	std::string m_str_Value;	// If a string, the value is stored here.
+	long		m_lValue;		// If a long, the value is stored here.
+	OTBylaw	*	m_pBylaw;		// the Bylaw that this variable belongs to.
+	
+	OTVariable_Type		m_Type;  // Currently long or string.
+	OTVariable_Access	m_Access;  // Determines how the variable is used inside the script.
+	
+public:
+	void SetBylaw(OTBylaw& theBylaw) { m_pBylaw = &theBylaw; }
+	
+	OTVariable_Type		GetType() const { return m_Type; }
+	OTVariable_Access	GetAccess() const { return m_Access; }
+	
+	long		&	GetValueLong() { return m_lValue; }
+	std::string	&	GetValueString() { return m_str_Value; }
+	
+	// -------------------
+	OTVariable();
+	OTVariable(const std::string str_Name, const std::string str_Value,	const OTVariable_Access theAccess=Var_Persistent);
+	OTVariable(const std::string str_Name, const long lValue,			const OTVariable_Access theAccess=Var_Persistent);
+	
+	virtual ~OTVariable();
+	
+	void Serialize(OTString & strAppend);	
+};
 
+typedef std::map<std::string, OTVariable *> mapOfVariables;
+
+// ---------------------------------------
 
 class OTClause
 {
-	OTString	m_strName;		// Name of this Clause.
+	OTString	m_strName;	// Name of this Clause.
 	OTString	m_strCode;	// script code.
 	
 	OTBylaw	*	m_pBylaw; // the Bylaw that this clause belongs to.
 	
 public:
 	void SetBylaw(OTBylaw& theBylaw) { m_pBylaw = &theBylaw; }
+	
+	OTBylaw	* GetBylaw() const { return m_pBylaw; }
+	
+	const char * GetCode() const;
+	
+	// -------------
 	
 	OTClause();
 	OTClause(const char * szName, const char * szCode);
@@ -532,7 +685,19 @@ typedef std::map<std::string, OTClause *> mapOfClauses;
 
 
 
+
+
 // ------------------------------------------------------------
+
+// First is the name of some standard OT hook, like OnActivate, and Second is name of clause.
+// It's a multimap because you might have 6 or 7 clauses that all trigger on the same hook.
+//
+
+typedef std::multimap<std::string, std::string> mapOfHooks; 
+
+
+class OTScript;
+
 
 
 // A section of law, including its own clauses (scripts). A bylaw is kind of
@@ -544,18 +709,48 @@ class OTBylaw
 	OTString		m_strName;		// Name of this Bylaw.
 	OTString		m_strLanguage;	// Language that the scripts are written in, for this bylaw.
 
-	mapOfClauses	m_mapClauses;
+	mapOfVariables	m_mapVariables; // constant, persistant, and important variables (strings and longs)
+	mapOfClauses	m_mapClauses;	// map of scripts associated with this bylaw.
 	
+	mapOfHooks		m_mapHooks;		// multimap of server hooks associated with clauses.
 	
-	// TODO:  CONSTANTS / VARIABLES... 
+	OTScriptable *	m_pOwnerAgreement; // This Bylaw is owned by an agreement (OTScriptable-derived.)
 	
 public:
 	OTString & GetName() { return m_strName; }
 	
 	const char * GetLanguage() const;
 	
+	// ---------------------
+
+	bool AddVariable(OTVariable& theVariable);
+	bool AddVariable(const std::string str_Name, const std::string str_Value,	const OTVariable_Access theAccess=Var_Persistent);
+	bool AddVariable(const std::string str_Name, const long lValue,				const OTVariable_Access theAccess=Var_Persistent);
+	
+	OTVariable * GetVariable(const std::string str_Name); // not a reference, so you can pass in char *. Maybe that's bad? todo: research that.
+	
+	void RegisterVariablesForExecution(OTScript& theScript);
+	
+	// ---------------------
+	
 	bool AddClause(OTClause& theClause);
 	bool AddClause(const char * szName, const char * szCode);
+	
+	OTClause * GetClause(const std::string str_Name);
+
+	// ---------------------
+	
+	bool AddHook(const std::string str_Name, const std::string str_Clause); // name of hook such as OnActivate, and name of clause, such as sectionA (corresponding to an actual script in the clauses map.)
+	
+	bool GetHooks(const std::string str_Name, mapOfClauses & theResults); // Look up all clauses matching a specific hook.
+
+	// ---------------------
+	// This pointer isn't owned -- just stored for convenience.
+	//
+	OTScriptable * GetOwnerAgreement() { return m_pOwnerAgreement; }
+	void SetOwnerAgreement(OTScriptable& theOwner) { m_pOwnerAgreement = &theOwner; }
+	
+	// ---------------------
 	
 	OTBylaw();
 	OTBylaw(const char * szName, const char * szLanguage);

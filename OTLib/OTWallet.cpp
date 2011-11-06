@@ -279,12 +279,9 @@ bool OTWallet::SignContractWithFirstNymOnList(OTContract & theContract)
 // the wallet returns a pointer to that nym.
 OTPseudonym * OTWallet::GetNymByID(const OTIdentifier & NYM_ID)
 {
-	OTPseudonym * pNym = NULL;
-	
-	for (mapOfNyms::iterator ii = m_mapNyms.begin(); ii != m_mapNyms.end(); ++ii)
+	FOR_EACH(mapOfNyms, m_mapNyms)
 	{		
-		pNym = (*ii).second;
-		
+		OTPseudonym * pNym = (*it).second;
 		OT_ASSERT_MSG((NULL != pNym), "NULL pseudonym pointer in OTWallet::GetNymByID.");
 
 		OTIdentifier id_CurrentNym;
@@ -299,12 +296,10 @@ OTPseudonym * OTWallet::GetNymByID(const OTIdentifier & NYM_ID)
 
 OTPseudonym * OTWallet::GetNymByIDPartialMatch(const std::string PARTIAL_ID)
 {
-	OTPseudonym * pNym = NULL;
-	
-	for (mapOfNyms::iterator ii = m_mapNyms.begin(); ii != m_mapNyms.end(); ++ii)
+	FOR_EACH(mapOfNyms, m_mapNyms)
 	{		
-		pNym = (*ii).second;
-		OT_ASSERT_MSG((NULL != pNym), "NULL pseudonym pointer in OTWallet::GetNymByID.");
+		OTPseudonym * pNym = (*it).second;
+		OT_ASSERT_MSG((NULL != pNym), "NULL pseudonym pointer in OTWallet::GetNymByIDPartialMatch.");
         
 		OTString strTemp;
 		pNym->GetIdentifier(strTemp);
@@ -347,14 +342,16 @@ bool OTWallet::GetNym(const int iIndex, OTIdentifier & NYM_ID, OTString & NYM_NA
 	// if iIndex is within proper bounds (0 through count minus 1)
 	if (iIndex < GetNymCount() && iIndex >= 0)
 	{
-		OTPseudonym * pNym	= NULL;
 		int iCurrentIndex	= (-1);
 		
-		for (mapOfNyms::iterator ii = m_mapNyms.begin(); ii != m_mapNyms.end(); ++ii)
-		{	
+		FOR_EACH(mapOfNyms, m_mapNyms)
+		{
+			OTPseudonym * pNym = (*it).second;
+			OT_ASSERT(NULL != pNym);
+			
 			iCurrentIndex++; // On first iteration, this becomes 0 here. (For 0 index.) Increments thereafter.
 			
-			if ((iIndex == iCurrentIndex) && (pNym = (*ii).second)) // if not null
+			if (iIndex == iCurrentIndex)
 			{
 				pNym->GetIdentifier(NYM_ID);
 				NYM_NAME.Set(pNym->GetNymName());
@@ -373,14 +370,16 @@ bool OTWallet::GetServer(const int iIndex, OTIdentifier & THE_ID, OTString & THE
 	// if iIndex is within proper bounds (0 through count minus 1)
 	if (iIndex < GetServerCount() && iIndex >= 0)
 	{
-		OTServerContract * pServer	= NULL;
 		int iCurrentIndex	= (-1);
 		
-		for (mapOfServers::iterator ii = m_mapServers.begin(); ii != m_mapServers.end(); ++ii)
+		FOR_EACH(mapOfServers, m_mapServers)
 		{	
+			OTServerContract * pServer = (*it).second;
+			OT_ASSERT(NULL != pServer);
+			
 			iCurrentIndex++; // On first iteration, this becomes 0 here. (For 0 index.) Increments thereafter.
 			
-			if ((iIndex == iCurrentIndex) && (pServer = (*ii).second)) // if not null
+			if (iIndex == iCurrentIndex) // if not null
 			{
 				pServer->GetIdentifier(THE_ID);
 				pServer->GetName(THE_NAME);
@@ -398,14 +397,17 @@ bool OTWallet::GetAssetType(const int iIndex, OTIdentifier & THE_ID, OTString & 
 	// if iIndex is within proper bounds (0 through count minus 1)
 	if (iIndex < GetAssetTypeCount() && iIndex >= 0)
 	{
-		OTAssetContract	* pAssetType = NULL;
+		pAssetType = NULL;
 		int iCurrentIndex	= (-1);
 		
-		for (mapOfContracts::iterator ii = m_mapContracts.begin(); ii != m_mapContracts.end(); ++ii)
+		FOR_EACH(mapOfContracts, m_mapContracts)
 		{	
+			OTAssetContract * pAssetType = (*it).second;
+			OT_ASSERT(NULL != pAssetType);
+			
 			iCurrentIndex++; // On first iteration, this becomes 0 here. (For 0 index.) Increments thereafter.
 			
-			if ((iIndex == iCurrentIndex) && (pAssetType = (*ii).second)) // if not null
+			if (iIndex == iCurrentIndex) // if not null
 			{
 				pAssetType->GetIdentifier(THE_ID);
 				pAssetType->GetName(THE_NAME);
@@ -423,14 +425,16 @@ bool OTWallet::GetAccount(const int iIndex, OTIdentifier & THE_ID, OTString & TH
 	// if iIndex is within proper bounds (0 through count minus 1)
 	if (iIndex < GetAccountCount() && iIndex >= 0)
 	{
-		OTAccount * pAccount	= NULL;
 		int iCurrentIndex	= (-1);
 		
-		for (mapOfAccounts::iterator ii = m_mapAccounts.begin(); ii != m_mapAccounts.end(); ++ii)
+		FOR_EACH(mapOfAccounts, m_mapAccounts)
 		{	
+			OTAccount * pAccount = (*it).second;
+			OT_ASSERT(NULL != pAccount);
+			
 			iCurrentIndex++; // On first iteration, this becomes 0 here. (For 0 index.) Increments thereafter.
 			
-			if ((iIndex == iCurrentIndex) && (pAccount = (*ii).second)) // if not null
+			if (iIndex == iCurrentIndex) // if not null
 			{
 				pAccount->GetIdentifier(THE_ID);
 				pAccount->GetName(THE_NAME);
@@ -448,14 +452,11 @@ void OTWallet::DisplayStatistics(OTString & strOutput)
 	strOutput.Concatenate("\n-------------------------------------------------\n");
 	strOutput.Concatenate("WALLET STATISTICS:\n");
 	
-	OTPseudonym * pNym = NULL;
-	
 	strOutput.Concatenate("\nPSEUDONYM(s):\n\n");
 
-	for (mapOfNyms::iterator ii = m_mapNyms.begin(); ii != m_mapNyms.end(); ++ii)
+	FOR_EACH(mapOfNyms, m_mapNyms)
 	{		
-		pNym = (*ii).second;
-		
+		OTPseudonym * pNym = (*it).second;
 		OT_ASSERT_MSG((NULL != pNym), "NULL pseudonym pointer in OTWallet::m_mapNyms, OTWallet::DisplayStatistics.");
 
 		pNym->DisplayStatistics(strOutput);
@@ -465,13 +466,10 @@ void OTWallet::DisplayStatistics(OTString & strOutput)
 	
 	strOutput.Concatenate("\n-------------------------------------------------\n");
 	strOutput.Concatenate("ASSET CONTRACTS:\n\n");
-
-	OTContract * pContract = NULL;
 	
-	for (mapOfContracts::iterator i2i = m_mapContracts.begin(); i2i != m_mapContracts.end(); ++i2i)
+	FOR_EACH(mapOfContracts, m_mapContracts)
 	{
-		pContract = (*i2i).second;
-	 
+		OTContract * pContract = (*it).second;
 		OT_ASSERT_MSG(NULL != pContract, "NULL contract pointer in OTWallet::m_mapContracts, OTWallet::DisplayStatistics");
 	 
 		pContract->DisplayStatistics(strOutput);
@@ -481,13 +479,10 @@ void OTWallet::DisplayStatistics(OTString & strOutput)
 	
 	strOutput.Concatenate("-------------------------------------------------\n");
 	strOutput.Concatenate("SERVER CONTRACTS:\n\n");
-
-	OTContract * pServer = NULL;
 	
-	for (mapOfServers::iterator i3i = m_mapServers.begin(); i3i != m_mapServers.end(); ++i3i)
+	FOR_EACH(mapOfServers, m_mapServers)
 	{
-		pServer = (*i3i).second;
-	 
+		OTContract * pServer = (*it).second;
 		OT_ASSERT_MSG(NULL != pServer, "NULL server pointer in OTWallet::m_mapServers, OTWallet::DisplayStatistics");
 	 
 		pServer->DisplayStatistics(strOutput);
@@ -499,12 +494,9 @@ void OTWallet::DisplayStatistics(OTString & strOutput)
 	strOutput.Concatenate("-------------------------------------------------\n");
 	strOutput.Concatenate("ACCOUNTS:\n\n");
 	
-	OTAccount * pAccount = NULL;
-	
-	for (mapOfAccounts::iterator ii = m_mapAccounts.begin(); ii != m_mapAccounts.end(); ++ii)
+	FOR_EACH(mapOfAccounts, m_mapAccounts)
 	{
-		pAccount = (*ii).second;
-		
+		OTAccount * pAccount = (*it).second;
 		OT_ASSERT_MSG(NULL != pAccount, "NULL account pointer in OTWallet::m_mapAccounts, OTWallet::DisplayStatistics");
 		
 		pAccount->DisplayStatistics(strOutput);
@@ -532,14 +524,11 @@ void OTWallet::DisplayStatistics(OTString & strOutput)
 void OTWallet::AddNym(const OTPseudonym & theNym)
 {
 	const OTIdentifier	NYM_ID(theNym);
-
-	OTPseudonym * pNym	= NULL;
 	OTIdentifier aNymID;
 	
-	for (mapOfNyms::iterator ii = m_mapNyms.begin(); ii != m_mapNyms.end(); ++ii)
+	FOR_EACH(mapOfNyms, m_mapNyms)
 	{	
-		pNym = (*ii).second;
-		
+		OTPseudonym * pNym = (*it).second;
 		OT_ASSERT(NULL != pNym);
 		
 		pNym->GetIdentifier(aNymID);
@@ -549,7 +538,7 @@ void OTWallet::AddNym(const OTPseudonym & theNym)
 			OTString strName(pNym->GetNymName());
 			(const_cast<OTPseudonym &>(theNym)).SetNymName(strName);
 						
-			m_mapNyms.erase(ii);
+			m_mapNyms.erase(it);
 			delete pNym;
 			pNym = NULL;
 			
@@ -572,13 +561,11 @@ void OTWallet::AddAccount(const OTAccount & theAcct)
 	// See if there is already an account object on this wallet with the same ID
 	// (Otherwise if we don't delete it, this would be a memory leak.)
 	// Should use a smart pointer.
-	OTAccount * pAccount = NULL;
 	OTIdentifier anAccountID;
 	
-	for (mapOfAccounts::iterator ii = m_mapAccounts.begin(); ii != m_mapAccounts.end(); ++ii)
+	FOR_EACH(mapOfAccounts, m_mapAccounts)
 	{
-		pAccount = (*ii).second;
-		
+		OTAccount * pAccount = (*it).second;
 		OT_ASSERT(NULL != pAccount);
 		
 		pAccount->GetIdentifier(anAccountID);
@@ -591,9 +578,8 @@ void OTWallet::AddAccount(const OTAccount & theAcct)
 			if (strName.Exists())
 				((OTAccount &)theAcct).SetName(strName);
 						
-			m_mapAccounts.erase(ii);
-			delete pAccount;
-			pAccount = NULL;
+			m_mapAccounts.erase(it);
+			delete pAccount; pAccount = NULL;
 			
 			break;
 		}
@@ -609,11 +595,10 @@ void OTWallet::AddAccount(const OTAccount & theAcct)
 OTAccount * OTWallet::GetAccount(const OTIdentifier & theAccountID)
 {
 	// loop through the accounts and find one with a specific ID.
-	OTAccount * pAccount = NULL;
-	
-	for (mapOfAccounts::iterator ii = m_mapAccounts.begin(); ii != m_mapAccounts.end(); ++ii)
+	//
+	FOR_EACH(mapOfAccounts, m_mapAccounts)
 	{
-		pAccount = (*ii).second;
+		OTAccount * pAccount = (*it).second;
 		OT_ASSERT(NULL != pAccount);
 		
         OTIdentifier anAccountID;
@@ -629,11 +614,9 @@ OTAccount * OTWallet::GetAccount(const OTIdentifier & theAccountID)
 OTAccount * OTWallet::GetAccountPartialMatch(const std::string PARTIAL_ID)
 {
    	// loop through the accounts and find one with a specific ID.
-	OTAccount * pAccount = NULL;
-	
-	for (mapOfAccounts::iterator ii = m_mapAccounts.begin(); ii != m_mapAccounts.end(); ++ii)
+	FOR_EACH(mapOfAccounts, m_mapAccounts)
 	{
-		pAccount = (*ii).second;
+		OTAccount * pAccount = (*it).second;
 		OT_ASSERT(NULL != pAccount);
 		
         OTIdentifier anAccountID;
@@ -653,12 +636,9 @@ OTAccount * OTWallet::GetAccountPartialMatch(const std::string PARTIAL_ID)
 // Pass in the Server ID and get the pointer back.
 OTServerContract * OTWallet::GetServerContract(const OTIdentifier & SERVER_ID)
 {
-	OTContract * pServer = NULL;
-	
-	for (mapOfServers::iterator ii = m_mapServers.begin(); ii != m_mapServers.end(); ++ii)
+	FOR_EACH(mapOfServers, m_mapServers)
 	{
-		pServer = (*ii).second;
-		
+		OTContract * pServer = (*it).second;
 		OT_ASSERT_MSG((NULL != pServer), "NULL server pointer in OTWallet::m_mapServers, OTWallet::GetServerContract");
 		
 		OTIdentifier id_CurrentContract;
@@ -673,11 +653,9 @@ OTServerContract * OTWallet::GetServerContract(const OTIdentifier & SERVER_ID)
 
 OTServerContract * OTWallet::GetServerContractPartialMatch(const std::string PARTIAL_ID)
 {
-	OTContract * pServer = NULL;
-	
-	for (mapOfServers::iterator ii = m_mapServers.begin(); ii != m_mapServers.end(); ++ii)
+	FOR_EACH(mapOfServers, m_mapServers)
 	{
-		pServer = (*ii).second;
+		OTContract * pServer = (*it).second;
 		OT_ASSERT_MSG((NULL != pServer), "NULL server pointer in OTWallet::m_mapServers, OTWallet::GetServerContract");
 		
 		OTIdentifier id_CurrentContract;
@@ -759,13 +737,11 @@ void OTWallet::AddAssetContract(const OTAssetContract & theContract)
 bool OTWallet::RemoveAssetContract(const OTIdentifier & theTargetID)
 {
 	// loop through the items that make up this transaction and print them out here, base64-encoded, of course.
-	OTAssetContract * pContract = NULL;
 	OTIdentifier aContractID;
 	
-	for (mapOfContracts::iterator ii = m_mapContracts.begin(); ii != m_mapContracts.end(); ++ii)
+	FOR_EACH(mapOfContracts, m_mapContracts)
 	{
-		pContract = (*ii).second;
-		
+		OTAssetContract * pContract = (*it).second;
 		OT_ASSERT(NULL != pContract);
 		
 		pContract->GetIdentifier(aContractID);
@@ -785,12 +761,9 @@ bool OTWallet::RemoveAssetContract(const OTIdentifier & theTargetID)
 
 bool OTWallet::RemoveServerContract(const OTIdentifier & theTargetID)
 {
-	OTContract * pServer = NULL;
-	
-	for (mapOfServers::iterator ii = m_mapServers.begin(); ii != m_mapServers.end(); ++ii)
+	FOR_EACH(mapOfServers, m_mapServers)
 	{
-		pServer = (*ii).second;
-		
+		OTContract * pServer = (*it).second;
 		OT_ASSERT_MSG((NULL != pServer), "NULL server pointer in OTWallet::m_mapServers, OTWallet::RemoveServerContract");
 		
 		OTIdentifier id_CurrentContract;
@@ -813,12 +786,9 @@ bool OTWallet::RemoveServerContract(const OTIdentifier & theTargetID)
 // higher level version of this will require a server message, in addition to removing from wallet.
 bool OTWallet::RemoveNym(const OTIdentifier & theTargetID)
 {
-	OTPseudonym * pNym = NULL;
-	
-	for (mapOfNyms::iterator ii = m_mapNyms.begin(); ii != m_mapNyms.end(); ++ii)
+	FOR_EACH(mapOfNyms, m_mapNyms)
 	{		
-		pNym = (*ii).second;
-		
+		OTPseudonym * pNym = (*it).second;
 		OT_ASSERT_MSG((NULL != pNym), "NULL pseudonym pointer in OTWallet::RemoveNym.");
 		
 		OTIdentifier id_CurrentNym;
@@ -841,13 +811,11 @@ bool OTWallet::RemoveNym(const OTIdentifier & theTargetID)
 bool OTWallet::RemoveAccount(const OTIdentifier & theTargetID)
 {
 	// loop through the accounts and find one with a specific ID.
-	OTAccount * pAccount = NULL;
 	OTIdentifier anAccountID;
 	
-	for (mapOfAccounts::iterator ii = m_mapAccounts.begin(); ii != m_mapAccounts.end(); ++ii)
+	FOR_EACH(mapOfAccounts, m_mapAccounts)
 	{
-		pAccount = (*ii).second;
-		
+		OTAccount * pAccount = (*it).second;
 		OT_ASSERT(NULL != pAccount);
 		
 		pAccount->GetIdentifier(anAccountID);
@@ -871,12 +839,9 @@ bool OTWallet::RemoveAccount(const OTIdentifier & theTargetID)
 
 OTAssetContract * OTWallet::GetAssetContract(const OTIdentifier & theContractID)
 {
-	// loop through the items that make up this transaction and print them out here, base64-encoded, of course.
-	OTAssetContract * pContract = NULL;
-	
-	for (mapOfContracts::iterator ii = m_mapContracts.begin(); ii != m_mapContracts.end(); ++ii)
+	FOR_EACH(mapOfContracts, m_mapContracts)
 	{
-		pContract = (*ii).second;		
+		OTAssetContract * pContract = (*it).second;		
 		OT_ASSERT(NULL != pContract);
 		
         OTIdentifier aContractID;
@@ -891,12 +856,9 @@ OTAssetContract * OTWallet::GetAssetContract(const OTIdentifier & theContractID)
 
 OTAssetContract * OTWallet::GetAssetContractPartialMatch(const std::string PARTIAL_ID)
 {
-	// loop through the items that make up this transaction and print them out here, base64-encoded, of course.
-	OTAssetContract * pContract = NULL;
-	
-	for (mapOfContracts::iterator ii = m_mapContracts.begin(); ii != m_mapContracts.end(); ++ii)
+	FOR_EACH(mapOfContracts, m_mapContracts)
 	{
-		pContract = (*ii).second;		
+		OTAssetContract * pContract = (*it).second;		
 		OT_ASSERT(NULL != pContract);
 		
         OTIdentifier aContractID;
@@ -931,12 +893,9 @@ bool OTWallet::SaveContract(OTString & strContract)
 	//mapOfServers		m_mapServers;
 	//mapOfAccounts		m_mapAccounts; 
 	
-	OTPseudonym * pNym = NULL;
-	
-	for (mapOfNyms::iterator ii = m_mapNyms.begin(); ii != m_mapNyms.end(); ++ii)
+	FOR_EACH(mapOfNyms, m_mapNyms)
 	{	
-		pNym = (*ii).second;
-		
+		OTPseudonym * pNym = (*it).second;
 		OT_ASSERT_MSG(NULL != pNym, "NULL pseudonym pointer in OTWallet::m_mapNyms, OTWallet::SaveContract");
 		
 		pNym->SavePseudonymWallet(strContract);
@@ -944,12 +903,9 @@ bool OTWallet::SaveContract(OTString & strContract)
 	
 	// ---------------------------------------------------------------
 	
-	OTContract * pContract = NULL;
-	
-	for (mapOfContracts::iterator ii = m_mapContracts.begin(); ii != m_mapContracts.end(); ++ii)
+	FOR_EACH(mapOfContracts, m_mapContracts)
 	{
-		pContract = (*ii).second;
-		
+		OTContract * pContract = (*it).second;
 		OT_ASSERT_MSG(NULL != pContract, "NULL contract pointer in OTWallet::m_mapContracts, OTWallet::SaveContract");
 		
 		pContract->SaveContractWallet(strContract);
@@ -980,12 +936,9 @@ bool OTWallet::SaveContract(OTString & strContract)
 	
 	// ---------------------------------------------------------------
 	
-	OTContract * pServer = NULL;
-	
-	for (mapOfServers::iterator ii = m_mapServers.begin(); ii != m_mapServers.end(); ++ii)
+	FOR_EACH(mapOfServers, m_mapServers)
 	{
-		pServer = (*ii).second;
-		
+		OTContract * pServer = (*it).second;
 		OT_ASSERT_MSG(NULL != pServer, "NULL server pointer in OTWallet::m_mapServers, OTWallet::SaveContract");
 		
 		pServer->SaveContractWallet(strContract);
@@ -1012,13 +965,9 @@ bool OTWallet::SaveContract(OTString & strContract)
 	}
 	
 	// ---------------------------------------------------------------
-	
-	OTContract * pAccount = NULL;
-	
-	for (mapOfAccounts::iterator ii = m_mapAccounts.begin(); ii != m_mapAccounts.end(); ++ii)
+	FOR_EACH(mapOfAccounts, m_mapAccounts)
 	{
-		pAccount = (*ii).second;
-		
+		OTContract * pAccount = (*it).second;
 		OT_ASSERT_MSG(NULL != pAccount, "NULL account pointer in OTWallet::m_mapAccounts, OTWallet::SaveContract");
 		
 		pAccount->SaveContractWallet(strContract);

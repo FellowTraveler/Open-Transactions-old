@@ -136,35 +136,281 @@
 //
 // 1) The clauses and bylaws can be written in script language by
 //    the users, without having to change OT itself. SCRIPTABLE CLAUSES!
+//    Invent your own financial instruments and processes, involving
+//    multiple agents and asset accounts.
 // 2) Any number of parties can sign these contracts. 
 // 3) Each Party has a name, and can be referred to using that name
 //    from within the script code. Parties can also bring accounts and
-//    other assets into these agreements.
-// 4) A party can be an individual nym, or it can be an ENTITY formed
-//    by some prior agreement. 
+//    other assets into these agreements, and scripts can manipulate them.
+// 4) A party to an agreement can be an individual nym, OR it can be a
+//    fictional ENTITY formed by some prior agreement. 
 // 5) A party may have many agents. Since some parties are fictional
 //    entities (e.g. a corporation, a democracy, an estate for a deceased
 //    person, etc), parties are able to appoint agents to act on their
 //    behalf. Voting groups will soon be able to act as agents IN SOME
-//    RESPECTS.
+//    RESPECTS. (Voting groups are coming next, after smart contracts.)
 // 6) A Smart Contract has a list of parties, each with a list of agents.
 // 7) A Smart Contract also has a list of bylaws, each with a list of clauses.
-// 8) A Smart Contract can be activated, provided all parties have 
-//    properly signed, and can process repeatedly over time until deactivated.
-// 9) Users can decide which functions will activate--and when--and what powers
-//    will be vested in which parties and agents.
-//10) HOOKS -- Scripts trigger at various times such as onActivate,
-//    onDeactivate, onTrigger, etc. Perhaps a timer is set that the custom
-//    function "TransferEmergencyFunds" is triggered in 24 hours, or 30 days,
-//    or when the price of gold reaches X...
+// 8) A Smart Contract can be activated (provided all parties have 
+//    properly signed), and can it process repeatedly over time until
+//    deactivated.
+// 9) Users can decide which functions will activate--and when--and which
+//    powers will be vested in the various parties and agents.
+//10) HOOKS -- Scripts trigger upon various EVENTS such as onActivate,
+//    onDeactivate, onTrigger, etc. Perhaps a timer is set causing the custom
+//    function "TransferEmergencyFunds" to trigger in 24 hours, or 30 days,
+//    or when the price of gold reaches X... or however you code the scripted
+//    clauses in your contract...
+//
+// The design makes it easy to swap in different script languages. Currently
+// for experimental purposes I am using chaiscript.
+//
+
+
+
+
+/*
+ 
+ RUNNING LIST of standard hooks, functions, constants, variables, etc..
+ 
+ - I'm thinking that Constants and Variables should be available in OTBylaw AND OTScriptable.
+ - Ah maybe just have them in Bylaws only, and then have a "library" Bylaw that is "global" to the OTScriptable.
+ 
+ - OT Internal Functions will be available on server side inside scripts, just like OT API is
+   on client side. They're written in C++.
+ - Callbacks are the opposite: they're written in script, and available for the C++ to call when it needs to.
+ - Script Functions can be called by all parties, unless CanTriggerClause(name, party) returns false.
+ - Hooks should be stored as a list on the Bylaws. If hook "OnActivate" is triggered, then I ask each Bylaw to
+   run any relevant scripts for that hook.
+ 
+ 
+ 
+ ------------------------------------------------------------------------
+ 
+ 
+ VARIABLES  (These are changed values you can store inside your smart contract, which stay persistent between runs.)
+
+ -- The first one of these will probably be a timer variable, used with OnProcess() to trigger some
+	timed clause.  You'll set it to 100, then decrement every call, then trigger when it hits zero.
+    (Or trigger every time X person withdraws money, etc.)
+ 
+ -- Let's say a contract processes 100 times but only does something important the last time. Do I REALLY
+    need a receipt for every fucking 100 times just because some timer variable changed? Therefore, probably
+    want to strictly define two types of variables:  Those that require a receipt when they change, and those
+    that do not.  Therefore:
+ 
+ TYPES:   Constant (cannot change), Persistent (stores over time; change doesn't require noticing the parties), 
+          Important (Stores over time; change requires notice to the parties).
+ 
+ Any notice should be accompanied by a notice # so parties can see if they missed a notice.
+ 
+ ------------------------------------------------------------------------
+ 
+ 
+ CONSTANTS   (These are standard values available inside any script.)
+ 
+ -- ProcessInterval. (The contract will activate every X seconds. Default 30.)
+ 
+ NOTE:  I probably won't let users change this, but rather, will let them 
+ use a multiple of it.  Or maybe I'll let them have fine-tuned timing, but just
+ charge them for it via server fees.
+ 
+ ------------------------------------------------------------------------
+ 
+ CALLBACKS   (OT will call these scripts when it needs an answer to something.)
+ 
+ -- CanDeactivate(Party). Script returns true/false whether Party is allowed to deactivate the contract.
+    Anyone party to the contract can cancel it, by default. (You can change that with this callback.)
+ 
+ -- CanTriggerClause(Party, Clause).  Script returns whether Party is allowed to call this clause. Default true.
+ 
+ ------------------------------------------------------------------------
+ 
+ OT INTERNAL FUNCTIONS   (Calls into OT that you can make from inside your scripts.)
+ 
+ -- These are like the OT API calls, except on the server side. Examples?
+ 
+ -- ExecuteClause(Bylaw, Clause)
+ -- ExecuteClause(Clause)
+ 
+    These allow you to, from inside a clause, execute any other clause on the same contract.
+ 
+ -- FlagForRemoval()    This removes the script from Cron. Deactivates it.
+ 
+ -- Imagine OTParty->SendMessage(OtherParty). CANNOT DO THIS. Why not? Because on the client side, the sender
+	can actually sign the thing before sending it. But on the server side, the server cannot sign with someone's
+    nym since it doesn't have that private key. It CAN verify contracts, and transfer money, check balances, etc.
+ 
+ -- Definitely a call that transfers money from one Party's account to another, dropping a receipt.
+ 
+ -- Calls that withdraw money and return a financial instrument. For example: "Take 100 clams out of Jim's acct,
+    issue a server cheque for 100 clams, and send it to George."  You might ask, why not just have the cheque come
+    from Jim directly?  Answer: Because the server can't forge Jim's signature. Instead, the server justifies the
+    action to Jim by providing a copy of the script contract in his inbox receipt when it takes the money. It signs
+    its own cheque, which is something it actually can do, and it sends it to George. A copy is sent to all parties
+    so they can prove later on whether the voucher was redeemed. But they can't redeem it themselves, since it is
+    made out to George.
+ 
+ -- Interesting: Certain instruments REQUIRE the client side! The server can't withdraw cash on your behalf since
+    it can't generate the prototokens, nor can it unblind them. The server can't write a cheque on your behalf since
+    it can't forge your signature.  It CAN withdraw cash on its own, and send to whoever you want, but then you have
+    to trust the server not trace that cash (it's traceable in that case.) It CAN write a cheque on your behalf, but
+    of course you have to trust the server that the money will be there when that cheque is cashed.  It CANNOT create
+    a market order on your behalf! You have to sign that when you do it.  It CANNOT activate some new smart contract
+    on your behalf, since it can't forge your signature. It CANNOT initiate a transfer (since you must sign.) Instead
+    it just moves the funds and leaves you a copy of the script as your receipt. (You DID sign the script, so it IS
+    a good enough receipt for that.)  I suppose that it CAN exchange you in/out of a basket, although normally you'd
+    expect a receipt showing your request. I guess future versions of OT can be smart enough to interpret a basket
+    receipt in different ways, depending on whether the InRefTo contains an exchange request or a smart contract.
+ 
+ -- A call that ADDS a script to a hook. Imagine there 100 different hooks: you don't actually have scripts for
+    all of them!!! But perhaps you have a certain script, that gets ATTACHED to a hook at some point, based on
+    script logic, and then THEREAFTER activates on that hook when it previously didn't. Therefore even OnActivate()
+    and OnDeactivate() should have their own actual script names, and then those scripts are attached to the hooks
+    known as OnActivate and OnDeactivate().  The portion of the smart contract that attaches them changes over time,
+    as this call is made, adding them and removing them.
+    It could be that ONE script is registered to a hook, and then some event causes it to be de-registered
+    and then another one is registered to take its place!
+ 
+ -- Functions to send notices to various parties and inboxes. (The server can't forge a party's message to
+    another, but it CAN send them all a message from the server itself.) Therefore NOTICES.
+ 
+ -- Anytime funds are moved between accounts, they should get a scriptReceipt aka paymentReceipt type deal.
+ 
+ ------------------------------------------------------------------------
+ 
+ SCRIPT FUNCTIONS   (Scripts you add to your smart contract, which can be triggered by parties.)
+ 
+ -- First one will probably be "DisputeEscrow()" for the escrow contract.
+ 
+ -- Might be nice to have clauses that are available for others to call. 
+    Perhaps a "library" Bylaw that other bylaws have access to.
+ 
+ ------------------------------------------------------------------------
+ 
+ HOOKS       (Scripts you add to your smart contract, which will trigger automatically upon specific events.)
+ 
+ -- OnActivate()		This happens when script is first activated.
+ -- OnDeactivate()		This happens when script is deactivated.
+ -- OnProcess()			This happens every ProcessInterval.
+ -- OnExpire()			Happens when the script is deactivated due to reaching end of valid date/time range.
+ 
+ 
+ 
+ OTHER HOOKS?
+ 
+ 
+ Bylaws need to have a list of hooks, where the hook name corresponds to the clause name.
+ Just as they have a list of clauses, they also need a list of the hooks those clauses are triggered by.
+ 
+ */
+
+
+#include <map>
+
 
 #include "OTStorage.h"
 
 #include "OTIdentifier.h"
 #include "OTPseudonym.h"
+
+#include "OTContract.h"
+
 #include "OTCron.h"
 #include "OTSmartContract.h"
 #include "OTLog.h"
+
+#include "OTScript.h"
+
+
+// -----------------------------------------------------------------
+
+
+#ifndef SMART_CONTRACT_PROCESS_INTERVAL	
+#define SMART_CONTRACT_PROCESS_INTERVAL		30		// 30 seconds
+#endif
+
+// -----------------------------------------------------------------
+
+// HOOKS
+
+
+// Called regularly.
+//
+#ifndef SMART_CONTRACT_HOOK_ON_PROCESS
+#define SMART_CONTRACT_HOOK_ON_PROCESS		"cron_process"
+#endif
+
+// This is called when the contract is 
+// first activated.
+//
+#ifndef SMART_CONTRACT_HOOK_ON_ACTIVATE
+#define SMART_CONTRACT_HOOK_ON_ACTIVATE		"cron_activate"
+#endif
+
+
+// Called when a party removes the 
+// contract from processing.
+//
+#ifndef SMART_CONTRACT_HOOK_ON_REMOVE
+#define SMART_CONTRACT_HOOK_ON_REMOVE		"cron_remove"
+#endif
+
+// When it expires due to date range.
+//
+#ifndef SMART_CONTRACT_HOOK_ON_EXPIRE
+#define SMART_CONTRACT_HOOK_ON_EXPIRE		"cron_expire"
+#endif
+
+
+// Called in OnRemove and OnExpire,
+// at the bottom.
+//
+#ifndef SMART_CONTRACT_HOOK_ON_DEACTIVATE
+#define SMART_CONTRACT_HOOK_ON_DEACTIVATE	"cron_deactivate"
+#endif
+
+// -----------------------------------------------------------------
+
+
+
+
+
+
+void RegisterOTNativeCallsWithScript(OTScript & theScript)
+{
+	using namespace chaiscript;
+	
+	// In the future, this will be polymorphic.
+	// But for now, I'm forcing things...
+	
+	OTScriptChai * pScript = dynamic_cast<OTScriptChai *> (&theScript);
+	
+	if (NULL != pScript)
+	{
+		/*
+		pScript->chai.add(fun(&OT_API_CreateNym), "OT_API_CreateNym");
+        pScript->chai.add(fun(&OT_API_AddServerContract), "OT_API_AddServerContract");
+        pScript->chai.add(fun(&OT_API_AddAssetContract), "OT_API_AddAssetContract");
+        pScript->chai.add(fun(&OT_API_GetServerCount), "OT_API_GetServerCount");
+        pScript->chai.add(fun(&OT_API_GetAssetTypeCount), "OT_API_GetAssetTypeCount");
+        pScript->chai.add(fun(&OT_API_GetAccountCount), "OT_API_GetAccountCount");
+        pScript->chai.add(fun(&OT_API_GetNymCount), "OT_API_GetNymCount");
+        pScript->chai.add(fun(&OT_API_GetServer_ID), "OT_API_GetServer_ID");
+        pScript->chai.add(fun(&OT_API_GetServer_Name), "OT_API_GetServer_Name");
+        pScript->chai.add(fun(&OT_API_GetAssetType_ID), "OT_API_GetAssetType_ID");
+        pScript->chai.add(fun(&OT_API_GetAssetType_Name), "OT_API_GetAssetType_Name");
+		*/
+	}
+	else {
+		OTLog::Error("Failed dynamic casting OTScript to OTScriptChai \n");
+	}
+	
+}
+
+
+
+
 
 
 
@@ -176,14 +422,18 @@
 //
 void OTSmartContract::onFinalReceipt(OTCronItem & theOrigCronItem, const long & lNewTransactionNumber,
 									 OTPseudonym & theOriginator,
-									 OTPseudonym * pRemover)
+									 OTPseudonym * pActingNym) // AKA "pRemover" in any other onFinalReceipt. Could be NULL.
 {    
     OTCron * pCron  = GetCron();
     OT_ASSERT(NULL != pCron);
     
+    // ----------------------------------
+	
     OTPseudonym * pServerNym = pCron->GetServerNym();
     OT_ASSERT(NULL != pServerNym);
     
+    const OTString strServerID(GetServerID());
+
     // -------------------------------------------------
     
     // The finalReceipt Item's ATTACHMENT contains the UPDATED Cron Item.
@@ -195,207 +445,223 @@ void OTSmartContract::onFinalReceipt(OTCronItem & theOrigCronItem, const long & 
     const OTString strOrigCronItem(theOrigCronItem);
     // -----------------------------------------------------------------
 
+	// IF server is originator and/or remover then swap it in for it/them so I don't load it twice.
+	// (already handled before this function is called.)
+	// ----------------------------------------
+	// THIS FUNCTION:
+	//
+	//
+	// LOOP through all parties.
+	// For each party:
+	// If party is server or originator or ActingNym, etc then set pointer appropriately for that party.
+	// Find opening and closing numbers for that party.
+	// Drop finalReceipt to Inboxes for each asset account, using closing numbers.
+	// Drop finalReceipt to Nymbox for that party, using opening number.
+	//
+	// A similar process should happen whenever ANY contract action occurs. (Not just finalReceipt)
+	// We loop through all the parties and give them a receipt in the relevant accounts.
+	// And perhaps all notices should be numbered (similar to request number) so that 
+	// people can prove which notices they have received.
+	// Receipts are given based on?
+	// The asset accounts that are CHANGED should definitely get an agreementReceipt for the
+	// balance change.  + All Nymboxes should receive a notice at that time. They should receive
+	// additional notice for any change in any variable as well. Maybe let parties register for
+	// various notices.
+	// What about if a clause processes, but no asset accounts are changed, (no inbox notice)
+	// and no other variables are changed (no nymbox notices at all...) In that case,
+	// no other receipts are dropped, right? There will be some standard by which DIRTY flags
+	// are set onto the various parties and asset accounts, and then notices will be sent based
+	// upon those.
+	// 
+	// For those, instead of:
+	// "theOriginator" (GetSenderUserID()) and "pRemover" and pRecipient,
+	//
+	// We would have:
+	// "theOriginator" (GetSenderUserID()) and "pActingNym" and pParty / pPartyNym (FOR_EACH Party[0..n])
+	//
+	// Just like here:
+	//
     
-    OTPseudonym theRecipientNym; // Don't use this... use the pointer just below.
-    
-    // The Nym who is actively requesting to remove a cron item will be passed in as pRemover.
-    // However, sometimes there is no Nym... perhaps it just expired and pRemover is NULL.
-    // The originating Nym (if different than remover) is loaded up. Otherwise the originator
-    // pointer just points to *pRemover.
-    //
-    OTPseudonym * pRecipient = NULL;
-    
-    if (pServerNym->CompareID(this->GetRecipientUserID()))
-    {
-        pRecipient = pServerNym; // Just in case the recipient Nym is also the server Nym.
-    }
-    // *******************************************************
-    //
-    // If pRemover is NOT NULL, and he has the Recipient's ID...
-    // then set the pointer accordingly.
-    //
-    else if ((NULL != pRemover) && (true == pRemover->CompareID(this->GetRecipientUserID())))
-    {
-        pRecipient = pRemover; // <======== now both pointers are set (to same Nym). DONE!
-    }
-    // --------------------------------------------------------------------------------------------------
+	FOR_EACH(mapOfParties, m_mapParties)
+	{
+		OTParty * pParty = (*it).second;
+		OT_ASSERT_MSG(NULL != pParty, "Unexpected NULL pointer in party map.");
+		// --------------------------------------------
+		
+		// The Nym who is actively requesting to remove a cron item will be passed in as pActingNym.
+		// However, sometimes there is no Nym... perhaps it just expired and pActingNym is NULL.
+		// The originating Nym (if different than pActingNym) is loaded up. Otherwise theOriginator
+		// just points to *pActingNym also.
+		//
+		OTPseudonym * pPartyNym = NULL;
+		OTCleanup<OTPseudonym> thePartyNymAngel; // In case we have to allocate. 
+		
+		// ---------------------------
+		
+		// See if the serverNym is an agent on this party.
+		//
+		if (pParty->HasAuthorizingAgent(*pServerNym)) // This should set the temp nym ptr inside the agent also, so I don't have to search twice.
+		{
+			pPartyNym = pServerNym; // Just in case the party's agent's Nym is also the server Nym.
+		}		
+		// *******************************************************
+		//
+		// If pActingNym is NOT NULL, and HE is an agent on this party...
+		// then set the pointer accordingly.
+		//
+		else if ((NULL != pActingNym) && pParty->HasAuthorizingAgent(*pActingNym)) // There is only one authorizing agent per party.
+		{
+			pPartyNym = pActingNym; // <======== now both pointers are set (to same Nym). DONE!
+		}
+		// --------------------------------------------------------------------------------------------------
 
-    if (NULL == pRecipient)
-    {
-        // GetSenderUserID() should be the same on THIS (updated version of the same cron item) 
-        // but for whatever reason, I'm checking the userID on the original version. Sue me.
-        //
-        const OTIdentifier NYM_ID(this->GetRecipientUserID());
-        
-        theRecipientNym.SetIdentifier(NYM_ID);  
-        
-        if (false == theRecipientNym.LoadPublicKey())
-        {
-            OTString strNymID(NYM_ID);
-            OTLog::vError("OTSmartContract::onFinalReceipt: Failure loading Recipient's public key:\n%s\n", strNymID.Get());
-        }		
-        else if (theRecipientNym.VerifyPseudonym() && 
-                 theRecipientNym.LoadSignedNymfile(*pServerNym)) // ServerNym here is merely the signer on this file.
-        {
-            pRecipient = &theRecipientNym; //  <=====
-        }
-        else 
-        {
-            OTString strNymID(NYM_ID);
-            OTLog::vError("OTSmartContract::onFinalReceipt: Failure verifying Recipient's public key or loading signed nymfile: %s\n",
-                          strNymID.Get());
-        }
-    }
-    
-    // -------------------------------
+		// Still not found?
+		if (NULL == pPartyNym)
+		{
+			// Of all of a party's Agents, the "authorizing agent" is the one who originally activated
+			// the agreement for this party (and fronted the opening trans#.) If we're ending the agreement,
+			// Then we need to free that number from him. (Even if he was since fired from the role!)
+			// 
+			// Perhaps need to figure out if the Role itself stores the opening number, and if so, treat
+			// the Nym's signature as the role's, even though the Nym himself doesn't actually store the #.
+			// Anyway, I'll deal with that when I get to entities and roles. Todo.
+			//
+			pPartyNym = pParty->LoadAuthorizingAgentNym(*pServerNym);
+			
+			if (NULL != pPartyNym)
+				thePartyNymAngel.SetCleanupTarget(*pPartyNym);
+		}
+		
+		// Every party SHOULD have an authorizing agent (otherwise how did that party sign on in the first
+		// place??) So this should never fail. That's why there's an error message below if it's still NULL.
+		//
+		// ***********************************************
+		
+		if ((NULL != pPartyNym) && 
+			(pParty->GetOpeningTransNo() > 0) && 
+			// Todo: once entities and roles are added, Parties should have their OWN "verify" function
+			// (Instead of me having to directly find the Nym and verify it myself.)
+			//
+			pPartyNym->VerifyIssuedNum(strServerID, pParty->GetOpeningTransNo()) // <=====================
+			)
+		{
+			// The Nym (server side) stores a list of all opening and closing cron #s.
+			// So when the number is released from the Nym, we also take it off that list.
+			//
+			std::set<long> & theIDSet = pPartyNym->GetSetOpenCronItems();
+			theIDSet.erase(pParty->GetOpeningTransNo());
+			
+			// the RemoveIssued call means the original transaction# (to find this cron item on cron) is now CLOSED.
+			// But the Transaction itself is still OPEN. How? Because the CLOSING number is still signed out.
+			// The closing number is also USED, since the smart contract was initially activated, but it remains
+			// ISSUED, until the final receipt itself is accepted during a process inbox.
+			//
+			pPartyNym->RemoveIssuedNum(*pServerNym, strServerID, pParty->GetOpeningTransNo(), false); //bSave=false       
+			pPartyNym->SaveSignedNymfile(*pServerNym);
+		}
+		else
+		{
+			OTLog::Error("OTSmartContract::onFinalReceipt: Failed verifying "
+						 "pPartyNym != NULL && pParty->GetOpeningTransNo() > 0 &&  "
+						 "pPartyNym->VerifyIssuedNum(pParty->GetOpeningTransNo())\n");
+		}
+		// -------------------------
+		//
+		// NOTIFY ALL AGENTS for this party, with a copy of the finalReceipt in their Nymbox.
+		//
+		// TOdo: if the above block fails, should I still go dropping these receipts?
+		// 
+		if ((false == pParty->DropFinalReceiptToNymboxes(lNewTransactionNumber, // new, owned by the server. For notices.
+														 strOrigCronItem,
+														 NULL,
+														 pstrAttachment)))
+		{
+			OTLog::Error("OTSmartContract::onFinalReceipt: Failure dropping final receipt into nymbox for even a single agent.\n");
+		}
+		
+		// -----------------------------------------------------------------
+		// So the same Nym doesn't get loaded twice on accident. (We pass in pointers to nyms that
+		// are already loaded, so the called function can use them instead of loading, if it came
+		// to that.)
+		//
+//		typedef std::map	<std::string, OTPseudonym *>	mapOfNyms;
 
-    // First, we are closing the transaction number ITSELF, of this cron item,
-    // as an active issued number on the originating nym. (Changing it to CLOSED.)
-    //
-    // Second, we're verifying the CLOSING number, and using it as the closing number
-    // on the FINAL RECEIPT (with that receipt being "InReferenceTo" this->GetTransactionNum())
-    //
-    const long lRecipientOpeningNumber = this->GetRecipientOpeningNum();
-    const long lRecipientClosingNumber = this->GetRecipientClosingNum();
-    
-    // -----------------------------------------------------------------------------------
-    const long lSenderOpeningNumber = theOrigCronItem.GetTransactionNum();
+		mapOfNyms	nym_map; 
+		
+		// -----------------------------------------------------------------------------------------
+		// pServerNym
+		{
+			const OTIdentifier	theServerNymID (*pServerNym);
+			const OTString		strServerNymID (theServerNymID); // <--
+			
+			mapOfNyms::iterator iiii = nym_map.find(strServerNymID.Get());
+			
+			if ( nym_map.end() == iiii) // wasn't already there
+				nym_map.insert(std::pair<std::string, OTPseudonym *>(strServerNymID.Get(), pServerNym));
+		}
+		// -----------------------------------------------------------------------------------------
+		// theOriginator
+		{
+			const OTIdentifier	theOriginatorNymID (theOriginator);
+			const OTString		strOriginatorNymID (theOriginatorNymID); // <--
+			
+			mapOfNyms::iterator iiii = nym_map.find(strOriginatorNymID.Get());
 
-    const long lSenderClosingNumber = (theOrigCronItem.GetCountClosingNumbers() > 0) ? 
-        theOrigCronItem.GetClosingTransactionNoAt(0) : 0; // index 0 is closing number for sender, since GetTransactionNum() is his opening #.
-    
-    // ----------------------------------
-        
-    const OTString strServerID(GetServerID());
-    
-    // -----------------------------------------------------------------
-    //
-    
-    if ((lSenderOpeningNumber > 0) &&
-        theOriginator.VerifyIssuedNum(strServerID, lSenderOpeningNumber))
-    {
-        // The Nym (server side) stores a list of all opening and closing cron #s.
-        // So when the number is released from the Nym, we also take it off that list.
-        //
-        std::set<long> & theIDSet = theOriginator.GetSetOpenCronItems();
-        theIDSet.erase(lSenderOpeningNumber);
-        
-        // the RemoveIssued call means the original transaction# (to find this cron item on cron) is now CLOSED.
-        // But the Transaction itself is still OPEN. How? Because the CLOSING number is still signed out.
-        // The closing number is also USED, since the NotarizePaymentPlan or NotarizeMarketOffer call, but it
-        // remains ISSUED, until the final receipt itself is accepted during a process inbox.
-        //
-        theOriginator.RemoveIssuedNum(*pServerNym, strServerID, lSenderOpeningNumber, false); //bSave=false
-        theOriginator.SaveSignedNymfile(*pServerNym);
-        
-        if (false == this->DropFinalReceiptToNymbox(GetSenderUserID(),
-                                                    lNewTransactionNumber,
-                                                    strOrigCronItem,
-                                                    NULL,
-                                                    pstrAttachment))
-        {
-            OTLog::Error("OTSmartContract::onFinalReceipt: Failure dropping sender final receipt into nymbox.\n");
-        }        
-    }
-    else
-    {
-        OTLog::Error("OTSmartContract::onFinalReceipt: Failure verifying sender's opening number.\n");
-    }
-    
-    // -----------------------------------------------------------------
-    
-    if ((lSenderClosingNumber > 0) &&
-        theOriginator.VerifyIssuedNum(strServerID, lSenderClosingNumber)         
-        ) // ---------------------------------------------------------------
-    {
-        // In this case, I'm passing NULL for pstrNote, since there is no note.
-        // (Additional information would normally be stored in the note.) 
-        
-        if (false == this->DropFinalReceiptToInbox(GetSenderUserID(),
-                                          GetSenderAcctID(),
-                                          lNewTransactionNumber,
-                                          lSenderClosingNumber, // The closing transaction number to put on the receipt.
-                                          strOrigCronItem,
-                                          NULL, 
-                                          pstrAttachment))
-            OTLog::Error("OTSmartContract::onFinalReceipt: Failure dropping receipt into sender's inbox.\n");
+			if ( nym_map.end() ==  iiii)// wasn't already there
+				nym_map.insert(std::pair<std::string, OTPseudonym *>(strOriginatorNymID.Get(), &theOriginator));
+		}
+		// -----------------------------------------------------------------------------------------
+		if (NULL != pActingNym)
+		{
+			const OTIdentifier	theActingNymID (*pActingNym);
+			const OTString		strActingNymID (theActingNymID); // <--
+			
+			mapOfNyms::iterator iiii = nym_map.find(strActingNymID.Get());
 
-        // This part below doesn't happen until theOriginator ACCEPTS the final receipt (when processing his inbox.)
-        //
-//      theOriginator.RemoveIssuedNum(strServerID, lSenderClosingNumber, true); //bSave=false
-    }
-    else
-    {
-        OTLog::Error("OTSmartContract::onFinalReceipt: Failed verifying lSenderClosingNumber=theOrigCronItem.GetClosingTransactionNoAt(0)>0 &&  "
-                     "theOriginator.VerifyTransactionNum(lSenderClosingNumber)\n");
-    }
-    // -----------------------------------------------------------------
-    //
-    if ((NULL != pRecipient) && (lRecipientOpeningNumber > 0) && 
-        pRecipient->VerifyIssuedNum(strServerID, lRecipientOpeningNumber)
-        )
-    {
-        // The Nym (server side) stores a list of all opening and closing cron #s.
-        // So when the number is released from the Nym, we also take it off that list.
-        //
-        std::set<long> & theIDSet = pRecipient->GetSetOpenCronItems();
-        theIDSet.erase(lRecipientOpeningNumber);
-        
-        // the RemoveIssued call means the original transaction# (to find this cron item on cron) is now CLOSED.
-        // But the Transaction itself is still OPEN. How? Because the CLOSING number is still signed out.
-        // The closing number is also USED, since the NotarizePaymentPlan or NotarizeMarketOffer call, but it
-        // remains ISSUED, until the final receipt itself is accepted during a process inbox.
-        //
-        pRecipient->RemoveIssuedNum(*pServerNym, strServerID, lRecipientOpeningNumber, false); //bSave=false       
-        pRecipient->SaveSignedNymfile(*pServerNym);
-        
-        if (false == this->DropFinalReceiptToNymbox(GetRecipientUserID(),
-                                                    lNewTransactionNumber,
-                                                    strOrigCronItem,
-                                                    NULL,
-                                                    pstrAttachment))
-        {
-            OTLog::Error("OTSmartContract::onFinalReceipt: Failure dropping recipient final receipt into nymbox.\n");
-        }
-    }
-    else
-    {
-        OTLog::Error("OTSmartContract::onFinalReceipt: Failed verifying "
-                     "lRecipientClosingNumber=this->GetRecipientClosingTransactionNoAt(1)>0 &&  "
-                     "pRecipient->VerifyTransactionNum(lRecipientClosingNumber) && VerifyIssuedNum(lRecipientOpeningNumber)\n");
-    }
-    
-    // -----------------------------------------------------------------
-    
-    if ((NULL != pRecipient) && (lRecipientClosingNumber > 0) && 
-        pRecipient->VerifyIssuedNum(strServerID, lRecipientClosingNumber)
-        )
-    {
-        if (false == this->DropFinalReceiptToInbox(GetRecipientUserID(),
-                                      GetRecipientAcctID(),
-                                      lNewTransactionNumber,
-                                      lRecipientClosingNumber, // The closing transaction number to put on the receipt.
-                                      strOrigCronItem,
-                                      NULL,
-                                      pstrAttachment))
-            OTLog::Error("OTSmartContract::onFinalReceipt: Failure dropping receipt into recipient's inbox.\n");
+			if ( nym_map.end() ==  iiii) // wasn't already there
+				nym_map.insert(std::pair<std::string, OTPseudonym *>(strActingNymID.Get(), pActingNym));
+		}
+		// -----------------------------------------------------------------------------------------
+		if (NULL != pPartyNym)
+		{
+			const OTIdentifier	thePartyNymID (*pPartyNym);
+			const OTString		strPartyNymID (thePartyNymID); // <--
+			
 
-        // This part below doesn't happen until pRecipient ACCEPTs the final receipt (when processing his inbox.)
-        //
-//      pRecipient->RemoveIssuedNum(strServerID, lRecipientClosingNumber, true); //bSave=false
-    }
-    else
-    {
-        OTLog::Error("OTSmartContract::onFinalReceipt: Failed verifying "
-                     "lRecipientClosingNumber=this->GetRecipientClosingTransactionNoAt(1)>0 &&  "
-                     "pRecipient->VerifyTransactionNum(lRecipientClosingNumber) && VerifyIssuedNum(lRecipientOpeningNumber)\n");
-    }
-    
-    // QUESTION: Won't there be Cron Items that have no asset account at all?
-    // In which case, there'd be no need to drop a final receipt, but I don't think
-    // that's the case, since you have to use a transaction number to get onto cron
-    // in the first place.
-    // -----------------------------------------------------------------
+			mapOfNyms::iterator iiii = nym_map.find(strPartyNymID.Get());
+
+			if ( nym_map.end() ==  iiii)// wasn't already there
+				nym_map.insert(std::pair<std::string, OTPseudonym *>(strPartyNymID.Get(), pPartyNym));
+		}
+		// -----------------------------------------------------------------------------------------
+		
+		//
+		// NOTIFY the agent for EACH ACCOUNT listed by this party, 
+		// with a copy of the finalReceipt in the Inbox for each asset acct.
+		//
+		// Also for each, if he has a Nym (HE SHOULD), and if
+		// (CLOSING_NUMBER_HERE > 0), then call:
+		//
+		// pNym->VerifyIssuedNum(strServerID, lClosingNumber)
+		// (This happens in OTAgent::DropFinalReceipt, FYI.)
+		//
+		
+		if (false == pParty->DropFinalReceiptToInboxes(&nym_map,	// contains any Nyms who might already be loaded, mapped by ID.
+													   strServerID,
+													   *pServerNym,
+													   lNewTransactionNumber,
+													   strOrigCronItem,
+													   NULL,
+													   pstrAttachment))
+		{
+			OTLog::Error("OTSmartContract::onFinalReceipt: Failure dropping final receipt into all inboxes. (Missed at least one.)\n");
+		}
+		
+		// -----------------------------------------------------------------
+		
+		pParty->ClearTemporaryPointers();
+		
+	} // FOR_EACH m_mapParties
 }
 
 
@@ -404,7 +670,11 @@ void OTSmartContract::onFinalReceipt(OTCronItem & theOrigCronItem, const long & 
 
 void OTSmartContract::onRemovalFromCron()
 {
-    // Not much needed here.    
+    // Not much needed here. 
+	
+	// Trigger a script maybe.
+	// OR maybe it's too late for scripts.
+	// I give myself an onRemoval() but perhaps I cut off the scripts after onFinalReceipt().
 }
 
 
@@ -415,59 +685,29 @@ void OTSmartContract::onRemovalFromCron()
 //
 void OTSmartContract::HarvestClosingNumbers(OTPseudonym & theNym)
 {
-	
-	
-	
-	
-    // since we overrode the parent, we give it a chance to harvest also.
-    //
-    OTCronItem::HarvestClosingNumbers(theNym);
+	// We do NOT call the parent version.
+//    OTCronItem::HarvestClosingNumbers(theNym);
 
-    // The Nym is the original sender. (If Compares true).
-    // GetTransactionNum() is burned, but we can harvest the closing
-    // numbers from the "Closing" list, which is only for the sender's numbers.
-    // Subclasses will have to override this function for recipients, etc.
-    //
-    if (theNym.CompareID(GetRecipientUserID()))
-    {
-        const OTString strServerID(GetServerID());
-        
-        for (int i = 0; i < GetRecipientCountClosingNumbers(); i++)
-        {
-            theNym.AddTransactionNum(theNym, strServerID, GetRecipientClosingTransactionNoAt(i), 
-                                     (i == (GetRecipientCountClosingNumbers()-1) ? true : false)); // bSave=true only on the last iteration.
-        }
-    }
+	// For payment plan, the parent grabs the sender's #s and the subclass' override grabs
+	// the recipient's #s. But with SMART CONTRACTS, there are only "the parties" and they ALL
+	// burned an opening #, plus they can ALL harvest their closing #s if activation failed. In
+	// fact, todo: might as well send them all a notification if it fails, so they can all 
+	// AUTOMATICALLY remove said numbers from their future balance agreements.
+	//
+	// ----------------------------------
+	
+	const OTString strServerID(GetServerID());
+
+	FOR_EACH(mapOfParties, m_mapParties)
+	{
+		OTParty * pParty = (*it).second;
+		OT_ASSERT_MSG(NULL != pParty, "Unexpected NULL pointer in party map.");
+		// --------------------------------------------
+		
+		pParty->HarvestClosingNumbers(theNym, strServerID);
+	}
 }
 
-
-
-
-
-
-// OTCron calls this regularly, which is my chance to expire, etc.
-// Child classes will override this, AND call it (to verify valid date range.)
-bool OTSmartContract::ProcessCron()
-{
-	// END DATE --------------------------------
-	// First call the parent's version (which this overrides) so it has
-	// a chance to check its stuff. Currently it checks IsExpired().
-	if (!OTCronItem::ProcessCron())
-		return false;	// It's expired or flagged--removed it from Cron.
-	
-	
-	// START DATE --------------------------------
-	// Okay, so it's not expired. But might not have reached START DATE yet...
-	if (!VerifyCurrentDate())
-		return true;	// The Trade is not yet valid, so we return. BUT, we return 
-						//  true, so it will stay on Cron until it BECOMES valid.
-	
-	
-	// Process my Agreement-specific stuff below.--------------------------------
-	
-	
-	return true;
-}
 
 
 // OTCron calls this regularly, which is my chance to expire, etc.
@@ -480,14 +720,15 @@ bool OTSmartContract::ProcessCron()
 	// -----------------------------------------------------------------
 	// Right now Cron is called 10 times per second.
 	// I'm going to slow down all trades so they are once every GetProcessInterval()
+	// Todo: Create separate lists in Cron.  10*/sec list, 1/second list, 1 min list, 1 hour, 1 day, 1 month.
+	// That way I'm not looping through ALL cron items 10*/second, but only the ones who are paying for those
+	// kinds of resources. (Different lists will cost different server fees.)
+	//
 	if (GetLastProcessDate() > 0)
 	{
-//		OTLog::vOutput(3, "DEBUG: time: %d  Last process date: %d   Time since last: %d    Interval: %d\n",
-//					   GetCurrentTime(), GetLastProcessDate(), (GetCurrentTime() - GetLastProcessDate()),
-//					   GetProcessInterval());
-		
 		// (Default ProcessInternal is 1 second, but Trades will use 10 seconds,
-		// and Payment Plans will use an hour or day.)
+		// and Payment Plans will use an hour or day. Smart contracts are currently 30 seconds.)
+		//
 		if ((GetCurrentTime() - GetLastProcessDate()) <= GetProcessInterval())
 			return true;
 	}
@@ -500,9 +741,9 @@ bool OTSmartContract::ProcessCron()
 	// END DATE --------------------------------
 	// First call the parent's version (which this overrides) so it has
 	// a chance to check its stuff. 
-    // Currently it calls OTCronItem::ProcessCron, which checks IsExpired().
+    // Currently it calls IsExpired().
     //
-	if (false == OTAgreement::ProcessCron())
+	if (false == OTCronItem::ProcessCron())
 	{
 		OTLog::Output(3, "Cron job has expired.\n");
 		return false;	// It's expired or flagged for removal--remove it from Cron.
@@ -519,132 +760,99 @@ bool OTSmartContract::ProcessCron()
 	
 	if (GetCron()->GetTransactionCount() < 1)
 	{
-		OTLog::Output(0, "Failed to process payment: Out of transaction numbers!\n");
-		return true;	// If there aren't enough transaction numbers, this won't log
-		// 10 times per second, but instead every hour or every day, 
-	}					// since plans don't process any more often than that anyway.
-	
-	// -----------------------------------------------------------------------------
-	
-	// First process the initial payment...
-	
-	if (HasInitialPayment()								&&	// If I have an initial payment...
-		!IsInitialPaymentDone()							&&	// and I have not yet processed it...
-		(GetCurrentTime() > GetInitialPaymentDate())	&&	// and we're past the initial payment due date...
-		((GetCurrentTime() - GetLastFailedInitialPaymentDate()) > LENGTH_OF_DAY_IN_SECONDS)) // and it's been more than a day since I last failed attmpting this...
-	{	// THEN we're due for the initial payment! Process it!
-		
-		OTLog::Output(3, "Cron: Processing initial payment...\n");
-		
-		ProcessInitialPayment();
+		OTLog::Output(0, "Failed to process smart contract: Out of transaction numbers!\n");
+		return true;	
 	}
 	
-	// -----------------------------------------------------------------------------
+	// *****************************************************************************
+	//
+	// Execute the scripts (clauses) that have registered for this hook.
 	
+	const std::string	str_HookName(SMART_CONTRACT_HOOK_ON_PROCESS);
+	mapOfClauses		theMatchingClauses;
 	
-	// Next, process the payment plan...
-	OTLog::vOutput(3, "(payment plan): Flagged/Removal: %s Has Plan: %s Current time: %d Start Date: %d\n",
-				   (IsFlaggedForRemoval() ? "TRUE" : "FALSE"), (HasPaymentPlan() ? "TRUE" : "FALSE"), 
-				   GetCurrentTime(), GetPaymentPlanStartDate());
-	if (!IsFlaggedForRemoval() && HasPaymentPlan() &&		// This object COULD have gotten flagged for removal during the ProcessInitialPayment()
-		(GetCurrentTime() > GetPaymentPlanStartDate()))		// call. Therefore, I am sure to check that it's NOT IsFlaggedForRemoval() before calling
-	{														// this block of code.
-		//		OTLog::Error("DEBUG: Payment Plan -------------\n");
+	if (this->GetHooks(str_HookName, theMatchingClauses))
+	{	
+		OTLog::Output(0, "Cron: Processing smart contract clauses...\n");
 		
-		// First I'll calculate whether the next payment would be due, based on start date,
-		// time between payments, and date of last payment.
-		
-		const time_t DURATION_SINCE_START = (GetCurrentTime() - GetPaymentPlanStartDate());
-		
-		// Let's say the plan charges every week, and it's been 16 DAYS DURATION since starting.
-		// The first charge would have been on the 1st day, 16 days ago.
-		// Then the second charge would have been on the 8th day, (7 days later)
-		// Then the third charge would have been on the 15th day, (7 days later again)
-		// That means the next charge isn't due until the 22nd.
-		
-		// Right now in this example, DURATION_SINCE_START is: (16 * LENGTH_OF_DAY_IN_SECONDS).
-		// I must calculate from that, that three charges have already happened, and that the
-		// next one is not yet due.
-		// 
-		// I also know that GetTimeBetweenPayments() is set to (LENGTH_OF_DAY_IN_SECONDS * 7)
-		// 
-		// Duration / timebetween == 16/7 == 2 with 2 remainder.	(+1 to get 3: THREE should have already happened.)
-		// if it was the 14th, 14/7 == 2 with 0 remainder.			(+1 to get 3: THREE should have happened by the 14th)
-		// If it was the 22nd, 22/7 == 3 with 1 remainder.			(+1 to get 4: FOUR payments should have already happened.)
-		//
-		// Can also just add the TimeBetweenPayments to the DateOfLastPayment...
-		//
-		const int nNoPaymentsThatShouldHaveHappenedByNow = ((DURATION_SINCE_START/GetTimeBetweenPayments()) + 1);
-		// The +1 is because it charges on the 1st day of the plan. So 14 days, which is 7 times 2, equals *3* payments, not 2.
-		
-//		OTLog::vOutput(3, "Payments that should have happened by now: %d\n"
-//					   "Number payments done: %d      date of last payment: %d\n"
-//					   "Date of last failed payment: %d   Time Between: %d", 
-//					   nNoPaymentsThatShouldHaveHappenedByNow, GetNoPaymentsDone(), GetDateOfLastPayment(),
-//					   GetDateOfLastFailedPayment(), GetTimeBetweenPayments());
-		// -------------------------------------------------------
-		
-		// It's expired, remove it. (I check >0 because this one is an optional field.)
-		if ((GetMaximumNoPayments() > 0) && (GetNoPaymentsDone() >= GetMaximumNoPayments()))
-		{
-			OTLog::Output(1, "Payment plan has expired by reaching max number of payments allowed.\n");
-			return false; // This payment plan will be removed from Cron by returning false.
-		}
-		// Again, I check >0 because the plan length is optional and might just be 0.
-		else if ((GetPaymentPlanLength() > 0) && (GetCurrentTime() >= (GetPaymentPlanStartDate() + GetPaymentPlanLength())))
-		{
-			OTLog::Output(1, "Payment plan has expired by reaching its maximum length of time.\n");
-			return false; // This payment plan will be removed from Cron by returning false.
-		}
-		else if (nNoPaymentsThatShouldHaveHappenedByNow	<=	GetNoPaymentsDone())	// if not enough payments have happened...
-		{
-//			OTLog::Output(3, "DEBUG: Enough payments have already been made.\n");
-		}
-		else if ((GetCurrentTime() - GetDateOfLastPayment())	<	GetTimeBetweenPayments()) // and the time since last payment is more than the payment period...
-		{
-//			OTLog::Output(3, "DEBUG: Not enough time has elapsed.\n");	
-		}
-		else if ((GetCurrentTime() - GetDateOfLastFailedPayment())	<	LENGTH_OF_DAY_IN_SECONDS) // and it's been at least 24 hrs since the last failed payment...
-		{
-			OTLog::Output(3, "Cron (processing payment plan): Not enough time since last failed payment.\n");
-		}
-		// Okay -- PROCESS IT!
-		else					// The above 3 end-comments have opposite logic from their if(), since they used to be here.
-		{						// I reversed the operators so they could be failures, resulting in this else block for success.
-			
-			OTLog::Output(3, "Cron: Processing payment...\n");
-			
-			// This function assumes the payment is due, and it only fails in the case of 
-			// the payer's account having insufficient funds.
-			ProcessPaymentPlan();
-		}
+		this->ExecuteClauses(theMatchingClauses); // <==========
 	}
-	
-	
-	// Notice something: Markets are very concerned whether a trade failed, or if the account
-	// was short of funds. They track that, and remove any trades when they have this problem.
-	// So in OTTrade right now, you would be checking if it was flagged for removal, and 
-	// returning false in that case.
-	// 
-	// But with a PAYMENT PLAN, if a payment fails, you don't want to cancel the plan!!!
-	// You want it to keep trying until it gets in more payments, and ONLY cancel in the
-	// case where the user REQUESTS it, or when one of the legitimate terms above expires naturally.
-	// Insufficient funds? NO PROBLEM: you can stay on your payment plan as long as you want! :-)
 	//
-	// There ARE however funny cases where you WOULD want the plan removed.
-	// For example:
-	//
-	if (IsFlaggedForRemoval() ||
-		(HasInitialPayment() && IsInitialPaymentDone() && !HasPaymentPlan()))
+	// *****************************************************************************
+		
+
+	if (IsFlaggedForRemoval())
 	{
-		OTLog::Output(3, "OTSmartContract::ProcessCron: Removing payment plan from cron processing...\n");
-		return false; // if there's no plan, and initial payment is done, nothing left to do. Remove!
+		OTLog::Output(3, "OTSmartContract::ProcessCron: Removing smart contract from cron processing...\n");
+		return false; // false means "remove this cron item from cron"
 	}	
 	
 	return true;
 }
 
 
+
+void OTSmartContract::ExecuteClauses (mapOfClauses & theClauses)
+{
+	FOR_EACH_IT(mapOfClauses, theClauses, it_clauses)
+	{
+		const std::string str_clause_name	= (*it_clauses).first;
+		OTClause * pClause					= (*it_clauses).second;
+		OT_ASSERT((NULL != pClause) && (str_clause_name.size() > 0));
+		OTBylaw * pBylaw = pClause->GetBylaw();
+		OT_ASSERT(NULL != pBylaw);
+		// -------------------------------------------------
+		// By this point, we have the clause we are executing as pClause, 
+		// and we have the Bylaw it belongs to, as pBylaw.
+				
+		// ----------------------------------------
+		
+		const std::string str_code		=	pClause->GetCode();		// source code for the script.
+		const std::string str_language	=	pBylaw->GetLanguage();	// language it's in. (Default is "chai")
+		
+		OTScript_SharedPtr pScript = OTScriptFactory(&str_code, &str_language);
+
+		if (pScript)
+		{
+			// Register the special server-side native OT calls we make available to all scripts.
+			//
+			RegisterOTNativeCallsWithScript(*pScript); 
+			
+			// ---------------------------------------
+			// Register all the parties with the script.
+			//
+			FOR_EACH(mapOfParties, m_mapParties)
+			{
+				const std::string str_party_name	= (*it).first;
+				OTParty * pParty					= (*it).second;
+				OT_ASSERT((NULL != pParty) && (str_party_name.size() > 0));
+				// -----------------------
+				
+				pScript->AddParty(str_party_name, *pParty);
+			}
+			
+			// ---------------------------------------
+			// Also need to loop through the Variables on pBylaw and register those as well.
+			//
+			pBylaw->RegisterVariablesForExecution(*pScript);
+			
+			// ****************************************
+			if (false == pScript->ExecuteScript())
+			{
+				OTLog::Error("OTSmartContract::ExecuteClauses: Caught exception while running script: %s \n",
+							 str_clause_name.c_str());
+			}
+			else
+				OTLog::vOutput(0, "Successfully executed script clause: %s.\n\n", str_clause_name.c_str());
+			// ****************************************			
+		}
+		// ---------------------------------------------------------------
+		else 
+		{
+			OTLog::Error("OTSmartContract::ExecuteClauses: Error instantiating script!!\n");
+		}
+	} // FOR_EACH clauses...
+}
 
 
 
@@ -675,6 +883,11 @@ void OTSmartContract::ProcessPaymentPlan()
 	
 	// -----------------------------------------------------
 }
+
+
+
+// TODO: Make a GENERIC VERSION of the BELOW function, that script coders can call
+// whenever they need to move money between two parties!!!!
 
 
 
@@ -947,7 +1160,7 @@ bool OTSmartContract::ProcessPayment(const long & lAmount)
 		
 		// Load the inbox/outbox in case they already exist
 		OTLedger	theSenderInbox		(SENDER_USER_ID,	SOURCE_ACCT_ID,		SERVER_ID),
-		theRecipientInbox	(RECIPIENT_USER_ID, RECIPIENT_ACCT_ID,	SERVER_ID);
+					theRecipientInbox	(RECIPIENT_USER_ID, RECIPIENT_ACCT_ID,	SERVER_ID);
 		
 		// ALL inboxes -- no outboxes. All will receive notification of something ALREADY DONE.
 		bool bSuccessLoadingSenderInbox		= theSenderInbox.LoadInbox();
@@ -1314,6 +1527,9 @@ bool OTSmartContract::CanRemoveItemFromCron(OTPseudonym & theNym)
 	
 	
 	
+	
+	
+	
 	// FOR A PAYMENT PLAN, the below is for the SENDER  (Make this the originator)
 	// Note: If Originator MUST be a Party, then maybe remove the recipient section below and make THIS section the loop.
 	
@@ -1325,6 +1541,18 @@ bool OTSmartContract::CanRemoveItemFromCron(OTPseudonym & theNym)
         return false;
     }
     
+	
+	
+	
+	
+	// NOTE:  Even once the script authorizes the Nym to do something, the server will still need
+	// to do some kind of similar code (to below).  Regardless of what the script says, the server still
+	// has its own ideas about which numbers should be verified before it authorizes such things.
+	// 
+	// (But I still give the script a chance to say yes/no and the server will go that way if it can.)
+	//
+	
+	
     // By this point, that means theNym is DEFINITELY the originator (sender)...
     else if (this->GetCountClosingNumbers() < 1)
     {
@@ -1489,7 +1717,7 @@ bool OTSmartContract::VerifyThisDetailsAgainstAllPartiesSignedCopies()
 
 	
 	
-	
+	return false;
 }
 
 //
@@ -1735,6 +1963,7 @@ bool OTSmartContract::AddParty(OTParty & theParty)
 
 
 
+// TODO:  Make a version of this for signing onto smart contracts.
 
 
 
@@ -1977,7 +2206,7 @@ OTSmartContract::OTSmartContract(const OTIdentifier & SERVER_ID, const OTIdentif
 }
 
 
-OTSmartContract::OTSmartContract(const OTIdentifier & SERVER_ID,			const OTIdentifier & ASSET_ID,
+OTSmartContract::OTSmartContract(const OTIdentifier & SERVER_ID,	const OTIdentifier & ASSET_ID,
 						 const OTIdentifier & SENDER_ACCT_ID,		const OTIdentifier & SENDER_USER_ID,
 						 const OTIdentifier & RECIPIENT_ACCT_ID,	const OTIdentifier & RECIPIENT_USER_ID) :
 			OTCronItem(SERVER_ID, ASSET_ID, SENDER_ACCT_ID, SENDER_USER_ID)
@@ -1998,8 +2227,7 @@ void OTSmartContract::InitSmartContract()
 {
 	m_strContractType = "SMARTCONTRACT";
 	
-	SetProcessInterval(PLAN_PROCESS_INTERVAL); // Payment plans currently process every hour. (Could be reduced even more, to every day.)
-
+	SetProcessInterval(SMART_CONTRACT_PROCESS_INTERVAL); // Smart contracts current default is 30 seconds. Actual default will probably be configurable in config file, and most contracts will also probably override this.
 }
 
 // the framework will call this at the right time.
@@ -2014,6 +2242,9 @@ void OTSmartContract::Release()
 	// Then I call this to re-initialize everything
 	InitSmartContract();
 }
+
+
+
 
 
 // TODO: Copy the contents of OTScriptable::UpdateContents here so we can load our parties and bylaws.

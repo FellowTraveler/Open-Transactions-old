@@ -212,7 +212,11 @@ virtual ~name() {}
 #define implements public
 // ----------------------------------------------------
 
+// Foreach with std containers.
 
+#define FOR_EACH_IT(ARG_OT_ONE, ARG_OT_TWO, ARG_OT_THREE)	for(ARG_OT_ONE::iterator ARG_OT_THREE = ARG_OT_TWO.begin(); ARG_OT_THREE != ARG_OT_TWO.end(); ++ ARG_OT_THREE)
+
+#define FOR_EACH(ARG_OT_ONE, ARG_OT_TWO)	for(ARG_OT_ONE::iterator it = ARG_OT_TWO.begin(); it != ARG_OT_TWO.end(); ++ it)
 
 
 

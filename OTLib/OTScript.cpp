@@ -305,7 +305,7 @@ void OTScript::SetScript(const std::string & new_string)
 //
 void OTScript::AddParty(const std::string str_party_name, OTParty & theParty)
 {
-    // typedef std::map<std::string, OTParty *> mapOfParties;
+// typedef std::map<std::string, OTParty *> mapOfParties;
 
     m_mapParties.insert( std::pair<std::string, OTParty *>(str_party_name, &theParty)) ;
     
@@ -313,6 +313,17 @@ void OTScript::AddParty(const std::string str_party_name, OTParty & theParty)
     // parties, and isn't responsible to clean them up.
 }
     
+
+void OTScript::AddVariable (const std::string str_var_name, OTVariable & theVar)
+{
+//    mapOfVariables  m_mapVariables; 
+
+    mapOfVariables.insert( std::pair<std::string, OTVariable *>(str_var_name, &theVar)) ;
+
+    // We're just storing these pointers for reference value. Script doesn't actually Own the
+    // variables, and isn't responsible to clean them up.
+}
+
 
 
 
@@ -363,32 +374,81 @@ bool OTScriptChai::ExecuteScript()
         
 //      chai.add(m); // Here we add the OTParty class to the chaiscript engine.
 
-        for (mapOfParties::iterator ii = m_mapParties.begin(); 
-             ii != m_mapParties.end();
-             ++ii)
+        
+        FOR_EACH(mapOfParties, m_mapParties)
         {
-            OTParty * pParty = (*ii).second;
-            
+            OTParty * pParty = (*it).second;
             OT_ASSERT(NULL != pParty);
+            // ------------------------
+            std::string party_name  = pParty->GetPartyName();
+            std::string party_id    = pParty->GetPartyID();
             
-            std::string party_name = pParty->GetPartyName();
-            std::string party_id = pParty->GetPartyID();
+//          std::cerr << " TESTING PARTY: " << party_name << std::endl;
+//          chai.add(chaiscript::var(&d), "d");
             
-//            std::cerr << " TESTING PARTY: " << party_name << std::endl;
-            
-            if (NULL != pParty)
-            {
-                chai.add(var(party_id), party_name.size() > 0 ? party_name.c_str() : "ERROR");
-                
-            }
-            else
-                OTLog::Error("Party should not have been NULL...\n");
-//            chai.add(chaiscript::var(&d), "d");
-
+            // Currently I don't make the entire party available -- just his ID.
+            //
+            chai.add(var(party_id), party_name.c_str());
         }
+        // --------------------
+        /*
+         enum OTVariable_Access
+         {
+             Var_Constant,		// Constant -- you cannot change this value.
+             Var_Persistent,	// Persistent -- changing value doesn't require notice to parties.
+             Var_Important,		// Important -- changing value requires notice to parties.
+             Var_Error_Access	// should never happen.
+         };
+                  
+         OTVariable_Access      GetAccess() const { return m_Access; }
+         
+         long           &	GetValueLong() { return m_lValue; }
+         std::string	&	GetValueString() { return m_str_Value; }
+         */
+        
+        FOR_EACH(mapOfVariables, m_mapVariables)
+        {
+            const std::string var_name  = (*it).first;
+            OTVariable * pVar           = (*it).second;
+            OT_ASSERT((NULL != pVar) && (var_name.size() > 0));
+            // ------------------------
+
+            switch (pVar->GetType()) 
+            {
+                case OTVariable::Var_Long:
+                {
+                    long & lValue = pVar->GetValueLong();
+                
+                    if (OTVariable::Var_Constant == pVar->GetAccess()) // no pointer here, since it's constant.
+                        chai.add_global_const(const_var(lValue), var_name.c_str());
+                    else
+                        chai.add(var(&lValue), // passing ptr here so the script can modify this variable if it wants.
+                                 var_name.c_str());                        
+                }
+                    break;
+                    
+                case OTVariable::Var_String:
+                {
+                    std::string	& str_Value = pVar->GetValueString();
+                    
+                    if (OTVariable::Var_Constant == pVar->GetAccess()) // no pointer here, since it's constant.
+                        chai.add_global_const(const_var(str_Value), var_name.c_str());
+                    else
+                        chai.add(var(&str_Value), // passing ptr here so the script can modify this variable if it wants.
+                                 var_name.c_str());                        
+                }
+                    break;
+                    
+                default:
+                    OTLog::Error("OTScriptChai::ExecuteScript: Unknown variable type.\n");
+                    break;
+            }
+        }
+        // --------------------
+        
         
         // --------------------
-
+        
         // Here we add the mapOfParties user-defined type to the chaiscript engine.
 //        chai.add(user_type<mapOfParties>(), "mapOfParties");
 
@@ -399,7 +459,20 @@ bool OTScriptChai::ExecuteScript()
         
         // --------------------
         
-        chai.eval(m_str_script.c_str());
+        
+        // ***************************************
+        try 
+        {
+            chai.eval(m_str_script.c_str());
+        }
+//      catch (chaiscript::Boxed_Value bv) 
+        catch (...)
+        {
+//          int i = chaiscript::boxed_cast<int>(bv);
+            
+            return false;
+        }
+        // ***************************************
     }
     
     return true;
