@@ -305,9 +305,9 @@ bool OTServer::AddBasketAccountID(const OTIdentifier & BASKET_ID, const OTIdenti
 bool OTServer::VerifyBasketAccountID(const OTIdentifier & BASKET_ACCOUNT_ID)
 {
 	// Server stores a map of BASKET_ID to BASKET_ACCOUNT_ID. Let's iterate through that map...
-	for (mapOfBaskets::iterator ii = m_mapBaskets.begin(); ii != m_mapBaskets.end(); ++ii)
+	FOR_EACH(mapOfBaskets, m_mapBaskets)
 	{
-		OTString strBasketAcctID	= (*ii).second.c_str();
+		OTString strBasketAcctID	= (*it).second.c_str();
 		
 		OTIdentifier id_BASKET_ACCT(strBasketAcctID);
 		
@@ -324,10 +324,10 @@ bool OTServer::VerifyBasketAccountID(const OTIdentifier & BASKET_ACCOUNT_ID)
 bool OTServer::LookupBasketAccountIDByContractID(const OTIdentifier & BASKET_CONTRACT_ID, OTIdentifier & BASKET_ACCOUNT_ID)
 {
 	// Server stores a map of BASKET_ID to BASKET_ACCOUNT_ID. Let's iterate through that map...
-	for (mapOfBaskets::iterator ii = m_mapBasketContracts.begin(); ii != m_mapBasketContracts.end(); ++ii)
+	FOR_EACH(mapOfBaskets, m_mapBasketContracts)
 	{
-		OTString strBasketContractID	= (*ii).first.c_str();
-		OTString strBasketAcctID		= (*ii).second.c_str();
+		OTString strBasketContractID	= (*it).first.c_str();
+		OTString strBasketAcctID		= (*it).second.c_str();
 		
 		OTIdentifier id_BASKET_CONTRACT(strBasketContractID), id_BASKET_ACCT(strBasketAcctID);
 		
@@ -346,10 +346,10 @@ bool OTServer::LookupBasketAccountIDByContractID(const OTIdentifier & BASKET_CON
 bool OTServer::LookupBasketContractIDByAccountID(const OTIdentifier & BASKET_ACCOUNT_ID, OTIdentifier & BASKET_CONTRACT_ID)
 {
 	// Server stores a map of BASKET_ID to BASKET_ACCOUNT_ID. Let's iterate through that map...
-	for (mapOfBaskets::iterator ii = m_mapBasketContracts.begin(); ii != m_mapBasketContracts.end(); ++ii)
+	FOR_EACH(mapOfBaskets, m_mapBasketContracts)
 	{
-		OTString strBasketContractID	= (*ii).first.c_str();
-		OTString strBasketAcctID		= (*ii).second.c_str();
+		OTString strBasketContractID	= (*it).first.c_str();
+		OTString strBasketAcctID		= (*it).second.c_str();
 		
 		OTIdentifier id_BASKET_CONTRACT(strBasketContractID), id_BASKET_ACCT(strBasketAcctID);
 		
@@ -368,10 +368,10 @@ bool OTServer::LookupBasketContractIDByAccountID(const OTIdentifier & BASKET_ACC
 bool OTServer::LookupBasketAccountID(const OTIdentifier & BASKET_ID, OTIdentifier & BASKET_ACCOUNT_ID)
 {
 	// Server stores a map of BASKET_ID to BASKET_ACCOUNT_ID. Let's iterate through that map...
-	for (mapOfBaskets::iterator ii = m_mapBaskets.begin(); ii != m_mapBaskets.end(); ++ii)
+	FOR_EACH(mapOfBaskets, m_mapBaskets)
 	{
-		OTString strBasketID		= (*ii).first.c_str();
-		OTString strBasketAcctID	= (*ii).second.c_str();
+		OTString strBasketID		= (*it).first.c_str();
+		OTString strBasketAcctID	= (*it).second.c_str();
 		
 		OTIdentifier id_BASKET(strBasketID), id_BASKET_ACCT(strBasketAcctID);
 		
@@ -393,10 +393,9 @@ OTAccount * OTServer::GetVoucherAccount(const OTIdentifier & ASSET_TYPE_ID)
 {
 	OTAccount * pAccount = NULL;
 	
-	for (mapOfAccounts::iterator ii = m_mapVoucherAccounts.begin(); ii != m_mapVoucherAccounts.end(); ++ii)
+	FOR_EACH(mapOfAccounts, m_mapVoucherAccounts)
 	{
-		pAccount = (*ii).second;
-		
+		pAccount = (*it).second;
 		OT_ASSERT_MSG(NULL != pAccount, "NULL account pointer in OTServer::GetVoucherAccount");
 		
 		if (ASSET_TYPE_ID == pAccount->GetAssetTypeID())
@@ -454,10 +453,9 @@ OTMint * OTServer::GetMint(const OTIdentifier & ASSET_TYPE_ID, int nSeries) // E
 {
 	OTMint * pMint = NULL;
 	
-	for (mapOfMints::iterator ii = m_mapMints.begin(); ii != m_mapMints.end(); ++ii)
+	FOR_EACH(mapOfMints, m_mapMints)
 	{
-		pMint = (*ii).second;
-		
+		pMint = (*it).second;
 		OT_ASSERT_MSG(NULL != pMint, "NULL mint pointer in OTServer::GetMint\n");
 		
 		OTIdentifier theID;
@@ -696,22 +694,16 @@ bool OTServer::RemoveIssuedNumber(OTPseudonym & theNym, const long &lTransaction
 /// any asset or server contract.
 OTAssetContract * OTServer::GetAssetContract(const OTIdentifier & ASSET_TYPE_ID)
 {
-	OTAssetContract * pContract = NULL;
-	
-	for (mapOfContracts::iterator ii = m_mapContracts.begin(); ii != m_mapContracts.end(); ++ii)
+	FOR_EACH(mapOfContracts, m_mapContracts)
 	{
-		if (pContract = (*ii).second) // if not null
-		{
-			OTIdentifier theContractID;
-			pContract->GetIdentifier(theContractID);
-			
-			if (theContractID == ASSET_TYPE_ID)
-				return pContract;
-		}
-		else 
-		{
-			OTLog::Error("NULL contract pointer in OTServer::GetAssetContract.\n");
-		}
+		OTAssetContract * pContract = (*it).second;
+		OT_ASSERT(NULL != pContract);
+		
+		OTIdentifier theContractID;
+		pContract->GetIdentifier(theContractID);
+		
+		if (theContractID == ASSET_TYPE_ID)
+			return pContract;
 	}
 	
 	return NULL;
@@ -755,12 +747,9 @@ bool OTServer::SaveMainFileToString(OTString & strMainFile)
 	
 	// ---------------------------------------------------------------
 	
-	OTContract * pContract = NULL;
-	
-	for (mapOfContracts::iterator ii = m_mapContracts.begin(); ii != m_mapContracts.end(); ++ii)
+	FOR_EACH(mapOfContracts, m_mapContracts)
 	{
-		pContract = (*ii).second;
-		
+		OTContract * pContract = (*it).second;
 		OT_ASSERT_MSG(NULL != pContract, "NULL contract pointer in OTServer::SaveMainFile.\n");
 		
 		// This is like the Server's wallet.
@@ -771,10 +760,10 @@ bool OTServer::SaveMainFileToString(OTString & strMainFile)
 	
 	// Save the basket account information
 	
-	for (mapOfBaskets::iterator ii = m_mapBaskets.begin(); ii != m_mapBaskets.end(); ++ii)
+	FOR_EACH(mapOfBaskets, m_mapBaskets)
 	{
-		OTString strBasketID		= (*ii).first.c_str();
-		OTString strBasketAcctID	= (*ii).second.c_str();
+		OTString strBasketID		= (*it).first.c_str();
+		OTString strBasketAcctID	= (*it).second.c_str();
 		
 		const	OTIdentifier BASKET_ACCOUNT_ID(strBasketAcctID);
 				OTIdentifier BASKET_CONTRACT_ID;
@@ -797,29 +786,23 @@ bool OTServer::SaveMainFileToString(OTString & strMainFile)
 	}
 	
 	/*
-	 OTPseudonym * pNym = NULL;
-	 
-	 for (mapOfNyms::iterator ii = m_mapNyms.begin(); ii != m_mapNyms.end(); ++ii)
+	 FOR_EACH(mapOfNyms, m_mapNyms)
 	 {		
-	 pNym = (*ii).second;
+		OTPseudonym * pNym = (*it).second;
+		OT_ASSERT_MSG(NULL != pNym, "NULL pseudonym pointer in OTWallet::m_mapNyms, OTWallet::SaveWallet");
 	 
-	 OT_ASSERT_MSG(NULL != pNym, "NULL pseudonym pointer in OTWallet::m_mapNyms, OTWallet::SaveWallet");
-	 
-	 pNym->SavePseudonymWallet(fl);
+		pNym->SavePseudonymWallet(fl);
 	 }
 	 
 	 
 	 // ---------------------------------------------------------------
-	 
-	 OTContract * pServer = NULL;
-	 
-	 for (mapOfServers::iterator ii = m_mapServers.begin(); ii != m_mapServers.end(); ++ii)
+	
+	 FOR_EACH(mapOfServers, m_mapServers)
 	 {
-	 pServer = (*ii).second;
+		OTContract * pServer = (*it).second;
+		OT_ASSERT_MSG(NULL != pServer, "NULL server pointer in OTWallet::m_mapServers, OTWallet::SaveWallet");
 	 
-	 OT_ASSERT_MSG(NULL != pServer, "NULL server pointer in OTWallet::m_mapServers, OTWallet::SaveWallet");
-	 
-	 pServer->SaveContractWallet(fl);
+		pServer->SaveContractWallet(fl);
 	 }
 	 
 	 // ---------------------------------------------------------------
@@ -6108,59 +6091,53 @@ void OTServer::UserCmdNotarizeTransactions(OTPseudonym & theNym, OTMessage & Msg
  		
 		// Loop through ledger transactions, and do a "NotarizeTransaction" call for each one.
 		// Inside that function it will do the various necessary authentication and processing, not this one.
-		
-		OTTransaction * pTransaction	= NULL;
-		OTTransaction * pTranResponse	= NULL;
-		
-		for (mapOfTransactions::iterator ii = theLedger.GetTransactionMap().begin(); 
-			 ii != theLedger.GetTransactionMap().end(); ++ii)
+		//
+		FOR_EACH(mapOfTransactions, theLedger.GetTransactionMap())
 		{	
+			OTTransaction * pTransaction = (*it).second;
+			OT_ASSERT(NULL != pTransaction);
+			
 			// for each transaction in the ledger, we create a transaction response and add
 			// that to the response ledger.
-			if (pTransaction = (*ii).second)
-			{
 				
-				// I don't call IssueNextTransactionNumber here because I'm not creating a new transaction
-				// in someone's inbox or outbox. Instead, I'm making a transaction response to a transaction
-				// request, with a MATCHING transaction number (so don't need to issue a new one) to be sent
-				// back to the client in a message.
-				//
-				// On this new "response transaction", I set the ACCT ID, the serverID, and Transaction Number.
-				pTranResponse = OTTransaction::GenerateTransaction(*pResponseLedger, OTTransaction::error_state, pTransaction->GetTransactionNum());
-				// Add the response transaction to the response ledger.
-				// That will go into the response message and be sent back to the client.
-				pResponseLedger->AddTransaction(*pTranResponse);
-				
-				// Now let's make sure the response transaction has a copy of the transaction
-				// it is responding to.
-				//				OTString strResponseTo;
-				//				pTransaction->SaveContract(strResponseTo);
-				//				pTranResponse->m_ascInReferenceTo.SetString(strResponseTo);
-				// I commented out the above because we are keeping too many copies.
-				// Message contains a copy of the message it's responding to.
-				// Then each transaction contains a copy of the transaction responding to...
-				// Then each ITEM in each transaction contains a copy of each item it's responding to.
-				//
-				// Therefore, for the "notarizeTransactions" message, I have decided (for now) to have
-				// the extra copy in the items themselves, and in the overall message, but not in the
-				// transactions. Thus, the above is commented out.
-				
-				
-				// It should always return something. Success, or failure, that goes into pTranResponse.
-				// I don't think there's need for more return value than that. The user has gotten deep 
-				// enough that they deserve SOME sort of response.
-				//
-				// This function also SIGNS the transaction, so there is no need to sign it after this.
-				// There's also no point to change it after this, unless you plan to sign it twice.
-                //
-				NotarizeTransaction(theNym, *pTransaction, *pTranResponse);
-				
-				pTranResponse = NULL; // at this point, the ledger now "owns" the response, and will handle deleting it.
-			}
-			else 
-			{
-				OTLog::Error("NULL transaction pointer in OTServer::UserCmdNotarizeTransactions\n");
-			}		
+			// I don't call IssueNextTransactionNumber here because I'm not creating a new transaction
+			// in someone's inbox or outbox. Instead, I'm making a transaction response to a transaction
+			// request, with a MATCHING transaction number (so don't need to issue a new one) to be sent
+			// back to the client in a message.
+			//
+			// On this new "response transaction", I set the ACCT ID, the serverID, and Transaction Number.
+			OTTransaction * pTranResponse =
+				OTTransaction::GenerateTransaction(*pResponseLedger, 
+												   OTTransaction::error_state, pTransaction->GetTransactionNum());
+			// Add the response transaction to the response ledger.
+			// That will go into the response message and be sent back to the client.
+			pResponseLedger->AddTransaction(*pTranResponse);
+			
+			// Now let's make sure the response transaction has a copy of the transaction
+			// it is responding to.
+			//				OTString strResponseTo;
+			//				pTransaction->SaveContract(strResponseTo);
+			//				pTranResponse->m_ascInReferenceTo.SetString(strResponseTo);
+			// I commented out the above because we are keeping too many copies.
+			// Message contains a copy of the message it's responding to.
+			// Then each transaction contains a copy of the transaction responding to...
+			// Then each ITEM in each transaction contains a copy of each item it's responding to.
+			//
+			// Therefore, for the "notarizeTransactions" message, I have decided (for now) to have
+			// the extra copy in the items themselves, and in the overall message, but not in the
+			// transactions. Thus, the above is commented out.
+			
+			
+			// It should always return something. Success, or failure, that goes into pTranResponse.
+			// I don't think there's need for more return value than that. The user has gotten deep 
+			// enough that they deserve SOME sort of response.
+			//
+			// This function also SIGNS the transaction, so there is no need to sign it after this.
+			// There's also no point to change it after this, unless you plan to sign it twice.
+			//
+			NotarizeTransaction(theNym, *pTransaction, *pTranResponse);
+			
+			pTranResponse = NULL; // at this point, the ledger now "owns" the response, and will handle deleting it.
 		}
 		
 		// TODO: should consider saving a copy of the response ledger here on the server. 
@@ -6689,19 +6666,17 @@ void OTServer::UserCmdProcessNymbox(OTPseudonym & theNym, OTMessage & MsgIn, OTM
 		// Then we send that new "response ledger" back to the user in MsgOut.Payload
 		// as an @processNymbox message.
 		
-		OTTransaction * pTransaction	= NULL;
-		OTTransaction * pTranResponse	= NULL;
-		
-		for (mapOfTransactions::iterator ii = theLedger.GetTransactionMap().begin(); 
-			 ii != theLedger.GetTransactionMap().end(); ++ii)
+		FOR_EACH(mapOfTransactions, theLedger.GetTransactionMap())
 		{	
-			pTransaction = (*ii).second;
-			
+			OTTransaction * pTransaction = (*it).second;
 			OT_ASSERT_MSG(NULL != pTransaction, "NULL transaction pointer in OTServer::UserCmdProcessNymbox\n");
 			
 			// for each transaction in the ledger, we create a transaction response and add
 			// that to the response ledger.
-			pTranResponse = OTTransaction::GenerateTransaction(*pResponseLedger, OTTransaction::error_state, pTransaction->GetTransactionNum());
+			OTTransaction * pTranResponse = 
+				OTTransaction::GenerateTransaction(*pResponseLedger, 
+												   OTTransaction::error_state, 
+												   pTransaction->GetTransactionNum());
 			
 			// Add the response transaction to the response ledger.
 			// That will go into the response message and be sent back to the client.
@@ -6747,7 +6722,8 @@ void OTServer::UserCmdProcessNymbox(OTPseudonym & theNym, OTMessage & MsgIn, OTM
 		msgOut.m_ascPayload.SetString(strPayload); 
 	
 	}
-	else {
+	else 
+	{
 		OTLog::Error("ERROR loading ledger from message in OTServer::UserCmdProcessNymbox\n");
 	}
 	
@@ -6850,10 +6826,9 @@ void OTServer::NotarizeProcessNymbox(OTPseudonym & theNym, OTTransaction & tranI
 		bool bSuccessFindingAllTransactions = true;
 		long lTotalBeingAccepted = 0;
 		
-		for (listOfItems::iterator ii = tranIn.GetItemList().begin(); ii != tranIn.GetItemList().end(); ++ii)
+		FOR_EACH(listOfItems, tranIn.GetItemList())
 		{
-			pItem = *ii;
-			
+			pItem = *it;
 			OT_ASSERT_MSG(NULL != pItem, "Pointer should not have been NULL.");
 			
 			if (pItem->GetType() == OTItem::acceptTransaction)
@@ -6941,10 +6916,9 @@ void OTServer::NotarizeProcessNymbox(OTPseudonym & theNym, OTTransaction & tranI
 			// loop through the items that make up the incoming transaction, and add them
 			// to the Nym, and remove them from the Nymbox, as appropriate.
 			//
-			for (listOfItems::iterator ii = tranIn.GetItemList().begin(); ii != tranIn.GetItemList().end(); ++ii)
+			FOR_EACH(listOfItems, tranIn.GetItemList())
 			{
-				pItem = *ii;
-				
+				pItem = *it;
 				OT_ASSERT_MSG(NULL != pItem, "Pointer should not have been NULL.");
 				
 				// We already handled this one (if we're even in this block in the first place.)
@@ -7458,14 +7432,14 @@ void OTServer::NotarizeProcessInbox(OTPseudonym & theNym, OTAccount & theAccount
 		bool bSuccessFindingAllTransactions = true;
 		long lTotalBeingAccepted = 0;
 		
-		for (listOfItems::iterator ii = tranIn.GetItemList().begin(); ii != tranIn.GetItemList().end(); ++ii)
+		FOR_EACH_IT(listOfItems, tranIn.GetItemList(), it_bigloop)
 		{
 //            OTLog::Error("OTServer::NotarizeProcessInbox: TOP OF LOOP (of the item list on the incoming transaction) \n");
 //			
 //            OTLog::vError("OTServer::NotarizeProcessInbox ==========> =======> Inbox Receipt Count: %d \n", 
 //                          pInbox->GetTransactionCount());
 
-            pItem = *ii;
+            pItem = *it_bigloop;
 			OT_ASSERT_MSG(NULL != pItem, "Pointer should not have been NULL.");
 			            
             // -----------------------------------------------------
@@ -7571,10 +7545,9 @@ void OTServer::NotarizeProcessInbox(OTPseudonym & theNym, OTAccount & theAccount
 //                  int nRefCount = 0; // Using std::set here instead of a simple int. (To prevent duplicates.)
                     std::set<long> setOfRefNumbers; // we'll store them here, and disallow duplicates, to make sure they are all unique IDs (no repeats.)
                     
-                    for (listOfItems::iterator iiii = tranIn.GetItemList().begin(); 
-                         iiii != tranIn.GetItemList().end(); ++iiii)
+					FOR_EACH(listOfItems, tranIn.GetItemList())
                     {
-                        OTItem * pItemPointer = *iiii;
+                        OTItem * pItemPointer = *it;
                         OT_ASSERT_MSG(NULL != pItemPointer, "Pointer should not have been NULL.");
                         
                         OTTransaction * pTransPointer = pInbox->GetTransaction(pItemPointer->GetReferenceToNum());
@@ -7843,9 +7816,10 @@ void OTServer::NotarizeProcessInbox(OTPseudonym & theNym, OTAccount & theAccount
                 // (TO VERIFY BALANCE AGREEMENT BEFORE WE BOTHERED TO RUN THIS LOOP BELOW...)
                 
                 // loop through the items that make up the incoming transaction 
-                for (listOfItems::iterator ii = tranIn.GetItemList().begin(); ii != tranIn.GetItemList().end(); ++ii)
+				//
+				FOR_EACH_IT(listOfItems, tranIn.GetItemList(), it_bigloop_two)
                 {
-                    pItem = *ii;
+                    pItem = *it_bigloop_two;
                     OT_ASSERT_MSG(NULL != pItem, "Pointer should not have been NULL.");
                     
                     // We already handled this one (if we're even in this block in the first place.)

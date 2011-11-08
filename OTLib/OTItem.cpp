@@ -705,12 +705,10 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 	
 	// First, loop through the Nym on my side, and count how many numbers total he has...
 	//
-	for (mapOfTransNums::iterator	iii	 =	THE_NYM.GetMapIssuedNum().begin(); 
-		 iii !=	THE_NYM.GetMapIssuedNum().end(); ++iii)
+	FOR_EACH(mapOfTransNums, THE_NYM.GetMapIssuedNum())
 	{	
-        std::string	strServerID     = (*iii).first;
-		dequeOfTransNums * pDeque	= (iii->second);
-
+        std::string	strServerID     = (*it).first;
+		dequeOfTransNums * pDeque	= (it->second);
         OT_ASSERT(NULL != pDeque);
 		
         const OTIdentifier theServerID(strServerID.c_str());
@@ -730,12 +728,10 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 	
 	if ((strMessageNym.GetLength() > 2) && theMessageNym.LoadFromString(strMessageNym))
 	{
-		for (mapOfTransNums::iterator	iii	 =	theMessageNym.GetMapIssuedNum().begin(); 
-			 iii !=	theMessageNym.GetMapIssuedNum().end(); ++iii)
+		FOR_EACH(mapOfTransNums, theMessageNym.GetMapIssuedNum())
 		{	
-            std::string	strServerID		= (*iii).first;
-			dequeOfTransNums * pDeque	= (iii->second);
-			
+            std::string	strServerID		= (*it).first;
+			dequeOfTransNums * pDeque	= (it->second);
             OT_ASSERT(NULL != pDeque);
 
             const OTIdentifier  theServerID(strServerID.c_str());
@@ -910,14 +906,11 @@ void OTItem::AddItem(OTItem & theItem)
 // While processing a transaction, you may wish to query it for items of a certain type.
 OTItem * OTItem::GetItem(int nIndex) 
 {
-	OTItem * pItem = NULL;
-	
 	int nTempIndex = (-1);
 	
-	for (listOfItems::iterator ii = m_listItems.begin(); ii != m_listItems.end(); ++ii)
+	FOR_EACH(listOfItems, m_listItems)
 	{
-		pItem = *ii;
-		
+		OTItem * pItem = *it;
 		OT_ASSERT(NULL != pItem);
 		
 		nTempIndex++; // first iteration this becomes 0 here.
@@ -933,12 +926,9 @@ OTItem * OTItem::GetItem(int nIndex)
 // While processing an item, you may wish to query it for sub-items
 OTItem * OTItem::GetItemByTransactionNum(const long lTransactionNumber) 
 {
-	OTItem * pItem = NULL;
-	
-	for (listOfItems::iterator ii = m_listItems.begin(); ii != m_listItems.end(); ++ii)
+	FOR_EACH(listOfItems, m_listItems)
 	{
-		pItem = *ii;
-		
+		OTItem * pItem = *it;
 		OT_ASSERT(NULL != pItem);
 		
 		if (pItem->GetTransactionNum() == lTransactionNumber)
@@ -956,9 +946,9 @@ int	OTItem::GetItemCountInRefTo(const long lReference)
 {
     int nCount = 0;
     
-	for (listOfItems::iterator ii = m_listItems.begin(); ii != m_listItems.end(); ++ii)
+	FOR_EACH(listOfItems, m_listItems)
 	{
-		OTItem * pItem = *ii;
+		OTItem * pItem = *it;
 		OT_ASSERT(NULL != pItem);
 		
 		if (pItem->GetReferenceToNum() == lReference)
@@ -975,12 +965,9 @@ int	OTItem::GetItemCountInRefTo(const long lReference)
 //
 OTItem * OTItem::GetFinalReceiptItemByReferenceNum(const long lReferenceNumber) 
 {
-	OTItem * pItem = NULL;
-	
-	for (listOfItems::iterator ii = m_listItems.begin(); ii != m_listItems.end(); ++ii)
+	FOR_EACH(listOfItems, m_listItems)
 	{
-		pItem = *ii;
-		
+		OTItem * pItem = *it;
 		OT_ASSERT(NULL != pItem);
 		
         if (OTItem::finalReceipt != pItem->GetType())
@@ -1842,12 +1829,9 @@ void OTItem::UpdateContents() // Before transmission or serialization, this is w
 	
 		// loop through the sub-items (only used for balance agreement.)
 		
-		OTItem * pItem = NULL;
-		
-		for (listOfItems::iterator ii = m_listItems.begin(); ii != m_listItems.end(); ++ii)
+		FOR_EACH(listOfItems, m_listItems)
 		{
-			pItem = *ii;
-			
+			OTItem * pItem = *it;
 			OT_ASSERT(NULL != pItem);
 			
 			OTString	strAcctID(pItem->GetPurportedAccountID()), 

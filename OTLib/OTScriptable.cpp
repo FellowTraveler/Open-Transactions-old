@@ -139,14 +139,423 @@ using namespace irr;
 using namespace io;
 
 
-
-
-
 #include "OTStorage.h"
 
 
 #include "OTScriptable.h"
+
 #include "OTLog.h"
+
+#include "OTSmartContract.h"
+
+
+
+
+OTScriptable * OTScriptable::InstantiateScriptable(const OTString & strInput)
+{
+	static char		buf[45] = "";
+	OTCronItem *	pItem = NULL;
+	
+	if (!strInput.Exists())
+		return NULL;
+	
+	OTString strContract(strInput);
+	
+	strContract.reset(); // for sgets
+	buf[0] = 0; // probably unnecessary.
+	bool bGotLine = strContract.sgets(buf, 40);
+	
+	if (!bGotLine)
+		return NULL;
+	
+	OTString strFirstLine(buf);
+	strContract.reset(); // set the "file" pointer within this string back to index 0.
+	
+	// Now I feel pretty safe -- the string I'm examining is within
+	// the first 45 characters of the beginning of the contract, and
+	// it will NOT contain the escape "- " sequence. From there, if
+	// it contains the proper sequence, I will instantiate that type.
+	if (!strFirstLine.Exists() || strFirstLine.Contains("- -"))
+		return NULL;
+		
+	// There are actually two factories that load smart contracts. See OTCronItem.
+	//
+	else if (strFirstLine.Contains("-----BEGIN SIGNED SMARTCONTRACT-----"))  // this string is 36 chars long.
+	{	pItem = new OTSmartContract();	OT_ASSERT(NULL != pItem); }
+	
+	// Coming soon.
+//	else if (strFirstLine.Contains("-----BEGIN SIGNED ENTITY-----"))  // this string is 29 chars long.
+//	{	pItem = new OTEntity();			OT_ASSERT(NULL != pItem); }
+
+	// The string didn't match any of the options in the factory.
+	if (NULL == pItem)
+		return NULL;
+	
+	// Does the contract successfully load from the string passed in?
+	if (pItem->LoadContractFromString(strContract))
+		return pItem;
+	else
+		delete pItem;
+	
+	
+	return NULL;
+}
+
+
+
+
+
+OTParty * OTScriptable::FindPartyBasedOnNymAsAgent(const OTPseudonym & theNym, OTAgent ** ppAgent/*=NULL*/)
+{
+	FOR_EACH(mapOfParties, m_mapParties)
+	{
+		OTParty * pParty = (*it).second;
+		OT_ASSERT(NULL != pParty);
+		// -----------------------
+		
+		if (pParty->HasAgent(theNym, ppAgent))
+			return pParty;
+	}
+	return NULL;
+}
+
+
+OTParty * OTScriptable::FindPartyBasedOnAccount(const OTAccount & theAccount, OTPartyAccount ** ppPartyAccount/*=NULL*/)
+{
+	FOR_EACH(mapOfParties, m_mapParties)
+	{
+		OTParty * pParty = (*it).second;
+		OT_ASSERT(NULL != pParty);
+		// -----------------------
+		
+		if (pParty->HasAccount(theAccount, ppPartyAccount))
+		{
+			return pParty;
+		}
+	}
+	return NULL;
+}
+
+
+// Kind of replaces VerifySignature() in certain places. It still verifies signatures inside, but
+// OTTrade and OTAgreement have a much simpler way of doing that than OTScriptable/OTSmartContract.
+//
+bool OTScriptable::VerifyNymAsAgent(const	OTPseudonym & theNym,  
+											OTPseudonym & theSignerNym, 
+											mapOfNyms	* pmap_ALREADY_LOADED/*=NULL*/)
+{
+	// Simple version that works for existing trades / payment plans on OT:
+	// (Should ONLY allow this for those, and otherwise use the new version below.)
+	//
+	// this->VerifySignature(theNym)
+	
+	
+	/*
+	 Proves the original party DOES approve of Nym:
+	 
+	 1) Lookup the party for this Nym, (loop to see if Nym is listed as an agent by any party.)
+	 2) If party found, lookup authorizing agent for party, loading him if necessary.
+	 3) Use authorizing agent to verify signature on original copy of this contract. Each party stores their
+	    own copy of the agreement, therefore use that copy to verify signature, instead of the current version.
+	 
+	 This proves that the original authorizing agent for the party that lists Nym as an agent HAS signed the smart contract.
+	 (As long as that same party OWNS the account, that should be fine.)
+	 Obviously the best proof is to verify the ORIGINAL version of the contract against the PARTY'S ORIGINAL SIGNED COPY,
+	 and also to verify them AGAINST EACH OTHER.  The calling function should do this. Otherwise what if the "authorized signer"
+	 has been changed, and some new guy and signature are substituted? Well, I guess as long as he really is authorized... but
+	 you simply don't know what the original agreement really says unless you look at it.  So load it and use it to call THIS METHOD.
+	 */
+	
+	// (1)
+	// This step verifies that theNym is at least REGISTERED as a valid agent for the party. (According to the party.)
+	//
+	OTParty * pParty = this->FindPartyBasedOnNymAsAgent(theNym);
+	
+	if (NULL == pParty)
+	{
+		OTLog::Output(0, "OTScriptable::VerifyNymAsAgent: Unable to find party based on Nym as agent.\n");
+		return false;
+	}
+	
+	// This party hasn't signed the contract??
+	//
+	if (false == pParty->GetMySignedCopy().Exists())
+	{
+		OTLog::Output(0, "OTScriptable::VerifyNymAsAgent: Unable to find party's signed copy of this contract. Has it been executed?\n");
+		return false;
+	}
+	
+	// By this point, we know that pParty has a signed copy of the agreement (or of SOMETHING anyway) and we know that
+	// we were able to find the party based on theNym as one of its agents. But the signature still needs to be verified...
+	
+	// (2)
+	// This step verifies that the party has been signed by its authorizing agent. (Who may not be the Nym, yet might be.)
+	//
+	OTAgent		* pAuthorizingAgent = NULL;
+	OTPseudonym * pAuthAgentsNym	= NULL;
+	OTCleanup<OTPseudonym *> theAgentNymAngel;
+	
+	// See if theNym is the authorizing agent.
+	//
+	if ((false == pParty->HasAuthorizingAgent(theNym, &pAuthorizingAgent)) && 
+		(NULL  != pmap_ALREADY_LOADED))
+	{
+		// No? Okay then, let's see if the authorizing agent is one of these already loaded.
+		// (So we don't load it twice.)
+		//
+		mapOfNyms & map_Nyms_Already_Loaded = (*pmap_ALREADY_LOADED);
+		FOR_EACH(mapOfNyms, map_Nyms_Already_Loaded)
+		{
+			OTPseudonym * pNym = (*it).second;
+			OT_ASSERT(NULL != pNym);
+			// -----------------------------
+			
+			if (pParty->HasAuthorizingAgent(*pNym, &pAuthorizingAgent)))
+			{
+				break;
+			}		
+		}
+		// if pAuthorizingAgent != NULL, that means the authorizing agent was found among the list of maps that were already loaded.
+	}
+	
+	// Still not found?
+	if (NULL == pAuthorizingAgent)
+	{
+		// Of all of a party's Agents, the "authorizing agent" is the one who originally activated
+		// the agreement for this party (and fronted the opening trans#.) Since we need to verify his
+		// signature, we have to load him up.
+		// 
+		pAuthAgentsNym = pParty->LoadAuthorizingAgentNym(theSignerNym, &pAuthorizingAgent);
+		
+		if (NULL != pAuthAgentsNym) // success
+		{
+			OT_ASSERT(NULL != pAuthorizingAgent); // This HAS to be set now. I assume it henceforth.
+			OTLog::Output(0, "OTScriptable::VerifyNymAsAgent: I just had to load the authorizing agent's Nym for a party, "
+						  "so I guess it wasn't already available on the list of Nyms that were already loaded.\n");
+			theAgentNymAngel.SetCleanupTarget(*pAuthAgentsNym);  // CLEANUP!!
+		}
+		else 
+		{
+			OTLog::Error("OTScriptable::VerifyNymAsAgent: Error: Strange, unable to load authorizing "
+						 "agent's Nym (to verify his signature.)\n");
+			pParty->ClearTemporaryPointers();
+			return false;
+		}
+	}
+
+	// Below this point, we KNOW that pAuthorizingAgent is a good pointer and will be cleaned up properly/automatically.
+	// I'm not using pAuthAgentsNym directly, but pAuthorizingAgent WILL use it before this function is done.
+	// -----------------------------------------
+	
+	// (3) 
+	// Here, we use the Authorizing Agent to verify the signature on his party's version of the contract.
+	// Notice: Even if the authorizing agent gets fired, we can still load his Nym to verify the original signature on the
+	// original contract! We should ALWAYS be able to verify our signatures!  Therefore, TODO: When a Nym is DELETED, it's necessary
+	// to KEEP the public key on file. We may not have a Nymfile with any request #s or trans# signed out, and there are may be no
+	// accounts for him, but we still need that public key, for later verification of the signature.
+	// UNLESS... the public key ITSELF is stashed into the contract... Notice that normal asset contracts already keep the keys inside,
+	// so why shouldn't these? In fact I can pop the "key" value onto the contract as part of the "Party-Signing" API call. Just grab the
+	// public key from each one. Meanwhile the server can verify that it's actually there, and refuse to process without it!!  Nice.
+	// This also shows why we need to store the NymID, even if it can be overridden by a Role: because you want to be able to verify
+	// the original signature, no matter WHO is authorized now. Otherwise your entire contract falls apart.
+
+	OTScriptable * pPartySignedCopy = OTScriptable::InstantiateScriptable(pParty->GetMySignedCopy());
+	OTCleanup<OTScriptable *> theCopyAngel;
+	
+	if (NULL == pPartySignedCopy)
+	{
+		OTLog::Error("OTScriptable::VerifyNymAsAgent: Error loading party's signed copy of agreement. Has it been executed?\n");
+		pParty->ClearTemporaryPointers();
+		return false;
+	}
+	else
+		theCopyAngel.SetCleanupTarget(*pPartySignedCopy);
+
+	// ----------------------------------------------
+	
+	const bool bSigVerified = pAuthorizingAgent->VerifySignature(*pPartySignedCopy);
+
+	// Todo: possibly call this->Compare(*pPartySignedCopy); to make sure there's no funny business.
+	// Well actually that HAS to happen anyway, it's just a question of whether it goes here too, or only somewhere else.
+	// ----------------------------------------------
+	
+	pParty->ClearTemporaryPointers(); // We loaded a Nym ourselves, which goes out of scope after this function. The party is done
+									// with it now, and we don't want it to keep pointing to something that is now going out of scope.
+		
+	return bSigVerified;
+}
+
+
+
+// Wherever you call the below function, you need to call the above function too, and make sure the same
+// Party is the one found in both cases.
+//
+// AGAIN: CALL VerifyNymAsAgent() BEFORE you call this function! Otherwise you aren't proving nearly as much. ALWAYS call it first.
+//
+bool OTScriptable::VerifyNymAsAgentForAccount(const	OTPseudonym & theNym,
+											  const OTAccount & theAccount)
+{
+	// -------------------------------------------------------------
+	// Lookup the party via the NYM.
+	// NOTE: I think without this, the agent never gets its pointer set to Nym.  FYI.
+	// OTAgent * pAgent = NULL;
+//	const	OTParty * pNymParty = this->FindPartyBasedOnNymAsAgent(theNym, &pAgent);
+//	
+//	if (NULL == pNymParty)
+//	{
+//		OT_ASSERT(NULL != pAgent);
+//		OTLog::Output(0, "OTScriptable::VerifyNymAsAgentForAccount: Unable to find party based on Nym as agent.\n");
+//		return false;
+//	}
+	// Below this point, pAgent is a good pointer.
+	//
+	// -------------------------------------------------------------
+	// Lookup the party via the ACCOUNT.
+	//
+	OTPartyAccount	* pPartyAcct	= NULL;
+	OTParty			* pParty		= this->FindPartyBasedOnAccount(theAccount, &pPartyAcct);
+
+	if (NULL == pParty)
+	{
+		OT_ASSERT(NULL != pPartyAcct);
+		OTLog::Output(0, "OTScriptable::VerifyNymAsAgentForAccount: Unable to find party based on account.\n");
+		return false;
+	}
+	// pPartyAcct is a good pointer below this point.
+	
+	// -------------------------------------------------------------
+
+	// Verify ownership.
+	//
+	if (false == pParty->VerifyOwnershipOfAccount(theAccount))
+	{
+		OTLog::Output(0, "OTScriptable::VerifyNymAsAgentForAccount: pParty is not the owner of theAccount.\n");
+		pParty->ClearTemporaryPointers(); // Just in case.
+		return false;
+	}	
+	
+	// -------------------------------------------------------------
+	
+	const std::string str_acct_agent_name(pPartyAcct->GetAgentName().Get());
+	OTAgent * pAgent	= pParty->GetAgent(str_acct_agent_name);
+
+	// Make sure they are from the SAME PARTY.
+	//
+	if (NULL == pAgent)
+	{
+		OTLog::Output(0, "OTScriptable::VerifyNymAsAgentForAccount: Unable to find the right agent for this account.\n");
+		pParty->ClearTemporaryPointers(); // Just in case.
+		return false;
+	}
+	// Below this point, pPartyAcct is a good pointer, and so is pParty, as well as pAgent
+	// We also know that the agent's name is the same one that was listed on the account as authorized.
+	// (Because we used the account's agent_name to look up pAgent in the first place.)
+	// -------------------------------------------------------------
+	
+	// Make sure theNym is a valid signer for pAgent, whether representing himself as in individual, or in a role for an entity.
+	// This means that pAgent (looked up based on partyAcct's agent name) will return true to IsValidSigner when passed theNym,
+	// assuming theNym really is the agent that partyAcct was talking about.
+	//
+	if (false == pAgent->IsValidSigner(theNym))
+	{
+		OTLog::Output(0, "OTScriptable::VerifyNymAsAgentForAccount: theNym is not a valid signer for pAgent.\n");
+		pParty->ClearTemporaryPointers(); // Just in case.
+		return false;
+	}
+	
+	
+//	Now we know:  
+	// (1) theNym is agent for pParty,     (according to the party)
+	// (2) theAccount is owned by pParty   (according to the party)
+	// (3) theNym is agent for theAccount  (according to the party)
+	// (4) theNym is valid signer for pAgent
+	// (5) pParty is the actual OWNER of the account. (According to theAccount.)
+	
+	
+	pParty->ClearTemporaryPointers(); // Just in case.
+	
+	return true;
+}	
+	
+	// Normally I'd call this to prove OWNERSHIP and I'd ASSUME AGENCY based on that:
+	// pSourceAcct->VerifyOwner(*pSenderNym)
+	
+	// However, if I'm instead supposed to accept that pSenderNym, while NOT listed as the "Owner" on the
+	// account itself, is still somehow AUTHORIZED to change it, "because the actual owner says that it's okay"...
+	// Well in that case, it's not good enough unless I prove BOTH ownership AND Agency. I should prove:
+	// -- the actual owner for the account, 
+	// -- AND is shown to have signed the agreement with his authorizing agent,
+	// -- AND is shown to have set theNym as his agent, and listed theNym as authorized agent for that account.
+	
+	/*
+	 Proves the original party DOES approve of Nym managing that account (assuming that VerifyNymAsAgentForAnyParty was called, which
+	 saves us from having to look up the authorizing agent for the party and verify his signature on the entire contract. We assume the
+	 contract itself is sound, and we go on to verify its term.)
+	 Also needs to prove that the ACCOUNT believes itself to be owned by the original party and was signed by the server.
+	 (If we have proved that ACCOUNT believes itself to be owned by the party, AND that the PARTY believes it has authorized Nym to
+	 manage that account, 
+	 plus the previous function already proves that Nym is an agent of the PARTY and that the original agreement
+	 is sound, as signed by the party's authorizing agent.)
+	 
+	 AGENCY
+	 1) Lookup the account from among all the parties. This way we find the party. bool FindPartyBasedOnAccount(theAccount);
+	 2) Lookup the party based on the Nym as agent, and compare it to make sure they are the SAME PARTY.
+	 3) Lookup the authorized agent for that account (from that party.) This is different than the authorizing agent in
+	    the function above, which is who signed to open the contract and fronted the opening trans#. But in THIS case, the authorized
+	    agent must be available for EACH asset account, and he is the one who supplied the CLOSING number. Each acct has an agent
+	    name, so lookup that agent from pParty.
+	 4) Make sure theNym IS that authorized agent. Only THEN do we know that theNym is authorized (as far as the party is concerned.)
+		Notice also that we didn't verify theNym's signature on anything since he hasn't actually signed anything on the contract itself.
+	    Notice that the ONLY REASON THAT WE KNOW FOR SURE is because VerifyNymAsAgent() was called before this function! Because that is
+	    what loads the original signer and verifies his signature. Unless that was done, we honestly don't even know this much! So make
+	    sure you call that function before this one.
+
+	 Assuming we get this far, this means the Party / Smart Contract actually approves of theNym as an Agent, and of theAccount as an
+	 account, and it also approves that Nym is authorized to manipulate that account.
+	 But it doesn't prove who OWNS that account! Nor does it prove, even if the Nym DOES own it, whether theNym actually authorizes
+	 this action. Therefore we must also prove that the owner of the account (according to the ACCOUNT) is the same party who authorized
+	 the Nym to manage that account in the smart contract.  (If the Nym IS the party, then he will show as the owner AND agent.)
+	 
+	 OWNERSHIP
+	 1) pParty->VerifyOwnership(theAccount)
+	 2) If Party owner is a Nym, then call verifyOwner on the account directly with that Nym (just like the old way.)
+	 3) BUT, if Party owner is an Entity, verify that the entity owns the account.
+	 4) ALSO: Outside of the smart contract, the same Nym should be able to manipulate that account in this same way, just
+	    by showing that the account is owned by an entity where that Nym has the RoleID in that entity that appears on the
+	    account. (Account should have entity AND role).
+	 
+	 AHH this is the difference between "this Nym may manipulate this account in general, due to his role" vs. "this Nym may
+	 manipulate this account DUE TO THE AGENCY OF THE ROLE ID stored in the Account."
+	 What's happening is, I'm proving BOTH.  The smart contract, even if you HAVE the role, still restricts you from doing anything
+	 FROM INSIDE THE SMART CONTRACT (scripts) where that Nym isn't explicitly set up as the authorized agent for that account. The Nym
+	 may STILL *normally* be able to mess with that account, if the role is set up that way -- he just can't do it from inside the script,
+	 without the additional setup inside the script itself that THIS Nym is the one setup on THIS account.
+	 
+	 Really though, inside the script itself, the only time a Nym would be set up as the account manager is really if the script
+	 owner wanted to set the ROLE as the account manager.  I don't REALLY want to set Frank in charge in the sales budget money. 
+	 Rather, I want to set the SALES DIRECTOR ROLE as being in charge of the sales budget money, and Frank just happens to be in that
+	 role.  IF I FIRE HIM TOMORROW, AND PUT ANOTHER NYM IN THAT ROLE, THE CONTRACT SHOULD STILL FUNCTION, right? Following that...
+	 
+	 The account itself will store the EntityID and RoleID.
+	 
+	 The partyaccount (on the party) only has the "agent name" who deals with that account. (No nym ID so far.)
+	 
+	 When I lookup the partyaccount, I lookup the authorized agent. At this point, the agent could still be a Role, not a Nym.
+	 
+	 Therefore when I verify the Nym against the agent, I do it the same way as I might verify a nym against an account. If the
+	 agent is a nym repping himself, I compare the NymIDs. Else if the agent is an individual in a role, then I  take the Entity that 
+	 owns that agent (the entity is hidden inside the party) and I compare the Nym's ID to the NymID recorded in the Entity as being 
+	 responsible for that role based on the RoleID stored in the agent. CLearer:  The agent has a RoleID and an Entity ID. The entity
+	 that owns it has a list of NymIDs, each mapped to a RoleID.  For the account controlled by the agent, if the Nym trying to change
+	 that account is actually listed in entity EntityID as being assigned role RoleID, where EntityID and RoleID match those in the agent,
+	 then Nym IS authorized to play with the account. This is verifiable for entities, nyms, and accounts even OUTSIDE of a smart contract,
+	 and doesn't rely on the smart contract having the partyaccount/authorized_agent set up. Those are just ADDITIONAL restrictions.
+	 Thus, Inside a smart contract, OT should enforce those additional restrictions as a layer above the verification of role/owner, etc.
+	 
+	 OR: Should I make it instead: That you must EITHER have Role-permission, OR smartcontract authorization, and EITHER WAY it allows
+	 you to manipulate the account?
+	 
+	 */
 
 
 

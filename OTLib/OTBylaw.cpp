@@ -169,6 +169,56 @@ bool OTAgent::DropFinalReceiptToNymbox(OTSmartContract & theSmartContract,
 
 
 
+
+// Have the agent try to verify his own signature against any contract.
+//
+// NOTE: This function assumes that you have already taken actions that would have loaded the Nym's pointer
+// and placed it within this Agent. This is a low-level call and it expects that you have already been using
+// calls such as HasAgent(), HasAuthorizingAgent(), LoadAuthorizingAgent(), etc.
+// This function also assumes that once you are done, you will call ClearTemporaryPointers().
+//
+bool OTAgent::VerifySignature(OTContract & theContract)
+{
+	// Only individual agents can sign for things, not groups (groups vote, they don't sign.)
+	// Thus, an individual can verify a signature, whereas a voting group would verify an election result (or whatever.)
+	//
+	if (!IsAnIndividual())
+		return false;
+	
+//	if (DoesRepresentAnEntity)
+//	{
+//		// The original version of a smartcontract might show that Frank, the Sales Director, signed it.
+//		// Years later, Frank is fired, and Jim is appointed to his former Role of sales director, in the same entity.
+//		// The original copy of the smart contract still contains Frank's signature, and thus we still need to load Frank
+//		// in order to verify that original signature.  That's why we load Frank by the NymID stored there. He was the Nym
+//		// at the time, so that's the key we load.
+//		//
+//		// NEXT: What if JIM tries to verify the signature on the contract, even though FRANK was the original signer?
+//		// Should OTAgent be smart enough here to substitute Frank whenever Jim tries to verify? I argue no: this function is
+//		// too low-level. Plus it's backwards. If Jim tries to DO an action, THEN OT should be smart enough to verify that Jim
+//		// is in the proper Role and that Jim's signature is good enough to authorize actions. But if OT is verifying Frank's
+//		// signature on some old copy of something that Frank formerly signed, then this function should clearly tell me if Frank's
+//		// sig verified... or not.
+//		//
+//		// Therefore the "DoesRepresentAnEntity()" option is useless here, since we are verifying the same Nym's signature whether
+//		// he represents an entity or not.
+//		// 
+//	}
+//	else
+	if (NULL == m_pNym)
+	{
+		OTString strTemp(theContract);
+		OTLog::vError("OTAgent::VerifySignature: Attempted to verify signature on contract, "
+					 "but no Nym had ever been loaded for this agent:\n\n%s\n\n",
+					 strTemp.Get());
+		return false;
+	}
+	
+	return theContract.VerifySignature(*m_pNym);
+}
+
+
+
 bool OTAgent::DropFinalReceiptToInbox(mapOfNyms * pNymMap,
 									  const OTString & strServerID,
 									  OTPseudonym & theServerNym,
@@ -706,6 +756,27 @@ OTPartyAccount::~OTPartyAccount()
 
 
 
+bool OTPartyAccount::IsAccount(OTAccount & theAccount) const
+{
+	if (!m_strAcctID.Exists())
+	{
+		OTLog::Error("OTPartyAccount::IsAccount: Error: Empty m_strAcctID.\n");
+		return false;
+	}
+	
+	const OTIdentifier theAcctID(m_strAcctID);
+	
+	if (theAccount.GetRealAccountID().CompareID(theAcctID))
+	{
+		m_pAccount = &theAccount; 
+		return true;
+	}
+	
+	return false;
+}
+
+
+
 bool OTPartyAccount::DropFinalReceiptToInbox(mapOfNyms * pNymMap,
 											 const OTString & strServerID,
 											 OTPseudonym & theServerNym,
@@ -993,6 +1064,31 @@ OTParty::~OTParty()
 	}		
 }
 
+
+
+void OTParty::ClearTemporaryPointers()
+{	
+	FOR_EACH(mapOfAgents, m_mapAgents)
+	{
+		OTAgent * pAgent = (*it).second;
+		OT_ASSERT_MSG(NULL != pAgent, "Unexpected NULL agent pointer in party map.");
+		
+		pAgent->ClearTemporaryPointers();
+	}
+	// -------------------------------------
+	
+	FOR_EACH(mapOfPartyAccounts, m_mapPartyAccounts)
+	{
+		OTPartyAccount * pAcct = (*it).second;
+		OT_ASSERT_MSG(NULL != pAcct, "Unexpected NULL partyaccount pointer in party map.");
+		
+		pAcct->ClearTemporaryPointers();
+	}		
+	// -------------------------------------
+}
+
+
+
 // -------------------------------------------------
 // as used "IN THE SCRIPT."
 //
@@ -1120,7 +1216,7 @@ bool OTParty::HasActiveAgent() const
 }
 
 
-// Get Agent point by Name. Returns NULL on failure.
+// Get Agent pointer by Name. Returns NULL on failure.
 //
 OTAgent * OTParty::GetAgent(const std::string & str_agent_name)
 {
@@ -1144,11 +1240,57 @@ OTAgent * OTParty::GetAgent(const std::string & str_agent_name)
 }
 
 
+// Get PartyAccount pointer by Name. Returns NULL on failure.
+//
+OTPartyAccount * OTParty::GetAccount(const std::string & str_acct_name)
+{
+	if (str_acct_name.size() > 0)
+	{
+		mapOfPartyAccounts::iterator it = m_mapPartyAccounts.find(str_acct_name);
+		
+		if (m_mapPartyAccounts.end() != it) // If we found something...
+		{
+			OTPartyAccount * pAcct = (*it).second;
+			OT_ASSERT(NULL != pAcct);
+			// -------------------------------
+			
+			return pAcct;			
+		}
+	}
+	else
+		OTLog::Error("OTParty::GetAccount: Failed: str_acct_name is empty...\n");
+	
+	return NULL;	
+}
+
+
+// If account is present for Party, set account's pointer to theAccount and return true.
+bool OTParty::HasAccount(OTAccount & theAccount, OTPartyAccount ** ppPartyAccount/*=NULL*/)
+{
+	FOR_EACH(mapOfPartyAccounts, m_mapPartyAccounts)
+	{
+		OTPartyAccount * pAcct = (*it).second;
+		OT_ASSERT(NULL != pAcct);
+		// -------------------------------
+		
+		if (pAcct->IsAccount(theAccount))
+		{
+			if (NULL != ppPartyAccount)
+				*ppPartyAccount = pAcct;
+			
+			return true;
+		}
+	}
+	
+	return false;
+}
+
+
 // Find out if theNym is an agent for Party.
 // If so, make sure that agent has a pointer to theNym and return true.
 // else return false.
 //
-bool OTParty::HasAgent(OTPseudonym & theNym)
+bool OTParty::HasAgent(OTPseudonym & theNym, OTAgent ** ppAgent/*=NULL*/)
 {
 	FOR_EACH(mapOfAgents, m_mapAgents)
 	{
@@ -1157,7 +1299,12 @@ bool OTParty::HasAgent(OTPseudonym & theNym)
 		// -------------------------------
 		
 		if (pAgent->IsValidSigner(theNym))
+		{
+			if (NULL != ppAgent)
+				*ppAgent = pAgent;
+			
 			return true;
+		}
 	}
 	
 	return false;
@@ -1168,7 +1315,7 @@ bool OTParty::HasAgent(OTPseudonym & theNym)
 // If so, make sure that agent has a pointer to theNym and return true.
 // else return false.
 //
-bool OTParty::HasAuthorizingAgent(OTPseudonym & theNym)
+bool OTParty::HasAuthorizingAgent(OTPseudonym & theNym, OTAgent ** ppAgent/*=NULL*/) // ppAgent lets you get the agent ptr if it was there.
 {
 	if (m_str_authorizing_agent.size() > 0)
 	{
@@ -1180,8 +1327,14 @@ bool OTParty::HasAuthorizingAgent(OTPseudonym & theNym)
 			OT_ASSERT(NULL != pAgent);
 			// -------------------------------
 			
-			if (pAgent->IsValidSigner(theNym))
-				return true;			
+			if (pAgent->IsValidSigner(theNym)) // if theNym is valid signer for pAgent.
+			{
+				// Optionally can pass in a pointer-to-pointer-to-Agent, in order to get the Agent pointer back.
+				if (NULL != ppAgent)
+					*ppAgent = pAgent;
+					
+				return true;
+			}
 		}
 		else // found nothing.
 			OTLog::Error("OTParty::HasAuthorizingAgent: named agent wasn't found on list.\n");
@@ -1192,28 +1345,6 @@ bool OTParty::HasAuthorizingAgent(OTPseudonym & theNym)
 
 
 
-void OTParty::ClearTemporaryPointers()
-{	
-	FOR_EACH(mapOfAgents, m_mapAgents)
-	{
-		OTAgent * pAgent = (*it).second;
-		OT_ASSERT_MSG(NULL != pAgent, "Unexpected NULL agent pointer in party map.");
-
-		pAgent->ClearTemporaryPointers();
-	}
-	// -------------------------------------
-	
-	FOR_EACH(mapOfPartyAccounts, m_mapPartyAccounts)
-	{
-		OTPartyAccount * pAcct = (*it).second;
-		OT_ASSERT_MSG(NULL != pAcct, "Unexpected NULL partyaccount pointer in party map.");
-		
-		pAcct->ClearTemporaryPointers();
-	}		
-	// -------------------------------------
-}
-
-
 // Load up the Nym that authorized the agreement for this party
 // (the nym who supplied the opening trans# to sign it.)
 //
@@ -1222,7 +1353,7 @@ void OTParty::ClearTemporaryPointers()
 // This is a low-level function.
 // CALLER IS RESPONSIBLE TO DELETE.
 //
-OTPseudonym * OTParty::LoadAuthorizingAgentNym(OTPseudonym & theSignerNym)
+OTPseudonym * OTParty::LoadAuthorizingAgentNym(OTPseudonym & theSignerNym, OTAgent ** ppAgent/*=NULL*/) // ppAgent lets you get the agent ptr if it was there.
 {
 	if (m_str_authorizing_agent.size() > 0)
 	{
@@ -1240,8 +1371,13 @@ OTPseudonym * OTParty::LoadAuthorizingAgentNym(OTPseudonym & theSignerNym)
 				OTLog::Error("OTParty::LoadAuthorizingAgentNym: This agent is not an individual--there's no Nym to load.\n");
 			else if (NULL == (pNym = pAgent->LoadNym(theSignerNym)))
 				OTLog::Error("OTParty::LoadAuthorizingAgentNym: Failed loading Nym.\n");
-			else
-				return pNym;
+			else 
+			{
+				if (NULL != ppAgent)	// Pass the agent back, too, if it was requested.
+					*ppAgent = pAgent;
+				
+				return pNym;		// Success
+			}
 		}
 		else // found nothing.
 			OTLog::Error("OTParty::LoadAuthorizingAgentNym: named agent wasn't found on list.\n");
@@ -1252,6 +1388,44 @@ OTPseudonym * OTParty::LoadAuthorizingAgentNym(OTPseudonym & theSignerNym)
 
 
 
+
+bool OTParty::VerifyOwnershipOfAccount(OTAccount & theAccount)
+{
+	if (this->IsNym())
+	{
+		bool bNymID = false;
+		std::string str_nym_id = this->GetNymID(&bNymID); // If the party is a Nym, this is the Nym's ID. Otherwise this is false.
+
+		if (!bNymID || (str_nym_id.size() <= 0))
+		{
+			OTLog::Error(" OTParty::VerifyOwnershipOfAccount: Although party is a Nym, unable to retrieve NymID!\n");
+			return false;
+		}
+		
+		const OTIdentifier thePartyNymID(str_nym_id.c_str());
+		
+		return theAccount.VerifyOwnerByID(thePartyNymID);
+	}
+	else if (this->IsEntity())
+		OTLog::Error("OTParty::VerifyOwnershipOfAccount: Error: Entities have not been implemented yet, "
+					 "but somehow this party is an entity.\n");
+	else
+		OTLog::Error("OTParty::VerifyOwnershipOfAccount: Error: Unknown party type.\n");
+
+	return false;	
+}
+
+
+
+bool OTPartyAccount::IsAccount(OTAccount & theAccount) const
+{
+	if (!m_strAcctID.Exists())
+	{
+		OTLog::Error("OTPartyAccount::IsAccount: Error: Empty m_strAcctID.\n");
+		return false;
+	}
+	
+}
 
 
 // This is only for SmartContracts, NOT all scriptables.

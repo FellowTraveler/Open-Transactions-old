@@ -147,13 +147,21 @@
 // 5) A party may have many agents. Since some parties are fictional
 //    entities (e.g. a corporation, a democracy, an estate for a deceased
 //    person, etc), parties are able to appoint agents to act on their
-//    behalf. Voting groups will soon be able to act as agents IN SOME
-//    RESPECTS. (Voting groups are coming next, after smart contracts.)
+//    behalf. An individual Nym is really just an individual Party who
+//    acts as his own agent, whereas a corporation is owned by a voting group,
+//    and appoints a Nym to act as its agent. Voting groups will soon also be
+//    able to act as agents IN SOME RESPECTS. (Voting groups are coming
+//    next, after smart contracts.) These will be able to edit bylaws, etc.
 // 6) A Smart Contract has a list of parties, each with a list of agents.
+//    Parties also bring asset accounts to the agreement, for use in the scripts.
 // 7) A Smart Contract also has a list of bylaws, each with a list of clauses.
-// 8) A Smart Contract can be activated (provided all parties have 
-//    properly signed), and can it process repeatedly over time until
-//    deactivated.
+//    Each set of Bylaws also has its own variables, which can be used by the
+//    scripts.
+// 8) A Smart Contract can be activated (provided all parties have properly
+//    signed), and it can process repeatedly over time until it expires or gets
+//    deactivated. While it's active, parties can trigger specific clauses and
+//    the smart contract will also occasionally trigger AUTOMATICALLY (depending
+//    on how it has been configured.)
 // 9) Users can decide which functions will activate--and when--and which
 //    powers will be vested in the various parties and agents.
 //10) HOOKS -- Scripts trigger upon various EVENTS such as onActivate,
@@ -162,8 +170,8 @@
 //    or when the price of gold reaches X... or however you code the scripted
 //    clauses in your contract...
 //
-// The design makes it easy to swap in different script languages. Currently
-// for experimental purposes I am using chaiscript.
+// The design makes it easy to swap in different script languages. (Currently
+// for experimental purposes I am using chaiscript.)
 //
 
 
@@ -303,6 +311,140 @@
  Bylaws need to have a list of hooks, where the hook name corresponds to the clause name.
  Just as they have a list of clauses, they also need a list of the hooks those clauses are triggered by.
  
+ 
+ 
+ 
+ 
+ 
+ Still need todo on smart contracts:
+ 
+ -- Serialization
+ -- Confirmation
+ -- Verification
+ -- Native Functions such as:
+ 
+	move_funds(from_acct, to_acct)				(from_acct and to_acct must be a party to the agreement)
+	send_cashiers_cheque(from_acct, to_nym)		(from_acct must be a party to the agreement. to_nym doesn't have to be.)
+	stash_funds(from_acct, "stash_one", 100)	("stash_one" is stored inside the bylaw. Server-side only.)
+	unstash_funds("stash_one", to_acct, 100)	(Smartcontract must be activated with no stashes. Server creates/maintains them.)
+	unstash_funds_to_nym("stash_one", to_nym, 100)	(This is like send_cashiers_cheque, except from a stash.)
+    get_balance(acct)							(acct must be party to agreement.)
+    
+	send_notice(to_nym)							(Like sendMessage, except it comes from the server, not another user.)
+	send_notice_to_parties()					(Does a send_notice to ALL parties.)
+ 
+ -- Dirtiness:
+    Important variables changed require a Nymbox notice sent. (agreementReceipt)
+    Any movement of funds requires Inbox notice sent to relevant parties. (can I just use paymentReceipt? Otherwise agreementReceipt here too.)
+	FinalReceipt requires Nymbox AND Inbox notices to be sent.  (finalReceipt.)
+ 
+ -- Client command to message server and activate a new SmartContract.
+ -- Server functions to process said message, and activate the script on cron.
+ 
+ -- (Postponed) Make a new OTScriptable-derived class called OTTitle (which represents a registered piece of property)
+    and add client commands / server functions for functionality like SmartContract, except you are registering an 
+    OTTitle for a static piece of property, versus activating an OTCronItem that processes and triggers repeatedly
+	over time. OTTitle will probably derive from OTContract, in the same way that OTAssetContract derives from
+    OTContract. You will be able to register title on a server similar to registering an asset contract. Except,
+    instead of getting an issuer acct, you get a deed...
+ 
+ -- (Postponed) There are several ways to own title to property. One is to have an OTDeed class, which allows any specific Nym to
+    have a title registered to him based on a specific transaction #, which is released whenever the deed is transferred.
+    This enables destruction-of-acct-history similar to unit-based accounts, but it also necessitates the use of an "asset
+    account" (with an inbox) specifically for holding deed-based property. (This is necessary in order to prove ownership
+    and everything else--the same as with unit-based accounts.)  I probably will NOT code this "deed" piece anytime soon...
+ 
+ -- (Upcoming) ...HOWEVER, ANOTHER WAY to own title (WITHOUT A DEED) is through SHAREHOLDING. That is where my interest currently
+	lies. Therefore I will add the OTEntity class. Instead of being derived from OTContract like OTTitle, it will be derived from
+    OTScriptable (similar to the smart contracts.)  This will enable it to have parties and bylaws.
+    Similar to cron items, which save the original copy but also save updated copies whenever something changes, I will cause
+    OTEntity to generate a unique ID based on the entity as it originally appeared when first registered. The original version
+    is always retrievable by a shareholder and hashing it should produce the actual entity ID.
+    But from there, the Entity can evolve over time. Since it is OTScriptable-derived, it can have parties, and bylaws. The
+    parties can take actions to change the bylaws and appointments.
+    The political structure of the entity is determined by the parties. There might be 3 parties who are all Nyms, in which case
+    you have a partnership. If the entity's charter says, "Party A is a Nym: FellowTraveler", and if all parties by default have
+    the power to alter the bylaws, appoint employees, activate clauses to move funds, etc, then you now have an individual 
+    controlling the entity. 
+    WHERE THIS IS GOING: A party whose agent is a voting group, whose members are determined by shareholdership in STOCK of
+    the entity. (Really could be configured to stock in any stock ID, but people will WANT the stock to be in the entity.) Future
+    versions of OT will allow creation of multiple classes of stock, and indeed there is nothing stopping entities now from
+    issuing whatever currencies they want, with the issuer accounts controlled by them or their agents. Of course it's better
+    to have it strict in the bylaws, and have OT just execute it that way, and for now that's how it will be with the DEFAULT,
+    HARDCODED current path of a SINGLE class of stock for each entity, with the Entity's ID serving as the Asset Type ID. I think
+    it would be a LONG TIME before we ever need more functionality than that anyway, so that's what I'll focus on.
+ 
+ -- So I need OTVotingGroup class which will determine members based on various types of groups.
+    1) Shareholders. Expects a weighted vote among shareholders based on asset type ID matching entity ID.
+    2) Appointed members. A list of members (NymIDs) is explicitly stored in this group. (Like the list of board members.)
+	
+	(1) Will take advantage of existing asset account code (for weighted voting), 
+	and (2) will take advantage of existing digital cash code (for secret ballots.)
+ 
+	For both types of groups, votes will be possible such as Majority rules, 2/3rds, 3/4ths, 9/10ths, Unanimous, etc.
+    In the case of appointed members (2), permissions can be granted to members, such as dictator, dictator subject to veto,
+    veto power, etc etc. In this way, democracies, republics, corporations, etc all become possible through simple config changes.
+ 
+    But all of the actual voting will not happen until I code classes like OTBallot, OTElection, etc. That's not my current
+    focus. We will get to that in time. Rather, my focus is on the use of SHAREHOLDERS to allow weighted, account-based ownership
+    of STOCK in ENTITIES.  My interest right now is on the ENTITIES THEMSELVES, and their ability to be party to agreements, and
+    to hire employees, and to own property and asset accounts.
+ 
+    So an EntityID is similar to a TitleID, in the sense that an entity is a piece of property that can be owned. But an EntityID
+    is also similar to an AssetTypeID, since there can be a currency issued for that entity. And an entity is also similar to a smart
+    contract, in the sense that it can have bylaws, and it can have "parties to the agreement".
+ 
+    Beyond that, entities will also have the ability to hire employees, sign contracts, own property, etc. Distribute funds up and
+    down the hierarchy, and have access the communications and receipts up and down the hierarchy.
+ 
+ -- Entity will not be derived from a Title, because they are fundamentally different enough. Entities are owned by the voting groups
+    that make them up, according to their laws. Whereas Titles are owned based on holder of Deed.
+ 
+ -- Therefore, NOT needed for now: OTTitle, OTDeed, OTBallot, OTElection.
+
+ -- NEEDED and coming soon: OTVotingGroup, OTEntity.  I'll start on these once I have proven the first SMART CONTRACT (Escrow!!!!!)
+ 
+ 
+===> NEW THOUGHT:  I think OTAssetContract should be derived from OTScriptable instead of OTContract. There's no reason why an 
+     issuer shouldn't be able to attach scripts to certain aspects of a currency, right? Hooks could trigger at various currency-related
+     events.  There's also no reason why an issued currency shouldn't be able to have parties. But who are the parties, if not the issuer?
+     In the case of OTAssetContract, the parties will be whoever are configured to do whatever the clauses need them to do, which will often
+     be nothing, though technically they could be used for AUTOMATED BAILMENT PROCESSES!! (Say one of the parties is a voting group consisting
+     of anyone who holds stock. And that party has the right to trigger the "bailout" clause, which has the power the transfer the funds auto-
+     matically (via a script) to another party or account.)  I don't know how people might use this, but it seems potentially useful.
+ 
+ ===> Once this is in place, then it's easy to have OTEntity be derived from OTAssetContract!!  And that's where we'll get our Entity ID.
+ 
+ ===> ANOTHER IDEA:  SHould be easy to move funds ONTO THE SMART CONTRACT ITSELF. Just have an XML tag where stored funds go, perhaps with the
+      funds double in a server backing account (similar to how the cash already is.)  The script can enable peeps to move funds from an acct
+      and to a safe place (inside the smart contract itself) until some other rule causes it to be moved somewhere else. This is needed for ESCROW!!!
+      Perhaps I'll call this a "fund".  OTFund.  The only other way for an entity to control funds is to open accounts, meaning it must trust the
+      Nym who's been appointed to the role of managing that account. The entity ITSELF can't open accounts because there is no signer!!! But the
+      entity CAN control FUNDS, because they are stored inside the entity itself!! (relevant parties get receipts for changes to entities...) And
+      unlike a Nym, everyone can trust a cold, hard, script.
+ 
+ 
+ ===> REALIZATION:  For my audit protocol, I wanted to have some kind of DHT to store the receipts, where issuer and customer both have access to
+      them, but where the system itself cannot otherwise be shut down. And you can't just put some IP address of a server into the contract (as the
+      location for those receipts) because then a "power that be" can read the contract, and shut down the server at that IP.
+		BUT NOW, possibly the solution may somehow lie in Namecoin, which is a censorship-proof DHT where I could store an I2P address. Do I still need
+      a DHT for the receipts themselves, as long as DNS is safe from interference, and I can control where it points to? Since all parties (issuer and
+      users) would read their receipts from the same place (whichever address is listed in Namecoin) and since it's on an anonymous network, then I
+      believe the issuer and transaction server can exchange receipts in a safe way. Possibly this solves any auditing issues, though I still need to
+      devise the protocol.
+      But this still means that someone is running a server somewhere, and must be in order for people to get their receipts, whereas using a full DHT
+      solution is more... certifiable. notarizable. Because you have the whole blockchain verifying that receipt was posted...
+		
+		Maybe the issuer just needs to demand that all receipts are numbered sequentially? hm.
+ 
+ ===> NEW THOUGHT: For Auditing protocol:  EVERY RECEIPT for any specific asset type should be sequentially numbered, AND should contain the hash of
+      the receipt that came before it.  This way, the auditor can receive a verifiable stream of receipts, which can also be queried by transaction #,
+      which is unique to all transactions on the transaction server, as well as queried by sequence number, which is unique to the issuer, as well as
+      queried by hash value, which is used to prove sequence.
+	  Every receipt should be encrypted to a random key, and then that key should be encrypted to three recipients: the server, the auditor, and the
+      party doing the transaction. The receipts should otherwise be publicly available (though encrypted) and auditors and parties should have to retrieve
+      them from the same place.  Even if I allow the parties to keep the receipts directly in response to their server messages, they can still compare
+      notes directly with the auditor and each other on the hashes for the various sequence numbers. Hm.
  */
 
 
@@ -773,9 +915,9 @@ bool OTSmartContract::ProcessCron()
 	
 	if (this->GetHooks(str_HookName, theMatchingClauses))
 	{	
-		OTLog::Output(0, "Cron: Processing smart contract clauses...\n");
+		OTLog::Output(0, "Cron: Processing smart contract clauses for hook: cron_process \n");
 		
-		this->ExecuteClauses(theMatchingClauses); // <==========
+		this->ExecuteClauses(theMatchingClauses); // <============================================
 	}
 	//
 	// *****************************************************************************
@@ -794,6 +936,8 @@ bool OTSmartContract::ProcessCron()
 
 void OTSmartContract::ExecuteClauses (mapOfClauses & theClauses)
 {
+	// Loop through the clauses passed in, and execute them all.
+	//
 	FOR_EACH_IT(mapOfClauses, theClauses, it_clauses)
 	{
 		const std::string str_clause_name	= (*it_clauses).first;
@@ -844,7 +988,18 @@ void OTSmartContract::ExecuteClauses (mapOfClauses & theClauses)
 			}
 			else
 				OTLog::vOutput(0, "Successfully executed script clause: %s.\n\n", str_clause_name.c_str());
-			// ****************************************			
+			// ****************************************
+//			For now, I've decided to allow ALL clauses to trigger on the hook. The flag only matters after
+//			they are done, and not between scripts. Otherwise problems could arise, such as order of execution.
+//			Remember, there is nothing stopping people from using their own variables and ending all behavior
+//          after that flag is set.  Todo security: revisit this just in case.
+//			
+//			// Check this after each script.
+//			//
+//			if (IsFlaggedForRemoval())
+//			{
+//				OTLog::Output(3, "OTSmartContract::ExecuteClauses: Flagged for removal by script.\n");
+//			}				
 		}
 		// ---------------------------------------------------------------
 		else 
@@ -852,659 +1007,41 @@ void OTSmartContract::ExecuteClauses (mapOfClauses & theClauses)
 			OTLog::Error("OTSmartContract::ExecuteClauses: Error instantiating script!!\n");
 		}
 	} // FOR_EACH clauses...
-}
-
-
-
-
-// Assumes we're due for a payment. Execution oriented.
-// NOTE: There used to be more to this function, but it ended up like this. Que sera sera.
-void OTSmartContract::ProcessPaymentPlan()
-{	
-	OT_ASSERT(NULL != GetCron());
-	
-	// This way the ProcessPayment() function knows what kind of payment we're processing.
-	// Basically there's just one little spot in there where it needs to know.  :-(
-	// But the member could be useful in the future anyway.
-	m_bProcessingPaymentPlan	= true;
-	ProcessPayment(GetPaymentPlanAmount());
-	m_bProcessingPaymentPlan	= false;
-    
-	// No need to save the Payment Plan itself since it's already
-	// saved inside the ProcessPayment() call as part of constructing the receipt.
-    
-	
-	// Either way, Cron should save, since it just updated.
-	// (The above function call WILL change this payment plan
-	// and re-sign it and save it, no matter what. So I just 
-	// call this here to keep it simple:
-	
-	GetCron()->SaveCron();
-	
-	// -----------------------------------------------------
-}
-
-
-
-// TODO: Make a GENERIC VERSION of the BELOW function, that script coders can call
-// whenever they need to move money between two parties!!!!
-
-
-
-
-// This can be called by either the initial payment code, or by the payment plan code.
-// true == success, false == failure.
-//
-bool OTSmartContract::ProcessPayment(const long & lAmount)
-{	
-	const OTCron * pCron = GetCron();
-	OT_ASSERT(NULL != pCron);
-	
-	OTPseudonym * pServerNym = pCron->GetServerNym();
-	OT_ASSERT(NULL != pServerNym);
-	
-	
-	bool bSuccess = false;	// The return value.
-	
-	
-	const OTIdentifier		SERVER_ID(pCron->GetServerID());
-	const OTIdentifier		SERVER_USER_ID(*pServerNym);
-	
-	const OTIdentifier &	SOURCE_ACCT_ID		= GetSenderAcctID();
-	const OTIdentifier &	SENDER_USER_ID		= GetSenderUserID();
-	
-	const OTIdentifier &	RECIPIENT_ACCT_ID	= GetRecipientAcctID();
-	const OTIdentifier &	RECIPIENT_USER_ID	= GetRecipientUserID();
-	
-	
-	OTString	strSenderUserID(SENDER_USER_ID), strRecipientUserID(RECIPIENT_USER_ID),
-	strSourceAcctID(SOURCE_ACCT_ID), strRecipientAcctID(RECIPIENT_ACCT_ID);
-	
-	
-	// Make sure they're not the same Account IDs ...
-	// Otherwise we would have to take care not to load them twice, like with the Nyms below.
-	// (Instead I just disallow it entirely.)
-	if (SOURCE_ACCT_ID == RECIPIENT_ACCT_ID)
-	{
-		OTLog::Output(0, "Failed to process payment: both account IDs were identical.\n");
-		FlagForRemoval(); // Remove from Cron
-		return false; // TODO: should have a "Verify Payment Plan" function that weeds this crap out before we even get here.
-	}
-	// When the accounts are actually loaded up, then we should also compare
-	// the asset types to make sure they were what we expected them to be.
-	
-	
-	// -----------------------------------------------------------------
-	
-	// Need to load up the ORIGINAL PAYMENT PLAN (with BOTH users' original SIGNATURES on it!)
-	// Will need to verify those signatures as well as attach a copy of it to the receipt.
-	
-	OTCronItem * pOrigCronItem	= NULL;
-	
-	// OTCronItem::LoadCronReceipt loads the original version with the user's signature.
-	// (Updated versions, as processing occurs, are signed by the server.)
-	pOrigCronItem		= OTCronItem::LoadCronReceipt(GetTransactionNum());
-	
-	OT_ASSERT(NULL != pOrigCronItem);	// How am I processing it now if the receipt wasn't saved in the first place??
-	// TODO: Decide global policy for handling situations where the hard drive stops working, etc.
-	
-	// When theOrigPlanGuardian goes out of scope, pOrigCronItem gets deleted automatically.
-	OTCleanup<OTCronItem>	theOrigPlanGuardian(*pOrigCronItem);
-	
-	// strOrigPlan is a String copy (a PGP-signed XML file, in string form) of the original Payment Plan request...
-	OTString strOrigPlan(*pOrigCronItem); // <====== Farther down in the code, I attach this string to the receipts.
-	
-	
-	// Make sure to clean these up.
-	//	delete pOrigCronItem;		// theOrigPlanGuardian will handle this now, whenever it goes out of scope.
-	//	pOrigCronItem = NULL;		// So I don't need to worry about deleting this anymore. I can keep it around and
-	// use it all I want, and return anytime, and it won't leak.
 	
 	
 	
-	// -------------- Make sure have both nyms loaded and checked out. --------------------------------------------------
-	// WARNING: 1 or both of the Nyms could be also the Server Nym. They could also be the same Nym, but NOT the Server.
-	// In all of those different cases, I don't want to load the same file twice and overwrite it with itself, losing
-	// half of all my changes. I have to check all three IDs carefully and set the pointers accordingly, and then operate
-	// using the pointers from there.
 	
 	
-	OTPseudonym theSenderNym, theRecipientNym; // We MIGHT use ONE, OR BOTH, of these, or none. (But probably both.)
-	
-	// Find out if either Nym is actually also the server.
-	bool bSenderNymIsServerNym		= ((SENDER_USER_ID		== SERVER_USER_ID) ? true : false);
-	bool bRecipientNymIsServerNym	= ((RECIPIENT_USER_ID	== SERVER_USER_ID) ? true : false);
-	
-	// We also see, after all that is done, whether both pointers go to the same entity. 
-	// (We'll want to know that later.)
-	bool bUsersAreSameNym			= ((SENDER_USER_ID == RECIPIENT_USER_ID) ? true : false);
-	
-	OTPseudonym * pSenderNym		= NULL;
-	OTPseudonym * pRecipientNym		= NULL;
-	
-	// Figure out if Sender Nym is also Server Nym.
-	if (bSenderNymIsServerNym)		
-	{
-		// If the First Nym is the server, then just point to that.
-		pSenderNym = pServerNym;
-	}
-	else	// Else load the First Nym from storage.
-	{
-		theSenderNym.SetIdentifier(SENDER_USER_ID);  // theSenderNym is pSenderNym
-		
-		if (false == theSenderNym.LoadPublicKey())
-		{
-			OTString strNymID(SENDER_USER_ID);
-			OTLog::vError("Failure loading Sender Nym public key in OTSmartContract::ProcessPayment: %s\n", 
-						  strNymID.Get());
-			FlagForRemoval(); // Remove it from future Cron processing, please.
-			return false;
-		}
-		
-		if (theSenderNym.VerifyPseudonym()	&&		
-			theSenderNym.LoadSignedNymfile(*pServerNym)) // ServerNym here is not theSenderNym's identity, but merely the signer on this file.
-		{
-			pSenderNym = &theSenderNym; //  <=====
-		}
-		else 
-		{
-			OTString strNymID(SENDER_USER_ID);
-			OTLog::vError("Failure loading or verifying Sender Nym public key in OTSmartContract::ProcessPayment: %s\n", 
-						  strNymID.Get());
-			FlagForRemoval(); // Remove it from future Cron processing, please.
-			return false;			
-		}
-	}
-	
-	
-	// Next, we also find out if Recipient Nym is Server Nym...
-	if (bRecipientNymIsServerNym)		
-	{
-		// If the Recipient Nym is the server, then just point to that.
-		pRecipientNym = pServerNym;
-	}
-	else if (bUsersAreSameNym)	// Else if the participants are the same Nym, point to the one we already loaded. 
-	{
-		pRecipientNym = pSenderNym; // theSenderNym is pSenderNym
-	}
-	else	// Otherwise load the Other Nym from Disk and point to that.
-	{
-		theRecipientNym.SetIdentifier(RECIPIENT_USER_ID);
-		
-		if (false == theRecipientNym.LoadPublicKey())
-		{
-			OTString strNymID(RECIPIENT_USER_ID);
-			OTLog::vError("Failure loading Recipient Nym public key in OTSmartContract::ProcessPayment: %s\n", 
-						  strNymID.Get());
-			FlagForRemoval(); // Remove it from future Cron processing, please.
-			return false;
-		}
-		
-		if (theRecipientNym.VerifyPseudonym()	&& 
-			theRecipientNym.LoadSignedNymfile(*pServerNym))
-		{
-			pRecipientNym = &theRecipientNym; //  <=====
-		}
-		else 
-		{
-			OTString strNymID(RECIPIENT_USER_ID);
-			OTLog::vError("Failure loading or verifying Recipient Nym public key in OTSmartContract::ProcessPayment: %s\n", 
-						  strNymID.Get());
-			FlagForRemoval(); // Remove it from future Cron processing, please.
-			return false;			
-		}
-	}
-	
-	
-	// -----------------------------------------------------------------
-	
-	
-	// Now that I have the original Payment Plan loaded, and all the Nyms ready to go,
-	// let's make sure that BOTH the nyms in question have SIGNED the original request.
-	// (Their signatures wouldn't be on the updated version in Cron--the server signs
-	// that one.)
-	
-	if (!pOrigCronItem->VerifySignature(*pSenderNym) || !pOrigCronItem->VerifySignature(*pRecipientNym))
-	{
-		OTLog::Error("Failed authorization: Payment plan (while attempting to process...)\n");
-		FlagForRemoval(); // Remove it from Cron.
-		return false;			
-	}
-	
-	
-	// AT THIS POINT, I have pServerNym, pSenderNym, and pRecipientNym. 
-	// ALL are loaded from disk (where necessary.) AND...
-	// ALL are valid pointers, (even if they sometimes point to the same object,)
-	// AND none are capable of overwriting the storage of the other (by accidentally
-	// loading the same storage twice.)
-	// We also have boolean variables at this point to tell us exactly which are which,
-	// (in case some of those pointers do go to the same object.) 
-	// They are:
-	// bSenderNymIsServerNym, bRecipientNymIsServerNym, and bUsersAreSameNym.
+	// TODO:
+	// "Important" variables.
+	// If any of them have changed, then I need to notice the parties.
 	//
-	// I also have pOrigCronItem, which is a dynamically-allocated copy of the original
-	// Cron Receipt for this Payment Plan. (And I don't need to worry about deleting it, either.)
-	// I know for a fact they have both signed pOrigCronItem...
-	
-	// -----------------------------------------------------------------
-	
-	OTAccount * pSourceAcct		= OTAccount::LoadExistingAccount(SOURCE_ACCT_ID, SERVER_ID);
-	
-	if (NULL == pSourceAcct)
-	{
-		OTLog::Output(0, "ERROR verifying existence of source account during attempted payment plan processing.\n");
-		FlagForRemoval(); // Remove it from future Cron processing, please.
-		return false;
-	}
-	// Past this point we know pSourceAcct is good and will clean itself up.
-	OTCleanup<OTAccount>	theSourceAcctSmrtPtr(*pSourceAcct);
-	// -----------------------------------------------------------------
-	
-	OTAccount * pRecipientAcct	= OTAccount::LoadExistingAccount(RECIPIENT_ACCT_ID,	SERVER_ID);
-	
-	if (NULL == pRecipientAcct)
-	{
-		OTLog::Output(0, "ERROR verifying existence of recipient account during attempted payment plan processing.\n");
-		FlagForRemoval(); // Remove it from future Cron processing, please.
-		return false;
-	}
-	// Past this point we know pRecipientAcct is good and will clean itself up.
-	OTCleanup<OTAccount>	theRecipAcctSmrtPtr(*pRecipientAcct);
-	// -----------------------------------------------------------------
 	
 	
-	// BY THIS POINT, both accounts are successfully loaded, and I don't have to worry about
-	// cleaning either one of them up, either. But I can now use pSourceAcct and pRecipientAcct...
-	//
-	//
-	// -----------------------------------------------------------------------------------
 	
-	// A few verification if/elses...
 	
-	// Are both accounts of the same Asset Type?
-	if (pSourceAcct->GetAssetTypeID() != pRecipientAcct->GetAssetTypeID())
-	{	// We already know the SUPPOSED Asset IDs of these accounts... But only once
-		// the accounts THEMSELVES have been loaded can we VERIFY this to be true.
-		OTLog::Output(0, "ERROR - attempted payment between accounts of different "
-					  "asset types in OTSmartContract::ProcessPayment\n");
-		FlagForRemoval(); // Remove it from future Cron processing, please.
-		return false;
-	}
 	
-	// Make sure all accounts are signed by the server and have the owner they are expected to have.
-	
-	// I call VerifySignature here since VerifyContractID was already called in LoadExistingAccount().
-	else if (!pSourceAcct->VerifyOwner(*pSenderNym) || !pSourceAcct->VerifySignature(*pServerNym) )
-	{
-		OTLog::Output(0, "ERROR verifying ownership or signature on source account in OTSmartContract::ProcessPayment\n");
-		FlagForRemoval(); // Remove it from future Cron processing, please.
-		return false;
-	}
-	
-	else if (!pRecipientAcct->VerifyOwner(*pRecipientNym) || !pRecipientAcct->VerifySignature(*pServerNym) )
-	{
-		OTLog::Output(0, "ERROR verifying ownership or signature on recipient account in OTSmartContract::ProcessPayment\n");
-		FlagForRemoval(); // Remove it from future Cron processing, please.
-		return false;
-	}
-	
-	// By this point, I know I have both accounts loaded, and I know that they have the right asset types,
-	// and I know they have the right owners and they were all signed by the server.
-	// I also know that their account IDs in their internal records matched the account filename for each acct.
-	// I also have pointers to the Nyms who own these accounts.
-	
-	else 
-	{			
-		// Okay then, everything checks out. Let's add a receipt to the sender's outbox and the recipient's inbox. 
-		// IF they can be loaded up from file, or generated, that is. 
-		
-		// Load the inbox/outbox in case they already exist
-		OTLedger	theSenderInbox		(SENDER_USER_ID,	SOURCE_ACCT_ID,		SERVER_ID),
-					theRecipientInbox	(RECIPIENT_USER_ID, RECIPIENT_ACCT_ID,	SERVER_ID);
-		
-		// ALL inboxes -- no outboxes. All will receive notification of something ALREADY DONE.
-		bool bSuccessLoadingSenderInbox		= theSenderInbox.LoadInbox();
-		bool bSuccessLoadingRecipientInbox	= theRecipientInbox.LoadInbox();
-		
-		// --------------------------------------------------------------------
-		
-		// ...or generate them otherwise...
-		
-		if (true == bSuccessLoadingSenderInbox)
-			bSuccessLoadingSenderInbox		= theSenderInbox.VerifyAccount(*pServerNym);
-		else
-			bSuccessLoadingSenderInbox		= theSenderInbox.GenerateLedger(SOURCE_ACCT_ID, SERVER_ID, OTLedger::inbox, true); // bGenerateFile=true
-		
-		if (true == bSuccessLoadingRecipientInbox)
-			bSuccessLoadingRecipientInbox		= theRecipientInbox.VerifyAccount(*pServerNym);
-		else
-			bSuccessLoadingRecipientInbox		= theRecipientInbox.GenerateLedger(RECIPIENT_ACCT_ID, SERVER_ID, OTLedger::inbox, true); // bGenerateFile=true
-		
-		// --------------------------------------------------------------------
-		
-		if ((false == bSuccessLoadingSenderInbox)	|| 
-			(false == bSuccessLoadingRecipientInbox))
-		{
-			OTLog::Error("ERROR loading or generating inbox ledger in OTSmartContract::ProcessPayment.\n");
-		}
-		else 
-		{
-			// Generate new transaction numbers for these new transactions
-			long lNewTransactionNumber = GetCron()->GetNextTransactionNumber();
-			
-			//			OT_ASSERT(lNewTransactionNumber > 0); // this can be my reminder.			
-			if (0 == lNewTransactionNumber)
-			{
-				OTLog::Output(0, "WARNING: Payment plan is unable to process because there are no more transaction numbers available.\n");
-				// (Here I do NOT flag for removal.)
-				return false; 			
-			}
-			
-			OTTransaction * pTransSend		= OTTransaction::GenerateTransaction(theSenderInbox, 
-																				 OTTransaction::paymentReceipt, lNewTransactionNumber);
-			
-			OTTransaction * pTransRecip		= OTTransaction::GenerateTransaction(theRecipientInbox, 
-																				 OTTransaction::paymentReceipt, lNewTransactionNumber);
-			
-			// (No need to OT_ASSERT on the above transactions since it occurs in GenerateTransaction().)
-			
-			
-			// Both inboxes will get receipts with the same (new) transaction ID on them.
-			// They will have a "In reference to" field containing the original payment plan
-			// (with user's signature).
-			
-			// set up the transaction items (each transaction may have multiple items... but not in this case.)
-			OTItem * pItemSend		= OTItem::CreateItemFromTransaction(*pTransSend, OTItem::paymentReceipt);
-			OTItem * pItemRecip		= OTItem::CreateItemFromTransaction(*pTransRecip, OTItem::paymentReceipt);
-			
-			// these may be unnecessary, I'll have to check CreateItemFromTransaction. I'll leave em.
-			OT_ASSERT(NULL != pItemSend);	
-			OT_ASSERT(NULL != pItemRecip);
-			
-			pItemSend->SetStatus(OTItem::rejection); // the default.
-			pItemRecip->SetStatus(OTItem::rejection); // the default.
-			
-			
-			// Here I make sure that each receipt (each inbox notice) references the original
-			// transaction number that was used to set the payment plan into place...
-			// This number is used to track all cron items. (All Cron items require a transaction 
-			// number from the user in order to add them to Cron in the first place.)
-			// 
-			// The number is also used to uniquely identify all other transactions, as you
-			// might guess from its name.
-			pTransSend->SetReferenceToNum(GetTransactionNum());
-			pTransRecip->SetReferenceToNum(GetTransactionNum());
-			
-			
-			// The TRANSACTION (a receipt in my inbox) will be sent with "In Reference To" information
-            // containing the ORIGINAL SIGNED PLAN. (With both parties' original signatures on it.)
-			//
-			// Whereas the TRANSACTION ITEM will include an "attachment" containing the UPDATED
-			// PLAN (this time with the SERVER's signature on it.)
-			//
-			// Here's the original one going onto the transaction:
-			//
-			pTransSend->SetReferenceString(strOrigPlan);
-			pTransRecip->SetReferenceString(strOrigPlan);
-			
-			
-			
-			
-			
-			// --------------------------------------------------------------------------
-			
-			// MOVE THE DIGITAL ASSETS FROM ONE ACCOUNT TO ANOTHER...
-			
-			// Calculate the amount and debit/ credit the accounts
-			// Make sure each Account can afford it, and roll back in case of failure.
-			
-			bool bMoveSender	= false;
-			bool bMoveRecipient = false;
-			
-			// Make sure he can actually afford it...
-			if (pSourceAcct->GetBalance() >= lAmount)
-			{
-				// Debit the source account. 
-				bMoveSender	= pSourceAcct->Debit(lAmount); // <====== DEBIT FUNDS
-				
-				// IF success, credit the recipient.
-				if (bMoveSender)
-				{
-					bMoveRecipient	= pRecipientAcct->Credit(lAmount); // <=== CREDIT FUNDS
-					
-					// Okay, we already took it from the source account.
-					// But if we FAIL to credit the recipient, then we need to PUT IT BACK in the source acct.
-					// (EVEN THOUGH we'll just "NOT SAVE" after any failure, so it's really superfluous.)
-					//
-					if (!bMoveRecipient)
-						pSourceAcct->Credit(lAmount); // put the money back
-					else
-						bSuccess = true;
-				}
-				
-				// If ANY of these failed, then roll them all back and break.
-				if (!bMoveSender || !bMoveRecipient)
-				{
-					OTLog::Error("Very strange! Funds were available but debit or credit failed while performing payment.\n");
-					// We won't save the files anyway, if this failed. 					
-					bSuccess = false;
-				}				
-			}
-			
-			
-			
-			// --------------------------------------------------------------------------
-			
-			
-			
-			
-			
-			// DO NOT SAVE ACCOUNTS if bSuccess is false.
-			// We only save these accounts if bSuccess == true.
-			// (But we do save the inboxes either way, since payment failures always merit an inbox notice.)
-			
-			if (true == bSuccess) // The payment succeeded.
-			{
-				// Both accounts involved need to get a receipt of this trade in their inboxes...
-				pItemSend->SetStatus(OTItem::acknowledgement); // pSourceAcct		
-				pItemRecip->SetStatus(OTItem::acknowledgement); // pRecipientAcct
-				
-				pItemSend->SetAmount(lAmount*(-1));	// "paymentReceipt" is otherwise ambigious about whether you are paying or being paid.
-				pItemRecip->SetAmount(lAmount);		// So, I decided for payment and market receipts, to use negative and positive amounts.
-				// I will probably do the same for cheques, since they can be negative as well (invoices).
-				
-				if (m_bProcessingInitialPayment) // if this is a success for an initial payment
-				{
-					SetInitialPaymentDone();	
-					OTLog::Output(3, "Initial payment performed in OTSmartContract::ProcessPayment\n");
-				}
-				else if (m_bProcessingPaymentPlan) // if this is a success for payment plan payment.
-				{
-					IncrementNoPaymentsDone();	
-					SetDateOfLastPayment(GetCurrentTime());
-					OTLog::Output(3, "Payment plan payment performed in OTSmartContract::ProcessPayment\n");
-				}
-				
-				// (I do NOT save m_pCron here, since that already occurs after this function is called.)
-			}
-			else // bSuccess = false.  The payment failed.
-			{
-				pItemSend->SetStatus(OTItem::rejection);// pSourceAcct		// These are already initialized to false.
-				pItemRecip->SetStatus(OTItem::rejection);// pRecipientAcct	// (But just making sure...)
-				
-				pItemSend->SetAmount(0);		// No money changed hands. Just being explicit.
-				pItemRecip->SetAmount(0);		// No money changed hands. Just being explicit.		
-				
-				if (m_bProcessingInitialPayment)
-				{
-					IncrementNoInitialFailures();
-					SetLastFailedInitialPaymentDate(GetCurrentTime());
-					OTLog::Output(3, "Initial payment failed in OTSmartContract::ProcessPayment\n");
-				}
-				else if (m_bProcessingPaymentPlan)
-				{
-					IncrementNoFailedPayments();
-					SetDateOfLastFailedPayment(GetCurrentTime());
-					OTLog::Output(3, "Payment plan payment failed in OTSmartContract::ProcessPayment\n");
-				}
-			}
-			
-			// Everytime a payment processes, a receipt is put in the user's inbox, containing a
-			// CURRENT copy of the payment plan (which took just money from the user's acct, or not,
-			// and either way thus updated its status -- so its internal data has changed.)
-			//
-			// It will also contain a copy of the user's ORIGINAL signed payment plan, where the data
-			// has NOT changed, (so the user's original signature is still good.)
-			//
-			// In order for it to export the RIGHT VERSION of the CURRENT plan, which has just changed
-			// (above), then I need to re-sign it and save it first. (The original version I'll load from
-			// a separate file using OTCronItem::LoadCronReceipt(lTransactionNum). It has both original
-			// signatures on it. Nice, eh?)
-			
-			
-			this->ReleaseSignatures();
-			this->SignContract(*pServerNym);
-			this->SaveContract();
-			
-			
-			// No need to save Cron here, since both caller functions call SaveCron() EVERY time anyway,
-			// success or failure, rain or shine.
-			//m_pCron->SaveCron(); // Cron is where I am serialized, so if Cron's not saved, I'm not saved.
-			
-			// -----------------------------------------------------------------
-			//
-			// EVERYTHING BELOW is just about notifying the users, by dropping the receipt in their
-			// inboxes. The rest is done.  The accounts and inboxes will all be saved at the same time.
-			//
-			// The Payment Plan is entirely updated and saved by this point, and Cron will
-			// also be saved in the calling function once we return (no matter what.)
-			//
-			// -----------------------------------------------------------------
-			
-			
-			// Basically I load up both INBOXES, which are actually LEDGERS, and then I create
-			// a new transaction, with a new transaction item, for each of the ledgers.
-			// (That's where the receipt information goes.)
-			// 
-			
-			
-			
-			// -----------------------------------------------------------------
-			
-			// The TRANSACTION will be sent with "In Reference To" information containing the
-			// ORIGINAL SIGNED PLAN. (With both of the users' original signatures on it.)
-			//
-			// Whereas the TRANSACTION ITEM will include an "attachment" containing the UPDATED
-			// PLAN (this time with the SERVER's signature on it.)
-			
-			// (Lucky I just signed and saved the updated plan (above), or it would still have 
-			// have the old data in it.)
-			
-			// I also already loaded the original plan. Remember this from above,
-			// near the top of the function:
-			//  OTCronItem * pOrigCronItem	= NULL;
-			// 	OTString strOrigPlan(*pOrigCronItem); // <====== Farther down in the code, I attach this string to the receipts.
-			//  ... then lower down...
-			// pTransSend->SetReferenceString(strOrigPlan);
-			// pTransRecip->SetReferenceString(strOrigPlan);
-			//
-			// So the original plan is already loaded and copied to the Transaction as the "In Reference To" 
-			// Field. Now let's add the UPDATED plan as an ATTACHMENT on the Transaction ITEM:
-			//
-			OTString	strUpdatedPlan(*this);
-			
-			// Set the updated plan as the attachment on the transaction item.
-			// (With the SERVER's signature on it!)
-			// (As a receipt for each trader, so they can see their offer updating.)
-			pItemSend->SetAttachment(strUpdatedPlan);
-			pItemRecip->SetAttachment(strUpdatedPlan);
-			
-			// -----------------------------------------------------------------
-			
-			
-			// Success OR failure, either way I want a receipt in both inboxes.
-			// But if FAILURE, I do NOT want to save the Accounts, JUST the inboxes.
-			// So the inboxes happen either way, but the accounts are saved only on success.
-			
-			// sign the item
-			pItemSend->SignContract(*pServerNym);
-			pItemRecip->SignContract(*pServerNym);
-			
-			pItemSend->SaveContract();
-			pItemRecip->SaveContract();
-			
-			// the Transaction "owns" the item now and will handle cleaning it up.
-			pTransSend->AddItem(*pItemSend);
-			pTransRecip->AddItem(*pItemRecip);
-			
-			pTransSend->SignContract(*pServerNym);
-			pTransRecip->SignContract(*pServerNym);
-			
-			pTransSend->SaveContract();
-			pTransRecip->SaveContract();
-			
-			// -------------------------------------------
-			// Here, the transactions we just created are actually added to the ledgers.
-			// This happens either way, success or fail.
-			
-			theSenderInbox.		AddTransaction(*pTransSend);
-			theRecipientInbox.	AddTransaction(*pTransRecip);
-			
-			// -------------------------------------------
-			
-			// Release any signatures that were there before (They won't
-			// verify anymore anyway, since the content has changed.)
-			theSenderInbox.		ReleaseSignatures();
-			theRecipientInbox.	ReleaseSignatures();
-			
-			// Sign both of them.				
-			theSenderInbox.		SignContract(*pServerNym);
-			theRecipientInbox.	SignContract(*pServerNym);
-			
-			// Save both of them internally
-			theSenderInbox.		SaveContract();
-			theRecipientInbox.	SaveContract();
-			
-			// Save both inboxes to storage. (File, DB, wherever it goes.)
-			theSenderInbox.		SaveInbox();
-			theRecipientInbox.	SaveInbox();
-			
-			// If success, save the accounts with new balance. (Save inboxes with receipts either way,
-			// and the receipts will contain a rejection or acknowledgment stamped by the Server Nym.)
-			if (true == bSuccess)
-			{					
-				// -------------------------------------------
-				// Release any signatures that were there before (They won't
-				// verify anymore anyway, since the content has changed.)
-				pSourceAcct->	ReleaseSignatures();	
-				pRecipientAcct->ReleaseSignatures();	
-				
-				// Sign both of them.				
-				pSourceAcct->	SignContract(*pServerNym);	
-				pRecipientAcct->SignContract(*pServerNym);	
-				
-				// Save both of them internally
-				pSourceAcct->	SaveContract();	
-				pRecipientAcct->SaveContract();	
-				
-				// TODO: Better rollback capabilities in case of failures here:
-				
-				// Save both accounts to storage.
-				pSourceAcct->	SaveAccount();	
-				pRecipientAcct->SaveAccount();	
-				
-				// NO NEED TO LOG HERE, since success / failure is already logged above.
-			}
-		} // both inboxes were successfully loaded or generated.
-	} // By the time we enter this block, accounts and nyms are already loaded. As we begin, inboxes are instantiated.
-	
-	return bSuccess;
 }
 
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// TODO!!  This is the first place where the server has to call a script to get a QUESTION ANSWERED!
 
 
 /// See if theNym has rights to remove this item from Cron.
@@ -1634,6 +1171,11 @@ bool OTSmartContract::CanRemoveItemFromCron(OTPseudonym & theNym)
 
 // ------------------------------------------------------------
 
+
+// TODO!!!
+//
+// Before we can make sure that all parties have signed equivalent versions,
+// we must be able to compare two versions.  The below function needs to do that.
 
 
 bool OTSmartContract::Compare(const OTAgreement & rhs) const
@@ -1898,6 +1440,20 @@ bool OTSmartContract::VerifySmartContract(OTPseudonym & RECIPIENT_NYM, OTPseudon
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+// TODO!!!!!!
+//
+//
 // EACH PARTY CALLS THIS FOR HIMSELF, TO SIGN.
 //
 // Note: agents will have restrictable permissions. Should be overridable in the role,
@@ -1963,7 +1519,7 @@ bool OTSmartContract::AddParty(OTParty & theParty)
 
 
 
-// TODO:  Make a version of this for signing onto smart contracts.
+// TODO:  Make a version of this (below) for signing onto smart contracts.  (Above)
 
 
 
@@ -2247,7 +1803,9 @@ void OTSmartContract::Release()
 
 
 
-// TODO: Copy the contents of OTScriptable::UpdateContents here so we can load our parties and bylaws.
+// TODO:  Serialize!!!!
+//
+// Copy the contents of OTScriptable::UpdateContents here so we can load our parties and bylaws.
 // Perhaps just call it INSIDE this one? And have the whole scriptable part as a separate object within?
 
 

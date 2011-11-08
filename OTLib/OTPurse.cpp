@@ -167,10 +167,10 @@ bool OTPurse::Merge(OTPseudonym & theNym, OTPurse & theNewPurse)
 		
 		// I just popped a Token off of *this. Let's see if it's in my temporary map...
 		// If it's already there, then just delete it (duplicate).
-		for (mapOfTokenPointers::iterator ii = theMap.begin(); ii != theMap.end(); ++ii) 
+		//
+		FOR_EACH(mapOfTokenPointers, theMap)
 		{
-			OTToken * pTempToken = (*ii).second;
-			
+			OTToken * pTempToken = (*it).second;
 			OT_ASSERT(NULL != pTempToken);
 			
 			const OTASCIIArmor & ascTempTokenID = pTempToken->GetSpendable();
@@ -180,7 +180,7 @@ bool OTPurse::Merge(OTPseudonym & theNym, OTPurse & theNewPurse)
 			// (That way we can add it after, whether it was there originally or not.)
 			if (ascTempTokenID == ascTokenID)
 			{
-				theMap.erase(ii);
+				theMap.erase(it);
 				delete pTempToken;
 				//break; // In case there are multiple duplicates, not just one.
 			}
@@ -208,10 +208,9 @@ bool OTPurse::Merge(OTPseudonym & theNym, OTPurse & theNewPurse)
 		
 		// I just popped a Token off of theNewPurse. Let's see if it's in my temporary map...
 		// If it's already there, then just delete it (duplicate).
-		for (mapOfTokenPointers::iterator ii = theMap.begin(); ii != theMap.end(); ++ii) 
+		FOR_EACH(mapOfTokenPointers, theMap)
 		{
-			OTToken * pTempToken = (*ii).second;
-			
+			OTToken * pTempToken = (*it).second;
 			OT_ASSERT(NULL != pTempToken);
 			
 			const OTASCIIArmor & ascTempTokenID = pTempToken->GetSpendable();
@@ -221,8 +220,8 @@ bool OTPurse::Merge(OTPseudonym & theNym, OTPurse & theNewPurse)
 			// (That way we can add it after, whether it was there originally or not.)
 			if (ascTempTokenID == ascTokenID)
 			{
-				theMap.erase(ii);
-				delete pTempToken;
+				theMap.erase(it);
+				delete pTempToken; pTempToken = NULL;
 				//break; // In case there are multiple duplicates, not just one.
 			}
 		}
@@ -239,10 +238,9 @@ bool OTPurse::Merge(OTPseudonym & theNym, OTPurse & theNewPurse)
 
 	// Now I just loop through that same map, and Push ALL of those tokens back onto *this.
 	
-	for (mapOfTokenPointers::iterator ii = theMap.begin(); ii != theMap.end(); ++ii) 
+	FOR_EACH(mapOfTokenPointers, theMap)
 	{
-		OTToken * pToken = (*ii).second;
-		
+		OTToken * pToken = (*it).second;
 		OT_ASSERT(NULL != pToken);
 				
 		bool bPush = this->Push(theNym, *pToken); // purse makes it's own copy of the token into string form.
@@ -258,11 +256,9 @@ bool OTPurse::Merge(OTPseudonym & theNym, OTPurse & theNewPurse)
 	while (!theMap.empty())
 	{		
 		OTToken * pToken = theMap.begin()->second;
-		
 		OT_ASSERT(NULL != pToken);
 		
-		delete pToken;
-		pToken = NULL;
+		delete pToken; pToken = NULL;
 		
 		theMap.erase(theMap.begin());
 	}

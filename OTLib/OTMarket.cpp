@@ -278,11 +278,10 @@ void OTMarket::UpdateContents()
 	// -------------------------------------------------------------
 	
 	// Save the offers for sale.
-	OTOffer * pOffer = NULL;
-	for (mapOfOffers::iterator ii = m_mapAsks.begin(); ii != m_mapAsks.end(); ++ii)
+
+	FOR_EACH(mapOfOffers, m_mapAsks)
 	{
-		pOffer = (*ii).second;
-		
+		OTOffer * pOffer = (*it).second;
 		OT_ASSERT(NULL != pOffer);
 		
 		OTString strOffer(*pOffer);		// Extract the offer contract into string form.
@@ -292,10 +291,9 @@ void OTMarket::UpdateContents()
 	}		
 	
 	// Save the bids.
-	for (mapOfOffers::iterator ii = m_mapBids.begin(); ii != m_mapBids.end(); ++ii)
+	FOR_EACH(mapOfOffers, m_mapBids)
 	{
-		pOffer = (*ii).second;
-		
+		OTOffer * pOffer = (*it).second;
 		OT_ASSERT(NULL != pOffer);
 		
 		OTString strOffer(*pOffer);		// Extract the offer contract into string form.
@@ -316,11 +314,9 @@ long OTMarket::GetTotalAvailableAssets()
 {
 	long lTotal = 0;
 	
-	OTOffer * pOffer = NULL;
-	for (mapOfOffers::iterator ii = m_mapAsks.begin(); ii != m_mapAsks.end(); ++ii)
+	FOR_EACH(mapOfOffers, m_mapAsks)
 	{
-		pOffer = (*ii).second;
-		
+		OTOffer * pOffer = (*it).second;
 		OT_ASSERT(NULL != pOffer);
 		
 		lTotal += pOffer->GetAmountAvailable();
@@ -341,11 +337,10 @@ bool OTMarket::GetNym_OfferList(const OTIdentifier & NYM_ID, OTDB::OfferListNym 
     
 	// Loop through the offers, up to some maximum depth, and then add each
 	// as a data member to an offer list, then pack it into ascOutput. 
-	
-	for (mapOfOffersTrnsNum::iterator ii = m_mapOffers.begin(); ii != m_mapOffers.end(); ++ii)
+	//
+	FOR_EACH(mapOfOffersTrnsNum, m_mapOffers)
 	{
-		OTOffer * pOffer = (*ii).second;
-		
+		OTOffer * pOffer = (*it).second;
 		OT_ASSERT(NULL != pOffer);
 
 		OTTrade * pTrade = pOffer->GetTrade();
@@ -531,16 +526,16 @@ bool OTMarket::GetOfferList(OTASCIIArmor & ascOutput, long lDepth, int & nOfferC
 	OTOffer * pOffer	= NULL;
 	int nTempDepth		= 0;
 	
-	for (mapOfOffers::iterator ii = m_mapBids.begin(); ii != m_mapBids.end(); ++ii)
+	FOR_EACH(mapOfOffers, m_mapBids)
 	{
 		if (nTempDepth++ > lDepth)
 			break;
 		
 		// --------------------------------------------
 
-		pOffer = (*ii).second;
-		
+		OTOffer * pOffer = (*it).second;
 		OT_ASSERT(NULL != pOffer);
+		
 		// OfferDataMarket
 		OTDB::BidData * pOfferData  = dynamic_cast<OTDB::BidData *>(OTDB::CreateObject(OTDB::STORED_OBJ_BID_DATA));
 		OTCleanup<OTDB::BidData> theDataAngel(*pOfferData);
@@ -569,16 +564,16 @@ bool OTMarket::GetOfferList(OTASCIIArmor & ascOutput, long lDepth, int & nOfferC
 	pOffer		= NULL;
 	nTempDepth	= 0;
 	
-	for (mapOfOffers::iterator ii = m_mapAsks.begin(); ii != m_mapAsks.end(); ++ii)
+	FOR_EACH(mapOfOffers, m_mapAsks)
 	{
 		if (nTempDepth++ > lDepth)
 			break;
 		
 		// --------------------------------------------
 
-		pOffer = (*ii).second;
-		
+		OTOffer * pOffer = (*it).second;
 		OT_ASSERT(NULL != pOffer);
+		
 		// OfferDataMarket
 		OTDB::AskData * pOfferData  = dynamic_cast<OTDB::AskData *>(OTDB::CreateObject(OTDB::STORED_OBJ_ASK_DATA));
 		OTCleanup<OTDB::AskData> theDataAngel(*pOfferData);
@@ -2171,7 +2166,9 @@ bool OTMarket::ProcessTrade(OTTrade & theTrade, OTOffer & theOffer)
 		// rbegin puts us on the upper bound of the highest bidder (any new bidders at the same price would
 		// be added at the lower bound, where they are last in line.) The upper bound, on the other hand, is
 		// first in line.  So we start there, and loop backwards until there are no other bids within my price range.
-		for (mapOfOffers::reverse_iterator rr = m_mapBids.rbegin(); rr != m_mapBids.rend(); rr++)
+		for (mapOfOffers::reverse_iterator rr = m_mapBids.rbegin(); 
+			 rr != m_mapBids.rend(); 
+			 rr++)
 		{		
 			pBid = (*rr).second;
 			
@@ -2214,10 +2211,10 @@ bool OTMarket::ProcessTrade(OTTrade & theTrade, OTOffer & theOffer)
 		// begin puts us on the lower bound of the lowest seller (any new sellers at the same price would
 		// be added at the upper bound for that price, where they are last in line.) The lower bound, on the other hand, is
 		// first in line.  So we start there, and loop forwards until there are no other asks within my price range.
-		for (mapOfOffers::iterator ii = m_mapAsks.begin(); ii != m_mapAsks.end(); ii++)
+		//
+		FOR_EACH(mapOfOffers, m_mapAsks)
 		{		
-			pAsk = (*ii).second;
-			
+			pAsk = (*it).second;
 			OT_ASSERT(NULL != pAsk);
 			
 			// I'm buying.

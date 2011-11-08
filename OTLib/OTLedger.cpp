@@ -529,14 +529,13 @@ bool OTLedger::RemovePendingTransaction(long lTransactionNum) // if false, trans
 	// loop through the items that make up this transaction.
 	OTTransaction * pTransaction = NULL;
 	
-	mapOfTransactions::iterator it;
+	mapOfTransactions::iterator temp_it;
 	
-	for (mapOfTransactions::iterator ii = m_mapTransactions.begin(); ii != m_mapTransactions.end(); ++ii)
+	FOR_EACH(mapOfTransactions, m_mapTransactions)
 	{
-		it = ii;
+		temp_it = it;
 		
-		pTransaction = (*ii).second;
-		
+		pTransaction = (*it).second;
 		OT_ASSERT(NULL != pTransaction);
 		
 		bool bCorrectType = false;
@@ -570,7 +569,7 @@ bool OTLedger::RemovePendingTransaction(long lTransactionNum) // if false, trans
 	// Otherwise, if it WAS already there, remove it properly.
 	else 
 	{		
-		m_mapTransactions.erase(it);
+		m_mapTransactions.erase(temp_it);
 		delete pTransaction;
 		return true;		
 	}
@@ -607,9 +606,9 @@ OTTransaction * OTLedger::GetTransaction(const OTTransaction::transactionType th
 {
 	// loop through the items that make up this transaction
 	
-	for (mapOfTransactions::iterator ii = m_mapTransactions.begin(); ii != m_mapTransactions.end(); ++ii)
+	FOR_EACH(mapOfTransactions, m_mapTransactions)
 	{
-		OTTransaction * pTransaction = (*ii).second;
+		OTTransaction * pTransaction = (*it).second;
 		OT_ASSERT(NULL != pTransaction);
 		
 		if (theType == pTransaction->GetType())
@@ -629,9 +628,9 @@ OTTransaction * OTLedger::GetTransaction(long lTransactionNum)
 	
 //  OTLog::vError("OTLedger::GetTransaction: Checking ledger for trans %ld. COUNT: %d \n", lTransactionNum, GetTransactionCount());
     
-	for (mapOfTransactions::iterator ii = m_mapTransactions.begin(); ii != m_mapTransactions.end(); ++ii)
+	FOR_EACH(mapOfTransactions, m_mapTransactions)
 	{
-		OTTransaction * pTransaction = (*ii).second;
+		OTTransaction * pTransaction = (*it).second;
 		OT_ASSERT(NULL != pTransaction);
 		
 //      OTLog::vError("OTLedger::GetTransaction: Looping. Currently on trans %ld \n", pTransaction->GetTransactionNum());
@@ -662,9 +661,9 @@ int OTLedger::GetTransactionCountInRefTo(const long lReferenceNum)
 {
     int nCount = 0;
     
-	for (mapOfTransactions::iterator ii = m_mapTransactions.begin(); ii != m_mapTransactions.end(); ++ii)
+	FOR_EACH(mapOfTransactions, m_mapTransactions)
 	{
-		OTTransaction * pTransaction = (*ii).second;
+		OTTransaction * pTransaction = (*it).second;
 		OT_ASSERT(NULL != pTransaction);
 		
         if (pTransaction->GetReferenceToNum() == lReferenceNum)
@@ -687,10 +686,10 @@ OTTransaction * OTLedger::GetTransactionByIndex(int nIndex)
 	
 	int nIndexCount = -1;
 	
-	for (mapOfTransactions::iterator ii = m_mapTransactions.begin(); ii != m_mapTransactions.end(); ++ii)
+	FOR_EACH(mapOfTransactions, m_mapTransactions)
 	{
 		nIndexCount++; // On first iteration, this is now 0, same as nIndex.
-		OTTransaction * pTransaction = (*ii).second; 
+		OTTransaction * pTransaction = (*it).second; 
 		OT_ASSERT((NULL != pTransaction)); // Should always be good.
 		
 		// If this transaction is the one at the requested index
@@ -717,13 +716,11 @@ OTTransaction * OTLedger::GetTransactionByIndex(int nIndex)
 // If it can't find anything, it will return NULL.
 OTTransaction * OTLedger::GetPendingTransaction(long lTransactionNum)
 {
-	// loop through the items that make up this transaction.
-	OTTransaction * pTransaction = NULL;
-	
-	for (mapOfTransactions::iterator ii = m_mapTransactions.begin(); ii != m_mapTransactions.end(); ++ii)
+	// loop through the transactions that make up this ledger.
+	//
+	FOR_EACH(mapOfTransactions, m_mapTransactions)
 	{
-		pTransaction = (*ii).second;
-		
+		OTTransaction * pTransaction = (*it).second;
 		OT_ASSERT(NULL != pTransaction);
 		
 		if (pTransaction->GetReferenceToNum() == lTransactionNum)
@@ -744,12 +741,9 @@ OTTransaction * OTLedger::GetPendingTransaction(long lTransactionNum)
 OTTransaction * OTLedger::GetFinalReceipt(long lReferenceNum)
 {
 	// loop through the items that make up this transaction.
-	OTTransaction * pTransaction = NULL;
-	
-	for (mapOfTransactions::iterator ii = m_mapTransactions.begin(); ii != m_mapTransactions.end(); ++ii)
+	FOR_EACH(mapOfTransactions, m_mapTransactions)
 	{
-		pTransaction = (*ii).second;
-		
+		OTTransaction * pTransaction = (*it).second;
 		OT_ASSERT(NULL != pTransaction);
 		
         if (OTTransaction::finalReceipt != pTransaction->GetType()) // <=======
@@ -781,12 +775,9 @@ OTTransaction * OTLedger::GetFinalReceipt(long lReferenceNum)
 OTTransaction * OTLedger::GetTransferReceipt(long lTransactionNum)
 {
 	// loop through the items that make up this transaction.
-	OTTransaction * pTransaction = NULL;
-	
-	for (mapOfTransactions::iterator ii = m_mapTransactions.begin(); ii != m_mapTransactions.end(); ++ii)
+	FOR_EACH(mapOfTransactions, m_mapTransactions)
 	{
-		pTransaction = (*ii).second;
-		
+		OTTransaction * pTransaction = (*it).second;
 		OT_ASSERT(NULL != pTransaction);
 		
 		if (OTTransaction::transferReceipt == pTransaction->GetType())
@@ -930,17 +921,14 @@ OTItem * OTLedger::GenerateBalanceStatement(const long lAdjustment, const OTTran
 	// loop through the INBOX transactions, and produce a sub-item onto pBalanceItem for each, which will
 	// be a report on each transaction in this inbox, therefore added to the balance item.
 	// (So the balance item contains a complete report on the receipts in this inbox.)
-	OTTransaction * pTransaction = NULL;
 	
 	OTLog::Output(2, "About to loop through the inbox items and produce a report for each one...\n");
 	
-	for (mapOfTransactions::iterator ii = m_mapTransactions.begin(); 
-		 ii != m_mapTransactions.end(); ++ii)
+	FOR_EACH(mapOfTransactions, m_mapTransactions)
 	{
-		pTransaction = (*ii).second;
-		
+		OTTransaction * pTransaction = (*it).second;
 		OT_ASSERT(NULL != pTransaction);
-
+		
 		OTLog::Output(2, "Producing a report...\n");
 
 		// it only reports receipts where we don't yet have balance agreement.
@@ -978,13 +966,9 @@ long OTLedger::GetTotalPendingValue()
 		return 0;
 	}
 	
-	OTTransaction * pTransaction = NULL;
-	
-	for (mapOfTransactions::iterator ii = m_mapTransactions.begin(); 
-		 ii != m_mapTransactions.end(); ++ii)
+	FOR_EACH(mapOfTransactions, m_mapTransactions)
 	{
-		pTransaction = (*ii).second;
-		
+		OTTransaction * pTransaction = (*it).second;
 		OT_ASSERT(NULL != pTransaction);
 		
 		if (pTransaction->GetType() == OTTransaction::pending)
@@ -1011,13 +995,9 @@ void OTLedger::ProduceOutboxReport(OTItem & theBalanceItem)
 	// loop through the OUTBOX transactions, and produce a sub-item onto theBalanceItem for each, which will
 	// be a report on each pending transfer in this outbox, therefore added to the balance item.
 	// (So the balance item contains a complete report on the outoing transfers in this outbox.)
-	OTTransaction * pTransaction = NULL;
-	
-	for (mapOfTransactions::iterator ii = m_mapTransactions.begin(); 
-		 ii != m_mapTransactions.end(); ++ii)
+	FOR_EACH(mapOfTransactions, m_mapTransactions)
 	{
-		pTransaction = (*ii).second;
-		
+		OTTransaction * pTransaction = (*it).second;
 		OT_ASSERT(NULL != pTransaction);
 		
 		// it only reports receipts where we don't yet have balance agreement.
@@ -1051,13 +1031,9 @@ void OTLedger::UpdateContents() // Before transmission or serialization, this is
 							  strLedgerAcctID.Get(), strUserID.Get(), strLedgerAcctServerID.Get());		
 	
 	// loop through the transactions and print them out here.
-	OTTransaction * pTransaction = NULL;
-	
-	for (mapOfTransactions::iterator ii = m_mapTransactions.begin(); 
-		 ii != m_mapTransactions.end(); ++ii)
+	FOR_EACH(mapOfTransactions, m_mapTransactions)
 	{
-		pTransaction = (*ii).second;
-		
+		OTTransaction * pTransaction = (*it).second;
 		OT_ASSERT(NULL != pTransaction);
 		
 		OTString strTransaction;

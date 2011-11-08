@@ -263,7 +263,6 @@ void OTClient::AcceptEntireNymbox(OTLedger & theNymbox, OTServerConnection & the
 	// for each one of the transfer requests. Each of those items will go into a single
 	// "process nymbox" transaction that I will add to the processledger and thus to the 
 	// outgoing message.
-	OTTransaction * pTransaction = NULL;
 
     // theIssuedNym     == transaction numbers being added.
     // theRemovedNym    == transaction numbers being removed. (finalReceipt notices about opening numbers for cron items.)
@@ -273,145 +272,144 @@ void OTClient::AcceptEntireNymbox(OTLedger & theNymbox, OTServerConnection & the
 	// For each transaction in the nymbox, if it's in reference to a transaction request,
 	// then create an "accept" item for that blank transaction, and add it to my own, new,
 	// "process nymbox" transaction that I'm sending out.
-	for (mapOfTransactions::iterator ii = theNymbox.GetTransactionMap().begin(); 
-		 ii != theNymbox.GetTransactionMap().end(); ++ii)
+	//
+	FOR_EACH(mapOfTransactions, theNymbox.GetTransactionMap())
 	{
-		// If this transaction references the item that I'm trying to accept...
-		if ( pTransaction = (*ii).second ) // if pointer not null
-		{
-//			OTString strTransaction(*pTransaction);
-//			OTLog::vError("TRANSACTION CONTENTS:\n%s\n", strTransaction.Get());
+		OTTransaction * pTransaction = (*it).second;
+		OT_ASSERT(NULL != pTransaction);
+		
+//		OTString strTransaction(*pTransaction);
+//		OTLog::vError("TRANSACTION CONTENTS:\n%s\n", strTransaction.Get());
 			
-			OTString strRespTo;
-			pTransaction->GetReferenceString(strRespTo);
-//			OTLog::vError("TRANSACTION \"IN REFERENCE TO\" CONTENTS:\n%s\n", strRespTo.Get());	
+		OTString strRespTo;
+		pTransaction->GetReferenceString(strRespTo);
+//		OTLog::vError("TRANSACTION \"IN REFERENCE TO\" CONTENTS:\n%s\n", strRespTo.Get());	
 
 
-            // ------------------------------------------------------------
-            // MESSAGE (From Another Nym)
-            //
-			if ( (OTTransaction::message == pTransaction->GetType()) )
-			{				
-				OTItem * pAcceptItem = OTItem::CreateItemFromTransaction(*pAcceptTransaction, OTItem::acceptMessage);
+		// ------------------------------------------------------------
+		// MESSAGE (From Another Nym)
+		//
+		if ( (OTTransaction::message == pTransaction->GetType()) )
+		{				
+			OTItem * pAcceptItem = OTItem::CreateItemFromTransaction(*pAcceptTransaction, OTItem::acceptMessage);
 
-				// The above already has OT_ASSERT so, no need to check the pointer for NULL.
-				
-				// the transaction will handle cleaning up the transaction item.
-				pAcceptTransaction->AddItem(*pAcceptItem);
-				
-				pAcceptItem->SetReferenceToNum(pTransaction->GetTransactionNum()); // This is critical. Server needs this to look up the receipt in my nymbox.
-				// Don't need to set transaction num on item since the constructor already got it off the owner transaction.
-
-				// sign the item
-				pAcceptItem->SignContract(*pNym);
-				pAcceptItem->SaveContract();
-				
-				OTLog::vOutput(2, "Received an encrypted message in your Nymbox:\n%s\n", strRespTo.Get());
-				
-				// Todo: really shouldn't do this until we get a successful REPLY from the server.
-				// That's when I do a lot of other things. But this is a no-biggie thing. It will almost
-				// always succeed and in the odd-event that it fails, I'll end up with a duplicate message
-				// in my mail. So what?
-				OTMessage * pMessage = new OTMessage;
-				
-				OT_ASSERT(NULL != pMessage);
-				
-				// The original message that was sent to me (with an encrypted envelope in the payload,
-				// and with the sender's ID and recipient IDs as m_strNymID and m_strNymID2) is stored
-				// within strRespTo. Let's load it up into an OTMessage instance, and add it to pNym's mail.
-				//
-				if (pMessage->LoadContractFromString(strRespTo))
-				{
-					pNym->AddMail(*pMessage); // Now the Nym is responsible to delete it. It's in his "mail".
-					OTPseudonym * pSignerNym = pNym;
-					pNym->SaveSignedNymfile(*pSignerNym);
-				}
-				else 
-				{
-					delete pMessage; // Don't want to leak otherwise.
-					pMessage = NULL;
-				}
-			} // if message
+			// The above already has OT_ASSERT so, no need to check the pointer for NULL.
 			
-            // ------------------------------------------------------------
-            // It's a NEW Transaction Number (I need to sign for it.)
-            //
-			else if (
-					 (OTTransaction::blank	== pTransaction->GetType()) // if blank (new; just added) transaction number.
-					)
-			{				
-				// My new transaction agreement needs to reflect all these new transaction numbers
-				// that I'm signing for (or at least this one in this block) so I add them to this
-				// temp nym, and then harvest the ones onto it from theNym, and then send those
-				// numbers in the new transaction agreement. (Removing them immediately after, and
-				// then only adding them for real if we get a server acknowledgment.)
-                //
-                if (pNym->VerifyIssuedNum(strServerID, pTransaction->GetTransactionNum()))
-                    OTLog::Error("Attempted to accept a blank transaction number that I ALREADY HAD...\n");
-                else
-                {
-                    theIssuedNym.AddIssuedNum(strServerID, pTransaction->GetTransactionNum());
-                    // -----------------------------------------------
-                    OTItem * pAcceptItem = OTItem::CreateItemFromTransaction(*pAcceptTransaction, OTItem::acceptTransaction);
-                    
-                    // the transaction will handle cleaning up the transaction item.
-                    pAcceptTransaction->AddItem(*pAcceptItem);
-                    
-                    pAcceptItem->SetReferenceToNum(pTransaction->GetTransactionNum()); // This is critical. Server needs this to look up the original.
-                    // Don't need to set transaction num on item since the constructor already got it off the owner transaction.
-
-                    // sign the item
-                    pAcceptItem->SignContract(*pNym);
-                    pAcceptItem->SaveContract();
-                }
-			} // else if blank
+			// the transaction will handle cleaning up the transaction item.
+			pAcceptTransaction->AddItem(*pAcceptItem);
 			
-            // ------------------------------------------------------------
-            // It's a Final Receipt (In the Nymbox, this means an opening transaction 
-            // number has been removed from my issued list on the server side.)
-            //
-			else if (
-					 (OTTransaction::finalReceipt	== pTransaction->GetType()) // if finalReceipt (just removed) transaction number.
-                     )
-			{				
-                // Todo security: make sure this is only possible for finalReceipts, in case of abuse.
-                // Not only for finalReceipts, but for specific finalReceipt #s that I store a local list of, perhaps
-                // in my Nym, to track until they are closed. No other number should get through here.
-                // Otherwise the server could trick you into removing your issued numbers, simply by dropping 
-                // a final receipt for the appropriate number!
-                // The server already keeps a list on its side to protect it from this possibility, but now it
-                // appears that the client-side will have to do a similar thing. Sigh.
-                
-                
-                // Since the "in reference to" (the original "opening" transaction#) is supposedly
-                // already closed, then let's just MAKE SURE of that, since otherwise it'll screw up
-                // my future balance agreements. (The instant a finalReceipt appears, the "in ref to" # is already gone..)
-                //
-                if (pNym->RemoveIssuedNum(*pNym, strServerID, pTransaction->GetReferenceToNum(), true)) // bool bSave=true
-                    OTLog::vOutput(1, "**** Due to finding a finalReceipt, REMOVING OPENING NUMBER FROM NYM:  %ld \n", 
-                                   pTransaction->GetReferenceToNum());
-                else
-                    OTLog::vOutput(1, "**** Noticed a finalReceipt, but Opening Number %ld had ALREADY been removed from nym. \n",
-                                   pTransaction->GetReferenceToNum());
+			pAcceptItem->SetReferenceToNum(pTransaction->GetTransactionNum()); // This is critical. Server needs this to look up the receipt in my nymbox.
+			// Don't need to set transaction num on item since the constructor already got it off the owner transaction.
 
-                //
-                // pNym won't actually save unless it actually removes that #. If the #'s already NOT THERE,
-                // then the removal will fail, and thus it won't bother saving here.
-
-				// --------------------------------------------
-                
-                OTItem * pAcceptItem = OTItem::CreateItemFromTransaction(*pAcceptTransaction, OTItem::acceptFinalReceipt);
-                
+			// sign the item
+			pAcceptItem->SignContract(*pNym);
+			pAcceptItem->SaveContract();
+			
+			OTLog::vOutput(2, "Received an encrypted message in your Nymbox:\n%s\n", strRespTo.Get());
+			
+			// Todo: really shouldn't do this until we get a successful REPLY from the server.
+			// That's when I do a lot of other things. But this is a no-biggie thing. It will almost
+			// always succeed and in the odd-event that it fails, I'll end up with a duplicate message
+			// in my mail. So what?
+			OTMessage * pMessage = new OTMessage;
+			
+			OT_ASSERT(NULL != pMessage);
+			
+			// The original message that was sent to me (with an encrypted envelope in the payload,
+			// and with the sender's ID and recipient IDs as m_strNymID and m_strNymID2) is stored
+			// within strRespTo. Let's load it up into an OTMessage instance, and add it to pNym's mail.
+			//
+			if (pMessage->LoadContractFromString(strRespTo))
+			{
+				pNym->AddMail(*pMessage); // Now the Nym is responsible to delete it. It's in his "mail".
+				OTPseudonym * pSignerNym = pNym;
+				pNym->SaveSignedNymfile(*pSignerNym);
+			}
+			else 
+			{
+				delete pMessage; // Don't want to leak otherwise.
+				pMessage = NULL;
+			}
+		} // if message
+		
+		// ------------------------------------------------------------
+		// It's a NEW Transaction Number (I need to sign for it.)
+		//
+		else if (
+				 (OTTransaction::blank	== pTransaction->GetType()) // if blank (new; just added) transaction number.
+				)
+		{				
+			// My new transaction agreement needs to reflect all these new transaction numbers
+			// that I'm signing for (or at least this one in this block) so I add them to this
+			// temp nym, and then harvest the ones onto it from theNym, and then send those
+			// numbers in the new transaction agreement. (Removing them immediately after, and
+			// then only adding them for real if we get a server acknowledgment.)
+			//
+			if (pNym->VerifyIssuedNum(strServerID, pTransaction->GetTransactionNum()))
+				OTLog::Error("Attempted to accept a blank transaction number that I ALREADY HAD...\n");
+			else
+			{
+				theIssuedNym.AddIssuedNum(strServerID, pTransaction->GetTransactionNum());
+				// -----------------------------------------------
+				OTItem * pAcceptItem = OTItem::CreateItemFromTransaction(*pAcceptTransaction, OTItem::acceptTransaction);
+				
 				// the transaction will handle cleaning up the transaction item.
 				pAcceptTransaction->AddItem(*pAcceptItem);
 				
 				pAcceptItem->SetReferenceToNum(pTransaction->GetTransactionNum()); // This is critical. Server needs this to look up the original.
 				// Don't need to set transaction num on item since the constructor already got it off the owner transaction.
 
+				// sign the item
 				pAcceptItem->SignContract(*pNym);
 				pAcceptItem->SaveContract();
-			} // else if finalReceipt (in Nymbox, this signals that an OPENING number has closed ALREADY. Thus no need to have a "closing process.")
-		} // if pTransaction
+			}
+		} // else if blank
+		
+		// ------------------------------------------------------------
+		// It's a Final Receipt (In the Nymbox, this means an opening transaction 
+		// number has been removed from my issued list on the server side.)
+		//
+		else if (
+				 (OTTransaction::finalReceipt	== pTransaction->GetType()) // if finalReceipt (just removed) transaction number.
+				 )
+		{				
+			// Todo security: make sure this is only possible for finalReceipts, in case of abuse.
+			// Not only for finalReceipts, but for specific finalReceipt #s that I store a local list of, perhaps
+			// in my Nym, to track until they are closed. No other number should get through here.
+			// Otherwise the server could trick you into removing your issued numbers, simply by dropping 
+			// a final receipt for the appropriate number!
+			// The server already keeps a list on its side to protect it from this possibility, but now it
+			// appears that the client-side will have to do a similar thing. Sigh.
+			
+			
+			// Since the "in reference to" (the original "opening" transaction#) is supposedly
+			// already closed, then let's just MAKE SURE of that, since otherwise it'll screw up
+			// my future balance agreements. (The instant a finalReceipt appears, the "in ref to" # is already gone..)
+			//
+			if (pNym->RemoveIssuedNum(*pNym, strServerID, pTransaction->GetReferenceToNum(), true)) // bool bSave=true
+				OTLog::vOutput(1, "**** Due to finding a finalReceipt, REMOVING OPENING NUMBER FROM NYM:  %ld \n", 
+							   pTransaction->GetReferenceToNum());
+			else
+				OTLog::vOutput(1, "**** Noticed a finalReceipt, but Opening Number %ld had ALREADY been removed from nym. \n",
+							   pTransaction->GetReferenceToNum());
+
+			//
+			// pNym won't actually save unless it actually removes that #. If the #'s already NOT THERE,
+			// then the removal will fail, and thus it won't bother saving here.
+
+			// --------------------------------------------
+			
+			OTItem * pAcceptItem = OTItem::CreateItemFromTransaction(*pAcceptTransaction, OTItem::acceptFinalReceipt);
+			
+			// the transaction will handle cleaning up the transaction item.
+			pAcceptTransaction->AddItem(*pAcceptItem);
+			
+			pAcceptItem->SetReferenceToNum(pTransaction->GetTransactionNum()); // This is critical. Server needs this to look up the original.
+			// Don't need to set transaction num on item since the constructor already got it off the owner transaction.
+
+			pAcceptItem->SignContract(*pNym);
+			pAcceptItem->SaveContract();
+		} // else if finalReceipt (in Nymbox, this signals that an OPENING number has closed ALREADY. Thus no need to have a "closing process.")
 	}
 	
 	
@@ -595,7 +593,7 @@ void OTClient::AcceptEntireInbox(OTLedger & theInbox, OTServerConnection & theCo
 	// for each one of the transfer requests. Each of those items will go into a single
 	// "process inbox" transaction that I will add to the processledger and thus to the 
 	// outgoing message.
-	OTTransaction * pTransaction = NULL;
+
 	long lAdjustment = 0; // If I accept any pending transactions, I must take note of any adjustment when I sign the balance agreement.
     
     // If transaction #s that have been ISSUED to pNym are being REMOVED by this transaction,
@@ -614,11 +612,14 @@ void OTClient::AcceptEntireInbox(OTLedger & theInbox, OTServerConnection & theCo
 	// For each transaction in the inbox, if it's in reference to a transfer request,
 	// then create an "accept" item for that transfer request, and add it to my own, new,
 	// "process inbox" transaction that I'm sending out.
-	for (mapOfTransactions::iterator ii = theInbox.GetTransactionMap().begin(); 
-		 ii != theInbox.GetTransactionMap().end(); ++ii)
+	//
+	FOR_EACH(mapOfTransactions, theInbox.GetTransactionMap())
 	{
+		OTTransaction * pTransaction = (*it).second;
+		OT_ASSERT(NULL != pTransaction);
+		
 		// If this transaction references the item that I'm trying to accept...
-		if ((pTransaction = (*ii).second) && (pTransaction->GetReferenceToNum()>0)) // if pointer not null AND it refers to some other transaction
+		if (pTransaction->GetReferenceToNum() > 0) // if pointer not null AND it refers to some other transaction
 		{
 //			OTString strTransaction(*pTransaction);
 //			OTLog::vError("TRANSACTION CONTENTS:\n%s\n", strTransaction.Get());
@@ -1125,13 +1126,10 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
 	OTLog::Output(3, "Loaded ledger out of message payload.\n");
 	
 	// Loop through ledger transactions, 		
-	OTTransaction * pTransaction	= NULL;
-	
-	for (mapOfTransactions::iterator ii = theLedger.GetTransactionMap().begin(); 
-		 ii != theLedger.GetTransactionMap().end(); ++ii)
+
+	FOR_EACH(mapOfTransactions, theLedger.GetTransactionMap())
 	{	
-		pTransaction = (*ii).second;
-		
+		OTTransaction * pTransaction = (*it).second;
 		OT_ASSERT_MSG(NULL != pTransaction, "NULL transaction pointer in OTServer::UserCmdNotarizeTransactions\n");
 		
 		// Each transaction in the ledger is a server reply to our original transaction request.
@@ -1456,14 +1454,13 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
 // Usually a transaction from the server includes some new transaction numbers.
 // Use this function to harvest them.
 void OTClient::HarvestTransactionNumbers(OTTransaction & theTransaction, OTPseudonym & theNym)
-{
-	// loop through the ALL items that make up this transaction and check to see if a response to deposit.
-	OTItem * pItem = NULL;
-	
-	// if pointer not null, and it's a withdrawal, and it's an acknowledgement (not a rejection or error)
-	for (listOfItems::iterator ii = theTransaction.GetItemList().begin(); ii != theTransaction.GetItemList().end(); ++ii)
+{	
+	FOR_EACH(listOfItems, theTransaction.GetItemList())
 	{
-		if ((pItem = *ii) && (OTItem::atTransaction == pItem->GetType()))
+		OTItem * pItem = *it;
+		OT_ASSERT(NULL != pItem);
+		
+		if (OTItem::atTransaction == pItem->GetType())
 		{ 
 			if (OTItem::acknowledgement == pItem->GetStatus())
 			{
@@ -1486,7 +1483,7 @@ void OTClient::HarvestTransactionNumbers(OTTransaction & theTransaction, OTPseud
 				OTLog::Output(0, "FAILURE -- Server refuses to send transaction num.\n"); // in practice will never occur.
 			}
 		}
-	}	
+	}	// for each
 }
 
 
@@ -1505,10 +1502,9 @@ void OTClient::ProcessDepositResponse(OTTransaction & theTransaction, OTServerCo
 	OTItem * pItem = NULL;
 	
 	// if pointer not null, and it's a withdrawal, and it's an acknowledgement (not a rejection or error)
-	for (listOfItems::iterator ii = theTransaction.GetItemList().begin(); ii != theTransaction.GetItemList().end(); ++ii)
+	FOR_EACH(listOfItems, theTransaction.GetItemList())
 	{
-		pItem = *ii;
-		
+		OTItem * pItem = *it;
 		OT_ASSERT(NULL != pItem);
 		
 		if (OTItem::atDeposit == pItem->GetType())
@@ -1549,13 +1545,11 @@ void OTClient::ProcessWithdrawalResponse(OTTransaction & theTransaction, OTServe
 	OTPseudonym * pServerNym = (OTPseudonym *)(theConnection.GetServerContract()->GetContractPublicNym());
 
 	// loop through the ALL items that make up this transaction and check to see if a response to withdrawal.
-	OTItem * pItem = NULL;
 	
 	// if pointer not null, and it's a withdrawal, and it's an acknowledgement (not a rejection or error)
-	for (listOfItems::iterator ii = theTransaction.GetItemList().begin(); ii != theTransaction.GetItemList().end(); ++ii)
+	FOR_EACH(listOfItems, theTransaction.GetItemList())
 	{
-		pItem = *ii;
-		
+		OTItem * pItem = *it;
 		OT_ASSERT(NULL != pItem);
 		
 		// If we got a reply to a voucher withdrawal, we'll just display the the voucher
@@ -2087,11 +2081,9 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
 							// For item receipts, if successful, also remove the appropriate trans# 
 							// from my issued list of transaction numbers (like above.)
 							
-							for (listOfItems::iterator ii = pReplyTransaction->GetItemList().begin(); 
-								 ii != pReplyTransaction->GetItemList().end(); ++ii)
+							FOR_EACH_IT(listOfItems, pReplyTransaction->GetItemList(), it_bigloop)
 							{
-								OTItem * pReplyItem = *ii;
-								
+								OTItem * pReplyItem = *it_bigloop;
 								OT_ASSERT_MSG(NULL != pReplyItem, "OTClient::ProcessServerReply: Pointer should not have been NULL.");
 								
 //                              OTLog::Error(" *** TOP OF LOOP of Reply items, one presumably for each processInbox that I sent previously.\n");
@@ -2623,12 +2615,10 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
                         // For each, if successful, remove from inbox.
                         // For item receipts, if successful, also remove the appropriate trans# 
                         // from my issued list of transaction numbers (like above.)
-                        
-                        for (listOfItems::iterator ii = pReplyTransaction->GetItemList().begin(); 
-                             ii != pReplyTransaction->GetItemList().end(); ++ii)
+                        //
+						FOR_EACH(listOfItems, pReplyTransaction->GetItemList())
                         {
-                            OTItem * pReplyItem = *ii;
-                            
+                            OTItem * pReplyItem = *it;
                             OT_ASSERT_MSG(NULL != pReplyItem, "OTClient::ProcessServerReply: Pointer should not have been NULL.");
                             
                             OTItem::itemType theItemType = OTItem::error_state;
@@ -2982,10 +2972,9 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
             // THEREFORE, WHEN A FINAL RECEIPT COMES IN, I NEED TO REMOVE ITS "in reference to" NUMBER FROM MY
             // ISSUED LIST. Here is clearly the best place for that:
             //
-            for (mapOfTransactions::iterator iiii = theInbox.GetTransactionMap().begin(); 
-                 iiii != theInbox.GetTransactionMap().end(); ++iiii)
+			FOR_EACH(mapOfTransactions, theInbox.GetTransactionMap())
             {	
-                OTTransaction * pTempTrans = (*iiii).second;
+                OTTransaction * pTempTrans = (*it).second;
                 OT_ASSERT(NULL != pTempTrans);
 
                 // TODO security: Keep a client-side list of issued #s for finalReceipts. That way,

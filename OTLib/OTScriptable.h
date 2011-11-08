@@ -141,6 +141,8 @@
 
 #include "OTString.h"
 
+class OTAccount;
+
 
 class OTScriptable : public OTContract
 {
@@ -157,16 +159,38 @@ public:
 	virtual bool AddParty(OTParty & theParty); // Takes ownership.
 	virtual bool AddBylaw(OTBylaw & theBylaw);
 
+	OTParty * FindPartyBasedOnNymAsAgent(const OTPseudonym & theNym, OTAgent ** ppAgent=NULL);
+	OTParty * FindPartyBasedOnAccount(const OTAccount & theAccount, OTPartyAccount ** ppPartyAccount=NULL);
+	
+	// Verifies that Nym is actually an agent for this agreement.
+	// (Verifies that Nym has signed this agreement, if it's a trade or a payment plan, OR
+	// that the authorizing agent for Nym's party has done so,
+	// and in that case, that theNym is listed as an agent for that party.)
+	// Basically this means that the agreement's owner approves of theNym.
+	//
+	virtual bool VerifyNymAsAgent(const OTPseudonym & theNym, 
+										OTPseudonym & theSignerNym, 
+										mapOfNyms	* pmap_ALREADY_LOADED=NULL);
+	
+	// NEED TO CALL BOTH METHODS. (above / below)
+	
+	// Verifies that theNym is actually an agent for theAccount, according to the PARTY.
+	// Also verifies that theNym is an agent for theAccount, according to the ACCOUNT.
+	//
+	virtual bool VerifyNymAsAgentForAccount(const OTPseudonym & theNym, const OTAccount & theAccount);
+	
 	// ----------------
 	// Look up all clauses matching a specific hook.
 	// (Across all Bylaws) Automatically removes any duplicates.
 	// That is, you can have multiple clauses registered to the same
 	// hook name, but you can NOT have the same clause name repeated
-	// multiple times in the results. Each clause can only trigger once.
+	// multiple times in theResults. Each clause can only trigger once.
 	//
 	bool GetHooks(const std::string str_Name, mapOfClauses & theResults); 
 	
 	// ----------------
+	static OTScriptable * InstantiateScriptable(const OTString & strInput);
+
 	OTScriptable();
 
 	virtual ~OTScriptable();

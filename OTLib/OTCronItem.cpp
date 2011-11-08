@@ -160,6 +160,7 @@ using namespace io;
 // if there was some need for it, and it would work just fine right here.
 // Like if I wanted to have different Token types for different cash
 // algorithms. All I have to do is change the return type.
+//
 OTCronItem * OTCronItem::NewCronItem(const OTString & strCronItem)
 {
 	static char		buf[45] = "";
@@ -196,6 +197,9 @@ OTCronItem * OTCronItem::NewCronItem(const OTString & strCronItem)
 	else if (strFirstLine.Contains("-----BEGIN SIGNED TRADE-----"))  // this string is 28 chars long.
 	{	pItem = new OTTrade();			OT_ASSERT(NULL != pItem); }
 	
+	else if (strFirstLine.Contains("-----BEGIN SIGNED SMARTCONTRACT-----"))  // this string is 36 chars long.
+	{	pItem = new OTSmartContract();	OT_ASSERT(NULL != pItem); }
+	
 	
 	// The string didn't match any of the options in the factory.
 	if (NULL == pItem)
@@ -210,6 +214,734 @@ OTCronItem * OTCronItem::NewCronItem(const OTString & strCronItem)
 	
 	return NULL;
 }
+
+
+
+
+
+
+
+
+// DONE: Make a GENERIC VERSION of the BELOW function, that script coders can call
+// whenever they need to move money between two parties!!!! The more I look at it,
+// the more I realize I can probably use it NEARLY "as is" !
+
+
+//
+// true == success, false == failure.
+//
+bool OTCronItem::MoveFunds(const mapOfNyms	  & map_NymsAlreadyLoaded,
+						   const long		  &	lAmount, 
+						   const OTIdentifier &	SOURCE_ACCT_ID,		// GetSenderAcctID();
+						   const OTIdentifier &	SENDER_USER_ID,		// GetSenderUserID();
+						   const OTIdentifier &	RECIPIENT_ACCT_ID,	// GetRecipientAcctID();
+						   const OTIdentifier &	RECIPIENT_USER_ID)	// GetRecipientUserID();
+{	
+	const OTCron * pCron = GetCron();
+	OT_ASSERT(NULL != pCron);
+	
+	OTPseudonym * pServerNym = pCron->GetServerNym();
+	OT_ASSERT(NULL != pServerNym);
+	// --------------------------------------------------------	
+	bool					bSuccess = false;	// The return value.
+	// --------------------------------------------------------
+	const OTIdentifier		SERVER_ID(pCron->GetServerID());
+	const OTIdentifier		SERVER_USER_ID(*pServerNym);
+	// --------------------------------------------------------
+	
+	OTString	strSenderUserID(SENDER_USER_ID), strRecipientUserID(RECIPIENT_USER_ID),
+	strSourceAcctID(SOURCE_ACCT_ID), strRecipientAcctID(RECIPIENT_ACCT_ID),
+	strServerNymID(SERVER_USER_ID);
+	
+	// Make sure they're not the same Account IDs ...
+	// Otherwise we would have to take care not to load them twice, like with the Nyms below.
+	// (Instead I just disallow it entirely. After all, even if I DID allow the account to transfer
+	// to itself, there would be no difference in balance than disallowing it.)
+	//
+	if (SOURCE_ACCT_ID == RECIPIENT_ACCT_ID)
+	{
+		OTLog::Output(0, "OTCronItem::MoveFunds: Aborted move: both account IDs were identical.\n");
+		FlagForRemoval(); // Remove from Cron
+		return false; // TODO: should have a "Validate Scripts" function that weeds this crap out before we even get here. (There are other examples...)
+	}
+	// When the accounts are actually loaded up, then we should also compare
+	// the asset types to make sure they were what we expected them to be.
+	
+	// -----------------------------------------------------------------
+	
+	// Need to load up the ORIGINAL VERSION OF THIS SMART CONTRACT
+	// Will need to verify the parties' signatures, as well as attach a copy of it to the receipt.
+	
+	OTCronItem * pOrigCronItem	= NULL;
+	
+	// OTCronItem::LoadCronReceipt loads the original version with the user's signature.
+	// (Updated versions, as processing occurs, are signed by the server.)
+	pOrigCronItem		= OTCronItem::LoadCronReceipt(GetTransactionNum());
+	
+	OT_ASSERT(NULL != pOrigCronItem);	// How am I processing it now if the receipt wasn't saved in the first place??
+	// TODO: Decide global policy for handling situations where the hard drive stops working, etc.
+	
+	// When theOrigPlanGuardian goes out of scope, pOrigCronItem gets deleted automatically.
+	OTCleanup<OTCronItem>	theOrigPlanGuardian(*pOrigCronItem);
+	
+	// strOrigPlan is a String copy (a PGP-signed XML file, in string form) of the original Payment Plan request...
+	OTString strOrigPlan(*pOrigCronItem); // <====== Farther down in the code, I attach this string to the receipts.
+	
+	
+	// Make sure to clean these up.
+	//	delete pOrigCronItem;		// theOrigPlanGuardian will handle this now, whenever it goes out of scope.
+	//	pOrigCronItem = NULL;		// So I don't need to worry about deleting this anymore. I can keep it around and
+	// use it all I want, and return anytime, and it won't leak.
+	
+	
+	
+	// -------------- Make sure have both nyms loaded and checked out. --------------------------------------------------
+	// WARNING: 1 or both of the Nyms could be also the Server Nym. They could also be the same Nym, but NOT the Server.
+	// In all of those different cases, I don't want to load the same file twice and overwrite it with itself, losing
+	// half of all my changes. I have to check all three IDs carefully and set the pointers accordingly, and then operate
+	// using the pointers from there.
+	
+	
+	OTPseudonym theSenderNym, theRecipientNym; // We MIGHT use ONE, OR BOTH, of these, or none. (But probably both.)
+	
+	// Find out if either Nym is actually also the server.
+	bool bSenderNymIsServerNym		= ((SENDER_USER_ID		== SERVER_USER_ID) ? true : false);
+	bool bRecipientNymIsServerNym	= ((RECIPIENT_USER_ID	== SERVER_USER_ID) ? true : false);
+	
+	// We also see, after all that is done, whether both pointers go to the same entity. 
+	// (We'll want to know that later.)
+	bool bUsersAreSameNym			= ((SENDER_USER_ID == RECIPIENT_USER_ID) ? true : false);
+	
+	// -----------------------------------------------------
+	
+	OTPseudonym * pSenderNym			= NULL;
+	OTPseudonym * pRecipientNym			= NULL;
+	// --------------------------
+	mapOfNyms::iterator it_sender		= map_NymsAlreadyLoaded.find(strSenderUserID.Get());
+	mapOfNyms::iterator it_recipient	= map_NymsAlreadyLoaded.find(strRecipientUserID.Get());
+	
+	if (map_NymsAlreadyLoaded.end() != it_sender) // found the sender in list of Nyms that are already loaded.
+	{
+		pSenderNym = (*it_sender).second;
+		OT_ASSERT((NULL != pSenderNym) && (pSenderNym->CompareID(SENDER_USER_ID)));
+	}
+	if (map_NymsAlreadyLoaded.end() != it_recipient) // found the recipient in list of Nyms that are already loaded.
+	{
+		pRecipientNym = (*it_recipient).second;
+		OT_ASSERT((NULL != pRecipientNym) && (pRecipientNym->CompareID(RECIPIENT_USER_ID)));
+	}
+	// ------------------
+	
+	// Figure out if Sender Nym is also Server Nym.
+	if (bSenderNymIsServerNym)		
+	{
+		// If the First Nym is the server, then just point to that.
+		pSenderNym = pServerNym;
+	}
+	else if (NULL == pSenderNym)	// Else load the First Nym from storage, if still not found.
+	{
+		theSenderNym.SetIdentifier(SENDER_USER_ID);  // theSenderNym is pSenderNym
+		
+		if (false == theSenderNym.LoadPublicKey())
+		{
+			OTString strNymID(SENDER_USER_ID);
+			OTLog::vError("OTCronItem::MoveFunds: Failure loading Sender Nym public key: %s\n", 
+						  strNymID.Get());
+			FlagForRemoval(); // Remove it from future Cron processing, please.
+			return false;
+		}
+		
+		if (theSenderNym.VerifyPseudonym()	&&
+			theSenderNym.LoadSignedNymfile(*pServerNym)) // ServerNym here is not theSenderNym's identity, but merely the signer on this file.
+		{
+			OTLog::Output(0, "OTCronItem::MoveFunds: Loading sender Nym, since he **** APPARENTLY **** wasn't already loaded.\n"
+						  "(On a cron item processing, this is normal. But if you triggered a clause directly, then your Nym SHOULD be already loaded...)\n");
+			pSenderNym = &theSenderNym; //  <=====
+		}
+		else
+		{
+			OTString strNymID(SENDER_USER_ID);
+			OTLog::vError("OTCronItem::MoveFunds: Failure loading or verifying Sender Nym public key: %s\n", 
+						  strNymID.Get());
+			FlagForRemoval(); // Remove it from future Cron processing, please.
+			return false;			
+		}
+	}
+	
+	// ------------------
+	
+	// Next, we also find out if Recipient Nym is Server Nym...
+	if (bRecipientNymIsServerNym)		
+	{
+		// If the Recipient Nym is the server, then just point to that.
+		pRecipientNym = pServerNym;
+	}
+	else if (bUsersAreSameNym)	// Else if the participants are the same Nym, point to the one we already loaded. 
+	{
+		pRecipientNym = pSenderNym; // theSenderNym is pSenderNym
+	}
+	else if (NULL == pRecipientNym)	// Otherwise load the Other Nym from Disk and point to that, if still not found.
+	{
+		theRecipientNym.SetIdentifier(RECIPIENT_USER_ID);
+		
+		if (false == theRecipientNym.LoadPublicKey())
+		{
+			OTString strNymID(RECIPIENT_USER_ID);
+			OTLog::vError("OTCronItem::MoveFunds: Failure loading Recipient Nym public key: %s\n", 
+						  strNymID.Get());
+			FlagForRemoval(); // Remove it from future Cron processing, please.
+			return false;
+		}
+		
+		if (theRecipientNym.VerifyPseudonym()	&& 
+			theRecipientNym.LoadSignedNymfile(*pServerNym))
+		{
+			OTLog::Output(0, "OTCronItem::MoveFunds: Loading recipient Nym, since he **** APPARENTLY **** wasn't already loaded.\n"
+						  "(On a cron item processing, this is normal. But if you triggered a clause directly, then your Nym SHOULD be already loaded...)\n");
+			
+			pRecipientNym = &theRecipientNym; //  <=====
+		}
+		else 
+		{
+			OTString strNymID(RECIPIENT_USER_ID);
+			OTLog::vError("OTCronItem::MoveFunds: Failure loading or verifying Recipient Nym public key: %s\n", 
+						  strNymID.Get());
+			FlagForRemoval(); // Remove it from future Cron processing, please.
+			return false;			
+		}
+	}
+	
+	// Below this point, both Nyms are loaded and good-to-go.
+	// -----------------------------------------------------------------
+	
+	mapOfNyms map_ALREADY_LOADED; // I know I passed in one of these, but now I have processed the Nym pointers (above) and have better data here now.
+	mapOfNyms::iterator it_temp;
+	
+	it_temp = map_ALREADY_LOADED.find(strServerNymID.Get());
+	if (map_ALREADY_LOADED.end() == it_temp)
+		map_ALREADY_LOADED.insert(std::pair<std::string,OTPseudonym*>(strServerNymID.Get(),		pServerNym));  // Add Server Nym to list of Nyms already loaded.
+	it_temp = map_ALREADY_LOADED.find(strSenderUserID.Get());
+	if (map_ALREADY_LOADED.end() == it_temp)
+		map_ALREADY_LOADED.insert(std::pair<std::string,OTPseudonym*>(strSenderUserID.Get(),	pSenderNym));  // Add Sender Nym to list of Nyms already loaded.
+	it_temp = map_ALREADY_LOADED.find(strRecipientUserID.Get());
+	if (map_ALREADY_LOADED.end() == it_temp)
+		map_ALREADY_LOADED.insert(std::pair<std::string,OTPseudonym*>(strRecipientUserID.Get(),	pRecipientNym));  // Add Recipient Nym to list of Nyms already loaded.
+	//
+	//	I set up map_ALREADY_LOADED here so that when I call VerifyAgentAsNym(), I can pass it along. VerifyAgentAsNym often
+	//  just verifies ownership (for individual nym owners who act as their own agents.) BUT... If we're in a smart contract,
+	//  or other OTScriptable, there might be a party owned by an entity, and a signature needs to be checked that ISN'T the
+	//  same Nym! (Perhaps the entity signed the smartcontract via another signer Nym.) This means I might potentially have to
+	//  LOAD the other signer Nym, in order to verify his signature...BUT WHAT IF HE'S ALREADY LOADED?  
+	//
+	//  THAT... is exactly why I am passing in a list now of all the Nyms that are already loaded... So if the authorizing Nym for
+	//  any given party happens to already be loaded on that list, it can use it, instead of loading it twice (and potentially 
+	//  overwriting data... Bad thing!)
+	//
+	// Now that I have the original cron item loaded, and all the Nyms ready to go,
+	// let's make sure that BOTH the nyms in question have SIGNED the original request.
+	// (Their signatures wouldn't be on the updated version in Cron--the server signs
+	// that one. Except smart contracts, which keep a signed copy automatically for each party.)
+	//
+	// NOTE: originally I used to just verify here that both Nyms have signed the original
+	// cron item. But now I provide a virtual method to do that (which it still does, by default.)
+	// But in the case of smart contracts, it's more complicated. The Nym might merely be an agent
+	// for a party, (legitimately) but where a DIFFERENT agent is the one who originally signed.
+	// Thus, I have to allow SmartContract to override the method so it can add that extra intelligence.
+	//
+	// NOTE: This function does NOT verify that the Nyms are authorized for the ASSET ACCOUNTS--either the
+	// party providing authorization OR the acct itself. Instead, this ONLY verifies that they are actually
+	// agents for legitimate parties to this agreement ACCORDING TO THOSE PARTIES, (regardless of the asset
+	// accounts) and that said agreement has also been signed by authorized agents of those parties. 
+	// (Usually the agent who originally signed, and the agent signing now, and the
+	// party that agent represents, are all in reality the SAME NYM. But in the case of
+	// smart contracts, they can be different Nyms, which is why we now have an overridable virtual method
+	// for this, instead of simply verifying both signatures on the cron item itself, as the default 
+	// OTTrade and OTAgreement versions of that virtual method will continue to do.
+	//
+	// Repeat: this is not about verifying account ownershp or permissions. It's ONLY about verifying
+	// that these nyms are actually authorized to act as parties to the agreement. Verifying their ownership
+	// rights over the asset accounts is done separately below.
+	//	
+	// Another thing: The original "VerifySignature()" proved that the NYM HIMSELF had signed/authorized,
+	// whereas now it's more like, prove which party owns the account, then prove that party has authorized
+	// Nym as his agent.
+	//
+	
+	// -----------------------------------------------------------------
+	// VerifyNymAsAgent() replaces VerifySignature() here. It's polymorphic, so VerifySignature() is still called
+	// directly on theNym in certain versions (agreement, trade...) but otherwise there is now more to it than that.
+	// See OTScriptable for the complicated version. Either way, it makes sure that the right person signed and that
+	// theNym is authorized to act by that person. (As far as pOrigCronItem cares -- the Account may still disagree.)
+	// This verifies:
+	// - that the Nym is found as an agent on one of the parties.
+	// - that there is an "original party signed copy" of the contract attached to the party.
+	// - that there is an authorizing agent for that party whose SIGNATURE VERIFIES on the party's signed copy.
+	//
+	if (!pOrigCronItem->VerifyNymAsAgent(*pSenderNym, *pServerNym,
+										 // In case it needs to load the AUTHORIZING agent, and that agent is already loaded, it will have access here.
+										 &map_ALREADY_LOADED)) 
+	{
+		OTLog::vError("OTCronItem::MoveFunds: Failed authorization for sender Nym: %s\n", strSenderUserID.Get());
+		FlagForRemoval(); // Remove it from Cron.
+		return false;			
+	}
+	
+	if (!pOrigCronItem->VerifyNymAsAgent(*pRecipientNym, *pServerNym,
+		 								 // In case it needs to load the AUTHORIZING agent, and that agent is already loaded, it will have access here.
+										 &map_ALREADY_LOADED)) 
+	{
+		OTLog::vError("OTCronItem::MoveFunds: Failed authorization for recipient Nym: %s\n", strRecipientUserID.Get());
+		FlagForRemoval(); // Remove it from Cron.
+		return false;			
+	}
+	
+	// (verifications)
+	//
+	// -- DONE Verify that both Nyms are actually authorized to act as agents for the parties. (in the cron item.) This is like pOrig->VerifySignature(theNym);
+	// -- DONE Verify that both parties have properly signed/executed the contract. This may mean loading a DIFFERENT Nym (the authorizing agent who signed for the party originally)
+	//    This is also like pOrig->VerifySignature(theNym); the extra functionality is added via polymorphism.
+	// -- DONE Verify that both Nyms are authorized agents FOR THE ASSET ACCOUNTS IN QUESTION, according to their PARTIES. This is like pParty->HasAgent(theNym);
+	// -- DONE Verify that both ACCOUNTS are owned by the parties that the Nyms represent.  According to the ACCOUNTS. This is like pAcct->VerifyOwner(theNym)
+	//    The above two items should ALSO be done polymorphically, just like the first two.
+	// -- If the Nyms are not the parties they represent, then verify that they have the proper Role at their entities in order to claim such authority.
+	//    Does this last one go into OTAccount itself? Or OTScriptable. And the actual verification part will be probably in OTAgent, just like VerifySignature was.
+	//
+	//	if (!pOrigCronItem->VerifySignature(*pSenderNym) || !pOrigCronItem->VerifySignature(*pRecipientNym))
+	//
+	//	{
+	//		OTLog::Error("OTCronItem::MoveFunds: Failed authorization.\n");
+	//		FlagForRemoval(); // Remove it from Cron.
+	//		return false;			
+	//	}
+	
+	
+	// AT THIS POINT, I have pServerNym, pSenderNym, and pRecipientNym. 
+	// ALL are loaded from disk (where necessary.) AND...
+	// ALL are valid pointers, (even if they sometimes point to the same object,)
+	// AND none are capable of overwriting the storage of the other (by accidentally
+	// loading the same storage twice.)
+	// We also have boolean variables at this point to tell us exactly which are which,
+	// (in case some of those pointers do go to the same object.) 
+	// They are:
+	// bSenderNymIsServerNym, bRecipientNymIsServerNym, and bUsersAreSameNym.
+	//
+	// I also have pOrigCronItem, which is a dynamically-allocated copy of the original
+	// Cron Receipt for this Cron Item. (And I don't need to worry about deleting it, either.)
+	// I know for a fact they are both authorized on pOrigCronItem...
+	// -----------------------------------------------------------------
+	
+	// LOAD THE ACCOUNTS
+	//
+	OTAccount * pSourceAcct		= OTAccount::LoadExistingAccount(SOURCE_ACCT_ID, SERVER_ID);
+	
+	if (NULL == pSourceAcct)
+	{
+		OTLog::Output(0, "OTCronItem::MoveFunds: ERROR verifying existence of source account.\n");
+		FlagForRemoval(); // Remove it from future Cron processing, please.
+		return false;
+	}
+	// Past this point we know pSourceAcct is good and will clean itself up.
+	OTCleanup<OTAccount>	theSourceAcctSmrtPtr(*pSourceAcct);
+	// -----------------------------------------------------------------
+	
+	OTAccount * pRecipientAcct	= OTAccount::LoadExistingAccount(RECIPIENT_ACCT_ID,	SERVER_ID);
+	
+	if (NULL == pRecipientAcct)
+	{
+		OTLog::Output(0, "OTCronItem::MoveFunds: ERROR verifying existence of recipient account.\n");
+		FlagForRemoval(); // Remove it from future Cron processing, please.
+		return false;
+	}
+	// Past this point we know pRecipientAcct is good and will clean itself up.
+	OTCleanup<OTAccount>	theRecipAcctSmrtPtr(*pRecipientAcct);
+	// -----------------------------------------------------------------
+	
+	
+	// BY THIS POINT, both accounts are successfully loaded, and I don't have to worry about
+	// cleaning either one of them up, either. But I can now use pSourceAcct and pRecipientAcct...
+	//
+	//
+	// -----------------------------------------------------------------------------------
+	
+	// A few verification if/elses...
+	
+	// Are both accounts of the same Asset Type?
+	if (pSourceAcct->GetAssetTypeID() != pRecipientAcct->GetAssetTypeID())
+	{	// We already know the SUPPOSED Asset IDs of these accounts... But only once
+		// the accounts THEMSELVES have been loaded can we VERIFY this to be true.
+		OTLog::Output(0, "OTCronItem::MoveFunds: ERROR - attempted payment between accounts of different "
+					  "asset types.\n");
+		FlagForRemoval(); // Remove it from future Cron processing, please.
+		return false;
+	}
+	
+	// -------------------------------------------------------------------------
+	// I call VerifySignature (WITH SERVER NYM) here since VerifyContractID was 
+	// already called in LoadExistingAccount().
+	//
+	else if (!pSourceAcct->VerifySignature(*pServerNym) || !this->VerifyNymAsAgentForAccount(*pSenderNym, *pSourceAcct) )
+	{
+		OTLog::Output(0, "OTCronItem::MoveFunds: ERROR verifying signature or ownership on source account.\n");
+		FlagForRemoval(); // Remove it from future Cron processing, please.
+		return false;
+	}
+	
+	else if (!pRecipientAcct->VerifySignature(*pServerNym) || !this->VerifyNymAsAgentForAccount(*pRecipientNym, *pRecipientAcct) )
+	{
+		OTLog::Output(0, "OTCronItem::MoveFunds: ERROR verifying signature or ownership on recipient account.\n");
+		FlagForRemoval(); // Remove it from future Cron processing, please.
+		return false;
+	}
+	// -------------------------------------------------------------------------
+	
+	
+	// By this point, I know I have both accounts loaded, and I know that they have the right asset types,
+	// and I know they have the right owners and they were all signed by the server.
+	// I also know that their account IDs in their internal records matched the account filename for each acct.
+	// I also have pointers to the Nyms who own these accounts.
+	
+	else
+	{			
+		// Okay then, everything checks out. Let's add a receipt to the sender's outbox and the recipient's inbox. 
+		// IF they can be loaded up from file, or generated, that is. 
+		
+		// Load the inbox/outbox in case they already exist
+		OTLedger	theSenderInbox		(SENDER_USER_ID,	SOURCE_ACCT_ID,		SERVER_ID),
+		theRecipientInbox	(RECIPIENT_USER_ID, RECIPIENT_ACCT_ID,	SERVER_ID);
+		
+		// ALL inboxes -- no outboxes. All will receive notification of something ALREADY DONE.
+		bool bSuccessLoadingSenderInbox		= theSenderInbox.LoadInbox();
+		bool bSuccessLoadingRecipientInbox	= theRecipientInbox.LoadInbox();
+		
+		// --------------------------------------------------------------------
+		
+		// ...or generate them otherwise...
+		
+		if (true == bSuccessLoadingSenderInbox)
+			bSuccessLoadingSenderInbox		= theSenderInbox.VerifyAccount(*pServerNym);
+		else
+			bSuccessLoadingSenderInbox		= theSenderInbox.GenerateLedger(SOURCE_ACCT_ID, SERVER_ID, OTLedger::inbox, true); // bGenerateFile=true
+		
+		if (true == bSuccessLoadingRecipientInbox)
+			bSuccessLoadingRecipientInbox	= theRecipientInbox.VerifyAccount(*pServerNym);
+		else
+			bSuccessLoadingRecipientInbox	= theRecipientInbox.GenerateLedger(RECIPIENT_ACCT_ID, SERVER_ID, OTLedger::inbox, true); // bGenerateFile=true
+		
+		// --------------------------------------------------------------------
+		
+		if ((false == bSuccessLoadingSenderInbox)	|| 
+			(false == bSuccessLoadingRecipientInbox))
+		{
+			OTLog::Error("OTCronItem::MoveFunds: ERROR loading or generating inbox ledger.\n");
+		}
+		else 
+		{
+			// Generate new transaction numbers for these new transactions
+			long lNewTransactionNumber = GetCron()->GetNextTransactionNumber();
+			
+			//			OT_ASSERT(lNewTransactionNumber > 0); // this can be my reminder.			
+			if (0 == lNewTransactionNumber)
+			{
+				OTLog::Output(0, "OTCronItem::MoveFunds: Aborted move: There are no more transaction numbers available.\n");
+				// (Here I do NOT flag for removal.)
+				return false; 			
+			}
+			
+			OTTransaction * pTransSend		= OTTransaction::GenerateTransaction(theSenderInbox, 
+																				 OTTransaction::paymentReceipt, lNewTransactionNumber);
+			
+			OTTransaction * pTransRecip		= OTTransaction::GenerateTransaction(theRecipientInbox, 
+																				 OTTransaction::paymentReceipt, lNewTransactionNumber);
+			
+			// (No need to OT_ASSERT on the above transactions since it occurs in GenerateTransaction().)
+			
+			
+			// Both inboxes will get receipts with the same (new) transaction ID on them.
+			// They will have a "In reference to" field containing the original payment plan
+			// (with user's signature).
+			
+			// set up the transaction items (each transaction may have multiple items... but not in this case.)
+			OTItem * pItemSend		= OTItem::CreateItemFromTransaction(*pTransSend, OTItem::paymentReceipt);
+			OTItem * pItemRecip		= OTItem::CreateItemFromTransaction(*pTransRecip, OTItem::paymentReceipt);
+			
+			// these may be unnecessary, I'll have to check CreateItemFromTransaction. I'll leave em.
+			OT_ASSERT(NULL != pItemSend);	
+			OT_ASSERT(NULL != pItemRecip);
+			
+			pItemSend->SetStatus(OTItem::rejection); // the default.
+			pItemRecip->SetStatus(OTItem::rejection); // the default.
+			
+			
+			// Here I make sure that each receipt (each inbox notice) references the original
+			// transaction number that was used to set the payment plan into place...
+			// This number is used to track all cron items. (All Cron items require a transaction 
+			// number from the user in order to add them to Cron in the first place.)
+			// 
+			// The number is also used to uniquely identify all other transactions, as you
+			// might guess from its name.
+			pTransSend->SetReferenceToNum(GetTransactionNum());
+			pTransRecip->SetReferenceToNum(GetTransactionNum());
+			
+			
+			// The TRANSACTION (a receipt in my inbox) will be sent with "In Reference To" information
+            // containing the ORIGINAL SIGNED PLAN. (With both parties' original signatures on it.)
+			//
+			// Whereas the TRANSACTION ITEM will include an "attachment" containing the UPDATED
+			// PLAN (this time with the SERVER's signature on it.)
+			//
+			// Here's the original one going onto the transaction:
+			//
+			pTransSend->SetReferenceString(strOrigPlan);
+			pTransRecip->SetReferenceString(strOrigPlan);
+			
+			
+			
+			
+			
+			// --------------------------------------------------------------------------
+			
+			// MOVE THE DIGITAL ASSETS FROM ONE ACCOUNT TO ANOTHER...
+			
+			// Calculate the amount and debit/ credit the accounts
+			// Make sure each Account can afford it, and roll back in case of failure.
+			
+			bool bMoveSender	= false;
+			bool bMoveRecipient = false;
+			
+			// Make sure he can actually afford it...
+			if (pSourceAcct->GetBalance() >= lAmount)
+			{
+				// Debit the source account. 
+				bMoveSender	= pSourceAcct->Debit(lAmount); // <====== DEBIT FUNDS
+				
+				// IF success, credit the recipient.
+				if (bMoveSender)
+				{
+					bMoveRecipient	= pRecipientAcct->Credit(lAmount); // <=== CREDIT FUNDS
+					
+					// Okay, we already took it from the source account.
+					// But if we FAIL to credit the recipient, then we need to PUT IT BACK in the source acct.
+					// (EVEN THOUGH we'll just "NOT SAVE" after any failure, so it's really superfluous.)
+					//
+					if (!bMoveRecipient)
+						pSourceAcct->Credit(lAmount); // put the money back
+					else
+						bSuccess = true;
+				}
+				
+				// If ANY of these failed, then roll them all back and break.
+				if (!bMoveSender || !bMoveRecipient)
+				{
+					OTLog::Error("OTCronItem::MoveFunds: Very strange! Funds were available but "
+								 "debit or credit failed while performing move.\n");
+					// We won't save the files anyway, if this failed. 					
+					bSuccess = false;
+				}				
+			}
+			
+			
+			
+			// --------------------------------------------------------------------------
+			
+			
+			
+			
+			
+			// DO NOT SAVE ACCOUNTS if bSuccess is false.
+			// We only save these accounts if bSuccess == true.
+			// (But we do save the inboxes either way, since payment failures always merit an inbox notice.)
+			
+			if (true == bSuccess) // The payment succeeded.
+			{
+				// Both accounts involved need to get a receipt of this trade in their inboxes...
+				pItemSend->SetStatus(OTItem::acknowledgement); // pSourceAcct		
+				pItemRecip->SetStatus(OTItem::acknowledgement); // pRecipientAcct
+				
+				pItemSend->SetAmount(lAmount*(-1));	// "paymentReceipt" is otherwise ambigious about whether you are paying or being paid.
+				pItemRecip->SetAmount(lAmount);		// So, I decided for payment and market receipts, to use negative and positive amounts.
+				// I will probably do the same for cheques, since they can be negative as well (invoices).
+				
+				OTLog::Output(3, "OTCronItem::MoveFunds: Move performed.\n");
+				
+				// (I do NOT save m_pCron here, since that already occurs after this function is called.)
+			}
+			else // bSuccess = false.  The payment failed.
+			{
+				pItemSend->SetStatus(OTItem::rejection);// pSourceAcct		// These are already initialized to false.
+				pItemRecip->SetStatus(OTItem::rejection);// pRecipientAcct	// (But just making sure...)
+				
+				pItemSend->SetAmount(0);		// No money changed hands. Just being explicit.
+				pItemRecip->SetAmount(0);		// No money changed hands. Just being explicit.		
+				
+				OTLog::Output(3, "OTCronItem::MoveFunds: Move failed.\n");
+			}
+			
+			// Everytime a payment processes, a receipt is put in the user's inbox, containing a
+			// CURRENT copy of the cron item (which took just money from the user's acct, or not,
+			// and either way thus updated its status -- so its internal data has changed.)
+			//
+			// It will also contain a copy of the user's ORIGINAL signed cron item, where the data
+			// has NOT changed, (so the user's original signature is still good.)
+			//
+			// In order for it to export the RIGHT VERSION of the CURRENT plan, which has just changed
+			// (above), then I need to re-sign it and save it first. (The original version I'll load from
+			// a separate file using OTCronItem::LoadCronReceipt(lTransactionNum).
+			//
+			// I should be able to call a method on the original cronitem, where I ask it to verify a certain
+			// nym as being acceptable to that cron item as an agent, based on the signature of the original
+			// authorizing agent for that party.
+			//
+			
+			this->ReleaseSignatures();
+			this->SignContract(*pServerNym);
+			this->SaveContract();
+			
+			
+			// This is now at the bottom of this function.
+			//
+			//m_pCron->SaveCron(); // Cron is where I am serialized, so if Cron's not saved, I'm not saved.
+			
+			// -----------------------------------------------------------------
+			//
+			// EVERYTHING BELOW is just about notifying the users, by dropping the receipt in their
+			// inboxes. The rest is done.  The accounts and inboxes will all be saved at the same time.
+			//
+			// The Payment Plan is entirely updated and saved by this point, and Cron will
+			// also be saved in the calling function once we return (no matter what.)
+			//
+			// -----------------------------------------------------------------
+			
+			
+			// Basically I load up both INBOXES, which are actually LEDGERS, and then I create
+			// a new transaction, with a new transaction item, for each of the ledgers.
+			// (That's where the receipt information goes.)
+			// 
+			
+			
+			
+			// -----------------------------------------------------------------
+			
+			// The TRANSACTION will be sent with "In Reference To" information containing the
+			// ORIGINAL SIGNED PLAN. (With both of the users' original signatures on it.)
+			//
+			// Whereas the TRANSACTION ITEM will include an "attachment" containing the UPDATED
+			// PLAN (this time with the SERVER's signature on it.)
+			
+			// (Lucky I just signed and saved the updated plan (above), or it would still have 
+			// have the old data in it.)
+			
+			// I also already loaded the original plan. Remember this from above,
+			// near the top of the function:
+			//  OTCronItem * pOrigCronItem	= NULL;
+			// 	OTString strOrigPlan(*pOrigCronItem); // <====== Farther down in the code, I attach this string to the receipts.
+			//  ... then lower down...
+			// pTransSend->SetReferenceString(strOrigPlan);
+			// pTransRecip->SetReferenceString(strOrigPlan);
+			//
+			// So the original plan is already loaded and copied to the Transaction as the "In Reference To" 
+			// Field. Now let's add the UPDATED plan as an ATTACHMENT on the Transaction ITEM:
+			//
+			OTString	strUpdatedCronItem(*this);
+			
+			// Set the updated cron item as the attachment on the transaction item.
+			// (With the SERVER's signature on it!)
+			// (As a receipt for each party, so they can see their smartcontract updating.)
+			//
+			pItemSend->SetAttachment(strUpdatedCronItem);
+			pItemRecip->SetAttachment(strUpdatedCronItem);
+			
+			// -----------------------------------------------------------------
+			
+			// Success OR failure, either way I want a receipt in both inboxes.
+			// But if FAILURE, I do NOT want to save the Accounts, JUST the inboxes.
+			// So the inboxes happen either way, but the accounts are saved only on success.
+			
+			// sign the item
+			pItemSend->SignContract(*pServerNym);
+			pItemRecip->SignContract(*pServerNym);
+			
+			pItemSend->SaveContract();
+			pItemRecip->SaveContract();
+			
+			// the Transaction "owns" the item now and will handle cleaning it up.
+			pTransSend->AddItem(*pItemSend);
+			pTransRecip->AddItem(*pItemRecip);
+			
+			pTransSend->SignContract(*pServerNym);
+			pTransRecip->SignContract(*pServerNym);
+			
+			pTransSend->SaveContract();
+			pTransRecip->SaveContract();
+			
+			// -------------------------------------------
+			// Here, the transactions we just created are actually added to the ledgers.
+			// This happens either way, success or fail.
+			
+			theSenderInbox.		AddTransaction(*pTransSend);
+			theRecipientInbox.	AddTransaction(*pTransRecip);
+			
+			// -------------------------------------------
+			
+			// Release any signatures that were there before (They won't
+			// verify anymore anyway, since the content has changed.)
+			theSenderInbox.		ReleaseSignatures();
+			theRecipientInbox.	ReleaseSignatures();
+			
+			// Sign both of them.				
+			theSenderInbox.		SignContract(*pServerNym);
+			theRecipientInbox.	SignContract(*pServerNym);
+			
+			// Save both of them internally
+			theSenderInbox.		SaveContract();
+			theRecipientInbox.	SaveContract();
+			
+			// Save both inboxes to storage. (File, DB, wherever it goes.)
+			theSenderInbox.		SaveInbox();
+			theRecipientInbox.	SaveInbox();
+			
+			// If success, save the accounts with new balance. (Save inboxes with receipts either way,
+			// and the receipts will contain a rejection or acknowledgment stamped by the Server Nym.)
+			if (true == bSuccess)
+			{					
+				// -------------------------------------------
+				// Release any signatures that were there before (They won't
+				// verify anymore anyway, since the content has changed.)
+				pSourceAcct->	ReleaseSignatures();	
+				pRecipientAcct->ReleaseSignatures();	
+				
+				// Sign both of them.				
+				pSourceAcct->	SignContract(*pServerNym);	
+				pRecipientAcct->SignContract(*pServerNym);	
+				
+				// Save both of them internally
+				pSourceAcct->	SaveContract();	
+				pRecipientAcct->SaveContract();	
+				
+				// TODO: Better rollback capabilities in case of failures here:
+				
+				// Save both accounts to storage.
+				pSourceAcct->	SaveAccount();	
+				pRecipientAcct->SaveAccount();	
+				
+				// NO NEED TO LOG HERE, since success / failure is already logged above.
+			}
+		} // both inboxes were successfully loaded or generated.
+	} // By the time we enter this block, accounts and nyms are already loaded. As we begin, inboxes are instantiated.
+	
+	
+	// Either way, Cron should save, since it just updated.
+	// (The above function call WILL change this payment plan
+	// and re-sign it and save it, no matter what. So I just 
+	// call this here to keep it simple:
+	
+	GetCron()->SaveCron();
+	
+	
+	return bSuccess;
+}
+
+
+
 
 
 
@@ -671,13 +1403,29 @@ void OTCronItem::onFinalReceipt(OTCronItem & theOrigCronItem, const long & lNewT
 } 
 
 
-// DONE:  ABOVE, do the other subclasses.
 
 
 
 
-// DONE:  Below, use lClosingNumber
-// 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 // This is the "DROPS FINAL RECEIPT" function.

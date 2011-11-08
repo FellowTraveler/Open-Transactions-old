@@ -165,6 +165,27 @@ using namespace io;
 
 
 
+// Used to be I could just call pTrade->VerifySignature(theNym), which is what
+// I still call here, inside this function. But that's a special case -- an override
+// from the OTScriptable / OTSmartContract version, which verifies parties and agents, etc.
+//
+bool OTTrade::VerifyNymAsAgent(const	OTPseudonym & theNym,
+										OTPseudonym & theSignerNym, // Not needed in this version of the override.
+										mapOfNyms	* pmap_ALREADY_LOADED/*=NULL*/)
+{
+	return this->VerifySignature(theNym);
+}
+
+
+// This is an override. See note above.
+//
+bool OTTrade::VerifyNymAsAgentForAccount(const OTPseudonym & theNym, const OTAccount & theAccount)
+{
+	return theAccount.VerifyOwner(theNym);
+}
+
+
+
 
 
 // -------------------------------------------------------------

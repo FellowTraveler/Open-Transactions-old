@@ -391,18 +391,26 @@ OTAccount::~OTAccount()
 
 // Verify Contract ID first, THEN Verify Owner.
 // Because we use the ID in this function, so make sure that it is verified before calling this.
+//
 bool OTAccount::VerifyOwner(OTPseudonym & theCandidate)
 {
 	OTIdentifier ID_CANDIDATE;
 	theCandidate.GetIdentifier(ID_CANDIDATE); // ID_CANDIDATE now contains the ID of the Nym we're testing.
 	
-	if (m_AcctUserID == ID_CANDIDATE) // There's an op== function, but no != ... So I used == since it exists.
+	if (m_AcctUserID == ID_CANDIDATE)
 	{
 		return true;
 	}
 	return false;
 }
 
+
+// Todo: when entities and roles are added, probably more will go here.
+//
+bool OTAccount::VerifyOwnerByID(const OTIdentifier & theNymID) const
+{
+	return (theNymID == m_AcctUserID);
+}
 
 
 

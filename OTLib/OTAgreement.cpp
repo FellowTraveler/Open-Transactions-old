@@ -140,6 +140,25 @@
 
 
 
+// Used to be I could just call pAgreement->VerifySignature(theNym), which is what
+// I still call here, inside this function. But that's a special case -- an override
+// from the OTScriptable / OTSmartContract version, which verifies parties and agents, etc.
+//
+bool OTAgreement::VerifyNymAsAgent(const OTPseudonym & theNym,
+										 OTPseudonym & theSignerNym, // Not needed in this override.
+										 mapOfNyms	 * pmap_ALREADY_LOADED/*=NULL*/)
+{
+	return this->VerifySignature(theNym);
+}
+
+
+// This is an override. See note above.
+//
+bool OTAgreement::VerifyNymAsAgentForAccount(const OTPseudonym & theNym, const OTAccount & theAccount)
+{
+	return theAccount.VerifyOwner(theNym);
+}
+
 
 // This is called by OTCronItem::HookRemovalFromCron
 // (After calling this method, HookRemovalFromCron then calls onRemovalFromCron.)

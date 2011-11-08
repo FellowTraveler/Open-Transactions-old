@@ -4196,10 +4196,9 @@ const char * OT_API_Ledger_FinalizeResponse(const char * SERVER_ID,
     
 	OTPseudonym theTempNym;
 	
-	for (listOfItems::iterator ii = pTransaction->GetItemList().begin(); ii != pTransaction->GetItemList().end(); ++ii)
+	FOR_EACH_IT(listOfItems, pTransaction->GetItemList(), it_bigloop)
 	{
-		OTItem * pItem = *ii;
-		
+		OTItem * pItem = *it_bigloop;
 		OT_ASSERT_MSG(NULL != pItem, "Pointer should not have been NULL.");
 		
 		if ((pItem->GetType() == OTItem::acceptPending) ||
@@ -4403,10 +4402,9 @@ const char * OT_API_Ledger_FinalizeResponse(const char * SERVER_ID,
                         // one original transaction or another.) FIND THE ONES that are in reference to
                         // the same # as pServerTransaction is.
                         //
-                        for (listOfItems::iterator iiii = pTransaction->GetItemList().begin(); 
-                             iiii != pTransaction->GetItemList().end(); ++iiii)
+						FOR_EACH(listOfItems, pTransaction->GetItemList())
                         {
-                            OTItem * pItemPointer = *iiii;
+                            OTItem * pItemPointer = *it;
                             OT_ASSERT_MSG(NULL != pItemPointer, "Pointer should not have been NULL.");
                             
                             // pItemPointer->GetReferenceToNum() is the server's transaction number for the receipt
@@ -4726,13 +4724,11 @@ const char * OT_API_Transaction_GetVoucher(const char * SERVER_ID,
 	// -----------------------------------------------------
 	
 	// loop through the ALL items that make up this transaction and check to see if a response to withdrawal.
-	OTItem * pItem = NULL;
 	
 	// if pointer not null, and it's a withdrawal, and it's an acknowledgement (not a rejection or error)
-	for (listOfItems::iterator ii = theTransaction.GetItemList().begin(); ii != theTransaction.GetItemList().end(); ++ii)
+	FOR_EACH(listOfItems, theTransaction.GetItemList())
 	{
-		pItem = *ii;
-		
+		OTItem * pItem = *it;
 		OT_ASSERT_MSG(NULL != pItem, "Null pItem in transaction list.");
 		
 		if ((OTItem::atWithdrawVoucher	== pItem->GetType()) &&
@@ -4748,7 +4744,6 @@ const char * OT_API_Transaction_GetVoucher(const char * SERVER_ID,
 				break;			
 			}
 		}
-		
 	}
 	
 	// -----------------------------------------------------

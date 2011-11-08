@@ -224,6 +224,15 @@ public:
 	// When first adding anything to Cron, a copy needs to be saved in a folder somewhere.
 	bool SaveCronReceipt();
 	
+	// For moving money from one nym's account to another.
+	// Specifically used in Smart Contracts, and it is also nearly identically copied in OTPaymentPlan.
+	//
+	bool MoveFunds(const mapOfNyms	  & map_NymsAlreadyLoaded,
+				   const long		  &	lAmount, 
+				   const OTIdentifier &	SOURCE_ACCT_ID,		// GetSenderAcctID();
+				   const OTIdentifier &	SENDER_USER_ID,		// GetSenderUserID();
+				   const OTIdentifier &	RECIPIENT_ACCT_ID,	// GetRecipientAcctID();
+				   const OTIdentifier &	RECIPIENT_USER_ID);	// GetRecipientUserID();
 	
 	// --------------------------------------------------------------------------
 	// Return True if should stay on OTCron's list for more processing.

@@ -201,7 +201,9 @@ public:
     static OTTransactionType * TransactionFactory(const OTString & strInput);
 
     // ------------------------------------------------------------------
-    
+    // Someday I'll add EntityID and RoleID here (in lieu of UserID, 
+	// in cases when the account is owned by an Entity and not a Nym.)
+	//
 	inline const OTIdentifier & GetUserID() const { return m_AcctUserID; }
 	inline void					SetUserID(const OTIdentifier & theID) {  m_AcctUserID = theID; }
 	

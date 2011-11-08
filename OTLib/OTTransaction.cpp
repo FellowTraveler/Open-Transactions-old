@@ -1925,10 +1925,10 @@ bool OTTransaction::VerifyItems(OTPseudonym & theNym)
 	// and the transaction both have the same owner: Nym.
 	
 	// if pointer not null, and it's a withdrawal, and it's an acknowledgement (not a rejection or error)
-	for (listOfItems::iterator ii = GetItemList().begin(); ii != GetItemList().end(); ++ii)
+	//
+	FOR_EACH(listOfItems, GetItemList())
 	{
-		pItem = *ii;
-		
+		pItem = *it;
 		OT_ASSERT(NULL != pItem);
 		
 		if (GetTransactionNum() != pItem->GetTransactionNum())
@@ -2102,12 +2102,9 @@ void OTTransaction::AddItem(OTItem & theItem)
 // While processing a transaction, you may wish to query it for items of a certain type.
 OTItem * OTTransaction::GetItem(const OTItem::itemType theType) 
 {
-	OTItem * pItem = NULL;
-    
-	for (listOfItems::iterator ii = m_listItems.begin(); ii != m_listItems.end(); ++ii)
+	FOR_EACH(listOfItems, m_listItems)
 	{
-		pItem = *ii;
-		
+		OTItem * pItem = *it;
 		OT_ASSERT(NULL != pItem);
 		
 		if (pItem->GetType() == theType)
@@ -2121,11 +2118,9 @@ OTItem * OTTransaction::GetItem(const OTItem::itemType theType)
 // While processing a transaction, you may wish to query it for items of a certain type.
 OTItem * OTTransaction::GetItemInRefTo(const long lReference) 
 {
-	OTItem * pItem = NULL;
-    
-	for (listOfItems::iterator ii = m_listItems.begin(); ii != m_listItems.end(); ++ii)
+	FOR_EACH(listOfItems, m_listItems)
 	{
-		pItem = *ii;
+		OTItem * pItem = *it;
 		OT_ASSERT(NULL != pItem);
 		
 		if (pItem->GetReferenceToNum() == lReference)
@@ -2143,9 +2138,9 @@ int	OTTransaction::GetItemCountInRefTo(const long lReference)
 {
     int nCount = 0;
     
-	for (listOfItems::iterator ii = m_listItems.begin(); ii != m_listItems.end(); ++ii)
+	FOR_EACH(listOfItems, m_listItems)
 	{
-		OTItem * pItem = *ii;
+		OTItem * pItem = *it;
 		OT_ASSERT(NULL != pItem);
 		
 		if (pItem->GetReferenceToNum() == lReference)
@@ -2160,12 +2155,9 @@ int	OTTransaction::GetItemCountInRefTo(const long lReference)
 // Tries to determine, based on items within, whether it was a success or fail.
 bool OTTransaction::GetSuccess()
 {
-	OTItem * pItem = NULL;
-	
-	for (listOfItems::iterator ii = m_listItems.begin(); ii != m_listItems.end(); ++ii)
+	FOR_EACH(listOfItems, m_listItems)
 	{
-		pItem = *ii;
-		
+		OTItem * pItem = *it;
 		OT_ASSERT(NULL != pItem);
 		
 		switch (pItem->GetType()) 
@@ -2287,20 +2279,18 @@ void OTTransaction::UpdateContents()
 		m_xmlUnsigned.Concatenate("<cancelRequest>\n%s</cancelRequest>\n\n", m_ascCancellationRequest.Get());
 	
 	// loop through the items that make up this transaction and print them out here, base64-encoded, of course.
-	OTItem * pItem = NULL;
-	
-	for (listOfItems::iterator ii = m_listItems.begin(); ii != m_listItems.end(); ++ii)
+	FOR_EACH(listOfItems, m_listItems)
 	{
-		if ((pItem = *ii)) // if pointer not null
-		{
-			OTString strItem;
-			pItem->SaveContract(strItem);
+		OTItem * pItem = *it;
+		OT_ASSERT(NULL != pItem);
+
+		OTString strItem;
+		pItem->SaveContract(strItem);
 			
-			OTASCIIArmor ascItem;
-			ascItem.SetString(strItem, true); // linebreaks = true
+		OTASCIIArmor ascItem;
+		ascItem.SetString(strItem, true); // linebreaks = true
 			
-			m_xmlUnsigned.Concatenate("<item>\n%s</item>\n\n", ascItem.Get());
-		}
+		m_xmlUnsigned.Concatenate("<item>\n%s</item>\n\n", ascItem.Get());
 	}	
 	
 	m_xmlUnsigned.Concatenate("</transaction>\n");					
@@ -2583,9 +2573,9 @@ void OTTransaction::ProduceInboxReportItem(OTItem & theBalanceItem)
     /*
     if (OTTransaction::processInbox == theOwner.GetType()) // <==== IF it's a process inbox !!!
     {
-        for (listOfItems::iterator ii = theOwner.GetItemList().begin(); ii != theOwner.GetItemList().end(); ++ii)
+		FOR_EACH(listOfItems, theOwner.GetItemList())
         {
-            OTItem * pItem = *ii;
+            OTItem * pItem = *it;
             OT_ASSERT_MSG(NULL != pItem, "Pointer should not have been NULL.");
             
             // In this place, it means that someone is trying to PROCESS his INBOX. He is looping through that inbox,

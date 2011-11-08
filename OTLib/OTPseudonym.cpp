@@ -629,10 +629,9 @@ bool OTPseudonym::GenerateNym()
 //
 void OTPseudonym::RemoveAllNumbers()
 {
-	for (mapOfTransNums::iterator ii = m_mapIssuedNum.begin();  ii != m_mapIssuedNum.end(); ++ii)
+	FOR_EACH(mapOfTransNums, m_mapIssuedNum)
 	{
-		dequeOfTransNums * pDeque = (ii->second);
-		
+		dequeOfTransNums * pDeque = (it->second);
 		OT_ASSERT(NULL != pDeque);
 		
 		if (!(pDeque->empty()))
@@ -641,10 +640,9 @@ void OTPseudonym::RemoveAllNumbers()
 		}
 	}	
 	
-	for (mapOfTransNums::iterator ii = m_mapTransNum.begin();  ii != m_mapTransNum.end(); ++ii)
+	FOR_EACH(mapOfTransNums, m_mapTransNum)
 	{
-		dequeOfTransNums * pDeque = (ii->second);
-		
+		dequeOfTransNums * pDeque = (it->second);
 		OT_ASSERT(NULL != pDeque);
 		
 		if (!(pDeque->empty()))
@@ -671,9 +669,9 @@ bool OTPseudonym::IsRegisteredAtServer(const OTString & strServerID)
 	// 
 	// So let's loop through all the numbers I have, and if the server ID on the map
 	// matches the Server ID that was passed in, then return TRUE.
-	for (mapOfRequestNums::iterator ii = m_mapRequestNum.begin();  ii != m_mapRequestNum.end(); ++ii)
+	FOR_EACH(mapOfRequestNums, m_mapRequestNum)
 	{
-		if ( strID == ii->first )
+		if ( strID == it->first )
 		{			
 			// The call has succeeded
 			bRetVal = true;
@@ -702,13 +700,13 @@ bool OTPseudonym::UnRegisterAtServer(const OTString & strServerID)
 	// So let's loop through all the numbers I have, and if the server ID on the map
 	// matches the Server ID that was passed in, then delete that one.
     //
-	for (mapOfRequestNums::iterator ii = m_mapRequestNum.begin();  ii != m_mapRequestNum.end(); ++ii)
+	FOR_EACH(mapOfRequestNums, m_mapRequestNum)
 	{
-		if ( strID == ii->first )
+		if ( strID == it->first )
 		{			
 			// The call has succeeded
 			bRetVal = true;
-            m_mapRequestNum.erase(ii);
+            m_mapRequestNum.erase(it);
 			break;
 		}
 	}
@@ -738,13 +736,13 @@ bool OTPseudonym::VerifyGenericNum(mapOfTransNums & THE_MAP, const OTString & st
 	// So let's loop through all the deques I have, and if the server ID on the map
 	// matches the Server ID that was passed in, then find the transaction number on
 	// that list, and then return true. Else return false.
-	for (mapOfTransNums::iterator ii = THE_MAP.begin();  ii != THE_MAP.end(); ++ii)
+	//
+	FOR_EACH(mapOfTransNums, THE_MAP)
 	{
 		// if the ServerID passed in matches the serverID for the current deque
-		if ( strID == ii->first )
+		if ( strID == it->first )
 		{
-			dequeOfTransNums * pDeque = (ii->second);
-			
+			dequeOfTransNums * pDeque = (it->second);
 			OT_ASSERT(NULL != pDeque);
 			
 			if (!(pDeque->empty())) // there are some numbers for that server ID
@@ -794,12 +792,13 @@ bool OTPseudonym::RemoveGenericNum(mapOfTransNums & THE_MAP, const OTString & st
 	// So let's loop through all the deques I have, and if the server ID on the map
 	// matches the Server ID that was passed in, then find the transaction number on
 	// that list, and then remove it, and return true. Else return false.
-	for (mapOfTransNums::iterator ii = THE_MAP.begin();  ii != THE_MAP.end(); ++ii)
+	//
+	FOR_EACH(mapOfTransNums, THE_MAP)
 	{
 		// if the ServerID passed in matches the serverID for the current deque
-		if ( strID == ii->first )
+		if ( strID == it->first )
 		{
-			dequeOfTransNums * pDeque = (ii->second);
+			dequeOfTransNums * pDeque = (it->second);
 			
 			OT_ASSERT(NULL != pDeque);
 			
@@ -837,13 +836,13 @@ bool OTPseudonym::AddGenericNum(mapOfTransNums & THE_MAP, const OTString & strSe
 	// 
 	// So let's loop through all the deques I have, and if the server ID on the map
 	// matches the Server ID that was passed in, then add the transaction number.
-	for (mapOfTransNums::iterator ii = THE_MAP.begin();  ii != THE_MAP.end(); ++ii)
+	//
+	FOR_EACH(mapOfTransNums, THE_MAP)
 	{
 		// if the ServerID passed in matches the serverID for the current deque
-		if ( strID == ii->first )
+		if ( strID == it->first )
 		{
-			dequeOfTransNums * pDeque = (ii->second);
-			
+			dequeOfTransNums * pDeque = (it->second);
 			OT_ASSERT(NULL != pDeque);
 			
 			dequeOfTransNums::iterator iiii = std::find(pDeque->begin(), pDeque->end(), lTransNum);
@@ -891,13 +890,12 @@ int OTPseudonym::GetGenericNumCount(mapOfTransNums & THE_MAP, const OTIdentifier
 	// 
 	// So let's loop through all the deques I have, and if the server ID on the map
 	// matches the Server ID that was passed in, then we found the right server.
-	for (mapOfTransNums::iterator ii = THE_MAP.begin();  ii != THE_MAP.end(); ++ii)
+	FOR_EACH(mapOfTransNums, THE_MAP)
 	{
 		// if the ServerID passed in matches the serverID for the current deque
-		if ( strID == ii->first )
+		if ( strID == it->first )
 		{
-			pDeque = (ii->second);
-			
+			pDeque = (it->second);
 			OT_ASSERT(NULL != pDeque);
 
 			break;			
@@ -930,13 +928,12 @@ long OTPseudonym::GetIssuedNum(const OTIdentifier & theServerID, int nIndex)
 	// So let's loop through all the deques I have, and if the server ID on the map
 	// matches the Server ID that was passed in, then find the transaction number on
 	// that list, and then remove it, and return true. Else return false.
-	for (mapOfTransNums::iterator ii = m_mapIssuedNum.begin();  ii != m_mapIssuedNum.end(); ++ii)
+	FOR_EACH(mapOfTransNums, m_mapIssuedNum)
 	{
 		// if the ServerID passed in matches the serverID for the current deque
-		if ( strID == ii->first )
+		if ( strID == it->first )
 		{
-			dequeOfTransNums * pDeque = (ii->second);
-			
+			dequeOfTransNums * pDeque = (it->second);
 			OT_ASSERT(NULL != pDeque);
 			
 			if (!(pDeque->empty())) // there are some numbers for that server ID
@@ -973,13 +970,13 @@ long OTPseudonym::GetTransactionNum(const OTIdentifier & theServerID, int nIndex
 	// So let's loop through all the deques I have, and if the server ID on the map
 	// matches the Server ID that was passed in, then find the transaction number on
 	// that list, and then remove it, and return true. Else return false.
-	for (mapOfTransNums::iterator ii = m_mapTransNum.begin();  ii != m_mapTransNum.end(); ++ii)
+	//
+	FOR_EACH(mapOfTransNums, m_mapTransNum)
 	{
 		// if the ServerID passed in matches the serverID for the current deque
-		if ( strID == ii->first )
+		if ( strID == it->first )
 		{
-			dequeOfTransNums * pDeque = (ii->second);
-			
+			dequeOfTransNums * pDeque = (it->second);
 			OT_ASSERT(NULL != pDeque);
 			
 			if (!(pDeque->empty())) // there are some numbers for that server ID
@@ -1155,11 +1152,10 @@ void OTPseudonym::HarvestTransactionNumbers(const OTIdentifier & theServerID,
 	bool bSuccess = false;
 	long lTransactionNumber = 0;
 	
-	for (mapOfTransNums::iterator	iii	 =	theOtherNym.GetMapTransNum().begin(); 
-		 iii !=	theOtherNym.GetMapTransNum().end(); ++iii)
+	FOR_EACH(mapOfTransNums, theOtherNym.GetMapTransNum())
 	{	
-        std::string	strServerID     = (*iii).first;
-		dequeOfTransNums * pDeque	= (iii->second);
+        std::string	strServerID     = (*it).first;
+		dequeOfTransNums * pDeque	= (it->second);
 		
 		OT_ASSERT(NULL != pDeque);
 
@@ -1197,11 +1193,10 @@ void OTPseudonym::HarvestIssuedNumbers(const OTIdentifier & theServerID,
 	bool bSuccess = false;
 	long lTransactionNumber = 0;
 	
-	for (mapOfTransNums::iterator	iii	 =	theOtherNym.GetMapIssuedNum().begin(); 
-		 iii !=	theOtherNym.GetMapIssuedNum().end(); ++iii)
+	FOR_EACH(mapOfTransNums, theOtherNym.GetMapIssuedNum())
 	{	
-        std::string	strServerID		= (*iii).first;
-		dequeOfTransNums * pDeque	= (iii->second);
+        std::string	strServerID		= (*it).first;
+		dequeOfTransNums * pDeque	= (it->second);
 		
         OT_ASSERT(NULL != pDeque);
 
@@ -1251,13 +1246,13 @@ bool OTPseudonym::GetNextTransactionNum(OTPseudonym & SIGNER_NYM, const OTString
 	// 
 	// So let's loop through all the deques I have, and if the server ID on the map
 	// matches the Server ID that was passed in, then send out the transaction  number.
-	for (mapOfTransNums::iterator ii = m_mapTransNum.begin();  ii != m_mapTransNum.end(); ++ii)
+	//
+	FOR_EACH(mapOfTransNums, m_mapTransNum)
 	{
 		// if the ServerID passed in matches the serverID for the current deque
-		if ( strID == ii->first )
+		if ( strID == it->first )
 		{
-			dequeOfTransNums * pDeque = (ii->second);
-			
+			dequeOfTransNums * pDeque = (it->second);
 			OT_ASSERT(NULL != pDeque);
 			
 			if (!(pDeque->empty()))
@@ -1332,12 +1327,12 @@ bool OTPseudonym::GetCurrentRequestNum(const OTString & strServerID, long &lReqN
 	// 
 	// So let's loop through all the numbers I have, and if the server ID on the map
 	// matches the Server ID that was passed in, then send out the request number.
-	for (mapOfRequestNums::iterator ii = m_mapRequestNum.begin();  ii != m_mapRequestNum.end(); ++ii)
+	FOR_EACH(mapOfRequestNums, m_mapRequestNum)
 	{
-		if ( strID == ii->first )
+		if ( strID == it->first )
 		{
 			// Setup return value.
-			lReqNum = (ii->second);
+			lReqNum = (it->second);
 			
 			// The call has succeeded
 			bRetVal = true;
@@ -1374,9 +1369,10 @@ void OTPseudonym::IncrementRequestNum(OTPseudonym & SIGNER_NYM, const OTString &
 	//
 	// Make sure to save the Pseudonym so the new request number is saved.
 	std::string strID	= strServerID.Get();
-	for (mapOfRequestNums::iterator ii = m_mapRequestNum.begin();  ii != m_mapRequestNum.end(); ++ii)
+	
+	FOR_EACH(mapOfRequestNums, m_mapRequestNum)
 	{
-		if ( strID == ii->first )
+		if ( strID == it->first )
 		{
 			// We found it!
 			// Presumably we ONLY found it because this Nym has been properly loaded first.
@@ -1385,16 +1381,16 @@ void OTPseudonym::IncrementRequestNum(OTPseudonym & SIGNER_NYM, const OTString &
 			
 			
 			// Grab a copy of the old request number
-			long lOldRequestNumber = m_mapRequestNum[ii->first];
+			long lOldRequestNumber = m_mapRequestNum[it->first];
 			
 			// Set the new request number to the old one plus one.
-			m_mapRequestNum[ii->first] = lOldRequestNumber + 1;
+			m_mapRequestNum[it->first] = lOldRequestNumber + 1;
 			
 			// Now we can log BOTH, before and after... // debug here
 			OTLog::vOutput(4, "Incremented Request Number from %ld to %ld. Saving...\n", 
-					lOldRequestNumber, m_mapRequestNum[ii->first]);
-			//			OTLog::Output(2, "DEBUG REQUESTNUM: first: %s   Second: %ld\n", ii->first.c_str(), ii->second);
-			//			OTLog::Output(2, "SAVING PSEUDONYM TO FILE: %s\n", m_strNymfile.Get());
+					lOldRequestNumber, m_mapRequestNum[it->first]);
+//			OTLog::Output(2, "DEBUG REQUESTNUM: first: %s   Second: %ld\n", it->first.c_str(), it->second);
+//			OTLog::Output(2, "SAVING PSEUDONYM TO FILE: %s\n", m_strNymfile.Get());
 
 			// The call has succeeded
 			bSuccess = true;
@@ -1439,9 +1435,10 @@ void OTPseudonym::OnUpdateRequestNum(OTPseudonym & SIGNER_NYM, const OTString & 
 	//
 	// Make sure to save the Pseudonym so the new request number is saved.
 	std::string strID	= strServerID.Get();
-	for (mapOfRequestNums::iterator ii = m_mapRequestNum.begin();  ii != m_mapRequestNum.end(); ++ii)
+	
+	FOR_EACH(mapOfRequestNums, m_mapRequestNum)
 	{
-		if ( strID == ii->first )
+		if ( strID == it->first )
 		{
 			// We found it!
 			// Presumably we ONLY found it because this Nym has been properly loaded first.
@@ -1452,16 +1449,16 @@ void OTPseudonym::OnUpdateRequestNum(OTPseudonym & SIGNER_NYM, const OTString & 
 			bSuccess = true;
 			
 			// Grab a copy of the old request number
-			long lOldRequestNumber = m_mapRequestNum[ii->first];
+			long lOldRequestNumber = m_mapRequestNum[it->first];
 			
 			// Set the new request number to the old one plus one.
-			m_mapRequestNum[ii->first] = lNewRequestNumber;
+			m_mapRequestNum[it->first] = lNewRequestNumber;
 			
 			// Now we can log BOTH, before and after...
 			OTLog::vOutput(4, "Updated Request Number from %ld to %ld. Saving...\n", 
-					lOldRequestNumber, m_mapRequestNum[ii->first]);
-			//			OTLog::Output(2, "DEBUG REQUESTNUM: first: %s   Second: %ld\n", ii->first.c_str(), ii->second);
-			//			OTLog::Output(2, "SAVING PSEUDONYM TO FILE: %s\n", m_strNymfile.Get());
+					lOldRequestNumber, m_mapRequestNum[it->first]);
+//			OTLog::Output(2, "DEBUG REQUESTNUM: first: %s   Second: %ld\n", it->first.c_str(), it->second);
+//			OTLog::Output(2, "SAVING PSEUDONYM TO FILE: %s\n", m_strNymfile.Get());
 			break;
 		}
 	}
@@ -1691,20 +1688,20 @@ void OTPseudonym::DisplayStatistics(OTString & strOutput)
 	GetIdentifier(theStringID);
 	strOutput.Concatenate("Nym (aka User) ID: %s\n", theStringID.Get());
 	
-	for (mapOfRequestNums::iterator ii = m_mapRequestNum.begin();  ii != m_mapRequestNum.end(); ++ii)
+	FOR_EACH(mapOfRequestNums, m_mapRequestNum)
 	{
-		std::string strServerID	= ii->first;
-		long lRequestNumber		= ii->second;
+		std::string strServerID	= it->first;
+		long lRequestNumber		= it->second;
 		
 		// Now we can log BOTH, before and after...
 		strOutput.Concatenate("Request Number is %ld for server ID: %s\n", 
 					   lRequestNumber, strServerID.c_str());
 	}
 	
-	for (mapOfTransNums::iterator iii = m_mapIssuedNum.begin(); iii != m_mapIssuedNum.end(); ++iii)
+	FOR_EACH(mapOfTransNums, m_mapIssuedNum)
 	{	
-		std::string strServerID		= (*iii).first;
-		dequeOfTransNums * pDeque	= (iii->second);
+		std::string strServerID		= (*it).first;
+		dequeOfTransNums * pDeque	= (it->second);
 		
 		OT_ASSERT(NULL != pDeque);
 		
@@ -1719,10 +1716,11 @@ void OTPseudonym::DisplayStatistics(OTString & strOutput)
 			}
 		}
 	} // for
-	for (mapOfTransNums::iterator iiii = m_mapTransNum.begin(); iiii != m_mapTransNum.end(); ++iiii)
+	
+	FOR_EACH(mapOfTransNums, m_mapTransNum)
 	{	
-		std::string strServerID		= (*iiii).first;
-		dequeOfTransNums * pDeque	= (iiii->second);
+		std::string strServerID		= (*it).first;
+		dequeOfTransNums * pDeque	= (it->second);
 		
 		OT_ASSERT(NULL != pDeque);
 		
@@ -2023,12 +2021,12 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
 	
 	// -------------------------------------
 
-	long		lRequestNum;
+	long	lRequestNum;
 	
-	for (mapOfRequestNums::iterator ii = m_mapRequestNum.begin(); ii != m_mapRequestNum.end(); ++ii)
+	FOR_EACH(mapOfRequestNums, m_mapRequestNum)
 	{	
-		std::string	strServerID = (*ii).first;
-		lRequestNum = (*ii).second;
+		std::string	strServerID = (*it).first;
+		lRequestNum = (*it).second;
 		
 		strNym.Concatenate("<requestNum\n"
 				" serverID=\"%s\"\n"
@@ -2052,10 +2050,10 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
 	
 	long lTransactionNumber = 0;
 	
-	for (mapOfTransNums::iterator iii = m_mapTransNum.begin(); iii != m_mapTransNum.end(); ++iii)
+	FOR_EACH(mapOfTransNums, m_mapTransNum)
 	{	
-		std::string	strServerID		= (*iii).first;
-		dequeOfTransNums * pDeque	= (iii->second);
+		std::string	strServerID		= (*it).first;
+		dequeOfTransNums * pDeque	= (it->second);
 		
 		OT_ASSERT(NULL != pDeque);
 		
@@ -2080,10 +2078,10 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
 	
 	lTransactionNumber = 0;
 	
-	for (mapOfTransNums::iterator iii = m_mapIssuedNum.begin(); iii != m_mapIssuedNum.end(); ++iii)
+	FOR_EACH(mapOfTransNums, m_mapIssuedNum)
 	{	
-		std::string	strServerID		= (*iii).first;
-		dequeOfTransNums * pDeque	= (iii->second);
+		std::string	strServerID		= (*it).first;
+		dequeOfTransNums * pDeque	= (it->second);
 		
 		OT_ASSERT(NULL != pDeque);
 		
@@ -2111,7 +2109,6 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
 		for (unsigned i = 0; i < m_dequeMail.size(); i++)
 		{
 			OTMessage * pMessage = m_dequeMail.at(i);
-			
 			OT_ASSERT(NULL != pMessage);
 			
 			OTString strMail(*pMessage);
@@ -2136,7 +2133,6 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
 		for (unsigned i = 0; i < m_dequeOutmail.size(); i++)
 		{
 			OTMessage * pMessage = m_dequeOutmail.at(i);
-			
 			OT_ASSERT(NULL != pMessage);
 			
 			OTString strOutmail(*pMessage);
@@ -2157,10 +2153,9 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
     
 	if (!(m_setOpenCronItems.empty()))
 	{
-		for (std::set<long>::iterator ii = m_setOpenCronItems.begin(); 
-             ii != m_setOpenCronItems.end(); ii++)
+		FOR_EACH(std::set<long>, m_setOpenCronItems)
 		{
-            long lCronItemTransNum = *ii;
+            long lCronItemTransNum = *it;
             
             strNym.Concatenate("<hasOpenCronItem ID=%ld />\n\n",
                                lCronItemTransNum);
@@ -2171,10 +2166,9 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
     
 	if (!(m_setAccounts.empty()))
 	{
-		for (std::set<std::string>::iterator ii = m_setAccounts.begin(); 
-             ii != m_setAccounts.end(); ii++)
+		FOR_EACH(std::set<std::string>, m_setAccounts)
 		{
-            std::string strAcctID = *ii;
+            std::string strAcctID = *it;
                         
             strNym.Concatenate("<ownsAssetAcct ID=%s />\n\n",
                                strAcctID.c_str());
@@ -2540,14 +2534,10 @@ bool OTPseudonym::VerifyIssuedNumbersOnNym(OTPseudonym & THE_NYM)
 	
 	// First, loop through the Nym on my side (*this), and count how many numbers total he has...
 	//
-	for (mapOfTransNums::iterator iii = GetMapIssuedNum().begin(); 
-		 iii !=	GetMapIssuedNum().end(); ++iii)
+	FOR_EACH(mapOfTransNums, GetMapIssuedNum())
 	{	
-		strServerID					= (*iii).first;
-		dequeOfTransNums * pDeque	= (iii->second);
-		
-		OTString OTstrServerID = strServerID.c_str();
-		
+//		strServerID					= (*it).first;
+		dequeOfTransNums * pDeque	= (it->second);		
 		OT_ASSERT(NULL != pDeque);
 		
 		if (!(pDeque->empty()))
@@ -2560,17 +2550,14 @@ bool OTPseudonym::VerifyIssuedNumbersOnNym(OTPseudonym & THE_NYM)
 	// But ALSO verify that each one exists on *this, so that each individual
 	// number is checked.
 	//
-	
-	for (mapOfTransNums::iterator	iii	 =	THE_NYM.GetMapIssuedNum().begin(); 
-		 iii !=	THE_NYM.GetMapIssuedNum().end(); ++iii)
+	FOR_EACH(mapOfTransNums, THE_NYM.GetMapIssuedNum())
 	{	
-		strServerID					= (*iii).first;
-		dequeOfTransNums * pDeque	= (iii->second);
-		
-		OTString OTstrServerID = strServerID.c_str();
-		
+		strServerID					= (*it).first;
+		dequeOfTransNums * pDeque	= (it->second);
 		OT_ASSERT(NULL != pDeque);
 		
+		OTString OTstrServerID = strServerID.c_str();
+				
 		if (!(pDeque->empty()))
 		{
 			for (unsigned i = 0; i < pDeque->size(); i++)
@@ -2627,11 +2614,10 @@ bool OTPseudonym::VerifyTransactionStatementNumbersOnNym(OTPseudonym & THE_NYM) 
 	
 	// First, loop through the Nym on my side (*this), and verify that all those #s appear on the last receipt (THE_NYM)
 	//
-	for (mapOfTransNums::iterator iii = GetMapIssuedNum().begin(); 
-		 iii !=	GetMapIssuedNum().end(); ++iii)
+	FOR_EACH(mapOfTransNums, GetMapIssuedNum())
 	{	
-		strServerID					= (*iii).first;
-		dequeOfTransNums * pDeque	= (iii->second);
+		strServerID					= (*it).first;
+		dequeOfTransNums * pDeque	= (it->second);
 		
 		OTString OTstrServerID = strServerID.c_str();
 		

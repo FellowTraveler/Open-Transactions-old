@@ -279,6 +279,18 @@ public:
 	 bool VerifyCurrentDate(); // Verify the current date against the VALID FROM / TO dates.
 	 */
 	
+	//----------------------------------------------------------------------
+
+	// From OTScriptable, we override this function. OTScriptable now does fancy stuff like checking to see
+	// if the Nym is an agent working on behalf of a party to the contract. That's how all OTScriptable-derived
+	// objects work by default.  But OTAgreement (payment plan) and OTTrade do it the old way: they just check to
+	// see if theNym has signed *this.
+	//
+	virtual bool VerifyNymAsAgent(const OTPseudonym & theNym, 
+										OTPseudonym & theSignerNym, 
+										mapOfNyms	* pmap_ALREADY_LOADED=NULL);
+	
+	virtual bool VerifyNymAsAgentForAccount(const OTPseudonym & theNym, const OTAccount & theAccount);
 
 	//----------------------------------------------------------------------
 	

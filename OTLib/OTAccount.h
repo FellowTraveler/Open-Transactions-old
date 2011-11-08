@@ -210,6 +210,7 @@ public:
 		
 	// Compares the NymID loaded from the account file with whatever Nym the programmer wants to verify.
 	bool VerifyOwner(OTPseudonym & theCandidate);
+	bool VerifyOwnerByID(const OTIdentifier & theNymID) const;
 	
 	virtual bool LoadContract(); // overriding this so I can set the filename automatically inside based on ID.
 	bool SaveAccount(); // generates filename based on accounts path and account ID. Saves to the standard location for an acct.

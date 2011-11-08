@@ -220,6 +220,8 @@ public:
 
     // ---------------------------------
 
+	bool VerifySignature(OTContract & theContract); // Have the agent try to verify his own signature against any contract.
+	
     void SetParty(OTParty & theOwnerParty); // This happens when the agent is added to the party.
 	
 	void SetNymPointer(OTPseudonym & theNym) { m_pNym = &theNym; }
@@ -411,11 +413,14 @@ public:
 	//
 	void ClearTemporaryPointers() { m_pAccount = NULL; }
 	
-	// --------
+	// -----------
 	
 	void SetParty(OTParty & theOwnerParty); // This happens when the partyaccount is added to the party. (so I have a ptr back)
 
-	const OTString & GetName() { return m_strName; } // account's name as used in a script.
+	const OTString & GetName()		{ return m_strName; } // account's name as used in a script.
+	const OTString & GetAgentName()	{ return m_strAgentName; } // account's name as used in a script.
+	
+	bool IsAccount(OTAccount & theAccount) const;
 	
 	long GetClosingTransNo() { return m_lClosingTransNo; }
 	// -----------
@@ -564,8 +569,8 @@ public:
     // require that HasActiveAgent() be true for a party to do various actions. Attempts to
     // do those actions otherwise will fail.
     // It's almost a separate kind of party but not worthy of a separate class.
-    //
-	bool HasAgent(OTPseudonym & theNym); // If Nym is agent for Party, set agent's pointer to Nym and return true.
+    //	
+	bool HasAgent(OTPseudonym & theNym, OTAgent ** ppAgent=NULL); // If Nym is agent for Party, set agent's pointer to Nym and return true.
     bool HasActiveAgent() const;
 	
 	OTAgent * GetAgent(const std::string & str_agent_name);
@@ -573,8 +578,13 @@ public:
 	int  GetAgentCount() const { return m_mapAgents.size(); }
 	bool AddAgent(OTAgent& theAgent);
 	
-	bool HasAuthorizingAgent(OTPseudonym & theNym); // If Nym is authorizing agent for Party, set agent's pointer to Nym and return true.
-	OTPseudonym * LoadAuthorizingAgentNym(OTPseudonym & theSignerNym); // Load the authorizing agent from storage. Set agent's pointer to Nym.
+	// If Nym is authorizing agent for Party, set agent's pointer to Nym and return true.
+	//
+	bool HasAuthorizingAgent(OTPseudonym & theNym, OTAgent ** ppAgent=NULL); 
+	
+	// Load the authorizing agent from storage. Set agent's pointer to Nym.
+	//
+	OTPseudonym * LoadAuthorizingAgentNym(OTPseudonym & theSignerNym, OTAgent ** ppAgent=NULL); 
 
 	// ----------------------------------------
 	
@@ -585,7 +595,17 @@ public:
 					OTAccount& theAccount, const long lClosingTransNo);
 	
 	int GetAccountCount() const { return m_mapPartyAccounts.size(); }
-		
+	
+	// Get PartyAcct by name.
+	//
+	OTPartyAccount * GetAccount(const std::string & str_acct_name);
+
+	 // If account is present for Party, set account's pointer to theAccount and return true.
+	//
+	bool HasAccount(OTAccount & theAccount, OTPartyAccount ** ppPartyAccount=NULL);
+
+	bool VerifyOwnershipOfAccount(OTAccount & theAccount);
+	
     // ------------- OPERATIONS -------------
 	
 	// Below this point, have all the actions that a party might do.

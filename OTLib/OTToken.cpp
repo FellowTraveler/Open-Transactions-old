@@ -497,11 +497,9 @@ void OTToken::UpdateContents()
 	{
 		m_xmlUnsigned.Concatenate("<protopurse count=\"%d\" chosenIndex=\"%d\">\n\n", m_nTokenCount, m_nChosenIndex);
 		
-		OTASCIIArmor * pPrototoken = NULL;
-		for (mapOfPrototokens::iterator ii = m_mapPublic.begin(); ii != m_mapPublic.end(); ++ii)
+		FOR_EACH(mapOfPrototokens, m_mapPublic)
 		{
-			pPrototoken = (*ii).second;
-			
+			OTASCIIArmor * pPrototoken = (*it).second;
 			OT_ASSERT(NULL != pPrototoken);
 			
 			m_xmlUnsigned.Concatenate("<prototoken>\n%s</prototoken>\n\n", pPrototoken->Get());
@@ -515,11 +513,9 @@ void OTToken::UpdateContents()
 		
 		m_xmlUnsigned.Concatenate("<privateProtopurse>\n\n");
 		
-		OTASCIIArmor * pPrototoken = NULL;
-		for (mapOfPrototokens::iterator ii = m_mapPrivate.begin(); ii != m_mapPrivate.end(); ++ii)
+		FOR_EACH(mapOfPrototokens, m_mapPrivate)
 		{
-			pPrototoken = (*ii).second;
-			
+			OTASCIIArmor * pPrototoken = (*it).second;
 			OT_ASSERT(NULL != pPrototoken);
 			
 			m_xmlUnsigned.Concatenate("<privatePrototoken>\n%s</privatePrototoken>\n\n", pPrototoken->Get());
@@ -715,17 +711,13 @@ bool OTToken::GetPrototoken(OTASCIIArmor & ascPrototoken, int nTokenIndex)
 	}
 //	OTLog::vError("DEBUG OTToken::GetPrototoken. nTokenIndex is %d. m_nTokenCount is %d\n------------------------\n",
 //			nTokenIndex, m_nTokenCount);
-	
-	// loop through the items that make up this transaction and print them out here, base64-encoded, of course.
-	OTASCIIArmor * pPrototoken = NULL;
-	
-	for (mapOfPrototokens::iterator ii = m_mapPublic.begin(); ii != m_mapPublic.end(); ++ii)
-	{
-		pPrototoken = (*ii).second;
 		
+	FOR_EACH(mapOfPrototokens, m_mapPublic)
+	{
+		OTASCIIArmor * pPrototoken = (*it).second;
 		OT_ASSERT(NULL != pPrototoken);
 		
-		const bool bSuccess = (nTokenIndex == (*ii).first);
+		const bool bSuccess = (nTokenIndex == (*it).first);
 		
 //		OTLog::vError("DEBUG OTToken::GetPrototoken ABOUT TO ENTER, index: %d\n", nTokenIndex);
 		
@@ -748,17 +740,13 @@ bool OTToken::GetPrivatePrototoken(OTASCIIArmor & ascPrototoken, int nTokenIndex
 	{
 		return false;
 	}
-	
-	// loop through the items that make up this transaction and print them out here, base64-encoded, of course.
-	OTASCIIArmor * pPrototoken = NULL;
-	
-	for (mapOfPrototokens::iterator ii = m_mapPrivate.begin(); ii != m_mapPrivate.end(); ++ii)
-	{
-		pPrototoken = (*ii).second;
 		
+	FOR_EACH(mapOfPrototokens, m_mapPrivate)
+	{
+		OTASCIIArmor * pPrototoken = (*it).second;
 		OT_ASSERT(NULL != pPrototoken);
 		
-		const bool bSuccess = (nTokenIndex == (*ii).first);
+		const bool bSuccess = (nTokenIndex == (*it).first);
 		
 		if (bSuccess)
 		{
@@ -893,30 +881,24 @@ bool OTToken::GenerateTokenRequest(const OTPseudonym & theNym, OTMint & theMint,
 
 void OTToken::ReleasePrototokens()
 {
-	OTASCIIArmor * pPrototoken = NULL;
-	
-	for (mapOfPrototokens::iterator ii = m_mapPublic.begin(); ii != m_mapPublic.end(); ++ii)
+	FOR_EACH(mapOfPrototokens, m_mapPublic)
 	{		
-		pPrototoken = (*ii).second;
-		
+		OTASCIIArmor * pPrototoken = (*it).second;
 		OT_ASSERT_MSG(NULL != pPrototoken, "NULL OTASCIIArmor pointer in OTToken::ReleasePrototokens.");
 		
-		delete pPrototoken;
-		pPrototoken		= NULL;
+		delete pPrototoken; pPrototoken	= NULL;
 	}
+	// ------------------------------------------------
 	
-	pPrototoken = NULL;
-	
-	for (mapOfPrototokens::iterator ii = m_mapPrivate.begin(); ii != m_mapPrivate.end(); ++ii)
+	FOR_EACH(mapOfPrototokens, m_mapPrivate)
 	{		
-		pPrototoken = (*ii).second;
-		
+		OTASCIIArmor * pPrototoken = (*it).second;
 		OT_ASSERT_MSG(NULL != pPrototoken, "NULL OTASCIIArmor pointer in OTToken::ReleasePrototokens.");
 		
-		delete pPrototoken;
-		pPrototoken		= NULL;
+		delete pPrototoken; pPrototoken	= NULL;
 	}
-	
+	// ------------------------------------------------
+
 	m_mapPublic.clear();
 	m_mapPrivate.clear();
 	m_nTokenCount	= 0;
