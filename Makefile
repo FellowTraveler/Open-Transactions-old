@@ -275,7 +275,9 @@ install:
 	mkdir -p $(EXECUTABLE_INSTALL_FOLDER)
 	rm -f $(EXECUTABLE_INSTALL_FOLDER)/ot_server && cp ./transaction/transaction.exe $(EXECUTABLE_INSTALL_FOLDER)/ot_server
 	rm -f $(EXECUTABLE_INSTALL_FOLDER)/ot &&  cp ./testwallet/testwallet.exe $(EXECUTABLE_INSTALL_FOLDER)/ot
-	mkdir ~/.ot && cp -r ./ot-sample-data/* ~/.ot && chown -R $(SUDO_USER) ~/.ot
+
+local:
+	mkdir ~/.ot && cp -r ./ot-sample-data/* ~/.ot && chown -R $(USER) ~/.ot
 
 uninstall:
 	rm -f $(EXECUTABLE_INSTALL_FOLDER)/ot_server
