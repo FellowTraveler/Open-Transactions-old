@@ -333,6 +333,30 @@ void OTClient::AcceptEntireNymbox(OTLedger & theNymbox, OTServerConnection & the
 		} // if message
 		
 		// ------------------------------------------------------------
+		// SERVER NOTIFICATION 
+		//
+		else if ( (OTTransaction::notice == pTransaction->GetType()) )
+		{				
+			OTItem * pAcceptItem = OTItem::CreateItemFromTransaction(*pAcceptTransaction, OTItem::acceptNotice);
+			
+			// The above already has OT_ASSERT so, no need to check the pointer for NULL.
+			
+			// the transaction will handle cleaning up the transaction item.
+			pAcceptTransaction->AddItem(*pAcceptItem);
+			
+			pAcceptItem->SetReferenceToNum(pTransaction->GetTransactionNum()); // This is critical. Server needs this to look up the receipt in my nymbox.
+			// Don't need to set transaction num on item since the constructor already got it off the owner transaction.
+			
+			// sign the item
+			pAcceptItem->SignContract(*pNym);
+			pAcceptItem->SaveContract();
+			
+			OTLog::vOutput(0, "Received a server notification in your Nymbox:\n%s\n", strRespTo.Get());
+
+			// Todo: stash these somewhere, just like messages are in the pNym->AddMail() feature.
+		} // if notice
+		
+		// ------------------------------------------------------------
 		// It's a NEW Transaction Number (I need to sign for it.)
 		//
 		else if (
@@ -2631,6 +2655,9 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
                                 case OTItem::atAcceptMessage:
                                     theItemType = OTItem::acceptMessage;
                                     break;
+                                case OTItem::atAcceptNotice:
+                                    theItemType = OTItem::acceptNotice;
+                                    break;
                                 case OTItem::atAcceptTransaction:
                                     theItemType = OTItem::acceptTransaction;
                                     break;
@@ -2728,7 +2755,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
                             // have, based on the intelligence in the above switch statement.
                             //
                             if (pItem->GetType() != theItemType)
-                            {   // (Possible types for pItem: acceptMessage, acceptTransactions, acceptFinalReceipt.)
+                            {   // (Possible types for pItem: acceptMessage, acceptNotice, acceptTransactions, acceptFinalReceipt.)
                                 OTLog::Error("Wrong original item TYPE, on reply item's copy of original item, than what was expected based on reply item's type.\n");
                                 continue;
                             }
@@ -2746,6 +2773,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
                             
                             switch (pReplyItem->GetType()) {
                                 case OTItem::atAcceptMessage:
+                                case OTItem::atAcceptNotice:
                                 case OTItem::atAcceptTransaction:
                                 case OTItem::atAcceptFinalReceipt:
                                     pServerTransaction = theNymbox.GetTransaction(pItem->GetReferenceToNum());
@@ -2774,6 +2802,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
                             switch (pReplyItem->GetType())	
                             {								// Some also need to remove an issued transaction number from pNym.
                                 case OTItem::atAcceptMessage: 
+                                case OTItem::atAcceptNotice: 
                                 case OTItem::atAcceptTransaction:
                                     break;
                                     // I don't think we need to do anything here...

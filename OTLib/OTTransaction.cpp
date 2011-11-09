@@ -166,6 +166,8 @@ const char * OTTransaction::_TypeStrings[] =
 {
 	"blank",			// freshly issued, not used yet  // comes from server, stored on Nym.
 	"message",			// in nymbox, message from one user to another.
+	"notice",			// in nymbox, notice from the server.
+	// --------------------------------------------------------------------------------------
 	"pending",			// Pending transfer, in the inbox/outbox.
 	// --------------------------------------------------------------------------------------
 	"transferReceipt",	// the server drops this into your inbox, when someone accepts your transfer.
@@ -2312,6 +2314,8 @@ int OTTransaction::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 			m_Type = OTTransaction::pending;
 		else if (strType.Compare("message"))
 			m_Type = OTTransaction::message;
+		else if (strType.Compare("notice"))
+			m_Type = OTTransaction::notice;
 		else if (strType.Compare("processNymbox"))
 			m_Type = OTTransaction::processNymbox;
 		else if (strType.Compare("atProcessNymbox"))
@@ -2890,6 +2894,7 @@ long OTTransaction::GetReferenceNumForDisplay()
 	{
 			// "in ref to #" is stored on me: GetReferenceToNum()
 		case OTTransaction::pending: 
+		case OTTransaction::notice: 
 		case OTTransaction::marketReceipt:
 		case OTTransaction::paymentReceipt:
 		case OTTransaction::basketReceipt:

@@ -1683,7 +1683,7 @@ bool OTCronItem::DropFinalReceiptToNymbox(const OTIdentifier & USER_ID,
         
         // TODO: Better rollback capabilities in case of failures here:
         
-        // Save both inboxes to storage. (File, DB, wherever it goes.)
+        // Save nymbox to storage. (File, DB, wherever it goes.)
         theLedger.	SaveNymbox();
         
         return true;    // Really this true should be predicated on ALL the above functions returning true. Right?

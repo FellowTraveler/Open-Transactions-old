@@ -336,6 +336,17 @@ public:
 								 const OTString & strOrigCronItem,
 								 OTString * pstrNote=NULL,
 								 OTString * pstrAttachment=NULL);
+	
+	// -----------------------------------------------------------
+	
+	bool DropServerNoticeToNymbox(OTPseudonym & theServerNym,
+								  OTScriptable & theScriptable,
+								  const long & lNewTransactionNumber,
+								  const long & lInReferenceTo,
+								  const OTString & strReference,
+								  OTString * pstrNote=NULL,
+								  OTString * pstrAttachment=NULL);
+	
 };
 
 
@@ -519,6 +530,14 @@ public:
 								   OTString * pstrAttachment=NULL);
 	// ---------------------
 	
+	bool SendNoticeToParty(OTPseudonym & theServerNym,
+						   const long & lNewTransactionNumber,
+						   const long & lInReferenceTo,
+						   const OTString & strReference,
+						   OTString * pstrNote=NULL,
+						   OTString * pstrAttachment=NULL);
+	// ---------------------
+	
 	// This pointer isn't owned -- just stored for convenience.
 	//
 	OTScriptable * GetOwnerAgreement() { return m_pOwnerAgreement; }
@@ -650,14 +669,27 @@ private:
 	OTString	m_strName;		// Name of this variable.
 	std::string m_str_Value;	// If a string, the value is stored here.
 	long		m_lValue;		// If a long, the value is stored here.
+	std::string m_str_ValueBackup;	// If a string, the value backup is stored here. (So we can see if it has changed since execution)
+	long		m_lValueBackup;	// If a long, the value backup is stored here.  (So we can see if it has changed since execution)
 	OTBylaw	*	m_pBylaw;		// the Bylaw that this variable belongs to.
 	
 	OTVariable_Type		m_Type;  // Currently long or string.
 	OTVariable_Access	m_Access;  // Determines how the variable is used inside the script.
 	
 public:
+	
+	bool IsDirty() const;	// So you can tell if the variable has CHANGED since it was last set clean.
+	void SetAsClean();		// Sets the variable as clean, so you can check it later and see if it's been changed (if it's DIRTY again.)
+	
+	bool IsConstant() const { return (Var_Constant == m_Access); }
+	bool IsPersistent() const { return ((Var_Persistent == m_Access) || (Var_Important == m_Access)); } // important vars are persistent, too.
+	bool IsImportant() const { return (Var_Important == m_Access); }
+	
 	void SetBylaw(OTBylaw& theBylaw) { m_pBylaw = &theBylaw; }
 	
+	// -------------------------------------
+	const OTString & GetName() { return m_strName; } // variable's name as used in a script.
+
 	OTVariable_Type		GetType() const { return m_Type; }
 	OTVariable_Access	GetAccess() const { return m_Access; }
 	
@@ -751,6 +783,10 @@ public:
 	
 	void RegisterVariablesForExecution(OTScript& theScript);
 	
+	bool IsDirty() const;	// So you can tell if any of the persistent or important variables have CHANGED since it was last set clean.
+	bool IsDirtyImportant() const;	// So you can tell if ONLY the IMPORTANT variables have CHANGED since it was last set clean.
+	void SetAsClean();		// Sets the variables as clean, so you can check later and see if any have been changed (if it's DIRTY again.)
+
 	// ---------------------
 	
 	bool AddClause(OTClause& theClause);

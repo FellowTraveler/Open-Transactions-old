@@ -177,6 +177,8 @@ public:
 		atAcceptTransaction,	
 		acceptMessage,			// this item is a client-side acceptance of a message in my Nymbox
 		atAcceptMessage,	
+		acceptNotice,			// this item is a client-side acceptance of a server notification in my Nymbox
+		atAcceptNotice,	
 		
 // ------------------------------------------------------------------------------
 		
@@ -272,8 +274,14 @@ public:
 		paymentReceipt,	// server receipt dropped into an inbox as result of payment occuring.
 		transferReceipt,	// server receipt dropped into an inbox as result of transfer being accepted.
 // ------------------------------------------------------------------------------
-		finalReceipt,	// server receipt dropped into inbox as result of cron item expiring or being canceled.
+		finalReceipt,	// server receipt dropped into inbox / nymbox as result of cron item expiring or being canceled.
 		basketReceipt,	// server receipt dropped into inbox as result of a basket exchange.
+// ------------------------------------------------------------------------------
+		notice,		// server notice dropped into nymbox as result of a smart contract processing. 
+		// Also could be used for ballots / elections, corporate meetings / minutes, etc.
+		// finalReceipt is also basically a notice (in the Nymbox, anyway) but it still is
+		// information that you have to act on as soon as you receive it, whereas THIS kind
+		// of notice isn't so hardcore. It's more laid-back.
 // ------------------------------------------------------------------------------
 		error_state // error state versus error status
 	};

@@ -6935,9 +6935,10 @@ void OTServer::NotarizeProcessNymbox(OTPseudonym & theNym, OTTransaction & tranI
 					(
 					 (OTItem::acceptFinalReceipt== pItem->GetType()) ||	// Clearing out a finalReceipt notice.
 					 (OTItem::acceptTransaction	== pItem->GetType()) ||	// Accepting new transaction number.
-					 (OTItem::acceptMessage		== pItem->GetType())	// Accepted message.
-					 )
+					 (OTItem::acceptMessage		== pItem->GetType()) ||	// Accepted message.
+					 (OTItem::acceptNotice		== pItem->GetType())	// Accepted server notification.
 					)
+				   )
 				{
                     OTString strInReferenceTo;
 
@@ -6956,6 +6957,9 @@ void OTServer::NotarizeProcessNymbox(OTPseudonym & theNym, OTTransaction & tranI
 							break;
 						case OTItem::acceptMessage:
 							theReplyItemType = OTItem::atAcceptMessage;
+							break;
+						case OTItem::acceptNotice:
+							theReplyItemType = OTItem::atAcceptNotice;
 							break;
 						default:
                             OTLog::Error("Should never happen.\n");
@@ -6985,9 +6989,10 @@ void OTServer::NotarizeProcessNymbox(OTPseudonym & theNym, OTTransaction & tranI
 							 (
 							  (OTTransaction::finalReceipt	== pServerTransaction->GetType()) ||	// finalReceipt (notice that an opening num was closed.)
 							  (OTTransaction::blank         == pServerTransaction->GetType()) ||	// new transaction number waiting to be picked up.
-							  (OTTransaction::message       == pServerTransaction->GetType())		// message in the nymbox
+							  (OTTransaction::message       == pServerTransaction->GetType()) ||	// message in the nymbox
+							  (OTTransaction::notice        == pServerTransaction->GetType())		// server notification, in the nymbox
 							 )																	
-							)																
+					   )																
 					{																				
 						// the accept item will come with the transaction number that
 						// it's referring to. So we'll just look up that transaction
@@ -7014,7 +7019,7 @@ void OTServer::NotarizeProcessNymbox(OTPseudonym & theNym, OTTransaction & tranI
 							(OTItem::acceptMessage	== pItem->GetType()) 
 							&&
 							(OTTransaction::message	== pServerTransaction->GetType())
-						   )
+							)
 							
 						{	
 							// pItem contains the current user's attempt to accept the 
@@ -7031,6 +7036,30 @@ void OTServer::NotarizeProcessNymbox(OTPseudonym & theNym, OTTransaction & tranI
 							// Now we can set the response item as an acknowledgement instead of the default (rejection)
 							pResponseItem->SetStatus(OTItem::acknowledgement);
 						}// its type is OTItem::aacceptMessage
+						
+						
+						// The below block only executes for ACCEPTING a MESSAGE
+						else if (
+							(OTItem::acceptNotice	== pItem->GetType()) 
+							&&
+							(OTTransaction::notice	== pServerTransaction->GetType())
+						   )
+							
+						{	
+							// pItem contains the current user's attempt to accept the 
+							// ['message'] located in pServerTransaction.
+							// Now we have the user's item and the item he is trying to accept.
+							
+							theNymbox.	RemoveTransaction(pServerTransaction->GetTransactionNum());
+							
+							theNymbox.	ReleaseSignatures();
+							theNymbox.	SignContract(m_nymServer);
+							theNymbox.	SaveContract();
+							theNymbox.	SaveNymbox();
+							
+							// Now we can set the response item as an acknowledgement instead of the default (rejection)
+							pResponseItem->SetStatus(OTItem::acknowledgement);
+						}// its type is OTItem::aacceptNotice
 						
 
 						// The below block only executes for ACCEPTING a TRANSACTION NUMBER

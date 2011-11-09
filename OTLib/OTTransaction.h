@@ -217,6 +217,7 @@ public:
 		blank,			// freshly issued transaction number, not used yet 
 						// (the server drops these into the nymbox.)
 		message,		// A message from one user to another, also in the nymbox.
+		notice,			// A notice from the server. Used in Nymbox.
 // --------------------------------------------------------------------------------------
 		
 		// INBOX / OUTBOX (pending transfer)
@@ -229,7 +230,7 @@ public:
 		marketReceipt,	// server periodically drops this into your inbox if an offer is live.
 		paymentReceipt,	// the server drops this into people's inboxes, every time a payment processes.
 
-        finalReceipt,	// the server drops this into your inbox(es), when a CronItem expires or is canceled.
+        finalReceipt,	// the server drops this into your in/nym box(es), when a CronItem expires or is canceled.
 		basketReceipt,	// the server drops this into your inboxes, when a basket exchange is processed.
 
 // --------------------------------------------------------------------------------------

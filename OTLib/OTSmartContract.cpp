@@ -814,6 +814,8 @@ void OTSmartContract::onRemovalFromCron()
 {
     // Not much needed here. 
 	
+	OTLog::Error("FYI:  OTSmartContract::onRemovalFromCron \n");
+	
 	// Trigger a script maybe.
 	// OR maybe it's too late for scripts.
 	// I give myself an onRemoval() but perhaps I cut off the scripts after onFinalReceipt().
@@ -915,7 +917,7 @@ bool OTSmartContract::ProcessCron()
 	
 	if (this->GetHooks(str_HookName, theMatchingClauses))
 	{	
-		OTLog::Output(0, "Cron: Processing smart contract clauses for hook: cron_process \n");
+		OTLog::vOutput(0, "Cron: Processing smart contract clauses for hook: %s \n", SMART_CONTRACT_HOOK_ON_PROCESS);
 		
 		this->ExecuteClauses(theMatchingClauses); // <============================================
 	}
@@ -931,6 +933,7 @@ bool OTSmartContract::ProcessCron()
 	
 	return true;
 }
+
 
 
 
@@ -956,6 +959,10 @@ void OTSmartContract::ExecuteClauses (mapOfClauses & theClauses)
 		
 		OTScript_SharedPtr pScript = OTScriptFactory(&str_code, &str_language);
 
+		// ---------------------------------------------------------------
+		//
+		// SET UP THE NATIVE CALLS, REGISTER THE PARTIES, REGISTER THE VARIABLES, AND EXECUTE THE SCRIPT.
+		//
 		if (pScript)
 		{
 			// Register the special server-side native OT calls we make available to all scripts.
@@ -978,7 +985,7 @@ void OTSmartContract::ExecuteClauses (mapOfClauses & theClauses)
 			// ---------------------------------------
 			// Also need to loop through the Variables on pBylaw and register those as well.
 			//
-			pBylaw->RegisterVariablesForExecution(*pScript);
+			pBylaw->RegisterVariablesForExecution(*pScript); // This sets all the variables as CLEAN so we can check for dirtiness after execution.
 			
 			// ****************************************
 			if (false == pScript->ExecuteScript())
@@ -1008,19 +1015,44 @@ void OTSmartContract::ExecuteClauses (mapOfClauses & theClauses)
 		}
 	} // FOR_EACH clauses...
 	
+	// ***************************************************************
 	
-	
-	
-	
-	// TODO:
 	// "Important" variables.
-	// If any of them have changed, then I need to notice the parties.
+	// (If any of them have changed, then I need to notice the parties.)
 	//
-	
-	
-	
-	
-	
+	if (this->IsDirtyImportant()) // This tells us if any "Important" variables have changed since executing the scripts.
+	{
+		OTCron * pCron  = GetCron();
+		OT_ASSERT(NULL != pCron);
+		
+		OTPseudonym * pServerNym = pCron->GetServerNym();
+		OT_ASSERT(NULL != pServerNym);
+		
+		// -----------------------------------------------------
+		
+		const long lNewTransactionNumber = pCron->GetNextTransactionNumber();
+		
+//		OT_ASSERT(lNewTransactionNumber > 0); // this can be my reminder.			
+		if (0 == lNewTransactionNumber)
+		{
+			OTLog::Error("OTSmartContract::ExecuteClauses: ** ERROR: Notice not sent to parties, since no "
+						 "transaction numbers were available!\n");
+		}
+		else
+		{
+			this->ReleaseSignatures();
+			this->SignContract(*pServerNym);
+			this->SaveContract();
+			
+			const OTString strReference(*this);
+			bool bDroppedNotice = this->SendNoticeToAllParties(*pServerNym, lNewTransactionNumber, GetTransactionNum(),
+															   strReference); // pstrNote and pstrAttachment aren't used in this case.
+			
+			OTLog::vOutput(0, "OTSmartContract::ExecuteClauses: FYI, 'Important' variables were changed "
+						 "during the execution of this script.\nDropping notifications into all parties' nymboxes: %s\n",
+						   bDroppedNotice ? "Success" : "Failure");
+		}
+	}
 }
 
 

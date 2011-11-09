@@ -200,7 +200,233 @@ OTScriptable * OTScriptable::InstantiateScriptable(const OTString & strInput)
 	
 	return NULL;
 }
+// *************************************************************************
 
+
+
+
+
+bool OTScriptable::SendNoticeToAllParties(OTPseudonym & theServerNym,
+										  const long & lNewTransactionNumber,
+										  const long & lInReferenceTo,
+										  const OTString & strReference,
+										  OTString * pstrNote/*=NULL*/,
+										  OTString * pstrAttachment/*=NULL*/)
+{
+	bool bSuccess = true;  // Success is defined as ALL parties receiving a notice
+	
+	FOR_EACH(mapOfParties, m_mapParties)
+	{
+		OTParty * pParty = (*it).second;
+		OT_ASSERT(NULL != pParty);
+		// ------------------
+		
+		if (false == pParty->SendNoticeToParty(theServerNym, lNewTransactionNumber, lInReferenceTo, 
+											   strReference, pstrNote, pstrAttachment))
+			bSuccess = false; // Notice I don't break here -- I still allow it to notice ALL parties, even if one fails.
+	}
+
+	return bSuccess;
+}
+
+
+
+
+// TODO: Add a "Notice Number" to OTScriptable and OTVotingGroup. This increments each
+// time a notice is sent to the parties, and will be passed in here as a parameter. The nyms
+// will all store a map by ServerID, similar to request #, and for each, a list of notice #s
+// mapped by the transaction # for each Cron Item the Nym has open. This way the Nym can
+// expect to see notice #1, notice #2, etc, to make sure he didn't miss one. They can even
+// have a protocol where each notice contains a hash of the previous one, and the users
+// (presumably using some future p2p client) can compare hashes with little network cost.
+// (This prevents the server from sending a false notice to one party, without having to
+// also falsify all subsequent hashes / notices, since all future hashes will now fail to 
+// match.) The hashes can also be made public if people prefer, as a way of "publicly
+// posting" the hash of the notice ...without in any way revealing the notice contents.
+// 
+//
+bool OTScriptable::DropServerNoticeToNymbox(OTPseudonym & theServerNym,
+											const OTIdentifier & USER_ID,
+											const long & lNewTransactionNumber,
+											const long & lInReferenceTo,
+											const OTString & strReference,
+											OTString * pstrNote/*=NULL*/,
+											OTString * pstrAttachment/*=NULL*/)
+{
+    OTLedger theLedger(USER_ID, USER_ID, GetServerID());
+    
+    // Inbox will receive notification of something ALREADY DONE.
+	//
+    bool bSuccessLoading = theLedger.LoadNymbox();
+    
+    // -------------------------------------------------------------------
+    // ...or generate it otherwise...
+    
+    if (true == bSuccessLoading)
+        bSuccessLoading		= theLedger.VerifyAccount(theServerNym);
+    else
+		bSuccessLoading		= theLedger.GenerateLedger(USER_ID, GetServerID(), OTLedger::nymbox, true); // bGenerateFile=true
+    
+    // --------------------------------------------------------------------
+    
+    if (false == bSuccessLoading)
+    {
+        OTLog::Error("ERROR loading or generating a nymbox in OTScriptable::DropServerNoticeToNymbox. (FAILED WRITING RECEIPT!!) \n");
+        return false;
+    }
+	
+    // --------------------------------------------------------------------
+    
+    OTTransaction * pTransaction = OTTransaction::GenerateTransaction(theLedger,
+                                                                      OTTransaction::notice,
+                                                                      lNewTransactionNumber);
+    
+    if (NULL != pTransaction) // The above has an OT_ASSERT within, but I just like to check my pointers.
+    {			
+        // The nymbox will get a receipt with the new transaction ID.
+        // That receipt has an "in reference to" field containing the original OTScriptable
+		
+        
+        // set up the transaction items (each transaction may have multiple items... but not in this case.)
+		//
+        OTItem * pItem1	= OTItem::CreateItemFromTransaction(*pTransaction, OTItem::notice);
+        
+        // This may be unnecessary, I'll have to check CreateItemFromTransaction. I'll leave it for now.
+        OT_ASSERT(NULL != pItem1);
+        
+        pItem1->SetStatus(OTItem::acknowledgement);
+        
+        // -------------------------------------------------------------
+        //
+        // Here I make sure that the receipt (the nymbox notice) references the
+        // transaction number that the trader originally used to issue the cron item...
+        // This number is used to match up offers to trades, and used to track all cron items.
+        // (All Cron items require a transaction from the user to add them to Cron in the
+        // first place.)
+        // 
+        pTransaction->SetReferenceToNum(lInReferenceTo);
+        // -------------------------------------------------
+        // The reference on the transaction probably contains a the original cron item or entity contract.
+        // Versus the updated item (which, if it exists, is stored on the pItem1 just below.)
+        //
+        pTransaction->SetReferenceString(strReference);
+        // --------------------------------------------
+		//
+        // The notice ITEM's NOTE probably contains the UPDATED SCRIPTABLE (usually a CRON ITEM. But maybe soon: Entity)
+        //
+        if (NULL != pstrNote)
+        {
+            pItem1->SetNote(*pstrNote);    // in markets, this is updated trade.        
+        }
+        
+        // Nothing is special stored here so far for OTTransaction::notice, but the option is always there.
+        //
+        if (NULL != pstrAttachment)
+        {
+            pItem1->SetAttachment(*pstrAttachment); 
+        }
+        
+        // -----------------------------------------------------------------
+        // sign the item
+        
+        pItem1->SignContract(theServerNym);
+        pItem1->SaveContract();
+        
+        // the Transaction "owns" the item now and will handle cleaning it up.
+        pTransaction->AddItem(*pItem1);
+        
+        pTransaction->SignContract(theServerNym);
+        pTransaction->SaveContract();
+        
+        // Here the transaction we just created is actually added to the ledger.
+        theLedger.AddTransaction(*pTransaction);
+        
+        // Release any signatures that were there before (They won't
+        // verify anymore anyway, since the content has changed.)
+        theLedger.ReleaseSignatures();
+        
+        // Sign and save.
+        theLedger.SignContract(theServerNym);
+        theLedger.SaveContract();
+        
+        // TODO: Better rollback capabilities in case of failures here:
+        
+        // Save both inboxes to storage. (File, DB, wherever it goes.)
+        theLedger.	SaveNymbox();
+        
+        return true;    // Really this true should be predicated on ALL the above functions returning true. Right?
+    }
+    else
+        OTLog::Error("Failed trying to create Nymbox in OTScriptable::DropServerNoticeToNymbox()\n");
+	
+    return false; // unreachable.
+}
+
+
+
+
+
+
+
+
+
+// So you can tell if any persistent or important variables have CHANGED since it was last set clean.
+//
+bool OTScriptable::IsDirty() const
+{
+	bool bIsDirty = false;
+	
+	FOR_EACH(mapOfBylaws, m_mapBylaws)
+	{
+		OTBylaw * pBylaw = (*it).second;
+		OT_ASSERT(NULL != pBylaw);
+		// ---------------------------------------------------		
+		//
+		if (pBylaw->IsDirty())
+		{
+			bIsDirty = true;
+			break;
+		}		
+	}
+	
+	return bIsDirty;
+}
+
+// So you can tell if ONLY the IMPORTANT variables have CHANGED since it was last set clean.
+//
+bool OTScriptable::IsDirtyImportant() const
+{	
+	bool bIsDirty = false;
+	
+	FOR_EACH(mapOfBylaws, m_mapBylaws)
+	{
+		OTBylaw * pBylaw = (*it).second;
+		OT_ASSERT(NULL != pBylaw);
+		// ---------------------------------------------------		
+		//
+		if (pBylaw->IsDirtyImportant())
+		{
+			bIsDirty = true;
+			break;
+		}		
+	}
+	
+	return bIsDirty;	
+}
+
+// Sets the variables as clean, so you can check later and see if any have been changed (if it's DIRTY again.)
+//
+void OTScriptable::SetAsClean()
+{
+	FOR_EACH(mapOfBylaws, m_mapBylaws)
+	{
+		OTBylaw * pBylaw = (*it).second;
+		OT_ASSERT(NULL != pBylaw);
+		// ---------------------------------------------------		
+		//
+		pBylaw->SetAsClean(); // so we can check for dirtiness later, if it's changed.
+	}
+}
 
 
 

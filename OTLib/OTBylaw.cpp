@@ -145,29 +145,6 @@
 
 
 
-bool OTAgent::DropFinalReceiptToNymbox(OTSmartContract & theSmartContract,
-									   const long & lNewTransactionNumber,
-									   const OTString & strOrigCronItem,
-									   OTString * pstrNote/*=NULL*/,
-									   OTString * pstrAttachment/*=NULL*/)
-{
-	OTIdentifier theAgentNymID;
-	bool bNymID = this->GetNymID(theAgentNymID);
-	
-	// Not all agents have Nyms. (Might be a voting group.)
-	
-	if (true == bNymID)
-	{
-		return theSmartContract.DropFinalReceiptToNymbox(theAgentNymID, lNewTransactionNumber,
-														 strOrigCronItem, pstrNote, pstrAttachment);
-	}
-	
-	// TODO: When entites and roles are added, this function may change a bit to accommodate them.
-	
-	return false;
-}
-
-
 
 
 // Have the agent try to verify his own signature against any contract.
@@ -1470,6 +1447,97 @@ bool OTParty::DropFinalReceiptToNymboxes(const long & lNewTransactionNumber,
 }
 
 
+bool OTAgent::DropFinalReceiptToNymbox(OTSmartContract & theSmartContract,
+									   const long & lNewTransactionNumber,
+									   const OTString & strOrigCronItem,
+									   OTString * pstrNote/*=NULL*/,
+									   OTString * pstrAttachment/*=NULL*/)
+{
+	OTIdentifier theAgentNymID;
+	bool bNymID = this->GetNymID(theAgentNymID);
+	
+	// Not all agents have Nyms. (Might be a voting group.)
+	
+	if (true == bNymID)
+	{
+		return theSmartContract.DropFinalReceiptToNymbox(theAgentNymID, lNewTransactionNumber,
+														 strOrigCronItem, pstrNote, pstrAttachment);
+	}
+	
+	// TODO: When entites and roles are added, this function may change a bit to accommodate them.
+	
+	return false;
+}
+
+
+
+bool OTAgent::DropServerNoticeToNymbox(OTPseudonym & theServerNym,
+									   OTScriptable & theScriptable,
+									   const long & lNewTransactionNumber,
+									   const long & lInReferenceTo,
+									   const OTString & strReference,
+									   OTString * pstrNote/*=NULL*/,
+									   OTString * pstrAttachment/*=NULL*/)
+{
+	OTIdentifier theAgentNymID;
+	bool bNymID = this->GetNymID(theAgentNymID);
+	
+	// Not all agents have Nyms. (Might be a voting group.)
+	
+	if (true == bNymID)
+	{
+		return theScriptable.DropServerNoticeToNymbox(theServerNym,
+													  theAgentNymID,
+													  lNewTransactionNumber,
+													  lInReferenceTo,
+													  strReference,
+													  pstrNote,
+													  pstrAttachment);
+	}
+	
+	// TODO: When entites and roles are added, this function may change a bit to accommodate them.
+	
+	return false;
+}
+
+
+
+
+bool OTParty::SendNoticeToParty(OTPseudonym & theServerNym,
+								const long & lNewTransactionNumber,
+								const long & lInReferenceTo, // todo Maybe have each party just use their own opening trans# here. Maybe not.
+								const OTString & strReference,
+								OTString * pstrNote/*=NULL*/,
+								OTString * pstrAttachment/*=NULL*/)
+{
+	bool bSuccess = false; // Success is defined as "at least one agent was notified"
+		
+	if (NULL == m_pOwnerAgreement)
+	{
+		OTLog::Error("OTParty::SendNoticeToParty: Missing pointer to owner agreement.\n");
+		return false;
+	}
+	// ----------------------------------------------
+	
+	FOR_EACH(mapOfAgents, m_mapAgents)
+	{
+		OTAgent * pAgent = (*it).second;
+		OT_ASSERT_MSG(NULL != pAgent, "Unexpected NULL agent pointer in party map.");
+		// -------------------------------------
+		
+		if (false == pAgent->DropServerNoticeToNymbox(theServerNym, *m_pOwnerAgreement, lNewTransactionNumber,
+													  lInReferenceTo, strReference, pstrNote, pstrAttachment))
+			OTLog::Error("OTParty::SendNoticeToParty: Failed dropping server notice to agent's Nymbox.\n");
+		else
+			bSuccess = true;
+	}
+	
+	return bSuccess;	
+}
+
+
+
+
 // This is only for SmartContracts, NOT all scriptables.
 //
 bool OTParty::DropFinalReceiptToInboxes(mapOfNyms * pNymMap,
@@ -1864,7 +1932,7 @@ void OTBylaw::Serialize(OTString & strAppend)
 
 
 OTVariable::OTVariable()
-: m_lValue(0),
+: m_lValue(0), m_lValueBackup(0),
   m_pBylaw(NULL),
   m_Type(OTVariable::Var_Error_Type),
   m_Access(Var_Error_Access)
@@ -1876,6 +1944,8 @@ OTVariable::OTVariable(const std::string str_Name, const std::string str_Value,	
 : m_strName(str_Name.c_str()),
   m_str_Value(str_Value),
   m_lValue(0),
+  m_str_ValueBackup(str_Value),
+  m_lValueBackup(0),
   m_pBylaw(NULL), 
   m_Type(OTVariable::Var_String),
   m_Access(theAccess)
@@ -1886,6 +1956,7 @@ OTVariable::OTVariable(const std::string str_Name, const std::string str_Value,	
 OTVariable::OTVariable(const std::string str_Name, const long lValue, const OTVariable_Access theAccess/*=Var_Persistent*/)
 : m_strName(str_Name.c_str()),
   m_lValue(lValue),
+  m_lValueBackup(lValue),
   m_pBylaw(NULL), 
   m_Type(OTVariable::Var_Long),
   m_Access(theAccess)
@@ -1898,6 +1969,158 @@ OTVariable::~OTVariable()
 	
 }
 	
+/*
+	enum OTVariable_Type 
+	{
+		Var_String,		// std::string
+		Var_Long,		// Long integer.
+		Var_Error_Type	// should never happen.
+	};
+	
+	enum OTVariable_Access
+	{
+		Var_Constant,		// Constant -- you cannot change this value.
+		Var_Persistent,		// Persistent -- changing value doesn't require notice to parties.
+		Var_Important,		// Important -- changing value requires notice to parties.
+		Var_Error_Access	// should never happen.
+	};
+
+	OTString	m_strName;		// Name of this variable.
+	std::string m_str_Value;	// If a string, the value is stored here.
+	long		m_lValue;		// If a long, the value is stored here.
+	std::string m_str_ValueBackup;	// If a string, the value backup is stored here. (So we can see if it has changed since execution)
+	long		m_lValueBackup;	// If a long, the value backup is stored here.  (So we can see if it has changed since execution)
+	OTBylaw	*	m_pBylaw;		// the Bylaw that this variable belongs to.
+	
+	OTVariable_Type		m_Type;  // Currently long or string.
+	OTVariable_Access	m_Access;  // Determines how the variable is used inside the script.
+ */
+
+
+
+// So you can tell if the variable has CHANGED since it was last set clean.
+// (Usually you set clean just before running the script, and you check dirty just AFTER running the script.)
+//
+bool OTVariable::IsDirty() const
+{
+	bool bReturnVal = false;
+	
+	switch (m_Type) 
+	{
+		case OTVariable::Var_String:
+			if (0 != m_str_Value.compare(m_str_ValueBackup)) // If they do NOT match, then it's dirty.
+				bReturnVal = true; 
+			break;
+		case OTVariable::Var_Long:
+			if (m_lValue != m_lValueBackup) // If they do NOT match, then it's dirty.
+				bReturnVal = true; 
+			break;
+		default:
+			OTLog::vError("OTVariable::IsDirty: Error: unknown type for variable: %s\n", m_strName.Get());
+			break;
+	}
+	
+	return bReturnVal;
+}
+
+
+// Sets the variable as clean, so you can check it later and see if it's been changed (if it's DIRTY again.)
+void OTVariable::SetAsClean()
+{
+	switch (m_Type) 
+	{
+		case OTVariable::Var_String:
+			m_str_ValueBackup = m_str_Value; // Save a copy of the current value, so we can check later and see if they're different.
+			break;
+		case OTVariable::Var_Long:
+			m_lValueBackup = m_lValue; // Save a copy of the current value, so we can check later and see if they're different.
+			break;
+		default:
+			OTLog::vError("OTVariable::SetAsClean: Error: unknown type for variable: %s\n", m_strName.Get());
+			m_str_ValueBackup	= m_str_Value;
+			m_lValueBackup		= m_lValue;
+			break;
+	}	
+}
+
+// -----------------------------------------------------------------------------
+
+
+
+// So you can tell if the persistent or important variables have CHANGED since it was last set clean.
+//
+bool OTBylaw::IsDirty() const
+{
+	bool bIsDirty = false;
+	
+	FOR_EACH(mapOfVariables, m_mapVariables)
+	{
+		OTVariable * pVar	= (*it).second;
+		OT_ASSERT(NULL != pVar);
+		// ---------------------------------------------------
+		
+		// "Persistent" *AND* "Important" Variables are both considered "persistent".
+		// Important has the added distinction that notices are required when important variables change.
+		//
+		if (pVar->IsDirty())
+		{
+			if (pVar->IsPersistent())
+			{
+				bIsDirty = true;
+				break;
+			}
+			else	// If it's not persistent (which also includes important) the only other option is CONSTANT. Then why is it dirty?
+				OTLog::vError("OTBylaw::IsDirty: Error: Why is it that a variable is CONSTANT, yet DIRTY at the same time?\n");
+		}		
+	}
+	
+	return bIsDirty;
+}
+
+
+
+// So you can tell if ONLY the IMPORTANT variables have changed since the last "set clean".
+//
+bool OTBylaw::IsDirtyImportant() const
+{
+	bool bIsDirty = false;
+	
+	FOR_EACH(mapOfVariables, m_mapVariables)
+	{
+		OTVariable * pVar	= (*it).second;
+		OT_ASSERT(NULL != pVar);
+		// ---------------------------------------------------
+		
+		// "Persistent" *AND* "Important" Variables are both considered "persistent".
+		// But: Important has the added distinction that notices are required when important variables change.
+		// (So sometimes you need to know if important variables have changed, so you know whether to send a notice.)
+		//
+		if (pVar->IsDirty() && pVar->IsImportant())
+		{
+			bIsDirty = true;
+			break;
+		}		
+	}
+	
+	return bIsDirty;
+}
+
+
+
+// Sets the variables as clean, so you can check later and see if any have been changed (if it's DIRTY again.)
+//
+void OTBylaw::SetAsClean()
+{
+	FOR_EACH(mapOfVariables, m_mapVariables)
+	{
+		OTVariable * pVar	= (*it).second;
+		OT_ASSERT(NULL != pVar);
+		// ---------------------------------------------------
+		pVar->SetAsClean(); // so we can check for dirtiness later, if it's changed.
+	}	
+}
+	
+
 
 // Register the variables of a specific Bylaw into the Script interpreter, 
 // so we can execute a script.
@@ -1910,7 +2133,8 @@ void OTBylaw::RegisterVariablesForExecution(OTScript& theScript)
 		OTVariable * pVar				= (*it).second;
 		OT_ASSERT((NULL != pVar)&&(str_var_name.size() > 0));
 		// ---------------------------------------------------
-		
+		pVar->SetAsClean(); // so we can check for dirtiness after execution.
+		// ---------------------------------------------------
 		pScript->AddVariable (str_var_name, *pVar);
 	}
 }

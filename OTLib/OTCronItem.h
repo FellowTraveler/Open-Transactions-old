@@ -186,7 +186,6 @@ protected:
                                   const OTString & strOrigCronItem,
                                   OTString * pstrNote=NULL,
                                   OTString * pstrAttachment=NULL);
-
     
 public:
     virtual bool CanRemoveItemFromCron(OTPseudonym & theNym);

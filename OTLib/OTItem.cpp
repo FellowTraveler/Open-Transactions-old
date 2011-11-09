@@ -1248,6 +1248,11 @@ OTItem::itemType GetItemTypeFromString(const OTString & strType)
 	else if (strType.Compare("atAcceptMessage"))
 		theType = OTItem::atAcceptMessage;
 	// --------------------------------------------------------------
+	else if (strType.Compare("acceptNotice"))
+		theType = OTItem::acceptNotice;
+	else if (strType.Compare("atAcceptNotice"))
+		theType = OTItem::atAcceptNotice;
+	// --------------------------------------------------------------
 	else if (strType.Compare("acceptPending"))
 		theType = OTItem::acceptPending;
 	else if (strType.Compare("atAcceptPending"))
@@ -1363,6 +1368,9 @@ OTItem::itemType GetItemTypeFromString(const OTString & strType)
 		theType = OTItem::finalReceipt;
 	else if (strType.Compare("basketReceipt"))
 		theType = OTItem::basketReceipt;
+	// --------------------------------------------------------------
+	else if (strType.Compare("notice"))
+		theType = OTItem::notice;
 	// --------------------------------------------------------------
 	else
 		theType = OTItem::error_state;
@@ -1568,6 +1576,9 @@ void OTItem::GetStringFromType(OTItem::itemType theType, OTString & strType)
 		case OTItem::acceptMessage:
 			strType.Set("acceptMessage");
 			break;
+		case OTItem::acceptNotice:
+			strType.Set("acceptNotice");
+			break;
 		case OTItem::acceptPending:
 			strType.Set("acceptPending");
 			break;
@@ -1655,12 +1666,16 @@ void OTItem::GetStringFromType(OTItem::itemType theType, OTString & strType)
 		case OTItem::transferReceipt:		// used in inbox statement as transfer receipt.
 			strType.Set("transferReceipt");
 			break;
-            // -----------------------------------
-		case OTItem::finalReceipt:		// used in inbox statement as final receipt. (For expiring or cancelled Cron Item.)
+		// -----------------------------------
+		case OTItem::finalReceipt:		// used for final receipt. Also used in inbox statement as final receipt. (For expiring or cancelled Cron Item.)
 			strType.Set("finalReceipt");
 			break;
 		case OTItem::basketReceipt:		// used in inbox statement as basket receipt. (For exchange.)
 			strType.Set("basketReceipt");
+			break;
+		// -----------------------------------
+		case OTItem::notice:		// used in Nymbox statement as notification from server.
+			strType.Set("notice");
 			break;
 			
 			
@@ -1676,6 +1691,9 @@ void OTItem::GetStringFromType(OTItem::itemType theType, OTString & strType)
 			break;
 		case OTItem::atAcceptMessage:
 			strType.Set("atAcceptMessage");
+			break;
+		case OTItem::atAcceptNotice:
+			strType.Set("atAcceptNotice");
 			break;
 		case OTItem::atAcceptPending:
 			strType.Set("atAcceptPending");

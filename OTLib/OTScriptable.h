@@ -187,6 +187,27 @@ public:
 	// multiple times in theResults. Each clause can only trigger once.
 	//
 	bool GetHooks(const std::string str_Name, mapOfClauses & theResults); 
+	// ---------------------------------
+	
+	bool IsDirty() const;	// So you can tell if any of the persistent or important variables have CHANGED since it was last set clean.
+	bool IsDirtyImportant() const;	// So you can tell if ONLY the IMPORTANT variables have CHANGED since it was last set clean.
+	void SetAsClean();		// Sets the variables as clean, so you can check later and see if any have been changed (if it's DIRTY again.)
+	// --------------------------------------------------------------------
+	
+	bool SendNoticeToAllParties(OTPseudonym & theServerNym,
+								const long & lNewTransactionNumber,
+								const long & lInReferenceTo,
+								const OTString & strReference,
+								OTString * pstrNote=NULL,
+								OTString * pstrAttachment=NULL);
+	
+	bool DropServerNoticeToNymbox(OTPseudonym & theServerNym,
+								  const OTIdentifier & USER_ID,
+                                  const long & lNewTransactionNumber,
+								  const long & lInReferenceTo,
+                                  const OTString & strReference,
+                                  OTString * pstrNote=NULL,
+                                  OTString * pstrAttachment=NULL);
 	
 	// ----------------
 	static OTScriptable * InstantiateScriptable(const OTString & strInput);
