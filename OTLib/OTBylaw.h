@@ -562,7 +562,7 @@ public:
     // as used "IN THE SCRIPT."
     //
     std::string GetPartyName(bool * pBoolSuccess=NULL) const; // "sales_director", "marketer", etc
-    void SetPartyName(const std::string & str_party_name_input);
+    bool SetPartyName(const std::string & str_party_name_input);
     
 	// --------------------
 	// ACTUAL PARTY OWNER (Only ONE of these can be true...)
@@ -654,6 +654,7 @@ public:
 	{
 		Var_String,		// std::string
 		Var_Long,		// Long integer.
+		Var_Bool,		// Boolean. (True / False)
 		Var_Error_Type	// should never happen.
 	};
 	
@@ -667,10 +668,16 @@ public:
 	
 private:
 	OTString	m_strName;		// Name of this variable.
+	// ------------------------------------------------------
 	std::string m_str_Value;	// If a string, the value is stored here.
 	long		m_lValue;		// If a long, the value is stored here.
+	bool		m_bValue;		// If a bool, the value is stored here.
+	// ------------------------------------------------------
 	std::string m_str_ValueBackup;	// If a string, the value backup is stored here. (So we can see if it has changed since execution)
 	long		m_lValueBackup;	// If a long, the value backup is stored here.  (So we can see if it has changed since execution)
+	bool		m_bValueBackup;	// If a bool, the value backup is stored here. (So we can check for dirtiness later...)
+	// ------------------------------------------------------
+	
 	OTBylaw	*	m_pBylaw;		// the Bylaw that this variable belongs to.
 	
 	OTVariable_Type		m_Type;  // Currently long or string.
@@ -678,6 +685,8 @@ private:
 	
 public:
 	
+	void RegisterForExecution(OTScript& theScript);
+
 	bool IsDirty() const;	// So you can tell if the variable has CHANGED since it was last set clean.
 	void SetAsClean();		// Sets the variable as clean, so you can check it later and see if it's been changed (if it's DIRTY again.)
 	
@@ -688,18 +697,34 @@ public:
 	void SetBylaw(OTBylaw& theBylaw) { m_pBylaw = &theBylaw; }
 	
 	// -------------------------------------
+	
+	bool SetValue(const long & lValue);
+	bool SetValue(const bool bValue);
+	bool SetValue(const std::string & str_Value);
+	
+	// -------------------------------------
 	const OTString & GetName() { return m_strName; } // variable's name as used in a script.
 
 	OTVariable_Type		GetType() const { return m_Type; }
 	OTVariable_Access	GetAccess() const { return m_Access; }
 	
+	bool	IsLong() const   { return (Var_Long		== m_Type); }
+	bool	IsBool() const   { return (Var_Bool		== m_Type); }
+	bool	IsString() const { return (Var_String	== m_Type); }
+	
+	long			CopyValueLong() const { return m_lValue; }
+	bool			CopyValueBool() const { return m_bValue; }
+	std::string		CopyValueString() const { return m_str_Value; }
+	
 	long		&	GetValueLong() { return m_lValue; }
+	bool		&	GetValueBool() { return m_bValue; }
 	std::string	&	GetValueString() { return m_str_Value; }
 	
 	// -------------------
 	OTVariable();
 	OTVariable(const std::string str_Name, const std::string str_Value,	const OTVariable_Access theAccess=Var_Persistent);
 	OTVariable(const std::string str_Name, const long lValue,			const OTVariable_Access theAccess=Var_Persistent);
+	OTVariable(const std::string str_Name, const bool bValue,			const OTVariable_Access theAccess=Var_Persistent);
 	
 	virtual ~OTVariable();
 	
@@ -719,6 +744,8 @@ class OTClause
 	
 public:
 	void SetBylaw(OTBylaw& theBylaw) { m_pBylaw = &theBylaw; }
+	
+	const OTString & GetName() const { return m_strName; }
 	
 	OTBylaw	* GetBylaw() const { return m_pBylaw; }
 	
@@ -745,7 +772,8 @@ typedef std::map<std::string, OTClause *> mapOfClauses;
 // It's a multimap because you might have 6 or 7 clauses that all trigger on the same hook.
 //
 
-typedef std::multimap<std::string, std::string> mapOfHooks; 
+typedef std::multimap	<std::string, std::string> mapOfHooks; 
+typedef std::map		<std::string, std::string> mapOfCallbacks; 
 
 
 class OTScript;
@@ -765,6 +793,7 @@ class OTBylaw
 	mapOfClauses	m_mapClauses;	// map of scripts associated with this bylaw.
 	
 	mapOfHooks		m_mapHooks;		// multimap of server hooks associated with clauses.
+	mapOfCallbacks	m_mapCallbacks;	// multimap of standard callbacks associated with script clauses.
 	
 	OTScriptable *	m_pOwnerAgreement; // This Bylaw is owned by an agreement (OTScriptable-derived.)
 	
@@ -793,12 +822,18 @@ public:
 	bool AddClause(const char * szName, const char * szCode);
 	
 	OTClause * GetClause(const std::string str_Name);
-
+	
+	// ---------------------
+	bool AddHook(const std::string str_HookName, 
+				 const std::string str_ClauseName); // name of hook such as cron_process or hook_activate, and name of clause, such as sectionA (corresponding to an actual script in the clauses map.)
+	
+	bool AddCallback(const std::string str_CallbackName, 
+					 const std::string str_ClauseName); // name of callback such as callback_party_may_execute_clause, and name of clause, such as custom_party_may_execute_clause (corresponding to an actual script in the clauses map.)
 	// ---------------------
 	
-	bool AddHook(const std::string str_Name, const std::string str_Clause); // name of hook such as OnActivate, and name of clause, such as sectionA (corresponding to an actual script in the clauses map.)
-	
-	bool GetHooks(const std::string str_Name, mapOfClauses & theResults); // Look up all clauses matching a specific hook.
+	OTClause * GetCallback(const std::string str_CallbackName);
+
+	bool GetHooks(const std::string str_HookName, mapOfClauses & theResults); // Look up all clauses matching a specific hook.
 
 	// ---------------------
 	// This pointer isn't owned -- just stored for convenience.

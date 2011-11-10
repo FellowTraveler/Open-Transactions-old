@@ -136,6 +136,8 @@
 
 #include "OTPseudonym.h"
 
+#include "OTScriptable.h"
+
 #include "OTAccount.h"
 
 
@@ -879,7 +881,15 @@ OTParty::OTParty(const std::string str_PartyName, OTPseudonym & theNym, OTAccoun
 
 bool OTParty::AddAgent(OTAgent& theAgent)
 {
-	const std::string str_agent_name = theAgent.GetName().Exists() ? theAgent.GetName().Get() : "PARTY_ERROR_AGENT_HAD_BLANK_NAME";
+	const std::string str_agent_name = theAgent.GetName().Exists() ? theAgent.GetName().Get() : "";
+
+	if (!OTScriptable::ValidateName(str_agent_name))
+	{
+		OTLog::Error("OTParty::AddAgent: Failed validating Agent name.");
+		return false;
+	}
+	// -------------------------------------------------
+
 	mapOfAgents::iterator ii = m_mapAgents.find(str_agent_name);
 	
 	if (m_mapAgents.end() == ii) // If it wasn't already there...
@@ -946,7 +956,14 @@ bool OTParty::AddAccount(const OTString& strAgentName, const char * szAcctName,
 bool OTParty::AddAccount(OTPartyAccount& thePartyAcct)
 {
 	const std::string str_acct_name = 
-		thePartyAcct.GetName().Exists() ? thePartyAcct.GetName().Get() : "PARTY_ERROR_ACCT_HAD_BLANK_NAME";
+		thePartyAcct.GetName().Exists() ? thePartyAcct.GetName().Get() : "";
+	
+	if (!OTScriptable::ValidateName(str_acct_name))
+	{
+		OTLog::Error("OTParty::AddAccount: Failed validating Account name.");
+		return false;
+	}
+	// -------------------------------------------------
 	
 	mapOfPartyAccounts::iterator ii = m_mapPartyAccounts.find(str_acct_name);
 	
@@ -1090,12 +1107,21 @@ std::string OTParty::GetPartyName(bool * pBoolSuccess/*=NULL*/) const
     return retVal;
 }
 
-void OTParty::SetPartyName(const std::string & str_party_name_input)
+bool OTParty::SetPartyName(const std::string & str_party_name_input)
 {
+	if (!OTScriptable::ValidateName(str_party_name_input))
+	{
+		OTLog::Error("OTParty::SetPartyName: Failed: Invalid name was passed in.\n");
+		return false;
+	}
+	// -------------------------------------
+	
     if (NULL == m_pstr_party_name)
         OT_ASSERT(NULL != (m_pstr_party_name = new std::string));
 	
     *m_pstr_party_name = str_party_name_input;
+	
+	return true;
 }
 
 // --------------------
@@ -1197,7 +1223,7 @@ bool OTParty::HasActiveAgent() const
 //
 OTAgent * OTParty::GetAgent(const std::string & str_agent_name)
 {
-	if (str_agent_name.size() > 0)
+	if (OTScriptable::ValidateName(str_agent_name))
 	{
 		mapOfAgents::iterator it = m_mapAgents.find(str_agent_name);
 		
@@ -1211,7 +1237,7 @@ OTAgent * OTParty::GetAgent(const std::string & str_agent_name)
 		}
 	}
 	else
-		OTLog::Error("OTParty::GetAgent: Failed: str_agent_name is empty...\n");
+		OTLog::Error("OTParty::GetAgent: Failed: str_agent_name is invalid...\n");
 
 	return NULL;
 }
@@ -1221,7 +1247,7 @@ OTAgent * OTParty::GetAgent(const std::string & str_agent_name)
 //
 OTPartyAccount * OTParty::GetAccount(const std::string & str_acct_name)
 {
-	if (str_acct_name.size() > 0)
+	if (OTScriptable::ValidateName(str_acct_name))
 	{
 		mapOfPartyAccounts::iterator it = m_mapPartyAccounts.find(str_acct_name);
 		
@@ -1235,7 +1261,7 @@ OTPartyAccount * OTParty::GetAccount(const std::string & str_acct_name)
 		}
 	}
 	else
-		OTLog::Error("OTParty::GetAccount: Failed: str_acct_name is empty...\n");
+		OTLog::Error("OTParty::GetAccount: Failed: str_acct_name is invalid.\n");
 	
 	return NULL;	
 }
@@ -1294,7 +1320,7 @@ bool OTParty::HasAgent(OTPseudonym & theNym, OTAgent ** ppAgent/*=NULL*/)
 //
 bool OTParty::HasAuthorizingAgent(OTPseudonym & theNym, OTAgent ** ppAgent/*=NULL*/) // ppAgent lets you get the agent ptr if it was there.
 {
-	if (m_str_authorizing_agent.size() > 0)
+	if (OTScriptable::ValidateName(m_str_authorizing_agent))
 	{
 		mapOfAgents::iterator it = m_mapAgents.find(m_str_authorizing_agent);
 		
@@ -1332,7 +1358,7 @@ bool OTParty::HasAuthorizingAgent(OTPseudonym & theNym, OTAgent ** ppAgent/*=NUL
 //
 OTPseudonym * OTParty::LoadAuthorizingAgentNym(OTPseudonym & theSignerNym, OTAgent ** ppAgent/*=NULL*/) // ppAgent lets you get the agent ptr if it was there.
 {
-	if (m_str_authorizing_agent.size() > 0)
+	if (OTScriptable::ValidateName(m_str_authorizing_agent))
 	{
 		mapOfAgents::iterator it = m_mapAgents.find(m_str_authorizing_agent);
 		
@@ -1402,6 +1428,9 @@ bool OTPartyAccount::IsAccount(OTAccount & theAccount) const
 		return false;
 	}
 	
+	const OTIdentifier theAcctID(m_strAcctID);
+	
+	return theAcctID.Compare(theAccount.GetRealAccountID());
 }
 
 
@@ -1772,6 +1801,7 @@ const char * OTClause::GetCode() const
  {
  Var_String,		// std::string
  Var_Long,		// Long integer.
+ Var_Bool,		// Boolean
  Var_Error_Type	// should never happen.
  };
  
@@ -1782,16 +1812,6 @@ const char * OTClause::GetCode() const
  Var_Important,		// Important -- changing value requires notice to parties.
  Var_Error_Access	// should never happen.
  };
- 
- 
- 
- OTString	m_strName;		// Name of this variable.
- std::string m_str_Value;	// The value is stored here.
- 
- OTBylaw	*	m_pBylaw;		// the Bylaw that this variable belongs to.
- 
- OTVariable_Type	m_Type;  // Currently long or string.
- OTVariable_Access	m_Access;  // Determines how the variable is used inside the script.
  */
 
 
@@ -1807,6 +1827,9 @@ void OTVariable::Serialize(OTString & strAppend)
 			break;
 		case OTVariable::Var_Long:
 			str_type = "long";
+			break;
+		case OTVariable::Var_Bool:
+			str_type = "bool";
 			break;
 		default:
 			str_type = "ERROR_VARIABLE_TYPE";
@@ -1841,7 +1864,6 @@ void OTVariable::Serialize(OTString & strAppend)
 							  m_str_Value.size() > 0	? m_str_Value.c_str()	: "",
 							  str_type.c_str(), str_access.c_str());
 	}
-	
 	else if (OTVariable::Var_Long == m_Type)
 	{
 		strAppend.Concatenate("<variable name=\"%s\"\n"
@@ -1850,6 +1872,16 @@ void OTVariable::Serialize(OTString & strAppend)
 							  " access=\"%s\" />\n\n", 
 							  m_strName.Exists()		? m_strName.Get()		: "ERROR_VARIABLE_NAME_NULL",
 							  m_lValue,
+							  str_type.c_str(), str_access.c_str());
+	}
+	else if (OTVariable::Var_Bool == m_Type)
+	{
+		strAppend.Concatenate("<variable name=\"%s\"\n"
+							  " value=\"%s\"\n"
+							  " type=\"%s\"\n", 
+							  " access=\"%s\" />\n\n", 
+							  m_strName.Exists()		? m_strName.Get()		: "ERROR_VARIABLE_NAME_NULL",
+							  m_bValue ? "true" : "false",
 							  str_type.c_str(), str_access.c_str());
 	}
 	else 
@@ -1888,11 +1920,13 @@ void OTBylaw::Serialize(OTString & strAppend)
 						  " numVariables=\"%d\"\n"
 						  " numClauses=\"%d\"\n"
 						  " numHooks=\"%d\"\n"
+						  " numCallbacks=\"%d\"\n"
 						  " language=\"%s\" >\n\n", 
 						  m_strName.Exists() ? m_strName.Get() : "ERROR_BYLAW_NAME_NULL",
 						  m_mapVariables.size(), // HOW MANY VARIABLES?
 						  m_mapClauses.size(), // HOW MANY CLAUSES?
 						  m_mapHooks.size(), // How many HOOKS?
+						  m_mapCallbacks.size(), // How many CALLBACK?
 						  m_strLanguage.Exists() ? m_strLanguage.Get() : "ERROR_BYLAW_LANGUAGE_NULL");
 	// ------------------------------
 	
@@ -1926,13 +1960,25 @@ void OTBylaw::Serialize(OTString & strAppend)
 	}
 	// ------------------------------
 	
+	FOR_EACH(mapOfCallbacks, m_mapCallbacks)
+	{
+		const std::string & str_callback_name	= (*ii).first;
+		const std::string & str_clause_name		= (*ii).second;
+		
+		strAppend.Concatenate("<callback name=\"%s\"\n"
+							  " clause=\"%s\" />\n\n", 
+							  (str_callback_name.size() > 0)	? str_callback_name.c_str()	: "ERROR_CALLBACK_NAME_NULL",
+							  (str_clause_name.size() > 0)		? str_clause_name.c_str()	: "ERROR_CALLBACK_CLAUSE_NULL");
+	}
+	// ------------------------------
 	strAppend.Concatenate("</bylaw>\n");
 }
 
 
 
 OTVariable::OTVariable()
-: m_lValue(0), m_lValueBackup(0),
+: m_lValue(0), m_bValue(false), 
+  m_lValueBackup(0), m_bValueBackup(false),
   m_pBylaw(NULL),
   m_Type(OTVariable::Var_Error_Type),
   m_Access(Var_Error_Access)
@@ -1944,8 +1990,10 @@ OTVariable::OTVariable(const std::string str_Name, const std::string str_Value,	
 : m_strName(str_Name.c_str()),
   m_str_Value(str_Value),
   m_lValue(0),
+  m_bValue(false),
   m_str_ValueBackup(str_Value),
   m_lValueBackup(0),
+  m_bValueBackup(false),
   m_pBylaw(NULL), 
   m_Type(OTVariable::Var_String),
   m_Access(theAccess)
@@ -1956,7 +2004,9 @@ OTVariable::OTVariable(const std::string str_Name, const std::string str_Value,	
 OTVariable::OTVariable(const std::string str_Name, const long lValue, const OTVariable_Access theAccess/*=Var_Persistent*/)
 : m_strName(str_Name.c_str()),
   m_lValue(lValue),
+  m_bValue(false),
   m_lValueBackup(lValue),
+  m_bValueBackup(false),
   m_pBylaw(NULL), 
   m_Type(OTVariable::Var_Long),
   m_Access(theAccess)
@@ -1964,16 +2014,75 @@ OTVariable::OTVariable(const std::string str_Name, const long lValue, const OTVa
 
 }
 	
+OTVariable::OTVariable(const std::string str_Name, const bool bValue, const OTVariable_Access theAccess/*=Var_Persistent*/)
+: m_strName(str_Name.c_str()),
+  m_lValue(0),
+  m_bValue(bValue),
+  m_lValueBackup(0),
+  m_bValueBackup(bValue),
+  m_pBylaw(NULL), 
+  m_Type(OTVariable::Var_Bool),
+  m_Access(theAccess)
+{
+	
+}
+
 OTVariable::~OTVariable()
 {
 	
 }
+
+
+bool OTVariable::SetValue(const long & lValue)
+{
+	if (!IsLong())
+	{
+		OTLog::vError("OTVariable::SetValue(long): Error: This variable (%s) is not a Long.\n",
+					  m_strName.Get());
+		return false;
+	}
+
+	m_lValue = m_lValueBackup = lValue;
 	
+	return true;
+}
+
+bool OTVariable::SetValue(const bool bValue)
+{
+	if (!IsBool())
+	{
+		OTLog::vError("OTVariable::SetValue(bool): Error: This variable (%s) is not a Bool.\n",
+					  m_strName.Get());
+		return false;
+	}
+	
+	m_bValue = m_bValueBackup = bValue;
+	
+	return true;
+}
+
+bool OTVariable::SetValue(const std::string & str_Value)
+{
+	if (!IsString())
+	{
+		OTLog::vError("OTVariable::SetValue(std::string): Error: This variable (%s) is not a String.\n",
+					  m_strName.Get());
+		return false;
+	}
+	
+	m_str_Value = m_str_ValueBackup = str_Value;
+	
+	return true;	
+}
+
+
+
 /*
 	enum OTVariable_Type 
 	{
 		Var_String,		// std::string
 		Var_Long,		// Long integer.
+		Var_Bool,		// Boolean
 		Var_Error_Type	// should never happen.
 	};
 	
@@ -1988,8 +2097,10 @@ OTVariable::~OTVariable()
 	OTString	m_strName;		// Name of this variable.
 	std::string m_str_Value;	// If a string, the value is stored here.
 	long		m_lValue;		// If a long, the value is stored here.
+	bool		m_bValue;		// If a bool...
 	std::string m_str_ValueBackup;	// If a string, the value backup is stored here. (So we can see if it has changed since execution)
 	long		m_lValueBackup;	// If a long, the value backup is stored here.  (So we can see if it has changed since execution)
+	bool		m_bValueBackup; // If a bool...
 	OTBylaw	*	m_pBylaw;		// the Bylaw that this variable belongs to.
 	
 	OTVariable_Type		m_Type;  // Currently long or string.
@@ -2015,6 +2126,10 @@ bool OTVariable::IsDirty() const
 			if (m_lValue != m_lValueBackup) // If they do NOT match, then it's dirty.
 				bReturnVal = true; 
 			break;
+		case OTVariable::Var_Bool:
+			if (m_bValue != m_bValueBackup) // If they do NOT match, then it's dirty.
+				bReturnVal = true; 
+			break;
 		default:
 			OTLog::vError("OTVariable::IsDirty: Error: unknown type for variable: %s\n", m_strName.Get());
 			break;
@@ -2035,10 +2150,14 @@ void OTVariable::SetAsClean()
 		case OTVariable::Var_Long:
 			m_lValueBackup = m_lValue; // Save a copy of the current value, so we can check later and see if they're different.
 			break;
+		case OTVariable::Var_Bool:
+			m_bValueBackup = m_bValue; // Save a copy of the current value, so we can check later and see if they're different.
+			break;
 		default:
 			OTLog::vError("OTVariable::SetAsClean: Error: unknown type for variable: %s\n", m_strName.Get());
 			m_str_ValueBackup	= m_str_Value;
 			m_lValueBackup		= m_lValue;
+			m_bValueBackup		= m_bValue;
 			break;
 	}	
 }
@@ -2122,6 +2241,16 @@ void OTBylaw::SetAsClean()
 	
 
 
+void OTVariable::RegisterForExecution(OTScript& theScript)
+{
+	this->SetAsClean(); // so we can check for dirtiness after execution.
+	// -------------------------------------------------------------------------
+	const std::string str_var_name = m_strName.Exists() ? m_strName.Get() : "";
+	// -------------------------------------------------------------------------
+	theScript.AddVariable (str_var_name, *this);
+}
+
+
 // Register the variables of a specific Bylaw into the Script interpreter, 
 // so we can execute a script.
 //
@@ -2133,21 +2262,82 @@ void OTBylaw::RegisterVariablesForExecution(OTScript& theScript)
 		OTVariable * pVar				= (*it).second;
 		OT_ASSERT((NULL != pVar)&&(str_var_name.size() > 0));
 		// ---------------------------------------------------
-		pVar->SetAsClean(); // so we can check for dirtiness after execution.
-		// ---------------------------------------------------
-		pScript->AddVariable (str_var_name, *pVar);
+		pVar->RegisterForExecution(theScript);
 	}
 }
 
 
-bool OTBylaw::AddHook(const std::string str_Name, const std::string str_Clause)
+
+OTClause * OTBylaw::GetCallback(const std::string str_CallbackName)
+{	
+	if ((false == OTScriptable::ValidateName(str_CallbackName)) ||	// Invalid callback name was passed in.
+		(str_CallbackName.compare(0,9,"callback_") != 0))	// The first 9 characters do not match callback_
+	{
+		OTLog::vError("OTBylaw::GetCallback: Callback name MUST begin with callback_ but value passed in was: %s\n",
+					  str_CallbackName.size() > 0 ? str_CallbackName.c_str() : "");
+		return NULL;
+	}
+	// ------------------------------------
+	
+	FOR_EACH(mapOfCallbacks, m_mapCallbacks)
+	{
+		const std::string & str_callback_name	= (*ii).first;
+		const std::string & str_clause_name		= (*ii).second;
+		// ---------------------------------
+		
+		// IF this entry (of a clause registered for a specific callback) MATCHES the callback name passed in...
+		//
+		if (0 == (str_callback_name.compare(str_CallbackName))) 
+		{
+			OTClause * pClause = this->GetClause(str_clause_name);
+			
+			if (NULL != pClause) // found it
+			{
+				return pClause;
+			}
+			else
+			{
+				OTLog::vOutput(0, "OTBylaw::GetCallback: Couldn't find clause (%s) that was registered for callback (%s)\n",
+							   str_clause_name.c_str(), str_callback_name.c_str());
+			}
+		}
+		// else no error, since it's normal for nothing to match.
+	}
+	
+	return NULL;
+}
+
+
+// You are NOT allowed to add multiple callbacks for any given callback trigger.
+// There can be only one clause that answers to any given callback.
+//
+bool OTBylaw::AddCallback(const std::string str_CallbackName, const std::string str_ClauseName)
 {
-	if ( (str_Name.size() <= 0 ) || (str_Clause.size() <= 0 ))
-		OTLog::vError("OTBylaw::AddHook: Error: empty name (%s) or clause (%s).",
-					  str_Name.c_str(), str_Clause.c_str());
-	else if (m_mapHooks.end() == m_mapHooks.insert(std::pair<std::string,std::string>(str_Name.c_str(), str_Clause.c_str())))
-		OTLog::vError("OTBylaw::AddHook: Failed inserting to m_mapHooks:   %s  /  %s \n", 
-					  str_Name.c_str(), str_Clause.c_str());
+	// Make sure it's not already there...
+	//
+	mapOfCallbacks::iterator it = m_mapCallbacks.find(str_CallbackName);
+	
+	if (m_mapCallbacks.end() != it) // It's already there. (Can't add it twice.)
+	{
+		const std::string str_existing_clause = (*it).second;
+		OTLog::vOutput("OTBylaw::AddCallback: Failed to add callback (%s) to bylaw %s, already there as %s.\n",
+					   str_CallbackName.size() > 0 ? str_CallbackName.c_str() : "", m_strName.Get(),
+					   str_existing_clause.size() > 0 ? str_existing_clause.c_str() : "");
+		return false;
+	}
+	// Below this point, we know the callback wasn't already there.
+	// --------------------------------------------------------------
+	
+	if (!OTScriptable::ValidateName(str_CallbackName) || !OTScriptable::ValidateName(str_ClauseName))
+		OTLog::vError("OTBylaw::AddCallback: Error: empty name (%s) or clause (%s).",
+					  str_CallbackName.c_str(), str_ClauseName.c_str());
+	else if (str_CallbackName.compare(0,9,"callback_") != 0) // If the callback name DOESN'T begin with callback_ then it is rejected.
+		OTLog::vOutput(0, "OTBylaw::AddCallback: Callback name MUST begin with callback_ in order to be accepted: Failure. (callback name %s)  (clause name %s) \n", 
+					   str_CallbackName.c_str(), str_ClauseName.c_str());			
+	else if (m_mapCallbacks.end() == m_mapCallbacks.insert(std::pair<std::string,std::string>
+														   (str_CallbackName.c_str(), str_ClauseName.c_str())))
+		OTLog::vError("OTBylaw::AddCallback: Failed inserting to m_mapCallbacks:   %s  /  %s \n", 
+					  str_CallbackName.c_str(), str_ClauseName.c_str());
 	else
 		return true;
 	
@@ -2155,9 +2345,37 @@ bool OTBylaw::AddHook(const std::string str_Name, const std::string str_Clause)
 }
 
 
-OTVariable * OTBylaw::GetVariable(const std::string str_Name) // not a reference, so you can pass in char *. Maybe that's bad? todo: research that.
+// You ARE allowed to add multiple clauses for the same hook. 
+// They will ALL trigger on that hook.
+//
+bool OTBylaw::AddHook(const std::string str_HookName, const std::string str_ClauseName)
 {
-	mapOfVariables::iterator it = m_mapVariables.find(str_Name);
+	if (!OTScriptable::ValidateName(str_HookName) || !OTScriptable::ValidateName(str_ClauseName))
+		OTLog::vError("OTBylaw::AddHook: Error: empty hook name (%s) or clause name (%s).",
+					  str_HookName.c_str(), str_ClauseName.c_str());
+	else if ((str_HookName.compare(0,5,"cron_") != 0) && (str_HookName.compare(0,5,"hook_") != 0))
+		OTLog::vOutput(0, "OTBylaw::AddHook: hook name MUST begin with either hook_ or cron_ in order to be accepted: Failure. (hook name %s)  (clause name %s) \n", 
+					  str_HookName.c_str(), str_ClauseName.c_str());		
+	else if (m_mapHooks.end() == m_mapHooks.insert(std::pair<std::string,std::string>
+												   (str_HookName.c_str(), str_ClauseName.c_str())))
+		OTLog::vError("OTBylaw::AddHook: Failed inserting to m_mapHooks:   %s  /  %s \n", 
+					  str_HookName.c_str(), str_ClauseName.c_str());
+	else
+		return true;
+	
+	return false;
+}
+
+
+OTVariable * OTBylaw::GetVariable(const std::string str_var_name) // not a reference, so you can pass in char *. Maybe that's bad? todo: research that.
+{
+	if (!OTScriptable::ValidateName(str_var_name))
+	{
+		OTLog::Error("OTBylaw::GetVariable:  Error: invalid str_var_name.\n");
+		return NULL;
+	}
+	// --------------------------------------
+	mapOfVariables::iterator it = m_mapVariables.find(str_var_name);
 	
 	if (m_mapVariables.end() == it)
 		return NULL;
@@ -2168,9 +2386,16 @@ OTVariable * OTBylaw::GetVariable(const std::string str_Name) // not a reference
 	return pVar;	
 }
 
-OTClause * OTBylaw::GetClause(const std::string str_Name)
+OTClause * OTBylaw::GetClause(const std::string str_clause_name)
 {
-	mapOfClauses::iterator it = m_mapClauses.find(str_Name);
+	if (!OTScriptable::ValidateName(str_clause_name))
+	{
+		OTLog::Error("OTBylaw::GetClause:  Error: empty str_clause_name.\n");
+		return NULL;
+	}
+	// --------------------------------------
+	
+	mapOfClauses::iterator it = m_mapClauses.find(str_clause_name);
 	
 	if (m_mapClauses.end() == it)
 		return NULL;
@@ -2183,10 +2408,24 @@ OTClause * OTBylaw::GetClause(const std::string str_Name)
 
 // Returns a map of clause pointers (or not) based on the HOOK name.
 // ANY clauses on the list for that hook. (There could be many for each hook.)
-// "GetHooks" could have been termed, "GetAMapOfAllClausesRegisteredForTheHookWithName(str_Name)
+// "GetHooks" could have been termed, "GetAMapOfAllClausesRegisteredForTheHookWithName(str_HookName)
 //
-bool OTBylaw::GetHooks(const std::string str_Name, mapOfClauses & theResults)
+bool OTBylaw::GetHooks(const std::string str_HookName, mapOfClauses & theResults)
 {
+	if (!OTScriptable::ValidateName(str_HookName))
+	{
+		OTLog::Error("OTBylaw::GetHooks:  Error: invalid str_HookName.\n");
+		return false;
+	}
+	// --------------------------------------
+	if ((str_HookName.compare(0,5,"cron_") != 0) && (str_HookName.compare(0,5,"hook_") != 0))
+	{
+		OTLog::vOutput(0, "OTBylaw::GetHooks: hook name MUST begin with either hook_ or cron_ in order to be accepted: Failure. (hook name %s)\n", 
+					   str_HookName.c_str());		
+		return false;
+	}
+	// -----------------------
+	
 	bool bReturnVal = false;
 	
 	FOR_EACH(mapOfHooks, m_mapHooks)
@@ -2197,7 +2436,7 @@ bool OTBylaw::GetHooks(const std::string str_Name, mapOfClauses & theResults)
 		
 		// IF this entry (of a clause registered for a specific hook) MATCHES the hook name passed in...
 		//
-		if (0 == (str_hook_name.compare(str_Name))) 
+		if (0 == (str_hook_name.compare(str_HookName))) 
 		{
 			OTClause * pClause = this->GetClause(str_clause_name);
 
@@ -2228,11 +2467,36 @@ bool OTBylaw::GetHooks(const std::string str_Name, mapOfClauses & theResults)
 
 bool OTBylaw::AddVariable(OTVariable& theVariable)
 {
+	const std::string str_name = theVariable.GetName().Exists() ? theVariable.GetName().Get() : "";
+
+	if (!OTScriptable::ValidateName(str_name))
+	{
+		OTLog::vError("OTBylaw::AddVariable: Failed due to invalid variable name. In Bylaw: %s\n",
+					  m_strName.Get());
+		return false;
+	}
+
+	// This prefix is disallowed since it's reserved for clause parameter names.
+	//
+	if (str_name.compare(0,6,"param_") == 0)
+	{
+		OTLog::vError("OTBylaw::AddVariable: Failed due to invalid variable name (%s). In Bylaw: %s. (param_ is reserved.)\n",
+					  str_name.c_str(), m_strName.Get());
+		return false;
+	}
+	if (str_name.compare(0,7,"return_") == 0)
+	{
+		OTLog::vError("OTBylaw::AddVariable: Failed due to invalid variable name (%s). In Bylaw: %s. (return_ is reserved.)\n",
+					  str_name.c_str(), m_strName.Get());
+		return false;
+	}
+	// --------------------------------------------------------------
 	// todo security: validate the name.
 	//
-	const std::string str_name = theVariable.GetName().Exists() ? theVariable.GetName().Get() : "BYLAW_ERROR_VARIABLE_HAD_BLANK_NAME";
 	mapOfVariables::iterator ii = m_mapVariables.find(str_name);
 	
+	// Make sure it's not already there...
+	//
 	if (m_mapVariables.end() == ii) // If it wasn't already there...
 	{
 		// -------------------------------
@@ -2245,10 +2509,12 @@ bool OTBylaw::AddVariable(OTVariable& theVariable)
 		return true;
 	}
 	else
-		OTLog::vOutput(0, "OTBylaw::AddVariable: Failed -- Variable was already there named %s.\n", str_name.c_str());
+		OTLog::vOutput(0, "OTBylaw::AddVariable: Failed -- A variable was already there named: %s\n", str_name.c_str());
 	
 	return false;
 }
+
+
 
 bool OTBylaw::AddVariable(const std::string str_Name, const std::string str_Value,	const OTVariable_Access theAccess/*=Var_Persistent*/)
 {
@@ -2303,14 +2569,50 @@ bool OTBylaw::AddClause(const char * szName, const char * szCode)
 
 bool OTBylaw::AddClause(OTClause& theClause)
 {
-	const std::string str_name = theClause.GetName().Exists() ? theClause.GetName().Get() : "BYLAW_ERROR_CLAUSE_HAD_BLANK_NAME";
-	mapOfClauses::iterator ii = m_mapClauses.find(str_name);
+	if (!theClause.GetName().Exists())
+	{
+		OTLog::Error("OTBylaw::AddClause: Failed attempt to add a clause with a blank name.\n");
+		return false;
+	}
+	// -----------------------------------
+	// To avoid confusion, we disallow clauses beginning in cron_ or hook_ or callback_
+	//
+	const std::string str_clause_name =  theClause.GetName().Exists() ? theClause.GetName().Get() : "";
+	
+	if (!OTScriptable::ValidateName(str_clause_name))
+	{
+		OTLog::vError("OTBylaw::AddClause: Failed due to invalid clause name. In Bylaw: %s\n",
+					  m_strName.Get());
+		return false;
+	}	
+	// -----------------------------------
+	if (str_clause_name.compare(0,5,"cron_") == 0) // todo stop hardcoding
+	{
+		OTLog::Output(0, "OTBylaw::AddClause: Clauses may not be added with a name beginning in cron_\n");
+		return false;
+	}
+	
+	if (str_clause_name.compare(0,5,"hook_") == 0) // todo stop hardcoding
+	{
+		OTLog::Output(0, "OTBylaw::AddClause: Clauses may not be added with a name beginning in hook_\n");
+		return false;
+	}
+	
+	if (str_clause_name.compare(0,9,"callback_") == 0) // todo stop hardcoding
+	{
+		OTLog::Output(0, "OTBylaw::AddClause: Clauses may not be added with a name beginning in callback_\n");
+		return false;
+	}
+	// Todo: any other validation on the name. security. 
+	// -----------------------------------------------------
+	
+	mapOfClauses::iterator ii = m_mapClauses.find(str_clause_name);
 	
 	if (m_mapClauses.end() == ii) // If it wasn't already there...
 	{
 		// -------------------------------
 		// Then insert it...
-		m_mapClauses.insert(std::pair<std::string, OTClause *>(str_name, &theClause));
+		m_mapClauses.insert(std::pair<std::string, OTClause *>(str_clause_name, &theClause));
 		
 		// Make sure it has a pointer back to me.
 		theClause.SetBylaw(*this);
@@ -2318,7 +2620,7 @@ bool OTBylaw::AddClause(OTClause& theClause)
 		return true;
 	}
 	else
-		OTLog::vOutput(0, "OTBylaw::AddClause: Failed -- Clause was already there named %s.\n", str_name.c_str());
+		OTLog::vOutput(0, "OTBylaw::AddClause: Failed -- Clause was already there named %s.\n", str_clause_name.c_str());
 	
 	return false;
 }
@@ -2369,7 +2671,13 @@ OTBylaw::~OTBylaw()
 		pVar = NULL;
 		
 		m_mapVariables.erase(m_mapVariables.begin());
-	}	
+	}
+	// --------------------------------
+	
+	// Hooks and Callbacks are maps of std::string to std::string.
+	//
+	// (THEREFORE NO NEED TO CLEAN THEM UP HERE.)
+	//
 }
 
 

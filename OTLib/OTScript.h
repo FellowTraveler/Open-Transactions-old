@@ -199,7 +199,7 @@ public:
     // parties. Therefore there's no need to separately input any accounts or assets to
     // a script, since the necessary ones are already present inside their respective parties.
     
-    virtual bool ExecuteScript()=0;
+    virtual bool ExecuteScript(OTVariable * pReturnVar=NULL)=0;
 };
 
 typedef std::tr1::shared_ptr<OTScript> OTScript_SharedPtr;
@@ -228,7 +228,7 @@ public:
 	
 	virtual ~OTScriptChai();
 
-    virtual bool ExecuteScript();
+    virtual bool ExecuteScript(OTVariable * pReturnVar=NULL);
     // ------------------------
     
     chaiscript::ChaiScript chai;

@@ -256,7 +256,11 @@ public:
      */
     
     // -------------------------------------
-    
+    // from OTScriptable:
+	virtual void RegisterOTNativeCallsWithScript(OTScript & theScript);
+
+	// -------------------------------------
+
 	void ExecuteClauses (mapOfClauses & theClauses);
 	
     // -------------------------------------

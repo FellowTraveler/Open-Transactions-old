@@ -230,6 +230,8 @@
  -- CanDeactivate(Party). Script returns true/false whether Party is allowed to deactivate the contract.
     Anyone party to the contract can cancel it, by default. (You can change that with this callback.)
  
+	can_execute_clause(party_name, clause_name)
+ 
  -- CanTriggerClause(Party, Clause).  Script returns whether Party is allowed to call this clause. Default true.
  
  ------------------------------------------------------------------------
@@ -332,6 +334,9 @@
     
 	send_notice(to_nym)							(Like sendMessage, except it comes from the server, not another user.)
 	send_notice_to_parties()					(Does a send_notice to ALL parties.)
+ 
+	can_execute_clause(party_name, clause_name) (See if a party is allowed to execute any given clause.)
+
  
  -- Dirtiness:
     Important variables changed require a Nymbox notice sent. (agreementReceipt)
@@ -475,41 +480,45 @@
 // -----------------------------------------------------------------
 
 // HOOKS
+//
+// The server will call these hooks, from time to time, and give you the
+// opportunity to have scripts with these names that trigger at those times.
+// (Parties are normally disallowed from triggering these scripts directly.)
 
 
 // Called regularly.
 //
-#ifndef SMART_CONTRACT_HOOK_ON_PROCESS
-#define SMART_CONTRACT_HOOK_ON_PROCESS		"cron_process"
+#ifndef SMARTCONTRACT_HOOK_ON_PROCESS
+#define SMARTCONTRACT_HOOK_ON_PROCESS		"cron_process"
 #endif
 
 // This is called when the contract is 
 // first activated.
 //
-#ifndef SMART_CONTRACT_HOOK_ON_ACTIVATE
-#define SMART_CONTRACT_HOOK_ON_ACTIVATE		"cron_activate"
+#ifndef SMARTCONTRACT_HOOK_ON_ACTIVATE
+#define SMARTCONTRACT_HOOK_ON_ACTIVATE		"cron_activate"
 #endif
 
 
 // Called when a party removes the 
 // contract from processing.
 //
-#ifndef SMART_CONTRACT_HOOK_ON_REMOVE
-#define SMART_CONTRACT_HOOK_ON_REMOVE		"cron_remove"
+#ifndef SMARTCONTRACT_HOOK_ON_REMOVE
+#define SMARTCONTRACT_HOOK_ON_REMOVE		"cron_remove"
 #endif
 
 // When it expires due to date range.
 //
-#ifndef SMART_CONTRACT_HOOK_ON_EXPIRE
-#define SMART_CONTRACT_HOOK_ON_EXPIRE		"cron_expire"
+#ifndef SMARTCONTRACT_HOOK_ON_EXPIRE
+#define SMARTCONTRACT_HOOK_ON_EXPIRE		"cron_expire"
 #endif
 
 
 // Called in OnRemove and OnExpire,
 // at the bottom.
 //
-#ifndef SMART_CONTRACT_HOOK_ON_DEACTIVATE
-#define SMART_CONTRACT_HOOK_ON_DEACTIVATE	"cron_deactivate"
+#ifndef SMARTCONTRACT_HOOK_ON_DEACTIVATE
+#define SMARTCONTRACT_HOOK_ON_DEACTIVATE	"cron_deactivate"
 #endif
 
 // -----------------------------------------------------------------
@@ -519,8 +528,105 @@
 
 
 
-void RegisterOTNativeCallsWithScript(OTScript & theScript)
+bool ot_smartcontract_move_funds(std::string from_acct, std::string to_acct)
 {
+	if (from_acct.size() <= 0)
+	{
+		OTLog::Output("INSIDE_OT_SCRIPT:  move_funds() error: from_acct is non-existent.\n");
+		return false;
+	}
+	if (to_acct.size() <= 0)
+	{
+		OTLog::Output("INSIDE_OT_SCRIPT:  move_funds() error: to_acct is non-existent.\n");
+		return false;
+	}
+	// ---------------------------------------------------
+	
+
+	
+	
+	
+	
+	return false;
+}
+
+
+
+// TODO:  override this:
+//bool OTCronItem::CanRemoveItemFromCron(OTPseudonym & theNym)
+//
+// My version will have default behavior, and will read the answer from
+// a script if one is available. JUST LIKE OTScriptable::CanExecuteClause !!
+// Use that code as the model because I basically want it to work the same way.
+// 
+
+
+// TODO: Finish up Smart Contracts (this file.)
+
+
+// TODO: Client test code, plus server message: for activating smart contracts.
+//
+
+// TODO: OT API calls for smart contracts.
+
+
+// TODO: Build escrow script.
+
+// TODO: Entities and roles.  (AFTER smart contracts are working.)
+// 
+
+
+// TODO:  Finish move_funds, which should be super easy now. The script-callable version 
+// HAS to be in OTSmartContract. Why? Because it can't be in OTScriptable, since those shouldn't
+// be allowed to move funds (they are unlike payment plan / trades, which have an open trans#
+// that can be put onto receipts, and a final receipt with a closing trans#, which allow recurring
+// processing (multiple receipts for the same transaction) -- this all fits into the "destruction
+// of acct history" system perfectly, because it's built into OTCronItem. OTScriptable isn't derived
+// from OTCronItem, so it can't do those things, therefore it can't be allowed to move money.
+//
+// Fair enough. But then, why not put move_funds into OTCronItem? After all, it IS derived from
+// OTScriptable, if you go far enough back, and so it technically can play both sides. Here's why not:
+// Because OTTrade and OTPaymentPlan were both written before I wrote all the smart contract stuff.
+// It was only when I added smart contracts that I finally implemented Parties, Agents, Bylaws, Clauses,
+// etc etc. This means that the way things are done is vastly different. Therefore while OTSmartContract
+// is derived from OTCronItem, OTSmartContract is the first Cron Item that does it the SCRIPTABLE way,
+// whereas OTTrade and OTPaymentPlan still do it the "OTCronItem" way.
+//
+// For example, in OTSmartContract, the Opening Transaction # is stored ONE FOR EACH PARTY, and the
+// Closing Transaction # is stored ONE FOR EACH ASSET ACCOUNT.  You can have many many parties AND
+// asset accounts on a smart contract.  This is simply not the case for OTTrade and OTPaymentPlan. They
+// use their own little built-in system for managing their strict system for storing the exact numbers
+// they need. They always use the exact same number of Nyms and accounts. 
+//
+// But smart contracts obviously do much more, so a more elegant system has been crafted into OTSmartContract
+// which blends the best qualities of OTScriptable AND OTCronItem, and which is the only place where you can
+// have BOTH script interpretation (from OTScriptable) AND money-moving, receipts, transactions, etc (OTCronItem).
+//
+// Therefore, OTCronItem already has the lower-level call to MoveFunds, which you can see commented below.
+// And OTSmartContract will have a higher-level version that can be available inside scripts as an "OT Native call",
+// and which searches the parties/accounts/agents etc so that it is able to then make the lower-level call.
+// Therefore move_funds goes in OTSmartContract, and MoveFunds goes in OTCronItem.
+//
+// 
+//
+/*
+ bool OTCronItem::MoveFunds(
+	const mapOfNyms		&	map_NymsAlreadyLoaded,
+	const long			&	lAmount, 
+	const OTIdentifier &	SOURCE_ACCT_ID,		// GetSenderAcctID();
+	const OTIdentifier &	SENDER_USER_ID,		// GetSenderUserID();
+	const OTIdentifier &	RECIPIENT_ACCT_ID,	// GetRecipientAcctID();
+	const OTIdentifier &	RECIPIENT_USER_ID)	// GetRecipientUserID();
+ */
+
+
+
+void OTSmartContract::RegisterOTNativeCallsWithScript(OTScript & theScript)
+{
+	// CALL THE PARENT
+	OTScriptable::RegisterOTNativeCallsWithScript(theScript);
+	// --------------------------------
+
 	using namespace chaiscript;
 	
 	// In the future, this will be polymorphic.
@@ -530,30 +636,15 @@ void RegisterOTNativeCallsWithScript(OTScript & theScript)
 	
 	if (NULL != pScript)
 	{
-		/*
-		pScript->chai.add(fun(&OT_API_CreateNym), "OT_API_CreateNym");
-        pScript->chai.add(fun(&OT_API_AddServerContract), "OT_API_AddServerContract");
-        pScript->chai.add(fun(&OT_API_AddAssetContract), "OT_API_AddAssetContract");
-        pScript->chai.add(fun(&OT_API_GetServerCount), "OT_API_GetServerCount");
-        pScript->chai.add(fun(&OT_API_GetAssetTypeCount), "OT_API_GetAssetTypeCount");
-        pScript->chai.add(fun(&OT_API_GetAccountCount), "OT_API_GetAccountCount");
-        pScript->chai.add(fun(&OT_API_GetNymCount), "OT_API_GetNymCount");
-        pScript->chai.add(fun(&OT_API_GetServer_ID), "OT_API_GetServer_ID");
-        pScript->chai.add(fun(&OT_API_GetServer_Name), "OT_API_GetServer_Name");
-        pScript->chai.add(fun(&OT_API_GetAssetType_ID), "OT_API_GetAssetType_ID");
-        pScript->chai.add(fun(&OT_API_GetAssetType_Name), "OT_API_GetAssetType_Name");
-		*/
+		pScript->chai.add(fun(&(ot_smartcontract_move_funds)), "move_funds");
+		pScript->chai.add(fun(&(ot_smartcontract_can_remove_item_frOM_cron)), "CAN_REMOVE_ITEM   FROM CRON   **** !!!!!!!!!!  RESUME   ");
+//      pScript->chai.add(fun(&OT_API_AddServerContract), "OT_API_AddServerContract");
 	}
-	else {
-		OTLog::Error("Failed dynamic casting OTScript to OTScriptChai \n");
+	else
+	{
+		OTLog::Error("OTSmartContract::RegisterOTNativeCallsWithScript: Failed dynamic casting OTScript to OTScriptChai \n");
 	}
-	
 }
-
-
-
-
-
 
 
 
@@ -912,12 +1003,12 @@ bool OTSmartContract::ProcessCron()
 	//
 	// Execute the scripts (clauses) that have registered for this hook.
 	
-	const std::string	str_HookName(SMART_CONTRACT_HOOK_ON_PROCESS);
+	const std::string	str_HookName(SMARTCONTRACT_HOOK_ON_PROCESS);
 	mapOfClauses		theMatchingClauses;
 	
 	if (this->GetHooks(str_HookName, theMatchingClauses))
 	{	
-		OTLog::vOutput(0, "Cron: Processing smart contract clauses for hook: %s \n", SMART_CONTRACT_HOOK_ON_PROCESS);
+		OTLog::vOutput(0, "Cron: Processing smart contract clauses for hook: %s \n", SMARTCONTRACT_HOOK_ON_PROCESS);
 		
 		this->ExecuteClauses(theMatchingClauses); // <============================================
 	}
@@ -990,11 +1081,12 @@ void OTSmartContract::ExecuteClauses (mapOfClauses & theClauses)
 			// ****************************************
 			if (false == pScript->ExecuteScript())
 			{
-				OTLog::Error("OTSmartContract::ExecuteClauses: Caught exception while running script: %s \n",
+				OTLog::Error("OTSmartContract::ExecuteClauses: Error while running script: %s \n",
 							 str_clause_name.c_str());
 			}
 			else
-				OTLog::vOutput(0, "Successfully executed script clause: %s.\n\n", str_clause_name.c_str());
+				OTLog::vOutput(0, "OTSmartContract::ExecuteClauses: Success executing script clause: %s.\n\n", 
+							   str_clause_name.c_str());
 			// ****************************************
 //			For now, I've decided to allow ALL clauses to trigger on the hook. The flag only matters after
 //			they are done, and not between scripts. Otherwise problems could arise, such as order of execution.

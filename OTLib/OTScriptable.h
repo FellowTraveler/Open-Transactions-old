@@ -159,8 +159,14 @@ public:
 	virtual bool AddParty(OTParty & theParty); // Takes ownership.
 	virtual bool AddBylaw(OTBylaw & theBylaw);
 
+	OTParty		* GetParty( const std::string str_party_name);
+	OTClause	* GetClause(const std::string str_clause_name);
+	
 	OTParty * FindPartyBasedOnNymAsAgent(const OTPseudonym & theNym, OTAgent ** ppAgent=NULL);
 	OTParty * FindPartyBasedOnAccount(const OTAccount & theAccount, OTPartyAccount ** ppPartyAccount=NULL);
+	
+	OTAgent			* GetAgent(const std::string str_agent_name);
+	OTPartyAccount	* GetPartyAccount(const std::string str_acct_name);
 	
 	// Verifies that Nym is actually an agent for this agreement.
 	// (Verifies that Nym has signed this agreement, if it's a trade or a payment plan, OR
@@ -186,7 +192,16 @@ public:
 	// hook name, but you can NOT have the same clause name repeated
 	// multiple times in theResults. Each clause can only trigger once.
 	//
-	bool GetHooks(const std::string str_Name, mapOfClauses & theResults); 
+	bool GetHooks(const std::string str_HookName, mapOfClauses & theResults);
+
+	// See if a scripted clause was provided for any given callback name.
+	// 
+	OTClause	* GetCallback(const std::string str_CallbackName);
+	
+	// See if a variable exists for a given variable name.
+	// 
+	OTVariable	* GetVariable(const std::string str_VarName);
+	
 	// ---------------------------------
 	
 	bool IsDirty() const;	// So you can tell if any of the persistent or important variables have CHANGED since it was last set clean.
@@ -210,8 +225,34 @@ public:
                                   OTString * pstrAttachment=NULL);
 	
 	// ----------------
-	static OTScriptable * InstantiateScriptable(const OTString & strInput);
 
+	// This is an OT Native call party_may_execute_clause
+	// It returns true/false whether party is allowed to execute clause.
+	// The default return value, for a legitimate party, is true.
+	// If you want to override that behavior, add a script callback named callback_party_may_execute_clause to your OTScriptable.
+	// CanExecuteClause will call ExecuteCallback() if that script exists, so the script can reply true/false.
+	//
+	bool CanExecuteClause(const std::string str_party_name, const std::string str_clause_name);
+	//
+	// Also: callback_party_may_execute_clause should expect two parameters: param_party_name and param_clause_name, both strings.
+	// Also: callback_party_may_execute_clause should return a bool.
+	
+	
+	bool ExecuteCallback (OTClause & theCallbackClause, mapOfVariables & theParameters, OTVariable & varReturnVal);
+
+	virtual void RegisterOTNativeCallsWithScript(OTScript & theScript);
+
+	// ----------------
+
+	static OTScriptable * InstantiateScriptable(const OTString & strInput);
+	
+	// Make sure a string contains only alpha, numeric, or '_'
+	// And make sure it's not blank. This is for script variable names, clause names, party names, etc.
+	//
+	static bool ValidateName(const std::string str_name);
+
+	// ------------------------
+	
 	OTScriptable();
 
 	virtual ~OTScriptable();

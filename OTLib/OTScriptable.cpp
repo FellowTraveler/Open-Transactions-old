@@ -130,7 +130,7 @@
 #include <cstring>
 
 #include <string>
-
+#include <algorithm>
 
 
 #include "irrxml/irrXML.h"
@@ -147,6 +147,25 @@ using namespace io;
 #include "OTLog.h"
 
 #include "OTSmartContract.h"
+
+
+// -----------------------------------------------------------------
+
+// CALLBACKS
+//
+// The server will call these callbacks, from time to time, and give you the
+// opportunity to resolve its questions.
+
+
+// This script is called by the server, whenever it wants to know whether a
+// given party is allowed to execute a specific clause.
+//
+#ifndef SCRIPTABLE_CALLBACK_PARTY_MAY_EXECUTE
+#define SCRIPTABLE_CALLBACK_PARTY_MAY_EXECUTE		"callback_party_may_execute_clause"
+#endif
+
+// -----------------------------------------------------------------
+
 
 
 
@@ -201,6 +220,273 @@ OTScriptable * OTScriptable::InstantiateScriptable(const OTString & strInput)
 	return NULL;
 }
 // *************************************************************************
+
+
+
+//
+// VALIDATING IDENTIFIERS IN OTSCRIPTABLE.
+//
+// Only alphanumerics are valid, or '_' (underscore)
+//
+
+bool is_ot_namechar_invalid(char c)
+{
+	return !(isalnum(c) || (c == '_'));
+}
+
+// static
+bool OTScriptable::ValidateName(const std::string str_name)
+{
+	if (str_name.size() <= 0)
+	{
+		OTLog::Error("OTScriptable::ValidateName: Name has zero size.\n");
+		return false;
+	}
+	else if (find_if(str_name.begin(), str_name.end(), is_ot_namechar_invalid) != str_name.end())
+	{
+		OTLog::vError("OTScriptable::ValidateName: Name fails validation testing: %s\n",
+					 str_name.c_str());
+		return false;
+	}
+	
+	return true;
+}
+
+
+
+
+void OTScriptable::RegisterOTNativeCallsWithScript(OTScript & theScript)
+{
+	using namespace chaiscript;
+	
+	// In the future, this will be polymorphic.
+	// But for now, I'm forcing things...
+	
+	OTScriptChai * pScript = dynamic_cast<OTScriptChai *> (&theScript);
+	
+	if (NULL != pScript)
+	{
+		pScript->chai.add(fun(&OTScriptable::CanExecuteClause, (*this)), "party_may_execute_clause");		
+//		pScript->chai.add(fun(&OT_API_AddServerContract), "OT_API_AddServerContract");
+	}
+	else 
+	{
+		OTLog::Error("OTScriptable::RegisterOTNativeCallsWithScript: Failed dynamic casting OTScript to OTScriptChai \n");
+	}	
+}
+
+
+
+
+// The server calls this when it wants to know if a certain party is allowed to execute a specific clause.
+// This function tries to answer that question by checking for a callback script called callback_party_may_execute_clause
+// If the callback exists, then it calls that for the answer. Otherwise the default return value is: true
+// Script coders may also call "party_may_execute_clause()" from within a script, which will call this function, 
+// which will trigger the script callback_party_may_execute_clause(), etc.
+//
+bool OTScriptable::CanExecuteClause(const std::string str_party_name, const std::string str_clause_name)
+{
+	OTParty		* pParty	= this->GetParty(str_party_name);
+	OTClause	* pClause	= this->GetClause(str_clause_name);
+	
+	if (NULL == pParty)
+	{
+		OTLog::vOutput(0, "OTScriptable::CanExecuteClause: Unable to find this party: %s\n",
+					   str_party_name.size() > 0 ? str_party_name.c_str() : "");
+		return false;
+	}
+	
+	if (NULL == pClause)
+	{
+		OTLog::vOutput(0, "OTScriptable::CanExecuteClause: Unable to find this clause: %s\n",
+					   str_clause_name.size() > 0 ? str_clause_name.c_str() : "");
+		return false;
+	}
+	// Below this point, pParty and pClause are both good.
+	// -------------------------------------------------
+	//
+	// DISALLOW parties to directly execute any clauses named similarly to callbacks, hooks, or cron hooks!
+	// Only allow this for normal clauses.
+	//
+	if (str_clause_name.compare(0,5,"cron_") == 0) // todo stop hardcoding
+	{
+		OTLog::Output(0, "OTScriptable::CanExecuteClause: Parties may not directly trigger clauses beginning in cron_\n");
+		return false;
+	}
+	
+	if (str_clause_name.compare(0,5,"hook_") == 0) // todo stop hardcoding
+	{
+		OTLog::Output(0, "OTScriptable::CanExecuteClause: Parties may not directly trigger clauses beginning in hook_\n");
+		return false;
+	}
+	
+	if (str_clause_name.compare(0,9,"callback_") == 0) // todo stop hardcoding
+	{
+		OTLog::Output(0, "OTScriptable::CanExecuteClause: Parties may not directly trigger clauses beginning in callback_\n");
+		return false;
+	}
+	// *****************************************************************************
+	
+	// IF NO CALLBACK IS PROVIDED, The default answer to this function is:
+	//     YES, this party MAY run this clause!
+	//
+	// But... first we check to see if this OTScriptable has a clause named:
+	//          "callback_party_may_execute_clause"
+	// ...and if so, we ask the CALLBACK to make the decision instead. This way, people can define
+	// in their own scripts any rules they want about which parties may execute which clauses.
+	
+	//
+	const std::string str_CallbackName(SCRIPTABLE_CALLBACK_PARTY_MAY_EXECUTE);
+	
+	OTClause * pMayExecuteClause = this->GetCallback(str_CallbackName); // See if there is a script clause registered for this callback.
+	
+	if (NULL != pMayExecuteClause) // Found it!
+	{	
+		OTLog::vOutput(0, "OTScriptable::CanExecuteClause: Found script for: %s. Asking...\n", SCRIPTABLE_CALLBACK_PARTY_MAY_EXECUTE);
+		
+		// The function we're IN defaults to TRUE, if there's no script available.
+		// However, if the script is available, then our default return value starts as FALSE.
+		// The script itself will then have to set it to true, if that's what it wants.
+		//
+		OTVariable param1		("param_party_name",  str_party_name,	OTVariable::Var_Constant);
+		OTVariable param2		("param_clause_name", str_clause_name,	OTVariable::Var_Constant);
+		// -------------------------------------------------------------
+		OTVariable theReturnVal	("return_val",		  false);
+		// -------------------------------------------------------------		
+		mapOfVariables theParameters;
+		theParameters.insert(std::pair<std::string, OTVariable *>("param_party_name",  &param1));
+		theParameters.insert(std::pair<std::string, OTVariable *>("param_clause_name", &param2));
+		
+		// ****************************************
+		
+		if (false == this->ExecuteCallback(*pMayExecuteClause, theParameters, theReturnVal)) // <============================================
+		{
+			OTLog::vError("OTScriptable::CanExecuteClause: Error while running callback script %s, clause %s \n",
+						  SCRIPTABLE_CALLBACK_PARTY_MAY_EXECUTE, str_clause_name.c_str());
+			return false;
+		}
+		else
+		{
+			OTLog::vOutput(0, "OTScriptable::CanExecuteClause: Success executing callback script %s, clause: %s.\n\n", 
+						   SCRIPTABLE_CALLBACK_PARTY_MAY_EXECUTE, str_clause_name.c_str());
+			
+			return theReturnVal.CopyValueBool();
+		}
+		// ****************************************
+	}
+	else 
+	{
+		OTLog::vOutput(0, "OTScriptable::CanExecuteClause: Unable to find script for: %s. Therefore, default return value is: TRUE.\n",
+					   SCRIPTABLE_CALLBACK_PARTY_MAY_EXECUTE);
+	}
+	// *****************************************************************************
+	
+	return true;
+}
+
+
+
+
+bool OTScriptable::ExecuteCallback (OTClause & theCallbackClause, mapOfVariables & theParameters, OTVariable & varReturnVal)
+{
+	const std::string str_clause_name	= theCallbackClause.GetName().Exists() ? 
+	theCallbackClause.GetName().Get() : "";
+	OT_ASSERT(OTScriptable::ValidateName(str_clause_name));
+	
+	OTBylaw * pBylaw = theCallbackClause.GetBylaw();
+	OT_ASSERT(NULL != pBylaw);
+	// -------------------------------------------------
+	// By this point, we have the clause we are executing as theCallbackClause, 
+	// and we have the Bylaw it belongs to, as pBylaw.
+	// ----------------------------------------
+	
+	const std::string str_code		=	theCallbackClause.GetCode();	// source code for the script.
+	const std::string str_language	=	pBylaw->GetLanguage();			// language it's in. (Default is "chai")
+	
+	OTScript_SharedPtr pScript = OTScriptFactory(&str_code, &str_language);
+	
+	// ---------------------------------------------------------------
+	//
+	// SET UP THE NATIVE CALLS, REGISTER THE PARTIES, REGISTER THE VARIABLES, AND EXECUTE THE SCRIPT.
+	//
+	if (pScript)
+	{
+		// Register the special server-side native OT calls we make available to all scripts.
+		//
+		this->RegisterOTNativeCallsWithScript(*pScript); 
+		
+		// ---------------------------------------
+		// Register all the parties with the script.
+		//
+		FOR_EACH(mapOfParties, m_mapParties)
+		{
+			const std::string str_party_name	= (*it).first;
+			OTParty * pParty					= (*it).second;
+			OT_ASSERT((NULL != pParty) && (str_party_name.size() > 0));
+			// -----------------------
+			
+			pScript->AddParty(str_party_name, *pParty);
+		}
+		// ---------------------------------------
+		// Add the parameters...
+		//
+		FOR_EACH(mapOfVariables, theParameters)
+		{
+			const std::string str_var_name	= (*it).first;
+			OTVariable * pVar				= (*it).second;
+			OT_ASSERT((NULL != pVar)&&(str_var_name.size() > 0));
+			// ---------------------------------------------------
+			pVar->RegisterForExecution(*pScript);
+		}
+		
+		// ---------------------------------------
+		// Also need to loop through the Variables on pBylaw and register those as well.
+		//
+		pBylaw->RegisterVariablesForExecution(*pScript); // This sets all the variables as CLEAN so we can check for dirtiness after execution.
+		
+		// ****************************************
+		
+		if (false == pScript->ExecuteScript(&varReturnVal))
+		{
+			OTLog::Error("OTScriptable::ExecuteCallback: Error while running callback script: clause %s \n",
+						 str_clause_name.c_str());
+		}
+		else
+		{
+			OTLog::vOutput(0, "OTScriptable::ExecuteCallback: Successfully executed callback script: clause %s.\n\n",
+						   str_clause_name.c_str());
+			return true;
+		}
+	}
+	// ---------------------------------------------------------------
+	else 
+	{
+		OTLog::Error("OTScriptable::ExecuteCallback: Error instantiating script!!\n");
+	}
+	
+	// ***************************************************************
+	
+	// NOTE: Normally after calling a script, you want to check to see if any of the persistent variables
+	// are dirty, and if important, send a notice to the parties, save an updated copy of the contract, etc.
+	// WE DON'T DO THAT FOR CALLBACKS!  Why not?
+	//
+	// 1) It only matters if the variables change, if you are actually saving an updated version of the contract.
+	//    (Which is more OTCronItem / OTSmartContract, which saves an updated copy of itself.) Whereas if you are
+	//    NOT saving the contract with those variables in it, then why the hell would you care to notify people?
+	// 2) Since only OTCronItem / OTSmartContract actually save updated copies of themselves, they are the only ones
+	//    who will ever need to notify anyone. Not EVERY OTScriptable-derived class will send notifications, but if they
+	//    need to, SendNoticeToAllParties() is already available on OTScriptable.
+	//
+	// 3) MOST IMPORTANTLY: the only time a callback is currently triggered is when the script has already been activated
+	//    somehow, and the only places that do that ALREADY SEND NOTICES WHEN DIRTY. In fact, if a callback actually makes
+	//    the scriptable dirty, IT WILL SEND NOTICES ANYWAY, since the "ExecuteClauses()" function that CALLED the callback
+	//    is also smart enough to send the notices already.
+	//
+	
+	return false;
+}
+
+
 
 
 
@@ -784,12 +1070,122 @@ bool OTScriptable::VerifyNymAsAgentForAccount(const	OTPseudonym & theNym,
 	 */
 
 
+// Find the first (and hopefully the only) clause on this scriptable object,
+// with a given name. (Searches ALL Bylaws on *this.)
+//
+OTClause * OTScriptable::GetClause(const std::string str_clause_name)
+{
+	if (false == OTScriptable::ValidateName(str_clause_name)) // this logs, FYI.
+	{
+		OTLog::Error("OTScriptable::GetClause:  Error: invalid name.\n");
+		return NULL;
+	}
+	// --------------------------------
+	
+	FOR_EACH(mapOfBylaws, m_mapBylaws)
+	{
+		OTBylaw * pBylaw = (*it).second;
+		OT_ASSERT(NULL != pBylaw);
+		// -------------------------
+		
+		OTClause * pClause = pBylaw->GetClause(str_clause_name);
+		
+		if (NULL != pClause) // found it.
+			return pClause;
+	}
+
+	return NULL;	
+}
+
+
+OTAgent * OTScriptable::GetAgent(const std::string str_agent_name)
+{
+	if (false == OTScriptable::ValidateName(str_agent_name)) // this logs, FYI.
+	{
+		OTLog::Error("OTScriptable::GetAgent:  Error: invalid name.\n");
+		return NULL;
+	}
+	// -----------------------------------
+	
+	FOR_EACH(mapOfParties, m_mapParties)
+	{
+		OTParty * pParty = (*it).second;
+		OT_ASSERT(NULL != pParty);
+		// -------------------------
+		
+		OTAgent * pAgent = pParty->GetAgent(str_agent_name);
+		
+		if (NULL != pAgent) // found it.
+			return pAgent;
+	}
+	
+	return NULL;		
+}
+
+
+OTPartyAccount * OTScriptable::GetPartyAccount(const std::string str_acct_name)
+{
+	if (false == OTScriptable::ValidateName(str_acct_name)) // this logs, FYI.
+	{
+		OTLog::Error("OTScriptable::GetPartyAccount:  Error: invalid name.\n");
+		return NULL;
+	}
+	// ----------------------------------------
+	
+	FOR_EACH(mapOfParties, m_mapParties)
+	{
+		OTParty * pParty = (*it).second;
+		OT_ASSERT(NULL != pParty);
+		// -------------------------
+		
+		OTPartyAccount * pAcct = pParty->GetAccount(str_acct_name);
+		
+		if (NULL != pAcct) // found it.
+			return pAcct;
+	}
+	
+	return NULL;		
+}
+
+
+
+OTParty * OTScriptable::GetParty(const std::string str_party_name)
+{
+	if (false == OTScriptable::ValidateName(str_party_name)) // this logs, FYI.
+	{
+		OTLog::Error("OTScriptable::GetParty:  Error: invalid name.\n");
+		return NULL;
+	}
+	// -----------------------------------------------------------
+	
+	mapOfParties::iterator it = m_mapParties.find(str_party_name);
+	
+	if (m_mapParties.end() == it) // Did NOT find it.
+	{
+		OTLog::vOutput(0, "OTScriptable::GetParty: Strange: party not found: %s\n",
+					   str_party_name.c_str());
+		return NULL;
+	}
+	
+	// ----------------------------------------
+	
+	OTParty * pParty = (*it).second;
+	OT_ASSERT(NULL != pParty);
+	
+	return pParty;	
+}
+
 
 bool OTScriptable::AddParty(OTParty & theParty)
 {
 	const std::string str_party_name = theParty.GetPartyName();
 	
-    // typedef std::map<std::string, OTParty *> mapOfParties;
+	if (false == OTScriptable::ValidateName(str_party_name)) // this logs, FYI.
+	{
+		OTLog::Error("OTScriptable::AddParty:  Error: invalid name.\n");
+		return false;
+	}
+	// -----------------------------------------------------------
 	
 	if (m_mapParties.find(str_party_name) == m_mapParties.end())
 	{
@@ -811,7 +1207,14 @@ bool OTScriptable::AddParty(OTParty & theParty)
 
 bool OTScriptable::AddBylaw(OTBylaw & theBylaw)
 {
-	const std::string str_name = theBylaw.GetName().Exists() ? theBylaw.GetName().Get() : "BYLAW_EMPTY_NAME";
+	const std::string str_name = theBylaw.GetName().Exists() ? theBylaw.GetName().Get() : "";
+	
+	if (false == OTScriptable::ValidateName(str_name)) // this logs, FYI.
+	{
+		OTLog::Error("OTScriptable::AddBylaw:  Error: invalid name.\n");
+		return false;
+	}
+	// -----------------------------------------------------------
 	
 	if (m_mapBylaws.find(str_name) == m_mapBylaws.end())
 	{
@@ -922,7 +1325,23 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 					OTString strNymID			= xml->getAttributeValue("nymID"); // Nym ID if Nym in role for entity, or if representing himself.
 					OTString strRoleID			= xml->getAttributeValue("roleID"); // Role ID if Nym in Role.
 					OTString strGroupName		= xml->getAttributeValue("groupName"); // Group name if voting group. (Relative to entity.)
+										
+					// ----------------------------------
 					
+					if (!strAgentName.Exists() || !strAgentRepSelf.Exists() || !strAgentIndividual.Exists())
+					{
+						OTLog::Error("OTScriptable::ProcessXMLNode: Error loading agent: Either the name, or one of the bool variables was EMPTY.\n");
+						delete pParty; pParty=NULL;
+						return (-1);
+					}
+					// ----------------------------------
+					if (!OTScriptable::ValidateName(strAgentName.Get()))
+					{
+						OTLog::vError("OTScriptable::ProcessXMLNode: Failed loading agent due to Invalid name: %s\n",
+									  strAgentName.Get());
+						delete pParty; pParty=NULL;
+						return (-1);
+					}
 					// ----------------------------------
 					bool bRepsHimself = true; // default
 					
@@ -935,6 +1354,22 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 					if (strAgentIndividual.Compare("false"))
 						bIsIndividual = false;
 					
+					// ---------------------------------------
+					// See if the same-named agent already exists on ANY of the OTHER PARTIES
+					// (There can only be one agent on an OTScriptable with a given name.)
+					//
+					OTAgent * pExistingAgent = this->GetAgent(strAgentName.Get());
+					
+					if (NULL != pExistingAgent) // Uh-oh, it's already there!
+					{
+						OTLog::vOutput(0, "OTScriptable::ProcessXMLNode: Error loading agent named %s, since one was "
+									   "already there on party %s.\n", strAgentName.Get(), strName.Get());
+						delete pParty; pParty=NULL;
+						return (-1);
+					}
+					// The AddAgent call below checks to see if it's already there, but only for the
+					// currently-loading party.
+					// Whereas the above GetAgent() call checks this OTScriptable for ALL the agents on the already-loaded parties.
 					// ----------------------------------
 					
 					OTAgent * pAgent = 
@@ -993,8 +1428,24 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 						delete pParty; pParty=NULL;
 						return (-1);
 					}
+					// ---------------------------------------
+					// See if the same-named partyacct already exists on ANY of the OTHER PARTIES
+					// (There can only be one partyacct on an OTScriptable with a given name.)
+					//
+					OTPartyAccount * pAcct = this->GetPartyAccount(strAcctName.Get());
+
+					if (NULL != pAcct) // Uh-oh, it's already there!
+					{
+						OTLog::vOutput(0, "OTScriptable::ProcessXMLNode: Error loading partyacct named %s, since one was "
+									   "already there on party %s.\n", strAcctName.Get(), strName.Get());
+						delete pParty; pParty=NULL;
+						return (-1);
+					}
+					// The AddAccount call below checks to see if it's already there, but only for the
+					// currently-loading party.
+					// Whereas the above call checks this OTScriptable for all the accounts on the already-loaded parties.
 					// ----------------------------------
-										
+					
 					if (false == pParty->AddAccount(strAgentName, strAcctName, strAcctID, lClosingTransNo))
 					{
 						OTLog::Error("OTScriptable::ProcessXMLNode: Failed adding account to party.\n");
@@ -1051,12 +1502,13 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		OTString strName		= xml->getAttributeValue("name"); // bylaw name
 		OTString strLanguage	= xml->getAttributeValue("language"); // The script language used in this bylaw.
 		
-		OTString strNumVariable	= xml->getAttributeValue("numVariables"); // number of variables on this bylaw.
-		OTString strNumClauses	= xml->getAttributeValue("numClauses"); // number of clauses on this bylaw.
-		OTString strNumHooks	= xml->getAttributeValue("numHooks"); // hooks to server events.
+		OTString strNumVariable		= xml->getAttributeValue("numVariables"); // number of variables on this bylaw.
+		OTString strNumClauses		= xml->getAttributeValue("numClauses"); // number of clauses on this bylaw.
+		OTString strNumHooks		= xml->getAttributeValue("numHooks"); // hooks to server events.
+		OTString strNumCallbacks	= xml->getAttributeValue("numCallbacks"); // Callbacks the server may initiate, when it needs answers.
 		
-		OTBylaw * pBylaw = new OTBylaw(strName.Exists() ? strName.Get() : "BYLAW_ERROR_NAME", 
-									   strLanguage.Exists() ? strLanguage.Get() : "BYLAW_ERROR_LANGUAGE" );
+		OTBylaw * pBylaw = new OTBylaw(strName.Exists() ? strName.Get() : "", 
+									   strLanguage.Exists() ? strLanguage.Get() : "" );
 		
 		OT_ASSERT(NULL != pBylaw);
 		
@@ -1086,6 +1538,22 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 						delete pBylaw; pBylaw=NULL;
 						return (-1);
 					}
+					// ---------------------------------------
+					// See if the same-named variable already exists on ANY of the OTHER BYLAWS
+					// (There can only be one variable on an OTScriptable with a given name.)
+					//
+					OTVariable * pVar = this->GetVariable(strVarName.Get());
+					
+					if (NULL != pVar) // Uh-oh, it's already there!
+					{
+						OTLog::vOutput(0, "OTScriptable::ProcessXMLNode: Error loading variable named %s, since one was "
+									   "already there on one of the bylaws.\n", strVarName.Get());
+						delete pBylaw; pBylaw=NULL;
+						return (-1);
+					}
+					// The AddVariable call below checks to see if it's already there, but only for the
+					// currently-loading bylaw.
+					// Whereas the above call checks this OTScriptable for all the variables on the already-loaded bylaws.
 					// ----------------------------------
 					//
 					// VARIABLE TYPE AND ACCESS TYPE
@@ -1096,6 +1564,8 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 						theVarType = OTVariable::Var_Long;
 					else if (strVarType.Compare("string"))
 						theVarType = OTVariable::Var_String;
+					else if (strVarType.Compare("bool"))
+						theVarType = OTVariable::Var_Bool;
 					// ---------
 					
 					OTVariable::OTVariable_Access theVarAccess = OTVariable::Var_Error_Access;
@@ -1118,23 +1588,53 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 					}
 					// ---------------------------------------
 
-					const long lVarValue = ( ((OTVariable::Var_Long == theVarType) && strVarValue.Exists()) ? 
-											(atol(strVarValue.Get())) : 0);
-					
 					bool bAddedVar = false;
 					
-					if (OTVariable::Var_Long == theVarType)
-						bAddedVar = pBylaw->AddVariable(strVarName.Get(), lVarValue, theVarAccess);
-					else if (OTVariable::Var_String == theVarType)
-						bAddedVar = pBylaw->AddVariable(strVarName.Get(), strVarValue.Exists() ? strVarValue.Get() : "", theVarAccess);
-					else
+					switch (theVarType) 
 					{
-						OTLog::Error("OTScriptable::ProcessXMLNode: Wrong variable type... "
-									 "somehow AFTER I should have already detected it...\n");
-						delete pBylaw; pBylaw=NULL;
-						return (-1);
+						case OTVariable::Var_Long:
+							if (strVarValue.Exists())
+							{
+								const long lVarValue = atol(strVarValue.Get());
+								bAddedVar = pBylaw->AddVariable(strVarName.Get(), lVarValue, theVarAccess);
+							}
+							else
+							{
+								OTLog::Error("OTScriptable::ProcessXMLNode: No value found for long variable: %s\n",
+											 strVarName.Get());
+								delete pBylaw; pBylaw=NULL;
+								return (-1);
+							}
+							break;
+							// ---------------------------------
+						case OTVariable::Var_Bool:
+							if (strVarValue.Exists())
+							{
+								const bVarValue = strVarValue.Compare("true") ? true : false;
+
+								bAddedVar = pBylaw->AddVariable(strVarName.Get(), bVarValue, theVarAccess);
+							}
+							else
+							{
+								OTLog::Error("OTScriptable::ProcessXMLNode: No value found for bool variable: %s\n",
+											 strVarName.Get());
+								delete pBylaw; pBylaw=NULL;
+								return (-1);
+							}
+							break;
+							// ---------------------------------
+						case OTVariable::Var_String:
+							//if (strVarValue.Exists()) // I realized I should probably allow empty strings.
+							bAddedVar = pBylaw->AddVariable(strVarName.Get(), strVarValue.Exists() ? strVarValue.Get() : "", theVarAccess);
+							break;
+						default:
+							OTLog::Error("OTScriptable::ProcessXMLNode: Wrong variable type... "
+										 "somehow AFTER I should have already detected it...\n");
+							delete pBylaw; pBylaw=NULL;
+							return (-1);							
 					}
-					// -------------------------------
+					// -------------------------------------------------
+
 					if (false == bAddedVar)
 					{
 						OTLog::Error("OTScriptable::ProcessXMLNode: Failed adding variable to bylaw.\n");
@@ -1199,8 +1699,22 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 					
 					if (str_name.size() > 0) // SUCCESS
 					{
-						if (false == pBylaw->AddClause(str_name.c_str(), 
-													   strTextExpected.Exists() ? strTextExpected.Get() : ""))
+						// ---------------------------------------
+						// See if the same-named clause already exists on ANY of the OTHER BYLAWS
+						// (There can only be one clause on an OTScriptable with a given name.)
+						//
+						OTClause * pClause = this->GetClause(str_name.c_str());
+						
+						if (NULL != pClause) // Uh-oh, it's already there!
+						{
+							OTLog::vOutput(0, "OTScriptable::ProcessXMLNode: Error loading clause named %s, since one was already "
+										   "there on one of the bylaws.\n", str_name.c_str());
+							delete pBylaw; pBylaw=NULL;
+							return (-1);
+						}
+						// ---------------------------------------------------------
+						else if (false == pBylaw->AddClause(str_name.c_str(), 
+															strTextExpected.Exists() ? strTextExpected.Get() : ""))
 						{
 							OTLog::Error("OTScriptable::ProcessXMLNode: Failed adding clause to bylaw.\n");
 							delete pBylaw; pBylaw=NULL;
@@ -1239,8 +1753,8 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 				
 				if ((xml->getNodeType() == EXN_ELEMENT) && (!strcmp("hook", xml->getNodeName())))
 				{
-					OTString strHookName	= xml->getAttributeValue("name"); // Name of standard hook such as OnActivate, OnDeactivate, etc
-					OTString strClause		= xml->getAttributeValue("clause"); // Name of clause on this Bylaw that should trigger when that hook occurs.
+					OTString strHookName	= xml->getAttributeValue("name"); // Name of standard hook such as hook_activate or cron_process, etc
+					OTString strClause		= xml->getAttributeValue("clause"); // Name of clause on this Bylaw that should trigger when that callback occurs.
 					
 					// ----------------------------------
 					
@@ -1270,6 +1784,66 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		}
 
 		// ---------------------------------------------------------------
+		//
+		// LOAD CALLBACKS.
+		//
+		int nCount	= 0;
+		if (strNumCallbacks.Exists() && ( (nCount = atoi(strNumCallbacks.Get()) > 0 )))
+		{
+			while (nCount-- > 0)
+			{
+				xml->read();
+				
+				if ((xml->getNodeType() == EXN_ELEMENT) && (!strcmp("callback", xml->getNodeName())))
+				{
+					OTString strCallbackName	= xml->getAttributeValue("name"); // Name of standard callback such as OnActivate, OnDeactivate, etc
+					OTString strClause			= xml->getAttributeValue("clause"); // Name of clause on this Bylaw that should trigger when that hook occurs.
+					
+					// ----------------------------------
+					
+					if (!strCallbackName.Exists() || !strClause.Exists())
+					{
+						OTLog::vError("OTScriptable::ProcessXMLNode: Expected, yet nevertheless missing, name or clause while loading "
+									  "callback for bylaw %s.\n", strName.Get());
+						delete pBylaw; pBylaw=NULL;
+						return (-1);
+					}
+					// ---------------------------------------
+					// See if the same-named callback already exists on ANY of the OTHER BYLAWS
+					// (There can only be one clause to handle any given callback.)
+					//
+					OTClause * pClause = this->GetCallback(strCallbackName.Get());
+					
+					if (NULL != pClause) // Uh-oh, it's already there!
+					{
+						OTLog::vOutput("OTScriptable::ProcessXMLNode: Error loading callback %s, since one was already there on one of the other bylaws.\n",
+									   strCallbackName.Get());
+						delete pBylaw; pBylaw=NULL;
+						return (-1);
+					}
+					// The below call checks to see if it's already there, but only for the currently-loading bylaw.
+					// Whereas the above call checks this OTScriptable for all the already-loaded bylaws.
+					// ---------------------------------------
+					
+					if (false == pBylaw->AddCallback(strCallbackName.Get(), strClause.Get()))
+					{
+						OTLog::vError("OTScriptable::ProcessXMLNode: Failed adding callback (%s) to bylaw (%s).\n",
+									  strCallbackName.Get(), strName.Get());
+						delete pBylaw; pBylaw=NULL;
+						return (-1);
+					}
+					// ---------------------------------------
+				}				
+				else 
+				{
+					OTLog::Error("Expected callback element in bylaw, OTScriptable::ProcessXMLNode\n");
+					delete pBylaw; pBylaw=NULL;
+					return (-1); // error condition
+				}
+			} // while
+		}
+		
+		// ---------------------------------------------------------------
 		
 		if (AddBylaw(*pBylaw))
 			OTLog::vOutput(2, "OTScriptable: Loaded Bylaw: %s\n", 
@@ -1290,10 +1864,75 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 
 
 
+// Look up the first (and hopefully only) variable registered for a given name.
+// (Across all of my Bylaws)
+//
+OTVariable * OTScriptable::GetVariable(const std::string str_VarName)
+{
+	if (false == OTScriptable::ValidateName(str_VarName)) // this logs, FYI.
+	{
+		OTLog::Error("OTScriptable::GetVariable:  Error: invalid name.\n");
+		return NULL;
+	}
+	// -------------------------------------
+	
+	FOR_EACH(mapOfBylaws, m_mapBylaws)
+	{
+		OTBylaw * pBylaw = (*it).second;
+		OT_ASSERT(NULL != pBylaw);
+		// -------------------------
+		
+		OTVariable * pVar = pBylaw->GetVariable(str_VarName);
+		
+		if (NULL != pVar) // found it.
+			return pVar;
+	}
+	
+	return NULL;		
+}
+
+
+// Look up the first (and hopefully only) clause registered for a given callback.
+//
+OTClause * OTScriptable::GetCallback(const std::string str_CallbackName)
+{
+	if ((false == OTScriptable::ValidateName(str_CallbackName)) ||
+		(str_CallbackName.compare(0,9,"callback_") != 0)) // this logs, FYI.
+	{
+		OTLog::vError("OTScriptable::GetCallback:  Error: invalid name: %s\n", str_CallbackName.c_str());
+		return NULL;
+	}
+	// -------------------------------------
+	FOR_EACH(mapOfBylaws, m_mapBylaws)
+	{
+		OTBylaw * pBylaw = (*it).second;
+		OT_ASSERT(NULL != pBylaw);
+		// -------------------------
+		
+		OTClause * pClause = pBylaw->GetCallback(str_CallbackName);
+
+		if (NULL != pClause) // found it.
+			return pClause;
+	}
+	
+	return NULL;	
+}
+
+
 // Look up all clauses matching a specific hook.
 //
-bool OTScriptable::GetHooks(const std::string str_Name, mapOfClauses & theResults)
+bool OTScriptable::GetHooks(const std::string str_HookName, mapOfClauses & theResults)
 {
+	if (
+		(false == OTScriptable::ValidateName(str_HookName))
+		||
+		((str_HookName.compare(0,5,"cron_") != 0) && (str_HookName.compare(0,5,"hook_") != 0))
+	   ) // this logs, FYI.
+	{
+		OTLog::Error("OTScriptable::GetHooks:  Error: invalid name.\n");
+		return NULL;
+	}
+	// -------------------------------------
 	bool bReturnVal = false;
 	
 	FOR_EACH(mapOfBylaws, m_mapBylaws)
@@ -1304,7 +1943,7 @@ bool OTScriptable::GetHooks(const std::string str_Name, mapOfClauses & theResult
 		
 		// Look up all clauses matching a specific hook.
 		//
-		if (pBylaw->GetHooks(str_Name, theResults))
+		if (pBylaw->GetHooks(str_HookName, theResults))
 			bReturnVal = true;
 	}
 	

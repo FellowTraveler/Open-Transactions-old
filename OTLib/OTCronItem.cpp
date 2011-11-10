@@ -220,13 +220,9 @@ OTCronItem * OTCronItem::NewCronItem(const OTString & strCronItem)
 
 
 
-
-
 // DONE: Make a GENERIC VERSION of the BELOW function, that script coders can call
 // whenever they need to move money between two parties!!!! The more I look at it,
 // the more I realize I can probably use it NEARLY "as is" !
-
-
 //
 // true == success, false == failure.
 //
@@ -607,7 +603,7 @@ bool OTCronItem::MoveFunds(const mapOfNyms	  & map_NymsAlreadyLoaded,
 		
 		// Load the inbox/outbox in case they already exist
 		OTLedger	theSenderInbox		(SENDER_USER_ID,	SOURCE_ACCT_ID,		SERVER_ID),
-		theRecipientInbox	(RECIPIENT_USER_ID, RECIPIENT_ACCT_ID,	SERVER_ID);
+					theRecipientInbox	(RECIPIENT_USER_ID, RECIPIENT_ACCT_ID,	SERVER_ID);
 		
 		// ALL inboxes -- no outboxes. All will receive notification of something ALREADY DONE.
 		bool bSuccessLoadingSenderInbox		= theSenderInbox.LoadInbox();

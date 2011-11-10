@@ -269,6 +269,14 @@ public:
 	 bool IsExpired(); // Only tells if if it's past the "valid to" date.
 	 */
 	
+	
+	// ---------------------------
+	// From OTScriptable:
+	//
+	//virtual void RegisterOTNativeCallsWithScript(OTScript & theScript);
+	
+	// ----------------
+	
 	virtual ~OTCronItem();
 	
 	
