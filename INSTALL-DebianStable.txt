@@ -19,11 +19,14 @@ Package: *
 Pin: release n=sid
 Pin-Priority: 200
 
+---- update the changes: ----
+# aptitude update
+
+---- safe upgrade ----
+# aptitude safe-upgrade
+
  ---- install base development system ----
 # aptitude install build-essential git
-
- ---- update the changes: ----
-# aptitude update
 
  ---- install openjdk: ----
 # aptitude install openjdk-6-jdk openjdk-6-source
@@ -39,6 +42,9 @@ Pin-Priority: 200
 
 ---- upgrade openssl to debian unstable ----
 # aptitude -t sid install libssl-dev
+
+---- install php5 ----
+# aptitude install php5-dev
 
 
 Now you have all the dependencies for compiling and installing OT.
@@ -69,3 +75,12 @@ $ export LD_LIBRARY_PATH=/usr/local/lib
 
 $ make clean
 $ make java
+
+# make install_lib
+
+---- Making OT for PHP5 (MyOT) ----
+
+$ make clean
+$ make php5
+
+
