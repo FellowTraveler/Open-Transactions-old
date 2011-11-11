@@ -1314,6 +1314,42 @@ bool OTParty::HasAgent(OTPseudonym & theNym, OTAgent ** ppAgent/*=NULL*/)
 }
 
 
+void OTAgent::RetrieveNymPointer(mapOfNyms & map_Nyms_Already_Loaded)
+{
+	//  We actually have a Nym pointer on this agent somehow (so let's add it to the list.)
+	//
+	if (NULL != m_pNym) 
+	{
+		if (!m_strName.Exists())  // Whoaa!! Can't add it without the agent's name for the map!
+		{
+			OTLog::Error("OTAgent::RetrieveNymPointers: Failed: m_strName is empty!\n");
+		}
+		else if (map_Nyms_Already_Loaded.end() == 
+				 map_Nyms_Already_Loaded.insert(std::pair<std::string, OTPseudonym *>(m_strName.Get(), m_pNym)))
+			OTLog::vError("OTAgent::RetrieveNymPointer: Failed on insertion, as though another nym were already "
+						 "there with the same agent name! (%s)\n", m_strName.Get());
+		// (else it was inserted successfully.)
+	}
+	// else nothing, since it's normal that most of them are NULL, even when one is goood.
+}
+
+
+
+void OTParty::RetrieveNymPointers(mapOfNyms & map_Nyms_Already_Loaded)
+{
+	FOR_EACH(mapOfAgents, m_mapAgents)
+	{
+		OTAgent * pAgent = (*it).second;
+		OT_ASSERT(NULL != pAgent);
+		// -------------------------------
+		
+		pAgent->RetrieveNymPointer(map_Nyms_Already_Loaded);
+	}
+}
+
+
+
+
 // Find out if theNym is authorizing agent for Party. (Supplied opening transaction #)
 // If so, make sure that agent has a pointer to theNym and return true.
 // else return false.

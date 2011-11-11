@@ -317,6 +317,14 @@ public:
     // This also makes sure that Nyms and Entities don't ever share IDs, so the
     // IDs become more and more interchangeable.
 	
+	// ----------------
+	// Often we endeavor to avoid loading the same Nym twice, and a higher-level function
+	// will ask an OTParty for a list of all the Nym pointers that it already has,
+	// so they can be checked for various things if they are already loaded (when they are needed)
+	// without having to load them again in order to check those things, purely out of blindness
+	// to the fact that they had infact already been loaded and were floating around in memory somewhere.
+	//
+	void RetrieveNymPointer(mapOfNyms & map_Nyms_Already_Loaded);
 	
 	OTPseudonym * LoadNym(OTPseudonym & theServerNym);
 	
@@ -605,6 +613,15 @@ public:
 	//
 	OTPseudonym * LoadAuthorizingAgentNym(OTPseudonym & theSignerNym, OTAgent ** ppAgent=NULL); 
 
+	// ----------------
+	// Often we endeavor to avoid loading the same Nym twice, and a higher-level function
+	// will ask an OTParty for a list of all the Nym pointers that it already has,
+	// so they can be checked for various things if they are already loaded (when they are needed)
+	// without having to load them again in order to check those things, purely out of blindness
+	// to the fact that they had infact already been loaded and were floating around in memory somewhere.
+	//
+	void RetrieveNymPointers(mapOfNyms & map_Nyms_Already_Loaded);
+	
 	// ----------------------------------------
 	
 	bool AddAccount(OTPartyAccount& thePartyAcct);

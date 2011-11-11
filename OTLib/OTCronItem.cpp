@@ -1013,7 +1013,7 @@ bool OTCronItem::CanRemoveItemFromCron(OTPseudonym & theNym)
     // out to the RECIPIENT... In THAT case, the below VerifyIssuedNum() won't work! In those cases,
     // expect that the special code will be in the subclasses override of this function. (OTPaymentPlan::CanRemoveItem() etc)
 
-    // P.S. If you override this function, MAKE SURE to call the parent (OTCronItem::CanRemoveItem) first, 
+    // P.S. If you override this function, maybe call the parent (OTCronItem::CanRemoveItem) first, 
     // for the VerifyIssuedNum call above. Only if that fails, do you need to dig deeper...
 }
 

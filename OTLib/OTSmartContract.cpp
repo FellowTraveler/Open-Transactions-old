@@ -524,6 +524,15 @@
 // -----------------------------------------------------------------
 
 
+// Called in OnRemove and OnExpire,
+// at the bottom.
+//
+#ifndef SMARTCONTRACT_CALLBACK_PARTY_MAY_CANCEL
+#define SMARTCONTRACT_CALLBACK_PARTY_MAY_CANCEL	"callback_party_may_cancel_contract"
+#endif
+
+// -----------------------------------------------------------------
+
 
 
 
@@ -551,14 +560,6 @@ bool ot_smartcontract_move_funds(std::string from_acct, std::string to_acct)
 }
 
 
-
-// TODO:  override this:
-//bool OTCronItem::CanRemoveItemFromCron(OTPseudonym & theNym)
-//
-// My version will have default behavior, and will read the answer from
-// a script if one is available. JUST LIKE OTScriptable::CanExecuteClause !!
-// Use that code as the model because I basically want it to work the same way.
-// 
 
 
 // TODO: Finish up Smart Contracts (this file.)
@@ -621,6 +622,19 @@ bool ot_smartcontract_move_funds(std::string from_acct, std::string to_acct)
 
 
 
+move_funds(from_acct, to_acct)				(from_acct and to_acct must be a party to the agreement)
+stash_funds(from_acct, "stash_one", 100)	("stash_one" is stored inside the bylaw. Server-side only.)
+unstash_funds("stash_one", to_acct, 100)	(Smartcontract must be activated with no stashes. Server creates/maintains them.)
+get_balance(acct)							(acct must be party to agreement.)
+											 
+send_notice(to_nym)							(Like sendMessage, except it comes from the server, not another user.)
+send_notice_to_parties()					(Does a send_notice to ALL parties.)
+											 
+can_execute_clause(party_name, clause_name) (See if a party is allowed to execute any given clause.)
+
+											 
+											 
+
 void OTSmartContract::RegisterOTNativeCallsWithScript(OTScript & theScript)
 {
 	// CALL THE PARENT
@@ -636,9 +650,14 @@ void OTSmartContract::RegisterOTNativeCallsWithScript(OTScript & theScript)
 	
 	if (NULL != pScript)
 	{
-		pScript->chai.add(fun(&(ot_smartcontract_move_funds)), "move_funds");
-		pScript->chai.add(fun(&(ot_smartcontract_can_remove_item_frOM_cron)), "CAN_REMOVE_ITEM   FROM CRON   **** !!!!!!!!!!  RESUME   ");
-//      pScript->chai.add(fun(&OT_API_AddServerContract), "OT_API_AddServerContract");
+		
+//		bool OTSmartContract::CanCancelContract(const std::string str_party_name)
+//		bool OTSmartContract::CanCancelContract(const std::string str_party_name)
+
+		
+//		pScript->chai.add(fun(&(ot_smartcontract_move_funds)), "move_funds");
+		pScript->chai.add(fun(&(OTSmartContract::MoveAcctFunds), (*this)), "move_funds");		
+		pScript->chai.add(fun(&(OTSmartContract::CanCancelContract), (*this)), "party_may_cancel_contract");		
 	}
 	else
 	{
@@ -664,7 +683,7 @@ void OTSmartContract::onFinalReceipt(OTCronItem & theOrigCronItem, const long & 
 	
     OTPseudonym * pServerNym = pCron->GetServerNym();
     OT_ASSERT(NULL != pServerNym);
-    
+    // ------------------------------------------
     const OTString strServerID(GetServerID());
 
     // -------------------------------------------------
@@ -1163,9 +1182,115 @@ void OTSmartContract::ExecuteClauses (mapOfClauses & theClauses)
 
 
 
+// The server calls this when it wants to know if a certain party is allowed to cancel
+// the entire contract (remove it from Cron).
+// This function tries to answer that question by checking for a callback script called: 
+//								callback_party_may_cancel_contract
+// If the callback script exists, then it calls that for the answer. Otherwise the default 
+// return value is: true  (as long as he's a legitimate party.)
+// Script coders may also call "party_may_cancel_contract()" from within a script, which 
+// will call this function, which will trigger the script callback_party_may_cancel_contract(), 
+// etc.
+//
+bool OTSmartContract::CanCancelContract(const std::string str_party_name)
+{
+    OTCron * pCron  = GetCron();
+    OT_ASSERT(NULL != pCron);
+    // ----------------------------------
+    OTPseudonym * pServerNym = pCron->GetServerNym();
+    OT_ASSERT(NULL != pServerNym);	
+    // -------------------------------------------------
+
+	OTParty	* pParty = this->GetParty(str_party_name);
+	
+	if (NULL == pParty)
+	{
+		OTLog::vOutput(0, "OTSmartContract::CanCancelContract: Unable to find this party: %s\n",
+					   str_party_name.size() > 0 ? str_party_name.c_str() : "");
+		return false;
+	}	
+	// Below this point, pParty is good.
+	// ------------------------------------------------
+
+	// ...This WILL check to see if pParty has its Opening number verified as issued.
+	// (If the opening number is >0 then VerifyPartyAuthorization() is smart enough to verify it.)
+	//
+	//
+	// To KNOW that a party has the right to even ASK the script to cancel a contract, MEANS that
+	// (1) the Opening number for that party is still verified as issued, and (2) the party's copy
+	// of the contract is signed by his authorizing agent. VerifyPartyAuthorization() verifies both
+	// of these things.
+	//
+	const OTString strServerID(GetServerID());
+	
+	mapOfNyms	map_Nyms_Already_Loaded;
+	this->RetrieveNymPointers(map_Nyms_Already_Loaded);
+	
+	bool bVerifiedAuthorization = 
+		this->VerifyPartyAuthorization(*pParty, *pServerNym, strServerID, &map_Nyms_Already_Loaded);
+
+	// *****************************************************************************
+	
+	// IF NO CALLBACK IS PROVIDED, The default answer to this function is:
+	//     YES, this party MAY cancel this contract! (Assuming he's a real party,
+	//     which we have verified by this point.)
+	//
+	// But... first we check to see if this OTScriptable has a clause named:
+	//          "callback_party_may_cancel_contract"
+	// ...and if so, we ask the CALLBACK to make the decision instead. This way, people can define
+	// in their own scripts any rules they want about which parties may cancel the contract.
+	
+	//
+	const std::string str_CallbackName(SMARTCONTRACT_CALLBACK_PARTY_MAY_CANCEL);
+	
+	OTClause * pMayExecuteClause = this->GetCallback(str_CallbackName); // See if there is a script clause registered for this callback.
+	
+	if (NULL != pMayExecuteClause) // Found it!
+	{	
+		OTLog::vOutput(0, "OTSmartContract::CanCancelContract: Found script for: %s. Asking...\n", 
+					   SMARTCONTRACT_CALLBACK_PARTY_MAY_CANCEL);
+		
+		// The function we're IN defaults to TRUE, if there's no script available.
+		// However, if the script IS available, then our default return value starts as FALSE.
+		// (The script itself will then have to set it to true, if that's what it wants.)
+		//
+		OTVariable param1		("param_party_name",  str_party_name,	OTVariable::Var_Constant);
+		// -------------------------------------------------------------
+		OTVariable theReturnVal	("return_val",		  false);
+		// -------------------------------------------------------------		
+		mapOfVariables theParameters;
+		theParameters.insert(std::pair<std::string, OTVariable *>("param_party_name",  &param1));
+		
+		// ****************************************
+		
+		if (false == this->ExecuteCallback(*pMayExecuteClause, theParameters, theReturnVal)) // <============================================
+		{
+			OTLog::vError("OTSmartContract::CanCancelContract: Error while running callback script %s, clause %s \n",
+						  SMARTCONTRACT_CALLBACK_PARTY_MAY_CANCEL, pMayExecuteClause->GetName().Get());
+			return false;
+		}
+		else
+		{
+			OTLog::vOutput(0, "OTSmartContract::CanCancelContract: Success executing callback script %s, clause: %s.\n\n", 
+						   SMARTCONTRACT_CALLBACK_PARTY_MAY_CANCEL, pMayExecuteClause->GetName().Get());
+			
+			return theReturnVal.CopyValueBool();
+		}
+		// ****************************************
+	}
+	else 
+	{
+		OTLog::vOutput(0, "OTSmartContract::CanCancelContract: Unable to find script for: %s. Therefore, default return value is: TRUE.\n",
+					   SMARTCONTRACT_CALLBACK_PARTY_MAY_CANCEL);
+	}
+	// *****************************************************************************
+	
+	return true;
+}
 
 
-// TODO!!  This is the first place where the server has to call a script to get a QUESTION ANSWERED!
+
+
 
 
 /// See if theNym has rights to remove this item from Cron.
@@ -1176,120 +1301,86 @@ bool OTSmartContract::CanRemoveItemFromCron(OTPseudonym & theNym)
     // and make sure the Nym who requested it actually has said number (or a related closing number)
     // signed out to him on his last receipt...
     //
-    // Note: override parent method and NOT calling it.
+    // Note: overrode parent method and NOT calling it.
+	// We do it our own way here, and call a script if it's available.
 	//
+	// ------------------------------------------------------------------
 	
-    const OTString strServerID(GetServerID());
-
+	// IT'S ASSUMED that the opening and closing numbers WILL be verified in order to 
+	// insure they are CURRENTLY ISSUED. 
+	//
+	// theNym.VerifyIssuedNum(strServerID, this->GetOpeningNum();
+	// theNym.VerifyIssuedNum(strServerID, this->GetClosingNum();
+	//
+	// The default version OTCronItem does this for theNym, and the PaymentPlan version
+	// has to be a little smarter: it has to figure out whether theNym is the Sender or Recipient,
+	// so that it knows where to verify the numbers from, before allowing theNym to do the removal.
+	//
+	//
+	// ===> THIS version (OTSmartContract) will look up pParty using theNym via:
+	// OTParty * OTScriptable::FindPartyBasedOnNymAsAgent(const OTPseudonym & theNym, OTAgent ** ppAgent=NULL);
+	//
+	// ...Then it WILL check to see if pParty has its Opening number verified as issued.
+	// ...It COULD ALSO loop the partyaccounts and see if pAgent is authorized agent for any of them. 
+	//    (If so, pAcct->VerifyClosingNumber() or pAgent->VerifyClosingNumber() as well.)
+	//	
+	//
+	OTAgent * pAgent = NULL;
+	OTParty * pParty = this->FindPartyBasedOnNymAsAgent(theNym, &pAgent); // This sets a pointer to theNym inside pAgent, so pParty can use it later.
 	
+	if (NULL == pParty)
+	{
+		OTLog::vOutput(0, "OTSmartContract::CanRemoveItemFromCron: Warning: theNym is not an agent "
+					   "for any party to this contract, yet tried to remove it.\n");
+		return false;
+	}
+	OT_ASSERT(NULL != pAgent); // With one comes the other.
 	
-	// Call a SCRIPT HERE to get this answer....
-	
-	
-	
-	
-	
-	
-	
-	// FOR A PAYMENT PLAN, the below is for the SENDER  (Make this the originator)
-	// Note: If Originator MUST be a Party, then maybe remove the recipient section below and make THIS section the loop.
-	
-	
-	if (false == theNym.CompareID(GetSenderUserID()))
-    {
-        OTLog::Output(5, "OTCronItem::CanRemoveItem: theNym is not the originator of this CronItem. "
-                      "(He could be a recipient though, so this is normal.)\n");
-        return false;
-    }
-    
-	
-	
-	
-	
-	// NOTE:  Even once the script authorizes the Nym to do something, the server will still need
-	// to do some kind of similar code (to below).  Regardless of what the script says, the server still
-	// has its own ideas about which numbers should be verified before it authorizes such things.
+	// Below this point, pAgent is not only good, but it contains a secret hidden pointer now to theNym.
+	// That way, when the SCRIPT asks the party to verify issued number, without even having a reference to theNym,
+	// the party will internally still be able to handle it. This always works in cases where it's needed because
+	// we used theNym to look up pParty, and the lookup function is what sets that pointer. That's why I clean
+	// the pointer again after I'm done. (AT THE BOTTOM OF THIS FUNCTION.)
 	// 
-	// (But I still give the script a chance to say yes/no and the server will go that way if it can.)
+	// ----------------------------------------------------
+	// NOTE: You can see OTCronItem looks up the relevant numbers by trying to figure out if theNym
+	// is sender or receiver, and then calling these methods:
+	// if (this->GetCountClosingNumbers() < 1)
+	// if (this->GetRecipientCountClosingNumbers() < 2)
+	// Etc.
 	//
-	
-	
-    // By this point, that means theNym is DEFINITELY the originator (sender)...
-    else if (this->GetCountClosingNumbers() < 1)
-    {
-        OTLog::vOutput(0, "Weird: Sender tried to remove a cron item; expected at least 1 closing number to be available"
-					   "--that wasn't. (Found %d).\n", this->GetCountClosingNumbers());
-        return false;
-    }
-    // ------------------------------------------
-    //
-    const OTString strServerID(GetServerID());
-    
-    if (false == theNym.VerifyIssuedNum(strServerID, this->GetClosingNum()))
-    {
-        OTLog::Output(0, "OTCronItem::CanRemoveItemFromCron: Closing number didn't verify (for removal from cron).\n");
-        return false;
-    }
-	
-    // By this point, we KNOW theNym is the sender, and we KNOW there are the proper number of transaction
-    // numbers available to close. We also know that this cron item really was on the cron object, since
-    // that is where it was looked up from, when this function got called! So I'm pretty sure, at this point,
-    // to authorize removal, as long as the transaction num is still issued to theNym (this check here.)
-    //
-    return theNym.VerifyIssuedNum(strServerID, this->GetOpeningNum());
-	
-	
-	
-	
-	
-	// FOR A PAYMENT PLAN, the below is for the RECIPIENT.  (Make this a loop for the parties.)
-	
-    // Usually the Nym is the originator. (Meaning GetTransactionNum() on this agreement
-    // is still verifiable as an issued number on theNum, and belongs to him.) In that case,
-    // the above call will discover this, and return true.
-    // In other cases, theNym has the right to Remove the item even though theNym didn't originate it.
-    // (Like if he is the recipient -- not the sender -- in a payment plan.) We check such things
-    // HERE in this function (see below.)
-    //
-    if (false == theNym.CompareID(GetRecipientUserID()))
-    {
-        OTLog::Output(0, "OTSmartContract::CanRemoveItemFromCron Weird: Nym tried to remove agreement (payment plan), even "
-                      "though he apparently wasn't the sender OR recipient.\n");
-        return false;
-    }
-    
-    else if (this->GetRecipientCountClosingNumbers() < 2)
-    {
-        OTLog::vOutput(0, "OTSmartContract::CanRemoveItemFromCron Weird: Recipient tried to remove agreement "
-                       "(or payment plan); expected 2 closing numbers to be available--that weren't. (Found %d).\n", 
-                       this->GetRecipientCountClosingNumbers());
-        return false;
-    }
-    
-    if (false == theNym.VerifyIssuedNum(strServerID, this->GetRecipientClosingNum()))
-    {
-        OTLog::Output(0, "OTSmartContract::CanRemoveItemFromCron: Recipient Closing number didn't verify (for removal from cron).\n");
-        return false;
-    }
-    
-    // By this point, we KNOW theNym is the sender, and we KNOW there are the proper number of transaction
-    // numbers available to close. We also know that this cron item really was on the cron object, since
-    // that is where it was looked up from, when this function got called! So I'm pretty sure, at this point,
-    // to authorize removal, as long as the transaction num is still issued to theNym (this check here.)
-    //
-    return theNym.VerifyIssuedNum(strServerID, this->GetRecipientOpeningNum());
-    
-    // Normally this will be all we need to check. The originator will have the transaction
-    // number signed-out to him still, if he is trying to close it. BUT--in some cases, someone
-    // who is NOT the originator can cancel. Like in a payment plan, the sender is also the depositor,
-    // who would normally be the person cancelling the plan. But technically, the RECIPIENT should
-    // also have the ability to cancel that payment plan.  BUT: the transaction number isn't signed
-    // out to the RECIPIENT... In THAT case, the below VerifyIssuedNum() won't work! In those cases,
-    // expect that the special code will be in the subclasses override of this function. (OTSmartContract::CanRemoveItem() etc)
-    
-    // P.S. If you override this function, MAKE SURE to call the parent (OTCronItem::CanRemoveItem) first, 
-    // for the VerifyIssuedNum call above. Only if that fails, do you need to dig deeper...
+	// But OTSmartContract doesn't use those functions, except where it has to in order to
+	// work within the existing OTCronItem system. (That is, the ORIGINATOR who actually activates
+	// a smart contract must still provide at least an opening number, which is stored in the old
+	// system and used by it.) 
+	// Instead, OTSmartContract keeps its own records (via its parent class OTScriptable) of all the
+	// parties to the contract, and all of their opening transaction #s, as well as the accounts that
+	// are party to the contract, and the closing transaction #s for each of those.
+	//
+	// ===> Therefore, when it comes to verifying whether the Nym has CERTAIN RIGHTS regarding the
+	// contract, OTSmartContract doesn't actually use the old system for that, but instead queries its
+	// own, superior system.
+	//
+	// In order to prevent infinite recursion I think I will be adding THAT code into:
+	//      OTSmartContract::CanCancelContract(party_name)
+	//
+	// ----------------------------------------------------------------
 
+			bool		bReturnValue	= false;
+			bool		bPartyHasName	= false;
+	const	std::string str_party_name	= pParty->GetPartyName(&bPartyHasName);
+	
+	if (bPartyHasName && this->CanCancelContract(str_party_name)) // Here is where it calls the script, inside this call.
+	{
+		OTLog::vOutput(0, "OTSmartContract::CanRemoveItemFromCron: Looks like theNym represents a party (%s) and "
+					   "IS allowed by this contract to cancel it whenever he chooses.\n");
+		bReturnValue = true;
+	}
+	// -----------------
+	
+	pParty->ClearTemporaryPointers(); // FindPartyBasedOnNymAsAgent() set the party's agent's nym pointer to theNym. This clears it.
+	
+	return bReturnValue;
 }
 
 
@@ -1397,7 +1488,7 @@ bool OTSmartContract::VerifyThisDetailsAgainstAllPartiesSignedCopies()
 //
 bool OTSmartContract::VerifyAllPartiesSignatures(std::map<std::string, OTPseudonym *> & map_SignersByNymID)
 {
-	
+	/*
     // Verify sender's signature on this.
     if (!this->VerifySignature(SENDER_NYM))
     {
@@ -1413,7 +1504,7 @@ bool OTSmartContract::VerifyAllPartiesSignatures(std::map<std::string, OTPseudon
         return false;
     }
 
-	
+	*/
 	
 	
 	return false;
@@ -1426,6 +1517,7 @@ bool OTSmartContract::VerifyAllPartiesOpeningTransNos()
 	// Loop through all parties.
 	// For each, load the appropriate Nym and verify opening number on appropriate Nym for each party.
 
+	/*
 	
 	const OTString strServerID(GetServerID());
     
@@ -1443,6 +1535,7 @@ bool OTSmartContract::VerifyAllPartiesOpeningTransNos()
             return false;
         }
 
+	 */
 	
 	return false;
 }
@@ -1456,7 +1549,7 @@ bool OTSmartContract::VerifyAllPartiesClosingTransNos()
 	//
 	// Load the appropriate Nym and verify closing numbers on appropriate Nym for each Account.
 	//
-	
+	/*
 	const OTString strServerID(GetServerID());
     
     // Verify Transaction Num and Closing Nums against SENDER's issued list
@@ -1472,7 +1565,7 @@ bool OTSmartContract::VerifyAllPartiesClosingTransNos()
             OTLog::Error("OTSmartContract::VerifyAgreement: Closing transaction number isn't on sender's issued list.\n");
             return false;
         }
-
+	 */
 	
 	
 	

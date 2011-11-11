@@ -168,6 +168,7 @@ public:
 	OTAgent			* GetAgent(const std::string str_agent_name);
 	OTPartyAccount	* GetPartyAccount(const std::string str_acct_name);
 	
+	// ----------------
 	// Verifies that Nym is actually an agent for this agreement.
 	// (Verifies that Nym has signed this agreement, if it's a trade or a payment plan, OR
 	// that the authorizing agent for Nym's party has done so,
@@ -184,6 +185,15 @@ public:
 	// Also verifies that theNym is an agent for theAccount, according to the ACCOUNT.
 	//
 	virtual bool VerifyNymAsAgentForAccount(const OTPseudonym & theNym, const OTAccount & theAccount);
+	
+	// ----------------
+	// Often we endeavor to avoid loading the same Nym twice, and a higher-level function
+	// will ask an OTScriptable for a list of all the Nym pointers that it already has,
+	// so they can be checked for various things if they are already loaded (when they are needed)
+	// without having to load them again in order to check those things, purely out of blindness
+	// to the fact that they had infact already been loaded and were floating around in memory somewhere.
+	//
+	void RetrieveNymPointers(mapOfNyms & map_Nyms_Already_Loaded);
 	
 	// ----------------
 	// Look up all clauses matching a specific hook.
@@ -251,6 +261,11 @@ public:
 	//
 	static bool ValidateName(const std::string str_name);
 
+	bool VerifyPartyAuthorization(OTParty			& theParty,		// The party that supposedly is authorized for this supposedly executed agreement.
+								  OTPseudonym		& theSignerNym,	// For verifying signature on the authorizing Nym, when loading it
+								  const OTString	& strServerID,	// For verifying issued num, (need the serverID the # goes with.)
+								  mapOfNyms			* pmap_ALREADY_LOADED=NULL);
+	
 	// ------------------------
 	
 	OTScriptable();

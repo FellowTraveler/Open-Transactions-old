@@ -261,6 +261,10 @@ public:
 
 	// -------------------------------------
 
+	bool CanCancelContract(const std::string str_party_name);
+
+	// -------------------------------------
+
 	void ExecuteClauses (mapOfClauses & theClauses);
 	
     // -------------------------------------
