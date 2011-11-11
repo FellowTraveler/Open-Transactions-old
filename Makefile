@@ -92,6 +92,7 @@ SSL_INCLUDEDIRS = -I/opt/local/include
 SSL_LIBDIRS = -L/opt/local/lib
 
 EXECUTABLE_INSTALL_FOLDER = /usr/local/bin
+LIBRARY_INSTALL_FOLDER = /usr/local/lib
 
 endif
 
@@ -105,6 +106,7 @@ SSL_INCLUDEDIRS = -I/usr/local/ssl/include
 SSL_LIBDIRS = -L/usr/local/ssl/$(LINUX_LIBDIR)
 
 EXECUTABLE_INSTALL_FOLDER = /usr/local/bin
+LIBRARY_INSTALL_FOLDER = /usr/local/lib
 
 endif
 
@@ -123,6 +125,7 @@ SSL_LIBDIRS = -L/usr/local/lib
 #SSL_LIBDIRS = -L/usr/ports/security/openssl/work/openssl-1.0.0c
 
 EXECUTABLE_INSTALL_FOLDER = /usr/local/bin
+LIBRARY_INSTALL_FOLDER = /usr/local/lib
 
 endif
 
@@ -276,12 +279,18 @@ install:
 	rm -f $(EXECUTABLE_INSTALL_FOLDER)/ot_server && cp ./transaction/transaction.exe $(EXECUTABLE_INSTALL_FOLDER)/ot_server
 	rm -f $(EXECUTABLE_INSTALL_FOLDER)/ot &&  cp ./testwallet/testwallet.exe $(EXECUTABLE_INSTALL_FOLDER)/ot
 
+install_lib:
+	mkdir -p $(LIBRARY_INSTALL_FOLDER)
+	rm -f $(LIBRARY_INSTALL_FOLDER)/libotapi.so && cp ./testwallet/libotapi.so $(LIBRARY_INSTALL_FOLDER)
+
 local:
 	mkdir ~/.ot && cp -r ./ot-sample-data/* ~/.ot && chown -R $(USER) ~/.ot
 
 uninstall:
 	rm -f $(EXECUTABLE_INSTALL_FOLDER)/ot_server
 	rm -f $(EXECUTABLE_INSTALL_FOLDER)/ot
+
+remove_local:
 	rm -f ~/$(SUDO_USER)_OT_BACKUP_2.tgz
 	touch ~/$(SUDO_USER)_OT_BACKUP.tgz
 	mv ~/$(SUDO_USER)_OT_BACKUP.tgz ~/$(SUDO_USER)_OT_BACKUP_2.tgz
