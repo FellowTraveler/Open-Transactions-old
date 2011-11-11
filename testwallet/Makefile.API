@@ -20,6 +20,38 @@ PROGRAM = libOTAPI.a
 DEBUG_PROGRAM = libOTAPId.a
 
 
+# Set root names for LIBS
+
+# --- Common Lisp
+PROGRAM_LISP = otapi-lisp
+PROGRAM_LISP_DBG = otapi-lisp-dbg
+# --- C# (C-Sharp)
+PROGRAM_CSHARP = libotapi-csharp
+PROGRAM_CSHARP_DBG = libotapi-csharp-dbg
+# --- D (D Language)
+PROGRAM_D = libotapi-d
+PROGRAM_D_DBG = libotapi-d-dbg
+# --- JAVA
+PROGRAM_JAVA = libotapi-java
+PROGRAM_JAVA_DBG = libotapi-java-dbg
+# --- PERL5
+PROGRAM_PERL5 = otapi-perl5
+PROGRAM_PERL5_DBG = otapi-perl5-dbg
+# --- PHP5
+PROGRAM_PHP5 = otapi-php5
+PROGRAM_PHP5_dbg = otapi-php5-dbg
+# --- PYTHON
+PROGRAM__PYTHON = _otapi-python
+PROGRAM__PYTHON_DBG = _otapi-python-dbg
+# --- RUBY!
+PROGRAM_RUBY = otapi-ruby
+PROGRAM_RUBY_DBG = otapi-ruby-dbg
+# --- TCL
+PROGRAM_TLC = otapi-tlc
+PROGRAM_TLC_DBG = otapi-tlc-dbg
+
+
+
 # Find out what platform we're on.
 UNAME := $(shell uname -s)
 
@@ -172,26 +204,26 @@ DYNAMIC_OTLIB_CONTENTS = # empty
 
 
 # --- Common Lisp
-LISP_PROGRAM = otapi.so
-LISP_DEBUG_PROGRAM = otapid.so 
+LISP_PROGRAM = $(PROGRAM_LISP).so
+LISP_DEBUG_PROGRAM = $(PROGRAM_LISP_DBG).so 
 LISP_LDFLAGS = -dynamiclib
 
 # --- C# (C-Sharp)
-CSHARP_PROGRAM = libotapi.so  
-CSHARP_DEBUG_PROGRAM = libotapid.so
+CSHARP_PROGRAM = $(PROGRAM_CSHARP).so  
+CSHARP_DEBUG_PROGRAM = $(PROGRAM_CSHARP_DBG).so
 CSHARP_LDFLAGS = -dynamiclib
 
 
 # --- D (D Language)
-D_PROGRAM = libotapi.so  
-D_DEBUG_PROGRAM = libotapid.so
+D_PROGRAM = $(PROGRAM_D).so  
+D_DEBUG_PROGRAM = $(PROGRAM_D_DBG).so
 D_LDFLAGS = -dynamiclib -bundle
 
 
 # --- JAVA
 # -I/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Headers
-JAVA_PROGRAM = libotapi.jnilib  
-JAVA_DEBUG_PROGRAM = libotapid.jnilib  
+JAVA_PROGRAM = $(PROGRAM_JAVA).jnilib  
+JAVA_DEBUG_PROGRAM = $(PROGRAM_JAVA_DBG).jnilib  
 JAVA_INCLUDEDIRS = -I$(shell javaconfig Headers)
 JAVA_LDFLAGS = -framework JavaVM -bundle
 
@@ -203,8 +235,8 @@ JAVA_LDFLAGS = -framework JavaVM -bundle
 #PERL5_LDFLAGS = -bundle $(shell perl -MExtUtils::Embed -e ldopts)
 #DEBUG_LDFLAGS += -bundle $(shell perl -MExtUtils::Embed -e ldopts)
 #
-PERL5_PROGRAM = otapi.bundle 
-PERL5_DEBUG_PROGRAM = otapid.bundle
+PERL5_PROGRAM = $(PROGRAM_PERL5).bundle 
+PERL5_DEBUG_PROGRAM = $(PROGRAM_PERL5_DBG).bundle
 PERL5_INCLUDEDIRS = # empty
 PERL5_CFLAGS =  -bundle -arch x86_64  -g -pipe -fno-common -DPERL_DARWIN -fno-strict-aliasing  -no-cpp-precomp -I/opt/local/include  -I/System/Library/Perl/5.10.0/darwin-thread-multi-2level/CORE
 PERL5_LDFLAGS = -bundle -arch x86_64 -L/opt/local/lib  -L/System/Library/Perl/5.10.0/darwin-thread-multi-2level/CORE -lperl -ldl -lm -lutil -lc
@@ -213,8 +245,8 @@ PERL5_LDFLAGS = -bundle -arch x86_64 -L/opt/local/lib  -L/System/Library/Perl/5.
 # --- PHP5
 #/usr/libexec/apache2/libphp5.so
 #
-PHP5_PROGRAM = otapi.so
-PHP5_DEBUG_PROGRAM = otapid.so
+PHP5_PROGRAM = $(PROGRAM_PHP5).so
+PHP5_DEBUG_PROGRAM = $(PROGRAM_PHP5_DBG).so
 PHP5_INCLUDEDIRS = $(shell php-config --includes) 
 PHP5_LDFLAGS = -bundle_loader /usr/libexec/apache2/libphp5.so -flat_namespace -bundle
 
@@ -230,21 +262,21 @@ PHP5_LDFLAGS = -bundle_loader /usr/libexec/apache2/libphp5.so -flat_namespace -b
 #LDFLAGS += -dynamiclib -lpython
 #DEBUG_LDFLAGS += -dynamiclib -lpython
 #
-PYTHON_PROGRAM = _otapi.so
-PYTHON_DEBUG_PROGRAM = _otapid.so
+PYTHON_PROGRAM = $(PROGRAM__PYTHON).so
+PYTHON_DEBUG_PROGRAM = $(PROGRAM__PYTHON_DBG).so
 PYTHON_INCLUDEDIRS = -I/usr/include/python2.6
 PYTHON_LIBDIRS = -L/usr/lib/python2.6
 PYTHON_LDFLAGS = -dynamiclib -lpython
 
 # --- RUBY!
-RUBY_PROGRAM = otapi.bundle
-RUBY_DEBUG_PROGRAM = otapid.bundle
+RUBY_PROGRAM = $(PROGRAM_RUBY).bundle
+RUBY_DEBUG_PROGRAM = $(PROGRAM_RUBY_DBG).bundle
 RUBY_INCLUDEDIRS = -I$(shell ruby -e 'require "rbconfig"; puts RbConfig::CONFIG["topdir"]') 
 RUBY_LDFLAGS = -dynamiclib $(shell ruby -e 'require "rbconfig"; puts RbConfig::CONFIG["LIBRUBYARG"]')
 
 # --- TCL
-TCL_PROGRAM = otapi.so
-TCL_DEBUG_PROGRAM = otapid.so
+TCL_PROGRAM = $(PROGRAM_TLC).so
+RUBY_DEBUG_PROGRAM = $(PROGRAM_TLC_DBG).so
 TCL_INCLUDEDIRS = # empty
 TCL_LDFLAGS = -dynamiclib -framework Tcl
 
@@ -262,23 +294,23 @@ C_COMPILER = gcc
 DYNAMIC_OTLIB_CONTENTS = DYNAMIC_OTLIB=1
 
 # --- Common Lisp
-LISP_PROGRAM = otapi.so
-LISP_DEBUG_PROGRAM = otapid.so 
+LISP_PROGRAM = $(PROGRAM_LISP).so
+LISP_DEBUG_PROGRAM = $(PROGRAM_LISP_DBG).so 
 LISP_LDFLAGS = -shared
 
 # --- C# (C-Sharp)
-CSHARP_PROGRAM = libotapi.so  
-CSHARP_DEBUG_PROGRAM = libotapid.so
+CSHARP_PROGRAM = $(PROGRAM_CSHARP).so  
+CSHARP_DEBUG_PROGRAM = $(PROGRAM_CSHARP_DBG).so
 CSHARP_LDFLAGS = -shared
 
 # --- D (D Language)
-D_PROGRAM = libotapi.so  
-D_DEBUG_PROGRAM = libotapid.so
+D_PROGRAM = $(PROGRAM_D).so  
+D_DEBUG_PROGRAM = $(PROGRAM_D_DBG).so
 D_LDFLAGS = -shared
 
 # --- JAVA
-JAVA_PROGRAM = libotapi.so
-JAVA_DEBUG_PROGRAM = libotapid.so 
+JAVA_PROGRAM = $(PROGRAM_JAVA).so
+JAVA_DEBUG_PROGRAM = $(PROGRAM_JAVA_DBG).so 
 JAVA_INCLUDEDIRS = -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/linux
 JAVA_LDFLAGS = -shared
 
@@ -295,8 +327,8 @@ JAVA_LDFLAGS = -shared
 #PERL5_CFLAGS = -shared -D_REENTRANT -D_GNU_SOURCE -DDEBIAN -fno-strict-aliasing -pipe -I/usr/local/include -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64
 #PERL5_LDFLAGS = -shared -L/usr/local/$(LINUX_LIBDIR)
 #
-PERL5_PROGRAM = otapi.so 
-PERL5_DEBUG_PROGRAM = otapid.so
+PERL5_PROGRAM = $(PROGRAM_PERL5).so 
+PERL5_DEBUG_PROGRAM = $(PROGRAM_PERL5_DBG).so
 PERL5_INCLUDEDIRS = -I/usr/$(LINUX_LIBDIR)/perl/5.10.0/CORE
 PERL5_CFLAGS = -shared -D_REENTRANT -D_GNU_SOURCE -DDEBIAN -fno-strict-aliasing -pipe -I/usr/local/include -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64
 PERL5_LDFLAGS = -shared -L/usr/local/$(LINUX_LIBDIR)
@@ -306,8 +338,8 @@ PERL5_LDFLAGS = -shared -L/usr/local/$(LINUX_LIBDIR)
 #/usr/libexec/apache2/libphp5.so
 #PHP5_INCLUDEDIRS = `php-config --includes`
 #
-PHP5_PROGRAM = otapi.so
-PHP5_DEBUG_PROGRAM = otapid.so
+PHP5_PROGRAM = $(PROGRAM_PHP5).so
+PHP5_DEBUG_PROGRAM = $(PROGRAM_PHP5_DBG).so
 PHP5_INCLUDEDIRS = `php-config --includes`
 PHP5_LDFLAGS = -shared
 
@@ -317,8 +349,8 @@ PHP5_LDFLAGS = -shared
 #PYTHON_INCLUDEDIRS = -I/usr/include/python2.5
 #PYTHON_LIBDIRS = -L/usr/$(LINUX_LIBDIR)/python2.5
 #
-PYTHON_PROGRAM = _otapi.so
-PYTHON_DEBUG_PROGRAM = _otapid.so
+PYTHON_PROGRAM = $(PROGRAM__PYTHON).so
+PYTHON_DEBUG_PROGRAM = $(PROGRAM__PYTHON_DBG).so
 PYTHON_CLFAGS = $(shell python-config --cflags) 
 PYTHON_INCLUDEDIRS = -I/usr/include/python2.5
 PYTHON_LIBDIRS = -L/usr/$(LINUX_LIBDIR)/python2.5
@@ -326,8 +358,8 @@ PYTHON_LDFLAGS = -shared $(shell python-config --ldflags)
 
 
 # --- RUBY!
-RUBY_PROGRAM = otapi.so
-RUBY_DEBUG_PROGRAM = otapid.so
+RUBY_PROGRAM = $(PROGRAM_RUBY).so
+RUBY_DEBUG_PROGRAM = $(PROGRAM_RUBY_DBG).so
 RUBY_INCLUDEDIRS = -I$(shell ruby -e 'require "rbconfig"; puts RbConfig::CONFIG["topdir"]') 
 RUBY_LDFLAGS = -shared $(shell ruby -e 'require "rbconfig"; puts RbConfig::CONFIG["LIBRUBYARG"]')
 
@@ -336,9 +368,9 @@ RUBY_LDFLAGS = -shared $(shell ruby -e 'require "rbconfig"; puts RbConfig::CONFI
 # Maybe the include directory is wrong for your system?
 # use this to find tcl.h:
 # find / tcl.h | grep tcl.h
-# Then make sure the directory below is correct for your systemÉ.
-TCL_PROGRAM = otapi.so
-TCL_DEBUG_PROGRAM = otapid.so
+# Then make sure the directory below is correct for your systemï¿½.
+TCL_PROGRAM = $(PROGRAM_TLC).so
+RUBY_DEBUG_PROGRAM = $(PROGRAM_TLC_DBG).so
 TCL_INCLUDEDIRS = -I/usr/include/tcl8.4
 TCL_LDFLAGS = -shared
 
@@ -356,23 +388,23 @@ ifeq ($(PLATFORM), freebsd)
 DYNAMIC_OTLIB_CONTENTS = # empty
 
 # --- Common Lisp
-LISP_PROGRAM = otapi.so
-LISP_DEBUG_PROGRAM = otapid.so 
+LISP_PROGRAM = $(PROGRAM_LISP).so
+LISP_DEBUG_PROGRAM = $(PROGRAM_LISP_DBG).so 
 LISP_LDFLAGS = -shared
 
 # --- C# (C-Sharp)
-CSHARP_PROGRAM = libotapi.so  
-CSHARP_DEBUG_PROGRAM = libotapid.so
+CSHARP_PROGRAM = $(PROGRAM_CSHARP).so  
+CSHARP_DEBUG_PROGRAM = $(PROGRAM_CSHARP_DBG).so
 CSHARP_LDFLAGS = -shared
 
 # --- D (D Language)
-D_PROGRAM = libotapi.so  
-D_DEBUG_PROGRAM = libotapid.so
+D_PROGRAM = $(PROGRAM_D).so  
+D_DEBUG_PROGRAM = $(PROGRAM_D_DBG).so
 D_LDFLAGS = -shared
 
 # --- JAVA
-JAVA_PROGRAM = libotapi.so
-JAVA_DEBUG_PROGRAM = libotapid.so 
+JAVA_PROGRAM = $(PROGRAM_JAVA).so
+JAVA_DEBUG_PROGRAM = $(PROGRAM_JAVA_DBG).so 
 JAVA_INCLUDEDIRS = # empty
 JAVA_LDFLAGS = -shared
 
@@ -389,8 +421,8 @@ JAVA_LDFLAGS = -shared
 #PERL5_CFLAGS = -shared -D_REENTRANT -D_GNU_SOURCE -DDEBIAN -fno-strict-aliasing -pipe -I/usr/local/include -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64
 #PERL5_LDFLAGS = -shared -L/usr/local/lib
 #
-PERL5_PROGRAM = otapi.bundle 
-PERL5_DEBUG_PROGRAM = otapid.bundle
+PERL5_PROGRAM = $(PROGRAM_PERL5).bundle 
+PERL5_DEBUG_PROGRAM = $(PROGRAM_PERL5_DBG).bundle
 PERL5_INCLUDEDIRS = -I/usr/lib/perl/5.10.0/CORE
 PERL5_CFLAGS = -shared -D_REENTRANT -D_GNU_SOURCE -DDEBIAN -fno-strict-aliasing -pipe -I/usr/local/include -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64
 PERL5_LDFLAGS = -shared -L/usr/local/lib
@@ -400,8 +432,8 @@ PERL5_LDFLAGS = -shared -L/usr/local/lib
 #/usr/libexec/apache2/libphp5.so
 #PHP5_INCLUDEDIRS = `php-config --includes`
 #
-PHP5_PROGRAM = otapi.so
-PHP5_DEBUG_PROGRAM = otapid.so
+PHP5_PROGRAM = $(PROGRAM_PHP5).so
+PHP5_DEBUG_PROGRAM = $(PROGRAM_PHP5_DBG).so
 PHP5_INCLUDEDIRS = `php-config --includes`
 PHP5_LDFLAGS = -shared
 
@@ -411,8 +443,8 @@ PHP5_LDFLAGS = -shared
 #PYTHON_INCLUDEDIRS = -I/usr/include/python2.5
 #PYTHON_LIBDIRS = -L/usr/lib/python2.5
 #
-PYTHON_PROGRAM = _otapi.so
-PYTHON_DEBUG_PROGRAM = _otapid.so
+PYTHON_PROGRAM = $(PROGRAM__PYTHON).so
+PYTHON_DEBUG_PROGRAM = $(PROGRAM__PYTHON_DBG).so
 PYTHON_CLFAGS = $(shell python-config --cflags) 
 PYTHON_INCLUDEDIRS = -I/usr/include/python2.5
 PYTHON_LIBDIRS = -L/usr/lib/python2.5
@@ -420,8 +452,8 @@ PYTHON_LDFLAGS = -shared $(shell python-config --ldflags)
 
 
 # --- RUBY!
-RUBY_PROGRAM = otapi.so
-RUBY_DEBUG_PROGRAM = otapid.so
+RUBY_PROGRAM = $(PROGRAM_RUBY).so
+RUBY_DEBUG_PROGRAM = $(PROGRAM_RUBY_DBG).so
 RUBY_INCLUDEDIRS = -I$(shell ruby -e 'require "rbconfig"; puts RbConfig::CONFIG["topdir"]') 
 RUBY_LDFLAGS = -shared $(shell ruby -e 'require "rbconfig"; puts RbConfig::CONFIG["LIBRUBYARG"]')
 
@@ -430,9 +462,9 @@ RUBY_LDFLAGS = -shared $(shell ruby -e 'require "rbconfig"; puts RbConfig::CONFI
 # Maybe the include directory is wrong for your system?
 # use this to find tcl.h:
 # find / tcl.h | grep tcl.h
-# Then make sure the directory below is correct for your systemÉ.
-TCL_PROGRAM = otapi.so
-TCL_DEBUG_PROGRAM = otapid.so
+# Then make sure the directory below is correct for your systemï¿½.
+TCL_PROGRAM = $(PROGRAM_TLC).so
+RUBY_DEBUG_PROGRAM = $(PROGRAM_TLC_DBG).so
 TCL_INCLUDEDIRS = -I/usr/include/tcl8.4
 TCL_LDFLAGS = -shared
 

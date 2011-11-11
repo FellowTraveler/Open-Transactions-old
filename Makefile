@@ -16,7 +16,7 @@
 # (gmake on FreeBSD)
 #
 
-
+VERSION := $(shell cat VERSION)
 
 OT_PLATFORM := ___OT_UNKNOWN_PLATFORM___
 
@@ -278,10 +278,10 @@ install:
 	mkdir -p $(EXECUTABLE_INSTALL_FOLDER)
 	rm -f $(EXECUTABLE_INSTALL_FOLDER)/ot_server && cp ./transaction/transaction.exe $(EXECUTABLE_INSTALL_FOLDER)/ot_server
 	rm -f $(EXECUTABLE_INSTALL_FOLDER)/ot &&  cp ./testwallet/testwallet.exe $(EXECUTABLE_INSTALL_FOLDER)/ot
-
-install_lib:
 	mkdir -p $(LIBRARY_INSTALL_FOLDER)
-	rm -f $(LIBRARY_INSTALL_FOLDER)/libotapi.so && cp ./testwallet/libotapi.so $(LIBRARY_INSTALL_FOLDER)
+	cd testwallet && ls -d *.so | sed 's/\(.*\)$/cp "&" "\1.$(VERSION)"/' | sh
+	cd testwallet && mv *.$(VERSION) $(LIBRARY_INSTALL_FOLDER)
+	ldconfig -n $(LIBRARY_INSTALL_FOLDER)
 
 local:
 	mkdir ~/.ot && cp -r ./ot-sample-data/* ~/.ot && chown -R $(USER) ~/.ot
