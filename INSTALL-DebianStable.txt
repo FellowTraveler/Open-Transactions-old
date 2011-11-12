@@ -46,6 +46,14 @@ Pin-Priority: 200
 ---- install php5 ----
 # aptitude install php5-dev
 
+---- install python2.5 ----
+# aptitude install python2.5-dev
+
+---- install ruby1.8 ----
+# aptitude install ruby1.8-dev
+
+
+
 
 Now you have all the dependencies for compiling and installing OT.
 
