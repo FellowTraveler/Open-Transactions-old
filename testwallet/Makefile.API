@@ -23,7 +23,7 @@ DEBUG_PROGRAM = libOTAPId.a
 # Set root names for LIBS
 
 # --- Common Lisp
-PROGRAM_LISP = otapi-lisp
+PROGRAM_LISP = libotapi-lisp
 PROGRAM_LISP_DBG = otapi-lisp-dbg
 # --- C# (C-Sharp)
 PROGRAM_CSHARP = libotapi-csharp
@@ -35,19 +35,19 @@ PROGRAM_D_DBG = libotapi-d-dbg
 PROGRAM_JAVA = libotapi-java
 PROGRAM_JAVA_DBG = libotapi-java-dbg
 # --- PERL5
-PROGRAM_PERL5 = otapi-perl5
+PROGRAM_PERL5 = libotapi-perl5
 PROGRAM_PERL5_DBG = otapi-perl5-dbg
 # --- PHP5
-PROGRAM_PHP5 = otapi-php5
+PROGRAM_PHP5 = libotapi-php5
 PROGRAM_PHP5_dbg = otapi-php5-dbg
 # --- PYTHON
-PROGRAM__PYTHON = _otapi-python
+PROGRAM__PYTHON = libotapi-python
 PROGRAM__PYTHON_DBG = _otapi-python-dbg
 # --- RUBY!
-PROGRAM_RUBY = otapi-ruby
+PROGRAM_RUBY = libotapi-ruby
 PROGRAM_RUBY_DBG = otapi-ruby-dbg
 # --- TCL
-PROGRAM_TLC = otapi-tlc
+PROGRAM_TLC = libotapi-tlc
 PROGRAM_TLC_DBG = otapi-tlc-dbg
 
 
@@ -766,30 +766,36 @@ OTAPI_csharp.o: OTAPI_csharp.cpp
 	cp OTAPI_csharp.h OTAPI_wrap.h
 	$(CXX) $(CFLAGS) -o OTAPI_csharp.o OTAPI_csharp.cpp
 
+# D (D Language)
 OTAPI_d.o: OTAPI_d.cpp 
 	cp OTAPI_d.h OTAPI_wrap.h
 	$(CXX) $(CFLAGS) -o OTAPI_d.o OTAPI_d.cpp
 
+# JAVA
 OTAPI_java.o: OTAPI_java.cpp
 	cp OTAPI_java.h OTAPI_wrap.h
 	$(CXX) $(CFLAGS) -o OTAPI_java.o OTAPI_java.cpp
-
+# PERL5
 OTAPI_perl5.o: OTAPI_perl5.cpp
 	cp OTAPI_perl5.h OTAPI_wrap.h
 	$(CXX) $(CFLAGS) -o OTAPI_perl5.o OTAPI_perl5.cpp
 
+# PHP5
 OTAPI_php.o: OTAPI_php.cpp 
 	cp OTAPI_php.h OTAPI_wrap.h
 	$(CXX) $(CFLAGS) -o OTAPI_php.o OTAPI_php.cpp
 
+# PYTHON
 OTAPI_python.o: OTAPI_python.cpp
 	cp OTAPI_python.h OTAPI_wrap.h
 	$(CXX) $(CFLAGS) -o OTAPI_python.o OTAPI_python.cpp
 
+# RUBY!
 OTAPI_ruby.o: OTAPI_ruby.cpp
 	cp OTAPI_ruby.h OTAPI_wrap.h
 	$(CXX) $(CFLAGS) -o OTAPI_ruby.o OTAPI_ruby.cpp
 
+# TCL
 OTAPI_tcl.o: OTAPI_tcl.cpp
 	cp OTAPI_tcl.h OTAPI_wrap.h
 	$(CXX) $(CFLAGS) -o OTAPI_tcl.o OTAPI_tcl.cpp
