@@ -253,9 +253,8 @@ extra_tools:
 	$(EXTRA_RPC_TARGETS1)
 	$(EXTRA_RPC_TARGETS2)
 
-
 all: server test_wallet lisp csharp java perl5 python php5 ruby tlc c extra_tools
-
+	@$(ECHO) '$(INFO_COLOR)Done!$(NO_COLOR)'
 
 debug:
 	cd OTLib && $(OT_MAKE_PLATFORM_INC_LIBS)  debug
@@ -282,6 +281,7 @@ debugtcp:
 	$(EXTRA_DEBUG_TARGETS2)
 
 install:
+	@$(ECHO) '$(INFO_COLOR)Installing Compiled Binaries$(NO_COLOR)'
 	mkdir -p $(EXECUTABLE_INSTALL_FOLDER)
 	find ./ -type f -wholename "./transaction/transaction.exe" | sed -E 's~.*~rm -f "$(EXECUTABLE_INSTALL_FOLDER)/ot_server"~' | sh
 	find ./ -type f -wholename "./transaction/transaction.exe" | sed -E 's~.*~cp "&" "$(EXECUTABLE_INSTALL_FOLDER)/ot_server"~' | sh
@@ -301,43 +301,46 @@ install:
 	cd $(LIBRARY_INSTALL_FOLDER) && find ./ -type f -name "*\libotapi*.so.$(VERSION)" | sed 's~.*/~~' | sed -E 's~^([^\.]+)\..*~chown root:staff "&" "\1.so"~' | sh
 	cd $(LIBRARY_INSTALL_FOLDER) && find ./ -type f -name "*\libotapi*.so.$(VERSION)" | sed 's~.*/~~' | sed -E 's~^([^\.]+)\..*~chmod 664 "&" "\1.so"~' | sh
 	ldconfig -n $(LIBRARY_INSTALL_FOLDER)
-
-#	cd testwallet && cp *.so* $(LIBRARY_INSTALL_FOLDER)
-#	cd $(LIBRARY_INSTALL_FOLDER) && find ./ -type f -name "*\libotapi*.so*" | sed 's~.*/~~' | sed -E 's~^([^\.]+)\..*~mv "&" "\1.so.$(VERSION)"~' | sh
-#	sed 's~.*/~~' | sed -E 's~.*~cp "&" "$(LIBRARY_INSTALL_FOLDER)/&"~' | sh
-#	cd $(LIBRARY_INSTALL_FOLDER) && chown root:staff libotapi*.so* && chmod 664 libotapi*.so*
+	@$(ECHO) '$(INFO_COLOR)Done!$(NO_COLOR)'
 
 local:
+	@$(ECHO) '$(INFO_COLOR)Installing Local User Data$(NO_COLOR)'
 	mkdir ~/.ot && cp -r ./ot-sample-data/* ~/.ot && chown -R $(USER) ~/.ot
+	@$(ECHO) '$(INFO_COLOR)Done!$(NO_COLOR)'
 
 uninstall:
+	@$(ECHO) '$(INFO_COLOR)Cleaning Instaled Binaries$(NO_COLOR)'
 	cd $(EXECUTABLE_INSTALL_FOLDER) && rm -f ot_server ot
 	cd $(LIBRARY_INSTALL_FOLDER) && rm -f *libotapi*.so*
+	@$(ECHO) '$(INFO_COLOR)Done!$(NO_COLOR)'
 
 remove_local:
-	rm -f ~/$(SUDO_USER)_OT_BACKUP_2.tgz
-	touch ~/$(SUDO_USER)_OT_BACKUP.tgz
-	mv ~/$(SUDO_USER)_OT_BACKUP.tgz ~/$(SUDO_USER)_OT_BACKUP_2.tgz
-	tar -czvf ~/$(SUDO_USER)_OT_BACKUP.tgz ~/.ot
-	rm -rf ~/.ot
+	@$(ECHO) '$(ERROR_COLOR)Skiping Removing User Data... Not-Implemented$(NO_COLOR)'
+#	@$(ECHO) '$(INFO_COLOR)Removing User Data$(NO_COLOR)'
+#	rm -f ~/$(SUDO_USER)_OT_BACKUP_2.tgz
+#	touch ~/$(SUDO_USER)_OT_BACKUP.tgz
+#	mv ~/$(SUDO_USER)_OT_BACKUP.tgz ~/$(SUDO_USER)_OT_BACKUP_2.tgz
+#	tar -czvf ~/$(SUDO_USER)_OT_BACKUP.tgz ~/.ot
+#	rm -rf ~/.ot
 
 clean:
-	cd OTLib && $(OT_MAKE_PLATFORM_INC_LIBS)  clean
-	cd transaction && $(OT_MAKE_PLATFORM_INC_LIBS)  clean
-	cd transaction && $(OT_MAKE_PLATFORM_INC_LIBS)  TRANSPORT=ZMQ clean
-	cd testwallet && $(OT_MAKE) -f Makefile.API PLATFORM=$(OT_PLATFORM) $(OT_SSL_INCLUDE_AND_LIBS) LANGUAGE=lisp clean
-	cd testwallet && $(OT_MAKE) -f Makefile.API PLATFORM=$(OT_PLATFORM) $(OT_SSL_INCLUDE_AND_LIBS) LANGUAGE=csharp clean
-	cd testwallet && $(OT_MAKE) -f Makefile.API PLATFORM=$(OT_PLATFORM) $(OT_SSL_INCLUDE_AND_LIBS) LANGUAGE=d clean
-	cd testwallet && $(OT_MAKE) -f Makefile.API PLATFORM=$(OT_PLATFORM) $(OT_SSL_INCLUDE_AND_LIBS) LANGUAGE=java clean
-	cd testwallet && $(OT_MAKE) -f Makefile.API PLATFORM=$(OT_PLATFORM) $(OT_SSL_INCLUDE_AND_LIBS) LANGUAGE=perl5 clean
-	cd testwallet && $(OT_MAKE) -f Makefile.API PLATFORM=$(OT_PLATFORM) $(OT_SSL_INCLUDE_AND_LIBS) LANGUAGE=python clean
-	cd testwallet && $(OT_MAKE) -f Makefile.API PLATFORM=$(OT_PLATFORM) $(OT_SSL_INCLUDE_AND_LIBS) LANGUAGE=php5 clean
-	cd testwallet && $(OT_MAKE) -f Makefile.API PLATFORM=$(OT_PLATFORM) $(OT_SSL_INCLUDE_AND_LIBS) LANGUAGE=ruby clean
-	cd testwallet && $(OT_MAKE) -f Makefile.API PLATFORM=$(OT_PLATFORM) $(OT_SSL_INCLUDE_AND_LIBS) LANGUAGE=tlc clean
-	cd testwallet && $(OT_MAKE) -f Makefile.API PLATFORM=$(OT_PLATFORM) $(OT_SSL_INCLUDE_AND_LIBS) LANGUAGE=c clean
-	cd testwallet && rm -f *.so*
-	cd testwallet && $(OT_MAKE_PLATFORM_INC_LIBS)  clean
-	cd testwallet && $(OT_MAKE_PLATFORM_INC_LIBS)  TRANSPORT=ZMQ clean
-	$(EXTRA_CLEAN_TARGETS1)
-	$(EXTRA_CLEAN_TARGETS2)
-
+	@$(ECHO) '$(INFO_COLOR)Cleaning OT Source...$(NO_COLOR)'
+	@cd OTLib && $(OT_MAKE_PLATFORM_INC_LIBS)  clean
+	@cd transaction && $(OT_MAKE_PLATFORM_INC_LIBS)  clean
+	@cd transaction && $(OT_MAKE_PLATFORM_INC_LIBS)  TRANSPORT=ZMQ clean
+	@cd testwallet && $(OT_MAKE) -f Makefile.API PLATFORM=$(OT_PLATFORM) $(OT_SSL_INCLUDE_AND_LIBS) LANGUAGE=lisp clean
+	@cd testwallet && $(OT_MAKE) -f Makefile.API PLATFORM=$(OT_PLATFORM) $(OT_SSL_INCLUDE_AND_LIBS) LANGUAGE=csharp clean
+	@cd testwallet && $(OT_MAKE) -f Makefile.API PLATFORM=$(OT_PLATFORM) $(OT_SSL_INCLUDE_AND_LIBS) LANGUAGE=d clean
+	@cd testwallet && $(OT_MAKE) -f Makefile.API PLATFORM=$(OT_PLATFORM) $(OT_SSL_INCLUDE_AND_LIBS) LANGUAGE=java clean
+	@cd testwallet && $(OT_MAKE) -f Makefile.API PLATFORM=$(OT_PLATFORM) $(OT_SSL_INCLUDE_AND_LIBS) LANGUAGE=perl5 clean
+	@cd testwallet && $(OT_MAKE) -f Makefile.API PLATFORM=$(OT_PLATFORM) $(OT_SSL_INCLUDE_AND_LIBS) LANGUAGE=python clean
+	@cd testwallet && $(OT_MAKE) -f Makefile.API PLATFORM=$(OT_PLATFORM) $(OT_SSL_INCLUDE_AND_LIBS) LANGUAGE=php5 clean
+	@cd testwallet && $(OT_MAKE) -f Makefile.API PLATFORM=$(OT_PLATFORM) $(OT_SSL_INCLUDE_AND_LIBS) LANGUAGE=ruby clean
+	@cd testwallet && $(OT_MAKE) -f Makefile.API PLATFORM=$(OT_PLATFORM) $(OT_SSL_INCLUDE_AND_LIBS) LANGUAGE=tlc clean
+	@cd testwallet && $(OT_MAKE) -f Makefile.API PLATFORM=$(OT_PLATFORM) $(OT_SSL_INCLUDE_AND_LIBS) LANGUAGE=c clean
+	@cd testwallet && rm -f *.so*
+	@cd testwallet && $(OT_MAKE_PLATFORM_INC_LIBS)  clean
+	@cd testwallet && $(OT_MAKE_PLATFORM_INC_LIBS)  TRANSPORT=ZMQ clean
+	@$(EXTRA_CLEAN_TARGETS1)
+	@$(EXTRA_CLEAN_TARGETS2)
+	@$(ECHO) '$(INFO_COLOR)Done!$(NO_COLOR)'
