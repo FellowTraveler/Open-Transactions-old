@@ -785,6 +785,21 @@ bool OTServer::SaveMainFileToString(OTString & strMainFile)
 								strBasketID.Get(), strBasketAcctID.Get(), strBasketContractID.Get());
 	}
 	
+	
+	// TODO BUG!!  The map of VOUCHER ACCOUNTS is SUPPOSED to be serialized here!
+	// Because it's NOT, that means a new voucher account will be generated every time, AND
+	// the account won't be found for vouchers that were issued before that time!
+	//
+	// NEED TO MAKE SURE VOUCHER ACCOUNT ID's ARE SERIALIZED, MAPPED TO ASSET TYPE ID.
+	// Infact, I should make a CLASS to do this, since I also need it for stashes.
+	//
+	// Also todo: Look at the cash code and make sure this same bug isn't here.
+	//
+	// Also todo BUG: When the voucher account is added, the server main file is SAVED FIRST, and only
+	// THEN is the voucher account added!  Meaning even if this serialization code here is fixed, it STILL
+	// wouldn't get saved until the next call to SaveMainFile()!!  So fix that as well.
+	//
+	
 	/*
 	 FOR_EACH(mapOfNyms, m_mapNyms)
 	 {		

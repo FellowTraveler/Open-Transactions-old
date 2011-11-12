@@ -310,6 +310,8 @@ public:
     //
     bool GetPartyID(OTIdentifier& theOutput) const;
 	
+	OTParty * GetParty() { return m_pForParty; }
+	
     // IDEA: Put a Nym in the Nyms folder for each entity. While it may
     // not have a public key in the pubkey folder, or embedded within it,
     // it can still have information about the entity or role related to it,
@@ -433,11 +435,14 @@ public:
 	void ClearTemporaryPointers() { m_pAccount = NULL; }
 	
 	// -----------
-	
+	OTParty * GetParty() { return m_pForParty; }
 	void SetParty(OTParty & theOwnerParty); // This happens when the partyaccount is added to the party. (so I have a ptr back)
 
-	const OTString & GetName()		{ return m_strName; } // account's name as used in a script.
-	const OTString & GetAgentName()	{ return m_strAgentName; } // account's name as used in a script.
+	const OTString & GetName()		{ return m_strName; }		// account's name as used in a script.
+	const OTString & GetAgentName()	{ return m_strAgentName; }	// agent's name as used in a script.
+	const OTString & GetAcctID()	{ return m_strAcctID; }		// account's ID as used internal to OT.
+	
+	OTAgent * GetAuthorizedAgent() const;
 	
 	bool IsAccount(OTAccount & theAccount) const;
 	
@@ -781,6 +786,58 @@ typedef std::map<std::string, OTClause *> mapOfClauses;
 
 
 
+// ------------------------------------------------------------
+
+class OTStashItem
+{
+	OTString	m_strAssetTypeID;
+	long		m_lAmount;
+public:
+	long GetAmount() const { return m_lAmount; }
+	void SetAmount(const long lAmount) { m_lAmount = lAmount; }
+
+	const OTString & GetAssetTypeID() { return m_strAssetTypeID; }
+	
+	//------------------
+	OTStashItem();
+	OTStashItem(const OTString & strAssetTypeID, const long lAmount=0);
+	OTStashItem(const OTIdentifier & theAssetTypeID, const long lAmount=0);
+	virtual ~OTStashItem();
+};
+
+// Each item is mapped by AssetTypeID
+//
+typedef std::map<std::string, OTStashItem *> mapOfStashItems;
+
+
+
+class OTStash
+{
+	std::string		m_str_stash_name;
+	
+	mapOfStashItems	m_mapStashItems;	// map of stash items by asset type ID. owned.
+public:
+	// -------------------------------
+	
+	OTStashItem *	GetStash(const std::string & str_asset_type_id);
+	
+	long			GetAmount(const std::string str_asset_type_id);
+	
+	bool			CreditStash(const std::string str_asset_type_id, const long &lAmount);
+	bool			DebitStash(const std::string str_asset_type_id, const long &lAmount);
+	
+	// -------------------------------
+	OTStash();
+	OTStash(const std::string str_stash_name) 
+		{ m_str_stash_name = str_stash_name; }
+	OTStash(const OTString & strAssetTypeID, const long lAmount=0);
+	OTStash(const OTIdentifier & theAssetTypeID, const long lAmount=0);
+	virtual ~OTStash();
+};
+
+// Each stash is mapped by Stash Name
+//
+typedef std::map<std::string, OTStash *> mapOfStashes;  // Used in OTSmartContract.
 
 
 // ------------------------------------------------------------

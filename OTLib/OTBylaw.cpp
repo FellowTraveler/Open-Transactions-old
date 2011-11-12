@@ -718,6 +718,31 @@ OTPartyAccount::OTPartyAccount(const OTString & strName, const OTString & strAge
 }
 
 
+
+// Every partyaccount has its own authorized agent's name.
+// Use that name to look up the agent ON THE PARTY (I already 
+// have a pointer to my owner party.)
+//
+OTAgent * OTPartyAccount::GetAuthorizedAgent() const
+{
+	OT_ASSERT(NULL != m_pForParty);
+	
+	if (!m_strAgentName.Exists())
+	{
+		OTLog::Error("OTPartyAccount::GetAuthorizedAgent: Error: Authorized agent name (for this account) is blank!\n");
+		return NULL;
+	}
+	// -------------------------------------
+	const std::string str_agent_name = m_strAgentName.Get();
+	
+	OTAgent * pAgent = m_pForParty->GetAgent(str_agent_name);
+
+	return pAgent;
+}
+
+
+
+
 // This happens when the partyaccount is added to the party.
 //
 void OTPartyAccount::SetParty(OTParty & theOwnerParty) 
@@ -881,7 +906,7 @@ OTParty::OTParty(const std::string str_PartyName, OTPseudonym & theNym, OTAccoun
 
 bool OTParty::AddAgent(OTAgent& theAgent)
 {
-	const std::string str_agent_name = theAgent.GetName().Exists() ? theAgent.GetName().Get() : "";
+	const std::string str_agent_name = theAgent.GetName().Get();
 
 	if (!OTScriptable::ValidateName(str_agent_name))
 	{
@@ -955,8 +980,7 @@ bool OTParty::AddAccount(const OTString& strAgentName, const char * szAcctName,
 
 bool OTParty::AddAccount(OTPartyAccount& thePartyAcct)
 {
-	const std::string str_acct_name = 
-		thePartyAcct.GetName().Exists() ? thePartyAcct.GetName().Get() : "";
+	const std::string str_acct_name = thePartyAcct.GetName().Get();
 	
 	if (!OTScriptable::ValidateName(str_acct_name))
 	{
@@ -1681,7 +1705,7 @@ void OTParty::HarvestClosingNumbers(OTPseudonym & theNym, const OTString & strSe
 		OT_ASSERT_MSG(NULL != pAcct, "Unexpected NULL partyaccount pointer in party map.");
 		// -------------------------------------
 		
-		const std::string	str_agent_name (pAcct->GetName().Exists() ? pAcct->GetName().Get() : "");
+		const std::string	str_agent_name (pAcct->GetName().Get());
 		
 		OTAgent * pAgent = this->GetAgent(str_agent_name);
 
@@ -1709,12 +1733,12 @@ void OTAgent::Serialize(OTString & strAppend)
 						  " nymID=\"%s\"\n"
 						  " roleID=\"%s\"\n"
 						  " groupName=\"%s\" />\n\n",
-						  m_strName.Exists() ? m_strName.Get() : "AGENT_ERROR_NAME",
+						  m_strName.Get(),
 						  m_bNymRepresentsSelf ? "true" : "false",
 						  m_bIsAnIndividual ? "true" : "false",
-						  m_strNymID.Exists() ? m_strNymID.Get() : "",
-						  m_strRoleID.Exists() ? m_strRoleID.Get() : "",
-						  m_strGroupName.Exists() ? m_strGroupName.Get() : "");
+						  m_strNymID.Get(),
+						  m_strRoleID.Get(),
+						  m_strGroupName.Get());
 	
 	//	strAppend.Concatenate("</agent>\n");
 }
@@ -1729,9 +1753,9 @@ void OTPartyAccount::Serialize(OTString & strAppend)
 						  " acctID=\"%s\"\n"
 						  " agentName=\"%s\"\n"
 						  " closingTransNo=\"%ld\" />\n\n",
-						  m_strName.Exists() ? m_strName.Get() : "PARTYACCT_ERROR_NAME",
-						  m_strAcctID.Exists() ? m_strAcctID.Get() : "PARTYACCT_ERROR_ID",
-						  m_strAgentName.Exists() ? m_strAgentName.Get() : "PARTYACCT_ERROR_AGENTNAME",						  
+						  m_strName.Get(),
+						  m_strAcctID.Get(),
+						  m_strAgentName.Get(),						  
 						  m_lClosingTransNo);
 	
 	//	strAppend.Concatenate("</assetAccount>\n");
@@ -1749,12 +1773,12 @@ void OTParty::Serialize(OTString & strAppend)
 						  " authorizingAgent=\"%s\"\n" // When an agent activates this contract, it's HIS opening trans#.
 						  " numAgents=\"%d\"\n" // integer count.
 						  " numAccounts=\"%d\" >\n\n", // integer count.
-						  GetPartyName().size() > 0 ? GetPartyName().c_str() : "PARTY_ERROR_NAME",
+						  GetPartyName().c_str(),
 						  m_bPartyIsNym ? "nym" : "entity",
-						  m_str_owner_id.size()>0 ? m_str_owner_id.c_str() : "PARTY_ERROR_OWNER_ID",
+						  m_str_owner_id.c_str(),
 						  m_lOpeningTransNo,
 						  m_strMySignedCopy.Exists() ? "true" : "false",
-						  m_str_authorizing_agent.size() > 0 ? m_str_authorizing_agent.c_str() : "",
+						  m_str_authorizing_agent.c_str(),
 						  m_mapAgents.size(), m_mapPartyAccounts.size());
 	// -----------------
 	FOR_EACH(mapOfAgents, m_mapAgents)
@@ -1896,8 +1920,8 @@ void OTVariable::Serialize(OTString & strAppend)
 							  " value=\"%s\"\n"
 							  " type=\"%s\"\n", 
 							  " access=\"%s\" />\n\n", 
-							  m_strName.Exists()		? m_strName.Get()		: "ERROR_VARIABLE_NAME_NULL",
-							  m_str_Value.size() > 0	? m_str_Value.c_str()	: "",
+							  m_strName.Get(),
+							  m_str_Value.c_str(),
 							  str_type.c_str(), str_access.c_str());
 	}
 	else if (OTVariable::Var_Long == m_Type)
@@ -1906,7 +1930,7 @@ void OTVariable::Serialize(OTString & strAppend)
 							  " value=\"%ld\"\n"
 							  " type=\"%s\"\n", 
 							  " access=\"%s\" />\n\n", 
-							  m_strName.Exists()		? m_strName.Get()		: "ERROR_VARIABLE_NAME_NULL",
+							  m_strName.Get(),
 							  m_lValue,
 							  str_type.c_str(), str_access.c_str());
 	}
@@ -1916,7 +1940,7 @@ void OTVariable::Serialize(OTString & strAppend)
 							  " value=\"%s\"\n"
 							  " type=\"%s\"\n", 
 							  " access=\"%s\" />\n\n", 
-							  m_strName.Exists()		? m_strName.Get()		: "ERROR_VARIABLE_NAME_NULL",
+							  m_strName.Get(),
 							  m_bValue ? "true" : "false",
 							  str_type.c_str(), str_access.c_str());
 	}
@@ -1935,13 +1959,13 @@ void OTClause::Serialize(OTString & strAppend)
 		ascCode.SetString(m_strCode);
 		
 		strAppend.Concatenate("<clause name=\"%s\">\n%s</clause>\n", 
-							  m_strName.Exists() ? m_strName.Get() : "ERROR_CLAUSE_NAME_NULL",
-							  ascCode.Exists() ? ascCode.Get() : "ERROR_CLAUSE_CODE_NULL");		
+							  m_strName.Get(),
+							  ascCode.Get());		
 	}
 	else
 	{
 		strAppend.Concatenate("<clause name=\"%s\">\n%s</clause>\n", 
-							  m_strName.Exists() ? m_strName.Get() : "ERROR_CLAUSE_NAME_NULL",
+							  m_strName.Get(),
 							  "ERROR_CLAUSE_CODE_NULL");
 		OTLog::Error("Empty script code in OTClause::Serialize()\n");
 	}
@@ -1958,12 +1982,12 @@ void OTBylaw::Serialize(OTString & strAppend)
 						  " numHooks=\"%d\"\n"
 						  " numCallbacks=\"%d\"\n"
 						  " language=\"%s\" >\n\n", 
-						  m_strName.Exists() ? m_strName.Get() : "ERROR_BYLAW_NAME_NULL",
+						  m_strName.Get(),
 						  m_mapVariables.size(), // HOW MANY VARIABLES?
 						  m_mapClauses.size(), // HOW MANY CLAUSES?
 						  m_mapHooks.size(), // How many HOOKS?
 						  m_mapCallbacks.size(), // How many CALLBACK?
-						  m_strLanguage.Exists() ? m_strLanguage.Get() : "ERROR_BYLAW_LANGUAGE_NULL");
+						  m_strLanguage.Get());
 	// ------------------------------
 	
 	FOR_EACH(mapOfVariables, m_mapVariables)
@@ -1991,8 +2015,8 @@ void OTBylaw::Serialize(OTString & strAppend)
 		
 		strAppend.Concatenate("<hook name=\"%s\"\n"
 							  " clause=\"%s\" />\n\n", 
-							  (str_hook_name.size() > 0)	? str_hook_name.c_str()		: "ERROR_HOOK_NAME_NULL",
-							  (str_clause_name.size() > 0)	? str_clause_name.c_str()	: "ERROR_HOOK_CLAUSE_NULL");
+							  str_hook_name.c_str(),
+							  str_clause_name.c_str());
 	}
 	// ------------------------------
 	
@@ -2003,8 +2027,8 @@ void OTBylaw::Serialize(OTString & strAppend)
 		
 		strAppend.Concatenate("<callback name=\"%s\"\n"
 							  " clause=\"%s\" />\n\n", 
-							  (str_callback_name.size() > 0)	? str_callback_name.c_str()	: "ERROR_CALLBACK_NAME_NULL",
-							  (str_clause_name.size() > 0)		? str_clause_name.c_str()	: "ERROR_CALLBACK_CLAUSE_NULL");
+							  str_callback_name.c_str(),
+							  str_clause_name.c_str());
 	}
 	// ------------------------------
 	strAppend.Concatenate("</bylaw>\n");
@@ -2281,7 +2305,7 @@ void OTVariable::RegisterForExecution(OTScript& theScript)
 {
 	this->SetAsClean(); // so we can check for dirtiness after execution.
 	// -------------------------------------------------------------------------
-	const std::string str_var_name = m_strName.Exists() ? m_strName.Get() : "";
+	const std::string str_var_name = m_strName.Get();
 	// -------------------------------------------------------------------------
 	theScript.AddVariable (str_var_name, *this);
 }
@@ -2310,7 +2334,7 @@ OTClause * OTBylaw::GetCallback(const std::string str_CallbackName)
 		(str_CallbackName.compare(0,9,"callback_") != 0))	// The first 9 characters do not match callback_
 	{
 		OTLog::vError("OTBylaw::GetCallback: Callback name MUST begin with callback_ but value passed in was: %s\n",
-					  str_CallbackName.size() > 0 ? str_CallbackName.c_str() : "");
+					  str_CallbackName.c_str());
 		return NULL;
 	}
 	// ------------------------------------
@@ -2357,8 +2381,8 @@ bool OTBylaw::AddCallback(const std::string str_CallbackName, const std::string 
 	{
 		const std::string str_existing_clause = (*it).second;
 		OTLog::vOutput("OTBylaw::AddCallback: Failed to add callback (%s) to bylaw %s, already there as %s.\n",
-					   str_CallbackName.size() > 0 ? str_CallbackName.c_str() : "", m_strName.Get(),
-					   str_existing_clause.size() > 0 ? str_existing_clause.c_str() : "");
+					   str_CallbackName.c_str(), m_strName.Get(),
+					   str_existing_clause.c_str());
 		return false;
 	}
 	// Below this point, we know the callback wasn't already there.
@@ -2503,7 +2527,7 @@ bool OTBylaw::GetHooks(const std::string str_HookName, mapOfClauses & theResults
 
 bool OTBylaw::AddVariable(OTVariable& theVariable)
 {
-	const std::string str_name = theVariable.GetName().Exists() ? theVariable.GetName().Get() : "";
+	const std::string str_name = theVariable.GetName().Get();
 
 	if (!OTScriptable::ValidateName(str_name))
 	{
@@ -2613,7 +2637,7 @@ bool OTBylaw::AddClause(OTClause& theClause)
 	// -----------------------------------
 	// To avoid confusion, we disallow clauses beginning in cron_ or hook_ or callback_
 	//
-	const std::string str_clause_name =  theClause.GetName().Exists() ? theClause.GetName().Get() : "";
+	const std::string str_clause_name =  theClause.GetName().Get();
 	
 	if (!OTScriptable::ValidateName(str_clause_name))
 	{
@@ -2717,10 +2741,181 @@ OTBylaw::~OTBylaw()
 }
 
 
+// ---------------------------------------------------------------
+
+
+
+/*
+ long GetAmount() const { return m_lAmount; }
+ void SetAmount(const long lAmount) { m_lAmount = lAmount; }
+ 
+ const OTString & GetAssetTypeID() { return m_strAssetTypeID; } 
+ */
+
+
+OTStashItem::OTStashItem() : m_lAmount(0)
+{
+	
+}
+
+OTStashItem::OTStashItem(const OTString & strAssetTypeID, const long lAmount/*=0*/)
+: m_strAssetTypeID(strAssetTypeID), m_lAmount(lAmount)
+{
+	
+}
+
+OTStashItem::OTStashItem(const OTIdentifier & theAssetTypeID, const long lAmount/*=0*/)
+: m_strAssetTypeID(theAssetTypeID), m_lAmount(lAmount)
+{
+	
+}
+
+OTStashItem::~OTStashItem()
+{
+	
+}
+
+
+/*
+ IDEA: todo security.
+ 
+ Make a base class that keeps the amount itself PRIVATE, so even its subclasses can't see it.
+ 
+ This is where Credit() and Debit() are made available as PROTECTED, so that its subclasses can USE them
+ to manipulate the amount, which they can't otherwise see directly at all.
+ 
+ This thing should be able to SERIALIZE itself as part of a bigger class.
+ 
+ Actually Credit and Debit should be PUBLIC so that people can use instances of this class
+ without having to subclass from it.
+ 
+ Then I can use it ALL OVER THE PLACE where Balances are:  Accounts, Stashes, Instruments, etc.
+ 
+ */
+
+
+bool OTStashItem::CreditStash(const long &lAmount)
+{
+	if (lAmount < 0)
+	{
+		OTLog::vOutput(0, "OTStashItem::CreditStash: Failed attempt to credit a negative amount (%ld). Asset Type: %s \n",
+					   lAmount, m_strAssetTypeID.Get());
+		return false;
+	}
+	
+	m_lAmount += lAmount;
+	
+	return true;
+}
+
+bool OTStashItem::DebitStash(const long &lAmount)
+{
+	if (lAmount < 0)
+	{
+		OTLog::vOutput(0, "OTStashItem::DebitStash: Failed attempt to debit a negative amount (%ld). Asset Type: %s \n",
+					   lAmount, m_strAssetTypeID.Get());
+		return false;
+	}
+	
+	const long lTentativeNewBalance = (m_lAmount - lAmount);
+	
+	if (lTentativeNewBalance < 0)
+	{
+		OTLog::vOutput(0, "OTStashItem::DebitStash: Failed attempt to debit (amount of) %ld: New stash balance would have been a negative "
+					   "amount (%ld). Asset Type: %s \n", lAmount, lTentativeNewBalance, m_strAssetTypeID.Get());
+		return false;
+	}
+	
+	m_lAmount = lTentativeNewBalance;
+	
+	return true;	
+}
+
+// -------------------------------------------
+
+
+OTStash::OTStash()
+{
+	//m_mapStashItems
+}
+
+OTStash::OTStash(const OTString & strAssetTypeID, const long lAmount/*=0*/)
+{
+	OTStashItem * pItem = new OTStashItem(strAssetTypeID, lAmount);
+	OT_ASSERT(NULL != pItem);
+	
+	m_mapStashItems.insert(std::pair<std::string, OTStashItem *>(strAssetTypeID.Get(), pItem));
+}
+
+OTStash::OTStash(const OTIdentifier & theAssetTypeID, const long lAmount/*=0*/)
+{
+	OTStashItem * pItem = new OTStashItem(theAssetTypeID, lAmount);
+	OT_ASSERT(NULL != pItem);
+	
+	OTString strAssetTypeID(theAssetTypeID);
+	
+	m_mapStashItems.insert(std::pair<std::string, OTStashItem *>(strAssetTypeID.Get(), pItem));
+}
+
+OTStash::~OTStash()
+{
+	while (!m_mapStashItems.empty())
+	{		
+		OTStashItem * pTemp = m_mapStashItems.begin()->second;
+		OT_ASSERT(NULL != pTemp);
+		delete pTemp; pTemp = NULL;
+		m_mapStashItems.erase(m_mapStashItems.begin());
+	}			
+}
 
 
 
 
+// Creates it if it's not already there.
+// (*this owns it and will clean it up when destroyed.)
+//
+OTStashItem * OTStash::GetStash(const std::string & str_asset_type_id)
+{
+	mapOfStashItems::iterator it = m_mapStashItems.find(str_asset_type_id);
+	
+	if (m_mapStashItems.end() == it()) // It's not already there for this asset type.
+	{
+		const OTString strAssetTypeID(str_asset_type_id.c_str());
+		OTStashItem * pStashItem = new OTStashItem (strAssetTypeID);
+		OT_ASSERT(NULL != pStashItem);
+		
+		m_mapStashItems.insert(std::pair<std::string, OTStashItem *>(strAssetTypeID.Get(), pStashItem));
+		return pStashItem;
+	}
+	
+	OTStashItem * pStashItem = (*it).second;
+	OT_ASSERT(NULL != pStashItem);
+	
+	return pStashItem;
+}
+
+
+long OTStash::GetAmount(const std::string str_asset_type_id)
+{
+	OTStashItem * pStashItem = GetStash(str_asset_type_id); // (Always succeeds, and will OT_ASSERT() if failure.)
+	
+	return pStashItem->GetAmount();
+}
+
+
+bool OTStash::CreditStash(const std::string str_asset_type_id, const long &lAmount)
+{
+	OTStashItem * pStashItem = GetStash(str_asset_type_id); // (Always succeeds, and will OT_ASSERT() if failure.)
+	
+	return pStashItem->CreditStash(lAmount);
+}
+
+bool OTStash::DebitStash(const std::string str_asset_type_id, const long &lAmount)
+{
+	OTStashItem * pStashItem = GetStash(str_asset_type_id); // (Always succeeds, and will OT_ASSERT() if failure.)
+	
+	return pStashItem->DebitStash(lAmount);
+}
 
 
 

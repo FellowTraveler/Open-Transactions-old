@@ -268,6 +268,8 @@ void OTScriptable::RegisterOTNativeCallsWithScript(OTScript & theScript)
 	{
 		pScript->chai.add(fun(&OTScriptable::CanExecuteClause, (*this)), "party_may_execute_clause");		
 	}
+//	else if (NULL != (pScript = dynamic_cast<OTScriptSomeOtherScriptingLanguageSubClass_GOES_HERE *> (&theScript)) )
+//	{ }
 	else 
 	{
 		OTLog::Error("OTScriptable::RegisterOTNativeCallsWithScript: Failed dynamic casting OTScript to OTScriptChai \n");
@@ -285,6 +287,13 @@ void OTScriptable::RegisterOTNativeCallsWithScript(OTScript & theScript)
 //
 bool OTScriptable::CanExecuteClause(const std::string str_party_name, const std::string str_clause_name)
 {
+    OTCron * pCron  = GetCron();
+    OT_ASSERT(NULL != pCron);
+    // ----------------------------------
+    OTPseudonym * pServerNym = pCron->GetServerNym();
+    OT_ASSERT(NULL != pServerNym);	
+    // -------------------------------------------------
+
 	OTParty		* pParty	= this->GetParty(str_party_name);
 	OTClause	* pClause	= this->GetClause(str_clause_name);
 	
@@ -303,6 +312,41 @@ bool OTScriptable::CanExecuteClause(const std::string str_party_name, const std:
 	}
 	// Below this point, pParty and pClause are both good.
 	// -------------------------------------------------
+	//
+	
+	// ...This WILL check to see if pParty has its Opening number verified as issued.
+	// (If the opening number is > 0 then VerifyPartyAuthorization() is smart enough to verify it.)
+	//
+	// To KNOW that a party has the right to even ASK the script to cancel a contract, MEANS that
+	// (1) The party is listed as a party on the contract. (2) The party's copy of that contract
+	// is signed by the authorizing agent for that party. and (3) The opening transaction number for
+	// that party is verified as issued for authorizing agent. (2 and 3 are both performed at the same
+	// time, in VerifyPartyAuthorization(), since the agent may need to be loaded in order to verify 
+	// them.) 1 is already done by this point, as it's performed above.
+	//
+	// Todo: notice this code appears in CanCancelContract() (this function) as well as 
+	// OTScriptable::CanExecuteClause.
+	// Therefore I can see that THIS VERIFICATION CODE WILL GET CALLED EVERY SINGLE TIME THE SCRIPT
+	// CALLS ANY CLAUSE OR OT NATIVE FUNCTION.  Since technically this only needs to be verified before the
+	// first call, and not for EVERY call during any of a script's runs, I should probably move this verification
+	// higher, such as each time the OTCronItem triggers, plus each time a party triggers a clause directly
+	// through the API (server message). As long as those are covered, I will be able to remove it from here
+	// which should be a significant improvement for performance.
+	// It will be at the bottom of those same functions that "ClearTemporaryPointers()" should finally be called.
+	//
+	// Also todo:  Need to implement MOVE CONSTRUCTORS and MOVE COPY CONSTRUCTORS all over the place,
+	// once I'm sure C++0x build environments are available for all of the various OT platforms. That should
+	// be another great performance boost!
+	//
+	const OTString strServerID(GetServerID());
+	
+	mapOfNyms	map_Nyms_Already_Loaded;
+	this->RetrieveNymPointers(map_Nyms_Already_Loaded);
+	
+	bool bVerifiedAuthorization = 
+		this->VerifyPartyAuthorization(*pParty, *pServerNym, strServerID, &map_Nyms_Already_Loaded);
+	
+	// *****************************************************************************
 	//
 	// DISALLOW parties to directly execute any clauses named similarly to callbacks, hooks, or cron hooks!
 	// Only allow this for normal clauses.
@@ -337,11 +381,12 @@ bool OTScriptable::CanExecuteClause(const std::string str_party_name, const std:
 	//
 	const std::string str_CallbackName(SCRIPTABLE_CALLBACK_PARTY_MAY_EXECUTE);
 	
-	OTClause * pMayExecuteClause = this->GetCallback(str_CallbackName); // See if there is a script clause registered for this callback.
+	OTClause * pCallbackClause = this->GetCallback(str_CallbackName); // See if there is a script clause registered for this callback.
 	
-	if (NULL != pMayExecuteClause) // Found it!
+	if (NULL != pCallbackClause) // Found it!
 	{	
-		OTLog::vOutput(0, "OTScriptable::CanExecuteClause: Found script for: %s. Asking...\n", SCRIPTABLE_CALLBACK_PARTY_MAY_EXECUTE);
+		OTLog::vOutput(0, "OTScriptable::CanExecuteClause: Found script for: %s. Asking...\n", 
+					   SCRIPTABLE_CALLBACK_PARTY_MAY_EXECUTE);
 		
 		// The function we're IN defaults to TRUE, if there's no script available.
 		// However, if the script is available, then our default return value starts as FALSE.
@@ -358,7 +403,7 @@ bool OTScriptable::CanExecuteClause(const std::string str_party_name, const std:
 		
 		// ****************************************
 		
-		if (false == this->ExecuteCallback(*pMayExecuteClause, theParameters, theReturnVal)) // <============================================
+		if (false == this->ExecuteCallback(*pCallbackClause, theParameters, theReturnVal)) // <============================================
 		{
 			OTLog::vError("OTScriptable::CanExecuteClause: Error while running callback script %s, clause %s \n",
 						  SCRIPTABLE_CALLBACK_PARTY_MAY_EXECUTE, str_clause_name.c_str());
@@ -1150,8 +1195,8 @@ bool OTScriptable::VerifyNymAsAgentForAccount(const	OTPseudonym & theNym,
 	
 	// -------------------------------------------------------------
 	
-	const std::string str_acct_agent_name(pPartyAcct->GetAgentName().Get());
-	OTAgent * pAgent	= pParty->GetAgent(str_acct_agent_name);
+	const	std::string	str_acct_agent_name	= pPartyAcct->	GetAgentName().Get();
+			OTAgent *	pAgent				= pParty->		GetAgent(str_acct_agent_name);
 
 	// Make sure they are from the SAME PARTY.
 	//

@@ -186,7 +186,14 @@ public:
 	//
 	virtual bool VerifyNymAsAgentForAccount(const OTPseudonym & theNym, const OTAccount & theAccount);
 	
-	// ----------------
+	// -----------------------------------------------------------------
+	// 
+	bool VerifyPartyAuthorization(OTParty			& theParty,		// The party that supposedly is authorized for this supposedly executed agreement.
+								  OTPseudonym		& theSignerNym,	// For verifying signature on the authorizing Nym, when loading it
+								  const OTString	& strServerID,	// For verifying issued num, (need the serverID the # goes with.)
+								  mapOfNyms			* pmap_ALREADY_LOADED=NULL);
+
+	// -----------------------------------------------------------------------------------
 	// Often we endeavor to avoid loading the same Nym twice, and a higher-level function
 	// will ask an OTScriptable for a list of all the Nym pointers that it already has,
 	// so they can be checked for various things if they are already loaded (when they are needed)
@@ -260,11 +267,6 @@ public:
 	// And make sure it's not blank. This is for script variable names, clause names, party names, etc.
 	//
 	static bool ValidateName(const std::string str_name);
-
-	bool VerifyPartyAuthorization(OTParty			& theParty,		// The party that supposedly is authorized for this supposedly executed agreement.
-								  OTPseudonym		& theSignerNym,	// For verifying signature on the authorizing Nym, when loading it
-								  const OTString	& strServerID,	// For verifying issued num, (need the serverID the # goes with.)
-								  mapOfNyms			* pmap_ALREADY_LOADED=NULL);
 	
 	// ------------------------
 	

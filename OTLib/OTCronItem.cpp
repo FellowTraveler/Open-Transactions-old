@@ -239,15 +239,25 @@ bool OTCronItem::MoveFunds(const mapOfNyms	  & map_NymsAlreadyLoaded,
 	OTPseudonym * pServerNym = pCron->GetServerNym();
 	OT_ASSERT(NULL != pServerNym);
 	// --------------------------------------------------------	
+	
+	if (lAmount <= 0)
+	{
+		OTLog::vOutput(" OTCronItem::MoveFunds: Error: lAmount cannot be 0 or <0. (Value passed in was %ld.)\n",
+					   lAmount);
+		return false;
+	}
+	// -----------------------------
+	
 	bool					bSuccess = false;	// The return value.
 	// --------------------------------------------------------
+	
 	const OTIdentifier		SERVER_ID(pCron->GetServerID());
 	const OTIdentifier		SERVER_USER_ID(*pServerNym);
 	// --------------------------------------------------------
 	
 	OTString	strSenderUserID(SENDER_USER_ID), strRecipientUserID(RECIPIENT_USER_ID),
-	strSourceAcctID(SOURCE_ACCT_ID), strRecipientAcctID(RECIPIENT_ACCT_ID),
-	strServerNymID(SERVER_USER_ID);
+				strSourceAcctID(SOURCE_ACCT_ID), strRecipientAcctID(RECIPIENT_ACCT_ID),
+				strServerNymID(SERVER_USER_ID);
 	
 	// Make sure they're not the same Account IDs ...
 	// Otherwise we would have to take care not to load them twice, like with the Nyms below.

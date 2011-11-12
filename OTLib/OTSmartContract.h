@@ -162,6 +162,11 @@ private:
 //	OTIdentifier	m_RECIPIENT_ACCT_ID;
 //	OTIdentifier	m_RECIPIENT_USER_ID;
 	
+	// This is where the scripts inside the smart contract can stash money, 
+	// after it starts operating.
+	//
+	mapOfStashes	m_mapStashes;	// The server will NOT allow any smart contract to be activated unless this list is empty.
+
 protected:
     
     virtual void onFinalReceipt(OTCronItem & theOrigCronItem, const long & lNewTransactionNumber,
@@ -170,6 +175,13 @@ protected:
     virtual void onRemovalFromCron();
 
 public:
+	// --------------------------------------------------------------------------
+	// This is where the smart contract can store funds, internally.
+	// Todo: Have a server backing account to double this record (like with cash
+	// withdrawals) so it will turn up properly on an audit. Todo.
+	//
+	OTStash * GetStash(const std::string str_stash_name);
+
 	// --------------------------------------------------------------------------
 
 	virtual bool AddParty(OTParty & theParty); // Takes ownership. Overrides from OTScriptable.
@@ -261,7 +273,14 @@ public:
 
 	// -------------------------------------
 
+	// Callback that OT server uses occasionally. Smart Contracts can have a special
+	// script that is activated for this callback.
+	//
 	bool CanCancelContract(const std::string str_party_name);
+	
+	// OT Native function available for scripts:
+	//
+	bool MoveAcctFunds(const std::string from_acct_name, const std::string to_acct_name, const long lAmount);
 
 	// -------------------------------------
 
