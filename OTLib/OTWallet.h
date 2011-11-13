@@ -145,7 +145,6 @@ class OTString;
 
 //typedef std::map<std::string, OTPseudonym *>		mapOfNyms; // in OTContract.h now.
 typedef std::map<std::string, OTServerContract *>	mapOfServers;
-typedef std::map<std::string, OTAccount *>			mapOfAccounts;
 
 class OTWallet
 {

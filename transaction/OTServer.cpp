@@ -389,62 +389,32 @@ bool OTServer::LookupBasketAccountID(const OTIdentifier & BASKET_ID, OTIdentifie
 /// return a pointer to the account.  Since it's SUPPOSED to exist, and since it's being requested,
 /// also will GENERATE it if it cannot be found, add it to the list, and return the pointer. Should
 /// always succeed.
-OTAccount * OTServer::GetVoucherAccount(const OTIdentifier & ASSET_TYPE_ID)
+//
+OTAccount_SharedPtr OTServer::GetVoucherAccount(const OTIdentifier & ASSET_TYPE_ID)
 {
-	OTAccount * pAccount = NULL;
-	
-	FOR_EACH(mapOfAccounts, m_mapVoucherAccounts)
-	{
-		pAccount = (*it).second;
-		OT_ASSERT_MSG(NULL != pAccount, "NULL account pointer in OTServer::GetVoucherAccount");
-		
-		if (ASSET_TYPE_ID == pAccount->GetAssetTypeID())
-			return pAccount;
-	}
-	
-
-	// If we made it down here, that means the voucher account wasn't on the list,
-	// so we need to create it.
-	
+	OTAccount_SharedPtr pAccount;
 	const OTIdentifier SERVER_USER_ID(m_nymServer), SERVER_ID(m_strServerID);
-	
-	OTMessage theMessage;
-	SERVER_USER_ID.GetString(theMessage.m_strNymID);
-	ASSET_TYPE_ID.GetString(theMessage.m_strAssetID);
-	SERVER_ID.GetString(theMessage.m_strServerID);
-	
-	pAccount = OTAccount::GenerateNewAccount(SERVER_USER_ID, SERVER_ID, m_nymServer, theMessage);
-	
-	if (NULL != pAccount)
+	// --------------------------------------------------
+	bool bWasAcctCreated = false;
+	pAccount = m_VoucherAccts.GetOrCreateAccount(m_nymServer, SERVER_USER_ID, ASSET_TYPE_ID, 
+												SERVER_ID, bWasAcctCreated);
+	if (bWasAcctCreated)
 	{
 		OTString strAcctID;
 		pAccount->GetIdentifier(strAcctID);
-
-		OTLog::vOutput(0, "Successfully created voucher account ID:\n%s\nAsset Type ID:\n%s\n", 
-				 strAcctID.Get(), theMessage.m_strAssetID.Get());
+		const OTString strAssetTypeID(ASSET_TYPE_ID);
 		
-
+		OTLog::vOutput(0, "OTServer::GetVoucherAccount: Successfully created voucher account ID:\n%s\nAsset Type ID:\n%s\n", 
+				 strAcctID.Get(), strAssetTypeID.Get());
+		
 		if (false == SaveMainFile())
 		{
-			OTLog::Error("Error saving main server file containing new account ID!!\n");
-			delete pAccount;
-			pAccount = NULL;
+			OTLog::Error("OTServer::GetVoucherAccount: Error saving main server file containing new account ID!!\n");
 		}
-		else
-		{
-			// Add it to the server's list.
-			m_mapVoucherAccounts[theMessage.m_strAssetID.Get()] = pAccount;
-		}
-		
-		return pAccount;
 	}
-	else 
-	{
-		OTLog::vError("Failed trying to generate voucher account in OTServer::GetVoucherAccount with asset type ID: %s\n",
-				theMessage.m_strAssetID.Get());
-	}
+	// -------------------------------
 	
-	return NULL;
+	return pAccount;
 }
 	
 
@@ -755,9 +725,10 @@ bool OTServer::SaveMainFileToString(OTString & strMainFile)
 		// This is like the Server's wallet.
 		pContract->SaveContractWallet(strMainFile);
 		
-		// ----------------------------------------
 	}
 	
+	// ----------------------------------------------------------------
+
 	// Save the basket account information
 	
 	FOR_EACH(mapOfBaskets, m_mapBaskets)
@@ -786,19 +757,8 @@ bool OTServer::SaveMainFileToString(OTString & strMainFile)
 	}
 	
 	
-	// TODO BUG!!  The map of VOUCHER ACCOUNTS is SUPPOSED to be serialized here!
-	// Because it's NOT, that means a new voucher account will be generated every time, AND
-	// the account won't be found for vouchers that were issued before that time!
-	//
-	// NEED TO MAKE SURE VOUCHER ACCOUNT ID's ARE SERIALIZED, MAPPED TO ASSET TYPE ID.
-	// Infact, I should make a CLASS to do this, since I also need it for stashes.
-	//
-	// Also todo: Look at the cash code and make sure this same bug isn't here.
-	//
-	// Also todo BUG: When the voucher account is added, the server main file is SAVED FIRST, and only
-	// THEN is the voucher account added!  Meaning even if this serialization code here is fixed, it STILL
-	// wouldn't get saved until the next call to SaveMainFile()!!  So fix that as well.
-	//
+	m_VoucherAccts.Serialize(strMainFile);
+	
 	
 	/*
 	 FOR_EACH(mapOfNyms, m_mapNyms)
@@ -1137,6 +1097,14 @@ bool OTServer::LoadMainFile()
 						}						
 					}					
 				}
+				else if (!strcmp("accountList", xml->getNodeName())) // the voucher reserve account IDs.
+				{
+					const OTString strAcctType	= xml->getAttributeValue("type");					
+					const OTString strAcctCount	= xml->getAttributeValue("count");
+					
+					if ((-1) == m_VoucherAccts.ReadFromXMLNode(xml, strAcctType, strAcctCount))
+						OTLog::Error("OTServer::LoadMainFile: Error loading voucher accountList.\n");
+				}
 				else if (!strcmp("basketInfo", xml->getNodeName()))
 				{
 					OTString strBasketID			= xml->getAttributeValue("basketID");					
@@ -1147,12 +1115,12 @@ bool OTServer::LoadMainFile()
 					
 					if (AddBasketAccountID(BASKET_ID, BASKET_ACCT_ID, BASKET_CONTRACT_ID))						
 						OTLog::vOutput(0, "Loading basket currency info...\n Basket ID:\n%s\n Basket Acct ID:\n%s\n Basket Contract ID:\n%s\n", 
-								strBasketID.Get(), strBasketAcctID.Get(), strBasketContractID.Get());
+									   strBasketID.Get(), strBasketAcctID.Get(), strBasketContractID.Get());
 					else						
 						OTLog::vError("Error adding basket currency info...\n Basket ID:\n%s\n Basket Acct ID:\n%s\n", 
-								strBasketID.Get(), strBasketAcctID.Get());
+									  strBasketID.Get(), strBasketAcctID.Get());
 				}
-
+`				
 				// Create an OTAssetContract and load them from file, (for each asset type),
 				// and add them to the internal map.
 				else if (!strcmp("assetType", xml->getNodeName()))
@@ -1808,7 +1776,7 @@ void OTServer::UserCmdIssueAssetType(OTPseudonym & theNym, OTMessage & MsgIn, OT
 					
 					// If we successfully create the account, then bundle it in the message XML payload
 					if (pNewAccount = OTAccount::GenerateNewAccount(USER_ID, SERVER_ID, m_nymServer, MsgIn, 
-																	OTAccount::issuer)) // This last parameter makes it an ISSUER account
+																	OTAccount::issuer)) // This last parameter generates an ISSUER account
 					{																	// instead of the default SIMPLE.
 						theAcctGuardian.SetCleanupTarget(*pNewAccount); // So I don't have to worry about cleaning it up.
 						
@@ -2059,7 +2027,7 @@ void OTServer::UserCmdIssueBasket(OTPseudonym & theNym, OTMessage & MsgIn, OTMes
 				pItem->SUB_CONTRACT_ID.GetString(MsgIn.m_strAssetID);
 								
 				// If we successfully create the account, then bundle it in the message XML payload
-				if (pNewAccount = OTAccount::GenerateNewAccount(SERVER_USER_ID, SERVER_ID, m_nymServer, MsgIn))
+				if (pNewAccount = OTAccount::GenerateNewAccount(SERVER_USER_ID, SERVER_ID, m_nymServer, MsgIn, OTAccount::basketsub))
 				{
 					msgOut.m_bSuccess = true;
 					
@@ -2709,7 +2677,8 @@ void OTServer::NotarizeWithdrawal(OTPseudonym & theNym, OTAccount & theAccount,
 		pResponseBalanceItem->SetReferenceToNum(pItem->GetTransactionNum()); // This response item is IN RESPONSE to pItem and its Owner Transaction.
 		tranOut.AddItem(*pResponseBalanceItem); // the Transaction's destructor will cleanup the item. It "owns" it now.		
 		
-		OTAccount	* pVoucherReserveAcct	= NULL; // contains the server's funds to back vouchers of a specific asset type.
+//		OTAccount	* pVoucherReserveAcct	= NULL; // contains the server's funds to back vouchers of a specific asset type.
+		OTAccount_SharedPtr	pVoucherReserveAcct; // contains the server's funds to back vouchers of a specific asset type.
 		
 		// ----------------------------------------------------
 
@@ -2746,14 +2715,15 @@ void OTServer::NotarizeWithdrawal(OTPseudonym & theNym, OTAccount & theAccount,
 		// one for each asset type. Since this is the normal way of doing business, GetVoucherAccount() will
 		// just create it if it doesn't already exist, and then return the pointer. Therefore, a failure here
 		// is a catastrophic failure!  Should never fail.
-		else if ((pVoucherReserveAcct = GetVoucherAccount(ASSET_TYPE_ID)) &&
-				 pVoucherReserveAcct->VerifyAccount(m_nymServer))
+		else if ((pVoucherReserveAcct = GetVoucherAccount(ASSET_TYPE_ID)) && // If assignment results in good pointer...
+				 pVoucherReserveAcct->VerifyAccount(m_nymServer))			// and if it points to an acct that verifies...
 		{					
 			OTString strVoucherRequest, strItemNote;
 			pItem->GetNote(strItemNote);
 			pItem->GetAttachment(strVoucherRequest);
 			
-			OTIdentifier VOUCHER_ACCOUNT_ID(*pVoucherReserveAcct);
+			OTAccount & theVoucherReserveAcct = (*pVoucherReserveAcct);
+			OTIdentifier VOUCHER_ACCOUNT_ID(theVoucherReserveAcct);
 			
 			OTCheque	theVoucher(SERVER_ID, ASSET_TYPE_ID),
 						theVoucherRequest(SERVER_ID, ASSET_TYPE_ID);
@@ -8494,16 +8464,13 @@ bool OTServer::ValidateServerIDfromUser(OTString & strServerID)
 
 
 
-
 		
-OTServer::OTServer()
+OTServer::OTServer() : m_bShutdownFlag(false), m_pServerContract(NULL), m_lTransactionNumber(0)
 {
-	// This will be set when the server main xml file is loaded. For now, initialize to 0.
-	m_lTransactionNumber = 0;
 	
-	m_pServerContract = NULL;
-	
-	m_bShutdownFlag = false;	// If I ever set this to true, then the caller will shutdown gracefully.	
+//	m_lTransactionNumber = 0;	// This will be set when the server main xml file is loaded. For now, initialize to 0.
+//
+//	m_bShutdownFlag = false;	// If I ever set this to true, then the caller will shutdown gracefully.	
 								// (Caller must regularly check the flag and shutdown when it sees the change.)
 }
 
@@ -8528,7 +8495,8 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 		OTLog::Error("Invalid server ID sent in command request.\n");
 		return false;
 	}
-	else {
+	else 
+	{
 		OTLog::Output(4, "Received valid Server ID with command request.\n");
 	}
 

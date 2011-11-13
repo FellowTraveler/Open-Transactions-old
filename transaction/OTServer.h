@@ -138,11 +138,13 @@
 //#include "OTMint.h"
 #include "OTAssetContract.h"
 
+#include "OTAccount.h" // for OTAcctList
+
 #include "OTCron.h"
 
 class OTMessage;
 class OTClientConnection;
-class OTAccount;
+//class OTAccount;
 class OTTransaction;
 class OTMint;
 class OTTrade;
@@ -181,9 +183,9 @@ class OTServer
 	
 	mapOfContracts	m_mapContracts;	// The asset types supported by this server.
 	mapOfMints		m_mapMints;		// The mints for each asset type.
-	
-	mapOfAccounts	m_mapVoucherAccounts; // the voucher accounts (see GetVoucherAccount below for details)
-	
+
+	OTAcctList		m_VoucherAccts;	// The list of voucher accounts (see GetVoucherAccount below for details)
+		
 	mapOfBaskets	m_mapBaskets;	// this map connects BASKET_ID with BASKET_ACCOUNT_ID (so you can look up the server's
 									// basket issuer account ID, which is *different* on each server, using the Basket Currency's
 									// ID, which is the *same* on every server.)
@@ -236,7 +238,8 @@ public:
 	// that the cheque will expire.  This way, the server operator can go back later, or have a script,
 	// to retrieve the cheques from the expired folders, and total them. The server operator is free to
 	// remove that total from the Voucher Account once the cheque has expired: it is his money now.
-	OTAccount * GetVoucherAccount(const OTIdentifier & ASSET_TYPE_ID);
+	//OTAccount * GetVoucherAccount(const OTIdentifier & ASSET_TYPE_ID);
+	OTAccount_SharedPtr GetVoucherAccount(const OTIdentifier & ASSET_TYPE_ID);
 	
 	// When a user uploads an asset contract, the server adds it to the list (and verifies the user's key against the
 	// contract.) This way the server has a directory with all the asset contracts that it supports, saved by their ID.

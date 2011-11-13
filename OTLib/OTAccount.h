@@ -132,6 +132,10 @@
 
 #include <list>
 #include <fstream>
+#include <string>
+
+#include <tr1/memory>
+
 
 #include "OTTransactionType.h"
 #include "OTString.h"
@@ -148,10 +152,15 @@ class OTAccount : public OTTransactionType
     friend OTTransactionType * OTTransactionType::TransactionFactory(const OTString & strInput);
 
 public:
-	enum AccountType {
-		simple,
-		issuer,
-		basket,
+	enum AccountType 
+	{
+		simple,		// used by users
+		issuer,		// used by issuers	(these can only go negative.)
+		basket,		// issuer acct used by basket currencies (these can only go negative)
+		basketsub,	// used by the server (to store backing reserves for basket sub-accounts)
+		mint,		// used by mints (to store backing reserves for cash)
+		voucher,	// used by the server (to store backing reserves for vouchers)
+		stash,		// used by the server (to store backing reserves for stashes, for smart contracts.)
 		err_acct
 	};  // If you add any types to this list, update the list of strings at the top of the .CPP file.
 	
@@ -172,12 +181,37 @@ protected:
 	OTAccount(const OTIdentifier & theUserID, const OTIdentifier & theServerID);
 	OTAccount();
 
-    bool        m_bMarkForDeletion; // Default FALSE. When set to true, saves a "DELETED" flag with this Account, 
-                                    // for easy cleanup later when the server is doing some maintenance.
+	// -------------------------------------------------
+	
+	long				m_lStashTransNum;	// the Transaction Number of a smart contract running on cron, if this is a stash account.
+	
+	// -------------------------------------------------
+	
+    bool	m_bMarkForDeletion; // Default FALSE. When set to true, saves a "DELETED" flag with this Account, 
+								// for easy cleanup later when the server is doing some maintenance.
 public:	
-
+	// --------
+	
     inline void MarkForDeletion() { m_bMarkForDeletion = true; }
     inline bool IsMarkedForDeletion() const { return m_bMarkForDeletion; }
+	
+    // ---------------------------------------
+	
+	bool IsInternalServerAcct() const;
+	
+	bool IsOwnedByUser() const;
+	bool IsOwnedByEntity const;
+	
+	bool IsAllowedToGoNegative() const;
+	
+    // ---------------------------------------
+	
+	// For accounts used by smart contracts, to stash funds while running.
+	//
+	bool IsStashAcct() const { return (m_AcctType == stash); } 
+	
+	const long &		GetStashTransNum() const { return m_lStashTransNum; }
+	void SetStashTransNum(const long & lTransNum) { m_lStashTransNum = lTransNum; }	
 
     // ---------------------------------------
 	
@@ -188,9 +222,11 @@ public:
 	
 	static OTAccount * GenerateNewAccount(const OTIdentifier & theUserID, const OTIdentifier & theServerID, 
 										  const OTPseudonym & theServerNym, const OTMessage & theMessage,
-										  const AccountType eAcctType=simple);
+										  const AccountType eAcctType=simple,
+										  long lStashTransNum=0);
 
-	bool GenerateNewAccount(const OTPseudonym & theServer, const OTMessage & theMessage, const AccountType eAcctType=simple);
+	bool GenerateNewAccount(const OTPseudonym & theServer, const OTMessage & theMessage, const AccountType eAcctType=simple,
+							long lStashTransNum=0);
 
 	// Let's say you don't have or know the UserID, and you just want to load the damn thing up.
 	// Then call this function. It will set userID for you.
@@ -231,6 +267,105 @@ public:
 	inline const char * GetTypeString() { return OTAccount::_GetTypeString(m_AcctType); }
 };
 
-typedef std::list <OTAccount *>	listOfAccounts;
+
+
+typedef std::list <OTAccount *>				listOfAccounts;
+typedef std::map<std::string, OTAccount *>	mapOfAccounts;
+
+
+// -------------------------------------------------------------
+
+
+typedef std::tr1::shared_ptr	<OTAccount>			OTAccount_SharedPtr;
+typedef std::tr1::weak_ptr		<OTAccount>			OTAccount_WeakPtr;
+
+typedef std::map<std::string, OTAccount_WeakPtr>	mapOfWeakAccounts; // mapped by ACCT ID
+
+
+
+// ----------------------------------------
+// The server needs to store a list of accounts, by asset type ID, to store the backing funds
+// for vouchers.  The below class is useful for that. It's also useful for the same purpose
+// for stashes, in smart contracts.
+// Eventually will add expiration dates, possibly, to this class. (To have series, just like cash
+// already does now.)
+//
+class OTAcctList
+{
+	AccountType			m_AcctType;
+		
+	mapOfStrings		m_mapAcctIDs; // AcctIDs as second mapped by ASSET TYPE ID as first.
+	mapOfWeakAccounts	m_mapWeakAccts; // If someone calls GetAccount(), we pass them a shared pointer. 
+										// We store the weak pointer here to make sure account doesn't get loaded twice.
+public:	
+	OTAcctList();
+	OTAcctList(AccountType eAcctType);
+	~OTAcctList();
+
+	void Release();
+	
+	void Serialize(OTString & strAppend);
+	int ReadFromXMLNode(irr::io::IrrXMLReader*& xml, const OTString & strAcctType, const OTString & strAcctCount);
+	
+	void SetType(AccountType eAcctType) { m_AcctType = eAcctType; }
+	
+	OTAccount_SharedPtr GetOrCreateAccount(OTPseudonym			& theServerNym, 
+										   const OTIdentifier	& ACCOUNT_OWNER_ID, 
+										   const OTIdentifier	& ASSET_TYPE_ID, 
+										   const OTIdentifier	& SERVER_ID,
+										   bool					& bWasAcctCreated, // this will be set to true if the acct is created here. Otherwise set to false;
+										   const long lStashTransNum=0);
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #endif // __OTACCOUNT_H__
+
+
+
+

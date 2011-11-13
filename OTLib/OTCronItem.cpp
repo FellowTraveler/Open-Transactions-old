@@ -608,10 +608,10 @@ bool OTCronItem::MoveFunds(const mapOfNyms	  & map_NymsAlreadyLoaded,
 	
 	else
 	{			
-		// Okay then, everything checks out. Let's add a receipt to the sender's outbox and the recipient's inbox. 
+		// Okay then, everything checks out. Let's add a receipt to the sender's inbox and the recipient's inbox. 
 		// IF they can be loaded up from file, or generated, that is. 
 		
-		// Load the inbox/outbox in case they already exist
+		// Load the inboxes in case they already exist
 		OTLedger	theSenderInbox		(SENDER_USER_ID,	SOURCE_ACCT_ID,		SERVER_ID),
 					theRecipientInbox	(RECIPIENT_USER_ID, RECIPIENT_ACCT_ID,	SERVER_ID);
 		

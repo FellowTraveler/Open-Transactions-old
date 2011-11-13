@@ -165,7 +165,16 @@ private:
 	// This is where the scripts inside the smart contract can stash money, 
 	// after it starts operating.
 	//
-	mapOfStashes	m_mapStashes;	// The server will NOT allow any smart contract to be activated unless this list is empty.
+	mapOfStashes	m_mapStashes;	// The server will NOT allow any smart contract to be activated unless these lists are empty.
+									// A smart contract may have any number of "stashes" which are stored by name. Each stash
+									// can be queried for balance for ANY ASSET TYPE. So stash "alice" might have 5 asset types
+									// in it, AND stash "bob" might also have 5 asset types stored in it.
+									// ------------------------------------------------------------------------------
+	OTAcctList		m_StashAccts;	// The actual accounts where stash funds are stored (so they will turn up properly on an audit.)
+									// Assuming that Alice and Bob both use the same asset types, there will be 5 stash accounts here,
+									// not 10.  That's because, even if you create a thousand stashes, if they use the same 2 asset types
+									// then OT is smart enough here to only create 2 stash accounts. The rest of the information is
+									// stored in m_mapStashes, not in the accounts themselves, which are only reserves for those stashes.
 
 protected:
     
@@ -281,6 +290,7 @@ public:
 	// OT Native function available for scripts:
 	//
 	bool MoveAcctFunds(const std::string from_acct_name, const std::string to_acct_name, const long lAmount);
+	bool StashAcctFunds(const std::string from_acct_name, const std::string to_stash_name, const long lAmount);
 
 	// -------------------------------------
 

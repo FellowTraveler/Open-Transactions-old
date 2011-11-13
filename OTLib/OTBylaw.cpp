@@ -1801,7 +1801,7 @@ void OTParty::Serialize(OTString & strAppend)
 		strAppend.Concatenate("<mySignedCopy>\n%s</mySignedCopy>\n\n", ascTemp.Get());
 	}
 	// -----------------
-	strAppend.Concatenate("</party>\n");
+	strAppend.Concatenate("</party>\n\n");
 }
 
 // **************************************************************
@@ -1958,13 +1958,13 @@ void OTClause::Serialize(OTString & strAppend)
 		OTASCIIArmor ascCode;
 		ascCode.SetString(m_strCode);
 		
-		strAppend.Concatenate("<clause name=\"%s\">\n%s</clause>\n", 
+		strAppend.Concatenate("<clause name=\"%s\">\n%s</clause>\n\n", 
 							  m_strName.Get(),
 							  ascCode.Get());		
 	}
 	else
 	{
-		strAppend.Concatenate("<clause name=\"%s\">\n%s</clause>\n", 
+		strAppend.Concatenate("<clause name=\"%s\">\n%s</clause>\n\n", 
 							  m_strName.Get(),
 							  "ERROR_CLAUSE_CODE_NULL");
 		OTLog::Error("Empty script code in OTClause::Serialize()\n");
@@ -2031,7 +2031,7 @@ void OTBylaw::Serialize(OTString & strAppend)
 							  str_clause_name.c_str());
 	}
 	// ------------------------------
-	strAppend.Concatenate("</bylaw>\n");
+	strAppend.Concatenate("</bylaw>\n\n");
 }
 
 

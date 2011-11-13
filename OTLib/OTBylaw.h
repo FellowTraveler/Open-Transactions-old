@@ -796,6 +796,9 @@ public:
 	long GetAmount() const { return m_lAmount; }
 	void SetAmount(const long lAmount) { m_lAmount = lAmount; }
 
+	bool CreditStash(const long &lAmount);
+	bool DebitStash(const long &lAmount);
+	
 	const OTString & GetAssetTypeID() { return m_strAssetTypeID; }
 	
 	//------------------

@@ -1090,13 +1090,13 @@ bool OTMint::VerifyToken(OTPseudonym & theNotary, OTString & theCleartextToken, 
  
  // static method (call it without an instance, using notation: OTAccount::GenerateNewAccount)
  OTAccount * OTAccount::GenerateNewAccount(	const OTIdentifier & theUserID,	const OTIdentifier & theServerID, 
- const OTPseudonym & theServerNym,	const OTMessage & theMessage,
- const OTAccount::AccountType eAcctType=OTAccount::simple)
+											const OTPseudonym & theServerNym,	const OTMessage & theMessage,
+											const OTAccount::AccountType eAcctType=OTAccount::simple)
  
  
  // The above method uses this one internally...
  bool OTAccount::GenerateNewAccount(const OTPseudonym & theServer, const OTMessage & theMessage,
- const OTAccount::AccountType eAcctType=OTAccount::simple)
+									const OTAccount::AccountType eAcctType=OTAccount::simple)
  
  
  OTAccount * pAcct = NULL;
@@ -1140,7 +1140,7 @@ void OTMint::GenerateNewMint(int nSeries, time_t VALID_FROM, time_t VALID_TO, ti
 						const OTPseudonym & theServerNym, const OTMessage & theMessage,
 						const AccountType eAcctType=simple);
 	 */
-	m_pReserveAcct	= OTAccount::GenerateNewAccount(SERVER_NYM_ID, theServerID, theNotary, theMessage);
+	m_pReserveAcct	= OTAccount::GenerateNewAccount(SERVER_NYM_ID, theServerID, theNotary, theMessage, OTAccount::mint);
 
 	if (m_pReserveAcct)
 	{

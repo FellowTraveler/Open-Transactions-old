@@ -188,9 +188,13 @@ using namespace io;
 
 const char * OTAccount::_TypeStrings[] = 
 {
-	"simple",
-	"issuer",
-	"basket",
+	"simple",	// used by users
+	"issuer",	// used by issuers	(these can only go negative.)
+	"basket",	// issuer acct used by basket currencies (these can only go negative)
+	"basketsub",// used by the server (to store backing reserves for basket sub-accounts)
+	"mint",		// used by mints (to store backing reserves for cash)
+	"voucher",	// used by the server (to store backing reserves for vouchers)
+	"stash",	// used by the server (to store backing reserves for stashes, for smart contracts.)
 	"err_acct"
 };
 
@@ -267,6 +271,8 @@ bool OTAccount::SaveAccount()
 	return SaveContract(OTLog::AccountFolder(), strID.Get());
 }
 
+
+
 // Debit a certain amount from the account (presumably the same amount is being credited somewhere else)
 bool OTAccount::Debit(const long & lAmount)
 {
@@ -281,12 +287,12 @@ bool OTAccount::Debit(const long & lAmount)
 	long lNewBalance = lOldBalance - lAmount;	// The MINUS here is the big difference between Debit and Credit
 	
 	// This is where issuer accounts get a pass. They just go negative.
-	if ((lNewBalance < 0)					&&	// IF the new balance is less than zero...
-		(OTAccount::simple == m_AcctType)	&&	// AND it's a normal account... (not an issuer)
-		(lNewBalance < lOldBalance))			// AND the new balance is even less than the old balance...
-		return false;							// THEN FAIL. The "new less than old" requirement is recent,
-	else										// and it means that we now allow <0 debits on normal accounts,
-	{											// AS LONG AS the result is a HIGHER BALANCE  :-)
+	if ((lNewBalance < 0)				&&	// IF the new balance is less than zero...
+		! IsAllowedToGoNegative()		&&	// AND it's a normal account... (not an issuer)
+		(lNewBalance < lOldBalance))		// AND the new balance is even less than the old balance...
+		return false;						// THEN FAIL. The "new less than old" requirement is recent,
+	else									// and it means that we now allow <0 debits on normal accounts,
+	{										// AS LONG AS the result is a HIGHER BALANCE  :-)
 		m_BalanceAmount.Format("%ld", lNewBalance);
 		
 		const time_t tDate = time(NULL); // Today, now.
@@ -318,12 +324,12 @@ bool OTAccount::Credit(const long & lAmount)
 //	}
 
 	// This is where issuer accounts get a pass. They just go negative.
-	if ((lNewBalance < 0)					&&	// IF the new balance is less than zero...
-		(OTAccount::simple == m_AcctType)	&&	// AND it's a normal account... (not an issuer)
-		(lNewBalance < lOldBalance))			// AND the new balance is even less than the old balance...
-		return false;							// THEN FAIL. The "new less than old" requirement is recent,
-	else										// and it means that we now allow <0 debits on normal accounts,
-	{											// AS LONG AS the result is a HIGHER BALANCE  :-)
+	if ((lNewBalance < 0)				&&	// IF the new balance is less than zero...
+		! IsAllowedToGoNegative()		&&	// AND it's a normal account... (not an issuer)
+		(lNewBalance < lOldBalance))		// AND the new balance is even less than the old balance...
+		return false;						// THEN FAIL. The "new less than old" requirement is recent,
+	else									// and it means that we now allow <0 credits on normal accounts,
+	{										// AS LONG AS the result is a HIGHER BALANCE  :-)
 		m_BalanceAmount.Format("%ld", lNewBalance);
 
 		const time_t tDate = time(NULL); // Today, now.
@@ -342,7 +348,7 @@ const OTIdentifier & OTAccount::GetAssetTypeID()
 
 // Used for generating accounts, thus no accountID needed.
 OTAccount::OTAccount(const OTIdentifier & theUserID, const OTIdentifier & theServerID)
-: OTTransactionType(), m_bMarkForDeletion(false)
+: OTTransactionType(), m_lStashTransNum(0), m_bMarkForDeletion(false)
 {
 	InitAccount();
 
@@ -360,7 +366,7 @@ void OTAccount::InitAccount()
 }
 
 // this is private for now. hopefully keep that way.
-OTAccount::OTAccount() : OTTransactionType(), m_bMarkForDeletion(false)
+OTAccount::OTAccount() : OTTransactionType(), m_lStashTransNum(0), m_bMarkForDeletion(false)
 {
 	InitAccount();
 }
@@ -368,7 +374,7 @@ OTAccount::OTAccount() : OTTransactionType(), m_bMarkForDeletion(false)
 
 OTAccount::OTAccount(const OTIdentifier & theUserID, const OTIdentifier & theAccountID, 
                      const OTIdentifier & theServerID, const OTString & name)
-: OTTransactionType (theUserID, theAccountID, theServerID), m_bMarkForDeletion(false)
+: OTTransactionType (theUserID, theAccountID, theServerID), m_lStashTransNum(0), m_bMarkForDeletion(false)
 {
 	InitAccount();
 
@@ -376,7 +382,7 @@ OTAccount::OTAccount(const OTIdentifier & theUserID, const OTIdentifier & theAcc
 }
 
 OTAccount::OTAccount(const OTIdentifier & theUserID, const OTIdentifier & theAccountID, const OTIdentifier & theServerID)
-: OTTransactionType (theUserID, theAccountID, theServerID), m_bMarkForDeletion(false)
+: OTTransactionType (theUserID, theAccountID, theServerID), m_lStashTransNum(0), m_bMarkForDeletion(false)
 {
 	InitAccount();
 }
@@ -504,19 +510,23 @@ OTAccount * OTAccount::LoadExistingAccount(const OTIdentifier & theAccountID, co
 // static method (call it without an instance, using notation: OTAccount::GenerateNewAccount)
 OTAccount * OTAccount::GenerateNewAccount(const OTIdentifier & theUserID,	const OTIdentifier & theServerID, 
 										  const OTPseudonym & theServerNym,	const OTMessage & theMessage,
-										  const OTAccount::AccountType eAcctType/*=OTAccount::simple*/)
+										  const OTAccount::AccountType eAcctType/*=OTAccount::simple*/,
+										  long lStashTransNum/*=0*/)
 {
 	OTAccount * pAccount = new OTAccount(theUserID, theServerID);
 	
 	if (pAccount)
 	{
-		if (pAccount->GenerateNewAccount(theServerNym, theMessage, eAcctType))
+		if (pAccount->GenerateNewAccount(theServerNym, theMessage, eAcctType, 
+										 lStashTransNum)) // This is only for stash accounts.
 			return pAccount;
-		else {
+		else 
+		{
 			delete pAccount;
 			pAccount = NULL;
 		}
 	}
+	
 	return NULL;
 }
 
@@ -532,7 +542,8 @@ theMessage.m_strServerID;
  */
 // The above method uses this one internally...
 bool OTAccount::GenerateNewAccount(const OTPseudonym & theServer, const OTMessage & theMessage,
-								   const OTAccount::AccountType eAcctType/*=OTAccount::simple*/)
+								   const OTAccount::AccountType eAcctType/*=OTAccount::simple*/,
+								   long lStashTransNum/*=0*/)
 {
 	// First we generate a secure random number into a binary object.
 	OTPayload thePayload;
@@ -581,8 +592,9 @@ bool OTAccount::GenerateNewAccount(const OTPseudonym & theServer, const OTMessag
 	// Set up the various important starting values of the account.
 	m_AcctType = eAcctType; // account type defaults to OTAccount::simple. But there are also issuer accts...
 	
-	// for basket accounts, the server is the user.
-	if (OTAccount::basket == eAcctType)
+	// --------------------------------------------------------------------
+
+	if (IsInternalServerAcct())  // basket, basketsub, mint, voucher, and stash accounts are all "owned" by the server.
 	{
 		theServer.GetIdentifier(m_AcctUserID);
 	}
@@ -591,6 +603,7 @@ bool OTAccount::GenerateNewAccount(const OTPseudonym & theServer, const OTMessag
 		m_AcctUserID.SetString(theMessage.m_strNymID);
 	}
 
+	// --------------------------------------------------------------------
 	m_AcctAssetTypeID.SetString(theMessage.m_strAssetID);
 	
 	OTLog::vOutput(3, "Creating new account, type:\n%s\n", 
@@ -605,7 +618,17 @@ bool OTAccount::GenerateNewAccount(const OTPseudonym & theServer, const OTMessag
 		
 	m_BalanceAmount.Set("0");
 	
-		
+	// --------------------------------------------------------------------
+	
+	if (IsStashAcct()) 
+	{
+		OT_ASSERT_MSG(lStashTransNum > 0,
+					  "You created a stash account, but with a zero-or-negative transaction number for its cron item.");
+		m_lStashTransNum	= lStashTransNum;
+	}
+	
+	// --------------------------------------------------------------------
+	
 	// Sign the Account (so we know that we did)... Otherwise someone could put a fake
 	// account file on the server if the code wasn't designed to verify the signature on the
 	// account.
@@ -635,6 +658,31 @@ long OTAccount::GetBalance() const
 }
 
 
+OTAccount::AccountType TranslateAccountTypeStringToEnum(const OTString & strAcctType)
+{
+	OTAccount::AccountType theReturnVal = OTAccount::err_acct;
+	
+	if (strAcctType.Compare("simple"))
+		theReturnVal = OTAccount::simple;
+	else if (strAcctType.Compare("issuer"))
+		theReturnVal = OTAccount::issuer;
+	else if (strAcctType.Compare("basket"))
+		theReturnVal = OTAccount::basket;
+	else if (strAcctType.Compare("basketsub"))
+		theReturnVal = OTAccount::basketsub;
+	else if (strAcctType.Compare("mint"))
+		theReturnVal = OTAccount::mint;
+	else if (strAcctType.Compare("voucher"))
+		theReturnVal = OTAccount::voucher;
+	else if (strAcctType.Compare("stash"))
+		theReturnVal = OTAccount::stash;
+	else
+		OTLog::vError("Error: Unknown account type: %s \n", strAcctType.Get());
+	
+	return theReturnVal;
+}
+
+
 void TranslateAccountTypeToString(OTAccount::AccountType theType, OTString & strAcctType)
 {
 	switch (theType) 
@@ -647,6 +695,18 @@ void TranslateAccountTypeToString(OTAccount::AccountType theType, OTString & str
 			break;
 		case OTAccount::basket:
 			strAcctType.Set("basket");
+			break;
+		case OTAccount::basketsub:
+			strAcctType.Set("basketsub");
+			break;
+		case OTAccount::mint:
+			strAcctType.Set("mint");
+			break;
+		case OTAccount::voucher:
+			strAcctType.Set("voucher");
+			break;
+		case OTAccount::stash:
+			strAcctType.Set("stash");
 			break;
 		default:
 			strAcctType.Set("err_acct");
@@ -680,11 +740,12 @@ void OTAccount::UpdateContents()
 	
 	m_xmlUnsigned.Concatenate("<assetAccount\n version=\"%s\"\n type=\"%s\"\n accountID=\"%s\"\n userID=\"%s\"\n"
 							  " serverID=\"%s\"\n assetTypeID=\"%s\" >\n\n", m_strVersion.Get(), strAcctType.Get(),
-							  ACCOUNT_ID.Get(), USER_ID.Get(), SERVER_ID.Get(), strAssetTYPEID.Get());		
-	
+							  ACCOUNT_ID.Get(), USER_ID.Get(), SERVER_ID.Get(), strAssetTYPEID.Get());
+	if (IsStashAcct())
+		m_xmlUnsigned.Concatenate("<stashinfo cronItemNum=\"%ld\"/>\n\n", m_lStashTransNum);
+
 //	m_xmlUnsigned.Concatenate("<balance amount=\"%s\"/>\n\n", m_BalanceAmount.Get());
-	m_xmlUnsigned.Concatenate("<balance date=\"%s\" amount=\"%s\"/>\n\n", m_BalanceDate.Get(),
-							  m_BalanceAmount.Get());
+	m_xmlUnsigned.Concatenate("<balance date=\"%s\" amount=\"%s\"/>\n\n", m_BalanceDate.Get(), m_BalanceAmount.Get());
 	
     if (m_bMarkForDeletion)
         m_xmlUnsigned.Concatenate("<MARKED_FOR_DELETION>\n"
@@ -814,16 +875,20 @@ int OTAccount::ProcessXMLNode(IrrXMLReader*& xml)
 		m_strVersion	= xml->getAttributeValue("version");					
 		strAcctType		= xml->getAttributeValue("type");
 		
+		if (!strAcctType.Exists())
+		{
+			OTLog::Error("OTAccount::ProcessXMLNode: Failed: Empty assetAccount 'type' attribute.\n");
+			return (-1);
+		}
 		
-		if (strAcctType.Compare("simple"))
-			m_AcctType = OTAccount::simple;
-		else if (strAcctType.Compare("issuer"))
-			m_AcctType = OTAccount::issuer;
-		else if (strAcctType.Compare("basket"))
-			m_AcctType = OTAccount::basket;
-		else
-			m_AcctType = OTAccount::err_acct;
-		
+		m_AcctType = TranslateAccountTypeStringToEnum(strAcctType);
+
+		if (OTAccount::err_acct == m_AcctType)
+		{
+			OTLog::Error("OTAccount::ProcessXMLNode: Failed: assetAccount 'type' attribute contains unknown value.\n");
+			return (-1);
+		}
+				
 		m_AcctAssetTypeID.SetString(xml->getAttributeValue("assetTypeID"));
 		
 		OTString	strAccountID(xml->getAttributeValue("accountID")),
@@ -878,10 +943,392 @@ int OTAccount::ProcessXMLNode(IrrXMLReader*& xml)
 		nReturnVal = 1;
 	}
 
+	else if (!strcmp("stashinfo", xml->getNodeName())) 
+	{
+		if (!IsStashAcct())
+		{
+			OTLog::Error("OTAccount::ProcessXMLNode: Error: Encountered stashinfo tag while loading NON-STASH account. \n");
+			return (-1);
+		}
+		// ------------------------------------------------------------------------
+		long lTransNum = 0;
+		const OTString	strStashTransNum	= xml->getAttributeValue("cronItemNum");
+		if (!strStashTransNum.Exists() || ((lTransNum = atol(strStashTransNum.Get())) <= 0))
+		{
+			m_lStashTransNum = 0;
+			OTLog::Error("OTAccount::ProcessXMLNode: Error: Bad transaction number for supposed corresponding cron item: %ld \n",
+						 lTransNum);
+			return (-1);
+		}
+		else
+			m_lStashTransNum = lTransNum;
+
+		// ------------------------------
+			
+		OTLog::vOutput(3, "\nSTASH INFO:   CronItemNum     --  %ld\n", m_lStashTransNum);
+		
+		nReturnVal = 1;
+	}
+	
 	return nReturnVal;
 }
 
 
+/*
+ simple,		// used by users
+ issuer,		// used by issuers	(these can only go negative.)
+ 
+ basket,		// used by basket currencies (for basket issuer account)
+ basketsub,		// used by server to store backing reserves for basket sub accounts.
+ mint,		// used by mints (to store backing reserves for cash)
+ voucher,	// used by the server (to store backing reserves for vouchers)
+ stash,		// used by the server (to store backing reserves for stashes, for smart contracts.)
+ 
+ err_acct 
+ */
+
+bool OTAccount::IsInternalServerAcct() const
+{
+	bool bReturnVal = false;
+	
+	switch (m_AcctType) 
+	{
+		case OTAccount::simple:
+		case OTAccount::issuer:
+			bReturnVal = false;
+			break;
+		case OTAccount::basket:
+		case OTAccount::basketsub:
+		case OTAccount::mint:
+		case OTAccount::voucher:
+		case OTAccount::stash:
+			bReturnVal = true;
+			break;
+		default:
+			OTLog::Error("OTAccount::IsInternalServerAcct: Unknown account type.\n");
+			bReturnVal = false;
+			break;
+	}
+	
+	return bReturnVal;
+}
+
+
+bool OTAccount::IsOwnedByUser() const
+{
+	bool bReturnVal = false;
+	
+	switch (m_AcctType) 
+	{
+		case OTAccount::simple:
+		case OTAccount::issuer:
+			bReturnVal = true;
+			break;
+		case OTAccount::basket:
+		case OTAccount::basketsub:
+		case OTAccount::mint:
+		case OTAccount::voucher:
+		case OTAccount::stash:
+			bReturnVal = false;
+			break;
+		default:
+			OTLog::Error("OTAccount::IsOwnedByUser: Unknown account type.\n");
+			bReturnVal = false;
+			break;
+	}
+	
+	return bReturnVal;	
+}
+
+bool OTAccount::IsOwnedByEntity const
+{
+	return false;
+}
+
+
+bool OTAccount::IsAllowedToGoNegative() const
+{
+	bool bReturnVal = false;
+	
+	switch (m_AcctType) 
+	{
+		case OTAccount::issuer:		// issuer acct controlled by a user
+		case OTAccount::basket:		// basket issuer acct controlled by the server (for a basket currency)
+			bReturnVal = true;
+			break;
+		case OTAccount::simple:		// user asset acct
+		case OTAccount::basketsub:	// internal server acct for storing reserves for basket sub currencies
+		case OTAccount::mint:		// internal server acct for storing reserves for cash withdrawals
+		case OTAccount::voucher:	// internal server acct for storing reserves for vouchers (like cashier's cheques)
+		case OTAccount::stash:		// internal server acct for storing reserves for smart contract stashes. (Money stashed IN the contract.)
+			bReturnVal = false;
+			break;
+		default:
+			OTLog::Error("OTAccount::IsAllowedToGoNegative: Unknown account type.\n");
+			bReturnVal = false;
+			break;
+	}
+	
+	return bReturnVal;	
+}
+
+
+
+
+// mapOfStrings			m_mapAcctIDs; // AcctIDs as second mapped by ASSET TYPE ID as first.
+// mapOfWeakAccounts	m_mapWeakAccts; // Weak pointers to accounts that may still be in memory, mapped by ACCOUNT ID. 
+
+
+OTAcctList::OTAcctList() : m_AcctType(OTAccount::voucher) // the default type of acct it will create when it needs to, unless default is changed.
+{
+	
+}
+
+OTAcctList::OTAcctList(OTAccount::AccountType eAcctType) : m_AcctType(eAcctType)
+{
+	
+}
+
+
+
+
+
+OTAcctList::~OTAcctList()
+{
+	
+}
+
+
+void OTAcctList::Serialize(OTString & strAppend)
+{
+	OTString strAcctType;
+	TranslateAccountTypeToString(m_AcctType, strAcctType);
+	
+	strAppend.Concatenate("<accountList type=\"%s\" count=\"%d\" >\n\n",
+						  strAcctType.Get(), m_mapAcctIDs.size());
+	// -----------------
+	
+	FOR_EACH(mapOfStrings, m_mapAcctIDs)
+	{
+		const std::string str_asset_type_id	= (*ii).first;
+		const std::string str_account_id	= (*ii).second;
+		OT_ASSERT((str_asset_type_id.size()>0) && (str_account_id.size()>0));
+		
+		strAppend.Concatenate("<accountEntry assetTypeID=\"%s\" accountID=\"%s\" />\n\n",
+							  str_asset_type_id.c_str(), str_account_id.c_str());
+	}
+	// -----------------
+	strAppend.Concatenate("</accountList>\n\n");
+}
+
+// --------------------
+
+
+int OTAcctList::ReadFromXMLNode(irr::io::IrrXMLReader*& xml, const OTString & strAcctType, const OTString & strAcctCount)
+{
+	if (!strAcctType.Exists())
+	{
+		OTLog::Error("OTAcctList::ReadFromXMLNode: Failed: Empty accountList 'type' attribute.\n");
+		return (-1);
+	}
+	
+	m_AcctType = TranslateAccountTypeStringToEnum(strAcctType);
+	
+	if (OTAccount::err_acct == m_AcctType)
+	{
+		OTLog::Error("OTAcctList::ReadFromXMLNode: Failed: accountList 'type' attribute contains unknown value.\n");
+		return (-1);
+	}
+	
+	// -----------------------------------------------
+	//
+	// Load up the account IDs.
+	//
+	int nCount	= 0;
+	if (strAcctCount.Exists() && ( (nCount = atoi(strAcctCount.Get()) > 0 )))
+	{
+		while (nCount-- > 0)
+		{
+			xml->read();
+			
+			if ((xml->getNodeType() == EXN_ELEMENT) && (!strcmp("accountEntry", xml->getNodeName())))
+			{
+				OTString strAssetTypeID	= xml->getAttributeValue("assetTypeID"); // Asset Type ID of this account.
+				OTString strAccountID	= xml->getAttributeValue("accountID"); // Account ID for this account.
+				
+				// ----------------------------------
+				
+				if (!strAssetTypeID.Exists() || !strAccountID.Exists())
+				{
+					OTLog::vError("OTAcctList::ReadFromXMLNode: Error loading accountEntry: Either the assetTypeID (%s), "
+								 "or the accountID (%s) was EMPTY.\n", strAssetTypeID.Get(), strAccountID.Get());
+					return (-1);
+				}
+				
+				// Success
+				m_mapAcctIDs.insert(std::pair<std::string, std::string>(strAssetTypeID.Get(), strAccountID.Get()));
+			}				
+			else 
+			{
+				OTLog::Error("OTAcctList::ReadFromXMLNode: Expected accountEntry element in accountList.\n");
+				return (-1); // error condition
+			}
+		} // while
+	}
+	// --------------------------------
+	return 1;
+}
+
+
+
+// **************************************************************
+
+// So far, no need to call this in the destructor, since these clean themselves up ANYWAY.
+//
+void OTAcctList::Release()
+{
+	m_mapAcctIDs.clear();
+	m_mapWeakAccts.clear();
+}
+
+
+OTAccount_SharedPtr OTAcctList::GetOrCreateAccount(OTPseudonym			& theServerNym, 
+												   const OTIdentifier	& ACCOUNT_OWNER_ID, 
+												   const OTIdentifier	& ASSET_TYPE_ID, 
+												   const OTIdentifier	& SERVER_ID,
+												   bool					& bWasAcctCreated, // this will be set to true if the acct is created here. Otherwise set to false;
+												   const long lStashTransNum/*=0*/)
+{
+	OTAccount_SharedPtr pRetVal;
+	bWasAcctCreated = false;
+	// ------------------------------------------------
+	if (OTAccount::stash == m_AcctType)
+	{
+		if (lStashTransNum <= 0)
+		{
+			OTLog::Error("OTAcctList::GetOrCreateAccount: Failed attempt to create stash account without cron item #.\n");
+			return pRetVal;
+		}
+	}
+	
+	// ------------------------------------------------
+	// First, we'll see if there's already an account ID available for the requested asset type ID.
+	//
+	const OTString strAssetTypeID(ASSET_TYPE_ID), strAcctType;
+	const std::string str_asset_type_id = strAssetTypeID.Get();
+	
+	TranslateAccountTypeToString(m_AcctType, strAcctType);
+	// ----------------------------------------------------------------
+	
+	mapOfStrings::iterator it_acct_ids = m_mapAcctIDs.find(str_asset_type_id);
+	if (m_mapAcctIDs.end() != it_acct_ids) // Account ID *IS* already there for this asset type...
+	{
+		const std::string			str_account_id	= (*it_acct_ids).second; // grab account ID
+		mapOfWeakAccounts::iterator	it_weak			= m_mapWeakAccts.find(str_account_id); // Try to find account pointer...
+		
+		if (m_mapWeakAccts.end() != it_weak)  // FOUND the weak ptr to the account! Maybe it's already loaded
+		{
+			OTAccount_WeakPtr	pWeak	= (*it_weak).second; // first is acct ID, second is weak_ptr to account.
+			OTAccount_SharedPtr	pShared(pWeak);
+			
+			// If success, then we have a shared pointer. But it's worrying (TODO) because this should have
+			// gone out of scope and been destroyed by whoever ELSE was using it. The fact that it's still here...
+			// well I'm glad not to double-load it, but I wonder why it's still here? And we aren't walking on anyone's
+			// toes, right? If this were multi-threaded, then I'd explicitly lock a mutex here, honestly. But since things
+			// happen one at a time on OT, I'll settle for a warning for now. I'm assuming that if the account's loaded
+			// already somewhere, it's just a pointer sitting there, and we're not walking on each other's toes.
+			// 
+			if (pShared) 
+			{
+				OTLog::vOutput(0, "OTAcctList::GetOrCreateAccount: Warning: account (%s) was already in memory so I gave you a "
+							   "pointer to the existing one. (But who else has a copy of it?) \n", str_account_id.c_str());
+				return pShared;
+			}
+			
+			// Though the weak pointer was there, the resource must have since been destroyed, 
+			// because I cannot lock a new shared ptr onto it.   :-(
+			//
+			// Therefore remove it from the map, and RE-LOAD IT.
+			//
+			m_mapWeakAccts.erase(it_weak);
+		}
+		
+		// DIDN'T find the acct pointer, even though we had the ID. 
+		// (Or it was there, but we couldn't lock a shared_ptr onto it, so we erased it...)
+		//
+		// So let's load it now. After all, the Account ID *does* exist...
+		//
+		const OTString strAcctID(str_account_id.c_str());
+		const OTIdentifier theAccountID(strAcctID);
+		
+		// The Account ID exists, but we don't have the pointer to a loaded account for it.
+		// Soo.... let's load it.
+		//
+		OTAccount * pAccount = OTAccount::LoadExistingAccount(theAccountID, SERVER_ID);
+		
+		if (NULL == pAccount)
+			OTLog::vError("OTAcctList::GetOrCreateAccount: Failed trying to load %s account with account ID: %s\n",
+						  strAcctType.Get(),strAcctID.Get());
+		else if (!pAccount->VerifySignature(theServerNym))
+			OTLog::vError("OTAcctList::GetOrCreateAccount: Failed verifying server's signature on %s account with account ID: %s\n",
+						  strAcctType.Get(),strAcctID.Get());
+		else if (!pAccount->VerifyOwnerByID(ACCOUNT_OWNER_ID))
+		{
+			const OTString strOwnerID(ACCOUNT_OWNER_ID);
+			OTLog::vError("OTAcctList::GetOrCreateAccount: Failed verifying owner ID (%s) on %s account ID: %s\n",
+						  strOwnerID.Get(), strAcctType.Get(),strAcctID.Get());
+		}
+		else // SUCCESS loading the account...
+		{
+			OTLog::vOutput(3, "Successfully loaded %s account ID: %s\nAsset Type ID:\n%s\n", 
+						   strAcctType.Get(), strAcctID.Get(), str_asset_type_id.c_str());
+			
+			pRetVal								= OTAccount_SharedPtr(pAccount); // Create a shared pointer to the account, so it will be cleaned up automatically.
+			m_mapWeakAccts [strAcctID.Get()]	= OTAccount_WeakPtr(pRetVal); // save a weak pointer to the acct, so we'll never load it twice, but we'll also know if it's been deleted.
+		}
+		return pRetVal;
+		//
+	} // (Asset Type ID was found on the AcctID Map -- a corresponding Account ID is already there for that asset type.)
+	
+	// ******************************************************************************
+	
+	// Not found... There's no account ID yet for that asset type ID.
+	// That means we can create it...
+	//
+	OTMessage theMessage; // Here we set up theMessage
+	ACCOUNT_OWNER_ID.GetString(theMessage.m_strNymID);
+	ASSET_TYPE_ID.GetString(theMessage.m_strAssetID);
+	SERVER_ID.GetString(theMessage.m_strServerID);		
+	
+	OTAccount * pAccount = OTAccount::GenerateNewAccount(ACCOUNT_OWNER_ID,	// theUserID
+														 SERVER_ID,			// theServerID
+														 theServerNym,		// theServerNym
+														 theMessage,		
+														 m_AcctType,		// OTAccount::voucher is default.
+														 lStashTransNum);
+	// ------------------------------------------------------------------------------------------
+	
+	if (NULL == pAccount)
+		OTLog::vError(" OTAcctList::GetOrCreateAccount: Failed trying to generate %s account with asset type ID: %s\n",
+					  strAcctType.Get(), str_asset_type_id.c_str());
+	else // SUCCESS creating the account...
+	{
+		OTString strAcctID;
+		pAccount->GetIdentifier(strAcctID);
+		
+		OTLog::vOutput(0, "Successfully created %s account ID:\n%s\nAsset Type ID:\n%s\n", 
+					   strAcctType.Get(), strAcctID.Get(), str_asset_type_id.c_str());
+		
+		pRetVal = OTAccount_SharedPtr(pAccount); // Create a shared pointer to the account, so it will be cleaned up automatically.
+		
+		m_mapWeakAccts	[strAcctID.Get()]				= OTAccount_WeakPtr(pRetVal); // save a weak pointer to the acct, so we'll never load it twice, but we'll also know if it's been deleted.
+		m_mapAcctIDs	[theMessage.m_strAssetID.Get()]	= strAcctID.Get(); // Save the new acct ID in a map, keyed by asset type ID.
+		
+		bWasAcctCreated = true;
+	}
+	
+	return pRetVal;
+} // --------------------------------------------------------
 
 
 
