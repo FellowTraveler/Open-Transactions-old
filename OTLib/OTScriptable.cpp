@@ -254,7 +254,9 @@ bool OTScriptable::ValidateName(const std::string str_name)
 
 
 
-
+// OTSmartContract::RegisterOTNativeCallsWithScript OVERRIDES this, but
+// also calls it.
+//
 void OTScriptable::RegisterOTNativeCallsWithScript(OTScript & theScript)
 {
 	using namespace chaiscript;
@@ -1497,6 +1499,90 @@ bool OTScriptable::AddBylaw(OTBylaw & theBylaw)
  */
 
 
+// TODO!
+//
+
+// mapOfParties		m_mapParties;	// The parties to the contract. Could be Nyms, or other entities. May be rep'd by an Agent.
+
+// mapOfBylaws		m_mapBylaws;	// The Bylaws for this contract.
+
+
+bool OTScriptable::Compare(const OTScriptable & rhs) const
+{
+	
+	// Todo:
+	// EITHER *this or rhs will have MORE PARTIES on it.
+	// Make sure that the one with FEWER PARTIES has ALL of them
+	// found on the one with MORE parties. TOdo.
+	
+	
+	// TODO: Make sure the Bylaws are entirely identical.
+	
+	
+	
+	// Compare OTScriptable specific info here.
+//	
+//    if (
+//        (   m_strConsideration.Compare(pSmartContract->m_strConsideration) ) &&
+//        // --------------------------------------------------------------------
+//        (HasInitialPayment()        == rhs.HasInitialPayment())          &&
+//        (GetInitialPaymentDate()    == rhs.GetInitialPaymentDate())      &&
+//        (GetInitialPaymentAmount()  == rhs.GetInitialPaymentAmount())    &&
+//        // --------------------------------------------------------------------
+//        (HasPaymentPlan()           == rhs.HasPaymentPlan())             &&
+//        (GetPaymentPlanAmount()     == rhs.GetPaymentPlanAmount())       &&
+//        (GetTimeBetweenPayments()   == rhs.GetTimeBetweenPayments())     &&
+//        (GetPaymentPlanStartDate()  == rhs.GetPaymentPlanStartDate())    &&
+//        (GetPaymentPlanLength()     == rhs.GetPaymentPlanLength())       &&
+//        (GetMaximumNoPayments()     == rhs.GetMaximumNoPayments())
+//		)
+//        return true;
+
+    
+	
+	
+	
+	
+	
+	
+    return false;
+}
+
+
+
+
+
+void OTScriptable::UpdateContentsToString(OTString & strAppend)
+{	
+	strAppend.Concatenate("<scriptableContract>\n\n");
+	
+	FOR_EACH(mapOfParties, m_mapParties)
+	{
+		OTParty * pParty = (*it).second;
+		OT_ASSERT(NULL != pParty);
+		
+		pParty->Serialize(strAppend);		
+	}
+	
+	FOR_EACH(mapOfBylaws, m_mapBylaws)
+	{
+		OTBylaw * pBylaw = (*ii).second;
+		OT_ASSERT(NULL != pBylaw);
+		
+		pBylaw->Serialize(strAppend);
+	}
+	
+	strAppend.Concatenate("</scriptableContract>\n\n");						
+}
+
+
+void OTScriptable::UpdateContents() // Before transmission or serialization, this is where the contract updates its contents 
+{		
+	// I release this because I'm about to repopulate it.
+	m_xmlUnsigned.Release();
+	
+	UpdateContentsToString(m_xmlUnsigned);
+}
 
 // return -1 if error, 0 if nothing, and 1 if the node was processed.
 int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
@@ -1515,7 +1601,12 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		return nReturnVal;
 	
 	
-	if (!strcmp("party", xml->getNodeName()))
+	if (!strcmp("scriptableContract", xml->getNodeName()))
+	{
+		nReturnVal = 1; 
+	}
+	
+	else if (!strcmp("party", xml->getNodeName()))
 	{
 		OTString strName			= xml->getAttributeValue("name"); // Party name (in script code)
 		OTString strOwnerType		= xml->getAttributeValue("ownerType"); // "nym" or "entity"
@@ -2197,33 +2288,6 @@ bool OTScriptable::GetHooks(const std::string str_HookName, mapOfClauses & theRe
 	return bReturnVal;
 }
 
-
-void OTScriptable::UpdateContents() // Before transmission or serialization, this is where the contract updates its contents 
-{		
-	// I release this because I'm about to repopulate it.
-	m_xmlUnsigned.Release();
-	
-	m_xmlUnsigned.Concatenate("<scriptableContract>\n\n");
-	
-	
-	FOR_EACH(mapOfParties, m_mapParties)
-	{
-		OTParty * pParty = (*it).second;
-		OT_ASSERT(NULL != pParty);
-		
-		pParty->Serialize(m_xmlUnsigned);		
-	}
-	
-	FOR_EACH(mapOfBylaws, m_mapBylaws)
-	{
-		OTBylaw * pBylaw = (*ii).second;
-		OT_ASSERT(NULL != pBylaw);
-		
-		pBylaw->Serialize(m_xmlUnsigned);
-	}
-	
-	m_xmlUnsigned.Concatenate("</scriptableContract>\n");					
-}
 
 
 void OTScriptable::Release()

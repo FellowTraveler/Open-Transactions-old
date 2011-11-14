@@ -165,12 +165,18 @@ protected:
     bool		m_bRemovalFlag;	// Set this to true and the cronitem will be removed from Cron on next process.
                                 // (And its offer will be removed from the Market as well, if appropriate.)
 
+	// -----------------------------------------------------------------
+	virtual void onActivate() {}  // called by HookActivationOnCron().
+
     virtual void onFinalReceipt(OTCronItem & theOrigCronItem,
                                 const long & lNewTransactionNumber, 
                                 OTPseudonym & theOriginator,
                                 OTPseudonym * pRemover);  // called by HookRemovalFromCron().
+	
     virtual void onRemovalFromCron() {}  // called by HookRemovalFromCron().
+	// -----------------------------------------------------------------
 
+	
     // To force the Nym to close out the closing number on the receipt.
     bool DropFinalReceiptToInbox(const OTIdentifier & USER_ID,
                                  const OTIdentifier & ACCOUNT_ID,
@@ -186,15 +192,24 @@ protected:
                                   const OTString & strOrigCronItem,
                                   OTString * pstrNote=NULL,
                                   OTString * pstrAttachment=NULL);
-    
+	// -----------------------------------------------------------------
+
 public:
     virtual bool CanRemoveItemFromCron(OTPseudonym & theNym);
     
     virtual void HarvestClosingNumbers(OTPseudonym & theNym);
+	
+    // -----------------------------------------------------------------
     
+	// pActivator and pRemover are both "SOMETIMES NULL"
+	// I don't default the parameter, because I want to force the programmer to choose.
+	
+    // Called in OTCron::AddCronItem.
+    void HookActivationOnCron(OTPseudonym * pActivator); // This calls onActivate, which is virtual.
+	
     // Called in OTCron::RemoveCronItem as well as OTCron::ProcessCron.
-    void HookRemovalFromCron(OTPseudonym * pRemover); // This calls onFinalReceipt, then onRemovalFromCron. Both are polymorphic.
-
+    void HookRemovalFromCron(OTPseudonym * pRemover); // This calls onFinalReceipt, then onRemovalFromCron. Both are virtual.
+	
     // -----------------------------------------------------------------
     
     inline bool IsFlaggedForRemoval() const { return m_bRemovalFlag; }

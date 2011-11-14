@@ -1137,6 +1137,34 @@ bool OTCronItem::SaveCronReceipt()
 
 
 
+// OTCron calls this when a cron item is removed
+// This gives each item a chance to drop a final receipt,
+// and clean up any memory, before being destroyed.
+//
+void OTCronItem::HookActivationOnCron(OTPseudonym * pActivator) // sometimes NULL.
+{
+    OTCron * pCron  = GetCron();
+    OT_ASSERT(NULL != pCron);
+    
+    OTPseudonym * pServerNym = pCron->GetServerNym();
+    OT_ASSERT(NULL != pServerNym);
+    
+    // -----------------------------------------------------
+    
+	// Put anything else in here, that needs to be done in the
+	// cron item base class, upon activation. (This executes
+	// no matter what, even if onActivate() is overridden.)
+    
+    // -------------------------------------------------------
+    // 
+    onActivate(); // Subclasses may override this. 
+	//
+	// MOST NOTABLY,
+	// OTSmartContract overrides this, so it can allow the SCRIPT
+	// a chance to hook onActivate() as well.
+}
+
+
 
 
 
@@ -1296,8 +1324,9 @@ long OTCronItem::GetClosingNum() const
 
 
 
-// This function is overridden in both OTTrade and OTAgreement.
-// I'm put a default implementation here "Just Because".
+// This function is overridden in OTTrade, OTAgreement, and OTSmartContract.
+//
+// I'm put a default implementation here "Just Because."
 //
 // This is called by HookRemovalFromCron().
 //

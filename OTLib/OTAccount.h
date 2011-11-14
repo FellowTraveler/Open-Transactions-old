@@ -210,7 +210,7 @@ public:
 	//
 	bool IsStashAcct() const { return (m_AcctType == stash); } 
 	
-	const long &		GetStashTransNum() const { return m_lStashTransNum; }
+	const long & GetStashTransNum() const { return m_lStashTransNum; }
 	void SetStashTransNum(const long & lTransNum) { m_lStashTransNum = lTransNum; }	
 
     // ---------------------------------------
@@ -302,6 +302,8 @@ public:
 	OTAcctList(AccountType eAcctType);
 	~OTAcctList();
 
+	int GetCountAccountIDs() const { return m_mapAcctIDs.size(); }
+	
 	void Release();
 	
 	void Serialize(OTString & strAppend);

@@ -249,7 +249,8 @@ public:
 	// If you want to override that behavior, add a script callback named callback_party_may_execute_clause to your OTScriptable.
 	// CanExecuteClause will call ExecuteCallback() if that script exists, so the script can reply true/false.
 	//
-	bool CanExecuteClause(const std::string str_party_name, const std::string str_clause_name);
+	bool CanExecuteClause(const std::string str_party_name, const std::string str_clause_name); // This calls (if available) the scripted clause: bool party_may_execute_clause(party_name, clause_name)
+
 	//
 	// Also: callback_party_may_execute_clause should expect two parameters: param_party_name and param_clause_name, both strings.
 	// Also: callback_party_may_execute_clause should return a bool.
@@ -258,6 +259,8 @@ public:
 	bool ExecuteCallback (OTClause & theCallbackClause, mapOfVariables & theParameters, OTVariable & varReturnVal);
 
 	virtual void RegisterOTNativeCallsWithScript(OTScript & theScript);
+
+	virtual bool Compare(const OTScriptable & rhs) const;
 
 	// ----------------
 
@@ -273,6 +276,8 @@ public:
 	OTScriptable();
 
 	virtual ~OTScriptable();
+
+	void UpdateContentsToString(OTString & strAppend);
 
 	virtual void Release();
 	virtual void UpdateContents();

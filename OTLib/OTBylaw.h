@@ -506,11 +506,16 @@ class OTParty
 	OTScriptable *	m_pOwnerAgreement; // This Party is owned by an agreement (OTScriptable-derived.) Convenience pointer.
 
 public:
+	const std::string & GetAuthorizedAgentName() const { return m_str_authorizing_agent; }
+	
+	// ----------------------
 	OTParty();
 	OTParty(const char * szName, bool bIsOwnerNym, const char * szOwnerID, const char * szAuthAgent);
 	OTParty(const std::string str_PartyName, OTPseudonym & theNym, OTAccount * pAccount=NULL);
 	
 	virtual ~OTParty();
+	
+	bool Compare(const OTParty & rhs) const;
 	
 //    OTParty(const OTParty & rhs);
 //    OTParty& operator= (const OTParty & rhs);
@@ -822,7 +827,8 @@ class OTStash
 public:
 	// -------------------------------
 	
-	OTStashItem *	GetStash(const std::string & str_asset_type_id);
+	const std::string	GetName() const { return m_str_stash_name; }
+	OTStashItem *		GetStash(const std::string & str_asset_type_id);
 	
 	long			GetAmount(const std::string str_asset_type_id);
 	
@@ -830,6 +836,9 @@ public:
 	bool			DebitStash(const std::string str_asset_type_id, const long &lAmount);
 	
 	// -------------------------------
+	void Serialize(OTString & strAppend);
+
+	
 	OTStash();
 	OTStash(const std::string str_stash_name) 
 		{ m_str_stash_name = str_stash_name; }
@@ -924,6 +933,8 @@ public:
 	OTBylaw(const char * szName, const char * szLanguage);
 
 	virtual ~OTBylaw();
+	
+	bool Compare(const OTBylaw & rhs) const;
 	
 	void Serialize(OTString & strAppend);
 };

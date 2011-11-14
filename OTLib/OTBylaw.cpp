@@ -2327,6 +2327,75 @@ void OTBylaw::RegisterVariablesForExecution(OTScript& theScript)
 }
 
 
+// Todo
+bool OTBylaw::Compare(const OTBylaw & rhs) const
+{
+	if (
+		(m_strName.Compare(rhs.GetName())) &&
+		(m_strLanguage.Compare(rhs.GetLanguage())) &&
+		) 
+	{
+//		mapOfVariables	m_mapVariables; // constant, persistant, and important variables (strings and longs)
+//		mapOfClauses	m_mapClauses;	// map of scripts associated with this bylaw.
+//		
+//		mapOfHooks		m_mapHooks;		// multimap of server hooks associated with clauses.
+//		mapOfCallbacks	m_mapCallbacks;	// multimap of standard callbacks associated with script clauses.
+		
+	
+		// TODO: IF ALL FOUR MAPS COMPARE EXACTLY, THEN RETURN TRUE!!!
+		
+		
+		
+		
+		
+		
+		
+		
+	}
+	
+	return false;
+}
+
+
+
+// Todo
+bool OTParty::Compare(const OTParty & rhs) const
+{
+	const std::string str_party_name(rhs.GetPartyName());
+	
+	if (str_party_name.compare(GetPartyName()) != 0)
+		return false;
+	
+	if (IsNym() != rhs.IsNym())
+		return false;
+	
+	if (GetOpeningTransNo() != rhs.GetOpeningTransNo())
+		return false;
+	
+	if (GetPartyID().compare(rhs.GetPartyID()) != 0)
+		return false;
+	
+	if (GetAuthorizedAgentName().compare(rhs.GetAuthorizedAgentName()) != 0)
+		return false;
+	
+	// TODO:  Compare all agents and party accounts!
+	// RETURN TRUE IF THEY MATCH!!
+	mapOfAgents			m_mapAgents; // These are owned.
+	mapOfPartyAccounts	m_mapPartyAccounts; // These are owned. Each contains a Closing Transaction#.
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	return false;
+}
+
+
 
 OTClause * OTBylaw::GetCallback(const std::string str_CallbackName)
 {	
@@ -2832,6 +2901,85 @@ bool OTStashItem::DebitStash(const long &lAmount)
 }
 
 // -------------------------------------------
+
+
+void OTStash::Serialize(OTString & strAppend)
+{
+	strAppend.Concatenate("<stash name=\"%s\" count=\"%d\" >\n\n",
+						  m_str_stash_name.c_str(), m_mapStashItems.size());
+	// -----------------
+
+	FOR_EACH(mapOfStashItems, m_mapStashItems)
+	{
+		const	std::string		str_asset_type_id	= (*ii).first;
+				OTStashItem *	pStashItem			= (*ii).second;
+		OT_ASSERT((str_asset_type_id.size()>0) && (NULL != pStashItem));
+		
+		strAppend.Concatenate("<stashItem assetTypeID=\"%s\" balance=\"%ld\" />\n\n",
+							  pStashItem->GetAssetTypeID().Get(), pStashItem->GetAmount());
+	}
+	// -----------------
+	strAppend.Concatenate("</stash>\n\n");
+}
+
+
+
+int OTStash::ReadFromXMLNode(irr::io::IrrXMLReader*& xml, const OTString & strStashName, const OTString & strItemCount)
+{
+	if (!strStashName.Exists())
+	{
+		OTLog::Error("OTStash::ReadFromXMLNode: Failed: Empty stash 'name' attribute.\n");
+		return (-1);
+	}
+	
+	m_str_stash_name = strStashName.Get();
+	
+	// -----------------------------------------------
+	//
+	// Load up the stash items.
+	//
+	int nCount	= 0;
+	if (strItemCount.Exists() && ( (nCount = atoi(strItemCount.Get()) > 0 )))
+	{
+		while (nCount-- > 0)
+		{
+			xml->read();
+			
+			if ((xml->getNodeType() == EXN_ELEMENT) && (!strcmp("stashItem", xml->getNodeName())))
+			{
+				OTString strAssetTypeID	= xml->getAttributeValue("assetTypeID"); // Asset Type ID of this account.
+				OTString strAmount		= xml->getAttributeValue("balance"); // Account ID for this account.
+				
+				// ----------------------------------
+				
+				if (!strAssetTypeID.Exists() || !strAmount.Exists())
+				{
+					OTLog::vError("OTStash::ReadFromXMLNode: Error loading stashItem: Either the assetTypeID (%s), "
+								  "or the balance (%s) was EMPTY.\n", strAssetTypeID.Get(), strAmount.Get());
+					return (-1);
+				}
+				
+				if (!CreditStash(strAssetTypeID.Get(), atol(strAmount.Get()) ))  // <===============
+				{
+					OTLog::vError("OTStash::ReadFromXMLNode: Failed crediting stashItem for stash %s. assetTypeID (%s), "
+								  "balance (%s).\n", strStashName.Get(), strAssetTypeID.Get(), strAmount.Get());
+					return (-1);
+				}
+
+				// (Success)
+			}				
+			else 
+			{
+				OTLog::Error("OTStash::ReadFromXMLNode: Expected stashItem element.\n");
+				return (-1); // error condition
+			}
+		} // while
+	}
+	// --------------------------------
+	return 1;
+}
+
+
 
 
 OTStash::OTStash()

@@ -535,7 +535,7 @@ int OTCron::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 				return (-1);
 			}
 			
-			if (AddCronItem(*pItem, false))	// bSaveReceipt=false. The receipt is only saved once: When item FIRST added to cron.
+			if (AddCronItem(*pItem, NULL, false))	// bSaveReceipt=false. The receipt is only saved once: When item FIRST added to cron.
 			{								// But here, the item was ALREADY in cron, and is merely being loaded from disk. Thus,
 				// it would be wrong to try to create the "original record" as if it were brand new
 				// and still had the user's signature on it. (Once added to Cron, the signatures are 
@@ -742,7 +742,7 @@ void OTCron::ProcessCronItems()
 // OTCron IS responsible for cleaning up theItem, and takes ownership.
 // So make SURE it is allocated on the HEAP before you pass it in here, and
 // also make sure to delete it again if this call fails!
-bool OTCron::AddCronItem(OTCronItem & theItem, bool bSaveReceipt/*=true*/)
+bool OTCron::AddCronItem(OTCronItem & theItem, OTPseudonym * pActivator/*=NULL*/, bool bSaveReceipt/*=true*/)
 {	
 	OT_ASSERT(NULL != GetServerNym());
 	
@@ -771,7 +771,11 @@ bool OTCron::AddCronItem(OTCronItem & theItem, bool bSaveReceipt/*=true*/)
 		theItem.SetCronPointer(*this); // This way every CronItem has a pointer to momma.
 
 		bool bSuccess = true;
-		
+		// ------------------------------------------------------
+
+		theItem.HookActivationOnCron(pActivator); // (OTPseudonym * pActivator) // sometimes NULL.
+
+		// ------------------------------------------------------
 		// When an item is added to Cron for the first time, a copy of it is saved to the
 		// cron folder, and it has the user's original signature on it. (If it's a Trade, 
 		// it also contains an Offer with the user's original signature.) This occurs

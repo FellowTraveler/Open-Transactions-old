@@ -178,6 +178,10 @@ private:
 
 protected:
     
+	// --------------------------------------------------------------------------
+
+	virtual void onActivate();		// called by OTCronItem::HookActivationOnCron().
+
     virtual void onFinalReceipt(OTCronItem & theOrigCronItem, const long & lNewTransactionNumber,
                                 OTPseudonym & theOriginator,
                                 OTPseudonym * pRemover);
@@ -185,14 +189,10 @@ protected:
 
 public:
 	// --------------------------------------------------------------------------
-	// This is where the smart contract can store funds, internally.
-	// Todo: Have a server backing account to double this record (like with cash
-	// withdrawals) so it will turn up properly on an audit. Todo.
-	//
-	OTStash * GetStash(const std::string str_stash_name);
 
-	// --------------------------------------------------------------------------
-
+	int GetCountStashes() const;
+	int GetCountStashAccts() const;
+	
 	virtual bool AddParty(OTParty & theParty); // Takes ownership. Overrides from OTScriptable.
 	
 	// FROM PAYMENT PLAN:
@@ -218,8 +218,8 @@ public:
     //
     virtual bool VerifySmartContract(OTPseudonym & VERIFIER_NYM);
     
-    virtual bool Compare(const OTSmartContract & rhs) const;
-    
+	virtual bool Compare(const OTScriptable & rhs) const;
+
 	// --------------------------------------------------------------------------
  	// From OTCronItem (parent class of this)
 	/*
@@ -276,28 +276,74 @@ public:
      virtual bool SignContract (const OTPseudonym & theNym);
      */
     
+	// -------------------------------------
+	// HIGH LEVEL
+	//
+	
+	// CALLBACKS that OT server uses occasionally. (Smart Contracts can
+	// supply a special script that is activated for each callback.)
+
+//	bool OTScriptable::CanExecuteClause(const std::string str_party_name, const std::string str_clause_name); // This calls (if available) the scripted clause: bool party_may_execute_clause(party_name, clause_name)
+	bool CanCancelContract(const std::string str_party_name); // This calls (if available) the scripted clause: bool party_may_cancel_contract(party_name)
+	
+	// OT NATIVE FUNCTIONS -- Available for scripts to call:
+	//
+	bool MoveAcctFunds(const std::string from_acct_name, const std::string to_acct_name, const long lAmount); // calls OTCronItem::MoveFunds()
+	// -----------------------------------------------------------------------------------------------------------------------------------------
+	bool StashAcctFunds(const std::string from_acct_name, const std::string to_stash_name, const long lAmount); // calls StashFunds()
+	bool UnstashAcctFunds(const std::string to_acct_name, const std::string from_stash_name, const long lAmount); // calls StashFunds( lAmount * (-1) )
+	// ------------------------------------------------------------------------------
+	long GetAcctBalance				(const std::string from_acct_name);
+	long GetStashBalance			(const std::string stash_name, const std::string asset_type_id);
+	
+	std::string GetAssetTypeIDofAcct(const std::string from_acct_name);
+
+	bool SendNoticeToParty			(const std::string party_name);
+	bool SendANoticeToAllParties	();
+	
+	void DeactivateSmartContract	();
+	// ----------------------------------------------------------------
+	
+	
+	
+	
     // -------------------------------------
+	// LOW LEVEL
+	
     // from OTScriptable:
+	// (Calls the parent FYI)
+	//
 	virtual void RegisterOTNativeCallsWithScript(OTScript & theScript);
 
-	// -------------------------------------
+	// --------------------------------------------------------------------------
+	// Low-level.
 
-	// Callback that OT server uses occasionally. Smart Contracts can have a special
-	// script that is activated for this callback.
+	// The STASH:
+	// This is where the smart contract can store funds, internally.
 	//
-	bool CanCancelContract(const std::string str_party_name);
-	
-	// OT Native function available for scripts:
+	// Done: Have a server backing account to double this record (like with cash
+	// withdrawals) so it will turn up properly on an audit.
 	//
-	bool MoveAcctFunds(const std::string from_acct_name, const std::string to_acct_name, const long lAmount);
-	bool StashAcctFunds(const std::string from_acct_name, const std::string to_stash_name, const long lAmount);
+	OTStash * GetStash(const std::string str_stash_name);
 
-	// -------------------------------------
-
+	// Low-level.
 	void ExecuteClauses (mapOfClauses & theClauses);
 	
     // -------------------------------------
-    
+	// Low level.
+	// This function (StashFunds) is called by StashAcctFunds() and UnstashAcctFunds(),
+	// In the same way that OTCronItem::MoveFunds() is called by OTSmartContract::MoveAcctFunds().
+	// Therefore this function is lower-level, and the proper way to use it, especially from
+	// a script, is to call StashAcctFunds() or UnstashAcctFunds() (BELOW)
+	//
+	bool StashFunds(const	mapOfNyms		&	map_NymsAlreadyLoaded,
+					const	long			&	lAmount,	// negative amount here means UNstash. Positive means STASH.
+					const	OTIdentifier	&	PARTY_ACCT_ID,
+					const	OTIdentifier	&	PARTY_USER_ID,
+							OTStash			&	theStash);
+	
+	// -----------------------------------------------
+	
 	OTSmartContract();
 	OTSmartContract(const OTIdentifier & SERVER_ID);
 	virtual ~OTSmartContract();

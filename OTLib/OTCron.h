@@ -175,7 +175,7 @@ private:
 public:
 	inline bool		IsActivated() const { return m_bIsActivated; }
 	inline bool		ActivateCron() { if (!m_bIsActivated) return m_bIsActivated = true; else return false; }
-	bool			AddCronItem(OTCronItem & theItem, bool bSaveReceipt=true);
+	bool			AddCronItem(OTCronItem & theItem, OTPseudonym * pActivator=NULL, bool bSaveReceipt=true);
 	bool			RemoveCronItem(long lTransactionNum, OTPseudonym & theRemover); // if returns false, CronItem wasn't found.
 	OTCronItem *	GetCronItem(long lTransactionNum);
 

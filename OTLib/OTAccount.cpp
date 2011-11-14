@@ -1166,7 +1166,7 @@ int OTAcctList::ReadFromXMLNode(irr::io::IrrXMLReader*& xml, const OTString & st
 				}
 				
 				// Success
-				m_mapAcctIDs.insert(std::pair<std::string, std::string>(strAssetTypeID.Get(), strAccountID.Get()));
+				m_mapAcctIDs.insert(std::pair<std::string, std::string>(strAssetTypeID.Get(), strAccountID.Get())); // <=============
 			}				
 			else 
 			{
