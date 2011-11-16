@@ -1514,9 +1514,42 @@ bool OTScriptable::Compare(const OTScriptable & rhs) const
 	// EITHER *this or rhs will have MORE PARTIES on it.
 	// Make sure that the one with FEWER PARTIES has ALL of them
 	// found on the one with MORE parties. TOdo.
-	
+	//
+	// UPDATE: ALL of the parties should be there, in terms of their
+	// names, account names, and agent names, but the actual IDs can
+	// remain blank, and the signed copies can be blank. (Those things
+	// are all verified elsewhere. That's about verifying the signature
+	// and authorization, versus verifying the content.)
+	//
 	
 	// TODO: Make sure the Bylaws are entirely identical.
+	//
+	
+	
+	mapOfParties		m_mapParties;	// The parties to the contract. Could be Nyms, or other entities. May be rep'd by an Agent.
+	
+	mapOfBylaws			m_mapBylaws;	// The Bylaws for this contract.
+
+	
+	if (GetPartyCount() != rhs.GetPartyCount())
+	{
+		OTLog::vOutput(0, "OTScriptable::Compare: The number of parties does not match.\n");
+		return false;
+	}
+	if (GetBylawCount() != rhs.GetBylawCount())
+	{
+		OTLog::vOutput(0, "OTScriptable::Compare: The number of bylaws does not match.\n");
+		return false;
+	}
+	
+	FOR_EACH(mapOfBylaws, m_mapBylaws)
+	{
+		OTBylaw * pBylaw = (*it).second;
+		OT_ASSERT(NULL != pBylaw);
+		// --------------------
+		
+		
+	}
 	
 	
 	

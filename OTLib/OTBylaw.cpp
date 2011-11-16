@@ -2327,33 +2327,259 @@ void OTBylaw::RegisterVariablesForExecution(OTScript& theScript)
 }
 
 
-// Todo
+// Done:
 bool OTBylaw::Compare(const OTBylaw & rhs) const
 {
 	if (
 		(m_strName.Compare(rhs.GetName())) &&
 		(m_strLanguage.Compare(rhs.GetLanguage())) &&
 		) 
-	{
-//		mapOfVariables	m_mapVariables; // constant, persistant, and important variables (strings and longs)
-//		mapOfClauses	m_mapClauses;	// map of scripts associated with this bylaw.
-//		
-//		mapOfHooks		m_mapHooks;		// multimap of server hooks associated with clauses.
-//		mapOfCallbacks	m_mapCallbacks;	// multimap of standard callbacks associated with script clauses.
+	{		
+		if (GetVariableCount() != rhs.GetVariableCount())
+		{
+			OTLog::vOutput(0, "OTBylaw::Compare: The variable count doesn't match for bylaw: %s\n",
+						   m_strName.Get());
+			return false;
+		}
+		if (GetClauseCount() != rhs.GetClauseCount())
+		{
+			OTLog::vOutput(0, "OTBylaw::Compare: The clause count doesn't match for bylaw: %s\n",
+						   m_strName.Get())
+			return false;
+		}
+		if (GetHookCount() != rhs.GetHookCount())
+		{
+			OTLog::vOutput(0, "OTBylaw::Compare: The hook count doesn't match for bylaw: %s\n",
+						   m_strName.Get())
+			return false;
+		}
+		if (GetCallbackCount() != rhs.GetCallbackCount())
+		{
+			OTLog::vOutput(0, "OTBylaw::Compare: The callback count doesn't match for bylaw: %s\n",
+						   m_strName.Get())
+			return false;
+		}
+		// THE COUNTS MATCH, Now let's look up each one by NAME and verify that they match...
+		// ---------------------
+		//
+		FOR_EACH(mapOfVariables, m_mapVariables)
+		{
+			OTVariable * pVar = (*it).second;
+			OT_ASSERT(NULL != pVar);
+			// -----------------------------
+			
+			OTVariable * pVar2 = rhs.GetVariable(pVar->GetName().Get());
+			
+			if (NULL == pVar2)
+			{
+				OTLog::vOutput(0, "OTBylaw::Compare: Failed: Variable not found: %s.\n",
+							   pVar->GetName().Get());
+				return false;
+			}
+			if (!pVar->Compare(*pVar2))
+			{
+				OTLog::vOutput(0, "OTBylaw::Compare: Failed comparison between 2 variables named %s.\n",
+							   pVar->GetName().Get());
+				return false;
+			}
+		}
+		// ---------------------
+		FOR_EACH(mapOfClauses, m_mapClauses)
+		{
+			OTClause * pClause = (*it).second;
+			OT_ASSERT(NULL != pClause);
+			// -----------------------------
+			
+			OTClause * pClause2 = rhs.GetClause(pClause->GetName().Get());
+			
+			if (NULL == pClause2)
+			{
+				OTLog::vOutput(0, "OTBylaw::Compare: Failed: Clause not found: %s.\n",
+							   pClause->GetName().Get());
+				return false;
+			}
+			if (!pClause->Compare(*pClause2))
+			{
+				OTLog::vOutput(0, "OTBylaw::Compare: Failed comparison between 2 clauses named %s.\n",
+							   pClause->GetName().Get());
+				return false;
+			}
+		}
+		// ---------------------
+		FOR_EACH(mapOfCallbacks, m_mapCallbacks)
+		{
+			const std::string & str_callback_name	= (*it).first;
+			const std::string & str_clause_name		= (*it).second;
+			// ---------------------------------
+			
+			OTClause * pCallbackClause  = this->GetCallback(str_callback_name);
+			OTClause * pCallbackClause2 = rhs.GetCallback(str_callback_name);
+			
+			if (NULL == pCallbackClause)
+			{
+				OTLog::vOutput(0, "OTBylaw::Compare: Failed: Callback (%s) clause (%s) not found on this bylaw: %s.\n",
+							   str_callback_name.c_str(), str_clause_name.c_str(), m_strName.Get());
+				return false;
+			}
+			else if (NULL == pCallbackClause2)
+			{
+				OTLog::vOutput(0, "OTBylaw::Compare: Failed: Callback (%s) clause (%s) not found on rhs bylaw: %s.\n",
+							   str_callback_name.c_str(), str_clause_name.c_str(), rhs.GetName().Get());
+				return false;
+			}
+			else if (!(pCallbackClause.GetName().Compare(pCallbackClause2.GetName())))
+			{
+				OTLog::vOutput(0, "OTBylaw::Compare: Failed: Callback (%s) clause (%s) on rhs has a different name (%s) than *this bylaw: %s.\n",
+							   str_callback_name.c_str(), str_clause_name.c_str(), pCallbackClause2.GetName().Get(), m_strName.Get());
+				return false;
+			}
+			
+			// OPTIMIZE: Since ALL the clauses are already compared, one-by-one, in the above block, then we don't 
+			// actually HAVE to do a compare clause here. We just need to make sure that we got them both via the same
+			// name, and that the counts are the same (as already verified above) and that should actually be good enough.
+			// For now though, I'm leaving this verification.
+//			else if (!pCallbackClause->Compare(*pCallbackClause2))
+//			{
+//				OTLog::vOutput(0, "OTBylaw::Compare: Failed comparison between 2 callback (%s) clauses (%s) on bylaws both named %s.\n",
+//							   str_callback_name.c_str(), str_clause_name.c_str(), rhs.GetName().Get());
+//				return false;
+//			}
+		}
+		// ---------------------
+		//typedef std::multimap	<std::string, std::string> mapOfHooks; 
+		std::set<std::string> theHookSet;
 		
-	
-		// TODO: IF ALL FOUR MAPS COMPARE EXACTLY, THEN RETURN TRUE!!!
+		// There might be MANY entries with the SAME HOOK NAME. So we add them
+		// all to a SET in order to get unique keys.
+		FOR_EACH(mapOfHooks, m_mapHooks) 
+		{
+			const std::string & str_hook_name	= (*it).first;
+//			const std::string & str_clause_name	= (*it).second;
+			// -----------------------------------------
+			
+			theHookSet.insert(str_hook_name);
+		}
+		// Now we loop through all the unique hook names, and get 
+		// the list of clauses for EACH bylaw for THAT HOOK.
+		FOR_EACH_IT(std::set<std::string>, theHookSet, it_hook)
+		{
+			const std::string & str_hook_name = *it_hook;
+			// ------------------------------------
+			
+			mapOfClauses theHookClauses, theHookClauses2;
+			
+			if (	!this->GetHooks(str_hook_name, theHookClauses)
+				||	!rhs.  GetHooks(str_hook_name, theHookClauses2))
+			{
+				OTLog::vOutput(0, "OTBylaw::Compare: Failed finding hook (%s) clauses on this bylaw or rhs bylaw: %s\n",
+							   str_hook_name.c_str(), m_strName.Get());
+				return false;
+			}
+			
+			if (theHookClauses.size() != theHookClauses2.size())
+			{
+				OTLog::vOutput(0, "OTBylaw::Compare: Hook (%s) clauses count doesn't match between this bylaw and the rhs bylaw named: %s\n",
+							   str_hook_name.c_str(), m_strName.Get());
+				return false;
+			}
+			// -----------------------------------------------
+//			typedef std::map<std::string, OTClause *> mapOfClauses;
+			
+			FOR_EACH(mapOfClauses, theHookClauses)
+			{
+				const std::string  str_clause_name = (*it).first;
+				OTClause * pClause = (*it).second;
+				OT_ASSERT(NULL != pClause);
+				// --------------------------------
+				
+				mapOfClauses::iterator it_rhs = theHookClauses2.find(str_clause_name);
+				
+				if (theHookClauses2.end() == it_rhs)
+				{
+					OTLog::vOutput(0, "OTBylaw::Compare: Unable to find hook clause (%s) on rhs that was definitely present on *this. Bylaw: %s\n",
+								   str_clause_name.c_str(), m_strName.Get());
+					return false;
+				}
+				
+				// OPTIMIZE: Since ALL the clauses are already compared, one-by-one, in an above block, then we don't 
+				// actually HAVE to do a compare clause here. We just need to make sure that we got them both via the same
+				// name, and that the counts are the same (as already verified above) and that should actually be good enough.			
+//				OTClause * pClause2 = (*it_rhs).second;
+//				OT_ASSERT(NULL != pClause2);
+//				
+//				if (!pClause->Compare(*pClause2))
+//				{
+//					OTLog::vOutput(0, "OTBylaw::Compare: Failed comparison between 2 hook clauses named %s.\n",
+//								   str_clause_name.c_str());
+//					return false;
+//				}
+				// -------------------------------
+			}
+		} // FOR_EACH_IT(std::set<std::string>, theHookSet, it_hook)
 		
-		
-		
-		
-		
-		
-		
-		
+		return true;
 	}
 	
 	return false;
+}
+
+
+
+bool OTClause::Compare(const OTClause & rhs) const
+{
+	
+}
+
+
+// Done
+bool OTVariable::Compare(const OTVariable & rhs) const
+{
+	if (!(GetName().Compare(rhs.GetName())))
+	{
+		OTLog::vOutput(0, "OTVariable::Compare: Names don't match: %s / %s \n",
+					   GetName().Get(), rhs.GetName().Get());
+		return false;
+	}
+	if ( ! (GetType() == rhs.GetType()) )
+	{
+		OTLog::vOutput(0, "OTVariable::Compare: Type don't match: %s \n",
+					   GetName().Get());
+		return false;
+	}
+	if ( ! (GetAccess() == rhs.GetAccess()) )
+	{
+		OTLog::vOutput(0, "OTVariable::Compare: Access types don't match: %s \n",
+					   GetName().Get());
+		return false;
+	}
+	// -------------------------------
+	
+	bool bMatch = false;
+	
+	switch (GetType()) {
+		case OTVariable::Var_Long:
+			bMatch = (GetValueLong() == rhs.GetValueLong());
+			break;
+		case OTVariable::Var_Bool:
+			bMatch = (GetValueBool() == rhs.GetValueBool());
+			break;
+		case OTVariable::Var_String:
+			bMatch = (GetValueString().compare(rhs.GetValueString()) == 0);
+			break;
+		default:
+			OTLog::vError("OTVariable::Compare: Unknown type in variable %s.\n",
+						 m_strName.Get());
+			break;
+	}
+	
+	return bMatch;
+}
+
+
+
+bool OTPartyAccount::Compare(const OTPartyAccount & rhs) const
+{
+	
 }
 
 
@@ -2380,16 +2606,13 @@ bool OTParty::Compare(const OTParty & rhs) const
 	
 	// TODO:  Compare all agents and party accounts!
 	// RETURN TRUE IF THEY MATCH!!
+	// Update: no need to compare agents... right?
+	//
 	mapOfAgents			m_mapAgents; // These are owned.
 	mapOfPartyAccounts	m_mapPartyAccounts; // These are owned. Each contains a Closing Transaction#.
 	
 	
-	
-	
-	
-	
-	
-	
+
 	
 	
 	return false;

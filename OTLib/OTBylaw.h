@@ -449,6 +449,10 @@ public:
 	long GetClosingTransNo() { return m_lClosingTransNo; }
 	// -----------
 	
+	bool Compare(const OTPartyAccount & rhs) const;
+	
+	// -----------
+	
 	bool DropFinalReceiptToInbox(mapOfNyms * pNymMap,
 								 const OTString & strServerID,
 								 OTPseudonym & theServerNym,
@@ -748,6 +752,8 @@ public:
 	std::string	&	GetValueString() { return m_str_Value; }
 	
 	// -------------------
+	bool Compare(const OTVariable & rhs) const;
+
 	OTVariable();
 	OTVariable(const std::string str_Name, const std::string str_Value,	const OTVariable_Access theAccess=Var_Persistent);
 	OTVariable(const std::string str_Name, const long lValue,			const OTVariable_Access theAccess=Var_Persistent);
@@ -779,6 +785,7 @@ public:
 	const char * GetCode() const;
 	
 	// -------------
+	bool Compare(const OTClause & rhs) const;
 	
 	OTClause();
 	OTClause(const char * szName, const char * szCode);
@@ -879,7 +886,7 @@ class OTBylaw
 	mapOfClauses	m_mapClauses;	// map of scripts associated with this bylaw.
 	
 	mapOfHooks		m_mapHooks;		// multimap of server hooks associated with clauses.
-	mapOfCallbacks	m_mapCallbacks;	// multimap of standard callbacks associated with script clauses.
+	mapOfCallbacks	m_mapCallbacks;	// map of standard callbacks associated with script clauses.
 	
 	OTScriptable *	m_pOwnerAgreement; // This Bylaw is owned by an agreement (OTScriptable-derived.)
 	
@@ -896,6 +903,8 @@ public:
 	
 	OTVariable * GetVariable(const std::string str_Name); // not a reference, so you can pass in char *. Maybe that's bad? todo: research that.
 	
+	int GetVariableCount() const { return m_mapVariables.size(); }
+	
 	void RegisterVariablesForExecution(OTScript& theScript);
 	
 	bool IsDirty() const;	// So you can tell if any of the persistent or important variables have CHANGED since it was last set clean.
@@ -909,12 +918,19 @@ public:
 	
 	OTClause * GetClause(const std::string str_Name);
 	
+	int GetClauseCount() const { return m_mapClauses.size(); }
+	
 	// ---------------------
 	bool AddHook(const std::string str_HookName, 
 				 const std::string str_ClauseName); // name of hook such as cron_process or hook_activate, and name of clause, such as sectionA (corresponding to an actual script in the clauses map.)
 	
+	int GetHookCount() const { return m_mapHooks.size(); }
+
+	int GetCallbackCount() const { return m_mapCallbacks.size(); }
+
 	bool AddCallback(const std::string str_CallbackName, 
 					 const std::string str_ClauseName); // name of callback such as callback_party_may_execute_clause, and name of clause, such as custom_party_may_execute_clause (corresponding to an actual script in the clauses map.)
+
 	// ---------------------
 	
 	OTClause * GetCallback(const std::string str_CallbackName);

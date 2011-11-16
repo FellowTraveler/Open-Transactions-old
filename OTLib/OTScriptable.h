@@ -156,6 +156,9 @@ protected:
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
 public:
 	
+	int GetPartyCount() const { return m_mapParties.size(); }
+	int GetBylawCount() const { return m_mapBylaws.size(); }
+	
 	virtual bool AddParty(OTParty & theParty); // Takes ownership.
 	virtual bool AddBylaw(OTBylaw & theBylaw);
 

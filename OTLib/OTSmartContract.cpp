@@ -627,9 +627,9 @@ DONE move_funds(from_acct, to_acct, amount)		(from_acct and to_acct must be a pa
 DONE stash_funds(from_acct, "stash_one", 100)	("stash_one" is stored INSIDE the smartcontract! Server-side only.)
 DONE unstash_funds(to_acct, "stash_one", 100)	(Smartcontract must be activated with NO stashes. Server creates/maintains stashes AFTER activation.)
 
-DONE get_acct_balance(acct)			Returns long int.	 (Named acct must be party to agreement with legitimate authorized agent.)
-DONE get_acct_asset_type_id(acct)	Returns std::string. (Named acct must be party to agreement with legitimate authorized agent.)
-DONE get_stash_balance(stash)		Returns long int.	 (Named stash must exist.)
+DONE get_acct_balance(acct)						Returns long int.	 (Named acct must be party to agreement with legitimate authorized agent.)
+DONE get_acct_asset_type_id(acct)				Returns std::string. (Named acct must be party to agreement with legitimate authorized agent.)
+DONE get_stash_balance(stash, asset_type_id)	Returns long int.	 (Named stash must exist.)
 											 
 DONE send_notice(to_party)		(Like sendMessage, except it comes from the server, not another user. Drops current state of smart contract to Nymbox of all agents for party named.)
 DONE send_notice_to_parties()	(Does a send_notice to ALL parties.)
@@ -651,10 +651,7 @@ void OTSmartContract::RegisterOTNativeCallsWithScript(OTScript & theScript)
 	// --------------------------------
 
 	using namespace chaiscript;
-	
-	// In the future, this will be polymorphic.
-	// But for now, I'm forcing things...
-	
+		
 	OTScriptChai * pScript = dynamic_cast<OTScriptChai *> (&theScript);
 	
 	// *******************************************************************
@@ -664,28 +661,24 @@ void OTSmartContract::RegisterOTNativeCallsWithScript(OTScript & theScript)
 		// OT NATIVE FUNCTIONS 
 		// (These functions can be called from INSIDE the scripted clauses.)
 		//																						// Parameters must match as described below. Return value will be as described below.
-		// DONE:																				// -------------------------------------------------------------
+		//																						// -------------------------------------------------------------
 		pScript->chai.add(fun(&(OTSmartContract::MoveAcctFunds),	(*this)), "move_funds");	// bool MoveAcctFunds(const std::string from_acct_name, const std::string to_acct_name, const long lAmount); // calls OTCronItem::MoveFunds()
 		pScript->chai.add(fun(&(OTSmartContract::StashAcctFunds),	(*this)), "stash_funds");	// bool StashAcctFunds(const std::string from_acct_name, const std::string to_stash_name, const long lAmount); // calls StashFunds()
 		pScript->chai.add(fun(&(OTSmartContract::UnstashAcctFunds),	(*this)), "unstash_funds");	// bool UnstashAcctFunds(const std::string to_acct_name, const std::string from_stash_name, const long lAmount); // calls StashFunds( lAmount * (-1) )
 		
-		// Done:
 		pScript->chai.add(fun(&(OTSmartContract::GetAcctBalance),		(*this)), "get_acct_balance"); // long GetAcctBalance(const std::string acct_name);
 		pScript->chai.add(fun(&(OTSmartContract::GetAssetTypeIDofAcct),	(*this)), "get_acct_asset_type_id"); // std::string OTSmartContract::GetAssetTypeIDofAcct(const std::string from_acct_name)
 		pScript->chai.add(fun(&(OTSmartContract::GetStashBalance),		(*this)), "get_stash_balance");	// long GetStashBalance(const std::string stash_name, const std::string asset_type_id);
 		
-		// Done:
 		pScript->chai.add(fun(&(OTSmartContract::SendNoticeToParty),		(*this)), "send_notice");				// bool SendNoticeToParty(const std::string party_name);
 		pScript->chai.add(fun(&(OTSmartContract::SendANoticeToAllParties),	(*this)), "send_notice_to_parties");	// bool SendANoticeToAllParties();
 
-		// Done:
 		pScript->chai.add(fun(&(OTSmartContract::DeactivateSmartContract),	(*this)), "deactivate_contract");	// void DeactivateSmartContract();
 		
 		// ---------------------------------------------------------
 		// CALLBACKS 
 		// (Called by OT at key moments)
 		//
-		// DONE:
 //FYI:	pScript->chai.add(fun(&(OTScriptable::CanExecuteClause),	(*this)), "party_may_execute_clause");	// From OTScriptable (FYI) param_party_name and param_clause_name will be available inside script. Script must return bool.
 //FYI:	#define SCRIPTABLE_CALLBACK_PARTY_MAY_EXECUTE	"callback_party_may_execute_clause"   <=== THE CALLBACK WITH THIS NAME must be connected to a script clause, and then the clause will trigger when the callback is needed.	
 		
