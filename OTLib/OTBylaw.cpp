@@ -161,8 +161,12 @@ bool OTAgent::VerifySignature(OTContract & theContract)
 	// Only individual agents can sign for things, not groups (groups vote, they don't sign.)
 	// Thus, an individual can verify a signature, whereas a voting group would verify an election result (or whatever.)
 	//
-	if (!IsAnIndividual())
+	if (!IsAnIndividual() || !DoesRepresentHimself())
+	{
+		OTLog::vError("OTAgent::VerifySignature: Entities and roles are not yet supported. Agent: %s.\n",
+					  m_strName.Get());
 		return false;
+	}// todo: when adding entities, this will change.
 	
 //	if (DoesRepresentAnEntity)
 //	{
@@ -196,6 +200,51 @@ bool OTAgent::VerifySignature(OTContract & theContract)
 	return theContract.VerifySignature(*m_pNym);
 }
 
+
+
+bool OTAgent::SignContract(OTContract & theInput)
+{
+	if (!IsAnIndividual() || !DoesRepresentHimself())
+	{
+		OTLog::vError("OTAgent::SignContract: Entities and roles are not yet supported. Agent: %s.\n",
+					  m_strName.Get());
+		return false;
+	}// todo: when adding entities, this will change.
+	// ---------------------------
+	if (NULL == m_pNym)
+	{
+		OTLog::vError("OTAgent::SignContract: Nym was NULL while trying to sign contract. Agent: %s.\n",
+					  m_strName.Get());
+		return false;
+	}// todo: when adding entities, this will change.
+	
+	return theInput.SignContract(*m_pNym);
+}
+
+
+// Done
+// The party will use its authorizing agent.
+//
+bool OTParty::SignContract(OTContract & theInput) 
+{
+	if (GetAuthorizingAgentName().size() <= 0)
+	{
+		OTLog::Error("OTParty::SignContract: Error: Authorizing agent name is blank.\n");
+		return false;
+	}
+	// ---------------------------------------------
+	
+	OTAgent * pAgent = GetAgent(GetAuthorizingAgentName());
+	
+	if (NULL == pAgent)
+	{
+		OTLog::vError("OTParty::SignContract: Error: Unable to find Authorizing agent (%s) for party: %s.\n",
+					  GetAuthorizingAgentName().c_str(), GetPartyName().c_str());
+		return false;
+	}
+	
+	return pAgent->SignContract(theInput);
+}
 
 
 bool OTAgent::DropFinalReceiptToInbox(mapOfNyms * pNymMap,
@@ -700,18 +749,21 @@ OTPartyAccount::OTPartyAccount(const std::string str_account_name, const OTStrin
   m_lClosingTransNo(lClosingTransNo),
   m_strName(str_account_name.c_str()),
   m_strAcctID(theAccount->GetRealAccountID()),
+  m_strAssetTypeID(theAccount->GetAssetTypeID()),
   m_strAgentName(strAgentName)
 {
 	
 }
 
 
-OTPartyAccount::OTPartyAccount(const OTString & strName, const OTString & strAgentName, const OTString & strAcctID, long lClosingTransNo)
+OTPartyAccount::OTPartyAccount(const OTString & strName, const OTString & strAgentName, const OTString & strAcctID, 
+							   const OTString & strAssetTypeID, long lClosingTransNo)
 : m_pForParty(NULL), // This gets set when this partyaccount is added to its party.
   m_pAccount(NULL), 
   m_lClosingTransNo(lClosingTransNo),
   m_strName(strName),
   m_strAcctID(strAcctID),
+  m_strAssetTypeID(strAssetTypeID),
   m_strAgentName(strAgentName)
 {
 	
@@ -768,15 +820,33 @@ bool OTPartyAccount::IsAccount(OTAccount & theAccount) const
 		return false;
 	}
 	
-	const OTIdentifier theAcctID(m_strAcctID);
-	
-	if (theAccount.GetRealAccountID().CompareID(theAcctID))
+	if (!m_strAssetTypeID.Exists())
 	{
-		m_pAccount = &theAccount; 
-		return true;
+		OTLog::Error("OTPartyAccount::IsAccount: Error: Empty m_strAssetTypeID.\n");
+		return false;
 	}
-	
-	return false;
+	// --------------------------------------------------------
+	const OTIdentifier theAcctID(m_strAcctID);
+	if (!theAccount.GetRealAccountID().CompareID(theAcctID))
+	{
+		OTString strRHS(theAccount.GetRealAccountID());
+		OTLog::vOutput(0, "OTPartyAccount::IsAccount: Account IDs don't match: %s / %s \n",
+					   m_strAcctID.Get(), strRHS.Get());
+		return false;
+	}
+	// --------------------------------------------------------
+	const OTIdentifier theAssetTypeID(m_strAssetTypeID);
+	if (!theAccount.GetAssetTypeID().CompareID(theAssetTypeID))
+	{
+		OTString strRHS(theAccount.GetAssetTypeID());
+		OTLog::vOutput(0, "OTPartyAccount::IsAccount: Asset Type IDs don't match ( %s / %s ) for Acct ID: %s \n",
+					   m_strAssetTypeID.Get(), strRHS.Get(), m_strAcctID.Get());
+		return false;
+	}	
+	// --------------------------------------------------------
+
+	m_pAccount = &theAccount; 
+	return true;
 }
 
 
@@ -879,24 +949,61 @@ OTParty::OTParty(const char * szName, bool bIsOwnerNym, const char * szOwnerID, 
 }
 
 
-OTParty::OTParty(const std::string str_PartyName, OTPseudonym & theNym, OTAccount * pAccount/*=NULL*/)
+
+
+
+OTParty::OTParty(const std::string		str_PartyName,
+				 OTPseudonym &			theNym, // Nym is BOTH owner AND agent, when using this constructor.
+				 const std::string		str_agent_name, 
+				 OTAccount *			pAccount/*=NULL*/,
+				 const std::string *	pstr_account_name/*=NULL*/,
+				 const long				lClosingTransNo/*=0*/
+				 )
 : m_pstr_party_name(NULL), m_bPartyIsNym(true), m_pNym(&theNym),
   m_lOpeningTransNo(0), m_pOwnerAgreement(NULL)
 {
     m_pstr_party_name = new std::string(str_PartyName);
+	OT_ASSERT(NULL != m_pstr_party_name);
 	
-	// TODO: theNym is owner, therefore save his ID information, and create the agent
+	// theNym is owner, therefore save his ID information, and create the agent
 	// for this Nym automatically (that's why it was passed in.)
 	// This code won't compile until you do.  :-)
 	
+	OTString strNymID;
+	theNym.GetIdentifier(strNymID);
+    m_str_owner_id = strNymID.Get();
 	
-	// TODO:  if pAccount is NOT NULL, then an account was passed in, then create a default partyaccount for it.
+//	std::string			m_str_authorizing_agent;	// Empty until contract is confirmed. Contains the name of the authorizing agent (the one who supplied the opening Trans#)
+//	long				m_lOpeningTransNo;			// Empty until contract is confirmed. Each party (to a smart contract anyway) must provide an opening transaction #.
+//	OTString			m_strMySignedCopy;			// Empty until contract is confirmed. 	
+//	mapOfAgents			m_mapAgents;				// (Often) empty until contract is confirmed. These are owned.
+//	mapOfPartyAccounts	m_mapPartyAccounts;			// These are owned. Each contains a Closing Transaction#.
 	
-	// PERHAPS better: Just have an option to pass in an Agent (instead of Nym), +optionally a PartyAccount.
-	// That way the user can set those up first, and then add them to the party when creating the agreement.
-	// USUALLY there will only be one agent and one account, so USUALLY they can just use this constructor to create
-	// the party.
-	// There also needs to be methods for ADDING partyaccounts and agents.
+	OTAgent * pAgent = new OTAgent(str_agent_name, theNym); // (The third arg, bRepresentsSelf, defaults here to true.)
+	OT_ASSERT(NULL != pAgent);
+
+	if (!AddAgent(*pAgent))
+	{
+		OTLog::Error("OTParty::OTParty: *** Failed *** while adding default agent in CONSTRUCTOR!\n");
+		delete pAgent; pAgent = NULL;
+	}
+	else
+		m_str_authorizing_agent = str_agent_name;
+	// ------------------------------------------
+	
+	// if pAccount is NOT NULL, then an account was passed in, so
+	// let's also create a default partyaccount for it.
+	//
+	if (NULL != pAccount)
+	{
+		OT_ASSERT(NULL != pstr_account_name); // If passing an account, then you MUST pass an account name also.
+		
+		bool bAdded = AddAccount(str_agent_name.c_str(), pstr_account_name->c_str(),
+								 *pAccount, lClosingTransNo);
+		
+		if (!bAdded)
+			OTLog::Error("OTParty::OTParty: *** Failed *** while adding default account in CONSTRUCTOR!\n");
+	}
 }
 
 
@@ -945,9 +1052,10 @@ bool OTParty::AddAgent(OTAgent& theAgent)
 
 bool OTParty::AddAccount(const OTString& strAgentName, const OTString& strName, 
 						 const OTString & strAcctID, 
+						 const OTString & strAssetTypeID, 
 						 const long lClosingTransNo)
 {
-	OTPartyAccount * pPartyAccount = new OTPartyAccount(strName, strAgentName, strAcctID, lClosingTransNo);
+	OTPartyAccount * pPartyAccount = new OTPartyAccount(strName, strAgentName, strAcctID, strAssetTypeID, lClosingTransNo);
 	OT_ASSERT(NULL != pPartyAccount);
 	
 	if (false == AddAccount(*pPartyAccount))
@@ -1677,27 +1785,15 @@ bool OTParty::DropFinalReceiptToInboxes(mapOfNyms * pNymMap,
 	return bSuccess;
 }
 
+// -------------------------------------------
 
 
 
-bool OTAgent::HarvestClosingNumber(OTPseudonym & theNym, const OTString & strServerID, const long & lClosingNumber)
-{
-	// Todo: this function may change when entities / roles are added.
-	
-	OTIdentifier theNymID;
-	bool bNymID = this->GetNymID(theNymID);
 
-	if (bNymID && theNym.CompareID(theNymID))
-	{
-		theNym.AddTransactionNum(theNym, strServerID, lClosingNumber, false); // bSave=false (OTParty will save the Nym at the end.)
-		return true;
-	}
-	
-	return false;
-}
-
-
-void OTParty::HarvestClosingNumbers(OTPseudonym & theNym, const OTString & strServerID)
+// done
+// for whichever partyaccounts have agents that happen to be loaded, this will grab the closing trans#s.
+//
+void OTParty::HarvestClosingNumbers(const OTString & strServerID)
 {
 	FOR_EACH(mapOfPartyAccounts, m_mapPartyAccounts)
 	{
@@ -1705,27 +1801,386 @@ void OTParty::HarvestClosingNumbers(OTPseudonym & theNym, const OTString & strSe
 		OT_ASSERT_MSG(NULL != pAcct, "Unexpected NULL partyaccount pointer in party map.");
 		// -------------------------------------
 		
-		const std::string	str_agent_name (pAcct->GetName().Get());
+		if (pAcct->GetClosingTransNo() <= 0)
+		{
+			// No log, for now.
+			continue;
+		}
+		// -------------------------------------
+		
+		const std::string	str_agent_name (pAcct->GetAgentName().Get());
+		
+		if (str_agent_name.size() <= 0)
+		{
+			OTLog::vError("OTParty::HarvestClosingNumbers: Missing agent name on party account: %s \n",
+						 pAcct->GetName().Get());
+			continue;
+		}
+		// ----------------------------------
 		
 		OTAgent * pAgent = this->GetAgent(str_agent_name);
-
-		if (NULL != pAgent)
-		{
-			pAgent->HarvestClosingNumber(theNym, strServerID, pAcct->GetClosingTransNo());
-		}
+		
+		if (NULL == pAgent)
+			OTLog::vError("OTParty::HarvestClosingNumbers: Couldn't find agent (%s) for asset account: %s\n", 
+						  str_agent_name.c_str(), pAcct->GetName().Get());
 		else
-			OTLog::vError("OTParty::HarvestClosingNumbers: Couldn't find agent (%s) for asset account.\n", 
-						 str_agent_name.c_str());
-	}
+			pAgent->HarvestTransactionNumber(pAcct->GetClosingTransNo(), strServerID);
+	} // FOR_EACH
 }
 
+
+//Done
+void OTParty::HarvestClosingNumbers(OTAgent & theAgent, const OTString & strServerID)
+{
+	FOR_EACH(mapOfPartyAccounts, m_mapPartyAccounts)
+	{
+		OTPartyAccount * pAcct = (*it).second;
+		OT_ASSERT_MSG(NULL != pAcct, "Unexpected NULL partyaccount pointer in partyaccount map.");
+		// -------------------------------------
+		
+		if (pAcct->GetClosingTransNo() <= 0)
+		{
+			// No log, for now.
+			continue;
+		}
+		// -------------------------------------
+		
+		const std::string	str_agent_name (pAcct->GetAgentName().Get());
+		
+		if (str_agent_name.size() <= 0)
+		{
+//			OTLog::vError("OTParty::HarvestClosingNumbers: Missing agent name on party account: %s \n",
+//						  pAcct->GetName().Get());
+			continue;
+		}
+		// ----------------------------------
+		
+		if (theAgent.GetName().Compare(str_agent_name.c_str()))
+			theAgent.HarvestTransactionNumber(pAcct->GetClosingTransNo(), strServerID);
+			// We don't break here, on success, because this agent might represent multiple accounts.
+		// else nothing...
+	} // FOR_EACH	
+}
+
+
+// Done.
+// IF theNym is one of my agents, then grab his numbers back for him.
+// If he is NOT one of my agents, then do nothing.
+// 
+void OTParty::HarvestClosingNumbers(OTPseudonym & theNym, const OTString & strServerID)
+{
+	OTAgent * pAgent = NULL;
+	
+	if (HasAgent(theNym, &pAgent))
+	{
+		OT_ASSERT(NULL != pAgent);
+	
+		HarvestClosingNumbers(*pAgent, strServerID);
+	}
+	// else nothing...
+}
+
+
+// Done
+// IF theNym is this agent, then grab his number back for him.
+// If he is NOT, then do nothing.
+//
+bool OTAgent::HarvestTransactionNumber(const long & lNumber, const OTString & strServerID)
+{
+	// Todo: this function may change when entities / roles are added.
+	if (!IsAnIndividual() || !DoesRepresentHimself())
+	{
+		OTLog::Error("OTAgent::HarvestTransactionNumber:  Error: Entities and Roles are not yet supported. Agent: %s\n",
+					 m_strName.Get());
+		return false;
+	}
+	// -----------------------------------------
+	
+	if (NULL != m_pNym)
+	{
+		// We don't "add it back" unless we're SURE he had it in the first place...
+		//
+		if (m_pNym->VerifyIssuedNum(strServerID, lNumber))
+		{
+			m_pNym->AddTransactionNum(*m_pNym, strServerID, lNumber, false); // bSave=false (OTParty will save the Nym at the end.)
+			return true;
+		}
+		else 
+			OTLog::vError("OTAgent::HarvestTransactionNumber: Number (%ld) failed to verify for agent: %s (Thus didn't bother 'adding it back'.)\n",
+						  lNumber, m_strName.Get());
+	}
+	else 
+		OTLog::vError("OTAgent::HarvestTransactionNumber: Error: m_pNym was NULL. For agent: %s\n",
+					  m_strName.Get());
+	
+	return false;
+}
+
+
+// --------------------------------------------------------------
+
+// Done
+// IF theNym is one of my agents, then grab his opening number back for him.
+// If he is NOT one of my agents, then do nothing.
+//
+void OTParty::HarvestOpeningNumber(OTPseudonym & theNym, const OTString & strServerID)
+{
+	OTAgent * pAgent = NULL;
+	
+	if (HasAuthorizingAgent(theNym, &pAgent))
+	{
+		OT_ASSERT(NULL != pAgent);
+		HarvestOpeningNumber(*pAgent, strServerID);
+	}
+	// else no error, since many nyms could get passed in here (in a loop)
+} // The function above me, calls the one below.
+
+
+// Done
+void OTParty::HarvestOpeningNumber(OTAgent & theAgent, const OTString & strServerID)
+{
+	if ( ! (GetAuthorizingAgentName().compare(theAgent.GetName().Get()) == 0))
+	{
+		OTLog::vError("OTParty::HarvestOpeningNumber: Error: Agent name doesn't match:  %s / %s  \n",
+					 GetAuthorizingAgentName().c_str(), theAgent.GetName().Get());
+	}
+	else if (GetOpeningTransNo() > 0)
+	{
+		theAgent.HarvestTransactionNumber(GetOpeningTransNo(), strServerID);
+	}
+	else
+		OTLog::vOutput(0, "OTParty::HarvestOpeningNumber: Nothing to harvest, it was already 0 for party: %s\n",
+					   GetPartyName().c_str());	
+}
+
+
+// Done.
+// The function below me, calls the one above.
+void OTParty::HarvestOpeningNumber(const OTString & strServerID)
+{
+	if (GetAuthorizingAgentName().size() <= 0)
+	{
+		OTLog::Error("OTParty::HarvestOpeningNumber: Error: Authorizing agent name is blank.\n");
+		return;
+	}
+	// ---------------------------------------------
+	
+	OTAgent * pAgent = GetAgent(GetAuthorizingAgentName());
+	
+	if (NULL == pAgent)
+	{
+		OTLog::vError("OTParty::HarvestOpeningNumber: Error: Unable to find Authorizing agent (%s) for party: %s.\n",
+					 GetAuthorizingAgentName().c_str(), GetPartyName().c_str());
+	}
+	else
+		HarvestOpeningNumber(*pAgent, strServerID);
+}
+
+// Done
+void OTParty::HarvestAllTransactionNumbers(const OTString & strServerID)
+{
+	HarvestOpeningNumber(strServerID);
+	HarvestClosingNumbers(strServerID);	
+}
+
+// Done
+// This function ASSUMES that the internal Nym pointer (on the authorizing agent) is set,
+// and also that the Nym pointer is set on the authorized agent for each asset account as well.
+//
+// The party is getting ready to CONFIRM the smartcontract, so he will have to provide
+// the appropriate transaction #s to do so.  This is the function where he tries to reserve
+// those. Client-side.
+//
+bool OTParty::ReserveTransNumsForConfirm(const OTString & strServerID)
+{
+	// -----------------------------------------------
+	// RESERVE THE OPENING TRANSACTION NUMBER, LOCATED ON THE AUTHORIZING AGENT FOR THIS PARTY.
+	
+	if (GetAuthorizingAgentName().size() <= 0)
+	{
+		OTLog::vOutput(0, "OTParty::ReserveTransNumsForConfirm: Failure: Authorizing agent's name is empty on this party: %s \n",
+					   GetPartyName().c_str());
+		return false;
+	}
+	
+	OTAgent * pMainAgent = GetAgent(GetAuthorizingAgentName());
+
+	if (NULL == pMainAgent)
+	{
+		OTLog::vOutput(0, "OTParty::ReserveTransNumsForConfirm: Failure: Authorizing agent (%s) not found on this party: %s \n",
+					   GetAuthorizingAgentName().c_str(), GetPartyName().c_str());
+		return false;
+	}
+	// ----------------------------------------------
+	
+	if (false == pMainAgent->ReserveOpeningTransNum(strServerID))  // <==============================
+	{
+		OTLog::vOutput(0, "OTParty::ReserveTransNumsForConfirm: Failure: Authorizing agent (%s) didn't have an opening transaction #, on party: %s \n",
+					   GetAuthorizingAgentName().c_str(), GetPartyName().c_str());
+		return false;
+	} 
+	// BELOW THIS POINT, the OPENING trans# has been RESERVED and 
+	// must be RETRIEVED in the event of failure, using this call:
+	// this->HarvestAllTransactionNumbers(strServerID);
+
+	// ****************************************************
+	//
+	// RESERVE THE CLOSING TRANSACTION NUMBER for each asset account, LOCATED ON ITS AUTHORIZED AGENT.
+	// (Do this for each account on this party.)
+	//
+	FOR_EACH(mapOfPartyAccounts, m_mapPartyAccounts)
+	{
+		OTPartyAccount * pPartyAccount = (*ii).second;
+		OT_ASSERT(NULL != pPartyAccount);
+		// -------------------------------
+		
+		if (!pPartyAccount->GetAgentName().Exists())
+		{
+			OTLog::vOutput(0, "OTParty::ReserveTransNumsForConfirm: Failure: Authorized agent name is blank for account: %s \n",
+						 pPartyAccount->GetName().Get());
+			HarvestAllTransactionNumbers(strServerID);  // We have to put them back before returning, since this function has failed.
+			return false;
+		}
+		// -----------------------------------
+		OTAgent * pAgent = GetAgent(pPartyAccount->GetAgentName().Get());
+
+		if (NULL == pAgent)
+		{
+			OTLog::vOutput(0, "OTParty::ReserveTransNumsForConfirm: Failure: Unable to locate Authorized agent for account: %s \n",
+						   pPartyAccount->GetName().Get());
+			HarvestAllTransactionNumbers(strServerID);  // We have to put them back before returning, since this function has failed.
+			return false;
+		}
+		// Below this point, pAgent is good.
+		// -----------------------------------
+		
+		if (false == pAgent->ReserveClosingTransNum(strServerID, *pPartyAccount)) // <==============================
+		{
+			OTLog::vOutput(0, "OTParty::ReserveTransNumsForConfirm: Failure: Authorizing agent (%s) didn't have a closing transaction #, on party: %s \n",
+						   GetAuthorizingAgentName().c_str(), GetPartyName().c_str());
+			HarvestAllTransactionNumbers(strServerID);  // We have to put them back before returning, since this function has failed.
+			return false;
+		} 
+		// BELOW THIS POINT, the CLOSING TRANSACTION # has been reserved for this account, 
+		// and MUST BE RETRIEVED in the event of failure.
+		// ----------------------------------
+	} // FOR_EACH
+	
+	// ----------------------------------------------------
+	// BY THIS POINT, we have successfully reserved the Opening Transaction # for the party (from its 
+	// authorizing agent) and we have also successfully reserved Closing Transaction #s for EACH ASSET 
+	// ACCOUNT, from the authorized agent for each asset account.
+	// Therefore we have reserved ALL the needed transaction #s, so let's return true.
+	
+	return true;
+}
+
+
+
+// Done
+bool OTAgent::ReserveClosingTransNum(const OTString & strServerID, OTPartyAccount & thePartyAcct)
+{
+	long lTransactionNumber = 0;
+	
+	if (IsAnIndividual() && DoesRepresentHimself() && (NULL != m_pNym))
+	{
+		if (thePartyAcct.GetClosingTransNo() > 0)
+		{
+			OTLog::Output("OTAgent::ReserveClosingTransNum: Failure: The account ALREADY has a closing transaction number "
+						  "set on it. Don't you want to save that first, before overwriting it?\n");
+			return false;
+		}
+		// ----------------------------------------------
+		if (m_pNym->GetTransactionNumCount(GetServerID()) < 1) // Need a closing number...
+		{
+			OTLog::Output(0, "OTAgent::ReserveClosingTransNum: *** Failure *** Nym needs at least 1 transaction number available in order to do this.\n");
+			return false;
+		}
+		// ----------------------------------------------
+		else if (false == m_pNym->GetNextTransactionNum(*m_pNym, strServerID, lTransactionNumber)) 
+		{
+			OTLog::Error("OTAgent::ReserveClosingTransNum: Error: Strangely, unable to get a transaction number, even though supposedly one was there.\n");
+			return false;
+		}
+		// ------------------------------------------------
+		// BELOW THIS POINT, TRANSACTION # HAS BEEN RESERVED, AND MUST BE SAVED...
+		// Any errors below this point will require this call before returning: 
+		// HarvestAllTransactionNumbers(strServerID);
+		//
+		thePartyAcct.SetClosingTransNo(lTransactionNumber);
+		thePartyAcct.SetAgentName(m_strName);
+		
+		return true;
+	}
+	// -------------------------------------------------
+	else // todo: when entities and roles are added... this function will change.
+	{
+		OTLog::vError("OTAgent::ReserveClosingTransNum: Either the Nym pointer isn't set properly, "
+					  "or you tried to use Entities when they haven't been coded yet. Agent: %s \n",
+					  m_strName.Get());
+	}
+	
+	return false;
+}
+
+
+// Done
+bool OTAgent::ReserveOpeningTransNum(const OTString & strServerID)
+{
+	long lTransactionNumber = 0;
+	
+	if (IsAnIndividual() && DoesRepresentHimself() && (NULL != m_pNym))
+	{
+		if (NULL == m_pForParty)
+		{
+			OTLog::Error("OTAgent::ReserveOpeningTransNum: Error: Party pointer was NULL.  SHOULD NEVER HAPPEN!!\n");
+			return false;
+		}		
+		if (m_pForParty->GetOpeningTransNo() > 0)
+		{
+			OTLog::Output("OTAgent::ReserveOpeningTransNum: Failure: Party ALREADY had an opening transaction number "
+						  "set on it. Don't you want to save that first, before overwriting it?\n");
+			return false;
+		}
+		// ----------------------------------------------
+		if (m_pNym->GetTransactionNumCount(GetServerID()) < 1) // Need opening number...
+		{
+			OTLog::Output(0, "OTAgent::ReserveOpeningTransNum: *** Failure *** Nym needs at least 1 transaction number available in order to do this.\n");
+			return false;
+		}
+		// ----------------------------------------------
+		else if (false == m_pNym->GetNextTransactionNum(*m_pNym, strServerID, lTransactionNumber)) 
+		{
+			OTLog::Error("OTAgent::ReserveOpeningTransNum: Error: Strangely, unable to get a transaction number, even though supposedly one was there.\n");
+			return false;
+		}
+		// ------------------------------------------------
+		// BELOW THIS POINT, TRANSACTION # HAS BEEN RESERVED, AND MUST BE SAVED...
+		// Any errors below this point will require this call before returning: 
+		// HarvestAllTransactionNumbers(strServerID);
+		//
+		m_pForParty->SetOpeningTransNo(lTransactionNumber);
+		m_pForParty->SetAuthorizingAgentName(m_strName.Get());
+		
+		return true;
+	}
+	// -------------------------------------------------
+	else // todo: when entities and roles are added... this function will change.
+	{
+		OTLog::vError("OTAgent::ReserveOpeningTransNum: Either the Nym pointer isn't set properly, "
+					 "or you tried to use Entities when they haven't been coded yet. Agent: %s \n",
+					  m_strName.Get());
+	}
+	
+	return false;
+}
 
 
 // **************************************************************
 
 void OTAgent::Serialize(OTString & strAppend)
 {
-	//	strAppend.Concatenate("<agent>\n\n");
+//	strAppend.Concatenate("<agent>\n\n");
 	
 	strAppend.Concatenate("<agent name=\"%s\"\n"
 						  " doesAgentRepresentHimself=\"%s\"\n"
@@ -1740,25 +2195,27 @@ void OTAgent::Serialize(OTString & strAppend)
 						  m_strRoleID.Get(),
 						  m_strGroupName.Get());
 	
-	//	strAppend.Concatenate("</agent>\n");
+//	strAppend.Concatenate("</agent>\n");
 }
 
 // --------------------
 
 void OTPartyAccount::Serialize(OTString & strAppend)
 {
-	//	strAppend.Concatenate("<assetAccount>\n\n");
+//	strAppend.Concatenate("<assetAccount>\n\n");
 	
 	strAppend.Concatenate("<assetAccount name=\"%s\"\n"
 						  " acctID=\"%s\"\n"
+						  " assetTypeID=\"%s\"\n"
 						  " agentName=\"%s\"\n"
 						  " closingTransNo=\"%ld\" />\n\n",
 						  m_strName.Get(),
 						  m_strAcctID.Get(),
+						  m_strAssetTypeID.Get(),
 						  m_strAgentName.Get(),						  
 						  m_lClosingTransNo);
 	
-	//	strAppend.Concatenate("</assetAccount>\n");
+//	strAppend.Concatenate("</assetAccount>\n");
 }
 
 // --------------------
@@ -1879,23 +2336,6 @@ const char * OTClause::GetCode() const
 void OTVariable::Serialize(OTString & strAppend)
 {
 	// ---------------------------------------
-	std::string str_type;
-	
-	switch (m_Type) {
-		case OTVariable::Var_String:
-			str_type = "string";
-			break;
-		case OTVariable::Var_Long:
-			str_type = "long";
-			break;
-		case OTVariable::Var_Bool:
-			str_type = "bool";
-			break;
-		default:
-			str_type = "ERROR_VARIABLE_TYPE";
-			break;
-	}
-	// ---------------------------------------
 	std::string str_access;
 	
 	switch (m_Access) {
@@ -1913,41 +2353,45 @@ void OTVariable::Serialize(OTString & strAppend)
 			break;
 	}
 	// ---------------------------------------
+	std::string str_type;
 	
-	if (OTVariable::Var_String == m_Type)
-	{
-		strAppend.Concatenate("<variable name=\"%s\"\n"
-							  " value=\"%s\"\n"
-							  " type=\"%s\"\n", 
-							  " access=\"%s\" />\n\n", 
-							  m_strName.Get(),
-							  m_str_Value.c_str(),
-							  str_type.c_str(), str_access.c_str());
+	switch (m_Type) {
+		case OTVariable::Var_String:
+			str_type = "string";
+			strAppend.Concatenate("<variable name=\"%s\"\n"
+								  " value=\"%s\"\n"
+								  " type=\"%s\"\n", 
+								  " access=\"%s\" />\n\n", 
+								  m_strName.Get(),
+								  m_str_Value.c_str(),
+								  str_type.c_str(), str_access.c_str());			
+			break;
+		case OTVariable::Var_Long:
+			str_type = "long";
+			strAppend.Concatenate("<variable name=\"%s\"\n"
+								  " value=\"%ld\"\n"
+								  " type=\"%s\"\n", 
+								  " access=\"%s\" />\n\n", 
+								  m_strName.Get(),
+								  m_lValue,
+								  str_type.c_str(), str_access.c_str());			
+			break;
+		case OTVariable::Var_Bool:
+			str_type = "bool";
+			strAppend.Concatenate("<variable name=\"%s\"\n"
+								  " value=\"%s\"\n"
+								  " type=\"%s\"\n", 
+								  " access=\"%s\" />\n\n", 
+								  m_strName.Get(),
+								  m_bValue ? "true" : "false",
+								  str_type.c_str(), str_access.c_str());			
+			break;
+		default:
+			str_type = "ERROR_VARIABLE_TYPE";
+			OTLog::Error("OTVariable::Serialize: Error, Wrong Type -- not serializing.\n");
+			break;
 	}
-	else if (OTVariable::Var_Long == m_Type)
-	{
-		strAppend.Concatenate("<variable name=\"%s\"\n"
-							  " value=\"%ld\"\n"
-							  " type=\"%s\"\n", 
-							  " access=\"%s\" />\n\n", 
-							  m_strName.Get(),
-							  m_lValue,
-							  str_type.c_str(), str_access.c_str());
-	}
-	else if (OTVariable::Var_Bool == m_Type)
-	{
-		strAppend.Concatenate("<variable name=\"%s\"\n"
-							  " value=\"%s\"\n"
-							  " type=\"%s\"\n", 
-							  " access=\"%s\" />\n\n", 
-							  m_strName.Get(),
-							  m_bValue ? "true" : "false",
-							  str_type.c_str(), str_access.c_str());
-	}
-	else 
-	{
-		OTLog::Error("OTVariable::Serialize: Error, Wrong Type -- not serializing.\n");
-	}
+	// ---------------------------------------
 }
 
 
@@ -2437,7 +2881,7 @@ bool OTBylaw::Compare(const OTBylaw & rhs) const
 			// OPTIMIZE: Since ALL the clauses are already compared, one-by-one, in the above block, then we don't 
 			// actually HAVE to do a compare clause here. We just need to make sure that we got them both via the same
 			// name, and that the counts are the same (as already verified above) and that should actually be good enough.
-			// For now though, I'm leaving this verification.
+			// For now though, I'm leaving this verification commented out.
 //			else if (!pCallbackClause->Compare(*pCallbackClause2))
 //			{
 //				OTLog::vOutput(0, "OTBylaw::Compare: Failed comparison between 2 callback (%s) clauses (%s) on bylaws both named %s.\n",
@@ -2524,13 +2968,6 @@ bool OTBylaw::Compare(const OTBylaw & rhs) const
 }
 
 
-
-bool OTClause::Compare(const OTClause & rhs) const
-{
-	
-}
-
-
 // Done
 bool OTVariable::Compare(const OTVariable & rhs) const
 {
@@ -2542,7 +2979,7 @@ bool OTVariable::Compare(const OTVariable & rhs) const
 	}
 	if ( ! (GetType() == rhs.GetType()) )
 	{
-		OTLog::vOutput(0, "OTVariable::Compare: Type don't match: %s \n",
+		OTLog::vOutput(0, "OTVariable::Compare: Type doesn't match: %s \n",
 					   GetName().Get());
 		return false;
 	}
@@ -2556,7 +2993,8 @@ bool OTVariable::Compare(const OTVariable & rhs) const
 	
 	bool bMatch = false;
 	
-	switch (GetType()) {
+	switch (GetType()) 
+	{
 		case OTVariable::Var_Long:
 			bMatch = (GetValueLong() == rhs.GetValueLong());
 			break;
@@ -2577,45 +3015,183 @@ bool OTVariable::Compare(const OTVariable & rhs) const
 
 
 
-bool OTPartyAccount::Compare(const OTPartyAccount & rhs) const
+// Done
+bool OTClause::Compare(const OTClause & rhs) const
 {
+	if (!(this->GetName().Compare(rhs.GetName())))
+	{
+		OTLog::vOutput(0, "OTClause::Compare: Names don't match: %s / %s \n", 
+					   this->GetName().Get(), rhs.GetName().Get());
+		return false;
+	}
 	
+	if (!(this->m_strCode.Compare(rhs.GetCode())))
+	{
+		OTLog::vOutput(0, "OTClause::Compare: Source code for interpreted script fails to match, on clause: %s \n",
+					  this->GetName().Get());
+		return false;
+	}
+	
+	return true;
 }
 
 
 
-// Todo
+// Done
+bool OTPartyAccount::Compare(const OTPartyAccount & rhs) const
+{
+	if (!(this->GetName().Compare(rhs.GetName())))
+	{
+		OTLog::vOutput(0, "OTPartyAccount::Compare: Names don't match: %s / %s \n", 
+					   this->GetName().Get(), rhs.GetName().Get());
+		return false;
+	}
+	// --------------------------------------------------
+	if ( (this->GetClosingTransNo() > 0) && 
+		 (rhs.	GetClosingTransNo() > 0) &&
+		 (this->GetClosingTransNo() != rhs.GetClosingTransNo())
+	   )
+	{
+		OTLog::vOutput(0, "OTPartyAccount::Compare: Closing transaction numbers don't match: %s \n", 
+					   this->GetName().Get());
+		return false;
+	}
+	
+	if ( (this->GetAcctID().Exists()) && 
+		 (rhs.	GetAcctID().Exists()) &&
+		 (!this->GetAcctID().Compare(rhs.GetAcctID()))
+	   )
+	{
+		OTLog::vOutput(0, "OTPartyAccount::Compare: Asset account numbers don't match for party account %s.\n( %s  /  %s ) \n", 
+					   this->GetName().Get(), this->GetAcctID().Get(), rhs.GetAcctID().Get());
+		return false;
+	}
+
+	if ( (this->GetAgentName().Exists()) && 
+		 (rhs.	GetAgentName().Exists()) &&
+		 (!this->GetAgentName().Compare(rhs.GetAgentName()))
+	   )
+	{
+		OTLog::vOutput(0, "OTPartyAccount::Compare: Agent names don't match for party account %s.\n( %s  /  %s ) \n", 
+					   this->GetName().Get(), this->GetAgentName().Get(), rhs.GetAgentName().Get());
+		return false;
+	}
+	// --------------------------------------------------
+	if (!(this->GetAssetTypeID().Exists()) ||
+		!(rhs.	GetAssetTypeID().Exists()) ||
+		!(this->GetAssetTypeID().Compare(rhs.GetAssetTypeID()))
+	   )
+	{
+		OTLog::vOutput(0, "OTPartyAccount::Compare: Asset Type IDs don't exist, or don't match ( %s / %s ) for party's account: %s \n", 
+					   this->GetAssetTypeID().Get(), rhs.GetAssetTypeID().Get(), this->GetName().Get());
+		return false;
+	}
+	// --------------------------------------------------
+
+	return true;
+}
+
+
+
+
+
+
+
+// Done.
 bool OTParty::Compare(const OTParty & rhs) const
 {
 	const std::string str_party_name(rhs.GetPartyName());
 	
-	if (str_party_name.compare(GetPartyName()) != 0)
+	if (!(str_party_name.compare(GetPartyName()) == 0))
+	{
+		OTLog::vOutput(0, "OTParty::Compare: Names don't match.  %s  /  %s \n",
+					   GetPartyName().c_str(), str_party_name.c_str());
 		return false;
+	}
 	
-	if (IsNym() != rhs.IsNym())
+	// The party might first be added WITHOUT filling out the Nym/Agent info.
+	// As long as the party's name is right, and the accounts are all there with the
+	// correct asset type IDs, then it should matter if LATER, when the party CONFIRMS
+	// the agreement, he supplies himself as an entity or a Nym, or whether he supplies this
+	// agent or that agent.  That information is important and is stored, but is not relevant
+	// for a Compare().
+//	if (IsNym() != rhs.IsNym())
+//	{
+//		OTLog::vOutput(0, "OTParty::Compare: One of these parties is a Nym and the other is not:  %s  /  %s \n",
+//					   GetPartyName().c_str(), str_party_name.c_str());
+//		return false;
+//	}
+	
+	if ((this->GetOpeningTransNo() > 0) && 
+		(rhs.GetOpeningTransNo() > 0) && 
+		(this->GetOpeningTransNo() != rhs.GetOpeningTransNo())
+	   )
+	{
+		OTLog::vOutput(0, "OTParty::Compare: Opening transaction numbers don't match for party %s. ( %ld  /  %ld ) \n",
+					   GetPartyName().c_str(), this->GetOpeningTransNo(), rhs.GetOpeningTransNo());
 		return false;
-	
-	if (GetOpeningTransNo() != rhs.GetOpeningTransNo())
+	}
+	// ---------------------------------------------------
+	if (
+		(this->GetPartyID().size() > 0) &&
+		(rhs.  GetPartyID().size() > 0) &&
+		!(this->GetPartyID().compare(rhs.GetPartyID()) == 0)
+		)
+	{
+		OTLog::vOutput(0, "OTParty::Compare: Party IDs don't match for party %s. ( %s  /  %s ) \n",
+					   GetPartyName().c_str(), this->GetPartyID().c_str(), rhs.GetPartyID().c_str());
 		return false;
-	
-	if (GetPartyID().compare(rhs.GetPartyID()) != 0)
+	}
+	// ----------------------------------------------------
+	if (
+		(this->GetAuthorizedAgentName().size() > 0) &&
+		(rhs.  GetAuthorizedAgentName().size() > 0) &&
+		!(this->GetAuthorizedAgentName().compare(rhs.GetAuthorizedAgentName()) == 0)
+		)
+	{
+		OTLog::vOutput(0, "OTParty::Compare: Authorizing agent names don't match for party %s. ( %s  /  %s ) \n",
+					   GetPartyName().c_str(), this->GetAuthorizedAgentName().c_str(), 
+					   rhs.GetAuthorizedAgentName().c_str());
 		return false;
-	
-	if (GetAuthorizedAgentName().compare(rhs.GetAuthorizedAgentName()) != 0)
-		return false;
-	
-	// TODO:  Compare all agents and party accounts!
-	// RETURN TRUE IF THEY MATCH!!
-	// Update: no need to compare agents... right?
+	}
+	// ----------------------------------------------------	
 	//
-	mapOfAgents			m_mapAgents; // These are owned.
-	mapOfPartyAccounts	m_mapPartyAccounts; // These are owned. Each contains a Closing Transaction#.
+	// No need to compare agents... right?
+	//
+//	mapOfAgents			m_mapAgents; // These are owned.
 	
+	if (this->GetAccountCount() != rhs.GetAccountCount())
+	{
+		OTLog::vOutput(0, "OTParty::Compare: Mismatched number of accounts when comparing party %s. \n",
+					   GetPartyName().c_str());
+		return false;
+	}
 	
-
+	FOR_EACH(mapOfPartyAccounts, m_mapPartyAccounts)
+	{
+		const std::string str_acct_name	= (*it).first;
+		OTPartyAccount * pAcct			= (*it).second;
+		OT_ASSERT(NULL != pAcct);
+		// ----------------------------------
+		
+		OTPartyAccount *p2 = rhs.GetAccount(str_acct_name);
+		
+		if (NULL == p2)
+		{
+			OTLog::vOutput(0, "OTParty::Compare: Unable to find Account %s on rhs, when comparing party %s. \n",
+						   str_acct_name.c_str(), GetPartyName().c_str());
+			return false;
+		}
+		if (!pAcct->Compare(*p2))
+		{
+			OTLog::vOutput(0, "OTParty::Compare: Accounts (%s) don't match when comparing party %s. \n",
+						   str_acct_name.c_str(), GetPartyName().c_str());
+			return false;
+		}
+	}
+	// -----------------------------------
 	
-	
-	return false;
+	return true;
 }
 
 
@@ -2992,12 +3568,24 @@ OTBylaw::OTBylaw(const char * szName, const char * szLanguage) : m_pOwnerAgreeme
 {
 	if (NULL != szName)
 		m_strName.Set(szName);
-	
+	else
+		OTLog::Error("NULL szName passed in to OTBylaw::OTBylaw \n");
+
 	if (NULL != szLanguage)
 		m_strLanguage = szLanguage;   // "chai", "angelscript" etc.
+	else
+		OTLog::Error("NULL szLanguage passed in to OTBylaw::OTBylaw \n");
+
+	// ------------------------
+	const std::string str_bylaw_name = m_strName.Get();
+	const std::string str_language = m_strLanguage.Get();
 	
-	// Todo security:  validation on the above fields.
+	// Let the calling function validate these, if he doesn't want to risk an ASSERT...
+	//
+	OT_ASSERT (OTScriptable::ValidateName(str_bylaw_name) &&
+			   OTScriptable::ValidateName(str_language));
 }
+
 
 OTBylaw::~OTBylaw()
 {

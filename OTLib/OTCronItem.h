@@ -225,6 +225,9 @@ public:
 	inline void SetCreationDate(const time_t & CREATION_DATE) { m_CREATION_DATE = CREATION_DATE; }
 	inline const time_t & GetCreationDate() const { return m_CREATION_DATE; }
 	
+	bool SetDateRange(const time_t VALID_FROM=0,  const time_t VALID_TO=0);
+	// --------------------------------------------
+
 	inline void SetLastProcessDate(const time_t & THE_DATE) { m_LAST_PROCESS_DATE = THE_DATE; }
 	inline const time_t & GetLastProcessDate() const { return m_LAST_PROCESS_DATE; }
 	

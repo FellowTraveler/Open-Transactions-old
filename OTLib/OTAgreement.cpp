@@ -590,7 +590,7 @@ bool OTAgreement::Compare(const OTAgreement & rhs) const
 //
 // (lMerchantTransactionNumber, lMerchantClosingNumber are set internally in this call, from MERCHANT_NYM.)
 bool OTAgreement::SetProposal(OTPseudonym & MERCHANT_NYM,       const OTString & strConsideration,
-                              const time_t & VALID_FROM/*=0*/,  const time_t & VALID_TO/*=0*/)
+                              const time_t VALID_FROM/*=0*/,  const time_t VALID_TO/*=0*/)
 {
     // ----------------------------------------------------------------------------
     OTIdentifier id_MERCHANT_NYM;

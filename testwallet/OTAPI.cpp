@@ -2544,6 +2544,162 @@ const char * OT_API_ConfirmPaymentPlan(const char * SERVER_ID,
 
 
 
+
+// TODO!! Write the smart contract API functions!!!!!
+
+
+
+
+
+// RETURNS:  the Smart Contract itself. (Or NULL.)
+//
+const char * OT_API_Create_SmartContract(const char * SERVER_ID,
+										 const char * SIGNER_NYM_ID,// Use any Nym you wish here. (The signing at this point is only to cause a save.)
+										 // ----------------------------------------
+										 const char * VALID_FROM,	// Default (0 or NULL) == NOW
+										 const char * VALID_TO);	// Default (0 or NULL) == no expiry / cancel anytime
+// ----------------------------------------
+
+// --------------------------------------------------------------
+
+//
+// todo: Someday add a parameter here BYLAW_LANGUAGE so that people can use
+// custom languages in their scripts.  For now I have a default language, so 
+// I'll just make that the default. (There's only one language right now anyway.)
+//
+// returns: the updated smart contract (or NULL)
+const char * OT_API_SmartContract_AddBylaw(const char * THE_CONTRACT,	// The contract, about to have the party added to it.
+										   const char * SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
+										   // ----------------------------------------
+										   const char * BYLAW_NAME);	// The Bylaw's NAME as referenced in the smart contract. (And the scripts...)
+
+// returns: the updated smart contract (or NULL)
+const char * OT_API_SmartContract_AddClause(const char * THE_CONTRACT,	// The contract, about to have the bylaw added to it.
+											const char * SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
+											// ----------------------------------------
+											const char * BYLAW_NAME,	// Should already be on the contract. (This way we can find it.)
+											// ----------------------------------------
+											const char * CLAUSE_NAME,	// The Clause's name as referenced in the smart contract. (And the scripts...)
+											const char * SOURCE_CODE);	// The actual source code for the clause.
+
+// returns: the updated smart contract (or NULL)
+const char * OT_API_SmartContract_AddVariable(const char * THE_CONTRACT,	// The contract, about to have the bylaw added to it.
+											  const char * SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
+											  // ----------------------------------------
+											  const char * BYLAW_NAME,	// Should already be on the contract. (This way we can find it.)
+											  // ----------------------------------------
+											  const char * VAR_NAME,	// The Variable's name as referenced in the smart contract. (And the scripts...)
+											  const char * VAR_ACCESS,	// "constant", "persistent", or "important".
+											  const char * VAR_TYPE,	// "string", "long", or "bool"
+											  const char * VAR_VALUE);	// Contains a string. If type is long, atol() will be used to convert value to a long. If type is bool, the strings "true" or "false" are expected here in order to convert to a bool.
+
+// returns: the updated smart contract (or NULL)
+const char * OT_API_SmartContract_AddCallback(const char * THE_CONTRACT,	// The contract, about to have the bylaw added to it.
+											  const char * SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
+											  // ----------------------------------------
+											  const char * BYLAW_NAME,	// Should already be on the contract. (This way we can find it.)
+											  // ----------------------------------------
+											  const char * CALLBACK_NAME,	// The Callback's name as referenced in the smart contract. (And the scripts...)
+											  const char * CLAUSE_NAME);	// The actual clause that will be triggered by the callback. (Must exist.)
+
+// returns: the updated smart contract (or NULL)
+const char * OT_API_SmartContract_AddHook(const char * THE_CONTRACT,	// The contract, about to have the bylaw added to it.
+										  const char * SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
+										  // ----------------------------------------
+										  const char * BYLAW_NAME,		// Should already be on the contract. (This way we can find it.)
+										  // ----------------------------------------
+										  const char * HOOK_NAME,		// The Hook's name as referenced in the smart contract. (And the scripts...)
+										  const char * CLAUSE_NAME);	// The actual clause that will be triggered by the hook. (You can call this multiple times, and have multiple clauses trigger on the same hook.)
+
+// --------------------------------------------------------------
+
+
+
+OTParty::OTParty(const char * szName, bool bIsOwnerNym, const char * szOwnerID, const char * szAuthAgent)
+
+
+
+
+
+// RETURNS: Updated version of THE_CONTRACT. (Or NULL.)
+const char * OT_API_SmartContract_AddParty(const char * THE_CONTRACT,	// The contract, about to have the party added to it.
+										   const char * SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
+										   // ----------------------------------------
+										   const char * PARTY_NAME,		// The Party's NAME as referenced in the smart contract. (And the scripts...)
+										   // ----------------------------------------
+										   const char * AGENT_NAME);	// An AGENT will be added by default for this party. Need Agent NAME.
+// (FYI, that is basically the only option, until I code Entities and Roles. Until then, a party can ONLY be
+// a Nym, with himself as the agent representing that same party. Nym ID is supplied on ConfirmParty() below.)
+
+// ----------------------------------------
+
+// Used when creating a theoretical smart contract (that could be used over and over again with different parties.)
+//
+// returns: the updated smart contract (or NULL)
+const char * OT_API_SmartContract_AddAccount(const char * THE_CONTRACT,	// The contract, about to have the party added to it.
+											 const char * SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
+											 // ----------------------------------------
+											 const char * PARTY_NAME,		// The Party's NAME as referenced in the smart contract. (And the scripts...)
+											 // ----------------------------------------
+											 const char * ACCT_NAME,		// The Account's name as referenced in the smart contract
+											 const char * ASSET_TYPE_ID);	// Asset Type ID for the Account.
+
+// ----------------------------------------
+
+// Used when taking a theoretical smart contract, and setting it up to use specific Nyms and accounts. This function sets the ACCT ID for the acct specified by party name and acct name.
+// Returns the updated smart contract (or NULL.)
+const char * OT_API_SmartContract_ConfirmAccount(const char * THE_CONTRACT,	// The smart contract, about to be changed by this function.
+												 const char * SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
+												 // ----------------------------------------
+												 const char * PARTY_NAME,	// Should already be on the contract. (This way we can find it.)
+												 // ----------------------------------------
+												 const char * ACCT_NAME,	// Should already be on the contract. (This way we can find it.)
+												 const char * ACCT_ID);		// AcctID for the asset account. (For acct_name).
+
+
+// Called by each Party. Pass in the smart contract obtained in the above call.
+// Call OT_API_SmartContract_ConfirmAccount() first, as much as you need to.
+// Returns the updated smart contract (or NULL.)
+const char * OT_API_SmartContract_ConfirmParty(const char * THE_CONTRACT,	// The smart contract, about to be changed by this function.
+											   const char * PARTY_NAME,		// Should already be on the contract. This way we can find it.
+											   // ----------------------------------------
+											   const char * NYM_ID);		// Nym ID for the party, the actual owner, 
+// ===> AS WELL AS for the default AGENT of that party.
+
+
+
+
+
+
+
+// --------------------------------------------------
+/// ACTIVATE SMART CONTRACT
+/// Take an existing smart contract, which has already been set up, confirmed, etc,
+/// and then activate it on the server so it can start processing.
+///
+/// See OT_API_Create_SmartContract (etc.)
+///
+void OT_API_activateSmartContract(const char * SERVER_ID,
+								  const char * USER_ID,
+								  const char * THE_SMART_CONTRACT);
+/*
+void OT_API_depositPaymentPlan(const char * SERVER_ID,
+							   const char * USER_ID,
+							   const char * THE_PAYMENT_PLAN)
+{
+	OT_ASSERT_MSG(NULL != SERVER_ID, "Null SERVER_ID passed in.");
+	OT_ASSERT_MSG(NULL != USER_ID, "Null USER_ID passed in.");
+	OT_ASSERT_MSG(NULL != THE_PAYMENT_PLAN, "Null THE_PAYMENT_PLAN passed in.");
+	
+	const OTIdentifier	theServerID(SERVER_ID), theUserID(USER_ID);
+	const OTString		strPlan(THE_PAYMENT_PLAN);
+	
+	g_OT_API.depositPaymentPlan(theServerID, theUserID, strPlan);	
+}
+*/
+
+
+
 // -----------------------------------------------------------------
 // LOAD PUBLIC KEY (of other users, where no private key is available)
 // This is the "address book" versus the private Nym.

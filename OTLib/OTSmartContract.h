@@ -193,8 +193,7 @@ public:
 	int GetCountStashes() const;
 	int GetCountStashAccts() const;
 	
-	virtual bool AddParty(OTParty & theParty); // Takes ownership. Overrides from OTScriptable.
-	
+	// --------------------------------------------------------------------------
 	// FROM PAYMENT PLAN:
 //    bool    SetProposal(OTPseudonym & MERCHANT_NYM, const OTString & strConsideration,
 //                        const time_t & VALID_FROM=0,	const time_t & VALID_TO=0);
@@ -215,9 +214,7 @@ public:
     // and BOTH Nyms can be checked to verify that BOTH transaction numbers are valid for each.
     // The two versions of the contract can also be compared to each other, to make sure that none of
     // the vital terms, values, clauses, etc are different between the two.
-    //
-    virtual bool VerifySmartContract(OTPseudonym & VERIFIER_NYM);
-    
+    //    
 	virtual bool Compare(const OTScriptable & rhs) const;
 
 	// --------------------------------------------------------------------------
@@ -230,7 +227,7 @@ public:
 	 */
     virtual bool CanRemoveItemFromCron(OTPseudonym & theNym);
 	
-    virtual void HarvestClosingNumbers(OTPseudonym & theNym);
+	virtual void HarvestClosingNumbers(OTPseudonym & theNym);
     
     // Return True if should stay on OTCron's list for more processing.
 	// Return False if expired or otherwise should be removed.
@@ -275,8 +272,12 @@ public:
 
      virtual bool SignContract (const OTPseudonym & theNym);
      */
-    
-	// -------------------------------------
+	
+	virtual bool AddParty(OTParty & theParty); // Takes ownership. Overrides from OTScriptable.
+	virtual bool ConfirmParty(OTParty & theParty); // Takes ownership. Overrides from OTScriptable.
+	
+	// --------------------------------------------------------------------------
+	//
 	// HIGH LEVEL
 	//
 	

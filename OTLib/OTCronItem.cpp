@@ -950,6 +950,58 @@ bool OTCronItem::MoveFunds(const mapOfNyms	  & map_NymsAlreadyLoaded,
 
 
 
+bool OTCronItem::SetDateRange(const time_t VALID_FROM/*=0*/,  const time_t VALID_TO/*=0*/)
+{
+	// ***************************************************
+	// Set the CREATION DATE
+    //
+	const time_t CURRENT_TIME = time(NULL);
+	
+	// Set the Creation Date.
+	SetCreationDate(CURRENT_TIME);
+	
+    // -----------------------------------------
+    // VALID_FROM
+    //
+	// The default "valid from" time is NOW.
+	if (0 >= VALID_FROM) // if it's 0 or less, set to current time.
+		SetValidFrom(CURRENT_TIME);
+	else // Otherwise use whatever was passed in.
+		SetValidFrom(VALID_FROM);
+    // ------------------------------------------- 
+    // VALID_TO
+    //
+	// The default "valid to" time is 0 (which means no expiration date / cancel anytime.)
+	if (0 == VALID_TO) // VALID_TO is 0
+	{
+		SetValidTo(VALID_TO); // Keep it at zero then, so it won't expire.
+	}
+	else if (0 < VALID_TO) // VALID_TO is ABOVE zero...
+	{
+		if (VALID_TO < VALID_FROM) // If Valid-To date is EARLIER than Valid-From date...
+		{
+			long lValidTo = VALID_TO, lValidFrom = VALID_FROM;
+			OTLog::vError("OTCronItem::SetDateRange: VALID_TO (%ld) is earlier than VALID_FROM (%ld)\n", 
+                          lValidTo, lValidFrom);
+			return false;
+		}
+		
+		SetValidTo(VALID_TO); // Set it to whatever it is, since it is now validated as higher than Valid-From.
+	}
+	else // VALID_TO is a NEGATIVE number... Error.
+	{
+		long lValidTo = VALID_TO;
+		OTLog::vError("OTCronItem::SetDateRange: Negative value for valid_to: %ld\n", lValidTo);
+        
+		return false;
+	}
+	// ***************************************************
+	
+	return true;
+}
+
+
+
 
 
 // ------------------------------------------------------------

@@ -193,7 +193,7 @@ public:
 //							 const time_t & VALID_FROM=0,	const time_t & VALID_TO=0);
 
     bool    SetProposal(OTPseudonym & MERCHANT_NYM, const OTString & strConsideration,
-                        const time_t & VALID_FROM=0,	const time_t & VALID_TO=0);
+                        const time_t VALID_FROM=0,	const time_t VALID_TO=0);
     
     bool    Confirm(OTPseudonym & MERCHANT_NYM, OTPseudonym & PAYER_NYM);  // Merchant Nym is passed here so we can verify the signature before confirming.
     

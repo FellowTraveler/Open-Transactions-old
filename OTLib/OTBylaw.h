@@ -214,12 +214,17 @@ public:
 	void ClearTemporaryPointers() { m_pNym = NULL; } /* Someday clear entity/role ptr here? And do NOT
 													    clear party ptr here (since it's not temporary.)  */
 	
-	// This only harvests IF the Nym matches.
-	//
-	bool HarvestClosingNumber(OTPseudonym & theNym, const OTString & strServerID, const long & lClosingNumber);
+	bool HarvestTransactionNumber(const long & lNumber, const OTString & strServerID);
+	
+	bool ReserveOpeningTransNum(const OTString & strServerID);
+	bool ReserveClosingTransNum(const OTString & strServerID, OTPartyAccount & thePartyAcct);
 
     // ---------------------------------
-
+	
+	bool SignContract(OTContract & theInput);
+	
+    // ---------------------------------
+	
 	bool VerifySignature(OTContract & theContract); // Have the agent try to verify his own signature against any contract.
 	
     void SetParty(OTParty & theOwnerParty); // This happens when the agent is added to the party.
@@ -405,11 +410,12 @@ class OTPartyAccount
 	//
 	OTString	m_strName;			// Name of the account (for use in scripts.)
 	OTString	m_strAcctID;		// The Account ID itself.
+	OTString	m_strAssetTypeID;	// The asset type ID for the account. Stored because parties agree on this even before the account ID is selected. Compare() uses this even when the account ID is blank, and when acct ID *is* added, its asset type must match this.
 
 	OTString	m_strAgentName;		// The name of the agent who has rights to this account.
 	
 	// -------------------------
-
+	//
 	// Entity, role, and Nym information are not stored here.
 	// Entity is already known on the party who owns this account (and I should have a ptr to him.)
 	// Role is already known on the agent who is presumably on the party's list of agents.
@@ -420,33 +426,23 @@ class OTPartyAccount
 	//
 	
 public:
-	OTPartyAccount();
-	OTPartyAccount(const std::string str_account_name, const OTString & strAgentName, const OTAccount & theAccount, long lClosingTransNo);
-	OTPartyAccount(const OTString & strName, const OTString & strAgentName, const OTString & strAcctID, long lClosingTransNo);
-	
-	virtual ~OTPartyAccount();
-	
-	void Serialize(OTString & strAppend);
-
-	// For pointers I don't own, but store for convenience.
-	// This clears them once we're done processing, so I don't
-	// end up stuck with bad pointers on the next go-around.
-	//
-	void ClearTemporaryPointers() { m_pAccount = NULL; }
-	
-	// -----------
 	OTParty * GetParty() { return m_pForParty; }
 	void SetParty(OTParty & theOwnerParty); // This happens when the partyaccount is added to the party. (so I have a ptr back)
 
-	const OTString & GetName()		{ return m_strName; }		// account's name as used in a script.
-	const OTString & GetAgentName()	{ return m_strAgentName; }	// agent's name as used in a script.
-	const OTString & GetAcctID()	{ return m_strAcctID; }		// account's ID as used internal to OT.
+	const OTString & GetName()			{ return m_strName; }			// account's name as used in a script.
+	const OTString & GetAgentName()		{ return m_strAgentName; }		// agent's name as used in a script.
+	const OTString & GetAcctID()		{ return m_strAcctID; }			// account's ID as used internal to OT.
+	const OTString & GetAssetTypeID()	{ return m_strAssetTypeID; }	// asset type ID for the account.
+	
+	void SetAgentName(const OTString & strAgentName) { m_strAgentName = strAgentName; }
 	
 	OTAgent * GetAuthorizedAgent() const;
-	
+
 	bool IsAccount(OTAccount & theAccount) const;
 	
 	long GetClosingTransNo() { return m_lClosingTransNo; }
+	void SetClosingTransNo(const long lTransNo) { m_lClosingTransNo = lTransNo; }
+	
 	// -----------
 	
 	bool Compare(const OTPartyAccount & rhs) const;
@@ -461,6 +457,22 @@ public:
 								 const OTString & strOrigCronItem,
 								 OTString * pstrNote=NULL,
 								 OTString * pstrAttachment=NULL);
+
+	// ------------------------------------------------------------
+	
+	OTPartyAccount();
+	OTPartyAccount(const std::string str_account_name, const OTString & strAgentName, const OTAccount & theAccount, long lClosingTransNo);
+	OTPartyAccount(const OTString & strName, const OTString & strAgentName, const OTString & strAcctID, const OTString & strAssetTypeID, long lClosingTransNo);
+	
+	virtual ~OTPartyAccount();
+	
+	void Serialize(OTString & strAppend);
+	
+	// For pointers I don't own, but store for convenience.
+	// This clears them once we're done processing, so I don't
+	// end up stuck with bad pointers on the next go-around.
+	//
+	void ClearTemporaryPointers() { m_pAccount = NULL; }
 };
 
 
@@ -510,12 +522,16 @@ class OTParty
 	OTScriptable *	m_pOwnerAgreement; // This Party is owned by an agreement (OTScriptable-derived.) Convenience pointer.
 
 public:
-	const std::string & GetAuthorizedAgentName() const { return m_str_authorizing_agent; }
 	
 	// ----------------------
 	OTParty();
 	OTParty(const char * szName, bool bIsOwnerNym, const char * szOwnerID, const char * szAuthAgent);
-	OTParty(const std::string str_PartyName, OTPseudonym & theNym, OTAccount * pAccount=NULL);
+	OTParty(const std::string	str_PartyName,
+			OTPseudonym &		theNym, // Nym is BOTH owner AND agent, when using this constructor.
+			const std::string	str_agent_name, 
+			OTAccount *			pAccount=NULL,
+			const std::string *	pstr_account_name=NULL,
+			const long			lClosingTransNo=0);
 	
 	virtual ~OTParty();
 	
@@ -531,9 +547,28 @@ public:
 	//
 	void ClearTemporaryPointers();
 	
-	void HarvestClosingNumbers(OTPseudonym & theNym, const OTString & strServerID);
+	// ---------------------------------------------------------------------------------
+
+	bool SignContract(OTContract & theInput); // The party will use its authorizing agent.
 	
-	// ---------------------
+	// Set aside all the necessary transaction #s from the various Nyms.
+	// (Assumes those Nym pointers are available inside their various agents.)
+	//
+	bool ReserveTransNumsForConfirm(const OTString & strServerID);
+	
+	// ---------------------------------------------------------------------------------
+	void HarvestAllTransactionNumbers(const OTString & strServerID);
+	// ---------------------------------------------------------------------------------
+	void HarvestOpeningNumber(const OTString & strServerID);
+	void HarvestOpeningNumber(OTAgent & theAgent,		const OTString & strServerID);
+	void HarvestOpeningNumber(OTPseudonym & theNym,		const OTString & strServerID);
+	// ---------------------------------------------------------------------------------
+	void HarvestClosingNumbers(const OTString & strServerID);
+	void HarvestClosingNumbers(OTAgent & theAgent,		const OTString & strServerID);
+	void HarvestClosingNumbers(OTPseudonym & theNym,	const OTString & strServerID);
+	// ---------------------------------------------------------------------------------
+
+
 	// Iterates through the agents.
 	//
 	bool DropFinalReceiptToNymboxes(const long & lNewTransactionNumber,
@@ -619,6 +654,9 @@ public:
 	int  GetAgentCount() const { return m_mapAgents.size(); }
 	bool AddAgent(OTAgent& theAgent);
 	
+	const std::string & GetAuthorizingAgentName() const { return m_str_authorizing_agent; }
+	void SetAuthorizingAgentName(const std::string str_agent_name) { m_str_authorizing_agent = str_agent_name; }
+
 	// If Nym is authorizing agent for Party, set agent's pointer to Nym and return true.
 	//
 	bool HasAuthorizingAgent(OTPseudonym & theNym, OTAgent ** ppAgent=NULL); 
@@ -640,9 +678,13 @@ public:
 	
 	bool AddAccount(OTPartyAccount& thePartyAcct);
 	bool AddAccount(const OTString& strAgentName, const OTString& strName, 
-					const OTString & strAcctID, const long lClosingTransNo);
-	bool AddAccount(const OTString& strAgentName, const char * szAcctName,
-					OTAccount& theAccount, const long lClosingTransNo);
+					const OTString & strAcctID, const OTString & strAssetTypeID, const long lClosingTransNo);
+	bool AddAccount(const std::string	str_PartyName,
+					OTPseudonym &		theNym, // Nym is BOTH owner AND agent, when using this constructor.
+					const std::string	str_agent_name, 
+					OTAccount *			pAccount=NULL,
+					const std::string *	pstr_account_name=NULL,
+					const long			lClosingTransNo=0);
 	
 	int GetAccountCount() const { return m_mapPartyAccounts.size(); }
 	
@@ -885,8 +927,8 @@ class OTBylaw
 	mapOfVariables	m_mapVariables; // constant, persistant, and important variables (strings and longs)
 	mapOfClauses	m_mapClauses;	// map of scripts associated with this bylaw.
 	
-	mapOfHooks		m_mapHooks;		// multimap of server hooks associated with clauses.
-	mapOfCallbacks	m_mapCallbacks;	// map of standard callbacks associated with script clauses.
+	mapOfHooks		m_mapHooks;		// multimap of server hooks associated with clauses. string / string
+	mapOfCallbacks	m_mapCallbacks;	// map of standard callbacks associated with script clauses. string / string
 	
 	OTScriptable *	m_pOwnerAgreement; // This Bylaw is owned by an agreement (OTScriptable-derived.)
 	

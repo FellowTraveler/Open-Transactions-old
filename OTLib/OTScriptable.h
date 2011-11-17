@@ -160,9 +160,12 @@ public:
 	int GetBylawCount() const { return m_mapBylaws.size(); }
 	
 	virtual bool AddParty(OTParty & theParty); // Takes ownership.
-	virtual bool AddBylaw(OTBylaw & theBylaw);
+	virtual bool AddBylaw(OTBylaw & theBylaw); // takes ownership.
+
+	virtual bool ConfirmParty(OTParty & theParty); // Takes ownership.
 
 	OTParty		* GetParty( const std::string str_party_name);
+	OTBylaw		* GetBylaw( const std::string str_bylaw_name);
 	OTClause	* GetClause(const std::string str_clause_name);
 	
 	OTParty * FindPartyBasedOnNymAsAgent(const OTPseudonym & theNym, OTAgent ** ppAgent=NULL);
@@ -195,6 +198,8 @@ public:
 								  OTPseudonym		& theSignerNym,	// For verifying signature on the authorizing Nym, when loading it
 								  const OTString	& strServerID,	// For verifying issued num, (need the serverID the # goes with.)
 								  mapOfNyms			* pmap_ALREADY_LOADED=NULL);
+
+	bool VerifyThisAgainstAllPartiesSignedCopies();
 
 	// -----------------------------------------------------------------------------------
 	// Often we endeavor to avoid loading the same Nym twice, and a higher-level function

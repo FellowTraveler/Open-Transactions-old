@@ -979,16 +979,32 @@ bool OTScriptable::VerifyPartyAuthorization(OTParty		& theParty,		// The party t
 	// ----------------------------------------------
 	
 	const bool bSigVerified = pPartySignedCopy->VerifySignature(*pAuthAgentsNym);
+	bool bContentsVerified = false;
 	
-	// Todo: possibly call this->Compare(*pPartySignedCopy); to make sure there's no funny business.
-	// Well actually that HAS to happen anyway, it's just a question of whether it goes here too, or only somewhere else.
+	if (bSigVerified)
+	{
+		// Todo OPTIMIZE: Might move this call to a higher layer, so it gets called MUCH less often but retains the same security.
+		// There are several places currently in smart contracts like this.
+		// Need to analyze security aspects before doing it.
+		//
+		bContentsVerified = this->Compare(*pPartySignedCopy);
+		
+		if (!bContentsVerified)
+			OTLog::vOutput(0, "OTScriptable::VerifyPartyAuthorization: Though the signature verifies, the contract "
+						   "signed by the party (%s) doesn't match this contract. (Failed comparison.)\n",
+						   theParty.GetPartyName().c_str());
+	}
+	else
+		OTLog::vOutput(0, "OTScriptable::VerifyPartyAuthorization: Signature failed to verify for party: %s \n",
+					   theParty.GetPartyName().c_str());
+	
 	// ----------------------------------------------
 	
 	if (bHadToLoadItMyself)
 		pAuthorizingAgent->ClearTemporaryPointers(); // We loaded the Nym ourselves, which goes out of scope after this function. 
 	//The party is done with it now, and we don't want it to keep pointing to something that is now going out of scope.
 	
-	return bSigVerified;
+	return bContentsVerified;
 }
 
 
@@ -1131,11 +1147,29 @@ bool OTScriptable::VerifyNymAsAgent(const	OTPseudonym & theNym,
 	}
 	else
 		theCopyAngel.SetCleanupTarget(*pPartySignedCopy);
-
 	// ----------------------------------------------
 	
 	const bool bSigVerified = pAuthorizingAgent->VerifySignature(*pPartySignedCopy);
+	bool bContentsVerified = false;
 
+	if (bSigVerified)
+	{
+		// Todo OPTIMIZE: Might move this call to a higher layer, so it gets called MUCH less often but retains the same security.
+		// There are several places currently in smart contracts like this.
+		// Need to analyze security aspects before doing it.
+		//
+		bContentsVerified = this->Compare(*pPartySignedCopy);
+		
+		if (!bContentsVerified)
+			OTLog::vOutput(0, "OTScriptable::VerifyNymAsAgent: Though the signature verifies, the contract "
+						   "signed by the party (%s) doesn't match this contract. (Failed comparison.)\n",
+						   pParty->GetPartyName().c_str());
+	}
+	else
+		OTLog::vOutput(0, "OTScriptable::VerifyNymAsAgent: Signature failed to verify for party: %s \n",
+					   pParty->GetPartyName().c_str());
+	
+	
 	// Todo: possibly call this->Compare(*pPartySignedCopy); to make sure there's no funny business.
 	// Well actually that HAS to happen anyway, it's just a question of whether it goes here too, or only somewhere else.
 	// ----------------------------------------------
@@ -1143,7 +1177,7 @@ bool OTScriptable::VerifyNymAsAgent(const	OTPseudonym & theNym,
 	pParty->ClearTemporaryPointers(); // We loaded a Nym ourselves, which goes out of scope after this function. The party is done
 									// with it now, and we don't want it to keep pointing to something that is now going out of scope.
 		
-	return bSigVerified;
+	return bContentsVerified;
 }
 
 
@@ -1398,6 +1432,33 @@ OTPartyAccount * OTScriptable::GetPartyAccount(const std::string str_acct_name)
 
 
 
+OTBylaw * OTScriptable::GetBylaw(const std::string str_bylaw_name)
+{
+	if (false == OTScriptable::ValidateName(str_bylaw_name)) // this logs, FYI.
+	{
+		OTLog::Error("OTScriptable::GetBylaw:  Error: invalid name.\n");
+		return NULL;
+	}
+	// -----------------------------------------------------------
+	
+	mapOfBylaws::iterator it = m_mapBylaws.find(str_bylaw_name);
+	
+	if (m_mapBylaws.end() == it) // Did NOT find it.
+	{
+		OTLog::vOutput(0, "OTScriptable::GetBylaw: Strange: bylaw not found: %s\n",
+					   str_bylaw_name.c_str());
+		return NULL;
+	}
+	// ----------------------------------------
+	
+	OTBylaw * pBylaw = (*it).second;
+	OT_ASSERT(NULL != pBylaw);
+	
+	return pBylaw;	
+}
+
+
+
 OTParty * OTScriptable::GetParty(const std::string str_party_name)
 {
 	if (false == OTScriptable::ValidateName(str_party_name)) // this logs, FYI.
@@ -1415,7 +1476,6 @@ OTParty * OTScriptable::GetParty(const std::string str_party_name)
 					   str_party_name.c_str());
 		return NULL;
 	}
-	
 	// ----------------------------------------
 	
 	OTParty * pParty = (*it).second;
@@ -1425,6 +1485,155 @@ OTParty * OTScriptable::GetParty(const std::string str_party_name)
 }
 
 
+
+// Verify the contents of THIS contract against signed copies of it that are stored in each Party.
+//
+bool OTScriptable::VerifyThisAgainstAllPartiesSignedCopies()
+{
+	// MAKE SURE ALL SIGNED COPIES ARE OF THE SAME CONTRACT.
+	// Loop through ALL the parties. For whichever ones are already signed,
+	// load up the signed copy and make sure it compares to the main one.
+	// This is in order to make sure that I am signing the same thing that
+	// everyone else signed, before I actually sign it.
+	//
+	FOR_EACH(mapOfParties, m_mapParties)
+	{
+		const std::string current_party_name	= (*it).first;
+		OTParty * pParty						= (*it).second;
+		OT_ASSERT(NULL != pParty);
+		// ---------------
+		
+		if (pParty->GetMySignedCopy().Exists())
+		{
+			OTScriptable * pPartySignedCopy = OTScriptable::InstantiateScriptable(pParty->GetMySignedCopy());
+			OTCleanup<OTScriptable *> theCopyAngel;
+			
+			if (NULL == pPartySignedCopy)
+			{
+				OTLog::vError("OTScriptable::VerifyThisAgainstAllPartiesSignedCopies: Error loading party's (%s) "
+							  "signed copy of agreement. Has it been executed?\n", current_party_name.c_str());				
+				return false;
+			}
+			else
+				theCopyAngel.SetCleanupTarget(*pPartySignedCopy);
+			// ----------------------
+			if ( ! this->Compare(*pPartySignedCopy) )   // <============= For all signed copies, we compare them to *this.
+			{
+				OTLog::vError("OTScriptable::VerifyThisAgainstAllPartiesSignedCopies: Party's (%s) "
+							  "signed copy of agreement doesn't match *this.\n", current_party_name.c_str());				
+				return false;				
+			}
+		}
+		// else nothing. (We only verify against the ones that are signed.)
+	} // FOR_EACH
+	// ---------------
+	return true;
+}
+
+
+// Done
+// Takes ownership. Client side.
+// ONLY works if the party is ALREADY there. Assumes the transaction #s, etc are set up already.
+//
+// Used once all the actual parties have examined a specific smartcontract and have 
+// chosen to sign-on to it. This function looks up the theoretical party (such as "trustee") 
+// that they are trying to sign on to, compares the two, then replaces the theoretical one
+// with the actual one. Then it signs the contract and saves a copy inside the party.
+//
+bool OTScriptable::ConfirmParty(OTParty & theParty)
+{
+	const std::string str_party_name = theParty.GetPartyName();
+	
+	if (false == OTScriptable::ValidateName(str_party_name)) // this logs, FYI.
+	{
+		OTLog::Error("OTScriptable::ConfirmParty:  Error: invalid name.\n");
+		return false;
+	}
+	// -----------------------------------------------------------
+	// MAKE SURE ALL SIGNED COPIES ARE OF THE SAME CONTRACT.
+	// Loop through ALL the parties. For whichever ones are already signed,
+	// load up the signed copy and make sure it compares to the main one.
+	// This is in order to make sure that I am signing the same thing that
+	// everyone else signed, before I actually sign it.
+	//
+	if (false == VerifyThisAgainstAllPartiesSignedCopies())
+		return false; // This already logs on failure.
+	
+	// BY THIS POINT, we know that, of all the parties who have already signed, 
+	// their signed copies DO match this smart contract.
+	//
+	// -----------------------------------------------------------
+	//
+	// Next, find the theoretical Party on this scriptable that matches the actual Party that
+	// was passed in. (It should already be there.) If found, replace it with the one passed in.
+	// Then sign the contract, save the signed version in the new party, and then sign again.
+	//
+	// If NOT found, then we failed. (For trying to confirm a non-existent party.)
+	//
+	mapOfParties::iterator it_delete = m_mapParties.find(str_party_name);
+	
+	if (it_delete != m_mapParties.end()) // It was already there.
+	{
+		OTParty * pParty = (*it_delete).second;
+		OT_ASSERT(NULL != pParty);
+		// -------------------------------
+		
+		if (!pParty->Compare(theParty)) // Make sure my party compares to the one it's replacing...
+		{
+			OTLog::vOutput(0, "OTScriptable::ConfirmParty: Party (%s) doesn't match the one it's confirming.\n",
+						   str_party_name.c_str());
+			return false;
+		}
+		// else...
+		m_mapParties.erase(it_delete);  // Remove the theoretical party from the map, so we can replace it with the real one.
+		delete pParty; pParty=NULL;		// Delete it, since I own it.
+		// ------------------------
+		// Careful:  This ** DOES ** TAKE OWNERSHIP!  theParty will get deleted when 
+		// this OTScriptable instance is.
+		//
+		m_mapParties.insert( std::pair<std::string, OTParty *>(str_party_name, &theParty)) ; 
+		theParty.SetOwnerAgreement(*this); // Now the actual party is in place, instead of a placekeeper version of it. There are actual Acct/Nym IDs now, etc.
+		// ------------------------
+				
+		// Sign it and save it, 
+		OTString strNewSignedCopy;
+		this->ReleaseSignatures();
+		bool bSuccess = theParty.SignContract(*this);
+		
+		if (bSuccess)
+		{
+			this->SaveContract();
+			this->SaveContract(strNewSignedCopy);
+			// -----------------------
+			// then save a copy of it inside theParty, 
+			//
+			theParty.SetMySignedCopy(strNewSignedCopy);
+
+			// -----------------------	
+			// then sign the overall thing again, so that signed copy (now inside theParty) will be properly saved.
+			// That way when other people verify my signature, it will be there for them to verify.
+			//
+			this->ReleaseSignatures();
+			theParty.SignContract(*this);		
+			this->SaveContract();
+			
+			return true;
+		}
+		
+		return false;
+	}
+	else 
+		OTLog::vOutput(0, "OTScriptable::ConfirmParty: Failed attempt to confirm non-existent party: %s \n ",
+					  str_party_name.c_str());
+	// ----------------------------------------
+	
+	return false;
+}
+
+
+// ONLY adds it if it's not already there.
+// Used during the design of the smartcontract. (Adding theoretical parties.)
+//
 bool OTScriptable::AddParty(OTParty & theParty)
 {
 	const std::string str_party_name = theParty.GetPartyName();
@@ -1483,6 +1692,8 @@ bool OTScriptable::AddBylaw(OTBylaw & theBylaw)
 }
 
 
+
+
 /*
  <party name=“shareholders”
  Owner_Type=“entity”  // ONLY can be “nym” or “entity”.
@@ -1499,86 +1710,76 @@ bool OTScriptable::AddBylaw(OTBylaw & theBylaw)
  */
 
 
-// TODO!
-//
-
-// mapOfParties		m_mapParties;	// The parties to the contract. Could be Nyms, or other entities. May be rep'd by an Agent.
-
-// mapOfBylaws		m_mapBylaws;	// The Bylaws for this contract.
 
 
 bool OTScriptable::Compare(const OTScriptable & rhs) const
 {
-	
-	// Todo:
-	// EITHER *this or rhs will have MORE PARTIES on it.
-	// Make sure that the one with FEWER PARTIES has ALL of them
-	// found on the one with MORE parties. TOdo.
 	//
 	// UPDATE: ALL of the parties should be there, in terms of their
-	// names, account names, and agent names, but the actual IDs can
-	// remain blank, and the signed copies can be blank. (Those things
-	// are all verified elsewhere. That's about verifying the signature
-	// and authorization, versus verifying the content.)
+	// names and account names --- but the actual IDs can remain blank,
+	// and the signed copies can be blank. (Those things are all verified
+	// elsewhere. That's about verifying the signature and authorization,
+	// versus verifying the content.)
 	//
-	
-	// TODO: Make sure the Bylaws are entirely identical.
-	//
-	
-	
-	mapOfParties		m_mapParties;	// The parties to the contract. Could be Nyms, or other entities. May be rep'd by an Agent.
-	
-	mapOfBylaws			m_mapBylaws;	// The Bylaws for this contract.
-
-	
-	if (GetPartyCount() != rhs.GetPartyCount())
+	if (this->GetPartyCount() != rhs.GetPartyCount())
 	{
 		OTLog::vOutput(0, "OTScriptable::Compare: The number of parties does not match.\n");
 		return false;
 	}
-	if (GetBylawCount() != rhs.GetBylawCount())
+	if (this->GetBylawCount() != rhs.GetBylawCount())
 	{
 		OTLog::vOutput(0, "OTScriptable::Compare: The number of bylaws does not match.\n");
 		return false;
 	}
-	
+	// ----------------------------------------
 	FOR_EACH(mapOfBylaws, m_mapBylaws)
 	{
-		OTBylaw * pBylaw = (*it).second;
+		const std::string str_bylaw_name	= (*it).first;
+		OTBylaw * pBylaw					= (*it).second;
 		OT_ASSERT(NULL != pBylaw);
 		// --------------------
 		
+		OTBylaw * p2 = rhs.GetBylaw(str_bylaw_name);
 		
+		if (NULL == p2)
+		{
+			OTLog::vOutput(0, "OTScriptable::Compare: Unable to find bylaw %s on rhs.\n",
+						   str_bylaw_name.c_str());
+			return false;
+		}
+		else if ( ! pBylaw->Compare(*p2) )
+		{
+			OTLog::vOutput(0, "OTScriptable::Compare: Bylaws don't match: %s.\n",
+						   str_bylaw_name.c_str());
+			return false;
+		}
 	}
+	// ----------------------------------------
+	FOR_EACH(mapOfParties, m_mapParties)
+	{
+		const std::string str_party_name	= (*it).first;
+		OTParty * pParty					= (*it).second;
+		OT_ASSERT(NULL != pParty);
+		// --------------------
+		
+		OTParty * p2 = rhs.GetParty(str_party_name);
+		
+		if (NULL == p2)
+		{
+			OTLog::vOutput(0, "OTScriptable::Compare: Unable to find party %s on rhs.\n",
+						   str_party_name.c_str());
+			return false;
+		}
+		else if ( ! pParty->Compare(*p2) )
+		{
+			OTLog::vOutput(0, "OTScriptable::Compare: Parties don't match: %s.\n",
+						   str_party_name.c_str());
+			return false;
+		}
+	}
+	// ----------------------------
 	
-	
-	
-	// Compare OTScriptable specific info here.
-//	
-//    if (
-//        (   m_strConsideration.Compare(pSmartContract->m_strConsideration) ) &&
-//        // --------------------------------------------------------------------
-//        (HasInitialPayment()        == rhs.HasInitialPayment())          &&
-//        (GetInitialPaymentDate()    == rhs.GetInitialPaymentDate())      &&
-//        (GetInitialPaymentAmount()  == rhs.GetInitialPaymentAmount())    &&
-//        // --------------------------------------------------------------------
-//        (HasPaymentPlan()           == rhs.HasPaymentPlan())             &&
-//        (GetPaymentPlanAmount()     == rhs.GetPaymentPlanAmount())       &&
-//        (GetTimeBetweenPayments()   == rhs.GetTimeBetweenPayments())     &&
-//        (GetPaymentPlanStartDate()  == rhs.GetPaymentPlanStartDate())    &&
-//        (GetPaymentPlanLength()     == rhs.GetPaymentPlanLength())       &&
-//        (GetMaximumNoPayments()     == rhs.GetMaximumNoPayments())
-//		)
-//        return true;
-
-    
-	
-	
-	
-	
-	
-	
-    return false;
+    return true;
 }
 
 
@@ -1620,7 +1821,9 @@ void OTScriptable::UpdateContents() // Before transmission or serialization, thi
 // return -1 if error, 0 if nothing, and 1 if the node was processed.
 int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 {	
-	int nReturnVal = OTContract::ProcessXMLNode(xml);
+	int nReturnVal = 0; // Unless/until I want to add OTContract::Compare(), then people would be able to surreptitiously insert keys and 
+//	int nReturnVal = OTContract::ProcessXMLNode(xml); // conditions, and entities, that passed OTScriptable::Compare() with flying colors 
+//  even though they didn't really match. Therefore, here I explicitly disallow loading those things.
 	
 	// Here we call the parent class first.
 	// If the node is found there, or there is some error,
@@ -1630,9 +1833,8 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 	// -- Note: you can choose not to call the parent, if
 	// you don't want to use any of those xml tags.
 	
-	if (nReturnVal == 1 || nReturnVal == (-1))
-		return nReturnVal;
-	
+//	if (nReturnVal == 1 || nReturnVal == (-1))
+//		return nReturnVal;
 	
 	if (!strcmp("scriptableContract", xml->getNodeName()))
 	{
@@ -1778,6 +1980,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 				{
 					OTString strAcctName		= xml->getAttributeValue("name"); // Acct name (if needed in script code)
 					OTString strAcctID			= xml->getAttributeValue("acctID"); // Asset Acct ID
+					OTString strAssetTypeID		= xml->getAttributeValue("assetTypeID"); // Asset Type ID
 					OTString strAgentName		= xml->getAttributeValue("agentName"); // Name of agent who controls this account.
 					OTString strClosingTransNo	= xml->getAttributeValue("closingTransNo"); // the closing #s are on the asset accounts.
 					
@@ -1793,9 +1996,12 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 					}
 					// ----------------------------------
 					
-					if (!strAcctName.Exists() || !strAcctID.Exists() || !strAgentName.Exists())
+					// Missing Account ID is allowed, as well as agent name, since those things may not be decided yet.
+					//
+					if (!strAcctName.Exists() || !strAssetTypeID.Exists())
+//					if (!strAcctName.Exists() || !strAcctID.Exists() || !strAgentName.Exists() || !strAssetTypeID.Exists())
 					{
-						OTLog::Error("OTScriptable::ProcessXMLNode: Expected missing AcctID or Name or AgentName in partyaccount.\n");
+						OTLog::Error("OTScriptable::ProcessXMLNode: Expected missing AcctID or AssetTypeID or Name or AgentName in partyaccount.\n");
 						delete pParty; pParty=NULL;
 						return (-1);
 					}
@@ -1817,7 +2023,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 					// Whereas the above call checks this OTScriptable for all the accounts on the already-loaded parties.
 					// ----------------------------------
 					
-					if (false == pParty->AddAccount(strAgentName, strAcctName, strAcctID, lClosingTransNo))
+					if (false == pParty->AddAccount(strAgentName, strAcctName, strAcctID, strAssetTypeID, lClosingTransNo))
 					{
 						OTLog::Error("OTScriptable::ProcessXMLNode: Failed adding account to party.\n");
 						delete pParty; pParty=NULL;

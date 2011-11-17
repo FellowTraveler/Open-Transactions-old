@@ -474,7 +474,7 @@
 
 
 #ifndef SMART_CONTRACT_PROCESS_INTERVAL	
-#define SMART_CONTRACT_PROCESS_INTERVAL		30		// 30 seconds
+#define SMART_CONTRACT_PROCESS_INTERVAL		30		// 30 seconds, for testing. Should be: based on fees. Otherwise once per day should be enough... right?
 #endif
 
 // -----------------------------------------------------------------
@@ -3401,35 +3401,39 @@ bool OTSmartContract::CanRemoveItemFromCron(OTPseudonym & theNym)
 
 
 
-// Verify the contents of THIS contract against signed copies of it that are stored in each Party.
-//
-bool OTSmartContract::VerifyThisDetailsAgainstAllPartiesSignedCopies()
-{
-	
-	// LOOP THROUGH ALL PARTIES
-	
-	// Each has a signed contract.  Load it and Compare() to this.
-	
-    // Load up the merchant's copy.  NOTE: EAACH party has a signed copy!
-    OTSmartContract thePartysCopy;
-    if (!m_strMerchantSignedCopy.Exists() || !thePartysCopy.LoadContractFromString(m_strMerchantSignedCopy))
-    {
-        OTLog::Error("OTSmartContract::VerifyAgreement: Expected Merchant's signed copy to be inside the "
-                     "payment plan, but unable to load.\n");
-        return false;
-    }
-    
-    // Compare this against the merchant's copy using Compare function.
-    if (!this->Compare(thePartysCopy))
-    {
-        OTLog::Output(0, "OTSmartContract::VerifyAgreement: Merchant's copy of payment plan isn't equal to Customer's copy.\n");
-        return false;
-    }
 
-	
-	
-	return false;
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// TODO:
+
+
+
+
 
 //
 // OTContract::VerifySignature(OTPseudonym & theNym)    <=====  already exists.
@@ -3440,94 +3444,108 @@ bool OTSmartContract::VerifyThisDetailsAgainstAllPartiesSignedCopies()
 // Client-side could technically do this, as long as he had all the public keys
 // available for the various parties. For now, I need this on server side.
 //
-bool OTSmartContract::VerifyAllPartiesSignatures(std::map<std::string, OTPseudonym *> & map_SignersByNymID)
-{
-	/*
-    // Verify sender's signature on this.
-    if (!this->VerifySignature(SENDER_NYM))
-    {
-        OTLog::Output(0, "OTSmartContract::VerifyAgreement: Sender's signature failed to verify.\n");
-        return false;
-    }
-	
-    // Verify recipient's signature on merchant's copy.
-	
-    if (!theMerchantCopy.VerifySignature(RECIPIENT_NYM))
-    {
-        OTLog::Output(0, "OTSmartContract::VerifyAgreement: Recipient's signature failed to verify on internal merchant copy of agreement.\n");
-        return false;
-    }
+//bool OTSmartContract::VerifyAllPartiesSignatures(std::map<std::string, OTPseudonym *> & map_SignersByNymID)
+//{
+//	/*
+//    // Verify sender's signature on this.
+//    if (!this->VerifySignature(SENDER_NYM))
+//    {
+//        OTLog::Output(0, "OTSmartContract::VerifyAgreement: Sender's signature failed to verify.\n");
+//        return false;
+//    }
+//	
+//    // Verify recipient's signature on merchant's copy.
+//	
+//    if (!theMerchantCopy.VerifySignature(RECIPIENT_NYM))
+//    {
+//        OTLog::Output(0, "OTSmartContract::VerifyAgreement: Recipient's signature failed to verify on internal merchant copy of agreement.\n");
+//        return false;
+//    }
+//
+//	*/
+//	
+//	
+//	return false;
+//}
 
-	*/
-	
-	
-	return false;
-}
+
+
+
 
 // Server side. Make sure that ALL parties have valid opening transaction #s.
 //
-bool OTSmartContract::VerifyAllPartiesOpeningTransNos()
-{
-	// Loop through all parties.
-	// For each, load the appropriate Nym and verify opening number on appropriate Nym for each party.
+//bool OTSmartContract::VerifyAllPartiesOpeningTransNos()
+//{
+//	// Loop through all parties.
+//	// For each, load the appropriate Nym and verify opening number on appropriate Nym for each party.
+//
+//	/*
+//	
+//	const OTString strServerID(GetServerID());
+//    
+//    // Verify Transaction Num and Closing Nums against SENDER's issued list
+//    if ((GetCountClosingNumbers() < 1) || !SENDER_NYM.VerifyIssuedNum(strServerID, GetTransactionNum()))
+//    {
+//        OTLog::Error("OTSmartContract::VerifyAgreement: Transaction number isn't on sender's issued list, "
+//                     "or there weren't enough closing numbers.\n");
+//        return false;
+//    }
+//    for (int i = 0; i < GetCountClosingNumbers(); i++)
+//        if (!SENDER_NYM.VerifyIssuedNum(strServerID, GetClosingTransactionNoAt(i)))
+//        {
+//            OTLog::Error("OTSmartContract::VerifyAgreement: Closing transaction number isn't on sender's issued list.\n");
+//            return false;
+//        }
+//
+//	 */
+//	
+//	return false;
+//}
+//
 
-	/*
-	
-	const OTString strServerID(GetServerID());
-    
-    // Verify Transaction Num and Closing Nums against SENDER's issued list
-    if ((GetCountClosingNumbers() < 1) || !SENDER_NYM.VerifyIssuedNum(strServerID, GetTransactionNum()))
-    {
-        OTLog::Error("OTSmartContract::VerifyAgreement: Transaction number isn't on sender's issued list, "
-                     "or there weren't enough closing numbers.\n");
-        return false;
-    }
-    for (int i = 0; i < GetCountClosingNumbers(); i++)
-        if (!SENDER_NYM.VerifyIssuedNum(strServerID, GetClosingTransactionNoAt(i)))
-        {
-            OTLog::Error("OTSmartContract::VerifyAgreement: Closing transaction number isn't on sender's issued list.\n");
-            return false;
-        }
 
-	 */
-	
-	return false;
-}
 
 // Server side. Make sure that ALL parties have valid closing transaction #s for each of their asset accounts.
 //
-bool OTSmartContract::VerifyAllPartiesClosingTransNos()
-{
-	// Loop through all parties.
-	// For each, loop through their accounts. 
-	//
-	// Load the appropriate Nym and verify closing numbers on appropriate Nym for each Account.
-	//
-	/*
-	const OTString strServerID(GetServerID());
-    
-    // Verify Transaction Num and Closing Nums against SENDER's issued list
-    if ((GetCountClosingNumbers() < 1) || !SENDER_NYM.VerifyIssuedNum(strServerID, GetTransactionNum()))
-    {
-        OTLog::Error("OTSmartContract::VerifyAgreement: Transaction number isn't on sender's issued list, "
-                     "or there weren't enough closing numbers.\n");
-        return false;
-    }
-    for (int i = 0; i < GetCountClosingNumbers(); i++)
-        if (!SENDER_NYM.VerifyIssuedNum(strServerID, GetClosingTransactionNoAt(i)))
-        {
-            OTLog::Error("OTSmartContract::VerifyAgreement: Closing transaction number isn't on sender's issued list.\n");
-            return false;
-        }
-	 */
-	
-	
-	
-	
-	
-	
-	return false;
-}
+//bool OTSmartContract::VerifyAllPartiesClosingTransNos()
+//{
+//	// Loop through all parties.
+//	// For each, loop through their accounts. 
+//	//
+//	// Load the appropriate Nym and verify closing numbers on appropriate Nym for each Account.
+//	//
+//	/*
+//	const OTString strServerID(GetServerID());
+//    
+//    // Verify Transaction Num and Closing Nums against SENDER's issued list
+//    if ((GetCountClosingNumbers() < 1) || !SENDER_NYM.VerifyIssuedNum(strServerID, GetTransactionNum()))
+//    {
+//        OTLog::Error("OTSmartContract::VerifyAgreement: Transaction number isn't on sender's issued list, "
+//                     "or there weren't enough closing numbers.\n");
+//        return false;
+//    }
+//    for (int i = 0; i < GetCountClosingNumbers(); i++)
+//        if (!SENDER_NYM.VerifyIssuedNum(strServerID, GetClosingTransactionNoAt(i)))
+//        {
+//            OTLog::Error("OTSmartContract::VerifyAgreement: Closing transaction number isn't on sender's issued list.\n");
+//            return false;
+//        }
+//	 */
+//	
+//	
+//	
+//	
+//	
+//	
+//	return false;
+//}
+
+
+
+
+
+
+
 
 
 // Server-side, need to verify ALL parties upon activation.
@@ -3543,8 +3561,8 @@ bool OTSmartContract::VerifyAllPartiesClosingTransNos()
 //
 // Server will also want to verify that originator IS a party (this function won't do it.)
 //
-bool OTSmartContract::VerifySmartContract(OTPseudonym & RECIPIENT_NYM, OTPseudonym & SENDER_NYM)
-{    
+//bool OTSmartContract::VerifySmartContract()
+//{    
 	// Need to verify:
 	//
 	// 1) That the opening/closing trans# on this CronItem match ONE of the parties. (Maybe not verifier.)
@@ -3603,43 +3621,50 @@ bool OTSmartContract::VerifySmartContract(OTPseudonym & RECIPIENT_NYM, OTPseudon
 	// types all happen to use it. I will endeavor to work within a paradigm where closing numbers are only needed for asset accounts
 	// and where Cron Items are still functional without them, for Nyms using contracts without asset accounts.
 	//
-	
+	//
 	// ----------------------------------------------
-	
-    
-    return true; // Success!
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-// TODO!!!!!!
+	//
+//    
+//    return true; // Success!
+//}
 //
-//
-// EACH PARTY CALLS THIS FOR HIMSELF, TO SIGN.
-//
+
+
+
+
+//Old thoughts
 // Note: agents will have restrictable permissions. Should be overridable in the role,
 // in the agent itself (in the party), etc. Like a registered agent -- he can ONLY activate
 // things (and sign for them...) After that, the passive mechanism of the group voting takes
 // over for all future meetings/decisions.
 // But someone must sign at first.  This can be a "registered agent" if you want, with limited
 // authority, only allowed to activate.
-//
 
+
+
+
+
+
+
+
+
+
+//
+// AddParty()
+// For adding a theoretical party to a smart contract, as part of the contract's design, so the 
+// contract can be circulated BLANK and many different instances of it might be used.
+//
+// (The party, at this stage, has a name, and accounts with asset types, but no actual Nym IDs
+// or account IDs.)
+// This way any Nym or Entity could later sign on as the "trustee" or as the "employee" etc. And
+// until they do, the contract still shows the "trustee" or "employee", allowing the reader to see
+// how those entities are manipulated in the script code of the smartcontract.
+// 
 bool OTSmartContract::AddParty(OTParty & theParty)
 {
 	if (false == theParty.HasActiveAgent())
 	{
-		OTLog::Output(0, "Party doesn't have an active agent -- who will sign for this smart contract?\n");
+		OTLog::Output(0, "OTSmartContract::AddParty: Party doesn't have an active agent -- who will sign for this smart contract?\n");
 		return false;
 	}
 	
@@ -3651,269 +3676,98 @@ bool OTSmartContract::AddParty(OTParty & theParty)
 		return false;
 	}
 	
-	// Now the new/added functionality...
+	return true;
+}
+
+
+
+// Done:
+// Similar to AddParty(). Used afterwards.
+// ConfirmParty() looks up an existing party on the smart contract, then makes sure that it matches
+// the one passed in, and then REPLACES the existing one with the new one that was passed in. Unlike
+// AddParty (above) this version DOES expect account IDs, NymIDs, and transaction numbers, and it DOES
+// saved a signed copy internally as the ultimate confirmation. This version also needs to validate
+// the signatures that are already there.
+// Client-side.
+//
+//
+// Note: AFTER A SUCCESSFUL CALL, the transaction numbers HAVE been set aside, and must be retrieved
+// in the event of any failure.
+//
+bool OTSmartContract::ConfirmParty(OTParty & theParty)
+{
+	if (false == theParty.HasActiveAgent())
+	{
+		OTLog::Output(0, "OTSmartContract::ConfirmParty: Party doesn't have an active agent -- who will sign for this smart contract?\n");
+		return false;
+	}
+	// ----------------------------------------------------------------------------
+    // Let's RESERVE however many transaction numbers we need to confirm this smartcontract...
+    //
+    const OTString strServerID (GetServerID());
+    
+	// ReserveTransNumsForConfirm() sets aside the Opening # for the party,
+	// as well as the Closing #s for all the asset accounts for that party.
 	//
-	// 1) Verify the Smart Contract against the others already signed (in their party objects). 
-	//    Use below functions (Similar to Payment Plan):
+	// This MUST be done before calling OTScriptable::ConfirmParty, because
+	// *this will get SIGNED in there, and so must have its final data in
+	// place already. If the confirmation fails, we will harvest the numbers
+	// back again.
 	//
-	//			virtual bool VerifySmartContract(OTPseudonym & VERIFIER_NYM);
-	//			virtual bool Compare(const OTSmartContract & rhs) const;
+	if (false == theParty.ReserveTransNumsForConfirm(strServerID))
+	{
+        OTLog::Output(0, "OTSmartContract::ConfirmParty: Failure trying to reserve transaction numbers for "
+					  "the smart contract. (Nym needs more numbers than he has.)\n");
+		return false;
+	}
+	// Note: BELOW THIS POINT, the transaction numbers have been set aside, and must be retrieved,
+	// below this point, in the event of any failure, using this call:
+	// theParty.HarvestAllTransactionNumbers(strServerID);
 	
-	
-	
-	// 2) If success, release signatures, sign contract, save contract, then save to party using these Party functions:
-	//			void SetMySignedCopy(const OTString & strMyCopy) { m_strMySignedCopy = strMyCopy; }
-	//			const OTString & GetMySignedCopy() { return m_strMySignedCopy; }
-	
-	
-	
-	// 3) Since this changes the contents (invalidating your prior signature), release again, sign again, and save.
-	//    This time don't worry about a party copy, since you got that already. But we still had to sign the main
-	//    thing, in order to trigger UpdateContents() and thus record the latest version of the contract. (Including
-	//    you, the new party..)
+	// ----------------------------------
+	// Since EVERY party keeps his own signed copy, then we reset the creation date 
+	// before EACH signature. That way, we have the date of signing for EVERY signer.
+	// (The final date will be set upon activation.)
 	//
-	// If anything fails, remove my party from the map before returning false.
+	const time_t CURRENT_TIME = time(NULL), OLD_TIME = GetCreationDate();
 	
+	// Set the Creation Date.
+	SetCreationDate(CURRENT_TIME);
 	
+	// *********************************************************
+	//
+	// THIS IS where the SIGNED COPY is SAVED, so all final changes must occur ABOVE this point.
+	//
+	if (false == OTScriptable::ConfirmParty(theParty))  
+	{
+		OTLog::Output(0, "OTSmartContract::ConfirmParty: Failed confirming party.\n");
+		
+		SetCreationDate(OLD_TIME); // Might as well set this back.
+
+		theParty.HarvestAllTransactionNumbers(strServerID); // If it failed, grab BACK the numbers that we reserved above.
+		
+		return false;
+	}
+	// *********************************************************	
 	
+	// SUCCESS!!
+	//
+	return true;
 	
-	// Are we good? The contract is verified against the other signed parties, my own party and transaction #s 
-	// are added, and a signed copy of everything is saved in my party. Then the entire contract is re-signed
-	// (saving its updated contents) and then sent on to the next party, who is free to release that signature
-	// since I already have a signed copy in my party.
+	// -----------------------------------------------------------
+	// Are we good? The contract is compared against the other parties' signed contracts; my own party and
+	// transaction #s are added, and a signed copy of everything is saved in my party. Then the entire contract
+	// is re-signed (saving its updated contents) and then sent on to the next party, who is free to release that
+	// signature since I already have a signed copy in my party.
+	//
 	// Assuming all parties have signed AND provided valid transaction #s, then the server is free to get started
 	// immediately upon activation, and furthermore to cancel whenever it wants (and probably just according to
 	// the terms.)  There should be a standard call for seeing if a person can cancel the agreement, and if it's
-	// not overridden in the contract, then it defaults to return true.
+	// not overridden in the contract, then it defaults to return true. (Note: that is done now.)
+	//
+	// Technically ANY party's authorizing agent could become the originator by activating the contract, but 
+	// only if all parties have validly signed.  (Server needs to verify.)
 }
-
-
-
-
-// TODO:  Make a version of this (below) for signing onto smart contracts.  (Above)
-
-
-
-// THIS FUNCTION IS CALLED BY THE MERCHANT
-//
-// (lMerchantTransactionNumber, lMerchantClosingNumber are set internally in this call, from MERCHANT_NYM.)
-bool OTSmartContract::SetProposal(OTPseudonym & MERCHANT_NYM,       const OTString & strConsideration,
-								  const time_t & VALID_FROM/*=0*/,  const time_t & VALID_TO/*=0*/)
-{
-    // ----------------------------------------------------------------------------
-    OTIdentifier id_MERCHANT_NYM;
-    MERCHANT_NYM.GetIdentifier(id_MERCHANT_NYM);
-    
-    if (GetRecipientUserID() != id_MERCHANT_NYM)
-    {
-        OTLog::Output(0, "OTSmartContract::SetProposal: Merchant has wrong NymID (should be same as RecipientUserID.)\n");
-        return false;        
-    }
-    else if (GetRecipientUserID() == GetSenderUserID())
-    {
-        OTLog::Output(0, "OTSmartContract::SetProposal: Error: Sender and recipient have the same Nym ID (not allowed.)\n");
-        return false;        
-    }
-    else if (MERCHANT_NYM.GetTransactionNumCount(GetServerID()) < 2) // Need opening and closing numbers (that's 2)... 
-    {
-        OTLog::Output(0, "OTSmartContract::SetProposal: Failure. You need at least 2 transaction numbers available to do this.\n");
-		return false;
-    }
-	
-    // ------------------------------------------- 
-	// Set the CREATION DATE
-    //
-	const time_t CURRENT_TIME = time(NULL);
-	
-	// Set the Creation Date.
-	SetCreationDate(CURRENT_TIME);
-	
-    // -----------------------------------------
-    // Putting this above here so I don't have to put the transaction numbers back if this fails:
-    // ------------------------------------------- 
-    // VALID_FROM
-    //
-	// The default "valid from" time is NOW.
-	if (0 >= VALID_FROM) // if it's 0 or less, set to current time.
-		SetValidFrom(CURRENT_TIME);
-	else // Otherwise use whatever was passed in.
-		SetValidFrom(VALID_FROM);
-    // ------------------------------------------- 
-    // VALID_TO
-    //
-	// The default "valid to" time is 0 (which means no expiration date / cancel anytime.)
-	if (0 == VALID_TO) // VALID_TO is 0
-	{
-		SetValidTo(VALID_TO); // Keep it at zero then, so it won't expire.
-	}
-	else if (0 < VALID_TO) // VALID_TO is ABOVE zero...
-	{
-		if (VALID_TO < VALID_FROM) // If Valid-To date is EARLIER than Valid-From date...
-		{
-			long lValidTo = VALID_TO, lValidFrom = VALID_FROM;
-			OTLog::vError("OTSmartContract::SetProposal: VALID_TO (%ld) is earlier than VALID_FROM (%ld)\n", 
-                          lValidTo, lValidFrom);
-			return false;
-		}
-		
-		SetValidTo(VALID_TO); // Set it to whatever it is, since it is now validated as higher than Valid-From.
-	}
-	else // VALID_TO is a NEGATIVE number... Error.
-	{
-		long lValidTo = VALID_TO;
-		OTLog::vError("Negative value for valid_to in SetAgreement: %ld\n", lValidTo);
-        
-		return false;
-	}
-	
-    // ----------------------------------------------------------------------------
-    // Since we'll be needing 2 transaction numbers to do this, let's grab 'em...
-    //
-    OTString strServerID(GetServerID());
-    
-	long lTransactionNumber=0, lClosingTransactionNo=0;
-	
-    if (MERCHANT_NYM.GetTransactionNumCount(GetServerID()) < 2) // Need opening and closing numbers (that's 2)... 
-    {
-        OTLog::Output(0, "OTSmartContract::SetProposal: Failure. You need at least 2 transaction numbers available to do this.\n");
-		return false;
-    }
-	else if (false == MERCHANT_NYM.GetNextTransactionNum(MERCHANT_NYM, strServerID, lTransactionNumber))
-	{
-		OTLog::Error("OTSmartContract::SetProposal: Error: Strangely unable to get a transaction number.\n");
-		return false;
-	}
-	else if (false == MERCHANT_NYM.GetNextTransactionNum(MERCHANT_NYM, strServerID, lClosingTransactionNo))
-	{
- 		OTLog::Error("OTSmartContract::SetProposal: Error: Strangely unable to get a closing transaction number.\n");
-        MERCHANT_NYM.AddTransactionNum(MERCHANT_NYM, strServerID, lTransactionNumber, true); // bSave=true
-        // (Since the first one was successful, we just put it back before returning.)
-		return false;
-	}
-	
-    // At this point we now have 2 transaction numbers...
-    // We can't return without either USING THEM, or PUTTING THEM BACK.
-    //
-    // ---------------------------------------------------------
-    
-	// Set the Transaction Number and the Closing transaction number... (for merchant / recipient.)
-    //
-    this->AddRecipientClosingTransactionNo(lTransactionNumber);
-    this->AddRecipientClosingTransactionNo(lClosingTransactionNo);
-    // (They just both go onto this same list.)
-    
-	// ------------------------------------------- 
-	
-	// Set the Consideration memo...
-	m_strConsideration.Set(strConsideration);
-	
-	// ------------------------------------------- 
-    
-	OTLog::Output(4, "Successfully performed OTSmartContract::SetProposal()\n");
-	
-	return true;
-}
-
-
-// THIS FUNCTION IS CALLED BY THE CUSTOMER
-//
-// (Transaction number and closing number are retrieved from Nym at this time.)
-bool OTSmartContract::Confirm(OTPseudonym & MERCHANT_NYM, OTPseudonym & PAYER_NYM)
-{
-    // ----------------------------------------------------------------------------
-    OTIdentifier id_MERCHANT_NYM, id_PAYER_NYM;
-    MERCHANT_NYM.GetIdentifier(id_MERCHANT_NYM);
-    PAYER_NYM.GetIdentifier(id_PAYER_NYM);
-    
-    if (GetRecipientUserID() == GetSenderUserID())
-    {
-        OTLog::Output(0, "OTSmartContract::Confirm: Error: Sender and recipient have the same Nym ID (not allowed.)\n");
-        return false;        
-    }
-    else if (GetRecipientUserID() != id_MERCHANT_NYM)
-    {
-        OTLog::Output(0, "OTSmartContract::Confirm: Merchant has wrong NymID (should be same as RecipientUserID.)\n");
-        return false;        
-    }
-    else if (GetSenderUserID() != id_PAYER_NYM)
-    {
-        OTLog::Output(0, "OTSmartContract::Confirm: Payer has wrong NymID (should be same as SenderUserID.)\n");
-        return false;        
-    }
-    else if (PAYER_NYM.GetTransactionNumCount(GetServerID()) < 2) // Need opening and closing numbers (that's 2)... 
-    {
-        OTLog::Output(0, "OTSmartContract::Confirm: Failure. You need at least 2 transaction numbers available to do this.\n");
-		return false;
-    }
-    else if (GetRecipientCountClosingNumbers() < 2)
-    {
-        OTLog::Output(0, "OTSmartContract::Confirm: Failure. (The merchant was supposed to attach 2 transaction numbers.)\n");
-		return false;
-    }
-    // ----------------------------------------------------------------------------
-    // This is the single reason why MERCHANT_NYM was even passed in here!
-    // Supposedly merchant has already signed.  Let's verify this!!
-    //
-    if (false == this->VerifySignature(MERCHANT_NYM))
-    {
-        OTLog::Output(0, "OTSmartContract::Confirm: Merchant's signature failed to verify.\n");
-        return false;
-    }
-    // ----------------------------------------------------------------------------
-    
-    // Now that we KNOW the merchant signed it... SAVE MERCHANT's COPY.
-    // Let's save a copy of the one the merchant signed, before changing it and re-signing it,
-    // (to add my own transaction numbers...)
-    //
-    OTString strTemp;
-    this->SaveContract(strTemp);
-    this->SetMerchantSignedCopy(strTemp);
-	
-    // *******************************************************************
-    
-    // The payer has to submit TWO transaction numbers in order to activate this agreement...
-    //
-    OTString strServerID(GetServerID());
-	long lTransactionNumber=0, lClosingTransactionNo=0;
-	
-	if (false == PAYER_NYM.GetNextTransactionNum(PAYER_NYM, strServerID, lTransactionNumber))
-	{
-		OTLog::Error("OTSmartContract::Confirm: Error: Strangely unable to get a transaction number.\n");
-		return false;
-	}
-	else if (false == PAYER_NYM.GetNextTransactionNum(PAYER_NYM, strServerID, lClosingTransactionNo))
-	{
- 		OTLog::Error("OTSmartContract::Confirm: Error: Strangely unable to get a closing transaction number.\n");
-        PAYER_NYM.AddTransactionNum(PAYER_NYM, strServerID, lTransactionNumber, true); // bSave=true
-        // (Since the first one was successful, we just put it back before returning.)
-		return false;
-	}
-    
-    // At this point we now HAVE 2 transaction numbers (for payer / sender)...
-    // We can't return without USING THEM or PUTTING THEM BACK.
-    //
-    // ---------------------------------------------------------
-	
-	
-	this->SetTransactionNum(lTransactionNumber); // Set the Transaction Number
-    this->AddClosingTransactionNo(lClosingTransactionNo); // and the Closing Number (both for sender)...
-	
-	// ------------------------------------------- 
-	
-    // CREATION DATE was set in the Merchant's proposal, and it's RESET here in the Confirm.
-    // This way, (since we still have the original proposal) we can see BOTH times.
-    //
-	time_t CURRENT_TIME = time(NULL);
-	// Set the Creation Date.
-	SetCreationDate(CURRENT_TIME);
-    
-	// ------------------------------------------- 
-    
-	OTLog::Output(4, "OTSmartContract::Confirm(): Success!\n");
-    
-	return true;
-}
-
 
 
 
@@ -3945,7 +3799,8 @@ OTSmartContract::OTSmartContract() : OTCronItem(), m_StashAccts(OTAccount::stash
 	InitSmartContract();
 }
 
-OTSmartContract::OTSmartContract(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID) :
+
+OTSmartContract::OTSmartContract(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID) : // I believe asset_ID is unused, for now.
 			OTCronItem(SERVER_ID, ASSET_ID), m_StashAccts(OTAccount::stash)
 {
 	InitSmartContract();
@@ -4032,7 +3887,6 @@ bool OTSmartContract::Compare(const OTScriptable & rhs) const
         return false;
 	
 	// -------------------------------------------------
-	
 	if (GetCountStashes() > 0)
 	{
 		OTLog::Error("OTSmartContract::Compare: Error: How is this function EVER being called when there are stashes present? Only the server can create stashes.\n");
@@ -4044,7 +3898,6 @@ bool OTSmartContract::Compare(const OTScriptable & rhs) const
 		OTLog::Error("OTSmartContract::Compare: Error: How is this function EVER being called when there are stash accounts present? Only the server can create stash accounts.\n");
 		return false;
 	}
-	
 	// -------------------------------------------------
 	
     // Compare OTSmartContract specific info here.
@@ -4072,12 +3925,14 @@ bool OTSmartContract::Compare(const OTScriptable & rhs) const
 //			(   GetCreationDate()    == pSmartContract->GetCreationDate()     ) && // This gets reset each time a party confirms it. Thus, none of them will match.
 			(   GetValidFrom()       == pSmartContract->GetValidFrom()        ) &&
 			(   GetValidTo()         == pSmartContract->GetValidTo()          )		// These definitely need to match.
-			)
+		   )
 			return true;		
 	}
 	
     return false;
 }
+
+
 
 void OTSmartContract::UpdateContents()
 {
@@ -4105,8 +3960,9 @@ void OTSmartContract::UpdateContents()
 							  GetCreationDate(), GetValidFrom(), GetValidTo() );	
     
 	// -------------------------------------------------------------
-    
-	// OT SCRIPTABLE
+    //
+	// *** OT SCRIPTABLE ***
+	//
 	UpdateContentsToString(m_xmlUnsigned); // FYI: this is: void OTScriptable::UpdateContentsToString(OTString &)
 	
 	// -----------------
@@ -4146,16 +4002,17 @@ int OTSmartContract::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 	// then we just return either way.  But if it comes back
 	// as '0', then nothing happened, and we'll continue executing.
 	//
-	// OTSmartContract::ProcessXMLNode calls OTCronItem, which
-	// calls OTScriptable, which calls OTContract. Meaning:
-	// No need to explicitly load OTScriptable stuff here.
+	// OTSmartContract::ProcessXMLNode calls OTCronItem::ProcessXMLNode, 
+	// which calls OTScriptable... Meaning:
+	//
+	// NO NEED to explicitly load OTScriptable stuff here!
 	//
 	if (0 != (nReturnVal = OTCronItem::ProcessXMLNode(xml)))
 		return nReturnVal;
 
     // -------------------------------------------------
     
-    if (!strcmp("smartContract", xml->getNodeName())) 
+    if (!strcmp("smartContract", xml->getNodeName()))
 	{		
 		m_strVersion	= xml->getAttributeValue("version");
 		
