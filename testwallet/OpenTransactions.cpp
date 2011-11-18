@@ -4997,6 +4997,191 @@ void OT_API::depositPaymentPlan(const OTIdentifier	& SERVER_ID,
 
 
 
+void OT_API::activateSmartContract(const OTIdentifier	& SERVER_ID,
+								   const OTIdentifier	& USER_ID,
+								   const OTString		& THE_SMART_CONTRACT)
+{
+	OT_ASSERT_MSG(m_bInitialized, "Not initialized; call OT_API::Init first.");
+	// -----------------------------------------------------
+	OTWallet * pWallet = GetWallet();
+	
+	if (NULL == pWallet)
+	{
+		OTLog::Output(0, "The Wallet is not loaded.\n");
+		return;
+	}
+	// By this point, pWallet is a good pointer.  (No need to cleanup.)
+	// -----------------------------------------------------
+	OTServerContract * pServer = pWallet->GetServerContract(SERVER_ID);
+	
+	if (!pServer)
+	{
+		OTLog::Output(0, "That server contract is not available in the wallet.\n");
+		
+		return;
+	}
+	// By this point, pServer is a good pointer.  (No need to cleanup.)
+	// -----------------------------------------------------------------
+	OTPseudonym * pNym = pWallet->GetNymByID(USER_ID);
+	
+	if (NULL == pNym) // Wasn't already in the wallet.
+	{
+		OTLog::Output(0, "There's no User already loaded with that ID. Loading...\n");
+		
+		pNym = this->LoadPrivateNym(USER_ID);
+		
+		if (NULL == pNym) // LoadPrivateNym has plenty of error logging already.	
+		{
+			return;
+		}
+		
+		pWallet->AddNym(*pNym);
+	}
+	// By this point, pNym is a good pointer, and is on the wallet.
+	//  (No need to cleanup.)
+	// -----------------------------------------------------
+	OTSmartContract theContract;
+	OTMessage		theMessage;
+	
+	long lRequestNumber = 0;
+	
+	const OTString strServerID(SERVER_ID), strNymID(USER_ID);
+	
+	
+	if (theContract.LoadContractFromString(THE_SMART_CONTRACT))
+	{
+		OTAgent * pAgent = NULL;
+		OTParty * pParty = theContract.FindPartyBasedOnNymAsAuthAgent(*pNym, &pAgent);
+		if (NULL == pParty)
+		{
+			OTLog::Output(0, "OT_API::activateSmartContract: Failure: USER_ID *IS* a valid Nym, but that Nym is not the authorizing agent for any "
+						  "of the parties on this contract. Try calling ConfirmParty() first.\n");
+			return;
+		}
+		OT_ASSERT(NULL != pAgent);
+		//
+		// BELOW THIS POINT, pAgent and pParty are both valid, and no need to clean them up.
+		// ----------------------------------
+		
+		// Note: Usually, payment plan or market offer will load up the Nym and accounts,
+		// and verify ownership, etc.
+		// But in this case, the Nym who actually activates the smart contract is merely
+		// the authorizing agent for a single party, where there may be a dozen parties listed
+		// on the actual contract.
+		//
+		// It would be unreasonable to expect a party to have EVERY nym and EVERY account
+		// to the entire contract. As long as the Nym is legitimately the authorizing agent
+		// for one of the parties, then we allow him to send the activation message to the server.
+		//
+		// (Let the server sort out the trouble of loading all the nyms, loading all the accounts,
+		// verifying all the asset type IDs, verifying all the agent names, making sure there
+		// are no stashes already created, ETC ETC.)
+		//
+		// ONE THING I should verify, is that all of the parties are confirmed. I mean, it's not
+		// even worth the bother to send the damn thing until then, right? And the Server ID.
+		//
+		if (false == theContract.AllPartiesHaveSupposedlyConfirmed())
+		{
+			OTLog::vOutput(0, "OT_API::activateSmartContract: Failed. EACH PARTY to this smart contract needs to CONFIRM IT FIRST, before one of them "
+						   "then activates it at the server. But THIS smart contract has NOT yet been confirmed by all of its parties.\n");
+			return;
+		}
+		if (SERVER_ID != theContract.GetServerID())
+		{
+			OTLog::vOutput(0, "OT_API::activateSmartContract: Failed. The server ID passed in doesn't match the one on the contract itself.\n");
+			return;
+		}
+		
+		pParty
+		
+		
+		
+		
+		// RESUME
+		
+		
+		
+		
+		
+		// -----------------------------------------------------
+		
+		// Create a transaction
+		OTTransaction * pTransaction = OTTransaction::GenerateTransaction (USER_ID, SENDER_ACCT_ID, SERVER_ID, 
+																		   OTTransaction::paymentPlan, thePlan.GetTransactionNum()); 
+		
+		// set up the transaction item (each transaction may have multiple items...)
+		OTItem * pItem		= OTItem::CreateItemFromTransaction(*pTransaction, OTItem::paymentPlan);
+		
+		OTString strPlan(thePlan);
+		
+		// Add the payment plan string as the attachment on the transaction item.
+		pItem->SetAttachment(strPlan); // The payment plan is contained in the reference string.
+		
+		// sign the item
+		pItem->SignContract(*pNym);
+		pItem->SaveContract();
+		
+		// the Transaction "owns" the item now and will handle cleaning it up.
+		pTransaction->AddItem(*pItem); // the Transaction's destructor will cleanup the item. It "owns" it now.
+		
+		// ---------------------------------------------
+		// TRANSACTION AGREEMENT
+		
+		// pBalanceItem is signed and saved within this call. No need to do that again.
+		OTItem * pStatementItem = pNym->GenerateTransactionStatement(*pTransaction);
+		
+		if (NULL != pStatementItem) // will never be NULL. Will assert above before it gets here.
+			pTransaction->AddItem(*pStatementItem); // Better not be NULL... message will fail... But better check anyway.
+		
+		// ---------------------------------------------		
+		
+		// sign the transaction
+		pTransaction->SignContract(*pNym);
+		pTransaction->SaveContract();
+		
+		// set up the ledger
+		OTLedger theLedger(USER_ID, SENDER_ACCT_ID, SERVER_ID);
+		theLedger.GenerateLedger(SENDER_ACCT_ID, SERVER_ID, OTLedger::message); // bGenerateLedger defaults to false, which is correct.
+		theLedger.AddTransaction(*pTransaction); // now the ledger "owns" and will handle cleaning up the transaction.
+		
+		// sign the ledger
+		theLedger.SignContract(*pNym);
+		theLedger.SaveContract();
+		
+		// extract the ledger in ascii-armored form... encoding...
+		OTString		strLedger(theLedger);
+		OTASCIIArmor	ascLedger(strLedger);
+		
+		// (0) Set up the REQUEST NUMBER and then INCREMENT IT
+		pNym->GetCurrentRequestNum(strServerID, lRequestNumber);
+		theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
+		pNym->IncrementRequestNum(*pNym, strServerID); // since I used it for a server request, I have to increment it
+		
+		// (1) Set up member variables 
+		theMessage.m_strCommand			= "notarizeTransactions";
+		theMessage.m_strNymID			= strNymID;
+		theMessage.m_strServerID		= strServerID;
+		theMessage.m_strAcctID			= strFromAcct;
+		theMessage.m_ascPayload			= ascLedger;
+		
+		// (2) Sign the Message 
+		theMessage.SignContract(*pNym);		
+		
+		// (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+		theMessage.SaveContract();
+		
+		// (Send it)
+#if defined(OT_ZMQ_MODE)
+		m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
+#endif	
+		m_pClient->ProcessMessageOut(theMessage);	
+	} // thePlan.LoadContractFromString()
+	else 
+	{
+		OTLog::Output(0, "Unable to load smart contract from string, sorry.\n");
+	}
+}
+
 
 
 
@@ -5008,9 +5193,10 @@ void OT_API::depositPaymentPlan(const OTIdentifier	& SERVER_ID,
 /// CANCEL A SPECIFIC OFFER (THAT SAME NYM PLACED PREVIOUSLY ON SAME SERVER.)
 /// By transaction number as key.
 ///
-void OT_API::cancelCronItem(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID, 
-                                  const OTIdentifier & ASSET_ACCT_ID, 
-								  const long & lTransactionNum) // so the server can lookup the offer in Cron.
+void OT_API::cancelCronItem(const OTIdentifier & SERVER_ID, 
+							const OTIdentifier & USER_ID, 
+							const OTIdentifier & ASSET_ACCT_ID, 
+							const long & lTransactionNum) // so the server can lookup the offer in Cron.
 {
     OT_ASSERT_MSG(m_bInitialized, "Not initialized; call OT_API::Init first.");
 	

@@ -434,7 +434,8 @@ public:
 	const OTString & GetAcctID()		{ return m_strAcctID; }			// account's ID as used internal to OT.
 	const OTString & GetAssetTypeID()	{ return m_strAssetTypeID; }	// asset type ID for the account.
 	
-	void SetAgentName(const OTString & strAgentName) { m_strAgentName = strAgentName; }
+	void SetAgentName(const OTString & strAgentName)	{ m_strAgentName	= strAgentName; }
+	void SetAcctID(const OTString & strAccountID)		{ m_strAcctID		= strAccountID; }
 	
 	OTAgent * GetAuthorizedAgent() const;
 
@@ -942,6 +943,7 @@ public:
 	bool AddVariable(OTVariable& theVariable);
 	bool AddVariable(const std::string str_Name, const std::string str_Value,	const OTVariable_Access theAccess=Var_Persistent);
 	bool AddVariable(const std::string str_Name, const long lValue,				const OTVariable_Access theAccess=Var_Persistent);
+	bool AddVariable(const std::string str_Name, const bool bValue,				const OTVariable_Access theAccess=Var_Persistent);
 	
 	OTVariable * GetVariable(const std::string str_Name); // not a reference, so you can pass in char *. Maybe that's bad? todo: research that.
 	

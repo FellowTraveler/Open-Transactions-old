@@ -735,6 +735,7 @@ const char * OT_API_SmartContract_ConfirmAccount(const char * THE_CONTRACT,	// T
 												 const char * PARTY_NAME,	// Should already be on the contract. (This way we can find it.)
 												 // ----------------------------------------
 												 const char * ACCT_NAME,	// Should already be on the contract. (This way we can find it.)
+												 const char * AGENT_NAME,	// The agent name for this asset account.
 												 const char * ACCT_ID);		// AcctID for the asset account. (For acct_name).
 
 

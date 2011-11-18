@@ -432,6 +432,28 @@ bool OTScriptable::CanExecuteClause(const std::string str_party_name, const std:
 
 
 
+// Client-side.
+// (The server could actually load all the other nyms and accounts,
+// and verify their transaction numbers, yadda yadda yadda. But the
+// client can only check to see that at least a signed copy is supposedly
+// available for every single party.)
+//
+bool OTScriptable::AllPartiesHaveSupposedlyConfirmed()
+{
+	FOR_EACH(mapOfParties, m_mapParties)
+	{
+		OTParty * pParty = (*it).second;
+		OT_ASSERT(NULL != pParty);
+		// -----------------------
+		
+		if (!(pParty->GetMySignedCopy().Exists()))
+			return false;
+	}
+	
+	return true;
+}
+
+
 
 bool OTScriptable::ExecuteCallback (OTClause & theCallbackClause, mapOfVariables & theParameters, OTVariable & varReturnVal)
 {
@@ -772,6 +794,22 @@ OTParty * OTScriptable::FindPartyBasedOnNymAsAgent(const OTPseudonym & theNym, O
 		// -----------------------
 		
 		if (pParty->HasAgent(theNym, ppAgent))
+			return pParty;
+	}
+	return NULL;
+}
+
+
+
+OTParty * OTScriptable::FindPartyBasedOnNymAsAuthAgent(const OTPseudonym & theNym, OTAgent ** ppAgent/*=NULL*/)
+{
+	FOR_EACH(mapOfParties, m_mapParties)
+	{
+		OTParty * pParty = (*it).second;
+		OT_ASSERT(NULL != pParty);
+		// -----------------------
+		
+		if (pParty->HasAuthorizingAgent(theNym, ppAgent))
 			return pParty;
 	}
 	return NULL;
@@ -1572,7 +1610,7 @@ bool OTScriptable::ConfirmParty(OTParty & theParty)
 	//
 	mapOfParties::iterator it_delete = m_mapParties.find(str_party_name);
 	
-	if (it_delete != m_mapParties.end()) // It was already there.
+	if (it_delete != m_mapParties.end()) // It was already there. (Good.)
 	{
 		OTParty * pParty = (*it_delete).second;
 		OT_ASSERT(NULL != pParty);

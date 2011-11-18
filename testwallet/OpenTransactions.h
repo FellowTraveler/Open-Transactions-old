@@ -531,6 +531,10 @@ public:
 					   OTIdentifier	& ACCT_ID,
 					   OTString		& THE_CHEQUE);
 	
+	void activateSmartContract(const OTIdentifier	& SERVER_ID,
+							   const OTIdentifier	& USER_ID,
+							   const OTString		& THE_SMART_CONTRACT);
+	
 	void depositPaymentPlan(const OTIdentifier	& SERVER_ID,
 							const OTIdentifier	& USER_ID,
 							const OTString		& THE_PAYMENT_PLAN);

@@ -3442,7 +3442,19 @@ bool OTBylaw::AddVariable(OTVariable& theVariable)
 	return false;
 }
 
-
+bool OTBylaw::AddVariable(const std::string str_Name, const bool bValue, const OTVariable_Access theAccess/*=Var_Persistent*/)
+{
+	OTVariable * pVar = new OTVariable(str_Name, bValue, theAccess);
+	OT_ASSERT(NULL != pVar);
+	
+	if (false == AddVariable(*pVar))
+	{
+		delete pVar;
+		return false;
+	}
+	
+	return true;	
+}
 
 bool OTBylaw::AddVariable(const std::string str_Name, const std::string str_Value,	const OTVariable_Access theAccess/*=Var_Persistent*/)
 {

@@ -169,6 +169,7 @@ public:
 	OTClause	* GetClause(const std::string str_clause_name);
 	
 	OTParty * FindPartyBasedOnNymAsAgent(const OTPseudonym & theNym, OTAgent ** ppAgent=NULL);
+	OTParty * FindPartyBasedOnNymAsAuthAgent(const OTPseudonym & theNym, OTAgent ** ppAgent=NULL);
 	OTParty * FindPartyBasedOnAccount(const OTAccount & theAccount, OTPartyAccount ** ppPartyAccount=NULL);
 	
 	OTAgent			* GetAgent(const std::string str_agent_name);
@@ -201,6 +202,8 @@ public:
 
 	bool VerifyThisAgainstAllPartiesSignedCopies();
 
+	bool AllPartiesHaveSupposedlyConfirmed();
+	
 	// -----------------------------------------------------------------------------------
 	// Often we endeavor to avoid loading the same Nym twice, and a higher-level function
 	// will ask an OTScriptable for a list of all the Nym pointers that it already has,

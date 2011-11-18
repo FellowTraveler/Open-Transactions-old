@@ -2544,13 +2544,6 @@ const char * OT_API_ConfirmPaymentPlan(const char * SERVER_ID,
 
 
 
-
-// TODO!! Write the smart contract API functions!!!!!
-
-
-
-
-
 // RETURNS:  the Smart Contract itself. (Or NULL.)
 //
 const char * OT_API_Create_SmartContract(const char * SERVER_ID,
@@ -2558,9 +2551,90 @@ const char * OT_API_Create_SmartContract(const char * SERVER_ID,
 										 // ----------------------------------------
 										 const char * VALID_FROM,	// Default (0 or NULL) == NOW
 										 const char * VALID_TO);	// Default (0 or NULL) == no expiry / cancel anytime
+{
+	OT_ASSERT_MSG(NULL != SERVER_ID, "Null SERVER_ID passed in.");
+	OT_ASSERT_MSG(NULL != SIGNER_NYM_ID, "Null SIGNER_NYM_ID passed in.");
+//	OT_ASSERT_MSG(NULL != VALID_FROM, "Null VALID_FROM passed in.");
+//	OT_ASSERT_MSG(NULL != VALID_TO, "Null VALID_TO passed in.");
+
+	// -----------------------------------------------------
+	const OTIdentifier theServerID(SERVER_ID), theSignerNymID(SIGNER_NYM_ID);
+	// -----------------------------------------------------
+	
+	OTWallet * pWallet = g_OT_API.GetWallet();
+	
+	if (NULL == pWallet)
+	{
+		OTLog::Output(0, "The Wallet is not loaded.\n");
+		return NULL;
+	}
+	
+	// By this point, pWallet is a good pointer.  (No need to cleanup.)
+	// -----------------------------------------------------------------
+	
+	OTPseudonym * pNym = pWallet->GetNymByID(theSignerNymID);
+	
+	if (NULL == pNym) // Wasn't already in the wallet.
+	{
+		OTLog::Output(0, "There's no User already loaded with that ID. Loading...\n");
+		
+		pNym = g_OT_API.LoadPrivateNym(theSignerNymID);
+		
+		if (NULL == pNym) // LoadPrivateNym has plenty of error logging already.	
+		{
+			return NULL;
+		}
+		
+		pWallet->AddNym(*pNym);
+	}
+	//
+	// By this point, pNym is a good pointer, and is on the wallet.
+	//  (No need to cleanup.)
+	// -----------------------------------------------------
+	OTSmartContract * pContract = new OTSmartContract(theServerID);
+	OT_ASSERT(NULL != pContract);
+	// --------------------------------
+	time_t tValidFrom = 0;
+		
+	if ((NULL != VALID_FROM) && (atoi(VALID_FROM) > 0))
+	{
+		tValidFrom = atoi(VALID_FROM);
+	}	
+	// --------------------------------------
+	time_t tValidTo = 0;
+	
+	if ((NULL != VALID_TO) && (atoi(VALID_TO) > 0))
+	{
+		tValidTo = atoi(VALID_TO);
+	}
+	// --------------------------------------
+	if (false == pContract->SetDateRange(tValidFrom,  tValidTo))
+	{
+		OTLog::vOutput(0, "OT_API_Create_SmartContract: Failed trying to set date range.\n");
+		return NULL;
+	}
+	// -----------------------------------------------------
+	pContract->SignContract(*pNym);
+	pContract->SaveContract();
+	
+	OTString strOutput(*pContract); // For the output
+	
+	const char * pBuf = strOutput.Get(); 
+	
+#ifdef _WIN32
+	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+	
+	return g_tempBuf;	
+}
 // ----------------------------------------
 
-// --------------------------------------------------------------
+
+
+
+
 
 //
 // todo: Someday add a parameter here BYLAW_LANGUAGE so that people can use
@@ -2571,7 +2645,98 @@ const char * OT_API_Create_SmartContract(const char * SERVER_ID,
 const char * OT_API_SmartContract_AddBylaw(const char * THE_CONTRACT,	// The contract, about to have the party added to it.
 										   const char * SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
 										   // ----------------------------------------
-										   const char * BYLAW_NAME);	// The Bylaw's NAME as referenced in the smart contract. (And the scripts...)
+										   const char * BYLAW_NAME)	// The Bylaw's NAME as referenced in the smart contract. (And the scripts...)
+{
+	OT_ASSERT_MSG(NULL != THE_CONTRACT, "Null THE_CONTRACT passed in.");
+	OT_ASSERT_MSG(NULL != SIGNER_NYM_ID, "Null SIGNER_NYM_ID passed in.");
+	OT_ASSERT_MSG(NULL != BYLAW_NAME, "Null BYLAW_NAME passed in.");
+	
+	const char * BYLAW_LANGUAGE = "chai"; // todo hardcoding.
+	
+	// -----------------------------------------------------
+	const OTIdentifier theSignerNymID(SIGNER_NYM_ID);
+	// -----------------------------------------------------
+	
+	OTWallet * pWallet = g_OT_API.GetWallet();
+	
+	if (NULL == pWallet)
+	{
+		OTLog::Output(0, "The Wallet is not loaded.\n");
+		return NULL;
+	}
+	
+	// By this point, pWallet is a good pointer.  (No need to cleanup.)
+	// -----------------------------------------------------------------
+	
+	OTPseudonym * pNym = pWallet->GetNymByID(theSignerNymID);
+	
+	if (NULL == pNym) // Wasn't already in the wallet.
+	{
+		OTLog::Output(0, "There's no User already loaded with that ID. Loading...\n");
+		
+		pNym = g_OT_API.LoadPrivateNym(theSignerNymID);
+		
+		if (NULL == pNym) // LoadPrivateNym has plenty of error logging already.	
+		{
+			return NULL;
+		}
+		
+		pWallet->AddNym(*pNym);
+	}
+	//
+	// By this point, pNym is a good pointer, and is on the wallet.
+	//  (No need to cleanup.)
+	// -----------------------------------------------------
+	const OTString strContract(THE_CONTRACT);
+	
+	OTScriptable * pContract = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable *> theContractAngel;
+	
+	if (NULL == pContract)
+	{
+		OTLog::Output(0, "OT_API_SmartContract_AddBylaw: Error loading smart contract. \n");
+		return NULL;
+	}
+	else
+		theContractAngel.SetCleanupTarget(*pContract);  // Auto-cleanup.
+	// -----------------------------------------------------
+	const std::string str_bylaw_name(BYLAW_NAME), str_language(BYLAW_LANGUAGE);
+
+	OTBylaw * pBylaw = pContract->GetBylaw(str_bylaw_name);
+
+	if (NULL != pBylaw)
+	{
+		OTLog::Output(0, "OT_API_SmartContract_AddBylaw: Failure: Bylaw already exists. \n");
+		return NULL;
+	}
+	// -------------------------------
+	pBylaw = new OTBylaw(str_bylaw_name.c_str(), str_language.c_str());
+	OT_ASSERT(NULL != pBylaw);
+	
+	if (false == pContract->AddBylaw(*pBylaw)) // takes ownership.
+	{
+		OTLog::Output(0, "OT_API_SmartContract_AddBylaw: Failed while trying to add bylaw. \n");
+		delete pBylaw;
+		return NULL;
+	}
+	// ------------------
+	
+	pContract->ReleaseSignatures();
+	pContract->SignContract(*pNym);
+	pContract->SaveContract();
+		
+	OTString strOutput(*pContract); // For the output
+	
+	const char * pBuf = strOutput.Get(); 
+	
+#ifdef _WIN32
+	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+	
+	return g_tempBuf;
+}
 
 // returns: the updated smart contract (or NULL)
 const char * OT_API_SmartContract_AddClause(const char * THE_CONTRACT,	// The contract, about to have the bylaw added to it.
@@ -2580,7 +2745,106 @@ const char * OT_API_SmartContract_AddClause(const char * THE_CONTRACT,	// The co
 											const char * BYLAW_NAME,	// Should already be on the contract. (This way we can find it.)
 											// ----------------------------------------
 											const char * CLAUSE_NAME,	// The Clause's name as referenced in the smart contract. (And the scripts...)
-											const char * SOURCE_CODE);	// The actual source code for the clause.
+											const char * SOURCE_CODE)	// The actual source code for the clause.
+{
+	OT_ASSERT_MSG(NULL != THE_CONTRACT, "Null THE_CONTRACT passed in.");
+	OT_ASSERT_MSG(NULL != SIGNER_NYM_ID, "Null SIGNER_NYM_ID passed in.");
+	OT_ASSERT_MSG(NULL != BYLAW_NAME, "Null BYLAW_NAME passed in.");
+
+	OT_ASSERT_MSG(NULL != CLAUSE_NAME, "Null CLAUSE_NAME passed in.");
+	OT_ASSERT_MSG(NULL != SOURCE_CODE, "Null SOURCE_CODE passed in.");
+
+	// -----------------------------------------------------
+	const OTIdentifier theSignerNymID(SIGNER_NYM_ID);
+	// -----------------------------------------------------
+	
+	OTWallet * pWallet = g_OT_API.GetWallet();
+	
+	if (NULL == pWallet)
+	{
+		OTLog::Output(0, "The Wallet is not loaded.\n");
+		return NULL;
+	}
+	
+	// By this point, pWallet is a good pointer.  (No need to cleanup.)
+	// -----------------------------------------------------------------
+	
+	OTPseudonym * pNym = pWallet->GetNymByID(theSignerNymID);
+	
+	if (NULL == pNym) // Wasn't already in the wallet.
+	{
+		OTLog::Output(0, "There's no User already loaded with that ID. Loading...\n");
+		
+		pNym = g_OT_API.LoadPrivateNym(theSignerNymID);
+		
+		if (NULL == pNym) // LoadPrivateNym has plenty of error logging already.	
+		{
+			return NULL;
+		}
+		
+		pWallet->AddNym(*pNym);
+	}
+	//
+	// By this point, pNym is a good pointer, and is on the wallet.
+	//  (No need to cleanup.)
+	// -----------------------------------------------------
+	const OTString strContract(THE_CONTRACT);
+	
+	OTScriptable * pContract = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable *> theContractAngel;
+	
+	if (NULL == pContract)
+	{
+		OTLog::Output(0, "OT_API_SmartContract_AddClause: Error loading smart contract. \n");
+		return NULL;
+	}
+	else
+		theContractAngel.SetCleanupTarget(*pContract);  // Auto-cleanup.
+	// -----------------------------------------------------
+	const std::string str_bylaw_name(BYLAW_NAME);
+	
+	OTBylaw * pBylaw = pContract->GetBylaw(str_bylaw_name);
+	
+	if (NULL == pBylaw)
+	{
+		OTLog::vOutput(0, "OT_API_SmartContract_AddClause: Failure: Bylaw doesn't exist: %s \n",
+					   str_bylaw_name.c_str());
+		return NULL;
+	}
+	// -------------------------------
+	const std::string str_name(CLAUSE_NAME), str_code(SOURCE_CODE);
+	
+	if (NULL != pBylaw->GetClause(str_name))
+	{
+		OTLog::vOutput(0, "OT_API_SmartContract_AddClause: Failed adding: clause is already there with that name (%s) on bylaw: %s \n",
+					   str_name.c_str(), str_bylaw_name.c_str());
+		return NULL;
+	}
+	// ---------------------------------------------
+	if (false == pBylaw->AddClause(str_name.c_str(), str_code.c_str()))
+	{
+		OTLog::vOutput(0, "OT_API_SmartContract_AddClause: Failed trying to add clause (%s) to bylaw: %s \n",
+					   str_name.c_str(), str_bylaw_name.c_str());
+		return NULL;
+	}
+	// -------------------------------
+	
+	pContract->ReleaseSignatures();
+	pContract->SignContract(*pNym);
+	pContract->SaveContract();
+	
+	OTString strOutput(*pContract); // For the output
+	
+	const char * pBuf = strOutput.Get(); 
+	
+#ifdef _WIN32
+	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+	
+	return g_tempBuf;	
+}
 
 // returns: the updated smart contract (or NULL)
 const char * OT_API_SmartContract_AddVariable(const char * THE_CONTRACT,	// The contract, about to have the bylaw added to it.
@@ -2591,7 +2855,159 @@ const char * OT_API_SmartContract_AddVariable(const char * THE_CONTRACT,	// The 
 											  const char * VAR_NAME,	// The Variable's name as referenced in the smart contract. (And the scripts...)
 											  const char * VAR_ACCESS,	// "constant", "persistent", or "important".
 											  const char * VAR_TYPE,	// "string", "long", or "bool"
-											  const char * VAR_VALUE);	// Contains a string. If type is long, atol() will be used to convert value to a long. If type is bool, the strings "true" or "false" are expected here in order to convert to a bool.
+											  const char * VAR_VALUE)	// Contains a string. If type is long, atol() will be used to convert value to a long. If type is bool, the strings "true" or "false" are expected here in order to convert to a bool.
+{
+	OT_ASSERT_MSG(NULL != THE_CONTRACT, "Null THE_CONTRACT passed in.");
+	OT_ASSERT_MSG(NULL != SIGNER_NYM_ID, "Null SIGNER_NYM_ID passed in.");
+	OT_ASSERT_MSG(NULL != BYLAW_NAME, "Null BYLAW_NAME passed in.");
+	
+	OT_ASSERT_MSG(NULL != VAR_NAME, "Null VAR_NAME passed in.");
+	OT_ASSERT_MSG(NULL != VAR_ACCESS, "Null VAR_ACCESS passed in.");
+	OT_ASSERT_MSG(NULL != VAR_TYPE, "Null VAR_TYPE passed in.");
+	OT_ASSERT_MSG(NULL != VAR_VALUE, "Null VAR_VALUE passed in.");
+	
+	// -----------------------------------------------------
+	const OTIdentifier theSignerNymID(SIGNER_NYM_ID);
+	// -----------------------------------------------------
+	
+	OTWallet * pWallet = g_OT_API.GetWallet();
+	
+	if (NULL == pWallet)
+	{
+		OTLog::Output(0, "The Wallet is not loaded.\n");
+		return NULL;
+	}
+	
+	// By this point, pWallet is a good pointer.  (No need to cleanup.)
+	// -----------------------------------------------------------------
+	
+	OTPseudonym * pNym = pWallet->GetNymByID(theSignerNymID);
+	
+	if (NULL == pNym) // Wasn't already in the wallet.
+	{
+		OTLog::Output(0, "There's no User already loaded with that ID. Loading...\n");
+		
+		pNym = g_OT_API.LoadPrivateNym(theSignerNymID);
+		
+		if (NULL == pNym) // LoadPrivateNym has plenty of error logging already.	
+		{
+			return NULL;
+		}
+		
+		pWallet->AddNym(*pNym);
+	}
+	//
+	// By this point, pNym is a good pointer, and is on the wallet.
+	//  (No need to cleanup.)
+	// -----------------------------------------------------
+	const OTString strContract(THE_CONTRACT);
+	
+	OTScriptable * pContract = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable *> theContractAngel;
+	
+	if (NULL == pContract)
+	{
+		OTLog::Output(0, "OT_API_SmartContract_AddVariable: Error loading smart contract. \n");
+		return NULL;
+	}
+	else
+		theContractAngel.SetCleanupTarget(*pContract);  // Auto-cleanup.
+	// -----------------------------------------------------
+	const std::string str_bylaw_name(BYLAW_NAME);
+	
+	OTBylaw * pBylaw = pContract->GetBylaw(str_bylaw_name);
+	
+	if (NULL == pBylaw)
+	{
+		OTLog::vOutput(0, "OT_API_SmartContract_AddVariable: Failure: Bylaw doesn't exist: %s \n",
+					   str_bylaw_name.c_str());
+		return NULL;
+	}
+	// -------------------------------
+	const std::string	str_name(VAR_NAME), str_access(VAR_ACCESS), 
+						str_type(VAR_TYPE), str_value(VAR_VALUE);
+		
+	if (NULL != pBylaw->GetVariable(str_name))
+	{
+		OTLog::vOutput(0, "OT_API_SmartContract_AddVariable: Failure: Variable (%s) already exists on bylaw: %s \n",
+					   str_name.c_str(), str_bylaw_name.c_str());
+		return NULL;
+	}
+	// -------------------------------
+	OTVariable::OTVariable_Access theAccess = OTVariable::Var_Error_Access;
+
+	if (str_access.compare("constant") == 0)
+		theAccess = OTVariable::Var_Constant;
+	else if (str_access.compare("persistent") == 0)
+		theAccess = OTVariable::Var_Persistent;
+	else if (str_access.compare("important") == 0)
+		theAccess = OTVariable::Var_Important;
+	// ---------------------
+	OTVariable::OTVariableType theType = OTVariable::Var_Error_Type;
+	
+	if (str_type.compare("bool") == 0)
+		theType = OTVariable::Var_Bool;
+	else if (str_type.compare("long") == 0)
+		theType = OTVariable::Var_Long;
+	else if (str_type.compare("string") == 0)
+		theType = OTVariable::Var_String;
+	// ---------------------
+	if ((OTVariable::Var_Error_Type == theType) || (OTVariable::Var_Error_Access == theAccess))
+	{
+		OTLog::Output(0, "OT_API_SmartContract_AddVariable: Failed due to bad variable type or bad access type. \n");
+		return NULL;
+	}
+	// ---------------------
+	bool bAdded = false;
+	
+	switch (theType) 
+	{
+		case OTVariable::Var_Bool:
+		{
+			const bool bValue = (str_value.compare("true") == 0);
+			bAdded = pBylaw->AddVariable(str_name, bValue, theAccess);
+		}
+			break;
+		case OTVariable::Var_Long:
+		{
+			const long lValue = atol(str_value.c_str());
+			bAdded = pBylaw->AddVariable(str_name, lValue, theAccess);
+		}
+			break;
+		case OTVariable::Var_String:
+			bAdded = pBylaw->AddVariable(str_name, str_value, theAccess);
+			break;
+		default:
+			// SHOULD NEVER HAPPEN (We already return above, if the variable type isn't correct.)
+			OT_ASSERT_MSG(false, "Should never happen. You aren't seeing this.");
+			break;
+	}
+	
+	if (false == bAdded)
+	{
+		OTLog::vOutput(0, "OT_API_SmartContract_AddVariable: Failed trying to add variable (%s) to bylaw: %s \n",
+					   str_name.c_str(), str_bylaw_name.c_str());
+		return NULL;
+	}
+	// -------------------------------
+	
+	pContract->ReleaseSignatures();
+	pContract->SignContract(*pNym);
+	pContract->SaveContract();
+	
+	OTString strOutput(*pContract); // For the output
+	
+	const char * pBuf = strOutput.Get(); 
+	
+#ifdef _WIN32
+	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+	
+	return g_tempBuf;	
+}
+
 
 // returns: the updated smart contract (or NULL)
 const char * OT_API_SmartContract_AddCallback(const char * THE_CONTRACT,	// The contract, about to have the bylaw added to it.
@@ -2600,7 +3016,107 @@ const char * OT_API_SmartContract_AddCallback(const char * THE_CONTRACT,	// The 
 											  const char * BYLAW_NAME,	// Should already be on the contract. (This way we can find it.)
 											  // ----------------------------------------
 											  const char * CALLBACK_NAME,	// The Callback's name as referenced in the smart contract. (And the scripts...)
-											  const char * CLAUSE_NAME);	// The actual clause that will be triggered by the callback. (Must exist.)
+											  const char * CLAUSE_NAME)	// The actual clause that will be triggered by the callback. (Must exist.)
+{
+	OT_ASSERT_MSG(NULL != THE_CONTRACT, "Null THE_CONTRACT passed in.");
+	OT_ASSERT_MSG(NULL != SIGNER_NYM_ID, "Null SIGNER_NYM_ID passed in.");
+	OT_ASSERT_MSG(NULL != BYLAW_NAME, "Null BYLAW_NAME passed in.");
+	
+	OT_ASSERT_MSG(NULL != CALLBACK_NAME, "Null CALLBACK_NAME passed in.");
+	OT_ASSERT_MSG(NULL != CLAUSE_NAME, "Null CLAUSE_NAME passed in.");
+	
+	// -----------------------------------------------------
+	const OTIdentifier theSignerNymID(SIGNER_NYM_ID);
+	// -----------------------------------------------------
+	
+	OTWallet * pWallet = g_OT_API.GetWallet();
+	
+	if (NULL == pWallet)
+	{
+		OTLog::Output(0, "The Wallet is not loaded.\n");
+		return NULL;
+	}
+	
+	// By this point, pWallet is a good pointer.  (No need to cleanup.)
+	// -----------------------------------------------------------------
+	
+	OTPseudonym * pNym = pWallet->GetNymByID(theSignerNymID);
+	
+	if (NULL == pNym) // Wasn't already in the wallet.
+	{
+		OTLog::Output(0, "There's no User already loaded with that ID. Loading...\n");
+		
+		pNym = g_OT_API.LoadPrivateNym(theSignerNymID);
+		
+		if (NULL == pNym) // LoadPrivateNym has plenty of error logging already.	
+		{
+			return NULL;
+		}
+		
+		pWallet->AddNym(*pNym);
+	}
+	//
+	// By this point, pNym is a good pointer, and is on the wallet.
+	//  (No need to cleanup.)
+	// -----------------------------------------------------
+	const OTString strContract(THE_CONTRACT);
+	
+	OTScriptable * pContract = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable *> theContractAngel;
+	
+	if (NULL == pContract)
+	{
+		OTLog::Output(0, "OT_API_SmartContract_AddCallback: Error loading smart contract. \n");
+		return NULL;
+	}
+	else
+		theContractAngel.SetCleanupTarget(*pContract);  // Auto-cleanup.
+	// -----------------------------------------------------
+	const std::string str_bylaw_name(BYLAW_NAME);
+	
+	OTBylaw * pBylaw = pContract->GetBylaw(str_bylaw_name);
+	
+	if (NULL == pBylaw)
+	{
+		OTLog::vOutput(0, "OT_API_SmartContract_AddCallback: Failure: Bylaw doesn't exist: %s \n",
+					   str_bylaw_name.c_str());
+		return NULL;
+	}
+	// -------------------------------
+	const std::string	str_name(CALLBACK_NAME), str_clause(CLAUSE_NAME);
+	
+	if (NULL != pBylaw->GetCallback(str_name))
+	{
+		OTLog::vOutput(0, "OT_API_SmartContract_AddCallback: Failure: Callback (%s) already exists on bylaw: %s \n",
+					   str_name.c_str(), str_bylaw_name.c_str());
+		return NULL;
+	}
+	// -------------------------------
+	
+	if (false == pBylaw->AddCallback(str_name, str_clause))
+	{
+		OTLog::vOutput(0, "OT_API_SmartContract_AddCallback: Failed trying to add callback (%s, clause %s) to bylaw: %s \n",
+					   str_name.c_str(), str_clause.c_str(), str_bylaw_name.c_str());
+		return NULL;
+	}
+	// -------------------------------
+	
+	pContract->ReleaseSignatures();
+	pContract->SignContract(*pNym);
+	pContract->SaveContract();
+	
+	OTString strOutput(*pContract); // For the output
+	
+	const char * pBuf = strOutput.Get(); 
+	
+#ifdef _WIN32
+	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+	
+	return g_tempBuf;		
+}
 
 // returns: the updated smart contract (or NULL)
 const char * OT_API_SmartContract_AddHook(const char * THE_CONTRACT,	// The contract, about to have the bylaw added to it.
@@ -2609,15 +3125,101 @@ const char * OT_API_SmartContract_AddHook(const char * THE_CONTRACT,	// The cont
 										  const char * BYLAW_NAME,		// Should already be on the contract. (This way we can find it.)
 										  // ----------------------------------------
 										  const char * HOOK_NAME,		// The Hook's name as referenced in the smart contract. (And the scripts...)
-										  const char * CLAUSE_NAME);	// The actual clause that will be triggered by the hook. (You can call this multiple times, and have multiple clauses trigger on the same hook.)
+										  const char * CLAUSE_NAME)	// The actual clause that will be triggered by the hook. (You can call this multiple times, and have multiple clauses trigger on the same hook.)
+{
+	OT_ASSERT_MSG(NULL != THE_CONTRACT, "Null THE_CONTRACT passed in.");
+	OT_ASSERT_MSG(NULL != SIGNER_NYM_ID, "Null SIGNER_NYM_ID passed in.");
+	OT_ASSERT_MSG(NULL != BYLAW_NAME, "Null BYLAW_NAME passed in.");
+	
+	OT_ASSERT_MSG(NULL != HOOK_NAME, "Null HOOK_NAME passed in.");
+	OT_ASSERT_MSG(NULL != CLAUSE_NAME, "Null CLAUSE_NAME passed in.");
+	
+	// -----------------------------------------------------
+	const OTIdentifier theSignerNymID(SIGNER_NYM_ID);
+	// -----------------------------------------------------
+	
+	OTWallet * pWallet = g_OT_API.GetWallet();
+	
+	if (NULL == pWallet)
+	{
+		OTLog::Output(0, "The Wallet is not loaded.\n");
+		return NULL;
+	}
+	
+	// By this point, pWallet is a good pointer.  (No need to cleanup.)
+	// -----------------------------------------------------------------
+	
+	OTPseudonym * pNym = pWallet->GetNymByID(theSignerNymID);
+	
+	if (NULL == pNym) // Wasn't already in the wallet.
+	{
+		OTLog::Output(0, "There's no User already loaded with that ID. Loading...\n");
+		
+		pNym = g_OT_API.LoadPrivateNym(theSignerNymID);
+		
+		if (NULL == pNym) // LoadPrivateNym has plenty of error logging already.	
+		{
+			return NULL;
+		}
+		
+		pWallet->AddNym(*pNym);
+	}
+	//
+	// By this point, pNym is a good pointer, and is on the wallet.
+	//  (No need to cleanup.)
+	// -----------------------------------------------------
+	const OTString strContract(THE_CONTRACT);
+	
+	OTScriptable * pContract = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable *> theContractAngel;
+	
+	if (NULL == pContract)
+	{
+		OTLog::Output(0, "OT_API_SmartContract_AddHook: Error loading smart contract. \n");
+		return NULL;
+	}
+	else
+		theContractAngel.SetCleanupTarget(*pContract);  // Auto-cleanup.
+	// -----------------------------------------------------
+	const std::string str_bylaw_name(BYLAW_NAME);
+	
+	OTBylaw * pBylaw = pContract->GetBylaw(str_bylaw_name);
+	
+	if (NULL == pBylaw)
+	{
+		OTLog::vOutput(0, "OT_API_SmartContract_AddHook: Failure: Bylaw doesn't exist: %s \n",
+					   str_bylaw_name.c_str());
+		return NULL;
+	}
+	// -------------------------------
+	const std::string	str_name(HOOK_NAME), str_clause(CLAUSE_NAME);
+		
+	if (false == pBylaw->AddHook(str_name, str_clause))
+	{
+		OTLog::vOutput(0, "OT_API_SmartContract_AddHook: Failed trying to add hook (%s, clause %s) to bylaw: %s \n",
+					   str_name.c_str(), str_clause.c_str(), str_bylaw_name.c_str());
+		return NULL;
+	}
+	// -------------------------------
+	
+	pContract->ReleaseSignatures();
+	pContract->SignContract(*pNym);
+	pContract->SaveContract();
+	
+	OTString strOutput(*pContract); // For the output
+	
+	const char * pBuf = strOutput.Get(); 
+	
+#ifdef _WIN32
+	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+	
+	return g_tempBuf;
+}
 
 // --------------------------------------------------------------
-
-
-
-OTParty::OTParty(const char * szName, bool bIsOwnerNym, const char * szOwnerID, const char * szAuthAgent)
-
-
 
 
 
@@ -2627,9 +3229,101 @@ const char * OT_API_SmartContract_AddParty(const char * THE_CONTRACT,	// The con
 										   // ----------------------------------------
 										   const char * PARTY_NAME,		// The Party's NAME as referenced in the smart contract. (And the scripts...)
 										   // ----------------------------------------
-										   const char * AGENT_NAME);	// An AGENT will be added by default for this party. Need Agent NAME.
+										   const char * AGENT_NAME)	// An AGENT will be added by default for this party. Need Agent NAME.
 // (FYI, that is basically the only option, until I code Entities and Roles. Until then, a party can ONLY be
 // a Nym, with himself as the agent representing that same party. Nym ID is supplied on ConfirmParty() below.)
+{
+	OT_ASSERT_MSG(NULL != THE_CONTRACT, "Null THE_CONTRACT passed in.");
+	OT_ASSERT_MSG(NULL != SIGNER_NYM_ID, "Null SIGNER_NYM_ID passed in.");
+	OT_ASSERT_MSG(NULL != PARTY_NAME, "Null PARTY_NAME passed in.");
+	OT_ASSERT_MSG(NULL != AGENT_NAME, "Null AGENT_NAME passed in.");
+		
+	// -----------------------------------------------------
+	const OTIdentifier theSignerNymID(SIGNER_NYM_ID);
+	// -----------------------------------------------------
+	
+	OTWallet * pWallet = g_OT_API.GetWallet();
+	
+	if (NULL == pWallet)
+	{
+		OTLog::Output(0, "The Wallet is not loaded.\n");
+		return NULL;
+	}
+	
+	// By this point, pWallet is a good pointer.  (No need to cleanup.)
+	// -----------------------------------------------------------------
+	
+	OTPseudonym * pNym = pWallet->GetNymByID(theSignerNymID);
+	
+	if (NULL == pNym) // Wasn't already in the wallet.
+	{
+		OTLog::Output(0, "There's no User already loaded with that ID. Loading...\n");
+		
+		pNym = g_OT_API.LoadPrivateNym(theSignerNymID);
+		
+		if (NULL == pNym) // LoadPrivateNym has plenty of error logging already.	
+		{
+			return NULL;
+		}
+		
+		pWallet->AddNym(*pNym);
+	}
+	//
+	// By this point, pNym is a good pointer, and is on the wallet.
+	//  (No need to cleanup.)
+	// -----------------------------------------------------
+	const OTString strContract(THE_CONTRACT);
+	
+	OTScriptable * pContract = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable *> theContractAngel;
+	
+	if (NULL == pContract)
+	{
+		OTLog::Output(0, "OT_API_SmartContract_AddParty: Error loading smart contract. \n");
+		return NULL;
+	}
+	else
+		theContractAngel.SetCleanupTarget(*pContract);  // Auto-cleanup.
+	// -----------------------------------------------------
+	const std::string str_party_name(PARTY_NAME), str_agent_name(AGENT_NAME);
+	
+	OTParty * pParty = pContract->GetParty(str_party_name);
+	
+	if (NULL != pParty)
+	{
+		OTLog::Output(0, "OT_API_SmartContract_AddParty: Failure: Party already exists. \n");
+		return NULL;
+	}
+	// -------------------------------
+	
+	pParty = new OTParty(str_party_name.c_str(), true /*bIsOwnerNym*/, 
+						 ""/*OwnerID not set until confirm*/, str_agent_name.c_str());
+	OT_ASSERT(NULL != pParty);
+	
+	if (false == pContract->AddParty(*pParty)) // takes ownership.
+	{
+		OTLog::Output(0, "OT_API_SmartContract_AddParty: Failed while trying to add party. \n");
+		delete pParty;
+		return NULL;
+	}
+	// ------------------
+	
+	pContract->ReleaseSignatures();
+	pContract->SignContract(*pNym);
+	pContract->SaveContract();
+	
+	OTString strOutput(*pContract); // For the output
+	
+	const char * pBuf = strOutput.Get(); 
+	
+#ifdef _WIN32
+	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+	
+	return g_tempBuf;	
+}
 
 // ----------------------------------------
 
@@ -2642,29 +3336,369 @@ const char * OT_API_SmartContract_AddAccount(const char * THE_CONTRACT,	// The c
 											 const char * PARTY_NAME,		// The Party's NAME as referenced in the smart contract. (And the scripts...)
 											 // ----------------------------------------
 											 const char * ACCT_NAME,		// The Account's name as referenced in the smart contract
-											 const char * ASSET_TYPE_ID);	// Asset Type ID for the Account.
+											 const char * ASSET_TYPE_ID)	// Asset Type ID for the Account.
+{
+	OT_ASSERT_MSG(NULL != THE_CONTRACT, "Null THE_CONTRACT passed in.");
+	OT_ASSERT_MSG(NULL != SIGNER_NYM_ID, "Null SIGNER_NYM_ID passed in.");
+	OT_ASSERT_MSG(NULL != PARTY_NAME, "Null PARTY_NAME passed in.");
+	
+	OT_ASSERT_MSG(NULL != ACCT_NAME, "Null ACCT_NAME passed in.");
+	OT_ASSERT_MSG(NULL != ASSET_TYPE_ID, "Null ASSET_TYPE_ID passed in.");
+	
+	// -----------------------------------------------------
+	const OTIdentifier theSignerNymID(SIGNER_NYM_ID);
+	// -----------------------------------------------------
+	
+	OTWallet * pWallet = g_OT_API.GetWallet();
+	
+	if (NULL == pWallet)
+	{
+		OTLog::Output(0, "The Wallet is not loaded.\n");
+		return NULL;
+	}
+	
+	// By this point, pWallet is a good pointer.  (No need to cleanup.)
+	// -----------------------------------------------------------------
+	
+	OTPseudonym * pNym = pWallet->GetNymByID(theSignerNymID);
+	
+	if (NULL == pNym) // Wasn't already in the wallet.
+	{
+		OTLog::Output(0, "There's no User already loaded with that ID. Loading...\n");
+		
+		pNym = g_OT_API.LoadPrivateNym(theSignerNymID);
+		
+		if (NULL == pNym) // LoadPrivateNym has plenty of error logging already.	
+		{
+			return NULL;
+		}
+		
+		pWallet->AddNym(*pNym);
+	}
+	//
+	// By this point, pNym is a good pointer, and is on the wallet.
+	//  (No need to cleanup.)
+	// -----------------------------------------------------
+	const OTString strContract(THE_CONTRACT);
+	
+	OTScriptable * pContract = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable *> theContractAngel;
+	
+	if (NULL == pContract)
+	{
+		OTLog::Output(0, "OT_API_SmartContract_AddAccount: Error loading smart contract. \n");
+		return NULL;
+	}
+	else
+		theContractAngel.SetCleanupTarget(*pContract);  // Auto-cleanup.
+	// -----------------------------------------------------
+	const std::string str_party_name(PARTY_NAME);
+	
+	OTParty * pParty = pContract->GetParty(str_party_name);
+	
+	if (NULL == pParty)
+	{
+		OTLog::Output(0, "OT_API_SmartContract_AddAccount: Failure: Party doesn't exist. \n");
+		return NULL;
+	}
+	// -------------------------------
+	const std::string str_name(ACCT_NAME), str_asset_id(ASSET_TYPE_ID);
+	
+	if (NULL != pParty->GetAccount(str_name))
+	{
+		OTLog::vOutput(0, "OT_API_SmartContract_AddAccount: Failed adding: account is already there with that name (%s) on party: %s \n",
+					   str_name.c_str(), str_party_name.c_str());
+		return NULL;
+	}
+	// ---------------------------------------------
+	const OTString strAgentName, strAcctName(str_name.c_str()), strAcctID, strAssetTypeID(str_asset_id.c_str());
+	
+	if (false == pParty->AddAccount(strAgentName, strAcctName, strAcctID, strAssetTypeID, 0))
+	{
+		OTLog::vOutput(0, "OT_API_SmartContract_AddAccount: Failed trying to add account (%s) to party: %s \n",
+					   str_name.c_str(), str_party_name.c_str());
+		return NULL;
+	}
+	// -------------------------------
+	
+	pContract->ReleaseSignatures();
+	pContract->SignContract(*pNym);
+	pContract->SaveContract();
+	
+	OTString strOutput(*pContract); // For the output
+	
+	const char * pBuf = strOutput.Get(); 
+	
+#ifdef _WIN32
+	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+	
+	return g_tempBuf;	
+}
 
 // ----------------------------------------
 
-// Used when taking a theoretical smart contract, and setting it up to use specific Nyms and accounts. This function sets the ACCT ID for the acct specified by party name and acct name.
+// Used when taking a theoretical smart contract, and setting it up to use specific Nyms and accounts. 
+// This function sets the ACCT ID and the AGENT NAME for the acct specified by party name and acct name.
 // Returns the updated smart contract (or NULL.)
+//
 const char * OT_API_SmartContract_ConfirmAccount(const char * THE_CONTRACT,	// The smart contract, about to be changed by this function.
 												 const char * SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
 												 // ----------------------------------------
 												 const char * PARTY_NAME,	// Should already be on the contract. (This way we can find it.)
 												 // ----------------------------------------
 												 const char * ACCT_NAME,	// Should already be on the contract. (This way we can find it.)
-												 const char * ACCT_ID);		// AcctID for the asset account. (For acct_name).
+												 const char * AGENT_NAME,	// The agent name for this asset account.
+												 const char * ACCT_ID)		// AcctID for the asset account. (For acct_name).
+{
+	OT_ASSERT_MSG(NULL != THE_CONTRACT, "Null THE_CONTRACT passed in.");
+	OT_ASSERT_MSG(NULL != SIGNER_NYM_ID, "Null SIGNER_NYM_ID passed in.");
+	OT_ASSERT_MSG(NULL != PARTY_NAME, "Null PARTY_NAME passed in.");
+	
+	OT_ASSERT_MSG(NULL != ACCT_NAME, "Null ACCT_NAME passed in.");
+	OT_ASSERT_MSG(NULL != AGENT_NAME, "Null AGENT_NAME passed in.");
+	OT_ASSERT_MSG(NULL != ACCT_ID, "Null ACCT_ID passed in.");
+	
+	// -----------------------------------------------------
+	const OTIdentifier theSignerNymID(SIGNER_NYM_ID);
+	const OTString strAccountID(ACCT_ID), strAgentName(AGENT_NAME);
+	// -----------------------------------------------------
+	
+	OTWallet * pWallet = g_OT_API.GetWallet();
+	
+	if (NULL == pWallet)
+	{
+		OTLog::Output(0, "The Wallet is not loaded.\n");
+		return NULL;
+	}
+	
+	// By this point, pWallet is a good pointer.  (No need to cleanup.)
+	// -----------------------------------------------------------------
+	
+	OTPseudonym * pNym = pWallet->GetNymByID(theSignerNymID);
+	
+	if (NULL == pNym) // Wasn't already in the wallet.
+	{
+		OTLog::Output(0, "There's no User already loaded with that ID. Loading...\n");
+		
+		pNym = g_OT_API.LoadPrivateNym(theSignerNymID);
+		
+		if (NULL == pNym) // LoadPrivateNym has plenty of error logging already.	
+		{
+			return NULL;
+		}
+		
+		pWallet->AddNym(*pNym);
+	}
+	//
+	// By this point, pNym is a good pointer, and is on the wallet.
+	//  (No need to cleanup.)
+	// -------------------------------------------------------------
+	//
+	// Get the account. 
+	
+	OTAccount *	pAccount = g_OT_API.GetAccount(theAcctID);	
+	
+	if (NULL == pAccount)
+	{
+		OTLog::Output(0, "OT_API_SmartContract_ConfirmAccount: Unable to load Account.\n");
+		return NULL;		
+	}
+	
+	// -------------------------------------------------------------
+	const OTString strContract(THE_CONTRACT);
+	
+	OTScriptable * pContract = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable *> theContractAngel;
+	
+	if (NULL == pContract)
+	{
+		OTLog::Output(0, "OT_API_SmartContract_ConfirmAccount: Error loading smart contract. \n");
+		return NULL;
+	}
+	else
+		theContractAngel.SetCleanupTarget(*pContract);  // Auto-cleanup.
+	// -----------------------------------------------------
+	const std::string str_party_name(PARTY_NAME);
+	
+	OTParty * pParty = pContract->GetParty(str_party_name);
+	
+	if (NULL == pParty)
+	{
+		OTLog::Output(0, "OT_API_SmartContract_ConfirmAccount: Failure: Party doesn't exist. \n");
+		return NULL;
+	}
+	// -------------------------------
+	const std::string str_name(ACCT_NAME);
+	
+	OTPartyAccount * pPartyAcct = pParty->GetAccount(str_name);
+	
+	if (NULL == pPartyAcct)
+	{
+		OTLog::vOutput(0, "OT_API_SmartContract_ConfirmAccount: Failed: account doesn't exist with that name (%s) on party: %s \n",
+					   str_name.c_str(), str_party_name.c_str());
+		return NULL;
+	}
+	// ---------------------------------------------
+	// the actual asset type ID
+
+	const OTIdentifier	theExpectedAssetTypeID(pPartyAcct->GetAssetTypeID());	// The expected asset type ID, converting from a string.
+	const OTIdentifier&	theActualAssetTypeID = pAccount->GetAssetTypeID();		// the actual asset type ID, already an identifier, from the actual account.
+	
+	if (theExpectedAssetTypeID != theActualAssetTypeID)
+	{
+		const OTString strAssetTypeID(theActualAssetTypeID);
+		OTLog::vOutput(0, "OT_API_SmartContract_ConfirmAccount: Failed, since the asset type ID of the account (%s) "
+					   "does not match what was expected (%s) according to this contract.\n",
+					   strAssetTypeID.Get(), pPartyAcct->GetAssetTypeID().Get());
+		return NULL;
+	}
+	// ---------------------------------------------
+	// I'm leaving this here for now, since a party can only be a Nym for now anyway (until I code entities.)
+	// Therefore this account COULD ONLY be owned by that Nym anyway, and thus will pass this test.
+	// All the above functions aren't that stringent because they are about designing the smart contract, not
+	// executing it. But in THIS case, we are actually confirming the thing, and adding our actual account #s
+	// to it, signing it, etc, so I might as well save the person the hassle of being rejected later because
+	// he accidentally set it up with the wrong Nym.
+	//
+	if (!pAccount->VerifyOwner(*pNym))
+	{
+		const OTString strNymID(SIGNER_NYM_ID);
+		OTLog::vOutput(0, "OT_API_SmartContract_ConfirmAccount: Failed, since this nym (%s) isn't the owner of this account (%s).\n",
+					   strNymID.Get(), str_name.c_str());
+		return NULL;
+	}
+	// ---------------------------------------------
+	// BY THIS POINT, we know that the account is actually owned by the Nym,
+	// and we know that it's got the proper asset type ID that was expected 
+	// according to the smart contract.
+	//
+	pPartyAcct->SetAcctID(strAccountID);
+	pPartyAcct->SetAgentName(strAgentName);	
+	// -------------------------------
+	
+	pContract->ReleaseSignatures();
+	pContract->SignContract(*pNym);
+	pContract->SaveContract();
+	
+	OTString strOutput(*pContract); // For the output
+	
+	const char * pBuf = strOutput.Get(); 
+	
+#ifdef _WIN32
+	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+	
+	return g_tempBuf;		
+}
 
 
 // Called by each Party. Pass in the smart contract obtained in the above call.
-// Call OT_API_SmartContract_ConfirmAccount() first, as much as you need to.
+// Call OT_API_SmartContract_ConfirmAccount() first, as much as you need to, THEN call this (for final signing.)
+// This is the last call you make before either passing it on to another party to confirm, or calling OT_API_activateSmartContract().
 // Returns the updated smart contract (or NULL.)
 const char * OT_API_SmartContract_ConfirmParty(const char * THE_CONTRACT,	// The smart contract, about to be changed by this function.
 											   const char * PARTY_NAME,		// Should already be on the contract. This way we can find it.
 											   // ----------------------------------------
-											   const char * NYM_ID);		// Nym ID for the party, the actual owner, 
-// ===> AS WELL AS for the default AGENT of that party.
+											   const char * NYM_ID)		// Nym ID for the party, the actual owner, 
+																		// ===> AS WELL AS for the default AGENT of that party. (For now, until I code entities)
+{
+	OT_ASSERT_MSG(NULL != THE_CONTRACT, "Null THE_CONTRACT passed in.");
+	OT_ASSERT_MSG(NULL != PARTY_NAME, "Null PARTY_NAME passed in.");
+	OT_ASSERT_MSG(NULL != NYM_ID, "Null NYM_ID passed in.");
+	
+	// -----------------------------------------------------
+	const OTIdentifier theNymID(NYM_ID);
+	// -----------------------------------------------------
+	OTWallet * pWallet = g_OT_API.GetWallet();
+	
+	if (NULL == pWallet)
+	{
+		OTLog::Output(0, "The Wallet is not loaded.\n");
+		return NULL;
+	}
+	
+	// By this point, pWallet is a good pointer.  (No need to cleanup.)
+	// -----------------------------------------------------------------
+	OTPseudonym * pNym = pWallet->GetNymByID(theNymID);
+	
+	if (NULL == pNym) // Wasn't already in the wallet.
+	{
+		OTLog::Output(0, "There's no User already loaded with that ID. Loading...\n");
+		
+		pNym = g_OT_API.LoadPrivateNym(theNymID);
+		
+		if (NULL == pNym) // LoadPrivateNym has plenty of error logging already.	
+		{
+			return NULL;
+		}
+		
+		pWallet->AddNym(*pNym);
+	}
+	//
+	// By this point, pNym is a good pointer, and is on the wallet.
+	//  (No need to cleanup.)
+	// -----------------------------------------------------
+	const OTString strContract(THE_CONTRACT);
+	
+	OTScriptable * pContract = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable *> theContractAngel;
+	
+	if (NULL == pContract)
+	{
+		OTLog::Output(0, "OT_API_SmartContract_ConfirmParty: Error loading smart contract. \n");
+		return NULL;
+	}
+	else
+		theContractAngel.SetCleanupTarget(*pContract);  // Auto-cleanup.
+	// -----------------------------------------------------
+	const std::string str_party_name(PARTY_NAME);
+	
+	OTParty * pParty = pContract->GetParty(str_party_name);
+	
+	if (NULL == pParty)
+	{
+		OTLog::vOutput(0, "OT_API_SmartContract_ConfirmParty: Failure: Party doesn't exist, so how can you confirm it?: %s \n",
+					  str_party_name.c_str());
+		return NULL;
+	}
+	// -------------------------------
+	
+	OTParty * pNewParty = new OTParty(pParty->GetPartyName(), *pNym, // party keeps an internal pointer to pNym from here on.
+									  pParty->GetAuthorizingAgentName()); // Party name and agent name must match, in order to replace / activate this party.
+	OT_ASSERT(NULL != pNewParty);
+		
+	if (false == pContract->ConfirmParty(*pNewParty)) // takes ownership. (Deletes the theoretical version of the party, replaced by our actual version pNewParty.)
+	{
+		OTLog::Output(0, "OT_API_SmartContract_ConfirmParty: Failed while trying to confirm party. \n");
+		delete pNewParty;
+		return NULL;
+	}
+	// ------------------
+	
+	// ConfirmParty(), unlike most others, actually signs and saves the contract already.
+	// Therefore, all that's needed here is to grab it in string form...
+	// (No need to sign again.)
+//	pContract->ReleaseSignatures();
+//	pContract->SignContract(*pNym);
+//	pContract->SaveContract();
+	
+	OTString strOutput(*pContract); // For the output
+	
+	const char * pBuf = strOutput.Get(); 
+	
+#ifdef _WIN32
+	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+	
+	return g_tempBuf;		
+}
 
 
 
@@ -2681,22 +3715,23 @@ const char * OT_API_SmartContract_ConfirmParty(const char * THE_CONTRACT,	// The
 ///
 void OT_API_activateSmartContract(const char * SERVER_ID,
 								  const char * USER_ID,
-								  const char * THE_SMART_CONTRACT);
-/*
-void OT_API_depositPaymentPlan(const char * SERVER_ID,
-							   const char * USER_ID,
-							   const char * THE_PAYMENT_PLAN)
+								  const char * THE_SMART_CONTRACT)
 {
 	OT_ASSERT_MSG(NULL != SERVER_ID, "Null SERVER_ID passed in.");
 	OT_ASSERT_MSG(NULL != USER_ID, "Null USER_ID passed in.");
-	OT_ASSERT_MSG(NULL != THE_PAYMENT_PLAN, "Null THE_PAYMENT_PLAN passed in.");
+	OT_ASSERT_MSG(NULL != THE_SMART_CONTRACT, "Null THE_SMART_CONTRACT passed in.");
 	
 	const OTIdentifier	theServerID(SERVER_ID), theUserID(USER_ID);
-	const OTString		strPlan(THE_PAYMENT_PLAN);
+	const OTString		strContract(THE_SMART_CONTRACT);
 	
-	g_OT_API.depositPaymentPlan(theServerID, theUserID, strPlan);	
+	g_OT_API.activateSmartContract(theServerID, theUserID, strContract);	
 }
-*/
+
+
+
+
+
+
 
 
 
