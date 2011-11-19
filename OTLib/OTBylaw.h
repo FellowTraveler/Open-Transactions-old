@@ -197,7 +197,8 @@ public:
 	// Someday another constructor here like the above, for
 	// instantiating with an Entity/Group instead of with a Nym.	
 	
-	OTAgent(bool bNymRepresentsSelf, bool bIsAnIndividual, 
+	OTAgent(bool bNymRepresentsSelf, 
+			bool bIsAnIndividual, 
 			const OTString& strName, 
 			const OTString& strNymID, 
 			const OTString& strRoleID, 
@@ -692,7 +693,9 @@ public:
 	// Get PartyAcct by name.
 	//
 	OTPartyAccount * GetAccount(const std::string & str_acct_name);
-
+	// by agent name
+	OTPartyAccount * GetAccountByAgent(const std::string & str_agent_name);
+	
 	 // If account is present for Party, set account's pointer to theAccount and return true.
 	//
 	bool HasAccount(OTAccount & theAccount, OTPartyAccount ** ppPartyAccount=NULL);

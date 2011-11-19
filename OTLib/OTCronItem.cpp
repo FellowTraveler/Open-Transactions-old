@@ -1801,6 +1801,10 @@ void OTCronItem::HarvestClosingNumbers(OTPseudonym & theNym)
 
         for (int i = 0; i < GetCountClosingNumbers(); i++)
         {
+			// TODO: Really should verify that it's issued here, before adding it back again.
+			// That's definitely what smart contracts do, by way of OTAgent.
+			// I don't think this function ever actually gets called.
+			//
             theNym.AddTransactionNum(theNym, strServerID, GetClosingTransactionNoAt(i), 
                                      (i == (GetCountClosingNumbers()-1) ? true : false)); // bSave=true only on the last iteration.
         }

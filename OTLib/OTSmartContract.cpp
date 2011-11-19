@@ -2942,7 +2942,8 @@ void OTSmartContract::HarvestClosingNumbers(OTPseudonym & theNym)
 	// ----------------------------------
 	
 	const OTString strServerID(GetServerID());
-
+	const int nTransNumCount = theNym.GetTransactionNumCount(GetServerID()); // save this to see if it changed, later.
+	
 	FOR_EACH(mapOfParties, m_mapParties)
 	{
 		OTParty * pParty = (*it).second;
@@ -2951,6 +2952,10 @@ void OTSmartContract::HarvestClosingNumbers(OTPseudonym & theNym)
 		
 		pParty->HarvestClosingNumbers(theNym, strServerID);
 	}
+	// ------------------------
+	// It changed, so let's save it.
+	if (nTransNumCount != theNym.GetTransactionNumCount(GetServerID()))
+		theNym.SaveSignedNymfile(theNym);
 }
 
 

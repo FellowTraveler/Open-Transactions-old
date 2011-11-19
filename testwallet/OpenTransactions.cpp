@@ -5047,7 +5047,6 @@ void OT_API::activateSmartContract(const OTIdentifier	& SERVER_ID,
 	
 	const OTString strServerID(SERVER_ID), strNymID(USER_ID);
 	
-	
 	if (theContract.LoadContractFromString(THE_SMART_CONTRACT))
 	{
 		OTAgent * pAgent = NULL;
@@ -5082,40 +5081,140 @@ void OT_API::activateSmartContract(const OTIdentifier	& SERVER_ID,
 		//
 		if (false == theContract.AllPartiesHaveSupposedlyConfirmed())
 		{
-			OTLog::vOutput(0, "OT_API::activateSmartContract: Failed. EACH PARTY to this smart contract needs to CONFIRM IT FIRST, before one of them "
-						   "then activates it at the server. But THIS smart contract has NOT yet been confirmed by all of its parties.\n");
+			OTLog::Output(0, "OT_API::activateSmartContract: Failed. EACH PARTY to this smart contract needs to CONFIRM IT FIRST, before one of them "
+						   "then activates it at the server. (But THIS smart contract has NOT yet been confirmed, at least, not by all of its parties.)\n");
 			return;
 		}
 		if (SERVER_ID != theContract.GetServerID())
 		{
-			OTLog::vOutput(0, "OT_API::activateSmartContract: Failed. The server ID passed in doesn't match the one on the contract itself.\n");
+			OTLog::Output(0, "OT_API::activateSmartContract: Failed. The server ID passed in doesn't match the one on the contract itself.\n");
+			return;
+		}
+		// ----------------------------------------------------------
+		if (!(pParty->GetAccountCount() > 0))
+		{
+			OTLog::Output(0, "OT_API::activateSmartContract: Failed. The activating Nym must not only be the authorizing agent for one of the parties, "
+						   "but must also be the authorized agent for one of that party's asset accounts. That party must have at least one asset account "
+						   "for this reason. (See code comment below this message, in the code.)\n");
 			return;
 		}
 		
-		pParty
+		// *************************************************************************************
+		//
+		// REQUIREMENT:  The ACTIVATOR aka the Originator Nym (the party who activates the smart 
+		// contract on the server) must have at least one asset account as part of the smart contract,
+		// for which the authorizing agent for that party is also the authorized agent for that account.
+		// This is in order to make sure that the smart contracts will work with the existing infrastructure,
+		// so that functions like "GetOpeningNumber()" and "GetClosingNumber()" will continue to work the way
+		// they are expected to, and so that there is always at least ONE closing transaction number supplied
+		// for the smart contract (at least ONE finalReceipt will actually have to be signed for once it is
+		// deactivated) and so we can know who the owner of that account, and what acct # it will be.
+		//
+		// This is also a requirement because the existing infrastructure uses the transaction system for
+		// activating cron items. It was simply not anticipated in the past that cron items, based on valid
+		// transactions, wouldn't also therefore be associated with at least one asset account. In fact, 
+		// the original difference between transactions (vs normal messages) was that transactions dealt
+		// with asset accounts, whereas normal messages did not. (Such as, "checkUser" or "getRequest".)
+		//
+		// A big piece of this is the BALANCE AGREEMENT. Obviously it wasn't anticipated that "balance
+		// agreements" would ever be needed for transactions, yet asset accounts wouldn't be. So the below
+		// TRANSACTION STATEMENT, for example, expects an asset account, as does the verification code
+		// associated with it. Even transaction statements were originally made for situations where the balance
+		// wasn't actually changing, (and so a balance agreement wasn't needed), but where a signature on
+		// the transaction numbers was still necessary, since one had to be burned in order to prove that
+		// the instrument was valid.
+		//
+		// Unfortunately, transaction statements still expected an asset account to at least EXIST, since
+		// they involved market offers (which do not immediately change the balance) or payment plans
+		// (which also do not immediately change the balance.) Yet the account's ID was still at least
+		// present in the receipt, and a transaction # was still used.
+		//
+		// In the case of smart contracts, I will probably someday lift this restriction (that the activating
+		// nym must also be the authorized agent on one of the asset accounts on the smart contract). But I
+		// will have to go over all the plumbing first and deal with that. In the meantime:
+		//
+		// --- THE ACTIVATING NYM *MUST* ALSO BE THE AUTHORIZED AGENT 
+		//     FOR AT LEAST ONE ASSET ACCOUNT, FOR THAT PARTY. ---
+		//
+		// *************************************************************************************
+
+		const std::string str_agent_name(pAgent->GetName().Get());
 		
+		OTPartyAccount * pAcct = pParty->GetAccountByAgent(str_agent_name);
+
+		if (NULL == pAcct)
+		{
+			OTLog::Output(0, "OT_API::activateSmartContract: Failed. The activating Nym must not only be the authorizing agent for one of the parties, "
+						   "but must also be the authorized agent for one of that party's asset accounts. That party must have at least one asset account "
+						   "for this reason. (See code comment above this message, in the code.)\n");
+			return;
+		}
+		// ----------------------------------------------------------
+		OTString &	strAcctID = pAcct->GetAcctID();
 		
+		if (!strAcctID.Exists())
+		{
+			OTLog::vOutput(0, "OT_API::activateSmartContract: Failed. The Account ID is blank for asset acct (%s) for party (%s). Did you confirm "
+						   "this account, before trying to activate this contract?\n", pAcct->GetName().Get(), pParty->GetPartyName().c_str());
+			return;
+		}
+		// ----------------------------------------------------------
+		OTIdentifier	theAcctID(strAcctID);
 		
+		const long lOpeningTransNo = pParty->GetOpeningTransNo();
+		const long lClosingTransNo = pAcct-> GetClosingTransNo();
 		
-		// RESUME
+		if ((lOpeningTransNo <= 0) || (lClosingTransNo <= 0))
+		{
+			OTLog::vOutput(0, "OT_API::activateSmartContract: Failed. Opening Transaction # (%ld) and Closing # (%ld) were invalid "
+						   "for asset acct (%s) for party (%s). Did you confirm this account and party, before trying to activate this contract?\n", 
+						   lOpeningTransNo, lClosingTransNo, pAcct->GetName().Get(), pParty->GetPartyName().c_str());
+			return;
+		}
+		// ----------------------------------------------------------
+		// These numbers (the opening and closing transaction #s) were already available on
+		// the smart contract -- specifically an opening number is stored for each party,
+		// taken from the authorizing agent for that party, and a closing number is stored for
+		// each asset account, taken from the authorized agent for that asset account.
+		// 
+		// Now we set the appropriate opening/closing number onto the smart contract, in the way
+		// of the existing CronItem system, so that it will work properly within that infrastructure.
+		// (This is what makes the activating Nym slightly different / more than the other authorizing
+		// agent nyms for each party to the contract.)
+		//
+		theContract.SetTransactionNum(lOpeningTransNo);
+		theContract.AddClosingTransactionNo(lClosingTransNo);
 		
+		// TODO:
+		// SET SENDER USER ID
+		// SET SENDER ACCT ID
 		
+		// ----------------------------------------------------------
+		theContract.ReleaseSignatures();
 		
+		if (false == pAgent->SignContract(theContract))
+		{
+			OTLog::Error("OT_API::activateSmartContract: Failed re-signing contract, after adding opening and closing transaction numbers for Cron.\n");
+			return;
+		}
 		
+		theContract.SaveContract();
+		const OTString strContract(theContract); // Grab a string version of the latest signed contract.
 		
-		// -----------------------------------------------------
-		
+		// ----------------------------------------------------------
 		// Create a transaction
-		OTTransaction * pTransaction = OTTransaction::GenerateTransaction (USER_ID, SENDER_ACCT_ID, SERVER_ID, 
-																		   OTTransaction::paymentPlan, thePlan.GetTransactionNum()); 
+		//
+		OTTransaction * pTransaction = OTTransaction::GenerateTransaction (USER_ID,
+																		   theAcctID,
+																		   SERVER_ID, 
+																		   OTTransaction::smartContract, // TODO  grep and add left based on right: OTTransaction::paymentPlan
+																		   theContract.GetTransactionNum());
 		
 		// set up the transaction item (each transaction may have multiple items...)
-		OTItem * pItem		= OTItem::CreateItemFromTransaction(*pTransaction, OTItem::paymentPlan);
-		
-		OTString strPlan(thePlan);
-		
-		// Add the payment plan string as the attachment on the transaction item.
-		pItem->SetAttachment(strPlan); // The payment plan is contained in the reference string.
+		OTItem * pItem		= OTItem::CreateItemFromTransaction(*pTransaction, OTItem::smartContract); // todo
+
+		// Add the smart contract string as the attachment on the transaction item.
+		pItem->SetAttachment(strContract);
 		
 		// sign the item
 		pItem->SignContract(*pNym);
@@ -5127,7 +5226,7 @@ void OT_API::activateSmartContract(const OTIdentifier	& SERVER_ID,
 		// ---------------------------------------------
 		// TRANSACTION AGREEMENT
 		
-		// pBalanceItem is signed and saved within this call. No need to do that again.
+		// pStatementItem is signed and saved within this call. No need to do that again.
 		OTItem * pStatementItem = pNym->GenerateTransactionStatement(*pTransaction);
 		
 		if (NULL != pStatementItem) // will never be NULL. Will assert above before it gets here.
@@ -5140,14 +5239,15 @@ void OT_API::activateSmartContract(const OTIdentifier	& SERVER_ID,
 		pTransaction->SaveContract();
 		
 		// set up the ledger
-		OTLedger theLedger(USER_ID, SENDER_ACCT_ID, SERVER_ID);
-		theLedger.GenerateLedger(SENDER_ACCT_ID, SERVER_ID, OTLedger::message); // bGenerateLedger defaults to false, which is correct.
+		OTLedger theLedger(USER_ID, theAcctID, SERVER_ID); // TODO
+		
+		theLedger.GenerateLedger(theAcctID, SERVER_ID, OTLedger::message); // bGenerateLedger defaults to false, which is correct.  // TODO SENDER ACCT...
 		theLedger.AddTransaction(*pTransaction); // now the ledger "owns" and will handle cleaning up the transaction.
 		
 		// sign the ledger
 		theLedger.SignContract(*pNym);
 		theLedger.SaveContract();
-		
+
 		// extract the ledger in ascii-armored form... encoding...
 		OTString		strLedger(theLedger);
 		OTASCIIArmor	ascLedger(strLedger);
@@ -5161,7 +5261,7 @@ void OT_API::activateSmartContract(const OTIdentifier	& SERVER_ID,
 		theMessage.m_strCommand			= "notarizeTransactions";
 		theMessage.m_strNymID			= strNymID;
 		theMessage.m_strServerID		= strServerID;
-		theMessage.m_strAcctID			= strFromAcct;
+		theAcctID.GetString(theMessage.m_strAcctID);
 		theMessage.m_ascPayload			= ascLedger;
 		
 		// (2) Sign the Message 
@@ -5175,7 +5275,7 @@ void OT_API::activateSmartContract(const OTIdentifier	& SERVER_ID,
 		m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 #endif	
 		m_pClient->ProcessMessageOut(theMessage);	
-	} // thePlan.LoadContractFromString()
+	} // theContract.LoadContractFromString()
 	else 
 	{
 		OTLog::Output(0, "Unable to load smart contract from string, sorry.\n");
@@ -5183,12 +5283,42 @@ void OT_API::activateSmartContract(const OTIdentifier	& SERVER_ID,
 }
 
 
+// Todo: make a new transaction (and item) type for smart contract. (for a cron item.)
+
+
+// TODO: Add an API call that allows the coder to harvest transaction numbers from Cron Items.
+// This will be used on the client side, I believe, and not server side (not in smart contracts.)
+//
+
+
+// TODO: Make a copy of CancelCronItem(), and use it to make an EXECUTE CLAUSE message 
+// for Nyms to trigger existing smart contracts!!!!!!!!!
+//
+// WAIT: Except it DOESN'T have to be a transaction! Because as long as the Nym is a valid
+// party, and the action occurs, it will ALREADY drop receipts into the appropriate boxes!
+// 
+// But wait... How do we know that the Nym REALLY triggered that clause, if there's not
+// a transaction # burned? It doesn't matter: the purpose of transaction #s is to make sure
+// that CHANGES in BALANCE are signed off on, by leaving the # open, and putting a receipt
+// in the inbox. But if Nym really is a party to this smart contract (which will be verified 
+// in any case), then he DOES have transaction #s open already, and if any balances change,
+// receipts will be dropped into the appropriate inboxes already containing those transaction
+// #s. (As well as containing his original signed copy of the cron item, AND as well as 
+// containing the latest message, with his signature and request number on it, which triggered
+// the clause to be called.)  Furthermore, if the clause is triggered multiple times, then
+// there must be multiple receipts, and each one should feature a NEW instance of the triggering,
+// WITH a valid signature on it, and WITH a NEW REQUEST NUMBER ON IT. Without this, none of
+// the balances could change anyway.
+//
+// Therefore I conclude that the "trigger a clause" message does NOT have to be a transaction,
+// but only needs to be a message  :-)
+//
+// Still todo: the "trigger clause" message!
 
 
 
 // DONE: CHange this into a TRANSACTION!
 //
-
 ///-------------------------------------------------------
 /// CANCEL A SPECIFIC OFFER (THAT SAME NYM PLACED PREVIOUSLY ON SAME SERVER.)
 /// By transaction number as key.

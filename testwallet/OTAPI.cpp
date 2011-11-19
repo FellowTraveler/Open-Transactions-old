@@ -3731,6 +3731,121 @@ void OT_API_activateSmartContract(const char * SERVER_ID,
 
 
 
+/*
+ This function will load up the cron item (which is either a market offer, a payment plan,
+ or a SMART CONTRACT.)
+ 
+ Then it will try to harvest all of the closing transaction numbers for NYM_ID that are
+ available to be harvested from THE_CRON_ITEM. (There might be zero #s available for that
+ Nym, which is still a success and will return true. False means error.)
+ 
+ YOU MIGHT ASK:
+ 
+ WHY WOULD I WANT to harvest ONLY the closing numbers for the Nym, and not the OPENING
+ numbers as well? The answer is because for this Nym, the opening number might already
+ be burned. For example, if Nym just tried to activate a smart contract, and the activation
+ FAILED, then maybe the opening number is already gone, even though his closing numbers, on the
+ other hand, are still valid for retrieval. (I have to double check this.)
+ 
+ HOWEVER, what if the MESSAGE failed, before it even TRIED the transaction? In which case,
+ the opening number is still good also, and should be retrieved.  
+ 
+ Remember, I have to keep signing for my transaction numbers until they are finally closed out.
+ They will appear on EVERY balance agreement and transaction statement from here until the end
+ of time, whenever I finally close out those numbers. If some of them are still good on a failed
+ transaction, then I want to retrieve them so I can use them, and eventually close them out.
+ 
+ ==> Whereas, what if I am the PARTY to a smart contract, but I am not the actual ACTIVATOR / ORIGINATOR
+ (who activated the smart contract on the server).  Therefore I never sent any transaction to the
+ server, and I never burned my opening number. It's probably still a good #. If my wallet is not a piece
+ of shit, then I should have a stored copy of any contract that I signed. If it turns out in the future
+ that that contract wasn't activated, then I can retrieve not only my closing numbers, but my OPENING
+ number as well! IN THAT CASE, I would call OT_API_HarvestAllNumbers() instead of OT_API_HarvestClosingNumbers().
+ */
+OT_BOOL OT_API_HarvestClosingNumbers(const char * SERVER_ID,
+									 const char * NYM_ID,
+									 const char * THE_CRON_ITEM)
+{
+	OT_ASSERT_MSG(NULL != SERVER_ID, "Null SERVER_ID passed in.");
+	OT_ASSERT_MSG(NULL != NYM_ID, "Null NYM_ID passed in.");
+	OT_ASSERT_MSG(NULL != THE_CRON_ITEM, "Null THE_CRON_ITEM passed in.");
+	
+	// -----------------------------------------------------
+	const OTIdentifier theNymID(NYM_ID);
+	// -----------------------------------------------------
+	OTWallet * pWallet = g_OT_API.GetWallet();
+	
+	if (NULL == pWallet)
+	{
+		OTLog::Output(0, "The Wallet is not loaded.\n");
+		return OT_FALSE;
+	}
+	
+	// By this point, pWallet is a good pointer.  (No need to cleanup.)
+	// -----------------------------------------------------------------
+	OTPseudonym * pNym = pWallet->GetNymByID(theNymID);
+	
+	if (NULL == pNym) // Wasn't already in the wallet.
+	{
+		OTLog::Output(0, "There's no User already loaded with that ID. Loading...\n");
+		
+		pNym = g_OT_API.LoadPrivateNym(theNymID);
+		
+		if (NULL == pNym) // LoadPrivateNym has plenty of error logging already.	
+		{
+			return OT_FALSE;
+		}
+		
+		pWallet->AddNym(*pNym);
+	}
+	//
+	// By this point, pNym is a good pointer, and is on the wallet.
+	//  (No need to cleanup.)
+	// -----------------------------------------------------
+	const OTString strContract(THE_CRON_ITEM);
+	
+	OTCronItem * pCronItem = OTCronItem::NewCronItem(strContract);
+	OTCleanup<OTCronItem *> theContractAngel;
+	
+	if (NULL == pCronItem)
+	{
+		OTLog::Output(0, "OT_API_HarvestClosingNumbers: Error loading cron item (smart contract, or other recurring transaction.) \n");
+		return OT_FALSE;
+	}
+	else
+		theContractAngel.SetCleanupTarget(*pCronItem);  // Auto-cleanup.
+	// -----------------------------------------------------
+	
+	pCronItem->HarvestClosingNumbers(*pNym);
+		
+	// -------------------------------	
+	
+	return OT_TRUE;
+}
+
+
+
+OT_BOOL OT_API_HarvestAllNumbers(const char * SERVER_ID,
+								 const char * NYM_ID,
+								 const char * THE_CRON_ITEM)
+{
+	// DOWN HERE, same as above, except I want opening numbers, which I don't know if cron item has virtual function for that.
+	// grep for opening number related functions!!
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+}
+
+
+
 
 
 

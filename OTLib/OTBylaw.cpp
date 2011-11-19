@@ -1399,6 +1399,30 @@ OTPartyAccount * OTParty::GetAccount(const std::string & str_acct_name)
 }
 
 
+// Get PartyAccount pointer by Agent Name. (It just grabs the first one.)
+//
+// Returns NULL on failure.
+OTPartyAccount * OTParty::GetAccountByAgent(const std::string & str_agent_name)
+{
+	if (OTScriptable::ValidateName(str_agent_name))
+	{
+		FOR_EACH(mapOfPartyAccounts, m_mapPartyAccounts)
+		{
+			OTPartyAccount * pAcct = (*it).second;
+			OT_ASSERT(NULL != pAcct);
+			// ----------------
+			
+			if (pAcct->GetAgentName().Compare(str_agent_name.c_str()))
+				return pAcct;				
+		}
+	}
+	else
+		OTLog::Error("OTParty::GetAccountByAgent: Failed: str_agent_name is invalid.\n");
+	
+	return NULL;		
+}
+
+
 // If account is present for Party, set account's pointer to theAccount and return true.
 bool OTParty::HasAccount(OTAccount & theAccount, OTPartyAccount ** ppPartyAccount/*=NULL*/)
 {
