@@ -176,6 +176,12 @@ private:
 									// then OT is smart enough here to only create 2 stash accounts. The rest of the information is
 									// stored in m_mapStashes, not in the accounts themselves, which are only reserves for those stashes.
 
+	
+	OTString	m_strLastSenderUser;	// These four strings are here so that each sender or recipient (of a transfer of funds)
+	OTString	m_strLastSenderAcct;	// is clearly saved in each inbox receipt. That way, if the receipt has a monetary value, then
+	OTString	m_strLastRecipientUser;	// we know who was sending and who was receiving. Also, if a STASH was the last action, then
+	OTString	m_strLastRecipientAcct;	// the sender (or recipient) will be blank, signifying that the source or destination was a stash.
+	
 protected:
     
 	// --------------------------------------------------------------------------
@@ -187,9 +193,28 @@ protected:
                                 OTPseudonym * pRemover);
     virtual void onRemovalFromCron();
 
+	// --------------------------------------------------------------------------
+	// Above are stored the user and acct IDs of the last sender and recipient of funds.
+	// (It's stored there so that the info will be available on receipts.)
+	// This function clears those values. Used internally to this class.
+	//
+	void ReleaseLastSenderRecipientIDs();
+
 public:
 	// --------------------------------------------------------------------------
-
+	// FOR RECEIPTS
+	// These IDs are stored for cases where this Cron Item is sitting in a receipt
+	// in an inbox somewhere, so that, whether the payment was a success or failure,
+	// we can see the intended sender/recipient user/acct IDs. They are cleared and
+	// then set right when a MoveAcctFunds() or StashAcctFunds() is being performed.
+	//
+	const OTString & GetLastSenderUserID()		const { return m_strLastSenderUser; }
+	const OTString & GetLastSenderAcctID()		const { return m_strLastSenderAcct; }
+	const OTString & GetLastRecipientUserID()	const { return m_strLastRecipientUser; }
+	const OTString & GetLastRecipientAcctID()	const { return m_strLastRecipientAcct; }
+	// 
+	// --------------------------------------------------------------------------
+	
 	int GetCountStashes() const;
 	int GetCountStashAccts() const;
 	
@@ -227,6 +252,7 @@ public:
 	 */
     virtual bool CanRemoveItemFromCron(OTPseudonym & theNym);
 	
+    virtual void HarvestOpeningNumber(OTPseudonym & theNym);
 	virtual void HarvestClosingNumbers(OTPseudonym & theNym);
     
     // Return True if should stay on OTCron's list for more processing.
@@ -276,6 +302,12 @@ public:
 	virtual bool AddParty(OTParty & theParty); // Takes ownership. Overrides from OTScriptable.
 	virtual bool ConfirmParty(OTParty & theParty); // Takes ownership. Overrides from OTScriptable.
 	
+	// We call this just before activation (in OT_API::activateSmartContract) in order
+	// to make sure that certain IDs and transaction #s are set, so the smart contract
+	// will interoperate with the old Cron Item system of doing things.
+	//
+	void PrepareToActivate(const long & lOpeningTransNo,	const long & lClosingTransNo,
+						   const OTIdentifier & theUserID,	const OTIdentifier & theAcctID);
 	// --------------------------------------------------------------------------
 	//
 	// HIGH LEVEL
@@ -350,7 +382,8 @@ public:
 	virtual ~OTSmartContract();
 		
 	virtual void Release();
-	
+	void ReleaseStashes();
+
 	
 	// return -1 if error, 0 if nothing, and 1 if the node was processed.
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);

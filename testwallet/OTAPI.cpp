@@ -2642,7 +2642,7 @@ const char * OT_API_Create_SmartContract(const char * SERVER_ID,
 // I'll just make that the default. (There's only one language right now anyway.)
 //
 // returns: the updated smart contract (or NULL)
-const char * OT_API_SmartContract_AddBylaw(const char * THE_CONTRACT,	// The contract, about to have the party added to it.
+const char * OT_API_SmartContract_AddBylaw(const char * THE_CONTRACT,	// The contract, about to have the bylaw added to it.
 										   const char * SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
 										   // ----------------------------------------
 										   const char * BYLAW_NAME)	// The Bylaw's NAME as referenced in the smart contract. (And the scripts...)
@@ -2739,7 +2739,7 @@ const char * OT_API_SmartContract_AddBylaw(const char * THE_CONTRACT,	// The con
 }
 
 // returns: the updated smart contract (or NULL)
-const char * OT_API_SmartContract_AddClause(const char * THE_CONTRACT,	// The contract, about to have the bylaw added to it.
+const char * OT_API_SmartContract_AddClause(const char * THE_CONTRACT,	// The contract, about to have the clause added to it.
 											const char * SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
 											// ----------------------------------------
 											const char * BYLAW_NAME,	// Should already be on the contract. (This way we can find it.)
@@ -2847,7 +2847,7 @@ const char * OT_API_SmartContract_AddClause(const char * THE_CONTRACT,	// The co
 }
 
 // returns: the updated smart contract (or NULL)
-const char * OT_API_SmartContract_AddVariable(const char * THE_CONTRACT,	// The contract, about to have the bylaw added to it.
+const char * OT_API_SmartContract_AddVariable(const char * THE_CONTRACT,	// The contract, about to have the variable added to it.
 											  const char * SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
 											  // ----------------------------------------
 											  const char * BYLAW_NAME,	// Should already be on the contract. (This way we can find it.)
@@ -3010,7 +3010,7 @@ const char * OT_API_SmartContract_AddVariable(const char * THE_CONTRACT,	// The 
 
 
 // returns: the updated smart contract (or NULL)
-const char * OT_API_SmartContract_AddCallback(const char * THE_CONTRACT,	// The contract, about to have the bylaw added to it.
+const char * OT_API_SmartContract_AddCallback(const char * THE_CONTRACT,	// The contract, about to have the callback added to it.
 											  const char * SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
 											  // ----------------------------------------
 											  const char * BYLAW_NAME,	// Should already be on the contract. (This way we can find it.)
@@ -3119,7 +3119,7 @@ const char * OT_API_SmartContract_AddCallback(const char * THE_CONTRACT,	// The 
 }
 
 // returns: the updated smart contract (or NULL)
-const char * OT_API_SmartContract_AddHook(const char * THE_CONTRACT,	// The contract, about to have the bylaw added to it.
+const char * OT_API_SmartContract_AddHook(const char * THE_CONTRACT,	// The contract, about to have the hook added to it.
 										  const char * SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
 										  // ----------------------------------------
 										  const char * BYLAW_NAME,		// Should already be on the contract. (This way we can find it.)
@@ -3330,7 +3330,7 @@ const char * OT_API_SmartContract_AddParty(const char * THE_CONTRACT,	// The con
 // Used when creating a theoretical smart contract (that could be used over and over again with different parties.)
 //
 // returns: the updated smart contract (or NULL)
-const char * OT_API_SmartContract_AddAccount(const char * THE_CONTRACT,	// The contract, about to have the party added to it.
+const char * OT_API_SmartContract_AddAccount(const char * THE_CONTRACT,	// The contract, about to have the account added to it.
 											 const char * SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
 											 // ----------------------------------------
 											 const char * PARTY_NAME,		// The Party's NAME as referenced in the smart contract. (And the scripts...)
@@ -3702,12 +3702,8 @@ const char * OT_API_SmartContract_ConfirmParty(const char * THE_CONTRACT,	// The
 
 
 
-
-
-
-
 // --------------------------------------------------
-/// ACTIVATE SMART CONTRACT
+/// ACTIVATE SMART CONTRACT   (This is a transaction, and messages the server.)
 /// Take an existing smart contract, which has already been set up, confirmed, etc,
 /// and then activate it on the server so it can start processing.
 ///
@@ -3728,6 +3724,29 @@ void OT_API_activateSmartContract(const char * SERVER_ID,
 }
 
 
+
+
+
+// If a smart contract is already running on the server, this allows a party
+// to trigger clauses on that smart contract, by name. This is NOT a transaction,
+// but it DOES message the server.
+//
+void OT_API_triggerClause(const char * SERVER_ID,
+						  const char * USER_ID,
+						  const char * TRANSACTION_NUMBER,
+						  const char * CLAUSE_NAME)
+{
+	OT_ASSERT_MSG(NULL != SERVER_ID, "Null SERVER_ID passed in.");
+	OT_ASSERT_MSG(NULL != USER_ID, "Null USER_ID passed in.");
+	OT_ASSERT_MSG(NULL != TRANSACTION_NUMBER, "NULL TRANSACTION_NUMBER passed in.");
+	OT_ASSERT_MSG(NULL != CLAUSE_NAME, "Null CLAUSE_NAME passed in.");
+
+	const OTIdentifier	theServerID(SERVER_ID), theUserID(USER_ID);
+	const OTString		strClauseName(CLAUSE_NAME);
+	const long			lTransactionNum = atol(TRANSACTION_NUMBER);
+	
+	g_OT_API.triggerClause(theServerID, theUserID, lTransactionNum, strClauseName);
+}
 
 
 
@@ -3809,7 +3828,8 @@ OT_BOOL OT_API_HarvestClosingNumbers(const char * SERVER_ID,
 	
 	if (NULL == pCronItem)
 	{
-		OTLog::Output(0, "OT_API_HarvestClosingNumbers: Error loading cron item (smart contract, or other recurring transaction.) \n");
+		OTLog::Output(0, "OT_API_HarvestClosingNumbers: Error loading the cron item (a cron item is a smart contract, or "
+					  "some other recurring transaction such as a market offer, or a payment plan.) \n");
 		return OT_FALSE;
 	}
 	else
@@ -3824,24 +3844,77 @@ OT_BOOL OT_API_HarvestClosingNumbers(const char * SERVER_ID,
 }
 
 
-
+// NOTE: usually you will want to call OT_API_HarvestClosingNumbers, since the Opening number is usually
+// burned up from some failed transaction or whatever. You don't want to harvest the opening number usually,
+// just the closing numbers. (If the opening number is burned up, yet you still harvest it, then your OT wallet
+// will end up using that number again on some other transaction, which will obviously then fail since the number
+// isn't good anymore.)
+// This function is only for those cases where you are sure that the opening transaction # hasn't been burned yet,
+// such as when the message failed and the transaction wasn't attempted (because it never got that far) or such as
+// when the contract simply never got signed or activated by one of the other parties, and so you want to claw your
+// #'s back, and since in that case your opening number is still good, you would use the below function to get it back.
+//
 OT_BOOL OT_API_HarvestAllNumbers(const char * SERVER_ID,
 								 const char * NYM_ID,
 								 const char * THE_CRON_ITEM)
 {
-	// DOWN HERE, same as above, except I want opening numbers, which I don't know if cron item has virtual function for that.
-	// grep for opening number related functions!!
+	OT_ASSERT_MSG(NULL != SERVER_ID, "Null SERVER_ID passed in.");
+	OT_ASSERT_MSG(NULL != NYM_ID, "Null NYM_ID passed in.");
+	OT_ASSERT_MSG(NULL != THE_CRON_ITEM, "Null THE_CRON_ITEM passed in.");
 	
+	// -----------------------------------------------------
+	const OTIdentifier theNymID(NYM_ID);
+	// -----------------------------------------------------
+	OTWallet * pWallet = g_OT_API.GetWallet();
 	
+	if (NULL == pWallet)
+	{
+		OTLog::Output(0, "The Wallet is not loaded.\n");
+		return OT_FALSE;
+	}
 	
+	// By this point, pWallet is a good pointer.  (No need to cleanup.)
+	// -----------------------------------------------------------------
+	OTPseudonym * pNym = pWallet->GetNymByID(theNymID);
 	
+	if (NULL == pNym) // Wasn't already in the wallet.
+	{
+		OTLog::Output(0, "There's no User already loaded with that ID. Loading...\n");
+		
+		pNym = g_OT_API.LoadPrivateNym(theNymID);
+		
+		if (NULL == pNym) // LoadPrivateNym has plenty of error logging already.	
+		{
+			return OT_FALSE;
+		}
+		
+		pWallet->AddNym(*pNym);
+	}
+	//
+	// By this point, pNym is a good pointer, and is on the wallet.
+	//  (No need to cleanup.)
+	// -----------------------------------------------------
+	const OTString strContract(THE_CRON_ITEM);
 	
+	OTCronItem * pCronItem = OTCronItem::NewCronItem(strContract);
+	OTCleanup<OTCronItem *> theContractAngel;
 	
+	if (NULL == pCronItem)
+	{
+		OTLog::Output(0, "OT_API_HarvestClosingNumbers: Error loading the cron item (a cron item is a smart contract, or "
+					  "some other recurring transaction such as a market offer, or a payment plan.) \n");
+		return OT_FALSE;
+	}
+	else
+		theContractAngel.SetCleanupTarget(*pCronItem);  // Auto-cleanup.
+	// -----------------------------------------------------
 	
+	pCronItem->HarvestOpeningNumber (*pNym);
+	pCronItem->HarvestClosingNumbers(*pNym);
 	
+	// -------------------------------	
 	
-	
-	
+	return OT_TRUE;
 }
 
 

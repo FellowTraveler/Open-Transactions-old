@@ -411,6 +411,32 @@ void OTAgreement::onRemovalFromCron()
 }
 
 
+
+
+// You usually wouldn't want to use this, since if the transaction failed, the opening number
+// is already burned and gone. But there might be cases where it's not, and you want to retrieve it.
+// So I added this function.
+//
+void OTAgreement::HarvestOpeningNumber(OTPseudonym & theNym)
+{
+    // since we overrode the parent, we give it a chance to harvest also.
+    //
+    OTCronItem::HarvestOpeningNumber(theNym);
+
+    // The Nym is the original sender. (If Compares true).
+    // IN CASES where GetTransactionNum() isn't already burned, we can harvest it here.
+    // Subclasses will have to override this function for recipients, etc.
+    //
+    if (theNym.CompareID(GetRecipientUserID()))
+    {
+        const OTString strServerID(GetServerID());
+		
+		if (theNym.VerifyIssuedNum(strServerID, GetRecipientOpeningNum())) // we only "add it back" if it was really there in the first place.
+			theNym.AddTransactionNum(theNym, strServerID, GetRecipientOpeningNum(), true); // bSave=true
+    }
+}
+
+
 // Used for adding transaction numbers back to a Nym, after deciding not to use this agreement
 // or failing in trying to use it. Client side.
 //
@@ -420,7 +446,9 @@ void OTAgreement::HarvestClosingNumbers(OTPseudonym & theNym)
     //
     OTCronItem::HarvestClosingNumbers(theNym);
 
-    // The Nym is the original sender. (If Compares true).
+    // The Nym is the original recipient. (If Compares true).
+	// FYI, if Nym is the original sender, then the above call will handle him.
+	//
     // GetTransactionNum() is burned, but we can harvest the closing
     // numbers from the "Closing" list, which is only for the sender's numbers.
     // Subclasses will have to override this function for recipients, etc.
@@ -431,7 +459,8 @@ void OTAgreement::HarvestClosingNumbers(OTPseudonym & theNym)
         
         for (int i = 0; i < GetRecipientCountClosingNumbers(); i++)
         {
-            theNym.AddTransactionNum(theNym, strServerID, GetRecipientClosingTransactionNoAt(i), 
+			if (theNym.VerifyIssuedNum(strServerID, GetRecipientClosingTransactionNoAt(i))) // we only "add it back" if it was really there in the first place.
+				theNym.AddTransactionNum(theNym, strServerID, GetRecipientClosingTransactionNoAt(i), 
                                      (i == (GetRecipientCountClosingNumbers()-1) ? true : false)); // bSave=true only on the last iteration.
         }
     }

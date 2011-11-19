@@ -253,6 +253,10 @@ public:
 		paymentPlan,	// this item is a new payment plan
 		atPaymentPlan,	// server reply or updated notification regarding a payment plan.
 // ------------------------------------------------------------------------------
+		// SMART CONTRACTS
+		smartContract,	// this item is a new smart contract
+		atSmartContract,// server reply or updated notification regarding a smart contract.
+// ------------------------------------------------------------------------------
         // CANCELLING: Market Offers and Payment Plans.
         cancelCronItem,	// this item is intended to cancel a market offer or payment plan.
 		atCancelCronItem,// reply from the server regarding said cancellation.
@@ -323,6 +327,7 @@ protected:
 	itemType		m_Type;			// the item type. Could be a transfer, a fee, a balance or client accept/rejecting an item
 	itemStatus		m_Status;		// request, acknowledgment, or rejection.
 
+	// ----------------------------------------------------------------
 	long			m_lNewOutboxTransNum;	// Used for balance agreement. The user puts transaction "1" in his outbox when doing a transfer, since he has no idea
 											// what # will actually be issued on the server side after he sends his message. Let's say the server issues # 34, and
 											// puts that in the outbox. It thus sets this member to 34, and it is understood that 1 in the client request corresponds

@@ -1565,6 +1565,19 @@ bool OTSmartContract::StashAcctFunds(const std::string from_acct_name, const std
 	// BELOW THIS POINT, theFromAcctID and theFromAgentID available.
 	// --------------------------------------
 	
+	// WE SET THESE HERE SO THE RECEIPT SHOWS, SUCCESS OR FAIL, 
+	// WHO THE INTENDED SENDER / RECIPIENT ARE FOR THAT RECEIPT.
+	//
+	ReleaseLastSenderRecipientIDs();
+	// -------------------------
+	theFromAgentID.GetString(m_strLastSenderUser);	// This is the last User ID of a party who SENT money.
+	theFromAcctID.GetString(m_strLastSenderAcct);	// This is the last Acct ID of a party who SENT money.
+//	theToAgentID.GetString(m_strLastRecipientUser);	// This is the last User ID of a party who RECEIVED money.
+//	theToAcctID.GetString(m_strLastRecipientAcct);	// This is the last Acct ID of a party who RECEIVED money.
+	// Above: the ToAgent and ToAcct are commented out, 
+	// since the funds are going into a stash.
+	// ----------------------------------------------------------
+	
 	bool bMoved = this->StashFunds(map_Nyms_Already_Loaded,
 								   lAmount,
 								   theFromAcctID,	theFromAgentID,
@@ -1768,6 +1781,20 @@ bool OTSmartContract::UnstashAcctFunds(const std::string to_acct_name, const std
 	// 
 	// BELOW THIS POINT, theToAcctID and theToAgentID available.
 	// --------------------------------------
+	
+	// WE SET THESE HERE SO THE RECEIPT SHOWS, SUCCESS OR FAIL, 
+	// WHO THE INTENDED SENDER / RECIPIENT ARE FOR THAT RECEIPT.
+	//
+	ReleaseLastSenderRecipientIDs();
+	// -------------------------
+//	theFromAgentID.GetString(m_strLastSenderUser);	// This is the last User ID of a party who SENT money.
+//	theFromAcctID.GetString(m_strLastSenderAcct);	// This is the last Acct ID of a party who SENT money.
+	theToAgentID.GetString(m_strLastRecipientUser);	// This is the last User ID of a party who RECEIVED money.
+	theToAcctID.GetString(m_strLastRecipientAcct);	// This is the last Acct ID of a party who RECEIVED money.
+	// Above: the FromAgent and FromAcct are commented out, 
+	// since the funds are coming from a stash.
+	// ----------------------------------------------------------
+	
 	const long lNegativeAmount = (lAmount * (-1));
 	
 	bool bMoved = this->StashFunds(map_Nyms_Already_Loaded,
@@ -1978,7 +2005,7 @@ bool OTSmartContract::StashFunds(const mapOfNyms	&	map_NymsAlreadyLoaded,
 	// When theOrigPlanGuardian goes out of scope, pOrigCronItem gets deleted automatically.
 	OTCleanup<OTCronItem>	theOrigPlanGuardian(*pOrigCronItem);
 	
-	// strOrigPlan is a String copy (a PGP-signed XML file, in string form) of the original Payment Plan request...
+	// strOrigPlan is a String copy (a PGP-signed XML file, in string form) of the original smart contract activation request...
 	OTString strOrigPlan(*pOrigCronItem); // <====== Farther down in the code, I attach this string to the receipts.
 	
 		
@@ -2656,6 +2683,17 @@ bool OTSmartContract::MoveAcctFunds(const std::string from_acct_name, const std:
 								const OTIdentifier &	RECIPIENT_USER_ID)	// GetRecipientUserID();
 	 */
 	
+	// ----------------------------------------------------------
+	// WE SET THESE HERE SO THE RECEIPT SHOWS, SUCCESS OR FAIL, 
+	// WHO THE INTENDED SENDER / RECIPIENT ARE FOR THAT RECEIPT.
+	//
+	ReleaseLastSenderRecipientIDs();
+	// -------------------------
+	theFromAgentID.GetString(m_strLastSenderUser);	// This is the last User ID of a party who SENT money.
+	theFromAcctID.GetString(m_strLastSenderAcct);	// This is the last Acct ID of a party who SENT money.
+	theToAgentID.GetString(m_strLastRecipientUser);	// This is the last User ID of a party who RECEIVED money.
+	theToAcctID.GetString(m_strLastRecipientAcct);	// This is the last Acct ID of a party who RECEIVED money.
+	// ----------------------------------------------------------
 	bool bMoved = this->MoveFunds(map_Nyms_Already_Loaded,
 								  lAmount,
 								  theFromAcctID,	theFromAgentID,
@@ -2666,6 +2704,7 @@ bool OTSmartContract::MoveAcctFunds(const std::string from_acct_name, const std:
 					  from_acct_name.c_str(), to_acct_name.c_str());
 		return false;
 	}
+
 	
 	return true;
 }
@@ -2925,6 +2964,42 @@ void OTSmartContract::onFinalReceipt(OTCronItem & theOrigCronItem, const long & 
 
 
 
+// You usually wouldn't want to use this, since if the transaction failed, the opening number
+// is already burned and gone. But there might be cases where it's not, and you want to retrieve it.
+// So I added this function for those cases. (In most cases, you will prefer HarvestClosingNumbers().)
+//
+void OTSmartContract::HarvestOpeningNumber(OTPseudonym & theNym)
+{
+	// We do NOT call the parent version.
+	//    OTCronItem::HarvesOpeningNumber(theNym);
+	
+	// For payment plan, the parent (OTCronItem) grabs the sender's #s, and then the subclass's 
+	// override (OTAgreement::HarvestClosingNumbers) grabs the recipient's #s. But with SMART
+	// CONTRACTS, there are only "the parties" and they ALL burned an opening #, plus they can
+	// ALL harvest their closing #s if activation failed. In fact, todo: might as well send them
+	// all a notification if it fails, so they can all AUTOMATICALLY remove said numbers from
+	// their future balance agreements.
+	//
+	// ----------------------------------
+	
+	const OTString strServerID(GetServerID());
+	const int nTransNumCount = theNym.GetTransactionNumCount(GetServerID()); // save this to see if it changed, later.
+	
+	FOR_EACH(mapOfParties, m_mapParties)
+	{
+		OTParty * pParty = (*it).second;
+		OT_ASSERT_MSG(NULL != pParty, "Unexpected NULL pointer in party map.");
+		// --------------------------------------------
+		
+		pParty->HarvestOpeningNumber(theNym, strServerID);
+	}
+	// ------------------------
+	// It changed, so let's save it.
+	if (nTransNumCount != theNym.GetTransactionNumCount(GetServerID()))
+		theNym.SaveSignedNymfile(theNym);
+}
+
+
 // Used for adding transaction numbers back to a Nym, after deciding not to use this agreement
 // or failing in trying to use it. Client side.
 //
@@ -2933,11 +3008,12 @@ void OTSmartContract::HarvestClosingNumbers(OTPseudonym & theNym)
 	// We do NOT call the parent version.
 //    OTCronItem::HarvestClosingNumbers(theNym);
 
-	// For payment plan, the parent grabs the sender's #s and the subclass' override grabs
-	// the recipient's #s. But with SMART CONTRACTS, there are only "the parties" and they ALL
-	// burned an opening #, plus they can ALL harvest their closing #s if activation failed. In
-	// fact, todo: might as well send them all a notification if it fails, so they can all 
-	// AUTOMATICALLY remove said numbers from their future balance agreements.
+	// For payment plan, the parent (OTCronItem) grabs the sender's #s, and then the subclass's 
+	// override (OTAgreement::HarvestClosingNumbers) grabs the recipient's #s. But with SMART
+	// CONTRACTS, there are only "the parties" and they ALL burned an opening #, plus they can
+	// ALL harvest their closing #s if activation failed. In fact, todo: might as well send them
+	// all a notification if it fails, so they can all AUTOMATICALLY remove said numbers from
+	// their future balance agreements.
 	//
 	// ----------------------------------
 	
@@ -3836,11 +3912,11 @@ void OTSmartContract::InitSmartContract()
 	SetProcessInterval(SMART_CONTRACT_PROCESS_INTERVAL); // Smart contracts current default is 30 seconds. Actual default will probably be configurable in config file, and most contracts will also probably override this.
 }
 
-// the framework will call this at the right time.
-void OTSmartContract::Release()
+
+
+void OTSmartContract::ReleaseStashes()
 {
-	m_strMySignedCopy.Release();
-	
+	// -------------------------------------
  	while (!m_mapStashes.empty())
 	{		
 		OTStash * pStash = m_mapStashes.begin()->second;
@@ -3852,8 +3928,20 @@ void OTSmartContract::Release()
 		m_mapStashes.erase(m_mapStashes.begin());
 	}	
 	// -------------------------------------
-
 	m_StashAccts.Release();
+	// -------------------------------------
+}
+
+
+
+// the framework will call this at the right time.
+void OTSmartContract::Release()
+{
+	m_strMySignedCopy.Release();
+	
+	// -------------------------------------
+
+	ReleaseStashes();
 	
 	// -------------------------------------
 	
@@ -3948,11 +4036,15 @@ void OTSmartContract::UpdateContents()
 	
 	const OTString	SERVER_ID			(GetServerID()), 
 					ACTIVATOR_USER_ID	(GetSenderUserID());
-	
+
     // OTSmartContract
 	m_xmlUnsigned.Concatenate("<smartContract\n version=\"%s\"\n"
 							  " serverID=\"%s\"\n"
 							  " activatorUserID=\"%s\"\n"
+							  " lastSenderUserID=\"%s\"\n"
+							  " lastSenderAcctID=\"%s\"\n"
+							  " lastRecipientUserID=\"%s\"\n"
+							  " lastRecipientAcctID=\"%s\"\n"
 							  " transactionNum=\"%ld\"\n"
 							  " creationDate=\"%d\"\n"
 							  " validFrom=\"%d\"\n"
@@ -3961,9 +4053,31 @@ void OTSmartContract::UpdateContents()
 							  m_strVersion.Get(),
 							  SERVER_ID.Get(),
 							  ACTIVATOR_USER_ID.Get(),
+							  m_strLastSenderUser.Get(),
+							  m_strLastSenderAcct.Get(),
+							  m_strLastRecipientUser.Get(),
+							  m_strLastRecipientAcct.Get(),
 							  m_lTransactionNum,
-							  GetCreationDate(), GetValidFrom(), GetValidTo() );	
-    
+							  GetCreationDate(), GetValidFrom(), GetValidTo() );	    
+	// -------------------------------------------------------------
+	
+	// OTCronItem
+    for (int i = 0; i < GetCountClosingNumbers(); i++)
+    {
+        long lClosingNumber = GetClosingTransactionNoAt(i);
+        OT_ASSERT(lClosingNumber > 0);
+        
+        m_xmlUnsigned.Concatenate("<closingTransactionNumber value=\"%ld\"/>\n\n",
+                                  lClosingNumber);
+		
+		// For OTSmartContract, this should only contain a single number, from the activator Nym.
+		// I preserved the loop anyway. Call me crazy. But I'm still displaying an error if there's 
+		// more than one.
+		if (i > 0)
+			OTLog::Error("OTSmartContract::UpdateContents: ERROR: There's only ever "
+						 "supposed to be a single closing number here (for smart contracts.)\n");
+    }
+	
 	// -------------------------------------------------------------
     //
 	// *** OT SCRIPTABLE ***
@@ -3996,6 +4110,43 @@ void OTSmartContract::UpdateContents()
 	m_xmlUnsigned.Concatenate("</smartContract>\n\n");					
 }
 
+
+// Used internally here.
+void OTSmartContract::ReleaseLastSenderRecipientIDs()
+{
+	m_strLastSenderUser.Release();		// This is the last User ID of a party who SENT money.
+	m_strLastSenderAcct.Release();		// This is the last Acct ID of a party who SENT money.
+	m_strLastRecipientUser.Release();	// This is the last User ID of a party who RECEIVED money.
+	m_strLastRecipientAcct.Release();	// This is the last Acct ID of a party who RECEIVED money.
+}	
+
+// We call this just before activation (in OT_API::activateSmartContract) in order
+// to make sure that certain IDs and transaction #s are set, so the smart contract
+// will interoperate with the old Cron Item system of doing things.
+//
+void OTSmartContract::PrepareToActivate(const long & lOpeningTransNo,	const long & lClosingTransNo,
+										const OTIdentifier & theUserID,	const OTIdentifier & theAcctID)
+{
+	SetTransactionNum(lOpeningTransNo);
+	
+	ClearClosingNumbers(); // Just in case. Should be unnecessary, but you never know how people might screw around.
+	AddClosingTransactionNo(lClosingTransNo);
+
+	// -------------------------------------
+
+	SetSenderUserID(theUserID);	// This is the activator of the contract. (NOT the actual "sender" of any single payment, in the case of smart contracts anyway.)
+	SetSenderAcctID(theAcctID);	// This is an account provided by the activator so a closing number and final receipt are guaranteed for this smart contract.
+	
+	// -------------------------------------
+	
+	ReleaseLastSenderRecipientIDs(); // These should be blank starting out anyway. 
+	
+	// -------------------------------------
+	// You shouldn't have any of these anyway; the server only creates 
+	// them after a smart contract is activated.
+	//
+	ReleaseStashes();
+}
 
 // return -1 if error, 0 if nothing, and 1 if the node was processed.
 int OTSmartContract::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
@@ -4049,7 +4200,14 @@ int OTSmartContract::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		SetValidTo(			atoi(strValidTo.Exists() ? strValidTo.Get() : "0") );
 		
 		// ---------------------
-        
+        // These are stored for RECEIPTS, so if there is an inbox receipt with an amount,
+		// we will know who was sending and receiving.  If sender or receiver is blank, that
+		// means the source/destination was a STASH instead of an account. FYI.
+		//
+		m_strLastSenderUser		= xml->getAttributeValue("lastSenderUserID");	// This is the last User ID of a party who SENT money.
+		m_strLastSenderAcct		= xml->getAttributeValue("lastSenderAcctID");	// This is the last Acct ID of a party who SENT money.
+		m_strLastRecipientUser	= xml->getAttributeValue("lastRecipientUserID");	// This is the last User ID of a party who RECEIVED money.
+		m_strLastRecipientAcct	= xml->getAttributeValue("lastRecipientAcctID");	// This is the last Acct ID of a party who RECEIVED money.
 		
 		// ---------------------
         

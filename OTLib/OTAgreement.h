@@ -328,6 +328,7 @@ public:
 	 */
     virtual bool CanRemoveItemFromCron(OTPseudonym & theNym);
 	
+    virtual void HarvestOpeningNumber(OTPseudonym & theNym);
     virtual void HarvestClosingNumbers(OTPseudonym & theNym);
     
     // Return True if should stay on OTCron's list for more processing.

@@ -199,6 +199,9 @@ const char * OTTransaction::_TypeStrings[] =
 	"paymentPlan",		// this transaction is a payment plan
 	"atPaymentPlan",	// reply from the server regarding a payment plan
 	// --------------------------------------------------------------------------------------
+	"smartContract",	// this transaction is a smart contract
+	"atSmartContract",	// reply from the server regarding a smart contract
+	// --------------------------------------------------------------------------------------
 	"cancelCronItem",	// this transaction is a cancellation of a cron item (payment plan etc)
 	"atCancelCronItem",	// reply from the server regarding said cancellation.
 	// --------------------------------------------------------------------------------------
@@ -2195,6 +2198,7 @@ bool OTTransaction::GetSuccess()
 			case OTItem::atDepositCheque:
 			case OTItem::atMarketOffer:
 			case OTItem::atPaymentPlan:
+			case OTItem::atSmartContract:
 				
 			case OTItem::atCancelCronItem:
 			case OTItem::atExchangeBasket:
@@ -2344,6 +2348,10 @@ int OTTransaction::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 			m_Type = OTTransaction::paymentPlan;
 		else if (strType.Compare("atPaymentPlan"))
 			m_Type = OTTransaction::atPaymentPlan;
+		else if (strType.Compare("smartContract"))
+			m_Type = OTTransaction::smartContract;
+		else if (strType.Compare("atSmartContract"))
+			m_Type = OTTransaction::atSmartContract;
 		
 		else if (strType.Compare("cancelCronItem"))
 			m_Type = OTTransaction::cancelCronItem;
@@ -3031,10 +3039,20 @@ bool OTTransaction::GetSenderUserIDForDisplay(OTIdentifier & theReturnID)
 		case OTTransaction::paymentReceipt:
         {
             pCronItem = OTCronItem::NewCronItem(strReference);
-            
-            if (NULL != pCronItem)
+			theCronItemAngel.SetCleanupTargetPointer(pCronItem);
+
+			OTSmartContract * pSmart = dynamic_cast<OTSmartContract *>(pCronItem);
+			
+            if (NULL != pSmart) // if it's a smart contract...
             {
-                theCronItemAngel.SetCleanupTargetPointer(pCronItem);
+				if (!pSmart->GetLastSenderUserID().Exists())
+					return false;
+				
+				theReturnID.SetString(pSmart->GetLastSenderUserID());
+                return true;
+            }
+            else if (NULL != pCronItem) // else if it is any other kind of cron item...
+            {
                 theReturnID = pCronItem->GetSenderUserID();
                 return true;
             }
@@ -3137,24 +3155,32 @@ bool OTTransaction::GetRecipientUserIDForDisplay(OTIdentifier & theReturnID)
 		case OTTransaction::paymentReceipt:
         {
             pCronItem = OTCronItem::NewCronItem(strReference);
+			theCronItemAngel.SetCleanupTargetPointer(pCronItem);
             
             if (NULL != pCronItem)
-            {
-                theCronItemAngel.SetCleanupTargetPointer(pCronItem);
-                
+            {                
                 if (OTTransaction::paymentReceipt == this->GetType())
                 {
-                    OTPaymentPlan * pPlan = dynamic_cast<OTPaymentPlan *>(pCronItem);
-                    
-                    if (NULL != pPlan)
+                    OTPaymentPlan *		pPlan = dynamic_cast<OTPaymentPlan *>(pCronItem);
+					OTSmartContract *	pSmart = dynamic_cast<OTSmartContract *>(pCronItem);
+
+					if (NULL != pSmart) // it's a smart contract
+					{
+						if (!pSmart->GetLastRecipientUserID().Exists())
+							return false;
+						
+						theReturnID.SetString(pSmart->GetLastRecipientUserID());
+						return true;
+					}
+					else if (NULL != pPlan) // it's a payment plan
                     {
                         theReturnID = pPlan->GetRecipientUserID();
                         return true;
                     }
                 }
                 else    // must be a marketReceipt. They don't have a "recipient" so I'm putting sender here,
-                        // to see if it works out in the GUI that way.
-                {
+                        // to see if it works out in the GUI that way. UPDATE: leaving marketReceipt blank for now.
+                {		// (Notice it's commented out above.)
                     theReturnID = pCronItem->GetSenderUserID();
                     return true;
                 }
@@ -3224,6 +3250,8 @@ bool OTTransaction::GetRecipientUserIDForDisplay(OTIdentifier & theReturnID)
 }
 
 
+
+
 bool OTTransaction::GetSenderAcctIDForDisplay(OTIdentifier & theReturnID)
 {
 	bool bSuccess = false;
@@ -3243,10 +3271,20 @@ bool OTTransaction::GetSenderAcctIDForDisplay(OTIdentifier & theReturnID)
 		case OTTransaction::paymentReceipt:
         {
             pCronItem = OTCronItem::NewCronItem(strReference);
-            
-            if (NULL != pCronItem)
+			theCronItemAngel.SetCleanupTargetPointer(pCronItem);
+
+			OTSmartContract * pSmart = dynamic_cast<OTSmartContract *>(pCronItem);
+			
+            if (NULL != pSmart) // if it's a smart contract...
+            {				
+				if (!pSmart->GetLastSenderAcctID().Exists())
+					return false;
+				
+				theReturnID.SetString(pSmart->GetLastSenderAcctID());
+                return true;
+            }
+            else if (NULL != pCronItem) // it's any other kind of cron item, probably a payment plan.
             {
-                theCronItemAngel.SetCleanupTargetPointer(pCronItem);
                 theReturnID = pCronItem->GetSenderAcctID();
                 return true;
             }
@@ -3349,16 +3387,24 @@ bool OTTransaction::GetRecipientAcctIDForDisplay(OTIdentifier & theReturnID)
 		case OTTransaction::paymentReceipt:
         {
             pCronItem = OTCronItem::NewCronItem(strReference);
+			theCronItemAngel.SetCleanupTargetPointer(pCronItem);
             
             if (NULL != pCronItem)
             {
-                theCronItemAngel.SetCleanupTargetPointer(pCronItem);
-                
                 if (OTTransaction::paymentReceipt == this->GetType())
                 {
-                    OTPaymentPlan * pPlan = dynamic_cast<OTPaymentPlan *>(pCronItem);
-                    
-                    if (NULL != pPlan)
+                    OTPaymentPlan *		pPlan	= dynamic_cast<OTPaymentPlan *>(pCronItem);
+					OTSmartContract *	pSmart	= dynamic_cast<OTSmartContract *>(pCronItem);
+					
+					if (NULL != pSmart) // if it's a smart contract...
+					{
+						if (!pSmart->GetLastRecipientAcctID().Exists())
+							return false;
+						
+						theReturnID.SetString(pSmart->GetLastRecipientAcctID());
+						return true;
+					}
+                    else if (NULL != pPlan) // else it must be a payment plan.
                     {
                         theReturnID = pPlan->GetRecipientAcctID();
                         return true;

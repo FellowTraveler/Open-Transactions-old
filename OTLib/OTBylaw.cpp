@@ -1923,7 +1923,6 @@ bool OTAgent::HarvestTransactionNumber(const long & lNumber, const OTString & st
 	if (NULL != m_pNym)
 	{
 		// We don't "add it back" unless we're SURE he had it in the first place...
-		//
 		if (m_pNym->VerifyIssuedNum(strServerID, lNumber))
 		{
 			m_pNym->AddTransactionNum(*m_pNym, strServerID, lNumber, false); // bSave=false (OTParty will save the Nym at the end.)

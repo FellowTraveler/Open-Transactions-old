@@ -573,8 +573,26 @@ void RegisterAPIWithScript(OTScript & theScript)
 		pScript->chai.add(fun(&OT_API_Message_GetNewAssetTypeID), "OT_API_Message_GetNewAssetTypeID");
 		pScript->chai.add(fun(&OT_API_Message_GetNewIssuerAcctID), "OT_API_Message_GetNewIssuerAcctID");
 		pScript->chai.add(fun(&OT_API_Message_GetNewAcctID), "OT_API_Message_GetNewAcctID");
+		
+		pScript->chai.add(fun(&OT_API_Create_SmartContract), "OT_API_Create_SmartContract");
+		pScript->chai.add(fun(&OT_API_SmartContract_AddBylaw), "OT_API_SmartContract_AddBylaw");
+		pScript->chai.add(fun(&OT_API_SmartContract_AddClause), "OT_API_SmartContract_AddClause");
+		pScript->chai.add(fun(&OT_API_SmartContract_AddVariable), "OT_API_SmartContract_AddVariable");
+		pScript->chai.add(fun(&OT_API_SmartContract_AddCallback), "OT_API_SmartContract_AddCallback");
+		pScript->chai.add(fun(&OT_API_SmartContract_AddHook), "OT_API_SmartContract_AddHook");
+		pScript->chai.add(fun(&OT_API_SmartContract_AddParty), "OT_API_SmartContract_AddParty");
+		pScript->chai.add(fun(&OT_API_SmartContract_AddAccount), "OT_API_SmartContract_AddAccount");
+		pScript->chai.add(fun(&OT_API_SmartContract_ConfirmAccount), "OT_API_SmartContract_ConfirmAccount");
+		pScript->chai.add(fun(&OT_API_SmartContract_ConfirmParty), "OT_API_SmartContract_ConfirmParty");
+		pScript->chai.add(fun(&OT_API_HarvestClosingNumbers), "OT_API_HarvestClosingNumbers");
+		pScript->chai.add(fun(&OT_API_HarvestAllNumbers), "OT_API_HarvestAllNumbers");
+		
+		pScript->chai.add(fun(&OT_API_activateSmartContract), "OT_API_activateSmartContract");
+		pScript->chai.add(fun(&OT_API_triggerClause), "OT_API_triggerClause");
+
 	}
-	else {
+	else 
+	{
 		OTLog::Error("Failed dynamic casting OTScript to OTScriptChai \n");
 	}
 

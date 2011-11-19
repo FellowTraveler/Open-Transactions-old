@@ -228,7 +228,7 @@ public:
 		
 		chequeReceipt,	// the server drops this into your inbox, when someone cashes your cheque.
 		marketReceipt,	// server periodically drops this into your inbox if an offer is live.
-		paymentReceipt,	// the server drops this into people's inboxes, every time a payment processes.
+		paymentReceipt,	// the server drops this into people's inboxes, every time a payment processes. (from a payment plan or a smart contract)
 
         finalReceipt,	// the server drops this into your in/nym box(es), when a CronItem expires or is canceled.
 		basketReceipt,	// the server drops this into your inboxes, when a basket exchange is processed.
@@ -257,6 +257,9 @@ public:
 // --------------------------------------------------------------------------------------
 		paymentPlan,	// this transaction is a payment plan
 		atPaymentPlan,	// reply from the server regarding a payment plan
+// --------------------------------------------------------------------------------------
+		smartContract,	// this transaction is a smart contract
+		atSmartContract,// reply from the server regarding a smart contract
 // --------------------------------------------------------------------------------------
 		cancelCronItem,	// this transaction is intended to cancel a market offer or payment plan.
 		atCancelCronItem,// reply from the server regarding said cancellation.

@@ -194,9 +194,12 @@ protected:
                                   OTString * pstrAttachment=NULL);
 	// -----------------------------------------------------------------
 
+	void ClearClosingNumbers();
+	
 public:
     virtual bool CanRemoveItemFromCron(OTPseudonym & theNym);
     
+    virtual void HarvestOpeningNumber(OTPseudonym & theNym);
     virtual void HarvestClosingNumbers(OTPseudonym & theNym);
 	
     // -----------------------------------------------------------------

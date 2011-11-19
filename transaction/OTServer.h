@@ -293,6 +293,8 @@ public:
 	void UserCmdProcessInbox(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut);
 	void UserCmdProcessNymbox(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut);
 
+	void UserCmdTriggerClause(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut);
+
 	// Get the list of markets on this server.
 	void UserCmdGetMarketList(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut);
 
@@ -328,6 +330,7 @@ public:
 	// ---------------------------------------------------------------------------------
 	void NotarizeMarketOffer(OTPseudonym & theNym, OTAccount & theAssetAccount, OTTransaction & tranIn, OTTransaction & tranOut);
 	void NotarizePaymentPlan(OTPseudonym & theNym, OTAccount & theSourceAccount, OTTransaction & tranIn, OTTransaction & tranOut);
+	void NotarizeSmartContract(OTPseudonym & theNym, OTAccount & theSourceAccount, OTTransaction & tranIn, OTTransaction & tranOut);
 	// ---------------------------------------------------------------------------------
 	void NotarizeCancelCronItem(OTPseudonym & theNym, OTAccount & theAssetAccount, OTTransaction & tranIn, OTTransaction & tranOut);
 	void NotarizeExchangeBasket(OTPseudonym & theNym, OTAccount & theSourceAccount, OTTransaction & tranIn, OTTransaction & tranOut);

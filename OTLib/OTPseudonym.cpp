@@ -349,7 +349,7 @@ OTItem * OTPseudonym::GenerateTransactionStatement(const OTTransaction & theOwne
 	
 	// ---------------------------------------------------------
 	
-	// theOwner is the depositPaymentPlan, or marketOffer that triggered the need for this transaction statement.
+	// theOwner is the depositPaymentPlan, activateSmartContract, or marketOffer that triggered the need for this transaction statement.
 	// since it uses up a transaction number, I will be sure to remove that one from my list before signing the list.
 	OTItem * pBalanceItem = OTItem::CreateItemFromTransaction(theOwner, OTItem::transactionStatement); // <=== transactionStatement type, with user ID, server ID, transaction ID.
 	
@@ -382,6 +382,7 @@ OTItem * OTPseudonym::GenerateTransactionStatement(const OTTransaction & theOwne
             // final closure from Cron.
         case OTTransaction::marketOffer:
         case OTTransaction::paymentPlan:
+        case OTTransaction::smartContract:
         default:
             break;
     }

@@ -652,7 +652,7 @@ void OTClient::AcceptEntireInbox(OTLedger & theInbox, OTServerConnection & theCo
 			pTransaction->GetReferenceString(strRespTo);
 //			OTLog::vError("TRANSACTION \"IN REFERENCE TO\" CONTENTS:\n%s\n", strRespTo.Get());	
 			
-			// Sometimes strRespTo contains an OTPaymentPlan or an OTTrade.
+			// Sometimes strRespTo contains an OTPaymentPlan or an OTTrade. (Or an OTSmartContract.)
 			// The rest of the time, it contains an OTItem.
 			//
 			// The reason is because in most cases I have the original item
@@ -1189,6 +1189,9 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
 				case OTTransaction::atPaymentPlan:
 					theItemType = OTItem::atPaymentPlan;
 					break;
+				case OTTransaction::atSmartContract:
+					theItemType = OTItem::atSmartContract;
+					break;
 				case OTTransaction::atCancelCronItem:
 					theItemType = OTItem::atCancelCronItem;
 					break;
@@ -1341,6 +1344,7 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
 
 				case OTTransaction::atMarketOffer:
 				case OTTransaction::atPaymentPlan:
+				case OTTransaction::atSmartContract:
 					
 					// Nothing removed here since the transaction number is still in play, in these cases.
 					// ACTUALLY, if these are a failure, we need to REMOVE from issued list.
@@ -1408,7 +1412,7 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
 			}
 			
 			// atTransfer:		If success, KEEP the number on my list of responsibility. If fail, REMOVE it.
-			//					(Do the same for atMarketOffer and atPaymentPlan.)
+			//					(Do the same for atMarketOffer, atPaymentPlan, and atSmartContract.)
 			// atDeposit:		Whether success or fail, remove the number from my list of responsibility.
 			// atWithdrawal:	Whether success or fail, remove the number from my list of responsibility.
 			// atAcceptPending:	Whether success or fail, remove the number from my list of responsibility.
@@ -2404,7 +2408,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
                                         // If it's a CRON receipt, find out if it's from a MARKET TRADE, and if so,
                                         // add it to my local list of Market Trades, for the GUI to use on the market panel.
                                         //
-                                        OTItem * pServerItem = pServerTransaction->GetItem(OTItem::marketReceipt); // paymentPlan is also POSSIBLE here.
+                                        OTItem * pServerItem = pServerTransaction->GetItem(OTItem::marketReceipt); // paymentPlan and smartContract are also POSSIBLE here.
                                         
                                         if (NULL != pServerItem)
                                         {

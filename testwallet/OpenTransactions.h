@@ -531,6 +531,11 @@ public:
 					   OTIdentifier	& ACCT_ID,
 					   OTString		& THE_CHEQUE);
 	
+	void triggerClause(const OTIdentifier	& SERVER_ID,
+					   const OTIdentifier	& USER_ID,
+					   const long			& lTransactionNum,
+					   const OTString		& strClauseName);
+	
 	void activateSmartContract(const OTIdentifier	& SERVER_ID,
 							   const OTIdentifier	& USER_ID,
 							   const OTString		& THE_SMART_CONTRACT);

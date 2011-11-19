@@ -235,6 +235,7 @@ bool OTItem::VerifyTransactionStatement(OTPseudonym & THE_NYM,  OTTransaction & 
             //
             case OTTransaction::marketOffer:
             case OTTransaction::paymentPlan:
+            case OTTransaction::smartContract:
 //              THE_NYM.RemoveIssuedNum(SERVER_ID, this->GetTransactionNum()); // commented out, explained just above.
                 break;
             default:
@@ -289,6 +290,7 @@ bool OTItem::VerifyTransactionStatement(OTPseudonym & THE_NYM,  OTTransaction & 
                 
             case OTTransaction::marketOffer:
             case OTTransaction::paymentPlan:
+            case OTTransaction::smartContract:
             default:
 //              THE_NYM.RemoveIssuedNum(SERVER_ID, this->GetTransactionNum()); // commented out, explained just above.
                 break;
@@ -685,6 +687,7 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 		case OTTransaction::transfer:
 		case OTTransaction::marketOffer:
 		case OTTransaction::paymentPlan:
+		case OTTransaction::smartContract:
 			// These, assuming success, do NOT remove an issued number. So no need to anticipate setting up the list that way, to get a match.
 			break;
 		default: 
@@ -772,6 +775,7 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 							case OTTransaction::transfer:
 							case OTTransaction::marketOffer:
 							case OTTransaction::paymentPlan:
+							case OTTransaction::smartContract:
 								break;
 							default: 
 								// Error
@@ -818,6 +822,7 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 			case OTTransaction::transfer:
 			case OTTransaction::marketOffer:
 			case OTTransaction::paymentPlan:
+			case OTTransaction::smartContract:
 				break;
 			default: 
 				// Error
@@ -867,6 +872,7 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 		case OTTransaction::transfer:
 		case OTTransaction::marketOffer:
 		case OTTransaction::paymentPlan:
+		case OTTransaction::smartContract:
 			break;
 		default: 
 			// Error
@@ -1345,6 +1351,11 @@ OTItem::itemType GetItemTypeFromString(const OTString & strType)
 	else if (strType.Compare("atPaymentPlan"))
 		theType = OTItem::atPaymentPlan;
 	// --------------------------------------------------------------
+	else if (strType.Compare("smartContract"))
+		theType = OTItem::smartContract;
+	else if (strType.Compare("atSmartContract"))
+		theType = OTItem::atSmartContract;
+	// --------------------------------------------------------------
 	else if (strType.Compare("cancelCronItem"))
 		theType = OTItem::cancelCronItem;
 	else if (strType.Compare("atCancelCronItem"))
@@ -1633,6 +1644,9 @@ void OTItem::GetStringFromType(OTItem::itemType theType, OTString & strType)
 		case OTItem::paymentPlan:
 			strType.Set("paymentPlan");
 			break;
+		case OTItem::smartContract:
+			strType.Set("smartContract");
+			break;
 		case OTItem::balanceStatement:
 			strType.Set("balanceStatement");
 			break;
@@ -1750,6 +1764,9 @@ void OTItem::GetStringFromType(OTItem::itemType theType, OTString & strType)
 			break;
 		case OTItem::atPaymentPlan:
 			strType.Set("atPaymentPlan");
+			break;
+		case OTItem::atSmartContract:
+			strType.Set("atSmartContract");
 			break;
 		case OTItem::atBalanceStatement:
 			strType.Set("atBalanceStatement");

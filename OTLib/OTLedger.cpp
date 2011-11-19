@@ -893,6 +893,7 @@ OTItem * OTLedger::GenerateBalanceStatement(const long lAdjustment, const OTTran
 		case OTTransaction::transfer:
 		case OTTransaction::marketOffer:
 		case OTTransaction::paymentPlan:
+		case OTTransaction::smartContract:
 			// Nothing removed here since the transaction is still in play. (Assuming success.)
 			// If the server replies with rejection for any of these three, then I can remove
 			// the transaction number from my list of issued/signed for. But if success, then I

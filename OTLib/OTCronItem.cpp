@@ -934,9 +934,10 @@ bool OTCronItem::MoveFunds(const mapOfNyms	  & map_NymsAlreadyLoaded,
 		} // both inboxes were successfully loaded or generated.
 	} // By the time we enter this block, accounts and nyms are already loaded. As we begin, inboxes are instantiated.
 	
+	// Todo: possibly notify ALL parties here (in Nymbox.)
 	
 	// Either way, Cron should save, since it just updated.
-	// (The above function call WILL change this payment plan
+	// The above function WILL change this smart contract.
 	// and re-sign it and save it, no matter what. So I just 
 	// call this here to keep it simple:
 	
@@ -1787,26 +1788,50 @@ bool OTCronItem::DropFinalReceiptToNymbox(const OTIdentifier & USER_ID,
 
 
 
+// You usually wouldn't want to use this, since if the transaction failed, the opening number
+// is already burned and gone. But there might be cases where it's not, and you want to retrieve it.
+// So I added this function for those cases. In most cases, you will prefer HarvestClosingNumbers().
+//
+void OTCronItem::HarvestOpeningNumber(OTPseudonym & theNym)
+{
+    // The Nym is the original sender. (If Compares true).
+    // IN CASES where GetTransactionNum() isn't already burned, we can harvest it here.
+    // Subclasses will have to override this function for recipients, etc.
+    //
+    if (theNym.CompareID(GetSenderUserID()))
+    {
+        const OTString strServerID(GetServerID());
+		
+		if (theNym.VerifyIssuedNum(strServerID, GetTransactionNum())) // we only "add it back" if it was really there in the first place.
+			theNym.AddTransactionNum(theNym, strServerID, GetTransactionNum(), true); // bSave=true
+    }
+}
 
+
+
+
+// This is a good default implementation.
+// Also, some subclasses override this, but they STILL CALL IT.
+//
 void OTCronItem::HarvestClosingNumbers(OTPseudonym & theNym)
 {
     // The Nym is the original sender. (If Compares true).
-    // GetTransactionNum() is burned, but we can harvest the closing
+    // GetTransactionNum() is usually already burned, but we can harvest the closing
     // numbers from the "Closing" list, which is only for the sender's numbers.
     // Subclasses will have to override this function for recipients, etc.
     //
     if (theNym.CompareID(GetSenderUserID()))
     {
         const OTString strServerID(GetServerID());
-
+		
         for (int i = 0; i < GetCountClosingNumbers(); i++)
         {
-			// TODO: Really should verify that it's issued here, before adding it back again.
-			// That's definitely what smart contracts do, by way of OTAgent.
-			// I don't think this function ever actually gets called.
-			//
-            theNym.AddTransactionNum(theNym, strServerID, GetClosingTransactionNoAt(i), 
-                                     (i == (GetCountClosingNumbers()-1) ? true : false)); // bSave=true only on the last iteration.
+			if (theNym.VerifyIssuedNum(strServerID, GetClosingTransactionNoAt(i))) // we only "add it back" if it was really there in the first place.
+				theNym.AddTransactionNum(theNym, strServerID, GetClosingTransactionNoAt(i), 
+										 (i == (GetCountClosingNumbers()-1) ? true : false)); // bSave=true only on the last iteration.
+//			else 
+//				OTLog::vError("OTCronItem::HarvestClosingNumbers: Number (%ld) failed as issued. (Thus didn't bother 'adding it back'.)\n",
+//							  GetClosingTransactionNoAt(i));
         }
     }
 }
@@ -1855,6 +1880,11 @@ void OTCronItem::InitCronItem()
 }
 
 
+void OTCronItem::ClearClosingNumbers()
+{
+	m_dequeClosingNumbers.clear();
+}
+
 void OTCronItem::Release()
 {
 	// If there were any dynamically allocated objects, clean them up here.
@@ -1863,7 +1893,7 @@ void OTCronItem::Release()
     m_LAST_PROCESS_DATE = 0;
 	m_PROCESS_INTERVAL = 1;
 	
-    m_dequeClosingNumbers.clear();
+    ClearClosingNumbers();
     
     m_bRemovalFlag = false;
 
