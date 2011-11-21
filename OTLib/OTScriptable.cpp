@@ -847,6 +847,16 @@ void OTScriptable::RetrieveNymPointers(mapOfNyms & map_Nyms_Already_Loaded)
 }
 
 
+
+
+/*
+ -- Load up the authorizing agent's Nym, if not already loaded. (Why? To verifySignature. Also, just to have
+ it loaded so I don't have to load it twice in case it's needed for verifying one/some of the accts.) So really:
+ -- Verify each party, that the authorizing agent and signature are all good. (I think I have this already...)
+ -- Definitely during this, need to make sure that the contents of the signed version match the contents of the main version, for each signer.
+ -- Verify that the authorizing agent actually has the opening transaction # for the party issued to him. (Do I have this?....) 
+ */
+
 // OTScriptable::VerifyPartyAuthorization
 // Similar to VerifyNymAsAgent, except it doesn't ClearTemporaryPointers.
 // (If it has to Load the authorizing agent, then it will clear that one.)
@@ -875,7 +885,8 @@ void OTScriptable::RetrieveNymPointers(mapOfNyms & map_Nyms_Already_Loaded)
 bool OTScriptable::VerifyPartyAuthorization(OTParty		& theParty,		// The party that supposedly is authorized for this supposedly executed agreement.
 											OTPseudonym & theSignerNym,	// For verifying signature on the authorizing Nym, when loading it
 											const OTString	& strServerID, // For verifying issued num, need the serverID the # goes with.
-											mapOfNyms	* pmap_ALREADY_LOADED/*=NULL*/)
+											mapOfNyms		* pmap_ALREADY_LOADED/*=NULL*/, // If some nyms are already loaded, pass them here so we don't load them twice on accident.
+											const bool		  bBurnTransNo/*=false*/); // In OTServer::VerifySmartContract(), it not only wants to verify the # is properly issued, but it additionally wants to see that it hasn't been USED yet -- AND it wants to burn it, so it can't be used again!  This bool allows you to tell the function whether or not to do that.
 {
 	// This function DOES assume that theParty was initially FOUND on OTScriptable.
 	// Meaning I don't have to verify that much if I got this far.
@@ -962,7 +973,6 @@ bool OTScriptable::VerifyPartyAuthorization(OTParty		& theParty,		// The party t
 	// I'm not using pAuthAgentsNym directly, but pAuthorizingAgent WILL use it before this function is done.
 	// -----------------------------------------
 	
-	
 	// (3) Verify the issued number, if he has one. If this instance is OTScriptable-derived, but NOT OTCronItem-derived,
 	//     then that means there IS NO opening number (or closing number) since we're not even on Cron. The parties just
 	//     happen to store their opening number for the cases where we ARE on Cron, which will probably be most cases.
@@ -972,16 +982,48 @@ bool OTScriptable::VerifyPartyAuthorization(OTParty		& theParty,		// The party t
 	//
 	
 	const long lOpeningNo = theParty.GetOpeningTransNo();
-	
-	if ((lOpeningNo > 0) && (false == pAuthAgentsNym->VerifyIssuedNum(strServerID, lOpeningNo)))
-	{
-		OTLog::vError("OTScriptable::VerifyPartyAuthorization: Opening trans number %ld doesn't "
-					 "verify for the nym listed as the authorizing agent for party %s.\n", lOpeningNo, 
-					 theParty.GetPartyName().c_str());
-		
-		if (bHadToLoadItMyself)
-			pAuthorizingAgent->ClearTemporaryPointers(); // We loaded the Nym ourselves, which goes out of scope after this function. 
 
+	if (lOpeningNo > 0) // If one exists, then verify it.
+	{
+		if (false == pAuthorizingAgent->VerifyIssuedNumber(lOpeningNo, strServerID))
+//		if (false == pAuthAgentsNym->VerifyIssuedNum(strServerID, lOpeningNo))
+		{
+			OTLog::vError("OTScriptable::VerifyPartyAuthorization: Opening trans number %ld doesn't "
+						  "verify for the nym listed as the authorizing agent for party %s.\n", lOpeningNo, 
+						  theParty.GetPartyName().c_str());
+			if (bHadToLoadItMyself)
+				pAuthorizingAgent->ClearTemporaryPointers(); // We loaded the Nym ourselves, which goes out of scope after this function. 				
+			return false;			
+		}
+		// --------------------------------------
+		// The caller wants the additional verification that the number hasn't been USED 
+		// yet -- AND the caller wants you to BURN IT HERE.
+		else if (bBurnTransNo)  
+		{
+			if (false == pAuthorizingAgent->VerifyTransactionNumber(lOpeningNo, strServerID))
+//			if (false == pAuthAgentsNym->VerifyTransactionNum(strServerID, lOpeningNo))
+			{
+				OTLog::vError("OTScriptable::VerifyPartyAuthorization: Opening trans number %ld doesn't "
+							  "verify as available for use, for the nym listed as the authorizing agent for party: %s.\n", lOpeningNo, 
+							  theParty.GetPartyName().c_str());
+				if (bHadToLoadItMyself)
+					pAuthorizingAgent->ClearTemporaryPointers(); // We loaded the Nym ourselves, which goes out of scope after this function. 				
+				return false;			
+			}
+			else // SUCCESS -- It verified as available, so let's burn it here. (So he can't use it twice. It remains issued and open until the cron item is eventually closed out for good.)
+			{				
+				pAuthorizingAgent->RemoveTransactionNumber(lOpeningNo, strServerID, theSignerNym, true); // bSave=true
+//				pAuthAgentsNym->RemoveTransactionNum(theSignerNym, strServerID, lOpeningNo); // server removes spent number from nym file. Saves.
+			}
+		}
+		// ---------------------
+	} // if lOpeningNo>0
+	else if (bBurnTransNo)  // In this case, bBurnTransNo=true, then the caller EXPECTED to burn a transaction
+	{						// num. But the number was 0! Therefore, FAILURE!
+		OTLog::vOutput(0, "OTScriptable::VerifyPartyAuthorization: FAILURE. On Party %s, expected to burn a legitimate opening transaction "
+					   "number, but got this instead: %ld\n", theParty.GetPartyName().c_str(), lOpeningNo);
+		if (bHadToLoadItMyself)
+			pAuthorizingAgent->ClearTemporaryPointers(); // We loaded the Nym ourselves, which goes out of scope after this function. 				
 		return false;
 	}
 	
@@ -1005,18 +1047,18 @@ bool OTScriptable::VerifyPartyAuthorization(OTParty		& theParty,		// The party t
 	if (NULL == pPartySignedCopy)
 	{
 		OTLog::Error("OTScriptable::VerifyPartyAuthorization: Error loading party's signed copy of agreement. Has it been executed?\n");
-		
 		if (bHadToLoadItMyself)
 			pAuthorizingAgent->ClearTemporaryPointers(); 
-		
 		return false;
 	}
 	else
+	{
 		theCopyAngel.SetCleanupTarget(*pPartySignedCopy);
-		
+	}	
 	// ----------------------------------------------
 	
-	const bool bSigVerified = pPartySignedCopy->VerifySignature(*pAuthAgentsNym);
+	const bool bSigVerified = pAuthorizingAgent->VerifySignature(*pPartySignedCopy);
+//	const bool bSigVerified = pPartySignedCopy->VerifySignature(*pAuthAgentsNym);
 	bool bContentsVerified = false;
 	
 	if (bSigVerified)
@@ -1025,7 +1067,7 @@ bool OTScriptable::VerifyPartyAuthorization(OTParty		& theParty,		// The party t
 		// There are several places currently in smart contracts like this.
 		// Need to analyze security aspects before doing it.
 		//
-		bContentsVerified = this->Compare(*pPartySignedCopy);
+		bContentsVerified = this->Compare(*pPartySignedCopy); // This also compares the opening / closing numbers, if they are non-zero.
 		
 		if (!bContentsVerified)
 			OTLog::vOutput(0, "OTScriptable::VerifyPartyAuthorization: Though the signature verifies, the contract "
@@ -1162,6 +1204,8 @@ bool OTScriptable::VerifyNymAsAgent(const	OTPseudonym & theNym,
 	// I'm not using pAuthAgentsNym directly, but pAuthorizingAgent WILL use it before this function is done.
 	// -----------------------------------------
 	
+	// TODO: Verify the opening transaction # here, like I do in VerifyPartyAuthorization() ??  Research first.
+	
 	// (3) 
 	// Here, we use the Authorizing Agent to verify the signature on his party's version of the contract.
 	// Notice: Even if the authorizing agent gets fired, we can still load his Nym to verify the original signature on the
@@ -1217,6 +1261,130 @@ bool OTScriptable::VerifyNymAsAgent(const	OTPseudonym & theNym,
 		
 	return bContentsVerified;
 }
+
+
+
+//
+// Call VerifyPartyAuthorization() first.
+// Also, this function, unlike VerifyPartyAuthorization(), is able to ASSUME that ALL
+// of the Nyms AND accounts have ALREADY been loaded into memory, AND that *this has 
+// pointers to them. That is all prepared before this function is called. That is why
+// you don't see me passing in maps to Nyms that are already loaded -- because *this
+// already has them all loaded.
+//
+// This function verifies ownership AND agency of the account, and it
+// also handles closing transaction numbers when appropriate.
+//
+bool OTScriptable::VerifyPartyAcctAuthorization(OTPartyAccount	& thePartyAcct,	// The party is assumed to have been verified already via VerifyPartyAuthorization()
+												OTPseudonym		& theSignerNym,	// For verifying signature on the authorizing Nym.
+												const OTString	& strServerID, // For verifying issued num, need the serverID the # goes with.
+												const bool		  bBurnTransNo/*=false*/) // In OTServer::VerifySmartContract(), it not only wants to verify the closing # is properly issued, but it additionally wants to see that it hasn't been USED yet -- AND it wants to burn it, so it can't be used again!  This bool allows you to tell the function whether or not to do that.		
+{
+	OTParty * pParty = thePartyAcct.GetParty();
+	
+	if (NULL == pParty)
+	{
+		OTLog::vError("OTScriptable::VerifyPartyAcctAuthorization: Unable to find party for acct: %s \n",
+					  thePartyAcct.GetName().Get());
+		return false;
+	}
+	// -----------------------
+
+	OTAgent * pAuthorizedAgent = thePartyAcct.GetAgent();
+	
+	if (NULL == pAuthorizedAgent)
+	{
+		OTLog::vOutput(0, "OTScriptable::VerifyPartyAcctAuthorization: Unable to find authorized agent (%s) for acct: %s \n",
+					   thePartyAcct.GetAgentName().Get(), thePartyAcct.GetName().Get());
+		return false;
+	}
+	
+	// BELOW THIS POINT, pParty and pAuthorizedAgent are both good pointers.
+	//
+	// Next, we need to verify that pParty is the proper OWNER of thePartyAcct..
+	// 
+	// AND that pAuthorizedAgent really IS authorized to manipulate the actual 
+	// account itself. (Either he is listed as its actual owner, or he is an
+	// agent for an entity, authorized based on a specific role, and the account
+	// is owned by that entity / controlled by that role.)
+	//
+	// -----------------------
+	
+	// VERIFY ACCOUNT's OWNERSHIP BY PARTY
+	//
+	if (!thePartyAcct.VerifyOwnership())  // This will use pParty internally.
+	{
+		OTLog::vOutput(0, "OTScriptable::VerifyPartyAcctAuthorization: Unable to verify party's (%s) ownership of acct: %s \n",
+					  pParty->GetPartyName().c_str(), thePartyAcct.GetName().Get());
+		return false;
+	}
+	
+	// VERIFY ACCOUNT's AUTHORIZED AGENT (that he has rights to manipulate the account itself)
+	//
+	if (!thePartyAcct.VerifyAgency()) // This will use pAuthorizedAgent internally.
+	{
+		OTLog::vOutput(0, "OTScriptable::VerifyPartyAcctAuthorization: Unable to verify agent's (%s) rights re: acct: %s \n",
+					   pAuthorizedAgent->GetName().Get(), thePartyAcct.GetName().Get());
+		return false;
+	}
+	// **************************************************
+	
+	//     Verify the closing number, if he has one. (If this instance is OTScriptable-derived, but NOT OTCronItem-derived,
+	//     then that means there IS NO closing number, since we're not even on Cron.) The PartyAccts just happen
+	//     to store their closing number for the cases where we ARE on Cron, which will probably be most cases.
+	//     Therefore we CHECK TO SEE if the closing number is NONZERO -- and if so, we VERIFY ISSUED on that #. That way,
+	//     for cases where this IS a cron item, it will still verify the number (as it should) and in other cases, it will
+	//     just skip this step.
+	//
+	//     Also: If bBurnTransNo is set to true, then it will force this issue, since the code then DEMANDS a number 
+	//     be available for use.
+	
+	const long lClosingNo = thePartyAcct.GetClosingTransNo();
+	
+	if (lClosingNo > 0) // If one exists, then verify it.
+	{
+		if (false == pAuthorizedAgent->VerifyIssuedNumber(lClosingNo, strServerID))
+//		if (false == pAuthAgentsNym->VerifyIssuedNum(strServerID, lClosingNo))
+		{
+			OTLog::vOutput(0, "OTScriptable::VerifyPartyAcctAuthorization: Closing trans number %ld doesn't "
+						   "verify for the nym listed as the authorized agent for account %s.\n", lClosingNo, 
+						   thePartyAcct.GetName().Get());
+			return false;			
+		}
+		// --------------------------------------
+		// The caller wants the additional verification that the number hasn't been USED 
+		// yet -- AND the caller wants you to BURN IT HERE.
+		else if (bBurnTransNo)  
+		{
+			if (false == pAuthorizedAgent->VerifyTransactionNumber(lClosingNo, strServerID))
+//			if (false == pAuthAgentsNym->VerifyTransactionNum(strServerID, lClosingNo))
+			{
+				OTLog::vOutput(0, "OTScriptable::VerifyPartyAcctAuthorization: Closing trans number %ld doesn't "
+							   "verify as available for use, for the nym listed as the authorized agent for acct: %s.\n", 
+							   lClosingNo, thePartyAcct.GetName().Get());
+				return false;			
+			}
+			else // SUCCESS -- It verified as available, so let's burn it here. (So he can't use it twice. It remains issued and open until the cron item is eventually closed out for good.)
+			{				
+				pAuthorizedAgent->RemoveTransactionNumber(lClosingNo, strServerID, theSignerNym, true); // bSave=true
+//				pAuthAgentsNym->RemoveTransactionNum(theSignerNym, strServerID, lClosingNo); // server removes spent number from nym file. Saves.
+			}
+		}
+		// ---------------------
+	} // if lClosingNo>0
+	else if (bBurnTransNo)  // In this case, bBurnTransNo=true, then the caller EXPECTED to burn a transaction
+	{						// num. But the number was 0! Therefore, FAILURE!
+		OTLog::vOutput(0, "OTScriptable::VerifyPartyAcctAuthorization: FAILURE. On Acct %s, expected to burn a legitimate closing transaction "
+					   "number, but got this instead: %ld\n", thePartyAcct.GetName().Get(), lClosingNo);
+		return false;
+	}
+	
+	// ----------------------------------------------
+	
+	return true;	
+}
+
+
 
 
 
@@ -1295,7 +1463,13 @@ bool OTScriptable::VerifyNymAsAgentForAccount(const	OTPseudonym & theNym,
 		pParty->ClearTemporaryPointers(); // Just in case.
 		return false;
 	}
-	
+	if (false == pAgent->VerifyAgencyOfAccount(theAccount))
+	{
+		OTLog::Output(0, "OTScriptable::VerifyNymAsAgentForAccount: theNym is not a valid agent for theAccount.\n");
+		pParty->ClearTemporaryPointers(); // Just in case.
+		return false;
+	}
+
 	
 //	Now we know:  
 	// (1) theNym is agent for pParty,     (according to the party)

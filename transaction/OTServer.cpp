@@ -4417,7 +4417,7 @@ void OTServer::NotarizePaymentPlan(OTPseudonym & theNym, OTAccount & theSourceAc
 
 
 
-// TODO!!
+// Done.
 //
 void OTServer::NotarizeSmartContract(OTPseudonym & theNym, OTAccount & theSourceAccount, OTTransaction & tranIn, OTTransaction & tranOut)
 {
@@ -4500,9 +4500,9 @@ void OTServer::NotarizeSmartContract(OTPseudonym & theNym, OTAccount & theSource
 		{
 			OTLog::Output(0, "ERROR bad transaction number on smart contract in OTServer::NotarizeSmartContract\n");			
 		}
-//		else if (!pPlan->VerifySignature(theNym))  // This is now done below, in VerifyAgreement()!
+//		else if (!pContract->VerifySignature(theNym))  // This is now done below, in VerifySmartContract()!
 //		{
-//			OTLog::Output(0, "ERROR verifying sender signature on Payment Plan in OTServer::NotarizeSmartContract\n");	
+//			OTLog::Output(0, "ERROR verifying activator signature on smart contract in OTServer::NotarizeSmartContract\n");	
 //		}
 		else if (pContract->GetServerID() != SERVER_ID)
 		{
@@ -4516,327 +4516,97 @@ void OTServer::NotarizeSmartContract(OTPseudonym & theNym, OTAccount & theSource
 		{
 			OTLog::Output(0, "ERROR wrong Asset Acct ID on smart contract in OTServer::NotarizeSmartContract\n");
 		}
-		
-		
-		
-		
-		
         // The transaction number opens the smart contract, but there must also be a closing number for closing it.
-        else if ((pContract->GetCountClosingNumbers() < 1) || 
+        else if ((pContract->GetCountClosingNumbers() < 1) ||  // the transaction number was verified before we entered this function, so only the closing # is left...
                  !VerifyTransactionNumber(theNym, pContract->GetClosingNum())) // Verify that it can still be USED (not closed... that's VerifyIssuedNum())
         {
             OTLog::Output(0, "ERROR: the Closing number wasn't available for use on a smart contract in OTServer::NotarizeSmartContract\n");
         }
-		else  // The smart contract is good (so far.)
+		// NOTE: since theNym has ALREADY been substituted for the Server's Nym by this point, if indeed they are the same Nym,
+		// then I could probably just ALLOW the server to be a party to a smart contract. It will definitely be on the "list of
+		// nyms that are already loaded" due to the substitution. So really it's just a matter of security review, and the below
+		// block could be commented out (or not.)  ALSO: If I'm going to enforce this, then I need to do it for ALL parties, not just
+		// the activator!
+		else if ((pContract->GetSenderUserID() == SERVER_USER_ID) || 
+				 (NULL != FindPartyBasedOnNymAsAgent(m_nymServer)))
 		{
+			OTLog::Output(0, "** SORRY ** but the server itself is NOT ALLOWED to be a party to any smart contracts. (Pending security review.)\n");
+		}
+		// *********************************************************
+		//
+		else if (false == pContract->VerifySmartContract(theNym, theSourceAccount, 
+														 m_nymServer, 
+														 true)) // bBurnTransNo=false by default, but here we pass TRUE.
+		{	// VERIFY SMART CONTRACT
+			/*
+			 -- Loop through all parties and load up the authorizing agent's Nym, if not already loaded, for each.
+			 -- Verify each party, that the authorizing agent is good, and verify his signature on the party's copy of the contract.
+			 -- Definitely during this, need to make sure that the contents of the signed version match the contents of the main version, for each signer.
+			 -- Verify that the authorizing agent actually has the opening transaction # for the party issued to him.
+			 -- IF ULTIMATE SUCCESS -- REMOVE that transaction # for each agent. (So he can't use it twice.)
+			 (leaving it as issued, but no longer as "available to be used on another transaction".)
+			 
+			 -- Next, loop through all the asset accounts
+			 -- For each, get a pointer to the authorized agent and verify the CLOSING number for that asset acct.
+			 
+			 -- Since we're looping through all the agents, and looping through all the asset accounts, and checking the agent for each asset account,
+			 then we might as well make sure that each agent is a legit agent for the party, and that each account has a legit agent lording over it.
+			 */			
+			OTLog::Output(0, "OTServer::NotarizeSmartContract: This smart contract has FAILED to verify.\n");
+		}
+		// *********************************************************
+		// The smart contract is good...
+		//
+		// NOTIFY ALL PARTIES and ACTIVATE.
+		//
+		// This is important to notify first, because the hooks in OTSmartContract::onActivate() could very 
+		// potentially trigger MORE receipts, and we want to make sure the activation receipt comes first.
+		//
+		else 
+		{
+			long lNewTransactionNumber = 0;
+			IssueNextTransactionNumber(m_nymServer, lNewTransactionNumber, false); // bStoreTheNumber = false
 			
-			
-			
-			
-			
-			
-			// The RECIPIENT_ACCT_ID is the ID on the "To" Account. (When doing a transfer, normally 2nd acct is the Payee.)
-			const OTIdentifier	RECIPIENT_ACCT_ID(pPlan->GetRecipientAcctID()),
-			RECIPIENT_USER_ID(pPlan->GetRecipientUserID());
-			
-			bool bRecipientNymIsServerNym	= ((RECIPIENT_USER_ID	== SERVER_USER_ID)		? true : false);
-			bool bUsersAreSameNym			= ((ACTIVATOR_USER_ID	== RECIPIENT_USER_ID)	? true : false);
-			
-			OTPseudonym		theRecipientNym;		// We'll probably use this, but maybe not. So I use a pointer that will maybe point here.
-			OTPseudonym *	pRecipientNym	= NULL;	// Here's the pointer.  (Logic explained directly below.)
-			
-			// ------------------------------------------------------------------------
-			
-			// Set pRecipientNym to point to the right one so we can use it below. (Do NOT use theRecipientNym,
-			// since it won't always point to that one.)
-			
-			bool bFoundRecipientNym = false;
-			
-			// Find out if Recipient Nym is also the Server Nym...
-			if (bRecipientNymIsServerNym)		
+			if (false == pContract->SendNoticeToAllParties(*m_nymServer, 
+														   lNewTransactionNumber, 
+														   pContract->GetTransactionNum(),
+														   strInReferenceTo))
 			{
-				// If the Recipient Nym is the server, then just point to that.
-				pRecipientNym		= &m_nymServer;
-				bFoundRecipientNym	= true;
+				OTLog::vOutput(0, "OTServer::NotarizeSmartContract: Failed notifying parties while trying to activate smart contract: %ld.\n", 
+							   pContract->GetTransactionNum());
+			}
+			// Add it to Cron...
+			else if (m_Cron.AddCronItem(*pContract, true)) // bSaveReceipt=true
+			{
+				// We add the smart contract to the server's Cron object, which does regular processing.
+				// That object will take care of processing the smart contract according to its terms.
+				//
+				// NOTE: FYI, inside AddCronItem, since this is a new CronItem, a Cron Receipt will
+				// be saved with the User's signature on it, containing the Cron Item from the user's
+				// original request. After that, the item is stored internally to Cron itself, and
+				// signed by the server--and changes over time as cron processes. (The original receipt
+				// can always be loaded when necessary.)
+				//
 				
-				// (No need to verify Nym here since already done in this case.)
-			}
-			else if (bUsersAreSameNym)	// Else if the participants are the same Nym, point to the one we already loaded. 
+				// Now we can set the response item as an acknowledgement instead of rejection (the default)
+				pResponseItem->SetStatus(OTItem::acknowledgement);
+				OTLog::Output(0, "Successfully added smart contract to Cron object.\n");
+			} // If smart contract verified.
+			else
 			{
-				pRecipientNym		= &theNym;
-				bFoundRecipientNym	= true;
-				
-				// (No need to verify Nym here since already done in this case, before we even got here.)
+				OTLog::Output(0, "Unable to add smart contract to Cron object OTServer::NotarizeSmartContract\n");
 			}
-			else	// Otherwise load the Recipient Nym from Disk and point to that.
-			{				
-				theRecipientNym.SetIdentifier(RECIPIENT_USER_ID);
-				
-				if (false == theRecipientNym.LoadPublicKey())
-				{
-					OTString strNymID(RECIPIENT_USER_ID);
-					OTLog::vError("Failure loading Recipient Nym public key in OTServer::NotarizeSmartContract: %s\n", 
-								  strNymID.Get());
-					bFoundRecipientNym = false;
-				}				
-				else if (!theRecipientNym.VerifyPseudonym()	|| !theRecipientNym.LoadSignedNymfile(m_nymServer))
-				{
-					OTString strNymID(RECIPIENT_USER_ID);
-					OTLog::vError("Failure loading or verifying Recipient Nym public key in OTServer::NotarizeSmartContract: %s\n", 
-								  strNymID.Get());
-					bFoundRecipientNym = false;
-				}
-				else
-				{
-					pRecipientNym = &theRecipientNym; //  <=====
-					bFoundRecipientNym = true;
-				}
-			}
-			
-			// Below this point, ALWAYS use pRecipientNym, NOT theRecipientNym.
-			// pRecipientNym is always guaranteed below here to point to the right one.
-			
-			// ------------------------------------------------------------------------
-			
-			if (!bFoundRecipientNym || (NULL == pRecipientNym))
-			{
-				// (No need to log here; already logged right above.)
-				// OTLog::Output("Unable to load or verify Recipient Nym in OTServer::NotarizeSmartContract()");
-			}
-			
-			// Below this point, we know for sure that the Recipient Nym is loaded and verified, and we know
-			// that if the Server or Sender is actually the Recipient, that the pRecipientNym pointer will
-			// always point to the right one, and no files can be overwritten. *phew*
-			
-			
-			// You CAN have both accounts owned by the same Nym, but you CANNOT have them both actually be the SAME ACCT.
-			else if (ACTIVATOR_ACCT_ID == RECIPIENT_ACCT_ID)
-			{
-				OTLog::Output(0, "Error: Source account ID matches Recipient account ID on attempted Payment Plan notarization.\n");
-			}
-            else if (!pPlan->VerifyAgreement(*pRecipientNym, theNym))
-            {
-                OTLog::Output(0, "ERROR verifying Sender and Recipient on Payment Plan (against merchant and customer copies.)\n");	
-            }
-            // This is now done above, in VerifyAgreement().
-			//			else if (!pPlan->VerifySignature(*pRecipientNym)) // BOTH parties must be signers to a payment plan.
-			//			{
-			//				OTLog::Output(0, "ERROR verifying Recipient's signature on Payment Plan.\n");	
-			//			}		
-			else	// -----------------------------------------------------------------
-			{
-                // Verify that BOTH of the Recipient's transaction numbers 
-                // (opening and closing) are available for use.
-                //
-                if (pPlan->GetRecipientCountClosingNumbers() < 2)
-                {
-                    OTLog::Output(0, "ERROR verifying Recipient's Closing numbers on a Payment Plan (he should have 2 and he doesn't.)\n");	
-                }
-                else if (!VerifyTransactionNumber(*pRecipientNym, pPlan->GetRecipientOpeningNum()))
-                {
-                    OTLog::Output(0, "ERROR verifying Recipient's opening transaction number on a payment plan.\n");	                    
-                }
-                else if (!VerifyTransactionNumber(*pRecipientNym, pPlan->GetRecipientClosingNum()))
-                {
-                    OTLog::Output(0, "ERROR verifying Recipient's Closing transaction number on a Payment Plan.\n");	                    
-                }
-                else	// -----------------------------------------------------------------
-                {
-                    // Load up the recipient ACCOUNT and validate it.
-                    OTAccount * pRecipientAcct = OTAccount::LoadExistingAccount(RECIPIENT_ACCT_ID, SERVER_ID);
-                    OTCleanup<OTAccount> theRecipientAcctGuardian(pRecipientAcct); // This will cleanup pRecipAcct, or do nothing if it's NULL.
-					
-                    if (NULL == pRecipientAcct)
-                    {
-                        OTLog::Output(0, "ERROR loading Recipient account in OTServer::NotarizeSmartContract\n");
-                    }
-                    else if (!pRecipientAcct->VerifyOwner(*pRecipientNym))
-                    {
-                        OTLog::Output(0, "ERROR verifying ownership of the recipient account in OTServer::NotarizeSmartContract\n");
-                    }
-                    // ----------------------------------------------------------------------------
-                    // Are both of the accounts of the same Asset Type? VERY IMPORTANT!!
-                    else if (pRecipientAcct->GetAssetTypeID() != theSourceAccount.GetAssetTypeID())
-                    {
-                        OTString	strSourceAssetID(theSourceAccount.GetAssetTypeID()), 
-						strRecipAssetID(pRecipientAcct->GetAssetTypeID());
-                        OTLog::vOutput(0, "ERROR - user attempted to make a payment plan between dissimilar "
-                                       "asset types in OTServer::NotarizeSmartContract:\n%s\n%s\n", 
-                                       strSourceAssetID.Get(),
-                                       strRecipAssetID.Get());
-                    }
-                    // Does it verify?
-                    // I call VerifySignature here since VerifyContractID was already called in LoadExistingAccount().
-                    else if (!pRecipientAcct->VerifySignature(m_nymServer))
-                    {
-                        OTLog::Output(0, "ERROR verifying signature on the Recipient account in OTServer::NotarizeSmartContract\n");
-                    }
-                    // This one is superfluous, but I'm leaving it. (pPlan and pRecip are both already 
-                    // matches to a 3rd value: source acct asset type ID.)
-                    else if (pRecipientAcct->GetAssetTypeID() != pPlan->GetAssetID()) 
-                    {
-                        OTLog::Output(0, "ERROR wrong Asset Type ID on Recipient Acct in OTServer::NotarizeSmartContract\n");
-                    }
-                    
-                    // At this point I feel pretty confident that the Payment Plan is a valid request from both parties.
-                    // I have both users AND both accounts and validated against the Payment Plan, signatures and all.
-                    
-                    else 
-                    {
-                        // We add the payment plan to the server's Cron object, which does regular processing.
-                        // That object will take care of processing the payment plan according to its terms.
-                        //
-                        // NOTE: FYI, inside AddCronItem, since this is a new CronItem, a Cron Receipt will
-                        // be saved with the User's signature on it, containing the Cron Item from the user's
-                        // original request. After that, the item is stored internally to Cron itself, and
-                        // signed by the server--and changes over time as cron processes. (The original receipt
-                        // can always be loaded when necessary.)
-                        if (m_Cron.AddCronItem(*pPlan, true)) // bSaveReceipt=true
-                        {//todo need to be able to "roll back" if anything inside this block fails.
-                            // Now we can set the response item as an acknowledgement instead of the default (rejection)
-                            pResponseItem->SetStatus(OTItem::acknowledgement);
-                            OTLog::Output(2, "Successfully added smart contract to Cron object.\n");
-                            
-							
-                            // ***************************************************************
-							
-                            // Server side, the Nym stores a list of all open cron item numbers.
-                            // (So we know if there is still stuff open on Cron for that Nym, and we know what it is.)
-                            //
-                            std::set<long> & theIDSet = theNym.GetSetOpenCronItems();
-                            theIDSet.insert(pPlan->GetTransactionNum());
-                            theIDSet.insert(pPlan->GetClosingNum());
-							//                          theNym.SaveSignedNymfile(m_nymServer); // saved below
-							
-                            // This just removes the Closing number so I can't USE it again. (Since I'm using it as the closing
-                            // number for this cron item now.) I'm still RESPONSIBLE for the number until RemoveIssuedNumber()
-                            // is called. If we didn't call this here, then I could come back later and USE THE NUMBER AGAIN!
-                            // (Bad!)
-                            // -------------------------------------
-                            // RemoveTransactionNumber was already called for pPlan->GetTransactionNum() (or will be soon, by the framework.)
-                            // That's the opening number. Here's the closing number:
-                            RemoveTransactionNumber(theNym, pPlan->GetClosingNum(), true); // bSave=true
-                            // -------------------------------------
-                            // RemoveIssuedNum will be called for that original transaction number when the finalReceipt is created.
-                            // RemoveIssuedNum will be called for the Closing number when the finalReceipt is accepted.
-							
-                            // ***************************************************************
-							
-                            std::set<long> & theIDSet2 = pRecipientNym->GetSetOpenCronItems();
-                            theIDSet2.insert(pPlan->GetRecipientOpeningNum());
-                            theIDSet2.insert(pPlan->GetRecipientClosingNum());
-							//                          pRecipientNym->SaveSignedNymfile(m_nymServer); // saved below
-							
-                            // For recipient, I also remove the opening and closing numbers as AVAILABLE FOR USE.
-                            // But they aren't removed as ISSUED until later...
-                            // RemoveIssuedNum is called for the Recipient's opening number onFinalReceipt,
-                            // and it's called for the Recipient's closing number when that final receipt is closed out.
-                            RemoveTransactionNumber(*pRecipientNym, pPlan->GetRecipientOpeningNum(), false); // bSave=true
-                            RemoveTransactionNumber(*pRecipientNym, pPlan->GetRecipientClosingNum(), true); // bSave=true
-							
-                            // ***************************************************************
-							
-                            // TODO: Put a receipt in the RECIPIENT's inbox (the Merchant) to notify them that the
-                            // payment plan has been activated. This is no different than giving them a chequeReceipt
-                            // to notice them that their invoice has been "cashed".
-                            
-                            OTLedger * pInbox	= pRecipientAcct->LoadInbox(m_nymServer);                             
-                            OTCleanup<OTLedger> theInboxAngel;
-                            // --------------------------------------------------------------
-                            //
-                            if ((NULL == pInbox) || !pInbox->VerifyAccount(m_nymServer))
-                            {
-                                OTLog::Error("NotarizeSmartContract: Error loading or verifying recipient's inbox.\n");
-                            }
-                            else 
-                            {
-                                theInboxAngel.SetCleanupTarget(*pInbox);
-                                // --------------------------------------------------------------    
-                                //
-                                // Generate a new transaction number for the recipient's inbox (to notice him of activation of the plan.)
-                                long lNewTransactionNumber = 0;
-                                IssueNextTransactionNumber(m_nymServer, lNewTransactionNumber, false); // bStoreTheNumber = false
-								
-                                OTTransaction * pTransRecip		= OTTransaction::GenerateTransaction(*pInbox, 
-                                                                                                     OTTransaction::paymentReceipt, lNewTransactionNumber);
-                                // (No need to OT_ASSERT on the above transaction since it occurs in GenerateTransaction() already.)
-                                
-                                // set up the transaction item
-                                OTItem * pItemRecip		= OTItem::CreateItemFromTransaction(*pTransRecip, OTItem::paymentReceipt);
-                                // these may be unnecessary, I'll have to check CreateItemFromTransaction. I'll leave em.
-                                OT_ASSERT(NULL != pItemRecip);
-                                
-                                pItemRecip->SetStatus(OTItem::acknowledgement); // the default.                                
-                                pItemRecip->SetAmount(0); // This is just a notice that the plan is activated. (Not an actual payment -- that happens in cron.)
-                                
-                                // Here I make sure that each receipt (each inbox notice) references the original
-                                // transaction number that was used to set the payment plan into place...
-                                // This number is used to track all cron items. (All Cron items require a transaction 
-                                // number from the user in order to add them to Cron in the first place.)
-                                // 
-                                // The number is also used to uniquely identify all other transactions, as you
-                                // might guess from its name.
-                                pTransRecip->SetReferenceToNum(pPlan->GetOpeningNum());
-                                
-                                
-                                // The TRANSACTION (a receipt in my inbox) will be sent with "In Reference To" information
-                                // containing the ORIGINAL SIGNED PLAN. (With both parties' original signatures on it.)
-                                //
-                                // Whereas the TRANSACTION ITEM will include an "attachment" containing the UPDATED
-                                // PLAN (this time with the SERVER's signature on it.) In the case of THIS receipt, however,
-                                // there will be no updated version on the item (just the original on the transaction.)
-                                // Why not? Because the plan hasn't actually been updated yet, none of the payments have
-                                // actually occured yet. Having an EMPTY SPOT in the place where the updated plan would
-                                // NORMALLY go is just another way of making it clear that this is an activation receipt.
-                                // (Which is also why the amount is 0.)
-                                //
-                                // Here's the original one going onto the transaction:
-                                //
-                                pTransRecip->SetReferenceString(strPaymentPlan);
-                                
-                                // sign the item
-                                pItemRecip->SignContract(m_nymServer);
-                                pItemRecip->SaveContract();
-                                
-                                // the Transaction "owns" the item now and will handle cleaning it up.
-                                pTransRecip->AddItem(*pItemRecip);
-                                
-                                pTransRecip->SignContract(m_nymServer);
-                                pTransRecip->SaveContract();
-                                
-                                // -------------------------------------------
-                                // Here, the transaction we just created is actually added to the ledger.
-                                // This happens either way, success or fail.
-                                
-                                pInbox->AddTransaction(*pTransRecip);
-                                
-                                // -------------------------------------------
-                                // Release any signatures that were there before (They won't
-                                // verify anymore anyway, since the content has changed.)
-                                pInbox->ReleaseSignatures();
-                                pInbox->SignContract(m_nymServer);
-                                pInbox->SaveContract();
-                                
-                                // Save inbox to storage. (File, DB, wherever it goes.)
-                                pInbox->SaveInbox();
-                            }
-                        }
-                        else
-                        {
-                            OTLog::Output(0, "Unable to add smart contract to Cron object OTServer::NotarizeSmartContract\n");
-                        }
-                    }
-                }
-			} // If recipient Nym successfully loaded from storage.	
-		} // If Payment Plan successfully loaded from Transaction Item.
+		}
+
+		// ------------------------------------------------------------------------
 		
-		// If the payment plan WAS successfully added to Cron, then we don't need to
+		// If the smart contract WAS successfully added to Cron, then we don't need to
 		// delete it here, since Cron owns it now, and will deal with cleaning
-		// it up at the right time. (So I can't use OTCleanup on pPlan.)
-		if ((NULL != pPlan) && (pResponseItem->GetStatus() != OTItem::acknowledgement))
+		// it up at the right time. (So I can't use OTCleanup on pContract.)
+		if ((NULL != pContract) && (pResponseItem->GetStatus() != OTItem::acknowledgement))
 		{
-			delete pPlan;
-			pPlan = NULL;
+			delete pContract;
+			pContract = NULL;
 		}
 		
 		// sign the response item before sending it back (it's already been added to the transaction above)
@@ -6704,78 +6474,110 @@ void OTServer::UserCmdGetContract(OTPseudonym & theNym, OTMessage & MsgIn, OTMes
 
 
 
-// TODO!!!
+
+// Done.
 //
 void OTServer::UserCmdTriggerClause(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut)
 {
+	OTString strInReferenceTo(MsgIn); // Grab the incoming message in plaintext form
+	msgOut.m_ascInReferenceTo.SetString(strInReferenceTo); 
+	// ---------------------------------------------
+
 	// (1) set up member variables 
-	msgOut.m_strCommand		= "@getMint";	// reply to getMint
+	msgOut.m_strCommand		= "@triggerClause";	// reply to triggerClause
 	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
 	msgOut.m_strServerID	= m_strServerID;	// ServerID, a hash of the server contract.
-	msgOut.m_strAssetID		= MsgIn.m_strAssetID;	// The Asset Type ID in question
-	
-	const OTIdentifier	ASSET_TYPE_ID(MsgIn.m_strAssetID);	
-	const OTString		ASSET_ID_STR(ASSET_TYPE_ID);
-	
-	// --------------------------------------------------------------------
-	
-	bool bSuccessLoadingMint = false;
-	
+	msgOut.m_bSuccess		= false;			// Default value.
 
-	
-	
-	
-	
-	else // LET'S SEE IF WE CAN REMOVE IT THEN...
-	{   
-		OTCronItem * pCronItem = m_Cron.GetCronItem(lReferenceToNum);
-		
-		// Check for the closing number here (that happens in OTCronItem, since it's polymorphic.)
-		
-		bool bSuccess = false;
-		
-		if ((NULL != pCronItem) && (pCronItem->CanRemoveItemFromCron(theNym))) // see if theNym has right to remove the cronItem from processing.
-			bSuccess = m_Cron.RemoveCronItem(lReferenceToNum, theNym); // <=====
-		
-		// If we were just successful in removing the offer from the market, that means a finalReceipt was
-		// just dropped into the inboxes for the relevant asset accounts. Once I process that receipt out of my
-		// inbox, (which will require my processing out all related marketReceipts) then the closing number
-		// will be removed from my list of responsibility.
-		
-		if (bSuccess)
-		{
-			// Now we can set the response item as an acknowledgement instead of the default (rejection)
-			pResponseItem->SetStatus(OTItem::acknowledgement);
-			OTLog::Output(2, "Successfully removed Cron Item from Cron object.\n");
-			
-			// Any transaction numbers that need to be cleared, happens inside RemoveCronItem().
-		}
-		else
-		{
-			OTLog::Output(0, "Unable to remove Cron Item from Cron object OTServer::UserCmdTriggerClause\n");
-		}
-	}
+	OTSmartContract * pSmartContract = NULL;
+	// ---------------------------------------------
+	OTCronItem * pCronItem = m_Cron.GetCronItem(MsgIn.m_lTransactionNum);
 
-	
-	
-	
-	
-	
-	
-	
-	
-	if (!bSuccessLoadingMint)
+	if (NULL == pCronItem)
 	{
-		msgOut.m_bSuccess = false;
-		OTString tempInMessage(MsgIn); // Grab the incoming message in plaintext form
-		msgOut.m_ascInReferenceTo.SetString(tempInMessage); // Set it into the base64-encoded object on the outgoing message
+		OTLog::vOutput(0, "OTServer::UserCmdTriggerClause: Couldn't find smart contract based on transaction #: %ld \n",
+					   MsgIn.m_lTransactionNum);
 	}
-	
-	
-	
+	// -----------------------------------------
+	// Also: CAN this guy trigger it?
+	else if (NULL == (pSmartContract = dynamic_cast<OTSmartContract *> (pCronItem)))
+	{   
+		OTLog::vOutput(0, "OTServer::UserCmdTriggerClause: Found cron item, but it wasn't a smart contract. Transaction #: %ld \n",
+						MsgIn.m_lTransactionNum);
+	}
+	// -----------------------------------------
+	else 
+	{
+		// FIND THE PARTY / PARTY NAME
+		OTAgent * pAgent = NULL;
+		OTParty * pParty = pSmartContract->FindPartyBasedOnNymAsAgent(theNym, &pAgent);
+
+		if (NULL == pParty)
+		{
+			OTLog::vOutput(0, "OTServer::UserCmdTriggerClause: Unable to find party to this contract (%ld) based on Nym as agent: %s",
+						   pCronItem->GetTransactionNum(), MsgIn.m_strNymID.Get());
+		}
+		else 
+		{
+			bool bSuccess = false;
+			const std::string str_clause_name = MsgIn.m_strNymID2.Get();			
+
+			if (pSmartContract->CanExecuteClause(pParty->GetPartyName(), str_clause_name)) // This calls (if available) the scripted clause: bool party_may_execute_clause(party_name, clause_name)
+			{
+				// *****************************************************************************
+				//
+				// Execute the clause.
+				//
+				mapOfClauses theMatchingClauses;
+				OTClause * pClause = pSmartContract->GetClause(str_clause_name);
+				
+				if (NULL != pClause)
+				{	
+					OTLog::vOutput(0, "OTServer::UserCmdTriggerClause: At party request, processing smart contract clause: %s \n", 
+								   str_clause_name.c_str());
+					
+					theMatchingClauses.insert(std::pair<std::string, OTClause*>(str_clause_name, pClause));
+					
+					pSmartContract->ExecuteClauses(theMatchingClauses); // <============================================
+					
+					if (pSmartContract->IsFlaggedForRemoval())
+					{
+						OTLog::vOutput(0, "OTServer::UserCmdTriggerClause: Removing smart contract from cron processing: %ld\n", 
+									   pSmartContract->GetTransactionNum());
+					}
+					bSuccess = true;
+				}
+				else 
+				{
+					OTLog::vOutput(0, "OTServer::UserCmdTriggerClause: Failed attempt to process clause (%s) on smart contract: %ld \n", 
+								   str_clause_name.c_str(), pSmartContract->GetTransactionNum());
+				}
+			}
+			// *****************************************************************************
+			
+			// If we were just successful in removing the offer from the market, that means a finalReceipt was
+			// just dropped into the inboxes for the relevant asset accounts. Once I process that receipt out of my
+			// inbox, (which will require my processing out all related marketReceipts) then the closing number
+			// will be removed from my list of responsibility.
+			
+			if (bSuccess)
+			{
+				// Now we can set the response item as an acknowledgement instead of the default (rejection)
+				pResponseItem->SetStatus(OTItem::acknowledgement);
+				OTLog::vOutput(0, "OTServer::UserCmdTriggerClause: Party (%s) successfully triggered clause: %s.\n",
+							   pParty->GetPartyName().c_str(), str_clause_name.c_str());
+				
+				msgOut.m_bSuccess =  true;
+			}
+			else
+				OTLog::vOutput(0, "OTServer::UserCmdTriggerClause:  Unable to trigger clause %s at request of party %s. "
+							   "(Either the permission wasn't there, or the clause wasn't found.)\n",
+							  str_clause_name.c_str(), pParty->GetPartyName().c_str());
+		} // pParty != NULL
+	}
 	
 	// (2) Sign the Message 
-	msgOut.SignContract((const OTPseudonym &)m_nymServer);
+	msgOut.SignContract((const OTPseudonym &)m_nymServer); // todo change this cast.
 	
 	// (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
 	//

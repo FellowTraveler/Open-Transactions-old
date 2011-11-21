@@ -753,13 +753,13 @@ void OTSmartContract::onRemovalFromCron()
 //
 void OTSmartContract::onActivate() 
 {
-	OT_ASSERT(NULL != GetCron());
-	
+    OT_ASSERT(NULL != GetCron());
 	// -----------------------------------------------------------------------------
-	
 	if (GetCron()->GetTransactionCount() < 1)
 	{
-		OTLog::Output(0, "OTSmartContract::onActivate: Failed to process smart contract: Out of transaction numbers!\n");
+		OTLog::vOutput(0, "OTSmartContract::onActivate: Failed to process smart contract %ld: Out of transaction numbers for receipts! Flagging for removal.\n",
+					   GetTransactionNum());
+		FlagForRemoval();
 		return;	
 	}
 	
@@ -3642,7 +3642,7 @@ bool OTSmartContract::CanRemoveItemFromCron(OTPseudonym & theNym)
 //
 // Server will also want to verify that originator IS a party (this function won't do it.)
 //
-//bool OTSmartContract::VerifySmartContract()
+//bool OTSmartContract::VerifySmartContract(OTPseudonym & theNym)
 //{    
 	// Need to verify:
 	//
@@ -3650,7 +3650,8 @@ bool OTSmartContract::CanRemoveItemFromCron(OTPseudonym & theNym)
 	//    (Parties to trades and payments each have their own opening numbers. Therefore you can with scripts. But only one can activate.)
 	//    With trades, each Nym has their own cron item and #. With payment plans, there is only one cron item, and the sender is the
 	//    activator. Since he is the one paying, the number used is his. The other guy still gets receipts, but the code is smart
-	//    enough to create his receipts using HIS opening number, which he still has to provide up front. But those receipts contain
+	//    enough to create his receipts using HIS opening number, which he still has to provide up front. (Hmm.. in implementation that's not true...)
+	// Anyway, continuing: But those receipts contain
 	//    COPIES of the original cron item that was ACTIVATED by the sender, and has his trans# on it. 
 	//    Still: the cron item is saved to storage under a specific number, right? Scripts must be smart enough to drop a receipt for
 	//    each party where the Opening Number comes from THAT PARTY, and where a closing number comes from one of his accts.
@@ -3682,7 +3683,7 @@ bool OTSmartContract::CanRemoveItemFromCron(OTPseudonym & theNym)
 	// Why? Who cares about the closing numbers except for custom code for specific things like trades? We only REALLY
 	// care about the closing number when we need to put it into an asset account's inbox as a finalReceipt. AHHH But
 	// the server DOES drop copies of all finalReceipts into your NYMBOX as well, as a NOTICE, so you can get the news faster.
-	// And the SAME NUMBER is put onto that receipt, which you receipt in your Nymbox even if you HAVE NO asset account.
+	// And the SAME NUMBER is put onto that receipt, which you receive in your Nymbox even if you HAVE NO asset account.
 	// Perhaps you should provide one for your Nym AND for all your accounts.  That way your Nym can get a copy of all those
 	// notices, but even without any asset accounts, he STILL gets a notice onFinalReceipt with his own special number on it.
 	// 
@@ -3702,16 +3703,17 @@ bool OTSmartContract::CanRemoveItemFromCron(OTPseudonym & theNym)
 	// types all happen to use it. I will endeavor to work within a paradigm where closing numbers are only needed for asset accounts
 	// and where Cron Items are still functional without them, for Nyms using contracts without asset accounts.
 	//
-	//
+	// UPDATE: in actual implementation, I resolved this with the simple requirement that the Nym who ACTIVATES a
+	// smart contract, must be the authorized agent for at least ONE account for his party, in that contract!  This
+	// simple requirement, which would probably be true anyway, in practice, insures that there are legitimate opening
+	// and closing transaction numbers available from the Nym who actually activates the contract.
+	// (That Nym, however, is still subject to the rules of the contract.)
 	// ----------------------------------------------
-	//
+	// Here are my notes of what is needed here:
 //    
 //    return true; // Success!
 //}
 //
-
-
-
 
 //Old thoughts
 // Note: agents will have restrictable permissions. Should be overridable in the role,
@@ -3724,9 +3726,232 @@ bool OTSmartContract::CanRemoveItemFromCron(OTPseudonym & theNym)
 
 
 
+//static
+void OTSmartContract::CleanupNyms(mapOfNyms & theMap)
+{
+	// -------------------------------------
+ 	while (!theMap.empty())
+	{		
+		OTPseudonym * pNym = theMap.begin()->second;
+		OT_ASSERT(NULL != pNym);
+		
+		delete pNym; pNym = NULL;
+		
+		theMap.erase(theMap.begin());
+	}	
+	// -------------------------------------
+}
+
+//static
+void OTSmartContract::CleanupAccts(mapOfAccounts & theMap)
+{
+	// -------------------------------------
+ 	while (!theMap.empty())
+	{		
+		OTAccount * pAcct = theMap.begin()->second;
+		OT_ASSERT(NULL != pAcct);
+		
+		delete pAcct; pAcct = NULL;
+		
+		theMap.erase(theMap.begin());
+	}	
+	// -------------------------------------
+}
 
 
+// theNym is trying to activate the smart contract, and has 
+// supplied transaction numbers and a user/acct ID. ==> theNym definitely IS the owner of the account... that is 
+// verified in OTServer::NotarizeTransaction(), before it even knows what KIND of transaction it is processing!
+// (For all transactions.) So by the time OTServer::NotarizeSmartContract() is called, we know that much.
+//
+// But for all other parties, we do not know this, so we still need to loop them all, etc to verify this crap,
+// at least once. (And then maybe I can lessen some of the double-checking, for optimization purposes, once
+// we've run this gamut.)
+//
+// One thing we still do not know, until VerifySmartContract is called, is whether theNym really IS a valid
+// agent for this contract, and whether all the other agents are valid, and whether the accounts are validly
+// owned by the agents they list, and whether the authorizing agent for each party has signed their own copy,
+// and whether the authorizing agent for each party provided a valid opening number--which must be recorded
+// as consumed--and whether the authorized agent for each account provided a valid closing number, which likewise
+// must be recorded. (Set bBurnTransNo to true if you want to enforce the stuff about the opening and closing #s)
+//
+bool OTSmartContract::VerifySmartContract(OTPseudonym & theNym, OTAccount & theAcct, OTPseudonym & theServerNym,
+										  const bool bBurnTransNo/*=false*/)
+{
+	OTAgent * pAuthAgent = NULL;
+	OTParty * pAuthParty = FindPartyBasedOnNymAsAuthAgent(theNym, &pAuthAgent);
 
+	if (NULL == pAuthParty)
+	{
+		OTLog::Output(0, "OTSmartContract::VerifySmartContract: Unable to find a party in this smart contract, "
+					  "based on theNym as authorizing agent.\n");
+		return false;
+	}
+	OT_ASSERT(NULL != pAuthAgent); // If it found the party, then it DEFINITELY should have set the agent pointer.
+	// BELOW THIS POINTER, pAuthAgent and pAuthParty and both good pointers. Furthermore, we know that theNym
+	// really is the authorizing agent for one of the parties to the contract
+	// ------------------------------------
+	const OTString	strServerID(GetServerID()); // the serverID has already been verified by this time, in OTServer::NotarizeSmartContract()
+	// -------------------------------
+	mapOfNyms map_Nyms_Already_Loaded;
+	this->RetrieveNymPointers(map_Nyms_Already_Loaded); // now theNym is on this map.
+	// -------------------------------
+	mapOfAccounts map_Accts_Already_Loaded;
+	const OTString strAcctID(theAcct.GetRealAccountID());
+	map_Accts_Already_Loaded.insert(std::pair<std::string, OTAccount *>(strAcctID.Get() , &theAcct)); // now theAcct is on this map.
+	// -------------------------------
+	
+	bool bAreAnyInvalidParties = false;
+	
+	// LOOP THROUGH ALL PARTIES AND VERIFY THEM.
+	//
+	FOR_EACH_IT(mapOfParties, m_mapParties, it_party)
+	{
+		const std::string str_party_name	= (*it_party).first;
+		OTParty * pParty					= (*it_party).second;
+		OT_ASSERT_MSG(NULL != pParty, "Unexpected NULL pointer in party map.");
+		// --------------------------------------------
+				
+		/*
+		 -- Load up the authorizing agent's Nym, if not already loaded. (Why? To verifySignature. Also, just to have
+		    it loaded so I don't have to load it twice in case it's needed for verifying one/some of the accts.) So really:
+		 -- Verify each party, that the authorizing agent and signature are all good. (I think I have this already...)
+		 -- Definitely during this, need to make sure that the contents of the signed version match the contents of the main version, for each signer.
+		 -- Verify that the authorizing agent actually has the opening transaction # for the party issued to him. (Do I have this?....)
+
+		 -- REMOVE the Opening transaction # for each agent. 
+		 (leaving it as issued, but no longer as "available to be used on another transaction".)
+		 
+		 THE ABOVE is all accomplished via VerifyPartyAuthorization()..
+		 
+		 Next:
+		 
+		 -- Loop through all the asset accounts
+		 -- For each, get a pointer to the authorized agent and verify the CLOSING number for that asset acct. (I have something like this?...)
+		 
+		 -- Since we're looping through all the agents, and looping through all the asset accounts, and checking the agent for each asset account,
+		 then we might as well make sure that each agent is a legit agent for the party, and that each account has a legit agent lording over it.
+		 (Don't I do something like that already?)
+		 */
+		
+		bool bIsPartyAuthorized = this->VerifyPartyAuthorization(*pParty,		// The party that supposedly is authorized for this supposedly executed agreement.
+																 theServerNym,	// For verifying signature on the authorizing Nym, when loading it
+																 strServerID,	// For verifying issued num, need the serverID the # goes with.
+																 &map_Nyms_Already_Loaded,
+																 bBurnTransNo); // bBurnTransNo = true  (default is false)
+		
+		// By this point, we've verified that pParty->GetOpeningTransNo() really is ISSUED to pParty. 
+		// After all, you can Verify a Party's Authorization even after the smart contract has been activated.
+		// But in THIS function we also want to verify TRANSACTION num (not just VerifyIssuedNum()) because
+		// this is where that number is actually being BURNED for each one.
+		// Since VerifyPartyAuthorization() ALREADY has the Nym loaded up for verification, I'm going
+		// to pass in a boolean arg to verify the Transaction Num as well, and burn it. (for this very purpose.)
+		//
+		// Due to this, We don't want to stop this loop just because one of the parties failed. We want to go ahead
+		// and burn ALL the opening numbers for the remainder of the parties, so that they have a consistent rule (the
+		// opening number is considered burned and gone after a failed activation attempt, though the closing numbers
+		// are salvageable.)  Otherwise they would never know, upon receiving a server failure reply, whether their
+		// opening number was to still be considered valid -- or not.
+		//
+		if (false == bIsPartyAuthorized)
+		{
+			OTLog::vOutput(0, "OTSmartContract::VerifySmartContract: Party %s does NOT verify as authorized! \n",
+						   str_party_name.c_str());
+			bAreAnyInvalidParties = true; // We let them all go through, but we still take notice that at least one failed.
+//			return false; // see above comment. We still allow all parties to burn their opening #s, to keep things consistent for the client GUI code.
+		}
+	} // FOR_EACH (mapOfParties...)
+	// ------------------------------------------------------------------
+
+	if (bAreAnyInvalidParties)
+	{
+		OTLog::Output(0, "OTSmartContract::VerifySmartContract: Failure. There are invalid parties on this contract.\n");
+		return false;
+	}
+	// ------------------------------------------------------------------
+	// NEXT: THE ACCOUNTS
+	// 
+	// We loop through the parties again, now knowing they are all authorized.
+	// For each party, we call pParty->LoadAndVerifyAgentNyms(). This way, they will
+	// all be loaded up already for when we verify the accounts. Similarly we call
+	// pParty->LoadAndVerifyAssetAccounts(), so that all the accounts are loaded up
+	// as well. (We at least need to check their signatures...) At that point, all
+	// of the agent nyms AND accounts have been loaded! (And verified internally against
+	// themselves, such as their signature, etc.)
+	//
+	// From there, I need to verify the Party's Ownership over the account, as well as
+	// verify that the authorized agent listed for each account actually has signer rights
+	// over that account, and verify the closing transaction #s for each account against its
+	// authorized agent.
+	// 
+	bool bAreAnyInvalidAccounts = false;
+
+	FOR_EACH_IT(mapOfParties, m_mapParties, it_party)
+	{
+		const std::string str_party_name	= (*it_party).first;
+		OTParty * pParty					= (*it_party).second;
+		OT_ASSERT_MSG(NULL != pParty, "Unexpected NULL pointer in party map.");
+		// --------------------------------------------
+		mapOfNyms map_Nyms_NewlyLoaded; // CALL OTSmartContract::CleanupNyms(map_Nyms_NewlyLoaded); before leaving the scope of this FOR_EACH_IT block!!
+		
+		const bool bAgentsLoaded = pParty->LoadAndVerifyAgentNyms(theServerNym, 
+																  map_Nyms_Already_Loaded, 
+																  map_Nyms_NewlyLoaded);
+		if (false == bAgentsLoaded)
+		{
+			OTLog::vOutput(0, "OTSmartContract::VerifySmartContract: Failed trying to Load and Verify Agent Nyms for party: %s\n",
+						   str_party_name.c_str());
+			bAreAnyInvalidAccounts = true; // We let them all go through, so there is consistent output, but we still take notice that at least one failed.
+		}
+		// --------------------------------------
+		mapOfAccounts map_Accts_NewlyLoaded; // CALL OTSmartContract::CleanupAccts(map_Accts_NewlyLoaded); before leaving the scope of this FOR_EACH_IT block!!
+		
+		const bool bAcctsLoaded = pParty->LoadAndVerifyAssetAccounts(theServerNym, strServerID, 
+																	 map_Accts_Already_Loaded, 
+																	 map_Accts_NewlyLoaded);
+		if (false == bAcctsLoaded)
+		{
+			OTLog::vOutput(0, "OTSmartContract::VerifySmartContract: Failed trying to Load and Verify Asset Accts for party: %s\n",
+						   str_party_name.c_str());
+			bAreAnyInvalidAccounts = true; // We let them all go through, so there is consistent output, but we still take notice that at least one failed.
+		}
+		// --------------------------------------
+		
+		// BY THIS POINT, we have successfully loaded and verified ALL of the Nyms for ALL of the agents,
+		// and ALL of the asset accounts, for this party. We know the Party has pointers internally to all 
+		// of those objects as well. Therefore if we erase any of those objects, we must also clear the pointers!
+		//
+		const bool bAreAcctsVerified = pParty->VerifyAccountsWithTheirAgents(theServerNym, strServerID,
+																			 bBurnTransNo); // bBurnTransNo=false by default.
+		if (false == bAreAcctsVerified)
+		{
+			OTLog::vOutput(0, "OTSmartContract::VerifySmartContract: Failed trying to Verify Asset Accts with their Agents, for party: %s\n",
+						   str_party_name.c_str());
+			bAreAnyInvalidAccounts = true; // We let them all go through, so there is consistent output, but we still take notice that at least one failed.
+		}
+		// **************************************************************
+		
+		pParty->ClearTemporaryPointers(); // Don't want any bad pointers floating around after cleanup.
+		// ----------------
+		OTSmartContract::CleanupNyms(map_Nyms_NewlyLoaded); // HAVE to do this, or we'll leak.
+		OTSmartContract::CleanupAccts(map_Accts_NewlyLoaded); // even though it returned false, some may have been loaded before it failed.
+	} // FOR_EACH_IT(mapOfParties, m_mapParties, it_party)
+	// --------------------------------------------------------------------------------
+	
+	if (bAreAnyInvalidAccounts)
+	{
+		OTLog::Output(0, "OTSmartContract::VerifySmartContract: Failure. There are invalid account(s) or authorized agent(s) on this contract.\n");
+		return false;
+	}
+	
+	// todo: if the above loop fails halfway through, then we should really PUT BACK the closing
+	// transaction #s that we removed. After all, we have a list of them. Otherwise the only way
+	// to know which parties have their numbers still, and which ones don't, would be to stick a notice
+	// in their nymbox, like we do for finalReceipt.  Perhaps such a notice should ALWAYS go into the
+	// Nymbox in these cases... *shrug*
+	
+	return true;
+}
 
 
 
@@ -3767,7 +3992,7 @@ bool OTSmartContract::AddParty(OTParty & theParty)
 // ConfirmParty() looks up an existing party on the smart contract, then makes sure that it matches
 // the one passed in, and then REPLACES the existing one with the new one that was passed in. Unlike
 // AddParty (above) this version DOES expect account IDs, NymIDs, and transaction numbers, and it DOES
-// saved a signed copy internally as the ultimate confirmation. This version also needs to validate
+// save a signed copy internally as the ultimate confirmation. This version also needs to validate
 // the signatures that are already there.
 // Client-side.
 //

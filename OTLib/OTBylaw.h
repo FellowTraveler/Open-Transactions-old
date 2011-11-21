@@ -214,16 +214,29 @@ public:
 	//
 	void ClearTemporaryPointers() { m_pNym = NULL; } /* Someday clear entity/role ptr here? And do NOT
 													    clear party ptr here (since it's not temporary.)  */
+    // ---------------------------------
+	// NOTE: Current iteration, these functions ASSUME that m_pNym is loaded.
+	// They will definitely fail if you haven't already loaded the Nym.
+	//
+	bool VerifyIssuedNumber(const long & lNumber, const OTString & strServerID);
+	bool VerifyTransactionNumber(const long & lNumber, const OTString & strServerID);
+
+	bool RemoveIssuedNumber(const long & lNumber, const OTString & strServerID, OTPseudonym & SIGNER_NYM, bool bSave=true);
+	bool RemoveTransactionNumber(const long & lNumber, const OTString & strServerID, OTPseudonym & SIGNER_NYM, bool bSave=true);
 	
-	bool HarvestTransactionNumber(const long & lNumber, const OTString & strServerID);
+	bool HarvestTransactionNumber(const long & lNumber, const OTString & strServerID, bool bSave=false);
 	
+    // ---------------------------------
 	bool ReserveOpeningTransNum(const OTString & strServerID);
 	bool ReserveClosingTransNum(const OTString & strServerID, OTPartyAccount & thePartyAcct);
-
     // ---------------------------------
 	
 	bool SignContract(OTContract & theInput);
 	
+	// Verify that this agent somehow has legitimate agency over this account. (According to the account.)
+	//
+	bool VerifyAgencyOfAccount(OTAccount & theAccount) const;
+
     // ---------------------------------
 	
 	bool VerifySignature(OTContract & theContract); // Have the agent try to verify his own signature against any contract.
@@ -439,8 +452,14 @@ public:
 	void SetAcctID(const OTString & strAccountID)		{ m_strAcctID		= strAccountID; }
 	
 	OTAgent * GetAuthorizedAgent() const;
+	// ----------------------------
+	OTAccount * LoadAccount(OTPseudonym & theSignerNym, const OTString & strServerID);
 
 	bool IsAccount(OTAccount & theAccount) const;
+	// ----------------------------
+	bool VerifyOwnership() const; // I have a ptr to my owner (party), as well as to the actual account. I will ask him to verify whether he actually owns it.
+	bool VerifyAgency() const; // I can get a ptr to my agent, and I have one to the actual account. I will ask him to verify whether he actually has agency over it. 
+	// -------------------
 	
 	long GetClosingTransNo() { return m_lClosingTransNo; }
 	void SetClosingTransNo(const long lTransNo) { m_lClosingTransNo = lTransNo; }
@@ -696,11 +715,25 @@ public:
 	// by agent name
 	OTPartyAccount * GetAccountByAgent(const std::string & str_agent_name);
 	
-	 // If account is present for Party, set account's pointer to theAccount and return true.
+	// If account is present for Party, set account's pointer to theAccount and return true.
 	//
 	bool HasAccount(OTAccount & theAccount, OTPartyAccount ** ppPartyAccount=NULL);
 
-	bool VerifyOwnershipOfAccount(OTAccount & theAccount);
+	bool VerifyOwnershipOfAccount(OTAccount & theAccount) const;
+	
+	bool VerifyAccountsWithTheirAgents(OTPseudonym		& theSignerNym, 
+									   const OTString	& strServerID,
+									   const bool		  bBurnTransNo=false);
+
+	// ------------------------------------------------------
+	bool LoadAndVerifyAgentNyms(OTPseudonym & theServerNym, 
+								mapOfNyms	& map_Nyms_Already_Loaded, 
+								mapOfNyms	& map_NewlyLoaded);
+	
+	bool LoadAndVerifyAssetAccounts(OTPseudonym		& theServerNym, 
+									const OTString	& strServerID, 
+									mapOfAccounts	& map_Accts_Already_Loaded, 
+									mapOfAccounts	& map_NewlyLoaded);
 	
     // ------------- OPERATIONS -------------
 	

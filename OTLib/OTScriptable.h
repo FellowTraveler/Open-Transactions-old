@@ -198,8 +198,14 @@ public:
 	bool VerifyPartyAuthorization(OTParty			& theParty,		// The party that supposedly is authorized for this supposedly executed agreement.
 								  OTPseudonym		& theSignerNym,	// For verifying signature on the authorizing Nym, when loading it
 								  const OTString	& strServerID,	// For verifying issued num, (need the serverID the # goes with.)
-								  mapOfNyms			* pmap_ALREADY_LOADED=NULL);
-
+								  mapOfNyms			* pmap_ALREADY_LOADED=NULL, // If some nyms are already loaded, pass them here so we don't load them twice on accident.
+								  const bool		  bBurnTransNo=false); // In OTServer::VerifySmartContract(), it not only wants to verify the # is properly issued, but it additionally wants to see that it hasn't been USED yet -- AND it wants to burn it, so it can't be used again!  This bool allows you to tell the function whether or not to do that.
+	
+	bool VerifyPartyAcctAuthorization(OTPartyAccount	& thePartyAcct,	// The party is assumed to have been verified already via VerifyPartyAuthorization()
+									  OTPseudonym		& theSignerNym,	// For verifying signature on the authorized Nym
+									  const OTString	& strServerID, // For verifying issued num, need the serverID the # goes with.
+									  const bool		  bBurnTransNo=false); // In OTServer::VerifySmartContract(), it not only wants to verify the closing # is properly issued, but it additionally wants to see that it hasn't been USED yet -- AND it wants to burn it, so it can't be used again!  This bool allows you to tell the function whether or not to do that.		
+	
 	bool VerifyThisAgainstAllPartiesSignedCopies();
 
 	bool AllPartiesHaveSupposedlyConfirmed();

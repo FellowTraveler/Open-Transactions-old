@@ -302,6 +302,34 @@ public:
 	virtual bool AddParty(OTParty & theParty); // Takes ownership. Overrides from OTScriptable.
 	virtual bool ConfirmParty(OTParty & theParty); // Takes ownership. Overrides from OTScriptable.
 	
+	// --------------------------------------------------------------------------
+	// OTSmartContract
+	//
+	//
+	bool VerifySmartContract(OTPseudonym & theNym, OTAccount & theAcct, OTPseudonym & theServerNym,
+							 const bool bBurnTransNo=false);
+	// theNym is trying to activate the smart contract, and has 
+	// supplied transaction numbers and a user/acct ID. theNym definitely IS the owner of the account... that is 
+	// verified in OTServer::NotarizeTransaction(), before it even knows what KIND of transaction it is processing! 
+	// (For all transactions.) So by the time OTServer::NotarizeSmartContract() is called, we know that much.
+	//
+	// But for all other parties, we do not know this, so we still need to loop them all, etc to verify this crap,
+	// at least once. (And then maybe I can lessen some of the double-checking, for optimization purposes, once
+	// we've run this gamut.)
+	//
+	// One thing we still do not know, until VerifySmartContract is called, is whether theNym really IS a valid
+	// agent for this contract, and whether all the other agents are valid, and whether the accounts are validly
+	// owned by the agents they list, and whether the authorizing agent for each party has signed their own copy,
+	// and whether the authorizing agent for each party provided a valid opening number--which must be recorded
+	// as consumed--and whether the authorized agent for each account provided a valid closing number, which likewise
+	// must be recorded.
+	//
+	// IN THE FUTURE, it should be possible to place restrictions in the contract, enforced by the server,
+	// which allow parties to trust additional things such as, XYZ account will only be used for this contract,
+	// or ABC party cannot do DEF action without triggering a notice, etc.
+	//
+	// --------------------------------------------------------------------------
+
 	// We call this just before activation (in OT_API::activateSmartContract) in order
 	// to make sure that certain IDs and transaction #s are set, so the smart contract
 	// will interoperate with the old Cron Item system of doing things.
@@ -384,6 +412,8 @@ public:
 	virtual void Release();
 	void ReleaseStashes();
 
+	static void CleanupNyms(mapOfNyms & theMap);
+	static void CleanupAccts(mapOfAccounts & theMap);
 	
 	// return -1 if error, 0 if nothing, and 1 if the node was processed.
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);

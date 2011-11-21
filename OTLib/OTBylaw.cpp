@@ -811,7 +811,6 @@ OTPartyAccount::~OTPartyAccount()
 
 
 
-
 bool OTPartyAccount::IsAccount(OTAccount & theAccount) const
 {
 	if (!m_strAcctID.Exists())
@@ -1582,11 +1581,84 @@ OTPseudonym * OTParty::LoadAuthorizingAgentNym(OTPseudonym & theSignerNym, OTAge
 }
 
 
-
-
-bool OTParty::VerifyOwnershipOfAccount(OTAccount & theAccount)
+// I have a ptr to my owner (party), as well as to the actual account. 
+// I will ask him to verify whether he actually owns it.
+bool OTPartyAccount::VerifyOwnership() const
 {
-	if (this->IsNym())
+//	OTParty		* m_pForParty;
+//	OTAccount	* m_pAccount; 
+	// -------------------------
+	if (NULL == m_pForParty)
+	{
+		OTLog::Error("OTPartyAccount::VerifyOwnership: Error: NULL pointer to owner party. \n");
+		return false;
+	}
+	if (NULL == m_pAccount)
+	{
+		OTLog::Error("OTPartyAccount::VerifyOwnership: Error: NULL pointer to account. (This function expects account to already be loaded.) \n");
+		return false;
+	} // todo maybe turn the above into OT_ASSERT()s.
+	// -------------------------
+	
+	if (false == m_pForParty->VerifyOwnershipOfAccount(*m_pAccount))
+	{
+		OTLog::vOutput(0, "OTPartyAccount::VerifyOwnership: Party %s doesn't verify as the ACTUAL owner of account: %s \n",
+					   m_strName.Get());
+		return false;
+	}
+
+	return true;
+}
+
+// I can get a ptr to my agent, and I have one to the actual account. 
+// I will ask him to verify whether he actually has agency over it. 
+bool OTPartyAccount::VerifyAgency() const
+{
+	if (NULL == m_pAccount)
+	{
+		OTLog::Error("OTPartyAccount::VerifyAgency: Error: NULL pointer to account. (This function expects account to already be loaded.) \n");
+		return false;
+	} // todo maybe turn the above into OT_ASSERT()s.
+	// -------------------------
+	OTAgent * pAgent = this->GetAuthorizedAgent();
+	
+	if (NULL == pAgent)
+	{
+		OTLog::vOutput(0, "OTPartyAccount::VerifyAgency: Unable to find authorized agent (%s) for this account: %s \n",
+					   GetAgentName().Get(), GetName().Get());
+		return false;
+	}
+	// -------------------------
+	if (false == pAgent->VerifyAgencyOfAccount(*m_pAccount))
+	{
+		OTLog::vOutput(0, "OTPartyAccount::VerifyAgency: Agent %s doesn't verify as ACTUALLY having rights over account %s with ID: %s \n",
+					   GetAgentName().Get(), GetName().Get(), GetAcctID().Get());
+		return false;
+	}
+	// -------------------------
+
+	return true;	
+}
+
+
+bool OTAgent::VerifyAgencyOfAccount(OTAccount & theAccount) const
+{
+	OTIdentifier theSignerID;
+	
+	if (!this->GetSignerID(theSignerID))
+	{
+		OTLog::Error("OTAgent::VerifyAgencyOfAccount: ERROR: Entities and roles haven't been coded yet.\n");
+		return false;
+	}
+	// --------------------
+
+	return theAccount.VerifyOwnerByID(theSignerID); // todo when entities and roles come, won't this "just work", or do I also have to warn the acct whether it's a Nym or a Role being passed?
+}
+
+
+bool OTParty::VerifyOwnershipOfAccount(OTAccount & theAccount) const
+{
+	if (this->IsNym()) // For those cases where the party is actually just a solitary Nym (not an entity.)
 	{
 		bool bNymID = false;
 		std::string str_nym_id = this->GetNymID(&bNymID); // If the party is a Nym, this is the Nym's ID. Otherwise this is false.
@@ -1611,19 +1683,6 @@ bool OTParty::VerifyOwnershipOfAccount(OTAccount & theAccount)
 }
 
 
-
-bool OTPartyAccount::IsAccount(OTAccount & theAccount) const
-{
-	if (!m_strAcctID.Exists())
-	{
-		OTLog::Error("OTPartyAccount::IsAccount: Error: Empty m_strAcctID.\n");
-		return false;
-	}
-	
-	const OTIdentifier theAcctID(m_strAcctID);
-	
-	return theAcctID.Compare(theAccount.GetRealAccountID());
-}
 
 
 // This is only for SmartContracts, NOT all scriptables.
@@ -1756,6 +1815,280 @@ bool OTParty::SendNoticeToParty(OTPseudonym & theServerNym,
 	return bSuccess;	
 }
 
+
+// CALLER IS RESPONSIBLE TO DELETE.
+// This is very low-level. (It's better to use OTPartyAccount through it's interface, than to 
+// just load up its account directly.) But this is here because it is appropriate in certain cases.
+//
+OTAccount * OTPartyAccount::LoadAccount(OTPseudonym & theSignerNym, const OTString & strServerID)
+{
+	if (!m_strAcctID.Exists())
+	{
+		OTLog::vOutput(0, "OTPartyAccount::LoadAccount: Bad: Acct ID is blank for account: %s \n",
+					   m_strName.Get());
+		return NULL;
+	}
+
+	const OTIdentifier theAcctID(m_strAcctID), theServerID(strServerID);
+	
+	OTAccount * pAccount = OTAccount::LoadExistingAccount(theAcctID, theServerID);
+
+	if (NULL == pAccount)
+	{
+		OTLog::vOutput(0, "OTPartyAccount::LoadAccount: Failed trying to load account: %s, with AcctID: %s \n",
+					   m_strName.Get(), m_strAcctID.Get());
+		return NULL;		
+	}
+	// BELOW THIS POINT, You must delete pAccount if you don't return it!!
+	//
+	else if (!pAccount->VerifyAccount(theSignerNym))
+	{
+		OTLog::vOutput(0, "OTPartyAccount::LoadAccount: Failed trying to verify account: %s, with AcctID: %s \n",
+					   m_strName.Get(), m_strAcctID.Get());
+		delete pAccount;
+		return NULL;		
+	}
+	// -----------------------------------------
+	// This compares asset type ID, AND account ID on the actual loaded account, to what is expected. 
+	else if (!this->IsAccount(*pAccount)) // It also sets the internal pointer m_pAccount... FYI.
+	{
+		// IsAccount has plenty of logging already.
+		delete pAccount;
+		return NULL;		
+	}
+	// BELOW THIS POINT, pAccount is loaded and validated, in-and-of-itself, and against the PartyAcct.
+	// (But not against the party ownership and agent rights.) 
+	// It must be deleted or will leak.
+	
+	// (No need to set m_pAccount, as that happened already in IsAccount().)
+	
+	return pAccount;
+}
+
+
+
+bool OTParty::LoadAndVerifyAssetAccounts(OTPseudonym	& theServerNym, 
+										 const OTString	& strServerID, 
+										 mapOfAccounts	& map_Accts_Already_Loaded, 
+										 mapOfAccounts	& map_NewlyLoaded)
+{
+	FOR_EACH_IT(mapOfPartyAccounts, m_mapPartyAccounts, it_acct)
+	{
+		const std::string str_acct_name = (*it_acct).first;
+		OTPartyAccount * pPartyAcct = (*it_acct).second;
+		OT_ASSERT(NULL != pPartyAcct);
+		// --------------
+		
+		bool bHadToLoadtheAcctMyself = true;
+		OTAccount * pAccount = NULL;
+		
+		const OTString & strAcctID = pPartyAcct->GetAcctID();
+
+		if (!strAcctID.Exists())
+		{
+			OTLog::vOutput(0, "OTParty::LoadAndVerifyAssetAccounts: Bad: Acct ID is blank for account: %s, on party: %s.\n",
+						   str_acct_name.c_str(), GetPartyName().c_str());
+			return false;
+		}
+		// ----------------------
+		mapOfAccounts::iterator ii = map_Accts_Already_Loaded.find(strAcctID.Get()); // If it's there, it's mapped by Acct ID, so we can look it up.
+		
+		if (map_Accts_Already_Loaded.end() != ii) // Found it.
+		{
+			pAccount = (*ii).second;
+			OT_ASSERT(NULL != pAccount);
+			// ---------------			
+			// Now we KNOW the Account is "already loaded" and we KNOW the partyaccount has a POINTER to that Acct:
+			//
+			OT_ASSERT(pPartyAcct->IsAccount(*pAccount)); // assert because the Acct was already mapped by ID, so it should already have been validated.
+			
+			bHadToLoadtheAcctMyself = false; // Whew. The Acct was already loaded. Found it. (And the ptr is now set.)
+		}
+		// -----------------------------------------------
+		
+		// Looks like the Acct wasn't already loaded....
+		// Let's load it up...
+		//
+		if (bHadToLoadtheAcctMyself == true)
+		{
+			if (NULL == (pAccount = pPartyAcct->LoadAccount(theServerNym, strServerID))) // This calls VerifyAccount(), AND it sets pPartyAcct's internal ptr.
+			{
+				OTLog::vOutput(0, "OTParty::LoadAndVerifyAssetAccounts: Failed loading Account with name: %s and ID: %s\n", 
+							  str_acct_name.c_str(), strAcctID.Get());
+				return false;
+			}
+			// Successfully loaded the Acct! We add to this map so it gets cleaned-up properly later.
+			map_NewlyLoaded.insert(std::pair<std::string, OTAccount *>(strAcctID.Get(), pAccount));
+		}
+		// ---------------------------------------
+	}
+
+	return true;
+}
+
+
+// After calling this, map_NewlyLoaded will contain pointers to Nyms that MUST BE CLEANED UP.
+// This function will not bother loading any Nyms which appear on map_Nyms_Already_Loaded.
+//
+bool OTParty::LoadAndVerifyAgentNyms(OTPseudonym & theServerNym, mapOfNyms & map_Nyms_Already_Loaded, mapOfNyms & map_NewlyLoaded)
+{
+	const bool bIsNym = this->IsNym();
+	
+	if (!bIsNym) // Owner MUST be a Nym (until I code Entities.)
+	{
+		OTLog::Error("OTParty::LoadAndVerifyAgents: Entities and roles have not been coded yet. Party owner MUST be a Nym. \n");
+		return false;
+	}
+	if (GetOpeningTransNo() <= 0)	// Opening Trans Number MUST be set for the party! VerifyPartyAuthorization() only verifies it if it's set. Therefore
+	{								// if we are verifying the agent Nyms based on the assumption that the authorizing Nym is valid, then we want to make sure
+		OTLog::Error("OTParty::LoadAndVerifyAgents: This party doesn't have a valid opening transaction number. Sorry. \n"); // the Opening Num is being checked for that Nym. (And if it's above 0, then it IS being checked.)
+		return false;
+	}
+	// ----------------------------------
+	bool bGotPartyNymID=false;
+	const std::string str_owner_id = this->GetNymID(&bGotPartyNymID); // str_owner_id  is the NymID of the party OWNER.
+	OT_ASSERT(bGotPartyNymID);
+	// ----------------------------------
+	const OTString strServerNymID(theServerNym);
+	
+	FOR_EACH_IT(mapOfAgents, m_mapAgents, it_agent)	// Until entities are coded, there can only be one agent, who has the same ID as the owner (Nym representing himself)
+	{
+		OTAgent * pAgent = (*it_agent).second;
+		OT_ASSERT_MSG(NULL != pAgent, "Unexpected NULL agent pointer in party map.");
+		// -------------------------------------
+		
+		if (!pAgent->IsAnIndividual() || ! pAgent->DoesRepresentHimself())
+		{
+			OTLog::Error("OTParty::LoadAndVerifyAgents: Entities and roles have not been coded yet. "
+						 "Agent needs to be an individual who represents himself, and Party owner needs to be the same Nym.\n");
+			return false;
+		}
+		// ----------------------
+		bool bGotAgentNymID=false;
+		const std::string str_agent_id = pAgent->GetNymID(&bGotAgentNymID); // str_agent_id is the NymID of the AGENT.
+		OT_ASSERT(bGotAgentNymID);
+		// ---------
+		
+		// COMPARE THE IDS...... Since the Nym for this agent is representing himself (he is also owner)
+		// therefore they should have the same NymID.
+		
+		if ( !(str_agent_id.compare(str_owner_id) == 0) ) // If they don't match. (Until I code entities, a party can only be a Nym representing himself as an agent.)
+		{
+			OTLog::vError("OTParty::LoadAndVerifyAgents: Nym supposedly represents himself (owner AND agent) yet they have different Nym IDs:  %s / %s.\n",
+						 str_owner_id.c_str(), str_agent_id.c_str());
+			return false;			
+		}
+		// ---------------------------------
+		// Server Nym is not allowed as a party (at this time :-)
+		if ( str_agent_id.compare(strServerNymID.Get()) == 0 ) // If they DO match.
+		{
+			OTLog::Error("OTParty::LoadAndVerifyAgents: Server Nym is not allowed to serve as an agent for smart contracts. Sorry.\n")
+			return false;			
+		}
+		// ----------------------
+		// BY THIS POINT we know that the Party is a Nym, the Agent is an individual representing himself, and
+		// we know that they have the SAME NYM ID. 
+		//
+		// Next step: See if the Nym is already loaded and if not, load him up.
+
+		bool bHadToLoadtheNymMyself = true;
+		OTPseudonym * pNym = NULL;
+
+		mapOfNyms::iterator ii = map_Nyms_Already_Loaded.find(str_agent_id); // If it's there, it's mapped by Nym ID, so we can look it up.
+		
+		if (map_Nyms_Already_Loaded.end() != ii) // Found it.
+		{
+			pNym = (*ii).second;
+			OT_ASSERT(NULL != pNym);
+			// ---------------
+			// Now we KNOW the Nym is "already loaded" and we KNOW the agent has a POINTER to that Nym:
+			//
+			OT_ASSERT(pAgent->IsValidSigner( *pNym )); // assert because the Nym was already mapped by ID, so it should already have been validated.
+
+			bHadToLoadtheNymMyself = false; // Whew. He was already loaded. Found him.
+		}
+		// -----------------------------------------------
+		
+		// Looks like the Nym wasn't already loaded....
+		// Let's load him up
+		//
+		if (bHadToLoadtheNymMyself)
+		{
+			if (NULL == (pNym = pAgent->LoadNym(theServerNym)))
+			{
+				OTLog::vError("OTParty::LoadAndVerifyAgents: Failed loading Nym with ID: %s\n", str_agent_id.c_str());
+				return false;
+			}
+			// Successfully loaded the Nym! We add to this map so it gets cleaned-up properly later.
+			map_NewlyLoaded.insert(std::pair<std::string, OTPseudonym *>(str_agent_id, pNym)); // I use str_agent_id here because it contains the right NymID.
+		}
+		// -----------------------------------------------
+		// BY THIS POINT, we know the Nym is available for use, whether I had to load it myself first or not.
+		// We also know that if I DID have to load it myself, the pointer was saved in map_NewlyLoaded for cleanup later.
+		//
+		// Until entities are coded, by this point we also KNOW that 
+		// the agent's NymID and the Party (owner)'s NymID are identical.
+		//
+		// Before this function was even called, we knew that OTScriptable::VerifyPartyAuthorization() was already called
+		// on all the parties, and we know that every party's signed copy was verified against the signature of its authorizing
+		// agent, and that the Opening trans# for that party is currently signed out to THAT AGENT.
+		//
+		// If the NymIDs are identical between agent and owner, and the owner's authorizing agent (that same nym) has SIGNED
+		// its party's copy, and the Opening Trans# is signed out to that agent, then we have basically verified that agent. 
+		// Right?
+		// 
+		// WHAT if one of the Nyms loaded by this agent was NOT the same Nym as the owner? In that case, it would have to be
+		// a Nym working for an entity in a role, and I haven't coded entities yet, so I just disallow that case entirely
+		// 
+		// By this point, the call to LoadNym also did a LoadSignedNymFile() and a call to VerifyPseudonym().
+		//
+		// FINALLY, the calls to pAgent->IsValidSigner( *pNym ) or pAgent->LoadNym(theServerNym) (whichever occurred -- one or the other)
+		// have now insured by this point that pAgent continues to have an INTERNAL POINTER to pNym...
+	}
+	
+	return true;
+}
+
+
+
+
+// This is only meant to be used in OTSmartContract::VerifySmartContract() RIGHT AFTER the call 
+// to VerifyPartyAuthorization(). It ASSUMES the nyms and asset accounts are all loaded up, with
+// internal pointers to them available.
+//
+bool OTParty::VerifyAccountsWithTheirAgents(OTPseudonym		& theSignerNym, 
+											const OTString	& strServerID,
+											const bool		  bBurnTransNo/*=false*/)
+{
+	OT_ASSERT(NULL != m_pOwnerAgreement);
+	
+	bool bAllSuccessful = true;
+	
+	// By this time this function is called, ALL the Nyms and Asset Accounts should ALREADY
+	// be loaded up in memory!
+	//
+	FOR_EACH(mapOfPartyAccounts, m_mapPartyAccounts)
+	{
+		const std::string str_acct_name = (*it).first;
+		OTPartyAccount * pAcct = (*it).second;
+		OT_ASSERT_MSG(NULL != pAcct, "Unexpected NULL partyaccount pointer in party map.");
+		// -------------------------------------
+
+		const bool bVerified = m_pOwnerAgreement->VerifyPartyAcctAuthorization(*pAcct,			// The party is assumed to have been verified already via VerifyPartyAuthorization()
+																			   theSignerNym,	// For verifying signature on the authorizing Nym and for accts as well.
+																			   strServerID,		// For verifying issued num, need the serverID the # goes with.
+																			   bBurnTransNo);	// bBurnTransNo=false ) // In OTServer::VerifySmartContract(), it not only wants to verify the closing # is properly issued, but it additionally wants to see that it hasn't been USED yet -- AND it wants to burn it, so it can't be used again!  This bool allows you to tell the function whether or not to do that.
+		if (false == bVerified)		// This mechanism is here because we still want to let them ALL verify, before returning false.
+		{
+			bAllSuccessful = false;	// That is, we don't want to return at the first failure, but let them all go through. (This is in order to keep the output consistent.)
+			OTLog::vOutput(0, "OTParty::VerifyAccountsWithTheirAgents: Ownership, agency, or potentially "
+						   "closing transaction # failed to verify on account: %s \n", str_acct_name.c_str());
+		}
+	}
+	// -------------
+	
+	return bAllSuccessful;
+}
 
 
 
@@ -1905,11 +2238,130 @@ void OTParty::HarvestClosingNumbers(OTPseudonym & theNym, const OTString & strSe
 }
 
 
+bool OTAgent::VerifyIssuedNumber(const long & lNumber, const OTString & strServerID)
+{
+	// Todo: this function may change when entities / roles are added.
+	if (!IsAnIndividual() || !DoesRepresentHimself())
+	{
+		OTLog::Error("OTAgent::VerifyIssuedNumber:  Error: Entities and Roles are not yet supported. Agent: %s\n",
+					 m_strName.Get());
+		return false;
+	}
+	// -----------------------------------------
+	
+	if (NULL != m_pNym)
+		return m_pNym->VerifyIssuedNum(strServerID, lNumber);
+	else 
+		OTLog::vError("OTAgent::VerifyIssuedNumber: Error: m_pNym was NULL. For agent: %s\n",
+					  m_strName.Get());
+	
+	return false;	
+}
+
+
+bool OTAgent::VerifyTransactionNumber(const long & lNumber, const OTString & strServerID)
+{
+	// Todo: this function may change when entities / roles are added.
+	if (!IsAnIndividual() || !DoesRepresentHimself())
+	{
+		OTLog::Error("OTAgent::VerifyTransactionNumber:  Error: Entities and Roles are not yet supported. Agent: %s\n",
+					 m_strName.Get());
+		return false;
+	}
+	// -----------------------------------------
+	
+	if (NULL != m_pNym)
+		return m_pNym->VerifyTransactionNum(strServerID, lNumber);
+	else 
+		OTLog::vError("OTAgent::VerifyTransactionNumber: Error: m_pNym was NULL. For agent: %s\n",
+					  m_strName.Get());
+	
+	return false;	
+}
+
+
+// This means the transaction number has just been CLOSED.
+//
+bool OTAgent::RemoveIssuedNumber(const long & lNumber, const OTString & strServerID, OTPseudonym & SIGNER_NYM, bool bSave/*=true*/)
+{
+	// Todo: this function may change when entities / roles are added.
+	if (!IsAnIndividual() || !DoesRepresentHimself())
+	{
+		OTLog::Error("OTAgent::RemoveIssuedNumber:  Error: Entities and Roles are not yet supported. Agent: %s\n",
+					 m_strName.Get());
+		return false;
+	}
+	// -----------------------------------------
+	
+	if (NULL != m_pNym)
+		return m_pNym->RemoveIssuedNum(SIGNER_NYM, strServerID, lNumber, bSave);
+	else 
+		OTLog::vError("OTAgent::RemoveIssuedNumber: Error: m_pNym was NULL. For agent: %s\n",
+					  m_strName.Get());
+	
+	return false;		
+}
+
+
+// This means the transaction number has just been USED (and it now must stay open/outstanding until CLOSED.)
+//
+bool OTAgent::RemoveTransactionNumber(const long & lNumber, const OTString & strServerID, OTPseudonym & SIGNER_NYM, bool bSave/*=true*/)
+{
+	// Todo: this function may change when entities / roles are added.
+	if (!IsAnIndividual() || !DoesRepresentHimself())
+	{
+		OTLog::Error("OTAgent::RemoveTransactionNumber:  Error: Entities and Roles are not yet supported. Agent: %s\n",
+					 m_strName.Get());
+		return false;
+	}
+	// -----------------------------------------
+	
+	if (NULL != m_pNym)
+	{
+		std::set<long> & theIDSet = m_pNym->GetSetOpenCronItems();
+		
+		if (bSave)
+		{
+			const bool bSuccess = m_pNym->RemoveTransactionNum(strServerID, lNumber);  // Doesn't save.
+			
+			if (bSuccess)
+			{
+				theIDSet.insert(lNumber);
+
+				m_pNym->SaveSignedNymfile(SIGNER_NYM);
+			}
+			else
+				OTLog::Error("OTAgent::RemoveTransactionNumber: Error1, should never happen. (I'd assume you aren't "
+							 "removing numbers without verifying first if they're there.)\n");
+
+			return bSuccess;
+		}
+		else
+		{
+			const bool bSuccess = m_pNym->RemoveTransactionNum(strServerID, lNumber);  // Doesn't save.
+			
+			if (bSuccess)
+				theIDSet.insert(lNumber);
+			else
+				OTLog::Error("OTAgent::RemoveTransactionNumber: Error2, should never happen. (I'd assume you aren't "
+							 "removing numbers without verifying first if they're there.)\n");
+			return bSuccess;
+		}
+	}
+	else 
+		OTLog::vError("OTAgent::RemoveTransactionNumber: Error: m_pNym was NULL. For agent: %s\n",
+					  m_strName.Get());
+	
+	return false;			
+}
+
+
 // Done
 // IF theNym is this agent, then grab his number back for him.
 // If he is NOT, then do nothing.
+// ASSUMES m_pNym is set already -- doesn't bother loading the nym!
 //
-bool OTAgent::HarvestTransactionNumber(const long & lNumber, const OTString & strServerID)
+bool OTAgent::HarvestTransactionNumber(const long & lNumber, const OTString & strServerID, bool bSave/*=false*/)
 {
 	// Todo: this function may change when entities / roles are added.
 	if (!IsAnIndividual() || !DoesRepresentHimself())
@@ -1925,7 +2377,7 @@ bool OTAgent::HarvestTransactionNumber(const long & lNumber, const OTString & st
 		// We don't "add it back" unless we're SURE he had it in the first place...
 		if (m_pNym->VerifyIssuedNum(strServerID, lNumber))
 		{
-			m_pNym->AddTransactionNum(*m_pNym, strServerID, lNumber, false); // bSave=false (OTParty will save the Nym at the end.)
+			m_pNym->AddTransactionNum(*m_pNym, strServerID, lNumber, bSave); // bSave defaults to false because OTParty will save the Nym at the end, when IT is harvesting.
 			return true;
 		}
 		else 
