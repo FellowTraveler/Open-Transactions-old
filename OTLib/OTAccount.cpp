@@ -340,7 +340,7 @@ bool OTAccount::Credit(const long & lAmount)
 }
 
 
-const OTIdentifier & OTAccount::GetAssetTypeID()
+const OTIdentifier & OTAccount::GetAssetTypeID() const
 {
 	return m_AcctAssetTypeID;
 }
@@ -398,7 +398,7 @@ OTAccount::~OTAccount()
 // Verify Contract ID first, THEN Verify Owner.
 // Because we use the ID in this function, so make sure that it is verified before calling this.
 //
-bool OTAccount::VerifyOwner(OTPseudonym & theCandidate)
+bool OTAccount::VerifyOwner(const OTPseudonym & theCandidate) const
 {
 	OTIdentifier ID_CANDIDATE;
 	theCandidate.GetIdentifier(ID_CANDIDATE); // ID_CANDIDATE now contains the ID of the Nym we're testing.
@@ -956,7 +956,7 @@ int OTAccount::ProcessXMLNode(IrrXMLReader*& xml)
 		if (!strStashTransNum.Exists() || ((lTransNum = atol(strStashTransNum.Get())) <= 0))
 		{
 			m_lStashTransNum = 0;
-			OTLog::Error("OTAccount::ProcessXMLNode: Error: Bad transaction number for supposed corresponding cron item: %ld \n",
+			OTLog::vError("OTAccount::ProcessXMLNode: Error: Bad transaction number for supposed corresponding cron item: %ld \n",
 						 lTransNum);
 			return (-1);
 		}
@@ -1040,7 +1040,7 @@ bool OTAccount::IsOwnedByUser() const
 	return bReturnVal;	
 }
 
-bool OTAccount::IsOwnedByEntity const
+bool OTAccount::IsOwnedByEntity() const
 {
 	return false;
 }
@@ -1110,8 +1110,8 @@ void OTAcctList::Serialize(OTString & strAppend)
 	
 	FOR_EACH(mapOfStrings, m_mapAcctIDs)
 	{
-		const std::string str_asset_type_id	= (*ii).first;
-		const std::string str_account_id	= (*ii).second;
+		const std::string str_asset_type_id	= (*it).first;
+		const std::string str_account_id	= (*it).second;
 		OT_ASSERT((str_asset_type_id.size()>0) && (str_account_id.size()>0));
 		
 		strAppend.Concatenate("<accountEntry assetTypeID=\"%s\" accountID=\"%s\" />\n\n",
@@ -1214,9 +1214,11 @@ OTAccount_SharedPtr OTAcctList::GetOrCreateAccount(OTPseudonym			& theServerNym,
 	// ------------------------------------------------
 	// First, we'll see if there's already an account ID available for the requested asset type ID.
 	//
-	const OTString strAssetTypeID(ASSET_TYPE_ID), strAcctType;
+	const OTString strAssetTypeID(ASSET_TYPE_ID);
 	const std::string str_asset_type_id = strAssetTypeID.Get();
 	
+	// ------------------------------------
+	OTString strAcctType;
 	TranslateAccountTypeToString(m_AcctType, strAcctType);
 	// ----------------------------------------------------------------
 	

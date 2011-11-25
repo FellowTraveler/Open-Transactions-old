@@ -141,6 +141,7 @@ using namespace io;
 #include "OTIdentifier.h"
 #include "OTPseudonym.h"
 #include "OTCron.h"
+#include "OTAccount.h"
 #include "OTTrade.h"
 #include "OTOffer.h"
 #include "OTMarket.h"
@@ -179,7 +180,7 @@ bool OTTrade::VerifyNymAsAgent(const	OTPseudonym & theNym,
 
 // This is an override. See note above.
 //
-bool OTTrade::VerifyNymAsAgentForAccount(const OTPseudonym & theNym, const OTAccount & theAccount)
+bool OTTrade::VerifyNymAsAgentForAccount(OTPseudonym & theNym, const OTAccount & theAccount)
 {
 	return theAccount.VerifyOwner(theNym);
 }

@@ -155,6 +155,7 @@
 #include "OTBasket.h"
 #include "OTMessage.h"
 #include "OTTransaction.h"
+#include "OTSmartContract.h"
 
 
 // A C++ class, high-level interface to OT. The class-based API.
@@ -2550,7 +2551,7 @@ const char * OT_API_Create_SmartContract(const char * SERVER_ID,
 										 const char * SIGNER_NYM_ID,// Use any Nym you wish here. (The signing at this point is only to cause a save.)
 										 // ----------------------------------------
 										 const char * VALID_FROM,	// Default (0 or NULL) == NOW
-										 const char * VALID_TO);	// Default (0 or NULL) == no expiry / cancel anytime
+										 const char * VALID_TO)		// Default (0 or NULL) == no expiry / cancel anytime
 {
 	OT_ASSERT_MSG(NULL != SERVER_ID, "Null SERVER_ID passed in.");
 	OT_ASSERT_MSG(NULL != SIGNER_NYM_ID, "Null SIGNER_NYM_ID passed in.");
@@ -2690,7 +2691,7 @@ const char * OT_API_SmartContract_AddBylaw(const char * THE_CONTRACT,	// The con
 	const OTString strContract(THE_CONTRACT);
 	
 	OTScriptable * pContract = OTScriptable::InstantiateScriptable(strContract);
-	OTCleanup<OTScriptable *> theContractAngel;
+	OTCleanup<OTScriptable> theContractAngel;
 	
 	if (NULL == pContract)
 	{
@@ -2791,7 +2792,7 @@ const char * OT_API_SmartContract_AddClause(const char * THE_CONTRACT,	// The co
 	const OTString strContract(THE_CONTRACT);
 	
 	OTScriptable * pContract = OTScriptable::InstantiateScriptable(strContract);
-	OTCleanup<OTScriptable *> theContractAngel;
+	OTCleanup<OTScriptable> theContractAngel;
 	
 	if (NULL == pContract)
 	{
@@ -2903,7 +2904,7 @@ const char * OT_API_SmartContract_AddVariable(const char * THE_CONTRACT,	// The 
 	const OTString strContract(THE_CONTRACT);
 	
 	OTScriptable * pContract = OTScriptable::InstantiateScriptable(strContract);
-	OTCleanup<OTScriptable *> theContractAngel;
+	OTCleanup<OTScriptable> theContractAngel;
 	
 	if (NULL == pContract)
 	{
@@ -2943,7 +2944,7 @@ const char * OT_API_SmartContract_AddVariable(const char * THE_CONTRACT,	// The 
 	else if (str_access.compare("important") == 0)
 		theAccess = OTVariable::Var_Important;
 	// ---------------------
-	OTVariable::OTVariableType theType = OTVariable::Var_Error_Type;
+	OTVariable::OTVariable_Type theType = OTVariable::Var_Error_Type;
 	
 	if (str_type.compare("bool") == 0)
 		theType = OTVariable::Var_Bool;
@@ -3062,7 +3063,7 @@ const char * OT_API_SmartContract_AddCallback(const char * THE_CONTRACT,	// The 
 	const OTString strContract(THE_CONTRACT);
 	
 	OTScriptable * pContract = OTScriptable::InstantiateScriptable(strContract);
-	OTCleanup<OTScriptable *> theContractAngel;
+	OTCleanup<OTScriptable> theContractAngel;
 	
 	if (NULL == pContract)
 	{
@@ -3171,7 +3172,7 @@ const char * OT_API_SmartContract_AddHook(const char * THE_CONTRACT,	// The cont
 	const OTString strContract(THE_CONTRACT);
 	
 	OTScriptable * pContract = OTScriptable::InstantiateScriptable(strContract);
-	OTCleanup<OTScriptable *> theContractAngel;
+	OTCleanup<OTScriptable> theContractAngel;
 	
 	if (NULL == pContract)
 	{
@@ -3275,7 +3276,7 @@ const char * OT_API_SmartContract_AddParty(const char * THE_CONTRACT,	// The con
 	const OTString strContract(THE_CONTRACT);
 	
 	OTScriptable * pContract = OTScriptable::InstantiateScriptable(strContract);
-	OTCleanup<OTScriptable *> theContractAngel;
+	OTCleanup<OTScriptable> theContractAngel;
 	
 	if (NULL == pContract)
 	{
@@ -3382,7 +3383,7 @@ const char * OT_API_SmartContract_AddAccount(const char * THE_CONTRACT,	// The c
 	const OTString strContract(THE_CONTRACT);
 	
 	OTScriptable * pContract = OTScriptable::InstantiateScriptable(strContract);
-	OTCleanup<OTScriptable *> theContractAngel;
+	OTCleanup<OTScriptable> theContractAngel;
 	
 	if (NULL == pContract)
 	{
@@ -3462,8 +3463,8 @@ const char * OT_API_SmartContract_ConfirmAccount(const char * THE_CONTRACT,	// T
 	OT_ASSERT_MSG(NULL != ACCT_ID, "Null ACCT_ID passed in.");
 	
 	// -----------------------------------------------------
-	const OTIdentifier theSignerNymID(SIGNER_NYM_ID);
 	const OTString strAccountID(ACCT_ID), strAgentName(AGENT_NAME);
+	const OTIdentifier theSignerNymID(SIGNER_NYM_ID), theAcctID(strAccountID);
 	// -----------------------------------------------------
 	
 	OTWallet * pWallet = g_OT_API.GetWallet();
@@ -3511,7 +3512,7 @@ const char * OT_API_SmartContract_ConfirmAccount(const char * THE_CONTRACT,	// T
 	const OTString strContract(THE_CONTRACT);
 	
 	OTScriptable * pContract = OTScriptable::InstantiateScriptable(strContract);
-	OTCleanup<OTScriptable *> theContractAngel;
+	OTCleanup<OTScriptable> theContractAngel;
 	
 	if (NULL == pContract)
 	{
@@ -3646,7 +3647,7 @@ const char * OT_API_SmartContract_ConfirmParty(const char * THE_CONTRACT,	// The
 	const OTString strContract(THE_CONTRACT);
 	
 	OTScriptable * pContract = OTScriptable::InstantiateScriptable(strContract);
-	OTCleanup<OTScriptable *> theContractAngel;
+	OTCleanup<OTScriptable> theContractAngel;
 	
 	if (NULL == pContract)
 	{
@@ -3824,7 +3825,7 @@ OT_BOOL OT_API_HarvestClosingNumbers(const char * SERVER_ID,
 	const OTString strContract(THE_CRON_ITEM);
 	
 	OTCronItem * pCronItem = OTCronItem::NewCronItem(strContract);
-	OTCleanup<OTCronItem *> theContractAngel;
+	OTCleanup<OTCronItem> theContractAngel;
 	
 	if (NULL == pCronItem)
 	{
@@ -3897,7 +3898,7 @@ OT_BOOL OT_API_HarvestAllNumbers(const char * SERVER_ID,
 	const OTString strContract(THE_CRON_ITEM);
 	
 	OTCronItem * pCronItem = OTCronItem::NewCronItem(strContract);
-	OTCleanup<OTCronItem *> theContractAngel;
+	OTCleanup<OTCronItem> theContractAngel;
 	
 	if (NULL == pCronItem)
 	{

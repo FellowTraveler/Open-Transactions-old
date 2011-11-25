@@ -176,8 +176,10 @@ protected:
     virtual void onRemovalFromCron() {}  // called by HookRemovalFromCron().
 	// -----------------------------------------------------------------
 
+	void ClearClosingNumbers();
 	
-    // To force the Nym to close out the closing number on the receipt.
+public:
+	// To force the Nym to close out the closing number on the receipt.
     bool DropFinalReceiptToInbox(const OTIdentifier & USER_ID,
                                  const OTIdentifier & ACCOUNT_ID,
                                  const long & lNewTransactionNumber,
@@ -185,18 +187,16 @@ protected:
                                  const OTString & strOrigCronItem,
                                  OTString * pstrNote=NULL,
                                  OTString * pstrAttachment=NULL);
-
+	
     // Notify the Nym that the OPENING number is now closed, so he can remove it from his issued list.
     bool DropFinalReceiptToNymbox(const OTIdentifier & USER_ID,
                                   const long & lNewTransactionNumber,
                                   const OTString & strOrigCronItem,
                                   OTString * pstrNote=NULL,
                                   OTString * pstrAttachment=NULL);
-	// -----------------------------------------------------------------
 
-	void ClearClosingNumbers();
+	// -----------------------------------------------------------------
 	
-public:
     virtual bool CanRemoveItemFromCron(OTPseudonym & theNym);
     
     virtual void HarvestOpeningNumber(OTPseudonym & theNym);

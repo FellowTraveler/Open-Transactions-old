@@ -178,6 +178,8 @@ extern "C"
 #include "OTTrade.h"
 #include "OTMarket.h"
 
+#include "OTSmartContract.h"
+
 #include "OpenTransactions.h"
 
 
@@ -5216,7 +5218,7 @@ void OT_API::activateSmartContract(const OTIdentifier	& SERVER_ID,
 			return;
 		}
 		// ----------------------------------------------------------
-		OTString &	strAcctID = pAcct->GetAcctID();
+		const OTString &	strAcctID = pAcct->GetAcctID();
 		
 		if (!strAcctID.Exists())
 		{

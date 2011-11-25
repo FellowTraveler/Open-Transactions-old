@@ -190,6 +190,7 @@ using namespace std;
 #include "OTTrade.h"
 #include "OTOffer.h"
 #include "OTPaymentPlan.h"
+#include "OTSmartContract.h"
 #include "OTLog.h"
 
 #include "OTCron.h"
@@ -1120,7 +1121,7 @@ bool OTServer::LoadMainFile()
 						OTLog::vError("Error adding basket currency info...\n Basket ID:\n%s\n Basket Acct ID:\n%s\n", 
 									  strBasketID.Get(), strBasketAcctID.Get());
 				}
-`				
+
 				// Create an OTAssetContract and load them from file, (for each asset type),
 				// and add them to the internal map.
 				else if (!strcmp("assetType", xml->getNodeName()))
@@ -4254,7 +4255,7 @@ void OTServer::NotarizePaymentPlan(OTPseudonym & theNym, OTAccount & theSourceAc
                         // original request. After that, the item is stored internally to Cron itself, and
                         // signed by the server--and changes over time as cron processes. (The original receipt
                         // can always be loaded when necessary.)
-                        if (m_Cron.AddCronItem(*pPlan, true)) // bSaveReceipt=true
+                        if (m_Cron.AddCronItem(*pPlan, &theNym, true)) // bSaveReceipt=true
                         {//todo need to be able to "roll back" if anything inside this block fails.
                             // Now we can set the response item as an acknowledgement instead of the default (rejection)
                             pResponseItem->SetStatus(OTItem::acknowledgement);
@@ -4528,7 +4529,7 @@ void OTServer::NotarizeSmartContract(OTPseudonym & theNym, OTAccount & theSource
 		// block could be commented out (or not.)  ALSO: If I'm going to enforce this, then I need to do it for ALL parties, not just
 		// the activator!
 		else if ((pContract->GetSenderUserID() == SERVER_USER_ID) || 
-				 (NULL != FindPartyBasedOnNymAsAgent(m_nymServer)))
+				 (NULL != pContract->FindPartyBasedOnNymAsAgent(m_nymServer)))
 		{
 			OTLog::Output(0, "** SORRY ** but the server itself is NOT ALLOWED to be a party to any smart contracts. (Pending security review.)\n");
 		}
@@ -4567,7 +4568,7 @@ void OTServer::NotarizeSmartContract(OTPseudonym & theNym, OTAccount & theSource
 			long lNewTransactionNumber = 0;
 			IssueNextTransactionNumber(m_nymServer, lNewTransactionNumber, false); // bStoreTheNumber = false
 			
-			if (false == pContract->SendNoticeToAllParties(*m_nymServer, 
+			if (false == pContract->SendNoticeToAllParties(m_nymServer, SERVER_ID,
 														   lNewTransactionNumber, 
 														   pContract->GetTransactionNum(),
 														   strInReferenceTo))
@@ -4576,7 +4577,7 @@ void OTServer::NotarizeSmartContract(OTPseudonym & theNym, OTAccount & theSource
 							   pContract->GetTransactionNum());
 			}
 			// Add it to Cron...
-			else if (m_Cron.AddCronItem(*pContract, true)) // bSaveReceipt=true
+			else if (m_Cron.AddCronItem(*pContract, &theNym, true)) // bSaveReceipt=true
 			{
 				// We add the smart contract to the server's Cron object, which does regular processing.
 				// That object will take care of processing the smart contract according to its terms.
@@ -5891,7 +5892,7 @@ void OTServer::NotarizeMarketOffer(OTPseudonym & theNym, OTAccount & theAssetAcc
 				// original request. After that, the item is stored internally to Cron itself, and
 				// signed by the server--and changes over time as cron processes. (The original receipt
 				// can always be loaded when necessary.)
-				if (m_Cron.AddCronItem(*pTrade, true)) // bSaveReceipt=true
+				if (m_Cron.AddCronItem(*pTrade, &theNym, true)) // bSaveReceipt=true
 				{//todo need to be able to "roll back" if anything inside this block fails.
 					
 					// Now we can set the response item as an acknowledgement instead of the default (rejection)
@@ -6563,7 +6564,6 @@ void OTServer::UserCmdTriggerClause(OTPseudonym & theNym, OTMessage & MsgIn, OTM
 			if (bSuccess)
 			{
 				// Now we can set the response item as an acknowledgement instead of the default (rejection)
-				pResponseItem->SetStatus(OTItem::acknowledgement);
 				OTLog::vOutput(0, "OTServer::UserCmdTriggerClause: Party (%s) successfully triggered clause: %s.\n",
 							   pParty->GetPartyName().c_str(), str_clause_name.c_str());
 				

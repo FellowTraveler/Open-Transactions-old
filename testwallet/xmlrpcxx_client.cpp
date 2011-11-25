@@ -1275,7 +1275,7 @@ int main(int argc, char* argv[])
 				
 				if (NULL != pMyNym)
 				{
-					pPartyMyNym = new OTParty ("MyNym", *pMyNym, pMyAccount);
+					pPartyMyNym = new OTParty ("MyNym", *pMyNym, "mynym", pMyAccount);
 					angelMyNym.SetCleanupTargetPointer(pPartyMyNym);
 					OT_ASSERT(NULL != pPartyMyNym);
 					// ------------------------------------------
@@ -1288,7 +1288,7 @@ int main(int argc, char* argv[])
 				
 				if (NULL != pHisNym)
 				{
-					pPartyHisNym = new OTParty ("HisNym", *pHisNym, pHisAccount);
+					pPartyHisNym = new OTParty ("HisNym", *pHisNym, "hisnym", pHisAccount);
 					angelHisNym.SetCleanupTargetPointer(pPartyHisNym);
 					OT_ASSERT(NULL != pPartyHisNym);
 					// ------------------------------------------

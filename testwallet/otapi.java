@@ -257,6 +257,62 @@ public class otapi {
     return otapiJNI.OT_API_ConfirmPaymentPlan(SERVER_ID, SENDER_USER_ID, SENDER_ACCT_ID, RECIPIENT_USER_ID, PAYMENT_PLAN);
   }
 
+  public static String OT_API_Create_SmartContract(String SERVER_ID, String SIGNER_NYM_ID, String VALID_FROM, String VALID_TO) {
+    return otapiJNI.OT_API_Create_SmartContract(SERVER_ID, SIGNER_NYM_ID, VALID_FROM, VALID_TO);
+  }
+
+  public static String OT_API_SmartContract_AddBylaw(String THE_CONTRACT, String SIGNER_NYM_ID, String BYLAW_NAME) {
+    return otapiJNI.OT_API_SmartContract_AddBylaw(THE_CONTRACT, SIGNER_NYM_ID, BYLAW_NAME);
+  }
+
+  public static String OT_API_SmartContract_AddClause(String THE_CONTRACT, String SIGNER_NYM_ID, String BYLAW_NAME, String CLAUSE_NAME, String SOURCE_CODE) {
+    return otapiJNI.OT_API_SmartContract_AddClause(THE_CONTRACT, SIGNER_NYM_ID, BYLAW_NAME, CLAUSE_NAME, SOURCE_CODE);
+  }
+
+  public static String OT_API_SmartContract_AddVariable(String THE_CONTRACT, String SIGNER_NYM_ID, String BYLAW_NAME, String VAR_NAME, String VAR_ACCESS, String VAR_TYPE, String VAR_VALUE) {
+    return otapiJNI.OT_API_SmartContract_AddVariable(THE_CONTRACT, SIGNER_NYM_ID, BYLAW_NAME, VAR_NAME, VAR_ACCESS, VAR_TYPE, VAR_VALUE);
+  }
+
+  public static String OT_API_SmartContract_AddCallback(String THE_CONTRACT, String SIGNER_NYM_ID, String BYLAW_NAME, String CALLBACK_NAME, String CLAUSE_NAME) {
+    return otapiJNI.OT_API_SmartContract_AddCallback(THE_CONTRACT, SIGNER_NYM_ID, BYLAW_NAME, CALLBACK_NAME, CLAUSE_NAME);
+  }
+
+  public static String OT_API_SmartContract_AddHook(String THE_CONTRACT, String SIGNER_NYM_ID, String BYLAW_NAME, String HOOK_NAME, String CLAUSE_NAME) {
+    return otapiJNI.OT_API_SmartContract_AddHook(THE_CONTRACT, SIGNER_NYM_ID, BYLAW_NAME, HOOK_NAME, CLAUSE_NAME);
+  }
+
+  public static String OT_API_SmartContract_AddParty(String THE_CONTRACT, String SIGNER_NYM_ID, String PARTY_NAME, String AGENT_NAME) {
+    return otapiJNI.OT_API_SmartContract_AddParty(THE_CONTRACT, SIGNER_NYM_ID, PARTY_NAME, AGENT_NAME);
+  }
+
+  public static String OT_API_SmartContract_AddAccount(String THE_CONTRACT, String SIGNER_NYM_ID, String PARTY_NAME, String ACCT_NAME, String ASSET_TYPE_ID) {
+    return otapiJNI.OT_API_SmartContract_AddAccount(THE_CONTRACT, SIGNER_NYM_ID, PARTY_NAME, ACCT_NAME, ASSET_TYPE_ID);
+  }
+
+  public static String OT_API_SmartContract_ConfirmAccount(String THE_CONTRACT, String SIGNER_NYM_ID, String PARTY_NAME, String ACCT_NAME, String AGENT_NAME, String ACCT_ID) {
+    return otapiJNI.OT_API_SmartContract_ConfirmAccount(THE_CONTRACT, SIGNER_NYM_ID, PARTY_NAME, ACCT_NAME, AGENT_NAME, ACCT_ID);
+  }
+
+  public static String OT_API_SmartContract_ConfirmParty(String THE_CONTRACT, String PARTY_NAME, String NYM_ID) {
+    return otapiJNI.OT_API_SmartContract_ConfirmParty(THE_CONTRACT, PARTY_NAME, NYM_ID);
+  }
+
+  public static void OT_API_activateSmartContract(String SERVER_ID, String USER_ID, String THE_SMART_CONTRACT) {
+    otapiJNI.OT_API_activateSmartContract(SERVER_ID, USER_ID, THE_SMART_CONTRACT);
+  }
+
+  public static void OT_API_triggerClause(String SERVER_ID, String USER_ID, String TRANSACTION_NUMBER, String CLAUSE_NAME) {
+    otapiJNI.OT_API_triggerClause(SERVER_ID, USER_ID, TRANSACTION_NUMBER, CLAUSE_NAME);
+  }
+
+  public static int OT_API_HarvestClosingNumbers(String SERVER_ID, String NYM_ID, String THE_CRON_ITEM) {
+    return otapiJNI.OT_API_HarvestClosingNumbers(SERVER_ID, NYM_ID, THE_CRON_ITEM);
+  }
+
+  public static int OT_API_HarvestAllNumbers(String SERVER_ID, String NYM_ID, String THE_CRON_ITEM) {
+    return otapiJNI.OT_API_HarvestAllNumbers(SERVER_ID, NYM_ID, THE_CRON_ITEM);
+  }
+
   public static String OT_API_LoadUserPubkey(String USER_ID) {
     return otapiJNI.OT_API_LoadUserPubkey(USER_ID);
   }

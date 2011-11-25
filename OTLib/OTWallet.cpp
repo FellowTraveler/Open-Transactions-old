@@ -397,7 +397,6 @@ bool OTWallet::GetAssetType(const int iIndex, OTIdentifier & THE_ID, OTString & 
 	// if iIndex is within proper bounds (0 through count minus 1)
 	if (iIndex < GetAssetTypeCount() && iIndex >= 0)
 	{
-		pAssetType = NULL;
 		int iCurrentIndex	= (-1);
 		
 		FOR_EACH(mapOfContracts, m_mapContracts)
@@ -748,7 +747,7 @@ bool OTWallet::RemoveAssetContract(const OTIdentifier & theTargetID)
 		
 		if (aContractID == theTargetID)
 		{
-			m_mapContracts.erase(ii);
+			m_mapContracts.erase(it);
 			
 			delete pContract;
 			
@@ -771,7 +770,7 @@ bool OTWallet::RemoveServerContract(const OTIdentifier & theTargetID)
 		
 		if (id_CurrentContract == theTargetID)
 		{
-			m_mapServers.erase(ii);
+			m_mapServers.erase(it);
 			
 			OTServerContract * pServerContract = static_cast<OTServerContract*> (pServer);
 			delete pServerContract;
@@ -796,7 +795,7 @@ bool OTWallet::RemoveNym(const OTIdentifier & theTargetID)
 		
 		if (id_CurrentNym == theTargetID)
 		{
-			m_mapNyms.erase(ii);
+			m_mapNyms.erase(it);
 						
 			delete pNym;
 			
@@ -822,7 +821,7 @@ bool OTWallet::RemoveAccount(const OTIdentifier & theTargetID)
 		
 		if (anAccountID == theTargetID)
 		{
-			m_mapAccounts.erase(ii);
+			m_mapAccounts.erase(it);
 			
 			delete pAccount;
 			

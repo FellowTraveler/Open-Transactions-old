@@ -275,6 +275,62 @@ abstract class otapi {
 		return OT_API_ConfirmPaymentPlan($SERVER_ID,$SENDER_USER_ID,$SENDER_ACCT_ID,$RECIPIENT_USER_ID,$PAYMENT_PLAN);
 	}
 
+	static function OT_API_Create_SmartContract($SERVER_ID,$SIGNER_NYM_ID,$VALID_FROM,$VALID_TO) {
+		return OT_API_Create_SmartContract($SERVER_ID,$SIGNER_NYM_ID,$VALID_FROM,$VALID_TO);
+	}
+
+	static function OT_API_SmartContract_AddBylaw($THE_CONTRACT,$SIGNER_NYM_ID,$BYLAW_NAME) {
+		return OT_API_SmartContract_AddBylaw($THE_CONTRACT,$SIGNER_NYM_ID,$BYLAW_NAME);
+	}
+
+	static function OT_API_SmartContract_AddClause($THE_CONTRACT,$SIGNER_NYM_ID,$BYLAW_NAME,$CLAUSE_NAME,$SOURCE_CODE) {
+		return OT_API_SmartContract_AddClause($THE_CONTRACT,$SIGNER_NYM_ID,$BYLAW_NAME,$CLAUSE_NAME,$SOURCE_CODE);
+	}
+
+	static function OT_API_SmartContract_AddVariable($THE_CONTRACT,$SIGNER_NYM_ID,$BYLAW_NAME,$VAR_NAME,$VAR_ACCESS,$VAR_TYPE,$VAR_VALUE) {
+		return OT_API_SmartContract_AddVariable($THE_CONTRACT,$SIGNER_NYM_ID,$BYLAW_NAME,$VAR_NAME,$VAR_ACCESS,$VAR_TYPE,$VAR_VALUE);
+	}
+
+	static function OT_API_SmartContract_AddCallback($THE_CONTRACT,$SIGNER_NYM_ID,$BYLAW_NAME,$CALLBACK_NAME,$CLAUSE_NAME) {
+		return OT_API_SmartContract_AddCallback($THE_CONTRACT,$SIGNER_NYM_ID,$BYLAW_NAME,$CALLBACK_NAME,$CLAUSE_NAME);
+	}
+
+	static function OT_API_SmartContract_AddHook($THE_CONTRACT,$SIGNER_NYM_ID,$BYLAW_NAME,$HOOK_NAME,$CLAUSE_NAME) {
+		return OT_API_SmartContract_AddHook($THE_CONTRACT,$SIGNER_NYM_ID,$BYLAW_NAME,$HOOK_NAME,$CLAUSE_NAME);
+	}
+
+	static function OT_API_SmartContract_AddParty($THE_CONTRACT,$SIGNER_NYM_ID,$PARTY_NAME,$AGENT_NAME) {
+		return OT_API_SmartContract_AddParty($THE_CONTRACT,$SIGNER_NYM_ID,$PARTY_NAME,$AGENT_NAME);
+	}
+
+	static function OT_API_SmartContract_AddAccount($THE_CONTRACT,$SIGNER_NYM_ID,$PARTY_NAME,$ACCT_NAME,$ASSET_TYPE_ID) {
+		return OT_API_SmartContract_AddAccount($THE_CONTRACT,$SIGNER_NYM_ID,$PARTY_NAME,$ACCT_NAME,$ASSET_TYPE_ID);
+	}
+
+	static function OT_API_SmartContract_ConfirmAccount($THE_CONTRACT,$SIGNER_NYM_ID,$PARTY_NAME,$ACCT_NAME,$AGENT_NAME,$ACCT_ID) {
+		return OT_API_SmartContract_ConfirmAccount($THE_CONTRACT,$SIGNER_NYM_ID,$PARTY_NAME,$ACCT_NAME,$AGENT_NAME,$ACCT_ID);
+	}
+
+	static function OT_API_SmartContract_ConfirmParty($THE_CONTRACT,$PARTY_NAME,$NYM_ID) {
+		return OT_API_SmartContract_ConfirmParty($THE_CONTRACT,$PARTY_NAME,$NYM_ID);
+	}
+
+	static function OT_API_activateSmartContract($SERVER_ID,$USER_ID,$THE_SMART_CONTRACT) {
+		OT_API_activateSmartContract($SERVER_ID,$USER_ID,$THE_SMART_CONTRACT);
+	}
+
+	static function OT_API_triggerClause($SERVER_ID,$USER_ID,$TRANSACTION_NUMBER,$CLAUSE_NAME) {
+		OT_API_triggerClause($SERVER_ID,$USER_ID,$TRANSACTION_NUMBER,$CLAUSE_NAME);
+	}
+
+	static function OT_API_HarvestClosingNumbers($SERVER_ID,$NYM_ID,$THE_CRON_ITEM) {
+		return OT_API_HarvestClosingNumbers($SERVER_ID,$NYM_ID,$THE_CRON_ITEM);
+	}
+
+	static function OT_API_HarvestAllNumbers($SERVER_ID,$NYM_ID,$THE_CRON_ITEM) {
+		return OT_API_HarvestAllNumbers($SERVER_ID,$NYM_ID,$THE_CRON_ITEM);
+	}
+
 	static function OT_API_LoadUserPubkey($USER_ID) {
 		return OT_API_LoadUserPubkey($USER_ID);
 	}

@@ -519,7 +519,7 @@ const OTPseudonym * OTContract::GetContractPublicNym()
 		OTPseudonym * pNym = (*it).second;
 		OT_ASSERT_MSG(NULL != pNym, "NULL pseudonym pointer in OTContract::GetContractPublicNym.\n");
 		
-		if ((*ii).first == "contract") // TODO have a place for hardcoded values like this.
+		if ((*it).first == "contract") // TODO have a place for hardcoded values like this.
 		{							   // We're saying here that every contract has to have a key tag called "contract"
 									   // where the official public key can be found for it and for any contract.
 			return pNym;
@@ -539,7 +539,7 @@ const OTAsymmetricKey * OTContract::GetContractPublicKey()
 		OTPseudonym	* pNym = (*it).second;
 		OT_ASSERT_MSG(NULL != pNym, "NULL pseudonym pointer in OTContract::GetContractPublicKey.\n");
 		
-		if ((*ii).first == "contract") // TODO have a place for hardcoded values like this.
+		if ((*it).first == "contract") // TODO have a place for hardcoded values like this.
 		{							   // We're saying here that every contract has a key tag called "contract"
 									   // where the official public key can be found for it and for any contract.
 			OTAsymmetricKey * pKey = (OTAsymmetricKey *) &(pNym->GetPublicKey()); //todo fix this cast.
@@ -2025,13 +2025,13 @@ bool OTContract::LoadEncodedTextField(IrrXMLReader*& xml, OTASCIIArmor & ascOutp
 
 // Loads it up and also decodes it to a string.
 bool OTContract::LoadEncodedTextFieldByName(IrrXMLReader*& xml, OTString & strOutput, 
-											const char *& szName, mapOfStrings * mapExtraVars/*=NULL*/)
+											const char *& szName, mapOfStrings * pmapExtraVars/*=NULL*/)
 {
 	OT_ASSERT(NULL != szName);
 	
 	OTASCIIArmor ascOutput;
 	
-	if (LoadEncodedTextFieldByName(xml, ascOutput, szName, mapExtraVars) && ascOutput.GetLength() > 2)
+	if (LoadEncodedTextFieldByName(xml, ascOutput, szName, pmapExtraVars) && ascOutput.GetLength() > 2)
 	{
 		return ascOutput.GetString(strOutput, true); // linebreaks = true
 	}
@@ -2041,7 +2041,7 @@ bool OTContract::LoadEncodedTextFieldByName(IrrXMLReader*& xml, OTString & strOu
 
 // Loads it up and keeps it encoded in an ascii-armored object.
 bool OTContract::LoadEncodedTextFieldByName(IrrXMLReader*& xml, OTASCIIArmor & ascOutput, 
-											const char *& szName, mapOfStrings * mapExtraVars/*=NULL*/)
+											const char *& szName, mapOfStrings * pmapExtraVars/*=NULL*/)
 {
 	OT_ASSERT(NULL != szName);
 
@@ -2056,8 +2056,10 @@ bool OTContract::LoadEncodedTextFieldByName(IrrXMLReader*& xml, OTASCIIArmor & a
 		{
 			// ----------------------------------------
 			
-			if (NULL != mapExtraVars) // If the caller wants values for certain names expected to be on this node.
+			if (NULL != pmapExtraVars) // If the caller wants values for certain names expected to be on this node.
 			{
+				mapOfStrings & mapExtraVars = (*pmapExtraVars);
+				
 				FOR_EACH(mapOfStrings, mapExtraVars)
 				{
 					std::string first	= ((*it).first);
@@ -2067,8 +2069,8 @@ bool OTContract::LoadEncodedTextFieldByName(IrrXMLReader*& xml, OTASCIIArmor & a
 					
 					if (strTemp.Exists())
 					{
-						mapExtraVars->erase(first);
-						mapExtraVars->insert(std::pair<std::string, std::string>(first, strTemp.Get()));
+						mapExtraVars.erase(first);
+						mapExtraVars.insert(std::pair<std::string, std::string>(first, strTemp.Get()));
 					}
 				}
 			} // Any attribute names passed in, now have their corresponding values set on mapExtraVars (for caller.)

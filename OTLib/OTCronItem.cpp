@@ -145,6 +145,8 @@ using namespace io;
 #include "OTAgreement.h"
 #include "OTPaymentPlan.h"
 #include "OTTrade.h"
+#include "OTAccount.h"
+#include "OTSmartContract.h"
 #include "OTCron.h"
 #include "OTLog.h"
 
@@ -242,7 +244,7 @@ bool OTCronItem::MoveFunds(const mapOfNyms	  & map_NymsAlreadyLoaded,
 	
 	if (lAmount <= 0)
 	{
-		OTLog::vOutput(" OTCronItem::MoveFunds: Error: lAmount cannot be 0 or <0. (Value passed in was %ld.)\n",
+		OTLog::vOutput(0, " OTCronItem::MoveFunds: Error: lAmount cannot be 0 or <0. (Value passed in was %ld.)\n",
 					   lAmount);
 		return false;
 	}
@@ -323,8 +325,8 @@ bool OTCronItem::MoveFunds(const mapOfNyms	  & map_NymsAlreadyLoaded,
 	OTPseudonym * pSenderNym			= NULL;
 	OTPseudonym * pRecipientNym			= NULL;
 	// --------------------------
-	mapOfNyms::iterator it_sender		= map_NymsAlreadyLoaded.find(strSenderUserID.Get());
-	mapOfNyms::iterator it_recipient	= map_NymsAlreadyLoaded.find(strRecipientUserID.Get());
+	mapOfNyms::const_iterator it_sender		= map_NymsAlreadyLoaded.find(strSenderUserID.Get());
+	mapOfNyms::const_iterator it_recipient	= map_NymsAlreadyLoaded.find(strRecipientUserID.Get());
 	
 	if (map_NymsAlreadyLoaded.end() != it_sender) // found the sender in list of Nyms that are already loaded.
 	{

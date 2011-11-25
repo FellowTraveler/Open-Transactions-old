@@ -322,6 +322,74 @@ public class otapi {
     return ret;
   }
 
+  public static string OT_API_Create_SmartContract(string SERVER_ID, string SIGNER_NYM_ID, string VALID_FROM, string VALID_TO) {
+    string ret = otapiPINVOKE.OT_API_Create_SmartContract(SERVER_ID, SIGNER_NYM_ID, VALID_FROM, VALID_TO);
+    return ret;
+  }
+
+  public static string OT_API_SmartContract_AddBylaw(string THE_CONTRACT, string SIGNER_NYM_ID, string BYLAW_NAME) {
+    string ret = otapiPINVOKE.OT_API_SmartContract_AddBylaw(THE_CONTRACT, SIGNER_NYM_ID, BYLAW_NAME);
+    return ret;
+  }
+
+  public static string OT_API_SmartContract_AddClause(string THE_CONTRACT, string SIGNER_NYM_ID, string BYLAW_NAME, string CLAUSE_NAME, string SOURCE_CODE) {
+    string ret = otapiPINVOKE.OT_API_SmartContract_AddClause(THE_CONTRACT, SIGNER_NYM_ID, BYLAW_NAME, CLAUSE_NAME, SOURCE_CODE);
+    return ret;
+  }
+
+  public static string OT_API_SmartContract_AddVariable(string THE_CONTRACT, string SIGNER_NYM_ID, string BYLAW_NAME, string VAR_NAME, string VAR_ACCESS, string VAR_TYPE, string VAR_VALUE) {
+    string ret = otapiPINVOKE.OT_API_SmartContract_AddVariable(THE_CONTRACT, SIGNER_NYM_ID, BYLAW_NAME, VAR_NAME, VAR_ACCESS, VAR_TYPE, VAR_VALUE);
+    return ret;
+  }
+
+  public static string OT_API_SmartContract_AddCallback(string THE_CONTRACT, string SIGNER_NYM_ID, string BYLAW_NAME, string CALLBACK_NAME, string CLAUSE_NAME) {
+    string ret = otapiPINVOKE.OT_API_SmartContract_AddCallback(THE_CONTRACT, SIGNER_NYM_ID, BYLAW_NAME, CALLBACK_NAME, CLAUSE_NAME);
+    return ret;
+  }
+
+  public static string OT_API_SmartContract_AddHook(string THE_CONTRACT, string SIGNER_NYM_ID, string BYLAW_NAME, string HOOK_NAME, string CLAUSE_NAME) {
+    string ret = otapiPINVOKE.OT_API_SmartContract_AddHook(THE_CONTRACT, SIGNER_NYM_ID, BYLAW_NAME, HOOK_NAME, CLAUSE_NAME);
+    return ret;
+  }
+
+  public static string OT_API_SmartContract_AddParty(string THE_CONTRACT, string SIGNER_NYM_ID, string PARTY_NAME, string AGENT_NAME) {
+    string ret = otapiPINVOKE.OT_API_SmartContract_AddParty(THE_CONTRACT, SIGNER_NYM_ID, PARTY_NAME, AGENT_NAME);
+    return ret;
+  }
+
+  public static string OT_API_SmartContract_AddAccount(string THE_CONTRACT, string SIGNER_NYM_ID, string PARTY_NAME, string ACCT_NAME, string ASSET_TYPE_ID) {
+    string ret = otapiPINVOKE.OT_API_SmartContract_AddAccount(THE_CONTRACT, SIGNER_NYM_ID, PARTY_NAME, ACCT_NAME, ASSET_TYPE_ID);
+    return ret;
+  }
+
+  public static string OT_API_SmartContract_ConfirmAccount(string THE_CONTRACT, string SIGNER_NYM_ID, string PARTY_NAME, string ACCT_NAME, string AGENT_NAME, string ACCT_ID) {
+    string ret = otapiPINVOKE.OT_API_SmartContract_ConfirmAccount(THE_CONTRACT, SIGNER_NYM_ID, PARTY_NAME, ACCT_NAME, AGENT_NAME, ACCT_ID);
+    return ret;
+  }
+
+  public static string OT_API_SmartContract_ConfirmParty(string THE_CONTRACT, string PARTY_NAME, string NYM_ID) {
+    string ret = otapiPINVOKE.OT_API_SmartContract_ConfirmParty(THE_CONTRACT, PARTY_NAME, NYM_ID);
+    return ret;
+  }
+
+  public static void OT_API_activateSmartContract(string SERVER_ID, string USER_ID, string THE_SMART_CONTRACT) {
+    otapiPINVOKE.OT_API_activateSmartContract(SERVER_ID, USER_ID, THE_SMART_CONTRACT);
+  }
+
+  public static void OT_API_triggerClause(string SERVER_ID, string USER_ID, string TRANSACTION_NUMBER, string CLAUSE_NAME) {
+    otapiPINVOKE.OT_API_triggerClause(SERVER_ID, USER_ID, TRANSACTION_NUMBER, CLAUSE_NAME);
+  }
+
+  public static int OT_API_HarvestClosingNumbers(string SERVER_ID, string NYM_ID, string THE_CRON_ITEM) {
+    int ret = otapiPINVOKE.OT_API_HarvestClosingNumbers(SERVER_ID, NYM_ID, THE_CRON_ITEM);
+    return ret;
+  }
+
+  public static int OT_API_HarvestAllNumbers(string SERVER_ID, string NYM_ID, string THE_CRON_ITEM) {
+    int ret = otapiPINVOKE.OT_API_HarvestAllNumbers(SERVER_ID, NYM_ID, THE_CRON_ITEM);
+    return ret;
+  }
+
   public static string OT_API_LoadUserPubkey(string USER_ID) {
     string ret = otapiPINVOKE.OT_API_LoadUserPubkey(USER_ID);
     return ret;

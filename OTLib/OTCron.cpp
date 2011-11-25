@@ -719,7 +719,7 @@ void OTCron::ProcessCronItems()
 		if (false == bProcessCron)
 		{
             OTLog::vOutput(0, "OTCron::ProcessCronItems: Removing expired or unverified cron item.\n");
-			m_mapCronItems.erase(ii++);
+			m_mapCronItems.erase(it++);
 			delete pItem;
 			pItem = NULL;
 			
@@ -727,7 +727,7 @@ void OTCron::ProcessCronItems()
 		} 
 		else	// the special i++ and ++i arrangement here allows me to erase an item
 		{		// from the list WHILE iterating through it  :-)   (Supposedly.)
-			++ii;
+			++it;
 		}
 	} // for
 	

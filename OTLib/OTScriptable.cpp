@@ -141,12 +141,15 @@ using namespace io;
 
 #include "OTStorage.h"
 
+#include "OTPseudonym.h"
+#include "OTTransaction.h"
+#include "OTLedger.h"
 
 #include "OTScriptable.h"
+#include "OTSmartContract.h"
 
 #include "OTLog.h"
 
-#include "OTSmartContract.h"
 
 
 // -----------------------------------------------------------------
@@ -289,11 +292,11 @@ void OTScriptable::RegisterOTNativeCallsWithScript(OTScript & theScript)
 //
 bool OTScriptable::CanExecuteClause(const std::string str_party_name, const std::string str_clause_name)
 {
-    OTCron * pCron  = GetCron();
-    OT_ASSERT(NULL != pCron);
-    // ----------------------------------
-    OTPseudonym * pServerNym = pCron->GetServerNym();
-    OT_ASSERT(NULL != pServerNym);	
+//  OTCron * pCron  = GetCron();
+//  OT_ASSERT(NULL != pCron);
+//  // ----------------------------------
+//  OTPseudonym * pServerNym = pCron->GetServerNym();
+//  OT_ASSERT(NULL != pServerNym);	
     // -------------------------------------------------
 
 	OTParty		* pParty	= this->GetParty(str_party_name);
@@ -340,13 +343,31 @@ bool OTScriptable::CanExecuteClause(const std::string str_party_name, const std:
 	// once I'm sure C++0x build environments are available for all of the various OT platforms. That should
 	// be another great performance boost!
 	//
-	const OTString strServerID(GetServerID());
+//	const OTString strServerID(GetServerID());
+//	
+//	mapOfNyms	map_Nyms_Already_Loaded;
+//	this->RetrieveNymPointers(map_Nyms_Already_Loaded);
+//	
+//	bool bVerifiedAuthorization = 
+//		this->VerifyPartyAuthorization(*pParty, *pServerNym, strServerID, &map_Nyms_Already_Loaded);
+//	
+//	if (!bVerifiedAuthorization)
+//	{
+//		OTLog::vOutput(0, "OTScriptable::CanExecuteClause: Unable to verify authorization for party: %s\n",
+//					   str_party_name.c_str());
+//		return false;
+//	}
 	
-	mapOfNyms	map_Nyms_Already_Loaded;
-	this->RetrieveNymPointers(map_Nyms_Already_Loaded);
-	
-	bool bVerifiedAuthorization = 
-		this->VerifyPartyAuthorization(*pParty, *pServerNym, strServerID, &map_Nyms_Already_Loaded);
+	// NOTE (Above):  When it came time to compile, I realized that OTScriptable has no pointer to Cron,
+	// nor access to any ServerNym (unless you pass it in).  But I want this function to work by merely
+	// passing in 2 strings.
+	//
+	// SINCE THE PARTY IS VERIFIED ALREADY (WHEN THE SMART CONTRACT IS FIRST ACTIVATED) THEN THIS IS
+	// REDUNDANT ANYWAY.
+	//
+	// IF you ever need to use CanExecuteClause() in some circumstance where the party has NOT been verified
+	// anyway (it won't be from within some script...) then just call VerifyPartyAuthorization() yourself in
+	// that code, wherever you need to.
 	
 	// *****************************************************************************
 	//
@@ -471,7 +492,7 @@ bool OTScriptable::ExecuteCallback (OTClause & theCallbackClause, mapOfVariables
 	const std::string str_code		=	theCallbackClause.GetCode();	// source code for the script.
 	const std::string str_language	=	pBylaw->GetLanguage();			// language it's in. (Default is "chai")
 	
-	OTScript_SharedPtr pScript = OTScriptFactory(&str_code, &str_language);
+	OTScript_SharedPtr pScript = OTScriptFactory(str_code, &str_language);
 	
 	// ---------------------------------------------------------------
 	//
@@ -516,7 +537,7 @@ bool OTScriptable::ExecuteCallback (OTClause & theCallbackClause, mapOfVariables
 		
 		if (false == pScript->ExecuteScript(&varReturnVal))
 		{
-			OTLog::Error("OTScriptable::ExecuteCallback: Error while running callback script: clause %s \n",
+			OTLog::vError("OTScriptable::ExecuteCallback: Error while running callback script: clause %s \n",
 						 str_clause_name.c_str());
 		}
 		else
@@ -561,6 +582,7 @@ bool OTScriptable::ExecuteCallback (OTClause & theCallbackClause, mapOfVariables
 
 
 bool OTScriptable::SendNoticeToAllParties(OTPseudonym & theServerNym,
+										  const OTIdentifier & theServerID,
 										  const long & lNewTransactionNumber,
 										  const long & lInReferenceTo,
 										  const OTString & strReference,
@@ -575,7 +597,7 @@ bool OTScriptable::SendNoticeToAllParties(OTPseudonym & theServerNym,
 		OT_ASSERT(NULL != pParty);
 		// ------------------
 		
-		if (false == pParty->SendNoticeToParty(theServerNym, lNewTransactionNumber, lInReferenceTo, 
+		if (false == pParty->SendNoticeToParty(theServerNym, theServerID, lNewTransactionNumber, lInReferenceTo, 
 											   strReference, pstrNote, pstrAttachment))
 			bSuccess = false; // Notice I don't break here -- I still allow it to notice ALL parties, even if one fails.
 	}
@@ -600,6 +622,7 @@ bool OTScriptable::SendNoticeToAllParties(OTPseudonym & theServerNym,
 // 
 //
 bool OTScriptable::DropServerNoticeToNymbox(OTPseudonym & theServerNym,
+											const OTIdentifier & SERVER_ID,
 											const OTIdentifier & USER_ID,
 											const long & lNewTransactionNumber,
 											const long & lInReferenceTo,
@@ -607,7 +630,7 @@ bool OTScriptable::DropServerNoticeToNymbox(OTPseudonym & theServerNym,
 											OTString * pstrNote/*=NULL*/,
 											OTString * pstrAttachment/*=NULL*/)
 {
-    OTLedger theLedger(USER_ID, USER_ID, GetServerID());
+    OTLedger theLedger(USER_ID, USER_ID, SERVER_ID);
     
     // Inbox will receive notification of something ALREADY DONE.
 	//
@@ -619,7 +642,7 @@ bool OTScriptable::DropServerNoticeToNymbox(OTPseudonym & theServerNym,
     if (true == bSuccessLoading)
         bSuccessLoading		= theLedger.VerifyAccount(theServerNym);
     else
-		bSuccessLoading		= theLedger.GenerateLedger(USER_ID, GetServerID(), OTLedger::nymbox, true); // bGenerateFile=true
+		bSuccessLoading		= theLedger.GenerateLedger(USER_ID, SERVER_ID, OTLedger::nymbox, true); // bGenerateFile=true
     
     // --------------------------------------------------------------------
     
@@ -730,7 +753,7 @@ bool OTScriptable::IsDirty() const
 {
 	bool bIsDirty = false;
 	
-	FOR_EACH(mapOfBylaws, m_mapBylaws)
+	FOR_EACH_CONST(mapOfBylaws, m_mapBylaws)
 	{
 		OTBylaw * pBylaw = (*it).second;
 		OT_ASSERT(NULL != pBylaw);
@@ -752,7 +775,7 @@ bool OTScriptable::IsDirtyImportant() const
 {	
 	bool bIsDirty = false;
 	
-	FOR_EACH(mapOfBylaws, m_mapBylaws)
+	FOR_EACH_CONST(mapOfBylaws, m_mapBylaws)
 	{
 		OTBylaw * pBylaw = (*it).second;
 		OT_ASSERT(NULL != pBylaw);
@@ -785,7 +808,7 @@ void OTScriptable::SetAsClean()
 
 
 
-OTParty * OTScriptable::FindPartyBasedOnNymAsAgent(const OTPseudonym & theNym, OTAgent ** ppAgent/*=NULL*/)
+OTParty * OTScriptable::FindPartyBasedOnNymAsAgent(OTPseudonym & theNym, OTAgent ** ppAgent/*=NULL*/)
 {
 	FOR_EACH(mapOfParties, m_mapParties)
 	{
@@ -801,7 +824,7 @@ OTParty * OTScriptable::FindPartyBasedOnNymAsAgent(const OTPseudonym & theNym, O
 
 
 
-OTParty * OTScriptable::FindPartyBasedOnNymAsAuthAgent(const OTPseudonym & theNym, OTAgent ** ppAgent/*=NULL*/)
+OTParty * OTScriptable::FindPartyBasedOnNymAsAuthAgent(OTPseudonym & theNym, OTAgent ** ppAgent/*=NULL*/)
 {
 	FOR_EACH(mapOfParties, m_mapParties)
 	{
@@ -816,7 +839,7 @@ OTParty * OTScriptable::FindPartyBasedOnNymAsAuthAgent(const OTPseudonym & theNy
 }
 
 
-OTParty * OTScriptable::FindPartyBasedOnAccount(const OTAccount & theAccount, OTPartyAccount ** ppPartyAccount/*=NULL*/)
+OTParty * OTScriptable::FindPartyBasedOnAccount(OTAccount & theAccount, OTPartyAccount ** ppPartyAccount/*=NULL*/)
 {
 	FOR_EACH(mapOfParties, m_mapParties)
 	{
@@ -882,11 +905,11 @@ void OTScriptable::RetrieveNymPointers(mapOfNyms & map_Nyms_Already_Loaded)
 // THEN IT MUST VERIFY. Since the default value is 0, then that should work, since
 // I'm always verifying the number as long as one is there.
 //
-bool OTScriptable::VerifyPartyAuthorization(OTParty		& theParty,		// The party that supposedly is authorized for this supposedly executed agreement.
-											OTPseudonym & theSignerNym,	// For verifying signature on the authorizing Nym, when loading it
+bool OTScriptable::VerifyPartyAuthorization(OTParty			& theParty,		// The party that supposedly is authorized for this supposedly executed agreement.
+											OTPseudonym		& theSignerNym,	// For verifying signature on the authorizing Nym, when loading it
 											const OTString	& strServerID, // For verifying issued num, need the serverID the # goes with.
 											mapOfNyms		* pmap_ALREADY_LOADED/*=NULL*/, // If some nyms are already loaded, pass them here so we don't load them twice on accident.
-											const bool		  bBurnTransNo/*=false*/); // In OTServer::VerifySmartContract(), it not only wants to verify the # is properly issued, but it additionally wants to see that it hasn't been USED yet -- AND it wants to burn it, so it can't be used again!  This bool allows you to tell the function whether or not to do that.
+											const bool		  bBurnTransNo/*=false*/) // In OTServer::VerifySmartContract(), it not only wants to verify the # is properly issued, but it additionally wants to see that it hasn't been USED yet -- AND it wants to burn it, so it can't be used again!  This bool allows you to tell the function whether or not to do that.
 {
 	// This function DOES assume that theParty was initially FOUND on OTScriptable.
 	// Meaning I don't have to verify that much if I got this far.
@@ -909,7 +932,7 @@ bool OTScriptable::VerifyPartyAuthorization(OTParty		& theParty,		// The party t
 	//
 	OTAgent		* pAuthorizingAgent = NULL;
 	OTPseudonym * pAuthAgentsNym	= NULL;
-	OTCleanup<OTPseudonym *> theAgentNymAngel; // In case I have to load it myself, I want it cleaned up properly.
+	OTCleanup<OTPseudonym> theAgentNymAngel; // In case I have to load it myself, I want it cleaned up properly.
 	
 	// Some nyms are *already* loaded. If any were passed in, let's see if any of them are 
 	// the authorizing agent for the contract (for this party)...
@@ -1042,7 +1065,7 @@ bool OTScriptable::VerifyPartyAuthorization(OTParty		& theParty,		// The party t
 	// the original signature, no matter WHO is authorized now. Otherwise your entire contract falls apart.
 	
 	OTScriptable * pPartySignedCopy = OTScriptable::InstantiateScriptable(theParty.GetMySignedCopy());
-	OTCleanup<OTScriptable *> theCopyAngel;
+	OTCleanup<OTScriptable> theCopyAngel;
 	
 	if (NULL == pPartySignedCopy)
 	{
@@ -1094,9 +1117,9 @@ bool OTScriptable::VerifyPartyAuthorization(OTParty		& theParty,		// The party t
 // This function also loads its own versions of certain nyms, when necessary, and cleans the pointers
 // when it's done.
 //
-bool OTScriptable::VerifyNymAsAgent(const	OTPseudonym & theNym,  
-											OTPseudonym & theSignerNym, 
-											mapOfNyms	* pmap_ALREADY_LOADED/*=NULL*/)
+bool OTScriptable::VerifyNymAsAgent(OTPseudonym & theNym,  
+									OTPseudonym & theSignerNym, 
+									mapOfNyms	* pmap_ALREADY_LOADED/*=NULL*/)
 {
 	// (COmmented out) existing trades / payment plans on OT basically just have this one line:
 	//
@@ -1149,7 +1172,7 @@ bool OTScriptable::VerifyNymAsAgent(const	OTPseudonym & theNym,
 	//
 	OTAgent		* pAuthorizingAgent = NULL;
 	OTPseudonym * pAuthAgentsNym	= NULL;
-	OTCleanup<OTPseudonym *> theAgentNymAngel;
+	OTCleanup<OTPseudonym> theAgentNymAngel;
 	
 	// See if theNym is the authorizing agent.
 	//
@@ -1166,7 +1189,7 @@ bool OTScriptable::VerifyNymAsAgent(const	OTPseudonym & theNym,
 			OT_ASSERT(NULL != pNym);
 			// -----------------------------
 			
-			if (pParty->HasAuthorizingAgent(*pNym, &pAuthorizingAgent)))
+			if (pParty->HasAuthorizingAgent(*pNym, &pAuthorizingAgent))
 			{
 				pAuthAgentsNym = pNym; // Just in case.
 				break;
@@ -1219,7 +1242,7 @@ bool OTScriptable::VerifyNymAsAgent(const	OTPseudonym & theNym,
 	// the original signature, no matter WHO is authorized now. Otherwise your entire contract falls apart.
 
 	OTScriptable * pPartySignedCopy = OTScriptable::InstantiateScriptable(pParty->GetMySignedCopy());
-	OTCleanup<OTScriptable *> theCopyAngel;
+	OTCleanup<OTScriptable> theCopyAngel;
 	
 	if (NULL == pPartySignedCopy)
 	{
@@ -1290,7 +1313,7 @@ bool OTScriptable::VerifyPartyAcctAuthorization(OTPartyAccount	& thePartyAcct,	/
 	}
 	// -----------------------
 
-	OTAgent * pAuthorizedAgent = thePartyAcct.GetAgent();
+	OTAgent * pAuthorizedAgent = thePartyAcct.GetAuthorizedAgent();
 	
 	if (NULL == pAuthorizedAgent)
 	{
@@ -1393,8 +1416,8 @@ bool OTScriptable::VerifyPartyAcctAuthorization(OTPartyAccount	& thePartyAcct,	/
 //
 // AGAIN: CALL VerifyNymAsAgent() BEFORE you call this function! Otherwise you aren't proving nearly as much. ALWAYS call it first.
 //
-bool OTScriptable::VerifyNymAsAgentForAccount(const	OTPseudonym & theNym,
-											  const OTAccount & theAccount)
+bool OTScriptable::VerifyNymAsAgentForAccount(OTPseudonym & theNym,
+											  OTAccount & theAccount)
 {
 	// -------------------------------------------------------------
 	// Lookup the party via the NYM.
@@ -1718,7 +1741,7 @@ bool OTScriptable::VerifyThisAgainstAllPartiesSignedCopies()
 		if (pParty->GetMySignedCopy().Exists())
 		{
 			OTScriptable * pPartySignedCopy = OTScriptable::InstantiateScriptable(pParty->GetMySignedCopy());
-			OTCleanup<OTScriptable *> theCopyAngel;
+			OTCleanup<OTScriptable> theCopyAngel;
 			
 			if (NULL == pPartySignedCopy)
 			{
@@ -1924,7 +1947,7 @@ bool OTScriptable::AddBylaw(OTBylaw & theBylaw)
 
 
 
-bool OTScriptable::Compare(const OTScriptable & rhs) const
+bool OTScriptable::Compare(OTScriptable & rhs)
 {
 	//
 	// UPDATE: ALL of the parties should be there, in terms of their
@@ -1944,7 +1967,7 @@ bool OTScriptable::Compare(const OTScriptable & rhs) const
 		return false;
 	}
 	// ----------------------------------------
-	FOR_EACH(mapOfBylaws, m_mapBylaws)
+	FOR_EACH_CONST(mapOfBylaws, m_mapBylaws)
 	{
 		const std::string str_bylaw_name	= (*it).first;
 		OTBylaw * pBylaw					= (*it).second;
@@ -1967,7 +1990,7 @@ bool OTScriptable::Compare(const OTScriptable & rhs) const
 		}
 	}
 	// ----------------------------------------
-	FOR_EACH(mapOfParties, m_mapParties)
+	FOR_EACH_CONST(mapOfParties, m_mapParties)
 	{
 		const std::string str_party_name	= (*it).first;
 		OTParty * pParty					= (*it).second;
@@ -2012,7 +2035,7 @@ void OTScriptable::UpdateContentsToString(OTString & strAppend)
 	
 	FOR_EACH(mapOfBylaws, m_mapBylaws)
 	{
-		OTBylaw * pBylaw = (*ii).second;
+		OTBylaw * pBylaw = (*it).second;
 		OT_ASSERT(NULL != pBylaw);
 		
 		pBylaw->Serialize(strAppend);
@@ -2389,7 +2412,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 							}
 							else
 							{
-								OTLog::Error("OTScriptable::ProcessXMLNode: No value found for long variable: %s\n",
+								OTLog::vError("OTScriptable::ProcessXMLNode: No value found for long variable: %s\n",
 											 strVarName.Get());
 								delete pBylaw; pBylaw=NULL;
 								return (-1);
@@ -2399,13 +2422,13 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 						case OTVariable::Var_Bool:
 							if (strVarValue.Exists())
 							{
-								const bVarValue = strVarValue.Compare("true") ? true : false;
-
-								bAddedVar = pBylaw->AddVariable(strVarName.Get(), bVarValue, theVarAccess);
+								const bool bVarValue = strVarValue.Compare("true") ? true : false;
+								const std::string str_var_name = strVarName.Get();
+								bAddedVar = pBylaw->AddVariable(str_var_name, bVarValue, theVarAccess);
 							}
 							else
 							{
-								OTLog::Error("OTScriptable::ProcessXMLNode: No value found for bool variable: %s\n",
+								OTLog::vError("OTScriptable::ProcessXMLNode: No value found for bool variable: %s\n",
 											 strVarName.Get());
 								delete pBylaw; pBylaw=NULL;
 								return (-1);
@@ -2533,7 +2556,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		//
 		// LOAD HOOKS.
 		//
-		int nCount	= 0;
+		nCount	= 0;
 		if (strNumHooks.Exists() && ( (nCount = atoi(strNumHooks.Get()) > 0 )))
 		{
 			while (nCount-- > 0)
@@ -2576,7 +2599,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		//
 		// LOAD CALLBACKS.
 		//
-		int nCount	= 0;
+		nCount	= 0;
 		if (strNumCallbacks.Exists() && ( (nCount = atoi(strNumCallbacks.Get()) > 0 )))
 		{
 			while (nCount-- > 0)
@@ -2605,7 +2628,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 					
 					if (NULL != pClause) // Uh-oh, it's already there!
 					{
-						OTLog::vOutput("OTScriptable::ProcessXMLNode: Error loading callback %s, since one was already there on one of the other bylaws.\n",
+						OTLog::vOutput(0, "OTScriptable::ProcessXMLNode: Error loading callback %s, since one was already there on one of the other bylaws.\n",
 									   strCallbackName.Get());
 						delete pBylaw; pBylaw=NULL;
 						return (-1);

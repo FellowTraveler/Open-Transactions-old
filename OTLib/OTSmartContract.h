@@ -138,12 +138,17 @@
 #include "OTIdentifier.h"
 #include "OTString.h"
 //#include "OTPseudonym.h"
+#include "OTContract.h"
+#include "OTScriptable.h"
+
 #include "OTCronItem.h"
 
-
+#include "OTAccount.h"
 
 class OTParty;
 class OTPseudonym;
+class OTPseudonym;
+
 
 
 
@@ -240,7 +245,7 @@ public:
     // The two versions of the contract can also be compared to each other, to make sure that none of
     // the vital terms, values, clauses, etc are different between the two.
     //    
-	virtual bool Compare(const OTScriptable & rhs) const;
+	virtual bool Compare(OTScriptable & rhs);
 
 	// --------------------------------------------------------------------------
  	// From OTCronItem (parent class of this)
@@ -407,8 +412,14 @@ public:
 	
 	OTSmartContract();
 	OTSmartContract(const OTIdentifier & SERVER_ID);
+	OTSmartContract(const OTIdentifier & SERVER_ID,			const OTIdentifier & ASSET_ID,
+					const OTIdentifier & SENDER_ACCT_ID,	const OTIdentifier & SENDER_USER_ID,
+					const OTIdentifier & RECIPIENT_ACCT_ID,	const OTIdentifier & RECIPIENT_USER_ID);
+	
 	virtual ~OTSmartContract();
-		
+	
+	void InitSmartContract();
+
 	virtual void Release();
 	void ReleaseStashes();
 

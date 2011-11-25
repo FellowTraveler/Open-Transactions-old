@@ -136,14 +136,15 @@
 
 #include "OTPseudonym.h"
 
+#include "OTBylaw.h"
 #include "OTScriptable.h"
+#include "OTSmartContract.h"
 
 #include "OTAccount.h"
 
 
 #include "OTLog.h"
 
-#include "OTBylaw.h"
 
 
 
@@ -282,7 +283,7 @@ bool OTAgent::DropFinalReceiptToInbox(mapOfNyms * pNymMap,
 			
 			mapOfNyms::iterator ittt = pNymMap->find(strNymID.Get());
 			
-			if (pNymMap.end() != ittt) // found it!
+			if (pNymMap->end() != ittt) // found it!
 			{
 				pNym = (*ittt).second;
 				OT_ASSERT(NULL != pNym);
@@ -361,7 +362,7 @@ OTPseudonym * OTAgent::LoadNym(OTPseudonym & theServerNym)
 		else if (pNym->VerifyPseudonym() && 
 				 pNym->LoadSignedNymfile(theServerNym))
 		{
-			this->SetNymPointer(pNym); // set this pointer in case I need it for later.
+			this->SetNymPointer(*pNym); // set this pointer in case I need it for later.
 										// also remember, caller is responsible to delete, so there's no guarantee the pointer
 			return pNym;				// is any good.  Then again, caller is also responsible to call ClearTemporaryPointers().
 		}
@@ -393,7 +394,7 @@ OTAgent::OTAgent(bool bNymRepresentsSelf, bool bIsAnIndividual,
 				 const OTString& strRoleID, 
 				 const OTString& strGroupName)
 : m_bNymRepresentsSelf(bNymRepresentsSelf), m_bIsAnIndividual(bIsAnIndividual), m_pNym(NULL), m_pForParty(NULL),
-  m_strName(strName), m_strNymID(strNymID), m_strRoleID(strRoleID), m_strGroupName(strGroupName), 
+  m_strName(strName), m_strNymID(strNymID), m_strRoleID(strRoleID), m_strGroupName(strGroupName)
 {
 	
 }
@@ -626,7 +627,7 @@ bool OTAgent::IsValidSigner(OTPseudonym & theNym)
 		// That means theNym *is* the Nym for this agent!
 		// We'll save his pointer, for future reference...
 		//
-		this->SetNymPointer(&theNym);
+		this->SetNymPointer(theNym);
 		
 		return true;
 	}
@@ -743,13 +744,13 @@ OTPartyAccount::OTPartyAccount()
 // For an account to be party to an agreement, there must be a closing transaction #
 // provided, for the finalReceipt for that account.
 //
-OTPartyAccount::OTPartyAccount(const std::string str_account_name, const OTString & strAgentName, const OTAccount & theAccount, long lClosingTransNo)
+OTPartyAccount::OTPartyAccount(const std::string str_account_name, const OTString & strAgentName, OTAccount & theAccount, long lClosingTransNo)
 : m_pForParty(NULL), // This gets set when this partyaccount is added to its party.
   m_pAccount(&theAccount), 
   m_lClosingTransNo(lClosingTransNo),
   m_strName(str_account_name.c_str()),
-  m_strAcctID(theAccount->GetRealAccountID()),
-  m_strAssetTypeID(theAccount->GetAssetTypeID()),
+  m_strAcctID(theAccount.GetRealAccountID()),
+  m_strAssetTypeID(theAccount.GetAssetTypeID()),
   m_strAgentName(strAgentName)
 {
 	
@@ -775,7 +776,7 @@ OTPartyAccount::OTPartyAccount(const OTString & strName, const OTString & strAge
 // Use that name to look up the agent ON THE PARTY (I already 
 // have a pointer to my owner party.)
 //
-OTAgent * OTPartyAccount::GetAuthorizedAgent() const
+OTAgent * OTPartyAccount::GetAuthorizedAgent()
 {
 	OT_ASSERT(NULL != m_pForParty);
 	
@@ -811,7 +812,7 @@ OTPartyAccount::~OTPartyAccount()
 
 
 
-bool OTPartyAccount::IsAccount(OTAccount & theAccount) const
+bool OTPartyAccount::IsAccount(OTAccount & theAccount)
 {
 	if (!m_strAcctID.Exists())
 	{
@@ -826,7 +827,7 @@ bool OTPartyAccount::IsAccount(OTAccount & theAccount) const
 	}
 	// --------------------------------------------------------
 	const OTIdentifier theAcctID(m_strAcctID);
-	if (!theAccount.GetRealAccountID().CompareID(theAcctID))
+	if (!(theAccount.GetRealAccountID() == theAcctID))
 	{
 		OTString strRHS(theAccount.GetRealAccountID());
 		OTLog::vOutput(0, "OTPartyAccount::IsAccount: Account IDs don't match: %s / %s \n",
@@ -835,7 +836,7 @@ bool OTPartyAccount::IsAccount(OTAccount & theAccount) const
 	}
 	// --------------------------------------------------------
 	const OTIdentifier theAssetTypeID(m_strAssetTypeID);
-	if (!theAccount.GetAssetTypeID().CompareID(theAssetTypeID))
+	if (!(theAccount.GetAssetTypeID() == theAssetTypeID))
 	{
 		OTString strRHS(theAccount.GetAssetTypeID());
 		OTLog::vOutput(0, "OTPartyAccount::IsAccount: Asset Type IDs don't match ( %s / %s ) for Acct ID: %s \n",
@@ -895,7 +896,7 @@ bool OTPartyAccount::DropFinalReceiptToInbox(mapOfNyms * pNymMap,
 											   theServerNym,
 											   theSmartContract, theAccountID, // acct ID from this.
 											   lNewTransactionNumber, m_lClosingTransNo, // closing_no from this.
-											   strOrigCronItem, pstrNote, pstrAttachment)
+											   strOrigCronItem, pstrNote, pstrAttachment);
 	}
 	
 	// ------------------------------------------
@@ -958,7 +959,7 @@ OTParty::OTParty(const std::string		str_PartyName,
 				 const std::string *	pstr_account_name/*=NULL*/,
 				 const long				lClosingTransNo/*=0*/
 				 )
-: m_pstr_party_name(NULL), m_bPartyIsNym(true), m_pNym(&theNym),
+: m_pstr_party_name(NULL), m_bPartyIsNym(true), 
   m_lOpeningTransNo(0), m_pOwnerAgreement(NULL)
 {
     m_pstr_party_name = new std::string(str_PartyName);
@@ -1048,7 +1049,6 @@ bool OTParty::AddAgent(OTAgent& theAgent)
 // ---------
 
 
-
 bool OTParty::AddAccount(const OTString& strAgentName, const OTString& strName, 
 						 const OTString & strAcctID, 
 						 const OTString & strAssetTypeID, 
@@ -1130,16 +1130,16 @@ bool OTParty::AddAccount(OTPartyAccount& thePartyAcct)
 
 long OTParty::GetClosingTransNo(const std::string str_for_acct_name) const
 {	
-	mapOfPartyAccounts::iterator ii = m_mapPartyAccounts.find(str_for_acct_name);
+	mapOfPartyAccounts::const_iterator it = m_mapPartyAccounts.find(str_for_acct_name);
 	
-	if (m_mapPartyAccounts.end() == ii) // If it wasn't already there...
+	if (m_mapPartyAccounts.end() == it) // If it wasn't already there...
 	{
 		OTLog::vOutput(0, "OTParty::GetClosingTransNo: Failed -- Account wasn't found: %s.\n", 
 					   str_for_acct_name.c_str());
 		return 0;
 	}
 	
-	OTPartyAccount * pPartyAccount = (*ii).second;
+	OTPartyAccount * pPartyAccount = (*it).second;
 	OT_ASSERT(NULL != pPartyAccount);
 	
 	return pPartyAccount->GetClosingTransNo();	
@@ -1336,7 +1336,7 @@ bool OTParty::HasActiveAgent() const
     // Loop through all agents and call IsAnIndividual() on each.
     // then return true if any is true. else return false;
 	//
-	FOR_EACH(mapOfAgents, m_mapAgents)
+	FOR_EACH_CONST(mapOfAgents, m_mapAgents)
 	{
 		OTAgent * pAgent = (*it).second;
 		OT_ASSERT(NULL != pAgent);
@@ -1376,11 +1376,11 @@ OTAgent * OTParty::GetAgent(const std::string & str_agent_name)
 
 // Get PartyAccount pointer by Name. Returns NULL on failure.
 //
-OTPartyAccount * OTParty::GetAccount(const std::string & str_acct_name)
+OTPartyAccount * OTParty::GetAccount(const std::string & str_acct_name) const
 {
 	if (OTScriptable::ValidateName(str_acct_name))
 	{
-		mapOfPartyAccounts::iterator it = m_mapPartyAccounts.find(str_acct_name);
+		mapOfPartyAccounts::const_iterator it = m_mapPartyAccounts.find(str_acct_name);
 		
 		if (m_mapPartyAccounts.end() != it) // If we found something...
 		{
@@ -1423,9 +1423,9 @@ OTPartyAccount * OTParty::GetAccountByAgent(const std::string & str_agent_name)
 
 
 // If account is present for Party, set account's pointer to theAccount and return true.
-bool OTParty::HasAccount(OTAccount & theAccount, OTPartyAccount ** ppPartyAccount/*=NULL*/)
+bool OTParty::HasAccount(OTAccount & theAccount, OTPartyAccount ** ppPartyAccount/*=NULL*/) const
 {
-	FOR_EACH(mapOfPartyAccounts, m_mapPartyAccounts)
+	FOR_EACH_CONST(mapOfPartyAccounts, m_mapPartyAccounts)
 	{
 		OTPartyAccount * pAcct = (*it).second;
 		OT_ASSERT(NULL != pAcct);
@@ -1448,9 +1448,9 @@ bool OTParty::HasAccount(OTAccount & theAccount, OTPartyAccount ** ppPartyAccoun
 // If so, make sure that agent has a pointer to theNym and return true.
 // else return false.
 //
-bool OTParty::HasAgent(OTPseudonym & theNym, OTAgent ** ppAgent/*=NULL*/)
+bool OTParty::HasAgent(OTPseudonym & theNym, OTAgent ** ppAgent/*=NULL*/) const
 {
-	FOR_EACH(mapOfAgents, m_mapAgents)
+	FOR_EACH_CONST(mapOfAgents, m_mapAgents)
 	{
 		OTAgent * pAgent = (*it).second;
 		OT_ASSERT(NULL != pAgent);
@@ -1471,6 +1471,8 @@ bool OTParty::HasAgent(OTPseudonym & theNym, OTAgent ** ppAgent/*=NULL*/)
 
 void OTAgent::RetrieveNymPointer(mapOfNyms & map_Nyms_Already_Loaded)
 {
+	const std::string str_agent_name(m_strName.Get());
+	
 	//  We actually have a Nym pointer on this agent somehow (so let's add it to the list.)
 	//
 	if (NULL != m_pNym) 
@@ -1480,7 +1482,7 @@ void OTAgent::RetrieveNymPointer(mapOfNyms & map_Nyms_Already_Loaded)
 			OTLog::Error("OTAgent::RetrieveNymPointers: Failed: m_strName is empty!\n");
 		}
 		else if (map_Nyms_Already_Loaded.end() == 
-				 map_Nyms_Already_Loaded.insert(std::pair<std::string, OTPseudonym *>(m_strName.Get(), m_pNym)))
+				 map_Nyms_Already_Loaded.insert(map_Nyms_Already_Loaded.begin(), std::pair<std::string, OTPseudonym *>(str_agent_name, m_pNym)))
 			OTLog::vError("OTAgent::RetrieveNymPointer: Failed on insertion, as though another nym were already "
 						 "there with the same agent name! (%s)\n", m_strName.Get());
 		// (else it was inserted successfully.)
@@ -1509,11 +1511,11 @@ void OTParty::RetrieveNymPointers(mapOfNyms & map_Nyms_Already_Loaded)
 // If so, make sure that agent has a pointer to theNym and return true.
 // else return false.
 //
-bool OTParty::HasAuthorizingAgent(OTPseudonym & theNym, OTAgent ** ppAgent/*=NULL*/) // ppAgent lets you get the agent ptr if it was there.
+bool OTParty::HasAuthorizingAgent(OTPseudonym & theNym, OTAgent ** ppAgent/*=NULL*/) const // ppAgent lets you get the agent ptr if it was there.
 {
 	if (OTScriptable::ValidateName(m_str_authorizing_agent))
 	{
-		mapOfAgents::iterator it = m_mapAgents.find(m_str_authorizing_agent);
+		mapOfAgents::const_iterator it = m_mapAgents.find(m_str_authorizing_agent);
 		
 		if (m_mapAgents.end() != it) // If we found something...
 		{
@@ -1612,7 +1614,7 @@ bool OTPartyAccount::VerifyOwnership() const
 
 // I can get a ptr to my agent, and I have one to the actual account. 
 // I will ask him to verify whether he actually has agency over it. 
-bool OTPartyAccount::VerifyAgency() const
+bool OTPartyAccount::VerifyAgency()
 {
 	if (NULL == m_pAccount)
 	{
@@ -1641,7 +1643,7 @@ bool OTPartyAccount::VerifyAgency() const
 }
 
 
-bool OTAgent::VerifyAgencyOfAccount(OTAccount & theAccount) const
+bool OTAgent::VerifyAgencyOfAccount(const OTAccount & theAccount) const
 {
 	OTIdentifier theSignerID;
 	
@@ -1656,7 +1658,7 @@ bool OTAgent::VerifyAgencyOfAccount(OTAccount & theAccount) const
 }
 
 
-bool OTParty::VerifyOwnershipOfAccount(OTAccount & theAccount) const
+bool OTParty::VerifyOwnershipOfAccount(const OTAccount & theAccount) const
 {
 	if (this->IsNym()) // For those cases where the party is actually just a solitary Nym (not an entity.)
 	{
@@ -1752,6 +1754,7 @@ bool OTAgent::DropFinalReceiptToNymbox(OTSmartContract & theSmartContract,
 
 
 bool OTAgent::DropServerNoticeToNymbox(OTPseudonym & theServerNym,
+									   const OTIdentifier & theServerID,
 									   OTScriptable & theScriptable,
 									   const long & lNewTransactionNumber,
 									   const long & lInReferenceTo,
@@ -1767,6 +1770,7 @@ bool OTAgent::DropServerNoticeToNymbox(OTPseudonym & theServerNym,
 	if (true == bNymID)
 	{
 		return theScriptable.DropServerNoticeToNymbox(theServerNym,
+													  theServerID,
 													  theAgentNymID,
 													  lNewTransactionNumber,
 													  lInReferenceTo,
@@ -1784,6 +1788,7 @@ bool OTAgent::DropServerNoticeToNymbox(OTPseudonym & theServerNym,
 
 
 bool OTParty::SendNoticeToParty(OTPseudonym & theServerNym,
+								const OTIdentifier & theServerID,
 								const long & lNewTransactionNumber,
 								const long & lInReferenceTo, // todo Maybe have each party just use their own opening trans# here. Maybe not.
 								const OTString & strReference,
@@ -1805,7 +1810,7 @@ bool OTParty::SendNoticeToParty(OTPseudonym & theServerNym,
 		OT_ASSERT_MSG(NULL != pAgent, "Unexpected NULL agent pointer in party map.");
 		// -------------------------------------
 		
-		if (false == pAgent->DropServerNoticeToNymbox(theServerNym, *m_pOwnerAgreement, lNewTransactionNumber,
+		if (false == pAgent->DropServerNoticeToNymbox(theServerNym, theServerID, *m_pOwnerAgreement, lNewTransactionNumber,
 													  lInReferenceTo, strReference, pstrNote, pstrAttachment))
 			OTLog::Error("OTParty::SendNoticeToParty: Failed dropping server notice to agent's Nymbox.\n");
 		else
@@ -1964,8 +1969,10 @@ bool OTParty::LoadAndVerifyAgentNyms(OTPseudonym & theServerNym, mapOfNyms & map
 			return false;
 		}
 		// ----------------------
-		bool bGotAgentNymID=false;
-		const std::string str_agent_id = pAgent->GetNymID(&bGotAgentNymID); // str_agent_id is the NymID of the AGENT.
+		OTIdentifier theNymID;
+		bool bGotAgentNymID = pAgent->GetNymID(theNymID);
+		const OTString strNymID(theNymID);
+		const std::string str_agent_id = bGotAgentNymID ? strNymID.Get() : ""; // str_agent_id is the NymID of the AGENT.
 		OT_ASSERT(bGotAgentNymID);
 		// ---------
 		
@@ -1982,7 +1989,7 @@ bool OTParty::LoadAndVerifyAgentNyms(OTPseudonym & theServerNym, mapOfNyms & map
 		// Server Nym is not allowed as a party (at this time :-)
 		if ( str_agent_id.compare(strServerNymID.Get()) == 0 ) // If they DO match.
 		{
-			OTLog::Error("OTParty::LoadAndVerifyAgents: Server Nym is not allowed to serve as an agent for smart contracts. Sorry.\n")
+			OTLog::Error("OTParty::LoadAndVerifyAgents: Server Nym is not allowed to serve as an agent for smart contracts. Sorry.\n");
 			return false;			
 		}
 		// ----------------------
@@ -2243,7 +2250,7 @@ bool OTAgent::VerifyIssuedNumber(const long & lNumber, const OTString & strServe
 	// Todo: this function may change when entities / roles are added.
 	if (!IsAnIndividual() || !DoesRepresentHimself())
 	{
-		OTLog::Error("OTAgent::VerifyIssuedNumber:  Error: Entities and Roles are not yet supported. Agent: %s\n",
+		OTLog::vError("OTAgent::VerifyIssuedNumber:  Error: Entities and Roles are not yet supported. Agent: %s\n",
 					 m_strName.Get());
 		return false;
 	}
@@ -2264,7 +2271,7 @@ bool OTAgent::VerifyTransactionNumber(const long & lNumber, const OTString & str
 	// Todo: this function may change when entities / roles are added.
 	if (!IsAnIndividual() || !DoesRepresentHimself())
 	{
-		OTLog::Error("OTAgent::VerifyTransactionNumber:  Error: Entities and Roles are not yet supported. Agent: %s\n",
+		OTLog::vError("OTAgent::VerifyTransactionNumber:  Error: Entities and Roles are not yet supported. Agent: %s\n",
 					 m_strName.Get());
 		return false;
 	}
@@ -2287,7 +2294,7 @@ bool OTAgent::RemoveIssuedNumber(const long & lNumber, const OTString & strServe
 	// Todo: this function may change when entities / roles are added.
 	if (!IsAnIndividual() || !DoesRepresentHimself())
 	{
-		OTLog::Error("OTAgent::RemoveIssuedNumber:  Error: Entities and Roles are not yet supported. Agent: %s\n",
+		OTLog::vError("OTAgent::RemoveIssuedNumber:  Error: Entities and Roles are not yet supported. Agent: %s\n",
 					 m_strName.Get());
 		return false;
 	}
@@ -2310,7 +2317,7 @@ bool OTAgent::RemoveTransactionNumber(const long & lNumber, const OTString & str
 	// Todo: this function may change when entities / roles are added.
 	if (!IsAnIndividual() || !DoesRepresentHimself())
 	{
-		OTLog::Error("OTAgent::RemoveTransactionNumber:  Error: Entities and Roles are not yet supported. Agent: %s\n",
+		OTLog::vError("OTAgent::RemoveTransactionNumber:  Error: Entities and Roles are not yet supported. Agent: %s\n",
 					 m_strName.Get());
 		return false;
 	}
@@ -2366,7 +2373,7 @@ bool OTAgent::HarvestTransactionNumber(const long & lNumber, const OTString & st
 	// Todo: this function may change when entities / roles are added.
 	if (!IsAnIndividual() || !DoesRepresentHimself())
 	{
-		OTLog::Error("OTAgent::HarvestTransactionNumber:  Error: Entities and Roles are not yet supported. Agent: %s\n",
+		OTLog::vError("OTAgent::HarvestTransactionNumber:  Error: Entities and Roles are not yet supported. Agent: %s\n",
 					 m_strName.Get());
 		return false;
 	}
@@ -2505,7 +2512,7 @@ bool OTParty::ReserveTransNumsForConfirm(const OTString & strServerID)
 	//
 	FOR_EACH(mapOfPartyAccounts, m_mapPartyAccounts)
 	{
-		OTPartyAccount * pPartyAccount = (*ii).second;
+		OTPartyAccount * pPartyAccount = (*it).second;
 		OT_ASSERT(NULL != pPartyAccount);
 		// -------------------------------
 		
@@ -2561,12 +2568,12 @@ bool OTAgent::ReserveClosingTransNum(const OTString & strServerID, OTPartyAccoun
 	{
 		if (thePartyAcct.GetClosingTransNo() > 0)
 		{
-			OTLog::Output("OTAgent::ReserveClosingTransNum: Failure: The account ALREADY has a closing transaction number "
+			OTLog::Output(0, "OTAgent::ReserveClosingTransNum: Failure: The account ALREADY has a closing transaction number "
 						  "set on it. Don't you want to save that first, before overwriting it?\n");
 			return false;
 		}
 		// ----------------------------------------------
-		if (m_pNym->GetTransactionNumCount(GetServerID()) < 1) // Need a closing number...
+		if (m_pNym->GetTransactionNumCount(strServerID) < 1) // Need a closing number...
 		{
 			OTLog::Output(0, "OTAgent::ReserveClosingTransNum: *** Failure *** Nym needs at least 1 transaction number available in order to do this.\n");
 			return false;
@@ -2613,12 +2620,12 @@ bool OTAgent::ReserveOpeningTransNum(const OTString & strServerID)
 		}		
 		if (m_pForParty->GetOpeningTransNo() > 0)
 		{
-			OTLog::Output("OTAgent::ReserveOpeningTransNum: Failure: Party ALREADY had an opening transaction number "
+			OTLog::Output(0, "OTAgent::ReserveOpeningTransNum: Failure: Party ALREADY had an opening transaction number "
 						  "set on it. Don't you want to save that first, before overwriting it?\n");
 			return false;
 		}
 		// ----------------------------------------------
-		if (m_pNym->GetTransactionNumCount(GetServerID()) < 1) // Need opening number...
+		if (m_pNym->GetTransactionNumCount(strServerID) < 1) // Need opening number...
 		{
 			OTLog::Output(0, "OTAgent::ReserveOpeningTransNum: *** Failure *** Nym needs at least 1 transaction number available in order to do this.\n");
 			return false;
@@ -2715,14 +2722,14 @@ void OTParty::Serialize(OTString & strAppend)
 	// -----------------
 	FOR_EACH(mapOfAgents, m_mapAgents)
 	{
-		OTAgent * pAgent = (*ii).second;
+		OTAgent * pAgent = (*it).second;
 		OT_ASSERT(NULL != pAgent);
 		pAgent->Serialize(strAppend);
 	}
 	// -----------------
 	FOR_EACH(mapOfPartyAccounts, m_mapPartyAccounts)
 	{
-		OTPartyAccount * pAcct = (*ii).second;
+		OTPartyAccount * pAcct = (*it).second;
 		OT_ASSERT(NULL != pAcct);
 		pAcct->Serialize(strAppend);
 	}
@@ -2911,7 +2918,7 @@ void OTBylaw::Serialize(OTString & strAppend)
 	
 	FOR_EACH(mapOfVariables, m_mapVariables)
 	{
-		OTVariable * pVar = (*ii).second;
+		OTVariable * pVar = (*it).second;
 		OT_ASSERT(NULL != pVar);
 		
 		pVar->Serialize(strAppend);
@@ -2920,7 +2927,7 @@ void OTBylaw::Serialize(OTString & strAppend)
 	
 	FOR_EACH(mapOfClauses, m_mapClauses)
 	{
-		OTClause * pClause = (*ii).second;
+		OTClause * pClause = (*it).second;
 		OT_ASSERT(NULL != pClause);
 		
 		pClause->Serialize(strAppend);
@@ -2929,8 +2936,8 @@ void OTBylaw::Serialize(OTString & strAppend)
 	
 	FOR_EACH(mapOfHooks, m_mapHooks)
 	{
-		const std::string & str_hook_name	= (*ii).first;
-		const std::string & str_clause_name	= (*ii).second;
+		const std::string & str_hook_name	= (*it).first;
+		const std::string & str_clause_name	= (*it).second;
 		
 		strAppend.Concatenate("<hook name=\"%s\"\n"
 							  " clause=\"%s\" />\n\n", 
@@ -2941,8 +2948,8 @@ void OTBylaw::Serialize(OTString & strAppend)
 	
 	FOR_EACH(mapOfCallbacks, m_mapCallbacks)
 	{
-		const std::string & str_callback_name	= (*ii).first;
-		const std::string & str_clause_name		= (*ii).second;
+		const std::string & str_callback_name	= (*it).first;
+		const std::string & str_clause_name		= (*it).second;
 		
 		strAppend.Concatenate("<callback name=\"%s\"\n"
 							  " clause=\"%s\" />\n\n", 
@@ -3151,7 +3158,7 @@ bool OTBylaw::IsDirty() const
 {
 	bool bIsDirty = false;
 	
-	FOR_EACH(mapOfVariables, m_mapVariables)
+	FOR_EACH_CONST(mapOfVariables, m_mapVariables)
 	{
 		OTVariable * pVar	= (*it).second;
 		OT_ASSERT(NULL != pVar);
@@ -3183,9 +3190,9 @@ bool OTBylaw::IsDirtyImportant() const
 {
 	bool bIsDirty = false;
 	
-	FOR_EACH(mapOfVariables, m_mapVariables)
+	FOR_EACH_CONST(mapOfVariables, m_mapVariables)
 	{
-		OTVariable * pVar	= (*it).second;
+		OTVariable * pVar = (*it).second;
 		OT_ASSERT(NULL != pVar);
 		// ---------------------------------------------------
 		
@@ -3247,11 +3254,11 @@ void OTBylaw::RegisterVariablesForExecution(OTScript& theScript)
 
 
 // Done:
-bool OTBylaw::Compare(const OTBylaw & rhs) const
+bool OTBylaw::Compare(OTBylaw & rhs)
 {
 	if (
 		(m_strName.Compare(rhs.GetName())) &&
-		(m_strLanguage.Compare(rhs.GetLanguage())) &&
+		(m_strLanguage.Compare(rhs.GetLanguage()))
 		) 
 	{		
 		if (GetVariableCount() != rhs.GetVariableCount())
@@ -3263,25 +3270,25 @@ bool OTBylaw::Compare(const OTBylaw & rhs) const
 		if (GetClauseCount() != rhs.GetClauseCount())
 		{
 			OTLog::vOutput(0, "OTBylaw::Compare: The clause count doesn't match for bylaw: %s\n",
-						   m_strName.Get())
+						   m_strName.Get());
 			return false;
 		}
 		if (GetHookCount() != rhs.GetHookCount())
 		{
 			OTLog::vOutput(0, "OTBylaw::Compare: The hook count doesn't match for bylaw: %s\n",
-						   m_strName.Get())
+						   m_strName.Get());
 			return false;
 		}
 		if (GetCallbackCount() != rhs.GetCallbackCount())
 		{
 			OTLog::vOutput(0, "OTBylaw::Compare: The callback count doesn't match for bylaw: %s\n",
-						   m_strName.Get())
+						   m_strName.Get());
 			return false;
 		}
 		// THE COUNTS MATCH, Now let's look up each one by NAME and verify that they match...
 		// ---------------------
 		//
-		FOR_EACH(mapOfVariables, m_mapVariables)
+		FOR_EACH_CONST(mapOfVariables, m_mapVariables)
 		{
 			OTVariable * pVar = (*it).second;
 			OT_ASSERT(NULL != pVar);
@@ -3303,7 +3310,7 @@ bool OTBylaw::Compare(const OTBylaw & rhs) const
 			}
 		}
 		// ---------------------
-		FOR_EACH(mapOfClauses, m_mapClauses)
+		FOR_EACH_CONST(mapOfClauses, m_mapClauses)
 		{
 			OTClause * pClause = (*it).second;
 			OT_ASSERT(NULL != pClause);
@@ -3325,7 +3332,7 @@ bool OTBylaw::Compare(const OTBylaw & rhs) const
 			}
 		}
 		// ---------------------
-		FOR_EACH(mapOfCallbacks, m_mapCallbacks)
+		FOR_EACH_CONST(mapOfCallbacks, m_mapCallbacks)
 		{
 			const std::string & str_callback_name	= (*it).first;
 			const std::string & str_clause_name		= (*it).second;
@@ -3346,10 +3353,10 @@ bool OTBylaw::Compare(const OTBylaw & rhs) const
 							   str_callback_name.c_str(), str_clause_name.c_str(), rhs.GetName().Get());
 				return false;
 			}
-			else if (!(pCallbackClause.GetName().Compare(pCallbackClause2.GetName())))
+			else if (!(pCallbackClause->GetName().Compare(pCallbackClause2->GetName())))
 			{
 				OTLog::vOutput(0, "OTBylaw::Compare: Failed: Callback (%s) clause (%s) on rhs has a different name (%s) than *this bylaw: %s.\n",
-							   str_callback_name.c_str(), str_clause_name.c_str(), pCallbackClause2.GetName().Get(), m_strName.Get());
+							   str_callback_name.c_str(), str_clause_name.c_str(), pCallbackClause2->GetName().Get(), m_strName.Get());
 				return false;
 			}
 			
@@ -3370,7 +3377,7 @@ bool OTBylaw::Compare(const OTBylaw & rhs) const
 		
 		// There might be MANY entries with the SAME HOOK NAME. So we add them
 		// all to a SET in order to get unique keys.
-		FOR_EACH(mapOfHooks, m_mapHooks) 
+		FOR_EACH_CONST(mapOfHooks, m_mapHooks) 
 		{
 			const std::string & str_hook_name	= (*it).first;
 //			const std::string & str_clause_name	= (*it).second;
@@ -3380,7 +3387,7 @@ bool OTBylaw::Compare(const OTBylaw & rhs) const
 		}
 		// Now we loop through all the unique hook names, and get 
 		// the list of clauses for EACH bylaw for THAT HOOK.
-		FOR_EACH_IT(std::set<std::string>, theHookSet, it_hook)
+		FOR_EACH_IT_CONST(std::set<std::string>, theHookSet, it_hook)
 		{
 			const std::string & str_hook_name = *it_hook;
 			// ------------------------------------
@@ -3444,7 +3451,7 @@ bool OTBylaw::Compare(const OTBylaw & rhs) const
 
 
 // Done
-bool OTVariable::Compare(const OTVariable & rhs) const
+bool OTVariable::Compare(OTVariable & rhs)
 {
 	if (!(GetName().Compare(rhs.GetName())))
 	{
@@ -3619,14 +3626,14 @@ bool OTParty::Compare(const OTParty & rhs) const
 	}
 	// ----------------------------------------------------
 	if (
-		(this->GetAuthorizedAgentName().size() > 0) &&
-		(rhs.  GetAuthorizedAgentName().size() > 0) &&
-		!(this->GetAuthorizedAgentName().compare(rhs.GetAuthorizedAgentName()) == 0)
+		(this->GetAuthorizingAgentName().size() > 0) &&
+		(rhs.  GetAuthorizingAgentName().size() > 0) &&
+		!(this->GetAuthorizingAgentName().compare(rhs.GetAuthorizingAgentName()) == 0)
 		)
 	{
 		OTLog::vOutput(0, "OTParty::Compare: Authorizing agent names don't match for party %s. ( %s  /  %s ) \n",
-					   GetPartyName().c_str(), this->GetAuthorizedAgentName().c_str(), 
-					   rhs.GetAuthorizedAgentName().c_str());
+					   GetPartyName().c_str(), this->GetAuthorizingAgentName().c_str(), 
+					   rhs.GetAuthorizingAgentName().c_str());
 		return false;
 	}
 	// ----------------------------------------------------	
@@ -3642,7 +3649,7 @@ bool OTParty::Compare(const OTParty & rhs) const
 		return false;
 	}
 	
-	FOR_EACH(mapOfPartyAccounts, m_mapPartyAccounts)
+	FOR_EACH_CONST(mapOfPartyAccounts, m_mapPartyAccounts)
 	{
 		const std::string str_acct_name	= (*it).first;
 		OTPartyAccount * pAcct			= (*it).second;
@@ -3684,8 +3691,8 @@ OTClause * OTBylaw::GetCallback(const std::string str_CallbackName)
 	
 	FOR_EACH(mapOfCallbacks, m_mapCallbacks)
 	{
-		const std::string & str_callback_name	= (*ii).first;
-		const std::string & str_clause_name		= (*ii).second;
+		const std::string & str_callback_name	= (*it).first;
+		const std::string & str_clause_name		= (*it).second;
 		// ---------------------------------
 		
 		// IF this entry (of a clause registered for a specific callback) MATCHES the callback name passed in...
@@ -3723,7 +3730,7 @@ bool OTBylaw::AddCallback(const std::string str_CallbackName, const std::string 
 	if (m_mapCallbacks.end() != it) // It's already there. (Can't add it twice.)
 	{
 		const std::string str_existing_clause = (*it).second;
-		OTLog::vOutput("OTBylaw::AddCallback: Failed to add callback (%s) to bylaw %s, already there as %s.\n",
+		OTLog::vOutput(0, "OTBylaw::AddCallback: Failed to add callback (%s) to bylaw %s, already there as %s.\n",
 					   str_CallbackName.c_str(), m_strName.Get(),
 					   str_existing_clause.c_str());
 		return false;
@@ -3737,7 +3744,7 @@ bool OTBylaw::AddCallback(const std::string str_CallbackName, const std::string 
 	else if (str_CallbackName.compare(0,9,"callback_") != 0) // If the callback name DOESN'T begin with callback_ then it is rejected.
 		OTLog::vOutput(0, "OTBylaw::AddCallback: Callback name MUST begin with callback_ in order to be accepted: Failure. (callback name %s)  (clause name %s) \n", 
 					   str_CallbackName.c_str(), str_ClauseName.c_str());			
-	else if (m_mapCallbacks.end() == m_mapCallbacks.insert(std::pair<std::string,std::string>
+	else if (m_mapCallbacks.end() == m_mapCallbacks.insert(m_mapCallbacks.begin(), std::pair<std::string,std::string>
 														   (str_CallbackName.c_str(), str_ClauseName.c_str())))
 		OTLog::vError("OTBylaw::AddCallback: Failed inserting to m_mapCallbacks:   %s  /  %s \n", 
 					  str_CallbackName.c_str(), str_ClauseName.c_str());
@@ -3833,8 +3840,8 @@ bool OTBylaw::GetHooks(const std::string str_HookName, mapOfClauses & theResults
 	
 	FOR_EACH(mapOfHooks, m_mapHooks)
 	{
-		const std::string & str_hook_name	= (*ii).first;
-		const std::string & str_clause_name	= (*ii).second;
+		const std::string & str_hook_name	= (*it).first;
+		const std::string & str_clause_name	= (*it).second;
 		// -----------------------------------------
 		
 		// IF this entry (of a clause registered for a specific hook) MATCHES the hook name passed in...
@@ -3851,7 +3858,7 @@ bool OTBylaw::GetHooks(const std::string str_HookName, mapOfClauses & theResults
 				// TIMES to the SAME HOOK? No need for that. So by the time the clauses are inserted into
 				// the result map, the duplicates are automatically weeded out.
 				//
-				if (theResults.end() != theResults.insert(std::pair<std::string, OTClause *>(str_clause_name, pClause)))
+				if (theResults.end() != theResults.insert(theResults.begin(), std::pair<std::string, OTClause *>(str_clause_name, pClause)))
 					bReturnVal = true;
 			}
 			else
@@ -3917,7 +3924,7 @@ bool OTBylaw::AddVariable(OTVariable& theVariable)
 	return false;
 }
 
-bool OTBylaw::AddVariable(const std::string str_Name, const bool bValue, const OTVariable_Access theAccess/*=Var_Persistent*/)
+bool OTBylaw::AddVariable(const std::string str_Name, const bool bValue, const OTVariable::OTVariable_Access theAccess/*=Var_Persistent*/)
 {
 	OTVariable * pVar = new OTVariable(str_Name, bValue, theAccess);
 	OT_ASSERT(NULL != pVar);
@@ -3931,7 +3938,7 @@ bool OTBylaw::AddVariable(const std::string str_Name, const bool bValue, const O
 	return true;	
 }
 
-bool OTBylaw::AddVariable(const std::string str_Name, const std::string str_Value,	const OTVariable_Access theAccess/*=Var_Persistent*/)
+bool OTBylaw::AddVariable(const std::string str_Name, const std::string str_Value,	const OTVariable::OTVariable_Access theAccess/*=Var_Persistent*/)
 {
 	OTVariable * pVar = new OTVariable(str_Name, str_Value, theAccess);
 	OT_ASSERT(NULL != pVar);
@@ -3946,7 +3953,7 @@ bool OTBylaw::AddVariable(const std::string str_Name, const std::string str_Valu
 }
 
 
-bool OTBylaw::AddVariable(const std::string str_Name, const long lValue, const OTVariable_Access theAccess/*=Var_Persistent*/)
+bool OTBylaw::AddVariable(const std::string str_Name, const long lValue, const OTVariable::OTVariable_Access theAccess/*=Var_Persistent*/)
 {
 	OTVariable * pVar = new OTVariable(str_Name, lValue, theAccess);
 	OT_ASSERT(NULL != pVar);
@@ -4209,8 +4216,8 @@ void OTStash::Serialize(OTString & strAppend)
 
 	FOR_EACH(mapOfStashItems, m_mapStashItems)
 	{
-		const	std::string		str_asset_type_id	= (*ii).first;
-				OTStashItem *	pStashItem			= (*ii).second;
+		const	std::string		str_asset_type_id	= (*it).first;
+				OTStashItem *	pStashItem			= (*it).second;
 		OT_ASSERT((str_asset_type_id.size()>0) && (NULL != pStashItem));
 		
 		strAppend.Concatenate("<stashItem assetTypeID=\"%s\" balance=\"%ld\" />\n\n",
@@ -4324,7 +4331,7 @@ OTStashItem * OTStash::GetStash(const std::string & str_asset_type_id)
 {
 	mapOfStashItems::iterator it = m_mapStashItems.find(str_asset_type_id);
 	
-	if (m_mapStashItems.end() == it()) // It's not already there for this asset type.
+	if (m_mapStashItems.end() == it) // It's not already there for this asset type.
 	{
 		const OTString strAssetTypeID(str_asset_type_id.c_str());
 		OTStashItem * pStashItem = new OTStashItem (strAssetTypeID);

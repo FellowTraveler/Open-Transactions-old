@@ -152,6 +152,8 @@ extern "C"
 
 #include "OTSignature.h"
 #include "OTStringXML.h"
+
+#include "OTBylaw.h"
 //#include "OTStorage.h"
 
 
@@ -160,7 +162,6 @@ class OTIdentifier;
 
 
 typedef std::list	<OTSignature *>					listOfSignatures;
-typedef std::map	<std::string, OTPseudonym *>	mapOfNyms;
 typedef std::map	<std::string, std::string>		mapOfStrings;
 
 
@@ -206,9 +207,9 @@ protected:
 	bool LoadEncodedTextField(irr::io::IrrXMLReader*& xml, OTASCIIArmor &ascOutput);
 	
 	bool LoadEncodedTextFieldByName(irr::io::IrrXMLReader*& xml, OTString &strOutput, 
-									const char *& szName, mapOfStrings * mapExtraVars = NULL);
+									const char *& szName, mapOfStrings * pmapExtraVars = NULL);
 	bool LoadEncodedTextFieldByName(irr::io::IrrXMLReader*& xml, OTASCIIArmor &ascOutput, 
-									const char *& szName, mapOfStrings * mapExtraVars = NULL);
+									const char *& szName, mapOfStrings * pmapExtraVars = NULL);
 	
 	// return -1 if error, 0 if nothing, and 1 if the node was processed.
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);

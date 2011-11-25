@@ -135,7 +135,16 @@
 
 #include <string>
 
+#include "irrxml/irrXML.h"
+
+using namespace irr;
+using namespace io;
+
+
+
+
 #include "OTString.h"
+//#include "OTAccount.h"
 
 class OTIdentifier;
 
@@ -151,9 +160,16 @@ class OTIdentifier;
 // nym should just create an entity he controls, and make the first nym an agent for that entity.
 
 class OTPseudonym;
+class OTAccount;
 class OTParty;
+class OTPartyAccount;
 
+class OTScriptable;
 class OTSmartContract;
+
+
+typedef std::map	<std::string, OTPseudonym *>	mapOfNyms;
+typedef std::map	<std::string, OTAccount *>		mapOfAccounts;
 
 
 class OTAgent 
@@ -235,7 +251,7 @@ public:
 	
 	// Verify that this agent somehow has legitimate agency over this account. (According to the account.)
 	//
-	bool VerifyAgencyOfAccount(OTAccount & theAccount) const;
+	bool VerifyAgencyOfAccount(const OTAccount & theAccount) const;
 
     // ---------------------------------
 	
@@ -369,6 +385,7 @@ public:
 	// -----------------------------------------------------------
 	
 	bool DropServerNoticeToNymbox(OTPseudonym & theServerNym,
+								  const OTIdentifier & theServerID,
 								  OTScriptable & theScriptable,
 								  const long & lNewTransactionNumber,
 								  const long & lInReferenceTo,
@@ -443,25 +460,25 @@ public:
 	OTParty * GetParty() { return m_pForParty; }
 	void SetParty(OTParty & theOwnerParty); // This happens when the partyaccount is added to the party. (so I have a ptr back)
 
-	const OTString & GetName()			{ return m_strName; }			// account's name as used in a script.
-	const OTString & GetAgentName()		{ return m_strAgentName; }		// agent's name as used in a script.
-	const OTString & GetAcctID()		{ return m_strAcctID; }			// account's ID as used internal to OT.
-	const OTString & GetAssetTypeID()	{ return m_strAssetTypeID; }	// asset type ID for the account.
+	const OTString & GetName()			const	{ return m_strName; }			// account's name as used in a script.
+	const OTString & GetAgentName()		const	{ return m_strAgentName; }		// agent's name as used in a script.
+	const OTString & GetAcctID()		const	{ return m_strAcctID; }			// account's ID as used internal to OT.
+	const OTString & GetAssetTypeID()	const	{ return m_strAssetTypeID; }	// asset type ID for the account.
 	
 	void SetAgentName(const OTString & strAgentName)	{ m_strAgentName	= strAgentName; }
 	void SetAcctID(const OTString & strAccountID)		{ m_strAcctID		= strAccountID; }
 	
-	OTAgent * GetAuthorizedAgent() const;
+	OTAgent * GetAuthorizedAgent();
 	// ----------------------------
 	OTAccount * LoadAccount(OTPseudonym & theSignerNym, const OTString & strServerID);
 
-	bool IsAccount(OTAccount & theAccount) const;
+	bool IsAccount(OTAccount & theAccount);
 	// ----------------------------
 	bool VerifyOwnership() const; // I have a ptr to my owner (party), as well as to the actual account. I will ask him to verify whether he actually owns it.
-	bool VerifyAgency() const; // I can get a ptr to my agent, and I have one to the actual account. I will ask him to verify whether he actually has agency over it. 
+	bool VerifyAgency(); // I can get a ptr to my agent, and I have one to the actual account. I will ask him to verify whether he actually has agency over it. 
 	// -------------------
 	
-	long GetClosingTransNo() { return m_lClosingTransNo; }
+	long GetClosingTransNo() const { return m_lClosingTransNo; }
 	void SetClosingTransNo(const long lTransNo) { m_lClosingTransNo = lTransNo; }
 	
 	// -----------
@@ -482,7 +499,7 @@ public:
 	// ------------------------------------------------------------
 	
 	OTPartyAccount();
-	OTPartyAccount(const std::string str_account_name, const OTString & strAgentName, const OTAccount & theAccount, long lClosingTransNo);
+	OTPartyAccount(const std::string str_account_name, const OTString & strAgentName, OTAccount & theAccount, long lClosingTransNo);
 	OTPartyAccount(const OTString & strName, const OTString & strAgentName, const OTString & strAcctID, const OTString & strAssetTypeID, long lClosingTransNo);
 	
 	virtual ~OTPartyAccount();
@@ -609,6 +626,7 @@ public:
 	// ---------------------
 	
 	bool SendNoticeToParty(OTPseudonym & theServerNym,
+						   const OTIdentifier & theServerID,
 						   const long & lNewTransactionNumber,
 						   const long & lInReferenceTo,
 						   const OTString & strReference,
@@ -667,7 +685,7 @@ public:
     // do those actions otherwise will fail.
     // It's almost a separate kind of party but not worthy of a separate class.
     //	
-	bool HasAgent(OTPseudonym & theNym, OTAgent ** ppAgent=NULL); // If Nym is agent for Party, set agent's pointer to Nym and return true.
+	bool HasAgent(OTPseudonym & theNym, OTAgent ** ppAgent=NULL) const; // If Nym is agent for Party, set agent's pointer to Nym and return true.
     bool HasActiveAgent() const;
 	
 	OTAgent * GetAgent(const std::string & str_agent_name);
@@ -680,7 +698,7 @@ public:
 
 	// If Nym is authorizing agent for Party, set agent's pointer to Nym and return true.
 	//
-	bool HasAuthorizingAgent(OTPseudonym & theNym, OTAgent ** ppAgent=NULL); 
+	bool HasAuthorizingAgent(OTPseudonym & theNym, OTAgent ** ppAgent=NULL) const; 
 	
 	// Load the authorizing agent from storage. Set agent's pointer to Nym.
 	//
@@ -697,29 +715,38 @@ public:
 	
 	// ----------------------------------------
 	
+	
+
+	
+	
+	
 	bool AddAccount(OTPartyAccount& thePartyAcct);
 	bool AddAccount(const OTString& strAgentName, const OTString& strName, 
 					const OTString & strAcctID, const OTString & strAssetTypeID, const long lClosingTransNo);
-	bool AddAccount(const std::string	str_PartyName,
-					OTPseudonym &		theNym, // Nym is BOTH owner AND agent, when using this constructor.
-					const std::string	str_agent_name, 
-					OTAccount *			pAccount=NULL,
-					const std::string *	pstr_account_name=NULL,
-					const long			lClosingTransNo=0);
+	bool AddAccount(const OTString& strAgentName, const char * szAcctName, 
+					OTAccount& theAccount, 
+					const long lClosingTransNo);
+	
+//	bool AddAccount(const std::string	str_PartyName,
+//					OTPseudonym &		theNym, // Nym is BOTH owner AND agent, when using this constructor.
+//					const std::string	str_agent_name, 
+//					OTAccount *			pAccount=NULL,
+//					const std::string *	pstr_account_name=NULL,
+//					const long			lClosingTransNo=0);
 	
 	int GetAccountCount() const { return m_mapPartyAccounts.size(); }
 	
 	// Get PartyAcct by name.
 	//
-	OTPartyAccount * GetAccount(const std::string & str_acct_name);
+	OTPartyAccount * GetAccount(const std::string & str_acct_name) const;
 	// by agent name
 	OTPartyAccount * GetAccountByAgent(const std::string & str_agent_name);
 	
 	// If account is present for Party, set account's pointer to theAccount and return true.
 	//
-	bool HasAccount(OTAccount & theAccount, OTPartyAccount ** ppPartyAccount=NULL);
+	bool HasAccount(OTAccount & theAccount, OTPartyAccount ** ppPartyAccount=NULL) const;
 
-	bool VerifyOwnershipOfAccount(OTAccount & theAccount) const;
+	bool VerifyOwnershipOfAccount(const OTAccount & theAccount) const;
 	
 	bool VerifyAccountsWithTheirAgents(OTPseudonym		& theSignerNym, 
 									   const OTString	& strServerID,
@@ -753,6 +780,7 @@ typedef std::map<std::string, OTParty *> mapOfParties;
 
 // ------------------------------------------------------------
 
+class OTScript;
 class OTBylaw;
 // ------------------------------------------------------------
 
@@ -813,7 +841,7 @@ public:
 	bool SetValue(const std::string & str_Value);
 	
 	// -------------------------------------
-	const OTString & GetName() { return m_strName; } // variable's name as used in a script.
+	const OTString & GetName() const { return m_strName; } // variable's name as used in a script.
 
 	OTVariable_Type		GetType() const { return m_Type; }
 	OTVariable_Access	GetAccess() const { return m_Access; }
@@ -831,7 +859,7 @@ public:
 	std::string	&	GetValueString() { return m_str_Value; }
 	
 	// -------------------
-	bool Compare(const OTVariable & rhs) const;
+	bool Compare(OTVariable & rhs);
 
 	OTVariable();
 	OTVariable(const std::string str_Name, const std::string str_Value,	const OTVariable_Access theAccess=Var_Persistent);
@@ -923,7 +951,8 @@ public:
 	
 	// -------------------------------
 	void Serialize(OTString & strAppend);
-
+	int ReadFromXMLNode(irr::io::IrrXMLReader*& xml, const OTString & strStashName, const OTString & strItemCount);
+	// -------------------------------
 	
 	OTStash();
 	OTStash(const std::string str_stash_name) 
@@ -970,16 +999,19 @@ class OTBylaw
 	OTScriptable *	m_pOwnerAgreement; // This Bylaw is owned by an agreement (OTScriptable-derived.)
 	
 public:
-	OTString & GetName() { return m_strName; }
+	const OTString & GetName() const { return m_strName; }
 	
 	const char * GetLanguage() const;
 	
 	// ---------------------
 
 	bool AddVariable(OTVariable& theVariable);
-	bool AddVariable(const std::string str_Name, const std::string str_Value,	const OTVariable_Access theAccess=Var_Persistent);
-	bool AddVariable(const std::string str_Name, const long lValue,				const OTVariable_Access theAccess=Var_Persistent);
-	bool AddVariable(const std::string str_Name, const bool bValue,				const OTVariable_Access theAccess=Var_Persistent);
+	bool AddVariable(const std::string str_Name, const std::string str_Value,	
+					 const OTVariable::OTVariable_Access theAccess=OTVariable::Var_Persistent);
+	bool AddVariable(const std::string str_Name, const long lValue,				
+					 const OTVariable::OTVariable_Access theAccess=OTVariable::Var_Persistent);
+	bool AddVariable(const std::string str_Name, const bool bValue,				
+					 const OTVariable::OTVariable_Access theAccess=OTVariable::Var_Persistent);
 	
 	OTVariable * GetVariable(const std::string str_Name); // not a reference, so you can pass in char *. Maybe that's bad? todo: research that.
 	
@@ -1030,7 +1062,7 @@ public:
 
 	virtual ~OTBylaw();
 	
-	bool Compare(const OTBylaw & rhs) const;
+	bool Compare(OTBylaw & rhs);
 	
 	void Serialize(OTString & strAppend);
 };

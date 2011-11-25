@@ -469,6 +469,12 @@
 
 #include "OTScript.h"
 
+#include "OTBylaw.h"
+
+#include "OTTransactionType.h"
+#include "OTItem.h"
+#include "OTTransaction.h"
+#include "OTLedger.h"
 
 // -----------------------------------------------------------------
 
@@ -662,27 +668,27 @@ void OTSmartContract::RegisterOTNativeCallsWithScript(OTScript & theScript)
 		// (These functions can be called from INSIDE the scripted clauses.)
 		//																						// Parameters must match as described below. Return value will be as described below.
 		//																						// -------------------------------------------------------------
-		pScript->chai.add(fun(&(OTSmartContract::MoveAcctFunds),	(*this)), "move_funds");	// bool MoveAcctFunds(const std::string from_acct_name, const std::string to_acct_name, const long lAmount); // calls OTCronItem::MoveFunds()
-		pScript->chai.add(fun(&(OTSmartContract::StashAcctFunds),	(*this)), "stash_funds");	// bool StashAcctFunds(const std::string from_acct_name, const std::string to_stash_name, const long lAmount); // calls StashFunds()
-		pScript->chai.add(fun(&(OTSmartContract::UnstashAcctFunds),	(*this)), "unstash_funds");	// bool UnstashAcctFunds(const std::string to_acct_name, const std::string from_stash_name, const long lAmount); // calls StashFunds( lAmount * (-1) )
+		pScript->chai.add(fun(&OTSmartContract::MoveAcctFunds,				(*this)), "move_funds");	// bool MoveAcctFunds(const std::string from_acct_name, const std::string to_acct_name, const long lAmount); // calls OTCronItem::MoveFunds()
+		pScript->chai.add(fun(&OTSmartContract::StashAcctFunds,				(*this)), "stash_funds");	// bool StashAcctFunds(const std::string from_acct_name, const std::string to_stash_name, const long lAmount); // calls StashFunds()
+		pScript->chai.add(fun(&OTSmartContract::UnstashAcctFunds,			(*this)), "unstash_funds");	// bool UnstashAcctFunds(const std::string to_acct_name, const std::string from_stash_name, const long lAmount); // calls StashFunds( lAmount * (-1) )
 		
-		pScript->chai.add(fun(&(OTSmartContract::GetAcctBalance),		(*this)), "get_acct_balance"); // long GetAcctBalance(const std::string acct_name);
-		pScript->chai.add(fun(&(OTSmartContract::GetAssetTypeIDofAcct),	(*this)), "get_acct_asset_type_id"); // std::string OTSmartContract::GetAssetTypeIDofAcct(const std::string from_acct_name)
-		pScript->chai.add(fun(&(OTSmartContract::GetStashBalance),		(*this)), "get_stash_balance");	// long GetStashBalance(const std::string stash_name, const std::string asset_type_id);
+		pScript->chai.add(fun(&OTSmartContract::GetAcctBalance,				(*this)), "get_acct_balance"); // long GetAcctBalance(const std::string acct_name);
+		pScript->chai.add(fun(&OTSmartContract::GetAssetTypeIDofAcct,		(*this)), "get_acct_asset_type_id"); // std::string OTSmartContract::GetAssetTypeIDofAcct(const std::string from_acct_name)
+		pScript->chai.add(fun(&OTSmartContract::GetStashBalance,			(*this)), "get_stash_balance");	// long GetStashBalance(const std::string stash_name, const std::string asset_type_id);
 		
-		pScript->chai.add(fun(&(OTSmartContract::SendNoticeToParty),		(*this)), "send_notice");				// bool SendNoticeToParty(const std::string party_name);
-		pScript->chai.add(fun(&(OTSmartContract::SendANoticeToAllParties),	(*this)), "send_notice_to_parties");	// bool SendANoticeToAllParties();
+		pScript->chai.add(fun(&OTSmartContract::SendNoticeToParty,			(*this)), "send_notice");				// bool SendNoticeToParty(const std::string party_name);
+		pScript->chai.add(fun(&OTSmartContract::SendANoticeToAllParties,	(*this)), "send_notice_to_parties");	// bool SendANoticeToAllParties();
 
-		pScript->chai.add(fun(&(OTSmartContract::DeactivateSmartContract),	(*this)), "deactivate_contract");	// void DeactivateSmartContract();
+		pScript->chai.add(fun(&OTSmartContract::DeactivateSmartContract,	(*this)), "deactivate_contract");	// void DeactivateSmartContract();
 		
 		// ---------------------------------------------------------
 		// CALLBACKS 
 		// (Called by OT at key moments)
 		//
-//FYI:	pScript->chai.add(fun(&(OTScriptable::CanExecuteClause),	(*this)), "party_may_execute_clause");	// From OTScriptable (FYI) param_party_name and param_clause_name will be available inside script. Script must return bool.
+//FYI:	pScript->chai.add(fun(&(OTScriptable::CanExecuteClause),			(*this)), "party_may_execute_clause");	// From OTScriptable (FYI) param_party_name and param_clause_name will be available inside script. Script must return bool.
 //FYI:	#define SCRIPTABLE_CALLBACK_PARTY_MAY_EXECUTE	"callback_party_may_execute_clause"   <=== THE CALLBACK WITH THIS NAME must be connected to a script clause, and then the clause will trigger when the callback is needed.	
 		
-		pScript->chai.add(fun(&(OTSmartContract::CanCancelContract),(*this)), "party_may_cancel_contract"); // param_party_name will be available inside script. Script must return bool.
+		pScript->chai.add(fun(&OTSmartContract::CanCancelContract,			(*this)), "party_may_cancel_contract"); // param_party_name will be available inside script. Script must return bool.
 //FYI:	#define SMARTCONTRACT_CALLBACK_PARTY_MAY_CANCEL	"callback_party_may_cancel_contract"  <=== THE CALLBACK WITH THIS NAME must be connected to a script clause, and then the clause will trigger when the callback is needed.
 
 		// Callback USAGE:	Your clause, in your smart contract, may have whatever name you want. (Within limits.)
@@ -944,8 +950,9 @@ long OTSmartContract::GetAcctBalance(const std::string from_acct_name)
 	const OTIdentifier	SERVER_ID(pCron->GetServerID());
 	const OTIdentifier	SERVER_USER_ID(*pServerNym);
 	
-	OTIdentifier PARTY_USER_ID;
-	pFromParty->GetPartyID(PARTY_USER_ID);
+	const std::string	str_party_id = pFromParty->GetPartyID();
+	const OTString		strPartyID(str_party_id);
+	const OTIdentifier	PARTY_USER_ID(strPartyID);
 	
 	const OTIdentifier PARTY_ACCT_ID(pFromAcct->GetAcctID());
 	
@@ -1144,8 +1151,9 @@ std::string OTSmartContract::GetAssetTypeIDofAcct(const std::string from_acct_na
 	const OTIdentifier	SERVER_ID(pCron->GetServerID());
 	const OTIdentifier	SERVER_USER_ID(*pServerNym);
 	
-	OTIdentifier PARTY_USER_ID;
-	pFromParty->GetPartyID(PARTY_USER_ID);
+	const std::string	str_party_id = pFromParty->GetPartyID();
+	const OTString		strPartyID(str_party_id);
+	const OTIdentifier	PARTY_USER_ID(strPartyID);
 	
 	const OTIdentifier PARTY_ACCT_ID(pFromAcct->GetAcctID());
 	
@@ -1271,7 +1279,7 @@ bool OTSmartContract::SendANoticeToAllParties()
 		this->SaveContract();
 		
 		const OTString strReference(*this);
-		bDroppedNotice = this->SendNoticeToAllParties(*pServerNym, lNewTransactionNumber, GetTransactionNum(),
+		bDroppedNotice = this->SendNoticeToAllParties(*pServerNym, GetServerID(), lNewTransactionNumber, GetTransactionNum(),
 													  strReference); // pstrNote and pstrAttachment aren't used in this case.
 		
 		OTLog::vOutput(0, "OTSmartContract::SendANoticeToAllParties: Dropping notifications into all parties' nymboxes: %s\n",
@@ -1345,6 +1353,13 @@ bool OTSmartContract::SendNoticeToParty(const std::string party_name)
 	bool bVerifiedAuthorization = 
 		this->VerifyPartyAuthorization(*pParty, *pServerNym, strServerID, &map_Nyms_Already_Loaded);
 	
+	if (!bVerifiedAuthorization)
+	{
+		OTLog::vOutput(0, "OTSmartContract::SendNoticeToParty: Unable to verify this party: %s\n",
+					   party_name.c_str());
+		return false;
+	}	
+	
 	// *****************************************************************************
 	
 			bool bDroppedNotice			= false;
@@ -1364,8 +1379,8 @@ bool OTSmartContract::SendNoticeToParty(const std::string party_name)
 		
 		const OTString strReference(*this);
 
-		bDroppedNotice = pParty->SendNoticeToParty(*pServerNym, lNewTransactionNumber, GetTransactionNum(), 
-												   strReference)
+		bDroppedNotice = pParty->SendNoticeToParty(*pServerNym, GetServerID(), lNewTransactionNumber, GetTransactionNum(), 
+												   strReference);
 
 		OTLog::vOutput(0, "OTSmartContract::SendNoticeToParty: %s dropping notification into party's nymbox: %s\n",
 					   bDroppedNotice ? "Success" : "Failure", pParty->GetPartyName().c_str());
@@ -1408,7 +1423,7 @@ bool OTSmartContract::StashAcctFunds(const std::string from_acct_name, const std
 	
 	if (lAmount <= 0)
 	{
-		OTLog::vOutput("OTSmartContract::StashAcctFunds: Error: lAmount cannot be 0 or <0. (Value passed in was %ld.)\n",
+		OTLog::vOutput(0, "OTSmartContract::StashAcctFunds: Error: lAmount cannot be 0 or <0. (Value passed in was %ld.)\n",
 					   lAmount);
 		return false;
 	}
@@ -1625,7 +1640,7 @@ bool OTSmartContract::UnstashAcctFunds(const std::string to_acct_name, const std
 	
 	if (lAmount <= 0)
 	{
-		OTLog::vOutput("OTSmartContract::UnstashAcctFunds: Error: lAmount cannot be 0 or <0. (Value passed in was %ld.)\n",
+		OTLog::vOutput(0, "OTSmartContract::UnstashAcctFunds: Error: lAmount cannot be 0 or <0. (Value passed in was %ld.)\n",
 					   lAmount);
 		return false;
 	}
@@ -1833,7 +1848,7 @@ bool OTSmartContract::StashFunds(const mapOfNyms	&	map_NymsAlreadyLoaded,
 		return false;
 	}
 	// --------------------------------
-	const OTCron * pCron = GetCron();
+	OTCron * pCron = GetCron();
 	OT_ASSERT(NULL != pCron);
 	
 	OTPseudonym * pServerNym = pCron->GetServerNym();
@@ -2018,18 +2033,15 @@ bool OTSmartContract::StashFunds(const mapOfNyms	&	map_NymsAlreadyLoaded,
 	OTPseudonym thePartyNym; 
 	
 	// Find out if party Nym is actually also the server nym.
-	bool bPartyNymIsServerNym	= ((PARTY_USER_ID	== SERVER_USER_ID) ? true : false);
-	
-	// We also see, after all that is done, whether both pointers go to the same entity. 
-	// (We'll want to know that later.)
-	bool bUsersAreSameNym			= ((PARTY_USER_ID == STASH_USER_ID) ? true : false);
+	const bool bPartyNymIsServerNym	= ((PARTY_USER_ID	== SERVER_USER_ID) ? true : false);
 	
 	// -----------------------------------------------------
 	
 	OTPseudonym * pPartyNym			= NULL;
-	OTPseudonym * pStashNym			= pServerNym;
+//	OTPseudonym * pStashNym			= pServerNym;
 	// --------------------------
-	mapOfNyms::iterator it_party	= map_NymsAlreadyLoaded.find(strPartyUserID.Get());
+	const std::string			str_party_id = strPartyUserID.Get();
+	mapOfNyms::const_iterator	it_party	 = map_NymsAlreadyLoaded.find(str_party_id);
 	
 	if (map_NymsAlreadyLoaded.end() != it_party) // found the party in list of Nyms that are already loaded.
 	{
@@ -2473,7 +2485,7 @@ bool OTSmartContract::MoveAcctFunds(const std::string from_acct_name, const std:
 	
 	if (lAmount <= 0)
 	{
-		OTLog::vOutput("OTSmartContract::MoveAcctFunds: Error: lAmount cannot be 0 or <0. (Value passed in was %ld.)\n",
+		OTLog::vOutput(0, "OTSmartContract::MoveAcctFunds: Error: lAmount cannot be 0 or <0. (Value passed in was %ld.)\n",
 					   lAmount);
 		return false;
 	}
@@ -3139,7 +3151,7 @@ void OTSmartContract::ExecuteClauses (mapOfClauses & theClauses)
 		const std::string str_code		=	pClause->GetCode();		// source code for the script.
 		const std::string str_language	=	pBylaw->GetLanguage();	// language it's in. (Default is "chai")
 		
-		OTScript_SharedPtr pScript = OTScriptFactory(&str_code, &str_language);
+		OTScript_SharedPtr pScript = OTScriptFactory(str_code, &str_language);
 
 		// ---------------------------------------------------------------
 		//
@@ -3172,7 +3184,7 @@ void OTSmartContract::ExecuteClauses (mapOfClauses & theClauses)
 			// ****************************************
 			if (false == pScript->ExecuteScript())
 			{
-				OTLog::Error("OTSmartContract::ExecuteClauses: Error while running script: %s \n",
+				OTLog::vError("OTSmartContract::ExecuteClauses: Error while running script: %s \n",
 							 str_clause_name.c_str());
 			}
 			else
@@ -3235,7 +3247,7 @@ void OTSmartContract::ExecuteClauses (mapOfClauses & theClauses)
 			this->SaveContract();
 			
 			const OTString strReference(*this);
-			bool bDroppedNotice = this->SendNoticeToAllParties(*pServerNym, lNewTransactionNumber, GetTransactionNum(),
+			bool bDroppedNotice = this->SendNoticeToAllParties(*pServerNym, GetServerID(), lNewTransactionNumber, GetTransactionNum(),
 															   strReference); // pstrNote and pstrAttachment aren't used in this case.
 			
 			OTLog::vOutput(0, "OTSmartContract::ExecuteClauses: FYI, 'Important' variables were changed "
@@ -3323,6 +3335,13 @@ bool OTSmartContract::CanCancelContract(const std::string str_party_name)
 	bool bVerifiedAuthorization = 
 		this->VerifyPartyAuthorization(*pParty, *pServerNym, strServerID, &map_Nyms_Already_Loaded);
 
+	if (!bVerifiedAuthorization)
+	{
+		OTLog::vOutput(0, "OTSmartContract::CanCancelContract: Unable to verify this party: %s\n",
+					   str_party_name.c_str());
+		return false;
+	}	
+	
 	// *****************************************************************************
 	
 	// IF NO CALLBACK IS PROVIDED, The default answer to this function is:
@@ -4100,15 +4119,20 @@ OTStash * OTSmartContract::GetStash(const std::string str_stash_name)
 
 // -------------------------------------------
 
+
+
+
+
 OTSmartContract::OTSmartContract() : OTCronItem(), m_StashAccts(OTAccount::stash)
 {
 	InitSmartContract();
 }
 
 
-OTSmartContract::OTSmartContract(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID) : // I believe asset_ID is unused, for now.
-			OTCronItem(SERVER_ID, ASSET_ID), m_StashAccts(OTAccount::stash)
+OTSmartContract::OTSmartContract(const OTIdentifier & SERVER_ID) :
+	OTCronItem(), m_StashAccts(OTAccount::stash)
 {
+	OTInstrument::SetServerID(SERVER_ID);
 	InitSmartContract();
 }
 
@@ -4161,9 +4185,7 @@ void OTSmartContract::ReleaseStashes()
 
 // the framework will call this at the right time.
 void OTSmartContract::Release()
-{
-	m_strMySignedCopy.Release();
-	
+{	
 	// -------------------------------------
 
 	ReleaseStashes();
@@ -4199,7 +4221,7 @@ int OTSmartContract::GetCountStashAccts() const
 // Before we can make sure that ALL parties have signed equivalent versions,
 // we must be able to compare TWO versions.  The below function does that.
 //
-bool OTSmartContract::Compare(const OTScriptable & rhs) const
+bool OTSmartContract::Compare(OTScriptable & rhs)
 {
     if (false == OTScriptable::Compare(rhs))
         return false;
@@ -4211,9 +4233,10 @@ bool OTSmartContract::Compare(const OTScriptable & rhs) const
 		return false;
 	}
 	
-	if (GetCountStashAccts > 0)
+	if (GetCountStashAccts() > 0)
 	{
-		OTLog::Error("OTSmartContract::Compare: Error: How is this function EVER being called when there are stash accounts present? Only the server can create stash accounts.\n");
+		OTLog::Error("OTSmartContract::Compare: Error: How is this function EVER being called when there are "
+					 "stash accounts present? Only the server can create stash accounts.\n");
 		return false;
 	}
 	// -------------------------------------------------
@@ -4229,7 +4252,7 @@ bool OTSmartContract::Compare(const OTScriptable & rhs) const
 			return false;
 		}
 		
-		if (pSmartContract->GetCountStashAccts > 0)
+		if (pSmartContract->GetCountStashAccts() > 0)
 		{
 			OTLog::Error("OTSmartContract::Compare: Error: How is this function EVER being called when there are stash accounts present on rhs? Only the server can create stash accounts.\n");
 			return false;
@@ -4468,7 +4491,8 @@ int OTSmartContract::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		const OTString strStashName	= xml->getAttributeValue("name");					
 		const OTString strItemCount	= xml->getAttributeValue("count");
 		
-		OTStash * pStash = new OTStash(strStashName.Get());
+		const std::string str_stash_name = strStashName.Get();
+		OTStash * pStash = new OTStash(str_stash_name);
 		OT_ASSERT(NULL != pStash);
 		
 		if ((-1) == pStash->ReadFromXMLNode(xml, strStashName, strItemCount))

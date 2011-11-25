@@ -369,6 +369,62 @@ def OT_API_ConfirmPaymentPlan(*args):
   return _otapi.OT_API_ConfirmPaymentPlan(*args)
 OT_API_ConfirmPaymentPlan = _otapi.OT_API_ConfirmPaymentPlan
 
+def OT_API_Create_SmartContract(*args):
+  return _otapi.OT_API_Create_SmartContract(*args)
+OT_API_Create_SmartContract = _otapi.OT_API_Create_SmartContract
+
+def OT_API_SmartContract_AddBylaw(*args):
+  return _otapi.OT_API_SmartContract_AddBylaw(*args)
+OT_API_SmartContract_AddBylaw = _otapi.OT_API_SmartContract_AddBylaw
+
+def OT_API_SmartContract_AddClause(*args):
+  return _otapi.OT_API_SmartContract_AddClause(*args)
+OT_API_SmartContract_AddClause = _otapi.OT_API_SmartContract_AddClause
+
+def OT_API_SmartContract_AddVariable(*args):
+  return _otapi.OT_API_SmartContract_AddVariable(*args)
+OT_API_SmartContract_AddVariable = _otapi.OT_API_SmartContract_AddVariable
+
+def OT_API_SmartContract_AddCallback(*args):
+  return _otapi.OT_API_SmartContract_AddCallback(*args)
+OT_API_SmartContract_AddCallback = _otapi.OT_API_SmartContract_AddCallback
+
+def OT_API_SmartContract_AddHook(*args):
+  return _otapi.OT_API_SmartContract_AddHook(*args)
+OT_API_SmartContract_AddHook = _otapi.OT_API_SmartContract_AddHook
+
+def OT_API_SmartContract_AddParty(*args):
+  return _otapi.OT_API_SmartContract_AddParty(*args)
+OT_API_SmartContract_AddParty = _otapi.OT_API_SmartContract_AddParty
+
+def OT_API_SmartContract_AddAccount(*args):
+  return _otapi.OT_API_SmartContract_AddAccount(*args)
+OT_API_SmartContract_AddAccount = _otapi.OT_API_SmartContract_AddAccount
+
+def OT_API_SmartContract_ConfirmAccount(*args):
+  return _otapi.OT_API_SmartContract_ConfirmAccount(*args)
+OT_API_SmartContract_ConfirmAccount = _otapi.OT_API_SmartContract_ConfirmAccount
+
+def OT_API_SmartContract_ConfirmParty(*args):
+  return _otapi.OT_API_SmartContract_ConfirmParty(*args)
+OT_API_SmartContract_ConfirmParty = _otapi.OT_API_SmartContract_ConfirmParty
+
+def OT_API_activateSmartContract(*args):
+  return _otapi.OT_API_activateSmartContract(*args)
+OT_API_activateSmartContract = _otapi.OT_API_activateSmartContract
+
+def OT_API_triggerClause(*args):
+  return _otapi.OT_API_triggerClause(*args)
+OT_API_triggerClause = _otapi.OT_API_triggerClause
+
+def OT_API_HarvestClosingNumbers(*args):
+  return _otapi.OT_API_HarvestClosingNumbers(*args)
+OT_API_HarvestClosingNumbers = _otapi.OT_API_HarvestClosingNumbers
+
+def OT_API_HarvestAllNumbers(*args):
+  return _otapi.OT_API_HarvestAllNumbers(*args)
+OT_API_HarvestAllNumbers = _otapi.OT_API_HarvestAllNumbers
+
 def OT_API_LoadUserPubkey(*args):
   return _otapi.OT_API_LoadUserPubkey(*args)
 OT_API_LoadUserPubkey = _otapi.OT_API_LoadUserPubkey

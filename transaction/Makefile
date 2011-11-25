@@ -87,8 +87,8 @@ C_COMPILER = cc
 
 # The LIBS macro contains a list of libraries that the the
 # executable must be linked against.
-API_LIBS =  -lssl -lcrypto  -lOTLib -lssl -lcrypto  -lOTLib  -lssl -lcrypto -lOTLib  -lssl -lcrypto -lprotobuf -lmsgpack -lzmq -lOTLib
-API_DEBUG_LIBS = -lssl -lcrypto -lOTLibd -lssl -lcrypto -lOTLibd  -lssl -lcrypto -lOTLibd -lssl -lcrypto -lprotobuf -lmsgpack -lzmq -lOTLibd
+API_LIBS =  -lssl -lcrypto  -lOTLib -lssl -lcrypto -lboost_thread-mt -lOTLib  -lssl -lcrypto -lOTLib  -lssl -lcrypto -lprotobuf -lmsgpack -lzmq -lOTLib
+API_DEBUG_LIBS = -lssl -lcrypto -lOTLibd -lssl -lcrypto -lboost_thread-mt -lOTLibd  -lssl -lcrypto -lOTLibd -lssl -lcrypto -lprotobuf -lmsgpack -lzmq -lOTLibd
 #
 # FT: I tested this. The above version worked on Linux, and the below version did not.
 #

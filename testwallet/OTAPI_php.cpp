@@ -4387,6 +4387,966 @@ fail:
 }
 
 
+ZEND_NAMED_FUNCTION(_wrap_OT_API_Create_SmartContract) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  char *arg4 = (char *) 0 ;
+  zval **args[4];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 4 || zend_get_parameters_array_ex(4, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[2])->type==IS_NULL) {
+    arg3 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[2]);
+    arg3 = (char *) Z_STRVAL_PP(args[2]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[3])->type==IS_NULL) {
+    arg4 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[3]);
+    arg4 = (char *) Z_STRVAL_PP(args[3]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_Create_SmartContract((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddBylaw) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  zval **args[3];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[2])->type==IS_NULL) {
+    arg3 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[2]);
+    arg3 = (char *) Z_STRVAL_PP(args[2]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_SmartContract_AddBylaw((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddClause) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  char *arg4 = (char *) 0 ;
+  char *arg5 = (char *) 0 ;
+  zval **args[5];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 5 || zend_get_parameters_array_ex(5, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[2])->type==IS_NULL) {
+    arg3 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[2]);
+    arg3 = (char *) Z_STRVAL_PP(args[2]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[3])->type==IS_NULL) {
+    arg4 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[3]);
+    arg4 = (char *) Z_STRVAL_PP(args[3]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[4])->type==IS_NULL) {
+    arg5 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[4]);
+    arg5 = (char *) Z_STRVAL_PP(args[4]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_SmartContract_AddClause((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddVariable) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  char *arg4 = (char *) 0 ;
+  char *arg5 = (char *) 0 ;
+  char *arg6 = (char *) 0 ;
+  char *arg7 = (char *) 0 ;
+  zval **args[7];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 7 || zend_get_parameters_array_ex(7, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[2])->type==IS_NULL) {
+    arg3 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[2]);
+    arg3 = (char *) Z_STRVAL_PP(args[2]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[3])->type==IS_NULL) {
+    arg4 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[3]);
+    arg4 = (char *) Z_STRVAL_PP(args[3]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[4])->type==IS_NULL) {
+    arg5 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[4]);
+    arg5 = (char *) Z_STRVAL_PP(args[4]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[5])->type==IS_NULL) {
+    arg6 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[5]);
+    arg6 = (char *) Z_STRVAL_PP(args[5]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[6])->type==IS_NULL) {
+    arg7 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[6]);
+    arg7 = (char *) Z_STRVAL_PP(args[6]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_SmartContract_AddVariable((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5,(char const *)arg6,(char const *)arg7);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddCallback) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  char *arg4 = (char *) 0 ;
+  char *arg5 = (char *) 0 ;
+  zval **args[5];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 5 || zend_get_parameters_array_ex(5, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[2])->type==IS_NULL) {
+    arg3 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[2]);
+    arg3 = (char *) Z_STRVAL_PP(args[2]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[3])->type==IS_NULL) {
+    arg4 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[3]);
+    arg4 = (char *) Z_STRVAL_PP(args[3]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[4])->type==IS_NULL) {
+    arg5 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[4]);
+    arg5 = (char *) Z_STRVAL_PP(args[4]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_SmartContract_AddCallback((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddHook) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  char *arg4 = (char *) 0 ;
+  char *arg5 = (char *) 0 ;
+  zval **args[5];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 5 || zend_get_parameters_array_ex(5, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[2])->type==IS_NULL) {
+    arg3 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[2]);
+    arg3 = (char *) Z_STRVAL_PP(args[2]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[3])->type==IS_NULL) {
+    arg4 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[3]);
+    arg4 = (char *) Z_STRVAL_PP(args[3]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[4])->type==IS_NULL) {
+    arg5 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[4]);
+    arg5 = (char *) Z_STRVAL_PP(args[4]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_SmartContract_AddHook((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddParty) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  char *arg4 = (char *) 0 ;
+  zval **args[4];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 4 || zend_get_parameters_array_ex(4, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[2])->type==IS_NULL) {
+    arg3 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[2]);
+    arg3 = (char *) Z_STRVAL_PP(args[2]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[3])->type==IS_NULL) {
+    arg4 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[3]);
+    arg4 = (char *) Z_STRVAL_PP(args[3]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_SmartContract_AddParty((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddAccount) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  char *arg4 = (char *) 0 ;
+  char *arg5 = (char *) 0 ;
+  zval **args[5];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 5 || zend_get_parameters_array_ex(5, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[2])->type==IS_NULL) {
+    arg3 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[2]);
+    arg3 = (char *) Z_STRVAL_PP(args[2]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[3])->type==IS_NULL) {
+    arg4 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[3]);
+    arg4 = (char *) Z_STRVAL_PP(args[3]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[4])->type==IS_NULL) {
+    arg5 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[4]);
+    arg5 = (char *) Z_STRVAL_PP(args[4]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_SmartContract_AddAccount((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_ConfirmAccount) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  char *arg4 = (char *) 0 ;
+  char *arg5 = (char *) 0 ;
+  char *arg6 = (char *) 0 ;
+  zval **args[6];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 6 || zend_get_parameters_array_ex(6, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[2])->type==IS_NULL) {
+    arg3 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[2]);
+    arg3 = (char *) Z_STRVAL_PP(args[2]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[3])->type==IS_NULL) {
+    arg4 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[3]);
+    arg4 = (char *) Z_STRVAL_PP(args[3]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[4])->type==IS_NULL) {
+    arg5 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[4]);
+    arg5 = (char *) Z_STRVAL_PP(args[4]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[5])->type==IS_NULL) {
+    arg6 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[5]);
+    arg6 = (char *) Z_STRVAL_PP(args[5]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_SmartContract_ConfirmAccount((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5,(char const *)arg6);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_ConfirmParty) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  zval **args[3];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[2])->type==IS_NULL) {
+    arg3 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[2]);
+    arg3 = (char *) Z_STRVAL_PP(args[2]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_SmartContract_ConfirmParty((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_activateSmartContract) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  zval **args[3];
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[2])->type==IS_NULL) {
+    arg3 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[2]);
+    arg3 = (char *) Z_STRVAL_PP(args[2]);
+  }
+  /*@SWIG@*/;
+  
+  OT_API_activateSmartContract((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_triggerClause) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  char *arg4 = (char *) 0 ;
+  zval **args[4];
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 4 || zend_get_parameters_array_ex(4, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[2])->type==IS_NULL) {
+    arg3 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[2]);
+    arg3 = (char *) Z_STRVAL_PP(args[2]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[3])->type==IS_NULL) {
+    arg4 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[3]);
+    arg4 = (char *) Z_STRVAL_PP(args[3]);
+  }
+  /*@SWIG@*/;
+  
+  OT_API_triggerClause((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+  
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_HarvestClosingNumbers) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  zval **args[3];
+  int result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[2])->type==IS_NULL) {
+    arg3 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[2]);
+    arg3 = (char *) Z_STRVAL_PP(args[2]);
+  }
+  /*@SWIG@*/;
+  
+  result = (int)OT_API_HarvestClosingNumbers((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  {
+    ZVAL_LONG(return_value,result);
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_HarvestAllNumbers) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  zval **args[3];
+  int result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[2])->type==IS_NULL) {
+    arg3 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[2]);
+    arg3 = (char *) Z_STRVAL_PP(args[2]);
+  }
+  /*@SWIG@*/;
+  
+  result = (int)OT_API_HarvestAllNumbers((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  {
+    ZVAL_LONG(return_value,result);
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
 ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadUserPubkey) {
   char *arg1 = (char *) 0 ;
   zval **args[1];
@@ -25328,6 +26288,20 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(ot_api_writecheque,_wrap_OT_API_WriteCheque,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_proposepaymentplan,_wrap_OT_API_ProposePaymentPlan,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_confirmpaymentplan,_wrap_OT_API_ConfirmPaymentPlan,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_create_smartcontract,_wrap_OT_API_Create_SmartContract,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_smartcontract_addbylaw,_wrap_OT_API_SmartContract_AddBylaw,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_smartcontract_addclause,_wrap_OT_API_SmartContract_AddClause,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_smartcontract_addvariable,_wrap_OT_API_SmartContract_AddVariable,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_smartcontract_addcallback,_wrap_OT_API_SmartContract_AddCallback,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_smartcontract_addhook,_wrap_OT_API_SmartContract_AddHook,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_smartcontract_addparty,_wrap_OT_API_SmartContract_AddParty,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_smartcontract_addaccount,_wrap_OT_API_SmartContract_AddAccount,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_smartcontract_confirmaccount,_wrap_OT_API_SmartContract_ConfirmAccount,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_smartcontract_confirmparty,_wrap_OT_API_SmartContract_ConfirmParty,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_activatesmartcontract,_wrap_OT_API_activateSmartContract,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_triggerclause,_wrap_OT_API_triggerClause,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_harvestclosingnumbers,_wrap_OT_API_HarvestClosingNumbers,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_harvestallnumbers,_wrap_OT_API_HarvestAllNumbers,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_loaduserpubkey,_wrap_OT_API_LoadUserPubkey,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_loadpubkey,_wrap_OT_API_LoadPubkey,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_verifyuserprivatekey,_wrap_OT_API_VerifyUserPrivateKey,NULL)

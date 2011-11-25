@@ -156,6 +156,7 @@ using namespace io;
 #include "OTItem.h"
 #include "OTLedger.h"
 #include "OTPaymentPlan.h"
+#include "OTSmartContract.h"
 #include "OTTransactionType.h"
 #include "OTTransaction.h"
 #include "OTLog.h"
@@ -3036,7 +3037,7 @@ bool OTTransaction::GetSenderUserIDForDisplay(OTIdentifier & theReturnID)
 	switch (GetType()) 
 	{
 //		case OTTransaction::marketReceipt: 
-		case OTTransaction::paymentReceipt:
+		case OTTransaction::paymentReceipt: // for paymentPlans AND smartcontracts. (If the smart contract does a payment, it leaves a paymentReceipt...)
         {
             pCronItem = OTCronItem::NewCronItem(strReference);
 			theCronItemAngel.SetCleanupTargetPointer(pCronItem);
@@ -3152,14 +3153,14 @@ bool OTTransaction::GetRecipientUserIDForDisplay(OTIdentifier & theReturnID)
 	switch (this->GetType()) 
 	{	
 //		case OTTransaction::marketReceipt: 
-		case OTTransaction::paymentReceipt:
+		case OTTransaction::paymentReceipt: // Used for paymentPlans AND for smart contracts...
         {
             pCronItem = OTCronItem::NewCronItem(strReference);
 			theCronItemAngel.SetCleanupTargetPointer(pCronItem);
             
             if (NULL != pCronItem)
             {                
-                if (OTTransaction::paymentReceipt == this->GetType())
+                if ( OTTransaction::paymentReceipt	== this->GetType())
                 {
                     OTPaymentPlan *		pPlan = dynamic_cast<OTPaymentPlan *>(pCronItem);
 					OTSmartContract *	pSmart = dynamic_cast<OTSmartContract *>(pCronItem);
@@ -3177,6 +3178,8 @@ bool OTTransaction::GetRecipientUserIDForDisplay(OTIdentifier & theReturnID)
                         theReturnID = pPlan->GetRecipientUserID();
                         return true;
                     }
+					else
+						OTLog::Error("OTTransaction::GetRecipientUserIDForDisplay: cron item is neither a paymentplan nor a smart contract...\n");
                 }
                 else    // must be a marketReceipt. They don't have a "recipient" so I'm putting sender here,
                         // to see if it works out in the GUI that way. UPDATE: leaving marketReceipt blank for now.

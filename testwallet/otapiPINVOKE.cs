@@ -419,6 +419,48 @@ class otapiPINVOKE {
   [DllImport("otapi", EntryPoint="CSharp_OT_API_ConfirmPaymentPlan")]
   public static extern string OT_API_ConfirmPaymentPlan(string jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
 
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_Create_SmartContract")]
+  public static extern string OT_API_Create_SmartContract(string jarg1, string jarg2, string jarg3, string jarg4);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_SmartContract_AddBylaw")]
+  public static extern string OT_API_SmartContract_AddBylaw(string jarg1, string jarg2, string jarg3);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_SmartContract_AddClause")]
+  public static extern string OT_API_SmartContract_AddClause(string jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_SmartContract_AddVariable")]
+  public static extern string OT_API_SmartContract_AddVariable(string jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6, string jarg7);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_SmartContract_AddCallback")]
+  public static extern string OT_API_SmartContract_AddCallback(string jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_SmartContract_AddHook")]
+  public static extern string OT_API_SmartContract_AddHook(string jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_SmartContract_AddParty")]
+  public static extern string OT_API_SmartContract_AddParty(string jarg1, string jarg2, string jarg3, string jarg4);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_SmartContract_AddAccount")]
+  public static extern string OT_API_SmartContract_AddAccount(string jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_SmartContract_ConfirmAccount")]
+  public static extern string OT_API_SmartContract_ConfirmAccount(string jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_SmartContract_ConfirmParty")]
+  public static extern string OT_API_SmartContract_ConfirmParty(string jarg1, string jarg2, string jarg3);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_activateSmartContract")]
+  public static extern void OT_API_activateSmartContract(string jarg1, string jarg2, string jarg3);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_triggerClause")]
+  public static extern void OT_API_triggerClause(string jarg1, string jarg2, string jarg3, string jarg4);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_HarvestClosingNumbers")]
+  public static extern int OT_API_HarvestClosingNumbers(string jarg1, string jarg2, string jarg3);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_HarvestAllNumbers")]
+  public static extern int OT_API_HarvestAllNumbers(string jarg1, string jarg2, string jarg3);
+
   [DllImport("otapi", EntryPoint="CSharp_OT_API_LoadUserPubkey")]
   public static extern string OT_API_LoadUserPubkey(string jarg1);
 

@@ -164,13 +164,13 @@ public:
 
 	virtual bool ConfirmParty(OTParty & theParty); // Takes ownership.
 
-	OTParty		* GetParty( const std::string str_party_name);
-	OTBylaw		* GetBylaw( const std::string str_bylaw_name);
-	OTClause	* GetClause(const std::string str_clause_name);
+	OTParty		* GetParty	(const std::string str_party_name);
+	OTBylaw		* GetBylaw	(const std::string str_bylaw_name);
+	OTClause	* GetClause	(const std::string str_clause_name);
 	
-	OTParty * FindPartyBasedOnNymAsAgent(const OTPseudonym & theNym, OTAgent ** ppAgent=NULL);
-	OTParty * FindPartyBasedOnNymAsAuthAgent(const OTPseudonym & theNym, OTAgent ** ppAgent=NULL);
-	OTParty * FindPartyBasedOnAccount(const OTAccount & theAccount, OTPartyAccount ** ppPartyAccount=NULL);
+	OTParty * FindPartyBasedOnNymAsAgent(OTPseudonym & theNym, OTAgent ** ppAgent=NULL);
+	OTParty * FindPartyBasedOnNymAsAuthAgent(OTPseudonym & theNym, OTAgent ** ppAgent=NULL);
+	OTParty * FindPartyBasedOnAccount(OTAccount & theAccount, OTPartyAccount ** ppPartyAccount=NULL);
 	
 	OTAgent			* GetAgent(const std::string str_agent_name);
 	OTPartyAccount	* GetPartyAccount(const std::string str_acct_name);
@@ -182,16 +182,16 @@ public:
 	// and in that case, that theNym is listed as an agent for that party.)
 	// Basically this means that the agreement's owner approves of theNym.
 	//
-	virtual bool VerifyNymAsAgent(const OTPseudonym & theNym, 
-										OTPseudonym & theSignerNym, 
-										mapOfNyms	* pmap_ALREADY_LOADED=NULL);
+	virtual bool VerifyNymAsAgent(OTPseudonym & theNym, 
+								  OTPseudonym & theSignerNym, 
+								  mapOfNyms	* pmap_ALREADY_LOADED=NULL);
 	
 	// NEED TO CALL BOTH METHODS. (above / below)
 	
 	// Verifies that theNym is actually an agent for theAccount, according to the PARTY.
 	// Also verifies that theNym is an agent for theAccount, according to the ACCOUNT.
 	//
-	virtual bool VerifyNymAsAgentForAccount(const OTPseudonym & theNym, const OTAccount & theAccount);
+	virtual bool VerifyNymAsAgentForAccount(OTPseudonym & theNym, OTAccount & theAccount);
 	
 	// -----------------------------------------------------------------
 	// 
@@ -244,6 +244,7 @@ public:
 	// --------------------------------------------------------------------
 	
 	bool SendNoticeToAllParties(OTPseudonym & theServerNym,
+								const OTIdentifier & theServerID,
 								const long & lNewTransactionNumber,
 								const long & lInReferenceTo,
 								const OTString & strReference,
@@ -251,6 +252,7 @@ public:
 								OTString * pstrAttachment=NULL);
 	
 	bool DropServerNoticeToNymbox(OTPseudonym & theServerNym,
+								  const OTIdentifier & SERVER_ID,
 								  const OTIdentifier & USER_ID,
                                   const long & lNewTransactionNumber,
 								  const long & lInReferenceTo,
@@ -277,7 +279,7 @@ public:
 
 	virtual void RegisterOTNativeCallsWithScript(OTScript & theScript);
 
-	virtual bool Compare(const OTScriptable & rhs) const;
+	virtual bool Compare(OTScriptable & rhs);
 
 	// ----------------
 

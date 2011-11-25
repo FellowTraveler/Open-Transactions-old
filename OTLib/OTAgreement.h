@@ -378,7 +378,7 @@ public:
 								  OTPseudonym & theSignerNym, 
 								  mapOfNyms	* pmap_ALREADY_LOADED=NULL);
 	
-	virtual bool VerifyNymAsAgentForAccount(const OTPseudonym & theNym, const OTAccount & theAccount);
+	virtual bool VerifyNymAsAgentForAccount(OTPseudonym & theNym, const OTAccount & theAccount);
 
     /*
      From OTContract, I have:

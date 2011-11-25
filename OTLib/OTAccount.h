@@ -200,7 +200,7 @@ public:
 	bool IsInternalServerAcct() const;
 	
 	bool IsOwnedByUser() const;
-	bool IsOwnedByEntity const;
+	bool IsOwnedByEntity() const;
 	
 	bool IsAllowedToGoNegative() const;
 	
@@ -237,7 +237,7 @@ public:
 	OTLedger * LoadOutbox(OTPseudonym & theNym); // Caller responsible to delete.
 	
 	// gives you the asset type ID of this account. (the asset contract hash.)
-	const OTIdentifier & GetAssetTypeID();
+	const OTIdentifier & GetAssetTypeID() const;
 	
 	long GetBalance() const;
 	
@@ -245,7 +245,7 @@ public:
 	bool Credit(const long & lAmount); // Credit a certain amount from the account (presumably the same amount is being subtracted somewhere)
 		
 	// Compares the NymID loaded from the account file with whatever Nym the programmer wants to verify.
-	bool VerifyOwner(OTPseudonym & theCandidate);
+	bool VerifyOwner(const OTPseudonym & theCandidate) const;
 	bool VerifyOwnerByID(const OTIdentifier & theNymID) const;
 	
 	virtual bool LoadContract(); // overriding this so I can set the filename automatically inside based on ID.
@@ -270,7 +270,7 @@ public:
 
 
 typedef std::list <OTAccount *>				listOfAccounts;
-typedef std::map<std::string, OTAccount *>	mapOfAccounts;
+//typedef std::map<std::string, OTAccount *>	mapOfAccounts;  // Now in OTBylaw.h
 
 
 // -------------------------------------------------------------
@@ -292,14 +292,14 @@ typedef std::map<std::string, OTAccount_WeakPtr>	mapOfWeakAccounts; // mapped by
 //
 class OTAcctList
 {
-	AccountType			m_AcctType;
+	OTAccount::AccountType	m_AcctType;
 		
 	mapOfStrings		m_mapAcctIDs; // AcctIDs as second mapped by ASSET TYPE ID as first.
 	mapOfWeakAccounts	m_mapWeakAccts; // If someone calls GetAccount(), we pass them a shared pointer. 
 										// We store the weak pointer here to make sure account doesn't get loaded twice.
 public:	
 	OTAcctList();
-	OTAcctList(AccountType eAcctType);
+	OTAcctList(OTAccount::AccountType eAcctType);
 	~OTAcctList();
 
 	int GetCountAccountIDs() const { return m_mapAcctIDs.size(); }
@@ -309,7 +309,7 @@ public:
 	void Serialize(OTString & strAppend);
 	int ReadFromXMLNode(irr::io::IrrXMLReader*& xml, const OTString & strAcctType, const OTString & strAcctCount);
 	
-	void SetType(AccountType eAcctType) { m_AcctType = eAcctType; }
+	void SetType(OTAccount::AccountType eAcctType) { m_AcctType = eAcctType; }
 	
 	OTAccount_SharedPtr GetOrCreateAccount(OTPseudonym			& theServerNym, 
 										   const OTIdentifier	& ACCOUNT_OWNER_ID, 

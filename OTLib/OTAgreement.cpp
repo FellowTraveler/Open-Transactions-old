@@ -135,6 +135,9 @@
 #include "OTPseudonym.h"
 #include "OTCron.h"
 #include "OTAgreement.h"
+
+#include "OTAccount.h"
+
 #include "OTLog.h"
 
 
@@ -154,7 +157,7 @@ bool OTAgreement::VerifyNymAsAgent(const OTPseudonym & theNym,
 
 // This is an override. See note above.
 //
-bool OTAgreement::VerifyNymAsAgentForAccount(const OTPseudonym & theNym, const OTAccount & theAccount)
+bool OTAgreement::VerifyNymAsAgentForAccount(OTPseudonym & theNym, const OTAccount & theAccount)
 {
 	return theAccount.VerifyOwner(theNym);
 }

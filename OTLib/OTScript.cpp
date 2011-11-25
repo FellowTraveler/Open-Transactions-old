@@ -140,8 +140,9 @@
 #include "OTLog.h"
 
 #include "OTScript.h"
+#include "OTBylaw.h"
 
-
+#include "OTStorage.h"
 
 // ------------------------------------------------------------
 
@@ -318,7 +319,7 @@ void OTScript::AddVariable (const std::string str_var_name, OTVariable & theVar)
 {
 //    mapOfVariables  m_mapVariables; 
 
-    mapOfVariables.insert( std::pair<std::string, OTVariable *>(str_var_name, &theVar)) ;
+    m_mapVariables.insert( std::pair<std::string, OTVariable *>(str_var_name, &theVar)) ;
 
     // We're just storing these pointers for reference value. Script doesn't actually Own the
     // variables, and isn't responsible to clean them up.
