@@ -307,6 +307,10 @@ abstract class otapi {
 		return OT_API_SmartContract_AddAccount($THE_CONTRACT,$SIGNER_NYM_ID,$PARTY_NAME,$ACCT_NAME,$ASSET_TYPE_ID);
 	}
 
+	static function OT_API_SmartContract_CountNumsNeeded($THE_CONTRACT,$AGENT_NAME) {
+		return OT_API_SmartContract_CountNumsNeeded($THE_CONTRACT,$AGENT_NAME);
+	}
+
 	static function OT_API_SmartContract_ConfirmAccount($THE_CONTRACT,$SIGNER_NYM_ID,$PARTY_NAME,$ACCT_NAME,$AGENT_NAME,$ACCT_ID) {
 		return OT_API_SmartContract_ConfirmAccount($THE_CONTRACT,$SIGNER_NYM_ID,$PARTY_NAME,$ACCT_NAME,$AGENT_NAME,$ACCT_ID);
 	}

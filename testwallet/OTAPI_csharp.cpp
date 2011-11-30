@@ -1537,6 +1537,20 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_SmartContract_AddAccount(char * jarg
 }
 
 
+SWIGEXPORT int SWIGSTDCALL CSharp_OT_API_SmartContract_CountNumsNeeded(char * jarg1, char * jarg2) {
+  int jresult ;
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int result;
+  
+  arg1 = (char *)jarg1; 
+  arg2 = (char *)jarg2; 
+  result = (int)OT_API_SmartContract_CountNumsNeeded((char const *)arg1,(char const *)arg2);
+  jresult = result; 
+  return jresult;
+}
+
+
 SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_SmartContract_ConfirmAccount(char * jarg1, char * jarg2, char * jarg3, char * jarg4, char * jarg5, char * jarg6) {
   char * jresult ;
   char *arg1 = (char *) 0 ;

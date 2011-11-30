@@ -165,7 +165,7 @@
 // (In order to be able to call Open Transactions from C, as well as use SWIG and call it from
 // php, perl, ruby, python, tcl, java, lisp, etc.)
 //#include "OTAPI.h"
-#include "OTAPI_funcdef.h"  // Trying to compile as C++ now, due to the new Password Callback, which requires it.
+#include "OTAPI_Wrapper.h"  // Trying to compile as C++ now, due to the new Password Callback, which requires it.
 
 #include "OTLog.h"
 
@@ -704,15 +704,12 @@ OT_BOOL	OT_API_Wallet_RemoveAssetType(const char * ASSET_ID)
 /// returns OT_BOOL
 ///
 OT_BOOL	OT_API_Wallet_CanRemoveNym(const char * NYM_ID)
-{
-//	OTLog::Error("Debug 0\n");
-	
+{	
 	OT_ASSERT_MSG(g_OT_API.IsInitialized(), "Not initialized; call OT_API::Init first.");
 
 	OT_ASSERT_MSG(NULL != NYM_ID, "Null NYM_ID passed in!\n");
 	
 	OTIdentifier theID(NYM_ID);
-//	OTLog::vError("Debug start: %s\n", NYM_ID);
 	
     OTPseudonym * pNym = g_OT_API.GetNym(theID);
 
@@ -731,7 +728,6 @@ OT_BOOL	OT_API_Wallet_CanRemoveNym(const char * NYM_ID)
 	// Loop through all the accounts.
 	for (int i = 0; i < nCount; i++)
 	{
-//		OTLog::vError("Debug loop: %d\n", i);
 		const char * pAcctID = OT_API_GetAccountWallet_ID(i);
 		OTString strAcctID(pAcctID);
 		
@@ -743,11 +739,7 @@ OT_BOOL	OT_API_Wallet_CanRemoveNym(const char * NYM_ID)
 			return OT_FALSE;
 		}
 		
-//		OTLog::vError("Debug 1: %s\n", NYM_ID);
-		
 		OTIdentifier theCompareID(pID);
-		
-//		OTLog::vError("Debug end: %s\n", NYM_ID);
 		
         // Looks like the Nym still has some accounts in this wallet.
 		if (theID == theCompareID)
@@ -1979,30 +1971,18 @@ const char * OT_API_GetAccountWallet_Type(const char * THE_ID)
 /// (Which is a hash of the contract used to issue the asset type.)
 const char * OT_API_GetAccountWallet_AssetTypeID(const char * THE_ID)
 {
-//	OTLog::vError("DEBUG START --OT_API_GetAccountWallet_AssetTypeID-- ID is: %s\n", THE_ID);
-	
 	OT_ASSERT_MSG(NULL != THE_ID, "Null THE_ID passed in.");
 	
 	OTIdentifier	theID(THE_ID);
 	
-//	OTLog::vError("DEBUG 2: ID: %s \n", THE_ID);
-
 	OTAccount * pContract = g_OT_API.GetAccount(theID);
 	
-//	OTLog::Error("DEBUG 3 \n");
-
 	if (NULL != pContract)
 	{		
-//		OTLog::Error("DEBUG 4 \n");
-
 		OTIdentifier theAssetID(pContract->GetAssetTypeID());
 		
-//		OTLog::Error("DEBUG 5 \n");
-
 		OTString strAssetTypeID(theAssetID);
 		
-//		OTLog::vError("DEBUG 6: strAssetTypeID: %s \n", strAssetTypeID.Get());
-
 		const char * pBuf = strAssetTypeID.Get(); 
 		
 #ifdef _WIN32
@@ -2011,8 +1991,6 @@ const char * OT_API_GetAccountWallet_AssetTypeID(const char * THE_ID)
 		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 #endif
 		
-//		OTLog::vError("DEBUG OT_API_GetAccountWallet_AssetTypeID  %s \n ", g_tempBuf);
-
 		return g_tempBuf;
 	}
 	
@@ -2593,8 +2571,9 @@ const char * OT_API_Create_SmartContract(const char * SERVER_ID,
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTSmartContract * pContract = new OTSmartContract(theServerID);
-	OT_ASSERT(NULL != pContract);
+	OT_ASSERT_MSG(NULL != pContract, "OT_API_Create_SmartContract: ASSERT while trying to instantiate smart contract.\n");
 	// --------------------------------
+	
 	time_t tValidFrom = 0;
 		
 	if ((NULL != VALID_FROM) && (atoi(VALID_FROM) > 0))
@@ -3298,7 +3277,8 @@ const char * OT_API_SmartContract_AddParty(const char * THE_CONTRACT,	// The con
 	// -------------------------------
 	
 	pParty = new OTParty(str_party_name.c_str(), true /*bIsOwnerNym*/, 
-						 ""/*OwnerID not set until confirm*/, str_agent_name.c_str());
+						 NULL/*OwnerID not set until confirm*/, str_agent_name.c_str(),
+						 true); //bCreateAgent=false by default.
 	OT_ASSERT(NULL != pParty);
 	
 	if (false == pContract->AddParty(*pParty)) // takes ownership.
@@ -3439,6 +3419,54 @@ const char * OT_API_SmartContract_AddAccount(const char * THE_CONTRACT,	// The c
 	return g_tempBuf;	
 }
 
+
+
+// This function returns the count of how many trans#s a Nym needs in order to confirm as 
+// a specific agent for a contract. (An opening number is needed for every party of which
+// agent is the authorizing agent, plus a closing number for every acct of which agent is the
+// authorized agent.)
+//
+// Otherwise a Nym might try to confirm a smart contract and be unable to, since he doesn't
+// have enough transaction numbers, yet he would have no way of finding out HOW MANY HE *DOES*
+// NEED. This function allows him to find out, before confirmation, so he can first grab however
+// many transaction#s he will need in order to confirm this smart contract.
+//
+int OT_API_SmartContract_CountNumsNeeded(const char * THE_CONTRACT,	// The smart contract, about to be queried by this function.
+											  const char * AGENT_NAME)	
+{	
+	OT_ASSERT_MSG(NULL != THE_CONTRACT, "Null THE_CONTRACT passed in.");
+	OT_ASSERT_MSG(NULL != AGENT_NAME, "Null AGENT_NAME passed in.");
+	// -------------------------------------------------------------
+	int nReturnValue = 0;
+
+	const std::string	str_agent_name(AGENT_NAME);
+	const OTString		strContract(THE_CONTRACT);
+	// -------------------------------------------------------------
+	//
+	OTScriptable * pContract = OTScriptable::InstantiateScriptable(strContract);
+	OTCleanup<OTScriptable> theContractAngel;
+	
+	if (NULL == pContract)
+	{
+		OTLog::Output(0, "OT_API_SmartContract_CountNumsNeeded: Error loading smart contract. \n");
+		return nReturnValue;
+	}
+	else
+		theContractAngel.SetCleanupTarget(*pContract);  // Auto-cleanup.
+	// -----------------------------------------------------
+	// -- nReturnValue starts as 0.
+	// -- If agent is authorizing agent for a party, nReturnValue++. (Opening number.)
+	// -- If agent is authorized agent for any of party's accts, nReturnValue++ for each. (Closing numbers.)
+	//
+	// (Then return the count.)
+	
+	nReturnValue = pContract->GetCountTransNumsNeededForAgent(str_agent_name);
+
+	// -----------------------------------------------------
+
+	return nReturnValue;
+}
+
 // ----------------------------------------
 
 // Used when taking a theoretical smart contract, and setting it up to use specific Nyms and accounts. 
@@ -3449,8 +3477,8 @@ const char * OT_API_SmartContract_ConfirmAccount(const char * THE_CONTRACT,	// T
 												 const char * SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
 												 // ----------------------------------------
 												 const char * PARTY_NAME,	// Should already be on the contract. (This way we can find it.)
-												 // ----------------------------------------
 												 const char * ACCT_NAME,	// Should already be on the contract. (This way we can find it.)
+												 // ----------------------------------------
 												 const char * AGENT_NAME,	// The agent name for this asset account.
 												 const char * ACCT_ID)		// AcctID for the asset account. (For acct_name).
 {
@@ -3463,8 +3491,8 @@ const char * OT_API_SmartContract_ConfirmAccount(const char * THE_CONTRACT,	// T
 	OT_ASSERT_MSG(NULL != ACCT_ID, "Null ACCT_ID passed in.");
 	
 	// -----------------------------------------------------
-	const OTString strAccountID(ACCT_ID), strAgentName(AGENT_NAME);
-	const OTIdentifier theSignerNymID(SIGNER_NYM_ID), theAcctID(strAccountID);
+	const OTString		strAccountID(ACCT_ID), strAgentName(AGENT_NAME);
+	const OTIdentifier	theSignerNymID(SIGNER_NYM_ID), theAcctID(strAccountID);
 	// -----------------------------------------------------
 	
 	OTWallet * pWallet = g_OT_API.GetWallet();
@@ -3540,6 +3568,17 @@ const char * OT_API_SmartContract_ConfirmAccount(const char * THE_CONTRACT,	// T
 	{
 		OTLog::vOutput(0, "OT_API_SmartContract_ConfirmAccount: Failed: account doesn't exist with that name (%s) on party: %s \n",
 					   str_name.c_str(), str_party_name.c_str());
+		return NULL;
+	}
+	// ---------------------------------------------
+	// Make sure there's not already an account here with the same ID (Server disallows.)
+	//
+	OTPartyAccount * pDupeAcct = pParty->GetAccountByID(theAcctID);
+
+	if (NULL != pDupeAcct) // It's already there.
+	{
+		OTLog::vOutput(0, "OT_API_SmartContract_ConfirmAccount: Failed, since a duplicate account ID (%s) "
+					   "was already found on this contract. (Server disallows, sorry.)\n", strAccountID.Get());
 		return NULL;
 	}
 	// ---------------------------------------------
@@ -3672,7 +3711,14 @@ const char * OT_API_SmartContract_ConfirmParty(const char * THE_CONTRACT,	// The
 	OTParty * pNewParty = new OTParty(pParty->GetPartyName(), *pNym, // party keeps an internal pointer to pNym from here on.
 									  pParty->GetAuthorizingAgentName()); // Party name and agent name must match, in order to replace / activate this party.
 	OT_ASSERT(NULL != pNewParty);
-		
+	
+	if (false == pParty->CopyAcctsToConfirmingParty(*pNewParty)) 
+	{
+		OTLog::Output(0, "OT_API_SmartContract_ConfirmParty: Failed while trying to copy accounts while confirming party. \n");
+		delete pNewParty;
+		return NULL;
+	}
+	// ------------------
 	if (false == pContract->ConfirmParty(*pNewParty)) // takes ownership. (Deletes the theoretical version of the party, replaced by our actual version pNewParty.)
 	{
 		OTLog::Output(0, "OT_API_SmartContract_ConfirmParty: Failed while trying to confirm party. \n");
@@ -7441,10 +7487,10 @@ const char * OT_API_CreatePurse(const char * SERVER_ID,
 	OT_ASSERT_MSG(NULL != ASSET_TYPE_ID, "Null ASSET_TYPE_ID passed in.");
 //	OT_ASSERT_MSG(NULL != USER_ID, "Null USER_ID passed in."); // optional
 
-	if (NULL != USER_ID)
-        OTLog::vError("DEBUG OT_API_CreatePurse: SERVER_ID: %s\n ASSET_TYPE_ID: %s\n USER_ID: %s\n ", SERVER_ID, ASSET_TYPE_ID, USER_ID);
-	else
-        OTLog::vError("DEBUG OT_API_CreatePurse with NULL USER_ID: SERVER_ID: %s\n ASSET_TYPE_ID: %s\n ", SERVER_ID, ASSET_TYPE_ID);
+//	if (NULL != USER_ID)
+//        OTLog::vError("DEBUG OT_API_CreatePurse: SERVER_ID: %s\n ASSET_TYPE_ID: %s\n USER_ID: %s\n ", SERVER_ID, ASSET_TYPE_ID, USER_ID);
+//	else
+//        OTLog::vError("DEBUG OT_API_CreatePurse with NULL USER_ID: SERVER_ID: %s\n ASSET_TYPE_ID: %s\n ", SERVER_ID, ASSET_TYPE_ID);
 	
 	const OTIdentifier theServerID(SERVER_ID), theAssetTypeID(ASSET_TYPE_ID);
 	OTIdentifier theUserID;
@@ -7459,8 +7505,6 @@ const char * OT_API_CreatePurse(const char * SERVER_ID,
 	
 	// -----------------------------------------------------
 	
-//	OTLog::Error("DEBUG OT_API_CreatePurse  1 \n ");
-	
 	OTWallet * pWallet = g_OT_API.GetWallet();
 	
 	if (NULL == pWallet)
@@ -7471,8 +7515,6 @@ const char * OT_API_CreatePurse(const char * SERVER_ID,
 	
 	// By this point, pWallet is a good pointer.  (No need to cleanup.)
 	
-//	OTLog::Error("DEBUG OT_API_CreatePurse  2 \n ");
-
 	// -----------------------------------------------------
 	
 	OTPseudonym * pNym = pWallet->GetNymByID(theUserID); // TODO we won't do this if using a dummy Nym.
@@ -7490,8 +7532,6 @@ const char * OT_API_CreatePurse(const char * SERVER_ID,
 		
 		pWallet->AddNym(*pNym);
 	}
-//	OTLog::Error("DEBUG OT_API_CreatePurse  3 \n ");
-
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
@@ -7502,7 +7542,6 @@ const char * OT_API_CreatePurse(const char * SERVER_ID,
 	thePurse.SaveContract();
 
 	// -------------
-//	OTLog::Error("DEBUG OT_API_CreatePurse  4 \n ");
 
 	OTString strOutput(thePurse);
 	
@@ -7514,8 +7553,6 @@ const char * OT_API_CreatePurse(const char * SERVER_ID,
 	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 #endif
 	
-//	OTLog::vError("DEBUG OT_API_CreatePurse  %s \n ", g_tempBuf);
-
 	return g_tempBuf;				
 }
 
@@ -7534,7 +7571,7 @@ OT_BOOL OT_API_SavePurse(const char * SERVER_ID,
 	OT_ASSERT_MSG(NULL != USER_ID, "Null USER_ID passed in."); 
 	OT_ASSERT_MSG(NULL != THE_PURSE, "Null THE_PURSE passed in."); 
 	
-    OTLog::vError("DEBUG OT_API_SavePurse: SERVER_ID: %s\n ASSET_TYPE_ID: %s\n USER_ID: %s\n ", SERVER_ID, ASSET_TYPE_ID, USER_ID);
+//    OTLog::vError("DEBUG OT_API_SavePurse: SERVER_ID: %s\n ASSET_TYPE_ID: %s\n USER_ID: %s\n ", SERVER_ID, ASSET_TYPE_ID, USER_ID);
 
 	const OTIdentifier theServerID(SERVER_ID), theAssetTypeID(ASSET_TYPE_ID), theUserID(USER_ID);
 
@@ -7712,7 +7749,7 @@ const char * OT_API_Purse_Pop(const char * SERVER_ID,
 	OT_ASSERT_MSG(NULL != USER_ID, "Null USER_ID passed in."); 
 	OT_ASSERT_MSG(NULL != THE_PURSE, "Null THE_PURSE passed in."); 
 	
-    OTLog::vError("DEBUG OT_API_Purse_Pop: SERVER_ID: %s\n ASSET_TYPE_ID: %s\n USER_ID: %s\n ", SERVER_ID, ASSET_TYPE_ID, USER_ID);
+//    OTLog::vError("DEBUG OT_API_Purse_Pop: SERVER_ID: %s\n ASSET_TYPE_ID: %s\n USER_ID: %s\n ", SERVER_ID, ASSET_TYPE_ID, USER_ID);
 
 	const OTIdentifier theServerID(SERVER_ID), theAssetTypeID(ASSET_TYPE_ID), theUserID(USER_ID);
 	
@@ -7816,15 +7853,13 @@ const char * OT_API_Purse_Push(const char * SERVER_ID,
 	OT_ASSERT_MSG(NULL != THE_PURSE, "Null THE_PURSE passed in."); 
 	OT_ASSERT_MSG(NULL != THE_TOKEN, "Null THE_TOKEN passed in."); 
 	
-    OTLog::vError("DEBUG OT_API_Purse_Push: SERVER_ID: %s\n ASSET_TYPE_ID: %s\n USER_ID: %s\n ", SERVER_ID, ASSET_TYPE_ID, USER_ID);
+//    OTLog::vError("DEBUG OT_API_Purse_Push: SERVER_ID: %s\n ASSET_TYPE_ID: %s\n USER_ID: %s\n ", SERVER_ID, ASSET_TYPE_ID, USER_ID);
 
-	OTLog::vError("Purse Push SERVER_ID: %s \n", SERVER_ID);
-	OTLog::vError("Purse Push ASSET_TYPE_ID: %s \n", ASSET_TYPE_ID);
-	OTLog::vError("Purse Push USER_ID: %s \n", USER_ID); 
-	OTLog::vError("Purse Push THE_PURSE: %s \n", THE_PURSE); 
-	OTLog::vError("Purse Push THE_TOKEN: %s \n", THE_TOKEN); 
-	
-	
+//	OTLog::vError("Purse Push SERVER_ID: %s \n", SERVER_ID);
+//	OTLog::vError("Purse Push ASSET_TYPE_ID: %s \n", ASSET_TYPE_ID);
+//	OTLog::vError("Purse Push USER_ID: %s \n", USER_ID); 
+//	OTLog::vError("Purse Push THE_PURSE: %s \n", THE_PURSE); 
+//	OTLog::vError("Purse Push THE_TOKEN: %s \n", THE_TOKEN); 	
 	
 	const OTIdentifier theServerID(SERVER_ID), theAssetTypeID(ASSET_TYPE_ID), theUserID(USER_ID);
 	
@@ -7934,7 +7969,7 @@ OT_BOOL OT_API_Wallet_ImportPurse(const char * SERVER_ID,
 	OT_ASSERT_MSG(NULL != USER_ID, "Null USER_ID passed in."); 
 	OT_ASSERT_MSG(NULL != THE_PURSE, "Null THE_PURSE passed in."); 
 	
-    OTLog::vError("DEBUG OT_API_Wallet_ImportPurse: SERVER_ID: %s\n ASSET_TYPE_ID: %s\n USER_ID: %s\n ", SERVER_ID, ASSET_TYPE_ID, USER_ID);
+//    OTLog::vError("DEBUG OT_API_Wallet_ImportPurse: SERVER_ID: %s\n ASSET_TYPE_ID: %s\n USER_ID: %s\n ", SERVER_ID, ASSET_TYPE_ID, USER_ID);
 
 //	OTLog::vError("Debug start\nServerID: %s\nAsset ID: %s\n User ID: %s\nNew Purse:\n%s\n",
 //				  SERVER_ID, ASSET_TYPE_ID, USER_ID, THE_PURSE);
@@ -7943,7 +7978,6 @@ OT_BOOL OT_API_Wallet_ImportPurse(const char * SERVER_ID,
 	
 	const OTString strNewPurse(THE_PURSE);
 	
-//	OTLog::Error("Debug end\n");
 	// -----------------------------------------------------
 	
 	OTWallet * pWallet = g_OT_API.GetWallet();
@@ -8247,8 +8281,8 @@ const char * OT_API_Token_ChangeOwner(const char * SERVER_ID,
 	OT_ASSERT_MSG(NULL != OLD_OWNER_NYM_ID, "Null OLD_OWNER_NYM_ID passed in."); 
 	OT_ASSERT_MSG(NULL != NEW_OWNER_NYM_ID, "Null NEW_OWNER_NYM_ID passed in."); 
 	
-    OTLog::vError("Debugging OT_API_Token_ChangeOwner: SERVER_ID: %s\n ASSET_TYPE_ID: %s\n OLD_OWNER_NYM_ID: %s\n NEW_OWNER_NYM_ID: %s\n ", 
-                  SERVER_ID, ASSET_TYPE_ID, OLD_OWNER_NYM_ID, NEW_OWNER_NYM_ID);
+//    OTLog::vError("Debugging OT_API_Token_ChangeOwner: SERVER_ID: %s\n ASSET_TYPE_ID: %s\n OLD_OWNER_NYM_ID: %s\n NEW_OWNER_NYM_ID: %s\n ", 
+//                  SERVER_ID, ASSET_TYPE_ID, OLD_OWNER_NYM_ID, NEW_OWNER_NYM_ID);
 
 	const OTIdentifier	theServerID(SERVER_ID), theAssetTypeID(ASSET_TYPE_ID),
 						oldOwnerID(OLD_OWNER_NYM_ID), newOwnerID(NEW_OWNER_NYM_ID);

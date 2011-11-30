@@ -48,7 +48,7 @@ under the filename of the server's User ID. I have already put it there, but sin
 you're recreating, you need to put the new one there:
 (From within Open-Transactions folder still, as current directory...)
 
-cp ~/.ot/server_data/certs/special/server.pem ~/.ot/server_data/certs/SERVER_USER_ID_GOES_HERE
+cp ~/.ot/server_data/certs/special/server.pem ~/.ot/server_data/certs/OLD_SERVER_USER_ID_GOES_HERE
 
 
 NOTE:
@@ -78,7 +78,7 @@ socket code. As we transition away from test client to a real client, we won't
 have that anymore.)
 
 To copy it:
-cp ./ssl/client.pem ~/.ot/client_data/certs/USER_ID_AKA_NYM_ID_GOES_HERE
+cp ./ssl/client.pem ~/.ot/client_data/certs/OLD_USER_ID_AKA_NYM_ID_GOES_HERE
 
 
 
@@ -123,8 +123,8 @@ Similarly, when you first load the client, it will complain that the user's ID d
 the user's public key either, for the same reason.
 
 ==> When this happens, just look at what the new ID is (it will show the old one 
-followed by the new one) and then edit transaction/notaryServer.xml in order to update the
-server's User ID, and also edit testwallet/wallet.xml, in order to update the client's Nym ID.
+followed by the new one) and then edit ~/.ot/server_data/notaryServer.xml in order to update the
+server's User ID, and also edit ~/.ot/client_data/wallet.xml, in order to update the client's Nym ID.
 
 IMPORTANT: The ID may appear multiple times in the file, for example in the testwallet,
 the Nym ID appears also as a filename and also as a "User ID" so make sure you replace all
@@ -145,19 +145,19 @@ Next:
 At this time, if you load the wallet, it will be unable, because NOW, the Nym ID
 no longer matches the FILENAMES in certs/ and nyms/. So rename:
 
-mv ~/.ot/client_data/certs/OLD_NYM_ID ~/.ot/client_data/certs/NEW_NYM_ID
+mv ~/.ot/client_data/certs/OLD_CLIENT_NYM_ID ~/.ot/client_data/certs/NEW_CLIENT_NYM_ID
 
-mv ~/.ot/client_data/nyms/OLD_NYM_ID ~/.ot/client_data/certs/NEW_NYM_ID
+mv ~/.ot/client_data/nyms/OLD_CLIENT_NYM_ID ~/.ot/client_data/nyms/NEW_CLIENT_NYM_ID
 
 
-ALSO: edit ~/.ot/client_data/nyms/NEW_NYM_ID and ~/.ot/server_data/nyms/NEW_SERVER_USER_ID
+ALSO: edit ~/.ot/client_data/nyms/NEW_CLIENT_NYM_ID and ~/.ot/server_data/nyms/NEW_SERVER_USER_ID
 In BOTH of those files, make sure the "filename" variable matches the name of
 the file. You will have to update this variable from the old ID just as you had
 to rename the file.
 
 ------------------------------------
 
-NYM FILE MUST BE RE-CREATEDÉ (Explanation immediately below, ACTIONS below the line.)
+NYM FILE MUST BE RE-CREATED (Explanation immediately below, ACTIONS below the line.)
 
 Since the Nym ID is a hash of the cert, the cert file is  easy to verify. The software
 just loads it up, hashes it, and compares to the ID.
@@ -183,7 +183,8 @@ signature on the file.
 ==> So therefore the Nymfile has to be re-created... and re-signedÉ
 
 Until I add an "AddNym" API function, for now I have a line of code in OTServer.cpp
-(for the server nym) and a similar couple of lines of code in the OTLib (in OTWallet.cpp).
+(for the server nym) and a similar couple of lines of code in the OTLib (in OTWallet.cpp
+AND OTPseudonym.cpp).
 
 ==> All you have to do is:
 
@@ -191,7 +192,7 @@ Until I add an "AddNym" API function, for now I have a line of code in OTServer.
 
 fgrep -n SaveSignedNymfile transaction/*.cpp OTLib/*.cpp | grep Uncomment
 
-In OTWallet you will also have to comment one line out. You will see it next to the other.
+In OTWallet you will also have to comment a couple lines out. You will see the notes.
 
 2) Update the relevant nymfiles so the "filename" value stored within is set to
    the NEW Nym ID (aka User ID) instead of the old one. (This will cause the signature
@@ -201,7 +202,7 @@ In OTWallet you will also have to comment one line out. You will see it next to 
 
 4) Run both projects once, to regenerate the nymfiles. You will notice the signature failing
    when you run, as it loads up and fails to verify.  (IT WILL GENERATE THE NEW NYM AND SAVE
-   IT TO THE FILE AT THIS TIME, DUE TO THE CODE MOD WE JUST MADE.)
+   IT TO THE FILE AT THIS TIME, DUE TO THE CODE MODIFICATION WE JUST MADE.)
 
 5) Stop the software. When you run it again, you will see the signature WORKS this time--
    (it fails the first time and succeeds the second time) because the file is now fixed!

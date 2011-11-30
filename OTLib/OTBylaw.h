@@ -263,6 +263,9 @@ public:
 	
 	bool IsValidSigner(OTPseudonym & theNym);
 
+	bool	IsAuthorizingAgentForParty();	// true/false whether THIS agent is the authorizing agent for his party.
+	int		GetCountAuthorizedAccts();		// The number of accounts, owned by this agent's party, that this agent is the authorized agent FOR.
+	
 	// ---------------------------------
     // Only one of these can be true:
     // (I wrestle with making these 2 calls private, since technically it should be irrelevant to the external.)
@@ -563,7 +566,7 @@ public:
 	
 	// ----------------------
 	OTParty();
-	OTParty(const char * szName, bool bIsOwnerNym, const char * szOwnerID, const char * szAuthAgent);
+	OTParty(const char * szName, bool bIsOwnerNym, const char * szOwnerID, const char * szAuthAgent, const bool bCreateAgent=false);
 	OTParty(const std::string	str_PartyName,
 			OTPseudonym &		theNym, // Nym is BOTH owner AND agent, when using this constructor.
 			const std::string	str_agent_name, 
@@ -572,6 +575,10 @@ public:
 			const long			lClosingTransNo=0);
 	
 	virtual ~OTParty();
+	
+	void CleanupAgents();
+	void CleanupAccounts();
+	
 	
 	bool Compare(const OTParty & rhs) const;
 	
@@ -714,12 +721,7 @@ public:
 	void RetrieveNymPointers(mapOfNyms & map_Nyms_Already_Loaded);
 	
 	// ----------------------------------------
-	
-	
-
-	
-	
-	
+		
 	bool AddAccount(OTPartyAccount& thePartyAcct);
 	bool AddAccount(const OTString& strAgentName, const OTString& strName, 
 					const OTString & strAcctID, const OTString & strAssetTypeID, const long lClosingTransNo);
@@ -734,13 +736,16 @@ public:
 //					const std::string *	pstr_account_name=NULL,
 //					const long			lClosingTransNo=0);
 	
-	int GetAccountCount() const { return m_mapPartyAccounts.size(); }
+	int GetAccountCount() const { return m_mapPartyAccounts.size(); } // returns total of all accounts owned by this party.
+	int GetAccountCount(const std::string str_agent_name) const; // Only counts accounts authorized for str_agent_name.
 	
 	// Get PartyAcct by name.
 	//
 	OTPartyAccount * GetAccount(const std::string & str_acct_name) const;
 	// by agent name
 	OTPartyAccount * GetAccountByAgent(const std::string & str_agent_name);
+	// by asset acct id
+	OTPartyAccount * GetAccountByID(const OTIdentifier & theAcctID);
 	
 	// If account is present for Party, set account's pointer to theAccount and return true.
 	//
@@ -752,6 +757,8 @@ public:
 									   const OTString	& strServerID,
 									   const bool		  bBurnTransNo=false);
 
+	bool CopyAcctsToConfirmingParty(OTParty & theParty) const; // When confirming a party, a new version replaces the original. This is part of that process.
+	
 	// ------------------------------------------------------
 	bool LoadAndVerifyAgentNyms(OTPseudonym & theServerNym, 
 								mapOfNyms	& map_Nyms_Already_Loaded, 

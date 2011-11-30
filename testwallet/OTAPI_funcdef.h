@@ -727,6 +727,15 @@ const char * OT_API_SmartContract_AddAccount(const char * THE_CONTRACT,	// The c
 
 // ----------------------------------------
 
+// This function returns the count of how many trans#s a Nym needs in order to confirm as 
+// a specific agent for a contract. (An opening number is needed for every party of which
+// agent is the authorizing agent, plus a closing number for every acct of which agent is the
+// authorized agent.)
+//
+int OT_API_SmartContract_CountNumsNeeded(const char * THE_CONTRACT,	// The smart contract, about to be queried by this function.
+										 const char * AGENT_NAME);
+
+// ----------------------------------------
 // Used when taking a theoretical smart contract, and setting it up to use specific Nyms and accounts. This function sets the ACCT ID for the acct specified by party name and acct name.
 // Returns the updated smart contract (or NULL.)
 const char * OT_API_SmartContract_ConfirmAccount(const char * THE_CONTRACT,	// The smart contract, about to be changed by this function.

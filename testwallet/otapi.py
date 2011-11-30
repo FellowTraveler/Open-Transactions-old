@@ -401,6 +401,10 @@ def OT_API_SmartContract_AddAccount(*args):
   return _otapi.OT_API_SmartContract_AddAccount(*args)
 OT_API_SmartContract_AddAccount = _otapi.OT_API_SmartContract_AddAccount
 
+def OT_API_SmartContract_CountNumsNeeded(*args):
+  return _otapi.OT_API_SmartContract_CountNumsNeeded(*args)
+OT_API_SmartContract_CountNumsNeeded = _otapi.OT_API_SmartContract_CountNumsNeeded
+
 def OT_API_SmartContract_ConfirmAccount(*args):
   return _otapi.OT_API_SmartContract_ConfirmAccount(*args)
 OT_API_SmartContract_ConfirmAccount = _otapi.OT_API_SmartContract_ConfirmAccount

@@ -1145,15 +1145,15 @@ bool OTWallet::LoadWallet(const char * szFilename)
 						if (pNym->VerifyPseudonym()) 
 						{
 //							pNym->LoadSignedNymfile(*pNym); // Uncomment this line to generate a new Nym by hand.
- 							if (pNym->LoadSignedNymfile(*pNym))  // (Uncomment) Comment OUT this line to generate a new nym by hand.
+//							if (true)						// This one too.
+							if (pNym->LoadSignedNymfile(*pNym))  // Comment OUT this line to generate a new nym by hand..
 							{
-//	    pNym->SaveSignedNymfile(*pNym); // Uncomment this if you want to generate a new nym by hand. NORMALLY LEAVE IT COMMENTED OUT!!!! IT'S DANGEROUS!!!
+//								pNym->SaveSignedNymfile(*pNym); // Uncomment this if you want to generate a new nym by hand. NORMALLY LEAVE IT COMMENTED OUT!!!! IT'S DANGEROUS!!!
 								// Also see OTPseudonym.cpp where it says:  //		&& theNymfile.VerifyFile()
-								
 								
 								this->AddNym(*pNym); // Nym loaded. Insert to wallet's list of Nyms.
 							}
-							else 
+							else
 							{
 								OTLog::Output(0, "Error loading Nym in OTWallet::LoadWallet\n");
 							}

@@ -289,6 +289,10 @@ public class otapi {
     return otapiJNI.OT_API_SmartContract_AddAccount(THE_CONTRACT, SIGNER_NYM_ID, PARTY_NAME, ACCT_NAME, ASSET_TYPE_ID);
   }
 
+  public static int OT_API_SmartContract_CountNumsNeeded(String THE_CONTRACT, String AGENT_NAME) {
+    return otapiJNI.OT_API_SmartContract_CountNumsNeeded(THE_CONTRACT, AGENT_NAME);
+  }
+
   public static String OT_API_SmartContract_ConfirmAccount(String THE_CONTRACT, String SIGNER_NYM_ID, String PARTY_NAME, String ACCT_NAME, String AGENT_NAME, String ACCT_ID) {
     return otapiJNI.OT_API_SmartContract_ConfirmAccount(THE_CONTRACT, SIGNER_NYM_ID, PARTY_NAME, ACCT_NAME, AGENT_NAME, ACCT_ID);
   }

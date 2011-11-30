@@ -151,7 +151,11 @@ bool OTInstrument::IsExpired()
 {
 	const time_t CURRENT_TIME =	time(NULL);
 	
-	if (CURRENT_TIME >= m_VALID_TO)
+	// If the current time is AFTER the valid-TO date,
+	// AND the valid_to is a nonzero number (0 means "doesn't expire")
+	// THEN return true (it's expired.)
+	//
+	if ((CURRENT_TIME >= m_VALID_TO) && (m_VALID_TO > 0))
 		return true;
 	else
 		return false;
@@ -163,7 +167,8 @@ bool OTInstrument::VerifyCurrentDate()
 {
 	const time_t CURRENT_TIME =	time(NULL);
 	
-	if ((CURRENT_TIME >= m_VALID_FROM) && (CURRENT_TIME <= m_VALID_TO))
+	if ((CURRENT_TIME >= m_VALID_FROM) && 
+		((CURRENT_TIME <= m_VALID_TO) || (0 == m_VALID_TO)))
 		return true;
 	else
 		return false;

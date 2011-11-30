@@ -494,23 +494,33 @@ int main(int argc, char* argv[])
 
 	// ----------------------------------------------------------
 	
-	do  // THE HEARTBEAT LOOP FOR THE OPEN-TRANSACTIONS SERVER!
+	int nCronInterval = 101; // todo no hardcoding
+	
+	do  // THE HEARTBEAT LOOP FOR THE OPEN-TRANSACTIONS SERVER! Currently "do" its thang 10 times per second.
 	{
 		// The Server now processes certain things on a regular basis.
 		// ProcessCron is what gives it the opportunity to do that.
 		// All of the Cron Items (including market trades, and payment plans...) have their hooks here...
 		//
-		g_pServer->ProcessCron();
-		
+		nCronInterval++;
+		// CURRENTLY THIS IS EFFECTIVELY: CRON RUNS EVERY 10 SECONDS (instead of previously, 10 times PER second ack!!)
+		if ((nCronInterval % 100) == 0) // todo no hardcoding.
+		{
+			g_pServer->ProcessCron();
+			nCronInterval = 101;
+		}
 		// -----------------------------------------------------------------------
 		
 		// Wait for client http requests (and process replies out to them.)
 		//
 //		theXmlRpcServer.work(10.0); // supposedly milliseconds -- but it's actually seconds.
 
+		// ----------------------------------------------------------------------
 		// Loop: process up to 10 client requests, then sleep for 1/10th second.
-		// 
-		// Then: check for shutdown.
+		// That's a total of 100 requests per second. Can the computers handle it? 
+		// Is it too much or too little?
+		//
+		// Then: check for shutdown flag.
 		//
 		// Then: go back to the top and repeat.... process cron, loop 10 client requests, sleep, check for shutdown, etc.
 		//

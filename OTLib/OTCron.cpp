@@ -534,8 +534,21 @@ int OTCron::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 				OTLog::Error("Unable to create cron item from data in cron file.\n");
 				return (-1);
 			}
+			// -------------------------------------------
 			
-			if (AddCronItem(*pItem, NULL, false))	// bSaveReceipt=false. The receipt is only saved once: When item FIRST added to cron.
+			// Why not do this here (when loading from storage), as well as when first adding the item to cron,
+			// and thus save myself the trouble of verifying the signature EVERY ITERATION of ProcessCron().
+			//
+			if (false == pItem->VerifySignature(*m_pServerNym))
+			{
+				OTLog::vError("OTCron::ProcessXMLNode: ERROR SECURITY: Server signature failed to "
+							  "verify on a cron item while loading: %ld\n", pItem->GetTransactionNum());
+				delete pItem;
+				pItem = NULL;
+				return (-1);
+			}
+			// -------------------------------------------				
+			else if (AddCronItem(*pItem, NULL, false))	// bSaveReceipt=false. The receipt is only saved once: When item FIRST added to cron.
 			{								// But here, the item was ALREADY in cron, and is merely being loaded from disk. Thus,
 				// it would be wrong to try to create the "original record" as if it were brand new
 				// and still had the user's signature on it. (Once added to Cron, the signatures are 
@@ -545,7 +558,8 @@ int OTCron::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 			}
 			else 
 			{
-				OTLog::Error("Though loaded successfully, unable to add cron item (from cron file) to cron list.\n");
+				OTLog::Error("OTCron::ProcessXMLNode: Though loaded / verified successfully, unable to add cron item "
+							 "(from cron file) to cron list.\n");
 				delete pItem;
 				pItem = NULL;
 				return (-1);
@@ -696,10 +710,16 @@ void OTCron::ProcessCronItems()
 		OTCronItem * pItem = (*it).second;
 		OT_ASSERT(NULL != pItem);
 		
-        bool bVerifySig     = pItem->VerifySignature(*m_pServerNym);
+//      bool bVerifySig     = pItem->VerifySignature(*m_pServerNym);
         bool bProcessCron   = false;
         
-        if (bVerifySig)
+		//  We already verify and sign the cron item when FIRST ADDING it to Cron.
+		//  We also verify the signature on the cron item whenever loading it up
+		//  from storage.
+		//  THEREFORE, FOR NOW, I'VE DECIDED THAT VERIFYING THE SIGNATURE AGAIN 
+		//  (HERE) IS OVERKILL, SO IT's COMMENTED OUT.
+		//
+//      if (bVerifySig)
         {
             bProcessCron = pItem->ProcessCron();
             
@@ -709,8 +729,8 @@ void OTCron::ProcessCronItems()
             if (false == bProcessCron)
                 pItem->HookRemovalFromCron(NULL); // We give the hook a chance to do its thing.
         }
-        else
-            OTLog::Error("OTCron::ProcessCronItems: Signature failed to verify on cron item!\n");
+//      else
+//          OTLog::Error("OTCron::ProcessCronItems: Signature failed to verify on cron item!\n");
             
         // -----------------------------------------------------
 
@@ -718,7 +738,7 @@ void OTCron::ProcessCronItems()
         //
 		if (false == bProcessCron)
 		{
-            OTLog::vOutput(0, "OTCron::ProcessCronItems: Removing expired or unverified cron item.\n");
+            OTLog::vOutput(0, "OTCron::ProcessCronItems: Removing expired cron item.\n");
 			m_mapCronItems.erase(it++);
 			delete pItem;
 			pItem = NULL;

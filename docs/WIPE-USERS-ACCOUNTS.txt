@@ -6,7 +6,7 @@ TO CLEAR THE SERVER INSTALLATION OF ALL: User Accounts, Asset Types, Asset Accou
 In ~/.ot/server_data:
 
 rm accounts/*
-rm contracts/*  (EXCEPT WAIT! Don't erase the server's own contract! duh…)
+ (EXCEPT WAIT! Don't erase the server's own contract! duh…)    rm contracts/* 
 rm inbox/*
 rm outbox/*
 rm nymbox/*
@@ -20,7 +20,7 @@ rm -rf receipts/*
 
 Do NOT touch the certs folder.
 
-In the nyms folder (Open-Transactions/transaction/nyms), remove EVERY FILE EXCEPT THE SERVER NYM, WHICH IS THIS ONE (IN THE TEST DATA):
+In the nyms folder (~/.ot/server_data/nyms), remove EVERY FILE EXCEPT THE SERVER NYM, WHICH IS THIS ONE (IN THE TEST DATA):
 pc23gUqPu9Bk1Vl0K5lz3Jp1MYIfjGIBXVWDp1gba9C
 
 Then edit notaryServer.xml and remove all of the extra user data such as asset types, etc. It should look like this when you're done:
@@ -39,7 +39,7 @@ SAME THING on the CLIENT SIDE:
 
 To keep your test keys, yet erase all the asset accounts and "start fresh" with a blank installation (and the same test keys and Nyms already generated) then follow these steps for the TEST WALLET:
 
-In the Open-Transactions/testwallet directory:
+In the ~/.ot/client_data directory:
 
 
 rm accounts/*
@@ -51,7 +51,7 @@ rm -rf purse/*
 rm -rf receipts/*
 
 
-In the ~/.ot/client_data/contracts folder, do NOT remove 8dlRJnGCjqU5jw7bZaw2AF112UrCZiFfBS9CnJrMWSp which is actually your server contract. (It's the test server contract that tries to connect to a server on localhost.) There is a backup of this file in the sample-contracts directory.
+In the ~/.ot/client_data/contracts folder, do NOT remove 8dlRJnGCjqU5jw7bZaw2AF112UrCZiFfBS9CnJrMWSp which is actually your server contract. (It's the test server contract that tries to connect to a server on localhost.) There is a backup of this file in the ot-sample-contracts directory.
 Remove all the other files in the contracts folder, except 8dlRJnGCjqU5jw7bZaw2AF112UrCZiFfBS9CnJrMWSp as just described.
 
 Do NOT touch the certs folder.

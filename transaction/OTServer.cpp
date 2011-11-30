@@ -4515,7 +4515,9 @@ void OTServer::NotarizeSmartContract(OTPseudonym & theNym, OTAccount & theSource
 		}
 		else if (pContract->GetSenderAcctID() != ACTIVATOR_ACCT_ID)
 		{
-			OTLog::Output(0, "ERROR wrong Asset Acct ID on smart contract in OTServer::NotarizeSmartContract\n");
+			const OTString strSenderAcctID(pContract->GetSenderAcctID()), strActivatorAcctID(ACTIVATOR_ACCT_ID);
+			OTLog::vOutput(0, "ERROR wrong Asset Acct ID (%s, expected %s) on smart contract in OTServer::NotarizeSmartContract\n",
+						   strSenderAcctID.Get(), strActivatorAcctID.Get());
 		}
         // The transaction number opens the smart contract, but there must also be a closing number for closing it.
         else if ((pContract->GetCountClosingNumbers() < 1) ||  // the transaction number was verified before we entered this function, so only the closing # is left...

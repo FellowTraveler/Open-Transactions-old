@@ -668,18 +668,18 @@ void OTSmartContract::RegisterOTNativeCallsWithScript(OTScript & theScript)
 		// (These functions can be called from INSIDE the scripted clauses.)
 		//																						// Parameters must match as described below. Return value will be as described below.
 		//																						// -------------------------------------------------------------
-		pScript->chai.add(fun(&OTSmartContract::MoveAcctFunds,				(*this)), "move_funds");	// bool MoveAcctFunds(const std::string from_acct_name, const std::string to_acct_name, const long lAmount); // calls OTCronItem::MoveFunds()
-		pScript->chai.add(fun(&OTSmartContract::StashAcctFunds,				(*this)), "stash_funds");	// bool StashAcctFunds(const std::string from_acct_name, const std::string to_stash_name, const long lAmount); // calls StashFunds()
-		pScript->chai.add(fun(&OTSmartContract::UnstashAcctFunds,			(*this)), "unstash_funds");	// bool UnstashAcctFunds(const std::string to_acct_name, const std::string from_stash_name, const long lAmount); // calls StashFunds( lAmount * (-1) )
+		pScript->chai.add(fun(&OTSmartContract::MoveAcctFunds,				this), "move_funds");	// bool MoveAcctFunds(const std::string from_acct_name, const std::string to_acct_name, const long lAmount); // calls OTCronItem::MoveFunds()
+		pScript->chai.add(fun(&OTSmartContract::StashAcctFunds,				this), "stash_funds");	// bool StashAcctFunds(const std::string from_acct_name, const std::string to_stash_name, const long lAmount); // calls StashFunds()
+		pScript->chai.add(fun(&OTSmartContract::UnstashAcctFunds,			this), "unstash_funds");	// bool UnstashAcctFunds(const std::string to_acct_name, const std::string from_stash_name, const long lAmount); // calls StashFunds( lAmount * (-1) )
 		
-		pScript->chai.add(fun(&OTSmartContract::GetAcctBalance,				(*this)), "get_acct_balance"); // long GetAcctBalance(const std::string acct_name);
-		pScript->chai.add(fun(&OTSmartContract::GetAssetTypeIDofAcct,		(*this)), "get_acct_asset_type_id"); // std::string OTSmartContract::GetAssetTypeIDofAcct(const std::string from_acct_name)
-		pScript->chai.add(fun(&OTSmartContract::GetStashBalance,			(*this)), "get_stash_balance");	// long GetStashBalance(const std::string stash_name, const std::string asset_type_id);
+		pScript->chai.add(fun(&OTSmartContract::GetAcctBalance,				this), "get_acct_balance"); // long GetAcctBalance(const std::string acct_name);
+		pScript->chai.add(fun(&OTSmartContract::GetAssetTypeIDofAcct,		this), "get_acct_asset_type_id"); // std::string OTSmartContract::GetAssetTypeIDofAcct(const std::string from_acct_name)
+		pScript->chai.add(fun(&OTSmartContract::GetStashBalance,			this), "get_stash_balance");	// long GetStashBalance(const std::string stash_name, const std::string asset_type_id);
 		
-		pScript->chai.add(fun(&OTSmartContract::SendNoticeToParty,			(*this)), "send_notice");				// bool SendNoticeToParty(const std::string party_name);
-		pScript->chai.add(fun(&OTSmartContract::SendANoticeToAllParties,	(*this)), "send_notice_to_parties");	// bool SendANoticeToAllParties();
+		pScript->chai.add(fun(&OTSmartContract::SendNoticeToParty,			this), "send_notice");				// bool SendNoticeToParty(const std::string party_name);
+		pScript->chai.add(fun(&OTSmartContract::SendANoticeToAllParties,	this), "send_notice_to_parties");	// bool SendANoticeToAllParties();
 
-		pScript->chai.add(fun(&OTSmartContract::DeactivateSmartContract,	(*this)), "deactivate_contract");	// void DeactivateSmartContract();
+		pScript->chai.add(fun(&OTSmartContract::DeactivateSmartContract,	this), "deactivate_contract");	// void DeactivateSmartContract();
 		
 		// ---------------------------------------------------------
 		// CALLBACKS 
@@ -688,7 +688,7 @@ void OTSmartContract::RegisterOTNativeCallsWithScript(OTScript & theScript)
 //FYI:	pScript->chai.add(fun(&(OTScriptable::CanExecuteClause),			(*this)), "party_may_execute_clause");	// From OTScriptable (FYI) param_party_name and param_clause_name will be available inside script. Script must return bool.
 //FYI:	#define SCRIPTABLE_CALLBACK_PARTY_MAY_EXECUTE	"callback_party_may_execute_clause"   <=== THE CALLBACK WITH THIS NAME must be connected to a script clause, and then the clause will trigger when the callback is needed.	
 		
-		pScript->chai.add(fun(&OTSmartContract::CanCancelContract,			(*this)), "party_may_cancel_contract"); // param_party_name will be available inside script. Script must return bool.
+		pScript->chai.add(fun(&OTSmartContract::CanCancelContract,			this), "party_may_cancel_contract"); // param_party_name will be available inside script. Script must return bool.
 //FYI:	#define SMARTCONTRACT_CALLBACK_PARTY_MAY_CANCEL	"callback_party_may_cancel_contract"  <=== THE CALLBACK WITH THIS NAME must be connected to a script clause, and then the clause will trigger when the callback is needed.
 
 		// Callback USAGE:	Your clause, in your smart contract, may have whatever name you want. (Within limits.)
@@ -3093,12 +3093,11 @@ bool OTSmartContract::ProcessCron()
 		return true;	// The Payment Plan is not yet valid, so we return. BUT, we also 
 	// return TRUE, so it will STAY on Cron until it BECOMES valid.
 	
-	
 	// -----------------------------------------------------------------------------
 	
 	if (GetCron()->GetTransactionCount() < 1)
 	{
-		OTLog::Output(0, "Failed to process smart contract: Out of transaction numbers!\n");
+		OTLog::Output(0, "Failed to process smart contract: Cron is out of transaction numbers!\n");
 		return true;	
 	}
 	
@@ -3853,11 +3852,31 @@ bool OTSmartContract::VerifySmartContract(OTPseudonym & theNym, OTAccount & theA
 		 (Don't I do something like that already?)
 		 */
 		
+		bool bToBurnOrNotToBurn = bBurnTransNo;
+		// ------------------------------------------------
+		// If we're burning a number, but THIS party has the same opening # as
+		// the smart contract itself, then don't bother verifying / burning this
+		// specific number (since it's been done already, higher-up.)
+		//
+		if (bBurnTransNo && (this->GetTransactionNum() == pParty->GetOpeningTransNo()))
+		{
+			// In cases where we're supposed to burn the transaction number, we do that
+			// for ALL parties EXCEPT the one who has the same Opening# as the SmartContract
+			// has for its GetTransactionNum().  Why? Because that one was already burned, when
+			// the activating party (pParty) activated the smart contract. At that time, the normal
+			// transaction system inside OTServer burned the # as part of its process before even
+			// calling NotarizeSmartContract().  Therefore, by this point, we ASSUME that party's
+			// opening num has already JUST been verified, and we skip it, (continuing to verify
+			// all the others.)
+			
+			bToBurnOrNotToBurn = false;
+		}
+		// ------------------------------------------------------------------
 		bool bIsPartyAuthorized = this->VerifyPartyAuthorization(*pParty,		// The party that supposedly is authorized for this supposedly executed agreement.
 																 theServerNym,	// For verifying signature on the authorizing Nym, when loading it
 																 strServerID,	// For verifying issued num, need the serverID the # goes with.
 																 &map_Nyms_Already_Loaded,
-																 bBurnTransNo); // bBurnTransNo = true  (default is false)
+																 bToBurnOrNotToBurn); // bBurnTransNo = true  (default is false)
 		
 		// By this point, we've verified that pParty->GetOpeningTransNo() really is ISSUED to pParty. 
 		// After all, you can Verify a Party's Authorization even after the smart contract has been activated.
@@ -4283,12 +4302,14 @@ void OTSmartContract::UpdateContents()
 	// -------------------------------------------------------------
 	
 	const OTString	SERVER_ID			(GetServerID()), 
-					ACTIVATOR_USER_ID	(GetSenderUserID());
+					ACTIVATOR_USER_ID	(GetSenderUserID()),
+					ACTIVATOR_ACCT_ID	(GetSenderAcctID());
 
     // OTSmartContract
 	m_xmlUnsigned.Concatenate("<smartContract\n version=\"%s\"\n"
 							  " serverID=\"%s\"\n"
 							  " activatorUserID=\"%s\"\n"
+							  " activatorAcctID=\"%s\"\n"
 							  " lastSenderUserID=\"%s\"\n"
 							  " lastSenderAcctID=\"%s\"\n"
 							  " lastRecipientUserID=\"%s\"\n"
@@ -4301,6 +4322,7 @@ void OTSmartContract::UpdateContents()
 							  m_strVersion.Get(),
 							  SERVER_ID.Get(),
 							  ACTIVATOR_USER_ID.Get(),
+							  ACTIVATOR_ACCT_ID.Get(),
 							  m_strLastSenderUser.Get(),
 							  m_strLastSenderAcct.Get(),
 							  m_strLastRecipientUser.Get(),
@@ -4422,6 +4444,7 @@ int OTSmartContract::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		
 		const OTString	strServerID(xml->getAttributeValue("serverID"));
 		const OTString	strActivatorUserID(xml->getAttributeValue("activatorUserID"));
+		const OTString	strActivatorAcctID(xml->getAttributeValue("activatorAcctID"));
 		
 		if (strServerID.Exists())
 		{
@@ -4432,6 +4455,11 @@ int OTSmartContract::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		{
 			const OTIdentifier	ACTIVATOR_USER_ID(strActivatorUserID);
 			SetSenderUserID(ACTIVATOR_USER_ID);
+		}
+		if (strActivatorAcctID.Exists())
+		{
+			const OTIdentifier	ACTIVATOR_ACCT_ID(strActivatorAcctID);
+			SetSenderAcctID(ACTIVATOR_ACCT_ID);
 		}
 		
 		// ---------------------
@@ -4459,9 +4487,9 @@ int OTSmartContract::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		
 		// ---------------------
         
-		OTLog::vOutput(0, "\n\n Smartcontract. Transaction Number: %ld\n", m_lTransactionNum);
+		OTLog::vOutput(1, "\n\n Smartcontract. Transaction Number: %ld\n", m_lTransactionNum);
 		
-		OTLog::vOutput(1,
+		OTLog::vOutput(2,
 					   " Creation Date: %d   Valid From: %d\n Valid To: %d\n"
 					   " ServerID: %s\n"
 					   " activatorUserID: %s\n ", 

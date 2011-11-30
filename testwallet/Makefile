@@ -221,8 +221,9 @@ LIBDIRS = $(PLATFORM_LIBDIRS)  $(SSL_LIBDIRS) $(OT_LIBDIRS)
 CSOURCES = $(API_CSOURCES)
 
 CXXSOURCES = \
-                         OTAPI.cpp \
                          OpenTransactions.cpp \
+                         OTAPI.cpp \
+                         OTAPI_Wrapper.cpp \
                          OTServerConnection.cpp \
                          OTClient.cpp \
                          $(API_CXXSOURCES)
@@ -319,6 +320,8 @@ OpenTransactions.o: OpenTransactions.cpp OpenTransactions.h
 	$(CXX) $(CFLAGS) -o OpenTransactions.o OpenTransactions.cpp
 OTAPI.o: OTAPI.cpp OTAPI.h
 	$(CXX) $(CFLAGS) -o OTAPI.o OTAPI.cpp
+OTAPI_Wrapper.o: OTAPI_Wrapper.cpp OTAPI_Wrapper.h
+	$(CXX) $(CFLAGS) -o OTAPI_Wrapper.o OTAPI_Wrapper.cpp
 
 xmlrpcxx_client.o: xmlrpcxx_client.cpp
 	$(CXX) $(CFLAGS) -o xmlrpcxx_client.o xmlrpcxx_client.cpp
@@ -327,7 +330,7 @@ testclient.o: testclient.cpp
 	$(CXX) $(CFLAGS) -o testclient.o testclient.cpp
 
 #
-# Clean target: "make -f Makefile.API clean" to remove unwanted objects and executables.
+# Clean target: "make clean" to remove unwanted objects and executables.
 #
 RM=rm
 

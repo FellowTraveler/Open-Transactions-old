@@ -648,9 +648,10 @@ CSOURCES = $(API_CSOURCES)
 
 CXXSOURCES = $(API_CPPSOURCES) \
 			 OpenTransactions.cpp \
+			 OTAPI.cpp \
+			 OTAPI_Wrapper.cpp \
 			 OTServerConnection.cpp \
 			 OTClient.cpp \
-			 OTAPI.cpp
 
 CXXOBJECTS = $(CXXSOURCES:.cpp=.o)  # expands to list of object files
 COBJECTS   = $(CSOURCES:.c=.o)
@@ -751,9 +752,11 @@ OTClient.o: OTClient.cpp OTClient.h
 	$(CXX) $(CFLAGS) -o OTClient.o OTClient.cpp
 OpenTransactions.o: OpenTransactions.cpp OpenTransactions.h
 	$(CXX) $(CFLAGS) -o OpenTransactions.o OpenTransactions.cpp
-
 OTAPI.o: OTAPI.cpp OTAPI.h
 	$(CXX) $(CFLAGS) -o OTAPI.o OTAPI.cpp
+OTAPI_Wrapper.o: OTAPI_Wrapper.cpp OTAPI_Wrapper.h
+	$(CXX) $(CFLAGS) -o OTAPI_Wrapper.o OTAPI_Wrapper.cpp
+
 
 
 # Common Lisp

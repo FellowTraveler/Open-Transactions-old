@@ -119,6 +119,7 @@ package otapi;
 *OT_API_SmartContract_AddHook = *otapic::OT_API_SmartContract_AddHook;
 *OT_API_SmartContract_AddParty = *otapic::OT_API_SmartContract_AddParty;
 *OT_API_SmartContract_AddAccount = *otapic::OT_API_SmartContract_AddAccount;
+*OT_API_SmartContract_CountNumsNeeded = *otapic::OT_API_SmartContract_CountNumsNeeded;
 *OT_API_SmartContract_ConfirmAccount = *otapic::OT_API_SmartContract_ConfirmAccount;
 *OT_API_SmartContract_ConfirmParty = *otapic::OT_API_SmartContract_ConfirmParty;
 *OT_API_activateSmartContract = *otapic::OT_API_activateSmartContract;

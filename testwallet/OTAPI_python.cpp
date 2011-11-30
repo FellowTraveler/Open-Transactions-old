@@ -6893,6 +6893,43 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_OT_API_SmartContract_CountNumsNeeded(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  int result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:OT_API_SmartContract_CountNumsNeeded",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_SmartContract_CountNumsNeeded" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_SmartContract_CountNumsNeeded" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  result = (int)OT_API_SmartContract_CountNumsNeeded((char const *)arg1,(char const *)arg2);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return resultobj;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_OT_API_SmartContract_ConfirmAccount(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   char *arg1 = (char *) 0 ;
@@ -29157,6 +29194,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"OT_API_SmartContract_AddHook", _wrap_OT_API_SmartContract_AddHook, METH_VARARGS, NULL},
 	 { (char *)"OT_API_SmartContract_AddParty", _wrap_OT_API_SmartContract_AddParty, METH_VARARGS, NULL},
 	 { (char *)"OT_API_SmartContract_AddAccount", _wrap_OT_API_SmartContract_AddAccount, METH_VARARGS, NULL},
+	 { (char *)"OT_API_SmartContract_CountNumsNeeded", _wrap_OT_API_SmartContract_CountNumsNeeded, METH_VARARGS, NULL},
 	 { (char *)"OT_API_SmartContract_ConfirmAccount", _wrap_OT_API_SmartContract_ConfirmAccount, METH_VARARGS, NULL},
 	 { (char *)"OT_API_SmartContract_ConfirmParty", _wrap_OT_API_SmartContract_ConfirmParty, METH_VARARGS, NULL},
 	 { (char *)"OT_API_activateSmartContract", _wrap_OT_API_activateSmartContract, METH_VARARGS, NULL},

@@ -5540,6 +5540,44 @@ fail:
 
 
 SWIGINTERN VALUE
+_wrap_OT_API_SmartContract_CountNumsNeeded(int argc, VALUE *argv, VALUE self) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  int result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 2) || (argc > 2)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
+  }
+  res1 = SWIG_AsCharPtrAndSize(argv[0], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "char const *","OT_API_SmartContract_CountNumsNeeded", 1, argv[0] ));
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(argv[1], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "char const *","OT_API_SmartContract_CountNumsNeeded", 2, argv[1] ));
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  result = (int)OT_API_SmartContract_CountNumsNeeded((char const *)arg1,(char const *)arg2);
+  vresult = SWIG_From_int(static_cast< int >(result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return vresult;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
 _wrap_OT_API_SmartContract_ConfirmAccount(int argc, VALUE *argv, VALUE self) {
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
@@ -27885,6 +27923,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_module_function(mOtapi, "OT_API_SmartContract_AddHook", VALUEFUNC(_wrap_OT_API_SmartContract_AddHook), -1);
   rb_define_module_function(mOtapi, "OT_API_SmartContract_AddParty", VALUEFUNC(_wrap_OT_API_SmartContract_AddParty), -1);
   rb_define_module_function(mOtapi, "OT_API_SmartContract_AddAccount", VALUEFUNC(_wrap_OT_API_SmartContract_AddAccount), -1);
+  rb_define_module_function(mOtapi, "OT_API_SmartContract_CountNumsNeeded", VALUEFUNC(_wrap_OT_API_SmartContract_CountNumsNeeded), -1);
   rb_define_module_function(mOtapi, "OT_API_SmartContract_ConfirmAccount", VALUEFUNC(_wrap_OT_API_SmartContract_ConfirmAccount), -1);
   rb_define_module_function(mOtapi, "OT_API_SmartContract_ConfirmParty", VALUEFUNC(_wrap_OT_API_SmartContract_ConfirmParty), -1);
   rb_define_module_function(mOtapi, "OT_API_activateSmartContract", VALUEFUNC(_wrap_OT_API_activateSmartContract), -1);

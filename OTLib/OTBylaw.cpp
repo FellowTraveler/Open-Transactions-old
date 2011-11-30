@@ -445,7 +445,7 @@ void OTAgent::SetParty(OTParty & theOwnerParty) // This happens when the agent i
 		
 		bool bGetOwnerNymID = false;
 		const std::string str_owner_nym_id = theOwnerParty.GetNymID(&bGetOwnerNymID);
-		m_strNymID.Set(bGetOwnerNymID ? str_owner_nym_id.c_str() : "ERROR_GETTING_NYM_ID_FROM_OWNER_PARTY");
+		m_strNymID.Set(bGetOwnerNymID ? str_owner_nym_id.c_str() : "");
 		
 		// Todo here, instead of copying the Owner's Nym ID like above, just make sure they match.
 		// Similarly, make sure that the RoleID or GroupName, whichever is relevant, is validated for the owner.
@@ -682,6 +682,62 @@ bool OTAgent::GetEntityID(OTIdentifier& theOutput) const
 
 
 
+
+// Returns true/false whether THIS agent is the authorizing agent for his party.
+//
+bool OTAgent::IsAuthorizingAgentForParty()	
+{
+	if (NULL == m_pForParty)
+		return false;
+	
+	if (m_strName.Compare(m_pForParty->GetAuthorizingAgentName().c_str()))
+		return true;
+
+	return false;
+}
+
+
+
+// Only counts accounts authorized for str_agent_name.
+//
+int OTParty::GetAccountCount(const std::string str_agent_name) const 
+{
+	int nCount = 0;
+	
+	FOR_EACH_CONST(mapOfPartyAccounts, m_mapPartyAccounts)
+	{
+		OTPartyAccount * pAcct = (*it).second;
+		OT_ASSERT_MSG(NULL != pAcct, "Unexpected NULL partyaccount pointer in party map.");
+		// -------------------------------------
+		
+		const OTString & strAgentName = pAcct->GetAgentName();
+		
+		if (strAgentName.Compare(str_agent_name.c_str()))
+			nCount++;
+	}
+	
+	return nCount;
+}
+
+
+// Returns the number of accounts, owned by this agent's party, that this agent
+// is the authorized agent FOR.
+//
+int OTAgent::GetCountAuthorizedAccts() 
+{
+	if (NULL == m_pForParty)
+	{
+		OTLog::Error("OTAgent::CountAuthorizedAccts: Error: m_pForParty was NULL.\n");
+		return 0; // Maybe should log here...
+	}
+	
+	return m_pForParty->GetAccountCount(m_strName.Get());
+}
+
+
+
+
+
 // ------------------------------------------    
 // For when the agent is a voting group:
 // If !IsGroup() aka IsIndividual(), then this will return false.
@@ -697,8 +753,6 @@ bool OTAgent::GetGroupName(OTString & strGroupName)
     
     return false;	
 }
-
-
 
 //
 //
@@ -940,12 +994,29 @@ OTParty::OTParty()
 
 }
 
-OTParty::OTParty(const char * szName, bool bIsOwnerNym, const char * szOwnerID, const char * szAuthAgent)
+OTParty::OTParty(const char * szName, bool bIsOwnerNym, const char * szOwnerID, const char * szAuthAgent, const bool bCreateAgent/*=false*/)
 : m_pstr_party_name(NULL), m_bPartyIsNym(bIsOwnerNym), m_str_owner_id(szOwnerID != NULL ? szOwnerID : ""),
   m_str_authorizing_agent(szAuthAgent != NULL ? szAuthAgent : ""),
   m_lOpeningTransNo(0), m_pOwnerAgreement(NULL)
 {
     m_pstr_party_name = new std::string(szName != NULL ? szName : "");	
+	
+	// ------------------------------------------
+	if (bCreateAgent)
+	{
+		const OTString	strName(m_str_authorizing_agent.c_str()), 
+						strNymID(""), strRoleID(""), strGroupName("");
+		OTAgent * pAgent = new OTAgent(true /*bNymRepresentsSelf*/, true /*bIsAnIndividual*/, 
+									   strName, strNymID, strRoleID, strGroupName);
+		OT_ASSERT(NULL != pAgent);
+		
+		if (!AddAgent(*pAgent))
+		{
+			OTLog::Error("OTParty::OTParty: *** Failed *** while adding default agent in CONSTRUCTOR! 2\n");
+			delete pAgent; pAgent = NULL;
+		}
+	}
+	// ------------------------------------------
 }
 
 
@@ -959,10 +1030,10 @@ OTParty::OTParty(const std::string		str_PartyName,
 				 const std::string *	pstr_account_name/*=NULL*/,
 				 const long				lClosingTransNo/*=0*/
 				 )
-: m_pstr_party_name(NULL), m_bPartyIsNym(true), 
+: m_pstr_party_name(new std::string(str_PartyName)), m_bPartyIsNym(true), 
   m_lOpeningTransNo(0), m_pOwnerAgreement(NULL)
 {
-    m_pstr_party_name = new std::string(str_PartyName);
+//  m_pstr_party_name = new std::string(str_PartyName);
 	OT_ASSERT(NULL != m_pstr_party_name);
 	
 	// theNym is owner, therefore save his ID information, and create the agent
@@ -1164,21 +1235,21 @@ long OTParty::GetClosingTransNo(const std::string str_for_acct_name) const
 //}
 
 
-OTParty::~OTParty()
+void OTParty::CleanupAgents()
 {
-    if (NULL != m_pstr_party_name)
-        delete m_pstr_party_name;
-    
-    // Don't cleanup the nym or account here, since Party doesn't own them.
-    // (He has pointers for reference uses only.)
-	
+	// ------------------------
 	while (!m_mapAgents.empty())
 	{		
 		OTAgent * pTemp = m_mapAgents.begin()->second;
 		OT_ASSERT(NULL != pTemp);
 		delete pTemp; pTemp = NULL;
 		m_mapAgents.erase(m_mapAgents.begin());
-	}		
+	}			
+	// ------------------------
+}
+
+void OTParty::CleanupAccounts()
+{
 	// ------------------------
 	while (!m_mapPartyAccounts.empty())
 	{		
@@ -1187,6 +1258,20 @@ OTParty::~OTParty()
 		delete pTemp; pTemp = NULL;
 		m_mapPartyAccounts.erase(m_mapPartyAccounts.begin());
 	}		
+	// ------------------------
+}
+
+
+OTParty::~OTParty()
+{
+    if (NULL != m_pstr_party_name)
+        delete m_pstr_party_name;
+    
+    // Don't cleanup the nym or account here, since Party doesn't own them.
+    // (He has pointers for reference uses only.)
+
+	CleanupAgents();
+	CleanupAccounts();
 }
 
 
@@ -1420,6 +1505,28 @@ OTPartyAccount * OTParty::GetAccountByAgent(const std::string & str_agent_name)
 	
 	return NULL;		
 }
+
+
+
+// Get PartyAccount pointer by Acct ID.
+//
+// Returns NULL on failure.
+OTPartyAccount * OTParty::GetAccountByID(const OTIdentifier & theAcctID)
+{
+	FOR_EACH(mapOfPartyAccounts, m_mapPartyAccounts)
+	{
+		OTPartyAccount * pAcct = (*it).second;
+		OT_ASSERT(NULL != pAcct);
+		// ----------------
+		const OTIdentifier theTempAcctID(pAcct->GetAcctID());
+		
+		if (theTempAcctID == theAcctID)
+			return pAcct;				
+	}
+	
+	return NULL;
+}
+
 
 
 // If account is present for Party, set account's pointer to theAccount and return true.
@@ -1877,6 +1984,8 @@ bool OTParty::LoadAndVerifyAssetAccounts(OTPseudonym	& theServerNym,
 										 mapOfAccounts	& map_Accts_Already_Loaded, 
 										 mapOfAccounts	& map_NewlyLoaded)
 {
+	std::set<std::string> theAcctIDSet; // Make sure all the acct IDs are unique.
+	
 	FOR_EACH_IT(mapOfPartyAccounts, m_mapPartyAccounts, it_acct)
 	{
 		const std::string str_acct_name = (*it_acct).first;
@@ -1893,6 +2002,22 @@ bool OTParty::LoadAndVerifyAssetAccounts(OTPseudonym	& theServerNym,
 		{
 			OTLog::vOutput(0, "OTParty::LoadAndVerifyAssetAccounts: Bad: Acct ID is blank for account: %s, on party: %s.\n",
 						   str_acct_name.c_str(), GetPartyName().c_str());
+			return false;
+		}
+		// ----------------------
+		// Disallow duplicate Acct IDs.
+		// (Only can use an acct once inside a smart contract.)
+		//
+		std::set<std::string>::iterator it_acct_id = theAcctIDSet.find(strAcctID.Get());
+
+		if (theAcctIDSet.end() == it_acct_id) // It's not already there (good).
+		{
+			theAcctIDSet.insert(strAcctID.Get()); // Save a copy so we can make sure there's no duplicate acct IDs. (Not allowed.)
+		}
+		else 
+		{
+			OTLog::vOutput(0, "OTParty::LoadAndVerifyAssetAccounts: Failure: Found a duplicate Acct ID (%s), on acct: %s.\n", 
+						   strAcctID.Get(), str_acct_name.c_str());
 			return false;
 		}
 		// ----------------------
@@ -2818,7 +2943,7 @@ const char * OTClause::GetCode() const
 void OTVariable::Serialize(OTString & strAppend)
 {
 	// ---------------------------------------
-	std::string str_access;
+	std::string str_access("");
 	
 	switch (m_Access) {
 		case OTVariable::Var_Constant:		// This cannot be changed from inside the script.
@@ -2831,7 +2956,7 @@ void OTVariable::Serialize(OTString & strAppend)
 			str_access = "important";
 			break;
 		default:
-			str_access = "ERROR_ACCESS_TYPE";
+			OTLog::Error("OTVariable::Serialize:  ERROR:  Bad variable type.\n");
 			break;
 	}
 	// ---------------------------------------
@@ -2839,20 +2964,41 @@ void OTVariable::Serialize(OTString & strAppend)
 	
 	switch (m_Type) {
 		case OTVariable::Var_String:
+		{
 			str_type = "string";
-			strAppend.Concatenate("<variable name=\"%s\"\n"
-								  " value=\"%s\"\n"
-								  " type=\"%s\"\n", 
-								  " access=\"%s\" />\n\n", 
-								  m_strName.Get(),
-								  m_str_Value.c_str(),
-								  str_type.c_str(), str_access.c_str());			
+			
+			if (m_str_Value.size() > 0)
+			{
+				OTString strVal(m_str_Value.c_str());
+				OTASCIIArmor ascVal(strVal);
+				strAppend.Concatenate("<variable name=\"%s\"\n"
+									  " value=\"%s\"\n"
+									  " type=\"%s\"\n"
+									  " access=\"%s\" >\n%s</variable>\n\n", 
+									  m_strName.Get(),
+									  "exists",
+									  str_type.c_str(), 
+									  str_access.c_str(),
+									  ascVal.Get());
+			}
+			else
+			{
+				strAppend.Concatenate("<variable name=\"%s\"\n"
+									  " value=\"%s\"\n"
+									  " type=\"%s\"\n"
+									  " access=\"%s\" />\n\n", 
+									  m_strName.Get(),
+									  "none", // value
+									  str_type.c_str(), 
+									  str_access.c_str());
+			}
+		}
 			break;
 		case OTVariable::Var_Long:
 			str_type = "long";
 			strAppend.Concatenate("<variable name=\"%s\"\n"
 								  " value=\"%ld\"\n"
-								  " type=\"%s\"\n", 
+								  " type=\"%s\"\n"
 								  " access=\"%s\" />\n\n", 
 								  m_strName.Get(),
 								  m_lValue,
@@ -2862,7 +3008,7 @@ void OTVariable::Serialize(OTString & strAppend)
 			str_type = "bool";
 			strAppend.Concatenate("<variable name=\"%s\"\n"
 								  " value=\"%s\"\n"
-								  " type=\"%s\"\n", 
+								  " type=\"%s\"\n"
 								  " access=\"%s\" />\n\n", 
 								  m_strName.Get(),
 								  m_bValue ? "true" : "false",
@@ -3676,6 +3822,33 @@ bool OTParty::Compare(const OTParty & rhs) const
 	return true;
 }
 
+// When confirming a party, a new version replaces the original. This is part of that process.
+// *this is the old one, and theParty is the new one.
+//
+bool OTParty::CopyAcctsToConfirmingParty(OTParty & theParty) const
+{
+	theParty.CleanupAccounts(); // (We're going to copy our own accounts into theParty.)
+
+	FOR_EACH_CONST(mapOfPartyAccounts, m_mapPartyAccounts)
+	{
+		const std::string str_acct_name	= (*it).first;
+		OTPartyAccount * pAcct			= (*it).second;
+		OT_ASSERT(NULL != pAcct);
+		// ----------------------------------
+		
+		if (false == theParty.AddAccount(pAcct->GetAgentName(),	pAcct->GetName(), 
+										 pAcct->GetAcctID(),	pAcct->GetAssetTypeID(), 
+										 pAcct->GetClosingTransNo()))
+		{
+			OTLog::vOutput(0, "OTParty::CopyAcctsToConfirmingParty: Unable to add Account %s, when copying from *this party %s. \n",
+						   str_acct_name.c_str(), GetPartyName().c_str());
+			return false;
+		}
+	}
+	// -----------------------------------	
+	
+	return true;
+}
 
 
 OTClause * OTBylaw::GetCallback(const std::string str_CallbackName)
@@ -4076,8 +4249,11 @@ OTBylaw::OTBylaw(const char * szName, const char * szLanguage) : m_pOwnerAgreeme
 	
 	// Let the calling function validate these, if he doesn't want to risk an ASSERT...
 	//
-	OT_ASSERT (OTScriptable::ValidateName(str_bylaw_name) &&
-			   OTScriptable::ValidateName(str_language));
+	if (!OTScriptable::ValidateName(str_bylaw_name) ||
+		!OTScriptable::ValidateName(str_language))
+	{
+		OTLog::Error("Failed validation in to OTBylaw::OTBylaw \n");		
+	}
 }
 
 
@@ -4243,12 +4419,18 @@ int OTStash::ReadFromXMLNode(irr::io::IrrXMLReader*& xml, const OTString & strSt
 	//
 	// Load up the stash items.
 	//
-	int nCount	= 0;
-	if (strItemCount.Exists() && ( (nCount = atoi(strItemCount.Get()) > 0 )))
+	int nCount	= strItemCount.Exists() ? atoi(strItemCount.Get()) : 0;
+	if (nCount > 0)
 	{
 		while (nCount-- > 0)
 		{
-			xml->read();
+//			xml->read();
+			if (false == OTContract::SkipToElement(xml))
+			{
+				OTLog::Output(0, "OTStash::ReadFromXMLNode: Failure: Unable to find expected element.\n");
+				return (-1);
+			}
+			// --------------------------------------
 			
 			if ((xml->getNodeType() == EXN_ELEMENT) && (!strcmp("stashItem", xml->getNodeName())))
 			{
@@ -4281,6 +4463,10 @@ int OTStash::ReadFromXMLNode(irr::io::IrrXMLReader*& xml, const OTString & strSt
 		} // while
 	}
 	// --------------------------------
+	if (false == OTContract::SkipAfterLoadingField(xml))	// </stash>
+	{ OTLog::Output(0, "*** OTStash::ReadFromXMLNode: Bad data? Expected EXN_ELEMENT_END here, but "
+					"didn't get it. Returning -1.\n"); return (-1); }
+	
 	return 1;
 }
 

@@ -1144,12 +1144,18 @@ int OTAcctList::ReadFromXMLNode(irr::io::IrrXMLReader*& xml, const OTString & st
 	//
 	// Load up the account IDs.
 	//
-	int nCount	= 0;
-	if (strAcctCount.Exists() && ( (nCount = atoi(strAcctCount.Get()) > 0 )))
+	int nCount	= strAcctCount.Exists() ? atoi(strAcctCount.Get()) : 0;
+	if (nCount > 0)
 	{
 		while (nCount-- > 0)
 		{
-			xml->read();
+//			xml->read();
+			if (false == OTContract::SkipToElement(xml))
+			{
+				OTLog::Output(0, "OTAcctList::ReadFromXMLNode: Failure: Unable to find expected element.\n");
+				return (-1);
+			}
+			// --------------------------------------
 			
 			if ((xml->getNodeType() == EXN_ELEMENT) && (!strcmp("accountEntry", xml->getNodeName())))
 			{
@@ -1176,6 +1182,11 @@ int OTAcctList::ReadFromXMLNode(irr::io::IrrXMLReader*& xml, const OTString & st
 		} // while
 	}
 	// --------------------------------
+
+	if (false == OTContract::SkipAfterLoadingField(xml))	// </accountList>
+	{ OTLog::Output(0, "*** OTAcctList::ReadFromXMLNode: Bad data? Expected EXN_ELEMENT_END here, but "
+					"didn't get it. Returning false.\n"); return (-1); }
+	
 	return 1;
 }
 

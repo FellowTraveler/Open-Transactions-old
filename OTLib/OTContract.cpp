@@ -1972,7 +1972,102 @@ bool OTContract::LoadContractXML()
 
 // -------------------------------------------------------------
 
+bool OTContract::SkipToElement(IrrXMLReader*& xml)
+{
+	OT_ASSERT_MSG(NULL != xml, "OTContract::SkipToElement -- assert: NULL != xml");
+	
+	// ------------------
+	while(xml->read() && (xml->getNodeType() != EXN_ELEMENT))
+	{
+		if (xml->getNodeType() == EXN_NONE)
+		{ OTLog::Output(0, "*** OTContract::SkipToElement: EXN_NONE  (skipping)\n"); continue; }			// SKIP
+		else if (xml->getNodeType() == EXN_COMMENT)
+		{ OTLog::Output(0, "*** OTContract::SkipToElement: EXN_COMMENT  (skipping)\n"); continue; }			// SKIP
+		else if (xml->getNodeType() == EXN_ELEMENT_END)
+		{ OTLog::Output(0, "*** OTContract::SkipToElement: EXN_ELEMENT_END  (ERROR)\n");  return false; }
+		else if (xml->getNodeType() == EXN_CDATA)
+		{ OTLog::Output(0, "*** OTContract::SkipToElement: EXN_CDATA (ERROR -- unexpected CData)\n"); return false; }
+		else if (xml->getNodeType() == EXN_TEXT)
+		{ OTLog::Error("*** OTContract::SkipToElement: EXN_TEXT\n"); return false; }
+		else if (xml->getNodeType() == EXN_ELEMENT)
+		{ OTLog::Output(0, "*** OTContract::SkipToElement: EXN_ELEMENT\n"); break; }  // (Should never happen due to while() second condition.) Still returns true.
+		else
+		{ OTLog::Error("*** OTContract::SkipToElement: SHOULD NEVER HAPPEN  (Unknown element type!)\n"); return false; }	// Failure / Error
+	}	
+	// ------------------
+	
+	return true;
+}
+
+bool OTContract::SkipToTextField(IrrXMLReader*& xml)
+{
+	OT_ASSERT_MSG(NULL != xml, "OTContract::SkipToTextField -- assert: NULL != xml");
+	
+	// ------------------
+	while(xml->read() && (xml->getNodeType() != EXN_TEXT))
+	{
+		if (xml->getNodeType() == EXN_NONE)
+		{ OTLog::Output(0, "*** OTContract::SkipToTextField: EXN_NONE  (skipping)\n"); continue; }			// SKIP
+		else if (xml->getNodeType() == EXN_COMMENT)
+		{ OTLog::Output(0, "*** OTContract::SkipToTextField: EXN_COMMENT  (skipping)\n"); continue; }		// SKIP
+		else if (xml->getNodeType() == EXN_ELEMENT_END)
+		{ OTLog::Output(0, "*** OTContract::SkipToTextField: EXN_ELEMENT_END  (ERROR)\n");  return false; }
+		else if (xml->getNodeType() == EXN_CDATA)
+		{ OTLog::Output(0, "*** OTContract::SkipToTextField: EXN_CDATA (ERROR -- unexpected CData)\n"); return false; }
+		else if (xml->getNodeType() == EXN_ELEMENT)
+		{ OTLog::Output(0, "*** OTContract::SkipToTextField: EXN_ELEMENT\n"); return false; }
+		else if (xml->getNodeType() == EXN_TEXT)
+		{ OTLog::Error("*** OTContract::SkipToTextField: EXN_TEXT\n"); break; } // (Should never happen due to while() second condition.) Still returns true.
+		else
+		{ OTLog::Error("*** OTContract::SkipToTextField: SHOULD NEVER HAPPEN  (Unknown element type!)\n"); return false; }	// Failure / Error
+	}	
+	// ------------------
+	
+	return true;
+}
+
+// ---------------
+// AFTER you read an element or text field, there is some whitespace, and you 
+// just want to bring your cursor back to wherever it should be for the next guy.
+// So you call this function..
+//
+bool OTContract::SkipAfterLoadingField(IrrXMLReader*& xml)
+{
+	OT_ASSERT_MSG(NULL != xml, "OTContract::SkipAfterLoadingField -- assert: NULL != xml");
+	
+	if (EXN_ELEMENT_END != xml->getNodeType())  // If we're not ALREADY on the ending element, then go there.
+	{
+		// move to the next node which SHOULD be the expected element_end.
+		//
+		while(xml->read())
+		{
+			if (xml->getNodeType() == EXN_NONE)
+			{ OTLog::Output(0, "*** OTContract::SkipAfterLoadingField: EXN_NONE  (skipping)\n"); continue; }		// SKIP
+			else if (xml->getNodeType() == EXN_COMMENT)
+			{ OTLog::Output(0, "*** OTContract::SkipAfterLoadingField: EXN_COMMENT  (skipping)\n"); continue; }		// SKIP
+			else if (xml->getNodeType() == EXN_ELEMENT_END)
+			{ OTLog::Output(5, "*** OTContract::SkipAfterLoadingField: EXN_ELEMENT_END  (success)\n");  break; }	// Success...
+			else if (xml->getNodeType() == EXN_CDATA)
+			{ OTLog::Output(0, "*** OTContract::SkipAfterLoadingField: EXN_CDATA  (Unexpected!)\n"); return false; } // Failure / Error
+			else if (xml->getNodeType() == EXN_ELEMENT)
+			{ OTLog::Output(0, "*** OTContract::SkipAfterLoadingField: EXN_ELEMENT  (Unexpected!)\n"); return false; }		// Failure / Error
+			else if (xml->getNodeType() == EXN_TEXT)
+			{ OTLog::Error("*** OTContract::SkipAfterLoadingField: EXN_TEXT  (Unexpected!)\n"); return false; }		// Failure / Error
+			else
+			{ OTLog::Error("*** OTContract::SkipAfterLoadingField: SHOULD NEVER HAPPEN  (Unknown element type!)\n"); return false; }	// Failure / Error
+		}	
+	}
+	// ------------------
+	// else ... (already on the ending element.)
+	//
+	// ------------------
+	
+	return true;
+}
+
+
 // Loads it up and also decodes it to a string.
+//
 bool OTContract::LoadEncodedTextField(IrrXMLReader*& xml, OTString & strOutput)
 {
 	OTASCIIArmor ascOutput;
@@ -1985,13 +2080,28 @@ bool OTContract::LoadEncodedTextField(IrrXMLReader*& xml, OTString & strOutput)
 	return false;
 }
 
-// Loads it up and keeps it encoded in an ascii-armored object.
+// ---------------
+
 bool OTContract::LoadEncodedTextField(IrrXMLReader*& xml, OTASCIIArmor & ascOutput)
 {
-	// go to the next node and read the text.
-	xml->read();
+	OT_ASSERT_MSG(NULL != xml, "OTContract::LoadEncodedTextField -- assert: NULL != xml");	
 	
-	if (EXN_TEXT == xml->getNodeType())
+	// ------------------
+	// If we're not ALREADY on a text field, maybe there is some whitespace, so let's skip ahead...
+	//
+	if (EXN_TEXT != xml->getNodeType())  
+	{
+		// move to the next node which SHOULD be the expected text field.
+		//
+		if (false == SkipToTextField(xml))
+		{
+			OTLog::Output(0, "OTContract::LoadEncodedTextField: Failure: Unable to find expected text field.\n");
+			return false;
+		}
+	}
+	// ------------------
+	//
+	if (EXN_TEXT == xml->getNodeType())  // SHOULD always be true, in fact this could be an assert().
 	{
 		OTString strNodeData = xml->getNodeData();
 		
@@ -2011,11 +2121,20 @@ bool OTContract::LoadEncodedTextField(IrrXMLReader*& xml, OTASCIIArmor & ascOutp
 				ascOutput.Set(strNodeData.Get());
 			}
 			
-			xml->read(); // THIS PUTS us on the CLOSING TAG.
-			
+			// ----------------------------------------
+			// SkipAfterLoadingField() only skips ahead if it's not ALREADY
+			// sitting on an element_end node. 
+			//
+			xml->read(); // THIS PUTS us on the CLOSING TAG.  <========================
+			// The below call won't advance any further if it's ALREADY on the closing tag (e.g. from the above xml->read() call.)
+			if (false == SkipAfterLoadingField(xml))
+			{ OTLog::Output(0, "*** OTContract::LoadEncodedTextField: Bad data? Expected EXN_ELEMENT_END here, but "
+							"didn't get it. Returning false.\n"); return false; }
 			return true;
 		}
 	}
+	else 
+		OTLog::Output(0, "OTContract::LoadEncodedTextField: Failure: Unable to find expected text field. 2\n");
 	
 	return false;
 }
@@ -2045,39 +2164,55 @@ bool OTContract::LoadEncodedTextFieldByName(IrrXMLReader*& xml, OTASCIIArmor & a
 {
 	OT_ASSERT(NULL != szName);
 
-	// move to the next node which SHOULD be the expected name.
-	xml->read();
-	
 	const char * pElementExpected = szName;
 	
-	if (EXN_ELEMENT == xml->getNodeType())  
+	// ------------------
+	// If we're not ALREADY on an element, maybe there is some whitespace, so let's skip ahead...
+	//
+	if ((EXN_ELEMENT != xml->getNodeType()) ||			// If we're not already on a node, OR if the node's
+		!(strcmp(pElementExpected, xml->getNodeName()) == 0) )	// name doesn't match the one expected.
+	{
+		// move to the next node which SHOULD be the expected name.
+		//
+		if (false == SkipToElement(xml))
+		{
+			OTLog::vOutput(0, "OTContract::LoadEncodedTextFieldByName: Failure: Unable to find expected element: %s. \n",
+						   szName);
+			return false;
+		}
+	}
+	// ------------------		
+	if (EXN_ELEMENT == xml->getNodeType())  // SHOULD always be true...
 	{
 		if (!strcmp(pElementExpected, xml->getNodeName()))
 		{
 			// ----------------------------------------
-			
+
 			if (NULL != pmapExtraVars) // If the caller wants values for certain names expected to be on this node.
 			{
 				mapOfStrings & mapExtraVars = (*pmapExtraVars);
 				
 				FOR_EACH(mapOfStrings, mapExtraVars)
-				{
+				{		
+
 					std::string first	= ((*it).first);
 //					std::string second	= ((*it).second);
-					
+
 					OTString strTemp = xml->getAttributeValue(first.c_str());
-					
+
 					if (strTemp.Exists())
 					{
-						mapExtraVars.erase(first);
-						mapExtraVars.insert(std::pair<std::string, std::string>(first, strTemp.Get()));
+						mapExtraVars[first] = strTemp.Get();
+						
+//						mapExtraVars.erase(first);
+//						mapExtraVars.insert(std::pair<std::string, std::string>(first, strTemp.Get()));
 					}
 				}
 			} // Any attribute names passed in, now have their corresponding values set on mapExtraVars (for caller.)
 			
 			// ----------------------------------------
 			
-			if (false == LoadEncodedTextField(xml, ascOutput))
+			if (false == LoadEncodedTextField(xml, ascOutput)) // <====================================================
 			{
 				OTLog::vError("OTContract::LoadEncodedTextFieldByName: Error loading %s field.\n",
 							  pElementExpected);
@@ -2085,6 +2220,16 @@ bool OTContract::LoadEncodedTextFieldByName(IrrXMLReader*& xml, OTASCIIArmor & a
 			}
 			else 
 			{
+				// ----------------------------------------
+				// SkipAfterLoadingField() only skips ahead if it's not ALREADY
+				// sitting on an element_end node. 
+				//
+				// Update: Above, LoadEncodedTextField() already does this (below).
+				//
+//				if (false == SkipAfterLoadingField(xml))
+//				{ OTLog::Output(0, "*** OTContract::LoadEncodedTextFieldByName: Bad data? Expected EXN_ELEMENT_END here, but "
+//								"didn't get it. Returning false.\n"); return false; }
+				
 				return true;  // <============ SUCCESS!!!!
 			}
 		}
@@ -2141,7 +2286,15 @@ int OTContract::ProcessXMLNode(IrrXMLReader*& xml)
 	{
 		strConditionName  = xml->getAttributeValue("name");
 		
-		xml->read();
+//		xml->read();
+		// ------------------		
+		if (false == SkipToTextField(xml))
+		{
+			OTLog::vOutput(0, "OTContract::ProcessXMLNode: Failure: Unable to find expected text field for xml node named: %s\n",
+						  xml->getNodeName());
+			return (-1); // error condition
+		}
+		// ------------------
 		
 		if (EXN_TEXT == xml->getNodeType())
 		{
@@ -2165,7 +2318,15 @@ int OTContract::ProcessXMLNode(IrrXMLReader*& xml)
 	{
 		strKeyName  = xml->getAttributeValue("name");
 		
-		xml->read();
+//		xml->read();
+		// ------------------		
+		if (false == SkipToTextField(xml))
+		{
+			OTLog::vOutput(0, "OTContract::ProcessXMLNode: Failure: Unable to find expected text field for xml node named: %s\n",
+						   xml->getNodeName());
+			return (-1); // error condition
+		}
+		// ------------------
 		
 		if (EXN_TEXT == xml->getNodeType())
 		{

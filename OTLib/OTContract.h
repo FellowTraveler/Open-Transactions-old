@@ -200,9 +200,9 @@ protected:
 	
 	// -------------------------------------------------------------------
 	//
-
 	bool LoadContractXML(); // The XML file is in m_xmlUnsigned. Load it from there into members here.
 	
+	// -------------------------------------------------------------------
 	bool LoadEncodedTextField(irr::io::IrrXMLReader*& xml, OTString &strOutput);
 	bool LoadEncodedTextField(irr::io::IrrXMLReader*& xml, OTASCIIArmor &ascOutput);
 	
@@ -210,15 +210,19 @@ protected:
 									const char *& szName, mapOfStrings * pmapExtraVars = NULL);
 	bool LoadEncodedTextFieldByName(irr::io::IrrXMLReader*& xml, OTASCIIArmor &ascOutput, 
 									const char *& szName, mapOfStrings * pmapExtraVars = NULL);
-	
+	// -------------------------------------------------------------------
+
 	// return -1 if error, 0 if nothing, and 1 if the node was processed.
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
 	
+	// -------------------------------------------------------------------
 	virtual bool SignContract(const EVP_PKEY * pkey, OTSignature & theSignature,
 							  const OTString & strHashType);
+	// -------------------------------------------------------------------
 	bool VerifySignature(const EVP_PKEY * pkey, const OTSignature & theSignature, 
 						 const OTString & strHashType) const;
 
+	// -------------------------------------------------------------------
 	// The default hash scheme involves combining 2 other hashes
 	// If a hash with one of the special names comes through, it will
 	// be processed here instead of the normal code. The above two functions
@@ -226,7 +230,14 @@ protected:
 	bool SignContractDefaultHash(const EVP_PKEY * pkey, OTSignature & theSignature);
 	bool VerifyContractDefaultHash(const EVP_PKEY * pkey, const OTSignature & theSignature) const;
 
+	// -------------------------------------------------------------------
 public:
+	static bool SkipToElement(IrrXMLReader*& xml);
+	static bool SkipToTextField(IrrXMLReader*& xml);
+	static bool SkipAfterLoadingField(IrrXMLReader*& xml);
+	
+	// -------------------------------------------------------------------
+	
 	inline const char * GetHashType() const { return m_strSigHashType.Get(); }
 	
 	inline void SetIdentifier(const OTIdentifier & theID) { m_ID = theID; }

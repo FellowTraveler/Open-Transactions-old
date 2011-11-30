@@ -3,7 +3,9 @@ NOTES on the Version:
 
 // --------------------------------------------------------------------
 
-   0.73 --- Client side scripts!  See Open-Transactions/testwallet/test.ot
+   0.74 --- Smart Contracts! (Server side scriptable clauses and hooks!)
+
+   0.73 --- Client side scripts!  See the Open-Transactions/scripts folder.
 
    0.72b--- Bug fix in Basket Exchange (which is now working in the GUI!)
 

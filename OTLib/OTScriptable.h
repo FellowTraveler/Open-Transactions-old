@@ -175,6 +175,14 @@ public:
 	OTAgent			* GetAgent(const std::string str_agent_name);
 	OTPartyAccount	* GetPartyAccount(const std::string str_acct_name);
 	
+	// -----------------------------------------------------------------
+	// This function returns the count of how many trans#s a Nym needs in order to confirm as 
+	// a specific agent for a contract. (An opening number is needed for every party of which
+	// agent is the authorizing agent, plus a closing number for every acct of which agent is the
+	// authorized agent.)
+	//
+	int  GetCountTransNumsNeededForAgent(const std::string str_agent_name);
+	
 	// ----------------
 	// Verifies that Nym is actually an agent for this agreement.
 	// (Verifies that Nym has signed this agreement, if it's a trade or a payment plan, OR

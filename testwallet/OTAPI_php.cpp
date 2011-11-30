@@ -4989,6 +4989,47 @@ fail:
 }
 
 
+ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_CountNumsNeeded) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  zval **args[2];
+  int result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  result = (int)OT_API_SmartContract_CountNumsNeeded((char const *)arg1,(char const *)arg2);
+  {
+    ZVAL_LONG(return_value,result);
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
 ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_ConfirmAccount) {
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
@@ -26296,6 +26337,7 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(ot_api_smartcontract_addhook,_wrap_OT_API_SmartContract_AddHook,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_smartcontract_addparty,_wrap_OT_API_SmartContract_AddParty,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_smartcontract_addaccount,_wrap_OT_API_SmartContract_AddAccount,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_smartcontract_countnumsneeded,_wrap_OT_API_SmartContract_CountNumsNeeded,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_smartcontract_confirmaccount,_wrap_OT_API_SmartContract_ConfirmAccount,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_smartcontract_confirmparty,_wrap_OT_API_SmartContract_ConfirmParty,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_activatesmartcontract,_wrap_OT_API_activateSmartContract,NULL)

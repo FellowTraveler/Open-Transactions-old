@@ -7,6 +7,7 @@ TO GIT
 
 TO BUILD
    make clean && make
+   sudo make install
 
 Notes:
 https://github.com/FellowTraveler/Open-Transactions/wiki/Install

@@ -443,6 +443,9 @@ class otapiPINVOKE {
   [DllImport("otapi", EntryPoint="CSharp_OT_API_SmartContract_AddAccount")]
   public static extern string OT_API_SmartContract_AddAccount(string jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
 
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_SmartContract_CountNumsNeeded")]
+  public static extern int OT_API_SmartContract_CountNumsNeeded(string jarg1, string jarg2);
+
   [DllImport("otapi", EntryPoint="CSharp_OT_API_SmartContract_ConfirmAccount")]
   public static extern string OT_API_SmartContract_ConfirmAccount(string jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6);
 

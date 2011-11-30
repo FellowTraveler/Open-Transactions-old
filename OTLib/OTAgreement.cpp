@@ -483,7 +483,10 @@ bool OTAgreement::ProcessCron()
 	
 	
 	// START DATE --------------------------------
-	// Okay, so it's not expired. But might not have reached START DATE yet...
+	// Okay, so it's NOT expired. But might not have reached START DATE yet...
+	// (If not expired, yet current date is not verified, that means it hasn't
+	// ENTERED the date range YET.)
+	//
 	if (!VerifyCurrentDate())
 		return true;	// The Trade is not yet valid, so we return. BUT, we return 
 						//  true, so it will stay on Cron until it BECOMES valid.

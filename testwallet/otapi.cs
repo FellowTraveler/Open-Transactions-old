@@ -362,6 +362,11 @@ public class otapi {
     return ret;
   }
 
+  public static int OT_API_SmartContract_CountNumsNeeded(string THE_CONTRACT, string AGENT_NAME) {
+    int ret = otapiPINVOKE.OT_API_SmartContract_CountNumsNeeded(THE_CONTRACT, AGENT_NAME);
+    return ret;
+  }
+
   public static string OT_API_SmartContract_ConfirmAccount(string THE_CONTRACT, string SIGNER_NYM_ID, string PARTY_NAME, string ACCT_NAME, string AGENT_NAME, string ACCT_ID) {
     string ret = otapiPINVOKE.OT_API_SmartContract_ConfirmAccount(THE_CONTRACT, SIGNER_NYM_ID, PARTY_NAME, ACCT_NAME, AGENT_NAME, ACCT_ID);
     return ret;

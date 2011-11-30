@@ -95,6 +95,7 @@ public class otapiJNI {
   public final static native String OT_API_SmartContract_AddHook(String jarg1, String jarg2, String jarg3, String jarg4, String jarg5);
   public final static native String OT_API_SmartContract_AddParty(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native String OT_API_SmartContract_AddAccount(String jarg1, String jarg2, String jarg3, String jarg4, String jarg5);
+  public final static native int OT_API_SmartContract_CountNumsNeeded(String jarg1, String jarg2);
   public final static native String OT_API_SmartContract_ConfirmAccount(String jarg1, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6);
   public final static native String OT_API_SmartContract_ConfirmParty(String jarg1, String jarg2, String jarg3);
   public final static native void OT_API_activateSmartContract(String jarg1, String jarg2, String jarg3);
