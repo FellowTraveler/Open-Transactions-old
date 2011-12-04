@@ -309,11 +309,21 @@ void OTScript::AddParty(const std::string str_party_name, OTParty & theParty)
 // typedef std::map<std::string, OTParty *> mapOfParties;
 
     m_mapParties.insert( std::pair<std::string, OTParty *>(str_party_name, &theParty)) ;
-    
     // We're just storing these pointers for reference value. Script doesn't actually Own the
     // parties, and isn't responsible to clean them up.
-}
     
+    theParty.RegisterAccountsForExecution(*this);
+}
+
+
+void OTScript::AddAccount (const std::string str_acct_name, OTPartyAccount & theAcct)
+{
+    m_mapAccounts.insert( std::pair<std::string, OTPartyAccount *>(str_acct_name, &theAcct)) ;
+    
+    // We're just storing these pointers for reference value. Script doesn't actually Own the
+    // accounts, and isn't responsible to clean them up.
+}
+
 
 void OTScript::AddVariable (const std::string str_var_name, OTVariable & theVar)
 {
@@ -383,13 +393,29 @@ bool OTScriptChai::ExecuteScript(OTVariable * pReturnVar/*=NULL*/)
             // ------------------------
             std::string party_name  = pParty->GetPartyName();
             std::string party_id    = pParty->GetPartyID();
-            
+
 //          std::cerr << " TESTING PARTY: " << party_name << std::endl;
 //          chai.add(chaiscript::var(&d), "d");
             
             // Currently I don't make the entire party available -- just his ID.
             //
-            chai.add(var(party_id), party_name.c_str());
+            chai.add_global_const(const_var(party_id), party_name.c_str());
+        }
+        // --------------------
+        FOR_EACH(mapOfPartyAccounts, m_mapAccounts)
+        {
+            OTPartyAccount * pAcct = (*it).second;
+            OT_ASSERT(NULL != pAcct);
+            // ------------------------
+            std::string acct_name  = pAcct->GetName().Get();
+            std::string acct_id    = pAcct->GetAcctID().Get();
+
+//          std::cerr << " TESTING ACCOUNT: " << acct_name << std::endl;
+//          chai.add(chaiscript::var(&d), "d");
+            
+            // Currently I don't make the entire account available -- just his ID.
+            //
+            chai.add_global_const(const_var(acct_id), acct_name.c_str());
         }
         // --------------------
         /*
@@ -479,7 +505,7 @@ bool OTScriptChai::ExecuteScript(OTVariable * pReturnVar/*=NULL*/)
         try 
         {
             if (NULL == pReturnVar)             // Nothing to return.
-                chai.eval(m_str_script.c_str());
+                chai.eval(m_str_script.c_str(), exception_specification<const std::exception &>());
             
             else   // There's a return variable.
             {
@@ -487,21 +513,21 @@ bool OTScriptChai::ExecuteScript(OTVariable * pReturnVar/*=NULL*/)
                 {
                     case OTVariable::Var_Long:
                     {
-                        long lResult = chai.eval<long>(m_str_script.c_str());
+                        long lResult = chai.eval<long>(m_str_script.c_str(), exception_specification<const std::exception &>());
                         pReturnVar->SetValue(lResult);
                     }
                         break;
                         
                     case OTVariable::Var_Bool:
                     {
-                        bool bResult = chai.eval<bool>(m_str_script.c_str());
+                        bool bResult = chai.eval<bool>(m_str_script.c_str(), exception_specification<const std::exception &>());
                         pReturnVar->SetValue(bResult);
                     }
                         break;
                         
                     case OTVariable::Var_String:
                     {
-                        std::string str_Result = chai.eval<std::string>(m_str_script.c_str());
+                        std::string str_Result = chai.eval<std::string>(m_str_script.c_str(), exception_specification<const std::exception &>());
                         pReturnVar->SetValue(str_Result);
                     }
                         break;
@@ -513,6 +539,21 @@ bool OTScriptChai::ExecuteScript(OTVariable * pReturnVar/*=NULL*/)
                 } // switch
             } // else return variable.
         } // try
+        catch (const chaiscript::exception::eval_error &e) {
+            // Error in script parsing / execution
+            OTLog::vError("OTScriptChai::ExecuteScript: Caught chaiscript::exception::eval_error : %s\n",
+                          e.reason.c_str());
+            return false;
+        } catch (const chaiscript::exception::bad_boxed_cast &e) {
+            // Error unboxing return value
+            OTLog::vError("OTScriptChai::ExecuteScript: Caught chaiscript::exception::bad_boxed_cast : %s.\n",
+                          (e.what() != NULL) ? e.what() : "e.what() returned null, sorry");
+            return false;
+        } catch (const std::exception &e) {
+            // Error explicitly thrown from script
+            OTLog::Error("OTScriptChai::ExecuteScript: Caught std::exception exception.\n");
+            return false;
+        }
 //      catch (chaiscript::Boxed_Value bv) 
         catch (...)
         {

@@ -11,7 +11,8 @@ var strSmartContract = ""
 //
 var strCode_first_clause = " print(\"Hello world (from first_clause)\") "
 var strCode_activate_clause = " print(\"SCRIPT ON ACTIVATION!! (from cron_activate hook)\") "
-var strCode_process_clause = " print(\"SCRIPT ON TIMER!! (from cron_process hook)\") "
+var strCode_process_clause = " var bVar =  move_funds(alice_acct, bob_acct, \"100\"); "
+//var strCode_process_clause = " print(\"CALLING MOVE FUNDS...\n\"); move_funds(alice_acct, bob_acct, 100);  "
 var strCode_may_exec_coverage = " print(\"MAY EXECUTE? (from may_exec_coverage callback. Returning true from script.)\"); return true; "
 
 // --------------------------------------------------

@@ -573,10 +573,10 @@
 // TODO: Finish up Smart Contracts (this file.)
 
 
-// TODO: Client test code, plus server message: for activating smart contracts.
+// DONE: Client test code, plus server message: for activating smart contracts.
 //
 
-// TODO: OT API calls for smart contracts.
+// DONE: OT API calls for smart contracts.
 
 
 // TODO: Build escrow script.
@@ -649,6 +649,43 @@ DONE cron_process		(Triggers every time the smart contract "processes" on cron.)
 DONE cron_activate		(Triggers when the smart contract is first activated.)
 */						 
 											 
+// Global version. (string parameter)
+//typedef bool (*OT_SM_RetBool_ThrStr)(OTSmartContract * pContract, 
+//									   const std::string from_acct_name, 
+//									   const std::string to_acct_name, 
+//									   const std::string str_Amount);
+// Test result:  WORKS calling chaiscript
+//Cron: Processing smart contract clauses for hook: cron_process 
+//OTSmartContract::MoveAcctFunds: error: from_acct (sSBcoTlTkYY8pPv6vh2KD6mIVrRdIwodgsWDoJzIfpV) not found on any party.  // debug this in move_funds
+//OTSmartContract::ExecuteClauses: Success executing script clause: process_clause.
+
+
+// Global version. (long parameter)
+//typedef bool (*OT_SM_RetBool_TwoStr_OneL)(OTSmartContract * pContract, 
+//											const std::string from_acct_name, 
+//											const std::string to_acct_name, 
+//											const long lAmount);
+// TEST Result:  FAILS calling chaiscript: Cannot perform boxed_cast.   (Must be the LONG!!)
+//Cron: Processing smart contract clauses for hook: cron_process 
+//OTScriptChai::ExecuteScript: Caught chaiscript::exception::bad_boxed_cast : Cannot perform boxed_cast.
+//OTSmartContract::ExecuteClauses: Error while running script: process_clause 
+
+
+// Class member, with string parameter.
+typedef bool (OTSmartContract::*OT_SM_RetBool_ThrStr)(const std::string from_acct_name, 
+													    const std::string to_acct_name, 
+													    const std::string str_Amount);
+// TEST RESULT: WORKS calling Chaiscript
+//Cron: Processing smart contract clauses for hook: cron_process 
+//OTSmartContract::MoveAcctFunds: error: from_acct (sSBcoTlTkYY8pPv6vh2KD6mIVrRdIwodgsWDoJzIfpV) not found on any party.
+//OTSmartContract::ExecuteClauses: Success executing script clause: process_clause.
+
+// Class member, with long parameter.
+//typedef bool (OTSmartContract::*OT_SM_RetBool_TwoStr_OneL)(const std::string from_acct_name, 
+//															 const std::string to_acct_name, 
+//															 long lAmount);
+
+
 
 void OTSmartContract::RegisterOTNativeCallsWithScript(OTScript & theScript)
 {
@@ -657,7 +694,7 @@ void OTSmartContract::RegisterOTNativeCallsWithScript(OTScript & theScript)
 	// --------------------------------
 
 	using namespace chaiscript;
-		
+
 	OTScriptChai * pScript = dynamic_cast<OTScriptChai *> (&theScript);
 	
 	// *******************************************************************
@@ -668,10 +705,17 @@ void OTSmartContract::RegisterOTNativeCallsWithScript(OTScript & theScript)
 		// (These functions can be called from INSIDE the scripted clauses.)
 		//																						// Parameters must match as described below. Return value will be as described below.
 		//																						// -------------------------------------------------------------
-		pScript->chai.add(fun(&OTSmartContract::MoveAcctFunds,				this), "move_funds");	// bool MoveAcctFunds(const std::string from_acct_name, const std::string to_acct_name, const long lAmount); // calls OTCronItem::MoveFunds()
+//		pScript->chai.add(base_class<OTScriptable, OTSmartContract>());
+		
+		pScript->chai.add(fun<OT_SM_RetBool_ThrStr>(&OTSmartContract::MoveAcctFundsStr,		this), "move_funds");	// static bool s_MoveAcctFunds(const std::string from_acct_name, const std::string to_acct_name, const long& lAmount); // calls OTCronItem::MoveFunds()
+//		pScript->chai.add(fun<OT_SM_RetBool_TwoStr_OneL>(&OTSmartContract::MoveAcctFundsL,	this), "move_funds_L");		// static bool s_MoveAcctFunds(const std::string from_acct_name, const std::string to_acct_name, const long& lAmount); // calls OTCronItem::MoveFunds()
+//		pScript->chai.add(fun<OT_SM_RetBool_ThrStr>(&OTSmartContract::MoveAcctFundsStr,		this), "move_funds_Str");	// static bool s_MoveAcctFunds(const std::string from_acct_name, const std::string to_acct_name, const long& lAmount); // calls OTCronItem::MoveFunds()
+//		pScript->chai.add(fun<OT_SM_RetBool_TwoStr_OneL>(&g_MoveAcctFundsL,	this), "move_funds_L");		// global bool s_MoveAcctFunds(const std::string from_acct_name, const std::string to_acct_name, const long& lAmount); // calls OTCronItem::MoveFunds()
+//		pScript->chai.add(fun<OT_SM_RetBool_ThrStr>(&g_MoveAcctFundsStr,	this), "move_funds_Str");	// global bool s_MoveAcctFunds(const std::string from_acct_name, const std::string to_acct_name, const long& lAmount); // calls OTCronItem::MoveFunds()
+		
 		pScript->chai.add(fun(&OTSmartContract::StashAcctFunds,				this), "stash_funds");	// bool StashAcctFunds(const std::string from_acct_name, const std::string to_stash_name, const long lAmount); // calls StashFunds()
 		pScript->chai.add(fun(&OTSmartContract::UnstashAcctFunds,			this), "unstash_funds");	// bool UnstashAcctFunds(const std::string to_acct_name, const std::string from_stash_name, const long lAmount); // calls StashFunds( lAmount * (-1) )
-		
+				
 		pScript->chai.add(fun(&OTSmartContract::GetAcctBalance,				this), "get_acct_balance"); // long GetAcctBalance(const std::string acct_name);
 		pScript->chai.add(fun(&OTSmartContract::GetAssetTypeIDofAcct,		this), "get_acct_asset_type_id"); // std::string OTSmartContract::GetAssetTypeIDofAcct(const std::string from_acct_name)
 		pScript->chai.add(fun(&OTSmartContract::GetStashBalance,			this), "get_stash_balance");	// long GetStashBalance(const std::string stash_name, const std::string asset_type_id);
@@ -791,7 +835,7 @@ void OTSmartContract::onActivate()
 //
 //pScript->chai.add(fun(&(OTSmartContract::GetAcctBalance),	(*this)), "get_acct_balance");	// long GetAcctBalance(const std::string acct_name);
 //
-long OTSmartContract::GetAcctBalance(const std::string from_acct_name)
+std::string OTSmartContract::GetAcctBalance(const std::string from_acct_name)
 {
     OTCron * pCron  = GetCron();
     OT_ASSERT(NULL != pCron);
@@ -983,7 +1027,10 @@ long OTSmartContract::GetAcctBalance(const std::string from_acct_name)
 	OTCleanup<OTAccount>	theSourceAcctSmrtPtr(*pPartyAssetAcct);
 	// -----------------------------------------------------------------
 
-	return pPartyAssetAcct->GetBalance();
+	OTString strBalance;
+	strBalance.Format("%ld", pPartyAssetAcct->GetBalance());
+	
+	return strBalance.Get();
 }
 
 
@@ -1196,7 +1243,7 @@ std::string OTSmartContract::GetAssetTypeIDofAcct(const std::string from_acct_na
 //
 //pScript->chai.add(fun(&(OTSmartContract::GetStashBalance),	(*this)), "get_stash_balance");	// long GetStashBalance(const std::string stash_name);
 //
-long OTSmartContract::GetStashBalance(const std::string from_stash_name, const std::string asset_type_id)
+std::string OTSmartContract::GetStashBalance(const std::string from_stash_name, const std::string asset_type_id)
 {
     OTCron * pCron  = GetCron();
     OT_ASSERT(NULL != pCron);
@@ -1239,8 +1286,9 @@ long OTSmartContract::GetStashBalance(const std::string from_stash_name, const s
 	//		pServerNym, pCron.
 	//		
 	// ****************************************************************************
-	
-	return pStash->GetAmount(asset_type_id);
+	OTString strBalance;
+	strBalance.Format("%ld", pStash->GetAmount(asset_type_id));
+	return strBalance.Get();
 }
 
 
@@ -1407,7 +1455,7 @@ bool OTSmartContract::SendNoticeToParty(const std::string party_name)
 // server account where the backing funds are stored, the same as with cash. This is so that
 // stashed funds will show up properly on an audit.
 //
-bool OTSmartContract::StashAcctFunds(const std::string from_acct_name, const std::string to_stash_name, const long lAmount)
+bool OTSmartContract::StashAcctFunds(const std::string from_acct_name, const std::string to_stash_name, const std::string str_Amount)
 {
     OTCron * pCron  = GetCron();
     OT_ASSERT(NULL != pCron);
@@ -1420,6 +1468,13 @@ bool OTSmartContract::StashAcctFunds(const std::string from_acct_name, const std
 	//		pServerNym, pCron.
 	//		
 	// ---------------------------------------------------
+	if (str_Amount.size() < 1)
+	{
+		OTLog::vOutput(0, "OTSmartContract::StashAcctFunds: Error: empty amount.\n");
+		return false;
+	}
+	
+	const long lAmount =  atol(str_Amount.c_str());
 	
 	if (lAmount <= 0)
 	{
@@ -1624,7 +1679,7 @@ bool OTSmartContract::StashAcctFunds(const std::string from_acct_name, const std
 // server account where the backing funds are stored, the same as with cash. This is so that
 // stashed funds will show up properly on an audit.
 //
-bool OTSmartContract::UnstashAcctFunds(const std::string to_acct_name, const std::string from_stash_name, const long lAmount)
+bool OTSmartContract::UnstashAcctFunds(const std::string to_acct_name, const std::string from_stash_name, const std::string str_Amount)
 {
     OTCron * pCron  = GetCron();
     OT_ASSERT(NULL != pCron);
@@ -1637,6 +1692,13 @@ bool OTSmartContract::UnstashAcctFunds(const std::string to_acct_name, const std
 	//		pServerNym, pCron.
 	//		
 	// ---------------------------------------------------
+	if (str_Amount.size() < 1)
+	{
+		OTLog::vOutput(0, "OTSmartContract::StashAcctFunds: Error: empty amount.\n");
+		return false;
+	}
+	
+	const long lAmount =  atol(str_Amount.c_str());
 	
 	if (lAmount <= 0)
 	{
@@ -1842,17 +1904,17 @@ bool OTSmartContract::StashFunds(const mapOfNyms	&	map_NymsAlreadyLoaded,
 								 const OTIdentifier &	PARTY_USER_ID,
 								 OTStash & theStash) 
 {
-	if (0 == lAmount)
-	{
-		OTLog::Output(0, "OTSmartContract::StashFunds: a zero amount is not allowed.\n");
-		return false;
-	}
-	// --------------------------------
 	OTCron * pCron = GetCron();
 	OT_ASSERT(NULL != pCron);
 	
 	OTPseudonym * pServerNym = pCron->GetServerNym();
 	OT_ASSERT(NULL != pServerNym);
+	// --------------------------------------------------------	
+	if (0 == lAmount)
+	{
+		OTLog::Output(0, "OTSmartContract::StashFunds: a zero amount is not allowed.\n");
+		return false;
+	}
 	// --------------------------------------------------------	
 	const OTIdentifier	SERVER_ID(pCron->GetServerID());
 	const OTIdentifier	SERVER_USER_ID(*pServerNym);
@@ -2469,7 +2531,45 @@ bool OTSmartContract::StashFunds(const mapOfNyms	&	map_NymsAlreadyLoaded,
 // appropriate authorizing agent for that account (or use him, if he's already loaded on
 // this smart contract.)
 //
-bool OTSmartContract::MoveAcctFunds(const std::string from_acct_name, const std::string to_acct_name, const long lAmount)
+
+
+
+
+//global (debugging)
+//bool g_MoveAcctFundsL(OTSmartContract * pContract, 
+//					  const std::string from_acct_name, 
+//					  const std::string to_acct_name, 
+//					  const long lAmount)
+//{
+//	OT_ASSERT(NULL != pContract);
+//	
+//	return pContract->MoveAcctFundsL(from_acct_name, to_acct_name, lAmount);
+//}
+//
+//
+//
+////global (debugging)
+//bool g_MoveAcctFundsStr(OTSmartContract * pContract, 
+//						const std::string from_acct_name, 
+//						const std::string to_acct_name, 
+//						const std::string str_Amount)
+//{
+//	OT_ASSERT(NULL != pContract);
+//	
+//	if (str_Amount.size() < 1)
+//	{
+//		OTLog::vOutput(0, "OTSmartContract::g_MoveAcctFundsStr: Error: empty amount.\n");
+//		return false;
+//	}
+//	
+//	const long lAmount =  atol(str_Amount.c_str());
+//	
+//	return pContract->MoveAcctFundsL(from_acct_name, to_acct_name, lAmount);
+//}
+
+
+bool OTSmartContract::MoveAcctFundsStr(const std::string from_acct_name, const std::string to_acct_name, const std::string str_Amount)
+//bool OTSmartContract::MoveAcctFundsL(const std::string from_acct_name, const std::string to_acct_name, const long lAmount)
 {
     OTCron * pCron  = GetCron();
     OT_ASSERT(NULL != pCron);
@@ -2482,6 +2582,13 @@ bool OTSmartContract::MoveAcctFunds(const std::string from_acct_name, const std:
 	//		pServerNym, pCron.
 	//		
 	// ---------------------------------------------------
+	if (str_Amount.size() < 1)
+	{
+		OTLog::vOutput(0, "OTSmartContract::MoveAcctFunds: Error: empty amount.\n");
+		return false;
+	}
+	
+	const long lAmount =  atol(str_Amount.c_str());
 	
 	if (lAmount <= 0)
 	{
@@ -2685,15 +2792,15 @@ bool OTSmartContract::MoveAcctFunds(const std::string from_acct_name, const std:
 	// 
 	// BELOW THIS POINT, theFromAcctID, theFromAgentID, theToAcctID, and theToAgentID are all available.
 	// --------------------------------------
-	/*
-	 bool OTCronItem::MoveFunds(
-								const mapOfNyms		&	map_NymsAlreadyLoaded,
-								const long			&	lAmount, 
-								const OTIdentifier &	SOURCE_ACCT_ID,		// GetSenderAcctID();
-								const OTIdentifier &	SENDER_USER_ID,		// GetSenderUserID();
-								const OTIdentifier &	RECIPIENT_ACCT_ID,	// GetRecipientAcctID();
-								const OTIdentifier &	RECIPIENT_USER_ID)	// GetRecipientUserID();
-	 */
+
+//	 bool OTCronItem::MoveFunds(
+//								const mapOfNyms		&	map_NymsAlreadyLoaded,
+//								const long			&	lAmount, 
+//								const OTIdentifier &	SOURCE_ACCT_ID,		// GetSenderAcctID();
+//								const OTIdentifier &	SENDER_USER_ID,		// GetSenderUserID();
+//								const OTIdentifier &	RECIPIENT_ACCT_ID,	// GetRecipientAcctID();
+//								const OTIdentifier &	RECIPIENT_USER_ID)	// GetRecipientUserID();
+
 	
 	// ----------------------------------------------------------
 	// WE SET THESE HERE SO THE RECEIPT SHOWS, SUCCESS OR FAIL, 
@@ -2716,7 +2823,6 @@ bool OTSmartContract::MoveAcctFunds(const std::string from_acct_name, const std:
 					  from_acct_name.c_str(), to_acct_name.c_str());
 		return false;
 	}
-
 	
 	return true;
 }
@@ -3172,16 +3278,22 @@ void OTSmartContract::ExecuteClauses (mapOfClauses & theClauses)
 				OT_ASSERT((NULL != pParty) && (str_party_name.size() > 0));
 				// -----------------------
 				
-				pScript->AddParty(str_party_name, *pParty);
+				pScript->AddParty(str_party_name, *pParty);  // This also registers all of Party's accounts with pScript.
+				// -----------------------
 			}
 			
 			// ---------------------------------------
 			// Also need to loop through the Variables on pBylaw and register those as well.
 			//
-			pBylaw->RegisterVariablesForExecution(*pScript); // This sets all the variables as CLEAN so we can check for dirtiness after execution.
+			pBylaw->RegisterVariablesForExecution(*pScript); // This also sets all the variables as CLEAN so we can check for dirtiness after execution.
 			
 			// ****************************************
-			if (false == pScript->ExecuteScript())
+
+			// TEMP FOR TESTING (HARDCODED CLAUSE NAME HERE...)
+//			OTVariable theReturnVal("return_val", false); // initial value is: false.
+			
+			if (false == pScript->ExecuteScript())	// If I passed theReturnVal in here, then it'd be assumed a bool is expected to be returned inside it.
+//			if (false == pScript->ExecuteScript((str_clause_name.compare("process_clause") == 0) ? &theReturnVal : NULL))
 			{
 				OTLog::vError("OTSmartContract::ExecuteClauses: Error while running script: %s \n",
 							 str_clause_name.c_str());

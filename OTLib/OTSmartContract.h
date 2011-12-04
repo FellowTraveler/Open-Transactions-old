@@ -147,9 +147,21 @@
 
 class OTParty;
 class OTPseudonym;
-class OTPseudonym;
+class OTSmartContract;
 
 
+// global with long parameter
+//bool g_MoveAcctFundsL(OTSmartContract * pContract, 
+//					 const std::string from_acct_name, 
+//					 const std::string to_acct_name, 
+//					 const long lAmount);
+//
+//
+//// global with string parameter
+//bool g_MoveAcctFundsStr(OTSmartContract * pContract, 
+//					 const std::string from_acct_name, 
+//					 const std::string to_acct_name, 
+//					 const std::string str_Amount);
 
 
 class OTSmartContract : public OTCronItem
@@ -250,7 +262,7 @@ public:
 	// --------------------------------------------------------------------------
  	// From OTCronItem (parent class of this)
 	/*
-	 inline void SetCronPointer(OTCron & theCron) { m_pCron = &theCron; }	 
+	 inline void SetCronPointer(OTCron & theCron) { m_pCron = &theCron; }
 
 	 inline void SetCreationDate(const time_t & CREATION_DATE) { m_CREATION_DATE = CREATION_DATE; }
 	 inline const time_t & GetCreationDate() const { return m_CREATION_DATE; }     
@@ -353,14 +365,23 @@ public:
 	bool CanCancelContract(const std::string str_party_name); // This calls (if available) the scripted clause: bool party_may_cancel_contract(party_name)
 	
 	// OT NATIVE FUNCTIONS -- Available for scripts to call:
-	//
-	bool MoveAcctFunds(const std::string from_acct_name, const std::string to_acct_name, const long lAmount); // calls OTCronItem::MoveFunds()
+
+	// class member, with long parameter
+//	bool MoveAcctFundsL(const std::string from_acct_name, 
+//					   const std::string to_acct_name, 
+//					   const long lAmount); // calls OTCronItem::MoveFunds()
+	
+	// class member, with string parameter
+	bool MoveAcctFundsStr(const std::string from_acct_name, 
+						  const std::string to_acct_name, 
+						  const std::string str_Amount); // calls OTCronItem::MoveFunds()
+	
 	// -----------------------------------------------------------------------------------------------------------------------------------------
-	bool StashAcctFunds(const std::string from_acct_name, const std::string to_stash_name, const long lAmount); // calls StashFunds()
-	bool UnstashAcctFunds(const std::string to_acct_name, const std::string from_stash_name, const long lAmount); // calls StashFunds( lAmount * (-1) )
+	bool StashAcctFunds(const std::string from_acct_name, const std::string to_stash_name, const std::string str_Amount); // calls StashFunds()
+	bool UnstashAcctFunds(const std::string to_acct_name, const std::string from_stash_name, const std::string str_Amount); // calls StashFunds( lAmount * (-1) )
 	// ------------------------------------------------------------------------------
-	long GetAcctBalance				(const std::string from_acct_name);
-	long GetStashBalance			(const std::string stash_name, const std::string asset_type_id);
+	std::string GetAcctBalance		(const std::string from_acct_name);
+	std::string GetStashBalance		(const std::string stash_name, const std::string asset_type_id);
 	
 	std::string GetAssetTypeIDofAcct(const std::string from_acct_name);
 

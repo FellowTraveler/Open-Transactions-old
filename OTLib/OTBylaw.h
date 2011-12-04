@@ -415,6 +415,7 @@ typedef std::map<std::string, OTAgent *> mapOfAgents;
 // with it, or to clean it up or rely on it for their normal data storage.)
 //
 
+class OTScript;
 
 class OTAccount;
 
@@ -460,6 +461,9 @@ class OTPartyAccount
 	//
 	
 public:
+	
+	void RegisterForExecution(OTScript& theScript);
+
 	OTParty * GetParty() { return m_pForParty; }
 	void SetParty(OTParty & theOwnerParty); // This happens when the partyaccount is added to the party. (so I have a ptr back)
 
@@ -523,7 +527,6 @@ typedef std::map<std::string, OTPartyAccount *> mapOfPartyAccounts;
 
 
 // ------------------------------------------------------------
-
 class OTScriptable;
 
 // Party is always either an Owner Nym, or an Owner Entity formed by Contract.
@@ -758,6 +761,9 @@ public:
 									   const bool		  bBurnTransNo=false);
 
 	bool CopyAcctsToConfirmingParty(OTParty & theParty) const; // When confirming a party, a new version replaces the original. This is part of that process.
+	
+	void RegisterAccountsForExecution(OTScript& theScript);
+
 	
 	// ------------------------------------------------------
 	bool LoadAndVerifyAgentNyms(OTPseudonym & theServerNym, 

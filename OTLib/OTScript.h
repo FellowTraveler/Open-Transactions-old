@@ -160,8 +160,9 @@ class OTScript
 protected:
     std::string     m_str_script;
     
-    mapOfParties    m_mapParties; // no need to clean this up. Script doesn't own the parties, just references them.
-    mapOfVariables  m_mapVariables; // no need to clean this up. Script doesn't own the variables, just references them.
+    mapOfParties        m_mapParties; // no need to clean this up. Script doesn't own the parties, just references them.
+    mapOfPartyAccounts  m_mapAccounts; // no need to clean this up. Script doesn't own the accounts, just references them.
+    mapOfVariables      m_mapVariables; // no need to clean this up. Script doesn't own the variables, just references them.
     
 	// List 
 	// Construction -- Destruction
@@ -193,6 +194,7 @@ public:
     // cleaning up the mess!  theParty is passed as reference to insure it already exists.
     //
     void AddParty       (const std::string str_party_name,    OTParty & theParty);
+    void AddAccount     (const std::string str_acct_name,     OTPartyAccount & theAcct);
     void AddVariable    (const std::string str_var_name,      OTVariable & theVar);
     
     // Note: any relevant assets or asset accounts are listed by their owner / contributor

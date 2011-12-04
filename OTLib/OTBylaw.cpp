@@ -3370,7 +3370,42 @@ void OTBylaw::SetAsClean()
 		pVar->SetAsClean(); // so we can check for dirtiness later, if it's changed.
 	}	
 }
-	
+
+
+
+
+
+
+
+
+
+
+
+void OTPartyAccount::RegisterForExecution(OTScript& theScript)
+{
+	const std::string str_acct_name	= m_strName.Get();
+//	const std::string str_acct_id	= m_strAcctID.Get();
+	// -------------------------------------------------------------------------
+	theScript.AddAccount (str_acct_name, *this);
+}
+
+
+
+// Register the variables of a specific Bylaw into the Script interpreter, 
+// so we can execute a script.
+//
+void OTParty::RegisterAccountsForExecution(OTScript& theScript)
+{
+	FOR_EACH(mapOfPartyAccounts, m_mapPartyAccounts)
+	{
+		const std::string str_acct_name	= (*it).first;
+		OTPartyAccount * pAccount		= (*it).second;
+		OT_ASSERT((NULL != pAccount) && (str_acct_name.size() > 0));
+		// -----------------------
+		pAccount->RegisterForExecution(theScript);
+	}
+}
+
 
 
 void OTVariable::RegisterForExecution(OTScript& theScript)

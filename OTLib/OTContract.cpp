@@ -1492,7 +1492,7 @@ bool OTContract::SaveContract(OTString & strContract)
 								"Comment: http://github.com/FellowTraveler/Open-Transactions/wiki\n\n", 
 								m_strContractType.Get(), OTLog::Version());
 		strContract.Concatenate("%s", pSig->Get());
-		strContract.Concatenate("-----END %s SIGNATURE-----\n\n", m_strContractType.Get());
+		strContract.Concatenate("-----END %s SIGNATURE-----\n", m_strContractType.Get());
 	}
 	
 	// ---------------------------------------------------------------
@@ -1556,34 +1556,16 @@ bool OTContract::SaveContract(const char * szFoldername, const char * szFilename
 
 
 
-// Just like it says. If you have a contract in string form, pass it in
-// here to import it.
-bool OTContract::LoadContractFromString(const OTString & theStr)
+	
+
+
+
+inline std::string trim(std::string& str)
 {
-	Release();
-	
-	// This populates the internal "raw file" member as if we had actually read it from a file.
-	m_strRawFile = theStr;
-	
-	// This populates m_xmlUnsigned with the contents of m_strRawFile (minus bookends, signatures, etc. JUST the XML.)
-	bool bSuccess = ParseRawFile(); // It also parses into the various member variables.
-	
-	// If it was a success, save back to m_strRawFile again so 
-	// the format is consistent and hashes will calculate properly.
-	if (bSuccess)
-	{
-		// Basically we take the m_xmlUnsigned that we parsed out of the raw file before,
-		// then we use that to generate the raw file again, re-attaching the signatures.
-		// This function does that.
-		SaveContract();
-	}
-	
-	return bSuccess;
+	str.erase(0, str.find_first_not_of(" \t\n\r"));
+	str.erase(str.find_last_not_of(" \t\n\r")+1);
+	return str;
 }
-
-
-	
-
 	
 	
 	
@@ -1636,7 +1618,8 @@ bool OTContract::LoadContractRawFile()
 	
 	std::string contents(buffer.str());
 */
-	m_strRawFile = strFileContents.c_str();
+	m_strRawFile = trim(strFileContents).c_str();
+//	m_strRawFile = strFileContents.c_str();
 	
 	if (m_strRawFile.GetLength())
 		return true;
@@ -1686,6 +1669,47 @@ bool OTContract::LoadContract()
 	return ParseRawFile(); // Parses m_strRawFile into the various member variables.
 }
 
+
+
+
+
+
+// Just like it says. If you have a contract in string form, pass it in
+// here to import it.
+bool OTContract::LoadContractFromString(const OTString & theStr)
+{
+	Release();
+	
+	if (!theStr.Exists())
+	{
+		OTLog::Error("OTContract::LoadContractFromString: Empty string passed in... (Error)\n");
+		return false;
+	}
+	
+	// This populates the internal "raw file" member as if we had actually read it from a file.	
+	std::string str = theStr.Get();
+	m_strRawFile = trim(str).c_str();
+//	m_strRawFile = theStr.Get();
+	
+	// This populates m_xmlUnsigned with the contents of m_strRawFile (minus bookends, signatures, etc. JUST the XML.)
+	bool bSuccess = ParseRawFile(); // It also parses into the various member variables.
+	
+	// If it was a success, save back to m_strRawFile again so 
+	// the format is consistent and hashes will calculate properly.
+	if (bSuccess)
+	{
+		// Basically we take the m_xmlUnsigned that we parsed out of the raw file before,
+		// then we use that to generate the raw file again, re-attaching the signatures.
+		// This function does that.
+		SaveContract();
+	}
+	
+	return bSuccess;
+}
+
+
+
+// TODO: PUT THE TRIM HERE:
 
 bool OTContract::ParseRawFile()
 {
