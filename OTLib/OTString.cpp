@@ -206,6 +206,28 @@ size_t strlcat(char *d, const char *s, size_t bufsize)
 
 
 
+//static
+std::string & OTString::trim(std::string& str)
+{
+	std::string whitespaces (" \t\f\v\n\r");
+	// -----------------------------------
+	size_t found = str.find_first_not_of(whitespaces);
+	
+	if (found != std::string::npos)
+		str.erase(0, found);
+	// -----------------------------------
+	found = str.find_last_not_of(whitespaces);
+	
+	if (found != std::string::npos)
+		str.erase(found+1);
+	// -----------------------------------
+	
+//	OTLog::vError("(DEBUGGING OTString.cpp) CONTRACT HAS BEEN TRIMMED!!!  RESULT: \n\n***BEGIN TRIM DATA:%s******END TRIM DATA\n\n",
+//				  str.c_str()); // todo temp remove
+	return str;
+}
+
+
 
 
 // ------ I cannot vouch for these top four functions, I wrote them so long ago.

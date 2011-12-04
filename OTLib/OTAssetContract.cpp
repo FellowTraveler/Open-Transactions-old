@@ -148,6 +148,8 @@ using namespace io;
 #include "OTBasket.h"
 #include "OTLog.h"
 
+
+
 OTAssetContract::OTAssetContract() : OTContract()
 {
 	
@@ -183,8 +185,21 @@ bool OTAssetContract::CreateContract(OTString & strContract, OTPseudonym & theSi
 	
 	if (bLoaded)
 	{
+		OTString strTemp;
+		
 		SignContract(theSigner);
+		SaveContract(strTemp); // this trims
+		
+		// This is probably redundant...
+		std::string str_Trim(strTemp.Get());
+		std::string str_Trim2 = OTString::trim(str_Trim);
+		strTemp.Set(str_Trim2.c_str());
+		// -----------------------------------
+		Release();
+		LoadContractFromString(strTemp);
 		SaveContract();
+		
+		// -----------------------------------
 		
 		OTIdentifier NEW_ID;
 		CalculateContractID(NEW_ID);
@@ -236,7 +251,19 @@ bool OTAssetContract::CreateBasket(OTBasket & theBasket, OTPseudonym & theSigner
 	
 	if (bLoaded)
 	{
+		OTString strTemp;
+
 		SignContract(theSigner);
+		SaveContract(strTemp);
+
+		// This is probably redundant...
+		std::string str_Trim(strTemp.Get());
+		std::string str_Trim2 = OTString::trim(str_Trim);
+		strTemp.Set(str_Trim2.c_str());
+		// -----------------------------------
+		Release();
+		
+		LoadContractFromString(strTemp);
 		SaveContract();
 		
 		OTIdentifier NEW_ID;

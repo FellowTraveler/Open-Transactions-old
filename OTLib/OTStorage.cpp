@@ -2760,7 +2760,7 @@ namespace OTDB
 		
 		
 		// SAVE to the file here
-		std::ofstream ofs(strOutput.c_str(), std::ios::binary);
+		std::ofstream ofs(strOutput.c_str(), std::ios::out | std::ios::binary);
 		
 		if (ofs.fail())
 		{
@@ -2803,7 +2803,7 @@ namespace OTDB
 		
 		// READ from the file here
 		
-		std::ifstream fin(strOutput.c_str(), std::ios::binary);
+		std::ifstream fin(strOutput.c_str(), std::ios::in | std::ios::binary);
 		
 		if (!fin.is_open())
 		{
@@ -2847,7 +2847,7 @@ namespace OTDB
 		// Here's where the serialization code would be changed to CouchDB or whatever.
 		// In a key/value database, szFilename is the "key" and strFinal.Get() is the "value".
 		//
-		std::ofstream ofs(strOutput.c_str(), std::ios::binary);
+		std::ofstream ofs(strOutput.c_str(), std::ios::out | std::ios::binary);
 		
 		if (ofs.fail())
 		{
@@ -2894,7 +2894,7 @@ namespace OTDB
 		
 		// Open the file here
 		
-		std::ifstream fin(strOutput.c_str(), std::ios::binary);
+		std::ifstream fin(strOutput.c_str(),  std::ios::in | std::ios::binary);
 		
 		if (!fin.is_open())
 		{

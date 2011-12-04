@@ -6,7 +6,7 @@ TO CLEAR THE SERVER INSTALLATION OF ALL: User Accounts, Asset Types, Asset Accou
 In ~/.ot/server_data:
 
 rm accounts/*
- (EXCEPT WAIT! Don't erase the server's own contract! duh…)    rm contracts/* 
+ (NOTE! Don't erase the server's own contract when you rm contracts/*)    rm contracts/* 
 rm inbox/*
 rm outbox/*
 rm nymbox/*
@@ -27,7 +27,7 @@ Then edit notaryServer.xml and remove all of the extra user data such as asset t
 
 <?xml version="1.0"?>
 <notaryServer version="1.0"
- serverID="8dlRJnGCjqU5jw7bZaw2AF112UrCZiFfBS9CnJrMWSp"
+ serverID="tmHvLZxb13hW6OyH1oHKTmKd7fTMRsUfzqPE6KCwSjl"
  serverUserID="pc23gUqPu9Bk1Vl0K5lz3Jp1MYIfjGIBXVWDp1gba9C"
  transactionNum="1" >
 
@@ -51,8 +51,8 @@ rm -rf purse/*
 rm -rf receipts/*
 
 
-In the ~/.ot/client_data/contracts folder, do NOT remove 8dlRJnGCjqU5jw7bZaw2AF112UrCZiFfBS9CnJrMWSp which is actually your server contract. (It's the test server contract that tries to connect to a server on localhost.) There is a backup of this file in the ot-sample-contracts directory.
-Remove all the other files in the contracts folder, except 8dlRJnGCjqU5jw7bZaw2AF112UrCZiFfBS9CnJrMWSp as just described.
+In the ~/.ot/client_data/contracts folder, do NOT remove tmHvLZxb13hW6OyH1oHKTmKd7fTMRsUfzqPE6KCwSjl which is actually your server contract. (It's the test server contract that tries to connect to a server on localhost.) There is a backup of this file in the ot-sample-contracts directory.
+Remove all the other files in the contracts folder, except tmHvLZxb13hW6OyH1oHKTmKd7fTMRsUfzqPE6KCwSjl as just described.
 
 Do NOT touch the certs folder.
 
@@ -76,7 +76,7 @@ It will look like this when you are done:
  nymID="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV" />
 
 <notaryProvider name=""
- serverID="8dlRJnGCjqU5jw7bZaw2AF112UrCZiFfBS9CnJrMWSp" />
+ serverID="tmHvLZxb13hW6OyH1oHKTmKd7fTMRsUfzqPE6KCwSjl" />
 
 </wallet>
 

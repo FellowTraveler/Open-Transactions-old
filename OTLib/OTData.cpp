@@ -265,7 +265,7 @@ OTData::OTData() : m_pData(NULL), m_lPosition(0), m_lSize(0)
 
 OTData::OTData(const OTData &theSource) : m_pData(NULL), m_lPosition(0), m_lSize(0)
 {	
-	Assign(theSource); 
+	Assign(theSource);  // ***********
 }
 
 OTData::OTData(const void * pNewData, uint32_t lNewSize) : m_pData(NULL), m_lPosition(0), m_lSize(0)
@@ -291,7 +291,7 @@ void OTData::Assign(const OTData &theSource)
 	if ((&theSource) == this)
 		return; // can't assign to self.
 	
-	if (false == theSource.IsEmpty()) // If something is there...
+	if (false == theSource.IsEmpty()) // If something is there... *********
 	{
 		Assign(theSource.m_pData, theSource.m_lSize); // Copy it.
 	}

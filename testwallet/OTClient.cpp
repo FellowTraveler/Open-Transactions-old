@@ -4159,6 +4159,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			// But in this place, I am adding it and generating the ID from the string.
 			OTIdentifier	newID;
 			theAssetContract.CalculateContractID(newID);	
+			theAssetContract.SetIdentifier(newID); // probably unnecessary
 			
 			// (0) Set up the REQUEST NUMBER and then INCREMENT IT
 			theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
@@ -6985,7 +6986,21 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 	
 	else if (OTClient::signContract == requestedCommand) // Sign a CONTRACT. (Sends no message to server.)
 	{
-        OTLog::Output(0, "Is the contract properly escaped already? [y/n]: ");
+        OTLog::Output(0, "Is the contract a server contract, or an asset contract [s/a]: ");
+        OTString strContractType;
+        strContractType.OTfgets(std::cin);
+        
+        char cContractType='s';
+        bool bIsAssetContract = strContractType.At(0, cContractType);
+        
+        if (bIsAssetContract)
+        {
+            if ('S' == cContractType || 's' == cContractType)
+                bIsAssetContract = false;
+        }
+        // ----------------------------
+		
+		OTLog::Output(0, "Is the contract properly escaped already? (If escaped, all lines beginning with ----- will instead appear as - ----- ) [y/n]: ");
         // User input.
         // I need a from account, Yes even in a deposit, it's still the "From" account.
         // The "To" account is only used for a transfer. (And perhaps for a 2-way trade.)
@@ -7000,7 +7015,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
             if ('N' == cEscape || 'n' == cEscape)
                 bEscaped = false;
         }
-        
+
         OTLog::Output(0, "Please enter an unsigned asset contract; terminate with ~ on a new line:\n> ");
         OTString strContract;
         char decode_buffer[200]; // Safe since we only read sizeof(decode_buffer)-1
@@ -7025,15 +7040,22 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
             
         } while (decode_buffer[0] != '~');
         
-        OTAssetContract theContract;
-        theContract.CreateContract(strContract, theNym);
+		OTServerContract theServerContract;
+        OTAssetContract theAssetContract;
+		
+		OTContract * pContract = bIsAssetContract ? dynamic_cast<OTContract*>(&theAssetContract) : dynamic_cast<OTContract*>(&theServerContract);
+		
+        pContract->CreateContract(strContract, theNym);
         
         // re-using strContract here for output this time.
         strContract.Release();
-        theContract.SaveContract(strContract);
+        pContract->SaveContract(strContract);
         
-        OTLog::Output(0, ".\n..\n...\n....\n.....\n......\n.......\n........\n.........\n\n"
-                       "NEW CONTRACT:\n\n");
+		OTString strNewID;
+		pContract->GetIdentifier(strNewID);
+		
+        OTLog::vOutput(0, ".\n..\n...\n....\n.....\n......\n.......\n........\n.........\n\n"
+                       "NEW CONTRACT ID:  %s\n\n", strNewID.Get());
         
         std::cout << strContract.Get() << std::endl;
         

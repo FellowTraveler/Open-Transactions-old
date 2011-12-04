@@ -1440,7 +1440,20 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 		// sign contract 
 		else if (!strcmp(buf, "signcontract\n"))
 		{
-			OTLog::Output(0, "Is the contract properly escaped already? [y/n]: ");
+			OTLog::Output(0, "Is the contract a server contract, or an asset contract [s/a]: ");
+			OTString strContractType;
+			strContractType.OTfgets(std::cin);
+			
+			char cContractType='s';
+			bool bIsAssetContract = strContractType.At(0, cContractType);
+			
+			if (bIsAssetContract)
+			{
+				if ('S' == cContractType || 's' == cContractType)
+					bIsAssetContract = false;
+			}
+			// ----------------------------
+			OTLog::Output(0, "Is the contract properly escaped already? (If escaped, all lines beginning with ----- will instead appear as - ----- ) [y/n]: ");
 			// User input.
 			// I need a from account, Yes even in a deposit, it's still the "From" account.
 			// The "To" account is only used for a transfer. (And perhaps for a 2-way trade.)
@@ -1481,12 +1494,16 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 
 			} while (decode_buffer[0] != '~');
 			
-			OTAssetContract theContract;
-			theContract.CreateContract(strContract, *m_pNym);
+			OTServerContract theServerContract;
+			OTAssetContract theAssetContract;
+						
+			OTContract * pContract = bIsAssetContract ? dynamic_cast<OTContract*>(&theAssetContract) : dynamic_cast<OTContract*>(&theServerContract);
+			
+			pContract->CreateContract(strContract, *m_pNym);
 			
 			// re-using strContract here for output this time.
 			strContract.Release();
-			theContract.SaveContract(strContract);
+			pContract->SaveContract(strContract);
 			
 			OTLog::vOutput(0, ".\n..\n...\n....\n.....\n......\n.......\n........\n.........\n\n"
 					"NEW CONTRACT:\n\n%s\n", strContract.Get());

@@ -2,8 +2,8 @@
 Hash: SAMY
 
 <accountLedger version="1.0"
- type="nymbox"
- accountID="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV"
+ type="inbox"
+ accountID="XkBPyMsQfBqu0gs4ExARDUEAnnKdZotLfJLi2a85rbB"
  userID="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV"
 serverID="tmHvLZxb13hW6OyH1oHKTmKd7fTMRsUfzqPE6KCwSjl" >
 
@@ -12,7 +12,7 @@ serverID="tmHvLZxb13hW6OyH1oHKTmKd7fTMRsUfzqPE6KCwSjl" >
 Version: Open Transactions 0.75
 Comment: http://github.com/FellowTraveler/Open-Transactions/wiki
 
-CoABl3GDHwLZ/6n7clg2v838F2LLavfURpHJpjnpAlNTsaDgUkgvYNMB0xzngMYx
-DHv+eplmYOLkO1dBU1k+/A+zNBbYCrOEA3qfYoAOqkAM7gX5nfeglwtnaWIkZa6c
-EMIpLzbo/CH99XNXH0KvzfJZcWGeVwhRcxtS7NvYnrH7CGQ=
+CoAB16nxDnCo0+Epr2sJy/Hm/2wbXG6ynn2PqeHhNAoiVxYAR1K8gvOzQay3qLQS
+tLHJxEZkqf5y3ymx6DkO3KjIt4VXPVgVfNFk0xQaH9YLvoOp1xYm4wOaxu3StsgP
+bPgCBZbUztyDc/Caw3Xbx9PfFX9MGBlP1H0t74453QZppNo=
 -----END LEDGER SIGNATURE-----

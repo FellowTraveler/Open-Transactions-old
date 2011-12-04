@@ -313,6 +313,10 @@ void OT_Main_Cleanup()
 
 
 
+
+
+
+
 // If false, error happened, usually based on what user just attemped.
 //
 bool SetupPointersForWalletMyNymAndServerContract(std::string & str_ServerID,
@@ -604,6 +608,7 @@ void RegisterAPIWithScript(OTScript & theScript)
 	}
 
 }
+
 
 
 
@@ -1095,10 +1100,15 @@ int main(int argc, char* argv[])
         OTAccount * pHisAccount = NULL;
         
         if( str_MyAcct.size() > 0 )
-        {
+        {			
+//			OTLog::Error("DEBUGGING Before MyAcct ID...\n");
+			
+
          	const OTIdentifier MY_ACCOUNT_ID(str_MyAcct.c_str());
             
-            pMyAccount = pWallet->GetAccount(MY_ACCOUNT_ID);
+//			OTLog::Error("DEBUGGING After MyAcct ID...\n");            
+			
+			pMyAccount = pWallet->GetAccount(MY_ACCOUNT_ID);
             // If failure, then we try PARTIAL match.
             if (NULL == pMyAccount)
                 pMyAccount = pWallet->GetAccountPartialMatch( str_MyAcct );
@@ -1189,9 +1199,13 @@ int main(int argc, char* argv[])
 
         if ( str_MyPurse.size() > 0 )
         {
-         	const OTIdentifier MY_ASSET_TYPE_ID(str_MyPurse.c_str());
+//			OTLog::Error("DEBUGGING Before Purse ID...\n");
+         	
+			const OTIdentifier MY_ASSET_TYPE_ID(str_MyPurse.c_str());
             
-            pMyAssetContract = pWallet->GetAssetContract(MY_ASSET_TYPE_ID);
+//			OTLog::Error("DEBUGGING After Purse ID...\n");
+			
+			pMyAssetContract = pWallet->GetAssetContract(MY_ASSET_TYPE_ID);
             // If failure, then we try PARTIAL match.
             if (NULL == pMyAssetContract)
                 pMyAssetContract = pWallet->GetAssetContractPartialMatch( str_MyPurse );
@@ -1205,7 +1219,7 @@ int main(int argc, char* argv[])
 
             pMyAssetContract->GetIdentifier(thePurseAssetTypeID);
         }
-        else
+        else if (NULL != pMyAccount)
             thePurseAssetTypeID = pMyAccount->GetAssetTypeID();
         // ------------------
 		{
@@ -1271,7 +1285,7 @@ int main(int argc, char* argv[])
         {
 			std::string strFilename = opt->getValue( "script" );
 			
-			std::ifstream t(strFilename.c_str());
+			std::ifstream t(strFilename.c_str(), ios::in | ios::binary);
 			std::stringstream buffer;
 			buffer << t.rdbuf();
 			
@@ -2310,6 +2324,11 @@ int main(int argc, char* argv[])
 				
 			} while (decode_buffer[0] != '~');
 			
+			
+			std::string str_Trim(strDecodedText.Get());
+			std::string str_Trim2 = OTString::trim(str_Trim);
+			strDecodedText.Set(str_Trim2.c_str());
+			
 			OTIdentifier theIdentifier;
 			theIdentifier.CalculateDigest(strDecodedText);
 			
@@ -2659,6 +2678,18 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------
         }
         
+		// sign contract 
+        // This doesn't message the server, but it DOES require the user's Nym to be loaded.
+        else if (!strcmp(buf, "signcontract\n"))
+        {
+            OTLog::Output(0, "(User has instructed to sign a contract...)\n");
+            
+            g_OT_API.GetClient()->ProcessUserCommand(OTClient::signContract, theMessage,
+                                                     *pMyNym, *pServerContract,
+                                                     NULL);
+            continue;            
+        }
+        		
         // sendUserMessage
         else if (buf[0] == 's')
         {
@@ -2922,18 +2953,6 @@ int main(int argc, char* argv[])
             continue;
         }
 
-        // sign contract 
-        // This doesn't message the server, but it DOES require the user's Nym to be loaded.
-        else if (!strcmp(buf, "signcontract\n"))
-        {
-            OTLog::Output(0, "(User has instructed to sign a contract...)\n");
-            
-            g_OT_API.GetClient()->ProcessUserCommand(OTClient::signContract, theMessage,
-                                                     *pMyNym, *pServerContract,
-                                                     NULL);
-            continue;            
-        }
-        
         // get mint 
         else if (!strcmp(buf, "getmint\n"))
         {

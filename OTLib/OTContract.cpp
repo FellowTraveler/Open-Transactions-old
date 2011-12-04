@@ -182,6 +182,9 @@ using namespace io;
 #include "OTAssetContract.h"
 
 
+
+
+
 // Factory (though rarely used; was just added recently for the API.)
 //
 // If you want to instantiate a contract that you already have in string form,
@@ -290,6 +293,11 @@ OTContract * OTContract::InstantiateContract(OTString & strInputContract)
 		{	pContract = new OTAssetContract();		OT_ASSERT(NULL != pContract); }
 	}
 	
+	// might be redundant... 
+	std::string str_Trim(strInputContract.Get());
+	std::string str_Trim2 = OTString::trim(str_Trim);
+	strInputContract.Set(str_Trim2.c_str());
+	// ----------------------------------------------
 	
 	// The string didn't match any of the options in the factory.
 	if (NULL == pContract)
@@ -306,6 +314,10 @@ OTContract * OTContract::InstantiateContract(OTString & strInputContract)
 	
 	return NULL;	
 }
+
+
+
+
 
 
 OTContract::OTContract()
@@ -469,14 +481,25 @@ void OTContract::CalculateContractID(OTIdentifier & newID) const
 //		OTLog::vError("DEBUG CalculateContractID:\n--->%s<---\n",
 //			m_strRawFile.Get());
 	
-	newID.CalculateDigest(m_strRawFile);
+//	// may be redundant...	
+	std::string str_Trim(m_strRawFile.Get());
+	std::string str_Trim2 = OTString::trim(str_Trim);
+
+	OTString strTemp(str_Trim2.c_str());
+	
+	newID.CalculateDigest(strTemp);
 }
 
 bool OTContract::VerifyContractID()
 {
 	OTIdentifier newID;
-		
-	if (!newID.CalculateDigest(m_strRawFile))
+	
+	std::string str_Trim(m_strRawFile.Get());
+	std::string str_Trim2 = OTString::trim(str_Trim);
+	
+	OTString strTemp(str_Trim2.c_str());
+	
+	if (!newID.CalculateDigest(strTemp))
 	{
 		OTLog::Output(1, "Error calculating Contract digest.\n");
 		return false;	
@@ -1432,9 +1455,19 @@ bool OTContract::SaveContents(OTString & strContents) const
 
 bool OTContract::SaveContract()
 {
-	m_strRawFile.Release();
+	OTString strTemp;
+	bool bSuccess = SaveContract(strTemp);
 	
-	return SaveContract(m_strRawFile);
+	if (bSuccess)
+	{
+//		m_strRawFile.Set(strTemp);
+		
+		std::string str_Trim(strTemp.Get());
+		std::string str_Trim2 = OTString::trim(str_Trim);
+		m_strRawFile.Set(str_Trim2.c_str());
+	}
+	
+	return bSuccess;
 }
 
 
@@ -1455,30 +1488,45 @@ bool OTContract::CreateContract(OTString & strContract, OTPseudonym & theSigner)
 	
 	if (bLoaded)
 	{
+		OTString strTemp;
+		
 		SignContract(theSigner);
+		SaveContract(strTemp); // this trims
+		
+		// This is probably redundant...
+		std::string str_Trim(strTemp.Get());
+		std::string str_Trim2 = OTString::trim(str_Trim);
+		strTemp.Set(str_Trim2.c_str());
+		// -----------------------------------
+		Release();
+		LoadContractFromString(strTemp);
 		SaveContract();
+		
+		// -----------------------------------
 		
 		OTIdentifier NEW_ID;
 		CalculateContractID(NEW_ID);
 		m_ID = NEW_ID;	
 		
 		return true;
-	}	
-	
+	}
+
 	return false;
 }
 
 
 bool OTContract::SaveContract(OTString & strContract)
 {
-	// ---------------------------------------------------------------
-	
-	strContract.Concatenate("-----BEGIN SIGNED %s-----\nHash: %s\n\n", 
-							m_strContractType.Get(), m_strSigHashType.Get());
+	OTString strTemp;
 	
 	// ---------------------------------------------------------------
 	
-	SaveContents(strContract);
+	strTemp.Concatenate("-----BEGIN SIGNED %s-----\nHash: %s\n\n", 
+						m_strContractType.Get(), m_strSigHashType.Get());
+	
+	// ---------------------------------------------------------------
+	
+	SaveContents(strTemp);
 	
 	// ---------------------------------------------------------------
 	
@@ -1487,16 +1535,19 @@ bool OTContract::SaveContract(OTString & strContract)
 		OTSignature * pSig = *it;
 		OT_ASSERT(NULL != pSig);
 		
-		strContract.Concatenate("-----BEGIN %s SIGNATURE-----\n"
+		strTemp.Concatenate("-----BEGIN %s SIGNATURE-----\n"
 								"Version: Open Transactions %s\n"
 								"Comment: http://github.com/FellowTraveler/Open-Transactions/wiki\n\n", 
 								m_strContractType.Get(), OTLog::Version());
-		strContract.Concatenate("%s", pSig->Get());
-		strContract.Concatenate("-----END %s SIGNATURE-----\n", m_strContractType.Get());
+		strTemp.Concatenate("%s", pSig->Get());
+		strTemp.Concatenate("-----END %s SIGNATURE-----\n\n", m_strContractType.Get());
 	}
-	
 	// ---------------------------------------------------------------
 	
+	std::string str_Trim(strTemp.Get());
+	std::string str_Trim2 = OTString::trim(str_Trim);
+	strContract.Set(str_Trim2.c_str());
+		
 	return true;		
 }
 
@@ -1516,7 +1567,7 @@ bool OTContract::SaveContract(const char * szFoldername, const char * szFilename
 	
 	// --------------------------------------------------------------------
 	OTString strFinal;
-	SaveContract(strFinal);
+	SaveContract(strFinal); // This trims!
 
 	bool bSaved = OTDB::StorePlainString(strFinal.Get(), szFoldername, szFilename);
 	
@@ -1559,15 +1610,17 @@ bool OTContract::SaveContract(const char * szFoldername, const char * szFilename
 	
 
 
-
-inline std::string trim(std::string& str)
-{
-	str.erase(0, str.find_first_not_of(" \t\n\r"));
-	str.erase(str.find_last_not_of(" \t\n\r")+1);
-	return str;
+// assumes m_strFilename is already set.
+// Then it reads that file into a string.
+// Then it parses that string into the object.
+bool OTContract::LoadContract()
+{		
+	Release();
+	LoadContractRawFile(); // opens m_strFilename and reads into m_strRawFile
+	
+	return ParseRawFile(); // Parses m_strRawFile into the various member variables.
 }
-	
-	
+
 	
 // The entire Raw File, signatures and all, is used to calculate the hash 
 // value that becomes the ID of the contract. If you change even one letter,
@@ -1618,7 +1671,9 @@ bool OTContract::LoadContractRawFile()
 	
 	std::string contents(buffer.str());
 */
-	m_strRawFile = trim(strFileContents).c_str();
+	std::string str_Trim = OTString::trim(strFileContents);
+
+	m_strRawFile.Set(str_Trim.c_str());
 //	m_strRawFile = strFileContents.c_str();
 	
 	if (m_strRawFile.GetLength())
@@ -1658,18 +1713,6 @@ bool OTContract::LoadContract(const char * szFoldername, const char * szFilename
 }
 
 
-// assumes m_strFilename is already set.
-// Then it reads that file into a string.
-// Then it parses that string into the object.
-bool OTContract::LoadContract()
-{		
-	Release();
-	LoadContractRawFile(); // opens m_strFilename and reads into m_strRawFile
-	
-	return ParseRawFile(); // Parses m_strRawFile into the various member variables.
-}
-
-
 
 
 
@@ -1687,8 +1730,9 @@ bool OTContract::LoadContractFromString(const OTString & theStr)
 	}
 	
 	// This populates the internal "raw file" member as if we had actually read it from a file.	
-	std::string str = theStr.Get();
-	m_strRawFile = trim(str).c_str();
+	std::string str(theStr.Get());
+	std::string str2 = OTString::trim(str);
+	m_strRawFile.Set(str2.c_str());
 //	m_strRawFile = theStr.Get();
 	
 	// This populates m_xmlUnsigned with the contents of m_strRawFile (minus bookends, signatures, etc. JUST the XML.)
@@ -1728,6 +1772,12 @@ bool OTContract::ParseRawFile()
 					  m_strFoldername.Get(), OTLog::PathSeparator(), m_strFilename.Get());
 		return false;
 	}
+	
+	// This is redundant (I thought) but the problem hasn't cleared up yet.. so trying to really nail it now.
+	std::string str_Trim(m_strRawFile.Get());
+	std::string str_Trim2 = OTString::trim(str_Trim);
+	m_strRawFile.Set(str_Trim2.c_str());
+	// ----------------------------------------
 	
 	bool bIsEOF = false;
 	m_strRawFile.reset();

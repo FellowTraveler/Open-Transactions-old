@@ -189,6 +189,9 @@ OTPseudonym *g_pTemporaryNym=NULL;
 
 extern OT_API g_OT_API; 
 
+
+
+
 // -------------------------------------------------------------------------
 // When the server and client (this API being a client) are built in XmlRpc/HTTP
 // mode, then a callback must be provided for passing the messages back and forth
@@ -6827,12 +6830,22 @@ void OT_API::issueAssetType(OTIdentifier	&	SERVER_ID,
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
 	
+//	OTLog::vError("OT_API::issueAssetType: DEBUGGING: About to trim this contract:  **BEGIN:%s***END\n\n",
+//				 THE_CONTRACT.Get());
+	
+	std::string str_Trim(THE_CONTRACT.Get());
+	std::string str_Trim2 = OTString::trim(str_Trim);
+	OTString strTrimContract(str_Trim2.c_str());
+	
+	// -----------------------------------------------------
+	
 	OTAssetContract theAssetContract;
 	
-	if (theAssetContract.LoadContractFromString(THE_CONTRACT))
+	if (theAssetContract.LoadContractFromString(strTrimContract))
 	{
 		OTIdentifier	newID;
 		theAssetContract.CalculateContractID(newID);
+		theAssetContract.SetIdentifier(newID); // probably unnecessary
 		
 		// -----------------------
 		OTMessage theMessage;
@@ -6878,7 +6891,7 @@ void OT_API::issueAssetType(OTIdentifier	&	SERVER_ID,
 		// Check the server signature on the contract here. (Perhaps the message is good enough?
 		// After all, the message IS signed by the server and contains the Account.
 		//		if (pContract->LoadContract() && pContract->VerifyContract())
-		if (pContract->LoadContractFromString(THE_CONTRACT) && pContract->VerifyContract())
+		if (pContract->LoadContractFromString(strTrimContract) && pContract->VerifyContract())
 		{
 			// Next make sure the wallet has this contract on its list...
 			OTWallet * pWallet = NULL;

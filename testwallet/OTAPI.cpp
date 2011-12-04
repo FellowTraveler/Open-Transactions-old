@@ -200,6 +200,7 @@ static char g_tempBuf[MAX_STRING_LENGTH];
 
 
 
+
 // To use this extern "C" API, you must call this function first.
 // (Therefore the same is true for all scripting languages that use this file...
 // Ruby, Python, Perl, PHP, etc.)
@@ -407,7 +408,9 @@ OT_BOOL OT_API_AddServerContract(const char * szContract)
 	OT_ASSERT_MSG(g_OT_API.IsInitialized(), "Not initialized; call OT_API::Init first.");
 
 	OT_ASSERT(NULL != szContract);
-	OTString strContract(szContract);
+	std::string str_Trim(szContract);
+	std::string str_Trim2 = OTString::trim(str_Trim);
+	OTString strContract(str_Trim2.c_str());
 	
 	OTServerContract * pContract = new OTServerContract;
 	OT_ASSERT(NULL != pContract);
@@ -420,7 +423,6 @@ OT_BOOL OT_API_AddServerContract(const char * szContract)
 		OTIdentifier theContractID;
 		
 		pContract->CalculateContractID(theContractID);
-		
 		pContract->SetIdentifier(theContractID);
 		
 		// Next make sure the wallet has this contract on its list...
@@ -453,7 +455,9 @@ OT_BOOL OT_API_AddAssetContract(const char * szContract)
 	OT_ASSERT_MSG(g_OT_API.IsInitialized(), "Not initialized; call OT_API::Init first.");
 
 	OT_ASSERT(NULL != szContract);
-	OTString strContract(szContract);
+	std::string str_Trim(szContract);
+	std::string str_Trim2 = OTString::trim(str_Trim);
+	OTString strContract(str_Trim2.c_str());
 	
 	OTAssetContract * pContract = new OTAssetContract;
 	OT_ASSERT(NULL != pContract);
@@ -466,7 +470,6 @@ OT_BOOL OT_API_AddAssetContract(const char * szContract)
 		OTIdentifier theContractID;
 		
 		pContract->CalculateContractID(theContractID);
-
 		pContract->SetIdentifier(theContractID);
 		
 		// Next make sure the wallet has this contract on its list...

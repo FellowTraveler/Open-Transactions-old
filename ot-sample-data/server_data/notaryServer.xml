@@ -1,20 +1,14 @@
 <?xml version="1.0"?>
 <notaryServer version="1.0"
- serverID="8dlRJnGCjqU5jw7bZaw2AF112UrCZiFfBS9CnJrMWSp"
+ serverID="tmHvLZxb13hW6OyH1oHKTmKd7fTMRsUfzqPE6KCwSjl"
  serverUserID="pc23gUqPu9Bk1Vl0K5lz3Jp1MYIfjGIBXVWDp1gba9C"
- transactionNum="2100" >
-
-<assetType name="eJzj4k5PzE1VKMnPTs0rBgAaNARk"
- assetTypeID="Bph6oZoC14CxafShXhZPMl1p2o1YE9MgwsEUXSQ5bWW" />
-
-<assetType name=""
- assetTypeID="XBCTdnxYMLKaP6m1cSpvgViOFfdjoVCffbnZ7VIAEQz" />
+ transactionNum="2120" >
 
 <assetType name="eJzj4inOzClLLVJIL0rMLQYAILwE5g=="
- assetTypeID="lV6acfWoWKB7BcuIXCzvS4aSiqUOjlGgVTyepg1aAsa" />
+ assetTypeID="mNS1ODAXQoSXpWJfC5awE9zAXCm9aVfiE0WQGsIOw4B" />
 
-<basketInfo basketID="sx38Xfy9Axld5KW2aA6aBmT8Rs4iOAuICIneAQTgJWQ"
- basketAcctID="jJfjQPFUpfF0M6rYA9tX4KOxxZVMg0WczTTTMYsC2K2"
- basketContractID="XBCTdnxYMLKaP6m1cSpvgViOFfdjoVCffbnZ7VIAEQz" />
+<accountList type="voucher" count="0" >
+
+</accountList>
 
 </notaryServer>

@@ -5,55 +5,54 @@ Hash: SAMY
 
 <cron
  version="1.0"
- serverID="8dlRJnGCjqU5jw7bZaw2AF112UrCZiFfBS9CnJrMWSp" >
+ serverID="tmHvLZxb13hW6OyH1oHKTmKd7fTMRsUfzqPE6KCwSjl" >
 
-<transactionNum value="2042" />
+<transactionNum value="2101" />
 
-<transactionNum value="2043" />
+<transactionNum value="2102" />
 
-<transactionNum value="2044" />
+<transactionNum value="2103" />
 
-<transactionNum value="2045" />
+<transactionNum value="2104" />
 
-<transactionNum value="2046" />
+<transactionNum value="2105" />
 
-<transactionNum value="2047" />
+<transactionNum value="2106" />
 
-<transactionNum value="2048" />
+<transactionNum value="2107" />
 
-<transactionNum value="2049" />
+<transactionNum value="2108" />
 
-<transactionNum value="2050" />
+<transactionNum value="2109" />
 
-<transactionNum value="2051" />
+<transactionNum value="2110" />
 
-<transactionNum value="2052" />
+<transactionNum value="2111" />
 
-<transactionNum value="2053" />
+<transactionNum value="2112" />
 
-<transactionNum value="2054" />
+<transactionNum value="2113" />
 
-<transactionNum value="2055" />
+<transactionNum value="2114" />
 
-<transactionNum value="2056" />
+<transactionNum value="2115" />
 
-<transactionNum value="2057" />
+<transactionNum value="2116" />
 
-<transactionNum value="2058" />
+<transactionNum value="2117" />
 
-<transactionNum value="2059" />
+<transactionNum value="2118" />
 
-<transactionNum value="2060" />
+<transactionNum value="2119" />
 
-<transactionNum value="2061" />
+<transactionNum value="2120" />
 
 </cron>
 -----BEGIN CRON SIGNATURE-----
-Version: Open Transactions 0.70a
+Version: Open Transactions 0.73
 Comment: http://github.com/FellowTraveler/Open-Transactions/wiki
 
-CoABklx82gJE+HPBoPvgirN9Sqf9KXnw12EmrliswW727xPwbasOW5e6Xeh65Y2V
-ZE+W/sRONmyJCm4xuVQW1/QhW2QHILO3CWKPYnAYjT55jj/Ng+gR5O92mXbawFH0
-MgL1H71E0R7u5TbGpuPjfCAz0JjPoa3twbVs/Mz5iV3t2Mw=
+CoABbpjYIPe2uSu0mqrfHXkha5FZAk29YijZ4csaVumm/5RBjjik//xJWlV7N6vI
+OeXVUxYaVslEGkqhmzO/oL0Gy6QZ9bSrY09fpQZH7GPHgVGs+fejejKI9DFJQJDa
+ORnGs7b3ht2fpVb6SxqRXtkqhg1cTCCgh3nDfXdyMEamO0U=
 -----END CRON SIGNATURE-----
-

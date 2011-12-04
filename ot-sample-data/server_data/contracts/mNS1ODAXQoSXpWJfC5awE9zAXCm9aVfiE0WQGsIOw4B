@@ -1,0 +1,142 @@
+-----BEGIN SIGNED CONTRACT-----
+Hash: SAMY
+
+<?xml version="1.0"?>
+<digitalAssetContract version="1.0">
+
+<entity shortname="Gnome" 
+longname="The Gnomes of Zurich" 
+email="gnome@zurich.com"/>
+
+<issue company="Anon-E-Gold, Inc" 
+email="gnome@anonesilver.com"
+contractUrl="https://e-silver.com/cash/contract/"
+type="currency"/>
+
+<currency name="silver grams" tla="GRAM" symbol="sg" type="decimal" factor="1" decimal_power="0" fraction="mg"/>
+
+<!-- CONDITIONS -->
+
+<condition name="backing">
+  DIGITAL SILVER GRAMS are payable to bearer in physical silver grams,
+  at any exchange provider supporting our contract in any denomination
+  they support, or through one of our direct agents in 1000 oz bars. 
+</condition>
+
+<condition name="audit">
+  Silver Grams are audited monthly by highly trusted people.
+</condition>
+
+<condition name="purchase">
+  In order to obtain Silver Grams, you must
+  purchase them from an exchange provider or receive them in trade.
+  The issuer only accepts direct bail-in of physical silver from an
+  authorized exchange provider.
+</condition>
+
+<condition name="redemption">
+  In order to redeem Silver Grams, you must use an exchange provider.
+  If none are available you must make sure you trust this issuer
+  and make sure this contract is enforceable in your jurisdiction,
+  and make sure you are trading in a BASKET currency so that you
+  are not entirely reliant on a single issuer.
+  Silver Grams are redeemable to exchange providers in 1 oz coins.
+</condition>
+
+<condition name="rate">
+  Issuance and redemption will be performed at no charge.
+</condition>
+
+<condition name="buyback">
+  The Issuer reserves the right to buy back all outstanding
+  currency, thereby terminating the use of this instrument.
+</condition>
+
+<condition name="liability">
+  Silver and its maker, God, are solely liable to perform according to
+  the conditions specified in this contract.
+</condition>
+
+<condition name="mint">
+  Float - the total quantity of Silver is created by God.
+  The quantity of silver that enters the market yearly is strictly
+  regulated by His wisdom. 
+
+  Any server operator using this contract will not issue any more
+  silver digital currency than he actually has in physical silver.
+</condition>
+
+<condition name="privacy">
+  The purchase, redemption and trading of digital assets normally
+  are done on the basis of strong privacy.
+</condition>
+
+<!-- KEYS -->
+
+<key name="contract">
+- -----BEGIN CERTIFICATE-----
+MIICZjCCAc+gAwIBAgIJAO14L19TJgzcMA0GCSqGSIb3DQEBBQUAMFcxCzAJBgNV
+BAYTAlVTMREwDwYDVQQIEwhWaXJnaW5pYTEQMA4GA1UEBxMHRmFpcmZheDERMA8G
+A1UEChMIWm9yay5vcmcxEDAOBgNVBAMTB1Jvb3QgQ0EwHhcNMTAwOTI5MDUyMzAx
+WhcNMjAwOTI2MDUyMzAxWjBeMQswCQYDVQQGEwJVUzERMA8GA1UECBMIVmlyZ2lu
+aWExEDAOBgNVBAcTB0ZhaXJmYXgxETAPBgNVBAoTCFpvcmsub3JnMRcwFQYDVQQD
+Ew5zaGVsbC56b3JrLm9yZzCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEA3vD9
+fO4ov4854L8wXrgfv2tltDz0ieVrTNSLuy1xuQyb//+MwZ0EYwu8jMMQrqbUaYG6
+y8zJu32yBKrBNPPwJ+fJE+tfgVg860dGVbwMd4KhpkKtppJXmZaGqLqvELaXa4Uw
+9N3qg/faj0NMEDIBhv/tD/B5U65vH+U0JlRJ07kCAwEAAaMzMDEwCQYDVR0TBAIw
+ADAkBgNVHREEHTAbgg5zaGVsbC56b3JrLm9yZ4IJbG9jYWxob3N0MA0GCSqGSIb3
+DQEBBQUAA4GBALLXPa/naWsiXsw0JwlSiG7aOmvMF2romUkcr6uObhN7sghd38M0
+l2kKTiptnA8txrri8RhqmQgOgiyKFCKBkxY7/XGot62cE8Y1+lqGXlhu2UHm6NjA
+pRKvng75J2HTjmmsbCHy+nexn4t44wssfPYlGPD8sGwmO24u9tRfdzJE
+- -----END CERTIFICATE-----
+</key>
+
+<key name="certification">
+- -----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: PGP Desktop 10.0.1 - not licensed for commercial use: www.pgp.com
+
+mQGiBDn6yYURBADM3qphMoDpvpp3Lk2KW0bpA+i1ne6Hwm24lW9w1dIJrw8CEc+S
+vAEhoGOAJNTO209NFYxcM+sA8XHp5aJpFHSbI536sfzbSVe3/MwdJ8JZXtbzcbHv
+ToBs1wScGTet2SGL6I9S3p7XUfprCYezBPRMCPOTxqR8pptotYOGXZoPZQCg/y0q
+CZjPJclqDY8Hf0X+DWnOMAkEAI4GnOpSq838/oElDAuZcLOvpTqTZ922pG1EJQmj
+Vh4P6br3ocrWnJSonkqFPLjihsVwGumO/hkyptrgqRV/vR9BmK1LKz901VaXbXPZ
+Lcns+XAg5sXxZcz87Dl4AduTF59ahHkc2bR7HqrvzRkXoQ/Q4ViLOifFISXXPKx8
+3OazA/9Ip4W+gr8e/oub7MQFJZcyOfcN1KDFIjnObVIabpIlKPcTeEHGvd/WUHOJ
+PQQr1+WGZY1W9UjLo171ssL2/x2bXaqJ4Ukgf4aQpRb5lUqekCKgine6eUA1XjTw
+J+a/J3xP54/iEuqdDZYGuX5j0/EJCqbY7gggPNkDNH82XdfQ+7QzUmFjaGVsIFdp
+bGxtZXIgW2NlcnRpZmljYXRpb25dIDxyYWNoZWxAd2lsbG1lci5vcmc+iE4EEBEC
+AA4FAjn6yYUECwMCAQIZAQAKCRC30ABpXpgYMFTFAJ0WqZwUXbD0H7YCGR7rI8jB
+Rh8E2wCePBrQBC1+shZrXCY0proYCkYfWdA=
+=UObU
+- -----END PGP PUBLIC KEY BLOCK-----
+</key>
+
+<key name="serverCertification">
+- -----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: PGP Desktop 10.0.1 - not licensed for commercial use: www.pgp.com
+
+mQGiBDmhGRERBAC9F7VF7ZNcwhffdFS2Sg0AcsF9gdhEEggZmBT1ezM5BYEO4lvN
+EJjezFilNxMLE3mP9E95mtRUEEtIx4ViyAGjVPwRBVQA2BNf+rbvCReBhhlJTFkN
+GOSHd65k4mDCflJAn7EX2OpST9tEAhpBs82w4OxlHIxmnav8iyD0O07sHwCgzYJI
+Xv3TEqERh0eDPEQ80MqGYEkD/Aj12tRhZYhYlVtEmJ4MrET9Ezuyhn8kQv89iBNK
+u2mN//LK4cqfJos1SJ3qXT16AHQQvfI0AUsI1ZQ+piq9pZ+sUMwpRnoQHM5SKux5
+UYcIM9aklW0zYAt+WjyrQBhN0eW0uzF40NVZHIH592dz/1RbNKf0hSDKBeCERTxk
+/zRDA/9rgvwyclIq4VTgA9AgwHC+JrKwbtJsawb4eYZPSbDe/pl2bQT9haTuLBKs
+Olz57Er5Vto6DWb1hs8gzb107u7CGYholr/tyjiPRhDvOcVQpZudkCE/1UXpawT/
+P4tPUvrBIVNK5SmHVRz6nsJxMxYm6Pr14+t8mgS1jrr/TxFTW7Q+U3lzdGVtaWNz
+IE9wZW5QR1AgU09YIFtvcGVyYXRvcl0gKGRzczEpIDxzZXJ2ZXJAc3lzdGVtaWNz
+LmNvbT6IVgQTEQIAFgUCOaEZEQQLCgQDAxUDAgMWAgECF4AACgkQKfOLUygtdArw
+3QCeJ8bEfVFS2etPkFus6esJfZ0+2OUAoK4AIIjFB+9CsoEkCn4dJBRTUKen
+=L806
+- -----END PGP PUBLIC KEY BLOCK-----
+</key>
+
+</digitalAssetContract>
+-----BEGIN CONTRACT SIGNATURE-----
+Version: Open Transactions 0.75
+Comment: http://github.com/FellowTraveler/Open-Transactions/wiki
+
+CoABOTSi/LXilVNhOWAi/poHk7YstayyRwAOqBBIJgSD1eOODlHMuHZO6s/l9fuY
+p2NeMenp3g/jAG6atY+5s0sK4NAyTWAafaT2FvBdcetTyqulROrMSz1j5xJgaQBx
+49YyjMbhPH+WFrK4ZzLbwqy3ll3bmVqf6Ww8UduHBQl6aZo=
+-----END CONTRACT SIGNATURE-----

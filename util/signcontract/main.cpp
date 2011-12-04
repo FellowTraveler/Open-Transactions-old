@@ -29,15 +29,15 @@ int main (int argc, char * const argv[])
 	
 	if (argc < 5)
 	{
-		printf("Usage:  signcontract  s|a  signer_nym_id  path/to/data_folder  path/to/unsigned/contract_file\n"
-			   "Use 's' when signing a server contract, and 'a' for an asset contract.\n\n");
+		OTLog::Output(0, "Usage:  signcontract  s|a  signer_nym_id  path/to/data_folder  path/to/unsigned/contract_file\n"
+					  "Use 's' when signing a server contract, and 'a' for an asset contract.\n\n");
 		exit(1);
 	}
 	
 	SSL_library_init();
 	SSL_load_error_strings();
 	
-//	std::string strDataFolderPath("/Users/Chris/Projects/Open-Transactions/testwallet/data_folder"), 
+	printf("%s", "Debug 1\n");
 	
 	std::string strDataFolderPath(argv[3]), 
 	strWalletFile("wallet.xml");
@@ -60,15 +60,21 @@ int main (int argc, char * const argv[])
 
 	// ---------------------------------
 	
-	
+	printf("%s", "Debug 2\n");
+
 	// --------------------------------
 	
 	if (theFile.LoadFile())
 	{		
+		printf("%s", "Debug 3\n");
+
 		OTString strFileContents(theFile.GetFilePayload());
 		
 		if (theNym.Loadx509CertAndPrivateKey() && theNym.VerifyPseudonym()) 
-		{							
+		{				
+			
+			printf("%s", "Debug 4\n");
+
 			// LoadFile() loads the OTSignedFile that contains the nym.
 			// VerifyFile() insures that the name I thought it would have, and
 			//              where it was found, matches the name inside the file.
@@ -81,6 +87,8 @@ int main (int argc, char * const argv[])
 				//theFile.VerifySignature(theNym) && 
 				theNym.LoadFromString(strFileContents)) 
 			{
+				printf("%s", "Debug 5\n");
+
 				std::ifstream in(strContractFile.Get());
 				
 				std::stringstream buffer;
@@ -92,6 +100,8 @@ int main (int argc, char * const argv[])
 				
 				if (strContract.GetLength())
 				{
+					printf("%s", "Debug 6\n");
+
 					OTAssetContract theAssetContract;
 					OTServerContract theServerContract;
 					

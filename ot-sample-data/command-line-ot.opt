@@ -3,11 +3,11 @@
 # If you don't specify --mynym ID or --myacct ID, then
 # it comes from here instead.
 
-defaultserver : 8dlRJnGCjqU5jw7bZaw2AF112UrCZiFfBS9CnJrMWSp
+defaultserver : tmHvLZxb13hW6OyH1oHKTmKd7fTMRsUfzqPE6KCwSjl 
 
 defaultmynym : T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV
-defaultmypurse :lV6acfWoWKB7BcuIXCzvS4aSiqUOjlGgVTyepg1aAsa
-defaultmyacct : sSBcoTlTkYY8pPv6vh2KD6mIVrRdIwodgsWDoJzIfpV
+#defaultmypurse :lV6acfWoWKB7BcuIXCzvS4aSiqUOjlGgVTyepg1aAsa
+#defaultmyacct : sSBcoTlTkYY8pPv6vh2KD6mIVrRdIwodgsWDoJzIfpV
 
 #defaulthisacct:
 #defaulthisnym:

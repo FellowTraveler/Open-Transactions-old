@@ -3,6 +3,8 @@ NOTES on the Version:
 
 // --------------------------------------------------------------------
 
+   0.75 --- Added whitespace trimming (regenerated all test data)
+
    0.74 --- Smart Contracts! (Server side scriptable clauses and hooks!)
 
    0.73 --- Client side scripts!  See the Open-Transactions/scripts folder.

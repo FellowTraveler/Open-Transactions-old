@@ -19,6 +19,7 @@
 PROGRAM = libOTAPI.a
 DEBUG_PROGRAM = libOTAPId.a
 
+PROGRAM_OTHER = libotapi.jnilib
 
 # Set root names for LIBS
 
@@ -33,6 +34,7 @@ PROGRAM_D = libotapi-d
 PROGRAM_D_DBG = libotapi-d-dbg
 # --- JAVA
 PROGRAM_JAVA = libotapi-java
+PROGRAM_JAVA_OTHER = libotapi
 PROGRAM_JAVA_DBG = libotapi-java-dbg
 # --- PERL5
 PROGRAM_PERL5 = libotapi-perl5
@@ -223,6 +225,7 @@ D_LDFLAGS = -dynamiclib -bundle
 # --- JAVA
 # -I/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Headers
 JAVA_PROGRAM = $(PROGRAM_JAVA).jnilib  
+JAVA_PROGRAM_OTHER = $(PROGRAM_JAVA_OTHER).jnilib  
 JAVA_DEBUG_PROGRAM = $(PROGRAM_JAVA_DBG).jnilib  
 JAVA_INCLUDEDIRS = -I$(shell javaconfig Headers)
 JAVA_LDFLAGS = -framework JavaVM -bundle
@@ -310,6 +313,7 @@ D_LDFLAGS = -shared
 
 # --- JAVA
 JAVA_PROGRAM = $(PROGRAM_JAVA).so
+JAVA_PROGRAM_OTHER = $(PROGRAM_JAVA_OTHER).so
 JAVA_DEBUG_PROGRAM = $(PROGRAM_JAVA_DBG).so 
 JAVA_INCLUDEDIRS = -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/linux
 JAVA_LDFLAGS = -shared
@@ -404,6 +408,7 @@ D_LDFLAGS = -shared
 
 # --- JAVA
 JAVA_PROGRAM = $(PROGRAM_JAVA).so
+JAVA_PROGRAM_OTHER = $(PROGRAM_JAVA_OTHER).so
 JAVA_DEBUG_PROGRAM = $(PROGRAM_JAVA_DBG).so 
 JAVA_INCLUDEDIRS = # empty
 JAVA_LDFLAGS = -shared
@@ -525,6 +530,7 @@ endif
 # --- JAVA
 ifeq ($(LANGUAGE), java)
 PROGRAM = $(JAVA_PROGRAM)  
+PROGRAM_OTHER = $(JAVA_PROGRAM_OTHER)  
 DEBUG_PROGRAM = $(JAVA_DEBUG_PROGRAM) 
 API_CPPSOURCES += OTAPI_java.cpp
 OT_EXTRA_INCLUDEDIRS += $(JAVA_INCLUDEDIRS)
@@ -778,6 +784,7 @@ OTAPI_d.o: OTAPI_d.cpp
 OTAPI_java.o: OTAPI_java.cpp
 	cp OTAPI_java.h OTAPI_wrap.h
 	$(CXX) $(CFLAGS) -o OTAPI_java.o OTAPI_java.cpp
+
 # PERL5
 OTAPI_perl5.o: OTAPI_perl5.cpp
 	cp OTAPI_perl5.h OTAPI_wrap.h
@@ -808,7 +815,11 @@ OTAPI_tcl.o: OTAPI_tcl.cpp
 #
 RM=rm -f
 
+installjava:
+	cp $(PROGRAM) $(PROGRAM_OTHER)
+
+
 clean:
-	$(RM) ot.log otapi.so otapi.bundle _otapi.so _otapi.bundle otapi.dylib _otapi.dylib $(COBJECTS) $(CXXOBJECTS) $(PROGRAM) $(DEBUG_PROGRAM)
+	$(RM) ot.log ot otapi.so otapi.bundle *otapi*.so *otapi*.bundle *otapi*.dylib *otapi*.jnilib $(COBJECTS) $(CXXOBJECTS) $(PROGRAM) $(DEBUG_PROGRAM)
 
 

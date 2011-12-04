@@ -304,6 +304,8 @@ public:
    bool operator >=(const OTString &s2) const;
    bool operator ==(const OTString &s2) const;
 
+	static std::string & trim(std::string& str);
+
    // Attributes
 public:
 
