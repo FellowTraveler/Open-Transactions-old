@@ -1,0 +1,26 @@
+-----BEGIN SIGNED ACCOUNT-----
+Hash: SAMY
+
+<?xml version="1.0"?>
+
+<assetAccount
+ version="1.0"
+ type="stash"
+ accountID="6i0AYQCOuCvf4exvJ5N8Jd7NRwV06DfqyyqnmyorSh6"
+ userID="pc23gUqPu9Bk1Vl0K5lz3Jp1MYIfjGIBXVWDp1gba9C"
+ serverID="tmHvLZxb13hW6OyH1oHKTmKd7fTMRsUfzqPE6KCwSjl"
+ assetTypeID="mNS1ODAXQoSXpWJfC5awE9zAXCm9aVfiE0WQGsIOw4B" >
+
+<stashinfo cronItemNum="2137"/>
+
+<balance date="1323519726" amount="0"/>
+
+</assetAccount>
+-----BEGIN ACCOUNT SIGNATURE-----
+Version: Open Transactions 0.75
+Comment: http://github.com/FellowTraveler/Open-Transactions/wiki
+
+CoABSQl4kP1s7lw/Pxpaz2bcX+ZT+PwZd1FTfVJqKMqgTLscbmeBNqezHzhc6jFs
+53HfYwMnv0b/WHWB4zRf6CTmnkAlsZAvTKpb8N/i0BkkwJK5dvGW0vQz5EIiE4Hk
+ShIE8rdDIAZwU6vnFAA4mFe5xo6Vh2yqtTbGXZPLBWpjqIg=
+-----END ACCOUNT SIGNATURE-----

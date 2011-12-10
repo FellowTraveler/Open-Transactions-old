@@ -707,27 +707,30 @@ void OTSmartContract::RegisterOTNativeCallsWithScript(OTScript & theScript)
 		//																						// -------------------------------------------------------------
 //		pScript->chai.add(base_class<OTScriptable, OTSmartContract>());
 		
-		pScript->chai.add(fun<OT_SM_RetBool_ThrStr>(&OTSmartContract::MoveAcctFundsStr,		this), "move_funds");	// static bool s_MoveAcctFunds(const std::string from_acct_name, const std::string to_acct_name, const long& lAmount); // calls OTCronItem::MoveFunds()
+		pScript->chai.add(fun<OT_SM_RetBool_ThrStr>(&OTSmartContract::MoveAcctFundsStr,		this), "move_funds");	// bool MoveAcctFunds(const std::string from_acct_name, const std::string to_acct_name, const std::string str_Amount); // calls OTCronItem::MoveFunds()
 //		pScript->chai.add(fun<OT_SM_RetBool_TwoStr_OneL>(&OTSmartContract::MoveAcctFundsL,	this), "move_funds_L");		// static bool s_MoveAcctFunds(const std::string from_acct_name, const std::string to_acct_name, const long& lAmount); // calls OTCronItem::MoveFunds()
-//		pScript->chai.add(fun<OT_SM_RetBool_ThrStr>(&OTSmartContract::MoveAcctFundsStr,		this), "move_funds_Str");	// static bool s_MoveAcctFunds(const std::string from_acct_name, const std::string to_acct_name, const long& lAmount); // calls OTCronItem::MoveFunds()
+//		pScript->chai.add(fun<OT_SM_RetBool_ThrStr>(&OTSmartContract::MoveAcctFundsStr,		this), "move_funds_Str");	// static bool s_MoveAcctFunds(const std::string from_acct_name, const std::string to_acct_name, const std::string str_Amount); // calls OTCronItem::MoveFunds()
 //		pScript->chai.add(fun<OT_SM_RetBool_TwoStr_OneL>(&g_MoveAcctFundsL,	this), "move_funds_L");		// global bool s_MoveAcctFunds(const std::string from_acct_name, const std::string to_acct_name, const long& lAmount); // calls OTCronItem::MoveFunds()
-//		pScript->chai.add(fun<OT_SM_RetBool_ThrStr>(&g_MoveAcctFundsStr,	this), "move_funds_Str");	// global bool s_MoveAcctFunds(const std::string from_acct_name, const std::string to_acct_name, const long& lAmount); // calls OTCronItem::MoveFunds()
+//		pScript->chai.add(fun<OT_SM_RetBool_ThrStr>(&g_MoveAcctFundsStr,	this), "move_funds_Str");	// global bool s_MoveAcctFunds(const std::string from_acct_name, const std::string to_acct_name, const std::string str_Amount); // calls OTCronItem::MoveFunds()
 		
-		pScript->chai.add(fun(&OTSmartContract::StashAcctFunds,				this), "stash_funds");	// bool StashAcctFunds(const std::string from_acct_name, const std::string to_stash_name, const long lAmount); // calls StashFunds()
-		pScript->chai.add(fun(&OTSmartContract::UnstashAcctFunds,			this), "unstash_funds");	// bool UnstashAcctFunds(const std::string to_acct_name, const std::string from_stash_name, const long lAmount); // calls StashFunds( lAmount * (-1) )
+		pScript->chai.add(fun(&OTSmartContract::StashAcctFunds,				this), "stash_funds");		// bool StashAcctFunds(const std::string from_acct_name, const std::string to_stash_name, const std::string str_Amount); // calls StashFunds()
+		pScript->chai.add(fun(&OTSmartContract::UnstashAcctFunds,			this), "unstash_funds");	// bool UnstashAcctFunds(const std::string to_acct_name, const std::string from_stash_name, const std::string str_Amount); // calls StashFunds( lAmount * (-1) )
 				
-		pScript->chai.add(fun(&OTSmartContract::GetAcctBalance,				this), "get_acct_balance"); // long GetAcctBalance(const std::string acct_name);
+		pScript->chai.add(fun(&OTSmartContract::GetAcctBalance,				this), "get_acct_balance"); // std::string GetAcctBalance(const std::string acct_name);
 		pScript->chai.add(fun(&OTSmartContract::GetAssetTypeIDofAcct,		this), "get_acct_asset_type_id"); // std::string OTSmartContract::GetAssetTypeIDofAcct(const std::string from_acct_name)
-		pScript->chai.add(fun(&OTSmartContract::GetStashBalance,			this), "get_stash_balance");	// long GetStashBalance(const std::string stash_name, const std::string asset_type_id);
+		pScript->chai.add(fun(&OTSmartContract::GetStashBalance,			this), "get_stash_balance");	// std::string GetStashBalance(const std::string stash_name, const std::string asset_type_id);
 		
 		pScript->chai.add(fun(&OTSmartContract::SendNoticeToParty,			this), "send_notice");				// bool SendNoticeToParty(const std::string party_name);
 		pScript->chai.add(fun(&OTSmartContract::SendANoticeToAllParties,	this), "send_notice_to_parties");	// bool SendANoticeToAllParties();
 
+		pScript->chai.add(fun(&OTSmartContract::SetRemainingTimer,			this), "set_seconds_until_timer");	// void SetNextProcessTime(const std::string str_seconds_from_now) // if this is <=0, then it sets next process date to 0.
+		pScript->chai.add(fun(&OTSmartContract::GetRemainingTimer,			this), "get_remaining_timer");	// std::string GetRemainingTimer() const
+		
 		pScript->chai.add(fun(&OTSmartContract::DeactivateSmartContract,	this), "deactivate_contract");	// void DeactivateSmartContract();
 		
 		// ---------------------------------------------------------
 		// CALLBACKS 
-		// (Called by OT at key moments)
+		// (Called by OT at key moments) todo security: What if these are recursive? Need to lock down, put the smack down, on these smart contracts.
 		//
 //FYI:	pScript->chai.add(fun(&(OTScriptable::CanExecuteClause),			(*this)), "party_may_execute_clause");	// From OTScriptable (FYI) param_party_name and param_clause_name will be available inside script. Script must return bool.
 //FYI:	#define SCRIPTABLE_CALLBACK_PARTY_MAY_EXECUTE	"callback_party_may_execute_clause"   <=== THE CALLBACK WITH THIS NAME must be connected to a script clause, and then the clause will trigger when the callback is needed.	
@@ -783,6 +786,54 @@ void OTSmartContract::DeactivateSmartContract() // Called from within script.
 	this->FlagForRemoval(); // Remove it from future Cron processing, please.
 }
 
+
+/*
+ " 6 minutes	==      360 seconds\n"
+ "10 minutes	==      600 seconds\n"
+ " 1 hour		==     3600 seconds\n"
+ " 1 day		==    86400 seconds\n"
+ "30 days		==  2592000 seconds\n"
+ " 3 months		==  7776000 seconds\n"
+ " 6 months		== 15552000 seconds\n\n" 
+ "12 months		== 31104000 seconds\n\n" 
+ */
+
+// onProcess will trigger X seconds from now...
+//
+void OTSmartContract::SetRemainingTimer(const std::string str_seconds_from_now) // if this is <=0, then it sets next process date to 0.
+{
+	if (str_seconds_from_now.size() <= 0) // string length...
+	{
+		OTLog::Output(0, "OTSmartContract::SetRemainingTimer: blank input (str_seconds_from_now).\n");
+	}
+	else 
+	{
+		const time_t tCurrent	= GetCurrentTime();
+		const time_t tPlus		= atoi(str_seconds_from_now.c_str()); // todo verify size of time_t vs int....
+		
+		if (tPlus > 0)
+			SetNextProcessDate(tCurrent + tPlus);
+		else
+			SetNextProcessDate(0); // This way, you can deactivate the timer, by setting the next process date to 0.
+	}
+}
+
+
+std::string	OTSmartContract::GetRemainingTimer() const // returns seconds left on the timer, in string format, or "0".
+{
+	const time_t tNextDate	= GetNextProcessDate();
+	const time_t tCurrent	= GetCurrentTime();
+	
+	OTString strReturnVal("0"); // the default return value is "0".
+	
+	if (tNextDate > 0)
+	{
+		const time_t tSecondsLeft = tNextDate - tCurrent;
+		strReturnVal.Format("%d", tSecondsLeft);
+	}
+	
+	return strReturnVal.Get();
+}
 
 
 void OTSmartContract::onRemovalFromCron()
@@ -920,7 +971,7 @@ std::string OTSmartContract::GetAcctBalance(const std::string from_acct_name)
 	// ---------------------------------------------------
 	
 	
-	// Todo: I can see that THIS VERIFICATION CODE WILL GET CALLED EVERY SINGLE TIME THE SCRIPT
+	// Done: I can see that THIS VERIFICATION CODE WILL GET CALLED EVERY SINGLE TIME THE SCRIPT
 	// CALLS MOVE FUNDS.  Maybe that's good, but since technically this only needs to be verified before the
 	// first call, and not for EVERY call during any of a script's runs, I should probably move this verification
 	// higher, such as each time the OTCronItem triggers, plus each time a party triggers a clause directly
@@ -929,18 +980,21 @@ std::string OTSmartContract::GetAcctBalance(const std::string from_acct_name)
 	// It will be at the bottom of those same functions that "ClearTemporaryPointers()" should finally be called.
 	//
 	//
-	const OTString strServerID(GetServerID());
-	
-	mapOfNyms	map_Nyms_Already_Loaded;
-	this->RetrieveNymPointers(map_Nyms_Already_Loaded);
-	// --------------------------------------------------
-	
-	if (false == this->VerifyPartyAuthorization(*pFromParty, *pServerNym, strServerID, &map_Nyms_Already_Loaded))
-	{
-		OTLog::vError("OTSmartContract::GetAcctBalance: error: 'From' Party (%s) not authorized for this contract.\n",
-					  pFromParty->GetPartyName().c_str());
-		return 0;
-	}
+	//	FINAL DECISION: Redundant, already verified upon activation on cron. 
+	//  See longer comment in OTSmartContract::StashAcctFunds()
+	//
+//	const OTString strServerID(GetServerID());
+//	
+//	mapOfNyms	map_Nyms_Already_Loaded;
+//	this->RetrieveNymPointers(map_Nyms_Already_Loaded);
+//	// --------------------------------------------------
+//	
+//	if (false == this->VerifyPartyAuthorization(*pFromParty, *pServerNym, strServerID, &map_Nyms_Already_Loaded))
+//	{
+//		OTLog::vError("OTSmartContract::GetAcctBalance: error: 'From' Party (%s) not authorized for this contract.\n",
+//					  pFromParty->GetPartyName().c_str());
+//		return 0;
+//	}
 	// *****************************************************************************
 	
 	// A party might have many agents who are only voting groups, and cannot actually sign for things
@@ -1124,7 +1178,7 @@ std::string OTSmartContract::GetAssetTypeIDofAcct(const std::string from_acct_na
 	// ---------------------------------------------------
 	
 	
-	// Todo: I can see that THIS VERIFICATION CODE WILL GET CALLED EVERY SINGLE TIME THE SCRIPT
+	// Done: I can see that THIS VERIFICATION CODE WILL GET CALLED EVERY SINGLE TIME THE SCRIPT
 	// CALLS MOVE FUNDS.  Maybe that's good, but since technically this only needs to be verified before the
 	// first call, and not for EVERY call during any of a script's runs, I should probably move this verification
 	// higher, such as each time the OTCronItem triggers, plus each time a party triggers a clause directly
@@ -1133,18 +1187,22 @@ std::string OTSmartContract::GetAssetTypeIDofAcct(const std::string from_acct_na
 	// It will be at the bottom of those same functions that "ClearTemporaryPointers()" should finally be called.
 	//
 	//
-	const OTString strServerID(GetServerID());
-	
-	mapOfNyms	map_Nyms_Already_Loaded;
-	this->RetrieveNymPointers(map_Nyms_Already_Loaded);
-	// --------------------------------------------------
-	
-	if (false == this->VerifyPartyAuthorization(*pFromParty, *pServerNym, strServerID, &map_Nyms_Already_Loaded))
-	{
-		OTLog::vError("OTSmartContract::GetAssetTypeIDofAcct: error: 'From' Party (%s) not authorized for this contract.\n",
-					  pFromParty->GetPartyName().c_str());
-		return str_return_value;
-	}
+	// FINAL DECISION: Redunant, already done upon activation onto cron. Furthermore, expects no stashes to exist,
+	// since they can only be created after activation. (Interfered with script operations by complaining whenever
+	// there was a stash.) See longer comment in StashAcctFunds().
+	//
+//	const OTString strServerID(GetServerID());
+//	
+//	mapOfNyms	map_Nyms_Already_Loaded;
+//	this->RetrieveNymPointers(map_Nyms_Already_Loaded);
+//	// --------------------------------------------------
+//	
+//	if (false == this->VerifyPartyAuthorization(*pFromParty, *pServerNym, strServerID, &map_Nyms_Already_Loaded))
+//	{
+//		OTLog::vError("OTSmartContract::GetAssetTypeIDofAcct: error: 'From' Party (%s) not authorized for this contract.\n",
+//					  pFromParty->GetPartyName().c_str());
+//		return str_return_value;
+//	}
 	// *****************************************************************************
 	
 	// A party might have many agents who are only voting groups, and cannot actually sign for things
@@ -1379,7 +1437,7 @@ bool OTSmartContract::SendNoticeToParty(const std::string party_name)
 	// time, in VerifyPartyAuthorization(), since the agent may need to be loaded in order to verify 
 	// them.) 1 is already done by this point, as it's performed above.
 	//
-	// Todo: notice this code appears in CanCancelContract() (this function) as well as 
+	// Done: notice this code appears in CanCancelContract() (this function) as well as 
 	// OTScriptable::CanExecuteClause.
 	// Therefore I can see that THIS VERIFICATION CODE WILL GET CALLED EVERY SINGLE TIME THE SCRIPT
 	// CALLS ANY CLAUSE OR OT NATIVE FUNCTION.  Since technically this only needs to be verified before the
@@ -1393,20 +1451,24 @@ bool OTSmartContract::SendNoticeToParty(const std::string party_name)
 	// once I'm sure C++0x build environments are available for all of the various OT platforms. That should
 	// be another great performance boost!
 	//
-	const OTString strServerID(GetServerID());
-	
-	mapOfNyms	map_Nyms_Already_Loaded;
-	this->RetrieveNymPointers(map_Nyms_Already_Loaded);
-	
-	bool bVerifiedAuthorization = 
-		this->VerifyPartyAuthorization(*pParty, *pServerNym, strServerID, &map_Nyms_Already_Loaded);
-	
-	if (!bVerifiedAuthorization)
-	{
-		OTLog::vOutput(0, "OTSmartContract::SendNoticeToParty: Unable to verify this party: %s\n",
-					   party_name.c_str());
-		return false;
-	}	
+	//	FINAL DECISION: See longer comment in OTSmartContract::StashAcctFunds(). This is redundant and was
+	//  removed. It expects itself to be executed only upon the initial activation of a smart contract, and
+	//  not again after. (For example, it disallows stashes, which cannot exist prior to activation.)
+	//
+//	const OTString strServerID(GetServerID());
+//	
+//	mapOfNyms	map_Nyms_Already_Loaded;
+//	this->RetrieveNymPointers(map_Nyms_Already_Loaded);
+//	
+//	bool bVerifiedAuthorization = 
+//		this->VerifyPartyAuthorization(*pParty, *pServerNym, strServerID, &map_Nyms_Already_Loaded);
+//	
+//	if (!bVerifiedAuthorization)
+//	{
+//		OTLog::vOutput(0, "OTSmartContract::SendNoticeToParty: Unable to verify this party: %s\n",
+//					   party_name.c_str());
+//		return false;
+//	}	
 	
 	// *****************************************************************************
 	
@@ -1564,7 +1626,7 @@ bool OTSmartContract::StashAcctFunds(const std::string from_acct_name, const std
 	// ---------------------------------------------------
 	
 	
-	// Todo: I can see that THIS VERIFICATION CODE WILL GET CALLED EVERY SINGLE TIME THE SCRIPT
+	// DONE: Problem: I can see that THIS VERIFICATION CODE WILL GET CALLED EVERY SINGLE TIME THE SCRIPT
 	// CALLS MOVE FUNDS.  Maybe that's good, but since technically this only needs to be verified before the
 	// first call, and not for EVERY call during any of a script's runs, I should probably move this verification
 	// higher, such as each time the OTCronItem triggers, plus each time a party triggers a clause directly
@@ -1573,18 +1635,29 @@ bool OTSmartContract::StashAcctFunds(const std::string from_acct_name, const std
 	// It will be at the bottom of those same functions that "ClearTemporaryPointers()" should finally be called.
 	//
 	//
-	const OTString strServerID(GetServerID());
+//	const OTString strServerID(GetServerID());
 	
-	mapOfNyms	map_Nyms_Already_Loaded;
-	this->RetrieveNymPointers(map_Nyms_Already_Loaded);
+//	mapOfNyms	map_Nyms_Already_Loaded;
+//	this->RetrieveNymPointers(map_Nyms_Already_Loaded);
 	// --------------------------------------------------
 	
-	if (false == this->VerifyPartyAuthorization(*pFromParty, *pServerNym, strServerID, &map_Nyms_Already_Loaded))
-	{
-		OTLog::vError("OTSmartContract::StashAcctFunds: error: 'From' Party (%s) not authorized for this contract.\n",
-					  pFromParty->GetPartyName().c_str());
-		return false;
-	}
+	// FINAL DECISION: Since this verification is already done for the smart contract to have been activated onto
+	// cron in the first place, it is redundant to have it here.
+	// Furthermore, what if a single clause calls stash_funds 30 times in a loop? Does that mean we need to verify
+	// all the parties and accounts 30 times, every single time we call that clause? CLearly such is redundant, and
+	// would be targeted in any optimization effort. 
+	// Furthermore, since actually running the software, it's become apparent that it is no longer even appropriate
+	// to Verify anymore, since stashes can exist after a smartcontract has been activated, while this function 
+	// specifically verifies that no stashes exist, since it presumes that it is only called during the initial
+	// activation of the cron item, when no stashes SHOULD exist (since they are only created after activation, by
+	// the server itself, at the behest of the scripts.)
+	
+//	if (false == this->VerifyPartyAuthorization(*pFromParty, *pServerNym, strServerID, &map_Nyms_Already_Loaded))
+//	{
+//		OTLog::vError("OTSmartContract::StashAcctFunds: error: 'From' Party (%s) not authorized for this contract.\n",
+//					  pFromParty->GetPartyName().c_str());
+//		return false;
+//	}
 	// *****************************************************************************
 	
 	// A party might have many agents who are only voting groups, and cannot actually sign for things
@@ -1648,6 +1721,13 @@ bool OTSmartContract::StashAcctFunds(const std::string from_acct_name, const std
 	// since the funds are going into a stash.
 	// ----------------------------------------------------------
 	
+	mapOfNyms	map_Nyms_Already_Loaded;
+	this->RetrieveNymPointers(map_Nyms_Already_Loaded);
+
+	
+	OTLog::vError("OTSmartContract::StashAcctFunds: DEBUGGING: lAmount is %ld.\n", lAmount);
+	
+	
 	bool bMoved = this->StashFunds(map_Nyms_Already_Loaded,
 								   lAmount,
 								   theFromAcctID,	theFromAgentID,
@@ -1694,7 +1774,7 @@ bool OTSmartContract::UnstashAcctFunds(const std::string to_acct_name, const std
 	// ---------------------------------------------------
 	if (str_Amount.size() < 1)
 	{
-		OTLog::vOutput(0, "OTSmartContract::StashAcctFunds: Error: empty amount.\n");
+		OTLog::vOutput(0, "OTSmartContract::UnstashAcctFunds: Error: empty amount.\n");
 		return false;
 	}
 	
@@ -1788,7 +1868,7 @@ bool OTSmartContract::UnstashAcctFunds(const std::string to_acct_name, const std
 	// ---------------------------------------------------
 	
 	
-	// Todo: I can see that THIS VERIFICATION CODE WILL GET CALLED EVERY SINGLE TIME THE SCRIPT
+	// Done: I can see that THIS VERIFICATION CODE WILL GET CALLED EVERY SINGLE TIME THE SCRIPT
 	// CALLS MOVE FUNDS.  Maybe that's good, but since technically this only needs to be verified before the
 	// first call, and not for EVERY call during any of a script's runs, I should probably move this verification
 	// higher, such as each time the OTCronItem triggers, plus each time a party triggers a clause directly
@@ -1796,19 +1876,20 @@ bool OTSmartContract::UnstashAcctFunds(const std::string to_acct_name, const std
 	// which should be a significant improvement for performance.
 	// It will be at the bottom of those same functions that "ClearTemporaryPointers()" should finally be called.
 	//
+	// FINAL DECISION: Redundant, removed. See comments in StashAcctFunds().
 	//
-	const OTString strServerID(GetServerID());
-	
-	mapOfNyms	map_Nyms_Already_Loaded;
-	this->RetrieveNymPointers(map_Nyms_Already_Loaded);
-	// --------------------------------------------------
-	
-	if (false == this->VerifyPartyAuthorization(*pToParty, *pServerNym, strServerID, &map_Nyms_Already_Loaded))
-	{
-		OTLog::vError("OTSmartContract::UnstashAcctFunds: error: 'To' Party (%s) not authorized for this contract.\n",
-					  pToParty->GetPartyName().c_str());
-		return false;
-	}
+//	const OTString strServerID(GetServerID());
+//	
+//	mapOfNyms	map_Nyms_Already_Loaded;
+//	this->RetrieveNymPointers(map_Nyms_Already_Loaded);
+//	// --------------------------------------------------
+//	
+//	if (false == this->VerifyPartyAuthorization(*pToParty, *pServerNym, strServerID, &map_Nyms_Already_Loaded))
+//	{
+//		OTLog::vError("OTSmartContract::UnstashAcctFunds: error: 'To' Party (%s) not authorized for this contract.\n",
+//					  pToParty->GetPartyName().c_str());
+//		return false;
+//	}
 	// *****************************************************************************
 	
 	// A party might have many agents who are only voting groups, and cannot actually sign for things
@@ -1874,6 +1955,13 @@ bool OTSmartContract::UnstashAcctFunds(const std::string to_acct_name, const std
 	
 	const long lNegativeAmount = (lAmount * (-1));
 	
+	mapOfNyms	map_Nyms_Already_Loaded;
+	this->RetrieveNymPointers(map_Nyms_Already_Loaded);
+
+	
+	OTLog::vError("OTSmartContract::UnstashAcctFunds: DEBUGGING: lAmount is %ld.\n", lNegativeAmount);
+	
+
 	bool bMoved = this->StashFunds(map_Nyms_Already_Loaded,
 								   lNegativeAmount,
 								   theToAcctID,	theToAgentID,
@@ -1951,25 +2039,23 @@ bool OTSmartContract::StashFunds(const mapOfNyms	&	map_NymsAlreadyLoaded,
 	//
 	const OTString			strAssetTypeID(pPartyAssetAcct->GetAssetTypeID());
 	const std::string		str_asset_type_id = strAssetTypeID.Get();
-	
+		
 	OTStashItem * pStashItem = theStash.GetStash(str_asset_type_id);
 	OT_ASSERT(NULL != pStashItem); // should never happen. Creates if non-existent.
 	// -----------------------------------------------------------------------
 	// Below this point, pStashItem is good, and has the right asset_type_id.
 	// --------------------------------------------------------
+	//	
+	const bool bUnstashing		= (lAmount < 0); // If the amount is negative, then we're UNSTASHING.
+	const long lAbsoluteAmount	= bUnstashing ? (lAmount*(-1)) : lAmount;	// NEGATIVE AMOUNT SHOULD BEHAVE AS "UNSTASH FUNDS" !!
+
+	// Normally if you stash 10 clams, then your account is -10 clams, and your stash is +10 clams.
+	// Therefore if you unstash 5 gg, then your gg acct is +5 grams and your stash is -5 grams.
 	//
-	long lAbsoluteAmount = lAmount;
+	// Thus if lAmount is > 0, as normal, that amount should be DEBITED from the Party Acct, and CREDITED to the Stash Acct.
+	// Whereas if lAmount were < 0, then that amount should be DEBITED from the Stash Acct, and CREDITED to the Party Acct.
+	// ------------------------------------------------------------------
 	
-	if (lAmount < 0)  // NEGATIVE AMOUNT SHOULD BEHAVE AS "UNSTASH FUNDS" !!
-	{
-		// Normally if you stash 10 clams, then your account is -10 clams, and your stash is +10 clams.
-		// Therefore if you unstash 5 gg, then your gg acct is +5 grams and your stash is -5 grams.
-		//
-		// Thus if lAmount is > 0, as normal, that amount should be DEBITED from the Party Acct, and CREDITED to the Stash Acct.
-		// Whereas if lAmount were < 0, then that amount should be DEBITED from the Stash Acct, and CREDITED to the Party Acct.
-		
-		lAbsoluteAmount *= (-1);
-	}
 	// Below this point, lAbsoluteAmount is always a positive number.
 	// Whereas if lAmount < 0, that means we are doing an UNSTASH in this function.
 	//
@@ -1978,7 +2064,11 @@ bool OTSmartContract::StashFunds(const mapOfNyms	&	map_NymsAlreadyLoaded,
 	// Whether the funds are coming from the party's acct, or from the stash, WHEREVER they
 	// are coming from, is that source LARGE enough to accommodate the amount we're trying to move?
 	//
-	const long lSourceAmount = (lAmount > 0) ? pPartyAssetAcct->GetBalance() : pStashItem->GetAmount();
+	
+	const long lPartyAssetBalance	= pPartyAssetAcct->GetBalance();	
+	const long lStashItemAmount		= pStashItem->GetAmount();
+	
+	const long lSourceAmount = bUnstashing ? lStashItemAmount : lPartyAssetBalance;
 	
 	// If the source, minus amount, is less than 0, then it CANNOT accommodate the action.
 	//
@@ -1990,11 +2080,18 @@ bool OTSmartContract::StashFunds(const mapOfNyms	&	map_NymsAlreadyLoaded,
 	// ------------------------------------------------------
 	// Load up the actual Stash ACCOUNT
 	//
+	
 	OTAccount_SharedPtr pStashAccount;
 	
 	bool bWasAcctCreated = false;	// GetOrCreateAccount() will verifyContractID and verifySignature on the account internally.
 	pStashAccount = m_StashAccts.GetOrCreateAccount(*pServerNym, SERVER_USER_ID, pPartyAssetAcct->GetAssetTypeID(), 
 													SERVER_ID, bWasAcctCreated, GetTransactionNum());
+	
+	if (!pStashAccount)
+	{
+		OT_ASSERT_MSG(pStashAccount, "ASSERT in OTSmartContract::StashFunds: returned NULL pointer (should never happen.)\n");
+	}
+															
 	if (bWasAcctCreated)
 	{
 		OTString strAcctID;
@@ -2016,7 +2113,8 @@ bool OTSmartContract::StashFunds(const mapOfNyms	&	map_NymsAlreadyLoaded,
 	// Whether the funds are coming from the party's acct, or from the stash acct, WHEREVER they
 	// are coming from, is that source LARGE enough to accommodate the amount we're trying to move?
 	//
-	const long lSourceAmount2 = (lAmount > 0) ? pPartyAssetAcct->GetBalance() : pStashAccount->GetBalance();
+	const long lSourceAmount2 = bUnstashing ? pStashAccount->GetBalance() : pPartyAssetAcct->GetBalance();
+	
 	
 	// If the source, minus amount, is less than 0, then it CANNOT accommodate the action.
 	//
@@ -2059,7 +2157,6 @@ bool OTSmartContract::StashFunds(const mapOfNyms	&	map_NymsAlreadyLoaded,
 	const OTIdentifier STASH_USER_ID (pStashAccount->GetUserID());
 	// ---------------------------------------------------
 
-	
 	bool		bSuccess = false;	// The return value.
 	// --------------------------------------------------------
 		
@@ -2186,7 +2283,7 @@ bool OTSmartContract::StashFunds(const mapOfNyms	&	map_NymsAlreadyLoaded,
 	// -------------------------------------------------------------------------
 		
 	else
-	{			
+	{		
 		// Okay then, everything checks out. Let's add a receipt to the party's inbox. 
 		// (No need for the stash's inbox -- the server owns it.)
 		
@@ -2275,35 +2372,7 @@ bool OTSmartContract::StashFunds(const mapOfNyms	&	map_NymsAlreadyLoaded,
 			bool bMoveStash = false;
 
 			// ----------------------------------------------------------------------
-			if (lAmount > 0) // Debit party, Credit Stash
-			{
-				if (pPartyAssetAcct->GetBalance() >= lAbsoluteAmount)
-				{
-					// Debit the party account. 
-					bMoveParty	= pPartyAssetAcct->Debit(lAbsoluteAmount); // <====== DEBIT FUNDS
-					
-					// IF success, credit the Stash.
-					if (bMoveParty)
-					{
-						bMoveStash	= pStashAccount->Credit(lAbsoluteAmount); // <=== CREDIT FUNDS
-						
-						// Okay, we already took it from the party account.
-						// But if we FAIL to credit the Stash, then we need to PUT IT BACK in the party acct.
-						// (EVEN THOUGH we'll just "NOT SAVE" after any failure, so it's really superfluous.)
-						//
-						if (!bMoveStash)
-							pPartyAssetAcct->Credit(lAbsoluteAmount); // put the money back
-						else
-						{	// SUCCESS!
-							//
-							pStashItem->CreditStash(lAbsoluteAmount); // we already verified above that this stash item has enough funds to successfully debit.
-							bSuccess = true;
-						}
-					}
-				}				
-			} 
-			// ----------------------------------------------------------------------
-			else  //  Debit Stash, Credit Party
+			if (bUnstashing)  //  Debit Stash, Credit Party
 			{
 				if (pStashAccount->GetBalance() >= lAbsoluteAmount)
 				{
@@ -2320,17 +2389,73 @@ bool OTSmartContract::StashFunds(const mapOfNyms	&	map_NymsAlreadyLoaded,
 						// (EVEN THOUGH we'll just "NOT SAVE" after any failure, so it's really superfluous.)
 						//
 						if (! bMoveParty )
-							pStashAccount->Credit(lAbsoluteAmount); // put the money back
+						{
+							bool bErr = pStashAccount->Credit(lAbsoluteAmount); // put the money back
+							
+							OTLog::vError("OTSmartContract::StashFunds: While succeeded debiting the stash account, FAILED in: pPartyAssetAcct->Credit(lAbsoluteAmount); \n"
+										  "Also, tried to credit stash account back again. Result: %s.\n", bErr ? "success" : "failure");
+						}
 						else
 						{	// SUCCESS!
 							//
-							pStashItem->DebitStash(lAbsoluteAmount); // we already verified above that this stash item has enough funds to successfully debit.
-							bSuccess = true;
+							bool bStashSuccess = pStashItem->DebitStash(lAbsoluteAmount); // we already verified above that this stash item has enough funds to successfully debit.
+
+							if (bStashSuccess)
+								bSuccess = true;
+							else 
+								OTLog::Error("OTSmartContract::StashFunds: ERROR: Debited stash account and credited party account, but "
+											 "then unable to debit the stash record inside the smart contract itself.\n");
 						}
+					}
+					else
+					{
+						OTLog::Error("OTSmartContract::StashFunds: FAILED in:  pStashAccount->Debit(lAbsoluteAmount);\n");
 					}
 				}								
 			} 
 			// --------------------------------------------------------------------------
+			else // Debit party, Credit Stash
+			{
+				if (pPartyAssetAcct->GetBalance() >= lAbsoluteAmount)
+				{
+					// Debit the party account. 
+					bMoveParty	= pPartyAssetAcct->Debit(lAbsoluteAmount); // <====== DEBIT FUNDS
+					
+					// IF success, credit the Stash.
+					if (bMoveParty)
+					{
+						bMoveStash	= pStashAccount->Credit(lAbsoluteAmount); // <=== CREDIT FUNDS
+						
+						// Okay, we already took it from the party account.
+						// But if we FAIL to credit the Stash, then we need to PUT IT BACK in the party acct.
+						// (EVEN THOUGH we'll just "NOT SAVE" after any failure, so it's really superfluous.)
+						//
+						if (!bMoveStash)
+						{
+							bool bErr = pPartyAssetAcct->Credit(lAbsoluteAmount); // put the money back
+							
+							OTLog::vError("OTSmartContract::StashFunds: While succeeded debiting the asset account, FAILED in: pStashAccount->Credit(lAbsoluteAmount); \n"
+										  "Also, tried to credit asset account back again. Result: %s.\n", bErr ? "success" : "failure");
+						}
+						else
+						{	// SUCCESS!
+							//
+							bool bStashSuccess = pStashItem->CreditStash(lAbsoluteAmount); // we already verified above that this stash item has enough funds to successfully debit.
+							
+							if (bStashSuccess)
+								bSuccess = true;
+							else 
+								OTLog::Error("OTSmartContract::StashFunds: ERROR: Debited party account and credited stash account, but "
+											 "then unable to credit the stash record inside the smart contract itself.\n");
+						}
+					}
+					else
+					{
+						OTLog::Error("OTSmartContract::StashFunds: FAILED in:  pPartyAssetAcct->Debit(lAbsoluteAmount);\n");
+					}					
+				}
+			} 
+			// ----------------------------------------------------------------------
 			//
 			// If ANY of these failed, then roll them all back and break.
 			// (In fact we could just be checking bSuccess here, I wager.
@@ -2343,8 +2468,8 @@ bool OTSmartContract::StashFunds(const mapOfNyms	&	map_NymsAlreadyLoaded,
 				
 				OTLog::vError("OTSmartContract::StashFunds: Very strange! Funds were available but "
 							  "debit %s or credit %s failed while performing move.\n",
-							  (lAmount > 0) ? "party" : "stash",
-							  (lAmount > 0) ? "stash" : "party");
+							  (bUnstashing) ? "stash" : "party",
+							  (bUnstashing) ? "party" : "stash");
 				// We won't save the files anyway, if this failed. 					
 				bSuccess = false;
 			}				
@@ -2360,11 +2485,14 @@ bool OTSmartContract::StashFunds(const mapOfNyms	&	map_NymsAlreadyLoaded,
 				//
 				pItemParty->SetStatus(OTItem::acknowledgement); // pPartyAssetAcct		
 				
-				pItemParty->SetAmount(lAmount);	// lAmount is already negative or positive by the time it's passed into this function.
+				const long lReceiptAmount = (lAmount*(-1));
+				
+//				pItemParty->SetAmount(lAmount);	// lAmount is already negative or positive by the time it's passed into this function.
+				pItemParty->SetAmount(lReceiptAmount);	// However, if we are stashing 100, that means my account is -100. Therefore multiply by (-1) EITHER WAY.						
 //				pItemParty->SetAmount(lAbsoluteAmount*(-1));	// "paymentReceipt" is otherwise ambigious about whether you are paying or being paid.
 				// This is also like market receipts, which use negative and positive amounts.
 				
-				OTLog::Output(3, "OTSmartContract::StashFunds: Move performed.\n");
+				OTLog::Output(0, "OTSmartContract::StashFunds: Move performed.\n");
 				
 				// (I do NOT save m_pCron here, since that already occurs after this function is called.)
 			}
@@ -2373,7 +2501,7 @@ bool OTSmartContract::StashFunds(const mapOfNyms	&	map_NymsAlreadyLoaded,
 				pItemParty->SetStatus(OTItem::rejection);// pPartyAssetAcct		// These are already initialized to false.
 				pItemParty->SetAmount(0);		// No money changed hands. Just being explicit.
 				
-				OTLog::Output(3, "OTSmartContract::StashFunds: Move failed.\n");
+				OTLog::Output(0, "OTSmartContract::StashFunds: Move failed.\n");
 			}
 			
 			// Everytime a payment processes, a receipt is put in the user's inbox, containing a
@@ -2569,7 +2697,7 @@ bool OTSmartContract::StashFunds(const mapOfNyms	&	map_NymsAlreadyLoaded,
 
 
 bool OTSmartContract::MoveAcctFundsStr(const std::string from_acct_name, const std::string to_acct_name, const std::string str_Amount)
-//bool OTSmartContract::MoveAcctFundsL(const std::string from_acct_name, const std::string to_acct_name, const long lAmount)
+//bool OTSmartContract::MoveAcctFundsL(const std::string from_acct_name, const std::string to_acct_name, const long lAmount) // long was the problem. Switching to string.
 {
     OTCron * pCron  = GetCron();
     OT_ASSERT(NULL != pCron);
@@ -2623,12 +2751,15 @@ bool OTSmartContract::MoveAcctFundsStr(const std::string from_acct_name, const s
 	{
 		OTLog::vOutput(0, "OTSmartContract::MoveAcctFunds: error: from_acct (%s) not found on any party.\n",
 					  from_acct_name.c_str());
+		OTLog::vOutput(0, "FULL CONTRACT:  \n%s \n\n", m_xmlUnsigned.Get());
 		return false;
 	}
 	if (NULL == pToAcct)
 	{
 		OTLog::vOutput(0, "OTSmartContract::MoveAcctFunds: error: to_acct (%s) not found on any party.\n",
 					  to_acct_name.c_str());
+		OTLog::vOutput(0, "FULL CONTRACT:  \n%s \n\n", m_xmlUnsigned.Get());
+
 		return false;
 	}
 	// ---------------------------------------------------
@@ -2703,7 +2834,7 @@ bool OTSmartContract::MoveAcctFundsStr(const std::string from_acct_name, const s
 	// ---------------------------------------------------
 
 
-	// Todo: I can see that THIS VERIFICATION CODE WILL GET CALLED EVERY SINGLE TIME THE SCRIPT
+	// Done: I can see that THIS VERIFICATION CODE WILL GET CALLED EVERY SINGLE TIME THE SCRIPT
 	// CALLS MOVE FUNDS.  Maybe that's good, but since technically this only needs to be verified before the
 	// first call, and not for EVERY call during any of a script's runs, I should probably move this verification
 	// higher, such as each time the OTCronItem triggers, plus each time a party triggers a clause directly
@@ -2711,27 +2842,28 @@ bool OTSmartContract::MoveAcctFundsStr(const std::string from_acct_name, const s
 	// which should be a significant improvement for performance.
 	// It will be at the bottom of those same functions that "ClearTemporaryPointers()" should finally be called.
 	//
+	// FINAL DECISION: Redundant.  See comment in OTSmartContract::StashAcctFunds()
 	//
-	const OTString strServerID(GetServerID());
-	
-	mapOfNyms	map_Nyms_Already_Loaded;
-	this->RetrieveNymPointers(map_Nyms_Already_Loaded);
-	// --------------------------------------------------
-	
-	if (false == this->VerifyPartyAuthorization(*pFromParty, *pServerNym, strServerID, &map_Nyms_Already_Loaded))
-	{
-		OTLog::vError("OTSmartContract::MoveAcctFunds: error: 'From' Party (%s) not authorized for this contract.\n",
-					 pFromParty->GetPartyName().c_str());
-		return false;
-	}
-	// --------------------------------------------------
-	
-	if (false == this->VerifyPartyAuthorization(*pToParty, *pServerNym, strServerID, &map_Nyms_Already_Loaded))
-	{
-		OTLog::vError("OTSmartContract::MoveAcctFunds: error: 'To' Party (%s) not authorized for this contract.\n",
-					 pToParty->GetPartyName().c_str());
-		return false;
-	}
+//	const OTString strServerID(GetServerID());
+//	
+//	mapOfNyms	map_Nyms_Already_Loaded;
+//	this->RetrieveNymPointers(map_Nyms_Already_Loaded);
+//	// --------------------------------------------------
+//	
+//	if (false == this->VerifyPartyAuthorization(*pFromParty, *pServerNym, strServerID, &map_Nyms_Already_Loaded))
+//	{
+//		OTLog::vError("OTSmartContract::MoveAcctFunds: error: 'From' Party (%s) not authorized for this contract.\n",
+//					 pFromParty->GetPartyName().c_str());
+//		return false;
+//	}
+//	// --------------------------------------------------
+//	
+//	if (false == this->VerifyPartyAuthorization(*pToParty, *pServerNym, strServerID, &map_Nyms_Already_Loaded))
+//	{
+//		OTLog::vError("OTSmartContract::MoveAcctFunds: error: 'To' Party (%s) not authorized for this contract.\n",
+//					 pToParty->GetPartyName().c_str());
+//		return false;
+//	}
 	// *****************************************************************************
 	
 	// A party might have many agents who are only voting groups, and cannot actually sign for things
@@ -2813,6 +2945,10 @@ bool OTSmartContract::MoveAcctFundsStr(const std::string from_acct_name, const s
 	theToAgentID.GetString(m_strLastRecipientUser);	// This is the last User ID of a party who RECEIVED money.
 	theToAcctID.GetString(m_strLastRecipientAcct);	// This is the last Acct ID of a party who RECEIVED money.
 	// ----------------------------------------------------------
+	
+	mapOfNyms	map_Nyms_Already_Loaded;
+	this->RetrieveNymPointers(map_Nyms_Already_Loaded);
+
 	bool bMoved = this->MoveFunds(map_Nyms_Already_Loaded,
 								  lAmount,
 								  theFromAcctID,	theFromAgentID,
@@ -3170,8 +3306,8 @@ bool OTSmartContract::ProcessCron()
 	//
 	if (GetLastProcessDate() > 0)
 	{
-		// (Default ProcessInternal is 1 second, but Trades will use 10 seconds,
-		// and Payment Plans will use an hour or day. Smart contracts are currently 30 seconds.)
+		// Default ProcessInternal is 1 second, but Trades will use 10 seconds, and Payment
+		// Plans will use an hour or day. Smart contracts are currently 30 seconds. (For testing.)
 		//
 		if ((GetCurrentTime() - GetLastProcessDate()) <= GetProcessInterval())
 			return true;
@@ -3200,13 +3336,35 @@ bool OTSmartContract::ProcessCron()
 	// return TRUE, so it will STAY on Cron until it BECOMES valid.
 	
 	// -----------------------------------------------------------------------------
-	
+	// Make sure there are transaction numbers available in Cron.
+	// (Can't do anything without those....)
+	//
 	if (GetCron()->GetTransactionCount() < 1)
 	{
 		OTLog::Output(0, "Failed to process smart contract: Cron is out of transaction numbers!\n");
 		return true;	
 	}
 	
+	// -----------------------------------------------------------------------------
+	// Make sure, if the script set a timer, that we don't process Cron until that timer
+	// is reached. (If the timer's not set, then we go ahead and process every time.)
+	//
+	const time_t tNextProcessDate = GetNextProcessDate();
+	
+	if (tNextProcessDate > 0) // IF there is a timer set (as to when the next "onProcess" should occur)...
+	{
+		if (GetCurrentTime() <= tNextProcessDate)	// AND if the current time has NOT YET reached that date (the date in the timer)...
+		{
+			// ...Then RETURN (since the timer hasn't popped yet)
+			// But return TRUE, so that this cron item stays active for now.
+			//
+			return true;	
+		}
+		else // else it HAS now reached the official timer date...
+		{
+			SetNextProcessDate(0);	// Therefore timer has triggered, so we will continue processing. 
+		}							// We also reset timer to 0 again since it has now "binged".		
+	}	// Continuing on....
 	// *****************************************************************************
 	//
 	// Execute the scripts (clauses) that have registered for this hook.
@@ -3424,7 +3582,7 @@ bool OTSmartContract::CanCancelContract(const std::string str_party_name)
 	// time, in VerifyPartyAuthorization(), since the agent may need to be loaded in order to verify 
 	// them.) 1 is already done by this point, as it's performed above.
 	//
-	// Todo: notice this code appears in CanCancelContract() (this function) as well as 
+	// Done: notice this code appears in CanCancelContract() (this function) as well as 
 	// OTScriptable::CanExecuteClause.
 	// Therefore I can see that THIS VERIFICATION CODE WILL GET CALLED EVERY SINGLE TIME THE SCRIPT
 	// CALLS ANY CLAUSE OR OT NATIVE FUNCTION.  Since technically this only needs to be verified before the
@@ -3438,21 +3596,23 @@ bool OTSmartContract::CanCancelContract(const std::string str_party_name)
 	// once I'm sure C++0x build environments are available for all of the various OT platforms. That should
 	// be another great performance boost!
 	//
-	const OTString strServerID(GetServerID());
-	
-	mapOfNyms	map_Nyms_Already_Loaded;
-	this->RetrieveNymPointers(map_Nyms_Already_Loaded);
-	
-	bool bVerifiedAuthorization = 
-		this->VerifyPartyAuthorization(*pParty, *pServerNym, strServerID, &map_Nyms_Already_Loaded);
-
-	if (!bVerifiedAuthorization)
-	{
-		OTLog::vOutput(0, "OTSmartContract::CanCancelContract: Unable to verify this party: %s\n",
-					   str_party_name.c_str());
-		return false;
-	}	
-	
+	//	FINAL DECISION: Redundant. See comment in OTSmartContract::StashAcctFunds()
+	//
+//	const OTString strServerID(GetServerID());
+//	
+//	mapOfNyms	map_Nyms_Already_Loaded;
+//	this->RetrieveNymPointers(map_Nyms_Already_Loaded);
+//	
+//	bool bVerifiedAuthorization = 
+//		this->VerifyPartyAuthorization(*pParty, *pServerNym, strServerID, &map_Nyms_Already_Loaded);
+//
+//	if (!bVerifiedAuthorization)
+//	{
+//		OTLog::vOutput(0, "OTSmartContract::CanCancelContract: Unable to verify this party: %s\n",
+//					   str_party_name.c_str());
+//		return false;
+//	}	
+//	
 	// *****************************************************************************
 	
 	// IF NO CALLBACK IS PROVIDED, The default answer to this function is:
@@ -4254,14 +4414,14 @@ OTStash * OTSmartContract::GetStash(const std::string str_stash_name)
 
 
 
-OTSmartContract::OTSmartContract() : OTCronItem(), m_StashAccts(OTAccount::stash)
+OTSmartContract::OTSmartContract() : OTCronItem(), m_StashAccts(OTAccount::stash), m_tNextProcessDate(0)
 {
 	InitSmartContract();
 }
 
 
 OTSmartContract::OTSmartContract(const OTIdentifier & SERVER_ID) :
-	OTCronItem(), m_StashAccts(OTAccount::stash)
+	OTCronItem(), m_StashAccts(OTAccount::stash), m_tNextProcessDate(0)
 {
 	OTInstrument::SetServerID(SERVER_ID);
 	InitSmartContract();
@@ -4271,7 +4431,8 @@ OTSmartContract::OTSmartContract(const OTIdentifier & SERVER_ID) :
 OTSmartContract::OTSmartContract(const OTIdentifier & SERVER_ID,	const OTIdentifier & ASSET_ID,
 						 const OTIdentifier & SENDER_ACCT_ID,		const OTIdentifier & SENDER_USER_ID,
 						 const OTIdentifier & RECIPIENT_ACCT_ID,	const OTIdentifier & RECIPIENT_USER_ID) :
-			OTCronItem(SERVER_ID, ASSET_ID, SENDER_ACCT_ID, SENDER_USER_ID), m_StashAccts(OTAccount::stash)
+			OTCronItem(SERVER_ID, ASSET_ID, SENDER_ACCT_ID, SENDER_USER_ID),
+			m_StashAccts(OTAccount::stash), m_tNextProcessDate(0)
 {
 	InitSmartContract();
 	
@@ -4429,7 +4590,8 @@ void OTSmartContract::UpdateContents()
 							  " transactionNum=\"%ld\"\n"
 							  " creationDate=\"%d\"\n"
 							  " validFrom=\"%d\"\n"
-							  " validTo=\"%d\""							  
+							  " validTo=\"%d\"\n"
+							  " nextProcessDate=\"%d\""							  
 							  " >\n\n", 
 							  m_strVersion.Get(),
 							  SERVER_ID.Get(),
@@ -4440,8 +4602,9 @@ void OTSmartContract::UpdateContents()
 							  m_strLastRecipientUser.Get(),
 							  m_strLastRecipientAcct.Get(),
 							  m_lTransactionNum,
-							  GetCreationDate(), GetValidFrom(), GetValidTo() );	    
+							  GetCreationDate(), GetValidFrom(), GetValidTo(), GetNextProcessDate() );	    
 	// -------------------------------------------------------------
+
 	
 	// OTCronItem
     for (int i = 0; i < GetCountClosingNumbers(); i++)
@@ -4576,17 +4739,19 @@ int OTSmartContract::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		
 		// ---------------------
 
-		const OTString strTransNum		= xml->getAttributeValue("transactionNum");
-		const OTString strCreationDate	= xml->getAttributeValue("creationDate");
-		const OTString strValidFrom		= xml->getAttributeValue("validFrom");
-		const OTString strValidTo		= xml->getAttributeValue("validTo");
+		const OTString strTransNum			= xml->getAttributeValue("transactionNum");
+		const OTString strCreationDate		= xml->getAttributeValue("creationDate");
+		const OTString strValidFrom			= xml->getAttributeValue("validFrom");
+		const OTString strValidTo			= xml->getAttributeValue("validTo");
+		const OTString strNextProcessDate	= xml->getAttributeValue("nextProcessDate");
 		
-		SetTransactionNum(	atol(strTransNum.Exists() ? strTransNum.Get() : "0") );
+		SetTransactionNum(	strTransNum.Exists() ? atol(strTransNum.Get()) : 0 );		
 		// ------------
-		SetCreationDate(	atoi(strCreationDate.Exists() ? strCreationDate.Get() : "0") );
-		SetValidFrom(		atoi(strValidFrom.Exists() ? strValidFrom.Get() : "0") );
-		SetValidTo(			atoi(strValidTo.Exists() ? strValidTo.Get() : "0") );
-		
+		SetCreationDate(	strCreationDate.Exists() ? atoi(strCreationDate.Get()) : 0 );	// todo verify that atoi is appropriate here for time_t.
+		SetValidFrom(		strValidFrom.Exists() ? atoi(strValidFrom.Get()) : 0 );		
+		SetValidTo(			strValidTo.Exists() ? atoi(strValidTo.Get()) : 0 );		
+		// ---------------------
+		SetNextProcessDate(	strNextProcessDate.Exists() ? atoi(strNextProcessDate.Get()) : 0 );		
 		// ---------------------
         // These are stored for RECEIPTS, so if there is an inbox receipt with an amount,
 		// we will know who was sending and receiving.  If sender or receiver is blank, that

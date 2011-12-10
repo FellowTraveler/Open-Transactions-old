@@ -31,6 +31,10 @@ abstract class otapi {
 		return OT_API_Set_PasswordCallback($theCaller);
 	}
 
+	static function OT_API_Output($nLogLevel,$szOutput) {
+		OT_API_Output($nLogLevel,$szOutput);
+	}
+
 	static function OT_API_Init($szClientPath) {
 		return OT_API_Init($szClientPath);
 	}
@@ -561,6 +565,14 @@ abstract class otapi {
 
 	static function OT_API_deleteAssetAccount($SERVER_ID,$USER_ID,$ACCOUNT_ID) {
 		OT_API_deleteAssetAccount($SERVER_ID,$USER_ID,$ACCOUNT_ID);
+	}
+
+	static function OT_API_usageCredits($SERVER_ID,$USER_ID,$USER_ID_CHECK,$ADJUSTMENT) {
+		OT_API_usageCredits($SERVER_ID,$USER_ID,$USER_ID_CHECK,$ADJUSTMENT);
+	}
+
+	static function OT_API_Message_GetUsageCredits($THE_MESSAGE) {
+		return OT_API_Message_GetUsageCredits($THE_MESSAGE);
 	}
 
 	static function OT_API_checkUser($SERVER_ID,$USER_ID,$USER_ID_CHECK) {

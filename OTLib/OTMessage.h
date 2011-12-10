@@ -185,7 +185,7 @@ public:
 									// or a message envelope or request from another user etc) then
 									// it can be put here in ascii-armored format.
 
-	long		m_lDepth;			// For Market-related messages...
+	long		m_lDepth;			// For Market-related messages... (Plus for usage credits.)
 	long		m_lTransactionNum;	// For Market-related messages...
 	
 	bool		m_bSuccess;			// When the server replies to the client, this may be true or false

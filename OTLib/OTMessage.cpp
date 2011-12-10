@@ -569,6 +569,51 @@ void OTMessage::UpdateContents()
 	
 	
 	// ------------------------------------------------------------------------
+	
+	if (m_strCommand.Compare("usageCredits"))
+	{		
+		m_xmlUnsigned.Concatenate("<%s\n"
+								  " nymID=\"%s\"\n"
+								  " nymID2=\"%s\"\n"
+								  " requestNum=\"%s\"\n"
+								  " adjustment=\"%ld\"\n"
+								  " serverID=\"%s\""
+								  ">\n\n",
+								  m_strCommand.Get(),
+								  m_strNymID.Get(),
+								  m_strNymID2.Get(),
+								  m_strRequestNum.Get(),
+								  m_lDepth,
+								  m_strServerID.Get()
+								  );
+		
+		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
+	} // ------------------------------------------------------------------------
+	
+	
+	// ------------------------------------------------------------------------
+	if (m_strCommand.Compare("@usageCredits"))
+	{		
+		m_xmlUnsigned.Concatenate("<%s\n"
+								  " success=\"%s\"\n"
+								  " nymID=\"%s\"\n"
+								  " nymID2=\"%s\"\n"
+								  " totalCredits=\"%ld\"\n"
+								  " serverID=\"%s\""
+								  ">\n\n",
+								  m_strCommand.Get(), (m_bSuccess ? "true" : "false"),
+								  m_strNymID.Get(),
+								  m_strNymID2.Get(),
+								  m_lDepth,
+								  m_strServerID.Get()
+								  );		
+		
+		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
+	} // ------------------------------------------------------------------------
+	
+
+	
+	// ------------------------------------------------------------------------
 	// This one isn't part of the message protocol, but is used for outmail storage.
 	// (Because outmail isn't encrypted like the inmail is, since the Nymfile itself
 	// will soon be encrypted, and there's no need to be redundant also as well in addition on top of that.
@@ -2194,8 +2239,59 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// -------------------------------------------------------------------------------------------
 	
+	else if (!strcmp("usageCredits", xml->getNodeName())) 
+	{		
+		m_strCommand	= xml->getNodeName();  // Command
+		m_strNymID		= xml->getAttributeValue("nymID");
+		m_strNymID2		= xml->getAttributeValue("nymID2");
+		m_strServerID	= xml->getAttributeValue("serverID");
+		m_strRequestNum = xml->getAttributeValue("requestNum");
+		
+		OTString strAdjustment = xml->getAttributeValue("adjustment");
+		
+		if (strAdjustment.GetLength() > 0)
+			m_lDepth = atol(strAdjustment.Get());
+		
+		// -----------------------------------------------------
+		
+		OTLog::vOutput(1, "\nCommand: %s\nNymID:    %s\nNymID2:    %s\nServerID: %s\nRequest #: %s\nAdjustment: %ld\n", 
+					   m_strCommand.Get(), m_strNymID.Get(), m_strNymID2.Get(), m_strServerID.Get(), m_strRequestNum.Get(),
+					   m_lDepth);
+		
+		nReturnVal = 1;
+	}
+	// -------------------------------------------------------------------------------------------
 	
+	else if (!strcmp("@usageCredits", xml->getNodeName())) 
+	{		
+		OTString strSuccess;
+		strSuccess		= xml->getAttributeValue("success");
+		if (strSuccess.Compare("true"))
+			m_bSuccess = true;
+		else
+			m_bSuccess = false;
+		
+		m_strCommand	= xml->getNodeName();  // Command
+		m_strNymID		= xml->getAttributeValue("nymID");
+		m_strNymID2		= xml->getAttributeValue("nymID2");
+		m_strServerID	= xml->getAttributeValue("serverID");
+		
+		OTString strTotalCredits = xml->getAttributeValue("totalCredits");
+		
+		if (strTotalCredits.GetLength() > 0)
+			m_lDepth = atol(strTotalCredits.Get());
+		// -----------------------------------------------------
+				
+
+		OTLog::vOutput(1, "\nCommand: %s   %s\nNymID:    %s\nNymID2:    %s\n"
+					   "ServerID: %s\nTotal Credits: %ld \n\n", 
+					   m_strCommand.Get(), (m_bSuccess ? "SUCCESS" : "FAILED"),
+					   m_strNymID.Get(), m_strNymID2.Get(), m_strServerID.Get(),
+					   m_lDepth);
+		nReturnVal = 1;
+	}
 	
+	// -------------------------------------------------------------------------------------------
 	
 	else if (!strcmp("checkUser", xml->getNodeName())) 
 	{		

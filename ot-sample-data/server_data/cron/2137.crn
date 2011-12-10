@@ -1,0 +1,244 @@
+-----BEGIN SIGNED SMARTCONTRACT-----
+Hash: SAMY
+
+<smartContract
+ version="1.0"
+ serverID="tmHvLZxb13hW6OyH1oHKTmKd7fTMRsUfzqPE6KCwSjl"
+ activatorUserID="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV"
+ activatorAcctID="XkBPyMsQfBqu0gs4ExARDUEAnnKdZotLfJLi2a85rbB"
+ lastSenderUserID=""
+ lastSenderAcctID=""
+ lastRecipientUserID=""
+ lastRecipientAcctID=""
+ transactionNum="2137"
+ creationDate="1323519712"
+ validFrom="1323519662"
+ validTo="0"
+ nextProcessDate="0" >
+
+<closingTransactionNumber value="2136"/>
+
+<scriptableContract>
+
+<party name="party_alice"
+ ownerType="nym"
+ ownerID="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV"
+ openingTransNo="2137"
+ signedCopyProvided="true"
+ authorizingAgent="agent_alice"
+ numAgents="1"
+ numAccounts="2" >
+
+<agent name="agent_alice"
+ doesAgentRepresentHimself="true"
+ isAgentAnIndividual="true"
+ nymID="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV"
+ roleID=""
+ groupName="" />
+
+<assetAccount name="alice_first_acct"
+ acctID="XkBPyMsQfBqu0gs4ExARDUEAnnKdZotLfJLi2a85rbB"
+ assetTypeID="mNS1ODAXQoSXpWJfC5awE9zAXCm9aVfiE0WQGsIOw4B"
+ agentName="agent_alice"
+ closingTransNo="2136" />
+
+<assetAccount name="alice_second_acct"
+ acctID="omX3jAVE72e1vAs8OyXmsYWFZdVbkVug1Pk2pONSqPH"
+ assetTypeID="SjSYAUzN1RLjGre0kqDJynFos1MRYzrxOOenHY0Lpjd"
+ agentName="agent_alice"
+ closingTransNo="2135" />
+
+<mySignedCopy>
+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
+7kw=
+</mySignedCopy>
+
+</party>
+
+<party name="party_bob"
+ ownerType="nym"
+ ownerID="lMTANg3U97bwGFJAYKljTXAcy5By6JcLdU4di5AoA4z"
+ openingTransNo="2162"
+ signedCopyProvided="true"
+ authorizingAgent="agent_bob"
+ numAgents="1"
+ numAccounts="2" >
+
+<agent name="agent_bob"
+ doesAgentRepresentHimself="true"
+ isAgentAnIndividual="true"
+ nymID="lMTANg3U97bwGFJAYKljTXAcy5By6JcLdU4di5AoA4z"
+ roleID=""
+ groupName="" />
+
+<assetAccount name="bob_first_acct"
+ acctID="pFPRBfwtq0cXHgQVdbv0TZZOUlP3exSta4hBZNvVub8"
+ assetTypeID="mNS1ODAXQoSXpWJfC5awE9zAXCm9aVfiE0WQGsIOw4B"
+ agentName="agent_bob"
+ closingTransNo="2161" />
+
+<assetAccount name="bob_second_acct"
+ acctID="3Rk5FkMAMdELCiPJNJuGRde4CURgeY2LzXBtRfVxaXM"
+ assetTypeID="SjSYAUzN1RLjGre0kqDJynFos1MRYzrxOOenHY0Lpjd"
+ agentName="agent_bob"
+ closingTransNo="2160" />
+
+<mySignedCopy>
+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
+KrMGl3O2v3BfP4rHqac/Ld3/AC5157k=
+</mySignedCopy>
+
+</party>
+
+<bylaw name="main_bylaws"
+ numVariables="1"
+ numClauses="1"
+ numHooks="1"
+ numCallbacks="0"
+ language="chai" >
+
+<variable name="bSuccess"
+ value="false"
+ type="bool"
+ access="persistent" />
+
+<clause name="activate_clause">
+eJylkz1PwzAQhkcU/4ojUyKVfiAmJIZSGJAQIFrm6GxfqUWJK9tpVUFn/jbnJEBD
+J4SUxffxvO/ZF/FxBCtnypCl08njzcPs+gomt+On6fU5zDb2ZINbCA418XFhPPAX
+FgRqiZUnmFtXH+/LsQpmjYGyHBbWvvQhuy8Bwb+iC8qWjFChn6e5AAFrdOCDK3Bp
+FBUr3PrkAtLR2TD9yUkrfzLDmGlychrQL0iPYy8nfTwW86rUPmt4c+N8KFCp0IO0
+CdVFae+XaN4lXlr5ixc9eGL3usVBWodaGnSM1pOZOWTHHYvw/g7HexI5V72JJBZ2
+6jiecDypHQ1HcAFV+Z/ZGLfrykTxfY3TA42/zRsVEgE7AbT0VE9Vg0eH5mPPH56l
+5RwabNv2LXYcdt9DJIPB99JifGuDckm8sBhggxzTmjQE22x0u6QgibeawDQ13jyX
+pPtQw7I7G0ATL7/jRlN6oyOO8V45s2I7sgqA0q5jf58nkdNKKfKeRwmuonhdggnY
+/i3Fl2qWi0/V+Syp
+</clause>
+
+<hook name="cron_activate"
+ clause="activate_clause" />
+
+</bylaw>
+
+</scriptableContract>
+
+<accountList type="stash" count="0" >
+
+</accountList>
+
+</smartContract>
+
+-----BEGIN SMARTCONTRACT SIGNATURE-----
+Version: Open Transactions 0.75
+Comment: http://github.com/FellowTraveler/Open-Transactions/wiki
+
+CoABpH8ISawWNwvZJ3N8FTf6Jsn8LxSExYx1dp3fKAKE8Gc14oFprNUBc7HLt0aS
+Ybu/zzHDNLLjEzhfZTY05kpIoBkBfMT6sQ9wIar3oaZD9P1LGOUqVz0L5d12PuVo
+Hvt8+RFSBadXImmWkGm4vseO5FFejTSK1ZDE43mMSMPKvlI=
+-----END SMARTCONTRACT SIGNATURE-----
+
+-----BEGIN SMARTCONTRACT SIGNATURE-----
+Version: Open Transactions 0.75
+Comment: http://github.com/FellowTraveler/Open-Transactions/wiki
+
+CoABAmbTZq4gxnonbCxtvRmCMSGsdXRpQH2N5Vks7xvgP+m6d432F6m/AltEW8Dd
+la20obcJ4mZtvDgJMwH+0IyCidDXMhC/6H/TkdkXFvKWlxH54Wh32s3R/IaYN4Rr
+MwEw8wHe+gUy+tQcfGIbV2WN5Alsvg4YSHD6LEybhbgwF0A=
+-----END SMARTCONTRACT SIGNATURE-----

@@ -7412,6 +7412,80 @@ void OT_API::getRequest(OTIdentifier	& SERVER_ID,
 
 
 
+
+
+
+void OT_API::usageCredits(const OTIdentifier &	SERVER_ID,
+						  const OTIdentifier &	USER_ID,
+						  const OTIdentifier &	USER_ID_CHECK,
+						  const long			lAdjustment/*=0*/)
+{	
+	OT_ASSERT_MSG(m_bInitialized, "Not initialized; call OT_API::Init first.");
+	
+	// -----------------------------------------------------
+	
+	OTPseudonym * pNym = m_pWallet->GetNymByID(USER_ID);
+	
+	if (NULL == pNym) // Wasn't already in the wallet.
+	{
+		OTLog::Output(0, "There's no User already loaded with that ID. Loading...\n");
+		
+		pNym = this->LoadPrivateNym(USER_ID);
+		
+		if (NULL == pNym) // LoadPrivateNym has plenty of error logging already.	
+			return;
+		
+		m_pWallet->AddNym(*pNym);
+	}
+	
+	// By this point, pNym is a good pointer, and is on the wallet.
+	//  (No need to cleanup.)
+	// -----------------------------------------------------
+	
+	OTMessage theMessage;
+	long lRequestNumber = 0;
+	
+	OTString strServerID(SERVER_ID), strNymID(USER_ID), strNymID2(USER_ID_CHECK);
+	
+	// (0) Set up the REQUEST NUMBER and then INCREMENT IT
+	pNym->GetCurrentRequestNum(strServerID, lRequestNumber);
+	theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
+	pNym->IncrementRequestNum(*pNym, strServerID); // since I used it for a server request, I have to increment it
+	
+	// (1) set up member variables 
+	theMessage.m_strCommand			= "usageCredits";
+	theMessage.m_strNymID			= strNymID;
+	theMessage.m_strNymID2			= strNymID2;
+	theMessage.m_strServerID		= strServerID;
+	
+	theMessage.m_lDepth				= lAdjustment; // Default is "no adjustment" (@usageCredits returns current balance regardless.)
+	
+	// (2) Sign the Message 
+	theMessage.SignContract(*pNym);		
+	
+	// (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+	theMessage.SaveContract();
+	
+	// (Send it)
+#if defined(OT_ZMQ_MODE)
+	// -----------------------------------------------------------------
+	
+	OTServerContract * pServer = m_pWallet->GetServerContract(SERVER_ID);
+	
+	if (!pServer)
+	{
+		OTLog::Output(0, "That server contract is not available in the wallet.\n");
+		
+		return;
+	}
+	
+	m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
+#endif	
+	m_pClient->ProcessMessageOut(theMessage);
+}
+
+
+
 void OT_API::checkUser(OTIdentifier & SERVER_ID,
 					   OTIdentifier & USER_ID,
 					   OTIdentifier & USER_ID_CHECK)

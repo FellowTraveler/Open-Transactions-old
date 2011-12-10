@@ -125,6 +125,10 @@ def OT_API_Set_PasswordCallback(*args):
   return _otapi.OT_API_Set_PasswordCallback(*args)
 OT_API_Set_PasswordCallback = _otapi.OT_API_Set_PasswordCallback
 
+def OT_API_Output(*args):
+  return _otapi.OT_API_Output(*args)
+OT_API_Output = _otapi.OT_API_Output
+
 def OT_API_Init(*args):
   return _otapi.OT_API_Init(*args)
 OT_API_Init = _otapi.OT_API_Init
@@ -656,6 +660,14 @@ OT_API_deleteUserAccount = _otapi.OT_API_deleteUserAccount
 def OT_API_deleteAssetAccount(*args):
   return _otapi.OT_API_deleteAssetAccount(*args)
 OT_API_deleteAssetAccount = _otapi.OT_API_deleteAssetAccount
+
+def OT_API_usageCredits(*args):
+  return _otapi.OT_API_usageCredits(*args)
+OT_API_usageCredits = _otapi.OT_API_usageCredits
+
+def OT_API_Message_GetUsageCredits(*args):
+  return _otapi.OT_API_Message_GetUsageCredits(*args)
+OT_API_Message_GetUsageCredits = _otapi.OT_API_Message_GetUsageCredits
 
 def OT_API_checkUser(*args):
   return _otapi.OT_API_checkUser(*args)

@@ -208,7 +208,8 @@ public:
 	// I don't default the parameter, because I want to force the programmer to choose.
 	
     // Called in OTCron::AddCronItem.
-    void HookActivationOnCron(OTPseudonym * pActivator); // This calls onActivate, which is virtual.
+    void HookActivationOnCron(OTPseudonym * pActivator, 
+							  bool bForTheFirstTime=false); // This calls onActivate, which is virtual.
 	
     // Called in OTCron::RemoveCronItem as well as OTCron::ProcessCron.
     void HookRemovalFromCron(OTPseudonym * pRemover); // This calls onFinalReceipt, then onRemovalFromCron. Both are virtual.

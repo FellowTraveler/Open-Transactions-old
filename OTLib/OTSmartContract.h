@@ -199,6 +199,9 @@ private:
 	OTString	m_strLastRecipientUser;	// we know who was sending and who was receiving. Also, if a STASH was the last action, then
 	OTString	m_strLastRecipientAcct;	// the sender (or recipient) will be blank, signifying that the source or destination was a stash.
 	
+	// If onProcess() is on a timer (say, to wake up in a week) then this will contain the 
+	time_t		m_tNextProcessDate;		// date that it WILL be, in a week. (Or zero.)
+	
 protected:
     
 	// --------------------------------------------------------------------------
@@ -217,6 +220,11 @@ protected:
 	//
 	void ReleaseLastSenderRecipientIDs();
 
+	// --------------------------------------------------------------------------
+	// (These two are lower level, and used by SetNextProcessTime).
+	void SetNextProcessDate(const time_t & tNEXT_DATE) { m_tNextProcessDate = tNEXT_DATE; }
+	const time_t & GetNextProcessDate() const { return m_tNextProcessDate; }     
+	
 public:
 	// --------------------------------------------------------------------------
 	// FOR RECEIPTS
@@ -353,19 +361,26 @@ public:
 	//
 	void PrepareToActivate(const long & lOpeningTransNo,	const long & lClosingTransNo,
 						   const OTIdentifier & theUserID,	const OTIdentifier & theAcctID);
+	
 	// --------------------------------------------------------------------------
 	//
 	// HIGH LEVEL
 	//
 	
+    // -------------------------------------
 	// CALLBACKS that OT server uses occasionally. (Smart Contracts can
 	// supply a special script that is activated for each callback.)
 
 //	bool OTScriptable::CanExecuteClause(const std::string str_party_name, const std::string str_clause_name); // This calls (if available) the scripted clause: bool party_may_execute_clause(party_name, clause_name)
 	bool CanCancelContract(const std::string str_party_name); // This calls (if available) the scripted clause: bool party_may_cancel_contract(party_name)
 	
+    // -------------------------------------
 	// OT NATIVE FUNCTIONS -- Available for scripts to call:
-
+	
+	void		SetRemainingTimer(const std::string str_seconds_from_now); // onProcess will trigger X seconds from now... (And not until then, either.)
+	std::string	GetRemainingTimer() const; // returns seconds left on the timer, in string format, or "0".
+	// --------------------------------------------------------------------------
+	
 	// class member, with long parameter
 //	bool MoveAcctFundsL(const std::string from_acct_name, 
 //					   const std::string to_acct_name, 

@@ -2,7 +2,10 @@
 <notaryServer version="1.0"
  serverID="tmHvLZxb13hW6OyH1oHKTmKd7fTMRsUfzqPE6KCwSjl"
  serverUserID="pc23gUqPu9Bk1Vl0K5lz3Jp1MYIfjGIBXVWDp1gba9C"
- transactionNum="2120" >
+ transactionNum="2193" >
+
+<assetType name="eJzj4k5PzE1VKMnPTs0rBgAaNARk"
+ assetTypeID="SjSYAUzN1RLjGre0kqDJynFos1MRYzrxOOenHY0Lpjd" />
 
 <assetType name="eJzj4inOzClLLVJIL0rMLQYAILwE5g=="
  assetTypeID="mNS1ODAXQoSXpWJfC5awE9zAXCm9aVfiE0WQGsIOw4B" />

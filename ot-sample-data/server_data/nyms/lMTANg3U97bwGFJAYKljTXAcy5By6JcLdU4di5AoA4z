@@ -1,0 +1,29 @@
+-----BEGIN SIGNED FILE-----
+Hash: SAMY
+
+<?xml version="1.0"?>
+
+<signedFile
+ version="1.0"
+ localDir="nyms"
+ filename="lMTANg3U97bwGFJAYKljTXAcy5By6JcLdU4di5AoA4z" >
+
+<filePayload>
+eJy1l9lugkAUhu95g96ZeYAK5TBIIhq6UnFpLKTLncLYYlgiAyq+gW9djLaJSXvV
+/NeT+b5Zzvkno+wvuv1tmrTWopBxntlMu1RZv6co3YlfSVGcDyitrE4fb22WjHxn
+/KEHljnfPNwPnDcvWfqvTlgb1zUfhMMooCg2nNyhHTvACrGqhCzHVaq0GmoDPVAa
+XlgVhcjK6c+4zVTW/ntKmbrr4ft2rumfL3xSu1ruen7qRebCH01lsNitnu64d7N5
+Xia/0y39iC+LWSZnYdns7V+Kc47NrjTDgBs43GDCDR24wYIbNLhBRRsIfkoEv2mC
+VyvBO47gqUEEN5yyNZayEhEoVjFwjoSbSHgHCbeAcK4i4RoSDq1z5MoN5JkTsloI
+WeeE7FBCZgshU/H7xcDAT03UPn40esoX/gkeFA==
+</filePayload>
+
+</signedFile>
+-----BEGIN FILE SIGNATURE-----
+Version: Open Transactions 0.75
+Comment: http://github.com/FellowTraveler/Open-Transactions/wiki
+
+CoABD+GmdzUGs6eAZQZ/5H4MQWyjUl6nzoPuQUOSuCE17P9YoXH2o7Dvr3TC6fMI
+XtKQtX2I4vKzHPn3R+a1TbBSpsPPcP3mXmv1qzaUTY7ZXs1+e8MUWzYjHKdaAQsq
+GYtu6qqGsI2CpmGxcUQVJ4WgZCEGN3Ei0Cuo8nWasuk7QTA=
+-----END FILE SIGNATURE-----

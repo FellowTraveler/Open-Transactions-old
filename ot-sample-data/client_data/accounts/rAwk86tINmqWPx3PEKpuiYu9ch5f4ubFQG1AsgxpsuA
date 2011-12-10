@@ -11,14 +11,14 @@ Hash: SAMY
  serverID="tmHvLZxb13hW6OyH1oHKTmKd7fTMRsUfzqPE6KCwSjl"
  assetTypeID="mNS1ODAXQoSXpWJfC5awE9zAXCm9aVfiE0WQGsIOw4B" >
 
-<balance date="1323013693" amount="0"/>
+<balance date="1323160805" amount="-100000"/>
 
 </assetAccount>
 -----BEGIN ACCOUNT SIGNATURE-----
 Version: Open Transactions 0.75
 Comment: http://github.com/FellowTraveler/Open-Transactions/wiki
 
-CoABLeCV5RXtjOzU+iEbY7g9pQ6s67a2WOuzjLjCeKcrSRI44uJHGkko4BrnWpuU
-CG3muM1NPMLpg+5/6iXHUau5NFg8fGf83jP52sksxbL7ViVYIpDxuqpVh4zoaBGC
-qiPwd5l5weRfQdKI/NiZsz2ArNO6q5zzlmgvrvnI26Xw7HU=
+CoABYntpEh381S3V7Su5fh0seNKMTMb7NInL3AV5nXM9jxy+D8zWE1CBkgCYzwpZ
+cJmnT3kvTJ1yDgVDf8vvndO+Uail0dI09UEbzvp3qNI3HeQ5NHPj6e0mibWau246
+95AxbH2GQbwVaYyhd0SStWTAyzqKm0E6HWAy+nj8mjpXgVw=
 -----END ACCOUNT SIGNATURE-----

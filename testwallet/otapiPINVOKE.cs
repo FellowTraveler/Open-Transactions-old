@@ -236,6 +236,9 @@ class otapiPINVOKE {
   [DllImport("otapi", EntryPoint="CSharp_OT_API_Set_PasswordCallback")]
   public static extern bool OT_API_Set_PasswordCallback(HandleRef jarg1);
 
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_Output")]
+  public static extern void OT_API_Output(int jarg1, string jarg2);
+
   [DllImport("otapi", EntryPoint="CSharp_OT_API_Init")]
   public static extern int OT_API_Init(string jarg1);
 
@@ -634,6 +637,12 @@ class otapiPINVOKE {
 
   [DllImport("otapi", EntryPoint="CSharp_OT_API_deleteAssetAccount")]
   public static extern void OT_API_deleteAssetAccount(string jarg1, string jarg2, string jarg3);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_usageCredits")]
+  public static extern void OT_API_usageCredits(string jarg1, string jarg2, string jarg3, string jarg4);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_Message_GetUsageCredits")]
+  public static extern string OT_API_Message_GetUsageCredits(string jarg1);
 
   [DllImport("otapi", EntryPoint="CSharp_OT_API_checkUser")]
   public static extern void OT_API_checkUser(string jarg1, string jarg2, string jarg3);

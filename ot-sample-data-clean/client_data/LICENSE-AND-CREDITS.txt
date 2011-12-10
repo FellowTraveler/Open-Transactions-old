@@ -1,0 +1,2059 @@
+Moneychanger v0.06
+/************************************************************
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA256
+
+ *                 M O N E Y C H A N G E R
+ *
+ *  Open Transactions:
+ *       Financial Cryptography and Digital Cash
+ *       Library, Protocol, API, Server, and GUI 
+ *    
+ *    	 -- Anonymous Numbered Accounts.
+ *    	 -- Untraceable Digital Cash.
+ *    	 -- Triple-Signed Receipts.
+ *    	 -- Cheques, Vouchers, Transfers, Inboxes.
+ *    	 -- Basket Currencies, Markets, Payment Plans.
+ *    	 -- Signed, XML, Ricardian-style Contracts.
+ *    
+ *  Copyright (C) 2010-2012 by "Fellow Traveler" (A pseudonym)
+ *
+ *  EMAIL:
+ *  FellowTraveler@rayservers.net --- SEE PGP KEY BELOW.
+ *  F3llowTraveler@gmail.com --- (not preferred.)
+ *  
+ *  FINGERPRINT:
+ *  9DD5 90EB 9292 4B48 0484  7910 0308 00ED F951 BB8E
+ *
+ *  BITCOIN:  1NtTPVVjDsUfDWybS4BwvHpG2pdS9RnYyQ
+ *
+ *  OFFICIAL PROJECT WIKI:
+ *  https://github.com/FellowTraveler/Moneychanger
+ *  https://github.com/FellowTraveler/Open-Transactions/wiki
+ *
+ *  WEBSITE:
+ *  http://www.OpenTransactions.org/
+ *    
+ *  Components and licensing:
+ *   -- Moneychanger..A Java client GUI.....LICENSE:.....GPLv3
+ *   -- OTLib.........A class library.......LICENSE:...LAGPLv3 
+ *   -- OT-API........A client API..........LICENSE:...LAGPLv3
+ *   -- testwallet....Command-line client...LICENSE:...LAGPLv3
+ *   -- OT-Server.....Server Application....LICENSE:....AGPLv3
+ *  Github.com/FellowTraveler/Open-Transactions/wiki/Components
+ *
+ *  All of the above OT components were designed and written by
+ *  Fellow Traveler, with the exception of Moneychanger, which
+ *  was contracted out to Vicky C (livewire_3001@yahoo.com).
+ *
+ *  -----------------------------------------------------
+ *
+ *   LICENSE:
+ *   This program is free software: you can redistribute it
+ *   and/or modify it under the terms of the GNU General
+ *   Public License as published by the Free Software
+ *   Foundation, either version 3 of the License, or (at your
+ *   option) any later version.
+ *
+ *   You should have received a copy of the GNU General
+ *   Public License along with this program.  If not, see:
+ *   http://www.gnu.org/licenses/
+ *
+ *   If you would like to use this software outside of the free
+ *   software license, please contact FellowTraveler.
+ *   (Unfortunately many will run anonymously and untraceably,
+ *   so who could really stop them?)
+ *   
+ *   DISCLAIMER:
+ *   This program is distributed in the hope that it will be
+ *   useful, but WITHOUT ANY WARRANTY; without even the implied
+ *   warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ *   PURPOSE.  See the GNU General Public License for more
+ *   details.
+ 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (Darwin)
+
+iQIcBAEBCAAGBQJOjvfMAAoJEAMIAO35UbuOOTsP/0DoRJnzlUrG6xnWOFFMonK0
+nfbyZcfHdN/TmaDSoqCiL3fZ7GDLRmw5XOo4P5bV9vUYqJu1gPCvJQEsgMmwu6fo
+MdsMUkZZYi7uNUWYt4rog/DhRCfcHmiTJPCoLxJ1pzWIUNyEHBqnAdAhfhrbww4v
+JIaZKg8AvXz/N1hqJ9OWjKgEEn628BGn/Von8hnEor6q+ueVFRl2zQfXeQ3riJ5J
+o8Zgbtr7ocoLrvwbTJQSYNuj1xn+LB2c9GAArK4+T/J9PlvgS5djYxY+qZg3/1gn
+wemIe9+hVI10CR9FrtiobJbEbMvkYcXmxWoi9z15m1FeASsiaUT3NF4uItuB4PFh
+xW8iDJpmeWmHzjCne8E94Wij7Pu0v+MbZ3/LNRkrzUxMcOgGwcZkeFzespxhkqir
+0B6SaflR+Zosj8RIaIRZVtu5HbP3IUcWcGwDCbF7U4NSFbDVe2kUejAICDn6Regk
+WfE1GScATYWg9dg/Z6/6av09G3IVmQKYyzu0JCJ0olgQI6p8pGFV/2qHsMHDrPyL
+iQaKx1elz1fy5/wBAK4kUdTxWw0fU59gkMzD63xXqHe8aigaM768FCuYYgAFJOZU
+XEbmhybX3XeNIx0azO+zzK3mzBUF2zgEmacwhZaB+JMktJzHDrQxgLuwKKFOotE7
+BaHXSNVFaEOMa37bWGpt
+=qJX9
+-----END PGP SIGNATURE-----
+**************************************************************/
+
+
+
+
+
+
+
+Open Transactions v0.75
+(Scroll to the bottom to see the complete AGPLv3.)
+/************************************************************
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA256
+
+ *                 OPEN TRANSACTIONS
+ *
+ *       Financial Cryptography and Digital Cash
+ *       Library, Protocol, API, Server, and GUI 
+ *    
+ *    	 -- Anonymous Numbered Accounts.
+ *    	 -- Untraceable Digital Cash.
+ *    	 -- Triple-Signed Receipts.
+ *    	 -- Cheques, Vouchers, Transfers, Inboxes.
+ *    	 -- Basket Currencies, Markets, Payment Plans.
+ *    	 -- Signed, XML, Ricardian-style Contracts.
+ *    
+ *  Copyright (C) 2010-2012 by "Fellow Traveler" (A pseudonym)
+ *
+ *  EMAIL:
+ *  FellowTraveler@rayservers.net --- SEE PGP KEY BELOW.
+ *  F3llowTraveler@gmail.com --- (not preferred.)
+ *  
+ *  BITCOIN:  1NtTPVVjDsUfDWybS4BwvHpG2pdS9RnYyQ
+ *
+ *  KEY FINGERPRINT:
+ *  9DD5 90EB 9292 4B48 0484  7910 0308 00ED F951 BB8E
+ *
+ *  OFFICIAL PROJECT WIKI(s):
+ *  https://github.com/FellowTraveler/Moneychanger
+ *  https://github.com/FellowTraveler/Open-Transactions/wiki 
+ *
+ *  WEBSITE:
+ *  http://www.OpenTransactions.org/
+ *    
+ *  Components and licensing:
+ *   -- Moneychanger..A Java client GUI.....LICENSE:.....GPLv3
+ *   -- OTLib.........A class library.......LICENSE:...LAGPLv3 
+ *   -- OT-API........A client API..........LICENSE:...LAGPLv3
+ *   -- testwallet....Command-line client...LICENSE:...LAGPLv3
+ *   -- OT-Server.....Server Application....LICENSE:....AGPLv3
+ *  Github.com/FellowTraveler/Open-Transactions/wiki/Components
+ *
+ *  All of the above OT components were designed and written by
+ *  Fellow Traveler, with the exception of Moneychanger, which
+ *  was contracted out to Vicky C (livewire_3001@yahoo.com).
+ *
+ *  -----------------------------------------------------
+ *
+ *   LICENSE:
+ *   This program is free software: you can redistribute it
+ *   and/or modify it under the terms of the GNU Affero
+ *   General Public License as published by the Free Software
+ *   Foundation, either version 3 of the License, or (at your
+ *   option) any later version.
+ *    
+ *   ADDITIONAL PERMISSION under the GNU Affero GPL version 3
+ *   section 7: (This paragraph applies only to the LAGPLv3
+ *   components listed above.) If you modify this Program, or
+ *   any covered work, by linking or combining it with other
+ *   code, such other code is not for that reason alone subject
+ *   to any of the requirements of the GNU Affero GPL version 3.
+ *   (==> This means if you are only using the OT-API, then you
+ *   don't have to open-source your code--only your changes to
+ *   Open Transactions itself must be open source. Similar to
+ *   LGPLv3, except it applies to software-as-a-service, not
+ *   just to distributing binaries.)
+ *
+ *   Extra WAIVER for OpenSSL, Lucre, and all other libraries
+ *   used by Open Transactions: This program is released under
+ *   the AGPL with the additional exemption that compiling,
+ *   linking, and/or using OpenSSL is allowed. The same is true
+ *   for any other open source libraries included in this
+ *   project: complete waiver from the AGPL is hereby granted to
+ *   compile, link, and/or use them with Open Transactions,
+ *   according to their own terms, as long as the rest of the
+ *   Open Transactions terms remain respected, with regard to
+ *   the Open Transactions code itself.
+ *    
+ *   Lucre License:
+ *   This code is also "dual-license", meaning that Ben Lau-
+ *   rie's license must also be included and respected, since
+ *   the code for Lucre is also included with Open Transactions.
+ *   See Open-Transactions/OTLib/Lucre/LUCRE_LICENSE.txt
+ *   The Laurie requirements are light, but if there is any
+ *   problem with his license, simply remove the Lucre code.
+ *   Although there are no other blind token algorithms in Open
+ *   Transactions (yet. credlib is coming), the other functions
+ *   will continue to operate.
+ *   -----------------------------------------------------
+ *   You should have received a copy of the GNU Affero General
+ *   Public License along with this program.  If not, see:
+ *   http://www.gnu.org/licenses/
+ *
+ *   If you would like to use this software outside of the free
+ *   software license, please contact FellowTraveler.
+ *   (Unfortunately many will run anonymously and untraceably,
+ *   so who could really stop them?)
+ *   
+ *   DISCLAIMER:
+ *   This program is distributed in the hope that it will be
+ *   useful, but WITHOUT ANY WARRANTY; without even the implied
+ *   warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ *   PURPOSE.  See the GNU Affero General Public License for
+ *   more details.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (Darwin)
+
+iQIcBAEBCAAGBQJOjvvMAAoJEAMIAO35UbuOOnEQAJigzghh8KAjYhbrvzaDgev0
+3FpcUb+19d4QaB6t7/89UfJ8z3bXovz2OwnUrp4IqMqIeZLuPVg+O4Mz1zXkoCiS
+m+fXonWOAHv+KDfF3M0biGTuFwu2a8lXKfZldioToASAKpg+uFlLGh2uHfbQ5dl/
+NA/Rqh9Ymp8ORCTejc/OAQE17P83hUhBaTbu2lbo+xMuyFh9Yuca3tpRiDUOkwRA
+sFEymfY3zrkWkRPSIRVEOVBIWf+O1uDHvtLONNrDfnsPQW20n56OV/4verD+E6GL
+7b92Wua5+wXBm4WEloalbI8XKO3lca9PqdUfFwOVMec2usI/KP8Lhu6SGfCICbUp
+Be8NHRySg2gockRa8ZBQd7NmpadmOAV7Za2qe7mPSoO9vTcnB9/RF0tvMpcWl0tj
+Scdq+QNoVGLwz5/jJZXo20eAICU0v1+5xVaZi+9B+dzQ4XIaxuQma7Unokehcz3d
+UhdxaDOcdLSR/5yHM/rhyakOG07SUU/Amu/T5XMF5FbUvWFJEgbBx2k9HZqybI7m
+EInE39QRepSmNlHtTHy4k57UlAL7FnDJHGifKnuafdU+hV8jAzU9jgNrjyjO9OGM
+gux09jKExEI9ff/ukvlVkDoIpGGMLNXy3ius7/9ZRP2I8eMYMIQWTue50o9DU5Ow
+8BErVzwFDmgFe49PHXW9
+=wZeA
+-----END PGP SIGNATURE-----
+**************************************************************/
+ 
+
+
+
+
+SIGNED PUBLIC KEY FOR AUTHOR.
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA256
+
+Public key for "FellowTraveler", author:
+
+- -----BEGIN PGP PUBLIC KEY BLOCK-----
+ Version: PGP Desktop 10.0.1
+ 
+ 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
+ =6+N5
+ -----END PGP PUBLIC KEY BLOCK-----
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (Darwin)
+
+iQIcBAEBCAAGBQJNsWCWAAoJEAMIAO35UbuOv3kP/Rd6UekX27+rHiMPfo8vN1Iz
+cjXg3o7J4BWsppZQppT4r1ZmZ6ftVXDxfSeR22kWQeU7IjNjDKcQ8Vh0P1x/DHva
+YczzHzQsiGGCWVzCyJyh8ENreS0mFAM6RqAP7HwOE+5iJstSatN5EHd0Om+QQvKJ
+xdSe8pct6y4NjhfjXm1bfIV4suadQodFw4qp3h3LfVypPEeiGD0ohAJ2l7zO/bE3
+xNxvvj/WLfqyxVVc1pip7CzNNJTr+bQI1hh3nFXTElH+zu/YXvob4NPySruh98wE
+PxzFnZ+Nl0n13+sfUW/tdI2xYWo7IZ34Ft2SjCy3He9rSLE5keke3loT8r50tu3J
+pfpwDUHXAJO6nQFMbiAIEc/n+B42s8AvQ/PNmQA1/JcdlQaeBA2+k/ursOPSajDb
+sTjsqsBsp5AYXAIJUbvzDDIz/2gzRcZjXaj+P9YfH00gJ2ZmKM1gTLWFrYRURIW7
+dRLUMY6HvDtyjAlO9LnvuwbdBU6jQb9EaE7FOQuO4LG62Rh9irHo3j7/FjJZkllj
+g7Ypjamz9+U/5Jt2V7ivvmPbZ/IGu5dA2bw3Pqf0LtTMGqiLQWFmXLRlZ44DPv6Q
+MvrCHCsSZB/Dgb4A8vZYFLbY2kzqf+g1ra4qWkKQFyNkwCbSU1p1xj2rnrRmWwSf
+kLZLksZLPzcxEHdPh6YV
+=/Nb5
+-----END PGP SIGNATURE-----
+
+
+
+
+A few relevant notes, followed by contributor credits:
+
+
+"The silver is mine, and the gold is mine, says the LORD of hosts."
+Haggai 2:8 
+
+"By your wisdom and your understanding you have made wealth for 
+  yourself, and have gathered gold and silver into your treasuries"
+Ezekiel 28:4
+
+"Precious treasure and oil are in a wise man's dwelling,
+  but a foolish man devours it."
+Proverbs 21:20
+
+"Because you say, 'I am rich, and increased with goods, and I need nothing,' 
+  and you know not that you are wretched, and miserable, and poor, and blind, 
+   and naked...
+"I counsel you to buy from me gold refined by fire, so that you may be rich, 
+  and white garments so that you may clothe yourself and the shame of your 
+   nakedness may not be seen, and salve to anoint your eyes, 
+    so that you may see."
+Rev. 3:17-18
+
+"Say to the children of Israel, I am the LORD, 
+  and I will bring you out from under the burdens of the Egyptians, 
+  and I will rid you out of their bondage, 
+  and I will redeem you with a stretched out arm, 
+   and with great judgments.
+ And I will take you to me for a people, 
+  and I will be to you a God: 
+  and you shall know that I am the LORD your God, 
+   which brings you out from under the burdens of the Egyptians. 
+ And I will bring you in unto the land, 
+  concerning which I did swear to give it to Abraham, to Isaac, and to Jacob; 
+   and I will give it you for an heritage: I am the LORD."
+Exodus 6:6-9
+
+"After the doings of the land of Egypt, 
+   (where you lived before), you shall not do: 
+  and after the doings of the land of Canaan, 
+   (where I am bringing you), you shall not do: 
+   neither shall you walk in their ordinances. 
+ You shall do MY judgments, and keep MY ordinances, 
+   to walk in them: I am the LORD your God. 
+ You shall therefore keep my statutes, and my judgments: 
+   which if a man does, he shall live in them: I am the LORD."
+Leviticus 18:1-5
+
+"Except the LORD build the house, they labor in vain that build it: 
+ except the LORD keep the city, the watchman wakes in vain."
+Psalms 127
+
+"Do what is right and good in the Lord's sight, 
+ so all will go well with you."
+Deuteronomy 6:18
+
+"Hate evil, and love good, 
+ and establish justice in the courts."
+Amos 5:15
+
+"Justice, and only justice, you shall follow, that you may live and
+ inherit the land that the Lord your God is giving you."
+Deuteronomy 16:20
+
+"Select capable men, 
+  from all the people,
+   men who fear God, 
+  trustworthy men who hate dishonest gain,
+   and appoint them as officials over thousands, 
+    hundreds, fifties and tens."
+Exodus 18:21
+
+"Let every soul be subject unto the higher powers. 
+ For there is no power but of God: 
+  the powers that be are ordained of God. 
+ Whosoever therefore resists the power, resists the ordinance of God: 
+  and they that resist shall receive to themselves condemnation. 
+ For rulers are not a terror to good works, but to the evil. 
+ Will you then not be afraid of the power? 
+ Do that which is good, and you shall have praise of the same: 
+ For he is the minister of God to you for good. 
+ But if you do that which is evil, be afraid; 
+  for he bears not the sword in vain: 
+  for he is the minister of God, 
+  a revenger to execute wrath upon him that does evil. 
+ Therefore you must be subject, not only for wrath, 
+  but also for conscience sake."
+Romans 13:1-5
+
+"Woe to those...
+  who justify the wicked for a bribe, 
+ and take away the rights of the innocent."
+Isaiah 5:23
+
+"Woe unto those who decree unrighteous decrees, and 
+ write grievousness which they have prescribed;"
+Isaiah 10:1
+
+"And David said to God, 
+'Wasn't it I who commanded the people to be numbered? 
+ I am the one who has sinned, and done evil indeed'"
+1 Chronicles 21:17a
+
+"Woe to those who scheme iniquity,
+  who work out evil on their beds!
+ When morning comes, they do it,
+  (for it is in the power of their hands.) 
+ They covet fields and then seize them,
+  and houses, and take them away.
+ They rob a man and his house,
+  a man and his inheritance."
+Micah 2:1-2
+
+"Then came also publicans to be baptized, and said unto Him, 
+    'Master, what shall we do?' 
+  And He said to them, 
+    'Exact no more than that which is appointed you.' 
+  And the soldiers likewise demanded of Him, saying, 
+    'And what shall we do?'
+  And He said to them, 
+    'Do violence to no man, 
+      neither accuse any falsely;
+       and be content with your wages.'"
+Luke 3:12-14
+
+"Do not pervert justice; 
+  do not show partiality to the poor
+  or favoritism to the strong, 
+ but judge your neighbor fairly."
+Leviticus 19:15
+
+"You shall not go after the majority to do evil.
+  Neither shall you testify in a matter of strife
+  to incline after the majority to pervert justice."
+Exodus 23:2
+
+"You shall not accept a bribe, 
+ for a bribe blinds the eyes of the wise,
+ and subverts the cause of the righteous."
+Deuteronomy 16:19
+
+"You shall not lend upon usury to thy brother; 
+  usury of money, usury of victuals, 
+   usury of any thing that is lent upon usury: 
+ Unto a stranger you may lend upon usury; 
+  but unto your brother you shall not lend upon usury: 
+   that the LORD your God may bless you in all that you set your hand to 
+   in the land you go to possess."
+Deuteronomy 23:19-20
+
+"You shall not have different weights in your bag, a great and a small.
+  You shall not have different measures in your house, a great and a small.
+ But you shall have a perfect and just weight, a perfect and just measure 
+  you shall have: That your days may be lengthened in the land which the 
+   LORD your God gives you."
+Deuteronomy 25:13  
+
+"You shall not steal."
+Exodus 20:15  
+
+"Different weights, and different measures, both of them are alike 
+ abomination to the LORD."
+Proverbs 20:10
+
+ He overturned the tables of the money-lenders, 
+ and the benches of those selling doves.
+ "It is written," he said to them,
+ "'My house will be called a house of prayer,' (1)
+ but you are making it a 'den of thieves'." (2)
+Matthew 21:12b-13, 1. Isaiah 56:7, 2. Jeremiah 7:11
+
+"The rich rule over the poor, and the borrower is servant to the lender."
+Proverbs 22:7  
+
+"Be not deceived; God is not mocked: for whatsoever a man sows, 
+ he shall also reap."
+Galatians 6:7 
+
+"You are bought with a price; be you not the servants of men."
+1 Corinthians 7:23 
+
+"You cannot serve both God and Mammon."
+Luke 16:13
+
+"Now the Lord is the Spirit, 
+ and where the Spirit of the Lord is, there is liberty."
+2 Corinthians 3:17
+
+"Proclaim liberty throughout all the land unto all its inhabitants."
+Leviticus 25:10
+
+"From any tree of the garden you may eat freely;"
+Genesis 2:16a
+
+"So in everything, do unto others what you would have them do unto you,
+for this sums up the Law and the Prophets."
+-Jesus Christ, Matthew 7:12
+
+"We must obey God rather than men."
+Acts 5:29
+
+"For the LORD is our judge; 
+ the LORD is our lawgiver; 
+ the LORD is our king."
+Isaiah 33:22
+
+"And it shall come to pass, if you listen diligently 
+ to the voice of the Lord your God, 
+  to observe and to do all his commandments 
+   which I command you today, 
+ that the Lord your God will set you on high, 
+  above all nations of the earth"
+Deuteronomy 28:1
+
+"Righteousness exalts a nation." 
+Proverbs 14:34
+
+"Tell the righteous it will be well with them, 
+  for they will enjoy the fruit of their labor."
+Isaiah 3:10
+
+"A righteous man knows the rights of the poor;
+ a wicked man does not understand such knowledge."
+Proverbs 29:7
+
+"Is it not lawful for me to do what I wish with my own things?"
+-Jesus Christ, Matthew 20:15
+
+"The man who looks intently into the perfect law that gives freedom, 
+  and continues to do this, not forgetting what he has heard, but doing it,
+   he will be blessed in what he does."
+James 1:25
+
+"Whoever hears these words of mine and puts them into practice,
+  he is like a wise man, who built his house upon a rock:
+   and the rain descended,
+    and the floods came, 
+     and the winds blew,
+      and beat upon that house;
+      yet it fell not:
+    for it was founded upon a rock."
+Matthew 7:24-25
+
+"Observe and hear all these words which I command you, that it may
+  go well with you, and with your children after you forever, 
+   when you do that which is good and right 
+   in the sight of the LORD your God."
+Deuteronomy 12:28-32
+
+"It is for freedom that Christ has set us free. Stand firm, then, 
+ and do not let yourselves be burdened again by a yoke of slavery." 
+-Galatians 5:1
+
+"Whoever hears these words of mine and fails to do them,
+  he is like a foolish man who built his house upon the sand,
+   and the rain descended, 
+    and the rivers came, 
+     and the winds blew, 
+      and they dashed against that house; 
+      and it fell -- and its fall was great."
+Matthew 7:26-27
+
+"My people are destroyed for lack of knowledge: 
+   because you have rejected knowledge, 
+  I will also reject you, 
+   that you shall be no priest to me: 
+    seeing you have forgotten the law of your God, 
+  I will also forget your children."
+Hosea 4:6
+
+"Come now you rich,
+  weep and howl for your miseries 
+  which are coming upon you.
+ Your riches have rotted
+  Your gold and your silver have rusted
+  and their rust will be a witness against you.
+ It is in the last days that you have stored up your treasure!
+ Behold, the pay of the laborers who mowed your fields
+   (which has been withheld by you)
+    cries out against you,
+  and the outcry of those who did the harvesting
+   has reached the ears of the Lord of the Sabbath.
+ You have lived luxuriously on the earth,
+  and led a life of wanton pleasure.
+ You have fattened your hearts in a day of slaughter.
+ You have condemned and murdered the righteous man;"
+James 5:1-6
+
+"'...And you had turned, and had done right in my sight, in 
+   proclaiming liberty, every man to his neighbor; and you had made a 
+    covenant before me in the house which is called by my name.
+"'But you turned and polluted my name, and caused every man his
+   servant, and every man his handmaid, whom you had set at liberty, to 
+    return, and brought them into subjection, to be your servants and 
+     handmaids.
+"'Therefore,' (thus says the Lord) 'You have not hearkened unto me, 
+   in proclaiming a liberty, every one to his brother, and every man to his
+    neighbor: behold, I proclaim a liberty for you, says the Lord, to the 
+     sword, to the pestilence, and to the famine; and I will make you to be 
+      removed into all the kingdoms of the earth.'"
+Jeremiah 34:15-17
+
+"Now it shall come to pass in the latter days 
+  that the mountain of the LORD's house 
+ shall be established on the top of the mountains, 
+  and shall be exalted above the hills; 
+   and all nations shall flow to it. 
+ Many people shall come and say:
+  'Come, and let us go up to the mountain of the Lord, 
+    to the house of the God of Jacob; 
+   He will teach us His ways, 
+    and we shall walk in His paths.'
+ For out of Zion shall go forth the law, 
+  and the word of the Lord from Jerusalem."
+Isaiah 2:2-3
+
+"In the last days... everyone will 
+  sit under their own vine,
+   and under their own fig tree, 
+    and no one will make them afraid, 
+   for the LORD Almighty has spoken."
+Micah 4:1-4
+
+"Because the creature itself also shall be delivered 
+  from the bondage of corruption
+ into the glorious liberty of the children of God."
+Romans 8:21
+
+
+
+Thomas Paine wrote in COMMON SENSE:
+
+Government by kings was first introduced into the world by the
+Heathens, from whom the children of Israel copied the custom. It was
+the most prosperous invention the Devil ever set on foot for the
+promotion of idolatry. The Heathens paid divine honors to their
+deceased kings, and the Christian world hath improved on the plan by
+doing the same to their living ones.
+
+How impious is the title of sacred majesty applied to a worm, who in
+the midst of his splendor is crumbling into dust!
+
+As the exalting one man so greatly above the rest cannot be
+justified on the equal rights of nature, so neither can it be
+defended on the authority of scripture; for the will of the
+Almighty, as declared by Gideon and the prophet Samuel, expressly
+disapproves of government by kings.
+
+All anti-monarchial parts of scripture have been very smoothly
+glossed over in monarchial governments, but they undoubtedly merit
+the attention of countries which have their governments yet to form.
+Render unto Caesar the things which are Caesar's is the scriptural
+doctrine of courts, yet it is no support of monarchial government,
+for the Jews at that time were without a king, and in a state of
+vassalage to the Romans.
+
+Near three thousand years passed away from the Mosaic account of the
+creation, till the Jews under a national delusion requested a king.
+Till then their form of government (except in extraordinary cases,
+where the Almighty interposed) was a kind of republic administered
+by a judge and the elders of the tribes. Kings they had none, and it
+was held sinful to acknowledge any being under that title but the
+Lords of Hosts.
+
+And when a man seriously reflects on the idolatrous homage which is
+paid to the persons of kings he need not wonder, that the Almighty,
+ever jealous of his honor, should disapprove of a form of government
+which so impiously invades the prerogative of heaven.
+...
+The children of Israel being oppressed by the Midianites, Gideon
+marched against them with a small army, and victory, through the
+divine interposition, decided in his favor. The Jews, elate with
+success, and attributing it to the generalship of Gideon, proposed
+making him a king, saying, "Rule thou over us, thou and thy son and
+thy son's son."
+
+Here was temptation in its fullest extent; not a kingdom only, but
+an hereditary one, but Gideon in the piety of his soul replied, "I
+will not rule over you, neither shall my son rule over you, THE LORD
+SHALL RULE OVER YOU."
+
+Words need not be more explicit; Gideon doth not decline the honor
+but denies their right to give it; neither doth he compliment them
+with invented declarations of his thanks, but in the positive style
+of a prophet charges them with disaffection to their proper
+sovereign, the King of Heaven.
+
+About one hundred and thirty years after this, they fell again into
+the same error. The hankering which the Jews had for the idolatrous
+customs of the Heathens, is something exceedingly unaccountable; but
+so it was, that laying hold of the misconduct of Samuel's two sons,
+who were entrusted with some secular concerns, they came in an
+abrupt and clamorous manner to Samuel, saying, "Behold thou art old
+and thy sons walk not in thy ways, now make us a king to judge us
+like all the other nations."
+
+And here we cannot but observe that their motives were bad, viz.,
+that they might be like unto other nations, i.e., the Heathen,
+whereas their true glory laid in being as much unlike them as
+possible. But the thing displeased Samuel when they said, give us a
+king to judge us; and Samuel prayed unto the Lord, and the Lord said
+unto Samuel, "Listen to the voice of the people in all that they say
+to you, for they have not rejected you, but they have rejected me,
+THEN I SHOULD NOT REIGN OVER THEM. According to all the works which 
+they have done since the day; wherewith they brought them up out of 
+Egypt, even unto this day; wherewith they have forsaken me and served
+other Gods; so do they also unto you.
+
+"Now therefore hearken unto their voice, howbeit, protest solemnly
+unto them and show them the manner of the king that shall reign over
+them," i.e., not of any particular king, but the general manner of
+the kings of the earth, whom Israel was so eagerly copying after.
+And notwithstanding the great distance of time and difference of
+manners, the character is still in fashion.
+
+And Samuel told all the words of the Lord unto the people, that
+asked of him a king. And he said, "This shall be the manner of the
+king that shall reign over you:
+
+"He will take your sons and appoint them for himself for his
+chariots, and to be his horsemen, and some shall run before his
+chariots [this description agrees with the present mode of
+impressing men] and he will appoint him captains over thousands and
+captains over fifties, and will set them to ear his ground and to
+reap his harvest, and to make his instruments of war, and
+instruments of his chariots; and he will take your daughters to be
+confectionaries and to be cooks and to be bakers [this describes the
+expense and luxury as well as the oppression of kings] and he will
+take your fields and your olive yards, even the best of them, and
+give them to his servants; and he will take the tenth of your seed,
+and of your vineyards, and give them to his officers and to his
+servants [by which we see that bribery, corruption, and favoritism
+are the standing vices of kings] and he will take the tenth of your
+men servants, and your maid servants, and your goodliest young men
+and your asses, and put them to his work; and he will take the tenth
+of your sheep, ---and ye shall be his servants--- and ye shall cry
+out in that day because of your king which ye shall have chosen, AND
+THE LORD WILL NOT HEAR YOU IN THAT DAY."
+
+This accounts for the continuation of monarchy; neither do the
+characters of the few good kings which have lived since, either
+sanctify the title, or blot out the sinfulness of the origin; the
+high encomium given of David takes no notice of him officially as a
+king, but only as a man after God's own heart.
+
+Nevertheless the People refused to obey the voice of Samuel, and
+they said, "Nay, but we will have a king over us, that we may be like
+all the nations, and that our king may judge us, and go out before
+us and fight our battles."
+
+Samuel continued to reason with them, but to no purpose; he set
+before them their ingratitude, but all would not avail; and seeing
+them fully bent on their folly, he cried out, "I will call unto the
+Lord, and he shall send thunder and rain [which then was a
+punishment, being the time of wheat harvest] that ye may perceive
+and see that your wickedness is great which ye have done in the
+sight of the Lord, IN ASKING YOU A KING."
+
+So Samuel called unto the Lord, and the Lord sent thunder and rain
+that day, and all the people greatly feared the Lord and Samuel. And
+all the people said unto Samuel, "Pray for thy servants unto the Lord
+thy God that we die not, for WE HAVE ADDED UNTO OUR SINS THIS EVIL,
+TO ASK A KING."
+
+These portions of scripture are direct and positive. They admit of
+no equivocal construction. That the Almighty hath here entered his
+protest against monarchial government is true, or the scripture is
+false. And a man hath good reason to believe that there is as much
+of kingcraft, as priestcraft in withholding the scripture from the
+public in Popish countries. For monarchy in every instance is the
+Popery of government.
+
+
+
+
+
+-----------------------------------------------------------------
+
+
+
+
+
+
+
+ More detailed credits regarding the other contributors:
+ 
+
+
+
+ * ====================================================================
+ * 
+ * LUCRE -- Anonymous Electronic Tokens v1.8
+ * Copyright (c) 1999, 2000, 2009 Ben Laurie.  All rights reserved.
+ * 
+ * OFFICIAL SITE:	http://anoncvs.aldigital.co.uk/lucre/
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer. 
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *
+ * 3. All advertising materials mentioning features or use of this
+ *    software must display the following acknowledgment:
+ *    "This product includes software developed by Ben Laurie
+ *    for use in the Lucre project."
+ *
+ * 4. The name "Lucre" must not be used to
+ *    endorse or promote products derived from this software without
+ *    prior written permission.
+ *
+ * 5. Redistributions of any form whatsoever must retain the following
+ *    acknowledgment:
+ *    "This product includes software developed by Ben Laurie
+ *    for use in the Lucre project."
+ *
+ * THIS SOFTWARE IS PROVIDED BY BEN LAURIE ``AS IS'' AND ANY
+ * EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL BEN LAURIE OR
+ * HIS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ * OF THE POSSIBILITY OF SUCH DAMAGE.
+ * ====================================================================
+ */
+
+
+
+
+/***************************************************************************
+
+www.OpenSSL.org  (Crypto library)
+
+(Open Transactions does not actually contain the OpenSSL code, but merely 
+links to it. Nevertheless, these credits are provided in respect of the people 
+who worked on the project.)
+
+OpenSSL is based on the excellent SSLeay library developed by Eric A. Young and Tim J. Hudson. 
+The OpenSSL toolkit is licensed under a Apache-style licence which basically means that you are 
+free to get and use it for commercial and non-commercial purposes.
+
+The current OpenSSL core team consists of (in alphabetical order):
+Individual	OpenSSL Email	Personal Email	Location
+Mark J. Cox	mark@openssl.org	mark@awe.com	UK
+Ralf S. Engelschall	rse@openssl.org	rse@engelschall.com	DE
+Dr. Stephen Henson	steve@openssl.org	shenson@drh-consultancy.demon.co.uk UK
+Ben Laurie	ben@openssl.org	ben@algroup.co.uk	UK
+
+The current OpenSSL development team consists of (in alphabetical order):
+Individual	OpenSSL Email	Personal Email	Location 	Key ID
+Mark J. Cox	mark@openssl.org	mark@awe.com	UK	49A563D9
+Ralf S. Engelschall	rse@openssl.org	rse@engelschall.com	DE	26BB437D
+Dr. Stephen Henson	steve@openssl.org	shenson@drh-consultancy.demon.co.uk UK	F295C759
+Lutz Jänicke	jaenicke@openssl.org	lutz@lutz-jaenicke.de	DE	9C58A66D
+Nils Larsch	nils@openssl.org	nils@larsch.net	DE	
+Ben Laurie	ben@openssl.org	ben@algroup.co.uk	UK	2118CF83
+Richard Levitte	levitte@openssl.org	richard@levitte.org	SE	F709453B
+Bodo Möller	bodo@openssl.org	bmoeller@acm.org	DE	5A6A9B85
+Ulf Möller	ulf@openssl.org	mail@ulfm.de	DE	
+Andy Polyakov	appro@openssl.org	appro@fy.chalmers.se	SE	
+Geoff Thorpe	geoff@openssl.org	geoff@geoffthorpe.net	QC	
+
+OpenSSL Emeritae - old members now off doing other things (in alphabetical order):
+Individual	OpenSSL Email	Personal Email	Location
+Holger Reif	holger@openssl.org	holger@reif.net	DE
+Paul C. Sutton	paul@openssl.org	paul@awe.com	UK
+
+*/
+
+
+
+/*********************************************************************
+ 
+ *  easyzlib release 1.0 --- (Compression)
+ *  
+ *  Copyright (C) 2008 First Objective Software, Inc. (Used with
+ *  permission.)
+ *  
+ *  This entire notice must be retained in this source code
+ *  Redistributing this source code requires written permission
+ *  This software is provided "as is", with no warranty.
+ *
+ *  Latest fixes enhancements and documentation at www.firstobject.com
+ **********************************************************************/
+ 
+
+ 
+ 
+/***********************************************************************
+ *   ZLIB
+ *
+ * (Open Transactions does not actually contain the zlib code, but
+ * merely links to it via easyzlib. Nevertheless, these credits are 
+ * provided in respect of the people who worked on the project.)
+ *
+ *
+ *  'zlib' general purpose compression library
+ *  version 1.2.2, October 3rd, 2004
+ *
+ *  Copyright (C) 1995-2004 Jean-loup Gailly and Mark Adler
+ *
+ *  This software is provided 'as-is', without any express or implied
+ *  warranty.  In no event will the authors be held liable for any damages
+ *  arising from the use of this software.
+ *
+ *  Permission is granted to anyone to use this software for any purpose,
+ *  including commercial applications, and to alter it and redistribute it
+ *  freely, subject to the following restrictions:
+ *
+ *  1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ *  2. Altered source versions must be plainly marked as such, and must not 
+ *     be misrepresented as being the original software.
+ *  3. This notice may not be removed or altered from any source
+ *     distribution.
+ *
+ *  Jean-loup Gailly jloup@gzip.org
+ *  Mark Adler madler@alumni.caltech.edu
+ 
+ ***********************************************************************/
+
+
+
+
+/*
+ * (PGP-to-OpenSSL Conversion)
+ *
+ * An implementation of conversion from PGP public key format to OpenSSL
+ * equivalent Support of RSA, DSA and Elgamal public keys
+ *
+ * Copyright (c) 2010 Mounir IDRASSI            http://www.idrix.fr 
+ * Used with permission.
+ *
+ * This program is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY  or FITNESS FOR A PARTICULAR PURPOSE.
+ * 
+ */
+
+// -------------------------------------------
+
+/*
+ *  STLplus  (used for smart pointers)
+ *
+ *  Author: Andy Rushton  http://www.andyrushton.co.uk/
+ *
+ *  http://stlplus.sourceforge.net/
+ *
+ *  BSD-style license:  
+ *  http://stlplus.sourceforge.net/stlplus/docs/license.html
+ *
+ */
+
+// -------------------------------------------
+
+/*
+ * MESSAGE PACK  (Used for packing data.)
+ * 
+ * http://msgpack.org/
+ *
+ * Copyright (C) 2008-2010 FURUHASHI Sadayuki
+ * 
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ * 
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// -------------------------------------------
+
+/*
+ * PROTOCOL BUFFERS (Used for packing data.)
+ *
+ * http://protobuf.googlecode.com
+ *
+ * Copyright 2008, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met: 
+ *  
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer. 
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *
+ * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * Code generated by the Protocol Buffer compiler is owned by the owner
+ * of the input file used when generating it.  This code is not
+ * standalone and requires a support library to be linked with it.  This
+ * support library is itself covered by the above license.
+ * 
+ */
+
+// -------------------------------------------
+
+/*
+ *    ZeroMQ  (transport library.)
+ *
+ *    http://www.zeromq.org/
+ *
+ *    ZeroMQ is free software: you can redistribute it and/or modify
+ *    it under the terms of the GNU Lesser General Public License as
+ *    published by the Free Software Foundation, either version 3 of
+ *    the License, or (at your option) any later version.
+ *
+ *    This program is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+ *
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *       ------------------------------------------------------
+ *
+ *             SPECIAL EXCEPTION GRANTED BY IMATIX
+ *
+ * As a special exception, iMatix gives you permission to link this library
+ * with independent modules to produce an executable, regardless of the
+ * license terms of these independent modules, and to copy and distribute
+ * the resulting executable under terms of your choice, provided that you
+ * also meet, for each linked independent module, the terms and conditions
+ * of the license of that module. An independent module is a module which
+ * is not derived from or based on this library. If you modify this
+ * library, you must extend this exception to your version of the library.
+ *
+ *       ------------------------------------------------------
+ *
+ * Parts of the software are licensed under the MIT (X11) license
+ * as follows:
+ *
+ * Copyright (c) 2007-2010 Contributors as listed in AUTHORS
+ *
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without
+ * restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following
+ * conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
+ * 
+ */
+
+
+// -------------------------------------------
+
+
+/*     (transport: OTMessage -> TCP -> SSL)
+ *
+ *       SFSocket --- Copyright (C) 2009 Matteo Bertozzi
+ *                    Used with permission. http://th30z.netsons.org/
+ *
+ *                   Useful as a tool for learning SSL sockets. Good work.
+ *
+ *                   (Also new software, but fine for this test release.)
+ */
+
+
+// -------------------------------------------
+
+
+/*
+ * strlcpy and strlcat
+ *
+ * Copyright (c) 1998 Todd C. Miller <Todd.Miller@courtesan.com>
+ *
+ * Permission to use, copy, modify, and distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
+
+
+
+/**************************************************************************
+
+ irrXML  ---  (XML Parser)
+
+The irrXML license is based on the zlib license. Basically, this means you 
+can do with irrXML whatever you want:
+
+Copyright (C) 2002-2005 Nikolaus Gebhardt
+
+http://www.ambiera.com/irrxml/
+
+This software is provided 'as-is', without any express or implied
+warranty.  In no event will the authors be held liable for any damages
+arising from the use of this software.
+
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it
+freely, subject to the following restrictions:
+
+1. The origin of this software must not be misrepresented; you must not
+claim that you wrote the original software. If you use this software
+in a product, an acknowledgment in the product documentation would be
+appreciated but is not required.
+
+2. Altered source versions must be plainly marked as such, and must not be
+misrepresented as being the original software.
+
+3. This notice may not be removed or altered from any source distribution.
+
+History
+
+As lots of references in this documentation and the source show, this xml 
+parser has originally been a part of the 
+<A HREF="http://irrlicht.sourceforge.net" >Irrlicht Engine</A>. But because
+the parser has become very useful with the latest release, people asked for
+a separate version of it, to be able to use it in non Irrlicht projects.
+With irrXML 1.0, this has now been done.
+
+*/
+
+// -------------------------------------------
+
+
+
+/*
+	Simple Ini    (Used for ini files.)
+
+    Copyright (c) 2006-2008, Brodie Thiesfield
+
+    The licence text below is the boilerplate "MIT Licence" used from:
+    http://www.opensource.org/licenses/mit-license.php
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is furnished
+    to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in
+    all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+    FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+    COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+    IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+    CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+
+/*
+ * AnyOption 1.3    (Used for command-line options and config files.)
+ *
+ * kishan at hackorama dot com  www.hackorama.com JULY 2001
+ *
+ * With updates from Michael D Peters (mpeters at sandia.gov)
+ * and Boyan Asenov.
+ * 
+ */
+
+
+// -------------------------------------------------------------------
+
+/*
+
+ C++ Big Integer Library
+ 
+ http://mattmccutchen.net/bigint/
+ 
+ Written and maintained by Matt McCutchen <matt@mattmccutchen.net>
+ 
+ Legal
+ -----
+ I, Matt McCutchen, the sole author of the original Big Integer Library, 
+ waive my copyright to it, placing it in the public domain.  The library 
+ comes with absolutely no warranty.
+ 
+ */
+
+
+
+
+
+// *************************************************************************
+
+
+
+
+/*
+  It seems appropriate to mention a few other people who deserve mentioning.
+
+  A moment of silence for "Jolly Good Fellow" Bernard von NotHaus, 
+  the founder of NORFED who was recently (and wrongfully) convicted of
+  "domestic terrorism."
+
+  For history, I will reproduce a few gloating FBI quotes:
+
+  "Attempts to undermine the legitimate currency of this country
+   are simply a unique form of domestic terrorism."
+   ...
+  "We are determined to meet these threats through infiltration,
+   disruption, and dismantling of organizations which seek to challenge
+   the legitimacy of our democratic form of government."
+   ...
+  "While these forms of anti-government activities do not involve
+   violence, they are every bit as insidious and represent a clear and
+   present danger to the economic stability of this country."
+
+ // -----------------------------------------------
+
+  Speaking of wrongful prosecution...
+
+  Tip of the hat to Dr. Douglas Jackson for his sacrifices and
+  accomplishments.
+  May this software protect future innovators from persecution, in a
+  diversity of jurisdictions.  And check out e-gold.com, as well as
+  goldmoney.com, igolder, pecunix, and all the other digital gold reserve
+  outfits. May they all soon be traded as a single basket currency using
+  this new software.
+  
+ // -----------------------------------------------
+
+  Thank you to David Chaum, for inventing digital cash in the first place.
+
+  Kudos to David Wagner, and Ben Laurie, who brought us Lucre.
+
+  Kudos to Ian Grigg for his many advancements in financial cryptography.  
+  Check out his website at http://iang.org/
+
+  J. Orlin Grabbe and his writings have been inspirational. He will be
+  missed. His DMT as well as critiques of it were useful to me.
+  http://www.orlingrabbe.com/
+
+  Kudos to Phil Zimmermann for writing and releasing PGP. The man who put
+  power into the hands of the people. Many people in corrupt jurisdictions
+  now have PGP to thank for their lives. Let's do the same for their money.
+
+  Bill St. Clair, whose Truledger was truly inspirational. Check out
+  Truledger at http://truledger.com/
+
+  Patrick Chkoreff, whose Loom is operational and is what showed me the
+  idea of separation of powers. Check out https://Loom.cc for more info.
+
+  Andrew McMeikan's PKTP, which can be found here:   http://pktp.co.cc/
+ 
+  Ryan Fugger's Ripple project, which will probably figure more into the
+  client development of OpenTransactions.    http://ripple-project.org/
+
+  Jim Bell, of course. His story is partially the reason for this software.
+  I still don't understand why he was stink-bombing IRS offices instead of
+  writing code. But he definitely made his mark. 
+
+  Tim May for writing the Cyphernomicon. (Google it.)
+
+  Robert A. Hettinga for his writings:  http://www.philodox.com/
+
+  And of course SAMY, who wrote the famous MySpace worm, and who suggested
+  using two message digest algorithms XOR'd together in case one is ever
+  broken and needs to be swapped out.  Thus the SAMY hash is named in his
+  honor, and utilizes WHIRLPOOL XOR'd with SHA-256.
+*/
+
+
+
+
+
+/**************************************************************************
+
+
+    ==================> OPEN TRANSACTIONS LICENSE <==================
+
+
+ *    Components:
+ *      Moneychanger..... A Java Client App..........LICENSE:   GPLv3
+ *      OTLib............ A class library............LICENSE: LAGPLv3 
+ *      OT-API........... A Client API...............LICENSE: LAGPLv3
+ *      testwallet....... A command-line client......LICENSE: LAGPLv3
+ *      OT-Server........ A Server Application.......LICENSE:  AGPLv3
+ *    http://github.com/FellowTraveler/Open-Transactions/wiki/Components
+ *
+ *    All of the above OT components were designed and written by
+ *    Fellow Traveler, with the exception of Moneychanger, which was
+ *    written by Vicky C (livewire_3001@yahoo.com) under contract.
+ *
+ *   LICENSE:
+ *   This program is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU Affero General Public License as
+ *   published by the Free Software Foundation, either version 3 of the
+ *   License, or (at your option) any later version.
+ *    
+ *   ADDITIONAL PERMISSION under the GNU Affero GPL version 3 section 7:
+ *   This paragraph applies only to the LAGPLv3 components listed above.
+ *   If you modify this Program, or any covered work, by linking or
+ *   combining it with other code, such other code is not for that reason
+ *   alone subject to any of the requirements of the GNU Affero GPL
+ *   version 3. (This means if you are only using the OT-API, then you
+ *   don't have to open-source your code--only your changes to Open
+ *   Transactions itself must be open source. Similar to LGPLv3, except
+ *   it applies to software-as-a-service, not just distributing binaries.)
+ *
+ *   Extra WAIVER for OpenSSL, Lucre, and all other libraries used by OT:
+ *   This program is released under the AGPL with the additional exemption 
+ *   that compiling, linking, and/or using OpenSSL is allowed. The same is
+ *   true for any other open source libraries included in this project: 
+ *   complete waiver from the AGPL is hereby granted to compile, link,
+ *   and/or use them with Open Transactions, according to their own terms,
+ *   as long as the rest of the Open Transactions terms remain respected,
+ *   with regard to the Open Transactions code itself.
+ *    
+ *   Lucre License:
+ *   This library is also "dual-license", meaning that Ben Laurie's license
+ *   must also be included and respected, since the code for Lucre is also
+ *   included with Open Transactions. See Open-Transactions/OTLib/Lucre.
+ *   The Laurie requirements are light, but if there is any problem with
+ *   his license, simply remove the Lucre code. Although there are no other
+ *   blind token algorithms in Open Transactions (yet. credlib is coming),
+ *   the other functionality will continue to operate.
+
+
+                    GNU AFFERO GENERAL PUBLIC LICENSE
+                       Version 3, 19 November 2007
+
+ Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/>
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
+
+                            Preamble
+
+  The GNU Affero General Public License is a free, copyleft license for
+software and other kinds of works, specifically designed to ensure
+cooperation with the community in the case of network server software.
+
+  The licenses for most software and other practical works are designed
+to take away your freedom to share and change the works.  By contrast,
+our General Public Licenses are intended to guarantee your freedom to
+share and change all versions of a program--to make sure it remains free
+software for all its users.
+
+  When we speak of free software, we are referring to freedom, not
+price.  Our General Public Licenses are designed to make sure that you
+have the freedom to distribute copies of free software (and charge for
+them if you wish), that you receive source code or can get it if you
+want it, that you can change the software or use pieces of it in new
+free programs, and that you know you can do these things.
+
+  Developers that use our General Public Licenses protect your rights
+with two steps: (1) assert copyright on the software, and (2) offer
+you this License which gives you legal permission to copy, distribute
+and/or modify the software.
+
+  A secondary benefit of defending all users' freedom is that
+improvements made in alternate versions of the program, if they
+receive widespread use, become available for other developers to
+incorporate.  Many developers of free software are heartened and
+encouraged by the resulting cooperation.  However, in the case of
+software used on network servers, this result may fail to come about.
+The GNU General Public License permits making a modified version and
+letting the public access it on a server without ever releasing its
+source code to the public.
+
+  The GNU Affero General Public License is designed specifically to
+ensure that, in such cases, the modified source code becomes available
+to the community.  It requires the operator of a network server to
+provide the source code of the modified version running there to the
+users of that server.  Therefore, public use of a modified version, on
+a publicly accessible server, gives the public access to the source
+code of the modified version.
+
+  An older license, called the Affero General Public License and
+published by Affero, was designed to accomplish similar goals.  This is
+a different license, not a version of the Affero GPL, but Affero has
+released a new version of the Affero GPL which permits relicensing under
+this license.
+
+  The precise terms and conditions for copying, distribution and
+modification follow.
+
+                       TERMS AND CONDITIONS
+
+  0. Definitions.
+
+  "This License" refers to version 3 of the GNU Affero General Public License.
+
+  "Copyright" also means copyright-like laws that apply to other kinds of
+works, such as semiconductor masks.
+
+  "The Program" refers to any copyrightable work licensed under this
+License.  Each licensee is addressed as "you".  "Licensees" and
+"recipients" may be individuals or organizations.
+
+  To "modify" a work means to copy from or adapt all or part of the work
+in a fashion requiring copyright permission, other than the making of an
+exact copy.  The resulting work is called a "modified version" of the
+earlier work or a work "based on" the earlier work.
+
+  A "covered work" means either the unmodified Program or a work based
+on the Program.
+
+  To "propagate" a work means to do anything with it that, without
+permission, would make you directly or secondarily liable for
+infringement under applicable copyright law, except executing it on a
+computer or modifying a private copy.  Propagation includes copying,
+distribution (with or without modification), making available to the
+public, and in some countries other activities as well.
+
+  To "convey" a work means any kind of propagation that enables other
+parties to make or receive copies.  Mere interaction with a user through
+a computer network, with no transfer of a copy, is not conveying.
+
+  An interactive user interface displays "Appropriate Legal Notices"
+to the extent that it includes a convenient and prominently visible
+feature that (1) displays an appropriate copyright notice, and (2)
+tells the user that there is no warranty for the work (except to the
+extent that warranties are provided), that licensees may convey the
+work under this License, and how to view a copy of this License.  If
+the interface presents a list of user commands or options, such as a
+menu, a prominent item in the list meets this criterion.
+
+  1. Source Code.
+
+  The "source code" for a work means the preferred form of the work
+for making modifications to it.  "Object code" means any non-source
+form of a work.
+
+  A "Standard Interface" means an interface that either is an official
+standard defined by a recognized standards body, or, in the case of
+interfaces specified for a particular programming language, one that
+is widely used among developers working in that language.
+
+  The "System Libraries" of an executable work include anything, other
+than the work as a whole, that (a) is included in the normal form of
+packaging a Major Component, but which is not part of that Major
+Component, and (b) serves only to enable use of the work with that
+Major Component, or to implement a Standard Interface for which an
+implementation is available to the public in source code form.  A
+"Major Component", in this context, means a major essential component
+(kernel, window system, and so on) of the specific operating system
+(if any) on which the executable work runs, or a compiler used to
+produce the work, or an object code interpreter used to run it.
+
+  The "Corresponding Source" for a work in object code form means all
+the source code needed to generate, install, and (for an executable
+work) run the object code and to modify the work, including scripts to
+control those activities.  However, it does not include the work's
+System Libraries, or general-purpose tools or generally available free
+programs which are used unmodified in performing those activities but
+which are not part of the work.  For example, Corresponding Source
+includes interface definition files associated with source files for
+the work, and the source code for shared libraries and dynamically
+linked subprograms that the work is specifically designed to require,
+such as by intimate data communication or control flow between those
+subprograms and other parts of the work.
+
+  The Corresponding Source need not include anything that users
+can regenerate automatically from other parts of the Corresponding
+Source.
+
+  The Corresponding Source for a work in source code form is that
+same work.
+
+  2. Basic Permissions.
+
+  All rights granted under this License are granted for the term of
+copyright on the Program, and are irrevocable provided the stated
+conditions are met.  This License explicitly affirms your unlimited
+permission to run the unmodified Program.  The output from running a
+covered work is covered by this License only if the output, given its
+content, constitutes a covered work.  This License acknowledges your
+rights of fair use or other equivalent, as provided by copyright law.
+
+  You may make, run and propagate covered works that you do not
+convey, without conditions so long as your license otherwise remains
+in force.  You may convey covered works to others for the sole purpose
+of having them make modifications exclusively for you, or provide you
+with facilities for running those works, provided that you comply with
+the terms of this License in conveying all material for which you do
+not control copyright.  Those thus making or running the covered works
+for you must do so exclusively on your behalf, under your direction
+and control, on terms that prohibit them from making any copies of
+your copyrighted material outside their relationship with you.
+
+  Conveying under any other circumstances is permitted solely under
+the conditions stated below.  Sublicensing is not allowed; section 10
+makes it unnecessary.
+
+  3. Protecting Users' Legal Rights From Anti-Circumvention Law.
+
+  No covered work shall be deemed part of an effective technological
+measure under any applicable law fulfilling obligations under article
+11 of the WIPO copyright treaty adopted on 20 December 1996, or
+similar laws prohibiting or restricting circumvention of such
+measures.
+
+  When you convey a covered work, you waive any legal power to forbid
+circumvention of technological measures to the extent such circumvention
+is effected by exercising rights under this License with respect to
+the covered work, and you disclaim any intention to limit operation or
+modification of the work as a means of enforcing, against the work's
+users, your or third parties' legal rights to forbid circumvention of
+technological measures.
+
+  4. Conveying Verbatim Copies.
+
+  You may convey verbatim copies of the Program's source code as you
+receive it, in any medium, provided that you conspicuously and
+appropriately publish on each copy an appropriate copyright notice;
+keep intact all notices stating that this License and any
+non-permissive terms added in accord with section 7 apply to the code;
+keep intact all notices of the absence of any warranty; and give all
+recipients a copy of this License along with the Program.
+
+  You may charge any price or no price for each copy that you convey,
+and you may offer support or warranty protection for a fee.
+
+  5. Conveying Modified Source Versions.
+
+  You may convey a work based on the Program, or the modifications to
+produce it from the Program, in the form of source code under the
+terms of section 4, provided that you also meet all of these conditions:
+
+    a) The work must carry prominent notices stating that you modified
+    it, and giving a relevant date.
+
+    b) The work must carry prominent notices stating that it is
+    released under this License and any conditions added under section
+    7.  This requirement modifies the requirement in section 4 to
+    "keep intact all notices".
+
+    c) You must license the entire work, as a whole, under this
+    License to anyone who comes into possession of a copy.  This
+    License will therefore apply, along with any applicable section 7
+    additional terms, to the whole of the work, and all its parts,
+    regardless of how they are packaged.  This License gives no
+    permission to license the work in any other way, but it does not
+    invalidate such permission if you have separately received it.
+
+    d) If the work has interactive user interfaces, each must display
+    Appropriate Legal Notices; however, if the Program has interactive
+    interfaces that do not display Appropriate Legal Notices, your
+    work need not make them do so.
+
+  A compilation of a covered work with other separate and independent
+works, which are not by their nature extensions of the covered work,
+and which are not combined with it such as to form a larger program,
+in or on a volume of a storage or distribution medium, is called an
+"aggregate" if the compilation and its resulting copyright are not
+used to limit the access or legal rights of the compilation's users
+beyond what the individual works permit.  Inclusion of a covered work
+in an aggregate does not cause this License to apply to the other
+parts of the aggregate.
+
+  6. Conveying Non-Source Forms.
+
+  You may convey a covered work in object code form under the terms
+of sections 4 and 5, provided that you also convey the
+machine-readable Corresponding Source under the terms of this License,
+in one of these ways:
+
+    a) Convey the object code in, or embodied in, a physical product
+    (including a physical distribution medium), accompanied by the
+    Corresponding Source fixed on a durable physical medium
+    customarily used for software interchange.
+
+    b) Convey the object code in, or embodied in, a physical product
+    (including a physical distribution medium), accompanied by a
+    written offer, valid for at least three years and valid for as
+    long as you offer spare parts or customer support for that product
+    model, to give anyone who possesses the object code either (1) a
+    copy of the Corresponding Source for all the software in the
+    product that is covered by this License, on a durable physical
+    medium customarily used for software interchange, for a price no
+    more than your reasonable cost of physically performing this
+    conveying of source, or (2) access to copy the
+    Corresponding Source from a network server at no charge.
+
+    c) Convey individual copies of the object code with a copy of the
+    written offer to provide the Corresponding Source.  This
+    alternative is allowed only occasionally and noncommercially, and
+    only if you received the object code with such an offer, in accord
+    with subsection 6b.
+
+    d) Convey the object code by offering access from a designated
+    place (gratis or for a charge), and offer equivalent access to the
+    Corresponding Source in the same way through the same place at no
+    further charge.  You need not require recipients to copy the
+    Corresponding Source along with the object code.  If the place to
+    copy the object code is a network server, the Corresponding Source
+    may be on a different server (operated by you or a third party)
+    that supports equivalent copying facilities, provided you maintain
+    clear directions next to the object code saying where to find the
+    Corresponding Source.  Regardless of what server hosts the
+    Corresponding Source, you remain obligated to ensure that it is
+    available for as long as needed to satisfy these requirements.
+
+    e) Convey the object code using peer-to-peer transmission, provided
+    you inform other peers where the object code and Corresponding
+    Source of the work are being offered to the general public at no
+    charge under subsection 6d.
+
+  A separable portion of the object code, whose source code is excluded
+from the Corresponding Source as a System Library, need not be
+included in conveying the object code work.
+
+  A "User Product" is either (1) a "consumer product", which means any
+tangible personal property which is normally used for personal, family,
+or household purposes, or (2) anything designed or sold for incorporation
+into a dwelling.  In determining whether a product is a consumer product,
+doubtful cases shall be resolved in favor of coverage.  For a particular
+product received by a particular user, "normally used" refers to a
+typical or common use of that class of product, regardless of the status
+of the particular user or of the way in which the particular user
+actually uses, or expects or is expected to use, the product.  A product
+is a consumer product regardless of whether the product has substantial
+commercial, industrial or non-consumer uses, unless such uses represent
+the only significant mode of use of the product.
+
+  "Installation Information" for a User Product means any methods,
+procedures, authorization keys, or other information required to install
+and execute modified versions of a covered work in that User Product from
+a modified version of its Corresponding Source.  The information must
+suffice to ensure that the continued functioning of the modified object
+code is in no case prevented or interfered with solely because
+modification has been made.
+
+  If you convey an object code work under this section in, or with, or
+specifically for use in, a User Product, and the conveying occurs as
+part of a transaction in which the right of possession and use of the
+User Product is transferred to the recipient in perpetuity or for a
+fixed term (regardless of how the transaction is characterized), the
+Corresponding Source conveyed under this section must be accompanied
+by the Installation Information.  But this requirement does not apply
+if neither you nor any third party retains the ability to install
+modified object code on the User Product (for example, the work has
+been installed in ROM).
+
+  The requirement to provide Installation Information does not include a
+requirement to continue to provide support service, warranty, or updates
+for a work that has been modified or installed by the recipient, or for
+the User Product in which it has been modified or installed.  Access to a
+network may be denied when the modification itself materially and
+adversely affects the operation of the network or violates the rules and
+protocols for communication across the network.
+
+  Corresponding Source conveyed, and Installation Information provided,
+in accord with this section must be in a format that is publicly
+documented (and with an implementation available to the public in
+source code form), and must require no special password or key for
+unpacking, reading or copying.
+
+  7. Additional Terms.
+
+  "Additional permissions" are terms that supplement the terms of this
+License by making exceptions from one or more of its conditions.
+Additional permissions that are applicable to the entire Program shall
+be treated as though they were included in this License, to the extent
+that they are valid under applicable law.  If additional permissions
+apply only to part of the Program, that part may be used separately
+under those permissions, but the entire Program remains governed by
+this License without regard to the additional permissions.
+
+  When you convey a copy of a covered work, you may at your option
+remove any additional permissions from that copy, or from any part of
+it.  (Additional permissions may be written to require their own
+removal in certain cases when you modify the work.)  You may place
+additional permissions on material, added by you to a covered work,
+for which you have or can give appropriate copyright permission.
+
+  Notwithstanding any other provision of this License, for material you
+add to a covered work, you may (if authorized by the copyright holders of
+that material) supplement the terms of this License with terms:
+
+    a) Disclaiming warranty or limiting liability differently from the
+    terms of sections 15 and 16 of this License; or
+
+    b) Requiring preservation of specified reasonable legal notices or
+    author attributions in that material or in the Appropriate Legal
+    Notices displayed by works containing it; or
+
+    c) Prohibiting misrepresentation of the origin of that material, or
+    requiring that modified versions of such material be marked in
+    reasonable ways as different from the original version; or
+
+    d) Limiting the use for publicity purposes of names of licensors or
+    authors of the material; or
+
+    e) Declining to grant rights under trademark law for use of some
+    trade names, trademarks, or service marks; or
+
+    f) Requiring indemnification of licensors and authors of that
+    material by anyone who conveys the material (or modified versions of
+    it) with contractual assumptions of liability to the recipient, for
+    any liability that these contractual assumptions directly impose on
+    those licensors and authors.
+
+  All other non-permissive additional terms are considered "further
+restrictions" within the meaning of section 10.  If the Program as you
+received it, or any part of it, contains a notice stating that it is
+governed by this License along with a term that is a further
+restriction, you may remove that term.  If a license document contains
+a further restriction but permits relicensing or conveying under this
+License, you may add to a covered work material governed by the terms
+of that license document, provided that the further restriction does
+not survive such relicensing or conveying.
+
+  If you add terms to a covered work in accord with this section, you
+must place, in the relevant source files, a statement of the
+additional terms that apply to those files, or a notice indicating
+where to find the applicable terms.
+
+  Additional terms, permissive or non-permissive, may be stated in the
+form of a separately written license, or stated as exceptions;
+the above requirements apply either way.
+
+  8. Termination.
+
+  You may not propagate or modify a covered work except as expressly
+provided under this License.  Any attempt otherwise to propagate or
+modify it is void, and will automatically terminate your rights under
+this License (including any patent licenses granted under the third
+paragraph of section 11).
+
+  However, if you cease all violation of this License, then your
+license from a particular copyright holder is reinstated (a)
+provisionally, unless and until the copyright holder explicitly and
+finally terminates your license, and (b) permanently, if the copyright
+holder fails to notify you of the violation by some reasonable means
+prior to 60 days after the cessation.
+
+  Moreover, your license from a particular copyright holder is
+reinstated permanently if the copyright holder notifies you of the
+violation by some reasonable means, this is the first time you have
+received notice of violation of this License (for any work) from that
+copyright holder, and you cure the violation prior to 30 days after
+your receipt of the notice.
+
+  Termination of your rights under this section does not terminate the
+licenses of parties who have received copies or rights from you under
+this License.  If your rights have been terminated and not permanently
+reinstated, you do not qualify to receive new licenses for the same
+material under section 10.
+
+  9. Acceptance Not Required for Having Copies.
+
+  You are not required to accept this License in order to receive or
+run a copy of the Program.  Ancillary propagation of a covered work
+occurring solely as a consequence of using peer-to-peer transmission
+to receive a copy likewise does not require acceptance.  However,
+nothing other than this License grants you permission to propagate or
+modify any covered work.  These actions infringe copyright if you do
+not accept this License.  Therefore, by modifying or propagating a
+covered work, you indicate your acceptance of this License to do so.
+
+  10. Automatic Licensing of Downstream Recipients.
+
+  Each time you convey a covered work, the recipient automatically
+receives a license from the original licensors, to run, modify and
+propagate that work, subject to this License.  You are not responsible
+for enforcing compliance by third parties with this License.
+
+  An "entity transaction" is a transaction transferring control of an
+organization, or substantially all assets of one, or subdividing an
+organization, or merging organizations.  If propagation of a covered
+work results from an entity transaction, each party to that
+transaction who receives a copy of the work also receives whatever
+licenses to the work the party's predecessor in interest had or could
+give under the previous paragraph, plus a right to possession of the
+Corresponding Source of the work from the predecessor in interest, if
+the predecessor has it or can get it with reasonable efforts.
+
+  You may not impose any further restrictions on the exercise of the
+rights granted or affirmed under this License.  For example, you may
+not impose a license fee, royalty, or other charge for exercise of
+rights granted under this License, and you may not initiate litigation
+(including a cross-claim or counterclaim in a lawsuit) alleging that
+any patent claim is infringed by making, using, selling, offering for
+sale, or importing the Program or any portion of it.
+
+  11. Patents.
+
+  A "contributor" is a copyright holder who authorizes use under this
+License of the Program or a work on which the Program is based.  The
+work thus licensed is called the contributor's "contributor version".
+
+  A contributor's "essential patent claims" are all patent claims
+owned or controlled by the contributor, whether already acquired or
+hereafter acquired, that would be infringed by some manner, permitted
+by this License, of making, using, or selling its contributor version,
+but do not include claims that would be infringed only as a
+consequence of further modification of the contributor version.  For
+purposes of this definition, "control" includes the right to grant
+patent sublicenses in a manner consistent with the requirements of
+this License.
+
+  Each contributor grants you a non-exclusive, worldwide, royalty-free
+patent license under the contributor's essential patent claims, to
+make, use, sell, offer for sale, import and otherwise run, modify and
+propagate the contents of its contributor version.
+
+  In the following three paragraphs, a "patent license" is any express
+agreement or commitment, however denominated, not to enforce a patent
+(such as an express permission to practice a patent or covenant not to
+sue for patent infringement).  To "grant" such a patent license to a
+party means to make such an agreement or commitment not to enforce a
+patent against the party.
+
+  If you convey a covered work, knowingly relying on a patent license,
+and the Corresponding Source of the work is not available for anyone
+to copy, free of charge and under the terms of this License, through a
+publicly available network server or other readily accessible means,
+then you must either (1) cause the Corresponding Source to be so
+available, or (2) arrange to deprive yourself of the benefit of the
+patent license for this particular work, or (3) arrange, in a manner
+consistent with the requirements of this License, to extend the patent
+license to downstream recipients.  "Knowingly relying" means you have
+actual knowledge that, but for the patent license, your conveying the
+covered work in a country, or your recipient's use of the covered work
+in a country, would infringe one or more identifiable patents in that
+country that you have reason to believe are valid.
+
+  If, pursuant to or in connection with a single transaction or
+arrangement, you convey, or propagate by procuring conveyance of, a
+covered work, and grant a patent license to some of the parties
+receiving the covered work authorizing them to use, propagate, modify
+or convey a specific copy of the covered work, then the patent license
+you grant is automatically extended to all recipients of the covered
+work and works based on it.
+
+  A patent license is "discriminatory" if it does not include within
+the scope of its coverage, prohibits the exercise of, or is
+conditioned on the non-exercise of one or more of the rights that are
+specifically granted under this License.  You may not convey a covered
+work if you are a party to an arrangement with a third party that is
+in the business of distributing software, under which you make payment
+to the third party based on the extent of your activity of conveying
+the work, and under which the third party grants, to any of the
+parties who would receive the covered work from you, a discriminatory
+patent license (a) in connection with copies of the covered work
+conveyed by you (or copies made from those copies), or (b) primarily
+for and in connection with specific products or compilations that
+contain the covered work, unless you entered into that arrangement,
+or that patent license was granted, prior to 28 March 2007.
+
+  Nothing in this License shall be construed as excluding or limiting
+any implied license or other defenses to infringement that may
+otherwise be available to you under applicable patent law.
+
+  12. No Surrender of Others' Freedom.
+
+  If conditions are imposed on you (whether by court order, agreement or
+otherwise) that contradict the conditions of this License, they do not
+excuse you from the conditions of this License.  If you cannot convey a
+covered work so as to satisfy simultaneously your obligations under this
+License and any other pertinent obligations, then as a consequence you may
+not convey it at all.  For example, if you agree to terms that obligate you
+to collect a royalty for further conveying from those to whom you convey
+the Program, the only way you could satisfy both those terms and this
+License would be to refrain entirely from conveying the Program.
+
+  13. Remote Network Interaction; Use with the GNU General Public License.
+
+  Notwithstanding any other provision of this License, if you modify the
+Program, your modified version must prominently offer all users
+interacting with it remotely through a computer network (if your version
+supports such interaction) an opportunity to receive the Corresponding
+Source of your version by providing access to the Corresponding Source
+from a network server at no charge, through some standard or customary
+means of facilitating copying of software.  This Corresponding Source
+shall include the Corresponding Source for any work covered by version 3
+of the GNU General Public License that is incorporated pursuant to the
+following paragraph.
+
+  Notwithstanding any other provision of this License, you have
+permission to link or combine any covered work with a work licensed
+under version 3 of the GNU General Public License into a single
+combined work, and to convey the resulting work.  The terms of this
+License will continue to apply to the part which is the covered work,
+but the work with which it is combined will remain governed by version
+3 of the GNU General Public License.
+
+  14. Revised Versions of this License.
+
+  The Free Software Foundation may publish revised and/or new versions of
+the GNU Affero General Public License from time to time.  Such new versions
+will be similar in spirit to the present version, but may differ in detail to
+address new problems or concerns.
+
+  Each version is given a distinguishing version number.  If the
+Program specifies that a certain numbered version of the GNU Affero General
+Public License "or any later version" applies to it, you have the
+option of following the terms and conditions either of that numbered
+version or of any later version published by the Free Software
+Foundation.  If the Program does not specify a version number of the
+GNU Affero General Public License, you may choose any version ever published
+by the Free Software Foundation.
+
+  If the Program specifies that a proxy can decide which future
+versions of the GNU Affero General Public License can be used, that proxy's
+public statement of acceptance of a version permanently authorizes you
+to choose that version for the Program.
+
+  Later license versions may give you additional or different
+permissions.  However, no additional obligations are imposed on any
+author or copyright holder as a result of your choosing to follow a
+later version.
+
+  15. Disclaimer of Warranty.
+
+  THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY
+APPLICABLE LAW.  EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT
+HOLDERS AND/OR OTHER PARTIES PROVIDE THE PROGRAM "AS IS" WITHOUT WARRANTY
+OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO,
+THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+PURPOSE.  THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM
+IS WITH YOU.  SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF
+ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
+
+  16. Limitation of Liability.
+
+  IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
+WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MODIFIES AND/OR CONVEYS
+THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES, INCLUDING ANY
+GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE
+USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO LOSS OF
+DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD
+PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
+EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGES.
+
+  17. Interpretation of Sections 15 and 16.
+
+  If the disclaimer of warranty and limitation of liability provided
+above cannot be given local legal effect according to their terms,
+reviewing courts shall apply local law that most closely approximates
+an absolute waiver of all civil liability in connection with the
+Program, unless a warranty or assumption of liability accompanies a
+copy of the Program in return for a fee.
+
+                     END OF TERMS AND CONDITIONS
+
+            How to Apply These Terms to Your New Programs
+
+  If you develop a new program, and you want it to be of the greatest
+possible use to the public, the best way to achieve this is to make it
+free software which everyone can redistribute and change under these terms.
+
+  To do so, attach the following notices to the program.  It is safest
+to attach them to the start of each source file to most effectively
+state the exclusion of warranty; and each file should have at least
+the "copyright" line and a pointer to where the full notice is found.
+
+    <one line to give the program's name and a brief idea of what it does.>
+    Copyright (C) <year>  <name of author>
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public
+    License along with this program.  If not, see:
+    <http://www.gnu.org/licenses/>.
+
+Also add information on how to contact you by electronic and paper mail.
+
+  If your software can interact with users remotely through a computer
+network, you should also make sure that it provides a way for users to
+get its source.  For example, if your program is a web application, its
+interface could display a "Source" link that leads users to an archive
+of the code.  There are many ways you could offer source, and different
+solutions will be better for different programs; see section 13 for the
+specific requirements.
+
+  You should also get your employer (if you work as a programmer) or
+school, if any, to sign a "copyright disclaimer" for the program, if
+necessary. For more information on this, and how to apply and follow
+the GNU AGPL, see <http://www.gnu.org/licenses/>.
+
+*/
+
+
+

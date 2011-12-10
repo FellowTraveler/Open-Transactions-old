@@ -26,6 +26,7 @@ public class otapiJNI {
   public final static native void OTCaller_callOne(long jarg1, OTCaller jarg1_);
   public final static native void OTCaller_callTwo(long jarg1, OTCaller jarg1_);
   public final static native boolean OT_API_Set_PasswordCallback(long jarg1, OTCaller jarg1_);
+  public final static native void OT_API_Output(int jarg1, String jarg2);
   public final static native int OT_API_Init(String jarg1);
   public final static native int OT_API_LoadWallet(String jarg1);
   public final static native int OT_API_SwitchWallet(String jarg1, String jarg2);
@@ -159,6 +160,8 @@ public class otapiJNI {
   public final static native void OT_API_createUserAccount(String jarg1, String jarg2);
   public final static native void OT_API_deleteUserAccount(String jarg1, String jarg2);
   public final static native void OT_API_deleteAssetAccount(String jarg1, String jarg2, String jarg3);
+  public final static native void OT_API_usageCredits(String jarg1, String jarg2, String jarg3, String jarg4);
+  public final static native String OT_API_Message_GetUsageCredits(String jarg1);
   public final static native void OT_API_checkUser(String jarg1, String jarg2, String jarg3);
   public final static native void OT_API_sendUserMessage(String jarg1, String jarg2, String jarg3, String jarg4, String jarg5);
   public final static native void OT_API_getRequest(String jarg1, String jarg2);

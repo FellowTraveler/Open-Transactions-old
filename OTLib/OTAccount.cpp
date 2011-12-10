@@ -1221,13 +1221,13 @@ OTAccount_SharedPtr OTAcctList::GetOrCreateAccount(OTPseudonym			& theServerNym,
 			return pRetVal;
 		}
 	}
-	
+
 	// ------------------------------------------------
 	// First, we'll see if there's already an account ID available for the requested asset type ID.
 	//
 	const OTString strAssetTypeID(ASSET_TYPE_ID);
 	const std::string str_asset_type_id = strAssetTypeID.Get();
-	
+
 	// ------------------------------------
 	OTString strAcctType;
 	TranslateAccountTypeToString(m_AcctType, strAcctType);
@@ -1241,23 +1241,35 @@ OTAccount_SharedPtr OTAcctList::GetOrCreateAccount(OTPseudonym			& theServerNym,
 		
 		if (m_mapWeakAccts.end() != it_weak)  // FOUND the weak ptr to the account! Maybe it's already loaded
 		{
-			OTAccount_WeakPtr	pWeak	= (*it_weak).second; // first is acct ID, second is weak_ptr to account.
-			OTAccount_SharedPtr	pShared(pWeak);
+//			bool bSuccess = true;
 			
-			// If success, then we have a shared pointer. But it's worrying (TODO) because this should have
-			// gone out of scope and been destroyed by whoever ELSE was using it. The fact that it's still here...
-			// well I'm glad not to double-load it, but I wonder why it's still here? And we aren't walking on anyone's
-			// toes, right? If this were multi-threaded, then I'd explicitly lock a mutex here, honestly. But since things
-			// happen one at a time on OT, I'll settle for a warning for now. I'm assuming that if the account's loaded
-			// already somewhere, it's just a pointer sitting there, and we're not walking on each other's toes.
-			// 
-			if (pShared) 
+			OTAccount_WeakPtr	pWeak	= (*it_weak).second; // first is acct ID, second is weak_ptr to account.
+			
+			try 
 			{
-				OTLog::vOutput(0, "OTAcctList::GetOrCreateAccount: Warning: account (%s) was already in memory so I gave you a "
-							   "pointer to the existing one. (But who else has a copy of it?) \n", str_account_id.c_str());
-				return pShared;
+				OTAccount_SharedPtr	pShared(pWeak);
+				
+				// If success, then we have a shared pointer. But it's worrying (TODO) because this should have
+				// gone out of scope and been destroyed by whoever ELSE was using it. The fact that it's still here...
+				// well I'm glad not to double-load it, but I wonder why it's still here? And we aren't walking on anyone's
+				// toes, right? If this were multi-threaded, then I'd explicitly lock a mutex here, honestly. But since things
+				// happen one at a time on OT, I'll settle for a warning for now. I'm assuming that if the account's loaded
+				// already somewhere, it's just a pointer sitting there, and we're not walking on each other's toes.
+				// 
+				if (pShared) 
+				{
+					OTLog::vOutput(0, "OTAcctList::GetOrCreateAccount: Warning: account (%s) was already in memory so I gave you a "
+								   "pointer to the existing one. (But who else has a copy of it?) \n", str_account_id.c_str());
+					return pShared;
+				}
+				
+			}
+			catch (...) 
+			{
+
 			}
 			
+
 			// Though the weak pointer was there, the resource must have since been destroyed, 
 			// because I cannot lock a new shared ptr onto it.   :-(
 			//
@@ -1302,7 +1314,7 @@ OTAccount_SharedPtr OTAcctList::GetOrCreateAccount(OTPseudonym			& theServerNym,
 		return pRetVal;
 		//
 	} // (Asset Type ID was found on the AcctID Map -- a corresponding Account ID is already there for that asset type.)
-	
+
 	// ******************************************************************************
 	
 	// Not found... There's no account ID yet for that asset type ID.
@@ -1312,7 +1324,7 @@ OTAccount_SharedPtr OTAcctList::GetOrCreateAccount(OTPseudonym			& theServerNym,
 	ACCOUNT_OWNER_ID.GetString(theMessage.m_strNymID);
 	ASSET_TYPE_ID.GetString(theMessage.m_strAssetID);
 	SERVER_ID.GetString(theMessage.m_strServerID);		
-	
+
 	OTAccount * pAccount = OTAccount::GenerateNewAccount(ACCOUNT_OWNER_ID,	// theUserID
 														 SERVER_ID,			// theServerID
 														 theServerNym,		// theServerNym

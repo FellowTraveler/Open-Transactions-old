@@ -175,11 +175,11 @@ class OTServer
 	
 	OTServerContract	* m_pServerContract; // This is the server's own contract, containing its public key and connect info.
 	
-	long		m_lTransactionNumber;	// This stores the last VALID AND ISSUED transaction number.
+	long			m_lTransactionNumber;	// This stores the last VALID AND ISSUED transaction number.
 
 	
-	OTPseudonym m_nymServer; // the Nym for the server, so he can decrypt messages sent to him
-							 // by paranoid users :-P  UPDATE: By ALL users. Everything encrypted now by default.
+	OTPseudonym		m_nymServer; // the Nym for the server, so he can decrypt messages sent to him
+								// by paranoid users :-P  UPDATE: By ALL users. Everything encrypted now by default.
 	
 	mapOfContracts	m_mapContracts;	// The asset types supported by this server.
 	mapOfMints		m_mapMints;		// The mints for each asset type.
@@ -196,17 +196,78 @@ class OTServer
 	OTCron			m_Cron;		// This is where re-occurring and expiring tasks go. 
 	
 	// -------------------------------------------------------------------------------------------------------------
+	// From server.cfg:
+	//
+    static int			__heartbeat_no_requests;	// The number of client requests that will be processed per heartbeat.
+    static int			__heartbeat_ms_between_beats; // number of ms between each heartbeat.
+	
+	static std::string	__override_nym_id;	// The Nym who's allowed to do certain commands even if they are turned off.
+	
+	static bool			__admin_usage_credits; // Bool. Are usage credits REQUIRED in order to use this server?
+	static bool			__admin_server_locked; // Bool. Is server currently locked to non-override Nyms?
 
-    static int      __heartbeat_no_requests; // The number of client requests that will be processed per heartbeat.
-    static int      __heartbeat_ms_between_beats; // number of ms between each heartbeat.
+	static bool			__cmd_usage_credits; // Bool. 
+	static bool			__cmd_issue_asset; // Bool. 
+	static bool			__cmd_get_contract; // Bool. 
+	static bool			__cmd_check_server_id; // Bool. 
+	
+	static bool			__cmd_create_user_acct; // Bool. 
+	static bool			__cmd_del_user_acct; // Bool. 
+	static bool			__cmd_check_user; // Bool. 
+	static bool			__cmd_get_request; // Bool. 
+	static bool			__cmd_get_trans_num; // Bool. 
+	static bool			__cmd_send_message; // Bool. 
+	static bool			__cmd_get_nymbox; // Bool. 
+	static bool			__cmd_process_nymbox; // Bool. 
+
+	static bool			__cmd_create_asset_acct; // Bool. 
+	static bool			__cmd_del_asset_acct; // Bool. 
+	static bool			__cmd_get_acct; // Bool. 
+	static bool			__cmd_get_inbox; // Bool. 
+	static bool			__cmd_get_outbox; // Bool. 
+	static bool			__cmd_process_inbox; // Bool. 
+
+	static bool			__cmd_issue_basket; // Bool. 
+	static bool			__transact_exchange_basket; // Bool. 
+
+	static bool			__cmd_notarize_transaction; // Bool. 
+	static bool			__transact_process_inbox; // Bool. 
+	static bool			__transact_transfer; // Bool. 
+	static bool			__transact_withdrawal; // Bool. 
+	static bool			__transact_deposit; // Bool. 
+	static bool			__transact_withdraw_voucher; // Bool. 
+	static bool			__transact_deposit_cheque; // Bool. 
+
+	static bool			__cmd_get_mint; // Bool. 
+	static bool			__transact_withdraw_cash; // Bool. 
+	static bool			__transact_deposit_cash; // Bool. 
+
+	static bool			__cmd_get_market_list; // Bool. 
+	static bool			__cmd_get_market_offers; // Bool. 
+	static bool			__cmd_get_market_recent_trades; // Bool. 
+	static bool			__cmd_get_nym_market_offers; // Bool. 
+
+	static bool			__transact_market_offer; // Bool. 
+	static bool			__transact_payment_plan; // Bool. 
+	static bool			__transact_cancel_cron_item; // Bool. 
+
+	static bool			__transact_smart_contract; // Bool. 
+	static bool			__cmd_trigger_clause; // Bool. 
 
 public:
+	// From server.cfg:
+	
     static int      GetHeartbeatNoRequests() { return __heartbeat_no_requests; }
     static void     SetHeartbeatNoRequests(int nVal) { __heartbeat_no_requests = nVal; }
     
     static int      GetHeartbeatMsBetweenBeats() { return __heartbeat_ms_between_beats; }
     static void     SetHeartbeatMsBetweenBeats(int nVal) { __heartbeat_ms_between_beats = nVal; }
     
+	// -----------------------------------------------
+	
+	static const std::string	&	GetOverrideNymID()  { return __override_nym_id; }
+	static void						SetOverrideNymID(const std::string the_id) { __override_nym_id = the_id; }
+	
     // -----------------------
     
 	OTServer();
@@ -292,7 +353,8 @@ public:
 	void UserCmdGetMint(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut);
 	void UserCmdProcessInbox(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut);
 	void UserCmdProcessNymbox(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut);
-
+	
+	void UserCmdUsageCredits(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut);
 	void UserCmdTriggerClause(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut);
 
 	// Get the list of markets on this server.

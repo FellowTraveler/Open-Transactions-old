@@ -205,8 +205,15 @@ private:
     
     // Using strings here to avoid juggling memory crap.
     std::set<std::string> m_setAccounts; // A list of asset account IDs. Server side only (client side uses wallet; has multiple servers.)
-    
+    // ------------------------------------------
+	long		m_lUsageCredits;	// Server-side. The usage credits available for this Nym. Infinite if negative.
+	
 public:
+	
+	const long & GetUsageCredits() const { return m_lUsageCredits; } 
+	void SetUsageCredits(const long & lUsage) { m_lUsageCredits = lUsage; }
+	
+	// ------------------------------------------------
 	
     inline void MarkForDeletion() { m_bMarkForDeletion = true; }
     inline bool IsMarkedForDeletion() const { return m_bMarkForDeletion; }
@@ -306,7 +313,8 @@ public:
 	inline mapOfTransNums & GetMapTransNum() { return m_mapTransNum; }
 	inline mapOfTransNums & GetMapIssuedNum() { return m_mapIssuedNum; }
 
-	void RemoveAllNumbers();
+	void RemoveAllNumbers(const OTString * pstrServerID=NULL); // for transaction numbers
+	void RemoveReqNumbers(const OTString * pstrServerID=NULL); // for request numbers (entirely different animal)
 	
 	bool	UnRegisterAtServer(const OTString & strServerID); // Removes the request num for a specific server, if it was there before.
 	bool	IsRegisteredAtServer(const OTString & strServerID); // You can't go using a Nym at a certain server, if it's not registered there...

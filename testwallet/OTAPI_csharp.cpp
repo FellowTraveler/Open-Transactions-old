@@ -573,6 +573,16 @@ SWIGEXPORT unsigned int SWIGSTDCALL CSharp_OT_API_Set_PasswordCallback(void * ja
 }
 
 
+SWIGEXPORT void SWIGSTDCALL CSharp_OT_API_Output(int jarg1, char * jarg2) {
+  int arg1 ;
+  char *arg2 = (char *) 0 ;
+  
+  arg1 = (int)jarg1; 
+  arg2 = (char *)jarg2; 
+  OT_API_Output(arg1,(char const *)arg2);
+}
+
+
 SWIGEXPORT int SWIGSTDCALL CSharp_OT_API_Init(char * jarg1) {
   int jresult ;
   char *arg1 = (char *) 0 ;
@@ -2554,6 +2564,32 @@ SWIGEXPORT void SWIGSTDCALL CSharp_OT_API_deleteAssetAccount(char * jarg1, char 
   arg2 = (char *)jarg2; 
   arg3 = (char *)jarg3; 
   OT_API_deleteAssetAccount((char const *)arg1,(char const *)arg2,(char const *)arg3);
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_OT_API_usageCredits(char * jarg1, char * jarg2, char * jarg3, char * jarg4) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  char *arg4 = (char *) 0 ;
+  
+  arg1 = (char *)jarg1; 
+  arg2 = (char *)jarg2; 
+  arg3 = (char *)jarg3; 
+  arg4 = (char *)jarg4; 
+  OT_API_usageCredits((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+}
+
+
+SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_Message_GetUsageCredits(char * jarg1) {
+  char * jresult ;
+  char *arg1 = (char *) 0 ;
+  char *result = 0 ;
+  
+  arg1 = (char *)jarg1; 
+  result = (char *)OT_API_Message_GetUsageCredits((char const *)arg1);
+  jresult = SWIG_csharp_string_callback((const char *)result); 
+  return jresult;
 }
 
 

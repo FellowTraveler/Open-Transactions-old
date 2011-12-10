@@ -182,6 +182,11 @@ const char * OTAPI_Wrap::Create_SmartContract(const char * SERVER_ID,
 */
 
 
+void OTAPI_Wrap::Output(const int nLogLevel, const std::string STR_OUTPUT)
+{
+	OT_API_Output(nLogLevel, STR_OUTPUT.c_str());
+}
+
 
 const std::string OTAPI_Wrap::Create_SmartContract(const std::string SERVER_ID,
 												   const std::string SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
@@ -1186,6 +1191,14 @@ void OTAPI_Wrap::checkUser(const std::string SERVER_ID,
 	OT_API_checkUser(SERVER_ID.c_str(), USER_ID.c_str(), USER_ID_CHECK.c_str());
 }
 // --------------------------------------------------------------------
+void OTAPI_Wrap::usageCredits(const std::string SERVER_ID,
+							  const std::string USER_ID,
+							  const std::string USER_ID_CHECK,
+							  const std::string ADJUSTMENT)
+{
+	OT_API_usageCredits(SERVER_ID.c_str(), USER_ID.c_str(), USER_ID_CHECK.c_str(), ADJUSTMENT.c_str());
+}
+// --------------------------------------------------------------------
 void OTAPI_Wrap::sendUserMessage(const std::string SERVER_ID,
 								 const std::string USER_ID,
 								 const std::string USER_ID_RECIPIENT,
@@ -1497,19 +1510,27 @@ int OTAPI_Wrap::Message_GetDepth(const std::string THE_MESSAGE)
 }
 
 // --------------------------------------------------------------------
-bool OTAPI_Wrap::Message_GetTransactionSuccess(const std::string SERVER_ID,
-											   const std::string USER_ID,
-											   const std::string ACCOUNT_ID,
-											   const std::string THE_MESSAGE)
+const std::string OTAPI_Wrap::Message_GetUsageCredits(const std::string THE_MESSAGE)
+{
+	return OT_API_Message_GetUsageCredits(THE_MESSAGE.c_str());
+}
+
+// --------------------------------------------------------------------
+bool OTAPI_Wrap::Msg_GetTransactionSuccess(const std::string SERVER_ID,
+										   const std::string USER_ID,
+										   const std::string ACCOUNT_ID,
+										   const std::string THE_MESSAGE)
 {
 	return (OT_TRUE == OT_API_Message_GetTransactionSuccess(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), THE_MESSAGE.c_str())) ? true : false;
 }
 
 // --------------------------------------------------------------------
-bool OTAPI_Wrap::Message_GetBalanceAgreementSuccess(const std::string SERVER_ID,
-													const std::string USER_ID,
-													const std::string ACCOUNT_ID,
-													const std::string THE_MESSAGE)
+// Name abbreviated due to problems with length in scripting environment.
+//
+bool OTAPI_Wrap::Msg_GetBlnceAgrmntSuccess(const std::string SERVER_ID,
+										   const std::string USER_ID,
+										   const std::string ACCOUNT_ID,
+										   const std::string THE_MESSAGE)
 {
 	return (OT_TRUE == OT_API_Message_GetBalanceAgreementSuccess(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), THE_MESSAGE.c_str())) ? true : false;
 }

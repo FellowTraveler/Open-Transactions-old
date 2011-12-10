@@ -1192,11 +1192,13 @@ bool OTCronItem::SaveCronReceipt()
 
 
 
-// OTCron calls this when a cron item is removed
-// This gives each item a chance to drop a final receipt,
-// and clean up any memory, before being destroyed.
+// OTCron calls this when a cron item is added.
+// bForTheFirstTime=true means that this cron item is being
+// activated for the very first time. (Versus being re-added
+// to cron after a server reboot.)
 //
-void OTCronItem::HookActivationOnCron(OTPseudonym * pActivator) // sometimes NULL.
+void OTCronItem::HookActivationOnCron(OTPseudonym * pActivator, // sometimes NULL.
+									  bool bForTheFirstTime/*=false*/) 
 {
     OTCron * pCron  = GetCron();
     OT_ASSERT(NULL != pCron);
@@ -1212,7 +1214,8 @@ void OTCronItem::HookActivationOnCron(OTPseudonym * pActivator) // sometimes NUL
     
     // -------------------------------------------------------
     // 
-    onActivate(); // Subclasses may override this. 
+	if (bForTheFirstTime)
+		onActivate(); // Subclasses may override this. 
 	//
 	// MOST NOTABLY,
 	// OTSmartContract overrides this, so it can allow the SCRIPT

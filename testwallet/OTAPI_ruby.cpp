@@ -2416,9 +2416,6 @@ SWIG_From_bool  (bool value)
 }
 
 
-
-
-
 #include <limits.h>
 #if !defined(SWIG_NO_LLONG_MAX)
 # if !defined(LLONG_MAX) && defined(__GNUC__) && defined (__LONG_LONG_MAX__)
@@ -2427,16 +2424,6 @@ SWIG_From_bool  (bool value)
 #   define ULLONG_MAX (LLONG_MAX * 2ULL + 1ULL)
 # endif
 #endif
-
-
-  #define SWIG_From_long   LONG2NUM 
-
-
-SWIGINTERNINLINE VALUE
-SWIG_From_int  (int value)
-{    
-  return SWIG_From_long  (value);
-}
 
 
 SWIGINTERN VALUE
@@ -2488,6 +2475,19 @@ SWIG_AsVal_int (VALUE obj, int *val)
     }
   }  
   return res;
+}
+
+
+
+
+
+  #define SWIG_From_long   LONG2NUM 
+
+
+SWIGINTERNINLINE VALUE
+SWIG_From_int  (int value)
+{    
+  return SWIG_From_long  (value);
 }
 
 
@@ -2969,6 +2969,38 @@ _wrap_OT_API_Set_PasswordCallback(int argc, VALUE *argv, VALUE self) {
   vresult = SWIG_From_bool(static_cast< bool >(result));
   return vresult;
 fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OT_API_Output(int argc, VALUE *argv, VALUE self) {
+  int arg1 ;
+  char *arg2 = (char *) 0 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  
+  if ((argc < 2) || (argc > 2)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
+  }
+  ecode1 = SWIG_AsVal_int(argv[0], &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), Ruby_Format_TypeError( "", "int","OT_API_Output", 1, argv[0] ));
+  } 
+  arg1 = static_cast< int >(val1);
+  res2 = SWIG_AsCharPtrAndSize(argv[1], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "char const *","OT_API_Output", 2, argv[1] ));
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  OT_API_Output(arg1,(char const *)arg2);
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return Qnil;
+fail:
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   return Qnil;
 }
 
@@ -8767,6 +8799,90 @@ fail:
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OT_API_usageCredits(int argc, VALUE *argv, VALUE self) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  char *arg4 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  int res3 ;
+  char *buf3 = 0 ;
+  int alloc3 = 0 ;
+  int res4 ;
+  char *buf4 = 0 ;
+  int alloc4 = 0 ;
+  
+  if ((argc < 4) || (argc > 4)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
+  }
+  res1 = SWIG_AsCharPtrAndSize(argv[0], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "char const *","OT_API_usageCredits", 1, argv[0] ));
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(argv[1], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "char const *","OT_API_usageCredits", 2, argv[1] ));
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  res3 = SWIG_AsCharPtrAndSize(argv[2], &buf3, NULL, &alloc3);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), Ruby_Format_TypeError( "", "char const *","OT_API_usageCredits", 3, argv[2] ));
+  }
+  arg3 = reinterpret_cast< char * >(buf3);
+  res4 = SWIG_AsCharPtrAndSize(argv[3], &buf4, NULL, &alloc4);
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), Ruby_Format_TypeError( "", "char const *","OT_API_usageCredits", 4, argv[3] ));
+  }
+  arg4 = reinterpret_cast< char * >(buf4);
+  OT_API_usageCredits((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+  return Qnil;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OT_API_Message_GetUsageCredits(int argc, VALUE *argv, VALUE self) {
+  char *arg1 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  char *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_AsCharPtrAndSize(argv[0], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "char const *","OT_API_Message_GetUsageCredits", 1, argv[0] ));
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  result = (char *)OT_API_Message_GetUsageCredits((char const *)arg1);
+  vresult = SWIG_FromCharPtr((const char *)result);
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return vresult;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   return Qnil;
 }
 
@@ -27854,6 +27970,7 @@ SWIGEXPORT void Init_otapi(void) {
   SwigClassOTCaller.destroy = (void (*)(void *)) free_OTCaller;
   SwigClassOTCaller.trackObjects = 0;
   rb_define_module_function(mOtapi, "OT_API_Set_PasswordCallback", VALUEFUNC(_wrap_OT_API_Set_PasswordCallback), -1);
+  rb_define_module_function(mOtapi, "OT_API_Output", VALUEFUNC(_wrap_OT_API_Output), -1);
   rb_define_module_function(mOtapi, "OT_API_Init", VALUEFUNC(_wrap_OT_API_Init), -1);
   rb_define_module_function(mOtapi, "OT_API_LoadWallet", VALUEFUNC(_wrap_OT_API_LoadWallet), -1);
   rb_define_module_function(mOtapi, "OT_API_SwitchWallet", VALUEFUNC(_wrap_OT_API_SwitchWallet), -1);
@@ -27987,6 +28104,8 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_module_function(mOtapi, "OT_API_createUserAccount", VALUEFUNC(_wrap_OT_API_createUserAccount), -1);
   rb_define_module_function(mOtapi, "OT_API_deleteUserAccount", VALUEFUNC(_wrap_OT_API_deleteUserAccount), -1);
   rb_define_module_function(mOtapi, "OT_API_deleteAssetAccount", VALUEFUNC(_wrap_OT_API_deleteAssetAccount), -1);
+  rb_define_module_function(mOtapi, "OT_API_usageCredits", VALUEFUNC(_wrap_OT_API_usageCredits), -1);
+  rb_define_module_function(mOtapi, "OT_API_Message_GetUsageCredits", VALUEFUNC(_wrap_OT_API_Message_GetUsageCredits), -1);
   rb_define_module_function(mOtapi, "OT_API_checkUser", VALUEFUNC(_wrap_OT_API_checkUser), -1);
   rb_define_module_function(mOtapi, "OT_API_sendUserMessage", VALUEFUNC(_wrap_OT_API_sendUserMessage), -1);
   rb_define_module_function(mOtapi, "OT_API_getRequest", VALUEFUNC(_wrap_OT_API_getRequest), -1);

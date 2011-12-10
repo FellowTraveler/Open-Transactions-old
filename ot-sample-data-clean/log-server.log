@@ -1,0 +1,308 @@
+
+==> Received a getOutbox message. Processing...
+Setting log level to: 0
+Setting heartbeat_no_requests to: 10
+Setting heartbeat ms_between_beats to: 100
+Setting latency send_no_tries to: 5
+Setting latency send_ms to: 200
+
+Loading Open Transactions server. File version: 1.0
+Last Issued Transaction Number: 2100
+ServerID:
+8dlRJnGCjqU5jw7bZaw2AF112UrCZiFfBS9CnJrMWSp
+Using 'test' pass phrase for "(null)"
+Loaded server certificate and keys. Next loading Cron...
+
+
+Loading an OTCron object. ServerID:
+8dlRJnGCjqU5jw7bZaw2AF112UrCZiFfBS9CnJrMWSp
+Loading the server contract...
+** Main Server Contract Verified **
+
+
+****Asset Contract**** (server listing) Name: game tokens
+Contract ID:
+Bph6oZoC14CxafShXhZPMl1p2o1YE9MgwsEUXSQ5bWW
+** Asset Contract Verified **
+
+
+****Asset Contract**** (server listing) Name: silver grams
+Contract ID:
+lV6acfWoWKB7BcuIXCzvS4aSiqUOjlGgVTyepg1aAsa
+** Asset Contract Verified **
+
+==> Received a getMarketList message. Processing...
+
+==> Received a getMarketList message. Processing...
+
+==> Received a getMarketList message. Processing...
+
+==> Received a getMarketList message. Processing...
+
+==> Received a getInbox message. Processing...
+
+==> Received a getAccount message. Processing...
+
+==> Received a getOutbox message. Processing...
+
+==> Received an issueBasket message. Processing...
+
+==> Received a getContract message. Processing...
+
+==> Received a getMarketList message. Processing...
+
+==> Received a getMarketList message. Processing...
+
+==> Received a getMarketList message. Processing...
+
+==> Received a getMarketList message. Processing...
+
+==> Received a getInbox message. Processing...
+
+==> Received a getAccount message. Processing...
+
+==> Received a getOutbox message. Processing...
+
+==> Received a getInbox message. Processing...
+
+==> Received a getAccount message. Processing...
+
+==> Received a getOutbox message. Processing...
+
+==> Received a getInbox message. Processing...
+
+==> Received a getAccount message. Processing...
+
+==> Received a getOutbox message. Processing...
+
+==> Received a getInbox message. Processing...
+
+==> Received a getAccount message. Processing...
+
+==> Received a getOutbox message. Processing...
+
+==> Received a getInbox message. Processing...
+
+==> Received a getAccount message. Processing...
+
+==> Received a getOutbox message. Processing...
+
+==> Received a getInbox message. Processing...
+
+==> Received a getAccount message. Processing...
+
+==> Received a getOutbox message. Processing...
+
+==> Received a createAccount message. Processing...
+Generating inbox/1N1dUVjNv4suu0hRH8OWUJrMWvNCfiCFCr6dX4jessl
+Generating outbox/1N1dUVjNv4suu0hRH8OWUJrMWvNCfiCFCr6dX4jessl
+
+==> Received a getOutbox message. Processing...
+
+==> Received a getInbox message. Processing...
+
+==> Received a getAccount message. Processing...
+
+==> Received a getOutbox message. Processing...
+
+==> Received a getInbox message. Processing...
+
+==> Received a getAccount message. Processing...
+
+==> Received a getOutbox message. Processing...
+
+==> Received a getInbox message. Processing...
+
+==> Received a getAccount message. Processing...
+
+==> Received a getOutbox message. Processing...
+
+==> Received a getInbox message. Processing...
+
+==> Received a getAccount message. Processing...
+
+==> Received a getOutbox message. Processing...
+Setting log level to: 0
+Setting heartbeat_no_requests to: 10
+Setting heartbeat ms_between_beats to: 100
+Setting latency send_no_tries to: 5
+Setting latency send_ms to: 200
+
+Loading Open Transactions server. File version: 1.0
+Last Issued Transaction Number: 2100
+ServerID:
+8dlRJnGCjqU5jw7bZaw2AF112UrCZiFfBS9CnJrMWSp
+Using 'test' pass phrase for "(null)"
+Loaded server certificate and keys. Next loading Cron...
+
+
+Loading an OTCron object. ServerID:
+8dlRJnGCjqU5jw7bZaw2AF112UrCZiFfBS9CnJrMWSp
+Loading the server contract...
+
+Hashes do NOT match in OTContract::VerifyContractID.
+8dlRJnGCjqU5jw7bZaw2AF112UrCZiFfBS9CnJrMWSp
+tmHvLZxb13hW6OyH1oHKTmKd7fTMRsUfzqPE6KCwSjl
+
+Main Server Contract FAILED to verify.
+
+
+****Asset Contract**** (server listing) Name: game tokens
+Contract ID:
+Bph6oZoC14CxafShXhZPMl1p2o1YE9MgwsEUXSQ5bWW
+
+Hashes do NOT match in OTContract::VerifyContractID.
+Bph6oZoC14CxafShXhZPMl1p2o1YE9MgwsEUXSQ5bWW
+UCkrOjmsddAEhxPhyUUQJQLGXZpLTQHuzJoY4Qa2zzm
+
+Asset Contract FAILED to verify.
+
+
+****Asset Contract**** (server listing) Name: 
+Contract ID:
+XBCTdnxYMLKaP6m1cSpvgViOFfdjoVCffbnZ7VIAEQz
+
+Hashes do NOT match in OTContract::VerifyContractID.
+XBCTdnxYMLKaP6m1cSpvgViOFfdjoVCffbnZ7VIAEQz
+OtpTqVGDgzZRvJZuA14kBMtN0RXDbimI8h3rYzn8zfW
+
+Asset Contract FAILED to verify.
+
+
+****Asset Contract**** (server listing) Name: silver grams
+Contract ID:
+lV6acfWoWKB7BcuIXCzvS4aSiqUOjlGgVTyepg1aAsa
+
+Hashes do NOT match in OTContract::VerifyContractID.
+lV6acfWoWKB7BcuIXCzvS4aSiqUOjlGgVTyepg1aAsa
+ixxnpm10skixwZ13CrcIbmkNzQ27UNCzGBBFvFCBcYk
+
+Asset Contract FAILED to verify.
+Loading basket currency info...
+ Basket ID:
+sx38Xfy9Axld5KW2aA6aBmT8Rs4iOAuICIneAQTgJWQ
+ Basket Acct ID:
+jJfjQPFUpfF0M6rYA9tX4KOxxZVMg0WczTTTMYsC2K2
+ Basket Contract ID:
+XBCTdnxYMLKaP6m1cSpvgViOFfdjoVCffbnZ7VIAEQz
+Unable to find my own connect info (which is in my server contract BTW.)
+
+OT_ASSERT in xmlrpcxx_server.cpp at line 448
+Setting log level to: 0
+Setting heartbeat_no_requests to: 10
+Setting heartbeat ms_between_beats to: 100
+Setting latency send_no_tries to: 5
+Setting latency send_ms to: 200
+
+Loading Open Transactions server. File version: 1.0
+Last Issued Transaction Number: 2100
+ServerID:
+tmHvLZxb13hW6OyH1oHKTmKd7fTMRsUfzqPE6KCwSjl
+Using 'test' pass phrase for "(null)"
+Loaded server certificate and keys. Next loading Cron...
+OTContract::LoadContractRawFile: File does not exist: cron/OT-CRON.crn
+Failed loading raw contract file: cron/OT-CRON.crn
+Failed loading Cron file in OTServer::Init.
+Loading the server contract...
+OTContract::LoadContractRawFile: File does not exist: contracts/tmHvLZxb13hW6OyH1oHKTmKd7fTMRsUfzqPE6KCwSjl
+Empty m_strRawFile in OTContract::ParseRawFile. Filename: contracts/tmHvLZxb13hW6OyH1oHKTmKd7fTMRsUfzqPE6KCwSjl.
+Failed reading Main Server Contract in OTServer::LoadMainFile:
+contracts
+Unable to find my own connect info (which is in my server contract BTW.)
+
+OT_ASSERT in xmlrpcxx_server.cpp at line 448
+Setting log level to: 0
+Setting heartbeat_no_requests to: 10
+Setting heartbeat ms_between_beats to: 100
+Setting latency send_no_tries to: 5
+Setting latency send_ms to: 200
+
+Loading Open Transactions server. File version: 1.0
+Last Issued Transaction Number: 2100
+ServerID:
+tmHvLZxb13hW6OyH1oHKTmKd7fTMRsUfzqPE6KCwSjl
+Using 'test' pass phrase for "(null)"
+Loaded server certificate and keys. Next loading Cron...
+OTContract::LoadContractRawFile: File does not exist: cron/OT-CRON.crn
+Failed loading raw contract file: cron/OT-CRON.crn
+Failed loading Cron file in OTServer::Init.
+Loading the server contract...
+** Main Server Contract Verified **
+Setting log level to: 0
+Setting heartbeat_no_requests to: 10
+Setting heartbeat ms_between_beats to: 100
+Setting latency send_no_tries to: 5
+Setting latency send_ms to: 200
+
+Loading Open Transactions server. File version: 1.0
+Last Issued Transaction Number: 2120
+ServerID:
+tmHvLZxb13hW6OyH1oHKTmKd7fTMRsUfzqPE6KCwSjl
+Using 'test' pass phrase for "(null)"
+Loaded server certificate and keys. Next loading Cron...
+
+
+Loading an OTCron object. ServerID:
+tmHvLZxb13hW6OyH1oHKTmKd7fTMRsUfzqPE6KCwSjl
+Loading the server contract...
+** Main Server Contract Verified **
+Invalid server ID sent in command request.
+Unable to process user command in ProcessMessage_ZMQ.
+Invalid server ID sent in command request.
+Unable to process user command in ProcessMessage_ZMQ.
+Invalid server ID sent in command request.
+Unable to process user command in ProcessMessage_ZMQ.
+Invalid server ID sent in command request.
+Unable to process user command in ProcessMessage_ZMQ.
+Invalid server ID sent in command request.
+Unable to process user command in ProcessMessage_ZMQ.
+
+==> Received a createUserAccount message. Processing...
+Verifying account doesn't already exist... (IGNORE ERRORS HERE ABOUT FAILURE OPENING FILES)
+Failed Loading a signed nymfile:
+T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV
+
+Success saving new user account verification file.
+Success saving new nym's public key file.
+Generating nymbox/T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV
+Success saving new Nymfile. (User account fully created.)
+Nym file request number doesn't exist. Apparently first-ever request to server--but everything checks out. (Shouldn't this request number have been created already when the NymFile was first created???????
+Creating Request Number entry as '1'. Saving...
+Created first request number in Nym file, apparently first-ever request. (Shouldn't this have been created already when the NymFile was first created???????
+
+==> Received a getRequest message. Processing...
+
+==> Received a getMarketList message. Processing...
+
+==> Received a getMarketList message. Processing...
+
+==> Received a getMarketList message. Processing...
+
+==> Received an issueAssetType message. Processing...
+Generating inbox/outbox for new issuer acct. IGNORE ANY "FILE OPEN" ERRORS HERE.
+Generating inbox/rAwk86tINmqWPx3PEKpuiYu9ch5f4ubFQG1AsgxpsuA
+Generating outbox/rAwk86tINmqWPx3PEKpuiYu9ch5f4ubFQG1AsgxpsuA
+
+==> Received a createAccount message. Processing...
+Generating inbox/XkBPyMsQfBqu0gs4ExARDUEAnnKdZotLfJLi2a85rbB
+Generating outbox/XkBPyMsQfBqu0gs4ExARDUEAnnKdZotLfJLi2a85rbB
+
+==> Received a getOutbox message. Processing...
+
+==> Received a getInbox message. Processing...
+
+==> Received a getAccount message. Processing...
+
+==> Received a getOutbox message. Processing...
+
+==> Received a getInbox message. Processing...
+
+==> Received a getAccount message. Processing...
+
+==> Received a getOutbox message. Processing...
+
+==> Received a getInbox message. Processing...
+
+==> Received a getAccount message. Processing...
+
+==> Received a getOutbox message. Processing...

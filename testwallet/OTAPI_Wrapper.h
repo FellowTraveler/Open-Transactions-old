@@ -150,6 +150,8 @@ class OTAPI_Wrap
 {
 public:
 
+	static void Output(const int nLogLevel, const std::string STR_OUTPUT);
+	
 	/*
 	 static const std::string Create_SmartContract(const std::string SERVER_ID,
 		const std::string SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
@@ -650,6 +652,13 @@ public:
 	static void checkUser(const std::string SERVER_ID,
 						  const std::string USER_ID,
 						  const std::string USER_ID_CHECK);
+	
+	// --------------------------------------------------------------------
+	static void usageCredits(const std::string SERVER_ID,
+							 const std::string USER_ID,
+							 const std::string USER_ID_CHECK,
+							 const std::string ADJUSTMENT);
+	
 	// --------------------------------------------------------------------
 	static void sendUserMessage(const std::string SERVER_ID,
 								const std::string USER_ID,
@@ -820,15 +829,18 @@ public:
 	
 	static int Message_GetDepth(const std::string THE_MESSAGE);
 	
-	static bool Message_GetTransactionSuccess(const std::string SERVER_ID,
-											  const std::string USER_ID,
-											  const std::string ACCOUNT_ID,
-											  const std::string THE_MESSAGE);
+	static const std::string Message_GetUsageCredits(const std::string THE_MESSAGE);
 	
-	static bool Message_GetBalanceAgreementSuccess(const std::string SERVER_ID,
-												   const std::string USER_ID,
-												   const std::string ACCOUNT_ID,
-												   const std::string THE_MESSAGE);
+	static bool Msg_GetTransactionSuccess(const std::string SERVER_ID,
+										  const std::string USER_ID,
+										  const std::string ACCOUNT_ID,
+										  const std::string THE_MESSAGE);
+	
+	static bool Msg_GetBlnceAgrmntSuccess(const std::string SERVER_ID,
+										  const std::string USER_ID,
+										  const std::string ACCOUNT_ID,
+										  const std::string THE_MESSAGE);
+	
 	static const std::string Message_GetLedger(const std::string THE_MESSAGE);
 	
 	static const std::string Message_GetNewAssetTypeID(const std::string THE_MESSAGE);

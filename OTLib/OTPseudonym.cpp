@@ -625,13 +625,21 @@ bool OTPseudonym::GenerateNym()
 
 
 
+
 // Sometimes for testing I need to clear out all the transaction numbers from a nym.
 // So I added this method to make such a thing easy to do.
 //
-void OTPseudonym::RemoveAllNumbers()
+void OTPseudonym::RemoveAllNumbers(const OTString * pstrServerID/*=NULL*/)
 {
+	const std::string str_ServerID((NULL != pstrServerID) ? pstrServerID->Get() : "");		
+		
 	FOR_EACH(mapOfTransNums, m_mapIssuedNum)
 	{
+		// If an ID is passed in, that means remove all numbers FOR THAT SERVER ID.
+		if ((NULL != pstrServerID) && (str_ServerID != it->first)) // If passed in, and current map doesn't match, then skip it (continue).
+			continue;
+		
+		// -------------------------
 		dequeOfTransNums * pDeque = (it->second);
 		OT_ASSERT(NULL != pDeque);
 		
@@ -643,6 +651,11 @@ void OTPseudonym::RemoveAllNumbers()
 	
 	FOR_EACH(mapOfTransNums, m_mapTransNum)
 	{
+		// If an ID is passed in, that means remove all numbers FOR THAT SERVER ID.
+		if ((NULL != pstrServerID) && (str_ServerID != it->first)) // If passed in, and current map doesn't match, then skip it (continue).
+			continue;
+		
+		// -------------------------
 		dequeOfTransNums * pDeque = (it->second);
 		OT_ASSERT(NULL != pDeque);
 		
@@ -652,6 +665,21 @@ void OTPseudonym::RemoveAllNumbers()
 		}
 	}	
 }
+
+
+void OTPseudonym::RemoveReqNumbers(const OTString * pstrServerID/*=NULL*/)
+{
+	const std::string str_ServerID((NULL != pstrServerID) ? pstrServerID->Get() : "");		
+	
+	FOR_EACH(mapOfRequestNums, m_mapRequestNum)
+	{
+		if ((NULL != pstrServerID) && (str_ServerID != it->first)) // If passed in, and current it doesn't match, then skip it (continue).
+			continue;
+
+		m_mapRequestNum.erase(it);		
+	}	
+}
+
 
 
 // You can't go using a Nym at a certain server, if it's not registered there...
@@ -2013,12 +2041,22 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
 	
 	strNym.Concatenate("<?xml version=\"%s\"?>\n\n", "1.0");	
 	
-	strNym.Concatenate("<OTuser version=\"%s\"\n"
-			" nymID=\"%s\""
-			">\n\n", 
-			m_strVersion.Get(), 
-			nymID.Get()
-			);
+	if (m_lUsageCredits == 0)
+		strNym.Concatenate("<OTuser version=\"%s\"\n"
+						   " nymID=\"%s\""
+						   ">\n\n", 
+						   m_strVersion.Get(), 
+						   nymID.Get()
+						   );
+	else
+		strNym.Concatenate("<OTuser version=\"%s\"\n"
+						   " nymID=\"%s\"\n"
+						   " usageCredits=\"%ld\""
+						   ">\n\n", 
+						   m_strVersion.Get(), 
+						   nymID.Get(),
+						   m_lUsageCredits
+						   );
 	
 	// -------------------------------------
 
@@ -2248,8 +2286,17 @@ bool OTPseudonym::LoadFromString(const OTString & strNym)
 				if (!strcmp("OTuser", xml->getNodeName()))
 				{
 					m_strVersion	= xml->getAttributeValue("version");					
-					UserNymID		= xml->getAttributeValue("nymID");	
+					UserNymID		= xml->getAttributeValue("nymID");
 					
+					
+					// Server-side only...
+					OTString strCredits = xml->getAttributeValue("usageCredits");
+					
+					if (strCredits.GetLength() > 0)
+						m_lUsageCredits = atol(strCredits.Get());
+					else
+						m_lUsageCredits = 0; // This is the default anyway, but just being safe...
+
 					//TODO: no need to set the ID again here. We already know the ID
 					// at this point. Better to check and compare they are the same here.
 					//m_nymID.SetString(UserNymID);
@@ -2876,7 +2923,7 @@ const OTAsymmetricKey & OTPseudonym::GetPrivateKey() const
 
 
 
-OTPseudonym::OTPseudonym() : m_bMarkForDeletion(false)
+OTPseudonym::OTPseudonym() : m_bMarkForDeletion(false), m_lUsageCredits(0)
 {
 	m_pkeyPublic = new OTAsymmetricKey;
 	m_pkeyPrivate = new OTAsymmetricKey;
@@ -2889,7 +2936,7 @@ void OTPseudonym::Initialize()
 }
 
 OTPseudonym::OTPseudonym(const OTString & name, const OTString & filename, const OTString & nymID)
- : m_bMarkForDeletion(false)
+ : m_bMarkForDeletion(false), m_lUsageCredits(0)
 {
 	m_pkeyPublic = new OTAsymmetricKey;
 	m_pkeyPrivate = new OTAsymmetricKey;
@@ -2902,7 +2949,7 @@ OTPseudonym::OTPseudonym(const OTString & name, const OTString & filename, const
 	m_nymID.SetString(nymID);
 }
 
-OTPseudonym::OTPseudonym(const OTIdentifier & nymID) : m_bMarkForDeletion(false)
+OTPseudonym::OTPseudonym(const OTIdentifier & nymID) : m_bMarkForDeletion(false), m_lUsageCredits(0)
 {
 	m_pkeyPublic = new OTAsymmetricKey;
 	m_pkeyPrivate = new OTAsymmetricKey;
@@ -2912,7 +2959,7 @@ OTPseudonym::OTPseudonym(const OTIdentifier & nymID) : m_bMarkForDeletion(false)
 	m_nymID = nymID;
 }
 
-OTPseudonym::OTPseudonym(const OTString & strNymID) : m_bMarkForDeletion(false)
+OTPseudonym::OTPseudonym(const OTString & strNymID) : m_bMarkForDeletion(false), m_lUsageCredits(0)
 {
 	m_pkeyPublic = new OTAsymmetricKey;
 	m_pkeyPrivate = new OTAsymmetricKey;

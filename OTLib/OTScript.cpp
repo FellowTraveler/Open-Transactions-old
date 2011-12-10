@@ -399,7 +399,19 @@ bool OTScriptChai::ExecuteScript(OTVariable * pReturnVar/*=NULL*/)
             
             // Currently I don't make the entire party available -- just his ID.
             //
-            chai.add_global_const(const_var(party_id), party_name.c_str());
+            // Update: The client side uses constant variables only (a block or two down
+            // from here) and it stores the user's ID, and acct IDs, directly in those
+            // variables based on name.  Whereas the server side passes in Parties and
+            // PartyAccounts, and only the names are made available inside the scripts.
+            // This way the scripts must entirely rely on the server-side API, functions
+            // such as move_funds(from_name, to_name), which expect a name, and translate
+            // only internally to resolve the ID.
+            // (Contrast this with client-side scripts, which actually have the real ID
+            // available inside the script, and which can call any OT API function that 
+            // exists...)
+            //
+            chai.add_global_const(const_var(party_name),    party_name.c_str()); // Why name and not ID? See comment just above.
+//          chai.add_global_const(const_var(party_id),      party_name.c_str());
         }
         // --------------------
         FOR_EACH(mapOfPartyAccounts, m_mapAccounts)
@@ -415,7 +427,8 @@ bool OTScriptChai::ExecuteScript(OTVariable * pReturnVar/*=NULL*/)
             
             // Currently I don't make the entire account available -- just his ID.
             //
-            chai.add_global_const(const_var(acct_id), acct_name.c_str());
+            chai.add_global_const(const_var(acct_name), acct_name.c_str()); // See comment in above block for party name.
+//          chai.add_global_const(const_var(acct_id),   acct_name.c_str());
         }
         // --------------------
         /*
@@ -541,8 +554,12 @@ bool OTScriptChai::ExecuteScript(OTVariable * pReturnVar/*=NULL*/)
         } // try
         catch (const chaiscript::exception::eval_error &e) {
             // Error in script parsing / execution
-            OTLog::vError("OTScriptChai::ExecuteScript: Caught chaiscript::exception::eval_error : %s\n",
-                          e.reason.c_str());
+            OTLog::vError("OTScriptChai::ExecuteScript: Caught chaiscript::exception::eval_error : %s. \n"
+                          "   Start position, line: %d column: %d\n"
+                          "   End position,   line: %d column: %d\n",
+                          e.reason.c_str(), 
+                          e.start_position.line, e.start_position.column,
+                          e.end_position.line, e.end_position.column);
             return false;
         } catch (const chaiscript::exception::bad_boxed_cast &e) {
             // Error unboxing return value

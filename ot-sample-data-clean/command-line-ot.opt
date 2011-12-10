@@ -1,0 +1,15 @@
+
+# The OT command line uses these for default values
+# If you don't specify --mynym ID or --myacct ID, then
+# it comes from here instead.
+
+defaultserver : tmHvLZxb13hW6OyH1oHKTmKd7fTMRsUfzqPE6KCwSjl 
+
+defaultmynym : T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV
+defaultmypurse : mNS1ODAXQoSXpWJfC5awE9zAXCm9aVfiE0WQGsIOw4B 
+defaultmyacct : XkBPyMsQfBqu0gs4ExARDUEAnnKdZotLfJLi2a85rbB 
+
+#defaulthisacct:
+#defaulthisnym:
+#defaulthispurse:
+

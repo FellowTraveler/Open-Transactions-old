@@ -705,7 +705,11 @@ void OTCron::ProcessCronItems()
 	// If the item returns true, that means leave it on the list. Otherwise,
 	// if it returns false, that means "it's done: remove it."
 
-	FOR_EACH(mapOfCronItems, m_mapCronItems)
+	for (mapOfCronItems::iterator it = m_mapCronItems.begin(); 
+		 it != m_mapCronItems.end();
+		 /* NOTICE THIS THIRD SPOT IS EMPTY*/ 
+		)
+//	FOR_EACH(mapOfCronItems, m_mapCronItems)
 	{
 		OTCronItem * pItem = (*it).second;
 		OT_ASSERT(NULL != pItem);
@@ -733,12 +737,12 @@ void OTCron::ProcessCronItems()
 //          OTLog::Error("OTCron::ProcessCronItems: Signature failed to verify on cron item!\n");
             
         // -----------------------------------------------------
-
 		// Remove it from the list.
         //
 		if (false == bProcessCron)
 		{
             OTLog::vOutput(0, "OTCron::ProcessCronItems: Removing expired cron item.\n");
+			
 			m_mapCronItems.erase(it++);
 			delete pItem;
 			pItem = NULL;
@@ -793,7 +797,9 @@ bool OTCron::AddCronItem(OTCronItem & theItem, OTPseudonym * pActivator/*=NULL*/
 		bool bSuccess = true;
 		// ------------------------------------------------------
 
-		theItem.HookActivationOnCron(pActivator); // (OTPseudonym * pActivator) // sometimes NULL.
+		theItem.HookActivationOnCron(pActivator, // (OTPseudonym * pActivator) // sometimes NULL.
+									 bSaveReceipt); // If merely being reloaded after server reboot, this is false. 
+													// But if actually being activated for the first time, then this is true.
 
 		// ------------------------------------------------------
 		// When an item is added to Cron for the first time, a copy of it is saved to the

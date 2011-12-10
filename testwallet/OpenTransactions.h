@@ -410,6 +410,11 @@ public:
 				   OTIdentifier & USER_ID,
 				   OTIdentifier & USER_ID_CHECK);
 	
+	void usageCredits(const OTIdentifier &	SERVER_ID,
+					  const OTIdentifier &	USER_ID,
+					  const OTIdentifier &	USER_ID_CHECK,
+					  const long			lAdjustment=0);
+	
 	void getRequest(OTIdentifier & SERVER_ID,
 					OTIdentifier & USER_ID);
 	

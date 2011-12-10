@@ -50,6 +50,7 @@ sub this {
 package otapi;
 
 *OT_API_Set_PasswordCallback = *otapic::OT_API_Set_PasswordCallback;
+*OT_API_Output = *otapic::OT_API_Output;
 *OT_API_Init = *otapic::OT_API_Init;
 *OT_API_LoadWallet = *otapic::OT_API_LoadWallet;
 *OT_API_SwitchWallet = *otapic::OT_API_SwitchWallet;
@@ -183,6 +184,8 @@ package otapi;
 *OT_API_createUserAccount = *otapic::OT_API_createUserAccount;
 *OT_API_deleteUserAccount = *otapic::OT_API_deleteUserAccount;
 *OT_API_deleteAssetAccount = *otapic::OT_API_deleteAssetAccount;
+*OT_API_usageCredits = *otapic::OT_API_usageCredits;
+*OT_API_Message_GetUsageCredits = *otapic::OT_API_Message_GetUsageCredits;
 *OT_API_checkUser = *otapic::OT_API_checkUser;
 *OT_API_sendUserMessage = *otapic::OT_API_sendUserMessage;
 *OT_API_getRequest = *otapic::OT_API_getRequest;

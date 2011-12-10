@@ -138,6 +138,14 @@
 	
 
 
+// --------------------------------------------------------------------
+/** Output to the screen (stderr.)
+    (This is so stdout can be left clean for the ACTUAL output.)
+    Log level is 0 (least verbose) to 5 (most verbose.)
+ */
+void OT_API_Output(int nLogLevel, const char * szOutput);
+
+
 
 // --------------------------------------------------------------------
 /**
@@ -1465,6 +1473,53 @@ void OT_API_deleteAssetAccount(const char * SERVER_ID,
 
 // --------------------------------------------------------------------
 /**
+ USAGE CREDITS  --- (Based on a UserID, retrieve or adjust the Usage Credits for that Nym.)
+ 
+ ServerID -- Must be included with every message.
+ USER_ID  -- You must include your own userID so the server can reply.
+ USER_CHECK_ID -- This is a SECOND user's ID. (Whose usage credits we are checking)
+ ADJUSTMENT -- This can be NULL (resolves as "0"). Otherwise, positive or negative, and passed
+               as a string. This gives the option to adjust the usage credits balance, up or down.
+ 
+ In this message, you are requesting the server to send you the current balance of
+ the usage credits for the second user_id. You may also adjust this balance up or
+ down (+ or - any long int value in string format). If you do, the server reply will
+ contain the updated usage credits, AFTER the adjustment.
+
+ You might ask: Doesn't this mean that ANY user can get/set the usage credits for any other??
+ // ---------------
+ ANSWER: Most OT server operators will set cmd_usage_credits=false in the ~/.ot/server.cfg
+ file. (BECAUSE ONLY AN ADMINISTRATOR SHOULD BE ABLE TO ADJUST ANYONE'S USAGE CREDITS.)
+ In this case, users will still be able to use this message to VIEW their own personal
+ usage credits, but they will be unable to see others' balances, and they will be unable
+ to do any adjustments to any balances, including their own.
+ 
+ If you wish to give full rights to this function to a specific admin Nym, use the
+ override_nym_id found in ~/.ot/server.cfg
+ // ---------------------------
+ After you call OT_API_usageCredits(), you will receive a server reply. Pass that into
+ the next function: OT_API_Message_GetUsageCredits()
+ */
+void OT_API_usageCredits(const char * SERVER_ID,
+						 const char * USER_ID,
+						 const char * USER_ID_CHECK,
+						 const char * ADJUSTMENT);
+
+
+
+// IF THE_MESSAGE is of command type @usageCredits, and IF it was a SUCCESS,
+// then this function returns the usage credits BALANCE (it's a long int, but
+// passed as a string). If you adjusted the balance using the usageCredits
+// command (THE_MESSAGE being the server's reply to that) then you will see
+// the balance AFTER the adjustment. (The current "Usage Credits" balance.)
+// 
+const char * OT_API_Message_GetUsageCredits(const char * THE_MESSAGE);
+
+
+
+
+// --------------------------------------------------------------------
+/**
  CHECK USER  --- (Grab his public key based on his User ID.)
  
  ServerID -- Must be included with every message.
@@ -1479,7 +1534,7 @@ void OT_API_deleteAssetAccount(const char * SERVER_ID,
  verify that the key is the right one, by hashing it and comparing
  the result to the other user's ID. Since the User ID is a hash of
  the key, they should always match.
-
+ 
  */
 void OT_API_checkUser(const char * SERVER_ID,
 					  const char * USER_ID,
@@ -2101,7 +2156,6 @@ int OT_API_Message_GetSuccess(const char * THE_MESSAGE);
 /// reply.)
 ///
 int OT_API_Message_GetDepth(const char * THE_MESSAGE);
-
 
 
 

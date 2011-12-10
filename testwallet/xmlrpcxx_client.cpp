@@ -398,6 +398,41 @@ bool SetupPointersForWalletMyNymAndServerContract(std::string & str_ServerID,
 
 
 
+// -------------------------
+// Reads from cin until Newline.
+//
+std::string OT_CLI_ReadLine()
+{
+	std::string line;
+	if (std::getline(std::cin, line))
+	{
+		return line;
+	}
+	
+	return "";
+}
+
+// -------------------------
+// Reads from cin until EOF.
+//
+std::string OT_CLI_ReadUntilEOF()
+{
+	// don't skip the whitespace while reading
+	std::cin >> std::noskipws;
+	
+	// use stream iterators to copy the stream to a string
+	std::istream_iterator<char> it(std::cin);
+	std::istream_iterator<char> end;
+	
+	// -------------------------
+	std::string results(it, end);
+	
+	return results;
+}
+
+
+// ********************************************************************
+
 void RegisterAPIWithScript(OTScript & theScript)
 {
 	using namespace chaiscript;
@@ -409,6 +444,12 @@ void RegisterAPIWithScript(OTScript & theScript)
 
 	if (NULL != pScript)
 	{
+		pScript->chai.add(fun(&OT_CLI_ReadLine), "OT_CLI_ReadLine");			// String OT_CLI_ReadLine()		// Reads from cin until Newline.
+		pScript->chai.add(fun(&OT_CLI_ReadUntilEOF), "OT_CLI_ReadUntilEOF");	// String OT_CLI_ReadUntilEOF()	// Reads from cin until EOF.
+		
+		pScript->chai.add(fun(&OTAPI_Wrap::Output), "OT_API_Output");
+		// ------------------------------------------------------------------
+		
 		pScript->chai.add(fun(&OTAPI_Wrap::CreateNym), "OT_API_CreateNym");
         pScript->chai.add(fun(&OTAPI_Wrap::AddServerContract), "OT_API_AddServerContract");
         pScript->chai.add(fun(&OTAPI_Wrap::AddAssetContract), "OT_API_AddAssetContract");
@@ -532,6 +573,7 @@ void RegisterAPIWithScript(OTScript & theScript)
 		pScript->chai.add(fun(&OTAPI_Wrap::deleteUserAccount), "OT_API_deleteUserAccount");
 		pScript->chai.add(fun(&OTAPI_Wrap::deleteAssetAccount), "OT_API_deleteAssetAccount");
 		pScript->chai.add(fun(&OTAPI_Wrap::checkUser), "OT_API_checkUser");
+		pScript->chai.add(fun(&OTAPI_Wrap::usageCredits), "OT_API_usageCredits");
 		pScript->chai.add(fun(&OTAPI_Wrap::sendUserMessage), "OT_API_sendUserMessage");
 		
 		pScript->chai.add(fun(&OTAPI_Wrap::getRequest), "OT_API_getRequest");
@@ -574,8 +616,9 @@ void RegisterAPIWithScript(OTScript & theScript)
 		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetCommand), "OT_API_Message_GetCommand");
 		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetSuccess), "OT_API_Message_GetSuccess");
 		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetDepth), "OT_API_Message_GetDepth");
-		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetTransactionSuccess), "OT_API_Message_GetTransactionSuccess");
-		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetBalanceAgreementSuccess), "OT_API_Message_GetBalanceAgreementSuccess");
+		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetUsageCredits), "OT_API_Message_GetUsageCredits");
+		pScript->chai.add(fun(&OTAPI_Wrap::Msg_GetTransactionSuccess), "OT_API_Msg_GetTransactionSuccess");
+		pScript->chai.add(fun(&OTAPI_Wrap::Msg_GetBlnceAgrmntSuccess), "OT_API_Msg_GetBlnceAgrmntSuccess");
 		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetLedger), "OT_API_Message_GetLedger");
 		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetNewAssetTypeID), "OT_API_Message_GetNewAssetTypeID");
 		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetNewIssuerAcctID), "OT_API_Message_GetNewIssuerAcctID");
@@ -1004,7 +1047,8 @@ int main(int argc, char* argv[])
     //
 	if( false == bIsCommandProvided )   // If no command was provided (though other command-line options may have been...) 
     {                           // then we expect a script to come in through stdin, and we run it through the script interpreter!
-		OTLog::Output(0, "\n\nTry \"ot --help\" for instructions.\n\n ==> Expecting ot script from standard input. (Terminate with CTRL-D):\n\n");
+		OTLog::Output(0, "\n\nYou probably don't want to do this. Use CTRL-C, and try \"ot --help\" for instructions.\n\n "
+					  "==> Expecting ot script from standard input. (Terminate with CTRL-D):\n\n");
 		
 		// ----------------------------------------
 		// don't skip the whitespace while reading
@@ -1226,16 +1270,47 @@ int main(int argc, char* argv[])
 			OTString strTempAssetType(thePurseAssetTypeID);
 			str_MyPurse = strTempAssetType.Get();
 		}		
-		
-        // TODO:  put "His Asset Contract" here, copied from above, if it turns out to be necessary.
-        
-        
-        // BELOW THIS POINT, pMyAssetContract MIGHT be NULL, or MIGHT be an asset type specified by the user.
+		// BELOW THIS POINT, pMyAssetContract MIGHT be NULL, or MIGHT be an asset type specified by the user.
         // There's no guarantee that it's available, but if it IS, then it WILL be available below this point.
+		// ---------------------------------------------------------------------------
+		
+		OTIdentifier hisPurseAssetTypeID;
+        OTAssetContract * pHisAssetContract = NULL;
+		
+        if ( str_HisPurse.size() > 0 )
+        {
+//			OTLog::Error("DEBUGGING Before Purse ID...\n");
+         	
+			const OTIdentifier HIS_ASSET_TYPE_ID(str_HisPurse.c_str());
+            
+//			OTLog::Error("DEBUGGING After Purse ID...\n");
+			
+			pHisAssetContract = pWallet->GetAssetContract(HIS_ASSET_TYPE_ID);
+            // If failure, then we try PARTIAL match.
+            if (NULL == pHisAssetContract)
+                pHisAssetContract = pWallet->GetAssetContractPartialMatch( str_HisPurse );
+            
+            if (NULL == pHisAssetContract)
+            {
+                OTLog::vOutput(0, "Unable to find His Asset Type: %s\n", str_HisPurse.c_str());
+                OT_Main_Cleanup();
+                return 0;
+            }
+			
+            pHisAssetContract->GetIdentifier(hisPurseAssetTypeID);
+        }
+        else if (NULL != pHisAccount)
+            hisPurseAssetTypeID = pHisAccount->GetAssetTypeID();
+        // ------------------
+		{
+			OTString strTempAssetType(hisPurseAssetTypeID);
+			str_HisPurse = strTempAssetType.Get();
+		}				
         // --------------------------------------------------------------------------
         
         
         // Also, pAccount and pMyAssetContract have not be validated AGAINST EACH OTHER (yet)...
+        // Also, pHisAccount and pHisAssetContract have not be validated AGAINST EACH OTHER (yet)...
 
     
          
@@ -1300,15 +1375,18 @@ int main(int argc, char* argv[])
 			{
 				RegisterAPIWithScript(*pScript); // for the special client-side API functions we make available to all scripts on client-side.
 
-				OTParty		* pPartyMyNym	= NULL;
-				OTParty		* pPartyHisNym	= NULL;
+//				OTParty		* pPartyMyNym	= NULL;
+//				OTParty		* pPartyHisNym	= NULL;
 				//
-				OTCleanup<OTParty> angelMyNym;
-				OTCleanup<OTParty> angelHisNym;
+//				OTCleanup<OTParty> angelMyNym;
+//				OTCleanup<OTParty> angelHisNym;
+				OTCleanup<OTVariable> angelMyNymVar;
+				OTCleanup<OTVariable> angelHisNymVar;
 				OTCleanup<OTVariable> angelServer;
 				OTCleanup<OTVariable> angelMyAcct;
 				OTCleanup<OTVariable> angelHisAcct;
 				OTCleanup<OTVariable> angelMyPurse;
+				OTCleanup<OTVariable> angelHisPurse;
 				// -------------------------
 				
 				if (str_ServerID.size() > 0)
@@ -1334,6 +1412,46 @@ int main(int argc, char* argv[])
 
 				if (NULL != pMyNym)
 				{
+					const std::string str_party_name("MyNym");
+					
+					OTLog::vOutput(0, "Adding constant with name %s and value: %s ...\n", str_party_name.c_str(), str_MyNym.c_str());
+					
+					OTVariable * pVar = new OTVariable(str_party_name,	// "MyNym"
+													   str_MyNym,		// "lkjsdf09834lk5j34lidf09" (Whatever)
+													   OTVariable::Var_Constant);	// constant, persistent, or important.
+					angelMyNymVar.SetCleanupTargetPointer(pVar);
+					OT_ASSERT(NULL != pVar);
+					// ------------------------------------------
+					pScript-> AddVariable(str_party_name, *pVar);
+					
+				}
+				else 
+				{
+					OTLog::Error("MyNym variable isn't set...\n");
+				}
+				// -------------------------
+				if (NULL != pHisNym)
+				{
+					const std::string str_party_name("HisNym");
+
+					OTLog::vOutput(0, "Adding constant with name %s and value: %s ...\n", str_party_name.c_str(), str_HisNym.c_str());
+					
+					OTVariable * pVar = new OTVariable(str_party_name,	// "HisNym"
+													   str_HisNym,		// "lkjsdf09834lk5j34lidf09" (Whatever)
+													   OTVariable::Var_Constant);	// constant, persistent, or important.
+					angelHisNymVar.SetCleanupTargetPointer(pVar);
+					OT_ASSERT(NULL != pVar);
+					// ------------------------------------------
+					pScript-> AddVariable(str_party_name, *pVar);
+				}
+				else 
+				{
+					OTLog::Error("HisNym variable isn't set...\n");
+				}				
+				// -------------------------
+				/*
+				if (NULL != pMyNym)
+				{
 					const std::string str_party_name("MyNym"), str_agent_name("mynym"), str_acct_name("myacct");
 					
 					pPartyMyNym = new OTParty (str_party_name, *pMyNym, str_agent_name, pMyAccount, &str_acct_name);
@@ -1350,7 +1468,7 @@ int main(int argc, char* argv[])
 				if (NULL != pHisNym)
 				{
 					const std::string str_party_name("HisNym"), str_agent_name("hisnym"), str_acct_name("hisacct");
-
+					
 					pPartyHisNym = new OTParty (str_party_name, *pHisNym, str_agent_name, pHisAccount, &str_acct_name);
 					angelHisNym.SetCleanupTargetPointer(pPartyHisNym);
 					OT_ASSERT(NULL != pPartyHisNym);
@@ -1360,9 +1478,10 @@ int main(int argc, char* argv[])
 				else 
 				{
 					OTLog::Error("HisNym variable isn't set...\n");
-				}				
+				}
+				*/
 				// -------------------------
-				
+
 				if (str_MyAcct.size() > 0)
 				{
 					const std::string str_var_name("MyAcct");
@@ -1425,7 +1544,27 @@ int main(int argc, char* argv[])
 					OTLog::Error("HisAcct variable isn't set...\n");
 				}
 				// -------------------------
-
+				if (str_HisPurse.size() > 0)
+				{
+					const std::string str_var_name("HisPurse");
+					const std::string str_var_value(str_HisPurse);
+					
+					OTLog::vOutput(0, "Adding variable with name %s and value: %s ...\n", str_var_name.c_str(), str_var_value.c_str());
+					
+					OTVariable * pVar = new OTVariable(str_var_name,		// "HisPurse"
+													   str_var_value,		// "lkjsdf09834lk5j34lidf09" (Whatever)
+													   OTVariable::Var_Constant);	// constant, persistent, or important.
+					angelHisPurse.SetCleanupTargetPointer(pVar);
+					OT_ASSERT(NULL != pVar);
+					// ------------------------------------------
+					pScript-> AddVariable(str_var_name, *pVar);
+				}
+				else 
+				{
+					OTLog::Error("MyPurse variable isn't set...\n");
+				}
+				// -------------------------
+				
 				OTLog::Output(0, "Script output:\n\n");
 				
 				pScript->ExecuteScript();
@@ -2190,6 +2329,34 @@ int main(int argc, char* argv[])
 			}*/
 			continue;
 		}			
+		else if (strLine.compare(0,8,"clearreq") == 0) // clear request numbers
+		{
+			if (NULL == pMyNym)
+			{
+				OTLog::Output(0, "No Nym yet available. Try 'load'.\n");
+				continue;
+			}
+			
+			OTString strServerID;
+			pServerContract->GetIdentifier(strServerID);
+			
+			OTLog::vOutput(0, "You are trying to mess around with your (clear your) request numbers.\n"
+						   "Enter the relevant server ID [%s]: ", strServerID.Get());
+			
+			std::string str_ServerID = OT_CLI_ReadLine();
+			
+			const OTString strReqNumServerID((str_ServerID.size() > 0) ? str_ServerID.c_str() : strServerID.Get());
+			
+			// --------------------------------
+			
+			pMyNym->RemoveReqNumbers(&strReqNumServerID);
+			
+			pMyNym->SaveSignedNymfile(*pMyNym);
+			
+			OTLog::vOutput(0, "Successfully removed request number for server %s. Saving nym...\n",
+						   strReqNumServerID.Get());
+			continue;
+		}			
 		else if (strLine.compare(0,5,"clear") == 0)
 		{
 			if (NULL == pMyNym)
@@ -2198,14 +2365,27 @@ int main(int argc, char* argv[])
 				continue;
 			}
 			
-			pMyNym->RemoveAllNumbers();
+			OTString strServerID;
+			pServerContract->GetIdentifier(strServerID);
+			
+			OTLog::vOutput(0, "You are trying to mess around with your (clear your) transaction numbers.\n"
+						   "Enter the relevant server ID [%s]: ", strServerID.Get());
+			
+			std::string str_ServerID = OT_CLI_ReadLine();
+			
+			const OTString strTransNumServerID((str_ServerID.size() > 0) ? str_ServerID.c_str() : strServerID.Get());
+			
+			// --------------------------------
+			
+			pMyNym->RemoveAllNumbers(&strTransNumServerID);
 			
 			pMyNym->SaveSignedNymfile(*pMyNym);
 			
-			OTLog::Output(0, "Successfully removed all issued and transaction numbers. Saving nym...\n");
+			OTLog::vOutput(0, "Successfully removed all issued and transaction numbers for server %s. Saving nym...\n",
+						   strTransNumServerID.Get());
 			continue;
 		}			
-        		
+		
 		else if (strLine.compare(0,7,"decrypt") == 0)
 		{
 			if (NULL == pMyNym)
@@ -3025,13 +3205,22 @@ int main(int argc, char* argv[])
             // having to re-create my data each time -- speeds up debugging.
             //
             long lTransactionNumber = ((strlen(buf) > 2) ? atol(&(buf[2])) : 0);
-            
+
             if (lTransactionNumber > 0)
             {
-                OTString strServerID;
-                pServerContract->GetIdentifier(strServerID);
-                
-                pMyNym->AddTransactionNum(*pMyNym, strServerID, lTransactionNumber, true); // bool bSave=true
+				OTString strServerID;
+				pServerContract->GetIdentifier(strServerID);
+				
+				OTLog::vOutput(0, "You are trying to mess around with your (add to your) transaction numbers.\n"
+							   "Enter the relevant server ID [%s]: ", strServerID.Get());
+				
+				std::string str_ServerID = OT_CLI_ReadLine();
+				
+				const OTString strTransNumServerID((str_ServerID.size() > 0) ? str_ServerID.c_str() : strServerID.Get());
+
+				// --------------------------
+				
+                pMyNym->AddTransactionNum(*pMyNym, strTransNumServerID, lTransactionNumber, true); // bool bSave=true
                 
                 OTLog::vOutput(0, "Transaction number %ld added to both lists (on client side.)\n", 
                                lTransactionNumber);

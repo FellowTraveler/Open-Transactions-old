@@ -1686,18 +1686,24 @@ OTPartyAccount * OTScriptable::GetPartyAccount(const std::string str_acct_name)
 	}
 	// ----------------------------------------
 	
+//	OTLog::vError("DEBUGGING OTScriptable::GetPartyAccount: above loop. str_acct_name: %s \n", str_acct_name.c_str());
+	
 	FOR_EACH(mapOfParties, m_mapParties)
 	{
 		OTParty * pParty = (*it).second;
 		OT_ASSERT(NULL != pParty);
 		// -------------------------
 		
+//		OTLog::vError("DEBUGGING OTScriptable::GetPartyAccount: loop iteration. party name: %s \n", pParty->GetPartyName().c_str());
+
 		OTPartyAccount * pAcct = pParty->GetAccount(str_acct_name);
 		
 		if (NULL != pAcct) // found it.
 			return pAcct;
 	}
 	
+//	OTLog::Error("DEBUGGING OTScriptable::GetPartyAccount: below loop \n");
+
 	return NULL;		
 }
 

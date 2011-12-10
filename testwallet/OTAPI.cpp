@@ -199,6 +199,20 @@ static char g_tempBuf[MAX_STRING_LENGTH];
 
 
 
+// --------------------------------------------------------------------
+/** Output to the screen (stderr.)
+ (This is so stdout can be left clean for the ACTUAL output.)
+ Log level is 0 (least verbose) to 5 (most verbose.)
+ */
+void OT_API_Output(int nLogLevel, const char * szOutput)
+{
+	const OTString strOutput((NULL != szOutput) ? szOutput : "\n");
+	
+	OTLog::Output(nLogLevel, strOutput.Get());
+}
+
+
+
 
 
 // To use this extern "C" API, you must call this function first.
@@ -8667,7 +8681,86 @@ void OT_API_deleteUserAccount(const char * SERVER_ID,
 	g_OT_API.deleteUserAccount(theServerID, theUserID);
 }
 
+
+
+// If THE_MESSAGE is of command type @usageCredits, and IF it was a SUCCESS,
+// then this function returns the usage credits BALANCE (it's a long int, but
+// passed as a string). If you adjusted the balance using the usageCredits
+// message (THE_MESSAGE being the server's reply to that) then you will see
+// the balance AFTER the adjustment. (The "Current" Usage Credits balance.)
+// 
+const char * OT_API_Message_GetUsageCredits(const char * THE_MESSAGE)
+{
+	OT_ASSERT_MSG(NULL != THE_MESSAGE, "Null THE_MESSAGE passed in.");
+
+	OTString strMessage(THE_MESSAGE);
+	OTMessage theMessage;
+	if (!strMessage.Exists())
+    {
+        OTLog::Error("Error: THE_MESSAGE doesn't exist.\n");
+		return NULL;
+    }
 	
+	if (!theMessage.LoadContractFromString(strMessage))
+    {
+        OTLog::Error("OT_API_Message_GetUsageCredits: Failed loading message from string.\n");
+		return NULL;
+	}
+    
+	if (false == theMessage.m_bSuccess)
+    {
+        OTLog::Error("OT_API_Message_GetUsageCredits: Message success == false, thus unable to report Usage Credits balance. (Returning NULL.)\n");
+		return NULL;
+    }
+	
+	if (false == theMessage.m_strCommand.Compare("@usageCredits"))
+    {
+        OTLog::vError("OT_API_Message_GetUsageCredits: THE_MESSAGE is supposed to be of command type \"@usageCredits\", "
+					 "but instead it's a: %s\n (Failure. Returning NULL.)", theMessage.m_strCommand.Get());
+		return NULL;
+    }
+	
+	// ----------------------------------------------
+	// By this point, we know the message was a successful @usageCredits, loaded
+	// properly from the string that was passed in. Let's return the usage credits
+	// balance (a long int, returned in string format.)
+	
+	OTString strOutput;
+	strOutput.Format("%ld", theMessage.m_lDepth);
+	
+	const char * pBuf = strOutput.Get(); 
+	
+#ifdef _WIN32
+	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+	
+	return g_tempBuf;		
+}
+
+
+
+void OT_API_usageCredits(const char * SERVER_ID,
+						 const char * USER_ID,
+						 const char * USER_ID_CHECK,
+						 const char * ADJUSTMENT)	// can be "0", or NULL, if you just want to check the current balance without adjusting it.
+{
+	OT_ASSERT_MSG(NULL != SERVER_ID, "Null SERVER_ID passed in.");
+	OT_ASSERT_MSG(NULL != USER_ID, "Null USER_ID passed in.");
+	OT_ASSERT_MSG(NULL != USER_ID_CHECK, "Null USER_ID_CHECK passed in.");
+//	OT_ASSERT_MSG(NULL != ADJUSTMENT, "Null ADJUSTMENT passed in."); // NULL is allowed here.
+	
+	const OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theOtherUserID(USER_ID_CHECK);
+	
+	const OTString strAdjustment((NULL == ADJUSTMENT) ? "0" : ADJUSTMENT);
+	
+	const long lAdjustment = (!strAdjustment.Exists()) ? 0 : atol(strAdjustment.Get()); // NULL resolves as 0.
+	
+	g_OT_API.usageCredits(theServerID, theUserID, theOtherUserID, lAdjustment);
+}
+
+
 void OT_API_checkUser(const char * SERVER_ID,
 					  const char * USER_ID,
 					  const char * USER_ID_CHECK)
@@ -9874,7 +9967,7 @@ int OT_API_Message_GetDepth(const char * THE_MESSAGE)
 	if (!strMessage.Exists() || !theMessage.LoadContractFromString(strMessage))
 		return (-1);
 	
-    int nDepth = theMessage.m_lDepth;
+    int nDepth = theMessage.m_lDepth; // todo ?????? WTF is this?? security.
     
     return nDepth;
 }

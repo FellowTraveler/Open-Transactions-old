@@ -1,0 +1,473 @@
+#! /usr/local/bin/ot --script
+
+
+
+// THE SIMPLEST POSSIBLE ESCROW:
+//
+// Both parties supply two accounts, of matching asset types.
+// (If Party One supplies a gold and a dollar account, then Party
+// two must ALSO supply a gold and a dollar account. This contract
+// allows them to safely trade some gold for some dollars, continuing
+// that example, in such a way that both are satisfied or neither.)
+
+
+// NOTE: Use create_two_way_trade.ot FIRST, to create your template.
+//
+// THEN use the signing scripts for activating that template.
+
+
+// --------------------------------------------------------
+
+// This temp variable is used for a running "latest copy" of the smart contract, as we 
+// construct it here inside this client-side OT script. (Don't confuse the server-side
+// scripts, aka the smart contracts, with the client-side scripts :-)
+//
+var strSmartContract = ""
+
+OT_API_Output(0, "\n\n\nThis script assumes you have already used: create_two_way_trade.ot \n")
+OT_API_Output(0, "To continue, paste or pipe the smart contract that was created, followed by ^D \n")
+
+strSmartContract = OT_CLI_ReadUntilEOF()
+
+// --------------------------------------------------------
+// These are all functions that will be available to the smart contract itself (on the
+// server side--so only the actual smart contract clauses can call these.) 
+//
+		// ---------------------------------------------------------
+		// OT NATIVE FUNCTIONS 
+		// (These functions can be called from INSIDE the scripted clauses.)
+		//							// Parameters must match as described below. Return value will be as described below.
+		//							// -------------------------------------------------------------
+//		"set_seconds_until_timer"	// void SetNextProcessTime(String str_seconds_from_now) // if this is <=0, then it sets next process date to 0.
+//		"get_remaining_timer"		// std::string GetRemainingTimer() const
+/*
+ " 6 minutes	==      360 seconds\n"
+ "10 minutes	==      600 seconds\n"
+ " 1 hour		==     3600 seconds\n"
+ " 1 day		==    86400 seconds\n"
+ "30 days		==  2592000 seconds\n"
+ " 3 months		==  7776000 seconds\n"
+ " 6 months		== 15552000 seconds\n\n" 
+ "12 months		== 31104000 seconds\n\n" 
+ */
+//		"move_funds"				// bool MoveAcctFunds(String from_acct_name, String to_acct_name, String str_Amount); // calls OTCronItem::MoveFunds()
+
+//		"get_acct_balance"			// std::string GetAcctBalance(String acct_name);
+//		"get_acct_asset_type_id"	// std::string OTSmartContract::GetAssetTypeIDofAcct(String from_acct_name)
+
+//		"stash_funds"				// bool StashAcctFunds(String from_acct_name, String to_stash_name, String str_Amount); // calls StashFunds()
+//		"unstash_funds"				// bool UnstashAcctFunds(String to_acct_name, String from_stash_name, String str_Amount); // calls StashFunds( lAmount * (-1) )
+//		"get_stash_balance"			// std::string GetStashBalance(String stash_name, String asset_type_id);
+
+//		"send_notice"				// bool SendNoticeToParty(String party_name);
+//		"send_notice_to_parties"	// bool SendANoticeToAllParties();
+
+//		"deactivate_contract"		// void DeactivateSmartContract();
+
+		// ---------------------------------------------------------
+		// CALLBACKS 
+		// (Called by OT at key moments)
+		//
+//		"party_may_execute_clause"		// This is a function already on OT server, that it will call when it needs the answer (and that YOUR may call also, whether you provide a script override or not.) Todo: security ramifications?
+//		"may_execute_clause"			// This is the name of your clause, as provided in THIS example smart contract. (party_may_execute_clause calls this.)
+//		"callback_party_may_execute_clause"   <=== THE CALLBACK WITH THIS NAME must be connected to a script clause (with whatever name you want), and then that clause will trigger when the callback is needed.	
+		
+//		"party_may_cancel_contract"		// This is a function already on OT server, that it will call when it needs the answer (and that you may call also, since the server has a version of it whether you provide the script or not.) Todo: security ramifications?
+//		"may_cancel_contract"			// This is the name of your clause, as provided in THIS example smart contract. (party_may_cancel_contract calls this.)
+//		"callback_party_may_cancel_contract"  <=== THE CALLBACK WITH THIS NAME must be connected to a script clause (with whatever name you want), and then that clause will trigger when the callback is needed.
+//
+		// Callback USAGE:	Your clause, in your smart contract, may have whatever name you want. (Within limits.)
+		//					There must be a callback entry in the smart contract, linking your clause the the appropriate callback.
+		//					The CALLBACK ENTRY uses the names "callback_party_may_execute_clause" and "callback_party_may_cancel_contract".
+		//					If you want to call these from INSIDE YOUR SCRIPT, then use the names "party_may_execute_clause" and "party_may_cancel_contract".
+		//
+		// ---------------------------------------------------------
+		// HOOKS:
+		//
+		// Hooks are not native calls needing to be registered with the script. (Like the above functions are.)
+		// Rather, hooks are SCRIPT CLAUSES, that you have a CHOICE to provide inside your SMART CONTRACT.
+		// *IF* you have provided those clauses, then OT *WILL* call them, at the appropriate times. (When
+		// specific events occur.) Specifically, Hook entries must be in your smartcontract, linking the below 
+		// standard hooks to your clauses.
+		//
+//	"cron_process"		// Called regularly in OTSmartContract::ProcessCron() based on SMART_CONTRACT_PROCESS_INTERVAL.
+//	"cron_activate"		// Done. This is called when the contract is first activated.
+
+
+
+
+// ***************************************************************
+
+// CLIENT-SIDE API CALLS AVAILABLE:
+
+// FYI, here is a list of all the OT API functions that you can call from inside
+// your OT scripts on the CLIENT SIDE...
+
+/*
+
+
+		pScript->chai.add(fun(&OT_CLI_ReadLine), "OT_CLI_ReadLine");			// String OT_CLI_ReadLine()		// Reads from cin until Newline.
+		pScript->chai.add(fun(&OT_CLI_ReadUntilEOF), "OT_CLI_ReadUntilEOF");	// String OT_CLI_ReadUntilEOF()	// Reads from cin until EOF.
+		// ------------------------------------------------------------------
+		
+		pScript->chai.add(fun(&OTAPI_Wrap::CreateNym), "OT_API_CreateNym");
+        pScript->chai.add(fun(&OTAPI_Wrap::AddServerContract), "OT_API_AddServerContract");
+        pScript->chai.add(fun(&OTAPI_Wrap::AddAssetContract), "OT_API_AddAssetContract");
+        pScript->chai.add(fun(&OTAPI_Wrap::GetServerCount), "OT_API_GetServerCount");
+        pScript->chai.add(fun(&OTAPI_Wrap::GetAssetTypeCount), "OT_API_GetAssetTypeCount");
+        pScript->chai.add(fun(&OTAPI_Wrap::GetAccountCount), "OT_API_GetAccountCount");
+        pScript->chai.add(fun(&OTAPI_Wrap::GetNymCount), "OT_API_GetNymCount");
+        pScript->chai.add(fun(&OTAPI_Wrap::GetServer_ID), "OT_API_GetServer_ID");
+        pScript->chai.add(fun(&OTAPI_Wrap::GetServer_Name), "OT_API_GetServer_Name");
+        pScript->chai.add(fun(&OTAPI_Wrap::GetAssetType_ID), "OT_API_GetAssetType_ID");
+        pScript->chai.add(fun(&OTAPI_Wrap::GetAssetType_Name), "OT_API_GetAssetType_Name");
+
+		pScript->chai.add(fun(&OTAPI_Wrap::GetAccountWallet_ID), "OT_API_GetAccountWallet_ID");
+		pScript->chai.add(fun(&OTAPI_Wrap::GetAccountWallet_Name), "OT_API_GetAccountWallet_Name");
+		pScript->chai.add(fun(&OTAPI_Wrap::GetAccountWallet_Balance), "OT_API_GetAccountWallet_Balance");
+		pScript->chai.add(fun(&OTAPI_Wrap::GetAccountWallet_Type), "OT_API_GetAccountWallet_Type");
+		pScript->chai.add(fun(&OTAPI_Wrap::GetAccountWallet_AssetTypeID), "OT_API_GetAccountWallet_AssetTypeID");
+		pScript->chai.add(fun(&OTAPI_Wrap::GetAccountWallet_ServerID), "OT_API_GetAccountWallet_ServerID");
+		pScript->chai.add(fun(&OTAPI_Wrap::GetAccountWallet_NymID), "OT_API_GetAccountWallet_NymID");
+		pScript->chai.add(fun(&OTAPI_Wrap::VerifyAccountReceipt), "OT_API_VerifyAccountReceipt");
+		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_TransactionNumCount), "OT_API_GetNym_TransactionNumCount");
+		
+		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_ID), "OT_API_GetNym_ID");
+		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_Name), "OT_API_GetNym_Name");
+		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_Stats), "OT_API_GetNym_Stats");
+		pScript->chai.add(fun(&OTAPI_Wrap::IsNym_RegisteredAtServer), "OT_API_IsNym_RegisteredAtServer");
+		
+		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_MailCount), "OT_API_GetNym_MailCount");
+		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_MailContentsByIndex), "OT_API_GetNym_MailContentsByIndex");
+		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_MailSenderIDByIndex), "OT_API_GetNym_MailSenderIDByIndex");
+		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_MailServerIDByIndex), "OT_API_GetNym_MailServerIDByIndex");
+		pScript->chai.add(fun(&OTAPI_Wrap::Nym_RemoveMailByIndex), "OT_API_Nym_RemoveMailByIndex");
+		pScript->chai.add(fun(&OTAPI_Wrap::Nym_VerifyMailByIndex), "OT_API_Nym_VerifyMailByIndex");
+		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_OutmailCount), "OT_API_GetNym_OutmailCount");
+		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_OutmailContentsByIndex), "OT_API_GetNym_OutmailContentsByIndex");
+		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_OutmailRecipientIDByIndex), "OT_API_GetNym_OutmailRecipientIDByIndex");
+		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_OutmailServerIDByIndex), "OT_API_GetNym_OutmailServerIDByIndex");
+		pScript->chai.add(fun(&OTAPI_Wrap::Nym_RemoveOutmailByIndex), "OT_API_Nym_RemoveOutmailByIndex");
+		pScript->chai.add(fun(&OTAPI_Wrap::Nym_VerifyOutmailByIndex), "OT_API_Nym_VerifyOutmailByIndex");
+		pScript->chai.add(fun(&OTAPI_Wrap::Wallet_CanRemoveServer), "OT_API_Wallet_CanRemoveServer");
+		pScript->chai.add(fun(&OTAPI_Wrap::Wallet_RemoveServer), "OT_API_Wallet_RemoveServer");
+		pScript->chai.add(fun(&OTAPI_Wrap::Wallet_CanRemoveAssetType), "OT_API_Wallet_CanRemoveAssetType");
+		pScript->chai.add(fun(&OTAPI_Wrap::Wallet_RemoveAssetType), "OT_API_Wallet_RemoveAssetType");
+		pScript->chai.add(fun(&OTAPI_Wrap::Wallet_CanRemoveNym), "OT_API_Wallet_CanRemoveNym");
+		pScript->chai.add(fun(&OTAPI_Wrap::Wallet_RemoveNym), "OT_API_Wallet_RemoveNym");
+		pScript->chai.add(fun(&OTAPI_Wrap::Wallet_CanRemoveAccount), "OT_API_Wallet_CanRemoveAccount");
+		pScript->chai.add(fun(&OTAPI_Wrap::Wallet_ImportNym), "OT_API_Wallet_ImportNym");
+
+		pScript->chai.add(fun(&OTAPI_Wrap::SetNym_Name), "OT_API_SetNym_Name");
+		pScript->chai.add(fun(&OTAPI_Wrap::SetAccountWallet_Name), "OT_API_SetAccountWallet_Name");
+		pScript->chai.add(fun(&OTAPI_Wrap::SetAssetType_Name), "OT_API_SetAssetType_Name");
+		pScript->chai.add(fun(&OTAPI_Wrap::SetServer_Name), "OT_API_SetServer_Name");
+		
+		pScript->chai.add(fun(&OTAPI_Wrap::VerifyAndRetrieveXMLContents), "OT_API_VerifyAndRetrieveXMLContents");
+		pScript->chai.add(fun(&OTAPI_Wrap::WriteCheque), "OT_API_WriteCheque");
+//		pScript->chai.add(fun(&OTAPI_Wrap::ProposePaymentPlan), "OT_API_ProposePaymentPlan");
+		pScript->chai.add(fun(&OTAPI_Wrap::ConfirmPaymentPlan), "OT_API_ConfirmPaymentPlan");
+		
+		pScript->chai.add(fun(&OTAPI_Wrap::LoadUserPubkey), "OT_API_LoadUserPubkey");
+		pScript->chai.add(fun(&OTAPI_Wrap::LoadPubkey), "OT_API_LoadPubkey");
+		pScript->chai.add(fun(&OTAPI_Wrap::VerifyUserPrivateKey), "OT_API_VerifyUserPrivateKey");
+		pScript->chai.add(fun(&OTAPI_Wrap::LoadPurse), "OT_API_LoadPurse");
+		pScript->chai.add(fun(&OTAPI_Wrap::LoadMint), "OT_API_LoadMint");
+		pScript->chai.add(fun(&OTAPI_Wrap::LoadAssetContract), "OT_API_LoadAssetContract");
+		pScript->chai.add(fun(&OTAPI_Wrap::LoadServerContract), "OT_API_LoadServerContract");
+		pScript->chai.add(fun(&OTAPI_Wrap::Mint_IsStillGood), "OT_API_Mint_IsStillGood");
+		
+		pScript->chai.add(fun(&OTAPI_Wrap::IsBasketCurrency), "OT_API_IsBasketCurrency");
+		pScript->chai.add(fun(&OTAPI_Wrap::Basket_GetMemberCount), "OT_API_Basket_GetMemberCount");
+		pScript->chai.add(fun(&OTAPI_Wrap::Basket_GetMemberType), "OT_API_Basket_GetMemberType");
+		pScript->chai.add(fun(&OTAPI_Wrap::Basket_GetMinimumTransferAmount), "OT_API_Basket_GetMinimumTransferAmount");
+		pScript->chai.add(fun(&OTAPI_Wrap::Basket_GetMemberMinimumTransferAmount), "OT_API_Basket_GetMemberMinimumTransferAmount");
+		
+		pScript->chai.add(fun(&OTAPI_Wrap::LoadAssetAccount), "OT_API_LoadAssetAccount");
+		pScript->chai.add(fun(&OTAPI_Wrap::LoadInbox), "OT_API_LoadInbox");
+		pScript->chai.add(fun(&OTAPI_Wrap::LoadOutbox), "OT_API_LoadOutbox");
+		
+		pScript->chai.add(fun(&OTAPI_Wrap::Ledger_GetCount), "OT_API_Ledger_GetCount");
+		pScript->chai.add(fun(&OTAPI_Wrap::Ledger_CreateResponse), "OT_API_Ledger_CreateResponse");
+		pScript->chai.add(fun(&OTAPI_Wrap::Ledger_GetTransactionByIndex), "OT_API_Ledger_GetTransactionByIndex");
+		pScript->chai.add(fun(&OTAPI_Wrap::Ledger_GetTransactionByID), "OT_API_Ledger_GetTransactionByID");
+		pScript->chai.add(fun(&OTAPI_Wrap::Ledger_GetTransactionIDByIndex), "OT_API_Ledger_GetTransactionIDByIndex");
+		pScript->chai.add(fun(&OTAPI_Wrap::Ledger_AddTransaction), "OT_API_Ledger_AddTransaction");
+		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_CreateResponse), "OT_API_Transaction_CreateResponse");
+		pScript->chai.add(fun(&OTAPI_Wrap::Ledger_FinalizeResponse), "OT_API_Ledger_FinalizeResponse");
+		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetType), "OT_API_Transaction_GetType");
+		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetVoucher), "OT_API_Transaction_GetVoucher");
+		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetSuccess), "OT_API_Transaction_GetSuccess");
+		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetBalanceAgreementSuccess), "OT_API_Transaction_GetBalanceAgreementSuccess");
+		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetDateSigned), "OT_API_Transaction_GetDateSigned");
+		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetAmount), "OT_API_Transaction_GetAmount");
+		pScript->chai.add(fun(&OTAPI_Wrap::Pending_GetNote), "OT_API_Pending_GetNote");
+		
+		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetSenderUserID), "OT_API_Transaction_GetSenderUserID");
+		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetSenderAcctID), "OT_API_Transaction_GetSenderAcctID");
+		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetRecipientUserID), "OT_API_Transaction_GetRecipientUserID");
+		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetRecipientAcctID), "OT_API_Transaction_GetRecipientAcctID");
+		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetDisplayReferenceToNum), "OT_API_Transaction_GetDisplayReferenceToNum");
+		
+		pScript->chai.add(fun(&OTAPI_Wrap::CreatePurse), "OT_API_CreatePurse");
+		pScript->chai.add(fun(&OTAPI_Wrap::SavePurse), "OT_API_SavePurse");
+		pScript->chai.add(fun(&OTAPI_Wrap::Purse_GetTotalValue), "OT_API_Purse_GetTotalValue");
+		pScript->chai.add(fun(&OTAPI_Wrap::Purse_Count), "OT_API_Purse_Count");
+		pScript->chai.add(fun(&OTAPI_Wrap::Purse_Peek), "OT_API_Purse_Peek");
+		pScript->chai.add(fun(&OTAPI_Wrap::Purse_Pop), "OT_API_Purse_Pop");
+		pScript->chai.add(fun(&OTAPI_Wrap::Purse_Push), "OT_API_Purse_Push");
+		pScript->chai.add(fun(&OTAPI_Wrap::Wallet_ImportPurse), "OT_API_Wallet_ImportPurse");
+		pScript->chai.add(fun(&OTAPI_Wrap::exchangePurse), "OT_API_exchangePurse");
+		pScript->chai.add(fun(&OTAPI_Wrap::Token_ChangeOwner), "OT_API_Token_ChangeOwner");
+		
+		pScript->chai.add(fun(&OTAPI_Wrap::Token_GetID), "OT_API_Token_GetID");
+		pScript->chai.add(fun(&OTAPI_Wrap::Token_GetDenomination), "OT_API_Token_GetDenomination");
+		pScript->chai.add(fun(&OTAPI_Wrap::Token_GetSeries), "OT_API_Token_GetSeries");
+		pScript->chai.add(fun(&OTAPI_Wrap::Token_GetValidFrom), "OT_API_Token_GetValidFrom");
+		pScript->chai.add(fun(&OTAPI_Wrap::Token_GetValidTo), "OT_API_Token_GetValidTo");
+		pScript->chai.add(fun(&OTAPI_Wrap::Token_GetAssetID), "OT_API_Token_GetAssetID");
+		pScript->chai.add(fun(&OTAPI_Wrap::Token_GetServerID), "OT_API_Token_GetServerID");
+		
+		pScript->chai.add(fun(&OTAPI_Wrap::checkServerID), "OT_API_checkServerID");
+		pScript->chai.add(fun(&OTAPI_Wrap::createUserAccount), "OT_API_createUserAccount");
+		pScript->chai.add(fun(&OTAPI_Wrap::deleteUserAccount), "OT_API_deleteUserAccount");
+		pScript->chai.add(fun(&OTAPI_Wrap::deleteAssetAccount), "OT_API_deleteAssetAccount");
+		pScript->chai.add(fun(&OTAPI_Wrap::checkUser), "OT_API_checkUser");
+		pScript->chai.add(fun(&OTAPI_Wrap::usageCredits), "OT_API_usageCredits");
+		pScript->chai.add(fun(&OTAPI_Wrap::sendUserMessage), "OT_API_sendUserMessage");
+		
+		pScript->chai.add(fun(&OTAPI_Wrap::getRequest), "OT_API_getRequest");
+		pScript->chai.add(fun(&OTAPI_Wrap::getTransactionNumber), "OT_API_getTransactionNumber");
+		pScript->chai.add(fun(&OTAPI_Wrap::issueAssetType), "OT_API_issueAssetType");
+		pScript->chai.add(fun(&OTAPI_Wrap::getContract), "OT_API_getContract");
+		pScript->chai.add(fun(&OTAPI_Wrap::getMint), "OT_API_getMint");
+		pScript->chai.add(fun(&OTAPI_Wrap::createAssetAccount), "OT_API_createAssetAccount");
+		pScript->chai.add(fun(&OTAPI_Wrap::getAccount), "OT_API_getAccount");
+		pScript->chai.add(fun(&OTAPI_Wrap::GenerateBasketCreation), "OT_API_GenerateBasketCreation");
+		
+		pScript->chai.add(fun(&OTAPI_Wrap::AddBasketCreationItem), "OT_API_AddBasketCreationItem");
+		pScript->chai.add(fun(&OTAPI_Wrap::issueBasket), "OT_API_issueBasket");
+		pScript->chai.add(fun(&OTAPI_Wrap::GenerateBasketExchange), "OT_API_GenerateBasketExchange");
+		pScript->chai.add(fun(&OTAPI_Wrap::AddBasketExchangeItem), "OT_API_AddBasketExchangeItem");
+		pScript->chai.add(fun(&OTAPI_Wrap::exchangeBasket), "OT_API_exchangeBasket");
+		pScript->chai.add(fun(&OTAPI_Wrap::notarizeWithdrawal), "OT_API_notarizeWithdrawal");
+		pScript->chai.add(fun(&OTAPI_Wrap::notarizeDeposit), "OT_API_notarizeDeposit");
+		pScript->chai.add(fun(&OTAPI_Wrap::notarizeTransfer), "OT_API_notarizeTransfer");
+		pScript->chai.add(fun(&OTAPI_Wrap::getInbox), "OT_API_getInbox");
+		pScript->chai.add(fun(&OTAPI_Wrap::getOutbox), "OT_API_getOutbox");
+		pScript->chai.add(fun(&OTAPI_Wrap::getNymbox), "OT_API_getNymbox");
+		pScript->chai.add(fun(&OTAPI_Wrap::LoadNymbox), "OT_API_LoadNymbox");
+		pScript->chai.add(fun(&OTAPI_Wrap::processInbox), "OT_API_processInbox");
+		pScript->chai.add(fun(&OTAPI_Wrap::processNymbox), "OT_API_processNymbox");
+		pScript->chai.add(fun(&OTAPI_Wrap::withdrawVoucher), "OT_API_withdrawVoucher");
+		
+		pScript->chai.add(fun(&OTAPI_Wrap::depositCheque), "OT_API_depositCheque");
+		pScript->chai.add(fun(&OTAPI_Wrap::depositPaymentPlan), "OT_API_depositPaymentPlan");
+//		pScript->chai.add(fun(&OTAPI_Wrap::issueMarketOffer), "OT_API_issueMarketOffer");
+		pScript->chai.add(fun(&OTAPI_Wrap::getMarketList), "OT_API_getMarketList");
+		pScript->chai.add(fun(&OTAPI_Wrap::getMarketOffers), "OT_API_getMarketOffers");
+		pScript->chai.add(fun(&OTAPI_Wrap::getMarketRecentTrades), "OT_API_getMarketRecentTrades");
+		pScript->chai.add(fun(&OTAPI_Wrap::getNym_MarketOffers), "OT_API_getNym_MarketOffers");
+		pScript->chai.add(fun(&OTAPI_Wrap::cancelMarketOffer), "OT_API_cancelMarketOffer");
+		pScript->chai.add(fun(&OTAPI_Wrap::cancelPaymentPlan), "OT_API_cancelPaymentPlan");
+		
+		pScript->chai.add(fun(&OTAPI_Wrap::PopMessageBuffer), "OT_API_PopMessageBuffer");
+		pScript->chai.add(fun(&OTAPI_Wrap::FlushMessageBuffer), "OT_API_FlushMessageBuffer");
+		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetCommand), "OT_API_Message_GetCommand");
+		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetSuccess), "OT_API_Message_GetSuccess");
+		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetDepth), "OT_API_Message_GetDepth");
+		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetUsageCredits), "OT_API_Message_GetUsageCredits");
+		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetTransactionSuccess), "OT_API_Message_GetTransactionSuccess");
+		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetBalanceAgreementSuccess), "OT_API_Message_GetBalanceAgreementSuccess");
+		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetLedger), "OT_API_Message_GetLedger");
+		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetNewAssetTypeID), "OT_API_Message_GetNewAssetTypeID");
+		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetNewIssuerAcctID), "OT_API_Message_GetNewIssuerAcctID");
+		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetNewAcctID), "OT_API_Message_GetNewAcctID");
+		
+		pScript->chai.add(fun(&OTAPI_Wrap::Create_SmartContract), "OT_API_Create_SmartContract");
+		
+		pScript->chai.add(fun(&OTAPI_Wrap::SmartContract_AddBylaw), "OT_API_SmartContract_AddBylaw");
+		pScript->chai.add(fun(&OTAPI_Wrap::SmartContract_AddClause), "OT_API_SmartContract_AddClause");
+		pScript->chai.add(fun(&OTAPI_Wrap::SmartContract_AddVariable), "OT_API_SmartContract_AddVariable");
+		pScript->chai.add(fun(&OTAPI_Wrap::SmartContract_AddCallback), "OT_API_SmartContract_AddCallback");
+		pScript->chai.add(fun(&OTAPI_Wrap::SmartContract_AddHook), "OT_API_SmartContract_AddHook");
+		
+		pScript->chai.add(fun(&OTAPI_Wrap::SmartContract_AddParty), "OT_API_SmartContract_AddParty");
+		pScript->chai.add(fun(&OTAPI_Wrap::SmartContract_AddAccount), "OT_API_SmartContract_AddAccount");
+
+		pScript->chai.add(fun(&OTAPI_Wrap::SmartContract_ConfirmAccount), "OT_API_SmartContract_ConfirmAccount");
+		pScript->chai.add(fun(&OTAPI_Wrap::SmartContract_ConfirmParty), "OT_API_SmartContract_ConfirmParty");
+		
+		pScript->chai.add(fun(&OTAPI_Wrap::SmartContract_CountNumsNeeded), "OT_API_SmartContract_CountNumsNeeded");
+		pScript->chai.add(fun(&OTAPI_Wrap::HarvestClosingNumbers), "OT_API_HarvestClosingNumbers");
+		pScript->chai.add(fun(&OTAPI_Wrap::HarvestAllNumbers), "OT_API_HarvestAllNumbers");
+		
+		pScript->chai.add(fun(&OTAPI_Wrap::activateSmartContract), "OT_API_activateSmartContract");
+		pScript->chai.add(fun(&OTAPI_Wrap::triggerClause), "OT_API_triggerClause");
+*/
+
+
+// ABOVE COMMENTS ARE ONLY "FYI" ...
+
+
+// ******************************************************************
+
+// This is where we go from creating a generic template, to actually instantiating the
+// contract for specific users in a specific situation!
+//
+
+// BY THIS POINT, if we're going to ACTIVATE this up-until-now purely THEORETICAL 
+// smart contract, using ACTUAL Nyms and Accounts, then we need to check and see
+// if they have enough transaction numbers to move forward!
+//
+// -----------------------------------------------
+//
+// We'll start with Alice...
+
+var numCountNymAlice = OT_API_GetNym_TransactionNumCount(Server, MyNym);
+
+// the number of #s needed for "agent_alice" (1 for each acct), plus 1 for the Nym.
+var numCountNeededAlice = OT_API_SmartContract_CountNumsNeeded(strSmartContract, "agent_alice") + 1;
+
+var bSuccess = false;
+
+// -----------------------------------------------
+
+if (numCountNymAlice >= numCountNeededAlice)
+{
+	var strAliceFirstAcctID = MyAcct
+	
+	if (MyAcct.size() <= 0)
+	{
+		OT_API_Output(0, "\n\n\nAlice wants to use her \"gold\" (first) to buy some \"wheat\" (second) from Bob. (Or whatever the asset types are on the smartcontract template. They must match.)\n")
+		OT_API_Output(0, "Paste Alice's FIRST asset ACCOUNT ID (Alice will SPEND from this account), then hit enter: ")
+		strAliceFirstAcctID = OT_CLI_ReadLine()
+	}
+
+	OT_API_Output(0, "Confirming Alice's first account...\n")
+
+	// -----------------------------------------------------------------------------------------
+	// CONFIRM A THEORETICAL ACCT BY GIVING IT A REAL ACCT ID. (Alice's first "gold" account)
+	//
+	var strSmart9 = OT_API_SmartContract_ConfirmAccount(strSmartContract, MyNym, "party_alice",	// Should already be on the contract. (This way we can find it.)
+														// ----------------------------------------
+														"alice_first_acct",		// Acct name. Should already be added on the contract. (This way we can find it.)
+														"agent_alice",			// The agent name for this asset account.
+														strAliceFirstAcctID)	// AcctID for the asset account. (For alice_first_acct).
+	strSmartContract = strSmart9
+	// -----------------------------------------------------------------------------------------
+
+	if (strSmartContract.size() > 0)
+	{
+		OT_API_Output(0, "\n\n\nAlice wants to use her \"gold\" (first) to buy some \"wheat\" (second) from Bob. (Or whatever the asset types are on the smartcontract template. They must match.)\n")
+		OT_API_Output(0, "Paste Alice's SECOND asset ACCOUNT ID (Alice will RECEIVE to this account, from BOB). Default: [omX3jAVE72e1vAs8OyXmsYWFZdVbkVug1Pk2pONSqPH]: ")
+		var strAliceSecondAcctID = OT_CLI_ReadLine()
+
+		if (strAliceSecondAcctID.size() < 2)
+		{
+			strAliceSecondAcctID = "omX3jAVE72e1vAs8OyXmsYWFZdVbkVug1Pk2pONSqPH".to_string(); // My default "second account" for testing, from the test data.
+		}
+		// CONFIRM A THEORETICAL ACCT BY GIVING IT A REAL ACCT ID. (Alice's second "wheat" account)
+		//
+		OT_API_Output(0, "Confirming Alice's second account...\n")
+		strSmart9 = OT_API_SmartContract_ConfirmAccount(strSmartContract, MyNym, "party_alice",	// Should already be on the contract. (This way we can find it.)
+														// ----------------------------------------
+														"alice_second_acct",	// Acct name. Should already be added on the contract. (This way we can find it.)
+														"agent_alice",			// The agent name for this asset account.
+														strAliceSecondAcctID)	// AcctID for the asset account. (For alice_second_acct).
+		strSmartContract = strSmart9
+		// --------------------------------------------------
+
+// Debugging.
+//print("SMART CONTRACT just confirmed alice_acct for party_alice. Output:\n\n\n")
+//print(strSmartContract)
+//print("\n\n\n Confirming party...")
+		if (strSmartContract.size() > 0)
+		{
+			// --------------------------------------------------
+			// CONFIRM A THEORETICAL PARTY BY GIVING IT A REAL NYM ID
+			//
+			OT_API_Output(0, "Confirming Alice as a PARTY to the smart contract...\n")
+			var strSmart10 = OT_API_SmartContract_ConfirmParty(	strSmartContract,	// The smart contract, about to be changed by this function.
+																"party_alice",		// The party should already be on the contract. This way we can find it.
+																// ----------------------------------------
+																MyNym)		// Nym ID for the party, the actual owner, 
+																			// ===> AS WELL AS for the default AGENT of that party.
+			strSmartContract = strSmart10
+			// --------------------------------------------------
+			
+			if (strSmartContract.size() > 0)
+			{
+				bSuccess = true
+			}
+			else
+			{
+				OT_API_Output(0, "\n\n** Sorry -- Alice's ConfirmParty call FAILED!\n\n")
+			}
+		}
+		else
+		{
+			OT_API_Output(0, "\n\n** Sorry -- Alice's second ConfirmAcct call FAILED!\n\n")
+		}
+	}
+	else
+	{
+		OT_API_Output(0, "\n\n** Sorry -- Alice's first ConfirmAcct call FAILED!\n\n")
+	}
+	// --------------------------------------------------
+}
+
+
+// --------------------------
+
+
+if (!bSuccess)
+{
+	// ******************************************************************
+
+	// OTHERWISE, I take the transaction numbers BACK! (Also, if the activation failed,
+	// I'd probably want to take the closing numbers back in that case as well.)
+	
+	OT_API_Output(0, "SMART CONTRACT: Since this script failed, I'm clawing BACK all the transaction numbers now (that way my data stays good.)\n")
+	
+	OT_API_HarvestAllNumbers(Server, MyNym,	strSmartContract);
+}
+
+// SUCCESS!!!
+else
+{
+	OT_API_Output(0, "\n\n")
+	
+	print(strSmartContract)
+}
+
+
+
+/*
+// ******************************************************************
+// TRIGGER A CLAUSE REMOTELY (ON A SMART CONTRACT THAT'S ALREADY BEEN ACTIVATED.)
+//
+// OT_API_triggerClause(Server, MyNym, const char * TRANSACTION_NUMBER, "typical_clause");
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -246,7 +246,7 @@ int OTCheque::ProcessXMLNode(IrrXMLReader*& xml)
 
 		// ---------------------
 		
-		OTLog::vOutput(0,
+		OTLog::vOutput(2,
 				"\n\nCheque Amount: %ld.  Transaction Number: %ld\n Valid From: %d\n Valid To: %d\n"
 				" AssetTypeID: %s\n ServerID: %s\n"
 				" senderAcctID: %s\n senderUserID: %s\n "

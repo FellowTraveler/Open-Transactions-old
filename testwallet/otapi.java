@@ -13,6 +13,10 @@ public class otapi {
     return otapiJNI.OT_API_Set_PasswordCallback(OTCaller.getCPtr(theCaller), theCaller);
   }
 
+  public static void OT_API_Output(int nLogLevel, String szOutput) {
+    otapiJNI.OT_API_Output(nLogLevel, szOutput);
+  }
+
   public static int OT_API_Init(String szClientPath) {
     return otapiJNI.OT_API_Init(szClientPath);
   }
@@ -543,6 +547,14 @@ public class otapi {
 
   public static void OT_API_deleteAssetAccount(String SERVER_ID, String USER_ID, String ACCOUNT_ID) {
     otapiJNI.OT_API_deleteAssetAccount(SERVER_ID, USER_ID, ACCOUNT_ID);
+  }
+
+  public static void OT_API_usageCredits(String SERVER_ID, String USER_ID, String USER_ID_CHECK, String ADJUSTMENT) {
+    otapiJNI.OT_API_usageCredits(SERVER_ID, USER_ID, USER_ID_CHECK, ADJUSTMENT);
+  }
+
+  public static String OT_API_Message_GetUsageCredits(String THE_MESSAGE) {
+    return otapiJNI.OT_API_Message_GetUsageCredits(THE_MESSAGE);
   }
 
   public static void OT_API_checkUser(String SERVER_ID, String USER_ID, String USER_ID_CHECK) {

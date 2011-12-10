@@ -884,7 +884,7 @@ bool OTPartyAccount::IsAccount(OTAccount & theAccount)
 	if (!(theAccount.GetRealAccountID() == theAcctID))
 	{
 		OTString strRHS(theAccount.GetRealAccountID());
-		OTLog::vOutput(0, "OTPartyAccount::IsAccount: Account IDs don't match: %s / %s \n",
+		OTLog::vOutput(4, "OTPartyAccount::IsAccount: Account IDs don't match: %s / %s \n", // I set output to 4 because it's normal to call IsAccount() even when they don't match.
 					   m_strAcctID.Get(), strRHS.Get());
 		return false;
 	}
@@ -1120,7 +1120,8 @@ bool OTParty::AddAgent(OTAgent& theAgent)
 // ---------
 
 
-bool OTParty::AddAccount(const OTString& strAgentName, const OTString& strName, 
+bool OTParty::AddAccount(const OTString& strAgentName, 
+						 const OTString& strName, 
 						 const OTString & strAcctID, 
 						 const OTString & strAssetTypeID, 
 						 const long lClosingTransNo)
@@ -1138,7 +1139,8 @@ bool OTParty::AddAccount(const OTString& strAgentName, const OTString& strName,
 }
 
 
-bool OTParty::AddAccount(const OTString& strAgentName, const char * szAcctName, 
+bool OTParty::AddAccount(const OTString& strAgentName, 
+						 const char * szAcctName, 
 						 OTAccount& theAccount, 
 						 const long lClosingTransNo)
 {
@@ -1463,6 +1465,8 @@ OTAgent * OTParty::GetAgent(const std::string & str_agent_name)
 //
 OTPartyAccount * OTParty::GetAccount(const std::string & str_acct_name) const
 {
+//	OTLog::vError("DEBUGGING OTParty::GetAccount: above find. str_acct_name: %s \n", str_acct_name.c_str());
+
 	if (OTScriptable::ValidateName(str_acct_name))
 	{
 		mapOfPartyAccounts::const_iterator it = m_mapPartyAccounts.find(str_acct_name);
@@ -1478,6 +1482,22 @@ OTPartyAccount * OTParty::GetAccount(const std::string & str_acct_name) const
 	}
 	else
 		OTLog::Error("OTParty::GetAccount: Failed: str_acct_name is invalid.\n");
+	
+//	OTLog::vError("DEBUGGING OTParty::GetAccount: After find attempt, didn't find account on this party (%s).  \n",
+//				  "Looping through accounts, to show you their names...\n", GetPartyName().c_str());
+//
+//	FOR_EACH_CONST(mapOfPartyAccounts, m_mapPartyAccounts)
+//	{
+//		std::string str_map_key = (*it).first;
+//		OTPartyAccount * pAcct = (*it).second;
+//		OT_ASSERT(NULL != pAcct);
+//		// -------------------------------
+//
+//		OTLog::vError("DEBUGGING OTParty::GetAccount: Account name: %s.  Name as used for map key: %s \n",
+//					  pAcct->GetName().Get(), str_map_key.c_str());		
+//	}
+//	
+//	OTLog::Error("OTParty::GetAccount: DEBUGGING: (Finished displaying account names.)\n");
 	
 	return NULL;	
 }
@@ -2030,7 +2050,10 @@ bool OTParty::LoadAndVerifyAssetAccounts(OTPseudonym	& theServerNym,
 			// ---------------			
 			// Now we KNOW the Account is "already loaded" and we KNOW the partyaccount has a POINTER to that Acct:
 			//
-			OT_ASSERT(pPartyAcct->IsAccount(*pAccount)); // assert because the Acct was already mapped by ID, so it should already have been validated.
+			const bool bIsPartyAcct = pPartyAcct->IsAccount(*pAccount);
+			if (!bIsPartyAcct)
+				OTLog::Error("OTParty::LoadAndVerifyAssetAccounts: Failed call: pPartyAcct->IsAccount(*pAccount); \n");
+			OT_ASSERT_MSG(bIsPartyAcct, "OTParty::LoadAndVerifyAssetAccounts: Failed call: pPartyAcct->IsAccount(*pAccount); \n"); // assert because the Acct was already mapped by ID, so it should already have been validated.
 			
 			bHadToLoadtheAcctMyself = false; // Whew. The Acct was already loaded. Found it. (And the ptr is now set.)
 		}

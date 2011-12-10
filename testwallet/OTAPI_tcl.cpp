@@ -1759,6 +1759,34 @@ SWIG_FromCharPtr(const char *cptr)
 
 
 SWIGINTERN int
+SWIG_AsVal_long SWIG_TCL_DECL_ARGS_2(Tcl_Obj *obj, long* val)
+{
+  long v;
+  if (Tcl_GetLongFromObj(0,obj, &v) == TCL_OK) {
+    if (val) *val = (long) v;
+    return SWIG_OK;
+  }
+  return SWIG_TypeError;
+}
+
+
+SWIGINTERN int
+SWIG_AsVal_int SWIG_TCL_DECL_ARGS_2(Tcl_Obj * obj, int *val)
+{
+  long v;
+  int res = SWIG_AsVal_long SWIG_TCL_CALL_ARGS_2(obj, &v);
+  if (SWIG_IsOK(res)) {
+    if ((v < INT_MIN || v > INT_MAX)) {
+      return SWIG_OverflowError;
+    } else {
+      if (val) *val = static_cast< int >(v);
+    }
+  }  
+  return res;
+}
+
+
+SWIGINTERN int
 SWIG_AsCharPtrAndSize(Tcl_Obj *obj, char** cptr, size_t* psize, int *alloc)
 { 
   int len = 0;
@@ -1791,34 +1819,6 @@ SWIGINTERNINLINE Tcl_Obj *
 SWIG_From_int  (int value)
 {    
   return SWIG_From_long  (value);
-}
-
-
-SWIGINTERN int
-SWIG_AsVal_long SWIG_TCL_DECL_ARGS_2(Tcl_Obj *obj, long* val)
-{
-  long v;
-  if (Tcl_GetLongFromObj(0,obj, &v) == TCL_OK) {
-    if (val) *val = (long) v;
-    return SWIG_OK;
-  }
-  return SWIG_TypeError;
-}
-
-
-SWIGINTERN int
-SWIG_AsVal_int SWIG_TCL_DECL_ARGS_2(Tcl_Obj * obj, int *val)
-{
-  long v;
-  int res = SWIG_AsVal_long SWIG_TCL_CALL_ARGS_2(obj, &v);
-  if (SWIG_IsOK(res)) {
-    if ((v < INT_MIN || v > INT_MAX)) {
-      return SWIG_OverflowError;
-    } else {
-      if (val) *val = static_cast< int >(v);
-    }
-  }  
-  return res;
 }
 
 
@@ -2239,6 +2239,37 @@ _wrap_OT_API_Set_PasswordCallback(ClientData clientData SWIGUNUSED, Tcl_Interp *
   Tcl_SetObjResult(interp,SWIG_From_bool(static_cast< bool >(result)));
   return TCL_OK;
 fail:
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OT_API_Output(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  int arg1 ;
+  char *arg2 = (char *) 0 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oo:OT_API_Output nLogLevel szOutput ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  ecode1 = SWIG_AsVal_int SWIG_TCL_CALL_ARGS_2(objv[1], &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "OT_API_Output" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  res2 = SWIG_AsCharPtrAndSize(objv[2], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_Output" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  OT_API_Output(arg1,(char const *)arg2);
+  
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return TCL_OK;
+fail:
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   return TCL_ERROR;
 }
 
@@ -7652,6 +7683,86 @@ fail:
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OT_API_usageCredits(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  char *arg4 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  int res3 ;
+  char *buf3 = 0 ;
+  int alloc3 = 0 ;
+  int res4 ;
+  char *buf4 = 0 ;
+  int alloc4 = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oooo:OT_API_usageCredits SERVER_ID USER_ID USER_ID_CHECK ADJUSTMENT ",(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_usageCredits" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(objv[2], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_usageCredits" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  res3 = SWIG_AsCharPtrAndSize(objv[3], &buf3, NULL, &alloc3);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OT_API_usageCredits" "', argument " "3"" of type '" "char const *""'");
+  }
+  arg3 = reinterpret_cast< char * >(buf3);
+  res4 = SWIG_AsCharPtrAndSize(objv[4], &buf4, NULL, &alloc4);
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OT_API_usageCredits" "', argument " "4"" of type '" "char const *""'");
+  }
+  arg4 = reinterpret_cast< char * >(buf4);
+  OT_API_usageCredits((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+  
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+  return TCL_OK;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OT_API_Message_GetUsageCredits(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  char *arg1 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  char *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"o:OT_API_Message_GetUsageCredits THE_MESSAGE ",(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Message_GetUsageCredits" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  result = (char *)OT_API_Message_GetUsageCredits((char const *)arg1);
+  Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return TCL_OK;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   return TCL_ERROR;
 }
 
@@ -25888,6 +25999,7 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "OTCaller_callTwo", (swig_wrapper_func) _wrap_OTCaller_callTwo, NULL},
     { SWIG_prefix "OTCaller", (swig_wrapper_func) SWIG_ObjectConstructor, (ClientData)&_wrap_class_OTCaller},
     { SWIG_prefix "OT_API_Set_PasswordCallback", (swig_wrapper_func) _wrap_OT_API_Set_PasswordCallback, NULL},
+    { SWIG_prefix "OT_API_Output", (swig_wrapper_func) _wrap_OT_API_Output, NULL},
     { SWIG_prefix "OT_API_Init", (swig_wrapper_func) _wrap_OT_API_Init, NULL},
     { SWIG_prefix "OT_API_LoadWallet", (swig_wrapper_func) _wrap_OT_API_LoadWallet, NULL},
     { SWIG_prefix "OT_API_SwitchWallet", (swig_wrapper_func) _wrap_OT_API_SwitchWallet, NULL},
@@ -26021,6 +26133,8 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "OT_API_createUserAccount", (swig_wrapper_func) _wrap_OT_API_createUserAccount, NULL},
     { SWIG_prefix "OT_API_deleteUserAccount", (swig_wrapper_func) _wrap_OT_API_deleteUserAccount, NULL},
     { SWIG_prefix "OT_API_deleteAssetAccount", (swig_wrapper_func) _wrap_OT_API_deleteAssetAccount, NULL},
+    { SWIG_prefix "OT_API_usageCredits", (swig_wrapper_func) _wrap_OT_API_usageCredits, NULL},
+    { SWIG_prefix "OT_API_Message_GetUsageCredits", (swig_wrapper_func) _wrap_OT_API_Message_GetUsageCredits, NULL},
     { SWIG_prefix "OT_API_checkUser", (swig_wrapper_func) _wrap_OT_API_checkUser, NULL},
     { SWIG_prefix "OT_API_sendUserMessage", (swig_wrapper_func) _wrap_OT_API_sendUserMessage, NULL},
     { SWIG_prefix "OT_API_getRequest", (swig_wrapper_func) _wrap_OT_API_getRequest, NULL},

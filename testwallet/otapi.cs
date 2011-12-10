@@ -17,6 +17,10 @@ public class otapi {
     return ret;
   }
 
+  public static void OT_API_Output(int nLogLevel, string szOutput) {
+    otapiPINVOKE.OT_API_Output(nLogLevel, szOutput);
+  }
+
   public static int OT_API_Init(string szClientPath) {
     int ret = otapiPINVOKE.OT_API_Init(szClientPath);
     return ret;
@@ -673,6 +677,15 @@ public class otapi {
 
   public static void OT_API_deleteAssetAccount(string SERVER_ID, string USER_ID, string ACCOUNT_ID) {
     otapiPINVOKE.OT_API_deleteAssetAccount(SERVER_ID, USER_ID, ACCOUNT_ID);
+  }
+
+  public static void OT_API_usageCredits(string SERVER_ID, string USER_ID, string USER_ID_CHECK, string ADJUSTMENT) {
+    otapiPINVOKE.OT_API_usageCredits(SERVER_ID, USER_ID, USER_ID_CHECK, ADJUSTMENT);
+  }
+
+  public static string OT_API_Message_GetUsageCredits(string THE_MESSAGE) {
+    string ret = otapiPINVOKE.OT_API_Message_GetUsageCredits(THE_MESSAGE);
+    return ret;
   }
 
   public static void OT_API_checkUser(string SERVER_ID, string USER_ID, string USER_ID_CHECK) {
