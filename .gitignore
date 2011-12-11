@@ -11,6 +11,8 @@ build/*
 *.mode2v3
 *.pch
 *.perspectivev3
+*.jnilib
+*.exe
 
 *.jar
 

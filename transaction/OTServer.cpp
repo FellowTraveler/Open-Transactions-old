@@ -2861,6 +2861,8 @@ void OTServer::NotarizeWithdrawal(OTPseudonym & theNym, OTAccount & theAccount,
 	tranOut.SetType(OTTransaction::atWithdrawal);
 	
 	OTItem * pItem			= NULL;
+	OTItem * pItemCash		= NULL;
+	OTItem * pItemVoucher	= NULL;
 	OTItem * pBalanceItem	= NULL;
 	OTItem * pResponseItem	= NULL;
 	OTItem * pResponseBalanceItem	= NULL;
@@ -2877,42 +2879,68 @@ void OTServer::NotarizeWithdrawal(OTPseudonym & theNym, OTAccount & theAccount,
 	
 	const OTString strUserID(USER_ID), strAccountID(ACCOUNT_ID), strAssetTypeID(ASSET_TYPE_ID);
 	// -----------------------------------------------------------------	
+	// Here we find out if we're withdrawing cash, or a voucher 
+	// (A voucher is a cashier's cheque aka banker's cheque).
+	//
+	pItemVoucher = tranIn.GetItem(OTItem::withdrawVoucher);
 	
-	if (false == NYM_IS_ALLOWED(strUserID.Get(), __transact_withdrawal))
+	if (NULL == pItemVoucher)
+	{
+		pItemCash = tranIn.GetItem(OTItem::withdrawal);
+		pItem = pItemCash;
+	}
+	else
+		pItem = pItemVoucher;
+	// --------------------------------------
+	
+	if (NULL == pItem)
+	{
+		OTString strTemp(tranIn);
+		OTLog::vOutput(0, "OTServer::NotarizeWithdrawal: Expected OTItem::withdrawal or OTItem::withdrawVoucher in trans# %ld: \n\n%s\n\n",
+					   tranIn.GetTransactionNum(), strTemp.Exists() ? strTemp.Get() : " (ERROR LOADING TRANSACTION INTO STRING) ");
+	}
+	// Below this point, we know that pItem is good, and that either pItemVoucher OR pItemCash is good,
+	// and that pItem points to the good one. Therefore next, let's verify permissions:
+	// ---------------------------------------------------------------------
+	
+	// This permission has to do with ALL withdrawals (cash or voucher)
+	else if (false == NYM_IS_ALLOWED(strUserID.Get(), __transact_withdrawal))
 	{
 		OTLog::vOutput(0, "OTServer::NotarizeWithdrawal: User %s cannot do this transaction (All withdrawals are disallowed in server.cfg)\n",
 					   strUserID.Get());
 	}
-	
+	// -----------------------------------------
+	// This permission has to do with vouchers.
+	else if ((NULL != pItemVoucher) &&
+			 (false == NYM_IS_ALLOWED(strUserID.Get(), __transact_withdraw_voucher)))
+	{
+		OTLog::vOutput(0, "OTServer::NotarizeWithdrawal: User %s cannot do this transaction (withdrawVoucher is disallowed in server.cfg)\n",
+					   strUserID.Get());
+	}
+	// This permission has to do with cash.
+	else if ((NULL != pItemCash) &&
+			 (false == NYM_IS_ALLOWED(strUserID.Get(), __transact_withdraw_cash)))
+	{
+		OTLog::vOutput(0, "OTServer::NotarizeWithdrawal: User %s cannot do this transaction (withdraw cash is disallowed in server.cfg)\n",
+					   strUserID.Get());
+	}
     // ----------------------------------------------------------
-    
+    // Check for a balance agreement...
+	//
     else if (NULL == (pBalanceItem = tranIn.GetItem(OTItem::balanceStatement)))
     {
         OTString strTemp(tranIn);
         OTLog::vOutput(0, "OTServer::NotarizeWithdrawal: Expected OTItem::balanceStatement, but not found in trans # %ld: \n\n%s\n\n",
                        tranIn.GetTransactionNum(), strTemp.Exists() ? strTemp.Get() : " (ERROR LOADING TRANSACTION INTO STRING) ");
-    }
-    
+    }	
 	// ------------------------------------------------------------------------
-	//
-	// WITHDRAW VOUCHER (like a cashier's cheque) is the top half of this function.
-	//
-	// For digital cash (blinded tokens), see the bottom half of this function.
-	//
-	else if ((NULL != (pItem = tranIn.GetItem(OTItem::withdrawVoucher))) &&
-			 (false == NYM_IS_ALLOWED(strUserID.Get(), __transact_withdraw_voucher)))
-	{
-		OTLog::vOutput(0, "OTServer::NotarizeWithdrawal: User %s cannot do this transaction (withdrawVoucher is disallowed in server.cfg)\n",
-					   strUserID.Get());
-	}	
-	
 	else if (pItem->GetType() == OTItem::withdrawVoucher)
 	{
 		// The response item will contain a copy of the request item. So I save it into a string 
 		// here so they can all grab a copy of it into their "in reference to" fields.
 		pItem->SaveContract(strInReferenceTo);
 		pBalanceItem->SaveContract(strBalanceItem);
-
+		
 		// Server response item being added to server response transaction (tranOut)
 		// (They're getting SOME sort of response item.)
 		
@@ -2932,7 +2960,7 @@ void OTServer::NotarizeWithdrawal(OTPseudonym & theNym, OTAccount & theAccount,
 		OTAccount_SharedPtr	pVoucherReserveAcct; // contains the server's funds to back vouchers of a specific asset type.
 		
 		// ----------------------------------------------------
-
+		
 		OTLedger * pInbox	= theAccount.LoadInbox(m_nymServer); 
 		OTLedger * pOutbox	= theAccount.LoadOutbox(m_nymServer); 
 		
@@ -2940,7 +2968,7 @@ void OTServer::NotarizeWithdrawal(OTPseudonym & theNym, OTAccount & theAccount,
 		OTCleanup<OTLedger> theOutboxAngel(pOutbox);
 		
 		// ----------------------------------------------------
-	
+		
 		// I'm using the operator== because it exists.
 		// If the ID on the "from" account that was passed in,
 		// does not match the "Acct From" ID on this transaction item
@@ -2977,14 +3005,14 @@ void OTServer::NotarizeWithdrawal(OTPseudonym & theNym, OTAccount & theAccount,
 			OTIdentifier VOUCHER_ACCOUNT_ID(theVoucherReserveAcct);
 			
 			OTCheque	theVoucher(SERVER_ID, ASSET_TYPE_ID),
-						theVoucherRequest(SERVER_ID, ASSET_TYPE_ID);
+			theVoucherRequest(SERVER_ID, ASSET_TYPE_ID);
 			
 			bool bLoadContractFromString = theVoucherRequest.LoadContractFromString(strVoucherRequest);
 			
 			if (!bLoadContractFromString)
 			{
 				OTLog::vError("ERROR loading voucher request from string in OTServer::NotarizeWithdrawal:\n%s\n",
-						strVoucherRequest.Get());
+							  strVoucherRequest.Get());
 			}
 			else if (!(pBalanceItem->VerifyBalanceStatement(theVoucherRequest.GetAmount() * (-1), // My account's balance will go down by this much. 
 															theNym,
@@ -2999,7 +3027,7 @@ void OTServer::NotarizeWithdrawal(OTPseudonym & theNym, OTAccount & theAccount,
 			else // successfully loaded the voucher request from the string...
 			{
 				pResponseBalanceItem->SetStatus(OTItem::acknowledgement); // the transaction agreement was successful.
-
+				
 				// -------------------------------------------
 				
 				OTString strChequeMemo;
@@ -3018,20 +3046,20 @@ void OTServer::NotarizeWithdrawal(OTPseudonym & theNym, OTAccount & theAccount,
 				long lNewTransactionNumber = 0;
 				
 				IssueNextTransactionNumber(m_nymServer, lNewTransactionNumber); // bStoreTheNumber defaults to true. We save the transaction
-																				// number on the server Nym (normally we'd discard it) because
+				// number on the server Nym (normally we'd discard it) because
 				const long lAmount = theVoucherRequest.GetAmount();				// when the cheque is deposited, the server nym, as the owner of
 				const OTIdentifier & RECIPIENT_ID = theVoucherRequest.GetRecipientUserID();	// the voucher account, needs to verify the transaction # on the
-																				// cheque (to prevent double-spending of cheques.)
+				// cheque (to prevent double-spending of cheques.)
 				bool bIssueVoucher = theVoucher.IssueCheque(
-										lAmount,				// The amount of the cheque.
-										lNewTransactionNumber,	// Requiring a transaction number prevents double-spending of cheques.
-										VALID_FROM,				// The expiration date (valid from/to dates) of the cheque
-										VALID_TO,				// Vouchers are automatically starting today and lasting 6 months.
-										VOUCHER_ACCOUNT_ID,		// The asset account the cheque is drawn on.
-										SERVER_USER_ID,			// User ID of the sender (in this case the server.)
-										strChequeMemo.Get(),	// Optional memo field. Includes item note and request memo.
-										theVoucherRequest.HasRecipient() ? (&RECIPIENT_ID) : NULL);
-
+															lAmount,				// The amount of the cheque.
+															lNewTransactionNumber,	// Requiring a transaction number prevents double-spending of cheques.
+															VALID_FROM,				// The expiration date (valid from/to dates) of the cheque
+															VALID_TO,				// Vouchers are automatically starting today and lasting 6 months.
+															VOUCHER_ACCOUNT_ID,		// The asset account the cheque is drawn on.
+															SERVER_USER_ID,			// User ID of the sender (in this case the server.)
+															strChequeMemo.Get(),	// Optional memo field. Includes item note and request memo.
+															theVoucherRequest.HasRecipient() ? (&RECIPIENT_ID) : NULL);
+				
 				// IF we successfully created the voucher, AND the voucher amount is greater than 0,
 				// AND debited the user's account,
 				// AND credited the server's voucher account,
@@ -3042,43 +3070,43 @@ void OTServer::NotarizeWithdrawal(OTPseudonym & theNym, OTAccount & theAccount,
 					theAccount.Debit(theVoucherRequest.GetAmount())
 					)
 				{
-                    if (false == pVoucherReserveAcct->Credit(theVoucherRequest.GetAmount()))
-                    {
-                        OTLog::Error("OTServer::NotarizeWithdrawal: Failed Crediting voucher reserve account.\n");
-
-                        if (false == theAccount.Credit(theVoucherRequest.GetAmount()))
-                            OTLog::Error("OTServer::NotarizeWithdrawal (voucher): Failed Crediting user account.\n");                            
-                    }
-                    else
-                    {
-                        OTString strVoucher;
-                        theVoucher.SetAsVoucher();	// All this does is set the voucher's internal contract 
-                                                    // string to "VOUCHER" instead of "CHEQUE". 
-                        theVoucher.SignContract(m_nymServer);
-                        theVoucher.SaveContract();
-                        theVoucher.SaveContract(strVoucher);
-                        
-                        pResponseItem->SetAttachment(strVoucher);
-                        pResponseItem->SetStatus(OTItem::acknowledgement);
-                        
-                        
-                        // Release any signatures that were there before (They won't
-                        // verify anymore anyway, since the content has changed.)
-                        theAccount.	ReleaseSignatures();
-                        theAccount.	SignContract(m_nymServer);	// Sign 
-                        theAccount.	SaveContract();				// Save 
-                        theAccount.	SaveAccount();				// Save to file
-                        
-                        // We also need to save the Voucher cash reserve account.
-                        // (Any issued voucher cheque is automatically backed by this reserve account.
-                        // If a cheque is deposited, the funds come back out of this account. If the
-                        // cheque expires, then after the expiry period, if it remains in the account,
-                        // it is now the property of the transaction server.)
-                        pVoucherReserveAcct->ReleaseSignatures();
-                        pVoucherReserveAcct->SignContract(m_nymServer);
-                        pVoucherReserveAcct->SaveContract();
-                        pVoucherReserveAcct->SaveAccount();
-                    }
+					if (false == pVoucherReserveAcct->Credit(theVoucherRequest.GetAmount()))
+					{
+						OTLog::Error("OTServer::NotarizeWithdrawal: Failed Crediting voucher reserve account.\n");
+						
+						if (false == theAccount.Credit(theVoucherRequest.GetAmount()))
+							OTLog::Error("OTServer::NotarizeWithdrawal (voucher): Failed Crediting user account.\n");                            
+					}
+					else
+					{
+						OTString strVoucher;
+						theVoucher.SetAsVoucher();	// All this does is set the voucher's internal contract 
+						// string to "VOUCHER" instead of "CHEQUE". 
+						theVoucher.SignContract(m_nymServer);
+						theVoucher.SaveContract();
+						theVoucher.SaveContract(strVoucher);
+						
+						pResponseItem->SetAttachment(strVoucher);
+						pResponseItem->SetStatus(OTItem::acknowledgement);
+						
+						
+						// Release any signatures that were there before (They won't
+						// verify anymore anyway, since the content has changed.)
+						theAccount.	ReleaseSignatures();
+						theAccount.	SignContract(m_nymServer);	// Sign 
+						theAccount.	SaveContract();				// Save 
+						theAccount.	SaveAccount();				// Save to file
+						
+						// We also need to save the Voucher cash reserve account.
+						// (Any issued voucher cheque is automatically backed by this reserve account.
+						// If a cheque is deposited, the funds come back out of this account. If the
+						// cheque expires, then after the expiry period, if it remains in the account,
+						// it is now the property of the transaction server.)
+						pVoucherReserveAcct->ReleaseSignatures();
+						pVoucherReserveAcct->SignContract(m_nymServer);
+						pVoucherReserveAcct->SaveContract();
+						pVoucherReserveAcct->SaveAccount();
+					}
 				}	
 				//else{} // TODO log that there was a problem with the amount
 				
@@ -3087,7 +3115,7 @@ void OTServer::NotarizeWithdrawal(OTPseudonym & theNym, OTAccount & theAccount,
 		else 
 		{
 			OTLog::vError("GetVoucherAccount() failed in NotarizeWithdrawal. Asset Type:\n%s\n",
-					strAssetTypeID.Get());
+						  strAssetTypeID.Get());
 		}
 		
 		// sign the response item before sending it back (it's already been added to the transaction above)
@@ -3099,19 +3127,14 @@ void OTServer::NotarizeWithdrawal(OTPseudonym & theNym, OTAccount & theAccount,
 		pResponseBalanceItem->SignContract(m_nymServer);
 		pResponseBalanceItem->SaveContract();
 	}
-	
+
 	// --------------------------------------------------------------------------------------
 	
 	// WITHDRAW DIGITAL CASH (BLINDED TOKENS)
 	//
 	// For now, there should only be one of these withdrawal items inside the transaction.
 	// So we treat it that way... I either get it successfully or not.
-	else if ((NULL != (pItem = tranIn.GetItem(OTItem::withdrawal))) &&
-			 (false == NYM_IS_ALLOWED(strUserID.Get(), __transact_withdraw_cash)))
-	{
-		OTLog::vOutput(0, "OTServer::NotarizeWithdrawal: User %s cannot do this transaction (Cash withdrawals are disallowed in server.cfg)\n",
-					   strUserID.Get());
-	}
+	//
 	else if (pItem->GetType() == OTItem::withdrawal)
 	{
 		// The response item will contain a copy of the request item. So I save it into a string 
@@ -3430,6 +3453,8 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
 	tranOut.SetType(OTTransaction::atDeposit);
 	
 	OTItem * pItem			= NULL;
+	OTItem * pItemCheque	= NULL;
+	OTItem * pItemCash		= NULL;
 	OTItem * pBalanceItem	= NULL;
 	OTItem * pResponseItem	= NULL;
 	OTItem * pResponseBalanceItem	= NULL;
@@ -3448,36 +3473,63 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
 	
 	OTMint		* pMint					= NULL; // the Mint itself.
 	OTAccount	* pMintCashReserveAcct	= NULL; // the Mint's funds for cash withdrawals.
-    
-    // ----------------------------------------------------------
-	if (false == NYM_IS_ALLOWED(strUserID.Get(), __transact_deposit))
+	
+	// -----------------------------------------------------------------	
+	// Here we find out if we're depositing cash, or a cheque
+	//
+	pItemCheque = tranIn.GetItem(OTItem::depositCheque);
+	
+	if (NULL == pItemCheque)
+	{
+		pItemCash = tranIn.GetItem(OTItem::deposit);
+		pItem = pItemCash;
+	}
+	else
+		pItem = pItemCheque;
+	// --------------------------------------
+	
+	if (NULL == pItem)
+	{
+		OTString strTemp(tranIn);
+		OTLog::vOutput(0, "OTServer::NotarizeDeposit: Expected OTItem::deposit or OTItem::depositCheque in trans# %ld: \n\n%s\n\n",
+					   tranIn.GetTransactionNum(), strTemp.Exists() ? strTemp.Get() : " (ERROR LOADING TRANSACTION INTO STRING) ");
+	}
+	// Below this point, we know that pItem is good, and that either pItemCheque OR pItemCash is good,
+	// and that pItem points to the good one. Therefore next, let's verify permissions:
+	// ---------------------------------------------------------------------
+	
+	// This permission has to do with ALL deposits (cash or cheque)
+	else if (false == NYM_IS_ALLOWED(strUserID.Get(), __transact_deposit))
 	{
 		OTLog::vOutput(0, "OTServer::NotarizeDeposit: User %s cannot do this transaction (All deposits are disallowed in server.cfg)\n",
 					   strUserID.Get());
 	}
-	
-    // ----------------------------------------------------------
-	// Must have included a balance statement for any deposit.
-    //
-    else if (NULL == (pBalanceItem = tranIn.GetItem(OTItem::balanceStatement)))
-    {
-        OTString strTemp(tranIn);
-        OTLog::vOutput(0, "OTServer::NotarizeDeposit: No balance agreement was found with this deposit, trans# %ld : \n\n%s\n\n",
-                       tranIn.GetTransactionNum(), strTemp.Exists() ? strTemp.Get() : " (ERROR GETTING TRANSACTION AS STRING) ");
-    }
-    
-	// -------------------------------------------------------------------------------------------
-	// DEPOSIT CHEQUE  (Deposit Cash is the bottom half of the function, deposit cheque is the top half.)
-	
-	
-	else if ((NULL != (pItem = tranIn.GetItem(OTItem::depositCheque))) &&
+	// -----------------------------------------
+	// This permission has to do with vouchers.
+	else if ((NULL != pItemCheque) &&
 			 (false == NYM_IS_ALLOWED(strUserID.Get(), __transact_deposit_cheque)))
 	{
 		OTLog::vOutput(0, "OTServer::NotarizeDeposit: User %s cannot do this transaction (depositCheque is disallowed in server.cfg)\n",
 					   strUserID.Get());
-	}	
-	
-	// Deposit (the transaction) now supports deposit (the item) and depositCheque (the item)
+	}
+	// This permission has to do with cash.
+	else if ((NULL != pItemCash) &&
+			 (false == NYM_IS_ALLOWED(strUserID.Get(), __transact_deposit_cash)))
+	{
+		OTLog::vOutput(0, "OTServer::NotarizeDeposit: User %s cannot do this transaction (deposit cash is disallowed in server.cfg)\n",
+					   strUserID.Get());
+	}
+    // ----------------------------------------------------------
+    // Check for a balance agreement...
+	//
+    else if (NULL == (pBalanceItem = tranIn.GetItem(OTItem::balanceStatement)))
+    {
+        OTString strTemp(tranIn);
+        OTLog::vOutput(0, "OTServer::NotarizeDeposit: Expected OTItem::balanceStatement, but not found in trans # %ld: \n\n%s\n\n",
+                       tranIn.GetTransactionNum(), strTemp.Exists() ? strTemp.Get() : " (ERROR LOADING TRANSACTION INTO STRING) ");
+    }	
+	// -------------------------------------------------------------------------------------------
+	// DEPOSIT CHEQUE  (Deposit Cash is the bottom half of the function, deposit cheque is the top half.)
 	else if (pItem->GetType() == OTItem::depositCheque)
 	{
 		// The response item, as well as the sender's inbox, will soon contain a copy
@@ -3966,13 +4018,6 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
 	// For now, there should only be one of these deposit items inside the transaction.
 	// So we treat it that way... I either get it successfully or not.
     //
-	else if ((NULL != (pItem = tranIn.GetItem(OTItem::deposit))) &&
-			 (false == NYM_IS_ALLOWED(strUserID.Get(), __transact_deposit_cash)))
-	{
-		OTLog::vOutput(0, "OTServer::NotarizeDeposit: User %s cannot do this transaction (depositing cash is disallowed in server.cfg)\n",
-					   strUserID.Get());
-	}	
-	
 	// Deposit (the transaction) now supports deposit (the item) and depositCheque (the item)
 	else if (pItem->GetType() == OTItem::deposit)
 	{
@@ -5077,7 +5122,8 @@ void OTServer::NotarizeCancelCronItem(OTPseudonym & theNym, OTAccount & theAsset
         pResponseBalanceItem->SaveContract();
 
 	} // if pItem = tranIn.GetItem(OTItem::cancelCronItem)
-	else {
+	else 
+	{
         OTString strTemp(tranIn);
 		OTLog::vOutput(0, "Error, expected OTItem::cancelCronItem "
                      "in OTServer::NotarizeCancelCronItem for trans# %ld:\n\n%s\n\n",
@@ -5117,11 +5163,11 @@ void OTServer::NotarizeExchangeBasket(OTPseudonym & theNym, OTAccount & theAccou
 	const OTString strUserID(USER_ID);
 	// -------------------------------------------------------------
     
-	OTLedger * pInbox	= NULL; 
-	OTLedger * pOutbox	= NULL; 
+	OTLedger * pInbox	= theAccount.LoadInbox(m_nymServer); 
+	OTLedger * pOutbox	= theAccount.LoadOutbox(m_nymServer); 
 	
-	OTCleanup<OTLedger> theInboxAngel;
-	OTCleanup<OTLedger> theOutboxAngel;
+	OTCleanup<OTLedger> theInboxAngel(pInbox);
+	OTCleanup<OTLedger> theOutboxAngel(pOutbox);
     
 	// --------------------------------------------------------------
     bool bSuccess = false;
@@ -5139,20 +5185,18 @@ void OTServer::NotarizeExchangeBasket(OTPseudonym & theNym, OTAccount & theAccou
 	{
 		OTLog::Output(0, "OTServer::NotarizeExchangeBasket: No Balance Agreement item found on this transaction.\n");
 	}
-	else if (NULL == (pInbox = theAccount.LoadInbox(m_nymServer)) || 
-             !pInbox->VerifyAccount(m_nymServer))
+	else if ((NULL == pInbox) || !pInbox->VerifyAccount(m_nymServer))
 	{
 		OTLog::Error("Error loading or verifying inbox.\n");
 	}
-	else if (NULL == (pOutbox = theAccount.LoadOutbox(m_nymServer)) || 
-             !pOutbox->VerifyAccount(m_nymServer))
+	else if ((NULL == pOutbox) || !pOutbox->VerifyAccount(m_nymServer))
 	{
 		OTLog::Error("Error loading or verifying outbox.\n");
 	}
 	else 
 	{
-        theInboxAngel.SetCleanupTarget(*pInbox);
-        theOutboxAngel.SetCleanupTarget(*pOutbox);
+//      theInboxAngel.SetCleanupTarget(*pInbox);
+//      theOutboxAngel.SetCleanupTarget(*pOutbox);
         // ------------------------------------------
         
 		pItem->SaveContract(strInReferenceTo);
@@ -6024,7 +6068,8 @@ void OTServer::NotarizeMarketOffer(OTPseudonym & theNym, OTAccount & theAssetAcc
 	const OTIdentifier SERVER_ID(m_strServerID), USER_ID(theNym);
 	const OTString strUserID(USER_ID);
 	
-    pBalanceItem = tranIn.GetItem(OTItem::transactionStatement);
+	pItem			= tranIn.GetItem(OTItem::marketOffer);
+    pBalanceItem	= tranIn.GetItem(OTItem::transactionStatement);
     
     if (false == NYM_IS_ALLOWED(strUserID.Get(), __transact_market_offer))
 	{
@@ -6037,9 +6082,15 @@ void OTServer::NotarizeMarketOffer(OTPseudonym & theNym, OTAccount & theAssetAcc
         OTLog::vOutput(0, "OTServer::NotarizeMarketOffer: Expected transaction statement in trans # %ld: \n\n%s\n\n",
                        tranIn.GetTransactionNum(), strTemp.Exists() ? strTemp.Get() : " (ERROR LOADING TRANSACTION INTO STRING) ");
     }
+	else if (NULL == pItem)
+	{
+        OTString strTemp(tranIn);
+		OTLog::vOutput(0, "OTServer::NotarizeMarketOffer: Expected OTItem::marketOffer in trans# %ld:\n\n%s\n\n",
+                       tranIn.GetTransactionNum(), strTemp.Exists() ? strTemp.Get() : " (ERROR LOADING TRANSACTION INTO STRING) ");
+	}	
 	// For now, there should only be one of these marketOffer items inside the transaction.
 	// So we treat it that way... I either get it successfully or not.
-	else if (NULL != (pItem = tranIn.GetItem(OTItem::marketOffer)))
+	else
 	{
 		// The response item will contain a copy of the request item. So I save it into a string
 		// here so it can be saved into the "in reference to" field.
@@ -6272,11 +6323,6 @@ void OTServer::NotarizeMarketOffer(OTPseudonym & theNym, OTAccount & theAssetAcc
         pResponseBalanceItem->SaveContract();
 
 	} // if pItem = tranIn.GetItem(OTItem::marketOffer)
-	else {
-        OTString strTemp(tranIn);
-		OTLog::vOutput(0, "OTServer::NotarizeMarketOffer: Expected OTItem::marketOffer in trans# %ld:\n\n%s\n\n",
-                       tranIn.GetTransactionNum(), strTemp.Exists() ? strTemp.Get() : " (ERROR LOADING TRANSACTION INTO STRING) ");
-	}
 }
 
 
