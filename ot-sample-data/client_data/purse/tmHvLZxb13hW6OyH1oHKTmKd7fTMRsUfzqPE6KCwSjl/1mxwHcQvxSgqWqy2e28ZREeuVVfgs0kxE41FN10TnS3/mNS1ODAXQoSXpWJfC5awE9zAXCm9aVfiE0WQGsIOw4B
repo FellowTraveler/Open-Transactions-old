@@ -1,0 +1,20 @@
+-----BEGIN SIGNED PURSE-----
+Hash: SAMY
+
+<?xml version="1.0"?>
+
+<purse version="1.0"
+ totalValue="0"
+ userID="1mxwHcQvxSgqWqy2e28ZREeuVVfgs0kxE41FN10TnS3"
+ assetTypeID="mNS1ODAXQoSXpWJfC5awE9zAXCm9aVfiE0WQGsIOw4B"
+ serverID="tmHvLZxb13hW6OyH1oHKTmKd7fTMRsUfzqPE6KCwSjl">
+
+</purse>
+-----BEGIN PURSE SIGNATURE-----
+Version: Open Transactions 0.75
+Comment: http://github.com/FellowTraveler/Open-Transactions/wiki
+
+CoAByECF7JIoxp0MR58y9kgckd6yQ8jv+fWjQB71exi7aYtmBbOu1ozUpnVkEOKE
+k1tEwz0f14wyzYdnuuOZ0BXcADrZLdllEcg7SX415iGa+kUSmwX38dNRjcW6Duda
+dZOxYh9L3ei9gbQ6XG4+6jV4+IdYjStDmFRX0+TSTSJcr74=
+-----END PURSE SIGNATURE-----

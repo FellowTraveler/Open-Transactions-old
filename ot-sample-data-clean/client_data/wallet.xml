@@ -4,27 +4,8 @@
 <pseudonym name="eJzj4nULUS9WCEktLlHwq8wFAB1GBGA="
  nymID="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV" />
 
-<pseudonym name="eJzj4gopSkxJLVJwyk8CABUeA6o="
- nymID="lMTANg3U97bwGFJAYKljTXAcy5By6JcLdU4di5AoA4z" />
-
-<assetType name="eJzj4inOzClLLVJIL0rMLQYAILwE5g=="
- assetTypeID="mNS1ODAXQoSXpWJfC5awE9zAXCm9aVfiE0WQGsIOw4B" />
-
 <notaryProvider name="eJzjkvTJT07MycgvLlEITi0qSy1ScM7PKylKTC4BAH+DCcI="
  serverID="tmHvLZxb13hW6OyH1oHKTmKd7fTMRsUfzqPE6KCwSjl" />
 
-<!-- Last retrieved balance: 0 on date: 1323013716 -->
-<!-- Account type: simple --><assetAccount name="eJzj4nYLUS9WCM7MKUstAgAVgQPf"
- accountID="XkBPyMsQfBqu0gs4ExARDUEAnnKdZotLfJLi2a85rbB"
- userID="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV"
- serverID="tmHvLZxb13hW6OyH1oHKTmKd7fTMRsUfzqPE6KCwSjl" />
-<!-- assetTypeID: mNS1ODAXQoSXpWJfC5awE9zAXCm9aVfiE0WQGsIOw4B -->
-
-<!-- Last retrieved balance: 0 on date: 1323013693 -->
-<!-- Account type: issuer --><assetAccount name="eJzjEnILUS9WCM7MKUstUvAMDg51DQIAOHsF4Q=="
- accountID="rAwk86tINmqWPx3PEKpuiYu9ch5f4ubFQG1AsgxpsuA"
- userID="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV"
- serverID="tmHvLZxb13hW6OyH1oHKTmKd7fTMRsUfzqPE6KCwSjl" />
-<!-- assetTypeID: mNS1ODAXQoSXpWJfC5awE9zAXCm9aVfiE0WQGsIOw4B -->
-
 </wallet>
+ 
