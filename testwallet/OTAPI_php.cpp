@@ -4155,6 +4155,69 @@ fail:
 }
 
 
+ZEND_NAMED_FUNCTION(_wrap_OT_API_DiscardCheque) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  char *arg4 = (char *) 0 ;
+  zval **args[4];
+  int result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 4 || zend_get_parameters_array_ex(4, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[2])->type==IS_NULL) {
+    arg3 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[2]);
+    arg3 = (char *) Z_STRVAL_PP(args[2]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[3])->type==IS_NULL) {
+    arg4 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[3]);
+    arg4 = (char *) Z_STRVAL_PP(args[3]);
+  }
+  /*@SWIG@*/;
+  
+  result = (int)OT_API_DiscardCheque((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+  {
+    ZVAL_LONG(return_value,result);
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
 ZEND_NAMED_FUNCTION(_wrap_OT_API_ProposePaymentPlan) {
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
@@ -26456,6 +26519,7 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(ot_api_setserver_name,_wrap_OT_API_SetServer_Name,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_verifyandretrievexmlcontents,_wrap_OT_API_VerifyAndRetrieveXMLContents,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_writecheque,_wrap_OT_API_WriteCheque,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_discardcheque,_wrap_OT_API_DiscardCheque,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_proposepaymentplan,_wrap_OT_API_ProposePaymentPlan,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_confirmpaymentplan,_wrap_OT_API_ConfirmPaymentPlan,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_create_smartcontract,_wrap_OT_API_Create_SmartContract,NULL)

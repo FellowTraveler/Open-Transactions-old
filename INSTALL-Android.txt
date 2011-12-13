@@ -51,6 +51,13 @@ http://www.zeromq.org/intro:get-the-software
 
 ---------------------------------------------------------------
 
+INSTALL: Chaiscript (scripting library)
+
+Available here: 
+http://www.chaiscript.com/
+
+---------------------------------------------------------------
+
 
 NOTE: OT hasn't been build on Android for a while, so it will
 probably need some work to get it building again. Just let me know

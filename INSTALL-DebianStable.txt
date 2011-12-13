@@ -52,6 +52,14 @@ Pin-Priority: 200
 ---- install ruby1.8 ----
 # aptitude install ruby1.8-dev
 
+---------------------------------------------------------------
+
+INSTALL: Chaiscript (scripting library)
+
+Available here: 
+http://www.chaiscript.com/
+
+---------------------------------------------------------------
 
 
 

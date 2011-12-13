@@ -1959,6 +1959,46 @@ SWIGEXPORT jstring JNICALL Java_com_wrapper_core_jni_otapiJNI_OT_1API_1WriteCheq
 }
 
 
+SWIGEXPORT jint JNICALL Java_com_wrapper_core_jni_otapiJNI_OT_1API_1DiscardCheque(JNIEnv *jenv, jclass jcls, jstring jarg1, jstring jarg2, jstring jarg3, jstring jarg4) {
+  jint jresult = 0 ;
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  char *arg4 = (char *) 0 ;
+  int result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = 0;
+  if (jarg1) {
+    arg1 = (char *)jenv->GetStringUTFChars(jarg1, 0);
+    if (!arg1) return 0;
+  }
+  arg2 = 0;
+  if (jarg2) {
+    arg2 = (char *)jenv->GetStringUTFChars(jarg2, 0);
+    if (!arg2) return 0;
+  }
+  arg3 = 0;
+  if (jarg3) {
+    arg3 = (char *)jenv->GetStringUTFChars(jarg3, 0);
+    if (!arg3) return 0;
+  }
+  arg4 = 0;
+  if (jarg4) {
+    arg4 = (char *)jenv->GetStringUTFChars(jarg4, 0);
+    if (!arg4) return 0;
+  }
+  result = (int)OT_API_DiscardCheque((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+  jresult = (jint)result; 
+  if (arg1) jenv->ReleaseStringUTFChars(jarg1, (const char *)arg1);
+  if (arg2) jenv->ReleaseStringUTFChars(jarg2, (const char *)arg2);
+  if (arg3) jenv->ReleaseStringUTFChars(jarg3, (const char *)arg3);
+  if (arg4) jenv->ReleaseStringUTFChars(jarg4, (const char *)arg4);
+  return jresult;
+}
+
+
 SWIGEXPORT jstring JNICALL Java_com_wrapper_core_jni_otapiJNI_OT_1API_1ProposePaymentPlan(JNIEnv *jenv, jclass jcls, jstring jarg1, jstring jarg2, jstring jarg3, jstring jarg4, jstring jarg5, jstring jarg6, jstring jarg7, jstring jarg8, jstring jarg9, jstring jarg10, jstring jarg11, jstring jarg12, jstring jarg13, jstring jarg14, jstring jarg15) {
   jstring jresult = 0 ;
   char *arg1 = (char *) 0 ;

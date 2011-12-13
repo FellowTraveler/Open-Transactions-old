@@ -2285,6 +2285,23 @@ const char * OT_API_WriteCheque(const char * SERVER_ID,
 
 
 
+OT_BOOL OT_API_DiscardCheque(const char * SERVER_ID,
+							 const char * USER_ID,
+							 const char * ACCT_ID,
+							 const char * THE_CHEQUE)
+{
+	OT_ASSERT_MSG(NULL != SERVER_ID, "Null SERVER_ID passed in.");
+	OT_ASSERT_MSG(NULL != USER_ID, "Null USER_ID passed in.");
+	OT_ASSERT_MSG(NULL != ACCT_ID, "Null ACCT_ID passed in.");
+	OT_ASSERT_MSG(NULL != THE_CHEQUE, "Null THE_CHEQUE passed in.");
+	
+	OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theAcctID(ACCT_ID);
+	OTString strCheque(THE_CHEQUE);
+	
+	return (g_OT_API.DiscardCheque(theServerID, theUserID, theAcctID, strCheque) ? OT_TRUE : OT_FALSE);
+}
+
+
 
 // -----------------------------------------------------------------
 // PROPOSE PAYMENT PLAN

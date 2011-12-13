@@ -551,6 +551,33 @@ const char * OT_API_WriteCheque(const char * SERVER_ID,
 								const char * CHEQUE_MEMO, 
 								const char * RECIPIENT_USER_ID);
 
+// ----------------------------------------------------------------------
+/**
+ DISCARD A CHEQUE  -- returns OT_TRUE or OT_FALSE
+ 
+ When you write a cheque, your wallet software must use one of your transaction
+ numbers on the cheque. Even when you give the cheque to someone, a good wallet
+ should still store a copy of the cheque, until it is cashed.
+ This way, if you decide to "tear it up" (perhaps the recipient left the country!)
+ then you will still have a copy of the cheque, and you can get your transaction
+ number back before discarding it.
+ 
+ Why does it matter to get the transaction number back?  Because once you sign
+ that number out, you will have to CONTINUE signing it out on EVERY RECEIPT until
+ that transaction is finally closed out. You are still responsible for that 
+ transaction number, until then.
+ 
+ So most likely, if the cheque is going nowhere, then you will want to RETRIEVE
+ the transaction number back from the cheque so you can use it on another transaction
+ instead.  *THIS* IS THE FUNCTION YOU SHOULD USE TO DO THAT!!!!
+
+ //Returns OT_BOOL
+ */
+int OT_API_DiscardCheque(const char * SERVER_ID,
+						 const char * USER_ID,
+						 const char * ACCT_ID,
+						 const char * THE_CHEQUE);
+
 
 
 

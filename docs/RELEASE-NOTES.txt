@@ -3,11 +3,23 @@ NOTES on the Version:
 
 // --------------------------------------------------------------------
 
-   0.75 --- Added whitespace trimming (regenerated all test data)
+   0.75 --- Smart Contracts! (Server-side SCRIPTABLE CLAUSES, and hooks!)
+            Users can now design and activate their own financial instruments,
+            in SCRIPT FORM!
+            
+            Also, configurable permissions were added for all of the OT server's
+            transactions and messages. See your config file: ~/.ot/server.cfg
 
-   0.74 --- Smart Contracts! (Server side scriptable clauses and hooks!)
+   0.74 --- OT can now be configured (or not) to require USAGE CREDITS.
+            (This makes it possible for server operators to charge transaction fees.)
+            API functions were added for viewing and setting these usage credits.
 
-   0.73 --- Client side scripts!  See the Open-Transactions/scripts folder.
+            Also: I added whitespace trimming, to make sure contracts will calculate
+            the exact same ID every single time. (I regenerated all the test data.)
+
+   0.73 --- Client side scripting! See the Open-Transactions/scripts folder.
+            (The *entire* OT API is now available for use inside the client-
+             side scripts.)
 
    0.72b--- Bug fix in Basket Exchange (which is now working in the GUI!)
 

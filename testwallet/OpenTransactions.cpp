@@ -4568,10 +4568,105 @@ void OT_API::withdrawVoucher(OTIdentifier	& SERVER_ID,
 
 
 
+
+
+
 // ------------------------------------------------------------------------
+//
+// DISCARD CHEQUE (recover the transaction number for re-use, so the cheque 
+// can be discarded.)
+//
 
+bool OT_API::DiscardCheque(OTIdentifier	& SERVER_ID,
+						   OTIdentifier	& USER_ID,
+						   OTIdentifier	& ACCT_ID,
+						   OTString		& THE_CHEQUE)
+{
+	OT_ASSERT_MSG(m_bInitialized, "Not initialized; call OT_API::Init first.");
+	
+	// -----------------------------------------------------------------
+	OTServerContract * pServer = m_pWallet->GetServerContract(SERVER_ID);
+	
+	if (!pServer)
+	{
+		OTLog::Output(0, "That server contract is not available in the wallet.\n");
+		
+		return false;
+	}
+	// -----------------------------------------------------
+	OTPseudonym * pNym = m_pWallet->GetNymByID(USER_ID);
+	
+	if (NULL == pNym) // Wasn't already in the wallet.
+	{
+		OTLog::Output(0, "There's no User already loaded with that ID. Loading...\n");
+		
+		pNym = this->LoadPrivateNym(USER_ID);
+		
+		if (NULL == pNym) // LoadPrivateNym has plenty of error logging already.	
+			return false;
+		
+		m_pWallet->AddNym(*pNym);
+	}
+	// -----------------------------------------------------
+	OTIdentifier	CONTRACT_ID;
+	OTString		strContractID;
+	
+	OTAccount * pAccount = m_pWallet->GetAccount(ACCT_ID);
+	
+	if (NULL == pAccount)
+	{
+		OTLog::Output(0, "There is no account in the wallet with that ID.\n");
+		
+		return false;
+	}
+	else 
+	{
+		CONTRACT_ID = pAccount->GetAssetTypeID();
+		CONTRACT_ID.GetString(strContractID);
+	}
+	// -----------------------------------------------------------------
+	// By this point, pNym is a good pointer, and is on the wallet.
+	//  (No need to cleanup.)  pServer and pAccount are also good.
+	// 
+	// -----------------------------------------------------------------
+	const OTString strServerID(SERVER_ID), strNymID(USER_ID);
+	
+	OTCheque theCheque(SERVER_ID, CONTRACT_ID);
+	
+	if (!theCheque.LoadContractFromString(THE_CHEQUE))
+	{
+		OTLog::vOutput(0, "Unable to load cheque from string. Sorry. Cheque contents:\n\n%s\n\n",
+					   THE_CHEQUE.Get());
+		
+		// IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
+		return false;								
+	}
+	else if ((theCheque.GetServerID()		== SERVER_ID) && 
+			 (theCheque.GetAssetID()		== CONTRACT_ID) && 
+			 (theCheque.GetSenderUserID()	== USER_ID) && 
+			 (theCheque.GetSenderAcctID()	== ACCT_ID))
+	{
+		if (pNym->VerifyIssuedNum(strServerID, theCheque.GetTransactionNum())) // we only "add it back" if it was really there in the first place.
+		{
+			pNym->AddTransactionNum(*pNym, strServerID, theCheque.GetTransactionNum(), true); // bSave=true
+			return true;
+		}
+		else // No point adding it back as available to use, if pNym doesn't even have it signed out! 
+		{
+			OTLog::vOutput(0, "OT_API::discardCheque: Failed attempt to claw back a transaction number that wasn't signed "
+						   "out to pNym in the first place. Cheque contents:\n\n%s\n\n", THE_CHEQUE.Get());
+			return false;
+		}
 
-
+	} // bSuccess
+	else 
+	{
+		OTLog::vOutput(0, "Unable to verify cheque's server ID, asset type ID, user ID, or acct ID. Sorry. Cheque contents:\n\n%s\n\n",
+					   THE_CHEQUE.Get());
+	}
+	
+	return false;
+}
 
 
 

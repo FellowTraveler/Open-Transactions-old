@@ -4304,6 +4304,68 @@ XS(_wrap_OT_API_WriteCheque) {
 }
 
 
+XS(_wrap_OT_API_DiscardCheque) {
+  {
+    char *arg1 = (char *) 0 ;
+    char *arg2 = (char *) 0 ;
+    char *arg3 = (char *) 0 ;
+    char *arg4 = (char *) 0 ;
+    int res1 ;
+    char *buf1 = 0 ;
+    int alloc1 = 0 ;
+    int res2 ;
+    char *buf2 = 0 ;
+    int alloc2 = 0 ;
+    int res3 ;
+    char *buf3 = 0 ;
+    int alloc3 = 0 ;
+    int res4 ;
+    char *buf4 = 0 ;
+    int alloc4 = 0 ;
+    int argvi = 0;
+    int result;
+    dXSARGS;
+    
+    if ((items < 4) || (items > 4)) {
+      SWIG_croak("Usage: OT_API_DiscardCheque(SERVER_ID,USER_ID,ACCT_ID,THE_CHEQUE);");
+    }
+    res1 = SWIG_AsCharPtrAndSize(ST(0), &buf1, NULL, &alloc1);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_DiscardCheque" "', argument " "1"" of type '" "char const *""'");
+    }
+    arg1 = reinterpret_cast< char * >(buf1);
+    res2 = SWIG_AsCharPtrAndSize(ST(1), &buf2, NULL, &alloc2);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_DiscardCheque" "', argument " "2"" of type '" "char const *""'");
+    }
+    arg2 = reinterpret_cast< char * >(buf2);
+    res3 = SWIG_AsCharPtrAndSize(ST(2), &buf3, NULL, &alloc3);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OT_API_DiscardCheque" "', argument " "3"" of type '" "char const *""'");
+    }
+    arg3 = reinterpret_cast< char * >(buf3);
+    res4 = SWIG_AsCharPtrAndSize(ST(3), &buf4, NULL, &alloc4);
+    if (!SWIG_IsOK(res4)) {
+      SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OT_API_DiscardCheque" "', argument " "4"" of type '" "char const *""'");
+    }
+    arg4 = reinterpret_cast< char * >(buf4);
+    result = (int)OT_API_DiscardCheque((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+    ST(argvi) = SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(result)); argvi++ ;
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+    if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+    if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+    XSRETURN(argvi);
+  fail:
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+    if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+    if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+    SWIG_croak_null();
+  }
+}
+
+
 XS(_wrap_OT_API_ProposePaymentPlan) {
   {
     char *arg1 = (char *) 0 ;
@@ -32518,6 +32580,7 @@ static swig_command_info swig_commands[] = {
 {"otapic::OT_API_SetServer_Name", _wrap_OT_API_SetServer_Name},
 {"otapic::OT_API_VerifyAndRetrieveXMLContents", _wrap_OT_API_VerifyAndRetrieveXMLContents},
 {"otapic::OT_API_WriteCheque", _wrap_OT_API_WriteCheque},
+{"otapic::OT_API_DiscardCheque", _wrap_OT_API_DiscardCheque},
 {"otapic::OT_API_ProposePaymentPlan", _wrap_OT_API_ProposePaymentPlan},
 {"otapic::OT_API_ConfirmPaymentPlan", _wrap_OT_API_ConfirmPaymentPlan},
 {"otapic::OT_API_Create_SmartContract", _wrap_OT_API_Create_SmartContract},

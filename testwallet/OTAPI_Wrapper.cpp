@@ -688,6 +688,16 @@ const std::string OTAPI_Wrap::WriteCheque(const std::string SERVER_ID,
 							  RECIPIENT_USER_ID.c_str());	
 }
 
+
+bool OTAPI_Wrap::DiscardCheque(const std::string SERVER_ID,
+							   const std::string USER_ID, 
+							   const std::string ACCT_ID, 
+							   const std::string THE_CHEQUE)
+{
+	return (OT_API_DiscardCheque(SERVER_ID.c_str(), USER_ID.c_str(), ACCT_ID.c_str(), THE_CHEQUE.c_str()) == OT_TRUE) ? true : false;
+}
+
+
 // ----------------------------------------------------------------------
 //	const std::string OTAPI_Wrap::ProposePaymentPlan(const std::string SERVER_ID,
 //										   // ----------------------------------------

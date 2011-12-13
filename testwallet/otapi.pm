@@ -110,6 +110,7 @@ package otapi;
 *OT_API_SetServer_Name = *otapic::OT_API_SetServer_Name;
 *OT_API_VerifyAndRetrieveXMLContents = *otapic::OT_API_VerifyAndRetrieveXMLContents;
 *OT_API_WriteCheque = *otapic::OT_API_WriteCheque;
+*OT_API_DiscardCheque = *otapic::OT_API_DiscardCheque;
 *OT_API_ProposePaymentPlan = *otapic::OT_API_ProposePaymentPlan;
 *OT_API_ConfirmPaymentPlan = *otapic::OT_API_ConfirmPaymentPlan;
 *OT_API_Create_SmartContract = *otapic::OT_API_Create_SmartContract;

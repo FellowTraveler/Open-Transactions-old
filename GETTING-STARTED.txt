@@ -107,6 +107,13 @@ port install zmq
 
 ---------------------------------------------------------------
 
+INSTALL: Chaiscript (scripting library)
+
+Available here: 
+http://www.chaiscript.com/
+
+---------------------------------------------------------------
+
 DOWNLOAD OPEN TRANSACTIONS
 
 git clone git://github.com/FellowTraveler/Open-Transactions.git

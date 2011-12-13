@@ -365,6 +365,10 @@ def OT_API_WriteCheque(*args):
   return _otapi.OT_API_WriteCheque(*args)
 OT_API_WriteCheque = _otapi.OT_API_WriteCheque
 
+def OT_API_DiscardCheque(*args):
+  return _otapi.OT_API_DiscardCheque(*args)
+OT_API_DiscardCheque = _otapi.OT_API_DiscardCheque
+
 def OT_API_ProposePaymentPlan(*args):
   return _otapi.OT_API_ProposePaymentPlan(*args)
 OT_API_ProposePaymentPlan = _otapi.OT_API_ProposePaymentPlan

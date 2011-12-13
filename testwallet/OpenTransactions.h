@@ -287,6 +287,13 @@ public:
 						   const OTIdentifier * pRECIPIENT_USER_ID=NULL);
 	
 	// ----------------------------------------------------
+	// DISCARD CHEQUE (recover the transaction number for re-use, so the 
+	// cheque itself can be discarded.)
+
+	bool DiscardCheque(OTIdentifier	& SERVER_ID,
+					   OTIdentifier	& USER_ID,
+					   OTIdentifier	& ACCT_ID,
+					   OTString		& THE_CHEQUE);
 	
 	// PROPOSE PAYMENT PLAN (called by Merchant)
 	//

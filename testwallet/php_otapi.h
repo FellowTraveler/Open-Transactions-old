@@ -101,6 +101,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SetAssetType_Name);
 ZEND_NAMED_FUNCTION(_wrap_OT_API_SetServer_Name);
 ZEND_NAMED_FUNCTION(_wrap_OT_API_VerifyAndRetrieveXMLContents);
 ZEND_NAMED_FUNCTION(_wrap_OT_API_WriteCheque);
+ZEND_NAMED_FUNCTION(_wrap_OT_API_DiscardCheque);
 ZEND_NAMED_FUNCTION(_wrap_OT_API_ProposePaymentPlan);
 ZEND_NAMED_FUNCTION(_wrap_OT_API_ConfirmPaymentPlan);
 ZEND_NAMED_FUNCTION(_wrap_OT_API_Create_SmartContract);

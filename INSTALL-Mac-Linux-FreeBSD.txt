@@ -103,7 +103,14 @@ sudo apt-get install zeromq
 
 etc.
 
-------------------------------------------------------------------------
+---------------------------------------------------------------
+
+INSTALL: Chaiscript (scripting library)
+
+Available here: 
+http://www.chaiscript.com/
+
+---------------------------------------------------------------
 
 XCode NOTES:  These are old, and were moved to the bottom of this file.
 Unless you know/care what Xcode is, then you can ignore them.

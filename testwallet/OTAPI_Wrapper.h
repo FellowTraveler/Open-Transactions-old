@@ -386,6 +386,13 @@ public:
 										 const std::string RECIPIENT_USER_ID);
 	
 	// ----------------------------------------------------------------------
+		
+	static bool DiscardCheque(const std::string SERVER_ID,
+							  const std::string USER_ID, 
+							  const std::string ACCT_ID, 
+							  const std::string THE_CHEQUE);
+	
+	// ----------------------------------------------------------------------
 //	static const std::string ProposePaymentPlan(const std::string SERVER_ID,
 //										   // ----------------------------------------
 //										   const std::string VALID_FROM,	// Default (0 or NULL) == NOW

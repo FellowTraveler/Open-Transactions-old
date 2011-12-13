@@ -86,6 +86,7 @@ public class otapiJNI {
   public final static native int OT_API_SetServer_Name(String jarg1, String jarg2);
   public final static native String OT_API_VerifyAndRetrieveXMLContents(String jarg1, String jarg2);
   public final static native String OT_API_WriteCheque(String jarg1, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6, String jarg7, String jarg8);
+  public final static native int OT_API_DiscardCheque(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native String OT_API_ProposePaymentPlan(String jarg1, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6, String jarg7, String jarg8, String jarg9, String jarg10, String jarg11, String jarg12, String jarg13, String jarg14, String jarg15);
   public final static native String OT_API_ConfirmPaymentPlan(String jarg1, String jarg2, String jarg3, String jarg4, String jarg5);
   public final static native String OT_API_Create_SmartContract(String jarg1, String jarg2, String jarg3, String jarg4);

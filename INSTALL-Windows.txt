@@ -121,6 +121,13 @@ library to Multi-threaded (/MT).
 
 ---------------------------------------------------------------
 
+INSTALL: Chaiscript (scripting library)
+
+Available here: 
+http://www.chaiscript.com/
+
+---------------------------------------------------------------
+
 
 4) Then I had to download these header files:
 http://code.google.com/p/msinttypes/downloads/detail?name=msinttypes-r26.zip&can=2&q=

@@ -416,6 +416,9 @@ class otapiPINVOKE {
   [DllImport("otapi", EntryPoint="CSharp_OT_API_WriteCheque")]
   public static extern string OT_API_WriteCheque(string jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6, string jarg7, string jarg8);
 
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_DiscardCheque")]
+  public static extern int OT_API_DiscardCheque(string jarg1, string jarg2, string jarg3, string jarg4);
+
   [DllImport("otapi", EntryPoint="CSharp_OT_API_ProposePaymentPlan")]
   public static extern string OT_API_ProposePaymentPlan(string jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6, string jarg7, string jarg8, string jarg9, string jarg10, string jarg11, string jarg12, string jarg13, string jarg14, string jarg15);
 

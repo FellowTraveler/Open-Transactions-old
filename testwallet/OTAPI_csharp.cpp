@@ -1331,6 +1331,24 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_WriteCheque(char * jarg1, char * jar
 }
 
 
+SWIGEXPORT int SWIGSTDCALL CSharp_OT_API_DiscardCheque(char * jarg1, char * jarg2, char * jarg3, char * jarg4) {
+  int jresult ;
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  char *arg4 = (char *) 0 ;
+  int result;
+  
+  arg1 = (char *)jarg1; 
+  arg2 = (char *)jarg2; 
+  arg3 = (char *)jarg3; 
+  arg4 = (char *)jarg4; 
+  result = (int)OT_API_DiscardCheque((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+  jresult = result; 
+  return jresult;
+}
+
+
 SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_ProposePaymentPlan(char * jarg1, char * jarg2, char * jarg3, char * jarg4, char * jarg5, char * jarg6, char * jarg7, char * jarg8, char * jarg9, char * jarg10, char * jarg11, char * jarg12, char * jarg13, char * jarg14, char * jarg15) {
   char * jresult ;
   char *arg1 = (char *) 0 ;

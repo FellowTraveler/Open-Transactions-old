@@ -4774,6 +4774,66 @@ fail:
 
 
 SWIGINTERN VALUE
+_wrap_OT_API_DiscardCheque(int argc, VALUE *argv, VALUE self) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  char *arg4 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  int res3 ;
+  char *buf3 = 0 ;
+  int alloc3 = 0 ;
+  int res4 ;
+  char *buf4 = 0 ;
+  int alloc4 = 0 ;
+  int result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 4) || (argc > 4)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
+  }
+  res1 = SWIG_AsCharPtrAndSize(argv[0], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "char const *","OT_API_DiscardCheque", 1, argv[0] ));
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(argv[1], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "char const *","OT_API_DiscardCheque", 2, argv[1] ));
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  res3 = SWIG_AsCharPtrAndSize(argv[2], &buf3, NULL, &alloc3);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), Ruby_Format_TypeError( "", "char const *","OT_API_DiscardCheque", 3, argv[2] ));
+  }
+  arg3 = reinterpret_cast< char * >(buf3);
+  res4 = SWIG_AsCharPtrAndSize(argv[3], &buf4, NULL, &alloc4);
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), Ruby_Format_TypeError( "", "char const *","OT_API_DiscardCheque", 4, argv[3] ));
+  }
+  arg4 = reinterpret_cast< char * >(buf4);
+  result = (int)OT_API_DiscardCheque((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+  vresult = SWIG_From_int(static_cast< int >(result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+  return vresult;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
 _wrap_OT_API_ProposePaymentPlan(int argc, VALUE *argv, VALUE self) {
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
@@ -28030,6 +28090,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_module_function(mOtapi, "OT_API_SetServer_Name", VALUEFUNC(_wrap_OT_API_SetServer_Name), -1);
   rb_define_module_function(mOtapi, "OT_API_VerifyAndRetrieveXMLContents", VALUEFUNC(_wrap_OT_API_VerifyAndRetrieveXMLContents), -1);
   rb_define_module_function(mOtapi, "OT_API_WriteCheque", VALUEFUNC(_wrap_OT_API_WriteCheque), -1);
+  rb_define_module_function(mOtapi, "OT_API_DiscardCheque", VALUEFUNC(_wrap_OT_API_DiscardCheque), -1);
   rb_define_module_function(mOtapi, "OT_API_ProposePaymentPlan", VALUEFUNC(_wrap_OT_API_ProposePaymentPlan), -1);
   rb_define_module_function(mOtapi, "OT_API_ConfirmPaymentPlan", VALUEFUNC(_wrap_OT_API_ConfirmPaymentPlan), -1);
   rb_define_module_function(mOtapi, "OT_API_Create_SmartContract", VALUEFUNC(_wrap_OT_API_Create_SmartContract), -1);

@@ -14,6 +14,7 @@ https://github.com/FellowTraveler/Moneychanger
  * Open-Transactions also implements higher-level, contract-based transactions such as payment plans and markets with trades. The markets on Open-Transactions support market orders, limit orders, fill-or-kill orders, day orders, stop orders, and stop limits, just like trading on a real market. OT also supports basket currencies.
  * All of this is accomplished in such a way that all parties are able to prove, at all times, which transactions have cleared and which instruments are authorized, without having to store their entire transaction history, but instead by merely keeping the last signed receipt. 
  * Without the special mechanism that makes this possible, all parties would otherwise be forced to store all receipts forever, just to prove their story in the event of a dispute. (Any system where parties cannot "prove their story" will eventually break down and fail.) Thankfully, this is not a problem in Open-Transactions, which proves everything using only the last signed receipt.
+ * NEW: Open-Transactions now includes client-side scripting, with full access to the OT API functions, and SMART CONTRACTS (scriptable financial instruments that users can design and activate themselves.)
 
 The real beauty of Open-Transactions is the as-yet-unwritten future of new ideas that you can build with it, and the future liberty and security of your children that you can help to protect by doing so, in a very real and tangible way.
 
@@ -141,6 +142,11 @@ uses a Ricardian-style contract, and all the various instruments,
 data files, and messages resemble PGP-signed XML files. All objects
 serialize to a string.
 
+-- SMART CONTRACTS are now supported (scriptable clauses). These
+make it possible for users to design their own financial instruments,
+without having to change the OT code itself. To read more about this
+concept, see Nick Szabo: http://www.erights.org/smart-contracts/index.html
+
 -- The philosophy of the software is based around the SEPARATION OF
 POWERS (issuers and transaction servers being separate entities --
 See Loom for another example of this.) as well as the DISTRIBUTION
@@ -178,10 +184,6 @@ The intention is for this software to be integrated as many places
 as possible... Games, digital cash wallets, distributed data stores,
 secure voip apps, anonymous bit torrent networks, mixnets,
 remailers, nym servers, etc. There are many other potential uses.
-
-IT IS ONLY BY MAKING THIS SORT OF SOFTWARE PART OF THE FABRIC OF
-OUR INFRASTRUCTURE ITSELF, THAT WE FINALLY ACCOMPLISH ASSURANCE FOR
-OUR POSTERITY. BE WARNED: THE TIME IS SHORT.
 
 This product includes software developed by Ben Laurie for use in
 the Lucre project.
