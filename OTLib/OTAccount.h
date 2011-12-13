@@ -134,8 +134,11 @@
 #include <fstream>
 #include <string>
 
+#ifdef _WIN32
+#include <memory>
+#else
 #include <tr1/memory>
-
+#endif
 
 #include "OTTransactionType.h"
 #include "OTString.h"

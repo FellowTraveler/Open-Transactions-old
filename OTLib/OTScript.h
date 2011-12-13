@@ -131,7 +131,12 @@
 #define __OT_SCRIPT_H__
 
 #include <string>
+
+#ifdef _WIN32
+#include <memory>
+#else
 #include <tr1/memory>
+#endif
 
 #include <chaiscript/chaiscript.hpp>
 

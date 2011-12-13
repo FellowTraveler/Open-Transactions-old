@@ -127,8 +127,12 @@
  **************************************************************/
 
 #include <algorithm>
-//#include <memory>
+
+#ifdef _WIN32
+#include <memory>
+#else
 #include <tr1/memory>
+#endif
 
 //#include <boost/shared_ptr.hpp>
 
