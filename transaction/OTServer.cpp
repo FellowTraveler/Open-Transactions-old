@@ -2639,16 +2639,20 @@ void OTServer::NotarizeTransfer(OTPseudonym & theNym, OTAccount & theFromAccount
 
 			if (true == bSuccessLoadingInbox)
 				bSuccessLoadingInbox	= theToInbox.VerifyAccount(m_nymServer);
-			else
-				bSuccessLoadingInbox	= theToInbox.GenerateLedger(pItem->GetDestinationAcctID(), SERVER_ID, OTLedger::inbox, true); // bGenerateFile=true
+			else 
+				OTLog::Error("OTServer::NotarizeTransfer: Error loading 'to' inbox.\n");
+//			else
+//				bSuccessLoadingInbox	= theToInbox.GenerateLedger(pItem->GetDestinationAcctID(), SERVER_ID, OTLedger::inbox, true); // bGenerateFile=true
 			
 			
 			// --------------------------------------------------------------------
 			
 			if (true == bSuccessLoadingOutbox)
 				bSuccessLoadingOutbox	= theFromOutbox.VerifyAccount(m_nymServer);
-			else
-				bSuccessLoadingOutbox	= theFromOutbox.GenerateLedger(IDFromAccount, SERVER_ID, OTLedger::outbox, true); // bGenerateFile=true
+			else 
+				OTLog::Error("OTServer::NotarizeTransfer: Error loading 'from' outbox.\n");
+//			else
+//				bSuccessLoadingOutbox	= theFromOutbox.GenerateLedger(IDFromAccount, SERVER_ID, OTLedger::outbox, true); // bGenerateFile=true
 			
 			// --------------------------------------------------------------------
 			
@@ -3694,8 +3698,10 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
 				// ...If it loads, verify it. Otherwise, generate it...
 				if (true == bSuccessLoadingInbox)
 					bSuccessLoadingInbox	= theSenderInbox.VerifyAccount(m_nymServer);
-				else
-					bSuccessLoadingInbox	= theSenderInbox.GenerateLedger(SOURCE_ACCT_ID, SERVER_ID, OTLedger::inbox, true); // bGenerateFile=true
+				else 
+					OTLog::Error("OTServer::NotarizeDeposit: Error loading inbox.\n");
+//				else
+//					bSuccessLoadingInbox	= theSenderInbox.GenerateLedger(SOURCE_ACCT_ID, SERVER_ID, OTLedger::inbox, true); // bGenerateFile=true
 				
 				// --------------------------------------------------------------------
 
@@ -4923,7 +4929,7 @@ void OTServer::NotarizeSmartContract(OTPseudonym & theNym, OTAccount & theSource
 				
 				if (false == pContract->SendNoticeToAllParties(m_nymServer, SERVER_ID,
 															   lNewTransactionNumber, 
-															   pContract->GetTransactionNum(),
+//															   pContract->GetTransactionNum(), // Each party has its own opening transaction number. Handled internally.
 															   strInReferenceTo))
 				{
 					OTLog::vOutput(0, "OTServer::NotarizeSmartContract: Failed notifying parties while trying to activate smart contract: %ld.\n", 
@@ -5089,7 +5095,9 @@ void OTServer::NotarizeCancelCronItem(OTPseudonym & theNym, OTAccount & theAsset
                 bool bSuccess = false;
                 
                 if ((NULL != pCronItem) && (pCronItem->CanRemoveItemFromCron(theNym))) // see if theNym has right to remove the cronItem from processing.
-                    bSuccess = m_Cron.RemoveCronItem(lReferenceToNum, theNym); // <=====
+                {
+					bSuccess = m_Cron.RemoveCronItem(pCronItem->GetTransactionNum(), theNym); // <=====
+				}
 
                 // If we were just successful in removing the offer from the market, that means a finalReceipt was
                 // just dropped into the inboxes for the relevant asset accounts. Once I process that receipt out of my
@@ -5100,7 +5108,8 @@ void OTServer::NotarizeCancelCronItem(OTPseudonym & theNym, OTAccount & theAsset
                 {
                     // Now we can set the response item as an acknowledgement instead of the default (rejection)
                     pResponseItem->SetStatus(OTItem::acknowledgement);
-                    OTLog::Output(2, "Successfully removed Cron Item from Cron object.\n");
+                    OTLog::vOutput(2, "Successfully removed Cron Item from Cron object, based on ID: %ld\n", 
+								   (NULL != pCronItem) ? pCronItem->GetTransactionNum() : lReferenceToNum);
                     
                     // Any transaction numbers that need to be cleared, happens inside RemoveCronItem().
                 }
@@ -6876,8 +6885,8 @@ void OTServer::UserCmdTriggerClause(OTPseudonym & theNym, OTMessage & MsgIn, OTM
 	// Also: CAN this guy trigger it?
 	else if (NULL == (pSmartContract = dynamic_cast<OTSmartContract *> (pCronItem)))
 	{   
-		OTLog::vOutput(0, "OTServer::UserCmdTriggerClause: Found cron item, but it wasn't a smart contract. Transaction #: %ld \n",
-						MsgIn.m_lTransactionNum);
+		OTLog::vOutput(0, "OTServer::UserCmdTriggerClause: Found cron item %ld based on %ld, but it wasn't a "
+					   "smart contract. \n", pCronItem->GetTransactionNum(), MsgIn.m_lTransactionNum);
 	}
 	// -----------------------------------------
 	else 
@@ -6888,8 +6897,9 @@ void OTServer::UserCmdTriggerClause(OTPseudonym & theNym, OTMessage & MsgIn, OTM
 
 		if (NULL == pParty)
 		{
-			OTLog::vOutput(0, "OTServer::UserCmdTriggerClause: Unable to find party to this contract (%ld) based on Nym as agent: %s",
-						   pCronItem->GetTransactionNum(), MsgIn.m_strNymID.Get());
+			OTLog::vOutput(0, "OTServer::UserCmdTriggerClause: Unable to find party to this contract (%ld based on %ld) "
+						   "based on Nym as agent: %s", pCronItem->GetTransactionNum(), MsgIn.m_lTransactionNum,
+						   MsgIn.m_strNymID.Get());
 		}
 		else 
 		{
@@ -8319,7 +8329,8 @@ void OTServer::NotarizeProcessInbox(OTPseudonym & theNym, OTAccount & theAccount
                     if (theIDSet.end() != theSetIT) // FOUND IT!
                         theTempClosingNumNym.AddIssuedNum(m_strServerID, pServerTransaction->GetClosingNum()); // Schedule to remove GetClosingNum() from server-side list of Nym's open cron items. (By adding it to theTempClosingNumNym.)
                     else 
-                        OTLog::vError("OTServer::NotarizeProcessInbox: expected to find pServerTransaction->GetClosingNum() (%ld) on Nym's (%s) list of open cron items...\n",
+                        OTLog::vOutput(1, "OTServer::NotarizeProcessInbox: expected to find pServerTransaction->GetClosingNum() (%ld) on Nym's (%s) "
+									   "list of open cron items. (Maybe he didn't see the notice in his Nymbox yet.)\n",
 									  pServerTransaction->GetClosingNum(), strUserID.Get());
                     // else error log.
                 }
@@ -8914,8 +8925,10 @@ void OTServer::NotarizeProcessInbox(OTPseudonym & theNym, OTAccount & theAccount
                                     
                                     if (true == bSuccessLoadingInbox)
                                         bSuccessLoadingInbox	= theFromInbox.VerifyAccount(m_nymServer);
-                                    else
-                                        bSuccessLoadingInbox	= theFromInbox.GenerateLedger(IDFromAccount, SERVER_ID, OTLedger::inbox, true); // bGenerateFile=true
+									else
+										OTLog::Error("ERROR missing 'from' inbox in OTServer::NotarizeProcessInbox.\n");
+//                                  else
+//                                        bSuccessLoadingInbox	= theFromInbox.GenerateLedger(IDFromAccount, SERVER_ID, OTLedger::inbox, true); // bGenerateFile=true
                                     
                                     
                                     // --------------------------------------------------------------------

@@ -883,25 +883,33 @@ bool OTCron::RemoveCronItem(long lTransactionNum, OTPseudonym & theRemover) // i
 OTCronItem * OTCron::GetCronItem(long lTransactionNum)
 {
 	// See if there's something there with that transaction number.
-	mapOfCronItems::iterator ii = m_mapCronItems.find(lTransactionNum);
-	
-	if ( ii == m_mapCronItems.end() )
+	mapOfCronItems::iterator itt = m_mapCronItems.find(lTransactionNum);
+
+	if ( itt == m_mapCronItems.end() )
 	{
-		// nothing found.
-		return NULL;
+		FOR_EACH(mapOfCronItems, m_mapCronItems)
+		{
+			OTCronItem * pItem = (*it).second;
+			OT_ASSERT((NULL != pItem));
+			// ------------------------
+			
+			if (pItem->IsValidOpeningNumber(lTransactionNum))
+//			if (pItem->GetTransactionNum() == lTransactionNum)
+				return pItem;
+//			else 
+//				OTLog::vError("Expected CronItem with transaction number %ld based on number %ld, but "
+//							  "found %ld inside. Bad data?\n", lTransactionNum, pItem->GetTransactionNum(), 
+//							  lTransactionNum);		
+		}
 	}
 	// Found it!
 	else 
 	{
-		OTCronItem * pItem = (*ii).second;
-		
+		OTCronItem * pItem = (*itt).second;
 		OT_ASSERT((NULL != pItem));
+		OT_ASSERT(pItem->IsValidOpeningNumber(lTransactionNum));
 		
-		if (pItem->GetTransactionNum() == lTransactionNum)
-			return pItem;
-		else 
-			OTLog::vError("Expected CronItem with transaction number %ld, but found %ld inside. Bad data?\n",
-						  lTransactionNum, pItem->GetTransactionNum());
+		return pItem;
 	}
 	
 	return NULL;

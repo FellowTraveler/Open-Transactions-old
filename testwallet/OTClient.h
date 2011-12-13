@@ -158,7 +158,17 @@ private:
 	
 	OTMessageBuffer	m_MessageBuffer;
 
+	bool m_bRunningAsScript; // This is used to determine whether to activate certain messages automatically in
+	// the client based on various server replies to previous requests (based on what mode it's being used in...
+	// if we're using the API, then NO auto-messages!) Similarly, if we're using the interpreted script, then NO auto
+	// messages. But if we are using the test client, aka the command line in --prompt mode, and the --script switch
+	// wasn't used to startup, (which would mean we're executing a script) then it's A-Okay to fire those auto messages.
+	
 public:
+	bool IsRunningAsScript() const { return m_bRunningAsScript; }
+	void SetRunningAsScript() { m_bRunningAsScript = true; } // (default is false.)
+	
+	// ------------------------
 	enum OT_CLIENT_CMD_TYPE 
 	{
 		checkServerID,		// Your public key is sent along with this message so the server can reply to 

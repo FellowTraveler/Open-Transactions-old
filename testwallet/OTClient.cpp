@@ -1849,6 +1849,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
 		// Basically just to make the test client easier to use, and possibly to make the API easier for developers
 		// as well (We'll see.)
 #if defined (TEST_CLIENT)
+		if (!IsRunningAsScript())
 		{							
 			OTMessage theMessage;
 			OTAccount * pAccount = NULL;
@@ -1882,40 +1883,43 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
 		// but no longer since balance agreement has now been implemented.)
 
 #if defined (TEST_CLIENT)
-		OTMessage theMessage;
-		
-		static int nLayersDeep = 0; // This creates a quasi-loop to grab 10 more transaction numbers (but not process Nymbox until all 10 are requested first...)
-		
-		if ((nLayersDeep < 10) && (pNym->GetTransactionNumCount(SERVER_ID) < 10))  // If I have less than 10 transaction numbers available, grab 10 more.
+		if (!IsRunningAsScript())
 		{
-			nLayersDeep++;
+			OTMessage theMessage;
 			
-			if (ProcessUserCommand(OTClient::getTransactionNum, theMessage, 
-								   *pNym, 
-//									*(pAssetContract),
-								   *(theConnection.GetServerContract()), 
-								   NULL)) 
+			static int nLayersDeep = 0; // This creates a quasi-loop to grab 10 more transaction numbers (but not process Nymbox until all 10 are requested first...)
+			
+			if ((nLayersDeep < 10) && (pNym->GetTransactionNumCount(SERVER_ID) < 10))  // If I have less than 10 transaction numbers available, grab 10 more.
 			{
+				nLayersDeep++;
+				
+				if (ProcessUserCommand(OTClient::getTransactionNum, theMessage, 
+									   *pNym, 
+//										*(pAssetContract),
+									   *(theConnection.GetServerContract()), 
+									   NULL)) 
+				{
+					// Sign it and send it out.
+					theConnection.ProcessMessageOut(theMessage);
+				}
+				else
+					OTLog::Error("Error processing getTransactionNum command in OTClient::ProcessServerReply\n");
+			
+			}
+			else if (ProcessUserCommand(OTClient::getNymbox, theMessage,  
+										*pNym, 
+//										*(pAssetContract),
+										*(theConnection.GetServerContract()), 
+										NULL)) 
+			{
+				nLayersDeep = 0;
+				
 				// Sign it and send it out.
 				theConnection.ProcessMessageOut(theMessage);
 			}
 			else
-				OTLog::Error("Error processing getTransactionNum command in OTClient::ProcessServerReply\n");
-		
+				OTLog::Error("Error processing getNymbox command in OTClient::ProcessServerReply\n");
 		}
-		else if (ProcessUserCommand(OTClient::getNymbox, theMessage,  
-									*pNym, 
-//									*(pAssetContract),
-									*(theConnection.GetServerContract()), 
-									NULL)) 
-		{
-			nLayersDeep = 0;
-			
-			// Sign it and send it out.
-			theConnection.ProcessMessageOut(theMessage);
-		}
-		else
-			OTLog::Error("Error processing getNymbox command in OTClient::ProcessServerReply\n");
 #endif
 		return true;
 	}
@@ -2909,7 +2913,8 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
 						// Careful in case this might infinite loop  :P
 						
 #if defined (TEST_CLIENT)
-						if ((OTItem::acknowledgement == pReplyItem->GetStatus()) &&
+						if (!IsRunningAsScript() &&
+							(OTItem::acknowledgement == pReplyItem->GetStatus()) &&
 							(theReply.m_strCommand.Compare("@processInbox")))
 						{							
 							OTMessage theMessage;
@@ -3061,7 +3066,8 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
 			// we end up RIGHT HERE, so this is the best place to verify the last signed receipt(s)
 			// against those new files to make sure they pass muster.
 			//
-				AcceptEntireInbox(theInbox, theConnection);
+				if (!IsRunningAsScript())
+					AcceptEntireInbox(theInbox, theConnection);
 #endif
 				OTLog::vOutput(0, "===> ** LAST SIGNED BALANCE RECEIPT *VERIFIED* against latest nym, account, outbox, and/or inbox!\n\n");
 			}
@@ -3071,7 +3077,8 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
 							   "(IF THE ACCOUNT IS NEW, i.e. it's never transacted before, then there IS NOT YET ANY RECEIPT, so this error is normal.)\n");
 				
 #if defined (TEST_CLIENT)
-				AcceptEntireInbox(theInbox, theConnection);
+				if (!IsRunningAsScript())
+					AcceptEntireInbox(theInbox, theConnection);
 #endif	
 			}
 		}
@@ -3111,21 +3118,24 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
 			theOutbox.SaveOutbox();
 			
 #if defined (TEST_CLIENT)
-			OTMessage theMessage;
-			OTAccount * pAccount = NULL;
-			
-			if ( (NULL != (pAccount = m_pWallet->GetAccount(ACCOUNT_ID))) && 
-				ProcessUserCommand(OTClient::getInbox, theMessage, 
-								   *pNym, 
-//								   *(pAssetContract),
-								   *(theConnection.GetServerContract()), 
-								   pAccount)) 
+			if (!IsRunningAsScript())
 			{
-				// Sign it and send it out.
-				theConnection.ProcessMessageOut(theMessage);
+				OTMessage theMessage;
+				OTAccount * pAccount = NULL;
+				
+				if ( (NULL != (pAccount = m_pWallet->GetAccount(ACCOUNT_ID))) && 
+					ProcessUserCommand(OTClient::getInbox, theMessage, 
+									   *pNym, 
+	//								   *(pAssetContract),
+									   *(theConnection.GetServerContract()), 
+									   pAccount)) 
+				{
+					// Sign it and send it out.
+					theConnection.ProcessMessageOut(theMessage);
+				}
+				else
+					OTLog::Error("Error processing getInbox command in OTClient::ProcessServerReply\n");
 			}
-			else
-				OTLog::Error("Error processing getInbox command in OTClient::ProcessServerReply\n");
 #endif
 		}
 		else 
@@ -3648,21 +3658,23 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
 				m_pWallet->SaveWallet(); 
 				
 #if defined (TEST_CLIENT)
-				OTMessage theMessage;
-				
-				if (ProcessUserCommand(OTClient::getOutbox, theMessage, 
-									   *pNym, 
-//									   *(pAssetContract),
-									   *(theConnection.GetServerContract()), 
-									   pAccount)) 
+				if (!IsRunningAsScript())
 				{
-					// Sign it and send it out.
-					theConnection.ProcessMessageOut(theMessage);
+					OTMessage theMessage;
+					
+					if (ProcessUserCommand(OTClient::getOutbox, theMessage, 
+											*pNym, 
+//											*(pAssetContract),
+											*(theConnection.GetServerContract()), 
+											pAccount)) 
+					{
+						// Sign it and send it out.
+						theConnection.ProcessMessageOut(theMessage);
+					}
+					else
+						OTLog::Error("Error processing getOutbox command in OTClient::ProcessServerReply @issueAssetType\n");
 				}
-				else
-					OTLog::Error("Error processing getOutbox command in OTClient::ProcessServerReply @issueAssetType\n");
 #endif			
-				
 				
 				return true;
 			}
@@ -3708,19 +3720,22 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
 				// --------------------------------------------------
 
 #if defined (TEST_CLIENT)
-				OTMessage theMessage;
-				
-				if (ProcessUserCommand(OTClient::getOutbox, theMessage, 
-									   *pNym, 
-//									   *(pAssetContract),
-									   *(theConnection.GetServerContract()), 
-									   pAccount)) 
+				if (!IsRunningAsScript())
 				{
-					// Sign it and send it out.
-					theConnection.ProcessMessageOut(theMessage);
+					OTMessage theMessage;
+					
+					if (ProcessUserCommand(OTClient::getOutbox, theMessage,
+										   *pNym, 
+//											*(pAssetContract),
+										   *(theConnection.GetServerContract()), 
+										   pAccount)) 
+					{
+						// Sign it and send it out.
+						theConnection.ProcessMessageOut(theMessage);
+					}
+					else
+						OTLog::Error("Error processing getOutbox command in OTClient::ProcessServerReply @getAccount\n");
 				}
-				else
-					OTLog::Error("Error processing getOutbox command in OTClient::ProcessServerReply @getAccount\n");
 #endif			
 				// --------------------------------------------------
 				
@@ -3771,19 +3786,22 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
 				m_pWallet->SaveWallet();
 				
 #if defined (TEST_CLIENT)
-				OTMessage theMessage;
-				
-				if (ProcessUserCommand(OTClient::getOutbox, theMessage, 
-									   *pNym, 
-//									   *(pAssetContract),
-									   *(theConnection.GetServerContract()), 
-									   pAccount)) 
+				if (!IsRunningAsScript())
 				{
-					// Sign it and send it out.
-					theConnection.ProcessMessageOut(theMessage);
+					OTMessage theMessage;
+					
+					if (ProcessUserCommand(OTClient::getOutbox, theMessage, 
+										   *pNym, 
+//											*(pAssetContract),
+										   *(theConnection.GetServerContract()), 
+										   pAccount)) 
+					{
+						// Sign it and send it out.
+						theConnection.ProcessMessageOut(theMessage);
+					}
+					else
+						OTLog::Error("Error processing getOutbox command in OTClient::ProcessServerReply @createAccount\n");
 				}
-				else
-					OTLog::Error("Error processing getOutbox command in OTClient::ProcessServerReply @createAccount\n");
 #endif			
 				return true;
 			}
@@ -7868,12 +7886,11 @@ bool OTClient::InitClient(OTWallet & theWallet)
 }
 
 
-OTClient::OTClient()
+
+
+OTClient::OTClient() : m_pWallet(NULL), m_bRunningAsScript(false), m_pConnection(NULL), m_bInitialized(false)
 {
-	m_pConnection	= NULL;
-	m_pWallet		= NULL;
-	
-	m_bInitialized = false;
+
 }
 
 OTClient::~OTClient()

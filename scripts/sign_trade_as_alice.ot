@@ -360,12 +360,12 @@ if (numCountNymAlice >= numCountNeededAlice)
 	if (strSmartContract.size() > 0)
 	{
 		OT_API_Output(0, "\n\n\nAlice wants to use her \"gold\" (first) to buy some \"wheat\" (second) from Bob. (Or whatever the asset types are on the smartcontract template. They must match.)\n")
-		OT_API_Output(0, "Paste Alice's SECOND asset ACCOUNT ID (Alice will RECEIVE to this account, from BOB). Default: [omX3jAVE72e1vAs8OyXmsYWFZdVbkVug1Pk2pONSqPH]: ")
+		OT_API_Output(0, "Paste Alice's SECOND asset ACCOUNT ID (Alice will RECEIVE to this account, from BOB). Default: [A6CcGwNiTtEPQnv7HLUcmf0QFaCGy862pb1SJ3zVqIU]: ")
 		var strAliceSecondAcctID = OT_CLI_ReadLine()
 
 		if (strAliceSecondAcctID.size() < 2)
 		{
-			strAliceSecondAcctID = "omX3jAVE72e1vAs8OyXmsYWFZdVbkVug1Pk2pONSqPH".to_string(); // My default "second account" for testing, from the test data.
+			strAliceSecondAcctID = "A6CcGwNiTtEPQnv7HLUcmf0QFaCGy862pb1SJ3zVqIU".to_string(); // My default "second account" for testing, from the test data.
 		}
 		// CONFIRM A THEORETICAL ACCT BY GIVING IT A REAL ACCT ID. (Alice's second "wheat" account)
 		//

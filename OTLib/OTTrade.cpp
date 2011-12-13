@@ -807,6 +807,23 @@ void OTTrade::onRemovalFromCron()
 }
 
 
+//	GetSenderAcctID()	-- asset account.
+//	GetCurrencyAcctID()	-- currency account.
+
+long OTTrade::GetClosingNumber(const OTIdentifier & theAcctID) const
+{
+	const OTIdentifier & theAssetAcctID		= this->GetSenderAcctID();
+	const OTIdentifier & theCurrencyAcctID	= this->GetCurrencyAcctID();
+	
+	if (theAcctID == theAssetAcctID)
+		return GetAssetAcctClosingNum();
+	else if (theAcctID == theCurrencyAcctID)
+		return GetCurrencyAcctClosingNum();
+	// else...
+	return 0;
+}
+
+// ---------------------------------------------------
 
 
 long OTTrade::GetAssetAcctClosingNum() const

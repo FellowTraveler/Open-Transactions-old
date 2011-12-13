@@ -265,8 +265,8 @@ public:
 	// From OTTrackable (parent class of this)
 	/*
 	 inline long GetTransactionNum() const { return m_lTransactionNum; }
-	 inline const OTIdentifier & GetSenderAcctID()		{ return m_SENDER_ACCT_ID; }
-	 inline const OTIdentifier & GetSenderUserID()		{ return m_SENDER_USER_ID; }
+	 inline const OTIdentifier & GetSenderAcctID() const	{ return m_SENDER_ACCT_ID; }
+	 inline const OTIdentifier & GetSenderUserID() const	{ return m_SENDER_USER_ID; }
 	 */
 	
 	// --------------------------------------------------------------------------
@@ -315,9 +315,15 @@ public:
 
     void    AddClosingTransactionNo(const long & lClosingTransactionNo);
     
-    // HIGHER LEVEL ABSTRACTION:
+    // HIGHER LEVEL ABSTRACTIONS:
     long GetOpeningNum() const;
     long GetClosingNum() const;
+    // ------------------------------------------------------
+	
+	virtual bool IsValidOpeningNumber(const long & lOpeningNum) const;
+	
+    virtual long GetOpeningNumber(const OTIdentifier	& theNymID) const;
+    virtual long GetClosingNumber(const OTIdentifier	& theAcctID) const;
     // ------------------------------------------------------
     
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);

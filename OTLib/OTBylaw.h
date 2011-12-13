@@ -262,6 +262,7 @@ public:
 	void SetNymPointer(OTPseudonym & theNym) { m_pNym = &theNym; }
 	
 	bool IsValidSigner(OTPseudonym & theNym);
+	bool IsValidSignerID(const OTIdentifier & theNymID);
 
 	bool	IsAuthorizingAgentForParty();	// true/false whether THIS agent is the authorizing agent for his party.
 	int		GetCountAuthorizedAccts();		// The number of accounts, owned by this agent's party, that this agent is the authorized agent FOR.
@@ -480,6 +481,7 @@ public:
 	OTAccount * LoadAccount(OTPseudonym & theSignerNym, const OTString & strServerID);
 
 	bool IsAccount(OTAccount & theAccount);
+	bool IsAccountByID(const OTIdentifier & theAcctID) const;
 	// ----------------------------
 	bool VerifyOwnership() const; // I have a ptr to my owner (party), as well as to the actual account. I will ask him to verify whether he actually owns it.
 	bool VerifyAgency(); // I can get a ptr to my agent, and I have one to the actual account. I will ask him to verify whether he actually has agency over it. 
@@ -638,7 +640,7 @@ public:
 	bool SendNoticeToParty(OTPseudonym & theServerNym,
 						   const OTIdentifier & theServerID,
 						   const long & lNewTransactionNumber,
-						   const long & lInReferenceTo,
+//						   const long & lInReferenceTo,  // We use GetOpenTransNo() now.
 						   const OTString & strReference,
 						   OTString * pstrNote=NULL,
 						   OTString * pstrAttachment=NULL);
@@ -695,10 +697,8 @@ public:
     // do those actions otherwise will fail.
     // It's almost a separate kind of party but not worthy of a separate class.
     //	
-	bool HasAgent(OTPseudonym & theNym, OTAgent ** ppAgent=NULL) const; // If Nym is agent for Party, set agent's pointer to Nym and return true.
-    bool HasActiveAgent() const;
-	
-	OTAgent * GetAgent(const std::string & str_agent_name);
+    bool		HasActiveAgent() const;	
+	OTAgent *	GetAgent(const std::string & str_agent_name);
 	
 	int  GetAgentCount() const { return m_mapAgents.size(); }
 	bool AddAgent(OTAgent& theAgent);
@@ -708,7 +708,12 @@ public:
 
 	// If Nym is authorizing agent for Party, set agent's pointer to Nym and return true.
 	//
+	bool HasAgent(OTPseudonym & theNym, OTAgent ** ppAgent=NULL) const; // If Nym is agent for Party, set agent's pointer to Nym and return true.
+	bool HasAgentByNymID(const OTIdentifier & theNymID, OTAgent ** ppAgent=NULL) const;
+	// ------------------------------------
 	bool HasAuthorizingAgent(OTPseudonym & theNym, OTAgent ** ppAgent=NULL) const; 
+	bool HasAuthorizingAgentByNymID(const OTIdentifier & theNymID, OTAgent ** ppAgent=NULL) const; // ppAgent lets you get the agent ptr if it was there.
+	// ------------------------------------
 	
 	// Load the authorizing agent from storage. Set agent's pointer to Nym.
 	//
@@ -748,11 +753,12 @@ public:
 	// by agent name
 	OTPartyAccount * GetAccountByAgent(const std::string & str_agent_name);
 	// by asset acct id
-	OTPartyAccount * GetAccountByID(const OTIdentifier & theAcctID);
+	OTPartyAccount * GetAccountByID(const OTIdentifier & theAcctID) const;
 	
 	// If account is present for Party, set account's pointer to theAccount and return true.
 	//
 	bool HasAccount(OTAccount & theAccount, OTPartyAccount ** ppPartyAccount=NULL) const;
+	bool HasAccountByID(const OTIdentifier & theAcctID, OTPartyAccount ** ppPartyAccount=NULL) const;
 
 	bool VerifyOwnershipOfAccount(const OTAccount & theAccount) const;
 	

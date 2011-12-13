@@ -786,6 +786,77 @@ void OTSmartContract::DeactivateSmartContract() // Called from within script.
 	this->FlagForRemoval(); // Remove it from future Cron processing, please.
 }
 
+// ---------------------------------------------------
+
+// These are from OTScriptable (super-grandparent-class to *this):
+/* ----------------------------------------------------
+OTParty		* GetParty	(const std::string str_party_name);
+OTBylaw		* GetBylaw	(const std::string str_bylaw_name);
+OTClause	* GetClause	(const std::string str_clause_name);
+// ----------------------------------------------------
+OTParty * FindPartyBasedOnNymAsAgent(OTPseudonym & theNym, OTAgent ** ppAgent=NULL);
+OTParty * FindPartyBasedOnNymAsAuthAgent(OTPseudonym & theNym, OTAgent ** ppAgent=NULL);
+OTParty * FindPartyBasedOnAccount(OTAccount & theAccount, OTPartyAccount ** ppPartyAccount=NULL);
+// ----------------------------------------------------
+OTParty * FindPartyBasedOnNymIDAsAgent(const OTIdentifier & theNymID, OTAgent ** ppAgent=NULL);
+OTParty * FindPartyBasedOnNymIDAsAuthAgent(const OTIdentifier & theNymID, OTAgent ** ppAgent=NULL);
+OTParty * FindPartyBasedOnAccountID(const OTIdentifier & theAcctID, OTPartyAccount ** ppPartyAccount=NULL);
+// ----------------------------------------------------
+OTAgent			* GetAgent(const std::string str_agent_name);
+OTPartyAccount	* GetPartyAccount(const std::string str_acct_name);
+OTPartyAccount	* GetPartyAccountByID(const OTIdentifier & theAcctID);
+*/
+// -----------------------------------------------------------------
+
+
+
+bool OTSmartContract::IsValidOpeningNumber(const long & lOpeningNum) const
+{
+	
+	FOR_EACH_CONST(mapOfParties, m_mapParties)
+	{
+		OTParty * pParty = (*it).second;
+		OT_ASSERT(NULL != pParty);
+		// -----------------------------
+		
+		if (pParty->GetOpeningTransNo() == lOpeningNum)
+			return true;
+	}
+		
+	return false;
+}
+
+
+long OTSmartContract::GetOpeningNumber(const OTIdentifier & theNymID) const
+{
+	OTAgent * pAgent = NULL;
+	OTParty * pParty = this->FindPartyBasedOnNymIDAsAgent(theNymID, &pAgent);
+//	OTParty * pParty = this->FindPartyBasedOnNymIDAsAuthAgent(theNymID, &pAgent);
+
+	if (NULL != pParty)
+	{
+		OT_ASSERT_MSG(NULL != pAgent, "OT_ASSERT: NULL != pAgent in OTSmartContract::GetOpeningNumber.\n");
+		
+		return pParty->GetOpeningTransNo();
+	}
+
+	return 0;
+}
+
+
+long OTSmartContract::GetClosingNumber(const OTIdentifier & theAcctID) const
+{
+	OTPartyAccount	* pPartyAcct = this->GetPartyAccountByID(theAcctID); // from OTScriptable.
+
+	if (NULL != pPartyAcct)
+	{
+		return pPartyAcct->GetClosingTransNo();
+	}
+
+	return 0;
+}
+
+
 
 /*
  " 6 minutes	==      360 seconds\n"
@@ -1385,7 +1456,8 @@ bool OTSmartContract::SendANoticeToAllParties()
 		this->SaveContract();
 		
 		const OTString strReference(*this);
-		bDroppedNotice = this->SendNoticeToAllParties(*pServerNym, GetServerID(), lNewTransactionNumber, GetTransactionNum(),
+		bDroppedNotice = this->SendNoticeToAllParties(*pServerNym, GetServerID(), lNewTransactionNumber, 
+													  //GetTransactionNum(), // each party has its own opening number.
 													  strReference); // pstrNote and pstrAttachment aren't used in this case.
 		
 		OTLog::vOutput(0, "OTSmartContract::SendANoticeToAllParties: Dropping notifications into all parties' nymboxes: %s\n",
@@ -1489,7 +1561,8 @@ bool OTSmartContract::SendNoticeToParty(const std::string party_name)
 		
 		const OTString strReference(*this);
 
-		bDroppedNotice = pParty->SendNoticeToParty(*pServerNym, GetServerID(), lNewTransactionNumber, GetTransactionNum(), 
+		bDroppedNotice = pParty->SendNoticeToParty(*pServerNym, GetServerID(), lNewTransactionNumber, 
+												   //GetTransactionNum(), // each party has its own opening trans # and supplies it internally.
 												   strReference);
 
 		OTLog::vOutput(0, "OTSmartContract::SendNoticeToParty: %s dropping notification into party's nymbox: %s\n",
@@ -1725,7 +1798,7 @@ bool OTSmartContract::StashAcctFunds(const std::string from_acct_name, const std
 	this->RetrieveNymPointers(map_Nyms_Already_Loaded);
 
 	
-	OTLog::vError("OTSmartContract::StashAcctFunds: DEBUGGING: lAmount is %ld.\n", lAmount);
+//	OTLog::vError("OTSmartContract::StashAcctFunds: DEBUGGING: lAmount is %ld.\n", lAmount);
 	
 	
 	bool bMoved = this->StashFunds(map_Nyms_Already_Loaded,
@@ -1959,7 +2032,7 @@ bool OTSmartContract::UnstashAcctFunds(const std::string to_acct_name, const std
 	this->RetrieveNymPointers(map_Nyms_Already_Loaded);
 
 	
-	OTLog::vError("OTSmartContract::UnstashAcctFunds: DEBUGGING: lAmount is %ld.\n", lNegativeAmount);
+//	OTLog::vError("OTSmartContract::UnstashAcctFunds: DEBUGGING: lAmount is %ld.\n", lNegativeAmount);
 	
 
 	bool bMoved = this->StashFunds(map_Nyms_Already_Loaded,
@@ -2097,7 +2170,7 @@ bool OTSmartContract::StashFunds(const mapOfNyms	&	map_NymsAlreadyLoaded,
 		OTString strAcctID;
 		pStashAccount->GetIdentifier(strAcctID);
 		
-		OTLog::vOutput(0, "OTSmartContract::StashFunds: Successfully created stash account ID:\n%s\nAsset Type ID:\n%s\n", 
+		OTLog::vOutput(0, "OTSmartContract::StashFunds: Successfully created stash account ID: %s\n (Stash acct has Asset Type ID: %s) \n", 
 					   strAcctID.Get(), strAssetTypeID.Get());
 		
 		// Todo: Some kind of save here?
@@ -2230,7 +2303,7 @@ bool OTSmartContract::StashFunds(const mapOfNyms	&	map_NymsAlreadyLoaded,
 		if (thePartyNym.VerifyPseudonym()	&&
 			thePartyNym.LoadSignedNymfile(*pServerNym)) // ServerNym here is not thePartyNym's identity, but merely the signer on this file.
 		{
-			OTLog::Output(0, "OTSmartContract::StashFunds: Loading party Nym, since he **** APPARENTLY **** wasn't already loaded.\n"
+			OTLog::Output(1, "OTSmartContract::StashFunds: Loading party Nym, since he apparently wasn't already loaded.\n"
 						  "(On a cron item processing, this is normal. But if you triggered a clause directly, then your Nym SHOULD be already loaded...)\n");
 			pPartyNym = &thePartyNym; //  <=====
 		}
@@ -2297,8 +2370,10 @@ bool OTSmartContract::StashFunds(const mapOfNyms	&	map_NymsAlreadyLoaded,
 		
 		if (true == bSuccessLoadingPartyInbox)
 			bSuccessLoadingPartyInbox		= thePartyInbox.VerifyAccount(*pServerNym);
-		else
-			bSuccessLoadingPartyInbox		= thePartyInbox.GenerateLedger(PARTY_ACCT_ID, SERVER_ID, OTLedger::inbox, true); // bGenerateFile=true
+		else 
+			OTLog::Error("OTSmartContract::StashFunds: Failed trying to load party's inbox.\n");
+//			OT_ASSERT_MSG(false, "ASSERT:  TRYING TO GENERATE INBOX IN STASH FUNDS!!!\n");
+//			bSuccessLoadingPartyInbox		= thePartyInbox.GenerateLedger(PARTY_ACCT_ID, SERVER_ID, OTLedger::inbox, true); // bGenerateFile=true
 		// --------------------------------------------------------------------
 		
 		if (false == bSuccessLoadingPartyInbox)
@@ -2334,14 +2409,24 @@ bool OTSmartContract::StashFunds(const mapOfNyms	&	map_NymsAlreadyLoaded,
 			
 			pItemParty->SetStatus(OTItem::rejection); // the default.			
 			
+			// -------------------------------------
+			
+//			const long lPartyTransRefNo	= GetTransactionNum();
+			const long lPartyTransRefNo	= this->GetOpeningNumber(PARTY_USER_ID);
+			
 			// Here I make sure that each receipt (each inbox notice) references the original
-			// transaction number that was used to set the smart contract into place...
+			// transaction number that was used to set the cron item into place...
 			// This number is used to track all cron items. (All Cron items require a transaction 
 			// number from the user in order to add them to Cron in the first place.)
 			// 
 			// The number is also used to uniquely identify all other transactions, as you
 			// might guess from its name.
-			pTransParty->SetReferenceToNum(GetTransactionNum());			
+			//
+			// UPDATE: Notice I'm now looking up a different number based on the UserID.
+			// This is to support smart contracts, which have many parties, agents, and accounts.
+			//
+//			pItemParty->SetReferenceToNum(lPartyTransRefNo);
+			pTransParty->SetReferenceToNum(lPartyTransRefNo);			
 			
 			// The TRANSACTION (a receipt in my inbox) will be sent with "In Reference To" information
             // containing the ORIGINAL SIGNED SMARTCONTRACT. (With all parties' original signatures on it.)
@@ -2604,6 +2689,17 @@ bool OTSmartContract::StashFunds(const mapOfNyms	&	map_NymsAlreadyLoaded,
 			thePartyInbox.SaveContract();
 			// ------------------------------
 			thePartyInbox.SaveInbox();
+			
+			
+			
+			// temp remove todo
+//			OTString strTempDebug(PARTY_ACCT_ID), strTempDebug2(PARTY_USER_ID), strTempDebug3(thePartyInbox);
+//			OTLog::vError("OTSmartContract::StashFunds: Finished saving Inbox with new receipt %ld (re: trans %ld by way of %ld) in it, for account: %s, user: %s. Status: %s\n"
+//						  "INBOX CONTENTS: \n\n%s\n\n", 
+//						  lNewTransactionNumber, GetTransactionNum(), lPartyTransRefNo, strTempDebug.Get(), strTempDebug2.Get(), bSuccess ? "SUCCESS" : "FAILURE",
+//						  strTempDebug3.Get());
+			
+			
 			
 			// If success, save the accounts with new balance. (Save inboxes with receipts either way,
 			// and the receipts will contain a rejection or acknowledgment stamped by the Server Nym.)
@@ -3516,7 +3612,8 @@ void OTSmartContract::ExecuteClauses (mapOfClauses & theClauses)
 			this->SaveContract();
 			
 			const OTString strReference(*this);
-			bool bDroppedNotice = this->SendNoticeToAllParties(*pServerNym, GetServerID(), lNewTransactionNumber, GetTransactionNum(),
+			bool bDroppedNotice = this->SendNoticeToAllParties(*pServerNym, GetServerID(), lNewTransactionNumber,
+															   // GetTransactionNum(), // each party has its own opening trans #.
 															   strReference); // pstrNote and pstrAttachment aren't used in this case.
 			
 			OTLog::vOutput(0, "OTSmartContract::ExecuteClauses: FYI, 'Important' variables were changed "

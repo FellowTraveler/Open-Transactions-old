@@ -159,8 +159,8 @@ public:
 	inline long GetTransactionNum() const { return m_lTransactionNum; }
 	inline void SetTransactionNum(long lTransactionNum) { m_lTransactionNum = lTransactionNum; }
 	
-	inline const OTIdentifier & GetSenderAcctID()		{ return m_SENDER_ACCT_ID; }
-	inline const OTIdentifier & GetSenderUserID()		{ return m_SENDER_USER_ID; }
+	inline const OTIdentifier & GetSenderAcctID() const	{ return m_SENDER_ACCT_ID; }
+	inline const OTIdentifier & GetSenderUserID() const	{ return m_SENDER_USER_ID; }
 	
 	// -----------------------------------------------------------------
 	// From OTInstrument (parent class of OTCronItem, parent class of this)

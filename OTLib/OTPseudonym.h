@@ -294,9 +294,13 @@ public:
 
 	bool SetIdentifierByPubkey();
 	
-    inline bool CompareID(const OTIdentifier & theIdentifier) const 
-        { return (theIdentifier == m_nymID); }
+    bool CompareID(const OTIdentifier & theIdentifier) const 
+	{ return (theIdentifier == m_nymID); }
+	
+    bool CompareID(const OTPseudonym & RHS) const;
     
+	const OTIdentifier & GetConstID() const { return m_nymID; }
+	
 	void GetIdentifier(OTIdentifier & theIdentifier) const;
 	void SetIdentifier(const OTIdentifier & theIdentifier);
 	

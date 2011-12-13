@@ -176,6 +176,7 @@ extern "C"
 #include "OTString.h"
 #include "OTLog.h"
 
+#include "stacktrace.h"
 
 
 // If it MUST output, set the verbosity to 0. Less important logs are
@@ -468,6 +469,9 @@ int OTLog::Assert(const char * szFilename, int nLinenumber, const char * szMessa
 		// -----------------------------
 		LogToFile(szMessage); LogToFile("\n");
 		// -----------------------------
+		
+		print_stacktrace();
+		
 #else // if Android
 		__android_log_write(ANDROID_LOG_FATAL,"OT Assert", szMessage);
 #endif		
@@ -491,6 +495,8 @@ int OTLog::Assert(const char * szFilename, int nLinenumber)
 		LogToFile(strTemp.Get());
 		// -----------------------------
 
+		print_stacktrace();
+		
 #else // if Android
 		OTString strAndroidAssertMsg;
 		strAndroidAssertMsg.Format("\nOT_ASSERT in %s at line %d\n", szFilename, nLinenumber);

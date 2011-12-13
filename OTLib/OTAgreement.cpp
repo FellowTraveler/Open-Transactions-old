@@ -143,6 +143,9 @@
 
 
 
+
+
+
 // Used to be I could just call pAgreement->VerifySignature(theNym), which is what
 // I still call here, inside this function. But that's a special case -- an override
 // from the OTScriptable / OTSmartContract version, which verifies parties and agents, etc.
@@ -393,6 +396,47 @@ void OTAgreement::onFinalReceipt(OTCronItem & theOrigCronItem, const long & lNew
 
 
 
+
+// ---------------------------------------------------
+/*
+ inline const OTIdentifier &	GetRecipientAcctID() const { return m_RECIPIENT_ACCT_ID; }
+ inline const OTIdentifier &	GetRecipientUserID() const { return m_RECIPIENT_USER_ID; }
+ */
+
+
+bool OTAgreement::IsValidOpeningNumber(const long & lOpeningNum) const
+{
+	if (GetRecipientOpeningNum() == lOpeningNum)
+		return true;
+	
+	return OTCronItem::IsValidOpeningNumber(lOpeningNum);
+}
+
+long OTAgreement::GetOpeningNumber(const OTIdentifier & theNymID) const
+{
+	const OTIdentifier & theRecipientNymID = this->GetRecipientUserID();
+	
+	if (theNymID == theRecipientNymID)
+		return GetRecipientOpeningNum();
+	// else...
+	return OTCronItem::GetOpeningNumber(theNymID);
+}
+
+
+// ------------------------------------------------------
+
+long OTAgreement::GetClosingNumber(const OTIdentifier & theAcctID) const
+{
+	const OTIdentifier & theRecipientAcctID = this->GetRecipientAcctID();
+	
+	if (theAcctID == theRecipientAcctID)
+		return GetRecipientClosingNum();
+	// else...
+	return OTCronItem::GetClosingNumber(theAcctID);
+}
+
+// ---------------------------------------------------
+
 long OTAgreement::GetRecipientOpeningNum() const
 {
     return (GetRecipientCountClosingNumbers() > 0) ? GetRecipientClosingTransactionNoAt(0) : 0; // todo stop hardcoding.
@@ -402,6 +446,8 @@ long OTAgreement::GetRecipientClosingNum() const
 {
     return (GetRecipientCountClosingNumbers() > 1) ? GetRecipientClosingTransactionNoAt(1) : 0; // todo stop hardcoding.
 }
+
+// ---------------------------------------------------
 
 
 void OTAgreement::onRemovalFromCron()
@@ -413,6 +459,8 @@ void OTAgreement::onRemovalFromCron()
     
 }
 
+
+// ---------------------------------------------------
 
 
 

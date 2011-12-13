@@ -1358,6 +1358,8 @@ int main(int argc, char* argv[])
 		
         if( opt->getValue( "script" )  != NULL  )
         {
+			g_OT_API.GetClient()->SetRunningAsScript(); // This way it won't go firing off messages automatically based on receiving certain server replies to previous requests.
+			
 			std::string strFilename = opt->getValue( "script" );
 			
 			std::ifstream t(strFilename.c_str(), ios::in | ios::binary);

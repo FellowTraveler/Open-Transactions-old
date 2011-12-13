@@ -585,7 +585,7 @@ bool OTScriptable::ExecuteCallback (OTClause & theCallbackClause, mapOfVariables
 bool OTScriptable::SendNoticeToAllParties(OTPseudonym & theServerNym,
 										  const OTIdentifier & theServerID,
 										  const long & lNewTransactionNumber,
-										  const long & lInReferenceTo,
+//										  const long & lInReferenceTo,	// Each party has its own opening trans #.
 										  const OTString & strReference,
 										  OTString * pstrNote/*=NULL*/,
 										  OTString * pstrAttachment/*=NULL*/)
@@ -598,7 +598,8 @@ bool OTScriptable::SendNoticeToAllParties(OTPseudonym & theServerNym,
 		OT_ASSERT(NULL != pParty);
 		// ------------------
 		
-		if (false == pParty->SendNoticeToParty(theServerNym, theServerID, lNewTransactionNumber, lInReferenceTo, 
+		if (false == pParty->SendNoticeToParty(theServerNym, theServerID, lNewTransactionNumber, 
+//											   lInReferenceTo, // each party has its own opening trans #.
 											   strReference, pstrNote, pstrAttachment))
 			bSuccess = false; // Notice I don't break here -- I still allow it to notice ALL parties, even if one fails.
 	}
@@ -840,6 +841,123 @@ int	OTScriptable::GetCountTransNumsNeededForAgent(const std::string str_agent_na
 	return nReturnVal;
 }
 
+
+
+// ---------------------------------------------------------------------------------	
+
+
+OTPartyAccount * OTScriptable::GetPartyAccount(const std::string str_acct_name)
+{
+	if (false == OTScriptable::ValidateName(str_acct_name)) // this logs, FYI.
+	{
+		OTLog::Error("OTScriptable::GetPartyAccount:  Error: invalid name.\n");
+		return NULL;
+	}
+	// ----------------------------------------
+	
+//	OTLog::vError("DEBUGGING OTScriptable::GetPartyAccount: above loop. str_acct_name: %s \n", str_acct_name.c_str());
+	
+	FOR_EACH(mapOfParties, m_mapParties)
+	{
+		OTParty * pParty = (*it).second;
+		OT_ASSERT(NULL != pParty);
+		// -------------------------
+		
+//		OTLog::vError("DEBUGGING OTScriptable::GetPartyAccount: loop iteration. party name: %s \n", pParty->GetPartyName().c_str());
+		
+		OTPartyAccount * pAcct = pParty->GetAccount(str_acct_name);
+		
+		if (NULL != pAcct) // found it.
+			return pAcct;
+	}
+	
+//	OTLog::Error("DEBUGGING OTScriptable::GetPartyAccount: below loop \n");
+	
+	return NULL;		
+}
+
+
+OTPartyAccount * OTScriptable::GetPartyAccountByID(const OTIdentifier & theAcctID) const
+{
+	FOR_EACH_CONST(mapOfParties, m_mapParties)
+	{
+		OTParty * pParty = (*it).second;
+		OT_ASSERT(NULL != pParty);
+		// -------------------------
+		
+		OTPartyAccount * pAcct = pParty->GetAccountByID(theAcctID);
+		
+		if (NULL != pAcct) // found it.
+			return pAcct;
+	}
+	
+	return NULL;			
+}
+
+
+/*
+ bool HasAgent(OTPseudonym & theNym, OTAgent ** ppAgent=NULL) const; // If Nym is agent for Party, set agent's pointer to Nym and return true.
+ bool HasAgentByNymID(OTIdentifier & theNymID, OTAgent ** ppAgent=NULL) const;
+ // ------------------------------------
+ bool HasAuthorizingAgent(OTPseudonym & theNym, OTAgent ** ppAgent=NULL) const; 
+ bool HasAuthorizingAgentByNymID(OTIdentifier & theNymID, OTAgent ** ppAgent=NULL) const; // ppAgent lets you get the agent ptr if it was there.
+ // ------------------------------------ 
+ */
+
+/*
+OTParty * FindPartyBasedOnNymIDAsAgent(const OTIdentifier & theNymID, OTAgent ** ppAgent=NULL);
+OTParty * FindPartyBasedOnNymIDAsAuthAgent(const OTIdentifier & theNymID, OTAgent ** ppAgent=NULL);
+OTParty * FindPartyBasedOnAccountID(const OTIdentifier & theAcctID, OTPartyAccount ** ppPartyAccount=NULL);
+*/
+
+OTParty * OTScriptable::FindPartyBasedOnNymIDAsAgent(const OTIdentifier & theNymID, OTAgent ** ppAgent/*=NULL*/) const
+{
+	FOR_EACH_CONST(mapOfParties, m_mapParties)
+	{
+		OTParty * pParty = (*it).second;
+		OT_ASSERT(NULL != pParty);
+		// -----------------------
+		
+		if (pParty->HasAgentByNymID(theNymID, ppAgent))
+			return pParty;
+	}
+	return NULL;
+}
+
+
+
+OTParty * OTScriptable::FindPartyBasedOnNymIDAsAuthAgent(const OTIdentifier & theNymID, OTAgent ** ppAgent/*=NULL*/)
+{
+	FOR_EACH(mapOfParties, m_mapParties)
+	{
+		OTParty * pParty = (*it).second;
+		OT_ASSERT(NULL != pParty);
+		// -----------------------
+		
+		if (pParty->HasAuthorizingAgentByNymID(theNymID, ppAgent))
+			return pParty;
+	}
+	return NULL;
+}
+
+
+OTParty * OTScriptable::FindPartyBasedOnAccountID(const OTIdentifier & theAcctID, OTPartyAccount ** ppPartyAccount/*=NULL*/)
+{
+	FOR_EACH(mapOfParties, m_mapParties)
+	{
+		OTParty * pParty = (*it).second;
+		OT_ASSERT(NULL != pParty);
+		// -----------------------
+		
+		if (pParty->HasAccountByID(theAcctID, ppPartyAccount))
+		{
+			return pParty;
+		}
+	}
+	return NULL;
+}
+
+// ---------------------------------------------------
 
 OTParty * OTScriptable::FindPartyBasedOnNymAsAgent(OTPseudonym & theNym, OTAgent ** ppAgent/*=NULL*/)
 {
@@ -1244,7 +1362,7 @@ bool OTScriptable::VerifyNymAsAgent(OTPseudonym & theNym,
 		if (NULL != pAuthAgentsNym) // success
 		{
 			OT_ASSERT(NULL != pAuthorizingAgent); // This HAS to be set now. I assume it henceforth.
-			OTLog::vOutput(0, "OTScriptable::VerifyNymAsAgent: I just had to load the authorizing agent's Nym for a party (%s), "
+			OTLog::vOutput(3, "OTScriptable::VerifyNymAsAgent: I just had to load the authorizing agent's Nym for a party (%s), "
 						  "so I guess it wasn't already available on the list of Nyms that were already loaded.\n",
 						   pParty->GetPartyName().c_str());
 			theAgentNymAngel.SetCleanupTarget(*pAuthAgentsNym);  // CLEANUP!!
@@ -1673,37 +1791,6 @@ OTAgent * OTScriptable::GetAgent(const std::string str_agent_name)
 			return pAgent;
 	}
 	
-	return NULL;		
-}
-
-
-OTPartyAccount * OTScriptable::GetPartyAccount(const std::string str_acct_name)
-{
-	if (false == OTScriptable::ValidateName(str_acct_name)) // this logs, FYI.
-	{
-		OTLog::Error("OTScriptable::GetPartyAccount:  Error: invalid name.\n");
-		return NULL;
-	}
-	// ----------------------------------------
-	
-//	OTLog::vError("DEBUGGING OTScriptable::GetPartyAccount: above loop. str_acct_name: %s \n", str_acct_name.c_str());
-	
-	FOR_EACH(mapOfParties, m_mapParties)
-	{
-		OTParty * pParty = (*it).second;
-		OT_ASSERT(NULL != pParty);
-		// -------------------------
-		
-//		OTLog::vError("DEBUGGING OTScriptable::GetPartyAccount: loop iteration. party name: %s \n", pParty->GetPartyName().c_str());
-
-		OTPartyAccount * pAcct = pParty->GetAccount(str_acct_name);
-		
-		if (NULL != pAcct) // found it.
-			return pAcct;
-	}
-	
-//	OTLog::Error("DEBUGGING OTScriptable::GetPartyAccount: below loop \n");
-
 	return NULL;		
 }
 

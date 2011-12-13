@@ -1705,6 +1705,10 @@ bool OTPseudonym::VerifyPseudonym() const
 }
 
 
+bool OTPseudonym::CompareID(const OTPseudonym & RHS) const
+{ 
+	return RHS.CompareID(m_nymID); 
+}
 
 
 

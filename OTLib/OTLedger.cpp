@@ -158,6 +158,8 @@ using namespace io;
 #include "OTLog.h"
 
 
+#include "stacktrace.h"
+
 
 
 
@@ -239,7 +241,19 @@ bool OTLedger::LoadGeneric(OTLedger::ledgerType theType)
 
 bool OTLedger::LoadInbox()
 {
-	return LoadGeneric(OTLedger::inbox);	
+//	OTString strTempBlah;
+//	GetIdentifier(strTempBlah);
+//	OTLog::vError("OTLedger::LoadInbox: DEBUGGING: LOADING INBOX for account: %s \n STACKTRACE:\n\n",
+//				  strTempBlah.Get());
+//	
+//	print_stacktrace();
+	
+	bool bRetVal = LoadGeneric(OTLedger::inbox);
+	
+//	OTLog::vError("OTLedger::LoadInbox: CONTINUED DEBUGGING: Number of transactions in the Inbox: %d\n\n",
+//				  GetTransactionCount());
+
+	return bRetVal;
 }
 
 //TODO really should verify the ServerID after loading the ledger.
@@ -307,6 +321,18 @@ bool OTLedger::SaveGeneric(OTLedger::ledgerType theType)
 // If you're going to save this, make sure you sign it first.
 bool OTLedger::SaveInbox()
 {
+	
+//	OTString strTempBlah, strTempBlah2(*this);
+//	GetIdentifier(strTempBlah);
+//	OTLog::vError("OTLedger::SaveInbox: DEBUGGING: SAVING INBOX for account: %s, number of transactions currently in the inbox: %d \n\n STACK TRACE:\n\n",
+//				  strTempBlah.Get(), GetTransactionCount());
+//
+//	print_stacktrace();
+	
+//	OTLog::vError("OTLedger::SaveInbox: (CONTINUED DEBUGGING):  INBOX CONTENTS: \n\n%s\n\n",
+//				  strTempBlah2.Get());
+
+	
 	if (m_Type != OTLedger::inbox)
 	{
 		OTLog::Error("Wrong ledger type passed to OTLedger::SaveInbox.\n");
@@ -359,7 +385,7 @@ OTLedger * OTLedger::GenerateLedger(const OTIdentifier & theUserID, const OTIden
 bool OTLedger::GenerateLedger(const OTIdentifier & theAcctID, 
 							  const OTIdentifier & theServerID, const ledgerType theType,
 							  bool bCreateFile/*=false*/)
-{
+{	
 	// First we set the "Safe" ID and try to load the file, to make sure it doesn't already exist.
 	OTString strID(theAcctID);
 	
@@ -371,6 +397,16 @@ bool OTLedger::GenerateLedger(const OTIdentifier & theAcctID,
 		case OTLedger::inbox:
 			m_strFoldername = OTLog::InboxFolder();
 			m_strFilename = strID.Get();
+			
+//			
+//		{ // TEMP REMOVE TODO
+//			OTString strTempBlah(theAcctID);
+//			OTLog::vError("OTLedger::GenerateLedger: DEBUGGING: GENERATING Inbox ledger for account: %s \n ",
+//						  strTempBlah.Get());			
+//		}
+//			
+//			
+			
 			break;
 		case OTLedger::outbox:
 			m_strFoldername = OTLog::OutboxFolder();

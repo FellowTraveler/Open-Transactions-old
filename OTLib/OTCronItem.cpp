@@ -628,19 +628,23 @@ bool OTCronItem::MoveFunds(const mapOfNyms	  & map_NymsAlreadyLoaded,
 		if (true == bSuccessLoadingSenderInbox)
 			bSuccessLoadingSenderInbox		= theSenderInbox.VerifyAccount(*pServerNym);
 		else
-			bSuccessLoadingSenderInbox		= theSenderInbox.GenerateLedger(SOURCE_ACCT_ID, SERVER_ID, OTLedger::inbox, true); // bGenerateFile=true
+			OTLog::Error("OTCronItem::MoveFunds: ERROR loading sender inbox ledger.\n");
+//		else
+//			bSuccessLoadingSenderInbox		= theSenderInbox.GenerateLedger(SOURCE_ACCT_ID, SERVER_ID, OTLedger::inbox, true); // bGenerateFile=true
 		
 		if (true == bSuccessLoadingRecipientInbox)
 			bSuccessLoadingRecipientInbox	= theRecipientInbox.VerifyAccount(*pServerNym);
 		else
-			bSuccessLoadingRecipientInbox	= theRecipientInbox.GenerateLedger(RECIPIENT_ACCT_ID, SERVER_ID, OTLedger::inbox, true); // bGenerateFile=true
+			OTLog::Error("OTCronItem::MoveFunds: ERROR loading recipient inbox ledger.\n");
+//		else
+//			bSuccessLoadingRecipientInbox	= theRecipientInbox.GenerateLedger(RECIPIENT_ACCT_ID, SERVER_ID, OTLedger::inbox, true); // bGenerateFile=true
 		
 		// --------------------------------------------------------------------
 		
 		if ((false == bSuccessLoadingSenderInbox)	|| 
 			(false == bSuccessLoadingRecipientInbox))
 		{
-			OTLog::Error("OTCronItem::MoveFunds: ERROR loading or generating inbox ledger.\n");
+			OTLog::Error("OTCronItem::MoveFunds: ERROR loading or generating one (or both) of the inbox ledgers.\n");
 		}
 		else 
 		{
@@ -680,31 +684,51 @@ bool OTCronItem::MoveFunds(const mapOfNyms	  & map_NymsAlreadyLoaded,
 			pItemRecip->SetStatus(OTItem::rejection); // the default.
 			
 			
+			
+			/* (from above)
+			OTString	strSenderUserID(SENDER_USER_ID), strRecipientUserID(RECIPIENT_USER_ID),
+						strSourceAcctID(SOURCE_ACCT_ID), strRecipientAcctID(RECIPIENT_ACCT_ID),
+						strServerNymID(SERVER_USER_ID);
+			
+			 // ------------------------------------------------------
+			 // (from OTCronItem.h)
+			 virtual long GetOpeningNumber(OTIdentifier	& theNymID) const;
+			 virtual long GetClosingNumber(OTIdentifier	& theAcctID) const;
+			 // ------------------------------------------------------ */
+			 //
+//			const long lTransSendRefNo	= GetTransactionNum();
+//			const long lTransRecipRefNo	= GetTransactionNum();
+			const long lTransSendRefNo	= this->GetOpeningNumber(SENDER_USER_ID);
+			const long lTransRecipRefNo	= this->GetOpeningNumber(RECIPIENT_USER_ID);
+			
 			// Here I make sure that each receipt (each inbox notice) references the original
-			// transaction number that was used to set the payment plan into place...
+			// transaction number that was used to set the cron item into place...
 			// This number is used to track all cron items. (All Cron items require a transaction 
 			// number from the user in order to add them to Cron in the first place.)
 			// 
 			// The number is also used to uniquely identify all other transactions, as you
 			// might guess from its name.
-			pTransSend->SetReferenceToNum(GetTransactionNum());
-			pTransRecip->SetReferenceToNum(GetTransactionNum());
-			
+			//
+			// UPDATE: Notice I'm now looking up different numbers based on the UserIDs.
+			// This is to support smart contracts, which have many parties, agents, and accounts.
+			//
+//			pItemSend->SetReferenceToNum(lTransSendRefNo);
+			pTransSend->SetReferenceToNum(lTransSendRefNo);
+			// ----------------------------------------------
+//			pItemRecip->SetReferenceToNum(lTransRecipRefNo);
+			pTransRecip->SetReferenceToNum(lTransRecipRefNo);
+			// --------------------------------------------------------
 			
 			// The TRANSACTION (a receipt in my inbox) will be sent with "In Reference To" information
-            // containing the ORIGINAL SIGNED PLAN. (With both parties' original signatures on it.)
+            // containing the ORIGINAL SIGNED CRON ITEM. (With both parties' original signatures on it.)
 			//
 			// Whereas the TRANSACTION ITEM will include an "attachment" containing the UPDATED
-			// PLAN (this time with the SERVER's signature on it.)
+			// CRON ITEM (this time with the SERVER's signature on it.)
 			//
 			// Here's the original one going onto the transaction:
 			//
 			pTransSend->SetReferenceString(strOrigPlan);
-			pTransRecip->SetReferenceString(strOrigPlan);
-			
-			
-			
-			
+			pTransRecip->SetReferenceString(strOrigPlan);			
 			
 			// --------------------------------------------------------------------------
 			
@@ -1380,6 +1404,42 @@ long OTCronItem::GetClosingNum() const
     return (GetCountClosingNumbers() > 0) ? GetClosingTransactionNoAt(0) : 0; // todo stop hardcoding.
 }
 
+// -------------------------------------
+
+
+/*
+ inline const OTIdentifier & GetSenderAcctID()		{ return m_SENDER_ACCT_ID; }
+ inline const OTIdentifier & GetSenderUserID()		{ return m_SENDER_USER_ID; }
+ */
+
+bool OTCronItem::IsValidOpeningNumber(const long & lOpeningNum) const
+{
+	if (GetOpeningNum() == lOpeningNum)
+		return true;
+	
+	return false;
+}
+
+long OTCronItem::GetOpeningNumber(const OTIdentifier & theNymID) const
+{
+	const OTIdentifier & theSenderNymID = this->GetSenderUserID();
+	
+	if (theNymID == theSenderNymID)
+		return GetOpeningNum();
+	
+	return 0;
+}
+
+
+long OTCronItem::GetClosingNumber(const OTIdentifier & theAcctID) const
+{
+	const OTIdentifier & theSenderAcctID = this->GetSenderAcctID();
+	
+	if (theAcctID == theSenderAcctID)
+		return GetClosingNum();
+	
+	return 0;
+}
 
 
 // This function is overridden in OTTrade, OTAgreement, and OTSmartContract.
@@ -1388,7 +1448,8 @@ long OTCronItem::GetClosingNum() const
 //
 // This is called by HookRemovalFromCron().
 //
-void OTCronItem::onFinalReceipt(OTCronItem & theOrigCronItem, const long & lNewTransactionNumber,
+void OTCronItem::onFinalReceipt(OTCronItem & theOrigCronItem, 
+								const long & lNewTransactionNumber,
                                 OTPseudonym & theOriginator,
                                 OTPseudonym * pRemover) // may already point to theOriginator... or someone else...
 {
@@ -1415,8 +1476,10 @@ void OTCronItem::onFinalReceipt(OTCronItem & theOrigCronItem, const long & lNewT
     // Second, we're verifying the CLOSING number, and using it as the closing number
     // on the FINAL RECEIPT (with that receipt being "InReferenceTo" this->GetTransactionNum())
     //
-    const long lOpeningNumber = theOrigCronItem.GetTransactionNum();
-    const long lClosingNumber = (theOrigCronItem.GetCountClosingNumbers() > 0) ? theOrigCronItem.GetClosingTransactionNoAt(0) : 0;
+    const long lOpeningNumber = theOrigCronItem.GetOpeningNum();
+    const long lClosingNumber = theOrigCronItem.GetClosingNum();
+//  const long lOpeningNumber = theOrigCronItem.GetTransactionNum();
+//  const long lClosingNumber = (theOrigCronItem.GetCountClosingNumbers() > 0) ? theOrigCronItem.GetClosingTransactionNoAt(0) : 0;
 
     const OTString strServerID(GetServerID());
 
@@ -1559,8 +1622,11 @@ bool OTCronItem::DropFinalReceiptToInbox(const OTIdentifier & USER_ID,
     
     if (true == bSuccessLoading)
         bSuccessLoading		= theInbox.VerifyAccount(*pServerNym);
-    else
-		bSuccessLoading		= theInbox.GenerateLedger(ACCOUNT_ID, GetServerID(), OTLedger::inbox, true); // bGenerateFile=true
+	else
+		OTLog::Error("OTCronItem::DropFinalReceiptToInbox: ERROR loading inbox ledger.\n");
+//		OTLog::Error("OTCronItem::DropFinalReceiptToInbox: ERROR loading inbox ledger.\n");
+//  else
+//		bSuccessLoading		= theInbox.GenerateLedger(ACCOUNT_ID, GetServerID(), OTLedger::inbox, true); // bGenerateFile=true
     
     // --------------------------------------------------------------------
     
@@ -1595,7 +1661,11 @@ bool OTCronItem::DropFinalReceiptToInbox(const OTIdentifier & USER_ID,
         // (All Cron items require a transaction from the user to add them to Cron in the
         // first place.)
         // 
-        pTrans1->SetReferenceToNum(GetTransactionNum());
+		const long lOpeningNum = GetOpeningNumber(USER_ID);
+		
+//        pItem1->SetReferenceToNum(lOpeningNum);
+        pTrans1->SetReferenceToNum(lOpeningNum);
+//      pTrans1->SetReferenceToNum(GetOpeningNum());
         // -------------------------------------------------
         // The reference on the transaction contains an OTCronItem, in this case.
         // The original cron item, versus the updated cron item (which is stored
@@ -1603,7 +1673,12 @@ bool OTCronItem::DropFinalReceiptToInbox(const OTIdentifier & USER_ID,
         //
         pTrans1->SetReferenceString(strOrigCronItem);
         // --------------------------------------------
+//        pItem1->SetClosingNum(lClosingNumber); // This transaction is the finalReceipt for GetTransactionNum(), as lClosingNumber.
         pTrans1->SetClosingNum(lClosingNumber); // This transaction is the finalReceipt for GetTransactionNum(), as lClosingNumber.
+		//
+		// NOTE: I COULD look up the closing number by doing a call to this->GetClosingNumber(ACCOUNT_ID);
+		// But that is already taken care of where it matters, and passed in here properly already, so it 
+		// would be superfluous.
         // -----------------------------------------------------------------
         // The finalReceipt ITEM's NOTE contains the UPDATED CRON ITEM.
         //
@@ -1686,8 +1761,10 @@ bool OTCronItem::DropFinalReceiptToNymbox(const OTIdentifier & USER_ID,
     
     if (true == bSuccessLoading)
         bSuccessLoading		= theLedger.VerifyAccount(*pServerNym);
-    else
-		bSuccessLoading		= theLedger.GenerateLedger(USER_ID, GetServerID(), OTLedger::nymbox, true); // bGenerateFile=true
+	else
+		OTLog::Error("OTCronItem::DropFinalReceiptToNymbox: Unable to load Nymbox.\n");
+//    else
+//		bSuccessLoading		= theLedger.GenerateLedger(USER_ID, GetServerID(), OTLedger::nymbox, true); // bGenerateFile=true
     
     // --------------------------------------------------------------------
     
@@ -1719,21 +1796,35 @@ bool OTCronItem::DropFinalReceiptToNymbox(const OTIdentifier & USER_ID,
         
         // -------------------------------------------------------------
         //
+//      const long lOpeningNumber = GetTransactionNum(); // Notice I'm actually putting the opening # here...
+//
+        const long lOpeningNumber = GetOpeningNumber(USER_ID);
+
         // Here I make sure that the receipt (the nymbox notice) references the
         // transaction number that the trader originally used to issue the cron item...
         // This number is used to match up offers to trades, and used to track all cron items.
         // (All Cron items require a transaction from the user to add them to Cron in the
         // first place.)
         // 
-        pTransaction->SetReferenceToNum(GetTransactionNum());
+//        pItem1->SetReferenceToNum(lOpeningNumber);	// Notice this same number is set twice (again just below), so might be an opportunity to store something else in one of them.
+        pTransaction->SetReferenceToNum(lOpeningNumber);	// Notice this same number is set twice (again just below), so might be an opportunity to store something else in one of them.
+
         // -------------------------------------------------
         // The reference on the transaction contains an OTCronItem, in this case.
         // The original cron item, versus the updated cron item (which is stored
         // on the finalReceipt item just below here.)
         //
         pTransaction->SetReferenceString(strOrigCronItem);
+		
         // --------------------------------------------
-        pTransaction->SetClosingNum(GetTransactionNum()); // This transaction is the finalReceipt for GetTransactionNum(). (Which is also the original transaction number.)
+		
+		// Normally in the Inbox, the "Closing Num" is set to the closing number, in reference to the opening number. (on a finalReceipt)
+		// But in the NYMBOX, we are sending the Opening Number in that spot. The purpose is so the client side will know not to use that
+		// opening number as a valid transaction # in its transaction statements and balance statements, since the number is now gone.
+		// Otherwise the Nym wouldn't know any better, and he'd keep signing for it, and therefore his balance agreements would start to fail.
+		//
+//		pItem1->SetClosingNum(lOpeningNumber); // This transaction is the finalReceipt for GetTransactionNum(). (Which is also the original transaction number.)
+		pTransaction->SetClosingNum(lOpeningNumber); // This transaction is the finalReceipt for GetTransactionNum(). (Which is also the original transaction number.)
         
         // -----------------------------------------------------------------
         // The finalReceipt ITEM's NOTE contains the UPDATED CRON ITEM.
@@ -1789,7 +1880,7 @@ bool OTCronItem::DropFinalReceiptToNymbox(const OTIdentifier & USER_ID,
 
 
 
-
+// ****************************************************************
 
 
 
@@ -1807,8 +1898,8 @@ void OTCronItem::HarvestOpeningNumber(OTPseudonym & theNym)
     {
         const OTString strServerID(GetServerID());
 		
-		if (theNym.VerifyIssuedNum(strServerID, GetTransactionNum())) // we only "add it back" if it was really there in the first place.
-			theNym.AddTransactionNum(theNym, strServerID, GetTransactionNum(), true); // bSave=true
+		if (theNym.VerifyIssuedNum(strServerID, GetOpeningNum())) // we only "add it back" if it was really there in the first place.
+			theNym.AddTransactionNum(theNym, strServerID, GetOpeningNum(), true); // bSave=true
     }
 }
 

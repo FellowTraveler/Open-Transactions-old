@@ -335,12 +335,12 @@ var bSuccess = false;
 if (numCountNymBob >= numCountNeededBob)
 {
 	OT_API_Output(0, "\n\n\nAlice used her \"gold\" (first) to buy some \"wheat\" (second) from Bob (You.) (Or whatever the asset types are on the smartcontract template. They must match.)\n")
-	OT_API_Output(0, "Paste Bob's FIRST asset ACCOUNT ID (Bob will RECEIVE to this account, from Alice). Default: [pFPRBfwtq0cXHgQVdbv0TZZOUlP3exSta4hBZNvVub8]: ")
+	OT_API_Output(0, "Paste Bob's FIRST asset ACCOUNT ID (Bob will RECEIVE to this account, from Alice). Default: [w06QIURsSDV7sdWWvyPSxRaiv4T2MUQbJyWmIKxSmuL]: ")
 	var strBobFirstAcctID = OT_CLI_ReadLine()
 
 	if (strBobFirstAcctID.size() < 2)
 	{
-		strBobFirstAcctID = "pFPRBfwtq0cXHgQVdbv0TZZOUlP3exSta4hBZNvVub8".to_string(); // My default "first account" for testing, from the test data.
+		strBobFirstAcctID = "w06QIURsSDV7sdWWvyPSxRaiv4T2MUQbJyWmIKxSmuL".to_string(); // My default "first account" for testing, from the test data.
 	}
 	
 	OT_API_Output(0, "Confirming Bob's first account...\n")

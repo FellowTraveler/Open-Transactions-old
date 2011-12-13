@@ -3039,7 +3039,13 @@ bool OTTransaction::GetSenderUserIDForDisplay(OTIdentifier & theReturnID)
 //		case OTTransaction::marketReceipt: 
 		case OTTransaction::paymentReceipt: // for paymentPlans AND smartcontracts. (If the smart contract does a payment, it leaves a paymentReceipt...)
         {
-            pCronItem = OTCronItem::NewCronItem(strReference);
+			OTString strUpdatedCronItem;
+			OTItem * pItem = GetItem(OTItem::paymentReceipt);
+			
+			if (NULL != pItem)
+				pItem->GetAttachment(strUpdatedCronItem);
+						
+            pCronItem = OTCronItem::NewCronItem(strUpdatedCronItem);
 			theCronItemAngel.SetCleanupTargetPointer(pCronItem);
 
 			OTSmartContract * pSmart = dynamic_cast<OTSmartContract *>(pCronItem);
@@ -3131,7 +3137,7 @@ bool OTTransaction::GetSenderUserIDForDisplay(OTIdentifier & theReturnID)
 				bSuccess = true;
 			}
 			break;
-		default: // All other types have no amount -- return 0.
+		default: // All other types have no sender user ID -- return false.
 			return false;
 	}
 	
@@ -3155,41 +3161,36 @@ bool OTTransaction::GetRecipientUserIDForDisplay(OTIdentifier & theReturnID)
 //		case OTTransaction::marketReceipt: 
 		case OTTransaction::paymentReceipt: // Used for paymentPlans AND for smart contracts...
         {
-            pCronItem = OTCronItem::NewCronItem(strReference);
+			OTString strUpdatedCronItem;
+			OTItem * pItem = GetItem(OTItem::paymentReceipt);
+			
+			if (NULL != pItem)
+				pItem->GetAttachment(strUpdatedCronItem);
+			
+            pCronItem = OTCronItem::NewCronItem(strUpdatedCronItem);
 			theCronItemAngel.SetCleanupTargetPointer(pCronItem);
-            
-            if (NULL != pCronItem)
-            {                
-                if ( OTTransaction::paymentReceipt	== this->GetType())
-                {
-                    OTPaymentPlan *		pPlan = dynamic_cast<OTPaymentPlan *>(pCronItem);
-					OTSmartContract *	pSmart = dynamic_cast<OTSmartContract *>(pCronItem);
-
-					if (NULL != pSmart) // it's a smart contract
-					{
-						if (!pSmart->GetLastRecipientUserID().Exists())
-							return false;
-						
-						theReturnID.SetString(pSmart->GetLastRecipientUserID());
-						return true;
-					}
-					else if (NULL != pPlan) // it's a payment plan
-                    {
-                        theReturnID = pPlan->GetRecipientUserID();
-                        return true;
-                    }
-					else
-						OTLog::Error("OTTransaction::GetRecipientUserIDForDisplay: cron item is neither a paymentplan nor a smart contract...\n");
-                }
-                else    // must be a marketReceipt. They don't have a "recipient" so I'm putting sender here,
-                        // to see if it works out in the GUI that way. UPDATE: leaving marketReceipt blank for now.
-                {		// (Notice it's commented out above.)
-                    theReturnID = pCronItem->GetSenderUserID();
-                    return true;
-                }
+			
+			OTSmartContract * pSmart = dynamic_cast<OTSmartContract *>(pCronItem);
+			OTPaymentPlan * pPlan = dynamic_cast<OTPaymentPlan *>(pCronItem);
+			
+            if (NULL != pSmart) // if it's a smart contract...
+            {
+				if (!pSmart->GetLastRecipientUserID().Exists())
+					return false;
+				
+				theReturnID.SetString(pSmart->GetLastRecipientUserID());
+                return true;
+            }
+            else if (NULL != pPlan) // else if it is any other kind of cron item...
+            {
+                theReturnID = pPlan->GetRecipientUserID();
+                return true;
             }
             else
+            {
                 OTLog::Error("OTTransaction::GetRecipientUserIDForDisplay: Unable to load Cron Item. Should never happen.\n");
+                return false;
+            }
 
             return false;
         }
@@ -3245,7 +3246,7 @@ bool OTTransaction::GetRecipientUserIDForDisplay(OTIdentifier & theReturnID)
 		}
 			break;
 			
-		default: // All other types have no amount -- return 0.
+		default: // All other types have no recipient user ID -- return false.
 			return false;
 	}
 	
@@ -3270,23 +3271,29 @@ bool OTTransaction::GetSenderAcctIDForDisplay(OTIdentifier & theReturnID)
 
 	switch (GetType()) 
 	{
-		case OTTransaction::marketReceipt: 
+//		case OTTransaction::marketReceipt:
 		case OTTransaction::paymentReceipt:
-        {
-            pCronItem = OTCronItem::NewCronItem(strReference);
+		{
+			OTString strUpdatedCronItem;
+			OTItem * pItem = GetItem(OTItem::paymentReceipt);
+			
+			if (NULL != pItem)
+				pItem->GetAttachment(strUpdatedCronItem);
+			
+            pCronItem = OTCronItem::NewCronItem(strUpdatedCronItem);
 			theCronItemAngel.SetCleanupTargetPointer(pCronItem);
-
+			
 			OTSmartContract * pSmart = dynamic_cast<OTSmartContract *>(pCronItem);
 			
             if (NULL != pSmart) // if it's a smart contract...
-            {				
+            {
 				if (!pSmart->GetLastSenderAcctID().Exists())
 					return false;
 				
 				theReturnID.SetString(pSmart->GetLastSenderAcctID());
                 return true;
             }
-            else if (NULL != pCronItem) // it's any other kind of cron item, probably a payment plan.
+            else if (NULL != pCronItem) // else if it is any other kind of cron item...
             {
                 theReturnID = pCronItem->GetSenderAcctID();
                 return true;
@@ -3294,7 +3301,9 @@ bool OTTransaction::GetSenderAcctIDForDisplay(OTIdentifier & theReturnID)
             else
             {
                 OTLog::Error("OTTransaction::GetSenderAcctIDForDisplay: Unable to load Cron Item. Should never happen.\n");
+                return false;
             }
+			
             return false;
         }
             break;
@@ -3308,7 +3317,7 @@ bool OTTransaction::GetSenderAcctIDForDisplay(OTIdentifier & theReturnID)
             
 			break;
         }
-		default: // All other types have no amount -- return 0.
+		default: // All other types have no sender acct ID -- return false.
 			return false;
 	}
 		
@@ -3386,43 +3395,40 @@ bool OTTransaction::GetRecipientAcctIDForDisplay(OTIdentifier & theReturnID)
 	
 	switch (this->GetType()) 
 	{	
-		case OTTransaction::marketReceipt: 
+//		case OTTransaction::marketReceipt: 
 		case OTTransaction::paymentReceipt:
-        {
-            pCronItem = OTCronItem::NewCronItem(strReference);
+		{
+			OTString strUpdatedCronItem;
+			OTItem * pItem = GetItem(OTItem::paymentReceipt);
+			
+			if (NULL != pItem)
+				pItem->GetAttachment(strUpdatedCronItem);
+			
+            pCronItem = OTCronItem::NewCronItem(strUpdatedCronItem);
 			theCronItemAngel.SetCleanupTargetPointer(pCronItem);
-            
-            if (NULL != pCronItem)
+			
+			OTSmartContract * pSmart = dynamic_cast<OTSmartContract *>(pCronItem);
+			OTPaymentPlan * pPlan = dynamic_cast<OTPaymentPlan *>(pCronItem);
+			
+            if (NULL != pSmart) // if it's a smart contract...
             {
-                if (OTTransaction::paymentReceipt == this->GetType())
-                {
-                    OTPaymentPlan *		pPlan	= dynamic_cast<OTPaymentPlan *>(pCronItem);
-					OTSmartContract *	pSmart	= dynamic_cast<OTSmartContract *>(pCronItem);
-					
-					if (NULL != pSmart) // if it's a smart contract...
-					{
-						if (!pSmart->GetLastRecipientAcctID().Exists())
-							return false;
-						
-						theReturnID.SetString(pSmart->GetLastRecipientAcctID());
-						return true;
-					}
-                    else if (NULL != pPlan) // else it must be a payment plan.
-                    {
-                        theReturnID = pPlan->GetRecipientAcctID();
-                        return true;
-                    }
-                }
-                else    // must be a marketReceipt. They don't have a "recipient" so I'm putting the sender here,
-                    // to see if it works out in the GUI that way.
-                {
-                    theReturnID = pCronItem->GetSenderAcctID();
-                    return true;
-                }
+				if (!pSmart->GetLastRecipientAcctID().Exists())
+					return false;
+				
+				theReturnID.SetString(pSmart->GetLastRecipientAcctID());
+                return true;
+            }
+            else if (NULL != pPlan) // else if it is any other kind of cron item...
+            {
+                theReturnID = pPlan->GetRecipientAcctID();
+                return true;
             }
             else
-                OTLog::Error("OTTransaction::GetRecipientAcctIDForDisplay: Unable to load Cron Item. Should never happen.\n");
-
+            {
+                OTLog::Error("OTTransaction::GetSenderAcctIDForDisplay: Unable to load Cron Item. Should never happen.\n");
+                return false;
+            }
+			
             return false;
         }
             break; // this break never actually happens. Above always returns, if triggered.

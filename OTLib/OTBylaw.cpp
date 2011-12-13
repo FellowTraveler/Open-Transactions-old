@@ -248,90 +248,6 @@ bool OTParty::SignContract(OTContract & theInput)
 }
 
 
-bool OTAgent::DropFinalReceiptToInbox(mapOfNyms * pNymMap,
-									  const OTString & strServerID,
-									  OTPseudonym & theServerNym,
-									  OTSmartContract & theSmartContract,
-									  const OTIdentifier & theAccountID,
-									  const long & lNewTransactionNumber,
-									  const long & lClosingNumber,
-									  const OTString & strOrigCronItem,
-									  OTString * pstrNote/*=NULL*/,
-									  OTString * pstrAttachment/*=NULL*/)
-{
-	// TODO: When entites and ROLES are added, this function may change a bit to accommodate them.
-	
-	OTIdentifier theAgentNymID;
-	bool bNymID = this->GetNymID(theAgentNymID);
-	
-	// Not all agents have Nyms. (Might be a voting group.)
-	// But in the case of Inboxes for asset accounts, shouldn't the agent be a Nym?
-	// Perhaps not... perhaps not... we shall see.
-	
-	if (true == bNymID) // therefore IsAnIndividual() is definitely true.
-	{
-		OTPseudonym *	pNym		= NULL;
-		OTCleanup<OTPseudonym> theNymAngel;
-		
-		// -------------------------------------------------
-		// If a list of pre-loaded Nyms was passed in, see if one of them is ours.
-		//
-		if (NULL != pNymMap)
-		{
-			const OTString	strNymID	(theAgentNymID);
-			OT_ASSERT(strNymID.Exists());
-			
-			mapOfNyms::iterator ittt = pNymMap->find(strNymID.Get());
-			
-			if (pNymMap->end() != ittt) // found it!
-			{
-				pNym = (*ittt).second;
-				OT_ASSERT(NULL != pNym);
-			}
-		}
-		// -------------------------------------------------
-		
-		if (NULL == pNym) // It wasn't on the list of already-loaded nyms that was passed in, so we have to load it.
-		{
-			// By this point we also know that pNym is NOT the server Nym, nor is it the
-			// Originator, nor pActingNym, nor pPartyNym, as they were all loaded already and
-			// were added to pNymMap, yet we didn't find the Nym we were looking for among them.
-			//
-			// (Therefore this is some new Nym, and doesn't need to be verified against those Nyms again,
-			// before loading it. Let's load it up!)
-			//
-			if (NULL == (pNym = this->LoadNym(theServerNym)))
-				OTLog::Error("OTAgent::DropFinalReceiptToInbox: Failed loading Nym.\n");
-			else
-				theNymAngel.SetCleanupTarget(*pNym); // CLEANUP  :-)
-		}
-		// ************************************************************
-
-		// I call this because LoadNym sets my internal Nym pointer to pNym, and then
-		// it goes out of scope before the end of this function and gets cleaned-up.
-		// Therefore, no point in letting this agent continue to point to bad memory...
-		//
-		this->ClearTemporaryPointers();
-		
-		if ( (NULL != pNym) &&
-			 (lClosingNumber > 0) &&
-			 pNym->VerifyIssuedNum(strServerID, lClosingNumber)) // <====================
-		{
-			return theSmartContract.DropFinalReceiptToInbox(theAgentNymID, theAccountID, 
-															lNewTransactionNumber, lClosingNumber, 
-															strOrigCronItem, pstrNote, pstrAttachment);
-		}
-		else
-			OTLog::Error("OTAgent::DropFinalReceiptToInbox: Error: pNym is NULL, or lClosingNumber <=0, "
-						 "or pNym->VerifyIssuedNum(strServerID, lClosingNumber)) failed to verify.\n");
-	}
-	else
-		OTLog::Error("OTAgent::DropFinalReceiptToInbox: No NymID available for this agent...\n");
-	
-	return false;
-}
-
-
 // Low-level.
 // Caller is responsible to delete.
 // Don't call this unless you're sure the same Nym isn't already loaded, or unless
@@ -613,6 +529,22 @@ bool OTAgent::GetSignerID(OTIdentifier& theOutput) const
 
 
 
+bool OTAgent::IsValidSignerID(const OTIdentifier & theNymID)
+{
+	OTIdentifier theAgentNymID;
+	bool bNymID = this->GetNymID(theAgentNymID);
+	
+	// If there's a NymID on this agent, and it matches theNymID...
+	//
+	if (bNymID && (theNymID == theAgentNymID))		
+		return true;
+	
+	// TODO Entities...
+	//
+	return false;	
+}
+
+
 // See if theNym is a valid signer for this agent.
 // 
 bool OTAgent::IsValidSigner(OTPseudonym & theNym)
@@ -866,6 +798,35 @@ OTPartyAccount::~OTPartyAccount()
 
 
 
+bool OTPartyAccount::IsAccountByID(const OTIdentifier & theAcctID) const
+{
+	if (!m_strAcctID.Exists())
+	{	
+//		OTLog::Error("OTPartyAccount::IsAccountByID: Error: Empty m_strAcctID.\n");
+		return false;
+	}
+	
+	if (!m_strAssetTypeID.Exists())
+	{
+//		OTLog::Error("OTPartyAccount::IsAccountByID: Error: Empty m_strAssetTypeID.\n");
+		return false;
+	}
+	// --------------------------------------------------------
+	const OTIdentifier theMemberAcctID(m_strAcctID);
+	if (!(theAcctID == theMemberAcctID))
+	{
+		OTString strRHS(theAcctID);
+		OTLog::vOutput(4, "OTPartyAccount::IsAccountByID: Account IDs don't match: %s / %s \n", 
+					   m_strAcctID.Get(), strRHS.Get()); // I set output to 4 because it's normal to call IsAccountByID() even when they don't match.
+		return false;
+	}
+	// --------------------------------------------------------
+	// They  match!
+	
+	return true;	
+}
+
+
 bool OTPartyAccount::IsAccount(OTAccount & theAccount)
 {
 	if (!m_strAcctID.Exists())
@@ -902,62 +863,6 @@ bool OTPartyAccount::IsAccount(OTAccount & theAccount)
 	m_pAccount = &theAccount; 
 	return true;
 }
-
-
-
-bool OTPartyAccount::DropFinalReceiptToInbox(mapOfNyms * pNymMap,
-											 const OTString & strServerID,
-											 OTPseudonym & theServerNym,
-											 OTSmartContract & theSmartContract,
-											 const long & lNewTransactionNumber,
-											 const OTString & strOrigCronItem,
-											 OTString * pstrNote/*=NULL*/,
-											 OTString * pstrAttachment/*=NULL*/)
-{
-	if (NULL == m_pForParty)
-	{
-		OTLog::Error("OTPartyAccount::DropFinalReceiptToInbox: NULL m_pForParty.\n");
-		return false;
-	}
-	else if (!m_strAcctID.Exists())
-	{
-		OTLog::Error("OTPartyAccount::DropFinalReceiptToInbox: Empty Acct ID.\n");
-		return false;
-	}
-	else if (!m_strAgentName.Exists())
-	{
-		OTLog::Error("OTPartyAccount::DropFinalReceiptToInbox: No agent named for this account.\n");
-		return false;
-	}
-	// ----------------------------------------
-	
-	// TODO: When entites and roles are added, this function may change a bit to accommodate them.
-
-	// ----------------------------------------
-	
-	const std::string str_agent_name(m_strAgentName.Get());
-	
-	OTAgent * pAgent = m_pForParty->GetAgent(str_agent_name);
-	
-	if (NULL == pAgent)
-		OTLog::Error("OTPartyAccount::DropFinalReceiptToInbox: named agent wasn't found on party.\n");
-	else 
-	{
-		const OTIdentifier theAccountID(m_strAcctID);
-
-		return pAgent->DropFinalReceiptToInbox(pNymMap,
-											   strServerID,
-											   theServerNym,
-											   theSmartContract, theAccountID, // acct ID from this.
-											   lNewTransactionNumber, m_lClosingTransNo, // closing_no from this.
-											   strOrigCronItem, pstrNote, pstrAttachment);
-	}
-	
-	// ------------------------------------------
-		
-	return false;
-}
-
 
 
 
@@ -1528,25 +1433,53 @@ OTPartyAccount * OTParty::GetAccountByAgent(const std::string & str_agent_name)
 
 
 
+// ---------------------------------------------------
+
+
+
 // Get PartyAccount pointer by Acct ID.
 //
 // Returns NULL on failure.
-OTPartyAccount * OTParty::GetAccountByID(const OTIdentifier & theAcctID)
+OTPartyAccount * OTParty::GetAccountByID(const OTIdentifier & theAcctID) const
 {
-	FOR_EACH(mapOfPartyAccounts, m_mapPartyAccounts)
+	FOR_EACH_CONST(mapOfPartyAccounts, m_mapPartyAccounts)
 	{
 		OTPartyAccount * pAcct = (*it).second;
 		OT_ASSERT(NULL != pAcct);
 		// ----------------
-		const OTIdentifier theTempAcctID(pAcct->GetAcctID());
 		
-		if (theTempAcctID == theAcctID)
+		if (pAcct->IsAccountByID(theAcctID))
 			return pAcct;				
 	}
 	
 	return NULL;
 }
 
+
+// ---------------------------------------------------
+
+//bool OTPartyAccount::IsAccountByID(const OTIdentifier & theAcctID) const
+
+// If account is present for Party, return true.
+bool OTParty::HasAccountByID(const OTIdentifier & theAcctID, OTPartyAccount ** ppPartyAccount/*=NULL*/) const
+{
+	FOR_EACH_CONST(mapOfPartyAccounts, m_mapPartyAccounts)
+	{
+		OTPartyAccount * pAcct = (*it).second;
+		OT_ASSERT(NULL != pAcct);
+		// -------------------------------
+		
+		if (pAcct->IsAccountByID(theAcctID))
+		{
+			if (NULL != ppPartyAccount)
+				*ppPartyAccount = pAcct;
+			
+			return true;
+		}
+	}
+	
+	return false;
+}
 
 
 // If account is present for Party, set account's pointer to theAccount and return true.
@@ -1570,6 +1503,7 @@ bool OTParty::HasAccount(OTAccount & theAccount, OTPartyAccount ** ppPartyAccoun
 	return false;
 }
 
+// ---------------------------------------------------
 
 // Find out if theNym is an agent for Party.
 // If so, make sure that agent has a pointer to theNym and return true.
@@ -1594,6 +1528,94 @@ bool OTParty::HasAgent(OTPseudonym & theNym, OTAgent ** ppAgent/*=NULL*/) const
 	
 	return false;
 }
+
+bool OTParty::HasAgentByNymID(const OTIdentifier & theNymID, OTAgent ** ppAgent/*=NULL*/) const
+{
+	FOR_EACH_CONST(mapOfAgents, m_mapAgents)
+	{
+		OTAgent * pAgent = (*it).second;
+		OT_ASSERT(NULL != pAgent);
+		// -------------------------------
+		
+		if (pAgent->IsValidSignerID(theNymID))
+		{
+			if (NULL != ppAgent)
+				*ppAgent = pAgent;
+			
+			return true;
+		}
+	}
+	
+	return false;
+}
+
+// ---------------------------------------------------
+
+
+// Find out if theNym is authorizing agent for Party. (Supplied opening transaction #)
+// If so, make sure that agent has a pointer to theNym and return true.
+// else return false.
+//
+bool OTParty::HasAuthorizingAgent(OTPseudonym & theNym, OTAgent ** ppAgent/*=NULL*/) const // ppAgent lets you get the agent ptr if it was there.
+{
+	if (OTScriptable::ValidateName(m_str_authorizing_agent))
+	{
+		mapOfAgents::const_iterator it = m_mapAgents.find(m_str_authorizing_agent);
+		
+		if (m_mapAgents.end() != it) // If we found something...
+		{
+			OTAgent * pAgent = (*it).second;
+			OT_ASSERT(NULL != pAgent);
+			// -------------------------------
+			
+			if (pAgent->IsValidSigner(theNym)) // if theNym is valid signer for pAgent.
+			{
+				// Optionally can pass in a pointer-to-pointer-to-Agent, in order to get the Agent pointer back.
+				if (NULL != ppAgent)
+					*ppAgent = pAgent;
+				
+				return true;
+			}
+		}
+		else // found nothing.
+			OTLog::Error("OTParty::HasAuthorizingAgent: named agent wasn't found on list.\n");
+	}
+	
+	return false;
+}
+
+bool OTParty::HasAuthorizingAgentByNymID(const OTIdentifier & theNymID, OTAgent ** ppAgent/*=NULL*/) const // ppAgent lets you get the agent ptr if it was there.
+{
+	if (OTScriptable::ValidateName(m_str_authorizing_agent))
+	{
+		mapOfAgents::const_iterator it = m_mapAgents.find(m_str_authorizing_agent);
+		
+		if (m_mapAgents.end() != it) // If we found something...
+		{
+			OTAgent * pAgent = (*it).second;
+			OT_ASSERT(NULL != pAgent);
+			// -------------------------------
+			
+			if (pAgent->IsValidSignerID(theNymID)) // if theNym is valid signer for pAgent.
+			{
+				// Optionally can pass in a pointer-to-pointer-to-Agent, in order to get the Agent pointer back.
+				if (NULL != ppAgent)
+					*ppAgent = pAgent;
+				
+				return true;
+			}
+		}
+		else // found nothing.
+			OTLog::Error("OTParty::HasAuthorizingAgentByNymID: named agent wasn't found on list.\n");
+	}
+	
+	return false;
+}
+
+
+
+// ---------------------------------------------------
+
 
 
 void OTAgent::RetrieveNymPointer(mapOfNyms & map_Nyms_Already_Loaded)
@@ -1632,39 +1654,6 @@ void OTParty::RetrieveNymPointers(mapOfNyms & map_Nyms_Already_Loaded)
 }
 
 
-
-
-// Find out if theNym is authorizing agent for Party. (Supplied opening transaction #)
-// If so, make sure that agent has a pointer to theNym and return true.
-// else return false.
-//
-bool OTParty::HasAuthorizingAgent(OTPseudonym & theNym, OTAgent ** ppAgent/*=NULL*/) const // ppAgent lets you get the agent ptr if it was there.
-{
-	if (OTScriptable::ValidateName(m_str_authorizing_agent))
-	{
-		mapOfAgents::const_iterator it = m_mapAgents.find(m_str_authorizing_agent);
-		
-		if (m_mapAgents.end() != it) // If we found something...
-		{
-			OTAgent * pAgent = (*it).second;
-			OT_ASSERT(NULL != pAgent);
-			// -------------------------------
-			
-			if (pAgent->IsValidSigner(theNym)) // if theNym is valid signer for pAgent.
-			{
-				// Optionally can pass in a pointer-to-pointer-to-Agent, in order to get the Agent pointer back.
-				if (NULL != ppAgent)
-					*ppAgent = pAgent;
-					
-				return true;
-			}
-		}
-		else // found nothing.
-			OTLog::Error("OTParty::HasAuthorizingAgent: named agent wasn't found on list.\n");
-	}
-	
-	return false;
-}
 
 
 
@@ -1812,6 +1801,206 @@ bool OTParty::VerifyOwnershipOfAccount(const OTAccount & theAccount) const
 }
 
 
+// ***********************************************************
+
+
+
+// This is only for SmartContracts, NOT all scriptables.
+//
+bool OTParty::DropFinalReceiptToInboxes(mapOfNyms * pNymMap,
+										const OTString & strServerID,
+										OTPseudonym & theServerNym,
+										const long & lNewTransactionNumber,
+										const OTString & strOrigCronItem,
+										OTString * pstrNote/*=NULL*/,
+										OTString * pstrAttachment/*=NULL*/)
+{
+	bool bSuccess = true; // Success is defined as "all inboxes were notified"
+	
+	OTSmartContract * pSmartContract = NULL;
+	
+	if (NULL == m_pOwnerAgreement)
+	{
+		OTLog::Error("OTParty::DropFinalReceiptToInboxes: Missing pointer to owner agreement.\n");
+		return false;
+	}
+	else if (NULL == (pSmartContract = dynamic_cast<OTSmartContract*> (m_pOwnerAgreement)))
+	{
+		OTLog::Error("OTParty::DropFinalReceiptToInboxes: Can only drop finalReceipts for smart contracts.\n");
+		return false;
+	}
+	
+	// By this point, we know pSmartContract is a good pointer.
+	// ----------------------------------------------
+	
+	FOR_EACH(mapOfPartyAccounts, m_mapPartyAccounts)
+	{
+		OTPartyAccount * pAcct = (*it).second;
+		OT_ASSERT_MSG(NULL != pAcct, "Unexpected NULL partyaccount pointer in party map.");
+		// -------------------------------------
+		
+		if (false == pAcct->DropFinalReceiptToInbox(pNymMap,	// contains any Nyms who might already be loaded, mapped by ID.
+													strServerID,
+													theServerNym,
+													*pSmartContract, 
+													lNewTransactionNumber, 
+													strOrigCronItem,
+													pstrNote, pstrAttachment))
+		{
+			OTLog::Error("OTParty::DropFinalReceiptToInboxes: Failed dropping final Receipt to agent's Inbox.\n");
+			bSuccess = false; // Notice: no break. We still try to notify them all, even if one fails.
+		}
+	}
+	
+	return bSuccess;
+}
+
+
+
+bool OTPartyAccount::DropFinalReceiptToInbox(mapOfNyms * pNymMap,
+											 const OTString & strServerID,
+											 OTPseudonym & theServerNym,
+											 OTSmartContract & theSmartContract,
+											 const long & lNewTransactionNumber,
+											 const OTString & strOrigCronItem,
+											 OTString * pstrNote/*=NULL*/,
+											 OTString * pstrAttachment/*=NULL*/)
+{
+	if (NULL == m_pForParty)
+	{
+		OTLog::Error("OTPartyAccount::DropFinalReceiptToInbox: NULL m_pForParty.\n");
+		return false;
+	}
+	else if (!m_strAcctID.Exists())
+	{
+		OTLog::Error("OTPartyAccount::DropFinalReceiptToInbox: Empty Acct ID.\n");
+		return false;
+	}
+	else if (!m_strAgentName.Exists())
+	{
+		OTLog::Error("OTPartyAccount::DropFinalReceiptToInbox: No agent named for this account.\n");
+		return false;
+	}
+	// ----------------------------------------
+	
+	// TODO: When entites and roles are added, this function may change a bit to accommodate them.
+	
+	// ----------------------------------------
+	
+	const std::string str_agent_name(m_strAgentName.Get());
+	
+	OTAgent * pAgent = m_pForParty->GetAgent(str_agent_name);
+	
+	if (NULL == pAgent)
+		OTLog::Error("OTPartyAccount::DropFinalReceiptToInbox: named agent wasn't found on party.\n");
+	else 
+	{
+		const OTIdentifier theAccountID(m_strAcctID);
+		
+		return pAgent->DropFinalReceiptToInbox(pNymMap,
+											   strServerID,
+											   theServerNym,
+											   theSmartContract, theAccountID, // acct ID from this.
+											   lNewTransactionNumber,
+											   m_lClosingTransNo, // closing_no from this.
+											   strOrigCronItem, pstrNote, pstrAttachment);
+	}
+	
+	// ------------------------------------------
+	
+	return false;
+}
+
+
+
+
+
+bool OTAgent::DropFinalReceiptToInbox(mapOfNyms * pNymMap,
+									  const OTString & strServerID,
+									  OTPseudonym & theServerNym,
+									  OTSmartContract & theSmartContract,
+									  const OTIdentifier & theAccountID,
+									  const long & lNewTransactionNumber,
+									  const long & lClosingNumber,
+									  const OTString & strOrigCronItem,
+									  OTString * pstrNote/*=NULL*/,
+									  OTString * pstrAttachment/*=NULL*/)
+{
+	// TODO: When entites and ROLES are added, this function may change a bit to accommodate them.
+	
+	OTIdentifier theAgentNymID;
+	bool bNymID = this->GetNymID(theAgentNymID);
+	
+	// Not all agents have Nyms. (Might be a voting group.)
+	// But in the case of Inboxes for asset accounts, shouldn't the agent be a Nym?
+	// Perhaps not... perhaps not... we shall see.
+	
+	if (true == bNymID) // therefore IsAnIndividual() is definitely true.
+	{
+		OTPseudonym *	pNym		= NULL;
+		OTCleanup<OTPseudonym> theNymAngel;
+		
+		// -------------------------------------------------
+		// If a list of pre-loaded Nyms was passed in, see if one of them is ours.
+		//
+		if (NULL != pNymMap)
+		{
+			const OTString	strNymID	(theAgentNymID);
+			OT_ASSERT(strNymID.Exists());
+			
+			mapOfNyms::iterator ittt = pNymMap->find(strNymID.Get());
+			
+			if (pNymMap->end() != ittt) // found it!
+			{
+				pNym = (*ittt).second;
+				OT_ASSERT(NULL != pNym);
+			}
+		}
+		// -------------------------------------------------
+		
+		if (NULL == pNym) // It wasn't on the list of already-loaded nyms that was passed in, so we have to load it.
+		{
+			// By this point we also know that pNym is NOT the server Nym, nor is it the
+			// Originator, nor pActingNym, nor pPartyNym, as they were all loaded already and
+			// were added to pNymMap, yet we didn't find the Nym we were looking for among them.
+			//
+			// (Therefore this is some new Nym, and doesn't need to be verified against those Nyms again,
+			// before loading it. Let's load it up!)
+			//
+			if (NULL == (pNym = this->LoadNym(theServerNym)))
+				OTLog::Error("OTAgent::DropFinalReceiptToInbox: Failed loading Nym.\n");
+			else
+				theNymAngel.SetCleanupTarget(*pNym); // CLEANUP  :-)
+		}
+		// ************************************************************
+		
+		// I call this because LoadNym sets my internal Nym pointer to pNym, and then
+		// it goes out of scope before the end of this function and gets cleaned-up.
+		// Therefore, no point in letting this agent continue to point to bad memory...
+		//
+		this->ClearTemporaryPointers();
+		
+		if ( (NULL != pNym) &&
+			(lClosingNumber > 0) &&
+			pNym->VerifyIssuedNum(strServerID, lClosingNumber)) // <====================
+		{
+			return theSmartContract.DropFinalReceiptToInbox(theAgentNymID, theAccountID, 
+															lNewTransactionNumber, lClosingNumber, 
+															strOrigCronItem, pstrNote, pstrAttachment);
+		}
+		else
+			OTLog::Error("OTAgent::DropFinalReceiptToInbox: Error: pNym is NULL, or lClosingNumber <=0, "
+						 "or pNym->VerifyIssuedNum(strServerID, lClosingNumber)) failed to verify.\n");
+	}
+	else
+		OTLog::Error("OTAgent::DropFinalReceiptToInbox: No NymID available for this agent...\n");
+	
+	return false;
+}
+
+
+// ***********************************************************
+
 
 
 // This is only for SmartContracts, NOT all scriptables.
@@ -1856,6 +2045,8 @@ bool OTParty::DropFinalReceiptToNymboxes(const long & lNewTransactionNumber,
 }
 
 
+
+
 bool OTAgent::DropFinalReceiptToNymbox(OTSmartContract & theSmartContract,
 									   const long & lNewTransactionNumber,
 									   const OTString & strOrigCronItem,
@@ -1877,6 +2068,10 @@ bool OTAgent::DropFinalReceiptToNymbox(OTSmartContract & theSmartContract,
 	
 	return false;
 }
+
+
+// ***********************************************************
+
 
 
 
@@ -1912,12 +2107,10 @@ bool OTAgent::DropServerNoticeToNymbox(OTPseudonym & theServerNym,
 }
 
 
-
-
 bool OTParty::SendNoticeToParty(OTPseudonym & theServerNym,
 								const OTIdentifier & theServerID,
 								const long & lNewTransactionNumber,
-								const long & lInReferenceTo, // todo Maybe have each party just use their own opening trans# here. Maybe not.
+//								const long & lInReferenceTo, // todo Maybe have each party just use their own opening trans# here. Maybe not.
 								const OTString & strReference,
 								OTString * pstrNote/*=NULL*/,
 								OTString * pstrAttachment/*=NULL*/)
@@ -1931,14 +2124,18 @@ bool OTParty::SendNoticeToParty(OTPseudonym & theServerNym,
 	}
 	// ----------------------------------------------
 	
+	const long lOpeningTransNo = GetOpeningTransNo();
+	
 	FOR_EACH(mapOfAgents, m_mapAgents)
 	{
 		OTAgent * pAgent = (*it).second;
 		OT_ASSERT_MSG(NULL != pAgent, "Unexpected NULL agent pointer in party map.");
 		// -------------------------------------
-		
-		if (false == pAgent->DropServerNoticeToNymbox(theServerNym, theServerID, *m_pOwnerAgreement, lNewTransactionNumber,
-													  lInReferenceTo, strReference, pstrNote, pstrAttachment))
+
+		if (false == pAgent->DropServerNoticeToNymbox(theServerNym, theServerID, 
+													  *m_pOwnerAgreement, lNewTransactionNumber,
+													  lOpeningTransNo, // lInReferenceTo
+													  strReference, pstrNote, pstrAttachment))
 			OTLog::Error("OTParty::SendNoticeToParty: Failed dropping server notice to agent's Nymbox.\n");
 		else
 			bSuccess = true;
@@ -1946,6 +2143,11 @@ bool OTParty::SendNoticeToParty(OTPseudonym & theServerNym,
 	
 	return bSuccess;	
 }
+
+
+
+// ***********************************************************
+
 
 
 // CALLER IS RESPONSIBLE TO DELETE.
@@ -2246,58 +2448,6 @@ bool OTParty::VerifyAccountsWithTheirAgents(OTPseudonym		& theSignerNym,
 }
 
 
-
-// This is only for SmartContracts, NOT all scriptables.
-//
-bool OTParty::DropFinalReceiptToInboxes(mapOfNyms * pNymMap,
-										const OTString & strServerID,
-										OTPseudonym & theServerNym,
-										const long & lNewTransactionNumber,
-										const OTString & strOrigCronItem,
-										OTString * pstrNote/*=NULL*/,
-										OTString * pstrAttachment/*=NULL*/)
-{
-	bool bSuccess = true; // Success is defined as "all inboxes were notified"
-	
-	OTSmartContract * pSmartContract = NULL;
-	
-	if (NULL == m_pOwnerAgreement)
-	{
-		OTLog::Error("OTParty::DropFinalReceiptToInboxes: Missing pointer to owner agreement.\n");
-		return false;
-	}
-	else if (NULL == (pSmartContract = dynamic_cast<OTSmartContract*> (m_pOwnerAgreement)))
-	{
-		OTLog::Error("OTParty::DropFinalReceiptToInboxes: Can only drop finalReceipts for smart contracts.\n");
-		return false;
-	}
-	
-	// By this point, we know pSmartContract is a good pointer.
-	// ----------------------------------------------
-	
-	FOR_EACH(mapOfPartyAccounts, m_mapPartyAccounts)
-	{
-		OTPartyAccount * pAcct = (*it).second;
-		OT_ASSERT_MSG(NULL != pAcct, "Unexpected NULL partyaccount pointer in party map.");
-		// -------------------------------------
-		
-		if (false == pAcct->DropFinalReceiptToInbox(pNymMap,	// contains any Nyms who might already be loaded, mapped by ID.
-													strServerID,
-													theServerNym,
-													*pSmartContract, 
-													lNewTransactionNumber, 
-													strOrigCronItem,
-													pstrNote, pstrAttachment))
-		{
-			OTLog::Error("OTParty::DropFinalReceiptToInboxes: Failed dropping final Receipt to agent's Inbox.\n");
-			bSuccess = false; // Notice: no break. We still try to notify them all, even if one fails.
-		}
-	}
-	
-	return bSuccess;
-}
-
-// -------------------------------------------
 
 
 

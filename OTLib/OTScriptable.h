@@ -155,7 +155,7 @@ protected:
 	// return -1 if error, 0 if nothing, and 1 if the node was processed.
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
 public:
-	
+	// ----------------------------------------------------
 	int GetPartyCount() const { return m_mapParties.size(); }
 	int GetBylawCount() const { return m_mapBylaws.size(); }
 	
@@ -163,18 +163,24 @@ public:
 	virtual bool AddBylaw(OTBylaw & theBylaw); // takes ownership.
 
 	virtual bool ConfirmParty(OTParty & theParty); // Takes ownership.
-
+	// ----------------------------------------------------
 	OTParty		* GetParty	(const std::string str_party_name);
 	OTBylaw		* GetBylaw	(const std::string str_bylaw_name);
 	OTClause	* GetClause	(const std::string str_clause_name);
-	
+	// ----------------------------------------------------
 	OTParty * FindPartyBasedOnNymAsAgent(OTPseudonym & theNym, OTAgent ** ppAgent=NULL);
 	OTParty * FindPartyBasedOnNymAsAuthAgent(OTPseudonym & theNym, OTAgent ** ppAgent=NULL);
 	OTParty * FindPartyBasedOnAccount(OTAccount & theAccount, OTPartyAccount ** ppPartyAccount=NULL);
-	
+	// ----------------------------------------------------
+	OTParty * FindPartyBasedOnNymIDAsAgent(const OTIdentifier & theNymID, OTAgent ** ppAgent=NULL) const;
+	OTParty * FindPartyBasedOnNymIDAsAuthAgent(const OTIdentifier & theNymID, OTAgent ** ppAgent=NULL);
+	OTParty * FindPartyBasedOnAccountID(const OTIdentifier & theAcctID, OTPartyAccount ** ppPartyAccount=NULL);
+	// ----------------------------------------------------
 	OTAgent			* GetAgent(const std::string str_agent_name);
 	OTPartyAccount	* GetPartyAccount(const std::string str_acct_name);
-	
+	OTPartyAccount	* GetPartyAccountByID(const OTIdentifier & theAcctID) const;
+	// -----------------------------------------------------------------
+
 	// -----------------------------------------------------------------
 	// This function returns the count of how many trans#s a Nym needs in order to confirm as 
 	// a specific agent for a contract. (An opening number is needed for every party of which
@@ -183,7 +189,7 @@ public:
 	//
 	int  GetCountTransNumsNeededForAgent(const std::string str_agent_name);
 	
-	// ----------------
+	// ----------------------------------------------------
 	// Verifies that Nym is actually an agent for this agreement.
 	// (Verifies that Nym has signed this agreement, if it's a trade or a payment plan, OR
 	// that the authorizing agent for Nym's party has done so,
@@ -254,7 +260,7 @@ public:
 	bool SendNoticeToAllParties(OTPseudonym & theServerNym,
 								const OTIdentifier & theServerID,
 								const long & lNewTransactionNumber,
-								const long & lInReferenceTo,
+//								const long & lInReferenceTo, // each party has its own opening trans #.
 								const OTString & strReference,
 								OTString * pstrNote=NULL,
 								OTString * pstrAttachment=NULL);

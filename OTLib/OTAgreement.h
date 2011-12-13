@@ -400,6 +400,12 @@ public:
 	
 	virtual void Release();
 	
+    // ------------------------------------------------------
+	virtual bool IsValidOpeningNumber(const long & lOpeningNum) const;
+	
+	virtual long GetOpeningNumber(const OTIdentifier	& theNymID) const;
+    virtual long GetClosingNumber(const OTIdentifier	& theAcctID) const;
+    // ------------------------------------------------------
 	
 	// return -1 if error, 0 if nothing, and 1 if the node was processed.
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
