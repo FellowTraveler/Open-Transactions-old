@@ -158,7 +158,9 @@ using namespace io;
 #include "OTLog.h"
 
 
+#ifndef _WIN32
 #include "stacktrace.h"
+#endif
 
 
 

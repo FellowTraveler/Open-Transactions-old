@@ -489,7 +489,8 @@ int main(int argc, char* argv[])
 	//  Initialize poll set
 	zmq::pollitem_t items [] =
 	{
-		{ socket, 0, ZMQ_POLLIN, 0 },
+		{ socket, 0, ZMQ_POLLIN,	0 },
+		{ socket, 0, ZMQ_POLLOUT,	0 },
 	};
 
 	// ----------------------------------------------------------
@@ -526,14 +527,17 @@ int main(int argc, char* argv[])
 		//
 		//
         
+		const long lLatencySendMilliSec	= OTLog::GetLatencySendMs();
+		const long lLatencySendMicroSec	= lLatencySendMilliSec*1000; // Microsecond is 1000 times smaller than millisecond.
         
 		for (int i = 0; i < /*10*/OTServer::GetHeartbeatNoRequests(); i++) 
 		{
 			// Switching to ZeroMQ library.
 			zmq::message_t message;
 
-			zmq::poll(&items[0], 1, 0);  // non-blocking
-//			zmq::poll(&items[0], 1, -1);
+			zmq::poll(&items[0], 1, 0);						// ZMQ_POLLIN, 1 item, non-blocking, 
+//			zmq::poll(&items[1], 1, lLatencySendMicroSec);	// ZMQ_POLLOUT, 1 item, timeout (microseconds in ZMQ 2.1; changes to milliseconds in 3.0) 
+//			zmq::poll(&items[0], 1, -1);					// Blocking.
 
 			if ((items[0].revents & ZMQ_POLLIN) && socket.recv(&message, ZMQ_NOBLOCK))
 			{
@@ -562,11 +566,19 @@ int main(int argc, char* argv[])
 				int		nSendTries = 0;
 				bool	bSuccessSending = false;
 				
-				// HALF-SECOND DELAY IF FAILURE SENDING REPLY...
-				// (While it tries to re-send 5 times.)
+				// If failure, retries 7 times.
+				// Will wait 200 ms after the first failure, (and that time doubles each try.)
 				//
-				while ((nSendTries++ < OTLog::GetLatencySendNoTries()/*5*/) && (false == (bSuccessSending = socket.send(reply, ZMQ_NOBLOCK))))
-					OTLog::SleepMilliseconds(/*100*/OTLog::GetLatencySendMs());
+				long lDoubling = lLatencySendMicroSec;
+				while ((nSendTries++ < OTLog::GetLatencySendNoTries()/*7*/) && 
+					   (false == (bSuccessSending = socket.send(reply, ZMQ_NOBLOCK))))
+				{
+//					OTLog::SleepMilliseconds( /*200*/ lLatencySendMilliSec);
+					
+					zmq::poll(&items[1], 1, lDoubling);	// ZMQ_POLLOUT, 1 item, timeout (microseconds in ZMQ 2.1; changes to milliseconds in 3.0)
+					
+					lDoubling *= 2;
+				}
 				
 				if (false == bSuccessSending)
 					OTLog::vError("Socket error: failed while trying to send reply back to client! \n\n MESSAGE:\n%s\n\nREPLY:\n%s\n\n", 

@@ -505,6 +505,7 @@ void RegisterAPIWithScript(OTScript & theScript)
 		
 		pScript->chai.add(fun(&OTAPI_Wrap::VerifyAndRetrieveXMLContents), "OT_API_VerifyAndRetrieveXMLContents");
 		pScript->chai.add(fun(&OTAPI_Wrap::WriteCheque), "OT_API_WriteCheque");
+		pScript->chai.add(fun(&OTAPI_Wrap::DiscardCheque), "OT_API_DiscardCheque");
 //		pScript->chai.add(fun(&OTAPI_Wrap::ProposePaymentPlan), "OT_API_ProposePaymentPlan");
 		pScript->chai.add(fun(&OTAPI_Wrap::ConfirmPaymentPlan), "OT_API_ConfirmPaymentPlan");
 		
@@ -1894,21 +1895,56 @@ int main(int argc, char* argv[])
                                                                strServerHostname.Get(), nServerPort);
 				socket.connect(strConnectPath.Get());
 				
+				//  Configure socket to not wait at close time
+				int linger = 0;
+				socket.setsockopt (ZMQ_LINGER, &linger, sizeof (linger));
 
 				// --------------------------------
 
 				zmq::message_t request(ascEnvelope.GetLength());
 				memcpy((void*)request.data(), ascEnvelope.Get(), ascEnvelope.GetLength());
+
+				/*
+				 
+				 Normally, we try to send...
+				 If the send fails, we wait 200 ms and then try again (5 times).
+				 
+				 BUT -- what if the failure was an errno==EAGAIN ?
+				 In that case, it's not a REAL failure, but rather, a "failure right now, try again in a sec."
+				 */
+				// -----------------------------------------------------------------------
 				
-				int		nSendTries = 0;
-				bool	bSuccessSending = false;
+				//  Initialize poll set
+				zmq::pollitem_t items [] =
+				{
+					{ socket, 0, ZMQ_POLLIN,	0 },
+					{ socket, 0, ZMQ_POLLOUT,	0 },
+				};
 				
-				// If failure sending, re-tries 5 times GetLatencySendNoTries(), 
-                // with 200 ms delay between each. (Maximum of 1 second.)
+				// ----------------------------------------------------------
+				
+				const long lLatencySendMilliSec	= OTLog::GetLatencySendMs();
+				const long lLatencySendMicroSec	= lLatencySendMilliSec*1000; // Microsecond is 1000 times smaller than millisecond.
+				// ----------------------------------------
+				const long lLatencyRecvMilliSec	= OTLog::GetLatencyReceiveMs();
+				const long lLatencyRecvMicroSec	= lLatencyRecvMilliSec*1000; 
+
+				// If failure sending, re-tries 7 times GetLatencySendNoTries(), 
+                // with 200 ms delay between each. (Doubling each failure.)
 				//
-				while ((nSendTries++ < /*5*/OTLog::GetLatencySendNoTries()) && 
-                       (false == (bSuccessSending = socket.send(request, ZMQ_NOBLOCK))))
-					OTLog::SleepMilliseconds(/*200*/OTLog::GetLatencySendMs());
+				int		nSendTries		= 0;
+				bool	bSuccessSending	= false;
+				long	lDoubling		= lLatencySendMicroSec;
+				
+				while ((nSendTries++ < /*7*/OTLog::GetLatencySendNoTries()) && 
+                       (false == (bSuccessSending = socket.send(request, ZMQ_NOBLOCK))))  // <=========== SEND ===============
+				{
+//					OTLog::SleepMilliseconds( /*200*/ lLatencySendMilliSec);
+					
+					zmq::poll(&items[1], 1, lDoubling);	// ZMQ_POLLOUT, 1 item, timeout (microseconds in ZMQ 2.1; changes to milliseconds in 3.0)
+					
+					lDoubling *= 2;
+				}
                 
 				if (bSuccessSending)
 				{
@@ -1918,11 +1954,18 @@ int main(int argc, char* argv[])
 					int		nReceiveTries = 0;
 					bool	bSuccessReceiving = false;
 					
-					// If failure receiving, re-tries 25 times, with 200 ms delay between each. (Maximum of 5 seconds.)
+					// If failure receiving, re-tries 7 times, with 200 ms delay between each (Doubling every time.)
 					//
-					while ((nReceiveTries++ < /*25*/OTLog::GetLatencyReceiveNoTries()) && 
-                           (false == (bSuccessReceiving = socket.recv(&reply, ZMQ_NOBLOCK))))
-						OTLog::SleepMilliseconds(/*200*/OTLog::GetLatencyReceiveMs());
+					lDoubling = lLatencyRecvMicroSec;
+					while ((nReceiveTries++ < /*7*/OTLog::GetLatencyReceiveNoTries()) && 
+                           (false == (bSuccessReceiving = socket.recv(&reply, ZMQ_NOBLOCK))))   // <=========== RECEIVE ===============
+					{
+//						OTLog::SleepMilliseconds( /*200*/ lLatencyRecvMilliSec);
+						
+						zmq::poll(&items[0], 1, lDoubling);	// ZMQ_POLLIN, 1 item, timeout (microseconds in ZMQ 2.1; changes to milliseconds in 3.0)
+						
+						lDoubling *= 2;						
+					}
                     
 					if (bSuccessReceiving)
 					{
@@ -3302,8 +3345,12 @@ int main(int argc, char* argv[])
 				OTString strConnectPath; strConnectPath.Format("tcp://%s:%d", strServerHostname.Get(), nServerPort);
 				socket.connect(strConnectPath.Get());
 				
+				//  Configure socket to not wait at close time
+				int linger = 0;
+				socket.setsockopt (ZMQ_LINGER, &linger, sizeof (linger));
+				
 				// --------------------------------
-//				OTPayload thePayload;
+				//				OTPayload thePayload;
 //				bool bSetEnvelope = thePayload.SetEnvelope(theEnvelope);
 				
 //				bool GetEnvelope(OTEnvelope & theEnvelope) const; // Envelope retrieved from payload.
@@ -3313,13 +3360,41 @@ int main(int argc, char* argv[])
 				zmq::message_t request(ascEnvelope.GetLength());
 				memcpy((void*)request.data(), ascEnvelope.Get(), ascEnvelope.GetLength());
 				
-				int		nSendTries = 0;
-				bool	bSuccessSending = false;
+				// -----------------------------------------------------------------------
+				
+				//  Initialize poll set
+				zmq::pollitem_t items [] =
+				{
+					{ socket, 0, ZMQ_POLLIN,	0 },
+					{ socket, 0, ZMQ_POLLOUT,	0 },
+				};
+				
+				// ----------------------------------------------------------				
+				
+				const long lLatencySendMilliSec	= OTLog::GetLatencySendMs();
+				const long lLatencySendMicroSec	= lLatencySendMilliSec*1000; // Microsecond is 1000 times smaller than millisecond.
+				// ----------------------------------------
+				const long lLatencyRecvMilliSec	= OTLog::GetLatencyReceiveMs();
+				const long lLatencyRecvMicroSec	= lLatencyRecvMilliSec*1000; 
+				
+				// If failure sending, re-tries 7 times GetLatencySendNoTries(), 
+                // with 200 ms delay between each. (Doubling each failure.)
+				//
+				int		nSendTries		= 0;
+				bool	bSuccessSending	= false;
+				long	lDoubling		= lLatencySendMicroSec;
 				
 				// If failure sending, re-tries 5 times, with 200 ms delay between each. (Maximum of 1 second.)
 				//
-				while ((nSendTries++ < 5) && (false == (bSuccessSending = socket.send(request, ZMQ_NOBLOCK))))
-					OTLog::SleepMilliseconds(200); // todo stop hardcoding. (For now I needed non-blocking so this is much better than before.)
+				while ((nSendTries++ < /*7*/OTLog::GetLatencySendNoTries()) && 
+					   (false == (bSuccessSending = socket.send(request, ZMQ_NOBLOCK))))
+				{
+//					OTLog::SleepMilliseconds( /*200*/ lLatencySendMilliSec);
+					
+					zmq::poll(&items[1], 1, lDoubling);	// ZMQ_POLLOUT, 1 item, timeout (microseconds in ZMQ 2.1; changes to milliseconds in 3.0)
+					
+					lDoubling *= 2;					
+				}
 
 				// Here's our connection...
 //#if defined (linux)
@@ -3347,10 +3422,18 @@ int main(int argc, char* argv[])
 					int		nReceiveTries = 0;
 					bool	bSuccessReceiving = false;
 					
-					// If failure receiving, re-tries 25 times, with 200 ms delay between each. (Maximum of 5 seconds.)
+					// If failure receiving, re-tries 7 times, with 200 ms delay between each. (Doubling each time.)
 					//
-					while ((nReceiveTries++ < 25) && (false == (bSuccessReceiving = socket.recv(&reply, ZMQ_NOBLOCK))))
-						OTLog::SleepMilliseconds(200); // todo stop hardcoding. (And probably change how I send/receive, but for now I needed non-blocking...)
+					lDoubling = lLatencyRecvMicroSec;
+					while ((nReceiveTries++ < /*7*/OTLog::GetLatencyReceiveNoTries()) && 
+						   (false == (bSuccessReceiving = socket.recv(&reply, ZMQ_NOBLOCK))))
+					{
+//						OTLog::SleepMilliseconds( /*200*/ lLatencyRecvMilliSec);
+						
+						zmq::poll(&items[0], 1, lDoubling);	// ZMQ_POLLIN, 1 item, timeout (microseconds in ZMQ 2.1; changes to milliseconds in 3.0)
+						
+						lDoubling *= 2;						
+					}
 
 //					std::string str_Result;
 //					str_Result.reserve(reply.size());
