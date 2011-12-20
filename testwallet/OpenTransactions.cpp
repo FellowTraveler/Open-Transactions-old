@@ -409,7 +409,7 @@ bool OT_API::LoadConfigFile(const OTString & strMainPath)
                     
                     if (strOutput.Exists())
                     {
-                        OTLog::vOutput(1, "Setting logfile to: %s\n", strOutput.Get());
+                        OTLog::vOutput(1, "Setting logfile: %s\n", strOutput.Get());
                         OTLog::SetLogfile(strOutput.Get());
                     }
                 }
@@ -422,20 +422,35 @@ bool OT_API::LoadConfigFile(const OTString & strMainPath)
                 
                 if (NULL != pVal2)
                 {
-                    OTLog::vOutput(1, "Setting log level to: %d\n", atoi(pVal2));
+                    OTLog::vOutput(1, "Setting log level: %d\n", atoi(pVal2));
                     OTLog::SetLogLevel(atoi(pVal2));
                 }
                 else
                     OTLog::vOutput(1, "Current log level is: %d\n", OTLog::GetLogLevel());
             }
             // ---------------------------------------------
+            // LATENCY 
+			{
+                const char * pVal = ini.GetValue("latency", "blocking");
+                
+                if (NULL != pVal)
+                {
+					const OTString strBlocking(pVal);
+					const bool bBlocking = strBlocking.Compare("true") ? true : false;
+					
+                    OTLog::vOutput(0, "Setting latency blocking: %s\n",
+								   bBlocking ? "true" : "false");
+                    OTLog::SetBlocking(bBlocking);
+                }
+            }
+            // ------------------------------------------------
             // LATENCY (SENDING)
             {
                 const char * pVal = ini.GetValue("latency", "send_no_tries");
                 
                 if ((NULL != pVal) && (atoi(pVal)))
                 {
-                    OTLog::vOutput(1, "Setting latency send_no_tries to: %d\n", atoi(pVal));
+                    OTLog::vOutput(1, "Setting latency send_no_tries: %d\n", atoi(pVal));
                     OTLog::SetLatencySendNoTries(atoi(pVal));
                 }
             }
@@ -444,7 +459,7 @@ bool OT_API::LoadConfigFile(const OTString & strMainPath)
                 
                 if ((NULL != pVal) && (atoi(pVal)))
                 {
-                    OTLog::vOutput(1, "Setting latency send_ms to: %d\n", atoi(pVal));
+                    OTLog::vOutput(1, "Setting latency send_ms: %d\n", atoi(pVal));
                     OTLog::SetLatencySendMs(atoi(pVal));
                 }
             }
@@ -455,7 +470,7 @@ bool OT_API::LoadConfigFile(const OTString & strMainPath)
                 
                 if ((NULL != pVal) && (atoi(pVal)))
                 {
-                    OTLog::vOutput(1, "Setting latency receive_no_tries to: %d\n", atoi(pVal));                    
+                    OTLog::vOutput(1, "Setting latency receive_no_tries: %d\n", atoi(pVal));                    
                     OTLog::SetLatencyReceiveNoTries(atoi(pVal));
                 }
             }
@@ -464,7 +479,7 @@ bool OT_API::LoadConfigFile(const OTString & strMainPath)
                 
                 if ((NULL != pVal) && (atoi(pVal)))
                 {
-                    OTLog::vOutput(1, "Setting latency receive_ms to: %d\n", atoi(pVal));
+                    OTLog::vOutput(1, "Setting latency receive_ms: %d\n", atoi(pVal));
                     OTLog::SetLatencyReceiveMs(atoi(pVal));
                 }
             }
@@ -3815,6 +3830,17 @@ void OT_API::getTransactionNumber(OTIdentifier & SERVER_ID,
 	
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
+	// -----------------------------------------------------
+	
+	int nCount = pNym->GetTransactionNumCount(SERVER_ID);
+	
+	if (nCount > 50) // todo no hardcoding. (max transaction nums allowed out at a single time.)
+	{
+		OTLog::Output(0, "OT_API::getTransactionNumber: Failure: That Nym already has "
+					  "more than 50 transaction numbers signed out. (Use those first.)\n");
+		
+		return;		
+	}
 	// -----------------------------------------------------
 	
 	OTMessage theMessage;

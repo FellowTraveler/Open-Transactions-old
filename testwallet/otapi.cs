@@ -790,8 +790,8 @@ public class otapi {
     otapiPINVOKE.OT_API_processInbox(SERVER_ID, USER_ID, ACCT_ID, ACCT_LEDGER);
   }
 
-  public static void OT_API_processNymbox(string SERVER_ID, string USER_ID, string ACCT_LEDGER) {
-    otapiPINVOKE.OT_API_processNymbox(SERVER_ID, USER_ID, ACCT_LEDGER);
+  public static void OT_API_processNymbox(string SERVER_ID, string USER_ID) {
+    otapiPINVOKE.OT_API_processNymbox(SERVER_ID, USER_ID);
   }
 
   public static void OT_API_withdrawVoucher(string SERVER_ID, string USER_ID, string ACCT_ID, string RECIPIENT_USER_ID, string CHEQUE_MEMO, string AMOUNT) {

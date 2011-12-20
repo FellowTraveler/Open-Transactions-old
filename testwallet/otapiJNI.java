@@ -186,7 +186,7 @@ public class otapiJNI {
   public final static native void OT_API_getNymbox(String jarg1, String jarg2);
   public final static native String OT_API_LoadNymbox(String jarg1, String jarg2);
   public final static native void OT_API_processInbox(String jarg1, String jarg2, String jarg3, String jarg4);
-  public final static native void OT_API_processNymbox(String jarg1, String jarg2, String jarg3);
+  public final static native void OT_API_processNymbox(String jarg1, String jarg2);
   public final static native void OT_API_withdrawVoucher(String jarg1, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6);
   public final static native void OT_API_depositCheque(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native void OT_API_depositPaymentPlan(String jarg1, String jarg2, String jarg3);

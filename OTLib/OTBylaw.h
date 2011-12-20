@@ -810,7 +810,7 @@ public:
 	enum OTVariable_Type 
 	{
 		Var_String,		// std::string
-		Var_Long,		// Long integer.
+		Var_Integer,	// Integer. (For long int: use strings.)
 		Var_Bool,		// Boolean. (True / False)
 		Var_Error_Type	// should never happen.
 	};
@@ -827,17 +827,17 @@ private:
 	OTString	m_strName;		// Name of this variable.
 	// ------------------------------------------------------
 	std::string m_str_Value;	// If a string, the value is stored here.
-	long		m_lValue;		// If a long, the value is stored here.
+	int			m_nValue;		// If an integer, the value is stored here.
 	bool		m_bValue;		// If a bool, the value is stored here.
 	// ------------------------------------------------------
 	std::string m_str_ValueBackup;	// If a string, the value backup is stored here. (So we can see if it has changed since execution)
-	long		m_lValueBackup;	// If a long, the value backup is stored here.  (So we can see if it has changed since execution)
+	int			m_nValueBackup;	// If an integer, the value backup is stored here.  (So we can see if it has changed since execution)
 	bool		m_bValueBackup;	// If a bool, the value backup is stored here. (So we can check for dirtiness later...)
 	// ------------------------------------------------------
 	
 	OTBylaw	*	m_pBylaw;		// the Bylaw that this variable belongs to.
 	
-	OTVariable_Type		m_Type;  // Currently long or string.
+	OTVariable_Type		m_Type;  // Currently bool, int, or string.
 	OTVariable_Access	m_Access;  // Determines how the variable is used inside the script.
 	
 public:
@@ -855,7 +855,7 @@ public:
 	
 	// -------------------------------------
 	
-	bool SetValue(const long & lValue);
+	bool SetValue(const int & nValue);
 	bool SetValue(const bool bValue);
 	bool SetValue(const std::string & str_Value);
 	
@@ -865,15 +865,15 @@ public:
 	OTVariable_Type		GetType() const { return m_Type; }
 	OTVariable_Access	GetAccess() const { return m_Access; }
 	
-	bool	IsLong() const   { return (Var_Long		== m_Type); }
-	bool	IsBool() const   { return (Var_Bool		== m_Type); }
-	bool	IsString() const { return (Var_String	== m_Type); }
+	bool	IsInteger()	const   { return (Var_Integer	== m_Type); }
+	bool	IsBool()	const   { return (Var_Bool		== m_Type); }
+	bool	IsString()	const	{ return (Var_String	== m_Type); }
 	
-	long			CopyValueLong() const { return m_lValue; }
+	int				CopyValueInteger() const { return m_nValue; }
 	bool			CopyValueBool() const { return m_bValue; }
 	std::string		CopyValueString() const { return m_str_Value; }
 	
-	long		&	GetValueLong() { return m_lValue; }
+	int			&	GetValueInteger() { return m_nValue; }
 	bool		&	GetValueBool() { return m_bValue; }
 	std::string	&	GetValueString() { return m_str_Value; }
 	
@@ -882,7 +882,7 @@ public:
 
 	OTVariable();
 	OTVariable(const std::string str_Name, const std::string str_Value,	const OTVariable_Access theAccess=Var_Persistent);
-	OTVariable(const std::string str_Name, const long lValue,			const OTVariable_Access theAccess=Var_Persistent);
+	OTVariable(const std::string str_Name, const int nValue,			const OTVariable_Access theAccess=Var_Persistent);
 	OTVariable(const std::string str_Name, const bool bValue,			const OTVariable_Access theAccess=Var_Persistent);
 	
 	virtual ~OTVariable();
@@ -1027,7 +1027,7 @@ public:
 	bool AddVariable(OTVariable& theVariable);
 	bool AddVariable(const std::string str_Name, const std::string str_Value,	
 					 const OTVariable::OTVariable_Access theAccess=OTVariable::Var_Persistent);
-	bool AddVariable(const std::string str_Name, const long lValue,				
+	bool AddVariable(const std::string str_Name, const int nValue,				
 					 const OTVariable::OTVariable_Access theAccess=OTVariable::Var_Persistent);
 	bool AddVariable(const std::string str_Name, const bool bValue,				
 					 const OTVariable::OTVariable_Access theAccess=OTVariable::Var_Persistent);

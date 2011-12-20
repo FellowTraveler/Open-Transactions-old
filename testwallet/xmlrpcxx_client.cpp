@@ -1932,41 +1932,54 @@ int main(int argc, char* argv[])
 				// If failure sending, re-tries 7 times GetLatencySendNoTries(), 
                 // with 200 ms delay between each. (Doubling each failure.)
 				//
-				int		nSendTries		= 0;
 				bool	bSuccessSending	= false;
-				long	lDoubling		= lLatencySendMicroSec;
 				
-				while ((nSendTries++ < /*7*/OTLog::GetLatencySendNoTries()) && 
-                       (false == (bSuccessSending = socket.send(request, ZMQ_NOBLOCK))))  // <=========== SEND ===============
+				if (OTLog::IsBlocking())
 				{
-//					OTLog::SleepMilliseconds( /*200*/ lLatencySendMilliSec);
-					
-					zmq::poll(&items[1], 1, lDoubling);	// ZMQ_POLLOUT, 1 item, timeout (microseconds in ZMQ 2.1; changes to milliseconds in 3.0)
-					
-					lDoubling *= 2;
+					bSuccessSending = socket.send(request); // Blocking.
 				}
-                
+				else // not blocking
+				{
+					int		nSendTries		= 0;
+					long	lDoubling		= lLatencySendMicroSec;
+					
+					while ((nSendTries++ < /*7*/OTLog::GetLatencySendNoTries()) && 
+						   (false == (bSuccessSending = socket.send(request, ZMQ_NOBLOCK))))  // <=========== SEND ===============
+					{
+						zmq::poll(&items[1], 1, lDoubling);	// ZMQ_POLLOUT, 1 item, timeout (microseconds in ZMQ 2.1; changes to milliseconds in 3.0)					
+						lDoubling *= 2;
+//						OTLog::SleepMilliseconds( /*200*/ lLatencySendMilliSec);
+					}
+                }
+				// ----------------------------
+				
 				if (bSuccessSending)
 				{
 					//  Get the reply.
 					zmq::message_t reply;
 					
-					int		nReceiveTries = 0;
-					bool	bSuccessReceiving = false;
+					bool bSuccessReceiving = false;
 					
 					// If failure receiving, re-tries 7 times, with 200 ms delay between each (Doubling every time.)
 					//
-					lDoubling = lLatencyRecvMicroSec;
-					while ((nReceiveTries++ < /*7*/OTLog::GetLatencyReceiveNoTries()) && 
-                           (false == (bSuccessReceiving = socket.recv(&reply, ZMQ_NOBLOCK))))   // <=========== RECEIVE ===============
+					if (OTLog::IsBlocking())
 					{
-//						OTLog::SleepMilliseconds( /*200*/ lLatencyRecvMilliSec);
-						
-						zmq::poll(&items[0], 1, lDoubling);	// ZMQ_POLLIN, 1 item, timeout (microseconds in ZMQ 2.1; changes to milliseconds in 3.0)
-						
-						lDoubling *= 2;						
+						bSuccessReceiving = socket.recv(&reply); // Blocking.
 					}
-                    
+					else	// not blocking
+					{
+						int	nReceiveTries = 0;
+						long lDoubling = lLatencyRecvMicroSec;
+						
+						while ((nReceiveTries++ < /*7*/OTLog::GetLatencyReceiveNoTries()) && 
+							   (false == (bSuccessReceiving = socket.recv(&reply, ZMQ_NOBLOCK))))   // <=========== RECEIVE ===============
+						{
+							zmq::poll(&items[0], 1, lDoubling);	// ZMQ_POLLIN, 1 item, timeout (microseconds in ZMQ 2.1; changes to milliseconds in 3.0)
+							lDoubling *= 2;						
+//							OTLog::SleepMilliseconds( /*200*/ lLatencyRecvMilliSec);							
+						}
+					}
+					// -------------------------------
 					if (bSuccessReceiving)
 					{
 						OTASCIIArmor ascServerReply;
@@ -2934,8 +2947,26 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------
         }
         
-        
-        // get nymbox 
+        // process nymbox 
+        else if (strLine.compare(0,2,"py") == 0)
+        {
+            OTLog::Output(0, "(User has instructed to send a processNymbox command to the server...)\n");
+            
+            // ------------------------------------------------------------------------------			
+            // if successful setting up the command payload...
+            
+            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::processEntireNymbox, theMessage, 
+                                                         *pMyNym, *pServerContract,
+                                                         NULL)) // NULL pAccount on this command.
+            {
+                bSendCommand = true;
+            }
+            else
+                OTLog::vError("Error in processNymbox command in ProcessMessage: %s\n", strLine.c_str());
+            // ------------------------------------------------------------------------
+        }
+		
+		// get nymbox 
         else if (buf[0] == 'y')
         {
             OTLog::Output(0, "(User has instructed to send a getNymbox command to the server...)\n");
@@ -2954,6 +2985,27 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------
         }
         
+		// Nym, Account, Server ID, Server Contract
+		
+		// process inbox 
+        else if (strLine.compare(0,2,"pi") == 0)
+        {
+            OTLog::Output(0, "(User has instructed to send a processInbox command to the server...)\n");
+            
+            // ------------------------------------------------------------------------------			
+            // if successful setting up the command payload...
+            
+            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::processEntireInbox, theMessage, 
+                                                         *pMyNym, *pServerContract,
+                                                         NULL)) // have to allow this to be defaulted at some point...
+			{
+                bSendCommand = true;
+            }
+            else
+                OTLog::vError("Error in processInbox command in ProcessMessage: %s\n", strLine.c_str());
+            // ------------------------------------------------------------------------
+        }
+		
         // get inbox 
         else if (buf[0] == 'i')
         {
@@ -3361,14 +3413,12 @@ int main(int argc, char* argv[])
 				memcpy((void*)request.data(), ascEnvelope.Get(), ascEnvelope.GetLength());
 				
 				// -----------------------------------------------------------------------
-				
 				//  Initialize poll set
 				zmq::pollitem_t items [] =
 				{
 					{ socket, 0, ZMQ_POLLIN,	0 },
 					{ socket, 0, ZMQ_POLLOUT,	0 },
 				};
-				
 				// ----------------------------------------------------------				
 				
 				const long lLatencySendMilliSec	= OTLog::GetLatencySendMs();
@@ -3377,25 +3427,31 @@ int main(int argc, char* argv[])
 				const long lLatencyRecvMilliSec	= OTLog::GetLatencyReceiveMs();
 				const long lLatencyRecvMicroSec	= lLatencyRecvMilliSec*1000; 
 				
-				// If failure sending, re-tries 7 times GetLatencySendNoTries(), 
-                // with 200 ms delay between each. (Doubling each failure.)
-				//
-				int		nSendTries		= 0;
 				bool	bSuccessSending	= false;
-				long	lDoubling		= lLatencySendMicroSec;
 				
 				// If failure sending, re-tries 5 times, with 200 ms delay between each. (Maximum of 1 second.)
 				//
-				while ((nSendTries++ < /*7*/OTLog::GetLatencySendNoTries()) && 
-					   (false == (bSuccessSending = socket.send(request, ZMQ_NOBLOCK))))
+				if (OTLog::IsBlocking())
 				{
-//					OTLog::SleepMilliseconds( /*200*/ lLatencySendMilliSec);
-					
-					zmq::poll(&items[1], 1, lDoubling);	// ZMQ_POLLOUT, 1 item, timeout (microseconds in ZMQ 2.1; changes to milliseconds in 3.0)
-					
-					lDoubling *= 2;					
+					bSuccessSending = socket.send(request); // Blocking.
 				}
+				else	// not blocking
+				{
+					int		nSendTries		= 0;
+					long	lDoubling		= lLatencySendMicroSec;
 
+					// If failure sending, re-tries 7 times GetLatencySendNoTries(), 
+					// with 200 ms delay between each. (Doubling each failure.)
+					//					
+					while ((nSendTries++ < /*7*/OTLog::GetLatencySendNoTries()) && 
+						   (false == (bSuccessSending = socket.send(request, ZMQ_NOBLOCK))))
+					{
+						zmq::poll(&items[1], 1, lDoubling);	// ZMQ_POLLOUT, 1 item, timeout (microseconds in ZMQ 2.1; changes to milliseconds in 3.0)
+						lDoubling *= 2;
+//						OTLog::SleepMilliseconds( /*200*/ lLatencySendMilliSec);
+					}
+				}
+				
 				// Here's our connection...
 //#if defined (linux)
 //				XmlRpcClient theXmlRpcClient(strServerHostname.Get(), nServerPort, 0); // serverhost, port.
@@ -3419,22 +3475,28 @@ int main(int argc, char* argv[])
 					//  Get the reply.
 					zmq::message_t reply;
 					
-					int		nReceiveTries = 0;
 					bool	bSuccessReceiving = false;
 					
-					// If failure receiving, re-tries 7 times, with 200 ms delay between each. (Doubling each time.)
+					// If failure receiving, re-tries 7 times, with 200 ms delay between. (Doubling each time.)
 					//
-					lDoubling = lLatencyRecvMicroSec;
-					while ((nReceiveTries++ < /*7*/OTLog::GetLatencyReceiveNoTries()) && 
-						   (false == (bSuccessReceiving = socket.recv(&reply, ZMQ_NOBLOCK))))
+					if (OTLog::IsBlocking())
 					{
-//						OTLog::SleepMilliseconds( /*200*/ lLatencyRecvMilliSec);
-						
-						zmq::poll(&items[0], 1, lDoubling);	// ZMQ_POLLIN, 1 item, timeout (microseconds in ZMQ 2.1; changes to milliseconds in 3.0)
-						
-						lDoubling *= 2;						
+						bSuccessReceiving = socket.recv(&reply); // Blocking.
 					}
-
+					else	// not blocking
+					{
+						int		nReceiveTries = 0;
+						long lDoubling = lLatencyRecvMicroSec;
+						
+						while ((nReceiveTries++ < /*7*/OTLog::GetLatencyReceiveNoTries()) && 
+							   (false == (bSuccessReceiving = socket.recv(&reply, ZMQ_NOBLOCK)))) // <========= RECEIVE
+						{
+							zmq::poll(&items[0], 1, lDoubling);	// ZMQ_POLLIN, 1 item, timeout (microseconds in ZMQ 2.1; changes to milliseconds in 3.0)
+							lDoubling *= 2;						
+//							OTLog::SleepMilliseconds( /*200*/ lLatencyRecvMilliSec);
+						}
+					}
+					
 //					std::string str_Result;
 //					str_Result.reserve(reply.size());
 //					str_Result.append(static_cast<const char*>(reply.data()), reply.size());

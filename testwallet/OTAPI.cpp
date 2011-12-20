@@ -2961,8 +2961,8 @@ const char * OT_API_SmartContract_AddVariable(const char * THE_CONTRACT,	// The 
 	
 	if (str_type.compare("bool") == 0)
 		theType = OTVariable::Var_Bool;
-	else if (str_type.compare("long") == 0)
-		theType = OTVariable::Var_Long;
+	else if (str_type.compare("integer") == 0)
+		theType = OTVariable::Var_Integer;
 	else if (str_type.compare("string") == 0)
 		theType = OTVariable::Var_String;
 	// ---------------------
@@ -2982,10 +2982,10 @@ const char * OT_API_SmartContract_AddVariable(const char * THE_CONTRACT,	// The 
 			bAdded = pBylaw->AddVariable(str_name, bValue, theAccess);
 		}
 			break;
-		case OTVariable::Var_Long:
+		case OTVariable::Var_Integer:
 		{
-			const long lValue = atol(str_value.c_str());
-			bAdded = pBylaw->AddVariable(str_name, lValue, theAccess);
+			const int nValue = atoi(str_value.c_str());
+			bAdded = pBylaw->AddVariable(str_name, nValue, theAccess);
 		}
 			break;
 		case OTVariable::Var_String:
@@ -9387,17 +9387,27 @@ void OT_API_processInbox(const char * SERVER_ID,
 
 
 void OT_API_processNymbox(const char * SERVER_ID,
-						  const char * USER_ID,
-						  const char * ACCT_LEDGER)
+						  const char * USER_ID)
 {
 	OT_ASSERT_MSG(NULL != SERVER_ID, "Null SERVER_ID passed in.");
 	OT_ASSERT_MSG(NULL != USER_ID, "Null USER_ID passed in.");
-	OT_ASSERT_MSG(NULL != ACCT_LEDGER, "NULL ACCT_LEDGER passed in.");
 	
 	OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID);
-	OTString strLedger(ACCT_LEDGER);
+
+	OTLedger * pNymbox = g_OT_API.LoadNymbox(theServerID, theUserID);
+	OTCleanup<OTLedger> theLedgerAngel(pNymbox);
 	
-	g_OT_API.processNymbox(theServerID, theUserID, strLedger);
+	if (NULL == pNymbox)
+	{
+		OTLog::vOutput(0, "OT_API_processNymbox: Failed: Couldn't load Nymbox for: %s on Server: %s \n",
+					   USER_ID, SERVER_ID);
+	}
+	else 
+	{
+		OTString strLedger(*pNymbox);
+		
+		g_OT_API.processNymbox(theServerID, theUserID, strLedger);
+	}
 }
 
 

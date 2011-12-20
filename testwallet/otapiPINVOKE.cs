@@ -717,7 +717,7 @@ class otapiPINVOKE {
   public static extern void OT_API_processInbox(string jarg1, string jarg2, string jarg3, string jarg4);
 
   [DllImport("otapi", EntryPoint="CSharp_OT_API_processNymbox")]
-  public static extern void OT_API_processNymbox(string jarg1, string jarg2, string jarg3);
+  public static extern void OT_API_processNymbox(string jarg1, string jarg2);
 
   [DllImport("otapi", EntryPoint="CSharp_OT_API_withdrawVoucher")]
   public static extern void OT_API_withdrawVoucher(string jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6);

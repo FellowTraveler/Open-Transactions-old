@@ -91,7 +91,7 @@
     <LibraryPath>C:\~\Open-Transactions\OTLib\OTLib\TCP Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>C:\~\Open-Transactions\OTLib\simpleini;C:\~\zeromq\include;C:\~\protobuf\src;C:\~\OpenSSL-Win32\include;C:\~\Open-Transactions\XmlRpcC4Win;C:\~\Open-Transactions\OTLib;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Program Files\boost\boost_1_47;C:\Program Files\chaiscript 3.1.0\include;C:\~\Open-Transactions\OTLib\simpleini;C:\~\zeromq\include;C:\~\protobuf\src;C:\~\OpenSSL-Win32\include;C:\~\Open-Transactions\XmlRpcC4Win;C:\~\Open-Transactions\OTLib;$(IncludePath)</IncludePath>
     <LibraryPath>C:\~\Open-Transactions\OTLib\OTLib\Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='TCP Release|Win32'">
@@ -131,7 +131,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;OT_ZMQ_MODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>CHAISCRIPT_NO_THREADS;WIN32;NDEBUG;_LIB;OT_ZMQ_MODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>

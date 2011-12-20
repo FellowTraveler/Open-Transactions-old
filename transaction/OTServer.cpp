@@ -931,7 +931,7 @@ bool OTServer::LoadConfigFile()
 
                     if (strOutput.Exists())
                     {
-                        OTLog::vOutput(0, "Setting logfile to: %s\n", strOutput.Get());
+                        OTLog::vOutput(0, "Setting logfile: %s\n", strOutput.Get());
                         OTLog::SetLogfile(strOutput.Get());
                     }
                 }
@@ -944,7 +944,7 @@ bool OTServer::LoadConfigFile()
                 
                 if (NULL != pVal2)
                 {
-                    OTLog::vOutput(0, "Setting log level to: %d\n", atoi(pVal2));
+                    OTLog::vOutput(0, "Setting log level: %d\n", atoi(pVal2));
                     OTLog::SetLogLevel(atoi(pVal2));
                 }
                 else
@@ -957,7 +957,7 @@ bool OTServer::LoadConfigFile()
                 
                 if ((NULL != pVal) && (atoi(pVal)))
                 {
-                    OTLog::vOutput(0, "Setting heartbeat_no_requests to: %d\n", atoi(pVal));
+                    OTLog::vOutput(0, "Setting heartbeat_no_requests: %d\n", atoi(pVal));
                     OTServer::SetHeartbeatNoRequests(atoi(pVal));
                 }
             }
@@ -966,7 +966,7 @@ bool OTServer::LoadConfigFile()
                 
                 if ((NULL != pVal) && (atoi(pVal)))
                 {
-                    OTLog::vOutput(0, "Setting heartbeat ms_between_beats to: %d\n", atoi(pVal));
+                    OTLog::vOutput(0, "Setting heartbeat ms_between_beats: %d\n", atoi(pVal));
                     OTServer::SetHeartbeatMsBetweenBeats(atoi(pVal));
                 }
             }
@@ -974,11 +974,24 @@ bool OTServer::LoadConfigFile()
             // LATENCY
 			// So far I don't read the receive_no_tries and receive_ms here, though I could...
             {
+                const char * pVal = ini.GetValue("latency", "blocking");
+                
+                if (NULL != pVal)
+                {
+					const OTString strBlocking(pVal);
+					const bool bBlocking = strBlocking.Compare("true") ? true : false;
+					
+                    OTLog::vOutput(0, "Setting latency blocking: %s\n",
+								   bBlocking ? "true" : "false");
+                    OTLog::SetBlocking(bBlocking);
+                }
+            }
+            {
                 const char * pVal = ini.GetValue("latency", "send_no_tries");
                 
                 if ((NULL != pVal) && (atoi(pVal)))
                 {
-                    OTLog::vOutput(0, "Setting latency send_no_tries to: %d\n", atoi(pVal));
+                    OTLog::vOutput(0, "Setting latency send_no_tries: %d\n", atoi(pVal));
                     OTLog::SetLatencySendNoTries(atoi(pVal));
                 }
             }
@@ -987,7 +1000,7 @@ bool OTServer::LoadConfigFile()
                 
                 if ((NULL != pVal) && (atoi(pVal)))
                 {
-                    OTLog::vOutput(0, "Setting latency send_ms to: %d\n", atoi(pVal));
+                    OTLog::vOutput(0, "Setting latency send_ms: %d\n", atoi(pVal));
                     OTLog::SetLatencySendMs(atoi(pVal));
                 }
             }
@@ -999,8 +1012,19 @@ bool OTServer::LoadConfigFile()
                 if (NULL != pVal)
                 {
 					const std::string strVal(pVal);
-                    OTLog::vOutput(0, "Setting permissions override_nym_id to: %s\n", strVal.c_str());
+                    OTLog::vOutput(0, "Setting permissions override_nym_id: %s\n", strVal.c_str());
                     OTServer::SetOverrideNymID(strVal);
+                }
+            }
+            // ---------------------------------------------
+			// MARKETS
+            {
+                const char * pVal = ini.GetValue("markets", "minimum_scale");
+                long lScale = 0;
+                if ((NULL != pVal) && (lScale = atol(pVal)))
+                {
+                    OTLog::vOutput(0, "Setting markets minimum_scale: %ld\n", lScale);
+                    OTLog::SetMinMarketScale(lScale);
                 }
             }
 			// ---------------------------------------------
@@ -1646,51 +1670,65 @@ void OTServer::UserCmdGetTransactionNum(OTPseudonym & theNym, OTMessage & MsgIn,
 	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
 	msgOut.m_strServerID	= m_strServerID;	// ServerID, a hash of the server contract.
 	
-	// This call will save the new transaction number to the nym's file.
-    // ??? Why did I say that, when clearly the last parameter is false?
-    // AHHHH Because I drop it into the Nymbox instead, and make him sign for it!
-    //
-	bool bGotNextTransNum	= IssueNextTransactionNumber(theNym, lTransNum, false); // bool bStoreTheNumber = false
-	
-	OTIdentifier USER_ID;
 	const OTIdentifier SERVER_ID(m_strServerID);
-	theNym.GetIdentifier(USER_ID);
-		
-	OTLedger theLedger(USER_ID, USER_ID, SERVER_ID);
-		
-	if (!bGotNextTransNum)
-	{
-		lTransNum = 0;
-		OTLog::Error("Error getting next transaction number in OTServer::UserCmdGetTransactionNum\n");
-	}
-	// Drop in the Nymbox 
-	else if (msgOut.m_bSuccess = (theLedger.LoadNymbox() && theLedger.VerifyAccount(m_nymServer)) )
-	{						
-		OTTransaction * pTransaction = OTTransaction::GenerateTransaction(theLedger, OTTransaction::blank, lTransNum);
-		
-		if (NULL != pTransaction) // The above has an OT_ASSERT within, but I just like to check my pointers.
-		{			
-			pTransaction->	SignContract(m_nymServer);
-			pTransaction->	SaveContract();
 
-			theLedger.AddTransaction(*pTransaction);
-			
-			theLedger.ReleaseSignatures();
-			theLedger.SignContract(m_nymServer);
-			theLedger.SaveContract();
-			theLedger.SaveNymbox();
-		}
-	}
+	// ------------------------------------------------------------
+	int nCount = theNym.GetTransactionNumCount(SERVER_ID);
+	
+	if (nCount > 50) // todo no hardcoding. (max transaction nums allowed out at a single time.)
+	{
+		OTLog::vOutput(0, "OTServer::UserCmdGetTransactionNum: Failure: Nym %s already has "
+					   "more than 50 unused transaction numbers signed out. (He needs to use those first.)\n",
+					   MsgIn.m_strNymID.Get());
+	}	
+	// ------------------------------------------------------------
 	else
 	{
-		OTLog::Error("Error loading or verifying Nymbox in OTServer::UserCmdGetTransactionNum\n");
+		// This call will save the new transaction number to the nym's file.
+		// ??? Why did I say that, when clearly the last parameter is false?
+		// AHHHH Because I drop it into the Nymbox instead, and make him sign for it!
+		//
+		bool bGotNextTransNum	= IssueNextTransactionNumber(theNym, lTransNum, false); // bool bStoreTheNumber = false
+		
+		OTIdentifier USER_ID;
+		theNym.GetIdentifier(USER_ID);
+			
+		OTLedger theLedger(USER_ID, USER_ID, SERVER_ID);
+			
+		if (!bGotNextTransNum)
+		{
+			lTransNum = 0;
+			OTLog::Error("Error getting next transaction number in OTServer::UserCmdGetTransactionNum\n");
+		}
+		// Drop in the Nymbox 
+		else if (msgOut.m_bSuccess = (theLedger.LoadNymbox() && theLedger.VerifyAccount(m_nymServer)) )
+		{						
+			OTTransaction * pTransaction = OTTransaction::GenerateTransaction(theLedger, OTTransaction::blank, lTransNum);
+			
+			if (NULL != pTransaction) // The above has an OT_ASSERT within, but I just like to check my pointers.
+			{			
+				pTransaction->	SignContract(m_nymServer);
+				pTransaction->	SaveContract();
+
+				theLedger.AddTransaction(*pTransaction);
+				
+				theLedger.ReleaseSignatures();
+				theLedger.SignContract(m_nymServer);
+				theLedger.SaveContract();
+				theLedger.SaveNymbox();
+			}
+		}
+		else
+		{
+			OTLog::Error("Error loading or verifying Nymbox in OTServer::UserCmdGetTransactionNum\n");
+		}
+		
+		RemoveTransactionNumber(theNym, lTransNum, false); //bSave=false
+		RemoveIssuedNumber(theNym, lTransNum, false); // I'll drop it in his Nymbox -- he can SIGN for it.
+		// Then why was it added in the first place? Because we originally sent it back in the reply directly, 
+		// so IssueNext was designed that way.
 	}
 	
-	RemoveTransactionNumber(theNym, lTransNum, false); //bSave=false
-	RemoveIssuedNumber(theNym, lTransNum, false); // I'll drop it in his Nymbox -- he can SIGN for it.
-	// Then why was it added in the first place? Because we originally sent it back in the reply directly, 
-	// so IssueNext was designed that way.
-
 	// (2) Sign the Message 
 	msgOut.SignContract(m_nymServer);		
 	
@@ -6255,13 +6293,15 @@ void OTServer::NotarizeMarketOffer(OTPseudonym & theNym, OTAccount & theAssetAcc
 			}
 			else if (!pTrade->VerifyOffer(theOffer))
 			{
-				OTLog::Output(0, "ERROR verifying Offer for Trade in OTServer::NotarizeMarketOffer\n");	
+				OTLog::Output(0, "FAILED verifying Offer for Trade in OTServer::NotarizeMarketOffer\n");	
 			}
-			            
+			else if (theOffer.GetScale() < OTLog::GetMinMarketScale())
+			{
+				OTLog::vOutput(0, "OTServer::NotarizeMarketOffer: FAILED verifying Offer, SCALE: %ld. (Minimum is %ld.) \n",
+							   theOffer.GetScale(), OTLog::GetMinMarketScale());	
+			}
             // At this point I feel pretty confident that the Trade is a valid request from the user.
-			
-			
-			
+			// -------------------------------------------------
 			// The top half of this function is oriented around finding the "marketOffer" item (in the "marketOffer"
 			// transaction) and setting up the response item that will go into the response transaction. It also
 			// retrieves the Trade object and fully validates it.

@@ -2927,15 +2927,13 @@ SWIGEXPORT void SWIGSTDCALL CSharp_OT_API_processInbox(char * jarg1, char * jarg
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_OT_API_processNymbox(char * jarg1, char * jarg2, char * jarg3) {
+SWIGEXPORT void SWIGSTDCALL CSharp_OT_API_processNymbox(char * jarg1, char * jarg2) {
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
-  char *arg3 = (char *) 0 ;
   
   arg1 = (char *)jarg1; 
   arg2 = (char *)jarg2; 
-  arg3 = (char *)jarg3; 
-  OT_API_processNymbox((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  OT_API_processNymbox((char const *)arg1,(char const *)arg2);
 }
 
 

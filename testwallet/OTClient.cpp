@@ -199,23 +199,31 @@ bool OTClient::ProcessInBuffer(OTMessage & theServerReply)
 /// built into the test client and not the library itself.) Update: this is
 /// becoming standard behavior for the Nymbox (NOT the inbox.)
 ///
-void OTClient::AcceptEntireNymbox(OTLedger & theNymbox, OTServerConnection & theConnection)
-{
+bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox, 
+//								  OTServerConnection	& theConnection, 
+								  const OTIdentifier	& theServerID,
+								  OTServerContract		& theServerContract, 
+								  OTPseudonym			& theNym,
+								  OTMessage				& theMessage)
+{	
+	// ---------------------------------------
+	
 	if (theNymbox.GetTransactionCount() < 1) 
 	{
 		// If there aren't any notices in the nymbox, no point wasting a # to process an empty box.
 		OTLog::Output(4, "OTClient::AcceptEntireNymbox: Nymbox is empty.\n");
 		
-		return;
+		return false;
 	}
 
     // ------------------------------------------------------
     
-	OTPseudonym * pNym	= theConnection.GetNym();
+	OTPseudonym * pNym	= &theNym;
+//	OTPseudonym * pNym	= theConnection.GetNym();
 
-	OTIdentifier theServerID;
-	theConnection.GetServerID(theServerID);
-
+//	OTIdentifier theServerID;
+//	theConnection.GetServerID(theServerID);
+	//
 	OTString strServerID(theServerID);
 	
     // Contrasting Inbox and Nymbox.
@@ -442,13 +450,14 @@ void OTClient::AcceptEntireNymbox(OTLedger & theNymbox, OTServerConnection & the
 	//
 	if (pAcceptTransaction->GetItemCount())
 	{
-		OTMessage theMessage;
+//		OTMessage theMessage;
 		
 		if (ProcessUserCommand(OTClient::processNymbox, theMessage, 
-										   *pNym, 
-//										   *(pAssetContract),
-										   *(theConnection.GetServerContract()), 
-										     NULL)) 
+							   *pNym, 
+//								*(pAssetContract),
+							   theServerContract,
+//							   *(theConnection.GetServerContract()), 
+							   NULL)) 
 		{
 			// the message is all set up and ready to go out... it's even signed.
 			// Except the ledger we're sending, still needs to be added, and then the
@@ -512,8 +521,10 @@ void OTClient::AcceptEntireNymbox(OTLedger & theNymbox, OTServerConnection & the
 			// was signed already in the above call to ProcessUserCommand.
 			theMessage.ReleaseSignatures();
 			
+			return true;
+			
 			// Sign it and send it out.
-			theConnection.SignAndSend(theMessage);
+//			theConnection.SignAndSend(theMessage);
 			// I could have called SignContract() and then theConnection.ProcessMessageOut(message) 
 			// but I used the above function instead.
 	
@@ -521,6 +532,8 @@ void OTClient::AcceptEntireNymbox(OTLedger & theNymbox, OTServerConnection & the
 		else
 			OTLog::Error("Error processing processNymbox command in OTClient::AcceptEntireNymbox\n");
 	}
+	
+	return false;
 }
 
 
@@ -556,16 +569,24 @@ void OTClient::AcceptEntireNymbox(OTLedger & theNymbox, OTServerConnection & the
 /// Without regard to WHAT those transactions ARE that are in my inbox,
 /// just process and accept them all!!!  (This is AUTO-ACCEPT functionality
 /// built into the test client and not the library itself.)
-void OTClient::AcceptEntireInbox(OTLedger & theInbox, OTServerConnection & theConnection)
+//
+bool OTClient::AcceptEntireInbox(OTLedger			& theInbox, 
+								 const OTIdentifier	& theServerID,
+								 OTServerContract	& theServerContract, 
+								 OTPseudonym		& theNym,
+								 OTMessage			& theMessage,
+								 OTAccount			& theAccount)
 {
 	bool bSuccess = false;
 	
-	OTPseudonym * pNym		= theConnection.GetNym();
+	OTPseudonym * pNym	= &theNym;
+//	OTPseudonym * pNym	= theConnection.GetNym();
 	
-	OTIdentifier theAccountID(theInbox), theServerID;
-	theConnection.GetServerID(theServerID);
+	OTIdentifier theAccountID(theInbox);
+//	theConnection.GetServerID(theServerID);
 	
-	OTAccount	* pAccount	= theConnection.GetWallet()->GetAccount(theAccountID);
+	OTAccount	* pAccount	= &theAccount;
+//	OTAccount	* pAccount	= theConnection.GetWallet()->GetAccount(theAccountID);
 	
 	OTLedger * pOutbox	= pAccount->LoadOutbox(*pNym); // Need this for balance agreement (outbox hash)
 	
@@ -574,7 +595,7 @@ void OTClient::AcceptEntireInbox(OTLedger & theInbox, OTServerConnection & theCo
 	if (NULL == pOutbox)
 	{
 		OTLog::Output(0, "OTClient::AcceptEntireInbox: Failed loading outbox!\n");
-		return;
+		return false;
 	}
 	
 	// ---------------------------------------------
@@ -584,7 +605,7 @@ void OTClient::AcceptEntireInbox(OTLedger & theInbox, OTServerConnection & theCo
 		// If there aren't any transactions in the inbox, no point wasting a # to process an empty box.
 		OTLog::Output(4, "OTClient::AcceptEntireInbox: no point wasting a transaction number in order to process an empty box\n");
 		
-		return;
+		return false;
 	}
 	
 	OTString strServerID(theServerID);
@@ -594,7 +615,7 @@ void OTClient::AcceptEntireInbox(OTLedger & theInbox, OTServerConnection & theCo
 	if (!bGotTransNum)
 	{
 		OTLog::Output(0, "Error: No transaction numbers are available. Suggest requesting the server for a new one.\n");
-		return;
+		return false;
 	}
 	
 	// the message to the server will contain a ledger to be processed for a specific acct.
@@ -1019,12 +1040,13 @@ void OTClient::AcceptEntireInbox(OTLedger & theInbox, OTServerConnection & theCo
 	if (pAcceptTransaction->GetItemCount())
 	{
 		OTMessage theMessage;
-		OTAssetContract * pAssetContract	= theConnection.GetWallet()->GetAssetContract(pAccount->GetAssetTypeID());
+//		OTAssetContract * pAssetContract	= theConnection.GetWallet()->GetAssetContract(pAccount->GetAssetTypeID());
 		
 		if (pAccount && ProcessUserCommand(OTClient::processInbox, theMessage, 
 										   *pNym, 
 //										   *(pAssetContract),
-										   *(theConnection.GetServerContract()), 
+										   theServerContract,
+//										   *(theConnection.GetServerContract()), 
 										   pAccount)) 
 		{
 			// the message is all set up and ready to go out... it's even signed.
@@ -1090,7 +1112,7 @@ void OTClient::AcceptEntireInbox(OTLedger & theInbox, OTServerConnection & theCo
 			theMessage.ReleaseSignatures();
 			
 			// Sign it and send it out.
-			theConnection.SignAndSend(theMessage);
+//			theConnection.SignAndSend(theMessage);
 			// I could have called SignContract() and then theConnection.ProcessMessageOut(message) 
 			// but I used the above function instead.
 			
@@ -1103,6 +1125,8 @@ void OTClient::AcceptEntireInbox(OTLedger & theInbox, OTServerConnection & theCo
 	// IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
 	if (false == bSuccess)
 		pNym->AddTransactionNum(*pNym, strServerID, lStoredTransactionNumber, true); // bSave=true
+	
+	return bSuccess;
 }
 
 
@@ -1850,22 +1874,25 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
 		// as well (We'll see.)
 #if defined (TEST_CLIENT)
 		if (!IsRunningAsScript())
-		{							
-			OTMessage theMessage;
-			OTAccount * pAccount = NULL;
-			
-			if ( (NULL != (pAccount = m_pWallet->GetAccount(ACCOUNT_ID))) && 
-				ProcessUserCommand(OTClient::getAccount, theMessage, 
-								   *pNym, 
-//								   *(pAssetContract),
-								   *(theConnection.GetServerContract()), 
-								   pAccount)) 
-			{
-				// Sign it and send it out.
-				theConnection.ProcessMessageOut(theMessage);
-			}
-			else
-				OTLog::Error("Error processing getAccount command in OTClient::ProcessServerReply @notarizeTransactions\n");
+		{
+			OTLog::vOutput(0, "%s%s%s", theReply.m_bSuccess ? "\n SUGGEST you next 'get' (account): " : "",
+						  theReply.m_bSuccess ? theReply.m_strAcctID.Get() : "", theReply.m_bSuccess ? "\n\n" : "");
+
+//			OTMessage theMessage;
+//			OTAccount * pAccount = NULL;
+//			
+//			if ( (NULL != (pAccount = m_pWallet->GetAccount(ACCOUNT_ID))) && 
+//				ProcessUserCommand(OTClient::getAccount, theMessage, 
+//								   *pNym, 
+//	//								*(pAssetContract),
+//								   *(theConnection.GetServerContract()), 
+//								   pAccount)) 
+//			{
+//				// Sign it and send it out.
+//				theConnection.ProcessMessageOut(theMessage);
+//			}
+//			else
+//				OTLog::Error("Error processing getAccount command in OTClient::ProcessServerReply @notarizeTransactions\n");
 		}
 #endif
 		
@@ -1885,40 +1912,45 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
 #if defined (TEST_CLIENT)
 		if (!IsRunningAsScript())
 		{
-			OTMessage theMessage;
-			
-			static int nLayersDeep = 0; // This creates a quasi-loop to grab 10 more transaction numbers (but not process Nymbox until all 10 are requested first...)
-			
-			if ((nLayersDeep < 10) && (pNym->GetTransactionNumCount(SERVER_ID) < 10))  // If I have less than 10 transaction numbers available, grab 10 more.
-			{
-				nLayersDeep++;
-				
-				if (ProcessUserCommand(OTClient::getTransactionNum, theMessage, 
-									   *pNym, 
-//										*(pAssetContract),
-									   *(theConnection.GetServerContract()), 
-									   NULL)) 
-				{
-					// Sign it and send it out.
-					theConnection.ProcessMessageOut(theMessage);
-				}
-				else
-					OTLog::Error("Error processing getTransactionNum command in OTClient::ProcessServerReply\n");
-			
-			}
-			else if (ProcessUserCommand(OTClient::getNymbox, theMessage,  
-										*pNym, 
-//										*(pAssetContract),
-										*(theConnection.GetServerContract()), 
-										NULL)) 
-			{
-				nLayersDeep = 0;
-				
-				// Sign it and send it out.
-				theConnection.ProcessMessageOut(theMessage);
-			}
-			else
-				OTLog::Error("Error processing getNymbox command in OTClient::ProcessServerReply\n");
+			if (theReply.m_bSuccess)
+				OTLog::vOutput(0, "\n\n SUGGEST you next 'y' (Download latest nymbox for: %s) \n"
+							   "I also suggest you use the current command ('n') 5 or 10 times in a row before doing the y.\n\n",
+							   theReply.m_strNymID.Get());
+
+//			OTMessage theMessage;
+//			
+//			static int nLayersDeep = 0; // This creates a quasi-loop to grab 10 more transaction numbers (but not process Nymbox until all 10 are requested first...)
+//			
+//			if ((nLayersDeep < 10) && (pNym->GetTransactionNumCount(SERVER_ID) < 10))  // If I have less than 10 transaction numbers available, grab 10 more.
+//			{
+//				nLayersDeep++;
+//				
+//				if (ProcessUserCommand(OTClient::getTransactionNum, theMessage, 
+//									   *pNym, 
+////										*(pAssetContract),
+//									   *(theConnection.GetServerContract()), 
+//									   NULL)) 
+//				{
+//					// Sign it and send it out.
+//					theConnection.ProcessMessageOut(theMessage);
+//				}
+//				else
+//					OTLog::Error("Error processing getTransactionNum command in OTClient::ProcessServerReply\n");
+//			
+//			}
+//			else if (ProcessUserCommand(OTClient::getNymbox, theMessage,  
+//										*pNym, 
+////										*(pAssetContract),
+//										*(theConnection.GetServerContract()), 
+//										NULL)) 
+//			{
+//				nLayersDeep = 0;
+//				
+//				// Sign it and send it out.
+//				theConnection.ProcessMessageOut(theMessage);
+//			}
+//			else
+//				OTLog::Error("Error processing getNymbox command in OTClient::ProcessServerReply\n");
 		}
 #endif
 		return true;
@@ -1928,14 +1960,13 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
 	{
 		OTString strReply(theReply);
 		
-		OTLog::Output(0, "Received server response to Get Nymbox message.\n");
-		//		OTLog::vOutput(0, "Received server response to Get Nymbox message:\n%s\n", strReply.Get());
+		OTLog::vOutput(0, "Received server response to getNymbox request: %s \n",
+					   theReply.m_bSuccess ? "success" : "failure");
+//		OTLog::vOutput(0, "Received server response to Get Nymbox message:\n%s\n", strReply.Get());
 		
 		// base64-Decode the server reply's payload into strInbox
 		OTString strNymbox(theReply.m_ascPayload);
-		
-//		OTLog::vError("NYMBOX CONTENTS:\n%s\n", strInbox.Get());
-		
+				
 		// Load the ledger object from that string.				
 		OTLedger theNymbox(USER_ID, USER_ID, SERVER_ID);	
 		
@@ -1954,6 +1985,10 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
 											// downloaded occasionally (like checking for new email) but no trust is risked since the dl'd
 											// file is always verified against the receipt!
 			
+			
+			OTLog::vOutput(0, "===> ** LAST SIGNED TRANSACTION RECEIPT *VERIFIED* against latest nym!\n\n");
+
+			// Old comment:
 			// (Accepting the entire nymbox automatically-- sending a signed message right
 			// back to the server accepting whatever was inside this ledger, without giving the user
 			// the opportunity to examine and reject those nymbox items.)
@@ -1964,24 +1999,28 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
 			if (OTTransaction::VerifyTransactionReceipt(*pServerNym, *pNym, SERVER_ID))
 			{
 //#if defined (TEST_CLIENT)
-				AcceptEntireNymbox(theNymbox, theConnection); // Perhaps just Verify Contract so it verifies signature too, and ServerID too if I override it and add that...
+				// Sorry, the client has to accept this by hand now.
+				// Can't just slip it in here, we were getting network issues.
+//				AcceptEntireNymbox(theNymbox, theConnection); // Perhaps just Verify Contract so it verifies signature too, and ServerID too if I override it and add that...
 //#endif
 				OTLog::vOutput(0, "===> ** LAST SIGNED TRANSACTION RECEIPT *VERIFIED* against latest nym!\n\n");
 			}
 			else 
 			{
 				OTLog::vOutput(0, "===> ** LAST SIGNED TRANSACTION RECEIPT *FAILED* against latest nym.\n"
-							   "(IF THE ACCOUNT IS NEW, i.e. it's never transacted before, then there IS NOT YET ANY RECEIPT, so this error is normal.)\n");
+							   "(However if the account IS NEW, (i.e. it's never transacted before), then there IS NOT YET ANY RECEIPT, so this error is normal.)\n");
 				
 //#if defined (TEST_CLIENT)
-				AcceptEntireNymbox(theNymbox, theConnection); // TODO -- Figure out how, if I want to handle this differently in the GUI itself.
+				// Sorry, the client has to accept this by hand now.
+				// Can't just slip it in here, we were getting network issues.
+//				AcceptEntireNymbox(theNymbox, theConnection); // TODO -- Figure out how, if I want to handle this differently in the GUI itself.
 //#endif	
 			}
-            
-            
-            OTLog::SleepMilliseconds(OTLog::GetLatencyReceiveMs()); // I'm putting this here to make sure enough time passed, since updating transaction numbers.
-            // might remove this later. GUI was popping the wrong reply because the right one hadn't come in yet. This delay here gives time for replies.
-            // The bug was the one where, upon creating the third market offer, it failed, because balance agreement was failing.
+			
+#if defined (TEST_CLIENT)
+			if (!IsRunningAsScript())
+				OTLog::Output(0, theReply.m_bSuccess ? "\n SUGGEST you next do a 'py' command (processNymbox)\n\n" : "");
+#endif	
 		}
 		else 
 		{
@@ -2552,7 +2591,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
 				}
                 // *********************************************************************************
                 //
-				else  // process Nymbox.  // We're processing the SERVER's REPLY to our processNymbox request.
+				else  // @processNymbox.  // We're processing the SERVER's REPLY to our processNymbox request.
 				{                    
 					pTransaction		= theLedger.GetTransaction(OTTransaction::processNymbox);
 					pReplyTransaction	= theReplyLedger.GetTransaction(OTTransaction::atProcessNymbox);
@@ -2640,7 +2679,8 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
                         
                         // I JUST had this loaded if I sent acceptWhatever just instants ago, (which I am now processing the reply for.)
                         // Therefore I'm just ASSUMING here that it loads successfully here, since it worked an instant ago. Todo.
-                        OT_ASSERT_MSG(theNymbox.LoadNymbox(), "Was trying to load Nymbox.");
+						bool bLoadedNymbox = theNymbox.LoadNymbox();
+                        OT_ASSERT_MSG(bLoadedNymbox, "Was trying to load Nymbox.");
                         
                         // -------------------------------------
                         // Next, loop through the reply items for each "process nymbox" item that I must have previously sent.
@@ -2916,22 +2956,30 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
 						if (!IsRunningAsScript() &&
 							(OTItem::acknowledgement == pReplyItem->GetStatus()) &&
 							(theReply.m_strCommand.Compare("@processInbox")))
-						{							
-							OTMessage theMessage;
-							OTAccount * pAccount = NULL;
+						{
+							OTAccount * pAccount = m_pWallet->GetAccount(ACCOUNT_ID);
+							const OTString strAcctID(*pAccount);
 							
-							if ( (NULL != (pAccount = m_pWallet->GetAccount(ACCOUNT_ID))) && 
-								ProcessUserCommand(OTClient::getAccount, theMessage, 
-												   *pNym, 
-//													*(pAssetContract),
-												   *(theConnection.GetServerContract()), 
-												   pAccount)) 
-							{
-								// Sign it and send it out.
-								theConnection.ProcessMessageOut(theMessage);
-							}
-							else
-								OTLog::Error("Error processing getAccount command in OTClient::ProcessServerReply\n");
+							OTLog::vOutput(0, "\n SUGGEST you next do a 'get' command (getAccount: %s)\n\n",
+										   strAcctID.Get());
+//							OTLog::vOutput(0, "%s%s%s", theReply.m_bSuccess ? "\n SUGGEST you next 'get' (account): " : "",
+//										  theReply.m_bSuccess ? theReply.m_strAcctID.Get() : "", theReply.m_bSuccess ? "\n\n" : "");
+//
+							
+//							OTMessage theMessage;
+//							
+//							if ( (NULL != pAccount) && 
+//								ProcessUserCommand(OTClient::getAccount, theMessage, 
+//												   *pNym, 
+////												*(pAssetContract),
+//												   *(theConnection.GetServerContract()), 
+//												   pAccount)) 
+//							{
+//								// Sign it and send it out.
+//								theConnection.ProcessMessageOut(theMessage);
+//							}
+//							else
+//								OTLog::Error("Error processing getAccount command in OTClient::ProcessServerReply\n");
 						}
 #endif
 					}
@@ -3066,8 +3114,8 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
 			// we end up RIGHT HERE, so this is the best place to verify the last signed receipt(s)
 			// against those new files to make sure they pass muster.
 			//
-				if (!IsRunningAsScript())
-					AcceptEntireInbox(theInbox, theConnection);
+//			if (!IsRunningAsScript())
+//				AcceptEntireInbox(theInbox, theConnection);
 #endif
 				OTLog::vOutput(0, "===> ** LAST SIGNED BALANCE RECEIPT *VERIFIED* against latest nym, account, outbox, and/or inbox!\n\n");
 			}
@@ -3076,11 +3124,16 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
 				OTLog::vOutput(0, "===> ** LAST SIGNED BALANCE RECEIPT *FAILED* against latest nym, account, outbox, and/or inbox.\n"
 							   "(IF THE ACCOUNT IS NEW, i.e. it's never transacted before, then there IS NOT YET ANY RECEIPT, so this error is normal.)\n");
 				
-#if defined (TEST_CLIENT)
-				if (!IsRunningAsScript())
-					AcceptEntireInbox(theInbox, theConnection);
-#endif	
+//#if defined (TEST_CLIENT)
+//				if (!IsRunningAsScript())
+//					AcceptEntireInbox(theInbox, theConnection);
+//#endif	
 			}
+
+#if defined (TEST_CLIENT)
+			if (!IsRunningAsScript())
+				OTLog::Output(0, theReply.m_bSuccess ? "\n SUGGEST you next do a 'pi' command (processInbox)\n\n" : "");
+#endif				
 		}
 		else 
 		{
@@ -3120,21 +3173,26 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
 #if defined (TEST_CLIENT)
 			if (!IsRunningAsScript())
 			{
-				OTMessage theMessage;
-				OTAccount * pAccount = NULL;
+				OTAccount * pAccount = m_pWallet->GetAccount(ACCOUNT_ID);
+				const OTString strAcctID(*pAccount);
 				
-				if ( (NULL != (pAccount = m_pWallet->GetAccount(ACCOUNT_ID))) && 
-					ProcessUserCommand(OTClient::getInbox, theMessage, 
-									   *pNym, 
-	//								   *(pAssetContract),
-									   *(theConnection.GetServerContract()), 
-									   pAccount)) 
-				{
-					// Sign it and send it out.
-					theConnection.ProcessMessageOut(theMessage);
-				}
-				else
-					OTLog::Error("Error processing getInbox command in OTClient::ProcessServerReply\n");
+				OTLog::vOutput(0, "\n SUGGEST you next do a 'i' command (getInbox: %s)\n\n",
+							   strAcctID.Get());
+
+//				OTMessage theMessage;
+//				
+//				if ( (NULL != (pAccount = m_pWallet->GetAccount(ACCOUNT_ID))) && 
+//					ProcessUserCommand(OTClient::getInbox, theMessage, 
+//									   *pNym, 
+//	//								   *(pAssetContract),
+//									   *(theConnection.GetServerContract()), 
+//									   pAccount)) 
+//				{
+//					// Sign it and send it out.
+//					theConnection.ProcessMessageOut(theMessage);
+//				}
+//				else
+//					OTLog::Error("Error processing getInbox command in OTClient::ProcessServerReply\n");
 			}
 #endif
 		}
@@ -3660,19 +3718,24 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
 #if defined (TEST_CLIENT)
 				if (!IsRunningAsScript())
 				{
-					OTMessage theMessage;
+					const OTString strAcctID(*pAccount);
 					
-					if (ProcessUserCommand(OTClient::getOutbox, theMessage, 
-											*pNym, 
-//											*(pAssetContract),
-											*(theConnection.GetServerContract()), 
-											pAccount)) 
-					{
-						// Sign it and send it out.
-						theConnection.ProcessMessageOut(theMessage);
-					}
-					else
-						OTLog::Error("Error processing getOutbox command in OTClient::ProcessServerReply @issueAssetType\n");
+					OTLog::vOutput(0, "\n SUGGEST you next do an 'o' command (getOutbox: %s)\n\n",
+								   strAcctID.Get());					
+					
+//					OTMessage theMessage;
+//					
+//					if (ProcessUserCommand(OTClient::getOutbox, theMessage, 
+//											*pNym, 
+////											*(pAssetContract),
+//											*(theConnection.GetServerContract()), 
+//											pAccount)) 
+//					{
+//						// Sign it and send it out.
+//						theConnection.ProcessMessageOut(theMessage);
+//					}
+//					else
+//						OTLog::Error("Error processing getOutbox command in OTClient::ProcessServerReply @issueAssetType\n");
 				}
 #endif			
 				
@@ -3722,19 +3785,24 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
 #if defined (TEST_CLIENT)
 				if (!IsRunningAsScript())
 				{
-					OTMessage theMessage;
+					const OTString strAcctID(*pAccount);
 					
-					if (ProcessUserCommand(OTClient::getOutbox, theMessage,
-										   *pNym, 
-//											*(pAssetContract),
-										   *(theConnection.GetServerContract()), 
-										   pAccount)) 
-					{
-						// Sign it and send it out.
-						theConnection.ProcessMessageOut(theMessage);
-					}
-					else
-						OTLog::Error("Error processing getOutbox command in OTClient::ProcessServerReply @getAccount\n");
+					OTLog::vOutput(0, "\n SUGGEST you next do an 'o' command (getOutbox: %s)\n\n",
+								   strAcctID.Get());					
+					
+//					OTMessage theMessage;
+//					
+//					if (ProcessUserCommand(OTClient::getOutbox, theMessage,
+//										   *pNym, 
+////										*(pAssetContract),
+//										   *(theConnection.GetServerContract()), 
+//										   pAccount)) 
+//					{
+//						// Sign it and send it out.
+//						theConnection.ProcessMessageOut(theMessage);
+//					}
+//					else
+//						OTLog::Error("Error processing getOutbox command in OTClient::ProcessServerReply @getAccount\n");
 				}
 #endif			
 				// --------------------------------------------------
@@ -3788,24 +3856,30 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
 #if defined (TEST_CLIENT)
 				if (!IsRunningAsScript())
 				{
-					OTMessage theMessage;
+					const OTString strAcctID(*pAccount);
 					
-					if (ProcessUserCommand(OTClient::getOutbox, theMessage, 
-										   *pNym, 
-//											*(pAssetContract),
-										   *(theConnection.GetServerContract()), 
-										   pAccount)) 
-					{
-						// Sign it and send it out.
-						theConnection.ProcessMessageOut(theMessage);
-					}
-					else
-						OTLog::Error("Error processing getOutbox command in OTClient::ProcessServerReply @createAccount\n");
+					OTLog::vOutput(0, "\n SUGGEST you next do an 'o' command (getOutbox: %s)\n\n",
+								   strAcctID.Get());					
+					
+//					OTMessage theMessage;
+//					
+//					if (ProcessUserCommand(OTClient::getOutbox, theMessage, 
+//										   *pNym, 
+////										*(pAssetContract),
+//										   *(theConnection.GetServerContract()), 
+//										   pAccount)) 
+//					{
+//						// Sign it and send it out.
+//						theConnection.ProcessMessageOut(theMessage);
+//					}
+//					else
+//						OTLog::Error("Error processing getOutbox command in OTClient::ProcessServerReply @createAccount\n");
 				}
 #endif			
 				return true;
 			}
-			else {
+			else 
+			{
 				delete pAccount;
 				pAccount = NULL;
 			}
@@ -5190,7 +5264,66 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		bSendCommand = true;
 	}
 	
+	
+	/*
+	 bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
+								  OTMessage & theMessage,
+								  OTPseudonym & theNym,
+//								  OTAssetContract & theContract,
+								  OTServerContract & theServer,
+								  OTAccount * pAccount=NULL,
+                                  long lTransactionAmount=0,
+                                  OTAssetContract * pMyAssetContract=NULL,
+                                  OTIdentifier * pHisNymID=NULL,
+                                  OTIdentifier * pHisAcctID=NULL)
+{
+	// This is all preparatory work to get the various pieces of data together -- only
+	// then can we put those pieces into a message.
+	OTIdentifier CONTRACT_ID;
+	OTString strNymID, strContractID, strServerID, strNymPublicKey, strAccountID;
+	long lRequestNumber = 0;
+	
+	theNym.GetIdentifier(strNymID);
+	theServer.GetIdentifier(strServerID);
+
+    const OTIdentifier SERVER_ID(strServerID);
+	*/
+	
 	// ------------------------------------------------------------------------
+	// This is called by the command line user.
+	
+	else if (OTClient::processEntireNymbox == requestedCommand) // PROCESS ENTIRE NYMBOX
+	{
+		const OTIdentifier MY_NYM_ID(theNym);
+		
+		// Load up the appropriate Nymbox... 
+		OTLedger theNymbox(MY_NYM_ID, MY_NYM_ID, SERVER_ID);
+		
+		bool bLoadedNymbox = (theNymbox.LoadNymbox() && theNymbox.VerifyAccount(theNym));
+		
+		// (0) Set up the REQUEST NUMBER and then INCREMENT IT
+		// (1) Set up member variables 
+		bool bSuccess = (bLoadedNymbox && AcceptEntireNymbox(theNymbox, SERVER_ID, theServer, theNym, theMessage));
+		// -----------------
+		
+		if (bSuccess)
+		{
+			// (2) Sign the Message 
+			theMessage.SignContract(theNym);		
+			
+			// (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+			theMessage.SaveContract();
+			
+			bSendCommand = true;
+		}
+		else
+		{
+			OTLog::vOutput(0, "OTClient::processEntireNymbox: Failed loading, verifying, or accepting entire Nymbox.\n");
+		}
+	}
+	
+	// ------------------------------------------------------------------------
+	// This is called by AcceptEntireNymbox().
 	
 	else if (OTClient::processNymbox == requestedCommand) // PROCESS NYMBOX
 	{			
@@ -5214,8 +5347,93 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 	}
 	
 	// ------------------------------------------------------------------------
+	// This is called by the user of the command line utility.
+	//
+	else if (OTClient::processEntireInbox == requestedCommand) // PROCESS ENTIRE INBOX
+	{
+		const OTIdentifier MY_NYM_ID(theNym);
+		
+		OTString strFromAcct;
+		
+		if (NULL == pAccount)
+		{
+			OTLog::Output(0, "Please enter an asset Account ID (to PROCESS its INBOX): ");
+			// User input.
+			// I need a from account
+			strFromAcct.OTfgets(std::cin);
+			
+			if (strFromAcct.GetLength() < 2)
+				return false;
+			
+			const OTIdentifier ACCOUNT_ID(strFromAcct);
+			
+			if (pAccount = m_pWallet->GetAccount(ACCOUNT_ID))
+			{
+                pAccount->GetIdentifier(strFromAcct);
+				CONTRACT_ID = pAccount->GetAssetTypeID();
+				CONTRACT_ID.GetString(strContractID);
+			}
+			else if (pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get()))
+			{
+                pAccount->GetIdentifier(strFromAcct);
+				CONTRACT_ID = pAccount->GetAssetTypeID();
+				CONTRACT_ID.GetString(strContractID);
+			}
+            else
+            {
+                OTLog::Error("Unable to process inbox without account ID. Try adding:  --myacct ACCOUNT_ID\n");
+                return false;
+            }
+		}
+        else
+        {
+            pAccount->GetIdentifier(strFromAcct);
+            CONTRACT_ID = pAccount->GetAssetTypeID();
+            CONTRACT_ID.GetString(strContractID);
+        }
+        
+        if (pAccount->GetPurportedServerID() != SERVER_ID)
+        {
+            OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
+                         "(Try adding:  --server SERVER_ID)\n");
+            return false;
+        }
+        
+        // ------------------------------------
+        
+		OTIdentifier theAccountID;
+        pAccount->GetIdentifier(theAccountID);
+
+		// ----------------------------------------------------
+		// Load up the appropriate Inbox... 
+		OTLedger theInbox(MY_NYM_ID, theAccountID, SERVER_ID);
+		
+		bool bLoadedInbox = (theInbox.LoadInbox() && theInbox.VerifyAccount(theNym));
+		
+		// (0) Set up the REQUEST NUMBER and then INCREMENT IT
+		// (1) Set up member variables 
+		bool bSuccess = (bLoadedInbox && AcceptEntireInbox(theInbox, SERVER_ID, theServer, theNym, theMessage, *pAccount));
+		// -----------------		
+		
+		if (bSuccess)
+		{
+			// (2) Sign the Message 
+			theMessage.SignContract(theNym);		
+			
+			// (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+			theMessage.SaveContract();
+			
+			bSendCommand = true;
+		}
+		else
+		{
+			OTLog::vOutput(0, "OTClient::processEntireInbox: Failed loading, verifying, or accepting entire Inbox.\n");
+		}
+	}
 	
-	
+	// ------------------------------------------------------------------------
+	// This is called by AcceptEntireInbox(). 
+	//
 	else if (OTClient::processInbox == requestedCommand) // PROCESS INBOX
 	{
         OTString strFromAcct;

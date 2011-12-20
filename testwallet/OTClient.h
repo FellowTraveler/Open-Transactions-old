@@ -230,9 +230,11 @@ public:
 		
 		getOutbox,			// Grab a copy of my outbox from the server so I can decide what to do with it.
 		
-		processNymbox,		// Instruct the server what to do with the various items sitting in my nymbox. (per user)
+		processNymbox,		// Used by AcceptEntireNymbox() as it's setting everything up.
+		processEntireNymbox,// Instruct the server what to do with the various items sitting in my nymbox. (per user)
 		
 		processInbox,		// Instruct the server what to do with the various items sitting in my inbox. (per asset acct)
+		processEntireInbox,	// Just accept everything in the server (used in the command line test client.)
 		
 		getAccount,			// Grab the server's copy of my asset account file, in case mine is lost.
 		
@@ -356,9 +358,22 @@ public:
 	void ProcessDepositResponse(OTTransaction & theTransaction, OTServerConnection & theConnection, OTMessage & theReply);
 
 	
-	void AcceptEntireInbox(OTLedger & theInbox, OTServerConnection & theConnection);
-	void AcceptEntireNymbox(OTLedger & theNymbox, OTServerConnection & theConnection);
+//	void AcceptEntireInbox(OTLedger & theInbox, OTServerConnection & theConnection);
+//	void AcceptEntireNymbox(OTLedger & theNymbox, OTServerConnection & theConnection);
 
+	bool AcceptEntireInbox(OTLedger				& theInbox, 
+						   const OTIdentifier	& theServerID,
+						   OTServerContract		& theServerContract, 
+						   OTPseudonym			& theNym,
+						   OTMessage			& theMessage,
+						   OTAccount			& theAccount);
+	
+	bool AcceptEntireNymbox(OTLedger			& theNymbox, 
+							const OTIdentifier	& theServerID,
+							OTServerContract	& theServerContract, 
+							OTPseudonym			& theNym,
+							OTMessage			& theMessage);
+	
 	void HarvestTransactionNumbers(OTTransaction & theTransaction, OTPseudonym & theNym);	
 
 };

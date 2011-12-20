@@ -1983,9 +1983,13 @@ void OT_API_processInbox(const char * SERVER_ID,
 
 /// I use this automatically to save the API developers the hassle (for now)
 /// added here for completeness.
+/// UPDATE: It was a mistake for me to automatically call this, which can 
+/// mess up the client's expectation of which messages are being sent/received.
+/// It was causing network problems. Now clients NEED to call this themselves,
+/// after getting the Nymbox. I can't call it for them anymore.
+///
 void OT_API_processNymbox(const char * SERVER_ID,
-						  const char * USER_ID,
-						  const char * ACCT_LEDGER);
+						  const char * USER_ID);
 
 
 // --------------------------------------------------------------------------

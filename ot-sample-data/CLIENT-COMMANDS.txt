@@ -1,123 +1,16 @@
-TO GIT
-
-   git clone git://github.com/FellowTraveler/Open-Transactions.git
-   cd Open-Transactions
-
------------------------------------
-
-TO BUILD
-   make clean && make
-   sudo make install
-
-Notes:
-https://github.com/FellowTraveler/Open-Transactions/wiki/Install
-
------------------------------------
-
-TO BUILD FOR MONEYCHANGER (Java-based GUI)
-
-   make clean && make java
-
-FYI: https://github.com/FellowTraveler/Moneychanger
-
------------------------------------
-
-TO INSTALL
-   sudo make install
-
-FYI, This copies transaction/transaction.exe to /usr/local/bin/ot_server, 
-and it copies testwallet/testwallet.exe to /usr/local/bin/ot
-It also creates the ~/.ot folder, and copies the contents of ot-sample-data
-into that folder.
-
-Important configuration data is located in the various .cfg and .opt files
-located in ~/.ot
-(I suggest you check them out.)
-You can browse it online here:
-https://github.com/FellowTraveler/Open-Transactions/tree/master/ot-sample-data
-
------------------------------------
-
-TO START THE SERVER
-
-   ot_server
-
-It will probably ask you to enter a password and a path. Don't worry,
-it gives clear instructions. Also see the INSTALL docs.
-
------------------------------------
-
-OT GUI (MONEYCHANGER)
-
-To start Moneychanger, just double click the jar file.
-Or type: java -jar JavaWrapper.jar
-
-You will need to select the data folder for the client.
-
-This is located in:   ~/.ot/client_data
-
------------------------------------
-
-To use the OT COMMAND-LINE...
-
-In a new shell, run the command-line utility like this: 
-
-   ot -? 
-
-(NOTE: for now, do not run multiple clients AT THE SAME TIME against
-the SAME data folder!)
-
-COMMAND-LINE COMMANDS / OPTIONS:
-
-ot  --stat            (Prints the wallet contents)
-ot  [-h|-?|--help]    (Prints this help) 
-The '|' symbol means use --balance or -b, use --withdraw or -w, etc.
-The brackets '[]' show required arguments, where default values are
-normally expected to be found in:   ~/.ot/command-line-ot.opt
-ot  --balance  | -b          [--myacct <acct_id>]   (Display account balance)
-ot  --withdraw | -w <amount> [--myacct <acct_id>]   (Withdraw as CASH)
-ot  --transfer | -t <amount> [--myacct <acct_id>] [--hisacct <acct_id>]
-ot  --cheque   | -c <amount> [--myacct <acct_id>] [--hisnym  <nym_id> ]
-ot  --voucher  | -v <amount> [--myacct <acct_id>] [--hisnym  <nym_id> ]
-ot  --depositcheque  [--myacct <acct_id>]   (Deposit a cheque.)
-ot  --depositpurse   [--myacct <acct_id>]   (Deposit a cash purse.)
-ot  --deposittokens  [--myacct <acct_id>]   (Deposit individual cash tokens.)
-ot  --inbox    | -i  [--myacct <acct_id>]   (Display the inbox.)
-ot  --sign     | -s  [--mynym  <nym_id> ]   (Sign a contract.)
-ot  --verify         [--mynym  <nym_id> ]   (Verify a signature.)
-ot  --purse    | -p   <arguments>           (Display a purse.)
-  Arguments:     [--mynym  <nym_id> ] [--mypurse <asset_type_id>]
-ot  --refresh  | -r  [--myacct <acct_id>]    (Download account files from server.)
-ot  --refreshnym     [--mynym  <nym_id> ]    (Download nym files from server.)
-ot  --marketoffer    [--mynym  <nym_id> ]    (Place an offer on a market.)
-Also, [--server <server_id>] will work with all of the above.
-
-Recurring payments:
-ot --proposeplan  <arguments>   (Merchant)
-  Arguments: [--mynym  <nym_id> ] [--myacct  <acct_id>]  (continued.)
-  Continued: [--hisnym <nym_id> ] [--hisacct <acct_id> ]
-ot --confirmplan  <arguments>   (Customer)
-ot --activateplan <arguments>   (Customer again)
-  Arguments: [--mynym  <nym_id> ] [--myacct  <acct_id>]
 
 
------------------------------------
+For the OT PROMPT:
 
-OT PROMPT
-
-For the OT PROMPT, type "ot" with NO ARGUMENTS:
-(A few arguments are still allowed: --mynym and --server)
-
-   $ ot
+   $ ot --prompt
 
 The result:
 
    OT> 
 
--------------------------
-OT PROMPT COMMANDS:
+----------------------------------------------------
+COMMANDS:
 
-load         -- Load wallet.xml from the data_folder. (Do this first.)
 stat         -- Display wallet contents.
 
 (Yes, that's just a 'c' by itself down there.)
@@ -162,7 +55,16 @@ get          -- Get latest copy of one of my asset accounts (by account ID).
 n            -- Ask the server to send me a new transaction number.
                 (If you ever get an error related to being out of transaction
                 numbers, just use this. Sometimes you just run out of them,
-                and you need more from the server.)
+                and you need more from the server.) As a utility tool, if you 
+                append a long integer as the first parameter, then OT will add
+                that number to the Nym as if it were a signed-for transaction number.
+
+y            -- After you ask for a few more transaction numbers, you will need to
+                download your Nymbox so you can get them and sign for them.
+
+py           -- Usually whenever downloading your Nymbox, you want to just do this one
+                next. (It will process all the nymbox items, which is necessary in
+                order to accept and sign-for new transaction numbers.)
 
 t            -- Initiate transfer from my account into another account's
                 inbox (with a pending notice being put into my outbox). 
@@ -171,7 +73,17 @@ i            -- getInbox from the server so I can decide what to do with
                 it. (There will be pending notices, cheque receipts, etc.
                 I need to go through them all and accept or reject them.)
 
-NOTE: the test client, upon receiving a @getInbox response from the server, will *automatically* process *that* into a processInbox command back to the server, automatically accepting all of the transactions, resulting in a final @processInbox reply from the server. Obviously a real GUI client would merely display the inbox to the user, where the user could choose to accept the items individually. The API offers faculties for doing this.
+pi           -- After getInbox, use this to just accept everything in your inbox.
+
+NOTE: Obviously a real GUI client would merely display the inbox to the user, where the user could choose whether or not to accept the items individually. The API offers faculties for doing this.
+
+o           -- getOutbox from the server so my balance statements don't fail.
+               (All transactions now require a signed balance receipt, which includes
+               data on the inbox items, the outbox items, the current account balance,
+               and the current list of transaction numbers that are signed out to me.
+               Your outbox should never change on the server side, but if you ever need
+               to re-download a copy of it, you will be able to verify it against the
+               last signed receipt.)
 
 w            -- Withdraw cash and save to a purse. (It will ask for Account ID and amount.)
 
@@ -227,6 +139,12 @@ encode       -- Base64-encodes data at the command line.
 
 decrypt      -- If you have already loaded your Nym, you can use this
                 to decrypt messages at the command line.
+
+clear        -- Clears all of the transaction numbers from a Nym. Low-level tool!
+clearreq     -- Clears all the request numbers from a Nym. Low-level tool!
+
+Deprecated: (happens automatically now)
+load         -- Load wallet.xml from the data_folder. (Do this first.)
 
 
 NOTE: The below commands are for TCP / SSL mode only. 

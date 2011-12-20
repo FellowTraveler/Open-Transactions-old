@@ -653,8 +653,8 @@ public class otapi {
     otapiJNI.OT_API_processInbox(SERVER_ID, USER_ID, ACCT_ID, ACCT_LEDGER);
   }
 
-  public static void OT_API_processNymbox(String SERVER_ID, String USER_ID, String ACCT_LEDGER) {
-    otapiJNI.OT_API_processNymbox(SERVER_ID, USER_ID, ACCT_LEDGER);
+  public static void OT_API_processNymbox(String SERVER_ID, String USER_ID) {
+    otapiJNI.OT_API_processNymbox(SERVER_ID, USER_ID);
   }
 
   public static void OT_API_withdrawVoucher(String SERVER_ID, String USER_ID, String ACCT_ID, String RECIPIENT_USER_ID, String CHEQUE_MEMO, String AMOUNT) {

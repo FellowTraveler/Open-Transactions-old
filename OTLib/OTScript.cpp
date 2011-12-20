@@ -460,14 +460,14 @@ bool OTScriptChai::ExecuteScript(OTVariable * pReturnVar/*=NULL*/)
 
             switch (pVar->GetType()) 
             {
-                case OTVariable::Var_Long:
+                case OTVariable::Var_Integer:
                 {
-                    long & lValue = pVar->GetValueLong();
+                    int & nValue = pVar->GetValueInteger();
                 
                     if (OTVariable::Var_Constant == pVar->GetAccess()) // no pointer here, since it's constant.
-                        chai.add_global_const(const_var(pVar->CopyValueLong()), var_name.c_str());
+                        chai.add_global_const(const_var(pVar->CopyValueInteger()), var_name.c_str());
                     else
-                        chai.add(var(&lValue), // passing ptr here so the script can modify this variable if it wants.
+                        chai.add(var(&nValue), // passing ptr here so the script can modify this variable if it wants.
                                  var_name.c_str());                        
                 }
                     break;
@@ -528,10 +528,11 @@ bool OTScriptChai::ExecuteScript(OTVariable * pReturnVar/*=NULL*/)
             {
                 switch (pReturnVar->GetType()) 
                 {
-                    case OTVariable::Var_Long:
+                    case OTVariable::Var_Integer:
                     {
-                        long lResult = chai.eval<long>(m_str_script.c_str(), exception_specification<const std::exception &>());
-                        pReturnVar->SetValue(lResult);
+                        int nResult = chai.eval<int>(m_str_script.c_str(), 
+                                                     exception_specification<const std::exception &>());
+                        pReturnVar->SetValue(nResult);
                     }
                         break;
                         

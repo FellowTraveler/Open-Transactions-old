@@ -3096,8 +3096,8 @@ const char * OTClause::GetCode() const
 /*
  enum OTVariable_Type 
  {
- Var_String,		// std::string
- Var_Long,		// Long integer.
+ Var_String,	// std::string
+ Var_Integer,	// Integer.
  Var_Bool,		// Boolean
  Var_Error_Type	// should never happen.
  };
@@ -3167,14 +3167,14 @@ void OTVariable::Serialize(OTString & strAppend)
 			}
 		}
 			break;
-		case OTVariable::Var_Long:
-			str_type = "long";
+		case OTVariable::Var_Integer:
+			str_type = "integer";
 			strAppend.Concatenate("<variable name=\"%s\"\n"
-								  " value=\"%ld\"\n"
+								  " value=\"%d\"\n"
 								  " type=\"%s\"\n"
 								  " access=\"%s\" />\n\n", 
 								  m_strName.Get(),
-								  m_lValue,
+								  m_nValue,
 								  str_type.c_str(), str_access.c_str());			
 			break;
 		case OTVariable::Var_Bool:
@@ -3282,8 +3282,8 @@ void OTBylaw::Serialize(OTString & strAppend)
 
 
 OTVariable::OTVariable()
-: m_lValue(0), m_bValue(false), 
-  m_lValueBackup(0), m_bValueBackup(false),
+: m_nValue(0), m_bValue(false), 
+  m_nValueBackup(0), m_bValueBackup(false),
   m_pBylaw(NULL),
   m_Type(OTVariable::Var_Error_Type),
   m_Access(Var_Error_Access)
@@ -3294,10 +3294,10 @@ OTVariable::OTVariable()
 OTVariable::OTVariable(const std::string str_Name, const std::string str_Value,	const OTVariable_Access theAccess/*=Var_Persistent*/)
 : m_strName(str_Name.c_str()),
   m_str_Value(str_Value),
-  m_lValue(0),
+  m_nValue(0),
   m_bValue(false),
   m_str_ValueBackup(str_Value),
-  m_lValueBackup(0),
+  m_nValueBackup(0),
   m_bValueBackup(false),
   m_pBylaw(NULL), 
   m_Type(OTVariable::Var_String),
@@ -3306,14 +3306,14 @@ OTVariable::OTVariable(const std::string str_Name, const std::string str_Value,	
 	
 }
 
-OTVariable::OTVariable(const std::string str_Name, const long lValue, const OTVariable_Access theAccess/*=Var_Persistent*/)
+OTVariable::OTVariable(const std::string str_Name, const int nValue, const OTVariable_Access theAccess/*=Var_Persistent*/)
 : m_strName(str_Name.c_str()),
-  m_lValue(lValue),
+  m_nValue(nValue),
   m_bValue(false),
-  m_lValueBackup(lValue),
+  m_nValueBackup(nValue),
   m_bValueBackup(false),
   m_pBylaw(NULL), 
-  m_Type(OTVariable::Var_Long),
+  m_Type(OTVariable::Var_Integer),
   m_Access(theAccess)
 {
 
@@ -3321,9 +3321,9 @@ OTVariable::OTVariable(const std::string str_Name, const long lValue, const OTVa
 	
 OTVariable::OTVariable(const std::string str_Name, const bool bValue, const OTVariable_Access theAccess/*=Var_Persistent*/)
 : m_strName(str_Name.c_str()),
-  m_lValue(0),
+  m_nValue(0),
   m_bValue(bValue),
-  m_lValueBackup(0),
+  m_nValueBackup(0),
   m_bValueBackup(bValue),
   m_pBylaw(NULL), 
   m_Type(OTVariable::Var_Bool),
@@ -3338,16 +3338,16 @@ OTVariable::~OTVariable()
 }
 
 
-bool OTVariable::SetValue(const long & lValue)
+bool OTVariable::SetValue(const int & nValue)
 {
-	if (!IsLong())
+	if (!IsInteger())
 	{
-		OTLog::vError("OTVariable::SetValue(long): Error: This variable (%s) is not a Long.\n",
+		OTLog::vError("OTVariable::SetValue(long): Error: This variable (%s) is not an integer.\n",
 					  m_strName.Get());
 		return false;
 	}
 
-	m_lValue = m_lValueBackup = lValue;
+	m_nValue = m_nValueBackup = nValue;
 	
 	return true;
 }
@@ -3356,7 +3356,7 @@ bool OTVariable::SetValue(const bool bValue)
 {
 	if (!IsBool())
 	{
-		OTLog::vError("OTVariable::SetValue(bool): Error: This variable (%s) is not a Bool.\n",
+		OTLog::vError("OTVariable::SetValue(bool): Error: This variable (%s) is not a bool.\n",
 					  m_strName.Get());
 		return false;
 	}
@@ -3370,7 +3370,7 @@ bool OTVariable::SetValue(const std::string & str_Value)
 {
 	if (!IsString())
 	{
-		OTLog::vError("OTVariable::SetValue(std::string): Error: This variable (%s) is not a String.\n",
+		OTLog::vError("OTVariable::SetValue(std::string): Error: This variable (%s) is not a string.\n",
 					  m_strName.Get());
 		return false;
 	}
@@ -3386,7 +3386,7 @@ bool OTVariable::SetValue(const std::string & str_Value)
 	enum OTVariable_Type 
 	{
 		Var_String,		// std::string
-		Var_Long,		// Long integer.
+		Var_Integer,	// Long integer.
 		Var_Bool,		// Boolean
 		Var_Error_Type	// should never happen.
 	};
@@ -3401,7 +3401,7 @@ bool OTVariable::SetValue(const std::string & str_Value)
 
 	OTString	m_strName;		// Name of this variable.
 	std::string m_str_Value;	// If a string, the value is stored here.
-	long		m_lValue;		// If a long, the value is stored here.
+	int			m_nValue;		// If a long, the value is stored here.
 	bool		m_bValue;		// If a bool...
 	std::string m_str_ValueBackup;	// If a string, the value backup is stored here. (So we can see if it has changed since execution)
 	long		m_lValueBackup;	// If a long, the value backup is stored here.  (So we can see if it has changed since execution)
@@ -3427,8 +3427,8 @@ bool OTVariable::IsDirty() const
 			if (0 != m_str_Value.compare(m_str_ValueBackup)) // If they do NOT match, then it's dirty.
 				bReturnVal = true; 
 			break;
-		case OTVariable::Var_Long:
-			if (m_lValue != m_lValueBackup) // If they do NOT match, then it's dirty.
+		case OTVariable::Var_Integer:
+			if (m_nValue != m_nValueBackup) // If they do NOT match, then it's dirty.
 				bReturnVal = true; 
 			break;
 		case OTVariable::Var_Bool:
@@ -3452,8 +3452,8 @@ void OTVariable::SetAsClean()
 		case OTVariable::Var_String:
 			m_str_ValueBackup = m_str_Value; // Save a copy of the current value, so we can check later and see if they're different.
 			break;
-		case OTVariable::Var_Long:
-			m_lValueBackup = m_lValue; // Save a copy of the current value, so we can check later and see if they're different.
+		case OTVariable::Var_Integer:
+			m_nValueBackup = m_nValue; // Save a copy of the current value, so we can check later and see if they're different.
 			break;
 		case OTVariable::Var_Bool:
 			m_bValueBackup = m_bValue; // Save a copy of the current value, so we can check later and see if they're different.
@@ -3461,7 +3461,7 @@ void OTVariable::SetAsClean()
 		default:
 			OTLog::vError("OTVariable::SetAsClean: Error: unknown type for variable: %s\n", m_strName.Get());
 			m_str_ValueBackup	= m_str_Value;
-			m_lValueBackup		= m_lValue;
+			m_nValueBackup		= m_nValue;
 			m_bValueBackup		= m_bValue;
 			break;
 	}	
@@ -3831,8 +3831,8 @@ bool OTVariable::Compare(OTVariable & rhs)
 	
 	switch (GetType()) 
 	{
-		case OTVariable::Var_Long:
-			bMatch = (GetValueLong() == rhs.GetValueLong());
+		case OTVariable::Var_Integer:
+			bMatch = (GetValueInteger() == rhs.GetValueInteger());
 			break;
 		case OTVariable::Var_Bool:
 			bMatch = (GetValueBool() == rhs.GetValueBool());
@@ -4334,9 +4334,9 @@ bool OTBylaw::AddVariable(const std::string str_Name, const std::string str_Valu
 }
 
 
-bool OTBylaw::AddVariable(const std::string str_Name, const long lValue, const OTVariable::OTVariable_Access theAccess/*=Var_Persistent*/)
+bool OTBylaw::AddVariable(const std::string str_Name, const int nValue, const OTVariable::OTVariable_Access theAccess/*=Var_Persistent*/)
 {
-	OTVariable * pVar = new OTVariable(str_Name, lValue, theAccess);
+	OTVariable * pVar = new OTVariable(str_Name, nValue, theAccess);
 	OT_ASSERT(NULL != pVar);
 	
 	if (false == AddVariable(*pVar))

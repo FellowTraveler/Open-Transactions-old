@@ -177,12 +177,15 @@ private:
 	
     // -------------------------------------------------
     
+	static bool		__blocking;		// Should OT block on network send/receive? (Hang on the call until it returns with something.)
+	
     static int      __latency_send_no_tries; // Number of times will try to send a message.
     static int      __latency_receive_no_tries; // Number of times will try to receive a reply.
     
     static int      __latency_send_ms; // number of ms to wait before retrying send.
     static int      __latency_receive_ms; // number of ms to wait before retrying receive.
     
+	static long		__minimum_market_scale; // Server admin can configure this to any higher power-of-ten.
     // -------------------------------------------------
 
 public:	
@@ -290,6 +293,11 @@ public:
 	static int			GetLogLevel() { return __CurrentLogLevel; }
 	static void			SetLogLevel(int nLevel) { __CurrentLogLevel = nLevel; }
 	
+	// --------------------------------------------------------
+	
+	static bool		IsBlocking() { return __blocking; }
+	static void		SetBlocking(bool bBlocking) { __blocking = bBlocking; }
+	
     static int      GetLatencySendNoTries() { return __latency_send_no_tries; }
     static void     SetLatencySendNoTries(int nVal) { __latency_send_no_tries = nVal; }
     static int      GetLatencyReceiveNoTries() { return __latency_receive_no_tries; }
@@ -299,6 +307,11 @@ public:
     static void     SetLatencySendMs(int nVal) { __latency_send_ms = nVal; }
     static int      GetLatencyReceiveMs() { return __latency_receive_ms; }
     static void     SetLatencyReceiveMs(int nVal) { __latency_receive_ms = nVal; }
+
+	static long		GetMinMarketScale() { return __minimum_market_scale; }
+	static void		SetMinMarketScale(const long & lMinScale) { __minimum_market_scale = lMinScale; }
+	
+	// -----------------------------------------------
     //
     // Re: Above...  There are certain config values set in OpenTransactions.cpp and
     // OTServer.cpp.  So look for them there, if you don't see them above.

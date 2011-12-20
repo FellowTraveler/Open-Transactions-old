@@ -671,8 +671,8 @@ abstract class otapi {
 		OT_API_processInbox($SERVER_ID,$USER_ID,$ACCT_ID,$ACCT_LEDGER);
 	}
 
-	static function OT_API_processNymbox($SERVER_ID,$USER_ID,$ACCT_LEDGER) {
-		OT_API_processNymbox($SERVER_ID,$USER_ID,$ACCT_LEDGER);
+	static function OT_API_processNymbox($SERVER_ID,$USER_ID) {
+		OT_API_processNymbox($SERVER_ID,$USER_ID);
 	}
 
 	static function OT_API_withdrawVoucher($SERVER_ID,$USER_ID,$ACCT_ID,$RECIPIENT_USER_ID,$CHEQUE_MEMO,$AMOUNT) {

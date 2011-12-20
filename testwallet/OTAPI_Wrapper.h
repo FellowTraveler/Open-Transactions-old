@@ -769,8 +769,7 @@ public:
 							 const std::string ACCT_LEDGER);
 	
 	static void processNymbox(const std::string SERVER_ID,
-							  const std::string USER_ID,
-							  const std::string ACCT_LEDGER);
+							  const std::string USER_ID);
 	
 	// --------------------------------------------------------------------------
 	static void withdrawVoucher(const std::string SERVER_ID,

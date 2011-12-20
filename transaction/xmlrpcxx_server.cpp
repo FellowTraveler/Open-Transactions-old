@@ -539,46 +539,58 @@ int main(int argc, char* argv[])
 //			zmq::poll(&items[1], 1, lLatencySendMicroSec);	// ZMQ_POLLOUT, 1 item, timeout (microseconds in ZMQ 2.1; changes to milliseconds in 3.0) 
 //			zmq::poll(&items[0], 1, -1);					// Blocking.
 
+			// NOTE: since we're in the SERVER, we don't block on RECEIVE calls, only SEND calls.
+			// We want the loop to keep looping, and only block on a send obviously long enough to
+			// successfully send (guarantee the send.) If our network problems are so bad that we can't
+			// send at all, then that one socket probably isn't hanging us any worse than any of the
+			// others also would/are.
+			//
 			if ((items[0].revents & ZMQ_POLLIN) && socket.recv(&message, ZMQ_NOBLOCK))
 			{
-//				socket.recv(&message);
-
 				// Convert the ZMQ message to a std::string
 				std::string str_Message;
 				str_Message.reserve(message.size());
 				str_Message.append(static_cast<const char *>(message.data()), message.size());
 
-				//  Process task
+				// ***************************************************
+				//  Process the user's message into a reply...
+				//
 				std::string str_Reply; // Output.
-				ProcessMessage_ZMQ(str_Message, str_Reply);
+				ProcessMessage_ZMQ(str_Message, str_Reply); // <================== PROCESS the message!
+				// --------------------------------------------------
 
-				// -----------------------------------------------
-				
 				// Convert the std::string (reply) into a ZMQ message
 				zmq::message_t reply (str_Reply.length());
 
 				if (str_Reply.length() > 0)
 					memcpy((void *) reply.data(), str_Reply.c_str(), str_Reply.length());
 
-				// --------------------------------
+				// ***************************************************
 				//  Send reply back to client
-
-				int		nSendTries = 0;
+				//
 				bool	bSuccessSending = false;
 				
-				// If failure, retries 7 times.
-				// Will wait 200 ms after the first failure, (and that time doubles each try.)
-				//
-				long lDoubling = lLatencySendMicroSec;
-				while ((nSendTries++ < OTLog::GetLatencySendNoTries()/*7*/) && 
-					   (false == (bSuccessSending = socket.send(reply, ZMQ_NOBLOCK))))
+				if (OTLog::IsBlocking())
 				{
-//					OTLog::SleepMilliseconds( /*200*/ lLatencySendMilliSec);
-					
-					zmq::poll(&items[1], 1, lDoubling);	// ZMQ_POLLOUT, 1 item, timeout (microseconds in ZMQ 2.1; changes to milliseconds in 3.0)
-					
-					lDoubling *= 2;
+					bSuccessSending = socket.send(reply); // Blocking.
 				}
+				else // NOT blocking (the default)
+				{					
+					// If failure, retries 7 times.
+					// Will wait 200 ms after the first failure, (and that time doubles each try.)
+					//
+					int		nSendTries	= 0;
+					long	lDoubling	= lLatencySendMicroSec;
+					
+					while ((nSendTries++ < OTLog::GetLatencySendNoTries()/*7*/) && 
+						   (false == (bSuccessSending = socket.send(reply, ZMQ_NOBLOCK))))
+					{
+						zmq::poll(&items[1], 1, lDoubling);	// ZMQ_POLLOUT, 1 item, timeout (microseconds in ZMQ 2.1; changes to milliseconds in 3.0)
+						lDoubling *= 2;
+//						OTLog::SleepMilliseconds( /*200*/ lLatencySendMilliSec);
+					}
+				}
+				// ***************************************************
 				
 				if (false == bSuccessSending)
 					OTLog::vError("Socket error: failed while trying to send reply back to client! \n\n MESSAGE:\n%s\n\nREPLY:\n%s\n\n", 

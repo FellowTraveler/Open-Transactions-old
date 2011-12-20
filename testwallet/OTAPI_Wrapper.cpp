@@ -1395,10 +1395,9 @@ void OTAPI_Wrap::processInbox(const std::string SERVER_ID,
 // --------------------------------------------------------------------
 
 void OTAPI_Wrap::processNymbox(const std::string SERVER_ID,
-							   const std::string USER_ID,
-							   const std::string ACCT_LEDGER)
+							   const std::string USER_ID)
 {
-	OT_API_processNymbox(SERVER_ID.c_str(), USER_ID.c_str(), ACCT_LEDGER.c_str());
+	OT_API_processNymbox(SERVER_ID.c_str(), USER_ID.c_str());
 }
 // --------------------------------------------------------------------
 

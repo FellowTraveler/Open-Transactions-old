@@ -71,7 +71,7 @@
     <LibraryPath>C:\~\protobuf\vsprojects\Debug;C:\~\msgpack\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>C:\~\protobuf\src;C:\~\msgpack\include;C:\~\OpenSSL-Win32\include;C:\~\Open-Transactions\OTLib\bigint;C:\~\Open-Transactions\OTLib\irrxml;C:\~\Open-Transactions\OTLib\Lucre;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Program Files\boost\boost_1_47;C:\Program Files\chaiscript 3.1.0\include;C:\~\protobuf\src;C:\~\msgpack\include;C:\~\OpenSSL-Win32\include;C:\~\Open-Transactions\OTLib\bigint;C:\~\Open-Transactions\OTLib\irrxml;C:\~\Open-Transactions\OTLib\Lucre;$(IncludePath)</IncludePath>
     <LibraryPath>C:\~\protobuf\vsprojects\Release;C:\~\msgpack\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='TCP Release|Win32'">
@@ -111,7 +111,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;OT_ZMQ_MODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>CHAISCRIPT_NO_THREADS;WIN32;NDEBUG;_LIB;OT_ZMQ_MODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -184,9 +184,12 @@
     <ClInclude Include="..\OTPaymentPlan.h" />
     <ClInclude Include="..\OTPseudonym.h" />
     <ClInclude Include="..\OTPurse.h" />
+    <ClInclude Include="..\OTScript.h" />
+    <ClInclude Include="..\OTScriptable.h" />
     <ClInclude Include="..\OTServerContract.h" />
     <ClInclude Include="..\OTSignature.h" />
     <ClInclude Include="..\OTSignedFile.h" />
+    <ClInclude Include="..\OTSmartContract.h" />
     <ClInclude Include="..\OTStorage.h" />
     <ClInclude Include="..\OTString.h" />
     <ClInclude Include="..\OTStringXML.h" />
@@ -219,6 +222,7 @@
     <ClCompile Include="..\OTAssetContract.cpp" />
     <ClCompile Include="..\OTAsymmetricKey.cpp" />
     <ClCompile Include="..\OTBasket.cpp" />
+    <ClCompile Include="..\OTBylaw.cpp" />
     <ClCompile Include="..\OTCheque.cpp" />
     <ClCompile Include="..\OTContract.cpp" />
     <ClCompile Include="..\OTCron.cpp" />
@@ -240,9 +244,12 @@
     <ClCompile Include="..\OTPaymentPlan.cpp" />
     <ClCompile Include="..\OTPseudonym.cpp" />
     <ClCompile Include="..\OTPurse.cpp" />
+    <ClCompile Include="..\OTScript.cpp" />
+    <ClCompile Include="..\OTScriptable.cpp" />
     <ClCompile Include="..\OTServerContract.cpp" />
     <ClCompile Include="..\OTSignature.cpp" />
     <ClCompile Include="..\OTSignedFile.cpp" />
+    <ClCompile Include="..\OTSmartContract.cpp" />
     <ClCompile Include="..\OTStorage.cpp" />
     <ClCompile Include="..\OTString.cpp" />
     <ClCompile Include="..\OTStringXML.cpp" />

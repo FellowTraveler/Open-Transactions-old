@@ -196,16 +196,21 @@ int OTLog::__CurrentLogLevel = 0;
 #endif
 
 
-// These are default values. There are configurable in the config file.
+// These are only default values. There are configurable in the config file.
 //
-int      OTLog::__latency_send_no_tries = 5; // Number of times will try to send a message.
-int      OTLog::__latency_receive_no_tries = 25; // Number of times will try to receive a reply.
+bool	OTLog::__blocking = false;	// Normally false. This means we will wait FOREVER when trying to send or receive.
 
-int      OTLog::__latency_send_ms = 200; // number of ms to wait before retrying send.
-int      OTLog::__latency_receive_ms = 200; // number of ms to wait before retrying receive.
+int     OTLog::__latency_send_no_tries = 5; // Number of times will try to send a message.
+int     OTLog::__latency_receive_no_tries = 25; // Number of times will try to receive a reply.
+
+int     OTLog::__latency_send_ms = 200; // number of ms to wait before retrying send.
+int     OTLog::__latency_receive_ms = 200; // number of ms to wait before retrying receive.
 
 
-OTString OTLog::__Version = "0.75";
+long	OTLog::__minimum_market_scale = 1;	// Server admin can configure this to any higher power-of-ten.
+
+
+OTString OTLog::__Version = "0.75b";
 
 
 

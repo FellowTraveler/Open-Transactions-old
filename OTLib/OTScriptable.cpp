@@ -2553,8 +2553,8 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 					//
 					OTVariable::OTVariable_Type theVarType = OTVariable::Var_Error_Type;
 					
-					if (strVarType.Compare("long"))
-						theVarType = OTVariable::Var_Long;
+					if (strVarType.Compare("integer"))
+						theVarType = OTVariable::Var_Integer;
 					else if (strVarType.Compare("string"))
 						theVarType = OTVariable::Var_String;
 					else if (strVarType.Compare("bool"))
@@ -2592,15 +2592,15 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 					
 					switch (theVarType) 
 					{
-						case OTVariable::Var_Long:
+						case OTVariable::Var_Integer:
 							if (strVarValue.Exists())
 							{
-								const long lVarValue = atol(strVarValue.Get());
-								bAddedVar = pBylaw->AddVariable(str_var_name, lVarValue, theVarAccess);
+								const int nVarValue = atoi(strVarValue.Get());
+								bAddedVar = pBylaw->AddVariable(str_var_name, nVarValue, theVarAccess);
 							}
 							else
 							{
-								OTLog::vError("OTScriptable::ProcessXMLNode: No value found for long variable: %s\n",
+								OTLog::vError("OTScriptable::ProcessXMLNode: No value found for integer variable: %s\n",
 											 strVarName.Get());
 								delete pBylaw; pBylaw=NULL;
 								return (-1);

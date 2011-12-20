@@ -447,8 +447,9 @@ bool OTTrade::VerifyOffer(OTOffer & theOffer)
 		OTLog::Error("While verifying offer, failed matching currency type ID.\n");
 		return false;
 	}
-	
+	// -------------------------------------------------
 	// the Offer validates properly for this Trade.
+	//
 	return true;
 }
 

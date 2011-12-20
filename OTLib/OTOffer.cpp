@@ -144,7 +144,25 @@ using namespace io;
 // Each instance of OTOffer represents a Bid or Ask. (A Market has a list of bid offers and a list of ask offers.)
 
 
+// Also allows for x == 1.
+//
+bool isPowerOfTen( const long & x )
+{
+	if (1 == x)
+		return true;
+	
+	const long lBase = 10;
+	long lIt = lBase;
+	
+	for (int i = 1; i < 23; i++)
+	{
+		if (x == lIt)
+			return true;
+		lIt *= lBase;
+	}
 
+	return false;
+}
 
 /*
  Let's say you wanted to add an Offer to a Market. But you don't know
@@ -246,15 +264,85 @@ int OTOffer::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		SetServerID(SERVER_ID);
 		SetAssetID(ASSET_ID);
 		SetCurrencyID(CURRENCY_TYPE_ID);
+		// ------------------------------------
+		const OTString strScale	= xml->getAttributeValue("marketScale");
+		const long lScale		= strScale.Exists() ? atol(strScale.Get()) : 0; // if it doesn't exist, the 0 here causes the below error to fire.
+				
+		if (false == isPowerOfTen( lScale ))
+		{
+			OTLog::vOutput(0, "OTOffer::ProcessXMLNode: Failure: marketScale *must* be 1, or a power of 10. Instead I got: %ld.\n",
+						   lScale);
+			return (-1);
+		}
+		else
+			SetScale(lScale);
+		// ------------------------------------
+		const OTString strPriceLimit	= xml->getAttributeValue("priceLimit");
+		const long lPriceLimit			= strPriceLimit.Exists() ? atol(strPriceLimit.Get()) : 0; // if it doesn't exist, the 0 here causes the below error to fire.
+		if (lPriceLimit < 1)
+		{
+			OTLog::vOutput(0, "OTOffer::ProcessXMLNode: Failure: priceLimit *must* be larger than 0. Instead I got: %ld.\n",
+						   lPriceLimit);
+			return (-1);
+		}
+		else
+			SetPriceLimit(lPriceLimit);
+		// ------------------------------------
+		const OTString strTotal	= xml->getAttributeValue("totalAssetsOnOffer");
+		const long lTotal		= strTotal.Exists() ? atol(strTotal.Get()) : 0; // if it doesn't exist, the 0 here causes the below error to fire.
+		if (lTotal < 1)
+		{
+			OTLog::vOutput(0, "OTOffer::ProcessXMLNode: Failure: totalAssetsOnOffer *must* be larger than 0. Instead I got: %ld.\n",
+						   lTotal);
+			return (-1);
+		}
+		else
+			SetTotalAssetsOnOffer(lTotal);
+		// ------------------------------------
+		const OTString strFinished	= xml->getAttributeValue("finishedSoFar");
+		const long lFinished		= strFinished.Exists() ? atol(strFinished.Get()) : 0; // if it doesn't exist, the 0 here causes the below error to fire.
+		if (lFinished < 0)
+		{
+			OTLog::vOutput(0, "OTOffer::ProcessXMLNode: Failure: finishedSoFar *must* be 0 or larger. Instead I got: %ld.\n",
+						   lFinished);
+			return (-1);
+		}
+		else
+			SetFinishedSoFar(lFinished);
+		// ------------------------------------
+		const OTString	strMinInc	= xml->getAttributeValue("minimumIncrement");
+		const long		lMinInc		= strMinInc.Exists() ? atol(strMinInc.Get()) : 0; // if it doesn't exist, the 0 here causes the below error to fire.
+		if ((lMinInc < 1) || (lMinInc > lTotal)) // Minimum increment cannot logically be higher than the total assets on offer...
+		{
+			OTLog::vOutput(0, "OTOffer::ProcessXMLNode: Failure: minimumIncrement *must* be 1 or larger, \n"
+						   "and must also be less than the total assets on offer. Instead I got: %ld.\n",
+						   lMinInc);
+			return (-1);
+		}
+		else
+			SetMinimumIncrement(lMinInc);
+		// -----------------------------------
+		const OTString strTransNum = xml->getAttributeValue("transactionNum");
+		const long lTransNum = strTransNum.Exists() ? atol(strTransNum.Get()) : 0;
+		
+		SetTransactionNum(lTransNum);
+		// ----------------------------------------------------------------
+		const OTString strValidFrom	= xml->getAttributeValue("validFrom");
+		const OTString strValidTo	= xml->getAttributeValue("validTo");
+		
+		time_t tValidFrom	=	strValidFrom.Exists() ? atoi(strValidFrom.Get()) : 0;
+		time_t tValidTo		=	strValidTo.Exists() ? atoi(strValidTo.Get()) : 0;
 
-		SetPriceLimit(			atol(xml->getAttributeValue("priceLimit")));
-		SetTotalAssetsOnOffer(	atol(xml->getAttributeValue("totalAssetsOnOffer")));
-		SetFinishedSoFar(		atol(xml->getAttributeValue("finishedSoFar")));
-		SetScale(				atol(xml->getAttributeValue("marketScale")));
-		SetMinimumIncrement(	atol(xml->getAttributeValue("minimumIncrement")));
-		SetTransactionNum(		atol(xml->getAttributeValue("transactionNum")) );
-		SetValidFrom(			atol(xml->getAttributeValue("validFrom")));
-		SetValidTo(				atol(xml->getAttributeValue("validTo")));
+		if ((tValidTo < tValidFrom) && (tValidTo != 0))
+		{
+			int nFrom=tValidFrom, nTo=tValidTo;
+			OTLog::vOutput(0, "OTOffer::ProcessXMLNode: Failure: validTo date (%d) cannot be earlier than validFrom date (%d).\n",
+						   nFrom, nTo);
+			return (-1);
+		}
+		
+		SetValidFrom(tValidFrom);
+		SetValidTo(tValidTo);
 		
 		// ---------------------
 		
@@ -274,6 +362,7 @@ int OTOffer::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		
 	return nReturnVal;	
 }
+
 
 
 
