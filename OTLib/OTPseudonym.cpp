@@ -1516,7 +1516,8 @@ long OTPseudonym::UpdateHighestNum(OTPseudonym & SIGNER_NYM, const OTString & st
 			// Here we're making sure that all the numbers in the set are larger than any others
 			// that we've had before for the same server (They should only ever get larger.)
 			//
-			if (lLowestInSet <= lOldHighestNumber) // ERROR!!! The new numbers should ALWAYS be larger than the previous ones!
+//			if (lLowestInSet <= lOldHighestNumber) // ERROR!!! The new numbers should ALWAYS be larger than the previous ones!
+			if ((lLowestInSet > 0) && (lLowestInSet <= lOldHighestNumber)) // ERROR!!! The new numbers should ALWAYS be larger than the previous ones!
 			{
 				OTLog::vOutput(0, "OTPseudonym::UpdateHighestNum: Very strange! New numbers should never be lower "
 							   "than old numbers, but always higher! Last known 'highest' number received: %ld, Current violator: %ld\n",
