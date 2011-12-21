@@ -200,6 +200,9 @@ int OTLog::__CurrentLogLevel = 0;
 //
 bool	OTLog::__blocking = false;	// Normally false. This means we will wait FOREVER when trying to send or receive.
 
+// Delay after each message is sent (client side only.)
+int		OTLog::__latency_send_delay_after = 50;	// It's 50 here, but also there's a default delay of 300 in the java GUI. So really, 350 in many cases. (But still 50 when GUI has no delay at all.)
+
 int     OTLog::__latency_send_no_tries = 5; // Number of times will try to send a message.
 int     OTLog::__latency_receive_no_tries = 25; // Number of times will try to receive a reply.
 
@@ -210,7 +213,9 @@ int     OTLog::__latency_receive_ms = 200; // number of ms to wait before retryi
 long	OTLog::__minimum_market_scale = 1;	// Server admin can configure this to any higher power-of-ten.
 
 
-OTString OTLog::__Version = "0.75b";
+OTString OTLog::__Version = "0.75c";
+
+
 
 
 

@@ -1948,13 +1948,17 @@ int main(int argc, char* argv[])
 					{
 						zmq::poll(&items[1], 1, lDoubling);	// ZMQ_POLLOUT, 1 item, timeout (microseconds in ZMQ 2.1; changes to milliseconds in 3.0)					
 						lDoubling *= 2;
-//						OTLog::SleepMilliseconds( /*200*/ lLatencySendMilliSec);
 					}
                 }
 				// ----------------------------
-				
+
 				if (bSuccessSending)
 				{
+					// This is a delay that occurs after EVERY send, on the client's side. (Configurable in client.cfg as "send_delay_after")
+					OTLog::SleepMilliseconds( OTLog::GetLatencyDelayAfter() /* 50 default in code/config file for this spot, plus 300 default delay in the java GUI */ );							
+
+					// ***********************************
+					
 					//  Get the reply.
 					zmq::message_t reply;
 					
@@ -1976,7 +1980,6 @@ int main(int argc, char* argv[])
 						{
 							zmq::poll(&items[0], 1, lDoubling);	// ZMQ_POLLIN, 1 item, timeout (microseconds in ZMQ 2.1; changes to milliseconds in 3.0)
 							lDoubling *= 2;						
-//							OTLog::SleepMilliseconds( /*200*/ lLatencyRecvMilliSec);							
 						}
 					}
 					// -------------------------------
@@ -3448,7 +3451,6 @@ int main(int argc, char* argv[])
 					{
 						zmq::poll(&items[1], 1, lDoubling);	// ZMQ_POLLOUT, 1 item, timeout (microseconds in ZMQ 2.1; changes to milliseconds in 3.0)
 						lDoubling *= 2;
-//						OTLog::SleepMilliseconds( /*200*/ lLatencySendMilliSec);
 					}
 				}
 				
@@ -3472,6 +3474,11 @@ int main(int argc, char* argv[])
 
 				if (bSuccessSending)
 				{
+					// This is a delay that occurs after EVERY send, on the client's side. (Configurable in client.cfg as "send_delay_after")
+					OTLog::SleepMilliseconds( OTLog::GetLatencyDelayAfter() /* 50 default in code/config file for this spot, plus 300 default delay in the java GUI */ );							
+
+					// *************************************************************
+					
 					//  Get the reply.
 					zmq::message_t reply;
 					
@@ -3493,7 +3500,6 @@ int main(int argc, char* argv[])
 						{
 							zmq::poll(&items[0], 1, lDoubling);	// ZMQ_POLLIN, 1 item, timeout (microseconds in ZMQ 2.1; changes to milliseconds in 3.0)
 							lDoubling *= 2;						
-//							OTLog::SleepMilliseconds( /*200*/ lLatencyRecvMilliSec);
 						}
 					}
 					

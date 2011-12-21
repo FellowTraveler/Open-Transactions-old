@@ -9380,8 +9380,6 @@ void OT_API_processInbox(const char * SERVER_ID,
 				   "ACCT_LEDGER: %s \n",
 				   temp1.Get(), temp2.Get(), temp3.Get(), temp4.Get());
 	
-
-	
 	g_OT_API.processInbox(theServerID, theUserID, theAcctID, strLedger);
 }
 
@@ -9393,21 +9391,8 @@ void OT_API_processNymbox(const char * SERVER_ID,
 	OT_ASSERT_MSG(NULL != USER_ID, "Null USER_ID passed in.");
 	
 	OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID);
-
-	OTLedger * pNymbox = g_OT_API.LoadNymbox(theServerID, theUserID);
-	OTCleanup<OTLedger> theLedgerAngel(pNymbox);
 	
-	if (NULL == pNymbox)
-	{
-		OTLog::vOutput(0, "OT_API_processNymbox: Failed: Couldn't load Nymbox for: %s on Server: %s \n",
-					   USER_ID, SERVER_ID);
-	}
-	else 
-	{
-		OTString strLedger(*pNymbox);
-		
-		g_OT_API.processNymbox(theServerID, theUserID, strLedger);
-	}
+	g_OT_API.processNymbox(theServerID, theUserID);
 }
 
 

@@ -663,7 +663,36 @@ void OTPseudonym::RemoveAllNumbers(const OTString * pstrServerID/*=NULL*/)
 		{
 			pDeque->clear();
 		}
+	}
+	
+	// ------
+
+	FOR_EACH(mapOfHighestNums, m_mapHighTransNo)
+	{
+		if ((NULL != pstrServerID) && (str_ServerID != it->first)) // If passed in, and current it doesn't match, then skip it (continue).
+			continue;
+		
+		m_mapHighTransNo.erase(it);		
 	}	
+	
+	// ------
+	
+	FOR_EACH(mapOfTransNums, m_mapTentativeNum)
+	{
+		// If an ID is passed in, that means remove all numbers FOR THAT SERVER ID.
+		if ((NULL != pstrServerID) && (str_ServerID != it->first)) // If passed in, and current map doesn't match, then skip it (continue).
+			continue;
+		
+		// -------------------------
+		dequeOfTransNums * pDeque = (it->second);
+		OT_ASSERT(NULL != pDeque);
+		
+		if (!(pDeque->empty()))
+		{
+			pDeque->clear();
+		}
+	}
+	
 }
 
 
@@ -943,21 +972,21 @@ int OTPseudonym::GetGenericNumCount(mapOfTransNums & THE_MAP, const OTIdentifier
 
 
 // by index.
-long OTPseudonym::GetIssuedNum(const OTIdentifier & theServerID, int nIndex)
+long OTPseudonym::GetGenericNum(mapOfTransNums & THE_MAP, const OTIdentifier & theServerID, int nIndex)
 {
 	long lRetVal = 0;
 	
 	const OTString strServerID(theServerID);
-	
 	std::string strID	= strServerID.Get();
 	
-	// The Pseudonym has a deque of transaction numbers for each servers.
+	// The Pseudonym has a deque of numbers for each server.
 	// These deques are mapped by Server ID.
 	// 
-	// So let's loop through all the deques I have, and if the server ID on the map
-	// matches the Server ID that was passed in, then find the transaction number on
-	// that list, and then remove it, and return true. Else return false.
-	FOR_EACH(mapOfTransNums, m_mapIssuedNum)
+	// So let's loop through all the deques I have, and if the server ID on the
+	// maps matches the Server ID that was passed in, then find the number on
+	// that list, and then return it.
+	//
+	FOR_EACH(mapOfTransNums, THE_MAP)
 	{
 		// if the ServerID passed in matches the serverID for the current deque
 		if ( strID == it->first )
@@ -973,7 +1002,7 @@ long OTPseudonym::GetIssuedNum(const OTIdentifier & theServerID, int nIndex)
 					// Found it!
 					if ((unsigned)nIndex == i)
 					{
-						lRetVal = pDeque->at(i); // <==== Got the issued number here.
+						lRetVal = pDeque->at(i); // <==== Got the number here.
 						break;
 					}
 				}
@@ -983,54 +1012,31 @@ long OTPseudonym::GetIssuedNum(const OTIdentifier & theServerID, int nIndex)
 	}
 	
 	return lRetVal;
+}
+
+// *************************************************************************************
+
+
+
+// by index.
+long OTPseudonym::GetTentativeNum(const OTIdentifier & theServerID, int nIndex)
+{
+	return GetGenericNum(m_mapTentativeNum, theServerID, nIndex);
+}
+
+// by index.
+long OTPseudonym::GetIssuedNum(const OTIdentifier & theServerID, int nIndex)
+{
+	return GetGenericNum(m_mapIssuedNum, theServerID, nIndex);
 }
 
 // by index.
 long OTPseudonym::GetTransactionNum(const OTIdentifier & theServerID, int nIndex)
 {
-	long lRetVal = 0;
-	
-	OTString strServerID(theServerID);
-	std::string strID	= strServerID.Get();
-	
-	// The Pseudonym has a deque of transaction numbers for each servers.
-	// These deques are mapped by Server ID.
-	// 
-	// So let's loop through all the deques I have, and if the server ID on the map
-	// matches the Server ID that was passed in, then find the transaction number on
-	// that list, and then remove it, and return true. Else return false.
-	//
-	FOR_EACH(mapOfTransNums, m_mapTransNum)
-	{
-		// if the ServerID passed in matches the serverID for the current deque
-		if ( strID == it->first )
-		{
-			dequeOfTransNums * pDeque = (it->second);
-			OT_ASSERT(NULL != pDeque);
-			
-			if (!(pDeque->empty())) // there are some numbers for that server ID
-			{
-				// Let's loop through them and see if the culprit is there
-				for (unsigned i = 0; i < pDeque->size(); i++)
-				{					
-					// Found it!
-					if ((unsigned)nIndex == i)
-					{
-						lRetVal = pDeque->at(i); // <==== Got the transaction number here.
-						break;
-					}
-				}
-			}
-			break;			
-		}
-	}
-	
-	return lRetVal;
+	return GetGenericNum(m_mapTransNum, theServerID, nIndex);
 }
 
-
-// *************************************************************************************
-
+// ------------------------------------
 
 
 // On the server side: A user has submitted a specific transaction number. 
@@ -1047,6 +1053,10 @@ bool OTPseudonym::RemoveTransactionNum(OTPseudonym & SIGNER_NYM, const OTString 
 	return RemoveGenericNum(m_mapTransNum, SIGNER_NYM, strServerID, lTransNum);
 }
 
+bool OTPseudonym::RemoveTransactionNum(const OTString & strServerID, const long & lTransNum) // doesn't save.
+{
+	return RemoveGenericNum(m_mapTransNum, strServerID, lTransNum);
+}
 
 // Returns count of transaction numbers available for a given server.
 //
@@ -1107,10 +1117,45 @@ bool OTPseudonym::AddIssuedNum(const OTString & strServerID, const long & lTrans
 // ----------------------------------------------------------------------
 
 
-bool OTPseudonym::RemoveTransactionNum(const OTString & strServerID, const long & lTransNum) // doesn't save.
+
+// On the server side: A user has submitted a specific transaction number. 
+// Verify whether it was issued to him and still awaiting final closing.
+bool OTPseudonym::VerifyTentativeNum(const OTString & strServerID, const long & lTransNum)
 {
-	return RemoveGenericNum(m_mapTransNum, strServerID, lTransNum);
+	return VerifyGenericNum(m_mapTentativeNum, strServerID, lTransNum);
 }
+
+// On the server side: A user has accepted a specific receipt. 
+// Remove it from his file so he's not liable for it anymore.
+bool OTPseudonym::RemoveTentativeNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, const long & lTransNum) // saves
+{
+	return RemoveGenericNum(m_mapTentativeNum, SIGNER_NYM, strServerID, lTransNum);
+}
+
+bool OTPseudonym::RemoveTentativeNum(const OTString & strServerID, const long & lTransNum) // doesn't save
+{
+	return RemoveGenericNum(m_mapTentativeNum, strServerID, lTransNum);
+}
+
+
+// Returns count of transaction numbers not yet cleared for a given server.
+//
+int OTPseudonym::GetTentativeNumCount(const OTIdentifier & theServerID) 
+{
+	return GetGenericNumCount(m_mapTentativeNum, theServerID);
+}
+
+
+// No signer needed for this one, and save is false.
+// This version is ONLY for cases where we're not saving inside this function.
+bool OTPseudonym::AddTentativeNum(const OTString & strServerID, const long & lTransNum)  // doesn't save.
+{
+	return AddGenericNum(m_mapTentativeNum, strServerID, lTransNum);
+}
+
+
+
+// ----------------------------------------------------------------------
 
 
 // Client side: We have received a new trans num from server. Store it.
@@ -1120,30 +1165,36 @@ bool OTPseudonym::AddTransactionNum(OTPseudonym & SIGNER_NYM, const OTString & s
 {
 	bool bSuccess1 = AddTransactionNum(strServerID, lTransNum);	// Add to list of available-to-use, outstanding numbers.
 	bool bSuccess2 = AddIssuedNum(strServerID, lTransNum);		// Add to list of numbers that haven't been closed yet.
-	
 	// -----------------------------------
-	
 	if (bSuccess1 && !bSuccess2)
-	{
 		RemoveGenericNum(m_mapTransNum, strServerID, lTransNum);
-	}
 	else if (bSuccess2 && !bSuccess1)
-	{
 		RemoveGenericNum(m_mapIssuedNum, strServerID, lTransNum);
-	}
-	
 	// -----------------------------------
-	
 	if (bSuccess1 && bSuccess2 && bSave)
-	{
 		bSave = SaveSignedNymfile(SIGNER_NYM);
-	}
 	else
 		bSave = true; // so the return at the bottom calculates correctly.
 	
 	return (bSuccess1 && bSuccess2 && bSave);
 }
 
+// Client side: We have received a server's successful reply to a processNymbox accepting a specific new transaction number(s).
+// Or, if the reply was lost, then we still found out later that the acceptance was successful, since a notice is still dropped
+// into the Nymbox. Either way, this function removes the Tentative number, right before calling the above AddTransactionNum()
+// in order to make it available for the Nym's use on actual transactions.
+//
+bool OTPseudonym::RemoveTentativeNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, const long & lTransNum, bool bSave) // SAVE OR NOT (your choice) High-Level.
+{
+	bool bSuccess = RemoveTentativeNum(strServerID, lTransNum);		// Remove from list of numbers that haven't been made available for use yet, though they're "tentative"...
+	// -----------------------------------
+	if (bSuccess && bSave)
+		bSave = SaveSignedNymfile(SIGNER_NYM);
+	else 
+		bSave = true; // so the return at the bottom calculates correctly.
+	// -----------------------------------
+	return (bSuccess && bSave);
+}
 
 // Client side: We have accepted a certain receipt. Remove the transaction number from my list of issued numbers.
 // The server uses this too, also for keeping track of issued numbers, and removes them around same time as client.
@@ -1152,20 +1203,12 @@ bool OTPseudonym::AddTransactionNum(OTPseudonym & SIGNER_NYM, const OTString & s
 bool OTPseudonym::RemoveIssuedNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, const long & lTransNum, bool bSave) // SAVE OR NOT (your choice) High-Level.
 {
 	bool bSuccess = RemoveIssuedNum(strServerID, lTransNum);		// Remove from list of numbers that haven't been closed yet.
-	
 	// -----------------------------------
-	
 	if (bSuccess && bSave)
-	{
 		bSave = SaveSignedNymfile(SIGNER_NYM);
-	}
 	else 
-	{
 		bSave = true; // so the return at the bottom calculates correctly.
-	}
-
 	// -----------------------------------
-	
 	return (bSuccess && bSave);
 }
 
@@ -1173,7 +1216,11 @@ bool OTPseudonym::RemoveIssuedNum(OTPseudonym & SIGNER_NYM, const OTString & str
 
 
 /// OtherNym is used as container for server to send us new transaction numbers
-/// Currently unused.
+/// Currently unused. (old) NEW USE:
+/// Okay then, new use: This will be the function that does what the below function
+/// does (OTPseudonym::HarvestIssuedNumbers), EXCEPT it only adds numbers that
+/// aren't on the TENTATIVE list. Also, it will set the new "highest" trans num
+/// for the appropriate server, based on the new numbers being harvested.
 void OTPseudonym::HarvestTransactionNumbers(const OTIdentifier & theServerID, 
                                             OTPseudonym & SIGNER_NYM, 
                                             OTPseudonym & theOtherNym, bool bSave/*=true*/)
@@ -1181,33 +1228,61 @@ void OTPseudonym::HarvestTransactionNumbers(const OTIdentifier & theServerID,
 	bool bSuccess = false;
 	long lTransactionNumber = 0;
 	
-	FOR_EACH(mapOfTransNums, theOtherNym.GetMapTransNum())
+	std::set<long> setNoticeNumbers;
+
+	FOR_EACH(mapOfTransNums, theOtherNym.GetMapIssuedNum())
 	{	
-        std::string	strServerID     = (*it).first;
+        std::string	strServerID		= (*it).first;
 		dequeOfTransNums * pDeque	= (it->second);
 		
-		OT_ASSERT(NULL != pDeque);
-
-		OTString OTstrServerID = ((strServerID.size()) > 0 ? strServerID.c_str() : "");
+        OT_ASSERT(NULL != pDeque);
+		
+        OTString OTstrServerID = ((strServerID.size()) > 0 ? strServerID.c_str() : "");
         const OTIdentifier theTempID(OTstrServerID);
 		
-		if (!(pDeque->empty()) && (theServerID == theTempID) )
+		if (!(pDeque->empty()) && (theServerID == theTempID) ) // only for the matching serverID.
 		{
 			for (unsigned i = 0; i < pDeque->size(); i++)
 			{
 				lTransactionNumber = pDeque->at(i);
 				
-				AddTransactionNum(SIGNER_NYM, OTstrServerID, lTransactionNumber, false); // bSave = false (but saved below...)
+				// If number wasn't already on issued list, then add to BOTH lists.
+				// Otherwise do nothing (it's already on the issued list, and no longer 
+				// valid on the available list--thus shouldn't be re-added there anyway.)
+				// 
+				if ( VerifyTentativeNum(OTstrServerID, lTransactionNumber) &&		// If I've actually requested this number and waiting on it...
+					(false == VerifyIssuedNum(OTstrServerID, lTransactionNumber))	// and if it's not already on my issued list...
+					)
+					setNoticeNumbers.insert(lTransactionNumber);
 				
 				bSuccess = true;
 			}
             break;  // We found it! Might as well break out.
 		}
 	} // for
-	
-	if (bSuccess && bSave)
+	// ----------------------------------
+	if (bSuccess)
 	{
-		SaveSignedNymfile(SIGNER_NYM);
+		const OTString strServerID(theServerID), strNymID(m_nymID);
+		long lViolator = this->UpdateHighestNum(SIGNER_NYM, strServerID, setNoticeNumbers); // bSave=false (saved below if necessary)
+		
+		if (lViolator != 0)
+			OTLog::vError("OTPseudonym::HarvestTransactionNumbers: ERROR: Tried to update highest trans # for a server, with lower numbers!"
+						  "This should NEVER HAPPEN, since these numbers are supposedly verified already before even getting this far.\n"
+						  "Violating number (too low): %ld, Nym ID: %s \n", lViolator, strNymID.Get());
+		else
+		{
+			FOR_EACH(std::set<long>, setNoticeNumbers)
+			{
+				const long lNoticeNum = (*it);
+
+				RemoveTentativeNum(strServerID, lNoticeNum); // doesn't save (but saved below)
+				AddTransactionNum(SIGNER_NYM, strServerID, lNoticeNum, false); // bSave = false (but saved below...)
+			}
+			
+			if (bSave)
+				SaveSignedNymfile(SIGNER_NYM);
+		}
 	}
 }
 
@@ -1332,7 +1407,160 @@ void OTPseudonym::ReleaseTransactionNumbers()
 		delete pDeque;
 		pDeque = NULL;
 	}	
+	
+	while (!m_mapTentativeNum.empty())
+	{		
+		dequeOfTransNums * pDeque = m_mapTentativeNum.begin()->second;
+		
+		OT_ASSERT(NULL != pDeque);
+		
+		m_mapTentativeNum.erase(m_mapTentativeNum.begin());
+		delete pDeque;
+		pDeque = NULL;
+	}	
 }
+
+
+
+
+
+
+
+// returns true on success, value goes into lReqNum
+// Make sure the Nym is LOADED before you call this,
+// otherwise it won't be there to get.
+//
+bool OTPseudonym::GetHighestNum(const OTString & strServerID, long &lHighestNum)
+{		
+	bool bRetVal		= false;
+	std::string strID	= strServerID.Get();
+	
+	// The Pseudonym has a map of the highest transaction # it's received from different servers.
+	// For Server Bob, with this Pseudonym, I might be on number 34.
+	// For but Server Alice, I might be on number 59.
+	// 
+	// So let's loop through all the numbers I have, and if the server ID on the map
+	// matches the Server ID that was passed in, then send out the highest number.
+	//
+	// Since the transaction number only ever gets bigger, this is a way of preventing
+	// the server from EVER tricking us by trying to give us a number that we've
+	// already seen before.
+	//
+	FOR_EACH(mapOfHighestNums, m_mapHighTransNo)
+	{
+		if ( strID == it->first )
+		{
+			// Setup return value.
+			lHighestNum = (it->second);
+			
+			// The call has succeeded
+			bRetVal = true;
+			
+			break;
+		}
+	}
+	
+	return bRetVal;
+}
+
+
+
+// Go through setNumbers and make sure none of them is lower than the highest number I already have for this
+// server. At the same time, keep a record of the largest one in the set. If successful, that becomes the new
+// "highest" number I've ever received that server. Otherwise fail.
+// If success, returns 0. If failure, returns the number that caused us to fail (by being lower than the last 
+// highest number.) I should NEVER receive a new transaction number that is lower than any I've gotten before.
+// They should always only get bigger.
+//
+long OTPseudonym::UpdateHighestNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, std::set<long> & setNumbers, bool bSave/*=false*/)
+{
+	bool bSuccess = false;
+	
+	// First find the highest and lowest numbers out of the new set.
+	//
+	long lHighestInSet = 0;
+	long lLowestInSet = 0;
+	FOR_EACH(std::set<long>, setNumbers)
+	{
+		long lSetNum = *it;
+
+		if (lSetNum > lHighestInSet)		lHighestInSet = lSetNum;
+		// ---------------------
+		if (0 == lLowestInSet)				lLowestInSet = lSetNum;
+		else if (lSetNum < lLowestInSet)	lLowestInSet = lSetNum;
+	} 
+
+	// The Pseudonym has a map of the "highest transaction numbers" for different servers.
+	// For Server Bob, with this Pseudonym, I might be on number 34.
+	// For but Server Alice, I might be on number 59.
+	// 
+	// So let's loop through all the numbers I have, and if the server ID on the map
+	// matches the Server ID that was passed in, then update it there.
+	//
+	// Make sure to save the Pseudonym so the new numbers are saved.
+	//
+	std::string strID	= strServerID.Get();
+	
+	FOR_EACH(mapOfHighestNums, m_mapHighTransNo)
+	{
+		if ( strID == it->first )
+		{
+			// We found it!
+			// Presumably we ONLY found it because this Nym has been properly loaded first.
+			// Good job! Otherwise, the list would have been empty even though the highest number
+			// was sitting in the file.
+			
+			// Grab a copy of the old highest trans number
+			long lOldHighestNumber = m_mapHighTransNo[it->first];
+			
+			// Here we're making sure that all the numbers in the set are larger than any others
+			// that we've had before for the same server (They should only ever get larger.)
+			//
+			if (lLowestInSet <= lOldHighestNumber) // ERROR!!! The new numbers should ALWAYS be larger than the previous ones!
+			{
+				OTLog::vOutput(0, "OTPseudonym::UpdateHighestNum: Very strange! New numbers should never be lower "
+							   "than old numbers, but always higher! Last known 'highest' number received: %ld, Current violator: %ld\n",
+							   lOldHighestNumber, lLowestInSet);
+				return lLowestInSet;  // We return the violator (otherwise 0 if success).
+			}
+			
+			// By this point we know they're all larger, since otherwise we'd have returned out of this function.
+			// So let's set the NEW highest number:
+			//
+			m_mapHighTransNo[it->first] = lHighestInSet;
+			
+			OTLog::vOutput(4, "Raising Highest Trans Number from %ld to %ld. Saving...\n", 
+						   lOldHighestNumber, m_mapHighTransNo[it->first]);
+
+			// The call has succeeded
+			bSuccess = true;
+			break;
+		}
+	}
+	
+	// If I didn't find it in the list above (whether the list is empty or not....)
+	// that means it does not exist. So create it.
+	
+	if (!bSuccess)
+	{
+		OTLog::vOutput(0, "Creating Highest Transaction Number entry as '%ld'. Saving...\n", lHighestInSet);
+		m_mapHighTransNo[strServerID.Get()] = lHighestInSet;
+		bSuccess = true;
+	}
+	
+	if (bSuccess)
+	{
+		if (bSave)
+			SaveSignedNymfile(SIGNER_NYM);
+		
+		return 0;
+	}
+	
+	return -1;  // should never reach this point.
+}
+
+
+
 
 
 
@@ -1372,7 +1600,7 @@ bool OTPseudonym::GetCurrentRequestNum(const OTString & strServerID, long &lReqN
 	
 	return bRetVal;
 }
-	
+
 
 
 // Make SURE you call SavePseudonym after you call this.
@@ -1768,6 +1996,25 @@ void OTPseudonym::DisplayStatistics(OTString & strOutput)
 			}
 		}
 	} // for
+	
+	FOR_EACH(mapOfTransNums, m_mapTentativeNum)
+	{	
+		std::string strServerID		= (*it).first;
+		dequeOfTransNums * pDeque	= (it->second);
+		
+		OT_ASSERT(NULL != pDeque);
+		
+		if (!(pDeque->empty()))
+		{
+			for (unsigned i = 0; i < pDeque->size(); i++)
+			{
+				long lTransactionNumber = pDeque->at(i);
+				
+				strOutput.Concatenate("Transaction# %ld is tentatively signed out (waiting for server acknowledgment): %s\n", 
+									  lTransactionNumber, strServerID.c_str());
+			}
+		}
+	} // for
 }
 
 
@@ -2072,12 +2319,29 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
 		lRequestNum = (*it).second;
 		
 		strNym.Concatenate("<requestNum\n"
-				" serverID=\"%s\"\n"
-				" currentRequestNum=\"%ld\""
-				"/>\n\n", 
-				strServerID.c_str(),
-				lRequestNum
-				);
+						   " serverID=\"%s\"\n"
+						   " currentRequestNum=\"%ld\""
+						   "/>\n\n", 
+						   strServerID.c_str(),
+						   lRequestNum
+						   );
+	}
+	
+	// -------------------------------------
+	long	lHighestNum;
+	
+	FOR_EACH(mapOfHighestNums, m_mapHighTransNo)
+	{	
+		std::string	strServerID = (*it).first;
+		lHighestNum = (*it).second;
+		
+		strNym.Concatenate("<highestTransNum\n"
+						   " serverID=\"%s\"\n"
+						   " mostRecent=\"%ld\""
+						   "/>\n\n", 
+						   strServerID.c_str(),
+						   lHighestNum
+						   );
 	}
 	
 	// -------------------------------------
@@ -2135,6 +2399,34 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
 				lTransactionNumber = pDeque->at(i);
 				
 				strNym.Concatenate("<issuedNum\n"
+								   " serverID=\"%s\"\n"
+								   " transactionNum=\"%ld\""
+								   "/>\n\n", 
+								   strServerID.c_str(),
+								   lTransactionNumber
+								   );
+			}
+		}
+	} // for
+	
+	// -------------------------------------
+	
+	lTransactionNumber = 0;
+	
+	FOR_EACH(mapOfTransNums, m_mapTentativeNum)
+	{	
+		std::string	strServerID		= (*it).first;
+		dequeOfTransNums * pDeque	= (it->second);
+		
+		OT_ASSERT(NULL != pDeque);
+		
+		if (!(pDeque->empty()) && (strServerID.size() > 0) )
+		{
+			for (unsigned i = 0; i < pDeque->size(); i++)
+			{
+				lTransactionNumber = pDeque->at(i);
+				
+				strNym.Concatenate("<tentativeNum\n"
 								   " serverID=\"%s\"\n"
 								   " transactionNum=\"%ld\""
 								   "/>\n\n", 
@@ -2272,6 +2564,9 @@ bool OTPseudonym::LoadFromString(const OTString & strNym)
 		OTString ReqNumServerID;
 		OTString ReqNumCurrent;
 		
+		OTString HighNumServerID;
+		OTString HighNumRecent;
+		
 		OTString TransNumServerID;
 		OTString TransNumAvailable;
 		
@@ -2316,11 +2611,23 @@ bool OTPseudonym::LoadFromString(const OTString & strNym)
 					ReqNumCurrent = xml->getAttributeValue("currentRequestNum");
 					
 					OTLog::vOutput(3, "\nCurrent Request Number is %s for ServerID: %s\n",
-							ReqNumCurrent.Get(), ReqNumServerID.Get());
+								   ReqNumCurrent.Get(), ReqNumServerID.Get());
 					
 					// Make sure now that I've loaded this request number, to add it to my
 					// internal map so that it is available for future lookups.
 					m_mapRequestNum[ReqNumServerID.Get()] = atol(ReqNumCurrent.Get());
+				}
+				else if (!strcmp("highestNum", xml->getNodeName()))
+				{
+					HighNumServerID = xml->getAttributeValue("serverID");				
+					HighNumRecent = xml->getAttributeValue("mostRecent");
+					
+					OTLog::vOutput(3, "\nHighest Transaction Number ever received is %s for ServerID: %s\n",
+								   HighNumRecent.Get(), HighNumServerID.Get());
+					
+					// Make sure now that I've loaded this highest number, to add it to my
+					// internal map so that it is available for future lookups.
+					m_mapHighTransNo[HighNumServerID.Get()] = atol(HighNumRecent.Get());
 				}
 				else if (!strcmp("transactionNum", xml->getNodeName()))
 				{
@@ -2342,7 +2649,16 @@ bool OTPseudonym::LoadFromString(const OTString & strNym)
 					
 					AddIssuedNum(TransNumServerID, atol(TransNumAvailable.Get())); // This version doesn't save to disk. (Why save to disk AS WE'RE LOADING?)
 				}
-                
+				else if (!strcmp("tentativeNum", xml->getNodeName()))
+				{
+					TransNumServerID	= xml->getAttributeValue("serverID");				
+					TransNumAvailable	= xml->getAttributeValue("transactionNum");
+					
+					OTLog::vOutput(3, "Currently waiting on server success notice,  accepting Transaction Number %s, for ServerID: %s\n",
+								   TransNumAvailable.Get(), TransNumServerID.Get());
+					
+					AddTentativeNum(TransNumServerID, atol(TransNumAvailable.Get())); // This version doesn't save to disk. (Why save to disk AS WE'RE LOADING?)
+				}                
                 else if (!strcmp("MARKED_FOR_DELETION", xml->getNodeName()))
 				{
 					m_bMarkForDeletion = true;  

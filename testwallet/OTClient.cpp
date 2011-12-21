@@ -224,8 +224,14 @@ bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox,
 //	OTIdentifier theServerID;
 //	theConnection.GetServerID(theServerID);
 	//
-	OTString strServerID(theServerID);
+	const OTString strServerID(theServerID), strNymID(*pNym);
 	
+	long lHighestNum=0;
+	// get the last/current highest transaction number for the serverID.
+	// (making sure we're not being slipped any new ones with a lower value
+	// than this.)
+	const bool bGotHighestNum = pNym->GetHighestNum(strServerID, lHighestNum); 
+
     // Contrasting Inbox and Nymbox.
     //
 	// In "AcceptEntireInbox", I have to have a transaction number in order to accept the inbox.
@@ -274,8 +280,11 @@ bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox,
 
     // theIssuedNym     == transaction numbers being added.
     // theRemovedNym    == transaction numbers being removed. (finalReceipt notices about opening numbers for cron items.)
+    // theTentativeNym  == transaction numbers being tentatively added. (I keep a )
     //
  	OTPseudonym theIssuedNym, theRemovedNym;
+	
+	std::set<long> setNoticeNumbers;  // Trans#s I've successfully signed for, and have a notice of this from the server.
 	
 	// For each transaction in the nymbox, if it's in reference to a transaction request,
 	// then create an "accept" item for that blank transaction, and add it to my own, new,
@@ -365,11 +374,50 @@ bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox,
 		} // if notice
 		
 		// ------------------------------------------------------------
+		// It's a NEW Transaction Number that I ALREADY signed for, and this notice means it was a success.
+		// The server puts these in the Nymbox just in case -- helps to prevent synchronization issues.
+		//
+		// This means the new number was successfully already added to me.
+		// Therefore I need to add it to my side also, so my balance agreements will work.
+		// However, ONLY if I find the number on my tentative list, where I stored when I
+		// first signed for the number, in order to make sure the server couldn't lie to me
+		// later by slipping me a successNotice for one I never really signed for.
+		//
+		else if (
+				 (OTTransaction::successNotice	== pTransaction->GetType()) // if successNotice (new; ALREADY just added) transaction number.
+				 )
+		{
+			// The numbers on this set were (1) received in a successNotice, (2) found on my Tentative list,
+			// and (3) Therefore have ALREADY been added as numbers in the past. Therefore I need to REMOVE
+			// them from my tentative list, and add them as actual transactions. I also need to update my
+			// "most recent" highest trans # to reflect these new numbers.
+			//
+			if (false == pNym->VerifyTentativeNum(strServerID, pTransaction->GetReferenceToNum()))
+				OTLog::vOutput(1, "AcceptEntireNymbox: OTTransaction::successNotice: This wasn't on my tentative list (%ld), I must have already processed it. "
+							   "(Or there was dropped message when I did, or the server is trying to slip me an old number.\n)", pTransaction->GetReferenceToNum());
+			else
+				setNoticeNumbers.insert(pTransaction->GetReferenceToNum()); // I have a successNotice for a # that was really on my tentative list.
+			// -----------------------------------------------
+			OTItem * pAcceptItem = OTItem::CreateItemFromTransaction(*pAcceptTransaction, OTItem::acceptNotice);
+			
+			// the transaction will handle cleaning up the transaction item.
+			pAcceptTransaction->AddItem(*pAcceptItem);
+			
+			pAcceptItem->SetReferenceToNum(pTransaction->GetTransactionNum()); // This is critical. Server needs this to look up the original.
+			// Don't need to set transaction num on item since the constructor already got it off the owner transaction.
+			
+			// sign the item
+			pAcceptItem->SignContract(*pNym);
+			pAcceptItem->SaveContract();
+			
+		} // else if successNotice
+		
+		// ------------------------------------------------------------
 		// It's a NEW Transaction Number (I need to sign for it.)
 		//
 		else if (
 				 (OTTransaction::blank	== pTransaction->GetType()) // if blank (new; just added) transaction number.
-				)
+				 )
 		{				
 			// My new transaction agreement needs to reflect all these new transaction numbers
 			// that I'm signing for (or at least this one in this block) so I add them to this
@@ -379,7 +427,9 @@ bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox,
 			//
 			if (pNym->VerifyIssuedNum(strServerID, pTransaction->GetTransactionNum()))
 				OTLog::Error("Attempted to accept a blank transaction number that I ALREADY HAD...\n");
-			else
+			else if (bGotHighestNum && (pTransaction->GetTransactionNum() <= lHighestNum)) // Man, this is old numbers we've already HAD before!
+				OTLog::Error("Attempted to accept a blank transaction number that I've HAD BEFORE (Or at least, is lower than ones I've had before)...\n");
+			else 
 			{
 				theIssuedNym.AddIssuedNum(strServerID, pTransaction->GetTransactionNum());
 				// -----------------------------------------------
@@ -390,7 +440,7 @@ bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox,
 				
 				pAcceptItem->SetReferenceToNum(pTransaction->GetTransactionNum()); // This is critical. Server needs this to look up the original.
 				// Don't need to set transaction num on item since the constructor already got it off the owner transaction.
-
+				
 				// sign the item
 				pAcceptItem->SignContract(*pNym);
 				pAcceptItem->SaveContract();
@@ -452,6 +502,36 @@ bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox,
 	{
 //		OTMessage theMessage;
 		
+		// IF there were transactions that were already added to me, (and I have notice of them here)
+		// they will be in this set. Also they'll only be here IF they were verified as ACTUALLY being
+		// on my tentative list.
+		// Therefore need to REMOVE from Tentative list, and add to actual issued/available lists.
+		if (setNoticeNumbers.size() > 0)
+		{
+			long lViolator = pNym->UpdateHighestNum(*pNym, strServerID, setNoticeNumbers); // bSave=false (saved below if necessary)
+			
+			if (lViolator != 0)
+				OTLog::vError("OTPseudonym::AcceptEntireNymbox: ERROR: Tried to update highest trans # for a server, with lower numbers!"
+							  "This should NEVER HAPPEN, since these numbers are supposedly verified already before even getting this far.\n"
+							  "Violating number (too low): %ld, Nym ID: %s \n", lViolator, strNymID.Get());
+			else
+			{
+				FOR_EACH(std::set<long>, setNoticeNumbers)
+				{
+					const long lNoticeNum = (*it);
+					
+					pNym->RemoveTentativeNum(strServerID, lNoticeNum); // doesn't save (but saved below)
+					pNym->AddTransactionNum(*pNym, strServerID, lNoticeNum, false); // bSave = false (but saved below...)
+				}
+				
+				// The notice means it already happened in the past. Until I recognize it, all my 
+				// transaction statements will fail. (Like the one a few lines below...)
+				//
+				pNym->SaveSignedNymfile(*pNym); 
+			}			
+		}
+		// -------------------------------------------
+		
 		if (ProcessUserCommand(OTClient::processNymbox, theMessage, 
 							   *pNym, 
 //								*(pAssetContract),
@@ -490,12 +570,17 @@ bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox,
 			// Here I am removing the new numbers again, now that the statement has been generated.
 			// If the message is successful, then I will need to add them for real.
 			//
+			bool bAddedTentative=false;
 			for (int i = 0; i < theIssuedNym.GetIssuedNumCount(theServerID); i++)
 			{
 				long lTemp = theIssuedNym.GetIssuedNum(theServerID, i);
 				pNym->RemoveIssuedNum(strServerID, lTemp);
+				pNym->AddTentativeNum(strServerID, lTemp); // So when I see the success notice later, I'll know the server isn't lying. (Store a copy here until then.)
+				bAddedTentative = true;
 			}
 			
+			if (bAddedTentative)
+				pNym->SaveSignedNymfile(*pNym);
 			// -----------------------------------------
 
 			if (NULL != pBalanceItem) // This can't be NULL BTW, since there is an OT_ASSERT in Generate call. But I hate to use a pointer without checking it.
@@ -1505,38 +1590,38 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
 
 // Usually a transaction from the server includes some new transaction numbers.
 // Use this function to harvest them.
-void OTClient::HarvestTransactionNumbers(OTTransaction & theTransaction, OTPseudonym & theNym)
-{	
-	FOR_EACH(listOfItems, theTransaction.GetItemList())
-	{
-		OTItem * pItem = *it;
-		OT_ASSERT(NULL != pItem);
-		
-		if (OTItem::atTransaction == pItem->GetType())
-		{ 
-			if (OTItem::acknowledgement == pItem->GetStatus())
-			{
-				OTLog::Output(0, "SUCCESS -- Received new transaction number(s) from Server for storage.\n");
-				
-				OTString strAttachment;
-				pItem->GetAttachment(strAttachment);
-				if (strAttachment.GetLength())
-				{
-					OTPseudonym thePseudonym;
-					
-					if (thePseudonym.LoadFromString(strAttachment))
-					{
-						theNym.HarvestTransactionNumbers(pItem->GetPurportedServerID(), theNym, thePseudonym);
-					}
-				}
-			}
-			else 
-			{
-				OTLog::Output(0, "FAILURE -- Server refuses to send transaction num.\n"); // in practice will never occur.
-			}
-		}
-	}	// for each
-}
+//void OTClient::HarvestTransactionNumbers(OTTransaction & theTransaction, OTPseudonym & theNym)
+//{	
+//	FOR_EACH(listOfItems, theTransaction.GetItemList())
+//	{
+//		OTItem * pItem = *it;
+//		OT_ASSERT(NULL != pItem);
+//		
+//		if (OTItem::atTransaction == pItem->GetType())
+//		{ 
+//			if (OTItem::acknowledgement == pItem->GetStatus())
+//			{
+//				OTLog::Output(0, "SUCCESS -- Received new transaction number(s) from Server for storage.\n");
+//				
+//				OTString strAttachment;
+//				pItem->GetAttachment(strAttachment);
+//				if (strAttachment.GetLength())
+//				{
+//					OTPseudonym thePseudonym;
+//					
+//					if (thePseudonym.LoadFromString(strAttachment))
+//					{
+//						theNym.HarvestTransactionNumbers(pItem->GetPurportedServerID(), theNym, thePseudonym);
+//					}
+//				}
+//			}
+//			else 
+//			{
+//				OTLog::Output(0, "FAILURE -- Server refuses to send transaction num.\n"); // in practice will never occur.
+//			}
+//		}
+//	}	// for each
+//}
 
 
 
@@ -2660,8 +2745,11 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
                                 // Below however, are additions, not removals, so we don't add them until the
                                 // server has DEFINITELY responded in the affirmative (here):
                                 //
-								pNym->HarvestIssuedNumbers(pStatementItem->GetPurportedServerID(), 
-                                                           *pNym, theMessageNym, true); // bSave=true
+								pNym->HarvestTransactionNumbers(pStatementItem->GetPurportedServerID(), 
+																*pNym, theMessageNym, true); // bSave=true
+								// New version now takes tentative numbers into account, to reduce sync issues.
+//								pNym->HarvestIssuedNumbers(pStatementItem->GetPurportedServerID(), 
+//                                                           *pNym, theMessageNym, true); // bSave=true
 							}
 							else 
 							{
@@ -2849,6 +2937,8 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
                             //
                             switch (pReplyItem->GetType())	
                             {								// Some also need to remove an issued transaction number from pNym.
+
+									
                                 case OTItem::atAcceptMessage: 
                                 case OTItem::atAcceptNotice: 
                                 case OTItem::atAcceptTransaction:
@@ -2999,8 +3089,13 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
 				}
 				else 
 				{
-					OTLog::vOutput(0, "Strange... found ledger in %s, but didn't find the right transaction type within.\n",
-								   theReply.m_strCommand.Get());
+					const OTString strTheLedger(theLedger), strTheReplyLedger(theReplyLedger);
+					OTLog::vOutput(0, "Strange... found ledger in %s, but didn't find the right transaction type within.\n"
+								   "(pTransaction == %s) && (pReplyTransaction == %s)\n"
+								   "theLedger: \n\n%s\n\n"
+								   "theReplyLedger:\n\n%s\n\n", theReply.m_strCommand.Get(), 
+								   (NULL != pTransaction) ? "NOT NULL" : "NULL", (NULL != pReplyTransaction) ? "NOT NULL" : "NULL",
+								   strTheLedger.Get(), strTheReplyLedger.Get());
 				}
 			}
 			else 
@@ -5313,6 +5408,11 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			
 			// (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
 			theMessage.SaveContract();
+			
+			OTString strTemp(theMessage.m_ascPayload);
+			
+//			OTLog::vError("DEBUGGING. Contents of message payload:\n\n%s\n\n ",
+//						  strTemp.Get());
 			
 			bSendCommand = true;
 		}

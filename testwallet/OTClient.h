@@ -374,7 +374,7 @@ public:
 							OTPseudonym			& theNym,
 							OTMessage			& theMessage);
 	
-	void HarvestTransactionNumbers(OTTransaction & theTransaction, OTPseudonym & theNym);	
+//	void HarvestTransactionNumbers(OTTransaction & theTransaction, OTPseudonym & theNym);	
 
 };
 

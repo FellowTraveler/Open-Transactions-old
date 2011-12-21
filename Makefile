@@ -401,7 +401,7 @@ install:
 	mkdir -p $(EXECUTABLE_INSTALL_FOLDER)
 	rm -f $(EXECUTABLE_INSTALL_FOLDER)/ot_server && cp ./transaction/transaction.exe $(EXECUTABLE_INSTALL_FOLDER)/ot_server
 	rm -f $(EXECUTABLE_INSTALL_FOLDER)/ot &&  cp ./testwallet/testwallet.exe $(EXECUTABLE_INSTALL_FOLDER)/ot
-	mkdir ~/.ot && cp -r ./ot-sample-data/* ~/.ot && chown -R $(SUDO_USER):$(SUDO_GROUP) ~/.ot
+	mkdir ~$(SUDO_USER)/.ot && cp -r ./ot-sample-data/* ~$(SUDO_USER)/.ot && chown -R $(SUDO_USER):$(SUDO_GROUP) ~$(SUDO_USER)/.ot
 #
 #	@$(ECHO) '$(OK_COLOR)Installing...$(NO_COLOR)'
 #	@mkdir -p $(EXECUTABLE_INSTALL_FOLDER)

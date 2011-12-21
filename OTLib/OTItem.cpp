@@ -1380,6 +1380,8 @@ OTItem::itemType GetItemTypeFromString(const OTString & strType)
 	else if (strType.Compare("basketReceipt"))
 		theType = OTItem::basketReceipt;
 	// --------------------------------------------------------------
+	else if (strType.Compare("successNotice"))
+		theType = OTItem::successNotice;
 	else if (strType.Compare("notice"))
 		theType = OTItem::notice;
 	// --------------------------------------------------------------
@@ -1690,6 +1692,9 @@ void OTItem::GetStringFromType(OTItem::itemType theType, OTString & strType)
 		// -----------------------------------
 		case OTItem::notice:		// used in Nymbox statement as notification from server.
 			strType.Set("notice");
+			break;
+		case OTItem::successNotice:		// used in Nymbox statement as notification from server of successful sign-out of a trans#.
+			strType.Set("successNotice");
 			break;
 			
 			

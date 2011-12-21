@@ -179,11 +179,13 @@ private:
     
 	static bool		__blocking;		// Should OT block on network send/receive? (Hang on the call until it returns with something.)
 	
+    static int      __latency_send_delay_after; // Delay after each message is sent (client side only.)
+	
     static int      __latency_send_no_tries; // Number of times will try to send a message.
     static int      __latency_receive_no_tries; // Number of times will try to receive a reply.
     
-    static int      __latency_send_ms; // number of ms to wait before retrying send.
-    static int      __latency_receive_ms; // number of ms to wait before retrying receive.
+    static int      __latency_send_ms; // number of ms to wait before retrying send. (doubles after each try)
+    static int      __latency_receive_ms; // number of ms to wait before retrying receive. (doubles after each try)
     
 	static long		__minimum_market_scale; // Server admin can configure this to any higher power-of-ten.
     // -------------------------------------------------
@@ -297,7 +299,10 @@ public:
 	
 	static bool		IsBlocking() { return __blocking; }
 	static void		SetBlocking(bool bBlocking) { __blocking = bBlocking; }
-	
+
+	static int      GetLatencyDelayAfter() { return __latency_send_delay_after; }
+    static void     SetLatencyDelayAfter(int nVal) { __latency_send_delay_after = nVal; }
+
     static int      GetLatencySendNoTries() { return __latency_send_no_tries; }
     static void     SetLatencySendNoTries(int nVal) { __latency_send_no_tries = nVal; }
     static int      GetLatencyReceiveNoTries() { return __latency_receive_no_tries; }

@@ -1518,9 +1518,9 @@ void OTMarket::ProcessTrade(OTTrade & theTrade, OTOffer & theOffer, OTOffer & th
 																			// to $12,000 or $13,000 (PER 10 OZ OF GOLD, which is the SCALE for this market.)
 			
 			// Calc price of each round.	
-			long lPrice = ( lMultiplier * theOtherOffer.GetPriceLimit() );	// So if my minimum increment is 50, then my multiplier is 5, which
-																			// means multiply my price by 5: $13,000 * 5 == $65,000 for 50 oz. per minimum inc.
-			
+			long lPrice = ( lMultiplier * theOtherOffer.GetPriceLimit() );	// So if my minimum increment is 50, then my multiplier is 5, which means
+																			// multiply my price by 5: $13,000 * 5 == $65,000 for 50 oz. per minimum inc.
+
 			// Why am I using the OTHER Offer's price limit, and not my own?
 			// See notes at top and bottom of this function for the answer.
 			// ----------------------------------------------------------------------------
@@ -1543,11 +1543,12 @@ void OTMarket::ProcessTrade(OTTrade & theTrade, OTOffer & theOffer, OTOffer & th
 			// SUPPOSED to have enough funds to cover it...). 
 			// Next question is: can both sides process the MOST AVAILABLE? If so, do THAT, instead of rounds.
 			
-			const long lOverallMultiplier = lMostAvailable / GetScale(); // Price is per scale
+			const long lOverallMultiplier = lMostAvailable / GetScale(); // Price is per scale  // This line was commented with the line below it. They go together.
 			
 			// Why theOtherOffer's price limit instead of theOffer's? See notes top/bottom this function.
 			const long lMostPrice = ( lOverallMultiplier * theOtherOffer.GetPriceLimit() ); 
-			
+			// TO REMOVE MULTIPLIER FROM PRICE, AT LEAST THE ABOVE LINE WOULD REMOVE MULTIPLIER.
+						
 			// To avoid rounds, first I see if I can satisfy the entire order at once on either side...
 			if ((pAssetAccountToDebit->GetBalance()		>= lMostAvailable) &&
 				(pCurrencyAccountToDebit->GetBalance()	>= lMostPrice)

@@ -446,40 +446,49 @@ bool OT_API::LoadConfigFile(const OTString & strMainPath)
             // ------------------------------------------------
             // LATENCY (SENDING)
             {
-                const char * pVal = ini.GetValue("latency", "send_no_tries");
+                const char * pVal = ini.GetValue("latency", "send_delay_after");
                 
                 if ((NULL != pVal) && (atoi(pVal)))
                 {
-                    OTLog::vOutput(1, "Setting latency send_no_tries: %d\n", atoi(pVal));
+                    OTLog::vOutput(1, "Setting latency send_delay_after: %d\n", atoi(pVal));
+                    OTLog::SetLatencyDelayAfter(atoi(pVal));
+                }
+            }
+            {
+                const char * pVal = ini.GetValue("latency", "send_fail_no_tries");
+                
+                if ((NULL != pVal) && (atoi(pVal)))
+                {
+                    OTLog::vOutput(1, "Setting latency send_fail_no_tries: %d\n", atoi(pVal));
                     OTLog::SetLatencySendNoTries(atoi(pVal));
                 }
             }
             {
-                const char * pVal = ini.GetValue("latency", "send_ms");
+                const char * pVal = ini.GetValue("latency", "send_fail_ms");
                 
                 if ((NULL != pVal) && (atoi(pVal)))
                 {
-                    OTLog::vOutput(1, "Setting latency send_ms: %d\n", atoi(pVal));
+                    OTLog::vOutput(1, "Setting latency send_fail_ms: %d\n", atoi(pVal));
                     OTLog::SetLatencySendMs(atoi(pVal));
                 }
             }
             // ------------------------------------------------
             // LATENCY (RECEIVING)
             {
-                const char * pVal = ini.GetValue("latency", "receive_no_tries");
+                const char * pVal = ini.GetValue("latency", "receive_fail_no_tries");
                 
                 if ((NULL != pVal) && (atoi(pVal)))
                 {
-                    OTLog::vOutput(1, "Setting latency receive_no_tries: %d\n", atoi(pVal));                    
+                    OTLog::vOutput(1, "Setting latency receive_fail_no_tries: %d\n", atoi(pVal));                    
                     OTLog::SetLatencyReceiveNoTries(atoi(pVal));
                 }
             }
             {
-                const char * pVal = ini.GetValue("latency", "receive_ms");
+                const char * pVal = ini.GetValue("latency", "receive_fail_ms");
                 
                 if ((NULL != pVal) && (atoi(pVal)))
                 {
-                    OTLog::vOutput(1, "Setting latency receive_ms: %d\n", atoi(pVal));
+                    OTLog::vOutput(1, "Setting latency receive_fail_ms: %d\n", atoi(pVal));
                     OTLog::SetLatencyReceiveMs(atoi(pVal));
                 }
             }
@@ -5812,7 +5821,7 @@ void OT_API::issueMarketOffer(const OTIdentifier	& SERVER_ID,
 		if (TOTAL_ASSETS_ON_OFFER > 0)
 			lTotalAssetsOnOffer = TOTAL_ASSETS_ON_OFFER; // otherwise, defaults to 1.
 		
-		lTotalAssetsOnOffer *= lMinimumIncrement;
+//		lTotalAssetsOnOffer *= lMinimumIncrement;  This was a bug.
 		
 		// -------------------------------------------------------------------
 		
@@ -6757,8 +6766,7 @@ void OT_API::getOutbox(OTIdentifier & SERVER_ID,
 
 
 void OT_API::processNymbox(OTIdentifier	& SERVER_ID,
-						   OTIdentifier	& USER_ID,
-						   OTString		& NYMBOX_LEDGER)
+						   OTIdentifier	& USER_ID)
 {
 	OT_ASSERT_MSG(m_bInitialized, "Not initialized; call OT_API::Init first.");
 	
@@ -6792,37 +6800,20 @@ void OT_API::processNymbox(OTIdentifier	& SERVER_ID,
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
-		
+	
 	OTMessage theMessage;
-	long lRequestNumber = 0;
-	
-	OTString strServerID(SERVER_ID), strNymID(USER_ID);
-	
-	// (0) Set up the REQUEST NUMBER and then INCREMENT IT
-	pNym->GetCurrentRequestNum(strServerID, lRequestNumber);
-	theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
-	pNym->IncrementRequestNum(*pNym, strServerID); // since I used it for a server request, I have to increment it
-	
-	// (1) set up member variables 
-	theMessage.m_strCommand			= "processNymbox";
-	theMessage.m_strNymID			= strNymID;
-	theMessage.m_strServerID		= strServerID;
-	
-	// Presumably NYMBOX_LEDGER was already set up before this function was called...
-	// See test client for example of it being done.
-	theMessage.m_ascPayload.SetString(NYMBOX_LEDGER);
-	
-	// (2) Sign the Message 
-	theMessage.SignContract(*pNym);		
-	
-	// (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
-	theMessage.SaveContract();
-	
-	// (Send it)
+
+	if (m_pClient->ProcessUserCommand(OTClient::processEntireNymbox, theMessage, 
+									  *pNym, *pServer,
+									  NULL)) // NULL pAccount on this command.
+	{				
 #if defined(OT_ZMQ_MODE)
-	m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
+		m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 #endif	
-	m_pClient->ProcessMessageOut(theMessage);	
+		m_pClient->ProcessMessageOut(theMessage);
+	}
+	else
+		OTLog::Error("Error processing getRequest command in OT_API::processNymbox\n");
 }
 
 

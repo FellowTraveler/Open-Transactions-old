@@ -160,6 +160,7 @@ class OTMessage;
 typedef std::deque<OTMessage *>		dequeOfMail;
 
 typedef std::map<std::string, long>	mapOfRequestNums;
+typedef std::map<std::string, long>	mapOfHighestNums;
 
 typedef std::deque<long>							dequeOfTransNums;
 typedef std::map<std::string, dequeOfTransNums *>	mapOfTransNums;
@@ -191,6 +192,7 @@ private:
 	mapOfRequestNums m_mapRequestNum;	// Whenever this user makes a request to a transaction server
 										// he must use the latest request number. Each user has a request
 										// number for EACH transaction server he accesses.
+	
 	mapOfTransNums	m_mapTransNum;	// Each Transaction Request must be accompanied by a fresh transaction #,
 									// one that has previously been issued to the Nym by the Server. This list
 									// is used so that I know WHICH transaction numbers I still have to USE.
@@ -200,6 +202,20 @@ private:
 									// entire (1,2,3,4,5) are still on THIS list--each only to be removed 
 									// when I have ACCEPTED THE RECEIPT IN MY NYMBOX FOR EACH ONE. This list
 									// is so I can do agreements with the server concerning which RECEIPTS I'VE ACCEPTED.
+	
+	// When I accept a transaction number, I put it on this list. Then when I receive the server reply, I add the # to the
+	// actual lists (m_maps TransNum and IssuedNum) and remove it from this list. If it's NOT on this list when I receive
+	// the server reply, then the server is trying to trick me! into accepting a number I never asked to sign for. The real
+	// reason I added this member was so the server could drop notices into my Nymbox about these new transaction numbers
+	// (for cases where the actual network message was lost, the server reply, I realized a good backup plan is to have the
+	// server always drop notices into your nymbox as well, so you won't get out of sync, since the notice is there even if
+	// the network fails before you get the server's reply. I think this is also a GREAT backup plan for withdrawing CASH
+	mapOfTransNums	m_mapTentativeNum; 
+	
+	// We store the highest transaction number accepted for any given server, and we refuse, in the future, to accept anything lower.
+	// This prevents a sneaky server from sending you an old number, getting you to sign it out again, then then using that to run 
+	// through an old instrument (such as a cheque) that still has your old (valid) signature on it.
+    mapOfHighestNums m_mapHighTransNo;  // Mapped, a single long to each server (just like request numbers are.)
 	
     std::set<long> m_setOpenCronItems; // Until these Cron Items are closed out, the server-side Nym keeps a list of them handy.
     
@@ -313,9 +329,13 @@ public:
 	void IncrementRequestNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID); // Increment the counter or create a new one for this serverID starting at 1
 	void OnUpdateRequestNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, long lNewRequestNumber); // if the server sends us a @getRequest
 	bool GetCurrentRequestNum(const OTString & strServerID, long &lReqNum); // get the current request number for the serverID
+	
+	bool GetHighestNum(const OTString & strServerID, long &lHighestNum); // get the last/current highest transaction number for the serverID.
+	long UpdateHighestNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, std::set<long> & setNumbers, bool bSave=false); // Returns 0 if success, otherwise # of the violator.
 
 	inline mapOfTransNums & GetMapTransNum() { return m_mapTransNum; }
 	inline mapOfTransNums & GetMapIssuedNum() { return m_mapIssuedNum; }
+	inline mapOfTransNums & GetMapTentativeNum() { return m_mapTentativeNum; }
 
 	void RemoveAllNumbers(const OTString * pstrServerID=NULL); // for transaction numbers
 	void RemoveReqNumbers(const OTString * pstrServerID=NULL); // for request numbers (entirely different animal)
@@ -329,8 +349,11 @@ public:
                                   bool bSave=true); // Get the next available transaction number for the serverID passed. Saves by default.
 	bool	RemoveIssuedNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, const long & lTransNum, bool bSave); // SAVE OR NOT (your choice)
 
+	bool	RemoveTentativeNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, const long & lTransNum, bool bSave);
+	
 	bool	VerifyIssuedNum(const OTString & strServerID, const long & lTransNum); // verify user is still responsible for (signed for) a certain trans# that was previous issued to him. (i.e. it's been used, but not yet accepted receipt through inbox.)
 	bool	VerifyTransactionNum(const OTString & strServerID, const long & lTransNum); // server verifies that nym has this TransNum available for use.
+	bool	VerifyTentativeNum(const OTString & strServerID, const long & lTransNum); // Client-side verifies that it actually tried to sign for this number (so it knows if the reply is valid.)
 
 	// These two functions are for when you re-download your nym/account/inbox/outbox, and you
 	// need to verify it against the last signed receipt to make sure you aren't getting screwed.
@@ -355,9 +378,32 @@ public:
 	long GetTransactionNum(const OTIdentifier & theServerID, int nIndex); // index
 	
 	bool AddTransactionNum(const OTString & strServerID, const long lTransNum); // doesn't save
-		
+	
 	bool RemoveTransactionNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, const long & lTransNum); // server removes spent number from nym file. Saves.
 	bool RemoveTransactionNum(const OTString & strServerID, const long & lTransNum); // doesn't save.
+	
+	// -------------------------------------
+	// These functions are for tentative transaction numbers that I am trying to sign for.
+	// They are in my Nymbox. I sign to accept them, and then store them here. The server 
+	// replies with success, and then I remove them from this list, and move them onto the
+	// two lists above. For good measure, the server also puts a success note into my Nymbox,
+	// so if the network transport is lost, I will still have the chance to get my Nymbox,
+	// and see the notices. By this time, the numbers are DEFNITELY ALREADY CONFIRMED, and
+	// the notices can simply be discarded if the numbers aren't on list "Tentative" list.
+	// That means they already went through, and were already removed from this list as
+	// described higher in this paragraph. HOWEVER, if I somehow lost the message (the 
+	// original server success reply when I signed for the numbers) then they will STILL be
+	// stuck on this list! The notice gives me a chance to officially move them to the right
+	// place. After all, my transactions won't work until I do, because my balance agreements
+	// will be wrong.
+	//
+	int GetTentativeNumCount(const OTIdentifier & theServerID); // count
+	long GetTentativeNum(const OTIdentifier & theServerID, int nIndex); // index
+	
+	bool AddTentativeNum(const OTString & strServerID, const long &lTransNum); // doesn't save
+	
+	bool RemoveTentativeNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, const long & lTransNum);
+	bool RemoveTentativeNum(const OTString & strServerID, const long & lTransNum); // doesn't save.
 	
 	// ---------------------------------------------
 	
@@ -371,7 +417,8 @@ public:
 	bool AddGenericNum(mapOfTransNums & THE_MAP, const OTString & strServerID, const long lTransNum); // doesn't save
 	
 	int  GetGenericNumCount(mapOfTransNums & THE_MAP, const OTIdentifier & theServerID); 
-	
+	long GetGenericNum(mapOfTransNums & THE_MAP, const OTIdentifier & theServerID, int nIndex);
+
 	// -------------------------------------
 	
 	// Whenever a Nym receives a message via his Nymbox, and then the Nymbox is processed, (which happens automatically)

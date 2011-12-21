@@ -987,20 +987,20 @@ bool OTServer::LoadConfigFile()
                 }
             }
             {
-                const char * pVal = ini.GetValue("latency", "send_no_tries");
+                const char * pVal = ini.GetValue("latency", "send_fail_no_tries");
                 
                 if ((NULL != pVal) && (atoi(pVal)))
                 {
-                    OTLog::vOutput(0, "Setting latency send_no_tries: %d\n", atoi(pVal));
+                    OTLog::vOutput(0, "Setting latency send_fail_no_tries: %d\n", atoi(pVal));
                     OTLog::SetLatencySendNoTries(atoi(pVal));
                 }
             }
             {
-                const char * pVal = ini.GetValue("latency", "send_ms");
+                const char * pVal = ini.GetValue("latency", "send_fail_ms");
                 
                 if ((NULL != pVal) && (atoi(pVal)))
                 {
-                    OTLog::vOutput(0, "Setting latency send_ms: %d\n", atoi(pVal));
+                    OTLog::vOutput(0, "Setting latency send_fail_ms: %d\n", atoi(pVal));
                     OTLog::SetLatencySendMs(atoi(pVal));
                 }
             }
@@ -7402,6 +7402,9 @@ void OTServer::UserCmdProcessNymbox(OTPseudonym & theNym, OTMessage & MsgIn, OTM
 	// Grab the string (containing the request ledger) out of ascii-armored form.
 	OTString strLedger(MsgIn.m_ascPayload);	
 	
+//	OTLog::vError("DEBUGGING: Contents of payload:\n\n%s\n\n",
+//				  strLedger.Get());
+	
 	// theLedger contains a single transaction from the client, with an item inside
 	// for each inbox transaction the client wants to accept or reject.
 	// Let's see if we can load it from the string that came in the message...
@@ -7538,7 +7541,9 @@ void OTServer::NotarizeProcessNymbox(OTPseudonym & theNym, OTTransaction & tranI
 	}
 	else if (NULL == pBalanceItem)
 	{
-		OTLog::Output(0, "OTServer::NotarizeProcessNymbox: No Transaction Agreement item found on this transaction (required).\n");
+		const OTString strTransaction(tranIn);
+		OTLog::vOutput(0, "OTServer::NotarizeProcessNymbox: No Transaction Agreement item found on this transaction %ld (required):\n\n%s\n\n",
+					   tranIn.GetTransactionNum(), strTransaction.Get());
 	}
 	else 
 	{
@@ -7737,6 +7742,7 @@ void OTServer::NotarizeProcessNymbox(OTPseudonym & theNym, OTTransaction & tranI
 							  (OTTransaction::finalReceipt	== pServerTransaction->GetType()) ||	// finalReceipt (notice that an opening num was closed.)
 							  (OTTransaction::blank         == pServerTransaction->GetType()) ||	// new transaction number waiting to be picked up.
 							  (OTTransaction::message       == pServerTransaction->GetType()) ||	// message in the nymbox
+							  (OTTransaction::successNotice == pServerTransaction->GetType()) ||	// successNotice that you signed out a transaction#.
 							  (OTTransaction::notice        == pServerTransaction->GetType())		// server notification, in the nymbox
 							 )																	
 					   )																
@@ -7787,12 +7793,15 @@ void OTServer::NotarizeProcessNymbox(OTPseudonym & theNym, OTTransaction & tranI
 						
 						// The below block only executes for ACCEPTING a MESSAGE
 						else if (
-							(OTItem::acceptNotice	== pItem->GetType()) 
-							&&
-							(OTTransaction::notice	== pServerTransaction->GetType())
-						   )
+								 (OTItem::acceptNotice	== pItem->GetType()) 
+								 &&
+								 (
+								  (OTTransaction::notice		== pServerTransaction->GetType()) ||
+								  (OTTransaction::successNotice	== pServerTransaction->GetType())
+								  )
+								 )
 							
-						{	
+						{
 							// pItem contains the current user's attempt to accept the 
 							// ['message'] located in pServerTransaction.
 							// Now we have the user's item and the item he is trying to accept.
@@ -7808,18 +7817,54 @@ void OTServer::NotarizeProcessNymbox(OTPseudonym & theNym, OTTransaction & tranI
 							pResponseItem->SetStatus(OTItem::acknowledgement);
 						}// its type is OTItem::aacceptNotice
 						
-
+						
 						// The below block only executes for ACCEPTING a TRANSACTION NUMBER
+						// It also places a success notice into the Nymbox, to solve sync issues.
+						// (We'll make SURE the client got the notice! Probably should do this
+						// for cash withdrawals as well...)
 						else if (
 								 (OTItem::acceptTransaction == pItem->GetType())
 								 &&
 								 (OTTransaction::blank == pServerTransaction->GetType())
 								)
 						{
+							// -----------------------------------------------
+							// Add the success notice to the Nymbox, so if the Nym fails to see the server reply, he can still get his
+							// transaction # later, from the notice, instead of going out of sync.
+							//
+							long lSuccessNoticeTransNum=0;
+							bool bGotNextTransNum = IssueNextTransactionNumber(m_nymServer, lSuccessNoticeTransNum, false); // bool bStoreTheNumber = false
+							
+							if (!bGotNextTransNum)
+							{
+								lSuccessNoticeTransNum = 0;
+								OTLog::Error("Error getting next transaction number in OTServer::NotarizeProcessNymbox for OTTransaction::blank (for the successNotice)\n");
+							}
+							else
+							{
+								// Drop in the Nymbox
+								//
+								OTTransaction * pSuccessNotice = OTTransaction::GenerateTransaction(theNymbox, OTTransaction::successNotice, lSuccessNoticeTransNum);
+								
+								if (NULL != pSuccessNotice) // The above has an OT_ASSERT within, but I just like to check my pointers.
+								{			
+									pSuccessNotice->	SetReferenceToNum(pServerTransaction->GetTransactionNum());		// If I accepted blank trans#10, then this successNotice is in reference to #10
+									pSuccessNotice->	SetReferenceString(strInReferenceTo);	// Contains a copy of the OTItem where I actually accepted the blank transaction #. (which generated the notice in the first place...)
+									
+									pSuccessNotice->	SignContract(m_nymServer);
+									pSuccessNotice->	SaveContract();
+									
+									theNymbox.AddTransaction(*pSuccessNotice); // Add the successNotice to the nymbox. It takes ownership.
+								}
+							}
+							// -----------------------------------------------
+							
 							// pItem contains the current user's attempt to accept the 
 							// transaction number located in pServerTransaction.
 							// Now we have the user's item and the item he is trying to accept.
 							
+							// Here we remove the blank transaction that was just accepted.
+							// 
 							theNymbox.	RemoveTransaction(pServerTransaction->GetTransactionNum());
 							
 							theNymbox.	ReleaseSignatures();

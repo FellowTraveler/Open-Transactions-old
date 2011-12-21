@@ -523,8 +523,7 @@ public:
 				   OTIdentifier & ACCT_ID);
 	
 	void processNymbox(OTIdentifier	& SERVER_ID,
-					   OTIdentifier	& USER_ID,
-					   OTString		& NYMBOX_LEDGER);
+					   OTIdentifier	& USER_ID);
 	
 	void processInbox(OTIdentifier	& SERVER_ID,
 					  OTIdentifier	& USER_ID,
