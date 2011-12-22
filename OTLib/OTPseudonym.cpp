@@ -2618,7 +2618,7 @@ bool OTPseudonym::LoadFromString(const OTString & strNym)
 					// internal map so that it is available for future lookups.
 					m_mapRequestNum[ReqNumServerID.Get()] = atol(ReqNumCurrent.Get());
 				}
-				else if (!strcmp("highestNum", xml->getNodeName()))
+				else if (!strcmp("highestTransNum", xml->getNodeName()))
 				{
 					HighNumServerID = xml->getAttributeValue("serverID");				
 					HighNumRecent = xml->getAttributeValue("mostRecent");

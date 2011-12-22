@@ -688,7 +688,7 @@ bool OTClient::AcceptEntireInbox(OTLedger			& theInbox,
 	if (theInbox.GetTransactionCount() < 1) 
 	{
 		// If there aren't any transactions in the inbox, no point wasting a # to process an empty box.
-		OTLog::Output(4, "OTClient::AcceptEntireInbox: no point wasting a transaction number in order to process an empty box\n");
+		OTLog::Output(0, "OTClient::AcceptEntireInbox: no point wasting a transaction number in order to process an empty box\n");
 		
 		return false;
 	}
@@ -5508,11 +5508,15 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		// Load up the appropriate Inbox... 
 		OTLedger theInbox(MY_NYM_ID, theAccountID, SERVER_ID);
 		
-		bool bLoadedInbox = (theInbox.LoadInbox() && theInbox.VerifyAccount(theNym));
+		bool bLoadedInbox	= theInbox.LoadInbox();
+		
+		bool bVerifiedInbox	= (bLoadedInbox ? theInbox.VerifyAccount(theNym) : false);
 		
 		// (0) Set up the REQUEST NUMBER and then INCREMENT IT
 		// (1) Set up member variables 
-		bool bSuccess = (bLoadedInbox && AcceptEntireInbox(theInbox, SERVER_ID, theServer, theNym, theMessage, *pAccount));
+		bool bSuccess = (bLoadedInbox && 
+						 bVerifiedInbox && 
+						 AcceptEntireInbox(theInbox, SERVER_ID, theServer, theNym, theMessage, *pAccount));
 		// -----------------		
 		
 		if (bSuccess)
@@ -5527,7 +5531,8 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		}
 		else
 		{
-			OTLog::vOutput(0, "OTClient::processEntireInbox: Failed loading, verifying, or accepting entire Inbox.\n");
+			OTLog::vOutput(0, "OTClient::processEntireInbox: Failure Inbox: Loading (%s), verifying (%s), or accepting (%s) entire Inbox.\n",
+						   bLoadedInbox ? "Success" : "Failure", bVerifiedInbox ? "Success" : "Failure", bSuccess ? "Success" : "Failure");
 		}
 	}
 	

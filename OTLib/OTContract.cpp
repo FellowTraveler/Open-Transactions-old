@@ -1517,6 +1517,16 @@ bool OTContract::CreateContract(OTString & strContract, OTPseudonym & theSigner)
 
 bool OTContract::SaveContract(OTString & strContract)
 {
+	
+//	const OTString strSUPER_TEMP(m_ID);
+//	
+//	bool b1 = strSUPER_TEMP.Compare("wmY1B8o94PFENzqPVK6wLOLvkog9TvA3GDxZuAMGCpW");
+//	bool b2 = strSUPER_TEMP.Compare("waO5ruHZIa3eq6bp4AJixG2RuVtPYrZPuL0iop96UKU");
+//	
+//	
+//	OT_ASSERT(!b1 && !b2);
+	
+	
 	OTString strTemp;
 	
 	// ---------------------------------------------------------------
@@ -1566,9 +1576,8 @@ bool OTContract::SaveContract(const char * szFoldername, const char * szFilename
 	OT_ASSERT(m_strFilename.GetLength() > 2);
 	
 	// --------------------------------------------------------------------
-	OTString strFinal;
-	SaveContract(strFinal); // This trims!
-
+	OTString strFinal(m_strRawFile);
+	
 	bool bSaved = OTDB::StorePlainString(strFinal.Get(), szFoldername, szFilename);
 	
 	if (!bSaved)
@@ -1740,13 +1749,13 @@ bool OTContract::LoadContractFromString(const OTString & theStr)
 	
 	// If it was a success, save back to m_strRawFile again so 
 	// the format is consistent and hashes will calculate properly.
-	if (bSuccess)
-	{
-		// Basically we take the m_xmlUnsigned that we parsed out of the raw file before,
-		// then we use that to generate the raw file again, re-attaching the signatures.
-		// This function does that.
-		SaveContract();
-	}
+//	if (bSuccess)
+//	{
+//		// Basically we take the m_xmlUnsigned that we parsed out of the raw file before,
+//		// then we use that to generate the raw file again, re-attaching the signatures.
+//		// This function does that.
+//		SaveContract();
+//	} // I think this was the bug where the version changed from 75 to 75c, and suddenly contract ID was wrong...
 	
 	return bSuccess;
 }
