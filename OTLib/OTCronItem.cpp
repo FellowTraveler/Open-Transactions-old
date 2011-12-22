@@ -1198,7 +1198,7 @@ bool OTCronItem::SaveCronReceipt()
 	// --------------------------------------------------------------------
 	
 	OTString strFinal;
-	SaveContract(strFinal);
+	SaveContractRaw(strFinal);
 	
 	bool bSaved = OTDB::StorePlainString(strFinal.Get(), szFoldername, szFilename);
 	

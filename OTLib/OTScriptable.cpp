@@ -1969,11 +1969,10 @@ bool OTScriptable::ConfirmParty(OTParty & theParty)
 		OTString strNewSignedCopy;
 		this->ReleaseSignatures();
 		bool bSuccess = theParty.SignContract(*this);
-		
 		if (bSuccess)
 		{
 			this->SaveContract();
-			this->SaveContract(strNewSignedCopy);
+			this->SaveContractRaw(strNewSignedCopy);
 			// -----------------------
 			// then save a copy of it inside theParty, 
 			//

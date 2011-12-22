@@ -6200,7 +6200,7 @@ const char * OT_API_Transaction_GetVoucher(const char * SERVER_ID,
 			OTCheque	theVoucher;
 			if (theVoucher.LoadContractFromString(strVoucher)) // Todo additional verification here on the cheque.
 			{
-				theVoucher.SaveContract(strOutput);
+				theVoucher.SaveContractRaw(strOutput);
 				break;			
 			}
 		}
@@ -7733,7 +7733,7 @@ const char * OT_API_Purse_Peek(const char * SERVER_ID,
 			
 			if (NULL != pToken)
 			{
-				pToken->SaveContract(strOutput);				
+				pToken->SaveContractRaw(strOutput);				
 			}
 			else 
 			{
@@ -7837,7 +7837,7 @@ const char * OT_API_Purse_Pop(const char * SERVER_ID,
 				thePurse.ReleaseSignatures();
 				thePurse.SignContract(*pNym);
 				thePurse.SaveContract();
-				thePurse.SaveContract(strOutput);
+				thePurse.SaveContractRaw(strOutput);
 			}
 			else 
 			{
@@ -7957,7 +7957,7 @@ const char * OT_API_Purse_Push(const char * SERVER_ID,
 			thePurse.ReleaseSignatures();
 			thePurse.SignContract(*pNym);
 			thePurse.SaveContract();
-			thePurse.SaveContract(strOutput);
+			thePurse.SaveContractRaw(strOutput);
 		}
 		else 
 		{
@@ -8060,7 +8060,7 @@ OT_BOOL OT_API_Wallet_ImportPurse(const char * SERVER_ID,
 	// By this point, the old purse has either been loaded, or created.
 	// --------------------------------------------------------------
 	
-	OTPurse theNewPurse(theServerID, theAssetTypeID); // This purse might have a dummy nym inside it, so I can't assume it's for my User ID.
+	OTPurse theNewPurse(theServerID, theAssetTypeID, theUserID); // This purse might have a dummy nym inside it, so I can't assume it's for my User ID.
 	
 	if (strNewPurse.Exists() && theNewPurse.LoadContractFromString(strNewPurse))
 	{
@@ -8403,7 +8403,7 @@ const char * OT_API_Token_ChangeOwner(const char * SERVER_ID,
 			theToken.SignContract(*pNewNym);
 			theToken.SaveContract();
 			
-			theToken.SaveContract(strOutput);
+			theToken.SaveContractRaw(strOutput);
 		}
 	}
 	

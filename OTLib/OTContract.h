@@ -331,11 +331,15 @@ public:
 	
 	bool SaveToContractFolder(); // data_folder/contracts/Contract-ID
 
+	
+	bool SaveContractRaw(OTString & strOutput) const; // Saves the raw (pre-existing) contract text to any string you want to pass in.
+	bool RewriteContract(OTString & strOutput) const; // Takes the pre-existing XML contents (WITHOUT signatures) and re-writes the Raw data, adding the pre-existing signatures along with new signature bookends. 
+
+	
 	bool SaveContract(); // This saves the Contract to its own internal member string, m_strRawFile (and does
 						 // NOT actually save it to a file.)
-	bool SaveContract(OTString & strContract); // Saves the contract to any string you want to pass in.
-	bool SaveContract(const char * szFoldername, const char * szFilename); // Saves the contract to its internal member, then saves 
-																			// that to a specific filename
+//	bool SaveContract(OTString & strContract); // Saves the contract to any string you want to pass in.
+	bool SaveContract(const char * szFoldername, const char * szFilename); // Saves the contract to a specific filename
 	
 	// Update the internal unsigned contents based on the member variables
 	virtual void UpdateContents(); // default behavior does nothing.

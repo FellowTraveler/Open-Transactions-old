@@ -115,12 +115,12 @@ int main (int argc, char * const argv[])
 					if (bIsServerContract)
 					{
 						theServerContract.GetIdentifier(strDigest);
-						theServerContract.SaveContract(strOutput);
+						theServerContract.SaveContractRaw(strOutput);
 					}
 					else
 					{
 						theAssetContract.GetIdentifier(strDigest);
-						theAssetContract.SaveContract(strOutput);
+						theAssetContract.SaveContractRaw(strOutput);
 					}
 					
 					fprintf(stdout, "\n\n Contract ID:\n%s\n\nContract:\n%s\n", 

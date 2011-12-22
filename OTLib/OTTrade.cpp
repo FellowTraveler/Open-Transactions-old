@@ -962,7 +962,7 @@ void OTTrade::onFinalReceipt(OTCronItem & theOrigCronItem, const long & lNewTran
             
     if (m_pOffer)
     {
-        m_pOffer->SaveContract(strUpdatedOffer);
+        m_pOffer->SaveContractRaw(strUpdatedOffer);
         pstrNote = &strUpdatedOffer;
     }
     

@@ -2293,7 +2293,7 @@ void OTTransaction::UpdateContents()
 		OT_ASSERT(NULL != pItem);
 
 		OTString strItem;
-		pItem->SaveContract(strItem);
+		pItem->SaveContractRaw(strItem);
 			
 		OTASCIIArmor ascItem;
 		ascItem.SetString(strItem, true); // linebreaks = true

@@ -1456,15 +1456,18 @@ bool OTContract::SaveContents(OTString & strContents) const
 bool OTContract::SaveContract()
 {
 	OTString strTemp;
-	bool bSuccess = SaveContract(strTemp);
+	bool bSuccess = RewriteContract(strTemp);
 	
 	if (bSuccess)
 	{
-//		m_strRawFile.Set(strTemp);
+		m_strRawFile.Set(strTemp);
 		
-		std::string str_Trim(strTemp.Get());
-		std::string str_Trim2 = OTString::trim(str_Trim);
-		m_strRawFile.Set(str_Trim2.c_str());
+		
+		// RewriteContract() already does this.
+		//
+//		std::string str_Trim(strTemp.Get());
+//		std::string str_Trim2 = OTString::trim(str_Trim);
+//		m_strRawFile.Set(str_Trim2.c_str());
 	}
 	
 	return bSuccess;
@@ -1491,12 +1494,12 @@ bool OTContract::CreateContract(OTString & strContract, OTPseudonym & theSigner)
 		OTString strTemp;
 		
 		SignContract(theSigner);
-		SaveContract(strTemp); // this trims
+		RewriteContract(strTemp); // this trims
 		
 		// This is probably redundant...
-		std::string str_Trim(strTemp.Get());
-		std::string str_Trim2 = OTString::trim(str_Trim);
-		strTemp.Set(str_Trim2.c_str());
+//		std::string str_Trim(strTemp.Get());
+//		std::string str_Trim2 = OTString::trim(str_Trim);
+//		strTemp.Set(str_Trim2.c_str());
 		// -----------------------------------
 		Release();
 		LoadContractFromString(strTemp);
@@ -1515,18 +1518,57 @@ bool OTContract::CreateContract(OTString & strContract, OTPseudonym & theSigner)
 }
 
 
-bool OTContract::SaveContract(OTString & strContract)
+
+
+// Saves the raw (pre-existing) contract text to any string you want to pass in.
+bool OTContract::SaveContractRaw(OTString & strOutput) const
 {
+	strOutput.Concatenate("%s", m_strRawFile.Get());
+
+	return true;
+}
+
+// Takes the pre-existing XML contents (WITHOUT signatures) and re-writes the Raw data, adding the pre-existing signatures along with new signature bookends. 
+bool OTContract::RewriteContract(OTString & strOutput) const
+{
+	OTString strTemp;
 	
-//	const OTString strSUPER_TEMP(m_ID);
-//	
-//	bool b1 = strSUPER_TEMP.Compare("wmY1B8o94PFENzqPVK6wLOLvkog9TvA3GDxZuAMGCpW");
-//	bool b2 = strSUPER_TEMP.Compare("waO5ruHZIa3eq6bp4AJixG2RuVtPYrZPuL0iop96UKU");
-//	
-//	
-//	OT_ASSERT(!b1 && !b2);
+	// ---------------------------------------------------------------
 	
+	strTemp.Concatenate("-----BEGIN SIGNED %s-----\nHash: %s\n\n", 
+						m_strContractType.Get(), m_strSigHashType.Get());
 	
+	// ---------------------------------------------------------------
+	
+	SaveContents(strTemp);
+	
+	// ---------------------------------------------------------------
+	
+	FOR_EACH_CONST(listOfSignatures, m_listSignatures)
+	{
+		OTSignature * pSig = *it;
+		OT_ASSERT(NULL != pSig);
+		
+		strTemp.Concatenate("-----BEGIN %s SIGNATURE-----\n"
+							"Version: Open Transactions %s\n"
+							"Comment: http://github.com/FellowTraveler/Open-Transactions/wiki\n\n", 
+							m_strContractType.Get(), OTLog::Version());
+		strTemp.Concatenate("%s", pSig->Get());
+		strTemp.Concatenate("-----END %s SIGNATURE-----\n\n", m_strContractType.Get());
+	}
+	// ---------------------------------------------------------------
+	
+	std::string str_Trim(strTemp.Get());
+	std::string str_Trim2 = OTString::trim(str_Trim);
+	
+	strOutput.Set(str_Trim2.c_str());
+	
+	return true;		
+}
+
+/*
+bool OTContract::SaveContract(OTString & strContract)
+{	
 	OTString strTemp;
 	
 	// ---------------------------------------------------------------
@@ -1556,11 +1598,12 @@ bool OTContract::SaveContract(OTString & strContract)
 	
 	std::string str_Trim(strTemp.Get());
 	std::string str_Trim2 = OTString::trim(str_Trim);
-	strContract.Set(str_Trim2.c_str());
+	
+	strOutput.Set(str_Trim2.c_str());
 		
 	return true;		
 }
-
+*/
 
 
 	

@@ -1076,7 +1076,7 @@ void OTLedger::UpdateContents() // Before transmission or serialization, this is
 		OT_ASSERT(NULL != pTransaction);
 		
 		OTString strTransaction;
-		pTransaction->SaveContract(strTransaction);
+		pTransaction->SaveContractRaw(strTransaction);
 		
 		OTASCIIArmor ascTransaction;
 		ascTransaction.SetString(strTransaction, true); // linebreaks = true

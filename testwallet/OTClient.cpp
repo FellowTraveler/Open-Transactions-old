@@ -1552,7 +1552,7 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
 			// ---------------------------------------------------------
 			
 			OTString strTransaction;
-			pTransaction->SaveContract(strTransaction);
+			pTransaction->SaveContractRaw(strTransaction);
 			
 			if (NULL != pItem)
 			{
@@ -1825,9 +1825,10 @@ void OTClient::ProcessWithdrawalResponse(OTTransaction & theTransaction, OTServe
 					// Sign it, save it.
 					theWalletPurse.ReleaseSignatures(); // Might as well, they're no good anyway once the data has changed.
 					theWalletPurse.SignContract(*pNym);
+					theWalletPurse.SaveContract();
 					theWalletPurse.SavePurse(strServerID.Get(), strUserID.Get(), strAssetID.Get());
 					
-					OTLog::Output(1, "SUCCESSFULLY UNBLINDED token, and added the cash to the local purse, and saved.\n");
+					OTLog::Output(0, "SUCCESSFULLY UNBLINDED token, and added the cash to the local purse, and saved.\n");
 				}
 			} // if (thePurse.LoadContractFromString(strPurse))
 		}
@@ -3032,7 +3033,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
 							strReceiptFilename.Format("%s.fail", strReceiptID.Get());
 						
 						OTString strTransaction;
-						pReplyTransaction->SaveContract(strTransaction); // <=========== Save that receipt!
+						pReplyTransaction->SaveContractRaw(strTransaction); // <=========== Save that receipt!
 						
 						OTDB::StorePlainString(strTransaction.Get(), OTLog::ReceiptFolder(), 
 											   strServerID.Get(), strReceiptFilename.Get());
@@ -3081,7 +3082,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
 									  strServerID.Get(), OTLog::PathSeparator(), strReceiptFilename.Get());
 						
 						OTString strTransaction;
-						pReplyTransaction->SaveContract(strTransaction); // <=========== Save that receipt!
+						pReplyTransaction->SaveContractRaw(strTransaction); // <=========== Save that receipt!
 						
 						OTDB::StorePlainString(strTransaction.Get(), OTLog::ReceiptFolder(), 
 											   strServerID.Get(), strReceiptFilename.Get());
@@ -4573,7 +4574,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
                             // Export the OTBasket object into a string, add it as
                             // a payload on my request, and send to server.
                             theRequestBasket.SignContract(theNym);
-                            theRequestBasket.SaveContract(strBasketInfo);
+                            theRequestBasket.SaveContractRaw(strBasketInfo);
 
                             //***********************************************************************
 
@@ -4722,7 +4723,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		// Export the OTBasket object into a string, add it as
 		// a payload on message, and send to server.
 		theBasket.SignContract(theNym);
-		theBasket.SaveContract(strBasketInfo);
+		theBasket.SaveContractRaw(strBasketInfo);
 		
 		// The user signs and saves the contract, but once the server gets it,
 		// the server releases signatures and signs it, calculating the hash from the result,
@@ -5951,7 +5952,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 				
 				// Save the purse into a string...
 				OTString strPurse;
-				thePurse.SaveContract(strPurse);
+				thePurse.SaveContractRaw(strPurse);
 				
 				// Add the purse string as the attachment on the transaction item.
 				pItem->SetAttachment(strPurse); // The purse is contained in the reference string.
@@ -6268,11 +6269,11 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			if (bSuccess)
 			{
 				thePurse.SignContract(theNym);
-				thePurse.SaveContract(); // I think this one is unnecessary.
+				thePurse.SaveContract(); // I think this one is unnecessary. UPDATE: WRONG. It's necessary.
 				
 				// Save the purse into a string...
 				OTString strPurse;
-				thePurse.SaveContract(strPurse);
+				thePurse.SaveContractRaw(strPurse);
 				
 				// Add the purse string as the attachment on the transaction item.
 				pItem->SetAttachment(strPurse); // The purse is contained in the reference string.
@@ -6453,7 +6454,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
                 pItem->SetNote(strNote);
                 
                 strCheque.Release();
-                theCheque.SaveContract(strCheque);
+                theCheque.SaveContractRaw(strCheque);
                                         
                 // Add the cheque string as the attachment on the transaction item.
                 pItem->SetAttachment(strCheque); // The cheque is contained in the reference string.
@@ -6707,7 +6708,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 				OTString strVoucher;
 				theRequestVoucher.SignContract(theNym);
 				theRequestVoucher.SaveContract();
-				theRequestVoucher.SaveContract(strVoucher);			
+				theRequestVoucher.SaveContractRaw(strVoucher);			
 				pItem->SetAttachment(strVoucher); // The voucher request is contained in the reference string.
 				
 				// sign the item
@@ -6949,7 +6950,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 				
 				// Save the purse into a string...
 				OTString strPurse;
-				pPurse->SaveContract(strPurse);
+				pPurse->SaveContractRaw(strPurse);
 				
 				// Add the purse string as the attachment on the transaction item.
 				pItem->SetAttachment(strPurse); // The purse is contained in the reference string.
@@ -7250,7 +7251,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
                     OT_ASSERT(NULL != pItem);
                     
                     OTString strTrade;
-                    theTrade.SaveContract(strTrade);
+                    theTrade.SaveContractRaw(strTrade);
                     
                     // Add the trade string as the attachment on the transaction item.
                     pItem->SetAttachment(strTrade); // The trade is contained in the attachment string. (The offer is within the trade.)
@@ -7390,7 +7391,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
         
         // re-using strContract here for output this time.
         strContract.Release();
-        pContract->SaveContract(strContract);
+        pContract->SaveContractRaw(strContract);
         
 		OTString strNewID;
 		pContract->GetIdentifier(strNewID);
@@ -8028,7 +8029,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 				OTItem * pItem		= OTItem::CreateItemFromTransaction(*pTransaction, OTItem::paymentPlan);
 								
 				strPlan.Release();
-				thePlan.SaveContract(strPlan);
+				thePlan.SaveContractRaw(strPlan);
 				
 				// Add the payment plan string as the attachment on the transaction item.
 				pItem->SetAttachment(strPlan); // The payment plan is contained in the reference string.

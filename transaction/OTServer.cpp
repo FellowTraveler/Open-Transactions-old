@@ -2588,8 +2588,8 @@ void OTServer::NotarizeTransfer(OTPseudonym & theNym, OTAccount & theFromAccount
 		// The response item, as well as the inbox and outbox items, will contain a copy
 		// of the request item. So I save it into a string here so they can all grab a copy of it
 		// into their "in reference to" fields.
-		pItem->SaveContract(strInReferenceTo);
-		pBalanceItem->SaveContract(strBalanceItem);
+		pItem->SaveContractRaw(strInReferenceTo);
+		pBalanceItem->SaveContractRaw(strBalanceItem);
 
 		// IDFromAccount is the ID on the "from" Account that was passed in.
 		// IDItemFromAccount is the "from" account ID on the transaction Item we are currently examining.
@@ -2980,8 +2980,8 @@ void OTServer::NotarizeWithdrawal(OTPseudonym & theNym, OTAccount & theAccount,
 	{
 		// The response item will contain a copy of the request item. So I save it into a string 
 		// here so they can all grab a copy of it into their "in reference to" fields.
-		pItem->SaveContract(strInReferenceTo);
-		pBalanceItem->SaveContract(strBalanceItem);
+		pItem->SaveContractRaw(strInReferenceTo);
+		pBalanceItem->SaveContractRaw(strBalanceItem);
 		
 		// Server response item being added to server response transaction (tranOut)
 		// (They're getting SOME sort of response item.)
@@ -3126,7 +3126,7 @@ void OTServer::NotarizeWithdrawal(OTPseudonym & theNym, OTAccount & theAccount,
 						// string to "VOUCHER" instead of "CHEQUE". 
 						theVoucher.SignContract(m_nymServer);
 						theVoucher.SaveContract();
-						theVoucher.SaveContract(strVoucher);
+						theVoucher.SaveContractRaw(strVoucher);
 						
 						pResponseItem->SetAttachment(strVoucher);
 						pResponseItem->SetStatus(OTItem::acknowledgement);
@@ -3181,8 +3181,8 @@ void OTServer::NotarizeWithdrawal(OTPseudonym & theNym, OTAccount & theAccount,
 	{
 		// The response item will contain a copy of the request item. So I save it into a string 
 		// here so they can all grab a copy of it into their "in reference to" fields.
-		pItem->SaveContract(strInReferenceTo);
-		pBalanceItem->SaveContract(strBalanceItem);
+		pItem->SaveContractRaw(strInReferenceTo);
+		pBalanceItem->SaveContractRaw(strBalanceItem);
 
 		// Server response item being added to server response transaction (tranOut)
 		// They're getting SOME sort of response item.
@@ -3407,7 +3407,7 @@ void OTServer::NotarizeWithdrawal(OTPseudonym & theNym, OTAccount & theAccount,
 					
 					theOutputPurse.SignContract(m_nymServer);
 					theOutputPurse.SaveContract(); // todo this is probably unnecessary
-					theOutputPurse.SaveContract(strPurse);				
+					theOutputPurse.SaveContractRaw(strPurse);				
 					
 					
 					// Add the digital cash token to the response message
@@ -3577,8 +3577,8 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
 		// The response item, as well as the sender's inbox, will soon contain a copy
 		// of the request item. So I save it into a string here so they can grab a copy of it
 		// into their "in reference to" fields.
-		pItem->SaveContract(strInReferenceTo);
-		pBalanceItem->SaveContract(strBalanceItem);
+		pItem->SaveContractRaw(strInReferenceTo);
+		pBalanceItem->SaveContractRaw(strBalanceItem);
 				
 		// Server response item being added to server response transaction (tranOut)
 		// They're getting SOME sort of response item.
@@ -4068,8 +4068,8 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
 		// The response item, as well as the inbox and outbox items, will contain a copy
 		// of the request item. So I save it into a string here so they can all grab a copy of it
 		// into their "in reference to" fields.
-		pItem->SaveContract(strInReferenceTo);
-		pBalanceItem->SaveContract(strBalanceItem);
+		pItem->SaveContractRaw(strInReferenceTo);
+		pBalanceItem->SaveContractRaw(strBalanceItem);
 		
 		// Server response item being added to server response transaction (tranOut)
 		// They're getting SOME sort of response item.
@@ -4423,8 +4423,8 @@ void OTServer::NotarizePaymentPlan(OTPseudonym & theNym, OTAccount & theSourceAc
 			
 			// The response item will contain a copy of the request item. So I save it into a string
 			// here so it can be saved into the "in reference to" field.
-			pItem->SaveContract(strInReferenceTo);
-			pBalanceItem->SaveContract(strBalanceItem);
+			pItem->SaveContractRaw(strInReferenceTo);
+			pBalanceItem->SaveContractRaw(strBalanceItem);
 			
 			// Server response item being added to server response transaction (tranOut)
 			// They're getting SOME sort of response item.
@@ -4868,8 +4868,8 @@ void OTServer::NotarizeSmartContract(OTPseudonym & theNym, OTAccount & theSource
 			
 			// The response item will contain a copy of the request item. So I save it into a string
 			// here so it can be saved into the "in reference to" field.
-			pItem->SaveContract(strInReferenceTo);
-			pBalanceItem->SaveContract(strBalanceItem);
+			pItem->SaveContractRaw(strInReferenceTo);
+			pBalanceItem->SaveContractRaw(strBalanceItem);
 			
 			// Server response item being added to server response transaction (tranOut)
 			// They're getting SOME sort of response item.
@@ -5082,8 +5082,8 @@ void OTServer::NotarizeCancelCronItem(OTPseudonym & theNym, OTAccount & theAsset
 	{
 		// The response item will contain a copy of the request item. So I save it into a string
 		// here so it can be saved into the "in reference to" field.
-		pItem->SaveContract(strInReferenceTo);
-		pBalanceItem->SaveContract(strBalanceItem);
+		pItem->SaveContractRaw(strInReferenceTo);
+		pBalanceItem->SaveContractRaw(strBalanceItem);
 
 		// ASSET_ACCT_ID is the ID on the "from" Account that was passed in.
         //
@@ -5246,8 +5246,8 @@ void OTServer::NotarizeExchangeBasket(OTPseudonym & theNym, OTAccount & theAccou
 //      theOutboxAngel.SetCleanupTarget(*pOutbox);
         // ------------------------------------------
         
-		pItem->SaveContract(strInReferenceTo);
-		pBalanceItem->SaveContract(strBalanceItem);
+		pItem->SaveContractRaw(strInReferenceTo);
+		pBalanceItem->SaveContractRaw(strBalanceItem);
         
         // ----------------------------------------------
 		pResponseItem = OTItem::CreateItemFromTransaction(tranOut, OTItem::atExchangeBasket);	 
@@ -6141,8 +6141,8 @@ void OTServer::NotarizeMarketOffer(OTPseudonym & theNym, OTAccount & theAssetAcc
 	{
 		// The response item will contain a copy of the request item. So I save it into a string
 		// here so it can be saved into the "in reference to" field.
-		pItem->SaveContract(strInReferenceTo);
-		pBalanceItem->SaveContract(strBalanceItem);
+		pItem->SaveContractRaw(strInReferenceTo);
+		pBalanceItem->SaveContractRaw(strBalanceItem);
 		
 		// ASSET_ACCT_ID is the ID on the "from" Account that was passed in.
 		// The CURRENCY_ACCT_ID is the ID on the "To" Account. (When doing a transfer, normally 2nd acct is the Payee.)
@@ -7549,7 +7549,7 @@ void OTServer::NotarizeProcessNymbox(OTPseudonym & theNym, OTTransaction & tranI
 	{
         OTString strBalanceItem;
 
-		pBalanceItem->SaveContract(strBalanceItem);
+		pBalanceItem->SaveContractRaw(strBalanceItem);
 		
 		pResponseBalanceItem = OTItem::CreateItemFromTransaction(tranOut, OTItem::atTransactionStatement);	 
 		pResponseBalanceItem->SetStatus(OTItem::rejection); // the default.
@@ -7696,7 +7696,7 @@ void OTServer::NotarizeProcessNymbox(OTPseudonym & theNym, OTTransaction & tranI
 
 					// The response item will contain a copy of the "accept" request.
 					// So I'm just setting aside a copy now for those purposes later.
-					pItem->SaveContract(strInReferenceTo);
+					pItem->SaveContractRaw(strInReferenceTo);
 					
 					OTItem::itemType theReplyItemType;
 					switch (pItem->GetType()) 
@@ -8224,7 +8224,7 @@ void OTServer::NotarizeProcessInbox(OTPseudonym & theNym, OTAccount & theAccount
 	}
 	else 
 	{
-		pBalanceItem->SaveContract(strBalanceItem);
+		pBalanceItem->SaveContractRaw(strBalanceItem);
 
 		pResponseBalanceItem = OTItem::CreateItemFromTransaction(tranOut, OTItem::atBalanceStatement);	 
 		pResponseBalanceItem->SetStatus(OTItem::rejection); // the default.
@@ -8679,7 +8679,7 @@ void OTServer::NotarizeProcessInbox(OTPseudonym & theNym, OTAccount & theAccount
                         // The response item will contain a copy of the "accept" request.
                         // So I'm just setting aside a copy now for those purposes later.
                         strInReferenceTo.Release();
-                        pItem->SaveContract(strInReferenceTo);
+                        pItem->SaveContractRaw(strInReferenceTo);
                         
                         OTItem::itemType theReplyItemType;
                         switch (pItem->GetType()) 
@@ -9507,7 +9507,7 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 					// We send the user's message back to him, ascii-armored,
 					// as part of our response.
 					OTString tempInMessage;
-					theMessage.SaveContract(tempInMessage);
+					theMessage.SaveContractRaw(tempInMessage);
 					msgOut.m_ascInReferenceTo.SetString(tempInMessage);
 					
                     bool bLoadSignedNymfile = theNym.LoadSignedNymfile(m_nymServer);

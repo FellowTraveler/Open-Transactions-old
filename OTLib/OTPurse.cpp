@@ -270,40 +270,44 @@ bool OTPurse::Merge(OTPseudonym & theNym, OTPurse & theNewPurse)
 
 
 
-OTPurse::OTPurse(const OTPurse & thePurse) : OTContract()
+OTPurse::OTPurse(const OTPurse & thePurse) : OTContract(),
+	m_ServerID(thePurse.GetServerID()),
+	m_AssetID(thePurse.GetAssetID()),
+	m_lTotalValue(0)
 {
 	InitPurse();
-	
-	m_ServerID	= thePurse.GetServerID();
-	m_AssetID	= thePurse.GetAssetID();
 }
+
 
 // Don't use this unless you really don't have the asset type handy.
 // Perhaps you know you're about to read this purse from a string and you
 // know the asset type is in there anyway. So you use this constructor.
-OTPurse::OTPurse(const OTIdentifier & SERVER_ID) : OTContract()
+OTPurse::OTPurse(const OTIdentifier & SERVER_ID) : OTContract(),
+	m_ServerID(SERVER_ID),
+	m_lTotalValue(0)
 {
 	InitPurse();
-	
-	m_ServerID	= SERVER_ID;
 }
 
-OTPurse::OTPurse(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID) : OTContract()
+OTPurse::OTPurse(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID) : OTContract(),
+	m_ServerID(SERVER_ID),
+	m_AssetID(ASSET_ID),
+	m_lTotalValue(0)
 {
 	InitPurse();
-	
-	m_ServerID	= SERVER_ID;
-	m_AssetID	= ASSET_ID;
 }
+
+
 
 OTPurse::OTPurse(const OTIdentifier & SERVER_ID, 
-				 const OTIdentifier & ASSET_ID, const OTIdentifier & USER_ID) : OTContract()
+				 const OTIdentifier & ASSET_ID, 
+				 const OTIdentifier & USER_ID) : OTContract(),
+	m_UserID(USER_ID),
+	m_ServerID(SERVER_ID),
+	m_AssetID(ASSET_ID),
+	m_lTotalValue(0)
 {
 	InitPurse();
-	
-	m_ServerID	= SERVER_ID;
-	m_AssetID	= ASSET_ID;
-	m_UserID	= USER_ID;
 }
 
 OTPurse::~OTPurse()
@@ -428,8 +432,7 @@ bool OTPurse::SavePurse(const char * szServerID/*=NULL*/, const char * szUserID/
 	
 	OTString strRawFile;
 	
-	// Save it internally to string, and then save that out to the file.
-	if (!SaveContract() || !SaveContract(strRawFile))
+	if (!SaveContractRaw(strRawFile))
 	{
 		OTLog::vError("Error saving Pursefile (to string):\n%s%s%s%s%s%s%s\n", szFolder1name,
 					  OTLog::PathSeparator(), szFolder2name, OTLog::PathSeparator(), 

@@ -841,7 +841,7 @@ bool OTAgreement::Confirm(OTPseudonym & MERCHANT_NYM, OTPseudonym & PAYER_NYM)
     // (to add my own transaction numbers...)
     //
     OTString strTemp;
-    this->SaveContract(strTemp);
+    this->SaveContractRaw(strTemp);
     this->SetMerchantSignedCopy(strTemp);
 
     // *******************************************************************

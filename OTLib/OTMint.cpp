@@ -366,8 +366,7 @@ bool OTMint::SaveMint(const char * szAppend/*=NULL*/)
 
 	OTString strRawFile;
 
-	// Sign it, save it internally to string, and then save that out to the file.
-	if (!SaveContract() || !SaveContract(strRawFile))
+	if (!SaveContractRaw(strRawFile))
 	{
 		OTLog::vError("Error saving Mintfile (to string):\n%s%s%s%s%s\n", szFolder1name,
 					  OTLog::PathSeparator(), szFolder2name, OTLog::PathSeparator(), szFilename);

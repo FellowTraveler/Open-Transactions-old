@@ -364,7 +364,7 @@ bool OTToken::RecordTokenAsSpent(OTString & theCleartextToken)
 	// The success of that operation is also now the success of this one.
 	
 	OTString strToken;
-	SaveContract(strToken);
+	SaveContractRaw(strToken);
 	
 	bool bSaved = OTDB::StorePlainString(strToken.Get(), OTLog::SpentFolder(), 
 										 strAssetFolder.Get(), strTokenHash.Get());

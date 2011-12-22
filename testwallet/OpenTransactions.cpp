@@ -2076,7 +2076,7 @@ OTPurse * OT_API::LoadPurse(const OTIdentifier & SERVER_ID,
 
 	// -----------------------------------------------------------------
 	
-	OTPurse * pPurse = new OTPurse(SERVER_ID, ASSET_ID);
+	OTPurse * pPurse = new OTPurse(SERVER_ID, ASSET_ID, USER_ID);
 	
 	OT_ASSERT_MSG(NULL != pPurse, "Error allocating memory in the OT API."); // responsible to delete or return pPurse below this point.
 	
@@ -2098,14 +2098,16 @@ bool OT_API::SavePurse(const OTIdentifier & SERVER_ID,
 	OT_ASSERT_MSG(m_bInitialized, "Not initialized; call OT_API::Init first.");
 	
 	const OTString strServerID(SERVER_ID);
-	const OTString strUserID(USER_ID);
 	const OTString strAssetTypeID(ASSET_ID);
+	const OTString strUserID(USER_ID);
 	
 	// -----------------------------------------------------------------
 	
 	if (THE_PURSE.SavePurse(strServerID.Get(), strUserID.Get(), strAssetTypeID.Get()))
 		return true;
 	
+	const OTString strPurse(THE_PURSE);
+	OTLog::vOutput(0, "OT_API::SavePurse: Failed saving purse:\n\n%s\n\n", strPurse.Get());
 	return false;
 }
 
@@ -3723,7 +3725,7 @@ void OT_API::exchangeBasket(OTIdentifier	& SERVER_ID,
                     // Export the OTBasket object into a string, add it as
                     // a payload on my request, and send to server.
                     OTString strBasketInfo;
-                    theRequestBasket.SaveContract(strBasketInfo);
+                    theRequestBasket.SaveContractRaw(strBasketInfo);
                     
                     //***********************************************************************
                     
@@ -3987,14 +3989,16 @@ void OT_API::notarizeWithdrawal(OTIdentifier	& SERVER_ID,
 		
 		const OTPseudonym * pServerNym = pServer->GetContractPublicNym();
 		
+		const OTIdentifier SERVER_USER_ID(*pServerNym);
+		
 		// -----------------------------------------------------------------
 
 		if ((NULL != pServerNym) && 
 			theMint.LoadMint() && 
 			theMint.VerifyMint((OTPseudonym&)*pServerNym))
 		{
-			OTPurse * pPurse		= new OTPurse(SERVER_ID, CONTRACT_ID);
-			OTPurse * pPurseMyCopy	= new OTPurse(SERVER_ID, CONTRACT_ID);
+			OTPurse * pPurse		= new OTPurse(SERVER_ID, CONTRACT_ID, SERVER_USER_ID);
+			OTPurse * pPurseMyCopy	= new OTPurse(SERVER_ID, CONTRACT_ID, USER_ID);
 			
 			// Create all the necessary tokens for the withdrawal amount.
 			// Push copies of each token into a purse to be sent to the server,
@@ -4033,12 +4037,11 @@ void OT_API::notarizeWithdrawal(OTIdentifier	& SERVER_ID,
 				pPurseMyCopy->Push(*pNym, theToken);// Now my copy of the purse has a version of the token,
 			}
 			
-			pPurse->SignContract(*pNym);
-			pPurse->SaveContract(); // I think this one is unnecessary.
-			
 			// Save the purse into a string...
 			OTString strPurse;
-			pPurse->SaveContract(strPurse);
+			pPurse->SignContract(*pNym);
+			pPurse->SaveContract();			
+			pPurse->SaveContractRaw(strPurse);
 			
 			// Add the purse string as the attachment on the transaction item.
 			pItem->SetAttachment(strPurse); // The purse is contained in the reference string.
@@ -4202,11 +4205,11 @@ void OT_API::notarizeDeposit(OTIdentifier	& SERVER_ID,
 	long lRequestNumber = 0;
 	
 	OTString strServerID(SERVER_ID), strNymID(USER_ID), strFromAcct(ACCT_ID);
-	
-	
-	OTPurse thePurse(SERVER_ID, CONTRACT_ID);
-	
+		
 	const OTPseudonym * pServerNym = pServer->GetContractPublicNym();
+	const OTIdentifier SERVER_USER_ID(*pServerNym);
+	
+	OTPurse thePurse(SERVER_ID, CONTRACT_ID, SERVER_USER_ID);
 	
 	long lStoredTransactionNumber=0;
 	bool bGotTransNum = false;
@@ -4296,12 +4299,11 @@ void OT_API::notarizeDeposit(OTIdentifier	& SERVER_ID,
 		
 		if (bSuccess)
 		{
-			thePurse.SignContract(*pNym);
-			thePurse.SaveContract(); // I think this one is unnecessary.
-			
 			// Save the purse into a string...
 			OTString strPurse;
-			thePurse.SaveContract(strPurse);
+			thePurse.SignContract(*pNym);
+			thePurse.SaveContract();
+			thePurse.SaveContractRaw(strPurse);
 			
 			// Add the purse string as the attachment on the transaction item.
 			pItem->SetAttachment(strPurse); // The purse is contained in the reference string.
@@ -5906,7 +5908,7 @@ void OT_API::issueMarketOffer(const OTIdentifier	& SERVER_ID,
 			OT_ASSERT_MSG(NULL != pItem, "Error allocating memory in the OT API");
 			
 			OTString strTrade;
-			theTrade.SaveContract(strTrade);
+			theTrade.SaveContractRaw(strTrade);
 			
 			// Add the trade string as the attachment on the transaction item.
 			pItem->SetAttachment(strTrade); // The trade is contained in the attachment string. (The offer is within the trade.)

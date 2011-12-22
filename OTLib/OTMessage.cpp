@@ -3774,7 +3774,7 @@ bool OTMessage::SaveContractWallet(std::ofstream & ofs)
 {
 	OTString strContract;
 	
-	if (SaveContract(strContract))
+	if (SaveContractRaw(strContract))
 	{
 		ofs << strContract.Get();
 		

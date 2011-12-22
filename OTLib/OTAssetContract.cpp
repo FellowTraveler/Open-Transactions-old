@@ -188,12 +188,12 @@ bool OTAssetContract::CreateContract(OTString & strContract, OTPseudonym & theSi
 		OTString strTemp;
 		
 		SignContract(theSigner);
-		SaveContract(strTemp); // this trims
+		RewriteContract(strTemp); // this trims
 		
 		// This is probably redundant...
-		std::string str_Trim(strTemp.Get());
-		std::string str_Trim2 = OTString::trim(str_Trim);
-		strTemp.Set(str_Trim2.c_str());
+//		std::string str_Trim(strTemp.Get());
+//		std::string str_Trim2 = OTString::trim(str_Trim);
+//		strTemp.Set(str_Trim2.c_str());
 		// -----------------------------------
 		Release();
 		LoadContractFromString(strTemp);
@@ -220,7 +220,7 @@ bool OTAssetContract::CreateBasket(OTBasket & theBasket, OTPseudonym & theSigner
 	Release();
 
 	// Grab a string copy of the basket information.
-	theBasket.SaveContract(m_strBasketInfo);
+	theBasket.SaveContractRaw(m_strBasketInfo);
 	
 	// -------------------------------
 	
@@ -254,12 +254,12 @@ bool OTAssetContract::CreateBasket(OTBasket & theBasket, OTPseudonym & theSigner
 		OTString strTemp;
 
 		SignContract(theSigner);
-		SaveContract(strTemp);
+		RewriteContract(strTemp); // this trims
 
 		// This is probably redundant...
-		std::string str_Trim(strTemp.Get());
-		std::string str_Trim2 = OTString::trim(str_Trim);
-		strTemp.Set(str_Trim2.c_str());
+//		std::string str_Trim(strTemp.Get());
+//		std::string str_Trim2 = OTString::trim(str_Trim);
+//		strTemp.Set(str_Trim2.c_str());
 		// -----------------------------------
 		Release();
 		

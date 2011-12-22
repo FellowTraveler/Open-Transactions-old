@@ -722,7 +722,7 @@ void OTServerConnection::ProcessMessageOut(OTMessage & theMessage)
 	{
 		OTString strEnvelopeContents;
 		// Save the ready-to-go message into a string.
-		theMessage.SaveContract(strEnvelopeContents);
+		theMessage.SaveContractRaw(strEnvelopeContents);
 		
 		// Seal the string up into an encrypted Envelope
 		theEnvelope.Seal(*pServerNym, strEnvelopeContents);
@@ -1503,7 +1503,7 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 			
 			// re-using strContract here for output this time.
 			strContract.Release();
-			pContract->SaveContract(strContract);
+			pContract->SaveContractRaw(strContract);
 			
 			OTLog::vOutput(0, ".\n..\n...\n....\n.....\n......\n.......\n........\n.........\n\n"
 					"NEW CONTRACT:\n\n%s\n", strContract.Get());
