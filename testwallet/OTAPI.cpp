@@ -9979,7 +9979,10 @@ int OT_API_Message_GetDepth(const char * THE_MESSAGE)
 	if (!strMessage.Exists() || !theMessage.LoadContractFromString(strMessage))
 		return (-1);
 	
-    int nDepth = theMessage.m_lDepth; // todo ?????? WTF is this?? security.
+	OTString strDepth;
+	strDepth.Format("%ld", theMessage.m_lDepth);
+	
+    const int nDepth = atoi(strDepth.Get());
     
     return nDepth;
 }

@@ -306,6 +306,8 @@ bool OTCron::GetMarketList (OTASCIIArmor & ascOutput, int & nMarketCount)
 	    
 	FOR_EACH(mapOfMarkets, m_mapMarkets)
 	{
+		OTLog::Error("DEBUGGING:  ITERATING THROUGH MARKET LIST!!!\n");
+		
 		pMarket = (*it).second;
 		OT_ASSERT(NULL != pMarket);
 		
@@ -374,9 +376,11 @@ bool OTCron::GetMarketList (OTASCIIArmor & ascOutput, int & nMarketCount)
 	// -------------------------------------------------------------
 	
 	// Now pack the list into strOutput...
-    if (nMarketCount == 0)
+    if (0 == nMarketCount)
+	{
         return true; // Success, but the list contains 0 markets.
-    
+    }
+	
 	else if (nMarketCount > 0)
     {
         OTDB::Storage * pStorage = OTDB::GetDefaultStorage();

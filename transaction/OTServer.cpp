@@ -1464,7 +1464,10 @@ void OTServer::UserCmdGetMarketList(OTPseudonym & theNym, OTMessage & MsgIn, OTM
 	if ((true == msgOut.m_bSuccess) && (nMarketCount > 0))
 	{
 		msgOut.m_ascPayload.Set(ascOutput);
-        msgOut.m_lDepth = nMarketCount;
+		
+		OTString strCount;
+		strCount.Format("%d", nMarketCount);
+        msgOut.m_lDepth = atol(strCount.Get());
 	}
 	// if Failed, we send the user's message back to him, ascii-armored as part of response.
 	else if (false == msgOut.m_bSuccess)
@@ -2583,7 +2586,19 @@ void OTServer::NotarizeTransfer(OTPseudonym & theNym, OTAccount & theFromAccount
     }
 	// For now, there should only be one of these transfer items inside the transaction.
 	// So we treat it that way... I either get it successfully or not.
-	else if (pItem	= tranIn.GetItem(OTItem::transfer))
+    else if (NULL == (pItem = tranIn.GetItem(OTItem::transfer)))
+    {
+        OTString strTemp(tranIn);
+        OTLog::vOutput(0, "OTServer::NotarizeTransfer: Expected OTItem::transfer in trans# %ld: \n\n%s\n\n",
+                       tranIn.GetTransactionNum(), strTemp.Exists() ? strTemp.Get() : " (ERROR LOADING TRANSACTION INTO STRING) ");
+    }
+	else if (ACCOUNT_ID == pItem->GetDestinationAcctID())
+	{
+        OTString strTemp(tranIn);
+        OTLog::vOutput(0, "OTServer::NotarizeTransfer: Failed attempt by user %s in trans# %ld, to transfer money \"To the From Acct\": \n\n%s\n\n",
+                       strUserID.Get(), tranIn.GetTransactionNum(), strTemp.Exists() ? strTemp.Get() : " (ERROR LOADING TRANSACTION INTO STRING) ");
+	}
+	else
 	{
 		// The response item, as well as the inbox and outbox items, will contain a copy
 		// of the request item. So I save it into a string here so they can all grab a copy of it
@@ -2878,12 +2893,6 @@ void OTServer::NotarizeTransfer(OTPseudonym & theNym, OTAccount & theFromAccount
 //		OTLog::vError("DEBUG: Item in reference to: %s\n", strTestInRefTo.Get());
 		
 	} // if pItem = tranIn.GetItem(OTItem::transfer)
-	else 
-	{
-        OTString strTemp(tranIn);
-		OTLog::vOutput(0, "OTServer::NotarizeTransfer: Expected OTItem::transfer on trans# %ld:\n\n%s\n\n",
-                       tranIn.GetTransactionNum(), strTemp.Exists() ? strTemp.Get() : " (ERROR LOADING TRANSACTION INTO STRING) ");
-	}
 }
 
 

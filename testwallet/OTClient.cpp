@@ -7158,7 +7158,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
                 strTemp.Release(); strTemp.OTfgets(std::cin);
                 lTotalAssetsOnOffer = atol(strTemp.Get());
                 
-                lTotalAssetsOnOffer *= lMinimumIncrement;
+//              lTotalAssetsOnOffer *= lMinimumIncrement;  // this was a bug.
                 
                 if (lTotalAssetsOnOffer < 1)
                     lTotalAssetsOnOffer = lMinimumIncrement;
