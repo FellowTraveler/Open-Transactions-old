@@ -201,6 +201,7 @@ extern "C"
 
 
 #include "SimpleIni.h"
+#include "Timer.h"
 
 
 // ------------------------------------
@@ -497,14 +498,22 @@ int main(int argc, char* argv[])
 	
 	int nCronInterval = 101; // todo no hardcoding
 	
-	do  // THE HEARTBEAT LOOP FOR THE OPEN-TRANSACTIONS SERVER! Currently "do" its thang 10 times per second.
-	{
+	const long lLatencySendMilliSec	= OTLog::GetLatencySendMs();
+	const long lLatencySendMicroSec	= lLatencySendMilliSec*1000; // Microsecond is 1000 times smaller than millisecond.
+
+	// ******************************************************************************************
+	do  // THE HEARTBEAT LOOP FOR THE OPEN-TRANSACTIONS SERVER! 
+	{	// Currently "do" its thang 10 times per second.
+		//
 		// The Server now processes certain things on a regular basis.
 		// ProcessCron is what gives it the opportunity to do that.
-		// All of the Cron Items (including market trades, and payment plans...) have their hooks here...
+		// All of the Cron Items (including market trades, and payment plans...) 
+		// they all have their hooks here...
 		//
 		nCronInterval++;
-		// CURRENTLY THIS IS EFFECTIVELY: CRON RUNS EVERY 10 SECONDS (instead of previously, 10 times PER second ack!!)
+		
+		// CURRENTLY THIS IS EFFECTIVELY: CRON RUNS EVERY 10 SECONDS (instead of previously, 
+		// 10 times PER second ack!!)
 		if ((nCronInterval % 100) == 0) // todo no hardcoding.
 		{
 			g_pServer->ProcessCron();
@@ -517,27 +526,33 @@ int main(int argc, char* argv[])
 //		theXmlRpcServer.work(10.0); // supposedly milliseconds -- but it's actually seconds.
 
 		// ----------------------------------------------------------------------
+		// Number of requests to process per heartbeat: OTServer::GetHeartbeatNoRequests()
+		//
 		// Loop: process up to 10 client requests, then sleep for 1/10th second.
 		// That's a total of 100 requests per second. Can the computers handle it? 
-		// Is it too much or too little?
+		// Is it too much or too little? Todo: load testing.
 		//
 		// Then: check for shutdown flag.
 		//
-		// Then: go back to the top and repeat.... process cron, loop 10 client requests, sleep, check for shutdown, etc.
+		// Then: go back to the top ("do") and repeat the loop.... process cron, 
+		// process 10 client requests, sleep, check for shutdown, etc.
 		//
 		//
-        
-		const long lLatencySendMilliSec	= OTLog::GetLatencySendMs();
-		const long lLatencySendMicroSec	= lLatencySendMilliSec*1000; // Microsecond is 1000 times smaller than millisecond.
-        
+                
+		Timer t;	// start timer
+		t.start();
+		const double tick1 = t.getElapsedTimeInMilliSec();
+		// -----------------------------------------------------
+		
 		for (int i = 0; i < /*10*/OTServer::GetHeartbeatNoRequests(); i++) 
 		{
 			// Switching to ZeroMQ library.
 			zmq::message_t message;
 
-			zmq::poll(&items[0], 1, 0);						// ZMQ_POLLIN, 1 item, non-blocking, 
-//			zmq::poll(&items[1], 1, lLatencySendMicroSec);	// ZMQ_POLLOUT, 1 item, timeout (microseconds in ZMQ 2.1; changes to milliseconds in 3.0) 
-//			zmq::poll(&items[0], 1, -1);					// Blocking.
+			zmq::poll(&items[0], 1,// 0);					// ZMQ_POLLIN, 1 item, non-blocking (would be 0), but added timeout of
+					  /*100*/OTServer::GetHeartbeatMsBetweenBeats()*1000);  // *1000 since it's microseconds.
+ //			zmq::poll(&items[1], 1, lLatencySendMicroSec);	// ZMQ_POLLOUT, 1 item, timeout (microseconds in ZMQ 2.1; changes to milliseconds in 3.0) 
+ //			zmq::poll(&items[0], 1, -1);					// Blocking.
 
 			// NOTE: since we're in the SERVER, we don't block on RECEIVE calls, only SEND calls.
 			// We want the loop to keep looping, and only block on a send obviously long enough to
@@ -545,6 +560,10 @@ int main(int argc, char* argv[])
 			// send at all, then that one socket probably isn't hanging us any worse than any of the
 			// others also would/are.
 			//
+			// UPDATE: We poll for up to 100 ms here now, since we would've slept for that amount
+			// of time anyway.
+			//
+			
 			if ((items[0].revents & ZMQ_POLLIN) && socket.recv(&message, ZMQ_NOBLOCK))
 			{
 				// Convert the ZMQ message to a std::string
@@ -576,19 +595,22 @@ int main(int argc, char* argv[])
 				}
 				else // NOT blocking (the default)
 				{					
-					// If failure, retries 7 times.
-					// Will wait 200 ms after the first failure, (and that time doubles each try.)
+					// If failure, retries 5 times.
+					// Will poll up to 1000 ms until the first failure, (and that time doubles each try.)
 					//
 					int		nSendTries	= 0;
 					long	lDoubling	= lLatencySendMicroSec;
 					
-					while ((nSendTries++ < OTLog::GetLatencySendNoTries()/*7*/) && 
-						   (false == (bSuccessSending = socket.send(reply, ZMQ_NOBLOCK))))
-					{
+					do {
 						zmq::poll(&items[1], 1, lDoubling);	// ZMQ_POLLOUT, 1 item, timeout (microseconds in ZMQ 2.1; changes to milliseconds in 3.0)
 						lDoubling *= 2;
-//						OTLog::SleepMilliseconds( /*200*/ lLatencySendMilliSec);
-					}
+						
+						if (items[1].revents & ZMQ_POLLOUT)
+							bSuccessSending = socket.send(reply, ZMQ_NOBLOCK);
+					} 	
+					while ((nSendTries++ < OTLog::GetLatencySendNoTries()/*5*/) && 
+							   (false == bSuccessSending));
+
 				}
 				// ***************************************************
 				
@@ -599,10 +621,18 @@ int main(int argc, char* argv[])
 		} //  for		
 		// -----------------------------------------------------------------------
 		
-		// Now go to sleep for a tenth of a second.
-		// (The main loop processes ten times per second, currently.)
+		const	double tick2	= t.getElapsedTimeInMilliSec();
+		const	long elapsed	= static_cast<long>(tick2 - tick1);
+		long	lSleepMS		= 0;
 		
-		OTLog::SleepMilliseconds(/*100*/OTServer::GetHeartbeatMsBetweenBeats()); // 100 ms == (1 second / 10)
+		if (elapsed < /*100*/OTServer::GetHeartbeatMsBetweenBeats()) 
+		{
+			lSleepMS = OTServer::GetHeartbeatMsBetweenBeats() - elapsed;
+
+			// Now go to sleep.
+			// (The main loop processes ten times per second, currently.)		
+			OTLog::SleepMilliseconds(lSleepMS); // 100 ms == (1 second / 10)
+		}
 		
 		// -----------------------------------------------------------------------
 		// ARTIFICIAL LIMIT:

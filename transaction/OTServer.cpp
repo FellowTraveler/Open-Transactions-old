@@ -996,11 +996,11 @@ bool OTServer::LoadConfigFile()
                 }
             }
             {
-                const char * pVal = ini.GetValue("latency", "send_fail_ms");
+                const char * pVal = ini.GetValue("latency", "send_fail_max_ms");
                 
                 if ((NULL != pVal) && (atoi(pVal)))
                 {
-                    OTLog::vOutput(0, "Setting latency send_fail_ms: %d\n", atoi(pVal));
+                    OTLog::vOutput(0, "Setting latency send_fail_max_ms: %d\n", atoi(pVal));
                     OTLog::SetLatencySendMs(atoi(pVal));
                 }
             }

@@ -1149,7 +1149,7 @@ bool OTTrade::ProcessCron()
             bStayOnMarket = false;          // I'm leaving the check here in case the flag was set since then
 		else
 		{ // Process it!  <===================
-            OTLog::vOutput(0, "Processing trade: %ld.\n", GetTransactionNum());
+            OTLog::vOutput(2, "Processing trade: %ld.\n", GetTransactionNum());
 			bStayOnMarket = pMarket->ProcessTrade(*this, *pOffer);
 			// No need to save the Trade or Offer, since they will
 			// be saved inside this call if they are changed.

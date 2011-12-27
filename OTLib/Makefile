@@ -210,7 +210,8 @@ CXXSOURCES = $(BIGINTSOURCES) $(LUCRESOURCES) $(IRRXMLSOURCES) \
 			 Markets.pb.cpp \
 			 Bitcoin.pb.cpp \
 			 Moneychanger.pb.cpp \
-			 anyoption.cpp
+			 anyoption.cpp \
+			 Timer.cpp
 
 CXXOBJECTS = $(CXXSOURCES:.cpp=.o)  # expands to list of object files
 COBJECTS   = $(CSOURCES:.c=.o)
@@ -375,6 +376,8 @@ Moneychanger.pb.o: Moneychanger.pb.cpp Moneychanger.pb.h
 	$(CXX) $(CXXFLAGS) -c -o Moneychanger.pb.o Moneychanger.pb.cpp
 anyoption.o: anyoption.cpp anyoption.h
 	$(CXX) $(CXXFLAGS) -c -o anyoption.o anyoption.cpp
+Timer.o: Timer.cpp Timer.h
+	$(CXX) $(CXXFLAGS) -c -o Timer.o Timer.cpp
 
 #
 # Clean target: "make -f Makefile.Linux clean" to remove unwanted objects and executables.

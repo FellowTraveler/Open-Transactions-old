@@ -305,9 +305,7 @@ bool OTCron::GetMarketList (OTASCIIArmor & ascOutput, int & nMarketCount)
 	// -----------------------------------------------------------
 	    
 	FOR_EACH(mapOfMarkets, m_mapMarkets)
-	{
-		OTLog::Error("DEBUGGING:  ITERATING THROUGH MARKET LIST!!!\n");
-		
+	{		
 		pMarket = (*it).second;
 		OT_ASSERT(NULL != pMarket);
 		

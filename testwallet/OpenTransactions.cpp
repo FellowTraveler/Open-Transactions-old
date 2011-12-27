@@ -464,31 +464,31 @@ bool OT_API::LoadConfigFile(const OTString & strMainPath)
                 }
             }
             {
-                const char * pVal = ini.GetValue("latency", "send_fail_ms");
+                const char * pVal = ini.GetValue("latency", "send_fail_max_ms");
                 
                 if ((NULL != pVal) && (atoi(pVal)))
                 {
-                    OTLog::vOutput(1, "Setting latency send_fail_ms: %d\n", atoi(pVal));
+                    OTLog::vOutput(1, "Setting latency send_fail_max_ms: %d\n", atoi(pVal));
                     OTLog::SetLatencySendMs(atoi(pVal));
                 }
             }
             // ------------------------------------------------
             // LATENCY (RECEIVING)
             {
-                const char * pVal = ini.GetValue("latency", "receive_fail_no_tries");
+                const char * pVal = ini.GetValue("latency", "recv_fail_no_tries");
                 
                 if ((NULL != pVal) && (atoi(pVal)))
                 {
-                    OTLog::vOutput(1, "Setting latency receive_fail_no_tries: %d\n", atoi(pVal));                    
+                    OTLog::vOutput(1, "Setting latency recv_fail_no_tries: %d\n", atoi(pVal));                    
                     OTLog::SetLatencyReceiveNoTries(atoi(pVal));
                 }
             }
             {
-                const char * pVal = ini.GetValue("latency", "receive_fail_ms");
+                const char * pVal = ini.GetValue("latency", "recv_fail_max_ms");
                 
                 if ((NULL != pVal) && (atoi(pVal)))
                 {
-                    OTLog::vOutput(1, "Setting latency receive_fail_ms: %d\n", atoi(pVal));
+                    OTLog::vOutput(1, "Setting latency recv_fail_max_ms: %d\n", atoi(pVal));
                     OTLog::SetLatencyReceiveMs(atoi(pVal));
                 }
             }
