@@ -656,7 +656,7 @@ bool OTSocket::Receive(std::string & str_Message)
 			}
 			else if (nReceiveTries == 0) 
 			{
-				OTLog::Error("OTSocket::Receive: Tried to receive, based on polling data, but failed even after retries.\n");
+//				OTLog::Error("OTSocket::Receive: Tried to receive, based on polling data, but failed even after retries.\n");
 				expect_request = false;
 				break;
 			}
