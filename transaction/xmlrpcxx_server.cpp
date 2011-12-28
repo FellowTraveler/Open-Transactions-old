@@ -333,6 +333,357 @@ public:
 
 	
 
+
+
+
+
+class OTSocket
+{
+	zmq::context_t	* m_pContext;
+	zmq::socket_t	* m_pSocket;
+	
+	OTString		m_strBindPath;
+	
+	void NewContext();
+	
+	bool HandlePollingError();
+	bool HandleSendingError();
+	bool HandleReceivingError();
+	
+public:
+	OTSocket();
+	~OTSocket();
+	
+	void Listen(const OTString & strBind);
+
+	bool Receive(std::string & str_Message);
+	bool Send(const std::string & str_Reply);
+};
+
+
+OTSocket::OTSocket() : m_pContext(NULL), m_pSocket(NULL)
+{
+	NewContext();
+}
+
+OTSocket::~OTSocket()
+{
+	// -----------------------------------
+	// Clean up the context and socket.
+	if (NULL != m_pContext)
+		delete m_pContext;
+	m_pContext = NULL;
+	// -----------------------------------
+	if (NULL != m_pSocket)
+		delete m_pSocket;
+	m_pSocket = NULL;
+	// -----------------------------------
+}
+
+
+void OTSocket::NewContext()
+{
+	if (NULL != m_pSocket)
+		delete m_pSocket;
+	m_pSocket = NULL;
+	
+	if (NULL != m_pContext)
+		delete m_pContext;
+	
+	m_pContext = new zmq::context_t(1);
+	OT_ASSERT_MSG(NULL != m_pContext, "OTSocket::NewContext():  Failed creating network context: zmq::context_t * pContext = new zmq::context_t(1);");	
+}
+
+void OTSocket::Listen(const OTString &strBind)
+{
+	if (NULL != m_pSocket)
+		delete m_pSocket;
+	
+	m_pSocket = new zmq::socket_t(*m_pContext, ZMQ_REP);  // RESPONSE socket (Request / Response.)
+	OT_ASSERT_MSG(NULL != m_pSocket, "OTSocket::Listen: new zmq::socket(context, ZMQ_REP)");
+	
+	OTString strTemp(strBind); // In case m_strBindPath is what was passed in. (It happens.)
+	m_strBindPath.Set(strTemp); // In case we have to close/reopen the socket to finish a send/receive.
+	
+	m_pSocket->bind(strBind.Get());
+}
+// -----------------------------------
+/*
+ typedef struct
+ {
+ void //*socket//;
+ int //fd//;
+ short //events//;
+ short //revents//;
+ } zmq_pollitem_t; 
+ */
+
+// The bool means true == try again soon, false == don't try again.
+bool OTSocket::HandlePollingError()
+{
+	bool bRetVal = false;
+	
+	switch (errno) {
+			// At least one of the members of the items array refers to a socket whose associated ØMQ context was terminated.
+		case ETERM:
+			OTLog::Error("OTSocket::HandlePollingError: Failure: At least one of the members of the items array refers to a socket whose associated ØMQ context was terminated. (Deleting and re-creating the context.)\n");
+			this->NewContext();
+			this->Listen(m_strBindPath);
+			break;		
+			// The provided items was not valid (NULL).
+		case EFAULT:
+			OTLog::Error("OTSocket::HandlePollingError: Failed: The provided polling items were not valid (NULL).\n");
+			break;
+			// The operation was interrupted by delivery of a signal before any events were available.
+		case EINTR:
+			OTLog::Error("OTSocket::HandlePollingError: The operation was interrupted by delivery of a signal before any events were available. Re-trying...\n");
+			bRetVal = true;
+			break;
+		default:
+			OTLog::Error("OTSocket::HandlePollingError: Default case. Re-trying...\n");
+			bRetVal = true;
+			break;
+	}
+	return bRetVal;
+}
+
+// return value bool, true == try again, false == error, failed.
+//
+bool OTSocket::HandleSendingError()
+{
+	bool bRetVal = false;
+	
+	switch (errno) {
+			// Non-blocking mode was requested and the message cannot be sent at the moment.
+		case EAGAIN:
+			OTLog::vOutput(0, "OTSocket::HandleSendingError: Non-blocking mode was requested and the message cannot be sent at the moment. Re-trying...\n");
+			bRetVal = true;
+			break;
+			// The zmq_send() operation is not supported by this socket type.
+		case ENOTSUP:
+			OTLog::Error("OTSocket::HandleSendingError: failure: The zmq_send() operation is not supported by this socket type.\n");
+			break;
+			// The zmq_send() operation cannot be performed on this socket at the moment due to the socket not being in the appropriate state. This error may occur with socket types that switch between several states, such as ZMQ_REP. See the messaging patterns section of zmq_socket(3) for more information.
+		case EFSM:
+			OTLog::vOutput(0, "OTSocket::HandleSendingError: The zmq_send() operation cannot be performed on this socket at the moment due to the socket not being in the appropriate state. Deleting socket and listening again...\n");
+		{ OTString strTemp(m_strBindPath); this->Listen(strTemp); }
+			break;
+			// The ØMQ context associated with the specified socket was terminated.
+		case ETERM:
+			OTLog::Error("OTSocket::HandleSendingError: The ØMQ context associated with the specified socket was terminated. (Deleting and re-creating the context and the socket, and listening again.)\n");
+			this->NewContext();
+		{ OTString strTemp(m_strBindPath); this->Listen(strTemp); }
+			break;
+			// The provided socket was invalid.
+		case ENOTSOCK:
+			OTLog::Error("OTSocket::HandleSendingError: The provided socket was invalid. (Deleting socket and listening again...)\n");
+		{ OTString strTemp(m_strBindPath); this->Listen(strTemp); }
+			break;
+			// The operation was interrupted by delivery of a signal before the message was sent. Re-trying...
+		case EINTR:
+			OTLog::Error("OTSocket::HandleSendingError: The operation was interrupted by delivery of a signal before the message was sent. (Re-trying...)\n");
+			bRetVal = true;
+			break;
+			// Invalid message.
+		case EFAULT:
+			OTLog::Error("OTSocket::HandleSendingError: Failure: The provided pollitems were not valid (NULL).\n");
+			break;
+		default:
+			OTLog::Error("OTSocket::HandleSendingError: Default case. Re-trying...\n");
+			bRetVal = true;
+			break;
+	}
+	return bRetVal;
+}
+
+
+bool OTSocket::HandleReceivingError()
+{
+	bool bRetVal = false;
+	
+	switch (errno) {
+			// Non-blocking mode was requested and no messages are available at the moment.
+		case EAGAIN:
+			OTLog::vOutput(0, "OTSocket::HandleReceivingError: Non-blocking mode was requested and no messages are available at the moment. Re-trying...\n");
+			bRetVal = true;
+			break;
+			// The zmq_recv() operation is not supported by this socket type.
+		case ENOTSUP:
+			OTLog::Error("OTSocket::HandleReceivingError: Failure: The zmq_recv() operation is not supported by this socket type.\n");
+			break;
+			// The zmq_recv() operation cannot be performed on this socket at the moment due to the socket not being in the appropriate state. This error may occur with socket types that switch between several states, such as ZMQ_REP. See the messaging patterns section of zmq_socket(3) for more information.
+		case EFSM:
+			OTLog::vOutput(0, "OTSocket::HandleReceivingError: The zmq_recv() operation cannot be performed on this socket at the moment due to the socket not being in the appropriate state. (Deleting socket and listening again...)\n");
+		{ OTString strTemp(m_strBindPath); this->Listen(strTemp); }
+			break;
+			// The ØMQ context associated with the specified socket was terminated.
+		case ETERM:
+			OTLog::Error("OTSocket::HandleReceivingError: The ØMQ context associated with the specified socket was terminated. (Re-creating the context, and listening again with a new socket...)\n");
+			this->NewContext();
+		{ OTString strTemp(m_strBindPath); this->Listen(strTemp); }
+			break;
+			// The provided socket was invalid.
+		case ENOTSOCK:
+			OTLog::Error("OTSocket::HandleReceivingError: The provided socket was invalid. (Deleting socket and listening again.)\n");
+		{ OTString strTemp(m_strBindPath); this->Listen(strTemp); }
+			break;
+			// The operation was interrupted by delivery of a signal before a message was available.
+		case EINTR:
+			OTLog::Error("OTSocket::HandleSendingError: The operation was interrupted by delivery of a signal before the message was sent. (Re-trying...)\n");
+			bRetVal = true;
+			break;
+			// The message passed to the function was invalid.
+		case EFAULT:
+			OTLog::Error("OTSocket::HandleReceivingError: Failure: The message passed to the function was invalid.\n");
+			break;
+		default:
+			OTLog::Error("OTSocket::HandleReceivingError: Default case. Re-trying...\n");
+			bRetVal = true;
+			break;
+	}
+	return bRetVal;
+}
+
+
+bool OTSocket::Send(const std::string & str_Reply)
+{
+	OT_ASSERT_MSG(NULL != m_pSocket, "m_pSocket == NULL in OTSocket::Send()");
+	OT_ASSERT_MSG(NULL != m_pContext, "m_pContext == NULL in OTSocket::Send()");
+	OT_ASSERT_MSG(str_Reply.size() > 0, "str_Reply.size() > 0");
+	// -----------------------------------
+	const long lLatencySendMilliSec	= OTLog::GetLatencySendMs();
+	const long lLatencySendMicroSec	= lLatencySendMilliSec*1000; // Microsecond is 1000 times smaller than millisecond.
+	
+	// Convert the std::string (reply) into a ZMQ message
+	zmq::message_t reply (str_Reply.length());
+	memcpy((void *) reply.data(), str_Reply.c_str(), str_Reply.length());
+	// -----------------------------------
+	
+	bool bSuccessSending	= false;
+	
+	if (OTLog::IsBlocking())
+	{
+		bSuccessSending = m_pSocket->send(reply); // Blocking.
+	}
+	else // not blocking
+	{
+		int		nSendTries	= OTLog::GetLatencySendNoTries();
+		long	lDoubling	= lLatencySendMicroSec;		
+		bool	bKeepTrying = true;
+		
+		while (bKeepTrying && (nSendTries > 0))
+		{
+			zmq::pollitem_t items [] = {
+				{ (*m_pSocket), 0, ZMQ_POLLOUT,	0 }
+			};
+			
+			const int nPoll = zmq::poll(&items[0], 1, lDoubling);	// ZMQ_POLLOUT, 1 item, timeout (microseconds in ZMQ 2.1; changes to milliseconds in 3.0)					
+			lDoubling *= 2;
+			
+			if (items[0].revents & ZMQ_POLLOUT)
+			{
+				bSuccessSending = m_pSocket->send(reply, ZMQ_NOBLOCK); // <=========== SEND ===============
+				OTLog::SleepMilliseconds( 1 );
+				
+				if (!bSuccessSending)
+				{
+					if (false == HandleSendingError())
+						bKeepTrying = false;
+				}
+				else
+					break; // (Success -- we're done in this loop.)
+			}
+			else if ((-1) == nPoll) // error.
+			{
+				if (false == HandlePollingError())
+					bKeepTrying = false;
+			}
+			
+			--nSendTries;
+		}
+	}
+	
+	return bSuccessSending;
+}
+// -----------------------------------
+
+bool OTSocket::Receive(std::string & str_Message)
+{
+	OT_ASSERT_MSG(NULL != m_pContext, "m_pContext == NULL in OTSocket::Receive()");
+	OT_ASSERT_MSG(NULL != m_pSocket, "m_pSocket == NULL in OTSocket::Receive()");
+	// -----------------------------------	
+	const long lLatencyRecvMilliSec	= OTServer::GetHeartbeatMsBetweenBeats();
+	const long lLatencyRecvMicroSec	= lLatencyRecvMilliSec*1000;
+	
+	// ***********************************
+	//  Get the request.
+	zmq::message_t request;
+	
+	bool bSuccessReceiving = false;
+	
+	// If failure receiving, re-tries 2 times, with 4000 ms max delay between each (Doubling every time.)
+	//
+	if (OTLog::IsBlocking())
+	{
+		bSuccessReceiving = m_pSocket->recv(&request); // Blocking.
+	}
+	else	// not blocking
+	{
+		long	lDoubling = lLatencyRecvMicroSec;
+		int		nReceiveTries = OTLog::GetLatencyReceiveNoTries();
+		bool	expect_request = true;
+		while (expect_request) 
+		{
+			//  Poll socket for a request, with timeout
+			zmq::pollitem_t items[] = { { *m_pSocket, 0, ZMQ_POLLIN, 0 } };
+			
+			const int nPoll = zmq::poll (&items[0], 1, lDoubling);
+			lDoubling *= 2;
+			
+			//  If we got a request, process it
+			if (items[0].revents & ZMQ_POLLIN) 
+			{
+				bSuccessReceiving = m_pSocket->recv(&request, ZMQ_NOBLOCK); // <=========== RECEIVE ===============
+				OTLog::SleepMilliseconds( 1 );
+				
+				if (!bSuccessReceiving)
+				{
+					if (false == HandleReceivingError())
+						expect_request = false;
+				}
+				else
+					break; // (Success -- we're done in this loop.)				
+			}
+			else if (nReceiveTries == 0) 
+			{
+				OTLog::Error("OTSocket::Receive: Tried to receive, based on polling data, but failed even after retries.\n");
+				expect_request = false;
+				break;
+			}
+			else if ((-1) == nPoll) // error.
+			{
+				if (false == HandlePollingError())
+					expect_request = false;
+			}
+			
+			--nReceiveTries;
+		}
+	}
+	// ***********************************
+	
+	if (bSuccessReceiving)
+	{
+		str_Message.reserve(request.size());
+		str_Message.append(static_cast<const char *>(request.data()), request.size());	
+	}
+	
+	return bSuccessReceiving;
+}
+
+
+
+
+
 // ----------------------------------------------------------------------
 
 
@@ -438,7 +789,6 @@ int main(int argc, char* argv[])
 	g_pServer->Init(); // Keys, etc are loaded here.
 	
 	// -----------------------------------------------------------------------
-
 	// We're going to listen on the same port that is listed in our server contract.
 	//
 	//
@@ -450,13 +800,6 @@ int main(int argc, char* argv[])
 	
 	const int	nServerPort = nPort;
 	
-	//	int nSFSocketInit = SFSocketInit(socket,
-	//									 strCAFile.Get(), 
-	//									 strDHFile.Get(), 
-	//									 strKeyFile.Get(),
-	//									 strSSLPassword.Get(), 
-	//									 NULL);
-	
 	// -----------------------------------------------------------------------
 	
 	// For re-occuring actions (like markets and payment plans.)
@@ -466,40 +809,13 @@ int main(int argc, char* argv[])
 	// -----------------------------------
 	
 	//  Prepare our context and socket
-	zmq::context_t context(1);
-	zmq::socket_t socket(context, ZMQ_REP);
-
+	OTSocket theSocket;
 	OTString strBindPath; strBindPath.Format("%s%d", "tcp://*:", nServerPort);
-
-	socket.bind(strBindPath.Get());
-
-	// -----------------------------------------------------------------------
-	// Let's get the HTTP server up and running...
-	// Switching out XmlRpc for 0MQ (ZeroMQ)
-	//
-//	XmlRpc::setVerbosity(1);
-//
-//	// Create the server socket on the specified port
-//	theXmlRpcServer.bindAndListen(nServerPort);
-//
-//	// Enable introspection, so clients can see what services this server supports. (Open Transactions...)
-//	theXmlRpcServer.enableIntrospection(true);
-
-	// -----------------------------------------------------------------------
-
-	//  Initialize poll set
-	zmq::pollitem_t items [] =
-	{
-		{ socket, 0, ZMQ_POLLIN,	0 },
-		{ socket, 0, ZMQ_POLLOUT,	0 },
-	};
-
-	// ----------------------------------------------------------
+	theSocket.Listen(strBindPath);
 	
+	// -----------------------------------------------------------------------
+
 	int nCronInterval = 101; // todo no hardcoding
-	
-	const long lLatencySendMilliSec	= OTLog::GetLatencySendMs();
-	const long lLatencySendMicroSec	= lLatencySendMilliSec*1000; // Microsecond is 1000 times smaller than millisecond.
 
 	// ******************************************************************************************
 	do  // THE HEARTBEAT LOOP FOR THE OPEN-TRANSACTIONS SERVER! 
@@ -520,11 +836,7 @@ int main(int argc, char* argv[])
 			nCronInterval = 101;
 		}
 		// -----------------------------------------------------------------------
-		
 		// Wait for client http requests (and process replies out to them.)
-		//
-//		theXmlRpcServer.work(10.0); // supposedly milliseconds -- but it's actually seconds.
-
 		// ----------------------------------------------------------------------
 		// Number of requests to process per heartbeat: OTServer::GetHeartbeatNoRequests()
 		//
@@ -546,74 +858,17 @@ int main(int argc, char* argv[])
 		
 		for (int i = 0; i < /*10*/OTServer::GetHeartbeatNoRequests(); i++) 
 		{
-			// Switching to ZeroMQ library.
-			zmq::message_t message;
+			std::string	str_Message;
+			bool		bReceived = theSocket.Receive(str_Message);
 
-			zmq::poll(&items[0], 1,// 0);					// ZMQ_POLLIN, 1 item, non-blocking (would be 0), but added timeout of
-					  /*100*/OTServer::GetHeartbeatMsBetweenBeats()*1000);  // *1000 since it's microseconds.
- //			zmq::poll(&items[1], 1, lLatencySendMicroSec);	// ZMQ_POLLOUT, 1 item, timeout (microseconds in ZMQ 2.1; changes to milliseconds in 3.0) 
- //			zmq::poll(&items[0], 1, -1);					// Blocking.
-
-			// NOTE: since we're in the SERVER, we don't block on RECEIVE calls, only SEND calls.
-			// We want the loop to keep looping, and only block on a send obviously long enough to
-			// successfully send (guarantee the send.) If our network problems are so bad that we can't
-			// send at all, then that one socket probably isn't hanging us any worse than any of the
-			// others also would/are.
-			//
-			// UPDATE: We poll for up to 100 ms here now, since we would've slept for that amount
-			// of time anyway.
-			//
-			
-			if ((items[0].revents & ZMQ_POLLIN) && socket.recv(&message, ZMQ_NOBLOCK))
+			if (bReceived)
 			{
-				// Convert the ZMQ message to a std::string
-				std::string str_Message;
-				str_Message.reserve(message.size());
-				str_Message.append(static_cast<const char *>(message.data()), message.size());
-
-				// ***************************************************
-				//  Process the user's message into a reply...
-				//
 				std::string str_Reply; // Output.
+				// --------------------------------------------------
 				ProcessMessage_ZMQ(str_Message, str_Reply); // <================== PROCESS the message!
 				// --------------------------------------------------
-
-				// Convert the std::string (reply) into a ZMQ message
-				zmq::message_t reply (str_Reply.length());
-
-				if (str_Reply.length() > 0)
-					memcpy((void *) reply.data(), str_Reply.c_str(), str_Reply.length());
-
-				// ***************************************************
-				//  Send reply back to client
-				//
-				bool	bSuccessSending = false;
-				
-				if (OTLog::IsBlocking())
-				{
-					bSuccessSending = socket.send(reply); // Blocking.
-				}
-				else // NOT blocking (the default)
-				{					
-					// If failure, retries 5 times.
-					// Will poll up to 1000 ms until the first failure, (and that time doubles each try.)
-					//
-					int		nSendTries	= 0;
-					long	lDoubling	= lLatencySendMicroSec;
-					
-					do {
-						zmq::poll(&items[1], 1, lDoubling);	// ZMQ_POLLOUT, 1 item, timeout (microseconds in ZMQ 2.1; changes to milliseconds in 3.0)
-						lDoubling *= 2;
-						
-						if (items[1].revents & ZMQ_POLLOUT)
-							bSuccessSending = socket.send(reply, ZMQ_NOBLOCK);
-					} 	
-					while ((nSendTries++ < OTLog::GetLatencySendNoTries()/*5*/) && 
-							   (false == bSuccessSending));
-
-				}
-				// ***************************************************
-				
+				bool bSuccessSending = theSocket.Send(str_Reply); // <===== SEND THE REPLY
+								
 				if (false == bSuccessSending)
 					OTLog::vError("Socket error: failed while trying to send reply back to client! \n\n MESSAGE:\n%s\n\nREPLY:\n%s\n\n", 
 								  str_Message.c_str(), str_Reply.c_str());

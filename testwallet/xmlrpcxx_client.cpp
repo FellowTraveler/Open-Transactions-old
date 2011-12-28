@@ -314,9 +314,375 @@ void OT_Main_Cleanup()
 
 
 
+class OTSocket
+{
+	zmq::context_t	* m_pContext;
+	zmq::socket_t	* m_pSocket;
+	
+	OTString m_strConnectPath;
+	OTASCIIArmor m_ascLastMsgSent;
+	
+	void NewContext();
+	void Connect(const OTString & strConnectPath);
+	
+	bool HandlePollingError();
+	bool HandleSendingError();
+	bool HandleReceivingError();
+	
+public:
+	OTSocket();
+	~OTSocket();
+	
+	bool Send(OTASCIIArmor & ascEnvelope, const OTString &strConnectPath);
+	bool Receive(OTASCIIArmor & ascServerReply);
+};
+
+
+OTSocket::OTSocket() : m_pContext(NULL), m_pSocket(NULL)
+{
+	NewContext();
+}
+
+OTSocket::~OTSocket()
+{
+	// -----------------------------------
+	// Clean up the context and socket.
+	if (NULL != m_pContext)
+		delete m_pContext;
+	m_pContext = NULL;
+	// -----------------------------------
+	if (NULL != m_pSocket)
+		delete m_pSocket;
+	m_pSocket = NULL;
+	// -----------------------------------
+}
+
+
+void OTSocket::NewContext()
+{
+	if (NULL != m_pSocket)
+		delete m_pSocket;
+	m_pSocket = NULL;
+	
+	if (NULL != m_pContext)
+		delete m_pContext;
+	
+	m_pContext = new zmq::context_t(1);
+	OT_ASSERT_MSG(NULL != m_pContext, "OTSocket::NewContext():  Failed creating network context: zmq::context_t * pContext = new zmq::context_t(1);");	
+}
+
+void OTSocket::Connect(const OTString &strConnectPath)
+{
+	if (NULL != m_pSocket)
+		delete m_pSocket;
+	
+	m_pSocket = new zmq::socket_t(*m_pContext, ZMQ_REQ); // REQUEST socket. (Request / Response.)
+	OT_ASSERT_MSG(NULL != m_pSocket, "OTSocket::ConnectSocket: new zmq::socket(context, ZMQ_REQ)");
+	
+	OTString strTemp(strConnectPath); // In case m_strConnectPath is what was passed in. (It happens.)
+	m_strConnectPath.Set(strTemp); // In case we have to close/reopen the socket to finish a send/receive.
+	
+	m_pSocket->connect(strConnectPath.Get());
+	// ------------------------
+	//  Configure socket to not wait at close time
+	const int linger = 0; // close immediately
+	m_pSocket->setsockopt (ZMQ_LINGER, &linger, sizeof (linger));
+}
+// -----------------------------------
+/*
+ typedef struct
+ {
+ void //*socket//;
+ int //fd//;
+ short //events//;
+ short //revents//;
+ } zmq_pollitem_t; 
+ */
+
+// The bool means true == try again soon, false == don't try again.
+bool OTSocket::HandlePollingError()
+{
+	bool bRetVal = false;
+	
+	switch (errno) {
+			// At least one of the members of the items array refers to a socket whose associated ØMQ context was terminated.
+		case ETERM:
+			OTLog::Error("OTSocket::HandlePollingError: Failure: At least one of the members of the items array refers to a socket whose associated ØMQ context was terminated. (Deleting and re-creating the context.)\n");
+			this->NewContext();
+			break;		
+			// The provided items was not valid (NULL).
+		case EFAULT:
+			OTLog::Error("OTSocket::HandlePollingError: Failed: The provided polling items were not valid (NULL).\n");
+			break;
+			// The operation was interrupted by delivery of a signal before any events were available.
+		case EINTR:
+			OTLog::Error("OTSocket::HandlePollingError: The operation was interrupted by delivery of a signal before any events were available. Re-trying...\n");
+			bRetVal = true;
+			break;
+		default:
+			OTLog::Error("OTSocket::HandlePollingError: Default case. Re-trying...\n");
+			bRetVal = true;
+			break;
+	}
+	return bRetVal;
+}
+
+// return value bool, true == try again, false == error, failed.
+//
+bool OTSocket::HandleSendingError()
+{
+	bool bRetVal = false;
+	
+	switch (errno) {
+			// Non-blocking mode was requested and the message cannot be sent at the moment.
+		case EAGAIN:
+			OTLog::vOutput(0, "OTSocket::HandleSendingError: Non-blocking mode was requested and the message cannot be sent at the moment. Re-trying...\n");
+			bRetVal = true;
+			break;
+			// The zmq_send() operation is not supported by this socket type.
+		case ENOTSUP:
+			OTLog::Error("OTSocket::HandleSendingError: failure: The zmq_send() operation is not supported by this socket type.\n");
+			break;
+			// The zmq_send() operation cannot be performed on this socket at the moment due to the socket not being in the appropriate state. This error may occur with socket types that switch between several states, such as ZMQ_REP. See the messaging patterns section of zmq_socket(3) for more information.
+		case EFSM:
+			OTLog::vOutput(0, "OTSocket::HandleSendingError: The zmq_send() operation cannot be performed on this socket at the moment due to the socket not being in the appropriate state. Deleting socket and re-trying...\n");
+			this->Connect(m_strConnectPath);
+			bRetVal = true;
+			break;
+			// The ØMQ context associated with the specified socket was terminated.
+		case ETERM:
+			OTLog::Error("OTSocket::HandleSendingError: The ØMQ context associated with the specified socket was terminated. (Deleting and re-creating the context and the socket, and trying again.)\n");
+			this->NewContext();
+			this->Connect(m_strConnectPath);
+			bRetVal = true;			
+			break;
+			// The provided socket was invalid.
+		case ENOTSOCK:
+			OTLog::Error("OTSocket::HandleSendingError: The provided socket was invalid. (Deleting socket and re-trying...)\n");
+			this->Connect(m_strConnectPath);
+			bRetVal = true;			
+			break;
+			// The operation was interrupted by delivery of a signal before the message was sent. Re-trying...
+		case EINTR:
+			OTLog::Error("OTSocket::HandleSendingError: The operation was interrupted by delivery of a signal before the message was sent. (Re-trying...)\n");
+			bRetVal = true;
+			break;
+			// Invalid message.
+		case EFAULT:
+			OTLog::Error("OTSocket::HandleSendingError: Failure: The provided pollitems were not valid (NULL).\n");
+			break;
+		default:
+			OTLog::Error("OTSocket::HandleSendingError: Default case. Re-trying...\n");
+			bRetVal = true;
+			break;
+	}
+	return bRetVal;
+}
+
+
+bool OTSocket::HandleReceivingError()
+{
+	bool bRetVal = false;
+	
+	switch (errno) {
+			// Non-blocking mode was requested and no messages are available at the moment.
+		case EAGAIN:
+			OTLog::vOutput(0, "OTSocket::HandleReceivingError: Non-blocking mode was requested and no messages are available at the moment. Re-trying...\n");
+			bRetVal = true;
+			break;
+			// The zmq_recv() operation is not supported by this socket type.
+		case ENOTSUP:
+			OTLog::Error("OTSocket::HandleReceivingError: Failure: The zmq_recv() operation is not supported by this socket type.\n");
+			break;
+			// The zmq_recv() operation cannot be performed on this socket at the moment due to the socket not being in the appropriate state. This error may occur with socket types that switch between several states, such as ZMQ_REP. See the messaging patterns section of zmq_socket(3) for more information.
+		case EFSM:
+			OTLog::vOutput(0, "OTSocket::HandleReceivingError: The zmq_recv() operation cannot be performed on this socket at the moment due to the socket not being in the appropriate state. (Deleting socket and re-trying...)\n");
+		{ OTASCIIArmor ascTemp(m_ascLastMsgSent); bRetVal = this->Send(ascTemp, m_strConnectPath); }
+			break;
+			// The ØMQ context associated with the specified socket was terminated.
+		case ETERM:
+			OTLog::Error("OTSocket::HandleReceivingError: The ØMQ context associated with the specified socket was terminated. (Re-creating the context, and trying again...)\n");
+			this->NewContext();
+		{ OTASCIIArmor ascTemp(m_ascLastMsgSent); bRetVal = this->Send(ascTemp, m_strConnectPath); }
+			break;
+			// The provided socket was invalid.
+		case ENOTSOCK:
+			OTLog::Error("OTSocket::HandleReceivingError: The provided socket was invalid. (Deleting socket and re-trying.)\n");
+		{ OTASCIIArmor ascTemp(m_ascLastMsgSent); bRetVal = this->Send(ascTemp, m_strConnectPath); }
+			break;
+			// The operation was interrupted by delivery of a signal before a message was available.
+		case EINTR:
+			OTLog::Error("OTSocket::HandleSendingError: The operation was interrupted by delivery of a signal before the message was sent. (Re-trying...)\n");
+			bRetVal = true;
+			break;
+			// The message passed to the function was invalid.
+		case EFAULT:
+			OTLog::Error("OTSocket::HandleReceivingError: Failure: The message passed to the function was invalid.\n");
+			break;
+		default:
+			OTLog::Error("OTSocket::HandleReceivingError: Default case. Re-trying...\n");
+			bRetVal = true;
+			break;
+	}
+	return bRetVal;
+}
+
+
+bool OTSocket::Send(OTASCIIArmor & ascEnvelope, const OTString &strConnectPath)
+{
+	OT_ASSERT_MSG(NULL != m_pContext, "m_pContext == NULL in OTSocket::Send()");
+	OT_ASSERT_MSG(ascEnvelope.GetLength() > 0, "ascEnvelope.GetLength() > 0");
+	m_ascLastMsgSent.Set(ascEnvelope); // In case we need to re-send.
+	// -----------------------------------
+	this->Connect(strConnectPath);
+	
+	if (NULL == m_pSocket) // This should have been set in the Connect() call just above.
+	{
+		OTLog::Error("OTSocket::Send: Failed connecting socket.\n");
+		return false;
+	}
+	// -----------------------------------	
+	const long lLatencySendMilliSec	= OTLog::GetLatencySendMs();
+	const long lLatencySendMicroSec	= lLatencySendMilliSec*1000; // Microsecond is 1000 times smaller than millisecond.
+	
+	zmq::message_t request(ascEnvelope.GetLength());
+	memcpy((void*)request.data(), ascEnvelope.Get(), ascEnvelope.GetLength());
+	
+	bool bSuccessSending	= false;
+	
+	if (OTLog::IsBlocking())
+	{
+		bSuccessSending = m_pSocket->send(request); // Blocking.
+	}
+	else // not blocking
+	{
+		int		nSendTries	= OTLog::GetLatencySendNoTries();
+		long	lDoubling	= lLatencySendMicroSec;		
+		bool	bKeepTrying = true;
+		
+		while (bKeepTrying && (nSendTries > 0))
+		{
+			zmq::pollitem_t items [] = {
+				{ (*m_pSocket), 0, ZMQ_POLLOUT,	0 }
+			};
+			
+			const int nPoll = zmq::poll(&items[0], 1, lDoubling);	// ZMQ_POLLOUT, 1 item, timeout (microseconds in ZMQ 2.1; changes to milliseconds in 3.0)					
+			lDoubling *= 2;
+			
+			if (items[0].revents & ZMQ_POLLOUT)
+			{
+				bSuccessSending = m_pSocket->send(request, ZMQ_NOBLOCK); // <=========== SEND ===============
+				OTLog::SleepMilliseconds( 1 );
+				
+				if (!bSuccessSending)
+				{
+					if (false == HandleSendingError())
+						bKeepTrying = false;
+				}
+				else
+					break; // (Success -- we're done in this loop.)
+			}
+			else if ((-1) == nPoll) // error.
+			{
+				if (false == HandlePollingError())
+					bKeepTrying = false;
+			}
+			
+			--nSendTries;
+		}
+	}
+	/*
+	 Normally, we try to send...
+	 If the send fails, we wait X ms and then try again (Y times).
+	 
+	 BUT -- what if the failure was an errno==EAGAIN ?
+	 In that case, it's not a REAL failure, but rather, a "failure right now, try again in a sec."
+	 */
+	// ***********************************
+	
+	if (bSuccessSending)
+		OTLog::SleepMilliseconds( OTLog::GetLatencyDelayAfter() > 0 ? OTLog::GetLatencyDelayAfter() : 1 );
+	
+	return bSuccessSending;
+}
+// -----------------------------------
+
+bool OTSocket::Receive(OTASCIIArmor & ascServerReply)
+{
+	OT_ASSERT_MSG(NULL != m_pContext, "m_pContext == NULL in OTSocket::Receive()");
+	OT_ASSERT_MSG(NULL != m_pSocket, "m_pSocket == NULL in OTSocket::Receive()");
+	// -----------------------------------	
+	const long lLatencyRecvMilliSec	= OTLog::GetLatencyReceiveMs();
+	const long lLatencyRecvMicroSec	= lLatencyRecvMilliSec*1000;
+	
+	// ***********************************
+	//  Get the reply.
+	zmq::message_t reply;
+	
+	bool bSuccessReceiving = false;
+	
+	// If failure receiving, re-tries 2 times, with 4000 ms max delay between each (Doubling every time.)
+	//
+	if (OTLog::IsBlocking())
+	{
+		bSuccessReceiving = m_pSocket->recv(&reply); // Blocking.
+	}
+	else	// not blocking
+	{
+		long	lDoubling = lLatencyRecvMicroSec;
+		int		nReceiveTries = OTLog::GetLatencyReceiveNoTries();
+		bool	expect_reply = true;
+		while (expect_reply) 
+		{
+			//  Poll socket for a reply, with timeout
+			zmq::pollitem_t items[] = { { *m_pSocket, 0, ZMQ_POLLIN, 0 } };
+			
+			const int nPoll = zmq::poll (&items[0], 1, lDoubling);
+			lDoubling *= 2;
+			
+			//  If we got a reply, process it
+			if (items[0].revents & ZMQ_POLLIN) 
+			{
+				bSuccessReceiving = m_pSocket->recv(&reply, ZMQ_NOBLOCK); // <=========== RECEIVE ===============
+				OTLog::SleepMilliseconds( 1 );
+				
+				if (!bSuccessReceiving)
+				{
+					if (false == HandleReceivingError())
+						expect_reply = false;
+				}
+				else
+					break; // (Success -- we're done in this loop.)				
+			}
+			else if (nReceiveTries == 0) 
+			{
+				OTLog::Error("OTSocket::Receive: server seems to be offline, abandoning.\n");
+				expect_reply = false;
+				break;
+			}
+			else if ((-1) == nPoll) // error.
+			{
+				if (false == HandlePollingError())
+					expect_reply = false;
+			}
+			
+			--nReceiveTries;
+		}
+	}
+	// ***********************************
+	
+	if (bSuccessReceiving)
+		ascServerReply.MemSet(static_cast<const char*>(reply.data()), reply.size());
+		
+	return bSuccessReceiving;
+}
+// -----------------------------------
 
 
 
+
+
+// -------------------------------------------------------------------------------
 // If false, error happened, usually based on what user just attemped.
 //
 bool SetupPointersForWalletMyNymAndServerContract(std::string & str_ServerID,
@@ -939,9 +1305,9 @@ int main(int argc, char* argv[])
 	strKeyFile.Format("%s%s%s", OTLog::Path(), OTLog::PathSeparator(), KEY_FILE);
 	
 	
-    //  Prepare our context and socket
-	zmq::context_t context(1);
-
+    //  Prepare our network context
+	OTSocket theSocket;
+	
 	// -----------------------------------------------------------------------
     
     AnyOption *opt = new AnyOption();
@@ -1856,12 +2222,10 @@ int main(int argc, char* argv[])
             }
             else
                 OTLog::Error("Error processing getNymbox command in ProcessMessage.\n");
-            // ------------------------------------------------------------------------
         }
 
         // ----------------------------------------------------------------------
 		//
-		
         const OTPseudonym * pServerNym = pServerContract->GetContractPublicNym();
 		
 		if ((NULL == pServerNym) || (false == pServerNym->VerifyPseudonym()))
@@ -1874,132 +2238,40 @@ int main(int argc, char* argv[])
         //
         // ***********************************************************
 
-        
 		if (bSendCommand && pServerNym->VerifyPseudonym())
 		{
 			OTString strEnvelopeContents(theMessage);
-			
-			OTEnvelope theEnvelope;
-			// Seal the string up into an encrypted Envelope
+			OTEnvelope theEnvelope;	// Seal the string up into an encrypted Envelope
 			theEnvelope.Seal(*pServerNym, strEnvelopeContents);
-            
 			// -----------------------------------
-			
 			OTASCIIArmor ascEnvelope(theEnvelope); // ascEnvelope now contains the base64-encoded string of the sealed envelope contents.
-			
+
 			if (ascEnvelope.Exists())
-			{                
-				zmq::socket_t socket(context, ZMQ_REQ);
-				
+			{
 				OTString strConnectPath; strConnectPath.Format("tcp://%s:%d", // todo stop hardcoding.
                                                                strServerHostname.Get(), nServerPort);
-				socket.connect(strConnectPath.Get());
-				
-				//  Configure socket to not wait at close time
-				int linger = 0; // close immediately
-				socket.setsockopt (ZMQ_LINGER, &linger, sizeof (linger));
-
-				// --------------------------------
-
-				zmq::message_t request(ascEnvelope.GetLength());
-				memcpy((void*)request.data(), ascEnvelope.Get(), ascEnvelope.GetLength());
-
-				/*
-				 
-				 Normally, we try to send...
-				 If the send fails, we wait 200 ms and then try again (5 times).
-				 
-				 BUT -- what if the failure was an errno==EAGAIN ?
-				 In that case, it's not a REAL failure, but rather, a "failure right now, try again in a sec."
-				 */
 				// -----------------------------------------------------------------------
-				
-				//  Initialize poll set
-				zmq::pollitem_t items [] =
-				{
-					{ socket, 0, ZMQ_POLLIN,	0 },
-					{ socket, 0, ZMQ_POLLOUT,	0 },
-				};
-				
-				// ----------------------------------------------------------
-				
-				const long lLatencySendMilliSec	= OTLog::GetLatencySendMs();
-				const long lLatencySendMicroSec	= lLatencySendMilliSec*1000; // Microsecond is 1000 times smaller than millisecond.
-				// ----------------------------------------
-				const long lLatencyRecvMilliSec	= OTLog::GetLatencyReceiveMs();
-				const long lLatencyRecvMicroSec	= lLatencyRecvMilliSec*1000; 
+				bool bSuccessSending = theSocket.Send(ascEnvelope, strConnectPath);  // <========
 
-				// If failure sending, re-tries 5 times GetLatencySendNoTries(), 
-                // with 1000 ms delay between each. (Doubling each failure.)
-				//
-				bool	bSuccessSending	= false;
-				
-				if (OTLog::IsBlocking())
+				if (!bSuccessSending)
 				{
-					bSuccessSending = socket.send(request); // Blocking.
+					OTLog::vError("Failed, even with error correction and retries, while trying to send message to server:\n\n%s\n\n",
+								  strEnvelopeContents.Get());
 				}
-				else // not blocking
+				else // Success sending (Now let's get the reply...)
 				{
-					int		nSendTries		= 0;
-					long	lDoubling		= lLatencySendMicroSec;
+					OTASCIIArmor	ascServerReply;
+					bool			bSuccessReceiving = theSocket.Receive(ascServerReply); // <========
 					
-					do {
-						zmq::poll(&items[1], 1, lDoubling);	// ZMQ_POLLOUT, 1 item, timeout (microseconds in ZMQ 2.1; changes to milliseconds in 3.0)					
-						lDoubling *= 2;
-						
-						if (items[1].revents & ZMQ_POLLOUT)
-							bSuccessSending = socket.send(request, ZMQ_NOBLOCK);
-						
-						if (bSuccessSending)
-							// This is a delay that occurs after EVERY send, on the client's side. (Configurable in client.cfg as "send_delay_after")
-							OTLog::SleepMilliseconds( OTLog::GetLatencyDelayAfter() /* 50 default in code/config file for this spot, plus 300 default delay in the java GUI */ );														
-					} while ((nSendTries++ < /*2*/OTLog::GetLatencySendNoTries()) && 
-						   (false == bSuccessSending));  // <=========== SEND ===============
-                }
-				// ----------------------------
-
-				if (bSuccessSending)
-				{
-
-					// ***********************************
-					
-					//  Get the reply.
-					zmq::message_t reply;
-					
-					bool bSuccessReceiving = false;
-					
-					// If failure receiving, re-tries 2 times, with 4000 ms max delay between each (Doubling every time.)
-					//
-					if (OTLog::IsBlocking())
+					if (!bSuccessReceiving)
 					{
-						bSuccessReceiving = socket.recv(&reply); // Blocking.
-					}
-					else	// not blocking
-					{
-						int	nReceiveTries = 0;
-						long lDoubling = lLatencyRecvMicroSec;
-						
-						do {
-							zmq::poll(&items[0], 1, lDoubling);	// ZMQ_POLLIN, 1 item, timeout (microseconds in ZMQ 2.1; changes to milliseconds in 3.0)
-							lDoubling *= 2;
-							
-							if (items[0].revents & ZMQ_POLLIN)
-								bSuccessReceiving = socket.recv(&reply, ZMQ_NOBLOCK);
-						}
-						while ((nReceiveTries++ < /*2*/OTLog::GetLatencyReceiveNoTries()) && 
-							   (false == bSuccessReceiving));   // <=========== RECEIVE ===============
-
-					}
-					// -------------------------------
-					if (bSuccessReceiving)
-					{
-						OTASCIIArmor ascServerReply;
-						ascServerReply.MemSet(static_cast<const char*>(reply.data()), reply.size());
-						
-						// --------------------------
-						
+						OTLog::Error("Failed trying to receive expected reply from server.\n");
+					}					
+					// ----------------------------------------------------------
+					else // Success. Let's read and process the reply...
+					{						
 						OTString	strServerReply;				// Maybe should use g_OT_API.GetClient()->GetNym or some such...
-						OTEnvelope theServerEnvelope;
+						OTEnvelope	theServerEnvelope;
 						
 						if (theServerEnvelope.SetAsciiArmoredData(ascServerReply))
 						{
@@ -2020,17 +2292,10 @@ int main(int argc, char* argv[])
 								OTLog::Error("Error loading server reply from string.\n");
 							}
 						}
-					}
-					else
-					{
-						OTLog::Error("Failed trying to receive message from server.\n");
-					}					
-				}
-				else
-				{
-					OTLog::Error("Failed trying to send message to server.\n");
-				}
-			}
+					} // !success receiving.
+					// ----------------------------------------------------------
+				} // else (bSuccessSending)
+			} // if envelope exists.
 		} // if bSendCommand		
         
 		
@@ -3371,167 +3636,38 @@ int main(int argc, char* argv[])
 		
 		const OTPseudonym * pServerNym = pServerContract->GetContractPublicNym();
 		
-//		OTString strExtra1("TESTPUBKEYCLI.txt"), strExtra2(*pServerContract);
-		
-//		(const_cast<OTPseudonym *>(pServerNym))->SavePublicKey(strExtra1);
-		
 		if (bSendCommand && (NULL != pServerNym) && pServerNym->VerifyPseudonym())
 		{
-			OTString strEnvelopeContents(theMessage), strEnvelopeContents2(theMessage);
-			// Save the ready-to-go message into a string.
-//			theMessage.SaveContract(strEnvelopeContents);
-			
-			OTEnvelope theEnvelope;//, theEnvelope2;
-			// Seal the string up into an encrypted Envelope
-			theEnvelope.Seal(*pServerNym, strEnvelopeContents);
-//			theEnvelope2.Seal(*pMyNym, strEnvelopeContents2);
-							  
+			OTString strEnvelopeContents(theMessage);
+			OTEnvelope theEnvelope;
+			theEnvelope.Seal(*pServerNym, strEnvelopeContents);							  
 			// -----------------------------------
-			
 			OTASCIIArmor ascEnvelope(theEnvelope); // ascEnvelope now contains the base64-encoded string of the sealed envelope contents.
-//			OTASCIIArmor ascEnvelope2(theEnvelope2);
 			
 			if (ascEnvelope.Exists())
 			{
-//				OTLog::vError("DEBUG Envelope addressed to Nym ID: %s. Contents: \n%s\n Size: %ld, Nym: \n%s\n Server Contract:\n%s\n", 
-//							  theIDString.Get(), ascEnvelope.Get(),ascEnvelope.GetLength(), strExtra1.Get(), strExtra2.Get());
-//				
-//				OTEnvelope theTestEnvelope(ascEnvelope2);
-//				OTString strTestOutput2;
-//				bool bOpened2 = theTestEnvelope.Open(*pMyNym, strTestOutput2);
-//
-//				OTLog::vError("DEBUG Opening a similar envelope... Contents: \n%s\n", strTestOutput2.Get());
-
-				
-				zmq::socket_t socket(context, ZMQ_REQ);
-				
-				OTString strConnectPath; strConnectPath.Format("tcp://%s:%d", strServerHostname.Get(), nServerPort);
-				socket.connect(strConnectPath.Get());
-				
-				//  Configure socket to not wait at close time
-				int linger = 0;
-				socket.setsockopt (ZMQ_LINGER, &linger, sizeof (linger));
-				
-				// --------------------------------
-//				OTPayload thePayload;
-//				bool bSetEnvelope = thePayload.SetEnvelope(theEnvelope);
-				
-//				bool GetEnvelope(OTEnvelope & theEnvelope) const; // Envelope retrieved from payload.
-//				bool SetEnvelope(const OTEnvelope & theEnvelope); // Envelope copied into payload to prepare for sending.
-				
-
-				zmq::message_t request(ascEnvelope.GetLength());
-				memcpy((void*)request.data(), ascEnvelope.Get(), ascEnvelope.GetLength());
-				
+				OTString strConnectPath; strConnectPath.Format("tcp://%s:%d", // todo stop hardcoding.
+															   strServerHostname.Get(), nServerPort);
 				// -----------------------------------------------------------------------
-				//  Initialize poll set
-				zmq::pollitem_t items [] =
+				bool bSuccessSending = theSocket.Send(ascEnvelope, strConnectPath);  // <========
+				
+				if (!bSuccessSending)
 				{
-					{ socket, 0, ZMQ_POLLIN,	0 },
-					{ socket, 0, ZMQ_POLLOUT,	0 },
-				};
-				// ----------------------------------------------------------				
-				
-				const long lLatencySendMilliSec	= OTLog::GetLatencySendMs();
-				const long lLatencySendMicroSec	= lLatencySendMilliSec*1000; // Microsecond is 1000 times smaller than millisecond.
-				// ----------------------------------------
-				const long lLatencyRecvMilliSec	= OTLog::GetLatencyReceiveMs();
-				const long lLatencyRecvMicroSec	= lLatencyRecvMilliSec*1000; 
-				
-				bool	bSuccessSending	= false;
-				
-				// If failure sending, re-tries 5 times, with 200 ms delay between each. (Maximum of 1 second.)
-				//
-				if (OTLog::IsBlocking())
-				{
-					bSuccessSending = socket.send(request); // Blocking.
+					OTLog::vError("Failed, even with error correction and retries, while trying to send message to server:\n\n%s\n\n",
+								  strEnvelopeContents.Get());
 				}
-				else	// not blocking
+				else
 				{
-					int		nSendTries		= 0;
-					long	lDoubling		= lLatencySendMicroSec;
-
-					// If failure sending, re-tries 2 times GetLatencySendNoTries(), 
-					// with 4000 ms max delay between each. (Doubling each failure.)
-					//					
-					do {
-						zmq::poll(&items[1], 1, lDoubling);	// ZMQ_POLLOUT, 1 item, timeout (microseconds in ZMQ 2.1; changes to milliseconds in 3.0)
-						lDoubling *= 2;
-						
-						if (items[1].revents & ZMQ_POLLOUT)
-							bSuccessSending = socket.send(request, ZMQ_NOBLOCK); // <============SENDING!!!!
-						
-						if (bSuccessSending)
-							// This is a delay that occurs after EVERY send, on the client's side. (Configurable in client.cfg as "send_delay_after")
-							OTLog::SleepMilliseconds( OTLog::GetLatencyDelayAfter() /* 50 default in code/config file for this spot, plus 300 default delay in the java GUI */ );							
-					} while ((nSendTries++ < /*2*/OTLog::GetLatencySendNoTries()) && 
-							 (false == bSuccessSending));
-				}
-				
-				// Here's our connection...
-//#if defined (linux)
-//				XmlRpcClient theXmlRpcClient(strServerHostname.Get(), nServerPort, 0); // serverhost, port.
-//#elif defined (_WIN32) 
-//				XmlRpcClient theXmlRpcClient(strServerHostname.Get(), nServerPort, "fellowtraveler"); // serverhost, port, value that crashes if NULL.
-//#else
-//				XmlRpcClient theXmlRpcClient(strServerHostname.Get(), nServerPort); // serverhost, port.
-//#endif
-				
-				// -----------------------------------------------------------
-				//
-				// Call the OT_XML_RPC method (thus passing the message to the server.)
-				//
-//				XmlRpcValue oneArg, result;		// oneArg contains the outgoing message; result will contain the server reply.
-//				oneArg[0] = ascEnvelope.Get();	// Here's where I set the envelope string, as the only argument for the rpc call.
-//				
-//				if (theXmlRpcClient.execute("OT_XML_RPC", oneArg, result)) // The actual call to the server. (Hope my envelope string isn't too long for this...)
-
-				if (bSuccessSending)
-				{
-
-					// *************************************************************
-					
-					//  Get the reply.
-					zmq::message_t reply;
-					
-					bool	bSuccessReceiving = false;
-					
-					// If failure receiving, re-tries 7 times, with 200 ms delay between. (Doubling each time.)
-					//
-					if (OTLog::IsBlocking())
+					OTASCIIArmor	ascServerReply;
+					bool			bSuccessReceiving = theSocket.Receive(ascServerReply); // <========
+										
+					if (!bSuccessReceiving)
 					{
-						bSuccessReceiving = socket.recv(&reply); // Blocking.
-					}
-					else	// not blocking
+						OTLog::Error("Failed trying to receive expected reply from server.\n");
+					}					
+					// ----------------------------------------------------------
+					else
 					{
-						int	 nReceiveTries	= 0;
-						long lDoubling		= lLatencyRecvMicroSec;
-						
-						do {
-							zmq::poll(&items[0], 1, lDoubling);	// ZMQ_POLLIN, 1 item, timeout (microseconds in ZMQ 2.1; changes to milliseconds in 3.0)
-							lDoubling *= 2;
-							
-							if (items[0].revents & ZMQ_POLLIN)
-								bSuccessReceiving = socket.recv(&reply, ZMQ_NOBLOCK);
-						} while ((nReceiveTries++ < /*2*/OTLog::GetLatencyReceiveNoTries()) && 
-								 (false == bSuccessReceiving)); // <========= RECEIVE
-					}
-					
-//					std::string str_Result;
-//					str_Result.reserve(reply.size());
-//					str_Result.append(static_cast<const char*>(reply.data()), reply.size());
-					
-					if (bSuccessReceiving)
-					{
-						OTASCIIArmor ascServerReply;
-						ascServerReply.MemSet(static_cast<const char*>(reply.data()), reply.size());
-						
-//						OTPayload theRecvPayload;
-//						theRecvPayload.SetPayloadSize(reply.size());
-//						memcpy((void*)theRecvPayload.GetPayloadPointer(), reply.data(), reply.size());
-
-						// --------------------------
-						
 						OTString	strServerReply;				// Maybe should use g_OT_API.GetClient()->GetNym or some such...
 						OTEnvelope theServerEnvelope;
 						
@@ -3554,17 +3690,10 @@ int main(int argc, char* argv[])
 								OTLog::Error("Error loading server reply from string.\n");
 							}
 						}
-					}
-					else
-					{
-						OTLog::Error("Failed trying to receive message from server.\n");
-					}					
-				}
-				else
-				{
-					OTLog::Error("Failed trying to send message to server.\n");
-				}
-			}
+					} // !success receiving.
+					// ----------------------------------------------------------
+				} // else (bSuccessSending)
+			} // if envelope exists.
 		} // if bSendCommand		
 	} // for
 	
