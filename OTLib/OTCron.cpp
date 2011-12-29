@@ -162,6 +162,9 @@ using namespace std;
 
 
 
+// Note: this is only a code default -- the value is actually loaded from server.cfg.
+int OTCron::__trans_refill_amount = 500; // The number of transaction numbers Cron will grab for itself, when it gets low, before each round.
+
 
 // Make sure Server Nym is set on this cron object before loading or saving, since it's
 // used for signing and verifying..
@@ -695,9 +698,13 @@ void OTCron::ProcessCronItems()
 	if (!m_bIsActivated)
 		return;	// No Cron processing until Cron is activated.
 	
-	if (GetTransactionCount() < 10) // todo stop hardcoding.
+	const int nTwentyPercent = OTCron::GetCronRefillAmount() / 5;
+	if (GetTransactionCount() <= nTwentyPercent)
 	{
-		OTLog::Error("Cron is out of transaction numbers!");
+		OTLog::vError("WARNING: Cron has fewer than 20 percent of its normal transaction number count available since the previous round! \n"
+					 "That is, %d are currently available, with a max of %d, meaning %d were used in the last round alone!!! \n"
+					 "SKIPPING THE CRON ITEMS THAT WERE SCHEDULED FOR THIS ROUND!!!\n\n", GetTransactionCount(), 
+					  OTCron::GetCronRefillAmount(), OTCron::GetCronRefillAmount() - GetTransactionCount());
 		return;
 	}
 	
@@ -709,10 +716,20 @@ void OTCron::ProcessCronItems()
 
 	for (mapOfCronItems::iterator it = m_mapCronItems.begin(); 
 		 it != m_mapCronItems.end();
-		 /* NOTICE THIS THIRD SPOT IS EMPTY*/ 
+		 /* NOTICE THIS THIRD SPOT IS EMPTY*/
 		)
 //	FOR_EACH(mapOfCronItems, m_mapCronItems)
 	{
+		const int nTwentyPercent2 = OTCron::GetCronRefillAmount() / 5;
+		if (GetTransactionCount() <= nTwentyPercent2)
+		{
+			OTLog::vError("WARNING: Cron has fewer than 20 percent of its normal transaction number count available since the previous cron item alone! \n"
+						  "That is, %d are currently available, with a max of %d, meaning %d were used in the current round alone!!! \n"
+						  "SKIPPING THE REMAINDER OF THE CRON ITEMS THAT WERE SCHEDULED FOR THIS ROUND!!!\n\n", GetTransactionCount(), 
+						  OTCron::GetCronRefillAmount(), OTCron::GetCronRefillAmount() - GetTransactionCount());
+			break;
+		}
+		
 		OTCronItem * pItem = (*it).second;
 		OT_ASSERT(NULL != pItem);
 		

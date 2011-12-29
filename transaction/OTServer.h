@@ -198,6 +198,7 @@ class OTServer
 	// -------------------------------------------------------------------------------------------------------------
 	// From server.cfg:
 	//
+	
     static int			__heartbeat_no_requests;	// The number of client requests that will be processed per heartbeat.
     static int			__heartbeat_ms_between_beats; // number of ms between each heartbeat.
 	
@@ -256,7 +257,7 @@ class OTServer
 
 public:
 	// From server.cfg:
-	
+		
     static int      GetHeartbeatNoRequests() { return __heartbeat_no_requests; }
     static void     SetHeartbeatNoRequests(int nVal) { __heartbeat_no_requests = nVal; }
     

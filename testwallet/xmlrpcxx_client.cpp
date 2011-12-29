@@ -346,14 +346,14 @@ OTSocket::OTSocket() : m_pContext(NULL), m_pSocket(NULL)
 OTSocket::~OTSocket()
 {
 	// -----------------------------------
-	// Clean up the context and socket.
-	if (NULL != m_pContext)
-		delete m_pContext;
-	m_pContext = NULL;
-	// -----------------------------------
+	// Clean up the socket and context.
 	if (NULL != m_pSocket)
 		delete m_pSocket;
 	m_pSocket = NULL;
+	// -----------------------------------
+	if (NULL != m_pContext)
+		delete m_pContext;
+	m_pContext = NULL;
 	// -----------------------------------
 }
 

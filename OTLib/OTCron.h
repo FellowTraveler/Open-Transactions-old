@@ -172,7 +172,15 @@ private:
    
 	bool			m_bIsActivated; // I don't want to start Cron processing until everything else is all loaded up and ready to go.
 	
+	
+	// ---------------------------------------
+	static int			__trans_refill_amount;	// The number of transaction numbers Cron will grab for itself, when it gets low, before each round.
+
 public:
+	static int		GetCronRefillAmount() { return __trans_refill_amount; }
+	static void		SetCronRefillAmount(int nAmount) { __trans_refill_amount = nAmount; }
+
+	// ---------------------------------------
 	inline bool		IsActivated() const { return m_bIsActivated; }
 	inline bool		ActivateCron() { if (!m_bIsActivated) return m_bIsActivated = true; else return false; }
 	bool			AddCronItem(OTCronItem & theItem, OTPseudonym * pActivator=NULL, bool bSaveReceipt=true);

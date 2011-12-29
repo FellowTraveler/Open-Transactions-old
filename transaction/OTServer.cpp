@@ -201,6 +201,7 @@ using namespace std;
 
 // These are default values. There are configurable in ~/.ot/server.cfg
 // (static)
+
 int OTServer::__heartbeat_no_requests = 10; // The number of client requests that will be processed per heartbeat.
 int OTServer::__heartbeat_ms_between_beats = 100; // number of ms between each heartbeat.
 
@@ -313,7 +314,7 @@ void OTServer::ProcessCron()
 	
 	// Cron requires transaction numbers in order to process.
 	// So every time before I call Cron.Process(), I make sure to replenish first.
-	while (m_Cron.GetTransactionCount() < 20) 
+	while (m_Cron.GetTransactionCount() < OTCron::GetCronRefillAmount())
 	{
 		long lTransNum = 0;
 		bool bSuccess = IssueNextTransactionNumber(m_nymServer, lTransNum, false); // bStoreTheNumber = false
@@ -951,7 +952,18 @@ bool OTServer::LoadConfigFile()
                     OTLog::vOutput(0, "Current log level: %d\n", OTLog::GetLogLevel());
             }
             // ---------------------------------------------
-            // HEARTBEAT
+            // CRON
+            {
+                const char * pVal = ini.GetValue("cron", "refill_trans_number");
+                
+                if ((NULL != pVal) && (atoi(pVal)))
+                {
+                    OTLog::vOutput(0, "Setting cron refill_trans_number: %d\n", atoi(pVal));
+                    OTCron::SetCronRefillAmount(atoi(pVal));
+                }
+            }
+            // -----------------------------------
+			// HEARTBEAT
             {
                 const char * pVal = ini.GetValue("heartbeat", "no_requests");
                 

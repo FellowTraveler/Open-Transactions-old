@@ -369,14 +369,14 @@ OTSocket::OTSocket() : m_pContext(NULL), m_pSocket(NULL)
 OTSocket::~OTSocket()
 {
 	// -----------------------------------
-	// Clean up the context and socket.
-	if (NULL != m_pContext)
-		delete m_pContext;
-	m_pContext = NULL;
-	// -----------------------------------
+	// Clean up the socket and context.
 	if (NULL != m_pSocket)
 		delete m_pSocket;
 	m_pSocket = NULL;
+	// -----------------------------------
+	if (NULL != m_pContext)
+		delete m_pContext;
+	m_pContext = NULL;
 	// -----------------------------------
 }
 
@@ -864,14 +864,34 @@ int main(int argc, char* argv[])
 			if (bReceived)
 			{
 				std::string str_Reply; // Output.
-				// --------------------------------------------------
-				ProcessMessage_ZMQ(str_Message, str_Reply); // <================== PROCESS the message!
-				// --------------------------------------------------
-				bool bSuccessSending = theSocket.Send(str_Reply); // <===== SEND THE REPLY
-								
-				if (false == bSuccessSending)
-					OTLog::vError("Socket error: failed while trying to send reply back to client! \n\n MESSAGE:\n%s\n\nREPLY:\n%s\n\n", 
-								  str_Message.c_str(), str_Reply.c_str());
+				
+				OT_ASSERT_MSG(str_Message.size() > 0, str_Message.c_str());
+				
+				if (str_Message.length() <= 0)
+				{
+					OTLog::Error("main function: Received a message of 0 length (or less.) Skipping.\n");
+				}
+				else 
+				{
+					ProcessMessage_ZMQ(str_Message, str_Reply); // <================== PROCESS the message!
+					// --------------------------------------------------
+					OT_ASSERT_MSG(str_Reply.size() > 0, str_Message.c_str());
+
+					if (str_Reply.length() <= 0)
+					{
+						OTLog::vError("Main function: ERROR: Processed a message and somehow got a zero-size reply internally! Msg:\n\n%s\n\n",
+									  str_Message.c_str());
+					}
+					else
+					{
+						bool bSuccessSending = theSocket.Send(str_Reply); // <===== SEND THE REPLY
+						
+						if (false == bSuccessSending)
+							OTLog::vError("Socket error: failed while trying to send reply back to client! \n\n MESSAGE:\n%s\n\nREPLY:\n%s\n\n", 
+										  str_Message.c_str(), str_Reply.c_str());
+						// --------------------------------------------------
+					}
+				}
 			}
 		} //  for		
 		// -----------------------------------------------------------------------
