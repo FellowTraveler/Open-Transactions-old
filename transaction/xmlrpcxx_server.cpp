@@ -671,13 +671,13 @@ bool OTSocket::Receive(std::string & str_Message)
 	}
 	// ***********************************
 	
-	if (bSuccessReceiving)
+	if (bSuccessReceiving && (request.size() > 0))
 	{
 		str_Message.reserve(request.size());
 		str_Message.append(static_cast<const char *>(request.data()), request.size());	
 	}
 	
-	return bSuccessReceiving;
+	return (bSuccessReceiving && (request.size() > 0));
 }
 
 
@@ -865,22 +865,19 @@ int main(int argc, char* argv[])
 			{
 				std::string str_Reply; // Output.
 				
-				OT_ASSERT_MSG(str_Message.size() > 0, str_Message.c_str());
-				
 				if (str_Message.length() <= 0)
 				{
-					OTLog::Error("main function: Received a message of 0 length (or less.) Skipping.\n");
+					OTLog::Error("main function: Received a message, but of 0 length or less. Weird. (Skipping it.)\n");
 				}
-				else 
+				else // ------------------------------------
 				{
 					ProcessMessage_ZMQ(str_Message, str_Reply); // <================== PROCESS the message!
 					// --------------------------------------------------
-					OT_ASSERT_MSG(str_Reply.size() > 0, str_Message.c_str());
 
 					if (str_Reply.length() <= 0)
 					{
-						OTLog::vError("Main function: ERROR: Processed a message and somehow got a zero-size reply internally! Msg:\n\n%s\n\n",
-									  str_Message.c_str());
+						OTLog::vOutput(0, "Main function: Unfortunately, not every client request is legible or worthy of a server response. :-)  "
+									   "Msg:\n\n%s\n\n", str_Message.c_str());
 					}
 					else
 					{

@@ -671,10 +671,10 @@ bool OTSocket::Receive(OTASCIIArmor & ascServerReply)
 	}
 	// ***********************************
 	
-	if (bSuccessReceiving)
+	if (bSuccessReceiving && (reply.size() > 0))
 		ascServerReply.MemSet(static_cast<const char*>(reply.data()), reply.size());
-		
-	return bSuccessReceiving;
+
+	return (bSuccessReceiving && (reply.size() > 0));
 }
 // -----------------------------------
 
