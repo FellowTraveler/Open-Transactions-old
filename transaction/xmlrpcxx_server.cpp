@@ -966,11 +966,13 @@ void ProcessMessage_ZMQ(const std::string & str_Message, std::string & str_Reply
 	
 	OTMessage theMsg, theReply; // we'll need these in a sec...
 	
-//	OTEnvelope theEnvelope(ascMessage); // Now the base64 is decoded and unpacked, and the envelope is in binary form again.
-	OTEnvelope theEnvelope; // Now the base64 is decoded and the envelope is in binary form again.
+//	OTEnvelope theEnvelope(ascMessage);
+	OTEnvelope theEnvelope; 
 	
-	if (theEnvelope.SetAsciiArmoredData(ascMessage))
-	{
+	if (false == theEnvelope.SetAsciiArmoredData(ascMessage))
+		OTLog::Error("Error retrieving envelope from ProcessMessage_ZMQ.\n");
+	else
+	{	// Now the base64 is decoded and the envelope is in binary form again.
 		OTLog::Output(2, "Successfully retrieved envelope from ZMQ message...\n");
 		
 		OTString strEnvelopeContents;
@@ -979,7 +981,9 @@ void ProcessMessage_ZMQ(const std::string & str_Message, std::string & str_Reply
 //		g_pServer->GetServerNym().SavePublicKey(strPubkeyPath);
 		
 		// Decrypt the Envelope.    
-		if (theEnvelope.Open(g_pServer->GetServerNym(), strEnvelopeContents)) // now strEnvelopeContents contains the decoded message.
+		if (false == theEnvelope.Open(g_pServer->GetServerNym(), strEnvelopeContents)) // now strEnvelopeContents contains the decoded message.
+			OTLog::Error("Unable to open envelope. ProcessMessage_ZMQ.\n");
+		else
 		{
 			// All decrypted--now let's load the results into an OTMessage.
 			// No need to call theMsg.ParseRawFile() after, since
@@ -987,54 +991,66 @@ void ProcessMessage_ZMQ(const std::string & str_Message, std::string & str_Reply
 			//
 			if (strEnvelopeContents.Exists() && theMsg.LoadContractFromString(strEnvelopeContents))
 			{
+				theReply.m_strCommand.Format("@%s", theMsg.m_strCommand.Get());
+				theReply.m_strNymID		= theMsg.m_strNymID;	// UserID
+				theReply.m_strServerID	= theMsg.m_strServerID;	// ServerID, a hash of the server contract.
+				theReply.m_bSuccess		= false;				// The default reply. In fact this is probably superfluous.
 				
 				// In case you want to see all the incoming messages...
-				//					OTLog::vOutput(0, "%s\n\n", strEnvelopeContents.Get());
+//				OTLog::vOutput(0, "%s\n\n", strEnvelopeContents.Get());
 				
-				// By constructing this without a socket, I put it in XmlRpc/http mode, instead of tcp/ssl.
+				// By constructing this without a socket, I put it in ZMQ mode, instead of tcp/ssl.
 				OTClientConnection theClient(*g_pServer); 
-				
+								
 				// By optionally passing in &theClient, the client Nym's public key will be
 				// set on it whenever verification is complete. (So for the reply, I'll 
 				// have the key and thus I'll be able to encrypt reply to the recipient.)
-				if (g_pServer->ProcessUserCommand(theMsg, theReply, &theClient))	
-				{	
-					// At this point the reply is ready to go, and theClient has the public key of the recipient...
-					
-					OTLog::vOutput(1, "Successfully processed user command: %s.\n", theMsg.m_strCommand.Get());
-					
-					// The transaction is now processed, and the server's reply message is in theReply.
-					// Let's seal it up to the recipient's nym (in an envelope) and send back to the user...
-					OTEnvelope theRecipientEnvelope;
-					
-					bool bSealed = theClient.SealMessageForRecipient(theReply, theRecipientEnvelope);
-					
-					if (bSealed)
-					{
-//						OTPayload theReplyPayload;
-//						theReplyPayload.SetEnvelope(theRecipientEnvelope);
-//						
-//						resultString = ascReply.Get();
-//						resultString.assign(theReplyPayload.GetPayloadPointer(), theReplyPayload.GetPayloadSize());
-						
-						OTASCIIArmor ascReply;
-						if (theRecipientEnvelope.GetAsciiArmoredData(ascReply));
-							resultString.assign(ascReply.Get(), ascReply.GetLength());
-					}
-					else
-						OTLog::Output(0, "Unable to seal envelope in ProcessMessage_ZMQ.\n");
-				}
-				else
+				if (false == g_pServer->ProcessUserCommand(theMsg, theReply, &theClient))
+				{
 					OTLog::Output(0, "Unable to process user command in ProcessMessage_ZMQ.\n");
+					
+					// NOTE: normally you would even HAVE a true or false if we're in this block. ProcessUserCommand()
+					// is what tries to process a command and then sets false if/when it fails. Until that point, you
+					// wouldn't get any server reply.  I'm now changing this slightly, so you still get a reply (defaulted
+					// to success==false.) That way if a client needs to re-sync his request number, he will get the false
+					// and therefore know to resync the # as his next move, vs being stuck with no server reply (and thus
+					// stuck with a bad socket.)
+					// We sign the reply here, but not in the else block, since it's already signed in cases where 
+					// ProcessUserCommand() is a success, by the time that call returns.
+					
+					theReply.m_bSuccess = false; // Since the process call definitely failed, I'm making sure this here is definitely set to false (even though it probably was already.)
+					theReply.SignContract(g_pServer->GetServerNym());
+					theReply.SaveContract();
+				}
+				else	// At this point the reply is ready to go, and theClient has the public key of the recipient...
+					OTLog::vOutput(1, "Successfully processed user command: %s.\n", theMsg.m_strCommand.Get());
+				
+				// -------------------------------------------------
+				// The transaction is now processed (or not), and the server's reply message is in theReply.
+				// Let's seal it up to the recipient's nym (in an envelope) and send back to the user...
+				OTEnvelope theRecipientEnvelope;
+				
+				bool bSealed = theClient.SealMessageForRecipient(theReply, theRecipientEnvelope);
+				
+				if (false == bSealed)
+					OTLog::Output(0, "Unable to seal envelope in ProcessMessage_ZMQ. (No reply will be sent.)\n");
+				else
+				{
+//					OTPayload theReplyPayload;
+//					theReplyPayload.SetEnvelope(theRecipientEnvelope);
+//					resultString = ascReply.Get();
+//					resultString.assign(theReplyPayload.GetPayloadPointer(), theReplyPayload.GetPayloadSize());
+					
+					OTASCIIArmor ascReply;
+					if (theRecipientEnvelope.GetAsciiArmoredData(ascReply))
+						resultString.assign(ascReply.Get(), ascReply.GetLength());
+				}
 			}
 			else 
-				OTLog::Error("Error loading message from envelope contents. ProcessMessage_ZMQ.\n");
+				OTLog::vError("ProcessMessage_ZMQ: Error loading message from envelope contents:\n\n%s\n\n",
+							  strEnvelopeContents.Get());
 		}
-		else 
-			OTLog::Error("Unable to open envelope. ProcessMessage_ZMQ.\n");
 	}
-	else 
-		OTLog::Error("Error retrieving envelope from ProcessMessage_ZMQ.\n");
 
 	// ----------------------------------------------------------------------
 	

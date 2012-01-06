@@ -218,6 +218,7 @@ public:
 						// (the server drops these into the nymbox.)
 		message,		// A message from one user to another, also in the nymbox.
 		notice,			// A notice from the server. Used in Nymbox.
+		replyNotice,	// A copy of a server reply to a previous request you sent. (To make SURE you get the reply.)
 		successNotice,	// A transaction # has successfully been signed out.
 // --------------------------------------------------------------------------------------
 		

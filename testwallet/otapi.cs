@@ -843,6 +843,11 @@ public class otapi {
     otapiPINVOKE.OT_API_FlushMessageBuffer();
   }
 
+  public static int OT_API_ResyncNymWithServer(string SERVER_ID, string USER_ID, string THE_MESSAGE) {
+    int ret = otapiPINVOKE.OT_API_ResyncNymWithServer(SERVER_ID, USER_ID, THE_MESSAGE);
+    return ret;
+  }
+
   public static string OT_API_Message_GetCommand(string THE_MESSAGE) {
     string ret = otapiPINVOKE.OT_API_Message_GetCommand(THE_MESSAGE);
     return ret;

@@ -184,6 +184,7 @@ using namespace io;
 #include "OTSignedFile.h"
 #include "OTItem.h"
 #include "OTTransaction.h"
+#include "OTLedger.h"
 #include "OTMessage.h"
 
 #include "OTLog.h"
@@ -629,7 +630,7 @@ bool OTPseudonym::GenerateNym()
 // Sometimes for testing I need to clear out all the transaction numbers from a nym.
 // So I added this method to make such a thing easy to do.
 //
-void OTPseudonym::RemoveAllNumbers(const OTString * pstrServerID/*=NULL*/)
+void OTPseudonym::RemoveAllNumbers(const OTString * pstrServerID/*=NULL*/, const bool bRemoveHighestNum/*=true*/) // Some callers don't want to wipe the highest num. Some do.
 {
 	const std::string str_ServerID((NULL != pstrServerID) ? pstrServerID->Get() : "");		
 		
@@ -664,17 +665,18 @@ void OTPseudonym::RemoveAllNumbers(const OTString * pstrServerID/*=NULL*/)
 			pDeque->clear();
 		}
 	}
-	
 	// ------
-
-	FOR_EACH(mapOfHighestNums, m_mapHighTransNo)
-	{
-		if ((NULL != pstrServerID) && (str_ServerID != it->first)) // If passed in, and current it doesn't match, then skip it (continue).
-			continue;
-		
-		m_mapHighTransNo.erase(it);		
-	}	
 	
+	if (bRemoveHighestNum)
+	{
+		FOR_EACH(mapOfHighestNums, m_mapHighTransNo)
+		{
+			if ((NULL != pstrServerID) && (str_ServerID != it->first)) // If passed in, and current it doesn't match, then skip it (continue).
+				continue;
+			
+			m_mapHighTransNo.erase(it);		
+		}	
+	}	
 	// ------
 	
 	FOR_EACH(mapOfTransNums, m_mapTentativeNum)
@@ -692,7 +694,6 @@ void OTPseudonym::RemoveAllNumbers(const OTString * pstrServerID/*=NULL*/)
 			pDeque->clear();
 		}
 	}
-	
 }
 
 
@@ -772,6 +773,196 @@ bool OTPseudonym::UnRegisterAtServer(const OTString & strServerID)
 	return bRetVal;	
 }
 
+
+
+
+void OTPseudonym::ReleaseTransactionNumbers()
+{
+	while (!m_mapTransNum.empty())
+	{		
+		dequeOfTransNums * pDeque = m_mapTransNum.begin()->second;
+		OT_ASSERT(NULL != pDeque);
+		// ------------------------
+		m_mapTransNum.erase(m_mapTransNum.begin());
+		// ------------------------
+		delete pDeque;
+		pDeque = NULL;
+	}	
+	
+	while (!m_mapIssuedNum.empty())
+	{		
+		dequeOfTransNums * pDeque = m_mapIssuedNum.begin()->second;
+		OT_ASSERT(NULL != pDeque);
+		// ------------------------
+		m_mapIssuedNum.erase(m_mapIssuedNum.begin());
+		// ------------------------
+		delete pDeque;
+		pDeque = NULL;
+	}	
+	
+	while (!m_mapTentativeNum.empty())
+	{		
+		dequeOfTransNums * pDeque = m_mapTentativeNum.begin()->second;
+		OT_ASSERT(NULL != pDeque);
+		// ------------------------
+		m_mapTentativeNum.erase(m_mapTentativeNum.begin());
+		// ------------------------
+		delete pDeque;
+		pDeque = NULL;
+	}	
+}
+
+
+// -----------------------------------------------------
+//
+// ** ResyncWithServer **
+//
+// Not for normal use! (Since you should never get out of sync with the server in the first place.)
+// However, in testing, or if some bug messes up some data, or whatever, and you absolutely need to
+// re-sync with a server, and you trust that server not to lie to you, then this function will do the trick.
+// NOTE: Before calling this, you need to do a getNymbox() to download the latest Nymbox, and you need to do
+// a createUserAccount() to download the server's copy of your Nym. You then need to load that Nymbox from
+// local storage, and you need to load the server's message Nym out of the @createUserAccount reply, so that
+// you can pass both of those objects into this function, which must assume that those pieces were already done
+// just prior to this call.
+//
+bool OTPseudonym::ResyncWithServer(OTLedger & theNymbox, OTPseudonym & theMessageNym)
+{
+	bool bSuccess = true;
+	
+	// --------------------------------------
+	const OTIdentifier &	theServerID = theNymbox.GetRealServerID();
+	const OTString			strServerID(theServerID);
+	const OTString			strNymID(m_nymID);
+
+	const int nIssuedNumCount	= theMessageNym.GetIssuedNumCount(theServerID);
+	const int nTransNumCount	= theMessageNym.GetTransactionNumCount(theServerID);
+
+	// --------------------------------------
+	// Remove all issued, transaction, and tentative numbers for a specific server ID,
+	// from *this nym. Leave our record of the highest trans num received from that server,
+	// since we will want to just keep it when re-syncing. (Server doesn't store that anyway.)
+	//
+	this->RemoveAllNumbers(&strServerID, false); // bRemoveHighestNum=true by default. But in this case, I keep it.
+	
+	// --------------------------------------
+	// Any issued or trans numbers we add to *this from theMessageNym, are also added here so 
+	// they can be used to update the "highest number" record (at the bottom of this function.)
+	//
+	std::set<long> setTransNumbers;  
+
+	// ***************************************************************************
+	// Now that *this has no issued or transaction numbers for theServerID, we add
+	// them back again from theMessageNym. (So they will match, and be 'N SYNC!!!)
+	//
+	// Copy the issued and transaction numbers from theMessageNym onto *this.
+	// 
+	for(int n1 = 0; n1 < nIssuedNumCount; ++n1)
+	{
+		const long lNum = theMessageNym.GetIssuedNum(theServerID, n1);
+
+		if (false == this->AddIssuedNum(strServerID, lNum))		// Add to list of numbers that haven't been closed yet.
+		{
+			OTLog::vError("OTPseudonym::ResyncWithServer: Failed trying to add IssuedNum (%ld) onto *this nym: %s, for server: %s\n",
+						  lNum, strNymID.Get(), strServerID.Get());
+			bSuccess = false;
+		}
+		else
+		{
+			setTransNumbers.insert(lNum);
+			// ---------------------------
+			OTLog::vOutput(1, "OTPseudonym::ResyncWithServer: Added IssuedNum (%ld) onto *this nym: %s, for server: %s \n",
+						   lNum, strNymID.Get(), strServerID.Get());
+		}		
+	}
+	// --------------------------------------
+	for(int n2 = 0; n2 < nTransNumCount; ++n2)
+	{
+		const long lNum = theMessageNym.GetTransactionNum(theServerID, n2);
+		
+		if (false == this->AddTransactionNum(strServerID, lNum))		// Add to list of available-to-use numbers.
+		{
+			OTLog::vError("OTPseudonym::ResyncWithServer: Failed trying to add TransactionNum (%ld) onto *this nym: %s, for server: %s\n",
+						  lNum, strNymID.Get(), strServerID.Get());
+			bSuccess = false;
+		}
+		else
+		{
+			setTransNumbers.insert(lNum);
+			// ---------------------------
+			OTLog::vOutput(1, "OTPseudonym::ResyncWithServer: Added TransactionNum (%ld) onto *this nym: %s, for server: %s \n",
+						   lNum, strNymID.Get(), strServerID.Get());
+		}
+	}
+	// ***************************************************************************
+	// We already cleared all tentative numbers from *this (above in 
+	// RemoveAllNumbers). Next, loop through theNymbox and add Tentative numbers 
+	// to *this based on each successNotice in the Nymbox.
+	
+	FOR_EACH(mapOfTransactions, theNymbox.GetTransactionMap())
+	{
+		OTTransaction * pTransaction = (*it).second;
+		OT_ASSERT(NULL != pTransaction);		
+//		OTString strTransaction(*pTransaction);
+//		OTLog::vError("TRANSACTION CONTENTS:\n%s\n", strTransaction.Get());
+		
+		// (a new; ALREADY just added transaction number.)
+		if ((OTTransaction::successNotice != pTransaction->GetType())) // if !successNotice 
+			continue;
+		// -------------
+		const long lNum = pTransaction->GetReferenceToNum(); // successNotice is inRefTo the new transaction # that should be on my tentative list.
+		
+		if (false == this->AddTentativeNum(strServerID, lNum))		// Add to list of available-to-use numbers.
+		{
+			OTLog::vError("OTPseudonym::ResyncWithServer: Failed trying to add TentativeNum (%ld) onto *this nym: %s, for server: %s\n",
+						  lNum, strNymID.Get(), strServerID.Get());
+			bSuccess = false;
+		}
+		else
+			OTLog::vOutput(1, "OTPseudonym::ResyncWithServer: Added TentativeNum (%ld) onto *this nym: %s, for server: %s \n",
+						   lNum, strNymID.Get(), strServerID.Get());
+		// There's no "else insert to setTransNumbers" here, like the other two blocks above.
+		// Why not? Because setTransNumbers is for updating the Highest Trans Num record on this Nym,
+		// and the Tentative Numbers aren't figured into that record until AFTER they are accepted
+		// from the Nymbox. So I leave them out, since this function is basically setting us up to
+		// successfully process the Nymbox, which will then naturally update the highest num record
+		// based on the tentatives, as it's removing them from the tentative list and adding them to
+		// the "available" transaction list (and issued.)
+		
+	} // FOR_EACH (Nymbox)
+	// ***************************************************************************
+	
+	const std::string strID	= strServerID.Get();
+	
+	FOR_EACH_IT(mapOfHighestNums, this->m_mapHighTransNo, it_high_num)
+	{
+		if ( strID == it_high_num->first )	// We found it!
+		{
+			// See if any numbers on the set are higher, and if so, update the record to match.
+			//
+			FOR_EACH(std::set<long>, setTransNumbers)
+			{
+				const long lTransNum = (*it);
+				// --------------------------------
+				// Grab a copy of the old highest trans number
+				const long lOldHighestNumber = m_mapHighTransNo[it_high_num->first];
+				// --------------------------------
+				if (lTransNum > lOldHighestNumber) // Did we find a bigger one?
+				{
+					// Then update the Nym's record!
+					this->m_mapHighTransNo[it_high_num->first] = lTransNum; 
+					OTLog::vOutput(1, "OTPseudonym::ResyncWithServer: Updated HighestNum (%ld) record on *this nym: %s, for server: %s \n",
+								   lTransNum, strNymID.Get(), strServerID.Get());	
+				}
+			}
+			// We only needed to do this for the one server, so we can break now.
+			break;
+		}
+	}
+	// ***************************************************************************
+	
+	return (this->SaveSignedNymfile(*this) && bSuccess);
+}
 
 
 
@@ -1381,44 +1572,6 @@ bool OTPseudonym::GetNextTransactionNum(OTPseudonym & SIGNER_NYM, const OTString
 	return bRetVal;
 }
 
-
-
-
-void OTPseudonym::ReleaseTransactionNumbers()
-{
-	while (!m_mapTransNum.empty())
-	{		
-		dequeOfTransNums * pDeque = m_mapTransNum.begin()->second;
-		
-		OT_ASSERT(NULL != pDeque);
-		
-		m_mapTransNum.erase(m_mapTransNum.begin());
-		delete pDeque;
-		pDeque = NULL;
-	}	
-
-	while (!m_mapIssuedNum.empty())
-	{		
-		dequeOfTransNums * pDeque = m_mapIssuedNum.begin()->second;
-		
-		OT_ASSERT(NULL != pDeque);
-		
-		m_mapIssuedNum.erase(m_mapIssuedNum.begin());
-		delete pDeque;
-		pDeque = NULL;
-	}	
-	
-	while (!m_mapTentativeNum.empty())
-	{		
-		dequeOfTransNums * pDeque = m_mapTentativeNum.begin()->second;
-		
-		OT_ASSERT(NULL != pDeque);
-		
-		m_mapTentativeNum.erase(m_mapTentativeNum.begin());
-		delete pDeque;
-		pDeque = NULL;
-	}	
-}
 
 
 

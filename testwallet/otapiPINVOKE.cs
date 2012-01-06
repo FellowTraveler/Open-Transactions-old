@@ -755,6 +755,9 @@ class otapiPINVOKE {
   [DllImport("otapi", EntryPoint="CSharp_OT_API_FlushMessageBuffer")]
   public static extern void OT_API_FlushMessageBuffer();
 
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_ResyncNymWithServer")]
+  public static extern int OT_API_ResyncNymWithServer(string jarg1, string jarg2, string jarg3);
+
   [DllImport("otapi", EntryPoint="CSharp_OT_API_Message_GetCommand")]
   public static extern string OT_API_Message_GetCommand(string jarg1);
 

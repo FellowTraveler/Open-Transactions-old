@@ -472,9 +472,12 @@ void OTMessage::UpdateContents()
 								  m_strServerID.Get()
 								  );
 		
+		if (m_bSuccess && (m_ascPayload.GetLength() > 2))
+			m_xmlUnsigned.Concatenate("<nymfile>\n%s</nymfile>\n\n", m_ascPayload.Get());
+
 		if (m_ascInReferenceTo.GetLength() > 2)
 			m_xmlUnsigned.Concatenate("<inReferenceTo>\n%s</inReferenceTo>\n\n", m_ascInReferenceTo.Get());
-		
+
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
 	
@@ -2034,7 +2037,20 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		m_strServerID	= xml->getAttributeValue("serverID");
 		
 		// -----------------------------------------------------
-		
+		if (m_bSuccess)
+		{
+			const char *	pElementExpected	= "nymfile";
+			OTASCIIArmor &	ascTextExpected		= m_ascPayload;
+			
+			if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+			{
+				OTLog::vError("Error in OTMessage::ProcessXMLNode: "
+							  "Expected %s element with text field, for %s.\n", 
+							  pElementExpected, m_strCommand.Get());
+				return (-1); // error condition
+			}
+		}
+		// -----------------------------------------------------
 		const char *	pElementExpected	= "inReferenceTo";
 		OTASCIIArmor &	ascTextExpected		= m_ascInReferenceTo;
 		
@@ -2045,7 +2061,6 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 						  pElementExpected, m_strCommand.Get());
 			return (-1); // error condition
 		}
-		
 		// -----------------------------------------------------
 		
 		OTLog::vOutput(1, "\nCommand: %s  %s\nNymID:    %s\nServerID: %s\n\n\n", 

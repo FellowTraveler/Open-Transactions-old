@@ -2225,6 +2225,20 @@ void OTServer::UserCmdIssueAssetType(OTPseudonym & theNym, OTMessage & MsgIn, OT
 	// FYI, SaveContract takes m_xmlUnsigned and wraps it with the signatures and ------- BEGIN  bookends
 	// If you don't pass a string in, then SaveContract saves the new version to its member, m_strRawFile
 	msgOut.SaveContract();
+	
+	// *************************************************************
+	// REPLY NOTICE TO NYMBOX
+	//
+	// Now that we signed / saved the reply message...
+	//
+	// After specific messages, we drop a notice with a copy of the server's reply
+	// into the Nymbox.  This way we are GUARANTEED that the Nym will receive and process
+	// it. (And thus never get out of sync.)
+	//
+	const OTString strReplyMessage(msgOut);
+	
+	// If it fails, it logs already.
+	this->DropReplyNoticeToNymbox(SERVER_ID, USER_ID, strReplyMessage);		
 }
 
 
@@ -2554,6 +2568,20 @@ void OTServer::UserCmdCreateAccount(OTPseudonym & theNym, OTMessage & MsgIn, OTM
 	// FYI, SaveContract takes m_xmlUnsigned and wraps it with the signatures and ------- BEGIN  bookends
 	// If you don't pass a string in, then SaveContract saves the new version to its member, m_strRawFile
 	msgOut.SaveContract();
+	
+	// *************************************************************
+	// REPLY NOTICE TO NYMBOX
+	//
+	// Now that we signed / saved the reply message...
+	//
+	// After specific messages, we drop a notice with a copy of the server's reply
+	// into the Nymbox.  This way we are GUARANTEED that the Nym will receive and process
+	// it. (And thus never get out of sync.)
+	//
+	const OTString strReplyMessage(msgOut);
+	
+	// If it fails, it logs already.
+	this->DropReplyNoticeToNymbox(SERVER_ID, USER_ID, strReplyMessage);	
 }
 
 
@@ -6738,11 +6766,14 @@ void OTServer::UserCmdNotarizeTransactions(OTPseudonym & theNym, OTMessage & Msg
 		// Then we send that new "response ledger" back to the user in MsgOut.Payload.
 		// That is all done here. Until I write that, in the meantime,
 		// let's just fprintf it out and see what it looks like.
-		//		OTLog::Error("Loaded ledger out of message payload:\n%s\n", strLedger.Get());
+//		OTLog::Error("Loaded ledger out of message payload:\n%s\n", strLedger.Get());
 //		OTLog::Error("Loaded ledger out of message payload.\n");
  		
 		// Loop through ledger transactions, and do a "NotarizeTransaction" call for each one.
 		// Inside that function it will do the various necessary authentication and processing, not this one.
+		// NOTE: In practice there is only ONE transaction, but in potential there are many.
+		// But so far, the code only actually has one, ever being sent. Otherwise the messages
+		// get too big IMO.
 		//
 		FOR_EACH(mapOfTransactions, theLedger.GetTransactionMap())
 		{	
@@ -6788,8 +6819,9 @@ void OTServer::UserCmdNotarizeTransactions(OTPseudonym & theNym, OTMessage & Msg
 			// There's also no point to change it after this, unless you plan to sign it twice.
 			//
 			NotarizeTransaction(theNym, *pTransaction, *pTranResponse);
-			
 			pTranResponse = NULL; // at this point, the ledger now "owns" the response, and will handle deleting it.
+			
+			
 		}
 		
 		// TODO: should consider saving a copy of the response ledger here on the server. 
@@ -6830,8 +6862,81 @@ void OTServer::UserCmdNotarizeTransactions(OTPseudonym & theNym, OTMessage & Msg
 	// FYI, SaveContract takes m_xmlUnsigned and wraps it with the signatures and ------- BEGIN  bookends
 	// If you don't pass a string in, then SaveContract saves the new version to its member, m_strRawFile
 	msgOut.SaveContract();
+	
+	// *************************************************************
+	// REPLY NOTICE TO NYMBOX
+	//
+	// Now that we signed / saved the reply message...
+	//
+	// After EVERY / ANY transaction, we drop a notice with a copy of the server's reply
+	// into the Nymbox.  This way we are GUARANTEED that the Nym will receive and process
+	// it. (And thus never get out of sync.)
+	//
+	const OTString strReplyMessage(msgOut);
+	
+	// If it fails, it logs already.
+	this->DropReplyNoticeToNymbox(SERVER_ID, USER_ID, strReplyMessage);
 }
 
+
+// After EVERY / ANY transaction, plus certain messages, we drop a copy of the server's reply into
+// the Nymbox.  This way we are GUARANTEED that the Nym will receive and process it. (And thus
+// never get out of sync.)  This is the function used for doing that.
+//
+void OTServer::DropReplyNoticeToNymbox(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID, const OTString & strMessage)
+{
+	OTLedger theNymbox(USER_ID, USER_ID, SERVER_ID);
+	
+	bool bSuccessLoadingNymbox = theNymbox.LoadNymbox();
+	
+	if (true == bSuccessLoadingNymbox)
+		bSuccessLoadingNymbox	= theNymbox.VerifyAccount(m_nymServer); // make sure it's all good.
+	
+	// --------------------------------------------------------------------
+	if (false == bSuccessLoadingNymbox)
+	{
+		const OTString strNymID(USER_ID);
+		OTLog::vOutput(0, "OTServer::DropReplyNoticeToNymbox: Failed loading or verifying Nymbox for user:\n%s\n", 
+					   strNymID.Get());
+	}
+	// --------------------------------------------------------------------
+	else 
+	{
+		long lReplyNoticeTransNum=0;
+		bool bGotNextTransNum = IssueNextTransactionNumber(m_nymServer, lReplyNoticeTransNum, false); // bool bStoreTheNumber = false
+		
+		if (!bGotNextTransNum)
+		{
+			lReplyNoticeTransNum = 0;
+			OTLog::Error("OTServer::DropReplyNoticeToNymbox: Error getting next transaction number for an OTTransaction::replyNotice.\n");
+		}
+		else
+		{	// Drop in the Nymbox
+			//
+			OTTransaction * pReplyNotice = OTTransaction::GenerateTransaction(theNymbox, OTTransaction::replyNotice, lReplyNoticeTransNum);			
+			OT_ASSERT(NULL != pReplyNotice);
+			// --------------------------------
+			OTItem * pReplyNoticeItem = OTItem::CreateItemFromTransaction(*pReplyNotice, OTItem::replyNotice);
+			OT_ASSERT(NULL != pReplyNoticeItem);
+			// --------------------------------
+			pReplyNoticeItem->SetStatus(OTItem::acknowledgement); // Nymbox notice is always a success. It's just a notice. (The message inside it will have success/failure also, and any transaction inside that will also.)
+			pReplyNoticeItem->SetAttachment(strMessage); // Purpose of this notice is to carry a copy of server's reply message (to certain requests, including all transactions.)
+			pReplyNoticeItem->SignContract(m_nymServer);
+			pReplyNoticeItem->SaveContract();
+			// --------------------------------
+			pReplyNotice->AddItem(*pReplyNoticeItem); // the Transaction's destructor will cleanup the item. It "owns" it now.						
+			pReplyNotice->SignContract(m_nymServer);
+			pReplyNotice->SaveContract();
+			// --------------------------------				
+			theNymbox.	AddTransaction(*pReplyNotice); // Add the replyNotice to the nymbox. It takes ownership.
+			theNymbox.	ReleaseSignatures();
+			theNymbox.	SignContract(m_nymServer);
+			theNymbox.	SaveContract();
+			theNymbox.	SaveNymbox();
+		}
+	}
+	// -------------------------------------------------------------	
+}
 
 
 void OTServer::UserCmdGetAccount(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut)
@@ -7190,6 +7295,20 @@ void OTServer::UserCmdDeleteUser(OTPseudonym & theNym, OTMessage & MsgIn, OTMess
 	// FYI, SaveContract takes m_xmlUnsigned and wraps it with the signatures and ------- BEGIN  bookends
 	// If you don't pass a string in, then SaveContract saves the new version to its member, m_strRawFile
 	msgOut.SaveContract();
+	
+	// *************************************************************
+	// REPLY NOTICE TO NYMBOX
+	//
+	// Now that we signed / saved the reply message...
+	//
+	// After specific messages, we drop a notice with a copy of the server's reply
+	// into the Nymbox.  This way we are GUARANTEED that the Nym will receive and process
+	// it. (And thus never get out of sync.)
+	//
+	const OTString strReplyMessage(msgOut);
+	
+	// If it fails, it logs already.
+	this->DropReplyNoticeToNymbox(SERVER_ID, USER_ID, strReplyMessage);		
 }
 
 
@@ -7285,6 +7404,20 @@ void OTServer::UserCmdDeleteAssetAcct(OTPseudonym & theNym, OTMessage & MsgIn, O
 	// FYI, SaveContract takes m_xmlUnsigned and wraps it with the signatures and ------- BEGIN  bookends
 	// If you don't pass a string in, then SaveContract saves the new version to its member, m_strRawFile
 	msgOut.SaveContract();
+	
+	// *************************************************************
+	// REPLY NOTICE TO NYMBOX
+	//
+	// Now that we signed / saved the reply message...
+	//
+	// After specific messages, we drop a notice with a copy of the server's reply
+	// into the Nymbox.  This way we are GUARANTEED that the Nym will receive and process
+	// it. (And thus never get out of sync.)
+	//
+	const OTString strReplyMessage(msgOut);
+	
+	// If it fails, it logs already.
+	this->DropReplyNoticeToNymbox(SERVER_ID, USER_ID, strReplyMessage);	
 }
 
 
@@ -7517,6 +7650,20 @@ void OTServer::UserCmdProcessNymbox(OTPseudonym & theNym, OTMessage & MsgIn, OTM
 	// FYI, SaveContract takes m_xmlUnsigned and wraps it with the signatures and ------- BEGIN  bookends
 	// If you don't pass a string in, then SaveContract saves the new version to its member, m_strRawFile
 	msgOut.SaveContract();
+	
+	// *************************************************************
+	// REPLY NOTICE TO NYMBOX
+	//
+	// Now that we signed / saved the reply message...
+	//
+	// After specific messages, we drop a notice with a copy of the server's reply
+	// into the Nymbox.  This way we are GUARANTEED that the Nym will receive and process
+	// it. (And thus never get out of sync.)
+	//
+	const OTString strReplyMessage(msgOut);
+	
+	// If it fails, it logs already.
+	this->DropReplyNoticeToNymbox(SERVER_ID, USER_ID, strReplyMessage);	
 }
 
 
@@ -7763,6 +7910,7 @@ void OTServer::NotarizeProcessNymbox(OTPseudonym & theNym, OTTransaction & tranI
 							  (OTTransaction::finalReceipt	== pServerTransaction->GetType()) ||	// finalReceipt (notice that an opening num was closed.)
 							  (OTTransaction::blank         == pServerTransaction->GetType()) ||	// new transaction number waiting to be picked up.
 							  (OTTransaction::message       == pServerTransaction->GetType()) ||	// message in the nymbox
+							  (OTTransaction::replyNotice	== pServerTransaction->GetType()) ||	// replyNotice containing a server reply to a previous request. (Some replies are so important, this is used to make sure users get them.)
 							  (OTTransaction::successNotice == pServerTransaction->GetType()) ||	// successNotice that you signed out a transaction#.
 							  (OTTransaction::notice        == pServerTransaction->GetType())		// server notification, in the nymbox
 							 )																	
@@ -7818,6 +7966,7 @@ void OTServer::NotarizeProcessNymbox(OTPseudonym & theNym, OTTransaction & tranI
 								 &&
 								 (
 								  (OTTransaction::notice		== pServerTransaction->GetType()) ||
+								  (OTTransaction::replyNotice	== pServerTransaction->GetType()) ||
 								  (OTTransaction::successNotice	== pServerTransaction->GetType())
 								  )
 								 )
@@ -7879,7 +8028,6 @@ void OTServer::NotarizeProcessNymbox(OTPseudonym & theNym, OTTransaction & tranI
 								}
 							}
 							// -----------------------------------------------
-							
 							// pItem contains the current user's attempt to accept the 
 							// transaction number located in pServerTransaction.
 							// Now we have the user's item and the item he is trying to accept.
@@ -7896,7 +8044,7 @@ void OTServer::NotarizeProcessNymbox(OTPseudonym & theNym, OTTransaction & tranI
 							// Now we can set the response item as an acknowledgement instead of the default (rejection)
 							pResponseItem->SetStatus(OTItem::acknowledgement);
 						}
-                        
+
 						// The below block only executes for CLEARING a finalReceipt 
                         // (an OPENING TRANSACTION NUMBER was already removed), and this was
                         // a notice that that had occurred. The client has seen the notice and is
@@ -8183,6 +8331,20 @@ void OTServer::UserCmdProcessInbox(OTPseudonym & theNym, OTMessage & MsgIn, OTMe
 	// FYI, SaveContract takes m_xmlUnsigned and wraps it with the signatures and ------- BEGIN  bookends
 	// If you don't pass a string in, then SaveContract saves the new version to its member, m_strRawFile
 	msgOut.SaveContract();
+	
+	// *************************************************************
+	// REPLY NOTICE TO NYMBOX
+	//
+	// Now that we signed / saved the reply message...
+	//
+	// After specific messages, we drop a notice with a copy of the server's reply
+	// into the Nymbox.  This way we are GUARANTEED that the Nym will receive and process
+	// it. (And thus never get out of sync.)
+	//
+	const OTString strReplyMessage(msgOut);
+	
+	// If it fails, it logs already.
+	this->DropReplyNoticeToNymbox(SERVER_ID, USER_ID, strReplyMessage);		
 }
 
 
@@ -9439,7 +9601,7 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 		OTAsymmetricKey & nymPublicKey = (OTAsymmetricKey &)theNym.GetPublicKey();
 		
 		bool bIfNymPublicKey = 
-		nymPublicKey.SetPublicKey(theMessage.m_strNymPublicKey, true/*bEscaped*/);
+				nymPublicKey.SetPublicKey(theMessage.m_strNymPublicKey, true/*bEscaped*/);
 		
 		if (bIfNymPublicKey)
 		{
@@ -9479,7 +9641,8 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 				return false;
 			}
 		}
-		else {
+		else 
+		{
 			OTLog::Error("Failure reading Nym's public key from message.\n");
 			return false;
 		}
@@ -9497,7 +9660,7 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 		
 		OTAsymmetricKey & nymPublicKey = (OTAsymmetricKey &)theNym.GetPublicKey();
 		bool bIfNymPublicKey = 
-		nymPublicKey.SetPublicKey(theMessage.m_strNymPublicKey, true/*bEscaped*/);
+			nymPublicKey.SetPublicKey(theMessage.m_strNymPublicKey, true/*bEscaped*/);
 		
 		if (bIfNymPublicKey)
 		{
@@ -9510,19 +9673,31 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 				{
 					OTLog::Output(3, "Signature verified! The message WAS signed by "
 							"the Nym\'s Private Key.\n");
+					
+					// This is only for verified Nyms, (and we're verified in here!) We do this so that 
+					// we have the option later to encrypt the replies back to the client...(using the 
+					// client's public key that we set here.)
+					if (NULL != pConnection)
+						pConnection->SetPublicKey(theMessage.m_strNymPublicKey);
+					
 					//
 					// Look up the NymID and see if it's already a valid user account.
 					// 
 					// If it is, then we can't very well create it twice, can we?
+					//
+					// UPDATE: Actually we should, in such cases, just return true with
+					// a copy of the Nymfile. Helps prevent sync errors, and gives people
+					// a way to grab the server's copy of their nymfile, if they need it.
+					//
 					theNym.SetIdentifier(theMessage.m_strNymID);
 					
-					OTLog::Output(0, "Verifying account doesn't already exist... (IGNORE ERRORS HERE ABOUT FAILURE OPENING FILES)\n");
+					OTLog::Output(0, "Verifying account doesn't already exist... (IGNORE ANY ERRORS, IMMEDIATELY BELOW, ABOUT FAILURE OPENING FILES)\n");
 
 					// Prepare to send success or failure back to user.
 					// (1) set up member variables 
-					msgOut.m_strCommand		= "@createUserAccount";	// reply to createUserAccount
+					msgOut.m_strCommand		= "@createUserAccount";		// reply to createUserAccount
 					msgOut.m_strNymID		= theMessage.m_strNymID;	// UserID
-					msgOut.m_strServerID	= m_strServerID;	// ServerID, a hash of the server contract.
+					msgOut.m_strServerID	= m_strServerID;			// ServerID, a hash of the server contract.
 					msgOut.m_bSuccess		= false;
 					
 					// We send the user's message back to him, ascii-armored,
@@ -9531,13 +9706,32 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 					theMessage.SaveContractRaw(tempInMessage);
 					msgOut.m_ascInReferenceTo.SetString(tempInMessage);
 					
-                    bool bLoadSignedNymfile = theNym.LoadSignedNymfile(m_nymServer);
-                    bool bLoadedPublicKey   = theNym.LoadPublicKey();
+                    bool bLoadedSignedNymfile	= theNym.LoadSignedNymfile(m_nymServer);
+                    bool bLoadedPublicKey		= theNym.LoadPublicKey();
                     
-					if (
-                        (theNym.IsMarkedForDeletion() && (true == bLoadedPublicKey)) || // We allow people to resurrect deleted Nyms.
-//                      ((false == bLoadSignedNymfile) &&	(false == bLoadedPublicKey)) // It's like this now so unregistered Nyms 
-															(false == bLoadedPublicKey)  // can still buy usage credits.
+					// He ALREADY exists. We'll set success to true, and send him a copy of his own nymfile.
+					// (Signature is verified already anyway, by this point.)
+					//
+					if (bLoadedSignedNymfile &&
+						(false == theNym.IsMarkedForDeletion()))
+					{
+						OTLog::vOutput(0, "(Allowed in order to prevent sync issues) ==> User is registering nym that already exists: %s\n", 
+									   theMessage.m_strNymID.Get());
+						
+						OTString strNymContents;
+						theNym.SavePseudonym(strNymContents);
+						// ------------------
+						msgOut.m_ascPayload.SetString(strNymContents);
+						msgOut.m_bSuccess	= true;
+						msgOut.SignContract(m_nymServer);		
+						msgOut.SaveContract();
+						return true;
+					}
+					// --------------------------------------
+					else if (
+                        (theNym.IsMarkedForDeletion()		&&	(true == bLoadedPublicKey)) || // We allow people to resurrect deleted Nyms.
+//                      ((false == bLoadedSignedNymfile)	&&	(false == bLoadedPublicKey)) // It's like this now so unregistered Nyms 
+																(false == bLoadedPublicKey)  // can still buy usage credits.
                        )
 					{
                         if (theNym.IsMarkedForDeletion())
@@ -9556,12 +9750,6 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 							// Next we save the public key in the pubkeys folder...
 							if (msgOut.m_bSuccess = theNym.SavePublicKey(strPath))
 							{
-								// This is only for verified Nyms, (and we're verified in here!) We do this so that 
-								// we have the option later to encrypt the replies back to the client...(using the 
-								// client's public key that we set here.)
-								if (NULL != pConnection)
-									pConnection->SetPublicKey(theMessage.m_strNymPublicKey);
-								
 								OTLog::vOutput(0, "Success saving new nym\'s public key file.\n");
 								
 								OTIdentifier theNewNymID, SERVER_ID(m_strServerID);
@@ -9576,11 +9764,9 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 								else
 								{
 									bSuccessLoadingNymbox	= theNymbox.GenerateLedger(theNewNymID, SERVER_ID, OTLedger::nymbox, true); // bGenerateFile=true
-									
 									if (bSuccessLoadingNymbox)
 									{
 										bSuccessLoadingNymbox	= theNymbox.SignContract(m_nymServer);
-										
 										if (bSuccessLoadingNymbox)
 										{
 											bSuccessLoadingNymbox = theNymbox.SaveContract();
@@ -9590,7 +9776,7 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 										}
 									}
 								}
-								
+								// -----------------------------------------------------
 								// by this point, the nymbox DEFINITELY exists -- or not. (generation might have failed, or verification.)
 								
 								if (false == bSuccessLoadingNymbox)
@@ -9598,66 +9784,49 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 									OTLog::vError("Error during user account registration. Failed verifying or generating nymbox for user:\n%s\n",
 												 theMessage.m_strNymID.Get());
 								}
-								else if (msgOut.m_bSuccess = theNym.SaveSignedNymfile(m_nymServer))
+								else if (true == theNym.SaveSignedNymfile(m_nymServer))
 								{
 									OTLog::vOutput(0, "Success saving new Nymfile. (User account fully created.)\n");
-
 									
-									// (2) Sign the Message 
+									OTString strNymContents;
+									theNym.SavePseudonym(strNymContents);
+									// ------------------
+									msgOut.m_ascPayload.SetString(strNymContents);	
+									msgOut.m_bSuccess = true;
 									msgOut.SignContract(m_nymServer);		
-									
-									// (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
-									//
-									// FYI, SaveContract takes m_xmlUnsigned and wraps it with the signatures and ------- BEGIN  bookends
-									// If you don't pass a string in, then SaveContract saves the new version to its member, m_strRawFile
 									msgOut.SaveContract();
-
 									return true;
 								}
 								else 
 								{
-									// (2) Sign the Message 
 									msgOut.SignContract(m_nymServer);		
-									
-									// (3) Save the Message
 									msgOut.SaveContract();
-
 									return true;
 								}
 							}
 							else
 							{
 								OTLog::Error("Error saving new user account verification file.\n");
-								// (2) Sign the Message 
 								msgOut.SignContract(m_nymServer);		
-								
-								// (3) Save the Message 
 								msgOut.SaveContract();
-								
 								return true;
 							}
 						}
-						else {
+						else 
+						{
 							OTLog::Error("Error creating Account in OTServer::ProcessUserCommand.\n");
-							// (2) Sign the Message 
 							msgOut.SignContract(m_nymServer);		
-							
-							// (3) Save the Message 
 							msgOut.SaveContract();
-							
 							return true;
 						}
 					}
+					// -------------
 					else
 					{
-						OTLog::vOutput(0, "Error: User attempted to create account that already exists: %s\n", 
+						OTLog::vOutput(0, "Error (should never happen): User attempted to create account where somehow, nymfile existed already yet public key didn't: %s\n", 
 								theMessage.m_strNymID.Get());
-						// (2) Sign the Message 
 						msgOut.SignContract(m_nymServer);		
-						
-						// (3) Save the Message
-						msgOut.SaveContract();
-						
+						msgOut.SaveContract();						
 						return true;
 					}
 
@@ -9669,7 +9838,6 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 							"message was changed after signing.\n");
 					return false;
 				}
-				
 			}
 			else
 			{
@@ -9678,13 +9846,12 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 				return false;
 			}
 		}
-		else {
+		else 
+		{
 			OTLog::Error("Failure reading Nym's public key from message.\n");
 			return false;
 		}
 	}
-
-	
 	// ------------------------------------------------------------------------------------------
 	
 		
@@ -9719,7 +9886,8 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 	
     if (theNym.IsMarkedForDeletion())
 	{
-		OTLog::vOutput(0, "(Failed) attempt by client to use a deleted Nym: %s\n", theMessage.m_strNymID.Get());
+		OTLog::vOutput(0, "(Failed) attempt by client to use a deleted Nym: %s\n", 
+					   theMessage.m_strNymID.Get());
 		return false;
 	}
 	
@@ -9737,6 +9905,13 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 		{
 			OTLog::Output(3, "Signature verified! The message WAS signed by "
 					"the Nym\'s Private Key.\n");
+						
+			// Get the public key from theNym, and set it into the connection.
+			// This is only for verified Nyms, (and we're verified in here!) We do this so that 
+			// we have the option later to encrypt the replies back to the client...(using the 
+			// client's public key that we set here.)
+			if (NULL != pConnection)
+				pConnection->SetPublicKey(pNym->GetPublicKey());
 			
 			// Now we might as well load up the rest of the Nym.
 			// Notice I use the || to only load the nymfile if it's NOT the server Nym.
@@ -9784,7 +9959,7 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 				{
 					if (lRequestNumber != atol(theMessage.m_strRequestNum.Get()))  // AND the request number attached does not match what we just read out of the file...
 					{
-						OTLog::vOutput(3, "Request number sent in this message %ld does not match the one in the file! (%ld)\n",
+						OTLog::vOutput(0, "Request number sent in this message %ld does not match the one in the file! (%ld)\n",
 								atol(theMessage.m_strRequestNum.Get()), lRequestNumber);
 						return false;
 					}
@@ -9854,14 +10029,6 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 				// No messages need to worry about verifying the Nym, or about 
 				// dealing with the Request Number. It's all handled in here.
 				
-
-				
-				// Get the public key from theNym, and set it into the connection.
-				// This is only for verified Nyms, (and we're verified in here!) We do this so that 
-				// we have the option later to encrypt the replies back to the client...(using the 
-				// client's public key that we set here.)
-				if (NULL != pConnection)
-					pConnection->SetPublicKey(pNym->GetPublicKey());
 			}
 			else {
 				OTLog::vError("Error loading Nymfile: %s\n", theMessage.m_strNymID.Get());

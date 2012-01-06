@@ -10738,6 +10738,58 @@ fail:
 }
 
 
+ZEND_NAMED_FUNCTION(_wrap_OT_API_ResyncNymWithServer) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  zval **args[3];
+  int result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[2])->type==IS_NULL) {
+    arg3 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[2]);
+    arg3 = (char *) Z_STRVAL_PP(args[2]);
+  }
+  /*@SWIG@*/;
+  
+  result = (int)OT_API_ResyncNymWithServer((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  {
+    ZVAL_LONG(return_value,result);
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
 ZEND_NAMED_FUNCTION(_wrap_OT_API_Message_GetCommand) {
   char *arg1 = (char *) 0 ;
   zval **args[1];
@@ -26621,6 +26673,7 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(ot_api_cancelpaymentplan,_wrap_OT_API_cancelPaymentPlan,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_popmessagebuffer,_wrap_OT_API_PopMessageBuffer,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_flushmessagebuffer,_wrap_OT_API_FlushMessageBuffer,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_resyncnymwithserver,_wrap_OT_API_ResyncNymWithServer,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_message_getcommand,_wrap_OT_API_Message_GetCommand,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_message_getsuccess,_wrap_OT_API_Message_GetSuccess,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_message_getdepth,_wrap_OT_API_Message_GetDepth,NULL)

@@ -199,6 +199,7 @@ public class otapiJNI {
   public final static native void OT_API_cancelPaymentPlan(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native String OT_API_PopMessageBuffer();
   public final static native void OT_API_FlushMessageBuffer();
+  public final static native int OT_API_ResyncNymWithServer(String jarg1, String jarg2, String jarg3);
   public final static native String OT_API_Message_GetCommand(String jarg1);
   public final static native int OT_API_Message_GetSuccess(String jarg1);
   public final static native int OT_API_Message_GetDepth(String jarg1);

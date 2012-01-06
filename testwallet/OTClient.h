@@ -351,7 +351,7 @@ public:
                             OTIdentifier * pHisNymID=NULL,
                             OTIdentifier * pHisAcctID=NULL);
 
-	bool ProcessServerReply(OTMessage & theReply);
+	bool ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox=NULL); // IF the Nymbox is passed in, then use that one, where appropriate, instead of loading it internally.
 
 	void ProcessIncomingTransactions(OTServerConnection & theConnection, OTMessage & theReply);
 	void ProcessWithdrawalResponse(OTTransaction & theTransaction, OTServerConnection & theConnection, OTMessage & theReply);

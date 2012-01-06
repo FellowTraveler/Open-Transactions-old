@@ -705,6 +705,10 @@ public class otapi {
     otapiJNI.OT_API_FlushMessageBuffer();
   }
 
+  public static int OT_API_ResyncNymWithServer(String SERVER_ID, String USER_ID, String THE_MESSAGE) {
+    return otapiJNI.OT_API_ResyncNymWithServer(SERVER_ID, USER_ID, THE_MESSAGE);
+  }
+
   public static String OT_API_Message_GetCommand(String THE_MESSAGE) {
     return otapiJNI.OT_API_Message_GetCommand(THE_MESSAGE);
   }

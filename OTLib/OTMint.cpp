@@ -296,7 +296,8 @@ bool OTMint::LoadMint(const char * szAppend/*=NULL*/)
 		else
 			m_strFilename.Format("%s%s%s", strServerID.Get(), OTLog::PathSeparator(), strAssetTypeID.Get()); // client uses only asset ID, no append.
 	}
-		
+	// --------------------------------------------------------------------
+
 	OTString strFilename;
 	if (NULL != szAppend) 
 		strFilename.Format("%s%s", strAssetTypeID.Get(), szAppend);
@@ -311,8 +312,8 @@ bool OTMint::LoadMint(const char * szAppend/*=NULL*/)
 	
 	if (false == OTDB::Exists(szFolder1name, szFolder2name, szFilename))
 	{
-		OTLog::vError("OTMint::LoadMint: File does not exist: %s%s%s%s%s\n", 
-					  szFolder1name, OTLog::PathSeparator(), szFolder2name, OTLog::PathSeparator(), szFilename);
+		OTLog::vOutput(0, "OTMint::LoadMint: File does not exist: %s%s%s%s%s\n", 
+					   szFolder1name, OTLog::PathSeparator(), szFolder2name, OTLog::PathSeparator(), szFilename);
 		return false;
 	}
 	

@@ -817,6 +817,10 @@ def OT_API_FlushMessageBuffer():
   return _otapi.OT_API_FlushMessageBuffer()
 OT_API_FlushMessageBuffer = _otapi.OT_API_FlushMessageBuffer
 
+def OT_API_ResyncNymWithServer(*args):
+  return _otapi.OT_API_ResyncNymWithServer(*args)
+OT_API_ResyncNymWithServer = _otapi.OT_API_ResyncNymWithServer
+
 def OT_API_Message_GetCommand(*args):
   return _otapi.OT_API_Message_GetCommand(*args)
 OT_API_Message_GetCommand = _otapi.OT_API_Message_GetCommand

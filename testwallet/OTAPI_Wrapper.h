@@ -828,6 +828,12 @@ public:
 	
 	static void FlushMessageBuffer();
 	// -----------------------------------------------------------
+
+	static bool ResyncNymWithServer(const std::string SERVER_ID,
+									const std::string USER_ID,
+									const std::string THE_MESSAGE);
+
+	// -----------------------------------------------------------
 	
 	static const std::string Message_GetCommand(const std::string THE_MESSAGE);
 	

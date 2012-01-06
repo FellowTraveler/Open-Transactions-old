@@ -155,6 +155,7 @@
 
 class OTItem;
 class OTTransaction;
+class OTLedger;
 class OTMessage;
 
 typedef std::deque<OTMessage *>		dequeOfMail;
@@ -337,12 +338,28 @@ public:
 	inline mapOfTransNums & GetMapIssuedNum() { return m_mapIssuedNum; }
 	inline mapOfTransNums & GetMapTentativeNum() { return m_mapTentativeNum; }
 
-	void RemoveAllNumbers(const OTString * pstrServerID=NULL); // for transaction numbers
+	void RemoveAllNumbers(const OTString * pstrServerID=NULL, const bool bRemoveHighestNum=true); // for transaction numbers
 	void RemoveReqNumbers(const OTString * pstrServerID=NULL); // for request numbers (entirely different animal)
+	// -----------------------------------------------------
 	
 	bool	UnRegisterAtServer(const OTString & strServerID); // Removes the request num for a specific server, if it was there before.
 	bool	IsRegisteredAtServer(const OTString & strServerID); // You can't go using a Nym at a certain server, if it's not registered there...
+
+	// -----------------------------------------------------
+	//
+	// ** ResyncWithServer **
+	//
+	// Not for normal use! (Since you should never get out of sync with the server in the first place.)
+	// However, in testing, or if some bug messes up some data, or whatever, and you absolutely need to
+	// re-sync with a server, and you trust that server not to lie to you, then this function will do the trick.
+	// NOTE: Before calling this, you need to do a getNymbox() to download the latest Nymbox, and you need to do
+	// a createUserAccount() to download the server's copy of your Nym. You then need to load that Nymbox from
+	// local storage, and you need to load the server's message Nym out of the @createUserAccount reply, so that
+	// you can pass both of those objects into this function, which must assume that those pieces were already done
+	// just prior to this call.
+	bool	ResyncWithServer(OTLedger & theNymbox, OTPseudonym & theMessageNym);
 	
+	// -----------------------------------------------------
 	// HIGH LEVEL:
 	bool	AddTransactionNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, long lTransNum, bool bSave); // We have received a new trans num from server. Store it.
 	bool	GetNextTransactionNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, long &lTransNum,

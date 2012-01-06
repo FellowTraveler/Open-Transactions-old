@@ -723,6 +723,10 @@ abstract class otapi {
 		OT_API_FlushMessageBuffer();
 	}
 
+	static function OT_API_ResyncNymWithServer($SERVER_ID,$USER_ID,$THE_MESSAGE) {
+		return OT_API_ResyncNymWithServer($SERVER_ID,$USER_ID,$THE_MESSAGE);
+	}
+
 	static function OT_API_Message_GetCommand($THE_MESSAGE) {
 		return OT_API_Message_GetCommand($THE_MESSAGE);
 	}

@@ -9617,6 +9617,52 @@ fail:
 
 
 SWIGINTERN int
+_wrap_OT_API_ResyncNymWithServer(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  int res3 ;
+  char *buf3 = 0 ;
+  int alloc3 = 0 ;
+  int result;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"ooo:OT_API_ResyncNymWithServer SERVER_ID USER_ID THE_MESSAGE ",(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_ResyncNymWithServer" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(objv[2], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_ResyncNymWithServer" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  res3 = SWIG_AsCharPtrAndSize(objv[3], &buf3, NULL, &alloc3);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OT_API_ResyncNymWithServer" "', argument " "3"" of type '" "char const *""'");
+  }
+  arg3 = reinterpret_cast< char * >(buf3);
+  result = (int)OT_API_ResyncNymWithServer((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  return TCL_OK;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
 _wrap_OT_API_Message_GetCommand(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   char *arg1 = (char *) 0 ;
   int res1 ;
@@ -26218,6 +26264,7 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "OT_API_cancelPaymentPlan", (swig_wrapper_func) _wrap_OT_API_cancelPaymentPlan, NULL},
     { SWIG_prefix "OT_API_PopMessageBuffer", (swig_wrapper_func) _wrap_OT_API_PopMessageBuffer, NULL},
     { SWIG_prefix "OT_API_FlushMessageBuffer", (swig_wrapper_func) _wrap_OT_API_FlushMessageBuffer, NULL},
+    { SWIG_prefix "OT_API_ResyncNymWithServer", (swig_wrapper_func) _wrap_OT_API_ResyncNymWithServer, NULL},
     { SWIG_prefix "OT_API_Message_GetCommand", (swig_wrapper_func) _wrap_OT_API_Message_GetCommand, NULL},
     { SWIG_prefix "OT_API_Message_GetSuccess", (swig_wrapper_func) _wrap_OT_API_Message_GetSuccess, NULL},
     { SWIG_prefix "OT_API_Message_GetDepth", (swig_wrapper_func) _wrap_OT_API_Message_GetDepth, NULL},

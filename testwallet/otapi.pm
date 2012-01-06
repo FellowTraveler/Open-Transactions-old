@@ -223,6 +223,7 @@ package otapi;
 *OT_API_cancelPaymentPlan = *otapic::OT_API_cancelPaymentPlan;
 *OT_API_PopMessageBuffer = *otapic::OT_API_PopMessageBuffer;
 *OT_API_FlushMessageBuffer = *otapic::OT_API_FlushMessageBuffer;
+*OT_API_ResyncNymWithServer = *otapic::OT_API_ResyncNymWithServer;
 *OT_API_Message_GetCommand = *otapic::OT_API_Message_GetCommand;
 *OT_API_Message_GetSuccess = *otapic::OT_API_Message_GetSuccess;
 *OT_API_Message_GetDepth = *otapic::OT_API_Message_GetDepth;

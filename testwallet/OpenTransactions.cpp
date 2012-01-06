@@ -2393,6 +2393,48 @@ OTLedger * OT_API::LoadNymbox(const OTIdentifier & SERVER_ID,
 
 
 
+
+
+// This function assumes you have already downloaded the latest copy of your Nymbox,
+// and that you have already retrieved theMessageNym from the @createUserAccount
+// message, with both objects being loaded and passed as arguments here, ready to go.
+//
+bool OT_API::ResyncNymWithServer(OTPseudonym & theNym, OTLedger & theNymbox, OTPseudonym & theMessageNym)
+{
+	OT_ASSERT_MSG(m_bInitialized, "Not initialized; call OT_API::Init first.");
+	
+	// -----------------------------------------------------
+	if (OTLedger::nymbox != theNymbox.GetType())
+	{
+		OTLog::vError("OT_API::ResyncNymWithServer: Error: Expected a Nymbox, but you passed in a %s.\n",
+					  theNymbox.GetTypeString());
+		return false;
+	}
+	// -----------------------------------------------------
+	if (false == theNym.CompareID(theNymbox.GetUserID()))
+	{
+		const OTString id1(theNym.GetConstID()), id2(theNymbox.GetUserID());
+		OTLog::vError("OT_API::ResyncNymWithServer: Error: NymID of Nym (%s) doesn't match NymID on (supposedly) his own Nymbox (%s).\n",
+					  id1.Get(), id2.Get());
+		return false;
+	}	
+	// -----------------------------------------------------
+	if (false == theNym.CompareID(theMessageNym))
+	{
+		const OTString id1(theNym.GetConstID()), id2(theMessageNym.GetConstID());
+		OTLog::vError("OT_API::ResyncNymWithServer: Error: NymID of Nym (%s) doesn't match NymID on (supposedly) his server-side doppelganger (%s).\n",
+					  id1.Get(), id2.Get());
+		return false;
+	}
+	// *****************************************************
+
+	return theNym.ResyncWithServer(theNymbox, theMessageNym);
+}
+
+
+
+
+
 // LOAD INBOX
 //
 // Caller IS responsible to delete
@@ -2402,9 +2444,7 @@ OTLedger * OT_API::LoadInbox(const OTIdentifier & SERVER_ID,
 							 const OTIdentifier & ACCOUNT_ID)
 {
 	OT_ASSERT_MSG(m_bInitialized, "Not initialized; call OT_API::Init first.");
-	
 	// -----------------------------------------------------
-
 	OTWallet * pWallet = GetWallet();
 	
 	if (NULL == pWallet)
@@ -2412,11 +2452,8 @@ OTLedger * OT_API::LoadInbox(const OTIdentifier & SERVER_ID,
 		OTLog::Output(0, "The Wallet is not loaded.\n");
 		return NULL;
 	}
-	
 	// By this point, pWallet is a good pointer.  (No need to cleanup.)
-	
 	// -----------------------------------------------------
-	
 	OTPseudonym * pNym = pWallet->GetNymByID(USER_ID);
 	
 	if (NULL == pNym) // Wasn't already in the wallet.
@@ -2432,18 +2469,15 @@ OTLedger * OT_API::LoadInbox(const OTIdentifier & SERVER_ID,
 		
 		pWallet->AddNym(*pNym);
 	}
-	
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
-	
 	OTLedger * pLedger = new OTLedger(USER_ID, ACCOUNT_ID, SERVER_ID);
 	
 	OT_ASSERT_MSG(NULL != pLedger, "Error allocating memory in the OT API.");
 	
 	// Beyond this point, I know that pLedger will need to be deleted or returned.
 	// ------------------------------------------------------
-	
 	if (pLedger->LoadInbox() && pLedger->VerifyAccount(*pNym))
 		return pLedger;
 	else

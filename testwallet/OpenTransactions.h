@@ -391,7 +391,6 @@ public:
 						  const OTIdentifier & ACCOUNT_ID);
 	
 	// ------------------------------------------------------
-		
 	
 	// YOU are responsible to delete the OTMessage object, once
 	// you receive the pointer that comes back from this function.
@@ -401,6 +400,10 @@ public:
 	
 	void		FlushMessageBuffer();
 	
+	// ------------------------------------------------------
+
+	bool ResyncNymWithServer(OTPseudonym & theNym, OTLedger & theNymbox, OTPseudonym & theMessageNym);
+
 	// ****************************************************
 	
 	// These commands below send messages to the server:

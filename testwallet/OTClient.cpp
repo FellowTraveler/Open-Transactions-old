@@ -413,6 +413,93 @@ bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox,
 		} // else if successNotice
 		
 		// ------------------------------------------------------------
+		else if ( // if replyNotice -- notice of a server reply I should have already received when I first sent the request.
+				  // (Some server replies are important enough that they have a copy dropped into your Nymbox to make SURE you
+				 // receive and process them.) I'll accept the notice (clear it from my nymbox) and also I'll process the 
+				 // original server reply message inside of it, in case due to some network issue, I've never seen it before.
+				 //
+				 (OTTransaction::replyNotice == pTransaction->GetType()) 
+				 )
+		{	// -----------------------------------------------
+			OTItem * pAcceptItem = OTItem::CreateItemFromTransaction(*pAcceptTransaction, OTItem::acceptNotice);
+			OT_ASSERT_MSG(NULL != pAcceptItem, "OTItem * pAcceptItem = OTItem::CreateItemFromTransaction(*pAcceptTransaction, OTItem::acceptNotice); for replyNotice.");
+			
+			// the transaction will handle cleaning up the transaction item.
+			pAcceptTransaction->AddItem(*pAcceptItem);
+			
+			pAcceptItem->SetReferenceToNum(pTransaction->GetTransactionNum()); // This is critical. Server needs this to look up the original.
+			// Don't need to set transaction num on item since the constructor already got it off the owner transaction.
+			
+			// Load up the server's original reply message (from the server's transaction item, on the receipt from my Nymbox.)
+			// The whole reason that notice was placed in the Nymbox is so we would be guaranteed to receive and process it, in
+			// case the original reply was lost due to network problems. Some messages are too important to just "get lost."
+			// Therefore, even though we most likely ALREADY processed this server reply, we're still going to give it a shot
+			// to process right here and now, just as we're also telling the server to go ahead and clear it out of the Nymbox.
+			// The server's conscience is clear: he knows for SURE that I DID receive notice.
+			
+			OTItem * pItem	= pTransaction->GetItem(OTItem::replyNotice);
+			
+			if ((NULL != pItem) &&
+				OTItem::acknowledgement == pItem->GetStatus())
+			{
+				OTString strOriginalReply;
+				pItem->GetAttachment(strOriginalReply);
+				
+				if (false == strOriginalReply.Exists())
+				{
+					OTLog::Error("OTClient::AcceptEntireNymbox: Error loading original server reply message from replyNotice. (It appears to be zero length.)\n");
+				}				
+				else // strOriginalReply.Exists() == true.
+				{
+					OTMessage * pMessage = new OTMessage;
+					OT_ASSERT_MSG(pMessage != NULL, "OTMessage * pMessage = new OTMessage;");
+					
+					if (false == pMessage->LoadContractFromString(strOriginalReply))
+					{
+						OTLog::vError("OTClient::AcceptEntireNymbox: Failed loading original server reply message from replyNotice:\n\n%s\n\n",
+									  strOriginalReply.Get());
+						delete pMessage;
+						pMessage = NULL;
+					}
+					else // Success loading the server's original reply up into an OTMessage, from a string.
+					{
+						//
+						// pMessage needs to be allocated on the heap since ProcessServerReply takes ownership of it.
+						// theNymbox is passed in as a pointer because it's an optional parameter, precisely meant for this
+						// situation, where theNymbox happens to be already loaded and we don't want it loading it again,
+						// with one copy ending up overwriting the other.
+						//
+						const bool bProcessed =
+							ProcessServerReply(*pMessage, &theNymbox); // ProcessServerReply sometimes has to load the Nymbox. Since we already have it loaded here, we pass it in so it won't get loaded twice.
+						
+						pMessage = NULL; // We're done with it now.
+
+						// By this point, I KNOW FOR A FACT that IF there was some network problem that caused a Nym to 
+						// lose an important server message, that by now, the Nym HAS received and processed that server
+						// reply as appropriate, using the exact same function that would have been called, had the reply
+						// been properly received in the first place. It's as if it was never lost. (Vital for syncing.)
+						// --------------------------------------------------------------------------
+					} // if success loading original reply message from server.
+				} // if strOriginalReply.Exists()
+			} // if the replyNotice item is not-NULL and status is "success"
+			else 
+			{	// NULL or "rejected"
+				OTLog::Output(0, "OTClient::AcceptEntireNymbox: the replyNotice item was either NULL, or rejected. (Unexpectedly on either count.)\n");
+			}
+			// -------------------------
+			//
+			// sign the item
+			pAcceptItem->SignContract(*pNym);
+			pAcceptItem->SaveContract();
+			
+			// Todo: notice that we remove the replyNotice from the Nymbox, whether we are actually able to successfully
+			// load the original message or not. But what if that fails? We have now just discarded the message. In the
+			// future, perhaps have a place where "failed messages go to die" so that vital data isn't lost in the event
+			// of some unanticipated future bug.
+
+		} // else if replyNotice
+		
+		// ------------------------------------------------------------
 		// It's a NEW Transaction Number (I need to sign for it.)
 		//
 		else if (
@@ -1223,6 +1310,20 @@ bool OTClient::AcceptEntireInbox(OTLedger			& theInbox,
 /// and potentially grab any bearer certificates that are inside and save them in a purse somewhere.
 /// (And do any other necessary processing on that reply.)
 ///
+/// Also: Need to call this function after Nymbox notices of old server replies (to prevent sync issues).
+/// But what if already processed? Call pNym-VerifyIssuedNum(strServerID, pTrans->GetTransactionNum()
+/// and if you discover that it's already been removed, then discard it (or save it in your auto-receipt
+/// storage. But if you discover that the number is STILL issued to you, the simply call the below
+/// function, the same as you would have normally if you had received the server reply in the first
+/// place!  That way transaction sync issues become impossible.
+/// SOLUTION: bool OTClient::ProcessServerReply(OTMessage & theReply)
+/// Any message deemed important enough to have a notice containing the reply dropped into my nymbox,
+/// I will just take that message and pass it to ProcessServerReply(), which will then call THIS function
+/// (ProcessIncomingTransactions) where appropriate, and THIS function should therefore then be smart
+/// enough to ignore transactions that aren't VERIFIED as issued numbers on this Nym still! (An easy
+/// enough test for determining whether it's already been processed...) If it's not on the issued list,
+/// then skip it! I must have processed it already.
+///
 void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, OTMessage & theReply)
 {
 	const OTIdentifier ACCOUNT_ID(theReply.m_strAcctID);
@@ -1265,12 +1366,23 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
 		OTTransaction * pTransaction = (*it).second;
 		OT_ASSERT_MSG(NULL != pTransaction, "NULL transaction pointer in OTServer::UserCmdNotarizeTransactions\n");
 		
+		// ---------------------------------------------------------------
+		// See note above function. In this loop, it's possible that we've already processed these 
+		// transactions. Therefore we ignore the ones that are already released from our issued list.
+		//
+		if ( false == pNym->VerifyIssuedNum(strServerID, pTransaction->GetTransactionNum()) )
+		{
+			OTLog::vOutput(2, "OTClient::ProcessIncomingTransactions: Skipping processing of server reply to transaction number %ld "
+						   "since the number isn't even issued to me. Usually this means that I ALREADY processed it, and we are now "
+						   "processing the nymbox notice for the same transaction.\n", pTransaction->GetTransactionNum());
+			continue;	// If this trans# isn't even signed out to me anymore, then skip it. It's already closed.
+		}
+		// ---------------------------------------------------------------
+		
 		// Each transaction in the ledger is a server reply to our original transaction request.
 		// 
 		if (pTransaction->VerifyAccount(*pServerNym)) // if not null && valid transaction reply from server
 		{			
-			// --------------------------------------
-			
 			// We had to burn a transaction number to run the transaction that the server has now replied to,
 			// so let's remove that number from our list of responsibility. Whether it was successful or not,
 			// the server has removed it from our list of responsibility, so we need to remove it on our side as well.
@@ -1378,7 +1490,7 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
                         {
                             OTLog::Error("(atExchangeBasket) Error loading original item from string in OTClient::ProcessIncomingTransactions\n");
                         }                        
-					} // if exchangeBasket was a success
+					} // if exchangeBasket was a failure
 				}
                     break;
                 
@@ -1414,7 +1526,7 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
                                 OTLog::Error("(atCancelCronItem) Error removing issued number from user nym in OTClient::ProcessIncomingTransactions\n");
                             }
                             // I don't have to call RemoveTransactionNum for the closing number (though the server does.) Why not?
-                            // Because I already called GetNextTransactionNum() to get it in the first place, so it's already off my
+                            // Because I already called GetNextTransactionNum() to use it in the first place, so it's already off my
                             // list of usable transaction numbers here on the client side.
                         }
                         else
@@ -1850,7 +1962,7 @@ void OTClient::ProcessWithdrawalResponse(OTTransaction & theTransaction, OTServe
 /// THEREFORE -- theReply MUST be allocated on the heap, and is
 /// only passed in as a reference here in order to make sure it's real.
 ///
-bool OTClient::ProcessServerReply(OTMessage & theReply)
+bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NULL*/) // IF the Nymbox is passed in, then use that one, where appropriate, instead of loading it internally.
 {
 	OTServerConnection & theConnection = (*m_pConnection);
 	
@@ -1947,7 +2059,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
 		
 		ProcessIncomingTransactions(theConnection, theReply);
 		
-		
+		//todo (gui):
 		// This block assumes that the above "@notarizeTransactions", being successful, probably changed
 		// the account balance. A nice GUI would probably interpret the reply and edit the local files
 		// to update them to match (since it was successful). In fact, the above call to ProcessIncomingTransactions
@@ -1957,7 +2069,14 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
 		// triggers getInbox, which triggers processInbox, which triggers getAccount, so technically it could go
 		// in a circle for a while :P  I'm firing off these messages like how a nice client GUI might do it.
 		// Basically just to make the test client easier to use, and possibly to make the API easier for developers
-		// as well (We'll see.)
+		// as well (We'll see.)  UPDATE: I don't do that shit anymore (the "firing off these messages like how a nice 
+		// GUI would probably do it.") Too many potential network problems, which I only ran into when we started testing
+		// with a real server and users, including users with a bad network connection. The proper way to do it is,
+		// the GUI must call the messages as appropriate, and manage the timing, retries, message combinations, etc ITSELF.
+		// As this can get a little complicated (not really, see the use cases wiki page) the best solution was
+		// to write some even higher-level API calls in the Java, which greatly simplified the process of using any
+		// OT message, often down to a single function call. I will probably port those calls soon to the normal OT API
+		// so they are available within OT-scripts also.
 #if defined (TEST_CLIENT)
 		if (!IsRunningAsScript())
 		{
@@ -2052,7 +2171,13 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
 		
 		// base64-Decode the server reply's payload into strInbox
 		OTString strNymbox(theReply.m_ascPayload);
-				
+		
+		// IF pNymbox NOT NULL, THEN USE IT INSTEAD OF LOADING MY OWN.
+		// Except... @getNymbox isn't dropped as a replyNotice into the Nymbox,
+		// so we'll never end up here except in cases where it needs to be
+		// loaded. I can even ASSERT here, that the pointer is actually NULL!
+		OT_ASSERT_MSG(NULL == pNymbox, "Nymbox pointer is expected to be NULL here, since @getNymbox isn't dropped as a server replyNotice into the nymbox.");		
+		
 		// Load the ledger object from that string.				
 		OTLedger theNymbox(USER_ID, USER_ID, SERVER_ID);	
 		
@@ -2093,7 +2218,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
 			}
 			else 
 			{
-				OTLog::vOutput(0, "===> ** LAST SIGNED TRANSACTION RECEIPT *FAILED* against latest nym.\n"
+				OTLog::vOutput(0, "===> ** LAST SIGNED TRANSACTION RECEIPT *FAILED* against latest nym. (FYI.)\n"
 							   "(However if the account IS NEW, (i.e. it's never transacted before), then there IS NOT YET ANY RECEIPT, so this error is normal.)\n");
 				
 //#if defined (TEST_CLIENT)
@@ -2219,11 +2344,19 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
 						//  <====> Whatever trans num I used to process inbox is now OFF my issued list on server side! 
 						// (Therefore remove here too, to match..)
                         //
-						pNym->RemoveIssuedNum(*pNym, strServerID, pTransaction->GetTransactionNum(), true); // bool bSave=true	
+						const bool bIsSignedOut = pNym->VerifyIssuedNum(strServerID, pTransaction->GetTransactionNum());
+						
+						// Why? Because we might have already processed this, when it first happened, and now we're just
+						// seeing a repeat of the message from a nymbox notice. (Some messages are so important, you get
+						// a nymbox notice including a copy of the message, so the server can make SURE you have processed
+						// the reply. This was added to prevent syncing issues between client and server.)
+						//
+						if (bIsSignedOut)
+							pNym->RemoveIssuedNum(*pNym, strServerID, pTransaction->GetTransactionNum(), true); // bool bSave=true	
 						
 						// --------------------------------------------
 						
-						if (NULL != pReplyTransaction)
+						if (bIsSignedOut && (NULL != pReplyTransaction))
 						{
                             // Load the inbox.				
                             OTLedger theInbox(USER_ID, ACCOUNT_ID, SERVER_ID);
@@ -2671,7 +2804,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
                             theInbox.SignContract(*pNym);
                             theInbox.SaveContract();
                             theInbox.SaveInbox();                                            
-						} // if pReplyTransaction						
+						} // if pReplyTransaction
 					} // if pTransaction
 						
 				}
@@ -2762,13 +2895,24 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
                         // *******************************************************************************
                         //
                         // REMOVE VARIOUS ITEMS FROM THE LOCAL NYMBOX (THEIR TIME IS DONE.)
-                        
+
                         // Load the Nymbox.				
-                        OTLedger theNymbox(USER_ID, USER_ID, SERVER_ID);
-                        
+                        OTLedger	theNymbox(USER_ID, USER_ID, SERVER_ID);
+						bool		bLoadedNymbox = false;
+						// -------------------------
+						if (NULL != pNymbox) // If a pointer was passed in, then we'll just use it.
+						{
+							bLoadedNymbox = true;
+						}
+						else // Otherwise, we have to load it ourselves. (And point the pointer to it.)
+						{
+							pNymbox = &theNymbox;
+							bLoadedNymbox = pNymbox->LoadNymbox();
+						}
+
                         // I JUST had this loaded if I sent acceptWhatever just instants ago, (which I am now processing the reply for.)
                         // Therefore I'm just ASSUMING here that it loads successfully here, since it worked an instant ago. Todo.
-						bool bLoadedNymbox = theNymbox.LoadNymbox();
+						//
                         OT_ASSERT_MSG(bLoadedNymbox, "Was trying to load Nymbox.");
                         
                         // -------------------------------------
@@ -2913,7 +3057,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
                                 case OTItem::atAcceptNotice:
                                 case OTItem::atAcceptTransaction:
                                 case OTItem::atAcceptFinalReceipt:
-                                    pServerTransaction = theNymbox.GetTransaction(pItem->GetReferenceToNum());
+                                    pServerTransaction = pNymbox->GetTransaction(pItem->GetReferenceToNum());
                                     break;
                                     
                                 default:
@@ -2975,20 +3119,22 @@ bool OTClient::ProcessServerReply(OTMessage & theReply)
                                 }
                             }	// switch replyItem type
                             
-                            // Remove from theNymbox
+                            // Remove from pNymbox
                             // This happens for ALL of the above cases.
                             //
-                            theNymbox.RemoveTransaction(pServerTransaction->GetTransactionNum());												
+                            pNymbox->RemoveTransaction(pServerTransaction->GetTransactionNum());												
                         } // for loop (reply items)
                         
                         // ---------------------------------------
 
                         // All done? Let's save up...
                         //
-                        theNymbox.ReleaseSignatures();
-                        theNymbox.SignContract(*pNym);
-                        theNymbox.SaveContract();
-                        theNymbox.SaveNymbox();                                            
+                        pNymbox->ReleaseSignatures();
+                        pNymbox->SignContract(*pNym);
+                        pNymbox->SaveContract();
+                        pNymbox->SaveNymbox();
+						
+						pNymbox = NULL;  // Since it could be pointing to a variable that's in this block (now out of scope) then we clear the pointer.
 					} // pTransaction and pReplyTransaction are both NOT NULL.
 					// ------------------------------------------------------------------					
 				}

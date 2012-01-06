@@ -176,6 +176,7 @@ const char * OTLedger::_TypeStrings[] =
 
 
 
+
 bool OTLedger::LoadGeneric(OTLedger::ledgerType theType)
 {
 	OTString strID;
@@ -198,41 +199,69 @@ bool OTLedger::LoadGeneric(OTLedger::ledgerType theType)
 			pszFolder = OTLog::NymboxFolder();
 			break;
 		default:
+			OTLog::Error("OTLedger::LoadGeneric: Error: unknown box type. (This should never happen.)\n");
 			return false;
 	}
+
+	m_strFoldername = pszFolder;
 	// --------------------------------------------------------
 	
-	m_strFoldername = pszFolder;
-	m_strFilename = strID.Get();
-	
-	const char * szFoldername = m_strFoldername.Get();
-	const char * szFilename = m_strFilename.Get();
-	
+	const OTString strServerID(GetRealServerID());
+
+	if (false == m_strFilename.Exists())
+		m_strFilename.Format("%s%s%s", strServerID.Get(), OTLog::PathSeparator(), strID.Get()); 
+
 	// --------------------------------------------------------------------
+	OTString strFilename;
+	strFilename = strID.Get();
 	
-	if (false == OTDB::Exists(szFoldername, szFilename))
+	const char * szFolder1name	= m_strFoldername.Get(); // "nymbox" (or "inbox" or "outbox")
+	const char * szFolder2name	= strServerID.Get();     // "nymbox/SERVER_ID"
+	const char * szFilename		= strFilename.Get();     // "nymbox/SERVER_ID/USER_ID"  (or "inbox/SERVER_ID/ACCT_ID" or "outbox/SERVER_ID/ACCT_ID")
+	// --------------------------------------------------------------------	
+	
+	if (false == OTDB::Exists(szFolder1name, szFolder2name, szFilename))
 	{
-		OTLog::vOutput(3, "%s does not exist in OTLedger::Load%s:\n%s%s%s\n", pszType,
-					   pszType, m_strFoldername.Get(), OTLog::PathSeparator(), m_strFilename.Get());
+		OTLog::vOutput(3, "%s does not exist in OTLedger::Load%s:\n%s%s%s%s%s\n", pszType,
+					   pszType, szFolder1name, OTLog::PathSeparator(), szFolder2name, OTLog::PathSeparator(), szFilename);
 		return false;
 	}
-	
 	// --------------------------------------------------------------------
+	// Try to load the ledger from local storage.
+	//
+	std::string strFileContents(OTDB::QueryPlainString(szFolder1name, szFolder2name, szFilename)); // <=== LOADING FROM DATA STORE.
 	
-	// Try to load the ledger from disk.
-	else if (false == LoadContract())
+	if (strFileContents.length() < 2)
 	{
-		OTLog::vError("Failed loading %s in OTLedger::Load%s:\n%s%s%s\n", 
-					  pszType, pszType, m_strFoldername.Get(), OTLog::PathSeparator(), m_strFilename.Get());
+		OTLog::vError("OTLedger::LoadGeneric: Error reading file: %s%s%s%s%s\n", 
+					  szFolder1name, OTLog::PathSeparator(), szFolder2name, OTLog::PathSeparator(), szFilename);
+		return false;
+	}
+	// --------------------------------------------------------------------
+	OTString strRawFile(strFileContents.c_str());
+	
+	if (false == strRawFile.Exists())
+	{
+		OTLog::vError("OTLedger::LoadGeneric: Error reading file (resulting output string is empty): %s%s%s%s%s\n", 
+					  szFolder1name, OTLog::PathSeparator(), szFolder2name, OTLog::PathSeparator(), szFilename);
+		return false;
+	}
+	// --------------------------------------------------------------------	
+	bool bSuccess = this->LoadContractFromString(strRawFile);
+		
+	if (false == bSuccess)
+	{
+		OTLog::vError("Failed loading %s from string in OTLedger::Load%s:\n%s%s%s%s%s\n", 
+					  pszType, pszType, szFolder1name, OTLog::PathSeparator(), szFolder2name, OTLog::PathSeparator(), szFilename);
 		return false;
 	}
 	else 
 	{
-		OTLog::vOutput(2, "Successfully loaded %s in OTLedger::Load%s:\n%s%s%s\n", 
-					   pszType, pszType, m_strFoldername.Get(), OTLog::PathSeparator(), m_strFilename.Get());
+		OTLog::vOutput(2, "Successfully loaded %s in OTLedger::Load%s:\n%s%s%s%s%s\n", 
+					   pszType, pszType, szFolder1name, OTLog::PathSeparator(), szFolder2name, OTLog::PathSeparator(), szFilename);
 	}
 	
-	return true;	
+	return bSuccess;
 }
 
 
@@ -276,9 +305,6 @@ bool OTLedger::LoadNymbox()
 
 bool OTLedger::SaveGeneric(OTLedger::ledgerType theType)
 {
-	OTString strID;
-	GetIdentifier(strID);
-	
 	const char * pszFolder = NULL;
 	const char * pszType = GetTypeString();
 	
@@ -294,29 +320,54 @@ bool OTLedger::SaveGeneric(OTLedger::ledgerType theType)
 			pszFolder = OTLog::NymboxFolder();
 			break;
 		default:
+			OTLog::Error("OTLedger::SaveGeneric: Error: unknown box type. (This should never happen.)\n");
 			return false;
 	}
-	// -------------------------------------
 	
-	m_strFoldername = pszFolder;
-	m_strFilename = strID.Get();
+	m_strFoldername = pszFolder;  // <=======
+	// --------------------------------------------------------
+	OTString strID;
+	GetIdentifier(strID);
+	const OTString strServerID(GetRealServerID());
+	
+	if (false == m_strFilename.Exists())
+		m_strFilename.Format("%s%s%s", strServerID.Get(), OTLog::PathSeparator(), strID.Get()); 
+	
+	// --------------------------------------------------------------------
+	OTString strFilename;
+	strFilename = strID.Get();
+	
+	const char * szFolder1name	= m_strFoldername.Get(); // "nymbox" (or "inbox" or "outbox")
+	const char * szFolder2name	= strServerID.Get();     // "nymbox/SERVER_ID"
+	const char * szFilename		= strFilename.Get();     // "nymbox/SERVER_ID/USER_ID"  (or "inbox/SERVER_ID/ACCT_ID" or "outbox/SERVER_ID/ACCT_ID")
 	
 	OT_ASSERT(m_strFoldername.GetLength() > 2);
 	OT_ASSERT(m_strFilename.GetLength() > 2);
+	// --------------------------------------------------------------------
+	OTString strRawFile;
 	
-	if (false == SaveContract(pszFolder, strID.Get()))
+	if (!SaveContractRaw(strRawFile))
 	{
-		OTLog::vError("Error saving %s in OTLedger::Save%s: %s%s%s\n", 
-					  pszType, pszType, m_strFoldername.Get(), OTLog::PathSeparator(), m_strFilename.Get());
+		OTLog::vError("OTLedger::SaveGeneric: Error saving %s (to string):\n%s%s%s%s%s\n", pszType,
+					  szFolder1name, OTLog::PathSeparator(), szFolder2name, OTLog::PathSeparator(), szFilename);
+		return false;
+	}
+	// --------------------------------------------------------------------
+	//
+	bool bSaved = OTDB::StorePlainString(strRawFile.Get(), szFolder1name, 
+										 szFolder2name, szFilename); // <=== SAVING TO DATA STORE.
+	if (!bSaved)
+	{
+		OTLog::vError("OTLedger::SaveGeneric: Error writing %s to file: %s%s%s%s%s\n", pszType,
+					  szFolder1name, OTLog::PathSeparator(), szFolder2name, OTLog::PathSeparator(), szFilename);	
 		return false;
 	}
 	else 
-	{
-		OTLog::vOutput(2, "Successfully saved %s: %s%s%s\n", pszType, 
-					   m_strFoldername.Get(), OTLog::PathSeparator(), m_strFilename.Get());
-	}
+		OTLog::vOutput(2, "Successfully saved %s: %s%s%s%s%s\n", pszType, 
+					   szFolder1name, OTLog::PathSeparator(), szFolder2name, OTLog::PathSeparator(), szFilename);
+	// --------------------------------------------------------------------
 	
-	return true;
+	return bSaved;
 }
 
 
@@ -384,22 +435,23 @@ OTLedger * OTLedger::GenerateLedger(const OTIdentifier & theUserID, const OTIden
 	return pLedger;
 }
 
+
+
 bool OTLedger::GenerateLedger(const OTIdentifier & theAcctID, 
 							  const OTIdentifier & theServerID, const ledgerType theType,
 							  bool bCreateFile/*=false*/)
 {	
 	// First we set the "Safe" ID and try to load the file, to make sure it doesn't already exist.
-	OTString strID(theAcctID);
+	OTString strID(theAcctID), strServerID(theServerID);
 	
 	switch (theType) {
 		case OTLedger::nymbox:
 			m_strFoldername = OTLog::NymboxFolder();
-			m_strFilename = strID.Get();
+			m_strFilename.Format("%s%s%s", strServerID.Get(), OTLog::PathSeparator(), strID.Get());
 			break;
 		case OTLedger::inbox:
 			m_strFoldername = OTLog::InboxFolder();
-			m_strFilename = strID.Get();
-			
+			m_strFilename.Format("%s%s%s", strServerID.Get(), OTLog::PathSeparator(), strID.Get());
 //			
 //		{ // TEMP REMOVE TODO
 //			OTString strTempBlah(theAcctID);
@@ -407,12 +459,11 @@ bool OTLedger::GenerateLedger(const OTIdentifier & theAcctID,
 //						  strTempBlah.Get());			
 //		}
 //			
-//			
-			
+//						
 			break;
 		case OTLedger::outbox:
 			m_strFoldername = OTLog::OutboxFolder();
-			m_strFilename = strID.Get();
+			m_strFilename.Format("%s%s%s", strServerID.Get(), OTLog::PathSeparator(), strID.Get());
 			break;
 		case OTLedger::message:
 			OTLog::Output(4, "Generating message ledger...\n");
@@ -435,23 +486,27 @@ bool OTLedger::GenerateLedger(const OTIdentifier & theAcctID,
 	if (bCreateFile)
 	{
 		// --------------------------------------------------------------------
-		const char * szFoldername = m_strFoldername.Get();
-		const char * szFilename = m_strFilename.Get();
+		OTString strFilename;
+		strFilename = strID.Get();
 		
-		if (OTDB::Exists(szFoldername, szFilename))
+		const char * szFolder1name	= m_strFoldername.Get(); // "nymbox" (or "inbox" or "outbox")
+		const char * szFolder2name	= strServerID.Get();     // "nymbox/SERVER_ID"
+		const char * szFilename		= strFilename.Get();     // "nymbox/SERVER_ID/USER_ID"  (or "inbox/SERVER_ID/ACCT_ID" or "outbox/SERVER_ID/ACCT_ID")
+		// --------------------------------------------------------------------	
+		
+		if (OTDB::Exists(szFolder1name, szFolder2name, szFilename))
 		{
-			OTLog::vOutput(0, "ERROR: trying to generate ledger that already exists: %s%s%s\n", 
-						   szFoldername, OTLog::PathSeparator(), szFilename);
+			OTLog::vOutput(0, "ERROR: trying to generate ledger that already exists: %s%s%s%s%s\n", 
+						   szFolder1name, OTLog::PathSeparator(), szFolder2name, OTLog::PathSeparator(), szFilename);
 			return false;
 		}
-		
 		// --------------------------------------------------------------------
 	
 		// Okay, it doesn't already exist. Let's generate it.
-		OTLog::vOutput(0, "Generating %s%s%s\n", 
-					   szFoldername, OTLog::PathSeparator(), szFilename);
+		OTLog::vOutput(0, "Generating %s%s%s%s%s\n", 
+					   szFolder1name, OTLog::PathSeparator(), szFolder2name, OTLog::PathSeparator(), szFilename);
 	}
-	
+	// --------------------------------------------------
 	if (OTLedger::nymbox != theType)
 	{
 		// Have to look up the UserID here. No way around it.
@@ -459,7 +514,7 @@ bool OTLedger::GenerateLedger(const OTIdentifier & theAcctID,
 		OTAccount * pAccount = OTAccount::LoadExistingAccount(theAcctID, theServerID);
 		OTCleanup<OTAccount> theAccountGuardian(pAccount); // No worries about having to clean it up.
 		
-		if (pAccount)
+		if (NULL != pAccount)
 			SetUserID(pAccount->GetUserID());
 	}
 	else 
@@ -467,11 +522,11 @@ bool OTLedger::GenerateLedger(const OTIdentifier & theAcctID,
 		SetUserID(theAcctID); // In the case of nymbox, the acct ID IS the user ID. (Should change it to "owner ID" to make it sound right either way.)
 	}
 
-
 	// Notice I still don't actually create the file here.  The programmer still has to call 
-	// "SaveInbox" or "SaveOutbox" to actually save the file. But he cannot do that unless he
+	// "SaveNymbox", "SaveInbox" or "SaveOutbox" to actually save the file. But he cannot do that unless he
 	// generates it first here, and the "bCreateFile" parameter insures that he isn't overwriting
 	// one that is already there (even if we don't actually save the file in this function.)
+	//
 	SetPurportedAccountID(theAcctID);
 	SetPurportedServerID(theServerID);
 	

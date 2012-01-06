@@ -2143,6 +2143,26 @@ const char * OT_API_PopMessageBuffer(void);
 void OT_API_FlushMessageBuffer(void);
 
 
+/* For emergency/testing use only. This call forces you to trust the server.
+   You should never need to call this for any normal use, and hopefully
+   you should never need to actually call it at all, ever. But if your Nym
+   ever gets out of sync with the server, this will resync it based on 
+   the server's version of the data.
+   
+   Note: actually returns OT_BOOL.
+ */
+// Make sure you download your Nymbox (getNymbox) before calling this,
+// so when it loads the Nymbox it will have the latest version of it.
+//
+// Also, call createUserAccount() and pass the server reply message in
+// here, so that it can read theMessageNym (to sync the transaction
+// numbers.)
+//
+int OT_API_ResyncNymWithServer(const char * SERVER_ID, const char * USER_ID, const char * THE_MESSAGE);
+
+
+
+
 // -----------------------------------------------------------
 /// GET MESSAGE COMMAND TYPE
 ///

@@ -214,6 +214,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_cancelMarketOffer);
 ZEND_NAMED_FUNCTION(_wrap_OT_API_cancelPaymentPlan);
 ZEND_NAMED_FUNCTION(_wrap_OT_API_PopMessageBuffer);
 ZEND_NAMED_FUNCTION(_wrap_OT_API_FlushMessageBuffer);
+ZEND_NAMED_FUNCTION(_wrap_OT_API_ResyncNymWithServer);
 ZEND_NAMED_FUNCTION(_wrap_OT_API_Message_GetCommand);
 ZEND_NAMED_FUNCTION(_wrap_OT_API_Message_GetSuccess);
 ZEND_NAMED_FUNCTION(_wrap_OT_API_Message_GetDepth);

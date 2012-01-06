@@ -281,6 +281,8 @@ public:
 		finalReceipt,	// server receipt dropped into inbox / nymbox as result of cron item expiring or being canceled.
 		basketReceipt,	// server receipt dropped into inbox as result of a basket exchange.
 // ------------------------------------------------------------------------------
+		replyNotice,	// server notice of a reply that nym should have already received as a response to a request. 
+		// (Some are so important, a copy of the server reply is dropped to your nymbox, to make SURE you got it and processed it.)
 		successNotice,	// server notice dropped into nymbox as result of a transaction# being successfully signed out.
 		notice,		// server notice dropped into nymbox as result of a smart contract processing. 
 		// Also could be used for ballots / elections, corporate meetings / minutes, etc.

@@ -335,6 +335,14 @@ public:
 	bool ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OTClientConnection * pConnection=NULL);
 	bool ValidateServerIDfromUser(OTString & strServerID);
 	
+	// --------------------------------------------------------------
+	// After EVERY / ANY transaction, plus certain messages, we drop a copy of the server's reply into
+	// the Nymbox.  This way we are GUARANTEED that the Nym will receive and process it. (And thus
+	// never get out of sync.)  This is the function used for doing that.
+	//
+	void DropReplyNoticeToNymbox(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID, const OTString & strMessage);
+	// --------------------------------------------------------------
+
 	void UserCmdCheckServerID(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut);
 	void UserCmdCheckUser(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut);
 	void UserCmdSendUserMessage(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut);

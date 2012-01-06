@@ -674,7 +674,9 @@ bool OTClientConnection::SealMessageForRecipient(OTMessage & theMsg, OTEnvelope 
 		if (strEnvelopeContents.Exists())
 			return theEnvelope.Seal(m_PublicKey, strEnvelopeContents);
 	}
-
+	else
+		OTLog::Error("OTClientConnection::SealMessageForRecipient: Unable to seal message, since this->m_PublicKey isn't set. \n");
+		
 	return false;
 }
 

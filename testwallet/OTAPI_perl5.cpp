@@ -10637,6 +10637,57 @@ XS(_wrap_OT_API_FlushMessageBuffer) {
 }
 
 
+XS(_wrap_OT_API_ResyncNymWithServer) {
+  {
+    char *arg1 = (char *) 0 ;
+    char *arg2 = (char *) 0 ;
+    char *arg3 = (char *) 0 ;
+    int res1 ;
+    char *buf1 = 0 ;
+    int alloc1 = 0 ;
+    int res2 ;
+    char *buf2 = 0 ;
+    int alloc2 = 0 ;
+    int res3 ;
+    char *buf3 = 0 ;
+    int alloc3 = 0 ;
+    int argvi = 0;
+    int result;
+    dXSARGS;
+    
+    if ((items < 3) || (items > 3)) {
+      SWIG_croak("Usage: OT_API_ResyncNymWithServer(SERVER_ID,USER_ID,THE_MESSAGE);");
+    }
+    res1 = SWIG_AsCharPtrAndSize(ST(0), &buf1, NULL, &alloc1);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_ResyncNymWithServer" "', argument " "1"" of type '" "char const *""'");
+    }
+    arg1 = reinterpret_cast< char * >(buf1);
+    res2 = SWIG_AsCharPtrAndSize(ST(1), &buf2, NULL, &alloc2);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_ResyncNymWithServer" "', argument " "2"" of type '" "char const *""'");
+    }
+    arg2 = reinterpret_cast< char * >(buf2);
+    res3 = SWIG_AsCharPtrAndSize(ST(2), &buf3, NULL, &alloc3);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OT_API_ResyncNymWithServer" "', argument " "3"" of type '" "char const *""'");
+    }
+    arg3 = reinterpret_cast< char * >(buf3);
+    result = (int)OT_API_ResyncNymWithServer((char const *)arg1,(char const *)arg2,(char const *)arg3);
+    ST(argvi) = SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(result)); argvi++ ;
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+    if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+    XSRETURN(argvi);
+  fail:
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+    if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+    SWIG_croak_null();
+  }
+}
+
+
 XS(_wrap_OT_API_Message_GetCommand) {
   {
     char *arg1 = (char *) 0 ;
@@ -32682,6 +32733,7 @@ static swig_command_info swig_commands[] = {
 {"otapic::OT_API_cancelPaymentPlan", _wrap_OT_API_cancelPaymentPlan},
 {"otapic::OT_API_PopMessageBuffer", _wrap_OT_API_PopMessageBuffer},
 {"otapic::OT_API_FlushMessageBuffer", _wrap_OT_API_FlushMessageBuffer},
+{"otapic::OT_API_ResyncNymWithServer", _wrap_OT_API_ResyncNymWithServer},
 {"otapic::OT_API_Message_GetCommand", _wrap_OT_API_Message_GetCommand},
 {"otapic::OT_API_Message_GetSuccess", _wrap_OT_API_Message_GetSuccess},
 {"otapic::OT_API_Message_GetDepth", _wrap_OT_API_Message_GetDepth},

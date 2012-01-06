@@ -3098,6 +3098,22 @@ SWIGEXPORT void SWIGSTDCALL CSharp_OT_API_FlushMessageBuffer() {
 }
 
 
+SWIGEXPORT int SWIGSTDCALL CSharp_OT_API_ResyncNymWithServer(char * jarg1, char * jarg2, char * jarg3) {
+  int jresult ;
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  int result;
+  
+  arg1 = (char *)jarg1; 
+  arg2 = (char *)jarg2; 
+  arg3 = (char *)jarg3; 
+  result = (int)OT_API_ResyncNymWithServer((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  jresult = result; 
+  return jresult;
+}
+
+
 SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_Message_GetCommand(char * jarg1) {
   char * jresult ;
   char *arg1 = (char *) 0 ;

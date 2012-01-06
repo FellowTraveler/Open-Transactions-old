@@ -1834,7 +1834,6 @@ OT_BOOL OT_API_VerifyAccountReceipt(const char * SERVER_ID, const char * NYM_ID,
 	OTIdentifier theServerID(SERVER_ID), theNymID(NYM_ID), theAcctID(ACCT_ID);
 	
 	// -----------------------------------------------------
-	
 	OTWallet * pWallet = g_OT_API.GetWallet();
 	
 	if (NULL == pWallet)
@@ -1842,11 +1841,8 @@ OT_BOOL OT_API_VerifyAccountReceipt(const char * SERVER_ID, const char * NYM_ID,
 		OTLog::Output(0, "The Wallet is not loaded.\n");
 		return OT_FALSE;
 	}
-	
 	// By this point, pWallet is a good pointer.  (No need to cleanup.)
-	
 	// -----------------------------------------------------
-	
 	OTPseudonym * pNym = pWallet->GetNymByID(theNymID);
 	
 	if (NULL == pNym) // Wasn't already in the wallet.
@@ -9651,12 +9647,126 @@ const char * OT_API_PopMessageBuffer(void)
 }
 
 
-
 // Just flat-out empties the thing.
 void OT_API_FlushMessageBuffer(void)
 {
 	g_OT_API.FlushMessageBuffer();
 }
+
+
+
+// Make sure you download your Nymbox (getNymbox) before calling this,
+// so when it loads the Nymbox it will have the latest version of it.
+//
+// Also, call createUserAccount() and pass the server reply message in
+// here, so that it can read theMessageNym (to sync the transaction
+// numbers.)
+//
+OT_BOOL OT_API_ResyncNymWithServer(const char * SERVER_ID, const char * USER_ID, const char * THE_MESSAGE)
+{
+	OT_ASSERT_MSG(g_OT_API.IsInitialized(), "Not initialized; call OT_API::Init first.");
+	// -----------------------------------------------
+	OT_ASSERT_MSG(NULL != SERVER_ID, "Null SERVER_ID passed in.");
+	OT_ASSERT_MSG(NULL != USER_ID, "Null USER_ID passed in.");
+	OT_ASSERT_MSG(NULL != THE_MESSAGE, "Null THE_MESSAGE passed in.");
+	
+	OTIdentifier	theServerID(SERVER_ID), theNymID(USER_ID);
+	const OTString	strMessage(THE_MESSAGE), strNymID(theNymID);
+	// -----------------------------------------------------
+	OTWallet * pWallet = g_OT_API.GetWallet();
+	
+	if (NULL == pWallet)
+	{
+		OTLog::Output(0, "The Wallet is not loaded.\n");
+		return OT_FALSE;
+	}
+	// By this point, pWallet is a good pointer.  (No need to cleanup.)
+	// -----------------------------------------------------
+	OTPseudonym * pNym = pWallet->GetNymByID(theNymID);
+	
+	if (NULL == pNym) // Wasn't already in the wallet.
+	{
+		OTLog::Output(0, "There's no User already loaded with that ID. Loading...\n");
+		
+		pNym = g_OT_API.LoadPrivateNym(theNymID);
+		
+		if (NULL == pNym) // LoadPrivateNym has plenty of error logging already.	
+			return OT_FALSE;
+		
+		pWallet->AddNym(*pNym);
+	}
+	// By this point, pNym is a good pointer, and is on the wallet.
+	//  (No need to cleanup.)
+	// -----------------------------------------------------------------
+	OTMessage theMessage;
+	
+	if (false == theMessage.LoadContractFromString(strMessage))
+	{
+		OTLog::vError("OT_API_ResyncNymWithServer: Failed trying to load @createUserAccount() message from string (it's a server reply.) Contents:\n\n%s\n\n",
+					  strMessage.Get());
+		return OT_FALSE;
+	}
+	// -----------------------------------------------------------------
+	if (false == strNymID.Compare(theMessage.m_strNymID))
+	{
+		OTLog::vError("OT_API_ResyncNymWithServer: Failed. Though success loading message from string, it had the wrong NymID. "
+					  "(Expected %s, but found %s.) Message contents:\n\n%s\n\n",
+					  strNymID.Get(), theMessage.m_strNymID.Get(), strMessage.Get());
+		return OT_FALSE;
+	}
+	// -----------------------------------------------------------------
+	if (false == theMessage.m_strCommand.Compare("@createUserAccount"))
+	{
+		OTLog::vError("OT_API_ResyncNymWithServer: Failed. Though success loading message from string, it had the wrong command type. "
+					  "(Expected @createUserAccount, but found %s.) Message contents:\n\n%s\n\n",
+					  theMessage.m_strCommand.Get(), strMessage.Get());
+		return OT_FALSE;
+	}
+	// -----------------------------------------------------------------
+	if (false == theMessage.m_ascPayload.Exists())
+	{
+		OTLog::vError("OT_API_ResyncNymWithServer: Failed. Though success loading @createUserAccount() message, the payload was empty. "
+					  "(Expected theMessageNym to be there, so I could re-sync client side to server.) Message contents:\n\n%s\n\n",
+					  strMessage.Get());
+		return OT_FALSE;
+	}
+	// -----------------------------------------------------------------
+	OTString strMessageNym;
+	
+	if (false == theMessage.m_ascPayload.GetString(strMessageNym))
+	{
+		OTLog::vError("OT_API_ResyncNymWithServer: Failed decoding message payload in server reply: @createUserAccount(). "
+					  "(Expected theMessageNym to be there, so I could re-sync client side to server.) Message contents:\n\n%s\n\n",
+					  strMessage.Get());
+		return OT_FALSE;
+	}
+	// -----------------------------------------------------------------
+	OTPseudonym theMessageNym; // <====================
+	
+	if (false == theMessageNym.LoadFromString(strMessageNym))
+	{
+		OTLog::vError("OT_API_ResyncNymWithServer: Failed loading theMessageNym from a string. String contents:\n\n%s\n\n",
+					  strMessageNym.Get());
+		return OT_FALSE;
+	}
+	// -----------------------------------------------------------------
+	// Based on serverID and UserID, load the Nymbox.
+	//
+	OTLedger theNymbox(theNymID, theNymID, theServerID); // <===========
+	
+	bool bSynced		= false;
+	bool bLoadedNymbox	= (theNymbox.LoadNymbox() && theNymbox.VerifyAccount(*pNym));
+
+	if (bLoadedNymbox)
+		bSynced = g_OT_API.ResyncNymWithServer(*pNym, theNymbox, theMessageNym);
+	else
+		OTLog::vError("OT_API_ResyncNymWithServer: Failed while loading or verifying Nymbox for User %s, on Server %s \n",
+					  strNymID.Get(), SERVER_ID);
+	// -----------------------------------------------------------------
+
+	return bSynced ? OT_TRUE : OT_FALSE;
+}
+
 
 
 
