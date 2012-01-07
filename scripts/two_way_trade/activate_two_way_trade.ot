@@ -96,8 +96,6 @@ strSmartContract = OT_CLI_ReadUntilEOF()
 // your OT scripts on the CLIENT SIDE...
 
 /*
-
-
 		pScript->chai.add(fun(&OT_CLI_ReadLine), "OT_CLI_ReadLine");			// String OT_CLI_ReadLine()		// Reads from cin until Newline.
 		pScript->chai.add(fun(&OT_CLI_ReadUntilEOF), "OT_CLI_ReadUntilEOF");	// String OT_CLI_ReadUntilEOF()	// Reads from cin until EOF.
 		// ------------------------------------------------------------------

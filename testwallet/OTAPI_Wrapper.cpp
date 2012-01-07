@@ -1501,6 +1501,13 @@ void OTAPI_Wrap::FlushMessageBuffer()
 }
 // -----------------------------------------------------------
 
+void OTAPI_Wrap::Sleep(const std::string MILLISECONDS)
+{
+	OT_API_Sleep(MILLISECONDS.c_str());
+}
+
+// -----------------------------------------------------------
+
 bool OTAPI_Wrap::ResyncNymWithServer(const std::string SERVER_ID,
 									 const std::string USER_ID,
 									 const std::string THE_MESSAGE)

@@ -2142,6 +2142,13 @@ const char * OT_API_PopMessageBuffer(void);
 
 void OT_API_FlushMessageBuffer(void);
 
+// -----------------------------------------
+
+void OT_API_Sleep(const char * MILLISECONDS);
+
+
+
+
 
 /* For emergency/testing use only. This call forces you to trust the server.
    You should never need to call this for any normal use, and hopefully

@@ -9542,6 +9542,9 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 	// Otherwise the key is not ever revokable -- yet it's in a contract!  What is the issuer supposed
 	// to do if that key is stolen? Make a public announcement?
 	//
+	// UPDATE ONE-LINE NOTE: THE TRUE SOLUTION TO THIS WHOLE ISSUE IS:   *** NAMECOIN ***
+	// (Now continuing back to my old comments from 18 months ago...)
+	//
 	// In such a case, the issuer would have to put a "check this URL to make sure contract still good"
 	// variable into the contract so that the users have the chance to make sure the contract is still
 	// good and the contract's private key hasn't been stolen. Well guess what? That's what x509 does.

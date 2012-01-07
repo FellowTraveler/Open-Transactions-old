@@ -2235,7 +2235,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 		}
 		else 
 		{
-			OTLog::vError("OTClient::ProcessServerReply: Error loading or verifying nymbox:\n\n%s\n", strNymbox.Get());
+			OTLog::vError("OTClient::ProcessServerReply: Error loading or verifying nymbox during @getNymbox:\n\n%s\n", strNymbox.Get());
 		}
 		
 		return true;
@@ -5530,25 +5530,41 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 
     const OTIdentifier SERVER_ID(strServerID);
 	*/
-	
+
 	// ------------------------------------------------------------------------
 	// This is called by the command line user.
-	
+
 	else if (OTClient::processEntireNymbox == requestedCommand) // PROCESS ENTIRE NYMBOX
 	{
 		const OTIdentifier MY_NYM_ID(theNym);
-		
+
 		// Load up the appropriate Nymbox... 
 		OTLedger theNymbox(MY_NYM_ID, MY_NYM_ID, SERVER_ID);
+
+		bool bSuccess			= false;
+		bool bLoadedNymbox		= theNymbox.LoadNymbox();
+		bool bVerifiedNymbox	= bLoadedNymbox ? theNymbox.VerifyAccount(theNym) : false;
+		bool bIsEmpty			= theNymbox.GetTransactionCount() < 1;
 		
-		bool bLoadedNymbox = (theNymbox.LoadNymbox() && theNymbox.VerifyAccount(theNym));
-		
-		// (0) Set up the REQUEST NUMBER and then INCREMENT IT
-		// (1) Set up member variables 
-		bool bSuccess = (bLoadedNymbox && AcceptEntireNymbox(theNymbox, SERVER_ID, theServer, theNym, theMessage));
+		if (false == bLoadedNymbox)
+			OTLog::vOutput(0, "OTClient::ProcessUserCommand::processEntireNymbox: Failed loading Nymbox: %s \n",
+						   strNymID.Get());
+		else if (false == bVerifiedNymbox)
+			OTLog::vOutput(0, "OTClient::ProcessUserCommand::processEntireNymbox: Failed verifying Nymbox: %s \n",
+						   strNymID.Get());
+		else if (!bIsEmpty)
+			bSuccess = AcceptEntireNymbox(theNymbox, SERVER_ID, theServer, theNym, theMessage);
 		// -----------------
 		
-		if (bSuccess)
+		if (!bSuccess)
+		{
+			if (bIsEmpty)
+				OTLog::vOutput(0, "OTClient::ProcessUserCommand::processEntireNymbox: Nymbox (%s) is empty (so, skipping processNymbox.)\n",
+							   strNymID.Get());
+			else
+				OTLog::vOutput(0, "OTClient::ProcessUserCommand::processEntireNymbox: Failed trying to accept the entire Nymbox.\n");
+		}
+		else
 		{
 			// (2) Sign the Message 
 			theMessage.SignContract(theNym);		
@@ -5556,16 +5572,10 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			// (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
 			theMessage.SaveContract();
 			
-			OTString strTemp(theMessage.m_ascPayload);
-			
+//			OTString strTemp(theMessage.m_ascPayload);			
 //			OTLog::vError("DEBUGGING. Contents of message payload:\n\n%s\n\n ",
 //						  strTemp.Get());
-			
 			bSendCommand = true;
-		}
-		else
-		{
-			OTLog::vOutput(0, "OTClient::processEntireNymbox: Failed loading, verifying, or accepting entire Nymbox.\n");
 		}
 	}
 	

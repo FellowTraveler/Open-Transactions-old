@@ -827,6 +827,9 @@ public:
 	static const std::string PopMessageBuffer();
 	
 	static void FlushMessageBuffer();
+	
+	static void Sleep(const std::string MILLISECONDS);
+
 	// -----------------------------------------------------------
 
 	static bool ResyncNymWithServer(const std::string SERVER_ID,

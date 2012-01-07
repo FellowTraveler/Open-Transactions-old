@@ -9655,6 +9655,23 @@ void OT_API_FlushMessageBuffer(void)
 
 
 
+// Sometimes you just need a quick nap between messages.
+//
+void OT_API_Sleep(const char * MILLISECONDS)
+{
+	OT_ASSERT_MSG(g_OT_API.IsInitialized(), "Not initialized; call OT_API::Init first.");
+	// -----------------------------------------------
+	OT_ASSERT_MSG(NULL != MILLISECONDS, "Null MILLISECONDS passed in.");
+
+	const long lMilliseconds = atol(MILLISECONDS);
+	
+	OTLog::SleepMilliseconds(lMilliseconds);
+}
+
+
+
+
+
 // Make sure you download your Nymbox (getNymbox) before calling this,
 // so when it loads the Nymbox it will have the latest version of it.
 //

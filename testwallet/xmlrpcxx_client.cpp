@@ -980,6 +980,10 @@ void RegisterAPIWithScript(OTScript & theScript)
 		
 		pScript->chai.add(fun(&OTAPI_Wrap::PopMessageBuffer), "OT_API_PopMessageBuffer");
 		pScript->chai.add(fun(&OTAPI_Wrap::FlushMessageBuffer), "OT_API_FlushMessageBuffer");
+		pScript->chai.add(fun(&OTAPI_Wrap::Sleep), "OT_API_Sleep");
+
+		pScript->chai.add(fun(&OTAPI_Wrap::ResyncNymWithServer), "OT_API_ResyncNymWithServer");
+		
 		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetCommand), "OT_API_Message_GetCommand");
 		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetSuccess), "OT_API_Message_GetSuccess");
 		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetDepth), "OT_API_Message_GetDepth");

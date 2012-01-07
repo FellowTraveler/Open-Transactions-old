@@ -2419,13 +2419,13 @@ bool OT_API::ResyncNymWithServer(OTPseudonym & theNym, OTLedger & theNymbox, OTP
 		return false;
 	}	
 	// -----------------------------------------------------
-	if (false == theNym.CompareID(theMessageNym))
-	{
-		const OTString id1(theNym.GetConstID()), id2(theMessageNym.GetConstID());
-		OTLog::vError("OT_API::ResyncNymWithServer: Error: NymID of Nym (%s) doesn't match NymID on (supposedly) his server-side doppelganger (%s).\n",
-					  id1.Get(), id2.Get());
-		return false;
-	}
+//	if (false == theNym.CompareID(theMessageNym))
+//	{
+//		const OTString id1(theNym.GetConstID()), id2(theMessageNym.GetConstID());
+//		OTLog::vError("OT_API::ResyncNymWithServer: Error: NymID of Nym (%s) doesn't match NymID on (supposedly) his server-side doppelganger (%s).\n",
+//					  id1.Get(), id2.Get());
+//		return false;
+//	}
 	// *****************************************************
 
 	return theNym.ResyncWithServer(theNymbox, theMessageNym);

@@ -3,6 +3,13 @@ NOTES on the Version:
 
 // --------------------------------------------------------------------
 
+   0.76 --- Bugfix release. Many bugs were uncovered by recent testing with
+            new users. (One user with an especially bad network connection.)
+            OT now has much more powerful polling, blocking, configurability,
+            timeouts, synchronization, and robustness against network faults.
+            Also see resync.ot in
+            the scripts folder.
+
    0.75 --- Smart Contracts! (Server-side SCRIPTABLE CLAUSES, and hooks!)
             Users can now design and activate their own financial instruments,
             in SCRIPT FORM!
