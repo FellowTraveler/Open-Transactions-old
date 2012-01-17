@@ -193,22 +193,24 @@ using namespace io;
 //
 // CALLER IS RESPONSIBLE to cleanup!
 //
-OTContract * OTContract::InstantiateContract(OTString & strInputContract)
+OTContract * OTContract::InstantiateContract(const OTString & strInputContract)
 {
 	static char		buf[45] = "";
 	
 	if (!strInputContract.Exists())
 		return NULL;
-		
+
+	OTString strInput(strInputContract);
+	
 	buf[0] = 0; // probably unnecessary.
-	strInputContract.reset(); // for sgets
-	bool bGotLine = strInputContract.sgets(buf, 40);
+	strInput.reset(); // for sgets
+	bool bGotLine = strInput.sgets(buf, 40);
 	
 	if (!bGotLine)
 		return NULL;
 	
 	OTString strFirstLine(buf);
-	strInputContract.reset(); // set the "file" pointer within this string back to index 0.
+	strInput.reset(); // set the "file" pointer within this string back to index 0.
 	
 	// Now I feel pretty safe -- the string I'm examining is within
 	// the first 45 characters of the beginning of the contract, and
@@ -287,23 +289,23 @@ OTContract * OTContract::InstantiateContract(OTString & strInputContract)
 	//
 	else if (strFirstLine.Contains("-----BEGIN SIGNED CONTRACT-----"))
 	{
-		if (strInputContract.Contains("<notaryProviderContract version=\"1.0\">")) 
+		if (strInput.Contains("<notaryProviderContract version=\"1.0\">")) 
 		{	pContract = new OTServerContract();		OT_ASSERT(NULL != pContract); }
-		else if (strInputContract.Contains("<digitalAssetContract version=\"1.0\">")) 
+		else if (strInput.Contains("<digitalAssetContract version=\"1.0\">")) 
 		{	pContract = new OTAssetContract();		OT_ASSERT(NULL != pContract); }
 	}
 	
 	// might be redundant... 
-	std::string str_Trim(strInputContract.Get());
+	std::string str_Trim(strInput.Get());
 	std::string str_Trim2 = OTString::trim(str_Trim);
-	strInputContract.Set(str_Trim2.c_str());
+	strInput.Set(str_Trim2.c_str());
 	// ----------------------------------------------
 	
 	// The string didn't match any of the options in the factory.
 	if (NULL == pContract)
 		OTLog::vOutput(0, "Object type not yet supported by class factory: %s\n", strFirstLine.Get());
 	// Does the contract successfully load from the string passed in?
-	else if (false == pContract->LoadContractFromString(strInputContract))
+	else if (false == pContract->LoadContractFromString(strInput))
 	{
 		OTLog::vOutput(0, "Failed loading contract from string (first line): %s\n", strFirstLine.Get());
 		delete pContract;

@@ -135,15 +135,7 @@
 //
 // (That file will include this one, but in the appropriate way.)
 
-	
 
-
-// --------------------------------------------------------------------
-/** Output to the screen (stderr.)
-    (This is so stdout can be left clean for the ACTUAL output.)
-    Log level is 0 (least verbose) to 5 (most verbose.)
- */
-void OT_API_Output(int nLogLevel, const char * szOutput);
 
 
 
@@ -195,9 +187,209 @@ int OT_API_LoadWallet(const char * szWalletFilename); // actually returns BOOL
 int OT_API_SwitchWallet(const char * szDataFolderPath, const char * szWalletFilename); // actually returns OT_BOOL
 
 
-// ----------------------------------------------------
-// The below functions are for retrieving log data programatically.
 
+// --------------------------------------------------------------------
+/** Output to the screen (stderr.)
+ (This is so stdout can be left clean for the ACTUAL output.)
+ Log level is 0 (least verbose) to 5 (most verbose.)
+ */
+void OT_API_Output(int nLogLevel, const char * szOutput);
+
+
+
+
+
+// --------------------------------------------------------------------
+/** TIME (in seconds, as string)
+ 
+ This will return the current time in seconds, as a string.
+ Returns NULL if failure.
+ 
+ Todo:  consider making this available on the server side as well,
+ so the smart contracts can see what time it is.
+ 
+ */
+const char * OT_API_GetTime(void);
+
+
+
+
+/**
+ These 2 functions aren't in the OT_API proper, but are only available inside
+ the OTScripts on the client side. (They're not available in server-side
+ scripts, and they're not available in, for example, the OTAPI Java programmable
+ interface. You would use Java functions at that point.)
+ Shown here only for reference.
+ */
+// const char * OT_CLI_ReadLine(void);		// Reads from cin until Newline.
+// const char * OT_CLI_ReadUntilEOF(void);	// Reads from cin until EOF.
+
+
+// ********************************************************************
+
+
+
+
+
+// --------------------------------------------------------------------
+/** OT-encode a plaintext string.
+ 
+ const char * OT_API_Encode(const char * szPlaintext);
+ 
+ This will pack, compress, and base64-encode a plain string.
+ Returns the base64-encoded string, or NULL.
+ 
+ Internally: 
+ OTString		strPlain(szPlaintext);
+ OTASCIIArmor	ascEncoded(thePlaintext);	// ascEncoded now contains the OT-encoded string.
+ return			ascEncoded.Get();			// We return it.
+ */
+const char * OT_API_Encode(const char * szPlaintext, int bLineBreaks); // bLineBreaks is OT_BOOL
+
+
+
+
+
+// --------------------------------------------------------------------
+/** Decode an OT-encoded string (back to plaintext.)
+ 
+ const char * OT_API_Decode(const char * szEncoded);
+ 
+ This will base64-decode, uncompress, and unpack an OT-encoded string.
+ Returns the plaintext string, or NULL.
+ 
+ Internally: 
+ OTASCIIArmor	ascEncoded(szEncoded);
+ OTString		strPlain(ascEncoded);	// strPlain now contains the decoded plaintext string.
+ return			strPlain.Get();			// We return it.
+ */
+const char * OT_API_Decode(const char * szEncoded, int bLineBreaks); // bLineBreaks is OT_BOOL
+
+
+
+
+
+// --------------------------------------------------------------------
+/** OT-ENCRYPT a plaintext string.
+ 
+ const char * OT_API_Encrypt(const char * RECIPIENT_NYM_ID, const char * szPlaintext);
+ 
+ This will encode, ENCRYPT, and encode a plain string.
+ Returns the base64-encoded ciphertext, or NULL.
+  
+ Internally the C++ code is: 
+ OTString		strPlain(szPlaintext);
+ OTEnvelope		theEnvelope;				
+ if (theEnvelope.Seal(RECIPIENT_NYM, strPlain)) {	// Now it's encrypted (in binary form, inside the envelope), to the recipient's nym.
+	OTASCIIArmor	ascCiphertext(theEnvelope);		// ascCiphertext now contains the base64-encoded ciphertext (as a string.)
+	return ascCiphertext.Get();
+ }
+ */
+const char * OT_API_Encrypt(const char * RECIPIENT_NYM_ID, const char * szPlaintext);
+
+
+
+
+
+// --------------------------------------------------------------------
+/** OT-DECRYPT an OT-encrypted string back to plaintext.
+ 
+ const char * OT_API_Decrypt(const char * RECIPIENT_NYM_ID, const char * szCiphertext);
+ 
+ Decrypts the base64-encoded ciphertext back into a normal string plaintext.
+ Returns the plaintext string, or NULL.
+ 
+ Internally the C++ code is: 
+ OTEnvelope		theEnvelope;					// Here is the envelope object. (The ciphertext IS the data for an OTEnvelope.)
+ OTASCIIArmor	ascCiphertext(szCiphertext);	// The base64-encoded ciphertext passed in. Next we'll try to attach it to envelope object...
+ if (theEnvelope.SetAsciiArmoredData(ascCiphertext)) {	// ...so that we can open it using the appropriate Nym, into a plain string object:
+	OTString	strServerReply;					// This will contain the output when we're done.
+	const bool	bOpened =						// Now we try to decrypt:
+					theEnvelope.Open(RECIPIENT_NYM, strServerReply);
+	if (bOpened) {
+		return strServerReply.Get();
+	}
+ }
+ */
+const char * OT_API_Decrypt(const char * RECIPIENT_NYM_ID, const char * szCiphertext);
+
+
+
+
+
+
+// --------------------------------------------------------------------
+/** OT-Sign a CONTRACT.  (First signature)
+ 
+ const char * OT_API_SignContract(const char * SIGNER_NYM_ID, const char * THE_CONTRACT);
+ 
+ Tries to instantiate the contract object, based on the string passed in.
+ Releases all signatures, and then signs the contract.
+ Returns the signed contract, or NULL if failure.
+ 
+ NOTE: The actual OT functionality (Use Cases) NEVER requires you to sign via
+ this function. Why not? because, anytime a signature is needed on something,
+ the relevant OT API call will require you to pass in the Nym, and the API already
+ signs internally wherever it deems appropriate. Thus, this function is only for
+ advanced uses, for OT-Scripts, server operators, etc.
+ 
+ */
+const char * OT_API_SignContract(const char * SIGNER_NYM_ID, const char * THE_CONTRACT);
+
+
+
+
+// --------------------------------------------------------------------
+/** OT-Sign a CONTRACT.  (Add a signature)
+ 
+ const char * OT_API_AddSignature(const char * SIGNER_NYM_ID, const char * THE_CONTRACT);
+ 
+ Tries to instantiate the contract object, based on the string passed in.
+ Signs the contract, without releasing any signatures that are already there.
+ Returns the signed contract, or NULL if failure.
+ 
+ NOTE: The actual OT functionality (Use Cases) NEVER requires you to sign via
+ this function. Why not? because, anytime a signature is needed on something,
+ the relevant OT API call will require you to pass in the Nym, and the API already
+ signs internally wherever it deems appropriate. Thus, this function is only for
+ advanced uses, for OT-Scripts, server operators, etc.
+ 
+ */
+const char * OT_API_AddSignature(const char * SIGNER_NYM_ID, const char * THE_CONTRACT);
+
+
+
+// --------------------------------------------------------------------
+/** OT-Verify the signature on a CONTRACT.
+   
+ Returns OT_BOOL -- OT_TRUE (1) or OT_FALSE (0)
+ 
+ */
+int OT_API_VerifySignature(const char * SIGNER_NYM_ID, const char * THE_CONTRACT);
+
+
+
+
+// --------------------------------------------------
+/// Verify and Retrieve XML Contents.
+///
+/// Pass in a contract and a user ID, and this function will:
+/// -- Load the contract up and verify it. (Most classes in OT
+///    are derived in some way from OTContract.)
+/// -- Verify the user's signature on it.
+/// -- Remove the PGP-style bookends (the signatures, etc)
+///    and return the XML contents of the contract in string form. <==
+///
+const char * OT_API_VerifyAndRetrieveXMLContents(const char * THE_CONTRACT,
+												 const char * SIGNER_ID);
+
+
+
+
+
+// ----------------------------------------------------
+/** The below functions are for retrieving log data programatically.
+ */
 int OT_API_GetMemlogSize();
 
 const char * OT_API_GetMemlogAtIndex(int nIndex);
@@ -227,6 +419,8 @@ const char * OT_API_CreateNym(void);
 
 
 
+
+
 // --------------------------------------------------
 /// ADD SERVER CONTRACT
 /// If you have a server contract that you'd like to add 
@@ -237,12 +431,14 @@ int OT_API_AddServerContract(const char * szContract); // returns OT_TRUE (1) or
 
 
 
+
 // --------------------------------------------------
 /// ADD ASSET CONTRACT
 /// If you have an asset contract that you'd like to add 
 /// to your wallet, call this function.
 ///
 int OT_API_AddAssetContract(const char * szContract); // returns OT_TRUE (1) or OT_FALSE(0)
+
 
 
 	
@@ -496,20 +692,6 @@ int OT_API_SetServer_Name(const char * SERVER_ID,
 ///    OT calls... just use the name for display purposes.
 ///
 
-
-
-// --------------------------------------------------
-/// Verify and Retrieve XML Contents.
-///
-/// Pass in a contract and a user ID, and this function will:
-/// -- Load the contract up and verify it. (Most classes in OT
-///    are derived in some way from OTContract.)
-/// -- Verify the user's signature on it.
-/// -- Remove the PGP-style bookends (the signatures, etc)
-///    and return the XML contents of the contract in string form. <==
-///
-const char * OT_API_VerifyAndRetrieveXMLContents(const char * THE_CONTRACT,
-												 const char * USER_ID);
 
 
 
@@ -1026,7 +1208,13 @@ const char * OT_API_LoadOutbox(const char * SERVER_ID,
 							   const char * ACCOUNT_ID); // returns NULL, or an outbox.
 
 
+const char * OT_API_LoadInboxNoVerify(const char * SERVER_ID,
+									  const char * USER_ID,
+									  const char * ACCOUNT_ID); // Returns NULL, or an inbox.
 
+const char * OT_API_LoadOutboxNoVerify(const char * SERVER_ID,
+									   const char * USER_ID,
+									   const char * ACCOUNT_ID); // returns NULL, or an outbox.
 
 
 // --------------------------------------------------------------
@@ -1949,13 +2137,38 @@ void OT_API_getOutbox(const char * SERVER_ID,
 
 /// from server (pop message buf for the response)
 void OT_API_getNymbox(const char * SERVER_ID,
-					 const char * USER_ID);
+					  const char * USER_ID);
 
 /// from local storage.
 const char * OT_API_LoadNymbox(const char * SERVER_ID,
 							   const char * USER_ID); // Returns NULL, or a Nymbox.
 
+const char * OT_API_LoadNymboxNoVerify(const char * SERVER_ID,
+									   const char * USER_ID); // Returns NULL, or a Nymbox.
 
+/// The Nymbox/Inbox/Outbox only contain abbreviated receipts, with a hash for zero-knowledge
+/// proof of the entire receipt. (Messages were getting too big, it couldn't be helped. Sorry.)
+/// Once you download your nym/in/out/*box and load it into memory from storage, you iterate through
+/// it and download all the box receipts (preferably only once.) Once you load those up, it's as if
+/// the various pieces were never sundered into multiple files to begin with. Then you can verify
+/// the box and do all the normal operations.
+///
+/** How to use?
+ Call OT_API_getInbox (say), and if successful, loadInbox().
+ */
+void OT_API_getBoxReceipt(const char *	SERVER_ID,
+						  const char *	USER_ID,
+						  const char *	ACCOUNT_ID,		// If for Nymbox (vs inbox/outbox) then pass USER_ID in this field also.
+						  const int		nBoxType,		// 0/nymbox, 1/inbox, 2/outbox
+						  const char *	TRANSACTION_NUMBER);
+
+// Actually returns OT_BOOL.
+//
+int OT_API_DoesBoxReceiptExist(const char *	SERVER_ID,
+							   const char *	USER_ID,	// Unused here for now, but still convention.
+							   const char *	ACCOUNT_ID,	// If for Nymbox (vs inbox/outbox) then pass USER_ID in this field also.
+							   const int	nBoxType,	// 0/nymbox, 1/inbox, 2/outbox
+							   const char *	TRANSACTION_NUMBER);
 
 // --------------------------------------------------------------------------
 /**
@@ -2142,8 +2355,13 @@ const char * OT_API_PopMessageBuffer(void);
 
 void OT_API_FlushMessageBuffer(void);
 
-// -----------------------------------------
 
+// --------------------------------------------------------------------
+/** SLEEP
+ 
+ If you want to go to sleep for one second, then pass "1000" to this function.
+ 
+ */
 void OT_API_Sleep(const char * MILLISECONDS);
 
 

@@ -1,6 +1,5 @@
 #! /usr/local/bin/ot --script
 
-
 // Note: make sure you use --server and --mynym, or configure them
 // as your defaults, when calling this script. (The script isn't
 // smart enough to ask you for their IDs if they aren't already supplied.)
@@ -21,8 +20,20 @@
 // red button, and it simply downloads the appropriate info from the
 // server, and sets your own Nym to match. (Back in sync.)
 
+// --------------------------------------------------------------------
+// NEW: Ultra-High-Level interface!
+//
+// The ultra-high level interface is a layer on TOP of the OTAPI itself,
+// which makes it much easier to use.
+//
+// There is also a Java version of this now, OTAPI_Func and Utility,
+// which are used in the Moneychanger code.
+//
+use("../ot/otapi.ot")
 
 
+
+// --------------------------------------------------------------------
 // Pseudocode:
 // --------------------------------------------------------------------
 //	0. As always, call OT_API_FlushMessageBuffer() before sending the request 
@@ -67,7 +78,14 @@ var strServerReply = OT_API_PopMessageBuffer();
 //		std::string OT_API_PopMessageBuffer() to read the reply--after a quick OT_API_Sleep().
 //		Is success true? Use bool OT_API_Message_GetSuccess(std::string THE_MESSAGE);
 //
-if (strServerReply.empty())
+
+
+// If these string calls fail, then test these text:
+/*
+assert_equal(true, 1.is_var_pointer());
+assert_equal(false, 1.is_var_null());
+*/
+if (!strServerReply.is_type(string_type) || strServerReply.size() == 0)
 {
 	OT_API_Output(0, "\n There's no server reply to our checkServerID request. (Like a ping.) Is the server running? (Finished.)\n");
 }
@@ -89,7 +107,8 @@ else
 	//		bool OT_API_ResyncNymWithServer(std::string SERVER_ID, std::string USER_ID, std::string THE_MESSAGE)
 	//		(BUT NOT YET! Just save it for now.)
 
-	if (strCreateUserReply.empty())
+
+	if (!strCreateUserReply.is_type(string_type) || strCreateUserReply.size() == 0)
 	{
 		OT_API_Output(0, "\n There's no server reply to our createUserAccount request. Strange. (Finished.)\n");
 	}
@@ -108,7 +127,7 @@ else
 		OT_API_Sleep("100");
 		strServerReply = OT_API_PopMessageBuffer();
 
-		if (strServerReply.empty())
+		if (!strServerReply.is_type(string_type) || strServerReply.size() == 0)
 		{
 			OT_API_Output(0, "\n There's no server reply to our getRequest message. Strange. (Finished.)\n");
 		}
@@ -126,7 +145,7 @@ else
 			OT_API_Sleep("100");
 			strServerReply = OT_API_PopMessageBuffer();
 
-			if (strServerReply.empty())
+			if (!strServerReply.is_type(string_type) || strServerReply.size() == 0)
 			{
 				OT_API_Output(0, "\n There's no server reply to our getNymbox message. Strange. (Finished.)\n");
 			}
@@ -153,13 +172,18 @@ else
 				OT_API_Sleep("100");
 				strServerReply = OT_API_PopMessageBuffer();
 
-				if (strServerReply.empty())
+				if (!strServerReply.is_type(string_type) || strServerReply.size() == 0)
 				{
+				//  Use "print" here, to print any object with auto-conversion to string.
+				//  print(strServerReply);
+				
 					OT_API_Output(0, "\n There's no server reply to our processNymbox message. Strange. (Finished.)\n");
 				}
 				else if (false == OT_API_Message_GetSuccess(strServerReply))
 				{
 					OT_API_Output(0, "\n Server reply says FAILURE to our processNymbox message. (Strange, since this call should never fail unless we're out of sync...) Perhaps the server is locked? Perhaps our attempt to re-synchronize has utterly failed? (Finished.)\n");
+
+				//  print(strServerReply);
 				}
 				else // By this point, we know for sure that the request number is in sync.
 				{

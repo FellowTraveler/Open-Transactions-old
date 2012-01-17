@@ -125,10 +125,6 @@ def OT_API_Set_PasswordCallback(*args):
   return _otapi.OT_API_Set_PasswordCallback(*args)
 OT_API_Set_PasswordCallback = _otapi.OT_API_Set_PasswordCallback
 
-def OT_API_Output(*args):
-  return _otapi.OT_API_Output(*args)
-OT_API_Output = _otapi.OT_API_Output
-
 def OT_API_Init(*args):
   return _otapi.OT_API_Init(*args)
 OT_API_Init = _otapi.OT_API_Init
@@ -140,6 +136,46 @@ OT_API_LoadWallet = _otapi.OT_API_LoadWallet
 def OT_API_SwitchWallet(*args):
   return _otapi.OT_API_SwitchWallet(*args)
 OT_API_SwitchWallet = _otapi.OT_API_SwitchWallet
+
+def OT_API_Output(*args):
+  return _otapi.OT_API_Output(*args)
+OT_API_Output = _otapi.OT_API_Output
+
+def OT_API_GetTime():
+  return _otapi.OT_API_GetTime()
+OT_API_GetTime = _otapi.OT_API_GetTime
+
+def OT_API_Encode(*args):
+  return _otapi.OT_API_Encode(*args)
+OT_API_Encode = _otapi.OT_API_Encode
+
+def OT_API_Decode(*args):
+  return _otapi.OT_API_Decode(*args)
+OT_API_Decode = _otapi.OT_API_Decode
+
+def OT_API_Encrypt(*args):
+  return _otapi.OT_API_Encrypt(*args)
+OT_API_Encrypt = _otapi.OT_API_Encrypt
+
+def OT_API_Decrypt(*args):
+  return _otapi.OT_API_Decrypt(*args)
+OT_API_Decrypt = _otapi.OT_API_Decrypt
+
+def OT_API_SignContract(*args):
+  return _otapi.OT_API_SignContract(*args)
+OT_API_SignContract = _otapi.OT_API_SignContract
+
+def OT_API_AddSignature(*args):
+  return _otapi.OT_API_AddSignature(*args)
+OT_API_AddSignature = _otapi.OT_API_AddSignature
+
+def OT_API_VerifySignature(*args):
+  return _otapi.OT_API_VerifySignature(*args)
+OT_API_VerifySignature = _otapi.OT_API_VerifySignature
+
+def OT_API_VerifyAndRetrieveXMLContents(*args):
+  return _otapi.OT_API_VerifyAndRetrieveXMLContents(*args)
+OT_API_VerifyAndRetrieveXMLContents = _otapi.OT_API_VerifyAndRetrieveXMLContents
 
 def OT_API_GetMemlogSize():
   return _otapi.OT_API_GetMemlogSize()
@@ -357,10 +393,6 @@ def OT_API_SetServer_Name(*args):
   return _otapi.OT_API_SetServer_Name(*args)
 OT_API_SetServer_Name = _otapi.OT_API_SetServer_Name
 
-def OT_API_VerifyAndRetrieveXMLContents(*args):
-  return _otapi.OT_API_VerifyAndRetrieveXMLContents(*args)
-OT_API_VerifyAndRetrieveXMLContents = _otapi.OT_API_VerifyAndRetrieveXMLContents
-
 def OT_API_WriteCheque(*args):
   return _otapi.OT_API_WriteCheque(*args)
 OT_API_WriteCheque = _otapi.OT_API_WriteCheque
@@ -500,6 +532,14 @@ OT_API_LoadInbox = _otapi.OT_API_LoadInbox
 def OT_API_LoadOutbox(*args):
   return _otapi.OT_API_LoadOutbox(*args)
 OT_API_LoadOutbox = _otapi.OT_API_LoadOutbox
+
+def OT_API_LoadInboxNoVerify(*args):
+  return _otapi.OT_API_LoadInboxNoVerify(*args)
+OT_API_LoadInboxNoVerify = _otapi.OT_API_LoadInboxNoVerify
+
+def OT_API_LoadOutboxNoVerify(*args):
+  return _otapi.OT_API_LoadOutboxNoVerify(*args)
+OT_API_LoadOutboxNoVerify = _otapi.OT_API_LoadOutboxNoVerify
 
 def OT_API_Ledger_GetCount(*args):
   return _otapi.OT_API_Ledger_GetCount(*args)
@@ -761,6 +801,18 @@ def OT_API_LoadNymbox(*args):
   return _otapi.OT_API_LoadNymbox(*args)
 OT_API_LoadNymbox = _otapi.OT_API_LoadNymbox
 
+def OT_API_LoadNymboxNoVerify(*args):
+  return _otapi.OT_API_LoadNymboxNoVerify(*args)
+OT_API_LoadNymboxNoVerify = _otapi.OT_API_LoadNymboxNoVerify
+
+def OT_API_getBoxReceipt(*args):
+  return _otapi.OT_API_getBoxReceipt(*args)
+OT_API_getBoxReceipt = _otapi.OT_API_getBoxReceipt
+
+def OT_API_DoesBoxReceiptExist(*args):
+  return _otapi.OT_API_DoesBoxReceiptExist(*args)
+OT_API_DoesBoxReceiptExist = _otapi.OT_API_DoesBoxReceiptExist
+
 def OT_API_processInbox(*args):
   return _otapi.OT_API_processInbox(*args)
 OT_API_processInbox = _otapi.OT_API_processInbox
@@ -816,6 +868,10 @@ OT_API_PopMessageBuffer = _otapi.OT_API_PopMessageBuffer
 def OT_API_FlushMessageBuffer():
   return _otapi.OT_API_FlushMessageBuffer()
 OT_API_FlushMessageBuffer = _otapi.OT_API_FlushMessageBuffer
+
+def OT_API_Sleep(*args):
+  return _otapi.OT_API_Sleep(*args)
+OT_API_Sleep = _otapi.OT_API_Sleep
 
 def OT_API_ResyncNymWithServer(*args):
   return _otapi.OT_API_ResyncNymWithServer(*args)

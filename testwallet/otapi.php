@@ -31,10 +31,6 @@ abstract class otapi {
 		return OT_API_Set_PasswordCallback($theCaller);
 	}
 
-	static function OT_API_Output($nLogLevel,$szOutput) {
-		OT_API_Output($nLogLevel,$szOutput);
-	}
-
 	static function OT_API_Init($szClientPath) {
 		return OT_API_Init($szClientPath);
 	}
@@ -45,6 +41,46 @@ abstract class otapi {
 
 	static function OT_API_SwitchWallet($szDataFolderPath,$szWalletFilename) {
 		return OT_API_SwitchWallet($szDataFolderPath,$szWalletFilename);
+	}
+
+	static function OT_API_Output($nLogLevel,$szOutput) {
+		OT_API_Output($nLogLevel,$szOutput);
+	}
+
+	static function OT_API_GetTime() {
+		return OT_API_GetTime();
+	}
+
+	static function OT_API_Encode($szPlaintext,$bLineBreaks) {
+		return OT_API_Encode($szPlaintext,$bLineBreaks);
+	}
+
+	static function OT_API_Decode($szEncoded,$bLineBreaks) {
+		return OT_API_Decode($szEncoded,$bLineBreaks);
+	}
+
+	static function OT_API_Encrypt($RECIPIENT_NYM_ID,$szPlaintext) {
+		return OT_API_Encrypt($RECIPIENT_NYM_ID,$szPlaintext);
+	}
+
+	static function OT_API_Decrypt($RECIPIENT_NYM_ID,$szCiphertext) {
+		return OT_API_Decrypt($RECIPIENT_NYM_ID,$szCiphertext);
+	}
+
+	static function OT_API_SignContract($SIGNER_NYM_ID,$THE_CONTRACT) {
+		return OT_API_SignContract($SIGNER_NYM_ID,$THE_CONTRACT);
+	}
+
+	static function OT_API_AddSignature($SIGNER_NYM_ID,$THE_CONTRACT) {
+		return OT_API_AddSignature($SIGNER_NYM_ID,$THE_CONTRACT);
+	}
+
+	static function OT_API_VerifySignature($SIGNER_NYM_ID,$THE_CONTRACT) {
+		return OT_API_VerifySignature($SIGNER_NYM_ID,$THE_CONTRACT);
+	}
+
+	static function OT_API_VerifyAndRetrieveXMLContents($THE_CONTRACT,$SIGNER_ID) {
+		return OT_API_VerifyAndRetrieveXMLContents($THE_CONTRACT,$SIGNER_ID);
 	}
 
 	static function OT_API_GetMemlogSize() {
@@ -263,10 +299,6 @@ abstract class otapi {
 		return OT_API_SetServer_Name($SERVER_ID,$STR_NEW_NAME);
 	}
 
-	static function OT_API_VerifyAndRetrieveXMLContents($THE_CONTRACT,$USER_ID) {
-		return OT_API_VerifyAndRetrieveXMLContents($THE_CONTRACT,$USER_ID);
-	}
-
 	static function OT_API_WriteCheque($SERVER_ID,$CHEQUE_AMOUNT,$VALID_FROM,$VALID_TO,$SENDER_ACCT_ID,$SENDER_USER_ID,$CHEQUE_MEMO,$RECIPIENT_USER_ID) {
 		return OT_API_WriteCheque($SERVER_ID,$CHEQUE_AMOUNT,$VALID_FROM,$VALID_TO,$SENDER_ACCT_ID,$SENDER_USER_ID,$CHEQUE_MEMO,$RECIPIENT_USER_ID);
 	}
@@ -405,6 +437,14 @@ abstract class otapi {
 
 	static function OT_API_LoadOutbox($SERVER_ID,$USER_ID,$ACCOUNT_ID) {
 		return OT_API_LoadOutbox($SERVER_ID,$USER_ID,$ACCOUNT_ID);
+	}
+
+	static function OT_API_LoadInboxNoVerify($SERVER_ID,$USER_ID,$ACCOUNT_ID) {
+		return OT_API_LoadInboxNoVerify($SERVER_ID,$USER_ID,$ACCOUNT_ID);
+	}
+
+	static function OT_API_LoadOutboxNoVerify($SERVER_ID,$USER_ID,$ACCOUNT_ID) {
+		return OT_API_LoadOutboxNoVerify($SERVER_ID,$USER_ID,$ACCOUNT_ID);
 	}
 
 	static function OT_API_Ledger_GetCount($SERVER_ID,$USER_ID,$ACCOUNT_ID,$THE_LEDGER) {
@@ -667,6 +707,18 @@ abstract class otapi {
 		return OT_API_LoadNymbox($SERVER_ID,$USER_ID);
 	}
 
+	static function OT_API_LoadNymboxNoVerify($SERVER_ID,$USER_ID) {
+		return OT_API_LoadNymboxNoVerify($SERVER_ID,$USER_ID);
+	}
+
+	static function OT_API_getBoxReceipt($SERVER_ID,$USER_ID,$ACCOUNT_ID,$nBoxType,$TRANSACTION_NUMBER) {
+		OT_API_getBoxReceipt($SERVER_ID,$USER_ID,$ACCOUNT_ID,$nBoxType,$TRANSACTION_NUMBER);
+	}
+
+	static function OT_API_DoesBoxReceiptExist($SERVER_ID,$USER_ID,$ACCOUNT_ID,$nBoxType,$TRANSACTION_NUMBER) {
+		return OT_API_DoesBoxReceiptExist($SERVER_ID,$USER_ID,$ACCOUNT_ID,$nBoxType,$TRANSACTION_NUMBER);
+	}
+
 	static function OT_API_processInbox($SERVER_ID,$USER_ID,$ACCT_ID,$ACCT_LEDGER) {
 		OT_API_processInbox($SERVER_ID,$USER_ID,$ACCT_ID,$ACCT_LEDGER);
 	}
@@ -721,6 +773,10 @@ abstract class otapi {
 
 	static function OT_API_FlushMessageBuffer() {
 		OT_API_FlushMessageBuffer();
+	}
+
+	static function OT_API_Sleep($MILLISECONDS) {
+		OT_API_Sleep($MILLISECONDS);
 	}
 
 	static function OT_API_ResyncNymWithServer($SERVER_ID,$USER_ID,$THE_MESSAGE) {

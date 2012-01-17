@@ -128,6 +128,7 @@
 
 
 #include <cstring>
+#include <ctime>
 
 #include <string>
 #include <algorithm>
@@ -271,6 +272,8 @@ void OTScriptable::RegisterOTNativeCallsWithScript(OTScript & theScript)
 	
 	if (NULL != pScript)
 	{
+		pScript->chai.add(fun(&OTScriptable::GetTime), "get_time");
+		// ---------------------------------------------------------------------------------
 		pScript->chai.add(fun(&OTScriptable::CanExecuteClause, this), "party_may_execute_clause");		
 //		pScript->chai.add(fun(&OTScriptable::CanExecuteClause, (*this)), "party_may_execute_clause");		
 	}
@@ -283,6 +286,16 @@ void OTScriptable::RegisterOTNativeCallsWithScript(OTScript & theScript)
 }
 
 
+//static
+std::string OTScriptable::GetTime() // Returns a string, containing seconds as int. (Time in seconds.)
+{
+	const	time_t	CURRENT_TIME	=	time(NULL);
+	const	long	lTime			=	CURRENT_TIME;
+	// ----------------------------------
+	OTString strTime;
+	strTime.Format("%ld", lTime);
+	return	strTime.Get();
+}
 
 
 // The server calls this when it wants to know if a certain party is allowed to execute a specific clause.
@@ -733,6 +746,11 @@ bool OTScriptable::DropServerNoticeToNymbox(OTPseudonym & theServerNym,
         // Save both inboxes to storage. (File, DB, wherever it goes.)
         theLedger.	SaveNymbox();
         
+		// Corresponds to the AddTransaction() call just above. These
+		// are stored in a separate file now.
+		//
+		pTransaction->SaveBoxReceipt(theLedger);
+		
         return true;    // Really this true should be predicated on ALL the above functions returning true. Right?
     }
     else

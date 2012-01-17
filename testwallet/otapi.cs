@@ -17,10 +17,6 @@ public class otapi {
     return ret;
   }
 
-  public static void OT_API_Output(int nLogLevel, string szOutput) {
-    otapiPINVOKE.OT_API_Output(nLogLevel, szOutput);
-  }
-
   public static int OT_API_Init(string szClientPath) {
     int ret = otapiPINVOKE.OT_API_Init(szClientPath);
     return ret;
@@ -33,6 +29,55 @@ public class otapi {
 
   public static int OT_API_SwitchWallet(string szDataFolderPath, string szWalletFilename) {
     int ret = otapiPINVOKE.OT_API_SwitchWallet(szDataFolderPath, szWalletFilename);
+    return ret;
+  }
+
+  public static void OT_API_Output(int nLogLevel, string szOutput) {
+    otapiPINVOKE.OT_API_Output(nLogLevel, szOutput);
+  }
+
+  public static string OT_API_GetTime() {
+    string ret = otapiPINVOKE.OT_API_GetTime();
+    return ret;
+  }
+
+  public static string OT_API_Encode(string szPlaintext, int bLineBreaks) {
+    string ret = otapiPINVOKE.OT_API_Encode(szPlaintext, bLineBreaks);
+    return ret;
+  }
+
+  public static string OT_API_Decode(string szEncoded, int bLineBreaks) {
+    string ret = otapiPINVOKE.OT_API_Decode(szEncoded, bLineBreaks);
+    return ret;
+  }
+
+  public static string OT_API_Encrypt(string RECIPIENT_NYM_ID, string szPlaintext) {
+    string ret = otapiPINVOKE.OT_API_Encrypt(RECIPIENT_NYM_ID, szPlaintext);
+    return ret;
+  }
+
+  public static string OT_API_Decrypt(string RECIPIENT_NYM_ID, string szCiphertext) {
+    string ret = otapiPINVOKE.OT_API_Decrypt(RECIPIENT_NYM_ID, szCiphertext);
+    return ret;
+  }
+
+  public static string OT_API_SignContract(string SIGNER_NYM_ID, string THE_CONTRACT) {
+    string ret = otapiPINVOKE.OT_API_SignContract(SIGNER_NYM_ID, THE_CONTRACT);
+    return ret;
+  }
+
+  public static string OT_API_AddSignature(string SIGNER_NYM_ID, string THE_CONTRACT) {
+    string ret = otapiPINVOKE.OT_API_AddSignature(SIGNER_NYM_ID, THE_CONTRACT);
+    return ret;
+  }
+
+  public static int OT_API_VerifySignature(string SIGNER_NYM_ID, string THE_CONTRACT) {
+    int ret = otapiPINVOKE.OT_API_VerifySignature(SIGNER_NYM_ID, THE_CONTRACT);
+    return ret;
+  }
+
+  public static string OT_API_VerifyAndRetrieveXMLContents(string THE_CONTRACT, string SIGNER_ID) {
+    string ret = otapiPINVOKE.OT_API_VerifyAndRetrieveXMLContents(THE_CONTRACT, SIGNER_ID);
     return ret;
   }
 
@@ -306,11 +351,6 @@ public class otapi {
     return ret;
   }
 
-  public static string OT_API_VerifyAndRetrieveXMLContents(string THE_CONTRACT, string USER_ID) {
-    string ret = otapiPINVOKE.OT_API_VerifyAndRetrieveXMLContents(THE_CONTRACT, USER_ID);
-    return ret;
-  }
-
   public static string OT_API_WriteCheque(string SERVER_ID, string CHEQUE_AMOUNT, string VALID_FROM, string VALID_TO, string SENDER_ACCT_ID, string SENDER_USER_ID, string CHEQUE_MEMO, string RECIPIENT_USER_ID) {
     string ret = otapiPINVOKE.OT_API_WriteCheque(SERVER_ID, CHEQUE_AMOUNT, VALID_FROM, VALID_TO, SENDER_ACCT_ID, SENDER_USER_ID, CHEQUE_MEMO, RECIPIENT_USER_ID);
     return ret;
@@ -481,6 +521,16 @@ public class otapi {
 
   public static string OT_API_LoadOutbox(string SERVER_ID, string USER_ID, string ACCOUNT_ID) {
     string ret = otapiPINVOKE.OT_API_LoadOutbox(SERVER_ID, USER_ID, ACCOUNT_ID);
+    return ret;
+  }
+
+  public static string OT_API_LoadInboxNoVerify(string SERVER_ID, string USER_ID, string ACCOUNT_ID) {
+    string ret = otapiPINVOKE.OT_API_LoadInboxNoVerify(SERVER_ID, USER_ID, ACCOUNT_ID);
+    return ret;
+  }
+
+  public static string OT_API_LoadOutboxNoVerify(string SERVER_ID, string USER_ID, string ACCOUNT_ID) {
+    string ret = otapiPINVOKE.OT_API_LoadOutboxNoVerify(SERVER_ID, USER_ID, ACCOUNT_ID);
     return ret;
   }
 
@@ -786,6 +836,20 @@ public class otapi {
     return ret;
   }
 
+  public static string OT_API_LoadNymboxNoVerify(string SERVER_ID, string USER_ID) {
+    string ret = otapiPINVOKE.OT_API_LoadNymboxNoVerify(SERVER_ID, USER_ID);
+    return ret;
+  }
+
+  public static void OT_API_getBoxReceipt(string SERVER_ID, string USER_ID, string ACCOUNT_ID, int nBoxType, string TRANSACTION_NUMBER) {
+    otapiPINVOKE.OT_API_getBoxReceipt(SERVER_ID, USER_ID, ACCOUNT_ID, nBoxType, TRANSACTION_NUMBER);
+  }
+
+  public static int OT_API_DoesBoxReceiptExist(string SERVER_ID, string USER_ID, string ACCOUNT_ID, int nBoxType, string TRANSACTION_NUMBER) {
+    int ret = otapiPINVOKE.OT_API_DoesBoxReceiptExist(SERVER_ID, USER_ID, ACCOUNT_ID, nBoxType, TRANSACTION_NUMBER);
+    return ret;
+  }
+
   public static void OT_API_processInbox(string SERVER_ID, string USER_ID, string ACCT_ID, string ACCT_LEDGER) {
     otapiPINVOKE.OT_API_processInbox(SERVER_ID, USER_ID, ACCT_ID, ACCT_LEDGER);
   }
@@ -841,6 +905,10 @@ public class otapi {
 
   public static void OT_API_FlushMessageBuffer() {
     otapiPINVOKE.OT_API_FlushMessageBuffer();
+  }
+
+  public static void OT_API_Sleep(string MILLISECONDS) {
+    otapiPINVOKE.OT_API_Sleep(MILLISECONDS);
   }
 
   public static int OT_API_ResyncNymWithServer(string SERVER_ID, string USER_ID, string THE_MESSAGE) {

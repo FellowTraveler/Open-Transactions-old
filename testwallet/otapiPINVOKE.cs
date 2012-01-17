@@ -236,9 +236,6 @@ class otapiPINVOKE {
   [DllImport("otapi", EntryPoint="CSharp_OT_API_Set_PasswordCallback")]
   public static extern bool OT_API_Set_PasswordCallback(HandleRef jarg1);
 
-  [DllImport("otapi", EntryPoint="CSharp_OT_API_Output")]
-  public static extern void OT_API_Output(int jarg1, string jarg2);
-
   [DllImport("otapi", EntryPoint="CSharp_OT_API_Init")]
   public static extern int OT_API_Init(string jarg1);
 
@@ -247,6 +244,36 @@ class otapiPINVOKE {
 
   [DllImport("otapi", EntryPoint="CSharp_OT_API_SwitchWallet")]
   public static extern int OT_API_SwitchWallet(string jarg1, string jarg2);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_Output")]
+  public static extern void OT_API_Output(int jarg1, string jarg2);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_GetTime")]
+  public static extern string OT_API_GetTime();
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_Encode")]
+  public static extern string OT_API_Encode(string jarg1, int jarg2);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_Decode")]
+  public static extern string OT_API_Decode(string jarg1, int jarg2);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_Encrypt")]
+  public static extern string OT_API_Encrypt(string jarg1, string jarg2);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_Decrypt")]
+  public static extern string OT_API_Decrypt(string jarg1, string jarg2);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_SignContract")]
+  public static extern string OT_API_SignContract(string jarg1, string jarg2);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_AddSignature")]
+  public static extern string OT_API_AddSignature(string jarg1, string jarg2);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_VerifySignature")]
+  public static extern int OT_API_VerifySignature(string jarg1, string jarg2);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_VerifyAndRetrieveXMLContents")]
+  public static extern string OT_API_VerifyAndRetrieveXMLContents(string jarg1, string jarg2);
 
   [DllImport("otapi", EntryPoint="CSharp_OT_API_GetMemlogSize")]
   public static extern int OT_API_GetMemlogSize();
@@ -410,9 +437,6 @@ class otapiPINVOKE {
   [DllImport("otapi", EntryPoint="CSharp_OT_API_SetServer_Name")]
   public static extern int OT_API_SetServer_Name(string jarg1, string jarg2);
 
-  [DllImport("otapi", EntryPoint="CSharp_OT_API_VerifyAndRetrieveXMLContents")]
-  public static extern string OT_API_VerifyAndRetrieveXMLContents(string jarg1, string jarg2);
-
   [DllImport("otapi", EntryPoint="CSharp_OT_API_WriteCheque")]
   public static extern string OT_API_WriteCheque(string jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6, string jarg7, string jarg8);
 
@@ -517,6 +541,12 @@ class otapiPINVOKE {
 
   [DllImport("otapi", EntryPoint="CSharp_OT_API_LoadOutbox")]
   public static extern string OT_API_LoadOutbox(string jarg1, string jarg2, string jarg3);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_LoadInboxNoVerify")]
+  public static extern string OT_API_LoadInboxNoVerify(string jarg1, string jarg2, string jarg3);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_LoadOutboxNoVerify")]
+  public static extern string OT_API_LoadOutboxNoVerify(string jarg1, string jarg2, string jarg3);
 
   [DllImport("otapi", EntryPoint="CSharp_OT_API_Ledger_GetCount")]
   public static extern int OT_API_Ledger_GetCount(string jarg1, string jarg2, string jarg3, string jarg4);
@@ -713,6 +743,15 @@ class otapiPINVOKE {
   [DllImport("otapi", EntryPoint="CSharp_OT_API_LoadNymbox")]
   public static extern string OT_API_LoadNymbox(string jarg1, string jarg2);
 
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_LoadNymboxNoVerify")]
+  public static extern string OT_API_LoadNymboxNoVerify(string jarg1, string jarg2);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_getBoxReceipt")]
+  public static extern void OT_API_getBoxReceipt(string jarg1, string jarg2, string jarg3, int jarg4, string jarg5);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_DoesBoxReceiptExist")]
+  public static extern int OT_API_DoesBoxReceiptExist(string jarg1, string jarg2, string jarg3, int jarg4, string jarg5);
+
   [DllImport("otapi", EntryPoint="CSharp_OT_API_processInbox")]
   public static extern void OT_API_processInbox(string jarg1, string jarg2, string jarg3, string jarg4);
 
@@ -754,6 +793,9 @@ class otapiPINVOKE {
 
   [DllImport("otapi", EntryPoint="CSharp_OT_API_FlushMessageBuffer")]
   public static extern void OT_API_FlushMessageBuffer();
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_Sleep")]
+  public static extern void OT_API_Sleep(string jarg1);
 
   [DllImport("otapi", EntryPoint="CSharp_OT_API_ResyncNymWithServer")]
   public static extern int OT_API_ResyncNymWithServer(string jarg1, string jarg2, string jarg3);

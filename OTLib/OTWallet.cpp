@@ -726,12 +726,295 @@ void OTWallet::AddAssetContract(const OTAssetContract & theContract)
 	}
 }
 
+
+
+
+bool OTWallet::VerifyAssetAccount(OTPseudonym & theNym, 
+								  OTAccount & theAcct, 
+								  const OTIdentifier & SERVER_ID,
+								  const OTString & strAcctID,
+								  const char * szFuncName /*=NULL*/)
+{
+	const char * szFunc = (NULL != szFuncName) ? szFuncName : "OTWallet::VerifyAssetAccount";
+	// -----------------
+	if (SERVER_ID != theAcct.GetRealServerID())
+	{
+		const OTString s1(SERVER_ID), s2(theAcct.GetRealServerID());
+		OTLog::vOutput(0, "OTWallet::VerifyAssetAccount %s: Server ID passed in (%s) didn't match the one "
+					   "on the account (%s). Acct ID: %s\n", szFunc, s1.Get(), s2.Get(), strAcctID.Get());
+		return false;
+	}
+	// -----------------------------------------------------		
+	const OTIdentifier	theNymID(theNym);
+	const OTString		strNymID(theNymID);
+	// -----------------------------------------------------		
+	if (false == theAcct.VerifyOwner(theNym)) // Verifies Ownership.
+	{
+		OTLog::vOutput(0, "OTWallet::VerifyAssetAccount %s: Nym (ID: %s) is not the owner of the account: %s\n",
+					   szFunc, strNymID.Get(), strAcctID.Get());
+		return false;			
+	}
+	// -----------------------------------------------------
+	if (false == theAcct.VerifyAccount(theNym)) // Verifies ContractID and Signature.
+	{
+		OTLog::vOutput(0, "OTWallet::VerifyAssetAccount %s: Account signature or AccountID fails to verify. "
+					   "NymID: %s  AcctID: %s\n", szFunc, strNymID.Get(), strAcctID.Get());
+		return false;
+	}
+	// By this point, I know that everything checks out. Signature and Account ID,
+	// Nym is owner, etc.
+	// -----------------------------------------------------
+	return true;
+}
+
+
+// --------------------------------------------
+// No need to cleanup the account returned, it's owned by the wallet.
+//
+OTAccount * OTWallet::GetOrLoadAccount(			OTPseudonym		& theNym, 
+									   const	OTIdentifier	& ACCT_ID, 
+									   const	OTIdentifier	& SERVER_ID, 
+									   const char *	szFuncName	/*=NULL*/)
+{
+	const char * szFunc = (NULL != szFuncName) ? szFuncName : "OTWallet::GetOrLoadAccount";
+	// -----------------
+	const OTString strAcctID(ACCT_ID);
+	// -----------------
+	OTAccount *	pAccount		= this->GetAccount(ACCT_ID);
+	// -----------------
+	if (NULL == pAccount) // It wasn't there already, so we'll have to load it...
+	{
+		OTLog::vOutput(0, "OTWallet::GetOrLoadAccount %s: There's no asset account in the wallet with that ID (%s). "
+					   "Attempting to load it from storage...\n", szFunc, strAcctID.Get());
+		pAccount = this->LoadAccount(theNym, ACCT_ID, SERVER_ID, szFuncName);
+	} // pAccount == NULL.
+	// --------------------------------------------
+	// It either was already there, or it loaded successfully...
+	//	
+	if (NULL == pAccount) // pAccount EXISTS...
+	{
+		OTLog::vError("OTWallet::GetOrLoadAccount %s: Error loading Asset Account: %s\n",
+					  szFunc, strAcctID.Get());
+		return NULL;
+	}
+	// --------------------------------------------
+	return pAccount;
+}
+
+
+// -----------------------------------------------------------------------
+// No need to cleanup the account returned, it's owned by the wallet.
+//
+// We don't care if this asset account is already loaded in the wallet.
+// Presumably, the user has just download the latest copy of the account
+// from the server, and the one in the wallet is old, so now this function
+// is being called to load the new one from storage and update the wallet.
+//
+OTAccount * OTWallet::LoadAccount(			OTPseudonym		& theNym, 
+									const	OTIdentifier	& ACCT_ID, 
+									const	OTIdentifier	& SERVER_ID, 
+									const char *	szFuncName	/*=NULL*/)
+{
+	const char * szFunc = (NULL != szFuncName) ? szFuncName : "OTWallet::LoadAccount";
+	// -----------------
+	const OTString strAcctID(ACCT_ID);
+	OTAccount *	pAccount = OTAccount::LoadExistingAccount(ACCT_ID, SERVER_ID);
+	// --------------------------------------------
+	// It loaded successfully...
+	//
+	if (NULL != pAccount) // pAccount EXISTS...
+	{
+		bool bVerified = this->VerifyAssetAccount(theNym, *pAccount, SERVER_ID, strAcctID, szFunc);
+		
+		if (false == bVerified)
+		{
+			delete pAccount;  pAccount = NULL;
+			return NULL; // No need to log, since VerifyAssetAccount() already logs.
+		}
+		// -----------------------------------------------------
+		// If I had to load it myself, that means I need to add it to the wallet.
+		// (Whereas if GetAccount() had worked, then it would ALREADY be in the wallet,
+		// and thus I shouldn't add it twice...)
+		//
+		this->AddAccount(*pAccount);
+		// -----------------------------------------------------
+	}
+	else
+	{
+		OTLog::vError("OTWallet::LoadAccount %s: Failed loading Asset Account: %s\n",
+					  szFunc, strAcctID.Get());
+		return NULL;
+	}
+	// ---------------------------
+	return pAccount;
+}
+
+// -----------------------------------------------------------------------
+
+
+// This function only tries to load as a public Nym.
+// No need to cleanup, since it adds the Nym to the wallet.
+//
+OTPseudonym * OTWallet::GetOrLoadPublicNym(const OTIdentifier & NYM_ID, const char * szFuncName/*=NULL*/)
+{
+	const OTString strNymID(NYM_ID);
+	szFuncName = (szFuncName == NULL) ? "" : szFuncName;
+
+	OTPseudonym * pNym = this->GetNymByID(NYM_ID); // <===========
+	// --------------------------------------------
+	if (NULL == pNym) // Wasn't already in the wallet. Try loading it.
+	{
+		OTLog::vOutput(1, "OTWallet::GetOrLoadPublicNym %s: There's no Nym already loaded with that ID. "
+					   "Attempting to load public key...\n", szFuncName);
+		pNym = OTPseudonym::LoadPublicNym(NYM_ID); // <===========
+		// It worked!
+		if (NULL != pNym) // LoadPublicNym has plenty of error logging already.	
+			this->AddNym(*pNym); // <===========
+		else
+			OTLog::vOutput(0, "OTWallet::GetOrLoadPublicNym %s: Unable to load public Nym for: %s \n",
+						   szFuncName, strNymID.Get());
+	}
+	// --------------------------------------------	
+	// If pNym exists, yet he doesn't have a public key (weird!)
+	// Though we log the error, we still return pNym, since it exists.
+	//
+	if ((NULL != pNym) && (false == pNym->HasPublicKey()))
+		OTLog::vError("OTWallet::GetOrLoadPublicNym %s: Found nym (%s), but he has no public key. "
+					  "(Still returning the Nym, since it exists.)\n", szFuncName, strNymID.Get());
+	return pNym;
+}
+
+
+// This function only tries to load as a private Nym.
+// No need to cleanup, since it adds the Nym to the wallet.
+//
+// It is smart enough to Get the Nym from the wallet, and if it
+// sees that it's only a public nym (no private key) then it
+// reloads it as a private nym at that time.
+//
+OTPseudonym * OTWallet::GetOrLoadPrivateNym(const OTIdentifier & NYM_ID, const char * szFuncName/*=NULL*/)
+{
+	const OTString strNymID(NYM_ID);
+	szFuncName = (szFuncName == NULL) ? "" : szFuncName;
+	// ---------------------------------------------------------
+	// See if it's already there. (Could be the public version 
+	// though :P Still might have to reload it.)
+	//
+	OTPseudonym * pNym = this->GetNymByID(NYM_ID); // <===========
+	// ---------------------------------------------------------
+	if (NULL == pNym) // Wasn't already in the wallet. Let's try loading it...
+	{
+		OTLog::vOutput(1, "OTWallet::GetOrLoadPrivateNym %s: There's no Nym already loaded with that ID. "
+					   "Attempting to load private key...\n", szFuncName);
+		pNym = OTPseudonym::LoadPrivateNym(NYM_ID); // <===========
+		// It worked!
+		if (NULL != pNym) // LoadPublicNym has plenty of error logging already.	
+			this->AddNym(*pNym); // <===========
+		else
+			OTLog::vOutput(0, "OTWallet::GetOrLoadPrivateNym %s: Unable to load private Nym for: %s \n",
+						   szFuncName, strNymID.Get());
+	}
+	// ---------------------------------------------------------
+	// If pNym EXISTS, then let's make sure he has a public AND a
+	// private key, as he should. (He might be already loaded on the
+	// wallet, without his private key, necessitating a reload.)
+	//
+	if (NULL != pNym) // pNym definitely NOT NULL (it exists)...
+	{
+		// ----------------------------------------------
+		// ...yet he doesn't have a public key (Weird!)
+		if (false == pNym->HasPublicKey())
+			OTLog::vError("OTWallet::GetOrLoadPrivateNym %s: Found nym, but he has no public key: %s\n", 
+						  szFuncName, strNymID.Get());
+		// ----------------------------------------------
+		// ...hmm, he doesn't have a private key. Possible! If the wallet already had
+		// my public key loaded (without the private one) from some earlier action.
+		//
+		if (false == pNym->HasPrivateKey())
+		{
+			OTLog::vOutput(1, "OTWallet::GetOrLoadPrivateNym %s: Found nym in wallet (%s), but he currently has no private key loaded. Reloading...\n", 
+						   szFuncName, strNymID.Get());
+			// ----------------------------------------------
+			//
+			// ASSUMPTION: The Nym is always saved right after some important change, 
+			// to avoid the risk of losing it. Therefore I don't have to save the
+			// current Nym here--I can just remove it from the wallet now, and then 
+			// reload it (as a private key this time, of course.)
+			//
+			
+			// Let's save the Name, in case that is already set, so we don't blank it out...
+			//
+			OTString strName = pNym->GetNymName().Get(); // Get returns "" if string is empty.
+
+			if (this->RemoveNym(NYM_ID))
+			{
+				pNym = OTPseudonym::LoadPrivateNym(NYM_ID, &strName); // <===========
+				// It worked!
+				if (NULL != pNym) // LoadPrivateNym has plenty of error logging already.	
+					this->AddNym(*pNym); // <===========
+				else
+					OTLog::vOutput(0, "OTWallet::GetOrLoadPrivateNym %s: Unable to load private Nym for: %s \n",
+								   szFuncName, strNymID.Get());				
+			}
+			else 
+				OTLog::vError("OTWallet::GetOrLoadPrivateNym %s: Found nym (%s), but he had no private key. Then tried to remove him from wallet (in order "
+							  "to reload him with private key) and then the removal failed. Sorry.\n", szFuncName, strNymID.Get());
+		}
+	}
+	return pNym;
+}
+
+
+
+// This function tries to load as public Nym first, then if it fails,
+// it tries the private one next. (So as to avoid unnecessarily asking
+// users for their passphrase.) Be sure to use GetOrLoadPublicNym() or
+// GetOrLoadPrivateNym() if you want to force it one way or the other.
+//
+// No need to cleanup, since either function called will add the loaded
+// Nym to the wallet, which will take ownership.
+//
+OTPseudonym * OTWallet::GetOrLoadNym(const OTIdentifier & NYM_ID, const char * szFuncName/*=NULL*/)
+{
+	OTPseudonym * pNym = this->GetOrLoadPublicNym(NYM_ID, szFuncName);
+	
+	// It tries to load as public Nym first, so as not to force the user to
+	// enter his passphrase unnecessarily.
+	// However, if this fails, then it tries the private one, just to see
+	// if it can be found.
+	//
+	if (NULL == pNym)
+		pNym = this->GetOrLoadPrivateNym(NYM_ID, szFuncName);
+
+	return pNym;
+}
+
+
 // --------------------------------------------
 
 // These functions are low-level. They don't check for dependent data before deleting,
 // and they don't save the wallet after they do.
 //
 // You have to handle that at a higher level.
+
+// higher level version of this will require a server message, in addition to removing from wallet.
+bool OTWallet::RemoveNym(const OTIdentifier & theTargetID)
+{
+	FOR_EACH(mapOfNyms, m_mapNyms)
+	{		
+		OTPseudonym * pNym = (*it).second;
+		OT_ASSERT_MSG((NULL != pNym), "NULL pseudonym pointer in OTWallet::RemoveNym.");
+
+		if (pNym->CompareID(theTargetID))
+		{
+			m_mapNyms.erase(it);
+			delete pNym;
+			return true;
+		}
+	}
+	return false;	
+}
+
 
 bool OTWallet::RemoveAssetContract(const OTIdentifier & theTargetID)
 {
@@ -778,30 +1061,6 @@ bool OTWallet::RemoveServerContract(const OTIdentifier & theTargetID)
 			return true;
 		}
 	}
-	
-	return false;	
-}
-
-// higher level version of this will require a server message, in addition to removing from wallet.
-bool OTWallet::RemoveNym(const OTIdentifier & theTargetID)
-{
-	FOR_EACH(mapOfNyms, m_mapNyms)
-	{		
-		OTPseudonym * pNym = (*it).second;
-		OT_ASSERT_MSG((NULL != pNym), "NULL pseudonym pointer in OTWallet::RemoveNym.");
-		
-		OTIdentifier id_CurrentNym;
-		pNym->GetIdentifier(id_CurrentNym);
-		
-		if (id_CurrentNym == theTargetID)
-		{
-			m_mapNyms.erase(it);
-						
-			delete pNym;
-			
-			return true;
-		}
-	}	
 	
 	return false;	
 }
@@ -1126,46 +1385,26 @@ bool OTWallet::LoadWallet(const char * szFilename)
 				else if (!strcmp("pseudonym", xml->getNodeName()))  // -------------------------------------------------------------
 				{
 					OTASCIIArmor ascNymName = xml->getAttributeValue("name");
-					
 					if (ascNymName.Exists())
 						ascNymName.GetString(NymName, false); // linebreaks == false
 
-//					NymName = xml->getAttributeValue("name");// user-assigned name for GUI usage				
 					NymID = xml->getAttributeValue("nymID"); // message digest from hash of x.509 cert
 					
 					OTLog::vOutput(2, "\n\n** Pseudonym ** (wallet listing): %s\nID: %s\n",
-							NymName.Get(), NymID.Get());
-
-					OTPseudonym * pNym = new OTPseudonym(NymName, NymID, NymID);
-
-					OT_ASSERT_MSG((NULL != pNym), "Unable to allocate memory for an OTPseudonym");
-
-					if (pNym->Loadx509CertAndPrivateKey())
-					{
-						if (pNym->VerifyPseudonym()) 
-						{
-//							pNym->LoadSignedNymfile(*pNym); // Uncomment this line to generate a new Nym by hand.
-//							if (true)						// This one too.
-							if (pNym->LoadSignedNymfile(*pNym))  // Comment OUT this line to generate a new nym by hand..
-							{
-//								pNym->SaveSignedNymfile(*pNym); // Uncomment this if you want to generate a new nym by hand. NORMALLY LEAVE IT COMMENTED OUT!!!! IT'S DANGEROUS!!!
-								// Also see OTPseudonym.cpp where it says:  //		&& theNymfile.VerifyFile()
-								
-								this->AddNym(*pNym); // Nym loaded. Insert to wallet's list of Nyms.
-							}
-							else
-							{
-								OTLog::Output(0, "Error loading Nym in OTWallet::LoadWallet\n");
-							}
-						}
-						else 
-						{
-							OTLog::Output(0, "Error verifying public key against Nym ID in OTWallet::LoadWallet\n");
-						}
-					}
-					else {
-						OTLog::Output(0, "Error loading x509 file for Pseudonym in OTWallet::LoadWallet\n");
-					}
+								   NymName.Get(), NymID.Get());
+					OT_ASSERT_MSG(NymID.Exists(), "OTWallet::LoadWallet: NymID was empty when loading wallet!\n");
+					// ----------------------
+					const OTIdentifier theNymID(NymID);
+					OTPseudonym * pNym = OTPseudonym::LoadPrivateNym(theNymID, &NymName);
+					// If it fails loading as a private Nym, then maybe it's a public one...
+					if (NULL == pNym)
+						pNym = OTPseudonym::LoadPublicNym(theNymID, &NymName);
+					// --------------------------------------------
+					if (NULL == pNym) // STILL null ??
+						OTLog::vOutput(0, "OTWallet::LoadWallet: Failed loading Nym (%s) with ID: %s\n",
+									   NymName.Get(), NymID.Get());
+					else 
+						this->AddNym(*pNym); // Nym loaded. Insert to wallet's list of Nyms.
 				}
 				else if (!strcmp("assetType", xml->getNodeName()))	// -------------------------------------------------------------
 				{

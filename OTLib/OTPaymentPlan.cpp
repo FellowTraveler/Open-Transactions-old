@@ -1226,6 +1226,12 @@ bool OTPaymentPlan::ProcessPayment(const long & lAmount)
 			theSenderInbox.		SaveInbox();
 			theRecipientInbox.	SaveInbox();
 			
+			// These correspond to the AddTransaction() calls just above. These are stored
+			// in separate files now.
+			//
+			pTransSend->SaveBoxReceipt(theSenderInbox);
+			pTransRecip->SaveBoxReceipt(theRecipientInbox);
+			
 			// If success, save the accounts with new balance. (Save inboxes with receipts either way,
 			// and the receipts will contain a rejection or acknowledgment stamped by the Server Nym.)
 			if (true == bSuccess)

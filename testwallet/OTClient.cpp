@@ -2196,9 +2196,6 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 											// downloaded occasionally (like checking for new email) but no trust is risked since the dl'd
 											// file is always verified against the receipt!
 			
-			
-			OTLog::vOutput(0, "===> ** LAST SIGNED TRANSACTION RECEIPT *VERIFIED* against latest nym!\n\n");
-
 			// Old comment:
 			// (Accepting the entire nymbox automatically-- sending a signed message right
 			// back to the server accepting whatever was inside this ledger, without giving the user
@@ -2240,6 +2237,127 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 		
 		return true;
 	}
+	// ------------------------------------------------------------------------
+	
+	else if (theReply.m_bSuccess && theReply.m_strCommand.Compare("@getBoxReceipt"))
+	{
+		OTString strReply(theReply);
+		
+		OTLog::vOutput(0, "Received server response to getBoxReceipt request: %s \n",
+					   theReply.m_bSuccess ? "success" : "failure");
+//		OTLog::vOutput(0, "Received server response to getBoxReceipt message:\n%s\n", strReply.Get());
+				
+		// IF pNymbox NOT NULL, THEN USE IT INSTEAD OF LOADING MY OWN.
+		// Except... @getNymbox isn't dropped as a replyNotice into the Nymbox,
+		// so we'll never end up here except in cases where it needs to be
+		// loaded. I can even ASSERT here, that the pointer is actually NULL!
+		OT_ASSERT_MSG(NULL == pNymbox, "Nymbox pointer is expected to be NULL here, since @getBoxReceipt isn't dropped as a server replyNotice into the nymbox.");
+		
+		// Note: I don't HAVE to load the ledger, and what if there are 500000 receipts in it?
+		// Do I want to reload it EVERY time? Therefore
+//		OTLedger * pLedger = new OTLedger(USER_ID, ACCOUNT_ID, SERVER_ID);
+//		OTCleanup<OTLedger> theLedgerAngel(pLedger);
+//		OT_ASSERT(NULL != pLedger);
+//		bool bErrorCondition = false;
+//		bool bSuccessLoading = false;
+		
+		bool bErrorCondition = false;
+		bool bSuccessLoading = true;	// We don't need to load the ledger, so that's commented out.
+		
+		switch (theReply.m_lDepth)
+		{	// No need to load the ledger at this point...  plus, it would slow things down.
+			case 0:	//bSuccessLoading = pLedger->LoadNymbox();	break;
+			case 1:	//bSuccessLoading = pLedger->LoadInbox();	break;
+			case 2:	//bSuccessLoading = pLedger->LoadOutbox();	break;
+				break;
+			default:
+				OTLog::vError("OTClient::ProcessServerReply: @getBoxReceipt: Unknown box type: %ld\n", 
+							  theReply.m_lDepth);
+				bErrorCondition = true;
+				break;
+		}
+		// ----------------------------------
+		if (bSuccessLoading && !bErrorCondition)
+//			&& pLedger->VerifyAccount(*pServerNym)) // commenting this out for now -- unnecessary. Plus, it speeds things up to remove this.
+		{
+			// At this point, the ledger is loaded. Now let's use it for what we really
+			// wanted: To save the Box Receipt!
+			// Update: not loading ledger -- it would slow things down. Added a method that allowed me to circumvent loading it.
+			
+			// base64-Decode the server reply's payload into strTransaction
+			//
+			const OTString strTransType(theReply.m_ascPayload);
+			OTTransactionType * pTransType = NULL;
+			
+			if (strTransType.Exists())
+				pTransType = OTTransactionType::TransactionFactory(strTransType);
+			OTCleanup<OTTransactionType> theTransTypeAngel(pTransType); // Still works if NULL argument. (Does nothing.)
+			
+			if (NULL == pTransType)
+				OTLog::vError("OTClient::ProcessServerReply: @getBoxReceipt: Error instantiating transaction "
+							  "type based on decoded theReply.m_ascPayload:\n\n%s\n", strTransType.Get());
+			else
+			{
+				// --------------------------------------------------------------------
+				OTTransaction * pBoxReceipt = dynamic_cast<OTTransaction *>(pTransType);
+				
+				if (NULL == pBoxReceipt)
+					OTLog::vError("OTClient::ProcessServerReply: @getBoxReceipt: Error dynamic_cast from transaction "
+								  "type to transaction, based on decoded theReply.m_ascPayload:\n\n%s\n\n", strTransType.Get());
+				// --------------------------------------------------------------------
+				else if (!pBoxReceipt->VerifyAccount(*pServerNym))
+					OTLog::vError("OTClient::ProcessServerReply: @getBoxReceipt: Error: Box Receipt %ld in %s fails VerifyAccount().\n",
+								  pBoxReceipt->GetTransactionNum(),
+								  (theReply.m_lDepth == 0) ? "nymbox" : ((theReply.m_lDepth == 1) ? "inbox" : "outbox")); // outbox is 2.);
+				// --------------------------------------------------------------------
+				else if (pBoxReceipt->GetTransactionNum() != theReply.m_lTransactionNum)
+					OTLog::vError("OTClient::ProcessServerReply: @getBoxReceipt: Error: Transaction Number doesn't match "
+								  "on the box receipt itself (%ld), versus the one listed in the reply message (%ld).\n",
+								  pBoxReceipt->GetTransactionNum(), theReply.m_lTransactionNum);
+				// --------------------------------------------------------------------
+				// Note: Account ID and Server ID were already verified, in VerifyAccount().				
+				// --------------------------------------------------------------------
+				else if (pBoxReceipt->GetUserID() != USER_ID)
+				{
+					const OTString strPurportedUserID(pBoxReceipt->GetUserID());
+					OTLog::vError("OTClient::ProcessServerReply: @getBoxReceipt: Error: NymID doesn't match "
+								  "on the box receipt itself (%s), versus the one listed in the reply message (%s).\n",
+								  strPurportedUserID.Get(), theReply.m_strNymID.Get());
+				}
+				// --------------------------------------------------------------------
+				else	// FINALLY we have the Ledger AND the Box Receipt both loaded at the same time.
+				{		// UPDATE: Not loading the ledger at this point. Not necessary. Faster without it.
+					
+//					pBoxReceipt->ReleaseSignatures();
+					// I don't release the server's signature, so later on I can verify either
+					// signature -- the server's or pNym's. Both should be on the receipt.
+					// UPDATE: We're not changing the content of the Box Receipt AT ALL
+					// because we don't want to already its message digest, which will be
+					// compared to the hash stored in the abbreviated version of the same receipt.
+					//
+//					pBoxReceipt->SignContract(*pNym);
+//					pBoxReceipt->SaveContract();
+					
+//					if (!pBoxReceipt->SaveBoxReceipt(*pLedger))				// <===================
+					if (!pBoxReceipt->SaveBoxReceipt(theReply.m_lDepth))	// <===================
+						OTLog::vError("OTClient::ProcessServerReply: @getBoxReceipt: Failed trying to SaveBoxReceipt. Contents:\n\n%s\n\n",
+									  strTransType.Get());
+					/* theReply.m_lDepth in this context stores boxType. Value can be: 0/nymbox,1/inbox,2/outbox*/
+					
+				} // We can save the box receipt.
+			} // Success loading the boxReceipt from the server reply
+		} // No error condition.
+		else
+		{
+			OTLog::vError("SHOULD NEVER HAPPEN -- OTClient::ProcessServerReply: @getBoxReceipt: failure "
+						  "loading box, or verifying it. UserID: %s  AcctID: %s \n", theReply.m_strNymID.Get(),
+						  theReply.m_strAcctID.Get());
+		}
+		// ----------------------------------
+		
+		return true;
+		
+	}	// @getBoxReceipt
 	// ------------------------------------------------------------------------
 	
 	/*
@@ -2792,9 +2910,13 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 										break;
 								}	// switch replyItem type
                                 
-                                // This happens for ALL of the above cases.
-                                //
-                                theInbox.RemoveTransaction(pServerTransaction->GetTransactionNum());												
+                                // This removal happens for ALL of the above cases.
+                                // Update: Now when removing receipts from any box, we have to
+								// also delete the box receipt, which is stored as a separate file.
+								//
+								pServerTransaction->DeleteBoxReceipt(theInbox); // faster
+//								theInbox.DeleteBoxReceipt(pServerTransaction->GetTransactionNum());
+                                theInbox.RemoveTransaction(pServerTransaction->GetTransactionNum());
                                 
 							} // for loop (reply items)
                             // ---------------------------------------
@@ -3121,7 +3243,11 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                             
                             // Remove from pNymbox
                             // This happens for ALL of the above cases.
-                            //
+                            // Update: Now whenever removing a receipt from any box, we also have
+							// to delete the box receipt, which is stored as a separate file.
+							//
+							pServerTransaction->DeleteBoxReceipt(*pNymbox); // faster.
+//							pNymbox->DeleteBoxReceipt(pServerTransaction->GetTransactionNum());
                             pNymbox->RemoveTransaction(pServerTransaction->GetTransactionNum());												
                         } // for loop (reply items)
                         
@@ -3327,8 +3453,8 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
             }
             
             // -----------------------------------------------
-            
-			theInbox.ReleaseSignatures(); // Now I'm keeping the server signature, and just adding my own. // This is back. Why? Because we have receipts functional now.
+            // Now I'm keeping the server signature, and just adding my own. 
+			theInbox.ReleaseSignatures(); // This is back. Why? Because we have receipts functional now.
 			theInbox.SignContract(*pNym);
 			theInbox.SaveContract();
 			theInbox.SaveInbox();

@@ -303,6 +303,11 @@ public:
 	// And make sure it's not blank. This is for script variable names, clause names, party names, etc.
 	//
 	static bool ValidateName(const std::string str_name);
+
+	// ------------------------
+	// For use from inside server-side scripts.
+	//
+	static std::string GetTime(); // Returns a string, containing seconds as int. (Time in seconds.)
 	
 	// ------------------------
 	

@@ -1872,8 +1872,9 @@ void OTItem::UpdateContents() // Before transmission or serialization, this is w
 		(OTItem::atBalanceStatement	== m_Type))
 	{
 	
+		// --------------------------------------------------------------
 		// loop through the sub-items (only used for balance agreement.)
-		
+		//
 		FOR_EACH(listOfItems, m_listItems)
 		{
 			OTItem * pItem = *it;
@@ -1902,7 +1903,8 @@ void OTItem::UpdateContents() // Before transmission or serialization, this is w
 									  pItem->GetTransactionNum(),
                                       pItem->GetClosingNum(),
 									  pItem->GetReferenceToNum());
-		}	
+		} // FOR_EACH
+		// --------------------------------------------------------------
 	}
 	
 	m_xmlUnsigned.Concatenate("</item>\n");					

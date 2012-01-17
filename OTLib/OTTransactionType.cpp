@@ -293,8 +293,8 @@ bool OTTransactionType::SaveContractWallet(std::ofstream & ofs)
 // So if you wish to VerifyOwner(), then call it.
 bool OTTransactionType::VerifyAccount(OTPseudonym & theNym)
 {
-	// Make sure that the supposed Contract ID that was set is actually
-	// a hash of the contract file, signatures and all.
+	// Make sure that the supposed AcctID matches the one read from the file.
+	//
 	if (false == VerifyContractID())
 	{
 		OTLog::Error("Error verifying account ID in OTTransactionType::VerifyAccount\n");
@@ -312,6 +312,8 @@ bool OTTransactionType::VerifyAccount(OTPseudonym & theNym)
 	return true;
 }
 
+
+
 bool OTTransactionType::VerifyContractID()
 {	
 	//m_AcctID contains the number we read from the xml file
@@ -325,9 +327,8 @@ bool OTTransactionType::VerifyContractID()
 	
 	// Also, for this class, we compare ServerID as well.  They go hand in hand.
 	
-	// I use the == operator here because there is no != operator at this time.
-	// That's why you see the ! outside the parenthesis.
-	if (!(m_ID == m_AcctID) || !(m_ServerID == m_AcctServerID))
+	if ((m_ID		!= m_AcctID)		|| 
+		(m_ServerID	!= m_AcctServerID))
 	{
 		OTString str1(m_ID), str2(m_AcctID), str3(m_ServerID), str4(m_AcctServerID);
 		OTLog::vError("Identifiers do NOT match in OTTransactionType::VerifyContractID.\n"
@@ -335,7 +336,8 @@ bool OTTransactionType::VerifyContractID()
 				str1.Get(), str2.Get(), str3.Get(), str4.Get());
 		return false;
 	}
-	else {
+	else 
+	{
 //		OTString str1(m_AcctID), str2(m_AcctServerID);
 //		OTLog::vError("Expected Account ID and Server ID both *SUCCESSFUL* match to "
 //				"IDs in the xml:\n Account ID:\n%s\n ServerID:\n%s\n"

@@ -130,6 +130,8 @@
 #ifndef __OTLEDGER_H__
 #define __OTLEDGER_H__
 
+#include <set>
+
 #include <fstream>
 
 #include "OTTransactionType.h"
@@ -158,19 +160,18 @@ private:
 	
 protected:	
 	// return -1 if error, 0 if nothing, and 1 if the node was processed.
-	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
-	
-	virtual void UpdateContents(); // Before transmission or serialization, this is where the ledger saves its contents 
+	virtual int		ProcessXMLNode(irr::io::IrrXMLReader*& xml);
+	virtual void	UpdateContents(); // Before transmission or serialization, this is where the ledger saves its contents 
 
     OTLedger(); // Hopefully stays here.
 
 public:
-	
-	enum ledgerType {
-		message,	// used in OTMessages, to send various lists of transactions back and forth.
+	enum ledgerType 
+	{
+		nymbox,		// the nymbox is per user account (versus per asset account) and is used to receive new transaction numbers (and messages.)
 		inbox,		// each asset account has an inbox, with pending transfers as well as receipts inside.
 		outbox,		// if you SEND a pending transfer, it sits in your outbox until it's accepted, rejected, or canceled.
-		nymbox,		// the nymbox is per user account (versus per asset account) and is used to receive new transaction numbers (and messages.)
+		message,	// used in OTMessages, to send various lists of transactions back and forth.
 		error_state
 	};
 	
@@ -196,17 +197,43 @@ public:
 	
 	void ProduceOutboxReport(OTItem & theBalanceItem);  
 
+	// ------------------------------------
 	bool AddTransaction(OTTransaction & theTransaction);
 	bool RemoveTransaction(long lTransactionNum); // if false, transaction wasn't found.
 	bool RemovePendingTransaction(long lTransactionNum); // if false, transaction wasn't found.
 	
 	OTTransaction * GetTransaction(const OTTransaction::transactionType theType);
-	OTTransaction * GetTransaction(long lTransactionNum);	
+	OTTransaction * GetTransaction(long lTransactionNum);
 	OTTransaction * GetTransactionByIndex(int nIndex);
 	OTTransaction * GetPendingTransaction(long lTransactionNum);
 	OTTransaction * GetFinalReceipt(long lReferenceNum);
 	OTTransaction * GetTransferReceipt(long lTransactionNum);
-
+	// ------------------------------------
+	// This calls OTTransactionType::VerifyAccount(), which calls 
+	// VerifyContractID() as well as VerifySignature().
+	//
+	// But first, this OTLedger version also loads the box receipts,
+	// if doing so is appropriate. (message ledger == not appropriate.)
+	//
+	// Use this method instead of OTContract::VerifyContract, which
+	// expects/uses a pubkey from inside the contract in order to verify
+	// it.
+	//
+	virtual bool VerifyAccount(OTPseudonym & theNym); 
+	// ------------------------------------
+	// For ALL abbreviated transactions, load the actual box receipt for each.
+	bool LoadBoxReceipts(std::set<long> * psetUnloaded=NULL); // if psetUnloaded passed in, then use it to return the #s that weren't there.
+	bool SaveBoxReceipts();	// For all "full version" transactions, save the actual box receipt for each.
+	// ------------------------------------
+	// Verifies the abbreviated form exists first, and then loads the 
+	// full version and compares the two. Returns success / fail.
+	//
+	bool LoadBoxReceipt(const long & lTransactionNum);
+	// Saves the Box Receipt separately.
+	bool SaveBoxReceipt(const long & lTransactionNum);
+	// "Deletes" it by adding MARKED_FOR_DELETION to the bottom of the file.
+	bool DeleteBoxReceipt(const long & lTransactionNum);
+	// ------------------------------------
 	bool SaveInbox();
 	bool LoadInbox();
 	
@@ -215,14 +242,14 @@ public:
 	
 	bool SaveOutbox();
 	bool LoadOutbox();
-	
+	// ------------------------------------		
+	inline // just the top one.
+	int		GetTransactionCount() const { return m_mapTransactions.size(); }
+	int		GetTransactionCountInRefTo(const long lReferenceNum);
+	long	GetTotalPendingValue(); // for inbox only, allows you to lookup the total value of pending transfers within.
+	// ------------------------------------		
 	mapOfTransactions & GetTransactionMap();
-	
-	inline int GetTransactionCount() const { return m_mapTransactions.size(); }
-	int GetTransactionCountInRefTo(const long lReferenceNum);
-	
-	long GetTotalPendingValue(); // for inbox only, allows you to lookup the total value of pending transfers within.
-	
+	// ------------------------------------
 	OTLedger(const OTIdentifier & theUserID, const OTIdentifier & theAccountID, const OTIdentifier & theServerID);	
 	virtual ~OTLedger();
 	

@@ -26,10 +26,19 @@ public class otapiJNI {
   public final static native void OTCaller_callOne(long jarg1, OTCaller jarg1_);
   public final static native void OTCaller_callTwo(long jarg1, OTCaller jarg1_);
   public final static native boolean OT_API_Set_PasswordCallback(long jarg1, OTCaller jarg1_);
-  public final static native void OT_API_Output(int jarg1, String jarg2);
   public final static native int OT_API_Init(String jarg1);
   public final static native int OT_API_LoadWallet(String jarg1);
   public final static native int OT_API_SwitchWallet(String jarg1, String jarg2);
+  public final static native void OT_API_Output(int jarg1, String jarg2);
+  public final static native String OT_API_GetTime();
+  public final static native String OT_API_Encode(String jarg1, int jarg2);
+  public final static native String OT_API_Decode(String jarg1, int jarg2);
+  public final static native String OT_API_Encrypt(String jarg1, String jarg2);
+  public final static native String OT_API_Decrypt(String jarg1, String jarg2);
+  public final static native String OT_API_SignContract(String jarg1, String jarg2);
+  public final static native String OT_API_AddSignature(String jarg1, String jarg2);
+  public final static native int OT_API_VerifySignature(String jarg1, String jarg2);
+  public final static native String OT_API_VerifyAndRetrieveXMLContents(String jarg1, String jarg2);
   public final static native int OT_API_GetMemlogSize();
   public final static native String OT_API_GetMemlogAtIndex(int jarg1);
   public final static native String OT_API_PeekMemlogFront();
@@ -84,7 +93,6 @@ public class otapiJNI {
   public final static native int OT_API_SetAccountWallet_Name(String jarg1, String jarg2, String jarg3);
   public final static native int OT_API_SetAssetType_Name(String jarg1, String jarg2);
   public final static native int OT_API_SetServer_Name(String jarg1, String jarg2);
-  public final static native String OT_API_VerifyAndRetrieveXMLContents(String jarg1, String jarg2);
   public final static native String OT_API_WriteCheque(String jarg1, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6, String jarg7, String jarg8);
   public final static native int OT_API_DiscardCheque(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native String OT_API_ProposePaymentPlan(String jarg1, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6, String jarg7, String jarg8, String jarg9, String jarg10, String jarg11, String jarg12, String jarg13, String jarg14, String jarg15);
@@ -120,6 +128,8 @@ public class otapiJNI {
   public final static native String OT_API_LoadAssetAccount(String jarg1, String jarg2, String jarg3);
   public final static native String OT_API_LoadInbox(String jarg1, String jarg2, String jarg3);
   public final static native String OT_API_LoadOutbox(String jarg1, String jarg2, String jarg3);
+  public final static native String OT_API_LoadInboxNoVerify(String jarg1, String jarg2, String jarg3);
+  public final static native String OT_API_LoadOutboxNoVerify(String jarg1, String jarg2, String jarg3);
   public final static native int OT_API_Ledger_GetCount(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native String OT_API_Ledger_CreateResponse(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native String OT_API_Ledger_GetTransactionByIndex(String jarg1, String jarg2, String jarg3, String jarg4, int jarg5);
@@ -185,6 +195,9 @@ public class otapiJNI {
   public final static native void OT_API_getOutbox(String jarg1, String jarg2, String jarg3);
   public final static native void OT_API_getNymbox(String jarg1, String jarg2);
   public final static native String OT_API_LoadNymbox(String jarg1, String jarg2);
+  public final static native String OT_API_LoadNymboxNoVerify(String jarg1, String jarg2);
+  public final static native void OT_API_getBoxReceipt(String jarg1, String jarg2, String jarg3, int jarg4, String jarg5);
+  public final static native int OT_API_DoesBoxReceiptExist(String jarg1, String jarg2, String jarg3, int jarg4, String jarg5);
   public final static native void OT_API_processInbox(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native void OT_API_processNymbox(String jarg1, String jarg2);
   public final static native void OT_API_withdrawVoucher(String jarg1, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6);
@@ -199,6 +212,7 @@ public class otapiJNI {
   public final static native void OT_API_cancelPaymentPlan(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native String OT_API_PopMessageBuffer();
   public final static native void OT_API_FlushMessageBuffer();
+  public final static native void OT_API_Sleep(String jarg1);
   public final static native int OT_API_ResyncNymWithServer(String jarg1, String jarg2, String jarg3);
   public final static native String OT_API_Message_GetCommand(String jarg1);
   public final static native int OT_API_Message_GetSuccess(String jarg1);

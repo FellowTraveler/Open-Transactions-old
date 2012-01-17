@@ -833,7 +833,7 @@ bool OTASCIIArmor::SetAndPackData(const OTData & theData, bool bLineBreaks/*=tru
 //
 bool OTASCIIArmor::SetAndPackString(const OTString & theData, bool bLineBreaks) //=true
 {
-	//	OTLog::vError("DEBUGGING OTASCIIARMOR::SETSTRING, INPUT:  --------->%s<---------", theData.Get());
+//	OTLog::vError("DEBUGGING OTASCIIARMOR::SETSTRING, INPUT:  --------->%s<---------", theData.Get());
 	
 	Release();
 	
@@ -997,7 +997,7 @@ bool OTASCIIArmor::SetString(const OTString & theData, bool bLineBreaks) //=true
 	
 	// ---------------------------------------------------------------
 	
-	//	OTLog::vError("DEBUGGING OTASCIIARMOR::SETSTRING, INPUT:  --------->%s<---------", theData.Get());
+//	OTLog::vError("DEBUGGING OTASCIIARMOR::SETSTRING, INPUT:  --------->%s<---------", theData.Get());
 	
 	Release();
 	

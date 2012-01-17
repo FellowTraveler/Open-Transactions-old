@@ -814,8 +814,18 @@ void RegisterAPIWithScript(OTScript & theScript)
 		pScript->chai.add(fun(&OT_CLI_ReadUntilEOF), "OT_CLI_ReadUntilEOF");	// String OT_CLI_ReadUntilEOF()	// Reads from cin until EOF.
 		
 		pScript->chai.add(fun(&OTAPI_Wrap::Output), "OT_API_Output");
+		pScript->chai.add(fun(&OTAPI_Wrap::GetTime), "OT_API_GetTime");
 		// ------------------------------------------------------------------
 		
+		pScript->chai.add(fun(&OTAPI_Wrap::Encode), "OT_API_Encode");
+		pScript->chai.add(fun(&OTAPI_Wrap::Decode), "OT_API_Decode");
+		pScript->chai.add(fun(&OTAPI_Wrap::Encrypt), "OT_API_Encrypt");
+		pScript->chai.add(fun(&OTAPI_Wrap::Decrypt), "OT_API_Decrypt");
+		pScript->chai.add(fun(&OTAPI_Wrap::SignContract), "OT_API_SignContract");
+		pScript->chai.add(fun(&OTAPI_Wrap::AddSignature), "OT_API_AddSignature");
+		pScript->chai.add(fun(&OTAPI_Wrap::VerifySignature), "OT_API_VerifySignature");
+		
+		// ------------------------------------------------------------------		
 		pScript->chai.add(fun(&OTAPI_Wrap::CreateNym), "OT_API_CreateNym");
         pScript->chai.add(fun(&OTAPI_Wrap::AddServerContract), "OT_API_AddServerContract");
         pScript->chai.add(fun(&OTAPI_Wrap::AddAssetContract), "OT_API_AddAssetContract");
@@ -893,6 +903,8 @@ void RegisterAPIWithScript(OTScript & theScript)
 		pScript->chai.add(fun(&OTAPI_Wrap::LoadAssetAccount), "OT_API_LoadAssetAccount");
 		pScript->chai.add(fun(&OTAPI_Wrap::LoadInbox), "OT_API_LoadInbox");
 		pScript->chai.add(fun(&OTAPI_Wrap::LoadOutbox), "OT_API_LoadOutbox");
+		pScript->chai.add(fun(&OTAPI_Wrap::LoadInboxNoVerify), "OT_API_LoadInboxNoVerify");
+		pScript->chai.add(fun(&OTAPI_Wrap::LoadOutboxNoVerify), "OT_API_LoadOutboxNoVerify");
 		
 		pScript->chai.add(fun(&OTAPI_Wrap::Ledger_GetCount), "OT_API_Ledger_GetCount");
 		pScript->chai.add(fun(&OTAPI_Wrap::Ledger_CreateResponse), "OT_API_Ledger_CreateResponse");
@@ -960,10 +972,17 @@ void RegisterAPIWithScript(OTScript & theScript)
 		pScript->chai.add(fun(&OTAPI_Wrap::notarizeWithdrawal), "OT_API_notarizeWithdrawal");
 		pScript->chai.add(fun(&OTAPI_Wrap::notarizeDeposit), "OT_API_notarizeDeposit");
 		pScript->chai.add(fun(&OTAPI_Wrap::notarizeTransfer), "OT_API_notarizeTransfer");
+		
 		pScript->chai.add(fun(&OTAPI_Wrap::getInbox), "OT_API_getInbox");
 		pScript->chai.add(fun(&OTAPI_Wrap::getOutbox), "OT_API_getOutbox");
 		pScript->chai.add(fun(&OTAPI_Wrap::getNymbox), "OT_API_getNymbox");
+		
+		pScript->chai.add(fun(&OTAPI_Wrap::getBoxReceipt), "OT_API_getBoxReceipt");
+		pScript->chai.add(fun(&OTAPI_Wrap::DoesBoxReceiptExist), "OT_API_DoesBoxReceiptExist");
+		
 		pScript->chai.add(fun(&OTAPI_Wrap::LoadNymbox), "OT_API_LoadNymbox");
+		pScript->chai.add(fun(&OTAPI_Wrap::LoadNymboxNoVerify), "OT_API_LoadNymboxNoVerify");
+		
 		pScript->chai.add(fun(&OTAPI_Wrap::processInbox), "OT_API_processInbox");
 		pScript->chai.add(fun(&OTAPI_Wrap::processNymbox), "OT_API_processNymbox");
 		pScript->chai.add(fun(&OTAPI_Wrap::withdrawVoucher), "OT_API_withdrawVoucher");

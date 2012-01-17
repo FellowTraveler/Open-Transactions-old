@@ -751,7 +751,7 @@ void OTServerConnection::ProcessMessageOut(OTMessage & theMessage)
 		
 		// Call the callback here.
 		(*m_pCallback)(*m_pServerContract, theEnvelope); // We don't use the payload in RPC mode, just the envelope. RPC does the rest.
-		OTLog::Output(0, "Message sent via ZMQ...\n\n");
+		OTLog::vOutput(0, "%s message sent via ZMQ...\n\n", theMessage.m_strCommand.Get());
 	}
 	else			// TCP / SSL mode... -----------
 	{

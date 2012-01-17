@@ -313,7 +313,7 @@ public:
 	// but you still want to instantiate it, and load it up properly, then call this
 	// class method.
 	//
-	static OTContract * InstantiateContract(OTString & strInputContract);
+	static OTContract * InstantiateContract(const OTString & strInputContract);
 
 	
 	// assumes m_strFilename is already set. Then it reads that file into a string.

@@ -2690,7 +2690,10 @@ bool OTSmartContract::StashFunds(const mapOfNyms	&	map_NymsAlreadyLoaded,
 			// ------------------------------
 			thePartyInbox.SaveInbox();
 			
-			
+			// This corresponds to the AddTransaction() call just above.
+			// These are stored in a separate file now.
+			//
+			pTransParty->SaveBoxReceipt(thePartyInbox);
 			
 			// temp remove todo
 //			OTString strTempDebug(PARTY_ACCT_ID), strTempDebug2(PARTY_USER_ID), strTempDebug3(thePartyInbox);

@@ -152,6 +152,18 @@ public:
 
 	static void Output(const int nLogLevel, const std::string STR_OUTPUT);
 	
+	static std::string GetTime();
+	
+	// Encode, decode, encrypt, decrypt, signcontract, addsignature, and verify.
+	//
+	static std::string Encode(std::string str_Plaintext,	bool bLineBreaks);
+	static std::string Decode(std::string str_Encoded,		bool bLineBreaks);
+	static std::string Encrypt(std::string RECIPIENT_NYM_ID, std::string str_Plaintext);
+	static std::string Decrypt(std::string RECIPIENT_NYM_ID, std::string str_Ciphertext);
+	static std::string SignContract(std::string SIGNER_NYM_ID, std::string THE_CONTRACT);
+	static std::string AddSignature(std::string SIGNER_NYM_ID, std::string THE_CONTRACT);
+	static bool VerifySignature(std::string SIGNER_NYM_ID, std::string THE_CONTRACT);
+	
 	/*
 	 static const std::string Create_SmartContract(const std::string SERVER_ID,
 		const std::string SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
@@ -461,6 +473,14 @@ public:
 	static const std::string LoadOutbox(const std::string SERVER_ID,
 										const std::string USER_ID,
 										const std::string ACCOUNT_ID); // returns NULL, or an outbox.
+	
+	static const std::string LoadInboxNoVerify(const std::string SERVER_ID,
+											   const std::string USER_ID,
+											   const std::string ACCOUNT_ID); // Returns NULL, or an inbox.
+	static const std::string LoadOutboxNoVerify(const std::string SERVER_ID,
+												const std::string USER_ID,
+												const std::string ACCOUNT_ID); // returns NULL, or an outbox.
+	
 	// --------------------------------------------------------------
 	static int Ledger_GetCount(const std::string SERVER_ID,
 							   const std::string USER_ID,
@@ -762,6 +782,21 @@ public:
 	
 	static const std::string LoadNymbox(const std::string SERVER_ID,
 										const std::string USER_ID); // Returns NULL, or a Nymbox.
+	
+	static const std::string LoadNymboxNoVerify(const std::string SERVER_ID,
+												const std::string USER_ID); // Returns NULL, or a Nymbox. (Without loading the box receipts.)
+	
+	static void getBoxReceipt(const std::string	SERVER_ID,
+							  const std::string	USER_ID,
+							  const std::string	ACCT_ID,	// If for Nymbox (vs inbox/outbox) then pass USER_ID in this field also.
+							  const int			nBoxType,	// 0/nymbox, 1/inbox, 2/outbox
+							  const std::string	TRANSACTION_NUMBER);
+	
+	static bool DoesBoxReceiptExist(const std::string	SERVER_ID,
+									const std::string	USER_ID,
+									const std::string	ACCT_ID,	// If for Nymbox (vs inbox/outbox) then pass USER_ID in this field also.
+									const int			nBoxType,	// 0/nymbox, 1/inbox, 2/outbox
+									const std::string	TRANSACTION_NUMBER);
 	// --------------------------------------------------------------------------
 	static void processInbox(const std::string SERVER_ID,
 							 const std::string USER_ID,

@@ -1937,6 +1937,14 @@ void OTMarket::ProcessTrade(OTTrade & theTrade, OTOffer & theOffer, OTOffer & th
 				theOtherAssetInbox.		SaveInbox();
 				theOtherCurrencyInbox.	SaveInbox();
 				
+				// These correspond to the AddTransaction() calls just above.
+				// The actual receipts are stored in separate files now.
+				//
+				pTrans1->SaveBoxReceipt(theFirstAssetInbox);
+				pTrans2->SaveBoxReceipt(theFirstCurrencyInbox);
+				pTrans3->SaveBoxReceipt(theOtherAssetInbox);
+				pTrans4->SaveBoxReceipt(theOtherCurrencyInbox);
+				
 				// Save the four accounts.
 				pFirstAssetAcct->	SaveAccount();	
 				pFirstCurrencyAcct->SaveAccount();
@@ -2003,6 +2011,8 @@ void OTMarket::ProcessTrade(OTTrade & theTrade, OTOffer & theOffer, OTOffer & th
 					pTempInbox->SignContract(*pServerNym);
 					pTempInbox->SaveContract();
 					pTempInbox->SaveInbox();
+					
+					pTempTransaction->SaveBoxReceipt(*pTempInbox);
 				}
 				else
 				{
@@ -2051,6 +2061,8 @@ void OTMarket::ProcessTrade(OTTrade & theTrade, OTOffer & theOffer, OTOffer & th
 					pTempInbox->SignContract(*pServerNym);
 					pTempInbox->SaveContract();
 					pTempInbox->SaveInbox();
+					
+					pTempTransaction->SaveBoxReceipt(*pTempInbox);
 				}
 				else 
 				{

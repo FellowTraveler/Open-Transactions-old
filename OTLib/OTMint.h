@@ -225,7 +225,7 @@ public:
 
 	virtual bool VerifyContractID();
 	
-	bool VerifyMint(OTPseudonym & theOperator);
+	bool VerifyMint(const OTPseudonym & theOperator);
 	
 	virtual void UpdateContents(); // Before transmission or serialization, this is where the token saves its contents 
 

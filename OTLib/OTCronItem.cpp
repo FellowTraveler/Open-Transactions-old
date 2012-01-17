@@ -220,6 +220,90 @@ OTCronItem * OTCronItem::NewCronItem(const OTString & strCronItem)
 
 
 
+OTCronItem * OTCronItem::LoadCronReceipt(const long & lTransactionNum)
+{
+	OTString strFilename;
+	strFilename.Format("%ld.crn", lTransactionNum);
+	
+	const char * szFoldername	= OTLog::CronFolder();
+	const char * szFilename		= strFilename.Get();
+	
+	// --------------------------------------------------------------------
+	
+	if (false == OTDB::Exists(szFoldername, szFilename))
+	{
+		OTLog::vError("OTCronItem::LoadCronReceipt: File does not exist: %s%s%s\n", 
+					  szFoldername, OTLog::PathSeparator(), szFilename);
+		return NULL;
+	}
+	
+	// --------------------------------------------------------------------
+	//
+	OTString strFileContents(OTDB::QueryPlainString(szFoldername, szFilename)); // <=== LOADING FROM DATA STORE.
+	
+	if (strFileContents.GetLength() < 2)
+	{
+		OTLog::vError("OTCronItem::LoadCronReceipt: Error reading file: %s%s%s\n", 
+					  szFoldername, OTLog::PathSeparator(), szFilename);
+		return NULL;
+	}
+	else
+		return OTCronItem::NewCronItem(strFileContents);
+}
+
+
+
+
+// When first adding anything to Cron, a copy needs to be saved in a folder somewhere.
+// (Just for our records.) For example, before I start updating the status on any Trade,
+// I have already saved the user's original Trade object (from his request) to a folder.
+// Now I have the freedom to ReleaseSignatures on the Trade and re-sign it with the
+// server's Nym as it updates over time.  The user cannot challenge the Trade because
+// the server has the original copy on file and sends it with all receipts.
+
+bool OTCronItem::SaveCronReceipt()
+{
+	OTString strFilename;
+	strFilename.Format("%ld.crn", GetTransactionNum());
+	
+	const char * szFoldername	= OTLog::CronFolder();  // cron
+	const char * szFilename		= strFilename.Get();    // cron/TRANSACTION_NUM.crn
+	
+	// --------------------------------------------------------------------
+	
+	if (OTDB::Exists(szFoldername, szFilename))
+	{
+		OTLog::vError("Cron Record exists for transaction %ld %s%s%s,\nyet attempted to record it again.\n",
+					  GetTransactionNum(), szFoldername, OTLog::PathSeparator(), szFilename);
+		return false;
+	}
+	
+	// --------------------------------------------------------------------
+	
+	OTString strFinal;
+	SaveContractRaw(strFinal);
+	
+	bool bSaved = OTDB::StorePlainString(strFinal.Get(), szFoldername, szFilename);
+	
+	if (!bSaved)
+	{
+		OTLog::vError("OTCronItem::SaveCronReceipt: Error saving file: %s%s%s\n", 
+					  szFoldername, OTLog::PathSeparator(), szFilename);
+		return false;
+	}
+	// --------------------------------------------------------------------
+	
+	return bSaved;
+}
+
+
+
+
+
+
+
+
+
 
 
 // DONE: Make a GENERIC VERSION of the BELOW function, that script coders can call
@@ -931,6 +1015,11 @@ bool OTCronItem::MoveFunds(const mapOfNyms	  & map_NymsAlreadyLoaded,
 			theSenderInbox.		SaveInbox();
 			theRecipientInbox.	SaveInbox();
 			
+			// These correspond to the AddTransaction() calls, just above
+			//
+			pTransSend->SaveBoxReceipt(theSenderInbox);
+			pTransRecip->SaveBoxReceipt(theRecipientInbox);
+			
 			// If success, save the accounts with new balance. (Save inboxes with receipts either way,
 			// and the receipts will contain a rejection or acknowledgment stamped by the Server Nym.)
 			if (true == bSuccess)
@@ -1135,82 +1224,6 @@ bool OTCronItem::ProcessCron()
 	
 	// As far as this code is concerned, the item can stay on cron for now. Return true.
 	return true;
-}
-
-
-
-OTCronItem * OTCronItem::LoadCronReceipt(const long & lTransactionNum)
-{
-	OTString strFilename;
-	strFilename.Format("%ld.crn", lTransactionNum);
-	
-	const char * szFoldername	= OTLog::CronFolder();
-	const char * szFilename		= strFilename.Get();
-		
-	// --------------------------------------------------------------------
-	
-	if (false == OTDB::Exists(szFoldername, szFilename))
-	{
-		OTLog::vError("OTCronItem::LoadCronReceipt: File does not exist: %s%s%s\n", 
-					  szFoldername, OTLog::PathSeparator(), szFilename);
-		return NULL;
-	}
-	
-	// --------------------------------------------------------------------
-	//
-	OTString strFileContents(OTDB::QueryPlainString(szFoldername, szFilename)); // <=== LOADING FROM DATA STORE.
-	
-	if (strFileContents.GetLength() < 2)
-	{
-		OTLog::vError("OTCronItem::LoadCronReceipt: Error reading file: %s%s%s\n", 
-					  szFoldername, OTLog::PathSeparator(), szFilename);
-		return NULL;
-	}
-	else
-		return OTCronItem::NewCronItem(strFileContents);
-}
-
-
-// When first adding anything to Cron, a copy needs to be saved in a folder somewhere.
-// (Just for our records.) For example, before I start updating the status on any Trade,
-// I have already saved the user's original Trade object (from his request) to a folder.
-// Now I have the freedom to ReleaseSignatures on the Trade and re-sign it with the
-// server's Nym as it updates over time.  The user cannot challenge the Trade because
-// the server has the original copy on file and sends it with all receipts.
-
-bool OTCronItem::SaveCronReceipt()
-{
-	OTString strFilename;
-	strFilename.Format("%ld.crn", GetTransactionNum());
-	
-	const char * szFoldername	= OTLog::CronFolder();  // cron
-	const char * szFilename		= strFilename.Get();    // cron/TRANSACTION_NUM.crn
-	
-	// --------------------------------------------------------------------
-	
-	if (OTDB::Exists(szFoldername, szFilename))
-	{
-		OTLog::vError("Cron Record exists for transaction %ld %s%s%s,\nyet attempted to record it again.\n",
-					  GetTransactionNum(), szFoldername, OTLog::PathSeparator(), szFilename);
-		return false;
-	}
-	
-	// --------------------------------------------------------------------
-	
-	OTString strFinal;
-	SaveContractRaw(strFinal);
-	
-	bool bSaved = OTDB::StorePlainString(strFinal.Get(), szFoldername, szFilename);
-	
-	if (!bSaved)
-	{
-		OTLog::vError("OTCronItem::SaveCronReceipt: Error saving file: %s%s%s\n", 
-					  szFoldername, OTLog::PathSeparator(), szFilename);
-		return false;
-	}
-	// --------------------------------------------------------------------
-		
-	return bSaved;
 }
 
 
@@ -1723,6 +1736,11 @@ bool OTCronItem::DropFinalReceiptToInbox(const OTIdentifier & USER_ID,
         // Save both inboxes to storage. (File, DB, wherever it goes.)
         theInbox.	SaveInbox();
         
+		// Corresponds to the AddTransaction() just above.
+		// Details are stored in separate file these days.
+		//
+		pTrans1->SaveBoxReceipt(theInbox);
+		
         return true;    // Really this true should be predicated on ALL the above functions returning true. Right?
     }                   // ...Right?
     
@@ -1870,6 +1888,11 @@ bool OTCronItem::DropFinalReceiptToNymbox(const OTIdentifier & USER_ID,
         // Save nymbox to storage. (File, DB, wherever it goes.)
         theLedger.	SaveNymbox();
         
+		// This corresponds to the AddTransaction() call just above.
+		// These are stored in a separate file now.
+		//
+		pTransaction->SaveBoxReceipt(theLedger);
+		
         return true;    // Really this true should be predicated on ALL the above functions returning true. Right?
     }
     else

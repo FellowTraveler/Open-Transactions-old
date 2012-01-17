@@ -13,10 +13,6 @@ public class otapi {
     return otapiJNI.OT_API_Set_PasswordCallback(OTCaller.getCPtr(theCaller), theCaller);
   }
 
-  public static void OT_API_Output(int nLogLevel, String szOutput) {
-    otapiJNI.OT_API_Output(nLogLevel, szOutput);
-  }
-
   public static int OT_API_Init(String szClientPath) {
     return otapiJNI.OT_API_Init(szClientPath);
   }
@@ -27,6 +23,46 @@ public class otapi {
 
   public static int OT_API_SwitchWallet(String szDataFolderPath, String szWalletFilename) {
     return otapiJNI.OT_API_SwitchWallet(szDataFolderPath, szWalletFilename);
+  }
+
+  public static void OT_API_Output(int nLogLevel, String szOutput) {
+    otapiJNI.OT_API_Output(nLogLevel, szOutput);
+  }
+
+  public static String OT_API_GetTime() {
+    return otapiJNI.OT_API_GetTime();
+  }
+
+  public static String OT_API_Encode(String szPlaintext, int bLineBreaks) {
+    return otapiJNI.OT_API_Encode(szPlaintext, bLineBreaks);
+  }
+
+  public static String OT_API_Decode(String szEncoded, int bLineBreaks) {
+    return otapiJNI.OT_API_Decode(szEncoded, bLineBreaks);
+  }
+
+  public static String OT_API_Encrypt(String RECIPIENT_NYM_ID, String szPlaintext) {
+    return otapiJNI.OT_API_Encrypt(RECIPIENT_NYM_ID, szPlaintext);
+  }
+
+  public static String OT_API_Decrypt(String RECIPIENT_NYM_ID, String szCiphertext) {
+    return otapiJNI.OT_API_Decrypt(RECIPIENT_NYM_ID, szCiphertext);
+  }
+
+  public static String OT_API_SignContract(String SIGNER_NYM_ID, String THE_CONTRACT) {
+    return otapiJNI.OT_API_SignContract(SIGNER_NYM_ID, THE_CONTRACT);
+  }
+
+  public static String OT_API_AddSignature(String SIGNER_NYM_ID, String THE_CONTRACT) {
+    return otapiJNI.OT_API_AddSignature(SIGNER_NYM_ID, THE_CONTRACT);
+  }
+
+  public static int OT_API_VerifySignature(String SIGNER_NYM_ID, String THE_CONTRACT) {
+    return otapiJNI.OT_API_VerifySignature(SIGNER_NYM_ID, THE_CONTRACT);
+  }
+
+  public static String OT_API_VerifyAndRetrieveXMLContents(String THE_CONTRACT, String SIGNER_ID) {
+    return otapiJNI.OT_API_VerifyAndRetrieveXMLContents(THE_CONTRACT, SIGNER_ID);
   }
 
   public static int OT_API_GetMemlogSize() {
@@ -245,10 +281,6 @@ public class otapi {
     return otapiJNI.OT_API_SetServer_Name(SERVER_ID, STR_NEW_NAME);
   }
 
-  public static String OT_API_VerifyAndRetrieveXMLContents(String THE_CONTRACT, String USER_ID) {
-    return otapiJNI.OT_API_VerifyAndRetrieveXMLContents(THE_CONTRACT, USER_ID);
-  }
-
   public static String OT_API_WriteCheque(String SERVER_ID, String CHEQUE_AMOUNT, String VALID_FROM, String VALID_TO, String SENDER_ACCT_ID, String SENDER_USER_ID, String CHEQUE_MEMO, String RECIPIENT_USER_ID) {
     return otapiJNI.OT_API_WriteCheque(SERVER_ID, CHEQUE_AMOUNT, VALID_FROM, VALID_TO, SENDER_ACCT_ID, SENDER_USER_ID, CHEQUE_MEMO, RECIPIENT_USER_ID);
   }
@@ -387,6 +419,14 @@ public class otapi {
 
   public static String OT_API_LoadOutbox(String SERVER_ID, String USER_ID, String ACCOUNT_ID) {
     return otapiJNI.OT_API_LoadOutbox(SERVER_ID, USER_ID, ACCOUNT_ID);
+  }
+
+  public static String OT_API_LoadInboxNoVerify(String SERVER_ID, String USER_ID, String ACCOUNT_ID) {
+    return otapiJNI.OT_API_LoadInboxNoVerify(SERVER_ID, USER_ID, ACCOUNT_ID);
+  }
+
+  public static String OT_API_LoadOutboxNoVerify(String SERVER_ID, String USER_ID, String ACCOUNT_ID) {
+    return otapiJNI.OT_API_LoadOutboxNoVerify(SERVER_ID, USER_ID, ACCOUNT_ID);
   }
 
   public static int OT_API_Ledger_GetCount(String SERVER_ID, String USER_ID, String ACCOUNT_ID, String THE_LEDGER) {
@@ -649,6 +689,18 @@ public class otapi {
     return otapiJNI.OT_API_LoadNymbox(SERVER_ID, USER_ID);
   }
 
+  public static String OT_API_LoadNymboxNoVerify(String SERVER_ID, String USER_ID) {
+    return otapiJNI.OT_API_LoadNymboxNoVerify(SERVER_ID, USER_ID);
+  }
+
+  public static void OT_API_getBoxReceipt(String SERVER_ID, String USER_ID, String ACCOUNT_ID, int nBoxType, String TRANSACTION_NUMBER) {
+    otapiJNI.OT_API_getBoxReceipt(SERVER_ID, USER_ID, ACCOUNT_ID, nBoxType, TRANSACTION_NUMBER);
+  }
+
+  public static int OT_API_DoesBoxReceiptExist(String SERVER_ID, String USER_ID, String ACCOUNT_ID, int nBoxType, String TRANSACTION_NUMBER) {
+    return otapiJNI.OT_API_DoesBoxReceiptExist(SERVER_ID, USER_ID, ACCOUNT_ID, nBoxType, TRANSACTION_NUMBER);
+  }
+
   public static void OT_API_processInbox(String SERVER_ID, String USER_ID, String ACCT_ID, String ACCT_LEDGER) {
     otapiJNI.OT_API_processInbox(SERVER_ID, USER_ID, ACCT_ID, ACCT_LEDGER);
   }
@@ -703,6 +755,10 @@ public class otapi {
 
   public static void OT_API_FlushMessageBuffer() {
     otapiJNI.OT_API_FlushMessageBuffer();
+  }
+
+  public static void OT_API_Sleep(String MILLISECONDS) {
+    otapiJNI.OT_API_Sleep(MILLISECONDS);
   }
 
   public static int OT_API_ResyncNymWithServer(String SERVER_ID, String USER_ID, String THE_MESSAGE) {

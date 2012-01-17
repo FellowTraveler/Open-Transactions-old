@@ -201,11 +201,13 @@ class OTASCIIArmor;
 class OTAsymmetricKey
 {
 private:
-	EVP_PKEY * m_pKey; 
+	EVP_PKEY *	m_pKey; 
+	bool		m_bIsPublicKey;
+	bool		m_bIsPrivateKey;
+	// --------------------------------------------
 	
-	static OT_OPENSSL_CALLBACK * s_pwCallback; 
-	
-	static OTCaller * s_pCaller;
+	static OT_OPENSSL_CALLBACK	* s_pwCallback; 
+	static OTCaller				* s_pCaller;
 	
 public:
 	
@@ -215,7 +217,12 @@ public:
 	
 	static bool SetPasswordCaller(OTCaller & theCaller);
 	static OTCaller * GetPasswordCaller();
+	// -------------------------------------
+
+	inline bool IsPublic()	{ return m_bIsPublicKey;  }
+	inline bool IsPrivate() { return m_bIsPrivateKey; }
 	
+	// -------------------------------------
 	OTAsymmetricKey();
 	OTAsymmetricKey(const OTAsymmetricKey & rhs);
 	virtual ~OTAsymmetricKey();
@@ -226,7 +233,7 @@ public:
 	
 	const EVP_PKEY * GetKey() const;
 	
-	void SetKey(EVP_PKEY * pKey);
+	void SetKey(EVP_PKEY * pKey, bool bIsPrivateKey=false);
 	
 	bool LoadPrivateKey(const OTString & strFoldername, const OTString & strFilename);
 	bool LoadPublicKey(const OTString & strFoldername, const OTString & strFilename);

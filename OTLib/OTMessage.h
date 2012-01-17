@@ -185,8 +185,8 @@ public:
 									// or a message envelope or request from another user etc) then
 									// it can be put here in ascii-armored format.
 
-	long		m_lDepth;			// For Market-related messages... (Plus for usage credits.)
-	long		m_lTransactionNum;	// For Market-related messages...
+	long		m_lDepth;			// For Market-related messages... (Plus for usage credits.) Also used by getBoxReceipt
+	long		m_lTransactionNum;	// For Market-related messages... Also used by getBoxReceipt
 	
 	bool		m_bSuccess;			// When the server replies to the client, this may be true or false
 	bool		m_bBool;			// Some commands need to send a bool. This variable is for those.

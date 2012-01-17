@@ -438,13 +438,15 @@ OPENSSL_CALLBACK_FUNC(souped_up_pass_cb)
 
 // --------------------------------------------------------
 
-void OTAsymmetricKey::SetKey(EVP_PKEY * pKey) 
+void OTAsymmetricKey::SetKey(EVP_PKEY * pKey, bool bIsPrivateKey/*=false*/)
 { 
 	OT_ASSERT(NULL != pKey);
 	
 	Release(); 
 	
-	m_pKey = pKey; 
+	m_pKey			= pKey;
+	m_bIsPublicKey	= !bIsPrivateKey;
+	m_bIsPrivateKey	= bIsPrivateKey;
 }
 
 
@@ -539,6 +541,9 @@ EVP_PKEY * pKey	OTGetPublicKey(unsigned char* pIn, int inLen, unsigned char* pOu
 // This is the version that will handle the bookends ( --------- BEGIN PUBLIC KEY -------)
 bool OTAsymmetricKey::SetPublicKey(const OTString & strKey, bool bEscaped/*=false*/)
 {
+	m_bIsPublicKey	= true;
+	m_bIsPrivateKey	= false;
+
 	// This reads the string into the Armor and removes the bookends. (----- BEGIN ...)
 	OTASCIIArmor theArmor;
 	
@@ -724,6 +729,9 @@ PgpKeys ExportRsaKey(unsigned char *pbData, int dataLength)
 // object coming in instead of a string.
 bool OTAsymmetricKey::LoadPublicKeyFromPGPKey(const OTASCIIArmor & strKey)
 {	
+	m_bIsPublicKey	= true;
+	m_bIsPrivateKey	= false;
+
 	/*
 	EVP_PKEY * pReturnKey = NULL;
 	OTPayload theData;
@@ -925,6 +933,9 @@ bool OTAsymmetricKey::LoadPublicKeyFromPGPKey(const OTASCIIArmor & strKey)
 // and sets that as the keypointer on this object.
 bool OTAsymmetricKey::SetPublicKey(const OTASCIIArmor & strKey)
 {	
+	m_bIsPublicKey	= true;
+	m_bIsPrivateKey	= false;
+
 	EVP_PKEY * pReturnKey = NULL;
 	OTPayload theData;
 	
@@ -1138,6 +1149,10 @@ bool OTAsymmetricKey::GetPublicKey(OTASCIIArmor & strKey) const
 // Does public key only.
 OTAsymmetricKey & OTAsymmetricKey::operator=(const OTAsymmetricKey & rhs)
 {
+	// Already done in SetPublicKey()
+//	m_bIsPublicKey	= true;
+//	m_bIsPrivateKey	= false;
+
 	if (&rhs != this)
 	{
 		OTASCIIArmor ascTransfer;
@@ -1146,15 +1161,15 @@ OTAsymmetricKey & OTAsymmetricKey::operator=(const OTAsymmetricKey & rhs)
 		rhs.GetPublicKey(ascTransfer);
 		
 		// Decodes a public key from ASCII armor into m_keyPublic, which stores it as a EVP_PKEY pointer.
-		this->SetPublicKey(ascTransfer);
+		this->SetPublicKey(ascTransfer);		
 	}
 	
 	return *this;
 }
 
 
-
-OTAsymmetricKey::OTAsymmetricKey(const OTAsymmetricKey & rhs) : m_pKey(NULL)
+// Does public key only.
+OTAsymmetricKey::OTAsymmetricKey(const OTAsymmetricKey & rhs) : m_pKey(NULL), m_bIsPublicKey(true), m_bIsPrivateKey(false)
 {
 	if (&rhs != this)
 	{
@@ -1165,11 +1180,11 @@ OTAsymmetricKey::OTAsymmetricKey(const OTAsymmetricKey & rhs) : m_pKey(NULL)
 		
 		// Decodes a public key from ASCII armor into m_keyPublic, which stores it as a EVP_PKEY pointer.
 		this->SetPublicKey(ascTransfer);
-	}	
+	}
 }
 
 
-OTAsymmetricKey::OTAsymmetricKey() : m_pKey(NULL)
+OTAsymmetricKey::OTAsymmetricKey() : m_pKey(NULL), m_bIsPublicKey(false), m_bIsPrivateKey(false)
 {
 
 }
@@ -1185,8 +1200,8 @@ void OTAsymmetricKey::Release()
 	{
 		EVP_PKEY_free (m_pKey); 
 	}	
-
 	m_pKey = NULL;
+//	m_bIsPrivateKey = false;  // Every time this Releases, I don't want to lose what kind of key it was. (Once we know, we know.)
 }
 
 
@@ -1197,10 +1212,13 @@ void OTAsymmetricKey::Release()
 // This function will remove the escapes.
 bool OTAsymmetricKey::LoadPublicKeyFromCertString(const OTString & strCert, bool bEscaped/*=true*/)
 {
+	m_bIsPublicKey	= true;
+	m_bIsPrivateKey	= false;
+	
 	bool bReturnValue = false;
 	
 	Release();
-	
+
 	// Read public key
 	OTLog::Output(3,  "\nReading public key from x509 stored in bookended string...\n"); 
 
@@ -1280,10 +1298,13 @@ bool OTAsymmetricKey::LoadPublicKeyFromCertString(const OTString & strCert, bool
 // Load the public key from a .pem file
 bool OTAsymmetricKey::LoadPublicKey(const OTString & strFoldername, const OTString & strFilename)
 {
+	// Already done in SetPublicKey()
+//	m_bIsPublicKey	= true;
+//	m_bIsPrivateKey	= false;
+
 	Release();
 	
 	// This doesn't use assert on the arguments, but theArmor.LoadFromFile DOES.
-	
 	// -----------------------
 	
 	OTASCIIArmor theArmor;
@@ -1349,6 +1370,9 @@ bool OTAsymmetricKey::LoadPublicKey(OTString & strFilename)
 // Load the public key from a x509 stored in a .pem file
 bool OTAsymmetricKey::LoadPublicKeyFromCertFile(const OTString & strFoldername, const OTString & strFilename)
 {
+	m_bIsPublicKey	= true;
+	m_bIsPrivateKey	= false;
+
 	Release();
 	
 	// ---------------
@@ -1437,6 +1461,9 @@ bool OTAsymmetricKey::LoadPublicKeyFromCertFile(const OTString & strFoldername, 
 // Load the private key from a .pem file
 bool OTAsymmetricKey::LoadPrivateKey(const OTString & strFoldername, const OTString & strFilename)
 {
+	m_bIsPublicKey	= false;
+	m_bIsPrivateKey	= true;
+
 	Release();
 	
 	const char * szFoldername = strFoldername.Get();

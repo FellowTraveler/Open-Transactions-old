@@ -196,6 +196,109 @@ using namespace io;
 
 
 
+
+
+
+//static
+OTPseudonym * OTPseudonym::LoadPublicNym(const OTIdentifier & NYM_ID, 
+										 OTString * pstrName/*=NULL*/, 
+										 const char * szFuncName/*=NULL*/)
+{
+	const char * szFunc = (NULL != szFuncName) ? szFuncName : "OTPseudonym::LoadPublicNym";
+	// ------------------------------------------
+	const OTString	strNymID(NYM_ID);
+	// ------------------------------------------
+	// If name is empty, construct one way, 
+	// else construct a different way.
+	//
+	OTPseudonym * pNym = ((NULL == pstrName) || !pstrName->Exists()) ? 
+		(new OTPseudonym(NYM_ID)): 
+		(new OTPseudonym(*pstrName, strNymID, strNymID));
+	OT_ASSERT_MSG(NULL != pNym, "OTPseudonym::LoadPublicNym: Error allocating memory.\n");
+	// ---------------------------
+	// First load the public key
+	if (false == pNym->LoadPublicKey())
+		OTLog::vOutput(1, "OTPseudonym::LoadPublicNym %s: Tried (and failed) to load Nym (%s). (Maybe it's simply not here. "
+					   "Often normal, maybe it's a friend's key and I need to download it.)\n", szFunc, strNymID.Get());
+	else if (false == pNym->VerifyPseudonym())
+		OTLog::vError("OTPseudonym::LoadPublicNym %s: Security: Failure verifying Nym public key after loading it: %s\n", 
+					  szFunc, strNymID.Get());
+	else if (false == pNym->LoadSignedNymfile(*pNym))
+	{
+		OTLog::vOutput(1, "OTPseudonym::LoadPublicNym %s: Usually normal: There's no Nymfile (%s), though there IS a public "
+					   "key, which checks out. It's probably just someone else's Nym. (So I'm still returning this Nym to "
+					   "the caller so he can still use the public key.)\n", szFunc, strNymID.Get());
+		return pNym;
+	}
+	else // success 
+		return pNym;
+	// -------------------
+	delete pNym; pNym = NULL;
+	// -------------------
+	return NULL;	
+}
+
+//static
+OTPseudonym * OTPseudonym::LoadPrivateNym(const OTIdentifier & NYM_ID,
+										  OTString * pstrName/*=NULL*/,
+										  const char * szFuncName/*=NULL*/)
+{	
+	const char * szFunc = (NULL != szFuncName) ? szFuncName : "OTPseudonym::LoadPrivateNym";
+	// ------------------------------------------
+	const OTString	strNymID(NYM_ID);
+	// ------------------------------------------
+	// If name is empty, construct one way, 
+	// else construct a different way.
+	//
+	OTPseudonym * pNym = ((NULL == pstrName) || !pstrName->Exists()) ? 
+		(new OTPseudonym(NYM_ID)): 
+		(new OTPseudonym(*pstrName, strNymID, strNymID));
+	OT_ASSERT_MSG(NULL != pNym, "OTPseudonym::LoadPrivateNym: Error allocating memory.\n");
+	// ---------------------------------
+	// Error loading x509CertAndPrivateKey.
+	if (false == pNym->Loadx509CertAndPrivateKey())
+		OTLog::vError("OTPseudonym::LoadPrivateNym %s: Failure calling Loadx509CertAndPrivateKey: %s\n", 
+					  szFunc, strNymID.Get());
+	// success loading x509CertAndPrivateKey,
+	// failure verifying pseudonym public key.
+	else if (false == pNym->VerifyPseudonym())
+		OTLog::vError("OTPseudonym::LoadPrivateNym %s: Failure verifying Nym public key: %s\n", 
+					  szFunc, strNymID.Get());
+	// success verifying pseudonym public key.
+	// failure loading signed nymfile.
+	else if (false == pNym->LoadSignedNymfile(*pNym)) // Unlike with public key, with private key we DO expect nymfile to be here.
+		OTLog::vError("OTPseudonym::LoadPrivateNym %s: Failure calling LoadSignedNymfile: %s\n", 
+					  szFunc, strNymID.Get());
+	else // ultimate success.
+		return pNym;
+	// ---------------------------------
+	delete pNym; 
+	pNym = NULL;
+	// ----------
+	return NULL;	
+}
+
+/*
+ The following code is old code from OTWallet, that was previously used for re-signing private Nyms:
+ 
+ //							pNym->LoadSignedNymfile(*pNym); // Uncomment this line to generate a new Nym by hand.
+ //							if (true)						// This one too.
+ if (pNym->LoadSignedNymfile(*pNym))  // Comment OUT this line to generate a new nym by hand..
+ {
+ //								pNym->SaveSignedNymfile(*pNym); // Uncomment this if you want to generate a new nym by hand. NORMALLY LEAVE IT COMMENTED OUT!!!! IT'S DANGEROUS!!!
+ // Also see OTPseudonym.cpp where it says:  //		&& theNymfile.VerifyFile()
+
+ 
+ The code where this was has since been moved into the above function (OTPseudonym::LoadPrivateNym),
+ so I put this comment here to help me find it, in case I ever need to do a similar thing inside
+ OTPseudonym::LoadPrivateNym (above.)
+ 
+ */
+
+
+
+
+
 /// Though the parameter is a reference (forcing you to pass a real object),
 /// the Nym DOES take ownership of the object. Therefore it MUST be allocated
 /// on the heap, NOT the stack, or you will corrupt memory with this call.
@@ -488,7 +591,7 @@ bool OTPseudonym::GenerateNym()
 		EVP_PKEY * pPublicKey = X509_get_pubkey(x509); 
 		
 		if (NULL != pPublicKey)
-			m_pkeyPublic->SetKey(pPublicKey);
+			m_pkeyPublic->SetKey(pPublicKey, false); // bool bIsPrivateKey=false;
 		// else?
 				
 		// todo hardcoded 4080 (see array above.)
@@ -498,7 +601,9 @@ bool OTPseudonym::GenerateNym()
 			
 			strPrivateKey.Set((const char *)buffer_pri); // so I can write this string to file in a sec...
 
-			m_pkeyPrivate->SetKey(pNewKey); // private key itself... might as well keep it loaded for now.
+			// private key itself... might as well keep it loaded for now.
+			//
+			m_pkeyPrivate->SetKey(pNewKey, true); // bool bIsPrivateKey=true; (Default is false)
 			
 			bSuccess = true;
 		}
@@ -3315,6 +3420,16 @@ bool OTPseudonym::Loadx509CertAndPrivateKey()
 }
 
 
+
+bool OTPseudonym::HasPublicKey()
+{
+	return m_pkeyPublic->IsPublic(); // This means it actually has a public key in it, or tried to.
+}
+
+bool OTPseudonym::HasPrivateKey()
+{
+	return m_pkeyPrivate->IsPrivate(); // This means it actually has a private key in it, or tried to.
+}
 
 
 

@@ -182,11 +182,59 @@ const char * OTAPI_Wrap::Create_SmartContract(const char * SERVER_ID,
 */
 
 
+// --------------------------------------------------------------
 void OTAPI_Wrap::Output(const int nLogLevel, const std::string STR_OUTPUT)
 {
 	OT_API_Output(nLogLevel, STR_OUTPUT.c_str());
 }
 
+std::string OTAPI_Wrap::GetTime()
+{
+	return OT_API_GetTime();
+}
+// --------------------------------------------------------------
+
+
+
+std::string OTAPI_Wrap::Encode(std::string str_Plaintext, bool bLineBreaks) // bLineBreaks is OT_BOOL
+{
+	return OT_API_Encode(str_Plaintext.c_str(), bLineBreaks ? OT_TRUE : OT_FALSE);
+}
+
+std::string OTAPI_Wrap::Decode(std::string str_Encoded, bool bLineBreaks) // bLineBreaks is OT_BOOL
+{
+	return OT_API_Decode(str_Encoded.c_str(), bLineBreaks ? OT_TRUE : OT_FALSE);
+}
+
+std::string OTAPI_Wrap::Encrypt(std::string RECIPIENT_NYM_ID, std::string str_Plaintext)
+{
+	return OT_API_Encrypt(RECIPIENT_NYM_ID.c_str(), str_Plaintext.c_str());
+}
+
+std::string OTAPI_Wrap::Decrypt(std::string RECIPIENT_NYM_ID, std::string str_Ciphertext)
+{
+	return OT_API_Decrypt(RECIPIENT_NYM_ID.c_str(), str_Ciphertext.c_str());
+}
+
+std::string OTAPI_Wrap::SignContract(std::string SIGNER_NYM_ID, std::string THE_CONTRACT)
+{
+	return OT_API_SignContract(SIGNER_NYM_ID.c_str(), THE_CONTRACT.c_str());
+}
+
+std::string OTAPI_Wrap::AddSignature(std::string SIGNER_NYM_ID, std::string THE_CONTRACT)
+{
+	return OT_API_AddSignature(SIGNER_NYM_ID.c_str(), THE_CONTRACT.c_str());
+}
+
+bool OTAPI_Wrap::VerifySignature(std::string SIGNER_NYM_ID, std::string THE_CONTRACT)
+{
+	return (OT_TRUE == OT_API_VerifySignature(SIGNER_NYM_ID.c_str(), THE_CONTRACT.c_str())) ? true : false;
+}
+
+
+
+
+// --------------------------------------------------------------
 
 const std::string OTAPI_Wrap::Create_SmartContract(const std::string SERVER_ID,
 												   const std::string SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
@@ -838,7 +886,21 @@ const std::string OTAPI_Wrap::LoadOutbox(const std::string SERVER_ID,
 	return OT_API_LoadOutbox(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str());
 }
 // --------------------------------------------------------------
-							 
+const std::string OTAPI_Wrap::LoadInboxNoVerify(const std::string SERVER_ID,
+												const std::string USER_ID,
+												const std::string ACCOUNT_ID)
+{
+	return OT_API_LoadInboxNoVerify(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str());
+}
+
+const std::string OTAPI_Wrap::LoadOutboxNoVerify(const std::string SERVER_ID,
+												 const std::string USER_ID,
+												 const std::string ACCOUNT_ID)
+{
+	return OT_API_LoadOutboxNoVerify(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str());
+}
+// --------------------------------------------------------------
+
 int OTAPI_Wrap::Ledger_GetCount(const std::string SERVER_ID,
 								const std::string USER_ID,
 								const std::string ACCOUNT_ID,
@@ -1383,6 +1445,32 @@ const std::string OTAPI_Wrap::LoadNymbox(const std::string SERVER_ID,
 	return OT_API_LoadNymbox(SERVER_ID.c_str(), USER_ID.c_str());
 }
 
+// --------------------------------------------------------------------
+const std::string OTAPI_Wrap::LoadNymboxNoVerify(const std::string SERVER_ID,
+												 const std::string USER_ID)
+{
+	return OT_API_LoadNymboxNoVerify(SERVER_ID.c_str(), USER_ID.c_str());
+}
+
+// --------------------------------------------------------------------
+void OTAPI_Wrap::getBoxReceipt(const std::string	SERVER_ID,
+							   const std::string	USER_ID,
+							   const std::string	ACCT_ID,	// If for Nymbox (vs inbox/outbox) then pass USER_ID in this field also.
+							   const int			nBoxType,	// 0/nymbox, 1/inbox, 2/outbox
+							   const std::string	TRANSACTION_NUMBER)
+{
+	OT_API_getBoxReceipt(SERVER_ID.c_str(), USER_ID.c_str(), ACCT_ID.c_str(), nBoxType, TRANSACTION_NUMBER.c_str());
+}
+
+// --------------------------------------------------------------------------
+bool OTAPI_Wrap::DoesBoxReceiptExist(const std::string	SERVER_ID,
+									 const std::string	USER_ID,
+									 const std::string	ACCT_ID,	// If for Nymbox (vs inbox/outbox) then pass USER_ID in this field also.
+									 const int			nBoxType,	// 0/nymbox, 1/inbox, 2/outbox
+									 const std::string	TRANSACTION_NUMBER)
+{
+	return (DoesBoxReceiptExist(SERVER_ID.c_str(), USER_ID.c_str(), ACCT_ID.c_str(), nBoxType, TRANSACTION_NUMBER.c_str()) == OT_TRUE) ? true : false;
+}
 
 // --------------------------------------------------------------------------
 void OTAPI_Wrap::processInbox(const std::string SERVER_ID,

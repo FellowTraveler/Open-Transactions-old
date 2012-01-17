@@ -178,7 +178,8 @@ public:
 
 	static void TransportCallback(OTServerContract & theServerContract, OTEnvelope & theEnvelope);
 
-	inline OTWallet * GetWallet() { return m_pWallet; }
+	OTWallet * GetWallet(const char * szFuncName=NULL);
+
 	inline OTClient * GetClient() { return m_pClient; }
 	
 	inline const char * GetStoragePath() { return ((NULL == m_pstrStoragePath) ? NULL : m_pstrStoragePath->Get()); }
@@ -211,6 +212,9 @@ public:
 	bool ProcessSockets();
 	// --------------------------------------------------
 	
+	long GetTime();
+
+	// --------------------------------------------------
 	// Reading data about the local wallet.. presumably already loaded.
 	
 	int GetNymCount();
@@ -227,16 +231,32 @@ public:
 	// In this case, the ID is input, the pointer is output.
 	// Gets the data from Wallet.
 	//
-	OTPseudonym *		GetNym(const OTIdentifier & NYM_ID);
-	OTServerContract *	GetServer(const OTIdentifier & THE_ID);
-	OTAssetContract *	GetAssetType(const OTIdentifier & THE_ID);
-	OTAccount *			GetAccount(const OTIdentifier & THE_ID);	
+	OTPseudonym *		GetNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
+	OTServerContract *	GetServer(const OTIdentifier & THE_ID, const char * szFuncName=NULL);
+	OTAssetContract *	GetAssetType(const OTIdentifier & THE_ID, const char * szFuncName=NULL);
+	OTAccount *			GetAccount(const OTIdentifier & THE_ID, const char * szFuncName=NULL);	
     
-	OTPseudonym *		GetNymByIDPartialMatch(const std::string PARTIAL_ID);
-	OTServerContract *	GetServerContractPartialMatch(const std::string PARTIAL_ID);
-	OTAssetContract *	GetAssetContractPartialMatch(const std::string PARTIAL_ID);
-	OTAccount *         GetAccountPartialMatch(const std::string PARTIAL_ID);
+	OTPseudonym *		GetNymByIDPartialMatch(const std::string PARTIAL_ID, const char * szFuncName=NULL);
+	OTServerContract *	GetServerContractPartialMatch(const std::string PARTIAL_ID, const char * szFuncName=NULL);
+	OTAssetContract *	GetAssetContractPartialMatch(const std::string PARTIAL_ID, const char * szFuncName=NULL);
+	OTAccount *         GetAccountPartialMatch(const std::string PARTIAL_ID, const char * szFuncName=NULL);
+	
+	// ----------------------------------------------------
+	
+	OTPseudonym * GetOrLoadPublicNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
+	OTPseudonym * GetOrLoadPrivateNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
+	OTPseudonym * GetOrLoadNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
 
+	OTAccount * GetOrLoadAccount(		OTPseudonym		& theNym,
+								 const	OTIdentifier	& ACCT_ID,
+								 const	OTIdentifier	& SERVER_ID,
+								 const char *	szFuncName	=NULL);
+	
+	OTAccount * GetOrLoadAccount(const	OTIdentifier	& NYM_ID,
+								 const	OTIdentifier	& ACCT_ID,
+								 const	OTIdentifier	& SERVER_ID,
+								 const char *	szFuncName	=NULL);
+	
 	// ----------------------------------------------------
 	
 	// The name is basically just a client-side label.
@@ -266,12 +286,103 @@ public:
 	// Accessing local storage...
 	// (Caller responsible to delete.)
 	//
-	OTPseudonym *		LoadPublicNym(const OTIdentifier & NYM_ID);
-	OTPseudonym *		LoadPrivateNym(const OTIdentifier & NYM_ID);
+	OTPseudonym *		LoadPublicNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
+	OTPseudonym *		LoadPrivateNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
 	
 	OTPseudonym *		CreateNym(); // returns a new nym (with key pair) and files created. (Or NULL.)
 
 	bool	IsNym_RegisteredAtServer(const OTIdentifier & NYM_ID, const OTIdentifier & SERVER_ID);
+	
+	// ----------------------------------------------------
+	//
+	// ENCODE, DECODE, SIGN, VERIFY, ENCRYPT, DECRYPT
+	
+	
+	// --------------------------------------------------------------------
+	/** OT-encode a plaintext string.
+	 This will pack, compress, and base64-encode a plain string.
+	 Returns the base64-encoded string, or NULL.
+	 */
+	bool Encode(const OTString	&	strPlaintext,
+				// ---------------------
+				OTString		&	strOutput,
+				bool bLineBreaks=true);
+
+	
+	// --------------------------------------------------------------------
+	/** Decode an OT-encoded string (back to plaintext.)
+	 This will base64-decode, uncompress, and unpack an OT-encoded string.
+	 Returns the plaintext string, or NULL.
+	 */
+	bool Decode(const OTString	&	strEncoded,
+				// ---------------------
+				OTString		&	strOutput,
+				bool bLineBreaks=true);
+	
+	// --------------------------------------------------------------------
+	/** OT-ENCRYPT a plaintext string.
+	 This will encode, ENCRYPT, and encode a plain string.
+	 Returns the base64-encoded ciphertext, or NULL.
+	 */
+	bool Encrypt(const OTIdentifier	&	theRecipientNymID, 
+				 const OTString		&	strPlaintext,
+				 // ---------------------
+				 OTString			&	strOutput);	
+	
+	// --------------------------------------------------------------------
+	/** OT-DECRYPT an OT-encrypted string back to plaintext.
+	 Decrypts the base64-encoded ciphertext back into a normal string plaintext.
+	 Returns the plaintext string, or NULL.
+	 */
+	bool Decrypt(const OTIdentifier	&	theRecipientNymID, 
+				 const OTString		&	strCiphertext,
+				 // ---------------------
+				 OTString			&	strOutput);
+	
+	// --------------------------------------------------------------------
+	/** OT-Sign a CONTRACT.  (First signature)
+	 Tries to instantiate the contract object, based on the string passed in.
+	 Then it releases ALL signatures, and then signs the contract.
+	 Returns the signed contract, or NULL if failure.
+	 */
+	bool SignContract(const OTIdentifier	&	theSignerNymID, 
+					  const OTString		&	strContract,
+					  // ---------------------
+					  OTString				&	strOutput);
+	
+	// --------------------------------------------------------------------
+	/** OT-Sign a CONTRACT.  (Add a signature)
+	 Tries to instantiate the contract object, based on the string passed in.
+	 Signs the contract, WITHOUT releasing any signatures that are already there.
+	 Returns the signed contract, or NULL if failure.
+	 */
+	bool AddSignature(const OTIdentifier	&	theSignerNymID, 
+					  const OTString		&	strContract,
+					  // ---------------------
+					  OTString				&	strOutput);
+	
+	// --------------------------------------------------------------------
+	/** OT-Verify the signature on a CONTRACT.
+	 Returns true/false (success/fail)
+	 */
+	bool VerifySignature(const OTString		& strContract,
+						 const OTIdentifier	& theSignerNymID,
+						 OTContract			**ppContract=NULL); // If you use this optional parameter, then YOU are responsible to clean it up.
+	
+	/// Verify and Retrieve XML Contents.
+	bool VerifyAndRetrieveXMLContents(const OTString		&	strContract,
+									  const OTIdentifier	&	theSignerNymID,
+									  // ---------------------
+									  OTString				&	strOutput);
+	
+	// ----------------------------------------------------
+	/// === Verify Account Receipt ===
+	/// Returns bool. Verifies any asset account (intermediary files) against its own last signed receipt.
+	/// Obviously this will fail for any new account that hasn't done any transactions yet, and thus has no receipts.
+	///
+	bool VerifyAccountReceipt(const OTIdentifier & SERVER_ID,
+							  const OTIdentifier & USER_ID,
+							  const OTIdentifier & ACCOUNT_ID);
 	
 	// ----------------------------------------------------
 	//
@@ -379,16 +490,38 @@ public:
 								 const OTIdentifier & USER_ID,
 								 const OTIdentifier & ACCOUNT_ID);
 	
+	// ----------------------------------------------------
 	OTLedger * LoadNymbox(const OTIdentifier & SERVER_ID,
 						  const OTIdentifier & USER_ID);
-	
+
+	OTLedger * LoadNymboxNoVerify(const OTIdentifier & SERVER_ID,
+								  const OTIdentifier & USER_ID);
+		
 	OTLedger * LoadInbox(const OTIdentifier & SERVER_ID,
 						 const OTIdentifier & USER_ID,
 						 const OTIdentifier & ACCOUNT_ID);
 	
+	OTLedger * LoadInboxNoVerify(const OTIdentifier & SERVER_ID,
+								 const OTIdentifier & USER_ID,
+								 const OTIdentifier & ACCOUNT_ID);
+	
 	OTLedger * LoadOutbox(const OTIdentifier & SERVER_ID,
 						  const OTIdentifier & USER_ID,
 						  const OTIdentifier & ACCOUNT_ID);
+
+	OTLedger * LoadOutboxNoVerify(const OTIdentifier & SERVER_ID,
+								  const OTIdentifier & USER_ID,
+								  const OTIdentifier & ACCOUNT_ID);
+	// ----------------------------------------------------
+	
+	// So the client side knows which ones he has in storage, vs which ones he
+	// still needs to download.
+	//
+	bool DoesBoxReceiptExist(const OTIdentifier & SERVER_ID,
+							 const OTIdentifier & USER_ID,	// Unused here for now, but still convention.
+							 const OTIdentifier & ACCOUNT_ID,	// If for Nymbox (vs inbox/outbox) then pass USER_ID in this field also.
+							 const int			nBoxType,	// 0/nymbox, 1/inbox, 2/outbox
+							 const long		  &	lTransactionNum);
 	
 	// ------------------------------------------------------
 	
@@ -445,6 +578,12 @@ public:
 	void getMint(OTIdentifier & SERVER_ID,
 				 OTIdentifier & USER_ID,
 				 OTIdentifier & ASSET_ID);
+	
+	void getBoxReceipt(const OTIdentifier & SERVER_ID,
+					   const OTIdentifier & USER_ID,
+					   const OTIdentifier & ACCOUNT_ID,	// If for Nymbox (vs inbox/outbox) then pass USER_ID in this field also.
+					   const int	 nBoxType,		// 0/nymbox, 1/inbox, 2/outbox
+					   const long	&lTransactionNum);
 	
 	void createAssetAccount(OTIdentifier & SERVER_ID,
 							OTIdentifier & USER_ID,
@@ -549,6 +688,101 @@ public:
 					   const OTIdentifier	& USER_ID,
 					   const long			& lTransactionNum,
 					   const OTString		& strClauseName);
+	
+	bool Create_SmartContract(const OTIdentifier & SERVER_ID,
+							  const OTIdentifier & SIGNER_NYM_ID,// Use any Nym you wish here. (The signing at this point is only to cause a save.)
+							  // ----------------------------------------
+							  time_t		VALID_FROM,	// Default (0 or NULL) == NOW
+							  time_t		VALID_TO,	// Default (0 or NULL) == no expiry / cancel anytime
+							  OTString & strOutput);
+	
+	bool SmartContract_AddBylaw(const	OTString		& THE_CONTRACT,	// The contract, about to have the bylaw added to it.
+								const	OTIdentifier	& SIGNER_NYM_ID,// Use any Nym you wish here. (The signing at this point is only to cause a save.)
+								// ----------------------------------------
+								const	OTString		& BYLAW_NAME,	// The Bylaw's NAME as referenced in the smart contract. (And the scripts...)
+										OTString		& strOutput);
+	
+	bool SmartContract_AddClause(const	OTString		& THE_CONTRACT,	// The contract, about to have the clause added to it.
+								 const	OTIdentifier	& SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
+								 // ----------------------------------------
+								 const	OTString		& BYLAW_NAME,	// Should already be on the contract. (This way we can find it.)
+								 // ----------------------------------------
+								 const	OTString		& CLAUSE_NAME,	// The Clause's name as referenced in the smart contract. (And the scripts...)
+								 const	OTString		& SOURCE_CODE,	// The actual source code for the clause.
+										OTString		& strOutput);
+	
+	bool SmartContract_AddVariable(const	OTString		& THE_CONTRACT,	 // The contract, about to have the clause added to it.
+								   const	OTIdentifier	& SIGNER_NYM_ID, // Use any Nym you wish here. (The signing at this point is only to cause a save.)
+								   // ----------------------------------------
+								   const	OTString		& BYLAW_NAME,	// Should already be on the contract. (This way we can find it.)
+								   // ----------------------------------------
+								   const	OTString		& VAR_NAME,		// The Variable's name as referenced in the smart contract. (And the scripts...)
+								   const	OTString		& VAR_ACCESS,	// "constant", "persistent", or "important".
+								   const	OTString		& VAR_TYPE,		// "string", "long", or "bool"
+								   const	OTString		& VAR_VALUE,	// Contains a string. If type is long, atol() will be used to convert value to a long. If type is bool, the strings "true" or "false" are expected here in order to convert to a bool.
+								   // ----------------------------------------
+											OTString		& strOutput);
+	
+	bool SmartContract_AddCallback(const	OTString		& THE_CONTRACT,	// The contract, about to have the clause added to it.
+								   const	OTIdentifier	& SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
+								   // ----------------------------------------
+								   const	OTString		& BYLAW_NAME,	// Should already be on the contract. (This way we can find it.)
+								   // ----------------------------------------
+								   const	OTString		& CALLBACK_NAME,// The Callback's name as referenced in the smart contract. (And the scripts...)
+								   const	OTString		& CLAUSE_NAME,	// The actual clause that will be triggered by the callback. (Must exist.)
+											OTString		& strOutput);
+	
+	bool SmartContract_AddHook(const	OTString		& THE_CONTRACT,		// The contract, about to have the clause added to it.
+							   const	OTIdentifier	& SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
+							   // ----------------------------------------
+							   const	OTString		& BYLAW_NAME,		// Should already be on the contract. (This way we can find it.)
+							   // ----------------------------------------
+							   const	OTString		& HOOK_NAME,		// The Hook's name as referenced in the smart contract. (And the scripts...)
+							   const	OTString		& CLAUSE_NAME,		// The actual clause that will be triggered by the hook. (You can call this multiple times, and have multiple clauses trigger on the same hook.)
+										OTString		& strOutput);
+	
+	bool SmartContract_AddParty(const	OTString		& THE_CONTRACT,		// The contract, about to have the bylaw added to it.
+								const	OTIdentifier	& SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
+								// ----------------------------------------
+								const	OTString		& PARTY_NAME,		// The Party's NAME as referenced in the smart contract. (And the scripts...)
+								const	OTString		& AGENT_NAME,		// An AGENT will be added by default for this party. Need Agent NAME.
+										OTString		& strOutput);
+
+	bool SmartContract_AddAccount(const	OTString		& THE_CONTRACT,		// The contract, about to have the clause added to it.
+								  const	OTIdentifier	& SIGNER_NYM_ID,	// Use any Nym you wish here. (The signing at this point is only to cause a save.)
+								  // ----------------------------------------
+								  const	OTString		& PARTY_NAME,		// The Party's NAME as referenced in the smart contract. (And the scripts...)
+								  // ----------------------------------------
+								  const	OTString		& ACCT_NAME,		// The Account's name as referenced in the smart contract
+								  const	OTString		& ASSET_TYPE_ID,	// Asset Type ID for the Account.
+										OTString		& strOutput);
+	
+	int SmartContract_CountNumsNeeded(const	OTString	& THE_CONTRACT,		// The contract, about to have the bylaw added to it.
+									  const	OTString	& AGENT_NAME);		// An AGENT will be added by default for this party. Need Agent NAME.
+
+	bool SmartContract_ConfirmAccount(const	OTString	& THE_CONTRACT,	
+									  const	OTIdentifier& SIGNER_NYM_ID,
+									  // -----------------------------
+									  const	OTString	& PARTY_NAME,	
+									  const	OTString	& ACCT_NAME,	
+									  // -----------------------------
+									  const	OTString	& AGENT_NAME,
+									  const	OTString	& ACCT_ID,
+											OTString	& strOutput);
+	
+	bool SmartContract_ConfirmParty(const	OTString		& THE_CONTRACT,	// The smart contract, about to be changed by this function.
+									const	OTString		& PARTY_NAME,	// Should already be on the contract. This way we can find it.
+									// ----------------------------------------
+									const	OTIdentifier	& NYM_ID,		// Nym ID for the party, the actual owner, 
+											OTString		& strOutput);	// ===> AS WELL AS for the default AGENT of that party. (For now, until I code entities)
+	
+	bool HarvestClosingNumbers(const OTIdentifier	& SERVER_ID,
+							   const OTIdentifier	& NYM_ID,
+							   const OTString		& THE_CRON_ITEM);
+	
+	bool HarvestAllNumbers(const OTIdentifier	& SERVER_ID,
+						   const OTIdentifier	& NYM_ID,
+						   const OTString		& THE_CRON_ITEM);
 	
 	void activateSmartContract(const OTIdentifier	& SERVER_ID,
 							   const OTIdentifier	& USER_ID,

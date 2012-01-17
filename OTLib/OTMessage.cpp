@@ -871,6 +871,61 @@ void OTMessage::UpdateContents()
 	
 	// ------------------------------------------------------------------------
 	
+	if (m_strCommand.Compare("getBoxReceipt"))
+	{		
+		m_xmlUnsigned.Concatenate("<%s\n" // Command
+								  " nymID=\"%s\"\n"
+								  " serverID=\"%s\"\n"
+								  " requestNum=\"%s\"\n"
+								  " transactionNum=\"%ld\"\n"
+								  " boxType=\"%s\"\n"
+								  " accountID=\"%s\""  // If retrieving box receipt for Nymbox, NymID will appear in this variable.
+								  ">\n\n",
+								  m_strCommand.Get(),
+								  m_strNymID.Get(),
+								  m_strServerID.Get(),
+								  m_strRequestNum.Get(),
+								  m_lTransactionNum,
+								  (m_lDepth == 0) ? "nymbox" : ((m_lDepth == 1) ? "inbox" : "outbox"), // outbox is 2.
+								  m_strAcctID.Get()
+								  );
+
+		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
+	} // ------------------------------------------------------------------------
+	
+	
+	// ------------------------------------------------------------------------
+	if (m_strCommand.Compare("@getBoxReceipt"))
+	{		
+		m_xmlUnsigned.Concatenate("<%s\n" // Command
+								  " success=\"%s\"\n"
+								  " accountID=\"%s\"\n"
+								  " transactionNum=\"%ld\"\n"
+								  " boxType=\"%s\"\n"
+								  " nymID=\"%s\"\n"
+								  " serverID=\"%s\""
+								  ">\n\n",
+								  m_strCommand.Get(), (m_bSuccess ? "true" : "false"),
+								  m_strAcctID.Get(),
+								  m_lTransactionNum,
+								  (m_lDepth == 0) ? "nymbox" : ((m_lDepth == 1) ? "inbox" : "outbox"), // outbox is 2.
+								  m_strNymID.Get(),
+								  m_strServerID.Get()
+								  );
+		
+		if (m_ascInReferenceTo.GetLength())
+			m_xmlUnsigned.Concatenate("<inReferenceTo>\n%s</inReferenceTo>\n\n", m_ascInReferenceTo.Get());
+		
+		if (m_bSuccess && m_ascPayload.GetLength())
+			m_xmlUnsigned.Concatenate("<boxReceipt>\n%s</boxReceipt>\n\n", m_ascPayload.Get());
+
+		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
+	} // ------------------------------------------------------------------------
+	
+	
+	
+	// ------------------------------------------------------------------------
+	
 	if (m_strCommand.Compare("deleteAssetAccount"))
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
@@ -885,7 +940,7 @@ void OTMessage::UpdateContents()
 								  m_strRequestNum.Get(),
 								  m_strAcctID.Get()
 								  );
-				
+		
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
 	
@@ -911,7 +966,7 @@ void OTMessage::UpdateContents()
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
 	
-
+	
 	
 	// ------------------------------------------------------------------------
 	
@@ -2584,6 +2639,135 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// -------------------------------------------------------------------------------------------
 	
+	else if (!strcmp("getBoxReceipt", xml->getNodeName())) 
+	{	
+		m_strCommand	= xml->getNodeName();  // Command
+		m_strNymID		= xml->getAttributeValue("nymID");
+		m_strServerID	= xml->getAttributeValue("serverID");
+		m_strAcctID		= xml->getAttributeValue("accountID");
+		m_strRequestNum	= xml->getAttributeValue("requestNum");
+		
+		const OTString strTransactionNum = xml->getAttributeValue("transactionNum");
+		m_lTransactionNum = strTransactionNum.Exists() ? atol(strTransactionNum.Get()) : 0;
+		// ----------------------------------------------------
+		const OTString strBoxType = xml->getAttributeValue("boxType");
+		// ----------------------------------------------------
+		if (strBoxType.Compare("nymbox"))
+			m_lDepth = 0;
+		else if (strBoxType.Compare("inbox"))
+			m_lDepth = 1;
+		else if (strBoxType.Compare("outbox"))
+			m_lDepth = 2;
+		else
+		{
+			m_lDepth = 0;
+			OTLog::Error("Error in OTMessage::ProcessXMLNode:\n"
+						 "Expected boxType to be inbox, outbox, or nymbox, in "
+						 "getBoxReceipt\n");
+			return (-1);
+		}
+		// ----------------------------------------------------
+		
+		OTLog::vOutput(1, "\n Command: %s \n NymID:    %s\n AccountID:    %s\n"
+                       " ServerID: %s\n Request#: %s  Transaction#: %ld   boxType: %s\n\n", 
+                       m_strCommand.Get(), m_strNymID.Get(), m_strAcctID.Get(),
+                       m_strServerID.Get(), m_strRequestNum.Get(), m_lTransactionNum,
+					   (m_lDepth == 0) ? "nymbox" : ((m_lDepth == 1) ? "inbox" : "outbox")); // outbox is 2.);
+		
+		nReturnVal = 1;
+	}
+	
+	// -------------------------------------------------------------------------------------------
+	
+	else if (!strcmp("@getBoxReceipt", xml->getNodeName())) 
+	{	
+		OTString strSuccess;
+		strSuccess		= xml->getAttributeValue("success");
+		if (strSuccess.Compare("true"))
+			m_bSuccess = true;
+		else
+			m_bSuccess = false;
+		
+		m_strCommand	= xml->getNodeName();  // Command
+		m_strNymID		= xml->getAttributeValue("nymID");
+		m_strServerID	= xml->getAttributeValue("serverID");
+		m_strAcctID		= xml->getAttributeValue("accountID");
+		
+		const OTString strTransactionNum = xml->getAttributeValue("transactionNum");
+		m_lTransactionNum = strTransactionNum.Exists() ? atol(strTransactionNum.Get()) : 0;
+		// ----------------------------------------------------
+		const OTString strBoxType = xml->getAttributeValue("boxType");
+		// ----------------------------------------------------
+		if (strBoxType.Compare("nymbox"))
+			m_lDepth = 0;
+		else if (strBoxType.Compare("inbox"))
+			m_lDepth = 1;
+		else if (strBoxType.Compare("outbox"))
+			m_lDepth = 2;
+		else
+		{
+			m_lDepth = 0;
+			OTLog::Error("Error in OTMessage::ProcessXMLNode:\n"
+						 "Expected boxType to be inbox, outbox, or nymbox, in "
+						 "@getBoxReceipt reply\n");
+			return (-1);
+		}
+		// ----------------------------------------------------
+		// inReferenceTo contains the getBoxReceipt (original request)
+		// At this point, we do not send the REASON WHY if it failed.
+		// ----------------------------------------------------
+		{
+			const char *	pElementExpected	= "inReferenceTo";
+			OTASCIIArmor &	ascTextExpected		= m_ascInReferenceTo;
+			
+			if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+			{
+				OTLog::vError("Error in OTMessage::ProcessXMLNode: "
+							  "Expected %s element with text field, for %s.\n", 
+							  pElementExpected, m_strCommand.Get());
+				return (-1); // error condition
+			}
+		}
+		// ----------------------------------------------------
+		if (m_bSuccess)
+		{
+			const char *	pElementExpected	= "boxReceipt";
+			OTASCIIArmor &	ascTextExpected		= m_ascPayload;
+			
+			if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+			{
+				OTLog::vError("Error in OTMessage::ProcessXMLNode: "
+							  "Expected %s element with text field, for %s.\n", 
+							  pElementExpected, m_strCommand.Get());
+				return (-1); // error condition
+			}
+		}
+		// ---------------------------------------------------
+		
+		// Did we find everything we were looking for?
+		// If the "command responding to" isn't there, 
+		// OR if it was successful but the Payload isn't there, then failure.
+		if (!m_ascInReferenceTo.GetLength() || (m_bSuccess && !m_ascPayload.GetLength()))
+		{
+			OTLog::Error("Error in OTMessage::ProcessXMLNode:\n"
+						 "Expected boxReceipt and/or inReferenceTo elements with text fields in "
+						 "@getBoxReceipt reply\n");
+			return (-1); // error condition			
+		}
+		
+		OTLog::vOutput(1, "\nCommand: %s   %s\nNymID:    %s\nAccountID: %s\n"
+                       "ServerID: %s\n\n",
+                       //	"****New Account****:\n%s\n", 
+                       m_strCommand.Get(), (m_bSuccess?"SUCCESS":"FAILED"), 
+					   m_strNymID.Get(), m_strAcctID.Get(),
+                       m_strServerID.Get());
+		
+		nReturnVal = 1;
+	}
+	// -------------------------------------------------------------------------------------------
+	
+	
+	// -------------------------------------------------------------------------------------------
 	else if (!strcmp("deleteAssetAccount", xml->getNodeName())) 
 	{	
 		m_strCommand	= xml->getNodeName();  // Command
@@ -2636,8 +2820,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		}
 		// ----------------------------------------------------
 		// Did we find everything we were looking for?
-		// If the "command responding to" isn't there, 
-		// OR if it was successful but the Payload isn't there, then failure.
+		// If the "command responding to" isn't there, then failure.
 		if (!m_ascInReferenceTo.GetLength())
 		{
 			OTLog::Error("Error in OTMessage::ProcessXMLNode:\n"

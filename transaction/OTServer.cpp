@@ -1717,7 +1717,7 @@ void OTServer::UserCmdGetTransactionNum(OTPseudonym & theNym, OTMessage & MsgIn,
 		}
 		// Drop in the Nymbox 
 		else if (msgOut.m_bSuccess = (theLedger.LoadNymbox() && theLedger.VerifyAccount(m_nymServer)) )
-		{						
+		{
 			OTTransaction * pTransaction = OTTransaction::GenerateTransaction(theLedger, OTTransaction::blank, lTransNum);
 			
 			if (NULL != pTransaction) // The above has an OT_ASSERT within, but I just like to check my pointers.
@@ -1726,11 +1726,20 @@ void OTServer::UserCmdGetTransactionNum(OTPseudonym & theNym, OTMessage & MsgIn,
 				pTransaction->	SaveContract();
 
 				theLedger.AddTransaction(*pTransaction);
-				
+
 				theLedger.ReleaseSignatures();
 				theLedger.SignContract(m_nymServer);
 				theLedger.SaveContract();
 				theLedger.SaveNymbox();
+				
+				// Any inbox/nymbox/outbox ledger will only itself contain
+				// abbreviated versions of the receipts, including their hashes.
+				// 
+				// The rest is stored separately, in the box receipt, which is created
+				// whenever a receipt is added to a box, and deleted after a receipt
+				// is removed from a box.
+				//
+				pTransaction->SaveBoxReceipt(theLedger);				
 			}
 		}
 		else
@@ -1834,6 +1843,15 @@ void OTServer::UserCmdSendUserMessage(OTPseudonym & theNym, OTMessage & MsgIn, O
 			theLedger.SaveContract();
 			theLedger.SaveNymbox();
 
+			// Any inbox/nymbox/outbox ledger will only itself contain
+			// abbreviated versions of the receipts, including their hashes.
+			// 
+			// The rest is stored separately, in the box receipt, which is created
+			// whenever a receipt is added to a box, and deleted after a receipt
+			// is removed from a box.
+			//
+			pTransaction->SaveBoxReceipt(theLedger);
+			
 			msgOut.m_bSuccess = true;
 		}
 		else 
@@ -2720,8 +2738,8 @@ void OTServer::NotarizeTransfer(OTPseudonym & theNym, OTAccount & theFromAccount
 			// IF they can be loaded up from file, or generated, that is. 
 
 			// Load the inbox/outbox in case they already exist
-			OTLedger	theFromOutbox(USER_ID, IDFromAccount, SERVER_ID), 
-						theToInbox(pItem->GetDestinationAcctID(), SERVER_ID);
+			OTLedger	theFromOutbox	(USER_ID, IDFromAccount, SERVER_ID), 
+						theToInbox		(pItem->GetDestinationAcctID(), SERVER_ID);
 			
 			bool bSuccessLoadingInbox	= theToInbox.LoadInbox();
 			bool bSuccessLoadingOutbox	= theFromOutbox.LoadOutbox();
@@ -2833,6 +2851,8 @@ void OTServer::NotarizeTransfer(OTPseudonym & theNym, OTAccount & theFromAccount
 				pTEMPOutboxTransaction->SignContract(m_nymServer);
 				pTEMPOutboxTransaction->SaveContract();
 				
+				// No need to save a box receipt in this case, like we normally would
+				// when adding a transaction to a box.
 				pOutbox->AddTransaction(*pTEMPOutboxTransaction); // pOutbox will clean this up
 				
 				// The balance item from the user, for the outbox transaction, will not have
@@ -2908,8 +2928,18 @@ void OTServer::NotarizeTransfer(OTPseudonym & theNym, OTAccount & theFromAccount
 						// happened, and here is the server's signature to prove it.
 						// Otherwise you get no items and no signature. Just a rejection item in the response transaction.
 						pResponseItem->SetStatus(OTItem::acknowledgement);
+						
+						// Any inbox/nymbox/outbox ledger will only itself contain
+						// abbreviated versions of the receipts, including their hashes.
+						// 
+						// The rest is stored separately, in the box receipt, which is created
+						// whenever a receipt is added to a box, and deleted after a receipt
+						// is removed from a box.
+						//
+						pOutboxTransaction->	SaveBoxReceipt(theFromOutbox);
+						pInboxTransaction->		SaveBoxReceipt(theToInbox);
 					}
-					else 
+					else
 					{
 						delete pOutboxTransaction; pOutboxTransaction = NULL; // I can't use OTCleanup here because sometimes we DON'T delete it. (above)
 						delete pInboxTransaction; pInboxTransaction = NULL;
@@ -4061,6 +4091,15 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
 						theAccount.		SaveAccount();
 						theSenderInbox.	SaveInbox();
 						
+						// Any inbox/nymbox/outbox ledger will only itself contain
+						// abbreviated versions of the receipts, including their hashes.
+						// 
+						// The rest is stored separately, in the box receipt, which is created
+						// whenever a receipt is added to a box, and deleted after a receipt
+						// is removed from a box.
+						//
+						pInboxTransaction->SaveBoxReceipt(theSenderInbox);
+						
 						// Now we can set the response item as an acknowledgement instead of the default (rejection)
 						// otherwise, if we never entered this block, then it would still be set to rejection, and the
 						// new item would never have been added to the inbox, and the inbox file, along with the
@@ -4812,6 +4851,15 @@ void OTServer::NotarizePaymentPlan(OTPseudonym & theNym, OTAccount & theSourceAc
 									
 									// Save inbox to storage. (File, DB, wherever it goes.)
 									pInbox->SaveInbox();
+									
+									// Any inbox/nymbox/outbox ledger will only itself contain
+									// abbreviated versions of the receipts, including their hashes.
+									// 
+									// The rest is stored separately, in the box receipt, which is created
+									// whenever a receipt is added to a box, and deleted after a receipt
+									// is removed from a box.
+									//
+									pTransRecip->SaveBoxReceipt(*pInbox);
 								}
 							}
 							else
@@ -5596,6 +5644,7 @@ void OTServer::NotarizeExchangeBasket(OTPseudonym & theNym, OTAccount & theAccou
                                         
                                         // Here the transaction we just created is actually added to the exchanger's inbox.
                                         pSubInbox->AddTransaction(*pInboxTransaction);
+										pInboxTransaction->SaveBoxReceipt(*pSubInbox);
                                     }
                                 } // User and Server sub-accounts are good. ---------------------------------------
                             } // pBasketItem and pRequestItem are good.
@@ -5703,6 +5752,7 @@ void OTServer::NotarizeExchangeBasket(OTPseudonym & theNym, OTAccount & theAccou
                                 
                                 // Here the transaction we just created is actually added to the source acct's inbox.
                                 pInbox->AddTransaction(*pInboxTransaction);
+								pInboxTransaction->SaveBoxReceipt(*pInbox);
                             }
                         }
                         else 
@@ -6933,6 +6983,8 @@ void OTServer::DropReplyNoticeToNymbox(const OTIdentifier & SERVER_ID, const OTI
 			theNymbox.	SignContract(m_nymServer);
 			theNymbox.	SaveContract();
 			theNymbox.	SaveNymbox();
+			
+			pReplyNotice->SaveBoxReceipt(theNymbox);
 		}
 	}
 	// -------------------------------------------------------------	
@@ -7310,6 +7362,172 @@ void OTServer::UserCmdDeleteUser(OTPseudonym & theNym, OTMessage & MsgIn, OTMess
 	// If it fails, it logs already.
 	this->DropReplyNoticeToNymbox(SERVER_ID, USER_ID, strReplyMessage);		
 }
+
+
+// the "accountID" on this message will contain the NymID if retrieving a boxreceipt for
+// the Nymbox. Otherwise it will contain an AcctID if retrieving a boxreceipt for an Asset Acct.
+//
+void OTServer::UserCmdGetBoxReceipt(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut)
+{
+	// (1) set up member variables 
+	msgOut.m_strCommand			= "@getBoxReceipt";			// reply to getBoxReceipt
+	msgOut.m_strNymID			= MsgIn.m_strNymID;         // UserID
+	msgOut.m_strServerID		= m_strServerID;            // ServerID, a hash of the server contract.
+	msgOut.m_strAcctID			= MsgIn.m_strAcctID;        // the asset account ID (inbox/outbox), or Nym ID (nymbox)
+	msgOut.m_lTransactionNum	= MsgIn.m_lTransactionNum;	// TransactionNumber for the receipt in the box (unique to the box.)
+	msgOut.m_lDepth				= MsgIn.m_lDepth;
+	msgOut.m_bSuccess			= false;
+	
+	const OTIdentifier  USER_ID(MsgIn.m_strNymID),
+						SERVER_ID(MsgIn.m_strServerID),
+						ACCOUNT_ID(MsgIn.m_strAcctID);
+	
+	OTLedger * pLedger = NULL;
+	OTCleanup<OTLedger> theLedgerAngel;
+	
+	bool bErrorCondition = false;
+	bool bSuccessLoading = false;
+	
+	switch (MsgIn.m_lDepth)
+	{
+		case 0:	// Nymbox
+			if (USER_ID == ACCOUNT_ID)
+			{
+				pLedger = new OTLedger(USER_ID, USER_ID, SERVER_ID);
+				OT_ASSERT(NULL != pLedger);
+				theLedgerAngel.SetCleanupTarget(*pLedger);
+				bSuccessLoading = pLedger->LoadNymbox();
+			}
+			else // Inbox / Outbox.
+			{
+				OTLog::vError("OTServer::UserCmdGetBoxReceipt: User requested Nymbox, but failed to provide the "
+							  "UserID (%s) in the AccountID (%s) field as expected.\n", MsgIn.m_strNymID.Get(), 
+							  MsgIn.m_strAcctID.Get());
+				bErrorCondition = true;
+			}
+			break;
+		case 1:	// Inbox
+			if (USER_ID == ACCOUNT_ID)
+			{
+				OTLog::vError("OTServer::UserCmdGetBoxReceipt: User requested Inbox, but erroneously provided the "
+							  "UserID (%s) in the AccountID (%s) field.\n", MsgIn.m_strNymID.Get(), MsgIn.m_strAcctID.Get());
+				bErrorCondition = true;
+			}
+			else
+			{
+				pLedger = new OTLedger(USER_ID, ACCOUNT_ID, SERVER_ID);
+				OT_ASSERT(NULL != pLedger);
+				theLedgerAngel.SetCleanupTarget(*pLedger);
+				bSuccessLoading = pLedger->LoadInbox();
+			}
+			break;
+		case 2:	// Outbox
+			if (USER_ID == ACCOUNT_ID)
+			{
+				OTLog::vError("OTServer::UserCmdGetBoxReceipt: User requested Outbox, but erroneously provided the "
+							  "UserID (%s) in the AccountID (%s) field.\n", MsgIn.m_strNymID.Get(), MsgIn.m_strAcctID.Get());
+				bErrorCondition = true;
+			}
+			else
+			{
+				pLedger = new OTLedger(USER_ID, ACCOUNT_ID, SERVER_ID);
+				OT_ASSERT(NULL != pLedger);
+				theLedgerAngel.SetCleanupTarget(*pLedger);
+				bSuccessLoading = pLedger->LoadOutbox();
+			}
+			break;
+		default:
+			OTLog::vError("OTServer::UserCmdGetBoxReceipt: Unknown box type: %ld\n", 
+						  MsgIn.m_lDepth);
+			bErrorCondition = true;
+			break;
+	}
+	// --------------------------------------------------
+	// At this point, we have the box loaded. Now let's use it to 
+	// load the appropriate box receipt...
+	
+	if (bSuccessLoading && !bErrorCondition && pLedger->VerifyAccount(m_nymServer))
+	{
+		OTTransaction * pTransaction = pLedger->GetTransaction(MsgIn.m_lTransactionNum);
+		if (NULL == pTransaction)
+		{
+			OTLog::vError("OTServer::UserCmdGetBoxReceipt: User requested a transaction number "
+						  "(%ld) that's not in the %s. UserID (%s) and AccountID (%s) FYI.\n", 
+						  MsgIn.m_lTransactionNum, 
+						  (MsgIn.m_lDepth == 0) ? "nymbox" : ((MsgIn.m_lDepth == 1) ? "inbox" : "outbox"), // outbox is 2.
+						  MsgIn.m_strNymID.Get(), MsgIn.m_strAcctID.Get());
+			bErrorCondition = true;			
+		}
+		else
+		{
+			pLedger->LoadBoxReceipt(MsgIn.m_lTransactionNum);
+			
+			// The above call will replace pTransaction, inside pLedger, with the full version
+			// (instead of the abbreviated version) of that transaction, meaning that the pTransaction
+			// pointer is now a bad pointer, if that call was successful.
+			// Therefore we just call GetTransaction() AGAIN. This way, whether LoadBoxReceipt()
+			// failed or not (perhaps it's legacy data and is already not abbreviated, and thus the
+			// LoadBoxReceipt call failed, but that's doesn't mean we're going to fail HERE, now does it?)
+			//
+			pTransaction = pLedger->GetTransaction(MsgIn.m_lTransactionNum);
+			
+			if ((NULL != pTransaction) && !pTransaction->IsAbbreviated())
+			{
+				// Okay so after finding it, then calling LoadBoxReceipt(), then finding it again,
+				// it's definitely not abbreviated by this point. 
+				// Todo:  Any other security verification here, on the transaction? LoadBoxReceipt()
+				// already calls VerifyBoxReceipt(), FYI.
+				//
+				const OTString strBoxReceipt(*pTransaction);
+				OT_ASSERT(strBoxReceipt.Exists());
+				
+				msgOut.m_ascPayload.SetString(strBoxReceipt);  // <=================
+				msgOut.m_bSuccess = true;
+				
+				OTLog::vOutput(3, "OTServer::UserCmdGetBoxReceipt: Success: User is retrieving the box receipt for transaction number "
+							   "%ld in the %s for UserID (%s) AccountID (%s).\n", 
+							   MsgIn.m_lTransactionNum, (MsgIn.m_lDepth == 0) ? "nymbox" : ((MsgIn.m_lDepth == 1) ? "inbox" : "outbox"), // outbox is 2.
+							   MsgIn.m_strNymID.Get(), MsgIn.m_strAcctID.Get());
+			}
+			else
+			{
+				OTLog::vError("OTServer::UserCmdGetBoxReceipt: User requested a transaction number (%ld) that's "
+							  "failing to retrieve from the %s, AFTER calling LoadBoxReceipt(). (Though it worked BEFORE.) "
+							  "UserID (%s) and AccountID (%s) FYI. IsAbbreviated == %s\n", 
+							  MsgIn.m_lTransactionNum, 
+							  (MsgIn.m_lDepth == 0) ? "nymbox" : ((MsgIn.m_lDepth == 1) ? "inbox" : "outbox"), // outbox is 2.
+							  MsgIn.m_strNymID.Get(), MsgIn.m_strAcctID.Get(), pTransaction->IsAbbreviated() ? "true" : "false");
+				bErrorCondition = true;
+			}
+		}
+	}
+	else
+	{
+		OTLog::vError("OTServer::UserCmdGetBoxReceipt: Failed loading or verifying %s. "
+					  "Transaction (%ld), UserID (%s) and AccountID (%s) FYI.\n", 
+					  (MsgIn.m_lDepth == 0) ? "nymbox" : ((MsgIn.m_lDepth == 1) ? "inbox" : "outbox"), // outbox is 2.
+					  MsgIn.m_lTransactionNum, MsgIn.m_strNymID.Get(), MsgIn.m_strAcctID.Get());
+		bErrorCondition = true;
+	}
+	// ---------------------------------------------
+    
+	// Send the user's command back to him (success or failure.)
+    //  if (false == msgOut.m_bSuccess)
+    {
+		const OTString tempInMessage(MsgIn); // Grab the incoming message in plaintext form
+		msgOut.m_ascInReferenceTo.SetString(tempInMessage); // Set it into the base64-encoded object on the outgoing message        
+    }
+    
+	// (2) Sign the Message 
+	msgOut.SignContract((const OTPseudonym &)m_nymServer);
+	
+	// (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+	//
+	// FYI, SaveContract takes m_xmlUnsigned and wraps it with the signatures and ------- BEGIN  bookends
+	// If you don't pass a string in, then SaveContract saves the new version to its member, m_strRawFile
+	msgOut.SaveContract();
+}
+
 
 
 // If the client wants to delete an asset account, the server will allow it...
@@ -7947,7 +8165,8 @@ void OTServer::NotarizeProcessNymbox(OTPseudonym & theNym, OTTransaction & tranI
 							// pItem contains the current user's attempt to accept the 
 							// ['message'] located in pServerTransaction.
 							// Now we have the user's item and the item he is trying to accept.
-							
+							pServerTransaction->DeleteBoxReceipt(theNymbox); // faster.
+//							theNymbox.	DeleteBoxReceipt(pServerTransaction->GetTransactionNum());
 							theNymbox.	RemoveTransaction(pServerTransaction->GetTransactionNum());
 							
 							theNymbox.	ReleaseSignatures();
@@ -7976,6 +8195,8 @@ void OTServer::NotarizeProcessNymbox(OTPseudonym & theNym, OTTransaction & tranI
 							// ['message'] located in pServerTransaction.
 							// Now we have the user's item and the item he is trying to accept.
 							
+							pServerTransaction->DeleteBoxReceipt(theNymbox); // faster.
+//							theNymbox.	DeleteBoxReceipt(pServerTransaction->GetTransactionNum());
 							theNymbox.	RemoveTransaction(pServerTransaction->GetTransactionNum());
 							
 							theNymbox.	ReleaseSignatures();
@@ -8025,6 +8246,8 @@ void OTServer::NotarizeProcessNymbox(OTPseudonym & theNym, OTTransaction & tranI
 									pSuccessNotice->	SaveContract();
 									
 									theNymbox.AddTransaction(*pSuccessNotice); // Add the successNotice to the nymbox. It takes ownership.
+
+									pSuccessNotice->SaveBoxReceipt(theNymbox);
 								}
 							}
 							// -----------------------------------------------
@@ -8034,6 +8257,8 @@ void OTServer::NotarizeProcessNymbox(OTPseudonym & theNym, OTTransaction & tranI
 							
 							// Here we remove the blank transaction that was just accepted.
 							// 
+							pServerTransaction->DeleteBoxReceipt(theNymbox); // faster.
+//							theNymbox.	DeleteBoxReceipt(pServerTransaction->GetTransactionNum());
 							theNymbox.	RemoveTransaction(pServerTransaction->GetTransactionNum());
 							
 							theNymbox.	ReleaseSignatures();
@@ -8059,6 +8284,8 @@ void OTServer::NotarizeProcessNymbox(OTPseudonym & theNym, OTTransaction & tranI
 							// finalReceipt located in pServerTransaction.
 							// Now we have the user's item and the item he is trying to accept.
 							
+							pServerTransaction->DeleteBoxReceipt(theNymbox); // faster.
+//							theNymbox.	DeleteBoxReceipt(pServerTransaction->GetTransactionNum());
 							theNymbox.	RemoveTransaction(pServerTransaction->GetTransactionNum());
 							
 							theNymbox.	ReleaseSignatures();
@@ -8772,10 +8999,13 @@ void OTServer::NotarizeProcessInbox(OTPseudonym & theNym, OTAccount & theAccount
             //
             while (!theListOfInboxReceiptsBeingRemoved.empty())
             {
-                long lTemp = theListOfInboxReceiptsBeingRemoved.front();
-                theListOfInboxReceiptsBeingRemoved.pop_front();
-                
-               if (false == pInbox->RemoveTransaction(lTemp))    // <================
+				long lTemp = theListOfInboxReceiptsBeingRemoved.front();
+				theListOfInboxReceiptsBeingRemoved.pop_front();
+				
+				// Notice I don't call DeleteBoxReceipt(lTemp) here like I normally would when calling
+				// RemoveTransaction(lTemp), since this is only a copy of my inbox and not the real thing.
+				//
+				if (false == pInbox->RemoveTransaction(lTemp))    // <================
                    OTLog::vError("OTServer::NotarizeProcessInbox: Failed removing receipt from Inbox copy: %ld \n", lTemp); 
             }
             
@@ -8957,7 +9187,9 @@ void OTServer::NotarizeProcessInbox(OTPseudonym & theNym, OTAccount & theAccount
                             // represented by pServerTransaction. Therefore we have the user's
                             // item AND the receipt he is trying to accept.
                             
-                            theInbox.	RemoveTransaction(pServerTransaction->GetTransactionNum());
+							pServerTransaction->DeleteBoxReceipt(theInbox); // faster.
+//							theInbox.	DeleteBoxReceipt(pServerTransaction->GetTransactionNum());
+							theInbox.	RemoveTransaction(pServerTransaction->GetTransactionNum());
                             
                             theInbox.	ReleaseSignatures();
                             theInbox.	SignContract(m_nymServer);
@@ -8985,7 +9217,9 @@ void OTServer::NotarizeProcessInbox(OTPseudonym & theNym, OTAccount & theAccount
                             // represented by pServerTransaction. Therefore we have the user's
                             // item AND the receipt he is trying to accept.
                             
-                            theInbox.	RemoveTransaction(pServerTransaction->GetTransactionNum());
+							pServerTransaction->DeleteBoxReceipt(theInbox); // faster.
+//							theInbox.	DeleteBoxReceipt(pServerTransaction->GetTransactionNum());
+							theInbox.	RemoveTransaction(pServerTransaction->GetTransactionNum());
                             
                             theInbox.	ReleaseSignatures();
                             theInbox.	SignContract(m_nymServer);
@@ -9014,7 +9248,9 @@ void OTServer::NotarizeProcessInbox(OTPseudonym & theNym, OTAccount & theAccount
                             // represented by pServerTransaction. Therefore we have the user's
                             // item AND the receipt he is trying to accept.
                             
-                            theInbox.	RemoveTransaction(pServerTransaction->GetTransactionNum());
+							pServerTransaction->DeleteBoxReceipt(theInbox); // faster.
+//							theInbox.	DeleteBoxReceipt(pServerTransaction->GetTransactionNum());
+							theInbox.	RemoveTransaction(pServerTransaction->GetTransactionNum());
                             
                             theInbox.	ReleaseSignatures();
                             theInbox.	SignContract(m_nymServer);
@@ -9131,9 +9367,11 @@ void OTServer::NotarizeProcessInbox(OTPseudonym & theNym, OTAccount & theAccount
                                     // pItem contains the current user's attempt to accept the 
                                     // ['depositCheque' OR 'acceptPending'] located in theOriginalItem.
                                     // Now we have the user's item and the item he is trying to accept.
-                                    
-                                    theInbox.	RemoveTransaction(pServerTransaction->GetTransactionNum());
-                                    
+									
+									pServerTransaction->DeleteBoxReceipt(theInbox); // faster.
+//									theInbox.	DeleteBoxReceipt(pServerTransaction->GetTransactionNum());
+									theInbox.	RemoveTransaction(pServerTransaction->GetTransactionNum());
+
                                     theInbox.	ReleaseSignatures();
                                     theInbox.	SignContract(m_nymServer);
                                     theInbox.	SaveContract();
@@ -9268,9 +9506,21 @@ void OTServer::NotarizeProcessInbox(OTPseudonym & theNym, OTAccount & theAccount
                                             // UPDATE: These two transactions correspond to each other, so I am now creating
                                             // them with the same transaction number. As you can see, this makes them easy
                                             // to remove as well.
+											
+											pServerTransaction->DeleteBoxReceipt(theFromOutbox); // faster.
+//											theFromOutbox.	DeleteBoxReceipt(pServerTransaction->GetTransactionNum());
                                             theFromOutbox.	RemoveTransaction(pServerTransaction->GetTransactionNum());
-                                            theInbox.		RemoveTransaction(pServerTransaction->GetTransactionNum());
+
+											pServerTransaction->DeleteBoxReceipt(theInbox); // faster.
+//											theInbox.		DeleteBoxReceipt(pServerTransaction->GetTransactionNum());
+											theInbox.		RemoveTransaction(pServerTransaction->GetTransactionNum());
                                             
+											// NOTICE BTW, warning: Notice that the box receipts are marked for deletion
+											// the instant they are removed from their respective boxes. Meanwhile, the client
+											// may not have actually DOWNLOADED those box receipts. Once they are ACTUALLY
+											// deleted, then client will never have the chance. It's assumed that client doesn't
+											// care, since the receipts are already out of his box.
+											
                                             // Release any signatures that were there before (Old ones won't
                                             // verify anymore anyway, since the content has changed.)
                                             theInbox.		ReleaseSignatures();
@@ -9304,6 +9554,12 @@ void OTServer::NotarizeProcessInbox(OTPseudonym & theNym, OTAccount & theAccount
                                             // happened, and here is the server's signature to prove it.
                                             // Otherwise you get no items and no signature. Just a rejection item in the response transaction.
                                             pResponseItem->SetStatus(OTItem::acknowledgement);
+											
+											// This goes with the call above to theFromInbox.AddTransaction().
+											// Adding a receipt to any box, for real, requires saving the box receipt
+											// as well. (Which is stored in a separate file.)
+											//
+											pInboxTransaction->SaveBoxReceipt(theFromInbox);
                                         }
                                         else 
                                         {
@@ -10203,6 +10459,27 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 		// ------------------------------------------------------------
 		
 		UserCmdGetNymbox(*pNym, theMessage, msgOut);
+		
+		return true;
+	}
+	else if (theMessage.m_strCommand.Compare("getBoxReceipt"))
+	{
+		OTLog::Output(0, "\n==> Received a getBoxReceipt message. Processing...\n");
+		
+		bool bRunIt = true;
+		// ------------------------------------------------------------
+		if (0 == theMessage.m_lDepth)
+			OT_ENFORCE_PERMISSION_MSG(__cmd_get_nymbox)
+		else if (1 == theMessage.m_lDepth)
+			OT_ENFORCE_PERMISSION_MSG(__cmd_get_inbox)
+		else if (2 == theMessage.m_lDepth)
+			OT_ENFORCE_PERMISSION_MSG(__cmd_get_outbox)
+		else
+			bRunIt = false;
+		// ------------------------------------------------------------
+
+		if (bRunIt)
+			UserCmdGetBoxReceipt(*pNym, theMessage, msgOut);
 		
 		return true;
 	}

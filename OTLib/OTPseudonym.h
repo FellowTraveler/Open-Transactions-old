@@ -281,8 +281,20 @@ public:
 	// This will set the public key on this Nym 
 	// based on the public key as it appears in an
 	// ascii-armored string.
-	bool SetPublicKey(const OTASCIIArmor & strKey);
+	bool SetPublicKey(const OTASCIIArmor & strKey);	
 	
+	// ------------------------------------------
+	
+	// CALLER is responsible to delete the Nym ptr being returned
+	// in these functions!
+	//
+	static OTPseudonym * LoadPublicNym(const OTIdentifier & NYM_ID, OTString * pstrName=NULL, const char * szFuncName=NULL);
+	static OTPseudonym * LoadPrivateNym(const OTIdentifier & NYM_ID, OTString * pstrName=NULL, const char * szFuncName=NULL);
+
+	// ------------------------------------------
+
+	bool HasPublicKey();
+	bool HasPrivateKey();
 	
 	// The signer is whoever wanted to make sure these nym files haven't changed.
 	// Usually that means the server nym.  Most of the time, m_nymServer will be used as signer.

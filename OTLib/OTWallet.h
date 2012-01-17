@@ -164,9 +164,19 @@ public:
 	OTWallet();
 	virtual ~OTWallet();
 	void Release();
-	
-	//------------------------------------------------------------
+	//------------------------------------------------------------	
 
+	OTPseudonym * GetOrLoadNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
+	OTPseudonym * GetOrLoadPublicNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
+	OTPseudonym * GetOrLoadPrivateNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
+	
+	OTAccount	* LoadAccount(OTPseudonym & theNym, 
+							  const OTIdentifier & ACCT_ID, 
+							  const OTIdentifier & SERVER_ID, const char * szFuncName=NULL);
+	OTAccount	* GetOrLoadAccount(OTPseudonym & theNym, 
+								   const OTIdentifier & ACCT_ID, 
+								   const OTIdentifier & SERVER_ID, const char * szFuncName=NULL);
+	//------------------------------------------------------------	
 	// Used by high-level wrapper.
 	
 	int GetNymCount(); 
@@ -178,7 +188,6 @@ public:
 	bool GetServer		(const int iIndex, OTIdentifier & THE_ID, OTString & THE_NAME);
 	bool GetAssetType	(const int iIndex, OTIdentifier & THE_ID, OTString & THE_NAME);
 	bool GetAccount		(const int iIndex, OTIdentifier & THE_ID, OTString & THE_NAME);
-	
 	//------------------------------------------------------------
 	
 	void DisplayStatistics(OTString & strOutput);
@@ -195,8 +204,14 @@ public:
 	
 	void				AddAssetContract(const OTAssetContract & theContract);
 	OTAssetContract *	GetAssetContract(const OTIdentifier & theContractID);
-	OTAssetContract *	GetAssetContractPartialMatch(const std::string PARTIAL_ID);
-	
+	OTAssetContract *	GetAssetContractPartialMatch(const std::string PARTIAL_ID);	
+	// --------------------------------------------------------
+	bool VerifyAssetAccount(OTPseudonym & theNym, 
+							OTAccount & theAcct, 
+							const OTIdentifier & SERVER_ID,
+							const OTString & strAcctID,
+							const char * szFuncName =NULL);	
+	// --------------------------------------------------------
 	OTAccount * GetAccount(const OTIdentifier & theAccountID);
 	OTAccount * GetAccountPartialMatch(const std::string PARTIAL_ID);
 
