@@ -463,7 +463,6 @@ bool OTContract::VerifyContract()
 		return false;
 	}
 	
-	
 	if (false == VerifySignature(*pNym))
 	{
 		OTLog::Output(1, "Failed verifying public key from contract with signature on contract.\n");
@@ -480,8 +479,7 @@ bool OTContract::VerifyContract()
 
 void OTContract::CalculateContractID(OTIdentifier & newID) const
 {
-//		OTLog::vError("DEBUG CalculateContractID:\n--->%s<---\n",
-//			m_strRawFile.Get());
+//	OTLog::vError("DEBUG CalculateContractID:\n--->%s<---\n", m_strRawFile.Get());
 	
 //	// may be redundant...	
 	std::string str_Trim(m_strRawFile.Get());
@@ -1780,6 +1778,9 @@ bool OTContract::LoadContractFromString(const OTString & theStr)
 	if (!theStr.Exists())
 	{
 		OTLog::Error("OTContract::LoadContractFromString: Empty string passed in... (Error)\n");
+		
+//		OT_ASSERT_MSG(false, "Callstack?");
+
 		return false;
 	}
 	

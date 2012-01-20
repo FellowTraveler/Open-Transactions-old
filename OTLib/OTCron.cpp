@@ -139,6 +139,11 @@
 #include <cstring>
 
 
+
+#include "Timer.h"
+
+
+
 #include "irrxml/irrXML.h"
 
 using namespace irr;
@@ -162,8 +167,13 @@ using namespace std;
 
 
 
-// Note: this is only a code default -- the value is actually loaded from server.cfg.
-int OTCron::__trans_refill_amount = 500; // The number of transaction numbers Cron will grab for itself, when it gets low, before each round.
+// Note: these are only code defaults -- the values are actually loaded from ~/.ot/server.cfg.
+
+int OTCron::__trans_refill_amount		= 500;		// The number of transaction numbers Cron will grab for itself, when it gets low, before each round.
+int OTCron::__cron_ms_between_process	= 10000;	// The number of milliseconds (ideally) between each "Cron Process" event.
+
+
+
 
 
 // Make sure Server Nym is set on this cron object before loading or saving, since it's
@@ -696,8 +706,27 @@ void OTCron::UpdateContents()
 void OTCron::ProcessCronItems()
 {
 	if (!m_bIsActivated)
+	{
+		OTLog::Error("OTCron::ProcessCronItems: Not activated yet. (Skipping.)\n");
 		return;	// No Cron processing until Cron is activated.
+	}
+	// ----------------------------------------------------------
+	static const long lMsBetweenCronBeats = OTCron::GetCronMsBetweenProcess(); // Default: 10 seconds aka 10000
+	// ----------------------------------------------------------
+	// CRON RUNS ON A TIMER...
+	static 	Timer	tCron(true);	// bStart=true.
+	static	double	cron_tick1		= tCron.getElapsedTimeInMilliSec();	// This initially occurs the first time function is called.
+			double	cron_tick2		= tCron.getElapsedTimeInMilliSec();	// This occurs EVERY time this function is called.
+	const	long	cron_elapsed	= static_cast<long>(cron_tick2 - cron_tick1);	// This calculates every time this function is called.
 	
+	// If it's been at least ten seconds...
+	//
+	if (cron_elapsed > lMsBetweenCronBeats)
+		// Reset the timer -- we're executing!
+		cron_tick1	= tCron.getElapsedTimeInMilliSec(); // cron_tick1 only changes here, every X ms.
+	else
+		return; // (it's not our time yet.)
+	// ----------------------------------------------------------
 	const int nTwentyPercent = OTCron::GetCronRefillAmount() / 5;
 	if (GetTransactionCount() <= nTwentyPercent)
 	{
@@ -744,6 +773,8 @@ void OTCron::ProcessCronItems()
 		//
 //      if (bVerifySig)
         {
+			OTLog::vOutput(0, "OTCron::ProcessCronItems: Processing item number: %ld \n", pItem->GetTransactionNum());
+			
             bProcessCron = pItem->ProcessCron();
             
             // false means "remove it".
@@ -762,7 +793,9 @@ void OTCron::ProcessCronItems()
 		{
             OTLog::vOutput(0, "OTCron::ProcessCronItems: Removing expired cron item.\n");
 			
-			m_mapCronItems.erase(it++);
+			mapOfCronItems::iterator it_delete = it;
+			++it;
+			m_mapCronItems.erase(it_delete);
 			delete pItem;
 			pItem = NULL;
 			
@@ -815,7 +848,6 @@ bool OTCron::AddCronItem(OTCronItem & theItem, OTPseudonym * pActivator/*=NULL*/
 
 		bool bSuccess = true;
 		// ------------------------------------------------------
-
 		theItem.HookActivationOnCron(pActivator, // (OTPseudonym * pActivator) // sometimes NULL.
 									 bSaveReceipt); // If merely being reloaded after server reboot, this is false. 
 													// But if actually being activated for the first time, then this is true.
@@ -839,10 +871,12 @@ bool OTCron::AddCronItem(OTCronItem & theItem, OTPseudonym * pActivator/*=NULL*/
 			// Since we added an item to the Cron, we SAVE it. 
 			bSuccess = SaveCron();
 			
-			if (bSuccess) 
-				OTLog::Output(3, "OTCron::AddCronItem: New Cronitem has been added to Cron.\n");
+			if (bSuccess)
+				OTLog::vOutput(0, "OTCron::AddCronItem: New Cronitem has been added to Cron: %ld\n",
+							  theItem.GetTransactionNum());
 			else 				
-				OTLog::Error("OTCron::AddCronItem: Error saving while adding new Cronitem to Cron.\n");
+				OTLog::vError("OTCron::AddCronItem: Error saving while adding new Cronitem to Cron: %ld\n",
+							  theItem.GetTransactionNum());
 		}
 		
 		return bSuccess; 
@@ -850,7 +884,7 @@ bool OTCron::AddCronItem(OTCronItem & theItem, OTPseudonym * pActivator/*=NULL*/
 	// Otherwise, if it was already there, log an error.
 	else 
 	{
-		OTLog::vError("OTCron::AddCronItem: Attempt to add CronItem with pre-existing transaction number: %ld\n",
+		OTLog::vError("OTCron::AddCronItem: Failed attempt to add CronItem with pre-existing transaction number: %ld\n",
 					  theItem.GetTransactionNum());
 	}
 	

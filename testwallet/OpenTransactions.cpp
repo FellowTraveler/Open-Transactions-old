@@ -1185,27 +1185,22 @@ bool OT_API::SignContract(const OTIdentifier & theSignerNymID, const OTString & 
 		return false;
 	}
 	// ------------------------------------------------------------
-	// Todo: possibly add other factories here in addition to this 
-	// one (OT has several...)
 	//
-	OTContract * pContract = OTContract::InstantiateContract(strContract);
-	OTCleanup<OTContract> theAngel(pContract);
+	OTContract * pContract = NULL;
+	OTCleanup<OTContract> theAngel;
 	
 	if (NULL == pContract)
-	{		
-		OTLog::Output(0, "OT_API::SignContract: The first class factory failed, but I've got another one up my sleeve...\n");
-		OTTransactionType * pTransType = OTTransactionType::TransactionFactory(strContract);
-		pContract = pTransType;
-		if (NULL != pTransType) // it worked this time
-		{
-			pTransType->SetRealServerID(pTransType->GetPurportedServerID());
-			pTransType->SetRealAccountID(pTransType->GetPurportedAccountID());
-		}
-	}
+		pContract = OTTransactionType::TransactionFactory(strContract);
+	
+	if (NULL == pContract)
+		pContract = OTScriptable::InstantiateScriptable(strContract);
+	
+	if (NULL == pContract)
+		pContract = OTContract::InstantiateContract(strContract);
 	
 	if (NULL == pContract)
 	{
-		OTLog::vOutput(0, "OT_API::SignContract: Unable to instantiate contract passed in:\n\n%s\n\n",
+		OTLog::vOutput(0, "OT_API::SignContract: I tried my best. Unable to instantiate contract passed in:\n\n%s\n\n",
 					   strContract.Get());
 		return false;
 	}
@@ -1253,32 +1248,27 @@ bool OT_API::AddSignature(const OTIdentifier & theSignerNymID, const OTString & 
 		return false;
 	}
 	// ------------------------------------------------------------
-	// Todo: possibly add other factories here in addition to this 
-	// one (OT has several...)
 	//
-	OTContract * pContract = OTContract::InstantiateContract(strContract);
-	OTCleanup<OTContract> theAngel(pContract);
+	OTContract * pContract = NULL;
+	OTCleanup<OTContract> theAngel;
 	
 	if (NULL == pContract)
-	{		
-		OTLog::Output(0, "OT_API::AddSignature: The first class factory failed, but I've got another one up my sleeve...\n");
-		OTTransactionType * pTransType = OTTransactionType::TransactionFactory(strContract);
-		pContract = pTransType;
-		if (NULL != pTransType) // it worked this time
-		{
-			pTransType->SetRealServerID(pTransType->GetPurportedServerID());
-			pTransType->SetRealAccountID(pTransType->GetPurportedAccountID());
-		}
-	}
+		pContract = OTTransactionType::TransactionFactory(strContract);
+	
+	if (NULL == pContract)
+		pContract = OTScriptable::InstantiateScriptable(strContract);
+	
+	if (NULL == pContract)
+		pContract = OTContract::InstantiateContract(strContract);
 	
 	if (NULL == pContract)
 	{
-		OTLog::vOutput(0, "OT_API::AddSignature: Unable to instantiate contract passed in:\n\n%s\n\n",
+		OTLog::vOutput(0, "OT_API::AddSignature: I tried my best. Unable to instantiate contract passed in:\n\n%s\n\n",
 					   strContract.Get());
 		return false;
 	}
 	// -----------------------------------------------------
-//	pContract->ReleaseSignatures();		// Other than this line, this function is identical to 
+	//	pContract->ReleaseSignatures();		// Other than this line, this function is identical to 
 										// OT_API::SignContract(). (It adds signatures without removing existing ones.)
 	pContract->SignContract(*pNym);
 	pContract->SaveContract();
@@ -1319,23 +1309,18 @@ bool OT_API::VerifySignature(const OTString		& strContract,
 		return false;
 	}
 	// ------------------------------------------------------------
-	// Todo: possibly add other factories here in addition to this 
-	// one (OT has several...)
 	//
-	OTContract * pContract = OTContract::InstantiateContract(strContract);
+	OTContract * pContract = NULL;
 	OTCleanup<OTContract> theAngel;
 	
 	if (NULL == pContract)
-	{		
-		OTLog::Output(0, "OT_API::VerifySignature: The first class factory failed, but I've got another one up my sleeve...\n");
-		OTTransactionType * pTransType = OTTransactionType::TransactionFactory(strContract);
-		pContract = pTransType;
-		if (NULL != pTransType) // it worked this time
-		{
-			pTransType->SetRealServerID(pTransType->GetPurportedServerID());
-			pTransType->SetRealAccountID(pTransType->GetPurportedAccountID());
-		}
-	}
+		pContract = OTTransactionType::TransactionFactory(strContract);
+
+	if (NULL == pContract)
+		pContract = OTScriptable::InstantiateScriptable(strContract);
+
+	if (NULL == pContract)
+		pContract = OTContract::InstantiateContract(strContract);
 	
 	if (NULL == pContract)
 	{
@@ -1356,15 +1341,17 @@ bool OT_API::VerifySignature(const OTString		& strContract,
 	else
 		theAngel.SetCleanupTargetPointer(pContract);
 	// -----------------------------------------------------
-	if (false == pContract->VerifyContract())
-	{
-		OTLog::vOutput(0, "OT_API::VerifySignature: Unable to verify contract passed in. NOTE: This varies "
-					   "widely from one contract type to another. If you are experiencing a problem here, CONTACT FELLOW "
-					   "TRAVELER and let him know WHAT KIND OF CONTRACT, and what symptoms you are seeing, versus what you "
-					   "were expecting to see. Contract contents:\n\n%s\n\n",
+	if (false == pContract->VerifyContractID())
+//	if (false == pContract->VerifyContract())	// This calls VerifyContractID(), then GetContractPublicNym(), then VerifySignature() (with that Nym)
+	{											// Therefore it's only useful for server contracts and asset contracts. Here we can VerifyID and Signature,
+												// and that's good enough for here and most other places, generically speaking.
+		OTLog::vOutput(0, "OT_API::VerifySignature: Unable to verify contract ID for contract passed in. NOTE: If you are experiencing "
+					   "a problem here, CONTACT FELLOW TRAVELER and let him know WHAT KIND OF CONTRACT, and what symptoms you are seeing, "
+					   "versus what you were expecting to see. Contract contents:\n\n%s\n\n",
 					   strContract.Get());
 		return false;
 	}
+
 	// -----------------------------------------------------
 	if (false == pContract->VerifySignature(*pNym))
 	{
@@ -1374,6 +1361,7 @@ bool OT_API::VerifySignature(const OTString		& strContract,
 		return false;
 	}
 	// -----------------------------------------------------
+	
 	return true;	
 }
 
@@ -6537,7 +6525,7 @@ void OT_API::issueAssetType(OTIdentifier	&	SERVER_ID,
 		
 		// Check the server signature on the contract here. (Perhaps the message is good enough?
 		// After all, the message IS signed by the server and contains the Account.
-		//		if (pContract->LoadContract() && pContract->VerifyContract())
+//		if (pContract->LoadContract() && pContract->VerifyContract())
 		if (pContract->LoadContractFromString(strTrimContract) && pContract->VerifyContract())
 		{
 			// Next make sure the wallet has this contract on its list...			

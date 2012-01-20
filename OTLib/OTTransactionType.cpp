@@ -193,15 +193,38 @@ OTTransactionType * OTTransactionType::TransactionFactory(const OTString & strIn
     //
     pItem->m_bLoadSecurely = false;
     
+//	OTLog::Error("\n\nTESTING DEBUGGING LOL LOL LOL LOL \n\n\n");
+
 	// Does the contract successfully load from the string passed in?
 	if (pItem->LoadContractFromString(strContract))
+	{
+		// NOTE: this already happens in OTTransaction::ProcessXMLNode and OTLedger::ProcessXMLNode.
+		// Specifically, it happens when m_bLoadSecurely is set to false.
+		//
+//		pItem->SetRealServerID(pItem->GetPurportedServerID());
+//		pItem->SetRealAccountID(pItem->GetPurportedAccountID());
+//		
 		return pItem;
+	}
     else
 		delete pItem;
 	
 	return NULL;
 }
 
+
+
+// Allows you to string-search the raw contract.
+bool OTTransactionType::Contains(const OTString & strContains)
+{
+	return m_strRawFile.Contains(strContains);
+}
+
+// Allows you to string-search the raw contract.
+bool OTTransactionType::Contains(const char * szContains)
+{
+	return m_strRawFile.Contains(szContains);
+}
 
 
 
@@ -330,6 +353,8 @@ bool OTTransactionType::VerifyContractID()
 	if ((m_ID		!= m_AcctID)		|| 
 		(m_ServerID	!= m_AcctServerID))
 	{
+//		OT_ASSERT(false);  // I was debugging.
+		
 		OTString str1(m_ID), str2(m_AcctID), str3(m_ServerID), str4(m_AcctServerID);
 		OTLog::vError("Identifiers do NOT match in OTTransactionType::VerifyContractID.\n"
 				"m_ID: %s\n m_AcctID: %s\n m_ServerID: %s\n m_AcctServerID: %s\n",

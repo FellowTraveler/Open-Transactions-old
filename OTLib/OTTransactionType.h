@@ -515,6 +515,19 @@ public:
     static OTTransactionType * TransactionFactory(const OTString & strInput);
 
     // ------------------------------------------------------------------
+	bool Contains(const OTString & strContains);	// Allows you to string-search the raw contract.
+	bool Contains(const char * szContains);			// Allows you to string-search the raw contract.
+    // -------------------------------------------
+	
+	// This means, "I don't know the 'Real' IDs when I'm about to load this contract, so just
+	// read the purported IDs (the ones inside the contract itself) and set the real IDs to match."
+	//
+	// (Normally you'd set the real IDs, then load into purported, then compare the two, to make
+	// sure your file hasn't been swapped. The only time you circumvent that, is when you know
+	// the IDs are correct, or when you have no "real" ID other than what is in the file itself.)
+	//
+	void	SetLoadInsecure() { m_bLoadSecurely = false; }
+	
     // Someday I'll add EntityID and RoleID here (in lieu of UserID, 
 	// in cases when the account is owned by an Entity and not a Nym.)
 	//

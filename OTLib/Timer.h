@@ -25,7 +25,7 @@
 class Timer
 {
 public:
-    Timer();                                    // default constructor
+    Timer(bool bStart=false);                   // default constructor // FT: added default argument.
     ~Timer();                                   // default destructor
 
     void   start();                             // start timer

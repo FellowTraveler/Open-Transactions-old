@@ -425,8 +425,21 @@ public:
 		error_state
 	}; // If you add any types to this list, update the list of strings at the top of the .CPP file.
 
-	
+	/*
+	 You have to read pointer declarations right-to-left.
+	 
+	    Fred const* p    means "p points to a constant Fred": the Fred object can't be changed via p.
+	    Fred* const p    means "p is a const pointer to a Fred": you can't change the pointer p, but you
+	 can change the Fred object via p.
+	    Fred const* const p    means "p is a constant pointer to a constant Fred": you can't change the
+	 pointer p itself, nor can you change the Fred object via p.	 
+	 */
 protected:
+	// Usually a transaction object is inside a ledger object. 
+	// If this is not NULL, then you can reference that object.
+	//
+	const OTLedger	*	m_pParent;
+	
 	// ----------------------------------------------------------------
 
 	// Transactions can be loaded in abbreviated form from a ledger, but they are not considered "actually loaded"
@@ -497,7 +510,20 @@ protected:
     OTTransaction(); // only the factory gets to use this one.
 
 public:
+	void SetParent(const OTLedger & theParent) { m_pParent = &theParent; } // a pointer of convenience.
     // -------------------------------------------
+	static
+	int LoadAbbreviatedRecord(irr::io::IrrXMLReader*& xml,
+							  long	& lTransactionNum,
+							  long	& lInRefTo,
+							  long	& lInRefDisplay,
+							  time_t	& the_DATE_SIGNED,
+							  OTTransaction::transactionType & theType,
+							  OTString & strHash,
+							  long	& lAdjustment,
+							  long	& lDisplayValue,
+							  long	& lClosingNum);
+		
     bool IsAbbreviated() const { return m_bIsAbbreviated; }
     
     long GetAbbrevAdjustment() const { return m_lAbbrevAmount; }
@@ -573,8 +599,14 @@ public:
     bool SaveBoxReceipt     (OTLedger & theLedger);
     bool DeleteBoxReceipt   (OTLedger & theLedger);
     
+	
+	// Caller IS responsible to delete.
+	static
+	OTTransaction * LoadBoxReceipt(OTTransaction & theAbbrev, OTLedger & theLedger);
+	static
+	OTTransaction * LoadBoxReceipt(OTTransaction & theAbbrev, const long lLedgerType);
+
     // Call on abbreviated version, and pass in the purported full version.
-    //
     bool VerifyBoxReceipt(OTTransaction & theFullVersion);
 	// --------------------------------------------------------------
     static
@@ -590,6 +622,7 @@ public:
                                  const char * szCaller,
                                  OTString & strFolder1name,
                                  OTString & strFolder2name, 
+                                 OTString & strFolder3name, 
                                  OTString & strFilename);
 	// --------------------------------------------------------------
     static
@@ -598,17 +631,18 @@ public:
                                  const char * szCaller,
                                  OTString & strFolder1name,
                                  OTString & strFolder2name, 
+                                 OTString & strFolder3name, 
                                  OTString & strFilename);
 	// --------------------------------------------------------------
     static
     bool SetupBoxReceiptFilename(const long		 lLedgerType,
-//                               OTTransaction	& theTransaction,
                                  const OTString	& strUserOrAcctID,
                                  const OTString	& strServerID,
                                  const long		& lTransactionNum,
                                  const char * szCaller,
                                  OTString & strFolder1name,
                                  OTString & strFolder2name, 
+                                 OTString & strFolder3name, 
                                  OTString & strFilename);
 	// --------------------------------------------------------------
     
@@ -638,6 +672,11 @@ public:
     // (We go deeper.)
 	bool VerifyItems(OTPseudonym & theNym);
 	// --------------------------------------------------------------
+	// This calls VerifyContractID() as well as VerifySignature() 
+	// Use this instead of OTContract::VerifyContract, which expects/uses a pubkey from inside the contract.
+	virtual bool VerifyAccount(OTPseudonym & theNym);  // This overrides OTTransactionType::VerifyAccount()
+	// --------------------------------------------------------------
+	
     inline
     int	GetItemCount() const { return m_listItems.size(); }
 	int GetItemCountInRefTo(const long lReference); // Count the number of items that are IN REFERENCE TO some transaction#.

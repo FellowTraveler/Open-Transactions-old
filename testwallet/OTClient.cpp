@@ -215,7 +215,13 @@ bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox,
 		
 		return false;
 	}
-
+    // ------------------------------------------------------
+	else if (false == theNymbox.VerifyAccount(theNym)) 
+	{
+		// If there aren't any notices in the nymbox, no point wasting a # to process an empty box.
+		OTLog::Error("OTClient::AcceptEntireNymbox: Error: VerifyAccount() failed.\n");
+		return false;
+	}
     // ------------------------------------------------------
     
 	OTPseudonym * pNym	= &theNym;
@@ -294,6 +300,13 @@ bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox,
 	{
 		OTTransaction * pTransaction = (*it).second;
 		OT_ASSERT(NULL != pTransaction);
+		// ------------------------------------------------------------		
+		if (pTransaction->IsAbbreviated())
+		{
+			OTLog::Error("OTClient::AcceptEntireNymbox: Error: Unexpected abbreviated receipt in Nymbox, even after supposedly loading all box receipts.\n");
+//			return false;			
+		}
+		// -----------------------------------------------------	
 		
 //		OTString strTransaction(*pTransaction);
 //		OTLog::vError("TRANSACTION CONTENTS:\n%s\n", strTransaction.Get());
@@ -1346,7 +1359,7 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
 	
 	// The ledger we received from the server was generated there, so we don't
 	// have to call GenerateLedger. We just load it.
-	bool bSuccess = theLedger.LoadContractFromString(strLedger);
+	bool bSuccess = theLedger.LoadLedgerFromString(strLedger); // This is a MESSAGE ledger. 
 	
 	if (bSuccess)
 		bSuccess = theLedger.VerifyAccount((OTPseudonym &)*pServerNym);
@@ -2187,7 +2200,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 		// would require MY signature, not the server's, to verify. But in this one spot, 
 		// just before saving, I need to verify the server's first.
 		// UPDATE: Keeping the server's signature, and just adding my own.
-		if (theNymbox.LoadContractFromString(strNymbox) && theNymbox.VerifyAccount(*pServerNym))
+		if (theNymbox.LoadNymboxFromString(strNymbox)) // && theNymbox.VerifyAccount(*pServerNym)) No point doing this, since the client hasn't even had a chance to download the box receipts yet. (VerifyAccount will fail before then...)
 		{
 			theNymbox.ReleaseSignatures(); // Now I'm keeping the server signature, and just adding my own.
 			theNymbox.SignContract(*pNym); // UPDATE: Releasing the signature again, since Receipts are now fully functional.
@@ -2204,26 +2217,30 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 			// Since nymbox is only messages and transaction numbers, no reason not to automate this
 			// and save the API developers some grief.
 			
-			if (OTTransaction::VerifyTransactionReceipt(*pServerNym, *pNym, SERVER_ID))
-			{
-//#if defined (TEST_CLIENT)
-				// Sorry, the client has to accept this by hand now.
-				// Can't just slip it in here, we were getting network issues.
-//				AcceptEntireNymbox(theNymbox, theConnection); // Perhaps just Verify Contract so it verifies signature too, and ServerID too if I override it and add that...
-//#endif
-				OTLog::vOutput(0, "===> ** LAST SIGNED TRANSACTION RECEIPT *VERIFIED* against latest nym!\n\n");
-			}
-			else 
-			{
-				OTLog::vOutput(0, "===> ** LAST SIGNED TRANSACTION RECEIPT *FAILED* against latest nym. (FYI.)\n"
-							   "(However if the account IS NEW, (i.e. it's never transacted before), then there IS NOT YET ANY RECEIPT, so this error is normal.)\n");
-				
-//#if defined (TEST_CLIENT)
-				// Sorry, the client has to accept this by hand now.
-				// Can't just slip it in here, we were getting network issues.
-//				AcceptEntireNymbox(theNymbox, theConnection); // TODO -- Figure out how, if I want to handle this differently in the GUI itself.
-//#endif	
-			}
+			// UPDATE: the CLIENT will need to call VerifyTransactionReceipt() itself--we can't call it here anymore. After all,
+			// we just downloaded the Nymbox, and the client hasn't even had a chance yet to download the associated box receipts.
+			// Therefore VerifyAccount() (above) AND VerifyTransactionReceipt would fail anyway.
+			
+//			if (OTTransaction::VerifyTransactionReceipt(*pServerNym, *pNym, SERVER_ID))
+//			{
+////#if defined (TEST_CLIENT)
+//				// Sorry, the client has to accept this by hand now.
+//				// Can't just slip it in here, we were getting network issues.
+////				AcceptEntireNymbox(theNymbox, theConnection); // Perhaps just Verify Contract so it verifies signature too, and ServerID too if I override it and add that...
+////#endif
+//				OTLog::vOutput(0, "===> ** LAST SIGNED TRANSACTION RECEIPT *VERIFIED* against latest nym!\n\n");
+//			}
+//			else 
+//			{
+//				OTLog::vOutput(0, "===> ** LAST SIGNED TRANSACTION RECEIPT *FAILED* against latest nym. (FYI.)\n"
+//							   "(However if the account IS NEW, (i.e. it's never transacted before), then there IS NOT YET ANY RECEIPT, so this error is normal.)\n");
+//				
+////#if defined (TEST_CLIENT)
+//				// Sorry, the client has to accept this by hand now.
+//				// Can't just slip it in here, we were getting network issues.
+////				AcceptEntireNymbox(theNymbox, theConnection); // TODO -- Figure out how, if I want to handle this differently in the GUI itself.
+////#endif	
+//			}
 			
 #if defined (TEST_CLIENT)
 			if (!IsRunningAsScript())
@@ -2398,7 +2415,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 	{
 		OTString strServerID(SERVER_ID), strReply(theReply);
 		
-		OTLog::vOutput(0, "Received server response to %s.\n", theReply.m_strCommand.Get());
+		OTLog::vOutput(0, "Received server response: %s \n", theReply.m_strCommand.Get());
 //		OTLog::vOutput(0, "Received server response to Get Inbox message:\n%s\n", strReply.Get());
 				
 		// If the server acknowledges either of the above commands, then my transaction
@@ -2426,11 +2443,41 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 			
 			theOriginalMessage.m_ascPayload.GetString(strLedger);
 			theReply.m_ascPayload.GetString(strReplyLedger);
-
-			if (strLedger.Exists()							&& 
-				strReplyLedger.Exists()						&&
-				theLedger.LoadContractFromString(strLedger) &&
-				theReplyLedger.LoadContractFromString(strReplyLedger))
+			// -----------------------------------------
+			
+			if (!strLedger.Exists())
+			{
+				OTString strLogData(theOriginalMessage);
+				OTLog::vError("Strange: Received server acknowledgment (%s), but found no request ledger within your original message:\n\n%s\n\n",
+							   theReply.m_strCommand.Get(), strLogData.Get());				
+			}
+			else if (!strReplyLedger.Exists())
+			{
+				OTString strReply(theReply);
+				OTLog::vOutput(0, "Strange... received server acknowledgment (%s), but found no reply ledger within:\n\n%s\n\n",
+							   theReply.m_strCommand.Get(), strReply.Get());				
+			}
+			else if (!theLedger.LoadLedgerFromString(strLedger))
+			{
+				OTLog::vError("Strange: Received server acknowledgment (%s), but unable to load original request ledger from string:\n\n%s\n\n",
+							  theReply.m_strCommand.Get(), strLedger.Get());				
+			}
+			else if (!theLedger.VerifySignature(*pNym))
+			{
+				OTLog::vError("Strange: Received server acknowledgment (%s), but unable to verify your signature on the original request ledger:\n\n%s\n\n",
+							  theReply.m_strCommand.Get(), strLedger.Get());				
+			}
+			else if (!theReplyLedger.LoadLedgerFromString(strReplyLedger))
+			{
+				OTLog::vError("Strange: Received server acknowledgment (%s), but unable to load the reply ledger from string:\n\n%s\n\n",
+							  theReply.m_strCommand.Get(), strReplyLedger.Get());
+			}
+			else if (!theReplyLedger.VerifySignature(*pServerNym))
+			{
+				OTLog::vError("Strange: Received server acknowledgment (%s), but unable to verify server's signature on the reply ledger within:\n\n%s\n\n",
+							  theReply.m_strCommand.Get(), strReplyLedger.Get());
+			}
+			else 
 			{
 				// atAcceptItemReceipt: Whether success or fail, remove the number used from list of responsibility.
 				//                      ALSO, if success, remove the number from the original cheque or the original transfer request.
@@ -2479,9 +2526,14 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                             // Load the inbox.				
                             OTLedger theInbox(USER_ID, ACCOUNT_ID, SERVER_ID);
                             
+							bool bInbox = false;
+							
+							if (theInbox.LoadInbox())
+								bInbox = theInbox.VerifyAccount(*pNym);
+							
                             // I JUST had this loaded if I sent acceptWhatever just instants ago, (which I am now processing the reply for.)
                             // Therefore I'm just ASSUMING here that it loads successfully here, since it worked an instant ago. Todo.
-                            OT_ASSERT_MSG(theInbox.LoadInbox(), "Was trying to load Inbox.");
+                            OT_ASSERT_MSG(bInbox, "Was trying to load / verify Inbox.");
 
                             // -------------------------------------
 							// Next, loop through the reply items for each "process inbox" item that I must have previously sent.
@@ -2689,7 +2741,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                 {
                                     OTLog::Error("Unable to find the server's receipt, in my inbox, that "
                                                  "my original processInbox's item was referring to.\n");
-                                    continue;
+                                    break;	// We must've processed this already, and it came through again cause a copy was in a nymbox notice.
                                 }
                                 
                                 // ------------------------------------------------------------------------------------
@@ -2937,6 +2989,8 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 					pTransaction		= theLedger.GetTransaction(OTTransaction::processNymbox);
 					pReplyTransaction	= theReplyLedger.GetTransaction(OTTransaction::atProcessNymbox);
 
+					// If I have already processed this reply, 
+					
 					// We did NOT have to burn a transaction number to process the Nymbox, so we don't
 					// have to remove it from the list of responsibility, like we do above.
 					// The reason is because the Nymbox cannot be used for financial transactions, since
@@ -3029,7 +3083,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 						else // Otherwise, we have to load it ourselves. (And point the pointer to it.)
 						{
 							pNymbox = &theNymbox;
-							bLoadedNymbox = pNymbox->LoadNymbox();
+							bLoadedNymbox = (pNymbox->LoadNymbox() && pNymbox->VerifyAccount(*pNym));
 						}
 
                         // I JUST had this loaded if I sent acceptWhatever just instants ago, (which I am now processing the reply for.)
@@ -3194,8 +3248,9 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                             
                             if (NULL == pServerTransaction)
                             {
-                                OTLog::Error("Unable to find the server's receipt, in my Nymbox, that my original processNymbox's item was referring to.\n");
-                                continue;
+                                OTLog::Error("Unable to find the server's receipt in my Nymbox, that my original processNymbox's "
+											 "item was referring to.\n");								
+                                break; // We must have processed this reply already, and it just came through again cause a copy was in a nymbox notice.
                             }
                             
                             // ------------------------------------------------------------------------------------
@@ -3371,11 +3426,6 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 								   strTheLedger.Get(), strTheReplyLedger.Get());
 				}
 			}
-			else 
-			{
-				OTLog::vOutput(0, "Strange... received server acknowledgment to %s, but found no ledger within.\n",
-							  theReply.m_strCommand.Get());
-			}			
 		}
 		else 
 		{
@@ -3401,10 +3451,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 		
 		// Load the ledger object from that string.				
 		OTLedger theInbox(USER_ID, ACCOUNT_ID, SERVER_ID);	
-		
-		
-		// TEMP DEBUG
-		
+
 //		OTString strTemp1(USER_ID);
 //		OTString strTemp2(ACCOUNT_ID);
 //		OTString strTemp3(SERVER_ID);
@@ -3416,7 +3463,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 		// would require MY signature, not the server's, to verify. But in this one spot, 
 		// just before saving, I need to verify the server's first.
 		// UPDATE: Keeping the server's signature, and just adding my own.
-		if (theInbox.LoadContractFromString(strInbox) && theInbox.VerifyAccount(*pServerNym))
+		if (theInbox.LoadInboxFromString(strInbox))// && theInbox.VerifyAccount(*pServerNym)) // Can't do this because client hasn't had a chance yet to download the box receipts that go with this inbox -- and VerifyAccount() tries to load those, which fails...
 		{
             // If I have Transaction #35 signed out, and I use it to start a market offer (or any other cron item)
             // then it's always possible that a finalReceipt will pop into my Inbox while I'm asleep, closing
@@ -3468,35 +3515,42 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 			// and process it at the same time, since I already know what all the transactions are
 			// supposed to be.
 
-			if (OTTransaction::VerifyBalanceReceipt(*pServerNym, *pNym,
-													SERVER_ID,
-													ACCOUNT_ID))
-			{
-#if defined (TEST_CLIENT)
-			// New: In test client, get account results in get outbox, which results in get inbox.
-			// Normally getInbox then results in processInbox (involving a new balance agreement)
-			// therefore, we now VERIFY the newly-downloaded outbox, account, and inbox against
-			// the last signed receipt, before doing so!!  The Nym is verified too, but it should
-			// stay in sync, as should the outbox (?). The account and inbox, however, may change on
-			// the server side, and need to be re-downloaded to client side. When that happens,
-			// we end up RIGHT HERE, so this is the best place to verify the last signed receipt(s)
-			// against those new files to make sure they pass muster.
-			//
-//			if (!IsRunningAsScript())
-//				AcceptEntireInbox(theInbox, theConnection);
-#endif
-				OTLog::vOutput(0, "===> ** LAST SIGNED BALANCE RECEIPT *VERIFIED* against latest nym, account, outbox, and/or inbox!\n\n");
-			}
-			else 
-			{
-				OTLog::vOutput(0, "===> ** LAST SIGNED BALANCE RECEIPT *FAILED* against latest nym, account, outbox, and/or inbox.\n"
-							   "(IF THE ACCOUNT IS NEW, i.e. it's never transacted before, then there IS NOT YET ANY RECEIPT, so this error is normal.)\n");
-				
+			// UPDATE: WHY is the below now entirely commented out? Because VerifyAccount() above is now commented out,
+			// since it tries to download the box receipts. (The client clearly hasn't had a chance yet to download those
+			// box receipts, since it's still processing the @getInbox message (where we are now.)  Therefore, the below
+			// VerifyBalanceReceipt is BOUND TO FAIL, and therefore there's no point calling it here. This was an early
+			// stage hack anyway -- a real client needs to call VerifyBalanceReceipt() ITSELF, and only AFTER it has 
+			// downloaded those box receipts.
+			
+//			if (OTTransaction::VerifyBalanceReceipt(*pServerNym, *pNym,
+//													SERVER_ID,
+//													ACCOUNT_ID))
+//			{
 //#if defined (TEST_CLIENT)
-//				if (!IsRunningAsScript())
-//					AcceptEntireInbox(theInbox, theConnection);
-//#endif	
-			}
+//			// New: In test client, get account results in get outbox, which results in get inbox.
+//			// Normally getInbox then results in processInbox (involving a new balance agreement)
+//			// therefore, we now VERIFY the newly-downloaded outbox, account, and inbox against
+//			// the last signed receipt, before doing so!!  The Nym is verified too, but it should
+//			// stay in sync, as should the outbox (?). The account and inbox, however, may change on
+//			// the server side, and need to be re-downloaded to client side. When that happens,
+//			// we end up RIGHT HERE, so this is the best place to verify the last signed receipt(s)
+//			// against those new files to make sure they pass muster.
+//			//
+////			if (!IsRunningAsScript())
+////				AcceptEntireInbox(theInbox, theConnection);
+//#endif
+//				OTLog::vOutput(0, "===> ** LAST SIGNED BALANCE RECEIPT *VERIFIED* against latest nym, account, outbox, and/or inbox!\n\n");
+//			}
+//			else 
+//			{
+//				OTLog::vOutput(0, "===> ** LAST SIGNED BALANCE RECEIPT *FAILED* against latest nym, account, outbox, and/or inbox.\n"
+//							   "(IF THE ACCOUNT IS NEW, i.e. it's never transacted before, then there IS NOT YET ANY RECEIPT, so this error is normal.)\n");
+//				
+////#if defined (TEST_CLIENT)
+////				if (!IsRunningAsScript())
+////					AcceptEntireInbox(theInbox, theConnection);
+////#endif	
+//			}
 
 #if defined (TEST_CLIENT)
 			if (!IsRunningAsScript())
@@ -3531,7 +3585,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 		// would require MY signature, not the server's, to verify. But in this one spot, 
 		// just before saving, I need to verify the server's first.
 		// UPDATE: keeping the server's signature, and just adding my own.
-		if (theOutbox.LoadContractFromString(strOutbox) && theOutbox.VerifyAccount(*pServerNym))
+		if (theOutbox.LoadOutboxFromString(strOutbox))// && theOutbox.VerifyAccount(*pServerNym)) No point doing this since the client hasn't even had a chance to download the box receipts yet.
 		{
 			theOutbox.ReleaseSignatures();	// UPDATE: keeping the server's signature, and just adding my own.
 			theOutbox.SignContract(*pNym);	// ANOTHER UPDATE: Removing signature again, since we have receipts functional now.
@@ -4656,7 +4710,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			
 			// Check the server signature on the contract here. (Perhaps the message is good enough?
 			// After all, the message IS signed by the server and contains the Account.
-			//		if (pContract->LoadContract() && pContract->VerifyContract())
+//			if (pContract->LoadContract() && pContract->VerifyContract())
 			if (pContract->LoadContractFromString(strSourceContract) && pContract->VerifyContract())
 			{
 				// Next make sure the wallet has this contract on its list...

@@ -178,7 +178,7 @@ public:
 	ledgerType	m_Type;
 		
 protected:
-	bool LoadGeneric(ledgerType theType);
+	bool LoadGeneric(ledgerType theType, const OTString * pString=NULL);
 	bool SaveGeneric(ledgerType theType);
 		
 public:
@@ -242,7 +242,13 @@ public:
 	
 	bool SaveOutbox();
 	bool LoadOutbox();
-	// ------------------------------------		
+	// ------------------------------------
+	bool LoadLedgerFromString(const OTString & theStr); // Auto-detects ledger type. (message/nymbox/inbox/outbox)
+	// ------------------------------------
+	bool LoadInboxFromString(const OTString & strBox);
+	bool LoadOutboxFromString(const OTString & strBox);
+	bool LoadNymboxFromString(const OTString & strBox);
+	// ------------------------------------
 	inline // just the top one.
 	int		GetTransactionCount() const { return m_mapTransactions.size(); }
 	int		GetTransactionCountInRefTo(const long lReferenceNum);

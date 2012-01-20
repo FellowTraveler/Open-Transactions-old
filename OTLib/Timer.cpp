@@ -18,7 +18,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // constructor
 ///////////////////////////////////////////////////////////////////////////////
-Timer::Timer()
+Timer::Timer(bool bStart/*=false*/)
 {
 #ifdef WIN32
     QueryPerformanceFrequency(&frequency);
@@ -32,6 +32,12 @@ Timer::Timer()
     stopped = 0;
     startTimeInMicroSec = 0;
     endTimeInMicroSec = 0;
+	
+	// -------------------------
+	// FT: Added this part:
+	//
+	if (bStart)
+		start();
 }
 
 

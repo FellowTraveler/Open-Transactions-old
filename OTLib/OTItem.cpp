@@ -1428,23 +1428,38 @@ int OTItem::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		strServerID			= xml->getAttributeValue("serverID");
 		strUserID			= xml->getAttributeValue("userID");
 		
+		// --------------------------------------------------------
+
 		strOutboxNewTransNum = xml->getAttributeValue("outboxNewTransNum");
 
 		if (strOutboxNewTransNum.Exists())
 			m_lNewOutboxTransNum = atol(strOutboxNewTransNum.Get());
+		// --------------------------------------------------------
 		
 		
-		OTIdentifier	ACCOUNT_ID(strAcctFromID), SERVER_ID(strServerID), DESTINATION_ACCOUNT(strAcctToID),
+		OTIdentifier	ACCOUNT_ID(strAcctFromID), 
+						SERVER_ID(strServerID),
+						DESTINATION_ACCOUNT(strAcctToID),
 						USER_ID(strUserID);
+		// --------------------------------------------------------
 		
 		SetPurportedAccountID(ACCOUNT_ID);		// OTTransactionType::m_AcctID  the PURPORTED Account ID
 		SetPurportedServerID(SERVER_ID);		// OTTransactionType::m_AcctServerID the PURPORTED Server ID
 		SetDestinationAcctID(DESTINATION_ACCOUNT);
 		SetUserID(USER_ID);
+		// --------------------------------------------------------
+        if (false ==  m_bLoadSecurely)
+        {
+            SetRealAccountID(ACCOUNT_ID);
+            SetRealServerID(SERVER_ID);
+        }
+        // -------------------------------------------
+		
 		SetTransactionNum(atol(xml->getAttributeValue("transactionNum")));
 		SetReferenceToNum(atol(xml->getAttributeValue("inReferenceTo")));
-		
+		// --------------------------------------------------------		
 		m_lAmount	= atol(xml->getAttributeValue("amount"));
+		// --------------------------------------------------------
 		
 		OTLog::vOutput(3, "Loaded transaction Item, transaction num %ld, In Reference To: %ld, type: %s, status: %s\n",
 //				"fromAccountID:\n%s\n UserID:\n%s\n toAccountID:\n%s\n serverID:\n%s\n----------\n", 

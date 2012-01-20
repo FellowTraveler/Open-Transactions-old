@@ -174,12 +174,16 @@ private:
 	
 	
 	// ---------------------------------------
-	static int			__trans_refill_amount;	// The number of transaction numbers Cron will grab for itself, when it gets low, before each round.
-
+	static int			__trans_refill_amount;		// The number of transaction numbers Cron will grab for itself, when it gets low, before each round.
+	static int			__cron_ms_between_process;	// The number of milliseconds (ideally) between each "Cron Process" event.
+	
 public:
+	static int		GetCronMsBetweenProcess() { return __cron_ms_between_process; }
+	static void		SetCronMsBetweenProcess(long lMS) { __cron_ms_between_process = lMS; }
+	
 	static int		GetCronRefillAmount() { return __trans_refill_amount; }
 	static void		SetCronRefillAmount(int nAmount) { __trans_refill_amount = nAmount; }
-
+	
 	// ---------------------------------------
 	inline bool		IsActivated() const { return m_bIsActivated; }
 	inline bool		ActivateCron() { if (!m_bIsActivated) return m_bIsActivated = true; else return false; }

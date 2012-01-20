@@ -612,7 +612,7 @@ bool OTSocket::Receive(std::string & str_Message)
 	OT_ASSERT_MSG(NULL != m_pContext, "m_pContext == NULL in OTSocket::Receive()");
 	OT_ASSERT_MSG(NULL != m_pSocket, "m_pSocket == NULL in OTSocket::Receive()");
 	// -----------------------------------	
-	const long lLatencyRecvMilliSec	= OTServer::GetHeartbeatMsBetweenBeats();
+	const long lLatencyRecvMilliSec	= OTLog::GetLatencyReceiveMs();
 	const long lLatencyRecvMicroSec	= lLatencyRecvMilliSec*1000;
 	
 	// ***********************************
@@ -638,7 +638,7 @@ bool OTSocket::Receive(std::string & str_Message)
 			zmq::pollitem_t items[] = { { *m_pSocket, 0, ZMQ_POLLIN, 0 } };
 			
 			const int nPoll = zmq::poll (&items[0], 1, lDoubling);
-			lDoubling *= 2;
+			lDoubling *= 2; // 100 ms, then 200 ms, then 400 ms == total of 700 ms per receive. (About 15 per 10 seconds.)
 			
 			//  If we got a request, process it
 			if (items[0].revents & ZMQ_POLLIN) 
@@ -801,40 +801,32 @@ int main(int argc, char* argv[])
 	const int	nServerPort = nPort;
 	
 	// -----------------------------------------------------------------------
-	
 	// For re-occuring actions (like markets and payment plans.)
 	//
 	g_pServer->ActivateCron();
 
-	// -----------------------------------
-	
+	// --------------------------------------
 	//  Prepare our context and socket
 	OTSocket theSocket;
 	OTString strBindPath; strBindPath.Format("%s%d", "tcp://*:", nServerPort);
 	theSocket.Listen(strBindPath);
-	
 	// -----------------------------------------------------------------------
 
-	int nCronInterval = 101; // todo no hardcoding
+
 
 	// ******************************************************************************************
 	do  // THE HEARTBEAT LOOP FOR THE OPEN-TRANSACTIONS SERVER! 
-	{	// Currently "do" its thang 10 times per second.
+	{
 		//
 		// The Server now processes certain things on a regular basis.
 		// ProcessCron is what gives it the opportunity to do that.
 		// All of the Cron Items (including market trades, and payment plans...) 
 		// they all have their hooks here...
 		//
-		nCronInterval++;
+
+		g_pServer->ProcessCron();  // Internally this is smart enough to know how often to actually activate itself. Most often it just returns doing nothing (waiting for its timer.)
+
 		
-		// CURRENTLY THIS IS EFFECTIVELY: CRON RUNS EVERY 10 SECONDS (instead of previously, 
-		// 10 times PER second ack!!)
-		if ((nCronInterval % 100) == 0) // todo no hardcoding.
-		{
-			g_pServer->ProcessCron();
-			nCronInterval = 101;
-		}
 		// -----------------------------------------------------------------------
 		// Wait for client http requests (and process replies out to them.)
 		// ----------------------------------------------------------------------
@@ -859,8 +851,14 @@ int main(int argc, char* argv[])
 		for (int i = 0; i < /*10*/OTServer::GetHeartbeatNoRequests(); i++) 
 		{
 			std::string	str_Message;
-			bool		bReceived = theSocket.Receive(str_Message);
-
+			
+			// With 100ms heartbeat, receive will try 100 ms, then 200 ms, then 400 ms, total of 700.
+			// That's about 15 Receive() calls every 10 seconds. Therefore if I want the ProcessCron()
+			// to trigger every 10 seconds, I need to set the cron interval to roll over every 15 heartbeats.
+			// Therefore I will be using a real Timer for Cron, instead of the damn intervals.
+			//
+			bool		bReceived = theSocket.Receive(str_Message);  
+			
 			if (bReceived)
 			{
 				std::string str_Reply; // Output.
@@ -890,13 +888,14 @@ int main(int argc, char* argv[])
 					}
 				}
 			}
-		} //  for		
+		} //  for
+		
 		// -----------------------------------------------------------------------
 		
 		const	double tick2	= t.getElapsedTimeInMilliSec();
 		const	long elapsed	= static_cast<long>(tick2 - tick1);
 		long	lSleepMS		= 0;
-		
+			
 		if (elapsed < /*100*/OTServer::GetHeartbeatMsBetweenBeats()) 
 		{
 			lSleepMS = OTServer::GetHeartbeatMsBetweenBeats() - elapsed;

@@ -423,7 +423,7 @@ OT_BOOL OT_API_AddServerContract(const char * szContract)
 	
 	// Check the server signature on the contract here. (Perhaps the message is good enough?
 	// After all, the message IS signed by the server and contains the Account.
-	//		if (pContract->LoadContract() && pContract->VerifyContract())
+//	if (pContract->LoadContract() && pContract->VerifyContract())
 	if (strContract.Exists() && pContract->LoadContractFromString(strContract))
 	{
 		OTIdentifier theContractID;
@@ -468,7 +468,7 @@ OT_BOOL OT_API_AddAssetContract(const char * szContract)
 	
 	// Check the server signature on the contract here. (Perhaps the message is good enough?
 	// After all, the message IS signed by the server and contains the Account.
-	//		if (pContract->LoadContract() && pContract->VerifyContract())
+//	if (pContract->LoadContract() && pContract->VerifyContract())
 	if (strContract.Exists() && pContract->LoadContractFromString(strContract))
 	{
 		OTIdentifier theContractID;
@@ -3554,8 +3554,8 @@ const char * OT_API_LoadPurse(const char * SERVER_ID,
 	
 	if (NULL == pPurse)
 	{
-		OTLog::vOutput(0, "Failure calling OT_API::LoadPurse in OT_API_LoadPurse.\n "
-					   "Server: %s\n Asset Type: %s\n", SERVER_ID, ASSET_TYPE_ID);
+		OTLog::vOutput(0, "OT_API_LoadPurse() called OT_API::LoadPurse(). "
+					   "Server: %s Asset Type: %s\n", SERVER_ID, ASSET_TYPE_ID);
 	}
 	else // success 
 	{
@@ -4103,12 +4103,10 @@ int OT_API_Ledger_GetCount(const char * SERVER_ID,
 	const OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theAccountID(ACCOUNT_ID);
 
 	OTString strLedger(THE_LEDGER);
-	
 	// -----------------------------------------------------
-
 	OTLedger theLedger(theUserID, theAccountID, theServerID);
 
-	if (false == theLedger.LoadContractFromString(strLedger))
+	if (false == theLedger.LoadLedgerFromString(strLedger))
 	{
 		OTString strAcctID(theAccountID);
 		OTLog::vError("Error loading ledger from string in OT_API_Ledger_GetCount. Acct ID:\n%s\n",
@@ -4122,10 +4120,14 @@ int OT_API_Ledger_GetCount(const char * SERVER_ID,
 }
 
 
+
+
 // -----------------------------------------------------------------------
 // Creates a new 'response' ledger, set up with the right Server ID, etc, so you
 // can add the 'response' items to it, one by one. (Pass in the original ledger 
 // that you are responding to, as it uses the data from it to set up the response.)
+// The original ledger is your inbox. Inbox receipts are the only things you would
+// ever create a "response" to, as part of your "process inbox" process.
 //
 const char * OT_API_Ledger_CreateResponse(const char * SERVER_ID,
 										  const char * USER_ID,
@@ -4144,13 +4146,11 @@ const char * OT_API_Ledger_CreateResponse(const char * SERVER_ID,
 	OTPseudonym * pNym = g_OT_API.GetOrLoadPrivateNym(theUserID, szFuncName); // These copiously log, and ASSERT.
 	if (NULL == pNym) return NULL;
 	// -----------------------------------------------------
-	
-	// Let's load up the ledger (probably in inbox) that was passed in...
+	// Let's load up the ledger (an inbox) that was passed in...
 	OTString strOriginalLedger(ORIGINAL_LEDGER);
-	
 	OTLedger theOriginalLedger(theUserID, theAccountID, theServerID);
 	
-	if (false == theOriginalLedger.LoadContractFromString(strOriginalLedger))
+	if (false == theOriginalLedger.LoadLedgerFromString(strOriginalLedger))
 	{
 		OTString strAcctID(theAccountID);
 		OTLog::vError("Error loading ledger from string in OT_API_Ledger_CreateResponse. Acct ID:\n%s\n",
@@ -4165,9 +4165,7 @@ const char * OT_API_Ledger_CreateResponse(const char * SERVER_ID,
 					  strAcctID.Get());
 		return NULL;
 	}
-	
 	// -----------------------------------------------------
-
 	// By this point, the ledger is loaded properly from the string,
 	// Let's create the response to it.
 	OTLedger * pResponseLedger = OTLedger::GenerateLedger(theUserID, theAccountID,
@@ -4181,9 +4179,7 @@ const char * OT_API_Ledger_CreateResponse(const char * SERVER_ID,
 					  strAcctID.Get());
 		return NULL;
 	}
-	
 	// -----------------------------------------------------
-
 	pResponseLedger->SignContract(*pNym);
 	pResponseLedger->SaveContract();
 
@@ -4228,16 +4224,17 @@ const char * OT_API_Ledger_GetTransactionByIndex(const char * SERVER_ID,
 	const OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theAccountID(ACCOUNT_ID);
 	
 	OTString strLedger(THE_LEDGER);
-	
 	// -----------------------------------------------------
-	
 	OTLedger theLedger(theUserID, theAccountID, theServerID);
-
-	if (false == theLedger.LoadContractFromString(strLedger))
+	std::set<long> setUnloaded;
+	
+	if (	!theLedger.LoadLedgerFromString(strLedger)
+//		||	!theLedger.LoadBoxReceipts(&setUnloaded)	// This is done below, for the individual transaction, for better optimization.
+	   )
 	{
 		OTString strAcctID(theAccountID);
-		OTLog::vError("Error loading ledger from string in OT_API_Ledger_GetTransactionByIndex. Acct ID:\n%s\n",
-					  strAcctID.Get());
+		OTLog::vError("Error loading ledger from string, or loading box receipts subsequently, "
+					  "in OT_API_Ledger_GetTransactionByIndex. Acct ID:\n%s\n", strAcctID.Get());
 		return NULL;
 	}
 	
@@ -4259,8 +4256,40 @@ const char * OT_API_Ledger_GetTransactionByIndex(const char * SERVER_ID,
 		return NULL; // Weird.
 	}
 	
+	const long lTransactionNum = pTransaction->GetTransactionNum();
 	// At this point, I actually have the transaction pointer, so let's return it in string form...
 	
+	// Update: for transactions in ABBREVIATED form, the string is empty, since it has never actually
+	// been signed (in fact the whole point with abbreviated transactions in a ledger is that they 
+	// take up very little room, and have no signature of their own, but exist merely as XML tags on
+	// their parent ledger.)
+	//
+	// THEREFORE I must check to see if this transaction is abbreviated and if so, sign it in order to
+	// force the UpdateContents() call, so the programmatic user of this API will be able to load it up.
+	//
+	if (pTransaction->IsAbbreviated())
+	{
+		theLedger.LoadBoxReceipt(lTransactionNum); // I don't check return val here because I still want it to send the abbreviated form, if this fails.
+		pTransaction = theLedger.GetTransaction(lTransactionNum);
+		// -------------------------
+		if (NULL == pTransaction)
+		{
+			OTLog::vError("OT_API_Ledger_GetTransactionByIndex good index but uncovered NULL "
+						  "pointer after trying to load full version of receipt (from abbreviated): %d\n", 
+						  nIndex);
+			return NULL; // Weird.
+		}		
+		// I was doing this when it was abbreviated. But now (above) I just 
+		// load the box receipt itself.
+//		OTPseudonym * pNym = g_OT_API.GetNym(theUserID, "OT_API_Ledger_GetTransactionByIndex");
+//		if (NULL == pNym) return NULL;
+//		// -------------------------	
+//		pTransaction->ReleaseSignatures();
+//		pTransaction->SignContract(*pNym);
+//		pTransaction->SaveContract();
+	}
+	// ------------------------------------------------
+
 	OTString strOutput(*pTransaction); // For the output
 	
 	const char * pBuf = strOutput.Get(); 
@@ -4273,6 +4302,7 @@ const char * OT_API_Ledger_GetTransactionByIndex(const char * SERVER_ID,
 	
 	return g_tempBuf;	
 }
+
 
 
 // Returns transaction by ID (transaction numbers are long ints, and thus
@@ -4300,7 +4330,7 @@ const char * OT_API_Ledger_GetTransactionByID(const char * SERVER_ID,
 	
 	OTLedger theLedger(theUserID, theAccountID, theServerID);
 		
-	if (false == theLedger.LoadContractFromString(strLedger))
+	if (false == theLedger.LoadLedgerFromString(strLedger))
 	{
 		OTString strAcctID(theAccountID);
 		OTLog::vError("Error loading ledger from string in OT_API_Ledger_GetTransactionByID. Acct ID:\n%s\n",
@@ -4321,7 +4351,37 @@ const char * OT_API_Ledger_GetTransactionByID(const char * SERVER_ID,
 	}
 	
 	// At this point, I actually have the transaction pointer, so let's return it in string form...
+	const long lTransactionNum = pTransaction->GetTransactionNum();
 	
+	// Update: for transactions in ABBREVIATED form, the string is empty, since it has never actually
+	// been signed (in fact the whole point with abbreviated transactions in a ledger is that they 
+	// take up very little room, and have no signature of their own, but exist merely as XML tags on
+	// their parent ledger.)
+	//
+	// THEREFORE I must check to see if this transaction is abbreviated and if so, sign it in order to
+	// force the UpdateContents() call, so the programmatic user of this API will be able to load it up.
+	if (pTransaction->IsAbbreviated())
+	{
+		theLedger.LoadBoxReceipt(lTransactionNum); // I don't check return val here because I still want it to send the abbreviated form, if this fails.
+		pTransaction = theLedger.GetTransaction(lTransactionNum);
+		// -------------------------
+		if (NULL == pTransaction)
+		{
+			OTLog::vError("OT_API_Ledger_GetTransactionByIndex good index but uncovered NULL "
+						  "pointer after trying to load full version of receipt (from abbreviated)\n");
+			return NULL; // Weird.
+		}		
+		// I was doing this when it was abbreviated. But now (above) I just 
+		// load the box receipt itself.
+		//		OTPseudonym * pNym = g_OT_API.GetNym(theUserID, "OT_API_Ledger_GetTransactionByID");
+		//		if (NULL == pNym) return NULL;
+		//		// -------------------------	
+		//		pTransaction->ReleaseSignatures();
+		//		pTransaction->SignContract(*pNym);
+		//		pTransaction->SaveContract();
+	}
+	// ------------------------------------------------
+
 	OTString strOutput(*pTransaction); // For the output
 	
 	const char * pBuf = strOutput.Get(); 
@@ -4363,7 +4423,7 @@ const char * OT_API_Ledger_GetTransactionIDByIndex(const char * SERVER_ID,
 	
 	OTLedger theLedger(theUserID, theAccountID, theServerID);
 	
-	if (false == theLedger.LoadContractFromString(strLedger))
+	if (false == theLedger.LoadLedgerFromString(strLedger))
 	{
 		OTString strAcctID(theAccountID);
 		OTLog::vError("Error loading ledger from string in OT_API_Ledger_GetTransactionIDByIndex. Acct ID:\n%s\n",
@@ -4438,7 +4498,7 @@ const char * OT_API_Ledger_AddTransaction(const char * SERVER_ID,
 	
 	OTLedger theLedger(theUserID, theAccountID, theServerID);
 	
-	if (false == theLedger.LoadContractFromString(strLedger))
+	if (false == theLedger.LoadLedgerFromString(strLedger))
 	{
 		OTString strAcctID(theAccountID);
 		OTLog::vError("Error loading ledger from string in OT_API_Ledger_AddTransaction. Acct ID:\n%s\n",
@@ -4476,9 +4536,7 @@ const char * OT_API_Ledger_AddTransaction(const char * SERVER_ID,
 		delete pTransaction; pTransaction = NULL;
 		return NULL;
 	}
-
 	// -----------------------------------------------------
-		
 	// At this point, I know pTransaction loaded and verified successfully.
 	// So let's add it to the ledger, save, and return updated ledger in string form.
 	
@@ -4555,7 +4613,7 @@ const char * OT_API_Transaction_CreateResponse(const char * SERVER_ID,
 	// -----------------------------------------------------	
 	OTLedger theLedger(theUserID, theAcctID, theServerID);
 	
-	if (false == theLedger.LoadContractFromString(strLedger))
+	if (false == theLedger.LoadLedgerFromString(strLedger))
 	{
 		OTString strAcctID(theAcctID);
 		OTLog::vError("Error loading ledger from string in OT_API_Transaction_CreateResponse. Acct ID:\n%s\n",
@@ -4585,12 +4643,34 @@ const char * OT_API_Transaction_CreateResponse(const char * SERVER_ID,
 					  strAcctID.Get());
 		return NULL;
 	}
+	// --------------------------------------
+	OTTransaction * pTransaction = NULL;
+	OTCleanup<OTTransaction> theTransAngel;
+	
+	if (theTransaction.IsAbbreviated())
+	{
+		pTransaction = OTTransaction::LoadBoxReceipt(theTransaction, static_cast<long>(OTLedger::inbox));
+
+		if (NULL == pTransaction)
+		{
+			OTString strAcctID(theAcctID);
+			OTLog::vError("OT_API_Transaction_CreateResponse: Error loading full transaction from abbreviated "
+						  "version of inbox receipt. Acct ID:\n%s\n", strAcctID.Get());
+			return NULL;
+		}
+		theTransAngel.SetCleanupTargetPointer(pTransaction);
+	}
+	else
+		pTransaction = &theTransaction;
+	// --------------------------------------
+	// BELOW THIS POINT, only use pTransaction, not theTransaction.
+	
 	// This transaction is presumably from the server, since we are in this
 	// function in order to generate a response back to the server. So therefore
 	// I want to verify that the server has actually signed the thing, before
 	// I go off responding to it like a damned fool.
 	//
-	else if (false == theTransaction.VerifyAccount(*((OTPseudonym *)pServerNym)))
+	if (false == pTransaction->VerifyAccount(*((OTPseudonym *)pServerNym)))
 	{
 		OTString strAcctID(theAcctID);
 		OTLog::vError("Error verifying transaction in OT_API_Transaction_CreateResponse. Acct ID:\n%s\n",
@@ -4601,32 +4681,32 @@ const char * OT_API_Transaction_CreateResponse(const char * SERVER_ID,
 	// -----------------------------------------------------
 	
 	if (
-			(OTTransaction::pending			!= theTransaction.GetType()) 
-		&&	(OTTransaction::chequeReceipt	!= theTransaction.GetType())
-		&&	(OTTransaction::transferReceipt	!= theTransaction.GetType())
-		&&	(OTTransaction::marketReceipt	!= theTransaction.GetType())
-		&&	(OTTransaction::paymentReceipt	!= theTransaction.GetType())
-		&&	(OTTransaction::finalReceipt	!= theTransaction.GetType())
-		&&	(OTTransaction::basketReceipt	!= theTransaction.GetType())
+			(OTTransaction::pending			!= pTransaction->GetType()) 
+		&&	(OTTransaction::chequeReceipt	!= pTransaction->GetType())
+		&&	(OTTransaction::transferReceipt	!= pTransaction->GetType())
+		&&	(OTTransaction::marketReceipt	!= pTransaction->GetType())
+		&&	(OTTransaction::paymentReceipt	!= pTransaction->GetType())
+		&&	(OTTransaction::finalReceipt	!= pTransaction->GetType())
+		&&	(OTTransaction::basketReceipt	!= pTransaction->GetType())
 		)
 	{
 		OTLog::vError("OT_API_Transaction_CreateResponse: wrong transaction type: %s.\n", 
-					  theTransaction.GetTypeString());
+					  pTransaction->GetTypeString());
 		return NULL;		
 	}
 	
 	// -----------------------------------------------------
 	
-	// At this point, I know theTransaction loaded and verified successfully.
+	// At this point, I know pTransaction loaded and verified successfully.
 	// So let's generate a response item based on it, and add it to a processInbox
 	// transaction to be added to that ledger (if one's not already there...)
 	
 	// First, check to see if there is a processInbox transaction already on
 	// the ledger...
-	OTTransaction * pTransaction = theLedger.GetTransaction(OTTransaction::processInbox);
+	OTTransaction * pResponse = theLedger.GetTransaction(OTTransaction::processInbox);
 
 	// If it's not already there, create it and add it.
-	if (NULL == pTransaction)
+	if (NULL == pResponse)
 	{
 		OTString strServerID(theServerID);
 		long lTransactionNumber=0;
@@ -4640,10 +4720,10 @@ const char * OT_API_Transaction_CreateResponse(const char * SERVER_ID,
 			return NULL;
 		}
 		
-		pTransaction = OTTransaction::GenerateTransaction(theUserID, theAcctID, theServerID, 
+		pResponse = OTTransaction::GenerateTransaction(theUserID, theAcctID, theServerID, 
 														  OTTransaction::processInbox, 
 														  lTransactionNumber);
-		if (NULL == pTransaction)
+		if (NULL == pResponse)
 		{
 			OTString strAcctID(theAcctID);
 			OTLog::vError("Error generating processInbox transaction in \n"
@@ -4654,21 +4734,21 @@ const char * OT_API_Transaction_CreateResponse(const char * SERVER_ID,
 			return NULL;
 		}
 		
-		theLedger.AddTransaction(*pTransaction); // Ledger now "owns" it and will handle cleanup.
+		theLedger.AddTransaction(*pResponse); // Ledger now "owns" it and will handle cleanup.
 	}
 	
-	// At this point I know pTransaction is a processInbox transaction, ready to go,
+	// At this point I know pResponse is a processInbox transaction, ready to go,
 	// and that theLedger will handle any cleanup issues related to it.
 	
 	// -----------------------------------------------------
 	
-	// Next let's create a new item that responds to theTransaction, and add that 
-	// item to pTransaction. Then we'll return the updated ledger.
+	// Next let's create a new item that responds to pTransaction, and add that 
+	// item to pResponse. Then we'll return the updated ledger.
 	
 	OTItem::itemType theAcceptItemType = OTItem::error_state;
 	OTItem::itemType theRejectItemType = OTItem::error_state;
 	
-	switch (theTransaction.GetType()) 
+	switch (pTransaction->GetType()) 
 	{
 		case OTTransaction::pending:
 			theAcceptItemType = OTItem::acceptPending;
@@ -4702,19 +4782,19 @@ const char * OT_API_Transaction_CreateResponse(const char * SERVER_ID,
 			theAcceptItemType = OTItem::error_state;
 			theRejectItemType = OTItem::error_state;
 			OTLog::vError("Unexpected transaction type in \n"
-						  "OT_API_Transaction_CreateResponse: %s\n", theTransaction.GetTypeString());
+						  "OT_API_Transaction_CreateResponse: %s\n", pTransaction->GetTypeString());
 			return NULL;
 	}
 	
 	long lReferenceTransactionNum = 0;
 
-	switch (theTransaction.GetType()) 
+	switch (pTransaction->GetType()) 
 	{
 		case OTTransaction::marketReceipt:
 		case OTTransaction::paymentReceipt:
 		case OTTransaction::finalReceipt:
 		case OTTransaction::basketReceipt:
-			lReferenceTransactionNum = theTransaction.GetTransactionNum();			
+			lReferenceTransactionNum = pTransaction->GetTransactionNum();			
 			break;
 			
 		case OTTransaction::pending:
@@ -4724,7 +4804,7 @@ const char * OT_API_Transaction_CreateResponse(const char * SERVER_ID,
 			// -----------------------------------------------------
 			// Here's some code in case you need to load up the item.
 			OTString strReference;
-			theTransaction.GetReferenceString(strReference);
+			pTransaction->GetReferenceString(strReference);
 			
 			if (!strReference.Exists())
 			{
@@ -4732,7 +4812,7 @@ const char * OT_API_Transaction_CreateResponse(const char * SERVER_ID,
 				return NULL;				
 			}
 			// -----------------------------------------------------
-			OTItem * pOriginalItem = OTItem::CreateItemFromString(strReference, theServerID, theTransaction.GetReferenceToNum());
+			OTItem * pOriginalItem = OTItem::CreateItemFromString(strReference, theServerID, pTransaction->GetReferenceToNum());
 			OTCleanup<OTItem> theAngel(pOriginalItem);
 			
 			if (NULL == pOriginalItem)
@@ -4765,12 +4845,12 @@ const char * OT_API_Transaction_CreateResponse(const char * SERVER_ID,
 			
 		default:			
 			OTLog::vError("Unexpected transaction type in \n"
-						  "OT_API_Transaction_CreateResponse: %s\n", theTransaction.GetTypeString());
+						  "OT_API_Transaction_CreateResponse: %s\n", pTransaction->GetTypeString());
 			return NULL;
 	}
 	
 	
-	OTItem * pAcceptItem = OTItem::CreateItemFromTransaction(*pTransaction, 
+	OTItem * pAcceptItem = OTItem::CreateItemFromTransaction(*pResponse, 
 															 (OT_TRUE == BOOL_DO_I_ACCEPT) ?
 															 theAcceptItemType : theRejectItemType); // set above.
 	
@@ -4781,10 +4861,10 @@ const char * OT_API_Transaction_CreateResponse(const char * SERVER_ID,
 	pAcceptItem->SetReferenceToNum(lReferenceTransactionNum); // This is critical. Server needs this to look up the original.
 	// Don't need to set transaction num on item since the constructor already got it off the owner transaction.
 
-	pAcceptItem->SetAmount(theTransaction.GetReceiptAmount()); // Server validates this, so make sure it's right.
+	pAcceptItem->SetAmount(pTransaction->GetReceiptAmount()); // Server validates this, so make sure it's right.
 	
 	// the transaction will handle cleaning up the transaction item.
-	pTransaction->AddItem(*pAcceptItem);
+	pResponse->AddItem(*pAcceptItem);
 		
 	// I don't attach the original item here because I already reference it by transaction num,
 	// and because the server already has it and sent it to me. SO I just need to give the server
@@ -4794,9 +4874,9 @@ const char * OT_API_Transaction_CreateResponse(const char * SERVER_ID,
 	pAcceptItem->SignContract(*pNym);
 	pAcceptItem->SaveContract();
 	
-	pTransaction->ReleaseSignatures();
-	pTransaction->SignContract(*pNym);
-	pTransaction->SaveContract();
+	pResponse->ReleaseSignatures();
+	pResponse->SignContract(*pNym);
+	pResponse->SaveContract();
 	
 	theLedger.ReleaseSignatures();
 	theLedger.SignContract(*pNym);
@@ -4869,7 +4949,7 @@ const char * OT_API_Ledger_FinalizeResponse(const char * SERVER_ID,
 	// -----------------------------------------------------	
 	OTLedger theLedger(theUserID, theAcctID, theServerID);
 	
-	if (false == theLedger.LoadContractFromString(strLedger))
+	if (false == theLedger.LoadLedgerFromString(strLedger))
 	{
 		OTString strAcctID(theAcctID);
 		OTLog::vError("Error loading ledger from string in OT_API_Ledger_FinalizeResponse. Acct ID:\n%s\n",
@@ -4971,7 +5051,7 @@ const char * OT_API_Ledger_FinalizeResponse(const char * SERVER_ID,
 		{
 			OTTransaction * pServerTransaction = theInbox.GetPendingTransaction(pItem->GetReferenceToNum());
 			
-			OTLog::vOutput(0, "Checking client-side inbox for expected pending or receipt transaction: %ld... ",
+			OTLog::vOutput(0, "OT_API_Ledger_FinalizeResponse: Checking client-side inbox for expected pending or receipt transaction: %ld...\n",
 						   pItem->GetReferenceToNum()); // temp remove
 			
 			if (NULL == pServerTransaction)
@@ -5449,7 +5529,8 @@ const char * OT_API_Transaction_GetVoucher(const char * SERVER_ID,
 					  strAcctID.Get());
 		return NULL;
 	}
-	
+	// No need to check if transaction is abbreviated, since it's coming from a message ledger.
+	// (Those always contain the full version of the transactions, automatically.)
 	// -----------------------------------------------------
 	
 	if (OTTransaction::atWithdrawal != theTransaction.GetType())
@@ -5538,10 +5619,40 @@ const char * OT_API_Transaction_GetSenderUserID(const char * SERVER_ID,
 					  strAcctID.Get());
 		return NULL;
 	}
+	// -----------------------------------------------------
+	OTTransaction * pTransaction = NULL;
+	OTCleanup<OTTransaction> theTransAngel;
+	
+	if (theTransaction.IsAbbreviated())
+	{
+		long lBoxType = 0;
+		
+		if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<long>(OTLedger::nymbox);
+		else if (theTransaction.Contains("inboxRecord"))	lBoxType = static_cast<long>(OTLedger::inbox);
+		else if (theTransaction.Contains("outboxRecord"))	lBoxType = static_cast<long>(OTLedger::outbox);
+		else
+		{
+			OTLog::vError("OT_API_Transaction_GetSenderUserID: Error loading from abbreviated transaction: "
+						  "unknown ledger type.\n");
+			return NULL;			
+		}
+		// --------------
+		pTransaction = OTTransaction::LoadBoxReceipt(theTransaction, lBoxType);
+		if (NULL == pTransaction)
+		{
+			OTLog::vError("OT_API_Transaction_GetSenderUserID: Error loading from abbreviated transaction: "
+						  "failed loading box receipt.\n");
+			return NULL;			
+		}
+		// ----------------
+		theTransAngel.SetCleanupTargetPointer(pTransaction);
+	}
+	else
+		pTransaction = &theTransaction;
 	// -----------------------------------------------------	
 	OTIdentifier theOutput;
 	
-	bool bSuccess = theTransaction.GetSenderUserIDForDisplay(theOutput);
+	bool bSuccess = pTransaction->GetSenderUserIDForDisplay(theOutput);
 	// -----------------------------------------------------
 	
 	if (bSuccess)
@@ -5594,7 +5705,6 @@ const char * OT_API_Transaction_GetRecipientUserID(const char * SERVER_ID,
 	if (NULL == pNym) return NULL;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------			
-	
 	OTTransaction theTransaction(theUserID, theAccountID, theServerID);
 	
 	if (false == theTransaction.LoadContractFromString(strTransaction))
@@ -5604,12 +5714,41 @@ const char * OT_API_Transaction_GetRecipientUserID(const char * SERVER_ID,
 					  strAcctID.Get());
 		return NULL;
 	}
-	
 	// -----------------------------------------------------
+	OTTransaction * pTransaction = NULL;
+	OTCleanup<OTTransaction> theTransAngel;
+	
+	if (theTransaction.IsAbbreviated())
+	{
+		long lBoxType = 0;
+		
+		if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<long>(OTLedger::nymbox);
+		else if (theTransaction.Contains("inboxRecord"))	lBoxType = static_cast<long>(OTLedger::inbox);
+		else if (theTransaction.Contains("outboxRecord"))	lBoxType = static_cast<long>(OTLedger::outbox);
+		else
+		{
+			OTLog::vError("OT_API_Transaction_GetRecipientUserID: Error loading from abbreviated transaction: "
+						  "unknown ledger type. \n");
+			return NULL;			
+		}
+		// --------------
+		pTransaction = OTTransaction::LoadBoxReceipt(theTransaction, lBoxType);
+		if (NULL == pTransaction)
+		{
+			OTLog::vError("OT_API_Transaction_GetRecipientUserID: Error loading from abbreviated transaction: "
+						  "failed loading box receipt.");
+			return NULL;			
+		}
+		// ----------------
+		theTransAngel.SetCleanupTargetPointer(pTransaction);
+	}
+	else
+		pTransaction = &theTransaction;
+	// -----------------------------------------------------	
 	
 	OTIdentifier theOutput;
 	
-	bool bSuccess = theTransaction.GetRecipientUserIDForDisplay(theOutput);
+	bool bSuccess = pTransaction->GetRecipientUserIDForDisplay(theOutput);
 	
 	// -----------------------------------------------------
 
@@ -5685,12 +5824,41 @@ const char * OT_API_Transaction_GetSenderAcctID(const char * SERVER_ID,
 					  strAcctID.Get());
 		return NULL;
 	}
-	
 	// -----------------------------------------------------
+	OTTransaction * pTransaction = NULL;
+	OTCleanup<OTTransaction> theTransAngel;
 	
+	if (theTransaction.IsAbbreviated())
+	{
+		long lBoxType = 0;
+		
+		if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<long>(OTLedger::nymbox);
+		else if (theTransaction.Contains("inboxRecord"))	lBoxType = static_cast<long>(OTLedger::inbox);
+		else if (theTransaction.Contains("outboxRecord"))	lBoxType = static_cast<long>(OTLedger::outbox);
+		else
+		{
+			OTLog::vError("OT_API_Transaction_GetSenderAcctID: Error loading from abbreviated transaction: "
+						  "unknown ledger type.\n");
+			return NULL;			
+		}
+		// --------------
+		pTransaction = OTTransaction::LoadBoxReceipt(theTransaction, lBoxType);
+		if (NULL == pTransaction)
+		{
+			OTLog::vError("OT_API_Transaction_GetSenderAcctID: Error loading from abbreviated transaction: "
+						  "failed loading box receipt. \n");
+			return NULL;			
+		}
+		// ----------------
+		theTransAngel.SetCleanupTargetPointer(pTransaction);
+	}
+	else
+		pTransaction = &theTransaction;
+	// -----------------------------------------------------	
+
 	OTIdentifier theOutput;
 	
-	bool bSuccess = theTransaction.GetSenderAcctIDForDisplay(theOutput);
+	bool bSuccess = pTransaction->GetSenderAcctIDForDisplay(theOutput);
 	
 	// -----------------------------------------------------
 	
@@ -5754,10 +5922,39 @@ const char * OT_API_Transaction_GetRecipientAcctID(const char * SERVER_ID,
 	}
 	
 	// -----------------------------------------------------
+	OTTransaction * pTransaction = NULL;
+	OTCleanup<OTTransaction> theTransAngel;
 	
+	if (theTransaction.IsAbbreviated())
+	{
+		long lBoxType = 0;
+		
+		if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<long>(OTLedger::nymbox);
+		else if (theTransaction.Contains("inboxRecord"))	lBoxType = static_cast<long>(OTLedger::inbox);
+		else if (theTransaction.Contains("outboxRecord"))	lBoxType = static_cast<long>(OTLedger::outbox);
+		else
+		{
+			OTLog::vError("OT_API_Transaction_GetRecipientAcctID: Error loading from abbreviated transaction: "
+						  "unknown ledger type. \n");
+			return NULL;			
+		}
+		// --------------
+		pTransaction = OTTransaction::LoadBoxReceipt(theTransaction, lBoxType);
+		if (NULL == pTransaction)
+		{
+			OTLog::vError("OT_API_Transaction_GetRecipientAcctID: Error loading from abbreviated transaction: "
+						  "failed loading box receipt.\n");
+			return NULL;			
+		}
+		// ----------------
+		theTransAngel.SetCleanupTargetPointer(pTransaction);
+	}
+	else
+		pTransaction = &theTransaction;
+	// -----------------------------------------------------	
 	OTIdentifier theOutput;
 	
-	bool bSuccess = theTransaction.GetRecipientAcctIDForDisplay(theOutput);
+	bool bSuccess = pTransaction->GetRecipientAcctIDForDisplay(theOutput);
 	
 	// -----------------------------------------------------
 	
@@ -5838,18 +6035,48 @@ const char * OT_API_Pending_GetNote(const char * SERVER_ID,
 	}
 	
 	// -----------------------------------------------------
+	OTTransaction * pTransaction = NULL;
+	OTCleanup<OTTransaction> theTransAngel;
 	
-	if (OTTransaction::pending != theTransaction.GetType())
+	if (theTransaction.IsAbbreviated())
+	{
+		long lBoxType = 0;
+		
+		if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<long>(OTLedger::nymbox);
+		else if (theTransaction.Contains("inboxRecord"))	lBoxType = static_cast<long>(OTLedger::inbox);
+		else if (theTransaction.Contains("outboxRecord"))	lBoxType = static_cast<long>(OTLedger::outbox);
+		else
+		{
+			OTLog::vError("OT_API_Pending_GetNote: Error loading from abbreviated transaction: "
+						  "unknown ledger type. \n");
+			return NULL;			
+		}
+		// --------------
+		pTransaction = OTTransaction::LoadBoxReceipt(theTransaction, lBoxType);
+		if (NULL == pTransaction)
+		{
+			OTLog::vError("OT_API_Pending_GetNote: Error loading from abbreviated transaction: "
+						  "failed loading box receipt. \n");
+			return NULL;			
+		}
+		// ----------------
+		theTransAngel.SetCleanupTargetPointer(pTransaction);
+	}
+	else
+		pTransaction = &theTransaction;
+	// -----------------------------------------------------	
+	
+	if (OTTransaction::pending != pTransaction->GetType())
 	{
 		OTLog::vError("OT_API_Pending_GetNote: wrong transaction type: %s. (Expected \"pending\".)\n", 
-					  theTransaction.GetTypeString());
+					  pTransaction->GetTypeString());
 		return NULL;		
 	}
 	
 	// -----------------------------------------------------
 	
 	OTString strReference;
-	theTransaction.GetReferenceString(strReference);
+	pTransaction->GetReferenceString(strReference);
 	
 	if (!strReference.Exists())
 	{
@@ -5859,7 +6086,7 @@ const char * OT_API_Pending_GetNote(const char * SERVER_ID,
 	
 	// -----------------------------------------------------
 	
-	OTItem * pItem = OTItem::CreateItemFromString(strReference, theServerID, theTransaction.GetReferenceToNum());
+	OTItem * pItem = OTItem::CreateItemFromString(strReference, theServerID, pTransaction->GetReferenceToNum());
 	OTCleanup<OTItem> theAngel(pItem);
 	
 	if (NULL == pItem)
@@ -5939,9 +6166,39 @@ const char * OT_API_Transaction_GetAmount(const char * SERVER_ID,
 	}
 		
 	// -----------------------------------------------------
+	OTTransaction * pTransaction = NULL;
+	OTCleanup<OTTransaction> theTransAngel;
+	
+	if (theTransaction.IsAbbreviated())
+	{
+		long lBoxType = 0;
+		
+		if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<long>(OTLedger::nymbox);
+		else if (theTransaction.Contains("inboxRecord"))	lBoxType = static_cast<long>(OTLedger::inbox);
+		else if (theTransaction.Contains("outboxRecord"))	lBoxType = static_cast<long>(OTLedger::outbox);
+		else
+		{
+			OTLog::vError("OT_API_Transaction_GetAmount: Error loading from abbreviated transaction: "
+						  "unknown ledger type. \n");
+			return NULL;			
+		}
+		// --------------
+		pTransaction = OTTransaction::LoadBoxReceipt(theTransaction, lBoxType);
+		if (NULL == pTransaction)
+		{
+			OTLog::vError("OT_API_Transaction_GetAmount: Error loading from abbreviated transaction: "
+						  "failed loading box receipt. \n");
+			return NULL;			
+		}
+		// ----------------
+		theTransAngel.SetCleanupTargetPointer(pTransaction);
+	}
+	else
+		pTransaction = &theTransaction;
+	// -----------------------------------------------------	
 	
 	OTString strOutput;
-	const long lAmount = theTransaction.GetReceiptAmount();
+	const long lAmount = pTransaction->GetReceiptAmount();
 	
 	strOutput.Format("%ld", lAmount);
 	
@@ -6009,7 +6266,8 @@ const char * OT_API_Transaction_GetDisplayReferenceToNum(const char * SERVER_ID,
 	}
 	
 	// -----------------------------------------------------
-	
+	// NO need to load abbreviated version here, since it already stores this number.
+	//
 	const long lDisplayNum = theTransaction.GetReferenceNumForDisplay();
 	OTString strOutput;
 	
@@ -6071,13 +6329,13 @@ const char * OT_API_Transaction_GetType(const char * SERVER_ID,
 	if (false == theTransaction.LoadContractFromString(strTransaction))
 	{
 		OTString strAcctID(theAccountID);
-		OTLog::vError("Error loading transaction from string in OT_API_Transaction_GetType. Acct ID:\n%s\n",
+		OTLog::vError("Error loading transaction from string in OT_API_Transaction_GetType. Acct ID: %s\n",
 					  strAcctID.Get());
 		return NULL;
 	}
 	
 	// -----------------------------------------------------
-	
+	// NO need to load abbreviated version, since it already stores this number.
 	
 	const char * pBuf = theTransaction.GetTypeString(); 
 	
@@ -6122,11 +6380,11 @@ const char * OT_API_Transaction_GetDateSigned(const char * SERVER_ID,
 	if (false == theTransaction.LoadContractFromString(strTransaction))
 	{
 		OTString strAcctID(theAccountID);
-		OTLog::vError("Error loading transaction from string in OT_API_Transaction_GetDateSigned. Acct ID:\n%s\n",
+		OTLog::vError("Error loading transaction from string in OT_API_Transaction_GetDateSigned. Acct ID: %s\n",
 					  strAcctID.Get());
 		return NULL;
 	}
-	
+	// NO need to load abbreviated version here, since it already stores the date.
 	// -----------------------------------------------------
 	
 	OTString strOutput;
@@ -6182,7 +6440,38 @@ OT_BOOL OT_API_Transaction_GetSuccess(const char * SERVER_ID,
 		return OT_FALSE;
 	}
 	// -----------------------------------------------------
-	return theTransaction.GetSuccess() ? OT_TRUE : OT_FALSE;
+	OTTransaction * pTransaction = NULL;
+	OTCleanup<OTTransaction> theTransAngel;
+	
+	if (theTransaction.IsAbbreviated())
+	{
+		long lBoxType = 0;
+		
+		if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<long>(OTLedger::nymbox);
+		else if (theTransaction.Contains("inboxRecord"))	lBoxType = static_cast<long>(OTLedger::inbox);
+		else if (theTransaction.Contains("outboxRecord"))	lBoxType = static_cast<long>(OTLedger::outbox);
+		else
+		{
+			OTLog::vError("OT_API_Transaction_GetSuccess: Error loading from abbreviated transaction: "
+						  "unknown ledger type. \n");
+			return OT_FALSE;			
+		}
+		// --------------
+		pTransaction = OTTransaction::LoadBoxReceipt(theTransaction, lBoxType);
+		if (NULL == pTransaction)
+		{
+			OTLog::vError("OT_API_Transaction_GetSuccess: Error loading from abbreviated transaction: "
+						  "failed loading box receipt. \n");
+			return OT_FALSE;			
+		}
+		// ----------------
+		theTransAngel.SetCleanupTargetPointer(pTransaction);
+	}
+	else
+		pTransaction = &theTransaction;
+	// -----------------------------------------------------	
+	
+	return pTransaction->GetSuccess() ? OT_TRUE : OT_FALSE;
 }
 
 
@@ -6224,12 +6513,42 @@ OT_BOOL OT_API_Transaction_GetBalanceAgreementSuccess(const char * SERVER_ID,
 					  strAcctID.Get());
 		return OT_FALSE;
 	}
-	// ----------------------------------------------------
+	// -----------------------------------------------------
+	OTTransaction * pTransaction = NULL;
+	OTCleanup<OTTransaction> theTransAngel;
+	
+	if (theTransaction.IsAbbreviated())
+	{
+		long lBoxType = 0;
+		
+		if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<long>(OTLedger::nymbox);
+		else if (theTransaction.Contains("inboxRecord"))	lBoxType = static_cast<long>(OTLedger::inbox);
+		else if (theTransaction.Contains("outboxRecord"))	lBoxType = static_cast<long>(OTLedger::outbox);
+		else
+		{
+			OTLog::vError("OT_API_Transaction_GetBalanceAgreementSuccess: Error loading from abbreviated transaction: "
+						  "unknown ledger type. \n");
+			return OT_FALSE;			
+		}
+		// --------------
+		pTransaction = OTTransaction::LoadBoxReceipt(theTransaction, lBoxType);
+		if (NULL == pTransaction)
+		{
+			OTLog::vError("OT_API_Transaction_GetBalanceAgreementSuccess: Error loading from abbreviated transaction: "
+						  "failed loading box receipt.\n");
+			return OT_FALSE;			
+		}
+		// ----------------
+		theTransAngel.SetCleanupTargetPointer(pTransaction);
+	}
+	else
+		pTransaction = &theTransaction;
+	// -----------------------------------------------------	
     // At this point, I actually have the transaction pointer, so let's return its success status
-	OTItem * pReplyItem = theTransaction.GetItem(OTItem::atBalanceStatement);
+	OTItem * pReplyItem = pTransaction->GetItem(OTItem::atBalanceStatement);
     
     if (NULL == pReplyItem)
-        pReplyItem = theTransaction.GetItem(OTItem::atTransactionStatement);
+        pReplyItem = pTransaction->GetItem(OTItem::atTransactionStatement);
     
     if (NULL == pReplyItem)
 	{
@@ -6298,7 +6617,7 @@ OT_BOOL OT_API_Message_GetBalanceAgreementSuccess(const char * SERVER_ID,
 	
 	OTLedger theLedger(theUserID, theAccountID, theServerID);
 	
-	if (false == theLedger.LoadContractFromString(strLedger))
+	if (false == theLedger.LoadLedgerFromString(strLedger))
 	{
 		OTString strAcctID(theAccountID);
 		OTLog::vError("OT_API_Message_GetBalanceAgreementSuccess: Error loading ledger from string. Acct ID:\n%s\n",
@@ -8138,7 +8457,7 @@ void OT_API_processInbox(const char * SERVER_ID,
 				   "SERVER_ID: %s \n"
 				   "USER_ID: %s \n"
 				   "ACCT_ID: %s \n"
-				   "ACCT_LEDGER: %s \n",
+				   "ACCT_LEDGER:\n%s\n\n",
 				   SERVER_ID, USER_ID, ACCT_ID, ACCT_LEDGER);
 	
 	OTIdentifier    theServerID(SERVER_ID), theUserID(USER_ID), theAcctID(ACCT_ID);
@@ -8146,10 +8465,10 @@ void OT_API_processInbox(const char * SERVER_ID,
 	
 	OTString temp1(SERVER_ID), temp2(USER_ID), temp3(ACCT_ID), temp4(ACCT_LEDGER);
 	OTLog::vOutput(0, 
-				   "SERVER_ID: %s \n"
+				   "\n\nSERVER_ID: %s \n"
 				   "USER_ID: %s \n"
 				   "ACCT_ID: %s \n"
-				   "ACCT_LEDGER: %s \n",
+				   "ACCT_LEDGER:\n%s\n\n",
 				   temp1.Get(), temp2.Get(), temp3.Get(), temp4.Get());
 	
 	g_OT_API.processInbox(theServerID, theUserID, theAcctID, strLedger);

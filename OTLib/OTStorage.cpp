@@ -2948,25 +2948,28 @@ namespace OTDB
 		
 		// TODO: If not, next I should actually create a .lock file for myself right here..
 		
-		// ----------------------------------------------
-		
-        bool bSuccess = false;
-
-        // ERASE the file here.
+		// ----------------------------------------------		
+		// SAVE to the file here. (a blank string.)
 		//
 		// Here's where the serialization code would be changed to CouchDB or whatever.
-		// In a key/value database, strOutput is the "key", and we're erasing the value that's stored 
-        // at the location denoted by that key.
+		// In a key/value database, szFilename is the "key" and strFinal.Get() is the "value".
 		//
-                
-        if ( remove( strOutput.c_str() ) != 0 )
-        {
-			OTLog::vError("Error erasing file in StorageFS::onEraseValueByKey: %s\n", 
+		std::ofstream ofs(strOutput.c_str(), std::ios::out | std::ios::binary);
+		
+		if (ofs.fail())
+		{
+			OTLog::vError("Error opening file in StorageFS::onEraseValueByKey: %s\n", 
 						  strOutput.c_str());
-            bSuccess = false;
-        }
-        else
-            bSuccess = true;        
+			return false;
+		}
+		
+		ofs.clear();
+		
+		ofs << "(This space intentionally left blank.)\n";
+		
+		bool bSuccess = ofs.good() ? true : false;
+		
+		ofs.close();
 		
 		// ------------------------------------
 		
