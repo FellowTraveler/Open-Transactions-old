@@ -3361,7 +3361,14 @@ bool OTPseudonym::Loadx509CertAndPrivateKey()
 	}
 	
 	// --------------------------------------------------------------------
-
+/*
+ Error reading private key from file in OTAsymmetricKey::LoadPrivateKey: certs/T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV
+ 
+ Although the ascii-armored file (certs/T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV) was read, LoadPrivateKey returned false.
+ 
+ OTPseudonym::LoadPrivateNym OTPseudonym::LoadPrivateNym: Failure calling Loadx509CertAndPrivateKey: T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV
+ */
+	
 	const OTString strFoldername(szFoldername);
 	const OTString strFilename(szFilename);
 	
@@ -3387,7 +3394,7 @@ bool OTPseudonym::Loadx509CertAndPrivateKey()
 		
 		if (!bPublic)
 		{
-			OTLog::vError("Although the ascii-armored file (%s%s%s) was read, LoadPublicKeyFromCert "
+			OTLog::vError("OTPseudonym::Loadx509CertAndPrivateKey: Although the ascii-armored file (%s%s%s) was read, LoadPublicKeyFromCert "
 						  "returned false.\n", szFoldername, OTLog::PathSeparator(), szFilename);
 			return false;
 		}
@@ -3399,7 +3406,7 @@ bool OTPseudonym::Loadx509CertAndPrivateKey()
 		
 		if (!bPrivate)
 		{
-			OTLog::vError("Although the ascii-armored file (%s%s%s) was read, LoadPrivateKey returned false.\n",
+			OTLog::vError("OTPseudonym::Loadx509CertAndPrivateKey: Although the ascii-armored file (%s%s%s) was read, LoadPrivateKey returned false.\n",
 					szFoldername, OTLog::PathSeparator(), szFilename);
 			return false;
 		}
@@ -3413,7 +3420,7 @@ bool OTPseudonym::Loadx509CertAndPrivateKey()
 	}
 	else
 	{
-		OTLog::vError("Failure in OTPseudonym::Loadx509CertAndPrivateKey, filename:\n%s%s%s\n", 
+		OTLog::vError("OTPseudonym::Loadx509CertAndPrivateKey: Failure in OTPseudonym::Loadx509CertAndPrivateKey, filename:\n%s%s%s\n", 
 					  szFoldername, OTLog::PathSeparator(), szFilename);
 		return false;
 	}
@@ -3456,7 +3463,7 @@ bool OTPseudonym::SetPublicKey(const OTString & strKey, bool bEscaped/*=true*/)
 			return m_pkeyPublic->LoadPublicKeyFromPGPKey(theArmor);
 		}
 		else {
-			OTLog::Output(2, "Failed extracting PGP public key from ascii-armored text.\n");
+			OTLog::Output(2, "OTPseudonym::SetPublicKey: Failed extracting PGP public key from ascii-armored text.\n");
 			return false;
 		}
 	}

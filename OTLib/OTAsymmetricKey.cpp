@@ -1476,7 +1476,7 @@ bool OTAsymmetricKey::LoadPrivateKey(const OTString & strFoldername, const OTStr
 	
 	if (false == OTDB::Exists(szFoldername, szFilename))
 	{
-		OTLog::vOutput(2, "Unable to find private key file in OTAsymmetricKey::LoadPrivateKey: %s%s%s\n", 
+		OTLog::vOutput(0, "OTAsymmetricKey::LoadPrivateKey: Unable to find private key file: %s%s%s\n", 
 					   szFoldername, OTLog::PathSeparator(), szFilename);
 		return false;
 	}
@@ -1513,13 +1513,13 @@ bool OTAsymmetricKey::LoadPrivateKey(const OTString & strFoldername, const OTStr
 		
 		if (NULL == m_pKey) 
 		{ 
-			OTLog::vError("Error reading private key from file in OTAsymmetricKey::LoadPrivateKey: %s%s%s\n", 
-						  szFoldername, OTLog::PathSeparator(), szFilename);
+			OTLog::vError("OTAsymmetricKey::LoadPrivateKey: Error reading private key from bio: %s%s%s. Contents:\n\n%s\n\n", 
+						  szFoldername, OTLog::PathSeparator(), szFilename, strFileContents.c_str());
 			return false; 
 		}
 		else 
 		{
-			OTLog::vOutput(3, "Successfully loaded private key:\n%s%s%s\n", 
+			OTLog::vOutput(3, "Successfully loaded private key: %s%s%s\n", 
 						   szFoldername, OTLog::PathSeparator(), szFilename);
 			return true;
 		}
@@ -1528,7 +1528,7 @@ bool OTAsymmetricKey::LoadPrivateKey(const OTString & strFoldername, const OTStr
 	if (NULL != bio)
 		BIO_free_all(bio);
 	
-	OTLog::vError("STRANGE error while loading private key:\n%s\n", strFilename.Get());
+	OTLog::vError("OTAsymmetricKey::LoadPrivateKey: STRANGE error while loading private key: %s\n", strFilename.Get());
 	return false;
 }
 

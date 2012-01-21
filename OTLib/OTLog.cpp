@@ -138,6 +138,7 @@
 #include <cassert>
 #include <iostream>
 
+
 #include <string> // The C++ one 
 
 
@@ -271,14 +272,36 @@ void OTLog::TransformFilePath(const char * szInput, OTString & strOutput)
 {
     if (NULL == szInput)
         return;
-    
+ 	
 #ifndef _WIN32 // if UNIX (NOT windows)
 	wordexp_t exp_result;
-	wordexp(szInput, &exp_result, 0);
 	
-	strOutput.Set(exp_result.we_wordv[0]);
-    
+	if (wordexp(szInput, &exp_result, 0))
+	{
+		OTLog::Error("OTLog::TransformFilePath: Error calling wordexp() to expand path.\n");
+		wordfree(&exp_result); 
+		strOutput.Set(szInput);
+		return;
+	}
+	// ----------------------------
+	
+	std::string str_Output("");
+	
+	// wordexp tokenizes by space (as well as expands, which is why I'm using it.)
+	// Therefore we need to iterate through the tokens, and create a single string
+	// with spaces between the tokens.
+	//
+	for (int i = 0; exp_result.we_wordv[i] != NULL; i++)
+	{
+		str_Output += exp_result.we_wordv[i];
+		
+		if (exp_result.we_wordv[i+1] != NULL)
+			str_Output += " ";
+	}
+	
 	wordfree(&exp_result); 
+
+	strOutput.Set(str_Output.c_str());    
 #else
 	strOutput.Set(szInput);
 #endif  
@@ -741,6 +764,15 @@ bool OTLog::ConfirmOrCreateFolder(const char * szFolderName)
 	
 	OTString strRawPath;
 	strRawPath.Format("%s%s%s", OTLog::Path(), OTLog::PathSeparator(), szFolderName);
+	
+//	OTLog::vError("**** Path: %s  Foldername: %s    Total: %s \n",
+//				  OTLog::Path(), szFolderName, strRawPath.Get());
+	/*ACTUAL OUTPUT:
+	 ****	Path: /Users/au/Library/Application  
+			Foldername: nyms
+			Total: "/Users/au/Library/Application/nyms" 
+
+	 */
 	
 	OTString strPath;
     OTLog::TransformFilePath(strRawPath.Get(), strPath);

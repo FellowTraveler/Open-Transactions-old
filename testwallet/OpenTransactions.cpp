@@ -505,6 +505,8 @@ bool OT_API::LoadConfigFile(const OTString & strMainPath)
 
 
 
+
+
 // Call this once per instance of OT_API.
 bool OT_API::Init(OTString & strClientPath)
 {
@@ -515,16 +517,24 @@ bool OT_API::Init(OTString & strClientPath)
 	//       folders away from OTLog and move it all over. Ugh.
 	// OR!! Maybe just code a mechanism so OTLog tracks the instances of OT_API.
 	
-	OT_ASSERT_MSG(strClientPath.Exists(), "Empty path passed to OT_API::Init");
+	OT_ASSERT_MSG(strClientPath.Exists(), "OT_API::Init: Empty path passed in.");
 	
 	OT_ASSERT_MSG(false == m_bInitialized, "OTAPI was already initialized, please do not call it twice.");
     // ---------------------------------------
-    
+	
     OTString strPATH_OUTPUT;
     
     OTLog::TransformFilePath(strClientPath.Get(), strPATH_OUTPUT);
     
-
+//	OTLog::vError("**** OT_API::Init: strClientPath: %s   strPATH_OUTPUT: %s \n",
+//				  strClientPath.Get(), strPATH_OUTPUT.Get());
+	/*
+	 ****	OT_API::Init:	
+	 strClientPath:		/Users/au/Library/Application Support/.ot/client_data
+	 strPATH_OUTPUT:	/Users/au/Library/Application 
+	 */
+	
+	
 	// At some point, remove this, since each instance of OT API should eventually store its OWN path.
 	OTLog::SetMainPath(strPATH_OUTPUT.Get()); // This currently does NOT support multiple instances of OT_API.  :-(
 	// -------------------------------------

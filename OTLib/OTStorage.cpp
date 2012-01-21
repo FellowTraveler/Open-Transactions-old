@@ -2647,7 +2647,7 @@ namespace OTDB
 		if (strFolder.length() < 1)
 		{
 			// Must at least have a folder name and a file name.
-			OTLog::Error("Folder has a zero length, unable to construct path.\n");
+			OTLog::Error("StorageFS::ConstructAndConfirmPath: Folder has a zero length, unable to construct path.\n");
 			
 			return -1;
 		}
@@ -2668,7 +2668,7 @@ namespace OTDB
 			
 			if (!bConfirmMAINFolder)
 			{
-				OTLog::vError("Unable to confirm or create folder: %s\n", strFolder.c_str());
+				OTLog::vError("StorageFS::ConstructAndConfirmPath: Unable to confirm or create folder: %s\n", strFolder.c_str());
 				return -1;
 			}
 			
@@ -2692,7 +2692,7 @@ namespace OTDB
 				
 				if (!bConfirmFirstFolder)
 				{
-					OTLog::vError("Unable to confirm or create folder: %s\n", strOnePath.Get());
+					OTLog::vError("StorageFS::ConstructAndConfirmPath: Unable to confirm or create folder: %s\n", strOnePath.Get());
 					return -1;
 				}
 				// -------------------
@@ -2714,7 +2714,7 @@ namespace OTDB
 					
 					if (!bConfirmSecondFolder)
 					{
-						OTLog::vError("Unable to confirm or create folder: %s\n", strTwoPath.Get());
+						OTLog::vError("StorageFS::ConstructAndConfirmPath: Unable to confirm or create folder: %s\n", strTwoPath.Get());
 						return -1;
 					}
 					// -------------------
@@ -2734,7 +2734,7 @@ namespace OTDB
 		strFinalPath.Format("%s%s%s", GetFullPath(), PathSeparator(), strOutput.c_str());
 		
 		strOutput = strFinalPath.Get();
-		
+				
 		return bConfirmed ? static_cast<long>(st.st_size) : 0;
 	}
 	
