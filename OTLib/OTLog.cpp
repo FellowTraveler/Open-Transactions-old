@@ -734,14 +734,16 @@ void OTLog::vError(const char *szError, ...)
 //
 bool OTLog::ConfirmOrCreateFolder(const char * szFolderName)
 {
-	OT_ASSERT(NULL != szFolderName);
-	
+	OT_ASSERT_MSG(NULL != szFolderName, "OTLog::ConfirmOrCreateFolder: Assert failed: NULL != szFolderName");
 	
 	// DIRECTORY IS PRESENT?
 	struct stat st;
 	
+	OTString strRawPath;
+	strRawPath.Format("%s%s%s", OTLog::Path(), OTLog::PathSeparator(), szFolderName);
+	
 	OTString strPath;
-	strPath.Format("%s%s%s", OTLog::Path(), OTLog::PathSeparator(), szFolderName);
+    OTLog::TransformFilePath(strRawPath.Get(), strPath);
 	
 	bool bDirIsPresent = (0 == stat(strPath.Get(), &st));
 	
@@ -793,9 +795,12 @@ bool OTLog::ConfirmFile(const char * szFileName)
 	// FILE IS PRESENT?
 	struct stat st;
 	
-	OTString strPath;
-	strPath.Format("%s%s%s", OTLog::Path(), OTLog::PathSeparator(), szFileName);
+	OTString strRawPath;
+	strRawPath.Format("%s%s%s", OTLog::Path(), OTLog::PathSeparator(), szFileName);
 	
+	OTString strPath;
+    OTLog::TransformFilePath(strRawPath.Get(), strPath);
+
 	return (0 == stat(strPath.Get(), &st));
 }
 
