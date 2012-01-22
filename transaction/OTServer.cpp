@@ -1744,7 +1744,12 @@ void OTServer::UserCmdGetTransactionNum(OTPseudonym & theNym, OTMessage & MsgIn,
 			OTLog::Error("Error getting next transaction number in OTServer::UserCmdGetTransactionNum\n");
 		}
 		// Drop in the Nymbox 
-		else if (msgOut.m_bSuccess = (theLedger.LoadNymbox() && theLedger.VerifyAccount(m_nymServer)) )
+		else if (msgOut.m_bSuccess =	(theLedger.LoadNymbox() && 
+//										 theLedger.VerifyAccount(m_nymServer) &&	// This forces ALL box receipts to load.
+										 theLedger.VerifyContractID() &&			// We don't need them right now, so we verify
+										 theLedger.VerifySignature(m_nymServer)		// everything else without loading them.
+										 ) // if loaded and verified.
+				 ) // if success
 		{
 			OTTransaction * pTransaction = OTTransaction::GenerateTransaction(theLedger, OTTransaction::blank, lTransNum);
 			
@@ -1852,7 +1857,12 @@ void OTServer::UserCmdSendUserMessage(OTPseudonym & theNym, OTMessage & MsgIn, O
 		OTLog::Error("Error getting next transaction number in OTServer::UserCmdSendUserMessage\n");
 	}
 	// Drop in the Nymbox 
-	else if (msgOut.m_bSuccess = (theLedger.LoadNymbox() && theLedger.VerifyAccount(m_nymServer)) )
+	else if (msgOut.m_bSuccess = (theLedger.LoadNymbox()				&&
+//								  theLedger.VerifyAccount(m_nymServer)	&&	// This loads all the Box Receipts, which is unnecessary.
+								  theLedger.VerifyContractID()			&&	// Instead, we'll verify the IDs and Signature only.
+								  theLedger.VerifySignature(m_nymServer)
+								  ) 
+			 )
 	{						
 		OTTransaction * pTransaction = OTTransaction::GenerateTransaction(theLedger, OTTransaction::message, lTransNum);
 		
@@ -6959,7 +6969,8 @@ void OTServer::DropReplyNoticeToNymbox(const OTIdentifier & SERVER_ID, const OTI
 	bool bSuccessLoadingNymbox = theNymbox.LoadNymbox();
 	
 	if (true == bSuccessLoadingNymbox)
-		bSuccessLoadingNymbox	= theNymbox.VerifyAccount(m_nymServer); // make sure it's all good.
+		bSuccessLoadingNymbox	= (theNymbox.VerifyContractID() && theNymbox.VerifySignature(m_nymServer));
+//		bSuccessLoadingNymbox	= theNymbox.VerifyAccount(m_nymServer); // make sure it's all good.
 	
 	// --------------------------------------------------------------------
 	if (false == bSuccessLoadingNymbox)
@@ -7465,7 +7476,12 @@ void OTServer::UserCmdGetBoxReceipt(OTPseudonym & theNym, OTMessage & MsgIn, OTM
 	// At this point, we have the box loaded. Now let's use it to 
 	// load the appropriate box receipt...
 	
-	if (bSuccessLoading && !bErrorCondition && pLedger->VerifyAccount(m_nymServer))
+	if (bSuccessLoading						&&
+		!bErrorCondition					&& 
+//		pLedger->VerifyAccount(m_nymServer)	&&	// This call causes all the Box Receipts to be loaded up and we don't need them here, except
+		pLedger->VerifyContractID()			&&	// for just one, so we're going to VerifyContractID and Signature instead. Then below, we'll
+		pLedger->VerifySignature(m_nymServer)	// just load the one we actually need.
+		)
 	{
 		OTTransaction * pTransaction = pLedger->GetTransaction(MsgIn.m_lTransactionNum);
 		if (NULL == pTransaction)
@@ -7479,7 +7495,7 @@ void OTServer::UserCmdGetBoxReceipt(OTPseudonym & theNym, OTMessage & MsgIn, OTM
 		}
 		else
 		{
-//			pLedger->LoadBoxReceipt(MsgIn.m_lTransactionNum); // UPDATE: VerifyAccount (above) ALREADY loads all the box receipts.
+			pLedger->LoadBoxReceipt(MsgIn.m_lTransactionNum);
 			
 			// The above call will replace pTransaction, inside pLedger, with the full version
 			// (instead of the abbreviated version) of that transaction, meaning that the pTransaction
@@ -7488,14 +7504,17 @@ void OTServer::UserCmdGetBoxReceipt(OTPseudonym & theNym, OTMessage & MsgIn, OTM
 			// failed or not (perhaps it's legacy data and is already not abbreviated, and thus the
 			// LoadBoxReceipt call failed, but that's doesn't mean we're going to fail HERE, now does it?)
 			//
-//			pTransaction = pLedger->GetTransaction(MsgIn.m_lTransactionNum); // UPDATE: VerifyAccount (above) ALREADY loads all the box receipts.
-			
-			if (!pTransaction->IsAbbreviated()) // Shouldn't be, since VerifyAccount() (above) already loads all the box receipts.
+			pTransaction = pLedger->GetTransaction(MsgIn.m_lTransactionNum); 
+
+			if ((NULL != pTransaction)				&& 
+				!pTransaction->IsAbbreviated()		&&
+				pTransaction->VerifyContractID()	&&
+				pTransaction->VerifySignature(m_nymServer)
+				) 
 			{
 				// Okay so after finding it, then calling LoadBoxReceipt(), then finding it again,
-				// it's definitely not abbreviated by this point. 
-				// Todo:  Any other security verification here, on the transaction? LoadBoxReceipt()
-				// already calls VerifyBoxReceipt(), FYI.
+				// it's definitely not abbreviated by this point. Success!
+				// LoadBoxReceipt() already calls VerifyBoxReceipt(), FYI.
 				//
 				const OTString strBoxReceipt(*pTransaction);
 				OT_ASSERT(strBoxReceipt.Exists());
@@ -7511,7 +7530,7 @@ void OTServer::UserCmdGetBoxReceipt(OTPseudonym & theNym, OTMessage & MsgIn, OTM
 			else
 			{
 				OTLog::vError("OTServer::UserCmdGetBoxReceipt: User requested a transaction number (%ld) that's "
-							  "failing to retrieve from the %s, AFTER calling LoadBoxReceipt(). (Though it worked BEFORE.) "
+							  "failing to retrieve from the %s, AFTER calling LoadBoxReceipt(). (Though it worked BEFORE calling it.) "
 							  "UserID (%s) and AccountID (%s) FYI. IsAbbreviated == %s\n", 
 							  MsgIn.m_lTransactionNum, 
 							  (MsgIn.m_lDepth == 0) ? "nymbox" : ((MsgIn.m_lDepth == 1) ? "inbox" : "outbox"), // outbox is 2.
@@ -7697,7 +7716,7 @@ void OTServer::UserCmdGetNymbox(OTPseudonym & theNym, OTMessage & MsgIn, OTMessa
 		}
 		
 		if (!msgOut.m_bSuccess)
-			OTLog::Error("OTServer::UserCmdGetNymbox: VerifyAccount() Failed on Nymbox after loading.\n");
+			OTLog::Error("OTServer::UserCmdGetNymbox: Verification failed on Nymbox after loading.\n");
 	}
 	
 	if (true == msgOut.m_bSuccess)
@@ -7762,7 +7781,7 @@ void OTServer::UserCmdGetInbox(OTPseudonym & theNym, OTMessage & MsgIn, OTMessag
 		}
 		
 		if (!msgOut.m_bSuccess)
-			OTLog::Error("OTServer::UserCmdGetInbox: VerifyAccount() Failed on Inbox after loading.\n");
+			OTLog::Error("OTServer::UserCmdGetInbox: Verification failed on Inbox after loading.\n");
 	}
 			
 	if (true == msgOut.m_bSuccess)
@@ -7827,7 +7846,7 @@ void OTServer::UserCmdGetOutbox(OTPseudonym & theNym, OTMessage & MsgIn, OTMessa
 		}
 		
 		if (!msgOut.m_bSuccess)
-			OTLog::Error("OTServer::UserCmdGetOutbox: VerifyAccount() Failed on Outbox after loading.\n");
+			OTLog::Error("OTServer::UserCmdGetOutbox: Verification Failed on Outbox after loading.\n");
 	}
 	
 	if (true == msgOut.m_bSuccess)
@@ -10141,7 +10160,8 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 								bool bSuccessLoadingNymbox	= theNymbox.LoadNymbox();
 								
 								if (true == bSuccessLoadingNymbox) // that's strange, this user didn't exist... but maybe I allow people to drop notes anyway, so then the nymbox might already exist, with usage tokens and messages inside....
-									bSuccessLoadingNymbox	= theNymbox.VerifyAccount(m_nymServer); // make sure it's all good.
+									bSuccessLoadingNymbox	= (theNymbox.VerifyContractID() && theNymbox.VerifyAccount(m_nymServer));
+//									bSuccessLoadingNymbox	= (theNymbox.VerifyAccount(m_nymServer)); // (No need here to load all the Box Receipts)
 								else
 								{
 									bSuccessLoadingNymbox	= theNymbox.GenerateLedger(theNewNymID, SERVER_ID, OTLedger::nymbox, true); // bGenerateFile=true
