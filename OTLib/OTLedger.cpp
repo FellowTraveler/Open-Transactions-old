@@ -827,6 +827,8 @@ void OTLedger::InitLedger()
 	// Inboxes and Outboxes are generated with the right type, with files.
 	// Until the GenerateLedger function is called, message is the default type.
 	m_Type = OTLedger::message;
+	
+	m_bLoadedLegacyData = false;
 }
 
 
@@ -834,7 +836,7 @@ void OTLedger::InitLedger()
 // Since a ledger is normally used as an inbox for a specific account, in a specific file,
 // then I've decided to restrict ledgers to a single account.
 OTLedger::OTLedger(const OTIdentifier & theUserID, const OTIdentifier & theAccountID, const OTIdentifier & theServerID)
-: OTTransactionType(theUserID, theAccountID, theServerID), m_Type(OTLedger::message)
+: OTTransactionType(theUserID, theAccountID, theServerID), m_Type(OTLedger::message), m_bLoadedLegacyData(false)
 {
 	InitLedger();
 }
@@ -844,7 +846,7 @@ OTLedger::OTLedger(const OTIdentifier & theUserID, const OTIdentifier & theAccou
 // you only know their account number, not their user ID. So you call this function to get it
 // loaded up, and the UserID will hopefully be loaded up with the rest of it.
 OTLedger::OTLedger(const OTIdentifier & theAccountID, const OTIdentifier & theServerID)
-: OTTransactionType(), m_Type(OTLedger::message)
+: OTTransactionType(), m_Type(OTLedger::message), m_bLoadedLegacyData(false)
 {
 	InitLedger();
 	
@@ -853,7 +855,7 @@ OTLedger::OTLedger(const OTIdentifier & theAccountID, const OTIdentifier & theSe
 }
 
 // This is private now and hopefully will stay that way.
-OTLedger::OTLedger() : OTTransactionType(), m_Type(OTLedger::message)
+OTLedger::OTLedger() : OTTransactionType(), m_Type(OTLedger::message), m_bLoadedLegacyData(false)
 {
 	InitLedger();
 }
@@ -889,7 +891,7 @@ bool OTLedger::RemoveTransaction(long lTransactionNum) // if false, transaction 
 		
 		m_mapTransactions.erase(it);
 		delete pTransaction;
-		return true;		
+		return true;
 	}
 	
 	return false;
@@ -1834,6 +1836,7 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 						// and re-save that box receipt if it doesn't exist.
 						//
 						OTLog::vOutput(0, "--- Apparently this is old data (the transaction is still stored inside the ledger itself)... \n");
+						m_bLoadedLegacyData = true; // Only place this is set true.
 						
 						const int nBoxType = static_cast<int>(this->GetType());
 						
@@ -1851,7 +1854,7 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 							
 							const long lBoxType = static_cast<long>(nBoxType);
 							
-							if (false == pTransaction->SaveBoxReceipt(lBoxType))
+							if (false == pTransaction->SaveBoxReceipt(lBoxType)) //  <======== SAVE BOX RECEIPT
 								OTLog::Error("--- FAILED trying to save BoxReceipt from legacy data to local storage!\n");
 						}
 					}

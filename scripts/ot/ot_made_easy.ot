@@ -1,0 +1,184 @@
+// ------------------------------------------------------------------
+// This is a library written in OTScript, which makes the OT-API
+// much easier to use from inside your own OTScripts, by providing
+// a higher-level layer.
+//
+// Think of it as the "standard header" for using OT from a script.
+//
+// There is similar code to this in Java also, in the OTAPI_Func and
+// Utility classes, in the Moneychanger project. They also make the 
+// OTAPI much easier to use, by providing a higher-level layer.
+//
+//  http://www.chaiscript.com/doxygen/namespace_chai_script___language.html
+//
+
+
+
+use("otapi.ot")
+
+
+// *************************************************************************************
+
+ 
+ 
+// ---------------------------------------
+	attr OT_ME::m_strFolder
+	attr OT_ME::m_strWallet
+// ---------------------------------------
+    def OT_ME::OT_ME(strFolder, strWallet) 
+	{
+		if (!VerifyStringVal(strFolder))
+			OT_API_Output(0, "OT_ME::OT_ME: Empty client data folder!\n");
+		if (!VerifyStringVal(strWallet))
+			OT_API_Output(0, "OT_ME::OT_ME: Empty wallet filename!\n");
+		
+		this.m_strFolder = strFolder;
+		this.m_strWallet = strWallet;
+    }
+// ---------------------------------------
+	
+ 
+ 
+ // This is even HIGHER level than otapi.ot!!  This uses those calls to provide a
+ // single function interface to most of OT.  Like, "WithdrawVoucher" would go here,
+ // and basically copy the Moneychanger code.
+ 
+ 
+ 
+ 
+
+/*
+VARIABLES:
+
+	var bSuccess = false;
+
+You can use reference assignment to avoid copying:
+	var a := A();
+	
+(A is a class instantiating, and a is a reference to that instance)
+
+// ---------------------------------
+
+FUNCTIONS:
+
+	def myfun(x) { print(x); }
+	myfun(10);
+ 
+// ---------------------------------
+
+CONDITIONALS:
+
+ var b = true;
+ 
+ if (b) {
+   // do something
+ } else if (c < 10) {
+   // do something else
+ } else {
+   // or do this
+ }
+ 
+// ---------------------------------
+ 
+WHILE LOOP:
+
+	var i = 0;
+	while (i < 10)
+	{
+		// do something
+		++i;
+	}
+ 
+// ---------------------------------
+
+FOR LOOP:
+ 
+	for (var i = 0; i < 10; ++i)
+	{
+		// do something
+	}
+ 
+// ---------------------------------
+
+RANGES:
+
+for_each([1, 2, 3], print)
+ 1
+ 2
+ 3
+ 
+ (Notice the Range is the first argument, inside the [] operator.)
+ 
+// ---------------------------------
+
+FUNCTION GUARDS:
+
+ eval> def myfun2(x) : x < 10  { print("less than 10"); }
+ eval> def myfun2(x) : x >= 10 { print("10 or greater"); }
+ eval> myfun2(5)
+ less than 10
+ eval> myfun2(12)
+ 10 or greater
+ 
+// ---------------------------------
+
+LAMBDA FUNCTIONS and FUNCTION OBJECTS:
+
+ You can define Lambda functions:
+ var f = fun(x) { x + 2; }
+
+ Functions are first class types in OTScript and can be used as variables:
+ eval> var p = print;
+ eval> p(1);
+ 1
+ 
+ They can also be passed to functions:
+ eval> def callfunc(f, lhs, rhs) { return f(lhs, rhs); }
+ eval> def dosomething(lhs, rhs) { print("lhs: ${lhs}, rhs: ${rhs}"); }
+ eval> callfunc(dosomething, 1, 2);
+ lhs: 1, rhs: 2
+ 
+// ---------------------------------
+ 
+CLASSES:
+
+ You can also create your own classes:
+ 
+	attr Vector3::x
+	attr Vector3::y
+	attr Vector3::z
+
+	def Vector3::Vector3(x, y, z) {
+		this.x = x
+		this.y = y
+		this.z = z
+	}
+
+	var v = Vector3(1,2,3);
+	assert_equal(1, v.x);
+
+ // ---------------------------------
+ 
+  attr Rectangle::height
+  attr Rectangle::width
+  def Rectangle::Rectangle() { this.height = 10; this.width = 20 }
+  def Rectangle::area() { this.height * this.width }
+ 
+  var rect = Rectangle()
+  rect.height = 30
+  print(rect.area())
+ 
+ // ---------------------------------
+
+ // ---------------------------------
+
+ // ---------------------------------
+
+ // ---------------------------------
+
+ // ---------------------------------
+
+ // ---------------------------------
+
+
+*/

@@ -176,7 +176,9 @@ public:
 	};
 	
 	ledgerType	m_Type;
-		
+	
+	bool		m_bLoadedLegacyData;	// So the server can tell if it just loaded a legacy box or a hashed box. (Legacy boxes stored ALL of the receipts IN the box. No more.)
+	
 protected:
 	bool LoadGeneric(ledgerType theType, const OTString * pString=NULL);
 	bool SaveGeneric(ledgerType theType);
@@ -184,6 +186,7 @@ protected:
 public:
 	inline ledgerType GetType() const { return m_Type; }
 	
+	bool	LoadedLegacyData() const { return m_bLoadedLegacyData; }
 	
 	// This function assumes that this is an INBOX.
 	// If you don't use an INBOX to call this method, then it will return NULL immediately.

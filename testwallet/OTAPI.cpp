@@ -8964,7 +8964,8 @@ const char * OT_API_Message_GetNewAssetTypeID(const char * THE_MESSAGE)
 	// contain a ledger. (Don't want to pass back whatever it DOES contain
 	// in that case, now do I?)
 	//
-	if (false == theMessage.m_strCommand.Compare("@issueAssetType"))
+	if ((false == theMessage.m_strCommand.Compare("@issueAssetType")) &&
+		(false == theMessage.m_strCommand.Compare("@issueBasket")))
 	{
 		OTLog::vOutput(0, "OT_API_Message_GetNewAssetTypeID: Wrong message type: %s\n", 
 					   theMessage.m_strCommand.Get());

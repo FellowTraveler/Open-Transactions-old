@@ -7678,7 +7678,23 @@ void OTServer::UserCmdGetNymbox(OTPseudonym & theNym, OTMessage & MsgIn, OTMessa
 		OTLog::Error("OTServer::UserCmdGetNymbox: Failed trying to load Nymbox from storage.\n");
 	else
 	{
-		msgOut.m_bSuccess = theLedger.VerifyAccount(m_nymServer);
+		// We do NOT call VerifyAccount in this function (because we don't need to) and thus we do NOT
+		// force the box receipts to be loaded here (which happens inside that call.) But we DO verify
+		// the IDs and the Signature, of course.
+		//
+		msgOut.m_bSuccess = (theLedger.VerifyContractID() && theLedger.VerifySignature(m_nymServer));
+		
+		// If we loaded old data in this file... (when whole receipts were stored in boxes.)
+		//
+		if (msgOut.m_bSuccess && theLedger.LoadedLegacyData())	// (which automatically saves the box receipt as the old data is loaded...)
+		{
+//			msgOut.m_bSuccess = theLedger.VerifyAccount(m_nymServer);	// Then Verify, which forces a LoadBoxReceipts... (
+			
+			theLedger.ReleaseSignatures();				// UPDATE: We do NOT force the loading here, since they aren't needed.
+			theLedger.SignContract(m_nymServer);		// Waste of resources. Instead, we recognize that it was old data, and so
+			theLedger.SaveContract();					// we gracefully re-save in the new format, so it won't repeatedly be 
+			theLedger.SaveNymbox();						// loaded over and over again in the large filesize.
+		}
 		
 		if (!msgOut.m_bSuccess)
 			OTLog::Error("OTServer::UserCmdGetNymbox: VerifyAccount() Failed on Nymbox after loading.\n");
@@ -7727,7 +7743,23 @@ void OTServer::UserCmdGetInbox(OTPseudonym & theNym, OTMessage & MsgIn, OTMessag
 		OTLog::Error("OTServer::UserCmdGetInbox: Failed trying to load Inbox from storage.\n");
 	else
 	{
-		msgOut.m_bSuccess = theLedger.VerifyAccount(m_nymServer);
+		// We do NOT call VerifyAccount in this function (because we don't need to) and thus we do NOT
+		// force the box receipts to be loaded here (which happens inside that call.) But we DO verify
+		// the IDs and the Signature, of course.
+		//
+		msgOut.m_bSuccess = (theLedger.VerifyContractID() && theLedger.VerifySignature(m_nymServer));
+		
+		// If we loaded old data in this file... (when whole receipts were stored in boxes.)
+		//
+		if (msgOut.m_bSuccess && theLedger.LoadedLegacyData())	// (which automatically saves the box receipt as the old data is loaded...)
+		{
+//			msgOut.m_bSuccess = theLedger.VerifyAccount(m_nymServer);	// Then Verify, which forces a LoadBoxReceipts... (
+			
+			theLedger.ReleaseSignatures();				// UPDATE: We do NOT force the loading here, since they aren't needed.
+			theLedger.SignContract(m_nymServer);		// Waste of resources. Instead, we recognize that it was old data, and so
+			theLedger.SaveContract();					// we gracefully re-save in the new format, so it won't repeatedly be 
+			theLedger.SaveInbox();						// loaded over and over again in the large filesize.
+		}
 		
 		if (!msgOut.m_bSuccess)
 			OTLog::Error("OTServer::UserCmdGetInbox: VerifyAccount() Failed on Inbox after loading.\n");
@@ -7776,7 +7808,23 @@ void OTServer::UserCmdGetOutbox(OTPseudonym & theNym, OTMessage & MsgIn, OTMessa
 		OTLog::Error("OTServer::UserCmdGetOutbox: Failed trying to load Outbox from storage.\n");
 	else
 	{
-		msgOut.m_bSuccess = theLedger.VerifyAccount(m_nymServer);
+		// We do NOT call VerifyAccount in this function (because we don't need to) and thus we do NOT
+		// force the box receipts to be loaded here (which happens inside that call.) But we DO verify
+		// the IDs and the Signature, of course.
+		//
+		msgOut.m_bSuccess = (theLedger.VerifyContractID() && theLedger.VerifySignature(m_nymServer));
+		
+		// If we loaded old data in this file... (when whole receipts were stored in boxes.)
+		//
+		if (msgOut.m_bSuccess && theLedger.LoadedLegacyData())	// (which automatically saves the box receipt as the old data is loaded...)
+		{
+//			msgOut.m_bSuccess = theLedger.VerifyAccount(m_nymServer);	// Then Verify, which forces a LoadBoxReceipts... (
+			
+			theLedger.ReleaseSignatures();				// UPDATE: We do NOT force the loading here, since they aren't needed.
+			theLedger.SignContract(m_nymServer);		// Waste of resources. Instead, we recognize that it was old data, and so
+			theLedger.SaveContract();					// we gracefully re-save in the new format, so it won't repeatedly be 
+			theLedger.SaveOutbox();						// loaded over and over again in the large filesize.
+		}
 		
 		if (!msgOut.m_bSuccess)
 			OTLog::Error("OTServer::UserCmdGetOutbox: VerifyAccount() Failed on Outbox after loading.\n");
