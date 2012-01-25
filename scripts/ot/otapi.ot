@@ -13,17 +13,6 @@
 //
 
 
-OT_API_Output(0, "TOP: otapi.ot \n");	
-
-
-OT_API_Output(0, "BEFORE: use(\"ot_utility.ot\")\n");	
-use("../ot/ot_utility.ot")
-
-
-OT_API_Output(0, "AFTER: use(\"ot_utility.ot\")\n");	
-
-
-
 /*
 VARIABLES:
 
@@ -232,13 +221,11 @@ CLASSES:
 */
 // -----------------------------------
 
-	attr OTAPI_Func::MsgUtil
 
 // -----------------------------------
 
 	def OTAPI_Func::InitCustom()
 	{
-		this.MsgUtil					:= Utility();
 		
 //		this.serverID		
 //		this.nymID
@@ -289,27 +276,25 @@ CLASSES:
   
     def OTAPI_Func::OTAPI_Func() // 0 args
 	{
-		OT_API_Output(0, "(Version of OTAPI_Func with 0 arguments.)\n");	
+//		OT_API_Output(0, "(Version of OTAPI_Func with 0 arguments.)\n");	
 		
 		this.InitCustom()
     }
 // ---------------------------------------
 
-
-
    
     def OTAPI_Func::OTAPI_Func(theType, p_serverID, p_nymID) // 3 args
 	{
-		OT_API_Output(0, "(Version of OTAPI_Func with 3 arguments.)\n");	
+//		OT_API_Output(0, "(Version of OTAPI_Func with 3 arguments.)\n");	
 		
 		this.InitCustom()
 		// ---------------------------
 		var strError = "ERROR! Empty string passed to OTAPI_Func.OTAPI_Func() as: ";
-
 		if (!VerifyStringVal(p_serverID))
 		{	OT_API_Output(0, concat(strError, "p_serverID")); }
 		if (!VerifyStringVal(p_nymID))
 		{	OT_API_Output(0, concat(strError, "p_nymID")); }
+		// ---------------------------
 
         this.funcType   = theType;
         this.serverID   = p_serverID;
@@ -322,23 +307,18 @@ CLASSES:
 	
     def OTAPI_Func::OTAPI_Func(theType, p_serverID, p_nymID, p_strParam) // 4 args
 	{
-		
-		OT_API_Output(0, "(Version of OTAPI_Func with 4 arguments.)\n");	
+//		OT_API_Output(0, "(Version of OTAPI_Func with 4 arguments.)\n");	
 		
 		this.InitCustom()
 		// ---------------------------
 		var strError = "ERROR! Empty string passed to OTAPI_Func.OTAPI_Func() as: ";
-
-		OT_API_Output(0, "(Version of OTAPI_Func with 4.1 arguments.)\n");	
-
 		if (!VerifyStringVal(p_serverID))
 		{	OT_API_Output(0, concat(strError, "p_serverID")); }
 		if (!VerifyStringVal(p_nymID))
 		{	OT_API_Output(0, concat(strError, "p_nymID")); }
 		if (!VerifyStringVal(p_strParam))
 		{	OT_API_Output(0, concat(strError, "p_strParam")); }
-
-		OT_API_Output(0, "(Version of OTAPI_Func with 4.2 arguments.)\n");	
+		// ---------------------------
 
         this.funcType   = theType;
         this.serverID   = p_serverID;
@@ -346,8 +326,6 @@ CLASSES:
         this.nTransNumsNeeded = 1;
         this.bBool      = false;
         
-		OT_API_Output(0, "(Version of OTAPI_Func with 4.3 arguments.)\n");	
-
 		if (theType == this.ISSUE_BASKET)
 		{
 			this.basket     = p_strParam;
@@ -370,22 +348,18 @@ CLASSES:
 		}
 		else
 		{
-			OT_API_Output(0, "ERROR! WRONG TYPE passed to OTAPI_Func.OTAPI_Func() ERROR!!!!!!");		
+			OT_API_Output(0, "ERROR! WRONG TYPE passed to OTAPI_Func.OTAPI_Func()\n");		
 		}
-				OT_API_Output(0, "(Version of OTAPI_Func with 4.4 arguments.)\n");	
-
     }
 	// ---------------------------------------
 
 	def OTAPI_Func::OTAPI_Func(theType, p_serverID, p_nymID, p_strParam, p_strData) // 5 args
 	{
-		OT_API_Output(0, "(Version of OTAPI_Func with 5 arguments.)\n");	
-		
+//		OT_API_Output(0, "(Version of OTAPI_Func with 5 arguments.)\n");	
 
 		this.InitCustom()
 		// ---------------------------
 		var strError = "ERROR! Empty string passed to OTAPI_Func.OTAPI_Func() as: ";
-
 		if (!VerifyStringVal(p_serverID))
 		{	OT_API_Output(0, concat(strError, "p_serverID")); }
 		if (!VerifyStringVal(p_nymID))
@@ -395,6 +369,7 @@ CLASSES:
 		{	OT_API_Output(0, concat(strError, "p_strParam")); }
 		if (!VerifyStringVal(p_strData))
 		{	OT_API_Output(0, concat(strError, "p_strData")); }
+		// ---------------------------
 
         this.funcType   = theType;
         this.serverID   = p_serverID;
@@ -419,7 +394,7 @@ CLASSES:
 		}
 		else
 		{
-			OT_API_Output(0, "ERROR! WRONG TYPE passed to OTAPI_Func.OTAPI_Func() ERROR!!!!!!");		
+			OT_API_Output(0, "ERROR! WRONG TYPE passed to OTAPI_Func.OTAPI_Func()\n");		
 		}
     }
 // ---------------------------------------
@@ -428,13 +403,11 @@ CLASSES:
 	
     def OTAPI_Func::OTAPI_Func(theType, p_serverID, p_nymID, p_nymID2, p_strData, p_strData2) // 6 args
 	{
-		OT_API_Output(0, "(Version of OTAPI_Func with 6 arguments.)\n");	
-		
-	
+//		OT_API_Output(0, "(Version of OTAPI_Func with 6 arguments.)\n");	
+
 		this.InitCustom()
 		// ---------------------------
 		var strError = "ERROR! Empty string passed to OTAPI_Func.OTAPI_Func() as: ";
-
 		if (!VerifyStringVal(p_serverID))
 		{	OT_API_Output(0, concat(strError, "p_serverID")); }
 		if (!VerifyStringVal(p_nymID))
@@ -445,6 +418,7 @@ CLASSES:
 		{	OT_API_Output(0, concat(strError, "p_strData")); }
 		if (!VerifyStringVal(p_strData2))
 		{	OT_API_Output(0, concat(strError, "p_strData2")); }
+		// ---------------------------
 
         this.funcType   = theType;
         this.serverID   = p_serverID;
@@ -471,25 +445,24 @@ CLASSES:
 	
     def OTAPI_Func::OTAPI_Func(theType, p_serverID, p_nymID, p_accountID, p_strParam, p_strData, p_strData2) // 7 args
 	{
-		OT_API_Output(0, "(Version of OTAPI_Func with 7 arguments.)\n");	
+//		OT_API_Output(0, "(Version of OTAPI_Func with 7 arguments.)\n");	
 		
 		this.InitCustom()
 		// ---------------------------
 		var strError = "ERROR! Empty string passed to OTAPI_Func.OTAPI_Func() as: ";
-
 		if (!VerifyStringVal(p_serverID))
 		{	OT_API_Output(0, concat(strError, "p_serverID")); }
 		if (!VerifyStringVal(p_nymID))
 		{	OT_API_Output(0, concat(strError, "p_nymID")); }
 		if (!VerifyStringVal(p_accountID))
 		{	OT_API_Output(0, concat(strError, "p_accountID")); }
-
 		if (!VerifyStringVal(p_strParam))
 		{	OT_API_Output(0, concat(strError, "p_strParam")); }
 		if (!VerifyStringVal(p_strData))
 		{	OT_API_Output(0, concat(strError, "p_strData")); }
 		if (!VerifyStringVal(p_strData2))
 		{	OT_API_Output(0, concat(strError, "p_strData2")); }
+		// ---------------------------
 
         this.funcType   = theType;
         this.serverID   = p_serverID;
@@ -518,15 +491,15 @@ CLASSES:
 	
 	// ---------------------------------------
 
-	OT_API_Output(0, "(Version of OTAPI_Func with 8 arguments.)\n");	
 		
     def OTAPI_Func::OTAPI_Func(theType, p_serverID, p_nymID, p_assetID,  // 8 args
             p_basket, p_accountID, p_bBool, p_nTransNumsNeeded) 
 	{
+//		OT_API_Output(0, "(Version of OTAPI_Func with 8 arguments.)\n");	
+
 		this.InitCustom()
 		// ---------------------------
 		var strError = "ERROR! Empty string passed to OTAPI_Func.OTAPI_Func() as: ";
-
 		if (!VerifyStringVal(p_serverID))
 		{	OT_API_Output(0, concat(strError, "p_serverID")); }
 		if (!VerifyStringVal(p_nymID))
@@ -537,7 +510,8 @@ CLASSES:
 		{	OT_API_Output(0, concat(strError, "p_accountID")); }
 		if (!VerifyStringVal(p_basket))
 		{	OT_API_Output(0, concat(strError, "p_basket")); }
- 
+ 		// ---------------------------
+
         this.funcType   = theType;
         this.serverID   = p_serverID;
         this.nymID      = p_nymID;
@@ -549,15 +523,15 @@ CLASSES:
     }
 	// ---------------------------------------
 	
-	OT_API_Output(0, "(Version of OTAPI_Func with 12 arguments.)\n");	
 		
 
 	def OTAPI_Func::OTAPI_Func(theType, p_serverID, p_nymID, assetTypeID, assetAccountID, currencyTypeID, currencyAcctID, scale, minIncrement, quantity, price, bSelling)		// 12 args
 	{
+//		OT_API_Output(0, "(Version of OTAPI_Func with 12 arguments.)\n");	
+
 		this.InitCustom()
 		// ---------------------------
 		var strError = "ERROR! Empty string passed to OTAPI_Func.OTAPI_Func() as: ";
-
 		if (!VerifyStringVal(p_serverID))
 		{	OT_API_Output(0, concat(strError, "p_serverID")); }
 		if (!VerifyStringVal(p_nymID))
@@ -578,7 +552,8 @@ CLASSES:
 		{	OT_API_Output(0, concat(strError, "quantity")); }
 		if (!VerifyStringVal(price))
 		{	OT_API_Output(0, concat(strError, "price")); }
-        
+		// ---------------------------
+
         this.funcType   = theType;
         this.serverID   = p_serverID;
         this.nymID      = p_nymID;
@@ -604,7 +579,7 @@ CLASSES:
 		
 		if (this.funcType == this.CHECK_USER)
 		{	OT_API_checkUser(this.serverID, this.nymID, this.nymID2);	}
-		if (this.funcType == this.CREATE_USER_ACCT)
+		else if (this.funcType == this.CREATE_USER_ACCT)
 		{	OT_API_createUserAccount(this.serverID, this.nymID);	}
 		else if (this.funcType == this.DELETE_USER_ACCT)
 		{	OT_API_deleteUserAccount(this.serverID, this.nymID);	}
@@ -657,7 +632,8 @@ CLASSES:
                         this.strData, this.strData2, this.strData3, this.strData4, the_bool);	}
 		else
 		{
-			OT_API_Output(0, "ERROR! OTAPI_Func.Send() activated, with bad function type!!!! ERROR!");
+			OT_API_Output(0, "ERROR! OTAPI_Func.Send() activated, with bad function type: ");
+			OT_API_Output(0, concat(to_string(this.funcType),"\n"));
 		}
     }
     
@@ -668,12 +644,12 @@ CLASSES:
     //
     def OTAPI_Func::SendRequest(theFunction, IN_FUNCTION)  
 	{
-		OT_API_Output(0, "DEBUGGING: TOP OF OTAPI_Func::SendRequest \n");
+		var MsgUtil	= Utility();
 
         var serverResponseMessage = "";
         
         OT_API_FlushMessageBuffer();
-        theFunction.Run(); // <===== FIRST ATTEMPT            
+        theFunction.Run(); // <===== FIRST ATTEMPT
         MsgUtil.delay();
         serverResponseMessage = OT_API_PopMessageBuffer();
 
@@ -697,6 +673,7 @@ CLASSES:
                 }
             }
         }
+		
         return serverResponseMessage;
     }
     
@@ -706,7 +683,7 @@ CLASSES:
 	
     def OTAPI_Func::SendTransaction(theFunction, IN_FUNCTION)  
 	{
-		OT_API_Output(0, "DEBUGGING: TOP OF OTAPI_Func::SendTransaction \n");
+		var MsgUtil	= Utility();
 	
         var	serverResponseMessage = "";
         var	bTrue = true;
@@ -741,7 +718,6 @@ CLASSES:
 		// ---------------------------
         if (!bTrue || (OT_API_GetNym_TransactionNumCount(theFunction.serverID, theFunction.nymID) < theFunction.nTransNumsNeeded)) 
 		{
-			
             OT_API_Output(0, concat(concat(strLocation, " , failed to get transaction numbers, OT_API_GetNym_TransactionNumCount:"), 
                     OT_API_GetNym_TransactionNumCount(theFunction.serverID, theFunction.nymID)));
             return "";
@@ -768,7 +744,7 @@ CLASSES:
 		
         var  bBalanceAgreement = false;
 		
-		if (1 == OT_API_Message_GetBalanceAgreementSuccess(theFunction.serverID, 
+		if (true == OT_API_Message_GetBalanceAgreementSuccess(theFunction.serverID, 
                     theFunction.nymID, 
                     theFunction.accountID, 
                     serverResponseMessage));
@@ -839,7 +815,7 @@ CLASSES:
               // that case as well anyway. Since we already went through the request number stuff above,
               // there's no point / need in repeating it.
               //
-            else if (0 == OT_API_Message_GetBalanceAgreementSuccess(theFunction.serverID,  // Failure
+            else if (false == OT_API_Message_GetBalanceAgreementSuccess(theFunction.serverID,  // Failure
                     
                     theFunction.nymID, 
                     theFunction.accountID, 
@@ -854,7 +830,7 @@ CLASSES:
         // *********************************************************************************
         // Was transaction successful?
 
-        if (0 == OT_API_Message_GetTransactionSuccess(theFunction.serverID, // Failure. 
+        if (false == OT_API_Message_GetTransactionSuccess(theFunction.serverID, // Failure. 
                 theFunction.nymID, 
                 theFunction.accountID, 
                 serverResponseMessage)) 

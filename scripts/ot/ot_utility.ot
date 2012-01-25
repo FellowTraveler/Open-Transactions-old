@@ -15,8 +15,6 @@
 //
 
 
-OT_API_Output(0, "TOP: ot_utility.ot \n");	
-
 // ---------------------------------------
 	def VerifyStringVal(strValue)
 	{
@@ -34,12 +32,11 @@ OT_API_Output(0, "TOP: ot_utility.ot \n");
 // ---------------------------------------
 	def VerifyMessageSuccess(strMessage)
 	{
-		if (strMessage.is_var_null() || !strMessage.is_type("string") || (strMessage.size() < 10) || (0 == OT_API_Message_GetSuccess(strMessage)))
+		if (strMessage.is_var_null() || !strMessage.is_type("string") || (strMessage.size() < 10) || (false == OT_API_Message_GetSuccess(strMessage)))
 		{	return false;	}
 		else { return true;	}
 	}
 // ---------------------------------------
-
 
 
 	attr Utility::delay_ms			
@@ -51,10 +48,9 @@ OT_API_Output(0, "TOP: ot_utility.ot \n");
 		this.max_trans_dl = 10; // Number of transactions I download when I'm low. (Also, when I'm low is when I'm below this number.)
 	}
 
-
 	def Utility::delay()
 	{
-		OT_API_Sleep(to_string(this.delay_ms));
+		OT_API_Sleep(this.delay_ms);
 	}
 
 	def Utility::getNbrTransactionCount()
@@ -407,7 +403,7 @@ OT_API_Output(0, "TOP: ot_utility.ot \n");
             return false;
         }
 
-        if (1 == OT_API_Message_GetSuccess(strReply))
+        if (true == OT_API_Message_GetSuccess(strReply))
 		{
             return true;
 		}
@@ -511,7 +507,7 @@ OT_API_Output(0, "TOP: ot_utility.ot \n");
         // the box receipts are, and download them from the server. No point trying
         // to load them before that time, when I know it will fail.
         // 
-        if ((!VerifyMessage(ledger)) || (0 == OT_API_VerifySignature(nymID, ledger)))
+        if ((!VerifyMessage(ledger)) || (false == OT_API_VerifySignature(nymID, ledger)))
         {
             OT_API_Output(0, "Utility.insureHaveAllBoxReceipts(): Unable to load or verify signature on ledger. (Failure.)");
             return false;
@@ -541,7 +537,7 @@ OT_API_Output(0, "TOP: ot_utility.ot \n");
                 if (lTransactionNum > 0)
                 {
                     var  bHaveBoxReceipt = false;
-					if (1 == OT_API_DoesBoxReceiptExist(serverID, nymID, accountID, nBoxType, strTransactionNum)) 
+					if (true == OT_API_DoesBoxReceiptExist(serverID, nymID, accountID, nBoxType, strTransactionNum)) 
 					{	bHaveBoxReceipt = true;		}
 					else { bHaveBoxReceipt = false;	}
 					
@@ -625,7 +621,7 @@ OT_API_Output(0, "TOP: ot_utility.ot \n");
             // -----------------------------------------------------------
             // REPLY: FAILURE
             //
-            if (0 == OT_API_Message_GetSuccess(serverResponse)) 
+            if (false == OT_API_Message_GetSuccess(serverResponse)) 
 			{
                 OT_API_Output(0, "Utility.getTransactionNumbers(): Server refused my request for a new transaction number! (Maybe reached the limit?): " + serverResponse);
                 bSuccess = false;

@@ -1,23 +1,13 @@
 #! /usr/local/bin/ot --script
 
-OT_API_Output(0, "TOP: test.ot \n");	
-
-OT_API_Output(0, "BEFORE: use(\"../ot/otapi.ot\")\n");	
-
+use("../ot/ot_utility.ot")
 use("../ot/otapi.ot")
 
-OT_API_Output(0, "AFTER: use(\"../ot/otapi.ot\")\n");	
-		
-	var ot_Msg := OTAPI_Func();
-
+var ot_Msg := OTAPI_Func();
+// ------------------------------
 
 	var theRequest := OTAPI_Func(ot_Msg.CHECK_USER, Server, MyNym, HisNym);
-
-OT_API_Output(0, "AFTER: var theRequest := OTAPI_Func \n");	
-
 	var	strResponse = theRequest.SendRequest(theRequest, "CHECK_USER");
-
-OT_API_Output(0, "AFTER: var theRequest BLAH BLAH \n");	
 
 	if (!VerifyMessageSuccess(strResponse))
 	{
@@ -27,6 +17,5 @@ OT_API_Output(0, "AFTER: var theRequest BLAH BLAH \n");
 	{
 		OT_API_Output(0, strResponse);
 	}
-	
 	
 	
