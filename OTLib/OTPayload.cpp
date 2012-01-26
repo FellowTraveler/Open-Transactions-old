@@ -156,6 +156,13 @@ OTPayload::OTPayload(const OTPayload & rhs) : OTData(rhs)
 	
 }
 
+
+OTPayload::OTPayload(const OTASCIIArmor & theSource) : OTData(theSource)
+{
+	
+}
+
+
 OTPayload::~OTPayload()
 {
 

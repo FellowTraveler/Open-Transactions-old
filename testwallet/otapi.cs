@@ -854,8 +854,9 @@ public class otapi {
     otapiPINVOKE.OT_API_processInbox(SERVER_ID, USER_ID, ACCT_ID, ACCT_LEDGER);
   }
 
-  public static void OT_API_processNymbox(string SERVER_ID, string USER_ID) {
-    otapiPINVOKE.OT_API_processNymbox(SERVER_ID, USER_ID);
+  public static int OT_API_processNymbox(string SERVER_ID, string USER_ID) {
+    int ret = otapiPINVOKE.OT_API_processNymbox(SERVER_ID, USER_ID);
+    return ret;
   }
 
   public static void OT_API_withdrawVoucher(string SERVER_ID, string USER_ID, string ACCT_ID, string RECIPIENT_USER_ID, string CHEQUE_MEMO, string AMOUNT) {
@@ -923,6 +924,15 @@ public class otapi {
 
   public static int OT_API_Message_GetSuccess(string THE_MESSAGE) {
     int ret = otapiPINVOKE.OT_API_Message_GetSuccess(THE_MESSAGE);
+    return ret;
+  }
+
+  public static void OT_API_queryAssetTypes(string SERVER_ID, string USER_ID, string ENCODED_MAP) {
+    otapiPINVOKE.OT_API_queryAssetTypes(SERVER_ID, USER_ID, ENCODED_MAP);
+  }
+
+  public static string OT_API_Message_GetPayload(string THE_MESSAGE) {
+    string ret = otapiPINVOKE.OT_API_Message_GetPayload(THE_MESSAGE);
     return ret;
   }
 
@@ -1203,6 +1213,19 @@ public class otapi {
 
   public static Storable QueryObject(StoredObjectType theObjectType, string strFolder) {
     IntPtr cPtr = otapiPINVOKE.QueryObject__SWIG_3((int)theObjectType, strFolder);
+    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, true);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static string EncodeObject(Storable theContents) {
+    string ret = otapiPINVOKE.EncodeObject(Storable.getCPtr(theContents));
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static Storable DecodeObject(StoredObjectType theObjectType, string strInput) {
+    IntPtr cPtr = otapiPINVOKE.DecodeObject((int)theObjectType, strInput);
     Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, true);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
     return ret;

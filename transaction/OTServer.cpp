@@ -2395,7 +2395,11 @@ void OTServer::UserCmdIssueBasket(OTPseudonym & theNym, OTMessage & MsgIn, OTMes
 					delete pNewAccount;
 					pNewAccount = NULL;
 				}
-				else {
+				else 
+				{
+					OTLog::Error("OTServer::UserCmdIssueBasket: Failed while calling: "
+								 "OTAccount::GenerateNewAccount(SERVER_USER_ID, SERVER_ID, m_nymServer, "
+								 "MsgIn, OTAccount::basketsub)\n");
 					msgOut.m_bSuccess = false;
 					break;
 				}
@@ -2473,7 +2477,8 @@ void OTServer::UserCmdIssueBasket(OTPseudonym & theNym, OTMessage & MsgIn, OTMes
 					delete pBasketAccount;
 					pBasketAccount = NULL;
 				}
-				else {
+				else 
+				{
 					msgOut.m_bSuccess = false;
 				}
 				
@@ -7062,6 +7067,110 @@ void OTServer::UserCmdGetAccount(OTPseudonym & theNym, OTMessage & MsgIn, OTMess
 
 
 
+/*		m_xmlUnsigned.Concatenate("<%s\n" // Command
+								  " requestNum=\"%s\"\n"
+								  " success=\"%s\"\n"
+								  " nymID=\"%s\"\n"
+								  " serverID=\"%s\""
+								  ">\n\n",
+								  m_strCommand.Get(),
+								  m_strRequestNum.Get(),
+								  (m_bSuccess ? "true" : "false"),
+								  m_strNymID.Get(),
+								  m_strServerID.Get()
+								  );
+		
+		if (m_ascInReferenceTo.GetLength())
+			m_xmlUnsigned.Concatenate("<inReferenceTo>\n%s</inReferenceTo>\n\n", m_ascInReferenceTo.Get());
+		
+		if (m_bSuccess && m_ascPayload.GetLength())
+			m_xmlUnsigned.Concatenate("<stringMap>\n%s</stringMap>\n\n", m_ascPayload.Get());
+
+ 	void queryAssetTypes(OTIdentifier & SERVER_ID,
+						 OTIdentifier & USER_ID,
+						 OTASCIIArmor & ENCODED_MAP);
+
+*/
+void OTServer::UserCmdQueryAssetTypes(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut)
+{	
+	// (1) set up member variables 
+	msgOut.m_strCommand		= "@queryAssetTypes";	// reply to queryAssetTypes
+	msgOut.m_strNymID		= MsgIn.m_strNymID;		// UserID
+	msgOut.m_strServerID	= m_strServerID;		// ServerID, a hash of the server contract.
+	msgOut.m_bSuccess		= false;				// so far.
+	
+	// Send the user's command back to him whether success or failure.
+	OTString tempInMessage(MsgIn); // Grab the incoming message in plaintext form
+	msgOut.m_ascInReferenceTo.SetString(tempInMessage); // Set it into the base64-encoded object on the outgoing message
+	
+	if (MsgIn.m_ascPayload.Exists()) // (which it should)
+	{
+		OTDB::Storable * pStorable = OTDB::DecodeObject(OTDB::STORED_OBJ_STRING_MAP, MsgIn.m_ascPayload.Get());
+		OTCleanup<OTDB::Storable> theAngel(pStorable); // It will definitely be cleaned up.
+		OTDB::StringMap * pMap = (NULL == pStorable) ? NULL : dynamic_cast<OTDB::StringMap *>(pStorable);
+		
+		if (NULL != pMap) // There was definitely a StringMap in the payload.
+		{
+			msgOut.m_bSuccess = true;
+			
+			std::map<std::string, std::string> & theMap = pMap->the_map;
+			std::map<std::string, std::string> theNewMap;
+			
+			FOR_EACH(mapOfStrings, theMap)
+			{
+				const std::string & str1 = (*it).first;	// Containing the asset type ID.
+				const std::string & str2 = (*it).second;	// Containing the phrase "exists". (More are possible in the future.)
+				// --------------------------------
+				
+				// "exists" means, "Here's an asset ID. Please tell me 
+				// whether or not it's actually issued on this server."
+				// Future options might include "issue", "audit", "contract",
+				// etc.
+				//
+				if ((str1.size() > 0) && (str2.compare("exists") == 0)) // todo hardcoding
+				{
+					const OTIdentifier theAssetID(str1.c_str());
+					OTAssetContract * pAssetContract = GetAssetContract(theAssetID);
+					// -----------------------------------
+					if (NULL != pAssetContract)	// Yes, it exists.
+						theNewMap[str1] = "true";
+					else
+						theNewMap[str1] = "false";
+				}
+			} // FOR_EACH
+			
+			// Replace contents of old map with contents of new map.
+			//
+			theMap.clear();
+			theMap = theNewMap;
+			// -----------------------------
+			// Serialize the StringMap back to a string...
+			
+			std::string str_Encoded = OTDB::EncodeObject(*pMap);
+			
+			if (str_Encoded.size() > 0)
+				msgOut.m_ascPayload = str_Encoded.c_str();  // now the outgoing message has the response map in its payload, in base64 form.
+			else 
+				msgOut.m_bSuccess = false; // Something went wrong.
+		} // if pMap exists.			
+	}
+	else
+	{
+		msgOut.m_bSuccess = false;
+	}
+	
+	// (2) Sign the Message 
+	msgOut.SignContract((const OTPseudonym &)m_nymServer);
+	
+	// (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+	//
+	// FYI, SaveContract takes m_xmlUnsigned and wraps it with the signatures and ------- BEGIN  bookends
+	// If you don't pass a string in, then SaveContract saves the new version to its member, m_strRawFile
+	msgOut.SaveContract();	
+}
+
+
+
 void OTServer::UserCmdGetContract(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut)
 {
 	// (1) set up member variables 
@@ -7082,7 +7191,7 @@ void OTServer::UserCmdGetContract(OTPseudonym & theNym, OTMessage & MsgIn, OTMes
 		msgOut.m_bSuccess = true;
 		// extract the account in ascii-armored form on the outgoing message
 		OTString strPayload(*pContract); // first grab it in plaintext string form
-		msgOut.m_ascPayload.SetString(strPayload);  // now the outgoing message has the inbox ledger in its payload in base64 form.
+		msgOut.m_ascPayload.SetString(strPayload);  // now the outgoing message has the contract in its payload in base64 form.
 	}
 	// Send the user's command back to him if failure.
 	else
@@ -9884,8 +9993,11 @@ OTServer::~OTServer()
 
 
 
+
 bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OTClientConnection * pConnection/*=NULL*/)
 {	
+	msgOut.m_strRequestNum.Set(theMessage.m_strRequestNum); // to prevent replay attacks.
+	
 	/*
 	 OT_SVR_CONFIG_OPT_BOOL("permissions", "admin_server_locked",		__admin_server_locked);
 	 */
@@ -10682,6 +10794,18 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 		// ------------------------------------------------------------
 		
 		UserCmdGetAccount(*pNym, theMessage, msgOut);
+		
+		return true;
+	}
+	else if (theMessage.m_strCommand.Compare("queryAssetTypes"))
+	{
+		OTLog::Output(0, "\n==> Received a queryAssetTypes message. Processing...\n");
+		
+		// ------------------------------------------------------------
+		OT_ENFORCE_PERMISSION_MSG(__cmd_get_contract);
+		// ------------------------------------------------------------
+		
+		UserCmdQueryAssetTypes(*pNym, theMessage, msgOut);
 		
 		return true;
 	}

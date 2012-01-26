@@ -130,8 +130,10 @@
 
 
 #include "OTLog.h"
+#include "OTASCIIArmor.h"
 #include "OTStorage.h"
 
+#include "OTPayload.h"
 
 
 /*
@@ -594,7 +596,35 @@ namespace OTDB
 		
 		return pStorage->QueryObject(theObjectType, strFolder, oneStr, twoStr, threeStr);
 	}
-
+	
+	// -----------------------------------------
+	// Store/Retrieve a Storable object to/from an OTASCIIArmor object.
+	
+	std::string EncodeObject(Storable & theContents)
+	{		
+		Storage * pStorage = details::s_pStorage;
+		
+		if (NULL == pStorage) 
+		{
+			OTLog::Error("No Default Storage object allocated in OTDB::EncodeObject.\n");
+			return "";
+		}
+		return pStorage->EncodeObject(theContents);
+	}
+	
+	// Use %newobject Storage::DecodeObject();
+	Storable * DecodeObject(StoredObjectType theObjectType, std::string strInput)
+	{
+		Storage * pStorage = details::s_pStorage;
+		
+		if (NULL == pStorage) 
+		{
+			return NULL;
+		}
+		
+		return pStorage->DecodeObject(theObjectType, strInput);
+	}
+	
     // -----------------------------------------
 	// Erase a value by location.
 	
@@ -945,8 +975,8 @@ namespace OTDB
 		 */
 		bool bSuccess = PerformPack(*pBuffer);
 		
-		//	msgpack::pack(pBuffer->m_buffer, *this);
-		//	msgpack::pack(pBuffer->m_buffer, inObj);
+	//	msgpack::pack(pBuffer->m_buffer, *this);
+	//	msgpack::pack(pBuffer->m_buffer, inObj);
 		
 		return bSuccess;
 	}
@@ -2519,7 +2549,122 @@ namespace OTDB
 	}
 	
 	
-    
+	// ----------------------------------------------------------------------
+	
+	
+	
+	std::string Storage::EncodeObject(Storable & theContents)
+	{
+		std::string strReturnValue("");
+		
+		OTPacker * pPacker = GetPacker();
+		
+		if (NULL == pPacker)
+		{
+			OTLog::Error("No packer allocated in Storage::EncodeObject\n");
+			return strReturnValue;
+		}
+		// ---------------------------
+		PackedBuffer * pBuffer = pPacker->Pack(theContents);
+		
+		if (NULL == pBuffer)
+		{
+			OTLog::Error("Packing failed in Storage::EncodeObject\n");
+			return strReturnValue;
+		}
+		// ---------------------------		
+		
+		//OTPackedBuffer:
+//		virtual const	unsigned char *	GetData()=0;
+//		virtual			size_t			GetSize()=0;
+		//
+		const uint32_t nNewSize	= static_cast<const uint32_t>(pBuffer->GetSize());
+		const void * pNewData	= static_cast<const void *>(pBuffer->GetData());
+		
+		if ((nNewSize < 1) || (NULL == pNewData))
+		{
+			delete pBuffer; pBuffer = NULL;
+			// -------------
+			OTLog::Error("Packing failed (2) in Storage::EncodeObject\n");
+			return strReturnValue;
+		}
+		// ---------------------------
+		
+		const OTData		theData(pNewData, nNewSize);
+		const OTASCIIArmor	theArmor(theData);
+
+		strReturnValue.assign(theArmor.Get(), theArmor.GetLength());
+		// ---------------------------
+		
+		// Don't want any leaks here, do we?
+		delete pBuffer;
+		
+		return strReturnValue;
+	}
+	
+	// Use %newobject Storage::DecodeObject();
+	//
+	Storable * Storage::DecodeObject(StoredObjectType theObjectType, std::string strInput)
+	{
+		if (strInput.size() < 1)
+			return NULL;
+		// -----------------------
+		
+		OTPacker * pPacker = GetPacker();
+		
+		if (NULL == pPacker)
+			return NULL;
+		
+		// ---------------------------
+		PackedBuffer * pBuffer = pPacker->CreateBuffer();
+		
+		if (NULL == pBuffer)
+			return NULL;
+		
+		// Below this point, responsible for pBuffer.
+		// ---------------------------
+		Storable * pStorable = CreateObject(theObjectType);
+		
+		if (NULL == pStorable)
+		{
+			delete pBuffer;
+			return NULL;
+		}
+		
+		// Below this point, responsible for pBuffer AND pStorable.
+		// ---------------------------
+		OTASCIIArmor	theArmor;
+		theArmor.Set(strInput.c_str(), strInput.size());
+		const OTPayload	thePayload(theArmor);
+		// ---------------------------
+		// Put thePayload's contents into pBuffer here.
+		//
+		pBuffer->SetData(static_cast<const unsigned char*>(thePayload.GetPayloadPointer()), thePayload.GetSize());
+
+		// Now let's unpack it and return the Storable object.
+		
+		const bool bUnpacked = pPacker->Unpack(*pBuffer, *pStorable);
+		
+		if (!bUnpacked)
+		{
+			delete pBuffer;
+			delete pStorable;
+			
+			return NULL;
+		}
+		
+		// ---------------------------
+		
+		// Success :-)
+		
+		// Don't want any leaks here, do we?
+		delete pBuffer;
+		
+		return pStorable; // caller is responsible to delete.
+	}
+	
+	// *****************************************************************************
+
 	bool Storage::EraseValueByKey(std::string strFolder, 
                                   std::string oneStr/*=""*/, std::string twoStr/*=""*/, std::string threeStr/*=""*/)
 	{

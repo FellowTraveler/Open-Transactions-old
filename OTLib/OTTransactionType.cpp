@@ -129,9 +129,9 @@
 
 #include "OTStorage.h"
 
-#include "OTTransactionType.h"
 #include "OTLog.h"
 
+#include "OTTransactionType.h"
 #include "OTItem.h"
 #include "OTTransaction.h"
 #include "OTAccount.h"

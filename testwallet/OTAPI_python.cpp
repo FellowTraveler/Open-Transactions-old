@@ -12105,6 +12105,7 @@ SWIGINTERN PyObject *_wrap_OT_API_processNymbox(PyObject *SWIGUNUSEDPARM(self), 
   int alloc2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
+  int result;
   
   if (!PyArg_ParseTuple(args,(char *)"OO:OT_API_processNymbox",&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
@@ -12117,8 +12118,8 @@ SWIGINTERN PyObject *_wrap_OT_API_processNymbox(PyObject *SWIGUNUSEDPARM(self), 
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_processNymbox" "', argument " "2"" of type '" "char const *""'");
   }
   arg2 = reinterpret_cast< char * >(buf2);
-  OT_API_processNymbox((char const *)arg1,(char const *)arg2);
-  resultobj = SWIG_Py_Void();
+  result = (int)OT_API_processNymbox((char const *)arg1,(char const *)arg2);
+  resultobj = SWIG_From_int(static_cast< int >(result));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   return resultobj;
@@ -12902,6 +12903,79 @@ SWIGINTERN PyObject *_wrap_OT_API_Message_GetSuccess(PyObject *SWIGUNUSEDPARM(se
   arg1 = reinterpret_cast< char * >(buf1);
   result = (int)OT_API_Message_GetSuccess((char const *)arg1);
   resultobj = SWIG_From_int(static_cast< int >(result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return resultobj;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_OT_API_queryAssetTypes(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  int res3 ;
+  char *buf3 = 0 ;
+  int alloc3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:OT_API_queryAssetTypes",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_queryAssetTypes" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_queryAssetTypes" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  res3 = SWIG_AsCharPtrAndSize(obj2, &buf3, NULL, &alloc3);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OT_API_queryAssetTypes" "', argument " "3"" of type '" "char const *""'");
+  }
+  arg3 = reinterpret_cast< char * >(buf3);
+  OT_API_queryAssetTypes((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  resultobj = SWIG_Py_Void();
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  return resultobj;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_OT_API_Message_GetPayload(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  char *arg1 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  PyObject * obj0 = 0 ;
+  char *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:OT_API_Message_GetPayload",&obj0)) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Message_GetPayload" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  result = (char *)OT_API_Message_GetPayload((char const *)arg1);
+  resultobj = SWIG_FromCharPtr((const char *)result);
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   return resultobj;
 fail:
@@ -16319,6 +16393,82 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_Storage_EncodeObject(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::Storage *arg1 = (OTDB::Storage *) 0 ;
+  OTDB::Storable *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  std::string result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:Storage_EncodeObject",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__Storage, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Storage_EncodeObject" "', argument " "1"" of type '" "OTDB::Storage *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::Storage * >(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_OTDB__Storable,  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Storage_EncodeObject" "', argument " "2"" of type '" "OTDB::Storable &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Storage_EncodeObject" "', argument " "2"" of type '" "OTDB::Storable &""'"); 
+  }
+  arg2 = reinterpret_cast< OTDB::Storable * >(argp2);
+  result = (arg1)->EncodeObject(*arg2);
+  resultobj = SWIG_From_std_string(static_cast< std::string >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_Storage_DecodeObject(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::Storage *arg1 = (OTDB::Storage *) 0 ;
+  OTDB::StoredObjectType arg2 ;
+  std::string arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOO:Storage_DecodeObject",&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTDB__Storage, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Storage_DecodeObject" "', argument " "1"" of type '" "OTDB::Storage *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::Storage * >(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Storage_DecodeObject" "', argument " "2"" of type '" "OTDB::StoredObjectType""'");
+  } 
+  arg2 = static_cast< OTDB::StoredObjectType >(val2);
+  {
+    std::string *ptr = (std::string *)0;
+    int res = SWIG_AsPtr_std_string(obj2, &ptr);
+    if (!SWIG_IsOK(res) || !ptr) {
+      SWIG_exception_fail(SWIG_ArgError((ptr ? res : SWIG_TypeError)), "in method '" "Storage_DecodeObject" "', argument " "3"" of type '" "std::string""'"); 
+    }
+    arg3 = *ptr;
+    if (SWIG_IsNewObj(res)) delete ptr;
+  }
+  result = (OTDB::Storable *)(arg1)->DecodeObject(arg2,arg3);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_Storage_EraseValueByKey__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   OTDB::Storage *arg1 = (OTDB::Storage *) 0 ;
@@ -19434,6 +19584,64 @@ fail:
     "    OTDB::QueryObject(OTDB::StoredObjectType,std::string,std::string)\n"
     "    OTDB::QueryObject(OTDB::StoredObjectType,std::string)\n");
   return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_EncodeObject(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::Storable *arg1 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  std::string result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:EncodeObject",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1, SWIGTYPE_p_OTDB__Storable,  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EncodeObject" "', argument " "1"" of type '" "OTDB::Storable &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EncodeObject" "', argument " "1"" of type '" "OTDB::Storable &""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
+  result = OTDB::EncodeObject(*arg1);
+  resultobj = SWIG_From_std_string(static_cast< std::string >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_DecodeObject(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTDB::StoredObjectType arg1 ;
+  std::string arg2 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:DecodeObject",&obj0,&obj1)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "DecodeObject" "', argument " "1"" of type '" "OTDB::StoredObjectType""'");
+  } 
+  arg1 = static_cast< OTDB::StoredObjectType >(val1);
+  {
+    std::string *ptr = (std::string *)0;
+    int res = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res) || !ptr) {
+      SWIG_exception_fail(SWIG_ArgError((ptr ? res : SWIG_TypeError)), "in method '" "DecodeObject" "', argument " "2"" of type '" "std::string""'"); 
+    }
+    arg2 = *ptr;
+    if (SWIG_IsNewObj(res)) delete ptr;
+  }
+  result = (OTDB::Storable *)OTDB::DecodeObject(arg1,arg2);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
 }
 
 
@@ -30095,6 +30303,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"OT_API_ResyncNymWithServer", _wrap_OT_API_ResyncNymWithServer, METH_VARARGS, NULL},
 	 { (char *)"OT_API_Message_GetCommand", _wrap_OT_API_Message_GetCommand, METH_VARARGS, NULL},
 	 { (char *)"OT_API_Message_GetSuccess", _wrap_OT_API_Message_GetSuccess, METH_VARARGS, NULL},
+	 { (char *)"OT_API_queryAssetTypes", _wrap_OT_API_queryAssetTypes, METH_VARARGS, NULL},
+	 { (char *)"OT_API_Message_GetPayload", _wrap_OT_API_Message_GetPayload, METH_VARARGS, NULL},
 	 { (char *)"OT_API_Message_GetDepth", _wrap_OT_API_Message_GetDepth, METH_VARARGS, NULL},
 	 { (char *)"OT_API_Message_GetTransactionSuccess", _wrap_OT_API_Message_GetTransactionSuccess, METH_VARARGS, NULL},
 	 { (char *)"OT_API_Message_GetBalanceAgreementSuccess", _wrap_OT_API_Message_GetBalanceAgreementSuccess, METH_VARARGS, NULL},
@@ -30118,6 +30328,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"Storage_QueryPlainString", _wrap_Storage_QueryPlainString, METH_VARARGS, NULL},
 	 { (char *)"Storage_StoreObject", _wrap_Storage_StoreObject, METH_VARARGS, NULL},
 	 { (char *)"Storage_QueryObject", _wrap_Storage_QueryObject, METH_VARARGS, NULL},
+	 { (char *)"Storage_EncodeObject", _wrap_Storage_EncodeObject, METH_VARARGS, NULL},
+	 { (char *)"Storage_DecodeObject", _wrap_Storage_DecodeObject, METH_VARARGS, NULL},
 	 { (char *)"Storage_EraseValueByKey", _wrap_Storage_EraseValueByKey, METH_VARARGS, NULL},
 	 { (char *)"Storage_CreateObject", _wrap_Storage_CreateObject, METH_VARARGS, NULL},
 	 { (char *)"Storage_Create", _wrap_Storage_Create, METH_VARARGS, NULL},
@@ -30134,6 +30346,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"QueryPlainString", _wrap_QueryPlainString, METH_VARARGS, NULL},
 	 { (char *)"StoreObject", _wrap_StoreObject, METH_VARARGS, NULL},
 	 { (char *)"QueryObject", _wrap_QueryObject, METH_VARARGS, NULL},
+	 { (char *)"EncodeObject", _wrap_EncodeObject, METH_VARARGS, NULL},
+	 { (char *)"DecodeObject", _wrap_DecodeObject, METH_VARARGS, NULL},
 	 { (char *)"EraseValueByKey", _wrap_EraseValueByKey, METH_VARARGS, NULL},
 	 { (char *)"delete_OTDBString", _wrap_delete_OTDBString, METH_VARARGS, NULL},
 	 { (char *)"OTDBString_m_string_set", _wrap_OTDBString_m_string_set, METH_VARARGS, NULL},

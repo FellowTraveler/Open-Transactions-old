@@ -1482,10 +1482,10 @@ void OTAPI_Wrap::processInbox(const std::string SERVER_ID,
 }
 // --------------------------------------------------------------------
 
-void OTAPI_Wrap::processNymbox(const std::string SERVER_ID,
-							   const std::string USER_ID)
+int OTAPI_Wrap::processNymbox(const std::string SERVER_ID,
+							  const std::string USER_ID)
 {
-	OT_API_processNymbox(SERVER_ID.c_str(), USER_ID.c_str());
+	return OT_API_processNymbox(SERVER_ID.c_str(), USER_ID.c_str());
 }
 // --------------------------------------------------------------------
 
@@ -1607,6 +1607,21 @@ bool OTAPI_Wrap::ResyncNymWithServer(const std::string SERVER_ID,
 
 // -----------------------------------------------------------
 
+void OTAPI_Wrap::queryAssetTypes(const std::string SERVER_ID,
+								 const std::string USER_ID,
+								 const std::string ENCODED_MAP)
+{
+	OT_API_queryAssetTypes(SERVER_ID.c_str(), USER_ID.c_str(), ENCODED_MAP.c_str());	
+}
+
+// -----------------------------------------------------------
+
+const std::string OTAPI_Wrap::Message_GetPayload(const std::string THE_MESSAGE)
+{
+	return OT_API_Message_GetPayload(THE_MESSAGE.c_str());
+}
+
+// --------------------------------------------------------------------
 const std::string OTAPI_Wrap::Message_GetCommand(const std::string THE_MESSAGE)
 {
 	return OT_API_Message_GetCommand(THE_MESSAGE.c_str());

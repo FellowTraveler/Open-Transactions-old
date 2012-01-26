@@ -10513,6 +10513,7 @@ XS(_wrap_OT_API_processNymbox) {
     char *buf2 = 0 ;
     int alloc2 = 0 ;
     int argvi = 0;
+    int result;
     dXSARGS;
     
     if ((items < 2) || (items > 2)) {
@@ -10528,8 +10529,8 @@ XS(_wrap_OT_API_processNymbox) {
       SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_processNymbox" "', argument " "2"" of type '" "char const *""'");
     }
     arg2 = reinterpret_cast< char * >(buf2);
-    OT_API_processNymbox((char const *)arg1,(char const *)arg2);
-    ST(argvi) = sv_newmortal();
+    result = (int)OT_API_processNymbox((char const *)arg1,(char const *)arg2);
+    ST(argvi) = SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(result)); argvi++ ;
     if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
     if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
     XSRETURN(argvi);
@@ -11346,6 +11347,85 @@ XS(_wrap_OT_API_Message_GetSuccess) {
     arg1 = reinterpret_cast< char * >(buf1);
     result = (int)OT_API_Message_GetSuccess((char const *)arg1);
     ST(argvi) = SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(result)); argvi++ ;
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    XSRETURN(argvi);
+  fail:
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_OT_API_queryAssetTypes) {
+  {
+    char *arg1 = (char *) 0 ;
+    char *arg2 = (char *) 0 ;
+    char *arg3 = (char *) 0 ;
+    int res1 ;
+    char *buf1 = 0 ;
+    int alloc1 = 0 ;
+    int res2 ;
+    char *buf2 = 0 ;
+    int alloc2 = 0 ;
+    int res3 ;
+    char *buf3 = 0 ;
+    int alloc3 = 0 ;
+    int argvi = 0;
+    dXSARGS;
+    
+    if ((items < 3) || (items > 3)) {
+      SWIG_croak("Usage: OT_API_queryAssetTypes(SERVER_ID,USER_ID,ENCODED_MAP);");
+    }
+    res1 = SWIG_AsCharPtrAndSize(ST(0), &buf1, NULL, &alloc1);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_queryAssetTypes" "', argument " "1"" of type '" "char const *""'");
+    }
+    arg1 = reinterpret_cast< char * >(buf1);
+    res2 = SWIG_AsCharPtrAndSize(ST(1), &buf2, NULL, &alloc2);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_queryAssetTypes" "', argument " "2"" of type '" "char const *""'");
+    }
+    arg2 = reinterpret_cast< char * >(buf2);
+    res3 = SWIG_AsCharPtrAndSize(ST(2), &buf3, NULL, &alloc3);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OT_API_queryAssetTypes" "', argument " "3"" of type '" "char const *""'");
+    }
+    arg3 = reinterpret_cast< char * >(buf3);
+    OT_API_queryAssetTypes((char const *)arg1,(char const *)arg2,(char const *)arg3);
+    ST(argvi) = sv_newmortal();
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+    if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+    XSRETURN(argvi);
+  fail:
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+    if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_OT_API_Message_GetPayload) {
+  {
+    char *arg1 = (char *) 0 ;
+    int res1 ;
+    char *buf1 = 0 ;
+    int alloc1 = 0 ;
+    int argvi = 0;
+    char *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: OT_API_Message_GetPayload(THE_MESSAGE);");
+    }
+    res1 = SWIG_AsCharPtrAndSize(ST(0), &buf1, NULL, &alloc1);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Message_GetPayload" "', argument " "1"" of type '" "char const *""'");
+    }
+    arg1 = reinterpret_cast< char * >(buf1);
+    result = (char *)OT_API_Message_GetPayload((char const *)arg1);
+    ST(argvi) = SWIG_FromCharPtr((const char *)result); argvi++ ;
     if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
     XSRETURN(argvi);
   fail:
@@ -16034,6 +16114,97 @@ XS(_wrap_Storage_QueryObject) {
 }
 
 
+XS(_wrap_Storage_EncodeObject) {
+  {
+    OTDB::Storage *arg1 = (OTDB::Storage *) 0 ;
+    OTDB::Storable *arg2 = 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    void *argp2 = 0 ;
+    int res2 = 0 ;
+    int argvi = 0;
+    std::string result;
+    dXSARGS;
+    
+    if ((items < 2) || (items > 2)) {
+      SWIG_croak("Usage: Storage_EncodeObject(self,theContents);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTDB__Storage, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Storage_EncodeObject" "', argument " "1"" of type '" "OTDB::Storage *""'"); 
+    }
+    arg1 = reinterpret_cast< OTDB::Storage * >(argp1);
+    res2 = SWIG_ConvertPtr(ST(1), &argp2, SWIGTYPE_p_OTDB__Storable,  0 );
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Storage_EncodeObject" "', argument " "2"" of type '" "OTDB::Storable &""'"); 
+    }
+    if (!argp2) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Storage_EncodeObject" "', argument " "2"" of type '" "OTDB::Storable &""'"); 
+    }
+    arg2 = reinterpret_cast< OTDB::Storable * >(argp2);
+    result = (arg1)->EncodeObject(*arg2);
+    ST(argvi) = SWIG_From_std_string  SWIG_PERL_CALL_ARGS_1(static_cast< std::string >(result)); argvi++ ;
+    
+    
+    XSRETURN(argvi);
+  fail:
+    
+    
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_Storage_DecodeObject) {
+  {
+    OTDB::Storage *arg1 = (OTDB::Storage *) 0 ;
+    OTDB::StoredObjectType arg2 ;
+    std::string arg3 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int val2 ;
+    int ecode2 = 0 ;
+    int argvi = 0;
+    OTDB::Storable *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 3) || (items > 3)) {
+      SWIG_croak("Usage: Storage_DecodeObject(self,theObjectType,strInput);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTDB__Storage, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Storage_DecodeObject" "', argument " "1"" of type '" "OTDB::Storage *""'"); 
+    }
+    arg1 = reinterpret_cast< OTDB::Storage * >(argp1);
+    ecode2 = SWIG_AsVal_int SWIG_PERL_CALL_ARGS_2(ST(1), &val2);
+    if (!SWIG_IsOK(ecode2)) {
+      SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Storage_DecodeObject" "', argument " "2"" of type '" "OTDB::StoredObjectType""'");
+    } 
+    arg2 = static_cast< OTDB::StoredObjectType >(val2);
+    {
+      std::string *ptr = (std::string *)0;
+      int res = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(2), &ptr);
+      if (!SWIG_IsOK(res) || !ptr) {
+        SWIG_exception_fail(SWIG_ArgError((ptr ? res : SWIG_TypeError)), "in method '" "Storage_DecodeObject" "', argument " "3"" of type '" "std::string""'"); 
+      }
+      arg3 = *ptr;
+      if (SWIG_IsNewObj(res)) delete ptr;
+    }
+    result = (OTDB::Storable *)(arg1)->DecodeObject(arg2,arg3);
+    ST(argvi) = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, SWIG_OWNER | SWIG_SHADOW); argvi++ ;
+    
+    
+    
+    XSRETURN(argvi);
+  fail:
+    
+    
+    
+    SWIG_croak_null();
+  }
+}
+
+
 XS(_wrap_Storage_EraseValueByKey__SWIG_0) {
   {
     OTDB::Storage *arg1 = (OTDB::Storage *) 0 ;
@@ -20417,6 +20588,77 @@ XS(_wrap_QueryObject) {
   
   croak("No matching function for overloaded 'QueryObject'");
   XSRETURN(0);
+}
+
+
+XS(_wrap_EncodeObject) {
+  {
+    OTDB::Storable *arg1 = 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int argvi = 0;
+    std::string result;
+    dXSARGS;
+    
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: EncodeObject(theContents);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1, SWIGTYPE_p_OTDB__Storable,  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EncodeObject" "', argument " "1"" of type '" "OTDB::Storable &""'"); 
+    }
+    if (!argp1) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EncodeObject" "', argument " "1"" of type '" "OTDB::Storable &""'"); 
+    }
+    arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
+    result = OTDB::EncodeObject(*arg1);
+    ST(argvi) = SWIG_From_std_string  SWIG_PERL_CALL_ARGS_1(static_cast< std::string >(result)); argvi++ ;
+    
+    XSRETURN(argvi);
+  fail:
+    
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_DecodeObject) {
+  {
+    OTDB::StoredObjectType arg1 ;
+    std::string arg2 ;
+    int val1 ;
+    int ecode1 = 0 ;
+    int argvi = 0;
+    OTDB::Storable *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 2) || (items > 2)) {
+      SWIG_croak("Usage: DecodeObject(theObjectType,strInput);");
+    }
+    ecode1 = SWIG_AsVal_int SWIG_PERL_CALL_ARGS_2(ST(0), &val1);
+    if (!SWIG_IsOK(ecode1)) {
+      SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "DecodeObject" "', argument " "1"" of type '" "OTDB::StoredObjectType""'");
+    } 
+    arg1 = static_cast< OTDB::StoredObjectType >(val1);
+    {
+      std::string *ptr = (std::string *)0;
+      int res = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(1), &ptr);
+      if (!SWIG_IsOK(res) || !ptr) {
+        SWIG_exception_fail(SWIG_ArgError((ptr ? res : SWIG_TypeError)), "in method '" "DecodeObject" "', argument " "2"" of type '" "std::string""'"); 
+      }
+      arg2 = *ptr;
+      if (SWIG_IsNewObj(res)) delete ptr;
+    }
+    result = (OTDB::Storable *)OTDB::DecodeObject(arg1,arg2);
+    ST(argvi) = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, SWIG_OWNER | SWIG_SHADOW); argvi++ ;
+    
+    
+    XSRETURN(argvi);
+  fail:
+    
+    
+    SWIG_croak_null();
+  }
 }
 
 
@@ -33359,6 +33601,8 @@ static swig_command_info swig_commands[] = {
 {"otapic::OT_API_ResyncNymWithServer", _wrap_OT_API_ResyncNymWithServer},
 {"otapic::OT_API_Message_GetCommand", _wrap_OT_API_Message_GetCommand},
 {"otapic::OT_API_Message_GetSuccess", _wrap_OT_API_Message_GetSuccess},
+{"otapic::OT_API_queryAssetTypes", _wrap_OT_API_queryAssetTypes},
+{"otapic::OT_API_Message_GetPayload", _wrap_OT_API_Message_GetPayload},
 {"otapic::OT_API_Message_GetDepth", _wrap_OT_API_Message_GetDepth},
 {"otapic::OT_API_Message_GetTransactionSuccess", _wrap_OT_API_Message_GetTransactionSuccess},
 {"otapic::OT_API_Message_GetBalanceAgreementSuccess", _wrap_OT_API_Message_GetBalanceAgreementSuccess},
@@ -33381,6 +33625,8 @@ static swig_command_info swig_commands[] = {
 {"otapic::Storage_QueryPlainString", _wrap_Storage_QueryPlainString},
 {"otapic::Storage_StoreObject", _wrap_Storage_StoreObject},
 {"otapic::Storage_QueryObject", _wrap_Storage_QueryObject},
+{"otapic::Storage_EncodeObject", _wrap_Storage_EncodeObject},
+{"otapic::Storage_DecodeObject", _wrap_Storage_DecodeObject},
 {"otapic::Storage_EraseValueByKey", _wrap_Storage_EraseValueByKey},
 {"otapic::Storage_CreateObject", _wrap_Storage_CreateObject},
 {"otapic::Storage_Create", _wrap_Storage_Create},
@@ -33396,6 +33642,8 @@ static swig_command_info swig_commands[] = {
 {"otapic::QueryPlainString", _wrap_QueryPlainString},
 {"otapic::StoreObject", _wrap_StoreObject},
 {"otapic::QueryObject", _wrap_QueryObject},
+{"otapic::EncodeObject", _wrap_EncodeObject},
+{"otapic::DecodeObject", _wrap_DecodeObject},
 {"otapic::EraseValueByKey", _wrap_EraseValueByKey},
 {"otapic::delete_OTDBString", _wrap_delete_OTDBString},
 {"otapic::OTDBString_m_string_set", _wrap_OTDBString_m_string_set},

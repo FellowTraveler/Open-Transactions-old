@@ -10679,6 +10679,8 @@ _wrap_OT_API_processNymbox(int argc, VALUE *argv, VALUE self) {
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
+  int result;
+  VALUE vresult = Qnil;
   
   if ((argc < 2) || (argc > 2)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
@@ -10693,10 +10695,11 @@ _wrap_OT_API_processNymbox(int argc, VALUE *argv, VALUE self) {
     SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "char const *","OT_API_processNymbox", 2, argv[1] ));
   }
   arg2 = reinterpret_cast< char * >(buf2);
-  OT_API_processNymbox((char const *)arg1,(char const *)arg2);
+  result = (int)OT_API_processNymbox((char const *)arg1,(char const *)arg2);
+  vresult = SWIG_From_int(static_cast< int >(result));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
-  return Qnil;
+  return vresult;
 fail:
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
@@ -11451,6 +11454,79 @@ _wrap_OT_API_Message_GetSuccess(int argc, VALUE *argv, VALUE self) {
   arg1 = reinterpret_cast< char * >(buf1);
   result = (int)OT_API_Message_GetSuccess((char const *)arg1);
   vresult = SWIG_From_int(static_cast< int >(result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return vresult;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OT_API_queryAssetTypes(int argc, VALUE *argv, VALUE self) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  int res3 ;
+  char *buf3 = 0 ;
+  int alloc3 = 0 ;
+  
+  if ((argc < 3) || (argc > 3)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
+  }
+  res1 = SWIG_AsCharPtrAndSize(argv[0], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "char const *","OT_API_queryAssetTypes", 1, argv[0] ));
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(argv[1], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "char const *","OT_API_queryAssetTypes", 2, argv[1] ));
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  res3 = SWIG_AsCharPtrAndSize(argv[2], &buf3, NULL, &alloc3);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), Ruby_Format_TypeError( "", "char const *","OT_API_queryAssetTypes", 3, argv[2] ));
+  }
+  arg3 = reinterpret_cast< char * >(buf3);
+  OT_API_queryAssetTypes((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  return Qnil;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OT_API_Message_GetPayload(int argc, VALUE *argv, VALUE self) {
+  char *arg1 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  char *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_AsCharPtrAndSize(argv[0], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "char const *","OT_API_Message_GetPayload", 1, argv[0] ));
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  result = (char *)OT_API_Message_GetPayload((char const *)arg1);
+  vresult = SWIG_FromCharPtr((const char *)result);
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   return vresult;
 fail:
@@ -14821,6 +14897,83 @@ fail:
 
 
 SWIGINTERN VALUE
+_wrap_Storage_EncodeObject(int argc, VALUE *argv, VALUE self) {
+  OTDB::Storage *arg1 = (OTDB::Storage *) 0 ;
+  OTDB::Storable *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  std::string result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTDB__Storage, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::Storage *","EncodeObject", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTDB::Storage * >(argp1);
+  res2 = SWIG_ConvertPtr(argv[0], &argp2, SWIGTYPE_p_OTDB__Storable,  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "OTDB::Storable &","EncodeObject", 2, argv[0] )); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "OTDB::Storable &","EncodeObject", 2, argv[0])); 
+  }
+  arg2 = reinterpret_cast< OTDB::Storable * >(argp2);
+  result = (arg1)->EncodeObject(*arg2);
+  vresult = SWIG_From_std_string(static_cast< std::string >(result));
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_Storage_DecodeObject(int argc, VALUE *argv, VALUE self) {
+  OTDB::Storage *arg1 = (OTDB::Storage *) 0 ;
+  OTDB::StoredObjectType arg2 ;
+  std::string arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  OTDB::Storable *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 2) || (argc > 2)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTDB__Storage, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::Storage *","DecodeObject", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTDB::Storage * >(argp1);
+  ecode2 = SWIG_AsVal_int(argv[0], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), Ruby_Format_TypeError( "", "OTDB::StoredObjectType","DecodeObject", 2, argv[0] ));
+  } 
+  arg2 = static_cast< OTDB::StoredObjectType >(val2);
+  {
+    std::string *ptr = (std::string *)0;
+    int res = SWIG_AsPtr_std_string(argv[1], &ptr);
+    if (!SWIG_IsOK(res) || !ptr) {
+      SWIG_exception_fail(SWIG_ArgError((ptr ? res : SWIG_TypeError)), Ruby_Format_TypeError( "", "std::string","DecodeObject", 3, argv[1] )); 
+    }
+    arg3 = *ptr;
+    if (SWIG_IsNewObj(res)) delete ptr;
+  }
+  result = (OTDB::Storable *)(arg1)->DecodeObject(arg2,arg3);
+  vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, SWIG_POINTER_OWN |  0 );
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
 _wrap_Storage_EraseValueByKey__SWIG_0(int argc, VALUE *argv, VALUE self) {
   OTDB::Storage *arg1 = (OTDB::Storage *) 0 ;
   std::string arg2 ;
@@ -17922,6 +18075,67 @@ fail:
     "    QueryObject.new(OTDB::StoredObjectType theObjectType, std::string strFolder, std::string oneStr)\n"
     "    QueryObject.new(OTDB::StoredObjectType theObjectType, std::string strFolder)\n");
   
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_EncodeObject(int argc, VALUE *argv, VALUE self) {
+  OTDB::Storable *arg1 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  std::string result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1, SWIGTYPE_p_OTDB__Storable,  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTDB::Storable &","OTDB::EncodeObject", 1, argv[0] )); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "OTDB::Storable &","OTDB::EncodeObject", 1, argv[0])); 
+  }
+  arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
+  result = OTDB::EncodeObject(*arg1);
+  vresult = SWIG_From_std_string(static_cast< std::string >(result));
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_DecodeObject(int argc, VALUE *argv, VALUE self) {
+  OTDB::StoredObjectType arg1 ;
+  std::string arg2 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  OTDB::Storable *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 2) || (argc > 2)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
+  }
+  ecode1 = SWIG_AsVal_int(argv[0], &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), Ruby_Format_TypeError( "", "OTDB::StoredObjectType","OTDB::DecodeObject", 1, argv[0] ));
+  } 
+  arg1 = static_cast< OTDB::StoredObjectType >(val1);
+  {
+    std::string *ptr = (std::string *)0;
+    int res = SWIG_AsPtr_std_string(argv[1], &ptr);
+    if (!SWIG_IsOK(res) || !ptr) {
+      SWIG_exception_fail(SWIG_ArgError((ptr ? res : SWIG_TypeError)), Ruby_Format_TypeError( "", "std::string","OTDB::DecodeObject", 2, argv[1] )); 
+    }
+    arg2 = *ptr;
+    if (SWIG_IsNewObj(res)) delete ptr;
+  }
+  result = (OTDB::Storable *)OTDB::DecodeObject(arg1,arg2);
+  vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable, SWIG_POINTER_OWN |  0 );
+  return vresult;
+fail:
   return Qnil;
 }
 
@@ -28827,6 +29041,8 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_module_function(mOtapi, "OT_API_ResyncNymWithServer", VALUEFUNC(_wrap_OT_API_ResyncNymWithServer), -1);
   rb_define_module_function(mOtapi, "OT_API_Message_GetCommand", VALUEFUNC(_wrap_OT_API_Message_GetCommand), -1);
   rb_define_module_function(mOtapi, "OT_API_Message_GetSuccess", VALUEFUNC(_wrap_OT_API_Message_GetSuccess), -1);
+  rb_define_module_function(mOtapi, "OT_API_queryAssetTypes", VALUEFUNC(_wrap_OT_API_queryAssetTypes), -1);
+  rb_define_module_function(mOtapi, "OT_API_Message_GetPayload", VALUEFUNC(_wrap_OT_API_Message_GetPayload), -1);
   rb_define_module_function(mOtapi, "OT_API_Message_GetDepth", VALUEFUNC(_wrap_OT_API_Message_GetDepth), -1);
   rb_define_module_function(mOtapi, "OT_API_Message_GetTransactionSuccess", VALUEFUNC(_wrap_OT_API_Message_GetTransactionSuccess), -1);
   rb_define_module_function(mOtapi, "OT_API_Message_GetBalanceAgreementSuccess", VALUEFUNC(_wrap_OT_API_Message_GetBalanceAgreementSuccess), -1);
@@ -28888,6 +29104,8 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassStorage.klass, "QueryPlainString", VALUEFUNC(_wrap_Storage_QueryPlainString), -1);
   rb_define_method(SwigClassStorage.klass, "StoreObject", VALUEFUNC(_wrap_Storage_StoreObject), -1);
   rb_define_method(SwigClassStorage.klass, "QueryObject", VALUEFUNC(_wrap_Storage_QueryObject), -1);
+  rb_define_method(SwigClassStorage.klass, "EncodeObject", VALUEFUNC(_wrap_Storage_EncodeObject), -1);
+  rb_define_method(SwigClassStorage.klass, "DecodeObject", VALUEFUNC(_wrap_Storage_DecodeObject), -1);
   rb_define_method(SwigClassStorage.klass, "EraseValueByKey", VALUEFUNC(_wrap_Storage_EraseValueByKey), -1);
   rb_define_method(SwigClassStorage.klass, "CreateObject", VALUEFUNC(_wrap_Storage_CreateObject), -1);
   rb_define_singleton_method(SwigClassStorage.klass, "Create", VALUEFUNC(_wrap_Storage_Create), -1);
@@ -28906,6 +29124,8 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_module_function(mOtapi, "QueryPlainString", VALUEFUNC(_wrap_QueryPlainString), -1);
   rb_define_module_function(mOtapi, "StoreObject", VALUEFUNC(_wrap_StoreObject), -1);
   rb_define_module_function(mOtapi, "QueryObject", VALUEFUNC(_wrap_QueryObject), -1);
+  rb_define_module_function(mOtapi, "EncodeObject", VALUEFUNC(_wrap_EncodeObject), -1);
+  rb_define_module_function(mOtapi, "DecodeObject", VALUEFUNC(_wrap_DecodeObject), -1);
   rb_define_module_function(mOtapi, "EraseValueByKey", VALUEFUNC(_wrap_EraseValueByKey), -1);
   
   SwigClassOTDBString.klass = rb_define_class_under(mOtapi, "OTDBString", ((swig_class *) SWIGTYPE_p_OTDB__Storable->clientdata)->klass);

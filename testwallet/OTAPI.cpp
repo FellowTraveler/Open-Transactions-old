@@ -8463,15 +8463,20 @@ void OT_API_processInbox(const char * SERVER_ID,
 }
 
 
-void OT_API_processNymbox(const char * SERVER_ID,
-						  const char * USER_ID)
+// Returns:
+// -1 if error.
+//  0 if Nymbox is empty.
+//  1 or more: Count of items in Nymbox before processing.
+//
+int OT_API_processNymbox(const char * SERVER_ID,
+						 const char * USER_ID)
 {
 	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_processNymbox: Null SERVER_ID passed in.");
 	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_processNymbox: Null USER_ID passed in.");
 	
 	OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID);
 	
-	g_OT_API.processNymbox(theServerID, theUserID);
+	return g_OT_API.processNymbox(theServerID, theUserID);
 }
 
 
@@ -8852,6 +8857,61 @@ OT_BOOL OT_API_ResyncNymWithServer(const char * SERVER_ID, const char * USER_ID,
 
 
 // -----------------------------------------------------------
+/// QUERY ASSET TYPES (server message)
+///
+/// This way you can ask the server to confirm whether various
+/// asset types are issued there. You must prepare the encoded
+/// StringMap in advance of calling this function.
+///
+
+void OT_API_queryAssetTypes(const char * SERVER_ID, const char * USER_ID, const char * ENCODED_MAP)
+{
+	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_queryAssetTypes: Null SERVER_ID passed in.");
+	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_queryAssetTypes: Null USER_ID passed in.");
+	OT_ASSERT_MSG(NULL != ENCODED_MAP, "OT_API_queryAssetTypes: Null ENCODED_MAP passed in.");
+
+	OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID);
+	OTASCIIArmor theArmor(ENCODED_MAP);
+	
+	g_OT_API.queryAssetTypes(theServerID, theUserID, theArmor);
+}
+
+
+
+
+// -----------------------------------------------------------
+// GET MESSAGE PAYLOAD
+//
+// This way you can retrieve the payload from any message.
+// Useful, for example, for getting the encoded StringMap object
+// from the queryAssetTypes and @queryAssetTypes messages, which both
+// use the m_ascPayload field to transport it.
+//
+const char * OT_API_Message_GetPayload(const char * THE_MESSAGE)
+{
+	OT_ASSERT_MSG(NULL != THE_MESSAGE, "OT_API_Message_GetPayload: Null THE_MESSAGE passed in.");
+	
+	OTString	strMessage(THE_MESSAGE);
+	OTMessage	theMessage;
+	
+	if (!strMessage.Exists() || !theMessage.LoadContractFromString(strMessage))
+		return NULL;
+	
+	const char * pBuf = theMessage.m_ascPayload.Get(); 
+	
+#ifdef _WIN32
+	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+	
+	return g_tempBuf;			
+}
+
+
+
+
+// -----------------------------------------------------------
 // GET MESSAGE COMMAND TYPE
 //
 // This way you can discover what kind of command it was.
@@ -8862,11 +8922,11 @@ OT_BOOL OT_API_ResyncNymWithServer(const char * SERVER_ID, const char * USER_ID,
 const char * OT_API_Message_GetCommand(const char * THE_MESSAGE)
 {
 	OT_ASSERT_MSG(NULL != THE_MESSAGE, "OT_API_Message_GetCommand: Null THE_MESSAGE passed in.");
-
+	
 	OTString strMessage(THE_MESSAGE);
 	
 	OTMessage theMessage;
-
+	
 	if (!strMessage.Exists() || !theMessage.LoadContractFromString(strMessage))
 		return NULL;
 	

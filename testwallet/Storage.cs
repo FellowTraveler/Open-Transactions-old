@@ -265,6 +265,19 @@ public class Storage : IDisposable {
     return ret;
   }
 
+  public string EncodeObject(Storable theContents) {
+    string ret = otapiPINVOKE.Storage_EncodeObject(swigCPtr, Storable.getCPtr(theContents));
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public Storable DecodeObject(StoredObjectType theObjectType, string strInput) {
+    IntPtr cPtr = otapiPINVOKE.Storage_DecodeObject(swigCPtr, (int)theObjectType, strInput);
+    Storable ret = (cPtr == IntPtr.Zero) ? null : new Storable(cPtr, true);
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
   public bool EraseValueByKey(string strFolder, string oneStr, string twoStr, string threeStr) {
     bool ret = otapiPINVOKE.Storage_EraseValueByKey__SWIG_0(swigCPtr, strFolder, oneStr, twoStr, threeStr);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();

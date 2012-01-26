@@ -724,7 +724,7 @@ abstract class otapi {
 	}
 
 	static function OT_API_processNymbox($SERVER_ID,$USER_ID) {
-		OT_API_processNymbox($SERVER_ID,$USER_ID);
+		return OT_API_processNymbox($SERVER_ID,$USER_ID);
 	}
 
 	static function OT_API_withdrawVoucher($SERVER_ID,$USER_ID,$ACCT_ID,$RECIPIENT_USER_ID,$CHEQUE_MEMO,$AMOUNT) {
@@ -789,6 +789,14 @@ abstract class otapi {
 
 	static function OT_API_Message_GetSuccess($THE_MESSAGE) {
 		return OT_API_Message_GetSuccess($THE_MESSAGE);
+	}
+
+	static function OT_API_queryAssetTypes($SERVER_ID,$USER_ID,$ENCODED_MAP) {
+		OT_API_queryAssetTypes($SERVER_ID,$USER_ID,$ENCODED_MAP);
+	}
+
+	static function OT_API_Message_GetPayload($THE_MESSAGE) {
+		return OT_API_Message_GetPayload($THE_MESSAGE);
 	}
 
 	static function OT_API_Message_GetDepth($THE_MESSAGE) {
@@ -998,6 +1006,22 @@ abstract class otapi {
 		case '_p_OTDB__Storable': return new Storable($r);
 		default: return new Storable($r);
 		}
+	}
+
+	static function EncodeObject($theContents) {
+		return EncodeObject($theContents);
+	}
+
+	static function DecodeObject($theObjectType,$strInput) {
+		$r=DecodeObject($theObjectType,$strInput);
+		if (is_resource($r)) {
+			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
+			if (!class_exists($c)) {
+				return new Storable($r);
+			}
+			return new $c($r);
+		}
+		return $r;
 	}
 
 	static function EraseValueByKey($strFolder,$oneStr=null,$twoStr=null,$threeStr=null) {
@@ -1261,6 +1285,22 @@ abstract class Storage {
 		case '_p_OTDB__Storable': return new Storable($r);
 		default: return new Storable($r);
 		}
+	}
+
+	function EncodeObject($theContents) {
+		return Storage_EncodeObject($this->_cPtr,$theContents);
+	}
+
+	function DecodeObject($theObjectType,$strInput) {
+		$r=Storage_DecodeObject($this->_cPtr,$theObjectType,$strInput);
+		if (is_resource($r)) {
+			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
+			if (!class_exists($c)) {
+				return new Storable($r);
+			}
+			return new $c($r);
+		}
+		return $r;
 	}
 
 	function EraseValueByKey($strFolder,$oneStr=null,$twoStr=null,$threeStr=null) {

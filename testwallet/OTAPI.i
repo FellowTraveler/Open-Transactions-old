@@ -59,6 +59,8 @@
 %typemap("javapackage") QueryPlainString "com.wrapper.core.jni";
 %typemap("javapackage") StoreObject "com.wrapper.core.jni";
 %typemap("javapackage") QueryObject "com.wrapper.core.jni";
+%typemap("javapackage") EncodeObject "com.wrapper.core.jni";
+%typemap("javapackage") DecodeObject "com.wrapper.core.jni";
 %typemap("javapackage") EraseValueByKey "com.wrapper.core.jni";
 
 %typemap("javapackage") PackType "com.wrapper.core.jni";
@@ -217,7 +219,11 @@ bool OT_API_Set_PasswordCallback(OTCaller & theCaller);
 
 %newobject QueryObject(StoredObjectType theObjectType, std::string strFolder, std::string oneStr="", std::string twoStr="", std::string threeStr="");
 
+%newobject DecodeObject(StoredObjectType theObjectType, std::string strInput);
+
 %newobject Storage::QueryObject(StoredObjectType theObjectType, std::string strFolder, std::string oneStr="", std::string twoStr="", std::string threeStr="");
+
+%newobject Storage::DecodeObject(StoredObjectType theObjectType, std::string strInput);
 
 %newobject Storage::CreateObject(StoredObjectType eType);
 
@@ -944,7 +950,15 @@ namespace OTDB {
 							   std::string strFolder, std::string oneStr="",
 							   std::string twoStr="", std::string threeStr="");
 		
-        // -----------------------------------------
+		// -----------------------------------------
+		// Store/Retrieve a Storable object inside an OTASCIIArmor object.
+		
+		std::string EncodeObject(Storable & theContents);
+		
+		// Use %newobject OTDB::Storage::DecodeObject();
+		Storable * DecodeObject(StoredObjectType theObjectType, std::string strInput);
+		
+		// -----------------------------------------
         // Erase any value based on its location.
 
         bool EraseValueByKey(std::string strFolder, 
@@ -1032,8 +1046,15 @@ namespace OTDB {
 	Storable * QueryObject(StoredObjectType theObjectType,
 						   std::string strFolder, std::string oneStr="",
 						   std::string twoStr="", std::string threeStr="");		
+	// -----------------------------------------
+	// Store/Retrieve a Storable object inside an OTASCIIArmor object.
 	
-    // -----------------------------------------
+	std::string EncodeObject(Storable & theContents);
+	
+	// Use %newobject OTDB::Storage::DecodeObject();
+	Storable * DecodeObject(StoredObjectType theObjectType, std::string strInput);
+	
+	// -----------------------------------------
     // Erase any value based on its location.
 
     bool EraseValueByKey(std::string strFolder, 

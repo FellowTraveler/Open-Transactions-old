@@ -136,6 +136,7 @@ extern "C" {
 #include <stdint.h>	
 }
 
+class OTASCIIArmor;
 
 class OTData
 {
@@ -159,6 +160,7 @@ public:
 	OTData();
 	OTData(const void * pNewData, uint32_t nNewSize);
 	OTData(const OTData &theSource);
+	OTData(const OTASCIIArmor &theSource);
 
 	virtual void Release();
 	virtual ~OTData() { Release(); }

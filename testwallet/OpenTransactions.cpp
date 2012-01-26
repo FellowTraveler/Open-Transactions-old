@@ -6372,34 +6372,93 @@ void OT_API::getOutbox(OTIdentifier & SERVER_ID,
 
 
 
-
-void OT_API::processNymbox(OTIdentifier	& SERVER_ID,
-						   OTIdentifier	& USER_ID)
+// Returns:
+// -1 if error.
+//  0 if Nymbox is empty.
+//  1 or more: Count of items in Nymbox before processing.
+//
+int OT_API::processNymbox(OTIdentifier	& SERVER_ID,
+						  OTIdentifier	& USER_ID)
 {
 	const char * szFuncName = "OT_API::processNymbox";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName);
-	if (NULL == pNym) return;	
+	if (NULL == pNym) return (-1);	
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
+	const OTString strNymID(USER_ID);
 	// -----------------------------------------------------
 	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pServer) return;
+	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
-	OTMessage theMessage;
+	OTMessage	theMessage;
+	bool		bSuccess		= false;
+	int			nReceiptCount	= (-1);
+	bool		bIsEmpty		= true;
 
-	if (m_pClient->ProcessUserCommand(OTClient::processEntireNymbox, theMessage, 
-									  *pNym, *pServer,
-									  NULL)) // NULL pAccount on this command.
+	{
+		OTPseudonym			& theNym	= *pNym;
+		OTServerContract	& theServer	= *pServer;
+		
+		// Load up the appropriate Nymbox... 
+		OTLedger theNymbox (USER_ID, USER_ID, SERVER_ID);
+		
+		bool	bLoadedNymbox	= theNymbox.LoadNymbox();
+		bool	bVerifiedNymbox	= bLoadedNymbox ? theNymbox.VerifyAccount(theNym) : false;
+		
+		if (false == bLoadedNymbox)
+			OTLog::vOutput(0, "OT_API::processNymbox: Failed loading Nymbox: %s \n",
+						   strNymID.Get());
+		else if (false == bVerifiedNymbox)
+			OTLog::vOutput(0, "OT_API::processNymbox: Failed verifying Nymbox: %s \n",
+						   strNymID.Get());
+		// --------------------------------------
+		else
+		{
+			nReceiptCount	= theNymbox.GetTransactionCount();
+			bIsEmpty		= (nReceiptCount < 1);
+			
+			// -----------------
+			if (!bIsEmpty)
+				bSuccess = m_pClient->AcceptEntireNymbox(theNymbox, SERVER_ID, theServer, theNym, theMessage);
+			// -----------------
+			
+			if (!bSuccess)
+			{
+				if (bIsEmpty)
+					OTLog::vOutput(0, "OT_API::processNymbox: Nymbox (%s) is empty (so, skipping processNymbox.)\n",
+								   strNymID.Get());
+				else
+				{
+					OTLog::vOutput(0, "OT_API::processNymbox: Failed trying to accept the entire Nymbox. (And no, it's not empty.)\n");
+					nReceiptCount = (-1);
+				}
+			}
+			else	// Success!
+			{
+				// (2) Sign the Message 
+				theMessage.SignContract(theNym);		
+				
+				// (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+				theMessage.SaveContract();
+			}			
+		}
+		// --------------------------------------
+	}
+	
+	if (bSuccess)
 	{				
 #if defined(OT_ZMQ_MODE)
 		m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 #endif	
 		m_pClient->ProcessMessageOut(theMessage);
 	}
-	else
+	// if successful, ..., else if not successful--and wasn't empty--then error.
+	else if (!bIsEmpty)  
 		OTLog::Error("Error performing processNymbox command in OT_API::processNymbox\n");
+	
+	return nReceiptCount;
 }
 
 
@@ -6658,6 +6717,128 @@ void OT_API::getMint(OTIdentifier & SERVER_ID,
 }
 
 
+
+// Sends a list of asset IDs to the server, which replies with a list of the actual receipts
+// with the issuer's signature on them, from when the currency was issued.
+//
+// So you can tell for sure whether or not they are actually issued on that server.
+//
+// Map input: key is asset type ID, and value is blank (server reply puts issuer's receipts
+// in that spot.)
+//
+void OT_API::queryAssetTypes(OTIdentifier & SERVER_ID,
+							 OTIdentifier & USER_ID,
+							 OTASCIIArmor & ENCODED_MAP)
+{
+	/*
+	 // Java code will create a StringMap object:
+	 
+		String strEncodedObj(""); // output will go here.
+		StringMap stringMap = null;	// we are about to create this object
+
+		Storable storable = otapi.CreateObject(StoredObjectType.STORED_OBJ_STRING_MAP);
+		
+		if (storable != null) 
+		{
+            stringMap = StringMap.ot_dynamic_cast(storable);
+            if (stringMap != null) 
+			{
+				// ADD ALL THE ASSET IDs HERE (To the string map, so you
+				// can ask the server about them...)
+				//
+				for_each(the asset IDs you want to query the server about)
+				{
+					stringMap.SetValue(ASSET_TYPE_ID, "exists"); 
+				}
+
+				strEncodedObj = otapi.EncodeObject(stringMap);
+            }
+        }
+		
+		if (null == strEncodedObj)
+			Error;
+	 ----------------------------------------------------------------------
+	 
+		Then send the server message:
+	 
+	 var theRequest := OTAPI_Func(ot_Msg.QUERY_ASSET_TYPES, SERVER_ID, NYM_ID, strEncodedObj);
+	 var	strResponse = theRequest.SendRequest(theRequest, "QUERY_ASSET_TYPES");
+
+	 String strReplyMap = null;
+	 
+	 // When the server reply comes back, get the payload from it:
+	 //
+	 if (strResponse != null)
+		strReplyMap = OT_API_Message_GetPayload(strReply);
+	 ----------------------------------------------------------------------
+	 
+		//	Pass the payload (the StringMap from the server's reply) to otapi.DecodeObject:
+		//
+		if (strReplyMap != null)
+		{
+			StringMap stringMap = null;
+			Storable storable = otapi.DecodeObject(StoredObjectType.STORED_OBJ_STRING_MAP, strReplyMap);
+			if (storable != null) 
+			{
+				stringMap = StringMap.ot_dynamic_cast(storable);
+				if (stringMap != null) 
+				{
+					// Loop through string map. For each asset ID key, the value will 
+					// say either "true" or "false".
+					//
+					for_each(stringMap)
+					{
+						strValue = stringMap.GetValue(ASSET_TYPE_ID);
+	 
+						if (strValue.compare("true") == 0)
+						{
+							// ... do something here ...
+						}
+					}
+				}
+			}
+		}
+
+	 */
+	const char * szFuncName = "OT_API::queryAssetTypes";
+	// -----------------------------------------------------
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName);
+	if (NULL == pNym) return;	
+	// By this point, pNym is a good pointer, and is on the wallet.
+	//  (No need to cleanup.)
+	// -----------------------------------------------------
+	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
+	if (NULL == pServer) return;
+	// By this point, pServer is a good pointer.  (No need to cleanup.)
+	// -----------------------------------------------------
+	OTMessage theMessage;
+	long lRequestNumber = 0;
+	
+	OTString strServerID(SERVER_ID), strNymID(USER_ID);
+	
+	// (0) Set up the REQUEST NUMBER and then INCREMENT IT
+	pNym->GetCurrentRequestNum(strServerID, lRequestNumber);
+	theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
+	pNym->IncrementRequestNum(*pNym, strServerID); // since I used it for a server request, I have to increment it
+	
+	// (1) set up member variables 
+	theMessage.m_strCommand			= "queryAssetTypes";
+	theMessage.m_strNymID			= strNymID;
+	theMessage.m_strServerID		= strServerID;
+	theMessage.m_ascPayload			= ENCODED_MAP;
+	
+	// (2) Sign the Message 
+	theMessage.SignContract(*pNym);		
+	
+	// (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+	theMessage.SaveContract();
+	
+	// (Send it)
+#if defined(OT_ZMQ_MODE)
+	m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
+#endif	
+	m_pClient->ProcessMessageOut(theMessage);
+}
 
 
 

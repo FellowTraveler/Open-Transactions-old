@@ -488,8 +488,8 @@ OTAccount * OTAccount::LoadExistingAccount(const OTIdentifier & theAccountID, co
 	
 	if (false == OTDB::Exists(pAccount->m_strFoldername.Get(), pAccount->m_strFilename.Get()))
 	{
-		OTLog::vError("OTAccount::LoadExistingAccount: File does not exist: %s%s%s\n", 
-					  pAccount->m_strFoldername.Get(), OTLog::PathSeparator(), pAccount->m_strFilename.Get());
+		OTLog::vOutput(2, "OTAccount::LoadExistingAccount: File does not exist: %s%s%s\n", 
+					   pAccount->m_strFoldername.Get(), OTLog::PathSeparator(), pAccount->m_strFilename.Get());
 		return NULL;
 	}
 	

@@ -2201,8 +2201,14 @@ void OT_API_processInbox(const char * SERVER_ID,
 /// It was causing network problems. Now clients NEED to call this themselves,
 /// after getting the Nymbox. I can't call it for them anymore.
 ///
-void OT_API_processNymbox(const char * SERVER_ID,
-						  const char * USER_ID);
+/// Returns:
+/// -1 if error.
+///  0 if Nymbox is empty.
+///  1 or more: Count of items in Nymbox before processing.
+///
+
+int OT_API_processNymbox(const char * SERVER_ID,
+						 const char * USER_ID);
 
 
 // --------------------------------------------------------------------------
@@ -2407,6 +2413,31 @@ const char * OT_API_Message_GetCommand(const char * THE_MESSAGE);
 /// Also returns OT_FALSE for error.
 ///
 int OT_API_Message_GetSuccess(const char * THE_MESSAGE);
+
+
+
+
+
+// -----------------------------------------------------------
+/// QUERY ASSET TYPES (server message)
+///
+/// This way you can ask the server to confirm whether various
+/// asset types are issued there.
+///
+void OT_API_queryAssetTypes(const char * SERVER_ID, const char * USER_ID, const char * ENCODED_MAP);
+
+
+
+
+// -----------------------------------------------------------
+/// GET MESSAGE PAYLOAD
+///
+/// This way you can retrieve the payload from any message.
+/// Useful, for example, for getting the encoded StringMap object
+/// from the queryAssetTypes and @queryAssetTypes messages, which both
+/// use the m_ascPayload field to transport it.
+///
+const char * OT_API_Message_GetPayload(const char * THE_MESSAGE);
 
 
 

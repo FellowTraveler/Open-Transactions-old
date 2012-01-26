@@ -139,36 +139,14 @@ extern "C"
 
 #include "OTData.h"
 
+#include "OTStorage.h"
+
+#include "OTASCIIArmor.h"
+
+
 #include "OTLog.h"
 
-// First use reset() to set the internal position to 0.
-// Then you pass in the buffer where the results go.
-// You pass in the length of that buffer.
-// It returns how much was actually read.
-// If you start at position 0, and read 100 bytes, then
-// you are now on position 100, and the next OTfread will 
-// proceed from that position. (Unless you reset().)
-//
-int OTData::OTfread(char * buf, int buflen)
-{
-	int nSizeToRead = 0;
-	
-	if (buf && (buflen > 0) && m_pData && (m_lPosition < GetSize()))
-	{
-		// If the size is 20, and position is 5 (I've already read the first 5 bytes)
-		// then the size remaining to read is 15. That is, GetSize() minus m_lPosition.
-		nSizeToRead = GetSize() - m_lPosition;
-		
-		if (buflen < nSizeToRead)
-			nSizeToRead = buflen;
-		
-		memcpy(buf, ((char*)m_pData)+m_lPosition, nSizeToRead); 
-		m_lPosition += nSizeToRead;
-	}
-	
-	return nSizeToRead; 
-}
-
+;
 
 bool OTData::operator==(const OTData &s2) const
 {
@@ -209,6 +187,35 @@ bool OTData::operator!=(const OTData &s2) const
 	
 	return true;
 }
+
+// First use reset() to set the internal position to 0.
+// Then you pass in the buffer where the results go.
+// You pass in the length of that buffer.
+// It returns how much was actually read.
+// If you start at position 0, and read 100 bytes, then
+// you are now on position 100, and the next OTfread will 
+// proceed from that position. (Unless you reset().)
+//
+int OTData::OTfread(char * buf, int buflen)
+{
+	int nSizeToRead = 0;
+	
+	if (buf && (buflen > 0) && m_pData && (m_lPosition < GetSize()))
+	{
+		// If the size is 20, and position is 5 (I've already read the first 5 bytes)
+		// then the size remaining to read is 15. That is, GetSize() minus m_lPosition.
+		nSizeToRead = GetSize() - m_lPosition;
+		
+		if (buflen < nSizeToRead)
+			nSizeToRead = buflen;
+		
+		memcpy(buf, ((char*)m_pData)+m_lPosition, nSizeToRead); 
+		m_lPosition += nSizeToRead;
+	}
+	
+	return nSizeToRead; 
+}
+
 
 /* The initialization vector needs to be known to Alice AND Bob.
    And it needs to be transmitted at the time the session key is negotiated.
@@ -266,6 +273,12 @@ OTData::OTData() : m_pData(NULL), m_lPosition(0), m_lSize(0)
 OTData::OTData(const OTData &theSource) : m_pData(NULL), m_lPosition(0), m_lSize(0)
 {	
 	Assign(theSource);  // ***********
+}
+
+OTData::OTData(const OTASCIIArmor &theSource) : m_pData(NULL), m_lPosition(0), m_lSize(0)
+{	
+	if (theSource.Exists())
+		theSource.GetData(*this); // ***********
 }
 
 OTData::OTData(const void * pNewData, uint32_t lNewSize) : m_pData(NULL), m_lPosition(0), m_lSize(0)

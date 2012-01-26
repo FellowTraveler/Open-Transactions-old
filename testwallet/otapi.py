@@ -885,6 +885,14 @@ def OT_API_Message_GetSuccess(*args):
   return _otapi.OT_API_Message_GetSuccess(*args)
 OT_API_Message_GetSuccess = _otapi.OT_API_Message_GetSuccess
 
+def OT_API_queryAssetTypes(*args):
+  return _otapi.OT_API_queryAssetTypes(*args)
+OT_API_queryAssetTypes = _otapi.OT_API_queryAssetTypes
+
+def OT_API_Message_GetPayload(*args):
+  return _otapi.OT_API_Message_GetPayload(*args)
+OT_API_Message_GetPayload = _otapi.OT_API_Message_GetPayload
+
 def OT_API_Message_GetDepth(*args):
   return _otapi.OT_API_Message_GetDepth(*args)
 OT_API_Message_GetDepth = _otapi.OT_API_Message_GetDepth
@@ -993,6 +1001,8 @@ class Storage(_object):
     def QueryPlainString(self, *args): return _otapi.Storage_QueryPlainString(self, *args)
     def StoreObject(self, *args): return _otapi.Storage_StoreObject(self, *args)
     def QueryObject(self, *args): return _otapi.Storage_QueryObject(self, *args)
+    def EncodeObject(self, *args): return _otapi.Storage_EncodeObject(self, *args)
+    def DecodeObject(self, *args): return _otapi.Storage_DecodeObject(self, *args)
     def EraseValueByKey(self, *args): return _otapi.Storage_EraseValueByKey(self, *args)
     def CreateObject(self, *args): return _otapi.Storage_CreateObject(self, *args)
     __swig_getmethods__["Create"] = lambda x: _otapi.Storage_Create
@@ -1013,6 +1023,14 @@ GetDefaultStorage = _otapi.GetDefaultStorage
 def CreateObject(*args):
   return _otapi.CreateObject(*args)
 CreateObject = _otapi.CreateObject
+
+def EncodeObject(*args):
+  return _otapi.EncodeObject(*args)
+EncodeObject = _otapi.EncodeObject
+
+def DecodeObject(*args):
+  return _otapi.DecodeObject(*args)
+DecodeObject = _otapi.DecodeObject
 class OTDBString(Storable):
     __swig_setmethods__ = {}
     for _s in [Storable]: __swig_setmethods__.update(getattr(_s,'__swig_setmethods__',{}))

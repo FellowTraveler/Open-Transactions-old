@@ -6,7 +6,7 @@
 
 
 // ------------------------------------------------------
-// RESYNCHRONIZE A NYM WITH A TRANSACTION SERVER
+// RESYNCHRONIZE A NYM WITH A SERVER
 //
 // This script is only meant to be used for testing, or in some
 // emergency situation. Normally you should never have to do this,
@@ -21,18 +21,9 @@
 // server, and sets your own Nym to match. (Back in sync.)
 
 // --------------------------------------------------------------------
-// NEW: Ultra-High-Level interface!
-//
-// The ultra-high level interface is a layer on TOP of the OTAPI itself,
-// which makes it much easier to use.
-//
-// There is also a Java version of this now, OTAPI_Func and Utility,
-// which are used in the Moneychanger code.
-
-
+use("../ot/ot_utility.ot")
 use("../ot/otapi.ot")
-
-
+use("../ot/ot_made_easy.ot")
 
 // --------------------------------------------------------------------
 // Pseudocode:
@@ -44,7 +35,7 @@ use("../ot/otapi.ot")
 //		std::string OT_API_PopMessageBuffer() to read the reply--after a quick
 //		OT_API_Sleep(). (Sleep isn't really necessary since OT now has its own
 //		internal polling and timeouts, which you can configure in client.cfg)
-//		Is the message success? (Use bool OT_API_Message_GetSuccess(std::string THE_MESSAGE))
+//		Is the message success? Use VerifyMessageSuccess() to find out.
 //	2. Perform createUserAccount, whether Nym is registered or not, so we can download the 
 //		Nymfile. (createUserAccount, if you are already registered, allows you to download
 //		your Nymfile.) This way we are assured that the Nym is registered
@@ -57,156 +48,132 @@ use("../ot/otapi.ot")
 //		Once again, flush, call, sleep, pop, and check for success. If so...
 //	5. Use getNymbox() to download the latest version of your Nymbox from the server:
 //		OT_API_getNymbox(std::string SERVER_ID, std::string USER_ID);
-//	6. NOW call ResyncNymWithServer().
-//	7. Finally, call: OT_API_processNymbox(std::string SERVER_ID, std::string USER_ID)
+//	6. Download all the box receipts for that nymbox.
+//	7. NOW call ResyncNymWithServer().
+//	8. Finally, call: OT_API_processNymbox(std::string SERVER_ID, std::string USER_ID)
 //		As before, flush/call/sleep/pop and check for success.
 // ******************************************************************
 
 
-
-var bSuccess = false;
-
-
-
-//	0. As always, call OT_API_FlushMessageBuffer() before sending the request to the server.
-//
-OT_API_FlushMessageBuffer();
-OT_API_checkServerID(Server, MyNym); // <===========================  CHECK SERVER ID
-OT_API_Sleep("100"); // OT has its own internal delays--this is just extra. See ~/.ot/client.cfg
-var strServerReply = OT_API_PopMessageBuffer();
-
-//	1. Use the checkServer command and verify that we are able to "ping" it.
-//		std::string OT_API_PopMessageBuffer() to read the reply--after a quick OT_API_Sleep().
-//		Is success true? Use bool OT_API_Message_GetSuccess(std::string THE_MESSAGE);
-//
-
-
-// If these string calls fail, then test these text:
-/*
-assert_equal(true, 1.is_var_pointer());
-assert_equal(false, 1.is_var_null());
-*/
-if (!strServerReply.is_type(string_type) || strServerReply.size() == 0)
+def resync_nym()
 {
-	OT_API_Output(0, "\n There's no server reply to our checkServerID request. (Like a ping.) Is the server running? (Finished.)\n");
-}
-else if (false == OT_API_Message_GetSuccess(strServerReply))
-{
-	OT_API_Output(0, "\n Server reply says FAILURE to our checkServerID request. (Like a ping.) Do you have the right server contract? (Finished.)\n");
-}
-else
-{
-	//	2. Perform createUserAccount, whether Nym is registered or not, so we can download the Nymfile.
-	//		void OT_API_createUserAccount(std::string SERVER_ID, std::string USER_ID)
+	var bSuccess = false;
+
+	//	0. As always, call OT_API_FlushMessageBuffer() before sending the request to the server.
 	//
 	OT_API_FlushMessageBuffer();
-	OT_API_createUserAccount(Server, MyNym); // <===========================  CREATE USER ACCOUNT (DOWNLOADS IF ALREADY EXISTS.)
-	OT_API_Sleep("100");
-	var strCreateUserReply	= OT_API_PopMessageBuffer();
-	
-	//	3. As before, Pop the server reply. Save it, so we can pass it to:
-	//		bool OT_API_ResyncNymWithServer(std::string SERVER_ID, std::string USER_ID, std::string THE_MESSAGE)
-	//		(BUT NOT YET! Just save it for now.)
+	OT_API_checkServerID(Server, MyNym); // <===========================  CHECK SERVER ID
+	OT_API_Sleep("100"); // OT has its own internal delays--this is just extra. See ~/.ot/client.cfg
+	var strServerReply = OT_API_PopMessageBuffer();
+
+	//	1. Use the checkServer command and verify that we are able to "ping" it.
+	//		std::string OT_API_PopMessageBuffer() to read the reply--after a quick OT_API_Sleep().
+	//		Is success true? Use bool OT_API_Message_GetSuccess(std::string THE_MESSAGE);
+	//
 
 
-	if (!strCreateUserReply.is_type(string_type) || strCreateUserReply.size() == 0)
+	// If these string calls fail, then test these text:
+	/*
+	assert_equal(true, 1.is_var_pointer());
+	assert_equal(false, 1.is_var_null());
+	*/
+	if (!VerifyMessageSuccess(strServerReply))
 	{
-		OT_API_Output(0, "\n There's no server reply to our createUserAccount request. Strange. (Finished.)\n");
-	}
-	else if (false == OT_API_Message_GetSuccess(strCreateUserReply))
-	{
-		OT_API_Output(0, "\n Server reply says FAILURE to our createUserAccount request. (Strange, since this call should never fail.) Perhaps the server is locked? (Finished.)\n");
+		OT_API_Output(0, "\n Failure in checkServerID request. (checkServerID is like OT's version of ping.) Do you have the right server contract? (Finished.)\n");
 	}
 	else
 	{
-		//	4. Use the getRequest command, thus insuring that the request number is in sync. 
-		//		void OT_API_getRequest(std::string SERVER_ID, std::string USER_ID)
-		//		Once again, flush, call, sleep, pop, and check for success. If so...
+		var madeEasy	= OT_ME();
+		
+		//	2. Perform createUserAccount, whether Nym is registered or not, so we can download the Nymfile.
+		//		void OT_API_createUserAccount(std::string SERVER_ID, std::string USER_ID)
 		//
-		OT_API_FlushMessageBuffer();
-		OT_API_getRequest(Server, MyNym); // <====================  GET (synchronize) the REQUEST NUMBER
-		OT_API_Sleep("100");
-		strServerReply = OT_API_PopMessageBuffer();
+		var strCreateUserReply = madeEasy.register_nym(Server, MyNym);
 
-		if (!strServerReply.is_type(string_type) || strServerReply.size() == 0)
+		
+		//	3. Save strCreateUserReply, so we can pass it to:
+		//		bool OT_API_ResyncNymWithServer(std::string SERVER_ID, std::string USER_ID, std::string THE_MESSAGE)
+		//	   (BUT NOT YET! Just save it for now.)
+
+		if (!VerifyMessageSuccess(strCreateUserReply))
 		{
-			OT_API_Output(0, "\n There's no server reply to our getRequest message. Strange. (Finished.)\n");
+			OT_API_Output(0, "\n Failure on createUserAccount request. (Strange, since this call should never fail.) Perhaps the server is locked? (Finished.)\n");
 		}
-		else if (false == OT_API_Message_GetSuccess(strServerReply))
+		else
 		{
-			OT_API_Output(0, "\n Server reply says FAILURE to our getRequest message. (Strange, since this call should never fail.) Perhaps the server is locked? (Finished.)\n");
-		}
-		else // By this point, we know for sure that the request number is in sync. (So we can do more messages now.)
-		{
-			//	5. Use getNymbox() to download the latest version of your Nymbox from the server:
-			//		OT_API_getNymbox(std::string SERVER_ID, std::string USER_ID);
-			//
-			OT_API_FlushMessageBuffer();
-			OT_API_getNymbox(Server, MyNym); // <================== GET NYMBOX
-			OT_API_Sleep("100");
-			strServerReply = OT_API_PopMessageBuffer();
+			var MsgUtil	= Utility();
 
-			if (!strServerReply.is_type(string_type) || strServerReply.size() == 0)
-			{
-				OT_API_Output(0, "\n There's no server reply to our getNymbox message. Strange. (Finished.)\n");
-			}
-			else if (false == OT_API_Message_GetSuccess(strServerReply))
-			{
-				OT_API_Output(0, "\n Server reply says FAILURE to our getNymbox message. (Strange, since this call should never fail.) Perhaps the server is locked? (Finished.)\n");
-			}	// By this point, we know for sure that the request number is in sync 
-				// AND we also know that have the most recent Nymbox.
-			// ---------------------------------------------
-			//	6. ...NOW call ResyncNymWithServer().
+			//	4. Use the getRequest command, thus insuring that the request number is in sync. 
 			//
-			else if (false == OT_API_ResyncNymWithServer(Server, MyNym, strCreateUserReply))
+			if (!MsgUtil.getRequestNumber(Server, MyNym))
 			{
-				OT_API_Output(0, "\n I don't know why this happened, but basically, your little 'Re-sync' effort utterly failed. (Finished.)\n");
+				OT_API_Output(0, "\n Failure in getRequestNumber. (Strange, since this call should never fail.) Perhaps the server is locked? (Finished.)\n");
 			}
-			// ------------------------------------------------------------
-			//	7. Finally, call: OT_API_processNymbox(std::string SERVER_ID, std::string USER_ID)
-			//		As before, flush/call/sleep/pop and check for success.
-			//
-			else
+			else // By this point, we know for sure that the request number is in sync. (So we can do more messages now.)
 			{
-				OT_API_FlushMessageBuffer();
-				OT_API_processNymbox(Server, MyNym); // <================= PROCESS NYMBOX.
-				OT_API_Sleep("100");
-				strServerReply = OT_API_PopMessageBuffer();
-
-				if (!strServerReply.is_type(string_type) || strServerReply.size() == 0)
+				//	5. Use getNymbox() to download the latest version of your Nymbox from the server:
+				//		OT_API_getNymbox(std::string SERVER_ID, std::string USER_ID);
+				//			
+				if (!MsgUtil.getNymboxLowLevel(Server, MyNym))
 				{
-				//  Use "print" here, to print any object with auto-conversion to string.
-				//  print(strServerReply);
+					OT_API_Output(0, "\n Failure in getNymbox. (Strange, since this call should never fail.) Perhaps the server is locked? (Finished.)\n");
+				}	// By this point, we know for sure that the request number is in sync 
+					// AND we also know that have the most recent Nymbox.
+				// ---------------------------------------------
+				var nBoxType = 0;	// nBoxType = 0 aka nymbox
+				if (!MsgUtil.insureHaveAllBoxReceipts(Server, MyNym, MyNym, nBoxType))
+				{
+					OT_API_Output(0, "Resync: Utility.insureHaveAllBoxReceipts failed. (I give up.)\n");
+				}
+				// ---------------------------------------------
+				//	6. ...NOW call ResyncNymWithServer().
+				//
+				else if (!OT_API_ResyncNymWithServer(Server, MyNym, strCreateUserReply))
+				{
+					OT_API_Output(0, "\n I don't know why this happened, but basically, your little 'Re-sync' effort utterly failed. (Finished.)\n");
+				}
+				// ------------------------------------------------------------
+				//	7. Finally, call: OT_API_processNymbox(std::string SERVER_ID, std::string USER_ID)
+				//		As before, flush/call/sleep/pop and check for success.
+				//
+				else
+				{
+					var nReceiptCount = MsgUtil.processNymbox(Server, MyNym);
 				
-					OT_API_Output(0, "\n There's no server reply to our processNymbox message. Strange. (Finished.)\n");
-				}
-				else if (false == OT_API_Message_GetSuccess(strServerReply))
-				{
-					OT_API_Output(0, "\n Server reply says FAILURE to our processNymbox message. (Strange, since this call should never fail unless we're out of sync...) Perhaps the server is locked? Perhaps our attempt to re-synchronize has utterly failed? (Finished.)\n");
+					if (nReceiptCount == (-1))
+					{
+						OT_API_Output(0, "\n Failure on processNymbox message. (Strange, since this call should never fail unless we're out of sync...) Perhaps the server is locked? Perhaps our attempt to re-synchronize has utterly failed? (Finished.)\n");
 
-				//  print(strServerReply);
-				}
-				else // By this point, we know for sure that the request number is in sync.
-				{
-					bSuccess = true;
-				} // processNymbox was a success.
-			} // getNymbox was a success, AND the Resync call itself was a success!
-			// ----------------------------------------------------------
-		}	// (request number is in sync.)
-	} // (createUserAccount was successful.)
-} // (checkServerID was successful)
+					//  print(strServerReply);
+					}
+					else	// SUCCESS!!!
+					{
+						bSuccess = true;
+					} // processNymbox was a success.
+				} // getNymbox was a success, AND the Resync call itself was a success!
+				// ----------------------------------------------------------
+			}	// (request number is in sync.)
+		} // (createUserAccount was successful.)
+	} // (checkServerID was successful)
 
+	return bSuccess;
+}
 // ******************************************************************
 
-// SUCCESS!!!
-//
-if (bSuccess)
-{
-	OT_API_Output(0, "Apparently everything was a SUCCESS, including the processNymbox, so you SHOULD be in sync. (Keep your fingers crossed.)\n");
-}
+	
+	
+	
+	
+	if (resync_nym())
+	{
+		OT_API_Output(0, "\n(The sync script was apparently a success.)\n\n");
+	}
 
 
-// That's all she wrote, folks!  We're in sync!
+
+
+
+// That's all she wrote, folks!  We're in sync I hope!
 
 
 

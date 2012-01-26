@@ -199,7 +199,7 @@ public class otapiJNI {
   public final static native void OT_API_getBoxReceipt(String jarg1, String jarg2, String jarg3, int jarg4, String jarg5);
   public final static native int OT_API_DoesBoxReceiptExist(String jarg1, String jarg2, String jarg3, int jarg4, String jarg5);
   public final static native void OT_API_processInbox(String jarg1, String jarg2, String jarg3, String jarg4);
-  public final static native void OT_API_processNymbox(String jarg1, String jarg2);
+  public final static native int OT_API_processNymbox(String jarg1, String jarg2);
   public final static native void OT_API_withdrawVoucher(String jarg1, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6);
   public final static native void OT_API_depositCheque(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native void OT_API_depositPaymentPlan(String jarg1, String jarg2, String jarg3);
@@ -216,6 +216,8 @@ public class otapiJNI {
   public final static native int OT_API_ResyncNymWithServer(String jarg1, String jarg2, String jarg3);
   public final static native String OT_API_Message_GetCommand(String jarg1);
   public final static native int OT_API_Message_GetSuccess(String jarg1);
+  public final static native void OT_API_queryAssetTypes(String jarg1, String jarg2, String jarg3);
+  public final static native String OT_API_Message_GetPayload(String jarg1);
   public final static native int OT_API_Message_GetDepth(String jarg1);
   public final static native int OT_API_Message_GetTransactionSuccess(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native int OT_API_Message_GetBalanceAgreementSuccess(String jarg1, String jarg2, String jarg3, String jarg4);
@@ -296,6 +298,8 @@ public class otapiJNI {
   public final static native long Storage_QueryObject__SWIG_1(long jarg1, Storage jarg1_, int jarg2, String jarg3, String jarg4, String jarg5);
   public final static native long Storage_QueryObject__SWIG_2(long jarg1, Storage jarg1_, int jarg2, String jarg3, String jarg4);
   public final static native long Storage_QueryObject__SWIG_3(long jarg1, Storage jarg1_, int jarg2, String jarg3);
+  public final static native String Storage_EncodeObject(long jarg1, Storage jarg1_, long jarg2, Storable jarg2_);
+  public final static native long Storage_DecodeObject(long jarg1, Storage jarg1_, int jarg2, String jarg3);
   public final static native boolean Storage_EraseValueByKey__SWIG_0(long jarg1, Storage jarg1_, String jarg2, String jarg3, String jarg4, String jarg5);
   public final static native boolean Storage_EraseValueByKey__SWIG_1(long jarg1, Storage jarg1_, String jarg2, String jarg3, String jarg4);
   public final static native boolean Storage_EraseValueByKey__SWIG_2(long jarg1, Storage jarg1_, String jarg2, String jarg3);
@@ -342,6 +346,8 @@ public class otapiJNI {
   public final static native long QueryObject__SWIG_1(int jarg1, String jarg2, String jarg3, String jarg4);
   public final static native long QueryObject__SWIG_2(int jarg1, String jarg2, String jarg3);
   public final static native long QueryObject__SWIG_3(int jarg1, String jarg2);
+  public final static native String EncodeObject(long jarg1, Storable jarg1_);
+  public final static native long DecodeObject(int jarg1, String jarg2);
   public final static native boolean EraseValueByKey__SWIG_0(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native boolean EraseValueByKey__SWIG_1(String jarg1, String jarg2, String jarg3);
   public final static native boolean EraseValueByKey__SWIG_2(String jarg1, String jarg2);

@@ -35,10 +35,10 @@ public class OfferListNym extends Storable {
     super.delete();
   }
 // ------------------------
-	/*@SWIG:OTAPI.i,346,OT_CONTAINER_TYPE_MEMBERS@*/
+	/*@SWIG:OTAPI.i,352,OT_CONTAINER_TYPE_MEMBERS@*/
 	private List elementList = new ArrayList();
 /*@SWIG@*/
-	/*@SWIG:OTAPI.i,427,OT_ADD_ELEMENT@*/  // THIS BLOCK CONTAINS JAVA CODE.
+	/*@SWIG:OTAPI.i,433,OT_ADD_ELEMENT@*/  // THIS BLOCK CONTAINS JAVA CODE.
 private long removeRefOfferDataNym(long lIndex) {
 	// 
 	// loop through the elements in the actual container, in order to find the one

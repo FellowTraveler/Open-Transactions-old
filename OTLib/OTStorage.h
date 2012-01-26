@@ -639,10 +639,17 @@ public: \
 		bool StoreObject(Storable & theContents, std::string strFolder, 
 						 std::string oneStr="", std::string twoStr="", std::string threeStr="");
 		
-		// Use %newobject OTDB::Storage::Query();
+		// Use %newobject OTDB::Storage::QueryObject();
 		Storable * QueryObject(StoredObjectType theObjectType,
 							   std::string strFolder, std::string oneStr="",
 							   std::string twoStr="", std::string threeStr="");
+		// -----------------------------------------
+		// Store/Retrieve a Storable object inside an OTASCIIArmor object.
+		
+		std::string EncodeObject(Storable & theContents);
+		
+		// Use %newobject OTDB::Storage::DecodeObject();
+		Storable * DecodeObject(StoredObjectType theObjectType, std::string strInput);
 		
 		// -----------------------------------------
 		// Erase any value based on its location.
@@ -726,8 +733,15 @@ public: \
 	Storable * QueryObject(StoredObjectType theObjectType,
 						   std::string strFolder, std::string oneStr="",
 						   std::string twoStr="", std::string threeStr="");		
+	// -----------------------------------------
+	// Store/Retrieve a Storable object inside an OTASCIIArmor object.
 	
-    // -----------------------------------------
+	std::string EncodeObject(Storable & theContents);
+	
+	// Use %newobject OTDB::Storage::DecodeObject();
+	Storable * DecodeObject(StoredObjectType theObjectType, std::string strInput);
+	
+	// -----------------------------------------
     // Erase any value based on its location.
     
     bool EraseValueByKey(std::string strFolder, 
@@ -746,10 +760,10 @@ public: \
 		return dynamic_cast<const T *>(pObject);
 	}
 	*/
-			
-	
-	
-	
+
+
+
+
 #define DECLARE_GET_ADD_REMOVE(name) \
 protected: \
 	std::deque< stlplus::simple_ptr_clone<name> > list_##name##s; \

@@ -9486,6 +9486,7 @@ _wrap_OT_API_processNymbox(ClientData clientData SWIGUNUSED, Tcl_Interp *interp,
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"oo:OT_API_processNymbox SERVER_ID USER_ID ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -9498,8 +9499,8 @@ _wrap_OT_API_processNymbox(ClientData clientData SWIGUNUSED, Tcl_Interp *interp,
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_processNymbox" "', argument " "2"" of type '" "char const *""'");
   }
   arg2 = reinterpret_cast< char * >(buf2);
-  OT_API_processNymbox((char const *)arg1,(char const *)arg2);
-  
+  result = (int)OT_API_processNymbox((char const *)arg1,(char const *)arg2);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   return TCL_OK;
@@ -10233,6 +10234,75 @@ _wrap_OT_API_Message_GetSuccess(ClientData clientData SWIGUNUSED, Tcl_Interp *in
   arg1 = reinterpret_cast< char * >(buf1);
   result = (int)OT_API_Message_GetSuccess((char const *)arg1);
   Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return TCL_OK;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OT_API_queryAssetTypes(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  int res3 ;
+  char *buf3 = 0 ;
+  int alloc3 = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"ooo:OT_API_queryAssetTypes SERVER_ID USER_ID ENCODED_MAP ",(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_queryAssetTypes" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(objv[2], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_queryAssetTypes" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  res3 = SWIG_AsCharPtrAndSize(objv[3], &buf3, NULL, &alloc3);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OT_API_queryAssetTypes" "', argument " "3"" of type '" "char const *""'");
+  }
+  arg3 = reinterpret_cast< char * >(buf3);
+  OT_API_queryAssetTypes((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  return TCL_OK;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OT_API_Message_GetPayload(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  char *arg1 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  char *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"o:OT_API_Message_GetPayload THE_MESSAGE ",(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Message_GetPayload" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  result = (char *)OT_API_Message_GetPayload((char const *)arg1);
+  Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   return TCL_OK;
 fail:
@@ -13426,6 +13496,77 @@ _wrap_Storage_QueryObject(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, 
 
 
 SWIGINTERN int
+_wrap_Storage_EncodeObject(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  OTDB::Storage *arg1 = (OTDB::Storage *) 0 ;
+  OTDB::Storable *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  std::string result;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oo:Storage_EncodeObject self theContents ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTDB__Storage, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Storage_EncodeObject" "', argument " "1"" of type '" "OTDB::Storage *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::Storage * >(argp1);
+  res2 = SWIG_ConvertPtr(objv[2], &argp2, SWIGTYPE_p_OTDB__Storable,  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Storage_EncodeObject" "', argument " "2"" of type '" "OTDB::Storable &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "Storage_EncodeObject" "', argument " "2"" of type '" "OTDB::Storable &""'"); 
+  }
+  arg2 = reinterpret_cast< OTDB::Storable * >(argp2);
+  result = (arg1)->EncodeObject(*arg2);
+  Tcl_SetObjResult(interp,SWIG_From_std_string(static_cast< std::string >(result)));
+  return TCL_OK;
+fail:
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_Storage_DecodeObject(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  OTDB::Storage *arg1 = (OTDB::Storage *) 0 ;
+  OTDB::StoredObjectType arg2 ;
+  std::string arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"ooo:Storage_DecodeObject self theObjectType strInput ",(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTDB__Storage, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Storage_DecodeObject" "', argument " "1"" of type '" "OTDB::Storage *""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::Storage * >(argp1);
+  ecode2 = SWIG_AsVal_int SWIG_TCL_CALL_ARGS_2(objv[2], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "Storage_DecodeObject" "', argument " "2"" of type '" "OTDB::StoredObjectType""'");
+  } 
+  arg2 = static_cast< OTDB::StoredObjectType >(val2);
+  {
+    std::string *ptr = (std::string *)0;
+    int res = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[3], &ptr);
+    if (!SWIG_IsOK(res) || !ptr) {
+      SWIG_exception_fail(SWIG_ArgError((ptr ? res : SWIG_TypeError)), "in method '" "Storage_DecodeObject" "', argument " "3"" of type '" "std::string""'"); 
+    }
+    arg3 = *ptr;
+    if (SWIG_IsNewObj(res)) delete ptr;
+  }
+  result = (OTDB::Storable *)(arg1)->DecodeObject(arg2,arg3);
+  Tcl_SetObjResult(interp, SWIG_NewInstanceObj( SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable,0));
+  return TCL_OK;
+fail:
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
 _wrap_Storage_EraseValueByKey__SWIG_0(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   OTDB::Storage *arg1 = (OTDB::Storage *) 0 ;
   std::string arg2 ;
@@ -13793,6 +13934,8 @@ static swig_method swig_OTDB_Storage_methods[] = {
     {"QueryPlainString", _wrap_Storage_QueryPlainString}, 
     {"StoreObject", _wrap_Storage_StoreObject}, 
     {"QueryObject", _wrap_Storage_QueryObject}, 
+    {"EncodeObject", _wrap_Storage_EncodeObject}, 
+    {"DecodeObject", _wrap_Storage_DecodeObject}, 
     {"EraseValueByKey", _wrap_Storage_EraseValueByKey}, 
     {"CreateObject", _wrap_Storage_CreateObject}, 
     {"GetType", _wrap_Storage_GetType}, 
@@ -16343,6 +16486,61 @@ _wrap_QueryObject(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc
     "    OTDB::QueryObject(OTDB::StoredObjectType,std::string,std::string,std::string)\n"
     "    OTDB::QueryObject(OTDB::StoredObjectType,std::string,std::string)\n"
     "    OTDB::QueryObject(OTDB::StoredObjectType,std::string)\n", TCL_STATIC);
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_EncodeObject(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  OTDB::Storable *arg1 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  std::string result;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"o:EncodeObject theContents ",(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_ConvertPtr(objv[1], &argp1, SWIGTYPE_p_OTDB__Storable,  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "EncodeObject" "', argument " "1"" of type '" "OTDB::Storable &""'"); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "EncodeObject" "', argument " "1"" of type '" "OTDB::Storable &""'"); 
+  }
+  arg1 = reinterpret_cast< OTDB::Storable * >(argp1);
+  result = OTDB::EncodeObject(*arg1);
+  Tcl_SetObjResult(interp,SWIG_From_std_string(static_cast< std::string >(result)));
+  return TCL_OK;
+fail:
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_DecodeObject(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  OTDB::StoredObjectType arg1 ;
+  std::string arg2 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  OTDB::Storable *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oo:DecodeObject theObjectType strInput ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  ecode1 = SWIG_AsVal_int SWIG_TCL_CALL_ARGS_2(objv[1], &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "DecodeObject" "', argument " "1"" of type '" "OTDB::StoredObjectType""'");
+  } 
+  arg1 = static_cast< OTDB::StoredObjectType >(val1);
+  {
+    std::string *ptr = (std::string *)0;
+    int res = SWIG_AsPtr_std_string SWIG_TCL_CALL_ARGS_2(objv[2], &ptr);
+    if (!SWIG_IsOK(res) || !ptr) {
+      SWIG_exception_fail(SWIG_ArgError((ptr ? res : SWIG_TypeError)), "in method '" "DecodeObject" "', argument " "2"" of type '" "std::string""'"); 
+    }
+    arg2 = *ptr;
+    if (SWIG_IsNewObj(res)) delete ptr;
+  }
+  result = (OTDB::Storable *)OTDB::DecodeObject(arg1,arg2);
+  Tcl_SetObjResult(interp, SWIG_NewInstanceObj( SWIG_as_voidptr(result), SWIGTYPE_p_OTDB__Storable,0));
+  return TCL_OK;
+fail:
   return TCL_ERROR;
 }
 
@@ -26812,6 +27010,8 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "OT_API_ResyncNymWithServer", (swig_wrapper_func) _wrap_OT_API_ResyncNymWithServer, NULL},
     { SWIG_prefix "OT_API_Message_GetCommand", (swig_wrapper_func) _wrap_OT_API_Message_GetCommand, NULL},
     { SWIG_prefix "OT_API_Message_GetSuccess", (swig_wrapper_func) _wrap_OT_API_Message_GetSuccess, NULL},
+    { SWIG_prefix "OT_API_queryAssetTypes", (swig_wrapper_func) _wrap_OT_API_queryAssetTypes, NULL},
+    { SWIG_prefix "OT_API_Message_GetPayload", (swig_wrapper_func) _wrap_OT_API_Message_GetPayload, NULL},
     { SWIG_prefix "OT_API_Message_GetDepth", (swig_wrapper_func) _wrap_OT_API_Message_GetDepth, NULL},
     { SWIG_prefix "OT_API_Message_GetTransactionSuccess", (swig_wrapper_func) _wrap_OT_API_Message_GetTransactionSuccess, NULL},
     { SWIG_prefix "OT_API_Message_GetBalanceAgreementSuccess", (swig_wrapper_func) _wrap_OT_API_Message_GetBalanceAgreementSuccess, NULL},
@@ -26835,6 +27035,8 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "Storage_QueryPlainString", (swig_wrapper_func) _wrap_Storage_QueryPlainString, NULL},
     { SWIG_prefix "Storage_StoreObject", (swig_wrapper_func) _wrap_Storage_StoreObject, NULL},
     { SWIG_prefix "Storage_QueryObject", (swig_wrapper_func) _wrap_Storage_QueryObject, NULL},
+    { SWIG_prefix "Storage_EncodeObject", (swig_wrapper_func) _wrap_Storage_EncodeObject, NULL},
+    { SWIG_prefix "Storage_DecodeObject", (swig_wrapper_func) _wrap_Storage_DecodeObject, NULL},
     { SWIG_prefix "Storage_EraseValueByKey", (swig_wrapper_func) _wrap_Storage_EraseValueByKey, NULL},
     { SWIG_prefix "Storage_CreateObject", (swig_wrapper_func) _wrap_Storage_CreateObject, NULL},
     { SWIG_prefix "Storage_Create", (swig_wrapper_func) _wrap_Storage_Create, NULL},
@@ -26851,6 +27053,8 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "QueryPlainString", (swig_wrapper_func) _wrap_QueryPlainString, NULL},
     { SWIG_prefix "StoreObject", (swig_wrapper_func) _wrap_StoreObject, NULL},
     { SWIG_prefix "QueryObject", (swig_wrapper_func) _wrap_QueryObject, NULL},
+    { SWIG_prefix "EncodeObject", (swig_wrapper_func) _wrap_EncodeObject, NULL},
+    { SWIG_prefix "DecodeObject", (swig_wrapper_func) _wrap_DecodeObject, NULL},
     { SWIG_prefix "EraseValueByKey", (swig_wrapper_func) _wrap_EraseValueByKey, NULL},
     { SWIG_prefix "delete_OTDBString", (swig_wrapper_func) _wrap_delete_OTDBString, NULL},
     { SWIG_prefix "OTDBString_m_string_set", (swig_wrapper_func) _wrap_OTDBString_m_string_set, NULL},

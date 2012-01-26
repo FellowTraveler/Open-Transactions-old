@@ -132,6 +132,8 @@
 
 #include <string>
 
+;
+
 extern "C"
 {
 #include <openssl/evp.h>	

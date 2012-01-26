@@ -194,12 +194,15 @@ void OTMessage::UpdateContents()
 	if (m_strCommand.Compare("@getMarketList"))
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n"
+								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
 								  " nymID=\"%s\"\n"
 								  " serverID=\"%s\"\n"
 								  " depth=\"%ld\""
 								  ">\n\n",
-								  m_strCommand.Get(),(m_bSuccess ? "true" : "false"),
+								  m_strCommand.Get(),
+								  m_strRequestNum.Get(),
+								  (m_bSuccess ? "true" : "false"),
 								  m_strNymID.Get(),
 								  m_strServerID.Get(),
                                   m_lDepth
@@ -241,13 +244,16 @@ void OTMessage::UpdateContents()
 	if (m_strCommand.Compare("@getMarketOffers"))
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n"
+								  " requestNum=\"%s\"\n"								  
 								  " success=\"%s\"\n"
 								  " nymID=\"%s\"\n"
 								  " serverID=\"%s\"\n"
 								  " marketID=\"%s\"\n" // stored in NymID2
 								  " depth=\"%ld\""
 								  ">\n\n",
-								  m_strCommand.Get(),(m_bSuccess ? "true" : "false"),
+								  m_strCommand.Get(),
+								  m_strRequestNum.Get(),
+								  (m_bSuccess ? "true" : "false"),
 								  m_strNymID.Get(),
 								  m_strServerID.Get(),
 								  m_strNymID2.Get(),		// Storing Market ID
@@ -289,13 +295,16 @@ void OTMessage::UpdateContents()
 	if (m_strCommand.Compare("@getMarketRecentTrades"))
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n"
+								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
 								  " nymID=\"%s\"\n"
 								  " serverID=\"%s\"\n"
 								  " marketID=\"%s\"\n" // stored in NymID2
 								  " depth=\"%ld\""
 								  ">\n\n",
-								  m_strCommand.Get(),(m_bSuccess ? "true" : "false"),
+								  m_strCommand.Get(),
+								  m_strRequestNum.Get(),
+								  (m_bSuccess ? "true" : "false"),
 								  m_strNymID.Get(),
 								  m_strServerID.Get(),
 								  m_strNymID2.Get(),		// Storing Market ID
@@ -335,12 +344,15 @@ void OTMessage::UpdateContents()
 	if (m_strCommand.Compare("@getNym_MarketOffers"))
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n"
+								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
 								  " nymID=\"%s\"\n"
 								  " serverID=\"%s\"\n"
 								  " depth=\"%ld\""
 								  ">\n\n",
-								  m_strCommand.Get(),(m_bSuccess ? "true" : "false"),
+								  m_strCommand.Get(),
+								  m_strRequestNum.Get(),
+								  (m_bSuccess ? "true" : "false"),
 								  m_strNymID.Get(),
 								  m_strServerID.Get(),
                                   m_lDepth
@@ -381,12 +393,15 @@ void OTMessage::UpdateContents()
 	if (m_strCommand.Compare("@getOffer_Trades"))
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n"
+								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
 								  " nymID=\"%s\"\n"
 								  " serverID=\"%s\"\n"
 								  " inRefToNum=\"%ld\""
 								  ">\n\n",
-								  m_strCommand.Get(),(m_bSuccess ? "true" : "false"),
+								  m_strCommand.Get(),
+								  m_strRequestNum.Get(),
+								  (m_bSuccess ? "true" : "false"),
 								  m_strNymID.Get(),
 								  m_strServerID.Get(),
 								  m_lTransactionNum
@@ -467,7 +482,8 @@ void OTMessage::UpdateContents()
 								  " nymID=\"%s\"\n"
 								  " serverID=\"%s\""
 								  ">\n\n",
-								  m_strCommand.Get(),(m_bSuccess ? "true" : "false"),
+								  m_strCommand.Get(),
+								  (m_bSuccess ? "true" : "false"),
 								  m_strNymID.Get(),
 								  m_strServerID.Get()
 								  );
@@ -507,11 +523,14 @@ void OTMessage::UpdateContents()
 	if (m_strCommand.Compare("@deleteUserAccount"))
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n"
+								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
 								  " nymID=\"%s\"\n"
 								  " serverID=\"%s\""
 								  ">\n\n",
-								  m_strCommand.Get(),(m_bSuccess ? "true" : "false"),
+								  m_strCommand.Get(),
+								  m_strRequestNum.Get(),
+								  (m_bSuccess ? "true" : "false"),
 								  m_strNymID.Get(),
 								  m_strServerID.Get()
 								  );
@@ -550,12 +569,15 @@ void OTMessage::UpdateContents()
 	if (m_strCommand.Compare("@checkUser"))
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n"
+								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
 								  " nymID=\"%s\"\n"
 								  " nymID2=\"%s\"\n"
 								  " serverID=\"%s\""
 								  ">\n\n",
-								  m_strCommand.Get(), (m_bSuccess ? "true" : "false"),
+								  m_strCommand.Get(), 
+								  m_strRequestNum.Get(),
+								  (m_bSuccess ? "true" : "false"),
 								  m_strNymID.Get(),
 								  m_strNymID2.Get(),
 								  m_strServerID.Get()
@@ -598,13 +620,16 @@ void OTMessage::UpdateContents()
 	if (m_strCommand.Compare("@usageCredits"))
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n"
+								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
 								  " nymID=\"%s\"\n"
 								  " nymID2=\"%s\"\n"
 								  " totalCredits=\"%ld\"\n"
 								  " serverID=\"%s\""
 								  ">\n\n",
-								  m_strCommand.Get(), (m_bSuccess ? "true" : "false"),
+								  m_strCommand.Get(), 
+								  m_strRequestNum.Get(),
+								  (m_bSuccess ? "true" : "false"),
 								  m_strNymID.Get(),
 								  m_strNymID2.Get(),
 								  m_lDepth,
@@ -670,12 +695,15 @@ void OTMessage::UpdateContents()
 	if (m_strCommand.Compare("@sendUserMessage"))
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n"
+								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
 								  " nymID=\"%s\"\n"
 								  " nymID2=\"%s\"\n"
 								  " serverID=\"%s\""
 								  ">\n\n",
-								  m_strCommand.Get(), (m_bSuccess ? "true" : "false"),
+								  m_strCommand.Get(),
+								  m_strRequestNum.Get(),
+								  (m_bSuccess ? "true" : "false"),
 								  m_strNymID.Get(),
 								  m_strNymID2.Get(),
 								  m_strServerID.Get()
@@ -752,13 +780,16 @@ void OTMessage::UpdateContents()
 	if (m_strCommand.Compare("@issueAssetType"))
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
+								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
 								  " accountID=\"%s\"\n" // the new issuer account ID
 								  " nymID=\"%s\"\n"
 								  " assetType=\"%s\"\n"
 								  " serverID=\"%s\""
 								  ">\n\n",
-								  m_strCommand.Get(), (m_bSuccess ? "true" : "false"),
+								  m_strCommand.Get(),
+								  m_strRequestNum.Get(),
+								  (m_bSuccess ? "true" : "false"),
 								  m_strAcctID.Get(),
 								  m_strNymID.Get(),
 								  m_strAssetID.Get(),
@@ -774,7 +805,55 @@ void OTMessage::UpdateContents()
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
 	
-
+	
+	
+	// ------------------------------------------------------------------------
+	
+	if (m_strCommand.Compare("queryAssetTypes"))
+	{		
+		m_xmlUnsigned.Concatenate("<%s\n" // Command
+								  " nymID=\"%s\"\n"
+								  " serverID=\"%s\"\n"
+								  " requestNum=\"%s\""
+								  ">\n\n",
+								  m_strCommand.Get(),
+								  m_strNymID.Get(),
+								  m_strServerID.Get(),
+								  m_strRequestNum.Get()
+								  );
+		
+		if (m_ascPayload.GetLength())
+			m_xmlUnsigned.Concatenate("<stringMap>\n%s</stringMap>\n\n", m_ascPayload.Get());
+		
+		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
+	} // ------------------------------------------------------------------------
+	
+	// ------------------------------------------------------------------------
+	if (m_strCommand.Compare("@queryAssetTypes"))
+	{		
+		m_xmlUnsigned.Concatenate("<%s\n" // Command
+								  " requestNum=\"%s\"\n"
+								  " success=\"%s\"\n"
+								  " nymID=\"%s\"\n"
+								  " serverID=\"%s\""
+								  ">\n\n",
+								  m_strCommand.Get(),
+								  m_strRequestNum.Get(),
+								  (m_bSuccess ? "true" : "false"),
+								  m_strNymID.Get(),
+								  m_strServerID.Get()
+								  );
+		
+		if (m_ascInReferenceTo.GetLength())
+			m_xmlUnsigned.Concatenate("<inReferenceTo>\n%s</inReferenceTo>\n\n", m_ascInReferenceTo.Get());
+		
+		if (m_bSuccess && m_ascPayload.GetLength())
+			m_xmlUnsigned.Concatenate("<stringMap>\n%s</stringMap>\n\n", m_ascPayload.Get());
+		
+		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
+	} // ------------------------------------------------------------------------
+	
+	
 	// ------------------------------------------------------------------------
 	
 	if (m_strCommand.Compare("issueBasket"))
@@ -782,7 +861,7 @@ void OTMessage::UpdateContents()
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " nymID=\"%s\"\n"
 								  " serverID=\"%s\"\n"
-								  " requestNum=\"%s\"\n"
+								  " requestNum=\"%s\""
 								  ">\n\n",
 								  m_strCommand.Get(),
 								  m_strNymID.Get(),
@@ -801,13 +880,16 @@ void OTMessage::UpdateContents()
 	if (m_strCommand.Compare("@issueBasket"))
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
+								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
 								  " accountID=\"%s\"\n" // the new basket issuer account ID
 								  " nymID=\"%s\"\n"
 								  " assetType=\"%s\"\n" // the new Asset Type
 								  " serverID=\"%s\""
 								  ">\n\n",
-								  m_strCommand.Get(), (m_bSuccess ? "true" : "false"),
+								  m_strCommand.Get(),
+								  m_strRequestNum.Get(),
+								  (m_bSuccess ? "true" : "false"),
 								  m_strAcctID.Get(),
 								  m_strNymID.Get(),
 								  m_strAssetID.Get(),
@@ -848,12 +930,15 @@ void OTMessage::UpdateContents()
 	if (m_strCommand.Compare("@createAccount"))
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
+								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
 								  " accountID=\"%s\"\n"
 								  " nymID=\"%s\"\n"
 								  " serverID=\"%s\""
 								  ">\n\n",
-								  m_strCommand.Get(), (m_bSuccess ? "true" : "false"),
+								  m_strCommand.Get(),
+								  m_strRequestNum.Get(),
+								  (m_bSuccess ? "true" : "false"),
 								  m_strAcctID.Get(),
 								  m_strNymID.Get(),
 								  m_strServerID.Get()
@@ -898,6 +983,7 @@ void OTMessage::UpdateContents()
 	if (m_strCommand.Compare("@getBoxReceipt"))
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
+								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
 								  " accountID=\"%s\"\n"
 								  " transactionNum=\"%ld\"\n"
@@ -905,7 +991,9 @@ void OTMessage::UpdateContents()
 								  " nymID=\"%s\"\n"
 								  " serverID=\"%s\""
 								  ">\n\n",
-								  m_strCommand.Get(), (m_bSuccess ? "true" : "false"),
+								  m_strCommand.Get(),
+								  m_strRequestNum.Get(),
+								  (m_bSuccess ? "true" : "false"),
 								  m_strAcctID.Get(),
 								  m_lTransactionNum,
 								  (m_lDepth == 0) ? "nymbox" : ((m_lDepth == 1) ? "inbox" : "outbox"), // outbox is 2.
@@ -949,12 +1037,15 @@ void OTMessage::UpdateContents()
 	if (m_strCommand.Compare("@deleteAssetAccount"))
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
+								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
 								  " accountID=\"%s\"\n"
 								  " nymID=\"%s\"\n"
 								  " serverID=\"%s\""
 								  ">\n\n",
-								  m_strCommand.Get(), (m_bSuccess ? "true" : "false"),
+								  m_strCommand.Get(),
+								  m_strRequestNum.Get(),
+								  (m_bSuccess ? "true" : "false"),
 								  m_strAcctID.Get(),
 								  m_strNymID.Get(),
 								  m_strServerID.Get()
@@ -1002,12 +1093,14 @@ void OTMessage::UpdateContents()
 	if (m_strCommand.Compare("@notarizeTransactions"))
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
+								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
 								  " nymID=\"%s\"\n"
 								  " serverID=\"%s\"\n"
 								  " accountID=\"%s\""
 								  " >\n\n",
 								  m_strCommand.Get(),
+								  m_strRequestNum.Get(),
 								  (m_bSuccess ? "true" : "false"),
 								  m_strNymID.Get(),
 								  m_strServerID.Get(), 
@@ -1052,11 +1145,13 @@ void OTMessage::UpdateContents()
 	if (m_strCommand.Compare("@getTransactionNum"))
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
+								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
 								  " nymID=\"%s\"\n"
 								  " serverID=\"%s\""
 								  " >\n\n",
 								  m_strCommand.Get(),
+								  m_strRequestNum.Get(),
 								  (m_bSuccess ? "true" : "false"),
 								  m_strNymID.Get(),
 								  m_strServerID.Get()
@@ -1093,11 +1188,13 @@ void OTMessage::UpdateContents()
 	if (m_strCommand.Compare("@getNymbox"))
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
+								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
 								  " nymID=\"%s\"\n"
 								  " serverID=\"%s\""
 								  " >\n\n",
 								  m_strCommand.Get(),
+								  m_strRequestNum.Get(),
 								  (m_bSuccess ? "true" : "false"),
 								  m_strNymID.Get(),
 								  m_strServerID.Get()
@@ -1146,12 +1243,14 @@ void OTMessage::UpdateContents()
 	if (m_strCommand.Compare("@getInbox"))
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
+								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
 								  " nymID=\"%s\"\n"
 								  " serverID=\"%s\"\n"
 								  " accountID=\"%s\""
 								  " >\n\n",
 								  m_strCommand.Get(),
+								  m_strRequestNum.Get(),
 								  (m_bSuccess ? "true" : "false"),
 								  m_strNymID.Get(),
 								  m_strServerID.Get(), 
@@ -1200,12 +1299,14 @@ void OTMessage::UpdateContents()
 	if (m_strCommand.Compare("@getOutbox"))
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
+								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
 								  " nymID=\"%s\"\n"
 								  " serverID=\"%s\"\n"
 								  " accountID=\"%s\""
 								  " >\n\n",
 								  m_strCommand.Get(),
+								  m_strRequestNum.Get(),
 								  (m_bSuccess ? "true" : "false"),
 								  m_strNymID.Get(),
 								  m_strServerID.Get(), 
@@ -1254,12 +1355,14 @@ void OTMessage::UpdateContents()
 	if (m_strCommand.Compare("@getAccount"))
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
+								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
 								  " nymID=\"%s\"\n"
 								  " serverID=\"%s\"\n"
 								  " accountID=\"%s\""
 								  " >\n\n",
 								  m_strCommand.Get(),
+								  m_strRequestNum.Get(),
 								  (m_bSuccess ? "true" : "false"),
 								  m_strNymID.Get(),
 								  m_strServerID.Get(), 
@@ -1308,12 +1411,14 @@ void OTMessage::UpdateContents()
 	if (m_strCommand.Compare("@getContract"))
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
+								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
 								  " nymID=\"%s\"\n"
 								  " serverID=\"%s\"\n"
 								  " assetType=\"%s\""
 								  " >\n\n",
 								  m_strCommand.Get(),
+								  m_strRequestNum.Get(),
 								  (m_bSuccess ? "true" : "false"),
 								  m_strNymID.Get(),
 								  m_strServerID.Get(), 
@@ -1361,12 +1466,14 @@ void OTMessage::UpdateContents()
 	if (m_strCommand.Compare("@getMint"))
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
+								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
 								  " nymID=\"%s\"\n"
 								  " serverID=\"%s\"\n"
 								  " assetType=\"%s\""
 								  " >\n\n",
 								  m_strCommand.Get(),
+								  m_strRequestNum.Get(),
 								  (m_bSuccess ? "true" : "false"),
 								  m_strNymID.Get(),
 								  m_strServerID.Get(), 
@@ -1420,12 +1527,14 @@ void OTMessage::UpdateContents()
 	if (m_strCommand.Compare("@processInbox"))
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
+								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
 								  " nymID=\"%s\"\n"
 								  " serverID=\"%s\"\n"
 								  " accountID=\"%s\""
 								  " >\n\n",
 								  m_strCommand.Get(),
+								  m_strRequestNum.Get(),
 								  (m_bSuccess ? "true" : "false"),
 								  m_strNymID.Get(),
 								  m_strServerID.Get(), 
@@ -1477,11 +1586,13 @@ void OTMessage::UpdateContents()
 	if (m_strCommand.Compare("@processNymbox"))
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
+								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
 								  " nymID=\"%s\"\n"
 								  " serverID=\"%s\""
 								  " >\n\n",
 								  m_strCommand.Get(),
+								  m_strRequestNum.Get(),
 								  (m_bSuccess ? "true" : "false"),
 								  m_strNymID.Get(),
 								  m_strServerID.Get()
@@ -1529,11 +1640,13 @@ void OTMessage::UpdateContents()
 	if (m_strCommand.Compare("@triggerClause"))
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
+								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
 								  " nymID=\"%s\"\n"
 								  " serverID=\"%s\""
 								  " >\n\n",
 								  m_strCommand.Get(),
+								  m_strRequestNum.Get(),
 								  (m_bSuccess ? "true" : "false"),
 								  m_strNymID.Get(),
 								  m_strServerID.Get()
@@ -1616,6 +1729,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			m_bSuccess = false;
 		
 		m_strCommand	= xml->getNodeName();  // Command
+		m_strRequestNum = xml->getAttributeValue("requestNum");
 		m_strNymID		= xml->getAttributeValue("nymID");
 		m_strServerID	= xml->getAttributeValue("serverID");
 		
@@ -1699,6 +1813,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			m_bSuccess = false;
 		
 		m_strCommand	= xml->getNodeName();  // Command
+		m_strRequestNum = xml->getAttributeValue("requestNum");
 		m_strNymID		= xml->getAttributeValue("nymID");
 		m_strServerID	= xml->getAttributeValue("serverID");
 		m_strNymID2		= xml->getAttributeValue("marketID");
@@ -1779,6 +1894,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			m_bSuccess = false;
 		
 		m_strCommand	= xml->getNodeName();  // Command
+		m_strRequestNum = xml->getAttributeValue("requestNum");
 		m_strNymID		= xml->getAttributeValue("nymID");
 		m_strServerID	= xml->getAttributeValue("serverID");
 		m_strNymID2		= xml->getAttributeValue("marketID");
@@ -1858,6 +1974,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			m_bSuccess = false;
 		
 		m_strCommand	= xml->getNodeName();  // Command
+		m_strRequestNum = xml->getAttributeValue("requestNum");
 		m_strNymID		= xml->getAttributeValue("nymID");
 		m_strServerID	= xml->getAttributeValue("serverID");
 		
@@ -1943,6 +2060,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			m_bSuccess = false;
 		
 		m_strCommand	= xml->getNodeName();  // Command
+		m_strRequestNum = xml->getAttributeValue("requestNum");
 		m_strNymID		= xml->getAttributeValue("nymID");
 		m_strServerID	= xml->getAttributeValue("serverID");
 		
@@ -2159,6 +2277,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			m_bSuccess = false;
         
 		m_strCommand	= xml->getNodeName();  // Command
+		m_strRequestNum = xml->getAttributeValue("requestNum");
 		m_strNymID		= xml->getAttributeValue("nymID");
 		m_strServerID	= xml->getAttributeValue("serverID");
 		
@@ -2211,9 +2330,9 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			m_bSuccess = false;
 		
 		m_strCommand	= xml->getNodeName();  // Command
+		m_strRequestNum = xml->getAttributeValue("requestNum");
 		m_strNymID		= xml->getAttributeValue("nymID");
 		m_strServerID	= xml->getAttributeValue("serverID");
-		m_strRequestNum = xml->getAttributeValue("requestNum");
 		
 		OTLog::vOutput(1, "\nCommand: %s   %s\nNymID:    %s\n"
 				"ServerID: %s\nRequest Number:    %s\n\n", 
@@ -2294,6 +2413,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			m_bSuccess = false;
 		
 		m_strCommand	= xml->getNodeName();  // Command
+		m_strRequestNum = xml->getAttributeValue("requestNum");
 		m_strNymID		= xml->getAttributeValue("nymID");
 		m_strNymID2		= xml->getAttributeValue("nymID2");
 		m_strServerID	= xml->getAttributeValue("serverID");
@@ -2342,6 +2462,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			m_bSuccess = false;
 		
 		m_strCommand	= xml->getNodeName();  // Command
+		m_strRequestNum = xml->getAttributeValue("requestNum");
 		m_strNymID		= xml->getAttributeValue("nymID");
 		m_strNymID2		= xml->getAttributeValue("nymID2");
 		m_strServerID	= xml->getAttributeValue("serverID");
@@ -2389,6 +2510,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			m_bSuccess = false;
 		
 		m_strCommand	= xml->getNodeName();  // Command
+		m_strRequestNum = xml->getAttributeValue("requestNum");
 		m_strNymID		= xml->getAttributeValue("nymID");
 		m_strNymID2		= xml->getAttributeValue("nymID2");
 		m_strServerID	= xml->getAttributeValue("serverID");
@@ -2481,6 +2603,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strNymID		= xml->getAttributeValue("nymID");
+		m_strRequestNum = xml->getAttributeValue("requestNum");
 		m_strServerID	= xml->getAttributeValue("serverID");
 		m_strAssetID	= xml->getAttributeValue("assetType");
 		m_strAcctID		= xml->getAttributeValue("accountID");
@@ -2535,7 +2658,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 				//	"****New Account****:\n%s\n", 
 				m_strCommand.Get(), (m_bSuccess?"SUCCESS":"FAILED"), m_strNymID.Get(), m_strAcctID.Get(),
 				m_strAssetID.Get(), m_strServerID.Get()
-				//	m_ascInReferenceTo.Get(), 
+			//	m_ascInReferenceTo.Get(), 
 				//acctContents.Get()
 				);
 		
@@ -2544,6 +2667,112 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// -------------------------------------------------------------------------------------------
 	
+	
+	// -------------------------------------------------------------------------------------------
+	
+	
+	else if (!strcmp("queryAssetTypes", xml->getNodeName())) 
+	{	
+		m_strCommand	= xml->getNodeName();  // Command
+		m_strNymID		= xml->getAttributeValue("nymID");
+		m_strServerID	= xml->getAttributeValue("serverID");
+		m_strRequestNum	= xml->getAttributeValue("requestNum");
+		
+		// ----------------------------------------------------
+		
+		const char *	pElementExpected	= "stringMap";
+		OTASCIIArmor &	ascTextExpected		= m_ascPayload;
+		
+		if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+		{
+			OTLog::vError("Error in OTMessage::ProcessXMLNode: "
+						  "Expected %s element with text field, for %s.\n", 
+						  pElementExpected, m_strCommand.Get());
+			return (-1); // error condition
+		}
+		
+		// ---------------------------------------------------
+		
+		OTLog::vOutput(1, "\nCommand: %s \nNymID:    %s\n"
+					   "ServerID: %s\nRequest#: %s\n\n", 
+					   m_strCommand.Get(), m_strNymID.Get(), 
+					   m_strServerID.Get(), m_strRequestNum.Get());
+		
+		nReturnVal = 1;
+	}
+	
+	// -------------------------------------------------------------------------------------------
+	
+	else if (!strcmp("@queryAssetTypes", xml->getNodeName())) 
+	{	
+		OTString strSuccess;
+		strSuccess		= xml->getAttributeValue("success");
+		if (strSuccess.Compare("true"))
+			m_bSuccess = true;
+		else
+			m_bSuccess = false;
+		
+		m_strCommand	= xml->getNodeName();  // Command
+		m_strNymID		= xml->getAttributeValue("nymID");
+		m_strRequestNum = xml->getAttributeValue("requestNum");
+		m_strServerID	= xml->getAttributeValue("serverID");
+		
+		// If successful, we need to read 2 more things: inReferenceTo and issuerAccount payload.
+		// If failure, then we only need to read 1 thing: inReferenceTo
+		// At this point, we do not send the REASON WHY if it failed.
+		
+		// ----------------------------------------------------
+		{
+			const char *	pElementExpected	= "inReferenceTo";
+			OTASCIIArmor &	ascTextExpected		= m_ascInReferenceTo;
+			
+			if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+			{
+				OTLog::vError("Error in OTMessage::ProcessXMLNode: "
+							  "Expected %s element with text field, for %s.\n", 
+							  pElementExpected, m_strCommand.Get());
+				return (-1); // error condition
+			}
+		}
+		// ----------------------------------------------------
+		if (m_bSuccess)
+		{
+			const char *	pElementExpected	= "stringMap";
+			OTASCIIArmor &	ascTextExpected		= m_ascPayload;
+			
+			if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+			{
+				OTLog::vError("Error in OTMessage::ProcessXMLNode: "
+							  "Expected %s element with text field, for %s.\n", 
+							  pElementExpected, m_strCommand.Get());
+				return (-1); // error condition
+			}
+		}
+		// ---------------------------------------------------
+		
+		// Did we find everything we were looking for?
+		// If the "command responding to" isn't there, 
+		// OR if it was successful but the Payload isn't there, then failure.
+		if (!m_ascInReferenceTo.GetLength() || (m_bSuccess && !m_ascPayload.GetLength()))
+		{
+			OTLog::Error("Error in OTMessage::ProcessXMLNode:\n"
+						 "Expected stringMap and/or inReferenceTo elements with text fields in "
+						 "@queryAssetTypes reply\n");
+			return (-1); // error condition			
+		}
+		
+		OTString acctContents(m_ascPayload);
+		OTLog::vOutput(1, "\n Command: %s   %s\n NymID:    %s\n ServerID: %s\n\n",
+					   m_strCommand.Get(), (m_bSuccess?"SUCCESS":"FAILED"), 
+					   m_strNymID.Get(), m_strServerID.Get()
+					//	m_ascInReferenceTo.Get(), 
+					   //acctContents.Get()
+					   );
+		
+		nReturnVal = 1;
+	}
+	
+	// -------------------------------------------------------------------------------------------
 	
 	// -------------------------------------------------------------------------------------------
 	
@@ -2576,6 +2805,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			m_bSuccess = false;
 		
 		m_strCommand	= xml->getNodeName();  // Command
+		m_strRequestNum	= xml->getAttributeValue("requestNum");
 		m_strNymID		= xml->getAttributeValue("nymID");
 		m_strServerID	= xml->getAttributeValue("serverID");
 		m_strAcctID		= xml->getAttributeValue("accountID");
@@ -2689,6 +2919,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			m_bSuccess = false;
 		
 		m_strCommand	= xml->getNodeName();  // Command
+		m_strRequestNum	= xml->getAttributeValue("requestNum");
 		m_strNymID		= xml->getAttributeValue("nymID");
 		m_strServerID	= xml->getAttributeValue("serverID");
 		m_strAcctID		= xml->getAttributeValue("accountID");
@@ -2798,6 +3029,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			m_bSuccess = false;
 		
 		m_strCommand	= xml->getNodeName();  // Command
+		m_strRequestNum	= xml->getAttributeValue("requestNum");
 		m_strNymID		= xml->getAttributeValue("nymID");
 		m_strServerID	= xml->getAttributeValue("serverID");
 		m_strAcctID		= xml->getAttributeValue("accountID");
@@ -2898,6 +3130,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			m_bSuccess = false;
 		
 		m_strCommand	= xml->getNodeName();  // Command
+		m_strRequestNum	= xml->getAttributeValue("requestNum");
 		m_strNymID		= xml->getAttributeValue("nymID");
 		m_strAssetID	= xml->getAttributeValue("assetType");
 		m_strServerID	= xml->getAttributeValue("serverID");
@@ -2975,6 +3208,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			m_bSuccess = false;
 		
 		m_strCommand	= xml->getNodeName();  // Command
+		m_strRequestNum	= xml->getAttributeValue("requestNum");
 		m_strNymID		= xml->getAttributeValue("nymID");
 		m_strServerID	= xml->getAttributeValue("serverID");
 		
@@ -3033,6 +3267,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			m_bSuccess = false;
 		
 		m_strCommand	= xml->getNodeName();  // Command
+		m_strRequestNum	= xml->getAttributeValue("requestNum");
 		m_strNymID		= xml->getAttributeValue("nymID");
 		m_strServerID	= xml->getAttributeValue("serverID");
 		m_strAcctID		= xml->getAttributeValue("accountID");
@@ -3140,6 +3375,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			m_bSuccess = false;
 		
 		m_strCommand	= xml->getNodeName();  // Command
+		m_strRequestNum	= xml->getAttributeValue("requestNum");
 		m_strNymID		= xml->getAttributeValue("nymID");
 		m_strServerID	= xml->getAttributeValue("serverID");
 		m_strAcctID		= xml->getAttributeValue("accountID");
@@ -3191,6 +3427,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			m_bSuccess = false;
 		
 		m_strCommand	= xml->getNodeName();  // Command
+		m_strRequestNum	= xml->getAttributeValue("requestNum");
 		m_strNymID		= xml->getAttributeValue("nymID");
 		m_strServerID	= xml->getAttributeValue("serverID");
 		
@@ -3259,6 +3496,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			m_bSuccess = false;
 		
 		m_strCommand	= xml->getNodeName();  // Command
+		m_strRequestNum	= xml->getAttributeValue("requestNum");
 		m_strNymID		= xml->getAttributeValue("nymID");
 		m_strServerID	= xml->getAttributeValue("serverID");
 		m_strAcctID		= xml->getAttributeValue("accountID");
@@ -3297,115 +3535,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	}
 	
 	// -------------------------------------------------------------------------------------------
-	
-	
-	/*
-	 
-	 // ------------------------------------------------------------------------
-	 
-	 if (m_strCommand.Compare("getContract"))
-	 {		
-	 m_xmlUnsigned.Concatenate("<%s\n" // Command
-	 " nymID=\"%s\"\n"
-	 " serverID=\"%s\"\n"
-	 " assetType=\"%s\"\n"
-	 " requestNum=\"%s\""
-	 " >\n\n",
-	 m_strCommand.Get(),
-	 m_strNymID.Get(),
-	 m_strServerID.Get(),
-	 m_strAssetID.Get(),
-	 m_strRequestNum.Get()
-	 );
-	 
-	 m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
-	 } // ------------------------------------------------------------------------
-	 
-	 
-	 
-	 // ------------------------------------------------------------------------
-	 
-	 // the Payload contains an ascii-armored OTAssetContract object.
-	 if (m_strCommand.Compare("@getContract"))
-	 {		
-	 m_xmlUnsigned.Concatenate("<%s\n" // Command
-	 " success=\"%s\"\n"
-	 " nymID=\"%s\"\n"
-	 " serverID=\"%s\"\n"
-	 " assetType=\"%s\""
-	 " >\n\n",
-	 m_strCommand.Get(),
-	 (m_bSuccess ? "true" : "false"),
-	 m_strNymID.Get(),
-	 m_strServerID.Get(), 
-	 m_strAssetID.Get()
-	 );
-	 
-	 if (!m_bSuccess && m_ascInReferenceTo.GetLength())
-	 m_xmlUnsigned.Concatenate("<inReferenceTo>\n%s</inReferenceTo>\n\n", m_ascInReferenceTo.Get());
-	 
-	 // I would check if this was empty, but it should never be empty...
-	 // famous last words.
-	 if (m_bSuccess && m_ascPayload.GetLength())
-	 m_xmlUnsigned.Concatenate("<assetContract>\n%s</assetContract>\n\n", m_ascPayload.Get());
-	 
-	 m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
-	 } // ------------------------------------------------------------------------
-	 
-	 
-	 
-	 // ------------------------------------------------------------------------
-	 
-	 if (m_strCommand.Compare("getMint"))
-	 {		
-	 m_xmlUnsigned.Concatenate("<%s\n" // Command
-	 " nymID=\"%s\"\n"
-	 " serverID=\"%s\"\n"
-	 " assetType=\"%s\"\n"
-	 " requestNum=\"%s\""
-	 " >\n\n",
-	 m_strCommand.Get(),
-	 m_strNymID.Get(),
-	 m_strServerID.Get(),
-	 m_strAssetID.Get(),
-	 m_strRequestNum.Get()
-	 );
-	 
-	 m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
-	 } // ------------------------------------------------------------------------
-	 
-	 
-	 
-	 // ------------------------------------------------------------------------
-	 
-	 // the Payload contains an ascii-armored OTMint object.
-	 if (m_strCommand.Compare("@getMint"))
-	 {		
-	 m_xmlUnsigned.Concatenate("<%s\n" // Command
-	 " success=\"%s\"\n"
-	 " nymID=\"%s\"\n"
-	 " serverID=\"%s\"\n"
-	 " assetType=\"%s\""
-	 " >\n\n",
-	 m_strCommand.Get(),
-	 (m_bSuccess ? "true" : "false"),
-	 m_strNymID.Get(),
-	 m_strServerID.Get(), 
-	 m_strAssetID.Get()
-	 );
-	 
-	 if (!m_bSuccess && m_ascInReferenceTo.GetLength())
-	 m_xmlUnsigned.Concatenate("<inReferenceTo>\n%s</inReferenceTo>\n\n", m_ascInReferenceTo.Get());
-	 
-	 // I would check if this was empty, but it should never be empty...
-	 // famous last words.
-	 if (m_bSuccess && m_ascPayload.GetLength())
-	 m_xmlUnsigned.Concatenate("<mint>\n%s</mint>\n\n", m_ascPayload.Get());
-	 
-	 m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
-	 */
-	
-	// ------------------------------------------------------------------------
+
 	
 	else if (!strcmp("getAccount", xml->getNodeName())) 
 	{		
@@ -3435,6 +3565,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			m_bSuccess = false;
 		
 		m_strCommand	= xml->getNodeName();  // Command
+		m_strRequestNum	= xml->getAttributeValue("requestNum");
 		m_strNymID		= xml->getAttributeValue("nymID");
 		m_strServerID	= xml->getAttributeValue("serverID");
 		m_strAcctID		= xml->getAttributeValue("accountID");
@@ -3505,6 +3636,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			m_bSuccess = false;
 		
 		m_strCommand	= xml->getNodeName();  // Command
+		m_strRequestNum	= xml->getAttributeValue("requestNum");
 		m_strNymID		= xml->getAttributeValue("nymID");
 		m_strServerID	= xml->getAttributeValue("serverID");
 		m_strAssetID	= xml->getAttributeValue("assetType");
@@ -3576,6 +3708,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			m_bSuccess = false;
 		
 		m_strCommand	= xml->getNodeName();  // Command
+		m_strRequestNum	= xml->getAttributeValue("requestNum");
 		m_strNymID		= xml->getAttributeValue("nymID");
 		m_strServerID	= xml->getAttributeValue("serverID");
 		m_strAssetID	= xml->getAttributeValue("assetType");
@@ -3647,6 +3780,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			m_bSuccess = false;
 		
 		m_strCommand	= xml->getNodeName();  // Command
+		m_strRequestNum	= xml->getAttributeValue("requestNum");
 		m_strNymID		= xml->getAttributeValue("nymID");
 		m_strServerID	= xml->getAttributeValue("serverID");
 		
@@ -3759,6 +3893,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			m_bSuccess = false;
 		
 		m_strCommand	= xml->getNodeName();  // Command
+		m_strRequestNum	= xml->getAttributeValue("requestNum");
 		m_strNymID		= xml->getAttributeValue("nymID");
 		m_strServerID	= xml->getAttributeValue("serverID");
 		m_strAcctID		= xml->getAttributeValue("accountID");
@@ -3829,6 +3964,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			m_bSuccess = false;
 		
 		m_strCommand	= xml->getNodeName();  // Command
+		m_strRequestNum	= xml->getAttributeValue("requestNum");
 		m_strNymID		= xml->getAttributeValue("nymID");
 		m_strServerID	= xml->getAttributeValue("serverID");
 		

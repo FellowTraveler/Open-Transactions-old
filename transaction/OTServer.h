@@ -367,6 +367,8 @@ public:
 	void UserCmdUsageCredits(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut);
 	void UserCmdTriggerClause(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut);
 
+	void UserCmdQueryAssetTypes(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut);
+
 	// Get the list of markets on this server.
 	void UserCmdGetMarketList(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut);
 

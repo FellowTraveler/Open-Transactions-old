@@ -137,14 +137,17 @@
 #include <sstream>
 #include <map>
 
-#include "OTData.h"
+//#include "OTData.h"
 #include "OTString.h"
 //#include "OTStorage.h"
 
+#include "OTStorage.h"
 
+class OTData;
 class OTEnvelope;
+class OTPayload;
 
-//class OTDB::OTPacker;
+class OTDB::OTPacker;
 
 // The natural state of OTASCIIArmor is in compressed and base64-encoded, string form.
 // It is derived from OTString. The Get() method returns a base64-encoded string.
@@ -158,6 +161,8 @@ public:
 	
 	OTASCIIArmor();
 	OTASCIIArmor(const char * szValue);
+	OTASCIIArmor(const OTData & theValue);
+	OTASCIIArmor(const OTPayload & theValue);
 	OTASCIIArmor(const OTString & strValue);
 	OTASCIIArmor(const OTASCIIArmor & strValue);
 	OTASCIIArmor(const OTEnvelope & theEnvelope);
@@ -166,6 +171,7 @@ public:
 	using OTString::swap;
 	
 	OTASCIIArmor & operator=(const char * szValue);
+	OTASCIIArmor & operator=(const OTData & theValue);
 	OTASCIIArmor & operator=(const OTString & strValue);
 	OTASCIIArmor & operator=(const OTASCIIArmor & strValue);
 	
@@ -195,13 +201,19 @@ public:
 	bool SetString(const OTString & theData, bool bLineBreaks=true);
 	bool SetAndPackString(const OTString & theData, bool bLineBreaks=true);
 
+	
+	bool GetStringMap(std::map<std::string, std::string> & the_map, bool bLineBreaks=true) const;
+	bool GetAndUnpackStringMap(std::map<std::string, std::string> & the_map, bool bLineBreaks=true) const;
+	
+	bool SetStringMap(const std::map<std::string, std::string> & the_map, bool bLineBreaks=true);
+	bool SetAndPackStringMap(const std::map<std::string, std::string> & the_map, bool bLineBreaks=true);
+	
 	// For a straight-across, exact-size copy of bytes that you KNOW
 	// are base64-encoded properly by an OTASCIIArmor.
 	bool MemSet(const char * pMem, uint32_t theSize);
 };
 
 typedef std::map <long, OTASCIIArmor *> mapOfArmor;
-
 
 
 #endif // __OT_ASCII_ARMOR_H__ 

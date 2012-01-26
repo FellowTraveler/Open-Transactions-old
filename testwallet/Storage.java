@@ -189,6 +189,15 @@ public class Storage {
     return (cPtr == 0) ? null : new Storable(cPtr, true);
   }
 
+  public String EncodeObject(Storable theContents) {
+    return otapiJNI.Storage_EncodeObject(swigCPtr, this, Storable.getCPtr(theContents), theContents);
+  }
+
+  public Storable DecodeObject(int theObjectType, String strInput) {
+    long cPtr = otapiJNI.Storage_DecodeObject(swigCPtr, this, theObjectType, strInput);
+    return (cPtr == 0) ? null : new Storable(cPtr, true);
+  }
+
   public boolean EraseValueByKey(String strFolder, String oneStr, String twoStr, String threeStr) {
     return otapiJNI.Storage_EraseValueByKey__SWIG_0(swigCPtr, this, strFolder, oneStr, twoStr, threeStr);
   }

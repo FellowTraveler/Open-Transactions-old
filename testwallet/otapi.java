@@ -705,8 +705,8 @@ public class otapi {
     otapiJNI.OT_API_processInbox(SERVER_ID, USER_ID, ACCT_ID, ACCT_LEDGER);
   }
 
-  public static void OT_API_processNymbox(String SERVER_ID, String USER_ID) {
-    otapiJNI.OT_API_processNymbox(SERVER_ID, USER_ID);
+  public static int OT_API_processNymbox(String SERVER_ID, String USER_ID) {
+    return otapiJNI.OT_API_processNymbox(SERVER_ID, USER_ID);
   }
 
   public static void OT_API_withdrawVoucher(String SERVER_ID, String USER_ID, String ACCT_ID, String RECIPIENT_USER_ID, String CHEQUE_MEMO, String AMOUNT) {
@@ -771,6 +771,14 @@ public class otapi {
 
   public static int OT_API_Message_GetSuccess(String THE_MESSAGE) {
     return otapiJNI.OT_API_Message_GetSuccess(THE_MESSAGE);
+  }
+
+  public static void OT_API_queryAssetTypes(String SERVER_ID, String USER_ID, String ENCODED_MAP) {
+    otapiJNI.OT_API_queryAssetTypes(SERVER_ID, USER_ID, ENCODED_MAP);
+  }
+
+  public static String OT_API_Message_GetPayload(String THE_MESSAGE) {
+    return otapiJNI.OT_API_Message_GetPayload(THE_MESSAGE);
   }
 
   public static int OT_API_Message_GetDepth(String THE_MESSAGE) {
@@ -970,6 +978,15 @@ public class otapi {
 
   public static Storable QueryObject(int theObjectType, String strFolder) {
     long cPtr = otapiJNI.QueryObject__SWIG_3(theObjectType, strFolder);
+    return (cPtr == 0) ? null : new Storable(cPtr, true);
+  }
+
+  public static String EncodeObject(Storable theContents) {
+    return otapiJNI.EncodeObject(Storable.getCPtr(theContents), theContents);
+  }
+
+  public static Storable DecodeObject(int theObjectType, String strInput) {
+    long cPtr = otapiJNI.DecodeObject(theObjectType, strInput);
     return (cPtr == 0) ? null : new Storable(cPtr, true);
   }
 

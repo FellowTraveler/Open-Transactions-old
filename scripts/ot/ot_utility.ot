@@ -70,30 +70,30 @@
         
         if (!VerifyStringVal(serverID))
         {
-            OT_API_Output(0, "getIntermediaryFiles: invalid serverID: " + serverID);
+            OT_API_Output(0, " Utility::getIntermediaryFiles: invalid serverID: " + serverID);
             return false;
         }
         if (!VerifyStringVal(nymID))
         {
-            OT_API_Output(0, "getIntermediaryFiles: invalid nymID: " + nymID);
+            OT_API_Output(0, " Utility::getIntermediaryFiles: invalid nymID: " + nymID);
             return false;
         }
         if (!VerifyStringVal(accountID))
         {
-            OT_API_Output(0, "getIntermediaryFiles: invalid accountID: " + accountID);
+            OT_API_Output(0, " Utility::getIntermediaryFiles: invalid accountID: " + accountID);
             return false;
         }
         // -----------------------------------------------------
         if (!this.getInboxAccount(serverID, nymID, accountID))
         {
-            OT_API_Output(0, "getIntermediaryFiles: getInboxAccount failed. (Returning.)");
+            OT_API_Output(0, " Utility::getIntermediaryFiles: getInboxAccount failed. (Returning.)");
             return false;
         }
         // --------------------------------------
         
         if (!this.getOutboxLowLevel(serverID, nymID, accountID))
         {
-            OT_API_Output(0, "getIntermediaryFiles: getOutboxLowLevel failed. (Returning.)");
+            OT_API_Output(0, " Utility::getIntermediaryFiles: getOutboxLowLevel failed. (Returning.)");
             return false;
         }
         
@@ -109,7 +109,7 @@
 	{
        if (!VerifyStringVal(accountID))
        {
-           OT_API_Output(0, "getInboxOutboxAccount: invalid accountID: " + accountID);
+           OT_API_Output(0, " Utility::getInboxOutboxAccount: invalid accountID: " + accountID);
            return false;
        }
 
@@ -118,7 +118,7 @@
 
        if (!this.getIntermediaryFiles(serverID, nymID, accountID))
        {
-           OT_API_Output(0, "getInboxOutboxAccount: getIntermediaryFiles failed. (Returning.)");
+           OT_API_Output(0, " Utility::getInboxOutboxAccount: getIntermediaryFiles failed. (Returning.)");
            return false;
        }
        return true;
@@ -149,7 +149,6 @@
         
         // ***************************************************
         OT_API_FlushMessageBuffer();
-        OT_API_Output(0, "getInboxAccount: Before getInbox Server call");
         OT_API_getInbox(serverID, nymID, accountID);  // <==== FIRST ATTEMPT
         this.delay();        
         var inboxResponseMessage = OT_API_PopMessageBuffer();
@@ -166,7 +165,7 @@
 
                 if (!VerifyMessageSuccess(inboxResponseMessage))
                 {
-                    OT_API_Output(0, "getInboxAccount: Failed re-trying OT_API_getInbox() after Utility.getRequestNumber().");
+                    OT_API_Output(0, " Utility::getInboxAccount: Failed re-trying OT_API_getInbox() after Utility.getRequestNumber().");
                     return false;
                 }
                 // -----------------------
@@ -174,7 +173,7 @@
             }
             else
             {
-                OT_API_Output(0, "getInboxAccount: Failed calling Utility.getRequestNumber().");
+                OT_API_Output(0, " Utility::getInboxAccount: Failed calling Utility.getRequestNumber().");
                 return false;
             }
         }
@@ -189,14 +188,13 @@
         if (bInbox && !this.insureHaveAllBoxReceipts(serverID, nymID, // <===== 
                 accountID, 1)) // nBoxType = 1 aka inbox
         {
-            OT_API_Output(0, "getInboxAccount: getInbox succeeded, but then insureHaveAllBoxReceipts failed. (I give up.)");
+            OT_API_Output(0, " Utility::getInboxAccount: getInbox succeeded, but then insureHaveAllBoxReceipts failed. (I give up.)");
             return false;
         }
         // ***************************************************
         // Inbox done. Account next:
         // ***************************************************
         OT_API_FlushMessageBuffer();
-        OT_API_Output(0, "Before getAccount Server call");
         OT_API_getAccount(serverID, nymID, accountID);  // <==== FIRST ATTEMPT
         this.delay();        
         var accountResponseMessage = OT_API_PopMessageBuffer();
@@ -213,7 +211,7 @@
 
                 if (!VerifyMessageSuccess(accountResponseMessage))
                 {
-                    OT_API_Output(0, "getInboxAccount: Failed re-trying OT_API_getAccount() after Utility.getRequestNumber().");
+                    OT_API_Output(0, " Utility::getInboxAccount: Failed re-trying OT_API_getAccount() after Utility.getRequestNumber().");
                     return false;
                 }
                 // -----------------------
@@ -221,7 +219,7 @@
             }
             else
             {
-                OT_API_Output(0, "getInboxAccount: Failed calling Utility.getRequestNumber().");
+                OT_API_Output(0, " Utility::getInboxAccount: Failed calling Utility.getRequestNumber().");
                 return false;
             }
         }
@@ -245,7 +243,6 @@
         // with the OUTBOX:
         //
         OT_API_FlushMessageBuffer();
-        OT_API_Output(0, "Before getOutbox Server call");
         OT_API_getOutbox(serverID, nymID, accountID);  // <==== FIRST ATTEMPT
         this.delay();        
         var outboxResponseMessage = OT_API_PopMessageBuffer();
@@ -263,7 +260,7 @@
 
                 if (!VerifyMessageSuccess(outboxResponseMessage))
                 {
-                    OT_API_Output(0, "getOutboxLowLevel: Failed re-trying OT_API_getOutbox() after Utility.getRequestNumber().");
+                    OT_API_Output(0, " Utility::getOutboxLowLevel: Failed re-trying OT_API_getOutbox() after Utility.getRequestNumber().");
                     return false;
                 }
                 // -----------------------
@@ -271,7 +268,7 @@
              }
             else
             {
-                OT_API_Output(0, "getOutboxLowLevel: Failed calling Utility.getRequestNumber().");
+                OT_API_Output(0, " Utility::getOutboxLowLevel: Failed calling Utility.getRequestNumber().");
                 return false;
             }
         }
@@ -285,7 +282,7 @@
         //
         if (bOutbox && !this.insureHaveAllBoxReceipts(serverID, nymID, accountID, 2)) // <===== nBoxType = 2 aka OUTBOX
         {
-            OT_API_Output(0, "getOutboxLowLevel: getOutbox succeeded, but then insureHaveAllBoxReceipts failed. (I give up.)");
+            OT_API_Output(0, " Utility::getOutboxLowLevel: getOutbox succeeded, but then insureHaveAllBoxReceipts failed. (I give up.)");
             return false;
         }
         // ***************************************************
@@ -299,12 +296,34 @@
   
     // No need to deal with getRequest here when failure, since the calling
     // function already goes through that crap before we get here.
+	// Returns:
+	// -1 if error.
+	//  0 if Nymbox is empty.
+	//  1 or more: Count of items in Nymbox before processing.
+	//
     def Utility::processNymbox(serverID, nymID) 
 	{
         // ------------------------------------------
         // Send message..
         OT_API_FlushMessageBuffer();
-        OT_API_processNymbox(serverID, nymID);
+		
+		// Returns:
+		// -1 if error.
+		//  0 if Nymbox is empty.
+		//  1 or more: The number of receipts in Nymbox before processing.
+		//
+        var nReceiptCount = OT_API_processNymbox(serverID, nymID);
+        // ------------------------------------------
+		if ((-1) == nReceiptCount)
+		{
+            OT_API_Output(0, " Utility::processNymbox: Failure. OT_API_processNymbox() returned -1. \n");
+			return (-1);
+		}
+        // ------------------------------------------
+		else if (0 == nReceiptCount) 
+		{
+			return 0;	// Nymbox is empty, thus no need to process it.
+		}
         // ------------------------------------------
         this.delay();
         // ------------------------------------------
@@ -312,15 +331,15 @@
         // message (processNymbox).
         var serverResponse = OT_API_PopMessageBuffer();
         
-        if (VerifyMessageSuccess(serverResponse))
+        if (!VerifyMessageSuccess(serverResponse))
 		{
-            return true;
+			nReceiptCount = (-1);
+			// ------------------
+            OT_API_Output(0, concat(" Utility::processNymbox: Failure. Response from server: ", serverResponse));
+            OT_API_Output(0, "\n");			
         }
-		else
-		{
-            OT_API_Output(0, "Failure in processNymbox : Response from server " + serverResponse);
-        }
-        return false;
+
+        return nReceiptCount;
     }
 // ---------------------------------------
     // Called by getAndProcessNymbox.
@@ -343,12 +362,17 @@
         }
         else 
 		{
-            OT_API_Output(0, "Failure in getNymboxLowLevel : Response from server " + serverResponse);
+            OT_API_Output(0, " Utility::getNymboxLowLevel: Failure. Response from server " + serverResponse);
         }
         return false;
     }
 // ---------------------------------------
     
+	// Returns:
+	// -1 if error.
+	//  0 if Nymbox is empty.
+	//  1 or more: Count of items in Nymbox before processing.
+	//
     def Utility::getAndProcessNymbox(serverID, nymID) 
     {
         // ------------------------------------------  
@@ -360,7 +384,7 @@
 			}
             else
 			{
-                OT_API_Output(0, "Utility.getAndProcessNymbox(): Utility.insureHaveAllBoxReceipts failed. (I give up.)");
+                OT_API_Output(0, " Utility::getAndProcessNymbox(): Utility.insureHaveAllBoxReceipts failed. (I give up.)");
 			}
         }
         else if (this.getRequestNumber(serverID, nymID)) // this might be out of sync, if it failed... we'll re-sync, and re-try.
@@ -373,19 +397,19 @@
 				}
                 else
 				{
-                    OT_API_Output(0, "Utility.getAndProcessNymbox(): Utility.getNymboxLowLevel failed, then getRequestNumber() succeeded, then getNymboxLowLevel succeeded, then insureHaveAllBoxReceipts failed. (I give up.)");
+                    OT_API_Output(0, " Utility::getAndProcessNymbox(): Utility.getNymboxLowLevel failed, then getRequestNumber() succeeded, then getNymboxLowLevel succeeded, then insureHaveAllBoxReceipts failed. (I give up.)");
 				}
             }
             else
 			{
-                OT_API_Output(0, "Utility.getAndProcessNymbox(): Utility.getNymboxLowLevel failed, then Utility.getRequestNumber succeeded, then Utility.getNymboxLowLevel failed again. (I give up.)");
+                OT_API_Output(0, " Utility::getAndProcessNymbox(): Utility.getNymboxLowLevel failed, then Utility.getRequestNumber succeeded, then Utility.getNymboxLowLevel failed again. (I give up.)");
 			}
         }
         else
 		{
-            OT_API_Output(0, "Utility.getAndProcessNymbox(): Utility.getNymboxLowLevel failed, then Utility.getRequestNumber failed. (I give up.)");
+            OT_API_Output(0, " Utility::getAndProcessNymbox(): Utility.getNymboxLowLevel failed, then Utility.getRequestNumber failed. (I give up.)");
 		}
-        return false;
+        return (-1);
     }
 // ---------------------------------------
     def Utility::getRequestNumber(serverID, nymID) 
@@ -395,11 +419,9 @@
         this.delay();
         var strReply = OT_API_PopMessageBuffer();
 
-        OT_API_Output(0, "IN getRequestNumber " + strReply);
-
         if (!VerifyMessage(strReply))
         {
-            OT_API_Output(0, "Utility.getRequestNumber(): null server reply. Perhaps the receive_fail_ms in client.cfg needs to be set to a higher value?");
+            OT_API_Output(0, " Utility::getRequestNumber(): null server reply. Perhaps the receive_fail_ms in client.cfg needs to be set to a higher value?");
             return false;
         }
 
@@ -409,7 +431,7 @@
 		}
 
         // Hmm -- we got the reply, but it was a failure.
-        OT_API_Output(0, "FAILURE in Utility.getRequestNumber(). Perhaps the receive_fail_ms in client.cfg needs to be set to a higher value?");
+        OT_API_Output(0, " Utility::getRequestNumber(): Failure. Perhaps the receive_fail_ms in client.cfg needs to be set to a higher value?");
 
         return false;
     }
@@ -434,7 +456,7 @@
         }
 		else
 		{
-            OT_API_Output(0, "Failure in getBoxReceiptLowLevel : Response from server " + serverResponse);
+            OT_API_Output(0, " Utility::getBoxReceiptLowLevel: Failure. Response from server " + serverResponse);
         }
         return false;
     }
@@ -455,12 +477,12 @@
 			}
             else
 			{
-                OT_API_Output(0, "Utility.getBoxReceiptWithErrorCorrection(): Utility.getBoxReceiptLowLevel failed, then Utility.getRequestNumber succeeded, then Utility.getBoxReceiptLowLevel failed again. (I give up.)");
+                OT_API_Output(0, " Utility::getBoxReceiptWithErrorCorrection(): Utility.getBoxReceiptLowLevel failed, then Utility.getRequestNumber succeeded, then Utility.getBoxReceiptLowLevel failed again. (I give up.)");
 			}
         }
         else
 		{
-            OT_API_Output(0, "Utility.getBoxReceiptWithErrorCorrection(): Utility.getBoxReceiptLowLevel failed, then Utility.getRequestNumber failed. (I give up.)");
+            OT_API_Output(0, " Utility::getBoxReceiptWithErrorCorrection(): Utility.getBoxReceiptLowLevel failed, then Utility.getRequestNumber failed. (I give up.)");
 		}
         return false;
 	}
@@ -472,7 +494,7 @@
     //
     def Utility::insureHaveAllBoxReceipts(serverID, nymID, accountID, nBoxType)
 	{
-        var ledger = null;
+        var ledger;
 		
 		// The "Verify" versions of these load functions actually tries to 
 		// load all the box receipts. Therefore I use the "NoVerify" version,
@@ -494,7 +516,7 @@
 		}
 		else
 		{
-			OT_API_Output(0, "Utility.insureHaveAllBoxReceipts(): Error. Expected nBoxType of 0,1,2 (nymbox, inbox, or outbox.)");
+			OT_API_Output(0, " Utility::insureHaveAllBoxReceipts(): Error. Expected nBoxType of 0,1,2 (nymbox, inbox, or outbox.)");
 			return false;
 		}        
         // ----------------------------------------------
@@ -509,7 +531,7 @@
         // 
         if ((!VerifyMessage(ledger)) || (false == OT_API_VerifySignature(nymID, ledger)))
         {
-            OT_API_Output(0, "Utility.insureHaveAllBoxReceipts(): Unable to load or verify signature on ledger. (Failure.)");
+            OT_API_Output(0, " Utility::insureHaveAllBoxReceipts(): Unable to load or verify signature on ledger. (Failure.)");
             return false;
         }
         
@@ -543,13 +565,13 @@
 					
                     if (!bHaveBoxReceipt)
                     {                        
-                        OT_API_Output(0, "Utility.insureHaveAllBoxReceipts(): Downloading box receipt to add to my collection...");
+                        OT_API_Output(0, " Utility::insureHaveAllBoxReceipts(): Downloading box receipt to add to my collection...");
 
                         var  bDownloaded = this.getBoxReceiptWithErrorCorrection(serverID, nymID, accountID, nBoxType, strTransactionNum);
                         
                         if (!bDownloaded)
                         {
-                            OT_API_Output(0, "Utility.insureHaveAllBoxReceipts(): Failed downloading box receipt. (Skipping any others.) Transaction number: " + strTransactionNum);
+                            OT_API_Output(0, " Utility::insureHaveAllBoxReceipts(): Failed downloading box receipt. (Skipping any others.) Transaction number: " + strTransactionNum);
                             bReturnValue = false;
                             break;
                             // No point continuing to loop and fail 500 times, when getBoxReceiptWithErrorCorrection() already failed
@@ -562,12 +584,12 @@
                 }
                 else
 				{
-                    OT_API_Output(0, "Utility.insureHaveAllBoxReceipts(): Error: TransactionNum less-than-or-equal-to 0.");
+                    OT_API_Output(0, " Utility::insureHaveAllBoxReceipts(): Error: TransactionNum less-than-or-equal-to 0.");
 				}
             }
             else
 			{
-                OT_API_Output(0, "Utility.insureHaveAllBoxReceipts(): Error: TransactionNum was null, when trying to read it based on the index (within bounds, too.)");
+                OT_API_Output(0, " Utility::insureHaveAllBoxReceipts(): Error: TransactionNum was null, when trying to read it based on the index (within bounds, too.)");
 			}
         } // for
 		}
@@ -615,7 +637,7 @@
             var serverResponse = OT_API_PopMessageBuffer();
             if (!VerifyMessage(serverResponse)) 
 			{
-                OT_API_Output(0, "Utility.getTransactionNumbers(): server reply empty. Perhaps the receive_fail_ms in client.cfg needs to be set to a higher value?");
+                OT_API_Output(0, " Utility::getTransactionNumbers(): server reply empty. Perhaps the receive_fail_ms in client.cfg needs to be set to a higher value?");
                 bSuccess = false;
             }
             // -----------------------------------------------------------
@@ -623,7 +645,7 @@
             //
             if (false == OT_API_Message_GetSuccess(serverResponse)) 
 			{
-                OT_API_Output(0, "Utility.getTransactionNumbers(): Server refused my request for a new transaction number! (Maybe reached the limit?): " + serverResponse);
+                OT_API_Output(0, " Utility::getTransactionNumbers(): Server refused my request for a new transaction number! (Maybe reached the limit?): " + serverResponse);
                 bSuccess = false;
             }
 
@@ -658,7 +680,7 @@
                     }
                     else 
                     {
-                        OT_API_Output(0, "Utility.getTransactionNumbers(): OT_API_getTransactionNumber() failed, then my call to Utility.getRequestNumber() FAILED. (I don't know what else to do.)"); 
+                        OT_API_Output(0, " Utility::getTransactionNumbers(): OT_API_getTransactionNumber() failed, then my call to Utility.getRequestNumber() FAILED. (I don't know what else to do.)"); 
                         return false;
                     }
                 }
@@ -672,7 +694,7 @@
                 // use some of those new ones up first, that are sitting in my Nymbox.)
                 else if (2 == nFailures) // second failure
                 {                     
-                    if (this.getAndProcessNymbox(serverID, nymID))
+                    if (this.getAndProcessNymbox(serverID, nymID) != (-1)) // getAndProcessNymbox success...
                     {
                         // getAndProcessNymbox() worked. But we could still be at our max transaction #s,
                         // so we might need to cut this loop short... I'll try to keep going... but if failures
@@ -688,7 +710,7 @@
                     }
                     else
                     {
-                        OT_API_Output(0, "Utility.getTransactionNumbers(): While Utility.getRequestNumber() worked, OT_API_getTransactionNumber() is STILL failing, so I called Utility.getAndProcessNymbox(), but it didn't work. I don't know what else to do.");
+                        OT_API_Output(0, " Utility::getTransactionNumbers(): While Utility.getRequestNumber() worked, OT_API_getTransactionNumber() is STILL failing, so I called Utility.getAndProcessNymbox(), but it didn't work. I don't know what else to do.");
                         return false;
                     }
                 }
@@ -698,7 +720,7 @@
                     // point, from the processNymbox call. The caller will just count them again before
                     // deciding whether to go on to his next call.
                     //
-                    OT_API_Output(0, "Utility.getTransactionNumbers(): OT_API_getTransactionNumber(): Returned success==false, meaning I probably have my limit of transaction numbers already signed out.");
+                    OT_API_Output(0, " Utility::getTransactionNumbers(): OT_API_getTransactionNumber(): Returned success==false, meaning I probably have my limit of transaction numbers already signed out.");
 
                     // This time we don't set --i since we're not doing any more rounds.
                     // We also don't set bSuccess=true since we ALREADY processed Nymbox,
@@ -725,11 +747,11 @@
         //
         if (bSuccess) 
         {
-            var  b2 = this.getAndProcessNymbox(serverID, nymID); // already logs inside here, if failure.
+            var  b2 = (this.getAndProcessNymbox(serverID, nymID) != (-1)); // already logs inside here, if failure.
 
             if (false == b2)
 			{
-                OT_API_Output(0, "Utility.getTransactionNumbers(): While all the calls to OT_API_getTransactionNumber() seemed to work, I was unable to get or process the nymbox at the end of it all.");
+                OT_API_Output(0, " Utility::getTransactionNumbers(): While all the calls to OT_API_getTransactionNumber() seemed to work, I was unable to get or process the nymbox at the end of it all.");
 			}
             return b2;
             // ----------------------------------           

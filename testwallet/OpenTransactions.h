@@ -135,6 +135,7 @@
 #include <string>
 
 class OTString;
+class OTASCIIArmor;
 class OTIdentifier;
 class OTServerContract;
 class OTEnvelope;
@@ -470,7 +471,7 @@ public:
 	OTServerContract * LoadServerContract(const OTIdentifier & SERVER_ID);
 	
 	// ----------------------------------------------------
-
+		
 	bool IsBasketCurrency(const OTIdentifier & BASKET_ASSET_TYPE_ID);
 
 	long GetBasketMinimumTransferAmount(const OTIdentifier & BASKET_ASSET_TYPE_ID);
@@ -585,6 +586,13 @@ public:
 					   const int	 nBoxType,		// 0/nymbox, 1/inbox, 2/outbox
 					   const long	&lTransactionNum);
 	
+	// ----------------------------------------------------
+	
+	void queryAssetTypes(OTIdentifier & SERVER_ID,
+						 OTIdentifier & USER_ID,
+						 OTASCIIArmor & ENCODED_MAP);
+	// ----------------------------------------------------
+	
 	void createAssetAccount(OTIdentifier & SERVER_ID,
 							OTIdentifier & USER_ID,
 							OTIdentifier & ASSET_ID);
@@ -664,8 +672,13 @@ public:
 				   OTIdentifier & USER_ID,
 				   OTIdentifier & ACCT_ID);
 	
-	void processNymbox(OTIdentifier	& SERVER_ID,
-					   OTIdentifier	& USER_ID);
+	// Returns:
+	// -1 if error.
+	//  0 if Nymbox is empty.
+	//  1 or more: Count of items in Nymbox before processing.
+	//	
+	int processNymbox(OTIdentifier	& SERVER_ID,
+					  OTIdentifier	& USER_ID);
 	
 	void processInbox(OTIdentifier	& SERVER_ID,
 					  OTIdentifier	& USER_ID,

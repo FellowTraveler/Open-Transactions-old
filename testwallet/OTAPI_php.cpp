@@ -10658,6 +10658,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_processNymbox) {
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
   zval **args[2];
+  int result;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
@@ -10684,8 +10685,10 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_processNymbox) {
   }
   /*@SWIG@*/;
   
-  OT_API_processNymbox((char const *)arg1,(char const *)arg2);
-  
+  result = (int)OT_API_processNymbox((char const *)arg1,(char const *)arg2);
+  {
+    ZVAL_LONG(return_value,result);
+  }
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -11493,6 +11496,89 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Message_GetSuccess) {
   result = (int)OT_API_Message_GetSuccess((char const *)arg1);
   {
     ZVAL_LONG(return_value,result);
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_queryAssetTypes) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  zval **args[3];
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[2])->type==IS_NULL) {
+    arg3 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[2]);
+    arg3 = (char *) Z_STRVAL_PP(args[2]);
+  }
+  /*@SWIG@*/;
+  
+  OT_API_queryAssetTypes((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_Message_GetPayload) {
+  char *arg1 = (char *) 0 ;
+  zval **args[1];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_Message_GetPayload((char const *)arg1);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
   }
   return;
 fail:
@@ -14418,6 +14504,76 @@ ZEND_NAMED_FUNCTION(_wrap_Storage_QueryObject) {
 }
 
 
+ZEND_NAMED_FUNCTION(_wrap_Storage_EncodeObject) {
+  OTDB::Storage *arg1 = (OTDB::Storage *) 0 ;
+  OTDB::Storable *arg2 = 0 ;
+  zval **args[2];
+  std::string result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTDB__Storage, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of Storage_EncodeObject. Expected SWIGTYPE_p_OTDB__Storage");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  {
+    if(SWIG_ConvertPtr(*args[1], (void **) &arg2, SWIGTYPE_p_OTDB__Storable, 0) < 0 || arg2 == NULL) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 2 of Storage_EncodeObject. Expected SWIGTYPE_p_OTDB__Storable");
+    }
+  }
+  result = (arg1)->EncodeObject(*arg2);
+  
+  ZVAL_STRINGL(return_value, const_cast<char*>((&result)->data()), (&result)->size(), 1);
+  
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_Storage_DecodeObject) {
+  OTDB::Storage *arg1 = (OTDB::Storage *) 0 ;
+  OTDB::StoredObjectType arg2 ;
+  std::string arg3 ;
+  zval **args[3];
+  OTDB::Storable *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTDB__Storage, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of Storage_DecodeObject. Expected SWIGTYPE_p_OTDB__Storage");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  convert_to_long_ex(args[1]);
+  arg2 = (OTDB::StoredObjectType) Z_LVAL_PP(args[1]);
+  /*@SWIG@*/;
+  
+  
+  convert_to_string_ex(args[2]);
+  (&arg3)->assign(Z_STRVAL_PP(args[2]), Z_STRLEN_PP(args[2]));
+  
+  result = (OTDB::Storable *)(arg1)->DecodeObject(arg2,arg3);
+  
+  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTDB__Storable, 1);
+  
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
 ZEND_NAMED_FUNCTION(_wrap_Storage_EraseValueByKey__SWIG_0) {
   OTDB::Storage *arg1 = (OTDB::Storage *) 0 ;
   std::string arg2 ;
@@ -16934,6 +17090,62 @@ ZEND_NAMED_FUNCTION(_wrap_QueryObject) {
   
   SWIG_ErrorCode() = E_ERROR;
   SWIG_ErrorMsg() = "No matching function for overloaded 'QueryObject'";
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_EncodeObject) {
+  OTDB::Storable *arg1 = 0 ;
+  zval **args[1];
+  std::string result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTDB__Storable, 0) < 0 || arg1 == NULL) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of EncodeObject. Expected SWIGTYPE_p_OTDB__Storable");
+    }
+  }
+  result = OTDB::EncodeObject(*arg1);
+  
+  ZVAL_STRINGL(return_value, const_cast<char*>((&result)->data()), (&result)->size(), 1);
+  
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_DecodeObject) {
+  OTDB::StoredObjectType arg1 ;
+  std::string arg2 ;
+  zval **args[2];
+  OTDB::Storable *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  convert_to_long_ex(args[0]);
+  arg1 = (OTDB::StoredObjectType) Z_LVAL_PP(args[0]);
+  /*@SWIG@*/;
+  
+  
+  convert_to_string_ex(args[1]);
+  (&arg2)->assign(Z_STRVAL_PP(args[1]), Z_STRLEN_PP(args[1]));
+  
+  result = (OTDB::Storable *)OTDB::DecodeObject(arg1,arg2);
+  
+  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTDB__Storable, 1);
+  
+  return;
+fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
 }
 
@@ -27336,6 +27548,8 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(ot_api_resyncnymwithserver,_wrap_OT_API_ResyncNymWithServer,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_message_getcommand,_wrap_OT_API_Message_GetCommand,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_message_getsuccess,_wrap_OT_API_Message_GetSuccess,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_queryassettypes,_wrap_OT_API_queryAssetTypes,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_message_getpayload,_wrap_OT_API_Message_GetPayload,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_message_getdepth,_wrap_OT_API_Message_GetDepth,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_message_gettransactionsuccess,_wrap_OT_API_Message_GetTransactionSuccess,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_message_getbalanceagreementsuccess,_wrap_OT_API_Message_GetBalanceAgreementSuccess,NULL)
@@ -27356,6 +27570,8 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(storage_queryplainstring,_wrap_Storage_QueryPlainString,NULL)
  SWIG_ZEND_NAMED_FE(storage_storeobject,_wrap_Storage_StoreObject,NULL)
  SWIG_ZEND_NAMED_FE(storage_queryobject,_wrap_Storage_QueryObject,NULL)
+ SWIG_ZEND_NAMED_FE(storage_encodeobject,_wrap_Storage_EncodeObject,NULL)
+ SWIG_ZEND_NAMED_FE(storage_decodeobject,_wrap_Storage_DecodeObject,NULL)
  SWIG_ZEND_NAMED_FE(storage_erasevaluebykey,_wrap_Storage_EraseValueByKey,NULL)
  SWIG_ZEND_NAMED_FE(storage_createobject,_wrap_Storage_CreateObject,NULL)
  SWIG_ZEND_NAMED_FE(storage_create,_wrap_Storage_Create,NULL)
@@ -27371,6 +27587,8 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(queryplainstring,_wrap_QueryPlainString,NULL)
  SWIG_ZEND_NAMED_FE(storeobject,_wrap_StoreObject,NULL)
  SWIG_ZEND_NAMED_FE(queryobject,_wrap_QueryObject,NULL)
+ SWIG_ZEND_NAMED_FE(encodeobject,_wrap_EncodeObject,NULL)
+ SWIG_ZEND_NAMED_FE(decodeobject,_wrap_DecodeObject,NULL)
  SWIG_ZEND_NAMED_FE(erasevaluebykey,_wrap_EraseValueByKey,NULL)
  SWIG_ZEND_NAMED_FE(otdbstring_m_string_set,_wrap_OTDBString_m_string_set,NULL)
  SWIG_ZEND_NAMED_FE(otdbstring_m_string_get,_wrap_OTDBString_m_string_get,NULL)

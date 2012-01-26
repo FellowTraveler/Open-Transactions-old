@@ -756,7 +756,7 @@ class otapiPINVOKE {
   public static extern void OT_API_processInbox(string jarg1, string jarg2, string jarg3, string jarg4);
 
   [DllImport("otapi", EntryPoint="CSharp_OT_API_processNymbox")]
-  public static extern void OT_API_processNymbox(string jarg1, string jarg2);
+  public static extern int OT_API_processNymbox(string jarg1, string jarg2);
 
   [DllImport("otapi", EntryPoint="CSharp_OT_API_withdrawVoucher")]
   public static extern void OT_API_withdrawVoucher(string jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6);
@@ -805,6 +805,12 @@ class otapiPINVOKE {
 
   [DllImport("otapi", EntryPoint="CSharp_OT_API_Message_GetSuccess")]
   public static extern int OT_API_Message_GetSuccess(string jarg1);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_queryAssetTypes")]
+  public static extern void OT_API_queryAssetTypes(string jarg1, string jarg2, string jarg3);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_Message_GetPayload")]
+  public static extern string OT_API_Message_GetPayload(string jarg1);
 
   [DllImport("otapi", EntryPoint="CSharp_OT_API_Message_GetDepth")]
   public static extern int OT_API_Message_GetDepth(string jarg1);
@@ -956,6 +962,12 @@ class otapiPINVOKE {
   [DllImport("otapi", EntryPoint="CSharp_Storage_QueryObject__SWIG_3")]
   public static extern IntPtr Storage_QueryObject__SWIG_3(HandleRef jarg1, int jarg2, string jarg3);
 
+  [DllImport("otapi", EntryPoint="CSharp_Storage_EncodeObject")]
+  public static extern string Storage_EncodeObject(HandleRef jarg1, HandleRef jarg2);
+
+  [DllImport("otapi", EntryPoint="CSharp_Storage_DecodeObject")]
+  public static extern IntPtr Storage_DecodeObject(HandleRef jarg1, int jarg2, string jarg3);
+
   [DllImport("otapi", EntryPoint="CSharp_Storage_EraseValueByKey__SWIG_0")]
   public static extern bool Storage_EraseValueByKey__SWIG_0(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
 
@@ -1093,6 +1105,12 @@ class otapiPINVOKE {
 
   [DllImport("otapi", EntryPoint="CSharp_QueryObject__SWIG_3")]
   public static extern IntPtr QueryObject__SWIG_3(int jarg1, string jarg2);
+
+  [DllImport("otapi", EntryPoint="CSharp_EncodeObject")]
+  public static extern string EncodeObject(HandleRef jarg1);
+
+  [DllImport("otapi", EntryPoint="CSharp_DecodeObject")]
+  public static extern IntPtr DecodeObject(int jarg1, string jarg2);
 
   [DllImport("otapi", EntryPoint="CSharp_EraseValueByKey__SWIG_0")]
   public static extern bool EraseValueByKey__SWIG_0(string jarg1, string jarg2, string jarg3, string jarg4);

@@ -5826,25 +5826,29 @@ SWIGEXPORT void JNICALL Java_com_wrapper_core_jni_otapiJNI_OT_1API_1processInbox
 }
 
 
-SWIGEXPORT void JNICALL Java_com_wrapper_core_jni_otapiJNI_OT_1API_1processNymbox(JNIEnv *jenv, jclass jcls, jstring jarg1, jstring jarg2) {
+SWIGEXPORT jint JNICALL Java_com_wrapper_core_jni_otapiJNI_OT_1API_1processNymbox(JNIEnv *jenv, jclass jcls, jstring jarg1, jstring jarg2) {
+  jint jresult = 0 ;
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
+  int result;
   
   (void)jenv;
   (void)jcls;
   arg1 = 0;
   if (jarg1) {
     arg1 = (char *)jenv->GetStringUTFChars(jarg1, 0);
-    if (!arg1) return ;
+    if (!arg1) return 0;
   }
   arg2 = 0;
   if (jarg2) {
     arg2 = (char *)jenv->GetStringUTFChars(jarg2, 0);
-    if (!arg2) return ;
+    if (!arg2) return 0;
   }
-  OT_API_processNymbox((char const *)arg1,(char const *)arg2);
+  result = (int)OT_API_processNymbox((char const *)arg1,(char const *)arg2);
+  jresult = (jint)result; 
   if (arg1) jenv->ReleaseStringUTFChars(jarg1, (const char *)arg1);
   if (arg2) jenv->ReleaseStringUTFChars(jarg2, (const char *)arg2);
+  return jresult;
 }
 
 
@@ -6324,6 +6328,54 @@ SWIGEXPORT jint JNICALL Java_com_wrapper_core_jni_otapiJNI_OT_1API_1Message_1Get
   }
   result = (int)OT_API_Message_GetSuccess((char const *)arg1);
   jresult = (jint)result; 
+  if (arg1) jenv->ReleaseStringUTFChars(jarg1, (const char *)arg1);
+  return jresult;
+}
+
+
+SWIGEXPORT void JNICALL Java_com_wrapper_core_jni_otapiJNI_OT_1API_1queryAssetTypes(JNIEnv *jenv, jclass jcls, jstring jarg1, jstring jarg2, jstring jarg3) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = 0;
+  if (jarg1) {
+    arg1 = (char *)jenv->GetStringUTFChars(jarg1, 0);
+    if (!arg1) return ;
+  }
+  arg2 = 0;
+  if (jarg2) {
+    arg2 = (char *)jenv->GetStringUTFChars(jarg2, 0);
+    if (!arg2) return ;
+  }
+  arg3 = 0;
+  if (jarg3) {
+    arg3 = (char *)jenv->GetStringUTFChars(jarg3, 0);
+    if (!arg3) return ;
+  }
+  OT_API_queryAssetTypes((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  if (arg1) jenv->ReleaseStringUTFChars(jarg1, (const char *)arg1);
+  if (arg2) jenv->ReleaseStringUTFChars(jarg2, (const char *)arg2);
+  if (arg3) jenv->ReleaseStringUTFChars(jarg3, (const char *)arg3);
+}
+
+
+SWIGEXPORT jstring JNICALL Java_com_wrapper_core_jni_otapiJNI_OT_1API_1Message_1GetPayload(JNIEnv *jenv, jclass jcls, jstring jarg1) {
+  jstring jresult = 0 ;
+  char *arg1 = (char *) 0 ;
+  char *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = 0;
+  if (jarg1) {
+    arg1 = (char *)jenv->GetStringUTFChars(jarg1, 0);
+    if (!arg1) return 0;
+  }
+  result = (char *)OT_API_Message_GetPayload((char const *)arg1);
+  if (result) jresult = jenv->NewStringUTF((const char *)result);
   if (arg1) jenv->ReleaseStringUTFChars(jarg1, (const char *)arg1);
   return jresult;
 }
@@ -8458,6 +8510,54 @@ SWIGEXPORT jlong JNICALL Java_com_wrapper_core_jni_otapiJNI_Storage_1QueryObject
 }
 
 
+SWIGEXPORT jstring JNICALL Java_com_wrapper_core_jni_otapiJNI_Storage_1EncodeObject(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2, jobject jarg2_) {
+  jstring jresult = 0 ;
+  OTDB::Storage *arg1 = (OTDB::Storage *) 0 ;
+  OTDB::Storable *arg2 = 0 ;
+  std::string result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  (void)jarg2_;
+  arg1 = *(OTDB::Storage **)&jarg1; 
+  arg2 = *(OTDB::Storable **)&jarg2;
+  if (!arg2) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "OTDB::Storable & reference is null");
+    return 0;
+  } 
+  result = (arg1)->EncodeObject(*arg2);
+  jresult = jenv->NewStringUTF((&result)->c_str()); 
+  return jresult;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_com_wrapper_core_jni_otapiJNI_Storage_1DecodeObject(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jint jarg2, jstring jarg3) {
+  jlong jresult = 0 ;
+  OTDB::Storage *arg1 = (OTDB::Storage *) 0 ;
+  OTDB::StoredObjectType arg2 ;
+  std::string arg3 ;
+  OTDB::Storable *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTDB::Storage **)&jarg1; 
+  arg2 = (OTDB::StoredObjectType)jarg2; 
+  if(!jarg3) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::string");
+    return 0;
+  } 
+  const char *arg3_pstr = (const char *)jenv->GetStringUTFChars(jarg3, 0); 
+  if (!arg3_pstr) return 0;
+  (&arg3)->assign(arg3_pstr);
+  jenv->ReleaseStringUTFChars(jarg3, arg3_pstr); 
+  result = (OTDB::Storable *)(arg1)->DecodeObject(arg2,arg3);
+  *(OTDB::Storable **)&jresult = result; 
+  return jresult;
+}
+
+
 SWIGEXPORT jboolean JNICALL Java_com_wrapper_core_jni_otapiJNI_Storage_1EraseValueByKey_1_1SWIG_10(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jstring jarg2, jstring jarg3, jstring jarg4, jstring jarg5) {
   jboolean jresult = 0 ;
   OTDB::Storage *arg1 = (OTDB::Storage *) 0 ;
@@ -10082,6 +10182,48 @@ SWIGEXPORT jlong JNICALL Java_com_wrapper_core_jni_otapiJNI_QueryObject_1_1SWIG_
   (&arg2)->assign(arg2_pstr);
   jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
   result = (OTDB::Storable *)OTDB::QueryObject(arg1,arg2);
+  *(OTDB::Storable **)&jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jstring JNICALL Java_com_wrapper_core_jni_otapiJNI_EncodeObject(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jstring jresult = 0 ;
+  OTDB::Storable *arg1 = 0 ;
+  std::string result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTDB::Storable **)&jarg1;
+  if (!arg1) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "OTDB::Storable & reference is null");
+    return 0;
+  } 
+  result = OTDB::EncodeObject(*arg1);
+  jresult = jenv->NewStringUTF((&result)->c_str()); 
+  return jresult;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_com_wrapper_core_jni_otapiJNI_DecodeObject(JNIEnv *jenv, jclass jcls, jint jarg1, jstring jarg2) {
+  jlong jresult = 0 ;
+  OTDB::StoredObjectType arg1 ;
+  std::string arg2 ;
+  OTDB::Storable *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = (OTDB::StoredObjectType)jarg1; 
+  if(!jarg2) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::string");
+    return 0;
+  } 
+  const char *arg2_pstr = (const char *)jenv->GetStringUTFChars(jarg2, 0); 
+  if (!arg2_pstr) return 0;
+  (&arg2)->assign(arg2_pstr);
+  jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
+  result = (OTDB::Storable *)OTDB::DecodeObject(arg1,arg2);
   *(OTDB::Storable **)&jresult = result; 
   return jresult;
 }

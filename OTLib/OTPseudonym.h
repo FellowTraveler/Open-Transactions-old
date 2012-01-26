@@ -153,6 +153,8 @@
 
  */
 
+;
+
 class OTItem;
 class OTTransaction;
 class OTLedger;

@@ -297,8 +297,8 @@ public:
 	static const std::string PeekMemlogFront();
 	static const std::string PeekMemlogBack();
 	
-	static bool PopMemlogFront(); // actually returns OT_BOOL
-	static bool PopMemlogBack(); // actually returns OT_BOOL
+	static bool PopMemlogFront(); 
+	static bool PopMemlogBack(); 
 	
 	
 	static const std::string CreateNym();
@@ -749,7 +749,7 @@ public:
 							   const std::string USER_ID,
 							   const std::string BASKET_ASSET_ID,
 							   const std::string THE_BASKET,
-							   const bool BOOL_EXCHANGE_IN_OR_OUT); // exchanging in == OT_TRUE, out == OT_FALSE.
+							   const bool BOOL_EXCHANGE_IN_OR_OUT); // exchanging in == true, out == false.
 	
 	static void notarizeWithdrawal(const std::string SERVER_ID,
 								   const std::string USER_ID,
@@ -803,8 +803,8 @@ public:
 							 const std::string ACCT_ID,
 							 const std::string ACCT_LEDGER);
 	
-	static void processNymbox(const std::string SERVER_ID,
-							  const std::string USER_ID);
+	static int processNymbox(const std::string SERVER_ID,
+							 const std::string USER_ID);
 	
 	// --------------------------------------------------------------------------
 	static void withdrawVoucher(const std::string SERVER_ID,
@@ -873,7 +873,13 @@ public:
 
 	// -----------------------------------------------------------
 	
+	static void queryAssetTypes(const std::string SERVER_ID,
+								const std::string USER_ID,
+								const std::string ENCODED_MAP);
+	
 	static const std::string Message_GetCommand(const std::string THE_MESSAGE);
+	
+	static const std::string Message_GetPayload(const std::string THE_MESSAGE);
 	
 	static bool Message_GetSuccess(const std::string THE_MESSAGE);
 	

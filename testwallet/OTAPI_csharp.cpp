@@ -3117,13 +3117,17 @@ SWIGEXPORT void SWIGSTDCALL CSharp_OT_API_processInbox(char * jarg1, char * jarg
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_OT_API_processNymbox(char * jarg1, char * jarg2) {
+SWIGEXPORT int SWIGSTDCALL CSharp_OT_API_processNymbox(char * jarg1, char * jarg2) {
+  int jresult ;
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
+  int result;
   
   arg1 = (char *)jarg1; 
   arg2 = (char *)jarg2; 
-  OT_API_processNymbox((char const *)arg1,(char const *)arg2);
+  result = (int)OT_API_processNymbox((char const *)arg1,(char const *)arg2);
+  jresult = result; 
+  return jresult;
 }
 
 
@@ -3332,6 +3336,30 @@ SWIGEXPORT int SWIGSTDCALL CSharp_OT_API_Message_GetSuccess(char * jarg1) {
   arg1 = (char *)jarg1; 
   result = (int)OT_API_Message_GetSuccess((char const *)arg1);
   jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_OT_API_queryAssetTypes(char * jarg1, char * jarg2, char * jarg3) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  
+  arg1 = (char *)jarg1; 
+  arg2 = (char *)jarg2; 
+  arg3 = (char *)jarg3; 
+  OT_API_queryAssetTypes((char const *)arg1,(char const *)arg2,(char const *)arg3);
+}
+
+
+SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_Message_GetPayload(char * jarg1) {
+  char * jresult ;
+  char *arg1 = (char *) 0 ;
+  char *result = 0 ;
+  
+  arg1 = (char *)jarg1; 
+  result = (char *)OT_API_Message_GetPayload((char const *)arg1);
+  jresult = SWIG_csharp_string_callback((const char *)result); 
   return jresult;
 }
 
@@ -4576,6 +4604,44 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_Storage_QueryObject__SWIG_3(void * jarg1, i
 }
 
 
+SWIGEXPORT char * SWIGSTDCALL CSharp_Storage_EncodeObject(void * jarg1, void * jarg2) {
+  char * jresult ;
+  OTDB::Storage *arg1 = (OTDB::Storage *) 0 ;
+  OTDB::Storable *arg2 = 0 ;
+  std::string result;
+  
+  arg1 = (OTDB::Storage *)jarg1; 
+  arg2 = (OTDB::Storable *)jarg2;
+  if (!arg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "OTDB::Storable & type is null", 0);
+    return 0;
+  } 
+  result = (arg1)->EncodeObject(*arg2);
+  jresult = SWIG_csharp_string_callback((&result)->c_str()); 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_Storage_DecodeObject(void * jarg1, int jarg2, char * jarg3) {
+  void * jresult ;
+  OTDB::Storage *arg1 = (OTDB::Storage *) 0 ;
+  OTDB::StoredObjectType arg2 ;
+  std::string arg3 ;
+  OTDB::Storable *result = 0 ;
+  
+  arg1 = (OTDB::Storage *)jarg1; 
+  arg2 = (OTDB::StoredObjectType)jarg2; 
+  if (!jarg3) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  (&arg3)->assign(jarg3); 
+  result = (OTDB::Storable *)(arg1)->DecodeObject(arg2,arg3);
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
 SWIGEXPORT unsigned int SWIGSTDCALL CSharp_Storage_EraseValueByKey__SWIG_0(void * jarg1, char * jarg2, char * jarg3, char * jarg4, char * jarg5) {
   unsigned int jresult ;
   OTDB::Storage *arg1 = (OTDB::Storage *) 0 ;
@@ -5771,6 +5837,40 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_QueryObject__SWIG_3(int jarg1, char * jarg2
   }
   (&arg2)->assign(jarg2); 
   result = (OTDB::Storable *)OTDB::QueryObject(arg1,arg2);
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT char * SWIGSTDCALL CSharp_EncodeObject(void * jarg1) {
+  char * jresult ;
+  OTDB::Storable *arg1 = 0 ;
+  std::string result;
+  
+  arg1 = (OTDB::Storable *)jarg1;
+  if (!arg1) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "OTDB::Storable & type is null", 0);
+    return 0;
+  } 
+  result = OTDB::EncodeObject(*arg1);
+  jresult = SWIG_csharp_string_callback((&result)->c_str()); 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_DecodeObject(int jarg1, char * jarg2) {
+  void * jresult ;
+  OTDB::StoredObjectType arg1 ;
+  std::string arg2 ;
+  OTDB::Storable *result = 0 ;
+  
+  arg1 = (OTDB::StoredObjectType)jarg1; 
+  if (!jarg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  (&arg2)->assign(jarg2); 
+  result = (OTDB::Storable *)OTDB::DecodeObject(arg1,arg2);
   jresult = (void *)result; 
   return jresult;
 }

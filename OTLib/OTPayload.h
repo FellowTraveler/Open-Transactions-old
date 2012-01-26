@@ -133,6 +133,7 @@
 
 class OTMessage;
 class OTEnvelope;
+class OTASCIIArmor;
 
 #ifdef _WIN32
 class OTPayload;
@@ -144,6 +145,9 @@ class OTPayload : public OTData
 public:
 	OTPayload();
 	OTPayload(const OTPayload & rhs);
+	OTPayload(const OTASCIIArmor & theSource);
+	
+	
 	virtual ~OTPayload();
 
 	using OTData::swap;

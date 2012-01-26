@@ -240,6 +240,8 @@ package otapi;
 *OT_API_ResyncNymWithServer = *otapic::OT_API_ResyncNymWithServer;
 *OT_API_Message_GetCommand = *otapic::OT_API_Message_GetCommand;
 *OT_API_Message_GetSuccess = *otapic::OT_API_Message_GetSuccess;
+*OT_API_queryAssetTypes = *otapic::OT_API_queryAssetTypes;
+*OT_API_Message_GetPayload = *otapic::OT_API_Message_GetPayload;
 *OT_API_Message_GetDepth = *otapic::OT_API_Message_GetDepth;
 *OT_API_Message_GetTransactionSuccess = *otapic::OT_API_Message_GetTransactionSuccess;
 *OT_API_Message_GetBalanceAgreementSuccess = *otapic::OT_API_Message_GetBalanceAgreementSuccess;
@@ -260,6 +262,8 @@ package otapi;
 *QueryPlainString = *otapic::QueryPlainString;
 *StoreObject = *otapic::StoreObject;
 *QueryObject = *otapic::QueryObject;
+*EncodeObject = *otapic::EncodeObject;
+*DecodeObject = *otapic::DecodeObject;
 *EraseValueByKey = *otapic::EraseValueByKey;
 
 ############# Class : otapi::OTCallback ##############
@@ -404,6 +408,8 @@ sub DESTROY {
 *QueryPlainString = *otapic::Storage_QueryPlainString;
 *StoreObject = *otapic::Storage_StoreObject;
 *QueryObject = *otapic::Storage_QueryObject;
+*EncodeObject = *otapic::Storage_EncodeObject;
+*DecodeObject = *otapic::Storage_DecodeObject;
 *EraseValueByKey = *otapic::Storage_EraseValueByKey;
 *CreateObject = *otapic::Storage_CreateObject;
 *Create = *otapic::Storage_Create;
