@@ -177,13 +177,37 @@ extern "C"
 
 void OTClient::ProcessMessageOut(char *buf, int * pnExpectReply)
 {
+//	OTLog::vError("OTClient::ProcessMessageOut: \n\n%s\n\n",
+//				 buf);
+//	
+//	
+//	const OTString strMessage(buf);
+//	OTMessage tempMsg;
+//	tempMsg.LoadContractFromString(strMessage);
+
 	m_pConnection->ProcessMessageOut(buf, pnExpectReply);
+	
+	
+//	OTLog::Error("OTClient::ProcessMessageOut: FINISHED.\n");
+
 }
 
 
 void OTClient::ProcessMessageOut(OTMessage & theMessage)
 {
+//	const OTString strMessage(theMessage);
+//	OTLog::vError("OTClient::ProcessMessageOut: \n\n%s\n\n",
+//				  strMessage.Get());
+//
+//	OTMessage tempMsg;
+//	tempMsg.LoadContractFromString(strMessage);
+	
+	
 	m_pConnection->ProcessMessageOut(theMessage);
+	
+	
+//	OTLog::Error("OTClient::ProcessMessageOut: FINISHED.\n");
+
 }
 
 bool OTClient::ProcessInBuffer(OTMessage & theServerReply)

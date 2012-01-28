@@ -2683,6 +2683,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		const char *	pElementExpected	= "stringMap";
 		OTASCIIArmor &	ascTextExpected		= m_ascPayload;
 		
+		
 		if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 		{
 			OTLog::vError("Error in OTMessage::ProcessXMLNode: "
@@ -2761,12 +2762,9 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			return (-1); // error condition			
 		}
 		
-		OTString acctContents(m_ascPayload);
 		OTLog::vOutput(1, "\n Command: %s   %s\n NymID:    %s\n ServerID: %s\n\n",
 					   m_strCommand.Get(), (m_bSuccess?"SUCCESS":"FAILED"), 
 					   m_strNymID.Get(), m_strServerID.Get()
-					//	m_ascInReferenceTo.Get(), 
-					   //acctContents.Get()
 					   );
 		
 		nReturnVal = 1;

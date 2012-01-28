@@ -203,12 +203,12 @@ protected:
 	bool LoadContractXML(); // The XML file is in m_xmlUnsigned. Load it from there into members here.
 	
 	// -------------------------------------------------------------------
-	bool LoadEncodedTextField(irr::io::IrrXMLReader*& xml, OTString &strOutput);
 	bool LoadEncodedTextField(irr::io::IrrXMLReader*& xml, OTASCIIArmor &ascOutput);
+	bool LoadEncodedTextField(irr::io::IrrXMLReader*& xml, OTString &strOutput);
 	
-	bool LoadEncodedTextFieldByName(irr::io::IrrXMLReader*& xml, OTString &strOutput, 
-									const char *& szName, mapOfStrings * pmapExtraVars = NULL);
 	bool LoadEncodedTextFieldByName(irr::io::IrrXMLReader*& xml, OTASCIIArmor &ascOutput, 
+									const char *& szName, mapOfStrings * pmapExtraVars = NULL);
+	bool LoadEncodedTextFieldByName(irr::io::IrrXMLReader*& xml, OTString &strOutput, 
 									const char *& szName, mapOfStrings * pmapExtraVars = NULL);
 	// -------------------------------------------------------------------
 
