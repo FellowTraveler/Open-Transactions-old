@@ -430,8 +430,8 @@ public class otapi {
     otapiPINVOKE.OT_API_activateSmartContract(SERVER_ID, USER_ID, THE_SMART_CONTRACT);
   }
 
-  public static void OT_API_triggerClause(string SERVER_ID, string USER_ID, string TRANSACTION_NUMBER, string CLAUSE_NAME) {
-    otapiPINVOKE.OT_API_triggerClause(SERVER_ID, USER_ID, TRANSACTION_NUMBER, CLAUSE_NAME);
+  public static void OT_API_triggerClause(string SERVER_ID, string USER_ID, string TRANSACTION_NUMBER, string CLAUSE_NAME, string STR_PARAM) {
+    otapiPINVOKE.OT_API_triggerClause(SERVER_ID, USER_ID, TRANSACTION_NUMBER, CLAUSE_NAME, STR_PARAM);
   }
 
   public static int OT_API_HarvestClosingNumbers(string SERVER_ID, string NYM_ID, string THE_CRON_ITEM) {

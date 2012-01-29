@@ -486,7 +486,7 @@ class otapiPINVOKE {
   public static extern void OT_API_activateSmartContract(string jarg1, string jarg2, string jarg3);
 
   [DllImport("otapi", EntryPoint="CSharp_OT_API_triggerClause")]
-  public static extern void OT_API_triggerClause(string jarg1, string jarg2, string jarg3, string jarg4);
+  public static extern void OT_API_triggerClause(string jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
 
   [DllImport("otapi", EntryPoint="CSharp_OT_API_HarvestClosingNumbers")]
   public static extern int OT_API_HarvestClosingNumbers(string jarg1, string jarg2, string jarg3);

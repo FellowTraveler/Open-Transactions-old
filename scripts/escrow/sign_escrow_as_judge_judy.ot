@@ -1,0 +1,149 @@
+#! /usr/local/bin/ot --script
+
+// NOTE: Use create_escrow.ot FIRST, to create your template.
+//
+// THEN use the signing scripts for activating that template.
+
+// --------------------------------------------------------
+
+// This temp variable is used for a running "latest copy" of the smart contract, as we 
+// construct it here inside this client-side OT script. (Don't confuse the server-side
+// scripts, aka the smart contracts, with the client-side scripts :-)
+//
+var strSmartContract = ""
+
+OT_API_Output(0, "\n\n\nThis script assumes you have already used: create_escrow.ot and sign_escrow_as_alice.ot and sign_escrow_as_judy.ot \n")
+OT_API_Output(0, "To continue, paste or pipe the smart contract that was created, followed by ~ on a line by itself. \n")
+
+strSmartContract = OT_CLI_ReadUntilEOF()
+
+// ******************************************************************
+
+// This is where we go from creating a generic template, to actually instantiating the
+// contract for specific users in a specific situation!
+//
+
+// BY THIS POINT, if we're going to ACTIVATE this up-until-now purely THEORETICAL 
+// smart contract, using ACTUAL Nyms and Accounts, then we need to check and see
+// if they have enough transaction numbers to move forward!
+//
+// -----------------------------------------------
+//
+// We started with Alice and Judy, so now let's finish out with JUDGE JUDY...
+
+var numCountNymJudy = OT_API_GetNym_TransactionNumCount(Server, MyNym)
+
+var numCountNeededJudy = OT_API_SmartContract_CountNumsNeeded(strSmartContract, "agent_judy") + 1 // the number of #s needed for "agent_judy" (1 for each acct), plus 1 for the Party.
+
+var bSuccess = false;
+
+// -----------------------------------------------
+
+if (numCountNymJudy >= numCountNeededJudy)
+{
+	var strJudyAcctID = MyAcct
+	if (MyAcct.size() <= 0)
+	{
+		OT_API_Output(0, "Paste Judy's asset ACCOUNT ID (Judy will RECEIVE to this account, from Alice), then hit enter: ")
+		strJudyAcctID = OT_CLI_ReadLine()
+	}
+
+	// CONFIRM A THEORETICAL ACCT BY GIVING IT A REAL ACCT ID. (Judy's asset account)
+	//
+	OT_API_Output(0, "Confirming Judy's asset account...\n")
+	var strSmart9 = OT_API_SmartContract_ConfirmAccount(strSmartContract, MyNym, "judge_judy",	// Should already be on the contract. (This way we can find it.)
+													// ----------------------------------------
+													"judy_acct",	// Acct name. Should already be added on the contract. (This way we can find it.)
+													"agent_judy",	// The agent name for this asset account.
+													strJudyAcctID)	// AcctID for the asset account. (For judy_acct).
+	strSmartContract = strSmart9
+	// --------------------------------------------------
+
+// Debugging.
+//print("SMART CONTRACT just confirmed judy_acct for judge_judy. Output:\n\n\n")
+//print(strSmartContract)
+//print("\n\n\n Confirming party...")
+
+	if (strSmartContract.size() > 0)
+	{
+		// --------------------------------------------------
+		// CONFIRM A THEORETICAL PARTY BY GIVING IT A REAL NYM ID
+		//
+		OT_API_Output(0, "Confirming Judy as a PARTY to the smart contract...\n")
+		var strSmart10 = OT_API_SmartContract_ConfirmParty(	strSmartContract,	// The smart contract, about to be changed by this function.
+															"judge_judy",		// The party should already be on the contract. This way we can find it.
+															// ----------------------------------------
+															MyNym)		// Nym ID for the party, the actual owner, 
+																		// ===> AS WELL AS for the default AGENT of that party.
+		strSmartContract = strSmart10
+		// --------------------------------------------------
+		
+		if (strSmartContract.size() > 0)
+		{
+			bSuccess = true
+		}
+		else
+		{
+			OT_API_Output(0, "\n\n** Sorry -- Judge Judy's ConfirmParty call FAILED!\n\n")
+		}
+	}
+	else
+	{
+		OT_API_Output(0, "\n\n** Sorry -- Judge Judy's ConfirmAcct call FAILED!\n\n")
+	}
+	// --------------------------------------------------
+}
+
+
+// --------------------------
+
+
+if (!bSuccess)
+{
+	// ******************************************************************
+
+	// OTHERWISE, I take the transaction numbers BACK! (Also, if the activation failed,
+	// I'd probably want to take the closing numbers back in that case as well.)
+	
+	OT_API_Output(0, "SMART CONTRACT: Since this script failed, I'm clawing BACK all the transaction numbers now (that way my data stays good.)\n")
+	
+	OT_API_HarvestAllNumbers(Server, MyNym,	strSmartContract);
+}
+
+// SUCCESS!!!
+else
+{
+	OT_API_Output(0, "\n\n")
+
+	print(strSmartContract)
+}
+
+
+/*
+// ******************************************************************
+// TRIGGER A CLAUSE REMOTELY (ON A SMART CONTRACT THAT'S ALREADY BEEN ACTIVATED.)
+//
+// OT_API_triggerClause(Server, MyNym, const char * TRANSACTION_NUMBER, "typical_clause");
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

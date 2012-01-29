@@ -5148,7 +5148,8 @@ void OT_API::depositPaymentPlan(const OTIdentifier	& SERVER_ID,
 void OT_API::triggerClause(const OTIdentifier	& SERVER_ID,
 						   const OTIdentifier	& USER_ID,
 						   const long			& lTransactionNum,
-						   const OTString		& strClauseName)
+						   const OTString		& strClauseName,
+						   const OTString		* pStrParam/*=NULL*/)
 {
 	const char * szFuncName = "OT_API::triggerClause";
 	// -----------------------------------------------------
@@ -5178,6 +5179,12 @@ void OT_API::triggerClause(const OTIdentifier	& SERVER_ID,
 	theMessage.m_lTransactionNum	= lTransactionNum;
 	theMessage.m_strNymID2			= strClauseName;
 	
+	// Optional string parameter. Available as "param_string" 
+	// inside the script.
+	//
+	if ((NULL != pStrParam) && (pStrParam->Exists()))
+		theMessage.m_ascPayload.SetString(*pStrParam); // <===
+
 	// (2) Sign the Message 
 	theMessage.SignContract(*pNym);		
 	

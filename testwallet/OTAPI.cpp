@@ -3249,18 +3249,22 @@ void OT_API_activateSmartContract(const char * SERVER_ID,
 void OT_API_triggerClause(const char * SERVER_ID,
 						  const char * USER_ID,
 						  const char * TRANSACTION_NUMBER,
-						  const char * CLAUSE_NAME)
+						  const char * CLAUSE_NAME,
+						  const char * STR_PARAM) // optional param
 {
 	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_triggerClause: Null SERVER_ID passed in.");
 	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_triggerClause: Null USER_ID passed in.");
 	OT_ASSERT_MSG(NULL != TRANSACTION_NUMBER, "OT_API_triggerClause: NULL TRANSACTION_NUMBER passed in.");
 	OT_ASSERT_MSG(NULL != CLAUSE_NAME, "OT_API_triggerClause: Null CLAUSE_NAME passed in.");
+//	OT_ASSERT_MSG(NULL != STR_PARAM, "OT_API_triggerClause: Null STR_PARAM passed in."); // allowed to be NULL. Optional param.
 
 	const OTIdentifier	theServerID(SERVER_ID), theUserID(USER_ID);
 	const OTString		strClauseName(CLAUSE_NAME);
 	const long			lTransactionNum = atol(TRANSACTION_NUMBER);
 	
-	g_OT_API.triggerClause(theServerID, theUserID, lTransactionNum, strClauseName);
+	const OTString strParam((NULL == STR_PARAM) ? "" : STR_PARAM);
+	
+	g_OT_API.triggerClause(theServerID, theUserID, lTransactionNum, strClauseName, (NULL == STR_PARAM) ? NULL : &strParam);
 }
 
 

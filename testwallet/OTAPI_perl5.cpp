@@ -5711,6 +5711,7 @@ XS(_wrap_OT_API_triggerClause) {
     char *arg2 = (char *) 0 ;
     char *arg3 = (char *) 0 ;
     char *arg4 = (char *) 0 ;
+    char *arg5 = (char *) 0 ;
     int res1 ;
     char *buf1 = 0 ;
     int alloc1 = 0 ;
@@ -5723,11 +5724,14 @@ XS(_wrap_OT_API_triggerClause) {
     int res4 ;
     char *buf4 = 0 ;
     int alloc4 = 0 ;
+    int res5 ;
+    char *buf5 = 0 ;
+    int alloc5 = 0 ;
     int argvi = 0;
     dXSARGS;
     
-    if ((items < 4) || (items > 4)) {
-      SWIG_croak("Usage: OT_API_triggerClause(SERVER_ID,USER_ID,TRANSACTION_NUMBER,CLAUSE_NAME);");
+    if ((items < 5) || (items > 5)) {
+      SWIG_croak("Usage: OT_API_triggerClause(SERVER_ID,USER_ID,TRANSACTION_NUMBER,CLAUSE_NAME,STR_PARAM);");
     }
     res1 = SWIG_AsCharPtrAndSize(ST(0), &buf1, NULL, &alloc1);
     if (!SWIG_IsOK(res1)) {
@@ -5749,18 +5753,25 @@ XS(_wrap_OT_API_triggerClause) {
       SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OT_API_triggerClause" "', argument " "4"" of type '" "char const *""'");
     }
     arg4 = reinterpret_cast< char * >(buf4);
-    OT_API_triggerClause((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+    res5 = SWIG_AsCharPtrAndSize(ST(4), &buf5, NULL, &alloc5);
+    if (!SWIG_IsOK(res5)) {
+      SWIG_exception_fail(SWIG_ArgError(res5), "in method '" "OT_API_triggerClause" "', argument " "5"" of type '" "char const *""'");
+    }
+    arg5 = reinterpret_cast< char * >(buf5);
+    OT_API_triggerClause((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5);
     ST(argvi) = sv_newmortal();
     if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
     if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
     if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
     if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+    if (alloc5 == SWIG_NEWOBJ) delete[] buf5;
     XSRETURN(argvi);
   fail:
     if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
     if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
     if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
     if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+    if (alloc5 == SWIG_NEWOBJ) delete[] buf5;
     SWIG_croak_null();
   }
 }

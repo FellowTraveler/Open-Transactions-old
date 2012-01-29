@@ -700,7 +700,8 @@ public:
 	void triggerClause(const OTIdentifier	& SERVER_ID,
 					   const OTIdentifier	& USER_ID,
 					   const long			& lTransactionNum,
-					   const OTString		& strClauseName);
+					   const OTString		& strClauseName,
+					   const OTString		* pStrParam=NULL);
 	
 	bool Create_SmartContract(const OTIdentifier & SERVER_ID,
 							  const OTIdentifier & SIGNER_NYM_ID,// Use any Nym you wish here. (The signing at this point is only to cause a save.)

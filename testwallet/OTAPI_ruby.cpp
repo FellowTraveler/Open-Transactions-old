@@ -6128,6 +6128,7 @@ _wrap_OT_API_triggerClause(int argc, VALUE *argv, VALUE self) {
   char *arg2 = (char *) 0 ;
   char *arg3 = (char *) 0 ;
   char *arg4 = (char *) 0 ;
+  char *arg5 = (char *) 0 ;
   int res1 ;
   char *buf1 = 0 ;
   int alloc1 = 0 ;
@@ -6140,9 +6141,12 @@ _wrap_OT_API_triggerClause(int argc, VALUE *argv, VALUE self) {
   int res4 ;
   char *buf4 = 0 ;
   int alloc4 = 0 ;
+  int res5 ;
+  char *buf5 = 0 ;
+  int alloc5 = 0 ;
   
-  if ((argc < 4) || (argc > 4)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
+  if ((argc < 5) || (argc > 5)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 5)",argc); SWIG_fail;
   }
   res1 = SWIG_AsCharPtrAndSize(argv[0], &buf1, NULL, &alloc1);
   if (!SWIG_IsOK(res1)) {
@@ -6164,17 +6168,24 @@ _wrap_OT_API_triggerClause(int argc, VALUE *argv, VALUE self) {
     SWIG_exception_fail(SWIG_ArgError(res4), Ruby_Format_TypeError( "", "char const *","OT_API_triggerClause", 4, argv[3] ));
   }
   arg4 = reinterpret_cast< char * >(buf4);
-  OT_API_triggerClause((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+  res5 = SWIG_AsCharPtrAndSize(argv[4], &buf5, NULL, &alloc5);
+  if (!SWIG_IsOK(res5)) {
+    SWIG_exception_fail(SWIG_ArgError(res5), Ruby_Format_TypeError( "", "char const *","OT_API_triggerClause", 5, argv[4] ));
+  }
+  arg5 = reinterpret_cast< char * >(buf5);
+  OT_API_triggerClause((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5);
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
   if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+  if (alloc5 == SWIG_NEWOBJ) delete[] buf5;
   return Qnil;
 fail:
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
   if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+  if (alloc5 == SWIG_NEWOBJ) delete[] buf5;
   return Qnil;
 }
 

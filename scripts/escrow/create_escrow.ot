@@ -1,0 +1,685 @@
+#! /usr/local/bin/ot --script
+
+
+// The goal with this script is to create a GENERIC ==> Escrow <== smart
+// contract. Generic, meaning, like a template, which might be activated
+// over and over again for different parties.
+//
+// This particular script only creates the template--it doesn't add
+// the actual parties to the agreement, nor does it perform any activation
+// on the server.
+//
+// ***************************************************************
+
+
+/* Here are the RULES of this escrow (which are implemented in script form):
+
+	---------------------------------------
+	1.	BASIC INTENTIONS.
+	
+	Alice is sending X units of Y currency to Bob, in return for real-world
+	consideration, which must be described in a "consideration" constant variable
+	on the smart contract. It should also include criteria for deciding whether 
+	consideration has been fulfilled, and even examples of this criteria in action
+	against sample disputes, with explanations for the decisions made and the
+	principles involved. (Winning and losing examples, ideally, will both be
+	provided.) Descriptions of winning forms of evidence would be most helpful.
+	
+	Upon activation, Alice's money is stashed inside the escrow contract.
+	
+	After D days, the contract automatically fulfills and expires, transfering
+	the X units of Y currency (the stashed funds) to Bob, with a final receipt
+	going to all parties. (Finished.)
+	---------------------------------------
+	2.	DISPUTES
+	
+	Within D days (i.e. before the money has gone to Bob, and the escrow
+	contract has completed) Alice has the window of opportunity to file a DISPUTE.
+	
+	When she does, she has the opportunity to share HER SIDE OF THE STORY
+	which is included in the receipt and copied to Bob--as well as to JUDGE JUDY,
+	who is the third signatory to the contract! Alice's side of the story should
+	include an explanation of what happened, as well as an argument justifying why,
+	according to the terms of consideration described on the contract, she is the
+	rightful winner of the dispute.
+	
+	When Alice's dispute receipt appears in Bob's and Judy's inboxes, it begins
+	a new timer: Bob now has B days to write a response to Alice's dispute, and
+	to provide his own arguments and evidence, based upon the terms in the smart
+	contract. If Bob does not respond within B days, then the money is automatically
+	transferred back to Alice. (Finished.)
+	---------------------------------------
+	3.	ARBITRATION
+	
+	Within B days (i.e. before the money has gone back to Alice, and the dispute
+	has closed, and the escrow contract itself has completed) JUDGE JUDY must 
+	DECIDE whether the winner is Alice or Bob. There is a clause on the contract
+	which only she can trigger--and only during a dispute period.
+	
+	The contract can be designed about what to do if Judy doesn't do her part.
+	(But she should -- she is a signer, and the other parties will be able to 
+	produce their receipt later to prove she didn't do her job. An example
+	escrow contract might send the funds to charity, in this case.)
+	
+	Once Judy makes her judgment, the funds are moved, the final receipts are
+	dropped, and a small cut goes to Judy. (Probably a different fee, depending
+	on whether or not she actually had to make a judgment.)
+	
+*/
+// ***************************************************************
+// This temp variable is used for a running "latest copy" of the smart contract, as we 
+// construct it here inside this client-side OT script. (Don't confuse the server-side
+// scripts, aka the smart contracts, with the client-side scripts :-)
+//
+var strSmartContract = ""
+
+
+// ***************************************************************
+// GETTING STARTED...
+// Here are the actual scripts (the CLAUSES) that will be attached to this SMART CONTRACT.
+// ----------------------------------------------------
+// CALLBACK:  MAY EXECUTE?  (One of the parties is trying to trigger a clause directly. 
+// The server is asking you whether this is okay. You must return bool.)
+// param_party_name and param_clause_name will be available inside script.
+//
+var strCode_may_execute_clause = concat("print(\"MAY EXECUTE? (from may_execute_clause callback.)\"); ",
+"if ( ((param_party_name == 'party_alice') && (param_clause_name == 'alice_dispute_clause')) ") + concat("|| ",
+"((param_party_name == 'party_bob') && (param_clause_name == 'bob_reply_clause')) || ((param_party_name ") + concat("== 'judge_judy') ",
+"&& (param_clause_name == 'judy_render_judgment')) ) { return true; } return false; ");
+// ----------------------------------------------------
+// CALLBACK:  MAY CANCEL?  Server is asking you whether a given party has the power to cancel the contract. You must return bool.
+// param_party_name will be available inside script.
+//
+var strCode_may_cancel_contract = "  print(\"MAY CANCEL? (from may_cancel_contract callback. Returning false from script.)\"); false; "  // need to test this.
+
+// --------------------------------------------------
+// HOOK: CRON ACTIVATE  (The smart contract is being activated for the FIRST TIME, on the server.)
+print("Paste the SCRIPT code that should trigger when the smart contract is ACTIVATED. Finish with ~ on its own line: ")
+
+var strCode_activate_clause = OT_CLI_ReadUntilEOF()
+
+ // **************************
+ // --------------------------
+ // BEGIN ACTIVATE SCRIPT:
+/*
+print("SCRIPTED CLAUSE: Abitrated escrow: This is the clause for the OnActivate() hook. (On a smartcontract.)")
+		// The amount Alice is sending to Bob	
+		// Amount set aside for adjudication fees. (non-refundable.) 
+		// Amount set aside for adjudication fees. (refundable.)
+var nTotalStashed	= (str_alice_amount.to_int() + str_judy_cut.to_int() + str_judy_render_cut.to_int());
+var strTotalStash	= to_string(nTotalStashed);
+ 
+var bStashedAlice	=  stash_funds(alice_acct, "alice_stash", strTotalStash)
+ 
+if (!bStashedAlice) 
+{
+	str_error_status("Failed trying to activate escrow contract. (Couldn't get funds.)")
+    deactivate_contract()
+}
+else // Success stashing funds.
+{
+	set_seconds_until_timer("2592000")	// 30 days until payment automatically passes to Bob.
+}
+
+*/
+// :END SCRIPT
+// ---------------------------
+ // **************************
+
+
+// --------------------------------------------------
+// HOOK: CRON PROCESS (The smart contract is processing regularly, or according to its timer.)
+//
+
+print("Paste the SCRIPT code that should trigger when the smart contract is PROCESSED. Finish with ~ on its own line: ")
+
+var strCode_process_clause = OT_CLI_ReadUntilEOF()
+
+ // **************************
+ // --------------------------
+ // BEGIN PROCESS SCRIPT:
+/*
+ print("SCRIPTED CLAUSE: Arbitrated escrow: This is the clause for the OnProcess() hook. (On a smartcontract.)")
+ 
+ if (0 == nState)		// 0 == normal state, money goes to Bob OnProcess().
+ {
+	// Success. It's been a month. Pay Bob and Judy, and deactivate the contract.
+	str_error_status = "Success! It's been a month. (Paying Bob and Judy, and deactivating the contract.)";
+
+	var b1 = unstash_funds(judy_acct, "alice_stash",	str_judy_cut)			// Pay Judge Judy her normal cut (no adjudication fees. Everything went smooth.)
+	var b2 = unstash_funds(bob_acct, "alice_stash",		str_alice_amount)		// Paying Bob the escrow amount.
+	var b3 = unstash_funds(alice_acct, "alice_stash",	str_judy_render_cut)	// Refunding judgment fee, since no adjudication was necessary.
+	
+	deactivate_contract()
+ }
+ else if (1 == nState)	// 1 == We waited for Bob's reply, but now his 7 days are up!
+ {
+	// (Since Bob didn't reply in time, Alice wins by default.)
+	str_error_status = "Bob never replied, and now his time is up! (Paying the money back to Alice, less Judy's non-refundable fee.)";
+
+	var nTotalStashed	= (str_alice_amount.to_int() + str_judy_render_cut.to_int());
+	var strTotalStash	= to_string(nTotalStashed);
+
+	var b1 = unstash_funds(judy_acct, "alice_stash",	str_judy_cut)	// Pay Judge Judy her normal cut (no adjudication fees.)	
+	var b2 = unstash_funds(alice_acct, "alice_stash",	strTotalStash)	// Paying Alice the escrow amount, plus the judgment fee, since no adjudication was necessary.
+	
+	deactivate_contract()
+ }
+ else if (2 == nState)	// 2 == Bob replied, but then Judge Judy failed to make a decision in time!
+ {
+	// Since Judy didn't reply in time, then she doesn't get paid at all.
+	// In order to err on protecting the customer, the money is sent back to Alice.
+	str_error_status = "Judy never rendered a decision! (Paying the money back to Alice.)";
+	
+	var nTotalStashed	= (str_alice_amount.to_int() + str_judy_cut.to_int() + str_judy_render_cut.to_int())
+	var strTotalStash	= to_string(nTotalStashed)
+
+	var b1 = unstash_funds(alice_acct, "alice_stash",	strTotalStash)	
+	
+	deactivate_contract()	
+ }
+
+*/
+// :END SCRIPT
+// ---------------------------
+ // **************************
+ 
+// ------------------------------------------------
+// SOURCE CODE for the clauses...
+
+// string parameter named "param_string" is passed in here.
+// This way users calling "triggerClause" can pass a parameter if they want.
+// (Dispute clause expects it.)
+//
+
+print("Paste the SCRIPT code that should trigger if/when ALICE DISPUTES Bob's fulfillment of her order. Finish with ~ on its own line: ")
+
+var strCode_alice_dispute	=  OT_CLI_ReadUntilEOF();
+
+ // **************************
+ // --------------------------
+ // BEGIN ALICE DISPUTE SCRIPT:
+/*
+ print("SCRIPTED CLAUSE: Arbitrated escrow: This is Alice's dispute clause. (On a smartcontract.)")
+ 
+ if (0 == nState)		// 0 == normal state (which we must be in, in order for Alice to dispute.)
+ {	
+	nState				= 1;			// Alice has disputed. (Now we are state 1 -- waiting for Bob reply.)
+	bool_alice_dispute	= true;			// Alice has officially triggered her dispute option. (Throughout all states, this remains separately recorded.)
+	str_alice_dispute	= param_string;	// The parameter passed in is Alice's dispute story.
+
+	set_seconds_until_timer("604800")	// 7 days until Bob must reply.
+ }
+*/
+// :END SCRIPT
+// ---------------------------
+ // **************************
+ 
+
+print("Paste the SCRIPT code that should trigger if/when BOB REPLIES to Alice's dispute. Finish with ~ on its own line: ")
+
+var strCode_bob_reply		=  OT_CLI_ReadUntilEOF();
+
+ // **************************
+ // --------------------------
+ // BEGIN BOB REPLY SCRIPT:
+/*
+ print("SCRIPTED CLAUSE: Arbitrated escrow: This is Bob's clause for recording his reply to Alice's dispute.")
+ 
+ if (1 == nState)		// 1 == Alice has disputed; waiting for Bob's reply. MUST be in this state.
+ {	
+	nState				= 2;			// Bob has replied. Now waiting on Judge Judy to render a judgment.
+	bool_bob_reply		= true;			// Bob has officially replied to Alice's dispute. (Throughout all states, this remains separately recorded.)
+	str_bob_reply		= param_string;	// The parameter passed in is Bob's side of the story.
+
+	set_seconds_until_timer("604800")	// 7 days until Judy must make a ruling.
+ }
+*/
+// :END SCRIPT
+// ---------------------------
+ // **************************
+ 
+print("Paste the SCRIPT code that should trigger when JUDGE JUDY renders her DECISION. Finish with ~ on its own line: ")
+
+var strCode_judy_judgment	=  OT_CLI_ReadUntilEOF();
+
+ // **************************
+ // --------------------------
+ // BEGIN JUDGE JUDY DECISION SCRIPT:
+/*
+ print("SCRIPTED CLAUSE: Arbitrated escrow: This is Judge Judy's clause for rendering judgment in the event of a dispute.")
+ 
+ if (2 == nState)		// 1 == Alice has disputed, Bob has replied; waiting for Judge Judy now to render a judgment. MUST be in this state.
+ {
+	var nFind1	= param_string.find("Alice");
+	var nFind2	= param_string.find("alice");
+	
+	var nFind3	= param_string.find("Bob");
+	var nFind4	= param_string.find("bob");
+ 
+	var nFoundAlice	= -1;
+	var nFoundBob	= -1;
+	
+	// -----------------------------------------------------------
+	// set nFoundAlice and nFoundBob to contain the lowest legitimate location
+	// of the substring of their names (in the judge's param) or -1 if not found.
+	//
+	if (nFind1 >= 0) { nFoundAlice = nFind1; }
+	if ((nFind2 >= 0) && (nFind2 < nFoundAlice)) { nFoundAlice = nFind2; }
+	
+	if (nFind3 >= 0) { nFoundBob = nFind3; }
+	if ((nFind4 >= 0) && (nFind4 < nFoundBob)) { nFoundBob = nFind4; }
+	// -----------------------------------------------------------
+	// BELOW THIS POINT, if nFoundAlice is -1, the string wasn't found at all. If nFoundBob
+	// is -1, that string wasn't found at all. If they are 0 or greater, then the smaller one
+	// is the winner, because it is the one the judge mentions first.
+	//
+	// THE NAME MENTIONED FIRST, BY THE JUDGE, IS THE WINNER, ACCORDING TO THIS CODE!!
+	// The remainder of the judge's decision can include reasoning, etc. Just make sure the
+	// winner's name is stated before the loser.
+
+	if (nFoundAlice >= 0) 
+	{ 
+		nState = 3;			// Judy has decided for Alice possibly...
+	}	
+	if (nFoundBob >= 0)		// However...
+	{
+		if (nFoundBob < nFoundAlice)	
+		{	
+			nState	= 4;	// ...Judy has actually decided for Bob.
+		}
+	}
+
+	str_judy_judgment	= param_string;	// The parameter passed in is Judy's decision. (Or her attempt at such.)
+	
+	// Judy has legitimately decided (for either Alice or Bob.)
+	// Otherwise, do nothing -- maybe she mistyped.
+	//
+	if ((3 == nState) || (4 == nState))
+	{
+		bool_judy_judgment	= true;			// Judy has officially rendered judgment.
+	
+		var nJudyTotal		= str_judy_cut.to_int() + str_judy_render_cut.to_int();	// Total amount of Judy's pay, including adjudication fees.		
+		var strJudyTotal	= to_string(nJudyTotal);
+
+		var b1 = unstash_funds(judy_acct, "alice_stash", strJudyTotal)
+		
+		if (3 == nState)	// 3 == Judy has decided for Alice.
+		{
+			var b2 = unstash_funds(alice_acct, "alice_stash",	str_alice_amount)
+		}
+		else if (4 == nState)	// 4 == Judy has decided for Bob.
+		{
+			var b2 = unstash_funds(bob_acct, "alice_stash",		str_alice_amount)
+		}
+		
+		deactivate_contract()
+	}
+	else
+	{
+		str_error_status = "Judge Judy triggered her judgment clause, but script was unable to determine a clear winner based on her answer."
+	}
+ }
+*/
+// :END SCRIPT
+// ---------------------------
+ // **************************
+
+
+// --------------------------------------------------
+// Just some useful output while running this script:
+
+print("FYI, Server: "	+ Server)
+print("FYI, MyNym: "	+ MyNym)
+print("FYI, MyPurse: "	+ MyPurse)
+
+// ************************************************************************************************************************************
+// CREATE the SMART CONTRACT
+//
+var strDate1 = "0"
+var strDate2 = "0"
+
+var strSmart1 = OT_API_Create_SmartContract(Server, MyNym, strDate1, strDate2)
+strSmartContract = strSmart1
+
+// ************************************************************************************************************************************
+// ADD a BYLAW (Clauses, variables, callbacks, and hooks are all attached
+// to BYLAWS. FYI, you can add multiple bylaws to each contract.)
+//
+var strSmart2 = OT_API_SmartContract_AddBylaw(strSmartContract, MyNym, "main_bylaws") // This name "main_bylaws" is used for all API calls related to this Bylaw.
+
+strSmartContract = strSmart2
+
+// ************************************************************************************************************************************
+// ** ADD CLAUSE ** (A CONVENTIONAL CLAUSE) named "typical_clause"
+// ...so we can test allowing parties to trigger clauses remotely.
+//
+var strSmart3 = OT_API_SmartContract_AddClause(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+											// ----------------------------------------
+											"alice_dispute_clause",		// <=== The Clause's name as referenced in the smart contract. (And the scripts...)
+											// ----------------------------------------
+											strCode_alice_dispute);		// The actual source code for the clause.
+strSmartContract = strSmart3
+
+strSmart3 = OT_API_SmartContract_AddClause(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+											// ----------------------------------------
+											"bob_reply_clause",		// <=== The Clause's name as referenced in the smart contract. (And the scripts...)
+											// ----------------------------------------
+											strCode_bob_reply);		// The actual source code for the clause.
+strSmartContract = strSmart3
+
+strSmart3 = OT_API_SmartContract_AddClause(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+											// ----------------------------------------
+											"judy_render_judgment",	// <=== The Clause's name as referenced in the smart contract. (And the scripts...)
+											// ----------------------------------------
+											strCode_judy_judgment);		// The actual source code for the clause.
+strSmartContract = strSmart3
+
+// ************************************************************************************************************************************
+// ** ADD CLAUSE ** FOR HOOK (ACTIVATION) (for "cron_activate" hook, to trigger a clause named "activate_clause")
+//
+strSmart3 = OT_API_SmartContract_AddClause(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+											// ----------------------------------------
+											"activate_clause",			// <=== The Clause's name as referenced in the smart contract. (And the scripts...)
+											// ----------------------------------------
+											strCode_activate_clause);	// The actual source code for the clause.
+strSmartContract = strSmart3
+
+// --------------------------------------------------
+// ** ADD CLAUSE ** FOR HOOK (TIMER PROCESSING) (for "cron_process" hook, to trigger a clause named "process_clause")
+//
+strSmart3 = OT_API_SmartContract_AddClause(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+											// ----------------------------------------
+											"process_clause",			// <=== The Clause's name as referenced in the smart contract. (And the scripts...)
+											// ----------------------------------------
+											strCode_process_clause);	// The actual source code for the clause.
+strSmartContract = strSmart3
+
+// ************************************************************************************************************************************
+// ** Add Clause ** for CALLBACK (for "callback_party_may_execute_clause" callback, clause named "may_execute_clause")
+//
+strSmart3 = OT_API_SmartContract_AddClause(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+											// ----------------------------------------
+											"may_exec_coverage",			// <=== The Clause's name as referenced in the smart contract. (And the scripts...)
+											// ----------------------------------------
+											strCode_may_execute_clause);	// The actual source code for the clause.
+strSmartContract = strSmart3
+
+// --------------------------------------------------
+// ** Add Clause ** for CALLBACK (for "callback_party_may_cancel_contract" callback, clause named "may_cancel_contract")
+//
+strSmart3 = OT_API_SmartContract_AddClause(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+											// ----------------------------------------
+											"may_cancel_contract",			// <=== The Clause's name as referenced in the smart contract. (And the scripts...)
+											// ----------------------------------------
+											strCode_may_cancel_contract);	// The actual source code for the clause.
+strSmartContract = strSmart3
+
+// ************************************************************************************************************************************
+// VARIABLE:  str_alice_dispute
+//           bool_alice_dispute
+
+var strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+											  // ----------------------------------------
+											  "str_alice_dispute",	// <=== The Variable's NAME as referenced in the smart contract. (And the scripts...)
+											  // ----------------------------------------
+											  "important",		// "constant", "persistent", or "important". Variable access type.
+											  "string",			// "string", "integer", or "bool".  Variable data type.
+											  "If Alice disputes, her dispute goes here.");	// Contains the initial value.
+strSmartContract = strSmart4
+
+var strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+											  // ----------------------------------------
+											  "bool_alice_dispute",	// <=== The Variable's NAME as referenced in the smart contract. (And the scripts...)
+											  // ----------------------------------------
+											  "important",		// "constant", "persistent", or "important". Variable access type.
+											  "bool",			// "string", "integer", or "bool".  Variable data type.
+											  "false");			// Has Alice disputed yet?
+strSmartContract = strSmart4
+
+// --------------------------------------------------
+// VARIABLE:  str_bob_reply
+//           bool_bob_reply
+
+var strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+											  // ----------------------------------------
+											  "str_bob_reply",	// <=== The Variable's NAME as referenced in the smart contract. (And the scripts...)
+											  // ----------------------------------------
+											  "important",		// "constant", "persistent", or "important". Variable access type.
+											  "string",			// "string", "integer", or "bool".  Variable data type.
+											  "Bob's reply to Alice's dispute goes here.");	// Contains the initial value. (Empty in this case.)
+strSmartContract = strSmart4
+
+var strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+											  // ----------------------------------------
+											  "bool_bob_reply",	// <=== The Variable's NAME as referenced in the smart contract. (And the scripts...)
+											  // ----------------------------------------
+											  "important",		// "constant", "persistent", or "important". Variable access type.
+											  "bool",			// "string", "integer", or "bool".  Variable data type.
+											  "false");			// Has Bob replied yet to Alice's dispute?
+strSmartContract = strSmart4
+
+// --------------------------------------------------
+// VARIABLE:  str_judy_judgment
+//           bool_judy_judgment
+
+var strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+											  // ----------------------------------------
+											  "str_judy_judgment",	// <=== The Variable's name. This variable contains the contents of Judy's decision.
+											  // ----------------------------------------
+											  "important",		// "constant", "persistent", or "important". Variable access type.
+											  "string",			// "string", "integer", or "bool".  Variable data type.
+											  "Judy's final judgment goes here.");	// Contains the initial value. (Empty in this case.)
+strSmartContract = strSmart4
+
+var strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+											  // ----------------------------------------
+											  "bool_judy_judgment",	// <=== Variable's name. Judy has made a decision?
+											  // ----------------------------------------
+											  "important",		// "constant", "persistent", or "important". Variable access type.
+											  "bool",			// "string", "integer", or "bool".  Variable data type.
+											  "false");			// Has Judy rendered judgement yet? (if necessary)
+strSmartContract = strSmart4
+
+// --------------------------------------------------
+// VARIABLE:  str_alice_amount
+//
+var strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+											  // ----------------------------------------
+											  "str_alice_amount",	// The amount that Alice is paying to Bob, through this escrow.
+											  // ----------------------------------------
+											  "constant",		// "constant", "persistent", or "important". Variable access type.
+											  "string",			// payment amounts are passed as strings, and converted to long inside OT.
+											  "155");			// Alice is paying 155 clams to Bob based on his promise to mail her a box.
+strSmartContract = strSmart4
+
+// VARIABLE:  str_judy_cut
+//
+var strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+											  // ----------------------------------------
+											  "str_judy_cut",	// The non-refundable (smaller) amount that Judy gets for signing onto this.
+											  // ----------------------------------------
+											  "constant",		// "constant", "persistent", or "important". Variable access type.
+											  "string",			// payment amounts are passed as strings, and converted to long inside OT.
+											  "5");				// Alice is paying 5 clams to Judy for agreeing to adjudicate any disputes.
+strSmartContract = strSmart4
+
+// VARIABLE:  str_judy_render_cut
+//
+var strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+											  // ----------------------------------------
+											  "str_judy_render_cut",	// The additional amount that Judy gets if she actually has to render a judgment.
+											  // (Otherwise Alice gets this money back.)
+											  // ----------------------------------------
+											  "constant",		// "constant", "persistent", or "important". Variable access type.
+											  "string",			// payment amounts are passed as strings, and converted to long inside OT.
+											  "20");			// Judy gets an additional 20 clams if she has to adjudicate.
+strSmartContract = strSmart4
+
+// --------------------------------------------------
+// VARIABLE:  str_consideration
+//
+var strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+											  // ----------------------------------------
+											  "str_consideration",	// This is the box that Bob is sending to Alice in return for her money, and describes the criteria by which the deal can be considered "fulfilled" or "reneged."
+											  // ----------------------------------------
+											  "constant",	// "constant", "persistent", or "important". Variable access type.
+											  "string",		// "string", "integer", or "bool".  Variable data type.
+											  "(Consideration must be described here.)");	// This describes "the deal" to Judge Judy and to all parties.
+strSmartContract = strSmart4
+
+// --------------------------------------------------
+// VARIABLE:  str_error_status
+//
+var strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+											  // ----------------------------------------
+											  "str_error_status",	// This is where the script puts error messages, when necessary, so the participants can see the message on their receipt.
+											  // ----------------------------------------
+											  "important",	// "constant", "persistent", or "important". Variable access type.
+											  "string",		// "string", "integer", or "bool".  Variable data type.
+											  "(Error messages go here.)");	// Content of error message.
+strSmartContract = strSmart4
+
+// --------------------------------------------------
+// VARIABLE:  nState
+// 0 == normal state, money goes to Bob OnProcess() in 30 days.
+// 1 == Alice has disputed.
+// 2 == Bob has replied.
+// 3 == Judy has decided for Alice.
+// 4 == Judy has decided for Bob.
+//
+var strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+											  // ----------------------------------------
+											  "nState",	
+											  // ----------------------------------------
+											  "important",	// "constant", "persistent", or "important". Variable access type.
+											  "integer",	// "string", "integer", or "bool".  Variable data type.
+											  "0");			// Default value.
+strSmartContract = strSmart4
+
+// ************************************************************************************************************************************
+// Connect a known CALLBACK to a known CLAUSE  (may EXECUTE clause?)
+//
+var strSmart5 = OT_API_SmartContract_AddCallback(strSmartContract, MyNym, "main_bylaws",// Should already be on the contract. (This way we can find it.)
+											  // ----------------------------------------
+											  "callback_party_may_execute_clause",		// The Callback's name as referenced in the smart contract. (And the scripts...)
+											  "may_execute_clause");					// The actual clause that will be triggered by the callback. (Must exist.)
+strSmartContract = strSmart5
+
+// --------------------------------------------------
+// Connect a known CALLBACK to a known CLAUSE  (may CANCEL contract?)
+//
+var strSmart5 = OT_API_SmartContract_AddCallback(strSmartContract, MyNym, "main_bylaws",// Should already be on the contract. (This way we can find it.)
+											  // ----------------------------------------
+											  "callback_party_may_cancel_contract",		// The Callback's name as referenced in the smart contract. (And the scripts...)
+											  "may_cancel_contract");					// The actual clause that will be triggered by the callback. (Must exist.)
+strSmartContract = strSmart5
+
+// ************************************************************************************************************************************
+// Connect a known HOOK (ACTIVATE aka "cron_activate") to a known CLAUSE aka "activate_clause"
+//
+var strSmart6 = OT_API_SmartContract_AddHook(strSmartContract, MyNym, "main_bylaws",		// Should already be on the contract. (This way we can find it.)
+										  // ----------------------------------------
+										  "cron_activate",		// The Hook's name as referenced in the smart contract. (And the scripts...)
+										  "activate_clause");	// The actual clause that will be triggered by the hook. (You can call this multiple times, and have multiple clauses trigger on the same hook.)
+strSmartContract = strSmart6
+
+// ----------------------------------------
+// Connect a known HOOK (TIMER PROCESSING aka "cron_process") to a known CLAUSE aka "process_clause" 
+//
+strSmart6 = OT_API_SmartContract_AddHook(strSmartContract, MyNym, "main_bylaws",		// Should already be on the contract. (This way we can find it.)
+										  // ----------------------------------------
+										  "cron_process",		// The Hook's name as referenced in the smart contract. (And the scripts...)
+										  "process_clause");	// The actual clause that will be triggered by the hook. (You can call this multiple times, and have multiple clauses trigger on the same hook.)
+strSmartContract = strSmart6
+// ----------------------------------------
+
+
+// ************************************************************************************************************************************
+// Add a THEORETICAL PARTY to the SMART CONTRACT
+//
+var strSmart7 = OT_API_SmartContract_AddParty(strSmartContract, MyNym, // Need a signer Nym, so it can save. This is unrelated to the party. Use any Nym.
+											"party_alice",		// The Party's NAME as referenced in the smart contract. (And the scripts...)
+										   // ----------------------------------------
+										   "agent_alice");	// An AGENT will be added by default for this party. Need Agent NAME.
+										   // (FYI, that is basically the only option, until I code Entities and Roles. Until then, a party can ONLY be
+										   // a Nym, with himself as the agent representing that same party. Nym ID is supplied on ConfirmParty() below.)
+strSmartContract = strSmart7
+
+
+// ----------------------------------------
+// Add a THEORETICAL ACCOUNT to the SMART CONTRACT
+//
+var strSmart8 = OT_API_SmartContract_AddAccount(strSmartContract, MyNym, 
+												"party_alice",	// The Party's NAME as referenced in the smart contract. (And the scripts...)
+												// ----------------------------------------
+												"alice_acct",	// The Account's name as referenced in the smart contract
+												MyPurse);		// Asset Type ID for the Account.
+strSmartContract = strSmart8
+
+// ************************************************************************************************************************************
+// Add a THEORETICAL PARTY to the SMART CONTRACT
+//
+var strSmart7 = OT_API_SmartContract_AddParty(strSmartContract, MyNym, // Need a signer Nym, so it can save. This is unrelated to the party. Use any Nym.
+											"party_bob",		// The Party's NAME as referenced in the smart contract. (And the scripts...)
+										   // ----------------------------------------
+										   "agent_bob");	// An AGENT will be added by default for this party. Need Agent NAME.
+										   // (FYI, that is basically the only option, until I code Entities and Roles. Until then, a party can ONLY be
+										   // a Nym, with himself as the agent representing that same party. Nym ID is supplied on ConfirmParty() below.)
+strSmartContract = strSmart7
+
+
+// ----------------------------------------
+// Add a THEORETICAL ACCOUNT to the SMART CONTRACT
+//
+var strSmart8 = OT_API_SmartContract_AddAccount(strSmartContract, MyNym, // Need a signer Nym, so it can save. This is unrelated to the party. Use any Nym.
+												"party_bob",	// The Party's NAME as referenced in the smart contract. (And the scripts...)
+												// ----------------------------------------
+												"bob_acct",		// The Account's name as referenced in the smart contract
+												MyPurse);		// All three accounts, in this script, have the same asset type ID.
+strSmartContract = strSmart8
+
+// ************************************************************************************************************************************
+// Add a THEORETICAL PARTY to the SMART CONTRACT
+//
+var strSmart7 = OT_API_SmartContract_AddParty(strSmartContract, MyNym, // Need a signer Nym, so it can save. This is unrelated to the party. Use any Nym.
+											"judge_judy",		// The Party's NAME as referenced in the smart contract. (And the scripts...)
+										   // ----------------------------------------
+										   "agent_judy");	// An AGENT will be added by default for this party. Need Agent NAME.
+										   // (FYI, that is basically the only option, until I code Entities and Roles. Until then, a party can ONLY be
+										   // a Nym, with himself as the agent representing that same party. Nym ID is supplied on ConfirmParty() below.)
+strSmartContract = strSmart7
+
+
+// ----------------------------------------
+// Add a THEORETICAL ACCOUNT to the SMART CONTRACT
+//
+var strSmart8 = OT_API_SmartContract_AddAccount(strSmartContract, MyNym, // Need a signer Nym, so it can save. This is unrelated to the party. Use any Nym.
+												"judge_judy",	// The Party's NAME as referenced in the smart contract. (And the scripts...)
+												// ----------------------------------------
+												"judy_acct",	// The Account's name as referenced in the smart contract
+												MyPurse);		// All three accounts, in this script, have the same asset type ID.
+strSmartContract = strSmart8
+
+
+print(strSmartContract)
+
+// ************************************************************************************************************************************
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

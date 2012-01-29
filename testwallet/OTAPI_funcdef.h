@@ -993,7 +993,8 @@ void OT_API_activateSmartContract(const char * SERVER_ID,
 void OT_API_triggerClause(const char * SERVER_ID,
 						  const char * USER_ID,
 						  const char * TRANSACTION_NUMBER,
-						  const char * CLAUSE_NAME);
+						  const char * CLAUSE_NAME,
+						  const char * STR_PARAM);
 
 
 

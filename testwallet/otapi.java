@@ -345,8 +345,8 @@ public class otapi {
     otapiJNI.OT_API_activateSmartContract(SERVER_ID, USER_ID, THE_SMART_CONTRACT);
   }
 
-  public static void OT_API_triggerClause(String SERVER_ID, String USER_ID, String TRANSACTION_NUMBER, String CLAUSE_NAME) {
-    otapiJNI.OT_API_triggerClause(SERVER_ID, USER_ID, TRANSACTION_NUMBER, CLAUSE_NAME);
+  public static void OT_API_triggerClause(String SERVER_ID, String USER_ID, String TRANSACTION_NUMBER, String CLAUSE_NAME, String STR_PARAM) {
+    otapiJNI.OT_API_triggerClause(SERVER_ID, USER_ID, TRANSACTION_NUMBER, CLAUSE_NAME, STR_PARAM);
   }
 
   public static int OT_API_HarvestClosingNumbers(String SERVER_ID, String NYM_ID, String THE_CRON_ITEM) {

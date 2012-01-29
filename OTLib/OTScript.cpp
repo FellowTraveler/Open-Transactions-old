@@ -560,9 +560,10 @@ bool OTScriptChai::ExecuteScript(OTVariable * pReturnVar/*=NULL*/)
         catch (const chaiscript::exception::eval_error &e) {
             // Error in script parsing / execution
             OTLog::vError("OTScriptChai::ExecuteScript: Caught chaiscript::exception::eval_error : %s. \n"
+                          "   File: %s\n"
                           "   Start position, line: %d column: %d\n"
                           "   End position,   line: %d column: %d\n",
-                          e.reason.c_str(), 
+                          e.reason.c_str(), e.filename.c_str(), 
                           e.start_position.line, e.start_position.column,
                           e.end_position.line, e.end_position.column);
             return false;
@@ -573,7 +574,8 @@ bool OTScriptChai::ExecuteScript(OTVariable * pReturnVar/*=NULL*/)
             return false;
         } catch (const std::exception &e) {
             // Error explicitly thrown from script
-            OTLog::Error("OTScriptChai::ExecuteScript: Caught std::exception exception.\n");
+            OTLog::vError("OTScriptChai::ExecuteScript: Caught std::exception exception: %s\n",
+                          (e.what() != NULL) ? e.what() : "e.what() returned null, sorry");
             return false;
         }
 //      catch (chaiscript::Boxed_Value bv) 

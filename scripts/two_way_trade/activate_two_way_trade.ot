@@ -17,7 +17,7 @@
 var strSmartContract = ""
 
 OT_API_Output(0, "\n\n\nThis script assumes you have already used: create_two_way_trade.ot, sign_trade_as_alice.ot, and sign_trade_as_bob.ot \n")
-OT_API_Output(0, "To ACTIVATE the smart contract on the OT Server, paste or pipe the smart contract that was created, followed by ^D \n")
+OT_API_Output(0, "To ACTIVATE the smart contract on the OT Server, paste or pipe the smart contract that was created, followed by a ~ on a line by itself. \n")
 
 strSmartContract = OT_CLI_ReadUntilEOF()
 

@@ -1737,17 +1737,19 @@ SWIGEXPORT void SWIGSTDCALL CSharp_OT_API_activateSmartContract(char * jarg1, ch
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_OT_API_triggerClause(char * jarg1, char * jarg2, char * jarg3, char * jarg4) {
+SWIGEXPORT void SWIGSTDCALL CSharp_OT_API_triggerClause(char * jarg1, char * jarg2, char * jarg3, char * jarg4, char * jarg5) {
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
   char *arg3 = (char *) 0 ;
   char *arg4 = (char *) 0 ;
+  char *arg5 = (char *) 0 ;
   
   arg1 = (char *)jarg1; 
   arg2 = (char *)jarg2; 
   arg3 = (char *)jarg3; 
   arg4 = (char *)jarg4; 
-  OT_API_triggerClause((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+  arg5 = (char *)jarg5; 
+  OT_API_triggerClause((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5);
 }
 
 

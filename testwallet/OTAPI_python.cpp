@@ -7478,6 +7478,7 @@ SWIGINTERN PyObject *_wrap_OT_API_triggerClause(PyObject *SWIGUNUSEDPARM(self), 
   char *arg2 = (char *) 0 ;
   char *arg3 = (char *) 0 ;
   char *arg4 = (char *) 0 ;
+  char *arg5 = (char *) 0 ;
   int res1 ;
   char *buf1 = 0 ;
   int alloc1 = 0 ;
@@ -7490,12 +7491,16 @@ SWIGINTERN PyObject *_wrap_OT_API_triggerClause(PyObject *SWIGUNUSEDPARM(self), 
   int res4 ;
   char *buf4 = 0 ;
   int alloc4 = 0 ;
+  int res5 ;
+  char *buf5 = 0 ;
+  int alloc5 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
   PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOOO:OT_API_triggerClause",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOOOO:OT_API_triggerClause",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_triggerClause" "', argument " "1"" of type '" "char const *""'");
@@ -7516,18 +7521,25 @@ SWIGINTERN PyObject *_wrap_OT_API_triggerClause(PyObject *SWIGUNUSEDPARM(self), 
     SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OT_API_triggerClause" "', argument " "4"" of type '" "char const *""'");
   }
   arg4 = reinterpret_cast< char * >(buf4);
-  OT_API_triggerClause((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+  res5 = SWIG_AsCharPtrAndSize(obj4, &buf5, NULL, &alloc5);
+  if (!SWIG_IsOK(res5)) {
+    SWIG_exception_fail(SWIG_ArgError(res5), "in method '" "OT_API_triggerClause" "', argument " "5"" of type '" "char const *""'");
+  }
+  arg5 = reinterpret_cast< char * >(buf5);
+  OT_API_triggerClause((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5);
   resultobj = SWIG_Py_Void();
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
   if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+  if (alloc5 == SWIG_NEWOBJ) delete[] buf5;
   return resultobj;
 fail:
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
   if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+  if (alloc5 == SWIG_NEWOBJ) delete[] buf5;
   return NULL;
 }
 

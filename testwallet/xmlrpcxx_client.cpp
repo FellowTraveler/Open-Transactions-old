@@ -778,22 +778,65 @@ std::string OT_CLI_ReadLine()
 	return "";
 }
 
+
 // -------------------------
-// Reads from cin until EOF.
+// Reads from cin until EOF. (Or until the ~ character as the first character on a line.)
 //
 std::string OT_CLI_ReadUntilEOF()
 {
 	// don't skip the whitespace while reading
-	std::cin >> std::noskipws;
+//	std::cin >> std::noskipws;
+	
+//	std::ostringstream oss;
+//	
+//	oss << std::cin;   // Convert value into a string.
+//	s = outs.str(); 
 	
 	// use stream iterators to copy the stream to a string
-	std::istream_iterator<char> it(std::cin);
-	std::istream_iterator<char> end;
+//	std::istream_iterator<std::string> it(std::cin);
+//	std::istream_iterator<std::string> end;
+//	std::istream_iterator<char> it(std::cin);
+//	std::istream_iterator<char> end;
+//	std::string results(it, end);
 	
-	// -------------------------
-	std::string results(it, end);
+//	int onechar;
 	
-	return results;
+	std::string result("");
+	
+	while (true)
+	{
+		std::string input_line("");
+
+		std::getline(std::cin, input_line, '\n');
+		
+		input_line += "\n";
+		
+		if (input_line[0] == '~') // This is our special "break" character for multi-line input.
+			break;
+		
+		result += input_line;
+
+		if (std::cin.eof() )
+		{
+//			cout << "IT WAS EOF\n";
+			std::cin.clear();
+			break;
+		}
+		if (std::cin.fail() )
+		{
+//			cout << "IT WAS FAIL\n";
+			std::cin.clear();
+			break;
+		}
+		if (std::cin.bad())
+		{
+//			cout << "IT WAS BAD\n";
+			std::cin.clear();
+			break;
+		}		
+	}
+		
+	return result;
 }
 
 

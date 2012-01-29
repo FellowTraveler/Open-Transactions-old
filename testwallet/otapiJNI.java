@@ -109,7 +109,7 @@ public class otapiJNI {
   public final static native String OT_API_SmartContract_ConfirmAccount(String jarg1, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6);
   public final static native String OT_API_SmartContract_ConfirmParty(String jarg1, String jarg2, String jarg3);
   public final static native void OT_API_activateSmartContract(String jarg1, String jarg2, String jarg3);
-  public final static native void OT_API_triggerClause(String jarg1, String jarg2, String jarg3, String jarg4);
+  public final static native void OT_API_triggerClause(String jarg1, String jarg2, String jarg3, String jarg4, String jarg5);
   public final static native int OT_API_HarvestClosingNumbers(String jarg1, String jarg2, String jarg3);
   public final static native int OT_API_HarvestAllNumbers(String jarg1, String jarg2, String jarg3);
   public final static native String OT_API_LoadUserPubkey(String jarg1);

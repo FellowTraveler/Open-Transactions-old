@@ -418,10 +418,11 @@ void OTAPI_Wrap::activateSmartContract(const std::string SERVER_ID,
 void OTAPI_Wrap::triggerClause(const std::string SERVER_ID,
 							   const std::string USER_ID,
 							   const std::string TRANSACTION_NUMBER,
-							   const std::string CLAUSE_NAME)
+							   const std::string CLAUSE_NAME,
+							   const std::string STR_PARAM)
 {
 	OT_API_triggerClause(SERVER_ID.c_str(), USER_ID.c_str(), 
-						 TRANSACTION_NUMBER.c_str(), CLAUSE_NAME.c_str());
+						 TRANSACTION_NUMBER.c_str(), CLAUSE_NAME.c_str(), STR_PARAM.c_str());
 }
 // --------------------------------------------------
 

@@ -363,8 +363,8 @@ abstract class otapi {
 		OT_API_activateSmartContract($SERVER_ID,$USER_ID,$THE_SMART_CONTRACT);
 	}
 
-	static function OT_API_triggerClause($SERVER_ID,$USER_ID,$TRANSACTION_NUMBER,$CLAUSE_NAME) {
-		OT_API_triggerClause($SERVER_ID,$USER_ID,$TRANSACTION_NUMBER,$CLAUSE_NAME);
+	static function OT_API_triggerClause($SERVER_ID,$USER_ID,$TRANSACTION_NUMBER,$CLAUSE_NAME,$STR_PARAM) {
+		OT_API_triggerClause($SERVER_ID,$USER_ID,$TRANSACTION_NUMBER,$CLAUSE_NAME,$STR_PARAM);
 	}
 
 	static function OT_API_HarvestClosingNumbers($SERVER_ID,$NYM_ID,$THE_CRON_ITEM) {

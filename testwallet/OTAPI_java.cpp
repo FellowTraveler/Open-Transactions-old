@@ -2851,11 +2851,12 @@ SWIGEXPORT void JNICALL Java_com_wrapper_core_jni_otapiJNI_OT_1API_1activateSmar
 }
 
 
-SWIGEXPORT void JNICALL Java_com_wrapper_core_jni_otapiJNI_OT_1API_1triggerClause(JNIEnv *jenv, jclass jcls, jstring jarg1, jstring jarg2, jstring jarg3, jstring jarg4) {
+SWIGEXPORT void JNICALL Java_com_wrapper_core_jni_otapiJNI_OT_1API_1triggerClause(JNIEnv *jenv, jclass jcls, jstring jarg1, jstring jarg2, jstring jarg3, jstring jarg4, jstring jarg5) {
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
   char *arg3 = (char *) 0 ;
   char *arg4 = (char *) 0 ;
+  char *arg5 = (char *) 0 ;
   
   (void)jenv;
   (void)jcls;
@@ -2879,11 +2880,17 @@ SWIGEXPORT void JNICALL Java_com_wrapper_core_jni_otapiJNI_OT_1API_1triggerClaus
     arg4 = (char *)jenv->GetStringUTFChars(jarg4, 0);
     if (!arg4) return ;
   }
-  OT_API_triggerClause((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+  arg5 = 0;
+  if (jarg5) {
+    arg5 = (char *)jenv->GetStringUTFChars(jarg5, 0);
+    if (!arg5) return ;
+  }
+  OT_API_triggerClause((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5);
   if (arg1) jenv->ReleaseStringUTFChars(jarg1, (const char *)arg1);
   if (arg2) jenv->ReleaseStringUTFChars(jarg2, (const char *)arg2);
   if (arg3) jenv->ReleaseStringUTFChars(jarg3, (const char *)arg3);
   if (arg4) jenv->ReleaseStringUTFChars(jarg4, (const char *)arg4);
+  if (arg5) jenv->ReleaseStringUTFChars(jarg5, (const char *)arg5);
 }
 
 

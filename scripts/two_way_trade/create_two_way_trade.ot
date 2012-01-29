@@ -127,13 +127,13 @@ if (HisPurse.size() <= 0)
 
 var strCode_activate_clause = ""
 
-print("Paste the SCRIPT code that should trigger when the smart contract is ACTIVATED. Finish with ^D: ")
+print("Paste the SCRIPT code that should trigger when the smart contract is ACTIVATED. Finish with ~ on its own line: ")
 
 strCode_activate_clause = OT_CLI_ReadUntilEOF()
 
  // **************************
  // --------------------------
- // BEGIN SCRIPT:
+ // BEGIN *ACTIVATE* SCRIPT:
 /*
  print("SCRIPTED CLAUSE: Two-way trade: This is the clause for the OnActivate() hook. (On a smartcontract.)")
  

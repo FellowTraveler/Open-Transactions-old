@@ -3493,7 +3493,7 @@ bool OTSmartContract::ProcessCron()
 
 
 
-void OTSmartContract::ExecuteClauses (mapOfClauses & theClauses)
+void OTSmartContract::ExecuteClauses (mapOfClauses & theClauses, OTString * pParam/*=NULL*/) // someday pParam could be a stringMap instead of a single param.
 {
 	// Loop through the clauses passed in, and execute them all.
 	//
@@ -3544,8 +3544,37 @@ void OTSmartContract::ExecuteClauses (mapOfClauses & theClauses)
 			//
 			pBylaw->RegisterVariablesForExecution(*pScript); // This also sets all the variables as CLEAN so we can check for dirtiness after execution.
 			
-			// ****************************************
+			// ---------------------------------------
+			// A parameter might also be passed in, so we add that to the script as well.
+			// (Like if a client is sending a triggerClause message to a server, and passing
+			// a string parameter to that clause as input.)
+			//
+			OTVariable * pVar = NULL;
+			OTCleanup<OTVariable> theVarAngel;
+			const std::string str_Name("param_string");
+			std::string str_Value("");
 
+			// See if param_string variable is already found on the bylaw...
+			//
+			if (NULL != pBylaw->GetVariable(str_Name)) // disallow duplicate names.
+			{
+				OTLog::vError("OTSmartContract::ExecuteClauses: While preparing to run script: %s.  Error: "
+							  "Parameter variable named %s already exists. (Skipping the parameter actually passed in.)\n",
+							  str_clause_name.c_str(), str_Name.c_str());				
+			}
+			else // The param_string variable isn't already there. (So we add it as blank, if a value wasn't passed in.)
+			{
+				if (NULL != pParam) // if a param was passed in...
+					str_Value = pParam->Get();
+				// else (it's already "")
+				
+				pVar = new OTVariable(str_Name, str_Value, OTVariable::Var_Constant);
+				OT_ASSERT(NULL != pVar);
+				theVarAngel.SetCleanupTarget(*pVar);
+				// -------------------------------------
+				pScript->AddVariable(str_Name, *pVar);
+			}
+			// ****************************************
 			// TEMP FOR TESTING (HARDCODED CLAUSE NAME HERE...)
 //			OTVariable theReturnVal("return_val", false); // initial value is: false.
 			

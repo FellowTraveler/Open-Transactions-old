@@ -1,0 +1,74 @@
+#! /usr/local/bin/ot --script
+
+
+// This temp variable is used for a running "latest copy" of the smart contract, as we 
+// construct it here inside this client-side OT script. (Don't confuse the server-side
+// scripts, aka the smart contracts, with the client-side scripts :-)
+//
+var strSmartContract = ""
+
+OT_API_Output(0, "\n\n\nThis script assumes you have already used: create_escrow.ot, sign_escrow_as_alice.ot, sign_escrow_as_bob.ot, and sign_escrow_as_judy.ot \n")
+OT_API_Output(0, "To ACTIVATE the smart contract on the OT Server, paste or pipe the smart contract that was created, followed by a ~ on a line by itself. \n")
+
+strSmartContract = OT_CLI_ReadUntilEOF()
+
+// ***************************************************************
+//
+// ...WE ACTIVATE THE SMART CONTRACT!
+//
+print("SMART CONTRACT:  Final version before activation:\n\n\n")
+print(strSmartContract)
+print("\n\n\n Activating...")
+
+// --------------------------------------------------
+// ACTIVATE THE SMART CONTRACT ON A SERVER.
+
+OT_API_FlushMessageBuffer()
+OT_API_activateSmartContract(Server, MyNym, strSmartContract)
+var strMessage = OT_API_PopMessageBuffer()
+
+print("Finishing calling activate!!")
+
+var bMsgSuccess  = OT_API_Message_GetSuccess(strMessage)
+var bBlncSuccess = OT_API_Msg_GetBlnceAgrmntSuccess(Server, MyNym, MyAcct, strMessage)
+var bTranSuccess = OT_API_Msg_GetTransactionSuccess(Server, MyNym, MyAcct, strMessage)		
+		
+if ((!bMsgSuccess) || (!bBlncSuccess) || (!bTranSuccess))
+{
+	// OTHERWISE, I take the transaction numbers BACK! (Also, if the activation failed,
+	// I'd probably want to take the closing numbers back in that case as well.)
+	print("SMART CONTRACT: Failed somehow, so I'm clawing all the numbers BACK now (that way my data stays good.)")
+	
+	OT_API_HarvestClosingNumbers(Server, MyNym,		strSmartContract);
+	OT_API_HarvestClosingNumbers(Server, HisNym,	strSmartContract);
+}
+
+
+/*
+// ******************************************************************
+// TRIGGER A CLAUSE REMOTELY (ON A SMART CONTRACT THAT'S ALREADY BEEN ACTIVATED.)
+//
+// OT_API_triggerClause(Server, MyNym, const char * TRANSACTION_NUMBER, "typical_clause");
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

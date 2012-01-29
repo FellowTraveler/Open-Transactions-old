@@ -287,7 +287,8 @@ public:
 	static void triggerClause(const std::string SERVER_ID,
 							  const std::string USER_ID,
 							  const std::string TRANSACTION_NUMBER,
-							  const std::string CLAUSE_NAME);
+							  const std::string CLAUSE_NAME,
+							  const std::string STR_PARAM);
 	// ---------------------------------------------------
 	
 	static int GetMemlogSize();

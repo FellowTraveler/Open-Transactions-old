@@ -5651,10 +5651,11 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_triggerClause) {
   char *arg2 = (char *) 0 ;
   char *arg3 = (char *) 0 ;
   char *arg4 = (char *) 0 ;
-  zval **args[4];
+  char *arg5 = (char *) 0 ;
+  zval **args[5];
   
   SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 4 || zend_get_parameters_array_ex(4, args) != SUCCESS) {
+  if(ZEND_NUM_ARGS() != 5 || zend_get_parameters_array_ex(5, args) != SUCCESS) {
     WRONG_PARAM_COUNT;
   }
   
@@ -5698,7 +5699,17 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_triggerClause) {
   }
   /*@SWIG@*/;
   
-  OT_API_triggerClause((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[4])->type==IS_NULL) {
+    arg5 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[4]);
+    arg5 = (char *) Z_STRVAL_PP(args[4]);
+  }
+  /*@SWIG@*/;
+  
+  OT_API_triggerClause((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5);
   
   return;
 fail:

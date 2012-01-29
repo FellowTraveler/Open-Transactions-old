@@ -1,2 +1,6 @@
-This scripts aren't done yet -- they don't work.
+Escrow scripts are done!
+
+(But entirely untested!)
+
+I will test and add instructions soon.
 

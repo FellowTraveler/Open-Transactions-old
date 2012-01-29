@@ -429,7 +429,7 @@ public:
 	OTStash * GetStash(const std::string str_stash_name);
 
 	// Low-level.
-	void ExecuteClauses (mapOfClauses & theClauses);
+	void ExecuteClauses (mapOfClauses & theClauses, OTString * pParam=NULL);
 	
     // -------------------------------------
 	// Low level.

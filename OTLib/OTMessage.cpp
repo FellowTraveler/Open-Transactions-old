@@ -1619,6 +1619,7 @@ void OTMessage::UpdateContents()
 								  " serverID=\"%s\"\n"
 								  " smartContractID=\"%ld\"\n"  // <===
 								  " clauseName=\"%s\"\n"		// <===
+								  " hasParam=\"%s\"\n"		// <===
 								  " requestNum=\"%s\""
 								  " >\n\n",
 								  m_strCommand.Get(),
@@ -1626,9 +1627,13 @@ void OTMessage::UpdateContents()
 								  m_strServerID.Get(),
 								  m_lTransactionNum,
 								  m_strNymID2.Get(), // clause name is stored here for this message.
+								  (m_ascPayload.Exists()) ? "true" : "false",
 								  m_strRequestNum.Get()
 								  );
 		
+		if (m_ascPayload.Exists())
+			m_xmlUnsigned.Concatenate("<parameter>\n%s</parameter>\n\n", m_ascPayload.Get());
+
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
 	
@@ -3712,7 +3717,6 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		m_strAssetID	= xml->getAttributeValue("assetType");
 		
 		// -----------------------------------------------------
-		
 		const char * pElementExpected;
 		if (m_bSuccess)
 			pElementExpected = "mint";
@@ -3753,11 +3757,29 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		m_strServerID	= xml->getAttributeValue("serverID");
 		m_strNymID2		= xml->getAttributeValue("clauseName");
 		m_strRequestNum = xml->getAttributeValue("requestNum");
+		const OTString strHasParam = xml->getAttributeValue("hasParam");
 		
 		OTString strTransactionNum;
 		strTransactionNum = xml->getAttributeValue("smartContractID");
 		if (strTransactionNum.Exists())
 			m_lTransactionNum = atol(strTransactionNum.Get());
+		
+		if (strHasParam.Compare("true"))
+		{
+			const char *	pElementExpected = "parameter";
+			OTASCIIArmor	ascTextExpected;
+			
+			if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+			{
+				OTLog::vError("Error in OTMessage::ProcessXMLNode: "
+							  "Expected %s element with text field, for %s.\n", 
+							  pElementExpected, m_strCommand.Get());
+				return (-1); // error condition
+			}
+			else
+				m_ascPayload = ascTextExpected;
+			// -----------------------------------------------------			
+		}
 		
 		OTLog::vOutput(1, "\nCommand: %s\nNymID:    %s\nServerID: %s\nClause TransNum and Name:  %ld  /  %s \n"
 					   "Request #: %s\n", m_strCommand.Get(), m_strNymID.Get(), m_strServerID.Get(), m_lTransactionNum, 
