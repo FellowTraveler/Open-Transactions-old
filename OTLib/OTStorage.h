@@ -1543,7 +1543,7 @@ namespace OTDB
 		const char * GetFullPath() { return m_strFullPath.c_str(); }  // path to data_folder
 		const char * GetWalletFile() { return m_strWalletFile.c_str(); } // wallet filename
 		
-		const char * PathSeparator() { return OTLog::PathSeparator(); } // using OTLog for now.
+		const char * PathSeparator();
 		
 		/*
 		 IN BASE CLASS:

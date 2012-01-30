@@ -128,12 +128,14 @@
 // credit:stlplus library.
 #include "containers/simple_ptr.hpp"
 
-
-#include "OTLog.h"
-#include "OTASCIIArmor.h"
 #include "OTStorage.h"
 
+#include "OTASCIIArmor.h"
+
+#include "OTData.h"
 #include "OTPayload.h"
+
+#include "OTLog.h"
 
 
 /*
@@ -2681,6 +2683,12 @@ namespace OTDB
 	
 	// STORAGE FS  (OTDB::StorageFS is the filesystem version of OTDB::Storage.)
 	
+	
+	const char * StorageFS::PathSeparator()
+	{
+		return OTLog::PathSeparator(); // using OTLog for now.
+	} 
+
 	
 	// ConfirmOrCreateFolder()
 	// Used for making sure that certain necessary folders actually exist. (Creates them otherwise.)

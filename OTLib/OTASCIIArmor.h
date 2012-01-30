@@ -137,17 +137,14 @@
 #include <sstream>
 #include <map>
 
-//#include "OTData.h"
+#include "OTData.h"
 #include "OTString.h"
 //#include "OTStorage.h"
 
-#include "OTStorage.h"
 
-class OTData;
 class OTEnvelope;
-class OTPayload;
 
-class OTDB::OTPacker;
+//class OTDB::OTPacker;
 
 // The natural state of OTASCIIArmor is in compressed and base64-encoded, string form.
 // It is derived from OTString. The Get() method returns a base64-encoded string.

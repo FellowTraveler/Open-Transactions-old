@@ -137,16 +137,15 @@ extern "C"
 #include <cstdio>
 #include <cstring>
 
-#include "OTData.h"
-
 #include "OTStorage.h"
 
 #include "OTASCIIArmor.h"
+#include "OTData.h"
 
 
 #include "OTLog.h"
 
-;
+
 
 bool OTData::operator==(const OTData &s2) const
 {

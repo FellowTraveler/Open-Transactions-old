@@ -132,7 +132,6 @@
 
 #include "OTASCIIArmor.h"
 
-;
 
 class OTSignature : public OTASCIIArmor
 {
