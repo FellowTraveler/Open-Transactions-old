@@ -35,7 +35,7 @@
 	attr OTAPI_Func::CREATE_ASSET_ACCT			
 	attr OTAPI_Func::DELETE_ASSET_ACCT			
 	attr OTAPI_Func::EXCHANGE_BASKET			
-	attr OTAPI_Func::PROCESS_INBOX				
+	attr OTAPI_Func::PROCESS_INBOX
 	attr OTAPI_Func::DEPOSIT_CASH				
 	attr OTAPI_Func::EXCHANGE_CASH				
 	attr OTAPI_Func::DEPOSIT_CHEQUE				
@@ -46,11 +46,13 @@
 	attr OTAPI_Func::GET_MARKET_LIST
 	attr OTAPI_Func::CREATE_MARKET_OFFER
 	attr OTAPI_Func::CANCEL_MARKET_OFFER
+	attr OTAPI_Func::CANCEL_PAYMENT_PLAN
 	attr OTAPI_Func::GET_NYM_MARKET_OFFERS
 	attr OTAPI_Func::GET_MARKET_OFFERS
 	attr OTAPI_Func::GET_MARKET_RECENT_TRADES
 	attr OTAPI_Func::GET_MINT
 	attr OTAPI_Func::QUERY_ASSET_TYPES
+	attr OTAPI_Func::GET_BOX_RECEIPT
 // -------------------------------------------
 	attr OTAPI_Func::funcType
 // -------------------------------------------
@@ -127,11 +129,13 @@
 		this.GET_MARKET_LIST			= 18
 		this.CREATE_MARKET_OFFER		= 19
 		this.CANCEL_MARKET_OFFER		= 20
-		this.GET_NYM_MARKET_OFFERS		= 21
-		this.GET_MARKET_OFFERS			= 22
-		this.GET_MARKET_RECENT_TRADES	= 23
-		this.GET_MINT					= 24
-		this.QUERY_ASSET_TYPES			= 25
+		this.CANCEL_PAYMENT_PLAN		= 21
+		this.GET_NYM_MARKET_OFFERS		= 22
+		this.GET_MARKET_OFFERS			= 23
+		this.GET_MARKET_RECENT_TRADES	= 24
+		this.GET_MINT					= 25
+		this.QUERY_ASSET_TYPES			= 26
+		this.GET_BOX_RECEIPT			= 27
 	}
 // ---------------------------------------
 
@@ -240,7 +244,10 @@
         this.nTransNumsNeeded = 1;
         this.bBool      = false;
 		
-		if ((theType == this.CANCEL_MARKET_OFFER) || (theType == this.PROCESS_INBOX) || (theType == this.DEPOSIT_CASH) || (theType == this.DEPOSIT_CHEQUE) || (theType == this.WITHDRAW_CASH))
+//if ((theType == this.CANCEL_MARKET_OFFER) || (theType == this.CANCEL_PAYMENT_PLAN) || (theType == this.PROCESS_INBOX) || 
+//	  (theType == this.DEPOSIT_CASH) || (theType == this.DEPOSIT_CHEQUE) || (theType == this.WITHDRAW_CASH))
+
+		if ((theType == this.CANCEL_MARKET_OFFER) || (theType == this.CANCEL_PAYMENT_PLAN) || (theType == this.PROCESS_INBOX) || (theType == this.DEPOSIT_CASH) || (theType == this.DEPOSIT_CHEQUE) || (theType == this.WITHDRAW_CASH))
 		{
 			this.accountID  = p_strParam;
 			this.strData    = p_strData; 			
@@ -262,8 +269,7 @@
     }
 // ---------------------------------------
 	
-	
-	
+		
     def OTAPI_Func::OTAPI_Func(theType, p_serverID, p_nymID, p_nymID2, p_strData, p_strData2) // 6 args
 	{
 //		OT_API_Output(0, "(Version of OTAPI_Func with 6 arguments.)\n");	
@@ -277,7 +283,9 @@
 		{	OT_API_Output(0, concat(strError, "p_nymID")); }
 		if (!VerifyStringVal(p_nymID2))
 		{	OT_API_Output(0, concat(strError, "p_nymID2")); }
-		if (!VerifyStringVal(p_strData))
+		if ((theType == GET_BOX_RECEIPT) && !VerifyIntVal(p_strData)) // box receipt passes an integer here.
+		{	OT_API_Output(0, concat(strError, "p_strData")); }
+		if ((theType != GET_BOX_RECEIPT) && !VerifyStringVal(p_strData)) // Everything else passes a string.
 		{	OT_API_Output(0, concat(strError, "p_strData")); }
 		if (!VerifyStringVal(p_strData2))
 		{	OT_API_Output(0, concat(strError, "p_strData2")); }
@@ -286,16 +294,20 @@
         this.funcType   = theType;
         this.serverID   = p_serverID;
         this.nymID      = p_nymID;
-        this.nymID2     = p_nymID2;
         this.nTransNumsNeeded = 1;
         this.bBool      = false;
-        
-        this.strData    = p_strData;
-        this.strData2   = p_strData2;
-        
+                
 		if (theType == this.SEND_USER_MESSAGE)
 		{
-			// nothing.
+			this.nymID2     = p_nymID2;
+			this.strData    = p_strData;
+			this.strData2   = p_strData2;			
+		}
+		else if (theType == GET_BOX_RECEIPT)
+		{
+			this.accountID	= p_nymID2;		// accountID (inbox/outbox) or NymID (nymbox) is passed here.
+			this.nData		= p_strData;	// Integer is passed here in this case. (0, 1, or 2)
+			this.strData	= p_strData2;	// transaction number passed here as string
 		}
 		else
 		{
@@ -388,9 +400,9 @@
 	
 		
 
-	def OTAPI_Func::OTAPI_Func(theType, p_serverID, p_nymID, assetTypeID, assetAccountID, currencyTypeID, currencyAcctID, scale, minIncrement, quantity, price, bSelling)		// 12 args
+	def OTAPI_Func::OTAPI_Func(theType, p_serverID, p_nymID, assetAccountID, currencyAcctID, scale, minIncrement, quantity, price, bSelling)	// 10 args
 	{
-//		OT_API_Output(0, "(Version of OTAPI_Func with 12 arguments.)\n");	
+//		OT_API_Output(0, "(Version of OTAPI_Func with 10 arguments.)\n");	
 
 		this.InitCustom()
 		// ---------------------------
@@ -399,12 +411,8 @@
 		{	OT_API_Output(0, concat(strError, "p_serverID")); }
 		if (!VerifyStringVal(p_nymID))
 		{	OT_API_Output(0, concat(strError, "p_nymID")); }
-		if (!VerifyStringVal(assetTypeID))
-		{	OT_API_Output(0, concat(strError, "assetTypeID")); }
 		if (!VerifyStringVal(assetAccountID))
 		{	OT_API_Output(0, concat(strError, "assetAccountID")); }
-		if (!VerifyStringVal(currencyTypeID))
-		{	OT_API_Output(0, concat(strError, "currencyTypeID")); }
 		if (!VerifyStringVal(currencyAcctID))
 		{	OT_API_Output(0, concat(strError, "currencyAcctID")); }
 		if (!VerifyStringVal(scale))
@@ -420,9 +428,7 @@
         this.funcType   = theType;
         this.serverID   = p_serverID;
         this.nymID      = p_nymID;
-        this.assetID    = assetTypeID;
         this.accountID  = assetAccountID;
-        this.assetID2   = currencyTypeID;
         this.accountID2 = currencyAcctID;
 
         this.strData    = scale; 
@@ -468,6 +474,10 @@
 		{	OT_API_exchangePurse(this.serverID, this.assetID, this.nymID, this.strData);	}
 		else if (this.funcType == this.CANCEL_MARKET_OFFER)
 		{	OT_API_cancelMarketOffer(this.serverID, this.nymID, this.accountID, this.strData);	}
+		else if (this.funcType == this.CANCEL_PAYMENT_PLAN)
+		{	OT_API_cancelPaymentPlan(this.serverID, this.nymID, this.accountID, this.strData);	}
+		else if (this.funcType == this.GET_BOX_RECEIPT)
+		{	OT_API_getBoxReceipt(this.serverID, this.nymID, this.accountID, nData, this.strData); }
 		else if (this.funcType == this.PROCESS_INBOX)
 		{	OT_API_processInbox(this.serverID, this.nymID, this.accountID, this.strData);	}
 		else if (this.funcType == this.DEPOSIT_CASH)
@@ -487,7 +497,7 @@
 		else if (this.funcType == this.GET_MARKET_RECENT_TRADES)
 		{	OT_API_getMarketRecentTrades(this.serverID, this.nymID, this.strData);	}
 		else if (this.funcType == this.CREATE_MARKET_OFFER)
-		{	OT_API_issueMarketOffer(this.serverID, this.nymID, this.assetID, this.accountID, this.assetID2, this.accountID2, 
+		{	OT_API_issueMarketOffer(this.serverID, this.nymID, this.accountID, this.accountID2, 
                         this.strData, this.strData2, this.strData3, this.strData4, this.bBool);
 		}
 		else
@@ -518,7 +528,7 @@
 		{
             if (!MsgUtil.getRequestNumber(theFunction.serverID, theFunction.nymID)) 
 			{
-                OT_API_Output(0, "OTAPI_Func::SendRequest (" + IN_FUNCTION + " ): After first failure, getRequestNumber() failed as well. (I give up.) ");
+                OT_API_Output(0, "OTAPI_Func::SendRequest (" + IN_FUNCTION + " ): After first failure, getRequestNumber() failed as well. (I give up.) \n");
                 return "";
             }
             // getRequestNumber succeeded, so we'll try the Function call again...
@@ -529,7 +539,7 @@
                 serverResponseMessage = OT_API_PopMessageBuffer();
                 if (!VerifyMessageSuccess(serverResponseMessage)) 
 				{
-                    OT_API_Output(0, "OTAPI_Func::SendRequest (" + IN_FUNCTION + " ): Function retry failed, even after getRequestNumber() succeeded. (I give up.) ");
+                    OT_API_Output(0, "OTAPI_Func::SendRequest (" + IN_FUNCTION + " ): Function retry failed, even after getRequestNumber() succeeded. (I give up.) \n");
                     return "";
                 }
             }
@@ -544,6 +554,7 @@
 	
     def OTAPI_Func::SendTransaction(theFunction, IN_FUNCTION)  
 	{
+
 		var MsgUtil	= Utility();
 	
         var	serverResponseMessage = "";
@@ -553,9 +564,11 @@
 		// If the current trans# count is LESS than what's needed...
 		//theFunction needs more than my normal minimum in my configuration
 		// Therefore I will grab that many, instead of however many I would normally grab.
-		
+				
 		var getnym_trnsnum_count = OT_API_GetNym_TransactionNumCount(theFunction.serverID, theFunction.nymID);
 		
+		var configTxnCount = MsgUtil.getNbrTransactionCount();
+
 		var b1 = (theFunction.nTransNumsNeeded > MsgUtil.getNbrTransactionCount());
 		var b2 = (theFunction.nTransNumsNeeded > configTxnCount);
 		
@@ -567,8 +580,7 @@
 		
         if (getnym_trnsnum_count < comparative) 
         {
-		    OT_API_Output(0, "OTAPI_Func::SendTransaction: I don't have enough transaction numbers to perform this transaction. Grabbing more now...");
-            var configTxnCount = MsgUtil.getNbrTransactionCount();
+		    OT_API_Output(0, "OTAPI_Func::SendTransaction: I don't have enough transaction numbers to perform this transaction. Grabbing more now...\n");
 			if (b2)
 			{	MsgUtil.setNbrTransactionCount(theFunction.nTransNumsNeeded);	}
 			else
@@ -577,24 +589,26 @@
             MsgUtil.setNbrTransactionCount(configTxnCount);
         }
 		// ---------------------------
+		
         if (!bTrue || (OT_API_GetNym_TransactionNumCount(theFunction.serverID, theFunction.nymID) < theFunction.nTransNumsNeeded)) 
 		{
-            OT_API_Output(0, concat(concat(strLocation, " , failed to get transaction numbers, OT_API_GetNym_TransactionNumCount:"), 
-                    OT_API_GetNym_TransactionNumCount(theFunction.serverID, theFunction.nymID)));
+            OT_API_Output(0, concat(concat(concat(strLocation, " , failed to get transaction numbers, OT_API_GetNym_TransactionNumCount:"), 
+                    OT_API_GetNym_TransactionNumCount(theFunction.serverID, theFunction.nymID))), "\n");
             return "";
         }
         // --------------------------------------
+		
         // BY THIS POINT, I know that I have enough transaction numbers. 
         // (Although I might NOT have checked my Nymbox yet, so sync issues are still possible.)
         // I also ran the function, and if it failed, then I successfully ran getRequestNumber(),
         // and then the function again -- and this time it worked (or I would have returned already.)
         // At least, the message was success. Now let's check the balance agreement, and the transaction itself.
         //
-        serverResponseMessage = OTAPI_Func.SendRequest(theFunction, IN_FUNCTION);
+        serverResponseMessage = this.SendRequest(theFunction, IN_FUNCTION);
 
         if (!VerifyMessage(serverResponseMessage))
 		{
-            OT_API_Output(0, "OTAPI_Func::SendTransaction: OTAPI_Func.SendRequest failed. (I give up.)");
+            OT_API_Output(0, "OTAPI_Func::SendTransaction: OTAPI_Func.SendRequest failed. (I give up.)\n");
             return "";
         }
 
@@ -603,9 +617,10 @@
         // (Just because the message was successful, doesn't mean the transaction
         //  was successful, or the balance agreement...)
 		
+		
         var  bBalanceAgreement = false;
 		
-		if (true == OT_API_Message_GetBalanceAgreementSuccess(theFunction.serverID, 
+		if (true == OT_API_Msg_GetBlnceAgrmntSuccess(theFunction.serverID, 
                     theFunction.nymID, 
                     theFunction.accountID, 
                     serverResponseMessage));
@@ -627,10 +642,9 @@
             if (!MsgUtil.getIntermediaryFiles(theFunction.serverID, 
                     theFunction.nymID, theFunction.accountID)) 
             {
-                OT_API_Output(0, "OTAPI_Func::SendTransaction: " + IN_FUNCTION + ", getIntermediaryFiles returned false. (I give up.)");
+                OT_API_Output(0, "OTAPI_Func::SendTransaction: " + IN_FUNCTION + ", getIntermediaryFiles returned false. (I give up.)\n");
                 return "";
             }
-
 
 
 
@@ -653,7 +667,7 @@
             // or about old transaction #s that expired lawfully.
             if ((-1) == MsgUtil.getAndProcessNymbox(theFunction.serverID, theFunction.nymID)) // failure.
             {
-                OT_API_Output(0, "OTAPI_Func::SendTransaction: " + IN_FUNCTION + ", getAndProcessNymbox failed. (I give up.)");
+                OT_API_Output(0, "OTAPI_Func::SendTransaction: " + IN_FUNCTION + ", getAndProcessNymbox failed. (I give up.)\n");
                 return "";
             }
             // ----------------------------------------
@@ -670,33 +684,33 @@
 
             if (!VerifyMessage(serverResponseMessage)) 
 			{
-                OT_API_Output(0, "OTAPI_Func::SendTransaction: " + IN_FUNCTION + ", serverResponseMessage is null after retry after balance agreement failure. (I give up.)");
+                OT_API_Output(0, "OTAPI_Func::SendTransaction: " + IN_FUNCTION + ", serverResponseMessage is null after retry after balance agreement failure. (I give up.)\n");
                 return "";
             } // NOTE: I could check the message here for failure, but the below call would return 0 in
               // that case as well anyway. Since we already went through the request number stuff above,
               // there's no point / need in repeating it.
               //
-            else if (false == OT_API_Message_GetBalanceAgreementSuccess(theFunction.serverID,  // Failure
+            else if (false == OT_API_Msg_GetBlnceAgrmntSuccess(theFunction.serverID,  // Failure
                     
                     theFunction.nymID, 
                     theFunction.accountID, 
                     serverResponseMessage)) 
             {
-                OT_API_Output(0, "OTAPI_Func::SendTransaction: " + IN_FUNCTION + ", serverResponseMessage is still FAILURE after retry after balance agreement failure. (I give up.)");
+                OT_API_Output(0, "OTAPI_Func::SendTransaction: " + IN_FUNCTION + ", serverResponseMessage is still FAILURE after retry after balance agreement failure. (I give up.)\n");
                 return "";
             }
-            OT_API_Output(0, "OTAPI_Func::SendTransaction: " + IN_FUNCTION + ", after balance agreement retry, (success on balance agreement.)");
+            OT_API_Output(0, "OTAPI_Func::SendTransaction: " + IN_FUNCTION + ", after balance agreement retry, (success on balance agreement.)\n");
         }
 
         // *********************************************************************************
         // Was transaction successful?
 
-        if (false == OT_API_Message_GetTransactionSuccess(theFunction.serverID, // Failure. 
+        if (false == OT_API_Msg_GetTransactionSuccess(theFunction.serverID, // Failure. 
                 theFunction.nymID, 
                 theFunction.accountID, 
                 serverResponseMessage)) 
         {
-            OT_API_Output(0, "OTAPI_Func::SendTransaction: " + IN_FUNCTION + ", serverResponseMessage the TRANSACTION reports FAILURE (though balance agreement was successful.) (I give up.)");
+            OT_API_Output(0, "OTAPI_Func::SendTransaction: " + IN_FUNCTION + ", serverResponseMessage the TRANSACTION reports FAILURE (though balance agreement was successful.) (I give up.)\n");
             return "";
         }
         

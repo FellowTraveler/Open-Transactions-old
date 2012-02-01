@@ -142,6 +142,8 @@
 
 #include "OTAPI_Wrapper.h"
 
+#include "OTLog.h"
+
 // --------------------------------
 
 #ifndef OT_BOOL
@@ -1002,11 +1004,10 @@ bool OTAPI_Wrap::Transaction_GetSuccess(const std::string SERVER_ID,
 }
 
 // --------------------------------------------------
-
-bool OTAPI_Wrap::Transaction_GetBalanceAgreementSuccess(const std::string SERVER_ID,
-														const std::string USER_ID,
-														const std::string ACCOUNT_ID,
-														const std::string THE_TRANSACTION)
+bool OTAPI_Wrap::Transaction_GetBlnceAgrmntSuccess(const std::string SERVER_ID,
+												   const std::string USER_ID,
+												   const std::string ACCOUNT_ID,
+												   const std::string THE_TRANSACTION)
 {
 	return (OT_API_Transaction_GetBalanceAgreementSuccess(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), THE_TRANSACTION.c_str()) == OT_TRUE) ? true : false;
 }
@@ -1470,7 +1471,10 @@ bool OTAPI_Wrap::DoesBoxReceiptExist(const std::string	SERVER_ID,
 									 const int			nBoxType,	// 0/nymbox, 1/inbox, 2/outbox
 									 const std::string	TRANSACTION_NUMBER)
 {
-	return (DoesBoxReceiptExist(SERVER_ID.c_str(), USER_ID.c_str(), ACCT_ID.c_str(), nBoxType, TRANSACTION_NUMBER.c_str()) == OT_TRUE) ? true : false;
+	return (OT_TRUE == 
+				OT_API_DoesBoxReceiptExist(SERVER_ID.c_str(), USER_ID.c_str(), ACCT_ID.c_str(), nBoxType, TRANSACTION_NUMBER.c_str())) 
+			? 
+		true : false;
 }
 
 // --------------------------------------------------------------------------
@@ -1516,23 +1520,50 @@ void OTAPI_Wrap::depositPaymentPlan(const std::string SERVER_ID,
 	OT_API_depositPaymentPlan(SERVER_ID.c_str(), USER_ID.c_str(), THE_PAYMENT_PLAN.c_str());
 }
 // --------------------------------------------------
-//	void OTAPI_Wrap::issueMarketOffer(const std::string SERVER_ID,
-//								 const std::string USER_ID,
-//								 // -------------------------------------------
-//								 const std::string ASSET_TYPE_ID, // Perhaps this is the
-//								 const std::string ASSET_ACCT_ID, // wheat market.
-//								 // -------------------------------------------
-//								 const std::string CURRENCY_TYPE_ID, // Perhaps I'm buying the
-//								 const std::string CURRENCY_ACCT_ID, // wheat with rubles.
-//								 // -------------------------------------------
-//								 const std::string MARKET_SCALE,				// Defaults to minimum of 1. Market granularity.
-//								 const std::string MINIMUM_INCREMENT,		// This will be multiplied by the Scale. Min 1.
-//								 const std::string TOTAL_ASSETS_ON_OFFER,	// Total assets available for sale or purchase. Will be multiplied by minimum increment.
-//								 const std::string PRICE_LIMIT,				// Per Minimum Increment...
-//								 bool	bBuyingOrSelling)
-//{
-//	
-//}
+void OTAPI_Wrap::issueMarketOffer(const std::string SERVER_ID,
+								  const std::string USER_ID,
+								  // -------------------------------------------
+								  const std::string ASSET_ACCT_ID, // Perhaps this is the wheat market.
+								  // -------------------------------------------
+								  const std::string CURRENCY_ACCT_ID, // Perhaps I'm buying the wheat with rubles.
+								  // -------------------------------------------
+								  const std::string MARKET_SCALE,			// Defaults to minimum of 1. Market granularity.
+								  const std::string MINIMUM_INCREMENT,		// This will be multiplied by the Scale. Min 1.
+								  const std::string TOTAL_ASSETS_ON_OFFER,	// Total assets available for sale or purchase. Will be multiplied by minimum increment.
+								  const std::string PRICE_LIMIT,			// Per Minimum Increment...
+										bool		bBuyingOrSelling)
+{
+	
+	const char * pType1 = OT_API_GetAccountWallet_AssetTypeID(ASSET_ACCT_ID.c_str());		// Returns asset type ID of the asset account.
+	const std::string str_Type1((NULL == pType1) ? "" : pType1);
+	
+	const char * pType2 = OT_API_GetAccountWallet_AssetTypeID(CURRENCY_ACCT_ID.c_str());	// Returns asset type ID of the currency account.
+	const std::string str_Type2((NULL == pType2) ? "" : pType2);
+	
+	if ((str_Type1.size() < 1) || (str_Type2.size() < 1))
+	{
+		OTLog::Error("OTAPI_Wrap::issueMarketOffer: Unable to find asset type ID or currency type ID, based on account IDs passed in.\n");
+		return;
+	}
+	else
+	{
+		OTLog::vOutput(1, "OTAPI_Wrap::issueMarketOffer: Using asset type: %s for account: %s.\n",
+					   str_Type1.c_str(), ASSET_ACCT_ID.c_str());
+		OTLog::vOutput(1, "OTAPI_Wrap::issueMarketOffer: Using asset type: %s for account: %s.\n",
+					   str_Type2.c_str(), CURRENCY_ACCT_ID.c_str());
+	}
+
+	// Todo: perhaps have these sorts of "server message" functions return a bool, so I know whether it even sent
+	// the message. Otherwise all my error-correction crap where I pop the server reply, is a total waste of time,
+	// since the message was never even sent.
+	
+	OT_API_issueMarketOffer(SERVER_ID.c_str(), USER_ID.c_str(),
+							str_Type1.c_str(), ASSET_ACCT_ID.c_str(),
+							str_Type2.c_str(), CURRENCY_ACCT_ID.c_str(),
+							MARKET_SCALE.c_str(), MINIMUM_INCREMENT.c_str(),
+							TOTAL_ASSETS_ON_OFFER.c_str(), PRICE_LIMIT.c_str(),
+							bBuyingOrSelling ? OT_TRUE : OT_FALSE);	
+}
 // --------------------------------------------------
 
 void OTAPI_Wrap::getMarketList(const std::string SERVER_ID, const std::string USER_ID)

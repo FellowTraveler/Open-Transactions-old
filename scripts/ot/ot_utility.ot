@@ -23,6 +23,13 @@
 		else { return true; }
 	}
 	// ---------------------------------------
+	def VerifyIntVal(nValue)
+	{
+		if (nValue.is_var_null() || !nValue.is_type("int"))
+		{	return false;	}
+		else { return true; }
+	}
+	// ---------------------------------------
 	def VerifyMessage(strMessage)
 	{
 		if (strMessage.is_var_null() || !strMessage.is_type("string") || (strMessage.size() < 10))
@@ -33,6 +40,20 @@
 	def VerifyMessageSuccess(strMessage)
 	{
 		if (strMessage.is_var_null() || !strMessage.is_type("string") || (strMessage.size() < 10) || (false == OT_API_Message_GetSuccess(strMessage)))
+		{	return false;	}
+		else { return true;	}
+	}
+// ---------------------------------------
+	def VerifyBalanceAgreementSuccess(SERVER_ID, USER_ID, ACCOUNT_ID, strMessage)
+	{
+		if (strMessage.is_var_null() || !strMessage.is_type("string") || (strMessage.size() < 10) || (false == OT_API_Msg_GetBlnceAgrmntSuccess(SERVER_ID, USER_ID, ACCOUNT_ID, strMessage)))
+		{	return false;	}
+		else { return true;	}
+	}
+// ---------------------------------------
+	def VerifyTransactionSuccess(SERVER_ID, USER_ID, ACCOUNT_ID, strMessage)
+	{
+		if (strMessage.is_var_null() || !strMessage.is_type("string") || (strMessage.size() < 10) || (false == OT_API_Msg_GetTransactionSuccess(SERVER_ID, USER_ID, ACCOUNT_ID, strMessage)))
 		{	return false;	}
 		else { return true;	}
 	}
@@ -314,6 +335,7 @@
 		//
         var nReceiptCount = OT_API_processNymbox(serverID, nymID);
         // ------------------------------------------
+		
 		if ((-1) == nReceiptCount)
 		{
             OT_API_Output(0, " Utility::processNymbox: Failure. OT_API_processNymbox() returned -1. \n");
@@ -324,6 +346,7 @@
 		{
 			return 0;	// Nymbox is empty, thus no need to process it.
 		}
+		
         // ------------------------------------------
         this.delay();
         // ------------------------------------------
@@ -553,11 +576,29 @@
             var strTransactionNum = OT_API_Ledger_GetTransactionIDByIndex(serverID, nymID, accountID, ledger, it);
 			it += 1;
 			
-            if (VerifyStringVal(strTransactionNum) && !strTransactionNum.equals("-1"))
+            if (VerifyStringVal(strTransactionNum) && !(strTransactionNum == "-1"))
             {
+			
                 var lTransactionNum = strTransactionNum.to_int();
                 if (lTransactionNum > 0)
                 {
+				
+				OT_API_Output(0, "serverID: ");	
+				OT_API_Output(0, concat(serverID, "\n"));	
+
+				OT_API_Output(0, "nymID: ");	
+				OT_API_Output(0, concat(nymID, "\n"));	
+
+				OT_API_Output(0, "accountID: ");	
+				OT_API_Output(0, concat(accountID, "\n"));	
+
+				OT_API_Output(0, "nBoxType: ");	
+				OT_API_Output(0, concat(nBoxType.to_string(), "\n"));	
+
+				OT_API_Output(0, "strTransactionNum: ");	
+				OT_API_Output(0, concat(strTransactionNum, "\n\n"));	
+
+				
                     var  bHaveBoxReceipt = false;
 					if (true == OT_API_DoesBoxReceiptExist(serverID, nymID, accountID, nBoxType, strTransactionNum)) 
 					{	bHaveBoxReceipt = true;		}

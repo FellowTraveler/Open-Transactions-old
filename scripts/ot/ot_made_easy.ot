@@ -128,6 +128,23 @@
 		// -------------------------
 		return this.send_user_msg(SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, strRecipientPubkey, THE_MESSAGE);
     }	
+	// --------------------------------------------------------------
+	// GET BOX RECEIPT
+	// Note: nBoxType is 0 for Nymbox, 1 for Inbox, and 2 for Outbox.
+	// Also, if nBoxType is 0 (nymbox) then you have to pass the NymID in the ACCT_ID 
+	// argument, as well as the NYM_ID argument (you have to pass it twice...)
+	// Otherwise for inbox/outbox, pass the actual ACCT_ID there as normal.
+	//
+    def OT_ME::get_box_receipt(SERVER_ID, NYM_ID, ACCT_ID, nBoxType, STR_TRANS_NUM) 
+	{
+		var ot_Msg := OTAPI_Func();
+		// -------------------------
+		var theRequest := OTAPI_Func(ot_Msg.GET_BOX_RECEIPT, SERVER_ID, NYM_ID, ACCT_ID, nBoxType, STR_TRANS_NUM);
+		var	strResponse = theRequest.SendRequest(theRequest, "GET_BOX_RECEIPT");
+
+		return strResponse;
+    }
+	
 // -----------------------------------------------------------------------------------------------
 	// DOWNLOAD PUBLIC MINT
 	//
@@ -197,7 +214,50 @@
 
 		return strResponse;
     }
+// -----------------------------------------------------------------------------------------------
+	// CREATE MARKET OFFER
+
+    def OT_ME::create_market_offer(SERVER_ID, NYM_ID, ASSET_ACCT_ID, CURRENCY_ACCT_ID, scale, minIncrement, quantity, price, bSelling) 
+	{
+		var ot_Msg := OTAPI_Func();
+		// -------------------------
+//def OTAPI_Func::OTAPI_Func(theType, p_serverID, p_nymID, assetTypeID, assetAccountID, currencyTypeID, currencyAcctID,
+//								scale, minIncrement, quantity, price, bSelling)		// 12 args
+
+		var theRequest := OTAPI_Func(ot_Msg.CREATE_MARKET_OFFER, SERVER_ID, NYM_ID, ASSET_ACCT_ID, CURRENCY_ACCT_ID, scale, minIncrement, quantity, price, bSelling);
+		var	strResponse = theRequest.SendTransaction(theRequest, "CREATE_MARKET_OFFER");
+
+		return strResponse;
+    }
 	
+	// --------------------------------------------------------------
+	// CANCEL MARKET OFFER
+	//	
+    def OT_ME::cancel_market_offer(SERVER_ID, NYM_ID, ASSET_ACCT_ID, STR_TRANS_NUM) 
+	{
+		var ot_Msg := OTAPI_Func();
+		// -------------------------
+
+		var theRequest := OTAPI_Func(ot_Msg.CANCEL_MARKET_OFFER, SERVER_ID, NYM_ID, ASSET_ACCT_ID, STR_TRANS_NUM);
+		var	strResponse = theRequest.SendTransaction(theRequest, "CANCEL_MARKET_OFFER");
+
+		return strResponse;
+    }
+
+	// --------------------------------------------------------------
+	// CANCEL PAYMENT PLAN
+	//
+    def OT_ME::cancel_payment_plan(SERVER_ID, NYM_ID, ACCT_ID, STR_TRANS_NUM) 
+	{
+		var ot_Msg := OTAPI_Func();
+		// -------------------------
+
+		var theRequest := OTAPI_Func(ot_Msg.CANCEL_PAYMENT_PLAN, SERVER_ID, NYM_ID, ACCT_ID, STR_TRANS_NUM);
+		var	strResponse = theRequest.SendTransaction(theRequest, "CANCEL_PAYMENT_PLAN");
+
+		return strResponse;
+    }
+	// --------------------------------------------------------------
 
 
 /*
@@ -680,12 +740,15 @@
 	attr OTAPI_Func::GET_CONTRACT				
 	attr OTAPI_Func::SEND_TRANSFER				
 	attr OTAPI_Func::GET_MARKET_LIST			
-	attr OTAPI_Func::CREATE_MARKET_OFFER		
-	attr OTAPI_Func::CANCEL_MARKET_OFFER		
+	attr OTAPI_Func::CREATE_MARKET_OFFER			DONE
+	attr OTAPI_Func::CANCEL_MARKET_OFFER			DONE
+	attr OTAPI_Func::CANCEL_PAYMENT_PLAN			DONE
 	attr OTAPI_Func::GET_NYM_MARKET_OFFERS		
 	attr OTAPI_Func::GET_MARKET_OFFERS			
 	attr OTAPI_Func::GET_MARKET_RECENT_TRADES	
 	attr OTAPI_Func::GET_MINT						DONE
+	attr OTAPI_Func::QUERY_ASSET_TYPES				DONE
+	attr OTAPI_Func::GET_BOX_RECEIPT				DONE
 
 Here are their parameters (they are called in OTAPI_Func, this code is from there):
 

@@ -546,10 +546,10 @@ public:
 									   const std::string ACCOUNT_ID,
 									   const std::string THE_TRANSACTION); 
 	
-	static bool Transaction_GetBalanceAgreementSuccess(const std::string SERVER_ID,
-													   const std::string USER_ID,
-													   const std::string ACCOUNT_ID,
-													   const std::string THE_TRANSACTION); 
+	static bool Transaction_GetBlnceAgrmntSuccess(const std::string SERVER_ID,
+												  const std::string USER_ID,
+												  const std::string ACCOUNT_ID,
+												  const std::string THE_TRANSACTION); 
 	/// --------------------------------------------------
 	static const std::string Transaction_GetDateSigned(const std::string SERVER_ID,
 													   const std::string USER_ID,
@@ -824,20 +824,18 @@ public:
 								   const std::string USER_ID,
 								   const std::string THE_PAYMENT_PLAN);
 	// --------------------------------------------------
-//	static void issueMarketOffer(const std::string SERVER_ID,
-//								 const std::string USER_ID,
-//								 // -------------------------------------------
-//								 const std::string ASSET_TYPE_ID, // Perhaps this is the
-//								 const std::string ASSET_ACCT_ID, // wheat market.
-//								 // -------------------------------------------
-//								 const std::string CURRENCY_TYPE_ID, // Perhaps I'm buying the
-//								 const std::string CURRENCY_ACCT_ID, // wheat with rubles.
-//								 // -------------------------------------------
-//								 const std::string MARKET_SCALE,				// Defaults to minimum of 1. Market granularity.
-//								 const std::string MINIMUM_INCREMENT,		// This will be multiplied by the Scale. Min 1.
-//								 const std::string TOTAL_ASSETS_ON_OFFER,	// Total assets available for sale or purchase. Will be multiplied by minimum increment.
-//								 const std::string PRICE_LIMIT,				// Per Minimum Increment...
-//								 bool	bBuyingOrSelling); // Actually OT_BOOL. SELLING == OT_TRUE, BUYING == OT_FALSE.
+	static void issueMarketOffer(const std::string SERVER_ID,
+								 const std::string USER_ID,
+								 // -------------------------------------------
+								 const std::string ASSET_ACCT_ID, // Perhaps this is the wheat market.
+								 // -------------------------------------------
+								 const std::string CURRENCY_ACCT_ID, // Perhaps I'm buying the wheat with rubles.
+								 // -------------------------------------------
+								 const std::string MARKET_SCALE,				// Defaults to minimum of 1. Market granularity.
+								 const std::string MINIMUM_INCREMENT,		// This will be multiplied by the Scale. Min 1.
+								 const std::string TOTAL_ASSETS_ON_OFFER,	// Total assets available for sale or purchase. Will be multiplied by minimum increment.
+								 const std::string PRICE_LIMIT,				// Per Minimum Increment...
+								 bool	bBuyingOrSelling); // Actually OT_BOOL. SELLING == OT_TRUE, BUYING == OT_FALSE.
 	// --------------------------------------------------
 	
 	static void getMarketList(const std::string SERVER_ID, const std::string USER_ID);

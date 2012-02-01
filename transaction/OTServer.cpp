@@ -4588,11 +4588,15 @@ void OTServer::NotarizePaymentPlan(OTPseudonym & theNym, OTAccount & theSourceAc
 			}
 			else if (pPlan->GetAssetID() != theSourceAccount.GetAssetTypeID())
 			{
-				OTLog::Output(0, "ERROR wrong Asset Type ID on payment plan in OTServer::NotarizePaymentPlan\n");
+				const OTString strAssetID1(pPlan->GetAssetID()), strAssetID2(theSourceAccount.GetAssetTypeID());
+				OTLog::vOutput(0, "OTServer::NotarizePaymentPlan: ERROR wrong Asset Type ID (%s) on payment plan. Expected: %s\n",
+							   strAssetID1.Get(), strAssetID2.Get());
 			}
 			else if (pPlan->GetSenderAcctID() != SOURCE_ACCT_ID)
 			{
-				OTLog::Output(0, "ERROR wrong Asset Acct ID on payment plan in OTServer::NotarizePaymentPlan\n");
+				const OTString strAcctID1(pPlan->GetSenderAcctID()), strAcctID2(SOURCE_ACCT_ID);
+				OTLog::vOutput(0, "OTServer::NotarizePaymentPlan: ERROR wrong Acct ID (%s) on payment plan. Expected: %s\n",
+							   strAcctID1.Get(), strAcctID2.Get());
 			}
 			// The transaction number opens the payment plan, but there must also be a closing number for closing it.
 			else if ((pPlan->GetCountClosingNumbers() < 1) || 
@@ -4742,7 +4746,9 @@ void OTServer::NotarizePaymentPlan(OTPseudonym & theNym, OTAccount & theSourceAc
 						// matches to a 3rd value: source acct asset type ID.)
 						else if (pRecipientAcct->GetAssetTypeID() != pPlan->GetAssetID()) 
 						{
-							OTLog::Output(0, "ERROR wrong Asset Type ID on Recipient Acct in OTServer::NotarizePaymentPlan\n");
+							const OTString strAssetID1(pPlan->GetAssetID()), strAssetID2(pRecipientAcct->GetAssetTypeID());
+							OTLog::vOutput(0, "OTServer::NotarizePaymentPlan: ERROR wrong Asset Type ID on Recipient Acct (%s). Expected per Plan: %s\n",
+										   strAssetID2.Get(), strAssetID1.Get());
 						}
 						
 						// At this point I feel pretty confident that the Payment Plan is a valid request from both parties.
@@ -6386,33 +6392,45 @@ void OTServer::NotarizeMarketOffer(OTPseudonym & theNym, OTAccount & theAssetAcc
 			}
 			else if (pTrade->GetServerID() !=	SERVER_ID)
 			{
-				OTLog::Output(0, "ERROR bad server ID on Trade in OTServer::NotarizeMarketOffer\n");
+				const OTString strID1(pTrade->GetServerID()), strID2(SERVER_ID);
+				OTLog::vOutput(0, "OTServer::NotarizeMarketOffer: ERROR wrong Server ID (%s) on trade. Expected: %s\n",
+							   strID1.Get(), strID2.Get());
 			}
 			else if (pTrade->GetSenderUserID() != USER_ID)
 			{
-				OTLog::Output(0, "ERROR wrong user ID on Trade in OTServer::NotarizeMarketOffer\n");
+				const OTString strID1(pTrade->GetSenderUserID()), strID2(USER_ID);
+				OTLog::vOutput(0, "OTServer::NotarizeMarketOffer: ERROR wrong Nym ID (%s) on trade. Expected: %s\n",
+							   strID1.Get(), strID2.Get());
 			}
 			else if (pTrade->GetAssetID() != theAssetAccount.GetAssetTypeID())
 			{
-				OTLog::Output(0, "ERROR wrong Asset Type ID on Trade in OTServer::NotarizeMarketOffer\n");
+				const OTString strAssetID1(pTrade->GetAssetID()), strAssetID2(theAssetAccount.GetAssetTypeID());
+				OTLog::vOutput(0, "OTServer::NotarizeMarketOffer: ERROR wrong Asset Type ID (%s) on trade. Expected: %s\n",
+							   strAssetID1.Get(), strAssetID2.Get());
 			}
 			else if (pTrade->GetSenderAcctID() != ASSET_ACCT_ID)
 			{
-				OTLog::Output(0, "ERROR wrong Asset Acct ID on Trade in OTServer::NotarizeMarketOffer\n");
+				const OTString strAcctID1(pTrade->GetSenderAcctID()), strAcctID2(ASSET_ACCT_ID);
+				OTLog::vOutput(0, "OTServer::NotarizeMarketOffer: ERROR wrong asset Acct ID (%s) on trade. Expected: %s\n",
+							   strAcctID1.Get(), strAcctID2.Get());
 			}
 			else if (pTrade->GetCurrencyID() != pCurrencyAcct->GetAssetTypeID())
 			{
-				OTLog::Output(0, "ERROR wrong Currency Type ID OTServer::NotarizeMarketOffer\n");
+				const OTString strID1(pTrade->GetCurrencyID()), strID2(pCurrencyAcct->GetAssetTypeID());
+				OTLog::vOutput(0, "OTServer::NotarizeMarketOffer: ERROR wrong Currency Type ID (%s) on trade. Expected: %s\n",
+							   strID1.Get(), strID2.Get());
 			}
 			else if (pTrade->GetCurrencyAcctID() != CURRENCY_ACCT_ID)
 			{
-				OTLog::Output(0, "ERROR wrong Currency Acct ID on Trade in OTServer::NotarizeMarketOffer\n");	
+				const OTString strID1(pTrade->GetCurrencyAcctID()), strID2(CURRENCY_ACCT_ID);
+				OTLog::vOutput(0, "OTServer::NotarizeMarketOffer: ERROR wrong Currency Acct ID (%s) on trade. Expected: %s\n",
+							   strID1.Get(), strID2.Get());
 			}
 			// If the Trade successfully verified, but I couldn't get the offer out of it, then it
 			// actually DIDN'T successfully load still.  :-(
 			else if (!pTrade->GetOfferString(strOffer))
 			{
-				OTLog::vError("ERROR getting offer string in OTServer::NotarizeMarketOffer:\n%s\n",
+				OTLog::vError("ERROR getting offer string from trade in OTServer::NotarizeMarketOffer:\n%s\n",
 							  strTrade.Get());
 			}
 			else if (!theOffer.LoadContractFromString(strOffer))
@@ -6423,11 +6441,11 @@ void OTServer::NotarizeMarketOffer(OTPseudonym & theNym, OTAccount & theAssetAcc
 			// ...And then we use that same Nym to verify the signature on the offer.
 			else if (!theOffer.VerifySignature(theNym))
 			{
-				OTLog::Error("ERROR verifying Offer signature in OTServer::NotarizeMarketOffer.\n");
+				OTLog::Error("ERROR verifying offer signature in OTServer::NotarizeMarketOffer.\n");
 			}
 			else if (!pTrade->VerifyOffer(theOffer))
 			{
-				OTLog::Output(0, "FAILED verifying Offer for Trade in OTServer::NotarizeMarketOffer\n");	
+				OTLog::Output(0, "FAILED verifying offer for Trade in OTServer::NotarizeMarketOffer\n");	
 			}
 			else if (theOffer.GetScale() < OTLog::GetMinMarketScale())
 			{

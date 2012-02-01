@@ -1,0 +1,51 @@
+#! /usr/local/bin/ot --script
+
+use("../ot/ot_utility.ot")
+use("../ot/otapi.ot")
+use("../ot/ot_made_easy.ot")
+// Instantiate the "OT Made Easy" object.
+//
+var madeEasy	= OT_ME()
+// ------------------------------
+
+// Just to show how easy it is now, let's try a "cancel_payment_plan" message.
+// (It cancels a payment plan.)
+		
+	var strTransactionNum = "PUT_NUMBER_HERE"
+
+	if (strTransactionNum == "PUT_NUMBER_HERE")
+	{
+		OT_API_Output(0, "\n\n\nYou need to edit this script where it says PUT_NUMBER_HERE.\n\n")
+	}
+	else
+	{
+		// Send the transaction.
+		//
+		var strResponse	= madeEasy.cancel_payment_plan(Server, MyNym, MyAcct, strTransactionNum)
+
+		// NOTICE: No need here to deal with retries, timeouts, request number,
+		// syncing transaction number, download / process nymbox, etc! It's all
+		// handled at a lower level!  Instead, simply check for success or failure:
+
+		if (!VerifyMessageSuccess(strResponse))
+		{
+			OT_API_Output(0, "cancel_payment_plan: Failed.\n")
+		}
+		else if (!VerifyBalanceAgreementSuccess(Server, MyNym, MyAcct, strResponse))
+		{
+			OT_API_Output(0, "cancel_payment_plan: Balance agreement failed.\n")
+		}
+		else if (!VerifyTransactionSuccess(Server, MyNym, MyAcct, strResponse))
+		{
+			OT_API_Output(0, "cancel_payment_plan: Balance agreement succeeded, but transaction failed.\n")
+		}
+		else
+		{
+			OT_API_Output(0, "Success in cancel_payment_plan! Server response:\n\n")
+			OT_API_Output(0, strResponse)
+			OT_API_Output(0, "\n\n")
+		}
+	}
+// Done!
+
+	

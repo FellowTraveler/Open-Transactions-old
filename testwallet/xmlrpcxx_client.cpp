@@ -960,7 +960,7 @@ void RegisterAPIWithScript(OTScript & theScript)
 		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetType), "OT_API_Transaction_GetType");
 		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetVoucher), "OT_API_Transaction_GetVoucher");
 		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetSuccess), "OT_API_Transaction_GetSuccess");
-		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetBalanceAgreementSuccess), "OT_API_Transaction_GetBalanceAgreementSuccess");
+		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetBlnceAgrmntSuccess), "OT_API_Transaction_GetBlnceAgrmntSuccess");
 		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetDateSigned), "OT_API_Transaction_GetDateSigned");
 		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetAmount), "OT_API_Transaction_GetAmount");
 		pScript->chai.add(fun(&OTAPI_Wrap::Pending_GetNote), "OT_API_Pending_GetNote");
@@ -1032,7 +1032,7 @@ void RegisterAPIWithScript(OTScript & theScript)
 		
 		pScript->chai.add(fun(&OTAPI_Wrap::depositCheque), "OT_API_depositCheque");
 		pScript->chai.add(fun(&OTAPI_Wrap::depositPaymentPlan), "OT_API_depositPaymentPlan");
-//		pScript->chai.add(fun(&OTAPI_Wrap::issueMarketOffer), "OT_API_issueMarketOffer");
+		pScript->chai.add(fun(&OTAPI_Wrap::issueMarketOffer), "OT_API_issueMarketOffer");
 		pScript->chai.add(fun(&OTAPI_Wrap::getMarketList), "OT_API_getMarketList");
 		pScript->chai.add(fun(&OTAPI_Wrap::getMarketOffers), "OT_API_getMarketOffers");
 		pScript->chai.add(fun(&OTAPI_Wrap::getMarketRecentTrades), "OT_API_getMarketRecentTrades");

@@ -2275,7 +2275,10 @@ const char * OT_API_GetAccountWallet_AssetTypeID(const char * THE_ID)
 	OTIdentifier theAssetID(pAccount->GetAssetTypeID());
 		
 	OTString strAssetTypeID(theAssetID);
-		
+	
+	OTLog::vOutput(1, "OT_API_GetAccountWallet_AssetTypeID: Returning asset type %s for account %s\n",
+				   strAssetTypeID.Get(), THE_ID);
+	
 	const char * pBuf = strAssetTypeID.Get(); 
 #ifdef _WIN32
 	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
@@ -8640,7 +8643,8 @@ void OT_API_issueMarketOffer(const char * SERVER_ID,
 	
 	g_OT_API.issueMarketOffer(theServerID, theUserID,
 							  // -------------------------------------------
-							  theAssetTypeID, theAssetAcctID, theCurrencyTypeID, theCurrencyAcctID,
+							  theAssetTypeID, theAssetAcctID,
+							  theCurrencyTypeID, theCurrencyAcctID,
 							  // -------------------------------------------
 							  lMarketScale, lMinIncrement, lTotalAssetsOnOffer, lPriceLimit,
 							  (bBuyingOrSelling == OT_FALSE) ? false : true);		
