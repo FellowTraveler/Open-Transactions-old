@@ -222,23 +222,47 @@ OT_BOOL OT_API_Init(const char * szClientPath)
 {
 	OT_ASSERT_MSG(NULL != szClientPath, "Null path passed to OT_API_Init");
 	
-	static bool bAlreadyInitialized = false;
+	static bool bOT_ClassInit		= false;	// OT_API::InitOTAPI()
+	static bool bOT_InstanceInit	= false;	// g_OT_API.Init(strClientPath)
 	
-	if (!bAlreadyInitialized)
+	if (!bOT_ClassInit) // Hasn't been invoked yet..
 	{
-		bAlreadyInitialized = true;
+		bOT_ClassInit = OT_API::InitOTAPI();
 		
-		if (OT_API::InitOTAPI())
+		if (!bOT_ClassInit)
 		{
-			OTString strClientPath(szClientPath);
-			bool bInit = g_OT_API.Init(strClientPath);  // SSL gets initialized in here, before any keys are loaded.
-			
-			if (bInit)
-				return OT_TRUE;
+			OTLog::Error("OT_API_Init: OT_API::InitOTAPI() returned false.\n");
+			return OT_FALSE;
 		}
+		else
+			OTLog::Output(1, "OT_API_Init: Successfully invoked OT_API::InitOTAPI() (class initializer.)\n");
 	}
-	
-	return OT_FALSE;
+	// (else class initializer was already invoked successfully.)
+	// -----------------------
+	// By this point, the class initializer is definitely invoked successfully.
+	// Let's do the instance next...
+	//
+	if (!bOT_InstanceInit)	// But the instance init hasn't been invoked yet...
+	{
+		OTString strClientPath(szClientPath);
+		
+		bOT_InstanceInit = g_OT_API.Init(strClientPath); // <====  SSL gets initialized in here, before any keys are loaded.	
+		
+		if (!bOT_InstanceInit)
+		{
+			OTLog::vError("OT_API_Init: Failure: g_OT_API.Init(strClientPath) returned false. Value of strClientPath: %s\n",
+						  strClientPath.Get());
+			return OT_FALSE;
+		}
+		else
+			OTLog::vOutput(1, "OT_API_Init: Successfully invoked g_OT_API.Init(strClientPath) (instance initializer). Value of strClientPath: %s\n",
+						   strClientPath.Get());
+	}
+	// (else instance initializer was already invoked successfully.)
+	// -----------------------
+	// By this point, the instance initializer is definitely invoked successfully.
+	//
+	return OT_TRUE;
 }
 
 
@@ -258,13 +282,34 @@ OT_BOOL OT_API_LoadWallet(const char * szWalletFilename)
 		
 	const OTString strWalletFilename(szWalletFilename);
 	
-	bool bLoaded = g_OT_API.LoadWallet(strWalletFilename);
+	static bool bFirstSuccess = false;
 	
+	bool bLoaded = false;
+	
+	if (bFirstSuccess)
+	{
+		OTLog::Output(1, "OT_API_LoadWallet: g_OT_API.LoadWallet() was already successfully invoked sometime in the past. (Failure for calling it twice.)\n");
+		return OT_FALSE;
+	}
+	else
+		bLoaded = g_OT_API.LoadWallet(strWalletFilename);
+	// -------------------------
+	// By this point, we have TRIED to load the wallet...
+	//
 	if (bLoaded)
+	{
+		bFirstSuccess = true;
+		OTLog::vOutput(1, "OT_API_LoadWallet: Success invoking g_OT_API.LoadWallet with filename: %s\n",
+					   strWalletFilename.Get());
 		return OT_TRUE;
+	}
+	else
+		OTLog::vError("OT_API_LoadWallet: Failed invoking g_OT_API.LoadWallet with filename: %s\n",
+					  strWalletFilename.Get());
 	
 	return OT_FALSE;
 }
+
 
 
 OT_BOOL OT_API_SwitchWallet(const char * szDataFolderPath, const char * szWalletFilename)
@@ -274,36 +319,38 @@ OT_BOOL OT_API_SwitchWallet(const char * szDataFolderPath, const char * szWallet
 
 	OT_ASSERT_MSG(g_OT_API.IsInitialized(), "Not initialized; call OT_API::Init first.");
 
+	const OTString strWalletFilename(szWalletFilename);
+
 	// -------------------------------------------
 	const char * szOldStoragePath = g_OT_API.GetStoragePath();
 	
-	OTString strOldStoragePath;
-	
-	if (NULL != szOldStoragePath)
-		strOldStoragePath.Set(szOldStoragePath);
-	else 
-		strOldStoragePath.Set("ERROR_OLD_PATH_WAS_EMPTY");
-
+	OTString strOldStoragePath((NULL != szOldStoragePath) ? szOldStoragePath : "");	
 	// -------------------------------------------
-	
     OTString strPATH_OUTPUT;
     OTLog::TransformFilePath(szDataFolderPath, strPATH_OUTPUT);
-    
 
 	// At some point, REMOVE this, since each instance of OT API should eventually store its OWN path.
 	OTLog::SetMainPath(strPATH_OUTPUT.Get());
-		
-	// -------------------------------------------
-	
 	// Keep this though.
 	g_OT_API.SetStoragePath(strPATH_OUTPUT); // Set to new path.
-	
-	if (OT_TRUE == OT_API_LoadWallet(szWalletFilename))
-		return OT_TRUE;
-	else 
-	{
-		OTLog::SetMainPath(strOldStoragePath.Get());  // remove this at some point, todo. This is the old way of doing it.
+	// -------------------------------------------
 
+	const bool bLoaded = g_OT_API.LoadWallet(strWalletFilename);
+	
+	if (bLoaded)
+	{
+		OTLog::vOutput(1, "OT_API_SwitchWallet: Success invoking g_OT_API.LoadWallet with filename: %s\n",
+					   strWalletFilename.Get());		
+		return OT_TRUE;
+	}
+	else
+	{	
+		OTLog::vError("OT_API_SwitchWallet: Failed invoking g_OT_API.LoadWallet with filename: %s\n",
+					  strWalletFilename.Get());
+		
+		// Set back to OLD VALUES:
+		//
+		OTLog::SetMainPath(strOldStoragePath.Get());  // remove this at some point, todo. This is the old way of doing it.
 		g_OT_API.SetStoragePath(strOldStoragePath); // Set to old path again.	
 	}
 	

@@ -833,7 +833,8 @@ public: \
 		std::map<std::string, std::string> the_map;  // all strings, key/value pairs.
 		
 		void SetValue(const std::string& strKey, const std::string& strValue)
-		{ the_map[strKey] = strValue; }
+		{ std::map<std::string, std::string>::iterator ii = the_map.find(strKey);
+			if (ii != the_map.end()) the_map.erase(ii); the_map[strKey] = strValue; }
 		
 		std::string GetValue(const std::string& strKey)
 		{ std::string ret_val(""); std::map<std::string, std::string>::iterator ii = the_map.find(strKey);

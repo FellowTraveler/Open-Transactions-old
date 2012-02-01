@@ -506,76 +506,6 @@ bool OT_API::LoadConfigFile(const OTString & strMainPath)
 
 
 
-
-// Call this once per instance of OT_API.
-bool OT_API::Init(OTString & strClientPath)
-{
-	// TODO: Main path needs to be stored in OT_API global, not OTLog static.
-	//		 This way, you can have multiple instances of OT_API,
-	//		 Each with their own main path. This is necessary.
-	//		 Now that the OT_API class exists might be time to take
-	//       folders away from OTLog and move it all over. Ugh.
-	// OR!! Maybe just code a mechanism so OTLog tracks the instances of OT_API.
-	
-	OT_ASSERT_MSG(strClientPath.Exists(), "OT_API::Init: Empty path passed in.");
-	
-	OT_ASSERT_MSG(false == m_bInitialized, "OTAPI was already initialized, please do not call it twice.");
-    // ---------------------------------------
-	
-    OTString strPATH_OUTPUT;
-    
-    OTLog::TransformFilePath(strClientPath.Get(), strPATH_OUTPUT);
-    
-//	OTLog::vError("**** OT_API::Init: strClientPath: %s   strPATH_OUTPUT: %s \n",
-//				  strClientPath.Get(), strPATH_OUTPUT.Get());
-	/*
-	 ****	OT_API::Init:	
-	 strClientPath:		/Users/au/Library/Application Support/.ot/client_data
-	 strPATH_OUTPUT:	/Users/au/Library/Application 
-	 */
-	
-	
-	// At some point, remove this, since each instance of OT API should eventually store its OWN path.
-	OTLog::SetMainPath(strPATH_OUTPUT.Get()); // This currently does NOT support multiple instances of OT_API.  :-(
-	// -------------------------------------
-	
-	LoadConfigFile(strPATH_OUTPUT);
-	
-	// -------------------------------------
-	
-	m_pWallet = new OTWallet;
-	m_pClient = new OTClient;
-	
-	m_pstrStoragePath		= new OTString;
-	m_pstrWalletFilename	= new OTString;
-
-	OT_ASSERT_MSG(NULL != m_pWallet, "Error allocating memory for m_pWallet in OT_API::Init");
-	OT_ASSERT_MSG(NULL != m_pClient, "Error allocating memory for m_pClient in OT_API::Init");
-	OT_ASSERT_MSG(NULL != m_pstrStoragePath, "Error allocating memory for m_pstrStoragePath in OT_API::Init");
-	OT_ASSERT_MSG(NULL != m_pstrWalletFilename, "Error allocating memory for m_pstrWalletFilename in OT_API::Init");
-	
-	// Keep this though.
-	SetStoragePath(strPATH_OUTPUT); // sets m_pstrStoragePath
-
-	m_bInitialized = m_pClient->InitClient(*m_pWallet);
-	
-	if (m_bInitialized)
-	{
-		std::string strPath = strPATH_OUTPUT.Get();
-		
-		// This way, everywhere else I can use the default storage context (for now) and it will work
-		// everywhere I put it. (Because it's now set up...)
-		bool bDefaultStore = OTDB::InitDefaultStorage(OTDB_DEFAULT_STORAGE, OTDB_DEFAULT_PACKER, strPath); // notice no wallet filename is passed here... InitDefaultStorage() will thus get called again...
-		
-		if (bDefaultStore)
-			return true;
-	}
-	
-	return false;
-}
-
-
-
 // Call this once per run of the software. Static.
 // TODO: add a boolean variable to enforce this, and then
 // just call it from the above function.  Currently this only
@@ -598,6 +528,105 @@ bool OT_API::InitOTAPI()
 }
 
 
+
+// Call this once per instance of OT_API.
+bool OT_API::Init(OTString & strClientPath)
+{
+	// TODO: Main path needs to be stored in OT_API global, not OTLog static.
+	//		 This way, you can have multiple instances of OT_API,
+	//		 Each with their own main path. This is necessary.
+	//		 Now that the OT_API class exists might be time to take
+	//       folders away from OTLog and move it all over. Ugh.
+	// OR!! Maybe just code a mechanism so OTLog tracks the instances of OT_API.
+	
+	OT_ASSERT_MSG(strClientPath.Exists(), "OT_API::Init: Empty path passed in.");
+	
+	if (true == m_bInitialized)
+	{
+		OTLog::vError("OT_API::Init: OTAPI was already initialized. (Skipping.) Ignoring path %s because already using path: %s\n", 
+					  strClientPath.Get(), GetStoragePath());
+		return true;
+	}
+//	OT_ASSERT_MSG(false == m_bInitialized, "OTAPI was already initialized, please do not call it twice.");
+    // ---------------------------------------
+	
+    OTString strPATH_OUTPUT;
+    
+    OTLog::TransformFilePath(strClientPath.Get(), strPATH_OUTPUT);
+    
+//	OTLog::vError("**** OT_API::Init: strClientPath: %s   strPATH_OUTPUT: %s \n",
+//				  strClientPath.Get(), strPATH_OUTPUT.Get());
+	/*
+	 ****	OT_API::Init:	
+	 strClientPath:		/Users/au/Library/Application Support/.ot/client_data
+	 strPATH_OUTPUT:	/Users/au/Library/Application 
+	 */
+	
+	
+	// At some point, remove this, since each instance of OT API should eventually store its OWN path.
+	OTLog::SetMainPath(strPATH_OUTPUT.Get()); // This currently does NOT support multiple instances of OT_API.  :-(
+	// -------------------------------------
+	
+	static bool bConstruct = false;
+	
+	if (false == bConstruct)
+	{
+		bConstruct = true;
+		// ----------------------------
+		m_pWallet = new OTWallet;
+		m_pClient = new OTClient;
+		
+		m_pstrStoragePath		= new OTString;
+		m_pstrWalletFilename	= new OTString;
+
+		OT_ASSERT_MSG(NULL != m_pWallet, "Error allocating memory for m_pWallet in OT_API::Init");
+		OT_ASSERT_MSG(NULL != m_pClient, "Error allocating memory for m_pClient in OT_API::Init");
+		OT_ASSERT_MSG(NULL != m_pstrStoragePath, "Error allocating memory for m_pstrStoragePath in OT_API::Init");
+		OT_ASSERT_MSG(NULL != m_pstrWalletFilename, "Error allocating memory for m_pstrWalletFilename in OT_API::Init");
+		// ----------------------------		
+		LoadConfigFile(strPATH_OUTPUT);
+	}
+	
+	// Keep this though.
+	SetStoragePath(strPATH_OUTPUT); // sets m_pstrStoragePath
+
+	// -------------------------------------
+	std::string strPath = strPATH_OUTPUT.Get();
+
+	// This way, everywhere else I can use the default storage context (for now) and it will work
+	// everywhere I put it. (Because it's now set up...)
+	//
+	const bool bDefaultStore = OTDB::InitDefaultStorage(OTDB_DEFAULT_STORAGE, OTDB_DEFAULT_PACKER, strPath); // notice no wallet filename is passed here... InitDefaultStorage() will thus get called again...
+	
+	if (bDefaultStore) // success initializing default storage on OTDB.
+	{
+		OTLog::vOutput(1, "OT_API::Init: Success invoking OTDB::InitDefaultStorage with path: %s\n",
+					   strPath.c_str());
+		
+		if (m_bInitialized)
+			OTLog::Output(1, "OT_API::Init: m_pClient->InitClient() was already initialized. (Skipping.)\n");
+		else
+		{
+			m_bInitialized = m_pClient->InitClient(*m_pWallet);
+			// -----------------------------
+			if (m_bInitialized)
+				OTLog::Output(1, "OT_API::Init: Success invoking m_pClient->InitClient()\n");
+			else
+				OTLog::vError("OT_API::Init: Failed invoking m_pClient->InitClient() with path: %s \n", 
+							  strPATH_OUTPUT.Get());
+		}
+		return m_bInitialized;
+	}
+	else
+		OTLog::vError("OT_API::Init: Failed invoking OTDB::InitDefaultStorage with path: %s\n", strPath.c_str());
+
+	// -------------------------------------
+	
+	return false;
+}
+
+
+
 // "wallet.xml" (path set above.)
 bool OT_API::LoadWallet(const OTString & strFilename)
 {
@@ -607,34 +636,63 @@ bool OT_API::LoadWallet(const OTString & strFilename)
 	
 	// ----------------------------
 	// Grab the old name for safe keeping..
-	
-	OTString strOldName;
+	//
 	const char * szOldFilename = GetWalletFilename();
 	
-	if (NULL != szOldFilename)
-		strOldName.Set(szOldFilename);
-	else 
-	{
-		strOldName.Set("wallet.xml"); // todo stop hardcoding this DEFAULT VALUE.
-	}
-
+	const OTString strOldName((NULL == szOldFilename) 
+							  ? 
+							  "wallet.xml" // todo stop hardcoding this DEFAULT VALUE.
+							  : szOldFilename);
 	// ----------------------------
 	// set to new name.
 	//
 	SetWalletFilename(strFilename); 
 	// ------------------------------------------
+	bool bSuccess = false;
+
+	const char * pstrStoragePath	= GetStoragePath();
+	const char * pstrWalletFilename	= GetWalletFilename();
 	
-	std::string strDataFolderPath = GetStoragePath();
-	std::string strWalletFilename = GetWalletFilename();
-	
-	// This way, everywhere else I can use the default storage context (for now) and it will work
-	// everywhere I put it. (Because it's now set up...)
-	bool bSuccessInitDefault = OTDB::InitDefaultStorage(OTDB_DEFAULT_STORAGE, OTDB_DEFAULT_PACKER, strDataFolderPath, strWalletFilename);
-	
-	bool bSuccess = m_pWallet->LoadWallet(GetWalletFilename());
-	
+	if (NULL == pstrStoragePath)
+		OTLog::Error("OT_API::LoadWallet: StoragePath is NULL. Have you called OT_API_Init() yet?\n");
+	else if (NULL == pstrWalletFilename || !strFilename.Exists())
+		OTLog::Error("OT_API::LoadWallet: WalletFilename is NULL or otherwise nonexistent.\n");
+	// ------------------------------------------
+	else // NAMES ARE IN ORDER, so let's INIT DEFAULT STORAGE...
+	{
+		std::string strDataFolderPath(pstrStoragePath);
+		std::string strWalletFilename(pstrWalletFilename);
+		
+		// This way, everywhere else I can use the default storage context (for now) and it will work
+		// everywhere I put it. (Because it's now set up...)
+		bool bSuccessInitDefault = OTDB::InitDefaultStorage(OTDB_DEFAULT_STORAGE, OTDB_DEFAULT_PACKER, strDataFolderPath, strWalletFilename);
+
+		if (!bSuccessInitDefault)
+			OTLog::vError("OT_API::Init: Failed invoking OTDB::InitDefaultStorage with path: %s and wallet filename: %s\n",
+						  strDataFolderPath.c_str(), strWalletFilename.c_str());
+		// ------------------------------------------
+		else // Success initializing default storage.
+		{
+			bSuccess = m_pWallet->LoadWallet(GetWalletFilename());
+			
+			if (false == bSuccess)
+				OTLog::vError("OT_API::LoadWallet: Failed invoking m_pWallet->LoadWallet() with filename: %s\n", 
+							  GetWalletFilename());
+			else // success
+				OTLog::vOutput(1, "OT_API::LoadWallet: Success invoking m_pWallet->LoadWallet() with filename: %s\n", 
+							   GetWalletFilename());
+		}
+	}
+	// ------------------------------------------
+	// SET THE OLD NAME BACK, IF FAILURE.
+	//
 	if (false == bSuccess)
-		SetWalletFilename(strOldName);
+	{
+		OTLog::vError("OT_API::LoadWallet: Failed with filename: %s\n", 
+					  GetWalletFilename());
+		SetWalletFilename(strOldName);  // However we failed, set back to old filename.
+	}
+	// ------------------------------------------
 	
 	return bSuccess;
 }

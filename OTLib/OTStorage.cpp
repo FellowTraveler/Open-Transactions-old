@@ -436,18 +436,22 @@ namespace OTDB
 							std::string oneStr/*=""*/,  std::string twoStr/*=""*/,  std::string threeStr/*=""*/, 
 							std::string fourStr/*=""*/, std::string fiveStr/*=""*/, std::string sixStr/*=""*/)
 	{	
-		// Allows you to call multiple times if you want to change the default storage.
+		// This allows you to call multiple times if you want to change the default storage.
 		//
 		if (NULL != details::s_pStorage)
 		{
 			delete details::s_pStorage;
 			details::s_pStorage = NULL;
 		}
+		// ------------------------------
 		
 		details::s_pStorage = Storage::Create(eStoreType, ePackType);
 		
 		if (NULL == details::s_pStorage)
+		{
+			OTLog::Error("OTDB::InitDefaultStorage: Failed while calling OTDB::Storage::Create()\n");
 			return false;
+		}
 		
 		return details::s_pStorage->Init(oneStr, twoStr, threeStr, fourStr, fiveStr, sixStr);
 	}
@@ -2282,7 +2286,10 @@ namespace OTDB
 		OTPacker * pPacker = GetPacker();
 		
 		if (NULL == pPacker)
+		{
+			OTLog::Error("OTDB::Storage::CreateObject: Failed, since this->GetPacker() returned NULL.\n");
 			return NULL;
+		}
 		
 		Storable * pStorable = Storable::Create(eType, pPacker->GetType());
 		
@@ -2299,9 +2306,10 @@ namespace OTDB
 		{
 			case STORE_FILESYSTEM:
 				pStore = StorageFS::Instantiate(); OT_ASSERT(NULL != pStore); break;
-				//		case STORE_COUCH_DB:
-				//			pStore = new StorageCouchDB; OT_ASSERT(NULL != pStore); break;
+//			case STORE_COUCH_DB:
+//				pStore = new StorageCouchDB; OT_ASSERT(NULL != pStore); break;
 			default:
+				OTLog::Error("OTDB::Storage::Create: Failed: Unknown storage type.\n");
 				break;
 		}
 		
@@ -2315,6 +2323,8 @@ namespace OTDB
 			
 			if (NULL == pPacker)
 			{
+				OTLog::Error("OTDB::Storage::Create: Failed while creating packer.\n");
+
 				// For whatever reason, we failed. Memory issues or whatever.
 				delete pStore;
 				return NULL;
@@ -2323,7 +2333,9 @@ namespace OTDB
 			// Now they're married.
 			pStore->SetPacker(*pPacker);
 		}
-		
+		else
+			OTLog::Error("OTDB::Storage::Create: Failed, since pStore is NULL.\n");
+
 		return pStore; // Possible to return NULL.
 	}
 	
@@ -2712,9 +2724,12 @@ namespace OTDB
 		OTString strPath;
 		strPath.Format("%s%s%s", GetFullPath(), PathSeparator(), szFolderName);
 		
+		OTString strPATH_OUTPUT;
+        OTLog::TransformFilePath(strPath.Get(), strPATH_OUTPUT);
+
 //		OTLog::vError("DEBUG Full path, separate, and szFolderName, all together: %s \n", strPath.Get());
 		
-		bool bDirIsPresent = (0 == stat(strPath.Get(), pst));
+		bool bDirIsPresent = (0 == stat(strPATH_OUTPUT.Get(), pst));
 		
 		// ----------------------------------------------------------------------------
 		
@@ -2722,21 +2737,21 @@ namespace OTDB
 		if (!bDirIsPresent)
 		{
 #ifdef _WIN32
-			if (_mkdir(strPath.Get()) == -1) 
+			if (_mkdir(strPATH_OUTPUT.Get()) == -1) 
 #else
-				if (mkdir(strPath.Get(), 0700) == -1) 
+				if (mkdir(strPATH_OUTPUT.Get(), 0700) == -1) 
 #endif
 				{
 					OTLog::vError("StorageFS::ConfirmOrCreateFolder: Unable to create %s.\n",
-								  strPath.Get());
+								  strPATH_OUTPUT.Get());
 					return false;
 				}
 			
 			// Now we have created it, so let's check again...
-			bDirIsPresent = (0 == stat(strPath.Get(), pst));
+			bDirIsPresent = (0 == stat(strPATH_OUTPUT.Get(), pst));
 			
 			if (bDirIsPresent)
-				OTLog::vOutput(0, "Created folder: %s\n", strPath.Get());
+				OTLog::vOutput(0, "Created folder: %s\n", strPATH_OUTPUT.Get());
 		}
 		
 		// ----------------------------------------------------------------------------
@@ -2747,7 +2762,7 @@ namespace OTDB
 		if (!bDirIsPresent)
 		{
 			OTLog::vError("StorageFS::ConfirmOrCreateFolder: Unable to find newly-created folder: %s\n", 
-						  strPath.Get());
+						  strPATH_OUTPUT.Get());
 			return false;
 		}
 		
@@ -2769,7 +2784,10 @@ namespace OTDB
 		OTString strPath;
 		strPath.Format("%s%s%s", GetFullPath(), PathSeparator(), szFileName);
 		
-		return (0 == stat(strPath.Get(), pst));
+		OTString strPATH_OUTPUT;
+        OTLog::TransformFilePath(strPath.Get(), strPATH_OUTPUT);
+
+		return (0 == stat(strPATH_OUTPUT.Get(), pst));
 	}
 	
 	/*
@@ -2790,7 +2808,7 @@ namespace OTDB
 	long StorageFS::ConstructAndConfirmPath(std::string & strOutput, 
 											const std::string& strFolder, const std::string& oneStr/*=""*/,  
 											const std::string& twoStr/*=""*/,  const std::string& threeStr/*=""*/)
-	{		
+	{
 		struct stat st;
 		
 //		OTLog::vError("DEBUG StorageFS::ConstructAndConfirmPath: m_strFullPath is %s and %s \n", m_strFullPath.c_str(), GetFullPath());
@@ -2886,7 +2904,10 @@ namespace OTDB
 		OTString strFinalPath;
 		strFinalPath.Format("%s%s%s", GetFullPath(), PathSeparator(), strOutput.c_str());
 		
-		strOutput = strFinalPath.Get();
+		OTString strPATH_OUTPUT;
+        OTLog::TransformFilePath(strFinalPath.Get(), strPATH_OUTPUT);
+
+		strOutput = strPATH_OUTPUT.Get();
 				
 		return bConfirmed ? static_cast<long>(st.st_size) : 0;
 	}
@@ -3159,15 +3180,17 @@ namespace OTDB
 	{
 		// This is where I verify the directory path exists, and the wallet file within.
 		
-		if ((oneStr.length() < 1) || (twoStr.length() < 1))
+		if (oneStr.length() < 1) 
 		{
-			OTLog::vError("Expected a data_folder path, and a wallet filename, but got this: %s%s%s\n"
-						  "Make sure to call LoadWallet.\n",
-						  oneStr.c_str(), PathSeparator(), twoStr.c_str());
+			OTLog::Error("Expected a data_folder path, but it was empty.\n");
 			return false;
 		}
 		// --------------------------------
-        
+		OTLog::vOutput(0, "StorageFS::Init: Path is: %s\n", oneStr.c_str());
+		// --------------------------------
+		if (twoStr.length() < 1)
+			OTLog::Output(0, " (Make sure to call LoadWallet after this.) ");
+		// --------------------------------
         OTString strPATH_OUTPUT;
         OTLog::TransformFilePath(oneStr.c_str(), strPATH_OUTPUT);
 		
@@ -3178,26 +3201,32 @@ namespace OTDB
 			OTLog::vError("Unable to locate data_folder: %s\n", strPATH_OUTPUT.Get());
 			return false;
 		}
+		else
+			m_strFullPath = strPATH_OUTPUT.Get();		
 		// --------------------------------
 		// By this point, data_folder was successfully located.
 		
-		OTString strWalletFile;
-		strWalletFile.Format("%s%s%s", strPATH_OUTPUT.Get(), PathSeparator(), twoStr.c_str());
-		
-		bool bWalletFile = OTLog::ConfirmExactPath(strWalletFile.Get());
-		
-		if (!bWalletFile)
+		if (twoStr.length() > 0)
 		{
-			OTLog::vError("Unable to locate wallet: %s\n", strWalletFile.Get());
-//			return false;  // Let the caller make this decision when he calls LoadWallet();
+			OTString strWalletFile;
+			strWalletFile.Format("%s%s%s", oneStr.c_str(), PathSeparator(), twoStr.c_str());
+			
+			OTString strWALLET_PATH;
+			OTLog::TransformFilePath(strWalletFile.Get(), strWALLET_PATH);
+
+			bool bWalletFile = OTLog::ConfirmExactPath(strWALLET_PATH.Get());
+			
+			if (!bWalletFile)
+			{
+				OTLog::vError("Unable to locate wallet: %s\n", strWALLET_PATH.Get());
+				return false;
+			}
+			else
+				m_strWalletFile	= twoStr;			
 		}
 		// -----------------------------------
-		
-		m_strFullPath = strPATH_OUTPUT.Get();
-		
+				
 //		OTLog::vError("DEBUG StorageFS::Init: m_strFullPath is %s and %s \n", m_strFullPath.c_str(), GetFullPath());
-		
-		m_strWalletFile	= twoStr;
 		
 		return true;
 	}
