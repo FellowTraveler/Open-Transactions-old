@@ -764,6 +764,147 @@ bool SetupPointersForWalletMyNymAndServerContract(std::string & str_ServerID,
 
 
 
+
+
+typedef std::map<std::string, std::string>		mapOfArguments;
+
+//int			OT_CLI_GetArgsCount		(const std::string str_Args);
+//std::string	OT_CLI_GetValueByKey	(const std::string str_Args, const std::string str_key);
+//std::string OT_CLI_GetValueByIndex	(const std::string str_Args, const int nIndex);
+//std::string OT_CLI_GetKeyByIndex	(const std::string str_Args, const int nIndex);
+
+// -------------------------
+// If user-defined script arguments were passed,
+// using:  --Args "key value key value key value"
+// then this function returns the count of key/value
+// pairs available. (In that example, the return
+// value would be 3.)
+//
+int OT_CLI_GetArgsCount(const std::string str_Args)
+{
+	const OTString strArgs(str_Args);
+	// ---------------------------------------	
+	int nRetVal = 0;
+	mapOfArguments map_values;
+	// ---------------------------------------
+	const bool bTokenized = strArgs.TokenizeIntoKeyValuePairs(map_values);	
+	// ---------------------------------------
+	if (bTokenized)
+		nRetVal = map_values.size();
+	// ---------------------------------------
+	return nRetVal;
+}
+
+
+
+// -------------------------
+// If user-defined script arguments were passed,
+// using:  --Args "key value key value key value"
+// then this function can retrieve any value (by key.)
+//
+std::string OT_CLI_GetValueByKey(const std::string str_Args, const std::string str_key)
+{
+	const OTString strArgs(str_Args);
+	// ---------------------------------------	
+	std::string str_retval = "";
+	mapOfArguments map_values;
+	// ---------------------------------------
+	const bool bTokenized = strArgs.TokenizeIntoKeyValuePairs(map_values);	
+	// ---------------------------------------
+	if (bTokenized && (map_values.size() > 0))
+	{
+		// Okay we now have key/value pairs -- let's look it up!
+		mapOfArguments::iterator it = map_values.find(str_key);
+		
+		if (map_values.end() != it)	// found it
+			str_retval = (*it).second;
+	}	
+	// ---------------------------------------
+	return str_retval;
+}
+
+
+// -------------------------
+// If user-defined script arguments were passed,
+// using:  --Args "key value key value key value"
+// then this function can retrieve any value (by index.)
+//
+std::string OT_CLI_GetValueByIndex(const std::string str_Args, const int nIndex)
+{
+	const OTString strArgs(str_Args);
+	// ---------------------------------------	
+	std::string str_retval = "";
+	mapOfArguments map_values;
+	// ---------------------------------------
+	const bool bTokenized = strArgs.TokenizeIntoKeyValuePairs(map_values);	
+	// ---------------------------------------
+	if (bTokenized && (nIndex < map_values.size()))
+	{
+		int nMapIndex = (-1);
+		FOR_EACH(mapOfArguments, map_values)
+		{
+			++nMapIndex;
+			//			const std::string str_key = (*it).first;
+			//			const std::string str_val = (*it).second;
+			// -------------------------------------
+			// BY this point, nMapIndex contains the index we're at on map_values
+			// (compare to nIndex.) And str_key and str_val contain the key/value
+			// pair for THAT index.
+			//
+			if (nIndex == nMapIndex)
+			{
+				str_retval = (*it).second; // Found it!
+				break;
+			}
+		}
+	}	
+	// ---------------------------------------
+	return str_retval;
+}
+
+
+
+// -------------------------
+// If user-defined script arguments were passed,
+// using:  --Args "key value key value key value"
+// then this function can retrieve any key (by index.)
+//
+std::string OT_CLI_GetKeyByIndex(const std::string str_Args, const int nIndex)
+{
+	const OTString strArgs(str_Args);
+	// ---------------------------------------	
+	std::string str_retval = "";
+	mapOfArguments map_values;
+	// ---------------------------------------
+	const bool bTokenized = strArgs.TokenizeIntoKeyValuePairs(map_values);	
+	// ---------------------------------------
+	if (bTokenized && (nIndex < map_values.size()))
+	{
+		int nMapIndex = (-1);
+		FOR_EACH(mapOfArguments, map_values)
+		{
+			++nMapIndex;
+			//			const std::string str_key = (*it).first;
+			//			const std::string str_val = (*it).second;
+			// -------------------------------------
+			// BY this point, nMapIndex contains the index we're at on map_values
+			// (compare to nIndex.) And str_key and str_val contain the key/value
+			// pair for THAT index.
+			//
+			if (nIndex == nMapIndex)
+			{
+				str_retval = (*it).first; // Found it!
+				break;
+			}
+		}
+	}	
+	// ---------------------------------------
+	return str_retval;
+}
+
+
+
+
 // -------------------------
 // Reads from cin until Newline.
 //
@@ -854,8 +995,14 @@ void RegisterAPIWithScript(OTScript & theScript)
 	if (NULL != pScript)
 	{
 		pScript->chai.add(fun(&OT_CLI_ReadLine), "OT_CLI_ReadLine");			// String OT_CLI_ReadLine()		// Reads from cin until Newline.
-		pScript->chai.add(fun(&OT_CLI_ReadUntilEOF), "OT_CLI_ReadUntilEOF");	// String OT_CLI_ReadUntilEOF()	// Reads from cin until EOF.
-		
+		pScript->chai.add(fun(&OT_CLI_ReadUntilEOF), "OT_CLI_ReadUntilEOF");	// String OT_CLI_ReadUntilEOF()	// Reads from cin until EOF or ~ on a line by itself.
+		// ------------------------------------------------------------------
+		// For command-line option (for SCRIPTS):  ot --script <filename> [--args "key value key value ..."]
+		pScript->chai.add(fun(&OT_CLI_GetArgsCount), "OT_CLI_GetArgsCount");	// Get a count of key/value pairs from a string. Returns int.
+		pScript->chai.add(fun(&OT_CLI_GetValueByKey), "OT_CLI_GetValueByKey");	// Returns a VALUE as string, BY KEY, from a map of key/value pairs (stored in a string.)
+		pScript->chai.add(fun(&OT_CLI_GetValueByIndex), "OT_CLI_GetValueByIndex");	// Returns a VALUE as string, BY INDEX, from a map of key/value pairs (stored in a string.)
+		pScript->chai.add(fun(&OT_CLI_GetKeyByIndex), "OT_CLI_GetKeyByIndex");	// Returns a KEY as string, BY INDEX, from a map of key/value pairs (stored in a string.)
+		// ------------------------------------------------------------------
 		pScript->chai.add(fun(&OTAPI_Wrap::Output), "OT_API_Output");
 		pScript->chai.add(fun(&OTAPI_Wrap::GetTime), "OT_API_GetTime");
 		// ------------------------------------------------------------------
@@ -1116,7 +1263,7 @@ void HandleCommandLineArguments( int argc, char* argv[], AnyOption * opt)
     opt->addUsage( "OT CLI Usage:  " );
     opt->addUsage( "" );
     opt->addUsage( "ot  --stat (Prints the wallet contents)    ot --prompt (Enter the OT prompt)" );
-    opt->addUsage( "ot  [-h|-?|--help]    (Prints this help)   ot --script (assumes script until eof)" );
+    opt->addUsage( "ot  [-h|-?|--help]    (Prints this help)   ot --script <filename> [--args \"key value ...\"]" );
     opt->addUsage( "The '|' symbol means use --balance or -b, use --withdraw or -w, etc." );
     opt->addUsage( "The brackets '[]' show required arguments, where default values are" );
     opt->addUsage( "normally expected to be found in:   ~/.ot/command-line-ot.opt" );
@@ -1179,7 +1326,7 @@ void HandleCommandLineArguments( int argc, char* argv[], AnyOption * opt)
     opt->setCommandFlag(  "refreshnym"    );   // refresh intermediary files from server + verify against last receipt.
     opt->setCommandFlag(  "stat" );            // print out the wallet contents.
     opt->setCommandFlag(  "prompt" );          // Enter the OT prompt.
-    opt->setCommandOption("script" );          // Process a script from stdin until eof.
+    opt->setCommandOption("script" );          // Process a script from a file
     
     opt->setCommandFlag("help", 'h');   // the Help screen.
     opt->setCommandFlag('?');           // the Help screen.
@@ -1409,7 +1556,15 @@ int main(int argc, char* argv[])
                              str_HisAcct,
                              str_HisNym,
                              str_HisPurse);
-    
+	// -----------------------------------------------------
+	// Users can put --args "key value key value key value etc"
+	// Then they can access those values from within their scripts.
+	
+	std::string str_Args;
+
+	if( opt->getValue( "args" ) != NULL )
+        cerr << "User-defined arguments aka:  --args " << (str_Args = opt->getValue( "args" )) << endl;
+
     // -----------------------------------------------------
     /*  USAGE SCREEN (HELP) */
     //
@@ -1813,6 +1968,9 @@ int main(int argc, char* argv[])
 			{
 				RegisterAPIWithScript(*pScript); // for the special client-side API functions we make available to all scripts on client-side.
 
+				
+				OTCleanup<OTVariable>	angelArgs; // For user-defined arguments that may have been passed in.
+				
 //				OTParty		* pPartyMyNym	= NULL;
 //				OTParty		* pPartyHisNym	= NULL;
 				//
@@ -1827,6 +1985,28 @@ int main(int argc, char* argv[])
 				OTCleanup<OTVariable> angelHisPurse;
 				// -------------------------
 				
+				if (str_Args.size() > 0)
+				{
+					const std::string str_var_name("Args");
+					const std::string str_var_value(str_Args);
+					
+					OTLog::vOutput(0, "Adding user-defined command line arguments as '%s' containing value: %s\n",
+								   str_var_name.c_str(), str_var_value.c_str());
+					
+					OTVariable * pVar = new OTVariable(str_var_name,		// "Args"
+													   str_var_value,		// "key value key value key value key value"
+													   OTVariable::Var_Constant);	// constant, persistent, or important.
+					angelArgs.SetCleanupTargetPointer(pVar);
+					OT_ASSERT(NULL != pVar);
+					// ------------------------------------------
+					pScript-> AddVariable(str_var_name, *pVar);
+				}
+				else 
+				{
+					OTLog::Error("Args variable (optional user-defined arguments) isn't set...\n");
+				}
+				
+				// -------------------------
 				if (str_ServerID.size() > 0)
 				{
 					const std::string str_var_name("Server");
@@ -2001,18 +2181,16 @@ int main(int argc, char* argv[])
 				{
 					OTLog::Error("MyPurse variable isn't set...\n");
 				}
-				// -------------------------
-				
+				// ************************************************				
 				OTLog::Output(0, "Script output:\n\n");
-				
+
 				pScript->ExecuteScript();
+				// ************************************************
 			}
-			// ---------------------------------------------------------------
 			else 
 			{
 				OTLog::Error("Error running script!!\n");
 			}
-			
 			// --------------------------------------------------------------------					
 			
 			OT_Main_Cleanup();

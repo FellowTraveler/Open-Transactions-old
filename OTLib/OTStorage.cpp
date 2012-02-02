@@ -438,21 +438,29 @@ namespace OTDB
 	{	
 		// This allows you to call multiple times if you want to change the default storage.
 		//
-		if (NULL != details::s_pStorage)
+//		if (NULL != details::s_pStorage)
+//		{
+//			OTLog::Error("OTDB::InitDefaultStorage: Existing storage context already exists. (Erasing / replacing it.)\n");
+//			
+//			delete details::s_pStorage;
+//			details::s_pStorage = NULL;
+//		}
+		// ------------------------------
+		if (NULL == details::s_pStorage)
 		{
-			delete details::s_pStorage;
-			details::s_pStorage = NULL;
+			OTLog::Output(0, "OTDB::InitDefaultStorage: Existing storage context doesn't already exist. (Creating it.)\n");
+			
+			details::s_pStorage = Storage::Create(eStoreType, ePackType);
 		}
 		// ------------------------------
-		
-		details::s_pStorage = Storage::Create(eStoreType, ePackType);
+//		details::s_pStorage = Storage::Create(eStoreType, ePackType);
 		
 		if (NULL == details::s_pStorage)
 		{
 			OTLog::Error("OTDB::InitDefaultStorage: Failed while calling OTDB::Storage::Create()\n");
 			return false;
 		}
-		
+
 		return details::s_pStorage->Init(oneStr, twoStr, threeStr, fourStr, fiveStr, sixStr);
 	}
 	
@@ -496,6 +504,7 @@ namespace OTDB
 		
 		if (NULL == pStorage) 
 		{
+			OTLog::Error("OTDB::Exists: details::s_pStorage is null. (Returning false.)\n");
 			return false;
 		}
 		
@@ -2715,6 +2724,13 @@ namespace OTDB
 	{
 		OT_ASSERT(NULL != szFolderName);
 		
+		if (m_strFullPath.size() < 1)
+		{
+			OTLog::vError("StorageFS::ConfirmOrCreateFolder: m_strFullPath is empty! (Failure.) While trying to confirm folder: %s\n",
+						  szFolderName);
+			return false;
+		}
+		// ---------------------------------------------
 		// DIRECTORY IS PRESENT?
 		struct stat st;
 		
@@ -2775,6 +2791,13 @@ namespace OTDB
 	{
 		OT_ASSERT(NULL != szFileName);
 		
+		if (m_strFullPath.size() < 1)
+		{
+			OTLog::vError("StorageFS::ConfirmFile: m_strFullPath is empty! (Failure.) While trying to confirm file: %s\n",
+						  szFileName);
+			return false;
+		}
+		// ---------------------------------------
 		struct stat st;
 		
 		// FILE IS PRESENT?
@@ -2810,6 +2833,14 @@ namespace OTDB
 											const std::string& twoStr/*=""*/,  const std::string& threeStr/*=""*/)
 	{
 		struct stat st;
+		
+		if (m_strFullPath.size() < 1)
+		{
+			OTLog::vError("StorageFS::ConstructAndConfirmPath: m_strFullPath is empty! "
+						  "(Failure.) While trying to confirm path segments: %s %s %s %s\n",
+						  strFolder.c_str(), oneStr.c_str(), twoStr.c_str(), threeStr.c_str());
+			return (-1);
+		}
 		
 //		OTLog::vError("DEBUG StorageFS::ConstructAndConfirmPath: m_strFullPath is %s and %s \n", m_strFullPath.c_str(), GetFullPath());
 
@@ -3186,10 +3217,12 @@ namespace OTDB
 			return false;
 		}
 		// --------------------------------
-		OTLog::vOutput(0, "StorageFS::Init: Path is: %s\n", oneStr.c_str());
+		OTLog::vOutput(0, "StorageFS::Init: New path segments are: %s %s %s %s %s %s\n", 
+					   oneStr.c_str(), twoStr.c_str(), threeStr.c_str(),
+					   fourStr.c_str(), fiveStr.c_str(), sixStr.c_str());
 		// --------------------------------
 		if (twoStr.length() < 1)
-			OTLog::Output(0, " (Make sure to call LoadWallet after this.) ");
+			OTLog::Output(0, " (Make sure to call LoadWallet after this.) \n");
 		// --------------------------------
         OTString strPATH_OUTPUT;
         OTLog::TransformFilePath(oneStr.c_str(), strPATH_OUTPUT);
@@ -3241,7 +3274,7 @@ namespace OTDB
 		std::string strOutput;
 		
 		return (ConstructAndConfirmPath(strOutput, strFolder, oneStr, twoStr, threeStr) > 0) ?
-		true : false;
+			true : false;
 	}
 	
 	

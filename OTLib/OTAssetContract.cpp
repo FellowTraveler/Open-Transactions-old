@@ -397,7 +397,7 @@ int OTAssetContract::ProcessXMLNode(IrrXMLReader*& xml)
 				m_strIssueType.Get());
 		nReturnVal = 1;
 	}
-	else if (!strcmp("currency", xml->getNodeName())) 
+	else if (!strcmp("currency", xml->getNodeName()) || !strcmp("shares", xml->getNodeName())) 
 	{
 		m_strName			= xml->getAttributeValue("name");
 		m_strCurrencyName	= xml->getAttributeValue("name");

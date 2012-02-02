@@ -139,6 +139,7 @@
 #include <cstring>
 
 #include <string>
+#include <map>
 
 #include <algorithm>
 
@@ -353,6 +354,8 @@ public:
 	void ConvertToLowerCase();
 	void ConvertToUpperCase();
 	
+	bool TokenizeIntoKeyValuePairs(std::map<std::string, std::string> & mapOutput) const;
+
 	void OTfgets(std::istream & ofs);
 //	void OTfgets(FILE * fl);
 

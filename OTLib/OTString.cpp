@@ -140,6 +140,15 @@
 #include <iostream>
 #include <sstream>
 
+//#include <map>
+
+
+#ifndef _WIN32
+#include <wordexp.h>
+#endif
+
+
+
 #include "OTStorage.h"
 
 #include "OTString.h"
@@ -319,6 +328,46 @@ void fwrite_string(FILE *fl, const char *str)
 		}
 }
 */
+
+// Note: UNIX-only (for now.)
+//
+bool OTString::TokenizeIntoKeyValuePairs(std::map<std::string, std::string> & mapOutput) const
+{
+#ifndef _WIN32
+	if (!Exists())
+		return true;
+	// --------------
+	wordexp_t exp_result;
+	
+	if (wordexp(Get(), &exp_result, 0))
+	{
+		OTLog::Error("OTString::TokenizeIntoKeyValuePairs: Error calling wordexp() (to expand user-defined script args.)\n");
+		wordfree(&exp_result); 
+		return false;
+	}
+	// ----------------------------
+	
+	// wordexp tokenizes by space (as well as expands, which is why I'm using it.)
+	// Therefore we need to iterate through the tokens, and create a single string
+	// with spaces between the tokens.
+	//
+	for (int i = 0; 
+		 (exp_result.we_wordv[i] != NULL) && (exp_result.we_wordv[i+1] != NULL); // odd man out. Only PAIRS of strings are processed!
+		 i += 2)
+	{
+		const std::string str_key = exp_result.we_wordv[i];
+		const std::string str_val = exp_result.we_wordv[i+1];
+		
+		mapOutput.insert(std::pair<std::string, std::string>(str_key, str_val));		
+	}
+	
+	wordfree(&exp_result); 
+	// --------------
+	return true;
+#else
+	return false;
+#endif
+}
 
 
 // ***** Construction -- Destruction ***** ------------------------------
