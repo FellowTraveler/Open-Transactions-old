@@ -142,6 +142,11 @@ extern "C"
 #include <cstring>
 #include <cmath>
 
+
+#include <string>
+#include <iostream>
+
+
 #include "OTStorage.h"
 
 #include "OTData.h"
@@ -183,16 +188,37 @@ OT_OPENSSL_CALLBACK * OTAsymmetricKey::s_pwCallback = NULL;
 
 void OTAsymmetricKey::SetPasswordCallback(OT_OPENSSL_CALLBACK * pCallback)
 {
+	if (NULL != s_pwCallback)
+		OTLog::Output(0, "OTAsymmetricKey::SetPasswordCallback: WARNING: re-setting the password callback (one was already there)...\n");
+	else
+		OTLog::Output(0, "OTAsymmetricKey::SetPasswordCallback: FYI, setting the password callback...\n");
+	// -----------------------------------
 	s_pwCallback = pCallback; // no need to delete function pointer that came before this function pointer.
 }
+
+
 
 OT_OPENSSL_CALLBACK * OTAsymmetricKey::GetPasswordCallback()
 {
 	if (IsPasswordCallbackSet())
+	{
+		OTLog::Output(0, "OTAsymmetricKey::GetPasswordCallback: FYI, password callback was requested, "
+					  "and was available, and returned successfully to caller.\n");
 		return s_pwCallback;
+	}
 	else
+	{
+#if defined (FELLOW_TRAVELER)
+		OTLog::Output(0, "OTAsymmetricKey::GetPasswordCallback: WARNING, password callback was requested, "
+					  "and was NOT available--so, returning the 'test' password to the caller. "
+					  "(FYI, the FELLOW_TRAVELER build option is what causes this.)\n");
 		return &default_pass_cb;
-	
+#else
+		OTLog::Output(0, "OTAsymmetricKey::GetPasswordCallback: FYI, password callback was requested, "
+					  "but it hasn't been set yet. (Returning NULL.)\n");		
+		return static_cast<OT_OPENSSL_CALLBACK *>(NULL);
+#endif
+	}
 }
 
 
@@ -208,9 +234,11 @@ OTCaller * OTAsymmetricKey::s_pCaller = NULL;
 //
 bool OTAsymmetricKey::SetPasswordCaller(OTCaller & theCaller)
 {
+	OTLog::Output(0, "OTAsymmetricKey::SetPasswordCaller: Attempting to set the password caller...\n");
+	
 	if (!theCaller.isCallbackSet())
 	{
-		OTLog::Error("Error in OTAsymmetricKey::SetPasswordCaller:\nOTCaller::setCallback() "
+		OTLog::Error("ERROR in OTAsymmetricKey::SetPasswordCaller:\nOTCaller::setCallback() "
 					 "MUST be called first, with an OTCallback-extended object passed to it,\n"
 					 "before calling this function with that OTCaller.\n");
 		return false;
@@ -218,6 +246,7 @@ bool OTAsymmetricKey::SetPasswordCaller(OTCaller & theCaller)
 	
 	if (NULL != s_pCaller)
 	{
+		OTLog::Error("OTAsymmetricKey::SetPasswordCaller: WARNING: Setting the password caller again, even though it was apparently already set...\n");
 //		delete s_pCaller; // Let Java delete it.
 	}
 	
@@ -227,6 +256,8 @@ bool OTAsymmetricKey::SetPasswordCaller(OTCaller & theCaller)
 	
 	SetPasswordCallback(&souped_up_pass_cb);
 	
+	OTLog::Output(0, "OTAsymmetricKey::SetPasswordCaller: FYI, Successfully set the password caller. Returning true.\n");
+
 	return true;
 }
 
@@ -240,24 +271,29 @@ OTCaller * OTAsymmetricKey::GetPasswordCaller()
 // OTCallback CLASS
 
 OTCallback::~OTCallback() 
-{ 
+{
+	OTLog::vOutput(0, "OTCallback::~OTCallback:  (This should only happen as the application is closing.)\n");
 //	std::cout << "OTCallback::~OTCallback()" << std:: endl; 
 }
 
 std::string OTCallback::runOne() // child class will override.
 { 
-	//	std::cout << "OTCallback::run()" << std::endl; 
+//	std::cout << "OTCallback::run()" << std::endl; 
 	
 	std::string blah("test"); 
+	
+	OT_ASSERT_MSG(false, "OTCallback::runOne: ASSERT (The child class was supposed to override this method.)\n");
 	
 	return blah; 
 }
 
 std::string OTCallback::runTwo() // child class will override.
 { 
-	//	std::cout << "OTCallback::run()" << std::endl; 
+//	std::cout << "OTCallback::run()" << std::endl; 
 	
 	std::string blah("test"); 
+	
+	OT_ASSERT_MSG(false, "OTCallback::runTwo: ASSERT (The child class was supposed to override this method.)\n");
 	
 	return blah; 
 }
@@ -268,14 +304,21 @@ std::string OTCallback::runTwo() // child class will override.
 // OTCaller CLASS
 
 OTCaller::~OTCaller() 
-{ 
+{
+	OTLog::vOutput(0, "OTCaller::~OTCaller: (This should only happen as the application is closing.)\n");
+
 	delCallback(); 
 }
 
 const char * OTCaller::GetPassword() 
 { 
 	if (m_strPW.size() > 0)
+	{
+		OTLog::Output(0, "OTCaller::GetPassword: FYI, a password IS here and being returned.\n");	
 		return m_strPW.c_str(); 
+	}
+	
+	OTLog::Output(0, "OTCaller::GetPassword: FYI, a password is NOT here. (Returning NULL.)\n");
 	
 	return NULL;
 }
@@ -285,31 +328,45 @@ void OTCaller::delCallback()
 //	if (NULL != _callback)  // TODO this may be a memory leak.
 //		delete _callback;	// But I know we're currently crashing from deleting same object twice.
 							// And since the object comes from Java, who am I to delete it? Let Java clean it up.
+	if (isCallbackSet())
+		OTLog::Output(0, "OTCaller::delCallback: FYI, deleting a callback. (This message doesn't trigger if it was NULL.)\n");
+	//--------------------------------
 	_callback = NULL; 
 }
 
 void OTCaller::setCallback(OTCallback *cb) 
 { 
+	OTLog::Output(0, "OTCaller::setCallback: Attempting to set the password callback...\n");	
 	delCallback(); 
-	_callback = cb; 
+	_callback = cb;
 }
 
 void OTCaller::callOne() 
 { 
-	if (NULL != _callback) 
+	if (isCallbackSet()) 
 	{ 
+		OTLog::Output(0, "OTCaller::callOne: FYI, Executing password callback (one)...\n");		
 		m_strPW = _callback->runOne(); 
-		//		std::cout << "RESULT!!!: " << m_strPW << std::endl; 
-	} 
+//		std::cout << "RESULT!!!: " << m_strPW << std::endl; 
+	}
+	else
+	{
+		OTLog::Output(0, "OTCaller::callOne: WARNING: Failed attempt to trigger password callback (one), due to \"it hasn't been set yet.\"\n");
+	}
 }
 
 void OTCaller::callTwo() 
 { 
-	if (NULL != _callback) 
+	if (isCallbackSet()) 
 	{ 
+		OTLog::Output(0, "OTCaller::callTwo: FYI, Executing password callback (two)...\n");		
 		m_strPW = _callback->runTwo(); 
-		//		std::cout << "RESULT!!!: " << m_strPW << std::endl; 
-	} 
+//		std::cout << "RESULT!!!: " << m_strPW << std::endl; 
+	}
+	else
+	{
+		OTLog::Output(0, "OTCaller::callTwo: WARNING: Failed attempt to trigger password callback (two), due to \"it hasn't been set yet.\"\n");
+	}	
 }
 
 bool OTCaller::isCallbackSet() 
@@ -325,6 +382,10 @@ bool OT_API_Set_PasswordCallback(OTCaller & theCaller) // Caller must have Callb
 					 "MUST be called first, with an OTCallback-extended class passed to it,\n"
 					 "before calling this function with that OTCaller.\n");
 		return false;
+	}
+	else
+	{
+		OTLog::Output(0, "OT_API_Set_PasswordCallback: FYI, calling OTAsymmetricKey::SetPasswordCaller(theCaller) now...\n");
 	}
 	
 	return OTAsymmetricKey::SetPasswordCaller(theCaller);
@@ -348,15 +409,22 @@ bool OT_API_Set_PasswordCallback(OTCaller & theCaller) // Caller must have Callb
 OPENSSL_CALLBACK_FUNC(default_pass_cb)
 {
 	int len=0;
-	const char *tmp="test";
 	
 	// We'd probably do something else if 'rwflag' is 1
 	
-	OTLog::vOutput(0, "Using 'test' pass phrase for \"%s\"\n", (char *)u);
+//	OTLog::vOutput(0, "OPENSSL_CALLBACK_FUNC: (Password callback hasn't been set yet...) Using 'test' pass phrase for \"%s\"\n", (char *)u);
+	OTLog::vOutput(0, "OPENSSL_CALLBACK_FUNC: Using DEFAULT PASSWORD: 'test' (for \"%s\")\n", (char *)u);
 	
 	// get pass phrase, length 'len' into 'tmp'
-	
+	//
+//	std::string str_Password;
+//	std::getline (std::cin, str_Password);
+
+	const char *tmp="test";
+//	const char *tmp = str_Password.c_str();
+
 	len = strlen(tmp);
+//	len = str_Password.size();
 	
 	if (len <= 0) 
 		return 0;
@@ -382,13 +450,13 @@ OPENSSL_CALLBACK_FUNC(souped_up_pass_cb)
 	
 	// We'd probably do something else if 'rwflag' is 1
 	
-	OTLog::vOutput(0, "Using OT Password Callback for \"%s\"\n", (char *)u);
+	OTLog::vOutput(0, "OPENSSL_CALLBACK_FUNC: Using OT Password Callback for \"%s\"\n", (char *)u);
 	
 	OTCaller * pCaller = OTAsymmetricKey::GetPasswordCaller();
 	
 	if (NULL == pCaller)
 	{
-		OTLog::Error("OTCaller is NULL. Try calling OT_API_Set_PasswordCallback() first.\n");
+		OTLog::Error("OPENSSL_CALLBACK_FUNC: OTCaller is NULL. Try calling OT_API_Set_PasswordCallback() first.\n");
 		
 		OT_ASSERT(0); // This will never actually happen, since SetPasswordCaller() and souped_up_pass_cb are activated in same place.
 		
@@ -418,14 +486,20 @@ OPENSSL_CALLBACK_FUNC(souped_up_pass_cb)
 	const char * pPassword = pCaller->GetPassword();
 	
 	if (NULL == pPassword)
+	{
+		OTLog::Output(0, "OPENSSL_CALLBACK_FUNC: NULL password was returned from the API password callback :-(\n");
 		return 0;
+	}
 	
 	OTString strPassword(pPassword);
 	tmp = (char*)strPassword.Get();
 	len = strlen(tmp);
 	
 	if (len <= 0) 
+	{
+		OTLog::Output(0, "OPENSSL_CALLBACK_FUNC: 0 length (or less) password was returned from the API password callback :-(\n");
 		return 0;
+	}
 	
 	// if too long, truncate
 	if (len > size) 
