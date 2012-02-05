@@ -153,7 +153,7 @@ endif
 
 
 ifeq ($(PLATFORM), linux)
-API_LDFLAGS += -ldl
+API_LDFLAGS += -ldl -lpthread
 C_COMPILER = gcc
 endif
 # End LINUX -------------------------------------------------------------

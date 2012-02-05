@@ -147,7 +147,7 @@ endif
 
 ifeq ($(PLATFORM), linux)
 
-API_LDFLAGS += -ldl
+API_LDFLAGS += -ldl -lpthread
 
 API_LIBS = -lOTLib -lssl -lcrypto -lprotobuf -lmsgpack -lboost_thread-mt 
 API_DEBUG_LIBS =  -lOTLibd -lssl -lcrypto -lprotobuf -lmsgpack -lboost_thread-mt 
