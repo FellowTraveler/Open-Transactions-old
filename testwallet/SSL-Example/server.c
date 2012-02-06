@@ -7,7 +7,8 @@
 #define CA_FILE             "SSL-Example/ca.crt"
 #define DH_FILE             "SSL-Example/dh_param_1024.pem"
 #define KEY_FILE            "SSL-Example/server.crt"
-#define KEY_PASSWORD        "test"
+#define KEY_PASSWORD        ""
+//#define KEY_PASSWORD        "test"
 
 #define PORT                7085
 

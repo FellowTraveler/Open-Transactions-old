@@ -636,7 +636,7 @@ int verify (char *certfile, char * keyfile)
 		exit (1); 
 	} 
 	
-	x509 = PEM_read_X509(fp, NULL, NULL, NULL); 
+	x509 = PEM_read_X509(fp, NULL, OTAsymmetricKey::GetPasswordCallback(), NULL); 
 	fclose (fp); 
 	
 	if (x509 == NULL) 
@@ -1381,7 +1381,7 @@ bool OTContract::VerifySignature(const char * szFoldername, const char * szFilen
 //		return false;
 //	}
 	
-	x509 = PEM_read_bio_X509(bio, NULL, NULL, NULL); 
+	x509 = PEM_read_bio_X509(bio, NULL, OTAsymmetricKey::GetPasswordCallback(), NULL); 
 	BIO_free_all(bio);
 	
 	// --------------------------

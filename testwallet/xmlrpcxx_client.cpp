@@ -128,7 +128,8 @@
 
 
 
-#define KEY_PASSWORD        "test"
+#define KEY_PASSWORD        ""
+//#define KEY_PASSWORD        "test"
 
 
 #define OT_OPTIONS_FILE_DEFAULT	"command-line-ot.opt"

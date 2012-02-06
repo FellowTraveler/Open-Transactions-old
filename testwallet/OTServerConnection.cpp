@@ -256,6 +256,7 @@ bool OTServerConnection::SetFocus(OTPseudonym & theNym, OTServerContract & theSe
 	return true;
 }
 
+
 bool OTServerConnection::Connect(OTPseudonym & theNym, OTServerContract & theServerContract,
 								 OTString & strCA_FILE, OTString & strKEY_FILE, OTString & strKEY_PASSWORD)
 {

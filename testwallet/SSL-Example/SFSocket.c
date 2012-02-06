@@ -67,6 +67,8 @@ struct _SFSocket {
 static int __SFSocketSetPasswordCallback (char *buf, int size, 
                                           int rwflag, void *password)
 {
+	fprintf(stderr, "\n\n\n\n\n\n\n __SFSocketSetPasswordCallback: THIS SHOULD NEVER HAPPEN!!!!!!!!!\n\n\n\n\n");
+
 #ifdef _WIN32
     strncpy_s(buf, size, (char *)password, size);
 #else
@@ -141,6 +143,8 @@ void SFSocketGlobalInit (void) {
 SFSocket *SFSocketAlloc (void) {
     SFSocket *socket = NULL;
 
+	fprintf(stderr, "\n\n\n\n\n\n\n SFSocketAlloc: THIS SHOULD NEVER HAPPEN!!!!!!!!!\n\n\n\n\n");
+
     if (NULL == (socket = (SFSocket *) malloc (sizeof(SFSocket))))
         return(NULL);
 
@@ -188,6 +192,8 @@ int SFSocketInit (SFSocket *socket,
                   const char *chipers)
 {
     SSL_CTX *ctx = NULL;
+
+	fprintf(stderr, "\n\n\n\n\n\n\n SFSocketInit: THIS SHOULD NEVER HAPPEN!!!!!!!!!\n\n\n\n\n");
 
     /* Create Context */
     if (NULL == (ctx = SSL_CTX_new(SSLv3_method()))) {

@@ -162,7 +162,8 @@ extern "C"
 //        them to whatever is convenient for you on your system.
 //
 
-#define KEY_PASSWORD        "test"
+#define KEY_PASSWORD        ""
+//#define KEY_PASSWORD        "test"
 
 #ifdef _WIN32
 #define SERVER_PATH_DEFAULT	"C:\\~\\Open-Transactions\\transaction\\data_folder"
@@ -295,9 +296,9 @@ int main (int argc, char **argv)
 	{
 		OTLog::vOutput(0, "\n==> USAGE:    %s  [absolute_path_to_data_folder]\n\n"
 					   
-					   //		OTLog::vOutput(0, "\n==> USAGE:    %s  <SSL-password>  [absolute_path_to_data_folder]\n\n"
+//		OTLog::vOutput(0, "\n==> USAGE:    %s  <SSL-password>  [absolute_path_to_data_folder]\n\n"
 #if defined (FELLOW_TRAVELER)					   
-					   //					   "(Password defaults to '%s' if left blank.)\n"
+//					   "(Password defaults to '%s' if left blank.)\n"
 					   "(Folder defaults to '%s' if left blank.)\n"
 #else
 					   "The test password is always 'test'.\n"
@@ -307,13 +308,13 @@ int main (int argc, char **argv)
 #endif
 					   "\n\n", argv[0]
 #if defined (FELLOW_TRAVELER)					   
-					   //					   , KEY_PASSWORD, 
+//					   , KEY_PASSWORD, 
 					   , strPath.Get()
 #endif					   
 					   );
 		
 #if defined (FELLOW_TRAVELER)
-		//		strSSLPassword.Set(KEY_PASSWORD);
+//		strSSLPassword.Set(KEY_PASSWORD);
 		OTLog::SetMainPath(strPath.Get());
 #else
 		exit(1);
@@ -321,12 +322,12 @@ int main (int argc, char **argv)
 	}
 	else if (argc < 2)
 	{		
-		//		strSSLPassword.Set(argv[1]);
+//		strSSLPassword.Set(argv[1]);
 		OTLog::SetMainPath(strPath.Get());
 	}
 	else 
 	{
-		//		strSSLPassword.Set(argv[1]);
+//		strSSLPassword.Set(argv[1]);
 		OTLog::SetMainPath(argv[1]); // formerly [2]
 	}
 	

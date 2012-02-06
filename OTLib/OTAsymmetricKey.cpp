@@ -214,18 +214,18 @@ OT_OPENSSL_CALLBACK * OTAsymmetricKey::GetPasswordCallback()
 	}
 	else
 	{
-#if defined (FELLOW_TRAVELER)
-		OTLog::Output(0, "OTAsymmetricKey::GetPasswordCallback: WARNING, internal 'C'-based password callback was requested by OT (to pass to OpenSSL), "
-					  "but was NOT available--so, returning the default_pass_cb password callback instead, which will automatically return the 'test' password "
-					  "to the OpenSSL, if it calls the callback function. "
-					  "(FYI, the FELLOW_TRAVELER build option is what causes this.)\n");
-		return &default_pass_cb;
-#else
+//#if defined (FELLOW_TRAVELER)
+//		OTLog::Output(0, "OTAsymmetricKey::GetPasswordCallback: WARNING, internal 'C'-based password callback was requested by OT (to pass to OpenSSL), "
+//					  "but was NOT available--so, returning the default_pass_cb password callback instead, which will automatically return the 'test' password "
+//					  "to the OpenSSL, if it calls the callback function. "
+//					  "(FYI, the FELLOW_TRAVELER build option is what causes this.)\n");
+//		return &default_pass_cb;
+//#else
 		OTLog::Output(0, "OTAsymmetricKey::GetPasswordCallback: FYI, the internal 'C'-based password callback was requested by OT (to pass to OpenSSL), "
 					  "but the callback hasn't been set yet. (Returning NULL CALLBACK to OpenSSL!! Thus causing it to instead ask for the passphrase on the CONSOLE, "
 					  "since no Java password dialog was apparently available.)\n");
 		return static_cast<OT_OPENSSL_CALLBACK *>(NULL);
-#endif
+//#endif
 	}
 }
 
@@ -297,7 +297,8 @@ std::string OTCallback::runOne() // child class will override.
 { 
 //	std::cout << "OTCallback::run()" << std::endl; 
 	
-	std::string blah("test"); 
+	std::string blah(""); 
+//	std::string blah("test"); 
 	
 	OT_ASSERT_MSG(false, "OTCallback::runOne: ASSERT (The child class was supposed to override this method.)\n");
 	
@@ -308,7 +309,8 @@ std::string OTCallback::runTwo() // child class will override.
 { 
 //	std::cout << "OTCallback::run()" << std::endl; 
 	
-	std::string blah("test"); 
+	std::string blah(""); 
+//	std::string blah("test"); 
 	
 	OT_ASSERT_MSG(false, "OTCallback::runTwo: ASSERT (The child class was supposed to override this method.)\n");
 	
@@ -448,14 +450,15 @@ OPENSSL_CALLBACK_FUNC(default_pass_cb)
 	// We'd probably do something else if 'rwflag' is 1
 	
 //	OTLog::vOutput(0, "OPENSSL_CALLBACK_FUNC: (Password callback hasn't been set yet...) Using 'test' pass phrase for \"%s\"\n", (char *)u);
-	OTLog::vOutput(0, "OPENSSL_CALLBACK_FUNC (default_pass_cb): Using DEFAULT PASSWORD: 'test' (for \"%s\")\n", (char *)u);
+	OTLog::vOutput(0, "OPENSSL_CALLBACK_FUNC (default_pass_cb): Using DEFAULT PASSWORD: '' (for \"%s\")\n", (char *)u);
 	
 	// get pass phrase, length 'len' into 'tmp'
 	//
 //	std::string str_Password;
 //	std::getline (std::cin, str_Password);
 
-	const char *tmp="test";
+	const char *tmp=""; // For now removing any possibility that "test" password can slip through.
+//	const char *tmp="test";
 //	const char *tmp = str_Password.c_str();
 
 	len = strlen(tmp);
@@ -504,7 +507,7 @@ OPENSSL_CALLBACK_FUNC(souped_up_pass_cb)
 		
 		// get pass phrase, length 'len' into 'tmp'
 		/*
-		 tmp = "test";
+//		 tmp = "test";
 		len = strlen(tmp);
 		
 		if (len <= 0) 
@@ -865,7 +868,7 @@ bool OTAsymmetricKey::LoadPublicKeyFromPGPKey(const OTASCIIArmor & strKey)
 	
 	//TODO Figure out which one of these is right, if any
 	//	pReturnKey	= d2i_PUBKEY_bio(keyBio, NULL); 
-	pReturnKey = PEM_read_bio_PUBKEY(keyBio, NULL, NULL, NULL); // we'll try this one next
+	pReturnKey = PEM_read_bio_PUBKEY(keyBio, NULL, OTAsymmetricKey::GetPasswordCallback(), NULL); // we'll try this one next
 	
 	// Free the BIO and related buffers, filters, etc.
 	BIO_free_all(keyBio);
@@ -1070,7 +1073,7 @@ bool OTAsymmetricKey::SetPublicKey(const OTASCIIArmor & strKey)
 	
 	//TODO Figure out which one of these is right, if any
 	//	pReturnKey	= d2i_PUBKEY_bio(keyBio, NULL); 
-	pReturnKey = PEM_read_bio_PUBKEY(keyBio, NULL, NULL, NULL); // we'll try this one next
+	pReturnKey = PEM_read_bio_PUBKEY(keyBio, NULL, OTAsymmetricKey::GetPasswordCallback(), NULL); // we'll try this one next
 	
 	// Free the BIO and related buffers, filters, etc.
 	BIO_free_all(keyBio);
@@ -1107,7 +1110,7 @@ bool OTAsymmetricKey::SetPublicKey(OTASCIIArmor & strKey)
 	bmem = BIO_push(bio64Filter, bmem);
 	
 	// Reads from a BIO into a public key
-	pReturnKey = PEM_read_bio_PUBKEY(bmem, NULL, NULL, NULL);
+	pReturnKey = PEM_read_bio_PUBKEY(bmem, NULL, OTAsymmetricKey::GetPasswordCallback(), NULL);
 	
 	// Free the BIO and related buffers, filters, etc.
 	BIO_free_all(bmem);
@@ -1146,7 +1149,7 @@ bool OTAsymmetricKey::SetPublicKey(OTASCIIArmor & strKey)
  BIO* bmem = BIO_new_mem_buf(theData.GetPayloadPointer(), theData.GetSize());
  
  // Reads from a BIO into a public key
- pReturnKey = PEM_read_bio_PUBKEY(bmem, &pKey, NULL, NULL);
+ pReturnKey = PEM_read_bio_PUBKEY(bmem, &pKey, OTAsymmetricKey::GetPasswordCallback(), NULL);
  
  // Free the BIO and related buffers, filters, etc.
  BIO_free_all(bmem);
@@ -1376,7 +1379,7 @@ bool OTAsymmetricKey::LoadPublicKeyFromCertString(const OTString & strCert, bool
 	
 	OT_ASSERT(NULL != keyBio);
 	
-	X509 * x509 = PEM_read_bio_X509(keyBio, NULL, NULL, NULL);
+	X509 * x509 = PEM_read_bio_X509(keyBio, NULL, OTAsymmetricKey::GetPasswordCallback(), NULL);
 	
 	
 	// Free the BIO and related buffers, filters, etc.
@@ -1472,7 +1475,7 @@ bool OTAsymmetricKey::LoadPublicKey(OTString & strFilename)
 		return false; 
 	} 
 	
-    m_pKey = PEM_read_PUBKEY(fp, &m_pKey, NULL, NULL); 
+    m_pKey = PEM_read_PUBKEY(fp, &m_pKey, OTAsymmetricKey::GetPasswordCallback(), NULL); 
 	
 	fclose (fp); 
 	
@@ -1540,7 +1543,7 @@ bool OTAsymmetricKey::LoadPublicKeyFromCertFile(const OTString & strFoldername, 
 	
 //	if (nPutsResult > 0)
 	{
-		x509 = PEM_read_bio_X509(bio, NULL, NULL, NULL); 
+		x509 = PEM_read_bio_X509(bio, NULL, OTAsymmetricKey::GetPasswordCallback(), NULL); 
 		
 		BIO_free_all(bio);
 		bio = NULL;

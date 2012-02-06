@@ -479,7 +479,7 @@ int do_evp_seal(FILE *rsa_pkey_file, FILE *in_file, FILE *out_file)
     uint32_t eklen_n;
     unsigned char iv[EVP_MAX_IV_LENGTH];
 	
-    if (!PEM_read_RSA_PUBKEY(rsa_pkey_file, &rsa_pkey, NULL, NULL))
+    if (!PEM_read_RSA_PUBKEY(rsa_pkey_file, &rsa_pkey, OTAsymmetricKey::GetPasswordCallback(), NULL))
     {
         OTLog::Error("Error loading RSA Public Key File.\n");
         ERR_print_errors_fp(stderr);

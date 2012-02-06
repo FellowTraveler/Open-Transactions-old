@@ -41,7 +41,7 @@ int main(int argc, char **argv)
         RSA_print_fp(stdout,pkey->pkey.rsa,0);
         X509_print_fp(stdout,x509);
 
-        PEM_write_PrivateKey(stdout,pkey,NULL,NULL,0,NULL, NULL);
+        PEM_write_PrivateKey(stdout,pkey,EVP_des_ede3_cbc(),NULL,0,NULL, NULL);
         PEM_write_X509(stdout,x509);
 
         X509_free(x509);

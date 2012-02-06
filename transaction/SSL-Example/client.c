@@ -6,7 +6,9 @@
 
 #define CA_FILE             "SSL-Example/ca.crt"
 #define KEY_FILE            "SSL-Example/client.crt"
-#define KEY_PASSWORD        "test"
+
+#define KEY_PASSWORD        ""
+//#define KEY_PASSWORD        "test"
 
 #define HOSTNAME        "localhost"
 #define PORT            7085

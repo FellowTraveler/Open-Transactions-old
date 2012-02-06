@@ -134,7 +134,8 @@
 //        or set them to whatever is convenient for you on your system.
 //
 
-#define KEY_PASSWORD        "test"
+#define KEY_PASSWORD        ""
+//#define KEY_PASSWORD        "test"
 
 // password is deprecated. 
 

@@ -178,7 +178,8 @@ extern OTPseudonym *g_pTemporaryNym;
 
 // TODO REALLY NEED to move this crap to a config file...
 // ALso, FYI, the below paths may not work unless you put a fully-qualified path (which I haven't.)
-#define KEY_PASSWORD        "test"  // RIGHT NOW THE PASSWORD FOR CONNECTING TO THE SERVER IS HARDCODED HERE.  TODO: config file, password prompt.
+//#define KEY_PASSWORD        "test"  // RIGHT NOW THE PASSWORD FOR CONNECTING TO THE SERVER IS HARDCODED HERE.  TODO: config file, password prompt.
+#define KEY_PASSWORD        ""  
 
 #ifdef _WIN32
 
