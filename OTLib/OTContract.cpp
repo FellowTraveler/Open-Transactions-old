@@ -604,7 +604,7 @@ int verify (char *certfile, char * keyfile)
 	
 	// Read private key 
 	fp = fopen (keyfile, "r"); if (fp == NULL) exit (1); 
-    pkey = PEM_read_PrivateKey(fp, NULL, NULL, NULL); 
+    pkey = PEM_read_PrivateKey(fp, NULL, OTAsymmetricKey::GetPasswordCallback(), NULL); 
 	
 	fclose (fp); 
 	
@@ -1226,7 +1226,15 @@ bool OTContract::SignContract(const char * szFoldername, const char * szFilename
 		
 //	if (nPutsResult > 0)
 	{
-		pkey = PEM_read_bio_PrivateKey( bio, NULL, NULL, NULL );
+		// TODO security:
+		/* The old PrivateKey write routines are retained for compatibility. 
+		   New applications should write private keys using the PEM_write_bio_PKCS8PrivateKey() or PEM_write_PKCS8PrivateKey() 
+		   routines because they are more secure (they use an iteration count of 2048 whereas the traditional routines use a
+		   count of 1) unless compatibility with older versions of OpenSSL is important.
+ 		   NOTE: The PrivateKey read routines can be used in all applications because they handle all formats transparently.
+		 */
+		
+		pkey = PEM_read_bio_PrivateKey( bio, NULL, OTAsymmetricKey::GetPasswordCallback(), NULL);
 		
 		if (NULL == pkey) 
 		{ 

@@ -560,7 +560,7 @@ bool OTPseudonym::GenerateNym()
 	X509_print_fp(stdout, x509); // human readable
 	
 	// write the private key, then the x509, to stdout.
-	PEM_write_PrivateKey(stdout, pNewKey, NULL, NULL, 0, NULL, NULL);
+	PEM_write_PrivateKey(stdout, pNewKey, NULL, NULL, 0, OTAsymmetricKey::GetPasswordCallback(), NULL);
 	PEM_write_X509(stdout, x509);
 	// ------------------------------------------------
 	
@@ -569,7 +569,7 @@ bool OTPseudonym::GenerateNym()
 	BIO	*	bio_out_pri  = BIO_new(BIO_s_mem());
 	BIO	*	bio_out_x509 = BIO_new(BIO_s_mem());
 
-	PEM_write_bio_PrivateKey(bio_out_pri, pNewKey,  NULL, NULL, 0, NULL, NULL);
+	PEM_write_bio_PrivateKey(bio_out_pri, pNewKey,  NULL, NULL, 0, OTAsymmetricKey::GetPasswordCallback(), NULL);
 	PEM_write_bio_X509(bio_out_x509, x509);
 
 	
