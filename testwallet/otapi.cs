@@ -534,6 +534,36 @@ public class otapi {
     return ret;
   }
 
+  public static string OT_API_LoadPaymentInbox(string SERVER_ID, string USER_ID, string ACCOUNT_ID) {
+    string ret = otapiPINVOKE.OT_API_LoadPaymentInbox(SERVER_ID, USER_ID, ACCOUNT_ID);
+    return ret;
+  }
+
+  public static string OT_API_LoadPaymentOutbox(string SERVER_ID, string USER_ID, string ACCOUNT_ID) {
+    string ret = otapiPINVOKE.OT_API_LoadPaymentOutbox(SERVER_ID, USER_ID, ACCOUNT_ID);
+    return ret;
+  }
+
+  public static string OT_API_LoadPaymentInboxNoVerify(string SERVER_ID, string USER_ID, string ACCOUNT_ID) {
+    string ret = otapiPINVOKE.OT_API_LoadPaymentInboxNoVerify(SERVER_ID, USER_ID, ACCOUNT_ID);
+    return ret;
+  }
+
+  public static string OT_API_LoadPaymentOutboxNoVerify(string SERVER_ID, string USER_ID, string ACCOUNT_ID) {
+    string ret = otapiPINVOKE.OT_API_LoadPaymentOutboxNoVerify(SERVER_ID, USER_ID, ACCOUNT_ID);
+    return ret;
+  }
+
+  public static string OT_API_LoadRecordBox(string SERVER_ID, string USER_ID) {
+    string ret = otapiPINVOKE.OT_API_LoadRecordBox(SERVER_ID, USER_ID);
+    return ret;
+  }
+
+  public static string OT_API_LoadRecordBoxNoVerify(string SERVER_ID, string USER_ID) {
+    string ret = otapiPINVOKE.OT_API_LoadRecordBoxNoVerify(SERVER_ID, USER_ID);
+    return ret;
+  }
+
   public static int OT_API_Ledger_GetCount(string SERVER_ID, string USER_ID, string ACCOUNT_ID, string THE_LEDGER) {
     int ret = otapiPINVOKE.OT_API_Ledger_GetCount(SERVER_ID, USER_ID, ACCOUNT_ID, THE_LEDGER);
     return ret;

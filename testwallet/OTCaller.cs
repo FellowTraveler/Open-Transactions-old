@@ -48,6 +48,15 @@ public class OTCaller : IDisposable {
     return ret;
   }
 
+  public string GetDisplay() {
+    string ret = otapiPINVOKE.OTCaller_GetDisplay(swigCPtr);
+    return ret;
+  }
+
+  public void SetDisplay(string szDisplay) {
+    otapiPINVOKE.OTCaller_SetDisplay(swigCPtr, szDisplay);
+  }
+
   public void delCallback() {
     otapiPINVOKE.OTCaller_delCallback(swigCPtr);
   }

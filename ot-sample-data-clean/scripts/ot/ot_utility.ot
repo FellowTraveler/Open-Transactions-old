@@ -1,0 +1,811 @@
+// ------------------------------------------------------------------
+//		ot_utility.ot
+//
+// This is part of a library written in OTScript, which makes the OT-API
+// much easier to use from inside your own OTScripts, by providing
+// a higher-level layer.
+//
+// Think of it as the "standard header" for using OT from a script.
+//
+// There is similar code to this in Java also, in the OTAPI_Func and
+// Utility classes, in the Moneychanger project. They also make the 
+// OTAPI much easier to use, by providing a higher-level layer.
+//
+//  http://www.chaiscript.com/doxygen/namespace_chai_script___language.html
+//
+
+
+// ---------------------------------------
+	def VerifyStringVal(strValue)
+	{
+		if (strValue.is_var_null() || !strValue.is_type("string") || (strValue.size() < 1))
+		{	return false;	}
+		else { return true; }
+	}
+	// ---------------------------------------
+	def VerifyIntVal(nValue)
+	{
+		if (nValue.is_var_null() || !nValue.is_type("int"))
+		{	return false;	}
+		else { return true; }
+	}
+	// ---------------------------------------
+	def VerifyMessage(strMessage)
+	{
+		if (strMessage.is_var_null() || !strMessage.is_type("string") || (strMessage.size() < 10))
+		{	return false;	}
+		else { return true;	}
+	}
+// ---------------------------------------
+	def VerifyMessageSuccess(strMessage)
+	{
+		if (strMessage.is_var_null() || !strMessage.is_type("string") || (strMessage.size() < 10) || (false == OT_API_Message_GetSuccess(strMessage)))
+		{	return false;	}
+		else { return true;	}
+	}
+// ---------------------------------------
+	def VerifyBalanceAgreementSuccess(SERVER_ID, USER_ID, ACCOUNT_ID, strMessage)
+	{
+		if (strMessage.is_var_null() || !strMessage.is_type("string") || (strMessage.size() < 10) || (false == OT_API_Msg_GetBlnceAgrmntSuccess(SERVER_ID, USER_ID, ACCOUNT_ID, strMessage)))
+		{	return false;	}
+		else { return true;	}
+	}
+// ---------------------------------------
+	def VerifyTransactionSuccess(SERVER_ID, USER_ID, ACCOUNT_ID, strMessage)
+	{
+		if (strMessage.is_var_null() || !strMessage.is_type("string") || (strMessage.size() < 10) || (false == OT_API_Msg_GetTransactionSuccess(SERVER_ID, USER_ID, ACCOUNT_ID, strMessage)))
+		{	return false;	}
+		else { return true;	}
+	}
+// ---------------------------------------
+
+
+	attr Utility::delay_ms			
+	attr Utility::max_trans_dl			
+
+	def Utility::Utility()
+	{
+		this.delay_ms = "50";
+		this.max_trans_dl = 10; // Number of transactions I download when I'm low. (Also, when I'm low is when I'm below this number.)
+	}
+
+	def Utility::delay()
+	{
+		OT_API_Sleep(this.delay_ms);
+	}
+
+	def Utility::getNbrTransactionCount()
+	{
+		return this.max_trans_dl;
+	}
+
+	def Utility::setNbrTransactionCount(new_trans_dl)
+	{
+		this.max_trans_dl = new_trans_dl;
+	}
+
+ // ---------------------------------------
+    
+    def Utility::getIntermediaryFiles(serverID, nymID, accountID) 
+	{
+        
+        if (!VerifyStringVal(serverID))
+        {
+            OT_API_Output(0, " Utility::getIntermediaryFiles: invalid serverID: " + serverID);
+            return false;
+        }
+        if (!VerifyStringVal(nymID))
+        {
+            OT_API_Output(0, " Utility::getIntermediaryFiles: invalid nymID: " + nymID);
+            return false;
+        }
+        if (!VerifyStringVal(accountID))
+        {
+            OT_API_Output(0, " Utility::getIntermediaryFiles: invalid accountID: " + accountID);
+            return false;
+        }
+        // -----------------------------------------------------
+        if (!this.getInboxAccount(serverID, nymID, accountID))
+        {
+            OT_API_Output(0, " Utility::getIntermediaryFiles: getInboxAccount failed. (Returning.)");
+            return false;
+        }
+        // --------------------------------------
+        
+        if (!this.getOutboxLowLevel(serverID, nymID, accountID))
+        {
+            OT_API_Output(0, " Utility::getIntermediaryFiles: getOutboxLowLevel failed. (Returning.)");
+            return false;
+        }
+        
+        return true;
+    }
+// ---------------------------------------
+
+
+    // Same as the above function, except you only have to pass the accountID.
+    // (instead of 3 IDs...)
+    //
+    def Utility::getInboxOutboxAccount(accountID)  
+	{
+       if (!VerifyStringVal(accountID))
+       {
+           OT_API_Output(0, " Utility::getInboxOutboxAccount: invalid accountID: " + accountID);
+           return false;
+       }
+
+       var serverID = OT_API_GetAccountWallet_ServerID(accountID);
+       var nymID    = OT_API_GetAccountWallet_NymID(accountID);
+
+       if (!this.getIntermediaryFiles(serverID, nymID, accountID))
+       {
+           OT_API_Output(0, " Utility::getInboxOutboxAccount: getIntermediaryFiles failed. (Returning.)");
+           return false;
+       }
+       return true;
+    }
+// ---------------------------------------
+
+
+    // getInboxAccount()
+    // Grabs the "Account", which is the intermediary file containing the current balance, verified against
+    // last signed receipt. Server must have your signature on the last balance agreement plus, if applicable,
+    // any inbox receipts (box receipts), also with your signature, in order to justify the current balance.
+    // Any inbox receipts, further, are only valid if they each contain a transaction number that was previously 
+    // already signed out to you.
+    // (As you can see, the "account" is not a list of transactions, as per the classical understanding in 
+    // double-entry accounting, but instead it's just a signed balance agreement, plus any as-yet-unclosed
+    // transactions that have cleared since that balance was last signed, and are still waiting in the inbox
+    // for the next balance agreement to be signed when they can be removed.)
+    // ----------------
+    // In addition to the "Account" there is also the Inbox itself, as well as all of its box receipts.
+    // The box receipts are stored in abbreviated form in the Inbox itself, with the actual full
+    // versions in separate files. These are retrieved individually from the server after the inbox itself
+    // is, and then each is verified against a hash kept inside its abbreviated version.)
+    //
+    def Utility::getInboxAccount(serverID, nymID, accountID) 
+	{
+        var  bInbox   = false;
+        var  bAccount = false;
+        
+        // ***************************************************
+        OT_API_FlushMessageBuffer();
+        OT_API_getInbox(serverID, nymID, accountID);  // <==== FIRST ATTEMPT
+        this.delay();        
+        var inboxResponseMessage = OT_API_PopMessageBuffer();
+
+        // getInbox failed, for whatever reason.
+        //
+        if (!VerifyMessageSuccess(inboxResponseMessage))
+        {
+            if (this.getRequestNumber(serverID, nymID)) // re-sync request number.
+            {
+                OT_API_getInbox(serverID, nymID, accountID); // <==== SECOND ATTEMPT
+                this.delay();
+                inboxResponseMessage = OT_API_PopMessageBuffer();
+
+                if (!VerifyMessageSuccess(inboxResponseMessage))
+                {
+                    OT_API_Output(0, " Utility::getInboxAccount: Failed re-trying OT_API_getInbox() after Utility.getRequestNumber().");
+                    return false;
+                }
+                // -----------------------
+                bInbox = true; // success
+            }
+            else
+            {
+                OT_API_Output(0, " Utility::getInboxAccount: Failed calling Utility.getRequestNumber().");
+                return false;
+            }
+        }
+        else
+		{
+            bInbox = true; // success
+		}
+        // ***************************************************
+        // Now let's make sure we have all the box receipts for this inbox.
+        // (They will be needed when it is used for something.)
+        //
+        if (bInbox && !this.insureHaveAllBoxReceipts(serverID, nymID, // <===== 
+                accountID, 1)) // nBoxType = 1 aka inbox
+        {
+            OT_API_Output(0, " Utility::getInboxAccount: getInbox succeeded, but then insureHaveAllBoxReceipts failed. (I give up.)");
+            return false;
+        }
+        // ***************************************************
+        // Inbox done. Account next:
+        // ***************************************************
+        OT_API_FlushMessageBuffer();
+        OT_API_getAccount(serverID, nymID, accountID);  // <==== FIRST ATTEMPT
+        this.delay();        
+        var accountResponseMessage = OT_API_PopMessageBuffer();
+
+        // getAccount failed, for whatever reason.
+        //
+        if (!VerifyMessageSuccess(accountResponseMessage))
+        {
+            if (this.getRequestNumber(serverID, nymID)) // re-sync request number.
+            {
+                OT_API_getAccount(serverID, nymID, accountID); // <==== SECOND ATTEMPT
+                this.delay();
+                accountResponseMessage = OT_API_PopMessageBuffer();
+
+                if (!VerifyMessageSuccess(accountResponseMessage))
+                {
+                    OT_API_Output(0, " Utility::getInboxAccount: Failed re-trying OT_API_getAccount() after Utility.getRequestNumber().");
+                    return false;
+                }
+                // -----------------------
+                bAccount = true; // success
+            }
+            else
+            {
+                OT_API_Output(0, " Utility::getInboxAccount: Failed calling Utility.getRequestNumber().");
+                return false;
+            }
+        }
+        else
+		{
+            bAccount = true; // success
+		}
+        // ***************************************************
+
+        return (bInbox && bAccount);
+    }
+    
+    // ---------------------------------
+
+
+    def Utility::getOutboxLowLevel(serverID, nymID, accountID)
+	{
+        var  bOutbox = false;
+        // ***************************************************
+        // Okay, the first two are done. Now let's finish up
+        // with the OUTBOX:
+        //
+        OT_API_FlushMessageBuffer();
+        OT_API_getOutbox(serverID, nymID, accountID);  // <==== FIRST ATTEMPT
+        this.delay();        
+        var outboxResponseMessage = OT_API_PopMessageBuffer();
+
+        // getOutbox failed, for whatever reason.
+        //
+        if (!VerifyMessageSuccess(outboxResponseMessage))
+        {
+            if (this.getRequestNumber(serverID, nymID)) // re-sync request number.
+            {
+                // Successfully re-synced the request number.
+                OT_API_getOutbox(serverID, nymID, accountID); // <==== SECOND ATTEMPT
+                this.delay();
+                outboxResponseMessage = OT_API_PopMessageBuffer();
+
+                if (!VerifyMessageSuccess(outboxResponseMessage))
+                {
+                    OT_API_Output(0, " Utility::getOutboxLowLevel: Failed re-trying OT_API_getOutbox() after Utility.getRequestNumber().");
+                    return false;
+                }
+                // -----------------------
+                bOutbox = true; // success
+             }
+            else
+            {
+                OT_API_Output(0, " Utility::getOutboxLowLevel: Failed calling Utility.getRequestNumber().");
+                return false;
+            }
+        }
+        else
+		{
+            bOutbox = true; // success
+		}
+        // ***************************************************
+        // Now let's make sure we have all the box receipts for this outbox.
+        // (They will be needed when it is used for something.)
+        //
+        if (bOutbox && !this.insureHaveAllBoxReceipts(serverID, nymID, accountID, 2)) // <===== nBoxType = 2 aka OUTBOX
+        {
+            OT_API_Output(0, " Utility::getOutboxLowLevel: getOutbox succeeded, but then insureHaveAllBoxReceipts failed. (I give up.)");
+            return false;
+        }
+        // ***************************************************
+
+		return bOutbox;
+    }
+
+// ---------------------------------------
+
+
+  
+    // No need to deal with getRequest here when failure, since the calling
+    // function already goes through that crap before we get here.
+	// Returns:
+	// -1 if error.
+	//  0 if Nymbox is empty.
+	//  1 or more: Count of items in Nymbox before processing.
+	//
+    def Utility::processNymbox(serverID, nymID) 
+	{
+        // ------------------------------------------
+        // Send message..
+        OT_API_FlushMessageBuffer();
+		
+		// Returns:
+		// -1 if error.
+		//  0 if Nymbox is empty.
+		//  1 or more: The number of receipts in Nymbox before processing.
+		//
+        var nReceiptCount = OT_API_processNymbox(serverID, nymID);
+        // ------------------------------------------
+		
+		if ((-1) == nReceiptCount)
+		{
+            OT_API_Output(0, " Utility::processNymbox: Failure. OT_API_processNymbox() returned -1. \n");
+			return (-1);
+		}
+        // ------------------------------------------
+		else if (0 == nReceiptCount) 
+		{
+			return 0;	// Nymbox is empty, thus no need to process it.
+		}
+		
+        // ------------------------------------------
+        this.delay();
+        // ------------------------------------------
+        // Pop the reply buffer and check for success. If so, send the next
+        // message (processNymbox).
+        var serverResponse = OT_API_PopMessageBuffer();
+        
+        if (!VerifyMessageSuccess(serverResponse))
+		{
+			nReceiptCount = (-1);
+			// ------------------
+            OT_API_Output(0, concat(" Utility::processNymbox: Failure. Response from server: ", serverResponse));
+            OT_API_Output(0, "\n");			
+        }
+
+        return nReceiptCount;
+    }
+// ---------------------------------------
+    // Called by getAndProcessNymbox.
+    def Utility::getNymboxLowLevel(serverID, nymID) 
+	{
+        // ------------------------------------------
+        // Send message..
+        OT_API_FlushMessageBuffer();
+        OT_API_getNymbox(serverID, nymID);
+        // ------------------------------------------
+        this.delay();
+        // ------------------------------------------
+        // Pop the reply buffer and check for success. If so, send the next
+        // message (processNymbox).
+        var serverResponse = OT_API_PopMessageBuffer();
+		
+        if (VerifyMessageSuccess(serverResponse))
+		{
+            return true;
+        }
+        else 
+		{
+            OT_API_Output(0, " Utility::getNymboxLowLevel: Failure. Response from server " + serverResponse);
+        }
+        return false;
+    }
+// ---------------------------------------
+    
+	// Returns:
+	// -1 if error.
+	//  0 if Nymbox is empty.
+	//  1 or more: Count of items in Nymbox before processing.
+	//
+    def Utility::getAndProcessNymbox(serverID, nymID) 
+    {
+        // ------------------------------------------  
+        if (this.getNymboxLowLevel(serverID, nymID))
+        {
+            if (this.insureHaveAllBoxReceipts(serverID, nymID, nymID, 0)) // nBoxType = 0 aka nymbox
+			{
+                return this.processNymbox(serverID, nymID);
+			}
+            else
+			{
+                OT_API_Output(0, " Utility::getAndProcessNymbox(): Utility.insureHaveAllBoxReceipts failed. (I give up.)");
+			}
+        }
+        else if (this.getRequestNumber(serverID, nymID)) // this might be out of sync, if it failed... we'll re-sync, and re-try.
+        {
+            if (this.getNymboxLowLevel(serverID, nymID))
+            {
+                if (this.insureHaveAllBoxReceipts(serverID, nymID, nymID, 0)) // nBoxType = 0 aka nymbox
+				{
+                    return this.processNymbox(serverID, nymID);
+				}
+                else
+				{
+                    OT_API_Output(0, " Utility::getAndProcessNymbox(): Utility.getNymboxLowLevel failed, then getRequestNumber() succeeded, then getNymboxLowLevel succeeded, then insureHaveAllBoxReceipts failed. (I give up.)");
+				}
+            }
+            else
+			{
+                OT_API_Output(0, " Utility::getAndProcessNymbox(): Utility.getNymboxLowLevel failed, then Utility.getRequestNumber succeeded, then Utility.getNymboxLowLevel failed again. (I give up.)");
+			}
+        }
+        else
+		{
+            OT_API_Output(0, " Utility::getAndProcessNymbox(): Utility.getNymboxLowLevel failed, then Utility.getRequestNumber failed. (I give up.)");
+		}
+        return (-1);
+    }
+// ---------------------------------------
+    def Utility::getRequestNumber(serverID, nymID) 
+	{
+        OT_API_FlushMessageBuffer();
+        OT_API_getRequest(serverID, nymID);
+        this.delay();
+        var strReply = OT_API_PopMessageBuffer();
+
+        if (!VerifyMessage(strReply))
+        {
+            OT_API_Output(0, " Utility::getRequestNumber(): null server reply. Perhaps the receive_fail_ms in client.cfg needs to be set to a higher value?");
+            return false;
+        }
+
+        if (true == OT_API_Message_GetSuccess(strReply))
+		{
+            return true;
+		}
+
+        // Hmm -- we got the reply, but it was a failure.
+        OT_API_Output(0, " Utility::getRequestNumber(): Failure. Perhaps the receive_fail_ms in client.cfg needs to be set to a higher value?");
+
+        return false;
+    }
+
+    // --------------------------------------------------------------
+    // called by getBoxReceiptWithErrorCorrection
+    def Utility::getBoxReceiptLowLevel(serverID, nymID, accountID, nBoxType, strTransactionNum)
+	{
+        // ------------------------------------------
+        // Send message..
+        OT_API_FlushMessageBuffer();
+        OT_API_getBoxReceipt(serverID, nymID, accountID, nBoxType, strTransactionNum);
+        // ------------------------------------------
+        this.delay();
+        // ------------------------------------------
+        // Pop the reply buffer and check for success. If so, send the next
+        // message (processNymbox).
+        var serverResponse = OT_API_PopMessageBuffer();
+        if (VerifyMessageSuccess(serverResponse))
+		{
+            return true;
+        }
+		else
+		{
+            OT_API_Output(0, " Utility::getBoxReceiptLowLevel: Failure. Response from server " + serverResponse);
+        }
+        return false;
+    }
+
+    // ---------------------------------------
+    // called by insureHaveAllBoxReceipts
+    def Utility::getBoxReceiptWithErrorCorrection(serverID, nymID, accountID, nBoxType, strTransactionNum) 
+	{
+        if (this.getBoxReceiptLowLevel(serverID, nymID, accountID, nBoxType, strTransactionNum))
+		{ 
+            return true;
+		}
+        else if (this.getRequestNumber(serverID, nymID)) // this might be out of sync, if it failed... we'll re-sync, and re-try.
+        {
+            if (this.getBoxReceiptLowLevel(serverID, nymID, accountID, nBoxType, strTransactionNum))
+			{
+                return true;
+			}
+            else
+			{
+                OT_API_Output(0, " Utility::getBoxReceiptWithErrorCorrection(): Utility.getBoxReceiptLowLevel failed, then Utility.getRequestNumber succeeded, then Utility.getBoxReceiptLowLevel failed again. (I give up.)");
+			}
+        }
+        else
+		{
+            OT_API_Output(0, " Utility::getBoxReceiptWithErrorCorrection(): Utility.getBoxReceiptLowLevel failed, then Utility.getRequestNumber failed. (I give up.)");
+		}
+        return false;
+	}
+	
+    // ---------------------------------------
+    // This function assumes you just downloaded the latest version of the box (inbox, outbox, or nymbox)
+    // and its job is to make sure all the related box receipts are downloaded as well and available, though
+    // not necessarily loaded into memory. (Yet.)
+    //
+    def Utility::insureHaveAllBoxReceipts(serverID, nymID, accountID, nBoxType)
+	{
+        var ledger;
+		
+		// The "Verify" versions of these load functions actually tries to 
+		// load all the box receipts. Therefore I use the "NoVerify" version,
+		// which stops at loading the abbreviations. That way I can iterate
+		// through them and download the box receipt for each, as necessary.
+		//
+
+		if (0 == nBoxType)
+		{
+			ledger = OT_API_LoadNymboxNoVerify(serverID, nymID);
+		}
+		else if (1 == nBoxType)
+		{
+			ledger = OT_API_LoadInboxNoVerify(serverID, nymID, accountID);
+		}
+		else if (2 == nBoxType)
+		{
+			ledger = OT_API_LoadOutboxNoVerify(serverID, nymID, accountID);
+		}
+		else
+		{
+			OT_API_Output(0, " Utility::insureHaveAllBoxReceipts(): Error. Expected nBoxType of 0,1,2 (nymbox, inbox, or outbox.)");
+			return false;
+		}        
+        // ----------------------------------------------
+        // Unable to load or verify inbox/outbox/nymbox
+        // Notice I don't call VerifyAccount() here (not that the API even exposes
+        // that method) but why not? Because that method tries to load up all the
+        // box receipts, in addition to verifying the signature. Therefore I call
+        // "Load XXXX NoVerify()", avoiding all that, then I verify the Signature
+        // itself. That's because this function's whole point is to find out what
+        // the box receipts are, and download them from the server. No point trying
+        // to load them before that time, when I know it will fail.
+        // 
+        if ((!VerifyMessage(ledger)) || (false == OT_API_VerifySignature(nymID, ledger)))
+        {
+            OT_API_Output(0, " Utility::insureHaveAllBoxReceipts(): Unable to load or verify signature on ledger. (Failure.)");
+            return false;
+        }
+        
+        // ----------------------------------------------
+        // At this point, the box is definitely loaded. Next we'll iterate the receipts
+        // within, and for each, verify that the Box Receipt already exists. If not,
+        // then we'll download it using getBoxReceiptLowLevel(). If any download fails,
+        // then we break out of the loop (without continuing on to try the rest.)
+        //
+        var  bReturnValue = true; // Assuming an empty box, we return success by default.
+        
+        var nReceiptCount = OT_API_Ledger_GetCount(serverID, nymID, accountID, ledger);
+
+        if (nReceiptCount > 0)
+		{
+		var it = 0;
+        while (it < nReceiptCount)
+        {
+            var strTransactionNum = OT_API_Ledger_GetTransactionIDByIndex(serverID, nymID, accountID, ledger, it);
+			it += 1;
+			
+            if (VerifyStringVal(strTransactionNum) && !(strTransactionNum == "-1"))
+            {
+			
+                var lTransactionNum = strTransactionNum.to_int();
+                if (lTransactionNum > 0)
+                {
+				
+				OT_API_Output(0, "serverID: ");	
+				OT_API_Output(0, concat(serverID, "\n"));	
+
+				OT_API_Output(0, "nymID: ");	
+				OT_API_Output(0, concat(nymID, "\n"));	
+
+				OT_API_Output(0, "accountID: ");	
+				OT_API_Output(0, concat(accountID, "\n"));	
+
+				OT_API_Output(0, "nBoxType: ");	
+				OT_API_Output(0, concat(nBoxType.to_string(), "\n"));	
+
+				OT_API_Output(0, "strTransactionNum: ");	
+				OT_API_Output(0, concat(strTransactionNum, "\n\n"));	
+
+				
+                    var  bHaveBoxReceipt = false;
+					if (true == OT_API_DoesBoxReceiptExist(serverID, nymID, accountID, nBoxType, strTransactionNum)) 
+					{	bHaveBoxReceipt = true;		}
+					else { bHaveBoxReceipt = false;	}
+					
+                    if (!bHaveBoxReceipt)
+                    {                        
+                        OT_API_Output(0, " Utility::insureHaveAllBoxReceipts(): Downloading box receipt to add to my collection...");
+
+                        var  bDownloaded = this.getBoxReceiptWithErrorCorrection(serverID, nymID, accountID, nBoxType, strTransactionNum);
+                        
+                        if (!bDownloaded)
+                        {
+                            OT_API_Output(0, " Utility::insureHaveAllBoxReceipts(): Failed downloading box receipt. (Skipping any others.) Transaction number: " + strTransactionNum);
+                            bReturnValue = false;
+                            break;
+                            // No point continuing to loop and fail 500 times, when getBoxReceiptWithErrorCorrection() already failed
+                            // even doing the getRequest() trick and everything, and whatever retries are inside OT, before it finally
+                            // gave up.
+                        }
+                        // else (Download success.)
+                    }
+                    // else we already have the box receipt, no need to download again.
+                }
+                else
+				{
+                    OT_API_Output(0, " Utility::insureHaveAllBoxReceipts(): Error: TransactionNum less-than-or-equal-to 0.");
+				}
+            }
+            else
+			{
+                OT_API_Output(0, " Utility::insureHaveAllBoxReceipts(): Error: TransactionNum was null, when trying to read it based on the index (within bounds, too.)");
+			}
+        } // for
+		}
+        // ---------------------------------------------
+        
+        return bReturnValue;
+    }
+    
+ 
+    /*
+    	static void getBoxReceipt(  const std::string	SERVER_ID,
+                                    const std::string	USER_ID,
+                                    const std::string	ACCT_ID,	// If for Nymbox (vs inbox/outbox) then pass USER_ID in this field also.
+                                    const int		nBoxType,	// 0/nymbox, 1/inbox, 2/outbox
+                                    const std::string	TRANSACTION_NUMBER);
+	
+	static bool DoesBoxReceiptExist(const std::string	SERVER_ID,
+					const std::string	USER_ID,
+					const std::string	ACCT_ID,	// If for Nymbox (vs inbox/outbox) then pass USER_ID in this field also.
+					const int		nBoxType,	// 0/nymbox, 1/inbox, 2/outbox
+					const std::string	TRANSACTION_NUMBER);
+    */
+    
+    
+    // If the transaction number requests fail, this function will try to resync
+    // the request number. But you still have to call getRequest() yourself if
+    // you have a failure in your own function, since you might already have
+    // enough transaction numbers, and thus this function will never get called,
+    // even if your request number IS out of sync. Sorry :-)
+    //
+    def Utility::getTransactionNumbers(serverID, nymID) {
+
+        var  bSuccess = true;
+        OT_API_FlushMessageBuffer();
+        // -------------------------------------------
+        var nFailures = 0;
+		var it = 0;
+		
+        while (it < this.getNbrTransactionCount())
+        {
+			it += 1;
+			
+            OT_API_getTransactionNumber(serverID, nymID); // Request.
+            this.delay();
+            var serverResponse = OT_API_PopMessageBuffer();
+            if (!VerifyMessage(serverResponse)) 
+			{
+                OT_API_Output(0, " Utility::getTransactionNumbers(): server reply empty. Perhaps the receive_fail_ms in client.cfg needs to be set to a higher value?");
+                bSuccess = false;
+            }
+            // -----------------------------------------------------------
+            // REPLY: FAILURE
+            //
+            if (false == OT_API_Message_GetSuccess(serverResponse)) 
+			{
+                OT_API_Output(0, " Utility::getTransactionNumbers(): Server refused my request for a new transaction number! (Maybe reached the limit?): " + serverResponse);
+                bSuccess = false;
+            }
+
+            // We got the reply, but it failed.
+            // Or, it was null.
+            //
+            if (false == bSuccess)
+            {
+                nFailures += 1; // Next time, won't be the first time anymore.
+
+                // If it failed, the first time we will call getRequest() and then
+                // try again (as normal.)
+                // But then if it failed AGAIN after that? We cannot recover, so
+                // in that case, we'll return.
+                //
+                if (1 == nFailures) // First failure
+                {
+                    // Resync success!
+                    if (true == this.getRequestNumber(serverID, nymID))
+                    {
+                        it -= 1;    // Give this guy an extra round.     
+//                      nFailures -= 1; // getRequest WORKED, so we set the failures counter back one.
+                        // I commented this out because we only get past this spot if success. Therefore
+                        // if the next call to OT_API_getTransactionNumber() (at the top of this loop)
+                        // fails AGAIN, even after getRequest() success, then I need to TRY SOMETHING ELSE.
+                        // No point succeeding, then failing, then succeeding, then failing, then succeeding,
+                        // then failing, then succeeding, then failing, 10 times before returning... right?
+                        bSuccess = true; // for now.
+                        continue;
+                        // Now that we got the request number, we'll go around the
+                        // loop and try to get the next transaction number...
+                    }
+                    else 
+                    {
+                        OT_API_Output(0, " Utility::getTransactionNumbers(): OT_API_getTransactionNumber() failed, then my call to Utility.getRequestNumber() FAILED. (I don't know what else to do.)"); 
+                        return false;
+                    }
+                }
+                // At this point, I know that getRequestNumber() is SUCCEEDING,
+                // (since we would have returned on iteration 1 if it had failed.)
+                // yet that the getTransactionNumber() is STILL FAILING after that.
+                // The likely culprit is that I've reached my limit of #s. Meaning
+                // the server already put my limit into my nymbox already, and I
+                // can never resync unless I get and process all those #s out of my 
+                // Nymbox... And also I can't get any more numbers probably, until I
+                // use some of those new ones up first, that are sitting in my Nymbox.)
+                else if (2 == nFailures) // second failure
+                {                     
+                    if (this.getAndProcessNymbox(serverID, nymID) != (-1)) // getAndProcessNymbox success...
+                    {
+                        // getAndProcessNymbox() worked. But we could still be at our max transaction #s,
+                        // so we might need to cut this loop short... I'll try to keep going... but if failures
+                        // keep happening, we'll just return after this. The caller probably checks the overall
+                        // count before and after calling this function, and even if I don't finish looping,
+                        // I might still have plenty of numbers now, due to processing my nymbox. Therefore,
+                        // if the third failure happens, it might STILL be a form of success. The caller might
+                        // STILL determine that I now have enough numbers to keep going, and he then continues
+                        // on to his next function call as if everything is a success.
+                        it -= 1;    // Give this guy an extra round.                         
+                        bSuccess = true;
+                        continue;
+                    }
+                    else
+                    {
+                        OT_API_Output(0, " Utility::getTransactionNumbers(): While Utility.getRequestNumber() worked, OT_API_getTransactionNumber() is STILL failing, so I called Utility.getAndProcessNymbox(), but it didn't work. I don't know what else to do.");
+                        return false;
+                    }
+                }
+                else    // third failure.
+                {
+                    // Here I cut things short and return. BUT we still might have enough numbers by this
+                    // point, from the processNymbox call. The caller will just count them again before
+                    // deciding whether to go on to his next call.
+                    //
+                    OT_API_Output(0, " Utility::getTransactionNumbers(): OT_API_getTransactionNumber(): Returned success==false, meaning I probably have my limit of transaction numbers already signed out.");
+
+                    // This time we don't set --i since we're not doing any more rounds.
+                    // We also don't set bSuccess=true since we ALREADY processed Nymbox,
+                    // and we're immediately returning anyway. We don't continue because
+                    // we are now convinced that it will just keep failing. However,
+                    // there MIGHT be enough numbers now, so the caller might still be
+                    // happy!
+                }
+
+                // At this point, getTransactionNumber() failed, AND getRequestNumber() succeeded but then getTransactionNumber() failed again,
+                // then getAndProcessNymbox() was called, and SUCCEEDED, but then getTransactionNumber() failed AGAIN! However, at this point
+                // that could very well be because I have my max of numbers, so I can still RETURN TRUE here.
+                //
+                return true;      
+
+            } // if false==bSuccess
+        } // while loop
+        // ***************************************************************
+        // By this point, it means we iterated the loop above with no failures.
+        // If there were failures, we successfully recovered from them and finished
+        // out the entire set of Transaction numbers. Thus, now it's time to retrieve
+        // those numbers (sign-off on them), so we can actually use them for something.
+        // (For whatever the caller was planning to use them for.)
+        //
+        if (bSuccess) 
+        {
+            var  b2 = (this.getAndProcessNymbox(serverID, nymID) != (-1)); // already logs inside here, if failure.
+
+            if (false == b2)
+			{
+                OT_API_Output(0, " Utility::getTransactionNumbers(): While all the calls to OT_API_getTransactionNumber() seemed to work, I was unable to get or process the nymbox at the end of it all.");
+			}
+            return b2;
+            // ----------------------------------           
+        } // (else already logs above.)
+         
+        return false;
+        // -------------------------------
+     }
+
+
+
+// *************************************************************************************
+
+
+
+

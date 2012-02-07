@@ -21,9 +21,12 @@
 // server, and sets your own Nym to match. (Back in sync.)
 
 // --------------------------------------------------------------------
-use("../ot/ot_utility.ot")
-use("../ot/otapi.ot")
-use("../ot/ot_made_easy.ot")
+// NOTE: No further need to include these anymore, since OT includes them
+// automatically now.
+//
+//use("../ot/ot_utility.ot")
+//use("../ot/otapi.ot")
+//use("../ot/ot_made_easy.ot")
 
 // --------------------------------------------------------------------
 // Pseudocode:

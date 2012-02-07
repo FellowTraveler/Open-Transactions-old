@@ -214,7 +214,7 @@ int     OTLog::__latency_receive_ms = 5000; // number of ms to wait before retry
 long	OTLog::__minimum_market_scale = 1;	// Server admin can configure this to any higher power-of-ten.
 
 
-OTString OTLog::__Version = "0.77c";
+OTString OTLog::__Version = "0.77d";
 
 
 
@@ -247,7 +247,10 @@ OTString OTLog::__OTUserAcctFolder	= "useraccounts";
 OTString OTLog::__OTReceiptFolder	= "receipts";		
 OTString OTLog::__OTNymboxFolder	= "nymbox";		
 OTString OTLog::__OTInboxFolder		= "inbox";		
-OTString OTLog::__OTOutboxFolder	= "outbox";		
+OTString OTLog::__OTOutboxFolder	= "outbox";	
+OTString OTLog::__OTPaymentInboxFolder	= "paymentInbox";		
+OTString OTLog::__OTPaymentOutboxFolder	= "paymentOutbox";	
+OTString OTLog::__OTRecordBoxFolder	= "recordBox";
 OTString OTLog::__OTCertFolder		= "certs";		
 OTString OTLog::__OTPubkeyFolder	= "pubkeys";
 OTString OTLog::__OTContractFolder	= "contracts";

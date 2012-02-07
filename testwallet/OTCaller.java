@@ -43,6 +43,14 @@ public class OTCaller {
     return otapiJNI.OTCaller_GetPassword(swigCPtr, this);
   }
 
+  public String GetDisplay() {
+    return otapiJNI.OTCaller_GetDisplay(swigCPtr, this);
+  }
+
+  public void SetDisplay(String szDisplay) {
+    otapiJNI.OTCaller_SetDisplay(swigCPtr, this, szDisplay);
+  }
+
   public void delCallback() {
     otapiJNI.OTCaller_delCallback(swigCPtr, this);
   }

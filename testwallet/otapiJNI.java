@@ -20,6 +20,8 @@ public class otapiJNI {
   public final static native long new_OTCaller();
   public final static native void delete_OTCaller(long jarg1);
   public final static native String OTCaller_GetPassword(long jarg1, OTCaller jarg1_);
+  public final static native String OTCaller_GetDisplay(long jarg1, OTCaller jarg1_);
+  public final static native void OTCaller_SetDisplay(long jarg1, OTCaller jarg1_, String jarg2);
   public final static native void OTCaller_delCallback(long jarg1, OTCaller jarg1_);
   public final static native void OTCaller_setCallback(long jarg1, OTCaller jarg1_, long jarg2, OTCallback jarg2_);
   public final static native boolean OTCaller_isCallbackSet(long jarg1, OTCaller jarg1_);
@@ -130,6 +132,12 @@ public class otapiJNI {
   public final static native String OT_API_LoadOutbox(String jarg1, String jarg2, String jarg3);
   public final static native String OT_API_LoadInboxNoVerify(String jarg1, String jarg2, String jarg3);
   public final static native String OT_API_LoadOutboxNoVerify(String jarg1, String jarg2, String jarg3);
+  public final static native String OT_API_LoadPaymentInbox(String jarg1, String jarg2, String jarg3);
+  public final static native String OT_API_LoadPaymentOutbox(String jarg1, String jarg2, String jarg3);
+  public final static native String OT_API_LoadPaymentInboxNoVerify(String jarg1, String jarg2, String jarg3);
+  public final static native String OT_API_LoadPaymentOutboxNoVerify(String jarg1, String jarg2, String jarg3);
+  public final static native String OT_API_LoadRecordBox(String jarg1, String jarg2);
+  public final static native String OT_API_LoadRecordBoxNoVerify(String jarg1, String jarg2);
   public final static native int OT_API_Ledger_GetCount(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native String OT_API_Ledger_CreateResponse(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native String OT_API_Ledger_GetTransactionByIndex(String jarg1, String jarg2, String jarg3, String jarg4, int jarg5);

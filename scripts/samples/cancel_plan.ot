@@ -1,8 +1,14 @@
 #! /usr/local/bin/ot --script
 
-use("../ot/ot_utility.ot")
-use("../ot/otapi.ot")
-use("../ot/ot_made_easy.ot")
+// --------------------------------------------------------------------
+// NOTE: No further need to include these anymore, since OT includes them
+// automatically now.
+//
+//use("../ot/ot_utility.ot")
+//use("../ot/otapi.ot")
+//use("../ot/ot_made_easy.ot")
+
+// --------------------------------------------------------------------
 // Instantiate the "OT Made Easy" object.
 //
 var madeEasy	= OT_ME()

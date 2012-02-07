@@ -112,6 +112,8 @@ class OTCaller(_object):
     __swig_destroy__ = _otapi.delete_OTCaller
     __del__ = lambda self : None;
     def GetPassword(self): return _otapi.OTCaller_GetPassword(self)
+    def GetDisplay(self): return _otapi.OTCaller_GetDisplay(self)
+    def SetDisplay(self, *args): return _otapi.OTCaller_SetDisplay(self, *args)
     def delCallback(self): return _otapi.OTCaller_delCallback(self)
     def setCallback(self, *args): return _otapi.OTCaller_setCallback(self, *args)
     def isCallbackSet(self): return _otapi.OTCaller_isCallbackSet(self)
@@ -540,6 +542,30 @@ OT_API_LoadInboxNoVerify = _otapi.OT_API_LoadInboxNoVerify
 def OT_API_LoadOutboxNoVerify(*args):
   return _otapi.OT_API_LoadOutboxNoVerify(*args)
 OT_API_LoadOutboxNoVerify = _otapi.OT_API_LoadOutboxNoVerify
+
+def OT_API_LoadPaymentInbox(*args):
+  return _otapi.OT_API_LoadPaymentInbox(*args)
+OT_API_LoadPaymentInbox = _otapi.OT_API_LoadPaymentInbox
+
+def OT_API_LoadPaymentOutbox(*args):
+  return _otapi.OT_API_LoadPaymentOutbox(*args)
+OT_API_LoadPaymentOutbox = _otapi.OT_API_LoadPaymentOutbox
+
+def OT_API_LoadPaymentInboxNoVerify(*args):
+  return _otapi.OT_API_LoadPaymentInboxNoVerify(*args)
+OT_API_LoadPaymentInboxNoVerify = _otapi.OT_API_LoadPaymentInboxNoVerify
+
+def OT_API_LoadPaymentOutboxNoVerify(*args):
+  return _otapi.OT_API_LoadPaymentOutboxNoVerify(*args)
+OT_API_LoadPaymentOutboxNoVerify = _otapi.OT_API_LoadPaymentOutboxNoVerify
+
+def OT_API_LoadRecordBox(*args):
+  return _otapi.OT_API_LoadRecordBox(*args)
+OT_API_LoadRecordBox = _otapi.OT_API_LoadRecordBox
+
+def OT_API_LoadRecordBoxNoVerify(*args):
+  return _otapi.OT_API_LoadRecordBoxNoVerify(*args)
+OT_API_LoadRecordBoxNoVerify = _otapi.OT_API_LoadRecordBoxNoVerify
 
 def OT_API_Ledger_GetCount(*args):
   return _otapi.OT_API_Ledger_GetCount(*args)

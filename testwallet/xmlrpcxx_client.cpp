@@ -1228,10 +1228,88 @@ void RegisterAPIWithScript(OTScript & theScript)
 		
 		pScript->chai.add(fun(&OTAPI_Wrap::activateSmartContract), "OT_API_activateSmartContract");
 		pScript->chai.add(fun(&OTAPI_Wrap::triggerClause), "OT_API_triggerClause");
+		
+		// ******************************************************************
+		/// ABOVE we added the basic OT API functions, as well as a few extras at the top
+		/// which are only useful in a command-line script (such as for parsing arguments.)
+		/// ABOVE is the highest-level API that is directly exposed from OT itself.
+		/// ------------------------
+		/// BELOW I am also including a HIGHER-level interface, written in the OT SCRIPT
+		/// language itself. (There is a Java version as well, of this HIGHER level interface.)
+		///
+		/// What does it do?  First, ot_utility.ot adds some much-needed utility functions for
+		/// commonly repeated actions while using the OTAPI, such as for grabbing the request
+		/// number, syncing the transaction number, sending a request or a transaction to a
+		/// server, etc. Next, a higher layer is added in otapi.ot, which uses a functor to
+		/// provide a much simpler interface to all of the use cases of OT. Meaning, if you
+		/// want to withdraw some cash, or put an offer on a market, you don't have to deal
+		/// with timeouts, retries, flushing the message buffer, popping the server reply after
+		/// a set delay, blah blah blah. Instead, you just invoke a single functor call, and
+		/// it returns either a string containing the server's reply, or null.
+		/// Finally, an ULTRA-HIGH LEVEL interface is added on top of that, in ot_made_easy.ot
+		/// which aims to provide one-call interfaces for an entire script-based OT client.
+		/// (Whereas otapi.ot offers one-call interfaces to all of the OTAPI server messages
+		/// and transaction requests, ot_made_easy.ot then USES that in order to provide a
+		/// one-call interface of a real client who sends such messages and makes such requests.
+		/// FOR EXAMPLE:  otapi might have a "Withdraw Cash" function which handles the entire
+		/// message and returns the server's response. Whereas ot_made_easy would have the complete
+		/// implementation, in script form, of an actual OT client that USES that "Withdraw Cash"
+		/// message, along with manipulating its own local purse, pulling coins off or pushing them
+		/// on based on transfers from other users, etc etc etc.  Just like Moneychanger uses
+		/// the OTAPI_Func, so does the ot_made_easy class use the OTAPI_Func. Therefore ot_made_easy
+		/// is aiming to be a script-based replacement for Moneychanger itself. It is the GUI.
+		/// The Client.
+		// There were many path problems with including these scripts inside the user scripts,
+		// so I am forcing the issue here, to keep things clean. This way, the entire OT API,
+		// both the C++ functions, as well as the below script functions, grows together as one
+		// and will be seen as one from inside the scripts, where script programmers can
+		// pick and choose which level of abstraction that they need.
+		// 
+		// ******************************************************************
+		//
+		//  SCRIPT HEADERS
+		//
+		OTString strUseFile1, strUseFile2, strUseFile3;
+		const char * ps		= OTLog::PathSeparator();
+		const char * ps0	= "%s%sscripts%sot%s%s";
+		const char * ps1	= "ot_utility.ot";
+		const char * ps2	= "otapi.ot";
+		const char * ps3	= "ot_made_easy.ot";
+		
+		/*
+		 > ls ./Open-Transactions/scripts/ot/
+		 INCLUDE IN THIS ORDER:
+		 
+		 ot_utility.ot
+		 otapi.ot
+		 ot_made_easy.ot 
+		 
+		 */			//    ~/.ot/client_data		/	scripts	/	ot	/	"blah.ot"
+		strUseFile1.Format(ps0, OTLog::Path(), ps,			ps,		ps, ps1);
+		strUseFile2.Format(ps0, OTLog::Path(), ps,			ps,		ps, ps2);
+		strUseFile3.Format(ps0, OTLog::Path(), ps,			ps,		ps, ps3);
+		
+		const std::string str_UseFile1(strUseFile1.Get()), str_UseFile2(strUseFile2.Get()), str_UseFile3(strUseFile3.Get());
+
+		const char * ps4	= "RegisterAPIWithScript: ERROR: Failed trying to include script header:  %s (Does it exist?)\n";
+		// todo fix hardcoding of folder names (below)
+		if ( OTDB::Exists("scripts", "ot", ps1) )
+			pScript->chai.use(str_UseFile1);
+		else
+			OTLog::vError(ps4, str_UseFile1.c_str());
+		if ( OTDB::Exists("scripts", "ot", ps2) )
+			pScript->chai.use(str_UseFile2);
+		else
+			OTLog::vError(ps4, str_UseFile2.c_str());
+		if ( OTDB::Exists("scripts", "ot", ps3) )
+			pScript->chai.use(str_UseFile3);
+		else
+			OTLog::vError(ps4, str_UseFile3.c_str());
+		// -----------------------------------------------------------
 	}
 	else 
 	{
-		OTLog::Error("Failed dynamic casting OTScript to OTScriptChai \n");
+		OTLog::Error("RegisterAPIWithScript: Failed dynamic casting OTScript to OTScriptChai \n");
 	}
 
 }
@@ -1951,7 +2029,7 @@ int main(int argc, char* argv[])
         if( opt->getValue( "script" )  != NULL  )
         {
 			g_OT_API.GetClient()->SetRunningAsScript(); // This way it won't go firing off messages automatically based on receiving certain server replies to previous requests.
-			
+			// Todo: Research whether the above call is still necessary. (OTAPI no longer fires off ANY auto messages based on server replies. API CLIENT MUST do those things itself now.)
 			std::string strFilename = opt->getValue( "script" );
 			
 			std::ifstream t(strFilename.c_str(), ios::in | ios::binary);

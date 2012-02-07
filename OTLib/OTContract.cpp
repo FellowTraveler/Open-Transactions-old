@@ -1947,7 +1947,7 @@ bool OTContract::ParseRawFile()
 						line.compare(0,8,"Comment:") == 0
 						)
 					{
-						OTLog::Output(2, "Skipping version section...\n");
+						OTLog::Output(3, "Skipping version section...\n");
 						
 						if (!m_strRawFile.sgets(buffer1, 2048))
 						{
@@ -1962,7 +1962,7 @@ bool OTContract::ParseRawFile()
 				{
 					if (line.compare(0,6,"Hash: ") == 0)
 					{
-						OTLog::Output(2, "Collecting message digest algorithm from contract header...\n");
+						OTLog::Output(3, "Collecting message digest algorithm from contract header...\n");
 						
 						std::string strTemp = line.substr(6);
 						m_strSigHashType = strTemp.c_str();

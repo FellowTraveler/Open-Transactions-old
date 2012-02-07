@@ -1,5 +1,14 @@
 #! /usr/local/bin/ot --script
 
+// --------------------------------------------------------------------
+// NOTE: No further need to include these anymore, since OT includes them
+// automatically now.
+//
+//use("../ot/ot_utility.ot")
+//use("../ot/otapi.ot")
+//use("../ot/ot_made_easy.ot")
+
+// --------------------------------------------------------------------
 
 // This temp variable is used for a running "latest copy" of the smart contract, as we 
 // construct it here inside this client-side OT script. (Don't confuse the server-side

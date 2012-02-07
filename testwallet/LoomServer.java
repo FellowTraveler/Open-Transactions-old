@@ -34,7 +34,7 @@ public class LoomServer extends Server {
     }
     super.delete();
   }
-/*@SWIG:OTAPI.i,402,OT_CAN_BE_CONTAINED_BY@*/
+/*@SWIG:OTAPI.i,407,OT_CAN_BE_CONTAINED_BY@*/
 	// Ensure that the GC doesn't collect any OT_CONTAINER instance set from Java
 	private WalletData containerRefWalletData;
 	// ----------------	

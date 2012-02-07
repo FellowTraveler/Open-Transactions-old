@@ -154,6 +154,12 @@ package otapi;
 *OT_API_LoadOutbox = *otapic::OT_API_LoadOutbox;
 *OT_API_LoadInboxNoVerify = *otapic::OT_API_LoadInboxNoVerify;
 *OT_API_LoadOutboxNoVerify = *otapic::OT_API_LoadOutboxNoVerify;
+*OT_API_LoadPaymentInbox = *otapic::OT_API_LoadPaymentInbox;
+*OT_API_LoadPaymentOutbox = *otapic::OT_API_LoadPaymentOutbox;
+*OT_API_LoadPaymentInboxNoVerify = *otapic::OT_API_LoadPaymentInboxNoVerify;
+*OT_API_LoadPaymentOutboxNoVerify = *otapic::OT_API_LoadPaymentOutboxNoVerify;
+*OT_API_LoadRecordBox = *otapic::OT_API_LoadRecordBox;
+*OT_API_LoadRecordBoxNoVerify = *otapic::OT_API_LoadRecordBoxNoVerify;
 *OT_API_Ledger_GetCount = *otapic::OT_API_Ledger_GetCount;
 *OT_API_Ledger_CreateResponse = *otapic::OT_API_Ledger_CreateResponse;
 *OT_API_Ledger_GetTransactionByIndex = *otapic::OT_API_Ledger_GetTransactionByIndex;
@@ -330,6 +336,8 @@ sub DESTROY {
 }
 
 *GetPassword = *otapic::OTCaller_GetPassword;
+*GetDisplay = *otapic::OTCaller_GetDisplay;
+*SetDisplay = *otapic::OTCaller_SetDisplay;
 *delCallback = *otapic::OTCaller_delCallback;
 *setCallback = *otapic::OTCaller_setCallback;
 *isCallbackSet = *otapic::OTCaller_isCallbackSet;

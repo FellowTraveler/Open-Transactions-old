@@ -204,6 +204,12 @@ void OTAsymmetricKey::SetPasswordCallback(OT_OPENSSL_CALLBACK * pCallback)
 
 OT_OPENSSL_CALLBACK * OTAsymmetricKey::GetPasswordCallback()
 {
+#if defined (OT_TEST_PASSWORD)
+	OTLog::Output(0, "OTAsymmetricKey::GetPasswordCallback: WARNING, OT_TEST_PASSWORD *is* defined. The internal 'C'-based password callback was just "
+				  "requested by OT (to pass to OpenSSL). So, returning the default_pass_cb password callback, which will automatically return "
+				  "the 'test' password to OpenSSL, if/when it calls that callback function.\n");
+	return &default_pass_cb;
+#else
 	if (IsPasswordCallbackSet())
 	{
 		OTLog::Output(0, "OTAsymmetricKey::GetPasswordCallback: FYI, the internal 'C'-based password callback is now being returning to OT, "
@@ -214,19 +220,12 @@ OT_OPENSSL_CALLBACK * OTAsymmetricKey::GetPasswordCallback()
 	}
 	else
 	{
-//#if defined (FELLOW_TRAVELER)
-//		OTLog::Output(0, "OTAsymmetricKey::GetPasswordCallback: WARNING, internal 'C'-based password callback was requested by OT (to pass to OpenSSL), "
-//					  "but was NOT available--so, returning the default_pass_cb password callback instead, which will automatically return the 'test' password "
-//					  "to the OpenSSL, if it calls the callback function. "
-//					  "(FYI, the FELLOW_TRAVELER build option is what causes this.)\n");
-//		return &default_pass_cb;
-//#else
 		OTLog::Output(0, "OTAsymmetricKey::GetPasswordCallback: FYI, the internal 'C'-based password callback was requested by OT (to pass to OpenSSL), "
 					  "but the callback hasn't been set yet. (Returning NULL CALLBACK to OpenSSL!! Thus causing it to instead ask for the passphrase on the CONSOLE, "
 					  "since no Java password dialog was apparently available.)\n");
 		return static_cast<OT_OPENSSL_CALLBACK *>(NULL);
-//#endif
 	}
+#endif	
 }
 
 
@@ -329,6 +328,25 @@ OTCaller::~OTCaller()
 	delCallback(); 
 }
 
+
+// The password will be stored here by the Java dialog, so that the C callback can retrieve it and pass it to OpenSSL
+//
+const char * OTCaller::GetDisplay()
+{
+	return m_strDisplay.c_str();
+}
+
+// A display string is set here before the Java dialog is shown, so that the string can be displayed on that dialog.
+//
+void OTCaller::SetDisplay(const char * szDisplay)
+{
+	if (NULL == szDisplay)
+		m_strDisplay = "";
+	else
+		m_strDisplay = szDisplay;
+}
+
+
 const char * OTCaller::GetPassword() 
 { 
 	if (m_strPW.size() > 0)
@@ -375,6 +393,7 @@ void OTCaller::setCallback(OTCallback *cb)
 
 void OTCaller::callOne() 
 { 
+	m_strPW = ""; // Make sure there isn't some old password still in here.
 	if (isCallbackSet()) 
 	{ 
 		OTLog::Output(0, "OTCaller::callOne: FYI, Executing password callback (one)...\n");		
@@ -389,6 +408,7 @@ void OTCaller::callOne()
 
 void OTCaller::callTwo() 
 { 
+	m_strPW = ""; // Make sure there isn't some old password still in here.
 	if (isCallbackSet()) 
 	{ 
 		OTLog::Output(0, "OTCaller::callTwo: FYI, Executing password callback (two)...\n");		
@@ -448,17 +468,19 @@ OPENSSL_CALLBACK_FUNC(default_pass_cb)
 	int len=0;
 	
 	// We'd probably do something else if 'rwflag' is 1
-	
+
+	const std::string str_userdata((NULL == userdata) ? "" : static_cast<char *>(userdata));
+
 //	OTLog::vOutput(0, "OPENSSL_CALLBACK_FUNC: (Password callback hasn't been set yet...) Using 'test' pass phrase for \"%s\"\n", (char *)u);
-	OTLog::vOutput(0, "OPENSSL_CALLBACK_FUNC (default_pass_cb): Using DEFAULT PASSWORD: '' (for \"%s\")\n", (char *)u);
+	OTLog::vOutput(0, "OPENSSL_CALLBACK_FUNC (default_pass_cb): Using DEFAULT PASSWORD: 'test' (for \"%s\")\n", str_userdata.c_str());
 	
 	// get pass phrase, length 'len' into 'tmp'
 	//
 //	std::string str_Password;
 //	std::getline (std::cin, str_Password);
 
-	const char *tmp=""; // For now removing any possibility that "test" password can slip through.
-//	const char *tmp="test";
+//	const char *tmp=""; // For now removing any possibility that "test" password can slip through.
+	const char *tmp="test";
 //	const char *tmp = str_Password.c_str();
 
 	len = strlen(tmp);
@@ -482,7 +504,6 @@ OPENSSL_CALLBACK_FUNC(default_pass_cb)
 // --------------------------------------------------------
 
 
-
 // This is the function that OpenSSL calls when it wants to ask the user for his password.
 // If we return 0, that's bad, that means the password caller and callback failed somehow.
 //
@@ -492,10 +513,10 @@ OPENSSL_CALLBACK_FUNC(souped_up_pass_cb)
 {
 	int len=0;
 	char *tmp=NULL;
+		
+	const std::string str_userdata((NULL == userdata) ? "" : static_cast<char *>(userdata));
 	
-	// We'd probably do something else if 'rwflag' is 1
-	
-	OTLog::vOutput(0, "OPENSSL_CALLBACK_FUNC (souped_up_pass_cb): Using OT Password Callback for \"%s\"\n", (char *)u);
+	OTLog::vOutput(0, "OPENSSL_CALLBACK_FUNC (souped_up_pass_cb): Using OT Password Callback for \"%s\"\n", str_userdata.c_str());
 	
 	OTCaller * pCaller = OTAsymmetricKey::GetPasswordCaller();
 	
@@ -521,15 +542,22 @@ OPENSSL_CALLBACK_FUNC(souped_up_pass_cb)
 		return len;		
 		 */
 	}
-		
+	// ---------------------------------------
+	// The dialog should display this string (so the user knows what he is authorizing.)
+	//
+	pCaller->SetDisplay(str_userdata.c_str());
+	
+	// ---------------------------------------
 	if (1 == rwflag)
 	{
-		OTLog::vOutput(0, "OPENSSL_CALLBACK_FUNC (souped_up_pass_cb): Using OT Password Callback (asks twice) for \"%s\"...\n", (char *)u);
+		OTLog::vOutput(0, "OPENSSL_CALLBACK_FUNC (souped_up_pass_cb): Using OT Password Callback (asks twice) for \"%s\"...\n", 
+					   str_userdata.c_str());
 		pCaller->callTwo(); // This is where Java pops up a modal dialog and asks for password twice...
 	}
 	else
 	{
-		OTLog::vOutput(0, "OPENSSL_CALLBACK_FUNC (souped_up_pass_cb): Using OT Password Callback (asks once) for \"%s\"...\n", (char *)u);
+		OTLog::vOutput(0, "OPENSSL_CALLBACK_FUNC (souped_up_pass_cb): Using OT Password Callback (asks once) for \"%s\"...\n", 
+					   str_userdata.c_str());
 		pCaller->callOne(); // This is where Java pops up a modal dialog and asks for password once...
 	}
 
@@ -548,7 +576,8 @@ OPENSSL_CALLBACK_FUNC(souped_up_pass_cb)
 	
 	if (len <= 0) 
 	{
-		OTLog::Output(0, "OPENSSL_CALLBACK_FUNC (souped_up_pass_cb): 0 length (or less) password was returned from the API password callback :-( Returning 0.\n");
+		OTLog::Output(0, "OPENSSL_CALLBACK_FUNC (souped_up_pass_cb): 0 length (or less) password was "
+					  "returned from the API password callback :-( Returning 0.\n");
 		return 0;
 	}
 	

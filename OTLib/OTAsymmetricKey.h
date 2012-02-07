@@ -155,7 +155,9 @@ public:
 class OTCaller 
 {
 protected:
-	std::string m_strPW;
+	std::string m_strPW;		// The password will be stored here by the Java dialog, so that the C callback can retrieve it and pass it to OpenSSL
+	std::string m_strDisplay;	// A display string is set here before the Java dialog is shown, so that the string can be displayed on that dialog.
+	
 	OTCallback *_callback;
 	
 public:
@@ -163,6 +165,9 @@ public:
 	~OTCaller();
 	
 	const char * GetPassword();
+
+	const char * GetDisplay();
+	void SetDisplay(const char * szDisplay);
 	
 	void delCallback();
 	void setCallback(OTCallback *cb);
@@ -185,14 +190,14 @@ bool OT_API_Set_PasswordCallback(OTCaller & theCaller); // Caller must have Call
 //
 extern "C"
 {
-typedef int OT_OPENSSL_CALLBACK(char *buf, int size, int rwflag, void *u); // <== Callback type, used for declaring.
+typedef int OT_OPENSSL_CALLBACK(char *buf, int size, int rwflag, void *userdata); // <== Callback type, used for declaring.
 	
 	OT_OPENSSL_CALLBACK default_pass_cb;
 	OT_OPENSSL_CALLBACK souped_up_pass_cb;
 }
 
 // Used for the actual function definition (in the .cpp file).
-#define OPENSSL_CALLBACK_FUNC(name) extern "C" int (name)(char *buf, int size, int rwflag, void *u)
+#define OPENSSL_CALLBACK_FUNC(name) extern "C" int (name)(char *buf, int size, int rwflag, void *userdata)
 
 // ------------------------------------------------
 

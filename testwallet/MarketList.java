@@ -35,10 +35,10 @@ public class MarketList extends Storable {
     super.delete();
   }
 // ------------------------
-	/*@SWIG:OTAPI.i,352,OT_CONTAINER_TYPE_MEMBERS@*/
+	/*@SWIG:OTAPI.i,357,OT_CONTAINER_TYPE_MEMBERS@*/
 	private List elementList = new ArrayList();
 /*@SWIG@*/
-	/*@SWIG:OTAPI.i,433,OT_ADD_ELEMENT@*/  // THIS BLOCK CONTAINS JAVA CODE.
+	/*@SWIG:OTAPI.i,438,OT_ADD_ELEMENT@*/  // THIS BLOCK CONTAINS JAVA CODE.
 private long removeRefMarketData(long lIndex) {
 	// 
 	// loop through the elements in the actual container, in order to find the one

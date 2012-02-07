@@ -447,6 +447,30 @@ abstract class otapi {
 		return OT_API_LoadOutboxNoVerify($SERVER_ID,$USER_ID,$ACCOUNT_ID);
 	}
 
+	static function OT_API_LoadPaymentInbox($SERVER_ID,$USER_ID,$ACCOUNT_ID) {
+		return OT_API_LoadPaymentInbox($SERVER_ID,$USER_ID,$ACCOUNT_ID);
+	}
+
+	static function OT_API_LoadPaymentOutbox($SERVER_ID,$USER_ID,$ACCOUNT_ID) {
+		return OT_API_LoadPaymentOutbox($SERVER_ID,$USER_ID,$ACCOUNT_ID);
+	}
+
+	static function OT_API_LoadPaymentInboxNoVerify($SERVER_ID,$USER_ID,$ACCOUNT_ID) {
+		return OT_API_LoadPaymentInboxNoVerify($SERVER_ID,$USER_ID,$ACCOUNT_ID);
+	}
+
+	static function OT_API_LoadPaymentOutboxNoVerify($SERVER_ID,$USER_ID,$ACCOUNT_ID) {
+		return OT_API_LoadPaymentOutboxNoVerify($SERVER_ID,$USER_ID,$ACCOUNT_ID);
+	}
+
+	static function OT_API_LoadRecordBox($SERVER_ID,$USER_ID) {
+		return OT_API_LoadRecordBox($SERVER_ID,$USER_ID);
+	}
+
+	static function OT_API_LoadRecordBoxNoVerify($SERVER_ID,$USER_ID) {
+		return OT_API_LoadRecordBoxNoVerify($SERVER_ID,$USER_ID);
+	}
+
 	static function OT_API_Ledger_GetCount($SERVER_ID,$USER_ID,$ACCOUNT_ID,$THE_LEDGER) {
 		return OT_API_Ledger_GetCount($SERVER_ID,$USER_ID,$ACCOUNT_ID,$THE_LEDGER);
 	}
@@ -1106,6 +1130,14 @@ class OTCaller {
 
 	function GetPassword() {
 		return OTCaller_GetPassword($this->_cPtr);
+	}
+
+	function GetDisplay() {
+		return OTCaller_GetDisplay($this->_cPtr);
+	}
+
+	function SetDisplay($szDisplay) {
+		OTCaller_SetDisplay($this->_cPtr,$szDisplay);
 	}
 
 	function delCallback() {

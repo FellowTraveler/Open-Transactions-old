@@ -218,6 +218,12 @@ class otapiPINVOKE {
   [DllImport("otapi", EntryPoint="CSharp_OTCaller_GetPassword")]
   public static extern string OTCaller_GetPassword(HandleRef jarg1);
 
+  [DllImport("otapi", EntryPoint="CSharp_OTCaller_GetDisplay")]
+  public static extern string OTCaller_GetDisplay(HandleRef jarg1);
+
+  [DllImport("otapi", EntryPoint="CSharp_OTCaller_SetDisplay")]
+  public static extern void OTCaller_SetDisplay(HandleRef jarg1, string jarg2);
+
   [DllImport("otapi", EntryPoint="CSharp_OTCaller_delCallback")]
   public static extern void OTCaller_delCallback(HandleRef jarg1);
 
@@ -547,6 +553,24 @@ class otapiPINVOKE {
 
   [DllImport("otapi", EntryPoint="CSharp_OT_API_LoadOutboxNoVerify")]
   public static extern string OT_API_LoadOutboxNoVerify(string jarg1, string jarg2, string jarg3);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_LoadPaymentInbox")]
+  public static extern string OT_API_LoadPaymentInbox(string jarg1, string jarg2, string jarg3);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_LoadPaymentOutbox")]
+  public static extern string OT_API_LoadPaymentOutbox(string jarg1, string jarg2, string jarg3);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_LoadPaymentInboxNoVerify")]
+  public static extern string OT_API_LoadPaymentInboxNoVerify(string jarg1, string jarg2, string jarg3);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_LoadPaymentOutboxNoVerify")]
+  public static extern string OT_API_LoadPaymentOutboxNoVerify(string jarg1, string jarg2, string jarg3);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_LoadRecordBox")]
+  public static extern string OT_API_LoadRecordBox(string jarg1, string jarg2);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_LoadRecordBoxNoVerify")]
+  public static extern string OT_API_LoadRecordBoxNoVerify(string jarg1, string jarg2);
 
   [DllImport("otapi", EntryPoint="CSharp_OT_API_Ledger_GetCount")]
   public static extern int OT_API_Ledger_GetCount(string jarg1, string jarg2, string jarg3, string jarg4);

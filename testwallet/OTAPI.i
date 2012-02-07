@@ -126,7 +126,9 @@ public:
 class OTCaller 
 {
 protected:
-	std::string m_strPW;
+	std::string m_strPW;		// The password will be stored here by the Java dialog, so that the C callback can retrieve it and pass it to OpenSSL
+	std::string m_strDisplay;	// A display string is set here before the Java dialog is shown, so that the string can be displayed on that dialog.
+	
 	OTCallback *_callback;
 	
 public:
@@ -134,6 +136,9 @@ public:
 	~OTCaller();
 	
 	const char * GetPassword();
+	
+	const char * GetDisplay();
+	void SetDisplay(const char * szDisplay);
 	
 	void delCallback();
 	void setCallback(OTCallback *cb);
