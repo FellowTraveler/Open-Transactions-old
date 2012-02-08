@@ -8,6 +8,9 @@
 
 package com.wrapper.core.jni;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ContactNym extends Displayable {
   private long swigCPtr;
 
@@ -34,7 +37,7 @@ public class ContactNym extends Displayable {
     }
     super.delete();
   }
-/*@SWIG:OTAPI.i,407,OT_CAN_BE_CONTAINED_BY@*/
+/*@SWIG:OTAPI.i,379,OT_CAN_BE_CONTAINED_BY@*/
 	// Ensure that the GC doesn't collect any OT_CONTAINER instance set from Java
 	private Contact containerRefContact;
 	// ----------------	
@@ -44,10 +47,10 @@ public class ContactNym extends Displayable {
 	// ----------------
 /*@SWIG@*/
 	// ------------------------
-	/*@SWIG:OTAPI.i,357,OT_CONTAINER_TYPE_MEMBERS@*/
+	/*@SWIG:OTAPI.i,329,OT_CONTAINER_TYPE_MEMBERS@*/
 	private List elementList = new ArrayList();
 /*@SWIG@*/
-	/*@SWIG:OTAPI.i,438,OT_ADD_ELEMENT@*/  // THIS BLOCK CONTAINS JAVA CODE.
+	/*@SWIG:OTAPI.i,410,OT_ADD_ELEMENT@*/  // THIS BLOCK CONTAINS JAVA CODE.
 private long removeRefServerInfo(long lIndex) {
 	// 
 	// loop through the elements in the actual container, in order to find the one

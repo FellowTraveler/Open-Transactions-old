@@ -467,26 +467,42 @@ OTString::OTString(const std::string& new_string) : m_lLength(0), m_lPosition(0)
 	LowLevelSet(new_string.c_str(), new_string.length());
 }
 
+
+// 
+/*
+ WCHAR szPassword[MAX_PATH];
+ 
+ // Retrieve the password
+ if (GetPasswordFromUser(szPassword, MAX_PATH))    
+ 
+ UsePassword(szPassword); // <===========
+ 
+ // WINDOWS MEMORY ZEROING CODE:
+ SecureZeroMemory(szPassword, sizeof(szPassword));
+ 
+ 
+ // NEED to get linux / etc versions as well, and use them in OTString
+ // as well as anywhere that std::string is used! Todo security!
+ // Can probably write a custom deallocator for the std::string and then
+ // zero it out similarly.
+ */
+
 void OTString::Release(void)
 {
 	if (NULL != m_strBuffer)
 	{
-		// for security purposes.
-		memset(m_strBuffer, 0, m_lLength);
-		delete [] m_strBuffer;
+		// for security purposes. 
+		memset(m_strBuffer, 0, m_lLength); // TODO security: MAKE SURE this line doesn't get OPTIMIZED OUT. (What if a private key or password was stored here?)
+		delete [] m_strBuffer;				// TODO security: make sure all other cases where private keys and passwords are handled throughout OT, the memory is kept secure!
 	}
 	m_strBuffer = NULL;
 	m_lPosition = 0;
 	m_lLength  = 0;
 }
 
+
 #ifndef linux
-size_t strnlen(const char *s, size_t max) 
-{
-    register const char *p;
-    for(p = s; *p && max--; ++p);
-    return(p - s);
-}
+extern "C" size_t strnlen(const char *s, size_t max); // Moved the definition of this function to OTPassword.cpp
 #endif
 
 

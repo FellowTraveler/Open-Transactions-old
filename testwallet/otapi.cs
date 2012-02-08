@@ -554,13 +554,13 @@ public class otapi {
     return ret;
   }
 
-  public static string OT_API_LoadRecordBox(string SERVER_ID, string USER_ID) {
-    string ret = otapiPINVOKE.OT_API_LoadRecordBox(SERVER_ID, USER_ID);
+  public static string OT_API_LoadRecordBox(string SERVER_ID, string USER_ID, string ACCOUNT_ID) {
+    string ret = otapiPINVOKE.OT_API_LoadRecordBox(SERVER_ID, USER_ID, ACCOUNT_ID);
     return ret;
   }
 
-  public static string OT_API_LoadRecordBoxNoVerify(string SERVER_ID, string USER_ID) {
-    string ret = otapiPINVOKE.OT_API_LoadRecordBoxNoVerify(SERVER_ID, USER_ID);
+  public static string OT_API_LoadRecordBoxNoVerify(string SERVER_ID, string USER_ID, string ACCOUNT_ID) {
+    string ret = otapiPINVOKE.OT_API_LoadRecordBoxNoVerify(SERVER_ID, USER_ID, ACCOUNT_ID);
     return ret;
   }
 
@@ -1285,4 +1285,6 @@ public class otapi {
     return ret;
   }
 
+  public static readonly int OTPASSWORD_BLOCKSIZE = otapiPINVOKE.OTPASSWORD_BLOCKSIZE_get();
+  public static readonly int OTPASSWORD_MEMSIZE = otapiPINVOKE.OTPASSWORD_MEMSIZE_get();
 }

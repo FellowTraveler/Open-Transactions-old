@@ -172,9 +172,12 @@ public:
 		inbox,		// each asset account has an inbox, with pending transfers as well as receipts inside.
 		outbox,		// if you SEND a pending transfer, it sits in your outbox until it's accepted, rejected, or canceled.
 		message,	// used in OTMessages, to send various lists of transactions back and forth.
+		paymentInbox,	// Used for client-side-only storage of incoming cheques, invoices, payment plan requests, etc. (Coming in from the Nymbox.)
+		paymentOutbox,	// Used for client-side-only storage of outgoing cheques, invoices, payment plan requests, etc. (Sent from me to other users.)
+		recordBox,		// Used for client-side-only storage of completed items from the inbox, the paymentInbox, and the paymentOutbox.
 		error_state
 	};
-	
+	// -----------------------------------------
 	ledgerType	m_Type;
 	
 	bool		m_bLoadedLegacyData;	// So the server can tell if it just loaded a legacy box or a hashed box. (Legacy boxes stored ALL of the receipts IN the box. No more.)
@@ -196,7 +199,7 @@ public:
 	// You only have to keep the latest receipt, unlike systems that don't store balance
 	// agreement.  We also store a list of issued transactions, the new balance, and the outbox hash.
 	OTItem * GenerateBalanceStatement(const long lAdjustment, const OTTransaction & theOwner, 
-									   OTPseudonym & theNym, const OTAccount & theAccount, OTLedger & theOutbox);
+									  OTPseudonym & theNym, const OTAccount & theAccount, OTLedger & theOutbox);
 	
 	void ProduceOutboxReport(OTItem & theBalanceItem);  
 
@@ -246,11 +249,24 @@ public:
 	bool SaveOutbox();
 	bool LoadOutbox();
 	// ------------------------------------
+	bool SavePaymentInbox();
+	bool LoadPaymentInbox();
+
+	bool SavePaymentOutbox();
+	bool LoadPaymentOutbox();
+
+	bool SaveRecordBox();
+	bool LoadRecordBox();
+	// ------------------------------------
 	bool LoadLedgerFromString(const OTString & theStr); // Auto-detects ledger type. (message/nymbox/inbox/outbox)
 	// ------------------------------------
 	bool LoadInboxFromString(const OTString & strBox);
 	bool LoadOutboxFromString(const OTString & strBox);
 	bool LoadNymboxFromString(const OTString & strBox);
+	// ------------------------------------
+	bool LoadPaymentInboxFromString(const OTString & strBox);
+	bool LoadPaymentOutboxFromString(const OTString & strBox);
+	bool LoadRecordBoxFromString(const OTString & strBox);
 	// ------------------------------------
 	inline // just the top one.
 	int		GetTransactionCount() const { return m_mapTransactions.size(); }

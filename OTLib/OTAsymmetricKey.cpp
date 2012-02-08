@@ -212,7 +212,7 @@ OT_OPENSSL_CALLBACK * OTAsymmetricKey::GetPasswordCallback()
 #else
 	if (IsPasswordCallbackSet())
 	{
-		OTLog::Output(0, "OTAsymmetricKey::GetPasswordCallback: FYI, the internal 'C'-based password callback is now being returning to OT, "
+		OTLog::Output(2, "OTAsymmetricKey::GetPasswordCallback: FYI, the internal 'C'-based password callback is now being returning to OT, "
 					  "which is passing it to OpenSSL "
 					  "during a crypto operation. (If OpenSSL invokes it, then we should see other logs after this from when it triggers "
 					  "whatever password-collection dialog is provided at startup by the (probably Java) OTAPI client.)\n");
@@ -220,7 +220,7 @@ OT_OPENSSL_CALLBACK * OTAsymmetricKey::GetPasswordCallback()
 	}
 	else
 	{
-		OTLog::Output(0, "OTAsymmetricKey::GetPasswordCallback: FYI, the internal 'C'-based password callback was requested by OT (to pass to OpenSSL), "
+		OTLog::Output(2, "OTAsymmetricKey::GetPasswordCallback: FYI, the internal 'C'-based password callback was requested by OT (to pass to OpenSSL), "
 					  "but the callback hasn't been set yet. (Returning NULL CALLBACK to OpenSSL!! Thus causing it to instead ask for the passphrase on the CONSOLE, "
 					  "since no Java password dialog was apparently available.)\n");
 		return static_cast<OT_OPENSSL_CALLBACK *>(NULL);
@@ -231,7 +231,7 @@ OT_OPENSSL_CALLBACK * OTAsymmetricKey::GetPasswordCallback()
 
 
 // --------------------------------------------------------
-
+//static
 OTCaller * OTAsymmetricKey::s_pCaller = NULL;
 
 
@@ -264,17 +264,18 @@ bool OTAsymmetricKey::SetPasswordCaller(OTCaller & theCaller)
 	s_pCaller = &theCaller;
 	// ---------------------------
 	
-	SetPasswordCallback(&souped_up_pass_cb);
+	OTAsymmetricKey::SetPasswordCallback(&souped_up_pass_cb);
 	
 	OTLog::Output(0, "OTAsymmetricKey::SetPasswordCaller: FYI, Successfully set the password caller object from "
 				  "Java, and set the souped_up_pass_cb in C for OpenSSL (which triggers that Java object when the time is right.) Returning true.\n");
 
 	return true;
 }
+// --------------------------------------------------------
 
 OTCaller * OTAsymmetricKey::GetPasswordCaller()
 {
-	OTLog::vOutput(0, "OTAsymmetricKey::GetPasswordCaller(): FYI, this was just called by souped_up_pass_cb "
+	OTLog::vOutput(2, "OTAsymmetricKey::GetPasswordCaller(): FYI, this was just called by souped_up_pass_cb "
 				   "(which must have just been called by OpenSSL.) "
 				   "Returning s_pCaller == %s (Hopefully NOT NULL, so the custom password dialog can be triggered.)\n",
 				   (NULL == s_pCaller) ? "NULL" : "VALID POINTER");
@@ -282,149 +283,8 @@ OTCaller * OTAsymmetricKey::GetPasswordCaller()
 	return s_pCaller;
 }
 
-// --------------------------------------------------------
-
-// OTCallback CLASS
-
-OTCallback::~OTCallback() 
-{
-	OTLog::vOutput(0, "OTCallback::~OTCallback:  (This should only happen ONCE -- as the application is closing.)\n");
-//	std::cout << "OTCallback::~OTCallback()" << std:: endl; 
-}
-
-std::string OTCallback::runOne() // child class will override.
-{ 
-//	std::cout << "OTCallback::run()" << std::endl; 
-	
-	std::string blah(""); 
-//	std::string blah("test"); 
-	
-	OT_ASSERT_MSG(false, "OTCallback::runOne: ASSERT (The child class was supposed to override this method.)\n");
-	
-	return blah; 
-}
-
-std::string OTCallback::runTwo() // child class will override.
-{ 
-//	std::cout << "OTCallback::run()" << std::endl; 
-	
-	std::string blah(""); 
-//	std::string blah("test"); 
-	
-	OT_ASSERT_MSG(false, "OTCallback::runTwo: ASSERT (The child class was supposed to override this method.)\n");
-	
-	return blah; 
-}
 
 
-// ------------------------------------------------
-
-// OTCaller CLASS
-
-OTCaller::~OTCaller() 
-{
-	OTLog::vOutput(0, "OTCaller::~OTCaller: (This should only happen as the application is closing.)\n");
-
-	delCallback(); 
-}
-
-
-// The password will be stored here by the Java dialog, so that the C callback can retrieve it and pass it to OpenSSL
-//
-const char * OTCaller::GetDisplay()
-{
-	return m_strDisplay.c_str();
-}
-
-// A display string is set here before the Java dialog is shown, so that the string can be displayed on that dialog.
-//
-void OTCaller::SetDisplay(const char * szDisplay)
-{
-	if (NULL == szDisplay)
-		m_strDisplay = "";
-	else
-		m_strDisplay = szDisplay;
-}
-
-
-const char * OTCaller::GetPassword() 
-{ 
-	if (m_strPW.size() > 0)
-	{
-		OTLog::Output(0, "OTCaller::GetPassword: FYI, after invoking a (probably Java) password dialog, "
-					  "a password IS now available and is being returned.\n");
-		return m_strPW.c_str(); 
-	}
-	
-	OTLog::Output(0, "OTCaller::GetPassword: Failure: after invoking a (probably Java) password dialog, a "
-				  "password was NOT available. (Returning NULL.)\n");
-	
-	return NULL;
-}
-
-void OTCaller::delCallback() 
-{ 
-//	if (NULL != _callback)  // TODO this may be a memory leak.
-//		delete _callback;	// But I know we're currently crashing from deleting same object twice.
-							// And since the object comes from Java, who am I to delete it? Let Java clean it up.
-	if (isCallbackSet())
-		OTLog::Output(0, "OTCaller::delCallback: WARNING: setting existing callback object pointer to NULL. "
-					  "(This message doesn't trigger if it was already NULL.)\n");
-	//--------------------------------
-	_callback = NULL; 
-}
-
-void OTCaller::setCallback(OTCallback *cb) 
-{ 
-	OTLog::Output(0, "OTCaller::setCallback: Attempting to set the password OTCallback pointer...\n");	
-
-	if (NULL == cb)
-	{
-		OTLog::Output(0, "OTCaller::setCallback: ERROR: NULL password OTCallback object passed in. (Returning.)\n");
-		return;
-	}
-
-	delCallback(); // Sets _callback to NULL, but LOGS first, if it was already set.
-	// -----------------------------
-	
-	_callback = cb;
-	OTLog::Output(0, "OTCaller::setCallback: FYI, the password OTCallback pointer was set.\n");
-}
-
-void OTCaller::callOne() 
-{ 
-	m_strPW = ""; // Make sure there isn't some old password still in here.
-	if (isCallbackSet()) 
-	{ 
-		OTLog::Output(0, "OTCaller::callOne: FYI, Executing password callback (one)...\n");		
-		m_strPW = _callback->runOne(); 
-//		std::cout << "RESULT!!!: " << m_strPW << std::endl; 
-	}
-	else
-	{
-		OTLog::Output(0, "OTCaller::callOne: WARNING: Failed attempt to trigger password callback (one), due to \"it hasn't been set yet.\"\n");
-	}
-}
-
-void OTCaller::callTwo() 
-{ 
-	m_strPW = ""; // Make sure there isn't some old password still in here.
-	if (isCallbackSet()) 
-	{ 
-		OTLog::Output(0, "OTCaller::callTwo: FYI, Executing password callback (two)...\n");		
-		m_strPW = _callback->runTwo(); 
-//		std::cout << "RESULT!!!: " << m_strPW << std::endl; 
-	}
-	else
-	{
-		OTLog::Output(0, "OTCaller::callTwo: WARNING: Failed attempt to trigger password callback (two), due to \"it hasn't been set yet.\"\n");
-	}	
-}
-
-bool OTCaller::isCallbackSet() 
-{ 
-	return (NULL == _callback) ? false : true; 
-}
 
 bool OT_API_Set_PasswordCallback(OTCaller & theCaller) // Caller must have Callback attached already.
 {
@@ -443,12 +303,13 @@ bool OT_API_Set_PasswordCallback(OTCaller & theCaller) // Caller must have Callb
 
 	const bool bSuccess = OTAsymmetricKey::SetPasswordCaller(theCaller);
 	
-	OTLog::vOutput(0, "OT_API_Set_PasswordCallback: RESULT of call to OTAsymmetricKey::SetPasswordCaller: %s", bSuccess ? "SUCCESS" : "FAILURE");
+	OTLog::vOutput(0, "OT_API_Set_PasswordCallback: RESULT of call to OTAsymmetricKey::SetPasswordCaller: %s",
+				   bSuccess ? "SUCCESS" : "FAILURE");
 	
 	return bSuccess;
 }
 
-// --------------------------------------------------------
+// ***************************************************
 
 /*
  extern "C"
@@ -472,7 +333,7 @@ OPENSSL_CALLBACK_FUNC(default_pass_cb)
 	const std::string str_userdata((NULL == userdata) ? "" : static_cast<char *>(userdata));
 
 //	OTLog::vOutput(0, "OPENSSL_CALLBACK_FUNC: (Password callback hasn't been set yet...) Using 'test' pass phrase for \"%s\"\n", (char *)u);
-	OTLog::vOutput(0, "OPENSSL_CALLBACK_FUNC (default_pass_cb): Using DEFAULT PASSWORD: 'test' (for \"%s\")\n", str_userdata.c_str());
+	OTLog::vOutput(0, "OPENSSL_CALLBACK_FUNC (default_pass_cb): Using DEFAULT TEST PASSWORD: 'test' (for \"%s\")\n", str_userdata.c_str());
 	
 	// get pass phrase, length 'len' into 'tmp'
 	//
@@ -508,12 +369,9 @@ OPENSSL_CALLBACK_FUNC(default_pass_cb)
 // If we return 0, that's bad, that means the password caller and callback failed somehow.
 //
 //typedef
-//int OT_OPENSSL_CALLBACK(char *buf, int size, int rwflag, void *u); // <== Callback type, used for declaring.
+//int OT_OPENSSL_CALLBACK (char *buf, int size, int rwflag, void *userdata); // <== Callback type, used for declaring.
 OPENSSL_CALLBACK_FUNC(souped_up_pass_cb)
-{
-	int len=0;
-	char *tmp=NULL;
-		
+{		
 	const std::string str_userdata((NULL == userdata) ? "" : static_cast<char *>(userdata));
 	
 	OTLog::vOutput(0, "OPENSSL_CALLBACK_FUNC (souped_up_pass_cb): Using OT Password Callback for \"%s\"\n", str_userdata.c_str());
@@ -528,7 +386,9 @@ OPENSSL_CALLBACK_FUNC(souped_up_pass_cb)
 		
 		// get pass phrase, length 'len' into 'tmp'
 		/*
-//		 tmp = "test";
+		int len=0;
+		char *tmp=NULL;
+//		tmp = "test";
 		len = strlen(tmp);
 		
 		if (len <= 0) 
@@ -545,7 +405,7 @@ OPENSSL_CALLBACK_FUNC(souped_up_pass_cb)
 	// ---------------------------------------
 	// The dialog should display this string (so the user knows what he is authorizing.)
 	//
-	pCaller->SetDisplay(str_userdata.c_str());
+	pCaller->SetDisplay(str_userdata.c_str(), str_userdata.size());
 	
 	// ---------------------------------------
 	if (1 == rwflag)
@@ -560,19 +420,36 @@ OPENSSL_CALLBACK_FUNC(souped_up_pass_cb)
 					   str_userdata.c_str());
 		pCaller->callOne(); // This is where Java pops up a modal dialog and asks for password once...
 	}
+	// ---------------------------------------
 
-	// get pass phrase, length 'len' into 'tmp'
-	const char * pPassword = pCaller->GetPassword();
+	/*
+	 NOTICE: (For security...)
+	 
+	 We are using an OTPassword object to collect the password from the caller. 
+	 (We're not passing strings back and forth.) The OTPassword object is where we
+	 can centralize our efforts to scrub the memory clean as soon as we're done with
+	 the password. It's also designed to be light (no baggage) and to be passed around
+	 easily, with a set-size array for the data.
 
-	if (NULL == pPassword)
+	 Notice I am copying the password directly from the OTPassword object into the buffer
+	 provided to me by OpenSSL. When the OTPassword object goes out of scope, then it cleans
+	 up automatically.
+	 */
+	
+	OTPassword thePassword;
+	const bool bPassword = pCaller->GetPassword(thePassword);
+	
+	if (false == bPassword)
 	{
-		OTLog::Output(0, "OPENSSL_CALLBACK_FUNC (souped_up_pass_cb): NULL password was returned from the API password callback. (Returning 0.)\n");
+		OTLog::Output(0, "OPENSSL_CALLBACK_FUNC (souped_up_pass_cb): Failure in the API password callback. (Returning 0.)\n");
 		return 0;
 	}
-	
-	OTString strPassword(pPassword);
-	tmp = (char*)strPassword.Get();
-	len = strlen(tmp);
+	// --------------------------------------	
+	/* 
+	 http://openssl.org/docs/crypto/pem.html#
+	 "The callback must return the number of characters in the passphrase or 0 if an error occurred."
+	 */
+	int len	= thePassword.getPasswordSize();
 	
 	if (len <= 0) 
 	{
@@ -585,12 +462,16 @@ OPENSSL_CALLBACK_FUNC(souped_up_pass_cb)
 	if (len > size) 
 		len = size;
 	
-	memcpy(buf, tmp, len);
+	memcpy(buf, thePassword.getPassword(), len);
 	return len;
 }
 
 
-// --------------------------------------------------------
+//typedef
+//int OT_OPENSSL_CALLBACK (char *buf, int size, int rwflag, void *userdata);
+
+
+// ***************************************************
 
 void OTAsymmetricKey::SetKey(EVP_PKEY * pKey, bool bIsPrivateKey/*=false*/)
 { 

@@ -8,7 +8,7 @@
 
 package com.wrapper.core.jni;
 
-public class otapi {
+public class otapi implements otapiConstants {
   public static boolean OT_API_Set_PasswordCallback(OTCaller theCaller) {
     return otapiJNI.OT_API_Set_PasswordCallback(OTCaller.getCPtr(theCaller), theCaller);
   }
@@ -445,12 +445,12 @@ public class otapi {
     return otapiJNI.OT_API_LoadPaymentOutboxNoVerify(SERVER_ID, USER_ID, ACCOUNT_ID);
   }
 
-  public static String OT_API_LoadRecordBox(String SERVER_ID, String USER_ID) {
-    return otapiJNI.OT_API_LoadRecordBox(SERVER_ID, USER_ID);
+  public static String OT_API_LoadRecordBox(String SERVER_ID, String USER_ID, String ACCOUNT_ID) {
+    return otapiJNI.OT_API_LoadRecordBox(SERVER_ID, USER_ID, ACCOUNT_ID);
   }
 
-  public static String OT_API_LoadRecordBoxNoVerify(String SERVER_ID, String USER_ID) {
-    return otapiJNI.OT_API_LoadRecordBoxNoVerify(SERVER_ID, USER_ID);
+  public static String OT_API_LoadRecordBoxNoVerify(String SERVER_ID, String USER_ID, String ACCOUNT_ID) {
+    return otapiJNI.OT_API_LoadRecordBoxNoVerify(SERVER_ID, USER_ID, ACCOUNT_ID);
   }
 
   public static int OT_API_Ledger_GetCount(String SERVER_ID, String USER_ID, String ACCOUNT_ID, String THE_LEDGER) {

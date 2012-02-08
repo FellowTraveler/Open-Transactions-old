@@ -1,6 +1,6 @@
-/*************************************************************
+/**************************************************************
  *    
- *  OTAsymmetricKey.h
+ *  OTPassword.h
  *  
  */
 
@@ -126,111 +126,176 @@
  -----END PGP SIGNATURE-----
  **************************************************************/
 
+#ifndef __OT_PASSWORD_H__
+#define __OT_PASSWORD_H__
 
-#ifndef __OT_ASYMMETRIC_KEY_H__
-#define __OT_ASYMMETRIC_KEY_H__
+/*
+ To use:
+ 
+ OTPassword thePass;
+ (Or...)
+ OTPassword thePass(strPassword, strPassword.length());
+ 
+ const char * szPassword	= thePass.getPassword();
+ const int    nPassLength	= thePass.getPasswordSize();
+ 
+ If the instance of OTPassword is not going to be destroyed immediately
+ after the password is used, then make sure to call zeroMemory() after
+ using the password. (Otherwise the destructor will handle this anyway.)
+ 
+ (The primary purpose of this class is that it zeros its memory out when
+ it is destructed.)
+ 
+ This class gives me a safe way to hand-off a password, and off-load the
+ handling risk to the user.  This class will be included as part of the
+ OT-API SWIG interface so that it's available inside other languages.
+ 
+ */
 
-#include <string>
+
+#define OTPASSWORD_BLOCKSIZE	128		// (128 bytes max length for a password.)
+#define OTPASSWORD_MEMSIZE		129		// +1 for null terminator.
 
 
-extern "C"
+class OTPassword
 {
-#include <openssl/evp.h>	
-}
+public:
+	enum BlockSize
+		{ DEFAULT_SIZE = OTPASSWORD_BLOCKSIZE }; // (128 bytes max length for a password.)	
 
-#include "OTPassword.h"
-
-// ------------------------------------------------
-
-// This is the only part of the API that actually accepts objects as parameters,
-// since the above objects have SWIG C++ wrappers. 
-//
-bool OT_API_Set_PasswordCallback(OTCaller & theCaller); // Caller must have Callback attached already.
-
-
-// ------------------------------------------------
-// For getting the password from the user, for using his private key.
-//
-extern "C"
-{
-typedef int OT_OPENSSL_CALLBACK(char *buf, int size, int rwflag, void *userdata); // <== Callback type, used for declaring.
-	
-	OT_OPENSSL_CALLBACK default_pass_cb;
-	OT_OPENSSL_CALLBACK souped_up_pass_cb;
-}
-// ------------------------------------------------
-// Used for the actual function definition (in the .cpp file).
-//
-#define OPENSSL_CALLBACK_FUNC(name) extern "C" int (name)(char *buf, int size, int rwflag, void *userdata)
-
-// ------------------------------------------------
-
-class OTString;
-class OTASCIIArmor;
-
-
-class OTAsymmetricKey
-{
 private:
-	EVP_PKEY *	m_pKey; 
-	bool		m_bIsPublicKey;
-	bool		m_bIsPrivateKey;
-	// --------------------------------------------
-	
-	static OT_OPENSSL_CALLBACK	* s_pwCallback; 
-	static OTCaller				* s_pCaller;
+	int		m_nPasswordSize; // [ 0..128 ]
+	char	m_szPassword[OTPASSWORD_MEMSIZE]; // a 129-byte block of char.	(128 + 1 for null terminator)
 	
 public:
-	
-	static void SetPasswordCallback(OT_OPENSSL_CALLBACK * pCallback);
-	static OT_OPENSSL_CALLBACK * GetPasswordCallback();
-	static bool IsPasswordCallbackSet() { return (NULL == s_pwCallback) ? false : true; }
-	
-	static bool SetPasswordCaller(OTCaller & theCaller);
-	static OTCaller * GetPasswordCaller();
-	// -------------------------------------
+	const
+	BlockSize	blockSize;		
+	const
+	char *	getPassword() const;
+	int		setPassword(const char * szInput, int nInputSize); // (FYI, truncates if nInputSize larger than getBlockSize.)
+	int		getBlockSize() const;
+	int		getPasswordSize() const;
+	void	zeroMemory();
 
-	inline bool IsPublic()	{ return m_bIsPublicKey;  }
-	inline bool IsPrivate() { return m_bIsPrivateKey; }
-	
-	// -------------------------------------
-	OTAsymmetricKey();
-	OTAsymmetricKey(const OTAsymmetricKey & rhs);
-	virtual ~OTAsymmetricKey();
-	
-	OTAsymmetricKey & operator=(const OTAsymmetricKey & rhs);
-	
-	void Release();
-	
-	const EVP_PKEY * GetKey() const;
-	
-	void SetKey(EVP_PKEY * pKey, bool bIsPrivateKey=false);
-	
-	bool LoadPrivateKey(const OTString & strFoldername, const OTString & strFilename);
-	bool LoadPublicKey(const OTString & strFoldername, const OTString & strFilename);
-	
-	bool LoadPublicKeyFromPGPKey(const OTASCIIArmor & strKey); // does NOT handle bookends.
-
-	bool LoadPublicKeyFromCertFile(const OTString & strFoldername, const OTString & strFilename); // DOES handle bookends.
-	bool LoadPublicKeyFromCertString(const OTString & strCert, bool bEscaped=true); // DOES handle bookends, AND escapes.
-
-	// Get the public key in ASCII-armored format with bookends 
-	// - ------- BEGIN PUBLIC KEY --------
-	// Notice the "- " before the rest of the bookend starts.
-	bool GetPublicKey(OTString & strKey, bool bEscaped=true) const;
-
-	// Get the public key in ASCII-armored format
-	// i2d == EVP_PKEY* converted to normal binary in RAM
-	bool GetPublicKey(OTASCIIArmor & strKey) const;
-	
-	// Decodes a public key from ASCII armor into an actual key pointer
-	// and sets that as the m_pKey on this object.
-	// This is the version that will handle the bookends ( --------- BEGIN PUBLIC KEY -------)
-	bool SetPublicKey(const OTString & strKey, bool bEscaped=false);
-
-	// Decodes a public key from ASCII armor into an actual key pointer
-	// and sets that as the m_pKey on this object.
-	bool SetPublicKey(const OTASCIIArmor & strKey);
+	OTPassword();
+	OTPassword(const char * szInput, int nInputSize);
+	~OTPassword();
 };
 
-#endif // __OT_ASYMMETRIC_KEY_H__
+#undef OTPASSWORD_BLOCKSIZE
+
+
+// ---------------------------------------------------------
+// Used for the password callback...
+
+class OTCallback 
+{
+public:
+	OTCallback() {}
+	virtual ~OTCallback();
+	virtual void runOne(const char * szDisplay, OTPassword & theOutput); // Asks for password once. (For authentication when using nym.)
+	virtual void runTwo(const char * szDisplay, OTPassword & theOutput); // Asks for password twice. (For confirmation when changing password or creating nym.)
+};
+
+// ------------------------------------------------
+
+class OTCaller 
+{
+protected:
+	OTPassword	m_Password;	// The password will be stored here by the Java dialog, so that the C callback can retrieve it and pass it to OpenSSL
+	OTPassword	m_Display;	// A display string is set here before the Java dialog is shown. (OTPassword used here only for convenience.)
+	
+	OTCallback * _callback;
+	
+public:
+	OTCaller() : _callback(NULL) { }
+	~OTCaller();
+	
+	bool	GetPassword(OTPassword & theOutput) const;	// Grab the password when it is needed.
+	void	ZeroOutPassword();	// Then ZERO IT OUT so copies aren't floating around...
+	
+	const char * GetDisplay() const;
+	void SetDisplay(const char * szDisplay, int nLength);
+	
+	void delCallback();
+	void setCallback(OTCallback *cb);
+	bool isCallbackSet() const;
+	
+	void callOne(); // Asks for password once. (For authentication when using the Nym's private key.)
+	void callTwo(); // Asks for password twice. (For confirmation during nym creation and password change.)
+};
+
+
+
+// ------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// _____________________________________________________________
+
+#endif //__OT_PASSWORD_H__
+
+
+
+
+
+
+

@@ -214,7 +214,7 @@ int     OTLog::__latency_receive_ms = 5000; // number of ms to wait before retry
 long	OTLog::__minimum_market_scale = 1;	// Server admin can configure this to any higher power-of-ten.
 
 
-OTString OTLog::__Version = "0.77d";
+OTString OTLog::__Version = "0.77e";
 
 
 
@@ -239,27 +239,32 @@ OTString OTLog::__OTPathSeparator = "/";
 
 // Just a default value, since this is configurable programmatically.
 
+// these are static
 
-OTString OTLog::__OTCronFolder		= "cron";		
-OTString OTLog::__OTNymFolder		= "nyms";		
-OTString OTLog::__OTAccountFolder	= "accounts";	
-OTString OTLog::__OTUserAcctFolder	= "useraccounts";	
-OTString OTLog::__OTReceiptFolder	= "receipts";		
-OTString OTLog::__OTNymboxFolder	= "nymbox";		
-OTString OTLog::__OTInboxFolder		= "inbox";		
-OTString OTLog::__OTOutboxFolder	= "outbox";	
-OTString OTLog::__OTPaymentInboxFolder	= "paymentInbox";		
-OTString OTLog::__OTPaymentOutboxFolder	= "paymentOutbox";	
-OTString OTLog::__OTRecordBoxFolder	= "recordBox";
-OTString OTLog::__OTCertFolder		= "certs";		
-OTString OTLog::__OTPubkeyFolder	= "pubkeys";
-OTString OTLog::__OTContractFolder	= "contracts";
-OTString OTLog::__OTMintFolder		= "mints";
-OTString OTLog::__OTSpentFolder		= "spent";
-OTString OTLog::__OTPurseFolder		= "purse";
-OTString OTLog::__OTMarketFolder	= "markets";
+OTString OTLog::__OTCronFolder				= "cron";		
+OTString OTLog::__OTNymFolder				= "nyms";		
+OTString OTLog::__OTAccountFolder			= "accounts";	
+OTString OTLog::__OTUserAcctFolder			= "useraccounts";	
+OTString OTLog::__OTReceiptFolder			= "receipts";		
+OTString OTLog::__OTNymboxFolder			= "nymbox";		
+OTString OTLog::__OTInboxFolder				= "inbox";		
+OTString OTLog::__OTOutboxFolder			= "outbox";	
+OTString OTLog::__OTPaymentInboxFolder		= "paymentInbox";		
+OTString OTLog::__OTPaymentOutboxFolder		= "paymentOutbox";	
+OTString OTLog::__OTRecordBoxFolder			= "recordBox";
+OTString OTLog::__OTCertFolder				= "certs";		
+OTString OTLog::__OTPubkeyFolder			= "pubkeys";
+OTString OTLog::__OTContractFolder			= "contracts";
+OTString OTLog::__OTMintFolder				= "mints";
+OTString OTLog::__OTSpentFolder				= "spent";
+OTString OTLog::__OTPurseFolder				= "purse";
+OTString OTLog::__OTMarketFolder			= "markets";
+OTString OTLog::__OTScriptFolder			= "scripts";
+OTString OTLog::__OTSmartContractsFolder	= "smartcontracts";
+
 
 OTString OTLog::__OTLogfile;
+
 // If Logfile uninitialized, we assume NO logfile, and we log to output.
 // Otherwise, we append to the logfile, and leave output clear.
 

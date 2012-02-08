@@ -174,6 +174,9 @@ private:
 	static OTString __OTPurseFolder;	// Just the folder name
 	static OTString __OTMarketFolder;	// Just the folder name
 	
+	static OTString __OTScriptFolder;
+	static OTString __OTSmartContractsFolder;
+
 	static OTString __OTLogfile;		// Optional, logfile (full path.)
 	
 	static dequeOfStrings __logDeque; // Stores the last 1024 logs in memory.
@@ -297,15 +300,22 @@ public:
 	static const char *	MarketFolder()				{ return __OTMarketFolder.Get(); }
 	static void SetMarketFolder(const char * szPath){ __OTMarketFolder.Set(szPath); }
 	
+	static const char *	ScriptFolder()				{ return __OTScriptFolder.Get(); }
+	static void SetScriptFolder(const char * szPath){ __OTScriptFolder.Set(szPath); }
+	
+	static const char *	SmartContractsFolder()		{ return __OTSmartContractsFolder.Get(); }
+	static void SetSmartContractsFolder(const char * szPath)	{ __OTSmartContractsFolder.Set(szPath); }
+	
 	static const char *	Logfile()				{ return __OTLogfile.Get(); }
 	static void SetLogfile(const char * szPath)	{ __OTLogfile.Set(szPath); }
 	
 	// ------------------------------------------------------------
 	
-	static const char * Version() { return __Version.Get(); }
+	static 
+	const char *	Version() { return __Version.Get(); }
 	
-	static int			GetLogLevel() { return __CurrentLogLevel; }
-	static void			SetLogLevel(int nLevel) { __CurrentLogLevel = nLevel; }
+	static int		GetLogLevel() { return __CurrentLogLevel; }
+	static void		SetLogLevel(int nLevel) { __CurrentLogLevel = nLevel; }
 	
 	// --------------------------------------------------------
 	

@@ -174,9 +174,11 @@ const char * OTLedger::_TypeStrings[] =
 	"inbox",		// each asset account has an inbox, with pending transfers as well as receipts inside.
 	"outbox",		// if you SEND a pending transfer, it sits in your outbox until it's accepted, rejected, or canceled.
 	"message",		// used in OTMessages, to send various lists of transactions back and forth.
+	"paymentInbox",		// Used for client-side-only storage of incoming cheques, invoices, payment plan requests, etc. (Coming in from the Nymbox.)
+	"paymentOutbox",	// Used for client-side-only storage of outgoing cheques, invoices, payment plan requests, etc. (Sent from me to other users.)
+	"recordBox",		// Used for client-side-only storage of completed items from the inbox, the paymentInbox, and the paymentOutbox.
 	"error_state"
 };
-
 
 
 
@@ -200,6 +202,9 @@ bool OTLedger::VerifyAccount(OTPseudonym & theNym)
 		case OTLedger::nymbox:
 		case OTLedger::inbox:
 		case OTLedger::outbox:
+		case OTLedger::paymentInbox:
+		case OTLedger::paymentOutbox:
+		case OTLedger::recordBox:
 		{
 			std::set<long> setUnloaded;
 			// if psetUnloaded passed in, then use it to return the #s that weren't there as box receipts.
@@ -454,7 +459,7 @@ bool OTLedger::LoadBoxReceipt(const long & lTransactionNum)
 
 bool OTLedger::LoadInbox()
 {
-	//	print_stacktrace();
+//	print_stacktrace();
 	
 	bool bRetVal = LoadGeneric(OTLedger::inbox);
 	
@@ -475,7 +480,7 @@ bool OTLedger::LoadNymbox()
 {
 	return LoadGeneric(OTLedger::nymbox);		
 }
-
+// ---------------------------------------
 
 
 bool OTLedger::LoadInboxFromString(const OTString & strBox)
@@ -494,6 +499,42 @@ bool OTLedger::LoadNymboxFromString(const OTString & strBox)
 }
 
 
+// ---------------------------------------
+
+bool OTLedger::LoadPaymentInbox()
+{
+	return LoadGeneric(OTLedger::paymentInbox);		
+}
+
+bool OTLedger::LoadPaymentOutbox()
+{
+	return LoadGeneric(OTLedger::paymentOutbox);
+}
+
+bool OTLedger::LoadRecordBox()
+{
+	return LoadGeneric(OTLedger::recordBox);		
+}
+// ---------------------------------------
+
+
+bool OTLedger::LoadPaymentInboxFromString(const OTString & strBox)
+{	
+	return LoadGeneric(OTLedger::paymentInbox, &strBox);
+}
+
+bool OTLedger::LoadPaymentOutboxFromString(const OTString & strBox)
+{
+	return LoadGeneric(OTLedger::paymentOutbox, &strBox);	
+}
+
+bool OTLedger::LoadRecordBoxFromString(const OTString & strBox)
+{
+	return LoadGeneric(OTLedger::recordBox, &strBox);		
+}
+// ---------------------------------------
+
+
 /**
   OTLedger::LoadGeneric is called by LoadInbox, LoadOutbox, and LoadNymbox.
   Does NOT VerifyAccount after loading -- caller is responsible to do that.
@@ -510,9 +551,13 @@ bool OTLedger::LoadGeneric(OTLedger::ledgerType theType, const OTString * pStrin
     // --------------------------------------------------------
 	switch (theType) 
 	{
-		case OTLedger::inbox:   pszFolder = OTLog::InboxFolder();   break;
-		case OTLedger::outbox:  pszFolder = OTLog::OutboxFolder();  break;
-		case OTLedger::nymbox:  pszFolder = OTLog::NymboxFolder();  break;
+		case OTLedger::nymbox:			pszFolder = OTLog::NymboxFolder();			break;
+		case OTLedger::inbox:			pszFolder = OTLog::InboxFolder();			break;
+		case OTLedger::outbox:			pszFolder = OTLog::OutboxFolder();			break;
+		case OTLedger::paymentInbox:	pszFolder = OTLog::PaymentInboxFolder();	break;
+		case OTLedger::paymentOutbox:	pszFolder = OTLog::PaymentOutboxFolder();	break;
+		case OTLedger::recordBox:		pszFolder = OTLog::RecordBoxFolder();		break;
+			/* --- BREAK --- */
 		default:
 			OTLog::Error("OTLedger::LoadGeneric: Error: unknown box type. (This should never happen.)\n");
 			return false;
@@ -604,9 +649,13 @@ bool OTLedger::SaveGeneric(OTLedger::ledgerType theType)
 	
 	switch (theType) 
 	{
-		case OTLedger::inbox:	pszFolder = OTLog::InboxFolder();	break;
-		case OTLedger::outbox:	pszFolder = OTLog::OutboxFolder();	break;
-		case OTLedger::nymbox:	pszFolder = OTLog::NymboxFolder();	break;
+		case OTLedger::nymbox:			pszFolder = OTLog::NymboxFolder();			break;
+		case OTLedger::inbox:			pszFolder = OTLog::InboxFolder();			break;
+		case OTLedger::outbox:			pszFolder = OTLog::OutboxFolder();			break;
+		case OTLedger::paymentInbox:	pszFolder = OTLog::PaymentInboxFolder();	break;
+		case OTLedger::paymentOutbox:	pszFolder = OTLog::PaymentOutboxFolder();	break;
+		case OTLedger::recordBox:		pszFolder = OTLog::RecordBoxFolder();		break;
+			/* --- BREAK --- */
 		default:
 			OTLog::Error("OTLedger::SaveGeneric: Error: unknown box type. (This should never happen.)\n");
 			return false;
@@ -707,6 +756,48 @@ bool OTLedger::SaveNymbox()
 	
 	return SaveGeneric(m_Type);
 }
+// ------------------------------------------------
+
+// If you're going to save this, make sure you sign it first.
+//
+bool OTLedger::SavePaymentInbox()
+{
+	if (m_Type != OTLedger::paymentInbox)
+	{
+		OTLog::Error("Wrong ledger type passed to OTLedger::SavePaymentInbox.\n");
+		return false;
+	}
+	
+	return SaveGeneric(m_Type);
+}
+
+
+// If you're going to save this, make sure you sign it first.
+bool OTLedger::SavePaymentOutbox()
+{
+	if (m_Type != OTLedger::paymentOutbox)
+	{
+		OTLog::Error("Wrong ledger type passed to OTLedger::SavePaymentOutbox.\n");
+		return false;
+	}
+	
+	return SaveGeneric(m_Type);
+}
+
+// If you're going to save this, make sure you sign it first.
+bool OTLedger::SaveRecordBox()
+{
+	if (m_Type != OTLedger::recordBox)
+	{
+		OTLog::Error("Wrong ledger type passed to OTLedger::SaveRecordBox.\n");
+		return false;
+	}
+	
+	return SaveGeneric(m_Type);
+}
+
+// --------------------------------------------
+
 
 
 OTLedger * OTLedger::GenerateLedger(const OTIdentifier & theUserID,
@@ -735,16 +826,28 @@ bool OTLedger::GenerateLedger(const OTIdentifier & theAcctID,
 	OTString strID(theAcctID), strServerID(theServerID);
 	
 	switch (theType) {
-		case OTLedger::nymbox:
+		case OTLedger::nymbox:	// stored by NymID ONLY.
 			m_strFoldername = OTLog::NymboxFolder();
 			m_strFilename.Format("%s%s%s", strServerID.Get(), OTLog::PathSeparator(), strID.Get());
 			break;
-		case OTLedger::inbox:
+		case OTLedger::inbox:	// stored by AcctID ONLY.
 			m_strFoldername = OTLog::InboxFolder();
 			m_strFilename.Format("%s%s%s", strServerID.Get(), OTLog::PathSeparator(), strID.Get());
 			break;
-		case OTLedger::outbox:
+		case OTLedger::outbox:	// stored by AcctID ONLY.
 			m_strFoldername = OTLog::OutboxFolder();
+			m_strFilename.Format("%s%s%s", strServerID.Get(), OTLog::PathSeparator(), strID.Get());
+			break;
+		case OTLedger::paymentInbox:	// stored by NymID ONLY.
+			m_strFoldername = OTLog::PaymentInboxFolder();
+			m_strFilename.Format("%s%s%s", strServerID.Get(), OTLog::PathSeparator(), strID.Get());
+			break;
+		case OTLedger::paymentOutbox:	// stored by NymID ONLY.
+			m_strFoldername = OTLog::PaymentOutboxFolder();
+			m_strFilename.Format("%s%s%s", strServerID.Get(), OTLog::PathSeparator(), strID.Get());
+			break;
+		case OTLedger::recordBox:		// stored by Acct ID *and* Nym ID (depending on the box.)
+			m_strFoldername = OTLog::RecordBoxFolder();
 			m_strFilename.Format("%s%s%s", strServerID.Get(), OTLog::PathSeparator(), strID.Get());
 			break;
 		case OTLedger::message:
@@ -756,7 +859,7 @@ bool OTLedger::GenerateLedger(const OTIdentifier & theAcctID,
 			m_Type	= theType;
 			return true;
 		default:
-			OT_ASSERT_MSG(false, "OTLedger::GenerateLedger: GenerateLedger is only for message, inbox, outbox, and nymbox ledgers.\n");
+			OT_ASSERT_MSG(false, "OTLedger::GenerateLedger: GenerateLedger is only for message, nymbox, inbox, outbox, paymentInbox, and paymentOutbox ledgers.\n");
 			return false; // this return is unecessary because of the assert. But I like having it anyway.
 	}
 	
@@ -789,15 +892,35 @@ bool OTLedger::GenerateLedger(const OTIdentifier & theAcctID,
 					   szFolder1name, OTLog::PathSeparator(), szFolder2name, OTLog::PathSeparator(), szFilename);
 	}
 	// --------------------------------------------------
-	if (OTLedger::nymbox != theType)
+	if ((OTLedger::inbox == theType) || (OTLedger::outbox == theType))
 	{
-		// Have to look up the UserID here. No way around it.
+		// Have to look up the UserID here. No way around it. We need that ID.
 		// Plus it helps verify things.
 		OTAccount * pAccount = OTAccount::LoadExistingAccount(theAcctID, theServerID);
 		OTCleanup<OTAccount> theAccountGuardian(pAccount); // No worries about having to clean it up.
 		
 		if (NULL != pAccount)
 			SetUserID(pAccount->GetUserID());
+		else 
+		{
+			OTLog::Error("OTLedger::GenerateLedger: Failed in OTAccount::LoadExistingAccount().\n");
+			return false;
+		}
+	}
+	else if (OTLedger::recordBox == theType)
+	{
+		// RecordBox COULD be by NymID OR AcctID.
+		// So we TRY to lookup the acct.
+		//
+		OTAccount * pAccount = OTAccount::LoadExistingAccount(theAcctID, theServerID);
+		OTCleanup<OTAccount> theAccountGuardian(pAccount); // No worries about having to clean it up.
+		
+		if (NULL != pAccount) // Found it!
+			SetUserID(pAccount->GetUserID());
+		else // Must be based on NymID, not AcctID (like Nymbox. But RecordBox can go either way.)
+		{
+			SetUserID(theAcctID); // In the case of nymbox, and sometimes with recordBox, the acct ID IS the user ID.
+		}
 	}
 	else 
 	{
@@ -1007,29 +1130,24 @@ OTTransaction * OTLedger::GetTransaction(const OTTransaction::transactionType th
 OTTransaction * OTLedger::GetTransaction(long lTransactionNum)
 {
 	// loop through the items that make up this transaction
-	
 //  OTLog::vError("OTLedger::GetTransaction: Checking ledger for trans %ld. COUNT: %d \n", lTransactionNum, GetTransactionCount());
     
 	FOR_EACH(mapOfTransactions, m_mapTransactions)
 	{
 		OTTransaction * pTransaction = (*it).second;
 		OT_ASSERT(NULL != pTransaction);
-		
 //      OTLog::vError("OTLedger::GetTransaction: Looping. Currently on trans %ld \n", pTransaction->GetTransactionNum());
         
 		if (pTransaction->GetTransactionNum() == lTransactionNum)
         {
 //          OTLog::vOutput(5, "OTLedger::GetTransaction: Returning transaction# %ld \n", lTransactionNum);
-            
 			return pTransaction;
         }
 //		else // this was for debugging only. It's actually normal for non-matching numbers to be on this list.
 //			OTLog::vOutput(5"Expected transaction number %ld, but found %ld on the list instead. Bad data?\n",
 //						  lTransactionNum, pTransaction->GetTransactionNum());
 	}
-	
 //        OTLog::Error("OTLedger::GetTransaction: Returning NULL \n");
-
 	return NULL;
 }
 
@@ -1400,12 +1518,21 @@ bool OTLedger::LoadLedgerFromString(const OTString & theStr)
 {
 	bool bLoaded = false;
 	
+	// Todo security: Look how this is done...
+	// Any vulnerabilities?
+	//
 	if (theStr.Contains("\"\n type=\"nymbox\""))
 		bLoaded = this->LoadNymboxFromString(theStr);
 	else if (theStr.Contains("\"\n type=\"inbox\""))
 		bLoaded = this->LoadInboxFromString(theStr);
 	else if (theStr.Contains("\"\n type=\"outbox\""))
 		bLoaded = this->LoadOutboxFromString(theStr);
+	else if (theStr.Contains("\"\n type=\"paymentInbox\""))
+		bLoaded = this->LoadPaymentInboxFromString(theStr);
+	else if (theStr.Contains("\"\n type=\"paymentOutbox\""))
+		bLoaded = this->LoadPaymentOutboxFromString(theStr);
+	else if (theStr.Contains("\"\n type=\"recordBox\""))
+		bLoaded = this->LoadRecordBoxFromString(theStr);
 	else if (theStr.Contains("\"\n type=\"message\""))
 	{
 		m_Type	= OTLedger::message;
@@ -1434,9 +1561,12 @@ void OTLedger::UpdateContents() // Before transmission or serialization, this is
 			// These store abbreviated versions of themselves, with the actual receipts in separate files.
 			// Those separate files are created on server side when first added to the box, and on client
 			// side when downloaded from the server. They must match the hash that appears in the box.
+		case OTLedger::nymbox:
 		case OTLedger::inbox:
 		case OTLedger::outbox:
-		case OTLedger::nymbox:
+		case OTLedger::paymentInbox:
+		case OTLedger::paymentOutbox:
+		case OTLedger::recordBox:
 			bSavingAbbreviated	= true;
 			nPartialRecordCount	= m_mapTransactions.size(); // We store this, so we know how many abbreviated records to read back later.
 			break;
@@ -1497,9 +1627,12 @@ void OTLedger::UpdateContents() // Before transmission or serialization, this is
 			switch (this->GetType()) 
 			{
 					// -----------------------------
+				case OTLedger::nymbox:	pTransaction->SaveAbbreviatedNymboxRecord(strTransaction);	break;
 				case OTLedger::inbox:	pTransaction->SaveAbbreviatedInboxRecord(strTransaction);	break;
 				case OTLedger::outbox:	pTransaction->SaveAbbreviatedOutboxRecord(strTransaction);	break;
-				case OTLedger::nymbox:	pTransaction->SaveAbbreviatedNymboxRecord(strTransaction);	break;
+				case OTLedger::paymentInbox:	pTransaction->SaveAbbrevPaymentInboxRecord(strTransaction);		break;
+				case OTLedger::paymentOutbox:	pTransaction->SaveAbbrevPaymentOutboxRecord(strTransaction);	break;
+				case OTLedger::recordBox:		pTransaction->SaveAbbrevRecordBoxRecord(strTransaction);		break;
 					// -----------------------------
 				default: // todo: possibly change this to an OT_ASSERT. security.
 					OTLog::Error("OTLedger::UpdateContents: Error: unexpected box type (2nd block). (This should never happen. Skipping.)\n");
@@ -1529,12 +1662,18 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		m_strVersion	= xml->getAttributeValue("version");
 		if (strType.Compare("message"))		// These are used for sending transactions in messages. (Withdrawal request, etc.)
 			m_Type = OTLedger::message;
+		else if (strType.Compare("nymbox"))	// Used for receiving new transaction numbers, and for receiving notices.
+			m_Type = OTLedger::nymbox;
 		else if (strType.Compare("inbox"))	// These are used for storing the receipts in your inbox. (That server must store until signed-off.)
 			m_Type = OTLedger::inbox;
 		else if (strType.Compare("outbox"))	// Outgoing, pending transfers.
 			m_Type = OTLedger::outbox;
-		else if (strType.Compare("nymbox"))	// Used for receiving new transaction numbers, and for receiving notices.
-			m_Type = OTLedger::nymbox;
+		else if (strType.Compare("paymentInbox"))	// Receiving invoices, etc.
+			m_Type = OTLedger::paymentInbox;
+		else if (strType.Compare("paymentOutbox"))	// Sending invoices, etc.
+			m_Type = OTLedger::paymentOutbox;
+		else if (strType.Compare("recordBox"))	// Where receipts go to die (awaiting user deletion, completed from other boxes already.)
+			m_Type = OTLedger::recordBox;
 		else
 			m_Type = OTLedger::error_state;	// Danger, Will Robinson.
 		// ------------------------------------------------------------------
@@ -1575,6 +1714,10 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 			case OTLedger::nymbox:	strExpected.Set("nymboxRecord");	break;
 			case OTLedger::inbox:	strExpected.Set("inboxRecord");		break;
 			case OTLedger::outbox:	strExpected.Set("outboxRecord");	break;
+			case OTLedger::paymentInbox:	strExpected.Set("paymentInboxRecord");	break;
+			case OTLedger::paymentOutbox:	strExpected.Set("paymentOutboxRecord");	break;
+			case OTLedger::recordBox:		strExpected.Set("recordBoxRecord");		break;
+				/* --- BREAK --- */
 			case OTLedger::message:	
                 if (nPartialRecordCount > 0) // -------------------
                 {
@@ -1831,6 +1974,9 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 					case OTLedger::nymbox:
 					case OTLedger::inbox:
 					case OTLedger::outbox:
+					case OTLedger::paymentInbox:
+					case OTLedger::paymentOutbox:
+					case OTLedger::recordBox:
 					{
 						// For the sake of legacy data, check for existence of box receipt here,
 						// and re-save that box receipt if it doesn't exist.

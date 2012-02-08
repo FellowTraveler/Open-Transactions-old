@@ -16,8 +16,8 @@ class SwigDirector_OTCallback : public OTCallback, public Swig::Director {
 public:
     SwigDirector_OTCallback(zval *self);
     virtual ~SwigDirector_OTCallback();
-    virtual std::string runOne();
-    virtual std::string runTwo();
+    virtual void runOne(char const *szDisplay, OTPassword &theOutput);
+    virtual void runTwo(char const *szDisplay, OTPassword &theOutput);
 };
 
 #endif

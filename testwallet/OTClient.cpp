@@ -8554,17 +8554,36 @@ bool OTClient::InitClient(OTWallet & theWallet)
 	ERR_load_crypto_strings();  // Todo deal with error logging mechanism later.
 	OpenSSL_add_all_algorithms();  // Is this really necessary to make these function calls? I'll leave it.
 	
+	// -------------------------------------------------------
+	// These storage locations are client-only
+	//
+	OTLog::ConfirmOrCreateFolder(OTLog::PaymentInboxFolder());
+	OTLog::ConfirmOrCreateFolder(OTLog::PaymentOutboxFolder());
+	OTLog::ConfirmOrCreateFolder(OTLog::RecordBoxFolder());
+	OTLog::ConfirmOrCreateFolder(OTLog::PurseFolder()); 	
+	OTLog::ConfirmOrCreateFolder(OTLog::ScriptFolder()); 	
 	
+	// These storage locations are common to client and server.
 	OTLog::ConfirmOrCreateFolder(OTLog::NymFolder());
+	OTLog::ConfirmOrCreateFolder(OTLog::ReceiptFolder());
+	OTLog::ConfirmOrCreateFolder(OTLog::NymboxFolder());
 	OTLog::ConfirmOrCreateFolder(OTLog::AccountFolder());
-	OTLog::ConfirmOrCreateFolder(OTLog::ReceiptFolder()); 
-	OTLog::ConfirmOrCreateFolder(OTLog::NymboxFolder()); 
-	OTLog::ConfirmOrCreateFolder(OTLog::InboxFolder()); 
-	OTLog::ConfirmOrCreateFolder(OTLog::OutboxFolder()); 
+	OTLog::ConfirmOrCreateFolder(OTLog::InboxFolder());
+	OTLog::ConfirmOrCreateFolder(OTLog::OutboxFolder());
 	OTLog::ConfirmOrCreateFolder(OTLog::CertFolder());
+	OTLog::ConfirmOrCreateFolder(OTLog::PubkeyFolder()); 
 	OTLog::ConfirmOrCreateFolder(OTLog::ContractFolder());
 	OTLog::ConfirmOrCreateFolder(OTLog::MintFolder()); 
-	OTLog::ConfirmOrCreateFolder(OTLog::PurseFolder()); 	
+	OTLog::ConfirmOrCreateFolder(OTLog::MarketFolder()); 	
+	OTLog::ConfirmOrCreateFolder(OTLog::SmartContractsFolder()); 	
+	
+	// This bottom group of storage locations is server-only
+	//
+//	OTLog::ConfirmOrCreateFolder(OTLog::UserAcctFolder());
+//	OTLog::ConfirmOrCreateFolder(OTLog::CronFolder());
+//	OTLog::ConfirmOrCreateFolder(OTLog::SpentFolder());	
+	// -------------------------------------------------------
+
 	
 	return true;
 }

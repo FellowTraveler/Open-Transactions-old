@@ -1201,6 +1201,8 @@ const char * OT_API_Basket_GetMemberMinimumTransferAmount(const char * BASKET_AS
 const char * OT_API_LoadAssetAccount(const char * SERVER_ID,
 									 const char * USER_ID,
 									 const char * ACCOUNT_ID); // Returns NULL, or an account.
+
+
 const char * OT_API_LoadInbox(const char * SERVER_ID,
 							  const char * USER_ID,
 							  const char * ACCOUNT_ID); // Returns NULL, or an inbox.
@@ -1208,7 +1210,8 @@ const char * OT_API_LoadOutbox(const char * SERVER_ID,
 							   const char * USER_ID,
 							   const char * ACCOUNT_ID); // returns NULL, or an outbox.
 
-
+/// These versions don't verify the ledger, they just load it up.
+///
 const char * OT_API_LoadInboxNoVerify(const char * SERVER_ID,
 									  const char * USER_ID,
 									  const char * ACCOUNT_ID); // Returns NULL, or an inbox.
@@ -1216,6 +1219,35 @@ const char * OT_API_LoadInboxNoVerify(const char * SERVER_ID,
 const char * OT_API_LoadOutboxNoVerify(const char * SERVER_ID,
 									   const char * USER_ID,
 									   const char * ACCOUNT_ID); // returns NULL, or an outbox.
+// --------------------------------------------------------------
+
+
+/// from local storage.
+const char * OT_API_LoadPaymentInbox(const char * SERVER_ID,
+									 const char * USER_ID,
+									 const char * ACCOUNT_ID); // Returns NULL, or a payment inbox.
+const char * OT_API_LoadPaymentOutbox(const char * SERVER_ID,
+									  const char * USER_ID,
+									  const char * ACCOUNT_ID); // returns NULL, or a payment outbox.
+
+
+const char * OT_API_LoadPaymentInboxNoVerify(const char * SERVER_ID,
+											 const char * USER_ID,
+											 const char * ACCOUNT_ID); // Returns NULL, or a payment inbox.
+
+const char * OT_API_LoadPaymentOutboxNoVerify(const char * SERVER_ID,
+											  const char * USER_ID,
+											  const char * ACCOUNT_ID); // returns NULL, or a payment outbox.
+
+/// from local storage.
+const char * OT_API_LoadRecordBox(const char * SERVER_ID,
+								  const char * USER_ID,
+								  const char * ACCOUNT_ID); // Returns NULL, or a RecordBox.
+
+const char * OT_API_LoadRecordBoxNoVerify(const char * SERVER_ID,
+										  const char * USER_ID,
+										  const char * ACCOUNT_ID); // Returns NULL, or a RecordBox.
+
 
 
 // --------------------------------------------------------------

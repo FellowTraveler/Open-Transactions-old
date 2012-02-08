@@ -8,6 +8,9 @@
 
 package com.wrapper.core.jni;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class OfferListMarket extends Storable {
   private long swigCPtr;
 
@@ -35,10 +38,10 @@ public class OfferListMarket extends Storable {
     super.delete();
   }
 // ------------------------
-	/*@SWIG:OTAPI.i,357,OT_CONTAINER_TYPE_MEMBERS@*/
+	/*@SWIG:OTAPI.i,329,OT_CONTAINER_TYPE_MEMBERS@*/
 	private List elementList = new ArrayList();
 /*@SWIG@*/
-	/*@SWIG:OTAPI.i,438,OT_ADD_ELEMENT@*/  // THIS BLOCK CONTAINS JAVA CODE.
+	/*@SWIG:OTAPI.i,410,OT_ADD_ELEMENT@*/  // THIS BLOCK CONTAINS JAVA CODE.
 private long removeRefBidData(long lIndex) {
 	// 
 	// loop through the elements in the actual container, in order to find the one
@@ -98,7 +101,7 @@ private long getCPtrAddRefBidData(BidData element) {
 	return BidData.getCPtr(element);
 }	// Hope I get away with overloading this for every type. Otherwise,
 /*@SWIG@*/
-	/*@SWIG:OTAPI.i,438,OT_ADD_ELEMENT@*/  // THIS BLOCK CONTAINS JAVA CODE.
+	/*@SWIG:OTAPI.i,410,OT_ADD_ELEMENT@*/  // THIS BLOCK CONTAINS JAVA CODE.
 private long removeRefAskData(long lIndex) {
 	// 
 	// loop through the elements in the actual container, in order to find the one

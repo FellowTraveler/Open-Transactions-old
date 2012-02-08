@@ -165,12 +165,12 @@ using namespace io;
 
 const char * OTTransaction::_TypeStrings[] = 
 {
-	"blank",			// freshly issued, not used yet  // comes from server, stored on Nym.
+	"blank",			// freshly issued, not used yet  // comes from server, stored on Nym. (Nymbox.)
 	"message",			// in nymbox, message from one user to another.
-	"notice",			// in nymbox, notice from the server.
+	"notice",			// in nymbox, notice from the server. Probably contains an updated smart contract.
 	"replyNotice",		// When you send a request to the server, sometimes its reply is so important, 
 						// that it drops a copy into your Nymbox to make you receive and process it.
-	"successNotice",	// A transaction # has successfully been signed out.
+	"successNotice",	// A transaction # has successfully been signed out. (Nymbox.)
 	// --------------------------------------------------------------------------------------
 	"pending",			// Pending transfer, in the inbox/outbox.
 	// --------------------------------------------------------------------------------------
@@ -182,6 +182,9 @@ const char * OTTransaction::_TypeStrings[] =
 	// --------------------------------------------------------------------------------------
 	"finalReceipt",     // the server drops this into your inbox(es), when a CronItem expires or is canceled.
 	"basketReceipt",    // the server drops this into your inboxes, when a basket exchange is processed.
+	// --------------------------------------------------------------------------------------
+	"instrumentNotice",		// Receive these in paymentInbox, and send in paymentOutbox. (When done, they go to recordBox to await deletion.)
+	"instrumentRejection",	// When someone rejects your invoice from his paymentInbox, you get one of these in YOUR paymentInbox.
 	// --------------------------------------------------------------------------------------
 	"processNymbox",	// process nymbox transaction	 // comes from client
 	"atProcessNymbox",	// process nymbox reply			 // comes from server
@@ -485,6 +488,9 @@ bool OTTransaction::VerifyTransactionReceipt(OTPseudonym & SERVER_NYM,
 			if (pTrans->Contains("nymboxRecord"))		lBoxType = static_cast<long>(OTLedger::nymbox);
 			else if (pTrans->Contains("inboxRecord"))	lBoxType = static_cast<long>(OTLedger::inbox);
 			else if (pTrans->Contains("outboxRecord"))	lBoxType = static_cast<long>(OTLedger::outbox);
+			else if (pTrans->Contains("paymentInboxRecord"))	lBoxType = static_cast<long>(OTLedger::paymentInbox);
+			else if (pTrans->Contains("paymentOutboxRecord"))	lBoxType = static_cast<long>(OTLedger::paymentOutbox);
+			else if (pTrans->Contains("recordBoxRecord"))		lBoxType = static_cast<long>(OTLedger::recordBox);
 			else
 			{
 				OTLog::Error("OTTransaction::VerifyTransactionReceipt: Error loading from abbreviated transaction: "
@@ -574,6 +580,9 @@ bool OTTransaction::VerifyBalanceReceipt(OTPseudonym & SERVER_NYM,
 		if (tranOut.Contains("nymboxRecord"))		lBoxType = static_cast<long>(OTLedger::nymbox);
 		else if (tranOut.Contains("inboxRecord"))	lBoxType = static_cast<long>(OTLedger::inbox);
 		else if (tranOut.Contains("outboxRecord"))	lBoxType = static_cast<long>(OTLedger::outbox);
+		else if (tranOut.Contains("paymentInboxRecord"))	lBoxType = static_cast<long>(OTLedger::paymentInbox);
+		else if (tranOut.Contains("paymentOutboxRecord"))	lBoxType = static_cast<long>(OTLedger::paymentOutbox);
+		else if (tranOut.Contains("recordBoxRecord"))		lBoxType = static_cast<long>(OTLedger::recordBox);
 		else
 		{
 			OTLog::vError("OTTransaction::VerifyBalanceReceipt: Error loading from abbreviated transaction: "
@@ -2044,6 +2053,9 @@ bool OTTransaction::SetupBoxReceiptFilename(const long		 lLedgerType,
 		case 0:	pszFolder = OTLog::NymboxFolder();	break;
 		case 1:	pszFolder = OTLog::InboxFolder();	break;
 		case 2:	pszFolder = OTLog::OutboxFolder();	break;
+		case 3:	pszFolder = OTLog::PaymentInboxFolder();	break;
+		case 4:	pszFolder = OTLog::PaymentOutboxFolder();	break;
+		case 5:	pszFolder = OTLog::RecordBoxFolder();		break;
 		default:
 			OTLog::vError("OTTransaction::SetupBoxReceiptFilename %s: Error: unknown box type: %ld. "
 						  "(This should never happen.)\n", szCaller, lLedgerType);
@@ -2106,6 +2118,9 @@ bool OTTransaction::SetupBoxReceiptFilename(OTLedger & theLedger,
 		case OTLedger::nymbox:  lLedgerType = 0;	break;
 		case OTLedger::inbox:   lLedgerType = 1;	break;
 		case OTLedger::outbox:  lLedgerType = 2;	break;
+		case OTLedger::paymentInbox:	lLedgerType = 3;	break;
+		case OTLedger::paymentOutbox:	lLedgerType = 4;	break;
+		case OTLedger::recordBox:		lLedgerType = 5;	break;
 		default:
 			OTLog::vError("OTTransaction::SetupBoxReceiptFilename %s: Error: unknown box type. "
 						  "(This should never happen.)\n", szCaller);
@@ -2384,6 +2399,9 @@ bool OTTransaction::SaveBoxReceipt(OTLedger & theLedger)
 		case OTLedger::nymbox:  lLedgerType = 0;	break;
 		case OTLedger::inbox:   lLedgerType = 1;	break;
 		case OTLedger::outbox:  lLedgerType = 2;	break;
+		case OTLedger::paymentInbox:	lLedgerType = 3;	break;
+		case OTLedger::paymentOutbox:	lLedgerType = 4;	break;
+		case OTLedger::recordBox:		lLedgerType = 5;	break;
 		default:
 			OTLog::Error("OTTransaction::SaveBoxReceipt: Error: unknown box type. "
 						 "(This should never happen.)\n");
@@ -3139,9 +3157,12 @@ int OTTransaction::LoadAbbreviatedRecord(irr::io::IrrXMLReader*& xml,
 // return -1 if error, 0 if nothing, and 1 if the node was processed.
 int OTTransaction::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 {		
-    if (!strcmp("nymboxRecord",	xml->getNodeName())	||
-		!strcmp("inboxRecord",	xml->getNodeName())	||
-		!strcmp("outboxRecord",	xml->getNodeName()))
+    if (!strcmp("nymboxRecord",			xml->getNodeName())	||
+		!strcmp("inboxRecord",			xml->getNodeName())	||
+		!strcmp("outboxRecord",			xml->getNodeName()) ||
+		!strcmp("paymentInboxRecord",	xml->getNodeName()) ||
+		!strcmp("paymentOutboxRecord",	xml->getNodeName()) ||
+		!strcmp("recordBoxRecord",		xml->getNodeName()))
 	{
 		long lTransactionNum	= 0;
 		long lInRefTo			= 0;
@@ -3427,6 +3448,10 @@ void OTTransaction::UpdateContents()
 			case OTLedger::nymbox:	this->SaveAbbreviatedNymboxRecord(m_xmlUnsigned);	break;
 			case OTLedger::inbox:	this->SaveAbbreviatedInboxRecord(m_xmlUnsigned);	break;
 			case OTLedger::outbox:	this->SaveAbbreviatedOutboxRecord(m_xmlUnsigned);	break;
+			case OTLedger::paymentInbox:	this->SaveAbbrevPaymentInboxRecord(m_xmlUnsigned);	break;
+			case OTLedger::paymentOutbox:	this->SaveAbbrevPaymentOutboxRecord(m_xmlUnsigned);	break;
+			case OTLedger::recordBox:		this->SaveAbbrevRecordBoxRecord(m_xmlUnsigned);		break;
+				/* --- BREAK --- */
 			case OTLedger::message:
 				OTLog::Error("OTTransaction::UpdateContents: Unexpected message ledger type in 'abbreviated' block. (Error.) \n");
 				break;
@@ -3481,6 +3506,102 @@ void OTTransaction::UpdateContents()
 
 
 
+/*
+ Question note to self:  Which of the above transaction types can be found inside:
+ paymentInbox ledger, paymentOutbox ledger, and recordBox ledger?
+
+// --------------------------------------------------------------------------------------
+ void SaveAbbrevPaymentInboxRecord(OTString & strOutput);	
+ void SaveAbbrevPaymentOutboxRecord(OTString & strOutput);
+ void SaveAbbrevRecordBoxRecord(OTString & strOutput);	
+ 
+ 
+ --- paymentInbox ledger:
+	"instrumentNotice",		// Receive these in paymentInbox, and send in paymentOutbox. (When done, they go to recordBox to await deletion.)
+	"instrumentRejection",	// When someone rejects your invoice from his paymentInbox, you get one of these in YOUR paymentInbox.
+
+ --- paymentOutbox ledger:
+	"instrumentNotice",		// Receive these in paymentInbox, and send in paymentOutbox. (When done, they go to recordBox to await deletion.)
+ 
+ --- recordBox ledger:
+ // These all come from the asset account inbox (where they are transferred from before they end up in the record box.)
+	"pending",			// Pending transfer, in the inbox/outbox. (This can end up in your recordBox if you cancel your pending outgoing transfer.)
+	"transferReceipt",	// the server drops this into your inbox, when someone accepts your transfer.
+	"chequeReceipt",	// the server drops this into your inbox, when someone cashes your cheque.
+	"marketReceipt",	// server drops this into inbox periodically, if you have an offer on the market.
+	"paymentReceipt",	// the server drops this into people's inboxes, periodically, if they have payment plans.
+	"finalReceipt",     // the server drops this into your inbox(es), when a CronItem expires or is canceled.
+	"basketReceipt",    // the server drops this into your inboxes, when a basket exchange is processed.
+
+ // Record box may also store things that came from a Nymbox, and then had to go somewhere client-side for storage,
+ // until user decides to delete them. For example:
+	"notice",			// in nymbox, notice from the server. Probably contains an updated smart contract.
+ 
+// Whereas for a recordBox storing paymentInbox/paymentOutbox receipts, once they are completed, they go here to die.
+	"instrumentNotice",		// Receive these in paymentInbox, and send in paymentOutbox. (When done, they go to recordBox to await deletion.)
+	"instrumentRejection",	// When someone rejects your invoice from his paymentInbox, you get one of these in YOUR paymentInbox.
+ 
+ */
+// -------------------------------------------------------------
+
+
+/*
+  --- paymentInbox ledger:
+	"instrumentNotice",		// Receive these in paymentInbox, and send in paymentOutbox. (When done, they go to recordBox to await deletion.)
+	"instrumentRejection",	// When someone rejects your invoice from his paymentInbox, you get one of these in YOUR paymentInbox.
+ */
+void OTTransaction::SaveAbbrevPaymentInboxRecord(OTString & strOutput)
+{
+	
+}
+//case OTLedger::paymentInbox:	this->SaveAbbrevPaymentInboxRecord(m_xmlUnsigned);	break;
+//case OTLedger::paymentOutbox:	this->SaveAbbrevPaymentOutboxRecord(m_xmlUnsigned);	break;
+//case OTLedger::recordBox:		this->SaveAbbrevRecordBoxRecord(m_xmlUnsigned);		break;
+
+// -------------------------------------------------------------
+
+/*
+ --- paymentOutbox ledger:
+	"instrumentNotice",		// Receive these in paymentInbox, and send in paymentOutbox. (When done, they go to recordBox to await deletion.)
+ */
+void OTTransaction::SaveAbbrevPaymentOutboxRecord(OTString & strOutput)
+{
+	
+}
+// -------------------------------------------------------------
+
+/*
+ --- recordBox ledger:
+ // These all come from the asset account inbox (where they are transferred from before they end up in the record box.)
+	"pending",			// Pending transfer, in the inbox/outbox. (This can end up in your recordBox if you cancel your pending outgoing transfer.)
+	"transferReceipt",	// the server drops this into your inbox, when someone accepts your transfer.
+	"chequeReceipt",	// the server drops this into your inbox, when someone cashes your cheque.
+	"marketReceipt",	// server drops this into inbox periodically, if you have an offer on the market.
+	"paymentReceipt",	// the server drops this into people's inboxes, periodically, if they have payment plans.
+	"finalReceipt",     // the server drops this into your inbox(es), when a CronItem expires or is canceled.
+	"basketReceipt",    // the server drops this into your inboxes, when a basket exchange is processed.
+
+ // Record box may also store things that came from a Nymbox, and then had to go somewhere client-side for storage,
+ // until user decides to delete them. For example:
+	"notice",			// in nymbox, notice from the server. Probably contains an updated smart contract.
+ 
+// Whereas for a recordBox storing paymentInbox/paymentOutbox receipts, once they are completed, they go here to die.
+	"instrumentNotice",		// Receive these in paymentInbox, and send in paymentOutbox. (When done, they go to recordBox to await deletion.)
+	"instrumentRejection",	// When someone rejects your invoice from his paymentInbox, you get one of these in YOUR paymentInbox.
+ 
+ */
+void OTTransaction::SaveAbbrevRecordBoxRecord(OTString & strOutput)
+{
+	// Have some kind of check in here, whether the AcctID and UserID match.
+	// Some recordBoxes DO, and some DON'T (the different kinds store different
+	// kinds of receipts. See above comment.)
+	
+	
+}
+// -------------------------------------------------------------
+
+
+
 // All of the actual receipts cannot fit inside the inbox file,
 // which can get huge, and bog down network ability to transmit.
 // Instead, we save receipts in abbreviated form in the inbox,
@@ -3494,7 +3615,7 @@ void OTTransaction::SaveAbbreviatedNymboxRecord(OTString & strOutput)
 	{
 		case OTTransaction::blank:			// freshly issued transaction number, not accepted by the user (yet).
 		case OTTransaction::message:		// A message from one user to another, also in the nymbox.
-		case OTTransaction::notice:			// A notice from the server. Used in Nymbox.
+		case OTTransaction::notice:			// A notice from the server. Used in Nymbox. Probably contains an updated smart contract.
 		case OTTransaction::replyNotice:	// A copy of a server reply to a previous request you sent. (To make SURE you get the reply.)
 		case OTTransaction::successNotice:	// A transaction # has successfully been signed out.
 		case OTTransaction::finalReceipt:	// Any finalReceipt in an inbox will also drop a copy into the Nymbox.

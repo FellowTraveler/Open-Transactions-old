@@ -39,16 +39,20 @@ public class OTCaller {
     this(otapiJNI.new_OTCaller(), true);
   }
 
-  public String GetPassword() {
-    return otapiJNI.OTCaller_GetPassword(swigCPtr, this);
+  public boolean GetPassword(OTPassword theOutput) {
+    return otapiJNI.OTCaller_GetPassword(swigCPtr, this, OTPassword.getCPtr(theOutput), theOutput);
+  }
+
+  public void ZeroOutPassword() {
+    otapiJNI.OTCaller_ZeroOutPassword(swigCPtr, this);
   }
 
   public String GetDisplay() {
     return otapiJNI.OTCaller_GetDisplay(swigCPtr, this);
   }
 
-  public void SetDisplay(String szDisplay) {
-    otapiJNI.OTCaller_SetDisplay(swigCPtr, this, szDisplay);
+  public void SetDisplay(String szDisplay, int nLength) {
+    otapiJNI.OTCaller_SetDisplay(swigCPtr, this, szDisplay, nLength);
   }
 
   public void delCallback() {

@@ -3833,6 +3833,7 @@ const char * OT_API_LoadAssetAccount(const char * SERVER_ID,
 	return NULL;				
 }
 
+// -----------------------------------------------------------------------------
 
 
 
@@ -4091,6 +4092,281 @@ const char * OT_API_LoadOutboxNoVerify(const char * SERVER_ID,
 		return g_tempBuf;
 	}
 	
+	return NULL;				
+}
+
+
+
+
+// --------------------------------------------------------------
+
+
+
+
+// --------------------------------------------------------------
+
+
+const char * OT_API_LoadPaymentInbox(const char * SERVER_ID,
+									 const char * USER_ID,
+									 const char * ACCOUNT_ID) // Returns NULL, or an inbox.
+{
+	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_LoadPaymentInbox: Null SERVER_ID passed in.");
+	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_LoadPaymentInbox: Null USER_ID passed in.");
+	OT_ASSERT_MSG(NULL != ACCOUNT_ID, "OT_API_LoadPaymentInbox: NULL ACCOUNT_ID passed in.");
+	
+	const OTIdentifier theServerID(SERVER_ID);
+	const OTIdentifier theUserID(USER_ID);
+	const OTIdentifier theAccountID(ACCOUNT_ID);
+	
+	// There is an OT_ASSERT in here for memory failure,
+	// but it still might return NULL if various verification fails.
+	OTLedger * pLedger = g_OT_API.LoadPaymentInbox(theServerID, theUserID, theAccountID); 
+	
+	// Make sure it gets cleaned up when this goes out of scope.
+	OTCleanup<OTLedger>	theAngel(pLedger); // I pass the pointer, in case it's NULL.
+	
+	if (NULL == pLedger)
+	{
+		OTLog::vOutput(0, "OT_API_LoadPaymentInbox: Failure calling OT_API::LoadPaymentInbox.\n "
+					   "Account ID: %s\n", ACCOUNT_ID);
+	}
+	else // success 
+	{
+		OTString strOutput(*pLedger); // For the output
+		
+		const char * pBuf = strOutput.Get(); 
+		
+#ifdef _WIN32
+		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+		
+		return g_tempBuf;
+	}
+	
+	return NULL;				
+}
+
+
+
+
+const char * OT_API_LoadPaymentInboxNoVerify(const char * SERVER_ID,
+											 const char * USER_ID,
+											 const char * ACCOUNT_ID) // Returns NULL, or a paymentInbox.
+{
+	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_LoadPaymentInboxNoVerify: Null SERVER_ID passed in.");
+	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_LoadPaymentInboxNoVerify: Null USER_ID passed in.");
+	OT_ASSERT_MSG(NULL != ACCOUNT_ID, "OT_API_LoadPaymentInboxNoVerify: NULL ACCOUNT_ID passed in.");
+	
+	const OTIdentifier theServerID(SERVER_ID);
+	const OTIdentifier theUserID(USER_ID);
+	const OTIdentifier theAccountID(ACCOUNT_ID);
+	
+	// There is an OT_ASSERT in here for memory failure,
+	// but it still might return NULL if various verification fails.
+	OTLedger * pLedger = g_OT_API.LoadPaymentInboxNoVerify(theServerID, theUserID, theAccountID); 
+	
+	// Make sure it gets cleaned up when this goes out of scope.
+	OTCleanup<OTLedger>	theAngel(pLedger); // I pass the pointer, in case it's NULL.
+	
+	if (NULL == pLedger)
+	{
+		OTLog::vOutput(0, "OT_API_LoadPaymentInboxNoVerify: Failure calling OT_API::LoadPaymentInboxNoVerify.\n "
+					   "Account ID: %s\n", ACCOUNT_ID);
+	}
+	else // success 
+	{
+		OTString strOutput(*pLedger); // For the output
+		
+		const char * pBuf = strOutput.Get(); 
+		
+#ifdef _WIN32
+		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+		
+		return g_tempBuf;
+	}
+	
+	return NULL;				
+}
+
+
+
+
+const char * OT_API_LoadPaymentOutbox(const char * SERVER_ID,
+									  const char * USER_ID,
+									  const char * ACCOUNT_ID)
+{
+	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_LoadPaymentOutbox: Null SERVER_ID passed in.");
+	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_LoadPaymentOutbox: Null USER_ID passed in.");
+	OT_ASSERT_MSG(NULL != ACCOUNT_ID, "OT_API_LoadPaymentOutbox: NULL ACCOUNT_ID passed in.");
+	
+	const OTIdentifier theServerID(SERVER_ID);
+	const OTIdentifier theUserID(USER_ID);
+	const OTIdentifier theAccountID(ACCOUNT_ID);
+	
+	// There is an OT_ASSERT in here for memory failure,
+	// but it still might return NULL if various verification fails.
+	OTLedger * pLedger = g_OT_API.LoadPaymentOutbox(theServerID, theUserID, theAccountID); 
+	
+	// Make sure it gets cleaned up when this goes out of scope.
+	OTCleanup<OTLedger>	theAngel(pLedger); // I pass the pointer, in case it's NULL.
+	
+	if (NULL == pLedger)
+	{
+		OTLog::vOutput(0, "OT_API_LoadPaymentOutbox: Failure calling OT_API::LoadPaymentOutbox().\n "
+					   "Account ID: %s\n", ACCOUNT_ID);
+	}
+	else // success 
+	{
+		OTString strOutput(*pLedger); // For the output
+		
+		const char * pBuf = strOutput.Get(); 
+		
+#ifdef _WIN32
+		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+		
+		return g_tempBuf;
+	}
+	
+	return NULL;				
+}
+
+
+
+
+const char * OT_API_LoadPaymentOutboxNoVerify(const char * SERVER_ID,
+											  const char * USER_ID,
+											  const char * ACCOUNT_ID)
+{
+	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_LoadPaymentOutboxNoVerify: Null SERVER_ID passed in.");
+	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_LoadPaymentOutboxNoVerify: Null USER_ID passed in.");
+	OT_ASSERT_MSG(NULL != ACCOUNT_ID, "OT_API_LoadPaymentOutboxNoVerify: NULL ACCOUNT_ID passed in.");
+	
+	const OTIdentifier theServerID(SERVER_ID);
+	const OTIdentifier theUserID(USER_ID);
+	const OTIdentifier theAccountID(ACCOUNT_ID);
+	
+	// There is an OT_ASSERT in here for memory failure,
+	// but it still might return NULL if various verification fails.
+	OTLedger * pLedger = g_OT_API.LoadPaymentOutboxNoVerify(theServerID, theUserID, theAccountID); 
+	
+	// Make sure it gets cleaned up when this goes out of scope.
+	OTCleanup<OTLedger>	theAngel(pLedger); // I pass the pointer, in case it's NULL.
+	
+	if (NULL == pLedger)
+	{
+		OTLog::vOutput(0, "OT_API_LoadPaymentOutboxNoVerify: Failure calling OT_API::LoadPaymentOutboxNoVerify.\n "
+					   "Account ID: %s\n", ACCOUNT_ID);
+	}
+	else // success 
+	{
+		OTString strOutput(*pLedger); // For the output
+		
+		const char * pBuf = strOutput.Get(); 
+		
+#ifdef _WIN32
+		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+		
+		return g_tempBuf;
+	}
+	
+	return NULL;				
+}
+
+
+
+// --------------------------------------------------------------
+
+
+
+const char * OT_API_LoadRecordBox(const char * SERVER_ID,
+								  const char * USER_ID,
+								  const char * ACCOUNT_ID)
+{
+	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_LoadRecordBox: Null SERVER_ID passed in.");
+	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_LoadRecordBox: Null USER_ID passed in.");
+	OT_ASSERT_MSG(NULL != ACCOUNT_ID, "OT_API_LoadRecordBox: NULL ACCOUNT_ID passed in.");
+	
+	const OTIdentifier theServerID(SERVER_ID);
+	const OTIdentifier theUserID(USER_ID);
+	const OTIdentifier theAccountID(ACCOUNT_ID);
+	
+	// There is an OT_ASSERT in here for memory failure,
+	// but it still might return NULL if various verification fails.
+	OTLedger * pLedger = g_OT_API.LoadRecordBox(theServerID, theUserID, theAccountID); 
+	
+	// Make sure it gets cleaned up when this goes out of scope.
+	OTCleanup<OTLedger>	theAngel(pLedger); // I pass the pointer, in case it's NULL.
+	
+	if (NULL == pLedger)
+	{
+		OTLog::Output(0, "OT_API_LoadRecordBox: Failure calling OT_API::LoadRecordBox.\n");
+	}
+	else // success 
+	{
+		OTString strOutput(*pLedger); // For the output
+		
+		const char * pBuf = strOutput.Get(); 
+		
+#ifdef _WIN32
+		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+		
+		return g_tempBuf;
+	}
+	return NULL;				
+}
+
+
+const char * OT_API_LoadRecordBoxNoVerify(const char * SERVER_ID,
+										  const char * USER_ID,
+										  const char * ACCOUNT_ID)
+{
+	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_LoadRecordBoxNoVerify: Null SERVER_ID passed in.");
+	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_LoadRecordBoxNoVerify: Null USER_ID passed in.");
+	OT_ASSERT_MSG(NULL != ACCOUNT_ID, "OT_API_LoadRecordBoxNoVerify: NULL ACCOUNT_ID passed in.");
+	
+	const OTIdentifier theServerID(SERVER_ID);
+	const OTIdentifier theUserID(USER_ID);
+	const OTIdentifier theAccountID(ACCOUNT_ID);
+	
+	// There is an OT_ASSERT in here for memory failure,
+	// but it still might return NULL if various verification fails.
+	OTLedger * pLedger = g_OT_API.LoadRecordBoxNoVerify(theServerID, theUserID, theAccountID); 
+	
+	// Make sure it gets cleaned up when this goes out of scope.
+	OTCleanup<OTLedger>	theAngel(pLedger); // I pass the pointer, in case it's NULL.
+	
+	if (NULL == pLedger)
+	{
+		OTLog::Output(0, "OT_API_LoadRecordBoxNoVerify: Failure calling OT_API::LoadRecordBoxNoVerify.\n");
+	}
+	else // success 
+	{
+		OTString strOutput(*pLedger); // For the output
+		
+		const char * pBuf = strOutput.Get(); 
+		
+#ifdef _WIN32
+		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+		
+		return g_tempBuf;
+	}
 	return NULL;				
 }
 
@@ -5684,6 +5960,9 @@ const char * OT_API_Transaction_GetSenderUserID(const char * SERVER_ID,
 		if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<long>(OTLedger::nymbox);
 		else if (theTransaction.Contains("inboxRecord"))	lBoxType = static_cast<long>(OTLedger::inbox);
 		else if (theTransaction.Contains("outboxRecord"))	lBoxType = static_cast<long>(OTLedger::outbox);
+		else if (theTransaction.Contains("paymentInboxRecord"))		lBoxType = static_cast<long>(OTLedger::paymentInbox);
+		else if (theTransaction.Contains("paymentOutboxRecord"))	lBoxType = static_cast<long>(OTLedger::paymentOutbox);
+		else if (theTransaction.Contains("recordBoxRecord"))		lBoxType = static_cast<long>(OTLedger::recordBox);
 		else
 		{
 			OTLog::vError("OT_API_Transaction_GetSenderUserID: Error loading from abbreviated transaction: "
@@ -5779,6 +6058,9 @@ const char * OT_API_Transaction_GetRecipientUserID(const char * SERVER_ID,
 		if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<long>(OTLedger::nymbox);
 		else if (theTransaction.Contains("inboxRecord"))	lBoxType = static_cast<long>(OTLedger::inbox);
 		else if (theTransaction.Contains("outboxRecord"))	lBoxType = static_cast<long>(OTLedger::outbox);
+		else if (theTransaction.Contains("paymentInboxRecord"))		lBoxType = static_cast<long>(OTLedger::paymentInbox);
+		else if (theTransaction.Contains("paymentOutboxRecord"))	lBoxType = static_cast<long>(OTLedger::paymentOutbox);
+		else if (theTransaction.Contains("recordBoxRecord"))		lBoxType = static_cast<long>(OTLedger::recordBox);		
 		else
 		{
 			OTLog::vError("OT_API_Transaction_GetRecipientUserID: Error loading from abbreviated transaction: "
@@ -5889,6 +6171,9 @@ const char * OT_API_Transaction_GetSenderAcctID(const char * SERVER_ID,
 		if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<long>(OTLedger::nymbox);
 		else if (theTransaction.Contains("inboxRecord"))	lBoxType = static_cast<long>(OTLedger::inbox);
 		else if (theTransaction.Contains("outboxRecord"))	lBoxType = static_cast<long>(OTLedger::outbox);
+		else if (theTransaction.Contains("paymentInboxRecord"))		lBoxType = static_cast<long>(OTLedger::paymentInbox);
+		else if (theTransaction.Contains("paymentOutboxRecord"))	lBoxType = static_cast<long>(OTLedger::paymentOutbox);
+		else if (theTransaction.Contains("recordBoxRecord"))		lBoxType = static_cast<long>(OTLedger::recordBox);		
 		else
 		{
 			OTLog::vError("OT_API_Transaction_GetSenderAcctID: Error loading from abbreviated transaction: "
@@ -5986,6 +6271,9 @@ const char * OT_API_Transaction_GetRecipientAcctID(const char * SERVER_ID,
 		if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<long>(OTLedger::nymbox);
 		else if (theTransaction.Contains("inboxRecord"))	lBoxType = static_cast<long>(OTLedger::inbox);
 		else if (theTransaction.Contains("outboxRecord"))	lBoxType = static_cast<long>(OTLedger::outbox);
+		else if (theTransaction.Contains("paymentInboxRecord"))		lBoxType = static_cast<long>(OTLedger::paymentInbox);
+		else if (theTransaction.Contains("paymentOutboxRecord"))	lBoxType = static_cast<long>(OTLedger::paymentOutbox);
+		else if (theTransaction.Contains("recordBoxRecord"))		lBoxType = static_cast<long>(OTLedger::recordBox);
 		else
 		{
 			OTLog::vError("OT_API_Transaction_GetRecipientAcctID: Error loading from abbreviated transaction: "
@@ -6099,6 +6387,9 @@ const char * OT_API_Pending_GetNote(const char * SERVER_ID,
 		if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<long>(OTLedger::nymbox);
 		else if (theTransaction.Contains("inboxRecord"))	lBoxType = static_cast<long>(OTLedger::inbox);
 		else if (theTransaction.Contains("outboxRecord"))	lBoxType = static_cast<long>(OTLedger::outbox);
+		else if (theTransaction.Contains("paymentInboxRecord"))		lBoxType = static_cast<long>(OTLedger::paymentInbox);
+		else if (theTransaction.Contains("paymentOutboxRecord"))	lBoxType = static_cast<long>(OTLedger::paymentOutbox);
+		else if (theTransaction.Contains("recordBoxRecord"))		lBoxType = static_cast<long>(OTLedger::recordBox);
 		else
 		{
 			OTLog::vError("OT_API_Pending_GetNote: Error loading from abbreviated transaction: "
@@ -6230,6 +6521,9 @@ const char * OT_API_Transaction_GetAmount(const char * SERVER_ID,
 		if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<long>(OTLedger::nymbox);
 		else if (theTransaction.Contains("inboxRecord"))	lBoxType = static_cast<long>(OTLedger::inbox);
 		else if (theTransaction.Contains("outboxRecord"))	lBoxType = static_cast<long>(OTLedger::outbox);
+		else if (theTransaction.Contains("paymentInboxRecord"))		lBoxType = static_cast<long>(OTLedger::paymentInbox);
+		else if (theTransaction.Contains("paymentOutboxRecord"))	lBoxType = static_cast<long>(OTLedger::paymentOutbox);
+		else if (theTransaction.Contains("recordBoxRecord"))		lBoxType = static_cast<long>(OTLedger::recordBox);
 		else
 		{
 			OTLog::vError("OT_API_Transaction_GetAmount: Error loading from abbreviated transaction: "
@@ -6504,6 +6798,9 @@ OT_BOOL OT_API_Transaction_GetSuccess(const char * SERVER_ID,
 		if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<long>(OTLedger::nymbox);
 		else if (theTransaction.Contains("inboxRecord"))	lBoxType = static_cast<long>(OTLedger::inbox);
 		else if (theTransaction.Contains("outboxRecord"))	lBoxType = static_cast<long>(OTLedger::outbox);
+		else if (theTransaction.Contains("paymentInboxRecord"))		lBoxType = static_cast<long>(OTLedger::paymentInbox);
+		else if (theTransaction.Contains("paymentOutboxRecord"))	lBoxType = static_cast<long>(OTLedger::paymentOutbox);
+		else if (theTransaction.Contains("recordBoxRecord"))		lBoxType = static_cast<long>(OTLedger::recordBox);
 		else
 		{
 			OTLog::vError("OT_API_Transaction_GetSuccess: Error loading from abbreviated transaction: "
@@ -6578,6 +6875,9 @@ OT_BOOL OT_API_Transaction_GetBalanceAgreementSuccess(const char * SERVER_ID,
 		if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<long>(OTLedger::nymbox);
 		else if (theTransaction.Contains("inboxRecord"))	lBoxType = static_cast<long>(OTLedger::inbox);
 		else if (theTransaction.Contains("outboxRecord"))	lBoxType = static_cast<long>(OTLedger::outbox);
+		else if (theTransaction.Contains("paymentInboxRecord"))		lBoxType = static_cast<long>(OTLedger::paymentInbox);
+		else if (theTransaction.Contains("paymentOutboxRecord"))	lBoxType = static_cast<long>(OTLedger::paymentOutbox);
+		else if (theTransaction.Contains("recordBoxRecord"))		lBoxType = static_cast<long>(OTLedger::recordBox);
 		else
 		{
 			OTLog::vError("OT_API_Transaction_GetBalanceAgreementSuccess: Error loading from abbreviated transaction: "

@@ -387,7 +387,13 @@ public:
 
         finalReceipt,	// the server drops this into your in/nym box(es), when a CronItem expires or is canceled.
 		basketReceipt,	// the server drops this into your inboxes, when a basket exchange is processed.
-
+// --------------------------------------------------------------------------------------
+		
+		// PAYMENT INBOX / PAYMENT OUTBOX / RECORD BOX
+		
+		instrumentNotice,		// Receive these in paymentInbox, and send in paymentOutbox. (When done, they go to recordBox to await deletion.)
+		instrumentRejection,	// When someone rejects your invoice from his paymentInbox, you get one of these in YOUR paymentInbox.
+		
 // --------------------------------------------------------------------------------------
 
 		// **** MESSAGES ****
@@ -702,6 +708,10 @@ public:
 	void SaveAbbreviatedNymboxRecord(OTString & strOutput);	
 	void SaveAbbreviatedOutboxRecord(OTString & strOutput);
 	void SaveAbbreviatedInboxRecord(OTString & strOutput);	
+	// --------------------------------------------------------------
+	void SaveAbbrevPaymentInboxRecord(OTString & strOutput);	
+	void SaveAbbrevPaymentOutboxRecord(OTString & strOutput);
+	void SaveAbbrevRecordBoxRecord(OTString & strOutput);	
 	// --------------------------------------------------------------
 	void ProduceInboxReportItem(OTItem & theBalanceItem);
 	void ProduceOutboxReportItem(OTItem & theBalanceItem);

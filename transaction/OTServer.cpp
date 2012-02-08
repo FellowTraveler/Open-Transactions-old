@@ -1133,22 +1133,39 @@ void OTServer::Init()
 		OTDB::InitDefaultStorage(OTDB_DEFAULT_STORAGE, 
 								 OTDB_DEFAULT_PACKER, OTLog::Path(), 
 								 "notaryServer.xml"); // todo stop hardcoding
-	
-	OTLog::ConfirmOrCreateFolder(OTLog::MarketFolder()); 
-	OTLog::ConfirmOrCreateFolder(OTLog::CronFolder());
+	// -------------------------------------------------------
+	// These storage locations are client-only
+	//
+//	OTLog::ConfirmOrCreateFolder(OTLog::PaymentInboxFolder());
+//	OTLog::ConfirmOrCreateFolder(OTLog::PaymentOutboxFolder());
+//	OTLog::ConfirmOrCreateFolder(OTLog::RecordboxFolder());
+//	OTLog::ConfirmOrCreateFolder(OTLog::PurseFolder()); 	
+//	OTLog::ConfirmOrCreateFolder(OTLog::ScriptFolder()); 	
+
+	// These storage locations are common to client and server.
 	OTLog::ConfirmOrCreateFolder(OTLog::NymFolder());
-	OTLog::ConfirmOrCreateFolder(OTLog::AccountFolder());
-	OTLog::ConfirmOrCreateFolder(OTLog::UserAcctFolder());
 	OTLog::ConfirmOrCreateFolder(OTLog::ReceiptFolder());
 	OTLog::ConfirmOrCreateFolder(OTLog::NymboxFolder());
+	OTLog::ConfirmOrCreateFolder(OTLog::AccountFolder());
 	OTLog::ConfirmOrCreateFolder(OTLog::InboxFolder());
-	OTLog::ConfirmOrCreateFolder(OTLog::OutboxFolder()); 
+	OTLog::ConfirmOrCreateFolder(OTLog::OutboxFolder());
 	OTLog::ConfirmOrCreateFolder(OTLog::CertFolder());
 	OTLog::ConfirmOrCreateFolder(OTLog::PubkeyFolder()); 
 	OTLog::ConfirmOrCreateFolder(OTLog::ContractFolder());
 	OTLog::ConfirmOrCreateFolder(OTLog::MintFolder()); 
-	OTLog::ConfirmOrCreateFolder(OTLog::SpentFolder());
+	OTLog::ConfirmOrCreateFolder(OTLog::MarketFolder()); 	
+	OTLog::ConfirmOrCreateFolder(OTLog::SmartContractsFolder()); 	
 	
+	// This bottom group of storage locations is server-only
+	//
+	OTLog::ConfirmOrCreateFolder(OTLog::UserAcctFolder());
+	OTLog::ConfirmOrCreateFolder(OTLog::CronFolder());
+	OTLog::ConfirmOrCreateFolder(OTLog::SpentFolder());	
+	// -------------------------------------------------------
+
+
+
+	// --------------------------------
 	// Load up the transaction number.
 	LoadMainFile();
 	

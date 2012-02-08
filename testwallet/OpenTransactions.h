@@ -514,15 +514,40 @@ public:
 								  const OTIdentifier & USER_ID,
 								  const OTIdentifier & ACCOUNT_ID);
 	// ----------------------------------------------------
+	OTLedger * LoadPaymentInbox(const OTIdentifier & SERVER_ID,
+								const OTIdentifier & USER_ID,
+								const OTIdentifier & ACCOUNT_ID);
 	
+	OTLedger * LoadPaymentInboxNoVerify(const OTIdentifier & SERVER_ID,
+										const OTIdentifier & USER_ID,
+										const OTIdentifier & ACCOUNT_ID);
+	
+	OTLedger * LoadPaymentOutbox(const OTIdentifier & SERVER_ID,
+								 const OTIdentifier & USER_ID,
+								 const OTIdentifier & ACCOUNT_ID);
+
+	OTLedger * LoadPaymentOutboxNoVerify(const OTIdentifier & SERVER_ID,
+										 const OTIdentifier & USER_ID,
+										 const OTIdentifier & ACCOUNT_ID);
+	
+	// Note: depending on the record type, the Account ID may contain the User ID.
+	// 
+	OTLedger * LoadRecordBox(const OTIdentifier & SERVER_ID,
+							 const OTIdentifier & USER_ID,
+							 const OTIdentifier & ACCOUNT_ID);
+	
+	OTLedger * LoadRecordBoxNoVerify(const OTIdentifier & SERVER_ID,
+									 const OTIdentifier & USER_ID,
+									 const OTIdentifier & ACCOUNT_ID);
+	// ----------------------------------------------------
 	// So the client side knows which ones he has in storage, vs which ones he
 	// still needs to download.
 	//
-	bool DoesBoxReceiptExist(const OTIdentifier & SERVER_ID,
-							 const OTIdentifier & USER_ID,	// Unused here for now, but still convention.
-							 const OTIdentifier & ACCOUNT_ID,	// If for Nymbox (vs inbox/outbox) then pass USER_ID in this field also.
-							 const int			nBoxType,	// 0/nymbox, 1/inbox, 2/outbox
-							 const long		  &	lTransactionNum);
+	bool DoesBoxReceiptExist(const OTIdentifier &	SERVER_ID,
+							 const OTIdentifier &	USER_ID,	// Unused here for now, but still convention.
+							 const OTIdentifier &	ACCOUNT_ID,	// If for Nymbox (vs inbox/outbox) then pass USER_ID in this field also.
+							 const int				nBoxType,	// 0/nymbox, 1/inbox, 2/outbox
+							 const long			&	lTransactionNum);
 	
 	// ------------------------------------------------------
 	

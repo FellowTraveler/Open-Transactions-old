@@ -9,19 +9,32 @@
 package com.wrapper.core.jni;
 
 public class otapiJNI {
+  public final static native int OTPASSWORD_BLOCKSIZE_get();
+  public final static native int OTPASSWORD_MEMSIZE_get();
+  public final static native int OTPassword_DEFAULT_SIZE_get();
+  public final static native int OTPassword_blockSize_get(long jarg1, OTPassword jarg1_);
+  public final static native String OTPassword_getPassword(long jarg1, OTPassword jarg1_);
+  public final static native int OTPassword_setPassword(long jarg1, OTPassword jarg1_, String jarg2, int jarg3);
+  public final static native int OTPassword_getBlockSize(long jarg1, OTPassword jarg1_);
+  public final static native int OTPassword_getPasswordSize(long jarg1, OTPassword jarg1_);
+  public final static native void OTPassword_zeroMemory(long jarg1, OTPassword jarg1_);
+  public final static native long new_OTPassword__SWIG_0();
+  public final static native long new_OTPassword__SWIG_1(String jarg1, int jarg2);
+  public final static native void delete_OTPassword(long jarg1);
   public final static native long new_OTCallback();
   public final static native void delete_OTCallback(long jarg1);
-  public final static native String OTCallback_runOne(long jarg1, OTCallback jarg1_);
-  public final static native String OTCallback_runOneSwigExplicitOTCallback(long jarg1, OTCallback jarg1_);
-  public final static native String OTCallback_runTwo(long jarg1, OTCallback jarg1_);
-  public final static native String OTCallback_runTwoSwigExplicitOTCallback(long jarg1, OTCallback jarg1_);
+  public final static native void OTCallback_runOne(long jarg1, OTCallback jarg1_, String jarg2, long jarg3, OTPassword jarg3_);
+  public final static native void OTCallback_runOneSwigExplicitOTCallback(long jarg1, OTCallback jarg1_, String jarg2, long jarg3, OTPassword jarg3_);
+  public final static native void OTCallback_runTwo(long jarg1, OTCallback jarg1_, String jarg2, long jarg3, OTPassword jarg3_);
+  public final static native void OTCallback_runTwoSwigExplicitOTCallback(long jarg1, OTCallback jarg1_, String jarg2, long jarg3, OTPassword jarg3_);
   public final static native void OTCallback_director_connect(OTCallback obj, long cptr, boolean mem_own, boolean weak_global);
   public final static native void OTCallback_change_ownership(OTCallback obj, long cptr, boolean take_or_release);
   public final static native long new_OTCaller();
   public final static native void delete_OTCaller(long jarg1);
-  public final static native String OTCaller_GetPassword(long jarg1, OTCaller jarg1_);
+  public final static native boolean OTCaller_GetPassword(long jarg1, OTCaller jarg1_, long jarg2, OTPassword jarg2_);
+  public final static native void OTCaller_ZeroOutPassword(long jarg1, OTCaller jarg1_);
   public final static native String OTCaller_GetDisplay(long jarg1, OTCaller jarg1_);
-  public final static native void OTCaller_SetDisplay(long jarg1, OTCaller jarg1_, String jarg2);
+  public final static native void OTCaller_SetDisplay(long jarg1, OTCaller jarg1_, String jarg2, int jarg3);
   public final static native void OTCaller_delCallback(long jarg1, OTCaller jarg1_);
   public final static native void OTCaller_setCallback(long jarg1, OTCaller jarg1_, long jarg2, OTCallback jarg2_);
   public final static native boolean OTCaller_isCallbackSet(long jarg1, OTCaller jarg1_);
@@ -136,8 +149,8 @@ public class otapiJNI {
   public final static native String OT_API_LoadPaymentOutbox(String jarg1, String jarg2, String jarg3);
   public final static native String OT_API_LoadPaymentInboxNoVerify(String jarg1, String jarg2, String jarg3);
   public final static native String OT_API_LoadPaymentOutboxNoVerify(String jarg1, String jarg2, String jarg3);
-  public final static native String OT_API_LoadRecordBox(String jarg1, String jarg2);
-  public final static native String OT_API_LoadRecordBoxNoVerify(String jarg1, String jarg2);
+  public final static native String OT_API_LoadRecordBox(String jarg1, String jarg2, String jarg3);
+  public final static native String OT_API_LoadRecordBoxNoVerify(String jarg1, String jarg2, String jarg3);
   public final static native int OT_API_Ledger_GetCount(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native String OT_API_Ledger_CreateResponse(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native String OT_API_Ledger_GetTransactionByIndex(String jarg1, String jarg2, String jarg3, String jarg4, int jarg5);
@@ -743,11 +756,11 @@ public class otapiJNI {
   public final static native long Contact_SWIGUpcast(long jarg1);
   public final static native long AddressBook_SWIGUpcast(long jarg1);
 
-  public static String SwigDirector_OTCallback_runOne(OTCallback self) {
-    return self.runOne();
+  public static void SwigDirector_OTCallback_runOne(OTCallback self, String szDisplay, long theOutput) {
+    self.runOne(szDisplay, new OTPassword(theOutput, false));
   }
-  public static String SwigDirector_OTCallback_runTwo(OTCallback self) {
-    return self.runTwo();
+  public static void SwigDirector_OTCallback_runTwo(OTCallback self, String szDisplay, long theOutput) {
+    self.runTwo(szDisplay, new OTPassword(theOutput, false));
   }
 
   private final static native void swig_module_init();

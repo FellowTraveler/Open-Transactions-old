@@ -55,12 +55,12 @@ public class OTCallback {
     otapiJNI.OTCallback_director_connect(this, swigCPtr, swigCMemOwn, true);
   }
 
-  public String runOne() {
-    return (getClass() == OTCallback.class) ? otapiJNI.OTCallback_runOne(swigCPtr, this) : otapiJNI.OTCallback_runOneSwigExplicitOTCallback(swigCPtr, this);
+  public void runOne(String szDisplay, OTPassword theOutput) {
+    if (getClass() == OTCallback.class) otapiJNI.OTCallback_runOne(swigCPtr, this, szDisplay, OTPassword.getCPtr(theOutput), theOutput); else otapiJNI.OTCallback_runOneSwigExplicitOTCallback(swigCPtr, this, szDisplay, OTPassword.getCPtr(theOutput), theOutput);
   }
 
-  public String runTwo() {
-    return (getClass() == OTCallback.class) ? otapiJNI.OTCallback_runTwo(swigCPtr, this) : otapiJNI.OTCallback_runTwoSwigExplicitOTCallback(swigCPtr, this);
+  public void runTwo(String szDisplay, OTPassword theOutput) {
+    if (getClass() == OTCallback.class) otapiJNI.OTCallback_runTwo(swigCPtr, this, szDisplay, OTPassword.getCPtr(theOutput), theOutput); else otapiJNI.OTCallback_runTwoSwigExplicitOTCallback(swigCPtr, this, szDisplay, OTPassword.getCPtr(theOutput), theOutput);
   }
 
 }

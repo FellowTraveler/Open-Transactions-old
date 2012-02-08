@@ -163,6 +163,7 @@ IRRXMLSOURCES = irrxml/irrXML.cpp
 CSOURCES = easyzlib.c mkcert.c simpleini/ConvertUTF.c
 
 CXXSOURCES = $(BIGINTSOURCES) $(LUCRESOURCES) $(IRRXMLSOURCES) \
+			 OTPassword.cpp \
 			 OTData.cpp \
 			 OTString.cpp \
 			 OTStringXML.cpp \
@@ -280,6 +281,8 @@ bigint/BigUnsignedInABase.o: bigint/BigUnsignedInABase.cc bigint/BigUnsignedInAB
 bigint/BigIntegerUtils.o: bigint/BigIntegerUtils.cc bigint/BigIntegerUtils.hh
 	$(CXX) $(CXXFLAGS) -c -o bigint/BigIntegerUtils.o bigint/BigIntegerUtils.cc 
 
+OTPassword.o: OTPassword.cpp OTPassword.h
+	$(CXX) $(CXXFLAGS) -c -o OTPassword.o OTPassword.cpp
 OTData.o: OTData.cpp OTData.h
 	$(CXX) $(CXXFLAGS) -c -o OTData.o OTData.cpp
 OTString.o: OTString.cpp OTString.h

@@ -1044,10 +1044,12 @@ static void SWIG_Php_SetModule(swig_module_info *pointer) {
 #define SWIGTYPE_p_OTDB__TradeListNym swig_types[31]
 #define SWIGTYPE_p_OTDB__WalletData swig_types[32]
 #define SWIGTYPE_p_OTPacker swig_types[33]
-#define SWIGTYPE_p_std__mapT_std__string_std__string_t swig_types[34]
-#define SWIGTYPE_p_std__vectorT_unsigned_char_t swig_types[35]
-static swig_type_info *swig_types[37];
-static swig_module_info swig_module = {swig_types, 36, 0, 0, 0, 0};
+#define SWIGTYPE_p_OTPassword swig_types[34]
+#define SWIGTYPE_p_char swig_types[35]
+#define SWIGTYPE_p_std__mapT_std__string_std__string_t swig_types[36]
+#define SWIGTYPE_p_std__vectorT_unsigned_char_t swig_types[37]
+static swig_type_info *swig_types[39];
+static swig_module_info swig_module = {swig_types, 38, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -1543,6 +1545,8 @@ static swig_type_info _swigt__p_OTDB__TradeListMarket = {"_p_OTDB__TradeListMark
 static swig_type_info _swigt__p_OTDB__TradeListNym = {"_p_OTDB__TradeListNym", "OTDB::TradeListNym *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_OTDB__WalletData = {"_p_OTDB__WalletData", "OTDB::WalletData *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_OTPacker = {"_p_OTPacker", "OTPacker *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_OTPassword = {"_p_OTPassword", "OTPassword *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_char = {"_p_char", "char *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__mapT_std__string_std__string_t = {"_p_std__mapT_std__string_std__string_t", "std::map< std::string,std::string > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__vectorT_unsigned_char_t = {"_p_std__vectorT_unsigned_char_t", "std::vector< unsigned char > *", 0, 0, (void*)0, 0};
 
@@ -1581,6 +1585,8 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_OTDB__TradeListNym,
   &_swigt__p_OTDB__WalletData,
   &_swigt__p_OTPacker,
+  &_swigt__p_OTPassword,
+  &_swigt__p_char,
   &_swigt__p_std__mapT_std__string_std__string_t,
   &_swigt__p_std__vectorT_unsigned_char_t,
 };
@@ -1619,6 +1625,8 @@ static swig_cast_info _swigc__p_OTDB__TradeListMarket[] = {  {&_swigt__p_OTDB__T
 static swig_cast_info _swigc__p_OTDB__TradeListNym[] = {  {&_swigt__p_OTDB__TradeListNym, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_OTDB__WalletData[] = {  {&_swigt__p_OTDB__WalletData, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_OTPacker[] = {  {&_swigt__p_OTPacker, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_OTPassword[] = {  {&_swigt__p_OTPassword, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_char[] = {  {&_swigt__p_char, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__mapT_std__string_std__string_t[] = {  {&_swigt__p_std__mapT_std__string_std__string_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__vectorT_unsigned_char_t[] = {  {&_swigt__p_std__vectorT_unsigned_char_t, 0, 0, 0},{0, 0, 0, 0}};
 
@@ -1657,6 +1665,8 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_OTDB__TradeListNym,
   _swigc__p_OTDB__WalletData,
   _swigc__p_OTPacker,
+  _swigc__p_OTPassword,
+  _swigc__p_char,
   _swigc__p_std__mapT_std__string_std__string_t,
   _swigc__p_std__vectorT_unsigned_char_t,
 };
@@ -1677,9 +1687,8 @@ SwigDirector_OTCallback::SwigDirector_OTCallback(zval *self): OTCallback(), Swig
 SwigDirector_OTCallback::~SwigDirector_OTCallback() {
 }
 
-std::string SwigDirector_OTCallback::runOne() {
-  std::string c_result;
-  zval **args = NULL;
+void SwigDirector_OTCallback::runOne(char const *szDisplay, OTPassword &theOutput) {
+  zval *args[2];
   zval *result, funcname;
   MAKE_STD_ZVAL(result);
   ZVAL_STRING(&funcname, (char *)"runOne", 0);
@@ -1687,22 +1696,27 @@ std::string SwigDirector_OTCallback::runOne() {
     SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   }
   
+  zval obj0;
+  args[0] = &obj0;
+  
+  SWIG_SetPointerZval(&obj0, (void *)&szDisplay, SWIGTYPE_p_char, 0);
+  
+  zval obj1;
+  args[1] = &obj1;
+  
+  SWIG_SetPointerZval(&obj1, (void *)&theOutput, SWIGTYPE_p_OTPassword, 0);
+  
   call_user_function(EG(function_table), (zval**)&swig_self, &funcname,
-    result, 0, args TSRMLS_CC);
-  
-  convert_to_string_ex(&result);
-  c_result.assign(Z_STRVAL_PP(&result), Z_STRLEN_PP(&result));
-  
+    result, 2, args TSRMLS_CC);
   FREE_ZVAL(result);
-  return (std::string) c_result;
+  return;
 fail:
-  SWIG_ZEND_ERROR_NORETURN(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
 }
 
 
-std::string SwigDirector_OTCallback::runTwo() {
-  std::string c_result;
-  zval **args = NULL;
+void SwigDirector_OTCallback::runTwo(char const *szDisplay, OTPassword &theOutput) {
+  zval *args[2];
   zval *result, funcname;
   MAKE_STD_ZVAL(result);
   ZVAL_STRING(&funcname, (char *)"runTwo", 0);
@@ -1710,16 +1724,22 @@ std::string SwigDirector_OTCallback::runTwo() {
     SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   }
   
+  zval obj0;
+  args[0] = &obj0;
+  
+  SWIG_SetPointerZval(&obj0, (void *)&szDisplay, SWIGTYPE_p_char, 0);
+  
+  zval obj1;
+  args[1] = &obj1;
+  
+  SWIG_SetPointerZval(&obj1, (void *)&theOutput, SWIGTYPE_p_OTPassword, 0);
+  
   call_user_function(EG(function_table), (zval**)&swig_self, &funcname,
-    result, 0, args TSRMLS_CC);
-  
-  convert_to_string_ex(&result);
-  c_result.assign(Z_STRVAL_PP(&result), Z_STRLEN_PP(&result));
-  
+    result, 2, args TSRMLS_CC);
   FREE_ZVAL(result);
-  return (std::string) c_result;
+  return;
 fail:
-  SWIG_ZEND_ERROR_NORETURN(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
 }
 
 
@@ -1728,10 +1748,12 @@ static int le_swig__p_std__vectorT_unsigned_char_t=0; /* handle for _p_std__vect
 static int le_swig__p_OTDB__Storage=0; /* handle for Storage */
 static int le_swig__p_OTDB__BitcoinAcct=0; /* handle for BitcoinAcct */
 static int le_swig__p_OTDB__BidData=0; /* handle for BidData */
-static int le_swig__p_OTDB__ContactAcct=0; /* handle for ContactAcct */
+static int le_swig__p_OTPassword=0; /* handle for OTPassword */
 static int le_swig__p_OTDB__Blob=0; /* handle for Blob */
 static int le_swig__p_OTDB__TradeListNym=0; /* handle for TradeListNym */
 static int le_swig__p_OTDB__OfferListNym=0; /* handle for OfferListNym */
+static int le_swig__p_OTDB__ContactAcct=0; /* handle for ContactAcct */
+static int le_swig__p_char=0; /* handle for _p_char */
 static int le_swig__p_OTDB__TradeListMarket=0; /* handle for TradeListMarket */
 static int le_swig__p_OTDB__OfferListMarket=0; /* handle for OfferListMarket */
 static int le_swig__p_OTDB__WalletData=0; /* handle for WalletData */
@@ -1762,6 +1784,281 @@ static int le_swig__p_std__mapT_std__string_std__string_t=0; /* handle for _p_st
 static int le_swig__p_OTDB__MarketList=0; /* handle for MarketList */
 /* end vdecl subsection */
 /* wrapper section */
+ZEND_NAMED_FUNCTION(_wrap_OTPassword_blockSize_get) {
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  zval **args[1];
+  OTPassword::BlockSize result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTPassword, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of OTPassword_blockSize_get. Expected SWIGTYPE_p_OTPassword");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  result = (OTPassword::BlockSize)(OTPassword::BlockSize) ((arg1)->blockSize);
+  {
+    ZVAL_LONG(return_value,result);
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OTPassword_getPassword) {
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  zval **args[1];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTPassword, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of OTPassword_getPassword. Expected SWIGTYPE_p_OTPassword");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  result = (char *)((OTPassword const *)arg1)->getPassword();
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OTPassword_setPassword) {
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int arg3 ;
+  zval **args[3];
+  int result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTPassword, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of OTPassword_setPassword. Expected SWIGTYPE_p_OTPassword");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  convert_to_long_ex(args[2]);
+  arg3 = (int) Z_LVAL_PP(args[2]);
+  /*@SWIG@*/;
+  
+  result = (int)(arg1)->setPassword((char const *)arg2,arg3);
+  {
+    ZVAL_LONG(return_value,result);
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OTPassword_getBlockSize) {
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  zval **args[1];
+  int result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTPassword, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of OTPassword_getBlockSize. Expected SWIGTYPE_p_OTPassword");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  result = (int)((OTPassword const *)arg1)->getBlockSize();
+  {
+    ZVAL_LONG(return_value,result);
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OTPassword_getPasswordSize) {
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  zval **args[1];
+  int result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTPassword, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of OTPassword_getPasswordSize. Expected SWIGTYPE_p_OTPassword");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  result = (int)((OTPassword const *)arg1)->getPasswordSize();
+  {
+    ZVAL_LONG(return_value,result);
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OTPassword_zeroMemory) {
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  zval **args[1];
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTPassword, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of OTPassword_zeroMemory. Expected SWIGTYPE_p_OTPassword");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  (arg1)->zeroMemory();
+  
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_new_OTPassword__SWIG_0) {
+  OTPassword *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 0) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  result = (OTPassword *)new OTPassword();
+  
+  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTPassword, 1);
+  
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_new_OTPassword__SWIG_1) {
+  char *arg1 = (char *) 0 ;
+  int arg2 ;
+  zval **args[2];
+  OTPassword *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  convert_to_long_ex(args[1]);
+  arg2 = (int) Z_LVAL_PP(args[1]);
+  /*@SWIG@*/;
+  
+  result = (OTPassword *)new OTPassword((char const *)arg1,arg2);
+  
+  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTPassword, 1);
+  
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_new_OTPassword) {
+  int argc;
+  zval **argv[2];
+  
+  argc = ZEND_NUM_ARGS();
+  zend_get_parameters_array_ex(argc,argv);
+  if (argc == 0) {
+    _wrap_new_OTPassword__SWIG_0(INTERNAL_FUNCTION_PARAM_PASSTHRU); return;
+  }
+  if (argc == 2) {
+    int _v;
+    _v = (Z_TYPE_PP(argv[0]) == IS_STRING); 
+    if (_v) {
+      _v = (Z_TYPE_PP(argv[1]) == IS_LONG); 
+      if (_v) {
+        _wrap_new_OTPassword__SWIG_1(INTERNAL_FUNCTION_PARAM_PASSTHRU); return;
+      }
+    }
+  }
+  
+  SWIG_ErrorCode() = E_ERROR;
+  SWIG_ErrorMsg() = "No matching function for overloaded 'new_OTPassword'";
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+/* This function is designed to be called by the zend list destructors */
+/* to typecast and do the actual destruction */
+static void __wrap_delete_OTPassword(zend_rsrc_list_entry *rsrc, const char *type_name TSRMLS_DC) {
+  swig_object_wrapper *value=(swig_object_wrapper *) rsrc->ptr ;
+  void *ptr=value->ptr ;
+  int newobject=value->newobject ;
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  
+  efree(value);
+  if (! newobject) return; /* can't delete it! */
+  arg1 = (OTPassword *)SWIG_ZTS_ConvertResourceData(ptr,type_name,SWIGTYPE_p_OTPassword TSRMLS_CC);
+  if (! arg1) zend_error(E_ERROR, "OTPassword resource already free'd");
+  delete arg1;
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
 ZEND_NAMED_FUNCTION(_wrap_new_OTCallback) {
   zval *arg0;
   zval **args[1];
@@ -1811,15 +2108,16 @@ fail:
 
 ZEND_NAMED_FUNCTION(_wrap_OTCallback_runOne) {
   OTCallback *arg1 = (OTCallback *) 0 ;
-  zval **args[1];
+  char *arg2 = (char *) 0 ;
+  OTPassword *arg3 = 0 ;
+  zval **args[3];
   Swig::Director *director = 0;
   bool upcall = false;
-  std::string result;
   
   director = dynamic_cast<Swig::Director*>(arg1);
   upcall = !director->swig_is_overridden_method((char *)"OTCallback", (char *)"runOne");
   SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+  if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
     WRONG_PARAM_COUNT;
   }
   
@@ -1829,13 +2127,26 @@ ZEND_NAMED_FUNCTION(_wrap_OTCallback_runOne) {
     }
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
-  if (upcall) {
-    result = (arg1)->OTCallback::runOne();
-  } else {
-    result = (arg1)->runOne();
-  }
   
-  ZVAL_STRINGL(return_value, const_cast<char*>((&result)->data()), (&result)->size(), 1);
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  {
+    if(SWIG_ConvertPtr(*args[2], (void **) &arg3, SWIGTYPE_p_OTPassword, 0) < 0 || arg3 == NULL) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 3 of OTCallback_runOne. Expected SWIGTYPE_p_OTPassword");
+    }
+  }
+  if (upcall) {
+    (arg1)->OTCallback::runOne((char const *)arg2,*arg3);
+  } else {
+    (arg1)->runOne((char const *)arg2,*arg3);
+  }
   
   return;
 fail:
@@ -1845,15 +2156,16 @@ fail:
 
 ZEND_NAMED_FUNCTION(_wrap_OTCallback_runTwo) {
   OTCallback *arg1 = (OTCallback *) 0 ;
-  zval **args[1];
+  char *arg2 = (char *) 0 ;
+  OTPassword *arg3 = 0 ;
+  zval **args[3];
   Swig::Director *director = 0;
   bool upcall = false;
-  std::string result;
   
   director = dynamic_cast<Swig::Director*>(arg1);
   upcall = !director->swig_is_overridden_method((char *)"OTCallback", (char *)"runTwo");
   SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+  if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
     WRONG_PARAM_COUNT;
   }
   
@@ -1863,13 +2175,26 @@ ZEND_NAMED_FUNCTION(_wrap_OTCallback_runTwo) {
     }
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
-  if (upcall) {
-    result = (arg1)->OTCallback::runTwo();
-  } else {
-    result = (arg1)->runTwo();
-  }
   
-  ZVAL_STRINGL(return_value, const_cast<char*>((&result)->data()), (&result)->size(), 1);
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  {
+    if(SWIG_ConvertPtr(*args[2], (void **) &arg3, SWIGTYPE_p_OTPassword, 0) < 0 || arg3 == NULL) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 3 of OTCallback_runTwo. Expected SWIGTYPE_p_OTPassword");
+    }
+  }
+  if (upcall) {
+    (arg1)->OTCallback::runTwo((char const *)arg2,*arg3);
+  } else {
+    (arg1)->runTwo((char const *)arg2,*arg3);
+  }
   
   return;
 fail:
@@ -1916,11 +2241,12 @@ fail:
 
 ZEND_NAMED_FUNCTION(_wrap_OTCaller_GetPassword) {
   OTCaller *arg1 = (OTCaller *) 0 ;
-  zval **args[1];
-  char *result = 0 ;
+  OTPassword *arg2 = 0 ;
+  zval **args[2];
+  bool result;
   
   SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
     WRONG_PARAM_COUNT;
   }
   
@@ -1930,14 +2256,38 @@ ZEND_NAMED_FUNCTION(_wrap_OTCaller_GetPassword) {
     }
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
-  result = (char *)(arg1)->GetPassword();
   {
-    if(!result) {
-      ZVAL_NULL(return_value);
-    } else {
-      ZVAL_STRING(return_value, (char *)result, 1);
+    if(SWIG_ConvertPtr(*args[1], (void **) &arg2, SWIGTYPE_p_OTPassword, 0) < 0 || arg2 == NULL) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 2 of OTCaller_GetPassword. Expected SWIGTYPE_p_OTPassword");
     }
   }
+  result = (bool)((OTCaller const *)arg1)->GetPassword(*arg2);
+  {
+    ZVAL_BOOL(return_value,(result)?1:0);
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OTCaller_ZeroOutPassword) {
+  OTCaller *arg1 = (OTCaller *) 0 ;
+  zval **args[1];
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTCaller, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of OTCaller_ZeroOutPassword. Expected SWIGTYPE_p_OTCaller");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  (arg1)->ZeroOutPassword();
+  
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -1960,7 +2310,7 @@ ZEND_NAMED_FUNCTION(_wrap_OTCaller_GetDisplay) {
     }
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
-  result = (char *)(arg1)->GetDisplay();
+  result = (char *)((OTCaller const *)arg1)->GetDisplay();
   {
     if(!result) {
       ZVAL_NULL(return_value);
@@ -1977,10 +2327,11 @@ fail:
 ZEND_NAMED_FUNCTION(_wrap_OTCaller_SetDisplay) {
   OTCaller *arg1 = (OTCaller *) 0 ;
   char *arg2 = (char *) 0 ;
-  zval **args[2];
+  int arg3 ;
+  zval **args[3];
   
   SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+  if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
     WRONG_PARAM_COUNT;
   }
   
@@ -2000,7 +2351,13 @@ ZEND_NAMED_FUNCTION(_wrap_OTCaller_SetDisplay) {
   }
   /*@SWIG@*/;
   
-  (arg1)->SetDisplay((char const *)arg2);
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  convert_to_long_ex(args[2]);
+  arg3 = (int) Z_LVAL_PP(args[2]);
+  /*@SWIG@*/;
+  
+  (arg1)->SetDisplay((char const *)arg2,arg3);
   
   return;
 fail:
@@ -2076,7 +2433,7 @@ ZEND_NAMED_FUNCTION(_wrap_OTCaller_isCallbackSet) {
     }
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
-  result = (bool)(arg1)->isCallbackSet();
+  result = (bool)((OTCaller const *)arg1)->isCallbackSet();
   {
     ZVAL_BOOL(return_value,(result)?1:0);
   }
@@ -6887,11 +7244,12 @@ fail:
 ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadRecordBox) {
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
-  zval **args[2];
+  char *arg3 = (char *) 0 ;
+  zval **args[3];
   char *result = 0 ;
   
   SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+  if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
     WRONG_PARAM_COUNT;
   }
   
@@ -6915,7 +7273,17 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadRecordBox) {
   }
   /*@SWIG@*/;
   
-  result = (char *)OT_API_LoadRecordBox((char const *)arg1,(char const *)arg2);
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[2])->type==IS_NULL) {
+    arg3 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[2]);
+    arg3 = (char *) Z_STRVAL_PP(args[2]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_LoadRecordBox((char const *)arg1,(char const *)arg2,(char const *)arg3);
   {
     if(!result) {
       ZVAL_NULL(return_value);
@@ -6932,11 +7300,12 @@ fail:
 ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadRecordBoxNoVerify) {
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
-  zval **args[2];
+  char *arg3 = (char *) 0 ;
+  zval **args[3];
   char *result = 0 ;
   
   SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+  if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
     WRONG_PARAM_COUNT;
   }
   
@@ -6960,7 +7329,17 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadRecordBoxNoVerify) {
   }
   /*@SWIG@*/;
   
-  result = (char *)OT_API_LoadRecordBoxNoVerify((char const *)arg1,(char const *)arg2);
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[2])->type==IS_NULL) {
+    arg3 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[2]);
+    arg3 = (char *) Z_STRVAL_PP(args[2]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_LoadRecordBoxNoVerify((char const *)arg1,(char const *)arg2,(char const *)arg3);
   {
     if(!result) {
       ZVAL_NULL(return_value);
@@ -27630,8 +28009,8 @@ static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTDB__BitcoinAcct) {
 static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTDB__BidData) {
   __wrap_delete_BidData(rsrc, SWIGTYPE_p_OTDB__BidData->name TSRMLS_CC);
 }
-static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTDB__ContactAcct) {
-  __wrap_delete_ContactAcct(rsrc, SWIGTYPE_p_OTDB__ContactAcct->name TSRMLS_CC);
+static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTPassword) {
+  __wrap_delete_OTPassword(rsrc, SWIGTYPE_p_OTPassword->name TSRMLS_CC);
 }
 static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTDB__Blob) {
   __wrap_delete_Blob(rsrc, SWIGTYPE_p_OTDB__Blob->name TSRMLS_CC);
@@ -27641,6 +28020,13 @@ static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTDB__TradeListNym) {
 }
 static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTDB__OfferListNym) {
   __wrap_delete_OfferListNym(rsrc, SWIGTYPE_p_OTDB__OfferListNym->name TSRMLS_CC);
+}
+static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTDB__ContactAcct) {
+  __wrap_delete_ContactAcct(rsrc, SWIGTYPE_p_OTDB__ContactAcct->name TSRMLS_CC);
+}
+static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_char) {
+  /* No destructor for simple type _p_char */
+  efree(rsrc->ptr);
 }
 static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTDB__TradeListMarket) {
   __wrap_delete_TradeListMarket(rsrc, SWIGTYPE_p_OTDB__TradeListMarket->name TSRMLS_CC);
@@ -27736,11 +28122,19 @@ static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_OTDB__MarketList) {
 /* entry subsection */
 /* Every non-class user visible function must have an entry here */
 static zend_function_entry otapi_functions[] = {
+ SWIG_ZEND_NAMED_FE(otpassword_blocksize_get,_wrap_OTPassword_blockSize_get,NULL)
+ SWIG_ZEND_NAMED_FE(otpassword_getpassword,_wrap_OTPassword_getPassword,NULL)
+ SWIG_ZEND_NAMED_FE(otpassword_setpassword,_wrap_OTPassword_setPassword,NULL)
+ SWIG_ZEND_NAMED_FE(otpassword_getblocksize,_wrap_OTPassword_getBlockSize,NULL)
+ SWIG_ZEND_NAMED_FE(otpassword_getpasswordsize,_wrap_OTPassword_getPasswordSize,NULL)
+ SWIG_ZEND_NAMED_FE(otpassword_zeromemory,_wrap_OTPassword_zeroMemory,NULL)
+ SWIG_ZEND_NAMED_FE(new_otpassword,_wrap_new_OTPassword,NULL)
  SWIG_ZEND_NAMED_FE(new_otcallback,_wrap_new_OTCallback,NULL)
  SWIG_ZEND_NAMED_FE(otcallback_runone,_wrap_OTCallback_runOne,NULL)
  SWIG_ZEND_NAMED_FE(otcallback_runtwo,_wrap_OTCallback_runTwo,NULL)
  SWIG_ZEND_NAMED_FE(new_otcaller,_wrap_new_OTCaller,NULL)
  SWIG_ZEND_NAMED_FE(otcaller_getpassword,_wrap_OTCaller_GetPassword,NULL)
+ SWIG_ZEND_NAMED_FE(otcaller_zerooutpassword,_wrap_OTCaller_ZeroOutPassword,NULL)
  SWIG_ZEND_NAMED_FE(otcaller_getdisplay,_wrap_OTCaller_GetDisplay,NULL)
  SWIG_ZEND_NAMED_FE(otcaller_setdisplay,_wrap_OTCaller_SetDisplay,NULL)
  SWIG_ZEND_NAMED_FE(otcaller_delcallback,_wrap_OTCaller_delCallback,NULL)
@@ -28603,14 +28997,18 @@ le_swig__p_OTDB__BitcoinAcct=zend_register_list_destructors_ex(_wrap_destroy_p_O
 SWIG_TypeClientData(SWIGTYPE_p_OTDB__BitcoinAcct,&le_swig__p_OTDB__BitcoinAcct);
 le_swig__p_OTDB__BidData=zend_register_list_destructors_ex(_wrap_destroy_p_OTDB__BidData,NULL,(char *)(SWIGTYPE_p_OTDB__BidData->name),module_number);
 SWIG_TypeClientData(SWIGTYPE_p_OTDB__BidData,&le_swig__p_OTDB__BidData);
-le_swig__p_OTDB__ContactAcct=zend_register_list_destructors_ex(_wrap_destroy_p_OTDB__ContactAcct,NULL,(char *)(SWIGTYPE_p_OTDB__ContactAcct->name),module_number);
-SWIG_TypeClientData(SWIGTYPE_p_OTDB__ContactAcct,&le_swig__p_OTDB__ContactAcct);
+le_swig__p_OTPassword=zend_register_list_destructors_ex(_wrap_destroy_p_OTPassword,NULL,(char *)(SWIGTYPE_p_OTPassword->name),module_number);
+SWIG_TypeClientData(SWIGTYPE_p_OTPassword,&le_swig__p_OTPassword);
 le_swig__p_OTDB__Blob=zend_register_list_destructors_ex(_wrap_destroy_p_OTDB__Blob,NULL,(char *)(SWIGTYPE_p_OTDB__Blob->name),module_number);
 SWIG_TypeClientData(SWIGTYPE_p_OTDB__Blob,&le_swig__p_OTDB__Blob);
 le_swig__p_OTDB__TradeListNym=zend_register_list_destructors_ex(_wrap_destroy_p_OTDB__TradeListNym,NULL,(char *)(SWIGTYPE_p_OTDB__TradeListNym->name),module_number);
 SWIG_TypeClientData(SWIGTYPE_p_OTDB__TradeListNym,&le_swig__p_OTDB__TradeListNym);
 le_swig__p_OTDB__OfferListNym=zend_register_list_destructors_ex(_wrap_destroy_p_OTDB__OfferListNym,NULL,(char *)(SWIGTYPE_p_OTDB__OfferListNym->name),module_number);
 SWIG_TypeClientData(SWIGTYPE_p_OTDB__OfferListNym,&le_swig__p_OTDB__OfferListNym);
+le_swig__p_OTDB__ContactAcct=zend_register_list_destructors_ex(_wrap_destroy_p_OTDB__ContactAcct,NULL,(char *)(SWIGTYPE_p_OTDB__ContactAcct->name),module_number);
+SWIG_TypeClientData(SWIGTYPE_p_OTDB__ContactAcct,&le_swig__p_OTDB__ContactAcct);
+le_swig__p_char=zend_register_list_destructors_ex(_wrap_destroy_p_char,NULL,(char *)(SWIGTYPE_p_char->name),module_number);
+SWIG_TypeClientData(SWIGTYPE_p_char,&le_swig__p_char);
 le_swig__p_OTDB__TradeListMarket=zend_register_list_destructors_ex(_wrap_destroy_p_OTDB__TradeListMarket,NULL,(char *)(SWIGTYPE_p_OTDB__TradeListMarket->name),module_number);
 SWIG_TypeClientData(SWIGTYPE_p_OTDB__TradeListMarket,&le_swig__p_OTDB__TradeListMarket);
 le_swig__p_OTDB__OfferListMarket=zend_register_list_destructors_ex(_wrap_destroy_p_OTDB__OfferListMarket,NULL,(char *)(SWIGTYPE_p_OTDB__OfferListMarket->name),module_number);
@@ -28671,6 +29069,9 @@ CG(active_class_entry) = NULL;
 /* end oinit subsection */
 
 /* cinit subsection */
+SWIG_LONG_CONSTANT(OTPASSWORD_BLOCKSIZE, 128);
+SWIG_LONG_CONSTANT(OTPASSWORD_MEMSIZE, 129);
+SWIG_LONG_CONSTANT(OTPassword_DEFAULT_SIZE, OTPassword::DEFAULT_SIZE);
 SWIG_LONG_CONSTANT(PACK_MESSAGE_PACK, OTDB::PACK_MESSAGE_PACK);
 SWIG_LONG_CONSTANT(PACK_PROTOCOL_BUFFERS, OTDB::PACK_PROTOCOL_BUFFERS);
 SWIG_LONG_CONSTANT(PACK_TYPE_ERROR, OTDB::PACK_TYPE_ERROR);

@@ -8,6 +8,9 @@
 
 package com.wrapper.core.jni;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class TradeListMarket extends Storable {
   private long swigCPtr;
 
@@ -35,10 +38,10 @@ public class TradeListMarket extends Storable {
     super.delete();
   }
 // ------------------------
-	/*@SWIG:OTAPI.i,357,OT_CONTAINER_TYPE_MEMBERS@*/
+	/*@SWIG:OTAPI.i,329,OT_CONTAINER_TYPE_MEMBERS@*/
 	private List elementList = new ArrayList();
 /*@SWIG@*/
-	/*@SWIG:OTAPI.i,438,OT_ADD_ELEMENT@*/  // THIS BLOCK CONTAINS JAVA CODE.
+	/*@SWIG:OTAPI.i,410,OT_ADD_ELEMENT@*/  // THIS BLOCK CONTAINS JAVA CODE.
 private long removeRefTradeDataMarket(long lIndex) {
 	// 
 	// loop through the elements in the actual container, in order to find the one

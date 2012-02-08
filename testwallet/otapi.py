@@ -74,6 +74,31 @@ except:
     weakref_proxy = lambda x: x
 
 
+OTPASSWORD_BLOCKSIZE = _otapi.OTPASSWORD_BLOCKSIZE
+OTPASSWORD_MEMSIZE = _otapi.OTPASSWORD_MEMSIZE
+class OTPassword(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, OTPassword, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, OTPassword, name)
+    __repr__ = _swig_repr
+    DEFAULT_SIZE = _otapi.OTPassword_DEFAULT_SIZE
+    __swig_getmethods__["blockSize"] = _otapi.OTPassword_blockSize_get
+    if _newclass:blockSize = _swig_property(_otapi.OTPassword_blockSize_get)
+    def getPassword(self): return _otapi.OTPassword_getPassword(self)
+    def setPassword(self, *args): return _otapi.OTPassword_setPassword(self, *args)
+    def getBlockSize(self): return _otapi.OTPassword_getBlockSize(self)
+    def getPasswordSize(self): return _otapi.OTPassword_getPasswordSize(self)
+    def zeroMemory(self): return _otapi.OTPassword_zeroMemory(self)
+    def __init__(self, *args): 
+        this = _otapi.new_OTPassword(*args)
+        try: self.this.append(this)
+        except: self.this = this
+    __swig_destroy__ = _otapi.delete_OTPassword
+    __del__ = lambda self : None;
+OTPassword_swigregister = _otapi.OTPassword_swigregister
+OTPassword_swigregister(OTPassword)
+
 class OTCallback(_object):
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, OTCallback, name, value)
@@ -90,8 +115,8 @@ class OTCallback(_object):
         except: self.this = this
     __swig_destroy__ = _otapi.delete_OTCallback
     __del__ = lambda self : None;
-    def runOne(self): return _otapi.OTCallback_runOne(self)
-    def runTwo(self): return _otapi.OTCallback_runTwo(self)
+    def runOne(self, *args): return _otapi.OTCallback_runOne(self, *args)
+    def runTwo(self, *args): return _otapi.OTCallback_runTwo(self, *args)
     def __disown__(self):
         self.this.disown()
         _otapi.disown_OTCallback(self)
@@ -111,7 +136,8 @@ class OTCaller(_object):
         except: self.this = this
     __swig_destroy__ = _otapi.delete_OTCaller
     __del__ = lambda self : None;
-    def GetPassword(self): return _otapi.OTCaller_GetPassword(self)
+    def GetPassword(self, *args): return _otapi.OTCaller_GetPassword(self, *args)
+    def ZeroOutPassword(self): return _otapi.OTCaller_ZeroOutPassword(self)
     def GetDisplay(self): return _otapi.OTCaller_GetDisplay(self)
     def SetDisplay(self, *args): return _otapi.OTCaller_SetDisplay(self, *args)
     def delCallback(self): return _otapi.OTCaller_delCallback(self)

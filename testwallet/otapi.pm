@@ -272,6 +272,51 @@ package otapi;
 *DecodeObject = *otapic::DecodeObject;
 *EraseValueByKey = *otapic::EraseValueByKey;
 
+############# Class : otapi::OTPassword ##############
+
+package otapi::OTPassword;
+use vars qw(@ISA %OWNER %ITERATORS %BLESSEDMEMBERS);
+@ISA = qw( otapi );
+%OWNER = ();
+%ITERATORS = ();
+*DEFAULT_SIZE = *otapic::OTPassword_DEFAULT_SIZE;
+*swig_blockSize_get = *otapic::OTPassword_blockSize_get;
+*swig_blockSize_set = *otapic::OTPassword_blockSize_set;
+*getPassword = *otapic::OTPassword_getPassword;
+*setPassword = *otapic::OTPassword_setPassword;
+*getBlockSize = *otapic::OTPassword_getBlockSize;
+*getPasswordSize = *otapic::OTPassword_getPasswordSize;
+*zeroMemory = *otapic::OTPassword_zeroMemory;
+sub new {
+    my $pkg = shift;
+    my $self = otapic::new_OTPassword(@_);
+    bless $self, $pkg if defined($self);
+}
+
+sub DESTROY {
+    return unless $_[0]->isa('HASH');
+    my $self = tied(%{$_[0]});
+    return unless defined $self;
+    delete $ITERATORS{$self};
+    if (exists $OWNER{$self}) {
+        otapic::delete_OTPassword($self);
+        delete $OWNER{$self};
+    }
+}
+
+sub DISOWN {
+    my $self = shift;
+    my $ptr = tied(%$self);
+    delete $OWNER{$ptr};
+}
+
+sub ACQUIRE {
+    my $self = shift;
+    my $ptr = tied(%$self);
+    $OWNER{$ptr} = 1;
+}
+
+
 ############# Class : otapi::OTCallback ##############
 
 package otapi::OTCallback;
@@ -336,6 +381,7 @@ sub DESTROY {
 }
 
 *GetPassword = *otapic::OTCaller_GetPassword;
+*ZeroOutPassword = *otapic::OTCaller_ZeroOutPassword;
 *GetDisplay = *otapic::OTCaller_GetDisplay;
 *SetDisplay = *otapic::OTCaller_SetDisplay;
 *delCallback = *otapic::OTCaller_delCallback;
@@ -1633,6 +1679,8 @@ sub ACQUIRE {
 
 package otapi;
 
+*OTPASSWORD_BLOCKSIZE = *otapic::OTPASSWORD_BLOCKSIZE;
+*OTPASSWORD_MEMSIZE = *otapic::OTPASSWORD_MEMSIZE;
 *PACK_MESSAGE_PACK = *otapic::PACK_MESSAGE_PACK;
 *PACK_PROTOCOL_BUFFERS = *otapic::PACK_PROTOCOL_BUFFERS;
 *PACK_TYPE_ERROR = *otapic::PACK_TYPE_ERROR;

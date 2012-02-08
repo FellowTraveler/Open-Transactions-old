@@ -1268,43 +1268,48 @@ void RegisterAPIWithScript(OTScript & theScript)
 		// ******************************************************************
 		//
 		//  SCRIPT HEADERS
-		//
-		OTString strUseFile1, strUseFile2, strUseFile3;
-		const char * ps		= OTLog::PathSeparator();
-		const char * ps0	= "%s%sscripts%sot%s%s";
-		const char * ps1	= "ot_utility.ot";
-		const char * ps2	= "otapi.ot";
-		const char * ps3	= "ot_made_easy.ot";
+		// 
+		static const char * ps0	= "%s%s%s%sot%s%s";
+		static const char * ps1	= "ot_utility.ot";
+		static const char * ps2	= "otapi.ot";
+		static const char * ps3	= "ot_made_easy.ot";
+		static const char * pss	= OTLog::ScriptFolder();	//   "scripts"
+		static const char * ps	= OTLog::PathSeparator();	//   "/"
+		static const char * pot	= "ot";						//   "ot"
 		
+		OTString strUseFile1, strUseFile2, strUseFile3;
 		/*
 		 > ls ./Open-Transactions/scripts/ot/
 		 INCLUDE IN THIS ORDER:
 		 
-		 ot_utility.ot
-		 otapi.ot
-		 ot_made_easy.ot 
+		 ot_utility.ot		ps1
+		 otapi.ot			ps2
+		 ot_made_easy.ot	ps3
 		 
-		 */			//    ~/.ot/client_data		/	scripts	/	ot	/	"blah.ot"
-		strUseFile1.Format(ps0, OTLog::Path(), ps,			ps,		ps, ps1);
-		strUseFile2.Format(ps0, OTLog::Path(), ps,			ps,		ps, ps2);
-		strUseFile3.Format(ps0, OTLog::Path(), ps,			ps,		ps, ps3);
+		 */			//    ~/.ot/client_data		/	scripts		/	ot	/	  "blah.ot"
+		strUseFile1.Format(ps0, OTLog::Path(), ps,	pss,		ps,		ps,		ps1);
+		strUseFile2.Format(ps0, OTLog::Path(), ps,	pss,		ps,		ps,		ps2);
+		strUseFile3.Format(ps0, OTLog::Path(), ps,	pss,		ps,		ps,		ps3);
 		
 		const std::string str_UseFile1(strUseFile1.Get()), str_UseFile2(strUseFile2.Get()), str_UseFile3(strUseFile3.Get());
 
-		const char * ps4	= "RegisterAPIWithScript: ERROR: Failed trying to include script header:  %s (Does it exist?)\n";
+		const char * psErr	= "RegisterAPIWithScript: ERROR: Failed trying to include script header:  %s (Does it exist?)\n";
 		// todo fix hardcoding of folder names (below)
-		if ( OTDB::Exists("scripts", "ot", ps1) )
+		// --------------------------------
+		if ( OTDB::Exists(pss, pot, ps1) )
 			pScript->chai.use(str_UseFile1);
 		else
-			OTLog::vError(ps4, str_UseFile1.c_str());
-		if ( OTDB::Exists("scripts", "ot", ps2) )
+			OTLog::vError(psErr, str_UseFile1.c_str());
+		// --------------------------------
+		if ( OTDB::Exists(pss, pot, ps2) )
 			pScript->chai.use(str_UseFile2);
 		else
-			OTLog::vError(ps4, str_UseFile2.c_str());
-		if ( OTDB::Exists("scripts", "ot", ps3) )
+			OTLog::vError(psErr, str_UseFile2.c_str());
+		// --------------------------------
+		if ( OTDB::Exists(pss, pot, ps3) )
 			pScript->chai.use(str_UseFile3);
 		else
-			OTLog::vError(ps4, str_UseFile3.c_str());
+			OTLog::vError(psErr, str_UseFile3.c_str());
 		// -----------------------------------------------------------
 	}
 	else 
@@ -1405,7 +1410,8 @@ void HandleCommandLineArguments( int argc, char* argv[], AnyOption * opt)
     opt->setCommandFlag(  "refreshnym"    );   // refresh intermediary files from server + verify against last receipt.
     opt->setCommandFlag(  "stat" );            // print out the wallet contents.
     opt->setCommandFlag(  "prompt" );          // Enter the OT prompt.
-    opt->setCommandOption("script" );          // Process a script from a file
+    opt->setCommandOption("script" );          // Process a script from out of a scriptfile
+    opt->setCommandOption("args");             // Pass custom arguments from command line: --args "key1 value1 key2 \"here is value2\" key3 value3"
     
     opt->setCommandFlag("help", 'h');   // the Help screen.
     opt->setCommandFlag('?');           // the Help screen.
@@ -1950,9 +1956,7 @@ int main(int argc, char* argv[])
         if ( str_HisPurse.size() > 0 )
         {
 //			OTLog::Error("DEBUGGING Before Purse ID...\n");
-         	
 			const OTIdentifier HIS_ASSET_TYPE_ID(str_HisPurse.c_str());
-            
 //			OTLog::Error("DEBUGGING After Purse ID...\n");
 			
 			pHisAssetContract = pWallet->GetAssetContract(HIS_ASSET_TYPE_ID);
@@ -2073,7 +2077,7 @@ int main(int argc, char* argv[])
 								   str_var_name.c_str(), str_var_value.c_str());
 					
 					OTVariable * pVar = new OTVariable(str_var_name,		// "Args"
-													   str_var_value,		// "key value key value key value key value"
+													   str_var_value,		// "key1 value1 key2 value2 key3 value3 key4 value4"
 													   OTVariable::Var_Constant);	// constant, persistent, or important.
 					angelArgs.SetCleanupTargetPointer(pVar);
 					OT_ASSERT(NULL != pVar);
@@ -2091,7 +2095,7 @@ int main(int argc, char* argv[])
 					const std::string str_var_name("Server");
 					const std::string str_var_value(str_ServerID);
 					
-					OTLog::vOutput(0, "Adding variable with name %s and value: %s ...\n", str_var_name.c_str(), str_var_value.c_str());
+					OTLog::vOutput(0, "Adding constant with name %s and value: %s ...\n", str_var_name.c_str(), str_var_value.c_str());
 					
 					OTVariable * pVar = new OTVariable(str_var_name,		// "Server"
 													   str_var_value,		// "lkjsdf09834lk5j34lidf09" (Whatever)
@@ -2146,7 +2150,8 @@ int main(int argc, char* argv[])
 					OTLog::Error("HisNym variable isn't set...\n");
 				}				
 				// -------------------------
-				/*
+				/* // WE NO LONGER PASS THE PARTY DIRECTLY TO THE SCRIPT,
+				   // BUT INSTEAD, ONLY THE PARTY'S NAME.
 				if (NULL != pMyNym)
 				{
 					const std::string str_party_name("MyNym"), str_agent_name("mynym"), str_acct_name("myacct");

@@ -16,11 +16,11 @@ class SwigDirector_OTCallback : public OTCallback, public Swig::Director {
 public:
     SwigDirector_OTCallback();
     virtual ~SwigDirector_OTCallback();
-    virtual std::string runOne();
-    virtual std::string runTwo();
+    virtual void runOne(char const *szDisplay, OTPassword &theOutput);
+    virtual void runTwo(char const *szDisplay, OTPassword &theOutput);
 
-    typedef char * (SWIGSTDCALL* SWIG_Callback0_t)();
-    typedef char * (SWIGSTDCALL* SWIG_Callback1_t)();
+    typedef void (SWIGSTDCALL* SWIG_Callback0_t)(char *, void *);
+    typedef void (SWIGSTDCALL* SWIG_Callback1_t)(char *, void *);
     void swig_connect_director(SWIG_Callback0_t callbackrunOne, SWIG_Callback1_t callbackrunTwo);
 
 private:
