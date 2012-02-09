@@ -24,6 +24,6 @@ if (bSuccess)
 }
 else
 {
-	print("Failed! (FYI, I think this function is still buggy, sorry.)\n\n")
+	print("Failed!\n\n")
 }
 

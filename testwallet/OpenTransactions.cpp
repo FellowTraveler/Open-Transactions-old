@@ -1409,16 +1409,16 @@ bool OT_API::VerifySignature(const OTString		& strContract,
 	else
 		theAngel.SetCleanupTargetPointer(pContract);
 	// -----------------------------------------------------
-	if (false == pContract->VerifyContractID())
-//	if (false == pContract->VerifyContract())	// This calls VerifyContractID(), then GetContractPublicNym(), then VerifySignature() (with that Nym)
-	{											// Therefore it's only useful for server contracts and asset contracts. Here we can VerifyID and Signature,
-												// and that's good enough for here and most other places, generically speaking.
-		OTLog::vOutput(0, "OT_API::VerifySignature: Unable to verify contract ID for contract passed in. NOTE: If you are experiencing "
-					   "a problem here, CONTACT FELLOW TRAVELER and let him know WHAT KIND OF CONTRACT, and what symptoms you are seeing, "
-					   "versus what you were expecting to see. Contract contents:\n\n%s\n\n",
-					   strContract.Get());
-		return false;
-	}
+//	if (false == pContract->VerifyContractID())
+////	if (false == pContract->VerifyContract())	// This calls VerifyContractID(), then GetContractPublicNym(), then VerifySignature() (with that Nym)
+//	{											// Therefore it's only useful for server contracts and asset contracts. Here we can VerifyID and Signature,
+//												// and that's good enough for here and most other places, generically speaking.
+//		OTLog::vOutput(0, "OT_API::VerifySignature: Unable to verify contract ID for contract passed in. NOTE: If you are experiencing "
+//					   "a problem here, CONTACT FELLOW TRAVELER and let him know WHAT KIND OF CONTRACT, and what symptoms you are seeing, "
+//					   "versus what you were expecting to see. Contract contents:\n\n%s\n\n",
+//					   strContract.Get());
+//		return false;
+//	}
 
 	// -----------------------------------------------------
 	if (false == pContract->VerifySignature(*pNym))

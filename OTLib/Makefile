@@ -30,6 +30,11 @@ endif
 
 # ---------------------------------------------------------------------
 
+ifeq ($(OT_TEST_PASSWORD), 1)
+FT_FLAGS += -DOT_TEST_PASSWORD
+endif
+
+# ---------------------------------------------------------------------
 
 # I allow the user the option to force-override the build platform.
 # Using make PLATFORM=darwin, for example, you will build in darwin mode
