@@ -1,0 +1,17 @@
+#!/usr/local/bin/ot --script
+
+OT_API_Output(0, "Please enter a contract to be signed, followed by an EOF or a ~ by itself on a blank line:\n\n")
+
+// The reason we accept the tilde ~ on a blank line by itself, is because
+// the EOF, while it works, causes us not to be able to read any more input
+// from stdin. Stdin is considered "closed" for the duration of the run.
+// So the tilde allows us to read multiple times without closing stdin.
+ 
+var strInput = OT_CLI_ReadUntilEOF() 
+
+print("\n\n You entered:\n" + strInput) 
+
+var strOutput = OT_API_SignContract(MyNym, strInput) 
+ 
+print("Signed:\n\n" + strOutput + "\n\n")
+

@@ -3445,9 +3445,9 @@ void OTTransaction::UpdateContents()
 		// ----------------------------------
 		switch (m_pParent->GetType())
 		{
-			case OTLedger::nymbox:	this->SaveAbbreviatedNymboxRecord(m_xmlUnsigned);	break;
-			case OTLedger::inbox:	this->SaveAbbreviatedInboxRecord(m_xmlUnsigned);	break;
-			case OTLedger::outbox:	this->SaveAbbreviatedOutboxRecord(m_xmlUnsigned);	break;
+			case OTLedger::nymbox:			this->SaveAbbreviatedNymboxRecord(m_xmlUnsigned);	break;
+			case OTLedger::inbox:			this->SaveAbbreviatedInboxRecord(m_xmlUnsigned);	break;
+			case OTLedger::outbox:			this->SaveAbbreviatedOutboxRecord(m_xmlUnsigned);	break;
 			case OTLedger::paymentInbox:	this->SaveAbbrevPaymentInboxRecord(m_xmlUnsigned);	break;
 			case OTLedger::paymentOutbox:	this->SaveAbbrevPaymentOutboxRecord(m_xmlUnsigned);	break;
 			case OTLedger::recordBox:		this->SaveAbbrevRecordBoxRecord(m_xmlUnsigned);		break;
@@ -3473,7 +3473,7 @@ void OTTransaction::UpdateContents()
 									  m_lClosingTransactionNo);        
 		}
 		// -----------------------------------------------------	
-		
+
 		// a transaction contains a list of items, but it is also in reference to some item, from someone else
 		// We include that item here.
 		if (m_ascInReferenceTo.GetLength())
@@ -3552,7 +3552,92 @@ void OTTransaction::UpdateContents()
  */
 void OTTransaction::SaveAbbrevPaymentInboxRecord(OTString & strOutput)
 {
+	long lDisplayValue = 0;
+	// ----------------------------------------------
+	if (IsAbbreviated())  // This is copied from inboxRecord, we'll see if/how it's needed for paymentInboxRecord...
+	{
+		lDisplayValue	= GetAbbrevDisplayAmount();
+	}
+	else
+	{
+		switch (m_Type) 
+		{
+			case OTTransaction::instrumentNotice:
+				lDisplayValue	= GetReceiptAmount();
+//				lDisplayValue	= 0;
+				break;
+			case OTTransaction::instrumentRejection:
+				lDisplayValue	= 0; 
+				break;
+			default: // All other types are irrelevant for payment inbox reports
+			{
+				OTLog::vError("OTTransaction::SaveAbbrevPaymentInboxRecord: Unexpected %s transaction "
+							   "in payment inbox while making abbreviated payment inbox record.\n", GetTypeString());
+			}
+				return;
+		}
+	}
+	// ----------------------------------------------
+	// By this point, we know only the right types of receipts are being saved, and 
+	// the adjustment and display value are both set correctly.
 	
+	// TYPE
+	OTString		strType;	// <===========
+	const char *	pTypeStr = GetTypeString();
+	strType.Set((NULL != pTypeStr) ? pTypeStr : "error_state");
+	// ----------------------------------------------
+	// DATE SIGNED
+	const long lDateSigned = m_DATE_SIGNED;
+	// ----------------------------------------------
+	// HASH OF THE COMPLETE "BOX RECEIPT"
+	// Save abbreviated is only used for receipts in boxes such as inbox, outbox, and nymbox.
+	// (Thus the moniker "Box Receipt", as contrasted with cron receipts or normal transaction receipts with balance agreements.)
+	//
+	OTString strHash;
+	
+	// If this is already an abbreviated record, then save the existing hash.
+	if (IsAbbreviated())
+		m_Hash.GetString(strHash);
+	// Otherwise if it's a full record, then calculate the hash and save it.
+	else
+	{
+		OTIdentifier	idReceiptHash;				// a hash of the actual transaction is stored with its
+		this->CalculateContractID(idReceiptHash);	// abbreviated short-form record (in the payment inbox, for example.)
+		idReceiptHash.GetString(strHash);
+	}
+	// ----------------------------------------------
+	/* 
+	 NOTES...
+	 
+	 transactionType		m_Type;				// blank, pending, processInbox, transfer, deposit, withdrawal, trade, etc.
+	 time_t					m_DATE_SIGNED;		// The date, in seconds, when the instrument was last signed.
+	 OTIdentifier			m_Hash;				// Created while saving abbreviated record, loaded back with it, then verified against actual hash when loading actual box receipt.
+	 long					m_lAbbrevAmount;	// Saved abbreviated from actual calculation, and set upon loading in abbrev mode.
+	 long					m_lDisplayAmount;	// Saved abbreviated from actual calculation, and set upon loading in abbrev mode.
+	 long					m_lTransactionNum;	// The server issues this and it must be sent with transaction request.
+	 long					m_lClosingTransactionNo; // used by finalReceipt
+	 long					m_lInReferenceToTransaction; 
+	 long					m_lInRefDisplay
+	 */
+	/*	This is set upon loading in abbreviated form, and then cleared again 
+	    when the actual box receipt is loaded:
+	 bool				m_bIsAbbreviated;	// this is set upon loading (Not stored at all.)
+	 */
+	
+		strOutput.Concatenate("<paymentInboxRecord type=\"%s\"\n"
+							  " dateSigned=\"%ld\"\n"
+							  " receiptHash=\"%s\"\n"
+							  " displayValue=\"%ld\"\n"
+							  " transactionNum=\"%ld\"\n"
+							  " inRefDisplay=\"%ld\"\n"
+							  " inReferenceTo=\"%ld\" />\n\n", 
+							  strType.Get(), 
+							  lDateSigned, 
+							  strHash.Get(),						  
+							  lDisplayValue,
+							  GetTransactionNum(),
+							  GetReferenceNumForDisplay(),
+							  GetReferenceToNum());
 }
 //case OTLedger::paymentInbox:	this->SaveAbbrevPaymentInboxRecord(m_xmlUnsigned);	break;
 //case OTLedger::paymentOutbox:	this->SaveAbbrevPaymentOutboxRecord(m_xmlUnsigned);	break;
@@ -3562,17 +3647,81 @@ void OTTransaction::SaveAbbrevPaymentInboxRecord(OTString & strOutput)
 
 /*
  --- paymentOutbox ledger:
-	"instrumentNotice",		// Receive these in paymentInbox, and send in paymentOutbox. (When done, they go to recordBox to await deletion.)
+	"instrumentNotice",		// Receive these in paymentInbox, and send in paymentOutbox.
+	(When done, they go to recordBox to await deletion.)
  */
 void OTTransaction::SaveAbbrevPaymentOutboxRecord(OTString & strOutput)
 {
+	long lDisplayValue = 0;
 	
+	if (IsAbbreviated())
+	{
+		lDisplayValue	= GetAbbrevDisplayAmount();
+	}
+	else
+	{
+		switch (m_Type) 
+		{
+			case OTTransaction::instrumentNotice:
+				lDisplayValue	= GetReceiptAmount();
+//				lDisplayValue	= 0;
+				break;
+			default: // All other types are irrelevant for payment outbox reports.
+				OTLog::vError("OTTransaction::SaveAbbrevPaymentOutboxRecord: Unexpected %s transaction "
+							  "in payment outbox while making abbreviated payment outbox record.\n",
+							  GetTypeString());
+				return;
+		}
+	}
+	// ----------------------------------------------
+	// By this point, we know only the right types of receipts are being saved, and 
+	// the adjustment and display value are both set correctly.
+	
+	// TYPE
+	OTString		strType;	// <===========
+	const char *	pTypeStr = GetTypeString();
+	strType.Set((NULL != pTypeStr) ? pTypeStr : "error_state");
+	// ----------------------------------------------
+	// DATE SIGNED
+	const long lDateSigned = m_DATE_SIGNED;
+	// ----------------------------------------------
+	// HASH OF THE COMPLETE "BOX RECEIPT"
+	//
+	OTString strHash;
+	
+	// If this is already an abbreviated record, then save the existing hash.
+	if (IsAbbreviated())
+		m_Hash.GetString(strHash);
+	// Otherwise if it's a full record, then calculate the hash and save it.
+	else
+	{
+		OTIdentifier	idReceiptHash;				// a hash of the actual transaction is stored with its
+		this->CalculateContractID(idReceiptHash);	// abbreviated short-form record (in the payment outbox, for example.)
+		idReceiptHash.GetString(strHash);
+	}
+	// ----------------------------------------------
+	strOutput.Concatenate("<paymentOutboxRecord type=\"%s\"\n"
+						  " dateSigned=\"%ld\"\n"
+						  " receiptHash=\"%s\"\n"
+						  " displayValue=\"%ld\"\n"
+						  " transactionNum=\"%ld\"\n"
+						  " inRefDisplay=\"%ld\"\n"
+						  " inReferenceTo=\"%ld\" />\n\n",
+						  strType.Get(), 
+						  lDateSigned, 
+						  strHash.Get(),						  
+						  lDisplayValue,
+						  GetTransactionNum(),
+						  GetReferenceNumForDisplay(),
+						  GetReferenceToNum());
 }
+
 // -------------------------------------------------------------
 
 /*
  --- recordBox ledger:
- // These all come from the asset account inbox (where they are transferred from before they end up in the record box.)
+ 
+ // These all come from the ASSET ACCT INBOX (where they are transferred from before they end up in the record box.)
 	"pending",			// Pending transfer, in the inbox/outbox. (This can end up in your recordBox if you cancel your pending outgoing transfer.)
 	"transferReceipt",	// the server drops this into your inbox, when someone accepts your transfer.
 	"chequeReceipt",	// the server drops this into your inbox, when someone cashes your cheque.
@@ -3581,11 +3730,11 @@ void OTTransaction::SaveAbbrevPaymentOutboxRecord(OTString & strOutput)
 	"finalReceipt",     // the server drops this into your inbox(es), when a CronItem expires or is canceled.
 	"basketReceipt",    // the server drops this into your inboxes, when a basket exchange is processed.
 
- // Record box may also store things that came from a Nymbox, and then had to go somewhere client-side for storage,
+ // Record box may also store things that came from a NYMBOX, and then had to go somewhere client-side for storage,
  // until user decides to delete them. For example:
 	"notice",			// in nymbox, notice from the server. Probably contains an updated smart contract.
  
-// Whereas for a recordBox storing paymentInbox/paymentOutbox receipts, once they are completed, they go here to die.
+// Whereas for a recordBox storing PAYMENT-INBOX and PAYMENT-OUTBOX receipts, once they are completed, they go here to die.
 	"instrumentNotice",		// Receive these in paymentInbox, and send in paymentOutbox. (When done, they go to recordBox to await deletion.)
 	"instrumentRejection",	// When someone rejects your invoice from his paymentInbox, you get one of these in YOUR paymentInbox.
  
@@ -3597,6 +3746,156 @@ void OTTransaction::SaveAbbrevRecordBoxRecord(OTString & strOutput)
 	// kinds of receipts. See above comment.)
 	
 	
+	long lAdjustment = 0, lDisplayValue = 0;
+	// ----------------------------------------------
+	if (IsAbbreviated())
+	{
+		lAdjustment		= GetAbbrevAdjustment();
+		lDisplayValue	= GetAbbrevDisplayAmount();
+	}
+	else
+	{
+		switch (m_Type) 
+		{
+				// ******************************************
+				// ASSET ACCOUNT INBOX
+				// -- In inbox, pending hasn't been accepted yet. In outbox, it's already gone. Either
+				// way, it will have a 0 adjustment amount, even though perhaps 500 clams display amount. Here I use the 500
+				// for display, but in SaveAbbrevToOutbox, I multiply it by -1 so it appears as -500 (leaving my account.)
+				// -- In my inbox, the transferReceipt is notice of money that is already gone. It thus has adjustment value of 0.
+				// But the DISPLAY amount is the amount I originally sent. (Already multiplied by -1 by GetReceiptAmount())
+				//
+			case OTTransaction::pending:			// (The pending amount is stored on the transfer item in my list of transaction items.)
+			case OTTransaction::transferReceipt:	// The transferReceipt amount is the display value (according to GetReceiptAmount()), and
+				lAdjustment		= 0;				// not the actual value of 0.
+				lDisplayValue	= GetReceiptAmount(); 
+				break;
+				// If chequeReceipt for 100 clams hit my inbox, then my balance is -100 from where it was. (Same
+				// value should be displayed.) Luckily, GetReceiptAmount() already multiplies by (-1) for chequeReceipt.
+				// For these (marketReceipt, paymentReceipt, basketReceipt), the actual adjustment is positive OR negative
+				// already, and the display value should match.
+			case OTTransaction::chequeReceipt:		// the amount is stored on cheque (attached to depositCheque item, attached.)
+			case OTTransaction::marketReceipt:		// amount is stored on marketReceipt item.  | 
+			case OTTransaction::paymentReceipt:		// amount is stored on paymentReceipt item. | and the display value should match.
+			case OTTransaction::basketReceipt:		// amount is stored on basketReceipt item.  | 
+				lAdjustment		= GetReceiptAmount();	
+				lDisplayValue	= lAdjustment;			
+				break;
+			case OTTransaction::finalReceipt:		// amount is 0 according to GetReceiptAmount()
+				lAdjustment		= 0;
+				lDisplayValue	= 0;
+				break;
+			// ******************************************
+			// NYMBOX
+			case OTTransaction::notice:			// A notice from the server. Used in Nymbox. Probably contains an updated smart contract.
+				lAdjustment		= 0;
+				lDisplayValue	= 0;
+				break;				
+			// ******************************************
+			// PAYMENT INBOX / PAYMENT OUTBOX
+			case OTTransaction::instrumentNotice:
+				lAdjustment		= 0;
+				lDisplayValue	= GetReceiptAmount();
+//				lDisplayValue	= 0;
+				break;
+			case OTTransaction::instrumentRejection:
+				lAdjustment		= 0;
+				lDisplayValue	= 0; 
+				break;				
+			// ******************************************
+			default: // All other types are irrelevant for inbox reports
+			{
+				OTLog::vError("OTTransaction::SaveAbbrevRecordBoxRecord: Unexpected %s transaction "
+							   "in record box while making abbreviated record-box record.\n", GetTypeString());
+			}
+				return;
+		}	// why not transfer receipt? Because the amount was already removed from your account when you transferred it,
+	}
+	// ----------------------------------------------
+	// By this point, we know only the right types of receipts are being saved, and 
+	// the adjustment and display value are both set correctly.
+	
+	// TYPE
+	OTString		strType;	// <===========
+	const char *	pTypeStr = GetTypeString();
+	strType.Set((NULL != pTypeStr) ? pTypeStr : "error_state");
+	// ----------------------------------------------
+	// DATE SIGNED
+	const long lDateSigned = m_DATE_SIGNED;
+	// ----------------------------------------------
+	// HASH OF THE COMPLETE "BOX RECEIPT"
+	// Save abbreviated is only used for receipts in boxes such as inbox, outbox, and nymbox.
+	// (Thus the moniker "Box Receipt", as contrasted with cron receipts or normal transaction receipts with balance agreements.)
+	//
+	OTString strHash;
+	
+	// If this is already an abbreviated record, then save the existing hash.
+	if (IsAbbreviated())
+		m_Hash.GetString(strHash);
+	// Otherwise if it's a full record, then calculate the hash and save it.
+	else
+	{
+		OTIdentifier	idReceiptHash;				// a hash of the actual transaction is stored with its
+		this->CalculateContractID(idReceiptHash);	// abbreviated short-form record (in the record box, for example.)
+		idReceiptHash.GetString(strHash);
+	}
+	// ----------------------------------------------
+	/* 
+	 NOTES...
+	 
+	 transactionType		m_Type;				// pending, processInbox, transfer, deposit, withdrawal, trade, etc.
+	 time_t					m_DATE_SIGNED;		// The date, in seconds, when the instrument was last signed.
+	 OTIdentifier			m_Hash;				// Created while saving abbreviated record, loaded back with it, then verified against actual hash when loading actual box receipt.
+	 long					m_lAbbrevAmount;	// Saved abbreviated from actual calculation, and set upon loading in abbrev mode.
+	 long					m_lDisplayAmount;	// Saved abbreviated from actual calculation, and set upon loading in abbrev mode.
+	 long					m_lTransactionNum;	// The server issues this and it must be sent with transaction request.
+	 long					m_lClosingTransactionNo; // used by finalReceipt
+	 long					m_lInReferenceToTransaction; 
+	 long					m_lInRefDisplay
+	 */
+	/*	This is set upon loading in abbreviated form, and then cleared again 
+	    when the actual box receipt is loaded:
+	 bool				m_bIsAbbreviated;	// this is set upon loading (Not stored at all.)
+	 */
+	
+    if ((OTTransaction::finalReceipt == m_Type) || 
+		(OTTransaction::basketReceipt == m_Type))
+		// ---------------------------
+		strOutput.Concatenate("<recordBoxRecord type=\"%s\"\n"
+							  " dateSigned=\"%ld\"\n"
+							  " receiptHash=\"%s\"\n"
+							  " adjustment=\"%ld\"\n"
+							  " displayValue=\"%ld\"\n"
+							  " transactionNum=\"%ld\"\n"
+							  " closingNum=\"%ld\"\n"	// <==========
+							  " inRefDisplay=\"%ld\"\n"
+							  " inReferenceTo=\"%ld\" />\n\n", 
+							  strType.Get(), 
+							  lDateSigned, 
+							  strHash.Get(),						  
+							  lAdjustment,
+							  lDisplayValue,
+							  GetTransactionNum(),
+							  GetClosingNum(),			// <==========
+							  GetReferenceNumForDisplay(),
+							  GetReferenceToNum());
+	else
+		strOutput.Concatenate("<recordBoxRecord type=\"%s\"\n"
+							  " dateSigned=\"%ld\"\n"
+							  " receiptHash=\"%s\"\n"
+							  " adjustment=\"%ld\"\n"
+							  " displayValue=\"%ld\"\n"
+							  " transactionNum=\"%ld\"\n"
+							  " inRefDisplay=\"%ld\"\n"
+							  " inReferenceTo=\"%ld\" />\n\n", 
+							  strType.Get(), 
+							  lDateSigned, 
+							  strHash.Get(),						  
+							  lAdjustment,
+							  lDisplayValue,
+							  GetTransactionNum(),
+							  GetReferenceNumForDisplay(),
+							  GetReferenceToNum());
 }
 // -------------------------------------------------------------
 
@@ -3909,6 +4208,10 @@ void OTTransaction::SaveAbbreviatedInboxRecord(OTString & strOutput)
 							  GetReferenceToNum());
 }
 
+
+
+
+// ******************************************************************************************
 
 
 

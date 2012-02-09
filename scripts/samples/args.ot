@@ -1,0 +1,29 @@
+#!/usr/local/bin/ot --script
+
+// int         OT_CLI_GetArgsCount(const std::string str_Args)
+// std::string OT_CLI_GetValueByKey(const std::string str_Args, const std::string str_key)
+// std::string OT_CLI_GetValueByIndex(const std::string str_Args, const int nIndex)
+// std::string OT_CLI_GetKeyByIndex(const std::string str_Args, const int nIndex)
+
+
+if (Args.is_type("string"))
+{
+	var nCount = OT_CLI_GetArgsCount(Args)
+
+	if (nCount > 0)
+	{
+		for (var i = 0; i < nCount; i += 1)
+		{
+			OT_API_Output(0, "Argument at index " + i.to_string() + " has key: " + OT_CLI_GetKeyByIndex(Args, i) + " and value: " + OT_CLI_GetValueByIndex(Args, i) + "\n") 
+		} 
+	}
+	else
+	{
+		print("Add some arguments, like this:  ./args.ot --args \"key1 value1 key2 value2\"")
+	}
+}
+else
+{
+   print("Add some arguments, like this:  ./args.ot --args \"key1 value1 key2 value2\"")
+}
+

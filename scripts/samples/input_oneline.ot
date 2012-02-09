@@ -1,0 +1,9 @@
+#!/usr/local/bin/ot --script
+
+
+OT_API_Output(0, "Please type some input, followed by a newline: ")
+
+var strInput = OT_CLI_ReadLine()
+
+print("\n\n You entered: " + strInput) 
+

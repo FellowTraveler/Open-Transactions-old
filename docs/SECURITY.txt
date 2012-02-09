@@ -1,0 +1,121 @@
+
+
+
+
+
+
+// --------------------------------------------------------
+/*
+
+DONE:
+Valgrind scan and numerous fixes stemming from it, a year ago.
+
+TODO:
+Need to do another Valgrind scan. It's been a while.
+ARE THERE ANY OTHER static analyzers we should be using?
+
+
+TODO: grep the code for todos and security notes and fix them all.
+
+TODO: Look up the standard security rules and make sure we're compliant
+with everything. See notes in OTPassword.h/cpp
+
+TODO: code audit (by outside experts.)
+
+
+
+
+
+
+
+
+
+
+
+
+// --------------------------------------------------------
+
+
+DONE:
+OTPassword class. This is a 128-byte (configurable) space which
+zeros itself out in its destructor. Care is taken to insure that
+the memory is actually zeroed out, and not left intact due to some
+compiler optimization etc.
+
+TODO:
+Make sure that ALL passphrases in OT are handled with OTPassword. I
+exposed it in SWIG also, so I need to make sure the SWIG-generated
+version uses char[] instead of String, and that the char[] is properly
+disposed of.  Need to make sure no Java Strings in Moneychanger are
+storing any private keys or passphrases.
+
+
+
+TODO: Make sure all files, where necessary, are signed. Should they 
+also be encrypted, or should we leave that to the filesystem?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// --------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*/
+// --------------------------------------------------------

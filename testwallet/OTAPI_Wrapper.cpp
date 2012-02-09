@@ -198,12 +198,12 @@ std::string OTAPI_Wrap::GetTime()
 
 
 
-std::string OTAPI_Wrap::Encode(std::string str_Plaintext, bool bLineBreaks) // bLineBreaks is OT_BOOL
+std::string OTAPI_Wrap::Encode(std::string str_Plaintext, bool bLineBreaks)
 {
 	return OT_API_Encode(str_Plaintext.c_str(), bLineBreaks ? OT_TRUE : OT_FALSE);
 }
 
-std::string OTAPI_Wrap::Decode(std::string str_Encoded, bool bLineBreaks) // bLineBreaks is OT_BOOL
+std::string OTAPI_Wrap::Decode(std::string str_Encoded, bool bLineBreaks)
 {
 	return OT_API_Decode(str_Encoded.c_str(), bLineBreaks ? OT_TRUE : OT_FALSE);
 }

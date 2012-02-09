@@ -205,7 +205,7 @@ void OTAsymmetricKey::SetPasswordCallback(OT_OPENSSL_CALLBACK * pCallback)
 OT_OPENSSL_CALLBACK * OTAsymmetricKey::GetPasswordCallback()
 {
 #if defined (OT_TEST_PASSWORD)
-	OTLog::Output(0, "OTAsymmetricKey::GetPasswordCallback: WARNING, OT_TEST_PASSWORD *is* defined. The internal 'C'-based password callback was just "
+	OTLog::Output(2, "OTAsymmetricKey::GetPasswordCallback: WARNING, OT_TEST_PASSWORD *is* defined. The internal 'C'-based password callback was just "
 				  "requested by OT (to pass to OpenSSL). So, returning the default_pass_cb password callback, which will automatically return "
 				  "the 'test' password to OpenSSL, if/when it calls that callback function.\n");
 	return &default_pass_cb;

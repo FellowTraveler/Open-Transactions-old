@@ -1,0 +1,4 @@
+#!/usr/local/bin/ot --script
+
+print( "The current time (in seconds) is: " + OT_API_GetTime() )
+
