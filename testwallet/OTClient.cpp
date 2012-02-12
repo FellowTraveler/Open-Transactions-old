@@ -2905,16 +2905,22 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                                 //
                                                 OTString strUserID(USER_ID);
                                                 
-                                                OTDB::TradeListNym * pList = dynamic_cast<OTDB::TradeListNym *>(OTDB::QueryObject(OTDB::STORED_OBJ_TRADE_LIST_NYM, 
-                                                                                                                                  OTLog::NymFolder(),
-                                                                                                                                  "trades", // todo stop hardcoding.
-                                                                                                                                  strServerID.Get(), 
-                                                                                                                                  strUserID.Get()));
+                                                OTDB::TradeListNym * pList = NULL;
+												
+												if (OTDB::Exists(OTLog::NymFolder(),
+																 "trades", // todo stop hardcoding.
+																 strServerID.Get(), 
+																 strUserID.Get()))
+													pList = dynamic_cast<OTDB::TradeListNym *>(OTDB::QueryObject(OTDB::STORED_OBJ_TRADE_LIST_NYM, 
+																												 OTLog::NymFolder(),
+																												 "trades", // todo stop hardcoding.
+																												 strServerID.Get(), 
+																												 strUserID.Get()));
                                                 if (NULL == pList)
                                                 {
                                                     OTLog::vOutput(2, "Creating storage list of trade receipts for Nym: %s\n", strUserID.Get());
                                                     pList = dynamic_cast<OTDB::TradeListNym*>
-                                                    (OTDB::CreateObject(OTDB::STORED_OBJ_TRADE_LIST_NYM));
+														(OTDB::CreateObject(OTDB::STORED_OBJ_TRADE_LIST_NYM));
                                                 }
                                                 
                                                 OT_ASSERT(NULL != pList);

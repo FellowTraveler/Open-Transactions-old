@@ -4107,20 +4107,17 @@ const char * OT_API_LoadOutboxNoVerify(const char * SERVER_ID,
 
 
 const char * OT_API_LoadPaymentInbox(const char * SERVER_ID,
-									 const char * USER_ID,
-									 const char * ACCOUNT_ID) // Returns NULL, or an inbox.
+									 const char * USER_ID) // Returns NULL, or an inbox.
 {
 	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_LoadPaymentInbox: Null SERVER_ID passed in.");
 	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_LoadPaymentInbox: Null USER_ID passed in.");
-	OT_ASSERT_MSG(NULL != ACCOUNT_ID, "OT_API_LoadPaymentInbox: NULL ACCOUNT_ID passed in.");
 	
 	const OTIdentifier theServerID(SERVER_ID);
 	const OTIdentifier theUserID(USER_ID);
-	const OTIdentifier theAccountID(ACCOUNT_ID);
 	
 	// There is an OT_ASSERT in here for memory failure,
 	// but it still might return NULL if various verification fails.
-	OTLedger * pLedger = g_OT_API.LoadPaymentInbox(theServerID, theUserID, theAccountID); 
+	OTLedger * pLedger = g_OT_API.LoadPaymentInbox(theServerID, theUserID); 
 	
 	// Make sure it gets cleaned up when this goes out of scope.
 	OTCleanup<OTLedger>	theAngel(pLedger); // I pass the pointer, in case it's NULL.
@@ -4128,7 +4125,7 @@ const char * OT_API_LoadPaymentInbox(const char * SERVER_ID,
 	if (NULL == pLedger)
 	{
 		OTLog::vOutput(0, "OT_API_LoadPaymentInbox: Failure calling OT_API::LoadPaymentInbox.\n "
-					   "Account ID: %s\n", ACCOUNT_ID);
+					   "User ID: %s\n", USER_ID);
 	}
 	else // success 
 	{
@@ -4152,20 +4149,17 @@ const char * OT_API_LoadPaymentInbox(const char * SERVER_ID,
 
 
 const char * OT_API_LoadPaymentInboxNoVerify(const char * SERVER_ID,
-											 const char * USER_ID,
-											 const char * ACCOUNT_ID) // Returns NULL, or a paymentInbox.
+											 const char * USER_ID) // Returns NULL, or a paymentInbox.
 {
 	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_LoadPaymentInboxNoVerify: Null SERVER_ID passed in.");
 	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_LoadPaymentInboxNoVerify: Null USER_ID passed in.");
-	OT_ASSERT_MSG(NULL != ACCOUNT_ID, "OT_API_LoadPaymentInboxNoVerify: NULL ACCOUNT_ID passed in.");
 	
 	const OTIdentifier theServerID(SERVER_ID);
 	const OTIdentifier theUserID(USER_ID);
-	const OTIdentifier theAccountID(ACCOUNT_ID);
 	
 	// There is an OT_ASSERT in here for memory failure,
 	// but it still might return NULL if various verification fails.
-	OTLedger * pLedger = g_OT_API.LoadPaymentInboxNoVerify(theServerID, theUserID, theAccountID); 
+	OTLedger * pLedger = g_OT_API.LoadPaymentInboxNoVerify(theServerID, theUserID); 
 	
 	// Make sure it gets cleaned up when this goes out of scope.
 	OTCleanup<OTLedger>	theAngel(pLedger); // I pass the pointer, in case it's NULL.
@@ -4173,7 +4167,7 @@ const char * OT_API_LoadPaymentInboxNoVerify(const char * SERVER_ID,
 	if (NULL == pLedger)
 	{
 		OTLog::vOutput(0, "OT_API_LoadPaymentInboxNoVerify: Failure calling OT_API::LoadPaymentInboxNoVerify.\n "
-					   "Account ID: %s\n", ACCOUNT_ID);
+					   "User ID: %s\n", USER_ID);
 	}
 	else // success 
 	{
@@ -4197,20 +4191,17 @@ const char * OT_API_LoadPaymentInboxNoVerify(const char * SERVER_ID,
 
 
 const char * OT_API_LoadPaymentOutbox(const char * SERVER_ID,
-									  const char * USER_ID,
-									  const char * ACCOUNT_ID)
+									  const char * USER_ID)
 {
 	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_LoadPaymentOutbox: Null SERVER_ID passed in.");
 	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_LoadPaymentOutbox: Null USER_ID passed in.");
-	OT_ASSERT_MSG(NULL != ACCOUNT_ID, "OT_API_LoadPaymentOutbox: NULL ACCOUNT_ID passed in.");
 	
 	const OTIdentifier theServerID(SERVER_ID);
 	const OTIdentifier theUserID(USER_ID);
-	const OTIdentifier theAccountID(ACCOUNT_ID);
 	
 	// There is an OT_ASSERT in here for memory failure,
 	// but it still might return NULL if various verification fails.
-	OTLedger * pLedger = g_OT_API.LoadPaymentOutbox(theServerID, theUserID, theAccountID); 
+	OTLedger * pLedger = g_OT_API.LoadPaymentOutbox(theServerID, theUserID); 
 	
 	// Make sure it gets cleaned up when this goes out of scope.
 	OTCleanup<OTLedger>	theAngel(pLedger); // I pass the pointer, in case it's NULL.
@@ -4218,7 +4209,7 @@ const char * OT_API_LoadPaymentOutbox(const char * SERVER_ID,
 	if (NULL == pLedger)
 	{
 		OTLog::vOutput(0, "OT_API_LoadPaymentOutbox: Failure calling OT_API::LoadPaymentOutbox().\n "
-					   "Account ID: %s\n", ACCOUNT_ID);
+					   "User ID: %s\n", USER_ID);
 	}
 	else // success 
 	{
@@ -4242,20 +4233,17 @@ const char * OT_API_LoadPaymentOutbox(const char * SERVER_ID,
 
 
 const char * OT_API_LoadPaymentOutboxNoVerify(const char * SERVER_ID,
-											  const char * USER_ID,
-											  const char * ACCOUNT_ID)
+											  const char * USER_ID)
 {
 	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_LoadPaymentOutboxNoVerify: Null SERVER_ID passed in.");
 	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_LoadPaymentOutboxNoVerify: Null USER_ID passed in.");
-	OT_ASSERT_MSG(NULL != ACCOUNT_ID, "OT_API_LoadPaymentOutboxNoVerify: NULL ACCOUNT_ID passed in.");
 	
 	const OTIdentifier theServerID(SERVER_ID);
 	const OTIdentifier theUserID(USER_ID);
-	const OTIdentifier theAccountID(ACCOUNT_ID);
 	
 	// There is an OT_ASSERT in here for memory failure,
 	// but it still might return NULL if various verification fails.
-	OTLedger * pLedger = g_OT_API.LoadPaymentOutboxNoVerify(theServerID, theUserID, theAccountID); 
+	OTLedger * pLedger = g_OT_API.LoadPaymentOutboxNoVerify(theServerID, theUserID); 
 	
 	// Make sure it gets cleaned up when this goes out of scope.
 	OTCleanup<OTLedger>	theAngel(pLedger); // I pass the pointer, in case it's NULL.
@@ -4263,7 +4251,7 @@ const char * OT_API_LoadPaymentOutboxNoVerify(const char * SERVER_ID,
 	if (NULL == pLedger)
 	{
 		OTLog::vOutput(0, "OT_API_LoadPaymentOutboxNoVerify: Failure calling OT_API::LoadPaymentOutboxNoVerify.\n "
-					   "Account ID: %s\n", ACCOUNT_ID);
+					   "User ID: %s\n", USER_ID);
 	}
 	else // success 
 	{

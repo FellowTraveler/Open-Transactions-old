@@ -186,7 +186,7 @@ protected:
 
 	// -------------------------------------------------
 	
-	long				m_lStashTransNum;	// the Transaction Number of a smart contract running on cron, if this is a stash account.
+	long	m_lStashTransNum;	// the Transaction Number of a smart contract running on cron, if this is a stash account.
 	
 	// -------------------------------------------------
 	

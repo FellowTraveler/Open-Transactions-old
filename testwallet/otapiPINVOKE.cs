@@ -591,16 +591,16 @@ class otapiPINVOKE {
   public static extern string OT_API_LoadOutboxNoVerify(string jarg1, string jarg2, string jarg3);
 
   [DllImport("otapi", EntryPoint="CSharp_OT_API_LoadPaymentInbox")]
-  public static extern string OT_API_LoadPaymentInbox(string jarg1, string jarg2, string jarg3);
+  public static extern string OT_API_LoadPaymentInbox(string jarg1, string jarg2);
 
   [DllImport("otapi", EntryPoint="CSharp_OT_API_LoadPaymentOutbox")]
-  public static extern string OT_API_LoadPaymentOutbox(string jarg1, string jarg2, string jarg3);
+  public static extern string OT_API_LoadPaymentOutbox(string jarg1, string jarg2);
 
   [DllImport("otapi", EntryPoint="CSharp_OT_API_LoadPaymentInboxNoVerify")]
-  public static extern string OT_API_LoadPaymentInboxNoVerify(string jarg1, string jarg2, string jarg3);
+  public static extern string OT_API_LoadPaymentInboxNoVerify(string jarg1, string jarg2);
 
   [DllImport("otapi", EntryPoint="CSharp_OT_API_LoadPaymentOutboxNoVerify")]
-  public static extern string OT_API_LoadPaymentOutboxNoVerify(string jarg1, string jarg2, string jarg3);
+  public static extern string OT_API_LoadPaymentOutboxNoVerify(string jarg1, string jarg2);
 
   [DllImport("otapi", EntryPoint="CSharp_OT_API_LoadRecordBox")]
   public static extern string OT_API_LoadRecordBox(string jarg1, string jarg2, string jarg3);

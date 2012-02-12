@@ -1224,21 +1224,21 @@ const char * OT_API_LoadOutboxNoVerify(const char * SERVER_ID,
 
 /// from local storage.
 const char * OT_API_LoadPaymentInbox(const char * SERVER_ID,
-									 const char * USER_ID,
-									 const char * ACCOUNT_ID); // Returns NULL, or a payment inbox.
+									 const char * USER_ID); // Returns NULL, or a payment inbox.
+
 const char * OT_API_LoadPaymentOutbox(const char * SERVER_ID,
-									  const char * USER_ID,
-									  const char * ACCOUNT_ID); // returns NULL, or a payment outbox.
+									  const char * USER_ID); // returns NULL, or a payment outbox.
 
 
 const char * OT_API_LoadPaymentInboxNoVerify(const char * SERVER_ID,
-											 const char * USER_ID,
-											 const char * ACCOUNT_ID); // Returns NULL, or a payment inbox.
+											 const char * USER_ID); // Returns NULL, or a payment inbox.
 
 const char * OT_API_LoadPaymentOutboxNoVerify(const char * SERVER_ID,
-											  const char * USER_ID,
-											  const char * ACCOUNT_ID); // returns NULL, or a payment outbox.
+											  const char * USER_ID); // returns NULL, or a payment outbox.
 
+
+// NOTE: Sometimes the user ID is also passed in the "account ID" field, depending
+// on what kind of record box it is.
 /// from local storage.
 const char * OT_API_LoadRecordBox(const char * SERVER_ID,
 								  const char * USER_ID,

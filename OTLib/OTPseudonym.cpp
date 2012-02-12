@@ -535,7 +535,7 @@ bool OTPseudonym::GenerateNym()
 	
 	if (NULL == pNewKey)
 	{
-		OTLog::Error("Failed attempting to generate new private key.\n");
+		OTLog::Error("OTPseudonym::GenerateNym: Failed attempting to generate new private key.\n");
 		
 		if (NULL != x509)
 			X509_free(x509);
@@ -545,7 +545,7 @@ bool OTPseudonym::GenerateNym()
 	
 	if (NULL ==  x509)
 	{
-		OTLog::Error("Failed attempting to generate new x509 cert.\n");
+		OTLog::Error("OTPseudonym::GenerateNym: Failed attempting to generate new x509 cert.\n");
 
 		if (NULL != pNewKey)
 			EVP_PKEY_free(pNewKey);

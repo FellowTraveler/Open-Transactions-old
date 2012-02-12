@@ -2207,65 +2207,57 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_LoadOutboxNoVerify(char * jarg1, cha
 }
 
 
-SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_LoadPaymentInbox(char * jarg1, char * jarg2, char * jarg3) {
+SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_LoadPaymentInbox(char * jarg1, char * jarg2) {
   char * jresult ;
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
-  char *arg3 = (char *) 0 ;
   char *result = 0 ;
   
   arg1 = (char *)jarg1; 
   arg2 = (char *)jarg2; 
-  arg3 = (char *)jarg3; 
-  result = (char *)OT_API_LoadPaymentInbox((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  result = (char *)OT_API_LoadPaymentInbox((char const *)arg1,(char const *)arg2);
   jresult = SWIG_csharp_string_callback((const char *)result); 
   return jresult;
 }
 
 
-SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_LoadPaymentOutbox(char * jarg1, char * jarg2, char * jarg3) {
+SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_LoadPaymentOutbox(char * jarg1, char * jarg2) {
   char * jresult ;
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
-  char *arg3 = (char *) 0 ;
   char *result = 0 ;
   
   arg1 = (char *)jarg1; 
   arg2 = (char *)jarg2; 
-  arg3 = (char *)jarg3; 
-  result = (char *)OT_API_LoadPaymentOutbox((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  result = (char *)OT_API_LoadPaymentOutbox((char const *)arg1,(char const *)arg2);
   jresult = SWIG_csharp_string_callback((const char *)result); 
   return jresult;
 }
 
 
-SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_LoadPaymentInboxNoVerify(char * jarg1, char * jarg2, char * jarg3) {
+SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_LoadPaymentInboxNoVerify(char * jarg1, char * jarg2) {
   char * jresult ;
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
-  char *arg3 = (char *) 0 ;
   char *result = 0 ;
   
   arg1 = (char *)jarg1; 
   arg2 = (char *)jarg2; 
-  arg3 = (char *)jarg3; 
-  result = (char *)OT_API_LoadPaymentInboxNoVerify((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  result = (char *)OT_API_LoadPaymentInboxNoVerify((char const *)arg1,(char const *)arg2);
   jresult = SWIG_csharp_string_callback((const char *)result); 
   return jresult;
 }
 
 
-SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_LoadPaymentOutboxNoVerify(char * jarg1, char * jarg2, char * jarg3) {
+SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_LoadPaymentOutboxNoVerify(char * jarg1, char * jarg2) {
   char * jresult ;
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
-  char *arg3 = (char *) 0 ;
   char *result = 0 ;
   
   arg1 = (char *)jarg1; 
   arg2 = (char *)jarg2; 
-  arg3 = (char *)jarg3; 
-  result = (char *)OT_API_LoadPaymentOutboxNoVerify((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  result = (char *)OT_API_LoadPaymentOutboxNoVerify((char const *)arg1,(char const *)arg2);
   jresult = SWIG_csharp_string_callback((const char *)result); 
   return jresult;
 }

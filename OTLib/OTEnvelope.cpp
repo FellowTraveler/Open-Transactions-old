@@ -224,7 +224,7 @@ bool OTEnvelope::Open(const OTPseudonym & theRecipient, OTString & theContents)
 	
     EVP_CIPHER_CTX	ctx;
 
-    unsigned char	buffer[4096];
+    unsigned char	buffer[4096];	// todo hardcoding
     unsigned char	buffer_out[4096 + EVP_MAX_IV_LENGTH];
     unsigned char	iv[EVP_MAX_IV_LENGTH];
 

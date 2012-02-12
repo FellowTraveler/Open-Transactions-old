@@ -370,16 +370,21 @@ void OTBasket::UpdateContents() // Before transmission or serialization, this is
 // This way, the basket will produce a consistent ID across multiple different servers.
 void OTBasket::CalculateContractID(OTIdentifier & newID)
 {	
-	m_bHideAccountID	= true;
 
+	const OTString strContents(m_xmlUnsigned);
+	
 	// Produce a version of the file without account IDs (which are different from server to server.)
-	UpdateContents();
+	//
+	m_bHideAccountID	= true;
+	
+	UpdateContents();  // <=========
 	
 	newID.CalculateDigest(m_xmlUnsigned);
 
 	// Put it back the way it was.
 	m_bHideAccountID	= false;
-	UpdateContents();
+//	UpdateContents(); // No need to do this, we already had this string before (above).
+	m_xmlUnsigned = strContents; // Here we just set it back again.
 }
 
 

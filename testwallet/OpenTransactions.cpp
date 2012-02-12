@@ -3380,8 +3380,7 @@ OTLedger * OT_API::LoadOutboxNoVerify(const OTIdentifier & SERVER_ID,
 
 
 OTLedger * OT_API::LoadPaymentInbox(const OTIdentifier & SERVER_ID,
-									const OTIdentifier & USER_ID,
-									const OTIdentifier & ACCOUNT_ID)
+									const OTIdentifier & USER_ID)
 {
 	const char * szFuncName = "OT_API::LoadPaymentInbox";
 	// -----------------------------------------------------
@@ -3389,7 +3388,7 @@ OTLedger * OT_API::LoadPaymentInbox(const OTIdentifier & SERVER_ID,
 	if (NULL == pNym) return NULL;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
-	OTLedger * pLedger = new OTLedger(USER_ID, ACCOUNT_ID, SERVER_ID);
+	OTLedger * pLedger = new OTLedger(USER_ID, USER_ID, SERVER_ID);
 	OT_ASSERT_MSG(NULL != pLedger, "OT_API::LoadPaymentInbox: Error allocating memory in the OT API.");
 	// Beyond this point, I know that pLedger will need to be deleted or returned.
 	// ------------------------------------------------------
@@ -3397,7 +3396,7 @@ OTLedger * OT_API::LoadPaymentInbox(const OTIdentifier & SERVER_ID,
 		return pLedger;
 	else
 	{
-		OTString strUserID(USER_ID), strAcctID(ACCOUNT_ID);
+		OTString strUserID(USER_ID), strAcctID(USER_ID);
 		OTLog::vOutput(0, "%s: Unable to load or verify: %s / %s\n",
 					   szFuncName, strUserID.Get(), strAcctID.Get());
 		delete pLedger;
@@ -3408,8 +3407,7 @@ OTLedger * OT_API::LoadPaymentInbox(const OTIdentifier & SERVER_ID,
 
 
 OTLedger * OT_API::LoadPaymentInboxNoVerify(const OTIdentifier & SERVER_ID,
-											const OTIdentifier & USER_ID,
-											const OTIdentifier & ACCOUNT_ID)
+											const OTIdentifier & USER_ID)
 {
 	const char * szFuncName = "OT_API::LoadPaymentInboxNoVerify";
 	// -----------------------------------------------------
@@ -3417,7 +3415,7 @@ OTLedger * OT_API::LoadPaymentInboxNoVerify(const OTIdentifier & SERVER_ID,
 	if (NULL == pNym) return NULL;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
-	OTLedger * pLedger = new OTLedger(USER_ID, ACCOUNT_ID, SERVER_ID);
+	OTLedger * pLedger = new OTLedger(USER_ID, USER_ID, SERVER_ID);
 	OT_ASSERT_MSG(NULL != pLedger, "OT_API::LoadPaymentInboxNoVerify: Error allocating memory in the OT API.");
 	// Beyond this point, I know that pLedger will need to be deleted or returned.
 	// ------------------------------------------------------
@@ -3425,7 +3423,7 @@ OTLedger * OT_API::LoadPaymentInboxNoVerify(const OTIdentifier & SERVER_ID,
 		return pLedger;
 	else
 	{
-		OTString strUserID(USER_ID), strAcctID(ACCOUNT_ID);
+		OTString strUserID(USER_ID), strAcctID(USER_ID);
 		OTLog::vOutput(0, "%s: Unable to load or verify: %s / %s\n",
 					   szFuncName, strUserID.Get(), strAcctID.Get());
 		delete pLedger;
@@ -3436,8 +3434,7 @@ OTLedger * OT_API::LoadPaymentInboxNoVerify(const OTIdentifier & SERVER_ID,
 
 
 OTLedger * OT_API::LoadPaymentOutbox(const OTIdentifier & SERVER_ID,
-									 const OTIdentifier & USER_ID,
-									 const OTIdentifier & ACCOUNT_ID)
+									 const OTIdentifier & USER_ID)
 {
 	const char * szFuncName = "OT_API::LoadPaymentOutbox";
 	// -----------------------------------------------------
@@ -3445,7 +3442,7 @@ OTLedger * OT_API::LoadPaymentOutbox(const OTIdentifier & SERVER_ID,
 	if (NULL == pNym) return NULL;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
-	OTLedger * pLedger = new OTLedger(USER_ID, ACCOUNT_ID, SERVER_ID);
+	OTLedger * pLedger = new OTLedger(USER_ID, USER_ID, SERVER_ID);
 	OT_ASSERT_MSG(NULL != pLedger, "OT_API::LoadPaymentOutbox: Error allocating memory in the OT API.");
 	// Beyond this point, I know that pLedger will need to be deleted or returned.
 	// ------------------------------------------------------
@@ -3453,7 +3450,7 @@ OTLedger * OT_API::LoadPaymentOutbox(const OTIdentifier & SERVER_ID,
 		return pLedger;
 	else
 	{
-		OTString strUserID(USER_ID), strAcctID(ACCOUNT_ID);
+		OTString strUserID(USER_ID), strAcctID(USER_ID);
 		OTLog::vOutput(0, "%s: Unable to load or verify: %s / %s\n",
 					   szFuncName, strUserID.Get(), strAcctID.Get());
 		delete pLedger;
@@ -3464,8 +3461,7 @@ OTLedger * OT_API::LoadPaymentOutbox(const OTIdentifier & SERVER_ID,
 
 
 OTLedger * OT_API::LoadPaymentOutboxNoVerify(const OTIdentifier & SERVER_ID,
-											 const OTIdentifier & USER_ID,
-											 const OTIdentifier & ACCOUNT_ID)
+											 const OTIdentifier & USER_ID)
 {
 	const char * szFuncName = "OT_API::LoadPaymentOutboxNoVerify";
 	// -----------------------------------------------------
@@ -3473,7 +3469,7 @@ OTLedger * OT_API::LoadPaymentOutboxNoVerify(const OTIdentifier & SERVER_ID,
 	if (NULL == pNym) return NULL;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
-	OTLedger * pLedger = new OTLedger(USER_ID, ACCOUNT_ID, SERVER_ID);
+	OTLedger * pLedger = new OTLedger(USER_ID, USER_ID, SERVER_ID);
 	OT_ASSERT_MSG(NULL != pLedger, "OT_API::LoadPaymentOutboxNoVerify: Error allocating memory in the OT API.");
 	// Beyond this point, I know that pLedger will need to be deleted or returned.
 	// ------------------------------------------------------
@@ -3481,7 +3477,7 @@ OTLedger * OT_API::LoadPaymentOutboxNoVerify(const OTIdentifier & SERVER_ID,
 		return pLedger;
 	else
 	{
-		OTString strUserID(USER_ID), strAcctID(ACCOUNT_ID);
+		OTString strUserID(USER_ID), strAcctID(USER_ID);
 		OTLog::vOutput(0, "%s: Unable to load or verify: %s / %s\n",
 					   szFuncName, strUserID.Get(), strAcctID.Get());
 		delete pLedger;

@@ -515,21 +515,18 @@ public:
 								  const OTIdentifier & ACCOUNT_ID);
 	// ----------------------------------------------------
 	OTLedger * LoadPaymentInbox(const OTIdentifier & SERVER_ID,
-								const OTIdentifier & USER_ID,
-								const OTIdentifier & ACCOUNT_ID);
+								const OTIdentifier & USER_ID);
 	
 	OTLedger * LoadPaymentInboxNoVerify(const OTIdentifier & SERVER_ID,
-										const OTIdentifier & USER_ID,
-										const OTIdentifier & ACCOUNT_ID);
+										const OTIdentifier & USER_ID);
 	
 	OTLedger * LoadPaymentOutbox(const OTIdentifier & SERVER_ID,
-								 const OTIdentifier & USER_ID,
-								 const OTIdentifier & ACCOUNT_ID);
+								 const OTIdentifier & USER_ID);
 
 	OTLedger * LoadPaymentOutboxNoVerify(const OTIdentifier & SERVER_ID,
-										 const OTIdentifier & USER_ID,
-										 const OTIdentifier & ACCOUNT_ID);
-	
+										 const OTIdentifier & USER_ID);
+	// ------------------------------
+	// LoadRecordBox
 	// Note: depending on the record type, the Account ID may contain the User ID.
 	// 
 	OTLedger * LoadRecordBox(const OTIdentifier & SERVER_ID,

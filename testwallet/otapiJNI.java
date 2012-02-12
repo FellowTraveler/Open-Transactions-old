@@ -145,10 +145,10 @@ public class otapiJNI {
   public final static native String OT_API_LoadOutbox(String jarg1, String jarg2, String jarg3);
   public final static native String OT_API_LoadInboxNoVerify(String jarg1, String jarg2, String jarg3);
   public final static native String OT_API_LoadOutboxNoVerify(String jarg1, String jarg2, String jarg3);
-  public final static native String OT_API_LoadPaymentInbox(String jarg1, String jarg2, String jarg3);
-  public final static native String OT_API_LoadPaymentOutbox(String jarg1, String jarg2, String jarg3);
-  public final static native String OT_API_LoadPaymentInboxNoVerify(String jarg1, String jarg2, String jarg3);
-  public final static native String OT_API_LoadPaymentOutboxNoVerify(String jarg1, String jarg2, String jarg3);
+  public final static native String OT_API_LoadPaymentInbox(String jarg1, String jarg2);
+  public final static native String OT_API_LoadPaymentOutbox(String jarg1, String jarg2);
+  public final static native String OT_API_LoadPaymentInboxNoVerify(String jarg1, String jarg2);
+  public final static native String OT_API_LoadPaymentOutboxNoVerify(String jarg1, String jarg2);
   public final static native String OT_API_LoadRecordBox(String jarg1, String jarg2, String jarg3);
   public final static native String OT_API_LoadRecordBoxNoVerify(String jarg1, String jarg2, String jarg3);
   public final static native int OT_API_Ledger_GetCount(String jarg1, String jarg2, String jarg3, String jarg4);

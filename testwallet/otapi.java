@@ -429,20 +429,20 @@ public class otapi implements otapiConstants {
     return otapiJNI.OT_API_LoadOutboxNoVerify(SERVER_ID, USER_ID, ACCOUNT_ID);
   }
 
-  public static String OT_API_LoadPaymentInbox(String SERVER_ID, String USER_ID, String ACCOUNT_ID) {
-    return otapiJNI.OT_API_LoadPaymentInbox(SERVER_ID, USER_ID, ACCOUNT_ID);
+  public static String OT_API_LoadPaymentInbox(String SERVER_ID, String USER_ID) {
+    return otapiJNI.OT_API_LoadPaymentInbox(SERVER_ID, USER_ID);
   }
 
-  public static String OT_API_LoadPaymentOutbox(String SERVER_ID, String USER_ID, String ACCOUNT_ID) {
-    return otapiJNI.OT_API_LoadPaymentOutbox(SERVER_ID, USER_ID, ACCOUNT_ID);
+  public static String OT_API_LoadPaymentOutbox(String SERVER_ID, String USER_ID) {
+    return otapiJNI.OT_API_LoadPaymentOutbox(SERVER_ID, USER_ID);
   }
 
-  public static String OT_API_LoadPaymentInboxNoVerify(String SERVER_ID, String USER_ID, String ACCOUNT_ID) {
-    return otapiJNI.OT_API_LoadPaymentInboxNoVerify(SERVER_ID, USER_ID, ACCOUNT_ID);
+  public static String OT_API_LoadPaymentInboxNoVerify(String SERVER_ID, String USER_ID) {
+    return otapiJNI.OT_API_LoadPaymentInboxNoVerify(SERVER_ID, USER_ID);
   }
 
-  public static String OT_API_LoadPaymentOutboxNoVerify(String SERVER_ID, String USER_ID, String ACCOUNT_ID) {
-    return otapiJNI.OT_API_LoadPaymentOutboxNoVerify(SERVER_ID, USER_ID, ACCOUNT_ID);
+  public static String OT_API_LoadPaymentOutboxNoVerify(String SERVER_ID, String USER_ID) {
+    return otapiJNI.OT_API_LoadPaymentOutboxNoVerify(SERVER_ID, USER_ID);
   }
 
   public static String OT_API_LoadRecordBox(String SERVER_ID, String USER_ID, String ACCOUNT_ID) {
