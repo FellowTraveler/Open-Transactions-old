@@ -43,7 +43,7 @@ PROGRAM_PERL5_DBG = otapi-perl5-dbg
 PROGRAM_PHP5 = libotapi-php5
 PROGRAM_PHP5_dbg = otapi-php5-dbg
 # --- PYTHON
-PROGRAM__PYTHON = libotapi-python
+PROGRAM__PYTHON = libotapiPython
 PROGRAM__PYTHON_DBG = _otapi-python-dbg
 # --- RUBY!
 PROGRAM_RUBY = libotapi-ruby

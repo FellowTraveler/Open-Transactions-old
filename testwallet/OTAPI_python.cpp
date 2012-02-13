@@ -147,7 +147,7 @@ template <typename T> T SwigValueInit() {
 
 
 /* Python.h has to appear first */
-#include <Python.h>
+#include <python/Python.h>
 
 /* -----------------------------------------------------------------------------
  * swigrun.swg
@@ -3475,16 +3475,16 @@ static swig_module_info swig_module = {swig_types, 37, 0, 0, 0, 0};
 #endif
 
 /*-----------------------------------------------
-              @(target):= _otapi.so
+              @(target):= libotapiPython.so
   ------------------------------------------------*/
 #if PY_VERSION_HEX >= 0x03000000
-#  define SWIG_init    PyInit__otapi
+#  define SWIG_init    PyInit_libotapiPython
 
 #else
-#  define SWIG_init    init_otapi
+#  define SWIG_init    initlibotapiPython
 
 #endif
-#define SWIG_name    "_otapi"
+#define SWIG_name    "libotapiPython"
 
 #define SWIGVERSION 0x020004 
 #define SWIG_VERSION SWIGVERSION

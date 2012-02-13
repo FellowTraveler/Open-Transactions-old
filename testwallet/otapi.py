@@ -13,20 +13,20 @@ if version_info >= (2,6,0):
         import imp
         fp = None
         try:
-            fp, pathname, description = imp.find_module('_otapi', [dirname(__file__)])
+            fp, pathname, description = imp.find_module('libotapiPython', [dirname(__file__)])
         except ImportError:
-            import _otapi
-            return _otapi
+            import libotapiPython
+            return libotapiPython
         if fp is not None:
             try:
-                _mod = imp.load_module('_otapi', fp, pathname, description)
+                _mod = imp.load_module('libotapiPython', fp, pathname, description)
             finally:
                 fp.close()
             return _mod
-    _otapi = swig_import_helper()
+    libotapiPython = swig_import_helper()
     del swig_import_helper
 else:
-    import _otapi
+    import libotapiPython
 del version_info
 try:
     _swig_property = property
@@ -74,29 +74,29 @@ except:
     weakref_proxy = lambda x: x
 
 
-OTPASSWORD_BLOCKSIZE = _otapi.OTPASSWORD_BLOCKSIZE
-OTPASSWORD_MEMSIZE = _otapi.OTPASSWORD_MEMSIZE
+OTPASSWORD_BLOCKSIZE = libotapiPython.OTPASSWORD_BLOCKSIZE
+OTPASSWORD_MEMSIZE = libotapiPython.OTPASSWORD_MEMSIZE
 class OTPassword(_object):
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, OTPassword, name, value)
     __swig_getmethods__ = {}
     __getattr__ = lambda self, name: _swig_getattr(self, OTPassword, name)
     __repr__ = _swig_repr
-    DEFAULT_SIZE = _otapi.OTPassword_DEFAULT_SIZE
-    __swig_getmethods__["blockSize"] = _otapi.OTPassword_blockSize_get
-    if _newclass:blockSize = _swig_property(_otapi.OTPassword_blockSize_get)
-    def getPassword(self): return _otapi.OTPassword_getPassword(self)
-    def setPassword(self, *args): return _otapi.OTPassword_setPassword(self, *args)
-    def getBlockSize(self): return _otapi.OTPassword_getBlockSize(self)
-    def getPasswordSize(self): return _otapi.OTPassword_getPasswordSize(self)
-    def zeroMemory(self): return _otapi.OTPassword_zeroMemory(self)
+    DEFAULT_SIZE = libotapiPython.OTPassword_DEFAULT_SIZE
+    __swig_getmethods__["blockSize"] = libotapiPython.OTPassword_blockSize_get
+    if _newclass:blockSize = _swig_property(libotapiPython.OTPassword_blockSize_get)
+    def getPassword(self): return libotapiPython.OTPassword_getPassword(self)
+    def setPassword(self, *args): return libotapiPython.OTPassword_setPassword(self, *args)
+    def getBlockSize(self): return libotapiPython.OTPassword_getBlockSize(self)
+    def getPasswordSize(self): return libotapiPython.OTPassword_getPasswordSize(self)
+    def zeroMemory(self): return libotapiPython.OTPassword_zeroMemory(self)
     def __init__(self, *args): 
-        this = _otapi.new_OTPassword(*args)
+        this = libotapiPython.new_OTPassword(*args)
         try: self.this.append(this)
         except: self.this = this
-    __swig_destroy__ = _otapi.delete_OTPassword
+    __swig_destroy__ = libotapiPython.delete_OTPassword
     __del__ = lambda self : None;
-OTPassword_swigregister = _otapi.OTPassword_swigregister
+OTPassword_swigregister = libotapiPython.OTPassword_swigregister
 OTPassword_swigregister(OTPassword)
 
 class OTCallback(_object):
@@ -110,18 +110,18 @@ class OTCallback(_object):
             _self = None
         else:
             _self = self
-        this = _otapi.new_OTCallback(_self, )
+        this = libotapiPython.new_OTCallback(_self, )
         try: self.this.append(this)
         except: self.this = this
-    __swig_destroy__ = _otapi.delete_OTCallback
+    __swig_destroy__ = libotapiPython.delete_OTCallback
     __del__ = lambda self : None;
-    def runOne(self, *args): return _otapi.OTCallback_runOne(self, *args)
-    def runTwo(self, *args): return _otapi.OTCallback_runTwo(self, *args)
+    def runOne(self, *args): return libotapiPython.OTCallback_runOne(self, *args)
+    def runTwo(self, *args): return libotapiPython.OTCallback_runTwo(self, *args)
     def __disown__(self):
         self.this.disown()
-        _otapi.disown_OTCallback(self)
+        libotapiPython.disown_OTCallback(self)
         return weakref_proxy(self)
-OTCallback_swigregister = _otapi.OTCallback_swigregister
+OTCallback_swigregister = libotapiPython.OTCallback_swigregister
 OTCallback_swigregister(OTCallback)
 
 class OTCaller(_object):
@@ -131,885 +131,885 @@ class OTCaller(_object):
     __getattr__ = lambda self, name: _swig_getattr(self, OTCaller, name)
     __repr__ = _swig_repr
     def __init__(self): 
-        this = _otapi.new_OTCaller()
+        this = libotapiPython.new_OTCaller()
         try: self.this.append(this)
         except: self.this = this
-    __swig_destroy__ = _otapi.delete_OTCaller
+    __swig_destroy__ = libotapiPython.delete_OTCaller
     __del__ = lambda self : None;
-    def GetPassword(self, *args): return _otapi.OTCaller_GetPassword(self, *args)
-    def ZeroOutPassword(self): return _otapi.OTCaller_ZeroOutPassword(self)
-    def GetDisplay(self): return _otapi.OTCaller_GetDisplay(self)
-    def SetDisplay(self, *args): return _otapi.OTCaller_SetDisplay(self, *args)
-    def delCallback(self): return _otapi.OTCaller_delCallback(self)
-    def setCallback(self, *args): return _otapi.OTCaller_setCallback(self, *args)
-    def isCallbackSet(self): return _otapi.OTCaller_isCallbackSet(self)
-    def callOne(self): return _otapi.OTCaller_callOne(self)
-    def callTwo(self): return _otapi.OTCaller_callTwo(self)
-OTCaller_swigregister = _otapi.OTCaller_swigregister
+    def GetPassword(self, *args): return libotapiPython.OTCaller_GetPassword(self, *args)
+    def ZeroOutPassword(self): return libotapiPython.OTCaller_ZeroOutPassword(self)
+    def GetDisplay(self): return libotapiPython.OTCaller_GetDisplay(self)
+    def SetDisplay(self, *args): return libotapiPython.OTCaller_SetDisplay(self, *args)
+    def delCallback(self): return libotapiPython.OTCaller_delCallback(self)
+    def setCallback(self, *args): return libotapiPython.OTCaller_setCallback(self, *args)
+    def isCallbackSet(self): return libotapiPython.OTCaller_isCallbackSet(self)
+    def callOne(self): return libotapiPython.OTCaller_callOne(self)
+    def callTwo(self): return libotapiPython.OTCaller_callTwo(self)
+OTCaller_swigregister = libotapiPython.OTCaller_swigregister
 OTCaller_swigregister(OTCaller)
 
 
 def OT_API_Set_PasswordCallback(*args):
-  return _otapi.OT_API_Set_PasswordCallback(*args)
-OT_API_Set_PasswordCallback = _otapi.OT_API_Set_PasswordCallback
+  return libotapiPython.OT_API_Set_PasswordCallback(*args)
+OT_API_Set_PasswordCallback = libotapiPython.OT_API_Set_PasswordCallback
 
 def OT_API_Init(*args):
-  return _otapi.OT_API_Init(*args)
-OT_API_Init = _otapi.OT_API_Init
+  return libotapiPython.OT_API_Init(*args)
+OT_API_Init = libotapiPython.OT_API_Init
 
 def OT_API_LoadWallet(*args):
-  return _otapi.OT_API_LoadWallet(*args)
-OT_API_LoadWallet = _otapi.OT_API_LoadWallet
+  return libotapiPython.OT_API_LoadWallet(*args)
+OT_API_LoadWallet = libotapiPython.OT_API_LoadWallet
 
 def OT_API_SwitchWallet(*args):
-  return _otapi.OT_API_SwitchWallet(*args)
-OT_API_SwitchWallet = _otapi.OT_API_SwitchWallet
+  return libotapiPython.OT_API_SwitchWallet(*args)
+OT_API_SwitchWallet = libotapiPython.OT_API_SwitchWallet
 
 def OT_API_Output(*args):
-  return _otapi.OT_API_Output(*args)
-OT_API_Output = _otapi.OT_API_Output
+  return libotapiPython.OT_API_Output(*args)
+OT_API_Output = libotapiPython.OT_API_Output
 
 def OT_API_GetTime():
-  return _otapi.OT_API_GetTime()
-OT_API_GetTime = _otapi.OT_API_GetTime
+  return libotapiPython.OT_API_GetTime()
+OT_API_GetTime = libotapiPython.OT_API_GetTime
 
 def OT_API_Encode(*args):
-  return _otapi.OT_API_Encode(*args)
-OT_API_Encode = _otapi.OT_API_Encode
+  return libotapiPython.OT_API_Encode(*args)
+OT_API_Encode = libotapiPython.OT_API_Encode
 
 def OT_API_Decode(*args):
-  return _otapi.OT_API_Decode(*args)
-OT_API_Decode = _otapi.OT_API_Decode
+  return libotapiPython.OT_API_Decode(*args)
+OT_API_Decode = libotapiPython.OT_API_Decode
 
 def OT_API_Encrypt(*args):
-  return _otapi.OT_API_Encrypt(*args)
-OT_API_Encrypt = _otapi.OT_API_Encrypt
+  return libotapiPython.OT_API_Encrypt(*args)
+OT_API_Encrypt = libotapiPython.OT_API_Encrypt
 
 def OT_API_Decrypt(*args):
-  return _otapi.OT_API_Decrypt(*args)
-OT_API_Decrypt = _otapi.OT_API_Decrypt
+  return libotapiPython.OT_API_Decrypt(*args)
+OT_API_Decrypt = libotapiPython.OT_API_Decrypt
 
 def OT_API_SignContract(*args):
-  return _otapi.OT_API_SignContract(*args)
-OT_API_SignContract = _otapi.OT_API_SignContract
+  return libotapiPython.OT_API_SignContract(*args)
+OT_API_SignContract = libotapiPython.OT_API_SignContract
 
 def OT_API_AddSignature(*args):
-  return _otapi.OT_API_AddSignature(*args)
-OT_API_AddSignature = _otapi.OT_API_AddSignature
+  return libotapiPython.OT_API_AddSignature(*args)
+OT_API_AddSignature = libotapiPython.OT_API_AddSignature
 
 def OT_API_VerifySignature(*args):
-  return _otapi.OT_API_VerifySignature(*args)
-OT_API_VerifySignature = _otapi.OT_API_VerifySignature
+  return libotapiPython.OT_API_VerifySignature(*args)
+OT_API_VerifySignature = libotapiPython.OT_API_VerifySignature
 
 def OT_API_VerifyAndRetrieveXMLContents(*args):
-  return _otapi.OT_API_VerifyAndRetrieveXMLContents(*args)
-OT_API_VerifyAndRetrieveXMLContents = _otapi.OT_API_VerifyAndRetrieveXMLContents
+  return libotapiPython.OT_API_VerifyAndRetrieveXMLContents(*args)
+OT_API_VerifyAndRetrieveXMLContents = libotapiPython.OT_API_VerifyAndRetrieveXMLContents
 
 def OT_API_GetMemlogSize():
-  return _otapi.OT_API_GetMemlogSize()
-OT_API_GetMemlogSize = _otapi.OT_API_GetMemlogSize
+  return libotapiPython.OT_API_GetMemlogSize()
+OT_API_GetMemlogSize = libotapiPython.OT_API_GetMemlogSize
 
 def OT_API_GetMemlogAtIndex(*args):
-  return _otapi.OT_API_GetMemlogAtIndex(*args)
-OT_API_GetMemlogAtIndex = _otapi.OT_API_GetMemlogAtIndex
+  return libotapiPython.OT_API_GetMemlogAtIndex(*args)
+OT_API_GetMemlogAtIndex = libotapiPython.OT_API_GetMemlogAtIndex
 
 def OT_API_PeekMemlogFront():
-  return _otapi.OT_API_PeekMemlogFront()
-OT_API_PeekMemlogFront = _otapi.OT_API_PeekMemlogFront
+  return libotapiPython.OT_API_PeekMemlogFront()
+OT_API_PeekMemlogFront = libotapiPython.OT_API_PeekMemlogFront
 
 def OT_API_PeekMemlogBack():
-  return _otapi.OT_API_PeekMemlogBack()
-OT_API_PeekMemlogBack = _otapi.OT_API_PeekMemlogBack
+  return libotapiPython.OT_API_PeekMemlogBack()
+OT_API_PeekMemlogBack = libotapiPython.OT_API_PeekMemlogBack
 
 def OT_API_PopMemlogFront():
-  return _otapi.OT_API_PopMemlogFront()
-OT_API_PopMemlogFront = _otapi.OT_API_PopMemlogFront
+  return libotapiPython.OT_API_PopMemlogFront()
+OT_API_PopMemlogFront = libotapiPython.OT_API_PopMemlogFront
 
 def OT_API_PopMemlogBack():
-  return _otapi.OT_API_PopMemlogBack()
-OT_API_PopMemlogBack = _otapi.OT_API_PopMemlogBack
+  return libotapiPython.OT_API_PopMemlogBack()
+OT_API_PopMemlogBack = libotapiPython.OT_API_PopMemlogBack
 
 def OT_API_CreateNym():
-  return _otapi.OT_API_CreateNym()
-OT_API_CreateNym = _otapi.OT_API_CreateNym
+  return libotapiPython.OT_API_CreateNym()
+OT_API_CreateNym = libotapiPython.OT_API_CreateNym
 
 def OT_API_AddServerContract(*args):
-  return _otapi.OT_API_AddServerContract(*args)
-OT_API_AddServerContract = _otapi.OT_API_AddServerContract
+  return libotapiPython.OT_API_AddServerContract(*args)
+OT_API_AddServerContract = libotapiPython.OT_API_AddServerContract
 
 def OT_API_AddAssetContract(*args):
-  return _otapi.OT_API_AddAssetContract(*args)
-OT_API_AddAssetContract = _otapi.OT_API_AddAssetContract
+  return libotapiPython.OT_API_AddAssetContract(*args)
+OT_API_AddAssetContract = libotapiPython.OT_API_AddAssetContract
 
 def OT_API_GetServerCount():
-  return _otapi.OT_API_GetServerCount()
-OT_API_GetServerCount = _otapi.OT_API_GetServerCount
+  return libotapiPython.OT_API_GetServerCount()
+OT_API_GetServerCount = libotapiPython.OT_API_GetServerCount
 
 def OT_API_GetAssetTypeCount():
-  return _otapi.OT_API_GetAssetTypeCount()
-OT_API_GetAssetTypeCount = _otapi.OT_API_GetAssetTypeCount
+  return libotapiPython.OT_API_GetAssetTypeCount()
+OT_API_GetAssetTypeCount = libotapiPython.OT_API_GetAssetTypeCount
 
 def OT_API_GetAccountCount():
-  return _otapi.OT_API_GetAccountCount()
-OT_API_GetAccountCount = _otapi.OT_API_GetAccountCount
+  return libotapiPython.OT_API_GetAccountCount()
+OT_API_GetAccountCount = libotapiPython.OT_API_GetAccountCount
 
 def OT_API_GetNymCount():
-  return _otapi.OT_API_GetNymCount()
-OT_API_GetNymCount = _otapi.OT_API_GetNymCount
+  return libotapiPython.OT_API_GetNymCount()
+OT_API_GetNymCount = libotapiPython.OT_API_GetNymCount
 
 def OT_API_GetServer_ID(*args):
-  return _otapi.OT_API_GetServer_ID(*args)
-OT_API_GetServer_ID = _otapi.OT_API_GetServer_ID
+  return libotapiPython.OT_API_GetServer_ID(*args)
+OT_API_GetServer_ID = libotapiPython.OT_API_GetServer_ID
 
 def OT_API_GetServer_Name(*args):
-  return _otapi.OT_API_GetServer_Name(*args)
-OT_API_GetServer_Name = _otapi.OT_API_GetServer_Name
+  return libotapiPython.OT_API_GetServer_Name(*args)
+OT_API_GetServer_Name = libotapiPython.OT_API_GetServer_Name
 
 def OT_API_GetAssetType_ID(*args):
-  return _otapi.OT_API_GetAssetType_ID(*args)
-OT_API_GetAssetType_ID = _otapi.OT_API_GetAssetType_ID
+  return libotapiPython.OT_API_GetAssetType_ID(*args)
+OT_API_GetAssetType_ID = libotapiPython.OT_API_GetAssetType_ID
 
 def OT_API_GetAssetType_Name(*args):
-  return _otapi.OT_API_GetAssetType_Name(*args)
-OT_API_GetAssetType_Name = _otapi.OT_API_GetAssetType_Name
+  return libotapiPython.OT_API_GetAssetType_Name(*args)
+OT_API_GetAssetType_Name = libotapiPython.OT_API_GetAssetType_Name
 
 def OT_API_GetAccountWallet_ID(*args):
-  return _otapi.OT_API_GetAccountWallet_ID(*args)
-OT_API_GetAccountWallet_ID = _otapi.OT_API_GetAccountWallet_ID
+  return libotapiPython.OT_API_GetAccountWallet_ID(*args)
+OT_API_GetAccountWallet_ID = libotapiPython.OT_API_GetAccountWallet_ID
 
 def OT_API_GetAccountWallet_Name(*args):
-  return _otapi.OT_API_GetAccountWallet_Name(*args)
-OT_API_GetAccountWallet_Name = _otapi.OT_API_GetAccountWallet_Name
+  return libotapiPython.OT_API_GetAccountWallet_Name(*args)
+OT_API_GetAccountWallet_Name = libotapiPython.OT_API_GetAccountWallet_Name
 
 def OT_API_GetAccountWallet_Balance(*args):
-  return _otapi.OT_API_GetAccountWallet_Balance(*args)
-OT_API_GetAccountWallet_Balance = _otapi.OT_API_GetAccountWallet_Balance
+  return libotapiPython.OT_API_GetAccountWallet_Balance(*args)
+OT_API_GetAccountWallet_Balance = libotapiPython.OT_API_GetAccountWallet_Balance
 
 def OT_API_GetAccountWallet_Type(*args):
-  return _otapi.OT_API_GetAccountWallet_Type(*args)
-OT_API_GetAccountWallet_Type = _otapi.OT_API_GetAccountWallet_Type
+  return libotapiPython.OT_API_GetAccountWallet_Type(*args)
+OT_API_GetAccountWallet_Type = libotapiPython.OT_API_GetAccountWallet_Type
 
 def OT_API_GetAccountWallet_AssetTypeID(*args):
-  return _otapi.OT_API_GetAccountWallet_AssetTypeID(*args)
-OT_API_GetAccountWallet_AssetTypeID = _otapi.OT_API_GetAccountWallet_AssetTypeID
+  return libotapiPython.OT_API_GetAccountWallet_AssetTypeID(*args)
+OT_API_GetAccountWallet_AssetTypeID = libotapiPython.OT_API_GetAccountWallet_AssetTypeID
 
 def OT_API_GetAccountWallet_ServerID(*args):
-  return _otapi.OT_API_GetAccountWallet_ServerID(*args)
-OT_API_GetAccountWallet_ServerID = _otapi.OT_API_GetAccountWallet_ServerID
+  return libotapiPython.OT_API_GetAccountWallet_ServerID(*args)
+OT_API_GetAccountWallet_ServerID = libotapiPython.OT_API_GetAccountWallet_ServerID
 
 def OT_API_GetAccountWallet_NymID(*args):
-  return _otapi.OT_API_GetAccountWallet_NymID(*args)
-OT_API_GetAccountWallet_NymID = _otapi.OT_API_GetAccountWallet_NymID
+  return libotapiPython.OT_API_GetAccountWallet_NymID(*args)
+OT_API_GetAccountWallet_NymID = libotapiPython.OT_API_GetAccountWallet_NymID
 
 def OT_API_VerifyAccountReceipt(*args):
-  return _otapi.OT_API_VerifyAccountReceipt(*args)
-OT_API_VerifyAccountReceipt = _otapi.OT_API_VerifyAccountReceipt
+  return libotapiPython.OT_API_VerifyAccountReceipt(*args)
+OT_API_VerifyAccountReceipt = libotapiPython.OT_API_VerifyAccountReceipt
 
 def OT_API_GetNym_TransactionNumCount(*args):
-  return _otapi.OT_API_GetNym_TransactionNumCount(*args)
-OT_API_GetNym_TransactionNumCount = _otapi.OT_API_GetNym_TransactionNumCount
+  return libotapiPython.OT_API_GetNym_TransactionNumCount(*args)
+OT_API_GetNym_TransactionNumCount = libotapiPython.OT_API_GetNym_TransactionNumCount
 
 def OT_API_GetNym_ID(*args):
-  return _otapi.OT_API_GetNym_ID(*args)
-OT_API_GetNym_ID = _otapi.OT_API_GetNym_ID
+  return libotapiPython.OT_API_GetNym_ID(*args)
+OT_API_GetNym_ID = libotapiPython.OT_API_GetNym_ID
 
 def OT_API_GetNym_Name(*args):
-  return _otapi.OT_API_GetNym_Name(*args)
-OT_API_GetNym_Name = _otapi.OT_API_GetNym_Name
+  return libotapiPython.OT_API_GetNym_Name(*args)
+OT_API_GetNym_Name = libotapiPython.OT_API_GetNym_Name
 
 def OT_API_GetNym_Stats(*args):
-  return _otapi.OT_API_GetNym_Stats(*args)
-OT_API_GetNym_Stats = _otapi.OT_API_GetNym_Stats
+  return libotapiPython.OT_API_GetNym_Stats(*args)
+OT_API_GetNym_Stats = libotapiPython.OT_API_GetNym_Stats
 
 def OT_API_IsNym_RegisteredAtServer(*args):
-  return _otapi.OT_API_IsNym_RegisteredAtServer(*args)
-OT_API_IsNym_RegisteredAtServer = _otapi.OT_API_IsNym_RegisteredAtServer
+  return libotapiPython.OT_API_IsNym_RegisteredAtServer(*args)
+OT_API_IsNym_RegisteredAtServer = libotapiPython.OT_API_IsNym_RegisteredAtServer
 
 def OT_API_GetNym_MailCount(*args):
-  return _otapi.OT_API_GetNym_MailCount(*args)
-OT_API_GetNym_MailCount = _otapi.OT_API_GetNym_MailCount
+  return libotapiPython.OT_API_GetNym_MailCount(*args)
+OT_API_GetNym_MailCount = libotapiPython.OT_API_GetNym_MailCount
 
 def OT_API_GetNym_MailContentsByIndex(*args):
-  return _otapi.OT_API_GetNym_MailContentsByIndex(*args)
-OT_API_GetNym_MailContentsByIndex = _otapi.OT_API_GetNym_MailContentsByIndex
+  return libotapiPython.OT_API_GetNym_MailContentsByIndex(*args)
+OT_API_GetNym_MailContentsByIndex = libotapiPython.OT_API_GetNym_MailContentsByIndex
 
 def OT_API_GetNym_MailSenderIDByIndex(*args):
-  return _otapi.OT_API_GetNym_MailSenderIDByIndex(*args)
-OT_API_GetNym_MailSenderIDByIndex = _otapi.OT_API_GetNym_MailSenderIDByIndex
+  return libotapiPython.OT_API_GetNym_MailSenderIDByIndex(*args)
+OT_API_GetNym_MailSenderIDByIndex = libotapiPython.OT_API_GetNym_MailSenderIDByIndex
 
 def OT_API_GetNym_MailServerIDByIndex(*args):
-  return _otapi.OT_API_GetNym_MailServerIDByIndex(*args)
-OT_API_GetNym_MailServerIDByIndex = _otapi.OT_API_GetNym_MailServerIDByIndex
+  return libotapiPython.OT_API_GetNym_MailServerIDByIndex(*args)
+OT_API_GetNym_MailServerIDByIndex = libotapiPython.OT_API_GetNym_MailServerIDByIndex
 
 def OT_API_Nym_RemoveMailByIndex(*args):
-  return _otapi.OT_API_Nym_RemoveMailByIndex(*args)
-OT_API_Nym_RemoveMailByIndex = _otapi.OT_API_Nym_RemoveMailByIndex
+  return libotapiPython.OT_API_Nym_RemoveMailByIndex(*args)
+OT_API_Nym_RemoveMailByIndex = libotapiPython.OT_API_Nym_RemoveMailByIndex
 
 def OT_API_Nym_VerifyMailByIndex(*args):
-  return _otapi.OT_API_Nym_VerifyMailByIndex(*args)
-OT_API_Nym_VerifyMailByIndex = _otapi.OT_API_Nym_VerifyMailByIndex
+  return libotapiPython.OT_API_Nym_VerifyMailByIndex(*args)
+OT_API_Nym_VerifyMailByIndex = libotapiPython.OT_API_Nym_VerifyMailByIndex
 
 def OT_API_GetNym_OutmailCount(*args):
-  return _otapi.OT_API_GetNym_OutmailCount(*args)
-OT_API_GetNym_OutmailCount = _otapi.OT_API_GetNym_OutmailCount
+  return libotapiPython.OT_API_GetNym_OutmailCount(*args)
+OT_API_GetNym_OutmailCount = libotapiPython.OT_API_GetNym_OutmailCount
 
 def OT_API_GetNym_OutmailContentsByIndex(*args):
-  return _otapi.OT_API_GetNym_OutmailContentsByIndex(*args)
-OT_API_GetNym_OutmailContentsByIndex = _otapi.OT_API_GetNym_OutmailContentsByIndex
+  return libotapiPython.OT_API_GetNym_OutmailContentsByIndex(*args)
+OT_API_GetNym_OutmailContentsByIndex = libotapiPython.OT_API_GetNym_OutmailContentsByIndex
 
 def OT_API_GetNym_OutmailRecipientIDByIndex(*args):
-  return _otapi.OT_API_GetNym_OutmailRecipientIDByIndex(*args)
-OT_API_GetNym_OutmailRecipientIDByIndex = _otapi.OT_API_GetNym_OutmailRecipientIDByIndex
+  return libotapiPython.OT_API_GetNym_OutmailRecipientIDByIndex(*args)
+OT_API_GetNym_OutmailRecipientIDByIndex = libotapiPython.OT_API_GetNym_OutmailRecipientIDByIndex
 
 def OT_API_GetNym_OutmailServerIDByIndex(*args):
-  return _otapi.OT_API_GetNym_OutmailServerIDByIndex(*args)
-OT_API_GetNym_OutmailServerIDByIndex = _otapi.OT_API_GetNym_OutmailServerIDByIndex
+  return libotapiPython.OT_API_GetNym_OutmailServerIDByIndex(*args)
+OT_API_GetNym_OutmailServerIDByIndex = libotapiPython.OT_API_GetNym_OutmailServerIDByIndex
 
 def OT_API_Nym_RemoveOutmailByIndex(*args):
-  return _otapi.OT_API_Nym_RemoveOutmailByIndex(*args)
-OT_API_Nym_RemoveOutmailByIndex = _otapi.OT_API_Nym_RemoveOutmailByIndex
+  return libotapiPython.OT_API_Nym_RemoveOutmailByIndex(*args)
+OT_API_Nym_RemoveOutmailByIndex = libotapiPython.OT_API_Nym_RemoveOutmailByIndex
 
 def OT_API_Nym_VerifyOutmailByIndex(*args):
-  return _otapi.OT_API_Nym_VerifyOutmailByIndex(*args)
-OT_API_Nym_VerifyOutmailByIndex = _otapi.OT_API_Nym_VerifyOutmailByIndex
+  return libotapiPython.OT_API_Nym_VerifyOutmailByIndex(*args)
+OT_API_Nym_VerifyOutmailByIndex = libotapiPython.OT_API_Nym_VerifyOutmailByIndex
 
 def OT_API_Wallet_CanRemoveServer(*args):
-  return _otapi.OT_API_Wallet_CanRemoveServer(*args)
-OT_API_Wallet_CanRemoveServer = _otapi.OT_API_Wallet_CanRemoveServer
+  return libotapiPython.OT_API_Wallet_CanRemoveServer(*args)
+OT_API_Wallet_CanRemoveServer = libotapiPython.OT_API_Wallet_CanRemoveServer
 
 def OT_API_Wallet_RemoveServer(*args):
-  return _otapi.OT_API_Wallet_RemoveServer(*args)
-OT_API_Wallet_RemoveServer = _otapi.OT_API_Wallet_RemoveServer
+  return libotapiPython.OT_API_Wallet_RemoveServer(*args)
+OT_API_Wallet_RemoveServer = libotapiPython.OT_API_Wallet_RemoveServer
 
 def OT_API_Wallet_CanRemoveAssetType(*args):
-  return _otapi.OT_API_Wallet_CanRemoveAssetType(*args)
-OT_API_Wallet_CanRemoveAssetType = _otapi.OT_API_Wallet_CanRemoveAssetType
+  return libotapiPython.OT_API_Wallet_CanRemoveAssetType(*args)
+OT_API_Wallet_CanRemoveAssetType = libotapiPython.OT_API_Wallet_CanRemoveAssetType
 
 def OT_API_Wallet_RemoveAssetType(*args):
-  return _otapi.OT_API_Wallet_RemoveAssetType(*args)
-OT_API_Wallet_RemoveAssetType = _otapi.OT_API_Wallet_RemoveAssetType
+  return libotapiPython.OT_API_Wallet_RemoveAssetType(*args)
+OT_API_Wallet_RemoveAssetType = libotapiPython.OT_API_Wallet_RemoveAssetType
 
 def OT_API_Wallet_CanRemoveNym(*args):
-  return _otapi.OT_API_Wallet_CanRemoveNym(*args)
-OT_API_Wallet_CanRemoveNym = _otapi.OT_API_Wallet_CanRemoveNym
+  return libotapiPython.OT_API_Wallet_CanRemoveNym(*args)
+OT_API_Wallet_CanRemoveNym = libotapiPython.OT_API_Wallet_CanRemoveNym
 
 def OT_API_Wallet_RemoveNym(*args):
-  return _otapi.OT_API_Wallet_RemoveNym(*args)
-OT_API_Wallet_RemoveNym = _otapi.OT_API_Wallet_RemoveNym
+  return libotapiPython.OT_API_Wallet_RemoveNym(*args)
+OT_API_Wallet_RemoveNym = libotapiPython.OT_API_Wallet_RemoveNym
 
 def OT_API_Wallet_CanRemoveAccount(*args):
-  return _otapi.OT_API_Wallet_CanRemoveAccount(*args)
-OT_API_Wallet_CanRemoveAccount = _otapi.OT_API_Wallet_CanRemoveAccount
+  return libotapiPython.OT_API_Wallet_CanRemoveAccount(*args)
+OT_API_Wallet_CanRemoveAccount = libotapiPython.OT_API_Wallet_CanRemoveAccount
 
 def OT_API_Wallet_ImportNym(*args):
-  return _otapi.OT_API_Wallet_ImportNym(*args)
-OT_API_Wallet_ImportNym = _otapi.OT_API_Wallet_ImportNym
+  return libotapiPython.OT_API_Wallet_ImportNym(*args)
+OT_API_Wallet_ImportNym = libotapiPython.OT_API_Wallet_ImportNym
 
 def OT_API_SetNym_Name(*args):
-  return _otapi.OT_API_SetNym_Name(*args)
-OT_API_SetNym_Name = _otapi.OT_API_SetNym_Name
+  return libotapiPython.OT_API_SetNym_Name(*args)
+OT_API_SetNym_Name = libotapiPython.OT_API_SetNym_Name
 
 def OT_API_SetAccountWallet_Name(*args):
-  return _otapi.OT_API_SetAccountWallet_Name(*args)
-OT_API_SetAccountWallet_Name = _otapi.OT_API_SetAccountWallet_Name
+  return libotapiPython.OT_API_SetAccountWallet_Name(*args)
+OT_API_SetAccountWallet_Name = libotapiPython.OT_API_SetAccountWallet_Name
 
 def OT_API_SetAssetType_Name(*args):
-  return _otapi.OT_API_SetAssetType_Name(*args)
-OT_API_SetAssetType_Name = _otapi.OT_API_SetAssetType_Name
+  return libotapiPython.OT_API_SetAssetType_Name(*args)
+OT_API_SetAssetType_Name = libotapiPython.OT_API_SetAssetType_Name
 
 def OT_API_SetServer_Name(*args):
-  return _otapi.OT_API_SetServer_Name(*args)
-OT_API_SetServer_Name = _otapi.OT_API_SetServer_Name
+  return libotapiPython.OT_API_SetServer_Name(*args)
+OT_API_SetServer_Name = libotapiPython.OT_API_SetServer_Name
 
 def OT_API_WriteCheque(*args):
-  return _otapi.OT_API_WriteCheque(*args)
-OT_API_WriteCheque = _otapi.OT_API_WriteCheque
+  return libotapiPython.OT_API_WriteCheque(*args)
+OT_API_WriteCheque = libotapiPython.OT_API_WriteCheque
 
 def OT_API_DiscardCheque(*args):
-  return _otapi.OT_API_DiscardCheque(*args)
-OT_API_DiscardCheque = _otapi.OT_API_DiscardCheque
+  return libotapiPython.OT_API_DiscardCheque(*args)
+OT_API_DiscardCheque = libotapiPython.OT_API_DiscardCheque
 
 def OT_API_ProposePaymentPlan(*args):
-  return _otapi.OT_API_ProposePaymentPlan(*args)
-OT_API_ProposePaymentPlan = _otapi.OT_API_ProposePaymentPlan
+  return libotapiPython.OT_API_ProposePaymentPlan(*args)
+OT_API_ProposePaymentPlan = libotapiPython.OT_API_ProposePaymentPlan
 
 def OT_API_ConfirmPaymentPlan(*args):
-  return _otapi.OT_API_ConfirmPaymentPlan(*args)
-OT_API_ConfirmPaymentPlan = _otapi.OT_API_ConfirmPaymentPlan
+  return libotapiPython.OT_API_ConfirmPaymentPlan(*args)
+OT_API_ConfirmPaymentPlan = libotapiPython.OT_API_ConfirmPaymentPlan
 
 def OT_API_Create_SmartContract(*args):
-  return _otapi.OT_API_Create_SmartContract(*args)
-OT_API_Create_SmartContract = _otapi.OT_API_Create_SmartContract
+  return libotapiPython.OT_API_Create_SmartContract(*args)
+OT_API_Create_SmartContract = libotapiPython.OT_API_Create_SmartContract
 
 def OT_API_SmartContract_AddBylaw(*args):
-  return _otapi.OT_API_SmartContract_AddBylaw(*args)
-OT_API_SmartContract_AddBylaw = _otapi.OT_API_SmartContract_AddBylaw
+  return libotapiPython.OT_API_SmartContract_AddBylaw(*args)
+OT_API_SmartContract_AddBylaw = libotapiPython.OT_API_SmartContract_AddBylaw
 
 def OT_API_SmartContract_AddClause(*args):
-  return _otapi.OT_API_SmartContract_AddClause(*args)
-OT_API_SmartContract_AddClause = _otapi.OT_API_SmartContract_AddClause
+  return libotapiPython.OT_API_SmartContract_AddClause(*args)
+OT_API_SmartContract_AddClause = libotapiPython.OT_API_SmartContract_AddClause
 
 def OT_API_SmartContract_AddVariable(*args):
-  return _otapi.OT_API_SmartContract_AddVariable(*args)
-OT_API_SmartContract_AddVariable = _otapi.OT_API_SmartContract_AddVariable
+  return libotapiPython.OT_API_SmartContract_AddVariable(*args)
+OT_API_SmartContract_AddVariable = libotapiPython.OT_API_SmartContract_AddVariable
 
 def OT_API_SmartContract_AddCallback(*args):
-  return _otapi.OT_API_SmartContract_AddCallback(*args)
-OT_API_SmartContract_AddCallback = _otapi.OT_API_SmartContract_AddCallback
+  return libotapiPython.OT_API_SmartContract_AddCallback(*args)
+OT_API_SmartContract_AddCallback = libotapiPython.OT_API_SmartContract_AddCallback
 
 def OT_API_SmartContract_AddHook(*args):
-  return _otapi.OT_API_SmartContract_AddHook(*args)
-OT_API_SmartContract_AddHook = _otapi.OT_API_SmartContract_AddHook
+  return libotapiPython.OT_API_SmartContract_AddHook(*args)
+OT_API_SmartContract_AddHook = libotapiPython.OT_API_SmartContract_AddHook
 
 def OT_API_SmartContract_AddParty(*args):
-  return _otapi.OT_API_SmartContract_AddParty(*args)
-OT_API_SmartContract_AddParty = _otapi.OT_API_SmartContract_AddParty
+  return libotapiPython.OT_API_SmartContract_AddParty(*args)
+OT_API_SmartContract_AddParty = libotapiPython.OT_API_SmartContract_AddParty
 
 def OT_API_SmartContract_AddAccount(*args):
-  return _otapi.OT_API_SmartContract_AddAccount(*args)
-OT_API_SmartContract_AddAccount = _otapi.OT_API_SmartContract_AddAccount
+  return libotapiPython.OT_API_SmartContract_AddAccount(*args)
+OT_API_SmartContract_AddAccount = libotapiPython.OT_API_SmartContract_AddAccount
 
 def OT_API_SmartContract_CountNumsNeeded(*args):
-  return _otapi.OT_API_SmartContract_CountNumsNeeded(*args)
-OT_API_SmartContract_CountNumsNeeded = _otapi.OT_API_SmartContract_CountNumsNeeded
+  return libotapiPython.OT_API_SmartContract_CountNumsNeeded(*args)
+OT_API_SmartContract_CountNumsNeeded = libotapiPython.OT_API_SmartContract_CountNumsNeeded
 
 def OT_API_SmartContract_ConfirmAccount(*args):
-  return _otapi.OT_API_SmartContract_ConfirmAccount(*args)
-OT_API_SmartContract_ConfirmAccount = _otapi.OT_API_SmartContract_ConfirmAccount
+  return libotapiPython.OT_API_SmartContract_ConfirmAccount(*args)
+OT_API_SmartContract_ConfirmAccount = libotapiPython.OT_API_SmartContract_ConfirmAccount
 
 def OT_API_SmartContract_ConfirmParty(*args):
-  return _otapi.OT_API_SmartContract_ConfirmParty(*args)
-OT_API_SmartContract_ConfirmParty = _otapi.OT_API_SmartContract_ConfirmParty
+  return libotapiPython.OT_API_SmartContract_ConfirmParty(*args)
+OT_API_SmartContract_ConfirmParty = libotapiPython.OT_API_SmartContract_ConfirmParty
 
 def OT_API_activateSmartContract(*args):
-  return _otapi.OT_API_activateSmartContract(*args)
-OT_API_activateSmartContract = _otapi.OT_API_activateSmartContract
+  return libotapiPython.OT_API_activateSmartContract(*args)
+OT_API_activateSmartContract = libotapiPython.OT_API_activateSmartContract
 
 def OT_API_triggerClause(*args):
-  return _otapi.OT_API_triggerClause(*args)
-OT_API_triggerClause = _otapi.OT_API_triggerClause
+  return libotapiPython.OT_API_triggerClause(*args)
+OT_API_triggerClause = libotapiPython.OT_API_triggerClause
 
 def OT_API_HarvestClosingNumbers(*args):
-  return _otapi.OT_API_HarvestClosingNumbers(*args)
-OT_API_HarvestClosingNumbers = _otapi.OT_API_HarvestClosingNumbers
+  return libotapiPython.OT_API_HarvestClosingNumbers(*args)
+OT_API_HarvestClosingNumbers = libotapiPython.OT_API_HarvestClosingNumbers
 
 def OT_API_HarvestAllNumbers(*args):
-  return _otapi.OT_API_HarvestAllNumbers(*args)
-OT_API_HarvestAllNumbers = _otapi.OT_API_HarvestAllNumbers
+  return libotapiPython.OT_API_HarvestAllNumbers(*args)
+OT_API_HarvestAllNumbers = libotapiPython.OT_API_HarvestAllNumbers
 
 def OT_API_LoadUserPubkey(*args):
-  return _otapi.OT_API_LoadUserPubkey(*args)
-OT_API_LoadUserPubkey = _otapi.OT_API_LoadUserPubkey
+  return libotapiPython.OT_API_LoadUserPubkey(*args)
+OT_API_LoadUserPubkey = libotapiPython.OT_API_LoadUserPubkey
 
 def OT_API_LoadPubkey(*args):
-  return _otapi.OT_API_LoadPubkey(*args)
-OT_API_LoadPubkey = _otapi.OT_API_LoadPubkey
+  return libotapiPython.OT_API_LoadPubkey(*args)
+OT_API_LoadPubkey = libotapiPython.OT_API_LoadPubkey
 
 def OT_API_VerifyUserPrivateKey(*args):
-  return _otapi.OT_API_VerifyUserPrivateKey(*args)
-OT_API_VerifyUserPrivateKey = _otapi.OT_API_VerifyUserPrivateKey
+  return libotapiPython.OT_API_VerifyUserPrivateKey(*args)
+OT_API_VerifyUserPrivateKey = libotapiPython.OT_API_VerifyUserPrivateKey
 
 def OT_API_LoadPurse(*args):
-  return _otapi.OT_API_LoadPurse(*args)
-OT_API_LoadPurse = _otapi.OT_API_LoadPurse
+  return libotapiPython.OT_API_LoadPurse(*args)
+OT_API_LoadPurse = libotapiPython.OT_API_LoadPurse
 
 def OT_API_LoadMint(*args):
-  return _otapi.OT_API_LoadMint(*args)
-OT_API_LoadMint = _otapi.OT_API_LoadMint
+  return libotapiPython.OT_API_LoadMint(*args)
+OT_API_LoadMint = libotapiPython.OT_API_LoadMint
 
 def OT_API_LoadAssetContract(*args):
-  return _otapi.OT_API_LoadAssetContract(*args)
-OT_API_LoadAssetContract = _otapi.OT_API_LoadAssetContract
+  return libotapiPython.OT_API_LoadAssetContract(*args)
+OT_API_LoadAssetContract = libotapiPython.OT_API_LoadAssetContract
 
 def OT_API_LoadServerContract(*args):
-  return _otapi.OT_API_LoadServerContract(*args)
-OT_API_LoadServerContract = _otapi.OT_API_LoadServerContract
+  return libotapiPython.OT_API_LoadServerContract(*args)
+OT_API_LoadServerContract = libotapiPython.OT_API_LoadServerContract
 
 def OT_API_Mint_IsStillGood(*args):
-  return _otapi.OT_API_Mint_IsStillGood(*args)
-OT_API_Mint_IsStillGood = _otapi.OT_API_Mint_IsStillGood
+  return libotapiPython.OT_API_Mint_IsStillGood(*args)
+OT_API_Mint_IsStillGood = libotapiPython.OT_API_Mint_IsStillGood
 
 def OT_API_IsBasketCurrency(*args):
-  return _otapi.OT_API_IsBasketCurrency(*args)
-OT_API_IsBasketCurrency = _otapi.OT_API_IsBasketCurrency
+  return libotapiPython.OT_API_IsBasketCurrency(*args)
+OT_API_IsBasketCurrency = libotapiPython.OT_API_IsBasketCurrency
 
 def OT_API_Basket_GetMemberCount(*args):
-  return _otapi.OT_API_Basket_GetMemberCount(*args)
-OT_API_Basket_GetMemberCount = _otapi.OT_API_Basket_GetMemberCount
+  return libotapiPython.OT_API_Basket_GetMemberCount(*args)
+OT_API_Basket_GetMemberCount = libotapiPython.OT_API_Basket_GetMemberCount
 
 def OT_API_Basket_GetMemberType(*args):
-  return _otapi.OT_API_Basket_GetMemberType(*args)
-OT_API_Basket_GetMemberType = _otapi.OT_API_Basket_GetMemberType
+  return libotapiPython.OT_API_Basket_GetMemberType(*args)
+OT_API_Basket_GetMemberType = libotapiPython.OT_API_Basket_GetMemberType
 
 def OT_API_Basket_GetMinimumTransferAmount(*args):
-  return _otapi.OT_API_Basket_GetMinimumTransferAmount(*args)
-OT_API_Basket_GetMinimumTransferAmount = _otapi.OT_API_Basket_GetMinimumTransferAmount
+  return libotapiPython.OT_API_Basket_GetMinimumTransferAmount(*args)
+OT_API_Basket_GetMinimumTransferAmount = libotapiPython.OT_API_Basket_GetMinimumTransferAmount
 
 def OT_API_Basket_GetMemberMinimumTransferAmount(*args):
-  return _otapi.OT_API_Basket_GetMemberMinimumTransferAmount(*args)
-OT_API_Basket_GetMemberMinimumTransferAmount = _otapi.OT_API_Basket_GetMemberMinimumTransferAmount
+  return libotapiPython.OT_API_Basket_GetMemberMinimumTransferAmount(*args)
+OT_API_Basket_GetMemberMinimumTransferAmount = libotapiPython.OT_API_Basket_GetMemberMinimumTransferAmount
 
 def OT_API_LoadAssetAccount(*args):
-  return _otapi.OT_API_LoadAssetAccount(*args)
-OT_API_LoadAssetAccount = _otapi.OT_API_LoadAssetAccount
+  return libotapiPython.OT_API_LoadAssetAccount(*args)
+OT_API_LoadAssetAccount = libotapiPython.OT_API_LoadAssetAccount
 
 def OT_API_LoadInbox(*args):
-  return _otapi.OT_API_LoadInbox(*args)
-OT_API_LoadInbox = _otapi.OT_API_LoadInbox
+  return libotapiPython.OT_API_LoadInbox(*args)
+OT_API_LoadInbox = libotapiPython.OT_API_LoadInbox
 
 def OT_API_LoadOutbox(*args):
-  return _otapi.OT_API_LoadOutbox(*args)
-OT_API_LoadOutbox = _otapi.OT_API_LoadOutbox
+  return libotapiPython.OT_API_LoadOutbox(*args)
+OT_API_LoadOutbox = libotapiPython.OT_API_LoadOutbox
 
 def OT_API_LoadInboxNoVerify(*args):
-  return _otapi.OT_API_LoadInboxNoVerify(*args)
-OT_API_LoadInboxNoVerify = _otapi.OT_API_LoadInboxNoVerify
+  return libotapiPython.OT_API_LoadInboxNoVerify(*args)
+OT_API_LoadInboxNoVerify = libotapiPython.OT_API_LoadInboxNoVerify
 
 def OT_API_LoadOutboxNoVerify(*args):
-  return _otapi.OT_API_LoadOutboxNoVerify(*args)
-OT_API_LoadOutboxNoVerify = _otapi.OT_API_LoadOutboxNoVerify
+  return libotapiPython.OT_API_LoadOutboxNoVerify(*args)
+OT_API_LoadOutboxNoVerify = libotapiPython.OT_API_LoadOutboxNoVerify
 
 def OT_API_LoadPaymentInbox(*args):
-  return _otapi.OT_API_LoadPaymentInbox(*args)
-OT_API_LoadPaymentInbox = _otapi.OT_API_LoadPaymentInbox
+  return libotapiPython.OT_API_LoadPaymentInbox(*args)
+OT_API_LoadPaymentInbox = libotapiPython.OT_API_LoadPaymentInbox
 
 def OT_API_LoadPaymentOutbox(*args):
-  return _otapi.OT_API_LoadPaymentOutbox(*args)
-OT_API_LoadPaymentOutbox = _otapi.OT_API_LoadPaymentOutbox
+  return libotapiPython.OT_API_LoadPaymentOutbox(*args)
+OT_API_LoadPaymentOutbox = libotapiPython.OT_API_LoadPaymentOutbox
 
 def OT_API_LoadPaymentInboxNoVerify(*args):
-  return _otapi.OT_API_LoadPaymentInboxNoVerify(*args)
-OT_API_LoadPaymentInboxNoVerify = _otapi.OT_API_LoadPaymentInboxNoVerify
+  return libotapiPython.OT_API_LoadPaymentInboxNoVerify(*args)
+OT_API_LoadPaymentInboxNoVerify = libotapiPython.OT_API_LoadPaymentInboxNoVerify
 
 def OT_API_LoadPaymentOutboxNoVerify(*args):
-  return _otapi.OT_API_LoadPaymentOutboxNoVerify(*args)
-OT_API_LoadPaymentOutboxNoVerify = _otapi.OT_API_LoadPaymentOutboxNoVerify
+  return libotapiPython.OT_API_LoadPaymentOutboxNoVerify(*args)
+OT_API_LoadPaymentOutboxNoVerify = libotapiPython.OT_API_LoadPaymentOutboxNoVerify
 
 def OT_API_LoadRecordBox(*args):
-  return _otapi.OT_API_LoadRecordBox(*args)
-OT_API_LoadRecordBox = _otapi.OT_API_LoadRecordBox
+  return libotapiPython.OT_API_LoadRecordBox(*args)
+OT_API_LoadRecordBox = libotapiPython.OT_API_LoadRecordBox
 
 def OT_API_LoadRecordBoxNoVerify(*args):
-  return _otapi.OT_API_LoadRecordBoxNoVerify(*args)
-OT_API_LoadRecordBoxNoVerify = _otapi.OT_API_LoadRecordBoxNoVerify
+  return libotapiPython.OT_API_LoadRecordBoxNoVerify(*args)
+OT_API_LoadRecordBoxNoVerify = libotapiPython.OT_API_LoadRecordBoxNoVerify
 
 def OT_API_Ledger_GetCount(*args):
-  return _otapi.OT_API_Ledger_GetCount(*args)
-OT_API_Ledger_GetCount = _otapi.OT_API_Ledger_GetCount
+  return libotapiPython.OT_API_Ledger_GetCount(*args)
+OT_API_Ledger_GetCount = libotapiPython.OT_API_Ledger_GetCount
 
 def OT_API_Ledger_CreateResponse(*args):
-  return _otapi.OT_API_Ledger_CreateResponse(*args)
-OT_API_Ledger_CreateResponse = _otapi.OT_API_Ledger_CreateResponse
+  return libotapiPython.OT_API_Ledger_CreateResponse(*args)
+OT_API_Ledger_CreateResponse = libotapiPython.OT_API_Ledger_CreateResponse
 
 def OT_API_Ledger_GetTransactionByIndex(*args):
-  return _otapi.OT_API_Ledger_GetTransactionByIndex(*args)
-OT_API_Ledger_GetTransactionByIndex = _otapi.OT_API_Ledger_GetTransactionByIndex
+  return libotapiPython.OT_API_Ledger_GetTransactionByIndex(*args)
+OT_API_Ledger_GetTransactionByIndex = libotapiPython.OT_API_Ledger_GetTransactionByIndex
 
 def OT_API_Ledger_GetTransactionByID(*args):
-  return _otapi.OT_API_Ledger_GetTransactionByID(*args)
-OT_API_Ledger_GetTransactionByID = _otapi.OT_API_Ledger_GetTransactionByID
+  return libotapiPython.OT_API_Ledger_GetTransactionByID(*args)
+OT_API_Ledger_GetTransactionByID = libotapiPython.OT_API_Ledger_GetTransactionByID
 
 def OT_API_Ledger_GetTransactionIDByIndex(*args):
-  return _otapi.OT_API_Ledger_GetTransactionIDByIndex(*args)
-OT_API_Ledger_GetTransactionIDByIndex = _otapi.OT_API_Ledger_GetTransactionIDByIndex
+  return libotapiPython.OT_API_Ledger_GetTransactionIDByIndex(*args)
+OT_API_Ledger_GetTransactionIDByIndex = libotapiPython.OT_API_Ledger_GetTransactionIDByIndex
 
 def OT_API_Ledger_AddTransaction(*args):
-  return _otapi.OT_API_Ledger_AddTransaction(*args)
-OT_API_Ledger_AddTransaction = _otapi.OT_API_Ledger_AddTransaction
+  return libotapiPython.OT_API_Ledger_AddTransaction(*args)
+OT_API_Ledger_AddTransaction = libotapiPython.OT_API_Ledger_AddTransaction
 
 def OT_API_Transaction_CreateResponse(*args):
-  return _otapi.OT_API_Transaction_CreateResponse(*args)
-OT_API_Transaction_CreateResponse = _otapi.OT_API_Transaction_CreateResponse
+  return libotapiPython.OT_API_Transaction_CreateResponse(*args)
+OT_API_Transaction_CreateResponse = libotapiPython.OT_API_Transaction_CreateResponse
 
 def OT_API_Ledger_FinalizeResponse(*args):
-  return _otapi.OT_API_Ledger_FinalizeResponse(*args)
-OT_API_Ledger_FinalizeResponse = _otapi.OT_API_Ledger_FinalizeResponse
+  return libotapiPython.OT_API_Ledger_FinalizeResponse(*args)
+OT_API_Ledger_FinalizeResponse = libotapiPython.OT_API_Ledger_FinalizeResponse
 
 def OT_API_Transaction_GetType(*args):
-  return _otapi.OT_API_Transaction_GetType(*args)
-OT_API_Transaction_GetType = _otapi.OT_API_Transaction_GetType
+  return libotapiPython.OT_API_Transaction_GetType(*args)
+OT_API_Transaction_GetType = libotapiPython.OT_API_Transaction_GetType
 
 def OT_API_Transaction_GetVoucher(*args):
-  return _otapi.OT_API_Transaction_GetVoucher(*args)
-OT_API_Transaction_GetVoucher = _otapi.OT_API_Transaction_GetVoucher
+  return libotapiPython.OT_API_Transaction_GetVoucher(*args)
+OT_API_Transaction_GetVoucher = libotapiPython.OT_API_Transaction_GetVoucher
 
 def OT_API_Transaction_GetSuccess(*args):
-  return _otapi.OT_API_Transaction_GetSuccess(*args)
-OT_API_Transaction_GetSuccess = _otapi.OT_API_Transaction_GetSuccess
+  return libotapiPython.OT_API_Transaction_GetSuccess(*args)
+OT_API_Transaction_GetSuccess = libotapiPython.OT_API_Transaction_GetSuccess
 
 def OT_API_Transaction_GetBalanceAgreementSuccess(*args):
-  return _otapi.OT_API_Transaction_GetBalanceAgreementSuccess(*args)
-OT_API_Transaction_GetBalanceAgreementSuccess = _otapi.OT_API_Transaction_GetBalanceAgreementSuccess
+  return libotapiPython.OT_API_Transaction_GetBalanceAgreementSuccess(*args)
+OT_API_Transaction_GetBalanceAgreementSuccess = libotapiPython.OT_API_Transaction_GetBalanceAgreementSuccess
 
 def OT_API_Transaction_GetDateSigned(*args):
-  return _otapi.OT_API_Transaction_GetDateSigned(*args)
-OT_API_Transaction_GetDateSigned = _otapi.OT_API_Transaction_GetDateSigned
+  return libotapiPython.OT_API_Transaction_GetDateSigned(*args)
+OT_API_Transaction_GetDateSigned = libotapiPython.OT_API_Transaction_GetDateSigned
 
 def OT_API_Transaction_GetAmount(*args):
-  return _otapi.OT_API_Transaction_GetAmount(*args)
-OT_API_Transaction_GetAmount = _otapi.OT_API_Transaction_GetAmount
+  return libotapiPython.OT_API_Transaction_GetAmount(*args)
+OT_API_Transaction_GetAmount = libotapiPython.OT_API_Transaction_GetAmount
 
 def OT_API_Pending_GetNote(*args):
-  return _otapi.OT_API_Pending_GetNote(*args)
-OT_API_Pending_GetNote = _otapi.OT_API_Pending_GetNote
+  return libotapiPython.OT_API_Pending_GetNote(*args)
+OT_API_Pending_GetNote = libotapiPython.OT_API_Pending_GetNote
 
 def OT_API_Transaction_GetSenderUserID(*args):
-  return _otapi.OT_API_Transaction_GetSenderUserID(*args)
-OT_API_Transaction_GetSenderUserID = _otapi.OT_API_Transaction_GetSenderUserID
+  return libotapiPython.OT_API_Transaction_GetSenderUserID(*args)
+OT_API_Transaction_GetSenderUserID = libotapiPython.OT_API_Transaction_GetSenderUserID
 
 def OT_API_Transaction_GetSenderAcctID(*args):
-  return _otapi.OT_API_Transaction_GetSenderAcctID(*args)
-OT_API_Transaction_GetSenderAcctID = _otapi.OT_API_Transaction_GetSenderAcctID
+  return libotapiPython.OT_API_Transaction_GetSenderAcctID(*args)
+OT_API_Transaction_GetSenderAcctID = libotapiPython.OT_API_Transaction_GetSenderAcctID
 
 def OT_API_Transaction_GetRecipientUserID(*args):
-  return _otapi.OT_API_Transaction_GetRecipientUserID(*args)
-OT_API_Transaction_GetRecipientUserID = _otapi.OT_API_Transaction_GetRecipientUserID
+  return libotapiPython.OT_API_Transaction_GetRecipientUserID(*args)
+OT_API_Transaction_GetRecipientUserID = libotapiPython.OT_API_Transaction_GetRecipientUserID
 
 def OT_API_Transaction_GetRecipientAcctID(*args):
-  return _otapi.OT_API_Transaction_GetRecipientAcctID(*args)
-OT_API_Transaction_GetRecipientAcctID = _otapi.OT_API_Transaction_GetRecipientAcctID
+  return libotapiPython.OT_API_Transaction_GetRecipientAcctID(*args)
+OT_API_Transaction_GetRecipientAcctID = libotapiPython.OT_API_Transaction_GetRecipientAcctID
 
 def OT_API_Transaction_GetDisplayReferenceToNum(*args):
-  return _otapi.OT_API_Transaction_GetDisplayReferenceToNum(*args)
-OT_API_Transaction_GetDisplayReferenceToNum = _otapi.OT_API_Transaction_GetDisplayReferenceToNum
+  return libotapiPython.OT_API_Transaction_GetDisplayReferenceToNum(*args)
+OT_API_Transaction_GetDisplayReferenceToNum = libotapiPython.OT_API_Transaction_GetDisplayReferenceToNum
 
 def OT_API_CreatePurse(*args):
-  return _otapi.OT_API_CreatePurse(*args)
-OT_API_CreatePurse = _otapi.OT_API_CreatePurse
+  return libotapiPython.OT_API_CreatePurse(*args)
+OT_API_CreatePurse = libotapiPython.OT_API_CreatePurse
 
 def OT_API_SavePurse(*args):
-  return _otapi.OT_API_SavePurse(*args)
-OT_API_SavePurse = _otapi.OT_API_SavePurse
+  return libotapiPython.OT_API_SavePurse(*args)
+OT_API_SavePurse = libotapiPython.OT_API_SavePurse
 
 def OT_API_Purse_GetTotalValue(*args):
-  return _otapi.OT_API_Purse_GetTotalValue(*args)
-OT_API_Purse_GetTotalValue = _otapi.OT_API_Purse_GetTotalValue
+  return libotapiPython.OT_API_Purse_GetTotalValue(*args)
+OT_API_Purse_GetTotalValue = libotapiPython.OT_API_Purse_GetTotalValue
 
 def OT_API_Purse_Count(*args):
-  return _otapi.OT_API_Purse_Count(*args)
-OT_API_Purse_Count = _otapi.OT_API_Purse_Count
+  return libotapiPython.OT_API_Purse_Count(*args)
+OT_API_Purse_Count = libotapiPython.OT_API_Purse_Count
 
 def OT_API_Purse_Peek(*args):
-  return _otapi.OT_API_Purse_Peek(*args)
-OT_API_Purse_Peek = _otapi.OT_API_Purse_Peek
+  return libotapiPython.OT_API_Purse_Peek(*args)
+OT_API_Purse_Peek = libotapiPython.OT_API_Purse_Peek
 
 def OT_API_Purse_Pop(*args):
-  return _otapi.OT_API_Purse_Pop(*args)
-OT_API_Purse_Pop = _otapi.OT_API_Purse_Pop
+  return libotapiPython.OT_API_Purse_Pop(*args)
+OT_API_Purse_Pop = libotapiPython.OT_API_Purse_Pop
 
 def OT_API_Purse_Push(*args):
-  return _otapi.OT_API_Purse_Push(*args)
-OT_API_Purse_Push = _otapi.OT_API_Purse_Push
+  return libotapiPython.OT_API_Purse_Push(*args)
+OT_API_Purse_Push = libotapiPython.OT_API_Purse_Push
 
 def OT_API_Wallet_ImportPurse(*args):
-  return _otapi.OT_API_Wallet_ImportPurse(*args)
-OT_API_Wallet_ImportPurse = _otapi.OT_API_Wallet_ImportPurse
+  return libotapiPython.OT_API_Wallet_ImportPurse(*args)
+OT_API_Wallet_ImportPurse = libotapiPython.OT_API_Wallet_ImportPurse
 
 def OT_API_exchangePurse(*args):
-  return _otapi.OT_API_exchangePurse(*args)
-OT_API_exchangePurse = _otapi.OT_API_exchangePurse
+  return libotapiPython.OT_API_exchangePurse(*args)
+OT_API_exchangePurse = libotapiPython.OT_API_exchangePurse
 
 def OT_API_Token_ChangeOwner(*args):
-  return _otapi.OT_API_Token_ChangeOwner(*args)
-OT_API_Token_ChangeOwner = _otapi.OT_API_Token_ChangeOwner
+  return libotapiPython.OT_API_Token_ChangeOwner(*args)
+OT_API_Token_ChangeOwner = libotapiPython.OT_API_Token_ChangeOwner
 
 def OT_API_Token_GetID(*args):
-  return _otapi.OT_API_Token_GetID(*args)
-OT_API_Token_GetID = _otapi.OT_API_Token_GetID
+  return libotapiPython.OT_API_Token_GetID(*args)
+OT_API_Token_GetID = libotapiPython.OT_API_Token_GetID
 
 def OT_API_Token_GetDenomination(*args):
-  return _otapi.OT_API_Token_GetDenomination(*args)
-OT_API_Token_GetDenomination = _otapi.OT_API_Token_GetDenomination
+  return libotapiPython.OT_API_Token_GetDenomination(*args)
+OT_API_Token_GetDenomination = libotapiPython.OT_API_Token_GetDenomination
 
 def OT_API_Token_GetSeries(*args):
-  return _otapi.OT_API_Token_GetSeries(*args)
-OT_API_Token_GetSeries = _otapi.OT_API_Token_GetSeries
+  return libotapiPython.OT_API_Token_GetSeries(*args)
+OT_API_Token_GetSeries = libotapiPython.OT_API_Token_GetSeries
 
 def OT_API_Token_GetValidFrom(*args):
-  return _otapi.OT_API_Token_GetValidFrom(*args)
-OT_API_Token_GetValidFrom = _otapi.OT_API_Token_GetValidFrom
+  return libotapiPython.OT_API_Token_GetValidFrom(*args)
+OT_API_Token_GetValidFrom = libotapiPython.OT_API_Token_GetValidFrom
 
 def OT_API_Token_GetValidTo(*args):
-  return _otapi.OT_API_Token_GetValidTo(*args)
-OT_API_Token_GetValidTo = _otapi.OT_API_Token_GetValidTo
+  return libotapiPython.OT_API_Token_GetValidTo(*args)
+OT_API_Token_GetValidTo = libotapiPython.OT_API_Token_GetValidTo
 
 def OT_API_Token_GetAssetID(*args):
-  return _otapi.OT_API_Token_GetAssetID(*args)
-OT_API_Token_GetAssetID = _otapi.OT_API_Token_GetAssetID
+  return libotapiPython.OT_API_Token_GetAssetID(*args)
+OT_API_Token_GetAssetID = libotapiPython.OT_API_Token_GetAssetID
 
 def OT_API_Token_GetServerID(*args):
-  return _otapi.OT_API_Token_GetServerID(*args)
-OT_API_Token_GetServerID = _otapi.OT_API_Token_GetServerID
+  return libotapiPython.OT_API_Token_GetServerID(*args)
+OT_API_Token_GetServerID = libotapiPython.OT_API_Token_GetServerID
 
 def OT_API_checkServerID(*args):
-  return _otapi.OT_API_checkServerID(*args)
-OT_API_checkServerID = _otapi.OT_API_checkServerID
+  return libotapiPython.OT_API_checkServerID(*args)
+OT_API_checkServerID = libotapiPython.OT_API_checkServerID
 
 def OT_API_createUserAccount(*args):
-  return _otapi.OT_API_createUserAccount(*args)
-OT_API_createUserAccount = _otapi.OT_API_createUserAccount
+  return libotapiPython.OT_API_createUserAccount(*args)
+OT_API_createUserAccount = libotapiPython.OT_API_createUserAccount
 
 def OT_API_deleteUserAccount(*args):
-  return _otapi.OT_API_deleteUserAccount(*args)
-OT_API_deleteUserAccount = _otapi.OT_API_deleteUserAccount
+  return libotapiPython.OT_API_deleteUserAccount(*args)
+OT_API_deleteUserAccount = libotapiPython.OT_API_deleteUserAccount
 
 def OT_API_deleteAssetAccount(*args):
-  return _otapi.OT_API_deleteAssetAccount(*args)
-OT_API_deleteAssetAccount = _otapi.OT_API_deleteAssetAccount
+  return libotapiPython.OT_API_deleteAssetAccount(*args)
+OT_API_deleteAssetAccount = libotapiPython.OT_API_deleteAssetAccount
 
 def OT_API_usageCredits(*args):
-  return _otapi.OT_API_usageCredits(*args)
-OT_API_usageCredits = _otapi.OT_API_usageCredits
+  return libotapiPython.OT_API_usageCredits(*args)
+OT_API_usageCredits = libotapiPython.OT_API_usageCredits
 
 def OT_API_Message_GetUsageCredits(*args):
-  return _otapi.OT_API_Message_GetUsageCredits(*args)
-OT_API_Message_GetUsageCredits = _otapi.OT_API_Message_GetUsageCredits
+  return libotapiPython.OT_API_Message_GetUsageCredits(*args)
+OT_API_Message_GetUsageCredits = libotapiPython.OT_API_Message_GetUsageCredits
 
 def OT_API_checkUser(*args):
-  return _otapi.OT_API_checkUser(*args)
-OT_API_checkUser = _otapi.OT_API_checkUser
+  return libotapiPython.OT_API_checkUser(*args)
+OT_API_checkUser = libotapiPython.OT_API_checkUser
 
 def OT_API_sendUserMessage(*args):
-  return _otapi.OT_API_sendUserMessage(*args)
-OT_API_sendUserMessage = _otapi.OT_API_sendUserMessage
+  return libotapiPython.OT_API_sendUserMessage(*args)
+OT_API_sendUserMessage = libotapiPython.OT_API_sendUserMessage
 
 def OT_API_getRequest(*args):
-  return _otapi.OT_API_getRequest(*args)
-OT_API_getRequest = _otapi.OT_API_getRequest
+  return libotapiPython.OT_API_getRequest(*args)
+OT_API_getRequest = libotapiPython.OT_API_getRequest
 
 def OT_API_getTransactionNumber(*args):
-  return _otapi.OT_API_getTransactionNumber(*args)
-OT_API_getTransactionNumber = _otapi.OT_API_getTransactionNumber
+  return libotapiPython.OT_API_getTransactionNumber(*args)
+OT_API_getTransactionNumber = libotapiPython.OT_API_getTransactionNumber
 
 def OT_API_issueAssetType(*args):
-  return _otapi.OT_API_issueAssetType(*args)
-OT_API_issueAssetType = _otapi.OT_API_issueAssetType
+  return libotapiPython.OT_API_issueAssetType(*args)
+OT_API_issueAssetType = libotapiPython.OT_API_issueAssetType
 
 def OT_API_getContract(*args):
-  return _otapi.OT_API_getContract(*args)
-OT_API_getContract = _otapi.OT_API_getContract
+  return libotapiPython.OT_API_getContract(*args)
+OT_API_getContract = libotapiPython.OT_API_getContract
 
 def OT_API_getMint(*args):
-  return _otapi.OT_API_getMint(*args)
-OT_API_getMint = _otapi.OT_API_getMint
+  return libotapiPython.OT_API_getMint(*args)
+OT_API_getMint = libotapiPython.OT_API_getMint
 
 def OT_API_createAssetAccount(*args):
-  return _otapi.OT_API_createAssetAccount(*args)
-OT_API_createAssetAccount = _otapi.OT_API_createAssetAccount
+  return libotapiPython.OT_API_createAssetAccount(*args)
+OT_API_createAssetAccount = libotapiPython.OT_API_createAssetAccount
 
 def OT_API_getAccount(*args):
-  return _otapi.OT_API_getAccount(*args)
-OT_API_getAccount = _otapi.OT_API_getAccount
+  return libotapiPython.OT_API_getAccount(*args)
+OT_API_getAccount = libotapiPython.OT_API_getAccount
 
 def OT_API_GenerateBasketCreation(*args):
-  return _otapi.OT_API_GenerateBasketCreation(*args)
-OT_API_GenerateBasketCreation = _otapi.OT_API_GenerateBasketCreation
+  return libotapiPython.OT_API_GenerateBasketCreation(*args)
+OT_API_GenerateBasketCreation = libotapiPython.OT_API_GenerateBasketCreation
 
 def OT_API_AddBasketCreationItem(*args):
-  return _otapi.OT_API_AddBasketCreationItem(*args)
-OT_API_AddBasketCreationItem = _otapi.OT_API_AddBasketCreationItem
+  return libotapiPython.OT_API_AddBasketCreationItem(*args)
+OT_API_AddBasketCreationItem = libotapiPython.OT_API_AddBasketCreationItem
 
 def OT_API_issueBasket(*args):
-  return _otapi.OT_API_issueBasket(*args)
-OT_API_issueBasket = _otapi.OT_API_issueBasket
+  return libotapiPython.OT_API_issueBasket(*args)
+OT_API_issueBasket = libotapiPython.OT_API_issueBasket
 
 def OT_API_GenerateBasketExchange(*args):
-  return _otapi.OT_API_GenerateBasketExchange(*args)
-OT_API_GenerateBasketExchange = _otapi.OT_API_GenerateBasketExchange
+  return libotapiPython.OT_API_GenerateBasketExchange(*args)
+OT_API_GenerateBasketExchange = libotapiPython.OT_API_GenerateBasketExchange
 
 def OT_API_AddBasketExchangeItem(*args):
-  return _otapi.OT_API_AddBasketExchangeItem(*args)
-OT_API_AddBasketExchangeItem = _otapi.OT_API_AddBasketExchangeItem
+  return libotapiPython.OT_API_AddBasketExchangeItem(*args)
+OT_API_AddBasketExchangeItem = libotapiPython.OT_API_AddBasketExchangeItem
 
 def OT_API_exchangeBasket(*args):
-  return _otapi.OT_API_exchangeBasket(*args)
-OT_API_exchangeBasket = _otapi.OT_API_exchangeBasket
+  return libotapiPython.OT_API_exchangeBasket(*args)
+OT_API_exchangeBasket = libotapiPython.OT_API_exchangeBasket
 
 def OT_API_notarizeWithdrawal(*args):
-  return _otapi.OT_API_notarizeWithdrawal(*args)
-OT_API_notarizeWithdrawal = _otapi.OT_API_notarizeWithdrawal
+  return libotapiPython.OT_API_notarizeWithdrawal(*args)
+OT_API_notarizeWithdrawal = libotapiPython.OT_API_notarizeWithdrawal
 
 def OT_API_notarizeDeposit(*args):
-  return _otapi.OT_API_notarizeDeposit(*args)
-OT_API_notarizeDeposit = _otapi.OT_API_notarizeDeposit
+  return libotapiPython.OT_API_notarizeDeposit(*args)
+OT_API_notarizeDeposit = libotapiPython.OT_API_notarizeDeposit
 
 def OT_API_notarizeTransfer(*args):
-  return _otapi.OT_API_notarizeTransfer(*args)
-OT_API_notarizeTransfer = _otapi.OT_API_notarizeTransfer
+  return libotapiPython.OT_API_notarizeTransfer(*args)
+OT_API_notarizeTransfer = libotapiPython.OT_API_notarizeTransfer
 
 def OT_API_getInbox(*args):
-  return _otapi.OT_API_getInbox(*args)
-OT_API_getInbox = _otapi.OT_API_getInbox
+  return libotapiPython.OT_API_getInbox(*args)
+OT_API_getInbox = libotapiPython.OT_API_getInbox
 
 def OT_API_getOutbox(*args):
-  return _otapi.OT_API_getOutbox(*args)
-OT_API_getOutbox = _otapi.OT_API_getOutbox
+  return libotapiPython.OT_API_getOutbox(*args)
+OT_API_getOutbox = libotapiPython.OT_API_getOutbox
 
 def OT_API_getNymbox(*args):
-  return _otapi.OT_API_getNymbox(*args)
-OT_API_getNymbox = _otapi.OT_API_getNymbox
+  return libotapiPython.OT_API_getNymbox(*args)
+OT_API_getNymbox = libotapiPython.OT_API_getNymbox
 
 def OT_API_LoadNymbox(*args):
-  return _otapi.OT_API_LoadNymbox(*args)
-OT_API_LoadNymbox = _otapi.OT_API_LoadNymbox
+  return libotapiPython.OT_API_LoadNymbox(*args)
+OT_API_LoadNymbox = libotapiPython.OT_API_LoadNymbox
 
 def OT_API_LoadNymboxNoVerify(*args):
-  return _otapi.OT_API_LoadNymboxNoVerify(*args)
-OT_API_LoadNymboxNoVerify = _otapi.OT_API_LoadNymboxNoVerify
+  return libotapiPython.OT_API_LoadNymboxNoVerify(*args)
+OT_API_LoadNymboxNoVerify = libotapiPython.OT_API_LoadNymboxNoVerify
 
 def OT_API_getBoxReceipt(*args):
-  return _otapi.OT_API_getBoxReceipt(*args)
-OT_API_getBoxReceipt = _otapi.OT_API_getBoxReceipt
+  return libotapiPython.OT_API_getBoxReceipt(*args)
+OT_API_getBoxReceipt = libotapiPython.OT_API_getBoxReceipt
 
 def OT_API_DoesBoxReceiptExist(*args):
-  return _otapi.OT_API_DoesBoxReceiptExist(*args)
-OT_API_DoesBoxReceiptExist = _otapi.OT_API_DoesBoxReceiptExist
+  return libotapiPython.OT_API_DoesBoxReceiptExist(*args)
+OT_API_DoesBoxReceiptExist = libotapiPython.OT_API_DoesBoxReceiptExist
 
 def OT_API_processInbox(*args):
-  return _otapi.OT_API_processInbox(*args)
-OT_API_processInbox = _otapi.OT_API_processInbox
+  return libotapiPython.OT_API_processInbox(*args)
+OT_API_processInbox = libotapiPython.OT_API_processInbox
 
 def OT_API_processNymbox(*args):
-  return _otapi.OT_API_processNymbox(*args)
-OT_API_processNymbox = _otapi.OT_API_processNymbox
+  return libotapiPython.OT_API_processNymbox(*args)
+OT_API_processNymbox = libotapiPython.OT_API_processNymbox
 
 def OT_API_withdrawVoucher(*args):
-  return _otapi.OT_API_withdrawVoucher(*args)
-OT_API_withdrawVoucher = _otapi.OT_API_withdrawVoucher
+  return libotapiPython.OT_API_withdrawVoucher(*args)
+OT_API_withdrawVoucher = libotapiPython.OT_API_withdrawVoucher
 
 def OT_API_depositCheque(*args):
-  return _otapi.OT_API_depositCheque(*args)
-OT_API_depositCheque = _otapi.OT_API_depositCheque
+  return libotapiPython.OT_API_depositCheque(*args)
+OT_API_depositCheque = libotapiPython.OT_API_depositCheque
 
 def OT_API_depositPaymentPlan(*args):
-  return _otapi.OT_API_depositPaymentPlan(*args)
-OT_API_depositPaymentPlan = _otapi.OT_API_depositPaymentPlan
+  return libotapiPython.OT_API_depositPaymentPlan(*args)
+OT_API_depositPaymentPlan = libotapiPython.OT_API_depositPaymentPlan
 
 def OT_API_issueMarketOffer(*args):
-  return _otapi.OT_API_issueMarketOffer(*args)
-OT_API_issueMarketOffer = _otapi.OT_API_issueMarketOffer
+  return libotapiPython.OT_API_issueMarketOffer(*args)
+OT_API_issueMarketOffer = libotapiPython.OT_API_issueMarketOffer
 
 def OT_API_getMarketList(*args):
-  return _otapi.OT_API_getMarketList(*args)
-OT_API_getMarketList = _otapi.OT_API_getMarketList
+  return libotapiPython.OT_API_getMarketList(*args)
+OT_API_getMarketList = libotapiPython.OT_API_getMarketList
 
 def OT_API_getMarketOffers(*args):
-  return _otapi.OT_API_getMarketOffers(*args)
-OT_API_getMarketOffers = _otapi.OT_API_getMarketOffers
+  return libotapiPython.OT_API_getMarketOffers(*args)
+OT_API_getMarketOffers = libotapiPython.OT_API_getMarketOffers
 
 def OT_API_getMarketRecentTrades(*args):
-  return _otapi.OT_API_getMarketRecentTrades(*args)
-OT_API_getMarketRecentTrades = _otapi.OT_API_getMarketRecentTrades
+  return libotapiPython.OT_API_getMarketRecentTrades(*args)
+OT_API_getMarketRecentTrades = libotapiPython.OT_API_getMarketRecentTrades
 
 def OT_API_getNym_MarketOffers(*args):
-  return _otapi.OT_API_getNym_MarketOffers(*args)
-OT_API_getNym_MarketOffers = _otapi.OT_API_getNym_MarketOffers
+  return libotapiPython.OT_API_getNym_MarketOffers(*args)
+OT_API_getNym_MarketOffers = libotapiPython.OT_API_getNym_MarketOffers
 
 def OT_API_cancelMarketOffer(*args):
-  return _otapi.OT_API_cancelMarketOffer(*args)
-OT_API_cancelMarketOffer = _otapi.OT_API_cancelMarketOffer
+  return libotapiPython.OT_API_cancelMarketOffer(*args)
+OT_API_cancelMarketOffer = libotapiPython.OT_API_cancelMarketOffer
 
 def OT_API_cancelPaymentPlan(*args):
-  return _otapi.OT_API_cancelPaymentPlan(*args)
-OT_API_cancelPaymentPlan = _otapi.OT_API_cancelPaymentPlan
+  return libotapiPython.OT_API_cancelPaymentPlan(*args)
+OT_API_cancelPaymentPlan = libotapiPython.OT_API_cancelPaymentPlan
 
 def OT_API_PopMessageBuffer():
-  return _otapi.OT_API_PopMessageBuffer()
-OT_API_PopMessageBuffer = _otapi.OT_API_PopMessageBuffer
+  return libotapiPython.OT_API_PopMessageBuffer()
+OT_API_PopMessageBuffer = libotapiPython.OT_API_PopMessageBuffer
 
 def OT_API_FlushMessageBuffer():
-  return _otapi.OT_API_FlushMessageBuffer()
-OT_API_FlushMessageBuffer = _otapi.OT_API_FlushMessageBuffer
+  return libotapiPython.OT_API_FlushMessageBuffer()
+OT_API_FlushMessageBuffer = libotapiPython.OT_API_FlushMessageBuffer
 
 def OT_API_Sleep(*args):
-  return _otapi.OT_API_Sleep(*args)
-OT_API_Sleep = _otapi.OT_API_Sleep
+  return libotapiPython.OT_API_Sleep(*args)
+OT_API_Sleep = libotapiPython.OT_API_Sleep
 
 def OT_API_ResyncNymWithServer(*args):
-  return _otapi.OT_API_ResyncNymWithServer(*args)
-OT_API_ResyncNymWithServer = _otapi.OT_API_ResyncNymWithServer
+  return libotapiPython.OT_API_ResyncNymWithServer(*args)
+OT_API_ResyncNymWithServer = libotapiPython.OT_API_ResyncNymWithServer
 
 def OT_API_Message_GetCommand(*args):
-  return _otapi.OT_API_Message_GetCommand(*args)
-OT_API_Message_GetCommand = _otapi.OT_API_Message_GetCommand
+  return libotapiPython.OT_API_Message_GetCommand(*args)
+OT_API_Message_GetCommand = libotapiPython.OT_API_Message_GetCommand
 
 def OT_API_Message_GetSuccess(*args):
-  return _otapi.OT_API_Message_GetSuccess(*args)
-OT_API_Message_GetSuccess = _otapi.OT_API_Message_GetSuccess
+  return libotapiPython.OT_API_Message_GetSuccess(*args)
+OT_API_Message_GetSuccess = libotapiPython.OT_API_Message_GetSuccess
 
 def OT_API_queryAssetTypes(*args):
-  return _otapi.OT_API_queryAssetTypes(*args)
-OT_API_queryAssetTypes = _otapi.OT_API_queryAssetTypes
+  return libotapiPython.OT_API_queryAssetTypes(*args)
+OT_API_queryAssetTypes = libotapiPython.OT_API_queryAssetTypes
 
 def OT_API_Message_GetPayload(*args):
-  return _otapi.OT_API_Message_GetPayload(*args)
-OT_API_Message_GetPayload = _otapi.OT_API_Message_GetPayload
+  return libotapiPython.OT_API_Message_GetPayload(*args)
+OT_API_Message_GetPayload = libotapiPython.OT_API_Message_GetPayload
 
 def OT_API_Message_GetDepth(*args):
-  return _otapi.OT_API_Message_GetDepth(*args)
-OT_API_Message_GetDepth = _otapi.OT_API_Message_GetDepth
+  return libotapiPython.OT_API_Message_GetDepth(*args)
+OT_API_Message_GetDepth = libotapiPython.OT_API_Message_GetDepth
 
 def OT_API_Message_GetTransactionSuccess(*args):
-  return _otapi.OT_API_Message_GetTransactionSuccess(*args)
-OT_API_Message_GetTransactionSuccess = _otapi.OT_API_Message_GetTransactionSuccess
+  return libotapiPython.OT_API_Message_GetTransactionSuccess(*args)
+OT_API_Message_GetTransactionSuccess = libotapiPython.OT_API_Message_GetTransactionSuccess
 
 def OT_API_Message_GetBalanceAgreementSuccess(*args):
-  return _otapi.OT_API_Message_GetBalanceAgreementSuccess(*args)
-OT_API_Message_GetBalanceAgreementSuccess = _otapi.OT_API_Message_GetBalanceAgreementSuccess
+  return libotapiPython.OT_API_Message_GetBalanceAgreementSuccess(*args)
+OT_API_Message_GetBalanceAgreementSuccess = libotapiPython.OT_API_Message_GetBalanceAgreementSuccess
 
 def OT_API_Message_GetLedger(*args):
-  return _otapi.OT_API_Message_GetLedger(*args)
-OT_API_Message_GetLedger = _otapi.OT_API_Message_GetLedger
+  return libotapiPython.OT_API_Message_GetLedger(*args)
+OT_API_Message_GetLedger = libotapiPython.OT_API_Message_GetLedger
 
 def OT_API_Message_GetNewAssetTypeID(*args):
-  return _otapi.OT_API_Message_GetNewAssetTypeID(*args)
-OT_API_Message_GetNewAssetTypeID = _otapi.OT_API_Message_GetNewAssetTypeID
+  return libotapiPython.OT_API_Message_GetNewAssetTypeID(*args)
+OT_API_Message_GetNewAssetTypeID = libotapiPython.OT_API_Message_GetNewAssetTypeID
 
 def OT_API_Message_GetNewIssuerAcctID(*args):
-  return _otapi.OT_API_Message_GetNewIssuerAcctID(*args)
-OT_API_Message_GetNewIssuerAcctID = _otapi.OT_API_Message_GetNewIssuerAcctID
+  return libotapiPython.OT_API_Message_GetNewIssuerAcctID(*args)
+OT_API_Message_GetNewIssuerAcctID = libotapiPython.OT_API_Message_GetNewIssuerAcctID
 
 def OT_API_Message_GetNewAcctID(*args):
-  return _otapi.OT_API_Message_GetNewAcctID(*args)
-OT_API_Message_GetNewAcctID = _otapi.OT_API_Message_GetNewAcctID
+  return libotapiPython.OT_API_Message_GetNewAcctID(*args)
+OT_API_Message_GetNewAcctID = libotapiPython.OT_API_Message_GetNewAcctID
 
 def OT_API_ConnectServer(*args):
-  return _otapi.OT_API_ConnectServer(*args)
-OT_API_ConnectServer = _otapi.OT_API_ConnectServer
+  return libotapiPython.OT_API_ConnectServer(*args)
+OT_API_ConnectServer = libotapiPython.OT_API_ConnectServer
 
 def OT_API_ProcessSockets():
-  return _otapi.OT_API_ProcessSockets()
-OT_API_ProcessSockets = _otapi.OT_API_ProcessSockets
-PACK_MESSAGE_PACK = _otapi.PACK_MESSAGE_PACK
-PACK_PROTOCOL_BUFFERS = _otapi.PACK_PROTOCOL_BUFFERS
-PACK_TYPE_ERROR = _otapi.PACK_TYPE_ERROR
-STORE_FILESYSTEM = _otapi.STORE_FILESYSTEM
-STORE_TYPE_SUBCLASS = _otapi.STORE_TYPE_SUBCLASS
-STORED_OBJ_STRING = _otapi.STORED_OBJ_STRING
-STORED_OBJ_BLOB = _otapi.STORED_OBJ_BLOB
-STORED_OBJ_STRING_MAP = _otapi.STORED_OBJ_STRING_MAP
-STORED_OBJ_WALLET_DATA = _otapi.STORED_OBJ_WALLET_DATA
-STORED_OBJ_BITCOIN_ACCT = _otapi.STORED_OBJ_BITCOIN_ACCT
-STORED_OBJ_BITCOIN_SERVER = _otapi.STORED_OBJ_BITCOIN_SERVER
-STORED_OBJ_RIPPLE_SERVER = _otapi.STORED_OBJ_RIPPLE_SERVER
-STORED_OBJ_LOOM_SERVER = _otapi.STORED_OBJ_LOOM_SERVER
-STORED_OBJ_SERVER_INFO = _otapi.STORED_OBJ_SERVER_INFO
-STORED_OBJ_CONTACT_NYM = _otapi.STORED_OBJ_CONTACT_NYM
-STORED_OBJ_CONTACT_ACCT = _otapi.STORED_OBJ_CONTACT_ACCT
-STORED_OBJ_CONTACT = _otapi.STORED_OBJ_CONTACT
-STORED_OBJ_ADDRESS_BOOK = _otapi.STORED_OBJ_ADDRESS_BOOK
-STORED_OBJ_MARKET_DATA = _otapi.STORED_OBJ_MARKET_DATA
-STORED_OBJ_MARKET_LIST = _otapi.STORED_OBJ_MARKET_LIST
-STORED_OBJ_BID_DATA = _otapi.STORED_OBJ_BID_DATA
-STORED_OBJ_ASK_DATA = _otapi.STORED_OBJ_ASK_DATA
-STORED_OBJ_OFFER_LIST_MARKET = _otapi.STORED_OBJ_OFFER_LIST_MARKET
-STORED_OBJ_TRADE_DATA_MARKET = _otapi.STORED_OBJ_TRADE_DATA_MARKET
-STORED_OBJ_TRADE_LIST_MARKET = _otapi.STORED_OBJ_TRADE_LIST_MARKET
-STORED_OBJ_OFFER_DATA_NYM = _otapi.STORED_OBJ_OFFER_DATA_NYM
-STORED_OBJ_OFFER_LIST_NYM = _otapi.STORED_OBJ_OFFER_LIST_NYM
-STORED_OBJ_TRADE_DATA_NYM = _otapi.STORED_OBJ_TRADE_DATA_NYM
-STORED_OBJ_TRADE_LIST_NYM = _otapi.STORED_OBJ_TRADE_LIST_NYM
-STORED_OBJ_ERROR = _otapi.STORED_OBJ_ERROR
+  return libotapiPython.OT_API_ProcessSockets()
+OT_API_ProcessSockets = libotapiPython.OT_API_ProcessSockets
+PACK_MESSAGE_PACK = libotapiPython.PACK_MESSAGE_PACK
+PACK_PROTOCOL_BUFFERS = libotapiPython.PACK_PROTOCOL_BUFFERS
+PACK_TYPE_ERROR = libotapiPython.PACK_TYPE_ERROR
+STORE_FILESYSTEM = libotapiPython.STORE_FILESYSTEM
+STORE_TYPE_SUBCLASS = libotapiPython.STORE_TYPE_SUBCLASS
+STORED_OBJ_STRING = libotapiPython.STORED_OBJ_STRING
+STORED_OBJ_BLOB = libotapiPython.STORED_OBJ_BLOB
+STORED_OBJ_STRING_MAP = libotapiPython.STORED_OBJ_STRING_MAP
+STORED_OBJ_WALLET_DATA = libotapiPython.STORED_OBJ_WALLET_DATA
+STORED_OBJ_BITCOIN_ACCT = libotapiPython.STORED_OBJ_BITCOIN_ACCT
+STORED_OBJ_BITCOIN_SERVER = libotapiPython.STORED_OBJ_BITCOIN_SERVER
+STORED_OBJ_RIPPLE_SERVER = libotapiPython.STORED_OBJ_RIPPLE_SERVER
+STORED_OBJ_LOOM_SERVER = libotapiPython.STORED_OBJ_LOOM_SERVER
+STORED_OBJ_SERVER_INFO = libotapiPython.STORED_OBJ_SERVER_INFO
+STORED_OBJ_CONTACT_NYM = libotapiPython.STORED_OBJ_CONTACT_NYM
+STORED_OBJ_CONTACT_ACCT = libotapiPython.STORED_OBJ_CONTACT_ACCT
+STORED_OBJ_CONTACT = libotapiPython.STORED_OBJ_CONTACT
+STORED_OBJ_ADDRESS_BOOK = libotapiPython.STORED_OBJ_ADDRESS_BOOK
+STORED_OBJ_MARKET_DATA = libotapiPython.STORED_OBJ_MARKET_DATA
+STORED_OBJ_MARKET_LIST = libotapiPython.STORED_OBJ_MARKET_LIST
+STORED_OBJ_BID_DATA = libotapiPython.STORED_OBJ_BID_DATA
+STORED_OBJ_ASK_DATA = libotapiPython.STORED_OBJ_ASK_DATA
+STORED_OBJ_OFFER_LIST_MARKET = libotapiPython.STORED_OBJ_OFFER_LIST_MARKET
+STORED_OBJ_TRADE_DATA_MARKET = libotapiPython.STORED_OBJ_TRADE_DATA_MARKET
+STORED_OBJ_TRADE_LIST_MARKET = libotapiPython.STORED_OBJ_TRADE_LIST_MARKET
+STORED_OBJ_OFFER_DATA_NYM = libotapiPython.STORED_OBJ_OFFER_DATA_NYM
+STORED_OBJ_OFFER_LIST_NYM = libotapiPython.STORED_OBJ_OFFER_LIST_NYM
+STORED_OBJ_TRADE_DATA_NYM = libotapiPython.STORED_OBJ_TRADE_DATA_NYM
+STORED_OBJ_TRADE_LIST_NYM = libotapiPython.STORED_OBJ_TRADE_LIST_NYM
+STORED_OBJ_ERROR = libotapiPython.STORED_OBJ_ERROR
 class Storable(_object):
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, Storable, name, value)
@@ -1017,22 +1017,22 @@ class Storable(_object):
     __getattr__ = lambda self, name: _swig_getattr(self, Storable, name)
     def __init__(self, *args, **kwargs): raise AttributeError("No constructor defined")
     __repr__ = _swig_repr
-    __swig_destroy__ = _otapi.delete_Storable
+    __swig_destroy__ = libotapiPython.delete_Storable
     __del__ = lambda self : None;
-    __swig_getmethods__["Create"] = lambda x: _otapi.Storable_Create
-    if _newclass:Create = staticmethod(_otapi.Storable_Create)
-    __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.Storable_ot_dynamic_cast
-    if _newclass:ot_dynamic_cast = staticmethod(_otapi.Storable_ot_dynamic_cast)
-Storable_swigregister = _otapi.Storable_swigregister
+    __swig_getmethods__["Create"] = lambda x: libotapiPython.Storable_Create
+    if _newclass:Create = staticmethod(libotapiPython.Storable_Create)
+    __swig_getmethods__["ot_dynamic_cast"] = lambda x: libotapiPython.Storable_ot_dynamic_cast
+    if _newclass:ot_dynamic_cast = staticmethod(libotapiPython.Storable_ot_dynamic_cast)
+Storable_swigregister = libotapiPython.Storable_swigregister
 Storable_swigregister(Storable)
 
 def Storable_Create(*args):
-  return _otapi.Storable_Create(*args)
-Storable_Create = _otapi.Storable_Create
+  return libotapiPython.Storable_Create(*args)
+Storable_Create = libotapiPython.Storable_Create
 
 def Storable_ot_dynamic_cast(*args):
-  return _otapi.Storable_ot_dynamic_cast(*args)
-Storable_ot_dynamic_cast = _otapi.Storable_ot_dynamic_cast
+  return libotapiPython.Storable_ot_dynamic_cast(*args)
+Storable_ot_dynamic_cast = libotapiPython.Storable_ot_dynamic_cast
 
 class Storage(_object):
     __swig_setmethods__ = {}
@@ -1041,48 +1041,48 @@ class Storage(_object):
     __getattr__ = lambda self, name: _swig_getattr(self, Storage, name)
     def __init__(self, *args, **kwargs): raise AttributeError("No constructor defined - class is abstract")
     __repr__ = _swig_repr
-    def GetPacker(self, *args): return _otapi.Storage_GetPacker(self, *args)
+    def GetPacker(self, *args): return libotapiPython.Storage_GetPacker(self, *args)
     def Init(self, oneStr = "", twoStr = "", threeStr = "", fourStr = "", 
-    fiveStr = "", sixStr = ""): return _otapi.Storage_Init(self, oneStr, twoStr, threeStr, fourStr, fiveStr, sixStr)
-    def Exists(self, *args): return _otapi.Storage_Exists(self, *args)
-    __swig_destroy__ = _otapi.delete_Storage
+    fiveStr = "", sixStr = ""): return libotapiPython.Storage_Init(self, oneStr, twoStr, threeStr, fourStr, fiveStr, sixStr)
+    def Exists(self, *args): return libotapiPython.Storage_Exists(self, *args)
+    __swig_destroy__ = libotapiPython.delete_Storage
     __del__ = lambda self : None;
-    def StoreString(self, *args): return _otapi.Storage_StoreString(self, *args)
-    def QueryString(self, *args): return _otapi.Storage_QueryString(self, *args)
-    def StorePlainString(self, *args): return _otapi.Storage_StorePlainString(self, *args)
-    def QueryPlainString(self, *args): return _otapi.Storage_QueryPlainString(self, *args)
-    def StoreObject(self, *args): return _otapi.Storage_StoreObject(self, *args)
-    def QueryObject(self, *args): return _otapi.Storage_QueryObject(self, *args)
-    def EncodeObject(self, *args): return _otapi.Storage_EncodeObject(self, *args)
-    def DecodeObject(self, *args): return _otapi.Storage_DecodeObject(self, *args)
-    def EraseValueByKey(self, *args): return _otapi.Storage_EraseValueByKey(self, *args)
-    def CreateObject(self, *args): return _otapi.Storage_CreateObject(self, *args)
-    __swig_getmethods__["Create"] = lambda x: _otapi.Storage_Create
-    if _newclass:Create = staticmethod(_otapi.Storage_Create)
-    def GetType(self): return _otapi.Storage_GetType(self)
-Storage_swigregister = _otapi.Storage_swigregister
+    def StoreString(self, *args): return libotapiPython.Storage_StoreString(self, *args)
+    def QueryString(self, *args): return libotapiPython.Storage_QueryString(self, *args)
+    def StorePlainString(self, *args): return libotapiPython.Storage_StorePlainString(self, *args)
+    def QueryPlainString(self, *args): return libotapiPython.Storage_QueryPlainString(self, *args)
+    def StoreObject(self, *args): return libotapiPython.Storage_StoreObject(self, *args)
+    def QueryObject(self, *args): return libotapiPython.Storage_QueryObject(self, *args)
+    def EncodeObject(self, *args): return libotapiPython.Storage_EncodeObject(self, *args)
+    def DecodeObject(self, *args): return libotapiPython.Storage_DecodeObject(self, *args)
+    def EraseValueByKey(self, *args): return libotapiPython.Storage_EraseValueByKey(self, *args)
+    def CreateObject(self, *args): return libotapiPython.Storage_CreateObject(self, *args)
+    __swig_getmethods__["Create"] = lambda x: libotapiPython.Storage_Create
+    if _newclass:Create = staticmethod(libotapiPython.Storage_Create)
+    def GetType(self): return libotapiPython.Storage_GetType(self)
+Storage_swigregister = libotapiPython.Storage_swigregister
 Storage_swigregister(Storage)
 
 def Storage_Create(*args):
-  return _otapi.Storage_Create(*args)
-Storage_Create = _otapi.Storage_Create
+  return libotapiPython.Storage_Create(*args)
+Storage_Create = libotapiPython.Storage_Create
 
 
 def GetDefaultStorage():
-  return _otapi.GetDefaultStorage()
-GetDefaultStorage = _otapi.GetDefaultStorage
+  return libotapiPython.GetDefaultStorage()
+GetDefaultStorage = libotapiPython.GetDefaultStorage
 
 def CreateObject(*args):
-  return _otapi.CreateObject(*args)
-CreateObject = _otapi.CreateObject
+  return libotapiPython.CreateObject(*args)
+CreateObject = libotapiPython.CreateObject
 
 def EncodeObject(*args):
-  return _otapi.EncodeObject(*args)
-EncodeObject = _otapi.EncodeObject
+  return libotapiPython.EncodeObject(*args)
+EncodeObject = libotapiPython.EncodeObject
 
 def DecodeObject(*args):
-  return _otapi.DecodeObject(*args)
-DecodeObject = _otapi.DecodeObject
+  return libotapiPython.DecodeObject(*args)
+DecodeObject = libotapiPython.DecodeObject
 class OTDBString(Storable):
     __swig_setmethods__ = {}
     for _s in [Storable]: __swig_setmethods__.update(getattr(_s,'__swig_setmethods__',{}))
@@ -1092,59 +1092,59 @@ class OTDBString(Storable):
     __getattr__ = lambda self, name: _swig_getattr(self, OTDBString, name)
     def __init__(self, *args, **kwargs): raise AttributeError("No constructor defined")
     __repr__ = _swig_repr
-    __swig_destroy__ = _otapi.delete_OTDBString
+    __swig_destroy__ = libotapiPython.delete_OTDBString
     __del__ = lambda self : None;
-    __swig_setmethods__["m_string"] = _otapi.OTDBString_m_string_set
-    __swig_getmethods__["m_string"] = _otapi.OTDBString_m_string_get
-    if _newclass:m_string = _swig_property(_otapi.OTDBString_m_string_get, _otapi.OTDBString_m_string_set)
-    __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.OTDBString_ot_dynamic_cast
-    if _newclass:ot_dynamic_cast = staticmethod(_otapi.OTDBString_ot_dynamic_cast)
-OTDBString_swigregister = _otapi.OTDBString_swigregister
+    __swig_setmethods__["m_string"] = libotapiPython.OTDBString_m_string_set
+    __swig_getmethods__["m_string"] = libotapiPython.OTDBString_m_string_get
+    if _newclass:m_string = _swig_property(libotapiPython.OTDBString_m_string_get, libotapiPython.OTDBString_m_string_set)
+    __swig_getmethods__["ot_dynamic_cast"] = lambda x: libotapiPython.OTDBString_ot_dynamic_cast
+    if _newclass:ot_dynamic_cast = staticmethod(libotapiPython.OTDBString_ot_dynamic_cast)
+OTDBString_swigregister = libotapiPython.OTDBString_swigregister
 OTDBString_swigregister(OTDBString)
 
 def InitDefaultStorage(*args):
-  return _otapi.InitDefaultStorage(*args)
-InitDefaultStorage = _otapi.InitDefaultStorage
+  return libotapiPython.InitDefaultStorage(*args)
+InitDefaultStorage = libotapiPython.InitDefaultStorage
 
 def CreateStorageContext(*args):
-  return _otapi.CreateStorageContext(*args)
-CreateStorageContext = _otapi.CreateStorageContext
+  return libotapiPython.CreateStorageContext(*args)
+CreateStorageContext = libotapiPython.CreateStorageContext
 
 def Exists(*args):
-  return _otapi.Exists(*args)
-Exists = _otapi.Exists
+  return libotapiPython.Exists(*args)
+Exists = libotapiPython.Exists
 
 def StoreString(*args):
-  return _otapi.StoreString(*args)
-StoreString = _otapi.StoreString
+  return libotapiPython.StoreString(*args)
+StoreString = libotapiPython.StoreString
 
 def QueryString(*args):
-  return _otapi.QueryString(*args)
-QueryString = _otapi.QueryString
+  return libotapiPython.QueryString(*args)
+QueryString = libotapiPython.QueryString
 
 def StorePlainString(*args):
-  return _otapi.StorePlainString(*args)
-StorePlainString = _otapi.StorePlainString
+  return libotapiPython.StorePlainString(*args)
+StorePlainString = libotapiPython.StorePlainString
 
 def QueryPlainString(*args):
-  return _otapi.QueryPlainString(*args)
-QueryPlainString = _otapi.QueryPlainString
+  return libotapiPython.QueryPlainString(*args)
+QueryPlainString = libotapiPython.QueryPlainString
 
 def StoreObject(*args):
-  return _otapi.StoreObject(*args)
-StoreObject = _otapi.StoreObject
+  return libotapiPython.StoreObject(*args)
+StoreObject = libotapiPython.StoreObject
 
 def QueryObject(*args):
-  return _otapi.QueryObject(*args)
-QueryObject = _otapi.QueryObject
+  return libotapiPython.QueryObject(*args)
+QueryObject = libotapiPython.QueryObject
 
 def EraseValueByKey(*args):
-  return _otapi.EraseValueByKey(*args)
-EraseValueByKey = _otapi.EraseValueByKey
+  return libotapiPython.EraseValueByKey(*args)
+EraseValueByKey = libotapiPython.EraseValueByKey
 
 def OTDBString_ot_dynamic_cast(*args):
-  return _otapi.OTDBString_ot_dynamic_cast(*args)
-OTDBString_ot_dynamic_cast = _otapi.OTDBString_ot_dynamic_cast
+  return libotapiPython.OTDBString_ot_dynamic_cast(*args)
+OTDBString_ot_dynamic_cast = libotapiPython.OTDBString_ot_dynamic_cast
 
 class Blob(Storable):
     __swig_setmethods__ = {}
@@ -1155,19 +1155,19 @@ class Blob(Storable):
     __getattr__ = lambda self, name: _swig_getattr(self, Blob, name)
     def __init__(self, *args, **kwargs): raise AttributeError("No constructor defined")
     __repr__ = _swig_repr
-    __swig_destroy__ = _otapi.delete_Blob
+    __swig_destroy__ = libotapiPython.delete_Blob
     __del__ = lambda self : None;
-    __swig_setmethods__["m_memBuffer"] = _otapi.Blob_m_memBuffer_set
-    __swig_getmethods__["m_memBuffer"] = _otapi.Blob_m_memBuffer_get
-    if _newclass:m_memBuffer = _swig_property(_otapi.Blob_m_memBuffer_get, _otapi.Blob_m_memBuffer_set)
-    __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.Blob_ot_dynamic_cast
-    if _newclass:ot_dynamic_cast = staticmethod(_otapi.Blob_ot_dynamic_cast)
-Blob_swigregister = _otapi.Blob_swigregister
+    __swig_setmethods__["m_memBuffer"] = libotapiPython.Blob_m_memBuffer_set
+    __swig_getmethods__["m_memBuffer"] = libotapiPython.Blob_m_memBuffer_get
+    if _newclass:m_memBuffer = _swig_property(libotapiPython.Blob_m_memBuffer_get, libotapiPython.Blob_m_memBuffer_set)
+    __swig_getmethods__["ot_dynamic_cast"] = lambda x: libotapiPython.Blob_ot_dynamic_cast
+    if _newclass:ot_dynamic_cast = staticmethod(libotapiPython.Blob_ot_dynamic_cast)
+Blob_swigregister = libotapiPython.Blob_swigregister
 Blob_swigregister(Blob)
 
 def Blob_ot_dynamic_cast(*args):
-  return _otapi.Blob_ot_dynamic_cast(*args)
-Blob_ot_dynamic_cast = _otapi.Blob_ot_dynamic_cast
+  return libotapiPython.Blob_ot_dynamic_cast(*args)
+Blob_ot_dynamic_cast = libotapiPython.Blob_ot_dynamic_cast
 
 class StringMap(Storable):
     __swig_setmethods__ = {}
@@ -1178,21 +1178,21 @@ class StringMap(Storable):
     __getattr__ = lambda self, name: _swig_getattr(self, StringMap, name)
     def __init__(self, *args, **kwargs): raise AttributeError("No constructor defined")
     __repr__ = _swig_repr
-    __swig_destroy__ = _otapi.delete_StringMap
+    __swig_destroy__ = libotapiPython.delete_StringMap
     __del__ = lambda self : None;
-    __swig_setmethods__["the_map"] = _otapi.StringMap_the_map_set
-    __swig_getmethods__["the_map"] = _otapi.StringMap_the_map_get
-    if _newclass:the_map = _swig_property(_otapi.StringMap_the_map_get, _otapi.StringMap_the_map_set)
-    def SetValue(self, *args): return _otapi.StringMap_SetValue(self, *args)
-    def GetValue(self, *args): return _otapi.StringMap_GetValue(self, *args)
-    __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.StringMap_ot_dynamic_cast
-    if _newclass:ot_dynamic_cast = staticmethod(_otapi.StringMap_ot_dynamic_cast)
-StringMap_swigregister = _otapi.StringMap_swigregister
+    __swig_setmethods__["the_map"] = libotapiPython.StringMap_the_map_set
+    __swig_getmethods__["the_map"] = libotapiPython.StringMap_the_map_get
+    if _newclass:the_map = _swig_property(libotapiPython.StringMap_the_map_get, libotapiPython.StringMap_the_map_set)
+    def SetValue(self, *args): return libotapiPython.StringMap_SetValue(self, *args)
+    def GetValue(self, *args): return libotapiPython.StringMap_GetValue(self, *args)
+    __swig_getmethods__["ot_dynamic_cast"] = lambda x: libotapiPython.StringMap_ot_dynamic_cast
+    if _newclass:ot_dynamic_cast = staticmethod(libotapiPython.StringMap_ot_dynamic_cast)
+StringMap_swigregister = libotapiPython.StringMap_swigregister
 StringMap_swigregister(StringMap)
 
 def StringMap_ot_dynamic_cast(*args):
-  return _otapi.StringMap_ot_dynamic_cast(*args)
-StringMap_ot_dynamic_cast = _otapi.StringMap_ot_dynamic_cast
+  return libotapiPython.StringMap_ot_dynamic_cast(*args)
+StringMap_ot_dynamic_cast = libotapiPython.StringMap_ot_dynamic_cast
 
 class Displayable(Storable):
     __swig_setmethods__ = {}
@@ -1203,19 +1203,19 @@ class Displayable(Storable):
     __getattr__ = lambda self, name: _swig_getattr(self, Displayable, name)
     def __init__(self, *args, **kwargs): raise AttributeError("No constructor defined")
     __repr__ = _swig_repr
-    __swig_destroy__ = _otapi.delete_Displayable
+    __swig_destroy__ = libotapiPython.delete_Displayable
     __del__ = lambda self : None;
-    __swig_setmethods__["gui_label"] = _otapi.Displayable_gui_label_set
-    __swig_getmethods__["gui_label"] = _otapi.Displayable_gui_label_get
-    if _newclass:gui_label = _swig_property(_otapi.Displayable_gui_label_get, _otapi.Displayable_gui_label_set)
-    __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.Displayable_ot_dynamic_cast
-    if _newclass:ot_dynamic_cast = staticmethod(_otapi.Displayable_ot_dynamic_cast)
-Displayable_swigregister = _otapi.Displayable_swigregister
+    __swig_setmethods__["gui_label"] = libotapiPython.Displayable_gui_label_set
+    __swig_getmethods__["gui_label"] = libotapiPython.Displayable_gui_label_get
+    if _newclass:gui_label = _swig_property(libotapiPython.Displayable_gui_label_get, libotapiPython.Displayable_gui_label_set)
+    __swig_getmethods__["ot_dynamic_cast"] = lambda x: libotapiPython.Displayable_ot_dynamic_cast
+    if _newclass:ot_dynamic_cast = staticmethod(libotapiPython.Displayable_ot_dynamic_cast)
+Displayable_swigregister = libotapiPython.Displayable_swigregister
 Displayable_swigregister(Displayable)
 
 def Displayable_ot_dynamic_cast(*args):
-  return _otapi.Displayable_ot_dynamic_cast(*args)
-Displayable_ot_dynamic_cast = _otapi.Displayable_ot_dynamic_cast
+  return libotapiPython.Displayable_ot_dynamic_cast(*args)
+Displayable_ot_dynamic_cast = libotapiPython.Displayable_ot_dynamic_cast
 
 class MarketData(Displayable):
     __swig_setmethods__ = {}
@@ -1226,67 +1226,67 @@ class MarketData(Displayable):
     __getattr__ = lambda self, name: _swig_getattr(self, MarketData, name)
     def __init__(self, *args, **kwargs): raise AttributeError("No constructor defined")
     __repr__ = _swig_repr
-    __swig_destroy__ = _otapi.delete_MarketData
+    __swig_destroy__ = libotapiPython.delete_MarketData
     __del__ = lambda self : None;
-    __swig_setmethods__["gui_label"] = _otapi.MarketData_gui_label_set
-    __swig_getmethods__["gui_label"] = _otapi.MarketData_gui_label_get
-    if _newclass:gui_label = _swig_property(_otapi.MarketData_gui_label_get, _otapi.MarketData_gui_label_set)
-    __swig_setmethods__["server_id"] = _otapi.MarketData_server_id_set
-    __swig_getmethods__["server_id"] = _otapi.MarketData_server_id_get
-    if _newclass:server_id = _swig_property(_otapi.MarketData_server_id_get, _otapi.MarketData_server_id_set)
-    __swig_setmethods__["market_id"] = _otapi.MarketData_market_id_set
-    __swig_getmethods__["market_id"] = _otapi.MarketData_market_id_get
-    if _newclass:market_id = _swig_property(_otapi.MarketData_market_id_get, _otapi.MarketData_market_id_set)
-    __swig_setmethods__["asset_type_id"] = _otapi.MarketData_asset_type_id_set
-    __swig_getmethods__["asset_type_id"] = _otapi.MarketData_asset_type_id_get
-    if _newclass:asset_type_id = _swig_property(_otapi.MarketData_asset_type_id_get, _otapi.MarketData_asset_type_id_set)
-    __swig_setmethods__["currency_type_id"] = _otapi.MarketData_currency_type_id_set
-    __swig_getmethods__["currency_type_id"] = _otapi.MarketData_currency_type_id_get
-    if _newclass:currency_type_id = _swig_property(_otapi.MarketData_currency_type_id_get, _otapi.MarketData_currency_type_id_set)
-    __swig_setmethods__["scale"] = _otapi.MarketData_scale_set
-    __swig_getmethods__["scale"] = _otapi.MarketData_scale_get
-    if _newclass:scale = _swig_property(_otapi.MarketData_scale_get, _otapi.MarketData_scale_set)
-    __swig_setmethods__["total_assets"] = _otapi.MarketData_total_assets_set
-    __swig_getmethods__["total_assets"] = _otapi.MarketData_total_assets_get
-    if _newclass:total_assets = _swig_property(_otapi.MarketData_total_assets_get, _otapi.MarketData_total_assets_set)
-    __swig_setmethods__["number_bids"] = _otapi.MarketData_number_bids_set
-    __swig_getmethods__["number_bids"] = _otapi.MarketData_number_bids_get
-    if _newclass:number_bids = _swig_property(_otapi.MarketData_number_bids_get, _otapi.MarketData_number_bids_set)
-    __swig_setmethods__["number_asks"] = _otapi.MarketData_number_asks_set
-    __swig_getmethods__["number_asks"] = _otapi.MarketData_number_asks_get
-    if _newclass:number_asks = _swig_property(_otapi.MarketData_number_asks_get, _otapi.MarketData_number_asks_set)
-    __swig_setmethods__["last_sale_price"] = _otapi.MarketData_last_sale_price_set
-    __swig_getmethods__["last_sale_price"] = _otapi.MarketData_last_sale_price_get
-    if _newclass:last_sale_price = _swig_property(_otapi.MarketData_last_sale_price_get, _otapi.MarketData_last_sale_price_set)
-    __swig_setmethods__["current_bid"] = _otapi.MarketData_current_bid_set
-    __swig_getmethods__["current_bid"] = _otapi.MarketData_current_bid_get
-    if _newclass:current_bid = _swig_property(_otapi.MarketData_current_bid_get, _otapi.MarketData_current_bid_set)
-    __swig_setmethods__["current_ask"] = _otapi.MarketData_current_ask_set
-    __swig_getmethods__["current_ask"] = _otapi.MarketData_current_ask_get
-    if _newclass:current_ask = _swig_property(_otapi.MarketData_current_ask_get, _otapi.MarketData_current_ask_set)
-    __swig_setmethods__["volume_trades"] = _otapi.MarketData_volume_trades_set
-    __swig_getmethods__["volume_trades"] = _otapi.MarketData_volume_trades_get
-    if _newclass:volume_trades = _swig_property(_otapi.MarketData_volume_trades_get, _otapi.MarketData_volume_trades_set)
-    __swig_setmethods__["volume_assets"] = _otapi.MarketData_volume_assets_set
-    __swig_getmethods__["volume_assets"] = _otapi.MarketData_volume_assets_get
-    if _newclass:volume_assets = _swig_property(_otapi.MarketData_volume_assets_get, _otapi.MarketData_volume_assets_set)
-    __swig_setmethods__["volume_currency"] = _otapi.MarketData_volume_currency_set
-    __swig_getmethods__["volume_currency"] = _otapi.MarketData_volume_currency_get
-    if _newclass:volume_currency = _swig_property(_otapi.MarketData_volume_currency_get, _otapi.MarketData_volume_currency_set)
-    __swig_setmethods__["recent_highest_bid"] = _otapi.MarketData_recent_highest_bid_set
-    __swig_getmethods__["recent_highest_bid"] = _otapi.MarketData_recent_highest_bid_get
-    if _newclass:recent_highest_bid = _swig_property(_otapi.MarketData_recent_highest_bid_get, _otapi.MarketData_recent_highest_bid_set)
-    __swig_setmethods__["recent_lowest_ask"] = _otapi.MarketData_recent_lowest_ask_set
-    __swig_getmethods__["recent_lowest_ask"] = _otapi.MarketData_recent_lowest_ask_get
-    if _newclass:recent_lowest_ask = _swig_property(_otapi.MarketData_recent_lowest_ask_get, _otapi.MarketData_recent_lowest_ask_set)
-    __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.MarketData_ot_dynamic_cast
-    if _newclass:ot_dynamic_cast = staticmethod(_otapi.MarketData_ot_dynamic_cast)
-MarketData_swigregister = _otapi.MarketData_swigregister
+    __swig_setmethods__["gui_label"] = libotapiPython.MarketData_gui_label_set
+    __swig_getmethods__["gui_label"] = libotapiPython.MarketData_gui_label_get
+    if _newclass:gui_label = _swig_property(libotapiPython.MarketData_gui_label_get, libotapiPython.MarketData_gui_label_set)
+    __swig_setmethods__["server_id"] = libotapiPython.MarketData_server_id_set
+    __swig_getmethods__["server_id"] = libotapiPython.MarketData_server_id_get
+    if _newclass:server_id = _swig_property(libotapiPython.MarketData_server_id_get, libotapiPython.MarketData_server_id_set)
+    __swig_setmethods__["market_id"] = libotapiPython.MarketData_market_id_set
+    __swig_getmethods__["market_id"] = libotapiPython.MarketData_market_id_get
+    if _newclass:market_id = _swig_property(libotapiPython.MarketData_market_id_get, libotapiPython.MarketData_market_id_set)
+    __swig_setmethods__["asset_type_id"] = libotapiPython.MarketData_asset_type_id_set
+    __swig_getmethods__["asset_type_id"] = libotapiPython.MarketData_asset_type_id_get
+    if _newclass:asset_type_id = _swig_property(libotapiPython.MarketData_asset_type_id_get, libotapiPython.MarketData_asset_type_id_set)
+    __swig_setmethods__["currency_type_id"] = libotapiPython.MarketData_currency_type_id_set
+    __swig_getmethods__["currency_type_id"] = libotapiPython.MarketData_currency_type_id_get
+    if _newclass:currency_type_id = _swig_property(libotapiPython.MarketData_currency_type_id_get, libotapiPython.MarketData_currency_type_id_set)
+    __swig_setmethods__["scale"] = libotapiPython.MarketData_scale_set
+    __swig_getmethods__["scale"] = libotapiPython.MarketData_scale_get
+    if _newclass:scale = _swig_property(libotapiPython.MarketData_scale_get, libotapiPython.MarketData_scale_set)
+    __swig_setmethods__["total_assets"] = libotapiPython.MarketData_total_assets_set
+    __swig_getmethods__["total_assets"] = libotapiPython.MarketData_total_assets_get
+    if _newclass:total_assets = _swig_property(libotapiPython.MarketData_total_assets_get, libotapiPython.MarketData_total_assets_set)
+    __swig_setmethods__["number_bids"] = libotapiPython.MarketData_number_bids_set
+    __swig_getmethods__["number_bids"] = libotapiPython.MarketData_number_bids_get
+    if _newclass:number_bids = _swig_property(libotapiPython.MarketData_number_bids_get, libotapiPython.MarketData_number_bids_set)
+    __swig_setmethods__["number_asks"] = libotapiPython.MarketData_number_asks_set
+    __swig_getmethods__["number_asks"] = libotapiPython.MarketData_number_asks_get
+    if _newclass:number_asks = _swig_property(libotapiPython.MarketData_number_asks_get, libotapiPython.MarketData_number_asks_set)
+    __swig_setmethods__["last_sale_price"] = libotapiPython.MarketData_last_sale_price_set
+    __swig_getmethods__["last_sale_price"] = libotapiPython.MarketData_last_sale_price_get
+    if _newclass:last_sale_price = _swig_property(libotapiPython.MarketData_last_sale_price_get, libotapiPython.MarketData_last_sale_price_set)
+    __swig_setmethods__["current_bid"] = libotapiPython.MarketData_current_bid_set
+    __swig_getmethods__["current_bid"] = libotapiPython.MarketData_current_bid_get
+    if _newclass:current_bid = _swig_property(libotapiPython.MarketData_current_bid_get, libotapiPython.MarketData_current_bid_set)
+    __swig_setmethods__["current_ask"] = libotapiPython.MarketData_current_ask_set
+    __swig_getmethods__["current_ask"] = libotapiPython.MarketData_current_ask_get
+    if _newclass:current_ask = _swig_property(libotapiPython.MarketData_current_ask_get, libotapiPython.MarketData_current_ask_set)
+    __swig_setmethods__["volume_trades"] = libotapiPython.MarketData_volume_trades_set
+    __swig_getmethods__["volume_trades"] = libotapiPython.MarketData_volume_trades_get
+    if _newclass:volume_trades = _swig_property(libotapiPython.MarketData_volume_trades_get, libotapiPython.MarketData_volume_trades_set)
+    __swig_setmethods__["volume_assets"] = libotapiPython.MarketData_volume_assets_set
+    __swig_getmethods__["volume_assets"] = libotapiPython.MarketData_volume_assets_get
+    if _newclass:volume_assets = _swig_property(libotapiPython.MarketData_volume_assets_get, libotapiPython.MarketData_volume_assets_set)
+    __swig_setmethods__["volume_currency"] = libotapiPython.MarketData_volume_currency_set
+    __swig_getmethods__["volume_currency"] = libotapiPython.MarketData_volume_currency_get
+    if _newclass:volume_currency = _swig_property(libotapiPython.MarketData_volume_currency_get, libotapiPython.MarketData_volume_currency_set)
+    __swig_setmethods__["recent_highest_bid"] = libotapiPython.MarketData_recent_highest_bid_set
+    __swig_getmethods__["recent_highest_bid"] = libotapiPython.MarketData_recent_highest_bid_get
+    if _newclass:recent_highest_bid = _swig_property(libotapiPython.MarketData_recent_highest_bid_get, libotapiPython.MarketData_recent_highest_bid_set)
+    __swig_setmethods__["recent_lowest_ask"] = libotapiPython.MarketData_recent_lowest_ask_set
+    __swig_getmethods__["recent_lowest_ask"] = libotapiPython.MarketData_recent_lowest_ask_get
+    if _newclass:recent_lowest_ask = _swig_property(libotapiPython.MarketData_recent_lowest_ask_get, libotapiPython.MarketData_recent_lowest_ask_set)
+    __swig_getmethods__["ot_dynamic_cast"] = lambda x: libotapiPython.MarketData_ot_dynamic_cast
+    if _newclass:ot_dynamic_cast = staticmethod(libotapiPython.MarketData_ot_dynamic_cast)
+MarketData_swigregister = libotapiPython.MarketData_swigregister
 MarketData_swigregister(MarketData)
 
 def MarketData_ot_dynamic_cast(*args):
-  return _otapi.MarketData_ot_dynamic_cast(*args)
-MarketData_ot_dynamic_cast = _otapi.MarketData_ot_dynamic_cast
+  return libotapiPython.MarketData_ot_dynamic_cast(*args)
+MarketData_ot_dynamic_cast = libotapiPython.MarketData_ot_dynamic_cast
 
 class MarketList(Storable):
     __swig_setmethods__ = {}
@@ -1297,20 +1297,20 @@ class MarketList(Storable):
     __getattr__ = lambda self, name: _swig_getattr(self, MarketList, name)
     def __init__(self, *args, **kwargs): raise AttributeError("No constructor defined")
     __repr__ = _swig_repr
-    __swig_destroy__ = _otapi.delete_MarketList
+    __swig_destroy__ = libotapiPython.delete_MarketList
     __del__ = lambda self : None;
-    def GetMarketDataCount(self): return _otapi.MarketList_GetMarketDataCount(self)
-    def GetMarketData(self, *args): return _otapi.MarketList_GetMarketData(self, *args)
-    def RemoveMarketData(self, *args): return _otapi.MarketList_RemoveMarketData(self, *args)
-    def AddMarketData(self, *args): return _otapi.MarketList_AddMarketData(self, *args)
-    __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.MarketList_ot_dynamic_cast
-    if _newclass:ot_dynamic_cast = staticmethod(_otapi.MarketList_ot_dynamic_cast)
-MarketList_swigregister = _otapi.MarketList_swigregister
+    def GetMarketDataCount(self): return libotapiPython.MarketList_GetMarketDataCount(self)
+    def GetMarketData(self, *args): return libotapiPython.MarketList_GetMarketData(self, *args)
+    def RemoveMarketData(self, *args): return libotapiPython.MarketList_RemoveMarketData(self, *args)
+    def AddMarketData(self, *args): return libotapiPython.MarketList_AddMarketData(self, *args)
+    __swig_getmethods__["ot_dynamic_cast"] = lambda x: libotapiPython.MarketList_ot_dynamic_cast
+    if _newclass:ot_dynamic_cast = staticmethod(libotapiPython.MarketList_ot_dynamic_cast)
+MarketList_swigregister = libotapiPython.MarketList_swigregister
 MarketList_swigregister(MarketList)
 
 def MarketList_ot_dynamic_cast(*args):
-  return _otapi.MarketList_ot_dynamic_cast(*args)
-MarketList_ot_dynamic_cast = _otapi.MarketList_ot_dynamic_cast
+  return libotapiPython.MarketList_ot_dynamic_cast(*args)
+MarketList_ot_dynamic_cast = libotapiPython.MarketList_ot_dynamic_cast
 
 class OfferDataMarket(Displayable):
     __swig_setmethods__ = {}
@@ -1321,31 +1321,31 @@ class OfferDataMarket(Displayable):
     __getattr__ = lambda self, name: _swig_getattr(self, OfferDataMarket, name)
     def __init__(self, *args, **kwargs): raise AttributeError("No constructor defined")
     __repr__ = _swig_repr
-    __swig_destroy__ = _otapi.delete_OfferDataMarket
+    __swig_destroy__ = libotapiPython.delete_OfferDataMarket
     __del__ = lambda self : None;
-    __swig_setmethods__["gui_label"] = _otapi.OfferDataMarket_gui_label_set
-    __swig_getmethods__["gui_label"] = _otapi.OfferDataMarket_gui_label_get
-    if _newclass:gui_label = _swig_property(_otapi.OfferDataMarket_gui_label_get, _otapi.OfferDataMarket_gui_label_set)
-    __swig_setmethods__["transaction_id"] = _otapi.OfferDataMarket_transaction_id_set
-    __swig_getmethods__["transaction_id"] = _otapi.OfferDataMarket_transaction_id_get
-    if _newclass:transaction_id = _swig_property(_otapi.OfferDataMarket_transaction_id_get, _otapi.OfferDataMarket_transaction_id_set)
-    __swig_setmethods__["price_per_scale"] = _otapi.OfferDataMarket_price_per_scale_set
-    __swig_getmethods__["price_per_scale"] = _otapi.OfferDataMarket_price_per_scale_get
-    if _newclass:price_per_scale = _swig_property(_otapi.OfferDataMarket_price_per_scale_get, _otapi.OfferDataMarket_price_per_scale_set)
-    __swig_setmethods__["available_assets"] = _otapi.OfferDataMarket_available_assets_set
-    __swig_getmethods__["available_assets"] = _otapi.OfferDataMarket_available_assets_get
-    if _newclass:available_assets = _swig_property(_otapi.OfferDataMarket_available_assets_get, _otapi.OfferDataMarket_available_assets_set)
-    __swig_setmethods__["minimum_increment"] = _otapi.OfferDataMarket_minimum_increment_set
-    __swig_getmethods__["minimum_increment"] = _otapi.OfferDataMarket_minimum_increment_get
-    if _newclass:minimum_increment = _swig_property(_otapi.OfferDataMarket_minimum_increment_get, _otapi.OfferDataMarket_minimum_increment_set)
-    __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.OfferDataMarket_ot_dynamic_cast
-    if _newclass:ot_dynamic_cast = staticmethod(_otapi.OfferDataMarket_ot_dynamic_cast)
-OfferDataMarket_swigregister = _otapi.OfferDataMarket_swigregister
+    __swig_setmethods__["gui_label"] = libotapiPython.OfferDataMarket_gui_label_set
+    __swig_getmethods__["gui_label"] = libotapiPython.OfferDataMarket_gui_label_get
+    if _newclass:gui_label = _swig_property(libotapiPython.OfferDataMarket_gui_label_get, libotapiPython.OfferDataMarket_gui_label_set)
+    __swig_setmethods__["transaction_id"] = libotapiPython.OfferDataMarket_transaction_id_set
+    __swig_getmethods__["transaction_id"] = libotapiPython.OfferDataMarket_transaction_id_get
+    if _newclass:transaction_id = _swig_property(libotapiPython.OfferDataMarket_transaction_id_get, libotapiPython.OfferDataMarket_transaction_id_set)
+    __swig_setmethods__["price_per_scale"] = libotapiPython.OfferDataMarket_price_per_scale_set
+    __swig_getmethods__["price_per_scale"] = libotapiPython.OfferDataMarket_price_per_scale_get
+    if _newclass:price_per_scale = _swig_property(libotapiPython.OfferDataMarket_price_per_scale_get, libotapiPython.OfferDataMarket_price_per_scale_set)
+    __swig_setmethods__["available_assets"] = libotapiPython.OfferDataMarket_available_assets_set
+    __swig_getmethods__["available_assets"] = libotapiPython.OfferDataMarket_available_assets_get
+    if _newclass:available_assets = _swig_property(libotapiPython.OfferDataMarket_available_assets_get, libotapiPython.OfferDataMarket_available_assets_set)
+    __swig_setmethods__["minimum_increment"] = libotapiPython.OfferDataMarket_minimum_increment_set
+    __swig_getmethods__["minimum_increment"] = libotapiPython.OfferDataMarket_minimum_increment_get
+    if _newclass:minimum_increment = _swig_property(libotapiPython.OfferDataMarket_minimum_increment_get, libotapiPython.OfferDataMarket_minimum_increment_set)
+    __swig_getmethods__["ot_dynamic_cast"] = lambda x: libotapiPython.OfferDataMarket_ot_dynamic_cast
+    if _newclass:ot_dynamic_cast = staticmethod(libotapiPython.OfferDataMarket_ot_dynamic_cast)
+OfferDataMarket_swigregister = libotapiPython.OfferDataMarket_swigregister
 OfferDataMarket_swigregister(OfferDataMarket)
 
 def OfferDataMarket_ot_dynamic_cast(*args):
-  return _otapi.OfferDataMarket_ot_dynamic_cast(*args)
-OfferDataMarket_ot_dynamic_cast = _otapi.OfferDataMarket_ot_dynamic_cast
+  return libotapiPython.OfferDataMarket_ot_dynamic_cast(*args)
+OfferDataMarket_ot_dynamic_cast = libotapiPython.OfferDataMarket_ot_dynamic_cast
 
 class BidData(OfferDataMarket):
     __swig_setmethods__ = {}
@@ -1356,31 +1356,31 @@ class BidData(OfferDataMarket):
     __getattr__ = lambda self, name: _swig_getattr(self, BidData, name)
     def __init__(self, *args, **kwargs): raise AttributeError("No constructor defined")
     __repr__ = _swig_repr
-    __swig_destroy__ = _otapi.delete_BidData
+    __swig_destroy__ = libotapiPython.delete_BidData
     __del__ = lambda self : None;
-    __swig_setmethods__["gui_label"] = _otapi.BidData_gui_label_set
-    __swig_getmethods__["gui_label"] = _otapi.BidData_gui_label_get
-    if _newclass:gui_label = _swig_property(_otapi.BidData_gui_label_get, _otapi.BidData_gui_label_set)
-    __swig_setmethods__["transaction_id"] = _otapi.BidData_transaction_id_set
-    __swig_getmethods__["transaction_id"] = _otapi.BidData_transaction_id_get
-    if _newclass:transaction_id = _swig_property(_otapi.BidData_transaction_id_get, _otapi.BidData_transaction_id_set)
-    __swig_setmethods__["price_per_scale"] = _otapi.BidData_price_per_scale_set
-    __swig_getmethods__["price_per_scale"] = _otapi.BidData_price_per_scale_get
-    if _newclass:price_per_scale = _swig_property(_otapi.BidData_price_per_scale_get, _otapi.BidData_price_per_scale_set)
-    __swig_setmethods__["available_assets"] = _otapi.BidData_available_assets_set
-    __swig_getmethods__["available_assets"] = _otapi.BidData_available_assets_get
-    if _newclass:available_assets = _swig_property(_otapi.BidData_available_assets_get, _otapi.BidData_available_assets_set)
-    __swig_setmethods__["minimum_increment"] = _otapi.BidData_minimum_increment_set
-    __swig_getmethods__["minimum_increment"] = _otapi.BidData_minimum_increment_get
-    if _newclass:minimum_increment = _swig_property(_otapi.BidData_minimum_increment_get, _otapi.BidData_minimum_increment_set)
-    __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.BidData_ot_dynamic_cast
-    if _newclass:ot_dynamic_cast = staticmethod(_otapi.BidData_ot_dynamic_cast)
-BidData_swigregister = _otapi.BidData_swigregister
+    __swig_setmethods__["gui_label"] = libotapiPython.BidData_gui_label_set
+    __swig_getmethods__["gui_label"] = libotapiPython.BidData_gui_label_get
+    if _newclass:gui_label = _swig_property(libotapiPython.BidData_gui_label_get, libotapiPython.BidData_gui_label_set)
+    __swig_setmethods__["transaction_id"] = libotapiPython.BidData_transaction_id_set
+    __swig_getmethods__["transaction_id"] = libotapiPython.BidData_transaction_id_get
+    if _newclass:transaction_id = _swig_property(libotapiPython.BidData_transaction_id_get, libotapiPython.BidData_transaction_id_set)
+    __swig_setmethods__["price_per_scale"] = libotapiPython.BidData_price_per_scale_set
+    __swig_getmethods__["price_per_scale"] = libotapiPython.BidData_price_per_scale_get
+    if _newclass:price_per_scale = _swig_property(libotapiPython.BidData_price_per_scale_get, libotapiPython.BidData_price_per_scale_set)
+    __swig_setmethods__["available_assets"] = libotapiPython.BidData_available_assets_set
+    __swig_getmethods__["available_assets"] = libotapiPython.BidData_available_assets_get
+    if _newclass:available_assets = _swig_property(libotapiPython.BidData_available_assets_get, libotapiPython.BidData_available_assets_set)
+    __swig_setmethods__["minimum_increment"] = libotapiPython.BidData_minimum_increment_set
+    __swig_getmethods__["minimum_increment"] = libotapiPython.BidData_minimum_increment_get
+    if _newclass:minimum_increment = _swig_property(libotapiPython.BidData_minimum_increment_get, libotapiPython.BidData_minimum_increment_set)
+    __swig_getmethods__["ot_dynamic_cast"] = lambda x: libotapiPython.BidData_ot_dynamic_cast
+    if _newclass:ot_dynamic_cast = staticmethod(libotapiPython.BidData_ot_dynamic_cast)
+BidData_swigregister = libotapiPython.BidData_swigregister
 BidData_swigregister(BidData)
 
 def BidData_ot_dynamic_cast(*args):
-  return _otapi.BidData_ot_dynamic_cast(*args)
-BidData_ot_dynamic_cast = _otapi.BidData_ot_dynamic_cast
+  return libotapiPython.BidData_ot_dynamic_cast(*args)
+BidData_ot_dynamic_cast = libotapiPython.BidData_ot_dynamic_cast
 
 class AskData(OfferDataMarket):
     __swig_setmethods__ = {}
@@ -1391,31 +1391,31 @@ class AskData(OfferDataMarket):
     __getattr__ = lambda self, name: _swig_getattr(self, AskData, name)
     def __init__(self, *args, **kwargs): raise AttributeError("No constructor defined")
     __repr__ = _swig_repr
-    __swig_destroy__ = _otapi.delete_AskData
+    __swig_destroy__ = libotapiPython.delete_AskData
     __del__ = lambda self : None;
-    __swig_setmethods__["gui_label"] = _otapi.AskData_gui_label_set
-    __swig_getmethods__["gui_label"] = _otapi.AskData_gui_label_get
-    if _newclass:gui_label = _swig_property(_otapi.AskData_gui_label_get, _otapi.AskData_gui_label_set)
-    __swig_setmethods__["transaction_id"] = _otapi.AskData_transaction_id_set
-    __swig_getmethods__["transaction_id"] = _otapi.AskData_transaction_id_get
-    if _newclass:transaction_id = _swig_property(_otapi.AskData_transaction_id_get, _otapi.AskData_transaction_id_set)
-    __swig_setmethods__["price_per_scale"] = _otapi.AskData_price_per_scale_set
-    __swig_getmethods__["price_per_scale"] = _otapi.AskData_price_per_scale_get
-    if _newclass:price_per_scale = _swig_property(_otapi.AskData_price_per_scale_get, _otapi.AskData_price_per_scale_set)
-    __swig_setmethods__["available_assets"] = _otapi.AskData_available_assets_set
-    __swig_getmethods__["available_assets"] = _otapi.AskData_available_assets_get
-    if _newclass:available_assets = _swig_property(_otapi.AskData_available_assets_get, _otapi.AskData_available_assets_set)
-    __swig_setmethods__["minimum_increment"] = _otapi.AskData_minimum_increment_set
-    __swig_getmethods__["minimum_increment"] = _otapi.AskData_minimum_increment_get
-    if _newclass:minimum_increment = _swig_property(_otapi.AskData_minimum_increment_get, _otapi.AskData_minimum_increment_set)
-    __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.AskData_ot_dynamic_cast
-    if _newclass:ot_dynamic_cast = staticmethod(_otapi.AskData_ot_dynamic_cast)
-AskData_swigregister = _otapi.AskData_swigregister
+    __swig_setmethods__["gui_label"] = libotapiPython.AskData_gui_label_set
+    __swig_getmethods__["gui_label"] = libotapiPython.AskData_gui_label_get
+    if _newclass:gui_label = _swig_property(libotapiPython.AskData_gui_label_get, libotapiPython.AskData_gui_label_set)
+    __swig_setmethods__["transaction_id"] = libotapiPython.AskData_transaction_id_set
+    __swig_getmethods__["transaction_id"] = libotapiPython.AskData_transaction_id_get
+    if _newclass:transaction_id = _swig_property(libotapiPython.AskData_transaction_id_get, libotapiPython.AskData_transaction_id_set)
+    __swig_setmethods__["price_per_scale"] = libotapiPython.AskData_price_per_scale_set
+    __swig_getmethods__["price_per_scale"] = libotapiPython.AskData_price_per_scale_get
+    if _newclass:price_per_scale = _swig_property(libotapiPython.AskData_price_per_scale_get, libotapiPython.AskData_price_per_scale_set)
+    __swig_setmethods__["available_assets"] = libotapiPython.AskData_available_assets_set
+    __swig_getmethods__["available_assets"] = libotapiPython.AskData_available_assets_get
+    if _newclass:available_assets = _swig_property(libotapiPython.AskData_available_assets_get, libotapiPython.AskData_available_assets_set)
+    __swig_setmethods__["minimum_increment"] = libotapiPython.AskData_minimum_increment_set
+    __swig_getmethods__["minimum_increment"] = libotapiPython.AskData_minimum_increment_get
+    if _newclass:minimum_increment = _swig_property(libotapiPython.AskData_minimum_increment_get, libotapiPython.AskData_minimum_increment_set)
+    __swig_getmethods__["ot_dynamic_cast"] = lambda x: libotapiPython.AskData_ot_dynamic_cast
+    if _newclass:ot_dynamic_cast = staticmethod(libotapiPython.AskData_ot_dynamic_cast)
+AskData_swigregister = libotapiPython.AskData_swigregister
 AskData_swigregister(AskData)
 
 def AskData_ot_dynamic_cast(*args):
-  return _otapi.AskData_ot_dynamic_cast(*args)
-AskData_ot_dynamic_cast = _otapi.AskData_ot_dynamic_cast
+  return libotapiPython.AskData_ot_dynamic_cast(*args)
+AskData_ot_dynamic_cast = libotapiPython.AskData_ot_dynamic_cast
 
 class OfferListMarket(Storable):
     __swig_setmethods__ = {}
@@ -1426,24 +1426,24 @@ class OfferListMarket(Storable):
     __getattr__ = lambda self, name: _swig_getattr(self, OfferListMarket, name)
     def __init__(self, *args, **kwargs): raise AttributeError("No constructor defined")
     __repr__ = _swig_repr
-    __swig_destroy__ = _otapi.delete_OfferListMarket
+    __swig_destroy__ = libotapiPython.delete_OfferListMarket
     __del__ = lambda self : None;
-    def GetBidDataCount(self): return _otapi.OfferListMarket_GetBidDataCount(self)
-    def GetBidData(self, *args): return _otapi.OfferListMarket_GetBidData(self, *args)
-    def RemoveBidData(self, *args): return _otapi.OfferListMarket_RemoveBidData(self, *args)
-    def AddBidData(self, *args): return _otapi.OfferListMarket_AddBidData(self, *args)
-    def GetAskDataCount(self): return _otapi.OfferListMarket_GetAskDataCount(self)
-    def GetAskData(self, *args): return _otapi.OfferListMarket_GetAskData(self, *args)
-    def RemoveAskData(self, *args): return _otapi.OfferListMarket_RemoveAskData(self, *args)
-    def AddAskData(self, *args): return _otapi.OfferListMarket_AddAskData(self, *args)
-    __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.OfferListMarket_ot_dynamic_cast
-    if _newclass:ot_dynamic_cast = staticmethod(_otapi.OfferListMarket_ot_dynamic_cast)
-OfferListMarket_swigregister = _otapi.OfferListMarket_swigregister
+    def GetBidDataCount(self): return libotapiPython.OfferListMarket_GetBidDataCount(self)
+    def GetBidData(self, *args): return libotapiPython.OfferListMarket_GetBidData(self, *args)
+    def RemoveBidData(self, *args): return libotapiPython.OfferListMarket_RemoveBidData(self, *args)
+    def AddBidData(self, *args): return libotapiPython.OfferListMarket_AddBidData(self, *args)
+    def GetAskDataCount(self): return libotapiPython.OfferListMarket_GetAskDataCount(self)
+    def GetAskData(self, *args): return libotapiPython.OfferListMarket_GetAskData(self, *args)
+    def RemoveAskData(self, *args): return libotapiPython.OfferListMarket_RemoveAskData(self, *args)
+    def AddAskData(self, *args): return libotapiPython.OfferListMarket_AddAskData(self, *args)
+    __swig_getmethods__["ot_dynamic_cast"] = lambda x: libotapiPython.OfferListMarket_ot_dynamic_cast
+    if _newclass:ot_dynamic_cast = staticmethod(libotapiPython.OfferListMarket_ot_dynamic_cast)
+OfferListMarket_swigregister = libotapiPython.OfferListMarket_swigregister
 OfferListMarket_swigregister(OfferListMarket)
 
 def OfferListMarket_ot_dynamic_cast(*args):
-  return _otapi.OfferListMarket_ot_dynamic_cast(*args)
-OfferListMarket_ot_dynamic_cast = _otapi.OfferListMarket_ot_dynamic_cast
+  return libotapiPython.OfferListMarket_ot_dynamic_cast(*args)
+OfferListMarket_ot_dynamic_cast = libotapiPython.OfferListMarket_ot_dynamic_cast
 
 class TradeDataMarket(Displayable):
     __swig_setmethods__ = {}
@@ -1454,31 +1454,31 @@ class TradeDataMarket(Displayable):
     __getattr__ = lambda self, name: _swig_getattr(self, TradeDataMarket, name)
     def __init__(self, *args, **kwargs): raise AttributeError("No constructor defined")
     __repr__ = _swig_repr
-    __swig_destroy__ = _otapi.delete_TradeDataMarket
+    __swig_destroy__ = libotapiPython.delete_TradeDataMarket
     __del__ = lambda self : None;
-    __swig_setmethods__["gui_label"] = _otapi.TradeDataMarket_gui_label_set
-    __swig_getmethods__["gui_label"] = _otapi.TradeDataMarket_gui_label_get
-    if _newclass:gui_label = _swig_property(_otapi.TradeDataMarket_gui_label_get, _otapi.TradeDataMarket_gui_label_set)
-    __swig_setmethods__["transaction_id"] = _otapi.TradeDataMarket_transaction_id_set
-    __swig_getmethods__["transaction_id"] = _otapi.TradeDataMarket_transaction_id_get
-    if _newclass:transaction_id = _swig_property(_otapi.TradeDataMarket_transaction_id_get, _otapi.TradeDataMarket_transaction_id_set)
-    __swig_setmethods__["date"] = _otapi.TradeDataMarket_date_set
-    __swig_getmethods__["date"] = _otapi.TradeDataMarket_date_get
-    if _newclass:date = _swig_property(_otapi.TradeDataMarket_date_get, _otapi.TradeDataMarket_date_set)
-    __swig_setmethods__["price"] = _otapi.TradeDataMarket_price_set
-    __swig_getmethods__["price"] = _otapi.TradeDataMarket_price_get
-    if _newclass:price = _swig_property(_otapi.TradeDataMarket_price_get, _otapi.TradeDataMarket_price_set)
-    __swig_setmethods__["amount_sold"] = _otapi.TradeDataMarket_amount_sold_set
-    __swig_getmethods__["amount_sold"] = _otapi.TradeDataMarket_amount_sold_get
-    if _newclass:amount_sold = _swig_property(_otapi.TradeDataMarket_amount_sold_get, _otapi.TradeDataMarket_amount_sold_set)
-    __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.TradeDataMarket_ot_dynamic_cast
-    if _newclass:ot_dynamic_cast = staticmethod(_otapi.TradeDataMarket_ot_dynamic_cast)
-TradeDataMarket_swigregister = _otapi.TradeDataMarket_swigregister
+    __swig_setmethods__["gui_label"] = libotapiPython.TradeDataMarket_gui_label_set
+    __swig_getmethods__["gui_label"] = libotapiPython.TradeDataMarket_gui_label_get
+    if _newclass:gui_label = _swig_property(libotapiPython.TradeDataMarket_gui_label_get, libotapiPython.TradeDataMarket_gui_label_set)
+    __swig_setmethods__["transaction_id"] = libotapiPython.TradeDataMarket_transaction_id_set
+    __swig_getmethods__["transaction_id"] = libotapiPython.TradeDataMarket_transaction_id_get
+    if _newclass:transaction_id = _swig_property(libotapiPython.TradeDataMarket_transaction_id_get, libotapiPython.TradeDataMarket_transaction_id_set)
+    __swig_setmethods__["date"] = libotapiPython.TradeDataMarket_date_set
+    __swig_getmethods__["date"] = libotapiPython.TradeDataMarket_date_get
+    if _newclass:date = _swig_property(libotapiPython.TradeDataMarket_date_get, libotapiPython.TradeDataMarket_date_set)
+    __swig_setmethods__["price"] = libotapiPython.TradeDataMarket_price_set
+    __swig_getmethods__["price"] = libotapiPython.TradeDataMarket_price_get
+    if _newclass:price = _swig_property(libotapiPython.TradeDataMarket_price_get, libotapiPython.TradeDataMarket_price_set)
+    __swig_setmethods__["amount_sold"] = libotapiPython.TradeDataMarket_amount_sold_set
+    __swig_getmethods__["amount_sold"] = libotapiPython.TradeDataMarket_amount_sold_get
+    if _newclass:amount_sold = _swig_property(libotapiPython.TradeDataMarket_amount_sold_get, libotapiPython.TradeDataMarket_amount_sold_set)
+    __swig_getmethods__["ot_dynamic_cast"] = lambda x: libotapiPython.TradeDataMarket_ot_dynamic_cast
+    if _newclass:ot_dynamic_cast = staticmethod(libotapiPython.TradeDataMarket_ot_dynamic_cast)
+TradeDataMarket_swigregister = libotapiPython.TradeDataMarket_swigregister
 TradeDataMarket_swigregister(TradeDataMarket)
 
 def TradeDataMarket_ot_dynamic_cast(*args):
-  return _otapi.TradeDataMarket_ot_dynamic_cast(*args)
-TradeDataMarket_ot_dynamic_cast = _otapi.TradeDataMarket_ot_dynamic_cast
+  return libotapiPython.TradeDataMarket_ot_dynamic_cast(*args)
+TradeDataMarket_ot_dynamic_cast = libotapiPython.TradeDataMarket_ot_dynamic_cast
 
 class TradeListMarket(Storable):
     __swig_setmethods__ = {}
@@ -1489,20 +1489,20 @@ class TradeListMarket(Storable):
     __getattr__ = lambda self, name: _swig_getattr(self, TradeListMarket, name)
     def __init__(self, *args, **kwargs): raise AttributeError("No constructor defined")
     __repr__ = _swig_repr
-    __swig_destroy__ = _otapi.delete_TradeListMarket
+    __swig_destroy__ = libotapiPython.delete_TradeListMarket
     __del__ = lambda self : None;
-    def GetTradeDataMarketCount(self): return _otapi.TradeListMarket_GetTradeDataMarketCount(self)
-    def GetTradeDataMarket(self, *args): return _otapi.TradeListMarket_GetTradeDataMarket(self, *args)
-    def RemoveTradeDataMarket(self, *args): return _otapi.TradeListMarket_RemoveTradeDataMarket(self, *args)
-    def AddTradeDataMarket(self, *args): return _otapi.TradeListMarket_AddTradeDataMarket(self, *args)
-    __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.TradeListMarket_ot_dynamic_cast
-    if _newclass:ot_dynamic_cast = staticmethod(_otapi.TradeListMarket_ot_dynamic_cast)
-TradeListMarket_swigregister = _otapi.TradeListMarket_swigregister
+    def GetTradeDataMarketCount(self): return libotapiPython.TradeListMarket_GetTradeDataMarketCount(self)
+    def GetTradeDataMarket(self, *args): return libotapiPython.TradeListMarket_GetTradeDataMarket(self, *args)
+    def RemoveTradeDataMarket(self, *args): return libotapiPython.TradeListMarket_RemoveTradeDataMarket(self, *args)
+    def AddTradeDataMarket(self, *args): return libotapiPython.TradeListMarket_AddTradeDataMarket(self, *args)
+    __swig_getmethods__["ot_dynamic_cast"] = lambda x: libotapiPython.TradeListMarket_ot_dynamic_cast
+    if _newclass:ot_dynamic_cast = staticmethod(libotapiPython.TradeListMarket_ot_dynamic_cast)
+TradeListMarket_swigregister = libotapiPython.TradeListMarket_swigregister
 TradeListMarket_swigregister(TradeListMarket)
 
 def TradeListMarket_ot_dynamic_cast(*args):
-  return _otapi.TradeListMarket_ot_dynamic_cast(*args)
-TradeListMarket_ot_dynamic_cast = _otapi.TradeListMarket_ot_dynamic_cast
+  return libotapiPython.TradeListMarket_ot_dynamic_cast(*args)
+TradeListMarket_ot_dynamic_cast = libotapiPython.TradeListMarket_ot_dynamic_cast
 
 class OfferDataNym(Displayable):
     __swig_setmethods__ = {}
@@ -1513,67 +1513,67 @@ class OfferDataNym(Displayable):
     __getattr__ = lambda self, name: _swig_getattr(self, OfferDataNym, name)
     def __init__(self, *args, **kwargs): raise AttributeError("No constructor defined")
     __repr__ = _swig_repr
-    __swig_destroy__ = _otapi.delete_OfferDataNym
+    __swig_destroy__ = libotapiPython.delete_OfferDataNym
     __del__ = lambda self : None;
-    __swig_setmethods__["gui_label"] = _otapi.OfferDataNym_gui_label_set
-    __swig_getmethods__["gui_label"] = _otapi.OfferDataNym_gui_label_get
-    if _newclass:gui_label = _swig_property(_otapi.OfferDataNym_gui_label_get, _otapi.OfferDataNym_gui_label_set)
-    __swig_setmethods__["valid_from"] = _otapi.OfferDataNym_valid_from_set
-    __swig_getmethods__["valid_from"] = _otapi.OfferDataNym_valid_from_get
-    if _newclass:valid_from = _swig_property(_otapi.OfferDataNym_valid_from_get, _otapi.OfferDataNym_valid_from_set)
-    __swig_setmethods__["valid_to"] = _otapi.OfferDataNym_valid_to_set
-    __swig_getmethods__["valid_to"] = _otapi.OfferDataNym_valid_to_get
-    if _newclass:valid_to = _swig_property(_otapi.OfferDataNym_valid_to_get, _otapi.OfferDataNym_valid_to_set)
-    __swig_setmethods__["server_id"] = _otapi.OfferDataNym_server_id_set
-    __swig_getmethods__["server_id"] = _otapi.OfferDataNym_server_id_get
-    if _newclass:server_id = _swig_property(_otapi.OfferDataNym_server_id_get, _otapi.OfferDataNym_server_id_set)
-    __swig_setmethods__["asset_type_id"] = _otapi.OfferDataNym_asset_type_id_set
-    __swig_getmethods__["asset_type_id"] = _otapi.OfferDataNym_asset_type_id_get
-    if _newclass:asset_type_id = _swig_property(_otapi.OfferDataNym_asset_type_id_get, _otapi.OfferDataNym_asset_type_id_set)
-    __swig_setmethods__["asset_acct_id"] = _otapi.OfferDataNym_asset_acct_id_set
-    __swig_getmethods__["asset_acct_id"] = _otapi.OfferDataNym_asset_acct_id_get
-    if _newclass:asset_acct_id = _swig_property(_otapi.OfferDataNym_asset_acct_id_get, _otapi.OfferDataNym_asset_acct_id_set)
-    __swig_setmethods__["currency_type_id"] = _otapi.OfferDataNym_currency_type_id_set
-    __swig_getmethods__["currency_type_id"] = _otapi.OfferDataNym_currency_type_id_get
-    if _newclass:currency_type_id = _swig_property(_otapi.OfferDataNym_currency_type_id_get, _otapi.OfferDataNym_currency_type_id_set)
-    __swig_setmethods__["currency_acct_id"] = _otapi.OfferDataNym_currency_acct_id_set
-    __swig_getmethods__["currency_acct_id"] = _otapi.OfferDataNym_currency_acct_id_get
-    if _newclass:currency_acct_id = _swig_property(_otapi.OfferDataNym_currency_acct_id_get, _otapi.OfferDataNym_currency_acct_id_set)
-    __swig_setmethods__["selling"] = _otapi.OfferDataNym_selling_set
-    __swig_getmethods__["selling"] = _otapi.OfferDataNym_selling_get
-    if _newclass:selling = _swig_property(_otapi.OfferDataNym_selling_get, _otapi.OfferDataNym_selling_set)
-    __swig_setmethods__["scale"] = _otapi.OfferDataNym_scale_set
-    __swig_getmethods__["scale"] = _otapi.OfferDataNym_scale_get
-    if _newclass:scale = _swig_property(_otapi.OfferDataNym_scale_get, _otapi.OfferDataNym_scale_set)
-    __swig_setmethods__["price_per_scale"] = _otapi.OfferDataNym_price_per_scale_set
-    __swig_getmethods__["price_per_scale"] = _otapi.OfferDataNym_price_per_scale_get
-    if _newclass:price_per_scale = _swig_property(_otapi.OfferDataNym_price_per_scale_get, _otapi.OfferDataNym_price_per_scale_set)
-    __swig_setmethods__["transaction_id"] = _otapi.OfferDataNym_transaction_id_set
-    __swig_getmethods__["transaction_id"] = _otapi.OfferDataNym_transaction_id_get
-    if _newclass:transaction_id = _swig_property(_otapi.OfferDataNym_transaction_id_get, _otapi.OfferDataNym_transaction_id_set)
-    __swig_setmethods__["total_assets"] = _otapi.OfferDataNym_total_assets_set
-    __swig_getmethods__["total_assets"] = _otapi.OfferDataNym_total_assets_get
-    if _newclass:total_assets = _swig_property(_otapi.OfferDataNym_total_assets_get, _otapi.OfferDataNym_total_assets_set)
-    __swig_setmethods__["finished_so_far"] = _otapi.OfferDataNym_finished_so_far_set
-    __swig_getmethods__["finished_so_far"] = _otapi.OfferDataNym_finished_so_far_get
-    if _newclass:finished_so_far = _swig_property(_otapi.OfferDataNym_finished_so_far_get, _otapi.OfferDataNym_finished_so_far_set)
-    __swig_setmethods__["minimum_increment"] = _otapi.OfferDataNym_minimum_increment_set
-    __swig_getmethods__["minimum_increment"] = _otapi.OfferDataNym_minimum_increment_get
-    if _newclass:minimum_increment = _swig_property(_otapi.OfferDataNym_minimum_increment_get, _otapi.OfferDataNym_minimum_increment_set)
-    __swig_setmethods__["stop_sign"] = _otapi.OfferDataNym_stop_sign_set
-    __swig_getmethods__["stop_sign"] = _otapi.OfferDataNym_stop_sign_get
-    if _newclass:stop_sign = _swig_property(_otapi.OfferDataNym_stop_sign_get, _otapi.OfferDataNym_stop_sign_set)
-    __swig_setmethods__["stop_price"] = _otapi.OfferDataNym_stop_price_set
-    __swig_getmethods__["stop_price"] = _otapi.OfferDataNym_stop_price_get
-    if _newclass:stop_price = _swig_property(_otapi.OfferDataNym_stop_price_get, _otapi.OfferDataNym_stop_price_set)
-    __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.OfferDataNym_ot_dynamic_cast
-    if _newclass:ot_dynamic_cast = staticmethod(_otapi.OfferDataNym_ot_dynamic_cast)
-OfferDataNym_swigregister = _otapi.OfferDataNym_swigregister
+    __swig_setmethods__["gui_label"] = libotapiPython.OfferDataNym_gui_label_set
+    __swig_getmethods__["gui_label"] = libotapiPython.OfferDataNym_gui_label_get
+    if _newclass:gui_label = _swig_property(libotapiPython.OfferDataNym_gui_label_get, libotapiPython.OfferDataNym_gui_label_set)
+    __swig_setmethods__["valid_from"] = libotapiPython.OfferDataNym_valid_from_set
+    __swig_getmethods__["valid_from"] = libotapiPython.OfferDataNym_valid_from_get
+    if _newclass:valid_from = _swig_property(libotapiPython.OfferDataNym_valid_from_get, libotapiPython.OfferDataNym_valid_from_set)
+    __swig_setmethods__["valid_to"] = libotapiPython.OfferDataNym_valid_to_set
+    __swig_getmethods__["valid_to"] = libotapiPython.OfferDataNym_valid_to_get
+    if _newclass:valid_to = _swig_property(libotapiPython.OfferDataNym_valid_to_get, libotapiPython.OfferDataNym_valid_to_set)
+    __swig_setmethods__["server_id"] = libotapiPython.OfferDataNym_server_id_set
+    __swig_getmethods__["server_id"] = libotapiPython.OfferDataNym_server_id_get
+    if _newclass:server_id = _swig_property(libotapiPython.OfferDataNym_server_id_get, libotapiPython.OfferDataNym_server_id_set)
+    __swig_setmethods__["asset_type_id"] = libotapiPython.OfferDataNym_asset_type_id_set
+    __swig_getmethods__["asset_type_id"] = libotapiPython.OfferDataNym_asset_type_id_get
+    if _newclass:asset_type_id = _swig_property(libotapiPython.OfferDataNym_asset_type_id_get, libotapiPython.OfferDataNym_asset_type_id_set)
+    __swig_setmethods__["asset_acct_id"] = libotapiPython.OfferDataNym_asset_acct_id_set
+    __swig_getmethods__["asset_acct_id"] = libotapiPython.OfferDataNym_asset_acct_id_get
+    if _newclass:asset_acct_id = _swig_property(libotapiPython.OfferDataNym_asset_acct_id_get, libotapiPython.OfferDataNym_asset_acct_id_set)
+    __swig_setmethods__["currency_type_id"] = libotapiPython.OfferDataNym_currency_type_id_set
+    __swig_getmethods__["currency_type_id"] = libotapiPython.OfferDataNym_currency_type_id_get
+    if _newclass:currency_type_id = _swig_property(libotapiPython.OfferDataNym_currency_type_id_get, libotapiPython.OfferDataNym_currency_type_id_set)
+    __swig_setmethods__["currency_acct_id"] = libotapiPython.OfferDataNym_currency_acct_id_set
+    __swig_getmethods__["currency_acct_id"] = libotapiPython.OfferDataNym_currency_acct_id_get
+    if _newclass:currency_acct_id = _swig_property(libotapiPython.OfferDataNym_currency_acct_id_get, libotapiPython.OfferDataNym_currency_acct_id_set)
+    __swig_setmethods__["selling"] = libotapiPython.OfferDataNym_selling_set
+    __swig_getmethods__["selling"] = libotapiPython.OfferDataNym_selling_get
+    if _newclass:selling = _swig_property(libotapiPython.OfferDataNym_selling_get, libotapiPython.OfferDataNym_selling_set)
+    __swig_setmethods__["scale"] = libotapiPython.OfferDataNym_scale_set
+    __swig_getmethods__["scale"] = libotapiPython.OfferDataNym_scale_get
+    if _newclass:scale = _swig_property(libotapiPython.OfferDataNym_scale_get, libotapiPython.OfferDataNym_scale_set)
+    __swig_setmethods__["price_per_scale"] = libotapiPython.OfferDataNym_price_per_scale_set
+    __swig_getmethods__["price_per_scale"] = libotapiPython.OfferDataNym_price_per_scale_get
+    if _newclass:price_per_scale = _swig_property(libotapiPython.OfferDataNym_price_per_scale_get, libotapiPython.OfferDataNym_price_per_scale_set)
+    __swig_setmethods__["transaction_id"] = libotapiPython.OfferDataNym_transaction_id_set
+    __swig_getmethods__["transaction_id"] = libotapiPython.OfferDataNym_transaction_id_get
+    if _newclass:transaction_id = _swig_property(libotapiPython.OfferDataNym_transaction_id_get, libotapiPython.OfferDataNym_transaction_id_set)
+    __swig_setmethods__["total_assets"] = libotapiPython.OfferDataNym_total_assets_set
+    __swig_getmethods__["total_assets"] = libotapiPython.OfferDataNym_total_assets_get
+    if _newclass:total_assets = _swig_property(libotapiPython.OfferDataNym_total_assets_get, libotapiPython.OfferDataNym_total_assets_set)
+    __swig_setmethods__["finished_so_far"] = libotapiPython.OfferDataNym_finished_so_far_set
+    __swig_getmethods__["finished_so_far"] = libotapiPython.OfferDataNym_finished_so_far_get
+    if _newclass:finished_so_far = _swig_property(libotapiPython.OfferDataNym_finished_so_far_get, libotapiPython.OfferDataNym_finished_so_far_set)
+    __swig_setmethods__["minimum_increment"] = libotapiPython.OfferDataNym_minimum_increment_set
+    __swig_getmethods__["minimum_increment"] = libotapiPython.OfferDataNym_minimum_increment_get
+    if _newclass:minimum_increment = _swig_property(libotapiPython.OfferDataNym_minimum_increment_get, libotapiPython.OfferDataNym_minimum_increment_set)
+    __swig_setmethods__["stop_sign"] = libotapiPython.OfferDataNym_stop_sign_set
+    __swig_getmethods__["stop_sign"] = libotapiPython.OfferDataNym_stop_sign_get
+    if _newclass:stop_sign = _swig_property(libotapiPython.OfferDataNym_stop_sign_get, libotapiPython.OfferDataNym_stop_sign_set)
+    __swig_setmethods__["stop_price"] = libotapiPython.OfferDataNym_stop_price_set
+    __swig_getmethods__["stop_price"] = libotapiPython.OfferDataNym_stop_price_get
+    if _newclass:stop_price = _swig_property(libotapiPython.OfferDataNym_stop_price_get, libotapiPython.OfferDataNym_stop_price_set)
+    __swig_getmethods__["ot_dynamic_cast"] = lambda x: libotapiPython.OfferDataNym_ot_dynamic_cast
+    if _newclass:ot_dynamic_cast = staticmethod(libotapiPython.OfferDataNym_ot_dynamic_cast)
+OfferDataNym_swigregister = libotapiPython.OfferDataNym_swigregister
 OfferDataNym_swigregister(OfferDataNym)
 
 def OfferDataNym_ot_dynamic_cast(*args):
-  return _otapi.OfferDataNym_ot_dynamic_cast(*args)
-OfferDataNym_ot_dynamic_cast = _otapi.OfferDataNym_ot_dynamic_cast
+  return libotapiPython.OfferDataNym_ot_dynamic_cast(*args)
+OfferDataNym_ot_dynamic_cast = libotapiPython.OfferDataNym_ot_dynamic_cast
 
 class OfferListNym(Storable):
     __swig_setmethods__ = {}
@@ -1584,20 +1584,20 @@ class OfferListNym(Storable):
     __getattr__ = lambda self, name: _swig_getattr(self, OfferListNym, name)
     def __init__(self, *args, **kwargs): raise AttributeError("No constructor defined")
     __repr__ = _swig_repr
-    __swig_destroy__ = _otapi.delete_OfferListNym
+    __swig_destroy__ = libotapiPython.delete_OfferListNym
     __del__ = lambda self : None;
-    def GetOfferDataNymCount(self): return _otapi.OfferListNym_GetOfferDataNymCount(self)
-    def GetOfferDataNym(self, *args): return _otapi.OfferListNym_GetOfferDataNym(self, *args)
-    def RemoveOfferDataNym(self, *args): return _otapi.OfferListNym_RemoveOfferDataNym(self, *args)
-    def AddOfferDataNym(self, *args): return _otapi.OfferListNym_AddOfferDataNym(self, *args)
-    __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.OfferListNym_ot_dynamic_cast
-    if _newclass:ot_dynamic_cast = staticmethod(_otapi.OfferListNym_ot_dynamic_cast)
-OfferListNym_swigregister = _otapi.OfferListNym_swigregister
+    def GetOfferDataNymCount(self): return libotapiPython.OfferListNym_GetOfferDataNymCount(self)
+    def GetOfferDataNym(self, *args): return libotapiPython.OfferListNym_GetOfferDataNym(self, *args)
+    def RemoveOfferDataNym(self, *args): return libotapiPython.OfferListNym_RemoveOfferDataNym(self, *args)
+    def AddOfferDataNym(self, *args): return libotapiPython.OfferListNym_AddOfferDataNym(self, *args)
+    __swig_getmethods__["ot_dynamic_cast"] = lambda x: libotapiPython.OfferListNym_ot_dynamic_cast
+    if _newclass:ot_dynamic_cast = staticmethod(libotapiPython.OfferListNym_ot_dynamic_cast)
+OfferListNym_swigregister = libotapiPython.OfferListNym_swigregister
 OfferListNym_swigregister(OfferListNym)
 
 def OfferListNym_ot_dynamic_cast(*args):
-  return _otapi.OfferListNym_ot_dynamic_cast(*args)
-OfferListNym_ot_dynamic_cast = _otapi.OfferListNym_ot_dynamic_cast
+  return libotapiPython.OfferListNym_ot_dynamic_cast(*args)
+OfferListNym_ot_dynamic_cast = libotapiPython.OfferListNym_ot_dynamic_cast
 
 class TradeDataNym(Displayable):
     __swig_setmethods__ = {}
@@ -1608,34 +1608,34 @@ class TradeDataNym(Displayable):
     __getattr__ = lambda self, name: _swig_getattr(self, TradeDataNym, name)
     def __init__(self, *args, **kwargs): raise AttributeError("No constructor defined")
     __repr__ = _swig_repr
-    __swig_destroy__ = _otapi.delete_TradeDataNym
+    __swig_destroy__ = libotapiPython.delete_TradeDataNym
     __del__ = lambda self : None;
-    __swig_setmethods__["gui_label"] = _otapi.TradeDataNym_gui_label_set
-    __swig_getmethods__["gui_label"] = _otapi.TradeDataNym_gui_label_get
-    if _newclass:gui_label = _swig_property(_otapi.TradeDataNym_gui_label_get, _otapi.TradeDataNym_gui_label_set)
-    __swig_setmethods__["transaction_id"] = _otapi.TradeDataNym_transaction_id_set
-    __swig_getmethods__["transaction_id"] = _otapi.TradeDataNym_transaction_id_get
-    if _newclass:transaction_id = _swig_property(_otapi.TradeDataNym_transaction_id_get, _otapi.TradeDataNym_transaction_id_set)
-    __swig_setmethods__["completed_count"] = _otapi.TradeDataNym_completed_count_set
-    __swig_getmethods__["completed_count"] = _otapi.TradeDataNym_completed_count_get
-    if _newclass:completed_count = _swig_property(_otapi.TradeDataNym_completed_count_get, _otapi.TradeDataNym_completed_count_set)
-    __swig_setmethods__["date"] = _otapi.TradeDataNym_date_set
-    __swig_getmethods__["date"] = _otapi.TradeDataNym_date_get
-    if _newclass:date = _swig_property(_otapi.TradeDataNym_date_get, _otapi.TradeDataNym_date_set)
-    __swig_setmethods__["price"] = _otapi.TradeDataNym_price_set
-    __swig_getmethods__["price"] = _otapi.TradeDataNym_price_get
-    if _newclass:price = _swig_property(_otapi.TradeDataNym_price_get, _otapi.TradeDataNym_price_set)
-    __swig_setmethods__["amount_sold"] = _otapi.TradeDataNym_amount_sold_set
-    __swig_getmethods__["amount_sold"] = _otapi.TradeDataNym_amount_sold_get
-    if _newclass:amount_sold = _swig_property(_otapi.TradeDataNym_amount_sold_get, _otapi.TradeDataNym_amount_sold_set)
-    __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.TradeDataNym_ot_dynamic_cast
-    if _newclass:ot_dynamic_cast = staticmethod(_otapi.TradeDataNym_ot_dynamic_cast)
-TradeDataNym_swigregister = _otapi.TradeDataNym_swigregister
+    __swig_setmethods__["gui_label"] = libotapiPython.TradeDataNym_gui_label_set
+    __swig_getmethods__["gui_label"] = libotapiPython.TradeDataNym_gui_label_get
+    if _newclass:gui_label = _swig_property(libotapiPython.TradeDataNym_gui_label_get, libotapiPython.TradeDataNym_gui_label_set)
+    __swig_setmethods__["transaction_id"] = libotapiPython.TradeDataNym_transaction_id_set
+    __swig_getmethods__["transaction_id"] = libotapiPython.TradeDataNym_transaction_id_get
+    if _newclass:transaction_id = _swig_property(libotapiPython.TradeDataNym_transaction_id_get, libotapiPython.TradeDataNym_transaction_id_set)
+    __swig_setmethods__["completed_count"] = libotapiPython.TradeDataNym_completed_count_set
+    __swig_getmethods__["completed_count"] = libotapiPython.TradeDataNym_completed_count_get
+    if _newclass:completed_count = _swig_property(libotapiPython.TradeDataNym_completed_count_get, libotapiPython.TradeDataNym_completed_count_set)
+    __swig_setmethods__["date"] = libotapiPython.TradeDataNym_date_set
+    __swig_getmethods__["date"] = libotapiPython.TradeDataNym_date_get
+    if _newclass:date = _swig_property(libotapiPython.TradeDataNym_date_get, libotapiPython.TradeDataNym_date_set)
+    __swig_setmethods__["price"] = libotapiPython.TradeDataNym_price_set
+    __swig_getmethods__["price"] = libotapiPython.TradeDataNym_price_get
+    if _newclass:price = _swig_property(libotapiPython.TradeDataNym_price_get, libotapiPython.TradeDataNym_price_set)
+    __swig_setmethods__["amount_sold"] = libotapiPython.TradeDataNym_amount_sold_set
+    __swig_getmethods__["amount_sold"] = libotapiPython.TradeDataNym_amount_sold_get
+    if _newclass:amount_sold = _swig_property(libotapiPython.TradeDataNym_amount_sold_get, libotapiPython.TradeDataNym_amount_sold_set)
+    __swig_getmethods__["ot_dynamic_cast"] = lambda x: libotapiPython.TradeDataNym_ot_dynamic_cast
+    if _newclass:ot_dynamic_cast = staticmethod(libotapiPython.TradeDataNym_ot_dynamic_cast)
+TradeDataNym_swigregister = libotapiPython.TradeDataNym_swigregister
 TradeDataNym_swigregister(TradeDataNym)
 
 def TradeDataNym_ot_dynamic_cast(*args):
-  return _otapi.TradeDataNym_ot_dynamic_cast(*args)
-TradeDataNym_ot_dynamic_cast = _otapi.TradeDataNym_ot_dynamic_cast
+  return libotapiPython.TradeDataNym_ot_dynamic_cast(*args)
+TradeDataNym_ot_dynamic_cast = libotapiPython.TradeDataNym_ot_dynamic_cast
 
 class TradeListNym(Storable):
     __swig_setmethods__ = {}
@@ -1646,20 +1646,20 @@ class TradeListNym(Storable):
     __getattr__ = lambda self, name: _swig_getattr(self, TradeListNym, name)
     def __init__(self, *args, **kwargs): raise AttributeError("No constructor defined")
     __repr__ = _swig_repr
-    __swig_destroy__ = _otapi.delete_TradeListNym
+    __swig_destroy__ = libotapiPython.delete_TradeListNym
     __del__ = lambda self : None;
-    def GetTradeDataNymCount(self): return _otapi.TradeListNym_GetTradeDataNymCount(self)
-    def GetTradeDataNym(self, *args): return _otapi.TradeListNym_GetTradeDataNym(self, *args)
-    def RemoveTradeDataNym(self, *args): return _otapi.TradeListNym_RemoveTradeDataNym(self, *args)
-    def AddTradeDataNym(self, *args): return _otapi.TradeListNym_AddTradeDataNym(self, *args)
-    __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.TradeListNym_ot_dynamic_cast
-    if _newclass:ot_dynamic_cast = staticmethod(_otapi.TradeListNym_ot_dynamic_cast)
-TradeListNym_swigregister = _otapi.TradeListNym_swigregister
+    def GetTradeDataNymCount(self): return libotapiPython.TradeListNym_GetTradeDataNymCount(self)
+    def GetTradeDataNym(self, *args): return libotapiPython.TradeListNym_GetTradeDataNym(self, *args)
+    def RemoveTradeDataNym(self, *args): return libotapiPython.TradeListNym_RemoveTradeDataNym(self, *args)
+    def AddTradeDataNym(self, *args): return libotapiPython.TradeListNym_AddTradeDataNym(self, *args)
+    __swig_getmethods__["ot_dynamic_cast"] = lambda x: libotapiPython.TradeListNym_ot_dynamic_cast
+    if _newclass:ot_dynamic_cast = staticmethod(libotapiPython.TradeListNym_ot_dynamic_cast)
+TradeListNym_swigregister = libotapiPython.TradeListNym_swigregister
 TradeListNym_swigregister(TradeListNym)
 
 def TradeListNym_ot_dynamic_cast(*args):
-  return _otapi.TradeListNym_ot_dynamic_cast(*args)
-TradeListNym_ot_dynamic_cast = _otapi.TradeListNym_ot_dynamic_cast
+  return libotapiPython.TradeListNym_ot_dynamic_cast(*args)
+TradeListNym_ot_dynamic_cast = libotapiPython.TradeListNym_ot_dynamic_cast
 
 class Acct(Displayable):
     __swig_setmethods__ = {}
@@ -1670,25 +1670,25 @@ class Acct(Displayable):
     __getattr__ = lambda self, name: _swig_getattr(self, Acct, name)
     def __init__(self, *args, **kwargs): raise AttributeError("No constructor defined")
     __repr__ = _swig_repr
-    __swig_destroy__ = _otapi.delete_Acct
+    __swig_destroy__ = libotapiPython.delete_Acct
     __del__ = lambda self : None;
-    __swig_setmethods__["gui_label"] = _otapi.Acct_gui_label_set
-    __swig_getmethods__["gui_label"] = _otapi.Acct_gui_label_get
-    if _newclass:gui_label = _swig_property(_otapi.Acct_gui_label_get, _otapi.Acct_gui_label_set)
-    __swig_setmethods__["acct_id"] = _otapi.Acct_acct_id_set
-    __swig_getmethods__["acct_id"] = _otapi.Acct_acct_id_get
-    if _newclass:acct_id = _swig_property(_otapi.Acct_acct_id_get, _otapi.Acct_acct_id_set)
-    __swig_setmethods__["server_id"] = _otapi.Acct_server_id_set
-    __swig_getmethods__["server_id"] = _otapi.Acct_server_id_get
-    if _newclass:server_id = _swig_property(_otapi.Acct_server_id_get, _otapi.Acct_server_id_set)
-    __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.Acct_ot_dynamic_cast
-    if _newclass:ot_dynamic_cast = staticmethod(_otapi.Acct_ot_dynamic_cast)
-Acct_swigregister = _otapi.Acct_swigregister
+    __swig_setmethods__["gui_label"] = libotapiPython.Acct_gui_label_set
+    __swig_getmethods__["gui_label"] = libotapiPython.Acct_gui_label_get
+    if _newclass:gui_label = _swig_property(libotapiPython.Acct_gui_label_get, libotapiPython.Acct_gui_label_set)
+    __swig_setmethods__["acct_id"] = libotapiPython.Acct_acct_id_set
+    __swig_getmethods__["acct_id"] = libotapiPython.Acct_acct_id_get
+    if _newclass:acct_id = _swig_property(libotapiPython.Acct_acct_id_get, libotapiPython.Acct_acct_id_set)
+    __swig_setmethods__["server_id"] = libotapiPython.Acct_server_id_set
+    __swig_getmethods__["server_id"] = libotapiPython.Acct_server_id_get
+    if _newclass:server_id = _swig_property(libotapiPython.Acct_server_id_get, libotapiPython.Acct_server_id_set)
+    __swig_getmethods__["ot_dynamic_cast"] = lambda x: libotapiPython.Acct_ot_dynamic_cast
+    if _newclass:ot_dynamic_cast = staticmethod(libotapiPython.Acct_ot_dynamic_cast)
+Acct_swigregister = libotapiPython.Acct_swigregister
 Acct_swigregister(Acct)
 
 def Acct_ot_dynamic_cast(*args):
-  return _otapi.Acct_ot_dynamic_cast(*args)
-Acct_ot_dynamic_cast = _otapi.Acct_ot_dynamic_cast
+  return libotapiPython.Acct_ot_dynamic_cast(*args)
+Acct_ot_dynamic_cast = libotapiPython.Acct_ot_dynamic_cast
 
 class BitcoinAcct(Acct):
     __swig_setmethods__ = {}
@@ -1699,28 +1699,28 @@ class BitcoinAcct(Acct):
     __getattr__ = lambda self, name: _swig_getattr(self, BitcoinAcct, name)
     def __init__(self, *args, **kwargs): raise AttributeError("No constructor defined")
     __repr__ = _swig_repr
-    __swig_destroy__ = _otapi.delete_BitcoinAcct
+    __swig_destroy__ = libotapiPython.delete_BitcoinAcct
     __del__ = lambda self : None;
-    __swig_setmethods__["gui_label"] = _otapi.BitcoinAcct_gui_label_set
-    __swig_getmethods__["gui_label"] = _otapi.BitcoinAcct_gui_label_get
-    if _newclass:gui_label = _swig_property(_otapi.BitcoinAcct_gui_label_get, _otapi.BitcoinAcct_gui_label_set)
-    __swig_setmethods__["acct_id"] = _otapi.BitcoinAcct_acct_id_set
-    __swig_getmethods__["acct_id"] = _otapi.BitcoinAcct_acct_id_get
-    if _newclass:acct_id = _swig_property(_otapi.BitcoinAcct_acct_id_get, _otapi.BitcoinAcct_acct_id_set)
-    __swig_setmethods__["server_id"] = _otapi.BitcoinAcct_server_id_set
-    __swig_getmethods__["server_id"] = _otapi.BitcoinAcct_server_id_get
-    if _newclass:server_id = _swig_property(_otapi.BitcoinAcct_server_id_get, _otapi.BitcoinAcct_server_id_set)
-    __swig_setmethods__["bitcoin_acct_name"] = _otapi.BitcoinAcct_bitcoin_acct_name_set
-    __swig_getmethods__["bitcoin_acct_name"] = _otapi.BitcoinAcct_bitcoin_acct_name_get
-    if _newclass:bitcoin_acct_name = _swig_property(_otapi.BitcoinAcct_bitcoin_acct_name_get, _otapi.BitcoinAcct_bitcoin_acct_name_set)
-    __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.BitcoinAcct_ot_dynamic_cast
-    if _newclass:ot_dynamic_cast = staticmethod(_otapi.BitcoinAcct_ot_dynamic_cast)
-BitcoinAcct_swigregister = _otapi.BitcoinAcct_swigregister
+    __swig_setmethods__["gui_label"] = libotapiPython.BitcoinAcct_gui_label_set
+    __swig_getmethods__["gui_label"] = libotapiPython.BitcoinAcct_gui_label_get
+    if _newclass:gui_label = _swig_property(libotapiPython.BitcoinAcct_gui_label_get, libotapiPython.BitcoinAcct_gui_label_set)
+    __swig_setmethods__["acct_id"] = libotapiPython.BitcoinAcct_acct_id_set
+    __swig_getmethods__["acct_id"] = libotapiPython.BitcoinAcct_acct_id_get
+    if _newclass:acct_id = _swig_property(libotapiPython.BitcoinAcct_acct_id_get, libotapiPython.BitcoinAcct_acct_id_set)
+    __swig_setmethods__["server_id"] = libotapiPython.BitcoinAcct_server_id_set
+    __swig_getmethods__["server_id"] = libotapiPython.BitcoinAcct_server_id_get
+    if _newclass:server_id = _swig_property(libotapiPython.BitcoinAcct_server_id_get, libotapiPython.BitcoinAcct_server_id_set)
+    __swig_setmethods__["bitcoin_acct_name"] = libotapiPython.BitcoinAcct_bitcoin_acct_name_set
+    __swig_getmethods__["bitcoin_acct_name"] = libotapiPython.BitcoinAcct_bitcoin_acct_name_get
+    if _newclass:bitcoin_acct_name = _swig_property(libotapiPython.BitcoinAcct_bitcoin_acct_name_get, libotapiPython.BitcoinAcct_bitcoin_acct_name_set)
+    __swig_getmethods__["ot_dynamic_cast"] = lambda x: libotapiPython.BitcoinAcct_ot_dynamic_cast
+    if _newclass:ot_dynamic_cast = staticmethod(libotapiPython.BitcoinAcct_ot_dynamic_cast)
+BitcoinAcct_swigregister = libotapiPython.BitcoinAcct_swigregister
 BitcoinAcct_swigregister(BitcoinAcct)
 
 def BitcoinAcct_ot_dynamic_cast(*args):
-  return _otapi.BitcoinAcct_ot_dynamic_cast(*args)
-BitcoinAcct_ot_dynamic_cast = _otapi.BitcoinAcct_ot_dynamic_cast
+  return libotapiPython.BitcoinAcct_ot_dynamic_cast(*args)
+BitcoinAcct_ot_dynamic_cast = libotapiPython.BitcoinAcct_ot_dynamic_cast
 
 class ServerInfo(Displayable):
     __swig_setmethods__ = {}
@@ -1731,25 +1731,25 @@ class ServerInfo(Displayable):
     __getattr__ = lambda self, name: _swig_getattr(self, ServerInfo, name)
     def __init__(self, *args, **kwargs): raise AttributeError("No constructor defined")
     __repr__ = _swig_repr
-    __swig_destroy__ = _otapi.delete_ServerInfo
+    __swig_destroy__ = libotapiPython.delete_ServerInfo
     __del__ = lambda self : None;
-    __swig_setmethods__["gui_label"] = _otapi.ServerInfo_gui_label_set
-    __swig_getmethods__["gui_label"] = _otapi.ServerInfo_gui_label_get
-    if _newclass:gui_label = _swig_property(_otapi.ServerInfo_gui_label_get, _otapi.ServerInfo_gui_label_set)
-    __swig_setmethods__["server_id"] = _otapi.ServerInfo_server_id_set
-    __swig_getmethods__["server_id"] = _otapi.ServerInfo_server_id_get
-    if _newclass:server_id = _swig_property(_otapi.ServerInfo_server_id_get, _otapi.ServerInfo_server_id_set)
-    __swig_setmethods__["server_type"] = _otapi.ServerInfo_server_type_set
-    __swig_getmethods__["server_type"] = _otapi.ServerInfo_server_type_get
-    if _newclass:server_type = _swig_property(_otapi.ServerInfo_server_type_get, _otapi.ServerInfo_server_type_set)
-    __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.ServerInfo_ot_dynamic_cast
-    if _newclass:ot_dynamic_cast = staticmethod(_otapi.ServerInfo_ot_dynamic_cast)
-ServerInfo_swigregister = _otapi.ServerInfo_swigregister
+    __swig_setmethods__["gui_label"] = libotapiPython.ServerInfo_gui_label_set
+    __swig_getmethods__["gui_label"] = libotapiPython.ServerInfo_gui_label_get
+    if _newclass:gui_label = _swig_property(libotapiPython.ServerInfo_gui_label_get, libotapiPython.ServerInfo_gui_label_set)
+    __swig_setmethods__["server_id"] = libotapiPython.ServerInfo_server_id_set
+    __swig_getmethods__["server_id"] = libotapiPython.ServerInfo_server_id_get
+    if _newclass:server_id = _swig_property(libotapiPython.ServerInfo_server_id_get, libotapiPython.ServerInfo_server_id_set)
+    __swig_setmethods__["server_type"] = libotapiPython.ServerInfo_server_type_set
+    __swig_getmethods__["server_type"] = libotapiPython.ServerInfo_server_type_get
+    if _newclass:server_type = _swig_property(libotapiPython.ServerInfo_server_type_get, libotapiPython.ServerInfo_server_type_set)
+    __swig_getmethods__["ot_dynamic_cast"] = lambda x: libotapiPython.ServerInfo_ot_dynamic_cast
+    if _newclass:ot_dynamic_cast = staticmethod(libotapiPython.ServerInfo_ot_dynamic_cast)
+ServerInfo_swigregister = libotapiPython.ServerInfo_swigregister
 ServerInfo_swigregister(ServerInfo)
 
 def ServerInfo_ot_dynamic_cast(*args):
-  return _otapi.ServerInfo_ot_dynamic_cast(*args)
-ServerInfo_ot_dynamic_cast = _otapi.ServerInfo_ot_dynamic_cast
+  return libotapiPython.ServerInfo_ot_dynamic_cast(*args)
+ServerInfo_ot_dynamic_cast = libotapiPython.ServerInfo_ot_dynamic_cast
 
 class Server(ServerInfo):
     __swig_setmethods__ = {}
@@ -1760,31 +1760,31 @@ class Server(ServerInfo):
     __getattr__ = lambda self, name: _swig_getattr(self, Server, name)
     def __init__(self, *args, **kwargs): raise AttributeError("No constructor defined")
     __repr__ = _swig_repr
-    __swig_destroy__ = _otapi.delete_Server
+    __swig_destroy__ = libotapiPython.delete_Server
     __del__ = lambda self : None;
-    __swig_setmethods__["gui_label"] = _otapi.Server_gui_label_set
-    __swig_getmethods__["gui_label"] = _otapi.Server_gui_label_get
-    if _newclass:gui_label = _swig_property(_otapi.Server_gui_label_get, _otapi.Server_gui_label_set)
-    __swig_setmethods__["server_id"] = _otapi.Server_server_id_set
-    __swig_getmethods__["server_id"] = _otapi.Server_server_id_get
-    if _newclass:server_id = _swig_property(_otapi.Server_server_id_get, _otapi.Server_server_id_set)
-    __swig_setmethods__["server_type"] = _otapi.Server_server_type_set
-    __swig_getmethods__["server_type"] = _otapi.Server_server_type_get
-    if _newclass:server_type = _swig_property(_otapi.Server_server_type_get, _otapi.Server_server_type_set)
-    __swig_setmethods__["server_host"] = _otapi.Server_server_host_set
-    __swig_getmethods__["server_host"] = _otapi.Server_server_host_get
-    if _newclass:server_host = _swig_property(_otapi.Server_server_host_get, _otapi.Server_server_host_set)
-    __swig_setmethods__["server_port"] = _otapi.Server_server_port_set
-    __swig_getmethods__["server_port"] = _otapi.Server_server_port_get
-    if _newclass:server_port = _swig_property(_otapi.Server_server_port_get, _otapi.Server_server_port_set)
-    __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.Server_ot_dynamic_cast
-    if _newclass:ot_dynamic_cast = staticmethod(_otapi.Server_ot_dynamic_cast)
-Server_swigregister = _otapi.Server_swigregister
+    __swig_setmethods__["gui_label"] = libotapiPython.Server_gui_label_set
+    __swig_getmethods__["gui_label"] = libotapiPython.Server_gui_label_get
+    if _newclass:gui_label = _swig_property(libotapiPython.Server_gui_label_get, libotapiPython.Server_gui_label_set)
+    __swig_setmethods__["server_id"] = libotapiPython.Server_server_id_set
+    __swig_getmethods__["server_id"] = libotapiPython.Server_server_id_get
+    if _newclass:server_id = _swig_property(libotapiPython.Server_server_id_get, libotapiPython.Server_server_id_set)
+    __swig_setmethods__["server_type"] = libotapiPython.Server_server_type_set
+    __swig_getmethods__["server_type"] = libotapiPython.Server_server_type_get
+    if _newclass:server_type = _swig_property(libotapiPython.Server_server_type_get, libotapiPython.Server_server_type_set)
+    __swig_setmethods__["server_host"] = libotapiPython.Server_server_host_set
+    __swig_getmethods__["server_host"] = libotapiPython.Server_server_host_get
+    if _newclass:server_host = _swig_property(libotapiPython.Server_server_host_get, libotapiPython.Server_server_host_set)
+    __swig_setmethods__["server_port"] = libotapiPython.Server_server_port_set
+    __swig_getmethods__["server_port"] = libotapiPython.Server_server_port_get
+    if _newclass:server_port = _swig_property(libotapiPython.Server_server_port_get, libotapiPython.Server_server_port_set)
+    __swig_getmethods__["ot_dynamic_cast"] = lambda x: libotapiPython.Server_ot_dynamic_cast
+    if _newclass:ot_dynamic_cast = staticmethod(libotapiPython.Server_ot_dynamic_cast)
+Server_swigregister = libotapiPython.Server_swigregister
 Server_swigregister(Server)
 
 def Server_ot_dynamic_cast(*args):
-  return _otapi.Server_ot_dynamic_cast(*args)
-Server_ot_dynamic_cast = _otapi.Server_ot_dynamic_cast
+  return libotapiPython.Server_ot_dynamic_cast(*args)
+Server_ot_dynamic_cast = libotapiPython.Server_ot_dynamic_cast
 
 class BitcoinServer(Server):
     __swig_setmethods__ = {}
@@ -1795,37 +1795,37 @@ class BitcoinServer(Server):
     __getattr__ = lambda self, name: _swig_getattr(self, BitcoinServer, name)
     def __init__(self, *args, **kwargs): raise AttributeError("No constructor defined")
     __repr__ = _swig_repr
-    __swig_destroy__ = _otapi.delete_BitcoinServer
+    __swig_destroy__ = libotapiPython.delete_BitcoinServer
     __del__ = lambda self : None;
-    __swig_setmethods__["gui_label"] = _otapi.BitcoinServer_gui_label_set
-    __swig_getmethods__["gui_label"] = _otapi.BitcoinServer_gui_label_get
-    if _newclass:gui_label = _swig_property(_otapi.BitcoinServer_gui_label_get, _otapi.BitcoinServer_gui_label_set)
-    __swig_setmethods__["server_id"] = _otapi.BitcoinServer_server_id_set
-    __swig_getmethods__["server_id"] = _otapi.BitcoinServer_server_id_get
-    if _newclass:server_id = _swig_property(_otapi.BitcoinServer_server_id_get, _otapi.BitcoinServer_server_id_set)
-    __swig_setmethods__["server_type"] = _otapi.BitcoinServer_server_type_set
-    __swig_getmethods__["server_type"] = _otapi.BitcoinServer_server_type_get
-    if _newclass:server_type = _swig_property(_otapi.BitcoinServer_server_type_get, _otapi.BitcoinServer_server_type_set)
-    __swig_setmethods__["server_host"] = _otapi.BitcoinServer_server_host_set
-    __swig_getmethods__["server_host"] = _otapi.BitcoinServer_server_host_get
-    if _newclass:server_host = _swig_property(_otapi.BitcoinServer_server_host_get, _otapi.BitcoinServer_server_host_set)
-    __swig_setmethods__["server_port"] = _otapi.BitcoinServer_server_port_set
-    __swig_getmethods__["server_port"] = _otapi.BitcoinServer_server_port_get
-    if _newclass:server_port = _swig_property(_otapi.BitcoinServer_server_port_get, _otapi.BitcoinServer_server_port_set)
-    __swig_setmethods__["bitcoin_username"] = _otapi.BitcoinServer_bitcoin_username_set
-    __swig_getmethods__["bitcoin_username"] = _otapi.BitcoinServer_bitcoin_username_get
-    if _newclass:bitcoin_username = _swig_property(_otapi.BitcoinServer_bitcoin_username_get, _otapi.BitcoinServer_bitcoin_username_set)
-    __swig_setmethods__["bitcoin_password"] = _otapi.BitcoinServer_bitcoin_password_set
-    __swig_getmethods__["bitcoin_password"] = _otapi.BitcoinServer_bitcoin_password_get
-    if _newclass:bitcoin_password = _swig_property(_otapi.BitcoinServer_bitcoin_password_get, _otapi.BitcoinServer_bitcoin_password_set)
-    __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.BitcoinServer_ot_dynamic_cast
-    if _newclass:ot_dynamic_cast = staticmethod(_otapi.BitcoinServer_ot_dynamic_cast)
-BitcoinServer_swigregister = _otapi.BitcoinServer_swigregister
+    __swig_setmethods__["gui_label"] = libotapiPython.BitcoinServer_gui_label_set
+    __swig_getmethods__["gui_label"] = libotapiPython.BitcoinServer_gui_label_get
+    if _newclass:gui_label = _swig_property(libotapiPython.BitcoinServer_gui_label_get, libotapiPython.BitcoinServer_gui_label_set)
+    __swig_setmethods__["server_id"] = libotapiPython.BitcoinServer_server_id_set
+    __swig_getmethods__["server_id"] = libotapiPython.BitcoinServer_server_id_get
+    if _newclass:server_id = _swig_property(libotapiPython.BitcoinServer_server_id_get, libotapiPython.BitcoinServer_server_id_set)
+    __swig_setmethods__["server_type"] = libotapiPython.BitcoinServer_server_type_set
+    __swig_getmethods__["server_type"] = libotapiPython.BitcoinServer_server_type_get
+    if _newclass:server_type = _swig_property(libotapiPython.BitcoinServer_server_type_get, libotapiPython.BitcoinServer_server_type_set)
+    __swig_setmethods__["server_host"] = libotapiPython.BitcoinServer_server_host_set
+    __swig_getmethods__["server_host"] = libotapiPython.BitcoinServer_server_host_get
+    if _newclass:server_host = _swig_property(libotapiPython.BitcoinServer_server_host_get, libotapiPython.BitcoinServer_server_host_set)
+    __swig_setmethods__["server_port"] = libotapiPython.BitcoinServer_server_port_set
+    __swig_getmethods__["server_port"] = libotapiPython.BitcoinServer_server_port_get
+    if _newclass:server_port = _swig_property(libotapiPython.BitcoinServer_server_port_get, libotapiPython.BitcoinServer_server_port_set)
+    __swig_setmethods__["bitcoin_username"] = libotapiPython.BitcoinServer_bitcoin_username_set
+    __swig_getmethods__["bitcoin_username"] = libotapiPython.BitcoinServer_bitcoin_username_get
+    if _newclass:bitcoin_username = _swig_property(libotapiPython.BitcoinServer_bitcoin_username_get, libotapiPython.BitcoinServer_bitcoin_username_set)
+    __swig_setmethods__["bitcoin_password"] = libotapiPython.BitcoinServer_bitcoin_password_set
+    __swig_getmethods__["bitcoin_password"] = libotapiPython.BitcoinServer_bitcoin_password_get
+    if _newclass:bitcoin_password = _swig_property(libotapiPython.BitcoinServer_bitcoin_password_get, libotapiPython.BitcoinServer_bitcoin_password_set)
+    __swig_getmethods__["ot_dynamic_cast"] = lambda x: libotapiPython.BitcoinServer_ot_dynamic_cast
+    if _newclass:ot_dynamic_cast = staticmethod(libotapiPython.BitcoinServer_ot_dynamic_cast)
+BitcoinServer_swigregister = libotapiPython.BitcoinServer_swigregister
 BitcoinServer_swigregister(BitcoinServer)
 
 def BitcoinServer_ot_dynamic_cast(*args):
-  return _otapi.BitcoinServer_ot_dynamic_cast(*args)
-BitcoinServer_ot_dynamic_cast = _otapi.BitcoinServer_ot_dynamic_cast
+  return libotapiPython.BitcoinServer_ot_dynamic_cast(*args)
+BitcoinServer_ot_dynamic_cast = libotapiPython.BitcoinServer_ot_dynamic_cast
 
 class RippleServer(Server):
     __swig_setmethods__ = {}
@@ -1836,43 +1836,43 @@ class RippleServer(Server):
     __getattr__ = lambda self, name: _swig_getattr(self, RippleServer, name)
     def __init__(self, *args, **kwargs): raise AttributeError("No constructor defined")
     __repr__ = _swig_repr
-    __swig_destroy__ = _otapi.delete_RippleServer
+    __swig_destroy__ = libotapiPython.delete_RippleServer
     __del__ = lambda self : None;
-    __swig_setmethods__["gui_label"] = _otapi.RippleServer_gui_label_set
-    __swig_getmethods__["gui_label"] = _otapi.RippleServer_gui_label_get
-    if _newclass:gui_label = _swig_property(_otapi.RippleServer_gui_label_get, _otapi.RippleServer_gui_label_set)
-    __swig_setmethods__["server_id"] = _otapi.RippleServer_server_id_set
-    __swig_getmethods__["server_id"] = _otapi.RippleServer_server_id_get
-    if _newclass:server_id = _swig_property(_otapi.RippleServer_server_id_get, _otapi.RippleServer_server_id_set)
-    __swig_setmethods__["server_type"] = _otapi.RippleServer_server_type_set
-    __swig_getmethods__["server_type"] = _otapi.RippleServer_server_type_get
-    if _newclass:server_type = _swig_property(_otapi.RippleServer_server_type_get, _otapi.RippleServer_server_type_set)
-    __swig_setmethods__["server_host"] = _otapi.RippleServer_server_host_set
-    __swig_getmethods__["server_host"] = _otapi.RippleServer_server_host_get
-    if _newclass:server_host = _swig_property(_otapi.RippleServer_server_host_get, _otapi.RippleServer_server_host_set)
-    __swig_setmethods__["server_port"] = _otapi.RippleServer_server_port_set
-    __swig_getmethods__["server_port"] = _otapi.RippleServer_server_port_get
-    if _newclass:server_port = _swig_property(_otapi.RippleServer_server_port_get, _otapi.RippleServer_server_port_set)
-    __swig_setmethods__["ripple_username"] = _otapi.RippleServer_ripple_username_set
-    __swig_getmethods__["ripple_username"] = _otapi.RippleServer_ripple_username_get
-    if _newclass:ripple_username = _swig_property(_otapi.RippleServer_ripple_username_get, _otapi.RippleServer_ripple_username_set)
-    __swig_setmethods__["ripple_password"] = _otapi.RippleServer_ripple_password_set
-    __swig_getmethods__["ripple_password"] = _otapi.RippleServer_ripple_password_get
-    if _newclass:ripple_password = _swig_property(_otapi.RippleServer_ripple_password_get, _otapi.RippleServer_ripple_password_set)
-    __swig_setmethods__["namefield_id"] = _otapi.RippleServer_namefield_id_set
-    __swig_getmethods__["namefield_id"] = _otapi.RippleServer_namefield_id_get
-    if _newclass:namefield_id = _swig_property(_otapi.RippleServer_namefield_id_get, _otapi.RippleServer_namefield_id_set)
-    __swig_setmethods__["passfield_id"] = _otapi.RippleServer_passfield_id_set
-    __swig_getmethods__["passfield_id"] = _otapi.RippleServer_passfield_id_get
-    if _newclass:passfield_id = _swig_property(_otapi.RippleServer_passfield_id_get, _otapi.RippleServer_passfield_id_set)
-    __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.RippleServer_ot_dynamic_cast
-    if _newclass:ot_dynamic_cast = staticmethod(_otapi.RippleServer_ot_dynamic_cast)
-RippleServer_swigregister = _otapi.RippleServer_swigregister
+    __swig_setmethods__["gui_label"] = libotapiPython.RippleServer_gui_label_set
+    __swig_getmethods__["gui_label"] = libotapiPython.RippleServer_gui_label_get
+    if _newclass:gui_label = _swig_property(libotapiPython.RippleServer_gui_label_get, libotapiPython.RippleServer_gui_label_set)
+    __swig_setmethods__["server_id"] = libotapiPython.RippleServer_server_id_set
+    __swig_getmethods__["server_id"] = libotapiPython.RippleServer_server_id_get
+    if _newclass:server_id = _swig_property(libotapiPython.RippleServer_server_id_get, libotapiPython.RippleServer_server_id_set)
+    __swig_setmethods__["server_type"] = libotapiPython.RippleServer_server_type_set
+    __swig_getmethods__["server_type"] = libotapiPython.RippleServer_server_type_get
+    if _newclass:server_type = _swig_property(libotapiPython.RippleServer_server_type_get, libotapiPython.RippleServer_server_type_set)
+    __swig_setmethods__["server_host"] = libotapiPython.RippleServer_server_host_set
+    __swig_getmethods__["server_host"] = libotapiPython.RippleServer_server_host_get
+    if _newclass:server_host = _swig_property(libotapiPython.RippleServer_server_host_get, libotapiPython.RippleServer_server_host_set)
+    __swig_setmethods__["server_port"] = libotapiPython.RippleServer_server_port_set
+    __swig_getmethods__["server_port"] = libotapiPython.RippleServer_server_port_get
+    if _newclass:server_port = _swig_property(libotapiPython.RippleServer_server_port_get, libotapiPython.RippleServer_server_port_set)
+    __swig_setmethods__["ripple_username"] = libotapiPython.RippleServer_ripple_username_set
+    __swig_getmethods__["ripple_username"] = libotapiPython.RippleServer_ripple_username_get
+    if _newclass:ripple_username = _swig_property(libotapiPython.RippleServer_ripple_username_get, libotapiPython.RippleServer_ripple_username_set)
+    __swig_setmethods__["ripple_password"] = libotapiPython.RippleServer_ripple_password_set
+    __swig_getmethods__["ripple_password"] = libotapiPython.RippleServer_ripple_password_get
+    if _newclass:ripple_password = _swig_property(libotapiPython.RippleServer_ripple_password_get, libotapiPython.RippleServer_ripple_password_set)
+    __swig_setmethods__["namefield_id"] = libotapiPython.RippleServer_namefield_id_set
+    __swig_getmethods__["namefield_id"] = libotapiPython.RippleServer_namefield_id_get
+    if _newclass:namefield_id = _swig_property(libotapiPython.RippleServer_namefield_id_get, libotapiPython.RippleServer_namefield_id_set)
+    __swig_setmethods__["passfield_id"] = libotapiPython.RippleServer_passfield_id_set
+    __swig_getmethods__["passfield_id"] = libotapiPython.RippleServer_passfield_id_get
+    if _newclass:passfield_id = _swig_property(libotapiPython.RippleServer_passfield_id_get, libotapiPython.RippleServer_passfield_id_set)
+    __swig_getmethods__["ot_dynamic_cast"] = lambda x: libotapiPython.RippleServer_ot_dynamic_cast
+    if _newclass:ot_dynamic_cast = staticmethod(libotapiPython.RippleServer_ot_dynamic_cast)
+RippleServer_swigregister = libotapiPython.RippleServer_swigregister
 RippleServer_swigregister(RippleServer)
 
 def RippleServer_ot_dynamic_cast(*args):
-  return _otapi.RippleServer_ot_dynamic_cast(*args)
-RippleServer_ot_dynamic_cast = _otapi.RippleServer_ot_dynamic_cast
+  return libotapiPython.RippleServer_ot_dynamic_cast(*args)
+RippleServer_ot_dynamic_cast = libotapiPython.RippleServer_ot_dynamic_cast
 
 class LoomServer(Server):
     __swig_setmethods__ = {}
@@ -1883,37 +1883,37 @@ class LoomServer(Server):
     __getattr__ = lambda self, name: _swig_getattr(self, LoomServer, name)
     def __init__(self, *args, **kwargs): raise AttributeError("No constructor defined")
     __repr__ = _swig_repr
-    __swig_destroy__ = _otapi.delete_LoomServer
+    __swig_destroy__ = libotapiPython.delete_LoomServer
     __del__ = lambda self : None;
-    __swig_setmethods__["gui_label"] = _otapi.LoomServer_gui_label_set
-    __swig_getmethods__["gui_label"] = _otapi.LoomServer_gui_label_get
-    if _newclass:gui_label = _swig_property(_otapi.LoomServer_gui_label_get, _otapi.LoomServer_gui_label_set)
-    __swig_setmethods__["server_id"] = _otapi.LoomServer_server_id_set
-    __swig_getmethods__["server_id"] = _otapi.LoomServer_server_id_get
-    if _newclass:server_id = _swig_property(_otapi.LoomServer_server_id_get, _otapi.LoomServer_server_id_set)
-    __swig_setmethods__["server_type"] = _otapi.LoomServer_server_type_set
-    __swig_getmethods__["server_type"] = _otapi.LoomServer_server_type_get
-    if _newclass:server_type = _swig_property(_otapi.LoomServer_server_type_get, _otapi.LoomServer_server_type_set)
-    __swig_setmethods__["server_host"] = _otapi.LoomServer_server_host_set
-    __swig_getmethods__["server_host"] = _otapi.LoomServer_server_host_get
-    if _newclass:server_host = _swig_property(_otapi.LoomServer_server_host_get, _otapi.LoomServer_server_host_set)
-    __swig_setmethods__["server_port"] = _otapi.LoomServer_server_port_set
-    __swig_getmethods__["server_port"] = _otapi.LoomServer_server_port_get
-    if _newclass:server_port = _swig_property(_otapi.LoomServer_server_port_get, _otapi.LoomServer_server_port_set)
-    __swig_setmethods__["loom_username"] = _otapi.LoomServer_loom_username_set
-    __swig_getmethods__["loom_username"] = _otapi.LoomServer_loom_username_get
-    if _newclass:loom_username = _swig_property(_otapi.LoomServer_loom_username_get, _otapi.LoomServer_loom_username_set)
-    __swig_setmethods__["namefield_id"] = _otapi.LoomServer_namefield_id_set
-    __swig_getmethods__["namefield_id"] = _otapi.LoomServer_namefield_id_get
-    if _newclass:namefield_id = _swig_property(_otapi.LoomServer_namefield_id_get, _otapi.LoomServer_namefield_id_set)
-    __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.LoomServer_ot_dynamic_cast
-    if _newclass:ot_dynamic_cast = staticmethod(_otapi.LoomServer_ot_dynamic_cast)
-LoomServer_swigregister = _otapi.LoomServer_swigregister
+    __swig_setmethods__["gui_label"] = libotapiPython.LoomServer_gui_label_set
+    __swig_getmethods__["gui_label"] = libotapiPython.LoomServer_gui_label_get
+    if _newclass:gui_label = _swig_property(libotapiPython.LoomServer_gui_label_get, libotapiPython.LoomServer_gui_label_set)
+    __swig_setmethods__["server_id"] = libotapiPython.LoomServer_server_id_set
+    __swig_getmethods__["server_id"] = libotapiPython.LoomServer_server_id_get
+    if _newclass:server_id = _swig_property(libotapiPython.LoomServer_server_id_get, libotapiPython.LoomServer_server_id_set)
+    __swig_setmethods__["server_type"] = libotapiPython.LoomServer_server_type_set
+    __swig_getmethods__["server_type"] = libotapiPython.LoomServer_server_type_get
+    if _newclass:server_type = _swig_property(libotapiPython.LoomServer_server_type_get, libotapiPython.LoomServer_server_type_set)
+    __swig_setmethods__["server_host"] = libotapiPython.LoomServer_server_host_set
+    __swig_getmethods__["server_host"] = libotapiPython.LoomServer_server_host_get
+    if _newclass:server_host = _swig_property(libotapiPython.LoomServer_server_host_get, libotapiPython.LoomServer_server_host_set)
+    __swig_setmethods__["server_port"] = libotapiPython.LoomServer_server_port_set
+    __swig_getmethods__["server_port"] = libotapiPython.LoomServer_server_port_get
+    if _newclass:server_port = _swig_property(libotapiPython.LoomServer_server_port_get, libotapiPython.LoomServer_server_port_set)
+    __swig_setmethods__["loom_username"] = libotapiPython.LoomServer_loom_username_set
+    __swig_getmethods__["loom_username"] = libotapiPython.LoomServer_loom_username_get
+    if _newclass:loom_username = _swig_property(libotapiPython.LoomServer_loom_username_get, libotapiPython.LoomServer_loom_username_set)
+    __swig_setmethods__["namefield_id"] = libotapiPython.LoomServer_namefield_id_set
+    __swig_getmethods__["namefield_id"] = libotapiPython.LoomServer_namefield_id_get
+    if _newclass:namefield_id = _swig_property(libotapiPython.LoomServer_namefield_id_get, libotapiPython.LoomServer_namefield_id_set)
+    __swig_getmethods__["ot_dynamic_cast"] = lambda x: libotapiPython.LoomServer_ot_dynamic_cast
+    if _newclass:ot_dynamic_cast = staticmethod(libotapiPython.LoomServer_ot_dynamic_cast)
+LoomServer_swigregister = libotapiPython.LoomServer_swigregister
 LoomServer_swigregister(LoomServer)
 
 def LoomServer_ot_dynamic_cast(*args):
-  return _otapi.LoomServer_ot_dynamic_cast(*args)
-LoomServer_ot_dynamic_cast = _otapi.LoomServer_ot_dynamic_cast
+  return libotapiPython.LoomServer_ot_dynamic_cast(*args)
+LoomServer_ot_dynamic_cast = libotapiPython.LoomServer_ot_dynamic_cast
 
 class ContactNym(Displayable):
     __swig_setmethods__ = {}
@@ -1924,35 +1924,35 @@ class ContactNym(Displayable):
     __getattr__ = lambda self, name: _swig_getattr(self, ContactNym, name)
     def __init__(self, *args, **kwargs): raise AttributeError("No constructor defined")
     __repr__ = _swig_repr
-    __swig_destroy__ = _otapi.delete_ContactNym
+    __swig_destroy__ = libotapiPython.delete_ContactNym
     __del__ = lambda self : None;
-    __swig_setmethods__["gui_label"] = _otapi.ContactNym_gui_label_set
-    __swig_getmethods__["gui_label"] = _otapi.ContactNym_gui_label_get
-    if _newclass:gui_label = _swig_property(_otapi.ContactNym_gui_label_get, _otapi.ContactNym_gui_label_set)
-    __swig_setmethods__["nym_type"] = _otapi.ContactNym_nym_type_set
-    __swig_getmethods__["nym_type"] = _otapi.ContactNym_nym_type_get
-    if _newclass:nym_type = _swig_property(_otapi.ContactNym_nym_type_get, _otapi.ContactNym_nym_type_set)
-    __swig_setmethods__["nym_id"] = _otapi.ContactNym_nym_id_set
-    __swig_getmethods__["nym_id"] = _otapi.ContactNym_nym_id_get
-    if _newclass:nym_id = _swig_property(_otapi.ContactNym_nym_id_get, _otapi.ContactNym_nym_id_set)
-    __swig_setmethods__["public_key"] = _otapi.ContactNym_public_key_set
-    __swig_getmethods__["public_key"] = _otapi.ContactNym_public_key_get
-    if _newclass:public_key = _swig_property(_otapi.ContactNym_public_key_get, _otapi.ContactNym_public_key_set)
-    __swig_setmethods__["memo"] = _otapi.ContactNym_memo_set
-    __swig_getmethods__["memo"] = _otapi.ContactNym_memo_get
-    if _newclass:memo = _swig_property(_otapi.ContactNym_memo_get, _otapi.ContactNym_memo_set)
-    def GetServerInfoCount(self): return _otapi.ContactNym_GetServerInfoCount(self)
-    def GetServerInfo(self, *args): return _otapi.ContactNym_GetServerInfo(self, *args)
-    def RemoveServerInfo(self, *args): return _otapi.ContactNym_RemoveServerInfo(self, *args)
-    def AddServerInfo(self, *args): return _otapi.ContactNym_AddServerInfo(self, *args)
-    __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.ContactNym_ot_dynamic_cast
-    if _newclass:ot_dynamic_cast = staticmethod(_otapi.ContactNym_ot_dynamic_cast)
-ContactNym_swigregister = _otapi.ContactNym_swigregister
+    __swig_setmethods__["gui_label"] = libotapiPython.ContactNym_gui_label_set
+    __swig_getmethods__["gui_label"] = libotapiPython.ContactNym_gui_label_get
+    if _newclass:gui_label = _swig_property(libotapiPython.ContactNym_gui_label_get, libotapiPython.ContactNym_gui_label_set)
+    __swig_setmethods__["nym_type"] = libotapiPython.ContactNym_nym_type_set
+    __swig_getmethods__["nym_type"] = libotapiPython.ContactNym_nym_type_get
+    if _newclass:nym_type = _swig_property(libotapiPython.ContactNym_nym_type_get, libotapiPython.ContactNym_nym_type_set)
+    __swig_setmethods__["nym_id"] = libotapiPython.ContactNym_nym_id_set
+    __swig_getmethods__["nym_id"] = libotapiPython.ContactNym_nym_id_get
+    if _newclass:nym_id = _swig_property(libotapiPython.ContactNym_nym_id_get, libotapiPython.ContactNym_nym_id_set)
+    __swig_setmethods__["public_key"] = libotapiPython.ContactNym_public_key_set
+    __swig_getmethods__["public_key"] = libotapiPython.ContactNym_public_key_get
+    if _newclass:public_key = _swig_property(libotapiPython.ContactNym_public_key_get, libotapiPython.ContactNym_public_key_set)
+    __swig_setmethods__["memo"] = libotapiPython.ContactNym_memo_set
+    __swig_getmethods__["memo"] = libotapiPython.ContactNym_memo_get
+    if _newclass:memo = _swig_property(libotapiPython.ContactNym_memo_get, libotapiPython.ContactNym_memo_set)
+    def GetServerInfoCount(self): return libotapiPython.ContactNym_GetServerInfoCount(self)
+    def GetServerInfo(self, *args): return libotapiPython.ContactNym_GetServerInfo(self, *args)
+    def RemoveServerInfo(self, *args): return libotapiPython.ContactNym_RemoveServerInfo(self, *args)
+    def AddServerInfo(self, *args): return libotapiPython.ContactNym_AddServerInfo(self, *args)
+    __swig_getmethods__["ot_dynamic_cast"] = lambda x: libotapiPython.ContactNym_ot_dynamic_cast
+    if _newclass:ot_dynamic_cast = staticmethod(libotapiPython.ContactNym_ot_dynamic_cast)
+ContactNym_swigregister = libotapiPython.ContactNym_swigregister
 ContactNym_swigregister(ContactNym)
 
 def ContactNym_ot_dynamic_cast(*args):
-  return _otapi.ContactNym_ot_dynamic_cast(*args)
-ContactNym_ot_dynamic_cast = _otapi.ContactNym_ot_dynamic_cast
+  return libotapiPython.ContactNym_ot_dynamic_cast(*args)
+ContactNym_ot_dynamic_cast = libotapiPython.ContactNym_ot_dynamic_cast
 
 class WalletData(Storable):
     __swig_setmethods__ = {}
@@ -1963,32 +1963,32 @@ class WalletData(Storable):
     __getattr__ = lambda self, name: _swig_getattr(self, WalletData, name)
     def __init__(self, *args, **kwargs): raise AttributeError("No constructor defined")
     __repr__ = _swig_repr
-    __swig_destroy__ = _otapi.delete_WalletData
+    __swig_destroy__ = libotapiPython.delete_WalletData
     __del__ = lambda self : None;
-    def GetBitcoinServerCount(self): return _otapi.WalletData_GetBitcoinServerCount(self)
-    def GetBitcoinServer(self, *args): return _otapi.WalletData_GetBitcoinServer(self, *args)
-    def RemoveBitcoinServer(self, *args): return _otapi.WalletData_RemoveBitcoinServer(self, *args)
-    def AddBitcoinServer(self, *args): return _otapi.WalletData_AddBitcoinServer(self, *args)
-    def GetBitcoinAcctCount(self): return _otapi.WalletData_GetBitcoinAcctCount(self)
-    def GetBitcoinAcct(self, *args): return _otapi.WalletData_GetBitcoinAcct(self, *args)
-    def RemoveBitcoinAcct(self, *args): return _otapi.WalletData_RemoveBitcoinAcct(self, *args)
-    def AddBitcoinAcct(self, *args): return _otapi.WalletData_AddBitcoinAcct(self, *args)
-    def GetRippleServerCount(self): return _otapi.WalletData_GetRippleServerCount(self)
-    def GetRippleServer(self, *args): return _otapi.WalletData_GetRippleServer(self, *args)
-    def RemoveRippleServer(self, *args): return _otapi.WalletData_RemoveRippleServer(self, *args)
-    def AddRippleServer(self, *args): return _otapi.WalletData_AddRippleServer(self, *args)
-    def GetLoomServerCount(self): return _otapi.WalletData_GetLoomServerCount(self)
-    def GetLoomServer(self, *args): return _otapi.WalletData_GetLoomServer(self, *args)
-    def RemoveLoomServer(self, *args): return _otapi.WalletData_RemoveLoomServer(self, *args)
-    def AddLoomServer(self, *args): return _otapi.WalletData_AddLoomServer(self, *args)
-    __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.WalletData_ot_dynamic_cast
-    if _newclass:ot_dynamic_cast = staticmethod(_otapi.WalletData_ot_dynamic_cast)
-WalletData_swigregister = _otapi.WalletData_swigregister
+    def GetBitcoinServerCount(self): return libotapiPython.WalletData_GetBitcoinServerCount(self)
+    def GetBitcoinServer(self, *args): return libotapiPython.WalletData_GetBitcoinServer(self, *args)
+    def RemoveBitcoinServer(self, *args): return libotapiPython.WalletData_RemoveBitcoinServer(self, *args)
+    def AddBitcoinServer(self, *args): return libotapiPython.WalletData_AddBitcoinServer(self, *args)
+    def GetBitcoinAcctCount(self): return libotapiPython.WalletData_GetBitcoinAcctCount(self)
+    def GetBitcoinAcct(self, *args): return libotapiPython.WalletData_GetBitcoinAcct(self, *args)
+    def RemoveBitcoinAcct(self, *args): return libotapiPython.WalletData_RemoveBitcoinAcct(self, *args)
+    def AddBitcoinAcct(self, *args): return libotapiPython.WalletData_AddBitcoinAcct(self, *args)
+    def GetRippleServerCount(self): return libotapiPython.WalletData_GetRippleServerCount(self)
+    def GetRippleServer(self, *args): return libotapiPython.WalletData_GetRippleServer(self, *args)
+    def RemoveRippleServer(self, *args): return libotapiPython.WalletData_RemoveRippleServer(self, *args)
+    def AddRippleServer(self, *args): return libotapiPython.WalletData_AddRippleServer(self, *args)
+    def GetLoomServerCount(self): return libotapiPython.WalletData_GetLoomServerCount(self)
+    def GetLoomServer(self, *args): return libotapiPython.WalletData_GetLoomServer(self, *args)
+    def RemoveLoomServer(self, *args): return libotapiPython.WalletData_RemoveLoomServer(self, *args)
+    def AddLoomServer(self, *args): return libotapiPython.WalletData_AddLoomServer(self, *args)
+    __swig_getmethods__["ot_dynamic_cast"] = lambda x: libotapiPython.WalletData_ot_dynamic_cast
+    if _newclass:ot_dynamic_cast = staticmethod(libotapiPython.WalletData_ot_dynamic_cast)
+WalletData_swigregister = libotapiPython.WalletData_swigregister
 WalletData_swigregister(WalletData)
 
 def WalletData_ot_dynamic_cast(*args):
-  return _otapi.WalletData_ot_dynamic_cast(*args)
-WalletData_ot_dynamic_cast = _otapi.WalletData_ot_dynamic_cast
+  return libotapiPython.WalletData_ot_dynamic_cast(*args)
+WalletData_ot_dynamic_cast = libotapiPython.WalletData_ot_dynamic_cast
 
 class ContactAcct(Displayable):
     __swig_setmethods__ = {}
@@ -1999,40 +1999,40 @@ class ContactAcct(Displayable):
     __getattr__ = lambda self, name: _swig_getattr(self, ContactAcct, name)
     def __init__(self, *args, **kwargs): raise AttributeError("No constructor defined")
     __repr__ = _swig_repr
-    __swig_destroy__ = _otapi.delete_ContactAcct
+    __swig_destroy__ = libotapiPython.delete_ContactAcct
     __del__ = lambda self : None;
-    __swig_setmethods__["gui_label"] = _otapi.ContactAcct_gui_label_set
-    __swig_getmethods__["gui_label"] = _otapi.ContactAcct_gui_label_get
-    if _newclass:gui_label = _swig_property(_otapi.ContactAcct_gui_label_get, _otapi.ContactAcct_gui_label_set)
-    __swig_setmethods__["server_type"] = _otapi.ContactAcct_server_type_set
-    __swig_getmethods__["server_type"] = _otapi.ContactAcct_server_type_get
-    if _newclass:server_type = _swig_property(_otapi.ContactAcct_server_type_get, _otapi.ContactAcct_server_type_set)
-    __swig_setmethods__["server_id"] = _otapi.ContactAcct_server_id_set
-    __swig_getmethods__["server_id"] = _otapi.ContactAcct_server_id_get
-    if _newclass:server_id = _swig_property(_otapi.ContactAcct_server_id_get, _otapi.ContactAcct_server_id_set)
-    __swig_setmethods__["asset_type_id"] = _otapi.ContactAcct_asset_type_id_set
-    __swig_getmethods__["asset_type_id"] = _otapi.ContactAcct_asset_type_id_get
-    if _newclass:asset_type_id = _swig_property(_otapi.ContactAcct_asset_type_id_get, _otapi.ContactAcct_asset_type_id_set)
-    __swig_setmethods__["acct_id"] = _otapi.ContactAcct_acct_id_set
-    __swig_getmethods__["acct_id"] = _otapi.ContactAcct_acct_id_get
-    if _newclass:acct_id = _swig_property(_otapi.ContactAcct_acct_id_get, _otapi.ContactAcct_acct_id_set)
-    __swig_setmethods__["nym_id"] = _otapi.ContactAcct_nym_id_set
-    __swig_getmethods__["nym_id"] = _otapi.ContactAcct_nym_id_get
-    if _newclass:nym_id = _swig_property(_otapi.ContactAcct_nym_id_get, _otapi.ContactAcct_nym_id_set)
-    __swig_setmethods__["memo"] = _otapi.ContactAcct_memo_set
-    __swig_getmethods__["memo"] = _otapi.ContactAcct_memo_get
-    if _newclass:memo = _swig_property(_otapi.ContactAcct_memo_get, _otapi.ContactAcct_memo_set)
-    __swig_setmethods__["public_key"] = _otapi.ContactAcct_public_key_set
-    __swig_getmethods__["public_key"] = _otapi.ContactAcct_public_key_get
-    if _newclass:public_key = _swig_property(_otapi.ContactAcct_public_key_get, _otapi.ContactAcct_public_key_set)
-    __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.ContactAcct_ot_dynamic_cast
-    if _newclass:ot_dynamic_cast = staticmethod(_otapi.ContactAcct_ot_dynamic_cast)
-ContactAcct_swigregister = _otapi.ContactAcct_swigregister
+    __swig_setmethods__["gui_label"] = libotapiPython.ContactAcct_gui_label_set
+    __swig_getmethods__["gui_label"] = libotapiPython.ContactAcct_gui_label_get
+    if _newclass:gui_label = _swig_property(libotapiPython.ContactAcct_gui_label_get, libotapiPython.ContactAcct_gui_label_set)
+    __swig_setmethods__["server_type"] = libotapiPython.ContactAcct_server_type_set
+    __swig_getmethods__["server_type"] = libotapiPython.ContactAcct_server_type_get
+    if _newclass:server_type = _swig_property(libotapiPython.ContactAcct_server_type_get, libotapiPython.ContactAcct_server_type_set)
+    __swig_setmethods__["server_id"] = libotapiPython.ContactAcct_server_id_set
+    __swig_getmethods__["server_id"] = libotapiPython.ContactAcct_server_id_get
+    if _newclass:server_id = _swig_property(libotapiPython.ContactAcct_server_id_get, libotapiPython.ContactAcct_server_id_set)
+    __swig_setmethods__["asset_type_id"] = libotapiPython.ContactAcct_asset_type_id_set
+    __swig_getmethods__["asset_type_id"] = libotapiPython.ContactAcct_asset_type_id_get
+    if _newclass:asset_type_id = _swig_property(libotapiPython.ContactAcct_asset_type_id_get, libotapiPython.ContactAcct_asset_type_id_set)
+    __swig_setmethods__["acct_id"] = libotapiPython.ContactAcct_acct_id_set
+    __swig_getmethods__["acct_id"] = libotapiPython.ContactAcct_acct_id_get
+    if _newclass:acct_id = _swig_property(libotapiPython.ContactAcct_acct_id_get, libotapiPython.ContactAcct_acct_id_set)
+    __swig_setmethods__["nym_id"] = libotapiPython.ContactAcct_nym_id_set
+    __swig_getmethods__["nym_id"] = libotapiPython.ContactAcct_nym_id_get
+    if _newclass:nym_id = _swig_property(libotapiPython.ContactAcct_nym_id_get, libotapiPython.ContactAcct_nym_id_set)
+    __swig_setmethods__["memo"] = libotapiPython.ContactAcct_memo_set
+    __swig_getmethods__["memo"] = libotapiPython.ContactAcct_memo_get
+    if _newclass:memo = _swig_property(libotapiPython.ContactAcct_memo_get, libotapiPython.ContactAcct_memo_set)
+    __swig_setmethods__["public_key"] = libotapiPython.ContactAcct_public_key_set
+    __swig_getmethods__["public_key"] = libotapiPython.ContactAcct_public_key_get
+    if _newclass:public_key = _swig_property(libotapiPython.ContactAcct_public_key_get, libotapiPython.ContactAcct_public_key_set)
+    __swig_getmethods__["ot_dynamic_cast"] = lambda x: libotapiPython.ContactAcct_ot_dynamic_cast
+    if _newclass:ot_dynamic_cast = staticmethod(libotapiPython.ContactAcct_ot_dynamic_cast)
+ContactAcct_swigregister = libotapiPython.ContactAcct_swigregister
 ContactAcct_swigregister(ContactAcct)
 
 def ContactAcct_ot_dynamic_cast(*args):
-  return _otapi.ContactAcct_ot_dynamic_cast(*args)
-ContactAcct_ot_dynamic_cast = _otapi.ContactAcct_ot_dynamic_cast
+  return libotapiPython.ContactAcct_ot_dynamic_cast(*args)
+ContactAcct_ot_dynamic_cast = libotapiPython.ContactAcct_ot_dynamic_cast
 
 class Contact(Displayable):
     __swig_setmethods__ = {}
@@ -2043,39 +2043,39 @@ class Contact(Displayable):
     __getattr__ = lambda self, name: _swig_getattr(self, Contact, name)
     def __init__(self, *args, **kwargs): raise AttributeError("No constructor defined")
     __repr__ = _swig_repr
-    __swig_destroy__ = _otapi.delete_Contact
+    __swig_destroy__ = libotapiPython.delete_Contact
     __del__ = lambda self : None;
-    __swig_setmethods__["gui_label"] = _otapi.Contact_gui_label_set
-    __swig_getmethods__["gui_label"] = _otapi.Contact_gui_label_get
-    if _newclass:gui_label = _swig_property(_otapi.Contact_gui_label_get, _otapi.Contact_gui_label_set)
-    __swig_setmethods__["contact_id"] = _otapi.Contact_contact_id_set
-    __swig_getmethods__["contact_id"] = _otapi.Contact_contact_id_get
-    if _newclass:contact_id = _swig_property(_otapi.Contact_contact_id_get, _otapi.Contact_contact_id_set)
-    __swig_setmethods__["email"] = _otapi.Contact_email_set
-    __swig_getmethods__["email"] = _otapi.Contact_email_get
-    if _newclass:email = _swig_property(_otapi.Contact_email_get, _otapi.Contact_email_set)
-    __swig_setmethods__["memo"] = _otapi.Contact_memo_set
-    __swig_getmethods__["memo"] = _otapi.Contact_memo_get
-    if _newclass:memo = _swig_property(_otapi.Contact_memo_get, _otapi.Contact_memo_set)
-    __swig_setmethods__["public_key"] = _otapi.Contact_public_key_set
-    __swig_getmethods__["public_key"] = _otapi.Contact_public_key_get
-    if _newclass:public_key = _swig_property(_otapi.Contact_public_key_get, _otapi.Contact_public_key_set)
-    def GetContactNymCount(self): return _otapi.Contact_GetContactNymCount(self)
-    def GetContactNym(self, *args): return _otapi.Contact_GetContactNym(self, *args)
-    def RemoveContactNym(self, *args): return _otapi.Contact_RemoveContactNym(self, *args)
-    def AddContactNym(self, *args): return _otapi.Contact_AddContactNym(self, *args)
-    def GetContactAcctCount(self): return _otapi.Contact_GetContactAcctCount(self)
-    def GetContactAcct(self, *args): return _otapi.Contact_GetContactAcct(self, *args)
-    def RemoveContactAcct(self, *args): return _otapi.Contact_RemoveContactAcct(self, *args)
-    def AddContactAcct(self, *args): return _otapi.Contact_AddContactAcct(self, *args)
-    __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.Contact_ot_dynamic_cast
-    if _newclass:ot_dynamic_cast = staticmethod(_otapi.Contact_ot_dynamic_cast)
-Contact_swigregister = _otapi.Contact_swigregister
+    __swig_setmethods__["gui_label"] = libotapiPython.Contact_gui_label_set
+    __swig_getmethods__["gui_label"] = libotapiPython.Contact_gui_label_get
+    if _newclass:gui_label = _swig_property(libotapiPython.Contact_gui_label_get, libotapiPython.Contact_gui_label_set)
+    __swig_setmethods__["contact_id"] = libotapiPython.Contact_contact_id_set
+    __swig_getmethods__["contact_id"] = libotapiPython.Contact_contact_id_get
+    if _newclass:contact_id = _swig_property(libotapiPython.Contact_contact_id_get, libotapiPython.Contact_contact_id_set)
+    __swig_setmethods__["email"] = libotapiPython.Contact_email_set
+    __swig_getmethods__["email"] = libotapiPython.Contact_email_get
+    if _newclass:email = _swig_property(libotapiPython.Contact_email_get, libotapiPython.Contact_email_set)
+    __swig_setmethods__["memo"] = libotapiPython.Contact_memo_set
+    __swig_getmethods__["memo"] = libotapiPython.Contact_memo_get
+    if _newclass:memo = _swig_property(libotapiPython.Contact_memo_get, libotapiPython.Contact_memo_set)
+    __swig_setmethods__["public_key"] = libotapiPython.Contact_public_key_set
+    __swig_getmethods__["public_key"] = libotapiPython.Contact_public_key_get
+    if _newclass:public_key = _swig_property(libotapiPython.Contact_public_key_get, libotapiPython.Contact_public_key_set)
+    def GetContactNymCount(self): return libotapiPython.Contact_GetContactNymCount(self)
+    def GetContactNym(self, *args): return libotapiPython.Contact_GetContactNym(self, *args)
+    def RemoveContactNym(self, *args): return libotapiPython.Contact_RemoveContactNym(self, *args)
+    def AddContactNym(self, *args): return libotapiPython.Contact_AddContactNym(self, *args)
+    def GetContactAcctCount(self): return libotapiPython.Contact_GetContactAcctCount(self)
+    def GetContactAcct(self, *args): return libotapiPython.Contact_GetContactAcct(self, *args)
+    def RemoveContactAcct(self, *args): return libotapiPython.Contact_RemoveContactAcct(self, *args)
+    def AddContactAcct(self, *args): return libotapiPython.Contact_AddContactAcct(self, *args)
+    __swig_getmethods__["ot_dynamic_cast"] = lambda x: libotapiPython.Contact_ot_dynamic_cast
+    if _newclass:ot_dynamic_cast = staticmethod(libotapiPython.Contact_ot_dynamic_cast)
+Contact_swigregister = libotapiPython.Contact_swigregister
 Contact_swigregister(Contact)
 
 def Contact_ot_dynamic_cast(*args):
-  return _otapi.Contact_ot_dynamic_cast(*args)
-Contact_ot_dynamic_cast = _otapi.Contact_ot_dynamic_cast
+  return libotapiPython.Contact_ot_dynamic_cast(*args)
+Contact_ot_dynamic_cast = libotapiPython.Contact_ot_dynamic_cast
 
 class AddressBook(Storable):
     __swig_setmethods__ = {}
@@ -2086,20 +2086,20 @@ class AddressBook(Storable):
     __getattr__ = lambda self, name: _swig_getattr(self, AddressBook, name)
     def __init__(self, *args, **kwargs): raise AttributeError("No constructor defined")
     __repr__ = _swig_repr
-    __swig_destroy__ = _otapi.delete_AddressBook
+    __swig_destroy__ = libotapiPython.delete_AddressBook
     __del__ = lambda self : None;
-    def GetContactCount(self): return _otapi.AddressBook_GetContactCount(self)
-    def GetContact(self, *args): return _otapi.AddressBook_GetContact(self, *args)
-    def RemoveContact(self, *args): return _otapi.AddressBook_RemoveContact(self, *args)
-    def AddContact(self, *args): return _otapi.AddressBook_AddContact(self, *args)
-    __swig_getmethods__["ot_dynamic_cast"] = lambda x: _otapi.AddressBook_ot_dynamic_cast
-    if _newclass:ot_dynamic_cast = staticmethod(_otapi.AddressBook_ot_dynamic_cast)
-AddressBook_swigregister = _otapi.AddressBook_swigregister
+    def GetContactCount(self): return libotapiPython.AddressBook_GetContactCount(self)
+    def GetContact(self, *args): return libotapiPython.AddressBook_GetContact(self, *args)
+    def RemoveContact(self, *args): return libotapiPython.AddressBook_RemoveContact(self, *args)
+    def AddContact(self, *args): return libotapiPython.AddressBook_AddContact(self, *args)
+    __swig_getmethods__["ot_dynamic_cast"] = lambda x: libotapiPython.AddressBook_ot_dynamic_cast
+    if _newclass:ot_dynamic_cast = staticmethod(libotapiPython.AddressBook_ot_dynamic_cast)
+AddressBook_swigregister = libotapiPython.AddressBook_swigregister
 AddressBook_swigregister(AddressBook)
 
 def AddressBook_ot_dynamic_cast(*args):
-  return _otapi.AddressBook_ot_dynamic_cast(*args)
-AddressBook_ot_dynamic_cast = _otapi.AddressBook_ot_dynamic_cast
+  return libotapiPython.AddressBook_ot_dynamic_cast(*args)
+AddressBook_ot_dynamic_cast = libotapiPython.AddressBook_ot_dynamic_cast
 
 # This file is compatible with both classic and new-style classes.
 
