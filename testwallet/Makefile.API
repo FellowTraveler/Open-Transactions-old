@@ -43,7 +43,7 @@ PROGRAM_PERL5_DBG = otapi-perl5-dbg
 PROGRAM_PHP5 = libotapi-php5
 PROGRAM_PHP5_dbg = otapi-php5-dbg
 # --- PYTHON
-PROGRAM__PYTHON = libotapi-python
+PROGRAM__PYTHON = _otapi
 PROGRAM__PYTHON_DBG = _otapi-python-dbg
 # --- RUBY!
 PROGRAM_RUBY = libotapi-ruby
@@ -359,10 +359,11 @@ PHP5_LDFLAGS = -shared
 #PYTHON_INCLUDEDIRS = -I/usr/include/python2.5
 #PYTHON_LIBDIRS = -L/usr/$(LINUX_LIBDIR)/python2.5
 #
+# PYTHON_PROGRAM = "_otapi"
 PYTHON_PROGRAM = $(PROGRAM__PYTHON).so
 PYTHON_DEBUG_PROGRAM = $(PROGRAM__PYTHON_DBG).so
 PYTHON_CLFAGS = $(shell python-config --cflags) 
-PYTHON_INCLUDEDIRS = -I/usr/include/python2.5
+PYTHON_INCLUDEDIRS = $(shell python-config --includes)
 PYTHON_LIBDIRS = -L/usr/$(LINUX_LIBDIR)/python2.5
 PYTHON_LDFLAGS = -shared $(shell python-config --ldflags) 
 
