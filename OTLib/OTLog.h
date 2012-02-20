@@ -164,7 +164,6 @@ private:
 	static OTString __OTInboxFolder;	// Just the folder name
 	static OTString __OTOutboxFolder;	// Just the folder name
 	static OTString __OTPaymentInboxFolder;	
-	static OTString __OTPaymentOutboxFolder;
 	static OTString __OTRecordBoxFolder;
 	static OTString __OTCertFolder;		// Just the folder name
 	static OTString __OTPubkeyFolder;	// Just the folder name
@@ -272,9 +271,6 @@ public:
 	
 	static const char *	PaymentInboxFolder()		{ return __OTPaymentInboxFolder.Get(); }
 	static void SetPaymentInboxFolder(const char * szPath)	{ __OTPaymentInboxFolder.Set(szPath); }
-	
-	static const char *	PaymentOutboxFolder()		{ return __OTPaymentOutboxFolder.Get(); }
-	static void SetPaymentOutboxFolder(const char * szPath)	{ __OTPaymentOutboxFolder.Set(szPath); }
 	
 	static const char *	RecordBoxFolder()			{ return __OTRecordBoxFolder.Get(); }
 	static void SetRecordBoxFolder(const char * szPath)	{ __OTRecordBoxFolder.Set(szPath); }

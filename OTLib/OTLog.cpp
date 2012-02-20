@@ -250,7 +250,6 @@ OTString OTLog::__OTNymboxFolder			= "nymbox";
 OTString OTLog::__OTInboxFolder				= "inbox";		
 OTString OTLog::__OTOutboxFolder			= "outbox";	
 OTString OTLog::__OTPaymentInboxFolder		= "paymentInbox";		
-OTString OTLog::__OTPaymentOutboxFolder		= "paymentOutbox";	
 OTString OTLog::__OTRecordBoxFolder			= "recordBox";
 OTString OTLog::__OTCertFolder				= "certs";		
 OTString OTLog::__OTPubkeyFolder			= "pubkeys";

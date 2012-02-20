@@ -6271,6 +6271,201 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_OT_API_GetNym_OutpaymentsCount(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  char *arg1 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  PyObject * obj0 = 0 ;
+  int result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:OT_API_GetNym_OutpaymentsCount",&obj0)) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_GetNym_OutpaymentsCount" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  result = (int)OT_API_GetNym_OutpaymentsCount((char const *)arg1);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return resultobj;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_OT_API_GetNym_OutpaymentsContentsByIndex(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  char *arg1 = (char *) 0 ;
+  int arg2 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  char *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:OT_API_GetNym_OutpaymentsContentsByIndex",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_GetNym_OutpaymentsContentsByIndex" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "OT_API_GetNym_OutpaymentsContentsByIndex" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  result = (char *)OT_API_GetNym_OutpaymentsContentsByIndex((char const *)arg1,arg2);
+  resultobj = SWIG_FromCharPtr((const char *)result);
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return resultobj;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_OT_API_GetNym_OutpaymentsRecipientIDByIndex(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  char *arg1 = (char *) 0 ;
+  int arg2 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  char *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:OT_API_GetNym_OutpaymentsRecipientIDByIndex",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_GetNym_OutpaymentsRecipientIDByIndex" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "OT_API_GetNym_OutpaymentsRecipientIDByIndex" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  result = (char *)OT_API_GetNym_OutpaymentsRecipientIDByIndex((char const *)arg1,arg2);
+  resultobj = SWIG_FromCharPtr((const char *)result);
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return resultobj;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_OT_API_GetNym_OutpaymentsServerIDByIndex(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  char *arg1 = (char *) 0 ;
+  int arg2 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  char *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:OT_API_GetNym_OutpaymentsServerIDByIndex",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_GetNym_OutpaymentsServerIDByIndex" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "OT_API_GetNym_OutpaymentsServerIDByIndex" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  result = (char *)OT_API_GetNym_OutpaymentsServerIDByIndex((char const *)arg1,arg2);
+  resultobj = SWIG_FromCharPtr((const char *)result);
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return resultobj;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_OT_API_Nym_RemoveOutpaymentsByIndex(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  char *arg1 = (char *) 0 ;
+  int arg2 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  int result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:OT_API_Nym_RemoveOutpaymentsByIndex",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Nym_RemoveOutpaymentsByIndex" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "OT_API_Nym_RemoveOutpaymentsByIndex" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  result = (int)OT_API_Nym_RemoveOutpaymentsByIndex((char const *)arg1,arg2);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return resultobj;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_OT_API_Nym_VerifyOutpaymentsByIndex(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  char *arg1 = (char *) 0 ;
+  int arg2 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  int result;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:OT_API_Nym_VerifyOutpaymentsByIndex",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Nym_VerifyOutpaymentsByIndex" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "OT_API_Nym_VerifyOutpaymentsByIndex" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  result = (int)OT_API_Nym_VerifyOutpaymentsByIndex((char const *)arg1,arg2);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return resultobj;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_OT_API_Wallet_CanRemoveServer(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   char *arg1 = (char *) 0 ;
@@ -8725,43 +8920,6 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_OT_API_LoadPaymentOutbox(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  char *arg1 = (char *) 0 ;
-  char *arg2 = (char *) 0 ;
-  int res1 ;
-  char *buf1 = 0 ;
-  int alloc1 = 0 ;
-  int res2 ;
-  char *buf2 = 0 ;
-  int alloc2 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  char *result = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OO:OT_API_LoadPaymentOutbox",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_LoadPaymentOutbox" "', argument " "1"" of type '" "char const *""'");
-  }
-  arg1 = reinterpret_cast< char * >(buf1);
-  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_LoadPaymentOutbox" "', argument " "2"" of type '" "char const *""'");
-  }
-  arg2 = reinterpret_cast< char * >(buf2);
-  result = (char *)OT_API_LoadPaymentOutbox((char const *)arg1,(char const *)arg2);
-  resultobj = SWIG_FromCharPtr((const char *)result);
-  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
-  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
-  return resultobj;
-fail:
-  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
-  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
-  return NULL;
-}
-
-
 SWIGINTERN PyObject *_wrap_OT_API_LoadPaymentInboxNoVerify(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   char *arg1 = (char *) 0 ;
@@ -8788,43 +8946,6 @@ SWIGINTERN PyObject *_wrap_OT_API_LoadPaymentInboxNoVerify(PyObject *SWIGUNUSEDP
   }
   arg2 = reinterpret_cast< char * >(buf2);
   result = (char *)OT_API_LoadPaymentInboxNoVerify((char const *)arg1,(char const *)arg2);
-  resultobj = SWIG_FromCharPtr((const char *)result);
-  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
-  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
-  return resultobj;
-fail:
-  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
-  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_OT_API_LoadPaymentOutboxNoVerify(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  char *arg1 = (char *) 0 ;
-  char *arg2 = (char *) 0 ;
-  int res1 ;
-  char *buf1 = 0 ;
-  int alloc1 = 0 ;
-  int res2 ;
-  char *buf2 = 0 ;
-  int alloc2 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  char *result = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OO:OT_API_LoadPaymentOutboxNoVerify",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_LoadPaymentOutboxNoVerify" "', argument " "1"" of type '" "char const *""'");
-  }
-  arg1 = reinterpret_cast< char * >(buf1);
-  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_LoadPaymentOutboxNoVerify" "', argument " "2"" of type '" "char const *""'");
-  }
-  arg2 = reinterpret_cast< char * >(buf2);
-  result = (char *)OT_API_LoadPaymentOutboxNoVerify((char const *)arg1,(char const *)arg2);
   resultobj = SWIG_FromCharPtr((const char *)result);
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
@@ -9470,6 +9591,76 @@ SWIGINTERN PyObject *_wrap_OT_API_Ledger_FinalizeResponse(PyObject *SWIGUNUSEDPA
   }
   arg4 = reinterpret_cast< char * >(buf4);
   result = (char *)OT_API_Ledger_FinalizeResponse((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+  resultobj = SWIG_FromCharPtr((const char *)result);
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+  return resultobj;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_OT_API_Ledger_GetInstrument(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  char *arg4 = (char *) 0 ;
+  int arg5 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  int res3 ;
+  char *buf3 = 0 ;
+  int alloc3 = 0 ;
+  int res4 ;
+  char *buf4 = 0 ;
+  int alloc4 = 0 ;
+  int val5 ;
+  int ecode5 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  char *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOO:OT_API_Ledger_GetInstrument",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Ledger_GetInstrument" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_Ledger_GetInstrument" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  res3 = SWIG_AsCharPtrAndSize(obj2, &buf3, NULL, &alloc3);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OT_API_Ledger_GetInstrument" "', argument " "3"" of type '" "char const *""'");
+  }
+  arg3 = reinterpret_cast< char * >(buf3);
+  res4 = SWIG_AsCharPtrAndSize(obj3, &buf4, NULL, &alloc4);
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OT_API_Ledger_GetInstrument" "', argument " "4"" of type '" "char const *""'");
+  }
+  arg4 = reinterpret_cast< char * >(buf4);
+  ecode5 = SWIG_AsVal_int(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "OT_API_Ledger_GetInstrument" "', argument " "5"" of type '" "int""'");
+  } 
+  arg5 = static_cast< int >(val5);
+  result = (char *)OT_API_Ledger_GetInstrument((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,arg5);
   resultobj = SWIG_FromCharPtr((const char *)result);
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
@@ -11453,6 +11644,78 @@ SWIGINTERN PyObject *_wrap_OT_API_sendUserMessage(PyObject *SWIGUNUSEDPARM(self)
   }
   arg5 = reinterpret_cast< char * >(buf5);
   OT_API_sendUserMessage((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5);
+  resultobj = SWIG_Py_Void();
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+  if (alloc5 == SWIG_NEWOBJ) delete[] buf5;
+  return resultobj;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+  if (alloc5 == SWIG_NEWOBJ) delete[] buf5;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_OT_API_sendUserInstrument(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  char *arg4 = (char *) 0 ;
+  char *arg5 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  int res3 ;
+  char *buf3 = 0 ;
+  int alloc3 = 0 ;
+  int res4 ;
+  char *buf4 = 0 ;
+  int alloc4 = 0 ;
+  int res5 ;
+  char *buf5 = 0 ;
+  int alloc5 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOOO:OT_API_sendUserInstrument",&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_sendUserInstrument" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_sendUserInstrument" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  res3 = SWIG_AsCharPtrAndSize(obj2, &buf3, NULL, &alloc3);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OT_API_sendUserInstrument" "', argument " "3"" of type '" "char const *""'");
+  }
+  arg3 = reinterpret_cast< char * >(buf3);
+  res4 = SWIG_AsCharPtrAndSize(obj3, &buf4, NULL, &alloc4);
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OT_API_sendUserInstrument" "', argument " "4"" of type '" "char const *""'");
+  }
+  arg4 = reinterpret_cast< char * >(buf4);
+  res5 = SWIG_AsCharPtrAndSize(obj4, &buf5, NULL, &alloc5);
+  if (!SWIG_IsOK(res5)) {
+    SWIG_exception_fail(SWIG_ArgError(res5), "in method '" "OT_API_sendUserInstrument" "', argument " "5"" of type '" "char const *""'");
+  }
+  arg5 = reinterpret_cast< char * >(buf5);
+  OT_API_sendUserInstrument((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5);
   resultobj = SWIG_Py_Void();
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
@@ -30836,6 +31099,12 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"OT_API_GetNym_OutmailServerIDByIndex", _wrap_OT_API_GetNym_OutmailServerIDByIndex, METH_VARARGS, NULL},
 	 { (char *)"OT_API_Nym_RemoveOutmailByIndex", _wrap_OT_API_Nym_RemoveOutmailByIndex, METH_VARARGS, NULL},
 	 { (char *)"OT_API_Nym_VerifyOutmailByIndex", _wrap_OT_API_Nym_VerifyOutmailByIndex, METH_VARARGS, NULL},
+	 { (char *)"OT_API_GetNym_OutpaymentsCount", _wrap_OT_API_GetNym_OutpaymentsCount, METH_VARARGS, NULL},
+	 { (char *)"OT_API_GetNym_OutpaymentsContentsByIndex", _wrap_OT_API_GetNym_OutpaymentsContentsByIndex, METH_VARARGS, NULL},
+	 { (char *)"OT_API_GetNym_OutpaymentsRecipientIDByIndex", _wrap_OT_API_GetNym_OutpaymentsRecipientIDByIndex, METH_VARARGS, NULL},
+	 { (char *)"OT_API_GetNym_OutpaymentsServerIDByIndex", _wrap_OT_API_GetNym_OutpaymentsServerIDByIndex, METH_VARARGS, NULL},
+	 { (char *)"OT_API_Nym_RemoveOutpaymentsByIndex", _wrap_OT_API_Nym_RemoveOutpaymentsByIndex, METH_VARARGS, NULL},
+	 { (char *)"OT_API_Nym_VerifyOutpaymentsByIndex", _wrap_OT_API_Nym_VerifyOutpaymentsByIndex, METH_VARARGS, NULL},
 	 { (char *)"OT_API_Wallet_CanRemoveServer", _wrap_OT_API_Wallet_CanRemoveServer, METH_VARARGS, NULL},
 	 { (char *)"OT_API_Wallet_RemoveServer", _wrap_OT_API_Wallet_RemoveServer, METH_VARARGS, NULL},
 	 { (char *)"OT_API_Wallet_CanRemoveAssetType", _wrap_OT_API_Wallet_CanRemoveAssetType, METH_VARARGS, NULL},
@@ -30886,9 +31155,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"OT_API_LoadInboxNoVerify", _wrap_OT_API_LoadInboxNoVerify, METH_VARARGS, NULL},
 	 { (char *)"OT_API_LoadOutboxNoVerify", _wrap_OT_API_LoadOutboxNoVerify, METH_VARARGS, NULL},
 	 { (char *)"OT_API_LoadPaymentInbox", _wrap_OT_API_LoadPaymentInbox, METH_VARARGS, NULL},
-	 { (char *)"OT_API_LoadPaymentOutbox", _wrap_OT_API_LoadPaymentOutbox, METH_VARARGS, NULL},
 	 { (char *)"OT_API_LoadPaymentInboxNoVerify", _wrap_OT_API_LoadPaymentInboxNoVerify, METH_VARARGS, NULL},
-	 { (char *)"OT_API_LoadPaymentOutboxNoVerify", _wrap_OT_API_LoadPaymentOutboxNoVerify, METH_VARARGS, NULL},
 	 { (char *)"OT_API_LoadRecordBox", _wrap_OT_API_LoadRecordBox, METH_VARARGS, NULL},
 	 { (char *)"OT_API_LoadRecordBoxNoVerify", _wrap_OT_API_LoadRecordBoxNoVerify, METH_VARARGS, NULL},
 	 { (char *)"OT_API_Ledger_GetCount", _wrap_OT_API_Ledger_GetCount, METH_VARARGS, NULL},
@@ -30899,6 +31166,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"OT_API_Ledger_AddTransaction", _wrap_OT_API_Ledger_AddTransaction, METH_VARARGS, NULL},
 	 { (char *)"OT_API_Transaction_CreateResponse", _wrap_OT_API_Transaction_CreateResponse, METH_VARARGS, NULL},
 	 { (char *)"OT_API_Ledger_FinalizeResponse", _wrap_OT_API_Ledger_FinalizeResponse, METH_VARARGS, NULL},
+	 { (char *)"OT_API_Ledger_GetInstrument", _wrap_OT_API_Ledger_GetInstrument, METH_VARARGS, NULL},
 	 { (char *)"OT_API_Transaction_GetType", _wrap_OT_API_Transaction_GetType, METH_VARARGS, NULL},
 	 { (char *)"OT_API_Transaction_GetVoucher", _wrap_OT_API_Transaction_GetVoucher, METH_VARARGS, NULL},
 	 { (char *)"OT_API_Transaction_GetSuccess", _wrap_OT_API_Transaction_GetSuccess, METH_VARARGS, NULL},
@@ -30936,6 +31204,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"OT_API_Message_GetUsageCredits", _wrap_OT_API_Message_GetUsageCredits, METH_VARARGS, NULL},
 	 { (char *)"OT_API_checkUser", _wrap_OT_API_checkUser, METH_VARARGS, NULL},
 	 { (char *)"OT_API_sendUserMessage", _wrap_OT_API_sendUserMessage, METH_VARARGS, NULL},
+	 { (char *)"OT_API_sendUserInstrument", _wrap_OT_API_sendUserInstrument, METH_VARARGS, NULL},
 	 { (char *)"OT_API_getRequest", _wrap_OT_API_getRequest, METH_VARARGS, NULL},
 	 { (char *)"OT_API_getTransactionNumber", _wrap_OT_API_getTransactionNumber, METH_VARARGS, NULL},
 	 { (char *)"OT_API_issueAssetType", _wrap_OT_API_issueAssetType, METH_VARARGS, NULL},

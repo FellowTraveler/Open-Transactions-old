@@ -255,6 +255,30 @@ abstract class otapi {
 		return OT_API_Nym_VerifyOutmailByIndex($NYM_ID,$nIndex);
 	}
 
+	static function OT_API_GetNym_OutpaymentsCount($NYM_ID) {
+		return OT_API_GetNym_OutpaymentsCount($NYM_ID);
+	}
+
+	static function OT_API_GetNym_OutpaymentsContentsByIndex($NYM_ID,$nIndex) {
+		return OT_API_GetNym_OutpaymentsContentsByIndex($NYM_ID,$nIndex);
+	}
+
+	static function OT_API_GetNym_OutpaymentsRecipientIDByIndex($NYM_ID,$nIndex) {
+		return OT_API_GetNym_OutpaymentsRecipientIDByIndex($NYM_ID,$nIndex);
+	}
+
+	static function OT_API_GetNym_OutpaymentsServerIDByIndex($NYM_ID,$nIndex) {
+		return OT_API_GetNym_OutpaymentsServerIDByIndex($NYM_ID,$nIndex);
+	}
+
+	static function OT_API_Nym_RemoveOutpaymentsByIndex($NYM_ID,$nIndex) {
+		return OT_API_Nym_RemoveOutpaymentsByIndex($NYM_ID,$nIndex);
+	}
+
+	static function OT_API_Nym_VerifyOutpaymentsByIndex($NYM_ID,$nIndex) {
+		return OT_API_Nym_VerifyOutpaymentsByIndex($NYM_ID,$nIndex);
+	}
+
 	static function OT_API_Wallet_CanRemoveServer($SERVER_ID) {
 		return OT_API_Wallet_CanRemoveServer($SERVER_ID);
 	}
@@ -455,16 +479,8 @@ abstract class otapi {
 		return OT_API_LoadPaymentInbox($SERVER_ID,$USER_ID);
 	}
 
-	static function OT_API_LoadPaymentOutbox($SERVER_ID,$USER_ID) {
-		return OT_API_LoadPaymentOutbox($SERVER_ID,$USER_ID);
-	}
-
 	static function OT_API_LoadPaymentInboxNoVerify($SERVER_ID,$USER_ID) {
 		return OT_API_LoadPaymentInboxNoVerify($SERVER_ID,$USER_ID);
-	}
-
-	static function OT_API_LoadPaymentOutboxNoVerify($SERVER_ID,$USER_ID) {
-		return OT_API_LoadPaymentOutboxNoVerify($SERVER_ID,$USER_ID);
 	}
 
 	static function OT_API_LoadRecordBox($SERVER_ID,$USER_ID,$ACCOUNT_ID) {
@@ -505,6 +521,10 @@ abstract class otapi {
 
 	static function OT_API_Ledger_FinalizeResponse($SERVER_ID,$USER_ID,$ACCOUNT_ID,$THE_LEDGER) {
 		return OT_API_Ledger_FinalizeResponse($SERVER_ID,$USER_ID,$ACCOUNT_ID,$THE_LEDGER);
+	}
+
+	static function OT_API_Ledger_GetInstrument($SERVER_ID,$USER_ID,$ACCOUNT_ID,$THE_LEDGER,$nIndex) {
+		return OT_API_Ledger_GetInstrument($SERVER_ID,$USER_ID,$ACCOUNT_ID,$THE_LEDGER,$nIndex);
 	}
 
 	static function OT_API_Transaction_GetType($SERVER_ID,$USER_ID,$ACCOUNT_ID,$THE_TRANSACTION) {
@@ -653,6 +673,10 @@ abstract class otapi {
 
 	static function OT_API_sendUserMessage($SERVER_ID,$USER_ID,$USER_ID_RECIPIENT,$RECIPIENT_PUBKEY,$THE_MESSAGE) {
 		OT_API_sendUserMessage($SERVER_ID,$USER_ID,$USER_ID_RECIPIENT,$RECIPIENT_PUBKEY,$THE_MESSAGE);
+	}
+
+	static function OT_API_sendUserInstrument($SERVER_ID,$USER_ID,$USER_ID_RECIPIENT,$RECIPIENT_PUBKEY,$THE_INSTRUMENT) {
+		OT_API_sendUserInstrument($SERVER_ID,$USER_ID,$USER_ID_RECIPIENT,$RECIPIENT_PUBKEY,$THE_INSTRUMENT);
 	}
 
 	static function OT_API_getRequest($SERVER_ID,$USER_ID) {

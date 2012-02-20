@@ -554,6 +554,18 @@ int				OT_API_Nym_VerifyOutmailByIndex(const char * NYM_ID, int nIndex); /// act
 
 // ---------------------------------------------------------
 
+int				OT_API_GetNym_OutpaymentsCount(const char * NYM_ID);
+
+const char *	OT_API_GetNym_OutpaymentsContentsByIndex(const char * NYM_ID, int nIndex); /// returns the message itself
+
+const char *	OT_API_GetNym_OutpaymentsRecipientIDByIndex(const char * NYM_ID, int nIndex); /// returns the NymID of the recipient.
+const char *	OT_API_GetNym_OutpaymentsServerIDByIndex(const char * NYM_ID, int nIndex); /// returns the ServerID where the message came from.
+
+int				OT_API_Nym_RemoveOutpaymentsByIndex(const char * NYM_ID, int nIndex); /// actually returns OT_BOOL, (1 or 0.)
+int				OT_API_Nym_VerifyOutpaymentsByIndex(const char * NYM_ID, int nIndex); /// actually returns OT_BOOL. OT_TRUE if signature verifies. (Sender Nym MUST be in my wallet for this to work.)
+
+// ---------------------------------------------------------
+
 /// *** FUNCTIONS FOR REMOVING VARIOUS CONTRACTS AND NYMS FROM THE WALLET ***
 
 /// Can I remove this server contract from my wallet?
@@ -1226,15 +1238,9 @@ const char * OT_API_LoadOutboxNoVerify(const char * SERVER_ID,
 const char * OT_API_LoadPaymentInbox(const char * SERVER_ID,
 									 const char * USER_ID); // Returns NULL, or a payment inbox.
 
-const char * OT_API_LoadPaymentOutbox(const char * SERVER_ID,
-									  const char * USER_ID); // returns NULL, or a payment outbox.
-
 
 const char * OT_API_LoadPaymentInboxNoVerify(const char * SERVER_ID,
 											 const char * USER_ID); // Returns NULL, or a payment inbox.
-
-const char * OT_API_LoadPaymentOutboxNoVerify(const char * SERVER_ID,
-											  const char * USER_ID); // returns NULL, or a payment outbox.
 
 
 // NOTE: Sometimes the user ID is also passed in the "account ID" field, depending
@@ -1338,6 +1344,41 @@ const char * OT_API_Ledger_FinalizeResponse(const char * SERVER_ID,
 											const char * THE_LEDGER); // 'Response' ledger be sent to the server...
 										
 
+
+// -------------------------------------------------------------------------
+/// OT_API_Ledger_GetInstrument (by index)
+///
+/// Lookup a financial instrument (from within a transaction that is inside
+/// a ledger) based on index or transaction number.
+/*
+sendUserInstrument does this:
+-- Puts instrument (a contract string) as encrypted Payload on an OTMessage(1).
+-- Also puts instrument (same contract string) as CLEAR payload on an OTMessage(2).
+-- (1) is sent to server, and (2) is added to Outpayments messages.
+-- (1) gets added to recipient's Nymbox as "in ref to" string on a "instrumentNotice" transaction.
+-- When recipient processes Nymbox, the "instrumentNotice" transaction (containing (1) in its "in ref to"
+   field) is copied and added to the recipient's paymentInbox.
+-- When recipient iterates through paymentInbox transactions, they are ALL "instrumentNotice"s. Each 
+   transaction contains an OTMessage in its "in ref to" field, and that OTMessage object contains an 
+   encrypted payload of the instrument itself (a contract string.)
+-- When sender gets Outpayments contents, the original instrument (contract string) is stored IN THE 
+   CLEAR as payload on an OTMessage.
+
+THEREFORE:
+TO EXTRACT INSTRUMENT FROM PAYMENTS INBOX:
+-- Iterate through the transactions in the payments inbox.
+-- (They should all be "instrumentNotice" transactions.)
+-- Each transaction contains (1) OTMessage in "in ref to" field, which in turn contains an encrypted
+   instrument in the payload field.
+-- *** Therefore, this function, based purely on ledger index (as we iterate) extracts the
+   OTMessage from the Transaction "in ref to" field (for the transaction at that index), then decrypts
+   the payload on that message and returns the decrypted cleartext. 
+ */
+const char * OT_API_Ledger_GetInstrument(const char * SERVER_ID,
+										 const char * USER_ID,
+										 const char * ACCOUNT_ID,
+										 const char * THE_LEDGER,
+										 int nIndex); // returns financial instrument by index of the transaction it's in.
 
 // --------------------------------------------------------------------
 /// Get Transaction Type  (internally uses GetTransactionTypeString().)
@@ -1807,6 +1848,43 @@ void OT_API_sendUserMessage(const char * SERVER_ID,
 							const char * USER_ID_RECIPIENT,
 							const char * RECIPIENT_PUBKEY,
 							const char * THE_MESSAGE);
+/*
+ sendUserMessage does this:
+-- Puts user message as encrypted Payload on an OTMessage (1)...
+-- Also puts user message as a CLEAR payload on an OTMessage (2)...
+-- (1) is sent to server, and (2) is added to Outmail messages.
+-- (1) gets added to recipient's Nymbox as "in ref to" string on a
+   "message" transaction.
+-- When recipient processes Nymbox, OTMessage (1) is extracted and
+   added to recipient's nym Mail.
+-- When recipient gets mail contents, decryption occurs from (1) payload,
+   before returning contents as original user message string.
+-- When sender gets outmail contents, original user message string is
+   returned from (2) payload, with no decryption necessary.
+ */
+
+
+
+// --------------------------------------------------------------------
+/**
+ SEND USER INSTRUMENT --- (Send a financial instrument to another user, encrypted to his pubkey.)
+ 
+ ServerID -- Must be included with every message.
+ USER_ID  -- You must include your own userID so the server can reply.
+ USER_ID_RECIPIENT -- This is a recipient user ID.
+ RECIPIENT_PUBKEY -- Recipient's public key in base64-encoded form.
+ THE_INSTRUMENT -- plaintext string of instrument (cheque, payment plan, purse, invoice, voucher...)
+ 
+ In this message, you are requesting the server to send a financial instrument to
+ another user, encrypted to his public key and dropped in his paymentInbox (by way
+ of his nymbox.)
+ 
+ */
+void OT_API_sendUserInstrument(const char * SERVER_ID,
+							   const char * USER_ID,
+							   const char * USER_ID_RECIPIENT,
+							   const char * RECIPIENT_PUBKEY,
+							   const char * THE_INSTRUMENT);
 
 // --------------------------------------------------------------------
 /**

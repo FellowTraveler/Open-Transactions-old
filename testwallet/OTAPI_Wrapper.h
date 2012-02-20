@@ -361,6 +361,17 @@ public:
 	static bool					Nym_VerifyOutmailByIndex(const std::string NYM_ID, int nIndex); /// actually returns OT_BOOL. OT_TRUE if signature verifies. (Sender Nym MUST be in my wallet for this to work.)
 	
 	// ---------------------------------------------------------
+	static int					GetNym_OutpaymentsCount(const std::string NYM_ID);
+	
+	static const std::string	GetNym_OutpaymentsContentsByIndex(const std::string NYM_ID, int nIndex); /// returns the message itself (Subject: optionally as first line)
+	
+	static const std::string	GetNym_OutpaymentsRecipientIDByIndex(const std::string NYM_ID, int nIndex); /// returns the NymID of the recipient.
+	static const std::string	GetNym_OutpaymentsServerIDByIndex(const std::string NYM_ID, int nIndex); /// returns the ServerID where the message came from.
+	
+	static bool					Nym_RemoveOutpaymentsByIndex(const std::string NYM_ID, int nIndex); /// actually returns OT_BOOL, (1 or 0.)
+	static bool					Nym_VerifyOutpaymentsByIndex(const std::string NYM_ID, int nIndex); /// actually returns OT_BOOL. OT_TRUE if signature verifies. (Sender Nym MUST be in my wallet for this to work.)
+	
+	// ---------------------------------------------------------
 	static bool Wallet_CanRemoveServer(const std::string SERVER_ID);
 	static bool Wallet_RemoveServer(const std::string SERVER_ID);
 	static bool Wallet_CanRemoveAssetType(const std::string ASSET_ID);
@@ -529,6 +540,13 @@ public:
 													 const std::string ACCOUNT_ID,
 													 const std::string THE_LEDGER); // 'Response' ledger be sent to the server...
 	// --------------------------------------------------------------------
+	static const std::string Ledger_GetInstrument(const std::string SERVER_ID,
+												  const std::string USER_ID,
+												  const std::string ACCOUNT_ID,
+												  const std::string THE_LEDGER,
+												  int nIndex); // returns instrument by index of transaction it's in.
+	
+	// --------------------------------------------------------------------
 	/// Get Transaction Type  (internally uses GetTransactionTypeString().)
 	//
 	static const std::string Transaction_GetType(const std::string SERVER_ID,
@@ -693,6 +711,14 @@ public:
 								const std::string USER_ID_RECIPIENT,
 								const std::string RECIPIENT_PUBKEY,
 								const std::string THE_MESSAGE);
+	
+	// --------------------------------------------------------------------
+	static void sendUserInstrument(const std::string SERVER_ID,
+								   const std::string USER_ID,
+								   const std::string USER_ID_RECIPIENT,
+								   const std::string RECIPIENT_PUBKEY,
+								   const std::string THE_INSTRUMENT);
+	
 	// --------------------------------------------------------------------
 	static void getRequest(const std::string SERVER_ID,
 						   const std::string USER_ID);

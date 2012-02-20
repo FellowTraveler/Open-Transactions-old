@@ -1056,6 +1056,12 @@ void RegisterAPIWithScript(OTScript & theScript)
 		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_OutmailServerIDByIndex), "OT_API_GetNym_OutmailServerIDByIndex");
 		pScript->chai.add(fun(&OTAPI_Wrap::Nym_RemoveOutmailByIndex), "OT_API_Nym_RemoveOutmailByIndex");
 		pScript->chai.add(fun(&OTAPI_Wrap::Nym_VerifyOutmailByIndex), "OT_API_Nym_VerifyOutmailByIndex");
+		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_OutpaymentsCount), "OT_API_GetNym_OutpaymentsCount");
+		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_OutpaymentsContentsByIndex), "OT_API_GetNym_OutpaymentsContentsByIndex");
+		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_OutpaymentsRecipientIDByIndex), "OT_API_GetNym_OutpaymentsRecipientIDByIndex");
+		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_OutpaymentsServerIDByIndex), "OT_API_GetNym_OutpaymentsServerIDByIndex");
+		pScript->chai.add(fun(&OTAPI_Wrap::Nym_RemoveOutpaymentsByIndex), "OT_API_Nym_RemoveOutpaymentsByIndex");
+		pScript->chai.add(fun(&OTAPI_Wrap::Nym_VerifyOutpaymentsByIndex), "OT_API_Nym_VerifyOutpaymentsByIndex");
 		pScript->chai.add(fun(&OTAPI_Wrap::Wallet_CanRemoveServer), "OT_API_Wallet_CanRemoveServer");
 		pScript->chai.add(fun(&OTAPI_Wrap::Wallet_RemoveServer), "OT_API_Wallet_RemoveServer");
 		pScript->chai.add(fun(&OTAPI_Wrap::Wallet_CanRemoveAssetType), "OT_API_Wallet_CanRemoveAssetType");
@@ -1101,6 +1107,8 @@ void RegisterAPIWithScript(OTScript & theScript)
 		pScript->chai.add(fun(&OTAPI_Wrap::Ledger_CreateResponse), "OT_API_Ledger_CreateResponse");
 		pScript->chai.add(fun(&OTAPI_Wrap::Ledger_GetTransactionByIndex), "OT_API_Ledger_GetTransactionByIndex");
 		pScript->chai.add(fun(&OTAPI_Wrap::Ledger_GetTransactionByID), "OT_API_Ledger_GetTransactionByID");
+		pScript->chai.add(fun(&OTAPI_Wrap::Ledger_GetInstrument), "OT_API_Ledger_GetInstrument");
+		
 		pScript->chai.add(fun(&OTAPI_Wrap::Ledger_GetTransactionIDByIndex), "OT_API_Ledger_GetTransactionIDByIndex");
 		pScript->chai.add(fun(&OTAPI_Wrap::Ledger_AddTransaction), "OT_API_Ledger_AddTransaction");
 		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_CreateResponse), "OT_API_Transaction_CreateResponse");
@@ -1145,6 +1153,7 @@ void RegisterAPIWithScript(OTScript & theScript)
 		pScript->chai.add(fun(&OTAPI_Wrap::checkUser), "OT_API_checkUser");
 		pScript->chai.add(fun(&OTAPI_Wrap::usageCredits), "OT_API_usageCredits");
 		pScript->chai.add(fun(&OTAPI_Wrap::sendUserMessage), "OT_API_sendUserMessage");
+		pScript->chai.add(fun(&OTAPI_Wrap::sendUserInstrument), "OT_API_sendUserInstrument");
 		
 		pScript->chai.add(fun(&OTAPI_Wrap::getRequest), "OT_API_getRequest");
 		pScript->chai.add(fun(&OTAPI_Wrap::getTransactionNumber), "OT_API_getTransactionNumber");

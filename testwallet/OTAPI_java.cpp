@@ -2061,6 +2061,130 @@ SWIGEXPORT jint JNICALL Java_com_wrapper_core_jni_otapiJNI_OT_1API_1Nym_1VerifyO
 }
 
 
+SWIGEXPORT jint JNICALL Java_com_wrapper_core_jni_otapiJNI_OT_1API_1GetNym_1OutpaymentsCount(JNIEnv *jenv, jclass jcls, jstring jarg1) {
+  jint jresult = 0 ;
+  char *arg1 = (char *) 0 ;
+  int result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = 0;
+  if (jarg1) {
+    arg1 = (char *)jenv->GetStringUTFChars(jarg1, 0);
+    if (!arg1) return 0;
+  }
+  result = (int)OT_API_GetNym_OutpaymentsCount((char const *)arg1);
+  jresult = (jint)result; 
+  if (arg1) jenv->ReleaseStringUTFChars(jarg1, (const char *)arg1);
+  return jresult;
+}
+
+
+SWIGEXPORT jstring JNICALL Java_com_wrapper_core_jni_otapiJNI_OT_1API_1GetNym_1OutpaymentsContentsByIndex(JNIEnv *jenv, jclass jcls, jstring jarg1, jint jarg2) {
+  jstring jresult = 0 ;
+  char *arg1 = (char *) 0 ;
+  int arg2 ;
+  char *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = 0;
+  if (jarg1) {
+    arg1 = (char *)jenv->GetStringUTFChars(jarg1, 0);
+    if (!arg1) return 0;
+  }
+  arg2 = (int)jarg2; 
+  result = (char *)OT_API_GetNym_OutpaymentsContentsByIndex((char const *)arg1,arg2);
+  if (result) jresult = jenv->NewStringUTF((const char *)result);
+  if (arg1) jenv->ReleaseStringUTFChars(jarg1, (const char *)arg1);
+  return jresult;
+}
+
+
+SWIGEXPORT jstring JNICALL Java_com_wrapper_core_jni_otapiJNI_OT_1API_1GetNym_1OutpaymentsRecipientIDByIndex(JNIEnv *jenv, jclass jcls, jstring jarg1, jint jarg2) {
+  jstring jresult = 0 ;
+  char *arg1 = (char *) 0 ;
+  int arg2 ;
+  char *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = 0;
+  if (jarg1) {
+    arg1 = (char *)jenv->GetStringUTFChars(jarg1, 0);
+    if (!arg1) return 0;
+  }
+  arg2 = (int)jarg2; 
+  result = (char *)OT_API_GetNym_OutpaymentsRecipientIDByIndex((char const *)arg1,arg2);
+  if (result) jresult = jenv->NewStringUTF((const char *)result);
+  if (arg1) jenv->ReleaseStringUTFChars(jarg1, (const char *)arg1);
+  return jresult;
+}
+
+
+SWIGEXPORT jstring JNICALL Java_com_wrapper_core_jni_otapiJNI_OT_1API_1GetNym_1OutpaymentsServerIDByIndex(JNIEnv *jenv, jclass jcls, jstring jarg1, jint jarg2) {
+  jstring jresult = 0 ;
+  char *arg1 = (char *) 0 ;
+  int arg2 ;
+  char *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = 0;
+  if (jarg1) {
+    arg1 = (char *)jenv->GetStringUTFChars(jarg1, 0);
+    if (!arg1) return 0;
+  }
+  arg2 = (int)jarg2; 
+  result = (char *)OT_API_GetNym_OutpaymentsServerIDByIndex((char const *)arg1,arg2);
+  if (result) jresult = jenv->NewStringUTF((const char *)result);
+  if (arg1) jenv->ReleaseStringUTFChars(jarg1, (const char *)arg1);
+  return jresult;
+}
+
+
+SWIGEXPORT jint JNICALL Java_com_wrapper_core_jni_otapiJNI_OT_1API_1Nym_1RemoveOutpaymentsByIndex(JNIEnv *jenv, jclass jcls, jstring jarg1, jint jarg2) {
+  jint jresult = 0 ;
+  char *arg1 = (char *) 0 ;
+  int arg2 ;
+  int result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = 0;
+  if (jarg1) {
+    arg1 = (char *)jenv->GetStringUTFChars(jarg1, 0);
+    if (!arg1) return 0;
+  }
+  arg2 = (int)jarg2; 
+  result = (int)OT_API_Nym_RemoveOutpaymentsByIndex((char const *)arg1,arg2);
+  jresult = (jint)result; 
+  if (arg1) jenv->ReleaseStringUTFChars(jarg1, (const char *)arg1);
+  return jresult;
+}
+
+
+SWIGEXPORT jint JNICALL Java_com_wrapper_core_jni_otapiJNI_OT_1API_1Nym_1VerifyOutpaymentsByIndex(JNIEnv *jenv, jclass jcls, jstring jarg1, jint jarg2) {
+  jint jresult = 0 ;
+  char *arg1 = (char *) 0 ;
+  int arg2 ;
+  int result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = 0;
+  if (jarg1) {
+    arg1 = (char *)jenv->GetStringUTFChars(jarg1, 0);
+    if (!arg1) return 0;
+  }
+  arg2 = (int)jarg2; 
+  result = (int)OT_API_Nym_VerifyOutpaymentsByIndex((char const *)arg1,arg2);
+  jresult = (jint)result; 
+  if (arg1) jenv->ReleaseStringUTFChars(jarg1, (const char *)arg1);
+  return jresult;
+}
+
+
 SWIGEXPORT jint JNICALL Java_com_wrapper_core_jni_otapiJNI_OT_1API_1Wallet_1CanRemoveServer(JNIEnv *jenv, jclass jcls, jstring jarg1) {
   jint jresult = 0 ;
   char *arg1 = (char *) 0 ;
@@ -3700,32 +3824,6 @@ SWIGEXPORT jstring JNICALL Java_com_wrapper_core_jni_otapiJNI_OT_1API_1LoadPayme
 }
 
 
-SWIGEXPORT jstring JNICALL Java_com_wrapper_core_jni_otapiJNI_OT_1API_1LoadPaymentOutbox(JNIEnv *jenv, jclass jcls, jstring jarg1, jstring jarg2) {
-  jstring jresult = 0 ;
-  char *arg1 = (char *) 0 ;
-  char *arg2 = (char *) 0 ;
-  char *result = 0 ;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = 0;
-  if (jarg1) {
-    arg1 = (char *)jenv->GetStringUTFChars(jarg1, 0);
-    if (!arg1) return 0;
-  }
-  arg2 = 0;
-  if (jarg2) {
-    arg2 = (char *)jenv->GetStringUTFChars(jarg2, 0);
-    if (!arg2) return 0;
-  }
-  result = (char *)OT_API_LoadPaymentOutbox((char const *)arg1,(char const *)arg2);
-  if (result) jresult = jenv->NewStringUTF((const char *)result);
-  if (arg1) jenv->ReleaseStringUTFChars(jarg1, (const char *)arg1);
-  if (arg2) jenv->ReleaseStringUTFChars(jarg2, (const char *)arg2);
-  return jresult;
-}
-
-
 SWIGEXPORT jstring JNICALL Java_com_wrapper_core_jni_otapiJNI_OT_1API_1LoadPaymentInboxNoVerify(JNIEnv *jenv, jclass jcls, jstring jarg1, jstring jarg2) {
   jstring jresult = 0 ;
   char *arg1 = (char *) 0 ;
@@ -3745,32 +3843,6 @@ SWIGEXPORT jstring JNICALL Java_com_wrapper_core_jni_otapiJNI_OT_1API_1LoadPayme
     if (!arg2) return 0;
   }
   result = (char *)OT_API_LoadPaymentInboxNoVerify((char const *)arg1,(char const *)arg2);
-  if (result) jresult = jenv->NewStringUTF((const char *)result);
-  if (arg1) jenv->ReleaseStringUTFChars(jarg1, (const char *)arg1);
-  if (arg2) jenv->ReleaseStringUTFChars(jarg2, (const char *)arg2);
-  return jresult;
-}
-
-
-SWIGEXPORT jstring JNICALL Java_com_wrapper_core_jni_otapiJNI_OT_1API_1LoadPaymentOutboxNoVerify(JNIEnv *jenv, jclass jcls, jstring jarg1, jstring jarg2) {
-  jstring jresult = 0 ;
-  char *arg1 = (char *) 0 ;
-  char *arg2 = (char *) 0 ;
-  char *result = 0 ;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = 0;
-  if (jarg1) {
-    arg1 = (char *)jenv->GetStringUTFChars(jarg1, 0);
-    if (!arg1) return 0;
-  }
-  arg2 = 0;
-  if (jarg2) {
-    arg2 = (char *)jenv->GetStringUTFChars(jarg2, 0);
-    if (!arg2) return 0;
-  }
-  result = (char *)OT_API_LoadPaymentOutboxNoVerify((char const *)arg1,(char const *)arg2);
   if (result) jresult = jenv->NewStringUTF((const char *)result);
   if (arg1) jenv->ReleaseStringUTFChars(jarg1, (const char *)arg1);
   if (arg2) jenv->ReleaseStringUTFChars(jarg2, (const char *)arg2);
@@ -4182,6 +4254,48 @@ SWIGEXPORT jstring JNICALL Java_com_wrapper_core_jni_otapiJNI_OT_1API_1Ledger_1F
     if (!arg4) return 0;
   }
   result = (char *)OT_API_Ledger_FinalizeResponse((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+  if (result) jresult = jenv->NewStringUTF((const char *)result);
+  if (arg1) jenv->ReleaseStringUTFChars(jarg1, (const char *)arg1);
+  if (arg2) jenv->ReleaseStringUTFChars(jarg2, (const char *)arg2);
+  if (arg3) jenv->ReleaseStringUTFChars(jarg3, (const char *)arg3);
+  if (arg4) jenv->ReleaseStringUTFChars(jarg4, (const char *)arg4);
+  return jresult;
+}
+
+
+SWIGEXPORT jstring JNICALL Java_com_wrapper_core_jni_otapiJNI_OT_1API_1Ledger_1GetInstrument(JNIEnv *jenv, jclass jcls, jstring jarg1, jstring jarg2, jstring jarg3, jstring jarg4, jint jarg5) {
+  jstring jresult = 0 ;
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  char *arg4 = (char *) 0 ;
+  int arg5 ;
+  char *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = 0;
+  if (jarg1) {
+    arg1 = (char *)jenv->GetStringUTFChars(jarg1, 0);
+    if (!arg1) return 0;
+  }
+  arg2 = 0;
+  if (jarg2) {
+    arg2 = (char *)jenv->GetStringUTFChars(jarg2, 0);
+    if (!arg2) return 0;
+  }
+  arg3 = 0;
+  if (jarg3) {
+    arg3 = (char *)jenv->GetStringUTFChars(jarg3, 0);
+    if (!arg3) return 0;
+  }
+  arg4 = 0;
+  if (jarg4) {
+    arg4 = (char *)jenv->GetStringUTFChars(jarg4, 0);
+    if (!arg4) return 0;
+  }
+  arg5 = (int)jarg5; 
+  result = (char *)OT_API_Ledger_GetInstrument((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,arg5);
   if (result) jresult = jenv->NewStringUTF((const char *)result);
   if (arg1) jenv->ReleaseStringUTFChars(jarg1, (const char *)arg1);
   if (arg2) jenv->ReleaseStringUTFChars(jarg2, (const char *)arg2);
@@ -5477,6 +5591,49 @@ SWIGEXPORT void JNICALL Java_com_wrapper_core_jni_otapiJNI_OT_1API_1sendUserMess
     if (!arg5) return ;
   }
   OT_API_sendUserMessage((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5);
+  if (arg1) jenv->ReleaseStringUTFChars(jarg1, (const char *)arg1);
+  if (arg2) jenv->ReleaseStringUTFChars(jarg2, (const char *)arg2);
+  if (arg3) jenv->ReleaseStringUTFChars(jarg3, (const char *)arg3);
+  if (arg4) jenv->ReleaseStringUTFChars(jarg4, (const char *)arg4);
+  if (arg5) jenv->ReleaseStringUTFChars(jarg5, (const char *)arg5);
+}
+
+
+SWIGEXPORT void JNICALL Java_com_wrapper_core_jni_otapiJNI_OT_1API_1sendUserInstrument(JNIEnv *jenv, jclass jcls, jstring jarg1, jstring jarg2, jstring jarg3, jstring jarg4, jstring jarg5) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  char *arg4 = (char *) 0 ;
+  char *arg5 = (char *) 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = 0;
+  if (jarg1) {
+    arg1 = (char *)jenv->GetStringUTFChars(jarg1, 0);
+    if (!arg1) return ;
+  }
+  arg2 = 0;
+  if (jarg2) {
+    arg2 = (char *)jenv->GetStringUTFChars(jarg2, 0);
+    if (!arg2) return ;
+  }
+  arg3 = 0;
+  if (jarg3) {
+    arg3 = (char *)jenv->GetStringUTFChars(jarg3, 0);
+    if (!arg3) return ;
+  }
+  arg4 = 0;
+  if (jarg4) {
+    arg4 = (char *)jenv->GetStringUTFChars(jarg4, 0);
+    if (!arg4) return ;
+  }
+  arg5 = 0;
+  if (jarg5) {
+    arg5 = (char *)jenv->GetStringUTFChars(jarg5, 0);
+    if (!arg5) return ;
+  }
+  OT_API_sendUserInstrument((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5);
   if (arg1) jenv->ReleaseStringUTFChars(jarg1, (const char *)arg1);
   if (arg2) jenv->ReleaseStringUTFChars(jarg2, (const char *)arg2);
   if (arg3) jenv->ReleaseStringUTFChars(jarg3, (const char *)arg3);

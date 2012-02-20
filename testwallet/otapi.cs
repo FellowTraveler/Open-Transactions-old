@@ -291,6 +291,36 @@ public class otapi {
     return ret;
   }
 
+  public static int OT_API_GetNym_OutpaymentsCount(string NYM_ID) {
+    int ret = otapiPINVOKE.OT_API_GetNym_OutpaymentsCount(NYM_ID);
+    return ret;
+  }
+
+  public static string OT_API_GetNym_OutpaymentsContentsByIndex(string NYM_ID, int nIndex) {
+    string ret = otapiPINVOKE.OT_API_GetNym_OutpaymentsContentsByIndex(NYM_ID, nIndex);
+    return ret;
+  }
+
+  public static string OT_API_GetNym_OutpaymentsRecipientIDByIndex(string NYM_ID, int nIndex) {
+    string ret = otapiPINVOKE.OT_API_GetNym_OutpaymentsRecipientIDByIndex(NYM_ID, nIndex);
+    return ret;
+  }
+
+  public static string OT_API_GetNym_OutpaymentsServerIDByIndex(string NYM_ID, int nIndex) {
+    string ret = otapiPINVOKE.OT_API_GetNym_OutpaymentsServerIDByIndex(NYM_ID, nIndex);
+    return ret;
+  }
+
+  public static int OT_API_Nym_RemoveOutpaymentsByIndex(string NYM_ID, int nIndex) {
+    int ret = otapiPINVOKE.OT_API_Nym_RemoveOutpaymentsByIndex(NYM_ID, nIndex);
+    return ret;
+  }
+
+  public static int OT_API_Nym_VerifyOutpaymentsByIndex(string NYM_ID, int nIndex) {
+    int ret = otapiPINVOKE.OT_API_Nym_VerifyOutpaymentsByIndex(NYM_ID, nIndex);
+    return ret;
+  }
+
   public static int OT_API_Wallet_CanRemoveServer(string SERVER_ID) {
     int ret = otapiPINVOKE.OT_API_Wallet_CanRemoveServer(SERVER_ID);
     return ret;
@@ -539,18 +569,8 @@ public class otapi {
     return ret;
   }
 
-  public static string OT_API_LoadPaymentOutbox(string SERVER_ID, string USER_ID) {
-    string ret = otapiPINVOKE.OT_API_LoadPaymentOutbox(SERVER_ID, USER_ID);
-    return ret;
-  }
-
   public static string OT_API_LoadPaymentInboxNoVerify(string SERVER_ID, string USER_ID) {
     string ret = otapiPINVOKE.OT_API_LoadPaymentInboxNoVerify(SERVER_ID, USER_ID);
-    return ret;
-  }
-
-  public static string OT_API_LoadPaymentOutboxNoVerify(string SERVER_ID, string USER_ID) {
-    string ret = otapiPINVOKE.OT_API_LoadPaymentOutboxNoVerify(SERVER_ID, USER_ID);
     return ret;
   }
 
@@ -601,6 +621,11 @@ public class otapi {
 
   public static string OT_API_Ledger_FinalizeResponse(string SERVER_ID, string USER_ID, string ACCOUNT_ID, string THE_LEDGER) {
     string ret = otapiPINVOKE.OT_API_Ledger_FinalizeResponse(SERVER_ID, USER_ID, ACCOUNT_ID, THE_LEDGER);
+    return ret;
+  }
+
+  public static string OT_API_Ledger_GetInstrument(string SERVER_ID, string USER_ID, string ACCOUNT_ID, string THE_LEDGER, int nIndex) {
+    string ret = otapiPINVOKE.OT_API_Ledger_GetInstrument(SERVER_ID, USER_ID, ACCOUNT_ID, THE_LEDGER, nIndex);
     return ret;
   }
 
@@ -779,6 +804,10 @@ public class otapi {
 
   public static void OT_API_sendUserMessage(string SERVER_ID, string USER_ID, string USER_ID_RECIPIENT, string RECIPIENT_PUBKEY, string THE_MESSAGE) {
     otapiPINVOKE.OT_API_sendUserMessage(SERVER_ID, USER_ID, USER_ID_RECIPIENT, RECIPIENT_PUBKEY, THE_MESSAGE);
+  }
+
+  public static void OT_API_sendUserInstrument(string SERVER_ID, string USER_ID, string USER_ID_RECIPIENT, string RECIPIENT_PUBKEY, string THE_INSTRUMENT) {
+    otapiPINVOKE.OT_API_sendUserInstrument(SERVER_ID, USER_ID, USER_ID_RECIPIENT, RECIPIENT_PUBKEY, THE_INSTRUMENT);
   }
 
   public static void OT_API_getRequest(string SERVER_ID, string USER_ID) {

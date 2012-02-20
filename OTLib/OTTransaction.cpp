@@ -183,7 +183,7 @@ const char * OTTransaction::_TypeStrings[] =
 	"finalReceipt",     // the server drops this into your inbox(es), when a CronItem expires or is canceled.
 	"basketReceipt",    // the server drops this into your inboxes, when a basket exchange is processed.
 	// --------------------------------------------------------------------------------------
-	"instrumentNotice",		// Receive these in paymentInbox, and send in paymentOutbox. (When done, they go to recordBox to await deletion.)
+	"instrumentNotice",		// Receive these in paymentInbox (by way of Nymbox), and send in Outpayments (like outMail.) (When done, they go to recordBox to await deletion.)
 	"instrumentRejection",	// When someone rejects your invoice from his paymentInbox, you get one of these in YOUR paymentInbox.
 	// --------------------------------------------------------------------------------------
 	"processNymbox",	// process nymbox transaction	 // comes from client
@@ -217,8 +217,6 @@ const char * OTTransaction::_TypeStrings[] =
 	// --------------------------------------------------------------------------------------
 	"error_state"	
 };
-
-
 
 
 
@@ -489,7 +487,6 @@ bool OTTransaction::VerifyTransactionReceipt(OTPseudonym & SERVER_NYM,
 			else if (pTrans->Contains("inboxRecord"))	lBoxType = static_cast<long>(OTLedger::inbox);
 			else if (pTrans->Contains("outboxRecord"))	lBoxType = static_cast<long>(OTLedger::outbox);
 			else if (pTrans->Contains("paymentInboxRecord"))	lBoxType = static_cast<long>(OTLedger::paymentInbox);
-			else if (pTrans->Contains("paymentOutboxRecord"))	lBoxType = static_cast<long>(OTLedger::paymentOutbox);
 			else if (pTrans->Contains("recordBoxRecord"))		lBoxType = static_cast<long>(OTLedger::recordBox);
 			else
 			{
@@ -581,7 +578,6 @@ bool OTTransaction::VerifyBalanceReceipt(OTPseudonym & SERVER_NYM,
 		else if (tranOut.Contains("inboxRecord"))	lBoxType = static_cast<long>(OTLedger::inbox);
 		else if (tranOut.Contains("outboxRecord"))	lBoxType = static_cast<long>(OTLedger::outbox);
 		else if (tranOut.Contains("paymentInboxRecord"))	lBoxType = static_cast<long>(OTLedger::paymentInbox);
-		else if (tranOut.Contains("paymentOutboxRecord"))	lBoxType = static_cast<long>(OTLedger::paymentOutbox);
 		else if (tranOut.Contains("recordBoxRecord"))		lBoxType = static_cast<long>(OTLedger::recordBox);
 		else
 		{
@@ -2054,8 +2050,7 @@ bool OTTransaction::SetupBoxReceiptFilename(const long		 lLedgerType,
 		case 1:	pszFolder = OTLog::InboxFolder();	break;
 		case 2:	pszFolder = OTLog::OutboxFolder();	break;
 		case 3:	pszFolder = OTLog::PaymentInboxFolder();	break;
-		case 4:	pszFolder = OTLog::PaymentOutboxFolder();	break;
-		case 5:	pszFolder = OTLog::RecordBoxFolder();		break;
+		case 4:	pszFolder = OTLog::RecordBoxFolder();		break;
 		default:
 			OTLog::vError("OTTransaction::SetupBoxReceiptFilename %s: Error: unknown box type: %ld. "
 						  "(This should never happen.)\n", szCaller, lLedgerType);
@@ -2119,8 +2114,7 @@ bool OTTransaction::SetupBoxReceiptFilename(OTLedger & theLedger,
 		case OTLedger::inbox:   lLedgerType = 1;	break;
 		case OTLedger::outbox:  lLedgerType = 2;	break;
 		case OTLedger::paymentInbox:	lLedgerType = 3;	break;
-		case OTLedger::paymentOutbox:	lLedgerType = 4;	break;
-		case OTLedger::recordBox:		lLedgerType = 5;	break;
+		case OTLedger::recordBox:		lLedgerType = 4;	break;
 		default:
 			OTLog::vError("OTTransaction::SetupBoxReceiptFilename %s: Error: unknown box type. "
 						  "(This should never happen.)\n", szCaller);
@@ -2400,8 +2394,7 @@ bool OTTransaction::SaveBoxReceipt(OTLedger & theLedger)
 		case OTLedger::inbox:   lLedgerType = 1;	break;
 		case OTLedger::outbox:  lLedgerType = 2;	break;
 		case OTLedger::paymentInbox:	lLedgerType = 3;	break;
-		case OTLedger::paymentOutbox:	lLedgerType = 4;	break;
-		case OTLedger::recordBox:		lLedgerType = 5;	break;
+		case OTLedger::recordBox:		lLedgerType = 4;	break;
 		default:
 			OTLog::Error("OTTransaction::SaveBoxReceipt: Error: unknown box type. "
 						 "(This should never happen.)\n");
@@ -3161,7 +3154,6 @@ int OTTransaction::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		!strcmp("inboxRecord",			xml->getNodeName())	||
 		!strcmp("outboxRecord",			xml->getNodeName()) ||
 		!strcmp("paymentInboxRecord",	xml->getNodeName()) ||
-		!strcmp("paymentOutboxRecord",	xml->getNodeName()) ||
 		!strcmp("recordBoxRecord",		xml->getNodeName()))
 	{
 		long lTransactionNum	= 0;
@@ -3449,7 +3441,6 @@ void OTTransaction::UpdateContents()
 			case OTLedger::inbox:			this->SaveAbbreviatedInboxRecord(m_xmlUnsigned);	break;
 			case OTLedger::outbox:			this->SaveAbbreviatedOutboxRecord(m_xmlUnsigned);	break;
 			case OTLedger::paymentInbox:	this->SaveAbbrevPaymentInboxRecord(m_xmlUnsigned);	break;
-			case OTLedger::paymentOutbox:	this->SaveAbbrevPaymentOutboxRecord(m_xmlUnsigned);	break;
 			case OTLedger::recordBox:		this->SaveAbbrevRecordBoxRecord(m_xmlUnsigned);		break;
 				/* --- BREAK --- */
 			case OTLedger::message:
@@ -3650,71 +3641,71 @@ void OTTransaction::SaveAbbrevPaymentInboxRecord(OTString & strOutput)
 	"instrumentNotice",		// Receive these in paymentInbox, and send in paymentOutbox.
 	(When done, they go to recordBox to await deletion.)
  */
-void OTTransaction::SaveAbbrevPaymentOutboxRecord(OTString & strOutput)
-{
-	long lDisplayValue = 0;
-	
-	if (IsAbbreviated())
-	{
-		lDisplayValue	= GetAbbrevDisplayAmount();
-	}
-	else
-	{
-		switch (m_Type) 
-		{
-			case OTTransaction::instrumentNotice:
-				lDisplayValue	= GetReceiptAmount();
-//				lDisplayValue	= 0;
-				break;
-			default: // All other types are irrelevant for payment outbox reports.
-				OTLog::vError("OTTransaction::SaveAbbrevPaymentOutboxRecord: Unexpected %s transaction "
-							  "in payment outbox while making abbreviated payment outbox record.\n",
-							  GetTypeString());
-				return;
-		}
-	}
-	// ----------------------------------------------
-	// By this point, we know only the right types of receipts are being saved, and 
-	// the adjustment and display value are both set correctly.
-	
-	// TYPE
-	OTString		strType;	// <===========
-	const char *	pTypeStr = GetTypeString();
-	strType.Set((NULL != pTypeStr) ? pTypeStr : "error_state");
-	// ----------------------------------------------
-	// DATE SIGNED
-	const long lDateSigned = m_DATE_SIGNED;
-	// ----------------------------------------------
-	// HASH OF THE COMPLETE "BOX RECEIPT"
-	//
-	OTString strHash;
-	
-	// If this is already an abbreviated record, then save the existing hash.
-	if (IsAbbreviated())
-		m_Hash.GetString(strHash);
-	// Otherwise if it's a full record, then calculate the hash and save it.
-	else
-	{
-		OTIdentifier	idReceiptHash;				// a hash of the actual transaction is stored with its
-		this->CalculateContractID(idReceiptHash);	// abbreviated short-form record (in the payment outbox, for example.)
-		idReceiptHash.GetString(strHash);
-	}
-	// ----------------------------------------------
-	strOutput.Concatenate("<paymentOutboxRecord type=\"%s\"\n"
-						  " dateSigned=\"%ld\"\n"
-						  " receiptHash=\"%s\"\n"
-						  " displayValue=\"%ld\"\n"
-						  " transactionNum=\"%ld\"\n"
-						  " inRefDisplay=\"%ld\"\n"
-						  " inReferenceTo=\"%ld\" />\n\n",
-						  strType.Get(), 
-						  lDateSigned, 
-						  strHash.Get(),						  
-						  lDisplayValue,
-						  GetTransactionNum(),
-						  GetReferenceNumForDisplay(),
-						  GetReferenceToNum());
-}
+//void OTTransaction::SaveAbbrevPaymentOutboxRecord(OTString & strOutput)
+//{
+//	long lDisplayValue = 0;
+//	
+//	if (IsAbbreviated())
+//	{
+//		lDisplayValue	= GetAbbrevDisplayAmount();
+//	}
+//	else
+//	{
+//		switch (m_Type) 
+//		{
+//			case OTTransaction::instrumentNotice:
+//				lDisplayValue	= GetReceiptAmount();
+////				lDisplayValue	= 0;
+//				break;
+//			default: // All other types are irrelevant for payment outbox reports.
+//				OTLog::vError("OTTransaction::SaveAbbrevPaymentOutboxRecord: Unexpected %s transaction "
+//							  "in payment outbox while making abbreviated payment outbox record.\n",
+//							  GetTypeString());
+//				return;
+//		}
+//	}
+//	// ----------------------------------------------
+//	// By this point, we know only the right types of receipts are being saved, and 
+//	// the adjustment and display value are both set correctly.
+//	
+//	// TYPE
+//	OTString		strType;	// <===========
+//	const char *	pTypeStr = GetTypeString();
+//	strType.Set((NULL != pTypeStr) ? pTypeStr : "error_state");
+//	// ----------------------------------------------
+//	// DATE SIGNED
+//	const long lDateSigned = m_DATE_SIGNED;
+//	// ----------------------------------------------
+//	// HASH OF THE COMPLETE "BOX RECEIPT"
+//	//
+//	OTString strHash;
+//	
+//	// If this is already an abbreviated record, then save the existing hash.
+//	if (IsAbbreviated())
+//		m_Hash.GetString(strHash);
+//	// Otherwise if it's a full record, then calculate the hash and save it.
+//	else
+//	{
+//		OTIdentifier	idReceiptHash;				// a hash of the actual transaction is stored with its
+//		this->CalculateContractID(idReceiptHash);	// abbreviated short-form record (in the payment outbox, for example.)
+//		idReceiptHash.GetString(strHash);
+//	}
+//	// ----------------------------------------------
+//	strOutput.Concatenate("<paymentOutboxRecord type=\"%s\"\n"
+//						  " dateSigned=\"%ld\"\n"
+//						  " receiptHash=\"%s\"\n"
+//						  " displayValue=\"%ld\"\n"
+//						  " transactionNum=\"%ld\"\n"
+//						  " inRefDisplay=\"%ld\"\n"
+//						  " inReferenceTo=\"%ld\" />\n\n",
+//						  strType.Get(), 
+//						  lDateSigned, 
+//						  strHash.Get(),						  
+//						  lDisplayValue,
+//						  GetTransactionNum(),
+//						  GetReferenceNumForDisplay(),
+//						  GetReferenceToNum());
+//}
 
 // -------------------------------------------------------------
 
@@ -3744,7 +3735,6 @@ void OTTransaction::SaveAbbrevRecordBoxRecord(OTString & strOutput)
 	// Have some kind of check in here, whether the AcctID and UserID match.
 	// Some recordBoxes DO, and some DON'T (the different kinds store different
 	// kinds of receipts. See above comment.)
-	
 	
 	long lAdjustment = 0, lDisplayValue = 0;
 	// ----------------------------------------------

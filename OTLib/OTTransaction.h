@@ -391,7 +391,7 @@ public:
 		
 		// PAYMENT INBOX / PAYMENT OUTBOX / RECORD BOX
 		
-		instrumentNotice,		// Receive these in paymentInbox, and send in paymentOutbox. (When done, they go to recordBox to await deletion.)
+		instrumentNotice,		// Receive these in paymentInbox (by way of Nymbox), and send in Outpayments (like Outmail).) (When done, they go to recordBox to await deletion.)
 		instrumentRejection,	// When someone rejects your invoice from his paymentInbox, you get one of these in YOUR paymentInbox.
 		
 // --------------------------------------------------------------------------------------
@@ -435,10 +435,8 @@ public:
 	 You have to read pointer declarations right-to-left.
 	 
 	    Fred const* p    means "p points to a constant Fred": the Fred object can't be changed via p.
-	    Fred* const p    means "p is a const pointer to a Fred": you can't change the pointer p, but you
-	 can change the Fred object via p.
-	    Fred const* const p    means "p is a constant pointer to a constant Fred": you can't change the
-	 pointer p itself, nor can you change the Fred object via p.	 
+	    Fred* const p    means "p is a const pointer to a Fred": you can't change the pointer p, but you can change the Fred object via p.
+	    Fred const* const p    means "p is a constant pointer to a constant Fred": you can't change the pointer p itself, nor can you change the Fred object via p.	 
 	 */
 protected:
 	// Usually a transaction object is inside a ledger object. 
@@ -709,8 +707,7 @@ public:
 	void SaveAbbreviatedOutboxRecord(OTString & strOutput);
 	void SaveAbbreviatedInboxRecord(OTString & strOutput);	
 	// --------------------------------------------------------------
-	void SaveAbbrevPaymentInboxRecord(OTString & strOutput);	
-	void SaveAbbrevPaymentOutboxRecord(OTString & strOutput);
+	void SaveAbbrevPaymentInboxRecord(OTString & strOutput);
 	void SaveAbbrevRecordBoxRecord(OTString & strOutput);	
 	// --------------------------------------------------------------
 	void ProduceInboxReportItem(OTItem & theBalanceItem);

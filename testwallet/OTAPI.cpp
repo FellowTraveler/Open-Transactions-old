@@ -1381,7 +1381,6 @@ OT_BOOL OT_API_Nym_VerifyMailByIndex(const char * NYM_ID, int nIndex)
 }
 	
 	
-
 // --------------------------------------------------------------------------
 //
 // OUTMAIL!!
@@ -1419,7 +1418,6 @@ const char * OT_API_GetNym_OutmailContentsByIndex(const char * NYM_ID, int nInde
 		// MESSAGE:   pMessage->m_ascPayload (in an OTEnvelope)
 		OTString	strMailContents;
 			
-		// Decrypt the Envelope.
 		if (pMessage->m_ascPayload.Exists() &&
 			pMessage->m_ascPayload.GetString(strMailContents))
 		{
@@ -1562,6 +1560,215 @@ OT_BOOL OT_API_Nym_VerifyOutmailByIndex(const char * NYM_ID, int nIndex)
 	if (NULL == pNym) return OT_FALSE;
 	// -------------------------	
 	OTMessage * pMessage = pNym->GetOutmailByIndex(nIndex);
+	if (NULL != pMessage)
+	{
+		// Grab the NymID of the sender.
+		const OTIdentifier theSenderNymID(pMessage->m_strNymID);
+		
+		// Grab a pointer to that Nym (if its public key is in my wallet.)
+		OTPseudonym * pSenderNym = g_OT_API.GetNym(theSenderNymID, szFunc);
+		
+		// If it's there, use it to verify the signature on the message.
+		// return OT_TRUE if successful signature verification.
+		//
+		if (NULL != pSenderNym)
+		{
+			if (pMessage->VerifySignature(*pSenderNym))
+				return OT_TRUE;
+		}
+	}
+	return OT_FALSE;	
+}
+
+
+
+// --------------------------------------------------------------------------
+//
+// OUTPAYMENTS!!
+//
+// (Outbox on payments screen.)
+//
+// Todo: Move these and all functions to OpenTransactions.cpp.  This should ONLY 
+// be a wrapper for that class.  That way we can eventually phase this file out
+// entirely and replace it with OTAPI_Wrapper.cpp directly on OpenTransactions.cpp
+
+int	OT_API_GetNym_OutpaymentsCount(const char * NYM_ID)
+{
+	OT_ASSERT_MSG(NULL != NYM_ID, "Null NYM_ID passed to OT_API_GetNym_OutpaymentsCount");
+	
+	const char * szFunc = "OT_API_GetNym_OutpaymentsCount";
+	// -------------------------
+	OTIdentifier	theNymID(NYM_ID);
+	OTPseudonym * pNym = g_OT_API.GetNym(theNymID, szFunc);
+	if (NULL == pNym) return 0;
+	// -------------------------	
+	return pNym->GetOutpaymentsCount();
+}
+
+
+// Returns the payment instrument that was sent.
+//
+const char * OT_API_GetNym_OutpaymentsContentsByIndex(const char * NYM_ID, int nIndex)
+{
+	OT_ASSERT_MSG(NULL != NYM_ID, "Null NYM_ID passed to OT_API_GetNym_OutpaymentsContentsByIndex");
+	
+	const char * szFunc = "OT_API_GetNym_OutpaymentsContentsByIndex";
+	// -------------------------
+	OTIdentifier	theNymID(NYM_ID);
+	OTPseudonym * pNym = g_OT_API.GetNym(theNymID, szFunc);
+	if (NULL == pNym) return NULL;
+	// -------------------------	
+	OTMessage * pMessage = pNym->GetOutpaymentsByIndex(nIndex);
+	if (NULL != pMessage)
+	{
+		// SENDER:     pMessage->m_strNymID
+		// RECIPIENT:  pMessage->m_strNymID2
+		// INSTRUMENT: pMessage->m_ascPayload (in an OTEnvelope)
+		OTString	strPaymentsContents;
+			
+		// Decrypt the Envelope.
+		if (pMessage->m_ascPayload.Exists() &&
+			pMessage->m_ascPayload.GetString(strPaymentsContents))
+		{
+			const char * pBuf = strPaymentsContents.Get();
+#ifdef _WIN32
+			strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+			strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+			return g_tempBuf;
+		}
+	}
+	return NULL;	
+}
+
+
+
+/// returns the recipient ID for a piece of payments outmail. (NymID).
+///
+const char * OT_API_GetNym_OutpaymentsRecipientIDByIndex(const char * NYM_ID, int nIndex)
+{
+	OT_ASSERT_MSG(NULL != NYM_ID, "Null NYM_ID passed to OT_API_GetNym_OutpaymentsRecipientIDByIndex");
+	
+	const char * szFunc = "OT_API_GetNym_OutpaymentsRecipientIDByIndex";
+	// -------------------------
+	OTIdentifier	theNymID(NYM_ID);
+	OTPseudonym * pNym = g_OT_API.GetNym(theNymID, szFunc);
+	if (NULL == pNym) return NULL;
+	// -------------------------	
+	OTMessage * pMessage = pNym->GetOutpaymentsByIndex(nIndex);
+	if (NULL != pMessage)
+	{
+		// SENDER:    pMessage->m_strNymID
+		// SERVER:    pMessage->m_strServerID
+		// RECIPIENT: pMessage->m_strNymID2
+		// MESSAGE:   pMessage->m_ascPayload
+			
+		const char * pBuf = pMessage->m_strNymID2.Get();
+			
+#ifdef _WIN32
+		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+		return g_tempBuf;
+	}
+	return NULL;	
+}
+
+
+
+/// returns the server ID that a piece of payments outmail came from.
+///
+const char * OT_API_GetNym_OutpaymentsServerIDByIndex(const char * NYM_ID, int nIndex)
+{
+	OT_ASSERT_MSG(NULL != NYM_ID, "OT_API_GetNym_OutpaymentsServerIDByIndex: Null NYM_ID passed in.");
+	
+	const char * szFunc = "OT_API_GetNym_OutpaymentsServerIDByIndex";
+	// -------------------------
+	OTIdentifier	theNymID(NYM_ID);
+	OTPseudonym * pNym = g_OT_API.GetNym(theNymID, szFunc);
+	if (NULL == pNym) return NULL;
+	// -------------------------	
+	OTMessage * pMessage = pNym->GetOutpaymentsByIndex(nIndex);
+	
+	if (NULL != pMessage)
+	{
+		// SENDER:    pMessage->m_strNymID
+		// SERVER:    pMessage->m_strServerID
+		// RECIPIENT: pMessage->m_strNymID2
+		// MESSAGE:   pMessage->m_ascPayload 
+		
+		const char * pBuf = pMessage->m_strServerID.Get();
+#ifdef _WIN32
+		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+		return g_tempBuf;
+			
+	}
+	return NULL;	
+}
+
+
+
+// --------------------------------------------------------
+
+
+OT_BOOL OT_API_Nym_RemoveOutpaymentsByIndex(const char * NYM_ID, int nIndex)
+{
+	OT_ASSERT_MSG(NULL != NYM_ID, "OT_API_Nym_RemoveOutpaymentsByIndex: Null NYM_ID passed in.");
+	
+	const char * szFunc = "OT_API_Nym_RemoveOutpaymentsByIndex";
+	// -------------------------
+	OTIdentifier	theNymID(NYM_ID);
+	OTPseudonym * pNym = g_OT_API.GetNym(theNymID, szFunc);
+	if (NULL == pNym) return OT_FALSE;
+	// -------------------------	
+	OTPseudonym * pSignerNym = pNym;
+
+	if (pNym->RemoveOutpaymentsByIndex(nIndex))
+	{
+		if (pNym->SaveSignedNymfile(*pSignerNym)) // <== save Nym to local storage, since a payment outmail was erased.
+			return OT_TRUE;
+		else 
+			OTLog::vError("OT_API_Nym_RemoveOutpaymentsByIndex: Error saving Nym: %s\n", NYM_ID);
+	}
+	return OT_FALSE;	
+}
+
+
+
+/// Returns OT_TRUE (1) if the Sender ID on this piece of Mail (by index)
+/// loads a public key from my wallet, and if the signature on the message
+/// verifies with that public key.
+/// (Not only must the signature be good, but I must have added the nym to
+/// my wallet sometime in the past, since this func returns false if it's not there.)
+///
+/// A good wallet might be designed to automatically download any keys that
+/// it doesn't already have, using OT_API_checkUser(). I'll probably need to
+/// add something to OTClient where the @checkUser response auto-saves the new
+/// key into the wallet. That way you can wait for a tenth of a second and then
+/// just read the Nym (by ID) straight out of your own wallet. Nifty, eh?
+///
+/// All the wallet has to do is fire off a "check user" whenever this call fails,
+/// then come back when that succeeds and try this again. If STILL failure, then 
+/// you've got a signature problem. Otherwise it'll usually download the nym
+/// and verify the signature all in an instant, without the user even noticing
+/// what happened.
+///
+OT_BOOL OT_API_Nym_VerifyOutpaymentsByIndex(const char * NYM_ID, int nIndex)
+{
+	OT_ASSERT_MSG(NULL != NYM_ID, "OT_API_Nym_VerifyOutpaymentsByIndex: Null NYM_ID passed in.");
+	
+	const char * szFunc = "OT_API_Nym_VerifyOutpaymentsByIndex";
+	// -------------------------
+	OTIdentifier	theNymID(NYM_ID);
+	OTPseudonym * pNym = g_OT_API.GetNym(theNymID, szFunc);
+	if (NULL == pNym) return OT_FALSE;
+	// -------------------------	
+	OTMessage * pMessage = pNym->GetOutpaymentsByIndex(nIndex);
 	if (NULL != pMessage)
 	{
 		// Grab the NymID of the sender.
@@ -4190,88 +4397,6 @@ const char * OT_API_LoadPaymentInboxNoVerify(const char * SERVER_ID,
 
 
 
-const char * OT_API_LoadPaymentOutbox(const char * SERVER_ID,
-									  const char * USER_ID)
-{
-	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_LoadPaymentOutbox: Null SERVER_ID passed in.");
-	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_LoadPaymentOutbox: Null USER_ID passed in.");
-	
-	const OTIdentifier theServerID(SERVER_ID);
-	const OTIdentifier theUserID(USER_ID);
-	
-	// There is an OT_ASSERT in here for memory failure,
-	// but it still might return NULL if various verification fails.
-	OTLedger * pLedger = g_OT_API.LoadPaymentOutbox(theServerID, theUserID); 
-	
-	// Make sure it gets cleaned up when this goes out of scope.
-	OTCleanup<OTLedger>	theAngel(pLedger); // I pass the pointer, in case it's NULL.
-	
-	if (NULL == pLedger)
-	{
-		OTLog::vOutput(0, "OT_API_LoadPaymentOutbox: Failure calling OT_API::LoadPaymentOutbox().\n "
-					   "User ID: %s\n", USER_ID);
-	}
-	else // success 
-	{
-		OTString strOutput(*pLedger); // For the output
-		
-		const char * pBuf = strOutput.Get(); 
-		
-#ifdef _WIN32
-		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
-		
-		return g_tempBuf;
-	}
-	
-	return NULL;				
-}
-
-
-
-
-const char * OT_API_LoadPaymentOutboxNoVerify(const char * SERVER_ID,
-											  const char * USER_ID)
-{
-	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_LoadPaymentOutboxNoVerify: Null SERVER_ID passed in.");
-	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_LoadPaymentOutboxNoVerify: Null USER_ID passed in.");
-	
-	const OTIdentifier theServerID(SERVER_ID);
-	const OTIdentifier theUserID(USER_ID);
-	
-	// There is an OT_ASSERT in here for memory failure,
-	// but it still might return NULL if various verification fails.
-	OTLedger * pLedger = g_OT_API.LoadPaymentOutboxNoVerify(theServerID, theUserID); 
-	
-	// Make sure it gets cleaned up when this goes out of scope.
-	OTCleanup<OTLedger>	theAngel(pLedger); // I pass the pointer, in case it's NULL.
-	
-	if (NULL == pLedger)
-	{
-		OTLog::vOutput(0, "OT_API_LoadPaymentOutboxNoVerify: Failure calling OT_API::LoadPaymentOutboxNoVerify.\n "
-					   "User ID: %s\n", USER_ID);
-	}
-	else // success 
-	{
-		OTString strOutput(*pLedger); // For the output
-		
-		const char * pBuf = strOutput.Get(); 
-		
-#ifdef _WIN32
-		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
-		
-		return g_tempBuf;
-	}
-	
-	return NULL;				
-}
-
-
 
 // --------------------------------------------------------------
 
@@ -4544,7 +4669,7 @@ const char * OT_API_Ledger_GetTransactionByIndex(const char * SERVER_ID,
 	OTString strLedger(THE_LEDGER);
 	// -----------------------------------------------------
 	OTLedger theLedger(theUserID, theAccountID, theServerID);
-	std::set<long> setUnloaded;
+//	std::set<long> setUnloaded;
 	
 	if (	!theLedger.LoadLedgerFromString(strLedger)
 //		||	!theLedger.LoadBoxReceipts(&setUnloaded)	// This is done below, for the individual transaction, for better optimization.
@@ -4713,6 +4838,243 @@ const char * OT_API_Ledger_GetTransactionByID(const char * SERVER_ID,
 	return g_tempBuf;	
 }
 
+
+
+
+
+// -------------------------------------------------------------------------
+/// OT_API_Ledger_GetInstrument (by index)
+///
+/// Lookup a financial instrument (from within a transaction that is inside
+/// a paymentInbox ledger) based on index.
+/*
+ sendUserInstrument does this:
+ -- Puts instrument (a contract string) as encrypted Payload on an OTMessage(1).
+ -- Also puts instrument (same contract string) as CLEAR payload on an OTMessage(2).
+ -- (1) is sent to server, and (2) is added to Outpayments messages.
+ -- (1) gets added to recipient's Nymbox as "in ref to" string on a "instrumentNotice" transaction.
+ -- When recipient processes Nymbox, the "instrumentNotice" transaction (containing (1) in its "in ref to"
+ field) is copied and added to the recipient's paymentInbox.
+ -- When recipient iterates through paymentInbox transactions, they are ALL "instrumentNotice"s. Each 
+ transaction contains an OTMessage in its "in ref to" field, and that OTMessage object contains an 
+ encrypted payload of the instrument itself (a contract string.)
+ -- When sender gets Outpayments contents, the original instrument (contract string) is stored IN THE 
+ CLEAR as payload on an OTMessage.
+ 
+ THEREFORE:
+ TO EXTRACT INSTRUMENT FROM PAYMENTS INBOX:
+ -- Iterate through the transactions in the payments inbox.
+ -- (They should all be "instrumentNotice" transactions.)
+ -- Each transaction contains (1) OTMessage in "in ref to" field, which in turn contains an encrypted
+ instrument in the payload field.
+ -- *** Therefore, this function, based purely on ledger index (as we iterate) extracts the
+ OTMessage from the Transaction "in ref to" field (for the transaction at that index), then decrypts
+ the payload on that message and returns the decrypted cleartext. 
+ */
+const char * OT_API_Ledger_GetInstrument(const char * SERVER_ID,
+										 const char * USER_ID,
+										 const char * ACCOUNT_ID,
+										 const char * THE_LEDGER,
+										 int nIndex) // returns financial instrument by index.
+{
+	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_Ledger_GetInstrument: Null SERVER_ID passed in.");
+	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_Ledger_GetInstrument: Null USER_ID passed in.");
+	OT_ASSERT_MSG(NULL != ACCOUNT_ID, "OT_API_Ledger_GetInstrument: NULL ACCOUNT_ID passed in.");
+	OT_ASSERT_MSG(NULL != THE_LEDGER, "OT_API_Ledger_GetInstrument: NULL THE_LEDGER passed in.");
+	OT_ASSERT_MSG(nIndex >= 0, "OT_API_Ledger_GetInstrument: Index out of bounds (it's in the negative).");
+	
+	const OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theAccountID(ACCOUNT_ID);
+	
+	// -----------------------------------------------------
+	const char * szFunc = "OT_API_Ledger_GetInstrument";
+	OTPseudonym * pNym = g_OT_API.GetNym(theUserID, szFunc);
+	if (NULL == pNym) return NULL;
+	// -------------------------
+	OTString strLedger(THE_LEDGER);	
+	OTLedger theLedger(theUserID, theAccountID, theServerID);
+//	std::set<long> setUnloaded;
+	
+	if (	!theLedger.LoadLedgerFromString(strLedger)
+//		||	!theLedger.LoadBoxReceipts(&setUnloaded)	// This is done below, for the individual transaction, for better optimization.
+		)
+	{
+		OTString strAcctID(theAccountID);
+		OTLog::vError("OT_API_Ledger_GetInstrument: Error loading ledger from string. Acct ID:\n%s\n",
+					  strAcctID.Get());
+		return NULL;
+	}
+	// -----------------------------------------------------
+	// At this point, I know theLedger loaded successfully.
+	
+	if (nIndex >= theLedger.GetTransactionCount())
+	{
+		OTLog::vError("OT_API_Ledger_GetInstrument: out of bounds: %d\n", nIndex);
+		return NULL; // out of bounds. I'm saving from an OT_ASSERT_MSG() happening here. (Maybe I shouldn't.)
+	}
+	// -----------------------------------------------------
+
+	OTTransaction * pTransaction = theLedger.GetTransactionByIndex(nIndex);
+//	OTCleanup<OTTransaction> theAngel(pTransaction); // THE LEDGER CLEANS THIS ALREADY.
+	
+	if (NULL == pTransaction)
+	{
+		OTLog::vError("OT_API_Ledger_GetInstrument: good index but uncovered NULL pointer: %d\n", 
+					  nIndex);
+		return NULL; // Weird.
+	}
+	// -----------------------------------------------------
+
+	const long lTransactionNum = pTransaction->GetTransactionNum();
+	// At this point, I actually have the transaction pointer, so let's return it in string form...
+	
+	// Update: for transactions in ABBREVIATED form, the string is empty, since it has never actually
+	// been signed (in fact the whole point with abbreviated transactions in a ledger is that they 
+	// take up very little room, and have no signature of their own, but exist merely as XML tags on
+	// their parent ledger.)
+	//
+	// THEREFORE I must check to see if this transaction is abbreviated and if so, sign it in order to
+	// force the UpdateContents() call, so the programmatic user of this API will be able to load it up.
+	//
+	if (pTransaction->IsAbbreviated())
+	{
+		theLedger.LoadBoxReceipt(lTransactionNum); // I don't check return val here because I still want it to send the abbreviated form, if this fails.
+		pTransaction = theLedger.GetTransaction(lTransactionNum);
+		// -------------------------
+		if (NULL == pTransaction)
+		{
+			OTLog::vError("OT_API_Ledger_GetInstrument: good index but uncovered NULL "
+						  "pointer after trying to load full version of receipt (from abbreviated): %d\n", 
+						  nIndex);
+			return NULL; // Weird.
+		}		
+		// I was doing this when it was abbreviated. But now (above) I just 
+		// load the box receipt itself.
+//		OTPseudonym * pNym = g_OT_API.GetNym(theUserID, "OT_API_Ledger_GetTransactionByIndex");
+//		if (NULL == pNym) return NULL;
+//		// -------------------------	
+//		pTransaction->ReleaseSignatures();
+//		pTransaction->SignContract(*pNym);
+//		pTransaction->SaveContract();
+	}
+	// ------------------------------------------------
+	/*
+	 TO EXTRACT INSTRUMENT FROM PAYMENTS INBOX:
+	 -- Iterate through the transactions in the payments inbox.
+	 -- (They should all be "instrumentNotice" transactions.)
+	 -- Each transaction contains (1) OTMessage in "in ref to" field, which in turn contains an encrypted
+	    instrument in the payload field.
+	 -- *** Therefore, this function, based purely on ledger index (as we iterate) extracts the
+	    OTMessage from the Transaction "in ref to" field (for the transaction at that index), then decrypts
+	    the payload on that message and returns the decrypted cleartext. 
+	 */
+	// ------------------------------------------------
+	if ((OTTransaction::instrumentNotice	!= pTransaction->GetType()) &&
+		(OTTransaction::notice				!= pTransaction->GetType()))
+	{
+		OTLog::vOutput(0, "OT_API_Ledger_GetInstrument: Failure: Expected OTTransaction::instrumentNotice or notice, "
+					   "but found: OTTransaction::%s\n", pTransaction->GetTypeString());
+		return NULL;
+	}
+	// ------------------------------------------------
+	
+	if (OTTransaction::instrumentNotice	== pTransaction->GetType()) // It's encrypted.
+	{
+		OTString strMsg;
+		pTransaction->GetReferenceString(strMsg);
+
+		if (!strMsg.Exists())
+		{
+			OTLog::Output(0, "OT_API_Ledger_GetInstrument: Failure: Expected OTTransaction::instrumentNotice to "
+						  "contain an 'in reference to' string, but it was empty. (Returning NULL.)\n");
+			return NULL;
+		}
+		// ------------------------------------------------
+
+		OTMessage * pMsg = new OTMessage;
+		OT_ASSERT_MSG(NULL != pMsg, "OT_API_Ledger_GetInstrument: Assert while allocating memory for an OTMessage.");
+		OTCleanup<OTMessage> theMsgAngel(*pMsg); // cleanup memory.
+		
+		if (false == pMsg->LoadContractFromString(strMsg))
+		{
+			OTLog::vOutput(0, "OT_API_Ledger_GetInstrument: Failed trying to load OTMessage from string:\n\n%s\n\n",
+						   strMsg.Get());
+			return NULL;		
+		}
+		// ------------------------------------------------
+		// By this point, the original OTMessage has been loaded from string successfully.
+		// Now we need to decrypt the payment on that message (which contains the instrument
+		// itself that we need to return.) We decrypt it the same way as we do in 
+		// OT_API_GetNym_MailContentsByIndex():
+		//
+		
+		// SENDER:     pMsg->m_strNymID
+		// RECIPIENT:  pMsg->m_strNymID2
+		// INSTRUMENT: pMsg->m_ascPayload (in an OTEnvelope)
+		//	
+		OTEnvelope	theEnvelope;
+		OTString	strEnvelopeContents;
+		
+		// Decrypt the Envelope.
+		if (theEnvelope.SetAsciiArmoredData(pMsg->m_ascPayload) &&
+			theEnvelope.Open(*pNym, strEnvelopeContents))
+		{
+			const char * pBuf = strEnvelopeContents.Get();
+#ifdef _WIN32
+			strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+			strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+			return g_tempBuf;
+		}
+		else
+			OTLog::vOutput(0, "OT_API_Ledger_GetInstrument: Failed trying to decrypt the financial instrument "
+						   "that was supposedly attached as a payload to this payment message:\n\n%s\n\n", strMsg.Get());
+	}
+	else
+		OTLog::vError("OT_API_Ledger_GetInstrument: This must be a notice (vs an instrumentNotice). !!! Not yet supported !!!\n");
+		
+	return NULL;
+}
+/*
+ 
+// returns the message, optionally with Subject: as first line.
+const char * OT_API_GetNym_MailContentsByIndex(const char * NYM_ID, int nIndex)
+{
+	OT_ASSERT_MSG(NULL != NYM_ID, "Null NYM_ID passed to OT_API_GetNym_MailContentsByIndex");
+	
+	const char * szFunc = "OT_API_GetNym_MailContentsByIndex";
+	// -------------------------
+	OTIdentifier	theNymID(NYM_ID);
+	OTPseudonym * pNym = g_OT_API.GetNym(theNymID, szFunc);
+	if (NULL == pNym) return NULL;
+	// -------------------------
+	OTMessage * pMessage = pNym->GetMailByIndex(nIndex);
+	
+	if (NULL != pMessage)
+	{
+		// SENDER:    pMessage->m_strNymID
+		// RECIPIENT: pMessage->m_strNymID2
+		// MESSAGE:   pMessage->m_ascPayload (in an OTEnvelope)
+		//	
+		OTEnvelope	theEnvelope;
+		OTString	strEnvelopeContents;
+			
+		// Decrypt the Envelope.
+		if (theEnvelope.SetAsciiArmoredData(pMessage->m_ascPayload) &&
+			theEnvelope.Open(*pNym, strEnvelopeContents))
+		{
+			const char * pBuf = strEnvelopeContents.Get();
+#ifdef _WIN32
+			strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+			strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+			return g_tempBuf;
+		}
+	}
+	return NULL;	
+}
+ */
 
 
 // Returns a transaction number, or -1 for error.
@@ -5949,7 +6311,6 @@ const char * OT_API_Transaction_GetSenderUserID(const char * SERVER_ID,
 		else if (theTransaction.Contains("inboxRecord"))	lBoxType = static_cast<long>(OTLedger::inbox);
 		else if (theTransaction.Contains("outboxRecord"))	lBoxType = static_cast<long>(OTLedger::outbox);
 		else if (theTransaction.Contains("paymentInboxRecord"))		lBoxType = static_cast<long>(OTLedger::paymentInbox);
-		else if (theTransaction.Contains("paymentOutboxRecord"))	lBoxType = static_cast<long>(OTLedger::paymentOutbox);
 		else if (theTransaction.Contains("recordBoxRecord"))		lBoxType = static_cast<long>(OTLedger::recordBox);
 		else
 		{
@@ -6047,7 +6408,6 @@ const char * OT_API_Transaction_GetRecipientUserID(const char * SERVER_ID,
 		else if (theTransaction.Contains("inboxRecord"))	lBoxType = static_cast<long>(OTLedger::inbox);
 		else if (theTransaction.Contains("outboxRecord"))	lBoxType = static_cast<long>(OTLedger::outbox);
 		else if (theTransaction.Contains("paymentInboxRecord"))		lBoxType = static_cast<long>(OTLedger::paymentInbox);
-		else if (theTransaction.Contains("paymentOutboxRecord"))	lBoxType = static_cast<long>(OTLedger::paymentOutbox);
 		else if (theTransaction.Contains("recordBoxRecord"))		lBoxType = static_cast<long>(OTLedger::recordBox);		
 		else
 		{
@@ -6160,7 +6520,6 @@ const char * OT_API_Transaction_GetSenderAcctID(const char * SERVER_ID,
 		else if (theTransaction.Contains("inboxRecord"))	lBoxType = static_cast<long>(OTLedger::inbox);
 		else if (theTransaction.Contains("outboxRecord"))	lBoxType = static_cast<long>(OTLedger::outbox);
 		else if (theTransaction.Contains("paymentInboxRecord"))		lBoxType = static_cast<long>(OTLedger::paymentInbox);
-		else if (theTransaction.Contains("paymentOutboxRecord"))	lBoxType = static_cast<long>(OTLedger::paymentOutbox);
 		else if (theTransaction.Contains("recordBoxRecord"))		lBoxType = static_cast<long>(OTLedger::recordBox);		
 		else
 		{
@@ -6260,7 +6619,6 @@ const char * OT_API_Transaction_GetRecipientAcctID(const char * SERVER_ID,
 		else if (theTransaction.Contains("inboxRecord"))	lBoxType = static_cast<long>(OTLedger::inbox);
 		else if (theTransaction.Contains("outboxRecord"))	lBoxType = static_cast<long>(OTLedger::outbox);
 		else if (theTransaction.Contains("paymentInboxRecord"))		lBoxType = static_cast<long>(OTLedger::paymentInbox);
-		else if (theTransaction.Contains("paymentOutboxRecord"))	lBoxType = static_cast<long>(OTLedger::paymentOutbox);
 		else if (theTransaction.Contains("recordBoxRecord"))		lBoxType = static_cast<long>(OTLedger::recordBox);
 		else
 		{
@@ -6376,7 +6734,6 @@ const char * OT_API_Pending_GetNote(const char * SERVER_ID,
 		else if (theTransaction.Contains("inboxRecord"))	lBoxType = static_cast<long>(OTLedger::inbox);
 		else if (theTransaction.Contains("outboxRecord"))	lBoxType = static_cast<long>(OTLedger::outbox);
 		else if (theTransaction.Contains("paymentInboxRecord"))		lBoxType = static_cast<long>(OTLedger::paymentInbox);
-		else if (theTransaction.Contains("paymentOutboxRecord"))	lBoxType = static_cast<long>(OTLedger::paymentOutbox);
 		else if (theTransaction.Contains("recordBoxRecord"))		lBoxType = static_cast<long>(OTLedger::recordBox);
 		else
 		{
@@ -6510,7 +6867,6 @@ const char * OT_API_Transaction_GetAmount(const char * SERVER_ID,
 		else if (theTransaction.Contains("inboxRecord"))	lBoxType = static_cast<long>(OTLedger::inbox);
 		else if (theTransaction.Contains("outboxRecord"))	lBoxType = static_cast<long>(OTLedger::outbox);
 		else if (theTransaction.Contains("paymentInboxRecord"))		lBoxType = static_cast<long>(OTLedger::paymentInbox);
-		else if (theTransaction.Contains("paymentOutboxRecord"))	lBoxType = static_cast<long>(OTLedger::paymentOutbox);
 		else if (theTransaction.Contains("recordBoxRecord"))		lBoxType = static_cast<long>(OTLedger::recordBox);
 		else
 		{
@@ -6787,7 +7143,6 @@ OT_BOOL OT_API_Transaction_GetSuccess(const char * SERVER_ID,
 		else if (theTransaction.Contains("inboxRecord"))	lBoxType = static_cast<long>(OTLedger::inbox);
 		else if (theTransaction.Contains("outboxRecord"))	lBoxType = static_cast<long>(OTLedger::outbox);
 		else if (theTransaction.Contains("paymentInboxRecord"))		lBoxType = static_cast<long>(OTLedger::paymentInbox);
-		else if (theTransaction.Contains("paymentOutboxRecord"))	lBoxType = static_cast<long>(OTLedger::paymentOutbox);
 		else if (theTransaction.Contains("recordBoxRecord"))		lBoxType = static_cast<long>(OTLedger::recordBox);
 		else
 		{
@@ -6864,7 +7219,6 @@ OT_BOOL OT_API_Transaction_GetBalanceAgreementSuccess(const char * SERVER_ID,
 		else if (theTransaction.Contains("inboxRecord"))	lBoxType = static_cast<long>(OTLedger::inbox);
 		else if (theTransaction.Contains("outboxRecord"))	lBoxType = static_cast<long>(OTLedger::outbox);
 		else if (theTransaction.Contains("paymentInboxRecord"))		lBoxType = static_cast<long>(OTLedger::paymentInbox);
-		else if (theTransaction.Contains("paymentOutboxRecord"))	lBoxType = static_cast<long>(OTLedger::paymentOutbox);
 		else if (theTransaction.Contains("recordBoxRecord"))		lBoxType = static_cast<long>(OTLedger::recordBox);
 		else
 		{
@@ -8231,6 +8585,102 @@ void OT_API_sendUserMessage(const char * SERVER_ID,
 	
 	g_OT_API.sendUserMessage(theServerID, theUserID, theOtherUserID, ascRecipPubkey, strMessage);	
 }
+
+
+
+void OT_API_sendUserInstrument(const char * SERVER_ID,
+							   const char * USER_ID,
+							   const char * USER_ID_RECIPIENT,
+							   const char * RECIPIENT_PUBKEY,
+							   const char * THE_INSTRUMENT)
+{
+	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_sendUserInstrument: Null SERVER_ID passed in.");
+	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_sendUserInstrument: Null USER_ID passed in.");
+	OT_ASSERT_MSG(NULL != USER_ID_RECIPIENT, "OT_API_sendUserInstrument: Null USER_ID_RECIPIENT passed in.");
+	OT_ASSERT_MSG(NULL != RECIPIENT_PUBKEY, "OT_API_sendUserInstrument: Null RECIPIENT_PUBKEY passed in.");
+	OT_ASSERT_MSG(NULL != THE_INSTRUMENT, "OT_API_sendUserInstrument: Null THE_INSTRUMENT passed in.");
+	
+	OTIdentifier	theServerID(SERVER_ID), theUserID(USER_ID), theOtherUserID(USER_ID_RECIPIENT);
+	OTASCIIArmor	ascRecipPubkey(RECIPIENT_PUBKEY);
+	OTString		strInstrument(THE_INSTRUMENT);
+	
+	OTContract	* pContract	= NULL;
+	OTPurse		* pPurse	= NULL; // (In case it's a purse.)
+
+	OTCleanup<OTContract> theAngel; // for cleanup.
+
+	// ------------------------------------------------------------
+
+	if (strInstrument.Contains("-----BEGIN SIGNED PURSE-----"))
+	{
+		pPurse = new OTPurse(theServerID);
+		OT_ASSERT_MSG(NULL != pPurse, "OT_API_sendUserInstrument: assert while instantiating purse.");
+		// ----------------------
+		pContract = pPurse;
+		theAngel.SetCleanupTargetPointer(pContract);
+		// ----------------------
+		if (false == pPurse->LoadContractFromString(strInstrument))
+		{
+			OTLog::vOutput(0, "OT_API_sendUserInstrument: Failure loading purse from string:\n\n%s\n\n",
+						   strInstrument.Get());
+			return; // todo therefore this function needs to return bool, so I can return a false here. Basically all messages should change from void to bool.
+		}
+		// By this point, if the instrument is a purse, then the purse object has been
+		// instantiated AND loaded successfully from string. (And scheduled for cleanup
+		// when it goes out of scope.)
+	}
+	else
+	{
+		// ------------------------------------------------------------
+		// Todo: improve validation. 
+		// Perhaps have a "instantiate instrument" function that handles this.
+		// (Instead of the OTContract factory that I'm currently using below.)
+		//
+		if (!strInstrument.Contains("-----BEGIN SIGNED PAYMENT PLAN-----")	&&
+			!strInstrument.Contains("-----BEGIN SIGNED INVOICE-----")		&&
+			!strInstrument.Contains("-----BEGIN SIGNED VOUCHER-----")		&&
+			!strInstrument.Contains("-----BEGIN SIGNED CHEQUE-----"))
+		{
+			OTLog::vOutput(0, "OT_API_sendUserInstrument: Unknown instrument:\n\n%s\n\n",
+						   strInstrument.Get());
+			return; // todo therefore this function needs to return bool, so I can return a false here. Basically all messages should change from void to bool.
+		}
+		// ------------------------------------------------------------
+		
+		// TODO: there are multiple places where I call these three factories.
+		// Therefore should probably make some kind of universal factory that calls
+		// the three, and then call THAT in those multiple places. (Instead of repeating
+		// the code...)
+		//
+		
+		//NOTE: I believe these are unnecessary here. (Commenting out, for now.)
+		//
+		//	if (NULL == pContract)
+		//		pContract = OTTransactionType::TransactionFactory(strInstrument); // todo: is this needed here? 
+		//	
+		//	if (NULL == pContract)
+		//		pContract = OTScriptable::InstantiateScriptable(strInstrument);
+		
+		if (NULL == pContract)
+			pContract = OTContract::InstantiateContract(strInstrument);
+		
+		if (NULL == pContract)
+		{
+			OTLog::vOutput(0, "OT_API_sendUserInstrument: I tried my best. Unable to instantiate contract passed in:\n\n%s\n\n",
+						   strInstrument.Get());
+			return; // todo therefore this function needs to return bool, so I can return a false here. Basically all messages should change from void to bool.
+		}
+		
+		theAngel.SetCleanupTargetPointer(pContract);		
+	}
+	// -----------------------------------------------------
+	// By this point, whether it's a purse or some other instrument, it's now been instantiated
+	// and loaded from string, AND scheduled for cleanup when we leave scope. So there's nothing
+	// left to do but send it on its way!
+	//
+	g_OT_API.sendUserInstrument(theServerID, theUserID, theOtherUserID, ascRecipPubkey, *pContract);	
+}
+
 
 	
 void OT_API_getRequest(const char * SERVER_ID,

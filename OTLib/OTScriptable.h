@@ -152,6 +152,52 @@ protected:
 	mapOfBylaws			m_mapBylaws;	// The Bylaws for this contract.
 	// -------------------------------------------------------------------
 
+	// While calculating the ID of smart contracts (and presumably other scriptables)
+	// we remove specifics such as asset types, asset accounts, Nym IDs, stashes, etc.
+	// We override OTContract::CalculateContractID(), where we set m_bCalculatingID to
+	// true (it's normally false). Then we call UpdateContents(), which knows to produce
+	// an empty version of the contract if m_bCalculatingID is true. Then we hash that
+	// in order to get the contract ID, and then we set m_bCalculatingID back to false
+	// again.
+	//
+	// HOWEVER, there may be more options than with baskets (which also use the above
+	// trick. Should the smart contract specify a specific asset type, or should it leave
+	// the asset type blank?  Should it specify certain parties, or should it leave the
+	// parties blank? I think the accounts should always be blank for calculating ID.
+	// And the agents should. And stashes which should be blank in new contracts (always.)
+	// But for asset types and parties, shouldn't people be able to specify, for a smart
+	// contract template, whether the asset types are part of the contract or whether they
+	// are left blank?
+	// Furthermore, doesn't this mean that variables need to ALWAYS store their INITIAL
+	// value, since they can change over time? We DO want to figure the variable's initial
+	// value into the contract ID, but we do NOT want to figure the variable's CURRENT value
+	// into that ID (because then comparing the IDs will fail once the variables change.)
+	//
+	// Therefore, there needs to be a variable on the scriptable itself which determines
+	// the template type of the scriptable: m_bSpecifyAssetID and m_bSpecifyParties, which
+	// must each be saved individually on OTScriptable.
+	//
+	// Agents should be entirely removed during contract ID calculating process, since 
+	// the Parties can already be specified, and since they can choose their agents at the
+	// time of signing -- which are otherwise irrelevant since only the parties are liable.
+	//
+	// Accounts, conversely, CAN exist on the contract while calculating its ID, but the
+	// actual account IDs will be left blank and the asset type IDs will be left blank
+	// if m_bSpecifyAssetID is false. (Just as Parties' Owner IDs will be left blank
+	// if m_bSpecifyParties is false.)
+	//
+	// Transaction numbers on parties AND accounts should be set to 0 during calculation
+	// of contract ID. Agent name should be left blank on both of those as well.
+	//
+	// On OTParty, signed copy can be excluded. All agents can be excluded. Authorizing agent
+	// can be excluded and Owner ID is conditional on m_bSpecifyParties. (Party name is kept.)
+	// m_bPartyIsNym is conditional and so is m_lOpeningTransNo.
+	//
+	bool	m_bCalculatingID; // NOT serialized. Used during ID calculation.
+	
+	bool	m_bSpecifyAssetID;	// Serialized. See above note.
+	bool	m_bSpecifyParties;	// Serialized. See above note.
+	
 	// return -1 if error, 0 if nothing, and 1 if the node was processed.
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
 public:
@@ -316,6 +362,8 @@ public:
 	virtual ~OTScriptable();
 
 	void UpdateContentsToString(OTString & strAppend);
+
+	virtual void CalculateContractID(OTIdentifier & newID);
 
 	virtual void Release();
 	virtual void UpdateContents();

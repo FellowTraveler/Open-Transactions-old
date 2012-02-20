@@ -431,6 +431,70 @@ void OTPseudonym::ClearOutmail()
 
 
 
+/// Though the parameter is a reference (forcing you to pass a real object),
+/// the Nym DOES take ownership of the object. Therefore it MUST be allocated
+/// on the heap, NOT the stack, or you will corrupt memory with this call.
+///
+void OTPseudonym::AddOutpayments(OTMessage & theMessage) // a payments message is a form of transaction, transported via Nymbox
+{
+	m_dequeOutpayments.push_front(&theMessage);
+}
+
+/// return the number of payments items available for this Nym.
+//
+int OTPseudonym::GetOutpaymentsCount()
+{
+	return m_dequeOutpayments.size();
+}
+
+// Look up a transaction by transaction number and see if it is in the ledger.
+// If it is, return a pointer to it, otherwise return NULL.
+OTMessage * OTPseudonym::GetOutpaymentsByIndex(const int nIndex)
+{
+	const unsigned int uIndex = nIndex;
+	
+	// Out of bounds.
+	if (m_dequeOutpayments.empty()	||
+		(nIndex < 0)		|| (uIndex >= m_dequeOutpayments.size()))
+		return NULL;
+	
+	return m_dequeOutpayments.at(nIndex);	
+}
+
+
+bool OTPseudonym::RemoveOutpaymentsByIndex(const int nIndex) // if false, outpayments index was bad.
+{
+	const unsigned int uIndex = nIndex;
+	
+	// Out of bounds.
+	if (m_dequeOutpayments.empty()	||
+		(nIndex < 0)		|| (uIndex >= m_dequeOutpayments.size()))
+		return false;
+	
+	// -----------------------
+	
+	OTMessage * pMessage = m_dequeOutpayments.at(nIndex);
+	
+	OT_ASSERT(NULL != pMessage);
+	
+	m_dequeOutpayments.erase(m_dequeOutpayments.begin() + nIndex);
+	
+	delete pMessage;
+	
+	return true;		
+}
+
+
+void OTPseudonym::ClearOutpayments()
+{
+	while (GetOutpaymentsCount() > 0)
+		RemoveOutpaymentsByIndex(0);
+}
+
+
+
+// --------------------
+
 // Instead of a "balance statement", some messages require a "transaction statement".
 // Whenever the number of transactions changes, you must sign the new list so you
 // aren't responsible for cleared transactions, for example. Or so you server will
@@ -514,7 +578,7 @@ OTItem * OTPseudonym::GenerateTransactionStatement(const OTTransaction & theOwne
 
 // use this to actually generate a new key pair and assorted nym files.
 //
-bool OTPseudonym::GenerateNym()
+bool OTPseudonym::GenerateNym(int nBits/*=1024*/)
 {
 	bool bSuccess = false;
 	
@@ -527,7 +591,8 @@ bool OTPseudonym::GenerateNym()
 //	bio_err	=	BIO_new_fp(stderr, BIO_NOCLOSE);
 	
 	
-	mkcert(&x509, &pNewKey, 1024, 0, 3650); // actually generate the things. // TODO THESE PARAMETERS...
+	// actually generate the things. // TODO THESE PARAMETERS...(mkcert)
+	mkcert(&x509, &pNewKey, nBits, 0, 3650); // 10 years.
 	// Note: 512 bit key CRASHES
 	// 1024 is apparently a minimum requirement, if not an only requirement.
 	// Will need to go over just what sorts of keys are involved here... todo.
@@ -2744,6 +2809,29 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
 	}
 	
 	// -------------------------------------
+	
+	if (!(m_dequeOutpayments.empty()))
+	{
+		for (unsigned i = 0; i < m_dequeOutpayments.size(); i++)
+		{
+			OTMessage * pMessage = m_dequeOutpayments.at(i);
+			OT_ASSERT(NULL != pMessage);
+			
+			OTString strOutpayments(*pMessage);
+			
+			OTASCIIArmor ascOutpayments;
+			
+			if (strOutpayments.Exists())
+				ascOutpayments.SetString(strOutpayments);
+			
+			if (ascOutpayments.Exists())
+				strNym.Concatenate("<outpaymentsMessage>\n"
+								   "%s</outpaymentsMessage>\n\n", 
+								   ascOutpayments.Get());
+		} 
+	}
+	
+	// -------------------------------------
     
 	if (!(m_setOpenCronItems.empty()))
 	{
@@ -3044,7 +3132,53 @@ bool OTPseudonym::LoadFromString(const OTString & strNym)
 							}
 						}
 					}
-				}
+				} // outpayments message
+				else if (!strcmp("outpaymentsMessage", xml->getNodeName()))
+				{					
+					OTASCIIArmor armorMail;
+					
+					OTString strMessage;
+					
+					xml->read();
+					
+					if (EXN_TEXT == xml->getNodeType())
+					{
+						OTString strNodeData = xml->getNodeData();
+						
+						// Sometimes the XML reads up the data with a prepended newline.
+						// This screws up my own objects which expect a consistent in/out
+						// So I'm checking here for that prepended newline, and removing it.
+						char cNewline;
+						if (strNodeData.Exists() && strNodeData.GetLength() > 2 && strNodeData.At(0, cNewline))
+						{
+							if ('\n' == cNewline)
+							{
+								armorMail.Set(strNodeData.Get() + 1);
+							}
+							else
+							{
+								armorMail.Set(strNodeData.Get());
+							}
+							
+							if (armorMail.GetLength() > 2)
+							{
+								armorMail.GetString(strMessage, true); // linebreaks == true.
+								
+								if (strMessage.GetLength() > 2)
+								{
+									OTMessage * pMessage = new OTMessage;
+									
+									OT_ASSERT(NULL != pMessage);
+									
+									if (pMessage->LoadContractFromString(strMessage))
+										m_dequeOutpayments.push_back(pMessage); // takes ownership
+									else
+										delete pMessage;
+								}
+							}
+						}
+					}
+				} // outpayments message
 				else
 				{
 					// unknown element type
@@ -3576,6 +3710,7 @@ OTPseudonym::~OTPseudonym()
 	
 	ClearMail();
 	ClearOutmail();
+	ClearOutpayments();
 }
 
 

@@ -233,6 +233,30 @@ public class otapi implements otapiConstants {
     return otapiJNI.OT_API_Nym_VerifyOutmailByIndex(NYM_ID, nIndex);
   }
 
+  public static int OT_API_GetNym_OutpaymentsCount(String NYM_ID) {
+    return otapiJNI.OT_API_GetNym_OutpaymentsCount(NYM_ID);
+  }
+
+  public static String OT_API_GetNym_OutpaymentsContentsByIndex(String NYM_ID, int nIndex) {
+    return otapiJNI.OT_API_GetNym_OutpaymentsContentsByIndex(NYM_ID, nIndex);
+  }
+
+  public static String OT_API_GetNym_OutpaymentsRecipientIDByIndex(String NYM_ID, int nIndex) {
+    return otapiJNI.OT_API_GetNym_OutpaymentsRecipientIDByIndex(NYM_ID, nIndex);
+  }
+
+  public static String OT_API_GetNym_OutpaymentsServerIDByIndex(String NYM_ID, int nIndex) {
+    return otapiJNI.OT_API_GetNym_OutpaymentsServerIDByIndex(NYM_ID, nIndex);
+  }
+
+  public static int OT_API_Nym_RemoveOutpaymentsByIndex(String NYM_ID, int nIndex) {
+    return otapiJNI.OT_API_Nym_RemoveOutpaymentsByIndex(NYM_ID, nIndex);
+  }
+
+  public static int OT_API_Nym_VerifyOutpaymentsByIndex(String NYM_ID, int nIndex) {
+    return otapiJNI.OT_API_Nym_VerifyOutpaymentsByIndex(NYM_ID, nIndex);
+  }
+
   public static int OT_API_Wallet_CanRemoveServer(String SERVER_ID) {
     return otapiJNI.OT_API_Wallet_CanRemoveServer(SERVER_ID);
   }
@@ -433,16 +457,8 @@ public class otapi implements otapiConstants {
     return otapiJNI.OT_API_LoadPaymentInbox(SERVER_ID, USER_ID);
   }
 
-  public static String OT_API_LoadPaymentOutbox(String SERVER_ID, String USER_ID) {
-    return otapiJNI.OT_API_LoadPaymentOutbox(SERVER_ID, USER_ID);
-  }
-
   public static String OT_API_LoadPaymentInboxNoVerify(String SERVER_ID, String USER_ID) {
     return otapiJNI.OT_API_LoadPaymentInboxNoVerify(SERVER_ID, USER_ID);
-  }
-
-  public static String OT_API_LoadPaymentOutboxNoVerify(String SERVER_ID, String USER_ID) {
-    return otapiJNI.OT_API_LoadPaymentOutboxNoVerify(SERVER_ID, USER_ID);
   }
 
   public static String OT_API_LoadRecordBox(String SERVER_ID, String USER_ID, String ACCOUNT_ID) {
@@ -483,6 +499,10 @@ public class otapi implements otapiConstants {
 
   public static String OT_API_Ledger_FinalizeResponse(String SERVER_ID, String USER_ID, String ACCOUNT_ID, String THE_LEDGER) {
     return otapiJNI.OT_API_Ledger_FinalizeResponse(SERVER_ID, USER_ID, ACCOUNT_ID, THE_LEDGER);
+  }
+
+  public static String OT_API_Ledger_GetInstrument(String SERVER_ID, String USER_ID, String ACCOUNT_ID, String THE_LEDGER, int nIndex) {
+    return otapiJNI.OT_API_Ledger_GetInstrument(SERVER_ID, USER_ID, ACCOUNT_ID, THE_LEDGER, nIndex);
   }
 
   public static String OT_API_Transaction_GetType(String SERVER_ID, String USER_ID, String ACCOUNT_ID, String THE_TRANSACTION) {
@@ -631,6 +651,10 @@ public class otapi implements otapiConstants {
 
   public static void OT_API_sendUserMessage(String SERVER_ID, String USER_ID, String USER_ID_RECIPIENT, String RECIPIENT_PUBKEY, String THE_MESSAGE) {
     otapiJNI.OT_API_sendUserMessage(SERVER_ID, USER_ID, USER_ID_RECIPIENT, RECIPIENT_PUBKEY, THE_MESSAGE);
+  }
+
+  public static void OT_API_sendUserInstrument(String SERVER_ID, String USER_ID, String USER_ID_RECIPIENT, String RECIPIENT_PUBKEY, String THE_INSTRUMENT) {
+    otapiJNI.OT_API_sendUserInstrument(SERVER_ID, USER_ID, USER_ID_RECIPIENT, RECIPIENT_PUBKEY, THE_INSTRUMENT);
   }
 
   public static void OT_API_getRequest(String SERVER_ID, String USER_ID) {

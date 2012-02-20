@@ -520,11 +520,6 @@ public:
 	OTLedger * LoadPaymentInboxNoVerify(const OTIdentifier & SERVER_ID,
 										const OTIdentifier & USER_ID);
 	
-	OTLedger * LoadPaymentOutbox(const OTIdentifier & SERVER_ID,
-								 const OTIdentifier & USER_ID);
-
-	OTLedger * LoadPaymentOutboxNoVerify(const OTIdentifier & SERVER_ID,
-										 const OTIdentifier & USER_ID);
 	// ------------------------------
 	// LoadRecordBox
 	// Note: depending on the record type, the Account ID may contain the User ID.
@@ -589,6 +584,12 @@ public:
 						 OTIdentifier	& USER_ID_RECIPIENT,
 						 OTASCIIArmor	& RECIPIENT_PUBKEY,
 						 OTString		& THE_MESSAGE);
+	
+	void sendUserInstrument(OTIdentifier	& SERVER_ID,
+							OTIdentifier	& USER_ID,
+							OTIdentifier	& USER_ID_RECIPIENT,
+							OTASCIIArmor	& RECIPIENT_PUBKEY,
+							OTContract		& THE_INSTRUMENT);
 	
 	void issueAssetType(OTIdentifier	&	SERVER_ID,
 						OTIdentifier	&	USER_ID,

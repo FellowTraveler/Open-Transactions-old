@@ -191,6 +191,7 @@ private:
 
 	dequeOfMail		m_dequeMail;	// Any mail messages received by this Nym. (And not yet deleted.)
 	dequeOfMail		m_dequeOutmail;	// Any mail messages sent by this Nym. (And not yet deleted.)
+	dequeOfMail		m_dequeOutpayments;	// Any outoing payments sent by this Nym. (And not yet deleted.) (payments screen.)
 		
 	mapOfRequestNums m_mapRequestNum;	// Whenever this user makes a request to a transaction server
 										// he must use the latest request number. Each user has a request
@@ -261,7 +262,7 @@ public:
 	
 	// use this to actually generate a new key pair and assorted nym files.
 	//
-	bool GenerateNym();
+	bool GenerateNym(int nBits=1024); // TODO: security, hardcoding, keysize needs to be configurable.
 
 	// ---------------------------------------------
 	
@@ -472,6 +473,17 @@ public:
 	bool		RemoveOutmailByIndex(const int nIndex); // if returns false, outmail index was bad (or something else must have gone seriously wrong.)
 	
 	void		ClearOutmail(); // called by the destructor. (Not intended to erase messages from local storage.)
+	
+	// -------------------------------------
+	
+	// Whenever a Nym sends a payment, a copy is dropped into his Outpayments. (Payments screen.)
+	//
+	void		AddOutpayments(OTMessage & theMessage); // a payments message is the original OTMessage that this Nym sent.
+	int			GetOutpaymentsCount(); // How many outpayments messages does this Nym currently store?
+	OTMessage *	GetOutpaymentsByIndex(const int nIndex); // Get a specific piece of outpayments, at a specific index.
+	bool		RemoveOutpaymentsByIndex(const int nIndex); // if returns false, outpayments index was bad (or something else must have gone seriously wrong.)
+	
+	void		ClearOutpayments(); // called by the destructor. (Not intended to erase messages from local storage.)
 	
 	// -------------------------------------
 	

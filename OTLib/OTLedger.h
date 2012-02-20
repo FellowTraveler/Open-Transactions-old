@@ -173,8 +173,7 @@ public:
 		outbox,		// if you SEND a pending transfer, it sits in your outbox until it's accepted, rejected, or canceled.
 		message,	// used in OTMessages, to send various lists of transactions back and forth.
 		paymentInbox,	// Used for client-side-only storage of incoming cheques, invoices, payment plan requests, etc. (Coming in from the Nymbox.)
-		paymentOutbox,	// Used for client-side-only storage of outgoing cheques, invoices, payment plan requests, etc. (Sent from me to other users.)
-		recordBox,		// Used for client-side-only storage of completed items from the inbox, the paymentInbox, and the paymentOutbox.
+		recordBox,		// Used for client-side-only storage of completed items from the inbox, and the paymentInbox.
 		error_state
 	};
 	// -----------------------------------------
@@ -252,9 +251,6 @@ public:
 	bool SavePaymentInbox();
 	bool LoadPaymentInbox();
 
-	bool SavePaymentOutbox();
-	bool LoadPaymentOutbox();
-
 	bool SaveRecordBox();
 	bool LoadRecordBox();
 	// ------------------------------------
@@ -265,7 +261,6 @@ public:
 	bool LoadNymboxFromString(const OTString & strBox);
 	// ------------------------------------
 	bool LoadPaymentInboxFromString(const OTString & strBox);
-	bool LoadPaymentOutboxFromString(const OTString & strBox);
 	bool LoadRecordBoxFromString(const OTString & strBox);
 	// ------------------------------------
 	inline // just the top one.

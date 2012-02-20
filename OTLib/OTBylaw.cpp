@@ -2980,7 +2980,9 @@ void OTAgent::Serialize(OTString & strAppend)
 
 // --------------------
 
-void OTPartyAccount::Serialize(OTString & strAppend)
+void OTPartyAccount::Serialize(OTString & strAppend,
+							   bool bCalculatingID/*=false*/,
+							   bool bSpecifyAssetID/*=false*/)
 {
 //	strAppend.Concatenate("<assetAccount>\n\n");
 	
@@ -2990,17 +2992,21 @@ void OTPartyAccount::Serialize(OTString & strAppend)
 						  " agentName=\"%s\"\n"
 						  " closingTransNo=\"%ld\" />\n\n",
 						  m_strName.Get(),
-						  m_strAcctID.Get(),
-						  m_strAssetTypeID.Get(),
-						  m_strAgentName.Get(),						  
-						  m_lClosingTransNo);
+						  bCalculatingID ? "" : m_strAcctID.Get(),
+						  (bCalculatingID && 
+						  !bSpecifyAssetID) ? "" : m_strAssetTypeID.Get(),
+						  bCalculatingID ? "" : m_strAgentName.Get(),						  
+						  bCalculatingID ? 0 : m_lClosingTransNo);
 	
 //	strAppend.Concatenate("</assetAccount>\n");
 }
 
 // --------------------
 
-void OTParty::Serialize(OTString & strAppend)
+void OTParty::Serialize(OTString & strAppend,
+						bool bCalculatingID/*=false*/,
+						bool bSpecifyAssetID/*=false*/,
+						bool bSpecifyParties/*=false*/)
 {
 	strAppend.Concatenate("<party name=\"%s\"\n"
 						  " ownerType=\"%s\"\n" // "nym" or "entity"
@@ -3011,28 +3017,33 @@ void OTParty::Serialize(OTString & strAppend)
 						  " numAgents=\"%d\"\n" // integer count.
 						  " numAccounts=\"%d\" >\n\n", // integer count.
 						  GetPartyName().c_str(),
-						  m_bPartyIsNym ? "nym" : "entity",
-						  m_str_owner_id.c_str(),
-						  m_lOpeningTransNo,
-						  m_strMySignedCopy.Exists() ? "true" : "false",
-						  m_str_authorizing_agent.c_str(),
-						  m_mapAgents.size(), m_mapPartyAccounts.size());
+						  bCalculatingID ? "" : (m_bPartyIsNym ? "nym" : "entity"),
+						  (bCalculatingID &&
+						  !bSpecifyParties) ? "" : m_str_owner_id.c_str(),
+						  bCalculatingID ? 0 : m_lOpeningTransNo,
+						  (!bCalculatingID && m_strMySignedCopy.Exists()) ? "true" : "false",
+						  bCalculatingID ? "" : m_str_authorizing_agent.c_str(),
+						  bCalculatingID ? 0 : m_mapAgents.size(), 
+						  m_mapPartyAccounts.size());
 	// -----------------
-	FOR_EACH(mapOfAgents, m_mapAgents)
+	if (!bCalculatingID)
 	{
-		OTAgent * pAgent = (*it).second;
-		OT_ASSERT(NULL != pAgent);
-		pAgent->Serialize(strAppend);
+		FOR_EACH(mapOfAgents, m_mapAgents)
+		{
+			OTAgent * pAgent = (*it).second;
+			OT_ASSERT(NULL != pAgent);
+			pAgent->Serialize(strAppend);
+		}
 	}
 	// -----------------
 	FOR_EACH(mapOfPartyAccounts, m_mapPartyAccounts)
 	{
 		OTPartyAccount * pAcct = (*it).second;
 		OT_ASSERT(NULL != pAcct);
-		pAcct->Serialize(strAppend);
+		pAcct->Serialize(strAppend, bCalculatingID, bSpecifyAssetID);
 	}
 	// -----------------
-	if (m_strMySignedCopy.Exists())
+	if (!bCalculatingID && m_strMySignedCopy.Exists())
 	{
 		OTASCIIArmor ascTemp(m_strMySignedCopy);		
 		strAppend.Concatenate("<mySignedCopy>\n%s</mySignedCopy>\n\n", ascTemp.Get());
@@ -3113,7 +3124,8 @@ const char * OTClause::GetCode() const
 
 
 
-void OTVariable::Serialize(OTString & strAppend)
+void OTVariable::Serialize(OTString & strAppend,
+						   bool bCalculatingID/*=false*/)
 {
 	// ---------------------------------------
 	std::string str_access("");
@@ -3140,7 +3152,8 @@ void OTVariable::Serialize(OTString & strAppend)
 		{
 			str_type = "string";
 			
-			if (m_str_Value.size() > 0)
+			if ((false == bCalculatingID) && // we don't serialize the variable's value when calculating the 
+				(m_str_Value.size() > 0)) // owner OTScriptable's ID, since the value can change over time.
 			{
 				OTString strVal(m_str_Value.c_str());
 				OTASCIIArmor ascVal(strVal);
@@ -3174,7 +3187,7 @@ void OTVariable::Serialize(OTString & strAppend)
 								  " type=\"%s\"\n"
 								  " access=\"%s\" />\n\n", 
 								  m_strName.Get(),
-								  m_nValue,
+								  bCalculatingID ? 0 : m_nValue, // we don't serialize the variable's value when calculating the smart contract's ID.
 								  str_type.c_str(), str_access.c_str());			
 			break;
 		case OTVariable::Var_Bool:
@@ -3184,7 +3197,7 @@ void OTVariable::Serialize(OTString & strAppend)
 								  " type=\"%s\"\n"
 								  " access=\"%s\" />\n\n", 
 								  m_strName.Get(),
-								  m_bValue ? "true" : "false",
+								  bCalculatingID ? "false" : (m_bValue ? "true" : "false"), // we don't serialize the variable's value when calculating the smart contract's ID.
 								  str_type.c_str(), str_access.c_str());			
 			break;
 		default:
@@ -3219,7 +3232,8 @@ void OTClause::Serialize(OTString & strAppend)
 
 // -----------------------------
 
-void OTBylaw::Serialize(OTString & strAppend)
+void OTBylaw::Serialize(OTString & strAppend,
+						bool bCalculatingID/*=false*/)
 {	
 	strAppend.Concatenate("<bylaw name=\"%s\"\n"
 						  " numVariables=\"%d\"\n"
@@ -3240,7 +3254,7 @@ void OTBylaw::Serialize(OTString & strAppend)
 		OTVariable * pVar = (*it).second;
 		OT_ASSERT(NULL != pVar);
 		
-		pVar->Serialize(strAppend);
+		pVar->Serialize(strAppend, bCalculatingID); // Variables save in a specific state during ID calculation (no matter their current actual value.)
 	}
 	// ------------------------------
 	

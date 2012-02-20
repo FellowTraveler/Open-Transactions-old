@@ -712,6 +712,51 @@ void OTMessage::UpdateContents()
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} // ------------------------------------------------------------------------
 	
+	// ------------------------------------------------------------------------
+	
+	if (m_strCommand.Compare("sendUserInstrument"))
+	{		
+		m_xmlUnsigned.Concatenate("<%s\n"
+								  " nymID=\"%s\"\n"
+								  " nymID2=\"%s\"\n"
+								  " requestNum=\"%s\"\n"
+								  " serverID=\"%s\""
+								  ">\n\n",
+								  m_strCommand.Get(),
+								  m_strNymID.Get(),
+								  m_strNymID2.Get(),
+								  m_strRequestNum.Get(),
+								  m_strServerID.Get()
+								  );
+		
+		if (m_ascPayload.GetLength() > 2)
+			m_xmlUnsigned.Concatenate("<messagePayload>\n%s</messagePayload>\n\n", m_ascPayload.Get());
+		
+		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
+	} // ------------------------------------------------------------------------
+	
+	
+	// ------------------------------------------------------------------------
+	if (m_strCommand.Compare("@sendUserInstrument"))
+	{		
+		m_xmlUnsigned.Concatenate("<%s\n"
+								  " requestNum=\"%s\"\n"
+								  " success=\"%s\"\n"
+								  " nymID=\"%s\"\n"
+								  " nymID2=\"%s\"\n"
+								  " serverID=\"%s\""
+								  ">\n\n",
+								  m_strCommand.Get(),
+								  m_strRequestNum.Get(),
+								  (m_bSuccess ? "true" : "false"),
+								  m_strNymID.Get(),
+								  m_strNymID2.Get(),
+								  m_strServerID.Get()
+								  );
+		
+		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
+	} // ------------------------------------------------------------------------
+	
 	
 	// ------------------------------------------------------------------------
 	if (m_strCommand.Compare("getRequest"))
@@ -2423,6 +2468,59 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		m_strNymID2		= xml->getAttributeValue("nymID2");
 		m_strServerID	= xml->getAttributeValue("serverID");
 				
+		OTLog::vOutput(1, "\nCommand: %s   %s\nNymID:    %s\nNymID2:    %s\n"
+					   "ServerID: %s\n\n", 
+					   m_strCommand.Get(), (m_bSuccess ? "SUCCESS" : "FAILED"),
+					   m_strNymID.Get(), m_strNymID2.Get(), m_strServerID.Get()
+					   );
+		
+		nReturnVal = 1;
+	}
+	
+	// -------------------------------------------------------------------------------------------
+	
+	else if (!strcmp("sendUserInstrument", xml->getNodeName())) 
+	{		
+		m_strCommand	= xml->getNodeName();  // Command
+		m_strNymID		= xml->getAttributeValue("nymID");
+		m_strNymID2		= xml->getAttributeValue("nymID2");
+		m_strServerID	= xml->getAttributeValue("serverID");
+		m_strRequestNum = xml->getAttributeValue("requestNum");
+		
+		const char *	pElementExpected	= "messagePayload";
+		OTASCIIArmor &	ascTextExpected		= m_ascPayload;
+		
+		if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+		{
+			OTLog::vError("Error in OTMessage::ProcessXMLNode: "
+						  "Expected %s element with text field, for %s.\n", 
+						  pElementExpected, m_strCommand.Get());
+			return (-1); // error condition
+		}
+		
+		OTLog::vOutput(1, "\nCommand: %s\nNymID:    %s\nNymID2:    %s\nServerID: %s\nRequest #: %s\n", 
+					   m_strCommand.Get(), m_strNymID.Get(), m_strNymID2.Get(), m_strServerID.Get(), m_strRequestNum.Get());
+		
+		nReturnVal = 1;
+	}
+	
+	// -------------------------------------------------------------------------------------------
+	
+	else if (!strcmp("@sendUserInstrument", xml->getNodeName())) 
+	{		
+		OTString strSuccess;
+		strSuccess		= xml->getAttributeValue("success");
+		if (strSuccess.Compare("true"))
+			m_bSuccess = true;
+		else
+			m_bSuccess = false;
+		
+		m_strCommand	= xml->getNodeName();  // Command
+		m_strRequestNum = xml->getAttributeValue("requestNum");
+		m_strNymID		= xml->getAttributeValue("nymID");
+		m_strNymID2		= xml->getAttributeValue("nymID2");
+		m_strServerID	= xml->getAttributeValue("serverID");
+		
 		OTLog::vOutput(1, "\nCommand: %s   %s\nNymID:    %s\nNymID2:    %s\n"
 					   "ServerID: %s\n\n", 
 					   m_strCommand.Get(), (m_bSuccess ? "SUCCESS" : "FAILED"),

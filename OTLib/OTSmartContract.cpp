@@ -4695,6 +4695,12 @@ bool OTSmartContract::Compare(OTScriptable & rhs)
 }
 
 
+// from OTScriptable:
+//
+//bool	m_bCalculatingID; // NOT serialized. Used during ID calculation.
+//
+//bool	m_bSpecifyAssetID;	// Serialized. 
+//bool	m_bSpecifyParties;	// Serialized. 
 
 void OTSmartContract::UpdateContents()
 {
@@ -4723,65 +4729,353 @@ void OTSmartContract::UpdateContents()
 							  " nextProcessDate=\"%d\""							  
 							  " >\n\n", 
 							  m_strVersion.Get(),
-							  SERVER_ID.Get(),
-							  ACTIVATOR_USER_ID.Get(),
-							  ACTIVATOR_ACCT_ID.Get(),
-							  m_strLastSenderUser.Get(),
-							  m_strLastSenderAcct.Get(),
-							  m_strLastRecipientUser.Get(),
-							  m_strLastRecipientAcct.Get(),
-							  m_lTransactionNum,
-							  GetCreationDate(), GetValidFrom(), GetValidTo(), GetNextProcessDate() );	    
+							  m_bCalculatingID ? "" : SERVER_ID.Get(),
+							  m_bCalculatingID ? "" : ACTIVATOR_USER_ID.Get(),
+							  m_bCalculatingID ? "" : ACTIVATOR_ACCT_ID.Get(),
+							  m_bCalculatingID ? "" : m_strLastSenderUser.Get(),
+							  m_bCalculatingID ? "" : m_strLastSenderAcct.Get(),
+							  m_bCalculatingID ? "" : m_strLastRecipientUser.Get(),
+							  m_bCalculatingID ? "" : m_strLastRecipientAcct.Get(),
+							  m_bCalculatingID ? 0 : m_lTransactionNum,
+							  m_bCalculatingID ? 0 : GetCreationDate(), 
+							  m_bCalculatingID ? 0 : GetValidFrom(), 
+							  m_bCalculatingID ? 0 : GetValidTo(), 
+							  m_bCalculatingID ? 0 : GetNextProcessDate() );	    
 	// -------------------------------------------------------------
 
 	
 	// OTCronItem
-    for (int i = 0; i < GetCountClosingNumbers(); i++)
-    {
-        long lClosingNumber = GetClosingTransactionNoAt(i);
-        OT_ASSERT(lClosingNumber > 0);
-        
-        m_xmlUnsigned.Concatenate("<closingTransactionNumber value=\"%ld\"/>\n\n",
-                                  lClosingNumber);
-		
-		// For OTSmartContract, this should only contain a single number, from the activator Nym.
-		// I preserved the loop anyway. Call me crazy. But I'm still displaying an error if there's 
-		// more than one.
-		if (i > 0)
-			OTLog::Error("OTSmartContract::UpdateContents: ERROR: There's only ever "
-						 "supposed to be a single closing number here (for smart contracts.)\n");
-    }
-	
+	if (!m_bCalculatingID)
+	{
+		for (int i = 0; i < GetCountClosingNumbers(); i++)
+		{
+			long lClosingNumber = GetClosingTransactionNoAt(i);
+			OT_ASSERT(lClosingNumber > 0);
+			
+			m_xmlUnsigned.Concatenate("<closingTransactionNumber value=\"%ld\"/>\n\n",
+									  lClosingNumber);
+			
+			// For OTSmartContract, this should only contain a single number, from the activator Nym.
+			// I preserved the loop anyway. Call me crazy. But I'm still displaying an error if there's 
+			// more than one.
+			if (i > 0)
+				OTLog::Error("OTSmartContract::UpdateContents: ERROR: There's only ever "
+							 "supposed to be a single closing number here (for smart contracts.)\n");
+		}
+	}
 	// -------------------------------------------------------------
     //
 	// *** OT SCRIPTABLE ***
 	//
 	UpdateContentsToString(m_xmlUnsigned); // FYI: this is: void OTScriptable::UpdateContentsToString(OTString &)
 	
-	// -----------------
-	// Save m_StashAccts. 
-	// 
-	// (This is an object that contains a map of OTAccountIDs, by asset_type_id)
-	//
-	m_StashAccts.Serialize(m_xmlUnsigned);
-	
-	// -----------------
-	// This is a map of OTStash's, by stash_name.
-	// EACH ONE contains a map of OTStashItems, by asset_type_id
-	// -----------------
-	
-	FOR_EACH(mapOfStashes, m_mapStashes)	// These stashes are what the scripts interact with. They have names.
-	{										// Whereas the stash accts (above) are the actual accountIDs
-		OTStash * pStash = (*it).second;	// where the actual funds are stored for each asset type.
-		OT_ASSERT(NULL != pStash);
-		// -------------------------
+	// -------------------------------------------------------------
+	if (!m_bCalculatingID)
+	{
+		// -----------------
+		// Save m_StashAccts. 
+		// 
+		// (This is an object that contains a map of OTAccountIDs, by asset_type_id)
+		//
+		m_StashAccts.Serialize(m_xmlUnsigned);
 		
-		pStash->Serialize(m_xmlUnsigned);
-	}
-	
+		// -----------------
+		// This is a map of OTStash's, by stash_name.
+		// EACH ONE contains a map of OTStashItems, by asset_type_id
+		// -----------------
+		
+		FOR_EACH(mapOfStashes, m_mapStashes)	// These stashes are what the scripts interact with. They have names.
+		{										// Whereas the stash accts (above) are the actual accountIDs
+			OTStash * pStash = (*it).second;	// where the actual funds are stored for each asset type.
+			OT_ASSERT(NULL != pStash);
+			// -------------------------
+			
+			pStash->Serialize(m_xmlUnsigned);
+		}
+	}	
 	// -------------------------------------------------------------
 	
 	m_xmlUnsigned.Concatenate("</smartContract>\n\n");					
+}
+
+
+
+// Add "send Instrument" function for sending instruments instead of messages.
+
+// Then add API functions for loading/save editable and template smart contracts to/from local storage.
+
+// Then add API functions for issuing and downloading the smart contracts to/from server.
+
+
+// Then add API functions for downloading and loading up the list of INSTANCES (contracts activated on server.)
+
+// The "INSTANCES" tab will show contracts not only that are activated, but also that are confirmed and pending activation.
+// Therefore should be a stringmap style thing again, where instances 
+//
+bool OTSmartContract::LoadEditable(const OTString & strName)
+{
+	if (!strName.Exists())
+	{
+		OTLog::Error("OTSmartContract::LoadEditable: Empty name passed in. (Returning false.)\n");
+		return false;
+	}
+	
+	const OTString strServerID(GetServerID());
+	// --------------------------------------
+	const OTASCIIArmor ascName(strName); // Filename (base64-encoded)
+	std::string str_contract;
+	
+	if (!OTDB::Exists(OTLog::SmartContractsFolder(),
+					 strServerID.Get(),
+					 "editing",		// todo hardcoding. The folder where smart contracts are edited.
+					 ascName.Get()))
+	{
+		OTLog::vOutput(2, "OTSmartContract::LoadEditable: File doesn't exist: %s%s%s%s%s%s%s\n", 
+					   OTLog::SmartContractsFolder(), OTLog::PathSeparator(),
+					   strServerID.Get(), OTLog::PathSeparator(), "editing", 
+					   OTLog::PathSeparator(), ascName.Get());
+		return false;
+	}
+	else
+		str_contract = OTDB::QueryPlainString(OTLog::SmartContractsFolder(),
+											  strServerID.Get(),
+											  "editing", // todo stop hardcoding.
+											  ascName.Get());	
+	if (str_contract.size() < 1)
+	{
+		OTLog::vError("OTSmartContract::LoadEditable: Failed loading: %s%s%s%s%s%s%s\n", 
+					  OTLog::SmartContractsFolder(), OTLog::PathSeparator(),
+					  strServerID.Get(), OTLog::PathSeparator(), "editing", 
+					  OTLog::PathSeparator(), ascName.Get());
+	}
+	else
+	{
+		const OTString strSmartContract(str_contract.c_str());
+		
+		if (false == this->LoadContractFromString(strSmartContract))
+		{
+			OTLog::vError("OTSmartContract::LoadEditable: Failed attempt to load (editable), smart contract from storage: %s \n",
+						  strName.Get());
+		}
+		return true;
+	}
+	
+	return false;	
+}
+
+
+
+bool OTSmartContract::SaveEditable(const OTString & strName)
+{
+	OTDB::StringMap * pList = NULL;
+	
+	if (!strName.Exists())
+	{
+		OTLog::Error("OTSmartContract::SaveEditable: Empty name passed in. (Returning false.)\n");
+		return false;
+	}
+	
+	const OTString strServerID(GetServerID());
+	// --------------------------------------
+	const OTASCIIArmor ascName(strName); // Filename (base64-encoded)
+	
+	if (OTDB::Exists(OTLog::SmartContractsFolder(),
+					 strServerID.Get(),
+					 "editing",		// todo hardcoding. The folder where smart contracts are edited.
+					 "list.dat"))
+		pList = dynamic_cast<OTDB::StringMap *>(OTDB::QueryObject(OTDB::STORED_OBJ_STRING_MAP, 
+																  OTLog::SmartContractsFolder(),
+																  strServerID.Get(),
+																  "editing", // todo stop hardcoding.
+																  "list.dat"));
+	if (NULL == pList)
+	{
+		OTLog::Output(2, "OTSmartContract::SaveEditable: Creating storage list of editable smart contracts.\n");
+		pList = dynamic_cast<OTDB::StringMap *>(OTDB::CreateObject(OTDB::STORED_OBJ_STRING_MAP));
+	}
+	OT_ASSERT(NULL != pList);
+	OTCleanup<OTDB::StringMap> theListAngel(*pList);
+	
+	const std::string str_asc_name(ascName.Get()), str_name(strName.Get()); // encoded name and normal name.
+	
+	pList->SetValue(str_asc_name, str_name); // Add the filename to the map of filenames.
+	
+	if (false == OTDB::StoreObject(*pList,
+									OTLog::SmartContractsFolder(),
+									strServerID.Get(),
+									"editing", // todo stop hardcoding.
+									"list.dat"))
+	{
+		OTLog::vError("OTSmartContract::SaveEditable: Failed saving %s%s%s%s%s%s%s\n", 
+					  OTLog::SmartContractsFolder(), OTLog::PathSeparator(),
+					  strServerID.Get(), OTLog::PathSeparator(), "editing", 
+					  OTLog::PathSeparator(), "list.dat");
+	}
+	else	// We saved the list of filenames -- now save the contract itself.
+	{
+		if (m_strRawFile.Exists())
+		{
+			if  (false == OTDB::StorePlainString(m_strRawFile.Get(),
+											 OTLog::SmartContractsFolder(),
+											 strServerID.Get(),
+											 "editing", // todo stop hardcoding.
+											 str_asc_name)) // encoded version of name.
+			{
+				OTLog::vError("OTSmartContract::SaveEditable: Failed saving (editable) smart contract: %s \n", 
+							  str_name.c_str());
+			}
+			else 
+			{
+				return true;
+			}
+		}
+		else
+		{
+			OTLog::vError("OTSmartContract::SaveEditable: Failed attempt to save empty (unsigned?), editable, smart contract: %s \n",
+						  str_name.c_str());
+		}		
+	}
+
+	return false;
+}
+
+
+/*
+ Authorized User
+ isn't dropdown filtered by servers Nym is registered at?
+ 
+ 11:06
+ vickyc@jabber.rayservers.com
+ yes
+ 
+ 11:06
+ Authorized User
+ if only 1, then drop-down contains only 1
+ then you can see it
+ 
+ 11:06
+ vickyc@jabber.rayservers.com
+ filtered
+ 
+ 11:06
+ Authorized User
+ then you don't need it in a column, if already in dropdown
+ 
+ 11:06
+ vickyc@jabber.rayservers.com
+ ok… np.. wll keep tht screen everytime
+ ok.. will remove frm column
+ and type?
+ 
+ 11:07
+ Authorized User
+ Maybe I will have to give you API function to get that
+ I will check
+ add one if not already there
+ */
+
+
+
+
+
+// Once a smart contract is issued onto a server, then it's available there as a template.
+// Users can download a list of templates, and create an instance of a smart contract. From
+// there they can confirm and activate it along with the other parties.
+// (You have have multiple instances of a single template. For example, two escrow contracts
+// might be otherwise identical, except for gold in one instance, and silver in another.)
+//
+// Whether the template is on the server side or client side, this function behaves identically.
+//
+bool OTSmartContract::LoadTemplate(const OTIdentifier & SERVER_ID, const OTIdentifier & CONTRACT_ID)
+{
+	if (!m_strFoldername.Exists())
+		m_strFoldername.Set(OTLog::SmartContractsFolder());
+	
+	const OTString strServerID(SERVER_ID), strContractID(CONTRACT_ID);
+	
+	if (!m_strFilename.Exists())
+	{
+		m_strFilename.Format("%s%s%s", strServerID.Get(), OTLog::PathSeparator(), strContractID.Get());
+	}
+	// --------------------------------------------------------------------
+	
+	const char * szFolder1name	= OTLog::SmartContractsFolder();	// "smartcontracts"
+	const char * szFolder2name	= strServerID.Get();				// "smartcontracts/SERVER_ID"
+	const char * szFilename		= strContractID.Get();				// "smartcontracts/SERVER_ID/CONTRACT_ID"
+	
+	// --------------------------------------------------------------------
+	
+	if (false == OTDB::Exists(szFolder1name, szFolder2name, szFilename))
+	{
+		OTLog::vOutput(0, "OTSmartContract::LoadTemplate: File does not exist: %s%s%s%s%s\n", 
+					   szFolder1name, OTLog::PathSeparator(), szFolder2name, OTLog::PathSeparator(), szFilename);
+		return false;
+	}
+	// --------------------------------------------------------------------
+	//
+	std::string strFileContents(OTDB::QueryPlainString(szFolder1name, szFolder2name, szFilename)); // <=== LOADING FROM DATA STORE.
+	
+	if (strFileContents.length() < 2)
+	{
+		OTLog::vError("OTSmartContract::LoadTemplate: Error reading file: %s%s%s%s%s\n", 
+					  szFolder1name, OTLog::PathSeparator(), szFolder2name, OTLog::PathSeparator(), szFilename);
+		return false;
+	}
+	// --------------------------------------------------------------------
+	
+	OTString strRawFile(strFileContents.c_str());
+	
+	bool bSuccess = LoadContractFromString(strRawFile);
+	
+	return bSuccess;	
+}
+
+
+bool OTSmartContract::SaveTemplate(const OTIdentifier & SERVER_ID)
+{
+	if (!m_strFoldername.Exists())
+		m_strFoldername.Set(OTLog::SmartContractsFolder());
+	
+	OTIdentifier theContractID;
+	CalculateContractID(theContractID);
+
+	const OTString strServerID(SERVER_ID), strContractID(theContractID);
+	
+	if (!m_strFilename.Exists())
+	{
+		m_strFilename.Format("%s%s%s", strServerID.Get(), OTLog::PathSeparator(), strContractID.Get());
+	}
+	
+	const char * szFolder1name	= OTLog::SmartContractsFolder();
+	const char * szFolder2name	= strServerID.Get();
+	const char * szFilename		= strContractID.Get();
+	
+	// --------------------------------------------------------------------
+	
+	OTString strRawFile;
+	
+	if (!SaveContractRaw(strRawFile))
+	{
+		OTLog::vError("OTSmartContract::SaveTemplate: Error saving smart contract template (to string):\n%s%s%s%s%s\n", szFolder1name,
+					  OTLog::PathSeparator(), szFolder2name, OTLog::PathSeparator(), szFilename);
+		return false;
+	}
+	
+	// --------------------------------------------------------------------
+	//
+	bool bSaved = OTDB::StorePlainString(strRawFile.Get(), szFolder1name, 
+										 szFolder2name, szFilename); // <=== SAVING TO DATA STORE.
+	
+	if (!bSaved)
+	{
+		OTLog::vError("OTSmartContract::SaveTemplate: Error writing to file: %s%s%s%s%s\n", szFolder1name,
+					  OTLog::PathSeparator(), szFolder2name, OTLog::PathSeparator(), szFilename);	
+		
+		return false;
+	}
+	// --------------------------------------------------------------------
+	
+	return true;	
 }
 
 

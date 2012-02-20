@@ -443,6 +443,24 @@ class otapiPINVOKE {
   [DllImport("otapi", EntryPoint="CSharp_OT_API_Nym_VerifyOutmailByIndex")]
   public static extern int OT_API_Nym_VerifyOutmailByIndex(string jarg1, int jarg2);
 
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_GetNym_OutpaymentsCount")]
+  public static extern int OT_API_GetNym_OutpaymentsCount(string jarg1);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_GetNym_OutpaymentsContentsByIndex")]
+  public static extern string OT_API_GetNym_OutpaymentsContentsByIndex(string jarg1, int jarg2);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_GetNym_OutpaymentsRecipientIDByIndex")]
+  public static extern string OT_API_GetNym_OutpaymentsRecipientIDByIndex(string jarg1, int jarg2);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_GetNym_OutpaymentsServerIDByIndex")]
+  public static extern string OT_API_GetNym_OutpaymentsServerIDByIndex(string jarg1, int jarg2);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_Nym_RemoveOutpaymentsByIndex")]
+  public static extern int OT_API_Nym_RemoveOutpaymentsByIndex(string jarg1, int jarg2);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_Nym_VerifyOutpaymentsByIndex")]
+  public static extern int OT_API_Nym_VerifyOutpaymentsByIndex(string jarg1, int jarg2);
+
   [DllImport("otapi", EntryPoint="CSharp_OT_API_Wallet_CanRemoveServer")]
   public static extern int OT_API_Wallet_CanRemoveServer(string jarg1);
 
@@ -593,14 +611,8 @@ class otapiPINVOKE {
   [DllImport("otapi", EntryPoint="CSharp_OT_API_LoadPaymentInbox")]
   public static extern string OT_API_LoadPaymentInbox(string jarg1, string jarg2);
 
-  [DllImport("otapi", EntryPoint="CSharp_OT_API_LoadPaymentOutbox")]
-  public static extern string OT_API_LoadPaymentOutbox(string jarg1, string jarg2);
-
   [DllImport("otapi", EntryPoint="CSharp_OT_API_LoadPaymentInboxNoVerify")]
   public static extern string OT_API_LoadPaymentInboxNoVerify(string jarg1, string jarg2);
-
-  [DllImport("otapi", EntryPoint="CSharp_OT_API_LoadPaymentOutboxNoVerify")]
-  public static extern string OT_API_LoadPaymentOutboxNoVerify(string jarg1, string jarg2);
 
   [DllImport("otapi", EntryPoint="CSharp_OT_API_LoadRecordBox")]
   public static extern string OT_API_LoadRecordBox(string jarg1, string jarg2, string jarg3);
@@ -631,6 +643,9 @@ class otapiPINVOKE {
 
   [DllImport("otapi", EntryPoint="CSharp_OT_API_Ledger_FinalizeResponse")]
   public static extern string OT_API_Ledger_FinalizeResponse(string jarg1, string jarg2, string jarg3, string jarg4);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_Ledger_GetInstrument")]
+  public static extern string OT_API_Ledger_GetInstrument(string jarg1, string jarg2, string jarg3, string jarg4, int jarg5);
 
   [DllImport("otapi", EntryPoint="CSharp_OT_API_Transaction_GetType")]
   public static extern string OT_API_Transaction_GetType(string jarg1, string jarg2, string jarg3, string jarg4);
@@ -742,6 +757,9 @@ class otapiPINVOKE {
 
   [DllImport("otapi", EntryPoint="CSharp_OT_API_sendUserMessage")]
   public static extern void OT_API_sendUserMessage(string jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_sendUserInstrument")]
+  public static extern void OT_API_sendUserInstrument(string jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
 
   [DllImport("otapi", EntryPoint="CSharp_OT_API_getRequest")]
   public static extern void OT_API_getRequest(string jarg1, string jarg2);

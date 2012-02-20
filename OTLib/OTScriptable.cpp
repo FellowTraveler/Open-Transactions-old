@@ -2170,21 +2170,54 @@ bool OTScriptable::Compare(OTScriptable & rhs)
 }
 
 
+// Most contracts calculate their ID by hashing the Raw File (signatures and all).
+// The scriptable only hashes the unsigned contents, and only with specific data removed.
+// This way, the smart contract will produce a consistent ID even when asset account IDs
+// or Nym IDs have been added to it (which would alter the hash of any normal contract
+// such as an OTAssetContract.)
+//
+void OTScriptable::CalculateContractID(OTIdentifier & newID)
+{	
+	const OTString strContents(m_xmlUnsigned);
+	
+	// Produce a template version of the scriptable.
+	//
+	m_bCalculatingID	= true;
+	
+	UpdateContents();  // <=========
+	
+	newID.CalculateDigest(m_xmlUnsigned);
+	
+	// Put it back the way it was.
+	m_bCalculatingID	= false;
+	
+//	UpdateContents(); // No need to do this, we already had this string before (above).
+	m_xmlUnsigned = strContents; // Here we just set it back again.
+}
 
 
+//bool	m_bCalculatingID; // NOT serialized. Used during ID calculation.
+//
+//bool	m_bSpecifyAssetID;	// Serialized. 
+//bool	m_bSpecifyParties;	// Serialized. 
 
 void OTScriptable::UpdateContentsToString(OTString & strAppend)
-{	
+{
 	if ((m_mapParties.size()>0) || (m_mapBylaws.size()>0))
 	{
-		strAppend.Concatenate("<scriptableContract>\n\n");
+		strAppend.Concatenate("<scriptableContract specifyAssetID=%s\n specifyParties=%s>\n\n",
+							  m_bSpecifyAssetID ? "true" : "false", m_bSpecifyParties ? "true" : "false");
 		
 		FOR_EACH(mapOfParties, m_mapParties)
 		{
 			OTParty * pParty = (*it).second;
 			OT_ASSERT(NULL != pParty);
 			
-			pParty->Serialize(strAppend);		
+			// Serialization is slightly different depending on whether we are saving
+			// for real, or just generating a template version of the contract in order
+			// to generate its ID.
+			//
+			pParty->Serialize(strAppend, m_bCalculatingID, m_bSpecifyAssetID, m_bSpecifyParties);		
 		}
 		
 		FOR_EACH(mapOfBylaws, m_mapBylaws)
@@ -2192,7 +2225,7 @@ void OTScriptable::UpdateContentsToString(OTString & strAppend)
 			OTBylaw * pBylaw = (*it).second;
 			OT_ASSERT(NULL != pBylaw);
 			
-			pBylaw->Serialize(strAppend);
+			pBylaw->Serialize(strAppend, m_bCalculatingID);
 		}
 		
 		strAppend.Concatenate("</scriptableContract>\n\n");
@@ -2228,6 +2261,22 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 	
 	if (!strcmp("scriptableContract", xml->getNodeName()))
 	{
+		const OTString strSpecify1 = xml->getAttributeValue("specifyAssetID");
+		const OTString strSpecify2 = xml->getAttributeValue("specifyParties");
+		
+		// ---------------------------------------
+		// These determine whether asset IDs and/or party owner IDs
+		// are used on the template for any given smart contract.
+		// (Some templates are specific to certain asset types, while
+		// other smart contract types allow you to leave asset ID blank
+		// until the confirmation phase.)
+		//
+		if (strSpecify1.Compare("true"))
+			m_bSpecifyAssetID = true;
+		if (strSpecify2.Compare("true"))
+			m_bSpecifyParties = true;
+		// ---------------------------------------
+		
 		nReturnVal = 1; 
 	}
 	
@@ -3085,7 +3134,10 @@ void OTScriptable::Release()
 }
 
 
-OTScriptable::OTScriptable() :  OTContract()
+OTScriptable::OTScriptable() 
+:  OTContract(), 
+	m_bCalculatingID(false), // This is not serialized.
+	m_bSpecifyAssetID(false), m_bSpecifyParties(false) // These are.
 {
 
 }

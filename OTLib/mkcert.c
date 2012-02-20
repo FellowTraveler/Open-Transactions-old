@@ -98,8 +98,11 @@ int mkcert(X509 **x509p, EVP_PKEY **pkeyp, int bits, int serial, int days)
         else
                 x= *x509p;
 
-        rsa=RSA_generate_key(bits,RSA_F4,callback,NULL);
-        if (!EVP_PKEY_assign_RSA(pk,rsa))
+			
+//		pRsaKey = RSA_generate_key(1024, 0x010001, NULL, NULL);
+
+        rsa=RSA_generate_key(bits, RSA_F4, callback, NULL);
+        if (!EVP_PKEY_assign_RSA(pk, rsa))
                 {
                 abort();
                 goto err;

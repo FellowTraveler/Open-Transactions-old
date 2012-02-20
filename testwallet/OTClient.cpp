@@ -255,6 +255,7 @@ bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox,
 //	theConnection.GetServerID(theServerID);
 	//
 	const OTString strServerID(theServerID), strNymID(*pNym);
+	const OTIdentifier theNymID(*pNym);
 	
 	long lHighestNum=0;
 	// get the last/current highest transaction number for the serverID.
@@ -359,7 +360,8 @@ bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox,
 			pAcceptItem->SignContract(*pNym);
 			pAcceptItem->SaveContract();
 			
-			OTLog::vOutput(2, "Received an encrypted message in your Nymbox:\n%s\n", strRespTo.Get());
+			OTLog::vOutput(2, "OTClient::AcceptEntireNymbox: Received an encrypted message in your Nymbox:\n%s\n", 
+						   strRespTo.Get());
 			
 			// Todo: really shouldn't do this until we get a successful REPLY from the server.
 			// That's when I do a lot of other things. But this is a no-biggie thing. It will almost
@@ -386,6 +388,80 @@ bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox,
 			}
 		} // if message
 		
+		
+		// ------------------------------------------------------------
+		// INSTRUMENT (From Another Nym)
+		//
+		if ( (OTTransaction::instrumentNotice == pTransaction->GetType()) )
+		{				
+			OTItem * pAcceptItem = OTItem::CreateItemFromTransaction(*pAcceptTransaction, OTItem::acceptNotice);
+			
+			// The above already has OT_ASSERT so, no need to check the pointer for NULL.
+			
+			// the transaction will handle cleaning up the transaction item.
+			pAcceptTransaction->AddItem(*pAcceptItem);
+			
+			pAcceptItem->SetReferenceToNum(pTransaction->GetTransactionNum()); // This is critical. Server needs this to look up the receipt in my nymbox.
+			// Don't need to set transaction num on item since the constructor already got it off the owner transaction.
+			
+			// sign the item
+			pAcceptItem->SignContract(*pNym);
+			pAcceptItem->SaveContract();
+			
+			OTLog::vOutput(2, "OTClient::AcceptEntireNymbox: Received an encrypted instrument in your Nymbox:\n%s\n",
+						   strRespTo.Get());
+			
+			// Really shouldn't do this until we get a successful REPLY from the server.
+			// That's when I do a lot of other things. But this is a no-biggie thing. It will almost
+			// always succeed and in the odd-event that it fails, I'll end up with a duplicate instrument
+			// in my mail. So what?
+			
+			// Just make sure not to add it if it's already there...
+
+			// -----------------------------------------------------
+			OTLedger theLedger(theNymID, theNymID, theServerID);
+			// ------------------------------------------------------
+			if (theLedger.LoadPaymentInbox() && theLedger.VerifyAccount(*pNym))
+			{
+				// The transaction (which we are putting into the payment inbox) will not
+				// be removed from the nybox until we receive the server's success reply to
+				// this "process Nymbox" message. That's why you see me adding it here to
+				// the payment inbox, while not removing it from the Nymbox (because that
+				// will happen once the reply is received.) NOTE: Need to make sure the
+				// associated box receipt doesn't get MARKED FOR DELETION when being removed
+				// at that time.
+				//
+				if (NULL == theLedger.GetTransaction(pTransaction->GetTransactionNum())) // Only add it if it's not already there.
+				{
+					OTTransaction * pCopy = new OTTransaction(theLedger);
+					OT_ASSERT(NULL != pCopy);
+					
+					const OTString strCopy(*pTransaction);
+					if (!pCopy->LoadContractFromString(strCopy) || 
+						!theLedger.AddTransaction(*pCopy))
+					{
+						OTString strUserID(theNymID), strAcctID(theNymID);
+						OTLog::vOutput(0, "OTClient::AcceptEntireNymbox: Unable to load transaction copy from string or add it to paymentInbox: %s / %s\n",
+									   strUserID.Get(), strAcctID.Get());				
+						delete pCopy; pCopy = NULL;
+					}
+					else 
+					{
+						theLedger.ReleaseSignatures();
+						theLedger.SignContract(*pNym);
+						theLedger.SaveContract();
+						theLedger.SavePaymentInbox();
+					}
+				}
+			}
+			else
+			{
+				OTString strUserID(theNymID), strAcctID(theNymID);
+				OTLog::vOutput(0, "OTClient::AcceptEntireNymbox: Unable to load or verify paymentInbox: %s / %s\n",
+							   strUserID.Get(), strAcctID.Get());
+			}			
+		} // if instrument
+		
 		// ------------------------------------------------------------
 		// SERVER NOTIFICATION 
 		//
@@ -408,6 +484,8 @@ bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox,
 			OTLog::vOutput(0, "Received a server notification in your Nymbox:\n%s\n", strRespTo.Get());
 
 			// Todo: stash these somewhere, just like messages are in the pNym->AddMail() feature.
+			// NOTE: Most likely we still stash these in the paymentInbox just the same as instrumentNotice (above)
+			
 		} // if notice
 		
 		// ------------------------------------------------------------
@@ -8564,7 +8642,6 @@ bool OTClient::InitClient(OTWallet & theWallet)
 	// These storage locations are client-only
 	//
 	OTLog::ConfirmOrCreateFolder(OTLog::PaymentInboxFolder());
-	OTLog::ConfirmOrCreateFolder(OTLog::PaymentOutboxFolder());
 	OTLog::ConfirmOrCreateFolder(OTLog::RecordBoxFolder());
 	OTLog::ConfirmOrCreateFolder(OTLog::PurseFolder()); 	
 	OTLog::ConfirmOrCreateFolder(OTLog::ScriptFolder()); 	

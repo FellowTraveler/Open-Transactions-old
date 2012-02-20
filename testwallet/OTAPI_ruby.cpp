@@ -2402,7 +2402,7 @@ SWIG_ruby_failed(void)
 } 
 
 
-/*@SWIG:/opt/local/share/swig/2.0.4/ruby/rubyprimtypes.swg,19,%ruby_aux_method@*/
+/*@SWIG:/usr/local/share/swig/2.0.4/ruby/rubyprimtypes.swg,19,%ruby_aux_method@*/
 SWIGINTERN VALUE SWIG_AUX_NUM2LONG(VALUE *args)
 {
   VALUE obj = args[0];
@@ -2506,7 +2506,7 @@ SWIG_From_size_t  (size_t value)
 }
 
 
-/*@SWIG:/opt/local/share/swig/2.0.4/ruby/rubyprimtypes.swg,19,%ruby_aux_method@*/
+/*@SWIG:/usr/local/share/swig/2.0.4/ruby/rubyprimtypes.swg,19,%ruby_aux_method@*/
 SWIGINTERN VALUE SWIG_AUX_NUM2ULONG(VALUE *args)
 {
   VALUE obj = args[0];
@@ -4932,6 +4932,208 @@ _wrap_OT_API_Nym_VerifyOutmailByIndex(int argc, VALUE *argv, VALUE self) {
   } 
   arg2 = static_cast< int >(val2);
   result = (int)OT_API_Nym_VerifyOutmailByIndex((char const *)arg1,arg2);
+  vresult = SWIG_From_int(static_cast< int >(result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return vresult;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OT_API_GetNym_OutpaymentsCount(int argc, VALUE *argv, VALUE self) {
+  char *arg1 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_AsCharPtrAndSize(argv[0], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "char const *","OT_API_GetNym_OutpaymentsCount", 1, argv[0] ));
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  result = (int)OT_API_GetNym_OutpaymentsCount((char const *)arg1);
+  vresult = SWIG_From_int(static_cast< int >(result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return vresult;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OT_API_GetNym_OutpaymentsContentsByIndex(int argc, VALUE *argv, VALUE self) {
+  char *arg1 = (char *) 0 ;
+  int arg2 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  char *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 2) || (argc > 2)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
+  }
+  res1 = SWIG_AsCharPtrAndSize(argv[0], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "char const *","OT_API_GetNym_OutpaymentsContentsByIndex", 1, argv[0] ));
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  ecode2 = SWIG_AsVal_int(argv[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), Ruby_Format_TypeError( "", "int","OT_API_GetNym_OutpaymentsContentsByIndex", 2, argv[1] ));
+  } 
+  arg2 = static_cast< int >(val2);
+  result = (char *)OT_API_GetNym_OutpaymentsContentsByIndex((char const *)arg1,arg2);
+  vresult = SWIG_FromCharPtr((const char *)result);
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return vresult;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OT_API_GetNym_OutpaymentsRecipientIDByIndex(int argc, VALUE *argv, VALUE self) {
+  char *arg1 = (char *) 0 ;
+  int arg2 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  char *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 2) || (argc > 2)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
+  }
+  res1 = SWIG_AsCharPtrAndSize(argv[0], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "char const *","OT_API_GetNym_OutpaymentsRecipientIDByIndex", 1, argv[0] ));
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  ecode2 = SWIG_AsVal_int(argv[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), Ruby_Format_TypeError( "", "int","OT_API_GetNym_OutpaymentsRecipientIDByIndex", 2, argv[1] ));
+  } 
+  arg2 = static_cast< int >(val2);
+  result = (char *)OT_API_GetNym_OutpaymentsRecipientIDByIndex((char const *)arg1,arg2);
+  vresult = SWIG_FromCharPtr((const char *)result);
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return vresult;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OT_API_GetNym_OutpaymentsServerIDByIndex(int argc, VALUE *argv, VALUE self) {
+  char *arg1 = (char *) 0 ;
+  int arg2 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  char *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 2) || (argc > 2)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
+  }
+  res1 = SWIG_AsCharPtrAndSize(argv[0], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "char const *","OT_API_GetNym_OutpaymentsServerIDByIndex", 1, argv[0] ));
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  ecode2 = SWIG_AsVal_int(argv[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), Ruby_Format_TypeError( "", "int","OT_API_GetNym_OutpaymentsServerIDByIndex", 2, argv[1] ));
+  } 
+  arg2 = static_cast< int >(val2);
+  result = (char *)OT_API_GetNym_OutpaymentsServerIDByIndex((char const *)arg1,arg2);
+  vresult = SWIG_FromCharPtr((const char *)result);
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return vresult;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OT_API_Nym_RemoveOutpaymentsByIndex(int argc, VALUE *argv, VALUE self) {
+  char *arg1 = (char *) 0 ;
+  int arg2 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  int result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 2) || (argc > 2)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
+  }
+  res1 = SWIG_AsCharPtrAndSize(argv[0], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "char const *","OT_API_Nym_RemoveOutpaymentsByIndex", 1, argv[0] ));
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  ecode2 = SWIG_AsVal_int(argv[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), Ruby_Format_TypeError( "", "int","OT_API_Nym_RemoveOutpaymentsByIndex", 2, argv[1] ));
+  } 
+  arg2 = static_cast< int >(val2);
+  result = (int)OT_API_Nym_RemoveOutpaymentsByIndex((char const *)arg1,arg2);
+  vresult = SWIG_From_int(static_cast< int >(result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return vresult;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OT_API_Nym_VerifyOutpaymentsByIndex(int argc, VALUE *argv, VALUE self) {
+  char *arg1 = (char *) 0 ;
+  int arg2 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  int result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 2) || (argc > 2)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
+  }
+  res1 = SWIG_AsCharPtrAndSize(argv[0], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "char const *","OT_API_Nym_VerifyOutpaymentsByIndex", 1, argv[0] ));
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  ecode2 = SWIG_AsVal_int(argv[1], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), Ruby_Format_TypeError( "", "int","OT_API_Nym_VerifyOutpaymentsByIndex", 2, argv[1] ));
+  } 
+  arg2 = static_cast< int >(val2);
+  result = (int)OT_API_Nym_VerifyOutpaymentsByIndex((char const *)arg1,arg2);
   vresult = SWIG_From_int(static_cast< int >(result));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   return vresult;
@@ -7391,44 +7593,6 @@ fail:
 
 
 SWIGINTERN VALUE
-_wrap_OT_API_LoadPaymentOutbox(int argc, VALUE *argv, VALUE self) {
-  char *arg1 = (char *) 0 ;
-  char *arg2 = (char *) 0 ;
-  int res1 ;
-  char *buf1 = 0 ;
-  int alloc1 = 0 ;
-  int res2 ;
-  char *buf2 = 0 ;
-  int alloc2 = 0 ;
-  char *result = 0 ;
-  VALUE vresult = Qnil;
-  
-  if ((argc < 2) || (argc > 2)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
-  }
-  res1 = SWIG_AsCharPtrAndSize(argv[0], &buf1, NULL, &alloc1);
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "char const *","OT_API_LoadPaymentOutbox", 1, argv[0] ));
-  }
-  arg1 = reinterpret_cast< char * >(buf1);
-  res2 = SWIG_AsCharPtrAndSize(argv[1], &buf2, NULL, &alloc2);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "char const *","OT_API_LoadPaymentOutbox", 2, argv[1] ));
-  }
-  arg2 = reinterpret_cast< char * >(buf2);
-  result = (char *)OT_API_LoadPaymentOutbox((char const *)arg1,(char const *)arg2);
-  vresult = SWIG_FromCharPtr((const char *)result);
-  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
-  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
-  return vresult;
-fail:
-  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
-  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
-  return Qnil;
-}
-
-
-SWIGINTERN VALUE
 _wrap_OT_API_LoadPaymentInboxNoVerify(int argc, VALUE *argv, VALUE self) {
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
@@ -7455,44 +7619,6 @@ _wrap_OT_API_LoadPaymentInboxNoVerify(int argc, VALUE *argv, VALUE self) {
   }
   arg2 = reinterpret_cast< char * >(buf2);
   result = (char *)OT_API_LoadPaymentInboxNoVerify((char const *)arg1,(char const *)arg2);
-  vresult = SWIG_FromCharPtr((const char *)result);
-  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
-  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
-  return vresult;
-fail:
-  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
-  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
-  return Qnil;
-}
-
-
-SWIGINTERN VALUE
-_wrap_OT_API_LoadPaymentOutboxNoVerify(int argc, VALUE *argv, VALUE self) {
-  char *arg1 = (char *) 0 ;
-  char *arg2 = (char *) 0 ;
-  int res1 ;
-  char *buf1 = 0 ;
-  int alloc1 = 0 ;
-  int res2 ;
-  char *buf2 = 0 ;
-  int alloc2 = 0 ;
-  char *result = 0 ;
-  VALUE vresult = Qnil;
-  
-  if ((argc < 2) || (argc > 2)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
-  }
-  res1 = SWIG_AsCharPtrAndSize(argv[0], &buf1, NULL, &alloc1);
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "char const *","OT_API_LoadPaymentOutboxNoVerify", 1, argv[0] ));
-  }
-  arg1 = reinterpret_cast< char * >(buf1);
-  res2 = SWIG_AsCharPtrAndSize(argv[1], &buf2, NULL, &alloc2);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "char const *","OT_API_LoadPaymentOutboxNoVerify", 2, argv[1] ));
-  }
-  arg2 = reinterpret_cast< char * >(buf2);
-  result = (char *)OT_API_LoadPaymentOutboxNoVerify((char const *)arg1,(char const *)arg2);
   vresult = SWIG_FromCharPtr((const char *)result);
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
@@ -8124,6 +8250,74 @@ _wrap_OT_API_Ledger_FinalizeResponse(int argc, VALUE *argv, VALUE self) {
   }
   arg4 = reinterpret_cast< char * >(buf4);
   result = (char *)OT_API_Ledger_FinalizeResponse((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+  vresult = SWIG_FromCharPtr((const char *)result);
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+  return vresult;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OT_API_Ledger_GetInstrument(int argc, VALUE *argv, VALUE self) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  char *arg4 = (char *) 0 ;
+  int arg5 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  int res3 ;
+  char *buf3 = 0 ;
+  int alloc3 = 0 ;
+  int res4 ;
+  char *buf4 = 0 ;
+  int alloc4 = 0 ;
+  int val5 ;
+  int ecode5 = 0 ;
+  char *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 5) || (argc > 5)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 5)",argc); SWIG_fail;
+  }
+  res1 = SWIG_AsCharPtrAndSize(argv[0], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "char const *","OT_API_Ledger_GetInstrument", 1, argv[0] ));
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(argv[1], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "char const *","OT_API_Ledger_GetInstrument", 2, argv[1] ));
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  res3 = SWIG_AsCharPtrAndSize(argv[2], &buf3, NULL, &alloc3);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), Ruby_Format_TypeError( "", "char const *","OT_API_Ledger_GetInstrument", 3, argv[2] ));
+  }
+  arg3 = reinterpret_cast< char * >(buf3);
+  res4 = SWIG_AsCharPtrAndSize(argv[3], &buf4, NULL, &alloc4);
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), Ruby_Format_TypeError( "", "char const *","OT_API_Ledger_GetInstrument", 4, argv[3] ));
+  }
+  arg4 = reinterpret_cast< char * >(buf4);
+  ecode5 = SWIG_AsVal_int(argv[4], &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), Ruby_Format_TypeError( "", "int","OT_API_Ledger_GetInstrument", 5, argv[4] ));
+  } 
+  arg5 = static_cast< int >(val5);
+  result = (char *)OT_API_Ledger_GetInstrument((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,arg5);
   vresult = SWIG_FromCharPtr((const char *)result);
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
@@ -10077,6 +10271,74 @@ _wrap_OT_API_sendUserMessage(int argc, VALUE *argv, VALUE self) {
   }
   arg5 = reinterpret_cast< char * >(buf5);
   OT_API_sendUserMessage((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5);
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+  if (alloc5 == SWIG_NEWOBJ) delete[] buf5;
+  return Qnil;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+  if (alloc5 == SWIG_NEWOBJ) delete[] buf5;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OT_API_sendUserInstrument(int argc, VALUE *argv, VALUE self) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  char *arg4 = (char *) 0 ;
+  char *arg5 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  int res3 ;
+  char *buf3 = 0 ;
+  int alloc3 = 0 ;
+  int res4 ;
+  char *buf4 = 0 ;
+  int alloc4 = 0 ;
+  int res5 ;
+  char *buf5 = 0 ;
+  int alloc5 = 0 ;
+  
+  if ((argc < 5) || (argc > 5)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 5)",argc); SWIG_fail;
+  }
+  res1 = SWIG_AsCharPtrAndSize(argv[0], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "char const *","OT_API_sendUserInstrument", 1, argv[0] ));
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(argv[1], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "char const *","OT_API_sendUserInstrument", 2, argv[1] ));
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  res3 = SWIG_AsCharPtrAndSize(argv[2], &buf3, NULL, &alloc3);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), Ruby_Format_TypeError( "", "char const *","OT_API_sendUserInstrument", 3, argv[2] ));
+  }
+  arg3 = reinterpret_cast< char * >(buf3);
+  res4 = SWIG_AsCharPtrAndSize(argv[3], &buf4, NULL, &alloc4);
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), Ruby_Format_TypeError( "", "char const *","OT_API_sendUserInstrument", 4, argv[3] ));
+  }
+  arg4 = reinterpret_cast< char * >(buf4);
+  res5 = SWIG_AsCharPtrAndSize(argv[4], &buf5, NULL, &alloc5);
+  if (!SWIG_IsOK(res5)) {
+    SWIG_exception_fail(SWIG_ArgError(res5), Ruby_Format_TypeError( "", "char const *","OT_API_sendUserInstrument", 5, argv[4] ));
+  }
+  arg5 = reinterpret_cast< char * >(buf5);
+  OT_API_sendUserInstrument((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5);
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
@@ -29588,6 +29850,12 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_module_function(mOtapi, "OT_API_GetNym_OutmailServerIDByIndex", VALUEFUNC(_wrap_OT_API_GetNym_OutmailServerIDByIndex), -1);
   rb_define_module_function(mOtapi, "OT_API_Nym_RemoveOutmailByIndex", VALUEFUNC(_wrap_OT_API_Nym_RemoveOutmailByIndex), -1);
   rb_define_module_function(mOtapi, "OT_API_Nym_VerifyOutmailByIndex", VALUEFUNC(_wrap_OT_API_Nym_VerifyOutmailByIndex), -1);
+  rb_define_module_function(mOtapi, "OT_API_GetNym_OutpaymentsCount", VALUEFUNC(_wrap_OT_API_GetNym_OutpaymentsCount), -1);
+  rb_define_module_function(mOtapi, "OT_API_GetNym_OutpaymentsContentsByIndex", VALUEFUNC(_wrap_OT_API_GetNym_OutpaymentsContentsByIndex), -1);
+  rb_define_module_function(mOtapi, "OT_API_GetNym_OutpaymentsRecipientIDByIndex", VALUEFUNC(_wrap_OT_API_GetNym_OutpaymentsRecipientIDByIndex), -1);
+  rb_define_module_function(mOtapi, "OT_API_GetNym_OutpaymentsServerIDByIndex", VALUEFUNC(_wrap_OT_API_GetNym_OutpaymentsServerIDByIndex), -1);
+  rb_define_module_function(mOtapi, "OT_API_Nym_RemoveOutpaymentsByIndex", VALUEFUNC(_wrap_OT_API_Nym_RemoveOutpaymentsByIndex), -1);
+  rb_define_module_function(mOtapi, "OT_API_Nym_VerifyOutpaymentsByIndex", VALUEFUNC(_wrap_OT_API_Nym_VerifyOutpaymentsByIndex), -1);
   rb_define_module_function(mOtapi, "OT_API_Wallet_CanRemoveServer", VALUEFUNC(_wrap_OT_API_Wallet_CanRemoveServer), -1);
   rb_define_module_function(mOtapi, "OT_API_Wallet_RemoveServer", VALUEFUNC(_wrap_OT_API_Wallet_RemoveServer), -1);
   rb_define_module_function(mOtapi, "OT_API_Wallet_CanRemoveAssetType", VALUEFUNC(_wrap_OT_API_Wallet_CanRemoveAssetType), -1);
@@ -29638,9 +29906,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_module_function(mOtapi, "OT_API_LoadInboxNoVerify", VALUEFUNC(_wrap_OT_API_LoadInboxNoVerify), -1);
   rb_define_module_function(mOtapi, "OT_API_LoadOutboxNoVerify", VALUEFUNC(_wrap_OT_API_LoadOutboxNoVerify), -1);
   rb_define_module_function(mOtapi, "OT_API_LoadPaymentInbox", VALUEFUNC(_wrap_OT_API_LoadPaymentInbox), -1);
-  rb_define_module_function(mOtapi, "OT_API_LoadPaymentOutbox", VALUEFUNC(_wrap_OT_API_LoadPaymentOutbox), -1);
   rb_define_module_function(mOtapi, "OT_API_LoadPaymentInboxNoVerify", VALUEFUNC(_wrap_OT_API_LoadPaymentInboxNoVerify), -1);
-  rb_define_module_function(mOtapi, "OT_API_LoadPaymentOutboxNoVerify", VALUEFUNC(_wrap_OT_API_LoadPaymentOutboxNoVerify), -1);
   rb_define_module_function(mOtapi, "OT_API_LoadRecordBox", VALUEFUNC(_wrap_OT_API_LoadRecordBox), -1);
   rb_define_module_function(mOtapi, "OT_API_LoadRecordBoxNoVerify", VALUEFUNC(_wrap_OT_API_LoadRecordBoxNoVerify), -1);
   rb_define_module_function(mOtapi, "OT_API_Ledger_GetCount", VALUEFUNC(_wrap_OT_API_Ledger_GetCount), -1);
@@ -29651,6 +29917,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_module_function(mOtapi, "OT_API_Ledger_AddTransaction", VALUEFUNC(_wrap_OT_API_Ledger_AddTransaction), -1);
   rb_define_module_function(mOtapi, "OT_API_Transaction_CreateResponse", VALUEFUNC(_wrap_OT_API_Transaction_CreateResponse), -1);
   rb_define_module_function(mOtapi, "OT_API_Ledger_FinalizeResponse", VALUEFUNC(_wrap_OT_API_Ledger_FinalizeResponse), -1);
+  rb_define_module_function(mOtapi, "OT_API_Ledger_GetInstrument", VALUEFUNC(_wrap_OT_API_Ledger_GetInstrument), -1);
   rb_define_module_function(mOtapi, "OT_API_Transaction_GetType", VALUEFUNC(_wrap_OT_API_Transaction_GetType), -1);
   rb_define_module_function(mOtapi, "OT_API_Transaction_GetVoucher", VALUEFUNC(_wrap_OT_API_Transaction_GetVoucher), -1);
   rb_define_module_function(mOtapi, "OT_API_Transaction_GetSuccess", VALUEFUNC(_wrap_OT_API_Transaction_GetSuccess), -1);
@@ -29688,6 +29955,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_module_function(mOtapi, "OT_API_Message_GetUsageCredits", VALUEFUNC(_wrap_OT_API_Message_GetUsageCredits), -1);
   rb_define_module_function(mOtapi, "OT_API_checkUser", VALUEFUNC(_wrap_OT_API_checkUser), -1);
   rb_define_module_function(mOtapi, "OT_API_sendUserMessage", VALUEFUNC(_wrap_OT_API_sendUserMessage), -1);
+  rb_define_module_function(mOtapi, "OT_API_sendUserInstrument", VALUEFUNC(_wrap_OT_API_sendUserInstrument), -1);
   rb_define_module_function(mOtapi, "OT_API_getRequest", VALUEFUNC(_wrap_OT_API_getRequest), -1);
   rb_define_module_function(mOtapi, "OT_API_getTransactionNumber", VALUEFUNC(_wrap_OT_API_getTransactionNumber), -1);
   rb_define_module_function(mOtapi, "OT_API_issueAssetType", VALUEFUNC(_wrap_OT_API_issueAssetType), -1);

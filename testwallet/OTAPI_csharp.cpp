@@ -1427,6 +1427,88 @@ SWIGEXPORT int SWIGSTDCALL CSharp_OT_API_Nym_VerifyOutmailByIndex(char * jarg1, 
 }
 
 
+SWIGEXPORT int SWIGSTDCALL CSharp_OT_API_GetNym_OutpaymentsCount(char * jarg1) {
+  int jresult ;
+  char *arg1 = (char *) 0 ;
+  int result;
+  
+  arg1 = (char *)jarg1; 
+  result = (int)OT_API_GetNym_OutpaymentsCount((char const *)arg1);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_GetNym_OutpaymentsContentsByIndex(char * jarg1, int jarg2) {
+  char * jresult ;
+  char *arg1 = (char *) 0 ;
+  int arg2 ;
+  char *result = 0 ;
+  
+  arg1 = (char *)jarg1; 
+  arg2 = (int)jarg2; 
+  result = (char *)OT_API_GetNym_OutpaymentsContentsByIndex((char const *)arg1,arg2);
+  jresult = SWIG_csharp_string_callback((const char *)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_GetNym_OutpaymentsRecipientIDByIndex(char * jarg1, int jarg2) {
+  char * jresult ;
+  char *arg1 = (char *) 0 ;
+  int arg2 ;
+  char *result = 0 ;
+  
+  arg1 = (char *)jarg1; 
+  arg2 = (int)jarg2; 
+  result = (char *)OT_API_GetNym_OutpaymentsRecipientIDByIndex((char const *)arg1,arg2);
+  jresult = SWIG_csharp_string_callback((const char *)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_GetNym_OutpaymentsServerIDByIndex(char * jarg1, int jarg2) {
+  char * jresult ;
+  char *arg1 = (char *) 0 ;
+  int arg2 ;
+  char *result = 0 ;
+  
+  arg1 = (char *)jarg1; 
+  arg2 = (int)jarg2; 
+  result = (char *)OT_API_GetNym_OutpaymentsServerIDByIndex((char const *)arg1,arg2);
+  jresult = SWIG_csharp_string_callback((const char *)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT int SWIGSTDCALL CSharp_OT_API_Nym_RemoveOutpaymentsByIndex(char * jarg1, int jarg2) {
+  int jresult ;
+  char *arg1 = (char *) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (char *)jarg1; 
+  arg2 = (int)jarg2; 
+  result = (int)OT_API_Nym_RemoveOutpaymentsByIndex((char const *)arg1,arg2);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT int SWIGSTDCALL CSharp_OT_API_Nym_VerifyOutpaymentsByIndex(char * jarg1, int jarg2) {
+  int jresult ;
+  char *arg1 = (char *) 0 ;
+  int arg2 ;
+  int result;
+  
+  arg1 = (char *)jarg1; 
+  arg2 = (int)jarg2; 
+  result = (int)OT_API_Nym_VerifyOutpaymentsByIndex((char const *)arg1,arg2);
+  jresult = result; 
+  return jresult;
+}
+
+
 SWIGEXPORT int SWIGSTDCALL CSharp_OT_API_Wallet_CanRemoveServer(char * jarg1) {
   int jresult ;
   char *arg1 = (char *) 0 ;
@@ -2221,20 +2303,6 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_LoadPaymentInbox(char * jarg1, char 
 }
 
 
-SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_LoadPaymentOutbox(char * jarg1, char * jarg2) {
-  char * jresult ;
-  char *arg1 = (char *) 0 ;
-  char *arg2 = (char *) 0 ;
-  char *result = 0 ;
-  
-  arg1 = (char *)jarg1; 
-  arg2 = (char *)jarg2; 
-  result = (char *)OT_API_LoadPaymentOutbox((char const *)arg1,(char const *)arg2);
-  jresult = SWIG_csharp_string_callback((const char *)result); 
-  return jresult;
-}
-
-
 SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_LoadPaymentInboxNoVerify(char * jarg1, char * jarg2) {
   char * jresult ;
   char *arg1 = (char *) 0 ;
@@ -2244,20 +2312,6 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_LoadPaymentInboxNoVerify(char * jarg
   arg1 = (char *)jarg1; 
   arg2 = (char *)jarg2; 
   result = (char *)OT_API_LoadPaymentInboxNoVerify((char const *)arg1,(char const *)arg2);
-  jresult = SWIG_csharp_string_callback((const char *)result); 
-  return jresult;
-}
-
-
-SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_LoadPaymentOutboxNoVerify(char * jarg1, char * jarg2) {
-  char * jresult ;
-  char *arg1 = (char *) 0 ;
-  char *arg2 = (char *) 0 ;
-  char *result = 0 ;
-  
-  arg1 = (char *)jarg1; 
-  arg2 = (char *)jarg2; 
-  result = (char *)OT_API_LoadPaymentOutboxNoVerify((char const *)arg1,(char const *)arg2);
   jresult = SWIG_csharp_string_callback((const char *)result); 
   return jresult;
 }
@@ -2446,6 +2500,26 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_Ledger_FinalizeResponse(char * jarg1
   arg3 = (char *)jarg3; 
   arg4 = (char *)jarg4; 
   result = (char *)OT_API_Ledger_FinalizeResponse((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+  jresult = SWIG_csharp_string_callback((const char *)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_Ledger_GetInstrument(char * jarg1, char * jarg2, char * jarg3, char * jarg4, int jarg5) {
+  char * jresult ;
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  char *arg4 = (char *) 0 ;
+  int arg5 ;
+  char *result = 0 ;
+  
+  arg1 = (char *)jarg1; 
+  arg2 = (char *)jarg2; 
+  arg3 = (char *)jarg3; 
+  arg4 = (char *)jarg4; 
+  arg5 = (int)jarg5; 
+  result = (char *)OT_API_Ledger_GetInstrument((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,arg5);
   jresult = SWIG_csharp_string_callback((const char *)result); 
   return jresult;
 }
@@ -3038,6 +3112,22 @@ SWIGEXPORT void SWIGSTDCALL CSharp_OT_API_sendUserMessage(char * jarg1, char * j
   arg4 = (char *)jarg4; 
   arg5 = (char *)jarg5; 
   OT_API_sendUserMessage((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5);
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_OT_API_sendUserInstrument(char * jarg1, char * jarg2, char * jarg3, char * jarg4, char * jarg5) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  char *arg4 = (char *) 0 ;
+  char *arg5 = (char *) 0 ;
+  
+  arg1 = (char *)jarg1; 
+  arg2 = (char *)jarg2; 
+  arg3 = (char *)jarg3; 
+  arg4 = (char *)jarg4; 
+  arg5 = (char *)jarg5; 
+  OT_API_sendUserInstrument((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5);
 }
 
 

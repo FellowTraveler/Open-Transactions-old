@@ -973,7 +973,7 @@ OTPseudonym * OT_API::CreateNym()
 	OTPseudonym * pNym = new OTPseudonym;
 	OT_ASSERT(NULL != pNym);
 	
-	if (false == pNym->GenerateNym()) 
+	if (false == pNym->GenerateNym()) // TODO: GenerateNym accepts 1024, 2048, 4096, etc. (Pass them here.)
 	{
 		delete pNym;
 		return NULL;
@@ -1255,7 +1255,6 @@ bool OT_API::SignContract(const OTIdentifier & theSignerNymID, const OTString & 
 	// ------------------------------------------------------------
 	//
 	OTContract * pContract = NULL;
-	OTCleanup<OTContract> theAngel;
 	
 	if (NULL == pContract)
 		pContract = OTTransactionType::TransactionFactory(strContract);
@@ -1272,6 +1271,9 @@ bool OT_API::SignContract(const OTIdentifier & theSignerNymID, const OTString & 
 					   strContract.Get());
 		return false;
 	}
+	
+	OTCleanup<OTContract> theAngel(*pContract);
+
 	// -----------------------------------------------------
 	pContract->ReleaseSignatures();
 	pContract->SignContract(*pNym);
@@ -1318,7 +1320,6 @@ bool OT_API::AddSignature(const OTIdentifier & theSignerNymID, const OTString & 
 	// ------------------------------------------------------------
 	//
 	OTContract * pContract = NULL;
-	OTCleanup<OTContract> theAngel;
 	
 	if (NULL == pContract)
 		pContract = OTTransactionType::TransactionFactory(strContract);
@@ -1335,6 +1336,9 @@ bool OT_API::AddSignature(const OTIdentifier & theSignerNymID, const OTString & 
 					   strContract.Get());
 		return false;
 	}
+	
+	OTCleanup<OTContract> theAngel(*pContract);
+
 	// -----------------------------------------------------
 	//	pContract->ReleaseSignatures();		// Other than this line, this function is identical to 
 										// OT_API::SignContract(). (It adds signatures without removing existing ones.)
@@ -3432,59 +3436,6 @@ OTLedger * OT_API::LoadPaymentInboxNoVerify(const OTIdentifier & SERVER_ID,
 	return  NULL;			
 }
 
-
-OTLedger * OT_API::LoadPaymentOutbox(const OTIdentifier & SERVER_ID,
-									 const OTIdentifier & USER_ID)
-{
-	const char * szFuncName = "OT_API::LoadPaymentOutbox";
-	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName);
-	if (NULL == pNym) return NULL;
-	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
-	// -----------------------------------------------------
-	OTLedger * pLedger = new OTLedger(USER_ID, USER_ID, SERVER_ID);
-	OT_ASSERT_MSG(NULL != pLedger, "OT_API::LoadPaymentOutbox: Error allocating memory in the OT API.");
-	// Beyond this point, I know that pLedger will need to be deleted or returned.
-	// ------------------------------------------------------
-	if (pLedger->LoadPaymentOutbox() && pLedger->VerifyAccount(*pNym))
-		return pLedger;
-	else
-	{
-		OTString strUserID(USER_ID), strAcctID(USER_ID);
-		OTLog::vOutput(0, "%s: Unable to load or verify: %s / %s\n",
-					   szFuncName, strUserID.Get(), strAcctID.Get());
-		delete pLedger;
-		pLedger = NULL;		
-	}
-	return  NULL;	
-}
-
-
-OTLedger * OT_API::LoadPaymentOutboxNoVerify(const OTIdentifier & SERVER_ID,
-											 const OTIdentifier & USER_ID)
-{
-	const char * szFuncName = "OT_API::LoadPaymentOutboxNoVerify";
-	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName);
-	if (NULL == pNym) return NULL;
-	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
-	// -----------------------------------------------------
-	OTLedger * pLedger = new OTLedger(USER_ID, USER_ID, SERVER_ID);
-	OT_ASSERT_MSG(NULL != pLedger, "OT_API::LoadPaymentOutboxNoVerify: Error allocating memory in the OT API.");
-	// Beyond this point, I know that pLedger will need to be deleted or returned.
-	// ------------------------------------------------------
-	if (pLedger->LoadPaymentOutbox()) // The Verify would have gone here.
-		return pLedger;
-	else
-	{
-		OTString strUserID(USER_ID), strAcctID(USER_ID);
-		OTLog::vOutput(0, "%s: Unable to load or verify: %s / %s\n",
-					   szFuncName, strUserID.Get(), strAcctID.Get());
-		delete pLedger;
-		pLedger = NULL;
-	}
-	return  NULL;		
-}
 
 
 // Caller IS responsible to delete
@@ -7535,6 +7486,117 @@ void OT_API::sendUserMessage(OTIdentifier	& SERVER_ID,
 		OTLog::Output(0, "OT_API::sendUserMessage: Failed sealing envelope.\n");
 }
 
+
+
+
+
+void OT_API::sendUserInstrument(OTIdentifier	& SERVER_ID,
+								OTIdentifier	& USER_ID,
+								OTIdentifier	& USER_ID_RECIPIENT,
+								OTASCIIArmor	& RECIPIENT_PUBKEY,
+								OTContract		& THE_INSTRUMENT)
+{	
+	const char * szFuncName = "OT_API::sendUserInstrument";
+	// -----------------------------------------------------
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName); // This ASSERTs and logs already.
+	if (NULL == pNym) return;	
+	// By this point, pNym is a good pointer, and is on the wallet.
+	//  (No need to cleanup.)
+	// -----------------------------------------------------
+	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
+	if (NULL == pServer) return;
+	// By this point, pServer is a good pointer.  (No need to cleanup.)
+	// -----------------------------------------------------
+	OTMessage theMessage;
+	long lRequestNumber = 0;
+	
+	OTString strServerID(SERVER_ID), strNymID(USER_ID), strNymID2(USER_ID_RECIPIENT);
+	
+	// (0) Set up the REQUEST NUMBER and then INCREMENT IT
+	pNym->GetCurrentRequestNum(strServerID, lRequestNumber);
+	theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
+	pNym->IncrementRequestNum(*pNym, strServerID); // since I used it for a server request, I have to increment it
+	
+	// (1) set up member variables 
+	theMessage.m_strCommand			= "sendUserInstrument";
+	theMessage.m_strNymID			= strNymID;
+	theMessage.m_strNymID2			= strNymID2;
+	theMessage.m_strServerID		= strServerID;
+	
+	OTEnvelope theEnvelope;
+	OTAsymmetricKey thePubkey;
+	
+	const OTString strInstrument(THE_INSTRUMENT);
+	
+	if (!thePubkey.SetPublicKey(RECIPIENT_PUBKEY))
+	{
+		OTLog::Output(0, "OT_API::sendUserInstrument: Failed setting public key.\n");
+	}
+	else if (theEnvelope.Seal(thePubkey, strInstrument) &&
+			 theEnvelope.GetAsciiArmoredData(theMessage.m_ascPayload))
+	{
+		// (2) Sign the Message 
+		theMessage.SignContract(*pNym);		
+		
+		// (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+		theMessage.SaveContract();
+		
+		// (Send it)
+#if defined(OT_ZMQ_MODE)
+		// -----------------------------------------------------------------
+		
+		m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
+#endif	
+		m_pClient->ProcessMessageOut(theMessage);
+		
+		
+		// ----------------------------------------------
+		// store a copy in the outpayments.
+		// (not encrypted, since the Nymfile will be encrypted anyway.
+		//
+		OTMessage * pMessage = new OTMessage;
+		
+		OT_ASSERT(NULL != pMessage);
+		
+		pMessage->m_strCommand		= "outpaymentsMessage";
+		pMessage->m_strNymID		= strNymID;
+		pMessage->m_strNymID2		= strNymID2;
+		pMessage->m_strServerID		= strServerID;			
+		pMessage->m_strRequestNum.Format("%ld", lRequestNumber);
+		
+		pMessage->m_ascPayload.SetString(strInstrument);
+		
+		pMessage->SignContract(*pNym);		
+		pMessage->SaveContract();
+		
+		pNym->AddOutpayments(*pMessage); // Now the Nym is responsible to delete it. It's in his "outpayments".
+		OTPseudonym * pSignerNym = pNym;
+		pNym->SaveSignedNymfile(*pSignerNym);
+	}
+	else
+		OTLog::Output(0, "OT_API::sendUserInstrument: Failed sealing envelope.\n");
+}
+
+
+
+// PROBLEM: How can I put anything in an "out" box (ledger) when I can't generate a
+// transaction number on the client side?  Normally I download the outbox and 
+// it contains transactions that the SERVER put there--not me!
+
+// THEREFORE!!! The paymentOutbox NEEDS to be like OUTMAIL! It's just a message on a Nym. (No transaction numbers.)
+// The instrument I sent will be a payload on a message, and that message will be copied into the paymentOutbox...
+
+// The messages definitely go OUT as messages, as do instruments, and those same messages end up
+// "in reference to" on transactions stuffed in my nymbox and then those transactions have their
+// message copied OUT, and added as a message to my OUTMAIL.
+// Therefore Payment Outbox needs to be similar. It will contain the message originally sent -- no more.
+
+// whereas payment inbox comes from Nymbox (just copy it over.)
+// Similarly, recordbox comes from either payment inbox or asset account inbox.
+
+// So tomorrow:  REMOVE the payment Outbox since it is BULLSHIT and replace with "outmail" like functionality for that box.
+//
+// Update: DONE.
 
 
 

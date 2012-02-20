@@ -643,6 +643,37 @@ bool OTAPI_Wrap::Nym_VerifyOutmailByIndex(const std::string NYM_ID, int nIndex)
 	return (OT_API_Nym_VerifyOutmailByIndex(NYM_ID.c_str(), nIndex) == OT_TRUE) ? true : false;
 }
 // ---------------------------------------------------------
+// ---------------------------------------------------------
+int OTAPI_Wrap::GetNym_OutpaymentsCount(const std::string NYM_ID)
+{
+	return OT_API_GetNym_OutpaymentsCount(NYM_ID.c_str());
+}
+
+const std::string OTAPI_Wrap::GetNym_OutpaymentsContentsByIndex(const std::string NYM_ID, int nIndex)
+{
+	return OT_API_GetNym_OutpaymentsContentsByIndex(NYM_ID.c_str(), nIndex);
+}
+
+const std::string OTAPI_Wrap::GetNym_OutpaymentsRecipientIDByIndex(const std::string NYM_ID, int nIndex)
+{
+	return OT_API_GetNym_OutpaymentsRecipientIDByIndex(NYM_ID.c_str(), nIndex);
+}
+
+const std::string OTAPI_Wrap::GetNym_OutpaymentsServerIDByIndex(const std::string NYM_ID, int nIndex)
+{
+	return OT_API_GetNym_OutpaymentsServerIDByIndex(NYM_ID.c_str(), nIndex);
+}
+
+bool OTAPI_Wrap::Nym_RemoveOutpaymentsByIndex(const std::string NYM_ID, int nIndex)
+{
+	return (OT_API_Nym_RemoveOutpaymentsByIndex(NYM_ID.c_str(), nIndex) == OT_TRUE) ? true : false;
+}
+
+bool OTAPI_Wrap::Nym_VerifyOutpaymentsByIndex(const std::string NYM_ID, int nIndex)
+{
+	return (OT_API_Nym_VerifyOutpaymentsByIndex(NYM_ID.c_str(), nIndex) == OT_TRUE) ? true : false;
+}
+// ---------------------------------------------------------
 
 bool OTAPI_Wrap::Wallet_CanRemoveServer(const std::string SERVER_ID)
 {
@@ -978,6 +1009,15 @@ const std::string OTAPI_Wrap::Ledger_FinalizeResponse(const std::string SERVER_I
 	return OT_API_Ledger_FinalizeResponse(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), THE_LEDGER.c_str());
 }
 // -------------------------------------------------------------------------
+const std::string OTAPI_Wrap::Ledger_GetInstrument(const std::string SERVER_ID,
+												   const std::string USER_ID,
+												   const std::string ACCOUNT_ID,
+												   const std::string THE_LEDGER,
+												   int nIndex)
+{
+	return OT_API_Ledger_GetInstrument(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), THE_LEDGER.c_str(), nIndex);
+}
+// -------------------------------------------------------------------------
 
 const std::string OTAPI_Wrap::Transaction_GetType(const std::string SERVER_ID,
 												  const std::string USER_ID,
@@ -1280,6 +1320,15 @@ void OTAPI_Wrap::sendUserMessage(const std::string SERVER_ID,
 								 const std::string THE_MESSAGE)
 {
 	OT_API_sendUserMessage(SERVER_ID.c_str(), USER_ID.c_str(), USER_ID_RECIPIENT.c_str(), RECIPIENT_PUBKEY.c_str(), THE_MESSAGE.c_str());
+}
+// --------------------------------------------------------------------
+void OTAPI_Wrap::sendUserInstrument(const std::string SERVER_ID,
+									const std::string USER_ID,
+									const std::string USER_ID_RECIPIENT,
+									const std::string RECIPIENT_PUBKEY,
+									const std::string THE_INSTRUMENT)
+{
+	OT_API_sendUserInstrument(SERVER_ID.c_str(), USER_ID.c_str(), USER_ID_RECIPIENT.c_str(), RECIPIENT_PUBKEY.c_str(), THE_INSTRUMENT.c_str());
 }
 // --------------------------------------------------------------------
 void OTAPI_Wrap::getRequest(const std::string SERVER_ID,

@@ -513,7 +513,9 @@ public:
 	
 	virtual ~OTPartyAccount();
 	
-	void Serialize(OTString & strAppend);
+	void Serialize(OTString & strAppend,
+				   bool bCalculatingID=false,
+				   bool bSpecifyAssetID=false);
 	
 	// For pointers I don't own, but store for convenience.
 	// This clears them once we're done processing, so I don't
@@ -590,7 +592,10 @@ public:
 //    OTParty(const OTParty & rhs);
 //    OTParty& operator= (const OTParty & rhs);
 	
-	void Serialize(OTString & strAppend);
+	void Serialize(OTString & strAppend,
+				   bool bCalculatingID=false,
+				   bool bSpecifyAssetID=false,
+				   bool bSpecifyParties=false);
 	
 	// Clears temp pointers when I'm done with them, so I don't get stuck
 	// with bad addresses.
@@ -887,7 +892,8 @@ public:
 	
 	virtual ~OTVariable();
 	
-	void Serialize(OTString & strAppend);	
+	void Serialize(OTString & strAppend,
+				   bool bCalculatingID=false);	
 };
 
 typedef std::map<std::string, OTVariable *> mapOfVariables;
@@ -1083,7 +1089,8 @@ public:
 	
 	bool Compare(OTBylaw & rhs);
 	
-	void Serialize(OTString & strAppend);
+	void Serialize(OTString & strAppend,
+				   bool bCalculatingID=false);
 };
 
 

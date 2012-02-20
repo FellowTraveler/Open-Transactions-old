@@ -373,6 +373,30 @@ def OT_API_Nym_VerifyOutmailByIndex(*args):
   return _otapi.OT_API_Nym_VerifyOutmailByIndex(*args)
 OT_API_Nym_VerifyOutmailByIndex = _otapi.OT_API_Nym_VerifyOutmailByIndex
 
+def OT_API_GetNym_OutpaymentsCount(*args):
+  return _otapi.OT_API_GetNym_OutpaymentsCount(*args)
+OT_API_GetNym_OutpaymentsCount = _otapi.OT_API_GetNym_OutpaymentsCount
+
+def OT_API_GetNym_OutpaymentsContentsByIndex(*args):
+  return _otapi.OT_API_GetNym_OutpaymentsContentsByIndex(*args)
+OT_API_GetNym_OutpaymentsContentsByIndex = _otapi.OT_API_GetNym_OutpaymentsContentsByIndex
+
+def OT_API_GetNym_OutpaymentsRecipientIDByIndex(*args):
+  return _otapi.OT_API_GetNym_OutpaymentsRecipientIDByIndex(*args)
+OT_API_GetNym_OutpaymentsRecipientIDByIndex = _otapi.OT_API_GetNym_OutpaymentsRecipientIDByIndex
+
+def OT_API_GetNym_OutpaymentsServerIDByIndex(*args):
+  return _otapi.OT_API_GetNym_OutpaymentsServerIDByIndex(*args)
+OT_API_GetNym_OutpaymentsServerIDByIndex = _otapi.OT_API_GetNym_OutpaymentsServerIDByIndex
+
+def OT_API_Nym_RemoveOutpaymentsByIndex(*args):
+  return _otapi.OT_API_Nym_RemoveOutpaymentsByIndex(*args)
+OT_API_Nym_RemoveOutpaymentsByIndex = _otapi.OT_API_Nym_RemoveOutpaymentsByIndex
+
+def OT_API_Nym_VerifyOutpaymentsByIndex(*args):
+  return _otapi.OT_API_Nym_VerifyOutpaymentsByIndex(*args)
+OT_API_Nym_VerifyOutpaymentsByIndex = _otapi.OT_API_Nym_VerifyOutpaymentsByIndex
+
 def OT_API_Wallet_CanRemoveServer(*args):
   return _otapi.OT_API_Wallet_CanRemoveServer(*args)
 OT_API_Wallet_CanRemoveServer = _otapi.OT_API_Wallet_CanRemoveServer
@@ -573,17 +597,9 @@ def OT_API_LoadPaymentInbox(*args):
   return _otapi.OT_API_LoadPaymentInbox(*args)
 OT_API_LoadPaymentInbox = _otapi.OT_API_LoadPaymentInbox
 
-def OT_API_LoadPaymentOutbox(*args):
-  return _otapi.OT_API_LoadPaymentOutbox(*args)
-OT_API_LoadPaymentOutbox = _otapi.OT_API_LoadPaymentOutbox
-
 def OT_API_LoadPaymentInboxNoVerify(*args):
   return _otapi.OT_API_LoadPaymentInboxNoVerify(*args)
 OT_API_LoadPaymentInboxNoVerify = _otapi.OT_API_LoadPaymentInboxNoVerify
-
-def OT_API_LoadPaymentOutboxNoVerify(*args):
-  return _otapi.OT_API_LoadPaymentOutboxNoVerify(*args)
-OT_API_LoadPaymentOutboxNoVerify = _otapi.OT_API_LoadPaymentOutboxNoVerify
 
 def OT_API_LoadRecordBox(*args):
   return _otapi.OT_API_LoadRecordBox(*args)
@@ -624,6 +640,10 @@ OT_API_Transaction_CreateResponse = _otapi.OT_API_Transaction_CreateResponse
 def OT_API_Ledger_FinalizeResponse(*args):
   return _otapi.OT_API_Ledger_FinalizeResponse(*args)
 OT_API_Ledger_FinalizeResponse = _otapi.OT_API_Ledger_FinalizeResponse
+
+def OT_API_Ledger_GetInstrument(*args):
+  return _otapi.OT_API_Ledger_GetInstrument(*args)
+OT_API_Ledger_GetInstrument = _otapi.OT_API_Ledger_GetInstrument
 
 def OT_API_Transaction_GetType(*args):
   return _otapi.OT_API_Transaction_GetType(*args)
@@ -772,6 +792,10 @@ OT_API_checkUser = _otapi.OT_API_checkUser
 def OT_API_sendUserMessage(*args):
   return _otapi.OT_API_sendUserMessage(*args)
 OT_API_sendUserMessage = _otapi.OT_API_sendUserMessage
+
+def OT_API_sendUserInstrument(*args):
+  return _otapi.OT_API_sendUserInstrument(*args)
+OT_API_sendUserInstrument = _otapi.OT_API_sendUserInstrument
 
 def OT_API_getRequest(*args):
   return _otapi.OT_API_getRequest(*args)

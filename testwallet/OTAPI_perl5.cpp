@@ -4562,6 +4562,230 @@ XS(_wrap_OT_API_Nym_VerifyOutmailByIndex) {
 }
 
 
+XS(_wrap_OT_API_GetNym_OutpaymentsCount) {
+  {
+    char *arg1 = (char *) 0 ;
+    int res1 ;
+    char *buf1 = 0 ;
+    int alloc1 = 0 ;
+    int argvi = 0;
+    int result;
+    dXSARGS;
+    
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: OT_API_GetNym_OutpaymentsCount(NYM_ID);");
+    }
+    res1 = SWIG_AsCharPtrAndSize(ST(0), &buf1, NULL, &alloc1);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_GetNym_OutpaymentsCount" "', argument " "1"" of type '" "char const *""'");
+    }
+    arg1 = reinterpret_cast< char * >(buf1);
+    result = (int)OT_API_GetNym_OutpaymentsCount((char const *)arg1);
+    ST(argvi) = SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(result)); argvi++ ;
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    XSRETURN(argvi);
+  fail:
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_OT_API_GetNym_OutpaymentsContentsByIndex) {
+  {
+    char *arg1 = (char *) 0 ;
+    int arg2 ;
+    int res1 ;
+    char *buf1 = 0 ;
+    int alloc1 = 0 ;
+    int val2 ;
+    int ecode2 = 0 ;
+    int argvi = 0;
+    char *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 2) || (items > 2)) {
+      SWIG_croak("Usage: OT_API_GetNym_OutpaymentsContentsByIndex(NYM_ID,nIndex);");
+    }
+    res1 = SWIG_AsCharPtrAndSize(ST(0), &buf1, NULL, &alloc1);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_GetNym_OutpaymentsContentsByIndex" "', argument " "1"" of type '" "char const *""'");
+    }
+    arg1 = reinterpret_cast< char * >(buf1);
+    ecode2 = SWIG_AsVal_int SWIG_PERL_CALL_ARGS_2(ST(1), &val2);
+    if (!SWIG_IsOK(ecode2)) {
+      SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "OT_API_GetNym_OutpaymentsContentsByIndex" "', argument " "2"" of type '" "int""'");
+    } 
+    arg2 = static_cast< int >(val2);
+    result = (char *)OT_API_GetNym_OutpaymentsContentsByIndex((char const *)arg1,arg2);
+    ST(argvi) = SWIG_FromCharPtr((const char *)result); argvi++ ;
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    
+    XSRETURN(argvi);
+  fail:
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_OT_API_GetNym_OutpaymentsRecipientIDByIndex) {
+  {
+    char *arg1 = (char *) 0 ;
+    int arg2 ;
+    int res1 ;
+    char *buf1 = 0 ;
+    int alloc1 = 0 ;
+    int val2 ;
+    int ecode2 = 0 ;
+    int argvi = 0;
+    char *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 2) || (items > 2)) {
+      SWIG_croak("Usage: OT_API_GetNym_OutpaymentsRecipientIDByIndex(NYM_ID,nIndex);");
+    }
+    res1 = SWIG_AsCharPtrAndSize(ST(0), &buf1, NULL, &alloc1);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_GetNym_OutpaymentsRecipientIDByIndex" "', argument " "1"" of type '" "char const *""'");
+    }
+    arg1 = reinterpret_cast< char * >(buf1);
+    ecode2 = SWIG_AsVal_int SWIG_PERL_CALL_ARGS_2(ST(1), &val2);
+    if (!SWIG_IsOK(ecode2)) {
+      SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "OT_API_GetNym_OutpaymentsRecipientIDByIndex" "', argument " "2"" of type '" "int""'");
+    } 
+    arg2 = static_cast< int >(val2);
+    result = (char *)OT_API_GetNym_OutpaymentsRecipientIDByIndex((char const *)arg1,arg2);
+    ST(argvi) = SWIG_FromCharPtr((const char *)result); argvi++ ;
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    
+    XSRETURN(argvi);
+  fail:
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_OT_API_GetNym_OutpaymentsServerIDByIndex) {
+  {
+    char *arg1 = (char *) 0 ;
+    int arg2 ;
+    int res1 ;
+    char *buf1 = 0 ;
+    int alloc1 = 0 ;
+    int val2 ;
+    int ecode2 = 0 ;
+    int argvi = 0;
+    char *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 2) || (items > 2)) {
+      SWIG_croak("Usage: OT_API_GetNym_OutpaymentsServerIDByIndex(NYM_ID,nIndex);");
+    }
+    res1 = SWIG_AsCharPtrAndSize(ST(0), &buf1, NULL, &alloc1);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_GetNym_OutpaymentsServerIDByIndex" "', argument " "1"" of type '" "char const *""'");
+    }
+    arg1 = reinterpret_cast< char * >(buf1);
+    ecode2 = SWIG_AsVal_int SWIG_PERL_CALL_ARGS_2(ST(1), &val2);
+    if (!SWIG_IsOK(ecode2)) {
+      SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "OT_API_GetNym_OutpaymentsServerIDByIndex" "', argument " "2"" of type '" "int""'");
+    } 
+    arg2 = static_cast< int >(val2);
+    result = (char *)OT_API_GetNym_OutpaymentsServerIDByIndex((char const *)arg1,arg2);
+    ST(argvi) = SWIG_FromCharPtr((const char *)result); argvi++ ;
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    
+    XSRETURN(argvi);
+  fail:
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_OT_API_Nym_RemoveOutpaymentsByIndex) {
+  {
+    char *arg1 = (char *) 0 ;
+    int arg2 ;
+    int res1 ;
+    char *buf1 = 0 ;
+    int alloc1 = 0 ;
+    int val2 ;
+    int ecode2 = 0 ;
+    int argvi = 0;
+    int result;
+    dXSARGS;
+    
+    if ((items < 2) || (items > 2)) {
+      SWIG_croak("Usage: OT_API_Nym_RemoveOutpaymentsByIndex(NYM_ID,nIndex);");
+    }
+    res1 = SWIG_AsCharPtrAndSize(ST(0), &buf1, NULL, &alloc1);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Nym_RemoveOutpaymentsByIndex" "', argument " "1"" of type '" "char const *""'");
+    }
+    arg1 = reinterpret_cast< char * >(buf1);
+    ecode2 = SWIG_AsVal_int SWIG_PERL_CALL_ARGS_2(ST(1), &val2);
+    if (!SWIG_IsOK(ecode2)) {
+      SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "OT_API_Nym_RemoveOutpaymentsByIndex" "', argument " "2"" of type '" "int""'");
+    } 
+    arg2 = static_cast< int >(val2);
+    result = (int)OT_API_Nym_RemoveOutpaymentsByIndex((char const *)arg1,arg2);
+    ST(argvi) = SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(result)); argvi++ ;
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    
+    XSRETURN(argvi);
+  fail:
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_OT_API_Nym_VerifyOutpaymentsByIndex) {
+  {
+    char *arg1 = (char *) 0 ;
+    int arg2 ;
+    int res1 ;
+    char *buf1 = 0 ;
+    int alloc1 = 0 ;
+    int val2 ;
+    int ecode2 = 0 ;
+    int argvi = 0;
+    int result;
+    dXSARGS;
+    
+    if ((items < 2) || (items > 2)) {
+      SWIG_croak("Usage: OT_API_Nym_VerifyOutpaymentsByIndex(NYM_ID,nIndex);");
+    }
+    res1 = SWIG_AsCharPtrAndSize(ST(0), &buf1, NULL, &alloc1);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Nym_VerifyOutpaymentsByIndex" "', argument " "1"" of type '" "char const *""'");
+    }
+    arg1 = reinterpret_cast< char * >(buf1);
+    ecode2 = SWIG_AsVal_int SWIG_PERL_CALL_ARGS_2(ST(1), &val2);
+    if (!SWIG_IsOK(ecode2)) {
+      SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "OT_API_Nym_VerifyOutpaymentsByIndex" "', argument " "2"" of type '" "int""'");
+    } 
+    arg2 = static_cast< int >(val2);
+    result = (int)OT_API_Nym_VerifyOutpaymentsByIndex((char const *)arg1,arg2);
+    ST(argvi) = SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(result)); argvi++ ;
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    
+    XSRETURN(argvi);
+  fail:
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    
+    SWIG_croak_null();
+  }
+}
+
+
 XS(_wrap_OT_API_Wallet_CanRemoveServer) {
   {
     char *arg1 = (char *) 0 ;
@@ -7119,46 +7343,6 @@ XS(_wrap_OT_API_LoadPaymentInbox) {
 }
 
 
-XS(_wrap_OT_API_LoadPaymentOutbox) {
-  {
-    char *arg1 = (char *) 0 ;
-    char *arg2 = (char *) 0 ;
-    int res1 ;
-    char *buf1 = 0 ;
-    int alloc1 = 0 ;
-    int res2 ;
-    char *buf2 = 0 ;
-    int alloc2 = 0 ;
-    int argvi = 0;
-    char *result = 0 ;
-    dXSARGS;
-    
-    if ((items < 2) || (items > 2)) {
-      SWIG_croak("Usage: OT_API_LoadPaymentOutbox(SERVER_ID,USER_ID);");
-    }
-    res1 = SWIG_AsCharPtrAndSize(ST(0), &buf1, NULL, &alloc1);
-    if (!SWIG_IsOK(res1)) {
-      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_LoadPaymentOutbox" "', argument " "1"" of type '" "char const *""'");
-    }
-    arg1 = reinterpret_cast< char * >(buf1);
-    res2 = SWIG_AsCharPtrAndSize(ST(1), &buf2, NULL, &alloc2);
-    if (!SWIG_IsOK(res2)) {
-      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_LoadPaymentOutbox" "', argument " "2"" of type '" "char const *""'");
-    }
-    arg2 = reinterpret_cast< char * >(buf2);
-    result = (char *)OT_API_LoadPaymentOutbox((char const *)arg1,(char const *)arg2);
-    ST(argvi) = SWIG_FromCharPtr((const char *)result); argvi++ ;
-    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
-    if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
-    XSRETURN(argvi);
-  fail:
-    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
-    if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
-    SWIG_croak_null();
-  }
-}
-
-
 XS(_wrap_OT_API_LoadPaymentInboxNoVerify) {
   {
     char *arg1 = (char *) 0 ;
@@ -7187,46 +7371,6 @@ XS(_wrap_OT_API_LoadPaymentInboxNoVerify) {
     }
     arg2 = reinterpret_cast< char * >(buf2);
     result = (char *)OT_API_LoadPaymentInboxNoVerify((char const *)arg1,(char const *)arg2);
-    ST(argvi) = SWIG_FromCharPtr((const char *)result); argvi++ ;
-    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
-    if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
-    XSRETURN(argvi);
-  fail:
-    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
-    if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
-    SWIG_croak_null();
-  }
-}
-
-
-XS(_wrap_OT_API_LoadPaymentOutboxNoVerify) {
-  {
-    char *arg1 = (char *) 0 ;
-    char *arg2 = (char *) 0 ;
-    int res1 ;
-    char *buf1 = 0 ;
-    int alloc1 = 0 ;
-    int res2 ;
-    char *buf2 = 0 ;
-    int alloc2 = 0 ;
-    int argvi = 0;
-    char *result = 0 ;
-    dXSARGS;
-    
-    if ((items < 2) || (items > 2)) {
-      SWIG_croak("Usage: OT_API_LoadPaymentOutboxNoVerify(SERVER_ID,USER_ID);");
-    }
-    res1 = SWIG_AsCharPtrAndSize(ST(0), &buf1, NULL, &alloc1);
-    if (!SWIG_IsOK(res1)) {
-      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_LoadPaymentOutboxNoVerify" "', argument " "1"" of type '" "char const *""'");
-    }
-    arg1 = reinterpret_cast< char * >(buf1);
-    res2 = SWIG_AsCharPtrAndSize(ST(1), &buf2, NULL, &alloc2);
-    if (!SWIG_IsOK(res2)) {
-      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_LoadPaymentOutboxNoVerify" "', argument " "2"" of type '" "char const *""'");
-    }
-    arg2 = reinterpret_cast< char * >(buf2);
-    result = (char *)OT_API_LoadPaymentOutboxNoVerify((char const *)arg1,(char const *)arg2);
     ST(argvi) = SWIG_FromCharPtr((const char *)result); argvi++ ;
     if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
     if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
@@ -7895,6 +8039,78 @@ XS(_wrap_OT_API_Ledger_FinalizeResponse) {
     if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
     if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
     if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_OT_API_Ledger_GetInstrument) {
+  {
+    char *arg1 = (char *) 0 ;
+    char *arg2 = (char *) 0 ;
+    char *arg3 = (char *) 0 ;
+    char *arg4 = (char *) 0 ;
+    int arg5 ;
+    int res1 ;
+    char *buf1 = 0 ;
+    int alloc1 = 0 ;
+    int res2 ;
+    char *buf2 = 0 ;
+    int alloc2 = 0 ;
+    int res3 ;
+    char *buf3 = 0 ;
+    int alloc3 = 0 ;
+    int res4 ;
+    char *buf4 = 0 ;
+    int alloc4 = 0 ;
+    int val5 ;
+    int ecode5 = 0 ;
+    int argvi = 0;
+    char *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 5) || (items > 5)) {
+      SWIG_croak("Usage: OT_API_Ledger_GetInstrument(SERVER_ID,USER_ID,ACCOUNT_ID,THE_LEDGER,nIndex);");
+    }
+    res1 = SWIG_AsCharPtrAndSize(ST(0), &buf1, NULL, &alloc1);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Ledger_GetInstrument" "', argument " "1"" of type '" "char const *""'");
+    }
+    arg1 = reinterpret_cast< char * >(buf1);
+    res2 = SWIG_AsCharPtrAndSize(ST(1), &buf2, NULL, &alloc2);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_Ledger_GetInstrument" "', argument " "2"" of type '" "char const *""'");
+    }
+    arg2 = reinterpret_cast< char * >(buf2);
+    res3 = SWIG_AsCharPtrAndSize(ST(2), &buf3, NULL, &alloc3);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OT_API_Ledger_GetInstrument" "', argument " "3"" of type '" "char const *""'");
+    }
+    arg3 = reinterpret_cast< char * >(buf3);
+    res4 = SWIG_AsCharPtrAndSize(ST(3), &buf4, NULL, &alloc4);
+    if (!SWIG_IsOK(res4)) {
+      SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OT_API_Ledger_GetInstrument" "', argument " "4"" of type '" "char const *""'");
+    }
+    arg4 = reinterpret_cast< char * >(buf4);
+    ecode5 = SWIG_AsVal_int SWIG_PERL_CALL_ARGS_2(ST(4), &val5);
+    if (!SWIG_IsOK(ecode5)) {
+      SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "OT_API_Ledger_GetInstrument" "', argument " "5"" of type '" "int""'");
+    } 
+    arg5 = static_cast< int >(val5);
+    result = (char *)OT_API_Ledger_GetInstrument((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,arg5);
+    ST(argvi) = SWIG_FromCharPtr((const char *)result); argvi++ ;
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+    if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+    if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+    
+    XSRETURN(argvi);
+  fail:
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+    if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+    if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+    
     SWIG_croak_null();
   }
 }
@@ -9926,6 +10142,78 @@ XS(_wrap_OT_API_sendUserMessage) {
     }
     arg5 = reinterpret_cast< char * >(buf5);
     OT_API_sendUserMessage((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5);
+    ST(argvi) = sv_newmortal();
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+    if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+    if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+    if (alloc5 == SWIG_NEWOBJ) delete[] buf5;
+    XSRETURN(argvi);
+  fail:
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+    if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+    if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+    if (alloc5 == SWIG_NEWOBJ) delete[] buf5;
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_OT_API_sendUserInstrument) {
+  {
+    char *arg1 = (char *) 0 ;
+    char *arg2 = (char *) 0 ;
+    char *arg3 = (char *) 0 ;
+    char *arg4 = (char *) 0 ;
+    char *arg5 = (char *) 0 ;
+    int res1 ;
+    char *buf1 = 0 ;
+    int alloc1 = 0 ;
+    int res2 ;
+    char *buf2 = 0 ;
+    int alloc2 = 0 ;
+    int res3 ;
+    char *buf3 = 0 ;
+    int alloc3 = 0 ;
+    int res4 ;
+    char *buf4 = 0 ;
+    int alloc4 = 0 ;
+    int res5 ;
+    char *buf5 = 0 ;
+    int alloc5 = 0 ;
+    int argvi = 0;
+    dXSARGS;
+    
+    if ((items < 5) || (items > 5)) {
+      SWIG_croak("Usage: OT_API_sendUserInstrument(SERVER_ID,USER_ID,USER_ID_RECIPIENT,RECIPIENT_PUBKEY,THE_INSTRUMENT);");
+    }
+    res1 = SWIG_AsCharPtrAndSize(ST(0), &buf1, NULL, &alloc1);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_sendUserInstrument" "', argument " "1"" of type '" "char const *""'");
+    }
+    arg1 = reinterpret_cast< char * >(buf1);
+    res2 = SWIG_AsCharPtrAndSize(ST(1), &buf2, NULL, &alloc2);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_sendUserInstrument" "', argument " "2"" of type '" "char const *""'");
+    }
+    arg2 = reinterpret_cast< char * >(buf2);
+    res3 = SWIG_AsCharPtrAndSize(ST(2), &buf3, NULL, &alloc3);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OT_API_sendUserInstrument" "', argument " "3"" of type '" "char const *""'");
+    }
+    arg3 = reinterpret_cast< char * >(buf3);
+    res4 = SWIG_AsCharPtrAndSize(ST(3), &buf4, NULL, &alloc4);
+    if (!SWIG_IsOK(res4)) {
+      SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OT_API_sendUserInstrument" "', argument " "4"" of type '" "char const *""'");
+    }
+    arg4 = reinterpret_cast< char * >(buf4);
+    res5 = SWIG_AsCharPtrAndSize(ST(4), &buf5, NULL, &alloc5);
+    if (!SWIG_IsOK(res5)) {
+      SWIG_exception_fail(SWIG_ArgError(res5), "in method '" "OT_API_sendUserInstrument" "', argument " "5"" of type '" "char const *""'");
+    }
+    arg5 = reinterpret_cast< char * >(buf5);
+    OT_API_sendUserInstrument((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5);
     ST(argvi) = sv_newmortal();
     if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
     if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
@@ -34247,6 +34535,12 @@ static swig_command_info swig_commands[] = {
 {"otapic::OT_API_GetNym_OutmailServerIDByIndex", _wrap_OT_API_GetNym_OutmailServerIDByIndex},
 {"otapic::OT_API_Nym_RemoveOutmailByIndex", _wrap_OT_API_Nym_RemoveOutmailByIndex},
 {"otapic::OT_API_Nym_VerifyOutmailByIndex", _wrap_OT_API_Nym_VerifyOutmailByIndex},
+{"otapic::OT_API_GetNym_OutpaymentsCount", _wrap_OT_API_GetNym_OutpaymentsCount},
+{"otapic::OT_API_GetNym_OutpaymentsContentsByIndex", _wrap_OT_API_GetNym_OutpaymentsContentsByIndex},
+{"otapic::OT_API_GetNym_OutpaymentsRecipientIDByIndex", _wrap_OT_API_GetNym_OutpaymentsRecipientIDByIndex},
+{"otapic::OT_API_GetNym_OutpaymentsServerIDByIndex", _wrap_OT_API_GetNym_OutpaymentsServerIDByIndex},
+{"otapic::OT_API_Nym_RemoveOutpaymentsByIndex", _wrap_OT_API_Nym_RemoveOutpaymentsByIndex},
+{"otapic::OT_API_Nym_VerifyOutpaymentsByIndex", _wrap_OT_API_Nym_VerifyOutpaymentsByIndex},
 {"otapic::OT_API_Wallet_CanRemoveServer", _wrap_OT_API_Wallet_CanRemoveServer},
 {"otapic::OT_API_Wallet_RemoveServer", _wrap_OT_API_Wallet_RemoveServer},
 {"otapic::OT_API_Wallet_CanRemoveAssetType", _wrap_OT_API_Wallet_CanRemoveAssetType},
@@ -34297,9 +34591,7 @@ static swig_command_info swig_commands[] = {
 {"otapic::OT_API_LoadInboxNoVerify", _wrap_OT_API_LoadInboxNoVerify},
 {"otapic::OT_API_LoadOutboxNoVerify", _wrap_OT_API_LoadOutboxNoVerify},
 {"otapic::OT_API_LoadPaymentInbox", _wrap_OT_API_LoadPaymentInbox},
-{"otapic::OT_API_LoadPaymentOutbox", _wrap_OT_API_LoadPaymentOutbox},
 {"otapic::OT_API_LoadPaymentInboxNoVerify", _wrap_OT_API_LoadPaymentInboxNoVerify},
-{"otapic::OT_API_LoadPaymentOutboxNoVerify", _wrap_OT_API_LoadPaymentOutboxNoVerify},
 {"otapic::OT_API_LoadRecordBox", _wrap_OT_API_LoadRecordBox},
 {"otapic::OT_API_LoadRecordBoxNoVerify", _wrap_OT_API_LoadRecordBoxNoVerify},
 {"otapic::OT_API_Ledger_GetCount", _wrap_OT_API_Ledger_GetCount},
@@ -34310,6 +34602,7 @@ static swig_command_info swig_commands[] = {
 {"otapic::OT_API_Ledger_AddTransaction", _wrap_OT_API_Ledger_AddTransaction},
 {"otapic::OT_API_Transaction_CreateResponse", _wrap_OT_API_Transaction_CreateResponse},
 {"otapic::OT_API_Ledger_FinalizeResponse", _wrap_OT_API_Ledger_FinalizeResponse},
+{"otapic::OT_API_Ledger_GetInstrument", _wrap_OT_API_Ledger_GetInstrument},
 {"otapic::OT_API_Transaction_GetType", _wrap_OT_API_Transaction_GetType},
 {"otapic::OT_API_Transaction_GetVoucher", _wrap_OT_API_Transaction_GetVoucher},
 {"otapic::OT_API_Transaction_GetSuccess", _wrap_OT_API_Transaction_GetSuccess},
@@ -34347,6 +34640,7 @@ static swig_command_info swig_commands[] = {
 {"otapic::OT_API_Message_GetUsageCredits", _wrap_OT_API_Message_GetUsageCredits},
 {"otapic::OT_API_checkUser", _wrap_OT_API_checkUser},
 {"otapic::OT_API_sendUserMessage", _wrap_OT_API_sendUserMessage},
+{"otapic::OT_API_sendUserInstrument", _wrap_OT_API_sendUserInstrument},
 {"otapic::OT_API_getRequest", _wrap_OT_API_getRequest},
 {"otapic::OT_API_getTransactionNumber", _wrap_OT_API_getTransactionNumber},
 {"otapic::OT_API_issueAssetType", _wrap_OT_API_issueAssetType},
@@ -35080,17 +35374,17 @@ XS(SWIG_init) {
     SvREADONLY_on(sv);
   }
   
-  /*@SWIG:/opt/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "OTPASSWORD_BLOCKSIZE", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(128)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:/opt/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "OTPASSWORD_MEMSIZE", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(129)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:/opt/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "OTPassword_DEFAULT_SIZE", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTPassword::DEFAULT_SIZE)));
     SvREADONLY_on(sv);
@@ -35098,152 +35392,152 @@ XS(SWIG_init) {
   SWIG_TypeClientData(SWIGTYPE_p_OTPassword, (void*) "otapi::OTPassword");
   SWIG_TypeClientData(SWIGTYPE_p_OTCallback, (void*) "otapi::OTCallback");
   SWIG_TypeClientData(SWIGTYPE_p_OTCaller, (void*) "otapi::OTCaller");
-  /*@SWIG:/opt/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "PACK_MESSAGE_PACK", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::PACK_MESSAGE_PACK)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:/opt/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "PACK_PROTOCOL_BUFFERS", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::PACK_PROTOCOL_BUFFERS)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:/opt/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "PACK_TYPE_ERROR", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::PACK_TYPE_ERROR)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:/opt/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORE_FILESYSTEM", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORE_FILESYSTEM)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:/opt/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORE_TYPE_SUBCLASS", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORE_TYPE_SUBCLASS)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:/opt/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_STRING", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_STRING)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:/opt/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_BLOB", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_BLOB)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:/opt/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_STRING_MAP", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_STRING_MAP)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:/opt/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_WALLET_DATA", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_WALLET_DATA)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:/opt/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_BITCOIN_ACCT", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_BITCOIN_ACCT)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:/opt/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_BITCOIN_SERVER", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_BITCOIN_SERVER)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:/opt/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_RIPPLE_SERVER", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_RIPPLE_SERVER)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:/opt/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_LOOM_SERVER", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_LOOM_SERVER)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:/opt/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_SERVER_INFO", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_SERVER_INFO)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:/opt/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_CONTACT_NYM", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_CONTACT_NYM)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:/opt/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_CONTACT_ACCT", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_CONTACT_ACCT)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:/opt/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_CONTACT", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_CONTACT)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:/opt/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_ADDRESS_BOOK", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_ADDRESS_BOOK)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:/opt/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_MARKET_DATA", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_MARKET_DATA)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:/opt/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_MARKET_LIST", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_MARKET_LIST)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:/opt/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_BID_DATA", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_BID_DATA)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:/opt/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_ASK_DATA", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_ASK_DATA)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:/opt/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_OFFER_LIST_MARKET", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_OFFER_LIST_MARKET)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:/opt/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_TRADE_DATA_MARKET", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_TRADE_DATA_MARKET)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:/opt/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_TRADE_LIST_MARKET", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_TRADE_LIST_MARKET)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:/opt/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_OFFER_DATA_NYM", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_OFFER_DATA_NYM)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:/opt/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_OFFER_LIST_NYM", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_OFFER_LIST_NYM)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:/opt/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_TRADE_DATA_NYM", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_TRADE_DATA_NYM)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:/opt/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_TRADE_LIST_NYM", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_TRADE_LIST_NYM)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:/opt/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_ERROR", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_ERROR)));
     SvREADONLY_on(sv);
