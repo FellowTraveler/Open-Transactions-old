@@ -3184,7 +3184,6 @@ int OTTransaction::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
         strNodeName.Compare("inboxRecord")          ||
         strNodeName.Compare("outboxRecord")         ||
         strNodeName.Compare("paymentInboxRecord")	||
-        strNodeName.Compare("nymboxRecord")         ||
         strNodeName.Compare("recordBoxRecord"))
     {
 		long lTransactionNum	= 0;
