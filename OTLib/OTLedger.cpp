@@ -1673,13 +1673,15 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		int	nPartialRecordCount = (strNumPartialRecords.Exists() ? atoi(strNumPartialRecords.Get()) : 0);
 		// -------------------------------------
 		OTString strExpected;	// The record type has a different name for each box.
+        OTNumList   theNumList;
+        OTNumList * pNumList = NULL;
 		switch (m_Type) 
 		{
-			case OTLedger::nymbox:	strExpected.Set("nymboxRecord");	break;
-			case OTLedger::inbox:	strExpected.Set("inboxRecord");		break;
-			case OTLedger::outbox:	strExpected.Set("outboxRecord");	break;
-			case OTLedger::paymentInbox:	strExpected.Set("paymentInboxRecord");	break;
-			case OTLedger::recordBox:		strExpected.Set("recordBoxRecord");		break;
+			case OTLedger::nymbox:	strExpected.Set("nymboxRecord");	pNumList = &theNumList; break;
+			case OTLedger::inbox:	strExpected.Set("inboxRecord");                             break;
+			case OTLedger::outbox:	strExpected.Set("outboxRecord");                            break;
+			case OTLedger::paymentInbox:	strExpected.Set("paymentInboxRecord");              break;
+			case OTLedger::recordBox:		strExpected.Set("recordBoxRecord");                 break;
 				/* --- BREAK --- */
 			case OTLedger::message:	
                 if (nPartialRecordCount > 0) // -------------------
@@ -1743,7 +1745,8 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 															 strHash,
 															 lAdjustment,
 															 lDisplayValue,
-															 lClosingNum);
+															 lClosingNum,
+                                                             pNumList); // This is for "OTTransaction::blank" and "OTTransaction::successNotice", otherwise NULL.
 					if ((-1) == nAbbrevRetVal)
 						return (-1); // The function already logs appropriately.
 					// -------------------------------------
@@ -1778,7 +1781,8 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 																	 strHash,
 																	 lAdjustment,
 																	 lDisplayValue,
-																	 lClosingNum);
+																	 lClosingNum,
+                                                                     pNumList); // This is for "OTTransaction::blank" and "OTTransaction::successNotice", otherwise NULL.
 					OT_ASSERT(NULL != pTransaction); // --------------------------------
 					//
 					// NOTE: For THIS CONSTRUCTOR ONLY, we DO set the purported AcctID and purported ServerID.

@@ -180,6 +180,8 @@ using namespace std;
 #include "OTAssetContract.h"
 #include "OTServerContract.h"
 
+#include "OTTransactionType.h"
+
 #include "OTItem.h"
 #include "OTTransaction.h"
 #include "OTLedger.h"
@@ -1721,9 +1723,7 @@ void OTServer::UserCmdCheckServerID(OTPseudonym & theNym, OTMessage & MsgIn, OTM
 
 
 void OTServer::UserCmdGetTransactionNum(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut)
-{
-	long lTransNum = 0;
-	
+{	
 	// (1) set up member variables 
 	msgOut.m_strCommand		= "@getTransactionNum";	// reply to getTransactionNum
 	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
@@ -1737,27 +1737,52 @@ void OTServer::UserCmdGetTransactionNum(OTPseudonym & theNym, OTMessage & MsgIn,
 	if (nCount > 50) // todo no hardcoding. (max transaction nums allowed out at a single time.)
 	{
 		OTLog::vOutput(0, "OTServer::UserCmdGetTransactionNum: Failure: Nym %s already has "
-					   "more than 50 unused transaction numbers signed out. (He needs to use those first.)\n",
-					   MsgIn.m_strNymID.Get());
+					   "more than 50 unused transaction numbers signed out. (He needs to use those first. "
+                       "Tell him to download his latest Nymbox.)\n", MsgIn.m_strNymID.Get());
 	}	
 	// ------------------------------------------------------------
 	else
 	{
-		// This call will save the new transaction number to the nym's file.
-		// ??? Why did I say that, when clearly the last parameter is false?
-		// AHHHH Because I drop it into the Nymbox instead, and make him sign for it!
-		//
-		bool bGotNextTransNum	= IssueNextTransactionNumber(theNym, lTransNum, false); // bool bStoreTheNumber = false
-		
 		OTIdentifier USER_ID;
 		theNym.GetIdentifier(USER_ID);
+        
+        bool        bSuccess = true;
+		OTLedger    theLedger(USER_ID, USER_ID, SERVER_ID); // Nymbox
+        
+        // We'll store the transactionm numbers here immediately after they're issued, 
+        // before adding them to the Nymbox.
+        //
+        OTNumList   theNumlist; 
+        
+        long    lFirstTransNum = 0; // While there may be 20 transaction numbers on this tranasction, ONE of them (the first one) is the "official" number of this transaction. The rest are just attached in an extra variable.
+        
+        // Update: Now we're going to grab 20 or 30 transaction numbers, 
+        // instead of just 1 like before!!!
+        //
+        for (int i = 0; i < 20; i++) // todo, hardcoding!!!! (But notice we grab 20 transaction numbers at a time now.)
+        {	
+            long lTransNum = 0;
+            // This call will save the new transaction number to the nym's file.
+            // ??? Why did I say that, when clearly the last parameter is false?
+            // AHHHH Because I drop it into the Nymbox instead, and make him sign for it!
+            
+            if (false == IssueNextTransactionNumber(theNym, lTransNum, false)) // bool bStoreTheNumber = false
+            {
+                lTransNum = 0;
+                OTLog::Error("OTServer::UserCmdGetTransactionNu: Error issuing next transaction number!\n");
+                bSuccess = false;
+                break;
+            }
+            
+            theNumlist.Add(lTransNum); // <=========
+            if (0 == i) // First iteration
+                lFirstTransNum = lTransNum;
+        }
+		// --------------------------------------------------------
 			
-		OTLedger theLedger(USER_ID, USER_ID, SERVER_ID);
-			
-		if (!bGotNextTransNum)
+		if (!bSuccess) 
 		{
-			lTransNum = 0;
-			OTLog::Error("Error getting next transaction number in OTServer::UserCmdGetTransactionNum\n");
+            // Apparently nothing. Also, plenty of logs just above already, if this ever happens.
 		}
 		// Drop in the Nymbox 
 		else if (msgOut.m_bSuccess =	(theLedger.LoadNymbox() && 
@@ -1767,14 +1792,26 @@ void OTServer::UserCmdGetTransactionNum(OTPseudonym & theNym, OTMessage & MsgIn,
 										 ) // if loaded and verified.
 				 ) // if success
 		{
-			OTTransaction * pTransaction = OTTransaction::GenerateTransaction(theLedger, OTTransaction::blank, lTransNum);
-			
+            // Note: I decided against adding newly-requested transaction numbers to existing OTTransaction::blanks in the Nymbox.
+            // Why not? Because once the user downloads the Box Receipt, he will think he has it already, when the Server meanwhile
+            // has a new version of that same Box Receipt. But the user will never re-download it if he believes that he already has
+            // it.
+            // Since the transaction can contain 10, 20, or 50 transaction numbers now, we don't NEED to be able to combine them
+            // anyway, since the problem is still effectively solved.
+            
+            OTTransaction * pTransaction = OTTransaction::GenerateTransaction(theLedger, OTTransaction::blank, lFirstTransNum);  // Generate a new OTTransaction::blank
+
 			if (NULL != pTransaction) // The above has an OT_ASSERT within, but I just like to check my pointers.
-			{			
+			{
+                // ADD the contents of theNumlist (the 20 new transaction numbers we're giving the user)
+                // to this OTTransaction::blank.
+                //
+                pTransaction->AddNumbersToTransaction(theNumlist);
+
 				pTransaction->	SignContract(m_nymServer);
 				pTransaction->	SaveContract();
 
-				theLedger.AddTransaction(*pTransaction);
+                theLedger.AddTransaction(*pTransaction);
 
 				theLedger.ReleaseSignatures();
 				theLedger.SignContract(m_nymServer);
@@ -1795,11 +1832,19 @@ void OTServer::UserCmdGetTransactionNum(OTPseudonym & theNym, OTMessage & MsgIn,
 		{
 			OTLog::Error("Error loading or verifying Nymbox in OTServer::UserCmdGetTransactionNum\n");
 		}
-		
-		RemoveTransactionNumber(theNym, lTransNum, false); //bSave=false
-		RemoveIssuedNumber(theNym, lTransNum, false); // I'll drop it in his Nymbox -- he can SIGN for it.
-		// Then why was it added in the first place? Because we originally sent it back in the reply directly, 
-		// so IssueNext was designed that way.
+        // ------------------------------------------------------------
+        std::set<long> theList;
+        theNumlist.Output(theList);
+        
+        FOR_EACH(std::set<long>, theList)
+        {
+            const long lTransNum = *it;
+            // ----------------------------
+            RemoveTransactionNumber (theNym, lTransNum, false); //bSave=false
+            RemoveIssuedNumber      (theNym, lTransNum, false); // I'll drop it in his Nymbox -- he can SIGN for it.
+            // Then why was it added in the first place? Because we originally sent it back in the reply directly, 
+            // so IssueNext was designed to work that way originally.
+        }
 	}
 	
 	// (2) Sign the Message 
@@ -8332,17 +8377,48 @@ void OTServer::NotarizeProcessNymbox(OTPseudonym & theNym, OTTransaction & tranI
 			{
 				OTTransaction * pTransaction = theNymbox.GetTransaction(pItem->GetReferenceToNum());
 				
-				if ((NULL != pTransaction) && (pTransaction->GetType() == OTTransaction::blank))
+				if ((NULL != pTransaction) && (pTransaction->GetType() == OTTransaction::blank)) // The user is referencing a blank in the nymbox, which indeed is actually there.
 				{
 					bSuccessFindingAllTransactions = true;
 					
-                    if (false == theNym.VerifyIssuedNum(m_strServerID, pItem->GetReferenceToNum()))
-                    {
-                        theNym.AddIssuedNum(m_strServerID, pItem->GetReferenceToNum()); 
-                        theTempNym.AddIssuedNum(m_strServerID, pItem->GetReferenceToNum()); // so I can remove from theNym after VerifyTransactionStatement call
+                    OTNumList listNumbersNymbox, listNumbersUserItem;
+                    
+                    pItem->GetNumList(listNumbersUserItem);
+                    pTransaction->GetNumList(listNumbersNymbox);
+                    
+                    // MAKE SURE THEY MATCH. (Otherwise user could be signing numbers that differ from the 
+                    // actual ones in the Nymbox.)
+                    // 
+                    if (false == listNumbersNymbox.Verify(listNumbersUserItem))
+                        OTLog::Error("OTServer::NotarizeProcessNymbox: Failed verifying: The numbers on the actual blank "
+                                     "transaction in the nymbox do not match the list of numbers sent over by the user.\n");
+                    // ------------------------------------------
+                    else    // INSTEAD of merely adding the TRANSACTION NUMBER of the blank to the Nym,
+                    {       // we actually add an entire list of numbers retrieved from the blank, including
+                            // its main number.
+                        std::set<long> theNumbers;
+                        listNumbersNymbox.Output(theNumbers);
+                        
+                        // Looping through the transaction numbers on the Nymbox blank transaction. 
+                        // (There's probably 20 of them.)
+                        //
+                        FOR_EACH(std::set<long>, theNumbers) 
+                        {
+                            const long lTransactionNumber = *it;
+                            // -----------------------------------------------
+                            // (We don't add it if it's already there.)
+                            //
+                            if (false == theNym.VerifyIssuedNum(m_strServerID, lTransactionNumber))
+                            {
+                                theNym.AddIssuedNum(m_strServerID, lTransactionNumber); 
+                                theTempNym.AddIssuedNum(m_strServerID, lTransactionNumber); // so I can remove from theNym after VerifyTransactionStatement call
+                            }
+                            else
+                                OTLog::vError("OTServer::NotarizeProcessNymbox: tried to add an issued trans# (%ld) to a nym who "
+                                              "ALREADY had that number...\n", lTransactionNumber);
+                        }
                     }
-                    else
-                        OTLog::Error("NotarizeProcessNymbox: tried to add an issued trans# to a nym who ALREADY had that number...\n");
+                    // ------------------------------------------
 				}
 				else 
 				{
@@ -8592,15 +8668,26 @@ void OTServer::NotarizeProcessNymbox(OTPseudonym & theNym, OTTransaction & tranI
 							}
 							else
 							{
-								// Drop in the Nymbox
+								// Drop SUCCESS NOTICE in the Nymbox
 								//
 								OTTransaction * pSuccessNotice = OTTransaction::GenerateTransaction(theNymbox, OTTransaction::successNotice, lSuccessNoticeTransNum);
 								
 								if (NULL != pSuccessNotice) // The above has an OT_ASSERT within, but I just like to check my pointers.
-								{			
-									pSuccessNotice->	SetReferenceToNum(pServerTransaction->GetTransactionNum());		// If I accepted blank trans#10, then this successNotice is in reference to #10
-									pSuccessNotice->	SetReferenceString(strInReferenceTo);	// Contains a copy of the OTItem where I actually accepted the blank transaction #. (which generated the notice in the first place...)
+								{	
+                                    // If I accepted blank trans#10, then this successNotice is in reference to #10.
+                                    //
+									pSuccessNotice->	SetReferenceToNum(pServerTransaction->GetTransactionNum());	
+                                    
+                                    // Contains a copy of the OTItem where I actually accepted the blank transaction #. 
+                                    // (which generated the notice in the first place...)
+                                    //
+									pSuccessNotice->	SetReferenceString(strInReferenceTo);
 									
+                                    OTNumList theOutput;
+                                    pServerTransaction->GetNumList(theOutput); // now theOutput contains the numlist from the server-side nymbox's copy of the blank. (containing 20 transaction #s)
+                                    
+                                    pSuccessNotice->AddNumbersToTransaction(theOutput); // Now we add those numbers to the success notice. That way client can add those numbers to his issued and transaction lists.
+
 									pSuccessNotice->	SignContract(m_nymServer);
 									pSuccessNotice->	SaveContract();
 									

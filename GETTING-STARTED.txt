@@ -11,6 +11,9 @@ https://github.com/FellowTraveler/Open-Transactions/wiki/Install
 
 GETTING STARTED:
 
+There are some good install/setup instructions here:
+https://github.com/FellowTraveler/Moneychanger
+
 
 1) For most, assuming you have all the necessary libraries installed already, 
    (OpenSSL 1.0.0, MsgPack, Protocol Buffers, and ZeroMQ) then you just type  
@@ -19,7 +22,13 @@ GETTING STARTED:
     make
    (It will auto-detect platform, etc.)
 
-Then:  sudo make install
+Then: sudo make install
+
+
+NOTE: If you are using ot scripts, which is ON by default, then you must also
+install ChaiScript, which is the script interpreter OT currently uses. And
+for that, you must install boost! HOWEVER: boost is otherwise not a requirement
+for the rest of OT, only the script interpreter.
 
 
 If you also want the Java version (for the Moneychanger GUI) then do
@@ -39,12 +48,16 @@ this next:
 
 ** PASSWORD ** is test (always) 
 
+The best way, by far, to use the OT command line, is to use the scripts. See the
+scripts folder, especially the scripts/samples.
 
-4) To run the Moneychanger client, just make sure the libotapi.jnilib aka
-libotapi.so is in the same folder as the Moneychanger jar file and lib folder,
+4) To run the Moneychanger client, just make sure the libotapi-java.jnilib aka
+libotapi-java.so is in the same folder as the Moneychanger jar file and lib folder,
 then double-click the jar file.
 
 It will want to know where the data folder is:  ~/.ot/client_data
+
+It will also want you to choose a security image on your machine.
 
 -------------------------------------------------------------------------
 
@@ -105,12 +118,26 @@ http://www.zeromq.org/intro:get-the-software
 
 port install zmq
 
+You can also get this on github. USE VERSION 2.1.
+
 ---------------------------------------------------------------
+
+INSTALL: Boost.
+[Available here.](http://www.boost.org/)
+
 
 INSTALL: Chaiscript (scripting library)
 
 Available here: 
 http://www.chaiscript.com/
+
+     $ git clone git://github.com/ChaiScript/ChaiScript
+     $ cd ChaiScript
+     $ mkdir build
+     $ cd build
+     $ cmake ..
+     $ make
+     $ sudo make install
 
 ---------------------------------------------------------------
 

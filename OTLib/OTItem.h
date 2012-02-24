@@ -341,6 +341,14 @@ protected:
     long            m_lClosingTransactionNo; // Used in balance agreement (to represent an inbox item)
 	
 public:
+    // -------------------------------------------
+    // For "OTItem::acceptTransaction" -- the blank contains a list of blank numbers,
+    // therefore the "accept" must contain the same list. Otherwise you haven't signed off!!
+    //
+    //
+    bool AddBlankNumbersToItem(const OTNumList & theAddition);
+    // -------------------------------------------
+
     long GetClosingNum() const;
 	void SetClosingNum(const long lClosingNum);
 

@@ -347,7 +347,11 @@ public:
 	bool GetCurrentRequestNum(const OTString & strServerID, long &lReqNum); // get the current request number for the serverID
 	
 	bool GetHighestNum(const OTString & strServerID, long &lHighestNum); // get the last/current highest transaction number for the serverID.
-	long UpdateHighestNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, std::set<long> & setNumbers, bool bSave=false); // Returns 0 if success, otherwise # of the violator.
+	long UpdateHighestNum(OTPseudonym & SIGNER_NYM, 
+                          const OTString & strServerID, 
+                          std::set<long> & setNumbers, 
+                          std::set<long> & setOutputGood,
+                          std::set<long> & setOutputBad, bool bSave=false); // Returns 0 if success, otherwise # of the violator.
 
 	inline mapOfTransNums & GetMapTransNum() { return m_mapTransNum; }
 	inline mapOfTransNums & GetMapIssuedNum() { return m_mapIssuedNum; }

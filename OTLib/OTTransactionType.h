@@ -131,6 +131,7 @@
 #define __OTTRANSACTION_TYPE_H__
 
 #include <fstream>
+#include <set>
 
 #include "OTASCIIArmor.h"
 #include "OTContract.h"
@@ -138,8 +139,53 @@
 class OTString;
 class OTIdentifier;
 
+// --------------------------------------------------
+// Useful for storing a std::set of longs, 
+// serializing to/from comma-separated string,
+// And easily being able to add/remove/verify the 
+// individual transaction numbers that are there.
+// (Used by OTTransaction::blank and
+// OTTransaction::successNotice.)
+//
+class OTNumList
+{
+    std::set<long>  m_setData;
+    
+    // private for security reasons, used internally only by a function that knows the string length already.
+    bool Add(const char * szNumbers);   // if false, means the numbers were already there. (At least one of them.)
 
-// use as a base class for OTLedger, OTTransaction, and OTItem
+public:
+    OTNumList(const std::set<long> & theNumbers);
+//  OTNumList(const char * szNumbers); // removed for security reasons.
+    OTNumList(const OTString & strNumbers);
+    OTNumList();
+    ~OTNumList();
+    // -------------------
+    bool Add(const OTString & strNumbers);  // if false, means the numbers were already there. (At least one of them.)
+    // -------------------
+    bool Add(const long & theValue);    // if false, means the value was already there.
+    bool Remove(const long & theValue); // if false, means the value was NOT already there.
+    bool Verify(const long & theValue) const; // returns true/false (whether value is already there.)
+    // -------------------
+    bool Add(const OTNumList & theNumList);    // if false, means the numbers were already there. (At least one of them.)
+    bool Add(const std::set<long> & theNumbers);    // if false, means the numbers were already there. (At least one of them.)
+    bool Remove(const std::set<long> & theNumbers); // if false, means the numbers were NOT already there. (At least one of them.)
+    bool Verify(const std::set<long> & theNumbers) const; // True/False, based on whether values are already there. (ALL must be present.)
+    // -------------------
+    bool Verify(const OTNumList & rhs) const; // True/False, based on whether OTNumLists MATCH in COUNT and CONTENT (NOT ORDER.)
+    // -------------------
+    int Count() const;
+    // -------------------
+    // Outputs the numlist as set of numbers. (To iterate OTNumList, call this, then iterate the output.)
+    bool Output(std::set<long> & theOutput) const; // returns false if the numlist was empty.
+    // Outputs the numlist as a comma-separated string (for serialization, usually.)
+    bool Output(OTString & strOutput) const; // returns false if the numlist was empty.
+    // -------------------
+    void Release();
+};
+// -----------------------------------------------------
+
+// OTTransactionType is a base class for OTLedger, OTTransaction, and OTItem.
 //
 class OTTransactionType : public OTContract 
 {	
@@ -510,8 +556,30 @@ protected:
 	
     bool            m_bLoadSecurely; // defaults to true.
     
+    // ----------------------------------------------------------------
+    // For a "blank" or "successNotice" transaction, this contains the list of transaction
+    // numbers that are either about to be signed out (blank) or have already just been signed-out
+    // (successNotice). Either way, we used to have a separate transaction in the Nymbox for EACH
+    // blank number as well as a separate transaction for EACH successNotice, along with box receipts
+    // needing to be downloaded for each! 10 transaction numbers being signed out could result in the
+    // download of 20 or more box receipts....
+    // Therefore, finally decided to put MULTIPLE transaction numbers onto "blank" and "successNotice".
+    // So there is only a single message in the Nymbox which contains ALL your incoming blanks, and a
+    // single message for ALL your "successNotice" numbers.
+    // If the server goes to ADD MORE, it first checks to see if one is ALREADY THERE, and then simply
+    // adds the number to the existing blank or successNotice (whichever is appropriate) that's already
+    // in your Nymbox, where an entire list of those numbers might already be.
+    // 
+    // THIS is where that list is stored:
+    // 
+	OTNumList   m_Numlist;  // blanks and successNotice use this instead of having a separate transaction for EVERY NUMBER.
+    // (Had to fix that... way too many box receipts were being downloaded.)
+    // Note: I moved this to OTTransactionType so I can use it from within OTItem as well, so when I accept transaction
+    // numbers, I am able to list them in the accept item.
+    // ----------------------------------------------------------------
 public:
-	
+	void GetNumList(OTNumList & theOutput);
+    // ------------------------------------------------------------------
     static OTTransactionType * TransactionFactory(const OTString & strInput);
 
     // ------------------------------------------------------------------

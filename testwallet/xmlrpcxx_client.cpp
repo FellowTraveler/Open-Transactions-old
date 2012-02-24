@@ -3002,7 +3002,9 @@ int main(int argc, char* argv[])
 				delete pStorage;
 			}*/
 			continue;
-		}			
+		}
+        // --------------------------------
+
 		else if (strLine.compare(0,8,"clearreq") == 0) // clear request numbers
 		{
 			if (NULL == pMyNym)
@@ -3030,7 +3032,8 @@ int main(int argc, char* argv[])
 			OTLog::vOutput(0, "Successfully removed request number for server %s. Saving nym...\n",
 						   strReqNumServerID.Get());
 			continue;
-		}			
+		}
+        // --------------------------------
 		else if (strLine.compare(0,5,"clear") == 0)
 		{
 			if (NULL == pMyNym)
@@ -3051,15 +3054,14 @@ int main(int argc, char* argv[])
 			
 			// --------------------------------
 			
-			pMyNym->RemoveAllNumbers(&strTransNumServerID);
-			
-			pMyNym->SaveSignedNymfile(*pMyNym);
+			pMyNym->RemoveAllNumbers(&strTransNumServerID, true); // bRemoveHighestNum = true.			
+            pMyNym->SaveSignedNymfile(*pMyNym);
 			
 			OTLog::vOutput(0, "Successfully removed all issued and transaction numbers for server %s. Saving nym...\n",
 						   strTransNumServerID.Get());
 			continue;
 		}			
-		
+		// --------------------------------
 		else if (strLine.compare(0,7,"decrypt") == 0)
 		{
 			if (NULL == pMyNym)
@@ -3096,7 +3098,8 @@ int main(int argc, char* argv[])
 			
 			continue;
 		}
-		
+		// --------------------------------
+
 		else if (strLine.compare(0,6,"decode") == 0)
 		{
 			OTLog::Output(0, "Enter text to be decoded:\n> ");

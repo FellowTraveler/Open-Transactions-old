@@ -1,0 +1,40 @@
+-----BEGIN SIGNED LEDGER-----
+Hash: SAMY
+
+<accountLedger version="1.0"
+ type="nymbox"
+ numPartialRecords="3"
+ accountID="JAQkYVSAGgzd89h0mmIkiM4xOLiVJpaPQLq1hiihGLm"
+ userID="JAQkYVSAGgzd89h0mmIkiM4xOLiVJpaPQLq1hiihGLm"
+ serverID="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1" >
+
+<nymboxRecord type="replyNotice"
+ dateSigned="1330080932"
+ receiptHash="wO2N8P0PDkDkLhUIi4KxPDXx1iDgE8CNaNSuVFFKsjU"
+ transactionNum="557"
+ inRefDisplay="0"
+ inReferenceTo="0" />
+
+<nymboxRecord type="replyNotice"
+ dateSigned="1330081332"
+ receiptHash="tUUmCA8F9fDoBsO1ooKRMxmThmmYhKhNjcSHBvtCiCP"
+ transactionNum="560"
+ inRefDisplay="0"
+ inReferenceTo="0" />
+
+<nymboxRecord type="replyNotice"
+ dateSigned="1330081513"
+ receiptHash="oS8Ah0eDpE0n9m5GSar2WP9fr3hrDj3oc8NUgdC3liA"
+ transactionNum="564"
+ inRefDisplay="0"
+ inReferenceTo="0" />
+
+</accountLedger>
+-----BEGIN LEDGER SIGNATURE-----
+Version: Open Transactions 0.78
+Comment: http://github.com/FellowTraveler/Open-Transactions/wiki
+
+CoABnVtzBVGhAcyfah7PK2rjV0zSUS8fq6MdtPWcF6RiYQAfwDL1qmP/543nRZ6B
+7C+yXaCDo111RlJq62Wz5M1BKKKSfTRBUl7mjVp88JHsE+kFz2SOrateJyoXqAjw
+s80mUqv3REBK87tysPz0GDyFyVze1ZwnxDkTVY9mqNIYHBY=
+-----END LEDGER SIGNATURE-----

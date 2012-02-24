@@ -118,10 +118,10 @@ LmNvbT6IVgQTEQIAFgUCOaEZEQQLCgQDAxUDAgMWAgECF4AACgkQKfOLUygtdArw
 - -----END PGP PUBLIC KEY BLOCK-----
 </key>
 -----BEGIN CONTRACT SIGNATURE-----
-Version: Open Transactions 0.63
+Version: Open Transactions 0.75
 Comment: http://github.com/FellowTraveler/Open-Transactions/wiki
 
-CoABwGTFH0qXdzN9THMKGv8IcwjT8UtvIApzvQVtrK+wC6F5SzPp0CY+G5a/w+Gr
-IcAEJPeHTEphgauP1EU/PhNOzseIq4wPgxVbhIckQ+4BR87U98bhTZx9ggnzTV9M
-x+4BKk/cxkQxlfQVPxEevx1M0salHHGqEEb+OkeExXq4oNE=
+CoABHEIFgeTEB53n2J0spQ1P6GFcPjRsgjs6AQG40SwVDYpmR4h0NyBZ59qPjpwf
+ri7NzK4CiMHco48zyTrwoXt/OK6oR1zxRqoW8D/AxDL+ONYcVSy0M6Ho7u7mBnkL
+JR0nF545BlfGdsM099SNglcpqqrJMs0Bl9fNOOUPsIK8z3Q=
 -----END CONTRACT SIGNATURE-----

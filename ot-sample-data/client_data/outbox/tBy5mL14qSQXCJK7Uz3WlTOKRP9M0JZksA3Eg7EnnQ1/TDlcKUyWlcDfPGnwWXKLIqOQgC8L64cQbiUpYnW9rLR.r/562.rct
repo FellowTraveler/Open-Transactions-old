@@ -1,0 +1,36 @@
+-----BEGIN SIGNED TRANSACTION-----
+Hash: SAMY
+
+<transaction type="pending"
+ dateSigned="1330081474"
+ accountID="TDlcKUyWlcDfPGnwWXKLIqOQgC8L64cQbiUpYnW9rLR"
+ userID="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV"
+ serverID="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1"
+ transactionNum="562"
+ inReferenceTo="505" >
+
+<inReferenceTo>
+eJxlk0+PojAchm974FMQr2QWFBAx4yQIDCKIAhV0bohFUSj/CiifbD/eoh52MttT
+0/6eN+n7pMSfX2+PNVc13SJdXbNUhQSOZLmSDPS1RepAXT0niEVQnaekK632BPEe
+Y5iS+J7D2QCXAaoiWA4IssIBrqvZoIRFDSvcnzwvgxDHGbLqdDbgGf4xB8sGlrrS
+w/M7n5pDrnDtnbw0hG3H+glYG85GXDHLr2slsepJUBGyhz1XVy8KDG22/fJPEGyz
+YNsgMR0mnW7wGPGtDpLu1pWapU8KHHg9FZVZKoVhViP8hJUkNLZ3PwmVaKOh1t8Z
+pl6s7ZM8McdcaB/ibb5HvliazuMB2Tf0bMfZ1edkLQ9E7itOzyLvScwwmBdxPj4Y
+snY5y5VT5bzwQGPkwL4XiEIIstmA6Y+C9BE1G4jigPzoa0QZhh8EXHaXe3xbmi7v
+TBaAnbTi3TsqnhcpncJ+evJizoTRggnb6BaG5/YacIq0Co5adpoR7/QrpN88pHwQ
+33z+FPkULIGto76UerCsejNTcp1DRIJ/riqS+S1MCDlLU4jwlDxjnE9p+hTjc334
+HWYp/QmTJGt7pIEJLOlHwNv3ALqNrzHRJ0hzrNxGjii0vr84NJGt0UfeiHftiMtN
+nlKpDlGjNchgPmTSzD1c96ZoUYbByvXVUAj/BKQL5R4mghBG7KfCrr1e0XizHF+8
+C4UxkinHYZDOl82yGHZNpPBcphlU5JRWxLF3ItnZTna5uaJwX9Ajv4G7RTEXoGvW
+emHRUqyBTQGspDnK7V4G1ezVn2r9/w1+tPcXHKEEWQ==
+</inReferenceTo>
+
+</transaction>
+-----BEGIN TRANSACTION SIGNATURE-----
+Version: Open Transactions 0.78
+Comment: http://github.com/FellowTraveler/Open-Transactions/wiki
+
+CoABefnnVihFb6EXfzUL9jjZQgZllVqLenbZIRzeKmR2aIDHYU+yWR1fCT/0y1ww
+tGiq4QHe4TGIFu4wb+i84PzTRArFQ1tE8JbwJskIDMdpKjQ/7QXtipYKgbXj4VrY
+dfHN+MOtOWMYZzZ3wZGDzZmRwm7z/jXePD1/6w4D1zbGB6A=
+-----END TRANSACTION SIGNATURE-----

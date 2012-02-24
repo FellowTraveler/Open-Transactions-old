@@ -35,10 +35,11 @@ https://github.com/FellowTraveler/Open-Transactions/wiki/Use-Cases
 ===> BUILD THE TEST CLIENT - (Makefile)
 (command line utility)
 
-You probably prefer to build in XmlRpc/HTTP mode:
+The default transport for most build options is ZMQ, because
+they add this option:
 
-               make TRANSPORT=XmlRpc
-               gmake TRANSPORT=XmlRpc
+               make TRANSPORT=ZMQ 
+(FreeBSD)      gmake TRANSPORT=ZMQ
 
 Otherwise there is the old TCP/SSL (not recommended):
 
@@ -69,7 +70,7 @@ C, Obj-C, C++, C#, Java, Ruby, Python, Perl, Php, Tcl, Lisp
 
 (Instructions for each language are below.)
 
-** You likely wish to add TRANSPORT=XmlRpc to the below commands, as well.
+** You likely wish to add TRANSPORT=ZMQ to the below commands, as well.
 And: MAKE SURE you do a make clean when switching languages, since they
 can interfere with each other. 
 
@@ -86,7 +87,7 @@ Now you may continue with the rest of these instructions...
 
 THE 'C++' HIGH-LEVEL CLASS
 
-make -f Makefile.API [TRANSPORT=XmlRpc] LANGUAGE=c
+make -f Makefile.API [TRANSPORT=ZMQ] LANGUAGE=c
 
 -- link to libOTAPI.a
 
@@ -99,7 +100,7 @@ THE 'Straight C' API
 
 (To be used in C, Obj-C, and C++ projects)
 
-make -f Makefile.API [TRANSPORT=XmlRpc] LANGUAGE=c
+make -f Makefile.API [TRANSPORT=ZMQ] LANGUAGE=c
 
 -- link to libOTAPI.a
 
@@ -111,7 +112,7 @@ make -f Makefile.API [TRANSPORT=XmlRpc] LANGUAGE=c
 
 C#
 
-make -f Makefile.API [TRANSPORT=XmlRpc] LANGUAGE=csharp
+make -f Makefile.API [TRANSPORT=ZMQ] LANGUAGE=csharp
 
 This builds the shared lib: 
 libotapi.so
@@ -122,7 +123,7 @@ libotapi.so
 
 Java
 
-make -f Makefile.API [TRANSPORT=XmlRpc] LANGUAGE=java
+make -f Makefile.API [TRANSPORT=ZMQ] LANGUAGE=java
 
 This builds the shared lib:
 libotapi.jnilib
@@ -169,7 +170,7 @@ Then the OT Java GUI will work; just put the jar in the testwallet folder
 
 Ruby
 
-make -f Makefile.API [TRANSPORT=XmlRpc] LANGUAGE=ruby
+make -f Makefile.API [TRANSPORT=ZMQ] LANGUAGE=ruby
 
 This builds otapi.bundle on Mac, and otapi.so on Linux, which you can use
 in your Ruby project like any other native library.
@@ -215,7 +216,7 @@ If everything is successful, you will see the wallet loaded on the screen!
 
 Python
 
-make -f Makefile.API [TRANSPORT=XmlRpc] LANGUAGE=python
+make -f Makefile.API [TRANSPORT=ZMQ] LANGUAGE=python
 
 This builds _otapi.so, a shared library that you can call from your Python
 project using the otapi.py file.
@@ -240,7 +241,7 @@ Let me know if it works for you!
 
 Perl5
 
-make -f Makefile.API [TRANSPORT=XmlRpc] LANGUAGE=perl5
+make -f Makefile.API [TRANSPORT=ZMQ] LANGUAGE=perl5
 
 This builds otapi.bundle, which you can use in your Perl project via
  the file otapi.pm
@@ -273,7 +274,7 @@ to test on your own computer which one is right.
 
 
 PERL NOTE!!! There is now a TOP LEVEL option for building perl5!
-Since some platforms require XmlRpc and OTLib to be rebuilt with
+Since some platforms require ZMQ and OTLib to be rebuilt with
 certain flags, I made it easy by adding a top-level target, since
 we have a client developer who is actively targeting perl.
 
@@ -301,7 +302,7 @@ Loading wallet: Fellow Traveler's test wallet, version: 1.0
 
 PHP
 
-make -f Makefile.API [TRANSPORT=XmlRpc] LANGUAGE=php5
+make -f Makefile.API [TRANSPORT=ZMQ] LANGUAGE=php5
 
 This builds otapi.so, which you can use in your PHP project via the file otapi.php
 
@@ -312,7 +313,7 @@ apt-get install php5-dev
 
 Tcl
 
-make -f Makefile.API [TRANSPORT=XmlRpc] LANGUAGE=tcl
+make -f Makefile.API [TRANSPORT=ZMQ] LANGUAGE=tcl
 
 This builds otapi.so, which you can use in your Tcl project like so:
 load ./otapi.so otapi
@@ -325,7 +326,7 @@ apt-get install tcl-dev
 
 LISP
 
-make -f Makefile.API [TRANSPORT=XmlRpc] LANGUAGE=lisp
+make -f Makefile.API [TRANSPORT=ZMQ] LANGUAGE=lisp
 
 This builds otapi.so, which you can use in your LISP project via otapi.lisp
 

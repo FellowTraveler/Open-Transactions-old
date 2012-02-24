@@ -9,21 +9,21 @@ Hash: SAMY
  filename="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV" >
 
 <filePayload>
-eJy11stOg0AUBuA9e/eEB7CMU25JaRdqhKCtVrBJd9hOtQaGMDNcyoP2eaQhNWmi
-K/OvT+Y7cznnZLTj1WTW5pleMyH3BfcNcm0as6mmTRZxJZm4DGg6P+ThnW/E5IU2
-69UHi5MiTWru5STrwshS3GrCOOvaTjzMQ7dU6ZtxwgQrKybVvMo1vVd79KT03qYS
-gnG1/In7hmmM/l6i8qB+XLfvhH6u7MUhIEUQxXm0dXbx01Imu658vrej2+b1K/td
-vzHJ4CuRcpluVH+4f+W4dPoEY7BvgX0b7Dtg3wX7HtanJtgH3z8F1w8F1z8F9y+l
-g7+XsmJbyOhB0BaOtnG0g6NdHO3B6PNwAdBjgts18EJwz0hxxUdxLUNxjU5x4+k8
-VEfDr3WqfQM4XZeS
+eJy1l91qwjAYhs9zCzspuYDZr7W2BavsR0Z109XVOTwrLoisjZik/vR+dx+rqANh
+O9re45DnIaRPPso+r9rdXZFbG6H0ciUjTtc273YYa4/SUgt1ucAsuS/i+4inlLjb
+2XQh0skqm2xkWFBexQPPSG8bp3m1q9TDMA7WJnvlB5gS61JoMywLZtXUGnqg1Lx5
+qZSQZvy9HnGbN37fYm73XvFIzfVL8nbXH/iTyp3m6Wgwfg6f7P7sQ9+4vYXfkzKh
+n+lE4ZFvVCZ1Njf14f7kuORE3LNbaIGPFgRoAfoOyEYLCC1w0AIXLWiiBR5agC6Z
+0CUTumT4a+qgS3ZOJS+1LsX7P79zHpDdArJ9IDsAskMc+zxSIGzgN3geJBC2C2Q3
+gWxglwTskoBdErBLAnbpALtEzgYH2KVzaqdx/InrsC8Bp2jk
 </filePayload>
 
 </signedFile>
 -----BEGIN FILE SIGNATURE-----
-Version: Open Transactions 0.75
+Version: Open Transactions 0.78
 Comment: http://github.com/FellowTraveler/Open-Transactions/wiki
 
-CoABMByUzwSbZwi2FK71vePIM97z0xo6e7/tCZIixlDTX+sl/V0VH/GHuFcOCddi
-VAzMq0I0SsWM4DJT698bisY0QfE0elZOkrpPrnZ5nu1zUamkTIt28r/HKdj88yZR
-hZTVvjDnD7V8VTYn0udMHsGgEHf3pSPp31D+xrjNft2IIr4=
+CoABSxTTcZZgOCZiZPC7idJL+cLZ1L9QKQjS12rt1ROLuuTKitR0sz4SYjS+v585
+0MLx2yN5Wo2S6Fijw03V79q350PphDASt/n3ABeifYyPkoTRZWeRyIObLmH70UhD
+EAkwLKC6QE00mdoZs4zF59a0EYTHVOopz2PgcoVUOIpjoRM=
 -----END FILE SIGNATURE-----

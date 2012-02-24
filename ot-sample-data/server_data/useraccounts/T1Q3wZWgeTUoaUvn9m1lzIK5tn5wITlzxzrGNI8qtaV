@@ -8,7 +8,7 @@ Hash: SAMY
 
 <createUserAccount
  nymID="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV"
- serverID="tmHvLZxb13hW6OyH1oHKTmKd7fTMRsUfzqPE6KCwSjl">
+ serverID="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1">
 
 <nymPublicKey>
 - -----BEGIN PUBLIC KEY-----
@@ -25,10 +25,10 @@ VHVRSURBUUFCCi0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQo=
 
 </OTmessage>
 -----BEGIN MESSAGE SIGNATURE-----
-Version: Open Transactions 0.75
+Version: Open Transactions 0.78
 Comment: http://github.com/FellowTraveler/Open-Transactions/wiki
 
-CoABP2yyojyKYfk9Nzdo5S6dFAkLQ8st5Cu3D6IvK05q50izHiv7S2CNDeKyJwkd
-bRVzKPCJResYRA4759aQ3WOUn1Yk8XNPmKPi0iZ++ggVaTiKIuEDxmQhOE3ZifR1
-L+5bF3WUoyhk0Md2OuDp0N7aA/Sl3MtG+SQ71tBs1oaoZt8=
+CoABLBK37D8xZHSQd4URxB4BA9X0sRoUxr8+CpQA0x5qqrurvoeUS5T/t6YQgrjr
+Dy17vgOQ1inBW4sUiQCDb9/cBffr+fpMp5Xc9HFw6oLRs3PAW6HM1QOTt5Z4L09+
+3fpjfbgW2bnNO8Yk2Q72JorqD4XxDiZ6owWkrSffz2BZKy4=
 -----END MESSAGE SIGNATURE-----

@@ -1,0 +1,23 @@
+-----BEGIN SIGNED TRANSACTION-----
+Hash: SAMY
+
+<transaction type="blank"
+ dateSigned="1330080220"
+ accountID="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV"
+ userID="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV"
+ serverID="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1"
+ transactionNum="505"
+ totalListOfNumbers="505,506,507,508,509,510,511,512,513,514,515,516,517,518,519,520,521,522,523,524"
+ inReferenceTo="0" >
+
+</transaction>
+-----BEGIN TRANSACTION SIGNATURE-----
+Version: Open Transactions 0.78
+Comment: http://github.com/FellowTraveler/Open-Transactions/wiki
+
+CoABdzFsJgcNvDc2OH7xR23hoMrdRAAFxCbz21M9DWXde7syf6MYJKWzISvEYWSG
+0irkNQNFwhnGRIRYixLdzmjXSxXzjy4S2axOWn/q8v1zr5iPmsbiPuCTtgn3fqV3
+OLOkU8mMl0IXMXckGgqF89rKdJX03HlT3nLdyGs93LJ28pY=
+-----END TRANSACTION SIGNATURE-----
+
+MARKED_FOR_DELETION

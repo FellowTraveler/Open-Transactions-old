@@ -500,7 +500,6 @@ protected:
 	long			m_lClosingTransactionNo;	// used by finalReceipt
     OTASCIIArmor    m_ascCancellationRequest;	// used by finalReceipt
     
-	
 	// ----------------------------------------------------------------
 	
 	// Compares m_AcctID in the xml portion of the transaction
@@ -516,6 +515,10 @@ protected:
 public:
 	void SetParent(const OTLedger & theParent) { m_pParent = &theParent; } // a pointer of convenience.
     // -------------------------------------------
+    // For "OTTransaction::blank" and "OTTransaction::successNotice"
+    //
+    bool AddNumbersToTransaction(const OTNumList & theAddition);
+    // -------------------------------------------
 	static
 	int LoadAbbreviatedRecord(irr::io::IrrXMLReader*& xml,
 							  long	& lTransactionNum,
@@ -526,7 +529,8 @@ public:
 							  OTString & strHash,
 							  long	& lAdjustment,
 							  long	& lDisplayValue,
-							  long	& lClosingNum);
+							  long	& lClosingNum,
+                              OTNumList * pNumList=NULL);
 		
     bool IsAbbreviated() const { return m_bIsAbbreviated; }
     
@@ -575,7 +579,8 @@ public:
 				  const OTString & strHash,
 				  const long & lAdjustment,
 				  const long & lDisplayValue,
-				  const long & lClosingNum);
+				  const long & lClosingNum,
+                  OTNumList * pNumList=NULL);
 
 	virtual ~OTTransaction();
 	// ----------------------------------

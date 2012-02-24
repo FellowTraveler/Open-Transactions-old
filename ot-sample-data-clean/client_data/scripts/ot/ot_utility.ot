@@ -689,7 +689,12 @@
                 OT_API_Output(0, " Utility::getTransactionNumbers(): Server refused my request for a new transaction number! (Maybe reached the limit?): " + serverResponse);
                 bSuccess = false;
             }
-
+            else // The message was a success.
+            {
+                break;
+            }
+            // -----------------------------------
+            
             // We got the reply, but it failed.
             // Or, it was null.
             //

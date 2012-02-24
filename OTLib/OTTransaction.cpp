@@ -2659,7 +2659,8 @@ OTTransaction::OTTransaction(const OTIdentifier	& theUserID,
 							 const OTString		& strHash,
 							 const long			& lAdjustment,
 							 const long			& lDisplayValue,
-							 const long			& lClosingNum)
+							 const long			& lClosingNum,
+                             OTNumList          * pNumList/*=NULL*/)
 : OTTransactionType(theUserID, theAccountID, theServerID, lTransactionNum), 
 //--------------------------------------------------------------------------
 	m_pParent(NULL),
@@ -2715,6 +2716,10 @@ OTTransaction::OTTransaction(const OTIdentifier	& theUserID,
 	SetPurportedServerID(theServerID);
 	
 	SetUserID(theUserID);
+    // ---------------------
+    
+    if (NULL != pNumList)
+        m_Numlist = *pNumList;
 }
 // ---------------------------------------------------------------------------------
 
@@ -3053,7 +3058,8 @@ int OTTransaction::LoadAbbreviatedRecord(irr::io::IrrXMLReader*& xml,
 										 OTString & strHash,
 										 long	& lAdjustment,
 										 long	& lDisplayValue,
-										 long	& lClosingNum)
+										 long	& lClosingNum,
+                                         OTNumList * pNumList/*=NULL*/)
 {
 	// -------------------------------------
 	const OTString strTransNum		= xml->getAttributeValue("transactionNum"); 
@@ -3130,6 +3136,21 @@ int OTTransaction::LoadAbbreviatedRecord(irr::io::IrrXMLReader*& xml,
 		lClosingNum	= atol(strAbbrevClosingNum.Get());
 	} // if finalReceipt or basketReceipt (expecting closing num)
 	// -------------------------------------
+    // These types carry their own internal list of numbers.
+    //
+	if ((NULL != pNumList) &&
+        ((OTTransaction::blank           == theType) || 
+		 (OTTransaction::successNotice   == theType))
+        )
+	{
+		const OTString strNumbers = xml->getAttributeValue("totalListOfNumbers");
+        pNumList->Release();
+		
+		if (strNumbers.Exists())
+            pNumList->Add(strNumbers);
+	} // if blank or successNotice (expecting totalListOfNumbers.. no more multiple blanks in the same ledger! They all go in a single transaction.)
+	// -------------------------------------
+    
 	return 1;
 }
 
@@ -3149,13 +3170,23 @@ int OTTransaction::LoadAbbreviatedRecord(irr::io::IrrXMLReader*& xml,
 
 // return -1 if error, 0 if nothing, and 1 if the node was processed.
 int OTTransaction::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
-{		
-    if (!strcmp("nymboxRecord",			xml->getNodeName())	||
-		!strcmp("inboxRecord",			xml->getNodeName())	||
-		!strcmp("outboxRecord",			xml->getNodeName()) ||
-		!strcmp("paymentInboxRecord",	xml->getNodeName()) ||
-		!strcmp("recordBoxRecord",		xml->getNodeName()))
+{	
+    const OTString strNodeName = xml->getNodeName();
+    
+    OTNumList * pNumList = NULL;
+    if (strNodeName.Compare("nymboxRecord"))
 	{
+        pNumList = &m_Numlist;
+    }
+    // -----------------------------------------
+    
+    if (strNodeName.Compare("nymboxRecord")         ||
+        strNodeName.Compare("inboxRecord")          ||
+        strNodeName.Compare("outboxRecord")         ||
+        strNodeName.Compare("paymentInboxRecord")	||
+        strNodeName.Compare("nymboxRecord")         ||
+        strNodeName.Compare("recordBoxRecord"))
+    {
 		long lTransactionNum	= 0;
 		long lInRefTo			= 0;
 		long lInRefDisplay		= 0;
@@ -3166,19 +3197,20 @@ int OTTransaction::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		// -------------------------------------
 		long lAdjustment		= 0;
 		long lDisplayValue		= 0;
-		long lClosingNum		= 0;
+		long lClosingNum		= 0;        
 		// -------------------------------------
 		int nAbbrevRetVal =
 			OTTransaction::LoadAbbreviatedRecord(xml,
-											 lTransactionNum,
-											 lInRefTo,
-											 lInRefDisplay,
-											 the_DATE_SIGNED,
-											 theType,
-											 strHash,
-											 lAdjustment,
-											 lDisplayValue,
-											 lClosingNum);
+                                                 lTransactionNum,
+                                                 lInRefTo,
+                                                 lInRefDisplay,
+                                                 the_DATE_SIGNED,
+                                                 theType,
+                                                 strHash,
+                                                 lAdjustment,
+                                                 lDisplayValue,
+                                                 lClosingNum,
+                                                 pNumList); // for "OTTransaction::blank" and "OTTransaction::successNotice" (Otherwise NULL.)
 		// -------------------------------------
 		if ((-1) == nAbbrevRetVal)
 			return (-1); // The function already logs appropriately.
@@ -3206,7 +3238,7 @@ int OTTransaction::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 	// ******************************************************
 	// THIS PART is probably what you're looking for.
 	//
-	else if (!strcmp("transaction", xml->getNodeName()))
+	else if (strNodeName.Compare("transaction")) // Todo:  notice how this "else if" uses OTString::Compare, where most other ProcessXMLNode functions in OT use !strcmp()? (That's right: Buffer overflow. Need to fix elsewhere as it is fixed here.)
 	{	
 		// -------------------------------------
 		const OTString strType = xml->getAttributeValue("type");
@@ -3244,7 +3276,19 @@ int OTTransaction::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 						   strTransNum.Get(), strInRefTo.Get());
 			return (-1);			
 		}
-		// -------------------------------------		
+		// -------------------------------------	
+        
+        if ((OTTransaction::blank           == m_Type) || 
+            (OTTransaction::successNotice   == m_Type))
+        {
+            const OTString strTotalList     = xml->getAttributeValue("totalListOfNumbers");
+            m_Numlist.Release();
+            
+            if (strTotalList.Exists())
+                m_Numlist.Add(strTotalList); // (Comma-separated list of numbers now becomes std::set<long>.)
+        }
+   
+        // -------------------------------------	
 		OTIdentifier ACCOUNT_ID(strAcctID), SERVER_ID(strServerID), USER_ID(strUserID);
 		// -------------------------------------		
 		SetPurportedAccountID(ACCOUNT_ID);  // GetPurportedAccountID() const { return m_AcctID; }
@@ -3398,11 +3442,43 @@ int OTTransaction::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 
 
 
+
+// For "OTTransaction::blank" and "OTTransaction::successNotice"
+// which periodically have more numbers added to them.
+//
+bool OTTransaction::AddNumbersToTransaction(const OTNumList & theAddition)
+{
+    return m_Numlist.Add(theAddition);
+}
+
+
+
+
 // This is called automatically by SignContract to make sure what's being signed is the most up-to-date
 // Before transmission or serialization, this is where the ledger saves its contents 
 // So let's make sure this transaction has the right contents.
 void OTTransaction::UpdateContents() 
 {	
+    OTString strListOfBlanks;   // IF this transaction is "blank" or "successNotice" this will serialize the list of transaction numbers for it. (They now support multiple numbers.)
+    // ----------------------------------------
+	switch (m_Type) 
+	{
+		case OTTransaction::blank:			// freshly issued transaction number, not accepted by the user (yet).
+		case OTTransaction::successNotice:	// A transaction # has successfully been signed out.
+        {
+            if (m_Numlist.Count() > 0) // This is always 0, except for blanks and successNotices.
+            {
+                OTString strNumbers;
+                if (true == m_Numlist.Output(strNumbers)) 
+                    strListOfBlanks.Format(" totalListOfNumbers=\"%s\"\n", strNumbers.Get());
+                else // (False just means m_Numlist was empty.)
+                    strListOfBlanks.Set("");                    
+            }
+        }
+        default:
+            break;
+	}
+    // -----------------------------------------------------
 	const char * pTypeStr = GetTypeString(); // TYPE
 	const OTString	strType((NULL != pTypeStr) ? pTypeStr : "error_state"), 
 					strAcctID(GetPurportedAccountID()), 
@@ -3420,13 +3496,13 @@ void OTTransaction::UpdateContents()
 							  " accountID=\"%s\"\n"
 							  " userID=\"%s\"\n"
 							  " serverID=\"%s\"\n"
-							  " transactionNum=\"%ld\"\n"
+							  " transactionNum=\"%ld\"\n%s"
 							  " inReferenceTo=\"%ld\" >\n\n", 
 							  strType.Get(), lDateSigned, 
 							  strAcctID.Get(), 
 							  strUserID.Get(), 
 							  strServerID.Get(), 
-							  GetTransactionNum(),
+							  GetTransactionNum(), strListOfBlanks.Get(),
 							  GetReferenceToNum());
 	// -----------------------------------------------------	
 	//	OTLog::vError("IN REFERENCE TO, LENGTH: %d\n", m_ascInReferenceTo.GetLength());
@@ -3900,13 +3976,27 @@ void OTTransaction::SaveAbbrevRecordBoxRecord(OTString & strOutput)
 //
 void OTTransaction::SaveAbbreviatedNymboxRecord(OTString & strOutput)
 {
+    OTString strListOfBlanks;   // IF this transaction is "blank" or "successNotice" this will serialize the list of transaction numbers for it. (They now support multiple numbers.)
+    
 	switch (m_Type) 
 	{
 		case OTTransaction::blank:			// freshly issued transaction number, not accepted by the user (yet).
+		case OTTransaction::successNotice:	// A transaction # has successfully been signed out.
+        {
+            if (m_Numlist.Count() > 0) // This is always 0, except for blanks and successNotices.
+            {
+                OTString strNumbers;
+                if (true == m_Numlist.Output(strNumbers)) 
+                    strListOfBlanks.Format(" totalListOfNumbers=\"%s\"\n", strNumbers.Get());
+                else // (False just means it was empty.)
+                    strListOfBlanks.Set("");                    
+            }
+        }
+            /* ! CONTINUES FALLING THROUGH HERE!!... */
+            
 		case OTTransaction::message:		// A message from one user to another, also in the nymbox.
 		case OTTransaction::notice:			// A notice from the server. Used in Nymbox. Probably contains an updated smart contract.
 		case OTTransaction::replyNotice:	// A copy of a server reply to a previous request you sent. (To make SURE you get the reply.)
-		case OTTransaction::successNotice:	// A transaction # has successfully been signed out.
 		case OTTransaction::finalReceipt:	// Any finalReceipt in an inbox will also drop a copy into the Nymbox.
 			// These are the allowed types.
 			break;
@@ -3944,7 +4034,7 @@ void OTTransaction::SaveAbbreviatedNymboxRecord(OTString & strOutput)
 		idReceiptHash.GetString(strHash);
 	}
 	// ----------------------------------------------
-	
+    
 	if ((OTTransaction::finalReceipt == m_Type) || 
 		(OTTransaction::basketReceipt == m_Type)) // I actually don't think you can put a basket receipt notice in a nymbox, the way you can with a final receipt notice. Probably can remove this line.
 		// ---------------------------
@@ -3967,13 +4057,13 @@ void OTTransaction::SaveAbbreviatedNymboxRecord(OTString & strOutput)
 		strOutput.Concatenate("<nymboxRecord type=\"%s\"\n"
 							  " dateSigned=\"%ld\"\n"
 							  " receiptHash=\"%s\"\n"
-							  " transactionNum=\"%ld\"\n"
+							  " transactionNum=\"%ld\"\n%s" // SOMETIMES this is added here by the final %s: " totalListOfNumbers=\"%s\"\n"
 							  " inRefDisplay=\"%ld\"\n"
 							  " inReferenceTo=\"%ld\" />\n\n", 
 							  strType.Get(), 
 							  lDateSigned, 
 							  strHash.Get(),			  
-							  GetTransactionNum(),
+							  GetTransactionNum(), strListOfBlanks.Get(),
 							  GetReferenceNumForDisplay(),
 							  GetReferenceToNum());
 }

@@ -3,6 +3,17 @@ NOTES on the Version:
 
 // --------------------------------------------------------------------
 
+   0.78 --- Fixed a nasty bug in signatures that forced me to regenerate
+            the test data. Nyms stayed the same, but all contracts were
+            re-signed and all server IDs and asset IDs have changed. 
+            Due to this all the accounts were re-created as well.
+
+            ** Notice the growing scripts/samples folder. **
+            
+            Also, transaction numbers are downloaded 20 at a time now,
+            inside of a single receipt (instead of forcing several box
+            receipts for each and every number, as used to happen.) 
+             
    0.77 --- Added Box Receipts. (Inboxes now store their receipts separately,
             with only a hash remaining in the main file.) Many other misc bug fixes.
 

@@ -2,60 +2,60 @@
 <wallet name="" version="1.0">
 
 <pseudonym name="eJzj4gopSkxJLVJwyk8CABUeA6o="
- nymID="1mxwHcQvxSgqWqy2e28ZREeuVVfgs0kxE41FN10TnS3" />
+ nymID="JAQkYVSAGgzd89h0mmIkiM4xOLiVJpaPQLq1hiihGLm" />
 
 <pseudonym name="eJzj4nULUS9WCEktLlHwq8wFAB1GBGA="
  nymID="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV" />
 
-<assetType name="eJzj4k5PzE1VKMnPTs0rBgAaNARk"
- assetTypeID="SjSYAUzN1RLjGre0kqDJynFos1MRYzrxOOenHY0Lpjd" />
-
 <assetType name="eJzj4inOzClLLVJIL0rMLQYAILwE5g=="
- assetTypeID="mNS1ODAXQoSXpWJfC5awE9zAXCm9aVfiE0WQGsIOw4B" />
+ assetTypeID="CvHGtfOOKzQKL5hFL7J4iF5yAodVKhS1rxPzME5R9XA" />
+
+<assetType name="eJzj4k5PzE1VKMnPTs0rBgAaNARk"
+ assetTypeID="ttHGviJ9hRcijEvWT4f9KpqVcZ7c0UqXYNslvSEa6gJ" />
 
 <notaryProvider name="eJzjkvTJT07MycgvLlEITi0qSy1ScM7PKylKTC4BAH+DCcI="
- serverID="tmHvLZxb13hW6OyH1oHKTmKd7fTMRsUfzqPE6KCwSjl" />
+ serverID="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1" />
 
-<!-- Last retrieved balance: -100000 on date: 1323604566 -->
-<!-- Account type: issuer --><assetAccount name="eJzjEvEsLi5NLVLQVXBPzE1VCMnPTs0rBgBKNgcV"
- accountID="2FHFr5NdT1r1XtUWVjll1uGcTKGKx4Pt1iWJ9eV0kkZ"
+<!-- Last retrieved balance: -99 on date: 1330081474 -->
+<!-- Account type: issuer --><assetAccount name="eJzjEvIMDg51DdJ1T8xNVQjJz07NKwYAOA8GMw=="
+ accountID="TDlcKUyWlcDfPGnwWXKLIqOQgC8L64cQbiUpYnW9rLR"
  userID="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV"
- serverID="tmHvLZxb13hW6OyH1oHKTmKd7fTMRsUfzqPE6KCwSjl" />
-<!-- assetTypeID: SjSYAUzN1RLjGre0kqDJynFos1MRYzrxOOenHY0Lpjd -->
+ serverID="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1" />
+<!-- assetTypeID: ttHGviJ9hRcijEvWT4f9KpqVcZ7c0UqXYNslvSEa6gJ -->
 
-<!-- Last retrieved balance: 50000 on date: 1323604684 -->
-<!-- Account type: simple --><assetAccount name="eJzj4nYLUS9WCM7MKUstAgAVgQPf"
- accountID="2K3LoD1UxsJLO0FAfng0fgqnxnXScO8rM2eO5tdDTOE"
+<!-- Last retrieved balance: -100000 on date: 1330080521 -->
+<!-- Account type: issuer --><assetAccount name="eJzj4vUMDg51DdINzswpSy0CAB5cBJU="
+ accountID="UKDiI4yI2i67twaBBzFQkkwT38SpLK5Z7ZQ9JD5I0mS"
  userID="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV"
- serverID="tmHvLZxb13hW6OyH1oHKTmKd7fTMRsUfzqPE6KCwSjl" />
-<!-- assetTypeID: mNS1ODAXQoSXpWJfC5awE9zAXCm9aVfiE0WQGsIOw4B -->
+ serverID="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1" />
+<!-- assetTypeID: CvHGtfOOKzQKL5hFL7J4iF5yAodVKhS1rxPzME5R9XA -->
 
-<!-- Last retrieved balance: 60012 on date: 1323605813 -->
-<!-- Account type: simple --><assetAccount name="eJzjEnALUS9WcE/MTVUIyc9OzSsGACucBX0="
- accountID="A6CcGwNiTtEPQnv7HLUcmf0QFaCGy862pb1SJ3zVqIU"
- userID="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV"
- serverID="tmHvLZxb13hW6OyH1oHKTmKd7fTMRsUfzqPE6KCwSjl" />
-<!-- assetTypeID: SjSYAUzN1RLjGre0kqDJynFos1MRYzrxOOenHY0Lpjd -->
-
-<!-- Last retrieved balance: -100000 on date: 1323604524 -->
-<!-- Account type: issuer --><assetAccount name="eJzjEvUsLi5NLVLQVQjOzCkDMtyLEnOLAVO4B5c="
- accountID="gys4puOdx15pknQYcVtF4DmOo2tOYouoiqcQAHKApSF"
- userID="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV"
- serverID="tmHvLZxb13hW6OyH1oHKTmKd7fTMRsUfzqPE6KCwSjl" />
-<!-- assetTypeID: mNS1ODAXQoSXpWJfC5awE9zAXCm9aVfiE0WQGsIOw4B -->
-
-<!-- Last retrieved balance: 39901 on date: 1323605783 -->
-<!-- Account type: simple --><assetAccount name="eJzjEnTKT1IvVnBPzE1VCMnPTs0rBgAzjQX3"
- accountID="vuXpQt8h6CRGcz6G5zMOXqQeIRpsOq05VLuJ5IAFS5R"
- userID="1mxwHcQvxSgqWqy2e28ZREeuVVfgs0kxE41FN10TnS3"
- serverID="tmHvLZxb13hW6OyH1oHKTmKd7fTMRsUfzqPE6KCwSjl" />
-<!-- assetTypeID: SjSYAUzN1RLjGre0kqDJynFos1MRYzrxOOenHY0Lpjd -->
-
-<!-- Last retrieved balance: 50000 on date: 1323605760 -->
+<!-- Last retrieved balance: 99 on date: 1330081330 -->
 <!-- Account type: simple --><assetAccount name="eJzj4nHKT1IvVgjOzClLLQIAGwsEWQ=="
- accountID="w06QIURsSDV7sdWWvyPSxRaiv4T2MUQbJyWmIKxSmuL"
- userID="1mxwHcQvxSgqWqy2e28ZREeuVVfgs0kxE41FN10TnS3"
- serverID="tmHvLZxb13hW6OyH1oHKTmKd7fTMRsUfzqPE6KCwSjl" />
-<!-- assetTypeID: mNS1ODAXQoSXpWJfC5awE9zAXCm9aVfiE0WQGsIOw4B -->
+ accountID="eLHI847aEQ7VbZcB6UZQJfjFcVC7lcZoGv17sTMH8P2"
+ userID="JAQkYVSAGgzd89h0mmIkiM4xOLiVJpaPQLq1hiihGLm"
+ serverID="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1" />
+<!-- assetTypeID: CvHGtfOOKzQKL5hFL7J4iF5yAodVKhS1rxPzME5R9XA -->
+
+<!-- Last retrieved balance: 0 on date: 1330081414 -->
+<!-- Account type: simple --><assetAccount name="eJzjEnALUS9WcE/MTVUIyc9OzSsGACucBX0="
+ accountID="hQiokW4CGpa94Zimh95VA01aBqip6bKCGjhCsRsp57R"
+ userID="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV"
+ serverID="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1" />
+<!-- assetTypeID: ttHGviJ9hRcijEvWT4f9KpqVcZ7c0UqXYNslvSEa6gJ -->
+
+<!-- Last retrieved balance: 99901 on date: 1330080645 -->
+<!-- Account type: simple --><assetAccount name="eJzj4nYLUS9WCM7MKUstAgAVgQPf"
+ accountID="o73TawU9nHQlKjH1brOgKWarrVHKAiZeTEycUYEH33o"
+ userID="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV"
+ serverID="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1" />
+<!-- assetTypeID: CvHGtfOOKzQKL5hFL7J4iF5yAodVKhS1rxPzME5R9XA -->
+
+<!-- Last retrieved balance: 0 on date: 1330081512 -->
+<!-- Account type: simple --><assetAccount name="eJzjEnTKT1IvVnBPzE1VCMnPTs0rBgAzjQX3"
+ accountID="xIanotpjsy8GzCjB5c5e1pg0YZ8CJaRbPgw5iNjENDT"
+ userID="JAQkYVSAGgzd89h0mmIkiM4xOLiVJpaPQLq1hiihGLm"
+ serverID="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1" />
+<!-- assetTypeID: ttHGviJ9hRcijEvWT4f9KpqVcZ7c0UqXYNslvSEa6gJ -->
 
 </wallet>

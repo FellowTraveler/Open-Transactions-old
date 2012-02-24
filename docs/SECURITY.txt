@@ -24,7 +24,19 @@ TODO: code audit (by outside experts.)
 
 
 
-
+NOTE: The OTContract signature code had a subtle bug that is now
+fixed. Certain signatures would fail to verify due to the fact that
+the openSSL functions were being passed a wrong parameter, but the
+bug was such that it still worked with most data. Every now and then,
+a signature comes along with data outside a specific range and BAM.
+==> I only note this here because as a result of fixing this, I
+ended up going over the signature code VERY closely and reading all
+the docs for those functions, and remembering a customization I had
+thrown in allowing for multiple-hashes in a signature, not just one.
+(Necessitating the use of a lower-level function, of course, which
+I had copied from Google and which was being used slightly wrong.)
+This is a good process because I feel pretty good about the signature
+code now. 
 
 
 

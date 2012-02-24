@@ -481,7 +481,8 @@ bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox,
 			pAcceptItem->SignContract(*pNym);
 			pAcceptItem->SaveContract();
 			
-			OTLog::vOutput(0, "Received a server notification in your Nymbox:\n%s\n", strRespTo.Get());
+			OTLog::vOutput(0, "OTClient::AcceptEntireNymbox: Received a server notification in your Nymbox:\n%s\n", 
+                           strRespTo.Get());
 
 			// Todo: stash these somewhere, just like messages are in the pNym->AddMail() feature.
 			// NOTE: Most likely we still stash these in the paymentInbox just the same as instrumentNotice (above)
@@ -507,11 +508,25 @@ bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox,
 			// them from my tentative list, and add them as actual transactions. I also need to update my
 			// "most recent" highest trans # to reflect these new numbers.
 			//
-			if (false == pNym->VerifyTentativeNum(strServerID, pTransaction->GetReferenceToNum()))
-				OTLog::vOutput(1, "AcceptEntireNymbox: OTTransaction::successNotice: This wasn't on my tentative list (%ld), I must have already processed it. "
-							   "(Or there was dropped message when I did, or the server is trying to slip me an old number.\n)", pTransaction->GetReferenceToNum());
-			else
-				setNoticeNumbers.insert(pTransaction->GetReferenceToNum()); // I have a successNotice for a # that was really on my tentative list.
+            OTNumList theOutput;
+            pTransaction->GetNumList(theOutput); // Get the numlist from the successNotice transaction
+            // ----------------------------------
+            std::set<long> theNumbers;          // 
+            theOutput.Output(theNumbers);       // Get the actual set of numbers from the numlist object.
+            // --------------------------------
+            // Iterate through those numbers...
+            //
+            FOR_EACH(std::set<long>, theNumbers)
+            {
+                const long lValue = *it;
+                // ----------------------
+                
+                if (false == pNym->VerifyTentativeNum(strServerID, lValue))
+                    OTLog::vOutput(1, "OTClient::AcceptEntireNymbox: OTTransaction::successNotice: This wasn't on my tentative list (%ld), I must have already processed it. "
+                                   "(Or there was dropped message when I did, or the server is trying to slip me an old number.\n)", lValue);
+                else
+                    setNoticeNumbers.insert(lValue); // I only take the numbers that I had been expecting, as tentative numbers, 
+            }            
 			// -----------------------------------------------
 			OTItem * pAcceptItem = OTItem::CreateItemFromTransaction(*pAcceptTransaction, OTItem::acceptNotice);
 			
@@ -567,7 +582,7 @@ bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox,
 				else // strOriginalReply.Exists() == true.
 				{
 					OTMessage * pMessage = new OTMessage;
-					OT_ASSERT_MSG(pMessage != NULL, "OTMessage * pMessage = new OTMessage;");
+					OT_ASSERT_MSG(pMessage != NULL, "OTClient::AcceptEntireNymbox: OTMessage * pMessage = new OTMessage;");
 					
 					if (false == pMessage->LoadContractFromString(strOriginalReply))
 					{
@@ -627,26 +642,46 @@ bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox,
 			// numbers in the new transaction agreement. (Removing them immediately after, and
 			// then only adding them for real if we get a server acknowledgment.)
 			//
-			if (pNym->VerifyIssuedNum(strServerID, pTransaction->GetTransactionNum()))
-				OTLog::Error("Attempted to accept a blank transaction number that I ALREADY HAD...\n");
-			else if (bGotHighestNum && (pTransaction->GetTransactionNum() <= lHighestNum)) // Man, this is old numbers we've already HAD before!
-				OTLog::Error("Attempted to accept a blank transaction number that I've HAD BEFORE (Or at least, is lower than ones I've had before)...\n");
-			else 
-			{
-				theIssuedNym.AddIssuedNum(strServerID, pTransaction->GetTransactionNum());
-				// -----------------------------------------------
-				OTItem * pAcceptItem = OTItem::CreateItemFromTransaction(*pAcceptTransaction, OTItem::acceptTransaction);
-				
-				// the transaction will handle cleaning up the transaction item.
-				pAcceptTransaction->AddItem(*pAcceptItem);
-				
-				pAcceptItem->SetReferenceToNum(pTransaction->GetTransactionNum()); // This is critical. Server needs this to look up the original.
-				// Don't need to set transaction num on item since the constructor already got it off the owner transaction.
-				
-				// sign the item
-				pAcceptItem->SignContract(*pNym);
-				pAcceptItem->SaveContract();
-			}
+            OTNumList theNumlist, theBlankList;
+            pTransaction->GetNumList(theNumlist);
+            std::set<long> theNumbers;
+            theNumlist.Output(theNumbers);
+            
+            FOR_EACH(std::set<long>, theNumbers)
+            {
+                const long lTransactionNumber = *it;
+                // -----------------------------------------
+                // Loop FOR EACH TRANSACTION NUMBER in the "blank" (there could be 20 of them...)
+                //
+                if (pNym->VerifyIssuedNum(strServerID, lTransactionNumber)) // Trans number is already issued to this nym (must be an old notice.)
+                    OTLog::vOutput(0, "OTClient::AcceptEntireNymbox: Attempted to accept a blank transaction number that I ALREADY HAD...(Skipping.)\n");
+                else if (pNym->VerifyTentativeNum(strServerID, lTransactionNumber)) // Trans number is already on the tentative list (meaning it's already been accepted.)
+                    OTLog::vOutput(0, "OTClient::AcceptEntireNymbox: Attempted to accept a blank transaction number that I ALREADY ACCEPTED (it's on my tentative list already; Skipping.)\n");
+                else if (bGotHighestNum && (lTransactionNumber <= lHighestNum)) // Man, this is old numbers we've already HAD before!
+                    OTLog::vOutput(0, "OTClient::AcceptEntireNymbox: Attempted to accept a blank transaction number that I've HAD BEFORE, "
+                                   "or at least, is <= to ones I've had before. (Skipping...)\n");
+                else
+                {
+                    theIssuedNym.AddIssuedNum(strServerID, lTransactionNumber);
+                    // -------------------------------------
+                    theBlankList.Add(lTransactionNumber);
+                }
+            }// for-each
+            // -----------------------------------------------
+            OTItem * pAcceptItem = OTItem::CreateItemFromTransaction(*pAcceptTransaction, OTItem::acceptTransaction);
+            
+            pAcceptItem->AddBlankNumbersToItem(theBlankList);
+            
+            // the transaction will handle cleaning up the transaction item.
+            pAcceptTransaction->AddItem(*pAcceptItem);
+            
+            pAcceptItem->SetReferenceToNum(pTransaction->GetTransactionNum()); // This is critical. Server needs this to look up the original.
+            // Don't need to set transaction num on item since the constructor already got it off the owner transaction.
+            
+            // sign the item
+            pAcceptItem->SignContract(*pNym);
+            pAcceptItem->SaveContract();
+            // ------------------------------------------------------------
 		} // else if blank
 		
 		// ------------------------------------------------------------
@@ -671,10 +706,10 @@ bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox,
 			// my future balance agreements. (The instant a finalReceipt appears, the "in ref to" # is already gone..)
 			//
 			if (pNym->RemoveIssuedNum(*pNym, strServerID, pTransaction->GetReferenceToNum(), true)) // bool bSave=true
-				OTLog::vOutput(1, "**** Due to finding a finalReceipt, REMOVING OPENING NUMBER FROM NYM:  %ld \n", 
+				OTLog::vOutput(1, "OTClient::AcceptEntireNymbox: **** Due to finding a finalReceipt, REMOVING OPENING NUMBER FROM NYM:  %ld \n", 
 							   pTransaction->GetReferenceToNum());
 			else
-				OTLog::vOutput(1, "**** Noticed a finalReceipt, but Opening Number %ld had ALREADY been removed from nym. \n",
+				OTLog::vOutput(1, "OTClient::AcceptEntireNymbox: **** Noticed a finalReceipt, but Opening Number %ld had ALREADY been removed from nym. \n",
 							   pTransaction->GetReferenceToNum());
 
 			//
@@ -702,37 +737,41 @@ bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox,
 	//
 	if (pAcceptTransaction->GetItemCount())
 	{
-//		OTMessage theMessage;
-		
-		// IF there were transactions that were already added to me, (and I have notice of them here)
-		// they will be in this set. Also they'll only be here IF they were verified as ACTUALLY being
+		// IF there were transactions that were approved for me, (and I have notice of them in my nymbox)
+		// then they will be in this set. Also, they'll only be here IF they were verified as ACTUALLY being
 		// on my tentative list.
 		// Therefore need to REMOVE from Tentative list, and add to actual issued/available lists.
+        //
 		if (setNoticeNumbers.size() > 0)
 		{
-			long lViolator = pNym->UpdateHighestNum(*pNym, strServerID, setNoticeNumbers); // bSave=false (saved below if necessary)
-			
-			if (lViolator != 0)
-				OTLog::vError("OTPseudonym::AcceptEntireNymbox: ERROR: Tried to update highest trans # for a server, with lower numbers!"
-							  "This should NEVER HAPPEN, since these numbers are supposedly verified already before even getting this far.\n"
-							  "Violating number (too low): %ld, Nym ID: %s \n", lViolator, strNymID.Get());
-			else
+            //
+            // Note: No need to update highest num here, since that should have already been done when they were
+            // added to my issued list in the first place. (Removed from tentative.)
+            //
+//			long lViolator = pNym->UpdateHighestNum(*pNym, strServerID, setNoticeNumbers); // bSave=false (saved below if necessary)
+//			
+//			if (lViolator != 0)
+//				OTLog::vError("OTClient::AcceptEntireNymbox: ERROR: Tried to update highest trans # for a server, with lower numbers!\n"
+//							  "This should NEVER HAPPEN, since these numbers are supposedly verified already before even getting this far.\n"
+//							  "Violating number (too low): %ld, Nym ID: %s \n", lViolator, strNymID.Get());
+//			else
 			{
 				FOR_EACH(std::set<long>, setNoticeNumbers)
 				{
 					const long lNoticeNum = (*it);
 					
-					pNym->RemoveTentativeNum(strServerID, lNoticeNum); // doesn't save (but saved below)
-					pNym->AddTransactionNum(*pNym, strServerID, lNoticeNum, false); // bSave = false (but saved below...)
+					if (pNym->RemoveTentativeNum(strServerID, lNoticeNum)) // doesn't save (but saved below)
+                        pNym->AddTransactionNum(*pNym, strServerID, lNoticeNum, false); // bSave = false (but saved below...)
 				}
 				
-				// The notice means it already happened in the past. Until I recognize it, all my 
-				// transaction statements will fail. (Like the one a few lines below...)
+				// The notice means it already happened in the past. I already accepted the transaction # in my past,
+                // and now there is a notice of that fact sitting in my Nymbox. Until I recognize it, all my transaction
+				// statements will fail. (Like the one a few lines below here...)
 				//
 				pNym->SaveSignedNymfile(*pNym); 
 			}			
 		}
-		// -------------------------------------------
+		//*********************************************************************************
 		
 		if (ProcessUserCommand(OTClient::processNymbox, theMessage, 
 							   *pNym, 
@@ -758,6 +797,11 @@ bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox,
 			for (int i = 0; i < theIssuedNym.GetIssuedNumCount(theServerID); i++)
 			{
 				long lTemp = theIssuedNym.GetIssuedNum(theServerID, i);
+                // We know it's not already issued on the Nym, or it wouldn't have even gotten
+                // set inside theIssuedNym in the first place (further up above.) That's why
+                // we are confident now that we can add it, generate the transaction statement,
+                // and then remove it again.
+                //
 				pNym->AddIssuedNum(strServerID, lTemp); // doesn't save.
 			}
             
@@ -3356,8 +3400,9 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                             
                             if (NULL == pServerTransaction)
                             {
-                                OTLog::Error("Unable to find the server's receipt in my Nymbox, that my original processNymbox's "
-											 "item was referring to.\n");								
+                                OTLog::vOutput(1, "OTClient::ProcessServerReply: The original processNymbox item referred to trans number %ld, but that receipt wasn't in my Nymbox. "
+                                               "(We probably processed this server reply ALREADY, and now we're just seeing it again since an extra copy was dropped into the Nymbox originally. "
+                                               "Skipping.)", pItem->GetReferenceToNum());
                                 break; // We must have processed this reply already, and it just came through again cause a copy was in a nymbox notice.
                             }
                             
@@ -3366,9 +3411,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                             // All of these need to remove something from the client-side Nymbox. (Which happens below this switch.)
                             //
                             switch (pReplyItem->GetType())	
-                            {								// Some also need to remove an issued transaction number from pNym.
-
-									
+                            {	// Some also need to remove an issued transaction number from pNym.
                                 case OTItem::atAcceptMessage: 
                                 case OTItem::atAcceptNotice: 
                                 case OTItem::atAcceptTransaction:
@@ -3411,7 +3454,8 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 							//
 							pServerTransaction->DeleteBoxReceipt(*pNymbox); // faster.
 //							pNymbox->DeleteBoxReceipt(pServerTransaction->GetTransactionNum());
-                            pNymbox->RemoveTransaction(pServerTransaction->GetTransactionNum());												
+                            pNymbox->RemoveTransaction(pServerTransaction->GetTransactionNum());
+                            
                         } // for loop (reply items)
                         
                         // ---------------------------------------

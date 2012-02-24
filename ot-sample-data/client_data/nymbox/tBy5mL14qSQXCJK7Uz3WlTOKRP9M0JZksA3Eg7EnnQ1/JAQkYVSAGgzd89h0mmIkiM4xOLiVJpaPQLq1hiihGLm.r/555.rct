@@ -1,0 +1,38 @@
+-----BEGIN SIGNED TRANSACTION-----
+Hash: SAMY
+
+<transaction type="successNotice"
+ dateSigned="1330080682"
+ accountID="JAQkYVSAGgzd89h0mmIkiM4xOLiVJpaPQLq1hiihGLm"
+ userID="JAQkYVSAGgzd89h0mmIkiM4xOLiVJpaPQLq1hiihGLm"
+ serverID="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1"
+ transactionNum="555"
+ totalListOfNumbers="535,536,537,538,539,540,541,542,543,544,545,546,547,548,549,550,551,552,553,554"
+ inReferenceTo="535" >
+
+<inReferenceTo>
+eJyVks1yokAUhXez4Ckot/kBBjqiNaYKFA2I/AhiyI5gK600IDRqfKh5xrkki7Ey
+q6HqLLj9nVtd5zT3+8dD9+nGzHT4wJw5xoQPl5oTaOPQdB3eDI3FJ8G9JE025ANt
+EXPcL8Iw5dlHhUe9JE1xxcI6KZokZaQsehzfsIS1zahX42OLGwYT9vfcaemoJ3az
+kiW5TRrmbmH2jmtwIBndI/kJ1AepoME9UkSQBPoJkkEKCDgFOAU4BTgFOAQcAg4B
+h4BDSncXXJ9wbU5GPaZ/IGpLyjHwX8fWvL+6yus8dOdLb7AQrbdDo8nGrm8UhS+B
+r22+XJbmH+Io0Ga760YdZCKl5oEslItrk8iqEs+3j1JGSDazKbi2dUm1NC3bgv2/
+mZU3VvgnxRJvcY2LFIflZzYwTGhHdAnyz9CE0FXxzN20+L2+z1q1cLU0voqMIGio
+Yci7FS74m+IaXnzsq9y4pBQXbMhnjFVDQdgRlrXvj2lJhSnO8/IMlhPOcS10Cx5u
+FwhnciAcbND0fOcJYhxF2Ukax0dfNlt1hVQhN0L74FtP53e28/djTxY37K1oL85J
+0UK2IRWL0zk3PyXG68vAmy0O4kYtgst1b9K+ieS5UE/bhMV66iGWo2Pkh+coNipC
+JsJllT3F9eluPX7hpOBOX9jYWleXqLHdRLXZm244+4oWlr4zHS9dTwVdcT+QNL9i
+ZfSVn+H8+/i/pfcHRq744w==
+</inReferenceTo>
+
+</transaction>
+-----BEGIN TRANSACTION SIGNATURE-----
+Version: Open Transactions 0.78
+Comment: http://github.com/FellowTraveler/Open-Transactions/wiki
+
+CoAB0dJLBcnyCEC9+BahoyPTp6naG670WUqsyhm3/QxREMbBjGy23Q2NYoRDGBKG
+pXqERomwUUtdEzkfq61imCl0t2XdCKKnOqLd9CAHXFUt6xJXq5IgkHp09yKOQ/qP
+vdudb4CRNaxhpQ+oQgzgt/HGJbNYZt7XuqDW+++p1nyNdeo=
+-----END TRANSACTION SIGNATURE-----
+
+MARKED_FOR_DELETION

@@ -3,9 +3,15 @@
 # If you don't specify --mynym ID or --myacct ID, then
 # it comes from here instead.
 
-defaultserver : tmHvLZxb13hW6OyH1oHKTmKd7fTMRsUfzqPE6KCwSjl 
+defaultserver : tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1 
 
 defaultmynym : T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV
+
+
+
+
+#TODO: replace these IDs with the new ones
+
 #defaultmypurse : mNS1ODAXQoSXpWJfC5awE9zAXCm9aVfiE0WQGsIOw4B 
 #defaultmyacct : XkBPyMsQfBqu0gs4ExARDUEAnnKdZotLfJLi2a85rbB 
 

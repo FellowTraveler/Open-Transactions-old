@@ -948,6 +948,7 @@ bool OTPseudonym::UnRegisterAtServer(const OTString & strServerID)
 
 void OTPseudonym::ReleaseTransactionNumbers()
 {
+	// -------------------------------------------
 	while (!m_mapTransNum.empty())
 	{		
 		dequeOfTransNums * pDeque = m_mapTransNum.begin()->second;
@@ -955,10 +956,9 @@ void OTPseudonym::ReleaseTransactionNumbers()
 		// ------------------------
 		m_mapTransNum.erase(m_mapTransNum.begin());
 		// ------------------------
-		delete pDeque;
-		pDeque = NULL;
+		delete pDeque; pDeque = NULL;
 	}	
-	
+	// -------------------------------------------
 	while (!m_mapIssuedNum.empty())
 	{		
 		dequeOfTransNums * pDeque = m_mapIssuedNum.begin()->second;
@@ -966,10 +966,9 @@ void OTPseudonym::ReleaseTransactionNumbers()
 		// ------------------------
 		m_mapIssuedNum.erase(m_mapIssuedNum.begin());
 		// ------------------------
-		delete pDeque;
-		pDeque = NULL;
+		delete pDeque; pDeque = NULL;
 	}	
-	
+	// -------------------------------------------
 	while (!m_mapTentativeNum.empty())
 	{		
 		dequeOfTransNums * pDeque = m_mapTentativeNum.begin()->second;
@@ -977,9 +976,9 @@ void OTPseudonym::ReleaseTransactionNumbers()
 		// ------------------------
 		m_mapTentativeNum.erase(m_mapTentativeNum.begin());
 		// ------------------------
-		delete pDeque;
-		pDeque = NULL;
+		delete pDeque; pDeque = NULL;
 	}	
+	// -------------------------------------------
 }
 
 
@@ -1067,8 +1066,9 @@ bool OTPseudonym::ResyncWithServer(OTLedger & theNymbox, OTPseudonym & theMessag
 	// ***************************************************************************
 	// We already cleared all tentative numbers from *this (above in 
 	// RemoveAllNumbers). Next, loop through theNymbox and add Tentative numbers 
-	// to *this based on each successNotice in the Nymbox.
-	
+	// to *this based on each successNotice in the Nymbox. This way, when the notices
+    // are processed, they will succeed because the Nym will believe he was expecting them.
+	//
 	FOR_EACH(mapOfTransactions, theNymbox.GetTransactionMap())
 	{
 		OTTransaction * pTransaction = (*it).second;
@@ -1082,7 +1082,7 @@ bool OTPseudonym::ResyncWithServer(OTLedger & theNymbox, OTPseudonym & theMessag
 		// -------------
 		const long lNum = pTransaction->GetReferenceToNum(); // successNotice is inRefTo the new transaction # that should be on my tentative list.
 		
-		if (false == this->AddTentativeNum(strServerID, lNum))		// Add to list of available-to-use numbers.
+		if (false == this->AddTentativeNum(strServerID, lNum))		// Add to list of tentatively-being-added numbers.
 		{
 			OTLog::vError("OTPseudonym::ResyncWithServer: Failed trying to add TentativeNum (%ld) onto *this nym: %s, for server: %s\n",
 						  lNum, strNymID.Get(), strServerID.Get());
@@ -1589,7 +1589,7 @@ void OTPseudonym::HarvestTransactionNumbers(const OTIdentifier & theServerID,
 	bool bSuccess = false;
 	long lTransactionNumber = 0;
 	
-	std::set<long> setNoticeNumbers;
+	std::set<long> setInput, setOutputGood, setOutputBad;
 
 	FOR_EACH(mapOfTransNums, theOtherNym.GetMapIssuedNum())
 	{	
@@ -1611,10 +1611,10 @@ void OTPseudonym::HarvestTransactionNumbers(const OTIdentifier & theServerID,
 				// Otherwise do nothing (it's already on the issued list, and no longer 
 				// valid on the available list--thus shouldn't be re-added there anyway.)
 				// 
-				if ( VerifyTentativeNum(OTstrServerID, lTransactionNumber) &&		// If I've actually requested this number and waiting on it...
-					(false == VerifyIssuedNum(OTstrServerID, lTransactionNumber))	// and if it's not already on my issued list...
+				if ((true   == VerifyTentativeNum(OTstrServerID, lTransactionNumber)) &&	// If I've actually requested this number and waiting on it...
+					(false  == VerifyIssuedNum(OTstrServerID, lTransactionNumber))          // and if it's not already on my issued list...
 					)
-					setNoticeNumbers.insert(lTransactionNumber);
+					setInput.insert(lTransactionNumber);
 				
 				bSuccess = true;
 			}
@@ -1625,18 +1625,35 @@ void OTPseudonym::HarvestTransactionNumbers(const OTIdentifier & theServerID,
 	if (bSuccess)
 	{
 		const OTString strServerID(theServerID), strNymID(m_nymID);
-		long lViolator = this->UpdateHighestNum(SIGNER_NYM, strServerID, setNoticeNumbers); // bSave=false (saved below if necessary)
-		
-		if (lViolator != 0)
-			OTLog::vError("OTPseudonym::HarvestTransactionNumbers: ERROR: Tried to update highest trans # for a server, with lower numbers!"
-						  "This should NEVER HAPPEN, since these numbers are supposedly verified already before even getting this far.\n"
-						  "Violating number (too low): %ld, Nym ID: %s \n", lViolator, strNymID.Get());
+        
+		long lViolator = this->UpdateHighestNum(SIGNER_NYM, strServerID, setInput, setOutputGood, setOutputBad); // bSave=false (saved below already, if necessary)
+
+		// NOTE: Due to the possibility that a server reply could be process twice (due to redundancy
+        // for the purposes of preventing syncing issues) then we expect we might get numbers in here
+        // that are below our "last highest num" (due to processing the same numbers twice.) Therefore
+        // we don't need to assume an error in this case. UpdateHighestNum() is already smart enough to
+        // only update based on the good numbers, while ignoring the bad (i.e. already-processed) ones.
+        // Thus we really only have a problem if we receive a (-1), which would mean an error occurred.
+        // Also, the above call will log an FYI that it is skipping any numbers below the line, so no need
+        // to log more in the case of lViolater being >0 but less than the 'last highest number.'
+        //
+		if ((-1) == lViolator)
+			OTLog::vError("OTPseudonym::HarvestTransactionNumbers: ERROR: UpdateHighestNum() "
+                          "returned (-1), which is an error condition. (Should never happen.)\n"
+						  "Nym ID: %s \n", strNymID.Get());
 		else
 		{
-			FOR_EACH(std::set<long>, setNoticeNumbers)
+            // We only remove-tentative-num/add-transaction-num for the numbers that were above our 'last highest number'.
+            // The contents of setOutputBad are thus ignored for these purposes.
+            //
+			FOR_EACH(std::set<long>, setOutputGood) 
 			{
 				const long lNoticeNum = (*it);
-
+                // --------------------------------------
+                // We already know it's on the TentativeNum list, since we checked that in the above for loop.
+                // We also already know that it's not on the issued list, since we checked that as well.
+                // That's why the below calls just ASSUME those things already.
+                //
 				RemoveTentativeNum(strServerID, lNoticeNum); // doesn't save (but saved below)
 				AddTransactionNum(SIGNER_NYM, strServerID, lNoticeNum, false); // bSave = false (but saved below...)
 			}
@@ -1793,35 +1810,46 @@ bool OTPseudonym::GetHighestNum(const OTString & strServerID, long &lHighestNum)
 // "highest" number I've ever received that server. Otherwise fail.
 // If success, returns 0. If failure, returns the number that caused us to fail (by being lower than the last 
 // highest number.) I should NEVER receive a new transaction number that is lower than any I've gotten before.
-// They should always only get bigger.
+// They should always only get bigger. UPDATE: Unless I happen to be processing an old receipt twice... (which
+// can happen, due to redundancy used for preventing syncing issues, such as Nymbox notices.)
 //
-long OTPseudonym::UpdateHighestNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, std::set<long> & setNumbers, bool bSave/*=false*/)
+long OTPseudonym::UpdateHighestNum(OTPseudonym & SIGNER_NYM,
+                                   const OTString & strServerID,
+                                   std::set<long> & setNumbers,
+                                   std::set<long> & setOutputGood,
+                                   std::set<long> & setOutputBad, bool bSave/*=false*/)
 {
-	bool bSuccess = false;
-	
+	bool bSuccess   = false;
+	long lReturnVal = 0; // 0 is success.
+    
 	// First find the highest and lowest numbers out of the new set.
 	//
-	long lHighestInSet = 0;
-	long lLowestInSet = 0;
+	long lHighestInSet  = 0;
+	long lLowestInSet   = 0;
+    
 	FOR_EACH(std::set<long>, setNumbers)
 	{
-		long lSetNum = *it;
+		const long lSetNum = *it;
 
-		if (lSetNum > lHighestInSet)		lHighestInSet = lSetNum;
+		if (lSetNum > lHighestInSet)		lHighestInSet = lSetNum;    // Set lHighestInSet to contain the highest number out of setNumbers (input)
 		// ---------------------
-		if (0 == lLowestInSet)				lLowestInSet = lSetNum;
-		else if (lSetNum < lLowestInSet)	lLowestInSet = lSetNum;
-	} 
-
+		if (0 == lLowestInSet)				lLowestInSet = lSetNum;     // If lLowestInSet is still 0, then set it to the current number (happens first iteration.)
+		else if (lSetNum < lLowestInSet)	lLowestInSet = lSetNum;     // If current number is less than lLowestInSet, then set lLowestInSet to current Number.
+	}
+    
+    // By this point, lLowestInSet contains the lowest number in setNumbers,
+    // and lHighestInSet contains the highest number in setNumbers.
+    // -------------------------------------------------------------------
+    //
 	// The Pseudonym has a map of the "highest transaction numbers" for different servers.
 	// For Server Bob, with this Pseudonym, I might be on number 34.
 	// For but Server Alice, I might be on number 59.
 	// 
 	// So let's loop through all the numbers I have, and if the server ID on the map
-	// matches the Server ID that was passed in, then update it there.
+	// matches the Server ID that was passed in, then update it there (then break.)
 	//
-	// Make sure to save the Pseudonym so the new numbers are saved.
-	//
+	// Make sure to save the Pseudonym afterwards, so the new numbers are saved.
+
 	std::string strID	= strServerID.Get();
 	
 	FOR_EACH(mapOfHighestNums, m_mapHighTransNo)
@@ -1834,50 +1862,78 @@ long OTPseudonym::UpdateHighestNum(OTPseudonym & SIGNER_NYM, const OTString & st
 			// was sitting in the file.
 			
 			// Grab a copy of the old highest trans number
-			long lOldHighestNumber = m_mapHighTransNo[it->first];
-			
+			const long lOldHighestNumber = m_mapHighTransNo[it->first]; // <=========== The previous "highest number".
+
+			// ----------------------------------------------
+            
+            FOR_EACH_IT(std::set<long>, setNumbers, it_numbers)
+            {
+                const long lSetNum = *it_numbers;
+                // ------------------------
+                // If the current number (this iteration) is less than or equal to the "old highest number" then it's not going to be added twice.
+                //
+                if (lSetNum <= lOldHighestNumber)
+                {
+                    OTLog::vOutput(1, "OTPseudonym::UpdateHighestNum: New transaction number is less-than-or-equal-to "
+                                   "last known 'highest trans number' record. (Must be seeing the same server reply for a second time, due to a receipt in my Nymbox.) "
+                                   "FYI, last known 'highest' number received: %ld (Current 'violator': %ld) Skipping...\n",
+                                   lOldHighestNumber, lSetNum);
+                    setOutputBad.insert(lSetNum);
+                }
+                // The number this iteration, as it should be, is higher than any transaction number 
+                else // I've ever received before. (Although sometimes old messages will 'echo'.)
+                {
+                    setOutputGood.insert(lSetNum);
+                    
+                    const long lCurrentHighestNumber = m_mapHighTransNo[it->first]; // <=========== The current "highest number".
+
+                    if (lCurrentHighestNumber < lSetNum)
+                    {
+                        OTLog::vOutput(4, "OTPseudonym::UpdateHighestNum: Raising Highest Trans Number from %ld to %ld.\n", 
+                                       lOldHighestNumber, lSetNum);
+                        m_mapHighTransNo[it->first] = lSetNum;
+                    }
+                }
+            }
+			// ----------------------------------------------
+
 			// Here we're making sure that all the numbers in the set are larger than any others
 			// that we've had before for the same server (They should only ever get larger.)
 			//
 //			if (lLowestInSet <= lOldHighestNumber) // ERROR!!! The new numbers should ALWAYS be larger than the previous ones!
-			if ((lLowestInSet > 0) && (lLowestInSet <= lOldHighestNumber)) // ERROR!!! The new numbers should ALWAYS be larger than the previous ones!
-			{
-				OTLog::vOutput(0, "OTPseudonym::UpdateHighestNum: Very strange! New numbers should never be lower "
-							   "than old numbers, but always higher! Last known 'highest' number received: %ld, Current violator: %ld\n",
-							   lOldHighestNumber, lLowestInSet);
-				return lLowestInSet;  // We return the violator (otherwise 0 if success).
-			}
-			
-			// By this point we know they're all larger, since otherwise we'd have returned out of this function.
-			// So let's set the NEW highest number:
-			//
-			m_mapHighTransNo[it->first] = lHighestInSet;
-			
-			OTLog::vOutput(4, "Raising Highest Trans Number from %ld to %ld. Saving...\n", 
-						   lOldHighestNumber, m_mapHighTransNo[it->first]);
-
-			// The call has succeeded
+			if ((lLowestInSet > 0) && (lLowestInSet <= lOldHighestNumber))  // WARNING! The new numbers should ALWAYS be larger than the previous ones!
+                                                                            // UPDATE: Unless we happen to be processing the same receipt for a second time, due to redundancy in the system (for preventing syncing errors.)
+				lReturnVal = lLowestInSet;  // We return the violator (otherwise 0 if success).
+			// ---------------------------------------------------------------
+			// The loop has succeeded in finding the server.
+            //
 			bSuccess = true;
-			break;
+			break;  // This main FOR_EACH only ever has one active iteration: the one with
+                    //  the right server ID. Once we find it, we break (no matter what.)
 		}
-	}
-	
-	// If I didn't find it in the list above (whether the list is empty or not....)
+	} // FOR_EACH
+	// -----------------------------------------
+    
+	// If I didn't find the server in the list above (whether the list is empty or not....)
 	// that means it does not exist. So create it.
 	
 	if (!bSuccess)
 	{
-		OTLog::vOutput(0, "Creating Highest Transaction Number entry as '%ld'. Saving...\n", lHighestInSet);
+		OTLog::vOutput(0, "OTPseudonym::UpdateHighestNum: Creating Highest Transaction Number entry for this server as '%ld'.\n", 
+                       lHighestInSet);
 		m_mapHighTransNo[strServerID.Get()] = lHighestInSet;
 		bSuccess = true;
 	}
-	
+	// ----------------------------------------
+    
 	if (bSuccess)
 	{
 		if (bSave)
 			SaveSignedNymfile(SIGNER_NYM);
-		
-		return 0;
+		// ---------------------------------
+        
+        
+		return lReturnVal; // Defaults to 0 (success) but above, might have been set to "lLowestInSet" (if one was below the mark.)
 	}
 	
 	return -1;  // should never reach this point.
@@ -2264,84 +2320,7 @@ bool OTPseudonym::CompareID(const OTPseudonym & RHS) const
 
 
 
-void OTPseudonym::DisplayStatistics(OTString & strOutput)
-{	
-	strOutput.Concatenate("==> Name: %s\n", m_strName.Get());
-	strOutput.Concatenate(" Version: %s\n", m_strVersion.Get());
-	
-	OTString theStringID;
-	GetIdentifier(theStringID);
-	strOutput.Concatenate("Nym (aka User) ID: %s\n", theStringID.Get());
-	
-	FOR_EACH(mapOfRequestNums, m_mapRequestNum)
-	{
-		std::string strServerID	= it->first;
-		long lRequestNumber		= it->second;
-		
-		// Now we can log BOTH, before and after...
-		strOutput.Concatenate("Request Number is %ld for server ID: %s\n", 
-					   lRequestNumber, strServerID.c_str());
-	}
-	
-	FOR_EACH(mapOfTransNums, m_mapIssuedNum)
-	{	
-		std::string strServerID		= (*it).first;
-		dequeOfTransNums * pDeque	= (it->second);
-		
-		OT_ASSERT(NULL != pDeque);
-		
-		if (!(pDeque->empty()))
-		{
-			for (unsigned i = 0; i < pDeque->size(); i++)
-			{
-				long lTransactionNumber = pDeque->at(i);
-				
-				strOutput.Concatenate("Signed for Transaction# %ld for server ID: %s\n", 
-									  lTransactionNumber, strServerID.c_str());
-			}
-		}
-	} // for
-	
-	FOR_EACH(mapOfTransNums, m_mapTransNum)
-	{	
-		std::string strServerID		= (*it).first;
-		dequeOfTransNums * pDeque	= (it->second);
-		
-		OT_ASSERT(NULL != pDeque);
-		
-		if (!(pDeque->empty()))
-		{
-			for (unsigned i = 0; i < pDeque->size(); i++)
-			{
-				long lTransactionNumber = pDeque->at(i);
-				
-				strOutput.Concatenate("Transaction# %ld still available for server ID: %s\n", 
-									  lTransactionNumber, strServerID.c_str());
-			}
-		}
-	} // for
-	
-	FOR_EACH(mapOfTransNums, m_mapTentativeNum)
-	{	
-		std::string strServerID		= (*it).first;
-		dequeOfTransNums * pDeque	= (it->second);
-		
-		OT_ASSERT(NULL != pDeque);
-		
-		if (!(pDeque->empty()))
-		{
-			for (unsigned i = 0; i < pDeque->size(); i++)
-			{
-				long lTransactionNumber = pDeque->at(i);
-				
-				strOutput.Concatenate("Transaction# %ld is tentatively signed out (waiting for server acknowledgment): %s\n", 
-									  lTransactionNumber, strServerID.c_str());
-			}
-		}
-	} // for
-}
-
-
+// --------------------------------------------------------------
 
 
 bool OTPseudonym::SavePseudonymWallet(OTString & strOutput) const
@@ -2832,7 +2811,9 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
 	}
 	
 	// -------------------------------------
-    
+    // These are used on the server side.
+    // (That's why you don't see the server ID saved here.)
+    //
 	if (!(m_setOpenCronItems.empty()))
 	{
 		FOR_EACH(std::set<long>, m_setOpenCronItems)
@@ -2845,7 +2826,9 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
 	}
 	
 	// -------------------------------------
-    
+    // These are used on the server side.
+    // (That's why you don't see the server ID saved here.)
+    //
 	if (!(m_setAccounts.empty()))
 	{
 		FOR_EACH(std::set<std::string>, m_setAccounts)
@@ -2863,6 +2846,106 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
 	
 	return true;
 	
+}
+
+
+
+
+// --------------------------------------------------------------
+
+// DISPLAY STATISTICS
+
+void OTPseudonym::DisplayStatistics(OTString & strOutput)
+{	
+	strOutput.Concatenate("==>      Name: %s   %s\n", m_strName.Get(),
+                          m_bMarkForDeletion ? "(MARKED FOR DELETION)" : "");
+	strOutput.Concatenate("      Version: %s\n", m_strVersion.Get());
+	strOutput.Concatenate("Usage Credits: %ld\n", m_lUsageCredits);
+
+    strOutput.Concatenate("       Mail count: %d\n", m_dequeMail.size());
+	strOutput.Concatenate("    Outmail count: %d\n", m_dequeOutmail.size());
+	strOutput.Concatenate("Outpayments count: %d\n", m_dequeOutpayments.size());
+
+	OTString theStringID;
+	GetIdentifier(theStringID);
+	strOutput.Concatenate("Nym (aka User) ID: %s\n", theStringID.Get());
+	
+	FOR_EACH(mapOfRequestNums, m_mapRequestNum)
+	{
+		std::string strServerID	= it->first;
+		long lRequestNumber		= it->second;
+		
+		// Now we can log BOTH, before and after...
+		strOutput.Concatenate("Request Number is %ld for server ID: %s\n", 
+                              lRequestNumber, strServerID.c_str());
+	}    
+    // -------------------------------------
+    
+    FOR_EACH(mapOfHighestNums, m_mapHighTransNo)
+    {	
+        std::string	strServerID = (*it).first;
+        const long lHighestNum  = (*it).second;
+        
+        strOutput.Concatenate("Highest trans# ever received was %ld for server: %s\n",
+                              lHighestNum, strServerID.c_str());
+    }
+
+	FOR_EACH(mapOfTransNums, m_mapIssuedNum)
+	{	
+		std::string strServerID		= (*it).first;
+		dequeOfTransNums * pDeque	= (it->second);
+		
+		OT_ASSERT(NULL != pDeque);
+		
+		if (!(pDeque->empty()))
+		{
+			for (unsigned i = 0; i < pDeque->size(); i++)
+			{
+				long lTransactionNumber = pDeque->at(i);
+				
+				strOutput.Concatenate("Signed for Transaction# %ld for server ID: %s\n", 
+									  lTransactionNumber, strServerID.c_str());
+			}
+		}
+	} // for
+	
+	FOR_EACH(mapOfTransNums, m_mapTransNum)
+	{	
+		std::string strServerID		= (*it).first;
+		dequeOfTransNums * pDeque	= (it->second);
+		
+		OT_ASSERT(NULL != pDeque);
+		
+		if (!(pDeque->empty()))
+		{
+			for (unsigned i = 0; i < pDeque->size(); i++)
+			{
+				long lTransactionNumber = pDeque->at(i);
+				
+				strOutput.Concatenate("Transaction# %ld still usable for server ID: %s\n", 
+									  lTransactionNumber, strServerID.c_str());
+			}
+		}
+	} // for
+	
+	FOR_EACH(mapOfTransNums, m_mapTentativeNum)
+	{	
+		std::string strServerID		= (*it).first;
+		dequeOfTransNums * pDeque	= (it->second);
+		
+		OT_ASSERT(NULL != pDeque);
+		
+		if (!(pDeque->empty()))
+		{
+			for (unsigned i = 0; i < pDeque->size(); i++)
+			{
+				long lTransactionNumber = pDeque->at(i);
+				
+				strOutput.Concatenate("Transaction# %ld is tentatively signed out (waiting for server acknowledgment): %s\n", 
+									  lTransactionNumber, strServerID.c_str());
+			}
+		}
+	} // for
 }
 
 
@@ -3701,16 +3784,33 @@ OTPseudonym::OTPseudonym(const OTString & strNymID) : m_bMarkForDeletion(false),
 
 OTPseudonym::~OTPseudonym()
 {
-	delete m_pkeyPublic;
-	delete m_pkeyPrivate;
+    if (NULL != m_pkeyPublic)
+        delete m_pkeyPublic; // todo: else error
+    if (NULL != m_pkeyPrivate)
+        delete m_pkeyPrivate; // todo: else error
+    // -----------------------------
 	m_pkeyPublic	= NULL;
 	m_pkeyPrivate	= NULL;
-	
+    // -----------------------------
 	ReleaseTransactionNumbers();
-	
+    // -----------------------------
 	ClearMail();
 	ClearOutmail();
 	ClearOutpayments();
+    // -----------------------------
+
+    // Note: unnecessary, superfluous.
+    // Might as well release the strings and identifiers too...
+    // (Since they are ALSO cleaned up automatically.)
+    //
+//    m_mapRequestNum.clear();
+//    // -----------------------------
+//    m_mapHighTransNo.clear();
+//    // -----------------------------
+//    m_setOpenCronItems.clear(); 
+//    // -----------------------------
+//    m_setAccounts.clear(); 
+    // -----------------------------
 }
 
 

@@ -990,6 +990,15 @@ OTItem * OTItem::GetFinalReceiptItemByReferenceNum(const long lReferenceNumber)
 
 
 
+// For "OTItem::acceptTransaction"
+//
+bool OTItem::AddBlankNumbersToItem(const OTNumList & theAddition)
+{
+    return m_Numlist.Add(theAddition);
+}
+
+
+
 
 
 
@@ -1435,8 +1444,20 @@ int OTItem::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		if (strOutboxNewTransNum.Exists())
 			m_lNewOutboxTransNum = atol(strOutboxNewTransNum.Get());
 		// --------------------------------------------------------
-		
-		
+		// an OTTransaction::blank may now contain 20 or 100 new numbers.
+        // Therefore, the OTItem::acceptTransaction must contain the same list,
+        // otherwise you haven't actually SIGNED for the list, have you!
+        //
+        if (OTItem::acceptTransaction  == m_Type)
+        {
+            const OTString strTotalList = xml->getAttributeValue("totalListOfNumbers");
+            m_Numlist.Release();
+            
+            if (strTotalList.Exists())
+                m_Numlist.Add(strTotalList); // (Comma-separated list of numbers now becomes std::set<long>.)
+        }
+
+		// --------------------------------------------------------
 		OTIdentifier	ACCOUNT_ID(strAcctFromID), 
 						SERVER_ID(strServerID),
 						DESTINATION_ACCOUNT(strAcctToID),
@@ -1815,6 +1836,25 @@ void OTItem::GetStringFromType(OTItem::itemType theType, OTString & strType)
 
 void OTItem::UpdateContents() // Before transmission or serialization, this is where the ledger saves its contents 
 {
+    OTString strListOfBlanks;   // IF this item is "acceptTransaction" then this will serialize the list of transaction numbers being accepted. (They now support multiple numbers.)
+    // ----------------------------------------
+	switch (m_Type) 
+	{
+		case OTItem::acceptTransaction:
+        {
+            if (m_Numlist.Count() > 0) // This is always 0, except for OTItem::acceptTransaction.
+            {
+                OTString strNumbers;
+                if (true == m_Numlist.Output(strNumbers)) 
+                    strListOfBlanks.Format(" totalListOfNumbers=\"%s\"\n", strNumbers.Get());
+                else // (False just means m_Numlist was empty.)
+                    strListOfBlanks.Set("");                    
+            }
+        }
+        default:
+            break;
+	}
+    // -----------------------------------------------------
 	OTString strFromAcctID(GetPurportedAccountID()), strToAcctID(GetDestinationAcctID()), strServerID(GetPurportedServerID()), 
 			 strType, strStatus, strUserID(GetUserID());
 	
@@ -1856,17 +1896,18 @@ void OTItem::UpdateContents() // Before transmission or serialization, this is w
 								  strFromAcctID.Get(), strToAcctID.Get(), GetReferenceToNum(), m_lAmount);
 	else
 		m_xmlUnsigned.Concatenate("<item type=\"%s\"\n status=\"%s\"\n"
-							  " transactionNum=\"%ld\"\n"
-							  " serverID=\"%s\"\n"
-							  " userID=\"%s\"\n"
-							  " fromAccountID=\"%s\"\n"
-							  " toAccountID=\"%s\"\n"
-							  " inReferenceTo=\"%ld\"\n" 
-							  " amount=\"%ld\" >\n\n", 
-							  strType.Get(), strStatus.Get(),
-							  GetTransactionNum(), strServerID.Get(), 
-							  strUserID.Get(),
-							  strFromAcctID.Get(), strToAcctID.Get(), GetReferenceToNum(), m_lAmount);
+                                  " transactionNum=\"%ld\"\n%s"
+                                  " serverID=\"%s\"\n"
+                                  " userID=\"%s\"\n"
+                                  " fromAccountID=\"%s\"\n"
+                                  " toAccountID=\"%s\"\n"
+                                  " inReferenceTo=\"%ld\"\n" 
+                                  " amount=\"%ld\" >\n\n", 
+                                  strType.Get(), strStatus.Get(),
+                                  GetTransactionNum(), strListOfBlanks.Get(),
+                                  strServerID.Get(), 
+                                  strUserID.Get(),
+                                  strFromAcctID.Get(), strToAcctID.Get(), GetReferenceToNum(), m_lAmount);
 		
 	if (m_ascNote.GetLength() > 2)
 	{
