@@ -359,7 +359,7 @@ PHP5_LDFLAGS = -shared
 #PYTHON_INCLUDEDIRS = -I/usr/include/python2.5
 #PYTHON_LIBDIRS = -L/usr/$(LINUX_LIBDIR)/python2.5
 #
-#PYTHON_PROGRAM = "_otapi.so"
+# PYTHON_PROGRAM = "_otapi"
 PYTHON_PROGRAM = $(PROGRAM__PYTHON).so
 PYTHON_DEBUG_PROGRAM = $(PROGRAM__PYTHON_DBG).so
 PYTHON_CLFAGS = $(shell python-config --cflags) 
