@@ -2041,6 +2041,10 @@ int main(int argc, char* argv[])
 		
         if( opt->getValue( "script" )  != NULL  )
         {
+            int nReturnValue = 0; // This is what gets returned back to the caller. The Script has a chance to change this.
+            
+			// ----------------------------------------
+			
 			g_OT_API.GetClient()->SetRunningAsScript(); // This way it won't go firing off messages automatically based on receiving certain server replies to previous requests.
 			// Todo: Research whether the above call is still necessary. (OTAPI no longer fires off ANY auto messages based on server replies. API CLIENT MUST do those things itself now.)
 			std::string strFilename = opt->getValue( "script" );
@@ -2055,6 +2059,7 @@ int main(int argc, char* argv[])
 			
 			OTScript_SharedPtr pScript = OTScriptFactory(results);
 			
+            OTVariable the_return_value("ret_val", nReturnValue);
 			
 			if (pScript)
 			{
@@ -2274,10 +2279,12 @@ int main(int argc, char* argv[])
 				{
 					OTLog::Error("MyPurse variable isn't set...\n");
 				}
-				// ************************************************				
+				// ************************************************
+                
 				OTLog::Output(0, "Script output:\n\n");
 
-				pScript->ExecuteScript();
+				pScript->ExecuteScript(&the_return_value);
+                
 				// ************************************************
 			}
 			else 
@@ -2285,10 +2292,12 @@ int main(int argc, char* argv[])
 				OTLog::Error("Error running script!!\n");
 			}
 			// --------------------------------------------------------------------					
-			
+            if (OTVariable::Var_Integer == the_return_value.GetType())
+                nReturnValue = the_return_value.CopyValueInteger();
+            // --------------------------------------------
 			OT_Main_Cleanup();
-			return 0;
-
+            // --------------------------------------------
+			return nReturnValue;
             // ------------------------------------------------------------------------
         }
         else if( opt->getValue( 'w' ) != NULL  || opt->getValue( "withdraw" ) != NULL  )
