@@ -1699,6 +1699,8 @@ const char * OT_API_GetNym_OutpaymentsServerIDByIndex(const char * NYM_ID, int n
 		// RECIPIENT: pMessage->m_strNymID2
 		// MESSAGE:   pMessage->m_ascPayload 
 		
+        OT_ASSERT_MSG(pMessage->m_strServerID.GetLength() > 1, "ASSERT: OT_API_GetNym_OutpaymentsServerIDByIndex: pMessage->m_strServerID.GetLength() > 1");
+
 		const char * pBuf = pMessage->m_strServerID.Get();
 #ifdef _WIN32
 		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
@@ -4552,7 +4554,7 @@ int OT_API_Ledger_GetCount(const char * SERVER_ID,
 	if (false == theLedger.LoadLedgerFromString(strLedger))
 	{
 		OTString strAcctID(theAccountID);
-		OTLog::vError("OT_API_Ledger_GetCount: Error loading ledger from string. Acct ID:\n%s\n",
+		OTLog::vError("OT_API_Ledger_GetCount: Error loading ledger from string. Acct ID: %s\n",
 					  strAcctID.Get());
 		return -1;
 	}
@@ -4596,7 +4598,7 @@ const char * OT_API_Ledger_CreateResponse(const char * SERVER_ID,
 	if (false == theOriginalLedger.LoadLedgerFromString(strOriginalLedger))
 	{
 		OTString strAcctID(theAccountID);
-		OTLog::vError("Error loading ledger from string in OT_API_Ledger_CreateResponse. Acct ID:\n%s\n",
+		OTLog::vError("Error loading ledger from string in OT_API_Ledger_CreateResponse. Acct ID: %s\n",
 					  strAcctID.Get());
 		return NULL;
 	}
@@ -4604,7 +4606,7 @@ const char * OT_API_Ledger_CreateResponse(const char * SERVER_ID,
 	if (false == theOriginalLedger.VerifyAccount(*pNym))
 	{
 		OTString strAcctID(theAccountID);
-		OTLog::vError("Error verifying original ledger in OT_API_Ledger_CreateResponse. Acct ID:\n%s\n",
+		OTLog::vError("Error verifying original ledger in OT_API_Ledger_CreateResponse. Acct ID: %s\n",
 					  strAcctID.Get());
 		return NULL;
 	}
@@ -4618,7 +4620,7 @@ const char * OT_API_Ledger_CreateResponse(const char * SERVER_ID,
 	if (NULL == pResponseLedger)
 	{
 		OTString strAcctID(theAccountID);
-		OTLog::vError("Error generating response ledger in OT_API_Ledger_CreateResponse. Acct ID:\n%s\n",
+		OTLog::vError("Error generating response ledger in OT_API_Ledger_CreateResponse. Acct ID: %s\n",
 					  strAcctID.Get());
 		return NULL;
 	}
@@ -4677,7 +4679,7 @@ const char * OT_API_Ledger_GetTransactionByIndex(const char * SERVER_ID,
 	{
 		OTString strAcctID(theAccountID);
 		OTLog::vError("OT_API_Ledger_GetTransactionByIndex: Error loading ledger from string, or "
-					  "loading box receipts subsequently. Acct ID:\n%s\n", strAcctID.Get());
+					  "loading box receipts subsequently. Acct ID: %s\n", strAcctID.Get());
 		return NULL;
 	}
 	
@@ -4776,7 +4778,7 @@ const char * OT_API_Ledger_GetTransactionByID(const char * SERVER_ID,
 	if (false == theLedger.LoadLedgerFromString(strLedger))
 	{
 		OTString strAcctID(theAccountID);
-		OTLog::vError("Error loading ledger from string in OT_API_Ledger_GetTransactionByID. Acct ID:\n%s\n",
+		OTLog::vError("Error loading ledger from string in OT_API_Ledger_GetTransactionByID. Acct ID: %s\n",
 					  strAcctID.Get());
 		return NULL;
 	}
@@ -4899,7 +4901,7 @@ const char * OT_API_Ledger_GetInstrument(const char * SERVER_ID,
 		)
 	{
 		OTString strAcctID(theAccountID);
-		OTLog::vError("OT_API_Ledger_GetInstrument: Error loading ledger from string. Acct ID:\n%s\n",
+		OTLog::vError("OT_API_Ledger_GetInstrument: Error loading ledger from string. Acct ID: %s\n",
 					  strAcctID.Get());
 		return NULL;
 	}
@@ -5106,7 +5108,7 @@ const char * OT_API_Ledger_GetTransactionIDByIndex(const char * SERVER_ID,
 	if (false == theLedger.LoadLedgerFromString(strLedger))
 	{
 		OTString strAcctID(theAccountID);
-		OTLog::vError("Error loading ledger from string in OT_API_Ledger_GetTransactionIDByIndex. Acct ID:\n%s\n",
+		OTLog::vError("Error loading ledger from string in OT_API_Ledger_GetTransactionIDByIndex. Acct ID: %s\n",
 					  strAcctID.Get());
 	}
 	
@@ -5181,14 +5183,14 @@ const char * OT_API_Ledger_AddTransaction(const char * SERVER_ID,
 	if (false == theLedger.LoadLedgerFromString(strLedger))
 	{
 		OTString strAcctID(theAccountID);
-		OTLog::vError("Error loading ledger from string in OT_API_Ledger_AddTransaction. Acct ID:\n%s\n",
+		OTLog::vError("Error loading ledger from string in OT_API_Ledger_AddTransaction. Acct ID: %s\n",
 					  strAcctID.Get());
 		return NULL;
 	}
 	else if (false == theLedger.VerifyAccount(*pNym))
 	{
 		OTString strAcctID(theAccountID);
-		OTLog::vError("Error verifying ledger in OT_API_Ledger_AddTransaction. Acct ID:\n%s\n",
+		OTLog::vError("Error verifying ledger in OT_API_Ledger_AddTransaction. Acct ID: %s\n",
 					  strAcctID.Get());
 		return NULL;
 	}
@@ -5203,7 +5205,7 @@ const char * OT_API_Ledger_AddTransaction(const char * SERVER_ID,
 	if (false == pTransaction->LoadContractFromString(strTransaction))
 	{
 		OTString strAcctID(theAccountID);
-		OTLog::vError("Error loading transaction from string in OT_API_Ledger_AddTransaction. Acct ID:\n%s\n",
+		OTLog::vError("Error loading transaction from string in OT_API_Ledger_AddTransaction. Acct ID: %s\n",
 					  strAcctID.Get());
 		delete pTransaction; pTransaction = NULL;
 		return NULL;
@@ -5211,7 +5213,7 @@ const char * OT_API_Ledger_AddTransaction(const char * SERVER_ID,
 	else if (false == pTransaction->VerifyAccount(*pNym))
 	{
 		OTString strAcctID(theAccountID);
-		OTLog::vError("Error verifying transaction in OT_API_Ledger_AddTransaction. Acct ID:\n%s\n",
+		OTLog::vError("Error verifying transaction in OT_API_Ledger_AddTransaction. Acct ID: %s\n",
 					  strAcctID.Get());
 		delete pTransaction; pTransaction = NULL;
 		return NULL;
@@ -5296,14 +5298,14 @@ const char * OT_API_Transaction_CreateResponse(const char * SERVER_ID,
 	if (false == theLedger.LoadLedgerFromString(strLedger))
 	{
 		OTString strAcctID(theAcctID);
-		OTLog::vError("Error loading ledger from string in OT_API_Transaction_CreateResponse. Acct ID:\n%s\n",
+		OTLog::vError("Error loading ledger from string in OT_API_Transaction_CreateResponse. Acct ID: %s\n",
 					  strAcctID.Get());
 		return NULL;
 	}
 	else if (false == theLedger.VerifyAccount(*pNym))
 	{
 		OTString strAcctID(theAcctID);
-		OTLog::vError("Error verifying ledger in OT_API_Transaction_CreateResponse. Acct ID:\n%s\n",
+		OTLog::vError("Error verifying ledger in OT_API_Transaction_CreateResponse. Acct ID: %s\n",
 					  strAcctID.Get());
 		return NULL;
 	}
@@ -5319,7 +5321,7 @@ const char * OT_API_Transaction_CreateResponse(const char * SERVER_ID,
 	if (false == theTransaction.LoadContractFromString(strTransaction))
 	{
 		OTString strAcctID(theAcctID);
-		OTLog::vError("Error loading transaction from string in OT_API_Transaction_CreateResponse. Acct ID:\n%s\n",
+		OTLog::vError("Error loading transaction from string in OT_API_Transaction_CreateResponse. Acct ID: %s\n",
 					  strAcctID.Get());
 		return NULL;
 	}
@@ -5335,7 +5337,7 @@ const char * OT_API_Transaction_CreateResponse(const char * SERVER_ID,
 		{
 			OTString strAcctID(theAcctID);
 			OTLog::vError("OT_API_Transaction_CreateResponse: Error loading full transaction from abbreviated "
-						  "version of inbox receipt. Acct ID:\n%s\n", strAcctID.Get());
+						  "version of inbox receipt. Acct ID: %s\n", strAcctID.Get());
 			return NULL;
 		}
 		theTransAngel.SetCleanupTargetPointer(pTransaction);
@@ -5353,7 +5355,7 @@ const char * OT_API_Transaction_CreateResponse(const char * SERVER_ID,
 	if (false == pTransaction->VerifyAccount(*((OTPseudonym *)pServerNym)))
 	{
 		OTString strAcctID(theAcctID);
-		OTLog::vError("Error verifying transaction in OT_API_Transaction_CreateResponse. Acct ID:\n%s\n",
+		OTLog::vError("Error verifying transaction in OT_API_Transaction_CreateResponse. Acct ID: %s\n",
 					  strAcctID.Get());
 		return NULL;
 	}
@@ -5407,7 +5409,7 @@ const char * OT_API_Transaction_CreateResponse(const char * SERVER_ID,
 		{
 			OTString strAcctID(theAcctID);
 			OTLog::vError("Error generating processInbox transaction in \n"
-						 "OT_API_Transaction_CreateResponse for AcctID:\n%s\n", strAcctID.Get());
+						 "OT_API_Transaction_CreateResponse for AcctID: %s\n", strAcctID.Get());
 			
 			pNym->AddTransactionNum(*pNym, strServerID, lTransactionNumber, true); // bSave=true.  Have to add this back since we failed to use it.
 
@@ -5632,14 +5634,14 @@ const char * OT_API_Ledger_FinalizeResponse(const char * SERVER_ID,
 	if (false == theLedger.LoadLedgerFromString(strLedger))
 	{
 		OTString strAcctID(theAcctID);
-		OTLog::vError("Error loading ledger from string in OT_API_Ledger_FinalizeResponse. Acct ID:\n%s\n",
+		OTLog::vError("Error loading ledger from string in OT_API_Ledger_FinalizeResponse. Acct ID: %s\n",
 					  strAcctID.Get());
 		return NULL;
 	}
 	else if (false == theLedger.VerifyAccount(*pNym))
 	{
 		OTString strAcctID(theAcctID);
-		OTLog::vError("Error verifying ledger in OT_API_Ledger_FinalizeResponse. Acct ID:\n%s\n",
+		OTLog::vError("Error verifying ledger in OT_API_Ledger_FinalizeResponse. Acct ID: %s\n",
 					  strAcctID.Get());
 		return NULL;
 	}
@@ -5659,7 +5661,7 @@ const char * OT_API_Ledger_FinalizeResponse(const char * SERVER_ID,
 	{
 		OTString strAcctID(theAcctID);
 		OTLog::vError("Error finding processInbox transaction in \n"
-						  "OT_API_Ledger_FinalizeResponse for AcctID:\n%s\n", strAcctID.Get());
+						  "OT_API_Ledger_FinalizeResponse for AcctID: %s\n", strAcctID.Get());
 		return NULL;
 	}
 	// At this point I know pTransaction is a processInbox transaction, ready to go,
@@ -6205,7 +6207,7 @@ const char * OT_API_Transaction_GetVoucher(const char * SERVER_ID,
 	if (false == theTransaction.LoadContractFromString(strTransaction))
 	{
 		OTString strAcctID(theAccountID);
-		OTLog::vError("Error loading transaction from string in OT_API_Transaction_GetVoucher. Acct ID:\n%s\n",
+		OTLog::vError("Error loading transaction from string in OT_API_Transaction_GetVoucher. Acct ID: %s\n",
 					  strAcctID.Get());
 		return NULL;
 	}
@@ -6295,7 +6297,7 @@ const char * OT_API_Transaction_GetSenderUserID(const char * SERVER_ID,
 	if (false == theTransaction.LoadContractFromString(strTransaction))
 	{
 		OTString strAcctID(theAccountID);
-		OTLog::vError("Error loading transaction from string in OT_API_Transaction_GetSenderUserID. Acct ID:\n%s\n",
+		OTLog::vError("Error loading transaction from string in OT_API_Transaction_GetSenderUserID. Acct ID: %s\n",
 					  strAcctID.Get());
 		return NULL;
 	}
@@ -6392,7 +6394,7 @@ const char * OT_API_Transaction_GetRecipientUserID(const char * SERVER_ID,
 	if (false == theTransaction.LoadContractFromString(strTransaction))
 	{
 		OTString strAcctID(theAccountID);
-		OTLog::vError("Error loading transaction from string in OT_API_Transaction_GetRecipientUserID. Acct ID:\n%s\n",
+		OTLog::vError("Error loading transaction from string in OT_API_Transaction_GetRecipientUserID. Acct ID: %s\n",
 					  strAcctID.Get());
 		return NULL;
 	}
@@ -6504,7 +6506,7 @@ const char * OT_API_Transaction_GetSenderAcctID(const char * SERVER_ID,
 	if (false == theTransaction.LoadContractFromString(strTransaction))
 	{
 		OTString strAcctID(theAccountID);
-		OTLog::vError("Error loading transaction from string in OT_API_Transaction_GetSenderAcctID. Acct ID:\n%s\n",
+		OTLog::vError("Error loading transaction from string in OT_API_Transaction_GetSenderAcctID. Acct ID: %s\n",
 					  strAcctID.Get());
 		return NULL;
 	}
@@ -6602,7 +6604,7 @@ const char * OT_API_Transaction_GetRecipientAcctID(const char * SERVER_ID,
 	if (false == theTransaction.LoadContractFromString(strTransaction))
 	{
 		OTString strAcctID(theAccountID);
-		OTLog::vError("Error loading transaction from string in OT_API_Transaction_GetRecipientAcctID. Acct ID:\n%s\n",
+		OTLog::vError("Error loading transaction from string in OT_API_Transaction_GetRecipientAcctID. Acct ID: %s\n",
 					  strAcctID.Get());
 		return NULL;
 	}
@@ -6717,7 +6719,7 @@ const char * OT_API_Pending_GetNote(const char * SERVER_ID,
 	if (false == theTransaction.LoadContractFromString(strTransaction))
 	{
 		OTString strAcctID(theAccountID);
-		OTLog::vError("Error loading transaction from string in OT_API_Pending_GetNote. Acct ID:\n%s\n",
+		OTLog::vError("Error loading transaction from string in OT_API_Pending_GetNote. Acct ID: %s\n",
 					  strAcctID.Get());
 		return NULL;
 	}
@@ -6850,7 +6852,7 @@ const char * OT_API_Transaction_GetAmount(const char * SERVER_ID,
 	if (false == theTransaction.LoadContractFromString(strTransaction))
 	{
 		OTString strAcctID(theAccountID);
-		OTLog::vError("Error loading transaction from string in OT_API_Transaction_GetAmount. Acct ID:\n%s\n",
+		OTLog::vError("Error loading transaction from string in OT_API_Transaction_GetAmount. Acct ID: %s\n",
 					  strAcctID.Get());
 		return NULL;
 	}
@@ -6952,7 +6954,7 @@ const char * OT_API_Transaction_GetDisplayReferenceToNum(const char * SERVER_ID,
 	if (false == theTransaction.LoadContractFromString(strTransaction))
 	{
 		OTString strAcctID(theAccountID);
-		OTLog::vError("Error loading transaction from string in OT_API_Transaction_GetReferenceToNum. Acct ID:\n%s\n",
+		OTLog::vError("Error loading transaction from string in OT_API_Transaction_GetReferenceToNum. Acct ID: %s\n",
 					  strAcctID.Get());
 		return NULL;
 	}
@@ -7127,7 +7129,7 @@ OT_BOOL OT_API_Transaction_GetSuccess(const char * SERVER_ID,
 	if (false == theTransaction.LoadContractFromString(strTransaction))
 	{
 		OTString strAcctID(theAccountID);
-		OTLog::vError("OT_API_Transaction_GetSuccess: Error loading transaction from string. Acct ID:\n%s\n",
+		OTLog::vError("OT_API_Transaction_GetSuccess: Error loading transaction from string. Acct ID: %s\n",
 					  strAcctID.Get());
 		return OT_FALSE;
 	}
@@ -7203,7 +7205,7 @@ OT_BOOL OT_API_Transaction_GetBalanceAgreementSuccess(const char * SERVER_ID,
 	if (false == theTransaction.LoadContractFromString(strTransaction))
 	{
 		OTString strAcctID(theAccountID);
-		OTLog::vError("OT_API_Transaction_GetBalanceAgreementSuccess: Error loading transaction from string. Acct ID:\n%s\n",
+		OTLog::vError("OT_API_Transaction_GetBalanceAgreementSuccess: Error loading transaction from string. Acct ID: %s\n",
 					  strAcctID.Get());
 		return OT_FALSE;
 	}
@@ -7316,7 +7318,7 @@ OT_BOOL OT_API_Message_GetBalanceAgreementSuccess(const char * SERVER_ID,
 	if (false == theLedger.LoadLedgerFromString(strLedger))
 	{
 		OTString strAcctID(theAccountID);
-		OTLog::vError("OT_API_Message_GetBalanceAgreementSuccess: Error loading ledger from string. Acct ID:\n%s\n",
+		OTLog::vError("OT_API_Message_GetBalanceAgreementSuccess: Error loading ledger from string. Acct ID: %s\n",
 					  strAcctID.Get());
 		return OT_FALSE;
 	}
@@ -7444,7 +7446,7 @@ const char * OT_API_Purse_GetTotalValue(const char * SERVER_ID,
 	if (false == thePurse.LoadContractFromString(strPurse))
 	{
 		OTString strAssetTypeID(theAssetTypeID);
-		OTLog::vError("OT_API_Purse_GetTotalValue: Error loading purse from string. Asset Type ID:\n%s\n",
+		OTLog::vError("OT_API_Purse_GetTotalValue: Error loading purse from string. Asset Type ID: %s\n",
 					  strAssetTypeID.Get());
 		return NULL;
 	}
@@ -10091,7 +10093,7 @@ OT_BOOL OT_API_Message_GetTransactionSuccess(const char * SERVER_ID,
 	if (false == theLedger.LoadContractFromString(strLedger))
 	{
 		OTString strAcctID(theAccountID);
-		OTLog::vError("Error loading ledger from string in OT_API_Message_GetTransactionSuccess. Acct ID:\n%s\n",
+		OTLog::vError("Error loading ledger from string in OT_API_Message_GetTransactionSuccess. Acct ID: %s\n",
 					  strAcctID.Get());
 		return OT_FALSE;
 	}

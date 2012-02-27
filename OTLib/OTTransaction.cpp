@@ -2942,7 +2942,7 @@ bool OTTransaction::GetSuccess()
 			case OTItem::transferReceipt:
 			case OTItem::finalReceipt:
 			case OTItem::basketReceipt:
-				
+                
 				if (OTItem::acknowledgement == pItem->GetStatus())
 				{
 					return true;
@@ -2964,7 +2964,9 @@ bool OTTransaction::GetSuccess()
 
 
 
-
+// Todo: eliminate this function since there is already a list of strings at the top
+// of this file, and a list of enums at the top of the header file.
+//
 // static
 OTTransaction::transactionType OTTransaction::GetTypeFromString(const OTString & strType)
 {
@@ -2972,8 +2974,7 @@ OTTransaction::transactionType OTTransaction::GetTypeFromString(const OTString &
 	
 	if (strType.Compare("blank"))
 		theType = OTTransaction::blank;
-	else if (strType.Compare("pending"))
-		theType = OTTransaction::pending;
+
 	else if (strType.Compare("message"))
 		theType = OTTransaction::message;
 	else if (strType.Compare("notice"))
@@ -2982,6 +2983,28 @@ OTTransaction::transactionType OTTransaction::GetTypeFromString(const OTString &
 		theType = OTTransaction::replyNotice;
 	else if (strType.Compare("successNotice"))
 		theType = OTTransaction::successNotice;
+    // --------------------------------------------------------------
+	else if (strType.Compare("pending"))
+		theType = OTTransaction::pending;
+	// --------------------------------------------------------------
+    else if (strType.Compare("transferReceipt"))
+		theType = OTTransaction::transferReceipt;
+	else if (strType.Compare("chequeReceipt"))
+		theType = OTTransaction::chequeReceipt;
+	else if (strType.Compare("marketReceipt"))
+		theType = OTTransaction::marketReceipt;
+	else if (strType.Compare("paymentReceipt"))
+		theType = OTTransaction::paymentReceipt;
+	else if (strType.Compare("finalReceipt"))
+		theType = OTTransaction::finalReceipt;
+	else if (strType.Compare("basketReceipt"))
+		theType = OTTransaction::basketReceipt;
+	// --------------------------------------------------------------
+	else if (strType.Compare("instrumentNotice"))
+		theType = OTTransaction::instrumentNotice;
+	else if (strType.Compare("instrumentRejection"))
+		theType = OTTransaction::instrumentRejection;
+	// --------------------------------------------------------------
 	else if (strType.Compare("processNymbox"))
 		theType = OTTransaction::processNymbox;
 	else if (strType.Compare("atProcessNymbox"))
@@ -3014,7 +3037,6 @@ OTTransaction::transactionType OTTransaction::GetTypeFromString(const OTString &
 		theType = OTTransaction::smartContract;
 	else if (strType.Compare("atSmartContract"))
 		theType = OTTransaction::atSmartContract;
-	
 	else if (strType.Compare("cancelCronItem"))
 		theType = OTTransaction::cancelCronItem;
 	else if (strType.Compare("atCancelCronItem"))
@@ -3023,20 +3045,7 @@ OTTransaction::transactionType OTTransaction::GetTypeFromString(const OTString &
 		theType = OTTransaction::exchangeBasket;
 	else if (strType.Compare("atExchangeBasket"))
 		theType = OTTransaction::atExchangeBasket;
-	
-	else if (strType.Compare("transferReceipt"))
-		theType = OTTransaction::transferReceipt;
-	else if (strType.Compare("chequeReceipt"))
-		theType = OTTransaction::chequeReceipt;
-	else if (strType.Compare("marketReceipt"))
-		theType = OTTransaction::marketReceipt;
-	else if (strType.Compare("paymentReceipt"))
-		theType = OTTransaction::paymentReceipt;
-	else if (strType.Compare("finalReceipt"))
-		theType = OTTransaction::finalReceipt;
-	else if (strType.Compare("basketReceipt"))
-		theType = OTTransaction::basketReceipt;
-	// --------------------------------------------------------------
+	// --------------------------------------------------------------	
 	else
 		theType = OTTransaction::error_state;
 	// --------------------------------------------------------------
@@ -3083,10 +3092,21 @@ int OTTransaction::LoadAbbreviatedRecord(irr::io::IrrXMLReader*& xml,
 	the_DATE_SIGNED			= static_cast<time_t>(lDateSigned);
 	// -------------------------------------
 	// Transaction TYPE for the abbreviated record...
-	const OTString strAbbrevType	= xml->getAttributeValue("type"); // the type of inbox receipt, or outbox receipt, or nymbox receipt. (Transaction type.)
-	theType = OTTransaction::error_state; // default
+	theType                 = OTTransaction::error_state; // default
+	const
+    OTString strAbbrevType	= xml->getAttributeValue("type"); // the type of inbox receipt, or outbox receipt, or nymbox receipt. (Transaction type.)
 	if (strAbbrevType.Exists())
+    {
 		theType = OTTransaction::GetTypeFromString(strAbbrevType);
+
+        if (OTTransaction::error_state == theType)
+        {
+            OTLog::vError("OTTransaction::LoadAbbreviatedRecord: Failure: OTTransaction::error_state was the found type (based on "
+                          "string %s), when loading abbreviated receipt for trans num: %ld (In Reference To: %ld) \n",
+                          strAbbrevType.Get(), lTransactionNum, lInRefTo);
+            return (-1);
+        }
+    }
 	else 
 	{
 		OTLog::vOutput(0, "OTTransaction::LoadAbbreviatedRecord: Failure: unknown transaction type (%s) when "
@@ -3118,6 +3138,7 @@ int OTTransaction::LoadAbbreviatedRecord(irr::io::IrrXMLReader*& xml,
 	if (strAbbrevDisplayValue.Exists())
 		lDisplayValue						= atol(strAbbrevDisplayValue.Get());
 	// -----------------------
+    
 	// If the transaction is a certain type, then it will also have a CLOSING number. 
 	// (Grab that too.)
 	//
@@ -3620,29 +3641,26 @@ void OTTransaction::SaveAbbrevPaymentInboxRecord(OTString & strOutput)
 {
 	long lDisplayValue = 0;
 	// ----------------------------------------------
-	if (IsAbbreviated())  // This is copied from inboxRecord, we'll see if/how it's needed for paymentInboxRecord...
-	{
-		lDisplayValue	= GetAbbrevDisplayAmount();
-	}
-	else
-	{
-		switch (m_Type) 
-		{
-			case OTTransaction::instrumentNotice:
-				lDisplayValue	= GetReceiptAmount();
-//				lDisplayValue	= 0;
-				break;
-			case OTTransaction::instrumentRejection:
-				lDisplayValue	= 0; 
-				break;
-			default: // All other types are irrelevant for payment inbox reports
-			{
-				OTLog::vError("OTTransaction::SaveAbbrevPaymentInboxRecord: Unexpected %s transaction "
-							   "in payment inbox while making abbreviated payment inbox record.\n", GetTypeString());
-			}
-				return;
-		}
-	}
+    switch (m_Type) 
+    {
+        case OTTransaction::instrumentNotice:
+            if (IsAbbreviated()) 
+                lDisplayValue	= GetAbbrevDisplayAmount();
+            else
+                lDisplayValue	= GetReceiptAmount();
+            break;
+        case OTTransaction::instrumentRejection:
+            lDisplayValue	= 0; 
+            break;
+        default: // All other types are irrelevant for payment inbox reports
+            OTLog::vError("OTTransaction::SaveAbbrevPaymentInboxRecord: Unexpected %s transaction "
+                           "in payment inbox while making abbreviated payment inbox record.\n", GetTypeString());
+            
+            OT_ASSERT_MSG(true == false, "ASSERT: OTTransaction::SaveAbbrevPaymentInboxRecord: Unexpected transaction type.");
+            
+            return;
+    }
+
 	// ----------------------------------------------
 	// By this point, we know only the right types of receipts are being saved, and 
 	// the adjustment and display value are both set correctly.
@@ -3813,69 +3831,109 @@ void OTTransaction::SaveAbbrevRecordBoxRecord(OTString & strOutput)
 	
 	long lAdjustment = 0, lDisplayValue = 0;
 	// ----------------------------------------------
-	if (IsAbbreviated())
-	{
-		lAdjustment		= GetAbbrevAdjustment();
-		lDisplayValue	= GetAbbrevDisplayAmount();
-	}
-	else
-	{
-		switch (m_Type) 
-		{
-				// ******************************************
-				// ASSET ACCOUNT INBOX
-				// -- In inbox, pending hasn't been accepted yet. In outbox, it's already gone. Either
-				// way, it will have a 0 adjustment amount, even though perhaps 500 clams display amount. Here I use the 500
-				// for display, but in SaveAbbrevToOutbox, I multiply it by -1 so it appears as -500 (leaving my account.)
-				// -- In my inbox, the transferReceipt is notice of money that is already gone. It thus has adjustment value of 0.
-				// But the DISPLAY amount is the amount I originally sent. (Already multiplied by -1 by GetReceiptAmount())
-				//
-			case OTTransaction::pending:			// (The pending amount is stored on the transfer item in my list of transaction items.)
-			case OTTransaction::transferReceipt:	// The transferReceipt amount is the display value (according to GetReceiptAmount()), and
-				lAdjustment		= 0;				// not the actual value of 0.
-				lDisplayValue	= GetReceiptAmount(); 
-				break;
-				// If chequeReceipt for 100 clams hit my inbox, then my balance is -100 from where it was. (Same
-				// value should be displayed.) Luckily, GetReceiptAmount() already multiplies by (-1) for chequeReceipt.
-				// For these (marketReceipt, paymentReceipt, basketReceipt), the actual adjustment is positive OR negative
-				// already, and the display value should match.
-			case OTTransaction::chequeReceipt:		// the amount is stored on cheque (attached to depositCheque item, attached.)
-			case OTTransaction::marketReceipt:		// amount is stored on marketReceipt item.  | 
-			case OTTransaction::paymentReceipt:		// amount is stored on paymentReceipt item. | and the display value should match.
-			case OTTransaction::basketReceipt:		// amount is stored on basketReceipt item.  | 
-				lAdjustment		= GetReceiptAmount();	
-				lDisplayValue	= lAdjustment;			
-				break;
-			case OTTransaction::finalReceipt:		// amount is 0 according to GetReceiptAmount()
-				lAdjustment		= 0;
-				lDisplayValue	= 0;
-				break;
-			// ******************************************
-			// NYMBOX
-			case OTTransaction::notice:			// A notice from the server. Used in Nymbox. Probably contains an updated smart contract.
-				lAdjustment		= 0;
-				lDisplayValue	= 0;
-				break;				
-			// ******************************************
-			// PAYMENT INBOX / PAYMENT OUTBOX
-			case OTTransaction::instrumentNotice:
-				lAdjustment		= 0;
-				lDisplayValue	= GetReceiptAmount();
-//				lDisplayValue	= 0;
-				break;
-			case OTTransaction::instrumentRejection:
-				lAdjustment		= 0;
-				lDisplayValue	= 0; 
-				break;				
-			// ******************************************
-			default: // All other types are irrelevant for inbox reports
-			{
-				OTLog::vError("OTTransaction::SaveAbbrevRecordBoxRecord: Unexpected %s transaction "
-							   "in record box while making abbreviated record-box record.\n", GetTypeString());
-			}
-				return;
-		}	// why not transfer receipt? Because the amount was already removed from your account when you transferred it,
-	}
+    switch (m_Type) 
+    {
+            // ******************************************
+            // ASSET ACCOUNT INBOX
+            // -- In inbox, pending hasn't been accepted yet. In outbox, it's already gone. Either
+            // way, it will have a 0 adjustment amount, even though perhaps 500 clams display amount. Here I use the 500
+            // for display, but in SaveAbbrevToOutbox, I multiply it by -1 so it appears as -500 (leaving my account.)
+            // -- In my inbox, the transferReceipt is notice of money that is already gone. It thus has adjustment value of 0.
+            // But the DISPLAY amount is the amount I originally sent. (Already multiplied by -1 by GetReceiptAmount())
+            //
+        case OTTransaction::pending:			// (The pending amount is stored on the transfer item in my list of transaction items.)
+        case OTTransaction::transferReceipt:	// The transferReceipt amount is the display value (according to GetReceiptAmount()), and
+            if (IsAbbreviated())                // not the actual value of 0.
+            {
+                lAdjustment		= GetAbbrevAdjustment();
+                lDisplayValue	= GetAbbrevDisplayAmount();
+            }
+            else
+            {
+                lAdjustment		= 0;
+                lDisplayValue	= GetReceiptAmount(); 
+            }
+            break;
+            // If chequeReceipt for 100 clams hit my inbox, then my balance is -100 from where it was. (Same
+            // value should be displayed.) Luckily, GetReceiptAmount() already multiplies by (-1) for chequeReceipt.
+            // For these (marketReceipt, paymentReceipt, basketReceipt), the actual adjustment is positive OR negative
+            // already, and the display value should match.
+        case OTTransaction::chequeReceipt:		// the amount is stored on cheque (attached to depositCheque item, attached.)
+        case OTTransaction::marketReceipt:		// amount is stored on marketReceipt item.  | 
+        case OTTransaction::paymentReceipt:		// amount is stored on paymentReceipt item. | and the display value should match.
+        case OTTransaction::basketReceipt:		// amount is stored on basketReceipt item.  | 
+            if (IsAbbreviated())                // not the actual value of 0.
+            {
+                lAdjustment		= GetAbbrevAdjustment();
+                lDisplayValue	= GetAbbrevDisplayAmount();
+            }
+            else
+            {
+                lAdjustment		= GetReceiptAmount();	
+                lDisplayValue	= lAdjustment;			
+            }
+            break;
+        case OTTransaction::finalReceipt:		// amount is 0 according to GetReceiptAmount()
+            if (IsAbbreviated())                // not the actual value of 0.
+            {
+                lAdjustment		= GetAbbrevAdjustment();
+                lDisplayValue	= GetAbbrevDisplayAmount();
+            }
+            else
+            {
+                lAdjustment		= 0;
+                lDisplayValue	= 0;
+            }
+            break;
+        // ******************************************
+        // NYMBOX
+        case OTTransaction::notice:			// A notice from the server. Used in Nymbox. Probably contains an updated smart contract.
+            if (IsAbbreviated())                // not the actual value of 0.
+            {
+                lAdjustment		= GetAbbrevAdjustment();
+                lDisplayValue	= GetAbbrevDisplayAmount();
+            }
+            else
+            {
+                lAdjustment		= 0;
+                lDisplayValue	= 0;
+            }
+            break;				
+        // ******************************************
+        // PAYMENT INBOX / PAYMENT OUTBOX
+        case OTTransaction::instrumentNotice:
+            if (IsAbbreviated())                // not the actual value of 0.
+            {
+                lAdjustment		= GetAbbrevAdjustment();
+                lDisplayValue	= GetAbbrevDisplayAmount();
+            }
+            else
+            {
+                lAdjustment		= 0;
+                lDisplayValue	= GetReceiptAmount();
+            }
+            break;
+        case OTTransaction::instrumentRejection:
+            if (IsAbbreviated())                // not the actual value of 0.
+            {
+                lAdjustment		= GetAbbrevAdjustment();
+                lDisplayValue	= GetAbbrevDisplayAmount();
+            }
+            else
+            {
+                lAdjustment		= 0;
+                lDisplayValue	= 0; 
+            }
+            break;				
+        // ******************************************
+        default: // All other types are irrelevant for inbox reports
+        {
+            OTLog::vError("OTTransaction::SaveAbbrevRecordBoxRecord: Unexpected %s transaction "
+                           "in record box while making abbreviated record-box record.\n", GetTypeString());
+        }
+            return;
+    }	// why not transfer receipt? Because the amount was already removed from your account when you transferred it,
+
 	// ----------------------------------------------
 	// By this point, we know only the right types of receipts are being saved, and 
 	// the adjustment and display value are both set correctly.
@@ -3975,6 +4033,9 @@ void OTTransaction::SaveAbbrevRecordBoxRecord(OTString & strOutput)
 //
 void OTTransaction::SaveAbbreviatedNymboxRecord(OTString & strOutput)
 {
+    long lDisplayValue = 0;
+	// ----------------------------------------------    
+    OTString strDisplayValue;   // IF this transaction is passing through on its way to the paymentInbox, it will have a displayValue.
     OTString strListOfBlanks;   // IF this transaction is "blank" or "successNotice" this will serialize the list of transaction numbers for it. (They now support multiple numbers.)
     
 	switch (m_Type) 
@@ -3997,11 +4058,28 @@ void OTTransaction::SaveAbbreviatedNymboxRecord(OTString & strOutput)
 		case OTTransaction::notice:			// A notice from the server. Used in Nymbox. Probably contains an updated smart contract.
 		case OTTransaction::replyNotice:	// A copy of a server reply to a previous request you sent. (To make SURE you get the reply.)
 		case OTTransaction::finalReceipt:	// Any finalReceipt in an inbox will also drop a copy into the Nymbox.
-			// These are the allowed types.
-			break;
+			break;                          
+            // ------------
+            // paymentInbox items are transported through the Nymbox.
+            // Therefore, this switch statement from SaveAbbrevPaymentInbox
+            // is also found here, to handle those receipts as they pass through.
+		case OTTransaction::instrumentNotice:       // A financial instrument sent from/to another nym.
+            if (IsAbbreviated())
+                lDisplayValue	= GetAbbrevDisplayAmount();
+            else
+                lDisplayValue	= GetReceiptAmount();            
+            strDisplayValue.Format(" displayValue=\"%ld\"\n", lDisplayValue);
+			break;                          // (These last two are just passing through, on their way to the paymentInbox.)
+		case OTTransaction::instrumentRejection:	// A rejection notice from the intended recipient of an instrumentNotice.
+                lDisplayValue	= 0;                
+			break;                          
+            // ------------
 		default: // All other types are irrelevant for nymbox reports.
 			OTLog::vError("OTTransaction::SaveAbbreviatedNymboxRecord: Unexpected %s transaction "
 						  "in nymbox while making abbreviated nymbox record.\n", GetTypeString());
+            
+            OT_ASSERT_MSG(true == false, "ASSERT: OTTransaction::SaveAbbreviatedNymboxRecord: Unexpected transaction in this Nymbox.");
+            
 			return;
 	}
 	// ----------------------------------------------
@@ -4055,17 +4133,20 @@ void OTTransaction::SaveAbbreviatedNymboxRecord(OTString & strOutput)
 	else
 		strOutput.Concatenate("<nymboxRecord type=\"%s\"\n"
 							  " dateSigned=\"%ld\"\n"
-							  " receiptHash=\"%s\"\n"
+							  " receiptHash=\"%s\"\n%s"     // SOMETIMES this is added here by the final %s: " displayValue=\"%ld\"\n"
 							  " transactionNum=\"%ld\"\n%s" // SOMETIMES this is added here by the final %s: " totalListOfNumbers=\"%s\"\n"
 							  " inRefDisplay=\"%ld\"\n"
 							  " inReferenceTo=\"%ld\" />\n\n", 
 							  strType.Get(), 
 							  lDateSigned, 
-							  strHash.Get(),			  
-							  GetTransactionNum(), strListOfBlanks.Get(),
+							  strHash.Get(),		strDisplayValue.Get(),	  
+							  GetTransactionNum(),  strListOfBlanks.Get(),
 							  GetReferenceNumForDisplay(),
 							  GetReferenceToNum());
 }
+
+// ----------------------------------------------
+
 
 
 
@@ -4073,26 +4154,29 @@ void OTTransaction::SaveAbbreviatedOutboxRecord(OTString & strOutput)
 {
 	long lAdjustment = 0, lDisplayValue = 0;
 
-	if (IsAbbreviated())
-	{
-		lAdjustment		= GetAbbrevAdjustment();
-		lDisplayValue	= GetAbbrevDisplayAmount();
-	}
-	else
-	{
-		switch (m_Type) 
-		{
-			case OTTransaction::pending:
-				lAdjustment		= 0;					// In the inbox, a pending hasn't been accepted yet. 
-				lDisplayValue	=				//	In the outbox, it's already gone.
-					(GetReceiptAmount()*(-1));	// Either way, it will have a 0 adjustment amount, even though perhaps 500 clams display amount.
-				break;							// In this case, since it's the outbox, then it's a MINUS (-500) Display amount (since I'm sending, not receiving it.)
-			default: // All other types are irrelevant for outbox reports.
-				OTLog::vError("OTTransaction::SaveAbbreviatedOutboxRecord: Unexpected %s transaction "
-							  "in outbox while making abbreviated outbox record.\n", GetTypeString());
-				return;
-		}
-	}
+    switch (m_Type) 
+    {
+        case OTTransaction::pending:
+            if (IsAbbreviated())
+            {
+                lAdjustment		= GetAbbrevAdjustment();
+                lDisplayValue	= GetAbbrevDisplayAmount();
+            }
+            else
+            {
+                lAdjustment		= 0;			// In the inbox, a pending hasn't been accepted yet. 
+                lDisplayValue	=				//	In the outbox, it's already gone.
+                    (GetReceiptAmount()*(-1));	// Either way, it will have a 0 adjustment amount, even though perhaps 500 clams display amount.
+            }
+            break;							// In this case, since it's the outbox, then it's a MINUS (-500) Display amount (since I'm sending, not receiving it.)
+        default: // All other types are irrelevant for outbox reports.
+            OTLog::vError("OTTransaction::SaveAbbreviatedOutboxRecord: Unexpected %s transaction "
+                          "in outbox while making abbreviated outbox record.\n", GetTypeString());
+            
+            OT_ASSERT_MSG(true == false, "ASSERT: OTTransaction::SaveAbbreviatedOutboxRecord: unexpected transaction type.");
+            
+            return;
+    }
 	// ----------------------------------------------
 	// By this point, we know only the right types of receipts are being saved, and 
 	// the adjustment and display value are both set correctly.
@@ -4157,49 +4241,69 @@ void OTTransaction::SaveAbbreviatedInboxRecord(OTString & strOutput)
 	//
 	long lAdjustment = 0, lDisplayValue = 0;
 	// ----------------------------------------------
-	if (IsAbbreviated())
-	{
-		lAdjustment		= GetAbbrevAdjustment();
-		lDisplayValue	= GetAbbrevDisplayAmount();
-	}
-	else
-	{
-		switch (m_Type) 
-		{
-				// -- In inbox, pending hasn't been accepted yet. In outbox, it's already gone. Either
-				// way, it will have a 0 adjustment amount, even though perhaps 500 clams display amount. Here I use the 500
-				// for display, but in SaveAbbrevToOutbox, I multiply it by -1 so it appears as -500 (leaving my account.)
-				// -- In my inbox, the transferReceipt is notice of money that is already gone. It thus has adjustment value of 0.
-				// But the DISPLAY amount is the amount I originally sent. (Already multiplied by -1 by GetReceiptAmount())
-				//
-			case OTTransaction::pending:			// (The pending amount is stored on the transfer item in my list of transaction items.)
-			case OTTransaction::transferReceipt:	// The transferReceipt amount is the display value (according to GetReceiptAmount()), and
-				lAdjustment		= 0;				// not the actual value of 0.
-				lDisplayValue	= GetReceiptAmount(); 
-				break;
-				// If chequeReceipt for 100 clams hit my inbox, then my balance is -100 from where it was. (Same
-				// value should be displayed.) Luckily, GetReceiptAmount() already multiplies by (-1) for chequeReceipt.
-				// For these (marketReceipt, paymentReceipt, basketReceipt), the actual adjustment is positive OR negative
-				// already, and the display value should match.
-			case OTTransaction::chequeReceipt:		// the amount is stored on cheque (attached to depositCheque item, attached.)
-			case OTTransaction::marketReceipt:		// amount is stored on marketReceipt item.  | 
-			case OTTransaction::paymentReceipt:		// amount is stored on paymentReceipt item. | and the display value should match.
-			case OTTransaction::basketReceipt:		// amount is stored on basketReceipt item.  | 
-				lAdjustment		= GetReceiptAmount();	
-				lDisplayValue	= lAdjustment;			
-				break;
-			case OTTransaction::finalReceipt:		// amount is 0 according to GetReceiptAmount()
-				lAdjustment		= 0;
-				lDisplayValue	= 0;
-				break;
-			default: // All other types are irrelevant for inbox reports
-			{
-				OTLog::vError("OTTransaction::SaveAbbreviatedInboxRecord: Unexpected %s transaction "
-							   "in inbox while making abbreviated inbox record.\n", GetTypeString());
-			}
-				return;
-		}	// why not transfer receipt? Because the amount was already removed from your account when you transferred it,
-	}
+    switch (m_Type) 
+    {
+            // -- In inbox, pending hasn't been accepted yet. In outbox, it's already gone. Either
+            // way, it will have a 0 adjustment amount, even though perhaps 500 clams display amount. Here I use the 500
+            // for display, but in SaveAbbrevToOutbox, I multiply it by -1 so it appears as -500 (leaving my account.)
+            // -- In my inbox, the transferReceipt is notice of money that is already gone. It thus has adjustment value of 0.
+            // But the DISPLAY amount is the amount I originally sent. (Already multiplied by -1 by GetReceiptAmount())
+            //
+        case OTTransaction::pending:			// (The pending amount is stored on the transfer item in my list of transaction items.)
+        case OTTransaction::transferReceipt:	// The transferReceipt amount is the display value (according to GetReceiptAmount()), and
+            if (IsAbbreviated())                // not the actual value of 0.
+            {
+                lAdjustment		= GetAbbrevAdjustment();
+                lDisplayValue	= GetAbbrevDisplayAmount();
+            }
+            else
+            {
+                lAdjustment		= 0;				
+                lDisplayValue	= GetReceiptAmount();
+            }
+            break;
+            // If chequeReceipt for 100 clams hit my inbox, then my balance is -100 from where it was. (Same
+            // value should be displayed.) Luckily, GetReceiptAmount() already multiplies by (-1) for chequeReceipt.
+            // For these (marketReceipt, paymentReceipt, basketReceipt), the actual adjustment is positive OR negative
+            // already, and the display value should match.
+        case OTTransaction::chequeReceipt:		// the amount is stored on cheque (attached to depositCheque item, attached.)
+        case OTTransaction::marketReceipt:		// amount is stored on marketReceipt item.  | 
+        case OTTransaction::paymentReceipt:		// amount is stored on paymentReceipt item. | and the display value should match.
+        case OTTransaction::basketReceipt:		// amount is stored on basketReceipt item.  | 
+            if (IsAbbreviated())                // not the actual value of 0.
+            {
+                lAdjustment		= GetAbbrevAdjustment();
+                lDisplayValue	= GetAbbrevDisplayAmount();
+            }
+            else
+            {
+                lAdjustment		= GetReceiptAmount();	
+                lDisplayValue	= lAdjustment;			
+            }
+            break;
+        case OTTransaction::finalReceipt:		// amount is 0 according to GetReceiptAmount()
+            if (IsAbbreviated())                // not the actual value of 0.
+            {
+                lAdjustment		= GetAbbrevAdjustment();
+                lDisplayValue	= GetAbbrevDisplayAmount();
+            }
+            else
+            {
+                lAdjustment		= 0;
+                lDisplayValue	= 0;
+            }                
+            break;
+        default: // All other types are irrelevant for inbox reports
+        {
+            OTLog::vError("OTTransaction::SaveAbbreviatedInboxRecord: Unexpected %s transaction "
+                           "in inbox while making abbreviated inbox record.\n", GetTypeString());
+            
+            OT_ASSERT_MSG(true == false, "ASSERT: OTTransaction::SaveAbbreviatedInboxRecord: unexpected transaction type.");
+            
+        }
+            return;
+    }	// why not transfer receipt? Because the amount was already removed from your account when you transferred it,
+
 	// ----------------------------------------------
 	// By this point, we know only the right types of receipts are being saved, and 
 	// the adjustment and display value are both set correctly.

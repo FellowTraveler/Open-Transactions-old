@@ -1560,18 +1560,11 @@ void OTLedger::UpdateContents() // Before transmission or serialization, this is
 	
 //	m_xmlUnsigned.Concatenate("<?xml version=\"%s\"?>\n\n", "1.0");		
 	
-	m_xmlUnsigned.Concatenate("<accountLedger version=\"%s\"\n "
-							  "type=\"%s\"\n "
-							  "numPartialRecords=\"%d\"\n "
-							  "accountID=\"%s\"\n "
-							  "userID=\"%s\"\n "
-							  "serverID=\"%s\" >\n\n", m_strVersion.Get(), 
-							  strType.Get(),
-							  nPartialRecordCount,
-							  strLedgerAcctID.Get(), 
-							  strUserID.Get(), 
-							  strLedgerAcctServerID.Get());		
-	
+	// ------------------------------------------------------    
+    OTString strLedgerContents = "";
+    
+    int nPartialACTUALCount = 0;
+    
 	// loop through the transactions and print them out here.
 	FOR_EACH(mapOfTransactions, m_mapTransactions)
 	{
@@ -1586,7 +1579,7 @@ void OTLedger::UpdateContents() // Before transmission or serialization, this is
 			pTransaction->SaveContractRaw(strTransaction);
 			OTASCIIArmor ascTransaction;
 			ascTransaction.SetString(strTransaction, true); // linebreaks = true
-			m_xmlUnsigned.Concatenate("<transaction>\n%s</transaction>\n\n", ascTransaction.Get());
+			strLedgerContents.Concatenate("<transaction>\n%s</transaction>\n\n", ascTransaction.Get());
 		}
 		// ------------------------------
 		else // true == bSavingAbbreviated	// ALL OTHER ledger types are saved here in abbreviated form.
@@ -1594,20 +1587,45 @@ void OTLedger::UpdateContents() // Before transmission or serialization, this is
 			switch (this->GetType()) 
 			{
 					// -----------------------------
-				case OTLedger::nymbox:	pTransaction->SaveAbbreviatedNymboxRecord(strTransaction);	break;
-				case OTLedger::inbox:	pTransaction->SaveAbbreviatedInboxRecord(strTransaction);	break;
-				case OTLedger::outbox:	pTransaction->SaveAbbreviatedOutboxRecord(strTransaction);	break;
-				case OTLedger::paymentInbox:	pTransaction->SaveAbbrevPaymentInboxRecord(strTransaction);		break;
-				case OTLedger::recordBox:		pTransaction->SaveAbbrevRecordBoxRecord(strTransaction);		break;
+				case OTLedger::nymbox:          pTransaction->SaveAbbreviatedNymboxRecord(strTransaction);	break;
+				case OTLedger::inbox:           pTransaction->SaveAbbreviatedInboxRecord(strTransaction);	break;
+				case OTLedger::outbox:          pTransaction->SaveAbbreviatedOutboxRecord(strTransaction);	break;
+				case OTLedger::paymentInbox:	pTransaction->SaveAbbrevPaymentInboxRecord(strTransaction);	break;
+				case OTLedger::recordBox:		pTransaction->SaveAbbrevRecordBoxRecord(strTransaction);	break;
 					// -----------------------------
 				default: // todo: possibly change this to an OT_ASSERT. security.
 					OTLog::Error("OTLedger::UpdateContents: Error: unexpected box type (2nd block). (This should never happen. Skipping.)\n");
+                    
+                    OT_ASSERT_MSG(true == false, "ASSERT: OTLedger::UpdateContents: Unexpected ledger type.");
+                    
 					continue;
 			}
-			m_xmlUnsigned.Concatenate("%s", strTransaction.Get());
+            
+            nPartialACTUALCount++; // Just in case the number actually written matches the count in the map.
+            
+			strLedgerContents.Concatenate("%s", strTransaction.Get());
 		} // ------------------------------
 	}// FOR_EACH(transactions)
-	
+    // ------------------------------------------------------
+    
+    OT_ASSERT_MSG(nPartialACTUALCount == nPartialRecordCount, "ASSERT: OTLedger::UpdateContents: OT_ASSERT_MSG(nPartialACTUALCount == nPartialRecordCount)");
+    
+    // ------------------------------------------------------
+    // HERE IS WHERE WE ACTUALLY BUILD THE STRING:
+    //
+	m_xmlUnsigned.Concatenate("<accountLedger version=\"%s\"\n "
+                              "type=\"%s\"\n "
+                              "numPartialRecords=\"%d\"\n "
+                              "accountID=\"%s\"\n "
+                              "userID=\"%s\"\n "
+                              "serverID=\"%s\" >\n\n", m_strVersion.Get(), 
+                              strType.Get(),
+                              nPartialRecordCount,
+                              strLedgerAcctID.Get(), 
+                              strUserID.Get(), 
+                              strLedgerAcctServerID.Get());		
+	// ------------------------------------------------------
+	m_xmlUnsigned.Concatenate("%s", strLedgerContents.Get());				
 	m_xmlUnsigned.Concatenate("</accountLedger>\n");				
 }
 
@@ -1616,7 +1634,9 @@ void OTLedger::UpdateContents() // Before transmission or serialization, this is
 // return -1 if error, 0 if nothing, and 1 if the node was processed.
 int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 {	
-	if (!strcmp("accountLedger", xml->getNodeName()))
+    const OTString strNodeName = xml->getNodeName();
+    
+	if (strNodeName.Compare("accountLedger"))
 	{	
 		OTString	strType,  // ledger type
 					strLedgerAcctID, // purported
@@ -1708,8 +1728,9 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 //				xml->read(); // <==================
 				if (false == SkipToElement(xml))
 				{
-					OTLog::Output(0, "OTLedger::ProcessXMLNode: Failure: Unable to find expected element "
-                                  "for abbreviated record of receipt in box. \n");
+					OTLog::vOutput(0, "OTLedger::ProcessXMLNode: Failure: Unable to find element when one was expected (%s) "
+                                   "for abbreviated record of receipt in %s box:\n\n%s\n\n", strExpected.Get(), GetTypeString(),
+                                   m_strRawFile.Get());
 					return (-1);
 				}
 				// -----------------------------------------------
@@ -1873,7 +1894,8 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
     // may not have happened, when taking legacy data into account.) If it doesn't already exist, then I 
     // should save it again at this point.
     //
-	else if (!strcmp("transaction", xml->getNodeName()))
+	
+    else if (strNodeName.Compare("transaction"))
 	{
 		OTString		strTransaction;
 		OTASCIIArmor	ascTransaction;
