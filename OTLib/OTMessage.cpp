@@ -646,7 +646,8 @@ void OTMessage::UpdateContents()
 	// (Because outmail isn't encrypted like the inmail is, since the Nymfile itself
 	// will soon be encrypted, and there's no need to be redundant also as well in addition on top of that.
 	//
-	if (m_strCommand.Compare("outmailMessage"))
+	if (m_strCommand.Compare("outmailMessage") ||
+        m_strCommand.Compare("outpaymentsMessage"))
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n"
 								  " nymID=\"%s\"\n"
@@ -2394,7 +2395,8 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// -------------------------------------------------------------------------------------------
 	
-	else if (!strcmp("outmailMessage", xml->getNodeName())) 
+	else if (!strcmp("outmailMessage",      xml->getNodeName()) ||
+             !strcmp("outpaymentsMessage",  xml->getNodeName()))
 	{		
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strNymID		= xml->getAttributeValue("nymID");
