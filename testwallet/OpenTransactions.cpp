@@ -182,6 +182,8 @@ extern "C"
 
 #include "OTSmartContract.h"
 
+#include "OTPayment.h"
+
 #include "OpenTransactions.h"
 
 
@@ -968,12 +970,25 @@ OTAccount * OT_API::GetAccountPartialMatch(const std::string PARTIAL_ID, const c
 //
 // CALLER is responsible to delete!
 //
-OTPseudonym * OT_API::CreateNym()
+OTPseudonym * OT_API::CreateNym(int nKeySize/*=1024*/)
 {
 	OTPseudonym * pNym = new OTPseudonym;
 	OT_ASSERT(NULL != pNym);
 	
-	if (false == pNym->GenerateNym()) // TODO: GenerateNym accepts 1024, 2048, 4096, etc. (Pass them here.)
+    switch (nKeySize) 
+    {
+        case 1024:
+        case 2048:
+        case 4096:
+        case 8192:
+            break;            
+        default:
+            OTLog::vError("OT_API::CreateNym: Failure: nKeySize must be one of: 1024, 2048, 4096, 8192. (%d was passed...)\n",
+                          nKeySize);
+            return NULL;
+    }
+    
+	if (false == pNym->GenerateNym(nKeySize)) 
 	{
 		delete pNym;
 		return NULL;
@@ -2403,8 +2418,10 @@ OTPseudonym * OT_API::LoadPrivateNym(const OTIdentifier & NYM_ID, const char * s
 
 
 /*
+ OT_API_Msg_HarvestTransactionNumbers
+ 
  This function will load up the cron item (which is either a market offer, a payment plan,
- or a SMART CONTRACT.)
+ or a SMART CONTRACT.)  UPDATE: this function operates on messages, not cron items.
  
  Then it will try to harvest all of the closing transaction numbers for NYM_ID that are
  available to be harvested from THE_CRON_ITEM. (There might be zero #s available for that
@@ -2432,72 +2449,149 @@ OTPseudonym * OT_API::LoadPrivateNym(const OTIdentifier & NYM_ID, const char * s
  of shit, then I should have a stored copy of any contract that I signed. If it turns out in the future
  that that contract wasn't activated, then I can retrieve not only my closing numbers, but my OPENING
  number as well! IN THAT CASE, I would call OT_API_HarvestAllNumbers() instead of OT_API_HarvestClosingNumbers().
+ 
+ // -----------------
+ 
+ UPDATE: The above logic is now handled automatically in OT_API_HarvestTransactionNumbers.
+ Therefore OT_API_HarvestClosingNumbers and OT_API_HarvestAllNumbers have been removed.
+ 
  */
-bool OT_API::HarvestClosingNumbers(const OTIdentifier	& SERVER_ID,
-								   const OTIdentifier	& NYM_ID,
-								   const OTString		& THE_CRON_ITEM)
-{
-	const char * szFuncName		= "OT_API::HarvestClosingNumbers";
-	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(NYM_ID, szFuncName); // These copiously log, and ASSERT.
-	if (NULL == pNym) return false;
-	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
-	// -----------------------------------------------------			
-	OTCronItem * pCronItem = OTCronItem::NewCronItem(THE_CRON_ITEM);
-	OTCleanup<OTCronItem> theContractAngel;
-	if (NULL == pCronItem)
-	{
-		OTLog::vOutput(0, " OT_API::HarvestClosingNumbers: Error loading the cron item (a cron item is a smart contract, or "
-					   "some other recurring transaction such as a market offer, or a payment plan.) Contents:\n\n%s\n\n",
-					   THE_CRON_ITEM.Get());
-		return false;
-	}
-	else
-		theContractAngel.SetCleanupTarget(*pCronItem);  // Auto-cleanup.
-	// -----------------------------------------------------
-	pCronItem->HarvestClosingNumbers(*pNym); // <==== the Nym is actually harvesting the numbers from the Cron Item, and not the other way around.
-	// -------------------------------	
-	return true;
-}
 
-
-// NOTE: usually you will want to call OT_API_HarvestClosingNumbers, since the Opening number is usually
-// burned up from some failed transaction or whatever. You don't want to harvest the opening number usually,
-// just the closing numbers. (If the opening number is burned up, yet you still harvest it, then your OT wallet
-// will end up using that number again on some other transaction, which will obviously then fail since the number
-// isn't good anymore.)
-// This function is only for those cases where you are sure that the opening transaction # hasn't been burned yet,
-// such as when the message failed and the transaction wasn't attempted (because it never got that far) or such as
-// when the contract simply never got signed or activated by one of the other parties, and so you want to claw your
-// #'s back, and since in that case your opening number is still good, you would use the below function to get it back.
+// true == no errors. false == errors.
 //
-bool OT_API::HarvestAllNumbers(const OTIdentifier	& SERVER_ID,
-							   const OTIdentifier	& NYM_ID,
-							   const OTString		& THE_CRON_ITEM)
+bool OT_API::Msg_HarvestTransactionNumbers(      OTMessage      & theMsg,
+                                           const OTIdentifier	& USER_ID,
+                                           const bool             bHarvestingForRetry,     // false until positively asserted.
+                                           const bool             bReplyWasSuccess,        // false until positively asserted.
+                                           const bool             bReplyWasFailure,        // false until positively asserted.
+                                           const bool             bTransactionWasSuccess,  // false until positively asserted.
+                                           const bool             bTransactionWasFailure)  // false until positively asserted.
 {
-	const char * szFuncName		= "OT_API::HarvestAllNumbers";
+	const char * szFuncName		= "OT_API::Msg_HarvestTransactionNumbers";
 	// -----------------------------------------------------
-	OTPseudonym * pNym = this->GetOrLoadPrivateNym(NYM_ID, szFuncName); // These copiously log, and ASSERT.
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName); // These copiously log, and ASSERT.
 	if (NULL == pNym) return false;
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
-	// -----------------------------------------------------			
-	OTCronItem * pCronItem = OTCronItem::NewCronItem(THE_CRON_ITEM);
-	OTCleanup<OTCronItem> theContractAngel;
-	if (NULL == pCronItem)
-	{
-		OTLog::vOutput(0, " OT_API::HarvestAllNumbers: Error loading the cron item (a cron item is a smart contract, or "
-					   "some other recurring transaction such as a market offer, or a payment plan.) Contents:\n\n%s\n\n",
-					   THE_CRON_ITEM.Get());
-		return false;
-	}
-	else
-		theContractAngel.SetCleanupTarget(*pCronItem);  // Auto-cleanup.
 	// -----------------------------------------------------
-	pCronItem->HarvestOpeningNumber (*pNym); // <==== the Nym is actually harvesting the numbers from the Cron Item, and not the other way around.
-	pCronItem->HarvestClosingNumbers(*pNym); // <==== the Nym is actually harvesting the numbers from the Cron Item, and not the other way around.
-	// -------------------------------	
-	return true;
+    
+    return theMsg.HarvestTransactionNumbers(*pNym,
+                                            bHarvestingForRetry,     
+                                            bReplyWasSuccess,        
+                                            bReplyWasFailure,        
+                                            bTransactionWasSuccess,  
+                                            bTransactionWasFailure);  
 }
+
+
+
+
+
+
+
+
+
+/*
+ 
+ ------ TODO: Smart Contracts -----------
+ 
+ TODO:  Whenever a party confirms a smart contract (sending it on to the next party) then a copy of
+ the smart contract should go into that party's paymentOutbox. Same thing if the party is the last
+ one in the chain, and has activated it on to the server. A copy sits in the paymentOutbox until
+ that smart contract is either successfully activated, or FAILS to activate.
+ 
+ If a smart contract activates, OTScriptable::DropServerNoticeToNymbox already sends an
+ 'acknowledgment' notice to all parties.
+ 
+ TODO: If a smart contract fails to activate, it should ALSO send a notice ('rejection') to
+ all parties.
+ 
+ TODO: When a party receives a rejection notice in his Nymbox for a certain smart contract,
+ he looks up that same smart contract in his paymentOutbox, HARVESTS THE CLOSING NUMBERS, and
+ then moves the notice from his paymentOutbox to his recordBox.
+ 
+ Until this is added, then clients will go out of sync on rejected smart contracts. (Not the kind
+ of out-of-sync where they can't do any transactions, but rather, the kind where they have certain
+ numbers signed out forever but then never use them on anything because their client thinks those
+ numbers were already used on a smart contract somewhere, and without the above code they would
+ never have clawed back those numbers.)
+ */
+
+
+
+
+
+
+
+
+//bool OT_API::HarvestClosingNumbers(const OTIdentifier	& SERVER_ID,
+//								   const OTIdentifier	& NYM_ID,
+//								   const OTString		& THE_CRON_ITEM)
+//{
+//	const char * szFuncName		= "OT_API::HarvestClosingNumbers";
+//	// -----------------------------------------------------
+//	OTPseudonym * pNym = this->GetOrLoadPrivateNym(NYM_ID, szFuncName); // These copiously log, and ASSERT.
+//	if (NULL == pNym) return false;
+//	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
+//	// -----------------------------------------------------			
+//	OTCronItem * pCronItem = OTCronItem::NewCronItem(THE_CRON_ITEM);
+//	OTCleanup<OTCronItem> theContractAngel;
+//	if (NULL == pCronItem)
+//	{
+//		OTLog::vOutput(0, " OT_API::HarvestClosingNumbers: Error loading the cron item (a cron item is a smart contract, or "
+//					   "some other recurring transaction such as a market offer, or a payment plan.) Contents:\n\n%s\n\n",
+//					   THE_CRON_ITEM.Get());
+//		return false;
+//	}
+//	else
+//		theContractAngel.SetCleanupTarget(*pCronItem);  // Auto-cleanup.
+//	// -----------------------------------------------------
+//	pCronItem->HarvestClosingNumbers(*pNym); // <==== the Nym is actually harvesting the numbers from the Cron Item, and not the other way around.
+//	// -------------------------------	
+//	return true;
+//}
+//
+//
+//// NOTE: usually you will want to call OT_API_HarvestClosingNumbers (above), since the Opening number is usually
+//// burned up from some failed transaction or whatever. You don't want to harvest the opening number usually,
+//// just the closing numbers. (If the opening number is burned up, yet you still harvest it, then your OT wallet
+//// could end up using that number again on some other transaction, which will obviously then fail since the number
+//// isn't good anymore. In fact much of OT's design is based on minimizing/eliminating any such sync issues.)
+//// This function is only for those cases where you are sure that the opening transaction # hasn't been burned yet,
+//// such as when the message failed and the transaction wasn't attempted (because it never got that far) or such as
+//// when the contract simply never got signed or activated by one of the other parties, and so you want to claw ALL your
+//// #'s back, and since in that case your opening number is still good, you would use the below function to get it back.
+////
+//bool OT_API::HarvestAllNumbers(const OTIdentifier	& SERVER_ID,
+//							   const OTIdentifier	& NYM_ID,
+//							   const OTString		& THE_CRON_ITEM)
+//{
+//	const char * szFuncName		= "OT_API::HarvestAllNumbers";
+//	// -----------------------------------------------------
+//	OTPseudonym * pNym = this->GetOrLoadPrivateNym(NYM_ID, szFuncName); // These copiously log, and ASSERT.
+//	if (NULL == pNym) return false;
+//	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
+//	// -----------------------------------------------------			
+//	OTCronItem * pCronItem = OTCronItem::NewCronItem(THE_CRON_ITEM);
+//	OTCleanup<OTCronItem> theContractAngel;
+//	if (NULL == pCronItem)
+//	{
+//		OTLog::vOutput(0, " OT_API::HarvestAllNumbers: Error loading the cron item (a cron item is a smart contract, or "
+//					   "some other recurring transaction such as a market offer, or a payment plan.) Contents:\n\n%s\n\n",
+//					   THE_CRON_ITEM.Get());
+//		return false;
+//	}
+//	else
+//		theContractAngel.SetCleanupTarget(*pCronItem);  // Auto-cleanup.
+//	// -----------------------------------------------------
+//	pCronItem->HarvestOpeningNumber (*pNym); // <==== the Nym is actually harvesting the numbers from the Cron Item, and not the other way around.
+//	pCronItem->HarvestClosingNumbers(*pNym); // <==== the Nym is actually harvesting the numbers from the Cron Item, and not the other way around.
+//	// -------------------------------	
+//	return true;
+//}
+
+    
+
+
 
 
 
@@ -3497,10 +3591,7 @@ OTLedger * OT_API::LoadRecordBoxNoVerify(const OTIdentifier & SERVER_ID,
 
 
 
-
-
-
-
+// ----------------------------------------------------------------
 
 
 
@@ -3542,33 +3633,35 @@ bool OT_API::ResyncNymWithServer(OTPseudonym & theNym, OTLedger & theNymbox, OTP
 
 
 
+// ----------------------------------------------------------------
 
 
-
+// INCOMING SERVER REPLIES
 
 
 // YOU are responsible to delete the OTMessage object, once
 // you receive the pointer that comes back from this function.
 // (It also might return NULL, if there are none there.)
 //
-OTMessage * OT_API::PopMessageBuffer()
+OTMessage * OT_API::PopMessageBuffer(const long         &   lRequestNumber,
+                                     const OTIdentifier &	SERVER_ID,
+                                     const OTIdentifier &	USER_ID)
 {
-	OT_ASSERT_MSG(m_bInitialized && (m_pClient != NULL), "Not initialized; call OT_API::Init first.");
-		
-	return m_pClient->GetMessageBuffer().GetNextMessage();
+	OT_ASSERT_MSG( (m_bInitialized && (m_pClient != NULL)) , "Not initialized; call OT_API::Init first.");
+	OT_ASSERT_MSG( lRequestNumber > 0, "OT_API::PopMessageBuffer: lRequestNumber is less than 1.");
+    
+    const OTString strServerID(SERVER_ID), strNymID(USER_ID);
+
+	return m_pClient->GetMessageBuffer().Pop(lRequestNumber, strServerID, strNymID); // deletes
 }
+
+
 
 void OT_API::FlushMessageBuffer()
 {
-	OT_ASSERT_MSG(m_bInitialized, "Not initialized; call OT_API::Init first.");
+	OT_ASSERT_MSG(m_bInitialized && (m_pClient != NULL), "Not initialized; call OT_API::Init first.");
 	
-	OTMessage * pMsg = m_pClient->GetMessageBuffer().GetNextMessage();
-	
-	while (NULL != pMsg)
-	{
-		delete pMsg;
-		pMsg = m_pClient->GetMessageBuffer().GetNextMessage();
-	}
+    m_pClient->GetMessageBuffer().Clear();
 }
 
 
@@ -3577,10 +3670,172 @@ void OT_API::FlushMessageBuffer()
 // --------------------------------------------------------------------
 
 
+// OUTOING MESSSAGES
+
+// NOTE: Currently it just stores ALL sent messages, if they were sent (as far as it
+// can tell.) But the idea for the future is to have messages marked as "important"
+// and for "only those" to actually be saved here. (Those important msgs are the ones
+// that we need to track for purposes of harvesting transaction numbers.)
+
+// Do NOT delete the message that is returned here.
+// Use the "Remove" call if you want to remove it.
+//
+
+OTMessage * OT_API::GetSentMessage(const long         & lRequestNumber,
+                                   const OTIdentifier &	SERVER_ID,
+                                   const OTIdentifier &	USER_ID)
+{
+	OT_ASSERT_MSG( (m_bInitialized && (m_pClient != NULL)) , "Not initialized; call OT_API::Init first.");
+	OT_ASSERT_MSG( lRequestNumber > 0, "OT_API::GetSentMessage: lRequestNumber is less than 1.");
+    
+    const OTString strServerID(SERVER_ID), strNymID(USER_ID);
+    
+	return m_pClient->GetMessageOutbuffer().GetSentMessage(lRequestNumber, strServerID, strNymID); // doesn't delete.
+}
+
+
+bool OT_API::RemoveSentMessage(const long         & lRequestNumber,
+                               const OTIdentifier &	SERVER_ID,
+                               const OTIdentifier &	USER_ID)
+{
+	OT_ASSERT_MSG(m_bInitialized && (m_pClient != NULL), "Not initialized; call OT_API::Init first.");
+	OT_ASSERT_MSG(lRequestNumber > 0, "OT_API::RemoveSentMessage: lRequestNumber is less than 1.");
+    
+    const OTString strServerID(SERVER_ID), strNymID(USER_ID);
+    
+	return m_pClient->GetMessageOutbuffer().RemoveSentMessage(lRequestNumber, strServerID, strNymID); // deletes.
+}
 
 
 
-// ABOVE ARE COMMANDS TO MANIPULATE LOCAL DATA (*NOT* MESSAGE THE SERVER.)
+//  Basically, the sent messages queue must store
+// messages (by request number) until we know for SURE whether we have a success, a failure,
+// or a lost/rejected message. That is, until we DOWNLOAD the Nymbox, and thus know for SURE
+// that a response to a given message is there...or not. Why do we care? For making this 
+// choice:
+//
+// Messages that DO have a reply are therefore already "in the system" and will be handled
+// normally--they can be ignored and flushed from the "sent messages" queue. Whereas messages
+// that do NOT have a reply in the Nymbox (yet are still in the "sent messages" queue) can be
+// assumed safely to have been rejected at "message level" (before any transaction could
+// have processed) and the reply must have been dropped on the network, OR the server never
+// even received the message in the first place. EITHER WAY the trans #s can be harvested
+// accordingly and then removed from the sent buffer. In a perfect world (read: iteration 2)
+// these sent messages will be serialized somehow along with the Nym, and not just stored in 
+// RAM like this version does.
+//
+// Therefore this function will be called only after @getNymbox (in OTClient), where each
+// replyNotice in the Nymbox will be removed from the sent messages individually, and then
+// the rest of the sent messages can be flushed
+//
+//
+// -----------------------------------------------------------
+// OT_API::FlushSentMessages
+//
+// Make sure to call this directly after a successful @getNymbox.
+// (And ONLY at that time.)
+//
+// This empties the buffer of sent messages.
+// (Harvesting any transaction numbers that are still there.)
+//
+// NOTE: You normally ONLY call this immediately after receiving
+// a successful @getNymbox. It's only then that you can see which
+// messages a server actually received or not -- which transactions
+// it processed (success or fail) vs which transactions did NOT
+// process (and thus did NOT leave any success/fail receipt in the
+// nymbox.)
+//
+// I COULD have just flushed myself IN the @getNymbox code (where
+// the reply is processed.) But then the developer using the OT API
+// would never have the opportunity to see whether a message was
+// replied to, and harvest it for himself (say, just before attempting
+// a re-try, which I plan to do in the high-level Java API, which is
+// why I'm coding it this way.)
+//
+// This way, he can do that if he wishes, THEN call this function,
+// and harvesting will still occur properly, and he will also thus have
+// his chance to check for his own replies to harvest before then.
+// This all depends on the developer using the API being smart enough
+// to call this function after a successful @getNymbox!
+//
+void OT_API::FlushSentMessages(const bool bHarvestingForRetry,
+                               const OTIdentifier &	SERVER_ID,
+                               const OTIdentifier &	USER_ID,
+                                     OTLedger     & THE_NYMBOX)
+{
+	OT_ASSERT_MSG(m_bInitialized && (m_pClient != NULL), "Not initialized; call OT_API::Init first.");
+    // --------------------------------------------------------------------
+	const char * szFuncName = "OT_API::FlushSentMessages";
+	// -----------------------------------------------------
+	OTPseudonym * pNym = this->GetNym(USER_ID, szFuncName); // This logs and ASSERTs already.
+	if (NULL == pNym) return;
+	// Below this point, pNym is a good ptr, and will be cleaned up automatically.
+	// -----------------------------------------------------
+    const OTString strServerID(SERVER_ID), strNymID(USER_ID);
+	// -----------------------------------------------------
+    if ((THE_NYMBOX.GetUserID()            != USER_ID) ||
+        (THE_NYMBOX.GetPurportedServerID() != SERVER_ID))
+    {
+        const OTString strLedger(THE_NYMBOX);
+        OTLog::vError("%s: Failure, Bad input data: UserID (%s) or ServerID (%s) failed to match Nymbox:\n\n%s\n\n", 
+                      szFuncName, strNymID.Get(), strServerID.Get(), strLedger.Get());
+        return;
+    }
+    // -----------------------------------------------------------------
+    // Iterate through the nymbox receipts.
+    // If ANY of them is a REPLY NOTICE, then see if the SENT MESSAGE for that SAME
+    // request number is in the sent queue.
+    // If it IS, REMOVE IT from the sent queue. (Since Nymbox clearly already contains
+    // a reply to it, no need to queue it anymore.)
+    // At the end of this loop, then FLUSH the sent queue. We KNOW only important
+    // (nymbox related) messages should be queued there, and once we see the latest Nymbox,
+    // then we KNOW which ones to remove before flushing.
+    // 
+    FOR_EACH(mapOfTransactions, THE_NYMBOX.GetTransactionMap())
+    {
+        const OTTransaction * pTransaction = (*it).second;
+        OT_ASSERT(NULL != pTransaction);
+        // --------------------------------
+        
+        if (OTTransaction::replyNotice == pTransaction->GetType())
+        {
+            OTMessage * pMessage = m_pClient->GetMessageOutbuffer().GetSentMessage(*pTransaction);
+            
+            if (NULL != pMessage) // It WAS there in my sent buffer!
+            {
+                // Since it IS in my Nymbox already as a replyNotice,
+                // therefore I'm safe to erase it from my sent queue.
+                //
+                m_pClient->GetMessageOutbuffer().RemoveSentMessage(*pTransaction);
+            }
+            // else do nothing, must have already removed it.
+        }
+    }
+    // -----------------------------------------------------------------
+    // Now that we've REMOVED the sent messages that already have a reply
+    // in the Nymbox (and thus CLEARLY do not need harvesting...)
+    //
+    // Clear all "sent message" cached messages for this server and NymID.
+    // (And harvest their transaction numbers back, since we know for a fact
+    // the server hasn't replied to them (the reply would be in the Nymbox, which
+    // we just got.)
+    //
+    // UPDATE: We will have to rely on the Developer using the OT API to call
+    // OT_API_FlushSentMessages IMMEDIATELY after calling getNymbox and receiving
+    // a successful reply. Why? Because that's the only way to give him the chance
+    // to see if certain replies are there or not (before they get removed.) That way
+    // he can do his own harvesting, do a re-try, etc and then finally when he is done
+    // with that, do the flush.
+    //
+    m_pClient->GetMessageOutbuffer().Clear(&strServerID, &strNymID, pNym, &bHarvestingForRetry); // FYI: This HARVESTS any sent messages that need harvesting, before flushing them all.
+}
+
+// -----------------------------------------------------------------
+
+
+
+
+
 
 
 // ---------------------------------------------------------------------
@@ -3946,18 +4201,18 @@ bool OT_API::AddBasketCreationItem(const OTIdentifier & USER_ID, // for signatur
 // -----------------------------------------------------
 // ISSUE BASKET CREATION REQUEST (to server.)
 //
-void OT_API::issueBasket(OTIdentifier	& SERVER_ID,
+int OT_API::issueBasket(OTIdentifier	& SERVER_ID,
 						 OTIdentifier	& USER_ID,
 						 OTString		& BASKET_INFO)
 {
 	const char * szFuncName = "OT_API::issueBasket";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName);
-	if (NULL == pNym) return;
+	if (NULL == pNym) return (-1);
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
 	OTServerContract	* pServer = this->GetServer(SERVER_ID, szFuncName);
-	if (NULL == pServer) return;
+	if (NULL == pServer) return (-1);
 	// -------------------------------------------------------------		
 	// AT SOME POINT, BASKET_INFO has been populated with the relevant data. (see test client for example.)
 	OTString strServerID(SERVER_ID), strNymID(USER_ID);
@@ -3988,6 +4243,8 @@ void OT_API::issueBasket(OTIdentifier	& SERVER_ID,
 	m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 #endif	
 	m_pClient->ProcessMessageOut(theMessage);
+    
+    return m_pClient->CalcReturnVal(lRequestNumber);
 }
 
 
@@ -4161,14 +4418,107 @@ bool OT_API::AddBasketExchangeItem(const OTIdentifier & SERVER_ID,
 // in the event of error (ugh.)
 //
 
+// TODO: It was a mistake to only drop Nymbox notices for successful messages.
+// If the client misses a failure message, the client will then fail to claw back
+// his transaction numbers from that failure. For transactions, at least, failure
+// notices should also be dropped.
 
+// BUT perhaps we can avoid many failure notices, by nipping things in the bud. For
+// example, if the NymboxHash is wrong, we can reject transactions before even the 
+// opening number is burned (similar to rejecting messages based on bad request #.)
+// This "message level" rejection allows the client to claw-back or re-try, without
+// the pain of having burned SOME numbers while others are still good (and then 
+// having to reconcile that mess to get back into sync.)
+
+
+// Some notes on TRANSACTION NUMBERS:
+/*
+ 1. You must BURN a number even to ATTEMPT a transaction.
+ 
+ 2. However, remember that OT has messages, and those messages contain transactions.
+    A message might fail due to out-of-sync request number, meaning it was cut off
+    before even having a chance to call the NotarizeTransactions code.
+ 
+ 3. If the message failed, that means the transaction has not yet even been tried, so
+    the number on it is still good. (You can re-send the message.)
+ 
+ 4. But if the message succeeded, then the transaction itself requires 2 steps:
+    the balance agreement, and the transaction itself.
+ 
+ 5. If the balance agreement or transaction fails, then the primary transaction # has been burned.
+    BUT there may be OTHER transaction numbers that are STILL good. The closing numbers, etc.
+ 
+ 6. The OTHER numbers are only burned if the transaction is a SUCCESS.
+ 
+ 
+ Therefore:
+ -- If the message fails, we can re-sync and re-try. All trans #s are still good.
+ -- If the message succeeds, but balance agreement fails, or the transaction fails,
+    then the primary transaction # is burned, but any additional numbers are still good.
+ -- If the transaction itself succeeds, then ALL numbers are burned.
+ 
+ OT Client, if the MESSAGE was a failure, MUST re-send it, or claw back the numbers, since
+ they are all still good, even the primary #. (This is only if an EXPLICIT message failure
+ is received. A null reply could mean it was SUCCESSFUL but we just didn't SEE that success
+ because we never got the reply! In that case, we do NOT want to re-try, nor do we want to
+ claw the numbers back.)
+ 
+ Thus OT client, as long as the MESSAGE was a success, can operate based on the assumption 
+ that the primary transaction number IS burned, whether the transaction itself was successful
+ or not.
+ 
+ OT client also assumes the other numbers are burned as well, UNLESS IT RECEIVES A FAILURE REPLY.
+ If an explicit transaction failure is received, then OT client can CLAW BACK all of the transaction
+ numbers EXCEPT the primary one.
+ 
+ OT MUST SEE THE FAILURE MESSAGES -- AT LEAST FOR TRANSACTIONS!
+ What if:
+ 
+ What if I try a TRANSACTION, and fail to receive the server reply?
+ Potentialities:
+ 
+ 1. Message was a failure. (No numbers are burned.)
+ 2. Message was success but balance agreement was a failure.
+    (The opening # was burned, but the others are still good.)
+ 3. Message and balance agreement were both success, but transaction itself failed.
+    (The opening # was burned, but the others are still good.)
+ 4. Message, balance agreement, and transaction were all a success.
+    (ALL transaction #s on the message are burned.)
+ 
+ 
+ Currently:
+ 1. If I don't receive this failure message, then I resend, which would basically work since the numbers are all still good.
+    BUT IN THE CASE OF EXCHANGE BASKET, IT FUCKING GRABS A NEW NUMBER EACH CALL!  So when OTAPI_Func retries, it grabs a new one each time. 
+    (Instead of just using the ones that are still good.)
+ 
+ 2. If I miss this success reply, or treat the null as a failure, then I will end up re-trying a transaction
+    that has no prayer of working, since its opening # is already burned. I'll also fail to claw back my numbers, which are mostly still good.
+ 
+ 3. If I miss this success reply, or treat the null as a failure, then I will end up re-trying a transaction
+    that has no prayer of working, since its opening # is already burned. I'll also fail to claw back my numbers, which are mostly still good.
+ 
+ 4. If I miss this success reply, the numbers are all burned on both sides, but I don't KNOW that, and though I correctly believe the numbers
+    are all burned, I also end up CONTINUING to re-try the message, which fails every time, since it was already a success and the numbers are
+    all burned already.
+ ----------------------------------
+ 
+ Therefore, the new solutions...
+ 
+ 
+ 
+ --------------------------------------------------
+ 
+ 
+ 
+ 
+ */
 
 
 
 // -----------------------------------------------------
 // EXCHANGE (into or out of) BASKET (request to server.)
 //
-void OT_API::exchangeBasket(OTIdentifier	& SERVER_ID,
+int OT_API::exchangeBasket(OTIdentifier	& SERVER_ID,
 							OTIdentifier	& USER_ID,
 							OTIdentifier	& BASKET_ASSET_ID,
 							OTString		& BASKET_INFO,
@@ -4180,15 +4530,15 @@ void OT_API::exchangeBasket(OTIdentifier	& SERVER_ID,
 	const char * szFuncName = "OT_API::exchangeBasket";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName); // These copiously log, and ASSERT.
-	if (NULL == pNym) return;
+	if (NULL == pNym) return (-1);
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
 	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pServer) return;
+	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTAssetContract * pContract = this->GetAssetType(BASKET_ASSET_ID, szFuncName);
-	if (NULL == pContract) return;
+	if (NULL == pContract) return (-1);
 	// By this point, pContract is a good pointer, and is on the wallet. (No need to cleanup.)   
 	// -----------------------------------------------------------------
 	const OTString strServerID(SERVER_ID), strUserID(USER_ID);
@@ -4202,7 +4552,8 @@ void OT_API::exchangeBasket(OTIdentifier	& SERVER_ID,
         const OTIdentifier & BASKET_ASSET_ACCT_ID(theRequestBasket.GetRequestAccountID());
         // -------------------------------------------------------------------------
 		OTAccount * pAccount = this->GetOrLoadAccount(*pNym, BASKET_ASSET_ACCT_ID, SERVER_ID, szFuncName);
-		if (NULL == pAccount) return;
+		if (NULL == pAccount) return (-1);
+
 		// By this point, pAccount is a good pointer, and is on the wallet. (No need to cleanup.)
 		// -----------------------------------------------------		
         // We need a transaction number just to send this thing. Plus, we need a number for
@@ -4299,7 +4650,7 @@ void OT_API::exchangeBasket(OTIdentifier	& SERVER_ID,
                     //
                     // pBalanceItem is signed and saved within this call. No need to do that again.
                     OTItem * pBalanceItem = pInbox->GenerateBalanceStatement(0, // Change in balance is 0. (The accounts will all be changed, 
-                            *pTransaction, *pNym, *pAccount, *pOutbox); // but basketReceipts will be used to account for it.) 
+                            *pTransaction, *pNym, *pAccount, *pOutbox);         // but basketReceipts will be used to account for it.) 
                     
                     if (NULL != pBalanceItem) // will never be NULL. Will assert above before it gets here.
                         pTransaction->AddItem(*pBalanceItem); // Better not be NULL... message will fail... But better check anyway.
@@ -4340,6 +4691,15 @@ void OT_API::exchangeBasket(OTIdentifier	& SERVER_ID,
                     BASKET_ASSET_ACCT_ID.GetString(theMessage.m_strAcctID);
                     theMessage.m_ascPayload			= ascLedger;
                     
+                    OTIdentifier NYMBOX_HASH;
+                    const std::string str_server(strServerID.Get());
+                    const bool bNymboxHash = pNym->GetNymboxHash(str_server, NYMBOX_HASH);
+                    NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
+                    
+                    if (!bNymboxHash)
+                        OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
+                                      str_server.c_str());
+
                     // (2) Sign the Message 
                     theMessage.SignContract(*pNym);		
                     
@@ -4350,28 +4710,32 @@ void OT_API::exchangeBasket(OTIdentifier	& SERVER_ID,
 #if defined(OT_ZMQ_MODE)
                     m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 #endif	
-                    m_pClient->ProcessMessageOut(theMessage);		
+                    m_pClient->ProcessMessageOut(theMessage);
+                    
+                    return m_pClient->CalcReturnVal(lRequestNumber);
                 } // Inbox loaded.
             } // successfully got first transaction number.
         }
     }
+    
+    return (-1);
 }
 
 
 
 
 
-void OT_API::getTransactionNumber(OTIdentifier & SERVER_ID,
+int OT_API::getTransactionNumber(OTIdentifier & SERVER_ID,
 								  OTIdentifier & USER_ID)
 {
 	const char * szFuncName = "OT_API::getTransactionNumber";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName); // These copiously log, and ASSERT.
-	if (NULL == pNym) return;
+	if (NULL == pNym) return (-1);
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
 	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pServer) return;
+	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	const int nCount	= pNym->GetTransactionNumCount(SERVER_ID);
@@ -4380,29 +4744,35 @@ void OT_API::getTransactionNumber(OTIdentifier & SERVER_ID,
 	{
 		OTLog::vOutput(0, "OT_API::getTransactionNumber: Failure: That Nym already has "
 					  "more than %d transaction numbers signed out. (Use those first.)\n", nMaxCount);
-		return;
+        return (-1);
 	}
 	// -----------------------------------------------------
 	OTMessage theMessage;
-	
-	if (m_pClient->ProcessUserCommand(OTClient::getTransactionNum, theMessage, 
-									*pNym, *pServer,
-									NULL)) // NULL pAccount on this command.
+
+	int nReturnValue = m_pClient->ProcessUserCommand(OTClient::getTransactionNum, theMessage, 
+                                                     *pNym, *pServer,
+                                                     NULL); // NULL pAccount on this command.
+	if (0 < nReturnValue) 
 	{				
 #if defined(OT_ZMQ_MODE)
 		m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 #endif	
 		m_pClient->ProcessMessageOut(theMessage);
+        
+        return nReturnValue;
 	}
 	else
-		OTLog::Error("OT_API::getTransactionNumber: Error processing getTransactionNumber command\n");
+		OTLog::vError("OT_API::getTransactionNumber: Error processing getTransactionNumber command. Return value: %d\n",
+                      nReturnValue);
+    
+    return (-1);
 }
 
 
 
 
 
-void OT_API::notarizeWithdrawal(OTIdentifier	& SERVER_ID,
+int OT_API::notarizeWithdrawal(OTIdentifier	& SERVER_ID,
 								OTIdentifier	& USER_ID,
 								OTIdentifier	& ACCT_ID,
 								OTString		& AMOUNT)
@@ -4410,18 +4780,18 @@ void OT_API::notarizeWithdrawal(OTIdentifier	& SERVER_ID,
 	const char * szFuncName = "OT_API::notarizeWithdrawal";
 	// -----------------------------------------------------
 	OTWallet * pWallet = this->GetWallet(szFuncName); // This logs and ASSERTs already.
-	if (NULL == pWallet) return;
+	if (NULL == pWallet) return (-1);
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName); // These copiously log, and ASSERT.
-	if (NULL == pNym) return;
+	if (NULL == pNym) return (-1);
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
 	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pServer) return;
+	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTAccount * pAccount = this->GetOrLoadAccount(*pNym, ACCT_ID, SERVER_ID, szFuncName);
-	if (NULL == pAccount) return;
+	if (NULL == pAccount) return (-1);
 	// By this point, pAccount is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------			
 	OTIdentifier	CONTRACT_ID;
@@ -4435,7 +4805,7 @@ void OT_API::notarizeWithdrawal(OTIdentifier	& SERVER_ID,
 		OTLog::vError("OT_API::notarizeWithdrawal: File does not exist: %s%s%s%s%s\n", 
 					  OTLog::MintFolder(), OTLog::PathSeparator(), strServerID.Get(),
 					  OTLog::PathSeparator(), strContractID.Get());
-		return;
+        return -1;
 	}
 	// --------------------------------------------------------------------
 	
@@ -4599,6 +4969,15 @@ void OT_API::notarizeWithdrawal(OTIdentifier	& SERVER_ID,
 			theMessage.m_strAcctID			= strFromAcct;
 			theMessage.m_ascPayload			= ascLedger;
 			
+            OTIdentifier NYMBOX_HASH;
+            const std::string str_server(strServerID.Get());
+            const bool bNymboxHash = pNym->GetNymboxHash(str_server, NYMBOX_HASH);
+            NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
+            
+            if (!bNymboxHash)
+                OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
+                              str_server.c_str());
+
 			// (2) Sign the Message 
 			theMessage.SignContract(*pNym);		
 			
@@ -4609,7 +4988,9 @@ void OT_API::notarizeWithdrawal(OTIdentifier	& SERVER_ID,
 #if defined(OT_ZMQ_MODE)
 			m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 #endif	
-			m_pClient->ProcessMessageOut(theMessage);	
+			m_pClient->ProcessMessageOut(theMessage);
+            
+            return m_pClient->CalcReturnVal(lRequestNumber);
 		}
 		else 
 		{
@@ -4621,13 +5002,14 @@ void OT_API::notarizeWithdrawal(OTIdentifier	& SERVER_ID,
 	{
 		OTLog::Output(0, "No Transaction Numbers were available. Suggest requesting the server for a new one.\n");
 	}
+    
+    return (-1);
 }
 
 
 
 
-
-void OT_API::notarizeDeposit(OTIdentifier	& SERVER_ID,
+int OT_API::notarizeDeposit(OTIdentifier	& SERVER_ID,
 							 OTIdentifier	& USER_ID,
 							 OTIdentifier	& ACCT_ID,
 							 OTString		& THE_PURSE)
@@ -4635,15 +5017,15 @@ void OT_API::notarizeDeposit(OTIdentifier	& SERVER_ID,
 	const char * szFuncName = "OT_API::notarizeDeposit";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName); // These copiously log, and ASSERT.
-	if (NULL == pNym) return;
+	if (NULL == pNym) return (-1);
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
 	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pServer) return;
+	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTAccount * pAccount = this->GetOrLoadAccount(*pNym, ACCT_ID, SERVER_ID, szFuncName);
-	if (NULL == pAccount) return;
+	if (NULL == pAccount) return (-1);
 	// By this point, pAccount is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------			
 	OTIdentifier	CONTRACT_ID;
@@ -4795,6 +5177,15 @@ void OT_API::notarizeDeposit(OTIdentifier	& SERVER_ID,
 			theMessage.m_strAcctID			= strFromAcct;
 			theMessage.m_ascPayload			= ascLedger;
 			
+            OTIdentifier NYMBOX_HASH;
+            const std::string str_server(strServerID.Get());
+            const bool bNymboxHash = pNym->GetNymboxHash(str_server, NYMBOX_HASH);
+            NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
+            
+            if (!bNymboxHash)
+                OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
+                              str_server.c_str());
+
 			// (2) Sign the Message 
 			theMessage.SignContract(*pNym);		
 			
@@ -4807,6 +5198,8 @@ void OT_API::notarizeDeposit(OTIdentifier	& SERVER_ID,
 #endif	
 			m_pClient->ProcessMessageOut(theMessage);	
 			
+            return m_pClient->CalcReturnVal(lRequestNumber);
+            
 		} // bSuccess
 		else 
 		{
@@ -4817,11 +5210,13 @@ void OT_API::notarizeDeposit(OTIdentifier	& SERVER_ID,
 			pNym->AddTransactionNum(*pNym, strServerID, lStoredTransactionNumber, true); // bSave=true								
 		}
 	} // if (pServerNym)
+    
+    return (-1);
 }
 
 
 
-void OT_API::withdrawVoucher(OTIdentifier	& SERVER_ID,
+int OT_API::withdrawVoucher(OTIdentifier	& SERVER_ID,
 							 OTIdentifier	& USER_ID,
 							 OTIdentifier	& ACCT_ID,
 							 OTIdentifier	& RECIPIENT_USER_ID,
@@ -4831,15 +5226,15 @@ void OT_API::withdrawVoucher(OTIdentifier	& SERVER_ID,
 	const char * szFuncName = "OT_API::withdrawVoucher";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName); // These copiously log, and ASSERT.
-	if (NULL == pNym) return;
+	if (NULL == pNym) return (-1);
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
 	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pServer) return;
+	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTAccount * pAccount = this->GetOrLoadAccount(*pNym, ACCT_ID, SERVER_ID, szFuncName);
-	if (NULL == pAccount) return;
+	if (NULL == pAccount) return (-1);
 	// By this point, pAccount is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------				
 	OTIdentifier	CONTRACT_ID;
@@ -4962,6 +5357,15 @@ void OT_API::withdrawVoucher(OTIdentifier	& SERVER_ID,
 			theMessage.m_strAcctID			= strFromAcct;
 			theMessage.m_ascPayload			= ascLedger;
 			
+            OTIdentifier NYMBOX_HASH;
+            const std::string str_server(strServerID.Get());
+            const bool bNymboxHash = pNym->GetNymboxHash(str_server, NYMBOX_HASH);
+            NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
+            
+            if (!bNymboxHash)
+                OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
+                              str_server.c_str());
+
 			// (2) Sign the Message 
 			theMessage.SignContract(*pNym);		
 			
@@ -4972,11 +5376,15 @@ void OT_API::withdrawVoucher(OTIdentifier	& SERVER_ID,
 #if defined(OT_ZMQ_MODE)
 			m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 #endif	
-			m_pClient->ProcessMessageOut(theMessage);	
+			m_pClient->ProcessMessageOut(theMessage);
+            
+            return m_pClient->CalcReturnVal(lRequestNumber);
 		}
 	}
 	else 
 		OTLog::Output(0, "No Transaction Numbers were available. Suggest requesting the server for a new one.\n");
+    
+    return (-1);
 }
 
 
@@ -5065,7 +5473,7 @@ bool OT_API::DiscardCheque(OTIdentifier	& SERVER_ID,
 // DEPOSIT CHEQUE
 //
 
-void OT_API::depositCheque(OTIdentifier	& SERVER_ID,
+int OT_API::depositCheque(OTIdentifier	& SERVER_ID,
 						   OTIdentifier	& USER_ID,
 						   OTIdentifier	& ACCT_ID,
 						   OTString		& THE_CHEQUE)
@@ -5073,15 +5481,15 @@ void OT_API::depositCheque(OTIdentifier	& SERVER_ID,
 	const char * szFuncName = "OT_API::depositCheque";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName); // These copiously log, and ASSERT.
-	if (NULL == pNym) return;
+	if (NULL == pNym) return (-1);
 	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
 	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pServer) return;
+	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTAccount * pAccount = this->GetOrLoadAccount(*pNym, ACCT_ID, SERVER_ID, szFuncName);
-	if (NULL == pAccount) return;
+	if (NULL == pAccount) return (-1);
 	// By this point, pAccount is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------				
 	OTIdentifier	CONTRACT_ID;
@@ -5188,6 +5596,15 @@ void OT_API::depositCheque(OTIdentifier	& SERVER_ID,
 			theMessage.m_strAcctID			= strFromAcct;
 			theMessage.m_ascPayload			= ascLedger;
 			
+            OTIdentifier NYMBOX_HASH;
+            const std::string str_server(strServerID.Get());
+            const bool bNymboxHash = pNym->GetNymboxHash(str_server, NYMBOX_HASH);
+            NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
+            
+            if (!bNymboxHash)
+                OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
+                              str_server.c_str());
+
 			// (2) Sign the Message 
 			theMessage.SignContract(*pNym);		
 			
@@ -5199,8 +5616,12 @@ void OT_API::depositCheque(OTIdentifier	& SERVER_ID,
 			m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 #endif	
 			m_pClient->ProcessMessageOut(theMessage);
+            
+            return m_pClient->CalcReturnVal(lRequestNumber);
 		}
 	} // bSuccess
+    
+    return -1;
 }
 
 
@@ -5218,18 +5639,18 @@ void OT_API::depositCheque(OTIdentifier	& SERVER_ID,
 // contract is now being deposited by the customer (who is also
 // the sender), in a message to the server.
 //
-void OT_API::depositPaymentPlan(const OTIdentifier	& SERVER_ID,
+int OT_API::depositPaymentPlan(const OTIdentifier	& SERVER_ID,
 								const OTIdentifier	& USER_ID,
 								const OTString		& THE_PAYMENT_PLAN)
 {
 	const char * szFuncName = "OT_API::depositPaymentPlan";
 	// -----------------------------------------------------
 	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pServer) return;
+	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pNym) return;
+	if (NULL == pNym) return (-1);
 	// By this point, pNym is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------------------
 	OTPaymentPlan	thePlan;
@@ -5247,7 +5668,7 @@ void OT_API::depositPaymentPlan(const OTIdentifier	& SERVER_ID,
 		// -----------------------------------------------------
 		OTAccount * pAccount = this->GetOrLoadAccount(*pNym,			SENDER_ACCT_ID, SERVER_ID, szFuncName);
 //		OTAccount * pAccount = this->GetOrLoadAccount(SENDER_USER_ID,	SENDER_ACCT_ID, SERVER_ID, szFuncName);
-		if (NULL == pAccount) return;
+		if (NULL == pAccount) return (-1);
 		// By this point, pAccount is a good pointer and in the wallet. 
 		// (No need to cleanup.) I also know it has the right Server ID
 		// and that the Nym owns it, and has signed it, etc.
@@ -5309,6 +5730,15 @@ void OT_API::depositPaymentPlan(const OTIdentifier	& SERVER_ID,
 		theMessage.m_strAcctID			= strFromAcct;
 		theMessage.m_ascPayload			= ascLedger;
 		
+        OTIdentifier NYMBOX_HASH;
+        const std::string str_server(strServerID.Get());
+        const bool bNymboxHash = pNym->GetNymboxHash(str_server, NYMBOX_HASH);
+        NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
+        
+        if (!bNymboxHash)
+            OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
+                          str_server.c_str());
+
 		// (2) Sign the Message 
 		theMessage.SignContract(*pNym);		
 		
@@ -5320,11 +5750,15 @@ void OT_API::depositPaymentPlan(const OTIdentifier	& SERVER_ID,
 		m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 #endif	
 		m_pClient->ProcessMessageOut(theMessage);	
+        
+        return m_pClient->CalcReturnVal(lRequestNumber);
 	} // thePlan.LoadContractFromString()
 	else 
 	{
 		OTLog::Output(0, "Unable to load payment plan from string, or verify it. Sorry.\n");
 	}
+    
+    return (-1);
 }
 
 
@@ -5333,7 +5767,7 @@ void OT_API::depositPaymentPlan(const OTIdentifier	& SERVER_ID,
 // is an authorized agent for that smart contract, then he can trigger clauses. All he needs is
 // the transaction ID for the smart contract, and the name of the clause.
 //
-void OT_API::triggerClause(const OTIdentifier	& SERVER_ID,
+int OT_API::triggerClause(const OTIdentifier	& SERVER_ID,
 						   const OTIdentifier	& USER_ID,
 						   const long			& lTransactionNum,
 						   const OTString		& strClauseName,
@@ -5342,12 +5776,12 @@ void OT_API::triggerClause(const OTIdentifier	& SERVER_ID,
 	const char * szFuncName = "OT_API::triggerClause";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pNym) return;
+	if (NULL == pNym) return (-1);
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pServer) return;
+	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTMessage theMessage;
@@ -5373,6 +5807,15 @@ void OT_API::triggerClause(const OTIdentifier	& SERVER_ID,
 	if ((NULL != pStrParam) && (pStrParam->Exists()))
 		theMessage.m_ascPayload.SetString(*pStrParam); // <===
 
+    OTIdentifier NYMBOX_HASH;
+    const std::string str_server(strServerID.Get());
+    const bool bNymboxHash = pNym->GetNymboxHash(str_server, NYMBOX_HASH);
+    NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
+    
+    if (!bNymboxHash)
+        OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
+                      str_server.c_str());
+
 	// (2) Sign the Message 
 	theMessage.SignContract(*pNym);		
 	
@@ -5383,24 +5826,26 @@ void OT_API::triggerClause(const OTIdentifier	& SERVER_ID,
 #if defined(OT_ZMQ_MODE)
 	m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 #endif	
-	m_pClient->ProcessMessageOut(theMessage);		
+	m_pClient->ProcessMessageOut(theMessage);
+	
+    return m_pClient->CalcReturnVal(lRequestNumber);
 }
 
 
 
-void OT_API::activateSmartContract(const OTIdentifier	& SERVER_ID,
+int OT_API::activateSmartContract(const OTIdentifier	& SERVER_ID,
 								   const OTIdentifier	& USER_ID,
 								   const OTString		& THE_SMART_CONTRACT)
 {
 	const char * szFuncName = "OT_API::activateSmartContract";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pNym) return;
+	if (NULL == pNym) return (-1);
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pServer) return;
+	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTSmartContract theContract(SERVER_ID);
@@ -5418,7 +5863,7 @@ void OT_API::activateSmartContract(const OTIdentifier	& SERVER_ID,
 		{
 			OTLog::Output(0, "OT_API::activateSmartContract: Failure: USER_ID *IS* a valid Nym, but that Nym is not the authorizing agent for any "
 						  "of the parties on this contract. Try calling ConfirmParty() first.\n");
-			return;
+			return (-1);
 		}
 		OT_ASSERT(NULL != pAgent);
 		//
@@ -5446,12 +5891,12 @@ void OT_API::activateSmartContract(const OTIdentifier	& SERVER_ID,
 		{
 			OTLog::Output(0, "OT_API::activateSmartContract: Failed. EACH PARTY to this smart contract needs to CONFIRM IT FIRST, before one of them "
 						   "then activates it at the server. (But THIS smart contract has NOT yet been confirmed, at least, not by all of its parties.)\n");
-			return;
+			return -1;
 		}
 		if (SERVER_ID != theContract.GetServerID())
 		{
 			OTLog::Output(0, "OT_API::activateSmartContract: Failed. The server ID passed in doesn't match the one on the contract itself.\n");
-			return;
+			return -1;
 		}
 		// ----------------------------------------------------------
 		if (!(pParty->GetAccountCount() > 0))
@@ -5459,7 +5904,7 @@ void OT_API::activateSmartContract(const OTIdentifier	& SERVER_ID,
 			OTLog::Output(0, "OT_API::activateSmartContract: Failed. The activating Nym must not only be the authorizing agent for one of the parties, "
 						   "but must also be the authorized agent for one of that party's asset accounts. That party must have at least one asset account "
 						   "for this reason. (See code comment below this message, in the code.)\n");
-			return;
+			return -1;
 		}
 		// *************************************************************************************
 		//
@@ -5509,7 +5954,7 @@ void OT_API::activateSmartContract(const OTIdentifier	& SERVER_ID,
 			OTLog::Output(0, "OT_API::activateSmartContract: Failed. The activating Nym must not only be the authorizing agent for one of the parties, "
 						   "but must also be the authorized agent for one of that party's asset accounts. That party must have at least one asset account "
 						   "for this reason. (See code comment above this message, in the code.)\n");
-			return;
+			return -1;
 		}
 		// ----------------------------------------------------------
 		const OTString &	strAcctID = pAcct->GetAcctID();
@@ -5518,7 +5963,7 @@ void OT_API::activateSmartContract(const OTIdentifier	& SERVER_ID,
 		{
 			OTLog::vOutput(0, "OT_API::activateSmartContract: Failed. The Account ID is blank for asset acct (%s) for party (%s). Did you confirm "
 						   "this account, before trying to activate this contract?\n", pAcct->GetName().Get(), pParty->GetPartyName().c_str());
-			return;
+			return -1;
 		}
 		// ----------------------------------------------------------
 		OTIdentifier	theAcctID(strAcctID);
@@ -5531,21 +5976,21 @@ void OT_API::activateSmartContract(const OTIdentifier	& SERVER_ID,
 			OTLog::vOutput(0, "OT_API::activateSmartContract: Failed. Opening Transaction # (%ld) or Closing # (%ld) were invalid "
 						   "for asset acct (%s) for party (%s). Did you confirm this account and party, before trying to activate this contract?\n", 
 						   lOpeningTransNo, lClosingTransNo, pAcct->GetName().Get(), pParty->GetPartyName().c_str());
-			return;
+			return -1;
 		}
 		if (!pNym->VerifyIssuedNum(strServerID, lOpeningTransNo))
 		{
 			OTLog::vOutput(0, "OT_API::activateSmartContract: Failed. Opening Transaction # (%ld) wasn't valid/issued to this Nym, "
 						   "for asset acct (%s) for party (%s). Did you confirm this account and party, before trying to activate this contract?\n", 
 						   lOpeningTransNo, pAcct->GetName().Get(), pParty->GetPartyName().c_str());
-			return;
+			return -1;
 		}
 		if (!pNym->VerifyIssuedNum(strServerID, lClosingTransNo))
 		{
 			OTLog::vOutput(0, "OT_API::activateSmartContract: Failed. Closing Transaction # (%ld) wasn't issued to this Nym, "
 						   "for asset acct (%s) for party (%s). Did you confirm this account and party, before trying to activate this contract?\n", 
 						   lClosingTransNo, pAcct->GetName().Get(), pParty->GetPartyName().c_str());
-			return;
+			return -1;
 		}
 		// ----------------------------------------------------------
 		// These numbers (the opening and closing transaction #s) were already available on
@@ -5567,7 +6012,7 @@ void OT_API::activateSmartContract(const OTIdentifier	& SERVER_ID,
 		if (false == pAgent->SignContract(theContract)) // RE-SIGN HERE.
 		{
 			OTLog::Error("OT_API::activateSmartContract: Failed re-signing contract, after calling PrepareToActivate().\n");
-			return;
+			return -1;
 		}
 		
 		theContract.SaveContract();
@@ -5634,6 +6079,15 @@ void OT_API::activateSmartContract(const OTIdentifier	& SERVER_ID,
 		theAcctID.GetString(theMessage.m_strAcctID);
 		theMessage.m_ascPayload			= ascLedger;
 		
+        OTIdentifier NYMBOX_HASH;
+        const std::string str_server(strServerID.Get());
+        const bool bNymboxHash = pNym->GetNymboxHash(str_server, NYMBOX_HASH);
+        NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
+        
+        if (!bNymboxHash)
+            OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
+                          str_server.c_str());
+
 		// (2) Sign the Message 
 		theMessage.SignContract(*pNym);		
 		
@@ -5644,11 +6098,16 @@ void OT_API::activateSmartContract(const OTIdentifier	& SERVER_ID,
 #if defined(OT_ZMQ_MODE)
 		m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 #endif	
-		m_pClient->ProcessMessageOut(theMessage);	
+		m_pClient->ProcessMessageOut(theMessage);
+        
+        return m_pClient->CalcReturnVal(lRequestNumber);
+        
 	} // theContract.LoadContractFromString()
 	else
 		OTLog::vOutput(0, "OT_API::activateSmartContract: Unable to load smart contract from string:\n\n%s\n\n", 
 					   THE_SMART_CONTRACT.Get());
+    
+    return (-1);
 }
 
 
@@ -5690,7 +6149,7 @@ void OT_API::activateSmartContract(const OTIdentifier	& SERVER_ID,
 /// CANCEL A SPECIFIC OFFER (THAT SAME NYM PLACED PREVIOUSLY ON SAME SERVER.)
 /// By transaction number as key.
 ///
-void OT_API::cancelCronItem(const OTIdentifier & SERVER_ID, 
+int OT_API::cancelCronItem(const OTIdentifier & SERVER_ID, 
 							const OTIdentifier & USER_ID, 
 							const OTIdentifier & ASSET_ACCT_ID, 
 							const long & lTransactionNum) // so the server can lookup the offer in Cron.
@@ -5698,12 +6157,12 @@ void OT_API::cancelCronItem(const OTIdentifier & SERVER_ID,
 	const char * szFuncName = "OT_API::cancelCronItem";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pNym) return;
+	if (NULL == pNym) return (-1);
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pServer) return;
+	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTMessage	theMessage;
@@ -5716,7 +6175,7 @@ void OT_API::cancelCronItem(const OTIdentifier & SERVER_ID,
     {
         OTLog::Output(0, "OT_API::cancelCronItem: At least 1 Transaction Number is necessary to cancel any cron item. "
                       "Try requesting the server for more numbers (you are low.)\n"); 
-        return;
+        return (-1);
     }
     // ------------------------------------
 	long lStoredTransactionNumber=0;
@@ -5784,6 +6243,15 @@ void OT_API::cancelCronItem(const OTIdentifier & SERVER_ID,
         theMessage.m_strAcctID			= str_ASSET_ACCT_ID;
         theMessage.m_ascPayload			= ascLedger;
         
+        OTIdentifier NYMBOX_HASH;
+        const std::string str_server(strServerID.Get());
+        const bool bNymboxHash = pNym->GetNymboxHash(str_server, NYMBOX_HASH);
+        NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
+        
+        if (!bNymboxHash)
+            OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
+                          str_server.c_str());
+
         // (2) Sign the Message 
         theMessage.SignContract(*pNym);		
         
@@ -5794,8 +6262,12 @@ void OT_API::cancelCronItem(const OTIdentifier & SERVER_ID,
 #if defined(OT_ZMQ_MODE)
         m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 #endif	
-        m_pClient->ProcessMessageOut(theMessage);	
+        m_pClient->ProcessMessageOut(theMessage);
+        
+        return m_pClient->CalcReturnVal(lRequestNumber);
 	} // got transaction number.
+    
+    return (-1);
 }
 
 
@@ -5805,7 +6277,7 @@ void OT_API::cancelCronItem(const OTIdentifier & SERVER_ID,
 // ISSUE MARKET OFFER
 //
 //
-void OT_API::issueMarketOffer(const OTIdentifier	& SERVER_ID,
+int OT_API::issueMarketOffer(const OTIdentifier	& SERVER_ID,
 							  const OTIdentifier	& USER_ID,
 							  // -------------------------------------------
 							  const OTIdentifier	& ASSET_TYPE_ID,
@@ -5823,12 +6295,12 @@ void OT_API::issueMarketOffer(const OTIdentifier	& SERVER_ID,
 	const char * szFuncName = "OT_API::issueMarketOffer";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pNym) return;
+	if (NULL == pNym) return (-1);
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pServer) return;
+	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTMessage	theMessage;
@@ -5841,7 +6313,7 @@ void OT_API::issueMarketOffer(const OTIdentifier	& SERVER_ID,
     {
         OTLog::Output(0, "OT_API::issueMarketOffer: At least 3 Transaction Numbers are necessary to issue a market offer. "
                       "Try requesting the server for more (you are low.)\n"); 
-        return;
+        return (-1);
     }
     // ------------------------------------
 	long lStoredTransactionNumber=0, lAssetAcctClosingNo=0, lCurrencyAcctClosingNo=0;
@@ -6014,6 +6486,15 @@ void OT_API::issueMarketOffer(const OTIdentifier	& SERVER_ID,
 			theMessage.m_strAcctID			= str_ASSET_ACCT_ID;
 			theMessage.m_ascPayload			= ascLedger;
 			
+            OTIdentifier NYMBOX_HASH;
+            const std::string str_server(strServerID.Get());
+            const bool bNymboxHash = pNym->GetNymboxHash(str_server, NYMBOX_HASH);
+            NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
+            
+            if (!bNymboxHash)
+                OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
+                              str_server.c_str());
+
 			// (2) Sign the Message 
 			theMessage.SignContract(*pNym);		
 			
@@ -6024,7 +6505,10 @@ void OT_API::issueMarketOffer(const OTIdentifier	& SERVER_ID,
 #if defined(OT_ZMQ_MODE)
 			m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 #endif	
-			m_pClient->ProcessMessageOut(theMessage);	
+			m_pClient->ProcessMessageOut(theMessage);
+            
+            return m_pClient->CalcReturnVal(lRequestNumber);
+            
 		} // if (bCreateOffer && bIssueTrade)
 		else 
 		{
@@ -6036,6 +6520,8 @@ void OT_API::issueMarketOffer(const OTIdentifier	& SERVER_ID,
             pNym->AddTransactionNum(*pNym, strServerID, lCurrencyAcctClosingNo, true); // bSave=true (No sense saving thrice in a row.)	
 		}							
 	} // got transaction number.
+    
+    return (-1);
 }
 
 
@@ -6049,17 +6535,17 @@ void OT_API::issueMarketOffer(const OTIdentifier	& SERVER_ID,
 /// either read the reply data directly out of the reply message, or you can load it from
 /// storage (OT will probably auto-store the reply to storage, for your convenience.)
 ///
-void OT_API::getMarketList(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID)
+int OT_API::getMarketList(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID)
 {
 	const char * szFuncName = "OT_API::getMarketList";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pNym) return;
+	if (NULL == pNym) return (-1);
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pServer) return;
+	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTMessage theMessage;
@@ -6089,7 +6575,9 @@ void OT_API::getMarketList(const OTIdentifier & SERVER_ID, const OTIdentifier & 
 #if defined(OT_ZMQ_MODE)
 	m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 #endif	
-	m_pClient->ProcessMessageOut(theMessage);		
+	m_pClient->ProcessMessageOut(theMessage);
+	
+    return m_pClient->CalcReturnVal(lRequestNumber);
 }
 
 
@@ -6101,18 +6589,18 @@ void OT_API::getMarketList(const OTIdentifier & SERVER_ID, const OTIdentifier & 
 /// A specific Nym is requesting the Server to send a list of the offers on a specific
 /// Market ID-- the bid/ask, and prices/amounts, basically--(up to lDepth or server Max) 
 /// 
-void OT_API::getMarketOffers(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID, 
+int OT_API::getMarketOffers(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID, 
 							 const OTIdentifier & MARKET_ID, const long & lDepth)
 {
 	const char * szFuncName = "OT_API::getMarketOffers";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pNym) return;
+	if (NULL == pNym) return (-1);
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pServer) return;
+	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTMessage theMessage;
@@ -6144,7 +6632,9 @@ void OT_API::getMarketOffers(const OTIdentifier & SERVER_ID, const OTIdentifier 
 #if defined(OT_ZMQ_MODE)
 	m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 #endif	
-	m_pClient->ProcessMessageOut(theMessage);					
+	m_pClient->ProcessMessageOut(theMessage);
+    
+    return m_pClient->CalcReturnVal(lRequestNumber);
 }
 
 ///-------------------------------------------------------
@@ -6157,18 +6647,18 @@ void OT_API::getMarketOffers(const OTIdentifier & SERVER_ID, const OTIdentifier 
 ///
 /// (So this function is not here to usurp that purpose.)
 ///
-void OT_API::getMarketRecentTrades(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID, 
+int OT_API::getMarketRecentTrades(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID, 
 								   const OTIdentifier & MARKET_ID)
 {
 	const char * szFuncName = "OT_API::getMarketRecentTrades";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pNym) return;
+	if (NULL == pNym) return (-1);
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pServer) return;
+	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTMessage theMessage;
@@ -6198,7 +6688,9 @@ void OT_API::getMarketRecentTrades(const OTIdentifier & SERVER_ID, const OTIdent
 #if defined(OT_ZMQ_MODE)
 	m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 #endif	
-	m_pClient->ProcessMessageOut(theMessage);					
+	m_pClient->ProcessMessageOut(theMessage);
+    
+    return m_pClient->CalcReturnVal(lRequestNumber);
 }
 
 
@@ -6210,17 +6702,17 @@ void OT_API::getMarketRecentTrades(const OTIdentifier & SERVER_ID, const OTIdent
 /// Hmm for size reasons, this really will have to return a list of transaction #s,
 /// and then I request them one-by-one after that...
 ///
-void OT_API::getNym_MarketOffers(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID)
+int OT_API::getNym_MarketOffers(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID)
 {
 	const char * szFuncName = "OT_API::getNym_MarketOffers";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pNym) return;
+	if (NULL == pNym) return (-1);
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pServer) return;
+	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTMessage theMessage;
@@ -6251,7 +6743,9 @@ void OT_API::getNym_MarketOffers(const OTIdentifier & SERVER_ID, const OTIdentif
 #if defined(OT_ZMQ_MODE)
 	m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 #endif	
-	m_pClient->ProcessMessageOut(theMessage);			
+	m_pClient->ProcessMessageOut(theMessage);
+    
+    return m_pClient->CalcReturnVal(lRequestNumber);
 }
 
 
@@ -6260,7 +6754,7 @@ void OT_API::getNym_MarketOffers(const OTIdentifier & SERVER_ID, const OTIdentif
 
 
 
-void OT_API::notarizeTransfer(OTIdentifier	& SERVER_ID,
+int OT_API::notarizeTransfer(OTIdentifier	& SERVER_ID,
 							  OTIdentifier	& USER_ID,
 							  OTIdentifier	& ACCT_FROM,
 							  OTIdentifier	& ACCT_TO,
@@ -6270,16 +6764,16 @@ void OT_API::notarizeTransfer(OTIdentifier	& SERVER_ID,
 	const char * szFuncName = "OT_API::notarizeTransfer";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName);
-	if (NULL == pNym) return;	
+	if (NULL == pNym) return (-1);	
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pServer) return;
+	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTAccount * pAccount = this->GetOrLoadAccount(*pNym, ACCT_FROM, SERVER_ID, szFuncName);
-	if (NULL == pAccount) return;
+	if (NULL == pAccount) return (-1);
 	// By this point, pAccount is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTMessage theMessage;
@@ -6396,6 +6890,15 @@ void OT_API::notarizeTransfer(OTIdentifier	& SERVER_ID,
 			theMessage.m_strAcctID			= strFromAcct;
 			theMessage.m_ascPayload			= ascLedger;
 			
+            OTIdentifier NYMBOX_HASH;
+            const std::string str_server(strServerID.Get());
+            const bool bNymboxHash = pNym->GetNymboxHash(str_server, NYMBOX_HASH);
+            NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
+            
+            if (!bNymboxHash)
+                OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
+                              str_server.c_str());
+
 			// (2) Sign the Message 
 			theMessage.SignContract(*pNym);		
 			
@@ -6406,7 +6909,9 @@ void OT_API::notarizeTransfer(OTIdentifier	& SERVER_ID,
 	#if defined(OT_ZMQ_MODE)
 			m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 	#endif	
-			m_pClient->ProcessMessageOut(theMessage);	
+			m_pClient->ProcessMessageOut(theMessage);
+            
+            return m_pClient->CalcReturnVal(lRequestNumber);
 		}
 	}
 	else 
@@ -6415,24 +6920,26 @@ void OT_API::notarizeTransfer(OTIdentifier	& SERVER_ID,
 		// IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
 //		pNym->AddTransactionNum(*pNym, strServerID, lStoredTransactionNumber, true); // bSave=true	
 		// Duh! No need to re-add a transaction num when the error is that there weren't any transaction numbers...
+    
+    return -1;
 }
 
 
 
 
 
-void OT_API::getNymbox(OTIdentifier & SERVER_ID,
+int OT_API::getNymbox(OTIdentifier & SERVER_ID,
 					   OTIdentifier & USER_ID)
 {
 	const char * szFuncName = "OT_API::getNymbox";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName);
-	if (NULL == pNym) return;	
+	if (NULL == pNym) return (-1);	
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pServer) return;
+	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTMessage theMessage;
@@ -6460,28 +6967,30 @@ void OT_API::getNymbox(OTIdentifier & SERVER_ID,
 #if defined(OT_ZMQ_MODE)
 	m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 #endif	
-	m_pClient->ProcessMessageOut(theMessage);	
+	m_pClient->ProcessMessageOut(theMessage);
+    
+    return m_pClient->CalcReturnVal(lRequestNumber);
 }
 
 
 
-void OT_API::getInbox(OTIdentifier & SERVER_ID,
+int OT_API::getInbox(OTIdentifier & SERVER_ID,
 					  OTIdentifier & USER_ID,
 					  OTIdentifier & ACCT_ID)
 {
 	const char * szFuncName = "OT_API::getInbox";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName);
-	if (NULL == pNym) return;	
+	if (NULL == pNym) return (-1);	
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pServer) return;
+	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTAccount * pAccount = this->GetOrLoadAccount(*pNym, ACCT_ID, SERVER_ID, szFuncName);
-	if (NULL == pAccount) return;
+	if (NULL == pAccount) return (-1);
 	// By this point, pAccount is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTMessage theMessage;
@@ -6510,29 +7019,31 @@ void OT_API::getInbox(OTIdentifier & SERVER_ID,
 #if defined(OT_ZMQ_MODE)
 	m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 #endif	
-	m_pClient->ProcessMessageOut(theMessage);	
+	m_pClient->ProcessMessageOut(theMessage);
+	
+    return m_pClient->CalcReturnVal(lRequestNumber);
 }
 
 
 
 
-void OT_API::getOutbox(OTIdentifier & SERVER_ID,
+int OT_API::getOutbox(OTIdentifier & SERVER_ID,
 					  OTIdentifier & USER_ID,
 					  OTIdentifier & ACCT_ID)
 {
 	const char * szFuncName = "OT_API::getOutbox";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName);
-	if (NULL == pNym) return;	
+	if (NULL == pNym) return (-1);	
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pServer) return;
+	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTAccount * pAccount = this->GetOrLoadAccount(*pNym, ACCT_ID, SERVER_ID, szFuncName);
-	if (NULL == pAccount) return;
+	if (NULL == pAccount) return (-1);
 	// By this point, pAccount is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTMessage theMessage;
@@ -6561,7 +7072,9 @@ void OT_API::getOutbox(OTIdentifier & SERVER_ID,
 #if defined(OT_ZMQ_MODE)
 	m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 #endif	
-	m_pClient->ProcessMessageOut(theMessage);	
+	m_pClient->ProcessMessageOut(theMessage);
+    
+    return m_pClient->CalcReturnVal(lRequestNumber);
 }
 
 
@@ -6571,6 +7084,7 @@ void OT_API::getOutbox(OTIdentifier & SERVER_ID,
 // -1 if error.
 //  0 if Nymbox is empty.
 //  1 or more: Count of items in Nymbox before processing.
+//  UPDATE: This now returns the request number of the message sent, if success.
 //
 int OT_API::processNymbox(OTIdentifier	& SERVER_ID,
 						  OTIdentifier	& USER_ID)
@@ -6632,6 +7146,16 @@ int OT_API::processNymbox(OTIdentifier	& SERVER_ID,
 			}
 			else	// Success!
 			{
+                OTIdentifier NYMBOX_HASH;
+                const OTString strServerID(SERVER_ID);
+                const std::string str_server(strServerID.Get());
+                const bool bNymboxHash = theNym.GetNymboxHash(str_server, NYMBOX_HASH);
+                NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
+                
+                if (!bNymboxHash)
+                    OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
+                                  str_server.c_str());
+                
 				// (2) Sign the Message 
 				theMessage.SignContract(theNym);		
 				
@@ -6643,7 +7167,14 @@ int OT_API::processNymbox(OTIdentifier	& SERVER_ID,
 	}
 	
 	if (bSuccess)
-	{				
+	{
+        // Instead of the receipt count, in the case of success sending, we return the
+        // actual request number for the message that was sent.
+        // (Otherwise 0 means Nymbox was empty, and -1 means there was an error.)
+        //
+        nReceiptCount = atoi(theMessage.m_strRequestNum.Get());
+        
+        
 #if defined(OT_ZMQ_MODE)
 		m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 #endif	
@@ -6659,7 +7190,7 @@ int OT_API::processNymbox(OTIdentifier	& SERVER_ID,
 
 
 
-void OT_API::processInbox(OTIdentifier	& SERVER_ID,
+int OT_API::processInbox(OTIdentifier	& SERVER_ID,
 						  OTIdentifier	& USER_ID,
 						  OTIdentifier	& ACCT_ID,
 						  OTString		& ACCT_LEDGER)
@@ -6667,16 +7198,16 @@ void OT_API::processInbox(OTIdentifier	& SERVER_ID,
 	const char * szFuncName = "OT_API::processInbox";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName);
-	if (NULL == pNym) return;	
+	if (NULL == pNym) return (-1);	
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pServer) return;
+	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTAccount * pAccount = this->GetOrLoadAccount(*pNym, ACCT_ID, SERVER_ID, szFuncName);
-	if (NULL == pAccount) return;
+	if (NULL == pAccount) return (-1);
 	// By this point, pAccount is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTMessage theMessage;
@@ -6699,6 +7230,15 @@ void OT_API::processInbox(OTIdentifier	& SERVER_ID,
 	// See test client for example of it being done.
 	theMessage.m_ascPayload.SetString(ACCT_LEDGER);
 	
+    OTIdentifier NYMBOX_HASH;
+    const std::string str_server(strServerID.Get());
+    const bool bNymboxHash = pNym->GetNymboxHash(str_server, NYMBOX_HASH);
+    NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
+    
+    if (!bNymboxHash)
+        OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
+                      str_server.c_str());
+
 	// (2) Sign the Message 
 	theMessage.SignContract(*pNym);		
 	
@@ -6709,27 +7249,29 @@ void OT_API::processInbox(OTIdentifier	& SERVER_ID,
 #if defined(OT_ZMQ_MODE)
 	m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 #endif	
-	m_pClient->ProcessMessageOut(theMessage);	
+	m_pClient->ProcessMessageOut(theMessage);
+    
+    return m_pClient->CalcReturnVal(lRequestNumber);
 }
 
 
 
-void OT_API::issueAssetType(OTIdentifier	&	SERVER_ID,
+int OT_API::issueAssetType(OTIdentifier	&	SERVER_ID,
 							OTIdentifier	&	USER_ID,
 							OTString		&	THE_CONTRACT)
 {
 	const char * szFuncName = "OT_API::issueAssetType";
 	// -----------------------------------------------------
 	OTWallet * pWallet = this->GetWallet(szFuncName);
-	if (NULL == pWallet) return;
+	if (NULL == pWallet) return (-1);
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName);
-	if (NULL == pNym) return;	
+	if (NULL == pNym) return (-1);	
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pServer) return;
+	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	//	OTLog::vError("OT_API::issueAssetType: About to trim this contract:  **BEGIN:%s***END\n\n",
@@ -6809,24 +7351,28 @@ void OT_API::issueAssetType(OTIdentifier	&	SERVER_ID,
 		m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 #endif	
 		m_pClient->ProcessMessageOut(theMessage);
+        
+        return m_pClient->CalcReturnVal(lRequestNumber);
 	}
+    
+    return -1;
 }
 
 
 
-void OT_API::getContract(OTIdentifier & SERVER_ID,
+int OT_API::getContract(OTIdentifier & SERVER_ID,
 						 OTIdentifier & USER_ID,
 						 OTIdentifier & ASSET_ID)
 {
 	const char * szFuncName = "OT_API::getContract";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName);
-	if (NULL == pNym) return;	
+	if (NULL == pNym) return (-1);	
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pServer) return;
+	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTMessage theMessage;
@@ -6855,7 +7401,9 @@ void OT_API::getContract(OTIdentifier & SERVER_ID,
 #if defined(OT_ZMQ_MODE)
 	m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 #endif	
-	m_pClient->ProcessMessageOut(theMessage);	
+	m_pClient->ProcessMessageOut(theMessage);
+    
+    return m_pClient->CalcReturnVal(lRequestNumber);
 }
 
 
@@ -6863,23 +7411,23 @@ void OT_API::getContract(OTIdentifier & SERVER_ID,
 
 
 
-void OT_API::getMint(OTIdentifier & SERVER_ID,
+int OT_API::getMint(OTIdentifier & SERVER_ID,
 					 OTIdentifier & USER_ID,
 					 OTIdentifier & ASSET_ID)
 {
 	const char * szFuncName = "OT_API::getMint";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName);
-	if (NULL == pNym) return;	
+	if (NULL == pNym) return (-1);	
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pServer) return;
+	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTAssetContract *	pAssetContract = this->GetAssetType(ASSET_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pAssetContract) return;
+	if (NULL == pAssetContract) return (-1);
 	// By this point, pAssetContract is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTMessage theMessage;
@@ -6908,7 +7456,9 @@ void OT_API::getMint(OTIdentifier & SERVER_ID,
 #if defined(OT_ZMQ_MODE)
 	m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 #endif	
-	m_pClient->ProcessMessageOut(theMessage);	
+	m_pClient->ProcessMessageOut(theMessage);
+    
+    return m_pClient->CalcReturnVal(lRequestNumber);
 }
 
 
@@ -6921,7 +7471,7 @@ void OT_API::getMint(OTIdentifier & SERVER_ID,
 // Map input: key is asset type ID, and value is blank (server reply puts issuer's receipts
 // in that spot.)
 //
-void OT_API::queryAssetTypes(OTIdentifier & SERVER_ID,
+int OT_API::queryAssetTypes(OTIdentifier & SERVER_ID,
 							 OTIdentifier & USER_ID,
 							 OTASCIIArmor & ENCODED_MAP)
 {
@@ -6998,12 +7548,12 @@ void OT_API::queryAssetTypes(OTIdentifier & SERVER_ID,
 	const char * szFuncName = "OT_API::queryAssetTypes";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName);
-	if (NULL == pNym) return;	
+	if (NULL == pNym) return (-1);	
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pServer) return;
+	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTMessage theMessage;
@@ -7033,27 +7583,29 @@ void OT_API::queryAssetTypes(OTIdentifier & SERVER_ID,
 	m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 #endif	
 	m_pClient->ProcessMessageOut(theMessage);
+    
+    return m_pClient->CalcReturnVal(lRequestNumber);
 }
 
 
 
-void OT_API::createAssetAccount(OTIdentifier & SERVER_ID,
+int OT_API::createAssetAccount(OTIdentifier & SERVER_ID,
 								OTIdentifier & USER_ID,
 								OTIdentifier & ASSET_ID)
 {	
 	const char * szFuncName = "OT_API::createAssetAccount";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName);
-	if (NULL == pNym) return;	
+	if (NULL == pNym) return (-1);	
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pServer) return;
+	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTAssetContract *	pAssetContract = this->GetAssetType(ASSET_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pAssetContract) return;
+	if (NULL == pAssetContract) return (-1);
 	// By this point, pAssetContract is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTMessage theMessage;
@@ -7083,27 +7635,29 @@ void OT_API::createAssetAccount(OTIdentifier & SERVER_ID,
 	m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 #endif	
 	m_pClient->ProcessMessageOut(theMessage);
+    
+    return m_pClient->CalcReturnVal(lRequestNumber);
 }
 
 
 
-void OT_API::deleteAssetAccount(OTIdentifier & SERVER_ID,
+int OT_API::deleteAssetAccount(OTIdentifier & SERVER_ID,
 								OTIdentifier & USER_ID,
 								OTIdentifier & ACCOUNT_ID)
 {	
 	const char * szFuncName = "OT_API::deleteAssetAccount";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName);
-	if (NULL == pNym) return;	
+	if (NULL == pNym) return (-1);	
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pServer) return;
+	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTAccount * pAccount = this->GetOrLoadAccount(*pNym, ACCOUNT_ID, SERVER_ID, szFuncName);
-	if (NULL == pAccount) return;
+	if (NULL == pAccount) return (-1);
 	// By this point, pAccount is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
 	OTMessage theMessage;
@@ -7133,6 +7687,8 @@ void OT_API::deleteAssetAccount(OTIdentifier & SERVER_ID,
 	m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 #endif	
 	m_pClient->ProcessMessageOut(theMessage);
+    
+    return m_pClient->CalcReturnVal(lRequestNumber);
 }
 
 
@@ -7157,7 +7713,7 @@ bool OT_API::DoesBoxReceiptExist(const OTIdentifier & SERVER_ID,
 
 
 
-void OT_API::getBoxReceipt(const OTIdentifier & SERVER_ID,
+int OT_API::getBoxReceipt(const OTIdentifier & SERVER_ID,
 						   const OTIdentifier & USER_ID,
 						   const OTIdentifier & ACCOUNT_ID,		// If for Nymbox (vs inbox/outbox) then pass USER_ID in this field also.
 						   const int			nBoxType,		// 0/nymbox, 1/inbox, 2/outbox
@@ -7166,19 +7722,19 @@ void OT_API::getBoxReceipt(const OTIdentifier & SERVER_ID,
 	const char * szFuncName = "OT_API::getBoxReceipt";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName);
-	if (NULL == pNym) return;	
+	if (NULL == pNym) return (-1);	
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pServer) return;
+	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTAccount * pAccount = NULL;
 	if (USER_ID != ACCOUNT_ID) // inbox/outbox (if it were nymbox, the USER_ID and ACCOUNT_ID would match)
 	{
 		pAccount =	this->GetOrLoadAccount(*pNym, ACCOUNT_ID, SERVER_ID, szFuncName);
-		if (NULL == pAccount) return;
+		if (NULL == pAccount) return (-1);
 	}
 	// By this point, pAccount is a good pointer, and is on the wallet. (No need to cleanup.)
 	// Note: pAccount could be NULL also, but this function doesn't actually use it anyway.
@@ -7214,29 +7770,31 @@ void OT_API::getBoxReceipt(const OTIdentifier & SERVER_ID,
 	m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 #endif	
 	m_pClient->ProcessMessageOut(theMessage);
+    
+    return m_pClient->CalcReturnVal(lRequestNumber);
 }
 
 
 
 
 
-void OT_API::getAccount(OTIdentifier	& SERVER_ID,
+int OT_API::getAccount(OTIdentifier	& SERVER_ID,
 						OTIdentifier	& USER_ID,
 						OTIdentifier	& ACCT_ID)
 {	
 	const char * szFuncName = "OT_API::getAccount";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pNym) return;	
+	if (NULL == pNym) return (-1);	
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pServer) return;
+	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTAccount * pAccount = this->GetOrLoadAccount(*pNym, ACCT_ID, SERVER_ID, szFuncName);
-	if (NULL == pAccount) return;
+	if (NULL == pAccount) return (-1);
 	// By this point, pAccount is a good pointer, and is on the wallet. (No need to cleanup.)
 	// -----------------------------------------------------
 	OTMessage theMessage;
@@ -7266,38 +7824,45 @@ void OT_API::getAccount(OTIdentifier	& SERVER_ID,
 	m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 #endif	
 	m_pClient->ProcessMessageOut(theMessage);
+    
+    return m_pClient->CalcReturnVal(lRequestNumber);
 }
 
 
 
 
-void OT_API::getRequest(OTIdentifier	& SERVER_ID,
-						OTIdentifier	& USER_ID)
+int OT_API::getRequest(OTIdentifier	& SERVER_ID,
+                       OTIdentifier	& USER_ID)
 {	
 	const char * szFuncName = "OT_API::getRequest";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pNym) return;	
+	if (NULL == pNym) return (-1);	
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pServer) return;
+	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTMessage theMessage;
 	
-	if (m_pClient->ProcessUserCommand(OTClient::getRequest, theMessage, 
-									*pNym, *pServer,
-									NULL)) // NULL pAccount on this command.
+    int nReturnValue = m_pClient->ProcessUserCommand(OTClient::getRequest, theMessage, 
+                                                     *pNym, *pServer,
+                                                     NULL); // NULL pAccount on this command.
+	if (0 < nReturnValue) 
 	{				
 #if defined(OT_ZMQ_MODE)
 		m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 #endif	
 		m_pClient->ProcessMessageOut(theMessage);
+        
+        return nReturnValue;
 	}
 	else
 		OTLog::Error("Error processing getRequest command in OT_API::getRequest\n");
+    
+    return (-1);
 }
 
 
@@ -7305,7 +7870,7 @@ void OT_API::getRequest(OTIdentifier	& SERVER_ID,
 
 
 
-void OT_API::usageCredits(const OTIdentifier &	SERVER_ID,
+int OT_API::usageCredits(const OTIdentifier &	SERVER_ID,
 						  const OTIdentifier &	USER_ID,
 						  const OTIdentifier &	USER_ID_CHECK,
 						  const long			lAdjustment/*=0*/)
@@ -7313,12 +7878,12 @@ void OT_API::usageCredits(const OTIdentifier &	SERVER_ID,
 	const char * szFuncName = "OT_API::usageCredits";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pNym) return;	
+	if (NULL == pNym) return (-1);	
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pServer) return;
+	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTMessage theMessage;
@@ -7350,23 +7915,25 @@ void OT_API::usageCredits(const OTIdentifier &	SERVER_ID,
 	m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 #endif	
 	m_pClient->ProcessMessageOut(theMessage);
+    
+    return m_pClient->CalcReturnVal(lRequestNumber);
 }
 
 
 
-void OT_API::checkUser(OTIdentifier & SERVER_ID,
+int OT_API::checkUser(OTIdentifier & SERVER_ID,
 					   OTIdentifier & USER_ID,
 					   OTIdentifier & USER_ID_CHECK)
 {	
 	const char * szFuncName = "OT_API::checkUser";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pNym) return;	
+	if (NULL == pNym) return (-1);	
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pServer) return;
+	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTMessage theMessage;
@@ -7396,11 +7963,13 @@ void OT_API::checkUser(OTIdentifier & SERVER_ID,
 	m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 #endif	
 	m_pClient->ProcessMessageOut(theMessage);
+    
+    return m_pClient->CalcReturnVal(lRequestNumber);
 }
 
 
 
-void OT_API::sendUserMessage(OTIdentifier	& SERVER_ID,
+int OT_API::sendUserMessage(OTIdentifier	& SERVER_ID,
 							 OTIdentifier	& USER_ID,
 							 OTIdentifier	& USER_ID_RECIPIENT,
 							 OTASCIIArmor	& RECIPIENT_PUBKEY,
@@ -7409,12 +7978,12 @@ void OT_API::sendUserMessage(OTIdentifier	& SERVER_ID,
 	const char * szFuncName = "OT_API::sendUserMessage";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pNym) return;	
+	if (NULL == pNym) return (-1);	
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pServer) return;
+	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTMessage theMessage;
@@ -7436,6 +8005,8 @@ void OT_API::sendUserMessage(OTIdentifier	& SERVER_ID,
 	OTEnvelope theEnvelope;
 	OTAsymmetricKey thePubkey;
 	
+    int nReturnValue = -1;
+    
 	if (!thePubkey.SetPublicKey(RECIPIENT_PUBKEY))
 	{
 		OTLog::Output(0, "OT_API::sendUserMessage: Failed setting public key.\n");
@@ -7457,8 +8028,7 @@ void OT_API::sendUserMessage(OTIdentifier	& SERVER_ID,
 		m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 #endif	
 		m_pClient->ProcessMessageOut(theMessage);
-		
-		
+				
 		// ----------------------------------------------
 		// store a copy in the outmail.
 		// (not encrypted, since the Nymfile will be encrypted anyway.
@@ -7480,36 +8050,42 @@ void OT_API::sendUserMessage(OTIdentifier	& SERVER_ID,
 		
 		pNym->AddOutmail(*pMessage); // Now the Nym is responsible to delete it. It's in his "outmail".
 		OTPseudonym * pSignerNym = pNym;
-		pNym->SaveSignedNymfile(*pSignerNym); // commented out temp for testing. 
+		pNym->SaveSignedNymfile(*pSignerNym); // commented out temp for testing.
+        
+        nReturnValue = m_pClient->CalcReturnVal(lRequestNumber);
 	}
 	else
 		OTLog::Output(0, "OT_API::sendUserMessage: Failed sealing envelope.\n");
+    
+    return nReturnValue;
 }
 
 
 
 
 
-void OT_API::sendUserInstrument(OTIdentifier	& SERVER_ID,
-								OTIdentifier	& USER_ID,
-								OTIdentifier	& USER_ID_RECIPIENT,
-								OTASCIIArmor	& RECIPIENT_PUBKEY,
-								OTContract		& THE_INSTRUMENT)
+int OT_API::sendUserInstrument(OTIdentifier	& SERVER_ID,
+                               OTIdentifier	& USER_ID,
+                               OTIdentifier	& USER_ID_RECIPIENT,
+                               OTASCIIArmor	& RECIPIENT_PUBKEY,
+                               OTPayment	& THE_INSTRUMENT)
 {	
 	const char * szFuncName = "OT_API::sendUserInstrument";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pNym) return;	
+	if (NULL == pNym) return (-1);	
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pServer) return;
+	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTMessage theMessage;
 	long lRequestNumber = 0;
 	
+    int nReturnValue = -1;
+    
 	OTString strServerID(SERVER_ID), strNymID(USER_ID), strNymID2(USER_ID_RECIPIENT);
 	
 	// (0) Set up the REQUEST NUMBER and then INCREMENT IT
@@ -7572,9 +8148,13 @@ void OT_API::sendUserInstrument(OTIdentifier	& SERVER_ID,
 		pNym->AddOutpayments(*pMessage); // Now the Nym is responsible to delete it. It's in his "outpayments".
 		OTPseudonym * pSignerNym = pNym;
 		pNym->SaveSignedNymfile(*pSignerNym);
+        
+        nReturnValue = m_pClient->CalcReturnVal(lRequestNumber);
 	}
 	else
 		OTLog::Output(0, "OT_API::sendUserInstrument: Failed sealing envelope.\n");
+    
+    return nReturnValue;
 }
 
 
@@ -7600,96 +8180,110 @@ void OT_API::sendUserInstrument(OTIdentifier	& SERVER_ID,
 
 
 
-void OT_API::createUserAccount(OTIdentifier	& SERVER_ID,
+int OT_API::createUserAccount(OTIdentifier	& SERVER_ID,
 							   OTIdentifier	& USER_ID)
 {	
 	const char * szFuncName = "OT_API::createUserAccount";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pNym) return;	
+	if (NULL == pNym) return (-1);	
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pServer) return;
+	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTMessage theMessage;
-	
-	if (m_pClient->ProcessUserCommand(OTClient::createUserAccount, theMessage, 
-									*pNym, *pServer,
-									NULL)) // NULL pAccount on this command.
+    
+	int nReturnValue = m_pClient->ProcessUserCommand(OTClient::createUserAccount, theMessage, 
+                                                     *pNym, *pServer,
+                                                     NULL); // NULL pAccount on this command.
+	if (0 < nReturnValue)
 	{				
 #if defined(OT_ZMQ_MODE)
 		m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 #endif	
 		m_pClient->ProcessMessageOut(theMessage);
+        
+        return nReturnValue;
 	}
 	else
 		OTLog::Error("OT_API::createUserAccount: Error in m_pClient->ProcessUserCommand() \n");
+    
+    return -1;
 }
 
 
 
-void OT_API::deleteUserAccount(OTIdentifier	& SERVER_ID,
+int OT_API::deleteUserAccount(OTIdentifier	& SERVER_ID,
 							   OTIdentifier	& USER_ID)
 {	
 	const char * szFuncName = "OT_API::deleteUserAccount";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pNym) return;	
+	if (NULL == pNym) return (-1);	
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pServer) return;
+	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTMessage theMessage;
 	
-	if (m_pClient->ProcessUserCommand(OTClient::deleteUserAccount, theMessage, 
-                                      *pNym, *pServer,
-                                      NULL)) // NULL pAccount on this command.
+    int nReturnValue = m_pClient->ProcessUserCommand(OTClient::deleteUserAccount, theMessage, 
+                                                     *pNym, *pServer,
+                                                     NULL); // NULL pAccount on this command.
+	if (0 < nReturnValue) 
 	{				
 #if defined(OT_ZMQ_MODE)
 		m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 #endif	
 		m_pClient->ProcessMessageOut(theMessage);
+        
+        return nReturnValue;
 	}
 	else
 		OTLog::Error("Error processing deleteUserAccount command in OT_API::deleteUserAccount\n");
+    
+    return -1;
 	
 }
 
 
-void OT_API::checkServerID(OTIdentifier	& SERVER_ID,
+int OT_API::checkServerID(OTIdentifier	& SERVER_ID,
 						   OTIdentifier	& USER_ID)
 {	
 	const char * szFuncName = "OT_API::checkServerID";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pNym) return;	
+	if (NULL == pNym) return (-1);	
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
-	if (NULL == pServer) return;
+	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
 	OTMessage theMessage;
 	
-	if (m_pClient->ProcessUserCommand(OTClient::checkServerID, theMessage, 
-									*pNym, *pServer,
-									NULL)) // NULL pAccount on this command.
+    int nReturnValue = m_pClient->ProcessUserCommand(OTClient::checkServerID, theMessage, 
+                                                     *pNym, *pServer,
+                                                     NULL); // NULL pAccount on this command.
+	if (0 < nReturnValue) 
 	{				
 #if defined(OT_ZMQ_MODE)
 		m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
 #endif	
 		m_pClient->ProcessMessageOut(theMessage);
+        
+        return nReturnValue;
 	}
 	else
 		OTLog::Error("Error processing checkServerID command in OT_API::checkServerID\n");
-	
+    
+    return -1;
 }
 
 

@@ -1223,9 +1223,9 @@ bool OTPaymentPlan::ProcessPayment(const long & lAmount)
 			theRecipientInbox.	SaveContract();
 						
 			// Save both inboxes to storage. (File, DB, wherever it goes.)
-			theSenderInbox.		SaveInbox();
-			theRecipientInbox.	SaveInbox();
-			
+            pSourceAcct->       SaveInbox(theSenderInbox);	
+            pRecipientAcct->    SaveInbox(theRecipientInbox);	
+
 			// These correspond to the AddTransaction() calls just above. These are stored
 			// in separate files now.
 			//

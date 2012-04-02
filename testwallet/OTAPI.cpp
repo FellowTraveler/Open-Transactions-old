@@ -157,6 +157,11 @@
 #include "OTTransaction.h"
 #include "OTSmartContract.h"
 
+// For juggling cheques/invoices/payment plans/purses, etc.
+// Used in sendUserInstrument (to wrap the instrument.)
+//
+#include "OTPayment.h"
+
 
 // A C++ class, high-level interface to OT. The class-based API.
 #include "OpenTransactions.h"
@@ -170,8 +175,9 @@
 #include "OTLog.h"
 
 
-// These functions are in C, so they can't return bool. But they can return BOOL!
+// These functions are in C, so they can't return bool. But they can return OT_BOOL!
 // They appear as int in the header, for SWIG reasons.
+// New: OT_ERROR (-1) which became necessary.
 //
 #ifndef OT_BOOL
 #define OT_BOOL int
@@ -183,6 +189,11 @@ const int OT_FALSE = 0;
 
 #ifndef OT_TRUE
 const int OT_TRUE = 1;
+#endif
+
+
+#ifndef OT_ERROR
+const int OT_ERROR = (-1);
 #endif
 
 
@@ -413,7 +424,7 @@ OT_BOOL OT_API_PopMemlogBack()
 // register your new Nym at any given Server. (Nearly all
 // server requests require this...)
 //
-const char * OT_API_CreateNym(void)
+const char * OT_API_CreateNym(int nKeySize) // must be 1024, 2048, 4096, or 8192 
 {
 	const char * szFuncName = "OT_API_CreateNym";
 	// -----------------------------------------------------
@@ -421,7 +432,7 @@ const char * OT_API_CreateNym(void)
 	if (NULL == pWallet) return NULL;
 	// By this point, pWallet is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------}
-	OTPseudonym * pNym = g_OT_API.CreateNym();
+	OTPseudonym * pNym = g_OT_API.CreateNym(nKeySize);
 	if (NULL == pNym) // Creation failed.
 	{
 		OTLog::Output(0, "OT_API_CreateNym: Failed trying to create Nym.\n");
@@ -962,7 +973,15 @@ OT_BOOL OT_API_DoesBoxReceiptExist(const char *	SERVER_ID,
 
 
 
-void OT_API_getBoxReceipt(const char *	SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_getBoxReceipt(const char *	SERVER_ID,
 						  const char *	USER_ID,
 						  const char *	ACCOUNT_ID,		// If for Nymbox (vs inbox/outbox) then pass USER_ID in this field also.
 						  const int		nBoxType,		// 0/nymbox, 1/inbox, 2/outbox
@@ -985,10 +1004,10 @@ void OT_API_getBoxReceipt(const char *	SERVER_ID,
 		default:
 			OTLog::vError("OT_API_getBoxReceipt: Error: bad nBoxType: %d for UserID: %s AcctID: %s"
 						  "(expected one of: 0/nymbox, 1/inbox, 2/outbox)\n", nBoxType, USER_ID, ACCOUNT_ID);
-			return;
+			return -1;
 	}
 	
-	g_OT_API.getBoxReceipt(theServerID,
+	return g_OT_API.getBoxReceipt(theServerID,
 						   theUserID,
 						   theAccountID, // If for Nymbox (vs inbox/outbox) then pass USER_ID in this field also.						   
 						   nBoxType,	// 0/nymbox, 1/inbox, 2/outbox
@@ -998,7 +1017,15 @@ void OT_API_getBoxReceipt(const char *	SERVER_ID,
 
 
 
-void OT_API_deleteAssetAccount(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_deleteAssetAccount(const char * SERVER_ID,
                                const char * USER_ID,
                                const char * ACCOUNT_ID)
 {
@@ -1007,11 +1034,11 @@ void OT_API_deleteAssetAccount(const char * SERVER_ID,
 	OT_ASSERT_MSG(NULL != ACCOUNT_ID, "OT_API_deleteAssetAccount: Null ACCOUNT_ID passed in.");
 	
     if (OT_FALSE == OT_API_Wallet_CanRemoveAccount(ACCOUNT_ID))
-        return;
+        return 0;
 
 	OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theAccountID(ACCOUNT_ID);
     
-	g_OT_API.deleteAssetAccount(theServerID, theUserID, theAccountID);
+	return g_OT_API.deleteAssetAccount(theServerID, theUserID, theAccountID);
 }
 
 
@@ -1176,6 +1203,199 @@ const char * OT_API_GetNym_Stats(const char * NYM_ID)
 	
 	return NULL;	
 }
+
+
+/// Returns NymboxHash (based on ServerID)
+///
+const char * OT_API_GetNym_NymboxHash(const char * SERVER_ID, const char * NYM_ID) // Returns NymboxHash (based on ServerID)
+{
+	OT_ASSERT_MSG(NULL != SERVER_ID,    "Null SERVER_ID passed to OT_API_GetNym_NymboxHash");
+	OT_ASSERT_MSG(NULL != NYM_ID,       "Null NYM_ID passed to OT_API_GetNym_NymboxHash");
+	
+	const char * szFunc = "OT_API_GetNym_NymboxHash";
+	// -------------------------
+	OTIdentifier	theNymID(NYM_ID);
+	OTPseudonym * pNym = g_OT_API.GetNym(theNymID, szFunc);
+	
+	if (NULL != pNym)
+	{
+        OTIdentifier    theNymboxHash;
+        const
+        std::string     str_server_id(SERVER_ID);
+        const bool      bGothash = pNym->GetNymboxHash(str_server_id, theNymboxHash); // (theNymboxHash is output.)
+        
+        if (!bGothash)
+        {
+            const OTString strNymID(theNymID); // You might ask, why create this string and not just use NYM_ID?
+            // The answer is because I'm looking forward to a day soon when we don't pass const char * in the first
+            // place, and thus I can't always expect that variable will be there.
+            //
+            OTLog::vOutput(1, "%s: NymboxHash not found, on client side, "
+                           "for server %s and nym %s. (Returning NULL.)\n",
+                           szFunc, str_server_id.c_str(), strNymID.Get());
+        }
+        else // Success: the hash was there, for that Nym, for that server ID.
+        {
+            OTString strOutput(theNymboxHash);
+            
+            const char * pBuf = strOutput.Get();
+            
+#ifdef _WIN32
+            strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+            strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+            return g_tempBuf;            
+        }
+	}
+	
+	return NULL;	
+}
+
+//--------------------------------------------------------
+
+/// Returns RecentHash (based on ServerID)
+///
+const char * OT_API_GetNym_RecentHash(const char * SERVER_ID, const char * NYM_ID) // Returns RecentHash (based on ServerID)
+{
+	OT_ASSERT_MSG(NULL != SERVER_ID,    "Null SERVER_ID passed to OT_API_GetNym_RecentHash");
+	OT_ASSERT_MSG(NULL != NYM_ID,       "Null NYM_ID passed to OT_API_GetNym_RecentHash");
+	
+	const char * szFunc = "OT_API_GetNym_RecentHash";
+	// -------------------------
+	OTIdentifier	theNymID(NYM_ID);
+	OTPseudonym * pNym = g_OT_API.GetNym(theNymID, szFunc);
+	
+	if (NULL != pNym)
+	{
+        OTIdentifier    theHash;
+        const
+        std::string     str_server_id(SERVER_ID);
+        const bool      bGothash = pNym->GetRecentHash(str_server_id, theHash); // (theHash is output.)
+        
+        if (!bGothash)
+        {
+            const OTString strNymID(theNymID); // You might ask, why create this string and not just use NYM_ID?
+            // The answer is because I'm looking forward to a day soon when we don't pass const char * in the first
+            // place, and thus I can't always expect that variable will be there.
+            //
+            OTLog::vOutput(1, "%s: RecentHash not found, on client side, "
+                           "for server %s and nym %s. (Returning NULL.)\n",
+                           szFunc, str_server_id.c_str(), strNymID.Get());
+        }
+        else // Success: the hash was there, for that Nym, for that server ID.
+        {
+            OTString strOutput(theHash);
+            
+            const char * pBuf = strOutput.Get();
+            
+#ifdef _WIN32
+            strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+            strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+            return g_tempBuf;            
+        }
+	}
+	
+	return NULL;	
+}
+
+
+
+const char * OT_API_GetNym_InboxHash(const char * ACCOUNT_ID, const char * NYM_ID) /// InboxHash for "most recently DOWNLOADED" Inbox (by AccountID)
+{
+	OT_ASSERT_MSG(NULL != ACCOUNT_ID, "Null ACCOUNT_ID passed to OT_API_GetNym_InboxHash");
+	OT_ASSERT_MSG(NULL != NYM_ID,     "Null NYM_ID passed to OT_API_GetNym_InboxHash");
+	
+	const char * szFunc = "OT_API_GetNym_InboxHash";
+	// -------------------------
+	OTIdentifier	theNymID(NYM_ID);
+	OTPseudonym * pNym = g_OT_API.GetNym(theNymID, szFunc);
+	
+	if (NULL != pNym)
+	{
+        OTIdentifier    theHash;
+        const
+        std::string     str_acct_id(ACCOUNT_ID);
+        const bool      bGothash = pNym->GetInboxHash(str_acct_id, theHash); // (theHash is output.)
+        
+        if (!bGothash)
+        {
+            const OTString strNymID(theNymID); // You might ask, why create this string and not just use NYM_ID?
+            // The answer is because I'm looking forward to a day soon when we don't pass const char * in the first
+            // place, and thus I can't always expect that variable will be there.
+            //
+            OTLog::vOutput(1, "%s: InboxHash not found, on client side, "
+                           "for account %s and nym %s. (Returning NULL.)\n",
+                           szFunc, str_acct_id.c_str(), strNymID.Get());
+        }
+        else // Success: the hash was there, for that Nym, for that server ID.
+        {
+            OTString strOutput(theHash);
+            
+            const char * pBuf = strOutput.Get();
+            
+#ifdef _WIN32
+            strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+            strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+            return g_tempBuf;            
+        }
+	}
+	
+	return NULL;	
+}
+
+const char * OT_API_GetNym_OutboxHash(const char * ACCOUNT_ID, const char * NYM_ID) /// OutboxHash for "most recently DOWNLOADED" Outbox (by AccountID)
+{
+	OT_ASSERT_MSG(NULL != ACCOUNT_ID, "Null ACCOUNT_ID passed to OT_API_GetNym_OutboxHash");
+	OT_ASSERT_MSG(NULL != NYM_ID,     "Null NYM_ID passed to OT_API_GetNym_OutboxHash");
+	
+	const char * szFunc = "OT_API_GetNym_OutboxHash";
+	// -------------------------
+	OTIdentifier	theNymID(NYM_ID);
+	OTPseudonym * pNym = g_OT_API.GetNym(theNymID, szFunc);
+	
+	if (NULL != pNym)
+	{
+        OTIdentifier    theHash;
+        const
+        std::string     str_acct_id(ACCOUNT_ID);
+        const bool      bGothash = pNym->GetOutboxHash(str_acct_id, theHash); // (theHash is output.)
+        
+        if (!bGothash)
+        {
+            const OTString strNymID(theNymID); // You might ask, why create this string and not just use NYM_ID?
+            // The answer is because I'm looking forward to a day soon when we don't pass const char * in the first
+            // place, and thus I can't always expect that variable will be there.
+            //
+            OTLog::vOutput(1, "%s: OutboxHash not found, on client side, "
+                           "for account %s and nym %s. (Returning NULL.)\n",
+                           szFunc, str_acct_id.c_str(), strNymID.Get());
+        }
+        else // Success: the hash was there, for that Nym, for that server ID.
+        {
+            OTString strOutput(theHash);
+            
+            const char * pBuf = strOutput.Get();
+            
+#ifdef _WIN32
+            strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+            strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+            return g_tempBuf;            
+        }
+	}
+	
+	return NULL;	
+}
+
+
+//--------------------------------------------------------
+
 
 
 int	OT_API_GetNym_MailCount(const char * NYM_ID)
@@ -1624,19 +1844,29 @@ const char * OT_API_GetNym_OutpaymentsContentsByIndex(const char * NYM_ID, int n
 		// SENDER:     pMessage->m_strNymID
 		// RECIPIENT:  pMessage->m_strNymID2
 		// INSTRUMENT: pMessage->m_ascPayload (in an OTEnvelope)
-		OTString	strPaymentsContents;
+		OTString	strPayment;
+		OTString	strPaymentContents;
 			
-		// Decrypt the Envelope.
+		// There isn't any encrypted envelope this time, since it's my outPayments box.
+        //
 		if (pMessage->m_ascPayload.Exists() &&
-			pMessage->m_ascPayload.GetString(strPaymentsContents))
+			pMessage->m_ascPayload.GetString(strPayment) &&
+            strPayment.Exists())
 		{
-			const char * pBuf = strPaymentsContents.Get();
+            OTPayment thePayment;
+            // ---------------------------------------------
+            if (thePayment.LoadContractFromString(strPayment)       &&
+                thePayment.GetPaymentContents(strPaymentContents)   &&
+                strPaymentContents.Exists())
+            {
+                const char * pBuf = strPaymentContents.Get();
 #ifdef _WIN32
-			strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+                strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
 #else
-			strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+                strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 #endif
-			return g_tempBuf;
+                return g_tempBuf;            
+            }
 		}
 	}
 	return NULL;	
@@ -1790,6 +2020,650 @@ OT_BOOL OT_API_Nym_VerifyOutpaymentsByIndex(const char * NYM_ID, int nIndex)
 	}
 	return OT_FALSE;	
 }
+
+
+
+
+
+// ******************************************************************************
+
+
+
+
+
+//
+//
+// THESE FUNCTIONS were added for the PAYMENTS screen. (They are fairly new.)
+//
+// Basically there was a need to have DIFFERENT instruments, but to be able to
+// treat them as though they are a single type.
+//
+// In keeping with that, the below functions will work with disparate types.
+// You can pass [ CHEQUES / VOUCHERS / INVOICES ] and PAYMENT PLANS, and
+// SMART CONTRACTS, and PURSEs into these functions, and they should be able
+// to handle any of those types.
+//
+//
+
+const char * OT_API_Instrument_GetAmount(const char * SERVER_ID, const char * THE_INSTRUMENT)
+{
+    OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_Instrument_GetAmount: Null SERVER_ID passed in.");
+    OT_ASSERT_MSG(NULL != THE_INSTRUMENT, "OT_API_Instrument_GetAmount: Null THE_INSTRUMENT passed in.");
+    // ------------------------------------
+    const char * szFunc = "OT_API_Instrument_GetAmount";
+    // ------------------------------------
+    const OTIdentifier  theServerID(SERVER_ID);
+    const OTString      strInstrument(THE_INSTRUMENT);
+    // ------------------------------------
+    OTPayment thePayment(strInstrument);
+    
+    if (!thePayment.IsValid())
+    {
+        OTLog::vOutput(0, "%s: Unable to parse instrument:\n\n%s\n\n",
+                       szFunc, strInstrument.Get());
+        return NULL;
+    }
+    // ---------------------------------------
+    bool bSetValues = false;
+    
+    if (thePayment.IsPurse())
+        bSetValues = thePayment.SetTempValuesPurse(theServerID);
+    else
+        bSetValues = thePayment.SetTempValues();
+    // ---------------------------------------
+    if (!bSetValues)
+    {
+        OTLog::vOutput(0, "%s: Unable to load instrument:\n\n%s\n\n",
+                       szFunc, strInstrument.Get());
+        return NULL;
+    }
+    // ---------------------------------------
+    
+    // BY THIS POINT, we have definitely loaded up all the values of the instrument
+    // into the OTPayment object. (Meaning we can now return the requested data...)
+    
+    OTString    strOutput;
+    long        lOutput = 0;
+    const bool  bGotData = thePayment.GetAmount(lOutput); // <========
+    
+    if (bGotData)
+    {
+        strOutput.Format("%ld", lOutput);
+        
+        const char * pBuf = strOutput.Get();
+        
+#ifdef _WIN32
+        strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+        strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+        return g_tempBuf;
+    }
+    
+    return NULL;
+}
+
+
+
+const char * OT_API_Instrument_GetTransNum(const char * SERVER_ID, const char * THE_INSTRUMENT)
+{
+    OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_Instrument_GetTransNum: Null SERVER_ID passed in.");
+    OT_ASSERT_MSG(NULL != THE_INSTRUMENT, "OT_API_Instrument_GetTransNum: Null THE_INSTRUMENT passed in.");
+    // ------------------------------------
+    const char * szFunc = "OT_API_Instrument_GetTransNum";
+    // ------------------------------------
+    const OTIdentifier  theServerID(SERVER_ID);
+    const OTString      strInstrument(THE_INSTRUMENT);
+    // ------------------------------------
+    OTPayment thePayment(strInstrument);
+    
+    if (!thePayment.IsValid())
+    {
+        OTLog::vOutput(0, "%s: Unable to parse instrument:\n\n%s\n\n",
+                       szFunc, strInstrument.Get());
+        return NULL;
+    }
+    // ---------------------------------------
+    bool bSetValues = false;
+    
+    if (thePayment.IsPurse())
+        bSetValues = thePayment.SetTempValuesPurse(theServerID);
+    else
+        bSetValues = thePayment.SetTempValues();
+    // ---------------------------------------
+    if (!bSetValues)
+    {
+        OTLog::vOutput(0, "%s: Unable to load instrument:\n\n%s\n\n",
+                       szFunc, strInstrument.Get());
+        return NULL;
+    }
+    // ---------------------------------------
+    
+    // BY THIS POINT, we have definitely loaded up all the values of the instrument
+    // into the OTPayment object. (Meaning we can now return the requested data...)
+    
+    OTString    strOutput;
+    long        lOutput = 0;
+    const bool  bGotData = thePayment.GetTransactionNum(lOutput); // <========
+    
+    if (bGotData)
+    {
+        strOutput.Format("%ld", lOutput);
+        
+        const char * pBuf = strOutput.Get();
+        
+#ifdef _WIN32
+        strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+        strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+        return g_tempBuf;
+    }
+    
+    return NULL;
+}
+
+
+
+
+const char * OT_API_Instrument_GetValidFrom(const char * SERVER_ID, const char * THE_INSTRUMENT)
+{
+    OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_Instrument_GetValidFrom: Null SERVER_ID passed in.");
+    OT_ASSERT_MSG(NULL != THE_INSTRUMENT, "OT_API_Instrument_GetValidFrom: Null THE_INSTRUMENT passed in.");
+    // ------------------------------------
+    const char * szFunc = "OT_API_Instrument_GetValidFrom";
+    // ------------------------------------
+    const OTIdentifier  theServerID(SERVER_ID);
+    const OTString      strInstrument(THE_INSTRUMENT);
+    // ------------------------------------
+    OTPayment thePayment(strInstrument);
+    
+    if (!thePayment.IsValid())
+    {
+        OTLog::vOutput(0, "%s: Unable to parse instrument:\n\n%s\n\n",
+                       szFunc, strInstrument.Get());
+        return NULL;
+    }
+    // ---------------------------------------
+    bool bSetValues = false;
+    
+    if (thePayment.IsPurse())
+        bSetValues = thePayment.SetTempValuesPurse(theServerID);
+    else
+        bSetValues = thePayment.SetTempValues();
+    // ---------------------------------------
+    if (!bSetValues)
+    {
+        OTLog::vOutput(0, "%s: Unable to load instrument:\n\n%s\n\n",
+                       szFunc, strInstrument.Get());
+        return NULL;
+    }
+    // ---------------------------------------
+    
+    // BY THIS POINT, we have definitely loaded up all the values of the instrument
+    // into the OTPayment object. (Meaning we can now return the requested data...)
+    
+    OTString    strOutput;
+    long        lOutput = 0;
+    time_t      tOutput = 0;
+    const bool  bGotData = thePayment.GetValidFrom(tOutput); // <========
+    
+    if (bGotData)
+    {
+        lOutput = static_cast<long>(tOutput);
+        strOutput.Format("%ld", lOutput);
+        
+        const char * pBuf = strOutput.Get();
+        
+#ifdef _WIN32
+        strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+        strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+        return g_tempBuf;
+    }
+    
+    return NULL;
+}
+
+
+
+
+const char * OT_API_Instrument_GetValidTo(const char * SERVER_ID, const char * THE_INSTRUMENT)
+{
+    OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_Instrument_GetValidTo: Null SERVER_ID passed in.");
+    OT_ASSERT_MSG(NULL != THE_INSTRUMENT, "OT_API_Instrument_GetValidTo: Null THE_INSTRUMENT passed in.");
+    // ------------------------------------
+    const char * szFunc = "OT_API_Instrument_GetValidTo";
+    // ------------------------------------
+    const OTIdentifier  theServerID(SERVER_ID);
+    const OTString      strInstrument(THE_INSTRUMENT);
+    // ------------------------------------
+    OTPayment thePayment(strInstrument);
+    
+    if (!thePayment.IsValid())
+    {
+        OTLog::vOutput(0, "%s: Unable to parse instrument:\n\n%s\n\n",
+                       szFunc, strInstrument.Get());
+        return NULL;
+    }
+    // ---------------------------------------
+    bool bSetValues = false;
+    
+    if (thePayment.IsPurse())
+        bSetValues = thePayment.SetTempValuesPurse(theServerID);
+    else
+        bSetValues = thePayment.SetTempValues();
+    // ---------------------------------------
+    if (!bSetValues)
+    {
+        OTLog::vOutput(0, "%s: Unable to load instrument:\n\n%s\n\n",
+                       szFunc, strInstrument.Get());
+        return NULL;
+    }
+    // ---------------------------------------
+    
+    // BY THIS POINT, we have definitely loaded up all the values of the instrument
+    // into the OTPayment object. (Meaning we can now return the requested data...)
+    
+    OTString    strOutput;
+    long        lOutput = 0;
+    time_t      tOutput = 0;
+    const bool  bGotData = thePayment.GetValidTo(tOutput); // <========
+    
+    if (bGotData)
+    {
+        lOutput = static_cast<long>(tOutput);
+        strOutput.Format("%ld", lOutput);
+        
+        const char * pBuf = strOutput.Get();
+        
+#ifdef _WIN32
+        strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+        strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+        return g_tempBuf;
+    }
+    
+    return NULL;
+}
+
+
+
+
+
+
+
+
+const char * OT_API_Instrument_GetMemo(const char * SERVER_ID, const char * THE_INSTRUMENT)
+{
+    OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_Instrument_GetMemo: Null SERVER_ID passed in.");
+    OT_ASSERT_MSG(NULL != THE_INSTRUMENT, "OT_API_Instrument_GetMemo: Null THE_INSTRUMENT passed in.");
+    // ------------------------------------
+    const char * szFunc = "OT_API_Instrument_GetMemo";
+    // ------------------------------------
+    const OTIdentifier  theServerID(SERVER_ID);
+    const OTString      strInstrument(THE_INSTRUMENT);
+    // ------------------------------------
+    OTPayment thePayment(strInstrument);
+    
+    if (!thePayment.IsValid())
+    {
+        OTLog::vOutput(0, "%s: Unable to parse instrument:\n\n%s\n\n",
+                       szFunc, strInstrument.Get());
+        return NULL;
+    }
+    // ---------------------------------------
+    bool bSetValues = false;
+    
+    if (thePayment.IsPurse())
+        bSetValues = thePayment.SetTempValuesPurse(theServerID);
+    else
+        bSetValues = thePayment.SetTempValues();
+    // ---------------------------------------
+    if (!bSetValues)
+    {
+        OTLog::vOutput(0, "%s: Unable to load instrument:\n\n%s\n\n",
+                       szFunc, strInstrument.Get());
+        return NULL;
+    }
+    // ---------------------------------------
+    
+    // BY THIS POINT, we have definitely loaded up all the values of the instrument
+    // into the OTPayment object. (Meaning we can now return the requested data...)
+    
+    OTString    strOutput;
+    const bool  bGotData = thePayment.GetMemo(strOutput); // <========
+    
+    if (bGotData)
+    {
+        const char * pBuf = strOutput.Get();
+        
+#ifdef _WIN32
+        strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+        strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+        return g_tempBuf;
+    }
+    
+    return NULL;
+}
+
+
+// ------------------------------------------------
+
+
+
+const char * OT_API_Instrument_GetAssetID(const char * SERVER_ID, const char * THE_INSTRUMENT)
+{
+    OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_Instrument_GetAssetID: Null SERVER_ID passed in.");
+    OT_ASSERT_MSG(NULL != THE_INSTRUMENT, "OT_API_Instrument_GetAssetID: Null THE_INSTRUMENT passed in.");
+    // ------------------------------------
+    const char * szFunc = "OT_API_Instrument_GetAssetID";
+    // ------------------------------------
+    const OTIdentifier  theServerID(SERVER_ID);
+    const OTString      strInstrument(THE_INSTRUMENT);
+    // ------------------------------------
+    OTPayment thePayment(strInstrument);
+    
+    if (!thePayment.IsValid())
+    {
+        OTLog::vOutput(0, "%s: Unable to parse instrument:\n\n%s\n\n",
+                       szFunc, strInstrument.Get());
+        return NULL;
+    }
+    // ---------------------------------------
+    bool bSetValues = false;
+    
+    if (thePayment.IsPurse())
+        bSetValues = thePayment.SetTempValuesPurse(theServerID);
+    else
+        bSetValues = thePayment.SetTempValues();
+    // ---------------------------------------
+    if (!bSetValues)
+    {
+        OTLog::vOutput(0, "%s: Unable to load instrument:\n\n%s\n\n",
+                       szFunc, strInstrument.Get());
+        return NULL;
+    }
+    // ---------------------------------------
+    
+    // BY THIS POINT, we have definitely loaded up all the values of the instrument
+    // into the OTPayment object. (Meaning we can now return the requested data...)
+    
+    OTIdentifier  theOutput;
+    const bool    bGotData = thePayment.GetAssetTypeID(theOutput); // <========
+    
+    if (bGotData)
+    {
+        const OTString strOutput(theOutput);
+        
+        const char * pBuf = strOutput.Get();
+        
+#ifdef _WIN32
+        strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+        strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+        return g_tempBuf;
+    }
+    
+    return NULL;
+}
+
+
+
+
+
+const char * OT_API_Instrmnt_GetSenderUserID(const char * SERVER_ID, const char * THE_INSTRUMENT)
+{
+    OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_Instrmnt_GetSenderUserID: Null SERVER_ID passed in.");
+    OT_ASSERT_MSG(NULL != THE_INSTRUMENT, "OT_API_Instrmnt_GetSenderUserID: Null THE_INSTRUMENT passed in.");
+    // ------------------------------------
+    const char * szFunc = "OT_API_Instrmnt_GetSenderUserID";
+    // ------------------------------------
+    const OTIdentifier  theServerID(SERVER_ID);
+    const OTString      strInstrument(THE_INSTRUMENT);
+    // ------------------------------------
+    OTPayment thePayment(strInstrument);
+    
+    if (!thePayment.IsValid())
+    {
+        OTLog::vOutput(0, "%s: Unable to parse instrument:\n\n%s\n\n",
+                       szFunc, strInstrument.Get());
+        return NULL;
+    }
+    // ---------------------------------------
+    bool bSetValues = false;
+    
+    if (thePayment.IsPurse())
+        bSetValues = thePayment.SetTempValuesPurse(theServerID);
+    else
+        bSetValues = thePayment.SetTempValues();
+    // ---------------------------------------
+    if (!bSetValues)
+    {
+        OTLog::vOutput(0, "%s: Unable to load instrument:\n\n%s\n\n",
+                       szFunc, strInstrument.Get());
+        return NULL;
+    }
+    // ---------------------------------------
+    
+    // BY THIS POINT, we have definitely loaded up all the values of the instrument
+    // into the OTPayment object. (Meaning we can now return the requested data...)
+    
+    OTIdentifier  theOutput;
+    const bool    bGotData = thePayment.GetSenderUserID(theOutput); // <========
+    
+    if (bGotData)
+    {
+        const OTString strOutput(theOutput);
+        
+        const char * pBuf = strOutput.Get();
+        
+#ifdef _WIN32
+        strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+        strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+        return g_tempBuf;
+    }
+    
+    return NULL;
+}
+
+
+
+
+
+const char * OT_API_Instrmnt_GetSenderAcctID(const char * SERVER_ID, const char * THE_INSTRUMENT)
+{
+    OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_Instrmnt_GetSenderAcctID: Null SERVER_ID passed in.");
+    OT_ASSERT_MSG(NULL != THE_INSTRUMENT, "OT_API_Instrmnt_GetSenderAcctID: Null THE_INSTRUMENT passed in.");
+    // ------------------------------------
+    const char * szFunc = "OT_API_Instrmnt_GetSenderAcctID";
+    // ------------------------------------
+    const OTIdentifier  theServerID(SERVER_ID);
+    const OTString      strInstrument(THE_INSTRUMENT);
+    // ------------------------------------
+    OTPayment thePayment(strInstrument);
+    
+    if (!thePayment.IsValid())
+    {
+        OTLog::vOutput(0, "%s: Unable to parse instrument:\n\n%s\n\n",
+                       szFunc, strInstrument.Get());
+        return NULL;
+    }
+    // ---------------------------------------
+    bool bSetValues = false;
+    
+    if (thePayment.IsPurse())
+        bSetValues = thePayment.SetTempValuesPurse(theServerID);
+    else
+        bSetValues = thePayment.SetTempValues();
+    // ---------------------------------------
+    if (!bSetValues)
+    {
+        OTLog::vOutput(0, "%s: Unable to load instrument:\n\n%s\n\n",
+                       szFunc, strInstrument.Get());
+        return NULL;
+    }
+    // ---------------------------------------
+    
+    // BY THIS POINT, we have definitely loaded up all the values of the instrument
+    // into the OTPayment object. (Meaning we can now return the requested data...)
+    
+    OTIdentifier  theOutput;
+    const bool    bGotData = thePayment.GetSenderAcctID(theOutput); // <========
+    
+    if (bGotData)
+    {
+        const OTString strOutput(theOutput);
+        
+        const char * pBuf = strOutput.Get();
+        
+#ifdef _WIN32
+        strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+        strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+        return g_tempBuf;
+    }
+    
+    return NULL;
+}
+
+
+
+
+
+const char * OT_API_Instrmnt_GetRecipientUserID(const char * SERVER_ID, const char * THE_INSTRUMENT)
+{
+    OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_Instrmnt_GetRecipientUserID: Null SERVER_ID passed in.");
+    OT_ASSERT_MSG(NULL != THE_INSTRUMENT, "OT_API_Instrmnt_GetRecipientUserID: Null THE_INSTRUMENT passed in.");
+    // ------------------------------------
+    const char * szFunc = "OT_API_Instrmnt_GetRecipientUserID";
+    // ------------------------------------
+    const OTIdentifier  theServerID(SERVER_ID);
+    const OTString      strInstrument(THE_INSTRUMENT);
+    // ------------------------------------
+    OTPayment thePayment(strInstrument);
+    
+    if (!thePayment.IsValid())
+    {
+        OTLog::vOutput(0, "%s: Unable to parse instrument:\n\n%s\n\n",
+                       szFunc, strInstrument.Get());
+        return NULL;
+    }
+    // ---------------------------------------
+    bool bSetValues = false;
+    
+    if (thePayment.IsPurse())
+        bSetValues = thePayment.SetTempValuesPurse(theServerID);
+    else
+        bSetValues = thePayment.SetTempValues();
+    // ---------------------------------------
+    if (!bSetValues)
+    {
+        OTLog::vOutput(0, "%s: Unable to load instrument:\n\n%s\n\n",
+                       szFunc, strInstrument.Get());
+        return NULL;
+    }
+    // ---------------------------------------
+    
+    // BY THIS POINT, we have definitely loaded up all the values of the instrument
+    // into the OTPayment object. (Meaning we can now return the requested data...)
+    
+    OTIdentifier  theOutput;
+    const bool    bGotData = thePayment.GetRecipientUserID(theOutput); // <========
+    
+    if (bGotData)
+    {
+        const OTString strOutput(theOutput);
+        
+        const char * pBuf = strOutput.Get();
+        
+#ifdef _WIN32
+        strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+        strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+        return g_tempBuf;
+    }
+    
+    return NULL;
+}
+
+
+
+
+
+const char * OT_API_Instrmnt_GetRecipientAcctID(const char * SERVER_ID, const char * THE_INSTRUMENT)
+{
+    OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_Instrmnt_GetRecipientAcctID: Null SERVER_ID passed in.");
+    OT_ASSERT_MSG(NULL != THE_INSTRUMENT, "OT_API_Instrmnt_GetRecipientAcctID: Null THE_INSTRUMENT passed in.");
+    // ------------------------------------
+    const char * szFunc = "OT_API_Instrmnt_GetRecipientAcctID";
+    // ------------------------------------
+    const OTIdentifier  theServerID(SERVER_ID);
+    const OTString      strInstrument(THE_INSTRUMENT);
+    // ------------------------------------
+    OTPayment thePayment(strInstrument);
+
+    if (!thePayment.IsValid())
+    {
+        OTLog::vOutput(0, "%s: Unable to parse instrument:\n\n%s\n\n",
+                       szFunc, strInstrument.Get());
+        return NULL;
+    }
+    // ---------------------------------------
+    bool bSetValues = false;
+    
+    if (thePayment.IsPurse())
+        bSetValues = thePayment.SetTempValuesPurse(theServerID);
+    else
+        bSetValues = thePayment.SetTempValues();
+    // ---------------------------------------
+    if (!bSetValues)
+    {
+        OTLog::vOutput(0, "%s: Unable to load instrument:\n\n%s\n\n",
+                       szFunc, strInstrument.Get());
+        return NULL;
+    }
+    // ---------------------------------------
+
+    // BY THIS POINT, we have definitely loaded up all the values of the instrument
+    // into the OTPayment object. (Meaning we can now return the requested data...)
+
+    OTIdentifier  theOutput;
+    const bool    bGotData = thePayment.GetRecipientAcctID(theOutput); // <========
+
+    if (bGotData)
+    {
+        const OTString strOutput(theOutput);
+        
+        const char * pBuf = strOutput.Get();
+        
+#ifdef _WIN32
+        strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+        strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+        return g_tempBuf;
+    }
+
+    return NULL;
+}
+
+
+
+
+
+// -----------------------------------------------------------------------------
+
+
 
 
 
@@ -2056,7 +2930,65 @@ const char * OT_API_GetAccountWallet_Name(const char * THE_ID)
 }
 
 
+const char * OT_API_GetAccountWallet_InboxHash (const char * ACCOUNT_ID)	 // returns latest InboxHash according to the account file. (Usually more recent than: OT_API_GetNym_InboxHash)
+{
+	OT_ASSERT_MSG(NULL != ACCOUNT_ID, "OT_API_GetAccountWallet_InboxHash: Null ACCOUNT_ID passed in.");
+	
+	OTIdentifier	theID(ACCOUNT_ID);
+	
+	const char * szFunc = "OT_API_GetAccountWallet_InboxHash";
+	// -------------------------
+	OTAccount * pAccount = g_OT_API.GetAccount(theID, szFunc);
+	if (NULL == pAccount) return NULL;
+	// -------------------------
+    
+    OTIdentifier theOutput;
+    const bool bGotHash = pAccount->GetInboxHash(theOutput);
+    
+    OTString strOutput;
 
+    if (bGotHash)
+        theOutput.GetString(strOutput);
+
+	const char * pBuf = strOutput.Get();
+#ifdef _WIN32
+	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+	return g_tempBuf;    
+}
+
+
+
+const char * OT_API_GetAccountWallet_OutboxHash(const char * ACCOUNT_ID)	 // returns latest OutboxHash according to the account file. (Usually more recent than: OT_API_GetNym_OutboxHash)
+{
+	OT_ASSERT_MSG(NULL != ACCOUNT_ID, "OT_API_GetAccountWallet_OutboxHash: Null ACCOUNT_ID passed in.");
+	
+	OTIdentifier	theID(ACCOUNT_ID);
+	
+	const char * szFunc = "OT_API_GetAccountWallet_OutboxHash";
+	// -------------------------
+	OTAccount * pAccount = g_OT_API.GetAccount(theID, szFunc);
+	if (NULL == pAccount) return NULL;
+	// -------------------------
+    
+    OTIdentifier theOutput;
+    const bool bGotHash = pAccount->GetOutboxHash(theOutput);
+    
+    OTString strOutput;
+    
+    if (bGotHash)
+        theOutput.GetString(strOutput);
+    
+	const char * pBuf = strOutput.Get();
+#ifdef _WIN32
+	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+	return g_tempBuf;    
+}
 
 
 
@@ -3483,7 +4415,15 @@ const char * OT_API_SmartContract_ConfirmParty(const char * THE_CONTRACT,	// The
 ///
 /// See OT_API_Create_SmartContract (etc.)
 ///
-void OT_API_activateSmartContract(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_activateSmartContract(const char * SERVER_ID,
 								  const char * USER_ID,
 								  const char * THE_SMART_CONTRACT)
 {
@@ -3494,7 +4434,7 @@ void OT_API_activateSmartContract(const char * SERVER_ID,
 	const OTIdentifier	theServerID(SERVER_ID), theUserID(USER_ID);
 	const OTString		strContract(THE_SMART_CONTRACT);
 	
-	g_OT_API.activateSmartContract(theServerID, theUserID, strContract);	
+	return g_OT_API.activateSmartContract(theServerID, theUserID, strContract);	
 }
 
 
@@ -3505,7 +4445,15 @@ void OT_API_activateSmartContract(const char * SERVER_ID,
 // to trigger clauses on that smart contract, by name. This is NOT a transaction,
 // but it DOES message the server.
 //
-void OT_API_triggerClause(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_triggerClause(const char * SERVER_ID,
 						  const char * USER_ID,
 						  const char * TRANSACTION_NUMBER,
 						  const char * CLAUSE_NAME,
@@ -3523,14 +4471,16 @@ void OT_API_triggerClause(const char * SERVER_ID,
 	
 	const OTString strParam((NULL == STR_PARAM) ? "" : STR_PARAM);
 	
-	g_OT_API.triggerClause(theServerID, theUserID, lTransactionNum, strClauseName, (NULL == STR_PARAM) ? NULL : &strParam);
+	return g_OT_API.triggerClause(theServerID, theUserID, lTransactionNum, strClauseName, (NULL == STR_PARAM) ? NULL : &strParam);
 }
 
 
 
 /*
+ OT_API_Msg_HarvestTransactionNumbers
+ 
  This function will load up the cron item (which is either a market offer, a payment plan,
- or a SMART CONTRACT.)
+ or a SMART CONTRACT.)  UPDATE: this function operates on messages, not cron items.
  
  Then it will try to harvest all of the closing transaction numbers for NYM_ID that are
  available to be harvested from THE_CRON_ITEM. (There might be zero #s available for that
@@ -3558,49 +4508,103 @@ void OT_API_triggerClause(const char * SERVER_ID,
  of shit, then I should have a stored copy of any contract that I signed. If it turns out in the future
  that that contract wasn't activated, then I can retrieve not only my closing numbers, but my OPENING
  number as well! IN THAT CASE, I would call OT_API_HarvestAllNumbers() instead of OT_API_HarvestClosingNumbers().
+ 
+ // -----------------
+ 
+ UPDATE: The above logic is now handled automatically in OT_API_HarvestTransactionNumbers.
+ Therefore OT_API_HarvestClosingNumbers and OT_API_HarvestAllNumbers have been removed.
+ 
  */
-OT_BOOL OT_API_HarvestClosingNumbers(const char * SERVER_ID,
-									 const char * NYM_ID,
-									 const char * THE_CRON_ITEM)
+
+OT_BOOL OT_API_Msg_HarvestTransactionNumbers(const char *  THE_MESSAGE,
+                                             const char *  USER_ID,
+                                             const OT_BOOL bHarvestingForRetry,     
+                                             const OT_BOOL bReplyWasSuccess,        
+                                             const OT_BOOL bReplyWasFailure,               
+                                             const OT_BOOL bTransactionWasSuccess,  
+                                             const OT_BOOL bTransactionWasFailure)  
 {
-	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_HarvestClosingNumbers: Null SERVER_ID passed in.");
-	OT_ASSERT_MSG(NULL != NYM_ID, "OT_API_HarvestClosingNumbers: Null NYM_ID passed in.");
-	OT_ASSERT_MSG(NULL != THE_CRON_ITEM, "OT_API_HarvestClosingNumbers: Null THE_CRON_ITEM passed in.");
+	OT_ASSERT_MSG(g_OT_API.IsInitialized(), "OT_API_HarvestTransactionNumbers: Not initialized; call OT_API::Init first.");
 	// -----------------------------------------------------
-	const OTIdentifier	theNymID(NYM_ID), theServerID(SERVER_ID);
-	const OTString		strContract(THE_CRON_ITEM);
+	OT_ASSERT_MSG(NULL != THE_MESSAGE, "OT_API_HarvestTransactionNumbers: Null THE_MESSAGE passed in.");
+	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_HarvestTransactionNumbers: Null USER_ID passed in.");
 	// -----------------------------------------------------
-	const bool bHarvested = g_OT_API.HarvestClosingNumbers(theServerID, theNymID, strContract);
-	
-	return bHarvested ? OT_TRUE : OT_FALSE;
+	OT_ASSERT_MSG((bHarvestingForRetry==OT_TRUE)||(bHarvestingForRetry==OT_FALSE), "OT_API_HarvestTransactionNumbers: Bad: bHarvestingForRetry.");
+	OT_ASSERT_MSG((bReplyWasSuccess==OT_TRUE)||(bReplyWasSuccess==OT_FALSE), "OT_API_HarvestTransactionNumbers: Bad: bReplyWasSuccess.");
+	OT_ASSERT_MSG((bReplyWasFailure==OT_TRUE)||(bReplyWasFailure==OT_FALSE), "OT_API_HarvestTransactionNumbers: Bad: bReplyWasFailure.");
+	OT_ASSERT_MSG((bTransactionWasSuccess==OT_TRUE)||(bTransactionWasSuccess==OT_FALSE), "OT_API_HarvestTransactionNumbers: Bad: bTransactionWasSuccess.");
+	OT_ASSERT_MSG((bTransactionWasFailure==OT_TRUE)||(bTransactionWasFailure==OT_FALSE), "OT_API_HarvestTransactionNumbers: Bad: bTransactionWasFailure.");
+	// -----------------------------------------------------
+    OTMessage   theMessage;
+    const
+    OTString    strMsg(THE_MESSAGE);
+    
+    if (!strMsg.Exists() || !theMessage.LoadContractFromString(strMsg))
+    {
+        OTLog::vError("OT_API_HarvestTransactionNumbers: Failed trying to load message from string:\n\n%s\n\n",
+                      strMsg.Get());
+        return OT_FALSE;
+    }
+    // ---------------------------------------------------
+    // By this point, we have the actual message loaded up.
+    //
+    
+    const OTIdentifier theUserID(USER_ID);
+    
+	const bool bSuccess = g_OT_API.Msg_HarvestTransactionNumbers(theMessage, theUserID,
+                                                                 OT_TRUE == bHarvestingForRetry     ? true : false,
+                                                                 OT_TRUE == bReplyWasSuccess        ? true : false,
+                                                                 OT_TRUE == bReplyWasFailure        ? true : false,
+                                                                 OT_TRUE == bTransactionWasSuccess  ? true : false,
+                                                                 OT_TRUE == bTransactionWasFailure  ? true : false);
+	return bSuccess ? OT_TRUE : OT_FALSE;
 }
 
 
-// NOTE: usually you will want to call OT_API_HarvestClosingNumbers, since the Opening number is usually
-// burned up from some failed transaction or whatever. You don't want to harvest the opening number usually,
-// just the closing numbers. (If the opening number is burned up, yet you still harvest it, then your OT wallet
-// will end up using that number again on some other transaction, which will obviously then fail since the number
-// isn't good anymore.)
-// This function is only for those cases where you are sure that the opening transaction # hasn't been burned yet,
-// such as when the message failed and the transaction wasn't attempted (because it never got that far) or such as
-// when the contract simply never got signed or activated by one of the other parties, and so you want to claw your
-// #'s back, and since in that case your opening number is still good, you would use the below function to get it back.
+
+
+//OT_BOOL OT_API_HarvestClosingNumbers(const char * SERVER_ID,
+//									 const char * NYM_ID,
+//									 const char * THE_CRON_ITEM)
+//{
+//	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_HarvestClosingNumbers: Null SERVER_ID passed in.");
+//	OT_ASSERT_MSG(NULL != NYM_ID, "OT_API_HarvestClosingNumbers: Null NYM_ID passed in.");
+//	OT_ASSERT_MSG(NULL != THE_CRON_ITEM, "OT_API_HarvestClosingNumbers: Null THE_CRON_ITEM passed in.");
+//	// -----------------------------------------------------
+//	const OTIdentifier	theNymID(NYM_ID), theServerID(SERVER_ID);
+//	const OTString		strContract(THE_CRON_ITEM);
+//	// -----------------------------------------------------
+//	const bool bHarvested = g_OT_API.HarvestClosingNumbers(theServerID, theNymID, strContract);
+//	
+//	return bHarvested ? OT_TRUE : OT_FALSE;
+//}
 //
-OT_BOOL OT_API_HarvestAllNumbers(const char * SERVER_ID,
-								 const char * NYM_ID,
-								 const char * THE_CRON_ITEM)
-{
-	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_HarvestAllNumbers: Null SERVER_ID passed in.");
-	OT_ASSERT_MSG(NULL != NYM_ID, "OT_API_HarvestAllNumbers: Null NYM_ID passed in.");
-	OT_ASSERT_MSG(NULL != THE_CRON_ITEM, "OT_API_HarvestAllNumbers: Null THE_CRON_ITEM passed in.");
-	// -----------------------------------------------------
-	const OTIdentifier	theNymID(NYM_ID), theServerID(SERVER_ID);
-	const OTString		strContract(THE_CRON_ITEM);
-	// -----------------------------------------------------
-	const bool bHarvested = g_OT_API.HarvestAllNumbers(theServerID, theNymID, strContract);
-	
-	return bHarvested ? OT_TRUE : OT_FALSE;
-}
+//
+//// NOTE: usually you will want to call OT_API_HarvestClosingNumbers, since the Opening number is usually
+//// burned up from some failed transaction or whatever. You don't want to harvest the opening number usually,
+//// just the closing numbers. (If the opening number is burned up, yet you still harvest it, then your OT wallet
+//// will end up using that number again on some other transaction, which will obviously then fail since the number
+//// isn't good anymore.)
+//// This function is only for those cases where you are sure that the opening transaction # hasn't been burned yet,
+//// such as when the message failed and the transaction wasn't attempted (because it never got that far) or such as
+//// when the contract simply never got signed or activated by one of the other parties, and so you want to claw your
+//// #'s back, and since in that case your opening number is still good, you would use the below function to get it back.
+////
+//OT_BOOL OT_API_HarvestAllNumbers(const char * SERVER_ID,
+//								 const char * NYM_ID,
+//								 const char * THE_CRON_ITEM)
+//{
+//	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_HarvestAllNumbers: Null SERVER_ID passed in.");
+//	OT_ASSERT_MSG(NULL != NYM_ID, "OT_API_HarvestAllNumbers: Null NYM_ID passed in.");
+//	OT_ASSERT_MSG(NULL != THE_CRON_ITEM, "OT_API_HarvestAllNumbers: Null THE_CRON_ITEM passed in.");
+//	// -----------------------------------------------------
+//	const OTIdentifier	theNymID(NYM_ID), theServerID(SERVER_ID);
+//	const OTString		strContract(THE_CRON_ITEM);
+//	// -----------------------------------------------------
+//	const bool bHarvested = g_OT_API.HarvestAllNumbers(theServerID, theNymID, strContract);
+//	
+//	return bHarvested ? OT_TRUE : OT_FALSE;
+//}
 
 
 
@@ -4041,6 +5045,124 @@ const char * OT_API_LoadAssetAccount(const char * SERVER_ID,
 	
 	return NULL;				
 }
+
+// -----------------------------------------------------------------------------
+
+
+// Some server replies (to your messages) are so important that a notice is dropped
+// into your Nymbox with a copy of the server's reply. It's called a replyNotice.
+// Since the server is usually replying to a message, I've added this function for
+// quickly looking up the message reply, if it's there, based on the requestNumber.
+// This is the only example in the entire OT API where a Transaction is looked-up from
+// a ledger, based on a REQUEST NUMBER. (Normally transactions use transaction numbers,
+// and messages use request numbers. But in this case, it's a transaction that carries
+// a copy of a message.)
+// Note: Make sure you call this AFTER you download the box receipts, but BEFORE
+// you process the Nymbox (because the reply notice will have disappeared.) Basically this
+// function will be used for cases where you missed a server reply, and you need to 
+// search your Nymbox and see if a copy of the missed reply is still there. (Which it
+// won't be, once you process the box.)
+//
+const char * OT_API_Nymbox_GetReplyNotice(const char * SERVER_ID,
+                                          const char * USER_ID,
+                                          const char * REQUEST_NUMBER) // returns replyNotice transaction by requestNumber.
+{
+	OT_ASSERT_MSG(NULL != SERVER_ID,        "OT_API_Nymbox_GetReplyNotice: Null SERVER_ID passed in.");
+	OT_ASSERT_MSG(NULL != USER_ID,          "OT_API_Nymbox_GetReplyNotice: Null USER_ID passed in.");
+	OT_ASSERT_MSG(NULL != REQUEST_NUMBER,   "OT_API_Nymbox_GetReplyNotice: Null REQUEST_NUMBER passed in.");
+	
+	const OTIdentifier theServerID(SERVER_ID);
+	const OTIdentifier theUserID(USER_ID);
+	
+    const long lRequestNumber = atol(REQUEST_NUMBER);
+    
+    const char * szFunc = "OT_API_Nymbox_GetReplyNotice";
+    // -----------------------------------------
+    
+	// There is an OT_ASSERT in here for memory failure,
+	// but it still might return NULL if various verification fails.
+    
+	OTLedger * pLedger = g_OT_API.LoadNymboxNoVerify(theServerID, theUserID); 
+	// Make sure it gets cleaned up when this goes out of scope.
+	OTCleanup<OTLedger>	theAngel(pLedger); // I pass the pointer, in case it's NULL.
+	
+	if (NULL == pLedger)
+	{
+		OTLog::vOutput(0, "%s: Failure calling OT_API::LoadNymboxNoVerify.\n", szFunc);
+        return NULL;
+	}
+    // -----------------------------------
+    
+    OTTransaction * pTransaction = pLedger->GetReplyNotice(lRequestNumber);
+	// No need to cleanup this transaction, the ledger owns it already.
+	
+	if (NULL == pTransaction)
+	{
+		OTLog::vOutput(4, "%s: No replyNotice transactions found in ledger with request number: %ld\n", 
+                       szFunc, lRequestNumber);
+		return NULL; // Maybe he was just looking; this isn't necessarily an error.
+	}
+    // -----------------------------------
+	
+	// At this point, I actually have the transaction pointer to the replyNotice,
+    // so let's return it in string form...
+    //
+	const long lTransactionNum = pTransaction->GetTransactionNum();
+	
+	// Update: for transactions in ABBREVIATED form, the string is empty, since it has never actually
+	// been signed (in fact the whole point with abbreviated transactions in a ledger is that they 
+	// take up very little room, and have no signature of their own, but exist merely as XML tags on
+	// their parent ledger.)
+	//
+	// THEREFORE I must check to see if this transaction is abbreviated and if so, sign it in order to
+	// force the UpdateContents() call, so the programmatic user of this API will be able to load it up.
+    //
+    
+    OTString strOutput(*pTransaction); // First we grab the transaction as it is (the abbreviated version, possibly.)
+
+	if (pTransaction->IsAbbreviated())
+	{
+		pLedger->LoadBoxReceipt(lTransactionNum); 
+		pTransaction = pLedger->GetTransaction(lTransactionNum);
+		// -------------------------
+		if (NULL == pTransaction)
+		{
+			OTLog::vError("%s: good index but uncovered NULL pointer after trying to load full "
+                          "version of receipt (from abbreviated.) Thus, saving abbreviated version instead, "
+                          "so I can still return SOMETHING.\n", szFunc);
+            // ----------------------------------
+            OTPseudonym * pNym = g_OT_API.GetNym(theUserID, "OT_API_Nymbox_GetReplyNotice");
+            if (NULL == pNym) return NULL;
+            // -------------------------	
+            pTransaction->ReleaseSignatures();
+            pTransaction->SignContract(*pNym);
+            pTransaction->SaveContract();
+            // -------------------------
+		}		
+        strOutput.Release();
+        pTransaction->SaveContractRaw(strOutput); // if it was abbreviated before, now it either IS the box receipt, or it's the abbreviated version.            
+	}
+	// ------------------------------------------------
+    
+    // We return the abbreviated version because the developer using the OT API
+    // needs to know if that receipt is there, whether it's abbreviated or not.
+    // So rather than passing NULL when it's abbreviated, and thus leading him
+    // astray, we give him the next-best thing: the abbreviated version. That
+    // way at least he knows for sure that the receipt is there, the one he is
+    // asking about.
+    
+	const char * pBuf = strOutput.Get(); 
+	
+#ifdef _WIN32
+	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+	
+	return g_tempBuf;	
+}
+
+
 
 // -----------------------------------------------------------------------------
 
@@ -4927,7 +6049,6 @@ const char * OT_API_Ledger_GetInstrument(const char * SERVER_ID,
 	// -----------------------------------------------------
 
 	const long lTransactionNum = pTransaction->GetTransactionNum();
-	// At this point, I actually have the transaction pointer, so let's return it in string form...
 	
 	// Update: for transactions in ABBREVIATED form, the string is empty, since it has never actually
 	// been signed (in fact the whole point with abbreviated transactions in a ledger is that they 
@@ -4945,29 +6066,22 @@ const char * OT_API_Ledger_GetInstrument(const char * SERVER_ID,
 		if (NULL == pTransaction)
 		{
 			OTLog::vError("OT_API_Ledger_GetInstrument: good index but uncovered NULL "
-						  "pointer after trying to load full version of receipt (from abbreviated): %d\n", 
+						  "pointer after trying to load full version of receipt (from abbreviated) at index: %d\n", 
 						  nIndex);
 			return NULL; // Weird.
-		}		
-		// I was doing this when it was abbreviated. But now (above) I just 
-		// load the box receipt itself.
-//		OTPseudonym * pNym = g_OT_API.GetNym(theUserID, "OT_API_Ledger_GetTransactionByIndex");
-//		if (NULL == pNym) return NULL;
-//		// -------------------------	
-//		pTransaction->ReleaseSignatures();
-//		pTransaction->SignContract(*pNym);
-//		pTransaction->SaveContract();
-	}
+		}
+    }
 	// ------------------------------------------------
 	/*
 	 TO EXTRACT INSTRUMENT FROM PAYMENTS INBOX:
 	 -- Iterate through the transactions in the payments inbox.
 	 -- (They should all be "instrumentNotice" transactions.)
 	 -- Each transaction contains (1) OTMessage in "in ref to" field, which in turn contains an encrypted
-	    instrument in the payload field.
-	 -- *** Therefore, this function, based purely on ledger index (as we iterate) extracts the
-	    OTMessage from the Transaction "in ref to" field (for the transaction at that index), then decrypts
-	    the payload on that message and returns the decrypted cleartext. 
+	    OTPayment in the payload field, which contains the actual financial instrument.
+	 -- *** Therefore, this function, based purely on ledger index (as we iterate):
+        1. extracts the OTMessage from the Transaction "in ref to" field (for the transaction at that index), 
+        2. then decrypts the payload on that message, producing an OTPayment object, 
+        3. ...which contains the actual instrument.
 	 */
 	// ------------------------------------------------
 	if ((OTTransaction::instrumentNotice	!= pTransaction->GetType()) &&
@@ -5020,7 +6134,20 @@ const char * OT_API_Ledger_GetInstrument(const char * SERVER_ID,
 		if (theEnvelope.SetAsciiArmoredData(pMsg->m_ascPayload) &&
 			theEnvelope.Open(*pNym, strEnvelopeContents))
 		{
-			const char * pBuf = strEnvelopeContents.Get();
+            OTPayment   thePayment;
+            OTString    strPaymentContents;
+
+            if ((!thePayment.IsValid())  ||
+                (false == thePayment.LoadContractFromString(strEnvelopeContents)) ||
+                (false == thePayment.GetPaymentContents(strPaymentContents))
+                )
+            {
+                OTLog::vOutput(0, "OT_API_Ledger_GetInstrument: ERROR_STATE while trying to resurrect payment from string:\n\n%s\n\n",
+                               strEnvelopeContents.Get());
+                return NULL;		
+            }
+            // ------------------------------------------------------
+			const char * pBuf = strPaymentContents.Get();
 #ifdef _WIN32
 			strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
 #else
@@ -7102,6 +8229,7 @@ const char * OT_API_Transaction_GetDateSigned(const char * SERVER_ID,
 //
 // Get Transaction Success   OT_TRUE  (1) == acknowledgment
 //                           OT_FALSE (0) == rejection 
+// NEW: (-1) for error
 //
 OT_BOOL OT_API_Transaction_GetSuccess(const char * SERVER_ID,
                                       const char * USER_ID,
@@ -7131,26 +8259,27 @@ OT_BOOL OT_API_Transaction_GetSuccess(const char * SERVER_ID,
 		OTString strAcctID(theAccountID);
 		OTLog::vError("OT_API_Transaction_GetSuccess: Error loading transaction from string. Acct ID: %s\n",
 					  strAcctID.Get());
-		return OT_FALSE;
+		return OT_ERROR;
 	}
 	// -----------------------------------------------------
 	OTTransaction * pTransaction = NULL;
 	OTCleanup<OTTransaction> theTransAngel;
 	
-	if (theTransaction.IsAbbreviated())
+	if (theTransaction.IsAbbreviated()) // Abbreviated.
 	{
 		long lBoxType = 0;
 		
-		if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<long>(OTLedger::nymbox);
-		else if (theTransaction.Contains("inboxRecord"))	lBoxType = static_cast<long>(OTLedger::inbox);
-		else if (theTransaction.Contains("outboxRecord"))	lBoxType = static_cast<long>(OTLedger::outbox);
+		// --------------
+             if (theTransaction.Contains("nymboxRecord"))           lBoxType = static_cast<long>(OTLedger::nymbox);
+		else if (theTransaction.Contains("inboxRecord"))            lBoxType = static_cast<long>(OTLedger::inbox);
+		else if (theTransaction.Contains("outboxRecord"))           lBoxType = static_cast<long>(OTLedger::outbox);
 		else if (theTransaction.Contains("paymentInboxRecord"))		lBoxType = static_cast<long>(OTLedger::paymentInbox);
 		else if (theTransaction.Contains("recordBoxRecord"))		lBoxType = static_cast<long>(OTLedger::recordBox);
 		else
 		{
 			OTLog::vError("OT_API_Transaction_GetSuccess: Error loading from abbreviated transaction: "
 						  "unknown ledger type. \n");
-			return OT_FALSE;			
+			return OT_ERROR;
 		}
 		// --------------
 		pTransaction = OTTransaction::LoadBoxReceipt(theTransaction, lBoxType);
@@ -7158,16 +8287,28 @@ OT_BOOL OT_API_Transaction_GetSuccess(const char * SERVER_ID,
 		{
 			OTLog::vError("OT_API_Transaction_GetSuccess: Error loading from abbreviated transaction: "
 						  "failed loading box receipt. \n");
-			return OT_FALSE;			
+			return OT_ERROR;			
 		}
 		// ----------------
 		theTransAngel.SetCleanupTargetPointer(pTransaction);
 	}
-	else
+	else        // NOT abbreviated.
 		pTransaction = &theTransaction;
 	// -----------------------------------------------------	
-	
-	return pTransaction->GetSuccess() ? OT_TRUE : OT_FALSE;
+
+	if (pTransaction->GetSuccess())
+    {
+        return OT_TRUE;
+    }
+    else
+    {
+        const long lTransactionNum = pTransaction->GetTransactionNum();
+        
+        OTLog::vError("OT_API_Transaction_GetSuccess: ** FYI, this transaction has a 'failure' "
+                      "status from the server. TransNum: %ld\n", lTransactionNum);
+    }
+
+    return OT_FALSE;
 }
 
 
@@ -7178,6 +8319,7 @@ OT_BOOL OT_API_Transaction_GetSuccess(const char * SERVER_ID,
 // (from a TRANSACTION.)
 //                              OT_TRUE  (1) == acknowledgment
 //                              OT_FALSE (0) == rejection 
+// NEW: OT_ERROR (-1) for error
 //
 OT_BOOL OT_API_Transaction_GetBalanceAgreementSuccess(const char * SERVER_ID,
                                                       const char * USER_ID,
@@ -7207,26 +8349,27 @@ OT_BOOL OT_API_Transaction_GetBalanceAgreementSuccess(const char * SERVER_ID,
 		OTString strAcctID(theAccountID);
 		OTLog::vError("OT_API_Transaction_GetBalanceAgreementSuccess: Error loading transaction from string. Acct ID: %s\n",
 					  strAcctID.Get());
-		return OT_FALSE;
+		return OT_ERROR;
 	}
 	// -----------------------------------------------------
 	OTTransaction * pTransaction = NULL;
 	OTCleanup<OTTransaction> theTransAngel;
 	
-	if (theTransaction.IsAbbreviated())
+	if (theTransaction.IsAbbreviated())  // IF TRANSACTION IS ABBREVIATED (Ledger may only contain stubs, not full records...)
 	{
 		long lBoxType = 0;
 		
-		if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<long>(OTLedger::nymbox);
-		else if (theTransaction.Contains("inboxRecord"))	lBoxType = static_cast<long>(OTLedger::inbox);
-		else if (theTransaction.Contains("outboxRecord"))	lBoxType = static_cast<long>(OTLedger::outbox);
-		else if (theTransaction.Contains("paymentInboxRecord"))		lBoxType = static_cast<long>(OTLedger::paymentInbox);
-		else if (theTransaction.Contains("recordBoxRecord"))		lBoxType = static_cast<long>(OTLedger::recordBox);
+		// ----------------
+		     if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<long>(OTLedger::nymbox);
+		else if (theTransaction.Contains("inboxRecord"))        lBoxType = static_cast<long>(OTLedger::inbox);
+		else if (theTransaction.Contains("outboxRecord"))       lBoxType = static_cast<long>(OTLedger::outbox);
+		else if (theTransaction.Contains("paymentInboxRecord"))	lBoxType = static_cast<long>(OTLedger::paymentInbox);
+		else if (theTransaction.Contains("recordBoxRecord"))	lBoxType = static_cast<long>(OTLedger::recordBox);
 		else
 		{
 			OTLog::vError("OT_API_Transaction_GetBalanceAgreementSuccess: Error loading from abbreviated transaction: "
 						  "unknown ledger type. \n");
-			return OT_FALSE;			
+			return OT_ERROR;			
 		}
 		// --------------
 		pTransaction = OTTransaction::LoadBoxReceipt(theTransaction, lBoxType);
@@ -7234,7 +8377,7 @@ OT_BOOL OT_API_Transaction_GetBalanceAgreementSuccess(const char * SERVER_ID,
 		{
 			OTLog::vError("OT_API_Transaction_GetBalanceAgreementSuccess: Error loading from abbreviated transaction: "
 						  "failed loading box receipt.\n");
-			return OT_FALSE;			
+			return OT_ERROR;			
 		}
 		// ----------------
 		theTransAngel.SetCleanupTargetPointer(pTransaction);
@@ -7250,8 +8393,8 @@ OT_BOOL OT_API_Transaction_GetBalanceAgreementSuccess(const char * SERVER_ID,
     
     if (NULL == pReplyItem)
 	{
-		OTLog::vError("OT_API_Transaction_GetBalanceAgreementSuccess good transaction but uncovered NULL item pointer.\n");
-		return OT_FALSE; // Weird.
+		OTLog::vError("OT_API_Transaction_GetBalanceAgreementSuccess good transaction (could have been abbreviated though) but uncovered NULL item pointer.\n");
+		return OT_ERROR; // Weird.
 	}
     
     return (pReplyItem->GetStatus() == OTItem::acknowledgement) ? OT_TRUE : OT_FALSE;
@@ -7264,7 +8407,7 @@ OT_BOOL OT_API_Transaction_GetBalanceAgreementSuccess(const char * SERVER_ID,
 /// GET BALANCE AGREEMENT SUCCESS (From a MESSAGE.)
 /// 
 /// Returns OT_TRUE (1) for Success and OT_FALSE (0) for Failure.
-/// Also returns OT_FALSE for error. (Sorry.)
+/// New: returns OT_ERROR (-1) for error.
 ///
 OT_BOOL OT_API_Message_GetBalanceAgreementSuccess(const char * SERVER_ID,
                                                   const char * USER_ID,
@@ -7285,7 +8428,7 @@ OT_BOOL OT_API_Message_GetBalanceAgreementSuccess(const char * SERVER_ID,
 	if (!strMessage.Exists() || !theMessage.LoadContractFromString(strMessage))
 	{
 		OTLog::Output(0, "OT_API_Message_GetBalanceAgreementSuccess: Unable to load message.\n");
-		return OT_FALSE;
+		return OT_ERROR;
 	}
 	
 	// It's not a transaction request or response, so the Payload wouldn't
@@ -7298,8 +8441,9 @@ OT_BOOL OT_API_Message_GetBalanceAgreementSuccess(const char * SERVER_ID,
 		(false == theMessage.m_strCommand.Compare("@processInbox"))
 		)
 	{
-		OTLog::vOutput(0, "OT_API_Message_GetBalanceAgreementSuccess: Wrong message type: %s\n", theMessage.m_strCommand.Get());
-		return OT_FALSE;
+		OTLog::vOutput(0, "OT_API_Message_GetBalanceAgreementSuccess: Wrong message type: %s\n", 
+                       theMessage.m_strCommand.Get());
+		return OT_ERROR;
 	}
 	
 	// The ledger is stored in the Payload, we'll grab it into the String.
@@ -7308,7 +8452,7 @@ OT_BOOL OT_API_Message_GetBalanceAgreementSuccess(const char * SERVER_ID,
 	if (!strLedger.Exists())
 	{
 		OTLog::Output(0, "OT_API_Message_GetBalanceAgreementSuccess: No ledger found on message.\n");
-		return OT_FALSE;
+		return OT_ERROR;
 	}
 	
 	// ------------------------------------
@@ -7320,7 +8464,7 @@ OT_BOOL OT_API_Message_GetBalanceAgreementSuccess(const char * SERVER_ID,
 		OTString strAcctID(theAccountID);
 		OTLog::vError("OT_API_Message_GetBalanceAgreementSuccess: Error loading ledger from string. Acct ID: %s\n",
 					  strAcctID.Get());
-		return OT_FALSE;
+		return OT_ERROR;
 	}
 	
 	// At this point, I know theLedger loaded successfully.
@@ -7328,17 +8472,17 @@ OT_BOOL OT_API_Message_GetBalanceAgreementSuccess(const char * SERVER_ID,
 	if (theLedger.GetTransactionCount() <= 0)
 	{
 		OTLog::vError("OT_API_Message_GetBalanceAgreementSuccess bad count in message ledger: %d\n", theLedger.GetTransactionCount());
-		return OT_FALSE; // out of bounds. I'm saving from an OT_ASSERT_MSG() happening here. (Maybe I shouldn't.)
+		return OT_ERROR; // out of bounds. I'm saving from an OT_ASSERT_MSG() happening here. (Maybe I shouldn't.)
 	}
 	
 	OTTransaction * pReplyTransaction = theLedger.GetTransactionByIndex(0); // Right now this is a defacto standard. (only 1 transaction per message ledger, excepting process inbox. <== why? That's one as well I thought. And has multiple items attached.)
-	//	OTCleanup<OTTransaction> theAngel(pTransaction); // THE LEDGER CLEANS THIS ALREADY.
+//	OTCleanup<OTTransaction> theAngel(pTransaction); // THE LEDGER CLEANS THIS ALREADY.
 	
 	if (NULL == pReplyTransaction)
 	{
-		OTLog::vError("OT_API_Message_GetBalanceAgreementSuccess good index but uncovered NULL pointer: %d\n", 
+		OTLog::vError("OT_API_Message_GetBalanceAgreementSuccess good index but uncovered NULL pointer there: %d\n", 
 					  0);
-		return OT_FALSE; // Weird.
+		return OT_ERROR; // Weird.
 	}
 	
 	// At this point, I actually have the transaction pointer, so let's return its success status
@@ -7351,7 +8495,7 @@ OT_BOOL OT_API_Message_GetBalanceAgreementSuccess(const char * SERVER_ID,
 	{
 		OTLog::vError("OT_API_Message_GetBalanceAgreementSuccess good index but uncovered NULL item pointer: %d\n", 
 					  0);
-		return OT_FALSE; // Weird.
+		return OT_ERROR; // Weird.
 	}
 
     if (pReplyItem->GetStatus() == OTItem::acknowledgement)
@@ -7609,7 +8753,7 @@ int OT_API_Purse_Count(const char * SERVER_ID,
 		return thePurse.Count();
 	}
 	
-	return (-1);
+	return OT_ERROR;
 }
 
 
@@ -7891,37 +9035,117 @@ OT_BOOL OT_API_Wallet_ImportPurse(const char * SERVER_ID,
 	{
 		pOldPurse = new OTPurse(theServerID, theAssetTypeID, theUserID);
 		OT_ASSERT(NULL != pOldPurse);
-		
+		// ---------------------------------------
 		thePurseAngel.SetCleanupTarget(*pOldPurse);
 	}
 	// By this point, the old purse has either been loaded, or created.
 	// --------------------------------------------------------------
-	OTPurse theNewPurse(theServerID, theAssetTypeID, theUserID); // This purse might have a dummy nym inside it, so I can't assume it's for my User ID.
+    
+	OTPurse theNewPurse(theServerID);
+//	OTPurse theNewPurse(theServerID, theAssetTypeID, theUserID); // This purse might have a dummy nym inside it, so I can't assume it's for my User ID.
 	
+    OTPseudonym * pNewNym = NULL;
+    
 	if (strNewPurse.Exists() && theNewPurse.LoadContractFromString(strNewPurse))
 	{
-		if (pOldPurse->Merge(*pNym, theNewPurse)) 
-		{
-			pOldPurse->ReleaseSignatures();
-			pOldPurse->SignContract(*pNym);
-			pOldPurse->SaveContract();
-			
-			bool bSaved = g_OT_API.SavePurse(theServerID, theAssetTypeID, theUserID, *pOldPurse);
-			
-			return bSaved ? OT_TRUE : OT_FALSE;
-		}
-		else 
-		{
-			OTLog::vOutput(0, "Failure merging purse:\n%s\n", strNewPurse.Get());
-		}
+        if (pOldPurse->GetServerID() != theNewPurse.GetServerID())
+        {
+			OTLog::Output(0, "OT_API_Wallet_ImportPurse: Failure: ServerIDs don't match between these two purses.\n");
+        }
+        // -----------------------------------------------------------
+        else if (pOldPurse->GetAssetID() != theNewPurse.GetAssetID())
+        {
+			OTLog::Output(0, "OT_API_Wallet_ImportPurse: Failure: AssetIDs don't match between these two purses.\n");
+        }
+        // -----------------------------------------------------------
+        else    // Let's make sure we have the right Nym for theNewPurse...
+        {
+            if (theNewPurse.IsUsingATempNym())
+            {
+                pNewNym = theNewPurse.GetInternalNym();
+                if (NULL == pNewNym)
+                    OTLog::Error("OT_API_Wallet_ImportPurse: theNewPurse is supposedly using a Temp Nym, "
+                                 "but GetInternalNym returns NULL!\n");
+            }
+            // ---------------------------------------------
+            // There's no temp nym inside the new purse.
+            // Okay, let's see if we can find the Nym based on its ID. (If there even IS an ID...)
+            //
+            if (NULL == pNewNym)
+            {
+                OTIdentifier theOtherNymID;
+
+                const bool bGotOtherNymID = theNewPurse.GetNymID(theOtherNymID);
+                
+                if (!bGotOtherNymID)
+                {
+                    OTLog::Error("OT_API_Wallet_ImportPurse: WARNING: Unable to discern the NymID for theNewPurse. "
+                                 "Therefore, I'm going with the same NymID as the Old Purse. (If that's not right, then probably "
+                                 "something you are trying to do will fail soon.)\n");
+                    pNewNym = pNym; // <==============
+                }
+                else // bGotOtherNymID is true (it returned an ID...)
+                {
+                    if (pNym->CompareID(theOtherNymID)) // It's the same Nym!
+                    {
+                        pNewNym = pNym; // <==============
+                    }
+                    else // We definitely have 2 different NymIDs. So let's lookup the second one...
+                    {
+                        pNewNym = g_OT_API.GetOrLoadPrivateNym(theOtherNymID, szFuncName); // These copiously log, and ASSERT.
+                        
+                        // We DEFINITELY had a NymID, but when we tried to LOAD the Nym from the wallet
+                        // based on that ID, it returned NULL!
+                        //
+                        if (NULL == pNewNym)
+                        {
+                            OTLog::Error("OT_API_Wallet_ImportPurse: ERROR: theNewPurse has a different NymID, and I can't find that "
+                                         "nym in my wallet!\n");
+                            return OT_FALSE; // Failure.
+                        }
+                        // else pNewNym is set and loaded by this point!
+                    }
+                }
+            }
+            // ---------------------------------------------
+            if (NULL == pNewNym) // STILL?? I don't even know if we can make it down this far and have it still be NULL, honestly.
+            {
+                OTLog::Error("OT_API_Wallet_ImportPurse: ERROR: Unable to find owner Nym for theNewPurse. (Need both Nyms to do the merge.)\n");
+                return OT_FALSE; // Failure.
+            }
+            // ****************************************************************
+            //
+            // By this point, I have TWO NYMS!!!!!! (Finally.)
+            //
+            if (pOldPurse->Merge(*pNym, *pNewNym, theNewPurse)) 
+            {
+                pOldPurse->ReleaseSignatures();
+                pOldPurse->SignContract(*pNym);
+                pOldPurse->SaveContract();
+                // -------------------------------------------------
+                bool bSaved = g_OT_API.SavePurse(theServerID, theAssetTypeID, theUserID, *pOldPurse);
+                return bSaved ? OT_TRUE : OT_FALSE;
+            }
+            else // Failed merge.
+            {
+                OTString strNymID1, strNymID2;
+                pNym->   GetIdentifier(strNymID1);
+                pNewNym->GetIdentifier(strNymID2);
+                OTLog::vOutput(0, "OT_API_Wallet_ImportPurse: (OldNymID: %s.) (NewNymID: %s.) Failure merging purse:\n\n%s\n\n",
+                               strNymID1.Get(), strNymID2.Get(), strNewPurse.Get());
+            }
+        }
+        // -----------------------------------------------------------
 	}
 	else 
 	{
-		OTLog::vOutput(0, "Failure loading purse from string:\n%s\n", strNewPurse.Get());
+		OTLog::vOutput(0, "OT_API_Wallet_ImportPurse: Failure loading the other purse from string:\n\n%s\n\n", 
+                       strNewPurse.Get());
 	}
 
 	return OT_FALSE;
 }
+
 
 
 
@@ -7930,7 +9154,15 @@ OT_BOOL OT_API_Wallet_ImportPurse(const char * SERVER_ID,
 /// Note that an asset account isn't necessary to do this... just a nym operating cash-only.
 /// The same as exchanging a 20-dollar bill at the teller window for a replacement bill.
 ///
-void OT_API_exchangePurse(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_exchangePurse(const char * SERVER_ID,
 						  const char * ASSET_TYPE_ID,
 						  const char * USER_ID,
 						  const char * THE_PURSE)
@@ -7941,7 +9173,10 @@ void OT_API_exchangePurse(const char * SERVER_ID,
 	OT_ASSERT_MSG(NULL != THE_PURSE, "OT_API_exchangePurse: Null THE_PURSE passed in."); 
 	
 	// todo:  exchange message.
-    OTLog::vError("TODO (NOT CODED) OT_API_exchangePurse: SERVER_ID: %s\n ASSET_TYPE_ID: %s\n USER_ID: %s\n ", SERVER_ID, ASSET_TYPE_ID, USER_ID);
+    OTLog::vError("TODO (NOT CODED) OT_API_exchangePurse: SERVER_ID: %s\n ASSET_TYPE_ID: %s\n USER_ID: %s\n ",
+                  SERVER_ID, ASSET_TYPE_ID, USER_ID);
+    
+    return -1;
 }
 
 
@@ -8441,7 +9676,15 @@ const char * OT_API_Basket_GetMemberMinimumTransferAmount(const char * BASKET_AS
 
 
 
-void OT_API_checkServerID(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_checkServerID(const char * SERVER_ID,
 						  const char * USER_ID)
 {
 	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_checkServerID: Null SERVER_ID passed in.");
@@ -8449,11 +9692,19 @@ void OT_API_checkServerID(const char * SERVER_ID,
 	
 	OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID);
 
-	g_OT_API.checkServerID(theServerID, theUserID);
+	return g_OT_API.checkServerID(theServerID, theUserID);
 }
 
 	
-void OT_API_createUserAccount(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_createUserAccount(const char * SERVER_ID,
 							  const char * USER_ID)
 {
 	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_createUserAccount: Null SERVER_ID passed in.");
@@ -8461,10 +9712,18 @@ void OT_API_createUserAccount(const char * SERVER_ID,
 	
 	OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID);
 
-	g_OT_API.createUserAccount(theServerID, theUserID);
+	return g_OT_API.createUserAccount(theServerID, theUserID);
 }
 
-void OT_API_deleteUserAccount(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_deleteUserAccount(const char * SERVER_ID,
 							  const char * USER_ID)
 {
 	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_deleteUserAccount: Null SERVER_ID passed in.");
@@ -8472,7 +9731,7 @@ void OT_API_deleteUserAccount(const char * SERVER_ID,
 	
 	OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID);
     
-	g_OT_API.deleteUserAccount(theServerID, theUserID);
+	return g_OT_API.deleteUserAccount(theServerID, theUserID);
 }
 
 
@@ -8535,7 +9794,15 @@ const char * OT_API_Message_GetUsageCredits(const char * THE_MESSAGE)
 
 
 
-void OT_API_usageCredits(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_usageCredits(const char * SERVER_ID,
 						 const char * USER_ID,
 						 const char * USER_ID_CHECK,
 						 const char * ADJUSTMENT)	// can be "0", or NULL, if you just want to check the current balance without adjusting it.
@@ -8551,11 +9818,19 @@ void OT_API_usageCredits(const char * SERVER_ID,
 	
 	const long lAdjustment = (!strAdjustment.Exists()) ? 0 : atol(strAdjustment.Get()); // NULL resolves as 0.
 	
-	g_OT_API.usageCredits(theServerID, theUserID, theOtherUserID, lAdjustment);
+	return g_OT_API.usageCredits(theServerID, theUserID, theOtherUserID, lAdjustment);
 }
 
 
-void OT_API_checkUser(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_checkUser(const char * SERVER_ID,
 					  const char * USER_ID,
 					  const char * USER_ID_CHECK)
 {
@@ -8565,11 +9840,19 @@ void OT_API_checkUser(const char * SERVER_ID,
 	
 	OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theOtherUserID(USER_ID_CHECK);
 	
-	g_OT_API.checkUser(theServerID, theUserID, theOtherUserID);
+	return g_OT_API.checkUser(theServerID, theUserID, theOtherUserID);
 }
 
 
-void OT_API_sendUserMessage(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_sendUserMessage(const char * SERVER_ID,
 							const char * USER_ID,
 							const char * USER_ID_RECIPIENT,
 							const char * RECIPIENT_PUBKEY,
@@ -8585,16 +9868,24 @@ void OT_API_sendUserMessage(const char * SERVER_ID,
 	OTASCIIArmor	ascRecipPubkey(RECIPIENT_PUBKEY);
 	OTString		strMessage(THE_MESSAGE);
 	
-	g_OT_API.sendUserMessage(theServerID, theUserID, theOtherUserID, ascRecipPubkey, strMessage);	
+	return g_OT_API.sendUserMessage(theServerID, theUserID, theOtherUserID, ascRecipPubkey, strMessage);	
 }
 
 
 
-void OT_API_sendUserInstrument(const char * SERVER_ID,
-							   const char * USER_ID,
-							   const char * USER_ID_RECIPIENT,
-							   const char * RECIPIENT_PUBKEY,
-							   const char * THE_INSTRUMENT)
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_sendUserInstrument(const char * SERVER_ID,
+                              const char * USER_ID,
+                              const char * USER_ID_RECIPIENT,
+                              const char * RECIPIENT_PUBKEY,
+                              const char * THE_INSTRUMENT)
 {
 	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_sendUserInstrument: Null SERVER_ID passed in.");
 	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_sendUserInstrument: Null USER_ID passed in.");
@@ -8605,87 +9896,30 @@ void OT_API_sendUserInstrument(const char * SERVER_ID,
 	OTIdentifier	theServerID(SERVER_ID), theUserID(USER_ID), theOtherUserID(USER_ID_RECIPIENT);
 	OTASCIIArmor	ascRecipPubkey(RECIPIENT_PUBKEY);
 	OTString		strInstrument(THE_INSTRUMENT);
-	
-	OTContract	* pContract	= NULL;
-	OTPurse		* pPurse	= NULL; // (In case it's a purse.)
-
-	OTCleanup<OTContract> theAngel; // for cleanup.
-
+	// ---------------------------------------------------
+    const char * szFunc = "OT_API_sendUserInstrument";
+	// ---------------------------------------------------
+    
+    OTPayment thePayment(strInstrument);
+    
+    if (!thePayment.IsValid())
+    {
+        OTLog::vOutput(0, "%s: Failure loading payment instrument from string:\n\n%s\n\n",
+                       szFunc, strInstrument.Get());
+        return OT_ERROR;
+    }
 	// ------------------------------------------------------------
-
-	if (strInstrument.Contains("-----BEGIN SIGNED PURSE-----"))
-	{
-		pPurse = new OTPurse(theServerID);
-		OT_ASSERT_MSG(NULL != pPurse, "OT_API_sendUserInstrument: assert while instantiating purse.");
-		// ----------------------
-		pContract = pPurse;
-		theAngel.SetCleanupTargetPointer(pContract);
-		// ----------------------
-		if (false == pPurse->LoadContractFromString(strInstrument))
-		{
-			OTLog::vOutput(0, "OT_API_sendUserInstrument: Failure loading purse from string:\n\n%s\n\n",
-						   strInstrument.Get());
-			return; // todo therefore this function needs to return bool, so I can return a false here. Basically all messages should change from void to bool.
-		}
-		// By this point, if the instrument is a purse, then the purse object has been
-		// instantiated AND loaded successfully from string. (And scheduled for cleanup
-		// when it goes out of scope.)
-	}
-	else
-	{
-		// ------------------------------------------------------------
-		// Todo: improve validation. 
-		// Perhaps have a "instantiate instrument" function that handles this.
-		// (Instead of the OTContract factory that I'm currently using below.)
-		//
-		if (!strInstrument.Contains("-----BEGIN SIGNED PAYMENT PLAN-----")	&&
-			!strInstrument.Contains("-----BEGIN SIGNED INVOICE-----")		&&
-			!strInstrument.Contains("-----BEGIN SIGNED VOUCHER-----")		&&
-			!strInstrument.Contains("-----BEGIN SIGNED CHEQUE-----"))
-		{
-			OTLog::vOutput(0, "OT_API_sendUserInstrument: Unknown instrument:\n\n%s\n\n",
-						   strInstrument.Get());
-			return; // todo therefore this function needs to return bool, so I can return a false here. Basically all messages should change from void to bool.
-		}
-		// ------------------------------------------------------------
-		
-		// TODO: there are multiple places where I call these three factories.
-		// Therefore should probably make some kind of universal factory that calls
-		// the three, and then call THAT in those multiple places. (Instead of repeating
-		// the code...)
-		//
-		
-		//NOTE: I believe these are unnecessary here. (Commenting out, for now.)
-		//
-		//	if (NULL == pContract)
-		//		pContract = OTTransactionType::TransactionFactory(strInstrument); // todo: is this needed here? 
-		//	
-		//	if (NULL == pContract)
-		//		pContract = OTScriptable::InstantiateScriptable(strInstrument);
-		
-		if (NULL == pContract)
-			pContract = OTContract::InstantiateContract(strInstrument);
-		
-		if (NULL == pContract)
-		{
-			OTLog::vOutput(0, "OT_API_sendUserInstrument: I tried my best. Unable to instantiate contract passed in:\n\n%s\n\n",
-						   strInstrument.Get());
-			return; // todo therefore this function needs to return bool, so I can return a false here. Basically all messages should change from void to bool.
-		}
-		
-		theAngel.SetCleanupTargetPointer(pContract);		
-	}
-	// -----------------------------------------------------
-	// By this point, whether it's a purse or some other instrument, it's now been instantiated
-	// and loaded from string, AND scheduled for cleanup when we leave scope. So there's nothing
-	// left to do but send it on its way!
-	//
-	g_OT_API.sendUserInstrument(theServerID, theUserID, theOtherUserID, ascRecipPubkey, *pContract);	
+	return g_OT_API.sendUserInstrument(theServerID, theUserID, theOtherUserID, ascRecipPubkey, thePayment);	
 }
 
 
 	
-void OT_API_getRequest(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+///  0 means NO error, but also: no message was sent.
+///  1 means the "getRequest" message was successfully SENT.
+///
+int OT_API_getRequest(const char * SERVER_ID,
 					   const char * USER_ID)
 {
 	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_getRequest: Null SERVER_ID passed in.");
@@ -8693,12 +9927,20 @@ void OT_API_getRequest(const char * SERVER_ID,
 	
 	OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID);
 
-	g_OT_API.getRequest(theServerID, theUserID);
+	return g_OT_API.getRequest(theServerID, theUserID);
 }
 
 	
 	
-void OT_API_issueAssetType(const char *	SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_issueAssetType(const char *	SERVER_ID,
 						   const char *	USER_ID,
 						   const char *	THE_CONTRACT)
 {
@@ -8710,11 +9952,19 @@ void OT_API_issueAssetType(const char *	SERVER_ID,
 	
 	OTString strContract(THE_CONTRACT);
 
-	g_OT_API.issueAssetType(theServerID, theUserID, strContract);
+	return g_OT_API.issueAssetType(theServerID, theUserID, strContract);
 }
 
 	
-void OT_API_getContract(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_getContract(const char * SERVER_ID,
 						const char * USER_ID,
 						const char * ASSET_ID)
 {
@@ -8724,11 +9974,19 @@ void OT_API_getContract(const char * SERVER_ID,
 
 	OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theAssetID(ASSET_ID);
 	
-	g_OT_API.getContract(theServerID, theUserID, theAssetID);
+	return g_OT_API.getContract(theServerID, theUserID, theAssetID);
 }
 
 	
-void OT_API_getMint(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_getMint(const char * SERVER_ID,
 					const char * USER_ID,
 					const char * ASSET_ID)
 {
@@ -8738,11 +9996,19 @@ void OT_API_getMint(const char * SERVER_ID,
 
 	OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theAssetID(ASSET_ID);
 
-	g_OT_API.getMint(theServerID, theUserID, theAssetID);
+	return g_OT_API.getMint(theServerID, theUserID, theAssetID);
 }
 
 	
-void OT_API_createAssetAccount(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_createAssetAccount(const char * SERVER_ID,
 							   const char * USER_ID,
 							   const char * ASSET_ID)
 {
@@ -8752,13 +10018,21 @@ void OT_API_createAssetAccount(const char * SERVER_ID,
 
 	OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theAssetID(ASSET_ID);
 	
-	g_OT_API.createAssetAccount(theServerID, theUserID, theAssetID);
+	return g_OT_API.createAssetAccount(theServerID, theUserID, theAssetID);
 }
 
 	
 
 // Sends a message to the server to retrieve latest copy of an asset acct.
-void OT_API_getAccount(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_getAccount(const char * SERVER_ID,
 					   const char * USER_ID,
 					   const char * ACCT_ID)
 {
@@ -8768,7 +10042,7 @@ void OT_API_getAccount(const char * SERVER_ID,
 	
 	OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theAcctID(ACCT_ID);
 
-	g_OT_API.getAccount(theServerID, theUserID, theAcctID);
+	return g_OT_API.getAccount(theServerID, theUserID, theAcctID);
 }
 
 	
@@ -8879,8 +10153,8 @@ const char * OT_API_AddBasketCreationItem(const char * USER_ID, // for signature
 
 	if (false == bAdded)
 		return NULL;
-	
-	
+	// ----------------------------------------
+    
 	OTString strOutput(theBasket); // Extract the updated basket to string form.
 	
 	const char * pBuf = strOutput.Get(); 
@@ -8910,7 +10184,15 @@ const char * OT_API_AddBasketCreationItem(const char * USER_ID, // for signature
 // This means anyone can define a basket, and all may use it -- but no one
 // controls it except the server.
 //
-void OT_API_issueBasket(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_issueBasket(const char * SERVER_ID,
 						const char * USER_ID,
 						const char * THE_BASKET)
 {
@@ -8922,7 +10204,7 @@ void OT_API_issueBasket(const char * SERVER_ID,
 	
 	OTString strBasketInfo(THE_BASKET);
 
-	g_OT_API.issueBasket(theServerID, theUserID, strBasketInfo);
+	return g_OT_API.issueBasket(theServerID, theUserID, strBasketInfo);
 }
 
 	
@@ -9076,7 +10358,15 @@ const char * OT_API_AddBasketExchangeItem(const char * SERVER_ID,
 // use any other asset type (open accounts, write cheques, withdraw cash, trade
 // on markets, etc.)
 //
-void OT_API_exchangeBasket(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_exchangeBasket(const char * SERVER_ID,
 						   const char * USER_ID,
 						   const char * BASKET_ASSET_ID,
 						   const char * THE_BASKET,
@@ -9094,7 +10384,7 @@ void OT_API_exchangeBasket(const char * SERVER_ID,
 	// exchanging in == true, out == false.
 	const bool bExchangeInOrOut = ((OT_TRUE == BOOL_EXCHANGE_IN_OR_OUT) ? true : false);
 	
-	g_OT_API.exchangeBasket(theServerID, theUserID, theBasketAssetID, strBasketInfo, bExchangeInOrOut);
+	return g_OT_API.exchangeBasket(theServerID, theUserID, theBasketAssetID, strBasketInfo, bExchangeInOrOut);
 }
 
 // ----------------------------------------------------
@@ -9108,7 +10398,15 @@ void OT_API_exchangeBasket(const char * SERVER_ID,
 
 
 	
-void OT_API_getTransactionNumber(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_getTransactionNumber(const char * SERVER_ID,
 								 const char * USER_ID)
 {
 	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_getTransactionNumber: Null SERVER_ID passed in.");
@@ -9117,11 +10415,19 @@ void OT_API_getTransactionNumber(const char * SERVER_ID,
 	OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID);
 
 	
-	g_OT_API.getTransactionNumber(theServerID, theUserID);
+	return g_OT_API.getTransactionNumber(theServerID, theUserID);
 }
 
 	
-void OT_API_notarizeWithdrawal(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_notarizeWithdrawal(const char * SERVER_ID,
 							   const char * USER_ID,
 							   const char * ACCT_ID,
 							   const char * AMOUNT)
@@ -9135,11 +10441,19 @@ void OT_API_notarizeWithdrawal(const char * SERVER_ID,
 
 	OTString strAmount(AMOUNT);
 	
-	g_OT_API.notarizeWithdrawal(theServerID, theUserID, theAcctID, strAmount);
+	return g_OT_API.notarizeWithdrawal(theServerID, theUserID, theAcctID, strAmount);
 }
 
 	
-void OT_API_notarizeDeposit(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_notarizeDeposit(const char * SERVER_ID,
 							const char * USER_ID,
 							const char * ACCT_ID,
 							const char * THE_PURSE)
@@ -9156,11 +10470,19 @@ void OT_API_notarizeDeposit(const char * SERVER_ID,
 	OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theAcctID(ACCT_ID);
 	OTString strPurse(THE_PURSE);
 
-	g_OT_API.notarizeDeposit(theServerID, theUserID, theAcctID, strPurse);
+	return g_OT_API.notarizeDeposit(theServerID, theUserID, theAcctID, strPurse);
 }
 
 	
-void OT_API_notarizeTransfer(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_notarizeTransfer(const char * SERVER_ID,
 							 const char * USER_ID,
 							 const char * ACCT_FROM,
 							 const char * ACCT_TO,
@@ -9181,11 +10503,19 @@ void OT_API_notarizeTransfer(const char * SERVER_ID,
 	if (NULL != NOTE)
 		strNote.Set(NOTE);
 	
-	g_OT_API.notarizeTransfer(theServerID, theUserID, theFromAcct, theToAcct, strAmount, strNote);
+	return g_OT_API.notarizeTransfer(theServerID, theUserID, theFromAcct, theToAcct, strAmount, strNote);
 }
 
 
-void OT_API_getInbox(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_getInbox(const char * SERVER_ID,
 					 const char * USER_ID,
 					 const char * ACCT_ID)
 {
@@ -9195,11 +10525,19 @@ void OT_API_getInbox(const char * SERVER_ID,
 	
 	OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theAcctID(ACCT_ID);
 	
-	g_OT_API.getInbox(theServerID, theUserID, theAcctID);
+	return g_OT_API.getInbox(theServerID, theUserID, theAcctID);
 }
 
 
-void OT_API_getNymbox(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_getNymbox(const char * SERVER_ID,
 					  const char * USER_ID)
 {
 	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_getNymbox: Null SERVER_ID passed in.");
@@ -9207,11 +10545,19 @@ void OT_API_getNymbox(const char * SERVER_ID,
 	
 	OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID);
 	
-	g_OT_API.getNymbox(theServerID, theUserID);
+	return g_OT_API.getNymbox(theServerID, theUserID);
 }
 
 
-void OT_API_getOutbox(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_getOutbox(const char * SERVER_ID,
 					  const char * USER_ID,
 					  const char * ACCT_ID)
 {
@@ -9221,11 +10567,19 @@ void OT_API_getOutbox(const char * SERVER_ID,
 	
 	OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theAcctID(ACCT_ID);
 	
-	g_OT_API.getOutbox(theServerID, theUserID, theAcctID);
+	return g_OT_API.getOutbox(theServerID, theUserID, theAcctID);
 }
 
 
-void OT_API_processInbox(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_processInbox(const char * SERVER_ID,
 						 const char * USER_ID,
 						 const char * ACCT_ID,
 						 const char * ACCT_LEDGER)
@@ -9253,14 +10607,15 @@ void OT_API_processInbox(const char * SERVER_ID,
 				   "ACCT_LEDGER:\n%s\n\n",
 				   temp1.Get(), temp2.Get(), temp3.Get(), temp4.Get());
 	
-	g_OT_API.processInbox(theServerID, theUserID, theAcctID, strLedger);
+	return g_OT_API.processInbox(theServerID, theUserID, theAcctID, strLedger);
 }
 
 
 // Returns:
 // -1 if error.
 //  0 if Nymbox is empty.
-//  1 or more: Count of items in Nymbox before processing.
+//  1 or more: (OLD: Count of items in Nymbox before processing.)
+//  UPDATE: This now returns the request number of the message sent, if success.
 //
 int OT_API_processNymbox(const char * SERVER_ID,
 						 const char * USER_ID)
@@ -9274,7 +10629,15 @@ int OT_API_processNymbox(const char * SERVER_ID,
 }
 
 
-void OT_API_withdrawVoucher(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_withdrawVoucher(const char * SERVER_ID,
 							const char * USER_ID,
 							const char * ACCT_ID,
 							const char * RECIPIENT_USER_ID,
@@ -9293,12 +10656,20 @@ void OT_API_withdrawVoucher(const char * SERVER_ID,
 
 	OTString strMemo(CHEQUE_MEMO), strAmount(AMOUNT);
 
-	g_OT_API.withdrawVoucher(theServerID, theUserID, theAcctID, theRecipientUserID, strMemo, strAmount);
+	return g_OT_API.withdrawVoucher(theServerID, theUserID, theAcctID, theRecipientUserID, strMemo, strAmount);
 }
 
 
 
-void OT_API_depositCheque(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_depositCheque(const char * SERVER_ID,
 						  const char * USER_ID,
 						  const char * ACCT_ID,
 						  const char * THE_CHEQUE)
@@ -9311,7 +10682,7 @@ void OT_API_depositCheque(const char * SERVER_ID,
 	OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theAcctID(ACCT_ID);
 	OTString strCheque(THE_CHEQUE);
 	
-	g_OT_API.depositCheque(theServerID, theUserID, theAcctID, strCheque);
+	return g_OT_API.depositCheque(theServerID, theUserID, theAcctID, strCheque);
 }
 
 	
@@ -9322,7 +10693,15 @@ void OT_API_depositCheque(const char * SERVER_ID,
 //
 // See OT_API_WritePaymentPlan as well.
 //
-void OT_API_depositPaymentPlan(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_depositPaymentPlan(const char * SERVER_ID,
 							   const char * USER_ID,
 							   const char * THE_PAYMENT_PLAN)
 {
@@ -9333,7 +10712,7 @@ void OT_API_depositPaymentPlan(const char * SERVER_ID,
 	const OTIdentifier	theServerID(SERVER_ID), theUserID(USER_ID);
 	const OTString		strPlan(THE_PAYMENT_PLAN);
 	
-	g_OT_API.depositPaymentPlan(theServerID, theUserID, strPlan);	
+	return g_OT_API.depositPaymentPlan(theServerID, theUserID, strPlan);	
 }
 
 
@@ -9342,7 +10721,15 @@ void OT_API_depositPaymentPlan(const char * SERVER_ID,
 // DONE: Change inner call from cancelNymMarketOffer to cancelCronItem
 // DONE: Make a copy of this function called cancelPaymentPlan.
 //
-void OT_API_cancelMarketOffer(const char * SERVER_ID, 
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_cancelMarketOffer(const char * SERVER_ID, 
 								 const char * USER_ID, 
 								 const char * ASSET_ACCT_ID, 
 								 const char * TRANSACTION_NUMBER)
@@ -9357,13 +10744,21 @@ void OT_API_cancelMarketOffer(const char * SERVER_ID,
 	
 	const OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theAssetAcctID(ASSET_ACCT_ID);
 	
-	g_OT_API.cancelCronItem(theServerID, theUserID, theAssetAcctID, lTransactionNumber);	
+	return g_OT_API.cancelCronItem(theServerID, theUserID, theAssetAcctID, lTransactionNumber);	
 }
 
 /// OT_API_cancelPaymentPlan
 /// Cancel a payment plan by transaction number.
 ///
-void OT_API_cancelPaymentPlan(const char * SERVER_ID, 
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_cancelPaymentPlan(const char * SERVER_ID, 
 								 const char * USER_ID, 
 								 const char * FROM_ACCT_ID, 
 								 const char * TRANSACTION_NUMBER)
@@ -9378,14 +10773,22 @@ void OT_API_cancelPaymentPlan(const char * SERVER_ID,
 	
 	const OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theFromAcctID(FROM_ACCT_ID);
 	
-	g_OT_API.cancelCronItem(theServerID, theUserID, theFromAcctID, lTransactionNumber);	
+	return g_OT_API.cancelCronItem(theServerID, theUserID, theFromAcctID, lTransactionNumber);	
 }
 
 
 // --------------------------------------------------
 // ISSUE MARKET OFFER
 //
-void OT_API_issueMarketOffer(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_issueMarketOffer(const char * SERVER_ID,
 							 const char * USER_ID,
 							 // -------------------------------------------
 							 const char * ASSET_TYPE_ID, // Perhaps this is the
@@ -9428,7 +10831,7 @@ void OT_API_issueMarketOffer(const char * SERVER_ID,
 	
 	// -------------------------------------------
 	
-	g_OT_API.issueMarketOffer(theServerID, theUserID,
+	return g_OT_API.issueMarketOffer(theServerID, theUserID,
 							  // -------------------------------------------
 							  theAssetTypeID, theAssetAcctID,
 							  theCurrencyTypeID, theCurrencyAcctID,
@@ -9439,8 +10842,18 @@ void OT_API_issueMarketOffer(const char * SERVER_ID,
 
 
 
+// -----------------------------------------------------------
 
-void OT_API_getMarketList(const char * SERVER_ID,
+
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_getMarketList(const char * SERVER_ID,
 						  const char * USER_ID) 
 {
 	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_getMarketList: Null SERVER_ID passed in.");
@@ -9448,11 +10861,21 @@ void OT_API_getMarketList(const char * SERVER_ID,
 	
 	const OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID);
 	
-	g_OT_API.getMarketList(theServerID, theUserID);
+	return g_OT_API.getMarketList(theServerID, theUserID);
 }
 
 
-void OT_API_getMarketOffers(const char * SERVER_ID,
+// -----------------------------------------------------------
+
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_getMarketOffers(const char * SERVER_ID,
 							const char * USER_ID,
 							const char * MARKET_ID, 
 							const char * MAX_DEPTH) 
@@ -9467,10 +10890,20 @@ void OT_API_getMarketOffers(const char * SERVER_ID,
 	const long lDepth = (NULL != MAX_DEPTH) ? atol(MAX_DEPTH) : 0;
 	OT_ASSERT_MSG(lDepth >= 0, "OT_API_getMarketOffers: Bad depth passed in (negative value).");
 	
-	g_OT_API.getMarketOffers(theServerID, theUserID, theMarketID, lDepth);
+	return g_OT_API.getMarketOffers(theServerID, theUserID, theMarketID, lDepth);
 }
 
-void OT_API_getMarketRecentTrades(const char * SERVER_ID,
+// -----------------------------------------------------------
+
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_getMarketRecentTrades(const char * SERVER_ID,
 								  const char * USER_ID,
 								  const char * MARKET_ID) 
 {
@@ -9480,10 +10913,20 @@ void OT_API_getMarketRecentTrades(const char * SERVER_ID,
 
 	const OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theMarketID(MARKET_ID);
 		
-	g_OT_API.getMarketRecentTrades(theServerID, theUserID, theMarketID);
+	return g_OT_API.getMarketRecentTrades(theServerID, theUserID, theMarketID);
 }
 
-void OT_API_getNym_MarketOffers(const char * SERVER_ID,
+// -----------------------------------------------------------
+
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_getNym_MarketOffers(const char * SERVER_ID,
 								const char * USER_ID) 
 {
 	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_getNym_MarketOffers: Null SERVER_ID passed in.");
@@ -9491,8 +10934,11 @@ void OT_API_getNym_MarketOffers(const char * SERVER_ID,
 	
 	const OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID);
 	
-	g_OT_API.getNym_MarketOffers(theServerID, theUserID);
+	return g_OT_API.getNym_MarketOffers(theServerID, theUserID);
 }
+
+
+
 
 
 
@@ -9505,19 +10951,45 @@ void OT_API_getNym_MarketOffers(const char * SERVER_ID,
 //
 // Returns the message as a string.
 //
-const char * OT_API_PopMessageBuffer(void)
-{	
-	OTMessage * pMsg = g_OT_API.PopMessageBuffer();
-
-	OTCleanup<OTMessage> theAngel(pMsg); // Just making sure it gets cleaned up.
+// Update: added arguments for: ServerID AND NymID AND request number
+// NOTE: Any messages, when popping, which have the CORRECT serverID
+// and the CORRECT NymID, but the wrong Request number, will be discarded.
+//
+// (Why? Because the client using the OT API will have already treated
+// that message as "dropped" by now, if it's already on to the next one,
+// and the protocol is designed to move forward properly based specifically
+// on this function returning the one EXPECTED... outgoing messages flush
+// the incoming buffer anyway, so the client will have assumed the wrong
+// reply was flushed by now anyway.)
+// 
+// However, if the Server ID and the User ID are wrong, this just means that
+// some other code is still expecting that reply, and hasn't even popped yet!
+// Therefore, we do NOT want to discard THOSE replies, but put them back if
+// necessary -- only discarding the ones where the IDs match.
+//
+//
+const char * OT_API_PopMessageBuffer(const char * REQUEST_NUMBER,
+                                     const char * SERVER_ID, 
+                                     const char * USER_ID)
+{
+    OT_ASSERT_MSG(NULL != REQUEST_NUMBER, "OT_API_PopMessageBuffer: Null REQUEST_NUMBER passed in.");
+    OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_PopMessageBuffer: Null SERVER_ID passed in.");
+	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_PopMessageBuffer: Null USER_ID passed in.");
+    // ------------------------------------------------    
+    const long          lRequestNum = atol(REQUEST_NUMBER);
+    const OTIdentifier  theServerID(SERVER_ID),
+                        theUserID(USER_ID);
+    // ------------------------------------------------
+	OTMessage * pMsg = g_OT_API.PopMessageBuffer(lRequestNum, theServerID, theUserID); // caller responsible to delete.
+	OTCleanup<OTMessage> theAngel(pMsg);  // Just making sure it gets cleaned up.
 	
 	if (NULL == pMsg) // The buffer was empty.
     {
-        OTLog::Error("OT_API_PopMessageBuffer:  Buffer is empty, sorry.\n");
+        OTLog::Error("OT_API_PopMessageBuffer:  Reply not found, sorry.\n");
 		return NULL;
     }
 	
-	OTString strOutput(*pMsg);
+	const OTString strOutput(*pMsg);
 	
 	const char * pBuf = strOutput.Get(); 
 	
@@ -9531,11 +11003,163 @@ const char * OT_API_PopMessageBuffer(void)
 }
 
 
+// -----------------------------------------------------------
+
 // Just flat-out empties the thing.
+//
 void OT_API_FlushMessageBuffer(void)
 {
 	g_OT_API.FlushMessageBuffer();
 }
+
+
+// -----------------------------------------------------------
+
+
+// Message OUT-BUFFER  
+//
+// (for messages I--the client--have sent the server.)
+/*
+ class OTMessageOutbuffer:
+ void        Clear();
+ void        AddSentMessage      (OTMessage & theMessage);   // Allocate theMsg on the heap (takes ownership.) Mapped by request num.
+ OTMessage * GetSentMessage      (const long & lRequestNum); // null == not found. caller NOT responsible to delete.
+ bool        RemoveSentMessage   (const long & lRequestNum); // true == it was removed. false == it wasn't found.
+ */
+
+
+
+// -----------------------------------------------------------
+// GET SENT MESSAGE
+// 
+// If there were any messages sent to the server, copies are
+// stored here, so the developer using the OT API can access 
+// them by request number.
+//
+// Returns the message as a string.
+//
+const char * OT_API_GetSentMessage(const char * REQUEST_NUMBER,
+                                   const char * SERVER_ID, 
+                                   const char * USER_ID)
+{	
+    OT_ASSERT_MSG(NULL != REQUEST_NUMBER, "OT_API_GetSentMessage: Null REQUEST_NUMBER passed in.");
+    OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_GetSentMessage: Null SERVER_ID passed in.");
+	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_GetSentMessage: Null USER_ID passed in.");
+    // ------------------------------------------------    
+    const long          lRequestNum = atol(REQUEST_NUMBER);
+    const OTIdentifier  theServerID(SERVER_ID),
+                        theUserID(USER_ID);
+    // ------------------------------------------------
+	OTMessage * pMsg = g_OT_API.GetSentMessage(lRequestNum, theServerID, theUserID); 
+//	OTCleanup<OTMessage> theAngel(pMsg);    // caller NOT responsible to delete.
+    
+	if (NULL == pMsg) // The message wasn't found with that request number.
+    {
+        OTLog::vOutput(0, "OT_API_GetSentMessage: Message not found with request number %ld, sorry.\n",
+                       lRequestNum);
+		return NULL;
+    }
+    // ------------------------------------------------
+	const OTString strOutput(*pMsg); // No need to cleanup the message since it's still in the buffer until explicitly removed.
+	
+	const char * pBuf = strOutput.Get(); 
+	
+#ifdef _WIN32
+	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+	
+	return g_tempBuf;		
+}
+
+
+// -----------------------------------------------------------
+// REMOVE SENT MESSAGE
+// 
+// If there were any messages sent to the server, copies are
+// stored until removed via this function.
+//
+// Returns OT_BOOL based on whether message was found (and removed.)
+//
+OT_BOOL OT_API_RemoveSentMessage(const char * REQUEST_NUMBER,
+                                 const char * SERVER_ID, 
+                                 const char * USER_ID)
+{	
+    OT_ASSERT_MSG(NULL != REQUEST_NUMBER, "OT_API_RemoveSentMessage: Null REQUEST_NUMBER passed in.");
+    OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_RemoveSentMessage: Null SERVER_ID passed in.");
+	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_RemoveSentMessage: Null USER_ID passed in.");
+    // ------------------------------------------------    
+    const long          lRequestNum = atol(REQUEST_NUMBER);
+    const OTIdentifier  theServerID(SERVER_ID),
+                        theUserID(USER_ID);
+    // ------------------------------------------------
+    const bool bSuccess = g_OT_API.RemoveSentMessage(lRequestNum, theServerID, theUserID);
+    return (bSuccess ? OT_TRUE : OT_FALSE);
+}
+
+
+// -----------------------------------------------------------
+// OT_API_FlushSentMessages
+//
+// Make sure to call this directly after a successful @getNymbox.
+// (And ONLY at that time.)
+//
+// This empties the buffer of sent messages.
+// (Harvesting any transaction numbers that are still there.)
+//
+// NOTE: You normally ONLY call this immediately after receiving
+// a successful @getNymbox. It's only then that you can see which
+// messages a server actually received or not -- which transactions
+// it processed (success or fail) vs which transactions did NOT
+// process (and thus did NOT leave any success/fail receipt in the
+// nymbox.)
+//
+// I COULD have just flushed myself IN the @getNymbox code (where
+// the reply is processed.) But then the developer using the OT API
+// would never have the opportunity to see whether a message was
+// replied to, and harvest it for himself (say, just before attempting
+// a re-try, which I plan to do in the high-level Java API, which is
+// why I'm coding it this way.)
+//
+// This way, he can do that if he wishes, THEN call this function,
+// and harvesting will still occur properly, and he will also thus have
+// his chance to check for his own replies to harvest before then.
+// This all depends on the developer using the API being smart enough
+// to call this function after a successful @getNymbox!
+//
+void OT_API_FlushSentMessages(const OT_BOOL bHarvestingForRetry,
+                              const char * SERVER_ID, 
+                              const char * USER_ID,
+                              const char * THE_NYMBOX)
+{
+    OT_ASSERT_MSG((bHarvestingForRetry==OT_TRUE) || (bHarvestingForRetry==OT_FALSE), "OT_API_FlushSentMessages: Bad value for bHarvestingForRetry.");
+    OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_FlushSentMessages: Null SERVER_ID passed in.");
+	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_FlushSentMessages: Null USER_ID passed in.");
+	OT_ASSERT_MSG(NULL != THE_NYMBOX, "OT_API_FlushSentMessages: Null THE_NYMBOX passed in.");
+    // ------------------------------------------------
+    const char *szFunc = "OT_API_FlushSentMessages";
+    // ------------------------------------------------    
+    const OTIdentifier  theServerID(SERVER_ID),
+                        theUserID(USER_ID);
+    const OTString      strLedger(THE_NYMBOX);
+          OTLedger      theLedger(theUserID, theUserID, theServerID);
+    // ------------------------------------------------
+    if (strLedger.Exists() && theLedger.LoadContractFromString(strLedger))
+        g_OT_API.FlushSentMessages((OT_TRUE == bHarvestingForRetry) ? true : false,
+                                   theServerID,
+                                   theUserID,
+                                   theLedger);
+    else
+        OTLog::vError("%s: Failure: Unable to load Nymbox from string:\n\n%s\n\n", szFunc, strLedger.Get());
+}
+
+
+
+// -----------------------------------------------------------
+
+
+
 
 
 
@@ -9553,6 +11177,8 @@ void OT_API_Sleep(const char * MILLISECONDS)
 }
 
 
+
+// -----------------------------------------------------------
 
 
 
@@ -9659,7 +11285,15 @@ OT_BOOL OT_API_ResyncNymWithServer(const char * SERVER_ID, const char * USER_ID,
 /// StringMap in advance of calling this function.
 ///
 
-void OT_API_queryAssetTypes(const char * SERVER_ID, const char * USER_ID, const char * ENCODED_MAP)
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_queryAssetTypes(const char * SERVER_ID, const char * USER_ID, const char * ENCODED_MAP)
 {
 	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_queryAssetTypes: Null SERVER_ID passed in.");
 	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_queryAssetTypes: Null USER_ID passed in.");
@@ -9668,7 +11302,7 @@ void OT_API_queryAssetTypes(const char * SERVER_ID, const char * USER_ID, const 
 	OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID);
 	OTASCIIArmor theArmor(ENCODED_MAP);
 	
-	g_OT_API.queryAssetTypes(theServerID, theUserID, theArmor);
+	return g_OT_API.queryAssetTypes(theServerID, theUserID, theArmor);
 }
 
 
@@ -9958,38 +11592,107 @@ const char * OT_API_Message_GetNewAcctID(const char * THE_MESSAGE)
 
 
 // -----------------------------------------------------------
-/// GET MESSAGE SUCCESS (True or False)
-///
-/// Returns OT_TRUE (1) for Success and OT_FALSE (0) for Failure.
-/// Also returns OT_FALSE for error.
-///
-OT_BOOL OT_API_Message_GetSuccess(const char * THE_MESSAGE)
+// GET NYMBOX HASH
+//
+// Some messages include a copy of the Nymbox Hash. This helps the
+// server to quickly ascertain whether some messages will fail, and
+// also allows the client to query the server for this information
+// for syncronicity purposes.
+//
+const char * OT_API_Message_GetNymboxHash(const char * THE_MESSAGE)
 {
-	OT_ASSERT_MSG(NULL != THE_MESSAGE, "OT_API_Message_GetSuccess: Null THE_MESSAGE passed in.");
+	OT_ASSERT_MSG(NULL != THE_MESSAGE, "OT_API_Message_GetNymboxHash: Null THE_MESSAGE passed in.");
 	
 	OTString strMessage(THE_MESSAGE);
 	
 	OTMessage theMessage;
 	
+	if (!strMessage.Exists() || !theMessage.LoadContractFromString(strMessage))
+	{
+		OTLog::Output(0, "OT_API_Message_GetNymboxHash: Unable to load message.\n");
+		return NULL;
+	}
+	
+    // So far these are the only messages that use m_strNymboxHash:
+	if (
+        (false == theMessage.m_strCommand.Compare("processNymbox")) &&
+        (false == theMessage.m_strCommand.Compare("notarizeTransactions")) &&
+        (false == theMessage.m_strCommand.Compare("getTransactionNum")) &&
+        (false == theMessage.m_strCommand.Compare("processInbox")) &&
+        (false == theMessage.m_strCommand.Compare("triggerClause")) &&
+        (false == theMessage.m_strCommand.Compare("@getNymbox")) &&
+        (false == theMessage.m_strCommand.Compare("@getRequest")) &&
+        (false == theMessage.m_strCommand.Compare("@getTransactionNum"))
+        )
+	{
+		OTLog::vOutput(0, "OT_API_Message_GetNymboxHash: Wrong message type: %s \nFYI, with m_strNymboxHash: %s\n", 
+					   theMessage.m_strCommand.Get(), theMessage.m_strNymboxHash.Get());
+		return NULL;
+	}
+		
+	if (!theMessage.m_strNymboxHash.Exists())
+	{
+		OTLog::vOutput(0, "OT_API_Message_GetNymboxHash: No NymboxHash found on message: %s\n",
+                       strMessage.Get());
+		return NULL;
+	}
+	
+	OTString strOutput(theMessage.m_strNymboxHash);
+	const char * pBuf = strOutput.Get(); 
+	
+#ifdef _WIN32
+	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+	
+	return g_tempBuf;
+}
+
+
+
+
+// -----------------------------------------------------------
+/// GET MESSAGE SUCCESS (True or False)
+///
+/// Returns OT_TRUE (1) for Success and OT_FALSE (0) for Failure.
+///
+/// NEW: returns (-1) for error!
+/// 
+OT_BOOL OT_API_Message_GetSuccess(const char * THE_MESSAGE)
+{
+	OT_ASSERT_MSG(NULL != THE_MESSAGE, "OT_API_Message_GetSuccess: Null THE_MESSAGE passed in.");
+	
+	OTMessage   theMessage;
+	OTString    strMessage(THE_MESSAGE);
+	
 	if (!strMessage.Exists())
     {
-        OTLog::Error("Error: THE_MESSAGE doesn't exist.\n");
-		return OT_FALSE;
+        OTLog::Error("OT_API_Message_GetSuccess: Error: THE_MESSAGE doesn't exist.\n");
+		return OT_ERROR;
     }
 	
 	if (!theMessage.LoadContractFromString(strMessage))
     {
-        OTLog::Error("OT_API_Message_GetSuccess: Failed loading message from string.\n");
-		return OT_FALSE;
+        OTLog::vError("OT_API_Message_GetSuccess: Error: Failed loading message from string:\n\n%s\n\n",
+                      THE_MESSAGE);
+		return OT_ERROR;
 	}
-    
+    // ---------------------------------------------
 	if (true == theMessage.m_bSuccess)
-		return OT_TRUE;
+    {
+        OTLog::vOutput(0, "OT_API_Message_GetSuccess: ** FYI, server reply was received, and "
+                      "it said 'Yes.' (Status = success). RequestNum: %ld\n",// Contents: \n\n%s\n\n", 
+                      atol(theMessage.m_strRequestNum.Get()));//, THE_MESSAGE);
+        return OT_TRUE;
+    }
 	else
     {
-        OTLog::vError("** MESSAGE FAILURE: \n\n%s\n\n", THE_MESSAGE);
-		return OT_FALSE;
+        OTLog::vError("OT_API_Message_GetSuccess: ** FYI, server reply was received, and "
+                      "it said 'No.' (Status = failed). RequestNum: %ld\n",// Contents: \n\n%s\n\n", 
+                      atol(theMessage.m_strRequestNum.Get()));//, THE_MESSAGE);
     }
+    return OT_FALSE;
 }
 
 
@@ -10024,7 +11727,7 @@ int OT_API_Message_GetDepth(const char * THE_MESSAGE)
 	OTMessage theMessage;
 	
 	if (!strMessage.Exists() || !theMessage.LoadContractFromString(strMessage))
-		return (-1);
+		return OT_ERROR;
 	
 	OTString strDepth;
 	strDepth.Format("%ld", theMessage.m_lDepth);
@@ -10036,12 +11739,15 @@ int OT_API_Message_GetDepth(const char * THE_MESSAGE)
 
 
 
+
+
 // -----------------------------------------------------------
 /// GET MESSAGE TRANSACTION SUCCESS (True or False)
 /// 
 /// Returns OT_TRUE (1) for Success and OT_FALSE (0) for Failure.
-/// Also returns OT_FALSE for error.
 ///
+/// NEW: also returns (-1) for Error
+//
 OT_BOOL OT_API_Message_GetTransactionSuccess(const char * SERVER_ID,
 											 const char * USER_ID,
 											 const char * ACCOUNT_ID,
@@ -10061,7 +11767,7 @@ OT_BOOL OT_API_Message_GetTransactionSuccess(const char * SERVER_ID,
 	if (!strMessage.Exists() || !theMessage.LoadContractFromString(strMessage))
 	{
 		OTLog::Output(0, "OT_API_Message_GetTransactionSuccess: Unable to load message.\n");
-		return OT_FALSE;
+		return OT_ERROR;
 	}
 	
 	// It's not a transaction request or response, so the Payload wouldn't
@@ -10070,11 +11776,12 @@ OT_BOOL OT_API_Message_GetTransactionSuccess(const char * SERVER_ID,
 	//
 	if (
 		(false == theMessage.m_strCommand.Compare("@notarizeTransactions")) &&
-		(false == theMessage.m_strCommand.Compare("@processInbox"))
+		(false == theMessage.m_strCommand.Compare("@processInbox")) &&
+		(false == theMessage.m_strCommand.Compare("@processNymbox"))
 		)
 	{
 		OTLog::vOutput(0, "OT_API_Message_GetTransactionSuccess: Wrong message type: %s\n", theMessage.m_strCommand.Get());
-		return OT_FALSE;
+		return OT_ERROR;
 	}
 	
 	// The ledger is stored in the Payload, we'll grab it into the String.
@@ -10083,7 +11790,7 @@ OT_BOOL OT_API_Message_GetTransactionSuccess(const char * SERVER_ID,
 	if (!strLedger.Exists())
 	{
 		OTLog::Output(0, "OT_API_Message_GetTransactionSuccess: No ledger found on message.\n");
-		return OT_FALSE;
+		return OT_ERROR;
 	}
 	
 	// ------------------------------------
@@ -10095,7 +11802,7 @@ OT_BOOL OT_API_Message_GetTransactionSuccess(const char * SERVER_ID,
 		OTString strAcctID(theAccountID);
 		OTLog::vError("Error loading ledger from string in OT_API_Message_GetTransactionSuccess. Acct ID: %s\n",
 					  strAcctID.Get());
-		return OT_FALSE;
+		return OT_ERROR;
 	}
 	
 	// At this point, I know theLedger loaded successfully.
@@ -10103,7 +11810,7 @@ OT_BOOL OT_API_Message_GetTransactionSuccess(const char * SERVER_ID,
 	if (theLedger.GetTransactionCount() <= 0)
 	{
 		OTLog::vError("OT_API_Message_GetTransactionSuccess bad count in message ledger: %d\n", theLedger.GetTransactionCount());
-		return OT_FALSE; // out of bounds. I'm saving from an OT_ASSERT_MSG() happening here. (Maybe I shouldn't.)
+		return OT_ERROR; // out of bounds. I'm saving from an OT_ASSERT_MSG() happening here. (Maybe I shouldn't.)
 	}
 	
 	OTTransaction * pTransaction = theLedger.GetTransactionByIndex(0); // Right now this is a defacto standard. (only 1 transaction per message ledger, excepting process inbox.)
@@ -10113,16 +11820,46 @@ OT_BOOL OT_API_Message_GetTransactionSuccess(const char * SERVER_ID,
 	{
 		OTLog::vError("OT_API_Message_GetTransactionSuccess good index but uncovered NULL pointer: %d\n", 
 					  0);
-		return OT_FALSE; // Weird.
+		return OT_ERROR; // Weird.
 	}
 	
 	// At this point, I actually have the transaction pointer, so let's return its success status
-	
+	//    
 	if (pTransaction->GetSuccess())
 		return OT_TRUE;
-	
+    else
+    {
+        const long lRequestNum     = atol(theMessage.m_strRequestNum.Get());
+        const long lTransactionNum = pTransaction->GetTransactionNum();
+
+        OTLog::vError("OT_API_Message_GetTransactionSuccess: ** FYI, server reply was received, and "
+                      "it said 'No.' (Status = failed). RequestNum: %ld, TransNum: %ld\n",// Contents: \n\n%s\n\n", 
+                      lRequestNum, lTransactionNum);//, THE_MESSAGE);
+    }
+
 	return OT_FALSE;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

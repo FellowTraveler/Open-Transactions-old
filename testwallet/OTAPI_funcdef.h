@@ -415,7 +415,7 @@ int OT_API_PopMemlogBack(); // actually returns OT_BOOL
 /// register your new Nym at any given Server. (Nearly all
 /// server requests require this...)
 ///
-const char * OT_API_CreateNym(void);
+const char * OT_API_CreateNym(int nKeySize); // must be 1024, 2048, 4096, or 8192 
 
 
 
@@ -482,6 +482,9 @@ const char * OT_API_GetAccountWallet_AssetTypeID(const char * ACCOUNT_ID);	 // r
 const char * OT_API_GetAccountWallet_ServerID(const char * ACCOUNT_ID);	 // returns Server ID of the account
 const char * OT_API_GetAccountWallet_NymID(const char * ACCOUNT_ID);	 // returns Nym ID of the account
 
+const char * OT_API_GetAccountWallet_InboxHash (const char * ACCOUNT_ID);	 // returns latest InboxHash according to the account file. (Usually more recent than: OT_API_GetNym_InboxHash)
+const char * OT_API_GetAccountWallet_OutboxHash(const char * ACCOUNT_ID);	 // returns latest OutboxHash according to the account file. (Usually more recent than: OT_API_GetNym_OutboxHash)
+
 /// Returns OT_BOOL. Verifies any asset account (intermediary files) against its own last signed receipt.
 /// Obviously this will fail for any new account that hasn't done any transactions yet, and thus has no receipts.
 int OT_API_VerifyAccountReceipt(const char * SERVER_ID, const char * NYM_ID, const char * ACCT_ID);
@@ -503,6 +506,13 @@ int OT_API_GetNym_TransactionNumCount(const char * SERVER_ID, const char * NYM_I
 const char * OT_API_GetNym_ID(int nIndex); /// based on Index (above 4 functions) this returns the Nym's ID
 const char * OT_API_GetNym_Name(const char * NYM_ID); /// Returns Nym Name (based on NymID)
 const char * OT_API_GetNym_Stats(const char * NYM_ID); /// Returns Nym Statistics (based on NymID)
+const char * OT_API_GetNym_NymboxHash(const char * SERVER_ID, const char * NYM_ID); /// NymboxHash for "most recently DOWNLOADED" Nymbox (by ServerID)
+const char * OT_API_GetNym_RecentHash(const char * SERVER_ID, const char * NYM_ID); /// "Most recent NymboxHash according to the SERVER's records" (Which is often sent as an 'FYI' with various server replies to my messages.)
+
+const char * OT_API_GetNym_InboxHash(const char * ACCOUNT_ID, const char * NYM_ID); /// InboxHash for "most recently DOWNLOADED" Inbox (by AccountID). Often contains older value than OT_API_GetAccountWallet_InboxHash.
+const char * OT_API_GetNym_OutboxHash(const char * ACCOUNT_ID, const char * NYM_ID); /// OutboxHash for "most recently DOWNLOADED" Outbox (by AccountID) Often contains older value than OT_API_GetAccountWallet_OutboxHash
+
+
 
 int OT_API_IsNym_RegisteredAtServer(const char * NYM_ID, const char * SERVER_ID); // actually returns OT_BOOL
 
@@ -993,7 +1003,7 @@ const char * OT_API_SmartContract_ConfirmParty(const char * THE_CONTRACT,	// The
 ///
 /// See OT_API_Create_SmartContract (etc.)
 ///
-void OT_API_activateSmartContract(const char * SERVER_ID,
+int OT_API_activateSmartContract(const char * SERVER_ID,
 								  const char * USER_ID,
 								  const char * THE_SMART_CONTRACT);
 // --------------------------------------------------
@@ -1002,19 +1012,27 @@ void OT_API_activateSmartContract(const char * SERVER_ID,
 // to trigger clauses on that smart contract, by name. This is NOT a transaction,
 // but it DOES message the server.
 //
-void OT_API_triggerClause(const char * SERVER_ID,
-						  const char * USER_ID,
-						  const char * TRANSACTION_NUMBER,
-						  const char * CLAUSE_NAME,
-						  const char * STR_PARAM);
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_triggerClause(const char * SERVER_ID,
+                         const char * USER_ID,
+                         const char * TRANSACTION_NUMBER,
+                         const char * CLAUSE_NAME,
+                         const char * STR_PARAM);
 
 
 
 /*
- OT_API_HarvestClosingNumbers
+ OT_API_Msg_HarvestTransactionNumbers
  
  This function will load up the cron item (which is either a market offer, a payment plan,
- or a SMART CONTRACT.)
+ or a SMART CONTRACT.)  UPDATE: this function operates on messages, not cron items.
  
  Then it will try to harvest all of the closing transaction numbers for NYM_ID that are
  available to be harvested from THE_CRON_ITEM. (There might be zero #s available for that
@@ -1042,18 +1060,45 @@ void OT_API_triggerClause(const char * SERVER_ID,
  of shit, then I should have a stored copy of any contract that I signed. If it turns out in the future
  that that contract wasn't activated, then I can retrieve not only my closing numbers, but my OPENING
  number as well! IN THAT CASE, I would call OT_API_HarvestAllNumbers() instead of OT_API_HarvestClosingNumbers().
-*/
+
+ // -----------------
+ 
+ UPDATE: The above logic is now handled automatically in OT_API_HarvestTransactionNumbers.
+ Therefore OT_API_HarvestClosingNumbers and OT_API_HarvestAllNumbers have been removed.
+ 
+ */
+
 //Returns OT_BOOL
-int OT_API_HarvestClosingNumbers(const char * SERVER_ID,
-								 const char * NYM_ID,
-								 const char * THE_CRON_ITEM);
+int OT_API_Msg_HarvestTransactionNumbers(const char * THE_MESSAGE,
+                                         const char * USER_ID,
+                                         const int    bHarvestingForRetry,     // OT_BOOL
+                                         const int    bReplyWasSuccess,        // OT_BOOL
+                                         const int    bReplyWasFailure,        // OT_BOOL        
+                                         const int    bTransactionWasSuccess,  // OT_BOOL
+                                         const int    bTransactionWasFailure); // OT_BOOL
+
+
+////Returns OT_BOOL
+//int OT_API_HarvestClosingNumbers(const char * SERVER_ID,
+//								 const char * NYM_ID,
+//								 const char * THE_CRON_ITEM);
+//
+//
+//
+////Returns OT_BOOL
+//int OT_API_HarvestAllNumbers(const char * SERVER_ID,
+//							 const char * NYM_ID,
+//							 const char * THE_CRON_ITEM);
+
+
+// -----------------------------------------------------------------
 
 
 
-//Returns OT_BOOL
-int OT_API_HarvestAllNumbers(const char * SERVER_ID,
-							 const char * NYM_ID,
-							 const char * THE_CRON_ITEM);
+
+
+
+
 
 
 
@@ -1352,16 +1397,17 @@ const char * OT_API_Ledger_FinalizeResponse(const char * SERVER_ID,
 /// a ledger) based on index or transaction number.
 /*
 sendUserInstrument does this:
--- Puts instrument (a contract string) as encrypted Payload on an OTMessage(1).
--- Also puts instrument (same contract string) as CLEAR payload on an OTMessage(2).
+-- Puts an OTPayment (a form of contract) as an encrypted Payload on an OTMessage(1).
+-- Also puts instrument (same contract) as CLEAR payload on an OTMessage(2).
 -- (1) is sent to server, and (2) is added to Outpayments messages.
 -- (1) gets added to recipient's Nymbox as "in ref to" string on a "instrumentNotice" transaction.
 -- When recipient processes Nymbox, the "instrumentNotice" transaction (containing (1) in its "in ref to"
    field) is copied and added to the recipient's paymentInbox.
 -- When recipient iterates through paymentInbox transactions, they are ALL "instrumentNotice"s. Each 
    transaction contains an OTMessage in its "in ref to" field, and that OTMessage object contains an 
-   encrypted payload of the instrument itself (a contract string.)
--- When sender gets Outpayments contents, the original instrument (contract string) is stored IN THE 
+   encrypted payload of the instrument itself (an OTPayment object containing a cheque or payment plan
+   or invoice etc.)
+-- When sender gets Outpayments contents, the original instrument (inside an OTPayment) is stored IN THE 
    CLEAR as payload on an OTMessage.
 
 THEREFORE:
@@ -1369,7 +1415,7 @@ TO EXTRACT INSTRUMENT FROM PAYMENTS INBOX:
 -- Iterate through the transactions in the payments inbox.
 -- (They should all be "instrumentNotice" transactions.)
 -- Each transaction contains (1) OTMessage in "in ref to" field, which in turn contains an encrypted
-   instrument in the payload field.
+   OTPayment in the payload field, which then contains the instrument itself.
 -- *** Therefore, this function, based purely on ledger index (as we iterate) extracts the
    OTMessage from the Transaction "in ref to" field (for the transaction at that index), then decrypts
    the payload on that message and returns the decrypted cleartext. 
@@ -1602,7 +1648,15 @@ int OT_API_Wallet_ImportPurse(const char * SERVER_ID,
 /// Note that an asset account isn't necessary to do this... just a nym operating cash-only.
 /// The same as exchanging a 20-dollar bill at the teller window for a replacement bill.
 ///
-void OT_API_exchangePurse(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_exchangePurse(const char * SERVER_ID,
 						  const char * ASSET_TYPE_ID,
 						  const char * USER_ID,
 						  const char * THE_PURSE);
@@ -1659,7 +1713,43 @@ const char * OT_API_Token_GetAssetID(const char * THE_TOKEN);
 
 const char * OT_API_Token_GetServerID(const char * THE_TOKEN);
 
-						  
+
+
+// --------------------------------------------------------------------
+
+
+
+//
+//
+// THESE FUNCTIONS were added for the PAYMENTS screen. (They are fairly new.)
+//
+// Basically there was a need to have DIFFERENT instruments, but to be able to
+// treat them as though they are a single type.
+//
+// In keeping with that, the below functions will work with disparate types.
+// You can pass [ CHEQUES / VOUCHERS / INVOICES ] and PAYMENT PLANS, and
+// SMART CONTRACTS, and PURSEs into these functions, and they should be able
+// to handle any of those types.
+//
+//
+
+const char * OT_API_Instrument_GetAmount(const char * SERVER_ID, const char * THE_INSTRUMENT);
+const char * OT_API_Instrument_GetTransNum(const char * SERVER_ID, const char * THE_INSTRUMENT);
+
+const char * OT_API_Instrument_GetValidFrom(const char * SERVER_ID, const char * THE_INSTRUMENT);
+const char * OT_API_Instrument_GetValidTo(const char * SERVER_ID, const char * THE_INSTRUMENT);
+
+const char * OT_API_Instrument_GetMemo(const char * SERVER_ID, const char * THE_INSTRUMENT);
+
+const char * OT_API_Instrument_GetAssetID(const char * SERVER_ID, const char * THE_INSTRUMENT);
+
+const char * OT_API_Instrmnt_GetSenderUserID(const char * SERVER_ID, const char * THE_INSTRUMENT);
+const char * OT_API_Instrmnt_GetSenderAcctID(const char * SERVER_ID, const char * THE_INSTRUMENT);
+const char * OT_API_Instrmnt_GetRecipientUserID(const char * SERVER_ID, const char * THE_INSTRUMENT);
+const char * OT_API_Instrmnt_GetRecipientAcctID(const char * SERVER_ID, const char * THE_INSTRUMENT);
+
+
+
 
 // --------------------------------------------------------------------
 
@@ -1700,7 +1790,15 @@ const char * OT_API_Token_GetServerID(const char * THE_TOKEN);
  server.
  
  */
-void OT_API_checkServerID(const char * SERVER_ID, const char * USER_ID);
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_checkServerID(const char * SERVER_ID, const char * USER_ID);
 
 
 // --------------------------------------------------------------------
@@ -1740,7 +1838,15 @@ void OT_API_checkServerID(const char * SERVER_ID, const char * USER_ID);
  been created by this point, you simply pass in their IDs and the
  library will do the rest of the work.
  */
-void OT_API_createUserAccount(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_createUserAccount(const char * SERVER_ID,
 							  const char * USER_ID);
 
 /// This allows you to delete a Nym from any server it is
@@ -1749,14 +1855,30 @@ void OT_API_createUserAccount(const char * SERVER_ID,
 /// as well as if there are any accounts or cron items still
 /// open at that server, or any receipts in the Nymbox.
 ///
-void OT_API_deleteUserAccount(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_deleteUserAccount(const char * SERVER_ID,
 							  const char * USER_ID);
 
 /// This allows you to delete an asset account from a server,
 /// provided that the balance is 0 and the inbox and outbox are
 /// both empty.
 ///
-void OT_API_deleteAssetAccount(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_deleteAssetAccount(const char * SERVER_ID,
                                const char * USER_ID,
                                const char * ACCOUNT_ID);
 
@@ -1789,7 +1911,15 @@ void OT_API_deleteAssetAccount(const char * SERVER_ID,
  After you call OT_API_usageCredits(), you will receive a server reply. Pass that into
  the next function: OT_API_Message_GetUsageCredits()
  */
-void OT_API_usageCredits(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_usageCredits(const char * SERVER_ID,
 						 const char * USER_ID,
 						 const char * USER_ID_CHECK,
 						 const char * ADJUSTMENT);
@@ -1825,7 +1955,15 @@ const char * OT_API_Message_GetUsageCredits(const char * THE_MESSAGE);
  the key, they should always match.
  
  */
-void OT_API_checkUser(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_checkUser(const char * SERVER_ID,
 					  const char * USER_ID,
 					  const char * USER_ID_CHECK);
 
@@ -1843,7 +1981,15 @@ void OT_API_checkUser(const char * SERVER_ID,
  another user, encrypted to his public key and dropped in his nymbox.
   
  */
-void OT_API_sendUserMessage(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_sendUserMessage(const char * SERVER_ID,
 							const char * USER_ID,
 							const char * USER_ID_RECIPIENT,
 							const char * RECIPIENT_PUBKEY,
@@ -1880,11 +2026,19 @@ void OT_API_sendUserMessage(const char * SERVER_ID,
  of his nymbox.)
  
  */
-void OT_API_sendUserInstrument(const char * SERVER_ID,
-							   const char * USER_ID,
-							   const char * USER_ID_RECIPIENT,
-							   const char * RECIPIENT_PUBKEY,
-							   const char * THE_INSTRUMENT);
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_sendUserInstrument(const char * SERVER_ID,
+                              const char * USER_ID,
+                              const char * USER_ID_RECIPIENT,
+                              const char * RECIPIENT_PUBKEY,
+                              const char * THE_INSTRUMENT);
 
 // --------------------------------------------------------------------
 /**
@@ -1908,7 +2062,15 @@ void OT_API_sendUserInstrument(const char * SERVER_ID,
  go through! This mechanism prevents an attack from intercepting a message
  and sending it multiple times.
  */
-void OT_API_getRequest(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_getRequest(const char * SERVER_ID,
 					   const char * USER_ID);
 
 /**
@@ -1927,7 +2089,15 @@ void OT_API_getRequest(const char * SERVER_ID,
  through! This mechanism is what makes it possible to prove balances
  and transactions, without having to store any account history!
  */
-void OT_API_getTransactionNumber(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_getTransactionNumber(const char * SERVER_ID,
 								 const char * USER_ID);
 
 
@@ -1939,7 +2109,15 @@ void OT_API_getTransactionNumber(const char * SERVER_ID,
 /// (And the server will not issue the new asset type unless the key in the
 /// contract matches YOUR UserID.  Only the contract signer may issue it.)
 ///
-void OT_API_issueAssetType(const char *	SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_issueAssetType(const char *	SERVER_ID,
 						   const char *	USER_ID,
 						   const char *	THE_CONTRACT);
 
@@ -1948,7 +2126,15 @@ void OT_API_issueAssetType(const char *	SERVER_ID,
 // --------------------------------------------------------------------
 /// GET CONTRACT -- Get server's copy of any asset contract, by asset type ID.
 ///
-void OT_API_getContract(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_getContract(const char * SERVER_ID,
 						const char * USER_ID,
 						const char * ASSET_ID);
 
@@ -1960,7 +2146,15 @@ void OT_API_getContract(const char * SERVER_ID,
 /// keys for each asset type. Withdrawal requests will not work for any given
 /// asset type until you have downloaded the mint for that asset type.)
 ///
-void OT_API_getMint(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_getMint(const char * SERVER_ID,
 					const char * USER_ID,
 					const char * ASSET_ID);
 
@@ -1971,7 +2165,15 @@ void OT_API_getMint(const char * SERVER_ID,
 // ---------------------------------------------------------------------------
 /// CREATE ASSET ACCOUNT -- of any asset type, (just pass in the Asset Type ID.) 
 ///
-void OT_API_createAssetAccount(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_createAssetAccount(const char * SERVER_ID,
 							   const char * USER_ID,
 							   const char * ASSET_ID);
 
@@ -1982,7 +2184,15 @@ void OT_API_createAssetAccount(const char * SERVER_ID,
 /// GET ACCOUNT -- Send a message to the server asking it to send you the latest
 ///                copy of any of your asset accounts (incl. the current balance.)
 ///
-void OT_API_getAccount(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_getAccount(const char * SERVER_ID,
 					   const char * USER_ID,
 					   const char * ACCT_ID);
 
@@ -2040,7 +2250,15 @@ const char * OT_API_AddBasketCreationItem(const char * USER_ID, // for signature
 /// This means anyone can define a basket, and all may use it -- but no one
 /// controls it except the server.
 ///
-void OT_API_issueBasket(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_issueBasket(const char * SERVER_ID,
 						const char * USER_ID,
 						const char * THE_BASKET);
 
@@ -2106,7 +2324,15 @@ const char * OT_API_AddBasketExchangeItem(const char * SERVER_ID,
 /// use any other asset type (open accounts, write cheques, withdraw cash, trade
 /// on markets, etc.)
 ///
-void OT_API_exchangeBasket(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_exchangeBasket(const char * SERVER_ID,
 						   const char * USER_ID,
 						   const char * BASKET_ASSET_ID,
 						   const char * THE_BASKET,
@@ -2141,7 +2367,15 @@ void OT_API_exchangeBasket(const char * SERVER_ID,
 /// file for that asset type. You can then reload the purse using 
 /// OT_API_LoadPurse, if you want to see the updated contents.
 ///
-void OT_API_notarizeWithdrawal(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_notarizeWithdrawal(const char * SERVER_ID,
 							   const char * USER_ID,
 							   const char * ACCT_ID,
 							   const char * AMOUNT);
@@ -2153,7 +2387,15 @@ void OT_API_notarizeWithdrawal(const char * SERVER_ID,
 /// function to actually deposit that cash into a server account. (The cash
 /// must, of course, be the same asset type as the account.)
 ///
-void OT_API_notarizeDeposit(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_notarizeDeposit(const char * SERVER_ID,
 							const char * USER_ID,
 							const char * ACCT_ID,
 							const char * THE_PURSE);
@@ -2170,7 +2412,15 @@ void OT_API_notarizeDeposit(const char * SERVER_ID,
 /// each party has the signature on the other party's request. Receipts are
 /// dropped into their respective inboxes.
 ///
-void OT_API_notarizeTransfer(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_notarizeTransfer(const char * SERVER_ID,
 							 const char * USER_ID,
 							 const char * ACCT_FROM,
 							 const char * ACCT_TO,
@@ -2236,18 +2486,42 @@ void OT_API_notarizeTransfer(const char * SERVER_ID,
  server and process the various items.
  */
 
-void OT_API_getInbox(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_getInbox(const char * SERVER_ID,
 					 const char * USER_ID,
 					 const char * ACCT_ID);
 
-void OT_API_getOutbox(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_getOutbox(const char * SERVER_ID,
 					  const char * USER_ID,
 					  const char * ACCT_ID);
 
 
 
 /// from server (pop message buf for the response)
-void OT_API_getNymbox(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_getNymbox(const char * SERVER_ID,
 					  const char * USER_ID);
 
 /// from local storage.
@@ -2256,6 +2530,23 @@ const char * OT_API_LoadNymbox(const char * SERVER_ID,
 
 const char * OT_API_LoadNymboxNoVerify(const char * SERVER_ID,
 									   const char * USER_ID); // Returns NULL, or a Nymbox.
+
+
+
+// Some server replies (to your messages) are so important that a notice is dropped
+// into your Nymbox with a copy of the server's reply. It's called a replyNotice.
+// Since the server is usually replying to a message, I've added this function for
+// quickly looking up the message reply, if it's there, based on the requestNumber.
+// This is the only example in the entire OT API where a Transaction is looked-up from
+// a ledger, based on a REQUEST NUMBER. (Normally transactions use transaction numbers,
+// and messages use request numbers. But in this case, it's a transaction that carries
+// a copy of a message.)
+//
+const char * OT_API_Nymbox_GetReplyNotice(const char * SERVER_ID,
+                                          const char * USER_ID,
+                                          const char * REQUEST_NUMBER); // returns replyNotice transaction by requestNumber.
+
+
 
 /// The Nymbox/Inbox/Outbox only contain abbreviated receipts, with a hash for zero-knowledge
 /// proof of the entire receipt. (Messages were getting too big, it couldn't be helped. Sorry.)
@@ -2267,7 +2558,15 @@ const char * OT_API_LoadNymboxNoVerify(const char * SERVER_ID,
 /** How to use?
  Call OT_API_getInbox (say), and if successful, loadInbox().
  */
-void OT_API_getBoxReceipt(const char *	SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_getBoxReceipt(const char *	SERVER_ID,
 						  const char *	USER_ID,
 						  const char *	ACCOUNT_ID,		// If for Nymbox (vs inbox/outbox) then pass USER_ID in this field also.
 						  const int		nBoxType,		// 0/nymbox, 1/inbox, 2/outbox
@@ -2300,7 +2599,15 @@ int OT_API_DoesBoxReceiptExist(const char *	SERVER_ID,
  inbox and automatically accept all of the transactions within.)
  
  */
-void OT_API_processInbox(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_processInbox(const char * SERVER_ID,
 						 const char * USER_ID,
 						 const char * ACCT_ID,
 						 const char * ACCT_LEDGER);
@@ -2332,7 +2639,15 @@ int OT_API_processNymbox(const char * SERVER_ID,
 /// the server gives you a cheque drawn on its own account. This way you can
 /// use it like a cheque, but it will never bounce.
 ///
-void OT_API_withdrawVoucher(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_withdrawVoucher(const char * SERVER_ID,
 							const char * USER_ID,
 							const char * ACCT_ID,
 							const char * RECIPIENT_USER_ID,
@@ -2354,7 +2669,15 @@ void OT_API_withdrawVoucher(const char * SERVER_ID,
 /// Since a voucher is simply a cheque drawn on an internal server account,
 /// you can deposit a voucher the same as any other cheque.
 ///
-void OT_API_depositCheque(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_depositCheque(const char * SERVER_ID,
 						  const char * USER_ID,
 						  const char * ACCT_ID,
 						  const char * THE_CHEQUE);
@@ -2369,7 +2692,15 @@ void OT_API_depositCheque(const char * SERVER_ID,
 ///
 /// See OT_API_ProposePaymentPlan / OT_API_ConfirmPaymentPlan as well.
 ///
-void OT_API_depositPaymentPlan(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_depositPaymentPlan(const char * SERVER_ID,
 							   const char * USER_ID,
 							   const char * THE_PAYMENT_PLAN);
 // --------------------------------------------------
@@ -2381,7 +2712,15 @@ void OT_API_depositPaymentPlan(const char * SERVER_ID,
 // --------------------------------------------------
 /// ISSUE MARKET OFFER
 ///
-void OT_API_issueMarketOffer(const char * SERVER_ID,
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_issueMarketOffer(const char * SERVER_ID,
 							 const char * USER_ID,
 							 // -------------------------------------------
 							 const char * ASSET_TYPE_ID, // Perhaps this is the
@@ -2427,33 +2766,81 @@ void OT_API_issueMarketOffer(const char * SERVER_ID,
 
 // Retrieves details for each market.
 //
-void OT_API_getMarketList(const char * SERVER_ID, const char * USER_ID);
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_getMarketList(const char * SERVER_ID, const char * USER_ID);
 
 // Gets all offers for a specific market and their details (up until maximum depth)
-void OT_API_getMarketOffers(const char * SERVER_ID, const char * USER_ID, 
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_getMarketOffers(const char * SERVER_ID, const char * USER_ID, 
 							const char * MARKET_ID, const char * MAX_DEPTH); // Market Depth
 
 // Gets all recent trades (up until maximum depth)
-void OT_API_getMarketRecentTrades(const char * SERVER_ID, const char * USER_ID, 
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_getMarketRecentTrades(const char * SERVER_ID, const char * USER_ID, 
 								  const char * MARKET_ID);
 
 // This "Market Offer" data is a lot more detailed than the OT_API_Market_GetOffers() call, which seems similar otherwise.
-void OT_API_getNym_MarketOffers(const char * SERVER_ID, const char * USER_ID); // Offers this Nym has out on market.
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_getNym_MarketOffers(const char * SERVER_ID, const char * USER_ID); // Offers this Nym has out on market.
 // These may just be the Cron Receipts...
 
 
 
 
 
-void OT_API_cancelMarketOffer(const char * SERVER_ID, 
-                              const char * USER_ID, 
-                              const char * ASSET_ACCT_ID, 
-                              const char * TRANSACTION_NUMBER);
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_cancelMarketOffer(const char * SERVER_ID, 
+                             const char * USER_ID, 
+                             const char * ASSET_ACCT_ID, 
+                             const char * TRANSACTION_NUMBER);
 
-void OT_API_cancelPaymentPlan(const char * SERVER_ID, 
-                              const char * USER_ID, 
-                              const char * FROM_ACCT_ID, 
-                              const char * TRANSACTION_NUMBER);
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_cancelPaymentPlan(const char * SERVER_ID, 
+                             const char * USER_ID, 
+                             const char * FROM_ACCT_ID, 
+                             const char * TRANSACTION_NUMBER);
 
 
 
@@ -2468,9 +2855,92 @@ void OT_API_cancelPaymentPlan(const char * SERVER_ID,
 ///
 /// Returns the message as a string.
 ///
-const char * OT_API_PopMessageBuffer(void);
+
+// Update: added arguments for: ServerID AND NymID AND request number
+// NOTE: Any messages, when popping, which have the CORRECT serverID
+// and the CORRECT NymID, but the wrong Request number, will be discarded.
+//
+// (Why? Because the client using the OT API will have already treated
+// that message as "dropped" by now, if it's already on to the next one,
+// and the protocol is designed to move forward properly based specifically
+// on this function returning the one EXPECTED... outgoing messages flush
+// the incoming buffer anyway, so the client will have assumed the wrong
+// reply was flushed by now anyway.)
+// 
+// However, if the Server ID and the User ID are wrong, this just means that
+// some other code is still expecting that reply, and hasn't even popped yet!
+// Therefore, we do NOT want to discard THOSE replies, but put them back if
+// necessary -- only discarding the ones where the IDs match.
+//
+const char * OT_API_PopMessageBuffer(const char * REQUEST_NUMBER,
+                                     const char * SERVER_ID, 
+                                     const char * USER_ID);
 
 void OT_API_FlushMessageBuffer(void);
+
+
+
+// Outgoing:
+
+const char * OT_API_GetSentMessage(const char * REQUEST_NUMBER,
+                                   const char * SERVER_ID, 
+                                   const char * USER_ID);
+
+int OT_API_RemoveSentMessage(const char * REQUEST_NUMBER,
+                             const char * SERVER_ID, 
+                             const char * USER_ID); // actually returns OT_BOOL
+
+// Note: Might remove this from API. Basically, the sent messages queue must store
+// messages (by request number) until we know for SURE whether we have a success, a failure,
+// or a lost/rejected message. That is, until we DOWNLOAD the Nymbox, and thus know for SURE
+// that a response to a given message is there...or not. Why do we care? For making this 
+// choice:
+//
+// Messages that DO have a reply are therefore already "in the system" and will be handled
+// normally--they can be ignored and flushed from the "sent messages" queue. Whereas messages
+// that do NOT have a reply in the Nymbox (yet are still in the "sent messages" queue) can be
+// assumed safely to have been rejected at "message level" (before any transaction could
+// have processed) and the reply must have been dropped on the network, OR the server never
+// even received the message in the first place. EITHER WAY the trans #s can be harvested
+// accordingly and then removed from the sent buffer. In a perfect world (read: iteration 2)
+// these sent messages will be serialized somehow along with the Nym, and not just stored in 
+// RAM like this version does.
+//
+// -----------------------------------------------------------
+// OT_API_FlushSentMessages
+//
+// Make sure to call this directly after a successful @getNymbox.
+// (And ONLY at that time.)
+//
+// This empties the buffer of sent messages.
+// (Harvesting any transaction numbers that are still there.)
+//
+// NOTE: You normally ONLY call this immediately after receiving
+// a successful @getNymbox. It's only then that you can see which
+// messages a server actually received or not -- which transactions
+// it processed (success or fail) vs which transactions did NOT
+// process (and thus did NOT leave any success/fail receipt in the
+// nymbox.)
+//
+// I COULD have just flushed myself IN the @getNymbox code (where
+// the reply is processed.) But then the developer using the OT API
+// would never have the opportunity to see whether a message was
+// replied to, and harvest it for himself (say, just before attempting
+// a re-try, which I plan to do in the high-level Java API, which is
+// why I'm coding it this way.)
+//
+// This way, he can do that if he wishes, THEN call this function,
+// and harvesting will still occur properly, and he will also thus have
+// his chance to check for his own replies to harvest before then.
+// This all depends on the developer using the API being smart enough
+// to call this function after a successful @getNymbox!
+//
+void OT_API_FlushSentMessages(const int bHarvestingForRetry, // bHarvestingForRetry is actually OT_BOOL
+                              const char * SERVER_ID, 
+                              const char * USER_ID,
+                              const char * THE_NYMBOX); 
+
+
 
 
 // --------------------------------------------------------------------
@@ -2535,7 +3005,15 @@ int OT_API_Message_GetSuccess(const char * THE_MESSAGE);
 /// This way you can ask the server to confirm whether various
 /// asset types are issued there.
 ///
-void OT_API_queryAssetTypes(const char * SERVER_ID, const char * USER_ID, const char * ENCODED_MAP);
+/// Returns int:
+/// -1 means error; no message was sent.
+/// -2 means the message was sent, but the request number must be passed as a string, so call OT_API_GetLargeRequestNum.
+///  0 means NO error, but also: no message was sent.
+/// >0 means NO error, and the message was sent, and the request number fits into an integer...
+///  ...and in fact the requestNum IS the return value!
+///  ===> In 99% of cases, this LAST option is what actually happens!!
+///
+int OT_API_queryAssetTypes(const char * SERVER_ID, const char * USER_ID, const char * ENCODED_MAP);
 
 
 
@@ -2645,6 +3123,18 @@ const char * OT_API_Message_GetNewIssuerAcctID(const char * THE_MESSAGE);
 /// server reply message.
 ///
 const char * OT_API_Message_GetNewAcctID(const char * THE_MESSAGE);
+
+
+
+// -----------------------------------------------------------
+/// GET NYMBOX HASH 
+///
+/// Some messages include a copy of the Nymbox Hash. This helps the
+/// server to quickly ascertain whether some messages will fail, and
+/// also allows the client to query the server for this information
+/// for syncronicity purposes.
+///
+const char * OT_API_Message_GetNymboxHash(const char * THE_MESSAGE);
 
 
 // ------------------------------------------------------------

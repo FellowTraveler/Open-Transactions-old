@@ -2007,8 +2007,9 @@ bool OTAgent::DropFinalReceiptToInbox(mapOfNyms * pNymMap,
 //
 bool OTParty::DropFinalReceiptToNymboxes(const long & lNewTransactionNumber,
 										 const OTString & strOrigCronItem,
-										 OTString * pstrNote/*=NULL*/,
-										 OTString * pstrAttachment/*=NULL*/)
+										 OTString      * pstrNote/*=NULL*/,
+										 OTString      * pstrAttachment/*=NULL*/,
+                                         OTPseudonym   * pActualNym/*=NULL*/)
 {
 	bool bSuccess = false; // Success is defined as "at least one agent was notified"
 	
@@ -2035,7 +2036,7 @@ bool OTParty::DropFinalReceiptToNymboxes(const long & lNewTransactionNumber,
 		// -------------------------------------
 		
 		if (false == pAgent->DropFinalReceiptToNymbox(*pSmartContract, lNewTransactionNumber, strOrigCronItem,
-													  pstrNote, pstrAttachment))
+													  pstrNote, pstrAttachment, pActualNym))
 			OTLog::Error("OTParty::DropFinalReceiptToNymboxes: Failed dropping final Receipt to agent's Nymbox.\n");
 		else
 			bSuccess = true;
@@ -2050,8 +2051,9 @@ bool OTParty::DropFinalReceiptToNymboxes(const long & lNewTransactionNumber,
 bool OTAgent::DropFinalReceiptToNymbox(OTSmartContract & theSmartContract,
 									   const long & lNewTransactionNumber,
 									   const OTString & strOrigCronItem,
-									   OTString * pstrNote/*=NULL*/,
-									   OTString * pstrAttachment/*=NULL*/)
+									   OTString      * pstrNote/*=NULL*/,
+									   OTString      * pstrAttachment/*=NULL*/,
+                                       OTPseudonym   * pActualNym/*=NULL*/) // IF the Nym was already loaded, then I HAD to pass it here. But it may not be here. Also: It may not be the right Nym, so need to check before actually using for anything.
 {
 	OTIdentifier theAgentNymID;
 	bool bNymID = this->GetNymID(theAgentNymID);
@@ -2060,8 +2062,14 @@ bool OTAgent::DropFinalReceiptToNymbox(OTSmartContract & theSmartContract,
 	
 	if (true == bNymID)
 	{
+        OTPseudonym * pToActualNym = NULL;
+        
+        if ((NULL != pActualNym) && pActualNym->CompareID(theAgentNymID))
+            pToActualNym = pActualNym;
+        
 		return theSmartContract.DropFinalReceiptToNymbox(theAgentNymID, lNewTransactionNumber,
-														 strOrigCronItem, pstrNote, pstrAttachment);
+														 strOrigCronItem, pstrNote, pstrAttachment,
+                                                         pToActualNym);
 	}
 	
 	// TODO: When entites and roles are added, this function may change a bit to accommodate them.
@@ -2081,8 +2089,9 @@ bool OTAgent::DropServerNoticeToNymbox(OTPseudonym & theServerNym,
 									   const long & lNewTransactionNumber,
 									   const long & lInReferenceTo,
 									   const OTString & strReference,
-									   OTString * pstrNote/*=NULL*/,
-									   OTString * pstrAttachment/*=NULL*/)
+									   OTString      * pstrNote/*=NULL*/,
+									   OTString      * pstrAttachment/*=NULL*/,
+                                       OTPseudonym   * pActualNym/*=NULL*/)
 {
 	OTIdentifier theAgentNymID;
 	bool bNymID = this->GetNymID(theAgentNymID);
@@ -2091,6 +2100,13 @@ bool OTAgent::DropServerNoticeToNymbox(OTPseudonym & theServerNym,
 	
 	if (true == bNymID)
 	{
+        OTPseudonym * pToActualNym = NULL;
+        
+        if ((NULL != pActualNym) && pActualNym->CompareID(theAgentNymID))
+            pToActualNym = pActualNym;
+        else if ((NULL != m_pNym) && m_pNym->CompareID(theAgentNymID))
+            pToActualNym = m_pNym;
+        
 		return theScriptable.DropServerNoticeToNymbox(theServerNym,
 													  theServerID,
 													  theAgentNymID,
@@ -2098,7 +2114,8 @@ bool OTAgent::DropServerNoticeToNymbox(OTPseudonym & theServerNym,
 													  lInReferenceTo,
 													  strReference,
 													  pstrNote,
-													  pstrAttachment);
+													  pstrAttachment,
+                                                      pToActualNym);
 	}
 	
 	// TODO: When entites and roles are added, this function may change a bit to accommodate them.
@@ -2112,8 +2129,9 @@ bool OTParty::SendNoticeToParty(OTPseudonym & theServerNym,
 								const long & lNewTransactionNumber,
 //								const long & lInReferenceTo, // todo Maybe have each party just use their own opening trans# here. Maybe not.
 								const OTString & strReference,
-								OTString * pstrNote/*=NULL*/,
-								OTString * pstrAttachment/*=NULL*/)
+								OTString      * pstrNote/*=NULL*/,
+								OTString      * pstrAttachment/*=NULL*/,
+                                OTPseudonym   * pActualNym/*=NULL*/)
 {
 	bool bSuccess = false; // Success is defined as "at least one agent was notified"
 		
@@ -2135,7 +2153,8 @@ bool OTParty::SendNoticeToParty(OTPseudonym & theServerNym,
 		if (false == pAgent->DropServerNoticeToNymbox(theServerNym, theServerID, 
 													  *m_pOwnerAgreement, lNewTransactionNumber,
 													  lOpeningTransNo, // lInReferenceTo
-													  strReference, pstrNote, pstrAttachment))
+													  strReference, pstrNote, pstrAttachment,
+                                                      pActualNym))
 			OTLog::Error("OTParty::SendNoticeToParty: Failed dropping server notice to agent's Nymbox.\n");
 		else
 			bSuccess = true;
@@ -2451,16 +2470,22 @@ bool OTParty::VerifyAccountsWithTheirAgents(OTPseudonym		& theSignerNym,
 
 
 
+//bool OTAgent::HarvestTransactionNumber(const long & lNumber,
+//                                       const OTString & strServerID, 
+//                                       bool bSave/*=false*/, // Each agent's nym is used if pSignerNym is NULL, whereas the server
+//                                       OTPseudonym * pSignerNym/*=NULL*/) // uses this optional arg to substitute serverNym as signer.
 
 // done
 // for whichever partyaccounts have agents that happen to be loaded, this will grab the closing trans#s.
 //
-void OTParty::HarvestClosingNumbers(const OTString & strServerID)
+void OTParty::HarvestClosingNumbers(const OTString & strServerID, bool bSave/*=false*/, OTPseudonym * pSignerNym/*=NULL*/)
 {
+    const char * szFunc = "OTParty::HarvestClosingNumbers";
+    // ------------------------------------------------
 	FOR_EACH(mapOfPartyAccounts, m_mapPartyAccounts)
 	{
 		OTPartyAccount * pAcct = (*it).second;
-		OT_ASSERT_MSG(NULL != pAcct, "Unexpected NULL partyaccount pointer in party map.");
+		OT_ASSERT_MSG(NULL != pAcct, "OTParty::HarvestClosingNumbers: Unexpected NULL partyaccount pointer in party map.");
 		// -------------------------------------
 		
 		if (pAcct->GetClosingTransNo() <= 0)
@@ -2474,8 +2499,8 @@ void OTParty::HarvestClosingNumbers(const OTString & strServerID)
 		
 		if (str_agent_name.size() <= 0)
 		{
-			OTLog::vError("OTParty::HarvestClosingNumbers: Missing agent name on party account: %s \n",
-						 pAcct->GetName().Get());
+			OTLog::vError("%s: Missing agent name on party account: %s \n",
+						 szFunc, pAcct->GetName().Get());
 			continue;
 		}
 		// ----------------------------------
@@ -2483,12 +2508,18 @@ void OTParty::HarvestClosingNumbers(const OTString & strServerID)
 		OTAgent * pAgent = this->GetAgent(str_agent_name);
 		
 		if (NULL == pAgent)
-			OTLog::vError("OTParty::HarvestClosingNumbers: Couldn't find agent (%s) for asset account: %s\n", 
-						  str_agent_name.c_str(), pAcct->GetName().Get());
+			OTLog::vError("%s: Couldn't find agent (%s) for asset account: %s\n", 
+						  szFunc, str_agent_name.c_str(), pAcct->GetName().Get());
 		else
-			pAgent->HarvestTransactionNumber(pAcct->GetClosingTransNo(), strServerID);
+			pAgent->HarvestTransactionNumber(pAcct->GetClosingTransNo(),
+                                             strServerID,
+                                             bSave,          
+                                             pSignerNym);   // server passes in serverNym here, otherwise each agent uses its own nym.
 	} // FOR_EACH
 }
+
+
+
 
 
 //Done
@@ -2497,7 +2528,7 @@ void OTParty::HarvestClosingNumbers(OTAgent & theAgent, const OTString & strServ
 	FOR_EACH(mapOfPartyAccounts, m_mapPartyAccounts)
 	{
 		OTPartyAccount * pAcct = (*it).second;
-		OT_ASSERT_MSG(NULL != pAcct, "Unexpected NULL partyaccount pointer in partyaccount map.");
+		OT_ASSERT_MSG(NULL != pAcct, "OTParty::HarvestClosingNumbers: Unexpected NULL partyaccount pointer in partyaccount map.");
 		// -------------------------------------
 		
 		if (pAcct->GetClosingTransNo() <= 0)
@@ -2523,6 +2554,8 @@ void OTParty::HarvestClosingNumbers(OTAgent & theAgent, const OTString & strServ
 		// else nothing...
 	} // FOR_EACH	
 }
+
+
 
 
 // Done.
@@ -2661,43 +2694,61 @@ bool OTAgent::RemoveTransactionNumber(const long & lNumber, const OTString & str
 }
 
 
+
+
+
 // Done
-// IF theNym is this agent, then grab his number back for him.
-// If he is NOT, then do nothing.
 // ASSUMES m_pNym is set already -- doesn't bother loading the nym!
 //
-bool OTAgent::HarvestTransactionNumber(const long & lNumber, const OTString & strServerID, bool bSave/*=false*/)
+bool OTAgent::HarvestTransactionNumber(const long & lNumber,
+                                       const OTString & strServerID, 
+                                       bool bSave/*=false*/, // Each agent's nym is used if pSignerNym is NULL, whereas the server
+                                       OTPseudonym * pSignerNym/*=NULL*/) // uses this optional arg to substitute serverNym as signer.
 {
+    const char * szFunc = "OTAgent::HarvestTransactionNumber";
+    // -------------------------------------
 	// Todo: this function may change when entities / roles are added.
+    //
 	if (!IsAnIndividual() || !DoesRepresentHimself())
 	{
-		OTLog::vError("OTAgent::HarvestTransactionNumber:  Error: Entities and Roles are not yet supported. Agent: %s\n",
-					 m_strName.Get());
+		OTLog::vError("%s:  Error: Entities and Roles are not yet supported. Agent: %s\n",
+					 szFunc, m_strName.Get());
 		return false;
 	}
 	// -----------------------------------------
 	
 	if (NULL != m_pNym)
 	{
-		// We don't "add it back" unless we're SURE he had it in the first place...
-		if (m_pNym->VerifyIssuedNum(strServerID, lNumber))
-		{
-			m_pNym->AddTransactionNum(*m_pNym, strServerID, lNumber, bSave); // bSave defaults to false because OTParty will save the Nym at the end, when IT is harvesting.
+        // If a signer wasn't passed in (the server-side uses server nym to sign)
+        // then we use the Nym himself as his own signer (common to client-side.)
+        //
+        if (NULL == pSignerNym)
+            pSignerNym = m_pNym;
+        // -----------------------------------------------
+        const OTIdentifier theServerID(strServerID);
+        
+		// This won't "add it back" unless we're SURE he had it in the first place...
+        //
+        const bool bSuccess = m_pNym->ClawbackTransactionNumber(theServerID, lNumber, bSave, pSignerNym);
+        
+		if (bSuccess)
 			return true;
-		}
 		else 
-			OTLog::vError("OTAgent::HarvestTransactionNumber: Number (%ld) failed to verify for agent: %s (Thus didn't bother 'adding it back'.)\n",
-						  lNumber, m_strName.Get());
+			OTLog::vError("%s: Number (%ld) failed to verify for agent: %s (Thus didn't bother "
+                          "'adding it back'.)\n", szFunc, lNumber, m_strName.Get());
 	}
 	else 
-		OTLog::vError("OTAgent::HarvestTransactionNumber: Error: m_pNym was NULL. For agent: %s\n",
-					  m_strName.Get());
+		OTLog::vError("%s: Error: m_pNym was NULL. For agent: %s\n",
+					  szFunc, m_strName.Get());
 	
 	return false;
 }
 
 
+
 // --------------------------------------------------------------
+
+
 
 // Done
 // IF theNym is one of my agents, then grab his opening number back for him.
@@ -2726,7 +2777,7 @@ void OTParty::HarvestOpeningNumber(OTAgent & theAgent, const OTString & strServe
 	}
 	else if (GetOpeningTransNo() > 0)
 	{
-		theAgent.HarvestTransactionNumber(GetOpeningTransNo(), strServerID);
+		theAgent.HarvestTransactionNumber(GetOpeningTransNo(), strServerID); // bSave=false, pSignerNym=NULL
 	}
 	else
 		OTLog::vOutput(0, "OTParty::HarvestOpeningNumber: Nothing to harvest, it was already 0 for party: %s\n",

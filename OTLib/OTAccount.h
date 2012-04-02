@@ -192,6 +192,12 @@ protected:
 	
     bool	m_bMarkForDeletion; // Default FALSE. When set to true, saves a "DELETED" flag with this Account, 
 								// for easy cleanup later when the server is doing some maintenance.
+    // --------------------------------------------------------------
+    
+    OTIdentifier    m_InboxHash;       // Hash of this account's Inbox, so we don't download it more often than necessary.
+    OTIdentifier    m_OutboxHash;      // Hash of this account's Outbox, so we don't download it more often than necessary.
+    
+	// --------------------------------------------------------------
 public:	
 	// --------
 	
@@ -222,6 +228,10 @@ public:
 	OTAccount(const OTIdentifier & theUserID, const OTIdentifier & theAccountID, const OTIdentifier & theServerID);
 	void InitAccount();
 	virtual ~OTAccount();
+    
+    virtual void Release();
+
+    // -----------------------------------------------------------------------
 	
 	static OTAccount * GenerateNewAccount(const OTIdentifier & theUserID, const OTIdentifier & theServerID, 
 										  const OTPseudonym & theServerNym, const OTMessage & theMessage,
@@ -230,15 +240,20 @@ public:
 
 	bool GenerateNewAccount(const OTPseudonym & theServer, const OTMessage & theMessage, const AccountType eAcctType=simple,
 							long lStashTransNum=0);
+    // -----------------------------------------------------------------------
 
 	// Let's say you don't have or know the UserID, and you just want to load the damn thing up.
 	// Then call this function. It will set userID for you.
 	static OTAccount * LoadExistingAccount(const OTIdentifier & theAccountID, const OTIdentifier & theServerID);
-
-	
-	OTLedger * LoadInbox(OTPseudonym & theNym); // Caller responsible to delete.
+    
+    // -----------------------------------------------------------------------
+	OTLedger * LoadInbox (OTPseudonym & theNym); // Caller responsible to delete.
 	OTLedger * LoadOutbox(OTPseudonym & theNym); // Caller responsible to delete.
 	
+    bool SaveInbox (OTLedger &theBox, OTIdentifier * pHash=NULL);  // If you pass the identifier in, the inbox hash is recorded there
+	bool SaveOutbox(OTLedger &theBox, OTIdentifier * pHash=NULL);  // If you pass the identifier in, the outbox hash is recorded there
+    // -----------------------------------------------------------------------
+    
 	// gives you the asset type ID of this account. (the asset contract hash.)
 	const OTIdentifier & GetAssetTypeID() const;
 	
@@ -259,7 +274,14 @@ public:
 	virtual bool SaveContractWallet(OTString & strContents) const;
 	
 	virtual bool DisplayStatistics(OTString & strContents) const;
-
+	// --------------------------------------------------------------
+    
+    void  SetInboxHash(const OTIdentifier & theInput);   
+    bool  GetInboxHash(OTIdentifier & theOutput);
+    
+    void  SetOutboxHash(const OTIdentifier & theInput);   
+    bool  GetOutboxHash(OTIdentifier & theOutput);
+    
 	// --------------------------------------------------------------
 
 	static const char * _TypeStrings[]; // for translating transaction type into a string.

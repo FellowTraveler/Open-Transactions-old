@@ -694,8 +694,97 @@ bool OTLedger::SaveGeneric(OTLedger::ledgerType theType)
 }
 
 
+
+
+// If you know you have an inbox, outbox, or nymbox, then call CalculateInboxHash,
+// CalculateOutboxHash, or CalculateNymboxHash. Otherwise, if in doubt, call this.
+// It's more generic but warning: performs less verification.
+//
+bool OTLedger::CalculateHash(OTIdentifier & theOutput)
+{
+    theOutput.Release();
+    
+    bool bCalcDigest = theOutput.CalculateDigest(m_xmlUnsigned);
+    if (false == bCalcDigest)
+    {
+        theOutput.Release();
+        OTLog::vError("OTLedger::CalculateHash: Failed trying to calculate hash (for a %s)\n", 
+                      GetTypeString());
+    }
+    
+    return bCalcDigest;
+}
+
+bool OTLedger::CalculateInboxHash(OTIdentifier & theOutput)
+{
+	if (m_Type != OTLedger::inbox)
+	{
+		OTLog::Error("Wrong ledger type passed to OTLedger::CalculateInboxHash.\n");
+		return false;
+	}
+    // ----------------------------
+    return this->CalculateHash(theOutput);
+}
+
+bool OTLedger::CalculateOutboxHash(OTIdentifier & theOutput)
+{
+	if (m_Type != OTLedger::outbox)
+	{
+		OTLog::Error("Wrong ledger type passed to OTLedger::CalculateOutboxHash.\n");
+		return false;
+	}
+    // ----------------------------
+    return this->CalculateHash(theOutput);
+}
+
+bool OTLedger::CalculateNymboxHash(OTIdentifier & theOutput)
+{
+	if (m_Type != OTLedger::nymbox)
+	{
+		OTLog::Error("Wrong ledger type passed to OTLedger::CalculateNymboxHash.\n");
+		return false;
+	}
+    // ----------------------------
+    return this->CalculateHash(theOutput);
+}
+
+
+
+
 // If you're going to save this, make sure you sign it first.
-bool OTLedger::SaveInbox()
+bool OTLedger::SaveNymbox(OTIdentifier * pNymboxHash/*=NULL*/) // If you pass the identifier in, the hash is recorded there.
+{
+	if (m_Type != OTLedger::nymbox)
+	{
+		OTLog::Error("Wrong ledger type passed to OTLedger::SaveNymbox.\n");
+		return false;
+	}
+	
+    const bool bSaved = SaveGeneric(m_Type);
+    // -----------------------------------
+    // Sometimes the caller, when saving the Nymbox, wants to know what the
+    // latest Nymbox hash is. FYI, the NymboxHash is calculated on the UNSIGNED
+    // contents of the Nymbox. So if pNymboxHash is not NULL, then that is where
+    // I will put the new hash, as output for the caller of this function.
+    //
+    if (bSaved && (NULL != pNymboxHash))
+    {
+        pNymboxHash->Release();
+        
+        if (!this->CalculateNymboxHash(*pNymboxHash))
+            OTLog::Error("OTLedger::SaveNymbox: Failed trying to calculate nymbox hash.\n");
+//        
+//        if (!pNymboxHash->CalculateDigest(m_xmlUnsigned))
+//            OTLog::Error("OTLedger::SaveNymbox: Failed trying to calculate nymbox hash.\n");
+    }
+    
+    // -----------------------------------
+	return bSaved;
+}
+
+
+// If you're going to save this, make sure you sign it first.
+bool OTLedger::SaveInbox(OTIdentifier * pInboxHash/*=NULL*/) // If you pass the identifier in, the hash is recorded there.
 {
 	
 //	OTString strTempBlah, strTempBlah2(*this);
@@ -708,19 +797,35 @@ bool OTLedger::SaveInbox()
 //	OTLog::vError("OTLedger::SaveInbox: (CONTINUED DEBUGGING):  INBOX CONTENTS: \n\n%s\n\n",
 //				  strTempBlah2.Get());
 
-	
 	if (m_Type != OTLedger::inbox)
 	{
 		OTLog::Error("Wrong ledger type passed to OTLedger::SaveInbox.\n");
 		return false;
 	}
 	
-	return SaveGeneric(m_Type);
+    const bool bSaved = SaveGeneric(m_Type);
+    // -----------------------------------
+    // Sometimes the caller, when saving the Inbox, wants to know what the
+    // latest Inbox hash is. FYI, the InboxHash is calculated on the UNSIGNED
+    // contents of the Inbox. So if pInboxHash is not NULL, then that is where
+    // I will put the new hash, as output for the caller of this function.
+    //
+    if (bSaved && (NULL != pInboxHash))
+    {
+        pInboxHash->Release();
+        
+        if (!this->CalculateInboxHash(*pInboxHash))
+//      if (!pInboxHash->CalculateDigest(m_xmlUnsigned))
+            OTLog::Error("OTLedger::SaveInbox: Failed trying to calculate Inbox hash.\n");
+    }
+    
+    // -----------------------------------
+	return bSaved;
 }
 
 
 // If you're going to save this, make sure you sign it first.
-bool OTLedger::SaveOutbox()
+bool OTLedger::SaveOutbox(OTIdentifier * pOutboxHash/*=NULL*/) // If you pass the identifier in, the hash is recorded there.
 {
 	if (m_Type != OTLedger::outbox)
 	{
@@ -728,20 +833,27 @@ bool OTLedger::SaveOutbox()
 		return false;
 	}
 	
-	return SaveGeneric(m_Type);
+    const bool bSaved = SaveGeneric(m_Type);
+    // -----------------------------------
+    // Sometimes the caller, when saving the Outbox, wants to know what the
+    // latest Outbox hash is. FYI, the OutboxHash is calculated on the UNSIGNED
+    // contents of the Outbox. So if pOutboxHash is not NULL, then that is where
+    // I will put the new hash, as output for the caller of this function.
+    //
+    if (bSaved && (NULL != pOutboxHash))
+    {
+        pOutboxHash->Release();
+        
+        if (!this->CalculateOutboxHash(*pOutboxHash))
+//      if (!pOutboxHash->CalculateDigest(m_xmlUnsigned))
+            OTLog::Error("OTLedger::SaveOutbox: Failed trying to calculate Outbox hash.\n");
+    }
+    
+    // -----------------------------------
+	return bSaved;
 }
 
-// If you're going to save this, make sure you sign it first.
-bool OTLedger::SaveNymbox()
-{
-	if (m_Type != OTLedger::nymbox)
-	{
-		OTLog::Error("Wrong ledger type passed to OTLedger::SaveNymbox.\n");
-		return false;
-	}
-	
-	return SaveGeneric(m_Type);
-}
+
 // ------------------------------------------------
 
 // If you're going to save this, make sure you sign it first.
@@ -1210,7 +1322,7 @@ OTTransaction * OTLedger::GetPendingTransaction(long lTransactionNum)
 //
 OTTransaction * OTLedger::GetFinalReceipt(long lReferenceNum)
 {
-	// loop through the items that make up this transaction.
+	// loop through the transactions that make up this ledger.
 	FOR_EACH(mapOfTransactions, m_mapTransactions)
 	{
 		OTTransaction * pTransaction = (*it).second;
@@ -1225,6 +1337,31 @@ OTTransaction * OTLedger::GetFinalReceipt(long lReferenceNum)
 	
 	return NULL;
 }
+
+
+
+// Nymbox-only.
+// Looks up replyNotice by REQUEST NUMBER.
+//
+OTTransaction * OTLedger::GetReplyNotice(const long & lRequestNum)
+{
+	// loop through the transactions that make up this ledger.
+	FOR_EACH(mapOfTransactions, m_mapTransactions)
+	{
+		OTTransaction * pTransaction = (*it).second;
+		OT_ASSERT(NULL != pTransaction);
+		
+        if (OTTransaction::replyNotice != pTransaction->GetType()) // <=======
+            continue;
+        // ---------------------------------
+		if (pTransaction->GetRequestNum() == lRequestNum)
+			return pTransaction;
+	}
+	
+	return NULL;
+}
+
+
 
 // If my outbox has a pending transfer, #1901, referencing 1884, and then the 
 // recipient accepts it with his #781, referencing 1884, then it will pop into my inbox
@@ -1244,7 +1381,7 @@ OTTransaction * OTLedger::GetFinalReceipt(long lReferenceNum)
 //
 OTTransaction * OTLedger::GetTransferReceipt(long lTransactionNum)
 {
-	// loop through the items that make up this transaction.
+	// loop through the transactions that make up this ledger.
 	FOR_EACH(mapOfTransactions, m_mapTransactions)
 	{
 		OTTransaction * pTransaction = (*it).second;
@@ -1386,7 +1523,7 @@ OTItem * OTLedger::GenerateBalanceStatement(const long lAdjustment, const OTTran
 
 	long lCurrentBalance = theAccount.GetBalance();
 	
-	pBalanceItem->SetAmount(lCurrentBalance + lAdjustment);  // <==== Here's the new (predicted) balance for after the withdrawal is complete. (item.GetAmount)
+	pBalanceItem->SetAmount(lCurrentBalance + lAdjustment);  // <==== Here's the new (predicted) balance for after the transaction is complete. (item.GetAmount)
 	
 	// ---------------------------------------------------------
 	// loop through the INBOX transactions, and produce a sub-item onto pBalanceItem for each, which will
@@ -1755,6 +1892,8 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 					long lAdjustment		= 0;
 					long lDisplayValue		= 0;
 					long lClosingNum		= 0;
+                    long lRequestNum        = 0;
+                    bool bReplyTransSuccess = false;
 					// -------------------------------------
 					int nAbbrevRetVal =
 						OTTransaction::LoadAbbreviatedRecord(xml,
@@ -1767,6 +1906,8 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 															 lAdjustment,
 															 lDisplayValue,
 															 lClosingNum,
+                                                             lRequestNum,
+                                                             bReplyTransSuccess,
                                                              pNumList); // This is for "OTTransaction::blank" and "OTTransaction::successNotice", otherwise NULL.
 					if ((-1) == nAbbrevRetVal)
 						return (-1); // The function already logs appropriately.
@@ -1803,6 +1944,8 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 																	 lAdjustment,
 																	 lDisplayValue,
 																	 lClosingNum,
+                                                                     lRequestNum,
+                                                                     bReplyTransSuccess,                                                                     
                                                                      pNumList); // This is for "OTTransaction::blank" and "OTTransaction::successNotice", otherwise NULL.
 					OT_ASSERT(NULL != pTransaction); // --------------------------------
 					//

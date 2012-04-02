@@ -153,8 +153,6 @@
 
  */
 
-;
-
 class OTItem;
 class OTTransaction;
 class OTLedger;
@@ -167,6 +165,9 @@ typedef std::map<std::string, long>	mapOfHighestNums;
 
 typedef std::deque<long>							dequeOfTransNums;
 typedef std::map<std::string, dequeOfTransNums *>	mapOfTransNums;
+
+typedef std::map<std::string, OTIdentifier>         mapOfIdentifiers;
+
 
 class OTPseudonym
 {
@@ -184,15 +185,29 @@ private:
 	
 	OTASCIIArmor	m_ascCert;		// Just the ascii-armor portion without BEGIN and END
 	
-	OTIdentifier	m_nymID;		// hashed public key
-
+    // ----------------------------------------------------
+	OTIdentifier        m_nymID;            // Hashed-ID formed by hashing the Nym's public key.
+	OTIdentifier        m_NymboxHash;       // (Server-side) Hash of the Nymbox
+    
+    mapOfIdentifiers    m_mapNymboxHash;    // (Client-side) Hash of latest DOWNLOADED Nymbox (OTIdentifier) mapped by ServerID (std::string)
+    mapOfIdentifiers    m_mapRecentHash;    // (Client-side) Hash of Nymbox according to Server, based on some recent reply. (May be newer...)
+    // ----------------------------------------------------
+    mapOfIdentifiers    m_mapInboxHash;    // Whenever client downloads Inbox, its hash is stored here. (When downloading account, can compare ITS inbox hash to this one, to see if I already have latest one.)
+    mapOfIdentifiers    m_mapOutboxHash;  // Whenever client downloads Outbox, its hash is stored here. (When downloading account, can compare ITS outbox hash to this one, to see if I already have latest one.)
+    // ----------------------------------------------------
+    
 	OTAsymmetricKey *m_pkeyPublic;	// This nym's public key
 	OTAsymmetricKey *m_pkeyPrivate;	// This nym's private key
 
+    // NOTE: these dequeOfMail objects are only currently stored in the Nym for convenience.
+    // They don't have to be stored in here.
+    //
 	dequeOfMail		m_dequeMail;	// Any mail messages received by this Nym. (And not yet deleted.)
 	dequeOfMail		m_dequeOutmail;	// Any mail messages sent by this Nym. (And not yet deleted.)
 	dequeOfMail		m_dequeOutpayments;	// Any outoing payments sent by this Nym. (And not yet deleted.) (payments screen.)
-		
+    
+    // -----------------------------------------------
+    
 	mapOfRequestNums m_mapRequestNum;	// Whenever this user makes a request to a transaction server
 										// he must use the latest request number. Each user has a request
 										// number for EACH transaction server he accesses.
@@ -220,16 +235,63 @@ private:
 	// This prevents a sneaky server from sending you an old number, getting you to sign it out again, then then using that to run 
 	// through an old instrument (such as a cheque) that still has your old (valid) signature on it.
     mapOfHighestNums m_mapHighTransNo;  // Mapped, a single long to each server (just like request numbers are.)
-	
+	// -----------------------------
+    
+    // (SERVER side)
     std::set<long> m_setOpenCronItems; // Until these Cron Items are closed out, the server-side Nym keeps a list of them handy.
     
+    // (SERVER side)
     // Using strings here to avoid juggling memory crap.
     std::set<std::string> m_setAccounts; // A list of asset account IDs. Server side only (client side uses wallet; has multiple servers.)
     // ------------------------------------------
-	long		m_lUsageCredits;	// Server-side. The usage credits available for this Nym. Infinite if negative.
+    // (SERVER side.)
+	long	m_lUsageCredits;	// Server-side. The usage credits available for this Nym. Infinite if negative.
 	
 public:
-	
+	// ------------------------------------------------
+    bool            GetNymboxHashServerSide(const OTIdentifier & theServerID, OTIdentifier & theOutput);    // server-side
+    void            SetNymboxHashServerSide(const OTIdentifier & theInput); // server-side    
+private:
+	// ------------------------------------------------
+    // Generic function used by the below functions.
+    bool            GetHash(const mapOfIdentifiers & the_map, const std::string & str_id, OTIdentifier & theOutput) const;   // client-side	
+    bool            SetHash(mapOfIdentifiers & the_map, const std::string & str_id, const OTIdentifier & theInput);    // client-side
+	// ------------------------------------------------
+//	OTIdentifier        m_NymboxHash;       // (Server-side) Hash of the Nymbox
+//  mapOfIdentifiers    m_mapNymboxHash;    // (Client-side) Hash of Nymbox (OTIdentifier) mapped by ServerID (std::string)
+public:
+	// ------------------------------------------------
+    // This value is only updated on client side, when the actual latest
+    // nymbox has been downloaded.
+    bool            GetNymboxHash(const std::string & server_id,       OTIdentifier & theOutput) const;   // client-side
+    bool            SetNymboxHash(const std::string & server_id, const OTIdentifier & theInput);    // client-side
+	// ------------------------------------------------
+    // Whereas THIS value is updated when various server replies are received.
+    // (So we can see the most recent version of the same hash on server side.)
+    // If this doesn't match the hash above, then it's time to download your nymbox
+    // because it's old.
+    bool            GetRecentHash(const std::string & server_id, OTIdentifier & theOutput) const;   // client-side	
+    bool            SetRecentHash(const std::string & server_id, const OTIdentifier & theInput);    // client-side
+	// ------------------------------------------------
+    // This functions are for the latest downloaded inbox's hash.
+    // (If the hash that appears in the account is different, then
+    // your inbox is old -- download it again.)
+    //
+    // This saves you having to download it many times when it has not even changed.
+    //
+    bool            GetInboxHash(const std::string & acct_id, OTIdentifier & theOutput) const;   // client-side	
+    bool            SetInboxHash(const std::string & acct_id, const OTIdentifier & theInput);    // client-side
+	// ------------------------------------------------
+    // This functions are for the latest downloaded outbox's hash.
+    // (If the hash that appears in the account is different, then
+    // your outbox is old -- download it again.)
+    //
+    // This saves you having to download it many times when it has not even changed.
+    //
+    bool            GetOutboxHash(const std::string & acct_id, OTIdentifier & theOutput) const;   // client-side	
+    bool            SetOutboxHash(const std::string & acct_id, const OTIdentifier & theInput);    // client-side
+	// ------------------------------------------------
+    
 	const long & GetUsageCredits() const { return m_lUsageCredits; } 
 	void SetUsageCredits(const long & lUsage) { m_lUsageCredits = lUsage; }
 	
@@ -262,7 +324,7 @@ public:
 	
 	// use this to actually generate a new key pair and assorted nym files.
 	//
-	bool GenerateNym(int nBits=1024); // TODO: security, hardcoding, keysize needs to be configurable.
+	bool GenerateNym(int nBits=1024, bool bCreateFile=true);
 
 	// ---------------------------------------------
 	
@@ -281,10 +343,18 @@ public:
 	// It also handles the escaped version:   - -----BEGIN CERTIFICATE-----
 	bool SetCertificate(const OTString & strCert, bool bEscaped=true);
 	
-	// This will set the public key on this Nym 
-	// based on the public key as it appears in an
-	// ascii-armored string.
+	// This will set the public key on this Nym based on the public key as it
+    // appears in an ascii-armored string.
 	bool SetPublicKey(const OTASCIIArmor & strKey);	
+	
+	// ---------------------------------------------
+    
+	// This version WILL handle the bookends -----BEGIN ENCRYPTED PRIVATE KEY------ 
+	bool SetPrivateKey(const OTString & strKey, bool bEscaped=true);
+	
+	// This will set the private key on this Nym based on the private key as it
+    // appears in an ascii-armored string.
+	bool SetPrivateKey(const OTASCIIArmor & strKey);	
 	
 	// ------------------------------------------
 	
@@ -339,10 +409,25 @@ public:
 	void GetIdentifier(OTString & theIdentifier) const;
 	void SetIdentifier(const OTString & theIdentifier);
 
-	void HarvestTransactionNumbers(const OTIdentifier & theServerID, OTPseudonym & SIGNER_NYM, OTPseudonym & theOtherNym, bool bSave=true); // OtherNym is used as container for server to send us new transaction numbers
-	void HarvestIssuedNumbers(const OTIdentifier & theServerID, OTPseudonym & SIGNER_NYM, OTPseudonym & theOtherNym, bool bSave=false); // OtherNym is used as container for us to send list of issued numbers to the server (for balance agreement)
+    // --------------------------------------------
+    
+	void HarvestTransactionNumbers(const OTIdentifier & theServerID, OTPseudonym & SIGNER_NYM,
+                                   OTPseudonym & theOtherNym, // OtherNym is used as a container for the server to send
+                                   bool bSave=true);          // us new transaction numbers.
+    
+	void HarvestIssuedNumbers(const OTIdentifier & theServerID, OTPseudonym & SIGNER_NYM,
+                              OTPseudonym & theOtherNym, // OtherNym is used as container for us to send a list
+                              bool bSave=false);         // of issued numbers to the server (for balance agreement)
 
-	void IncrementRequestNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID); // Increment the counter or create a new one for this serverID starting at 1
+    
+    bool ClawbackTransactionNumber(const OTIdentifier & theServerID,
+                                   const long & lTransClawback, // the number being clawed back.
+                                   bool bSave=false,
+                                   OTPseudonym * pSIGNER_NYM=NULL);
+    
+	// ---------------------------------------------
+    
+    void IncrementRequestNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID); // Increment the counter or create a new one for this serverID starting at 1
 	void OnUpdateRequestNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, long lNewRequestNumber); // if the server sends us a @getRequest
 	bool GetCurrentRequestNum(const OTString & strServerID, long &lReqNum); // get the current request number for the serverID
 	
@@ -493,6 +578,8 @@ public:
 	
 	const OTAsymmetricKey & GetPublicKey() const;
 	const OTAsymmetricKey & GetPrivateKey() const;
+	
+	// -------------------------------------
 	
 	void DisplayStatistics(OTString & strOutput);
 };

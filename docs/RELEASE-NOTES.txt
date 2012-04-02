@@ -3,6 +3,30 @@ NOTES on the Version:
 
 // --------------------------------------------------------------------
 
+   0.79 --- * Inbox, Outbox, and Nymbox now are hashed, with the hashes
+            sent to the client on certain server reply messages. The client
+            will refrain from downloading those files unless the hashes
+            have changed.
+            * The server drops all important replies into the Nymbox, to make
+            sure the client doesn't miss them (for synchronization purposes.)
+            * The client-side now tracks all sent messages, and when a reply
+            is lost, the client is smart enough to download the Nymbox and
+            check for a reply there, before harvesting any transaction numbers
+            back for re-use.
+            * The API now draws a sharp distinction between 'error' messages
+            and 'failed' messages. ('Error' could mean "missed server reply"
+            which could actually mean, "The reply was actually a success, but
+            we just didn't know because it was dropped on the network." OT
+            takes all of this into account now, for synchronization purposes.)
+            * All API calls to send a message now return the request #, if the
+            message was actually sent. This allows the client developer to look
+            up any replies based on the request #, as well as reference the sent
+            message itself by request #. 
+            * The high-level API wrapper (in Java) has been completely re-written
+            for this new synchronization code.
+            * The high-level API wrapper (in OTScript) has NOT yet been re-written,
+            but that is coming probably with my next check-in.
+
    0.78 --- Fixed a nasty bug in signatures that forced me to regenerate
             the test data. Nyms stayed the same, but all contracts were
             re-signed and all server IDs and asset IDs have changed. 

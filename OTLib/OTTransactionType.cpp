@@ -570,6 +570,27 @@ void OTTransactionType::Release()
 }
 
 
+
+
+// -------------------------------------------
+// OTAccount, OTTransaction, OTItem, and OTLedger are all derived from
+// this class (OTTransactionType). Therefore they can all quickly identify
+// whether one of the other components belongs to the same account, using 
+// this method.
+//
+bool OTTransactionType::IsSameAccount(const OTTransactionType & rhs) const
+{
+    if (
+        (GetUserID()        != rhs.GetUserID())        ||
+        (GetRealAccountID() != rhs.GetRealAccountID()) ||
+        (GetRealServerID()  != rhs.GetRealServerID())
+        )
+        return false;
+    return true;
+}
+
+
+
 void OTTransactionType::GetReferenceString(OTString & theStr) const
 {
 	m_ascInReferenceTo.GetString(theStr);

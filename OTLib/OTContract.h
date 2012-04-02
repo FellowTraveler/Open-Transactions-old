@@ -162,7 +162,6 @@ class OTIdentifier;
 
 
 typedef std::list	<OTSignature *>					listOfSignatures;
-typedef std::map	<std::string, std::string>		mapOfStrings;
 
 
 

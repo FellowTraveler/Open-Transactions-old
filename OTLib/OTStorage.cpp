@@ -565,12 +565,8 @@ namespace OTDB
 	{
 		Storage * pStorage = details::s_pStorage;
 		
-		
-		OT_ASSERT((strFolder.length() > 3) || (0 == strFolder.compare(0, 1, ".")));
-		
-		OT_ASSERT((oneStr.length() < 1) || (oneStr.length() > 3));
-		
-		
+		OT_ASSERT((strFolder.length() > 3)  || (0 == strFolder.compare(0, 1, ".")));
+		OT_ASSERT((oneStr.length() < 1)     || (oneStr.length() > 3));
 		
 		if (NULL == pStorage) 
 		{

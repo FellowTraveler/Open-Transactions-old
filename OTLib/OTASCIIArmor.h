@@ -174,7 +174,10 @@ public:
 	
 	bool LoadFromFile(const OTString & foldername, const OTString & filename);
 	bool LoadFromifstream(const std::ifstream & fin);
-	bool LoadFromString(OTString & theStr, bool bEscaped=false);
+	bool LoadFromString(OTString & theStr,
+                        bool bEscaped=false, 
+                        const // This sub-string determines where the content starts, when loading.
+                        std::string str_override="-----BEGIN"); // "-----BEGIN" is the default "content start" substr. Todo: hardcoding.
 
 	// This function will base64 DECODE the string contents (This class is a string)
 	// and return them as BINARY in theData

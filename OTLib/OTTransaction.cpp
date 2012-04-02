@@ -155,6 +155,8 @@ using namespace io;
 #include "OTCheque.h"
 #include "OTItem.h"
 #include "OTLedger.h"
+#include "OTBasket.h"
+#include "OTTrade.h"
 #include "OTPaymentPlan.h"
 #include "OTSmartContract.h"
 #include "OTTransactionType.h"
@@ -274,6 +276,933 @@ bool OTTransaction::VerifyAccount(OTPseudonym & theNym)
 				  "2) The SIGNATURE VERIFIED on the object.\n\n");
 	return true;
 }
+
+
+/*
+//                      **** MESSAGE TRANSACTIONS ****
+// --------------------------------------------------------------------------------------		
+		processNymbox,	// process nymbox transaction	 // comes from client
+// --------------------------------------------------------------------------------------
+		processInbox,	// process inbox transaction	 // comes from client
+// --------------------------------------------------------------------------------------
+		transfer,		// or "spend". This transaction is a request to transfer from one account to another
+// --------------------------------------------------------------------------------------
+		deposit,		// this transaction is a deposit (cash or cheque)
+// --------------------------------------------------------------------------------------
+		withdrawal,		// this transaction is a withdrawal (cash or voucher)
+// --------------------------------------------------------------------------------------
+		marketOffer,	// this transaction is a market offer
+// --------------------------------------------------------------------------------------
+		paymentPlan,	// this transaction is a payment plan
+// --------------------------------------------------------------------------------------
+		smartContract,	// this transaction is a smart contract
+// --------------------------------------------------------------------------------------
+		cancelCronItem,	// this transaction is intended to cancel a market offer or payment plan.
+// --------------------------------------------------------------------------------------
+		exchangeBasket,	// this transaction is an exchange in/out of a basket currency.
+// --------------------------------------------------------------------------------------
+ 
+
+ HarvestOpeningNumber:
+ 
+ processNymbox,     // process nymbox transaction	 // comes from client
+ processInbox,      // process inbox transaction	 // comes from client
+ transfer,          // or "spend". This transaction is a request to transfer from one account to another
+ deposit,           // this transaction is a deposit (cash or cheque)
+ withdrawal,        // this transaction is a withdrawal (cash or voucher)
+ marketOffer,       // this transaction is a market offer
+ paymentPlan,       // this transaction is a payment plan
+ smartContract,     // this transaction is a smart contract
+ cancelCronItem,	// this transaction is intended to cancel a market offer or payment plan.
+ exchangeBasket,	// this transaction is an exchange in/out of a basket currency.
+
+ // --------------------------------------------------------------------------------------
+
+ HarvestClosingNumbers:    (The X's means "not needed for closing numbers)
+ 
+ X processNymbox,     // process nymbox transaction	 // comes from client
+ X processInbox,      // process inbox transaction	 // comes from client
+ X transfer,          // or "spend". This transaction is a request to transfer from one account to another
+ X deposit,           // this transaction is a deposit (cash or cheque)
+ X withdrawal,        // this transaction is a withdrawal (cash or voucher)
+ X cancelCronItem,	// this transaction is intended to cancel a market offer or payment plan.
+ 
+ // ONLY THESE:
+ marketOffer,       // This contains one opening number, and two closing numbers.
+ paymentPlan,       // This contains one primary opening number (from the payer) and his closing number,
+ // as well as the opening and closing numbers for the payee. NOTE: Unless the paymentPlan SUCCEEDED in 
+ // activating, then the SENDER's numbers are both still good. (Normally even attempting a transaction
+ // will burn the opening number, which IS the case here, for the payer. But the PAYEE only burns his
+ // opening number IF SUCCESS. Thus, even if the message succeeded but the transaction failed, where
+ // normally the opening number is burned, it's still good for the PAYEE (not the payer.) Therefore we
+ // need to make sure, in the case of paymentPlan, that we still claw back the opening number (FOR THE
+ // PAYEE) in the place where we normally would only claw back the closing number. 
+ smartContract,     // This contains an opening number for each party, and a closing number for each
+ // asset account. 
+ 
+ 
+ 
+ exchangeBasket,	// this transaction is an exchange in/out of a basket currency.
+
+ // --------------------------------------------------------------------------------------
+
+ */
+
+// -----------------------------------------------------------------------------
+//    
+// Only do this if the message itself failed, meaning this transaction never even
+// attempted, and thus this transaction NEVER EVEN HAD A *CHANCE* TO FAIL, and thus
+// the opening number never got burned (Normally no point in harvesting a burned
+// number, now is there?)
+//
+// Client-side.
+//
+// Returns true/false whether it actually harvested a number.
+//
+bool OTTransaction::HarvestOpeningNumber(OTPseudonym & theNym,
+                                         const bool bHarvestingForRetry,    // The message was sent, failed somehow, and is now being re-tried.
+                                         const bool bReplyWasSuccess,       // Message was a success? false until positively asserted.
+                                         const bool bReplyWasFailure,       // Message received "failure" ? false until positively asserted.
+                                         const bool bTransactionWasSuccess, // false until positively asserted.
+                                         const bool bTransactionWasFailure) // false until positively asserted.
+{
+    bool bSuccess = false;
+    
+    switch (m_Type)
+    {
+            // Note: the below remarks about "success or fail" are specific to TRANSACTION success, not message success.
+        case OTTransaction::processNymbox:  // Uses 1 transaction #, the opening number, and burns it whether transaction is success-or-fail.
+        case OTTransaction::processInbox:   // Uses 1 transaction #, the opening number, and burns it whether transaction is success-or-fail.
+        case OTTransaction::deposit:        // Uses 1 transaction #, the opening number, and burns it whether transaction is success-or-fail. 
+        case OTTransaction::withdrawal:     // Uses 1 transaction #, the opening number, and burns it whether transaction is success-or-fail. 
+        case OTTransaction::cancelCronItem: // Uses 1 transaction #, the opening number, and burns it whether transaction is success-or-fail. 
+            
+            // If the server reply message was unambiguously a FAIL, that means the opening number is STILL GOOD.
+            // (Because the transaction therefore never even had a chance to run.)
+            //
+            // Note: what if, instead, I don't know whether the transaction itself failed, because I don't have a reply message?
+            // In that case, I cannot claw back the numbers because I don't know for sure. But my future transactions WILL fail if
+            // my nymbox hash goes out of sync, so if that transaction DID process, then I'll find out right away, and I'll be forced
+            // to download the nymbox and box receipts in order to get back into sync again. And if the transaction did NOT process,
+            // then I'll know it when I don't find it among the receipts. In which case I can pull the original message from the
+            // outbuffer, using the request number from when it was sent, and then harvest it from there.
+            //
+            if (bReplyWasFailure)   // NOTE: If I'm harvesting for a re-try, 
+            {
+                bSuccess = theNym.ClawbackTransactionNumber(GetPurportedServerID(), 
+                                                            GetTransactionNum()); //bSave=false, pSignerNym=NULL
+            }
+            // Else if the server reply message was unambiguously a SUCCESS, that means the opening number is DEFINITELY BURNED.
+            // (Why? Because that means the transaction definitely ran--and the opener is burned success-or-fail, if the transaction runs.)
+            //
+            else if (bReplyWasSuccess)
+            {
+                // The opener is DEFINITELY BAD, so therefore, we're definitely not going to claw it back!
+                //
+//              bSuccess = theNym.ClawbackTransactionNumber(GetPurportedServerID(), 
+//                                                          GetTransactionNum()); //bSave=false, pSignerNym=NULL
+            }
+            break;
+            
+        case OTTransaction::transfer:       // Uses 1 transaction #, the opening number, and burns it if failure. But if success, merely marks it as "used."
+            
+            // If the server reply message was unambiguously a FAIL, that means the opening number is STILL GOOD.
+            // (Because the transaction therefore never even had a chance to run.)
+            //
+            if (bReplyWasFailure)
+            {
+                bSuccess = theNym.ClawbackTransactionNumber(GetPurportedServerID(), 
+                                                            GetTransactionNum()); //bSave=false, pSignerNym=NULL
+            }
+            // Else if the server reply message was unambiguously a SUCCESS, that means the opening number is DEFINITELY NOT HARVESTABLE.
+            // Why? Because that means the transaction definitely ran--and the opener is marked as "used" on success, and "burned" on
+            // failure--either way, that's bad for harvesting (no point.)
+            //
+            else if (bReplyWasSuccess)
+            {
+                if (bTransactionWasSuccess)
+                {
+                    // This means the "transfer" transaction# is STILL MARKED AS "USED", and will someday be marked as CLOSED.
+                    // EITHER WAY, you certainly can't claw that number back now! (It is still outstanding, though. It's not gone, yet...)
+//                  bSuccess = theNym.ClawbackTransactionNumber(GetPurportedServerID(), 
+//                                                              GetTransactionNum()); //bSave=false, pSignerNym=NULL
+                }
+                else if (bTransactionWasFailure)
+                {
+                    // Whereas if the transaction was a failure, that means the transaction number was DEFINITELY burned.
+                    // (No point clawing it back now--it's gone already.)
+//                  bSuccess = theNym.ClawbackTransactionNumber(GetPurportedServerID(), 
+//                                                              GetTransactionNum()); //bSave=false, pSignerNym=NULL
+                }
+            }
+            break;            
+            
+        case OTTransaction::marketOffer:    // Uses 3 transaction #s, the opening number and 2 closers. If failure, opener is burned.
+                                            // But if success, merely marks it as "used." Closers are also marked "used" if success,
+                                            // but if message succeeds while transaction fails, then closers can be harvested.
+            // If the server reply message was unambiguously a FAIL, that means the opening number is STILL GOOD.
+            // (Because the transaction therefore never even had a chance to run.)
+            //
+            if (bReplyWasFailure)
+            {
+                bSuccess = theNym.ClawbackTransactionNumber(GetPurportedServerID(), 
+                                                            GetTransactionNum()); //bSave=false, pSignerNym=NULL
+            }
+            // Else if the server reply message was unambiguously a SUCCESS, that means the opening number is DEFINITELY NOT HARVESTABLE.
+            // Why? Because that means the transaction definitely ran--and the opener is marked as "used" on success, and "burned" on
+            // failure--either way, that's bad for harvesting (no point.)
+            //
+            else if (bReplyWasSuccess)
+            {
+                if (bTransactionWasSuccess)
+                {
+                    // This means the "marketOffer" transaction# is STILL MARKED AS "USED", and will someday be marked as CLOSED.
+                    // EITHER WAY, you certainly can't claw that number back now! (It is still outstanding, though. It's not gone, yet...)
+//                  bSuccess = theNym.ClawbackTransactionNumber(GetPurportedServerID(), 
+//                                                              GetTransactionNum()); //bSave=false, pSignerNym=NULL
+                }
+                else if (bTransactionWasFailure)
+                {
+                    // Whereas if the transaction was a failure, that means the transaction number was DEFINITELY burned.
+                    // (No point clawing it back now--it's gone already.)
+//                  bSuccess = theNym.ClawbackTransactionNumber(GetPurportedServerID(), 
+//                                                              GetTransactionNum()); //bSave=false, pSignerNym=NULL
+                }
+            }
+            
+            break;
+            
+        case OTTransaction::exchangeBasket: // Uses X transaction #s: the opener, which is burned success-or-fail, and Y closers (one for
+                                            // each account.) Closers are marked "used" if success transaction, but if message succeeds while
+                                            // transaction fails, then closers can be harvested.
+            // If the server reply message was unambiguously a FAIL, that means the opening number is STILL GOOD.
+            // (Because the transaction therefore never even had a chance to run.)
+            //
+            if (bReplyWasFailure)
+            {
+                bSuccess = theNym.ClawbackTransactionNumber(GetPurportedServerID(), 
+                                                            GetTransactionNum()); //bSave=false, pSignerNym=NULL
+            }
+            // Else if the server reply message was unambiguously a SUCCESS, that means the opening number is DEFINITELY BURNED.
+            // (Why? Because that means the transaction definitely ran--and the opener is burned "success-or-fail", if this transaction runs.)
+            //
+            else if (bReplyWasSuccess)
+            {
+                // The opener is DEFINITELY BURNED, so therefore, we're definitely not going to claw it back!
+                //
+//              bSuccess = theNym.ClawbackTransactionNumber(GetPurportedServerID(), 
+//                                                          GetTransactionNum()); //bSave=false, pSignerNym=NULL
+            }
+            break;
+            
+            // These aren't AS simple.
+        case OTTransaction::paymentPlan:    // Uses 4 transaction #s: the opener (sender's #), which burned on failure but kept alive on success,
+                                            // the sender's closer, which is only marked as "used" upon success, and the recipient's opening and
+                                            // closing numbers, which are both only marked as "used" upon success.
+        {
+            // The PAYER's (sender) opening number is burned just from TRYING a transaction. It's only left
+            // open if the transaction succeeds (but in that case, it's still marked as "used.") But the
+            // PAYEE's (recipient) opening number isn't marked as "used" UNLESS the transaction succeeds.
+            //
+            // Basically a failed transaction means the sender's opening number is burned and gone, but the
+            // recipient's must be clawed back!! Whereas if the message fails (before transaction even has a
+            // chance to run) then BOTH sender and recipient can claw back their numbers. The only way to tell
+            // the difference is to look at the message itself (the info isn't stored here in the transaction.)
+            //
+            // 1.
+            // Therefore we must assume that the CALLER OF THIS FUNCTION knows. If the message failed, he knows
+            // this, and he SPECIFICALLY called HarvestOpeningNumber() ANYWAY, to get the opening number back
+            // (when normally he would only recoup the closed numbers--therefore he MUST know that the message
+            // failed and that the number is thus still good!)
+            //
+            // 2.
+            // WHEREAS if the message SUCCEEDED (followed by transaction FAIL), then the payer/sender already
+            // used his opening number, whereas the recipient DID NOT! Again, the caller MUST KNOW THIS ALREADY.
+            // The caller wouldn't call "HarvestOpeningNumber" for a burned number (of the sender.) Therefore
+            // he must be calling it to recoup the (still issued) opening number of the RECIPIENT.
+            // 
+            // Problems:
+            // 1. What if caller is stupid, and message hasn't actually failed? What if caller is mistakenly
+            //    trying to recoup numbers that are actually burned already? Well, the opening number is already 
+            //    marked as "used but still issued" so when I try to claw it back, that will work (because it
+            //    only adds a number BACK after it can confirm that the number WAS issued to me in the first place,
+            //    and in this case, that verification will succeed.) 
+            //    THEREFORE: need to explicitly pass the message's success/failure status into the current
+            //    function. IF the msg was a failure, the transaction never had a chance to run and thus the
+            //    opening number is still good, and we can claw it back. But if the message was a SUCCESS, then
+            //    the transaction definitely TRIED to run, which means the opening number is now burned. (IF
+            //    the transaction itself failed, that is. Otherwise if it succeeded, then it's possible, in the
+            //    cases of transfer and marketOffer, that the opening number is STILL "used but issued", until
+            //    you finally close out your transferReceipt or the finalReceipt for your market offer.)
+            //
+            // 2. What if caller is stupid, and he called HarvestOpeningNumber for the sender, even though the
+            //    number was already burned in the original attempt? (Which we know it was, since the message
+            //    itself succeeded.) The sender, of course, has that number on his "issued" list, so his clawback
+            //    will succeed, putting him out of sync.
+            //
+            // 3. What if the recipient is passed into this function? His "opening number" is not the primary
+            //    one, but rather, there are three "closing numbers" on a payment plan. One for the sender, to
+            //    match his normal opening number, and 2 more for the recipient (an opening and closing number).
+            //    Therefore in the case of the recipient, need to grab HIS opening number, not the sender's.
+            //    (Therefore need to know whether Nym is sender or recipient.) Is that actually true? Or won't
+            //    the harvest process be smart enough to figure that out already? And will it know that the
+            //    recipient still needs to harvest HIS opening number, even if the transaction was attempted,
+            //    since the recipient's number wasn't marked as "used" unless the transaction itself succeeded.
+            //    NOTE: CronItem/Agreement/PaymentPlan is definitely smart enough already to know if the Nym is
+            //    the sender or recipient. It will only grab the appropriate number for the right Nym. But here
+            //    in THIS function we still have to be smart enough not to call it for the SENDER if the transaction
+            //    was attempted (because it must be burned already), but TO call it for the sender if the transaction
+            //    was not even attempted (meaning it wasn't burned yet.) Similarly, this function has to be smart
+            //    enough TO call it for the recipient if transaction was attempted but didn't succeed, since the
+            //    recipient's opening number is still good in that case.
+            //
+            // --------------------------------------------------------------------
+            
+            const OTIdentifier theNymID(theNym);
+            
+            // Assumption: if theNymID matches this->GetUserID(), then theNym must be the SENDER / PAYER!
+            // Else, he must be RECIPIENT / PAYEE, instead!
+            // This assumption is not for proving, since the harvest functions will verify the Nym's identity
+            // anyway. Instead, this assumption is merely for deciding which logic to use about which harvest
+            // functions to call.
+            //
+            if (theNymID == this->GetUserID())  // theNym is SENDER / PAYER
+            {
+                // If the server reply message was unambiguously a FAIL, that means the opening number is STILL GOOD.
+                // (Because the transaction therefore never even had a chance to run.)
+                //
+                if (bReplyWasFailure && !bHarvestingForRetry)
+                {                                            
+                    bSuccess = theNym.ClawbackTransactionNumber(GetPurportedServerID(), 
+                                                                GetTransactionNum()); //bSave=false, pSignerNym=NULL
+                }
+                // Else if the server reply message was unambiguously a SUCCESS, that means the opening number is DEFINITELY
+                // NOT HARVESTABLE. (For the sender, anyway.) Why not? Because that means the transaction definitely ran--and
+                // the opener is marked as "used" on success, and "burned" on failure--either way, that's bad for harvesting (no point.)
+                //
+                else if (bReplyWasSuccess)
+                {
+                    if (bTransactionWasSuccess)
+                    {
+                        // This means the "paymentPlan" transaction# is MARKED AS "USED", and will someday be marked as CLOSED.
+                        // EITHER WAY, you certainly can't claw that number back now! (It is still outstanding, though. It's not gone, yet...)
+//                      bSuccess = theNym.ClawbackTransactionNumber(GetPurportedServerID(), 
+//                                                                  GetTransactionNum()); //bSave=false, pSignerNym=NULL
+                    }
+                    else if (bTransactionWasFailure)
+                    {
+                        // Whereas if the transaction was a failure, that means the transaction number was DEFINITELY burned.
+                        // (No point clawing it back now--it's gone already.)
+//                      bSuccess = theNym.ClawbackTransactionNumber(GetPurportedServerID(), 
+//                                                                  GetTransactionNum()); //bSave=false, pSignerNym=NULL
+                    }
+                }
+            }
+            // --------------------------------------------
+            // theNym is RECIPIENT / PAYEE
+            //
+            // This case is slightly different because above, a successful message with a failed transaction will burn the
+            // opening number, whereas here, if the message is successful but the transaction is failed, the recipient's
+            // opening transaction number is STILL GOOD and can be harvested!  TODO: Make sure payment plans drop a NOTICE
+            // to the recipient, so he can harvest his numbers when this happens (similar to todos I have for smart contracts.)
+            //
+            // The other big difference with the recipient is that he has a different opening and closing number than the sender
+            // does, so I need to see if I can get those from the transaction, or if I have to load up the attached cron item
+            // to get that data.            
+            //
+            else  // theNym is RECIPIENT / PAYEE
+            {
+                // What is this class doing here?
+                // Answer: it's the C++ equivalent of local functions.
+                //
+                class _getRecipientOpeningNum
+                {
+                public:
+                    long Run(OTTransaction & theTransaction)
+                    {
+                        OTItem * pItem = theTransaction.GetItem(OTItem::paymentPlan);
+                        if (NULL != pItem)
+                        {
+                            // Also load up the Payment Plan from inside the transaction item.
+                            //
+                            OTString        strPaymentPlan;
+                            OTPaymentPlan   thePlan;
+                            pItem->GetAttachment(strPaymentPlan);
+
+                            if (strPaymentPlan.Exists() && thePlan.LoadContractFromString(strPaymentPlan))
+                                return thePlan.GetRecipientOpeningNum();
+                            else
+                                OTLog::Error("OTTransaction::HarvestOpeningNumber: Error: Unable to load "
+                                             "paymentPlan object from paymentPlan transaction item.\n");
+                        }
+                        else
+                            OTLog::Error("OTTransaction::HarvestOpeningNumber: Error: Unable to find "
+                                         "paymentPlan item in paymentPlan transaction.\n");
+                        return 0;
+                    }
+                }; // class _getRecipientOpeningNum
+                // ----------------------------------
+                
+                // If the server reply message was unambiguously a FAIL, that means the opening number is STILL GOOD.
+                // (Because the transaction therefore never even had a chance to run.)
+                //
+                if (bReplyWasFailure && !bHarvestingForRetry)
+                {
+                    _getRecipientOpeningNum getRecipientOpeningNum;
+                    const long lRecipientOpeningNum = getRecipientOpeningNum.Run(*this);
+                    
+                    if (lRecipientOpeningNum > 0)
+                        bSuccess = theNym.ClawbackTransactionNumber(GetPurportedServerID(), lRecipientOpeningNum); //bSave=false, pSignerNym=NULL
+                }
+                // Else if the server reply message was unambiguously a SUCCESS, then the next question is whether the
+                // TRANSACTION INSIDE IT was also a success, or if there's a "success message / failed transaction" situation
+                // going on here. For the recipient, that's important: in the first case, his opener is definitely marked as "used
+                // but still outstanding" and CANNOT be harvested. But in the second case, unlike with the sender, his opener IS harvestable!
+                // This is because of a peculiarity with payment plans: the recipient's opening number is not marked as used until
+                // the transaction itself is a success!                
+                //
+                else if (bReplyWasSuccess)
+                {
+                    if (bTransactionWasSuccess) // The opener is DEFINITELY marked as "used but still outstanding" and CANNOT be harvested.
+                    {
+                        // This means the "paymentPlan" transaction# is MARKED AS "USED", and will someday be marked as CLOSED.
+                        // EITHER WAY, you certainly can't claw that number back now! (It is still outstanding, though. It's not gone, yet...)
+//                      bSuccess = theNym.ClawbackTransactionNumber(GetPurportedServerID(), 
+//                                                                  RECIPIENTS--OPENING--NUMBER--GOES--HERE); //bSave=false, pSignerNym=NULL
+                    }
+                    else if (bTransactionWasFailure && !bHarvestingForRetry)
+                    {
+                        // In this case, unlike with the sender, the recipient's opener IS still harvestable! This is because
+                        // of a peculiarity with payment plans: the recipient's opening number is not marked as used until the
+                        // transaction itself is a success! Therefore, if the transaction was a failure, that means the recipient's 
+                        // opening number is DEFINITELY STILL GOOD.
+                        //
+                        _getRecipientOpeningNum getRecipientOpeningNum;
+                        const long lRecipientOpeningNum = getRecipientOpeningNum.Run(*this);
+                        
+                        if (lRecipientOpeningNum > 0)
+                            bSuccess = theNym.ClawbackTransactionNumber(GetPurportedServerID(), lRecipientOpeningNum); //bSave=false, pSignerNym=NULL
+                    }
+                }
+            }
+        }
+            break;
+            
+            // --------------------------------------------------------------------------------------------------
+            
+            // TODO: Make sure that when a user receives a success notice that a smart contract has been started up,
+            // that he marks his opener as "burned" instead of as "used." It's gone!
+            // Also: if the user receives a message failure notice (not done yet) then he can mark his opening #
+            // as "new" again! But if he instead receives a "message success but transaction failure", (todo: notice)
+            // then he must burn his opening #, as that is what the server has already done.
+            //
+            // In the case where message and transaction were BOTH success, then the user's existing setup is already
+            // correct. (The openers AND closers are already marked as "used but still issued" on the client side, and 
+            // the server-side sees things that way already as well.)
+            // 
+            
+        case OTTransaction::smartContract:  // Uses X transaction #s, with an opener for each party and a closer for each asset account.
+                                            // If the message is rejected by the server, then ALL openers can be harvested. But if the
+                                            // message was successful (REGARDLESS of whether the transaction was successful) then all of
+                                            // the openers for all of the parties have been burned. The closers, meanwhile, can be recovered
+                                            // if the message is a failure, as well as in cases where message succeeds but transaction failed.
+                                            // But if transaction succeeded, then the closers CANNOT be recovered. (Only removed, once you sign
+                                            // off on the receipt.)
+        {
+            // ------------------------------------------------------------------------------------------
+            OTItem * pItem = this->GetItem(OTItem::smartContract);
+            
+            if (NULL == pItem)
+            {
+                OTLog::Error("OTTransaction::HarvestOpeningNumber: Error: Unable to find "
+                             "smartContract item in smartContract transaction.\n");
+            }
+            else // Load up the smart contract...
+            {
+                OTString        strSmartContract;
+                OTSmartContract theSmartContract(GetPurportedServerID());
+                pItem->GetAttachment(strSmartContract);
+                
+                // If we failed to load the smart contract...
+                if (!strSmartContract.Exists() || (false == theSmartContract.LoadContractFromString(strSmartContract)))
+                {
+                    OTLog::Error("OTTransaction::HarvestOpeningNumber: Error: Unable to load "
+                                 "smartContract object from smartContract transaction item.\n");
+                }
+                else // theSmartContract is ready to go....
+                {
+                    // ------------------------------------------------------------------------------------------
+                    // The message reply itself was a failure. This means the transaction itself never got a chance
+                    // to run... which means ALL the opening numbers on that transaction are STILL GOOD.
+                    //
+                    if (bReplyWasFailure && !bHarvestingForRetry)
+                    {                 
+                        // If I WAS harvesting for a re-try, I'd want to leave the opening number
+                        // on this smart contract
+                        theSmartContract.HarvestOpeningNumber(theNym);
+                        bSuccess = true;
+                    }
+                    // Else if the server reply message was unambiguously a SUCCESS, that means the opening number is DEFINITELY NOT HARVESTABLE.
+                    // Why? Because that means the transaction definitely ran--and the opener is marked as "used" on SUCCESS, or "burned" on
+                    // FAILURE--either way, that's bad for harvesting (no point.)
+                    //
+                    else if (bReplyWasSuccess)
+                    {
+                        if (bTransactionWasSuccess)
+                        {
+                            // This means the "smartContract" opening trans# is MARKED AS "USED", and will someday be marked as CLOSED.
+                            // EITHER WAY, you certainly can't claw that number back now! (It is still outstanding, though. It's not gone, yet...)
+                            //
+//                          theSmartContract.HarvestOpeningNumber(theNym);
+//                          bSuccess = true;
+                        }
+                        else if (bTransactionWasFailure)
+                        {
+                            // Whereas if the transaction was a failure, that means the opening trans number was DEFINITELY burned.
+                            // (No point clawing it back now--it's gone already.)
+                            //
+//                          theSmartContract.HarvestOpeningNumber(theNym);
+//                          bSuccess = true;                            
+                        }
+                    } // else if (bReplyWasSuccess)
+                    // ------------------------------------------------------------------------------------------
+                } // else (smart contract loaded successfully)
+            } // pItem was found.
+            // ------------------------------------------------------------------------------------------
+        }
+            break;
+            
+        default:
+            break;
+    }
+    
+    return bSuccess;
+}
+
+
+
+
+
+// Normally do this if your transaction ran--and failed--so you can get most of
+// your transaction numbers back. (The opening number is usually already gone,
+// but any others are still salvageable.)
+//
+bool OTTransaction::HarvestClosingNumbers(OTPseudonym & theNym,
+                                          const bool bHarvestingForRetry,    // false until positively asserted.
+                                          const bool bReplyWasSuccess,       // false until positively asserted.
+                                          const bool bReplyWasFailure,       // false until positively asserted.
+                                          const bool bTransactionWasSuccess, // false until positively asserted.
+                                          const bool bTransactionWasFailure) // false until positively asserted.
+{
+    bool bSuccess = false;
+    
+    switch (m_Type)
+    {   // Note: the below remarks about "success or fail" are specific to TRANSACTION success, not message success.
+            
+        case OTTransaction::processNymbox:  // Has no closing numbers.
+        case OTTransaction::processInbox:   // Has no closing numbers.
+        case OTTransaction::deposit:        // Has no closing numbers.
+        case OTTransaction::withdrawal:     // Has no closing numbers.
+        case OTTransaction::cancelCronItem: // Has no closing numbers.
+        case OTTransaction::transfer:       // Has no closing numbers.
+            
+            break;
+            
+        // --------------------------------------------------------------------------------------------------
+            
+        case OTTransaction::marketOffer:    // Uses 3 transaction #s, the opening number and 2 closers.
+                                            // If message fails, all closing numbers are harvestable.
+                                            // If message succeeds but transaction fails, closers can also be harvested.
+                                            // If message succeeds and transaction succeeds, closers are marked as "used" (like opener.)
+                                            // In that last case, you can't claw them back since they are used.
+        {
+            OTItem * pItem = this->GetItem(OTItem::marketOffer);
+            
+            if (NULL == pItem)
+            {
+                OTLog::Error("OTTransaction::HarvestClosingNumbers: Error: Unable to find "
+                             "marketOffer item in marketOffer transaction.\n");
+            }
+            else // pItem is good. Let's load up the OTTrade object...
+            {
+                OTTrade     theTrade;
+                OTString    strTrade;
+                pItem->GetAttachment(strTrade);
+                
+                // First load the Trade up...
+                const bool bLoadContractFromString = (strTrade.Exists() && theTrade.LoadContractFromString(strTrade));
+                
+                // If failed to load the trade...
+                if (!bLoadContractFromString)
+                {
+                    OTLog::vError("OTTransaction::HarvestClosingNumbers: ERROR: Failed loading trade from string:\n\n%s\n\n",
+                                  strTrade.Get());
+                }
+                else // theTrade is ready to go....
+                {
+                    // ------------------------------------------------------------------------------------------
+                    // The message reply itself was a failure. This means the transaction itself never got a chance
+                    // to run... which means ALL the closing numbers on that transaction are STILL GOOD.
+                    //
+                    if (bReplyWasFailure)// && !bHarvestingForRetry) // on re-try, we need the closing #s to stay put, so the re-try has a chance to work.
+                    {                   // NOTE: We do NOT exclude harvesting of closing numbers, for a marketoffer, based on bHarvestingForRetry. Why not?
+                                        // Because with marketOffer, ALL transaction #s are re-set EACH re-try, not just the opening #. Therefore ALL must be clawed back.
+                        theTrade.HarvestClosingNumbers(theNym); // (Contrast this with payment plan, exchange basket, smart contract...)
+                        bSuccess = true;
+                        // ------------------------------------
+//                      theTrade.GetAssetAcctClosingNum();      // For reference.
+//                      theTrade.GetCurrencyAcctClosingNum();   // (The above harvest call grabs THESE numbers.)
+                        // ------------------------------------
+                    }
+                    // Else if the server reply message was unambiguously a SUCCESS, that means the opening number is DEFINITELY NOT HARVESTABLE.
+                    // Why? Because that means the transaction definitely ran--and the opener is marked as "used" on SUCCESS, or "burned" on
+                    // FAILURE--either way, that's bad for harvesting (no point.)
+                    //
+                    // ===> But the CLOSING numbers are harvestable on transaction *failure.*
+                    // (They are not harvestable on transaction *success* though.)
+                    //
+                    else if (bReplyWasSuccess)
+                    {
+                        if (bTransactionWasSuccess)
+                        {
+                            // (They are not harvestable on transaction success though.)
+                            // This means the "marketOffer" closing trans#s (one for asset account, and one for currency account) are both
+                            // MARKED AS "USED", and will someday be marked as CLOSED.
+                            // EITHER WAY, you certainly can't claw those numbers back now! (They are still outstanding, though. They're not gone, yet...)
+                            //
+//                          theTrade.HarvestClosingNumbers(theNym);
+//                          bSuccess = true;
+                        }
+                        else if (bTransactionWasFailure)
+                        {
+                            // But the CLOSING numbers ARE harvestable on transaction failure.
+                            // (Closing numbers for marketOffers are only marked "used" if the
+                            // marketOffer transaction was a success.)
+                            //
+                            theTrade.HarvestClosingNumbers(theNym);
+                            bSuccess = true;                            
+                        }
+                    } // else if (bReplyWasSuccess)
+                    // ------------------------------------------------------------------------------------------
+                } // else (the trade loaded successfully)
+            } // pItem was found.
+        }
+            // ------------------------------------------------------------------------------------------
+            break;
+            
+        case OTTransaction::exchangeBasket: // Uses X transaction #s: the opener, which is burned success-or-fail, and Y closers
+                                            // (one for each account.) Closers are marked "used" if success transaction,
+                                            // but if message succeeds while transaction fails, then closers can be harvested.
+        {
+            OTItem * pItem = this->GetItem(OTItem::exchangeBasket);
+            
+            if (NULL == pItem)
+            {
+                OTLog::Error("OTTransaction::HarvestClosingNumbers: Error: Unable to find "
+                             "exchangeBasket item in exchangeBasket transaction.\n");
+            }
+            else // pItem is good. Let's load up the OTBasket object...
+            {
+                OTString strBasket;
+                OTBasket theBasket;
+                pItem->GetAttachment(strBasket);
+                
+                // First load the Basket up...
+                const bool bLoadContractFromString = (strBasket.Exists() && theBasket.LoadContractFromString(strBasket));
+                
+                // If failed to load the request basket...
+                if (!bLoadContractFromString)
+                {
+                    OTLog::vError("OTTransaction::HarvestClosingNumbers: ERROR: Failed loading basket request from string:\n\n%s\n\n",
+                                  strBasket.Get());
+                }
+                else // theBasket is ready to go....
+                {
+                    // ------------------------------------------------------------------------------------------
+                    // The message reply itself was a failure. This means the transaction itself never got a chance
+                    // to run... which means ALL the closing numbers on that transaction are STILL GOOD.
+                    //
+                    
+                    // NOTE: if reply was failure, then I DO want to re-try my basket exchange, without having to call
+                    // all the API functions to build the exchange object again (instead just re-use the existing one.)
+                    //
+                    // So... the closing numbers ARE all harvestable, in the event, for example, that I was out of re-tries
+                    // and I just wanted to claw ALL the numbers back.
+                    // But what if I just want the opening one at first, and leave the others for my retries?
+                    //
+                    // ===> DONE:  SOunds like I need an API call like OT_API_Msg_HarvestTransactionNumbers
+                    // except called OT_API_Msg_HarvestOpeningNumber. Then it just only calls the opening version.
+                    //
+                    // Better: (done) Add a boolean to existing functions: "bHarvestingForRetry". The code can just be smart enough,
+                    // based on that!
+                    
+                    if (bReplyWasFailure && !bHarvestingForRetry)   
+                    {
+                        // if we WERE harvesting for a re-try, then we would LEAVE the closing numbers, so that the re-try would 
+                        // work, since otherwise a new basket object would need to be setup in order to make the call, with new
+                        // closing numbers.
+                        //
+                        theBasket.HarvestClosingNumbers(theNym, GetPurportedServerID(), true); //bSave=true
+                        bSuccess = true;
+                        // ------------------------------------
+                    }
+                    // Else if the server reply message was unambiguously a SUCCESS, that means the opening number is DEFINITELY NOT HARVESTABLE.
+                    // Why? Because that means the transaction definitely ran--and the opener for exchangeBasket is always burned, success-or-fail.
+                    // The CLOSING numbers also are not harvestable on transaction success, since this marks them as "USED." 
+                    // ===> But the CLOSING numbers ARE harvestable on transaction *failure.*
+                    //
+                    else if (bReplyWasSuccess)
+                    {
+                        if (bTransactionWasSuccess)
+                        {
+                            // (They are not harvestable on transaction success though.)
+                            // This means the "exchangeBasket" closing trans#s (one for each asset account involved in the exchange)
+                            // are all MARKED AS "USED", and will someday be marked as CLOSED.
+                            // EITHER WAY, you certainly can't claw those numbers back now! (They are still outstanding, though. They're not gone, yet...)
+                            //
+//                          theBasket.HarvestClosingNumbers(theNym, GetPurportedServerID(), true); //bSave=true
+//                          bSuccess = true;
+                        }
+                        else if (bTransactionWasFailure && !bHarvestingForRetry) // on re-try, we need the closing #s to stay put, so the re-try has a chance to work.
+                        {
+                            // But the CLOSING numbers ARE harvestable on transaction FAILURE.
+                            // (Closing numbers for exchangeBasket are only marked "used" if the
+                            // exchangeBasket transaction was a success. But in this case since
+                            // the transaction was NOT a success, ergo they were never marked as
+                            // "used," either. So let's harvest them...)
+                            //
+                            theBasket.HarvestClosingNumbers(theNym, GetPurportedServerID(), true); //bSave=true
+                            bSuccess = true;                            
+                        }
+                    } // else if (bReplyWasSuccess)
+                    // ------------------------------------------------------------------------------------------
+                } // else (the basket loaded successfully)
+            } // pItem was found.
+        }
+            break;
+            // --------------------------------------------------------------------------------------------------
+
+            // These aren't AS simple.
+        case OTTransaction::paymentPlan:    // Uses 4 transaction #s: the opener (sender's #), which is burned on transaction failure, but kept alive on success,
+                                            // ===> the sender's closing #, which is only marked as "used" upon success (harvestable up until that point.)
+                                            // ===> and the recipient's opening/closing numbers, which are also both only marked as "used" upon success, and are harvestable up until that point.
+            
+        {
+            OTItem * pItem = this->GetItem(OTItem::paymentPlan);
+            
+            if (NULL == pItem)
+            {
+                OTLog::Error("OTTransaction::HarvestClosingNumbers: Error: Unable to find "
+                             "paymentPlan item in paymentPlan transaction.\n");
+            }
+            else // pItem is good. Let's load up the OTPaymentPlan object...
+            {
+                OTString        strPaymentPlan;
+                OTPaymentPlan   thePlan;
+                pItem->GetAttachment(strPaymentPlan);
+                
+                // First load the payment plan up...
+                const bool bLoadContractFromString = (strPaymentPlan.Exists() && thePlan.LoadContractFromString(strPaymentPlan));
+
+                // If failed to load the payment plan from string...
+                if (!bLoadContractFromString)
+                {
+                    OTLog::vError("OTTransaction::HarvestClosingNumbers: ERROR: Failed loading payment plan from string:\n\n%s\n\n",
+                                  strPaymentPlan.Get());
+                }
+                else // thePlan is ready to go....
+                {
+                    // If the server reply message was unambiguously a FAIL, that means the closing numbers are STILL GOOD.
+                    // (Because the transaction therefore never even had a chance to run.)
+                    //
+                    if (bReplyWasFailure && !bHarvestingForRetry) // on re-try, we need the closing #s to stay put, so the re-try has a chance to work.
+                    {
+                        thePlan.HarvestClosingNumbers(theNym); 
+                        bSuccess = true;
+                    }
+                    // Else if the server reply message was unambiguously a SUCCESS, that means the opening number is DEFINITELY
+                    // NOT HARVESTABLE. (For the sender, anyway.) Why not? Because that means the transaction definitely ran--and
+                    // the opener is marked as "used" on success, and "burned" on failure--either way, that's bad for harvesting (no point.)
+                    // The recipient, by contrast, actually retains harvestability on his opening number up until the very point of 
+                    // transaction success.
+                    //
+                    // ====> I know you are wondering: 
+                    // ====>    HOW ABOUT THE CLOSING NUMBERS?  (When message is success)
+                    //  1. Transaction success: Sender and Recipient CANNOT harvest closing numbers, which are now marked as "used."
+                    //  2. Transaction failed:  Sender and Recipient **CAN** both harvest their closing numbers.
+                    //
+                    else if (bReplyWasSuccess)
+                    {
+                        if (bTransactionWasSuccess)
+                        {
+                            // This means the "paymentPlan" closing trans#s are MARKED AS "USED", and will someday be marked as CLOSED.
+                            // EITHER WAY, you certainly can't claw that number back now! (It is still outstanding, though. It's not gone, yet...)
+//                          thePlan.HarvestClosingNumbers(theNym); 
+//                          bSuccess = true;
+                        }
+                        else if (bTransactionWasFailure && !bHarvestingForRetry) // on re-try, we need the closing #s to stay put, so the re-try has a chance to work.
+                        {
+                            // Whereas if the payment plan was a failure, that means the closing numbers are harvestable!
+                            thePlan.HarvestClosingNumbers(theNym); 
+                            bSuccess = true;
+                        }
+                    }
+                    // ------------------------------------------------------------------------------------------
+                } // else (the payment plan loaded successfully)
+            } // pItem was found.
+        }
+            break;
+            
+            // --------------------------------------------------------------------------------------------------
+                        
+        case OTTransaction::smartContract:  // Uses X transaction #s, with an opener for each party and a closer for each asset account.
+                                            // If the message is rejected by the server, then ALL openers can be harvested. But if the
+                                            // message was successful (REGARDLESS of whether the transaction was successful) then all of
+                                            // the openers for all of the parties have been burned. The closers, meanwhile, can be recovered
+                                            // if the message is a failure, as well as in cases where message succeeds but transaction failed.
+                                            // But if transaction succeeded, then the closers CANNOT be recovered. (Only removed, once you sign
+                                            // off on the receipt.)
+        {
+            // ------------------------------------------------------------------------------------------
+            OTItem * pItem = this->GetItem(OTItem::smartContract);
+            
+            if (NULL == pItem)
+            {
+                OTLog::Error("OTTransaction::HarvestClosingNumbers: Error: Unable to find "
+                             "smartContract item in smartContract transaction.\n");
+            }
+            else // Load up the smart contract...
+            {
+                OTString        strSmartContract;
+                OTSmartContract theSmartContract(GetPurportedServerID());
+                pItem->GetAttachment(strSmartContract);
+                
+                // If we failed to load the smart contract...
+                if (!strSmartContract.Exists() || (false == theSmartContract.LoadContractFromString(strSmartContract)))
+                {
+                    OTLog::Error("OTTransaction::HarvestClosingNumbers: Error: Unable to load "
+                                 "smartContract object from smartContract transaction item.\n");
+                }
+                else // theSmartContract is ready to go....
+                {
+                    // ------------------------------------------------------------------------------------------
+                    // The message reply itself was a failure. This means the transaction itself never got a chance
+                    // to run... which means ALL the closing numbers on that transaction are STILL GOOD.
+                    //
+                    if (bReplyWasFailure && !bHarvestingForRetry) // on re-try, we need the closing #s to stay put, so the re-try has a chance to work.
+                    {
+                        theSmartContract.HarvestClosingNumbers(theNym);
+                        bSuccess = true;
+                    }
+                    // Else if the server reply message was unambiguously a SUCCESS, that means the opening number is DEFINITELY NOT HARVESTABLE.
+                    // Why? Because that means the transaction definitely ran--and the opener is marked as "used" on SUCCESS, or "burned" on
+                    // FAILURE--either way, that's bad for harvesting (no point.)
+                    //
+                    // ===> HOW ABOUT THE CLOSING NUMBERS?
+                    // In cases where the message succeeds but the transaction failed, the closing numbers are recoverable. (TODO send notice to the parties when this happens...)
+                    // But if transaction succeeded, then the closers CANNOT be recovered. They are now "used" on the server, so you might as well keep them in that format on the client side, since that's how the client has them already.
+                    
+                    else if (bReplyWasSuccess)
+                    {
+                        if (bTransactionWasSuccess)
+                        {
+                            // This means the "smartContract" opening trans# is MARKED AS "USED", and will someday be marked as CLOSED.
+                            // EITHER WAY, you certainly can't claw that number back now! (It is still outstanding, though. It's not gone, yet...)
+                            //
+//                          theSmartContract.HarvestClosingNumbers(theNym);
+//                          bSuccess = true;
+                        }
+                        else if (bTransactionWasFailure && !bHarvestingForRetry) // on re-try, we need the closing #s to stay put, so the re-try has a chance to work.
+                        {
+                            // If the transaction was a failure, the opening trans number was burned, 
+                            // but the CLOSING numbers are still harvestable...
+                            //
+                            theSmartContract.HarvestClosingNumbers(theNym);
+                            bSuccess = true;                            
+                        }
+                    } // else if (bReplyWasSuccess)
+                    // ------------------------------------------------------------------------------------------
+                } // else (smart contract loaded successfully)
+            } // pItem was found.
+            // ------------------------------------------------------------------------------------------
+        }
+            break;
+            
+        default:
+            break;
+    }
+    
+    return bSuccess;
+}
+
+
+
+
+/*
+    bool OT_API::Msg_HarvestClosingNumbers
+ 
+	OTCronItem * pCronItem = OTCronItem::NewCronItem(THE_CRON_ITEM);
+	OTCleanup<OTCronItem> theContractAngel;
+	if (NULL == pCronItem)
+	{
+		OTLog::vOutput(0, " OT_API::Msg_HarvestClosingNumbers: Error loading the cron item (a cron item is a smart contract, or "
+					   "some other recurring transaction such as a market offer, or a payment plan.) Contents:\n\n%s\n\n",
+					   THE_CRON_ITEM.Get());
+		return false;
+	}
+	else
+		theContractAngel.SetCleanupTarget(*pCronItem);  // Auto-cleanup.
+	// -----------------------------------------------------
+	pCronItem->HarvestClosingNumbers(*pNym); // <==== the Nym is actually harvesting the numbers from the Cron Item, and not the other way around.
+	// -------------------------------	
+ 
+ 
+
+bool OT_API::Msg_HarvestAllNumbers(const OTIdentifier	& SERVER_ID,
+                                   const OTIdentifier	& NYM_ID,
+                                   const OTMessage		& theMsg)
+{
+	const char * szFuncName		= "OT_API::Msg_HarvestAllNumbers";
+	// -----------------------------------------------------
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(NYM_ID, szFuncName); // These copiously log, and ASSERT.
+	if (NULL == pNym) return false;
+	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
+	// -----------------------------------------------------
+    
+    
+    
+    
+	OTCronItem * pCronItem = OTCronItem::NewCronItem(THE_CRON_ITEM);
+	OTCleanup<OTCronItem> theContractAngel;
+	if (NULL == pCronItem)
+	{
+		OTLog::vOutput(0, " OT_API::Msg_HarvestAllNumbers: Error loading the cron item (a cron item is a smart contract, or "
+					   "some other recurring transaction such as a market offer, or a payment plan.) Contents:\n\n%s\n\n",
+					   THE_CRON_ITEM.Get());
+		return false;
+	}
+	else
+		theContractAngel.SetCleanupTarget(*pCronItem);  // Auto-cleanup.
+	// -----------------------------------------------------
+	pCronItem->HarvestOpeningNumber (*pNym); // <==== the Nym is actually harvesting the numbers from the Cron Item, and not the other way around.
+	pCronItem->HarvestClosingNumbers(*pNym); // <==== the Nym is actually harvesting the numbers from the Cron Item, and not the other way around.
+	// -------------------------------	
+	return true;
+}
+ */
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2433,7 +3362,7 @@ bool OTTransaction::VerifyBoxReceiptExists(const OTIdentifier & SERVER_ID,
 									  strFolder3name.Get(),
 									  strFilename.Get());
 	
-	OTLog::vOutput(0, "OTTransaction::VerifyBoxReceiptExists: %s: %s%s%s%s%s%s%s\n", bExists ? "TRUE" : "FALSE",
+	OTLog::vOutput(0, "OTTransaction::VerifyBoxReceiptExists: %s: %s%s%s%s%s%s%s\n", bExists ? "(Already have this one)" : "(Need to download this one)",
 				   strFolder1name.Get(), OTLog::PathSeparator(), 
 				   strFolder2name.Get(), OTLog::PathSeparator(), 
 				   strFolder3name.Get(), OTLog::PathSeparator(), 
@@ -2565,7 +3494,8 @@ OTTransaction::OTTransaction() : OTTransactionType(),
 	m_pParent(NULL),
 	m_bIsAbbreviated(false), m_lAbbrevAmount(0), m_lDisplayAmount(0), m_lInRefDisplay(0),
 	m_DATE_SIGNED(0), m_Type(OTTransaction::error_state),
-    m_lClosingTransactionNo(0)
+    m_lClosingTransactionNo(0), m_lRequestNumber(0), 
+    m_bReplyTransSuccess(false)
 {
 	InitTransaction();
 }
@@ -2584,7 +3514,8 @@ OTTransaction::OTTransaction(const OTLedger & theOwner)
 	m_pParent(&theOwner),
 	m_bIsAbbreviated(false), m_lAbbrevAmount(0), m_lDisplayAmount(0), m_lInRefDisplay(0),
     m_DATE_SIGNED(0), m_Type(OTTransaction::error_state),
-    m_lClosingTransactionNo(0)
+    m_lClosingTransactionNo(0), m_lRequestNumber(0), 
+    m_bReplyTransSuccess(false)
 {
 	InitTransaction();
 
@@ -2604,7 +3535,8 @@ OTTransaction::OTTransaction(const OTIdentifier & theUserID, const OTIdentifier 
 	m_pParent(NULL),
 	m_bIsAbbreviated(false), m_lAbbrevAmount(0), m_lDisplayAmount(0), m_lInRefDisplay(0),
 	m_DATE_SIGNED(0), m_Type(OTTransaction::error_state),
-    m_lClosingTransactionNo(0)
+    m_lClosingTransactionNo(0), m_lRequestNumber(0), 
+    m_bReplyTransSuccess(false)
 {
 	InitTransaction();
 	
@@ -2622,7 +3554,8 @@ OTTransaction::OTTransaction(const OTIdentifier & theUserID,
 // --------------------------------------------
 	m_pParent(NULL),
 	m_bIsAbbreviated(false), m_lAbbrevAmount(0), m_lDisplayAmount(0), m_lInRefDisplay(0),
-    m_DATE_SIGNED(0), m_Type(OTTransaction::error_state), m_lClosingTransactionNo(0)
+    m_DATE_SIGNED(0), m_Type(OTTransaction::error_state), m_lClosingTransactionNo(0), m_lRequestNumber(0),
+    m_bReplyTransSuccess(false)
 {
 	InitTransaction();
 	
@@ -2641,6 +3574,8 @@ void OTTransaction::InitTransaction()
 	m_DATE_SIGNED			= 0; // Make sure to set this to the current time whenever contract is signed.
 	m_Type					= OTTransaction::error_state;
 	m_lClosingTransactionNo = 0;
+    m_lRequestNumber        = 0;
+    m_bReplyTransSuccess    = false;
 }
 // -------------------------------------------
 // This CONSTRUCTOR is used for instantiating "abbreviated" transactions,
@@ -2660,13 +3595,17 @@ OTTransaction::OTTransaction(const OTIdentifier	& theUserID,
 							 const long			& lAdjustment,
 							 const long			& lDisplayValue,
 							 const long			& lClosingNum,
+                             const long         & lRequestNum,
+                             const bool           bReplyTransSuccess,
                              OTNumList          * pNumList/*=NULL*/)
 : OTTransactionType(theUserID, theAccountID, theServerID, lTransactionNum), 
 //--------------------------------------------------------------------------
 	m_pParent(NULL),
 	m_bIsAbbreviated(true), m_lAbbrevAmount(lAdjustment), m_lDisplayAmount(lDisplayValue), 
 	m_lInRefDisplay(lInRefDisplay), m_Hash(strHash),
-	m_DATE_SIGNED(the_DATE_SIGNED), m_Type(theType), m_lClosingTransactionNo(lClosingNum)
+	m_DATE_SIGNED(the_DATE_SIGNED), m_Type(theType), m_lClosingTransactionNo(lClosingNum),
+    m_lRequestNumber(lRequestNum),
+    m_bReplyTransSuccess(bReplyTransSuccess)
 {	
 	InitTransaction();
 	
@@ -2682,6 +3621,9 @@ OTTransaction::OTTransaction(const OTIdentifier	& theUserID,
 	m_lDisplayAmount			= lDisplayValue;
 	m_lInRefDisplay				= lInRefDisplay;
 
+    m_lRequestNumber            = lRequestNum;          // for replyNotice
+    m_bReplyTransSuccess        = bReplyTransSuccess;   // for replyNotice
+    
 	m_Hash.SetString(strHash);
 	m_lTransactionNum			= lTransactionNum;	// This is set in OTTransactionType's constructor, as are m_ID and m_ServerID
 
@@ -2887,78 +3829,314 @@ int	OTTransaction::GetItemCountInRefTo(const long lReference)
 	return nCount;	
 }
 
+/*
+ a processNymbox transaction has a list of items--each one accepting a nymbox
+ receipt (ottransaction) so as to remove it from the nymbox. It also has a 
+ transaction statement item, which must verify in order for the others to run.
+ 
+ Here are the types of items:
+            case OTItem::acceptFinalReceipt:
+ theReplyItemType = OTItem::atAcceptFinalReceipt;
+ break;
+            case OTItem::acceptTransaction:
+ theReplyItemType = OTItem::atAcceptTransaction;
+ break;
+            case OTItem::acceptMessage:
+ theReplyItemType = OTItem::atAcceptMessage;
+ break;
+            case OTItem::acceptNotice:
+ theReplyItemType = OTItem::atAcceptNotice;
+ break;
 
+ */
 
+//  OTTransaction::GetSuccess()
+//
 // Tries to determine, based on items within, whether it was a success or fail.
+//
+// DONE:
+//
+// What about a processNymbox message? ALL of its items must be successful, 
+// for any of them to be (for the transaction statement to make any sense....)
+//
+// What I NEED to do , in case of atProcessNymbox and maybe others, is loop
+// through them ALL and check them ALL for success.
+//
+// What it does now is, if it sees an item of a certain type, then it IMMEDIATELY
+// returns success or fail based on its status. Imagine this problem: My transaction
+// failed (say, due to empty account) but the balance statement itself had succeeded
+// before it got to that point. The below loop as it exists now will see that the
+// atBalanceStatement was successful, and IMMEDAITELY RETURNS TRUE! (Even if the
+// item for the transaction itself had failed.)
+//
+// In the case of processNymbox it's worse, since the ENTIRE TRANSACTION must fail, if
+// ANY of its items do. You have to loop them ALL and make sure they are ALL success.
+// (regardless of their type.) You can only do this if you know *this is a processNymbox
+// transaction, yet we can clearly see, that the below code is simply looping the items
+// REGARDLESS of what type of transaction *this actually is.
+//
+// Note: (Below is now fixed.)
+// What if, as above, the processNymbox failed, but has a successful transaction statement
+// as one of its items? The below loop would return true!
+// 
+// This is actually a pretty good argument for using polymorphism for the various transaction
+// and item types, so these sorts of SWITCH STATEMENTS aren't necessary all over the transaction
+// and ledger code. Although IMO a default implementation should still cover most cases.
+//
+//
+// Tries to determine, based on items within, whether it was a success or fail.
+//
 bool OTTransaction::GetSuccess()
 {
+    bool bFoundAnActionItem = false, bFoundABalanceAgreement = false;
+
+    if ((OTTransaction::atProcessInbox  == GetType()) || 
+        (OTTransaction::atProcessNymbox == GetType()))
+    {        
+        FOR_EACH(listOfItems, m_listItems)
+        {
+            OTItem * pItem = *it;
+            OT_ASSERT(NULL != pItem);
+            
+            switch (pItem->GetType()) 
+            {
+                // **************************************************************************
+                    
+                    // BALANCE AGREEMENT  /  TRANSACTION STATEMENT
+                    
+                    // Even if one of these is a success, it is only the balance agreement for
+                    // the transaction itself, which must also be a success. For example, if there
+                    // is a transaction for a cash withdrawal, then it will contain 2 items: one item
+                    // is the withdrawal itself, and the other item is the balance agreement for that
+                    // withdrawal. Therefore, even if the balanace agreement item is successful, the
+                    // withdrawal item itself must ALSO be successful, for the transaction AS A WHOLE
+                    // to be "successful."
+                    // However, if this balance agreement failed, then the rest of the transaction has
+                    // definitely failed as well.
+                    // Therefore, here we either return false, or CONTINUE and let the decision be made
+                    // from the other items in this transaction otherwise.
+                    //
+                case OTItem::atBalanceStatement:     // processInbox and notarizeTransactions. server's reply to a balance statement. One of these items appears inside any transaction reply.
+                case OTItem::atTransactionStatement: // processNymbox and also for starting/stopping any cron items. (notarizeTransactions: payment plan, market offer, smart contract, trigger clause, cancel cron item, etc.) The server's reply to a transaction statement. Like a balance statement, except no asset acct is involved.
+                    //
+                // ------------------------------------------------------------------------
+                                        
+                    if (OTItem::acknowledgement == pItem->GetStatus())
+                    {
+                        bFoundABalanceAgreement = true;
+                    }
+                    else if (OTItem::rejection == pItem->GetStatus())
+                    {
+                        return false;
+                    }
+                    // else continue...
+                    //
+                    continue;
+                    
+                // **************************************************************************
+                    
+                    // PROCESS NYMBOX
+                    
+                    // These are only a success if ALL of them (all of the items 
+                    // in this processNymbox transaction) are a success.
+                    
+                    // NOTE: these cases only matter if *this is an atProcessNymbox, and in THAT case, it requires ALL items
+                    // to verify, not just the first one of a specific type.
+                    //
+                    // 
+                case OTItem::atAcceptTransaction:   // processNymbox. server's reply to the Nym's attempt to accept (sign for) transaction
+                    // numbers that are sitting in his nymbox (since he requested more numbers....)
+                case OTItem::atAcceptMessage:       // processNymbox. server's reply to nym's accepting a message (from another nym) that's in his nymbox.
+                case OTItem::atAcceptNotice:        // processNymbox. server's reply to nym's accepting a notice from the server, such as a successNotice (success signing out new transaction numbers) or a replyNotice, or an instrumentNotice.
+                    // For example, some server replies are dropped into your Nymbox, to make sure you receive them. Then you accept them, to remove from your Nymbox.
+                // ------------------------------------------------------------------------                
+                    
+                    // PROCESS NYMBOX *and* PROCESS INBOX
+                    
+                    // These are only a success if ALL of them (all of the items 
+                    // in this processInbox or processNymbox transaction) are a success.
+                    
+                case OTItem::atAcceptFinalReceipt:  // Part of a processInbox or processNymbox transaction reply from the server.
+                case OTItem::atDisputeFinalReceipt:  // Would be in processNymbox AND processInbox. Can these be disputed? Think through the process. Todo.
+                    
+                // ------------------------------------------------------------------------
+                    
+                    // PROCESS INBOX
+                    
+                    // These are only a success if ALL of them (all of the items 
+                    // in this processInbox transaction) are a success.
+                    
+                case OTItem::atAcceptPending:        // processInbox. server's reply to nym's request to accept an incoming pending transfer that's sitting in his asset acct's inbox.
+                case OTItem::atRejectPending:        // processInbox. Same thing, except rejecting that pending transfer instead of accepting it.
+                    
+                case OTItem::atAcceptCronReceipt:    // processInbox. Accepting a payment receipt or market receipt. (Smart contracts also drop payment receipts, currently.)
+                case OTItem::atDisputeCronReceipt:   // processInbox. Dispute. (Todo.)
+                    
+                case OTItem::atAcceptItemReceipt:    // processInbox. Accepting a transferReceipt, or chequeReceipt, etc.
+                case OTItem::atDisputeItemReceipt:   // processInbox. Dispute. (Todo.)				
+                    
+                case OTItem::atAcceptBasketReceipt:  // processInbox. Basket Receipt, from a basket currency exchange (in or out.)
+                case OTItem::atDisputeBasketReceipt: // processInbox. dispute basket receipt.
+                    
+                // ------------------------------------------------------------------------
+                    
+                    // If we found at least one of these, and nothing fails by the end of the loop,
+                    // then for processNymbox and processInbox, it's a success. (If balance agreement also...)
+                    
+                    if (OTItem::acknowledgement == pItem->GetStatus())
+                    {
+                        bFoundAnActionItem = true;
+                    }
+                    else if (OTItem::rejection == pItem->GetStatus())
+                    {
+                        return false;
+                    }
+                    // else continue...
+                    //
+                    continue;
+                                        
+                // **************************************************************************
+                    
+                default:
+                    OTLog::Error("Wrong transaction type passed to OTTransaction::GetSuccess() "
+                                 "for processNymbox or processInbox transaction.\n");
+                    return false;
+            }// switch
+        } // FOR_EACH
+        
+        return (bFoundABalanceAgreement && bFoundAnActionItem);
+        
+    } // if processNymbox or processInbox.
+    
+    
+    
+    // ----------------------------------------------------------------------------
+    
+    // Okay, it's not a processNymbox or processInbox.
+    //
+    // Maybe it's one of these other transaction types...
+    
 	FOR_EACH(listOfItems, m_listItems)
 	{
 		OTItem * pItem = *it;
 		OT_ASSERT(NULL != pItem);
 		
 		switch (pItem->GetType()) 
-		{
-			case OTItem::atTransaction:
-			case OTItem::atTransfer:
-				
-			case OTItem::atAcceptTransaction:
-			case OTItem::atAcceptMessage:
-				
-			case OTItem::atAcceptPending:
-			case OTItem::atRejectPending:
-				
-			case OTItem::atAcceptCronReceipt:
-			case OTItem::atDisputeCronReceipt:
+		{	                
+//			case OTItem::atServerfee:            // Fees currently aren't coded. Todo.
+//			case OTItem::atIssuerfee:            // Same as above. Todo.
                 
-			case OTItem::atAcceptItemReceipt:
-			case OTItem::atDisputeItemReceipt:
-				
-			case OTItem::atAcceptFinalReceipt:
-			case OTItem::atDisputeFinalReceipt:
-
-			case OTItem::atAcceptBasketReceipt:
-			case OTItem::atDisputeBasketReceipt:
+            // **************************************************************************
                 
-			case OTItem::atServerfee:
-			case OTItem::atIssuerfee:
-			case OTItem::atBalanceStatement:
-			case OTItem::atTransactionStatement:
-			case OTItem::atWithdrawal:
-			case OTItem::atDeposit:
-			case OTItem::atWithdrawVoucher:
-			case OTItem::atDepositCheque:
-			case OTItem::atMarketOffer:
-			case OTItem::atPaymentPlan:
-			case OTItem::atSmartContract:
-				
-			case OTItem::atCancelCronItem:
-			case OTItem::atExchangeBasket:
-
-//			case OTItem::chequeReceipt: // not needed in OTItem.
-			case OTItem::chequeReceipt: // but it's here anyway for dual use reasons (balance agreement sub-items)
-			case OTItem::marketReceipt:
-			case OTItem::paymentReceipt:
-			case OTItem::transferReceipt:
-			case OTItem::finalReceipt:
-			case OTItem::basketReceipt:
+            // BALANCE AGREEMENT  /  TRANSACTION STATEMENT
                 
-				if (OTItem::acknowledgement == pItem->GetStatus())
+                // Even if one of these is a success, it is only the balance agreement for
+                // the transaction itself, which must also be a success. For example, if there
+                // is a transaction for a cash withdrawal, then it will contain 2 items: one item
+                // is the withdrawal itself, and the other item is the balance agreement for that
+                // withdrawal. Therefore, even if the balanace agreement item is successful, the
+                // withdrawal item itself must ALSO be successful, for the transaction AS A WHOLE
+                // to be "successful."
+                // However, if this balance agreement failed, then the rest of the transaction has
+                // definitely failed as well.
+                // Therefore, here we either return false, or CONTINUE and let the decision be made
+                // from the other items in this transaction otherwise.
+                //
+            case OTItem::atBalanceStatement:     // processInbox and notarizeTransactions. server's reply to a balance statement. One of these items appears inside any transaction reply.
+			case OTItem::atTransactionStatement: // processNymbox and also for starting/stopping any cron items. (notarizeTransactions: payment plan, market offer, smart contract, trigger clause, cancel cron item, etc.) The server's reply to a transaction statement. Like a balance statement, except no asset acct is involved.
+                //
+                                
+                // ------------------------------------------------------------------------
+                if (OTItem::acknowledgement == pItem->GetStatus())
 				{
-					return true;
+                    bFoundABalanceAgreement = true;
+				}
+                if (OTItem::rejection == pItem->GetStatus())
+				{
+					return false;
+				}
+                // else continue...
+                //
+                continue;
+                
+            // **************************************************************************
+                /*
+                 atProcessNymbox,   // process nymbox reply			 // comes from server
+                 atProcessInbox,	// process inbox reply			 // comes from server
+                 
+                 // Note: the above two transaction types are handled in the switch block above this one.
+                 // Whereas the below transaction types are handled right here in this switch block.
+                 
+                 atTransfer,		// reply from the server regarding a transfer request
+                 atDeposit,         // reply from the server regarding a deposit request
+                 atWithdrawal,      // reply from the server regarding a withdrawal request
+                 atMarketOffer,     // reply from the server regarding a market offer
+                 atPaymentPlan,     // reply from the server regarding a payment plan
+                 atSmartContract,   // reply from the server regarding a smart contract
+                 atCancelCronItem,  // reply from the server regarding said cancellation.
+                 atExchangeBasket,  // reply from the server regarding said exchange.
+                 */
+
+            // NOTARIZE TRANSACTION
+                // If any of these are a success, then the transaction as a whole is a success also.
+                
+            case OTItem::atTransfer:             // notarizeTransactions. server's reply to nym's request to initiate a transfer
+
+			case OTItem::atWithdrawal:           // notarizeTransaction. server's reply to withdrawal (cash) request.
+			case OTItem::atDeposit:              // notarizeTransaction. server's reply to deposit (cash) request.
+			case OTItem::atWithdrawVoucher:      // notarizeTransaction. server's reply to "withdraw voucher" request.
+			case OTItem::atDepositCheque:        // notarizeTransaction. server's reply to deposit cheque request.
+			case OTItem::atMarketOffer:          // notarizeTransaction. server's reply to request to place a market offer.
+			case OTItem::atPaymentPlan:          // notarizeTransaction. server's reply to request to activate a payment plan.
+			case OTItem::atSmartContract:        // notarizeTransaction. server's reply to request to activate a smart contract.
+				
+			case OTItem::atCancelCronItem:       // notarizeTransaction. server's reply to request to cancel a [ market offer | payment plan | smart contract ]
+			case OTItem::atExchangeBasket:       // notarizeTransaction. server's reply to request to exchange in or out of a basket currency.
+
+            // ------------------------------------------------------------------------
+                
+            // RECEIPTS
+                
+                // 1. ACTUAL RECEIPTS (item attached to similar transaction), and also 
+                // 2. INBOX REPORT ITEMS (sub-item to ANOTHER item, which is used on Balance Agreements and Transaction Statements.)
+                //
+                // In case of (1), GetSuccess() is relevant. 
+                // But in case of (2) GetSuccess() is NOT relevant. FYI.
+                //
+                // Anyway, if a marketReceipt item is attached to a marketReceipt transaction, then we
+                // can return success or failure right away, since such status is set on the item, not
+                // the transaction, and since there are no other items that matter if this IS a success.
+                
+//			case OTItem::chequeReceipt:   // not needed in OTItem. Meaning, actual OTTransaction cheque receipts do NOT need a chequeReceipt Item attached....
+			case OTItem::chequeReceipt:   // ...but it's here anyway as a type, for dual use reasons (balance agreement sub-items. Like for an inbox report.)
+			case OTItem::marketReceipt:   // Used for actual market receipts, as well as for balance agreement sub-items.
+			case OTItem::paymentReceipt:  // Used for actual payment receipts, as well as for balance agreement sub-items.
+			case OTItem::transferReceipt: // Used for actual transfer receipts, as well as for balance agreement sub-items. (Hmm does balance agreement need this?)
+			case OTItem::finalReceipt:    // Used for actual final receipt (I think) as well as for balance agreement sub item (I think.)
+			case OTItem::basketReceipt:   // Used for basket receipt (I think) as well as for balance agreement sub-item (I think.)
+                
+            // **************************************************************************
+                
+                if (OTItem::acknowledgement == pItem->GetStatus())
+				{
+                    bFoundAnActionItem = true;
 				}
 				else if (OTItem::rejection == pItem->GetStatus())
 				{
 					return false;
 				}
+                
 				break;
+                
+            // **************************************************************************
+                
 			default:
 				OTLog::Error("Wrong transaction type passed to OTTransaction::GetSuccess()\n");
-				break;
+				return false;
 		}
 	}
 	
-	return false;
+	return (bFoundABalanceAgreement && bFoundAnActionItem);
 }
 
 
@@ -3068,6 +4246,8 @@ int OTTransaction::LoadAbbreviatedRecord(irr::io::IrrXMLReader*& xml,
 										 long	& lAdjustment,
 										 long	& lDisplayValue,
 										 long	& lClosingNum,
+                                         long   & lRequestNum,
+                                         bool   & bReplyTransSuccess,
                                          OTNumList * pNumList/*=NULL*/)
 {
 	// -------------------------------------
@@ -3137,8 +4317,27 @@ int OTTransaction::LoadAbbreviatedRecord(irr::io::IrrXMLReader*& xml,
 	const OTString strAbbrevDisplayValue	= xml->getAttributeValue("displayValue");
 	if (strAbbrevDisplayValue.Exists())
 		lDisplayValue						= atol(strAbbrevDisplayValue.Get());
-	// -----------------------
+	// -------------------------------------------------------------------------
     
+    if (OTTransaction::replyNotice == theType)
+	{
+		const OTString strRequestNum = xml->getAttributeValue("requestNumber");
+		
+		if (!strRequestNum.Exists())
+		{
+			OTLog::vOutput(0, "OTTransaction::LoadAbbreviatedRecord: Failed loading abbreviated receipt: "
+						   "expected requestNumber on replyNotice trans num: %ld (In Reference To: %ld)\n",
+						   lTransactionNum, lInRefTo);
+			return (-1);
+		}
+		lRequestNum	= atol(strRequestNum.Get());
+        // ----------------------------------------
+        const OTString strTransSuccess = xml->getAttributeValue("transSuccess");
+
+        bReplyTransSuccess  = strTransSuccess.Compare("true");
+	} // if replyNotice (expecting request Number)
+	// -------------------------------------
+
 	// If the transaction is a certain type, then it will also have a CLOSING number. 
 	// (Grab that too.)
 	//
@@ -3217,7 +4416,9 @@ int OTTransaction::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		// -------------------------------------
 		long lAdjustment		= 0;
 		long lDisplayValue		= 0;
-		long lClosingNum		= 0;        
+		long lClosingNum		= 0;
+        long lRequestNumber     = 0;
+        bool bReplyTransSuccess = false;
 		// -------------------------------------
 		int nAbbrevRetVal =
 			OTTransaction::LoadAbbreviatedRecord(xml,
@@ -3230,6 +4431,8 @@ int OTTransaction::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
                                                  lAdjustment,
                                                  lDisplayValue,
                                                  lClosingNum,
+                                                 lRequestNumber,
+                                                 bReplyTransSuccess,
                                                  pNumList); // for "OTTransaction::blank" and "OTTransaction::successNotice" (Otherwise NULL.)
 		// -------------------------------------
 		if ((-1) == nAbbrevRetVal)
@@ -3240,7 +4443,10 @@ int OTTransaction::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		SetTransactionNum(lTransactionNum);
 		SetReferenceToNum(lInRefTo);
 		SetClosingNum(lClosingNum);
+        SetRequestNum(lRequestNumber);
 		
+        SetReplyTransSuccess(bReplyTransSuccess);
+        
 		m_lInRefDisplay		= lInRefDisplay;
 		m_lAbbrevAmount		= lAdjustment;
 		m_lDisplayAmount	= lDisplayValue;
@@ -3298,6 +4504,25 @@ int OTTransaction::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		}
 		// -------------------------------------	
         
+        // a replyNotice (a copy of the server's reply to one of my messages)
+        // is often dropped into my Nymbox, to make sure I see it. Usually these
+        // have a REQUEST NUMBER on them, so I can quickly tell WHICH MESSAGE
+        // it is in reply to.
+        //
+        if (OTTransaction::replyNotice == m_Type)
+        {
+            const OTString strRequestNum = xml->getAttributeValue("requestNumber");
+
+            if (strRequestNum.Exists())
+                m_lRequestNumber = atol(strRequestNum.Get());
+            
+            const OTString strTransSuccess = xml->getAttributeValue("transSuccess");
+
+            m_bReplyTransSuccess    = strTransSuccess.Compare("true");
+        }
+        
+        // -------------------------------------	
+
         if ((OTTransaction::blank           == m_Type) || 
             (OTTransaction::successNotice   == m_Type))
         {
@@ -3474,15 +4699,22 @@ bool OTTransaction::AddNumbersToTransaction(const OTNumList & theAddition)
 
 
 
+
 // This is called automatically by SignContract to make sure what's being signed is the most up-to-date
 // Before transmission or serialization, this is where the ledger saves its contents 
 // So let's make sure this transaction has the right contents.
 void OTTransaction::UpdateContents() 
 {	
     OTString strListOfBlanks;   // IF this transaction is "blank" or "successNotice" this will serialize the list of transaction numbers for it. (They now support multiple numbers.)
+    OTString strRequestNum;     // Used by replyNotice only.
     // ----------------------------------------
 	switch (m_Type) 
 	{
+        case OTTransaction::replyNotice:
+            strRequestNum.Format(" requestNumber=\"%ld\"\n transSuccess=\"%s\"\n",
+                                 m_lRequestNumber, m_bReplyTransSuccess ? "true" : "false");
+            break;
+            
 		case OTTransaction::blank:			// freshly issued transaction number, not accepted by the user (yet).
 		case OTTransaction::successNotice:	// A transaction # has successfully been signed out.
         {
@@ -3515,13 +4747,13 @@ void OTTransaction::UpdateContents()
 							  " dateSigned=\"%ld\"\n"
 							  " accountID=\"%s\"\n"
 							  " userID=\"%s\"\n"
-							  " serverID=\"%s\"\n"
+							  " serverID=\"%s\"\n%s"
 							  " transactionNum=\"%ld\"\n%s"
 							  " inReferenceTo=\"%ld\" >\n\n", 
 							  strType.Get(), lDateSigned, 
 							  strAcctID.Get(), 
 							  strUserID.Get(), 
-							  strServerID.Get(), 
+							  strServerID.Get(), strRequestNum.Get(),
 							  GetTransactionNum(), strListOfBlanks.Get(),
 							  GetReferenceToNum());
 	// -----------------------------------------------------	
@@ -4037,6 +5269,7 @@ void OTTransaction::SaveAbbreviatedNymboxRecord(OTString & strOutput)
 	// ----------------------------------------------    
     OTString strDisplayValue;   // IF this transaction is passing through on its way to the paymentInbox, it will have a displayValue.
     OTString strListOfBlanks;   // IF this transaction is "blank" or "successNotice" this will serialize the list of transaction numbers for it. (They now support multiple numbers.)
+    OTString strRequestNum;     // ONLY replyNotice transactions carry a request Num.
     
 	switch (m_Type) 
 	{
@@ -4054,9 +5287,13 @@ void OTTransaction::SaveAbbreviatedNymboxRecord(OTString & strOutput)
         }
             /* ! CONTINUES FALLING THROUGH HERE!!... */
             
+		case OTTransaction::replyNotice:	// A copy of a server reply to a previous request you sent. (To make SURE you get the reply.)
+            strRequestNum.Format(" requestNumber=\"%ld\"\n transSuccess=\"%s\"\n",
+                                 m_lRequestNumber, m_bReplyTransSuccess ? "true" : "false");
+            break;
+            
 		case OTTransaction::message:		// A message from one user to another, also in the nymbox.
 		case OTTransaction::notice:			// A notice from the server. Used in Nymbox. Probably contains an updated smart contract.
-		case OTTransaction::replyNotice:	// A copy of a server reply to a previous request you sent. (To make SURE you get the reply.)
 		case OTTransaction::finalReceipt:	// Any finalReceipt in an inbox will also drop a copy into the Nymbox.
 			break;                          
             // ------------
@@ -4132,13 +5369,13 @@ void OTTransaction::SaveAbbreviatedNymboxRecord(OTString & strOutput)
 	// -----------------------------
 	else
 		strOutput.Concatenate("<nymboxRecord type=\"%s\"\n"
-							  " dateSigned=\"%ld\"\n"
+							  " dateSigned=\"%ld\"\n%s"
 							  " receiptHash=\"%s\"\n%s"     // SOMETIMES this is added here by the final %s: " displayValue=\"%ld\"\n"
 							  " transactionNum=\"%ld\"\n%s" // SOMETIMES this is added here by the final %s: " totalListOfNumbers=\"%s\"\n"
 							  " inRefDisplay=\"%ld\"\n"
 							  " inReferenceTo=\"%ld\" />\n\n", 
 							  strType.Get(), 
-							  lDateSigned, 
+							  lDateSigned,          strRequestNum.Get(),
 							  strHash.Get(),		strDisplayValue.Get(),	  
 							  GetTransactionNum(),  strListOfBlanks.Get(),
 							  GetReferenceNumForDisplay(),
@@ -4405,27 +5642,29 @@ void OTTransaction::SaveAbbreviatedInboxRecord(OTString & strOutput)
 // which represents a chequeReceipt, marketReceipt, or paymentReceipt from my 
 // inbox. The Balance Agreement item needs to be able to report on the inbox
 // status, so I give it a list of sub-items.
+//
 void OTTransaction::ProduceInboxReportItem(OTItem & theBalanceItem) 
 {	
 	OTItem::itemType theItemType = OTItem::error_state;
 	
-	OTLog::vOutput(3, "Producing statement report item for inbox item type: %s.\n", GetTypeString()); // temp remove.
+	OTLog::vOutput(3, "Producing statement report item for inbox item type: %s.\n",
+                   GetTypeString()); // temp remove.
 	
 	switch (m_Type) 
 	{	// These are the types that have an amount (somehow)
-		case OTTransaction::pending: // the amount is stored on the transfer item in my list.
+		case OTTransaction::pending:         // the amount is stored on the transfer item in my list.
 			theItemType = OTItem::transfer;
 			break;
-		case OTTransaction::chequeReceipt: // the amount is stored on cheque (attached to depositCheque item, attached.)
+		case OTTransaction::chequeReceipt:   // the amount is stored on cheque (attached to depositCheque item, attached.)
 			theItemType = OTItem::chequeReceipt;
 			break;
-		case OTTransaction::marketReceipt: // the amount is stored on marketReceipt item
+		case OTTransaction::marketReceipt:   // the amount is stored on marketReceipt item
 			theItemType = OTItem::marketReceipt;
 			break;
-		case OTTransaction::paymentReceipt:	// amount is stored on paymentReceipt item
+		case OTTransaction::paymentReceipt:	 // amount is stored on paymentReceipt item
 			theItemType = OTItem::paymentReceipt;			
 			break;
-		case OTTransaction::transferReceipt:	// amount is 0 according to GetReceiptAmount()
+		case OTTransaction::transferReceipt: // amount is 0 according to GetReceiptAmount()
 			theItemType = OTItem::transferReceipt;			
 			break;
 		case OTTransaction::basketReceipt:	// amount is stored on basketReceipt item.
@@ -4810,12 +6049,14 @@ long OTTransaction::GetReferenceNumForDisplay()
 		case OTTransaction::paymentReceipt:
 		case OTTransaction::basketReceipt:
 		case OTTransaction::finalReceipt:
+        case OTTransaction::instrumentNotice:
 			lReferenceNum = GetReferenceToNum();
 			break;
 			
 			// A transferReceipt ACTUALLY references the acceptPending (recipient's trans#) that accepted it.
-			// But I don't care about the recipient's transaction #s! I am the sender, and I want to see a
-			// reference to my original transfer that I sent.  This receipt, as far as I care, is for THAT TRANSFER.
+			// But I don't care about the recipient's transaction #s! This function is for DISPLAY. I am the sender,
+            // and I want to see a reference to my original transfer that I sent.  This receipt, as far as I care, 
+            // is for THAT TRANSFER.
 		case OTTransaction::transferReceipt:
 		{
 			OTString strReference;
@@ -4920,7 +6161,103 @@ long OTTransaction::GetReferenceNumForDisplay()
 //
 
 
-
+/*
+ 
+ HOW does this work? (for sendUserInstrument.)
+ 
+ First, the original sender attaches his instrument to an OTPayment object, like this:
+ 
+ void foo(const OTCheque & theCheque)
+ {
+    const OTString strCheque(theCheque);
+    OTPayment thePayment(strCheque);
+    const OTString strPayment(thePayment);
+ }
+ 
+ Then he creates this "sendUserInstrument" message:
+ 
+ 	theMessage.m_strCommand			= "sendUserInstrument";
+	theMessage.m_strNymID			= strNymID;
+	theMessage.m_strNymID2			= strNymID2;
+	theMessage.m_strServerID		= strServerID;
+        (theEnvelope.Seal(thePubkey, strPayment) &&
+        theEnvelope.GetAsciiArmoredData(
+    theMessage.m_ascPayload));
+ 
+==> The instrument itself is added to an OTPayment object (a wrapper that can handle multiple instrumen types.)
+    Then the OTPayment is encrypted to the recipient's public key and attached as the payload. 
+    (The Cheque, Payment Plan, Smart Contract, etc. is added to an OTPayment, which is then encrypted and added
+    as the message payload.)
+ 
+    A similar version of this message, "outpaymentsMessage", is also saved to the sender's "outPayments" box:
+    pMessage->m_strCommand		= "outpaymentsMessage";
+    pMessage->m_strNymID		= strNymID;
+    pMessage->m_strNymID2		= strNymID2;
+    pMessage->m_strServerID		= strServerID;			
+    pMessage->m_strRequestNum.Format("%ld", lRequestNumber);
+ 
+ // NOTICE: this time it's NOT encrypted:
+ 
+    pMessage->m_ascPayload.SetString(strPayment);
+ 
+ // You still have a choice to encrypt your local storage, but the "outPayments" box, which is
+ // client-side-only, is not encrypted by default.
+ 
+ // ----------------------------------------
+ 
+    When the SERVER receives the "sendUserInstrument" message, it adds a new instrumentNotice transaction
+    to the recipient's nymbox, in order to inform him, like this:
+ 
+    OTTransaction * pTransaction = OTTransaction::GenerateTransaction(theLedger, OTTransaction::instrumentNotice, lTransNum);
+    
+    if (NULL != pTransaction) // The above has an OT_ASSERT within, but I just like to check my pointers.
+    {			
+        pTransaction->	SetReferenceToNum(lTransNum);		// <====== Recipient RECEIVES entire incoming message as string here, which includes the sender user ID,
+        pTransaction->	SetReferenceString(strInMessage);	// and has an OTEnvelope in the payload. Message is signed by sender, and envelope is encrypted to recipient.
+        
+        pTransaction->	SignContract(m_nymServer);
+        pTransaction->	SaveContract();
+        
+        theLedger.AddTransaction(*pTransaction); // Add the message transaction to the nymbox.
+        
+        theLedger.ReleaseSignatures();
+        theLedger.SignContract(m_nymServer);
+        theLedger.SaveContract();
+        theLedger.SaveNymbox(); // We don't grab the Nymbox hash here, since nothing important changed (just a message was sent.)
+        
+        // Any inbox/nymbox/outbox ledger will only itself contain
+        // abbreviated versions of the receipts, including their hashes.
+        // 
+        // The rest is stored separately, in the box receipt, which is created
+        // whenever a receipt is added to a box, and deleted after a receipt
+        // is removed from a box.
+        //
+        pTransaction->SaveBoxReceipt(theLedger);
+        
+        msgOut.m_bSuccess = true;
+    }
+ // ---------------------
+ 
+// NOTICE that the original message (from the sender) is attached to the new transaction 
+// as a "reference string" and the reference number points to itself. (Since a message has
+// no transaction number that it could refer to.)
+ 
+ Therefore, if I am looping through my Nymbox, iterating through transactions, and one of them
+ is an instrumentNotice, then I should expect a GetReferenceString() to load up an OTMessage of
+ type "sendUserInstrument", and I should expect the PAYLOAD of that message to contain an encrypted
+ OTEnvelope, decrypted by Msg.m_strNymID2's key, which contains the OTPayment, from which is derived
+ the INSTRUMENT.
+ 
+ The INSTRUMENT can be of these types:
+    - CHEQUE, INVOICE, VOUCHER (these are all forms of cheque)
+    - PAYMENT PLAN, SMART CONTRACT (these are cron items)
+    - PURSE (containing cash)
+ 
+ It's almost better to deal with those types using OTPayment, since it provides a consistent interface
+ for all of them. Then only deal with the lower-level objects when you have to :P
+ 
+ 
+ */
 bool OTTransaction::GetSenderUserIDForDisplay(OTIdentifier & theReturnID)
 {
 	if (IsAbbreviated())
@@ -4928,8 +6265,8 @@ bool OTTransaction::GetSenderUserIDForDisplay(OTIdentifier & theReturnID)
 	
 	bool bSuccess = false;
 	
-    OTItem * pOriginalItem = NULL; OTCleanup<OTItem> theItemAngel;
-    OTCronItem * pCronItem = NULL; OTCleanup<OTCronItem> theCronItemAngel;
+    OTItem * pOriginalItem = NULL; OTCleanup<OTItem>        theItemAngel;
+    OTCronItem * pCronItem = NULL; OTCleanup<OTCronItem>    theCronItemAngel;
     
     OTString strReference;
     GetReferenceString(strReference);
@@ -4971,8 +6308,60 @@ bool OTTransaction::GetSenderUserIDForDisplay(OTIdentifier & theReturnID)
                 OTLog::Error("OTTransaction::GetSenderUserIDForDisplay: Unable to load Cron Item. Should never happen.\n");
                 return false;
             }
-        }
             break;
+        }
+        // --------------------------------------------------
+        case OTTransaction::instrumentNotice:
+        {
+            /*
+             Therefore, if I am looping through my Nymbox, iterating through transactions, and one of them
+             is an *** instrumentNotice *** then I should expect this->GetReferenceString(strOutput) to:
+             
+             1. load up from string as an OTMessage of type "sendUserInstrument",
+             -------------------------------------------------------------------
+             2. and I should expect the PAYLOAD of that message to contain an encrypted OTEnvelope,
+             3. which can be decrypted by Msg.m_strNymID2's private key,
+             4. And the resulting plaintext can be loaded into memory as an OTPayment object,
+             5. ...which contains an instrument of ambiguous type.
+             -------------------------------------------------------------------
+             FYI:
+             OTPayment provides a consistent interface, and consolidation of handling, for 
+             the several financial instruments that appear on the PAYMENTS page, in the PaymentsInbox.
+             For example: 
+             [ Cheques, Invoices, Vouchers ], 
+             Payment Plans, Smart Contracts, ...and Purses.
+             -------------------------------------------------------------------
+             (In this block we don't need to go any farther than step 1 above.)
+             -------------------------------------------------------------------
+             */
+//          OTString strReference;              // (Already done above.)
+//          GetReferenceString(strReference);   // (Already done above.)
+            
+            OTMessage theSentMsg;
+            
+            if (strReference.Exists() && theSentMsg.LoadContractFromString(strReference))
+            {
+                // All we need is this message itself. We aren't going to decrypt
+                // the payload, we're just going to grab the sender/receiver data
+                // from the msg.
+                //
+                // We can't decrypt the payload (the OTPayment object) but we still have sender / recipient.
+                // todo security need to consider security implications of that and maybe improve it a bit.
+                // (But I do NOT want to get into the messaging business.)
+                //
+//              theSentMsg.m_strCommand		= "sendUserInstrument";
+//              theSentMsg.m_strNymID		= strNymID;     //   ===> sender <===
+//              theSentMsg.m_strNymID2		= strNymID2;    // ===> recipient <===
+
+                if (theSentMsg.m_strNymID.Exists())
+                {
+                    theReturnID.SetString(theSentMsg.m_strNymID);
+                    return true;
+                }                
+            }            
+            return false;
+        }   
+        // --------------------------------------------------
  		case OTTransaction::pending:
 		case OTTransaction::chequeReceipt:
         {
@@ -4983,7 +6372,7 @@ bool OTTransaction::GetSenderUserIDForDisplay(OTIdentifier & theReturnID)
             
             break;
         }   
-
+        // --------------------------------------------------
 		default: // All other types are irrelevant here.
 			return false;
 	}
@@ -5101,6 +6490,60 @@ bool OTTransaction::GetRecipientUserIDForDisplay(OTIdentifier & theReturnID)
             return false;
         }
             break; // this break never actually happens. Above always returns, if triggered.
+            // --------------------------------------------------
+        case OTTransaction::instrumentNotice:
+        {
+            /*
+             Therefore, if I am looping through my Nymbox, iterating through transactions, and one of them
+             is an *** instrumentNotice *** then I should expect this->GetReferenceString(strOutput) to:
+             
+             1. load up from string as an OTMessage of type "sendUserInstrument",
+             -------------------------------------------------------------------
+             2. and I should expect the PAYLOAD of that message to contain an encrypted OTEnvelope,
+             3. which can be decrypted by Msg.m_strNymID2's private key,
+             4. And the resulting plaintext can be loaded into memory as an OTPayment object,
+             5. ...which contains an instrument of ambiguous type.
+             -------------------------------------------------------------------
+             FYI:
+             OTPayment provides a consistent interface, and consolidation of handling, for 
+             the several financial instruments that appear on the PAYMENTS page, in the PaymentsInbox.
+             For example: 
+                [ Cheques, Invoices, Vouchers ], 
+                Payment Plans, Smart Contracts, ...and Purses.
+             -------------------------------------------------------------------
+             (In this block we don't need to go any farther than step 1 above.)
+             -------------------------------------------------------------------
+             */
+//          OTString strReference;              // (Already done above.)
+//          GetReferenceString(strReference);   // (Already done above.)
+            
+            OTMessage theSentMsg;
+            
+            if (strReference.Exists() && theSentMsg.LoadContractFromString(strReference))
+            {
+                // All we need is this message itself. We aren't going to decrypt
+                // the payload, we're just going to grab the sender/receiver data
+                // from the msg.
+                //
+                // We can't decrypt the payload (the OTPayment object) but we still have sender / recipient.
+                // todo security need to consider security implications of that and maybe improve it a bit.
+                // (But I do NOT want to get into the messaging business.)
+                //
+//              theSentMsg.m_strCommand		= "sendUserInstrument";
+//              theSentMsg.m_strNymID		= strNymID;     //   ===> sender <===
+//              theSentMsg.m_strNymID2		= strNymID2;    // ===> recipient <===
+                
+                if (theSentMsg.m_strNymID2.Exists())
+                {
+                    theReturnID.SetString(theSentMsg.m_strNymID2);
+                    return true;
+                }                
+            }            
+            return false;
+        } // case OTTransaction::instrumentNotice:
+            break;
+        // --------------------------------------------------
+        //
 		case OTTransaction::transferReceipt: 
 		case OTTransaction::chequeReceipt: 
         {

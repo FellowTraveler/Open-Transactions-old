@@ -142,10 +142,17 @@ using namespace io;
 
 #include "OTStorage.h"
 
-#include "OTMessage.h"
+#include "OTIdentifier.h"
 #include "OTString.h"
 #include "OTStringXML.h"
 #include "OTASCIIArmor.h"
+
+#include "OTPseudonym.h"
+
+#include "OTMessage.h"
+
+#include "OTTransaction.h"
+#include "OTLedger.h"
 
 #include "OTLog.h"
 
@@ -155,6 +162,91 @@ using namespace io;
 // (Transactions are in a different file.)
 
 
+
+// true  == success (even if nothing harvested.)
+// false == error.
+//
+bool OTMessage::HarvestTransactionNumbers(      OTPseudonym &  theNym,
+                                          const bool           bHarvestingForRetry,     // false until positively asserted.
+                                          const bool           bReplyWasSuccess,        // false until positively asserted.
+                                          const bool           bReplyWasFailure,        // false until positively asserted.
+                                          const bool           bTransactionWasSuccess,  // false until positively asserted.
+                                          const bool           bTransactionWasFailure)  // false until positively asserted.
+{
+	const char * szFuncName		= "OTMessage::HarvestTransactionNumbers";
+	// -----------------------------------------------------
+    const OTIdentifier  MSG_NYM_ID  (m_strNymID),
+                        SERVER_ID   (m_strServerID),
+                        ACCOUNT_ID  (m_strAcctID.Exists() ?
+                                     m_strAcctID : m_strNymID); // This may be unnecessary, but just in case.
+	// -----------------------------------------------------
+    const
+    OTString    strLedger(m_ascPayload);
+	// -----------------------------------------------------
+    OTLedger    theLedger(MSG_NYM_ID, ACCOUNT_ID, SERVER_ID); // We're going to load a messsage ledger from *this.
+	// -----------------------------------------------------
+    if (!strLedger.Exists() || !theLedger.LoadLedgerFromString(strLedger))
+    {
+        OTLog::vError("%s: ERROR: Failed trying to load message ledger:\n\n%s\n\n",
+                      szFuncName, strLedger.Get());
+        return false;
+    }
+    else    // theLedger is loaded up! 
+    {       // Let's iterate through the transactions inside, and harvest whatever we can...
+        //
+        FOR_EACH(mapOfTransactions, theLedger.GetTransactionMap())
+        {
+            OTTransaction * pTransaction = (*it).second;
+            OT_ASSERT(NULL != pTransaction);
+            // ---------------------
+            //
+            // NOTE: You would ONLY harvest the transaction numbers if your request failed.
+            // Clearly you would never bother harvesting the numbers from a SUCCESSFUL request,
+            // because doing so would only put you out of sync. (This is the same reason why
+            // we DO harvest numbers from UNSUCCESSFUL requests--in order to stay in sync.)
+            // 
+            // That having been said, an important distinction must be made between failed
+            // requests where "the message succeeded but the TRANSACTION failed", versus requests
+            // where the MESSAGE ITSELF failed (meaning the transaction itself never got a 
+            // chance to run, and thus never had a chance to fail.)
+            //
+            // In the first case, you don't want to harvest the opening transaction number
+            // (the primary transaction number for that transaction) because that number was 
+            // already burned when the transaction failed. Instead, you want to harvest "all
+            // the others" (the "closing" numbers.)
+            // But in the second case, you want to harvest the opening transaction number as well,
+            // since it is still good (because the transaction never ran.)
+            //
+            // (Therefore the below logic turns on whether or not the message was a success.)
+            //
+            // UPDATE: The logic is now all inside OTTransaction::Harvest...Numbers, you just have to tell it,
+            // when you call it, the state of certain things (message success, transaction success, etc.)
+            //
+            
+            pTransaction->HarvestOpeningNumber(theNym, 
+                                               bHarvestingForRetry,
+                                               bReplyWasSuccess, 
+                                               bReplyWasFailure, 
+                                               bTransactionWasSuccess, 
+                                               bTransactionWasFailure); 
+            
+            // -----------------------------------------------
+            // We grab the closing numbers no matter what (whether message succeeded or failed.)
+            // It bears mentioning one more time that you would NEVER harvest in the first place unless
+            // your original request somehow failed. So this is more about WHERE the failure occurred (at
+            // the message level or the transaction level), not WHETHER one occurred.
+            // 
+            pTransaction->HarvestClosingNumbers(theNym,
+                                                bHarvestingForRetry,
+                                                bReplyWasSuccess, 
+                                                bReplyWasFailure, 
+                                                bTransactionWasSuccess, 
+                                                bTransactionWasFailure);
+        } // FOR_EACH (ledger->pTransaction)
+    } // else (ledger is loaded up.)
+    
+    return true;
+}
 
 
 // The framework (OTContract) will call this function at the appropriate time.
@@ -423,10 +515,12 @@ void OTMessage::UpdateContents()
 	if (m_strCommand.Compare("checkServerID"))
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n"
+								  " requestNum=\"%s\"\n"
 								  " nymID=\"%s\"\n"
 								  " serverID=\"%s\""
 								  ">\n\n",
 								  m_strCommand.Get(),
+                                  m_strRequestNum.Get(),
 								  m_strNymID.Get(),
 								  m_strServerID.Get()
 								  );
@@ -442,11 +536,14 @@ void OTMessage::UpdateContents()
 	if (m_strCommand.Compare("@checkServerID"))
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n"
+								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
 								  " nymID=\"%s\"\n"
 								  " serverID=\"%s\""
 								  ">\n\n",
-								  m_strCommand.Get(),(m_bSuccess ? "true" : "false"),
+								  m_strCommand.Get(),
+                                  m_strRequestNum.Get(),
+                                  (m_bSuccess ? "true" : "false"),
 								  m_strNymID.Get(),
 								  m_strServerID.Get()
 								  );
@@ -459,10 +556,12 @@ void OTMessage::UpdateContents()
 	if (m_strCommand.Compare("createUserAccount"))
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n"
+								  " requestNum=\"%s\"\n"
 								  " nymID=\"%s\"\n"
 								  " serverID=\"%s\""
 								  ">\n\n",
 								  m_strCommand.Get(),
+                                  m_strRequestNum.Get(),
 								  m_strNymID.Get(),
 								  m_strServerID.Get()
 								  );
@@ -478,11 +577,13 @@ void OTMessage::UpdateContents()
 	if (m_strCommand.Compare("@createUserAccount"))
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n"
+								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
 								  " nymID=\"%s\"\n"
 								  " serverID=\"%s\""
 								  ">\n\n",
 								  m_strCommand.Get(),
+                                  m_strRequestNum.Get(),                                  
 								  (m_bSuccess ? "true" : "false"),
 								  m_strNymID.Get(),
 								  m_strServerID.Get()
@@ -764,11 +865,13 @@ void OTMessage::UpdateContents()
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n"
 								  " nymID=\"%s\"\n"
-								  " serverID=\"%s\""
+								  " serverID=\"%s\"\n"
+								  " requestNum=\"%s\""
 								  ">\n\n",
 								  m_strCommand.Get(),
 								  m_strNymID.Get(),
-								  m_strServerID.Get()
+								  m_strServerID.Get(),
+								  m_strRequestNum.Get()                                  
 								  );
 		
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
@@ -784,13 +887,17 @@ void OTMessage::UpdateContents()
 		m_xmlUnsigned.Concatenate("<%s\n" // command
 								  " success=\"%s\"\n" // m_bSuccess
 								  " nymID=\"%s\"\n"
+								  " nymboxHash=\"%s\"\n"
 								  " serverID=\"%s\"\n"
+								  " newRequestNum=\"%ld\"\n"
 								  " requestNum=\"%s\""
 								  ">\n\n",
 								  m_strCommand.Get(),
 								  (m_bSuccess ? "true" : "false"),
 								  m_strNymID.Get(),
+								  m_strNymboxHash.Get(),
 								  m_strServerID.Get(),
+                                  m_lNewRequestNum,
 								  m_strRequestNum.Get()
 								  );
 		
@@ -1112,12 +1219,14 @@ void OTMessage::UpdateContents()
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " nymID=\"%s\"\n"
+								  " nymboxHash=\"%s\"\n"
 								  " serverID=\"%s\"\n"
 								  " accountID=\"%s\"\n"
 								  " requestNum=\"%s\""
 								  " >\n\n",
 								  m_strCommand.Get(),
 								  m_strNymID.Get(),
+                                  m_strNymboxHash.Get(),
 								  m_strServerID.Get(),
 								  m_strAcctID.Get(),
 								  m_strRequestNum.Get()
@@ -1172,11 +1281,13 @@ void OTMessage::UpdateContents()
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " nymID=\"%s\"\n"
+								  " nymboxHash=\"%s\"\n"
 								  " serverID=\"%s\"\n"
 								  " requestNum=\"%s\""
 								  " >\n\n",
 								  m_strCommand.Get(),
 								  m_strNymID.Get(),
+                                  m_strNymboxHash.Get(),
 								  m_strServerID.Get(),
 								  m_strRequestNum.Get()
 								  );
@@ -1194,12 +1305,14 @@ void OTMessage::UpdateContents()
 								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
 								  " nymID=\"%s\"\n"
+								  " nymboxHash=\"%s\"\n"
 								  " serverID=\"%s\""
 								  " >\n\n",
 								  m_strCommand.Get(),
 								  m_strRequestNum.Get(),
 								  (m_bSuccess ? "true" : "false"),
 								  m_strNymID.Get(),
+                                  m_strNymboxHash.Get(),
 								  m_strServerID.Get()
 								  );
 
@@ -1237,12 +1350,14 @@ void OTMessage::UpdateContents()
 								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
 								  " nymID=\"%s\"\n"
+								  " nymboxHash=\"%s\"\n"
 								  " serverID=\"%s\""
 								  " >\n\n",
 								  m_strCommand.Get(),
 								  m_strRequestNum.Get(),
 								  (m_bSuccess ? "true" : "false"),
 								  m_strNymID.Get(),
+                                  m_strNymboxHash.Get(),
 								  m_strServerID.Get()
 								  );
 		
@@ -1292,6 +1407,7 @@ void OTMessage::UpdateContents()
 								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
 								  " nymID=\"%s\"\n"
+								  " inboxHash=\"%s\"\n"                                  
 								  " serverID=\"%s\"\n"
 								  " accountID=\"%s\""
 								  " >\n\n",
@@ -1299,6 +1415,7 @@ void OTMessage::UpdateContents()
 								  m_strRequestNum.Get(),
 								  (m_bSuccess ? "true" : "false"),
 								  m_strNymID.Get(),
+                                  m_strInboxHash.Get(),
 								  m_strServerID.Get(), 
 								  m_strAcctID.Get()
 								  );
@@ -1348,6 +1465,7 @@ void OTMessage::UpdateContents()
 								  " requestNum=\"%s\"\n"
 								  " success=\"%s\"\n"
 								  " nymID=\"%s\"\n"
+								  " outboxHash=\"%s\"\n"                                  
 								  " serverID=\"%s\"\n"
 								  " accountID=\"%s\""
 								  " >\n\n",
@@ -1355,6 +1473,7 @@ void OTMessage::UpdateContents()
 								  m_strRequestNum.Get(),
 								  (m_bSuccess ? "true" : "false"),
 								  m_strNymID.Get(),
+                                  m_strOutboxHash.Get(),
 								  m_strServerID.Get(), 
 								  m_strAcctID.Get()
 								  );
@@ -1546,12 +1665,14 @@ void OTMessage::UpdateContents()
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " nymID=\"%s\"\n"
+								  " nymboxHash=\"%s\"\n"
 								  " serverID=\"%s\"\n"
 								  " accountID=\"%s\"\n"
 								  " requestNum=\"%s\""
 								  " >\n\n",
 								  m_strCommand.Get(),
 								  m_strNymID.Get(),
+                                  m_strNymboxHash.Get(),
 								  m_strServerID.Get(),
 								  m_strAcctID.Get(),
 								  m_strRequestNum.Get()
@@ -1607,11 +1728,13 @@ void OTMessage::UpdateContents()
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " nymID=\"%s\"\n"
+								  " nymboxHash=\"%s\"\n"
 								  " serverID=\"%s\"\n"
 								  " requestNum=\"%s\""
 								  " >\n\n",
 								  m_strCommand.Get(),
 								  m_strNymID.Get(),
+                                  m_strNymboxHash.Get(),
 								  m_strServerID.Get(),
 								  m_strRequestNum.Get()
 								  );
@@ -1662,6 +1785,7 @@ void OTMessage::UpdateContents()
 	{		
 		m_xmlUnsigned.Concatenate("<%s\n" // Command
 								  " nymID=\"%s\"\n"
+								  " nymboxHash=\"%s\"\n"
 								  " serverID=\"%s\"\n"
 								  " smartContractID=\"%ld\"\n"  // <===
 								  " clauseName=\"%s\"\n"		// <===
@@ -1670,6 +1794,7 @@ void OTMessage::UpdateContents()
 								  " >\n\n",
 								  m_strCommand.Get(),
 								  m_strNymID.Get(),
+                                  m_strNymboxHash.Get(),
 								  m_strServerID.Get(),
 								  m_lTransactionNum,
 								  m_strNymID2.Get(), // clause name is stored here for this message.
@@ -2164,6 +2289,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	else if (!strcmp("checkServerID", xml->getNodeName())) 
 	{		
 		m_strCommand	= xml->getNodeName();  // Command
+        m_strRequestNum = xml->getAttributeValue("requestNum");
 		m_strNymID		= xml->getAttributeValue("nymID");
 		m_strServerID	= xml->getAttributeValue("serverID");
 		
@@ -2202,6 +2328,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			m_bSuccess = false;
 		
 		m_strCommand	= xml->getNodeName();  // Command
+        m_strRequestNum = xml->getAttributeValue("requestNum");
 		m_strNymID		= xml->getAttributeValue("nymID");
 		m_strServerID	= xml->getAttributeValue("serverID");
 		
@@ -2218,6 +2345,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	else if (!strcmp("createUserAccount", xml->getNodeName())) 
 	{		
 		m_strCommand	= xml->getNodeName();  // Command
+        m_strRequestNum = xml->getAttributeValue("requestNum");
 		m_strNymID		= xml->getAttributeValue("nymID");
 		m_strServerID	= xml->getAttributeValue("serverID");
 		
@@ -2257,6 +2385,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			m_bSuccess = false;
 
 		m_strCommand	= xml->getNodeName();  // Command
+        m_strRequestNum = xml->getAttributeValue("requestNum");
 		m_strNymID		= xml->getAttributeValue("nymID");
 		m_strServerID	= xml->getAttributeValue("serverID");
 		
@@ -2360,6 +2489,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	else if (!strcmp("getRequest", xml->getNodeName())) 
 	{		
 		m_strCommand	= xml->getNodeName();  // Command
+		m_strRequestNum	= xml->getAttributeValue("requestNum");
 		m_strNymID		= xml->getAttributeValue("nymID");
 		m_strServerID	= xml->getAttributeValue("serverID");
 		
@@ -2379,16 +2509,21 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			m_bSuccess = true;
 		else
 			m_bSuccess = false;
-		
+        
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strRequestNum = xml->getAttributeValue("requestNum");
 		m_strNymID		= xml->getAttributeValue("nymID");
+        m_strNymboxHash	= xml->getAttributeValue("nymboxHash");
 		m_strServerID	= xml->getAttributeValue("serverID");
 		
+        const
+        OTString strNewRequestNum = xml->getAttributeValue("newRequestNum");
+        m_lNewRequestNum = strNewRequestNum.Exists() ? atol(strNewRequestNum.Get()) : 0;
+        
 		OTLog::vOutput(1, "\nCommand: %s   %s\nNymID:    %s\n"
-				"ServerID: %s\nRequest Number:    %s\n\n", 
+				"ServerID: %s\nRequest Number:    %s  New Number: %ld\n\n", 
 				m_strCommand.Get(), (m_bSuccess ? "SUCCESS" : "FAILED"), m_strNymID.Get(), 
-				m_strServerID.Get(), m_strRequestNum.Get());
+				m_strServerID.Get(), m_strRequestNum.Get(), m_lNewRequestNum);
 		
 		nReturnVal = 1;
 	}
@@ -3287,6 +3422,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	{	
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strNymID		= xml->getAttributeValue("nymID");
+        m_strNymboxHash	= xml->getAttributeValue("nymboxHash");
 		m_strServerID	= xml->getAttributeValue("serverID");
 		m_strRequestNum	= xml->getAttributeValue("requestNum");
 		
@@ -3313,6 +3449,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strRequestNum	= xml->getAttributeValue("requestNum");
 		m_strNymID		= xml->getAttributeValue("nymID");
+        m_strNymboxHash	= xml->getAttributeValue("nymboxHash");
 		m_strServerID	= xml->getAttributeValue("serverID");
 		
 		OTLog::vOutput(1, "\n Command: %s   %s\n NymID:    %s\n"
@@ -3331,6 +3468,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	{	
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strNymID		= xml->getAttributeValue("nymID");
+		m_strNymboxHash	= xml->getAttributeValue("nymboxHash");
 		m_strServerID	= xml->getAttributeValue("serverID");
 		m_strAcctID		= xml->getAttributeValue("accountID");
 		m_strRequestNum	= xml->getAttributeValue("requestNum");
@@ -3482,6 +3620,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		m_strNymID		= xml->getAttributeValue("nymID");
 		m_strServerID	= xml->getAttributeValue("serverID");
 		m_strAcctID		= xml->getAttributeValue("accountID");
+		m_strInboxHash  = xml->getAttributeValue("inboxHash");
 		
 		// -----------------------------------------------------
 		
@@ -3532,6 +3671,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strRequestNum	= xml->getAttributeValue("requestNum");
 		m_strNymID		= xml->getAttributeValue("nymID");
+        m_strNymboxHash	= xml->getAttributeValue("nymboxHash");
 		m_strServerID	= xml->getAttributeValue("serverID");
 		
 		// -----------------------------------------------------
@@ -3603,7 +3743,8 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		m_strNymID		= xml->getAttributeValue("nymID");
 		m_strServerID	= xml->getAttributeValue("serverID");
 		m_strAcctID		= xml->getAttributeValue("accountID");
-		
+        m_strOutboxHash = xml->getAttributeValue("outboxHash");
+
 		// -----------------------------------------------------
 		
 		const char * pElementExpected;
@@ -3854,6 +3995,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	{		
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strNymID		= xml->getAttributeValue("nymID");
+        m_strNymboxHash	= xml->getAttributeValue("nymboxHash");
 		m_strServerID	= xml->getAttributeValue("serverID");
 		m_strNymID2		= xml->getAttributeValue("clauseName");
 		m_strRequestNum = xml->getAttributeValue("requestNum");
@@ -3940,6 +4082,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	{	
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strNymID		= xml->getAttributeValue("nymID");
+        m_strNymboxHash	= xml->getAttributeValue("nymboxHash");
 		m_strServerID	= xml->getAttributeValue("serverID");
 		m_strAcctID		= xml->getAttributeValue("accountID");
 		m_strRequestNum	= xml->getAttributeValue("requestNum");
@@ -3975,6 +4118,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	{	
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strNymID		= xml->getAttributeValue("nymID");
+        m_strNymboxHash	= xml->getAttributeValue("nymboxHash");
 		m_strServerID	= xml->getAttributeValue("serverID");
 		m_strRequestNum	= xml->getAttributeValue("requestNum");
 		
@@ -4207,7 +4351,9 @@ bool OTMessage::SignContract(const OTPseudonym & theNym)
 
 
 OTMessage::OTMessage() : OTContract(),
-	m_bIsSigned(false), m_lDepth(0), m_lTransactionNum(0), m_bSuccess(false), m_bBool(false)
+	m_bIsSigned(false), m_lNewRequestNum(0),
+    m_lDepth(0),        m_lTransactionNum(0), 
+    m_bSuccess(false),  m_bBool(false)
 	 
 {
 	OTContract::m_strContractType.Set("MESSAGE");

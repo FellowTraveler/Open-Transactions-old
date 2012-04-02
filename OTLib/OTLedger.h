@@ -134,9 +134,9 @@
 
 #include <fstream>
 
+#include "OTString.h"
 #include "OTTransactionType.h"
 #include "OTTransaction.h"
-#include "OTString.h"
 
 class OTAccount;
 class OTMessage;
@@ -214,6 +214,8 @@ public:
 	OTTransaction * GetFinalReceipt(long lReferenceNum);
 	OTTransaction * GetTransferReceipt(long lTransactionNum);
 	// ------------------------------------
+	OTTransaction * GetReplyNotice(const long & lRequestNum);
+	// ------------------------------------
 	// This calls OTTransactionType::VerifyAccount(), which calls 
 	// VerifyContractID() as well as VerifySignature().
 	//
@@ -239,14 +241,18 @@ public:
 	// "Deletes" it by adding MARKED_FOR_DELETION to the bottom of the file.
 	bool DeleteBoxReceipt(const long & lTransactionNum);
 	// ------------------------------------
-	bool SaveInbox();
 	bool LoadInbox();
-	
-	bool SaveNymbox();
+	bool SaveInbox(OTIdentifier * pInboxHash=NULL);  // If you pass the identifier in, the hash is recorded there
 	bool LoadNymbox();
-	
-	bool SaveOutbox();
+	bool SaveNymbox(OTIdentifier * pNymboxHash=NULL); // If you pass the identifier in, the hash is recorded there.
 	bool LoadOutbox();
+	bool SaveOutbox(OTIdentifier * pOutboxHash=NULL);  // If you pass the identifier in, the hash is recorded there
+    
+    bool CalculateHash       (OTIdentifier & theOutput);
+    bool CalculateInboxHash  (OTIdentifier & theOutput);
+    bool CalculateOutboxHash (OTIdentifier & theOutput);
+    bool CalculateNymboxHash (OTIdentifier & theOutput);
+
 	// ------------------------------------
 	bool SavePaymentInbox();
 	bool LoadPaymentInbox();

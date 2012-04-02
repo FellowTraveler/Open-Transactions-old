@@ -2,15 +2,24 @@
 <notaryServer version="1.0"
  serverID="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1"
  serverUserID="pc23gUqPu9Bk1Vl0K5lz3Jp1MYIfjGIBXVWDp1gba9C"
- transactionNum="564" >
+ transactionNum="579" >
 
 <assetType name="eJzj4inOzClLLVJIL0rMLQYAILwE5g=="
  assetTypeID="CvHGtfOOKzQKL5hFL7J4iF5yAodVKhS1rxPzME5R9XA" />
 
+<assetType name=""
+ assetTypeID="aF4n89o4zyuVWR6Cpm9X75u2Vgv1hbT2v4S0jMKApRR" />
+
 <assetType name="eJzj4k5PzE1VKMnPTs0rBgAaNARk"
  assetTypeID="ttHGviJ9hRcijEvWT4f9KpqVcZ7c0UqXYNslvSEa6gJ" />
 
-<accountList type="voucher" count="0" >
+<basketInfo basketID="FZUq7G9n3gdxZi6BoO1Vj37vBzAbNvQBtKT3mSjloOI"
+ basketAcctID="2TNalZxncS4p6TkD2LHhnoxuy55xNytwSltRHed9whd"
+ basketContractID="aF4n89o4zyuVWR6Cpm9X75u2Vgv1hbT2v4S0jMKApRR" />
+
+<accountList type="voucher" count="1" >
+
+<accountEntry assetTypeID="CvHGtfOOKzQKL5hFL7J4iF5yAodVKhS1rxPzME5R9XA" accountID="mmVy9Swx3e6he5ukBq2ANUMwt5pxpEpFJ4ip82LQHKJ" />
 
 </accountList>
 

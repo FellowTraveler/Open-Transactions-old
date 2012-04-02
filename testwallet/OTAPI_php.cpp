@@ -1859,7 +1859,7 @@ ZEND_NAMED_FUNCTION(_wrap_OTPassword_setPassword) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -1869,7 +1869,7 @@ ZEND_NAMED_FUNCTION(_wrap_OTPassword_setPassword) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[2]);
   arg3 = (int) Z_LVAL_PP(args[2]);
   /*@SWIG@*/;
@@ -1960,6 +1960,32 @@ fail:
 
 
 ZEND_NAMED_FUNCTION(_wrap_new_OTPassword__SWIG_0) {
+  OTPassword::BlockSize arg1 ;
+  zval **args[1];
+  OTPassword *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  convert_to_long_ex(args[0]);
+  arg1 = (OTPassword::BlockSize) Z_LVAL_PP(args[0]);
+  /*@SWIG@*/;
+  
+  result = (OTPassword *)new OTPassword(arg1);
+  
+  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTPassword, 1);
+  
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_new_OTPassword__SWIG_1) {
   OTPassword *result = 0 ;
   
   SWIG_ResetError();
@@ -1977,7 +2003,51 @@ fail:
 }
 
 
-ZEND_NAMED_FUNCTION(_wrap_new_OTPassword__SWIG_1) {
+ZEND_NAMED_FUNCTION(_wrap_new_OTPassword__SWIG_2) {
+  char *arg1 = (char *) 0 ;
+  int arg2 ;
+  OTPassword::BlockSize arg3 ;
+  zval **args[3];
+  OTPassword *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  convert_to_long_ex(args[1]);
+  arg2 = (int) Z_LVAL_PP(args[1]);
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  convert_to_long_ex(args[2]);
+  arg3 = (OTPassword::BlockSize) Z_LVAL_PP(args[2]);
+  /*@SWIG@*/;
+  
+  result = (OTPassword *)new OTPassword((char const *)arg1,arg2,arg3);
+  
+  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTPassword, 1);
+  
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_new_OTPassword__SWIG_3) {
   char *arg1 = (char *) 0 ;
   int arg2 ;
   zval **args[2];
@@ -1989,7 +2059,7 @@ ZEND_NAMED_FUNCTION(_wrap_new_OTPassword__SWIG_1) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -1999,7 +2069,7 @@ ZEND_NAMED_FUNCTION(_wrap_new_OTPassword__SWIG_1) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (int) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -2016,12 +2086,19 @@ fail:
 
 ZEND_NAMED_FUNCTION(_wrap_new_OTPassword) {
   int argc;
-  zval **argv[2];
+  zval **argv[3];
   
   argc = ZEND_NUM_ARGS();
   zend_get_parameters_array_ex(argc,argv);
   if (argc == 0) {
-    _wrap_new_OTPassword__SWIG_0(INTERNAL_FUNCTION_PARAM_PASSTHRU); return;
+    _wrap_new_OTPassword__SWIG_1(INTERNAL_FUNCTION_PARAM_PASSTHRU); return;
+  }
+  if (argc == 1) {
+    int _v;
+    _v = (Z_TYPE_PP(argv[0]) == IS_LONG); 
+    if (_v) {
+      _wrap_new_OTPassword__SWIG_0(INTERNAL_FUNCTION_PARAM_PASSTHRU); return;
+    }
   }
   if (argc == 2) {
     int _v;
@@ -2029,7 +2106,20 @@ ZEND_NAMED_FUNCTION(_wrap_new_OTPassword) {
     if (_v) {
       _v = (Z_TYPE_PP(argv[1]) == IS_LONG); 
       if (_v) {
-        _wrap_new_OTPassword__SWIG_1(INTERNAL_FUNCTION_PARAM_PASSTHRU); return;
+        _wrap_new_OTPassword__SWIG_3(INTERNAL_FUNCTION_PARAM_PASSTHRU); return;
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    _v = (Z_TYPE_PP(argv[0]) == IS_STRING); 
+    if (_v) {
+      _v = (Z_TYPE_PP(argv[1]) == IS_LONG); 
+      if (_v) {
+        _v = (Z_TYPE_PP(argv[2]) == IS_LONG); 
+        if (_v) {
+          _wrap_new_OTPassword__SWIG_2(INTERNAL_FUNCTION_PARAM_PASSTHRU); return;
+        }
       }
     }
   }
@@ -2128,7 +2218,7 @@ ZEND_NAMED_FUNCTION(_wrap_OTCallback_runOne) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -2176,7 +2266,7 @@ ZEND_NAMED_FUNCTION(_wrap_OTCallback_runTwo) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -2342,7 +2432,7 @@ ZEND_NAMED_FUNCTION(_wrap_OTCaller_SetDisplay) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -2352,7 +2442,7 @@ ZEND_NAMED_FUNCTION(_wrap_OTCaller_SetDisplay) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[2]);
   arg3 = (int) Z_LVAL_PP(args[2]);
   /*@SWIG@*/;
@@ -2525,7 +2615,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Init) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -2555,7 +2645,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadWallet) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -2586,7 +2676,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SwitchWallet) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -2596,7 +2686,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SwitchWallet) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -2626,13 +2716,13 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Output) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[0]);
   arg1 = (int) Z_LVAL_PP(args[0]);
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -2683,7 +2773,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Encode) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -2693,7 +2783,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Encode) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (int) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -2724,7 +2814,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Decode) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -2734,7 +2824,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Decode) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (int) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -2765,7 +2855,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Encrypt) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -2775,7 +2865,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Encrypt) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -2810,7 +2900,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Decrypt) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -2820,7 +2910,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Decrypt) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -2855,7 +2945,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SignContract) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -2865,7 +2955,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SignContract) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -2900,7 +2990,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_AddSignature) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -2910,7 +3000,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_AddSignature) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -2945,7 +3035,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_VerifySignature) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -2955,7 +3045,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_VerifySignature) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -2986,7 +3076,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_VerifyAndRetrieveXMLContents) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -2996,7 +3086,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_VerifyAndRetrieveXMLContents) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -3048,7 +3138,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetMemlogAtIndex) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[0]);
   arg1 = (int) Z_LVAL_PP(args[0]);
   /*@SWIG@*/;
@@ -3148,14 +3238,22 @@ fail:
 
 
 ZEND_NAMED_FUNCTION(_wrap_OT_API_CreateNym) {
+  int arg1 ;
+  zval **args[1];
   char *result = 0 ;
   
   SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 0) {
+  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
     WRONG_PARAM_COUNT;
   }
   
-  result = (char *)OT_API_CreateNym();
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  convert_to_long_ex(args[0]);
+  arg1 = (int) Z_LVAL_PP(args[0]);
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_CreateNym(arg1);
   {
     if(!result) {
       ZVAL_NULL(return_value);
@@ -3180,7 +3278,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_AddServerContract) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -3210,7 +3308,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_AddAssetContract) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -3312,7 +3410,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetServer_ID) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[0]);
   arg1 = (int) Z_LVAL_PP(args[0]);
   /*@SWIG@*/;
@@ -3342,7 +3440,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetServer_Name) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -3376,7 +3474,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetAssetType_ID) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[0]);
   arg1 = (int) Z_LVAL_PP(args[0]);
   /*@SWIG@*/;
@@ -3406,7 +3504,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetAssetType_Name) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -3440,7 +3538,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetAccountWallet_ID) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[0]);
   arg1 = (int) Z_LVAL_PP(args[0]);
   /*@SWIG@*/;
@@ -3470,7 +3568,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetAccountWallet_Name) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -3504,7 +3602,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetAccountWallet_Balance) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -3538,7 +3636,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetAccountWallet_Type) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -3572,7 +3670,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetAccountWallet_AssetTypeID) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -3606,7 +3704,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetAccountWallet_ServerID) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -3640,7 +3738,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetAccountWallet_NymID) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -3650,6 +3748,74 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetAccountWallet_NymID) {
   /*@SWIG@*/;
   
   result = (char *)OT_API_GetAccountWallet_NymID((char const *)arg1);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_GetAccountWallet_InboxHash) {
+  char *arg1 = (char *) 0 ;
+  zval **args[1];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_GetAccountWallet_InboxHash((char const *)arg1);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_GetAccountWallet_OutboxHash) {
+  char *arg1 = (char *) 0 ;
+  zval **args[1];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_GetAccountWallet_OutboxHash((char const *)arg1);
   {
     if(!result) {
       ZVAL_NULL(return_value);
@@ -3676,7 +3842,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_VerifyAccountReceipt) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -3686,7 +3852,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_VerifyAccountReceipt) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -3696,7 +3862,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_VerifyAccountReceipt) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -3727,7 +3893,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetNym_TransactionNumCount) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -3737,7 +3903,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetNym_TransactionNumCount) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -3767,7 +3933,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetNym_ID) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[0]);
   arg1 = (int) Z_LVAL_PP(args[0]);
   /*@SWIG@*/;
@@ -3797,7 +3963,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetNym_Name) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -3831,7 +3997,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetNym_Stats) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -3841,6 +4007,186 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetNym_Stats) {
   /*@SWIG@*/;
   
   result = (char *)OT_API_GetNym_Stats((char const *)arg1);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_GetNym_NymboxHash) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  zval **args[2];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_GetNym_NymboxHash((char const *)arg1,(char const *)arg2);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_GetNym_RecentHash) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  zval **args[2];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_GetNym_RecentHash((char const *)arg1,(char const *)arg2);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_GetNym_InboxHash) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  zval **args[2];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_GetNym_InboxHash((char const *)arg1,(char const *)arg2);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_GetNym_OutboxHash) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  zval **args[2];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_GetNym_OutboxHash((char const *)arg1,(char const *)arg2);
   {
     if(!result) {
       ZVAL_NULL(return_value);
@@ -3866,7 +4212,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_IsNym_RegisteredAtServer) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -3876,7 +4222,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_IsNym_RegisteredAtServer) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -3906,7 +4252,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetNym_MailCount) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -3937,7 +4283,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetNym_MailContentsByIndex) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -3947,7 +4293,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetNym_MailContentsByIndex) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (int) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -3978,7 +4324,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetNym_MailSenderIDByIndex) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -3988,7 +4334,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetNym_MailSenderIDByIndex) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (int) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -4019,7 +4365,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetNym_MailServerIDByIndex) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -4029,7 +4375,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetNym_MailServerIDByIndex) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (int) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -4060,7 +4406,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Nym_RemoveMailByIndex) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -4070,7 +4416,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Nym_RemoveMailByIndex) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (int) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -4097,7 +4443,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Nym_VerifyMailByIndex) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -4107,7 +4453,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Nym_VerifyMailByIndex) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (int) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -4133,7 +4479,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetNym_OutmailCount) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -4164,7 +4510,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetNym_OutmailContentsByIndex) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -4174,7 +4520,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetNym_OutmailContentsByIndex) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (int) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -4205,7 +4551,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetNym_OutmailRecipientIDByIndex) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -4215,7 +4561,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetNym_OutmailRecipientIDByIndex) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (int) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -4246,7 +4592,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetNym_OutmailServerIDByIndex) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -4256,7 +4602,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetNym_OutmailServerIDByIndex) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (int) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -4287,7 +4633,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Nym_RemoveOutmailByIndex) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -4297,7 +4643,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Nym_RemoveOutmailByIndex) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (int) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -4324,7 +4670,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Nym_VerifyOutmailByIndex) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -4334,7 +4680,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Nym_VerifyOutmailByIndex) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (int) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -4360,7 +4706,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetNym_OutpaymentsCount) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -4391,7 +4737,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetNym_OutpaymentsContentsByIndex) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -4401,7 +4747,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetNym_OutpaymentsContentsByIndex) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (int) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -4432,7 +4778,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetNym_OutpaymentsRecipientIDByIndex) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -4442,7 +4788,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetNym_OutpaymentsRecipientIDByIndex) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (int) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -4473,7 +4819,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetNym_OutpaymentsServerIDByIndex) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -4483,7 +4829,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetNym_OutpaymentsServerIDByIndex) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (int) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -4514,7 +4860,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Nym_RemoveOutpaymentsByIndex) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -4524,7 +4870,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Nym_RemoveOutpaymentsByIndex) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (int) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -4551,7 +4897,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Nym_VerifyOutpaymentsByIndex) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -4561,7 +4907,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Nym_VerifyOutpaymentsByIndex) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (int) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -4587,7 +4933,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Wallet_CanRemoveServer) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -4617,7 +4963,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Wallet_RemoveServer) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -4647,7 +4993,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Wallet_CanRemoveAssetType) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -4677,7 +5023,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Wallet_RemoveAssetType) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -4707,7 +5053,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Wallet_CanRemoveNym) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -4737,7 +5083,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Wallet_RemoveNym) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -4767,7 +5113,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Wallet_CanRemoveAccount) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -4798,7 +5144,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Wallet_ImportNym) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -4808,7 +5154,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Wallet_ImportNym) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -4844,7 +5190,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SetNym_Name) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -4854,7 +5200,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SetNym_Name) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -4864,7 +5210,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SetNym_Name) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -4896,7 +5242,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SetAccountWallet_Name) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -4906,7 +5252,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SetAccountWallet_Name) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -4916,7 +5262,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SetAccountWallet_Name) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -4947,7 +5293,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SetAssetType_Name) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -4957,7 +5303,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SetAssetType_Name) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -4988,7 +5334,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SetServer_Name) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -4998,7 +5344,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SetServer_Name) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -5035,7 +5381,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_WriteCheque) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -5045,7 +5391,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_WriteCheque) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -5055,7 +5401,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_WriteCheque) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -5065,7 +5411,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_WriteCheque) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -5075,7 +5421,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_WriteCheque) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[4])->type==IS_NULL) {
     arg5 = (char *) 0;
   } else {
@@ -5085,7 +5431,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_WriteCheque) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[5])->type==IS_NULL) {
     arg6 = (char *) 0;
   } else {
@@ -5095,7 +5441,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_WriteCheque) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[6])->type==IS_NULL) {
     arg7 = (char *) 0;
   } else {
@@ -5105,7 +5451,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_WriteCheque) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[7])->type==IS_NULL) {
     arg8 = (char *) 0;
   } else {
@@ -5142,7 +5488,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_DiscardCheque) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -5152,7 +5498,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_DiscardCheque) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -5162,7 +5508,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_DiscardCheque) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -5172,7 +5518,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_DiscardCheque) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -5216,7 +5562,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_ProposePaymentPlan) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -5226,7 +5572,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_ProposePaymentPlan) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -5236,7 +5582,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_ProposePaymentPlan) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -5246,7 +5592,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_ProposePaymentPlan) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -5256,7 +5602,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_ProposePaymentPlan) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[4])->type==IS_NULL) {
     arg5 = (char *) 0;
   } else {
@@ -5266,7 +5612,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_ProposePaymentPlan) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[5])->type==IS_NULL) {
     arg6 = (char *) 0;
   } else {
@@ -5276,7 +5622,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_ProposePaymentPlan) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[6])->type==IS_NULL) {
     arg7 = (char *) 0;
   } else {
@@ -5286,7 +5632,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_ProposePaymentPlan) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[7])->type==IS_NULL) {
     arg8 = (char *) 0;
   } else {
@@ -5296,7 +5642,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_ProposePaymentPlan) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[8])->type==IS_NULL) {
     arg9 = (char *) 0;
   } else {
@@ -5306,7 +5652,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_ProposePaymentPlan) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[9])->type==IS_NULL) {
     arg10 = (char *) 0;
   } else {
@@ -5316,7 +5662,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_ProposePaymentPlan) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[10])->type==IS_NULL) {
     arg11 = (char *) 0;
   } else {
@@ -5326,7 +5672,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_ProposePaymentPlan) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[11])->type==IS_NULL) {
     arg12 = (char *) 0;
   } else {
@@ -5336,7 +5682,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_ProposePaymentPlan) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[12])->type==IS_NULL) {
     arg13 = (char *) 0;
   } else {
@@ -5346,7 +5692,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_ProposePaymentPlan) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[13])->type==IS_NULL) {
     arg14 = (char *) 0;
   } else {
@@ -5356,7 +5702,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_ProposePaymentPlan) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[14])->type==IS_NULL) {
     arg15 = (char *) 0;
   } else {
@@ -5394,7 +5740,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_ConfirmPaymentPlan) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -5404,7 +5750,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_ConfirmPaymentPlan) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -5414,7 +5760,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_ConfirmPaymentPlan) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -5424,7 +5770,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_ConfirmPaymentPlan) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -5434,7 +5780,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_ConfirmPaymentPlan) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[4])->type==IS_NULL) {
     arg5 = (char *) 0;
   } else {
@@ -5471,7 +5817,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Create_SmartContract) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -5481,7 +5827,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Create_SmartContract) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -5491,7 +5837,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Create_SmartContract) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -5501,7 +5847,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Create_SmartContract) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -5537,7 +5883,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddBylaw) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -5547,7 +5893,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddBylaw) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -5557,7 +5903,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddBylaw) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -5595,7 +5941,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddClause) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -5605,7 +5951,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddClause) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -5615,7 +5961,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddClause) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -5625,7 +5971,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddClause) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -5635,7 +5981,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddClause) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[4])->type==IS_NULL) {
     arg5 = (char *) 0;
   } else {
@@ -5675,7 +6021,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddVariable) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -5685,7 +6031,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddVariable) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -5695,7 +6041,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddVariable) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -5705,7 +6051,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddVariable) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -5715,7 +6061,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddVariable) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[4])->type==IS_NULL) {
     arg5 = (char *) 0;
   } else {
@@ -5725,7 +6071,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddVariable) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[5])->type==IS_NULL) {
     arg6 = (char *) 0;
   } else {
@@ -5735,7 +6081,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddVariable) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[6])->type==IS_NULL) {
     arg7 = (char *) 0;
   } else {
@@ -5773,7 +6119,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddCallback) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -5783,7 +6129,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddCallback) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -5793,7 +6139,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddCallback) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -5803,7 +6149,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddCallback) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -5813,7 +6159,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddCallback) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[4])->type==IS_NULL) {
     arg5 = (char *) 0;
   } else {
@@ -5851,7 +6197,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddHook) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -5861,7 +6207,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddHook) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -5871,7 +6217,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddHook) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -5881,7 +6227,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddHook) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -5891,7 +6237,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddHook) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[4])->type==IS_NULL) {
     arg5 = (char *) 0;
   } else {
@@ -5928,7 +6274,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddParty) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -5938,7 +6284,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddParty) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -5948,7 +6294,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddParty) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -5958,7 +6304,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddParty) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -5996,7 +6342,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddAccount) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -6006,7 +6352,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddAccount) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -6016,7 +6362,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddAccount) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -6026,7 +6372,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddAccount) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -6036,7 +6382,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_AddAccount) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[4])->type==IS_NULL) {
     arg5 = (char *) 0;
   } else {
@@ -6071,7 +6417,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_CountNumsNeeded) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -6081,7 +6427,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_CountNumsNeeded) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -6116,7 +6462,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_ConfirmAccount) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -6126,7 +6472,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_ConfirmAccount) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -6136,7 +6482,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_ConfirmAccount) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -6146,7 +6492,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_ConfirmAccount) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -6156,7 +6502,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_ConfirmAccount) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[4])->type==IS_NULL) {
     arg5 = (char *) 0;
   } else {
@@ -6166,7 +6512,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_ConfirmAccount) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[5])->type==IS_NULL) {
     arg6 = (char *) 0;
   } else {
@@ -6202,7 +6548,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_ConfirmParty) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -6212,7 +6558,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_ConfirmParty) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -6222,7 +6568,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SmartContract_ConfirmParty) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -6250,6 +6596,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_activateSmartContract) {
   char *arg2 = (char *) 0 ;
   char *arg3 = (char *) 0 ;
   zval **args[3];
+  int result;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
@@ -6257,7 +6604,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_activateSmartContract) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -6267,7 +6614,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_activateSmartContract) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -6277,7 +6624,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_activateSmartContract) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -6286,8 +6633,10 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_activateSmartContract) {
   }
   /*@SWIG@*/;
   
-  OT_API_activateSmartContract((char const *)arg1,(char const *)arg2,(char const *)arg3);
-  
+  result = (int)OT_API_activateSmartContract((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  {
+    ZVAL_LONG(return_value,result);
+  }
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -6301,6 +6650,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_triggerClause) {
   char *arg4 = (char *) 0 ;
   char *arg5 = (char *) 0 ;
   zval **args[5];
+  int result;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 5 || zend_get_parameters_array_ex(5, args) != SUCCESS) {
@@ -6308,7 +6658,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_triggerClause) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -6318,7 +6668,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_triggerClause) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -6328,7 +6678,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_triggerClause) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -6338,7 +6688,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_triggerClause) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -6348,7 +6698,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_triggerClause) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[4])->type==IS_NULL) {
     arg5 = (char *) 0;
   } else {
@@ -6357,57 +6707,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_triggerClause) {
   }
   /*@SWIG@*/;
   
-  OT_API_triggerClause((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5);
-  
-  return;
-fail:
-  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
-}
-
-
-ZEND_NAMED_FUNCTION(_wrap_OT_API_HarvestClosingNumbers) {
-  char *arg1 = (char *) 0 ;
-  char *arg2 = (char *) 0 ;
-  char *arg3 = (char *) 0 ;
-  zval **args[3];
-  int result;
-  
-  SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
-    WRONG_PARAM_COUNT;
-  }
-  
-  
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
-  if ((*args[0])->type==IS_NULL) {
-    arg1 = (char *) 0;
-  } else {
-    convert_to_string_ex(args[0]);
-    arg1 = (char *) Z_STRVAL_PP(args[0]);
-  }
-  /*@SWIG@*/;
-  
-  
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
-  if ((*args[1])->type==IS_NULL) {
-    arg2 = (char *) 0;
-  } else {
-    convert_to_string_ex(args[1]);
-    arg2 = (char *) Z_STRVAL_PP(args[1]);
-  }
-  /*@SWIG@*/;
-  
-  
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
-  if ((*args[2])->type==IS_NULL) {
-    arg3 = (char *) 0;
-  } else {
-    convert_to_string_ex(args[2]);
-    arg3 = (char *) Z_STRVAL_PP(args[2]);
-  }
-  /*@SWIG@*/;
-  
-  result = (int)OT_API_HarvestClosingNumbers((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  result = (int)OT_API_triggerClause((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5);
   {
     ZVAL_LONG(return_value,result);
   }
@@ -6417,20 +6717,24 @@ fail:
 }
 
 
-ZEND_NAMED_FUNCTION(_wrap_OT_API_HarvestAllNumbers) {
+ZEND_NAMED_FUNCTION(_wrap_OT_API_Msg_HarvestTransactionNumbers) {
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
-  char *arg3 = (char *) 0 ;
-  zval **args[3];
+  int arg3 ;
+  int arg4 ;
+  int arg5 ;
+  int arg6 ;
+  int arg7 ;
+  zval **args[7];
   int result;
   
   SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
+  if(ZEND_NUM_ARGS() != 7 || zend_get_parameters_array_ex(7, args) != SUCCESS) {
     WRONG_PARAM_COUNT;
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -6440,7 +6744,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_HarvestAllNumbers) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -6450,16 +6754,36 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_HarvestAllNumbers) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
-  if ((*args[2])->type==IS_NULL) {
-    arg3 = (char *) 0;
-  } else {
-    convert_to_string_ex(args[2]);
-    arg3 = (char *) Z_STRVAL_PP(args[2]);
-  }
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  convert_to_long_ex(args[2]);
+  arg3 = (int) Z_LVAL_PP(args[2]);
   /*@SWIG@*/;
   
-  result = (int)OT_API_HarvestAllNumbers((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  convert_to_long_ex(args[3]);
+  arg4 = (int) Z_LVAL_PP(args[3]);
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  convert_to_long_ex(args[4]);
+  arg5 = (int) Z_LVAL_PP(args[4]);
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  convert_to_long_ex(args[5]);
+  arg6 = (int) Z_LVAL_PP(args[5]);
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  convert_to_long_ex(args[6]);
+  arg7 = (int) Z_LVAL_PP(args[6]);
+  /*@SWIG@*/;
+  
+  result = (int)OT_API_Msg_HarvestTransactionNumbers((char const *)arg1,(char const *)arg2,arg3,arg4,arg5,arg6,arg7);
   {
     ZVAL_LONG(return_value,result);
   }
@@ -6480,7 +6804,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadUserPubkey) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -6514,7 +6838,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadPubkey) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -6548,7 +6872,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_VerifyUserPrivateKey) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -6580,7 +6904,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadPurse) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -6590,7 +6914,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadPurse) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -6600,7 +6924,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadPurse) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -6635,7 +6959,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadMint) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -6645,7 +6969,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadMint) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -6679,7 +7003,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadAssetContract) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -6713,7 +7037,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadServerContract) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -6749,7 +7073,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Mint_IsStillGood) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -6759,7 +7083,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Mint_IsStillGood) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -6769,7 +7093,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Mint_IsStillGood) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -6799,7 +7123,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_IsBasketCurrency) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -6829,7 +7153,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Basket_GetMemberCount) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -6860,7 +7184,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Basket_GetMemberType) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -6870,7 +7194,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Basket_GetMemberType) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (int) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -6900,7 +7224,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Basket_GetMinimumTransferAmount) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -6935,7 +7259,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Basket_GetMemberMinimumTransferAmount) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -6945,7 +7269,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Basket_GetMemberMinimumTransferAmount) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (int) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -6977,7 +7301,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadAssetAccount) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -6987,7 +7311,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadAssetAccount) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -6997,7 +7321,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadAssetAccount) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -7033,7 +7357,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadInbox) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -7043,7 +7367,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadInbox) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -7053,7 +7377,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadInbox) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -7089,7 +7413,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadOutbox) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -7099,7 +7423,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadOutbox) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -7109,7 +7433,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadOutbox) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -7145,7 +7469,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadInboxNoVerify) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -7155,7 +7479,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadInboxNoVerify) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -7165,7 +7489,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadInboxNoVerify) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -7201,7 +7525,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadOutboxNoVerify) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -7211,7 +7535,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadOutboxNoVerify) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -7221,7 +7545,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadOutboxNoVerify) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -7256,7 +7580,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadPaymentInbox) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -7266,7 +7590,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadPaymentInbox) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -7301,7 +7625,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadPaymentInboxNoVerify) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -7311,7 +7635,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadPaymentInboxNoVerify) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -7347,7 +7671,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadRecordBox) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -7357,7 +7681,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadRecordBox) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -7367,7 +7691,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadRecordBox) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -7403,7 +7727,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadRecordBoxNoVerify) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -7413,7 +7737,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadRecordBoxNoVerify) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -7423,7 +7747,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadRecordBoxNoVerify) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -7460,7 +7784,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Ledger_GetCount) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -7470,7 +7794,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Ledger_GetCount) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -7480,7 +7804,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Ledger_GetCount) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -7490,7 +7814,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Ledger_GetCount) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -7523,7 +7847,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Ledger_CreateResponse) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -7533,7 +7857,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Ledger_CreateResponse) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -7543,7 +7867,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Ledger_CreateResponse) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -7553,7 +7877,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Ledger_CreateResponse) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -7591,7 +7915,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Ledger_GetTransactionByIndex) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -7601,7 +7925,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Ledger_GetTransactionByIndex) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -7611,7 +7935,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Ledger_GetTransactionByIndex) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -7621,7 +7945,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Ledger_GetTransactionByIndex) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -7631,7 +7955,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Ledger_GetTransactionByIndex) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[4]);
   arg5 = (int) Z_LVAL_PP(args[4]);
   /*@SWIG@*/;
@@ -7665,7 +7989,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Ledger_GetTransactionByID) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -7675,7 +7999,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Ledger_GetTransactionByID) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -7685,7 +8009,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Ledger_GetTransactionByID) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -7695,7 +8019,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Ledger_GetTransactionByID) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -7705,7 +8029,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Ledger_GetTransactionByID) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[4])->type==IS_NULL) {
     arg5 = (char *) 0;
   } else {
@@ -7743,7 +8067,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Ledger_GetTransactionIDByIndex) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -7753,7 +8077,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Ledger_GetTransactionIDByIndex) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -7763,7 +8087,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Ledger_GetTransactionIDByIndex) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -7773,7 +8097,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Ledger_GetTransactionIDByIndex) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -7783,7 +8107,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Ledger_GetTransactionIDByIndex) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[4]);
   arg5 = (int) Z_LVAL_PP(args[4]);
   /*@SWIG@*/;
@@ -7817,7 +8141,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Ledger_AddTransaction) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -7827,7 +8151,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Ledger_AddTransaction) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -7837,7 +8161,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Ledger_AddTransaction) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -7847,7 +8171,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Ledger_AddTransaction) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -7857,7 +8181,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Ledger_AddTransaction) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[4])->type==IS_NULL) {
     arg5 = (char *) 0;
   } else {
@@ -7896,7 +8220,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_CreateResponse) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -7906,7 +8230,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_CreateResponse) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -7916,7 +8240,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_CreateResponse) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -7926,7 +8250,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_CreateResponse) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -7936,7 +8260,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_CreateResponse) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[4])->type==IS_NULL) {
     arg5 = (char *) 0;
   } else {
@@ -7946,7 +8270,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_CreateResponse) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[5]);
   arg6 = (int) Z_LVAL_PP(args[5]);
   /*@SWIG@*/;
@@ -7979,7 +8303,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Ledger_FinalizeResponse) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -7989,7 +8313,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Ledger_FinalizeResponse) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -7999,7 +8323,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Ledger_FinalizeResponse) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -8009,7 +8333,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Ledger_FinalizeResponse) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -8047,7 +8371,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Ledger_GetInstrument) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -8057,7 +8381,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Ledger_GetInstrument) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -8067,7 +8391,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Ledger_GetInstrument) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -8077,7 +8401,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Ledger_GetInstrument) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -8087,7 +8411,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Ledger_GetInstrument) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[4]);
   arg5 = (int) Z_LVAL_PP(args[4]);
   /*@SWIG@*/;
@@ -8120,7 +8444,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetType) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -8130,7 +8454,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetType) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -8140,7 +8464,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetType) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -8150,7 +8474,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetType) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -8187,7 +8511,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetVoucher) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -8197,7 +8521,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetVoucher) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -8207,7 +8531,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetVoucher) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -8217,7 +8541,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetVoucher) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -8254,7 +8578,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetSuccess) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -8264,7 +8588,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetSuccess) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -8274,7 +8598,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetSuccess) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -8284,7 +8608,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetSuccess) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -8317,7 +8641,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetBalanceAgreementSuccess) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -8327,7 +8651,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetBalanceAgreementSuccess) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -8337,7 +8661,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetBalanceAgreementSuccess) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -8347,7 +8671,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetBalanceAgreementSuccess) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -8380,7 +8704,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetDateSigned) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -8390,7 +8714,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetDateSigned) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -8400,7 +8724,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetDateSigned) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -8410,7 +8734,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetDateSigned) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -8447,7 +8771,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetAmount) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -8457,7 +8781,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetAmount) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -8467,7 +8791,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetAmount) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -8477,7 +8801,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetAmount) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -8514,7 +8838,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Pending_GetNote) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -8524,7 +8848,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Pending_GetNote) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -8534,7 +8858,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Pending_GetNote) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -8544,7 +8868,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Pending_GetNote) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -8581,7 +8905,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetSenderUserID) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -8591,7 +8915,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetSenderUserID) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -8601,7 +8925,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetSenderUserID) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -8611,7 +8935,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetSenderUserID) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -8648,7 +8972,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetSenderAcctID) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -8658,7 +8982,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetSenderAcctID) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -8668,7 +8992,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetSenderAcctID) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -8678,7 +9002,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetSenderAcctID) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -8715,7 +9039,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetRecipientUserID) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -8725,7 +9049,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetRecipientUserID) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -8735,7 +9059,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetRecipientUserID) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -8745,7 +9069,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetRecipientUserID) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -8782,7 +9106,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetRecipientAcctID) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -8792,7 +9116,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetRecipientAcctID) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -8802,7 +9126,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetRecipientAcctID) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -8812,7 +9136,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetRecipientAcctID) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -8849,7 +9173,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetDisplayReferenceToNum) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -8859,7 +9183,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetDisplayReferenceToNum) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -8869,7 +9193,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetDisplayReferenceToNum) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -8879,7 +9203,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetDisplayReferenceToNum) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -8915,7 +9239,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_CreatePurse) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -8925,7 +9249,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_CreatePurse) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -8935,7 +9259,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_CreatePurse) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -8972,7 +9296,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SavePurse) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -8982,7 +9306,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SavePurse) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -8992,7 +9316,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SavePurse) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -9002,7 +9326,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_SavePurse) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -9034,7 +9358,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Purse_GetTotalValue) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -9044,7 +9368,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Purse_GetTotalValue) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -9054,7 +9378,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Purse_GetTotalValue) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -9090,7 +9414,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Purse_Count) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -9100,7 +9424,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Purse_Count) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -9110,7 +9434,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Purse_Count) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -9143,7 +9467,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Purse_Peek) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -9153,7 +9477,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Purse_Peek) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -9163,7 +9487,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Purse_Peek) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -9173,7 +9497,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Purse_Peek) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -9210,7 +9534,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Purse_Pop) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -9220,7 +9544,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Purse_Pop) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -9230,7 +9554,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Purse_Pop) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -9240,7 +9564,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Purse_Pop) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -9278,7 +9602,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Purse_Push) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -9288,7 +9612,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Purse_Push) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -9298,7 +9622,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Purse_Push) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -9308,7 +9632,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Purse_Push) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -9318,7 +9642,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Purse_Push) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[4])->type==IS_NULL) {
     arg5 = (char *) 0;
   } else {
@@ -9355,7 +9679,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Wallet_ImportPurse) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -9365,7 +9689,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Wallet_ImportPurse) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -9375,7 +9699,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Wallet_ImportPurse) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -9385,7 +9709,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Wallet_ImportPurse) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -9410,6 +9734,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_exchangePurse) {
   char *arg3 = (char *) 0 ;
   char *arg4 = (char *) 0 ;
   zval **args[4];
+  int result;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 4 || zend_get_parameters_array_ex(4, args) != SUCCESS) {
@@ -9417,7 +9742,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_exchangePurse) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -9427,7 +9752,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_exchangePurse) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -9437,7 +9762,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_exchangePurse) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -9447,7 +9772,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_exchangePurse) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -9456,8 +9781,10 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_exchangePurse) {
   }
   /*@SWIG@*/;
   
-  OT_API_exchangePurse((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
-  
+  result = (int)OT_API_exchangePurse((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+  {
+    ZVAL_LONG(return_value,result);
+  }
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -9479,7 +9806,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Token_ChangeOwner) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -9489,7 +9816,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Token_ChangeOwner) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -9499,7 +9826,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Token_ChangeOwner) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -9509,7 +9836,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Token_ChangeOwner) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -9519,7 +9846,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Token_ChangeOwner) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[4])->type==IS_NULL) {
     arg5 = (char *) 0;
   } else {
@@ -9555,7 +9882,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Token_GetID) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -9565,7 +9892,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Token_GetID) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -9575,7 +9902,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Token_GetID) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -9611,7 +9938,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Token_GetDenomination) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -9621,7 +9948,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Token_GetDenomination) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -9631,7 +9958,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Token_GetDenomination) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -9667,7 +9994,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Token_GetSeries) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -9677,7 +10004,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Token_GetSeries) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -9687,7 +10014,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Token_GetSeries) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -9719,7 +10046,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Token_GetValidFrom) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -9729,7 +10056,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Token_GetValidFrom) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -9739,7 +10066,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Token_GetValidFrom) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -9775,7 +10102,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Token_GetValidTo) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -9785,7 +10112,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Token_GetValidTo) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -9795,7 +10122,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Token_GetValidTo) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -9829,7 +10156,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Token_GetAssetID) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -9863,7 +10190,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Token_GetServerID) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -9886,10 +10213,11 @@ fail:
 }
 
 
-ZEND_NAMED_FUNCTION(_wrap_OT_API_checkServerID) {
+ZEND_NAMED_FUNCTION(_wrap_OT_API_Instrument_GetAmount) {
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
   zval **args[2];
+  char *result = 0 ;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
@@ -9897,7 +10225,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_checkServerID) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -9907,7 +10235,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_checkServerID) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -9916,8 +10244,460 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_checkServerID) {
   }
   /*@SWIG@*/;
   
-  OT_API_checkServerID((char const *)arg1,(char const *)arg2);
+  result = (char *)OT_API_Instrument_GetAmount((char const *)arg1,(char const *)arg2);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_Instrument_GetTransNum) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  zval **args[2];
+  char *result = 0 ;
   
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_Instrument_GetTransNum((char const *)arg1,(char const *)arg2);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_Instrument_GetValidFrom) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  zval **args[2];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_Instrument_GetValidFrom((char const *)arg1,(char const *)arg2);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_Instrument_GetValidTo) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  zval **args[2];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_Instrument_GetValidTo((char const *)arg1,(char const *)arg2);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_Instrument_GetMemo) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  zval **args[2];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_Instrument_GetMemo((char const *)arg1,(char const *)arg2);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_Instrument_GetAssetID) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  zval **args[2];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_Instrument_GetAssetID((char const *)arg1,(char const *)arg2);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_Instrmnt_GetSenderUserID) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  zval **args[2];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_Instrmnt_GetSenderUserID((char const *)arg1,(char const *)arg2);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_Instrmnt_GetSenderAcctID) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  zval **args[2];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_Instrmnt_GetSenderAcctID((char const *)arg1,(char const *)arg2);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_Instrmnt_GetRecipientUserID) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  zval **args[2];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_Instrmnt_GetRecipientUserID((char const *)arg1,(char const *)arg2);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_Instrmnt_GetRecipientAcctID) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  zval **args[2];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_Instrmnt_GetRecipientAcctID((char const *)arg1,(char const *)arg2);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_checkServerID) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  zval **args[2];
+  int result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  result = (int)OT_API_checkServerID((char const *)arg1,(char const *)arg2);
+  {
+    ZVAL_LONG(return_value,result);
+  }
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -9928,6 +10708,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_createUserAccount) {
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
   zval **args[2];
+  int result;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
@@ -9935,7 +10716,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_createUserAccount) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -9945,7 +10726,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_createUserAccount) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -9954,8 +10735,10 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_createUserAccount) {
   }
   /*@SWIG@*/;
   
-  OT_API_createUserAccount((char const *)arg1,(char const *)arg2);
-  
+  result = (int)OT_API_createUserAccount((char const *)arg1,(char const *)arg2);
+  {
+    ZVAL_LONG(return_value,result);
+  }
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -9966,6 +10749,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_deleteUserAccount) {
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
   zval **args[2];
+  int result;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
@@ -9973,7 +10757,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_deleteUserAccount) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -9983,7 +10767,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_deleteUserAccount) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -9992,8 +10776,10 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_deleteUserAccount) {
   }
   /*@SWIG@*/;
   
-  OT_API_deleteUserAccount((char const *)arg1,(char const *)arg2);
-  
+  result = (int)OT_API_deleteUserAccount((char const *)arg1,(char const *)arg2);
+  {
+    ZVAL_LONG(return_value,result);
+  }
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -10005,6 +10791,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_deleteAssetAccount) {
   char *arg2 = (char *) 0 ;
   char *arg3 = (char *) 0 ;
   zval **args[3];
+  int result;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
@@ -10012,7 +10799,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_deleteAssetAccount) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -10022,7 +10809,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_deleteAssetAccount) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -10032,7 +10819,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_deleteAssetAccount) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -10041,8 +10828,10 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_deleteAssetAccount) {
   }
   /*@SWIG@*/;
   
-  OT_API_deleteAssetAccount((char const *)arg1,(char const *)arg2,(char const *)arg3);
-  
+  result = (int)OT_API_deleteAssetAccount((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  {
+    ZVAL_LONG(return_value,result);
+  }
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -10055,6 +10844,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_usageCredits) {
   char *arg3 = (char *) 0 ;
   char *arg4 = (char *) 0 ;
   zval **args[4];
+  int result;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 4 || zend_get_parameters_array_ex(4, args) != SUCCESS) {
@@ -10062,7 +10852,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_usageCredits) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -10072,7 +10862,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_usageCredits) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -10082,7 +10872,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_usageCredits) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -10092,7 +10882,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_usageCredits) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -10101,8 +10891,10 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_usageCredits) {
   }
   /*@SWIG@*/;
   
-  OT_API_usageCredits((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
-  
+  result = (int)OT_API_usageCredits((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+  {
+    ZVAL_LONG(return_value,result);
+  }
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -10120,7 +10912,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Message_GetUsageCredits) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -10148,6 +10940,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_checkUser) {
   char *arg2 = (char *) 0 ;
   char *arg3 = (char *) 0 ;
   zval **args[3];
+  int result;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
@@ -10155,7 +10948,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_checkUser) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -10165,7 +10958,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_checkUser) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -10175,7 +10968,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_checkUser) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -10184,8 +10977,10 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_checkUser) {
   }
   /*@SWIG@*/;
   
-  OT_API_checkUser((char const *)arg1,(char const *)arg2,(char const *)arg3);
-  
+  result = (int)OT_API_checkUser((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  {
+    ZVAL_LONG(return_value,result);
+  }
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -10199,6 +10994,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_sendUserMessage) {
   char *arg4 = (char *) 0 ;
   char *arg5 = (char *) 0 ;
   zval **args[5];
+  int result;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 5 || zend_get_parameters_array_ex(5, args) != SUCCESS) {
@@ -10206,7 +11002,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_sendUserMessage) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -10216,7 +11012,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_sendUserMessage) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -10226,7 +11022,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_sendUserMessage) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -10236,7 +11032,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_sendUserMessage) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -10246,7 +11042,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_sendUserMessage) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[4])->type==IS_NULL) {
     arg5 = (char *) 0;
   } else {
@@ -10255,8 +11051,10 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_sendUserMessage) {
   }
   /*@SWIG@*/;
   
-  OT_API_sendUserMessage((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5);
-  
+  result = (int)OT_API_sendUserMessage((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5);
+  {
+    ZVAL_LONG(return_value,result);
+  }
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -10270,6 +11068,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_sendUserInstrument) {
   char *arg4 = (char *) 0 ;
   char *arg5 = (char *) 0 ;
   zval **args[5];
+  int result;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 5 || zend_get_parameters_array_ex(5, args) != SUCCESS) {
@@ -10277,7 +11076,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_sendUserInstrument) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -10287,7 +11086,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_sendUserInstrument) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -10297,7 +11096,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_sendUserInstrument) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -10307,7 +11106,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_sendUserInstrument) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -10317,7 +11116,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_sendUserInstrument) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[4])->type==IS_NULL) {
     arg5 = (char *) 0;
   } else {
@@ -10326,8 +11125,10 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_sendUserInstrument) {
   }
   /*@SWIG@*/;
   
-  OT_API_sendUserInstrument((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5);
-  
+  result = (int)OT_API_sendUserInstrument((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5);
+  {
+    ZVAL_LONG(return_value,result);
+  }
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -10338,6 +11139,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getRequest) {
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
   zval **args[2];
+  int result;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
@@ -10345,7 +11147,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getRequest) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -10355,7 +11157,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getRequest) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -10364,8 +11166,10 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getRequest) {
   }
   /*@SWIG@*/;
   
-  OT_API_getRequest((char const *)arg1,(char const *)arg2);
-  
+  result = (int)OT_API_getRequest((char const *)arg1,(char const *)arg2);
+  {
+    ZVAL_LONG(return_value,result);
+  }
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -10376,6 +11180,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getTransactionNumber) {
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
   zval **args[2];
+  int result;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
@@ -10383,7 +11188,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getTransactionNumber) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -10393,7 +11198,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getTransactionNumber) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -10402,8 +11207,10 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getTransactionNumber) {
   }
   /*@SWIG@*/;
   
-  OT_API_getTransactionNumber((char const *)arg1,(char const *)arg2);
-  
+  result = (int)OT_API_getTransactionNumber((char const *)arg1,(char const *)arg2);
+  {
+    ZVAL_LONG(return_value,result);
+  }
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -10415,6 +11222,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_issueAssetType) {
   char *arg2 = (char *) 0 ;
   char *arg3 = (char *) 0 ;
   zval **args[3];
+  int result;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
@@ -10422,7 +11230,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_issueAssetType) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -10432,7 +11240,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_issueAssetType) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -10442,7 +11250,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_issueAssetType) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -10451,8 +11259,10 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_issueAssetType) {
   }
   /*@SWIG@*/;
   
-  OT_API_issueAssetType((char const *)arg1,(char const *)arg2,(char const *)arg3);
-  
+  result = (int)OT_API_issueAssetType((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  {
+    ZVAL_LONG(return_value,result);
+  }
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -10464,6 +11274,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getContract) {
   char *arg2 = (char *) 0 ;
   char *arg3 = (char *) 0 ;
   zval **args[3];
+  int result;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
@@ -10471,7 +11282,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getContract) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -10481,7 +11292,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getContract) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -10491,7 +11302,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getContract) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -10500,8 +11311,10 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getContract) {
   }
   /*@SWIG@*/;
   
-  OT_API_getContract((char const *)arg1,(char const *)arg2,(char const *)arg3);
-  
+  result = (int)OT_API_getContract((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  {
+    ZVAL_LONG(return_value,result);
+  }
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -10513,6 +11326,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getMint) {
   char *arg2 = (char *) 0 ;
   char *arg3 = (char *) 0 ;
   zval **args[3];
+  int result;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
@@ -10520,7 +11334,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getMint) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -10530,7 +11344,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getMint) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -10540,7 +11354,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getMint) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -10549,8 +11363,10 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getMint) {
   }
   /*@SWIG@*/;
   
-  OT_API_getMint((char const *)arg1,(char const *)arg2,(char const *)arg3);
-  
+  result = (int)OT_API_getMint((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  {
+    ZVAL_LONG(return_value,result);
+  }
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -10562,6 +11378,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_createAssetAccount) {
   char *arg2 = (char *) 0 ;
   char *arg3 = (char *) 0 ;
   zval **args[3];
+  int result;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
@@ -10569,7 +11386,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_createAssetAccount) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -10579,7 +11396,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_createAssetAccount) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -10589,7 +11406,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_createAssetAccount) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -10598,8 +11415,10 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_createAssetAccount) {
   }
   /*@SWIG@*/;
   
-  OT_API_createAssetAccount((char const *)arg1,(char const *)arg2,(char const *)arg3);
-  
+  result = (int)OT_API_createAssetAccount((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  {
+    ZVAL_LONG(return_value,result);
+  }
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -10611,6 +11430,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getAccount) {
   char *arg2 = (char *) 0 ;
   char *arg3 = (char *) 0 ;
   zval **args[3];
+  int result;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
@@ -10618,7 +11438,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getAccount) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -10628,7 +11448,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getAccount) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -10638,7 +11458,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getAccount) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -10647,8 +11467,10 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getAccount) {
   }
   /*@SWIG@*/;
   
-  OT_API_getAccount((char const *)arg1,(char const *)arg2,(char const *)arg3);
-  
+  result = (int)OT_API_getAccount((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  {
+    ZVAL_LONG(return_value,result);
+  }
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -10667,7 +11489,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GenerateBasketCreation) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -10677,7 +11499,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GenerateBasketCreation) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -10714,7 +11536,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_AddBasketCreationItem) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -10724,7 +11546,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_AddBasketCreationItem) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -10734,7 +11556,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_AddBasketCreationItem) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -10744,7 +11566,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_AddBasketCreationItem) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -10772,6 +11594,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_issueBasket) {
   char *arg2 = (char *) 0 ;
   char *arg3 = (char *) 0 ;
   zval **args[3];
+  int result;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
@@ -10779,7 +11602,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_issueBasket) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -10789,7 +11612,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_issueBasket) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -10799,7 +11622,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_issueBasket) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -10808,8 +11631,10 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_issueBasket) {
   }
   /*@SWIG@*/;
   
-  OT_API_issueBasket((char const *)arg1,(char const *)arg2,(char const *)arg3);
-  
+  result = (int)OT_API_issueBasket((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  {
+    ZVAL_LONG(return_value,result);
+  }
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -10831,7 +11656,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GenerateBasketExchange) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -10841,7 +11666,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GenerateBasketExchange) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -10851,7 +11676,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GenerateBasketExchange) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -10861,7 +11686,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GenerateBasketExchange) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -10871,7 +11696,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GenerateBasketExchange) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[4]);
   arg5 = (int) Z_LVAL_PP(args[4]);
   /*@SWIG@*/;
@@ -10905,7 +11730,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_AddBasketExchangeItem) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -10915,7 +11740,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_AddBasketExchangeItem) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -10925,7 +11750,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_AddBasketExchangeItem) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -10935,7 +11760,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_AddBasketExchangeItem) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -10945,7 +11770,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_AddBasketExchangeItem) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[4])->type==IS_NULL) {
     arg5 = (char *) 0;
   } else {
@@ -10975,6 +11800,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_exchangeBasket) {
   char *arg4 = (char *) 0 ;
   int arg5 ;
   zval **args[5];
+  int result;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 5 || zend_get_parameters_array_ex(5, args) != SUCCESS) {
@@ -10982,7 +11808,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_exchangeBasket) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -10992,7 +11818,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_exchangeBasket) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -11002,7 +11828,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_exchangeBasket) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -11012,7 +11838,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_exchangeBasket) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -11022,13 +11848,15 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_exchangeBasket) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[4]);
   arg5 = (int) Z_LVAL_PP(args[4]);
   /*@SWIG@*/;
   
-  OT_API_exchangeBasket((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,arg5);
-  
+  result = (int)OT_API_exchangeBasket((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,arg5);
+  {
+    ZVAL_LONG(return_value,result);
+  }
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -11041,6 +11869,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_notarizeWithdrawal) {
   char *arg3 = (char *) 0 ;
   char *arg4 = (char *) 0 ;
   zval **args[4];
+  int result;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 4 || zend_get_parameters_array_ex(4, args) != SUCCESS) {
@@ -11048,7 +11877,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_notarizeWithdrawal) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -11058,7 +11887,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_notarizeWithdrawal) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -11068,7 +11897,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_notarizeWithdrawal) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -11078,7 +11907,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_notarizeWithdrawal) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -11087,8 +11916,10 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_notarizeWithdrawal) {
   }
   /*@SWIG@*/;
   
-  OT_API_notarizeWithdrawal((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
-  
+  result = (int)OT_API_notarizeWithdrawal((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+  {
+    ZVAL_LONG(return_value,result);
+  }
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -11101,6 +11932,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_notarizeDeposit) {
   char *arg3 = (char *) 0 ;
   char *arg4 = (char *) 0 ;
   zval **args[4];
+  int result;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 4 || zend_get_parameters_array_ex(4, args) != SUCCESS) {
@@ -11108,7 +11940,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_notarizeDeposit) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -11118,7 +11950,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_notarizeDeposit) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -11128,7 +11960,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_notarizeDeposit) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -11138,7 +11970,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_notarizeDeposit) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -11147,8 +11979,10 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_notarizeDeposit) {
   }
   /*@SWIG@*/;
   
-  OT_API_notarizeDeposit((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
-  
+  result = (int)OT_API_notarizeDeposit((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+  {
+    ZVAL_LONG(return_value,result);
+  }
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -11163,6 +11997,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_notarizeTransfer) {
   char *arg5 = (char *) 0 ;
   char *arg6 = (char *) 0 ;
   zval **args[6];
+  int result;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 6 || zend_get_parameters_array_ex(6, args) != SUCCESS) {
@@ -11170,7 +12005,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_notarizeTransfer) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -11180,7 +12015,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_notarizeTransfer) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -11190,7 +12025,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_notarizeTransfer) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -11200,7 +12035,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_notarizeTransfer) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -11210,7 +12045,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_notarizeTransfer) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[4])->type==IS_NULL) {
     arg5 = (char *) 0;
   } else {
@@ -11220,7 +12055,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_notarizeTransfer) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[5])->type==IS_NULL) {
     arg6 = (char *) 0;
   } else {
@@ -11229,8 +12064,10 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_notarizeTransfer) {
   }
   /*@SWIG@*/;
   
-  OT_API_notarizeTransfer((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5,(char const *)arg6);
-  
+  result = (int)OT_API_notarizeTransfer((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5,(char const *)arg6);
+  {
+    ZVAL_LONG(return_value,result);
+  }
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -11242,6 +12079,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getInbox) {
   char *arg2 = (char *) 0 ;
   char *arg3 = (char *) 0 ;
   zval **args[3];
+  int result;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
@@ -11249,7 +12087,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getInbox) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -11259,7 +12097,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getInbox) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -11269,7 +12107,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getInbox) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -11278,8 +12116,10 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getInbox) {
   }
   /*@SWIG@*/;
   
-  OT_API_getInbox((char const *)arg1,(char const *)arg2,(char const *)arg3);
-  
+  result = (int)OT_API_getInbox((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  {
+    ZVAL_LONG(return_value,result);
+  }
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -11291,6 +12131,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getOutbox) {
   char *arg2 = (char *) 0 ;
   char *arg3 = (char *) 0 ;
   zval **args[3];
+  int result;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
@@ -11298,7 +12139,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getOutbox) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -11308,7 +12149,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getOutbox) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -11318,7 +12159,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getOutbox) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -11327,8 +12168,10 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getOutbox) {
   }
   /*@SWIG@*/;
   
-  OT_API_getOutbox((char const *)arg1,(char const *)arg2,(char const *)arg3);
-  
+  result = (int)OT_API_getOutbox((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  {
+    ZVAL_LONG(return_value,result);
+  }
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -11339,6 +12182,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getNymbox) {
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
   zval **args[2];
+  int result;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
@@ -11346,7 +12190,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getNymbox) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -11356,7 +12200,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getNymbox) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -11365,8 +12209,10 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getNymbox) {
   }
   /*@SWIG@*/;
   
-  OT_API_getNymbox((char const *)arg1,(char const *)arg2);
-  
+  result = (int)OT_API_getNymbox((char const *)arg1,(char const *)arg2);
+  {
+    ZVAL_LONG(return_value,result);
+  }
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -11385,7 +12231,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadNymbox) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -11395,7 +12241,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadNymbox) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -11430,7 +12276,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadNymboxNoVerify) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -11440,7 +12286,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_LoadNymboxNoVerify) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -11463,21 +12309,20 @@ fail:
 }
 
 
-ZEND_NAMED_FUNCTION(_wrap_OT_API_getBoxReceipt) {
+ZEND_NAMED_FUNCTION(_wrap_OT_API_Nymbox_GetReplyNotice) {
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
   char *arg3 = (char *) 0 ;
-  int arg4 ;
-  char *arg5 = (char *) 0 ;
-  zval **args[5];
+  zval **args[3];
+  char *result = 0 ;
   
   SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 5 || zend_get_parameters_array_ex(5, args) != SUCCESS) {
+  if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
     WRONG_PARAM_COUNT;
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -11487,7 +12332,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getBoxReceipt) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -11497,7 +12342,65 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getBoxReceipt) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[2])->type==IS_NULL) {
+    arg3 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[2]);
+    arg3 = (char *) Z_STRVAL_PP(args[2]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_Nymbox_GetReplyNotice((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_getBoxReceipt) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  int arg4 ;
+  char *arg5 = (char *) 0 ;
+  zval **args[5];
+  int result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 5 || zend_get_parameters_array_ex(5, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -11507,13 +12410,13 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getBoxReceipt) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[3]);
   arg4 = (int) Z_LVAL_PP(args[3]);
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[4])->type==IS_NULL) {
     arg5 = (char *) 0;
   } else {
@@ -11522,8 +12425,10 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getBoxReceipt) {
   }
   /*@SWIG@*/;
   
-  OT_API_getBoxReceipt((char const *)arg1,(char const *)arg2,(char const *)arg3,arg4,(char const *)arg5);
-  
+  result = (int)OT_API_getBoxReceipt((char const *)arg1,(char const *)arg2,(char const *)arg3,arg4,(char const *)arg5);
+  {
+    ZVAL_LONG(return_value,result);
+  }
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -11545,7 +12450,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_DoesBoxReceiptExist) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -11555,7 +12460,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_DoesBoxReceiptExist) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -11565,7 +12470,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_DoesBoxReceiptExist) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -11575,13 +12480,13 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_DoesBoxReceiptExist) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[3]);
   arg4 = (int) Z_LVAL_PP(args[3]);
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[4])->type==IS_NULL) {
     arg5 = (char *) 0;
   } else {
@@ -11606,6 +12511,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_processInbox) {
   char *arg3 = (char *) 0 ;
   char *arg4 = (char *) 0 ;
   zval **args[4];
+  int result;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 4 || zend_get_parameters_array_ex(4, args) != SUCCESS) {
@@ -11613,7 +12519,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_processInbox) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -11623,7 +12529,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_processInbox) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -11633,7 +12539,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_processInbox) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -11643,7 +12549,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_processInbox) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -11652,8 +12558,10 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_processInbox) {
   }
   /*@SWIG@*/;
   
-  OT_API_processInbox((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
-  
+  result = (int)OT_API_processInbox((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+  {
+    ZVAL_LONG(return_value,result);
+  }
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -11672,7 +12580,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_processNymbox) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -11682,7 +12590,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_processNymbox) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -11709,6 +12617,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_withdrawVoucher) {
   char *arg5 = (char *) 0 ;
   char *arg6 = (char *) 0 ;
   zval **args[6];
+  int result;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 6 || zend_get_parameters_array_ex(6, args) != SUCCESS) {
@@ -11716,7 +12625,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_withdrawVoucher) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -11726,7 +12635,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_withdrawVoucher) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -11736,7 +12645,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_withdrawVoucher) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -11746,7 +12655,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_withdrawVoucher) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -11756,7 +12665,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_withdrawVoucher) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[4])->type==IS_NULL) {
     arg5 = (char *) 0;
   } else {
@@ -11766,7 +12675,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_withdrawVoucher) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[5])->type==IS_NULL) {
     arg6 = (char *) 0;
   } else {
@@ -11775,8 +12684,10 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_withdrawVoucher) {
   }
   /*@SWIG@*/;
   
-  OT_API_withdrawVoucher((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5,(char const *)arg6);
-  
+  result = (int)OT_API_withdrawVoucher((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5,(char const *)arg6);
+  {
+    ZVAL_LONG(return_value,result);
+  }
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -11789,6 +12700,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_depositCheque) {
   char *arg3 = (char *) 0 ;
   char *arg4 = (char *) 0 ;
   zval **args[4];
+  int result;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 4 || zend_get_parameters_array_ex(4, args) != SUCCESS) {
@@ -11796,7 +12708,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_depositCheque) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -11806,7 +12718,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_depositCheque) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -11816,7 +12728,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_depositCheque) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -11826,7 +12738,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_depositCheque) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -11835,8 +12747,10 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_depositCheque) {
   }
   /*@SWIG@*/;
   
-  OT_API_depositCheque((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
-  
+  result = (int)OT_API_depositCheque((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+  {
+    ZVAL_LONG(return_value,result);
+  }
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -11848,6 +12762,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_depositPaymentPlan) {
   char *arg2 = (char *) 0 ;
   char *arg3 = (char *) 0 ;
   zval **args[3];
+  int result;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
@@ -11855,7 +12770,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_depositPaymentPlan) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -11865,7 +12780,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_depositPaymentPlan) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -11875,7 +12790,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_depositPaymentPlan) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -11884,8 +12799,10 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_depositPaymentPlan) {
   }
   /*@SWIG@*/;
   
-  OT_API_depositPaymentPlan((char const *)arg1,(char const *)arg2,(char const *)arg3);
-  
+  result = (int)OT_API_depositPaymentPlan((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  {
+    ZVAL_LONG(return_value,result);
+  }
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -11905,6 +12822,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_issueMarketOffer) {
   char *arg10 = (char *) 0 ;
   int arg11 ;
   zval **args[11];
+  int result;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 11 || zend_get_parameters_array_ex(11, args) != SUCCESS) {
@@ -11912,7 +12830,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_issueMarketOffer) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -11922,7 +12840,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_issueMarketOffer) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -11932,7 +12850,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_issueMarketOffer) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -11942,7 +12860,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_issueMarketOffer) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -11952,7 +12870,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_issueMarketOffer) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[4])->type==IS_NULL) {
     arg5 = (char *) 0;
   } else {
@@ -11962,7 +12880,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_issueMarketOffer) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[5])->type==IS_NULL) {
     arg6 = (char *) 0;
   } else {
@@ -11972,7 +12890,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_issueMarketOffer) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[6])->type==IS_NULL) {
     arg7 = (char *) 0;
   } else {
@@ -11982,7 +12900,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_issueMarketOffer) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[7])->type==IS_NULL) {
     arg8 = (char *) 0;
   } else {
@@ -11992,7 +12910,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_issueMarketOffer) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[8])->type==IS_NULL) {
     arg9 = (char *) 0;
   } else {
@@ -12002,7 +12920,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_issueMarketOffer) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[9])->type==IS_NULL) {
     arg10 = (char *) 0;
   } else {
@@ -12012,13 +12930,15 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_issueMarketOffer) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[10]);
   arg11 = (int) Z_LVAL_PP(args[10]);
   /*@SWIG@*/;
   
-  OT_API_issueMarketOffer((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5,(char const *)arg6,(char const *)arg7,(char const *)arg8,(char const *)arg9,(char const *)arg10,arg11);
-  
+  result = (int)OT_API_issueMarketOffer((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5,(char const *)arg6,(char const *)arg7,(char const *)arg8,(char const *)arg9,(char const *)arg10,arg11);
+  {
+    ZVAL_LONG(return_value,result);
+  }
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -12029,6 +12949,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getMarketList) {
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
   zval **args[2];
+  int result;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
@@ -12036,7 +12957,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getMarketList) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -12046,7 +12967,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getMarketList) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -12055,8 +12976,10 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getMarketList) {
   }
   /*@SWIG@*/;
   
-  OT_API_getMarketList((char const *)arg1,(char const *)arg2);
-  
+  result = (int)OT_API_getMarketList((char const *)arg1,(char const *)arg2);
+  {
+    ZVAL_LONG(return_value,result);
+  }
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -12069,6 +12992,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getMarketOffers) {
   char *arg3 = (char *) 0 ;
   char *arg4 = (char *) 0 ;
   zval **args[4];
+  int result;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 4 || zend_get_parameters_array_ex(4, args) != SUCCESS) {
@@ -12076,7 +13000,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getMarketOffers) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -12086,7 +13010,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getMarketOffers) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -12096,7 +13020,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getMarketOffers) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -12106,7 +13030,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getMarketOffers) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -12115,8 +13039,10 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getMarketOffers) {
   }
   /*@SWIG@*/;
   
-  OT_API_getMarketOffers((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
-  
+  result = (int)OT_API_getMarketOffers((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+  {
+    ZVAL_LONG(return_value,result);
+  }
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -12128,6 +13054,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getMarketRecentTrades) {
   char *arg2 = (char *) 0 ;
   char *arg3 = (char *) 0 ;
   zval **args[3];
+  int result;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
@@ -12135,7 +13062,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getMarketRecentTrades) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -12145,7 +13072,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getMarketRecentTrades) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -12155,7 +13082,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getMarketRecentTrades) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -12164,8 +13091,10 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getMarketRecentTrades) {
   }
   /*@SWIG@*/;
   
-  OT_API_getMarketRecentTrades((char const *)arg1,(char const *)arg2,(char const *)arg3);
-  
+  result = (int)OT_API_getMarketRecentTrades((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  {
+    ZVAL_LONG(return_value,result);
+  }
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -12176,6 +13105,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getNym_MarketOffers) {
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
   zval **args[2];
+  int result;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
@@ -12183,7 +13113,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getNym_MarketOffers) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -12193,7 +13123,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getNym_MarketOffers) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -12202,8 +13132,10 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_getNym_MarketOffers) {
   }
   /*@SWIG@*/;
   
-  OT_API_getNym_MarketOffers((char const *)arg1,(char const *)arg2);
-  
+  result = (int)OT_API_getNym_MarketOffers((char const *)arg1,(char const *)arg2);
+  {
+    ZVAL_LONG(return_value,result);
+  }
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -12216,6 +13148,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_cancelMarketOffer) {
   char *arg3 = (char *) 0 ;
   char *arg4 = (char *) 0 ;
   zval **args[4];
+  int result;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 4 || zend_get_parameters_array_ex(4, args) != SUCCESS) {
@@ -12223,7 +13156,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_cancelMarketOffer) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -12233,7 +13166,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_cancelMarketOffer) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -12243,7 +13176,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_cancelMarketOffer) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -12253,7 +13186,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_cancelMarketOffer) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -12262,8 +13195,10 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_cancelMarketOffer) {
   }
   /*@SWIG@*/;
   
-  OT_API_cancelMarketOffer((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
-  
+  result = (int)OT_API_cancelMarketOffer((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+  {
+    ZVAL_LONG(return_value,result);
+  }
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -12276,6 +13211,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_cancelPaymentPlan) {
   char *arg3 = (char *) 0 ;
   char *arg4 = (char *) 0 ;
   zval **args[4];
+  int result;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 4 || zend_get_parameters_array_ex(4, args) != SUCCESS) {
@@ -12283,7 +13219,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_cancelPaymentPlan) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -12293,7 +13229,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_cancelPaymentPlan) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -12303,7 +13239,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_cancelPaymentPlan) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -12313,7 +13249,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_cancelPaymentPlan) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -12322,8 +13258,10 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_cancelPaymentPlan) {
   }
   /*@SWIG@*/;
   
-  OT_API_cancelPaymentPlan((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
-  
+  result = (int)OT_API_cancelPaymentPlan((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+  {
+    ZVAL_LONG(return_value,result);
+  }
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -12331,14 +13269,48 @@ fail:
 
 
 ZEND_NAMED_FUNCTION(_wrap_OT_API_PopMessageBuffer) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  zval **args[3];
   char *result = 0 ;
   
   SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 0) {
+  if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
     WRONG_PARAM_COUNT;
   }
   
-  result = (char *)OT_API_PopMessageBuffer();
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[2])->type==IS_NULL) {
+    arg3 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[2]);
+    arg3 = (char *) Z_STRVAL_PP(args[2]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_PopMessageBuffer((char const *)arg1,(char const *)arg2,(char const *)arg3);
   {
     if(!result) {
       ZVAL_NULL(return_value);
@@ -12366,6 +13338,170 @@ fail:
 }
 
 
+ZEND_NAMED_FUNCTION(_wrap_OT_API_GetSentMessage) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  zval **args[3];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[2])->type==IS_NULL) {
+    arg3 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[2]);
+    arg3 = (char *) Z_STRVAL_PP(args[2]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_GetSentMessage((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_RemoveSentMessage) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  zval **args[3];
+  int result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[2])->type==IS_NULL) {
+    arg3 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[2]);
+    arg3 = (char *) Z_STRVAL_PP(args[2]);
+  }
+  /*@SWIG@*/;
+  
+  result = (int)OT_API_RemoveSentMessage((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  {
+    ZVAL_LONG(return_value,result);
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_FlushSentMessages) {
+  int arg1 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  char *arg4 = (char *) 0 ;
+  zval **args[4];
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 4 || zend_get_parameters_array_ex(4, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  convert_to_long_ex(args[0]);
+  arg1 = (int) Z_LVAL_PP(args[0]);
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[2])->type==IS_NULL) {
+    arg3 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[2]);
+    arg3 = (char *) Z_STRVAL_PP(args[2]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[3])->type==IS_NULL) {
+    arg4 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[3]);
+    arg4 = (char *) Z_STRVAL_PP(args[3]);
+  }
+  /*@SWIG@*/;
+  
+  OT_API_FlushSentMessages(arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+  
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
 ZEND_NAMED_FUNCTION(_wrap_OT_API_Sleep) {
   char *arg1 = (char *) 0 ;
   zval **args[1];
@@ -12376,7 +13512,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Sleep) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -12406,7 +13542,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_ResyncNymWithServer) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -12416,7 +13552,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_ResyncNymWithServer) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -12426,7 +13562,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_ResyncNymWithServer) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -12456,7 +13592,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Message_GetCommand) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -12490,7 +13626,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Message_GetSuccess) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -12514,6 +13650,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_queryAssetTypes) {
   char *arg2 = (char *) 0 ;
   char *arg3 = (char *) 0 ;
   zval **args[3];
+  int result;
   
   SWIG_ResetError();
   if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
@@ -12521,7 +13658,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_queryAssetTypes) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -12531,7 +13668,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_queryAssetTypes) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -12541,7 +13678,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_queryAssetTypes) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -12550,8 +13687,10 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_queryAssetTypes) {
   }
   /*@SWIG@*/;
   
-  OT_API_queryAssetTypes((char const *)arg1,(char const *)arg2,(char const *)arg3);
-  
+  result = (int)OT_API_queryAssetTypes((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  {
+    ZVAL_LONG(return_value,result);
+  }
   return;
 fail:
   zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
@@ -12569,7 +13708,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Message_GetPayload) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -12603,7 +13742,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Message_GetDepth) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -12636,7 +13775,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Message_GetTransactionSuccess) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -12646,7 +13785,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Message_GetTransactionSuccess) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -12656,7 +13795,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Message_GetTransactionSuccess) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -12666,7 +13805,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Message_GetTransactionSuccess) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -12699,7 +13838,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Message_GetBalanceAgreementSuccess) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -12709,7 +13848,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Message_GetBalanceAgreementSuccess) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -12719,7 +13858,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Message_GetBalanceAgreementSuccess) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -12729,7 +13868,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Message_GetBalanceAgreementSuccess) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -12759,7 +13898,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Message_GetLedger) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -12793,7 +13932,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Message_GetNewAssetTypeID) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -12827,7 +13966,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Message_GetNewIssuerAcctID) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -12861,7 +14000,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Message_GetNewAcctID) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -12871,6 +14010,40 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Message_GetNewAcctID) {
   /*@SWIG@*/;
   
   result = (char *)OT_API_Message_GetNewAcctID((char const *)arg1);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_Message_GetNymboxHash) {
+  char *arg1 = (char *) 0 ;
+  zval **args[1];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_Message_GetNymboxHash((char const *)arg1);
   {
     if(!result) {
       ZVAL_NULL(return_value);
@@ -12899,7 +14072,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_ConnectServer) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[0])->type==IS_NULL) {
     arg1 = (char *) 0;
   } else {
@@ -12909,7 +14082,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_ConnectServer) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[1])->type==IS_NULL) {
     arg2 = (char *) 0;
   } else {
@@ -12919,7 +14092,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_ConnectServer) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[2])->type==IS_NULL) {
     arg3 = (char *) 0;
   } else {
@@ -12929,7 +14102,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_ConnectServer) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[3])->type==IS_NULL) {
     arg4 = (char *) 0;
   } else {
@@ -12939,7 +14112,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_ConnectServer) {
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
   if ((*args[4])->type==IS_NULL) {
     arg5 = (char *) 0;
   } else {
@@ -13007,13 +14180,13 @@ ZEND_NAMED_FUNCTION(_wrap_Storable_Create) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[0]);
   arg1 = (OTDB::StoredObjectType) Z_LVAL_PP(args[0]);
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (OTDB::PackType) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -13071,7 +14244,7 @@ ZEND_NAMED_FUNCTION(_wrap_Storage_GetPacker__SWIG_0) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (OTDB::PackType) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -15245,7 +16418,7 @@ ZEND_NAMED_FUNCTION(_wrap_Storage_QueryObject__SWIG_0) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (OTDB::StoredObjectType) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -15297,7 +16470,7 @@ ZEND_NAMED_FUNCTION(_wrap_Storage_QueryObject__SWIG_1) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (OTDB::StoredObjectType) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -15344,7 +16517,7 @@ ZEND_NAMED_FUNCTION(_wrap_Storage_QueryObject__SWIG_2) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (OTDB::StoredObjectType) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -15386,7 +16559,7 @@ ZEND_NAMED_FUNCTION(_wrap_Storage_QueryObject__SWIG_3) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (OTDB::StoredObjectType) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -15561,7 +16734,7 @@ ZEND_NAMED_FUNCTION(_wrap_Storage_DecodeObject) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (OTDB::StoredObjectType) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -15845,7 +17018,7 @@ ZEND_NAMED_FUNCTION(_wrap_Storage_CreateObject) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (OTDB::StoredObjectType) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -15872,13 +17045,13 @@ ZEND_NAMED_FUNCTION(_wrap_Storage_Create) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[0]);
   arg1 = (OTDB::StorageType) Z_LVAL_PP(args[0]);
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (OTDB::PackType) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -15937,13 +17110,13 @@ ZEND_NAMED_FUNCTION(_wrap_InitDefaultStorage__SWIG_0) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[0]);
   arg1 = (OTDB::StorageType) Z_LVAL_PP(args[0]);
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (OTDB::PackType) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -15999,13 +17172,13 @@ ZEND_NAMED_FUNCTION(_wrap_InitDefaultStorage__SWIG_1) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[0]);
   arg1 = (OTDB::StorageType) Z_LVAL_PP(args[0]);
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (OTDB::PackType) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -16056,13 +17229,13 @@ ZEND_NAMED_FUNCTION(_wrap_InitDefaultStorage__SWIG_2) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[0]);
   arg1 = (OTDB::StorageType) Z_LVAL_PP(args[0]);
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (OTDB::PackType) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -16108,13 +17281,13 @@ ZEND_NAMED_FUNCTION(_wrap_InitDefaultStorage__SWIG_3) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[0]);
   arg1 = (OTDB::StorageType) Z_LVAL_PP(args[0]);
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (OTDB::PackType) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -16155,13 +17328,13 @@ ZEND_NAMED_FUNCTION(_wrap_InitDefaultStorage__SWIG_4) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[0]);
   arg1 = (OTDB::StorageType) Z_LVAL_PP(args[0]);
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (OTDB::PackType) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -16197,13 +17370,13 @@ ZEND_NAMED_FUNCTION(_wrap_InitDefaultStorage__SWIG_5) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[0]);
   arg1 = (OTDB::StorageType) Z_LVAL_PP(args[0]);
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (OTDB::PackType) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -16234,13 +17407,13 @@ ZEND_NAMED_FUNCTION(_wrap_InitDefaultStorage__SWIG_6) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[0]);
   arg1 = (OTDB::StorageType) Z_LVAL_PP(args[0]);
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (OTDB::PackType) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -16452,13 +17625,13 @@ ZEND_NAMED_FUNCTION(_wrap_CreateStorageContext__SWIG_0) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[0]);
   arg1 = (OTDB::StorageType) Z_LVAL_PP(args[0]);
   /*@SWIG@*/;
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (OTDB::PackType) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -16484,7 +17657,7 @@ ZEND_NAMED_FUNCTION(_wrap_CreateStorageContext__SWIG_1) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[0]);
   arg1 = (OTDB::StorageType) Z_LVAL_PP(args[0]);
   /*@SWIG@*/;
@@ -16540,7 +17713,7 @@ ZEND_NAMED_FUNCTION(_wrap_CreateObject) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[0]);
   arg1 = (OTDB::StoredObjectType) Z_LVAL_PP(args[0]);
   /*@SWIG@*/;
@@ -17880,7 +19053,7 @@ ZEND_NAMED_FUNCTION(_wrap_QueryObject__SWIG_0) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[0]);
   arg1 = (OTDB::StoredObjectType) Z_LVAL_PP(args[0]);
   /*@SWIG@*/;
@@ -17925,7 +19098,7 @@ ZEND_NAMED_FUNCTION(_wrap_QueryObject__SWIG_1) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[0]);
   arg1 = (OTDB::StoredObjectType) Z_LVAL_PP(args[0]);
   /*@SWIG@*/;
@@ -17965,7 +19138,7 @@ ZEND_NAMED_FUNCTION(_wrap_QueryObject__SWIG_2) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[0]);
   arg1 = (OTDB::StoredObjectType) Z_LVAL_PP(args[0]);
   /*@SWIG@*/;
@@ -18000,7 +19173,7 @@ ZEND_NAMED_FUNCTION(_wrap_QueryObject__SWIG_3) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[0]);
   arg1 = (OTDB::StoredObjectType) Z_LVAL_PP(args[0]);
   /*@SWIG@*/;
@@ -18137,7 +19310,7 @@ ZEND_NAMED_FUNCTION(_wrap_DecodeObject) {
   }
   
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[0]);
   arg1 = (OTDB::StoredObjectType) Z_LVAL_PP(args[0]);
   /*@SWIG@*/;
@@ -19907,7 +21080,7 @@ ZEND_NAMED_FUNCTION(_wrap_MarketList_GetMarketData) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (size_t) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -19940,7 +21113,7 @@ ZEND_NAMED_FUNCTION(_wrap_MarketList_RemoveMarketData) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (size_t) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -21062,7 +22235,7 @@ ZEND_NAMED_FUNCTION(_wrap_OfferListMarket_GetBidData) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (size_t) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -21095,7 +22268,7 @@ ZEND_NAMED_FUNCTION(_wrap_OfferListMarket_RemoveBidData) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (size_t) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -21186,7 +22359,7 @@ ZEND_NAMED_FUNCTION(_wrap_OfferListMarket_GetAskData) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (size_t) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -21219,7 +22392,7 @@ ZEND_NAMED_FUNCTION(_wrap_OfferListMarket_RemoveAskData) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (size_t) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -21683,7 +22856,7 @@ ZEND_NAMED_FUNCTION(_wrap_TradeListMarket_GetTradeDataMarket) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (size_t) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -21716,7 +22889,7 @@ ZEND_NAMED_FUNCTION(_wrap_TradeListMarket_RemoveTradeDataMarket) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (size_t) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -22280,7 +23453,7 @@ ZEND_NAMED_FUNCTION(_wrap_OfferDataNym_selling_set) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,2,CONVERT_BOOL_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,2,CONVERT_BOOL_IN@*/
   convert_to_boolean_ex(args[1]);
   arg2 = (bool) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -22863,7 +24036,7 @@ ZEND_NAMED_FUNCTION(_wrap_OfferListNym_GetOfferDataNym) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (size_t) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -22896,7 +24069,7 @@ ZEND_NAMED_FUNCTION(_wrap_OfferListNym_RemoveOfferDataNym) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (size_t) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -23417,7 +24590,7 @@ ZEND_NAMED_FUNCTION(_wrap_TradeListNym_GetTradeDataNym) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (size_t) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -23450,7 +24623,7 @@ ZEND_NAMED_FUNCTION(_wrap_TradeListNym_RemoveTradeDataNym) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (size_t) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -26344,7 +27517,7 @@ ZEND_NAMED_FUNCTION(_wrap_ContactNym_GetServerInfo) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (size_t) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -26377,7 +27550,7 @@ ZEND_NAMED_FUNCTION(_wrap_ContactNym_RemoveServerInfo) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (size_t) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -26512,7 +27685,7 @@ ZEND_NAMED_FUNCTION(_wrap_WalletData_GetBitcoinServer) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (size_t) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -26545,7 +27718,7 @@ ZEND_NAMED_FUNCTION(_wrap_WalletData_RemoveBitcoinServer) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (size_t) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -26636,7 +27809,7 @@ ZEND_NAMED_FUNCTION(_wrap_WalletData_GetBitcoinAcct) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (size_t) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -26669,7 +27842,7 @@ ZEND_NAMED_FUNCTION(_wrap_WalletData_RemoveBitcoinAcct) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (size_t) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -26760,7 +27933,7 @@ ZEND_NAMED_FUNCTION(_wrap_WalletData_GetRippleServer) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (size_t) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -26793,7 +27966,7 @@ ZEND_NAMED_FUNCTION(_wrap_WalletData_RemoveRippleServer) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (size_t) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -26884,7 +28057,7 @@ ZEND_NAMED_FUNCTION(_wrap_WalletData_GetLoomServer) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (size_t) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -26917,7 +28090,7 @@ ZEND_NAMED_FUNCTION(_wrap_WalletData_RemoveLoomServer) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (size_t) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -27837,7 +29010,7 @@ ZEND_NAMED_FUNCTION(_wrap_Contact_GetContactNym) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (size_t) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -27870,7 +29043,7 @@ ZEND_NAMED_FUNCTION(_wrap_Contact_RemoveContactNym) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (size_t) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -27961,7 +29134,7 @@ ZEND_NAMED_FUNCTION(_wrap_Contact_GetContactAcct) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (size_t) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -27994,7 +29167,7 @@ ZEND_NAMED_FUNCTION(_wrap_Contact_RemoveContactAcct) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (size_t) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -28129,7 +29302,7 @@ ZEND_NAMED_FUNCTION(_wrap_AddressBook_GetContact) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (size_t) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -28162,7 +29335,7 @@ ZEND_NAMED_FUNCTION(_wrap_AddressBook_RemoveContact) {
   }
   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
   
-  /*@SWIG:/usr/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,7,CONVERT_INT_IN@*/
   convert_to_long_ex(args[1]);
   arg2 = (size_t) Z_LVAL_PP(args[1]);
   /*@SWIG@*/;
@@ -28418,11 +29591,17 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(ot_api_getaccountwallet_assettypeid,_wrap_OT_API_GetAccountWallet_AssetTypeID,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_getaccountwallet_serverid,_wrap_OT_API_GetAccountWallet_ServerID,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_getaccountwallet_nymid,_wrap_OT_API_GetAccountWallet_NymID,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_getaccountwallet_inboxhash,_wrap_OT_API_GetAccountWallet_InboxHash,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_getaccountwallet_outboxhash,_wrap_OT_API_GetAccountWallet_OutboxHash,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_verifyaccountreceipt,_wrap_OT_API_VerifyAccountReceipt,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_getnym_transactionnumcount,_wrap_OT_API_GetNym_TransactionNumCount,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_getnym_id,_wrap_OT_API_GetNym_ID,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_getnym_name,_wrap_OT_API_GetNym_Name,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_getnym_stats,_wrap_OT_API_GetNym_Stats,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_getnym_nymboxhash,_wrap_OT_API_GetNym_NymboxHash,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_getnym_recenthash,_wrap_OT_API_GetNym_RecentHash,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_getnym_inboxhash,_wrap_OT_API_GetNym_InboxHash,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_getnym_outboxhash,_wrap_OT_API_GetNym_OutboxHash,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_isnym_registeredatserver,_wrap_OT_API_IsNym_RegisteredAtServer,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_getnym_mailcount,_wrap_OT_API_GetNym_MailCount,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_getnym_mailcontentsbyindex,_wrap_OT_API_GetNym_MailContentsByIndex,NULL)
@@ -28471,8 +29650,7 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(ot_api_smartcontract_confirmparty,_wrap_OT_API_SmartContract_ConfirmParty,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_activatesmartcontract,_wrap_OT_API_activateSmartContract,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_triggerclause,_wrap_OT_API_triggerClause,NULL)
- SWIG_ZEND_NAMED_FE(ot_api_harvestclosingnumbers,_wrap_OT_API_HarvestClosingNumbers,NULL)
- SWIG_ZEND_NAMED_FE(ot_api_harvestallnumbers,_wrap_OT_API_HarvestAllNumbers,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_msg_harvesttransactionnumbers,_wrap_OT_API_Msg_HarvestTransactionNumbers,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_loaduserpubkey,_wrap_OT_API_LoadUserPubkey,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_loadpubkey,_wrap_OT_API_LoadPubkey,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_verifyuserprivatekey,_wrap_OT_API_VerifyUserPrivateKey,NULL)
@@ -28533,6 +29711,16 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(ot_api_token_getvalidto,_wrap_OT_API_Token_GetValidTo,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_token_getassetid,_wrap_OT_API_Token_GetAssetID,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_token_getserverid,_wrap_OT_API_Token_GetServerID,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_instrument_getamount,_wrap_OT_API_Instrument_GetAmount,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_instrument_gettransnum,_wrap_OT_API_Instrument_GetTransNum,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_instrument_getvalidfrom,_wrap_OT_API_Instrument_GetValidFrom,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_instrument_getvalidto,_wrap_OT_API_Instrument_GetValidTo,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_instrument_getmemo,_wrap_OT_API_Instrument_GetMemo,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_instrument_getassetid,_wrap_OT_API_Instrument_GetAssetID,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_instrmnt_getsenderuserid,_wrap_OT_API_Instrmnt_GetSenderUserID,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_instrmnt_getsenderacctid,_wrap_OT_API_Instrmnt_GetSenderAcctID,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_instrmnt_getrecipientuserid,_wrap_OT_API_Instrmnt_GetRecipientUserID,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_instrmnt_getrecipientacctid,_wrap_OT_API_Instrmnt_GetRecipientAcctID,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_checkserverid,_wrap_OT_API_checkServerID,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_createuseraccount,_wrap_OT_API_createUserAccount,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_deleteuseraccount,_wrap_OT_API_deleteUserAccount,NULL)
@@ -28563,6 +29751,7 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(ot_api_getnymbox,_wrap_OT_API_getNymbox,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_loadnymbox,_wrap_OT_API_LoadNymbox,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_loadnymboxnoverify,_wrap_OT_API_LoadNymboxNoVerify,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_nymbox_getreplynotice,_wrap_OT_API_Nymbox_GetReplyNotice,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_getboxreceipt,_wrap_OT_API_getBoxReceipt,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_doesboxreceiptexist,_wrap_OT_API_DoesBoxReceiptExist,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_processinbox,_wrap_OT_API_processInbox,NULL)
@@ -28579,6 +29768,9 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(ot_api_cancelpaymentplan,_wrap_OT_API_cancelPaymentPlan,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_popmessagebuffer,_wrap_OT_API_PopMessageBuffer,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_flushmessagebuffer,_wrap_OT_API_FlushMessageBuffer,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_getsentmessage,_wrap_OT_API_GetSentMessage,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_removesentmessage,_wrap_OT_API_RemoveSentMessage,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_flushsentmessages,_wrap_OT_API_FlushSentMessages,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_sleep,_wrap_OT_API_Sleep,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_resyncnymwithserver,_wrap_OT_API_ResyncNymWithServer,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_message_getcommand,_wrap_OT_API_Message_GetCommand,NULL)
@@ -28592,6 +29784,7 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(ot_api_message_getnewassettypeid,_wrap_OT_API_Message_GetNewAssetTypeID,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_message_getnewissueracctid,_wrap_OT_API_Message_GetNewIssuerAcctID,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_message_getnewacctid,_wrap_OT_API_Message_GetNewAcctID,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_message_getnymboxhash,_wrap_OT_API_Message_GetNymboxHash,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_connectserver,_wrap_OT_API_ConnectServer,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_processsockets,_wrap_OT_API_ProcessSockets,NULL)
  SWIG_ZEND_NAMED_FE(storable_create,_wrap_Storable_Create,NULL)
@@ -29315,7 +30508,12 @@ CG(active_class_entry) = NULL;
 /* cinit subsection */
 SWIG_LONG_CONSTANT(OTPASSWORD_BLOCKSIZE, 128);
 SWIG_LONG_CONSTANT(OTPASSWORD_MEMSIZE, 129);
+SWIG_LONG_CONSTANT(OT_LARGE_BLOCKSIZE, 32767);
+SWIG_LONG_CONSTANT(OT_LARGE_MEMSIZE, 32768);
+SWIG_LONG_CONSTANT(OT_DEFAULT_BLOCKSIZE, 128);
+SWIG_LONG_CONSTANT(OT_DEFAULT_MEMSIZE, 129);
 SWIG_LONG_CONSTANT(OTPassword_DEFAULT_SIZE, OTPassword::DEFAULT_SIZE);
+SWIG_LONG_CONSTANT(OTPassword_LARGER_SIZE, OTPassword::LARGER_SIZE);
 SWIG_LONG_CONSTANT(PACK_MESSAGE_PACK, OTDB::PACK_MESSAGE_PACK);
 SWIG_LONG_CONSTANT(PACK_PROTOCOL_BUFFERS, OTDB::PACK_PROTOCOL_BUFFERS);
 SWIG_LONG_CONSTANT(PACK_TYPE_ERROR, OTDB::PACK_TYPE_ERROR);

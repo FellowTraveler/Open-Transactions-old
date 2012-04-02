@@ -231,6 +231,19 @@ public:
 	inline const OTIdentifier & GetRequestAccountID() { return m_RequestAccountID; }
 
 	void ReleaseBasket();
+    
+    // -----------------------------------------------------------------------------
+    //
+    // NOTE: Experimental / new (here):
+    
+    // The basket itself only stores the CLOSING numbers.
+    // For the opening number, you have to go deal with the exchangeBasket TRANSACTION.
+    
+//  void HarvestOpeningNumber(OTPseudonym & theNym, const OTIdentifier & theServerID);  
+    
+    // Normally do this if your transaction failed so you can get most of your numbers back
+    //
+    void HarvestClosingNumbers(OTPseudonym & theNym, const OTIdentifier & theServerID, const bool bSave=true);
 };
 
 

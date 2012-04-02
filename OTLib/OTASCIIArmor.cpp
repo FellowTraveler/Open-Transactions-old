@@ -130,6 +130,10 @@
 #include <cstring>
 #include <cstdlib>
 
+// for std::fill
+#include <algorithm>
+
+
 extern "C"
 {
 #include <inttypes.h>  //uint8_t
@@ -1398,27 +1402,40 @@ bool OTASCIIArmor::LoadFromifstream(const std::ifstream & fin)
 // the bEscaped option allows you to load a normal ASCII-Armored file if off, and allows
 // you to load an escaped ASCII-armored file (such as inside the contracts when the public keys
 // are escaped with a "- " before the rest of the ------- starts.)
-bool OTASCIIArmor::LoadFromString(OTString & theStr, bool bEscaped/*=false*/)
+bool OTASCIIArmor::LoadFromString(OTString & theStr, 
+                                  bool bEscaped/*=false*/, 
+                                  const // This szOverride sub-string determines where the content starts, when loading.
+                                  std::string str_override/*="-----BEGIN"*/) // Default is "-----BEGIN"
 {
-	char buffer1[2100];
+    OT_ASSERT_MSG(str_override.size() > 0, "OTASCIIArmor::LoadFromString: Assert: str_override.size() > 0 \n");
+    // Should never be 0 size, as default is "-----BEGIN"
+    // But if you want to load a private key, try "-----BEGIN ENCRYPTED PRIVATE" instead.
+    // *smile*
+    const std::string str_end_line = "-----END"; // Someday maybe allow parameterized option for this.
+    // ------------------------------------------
+    const int nBufSize  = 2100; // todo: hardcoding
+    const int nBufSize2 = 2048; // todo: hardcoding
+    // -----------------------------
+	char buffer1[2100];         // todo: hardcoding
+    
+    std::fill(&buffer1[0], &buffer1[(nBufSize-1)], 0); // Initializing to 0.
+//	memset(buffer1, 0, 2100); // todo: hardcoding
 	
-	memset(buffer1, 0, 2100);
-	
-	bool bContentMode = false;				// "currently in content mode"
-	bool bHaveEnteredContentMode = false;	// "have yet to enter content mode"
+	bool bContentMode            = false;  // "Currently IN content mode."
+	bool bHaveEnteredContentMode = false;  // "Have NOT YET entered content mode."
 	
 	// Clear out whatever string might have been in there before.
 	Release();
 	
 	// Load up the string from theStr, 
-	// (bookended by "-----BEGIN ... -----" and END messages)
+	// (bookended by "-----BEGIN ... -----" and "END-----" messages)
 	bool bIsEOF = false;
 	theStr.reset(); // So we can call theStr.sgets(). Making sure position is at start of string.
 	
 	do
 	{
-		bIsEOF = !(theStr.sgets(buffer1, 2048));
-		//		bIsEOF = fin.getline(buffer1, 2048).eof();
+		bIsEOF = !(theStr.sgets(buffer1, nBufSize2)); // 2048
+//		bIsEOF = fin.getline(buffer1, 2048).eof();  // todo: hardcoding.
 		
 		std::string line		= buffer1;	
 		const char * pConstBuf	= line.c_str();
@@ -1431,16 +1448,26 @@ bool OTASCIIArmor::LoadFromString(OTString & theStr, bool bEscaped/*=false*/)
 		}
 		
 		// if we're on a dashed line...
-		else if (line.at(0) == '-' && line.at(2) == '-' && line.at(3) == '-'
-				 && (bEscaped ? (line.at(1) == ' ') : (line.at(1) == '-') ) )
+		else if (line.at(0) == '-' && 
+                 line.at(2) == '-' && 
+                 line.at(3) == '-' &&
+				 (bEscaped ? (line.at(1) == ' ') : (line.at(1) == '-') )
+                )
 		{			
 			// If I just hit a dash, that means there are only two options:
 			
 			// a. I have not yet entered content mode, and potentially just now entering it for the first time.
 			if (!bHaveEnteredContentMode)
 			{
-				if (line.find("BEGIN")!=std::string::npos && line.at(0) == '-' && line.at(2) == '-' && 
-					line.at(3) == '-' && (bEscaped ? (line.at(1) == ' ') : (line.at(1) == '-')))
+                // str_override defaults to:  "-----BEGIN" (If you want to load a private key instead,
+                // Try passing "-----BEGIN ENCRYPTED PRIVATE" instead of going with the default.)
+                //
+				if (line.find(str_override) != std::string::npos && 
+                    line.at(0) == '-' && 
+                    line.at(2) == '-' && 
+					line.at(3) == '-' && 
+                    (bEscaped ? (line.at(1) == ' ') : (line.at(1) == '-'))
+                   )
 				{
 //					OTLog::Error("Reading ascii-armored contents...");
 					bHaveEnteredContentMode = true;
@@ -1451,11 +1478,12 @@ bool OTASCIIArmor::LoadFromString(OTString & theStr, bool bEscaped/*=false*/)
 				{
 					continue;
 				}				
-				
 			}
 			
 			// b. I am now LEAVING content mode!
-			else if (bContentMode && line.find("END")!=std::string::npos)
+			else if (bContentMode &&
+                     // str_end_line is "-----END"
+                     (line.find(str_end_line) != std::string::npos))
 			{
 //				OTLog::Error("Finished reading ascii-armored contents.\n");
 //				OTLog::vError("Finished reading ascii-armored contents:\n%s(END DATA)\n", Get());

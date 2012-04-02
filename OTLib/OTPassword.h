@@ -153,36 +153,64 @@
  */
 
 
-#define OTPASSWORD_BLOCKSIZE	128		// (128 bytes max length for a password.)
+#define OTPASSWORD_BLOCKSIZE    128		// (128 bytes max length for a password.)
 #define OTPASSWORD_MEMSIZE		129		// +1 for null terminator.
+
+// UPDATE: Increasing the size here, so we can accommodate private keys (in addition to passphrases.)
+//
+#define OT_LARGE_BLOCKSIZE	32767		// (32767 bytes max length for a password.)
+#define OT_LARGE_MEMSIZE	32768		// +1 for null terminator.
+// -------------------------------------------------------
+
+// Default is the smaller size.
+
+#define OT_DEFAULT_BLOCKSIZE  128
+#define OT_DEFAULT_MEMSIZE    129
+
+// -------------------------------------------
 
 
 class OTPassword
 {
 public:
 	enum BlockSize
-		{ DEFAULT_SIZE = OTPASSWORD_BLOCKSIZE }; // (128 bytes max length for a password.)	
+		{
+            DEFAULT_SIZE = OT_DEFAULT_BLOCKSIZE,  // (128 bytes max length for a password.)
+            LARGER_SIZE  = OT_LARGE_BLOCKSIZE     // Update: now 32767 bytes if you use this size.
+        }; 	
 
 private:
-	int		m_nPasswordSize; // [ 0..128 ]
-	char	m_szPassword[OTPASSWORD_MEMSIZE]; // a 129-byte block of char.	(128 + 1 for null terminator)
-	
+	int		m_nPasswordSize; // [ 0..128 ]  Update: [ 0..9000 ]
+//	char	m_szPassword[OT_DEFAULT_MEMSIZE]; // a 129-byte block of char. (128 + 1 for null terminator)
+	char	m_szPassword[OT_LARGE_MEMSIZE];   // Update: now 32767 bytes. (32768 + 1 for null terminator) todo: in optimization phase, revisit this array size.
+
 public:
 	const
 	BlockSize	blockSize;		
+    // -----------------
 	const
 	char *	getPassword() const;
 	int		setPassword(const char * szInput, int nInputSize); // (FYI, truncates if nInputSize larger than getBlockSize.)
-	int		getBlockSize() const;
+    // -----------------
+	int		getBlockSize()    const;
 	int		getPasswordSize() const;
+    // -----------------
 	void	zeroMemory();
-
-	OTPassword();
-	OTPassword(const char * szInput, int nInputSize);
+    // -----------------
+	OTPassword(BlockSize theBlockSize=DEFAULT_SIZE);
+	OTPassword(const char * szInput, int nInputSize, BlockSize theBlockSize=DEFAULT_SIZE);
+    // -----------------
 	~OTPassword();
 };
 
 #undef OTPASSWORD_BLOCKSIZE
+#undef OTPASSWORD_MEMSIZE
+
+#undef OT_LARGE_BLOCKSIZE
+#undef OT_LARGE_MEMSIZE
+
+#undef OT_DEFAULT_BLOCKSIZE
+#undef OT_DEFAULT_MEMSIZE
 
 
 // ---------------------------------------------------------

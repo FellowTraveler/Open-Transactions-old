@@ -89,8 +89,8 @@ public class otapi implements otapiConstants {
     return otapiJNI.OT_API_PopMemlogBack();
   }
 
-  public static String OT_API_CreateNym() {
-    return otapiJNI.OT_API_CreateNym();
+  public static String OT_API_CreateNym(int nKeySize) {
+    return otapiJNI.OT_API_CreateNym(nKeySize);
   }
 
   public static int OT_API_AddServerContract(String szContract) {
@@ -161,6 +161,14 @@ public class otapi implements otapiConstants {
     return otapiJNI.OT_API_GetAccountWallet_NymID(ACCOUNT_ID);
   }
 
+  public static String OT_API_GetAccountWallet_InboxHash(String ACCOUNT_ID) {
+    return otapiJNI.OT_API_GetAccountWallet_InboxHash(ACCOUNT_ID);
+  }
+
+  public static String OT_API_GetAccountWallet_OutboxHash(String ACCOUNT_ID) {
+    return otapiJNI.OT_API_GetAccountWallet_OutboxHash(ACCOUNT_ID);
+  }
+
   public static int OT_API_VerifyAccountReceipt(String SERVER_ID, String NYM_ID, String ACCT_ID) {
     return otapiJNI.OT_API_VerifyAccountReceipt(SERVER_ID, NYM_ID, ACCT_ID);
   }
@@ -179,6 +187,22 @@ public class otapi implements otapiConstants {
 
   public static String OT_API_GetNym_Stats(String NYM_ID) {
     return otapiJNI.OT_API_GetNym_Stats(NYM_ID);
+  }
+
+  public static String OT_API_GetNym_NymboxHash(String SERVER_ID, String NYM_ID) {
+    return otapiJNI.OT_API_GetNym_NymboxHash(SERVER_ID, NYM_ID);
+  }
+
+  public static String OT_API_GetNym_RecentHash(String SERVER_ID, String NYM_ID) {
+    return otapiJNI.OT_API_GetNym_RecentHash(SERVER_ID, NYM_ID);
+  }
+
+  public static String OT_API_GetNym_InboxHash(String ACCOUNT_ID, String NYM_ID) {
+    return otapiJNI.OT_API_GetNym_InboxHash(ACCOUNT_ID, NYM_ID);
+  }
+
+  public static String OT_API_GetNym_OutboxHash(String ACCOUNT_ID, String NYM_ID) {
+    return otapiJNI.OT_API_GetNym_OutboxHash(ACCOUNT_ID, NYM_ID);
   }
 
   public static int OT_API_IsNym_RegisteredAtServer(String NYM_ID, String SERVER_ID) {
@@ -365,20 +389,16 @@ public class otapi implements otapiConstants {
     return otapiJNI.OT_API_SmartContract_ConfirmParty(THE_CONTRACT, PARTY_NAME, NYM_ID);
   }
 
-  public static void OT_API_activateSmartContract(String SERVER_ID, String USER_ID, String THE_SMART_CONTRACT) {
-    otapiJNI.OT_API_activateSmartContract(SERVER_ID, USER_ID, THE_SMART_CONTRACT);
+  public static int OT_API_activateSmartContract(String SERVER_ID, String USER_ID, String THE_SMART_CONTRACT) {
+    return otapiJNI.OT_API_activateSmartContract(SERVER_ID, USER_ID, THE_SMART_CONTRACT);
   }
 
-  public static void OT_API_triggerClause(String SERVER_ID, String USER_ID, String TRANSACTION_NUMBER, String CLAUSE_NAME, String STR_PARAM) {
-    otapiJNI.OT_API_triggerClause(SERVER_ID, USER_ID, TRANSACTION_NUMBER, CLAUSE_NAME, STR_PARAM);
+  public static int OT_API_triggerClause(String SERVER_ID, String USER_ID, String TRANSACTION_NUMBER, String CLAUSE_NAME, String STR_PARAM) {
+    return otapiJNI.OT_API_triggerClause(SERVER_ID, USER_ID, TRANSACTION_NUMBER, CLAUSE_NAME, STR_PARAM);
   }
 
-  public static int OT_API_HarvestClosingNumbers(String SERVER_ID, String NYM_ID, String THE_CRON_ITEM) {
-    return otapiJNI.OT_API_HarvestClosingNumbers(SERVER_ID, NYM_ID, THE_CRON_ITEM);
-  }
-
-  public static int OT_API_HarvestAllNumbers(String SERVER_ID, String NYM_ID, String THE_CRON_ITEM) {
-    return otapiJNI.OT_API_HarvestAllNumbers(SERVER_ID, NYM_ID, THE_CRON_ITEM);
+  public static int OT_API_Msg_HarvestTransactionNumbers(String THE_MESSAGE, String USER_ID, int bHarvestingForRetry, int bReplyWasSuccess, int bReplyWasFailure, int bTransactionWasSuccess, int bTransactionWasFailure) {
+    return otapiJNI.OT_API_Msg_HarvestTransactionNumbers(THE_MESSAGE, USER_ID, bHarvestingForRetry, bReplyWasSuccess, bReplyWasFailure, bTransactionWasSuccess, bTransactionWasFailure);
   }
 
   public static String OT_API_LoadUserPubkey(String USER_ID) {
@@ -585,8 +605,8 @@ public class otapi implements otapiConstants {
     return otapiJNI.OT_API_Wallet_ImportPurse(SERVER_ID, ASSET_TYPE_ID, USER_ID, THE_PURSE);
   }
 
-  public static void OT_API_exchangePurse(String SERVER_ID, String ASSET_TYPE_ID, String USER_ID, String THE_PURSE) {
-    otapiJNI.OT_API_exchangePurse(SERVER_ID, ASSET_TYPE_ID, USER_ID, THE_PURSE);
+  public static int OT_API_exchangePurse(String SERVER_ID, String ASSET_TYPE_ID, String USER_ID, String THE_PURSE) {
+    return otapiJNI.OT_API_exchangePurse(SERVER_ID, ASSET_TYPE_ID, USER_ID, THE_PURSE);
   }
 
   public static String OT_API_Token_ChangeOwner(String SERVER_ID, String ASSET_TYPE_ID, String THE_TOKEN, String OLD_OWNER_NYM_ID, String NEW_OWNER_NYM_ID) {
@@ -621,68 +641,108 @@ public class otapi implements otapiConstants {
     return otapiJNI.OT_API_Token_GetServerID(THE_TOKEN);
   }
 
-  public static void OT_API_checkServerID(String SERVER_ID, String USER_ID) {
-    otapiJNI.OT_API_checkServerID(SERVER_ID, USER_ID);
+  public static String OT_API_Instrument_GetAmount(String SERVER_ID, String THE_INSTRUMENT) {
+    return otapiJNI.OT_API_Instrument_GetAmount(SERVER_ID, THE_INSTRUMENT);
   }
 
-  public static void OT_API_createUserAccount(String SERVER_ID, String USER_ID) {
-    otapiJNI.OT_API_createUserAccount(SERVER_ID, USER_ID);
+  public static String OT_API_Instrument_GetTransNum(String SERVER_ID, String THE_INSTRUMENT) {
+    return otapiJNI.OT_API_Instrument_GetTransNum(SERVER_ID, THE_INSTRUMENT);
   }
 
-  public static void OT_API_deleteUserAccount(String SERVER_ID, String USER_ID) {
-    otapiJNI.OT_API_deleteUserAccount(SERVER_ID, USER_ID);
+  public static String OT_API_Instrument_GetValidFrom(String SERVER_ID, String THE_INSTRUMENT) {
+    return otapiJNI.OT_API_Instrument_GetValidFrom(SERVER_ID, THE_INSTRUMENT);
   }
 
-  public static void OT_API_deleteAssetAccount(String SERVER_ID, String USER_ID, String ACCOUNT_ID) {
-    otapiJNI.OT_API_deleteAssetAccount(SERVER_ID, USER_ID, ACCOUNT_ID);
+  public static String OT_API_Instrument_GetValidTo(String SERVER_ID, String THE_INSTRUMENT) {
+    return otapiJNI.OT_API_Instrument_GetValidTo(SERVER_ID, THE_INSTRUMENT);
   }
 
-  public static void OT_API_usageCredits(String SERVER_ID, String USER_ID, String USER_ID_CHECK, String ADJUSTMENT) {
-    otapiJNI.OT_API_usageCredits(SERVER_ID, USER_ID, USER_ID_CHECK, ADJUSTMENT);
+  public static String OT_API_Instrument_GetMemo(String SERVER_ID, String THE_INSTRUMENT) {
+    return otapiJNI.OT_API_Instrument_GetMemo(SERVER_ID, THE_INSTRUMENT);
+  }
+
+  public static String OT_API_Instrument_GetAssetID(String SERVER_ID, String THE_INSTRUMENT) {
+    return otapiJNI.OT_API_Instrument_GetAssetID(SERVER_ID, THE_INSTRUMENT);
+  }
+
+  public static String OT_API_Instrmnt_GetSenderUserID(String SERVER_ID, String THE_INSTRUMENT) {
+    return otapiJNI.OT_API_Instrmnt_GetSenderUserID(SERVER_ID, THE_INSTRUMENT);
+  }
+
+  public static String OT_API_Instrmnt_GetSenderAcctID(String SERVER_ID, String THE_INSTRUMENT) {
+    return otapiJNI.OT_API_Instrmnt_GetSenderAcctID(SERVER_ID, THE_INSTRUMENT);
+  }
+
+  public static String OT_API_Instrmnt_GetRecipientUserID(String SERVER_ID, String THE_INSTRUMENT) {
+    return otapiJNI.OT_API_Instrmnt_GetRecipientUserID(SERVER_ID, THE_INSTRUMENT);
+  }
+
+  public static String OT_API_Instrmnt_GetRecipientAcctID(String SERVER_ID, String THE_INSTRUMENT) {
+    return otapiJNI.OT_API_Instrmnt_GetRecipientAcctID(SERVER_ID, THE_INSTRUMENT);
+  }
+
+  public static int OT_API_checkServerID(String SERVER_ID, String USER_ID) {
+    return otapiJNI.OT_API_checkServerID(SERVER_ID, USER_ID);
+  }
+
+  public static int OT_API_createUserAccount(String SERVER_ID, String USER_ID) {
+    return otapiJNI.OT_API_createUserAccount(SERVER_ID, USER_ID);
+  }
+
+  public static int OT_API_deleteUserAccount(String SERVER_ID, String USER_ID) {
+    return otapiJNI.OT_API_deleteUserAccount(SERVER_ID, USER_ID);
+  }
+
+  public static int OT_API_deleteAssetAccount(String SERVER_ID, String USER_ID, String ACCOUNT_ID) {
+    return otapiJNI.OT_API_deleteAssetAccount(SERVER_ID, USER_ID, ACCOUNT_ID);
+  }
+
+  public static int OT_API_usageCredits(String SERVER_ID, String USER_ID, String USER_ID_CHECK, String ADJUSTMENT) {
+    return otapiJNI.OT_API_usageCredits(SERVER_ID, USER_ID, USER_ID_CHECK, ADJUSTMENT);
   }
 
   public static String OT_API_Message_GetUsageCredits(String THE_MESSAGE) {
     return otapiJNI.OT_API_Message_GetUsageCredits(THE_MESSAGE);
   }
 
-  public static void OT_API_checkUser(String SERVER_ID, String USER_ID, String USER_ID_CHECK) {
-    otapiJNI.OT_API_checkUser(SERVER_ID, USER_ID, USER_ID_CHECK);
+  public static int OT_API_checkUser(String SERVER_ID, String USER_ID, String USER_ID_CHECK) {
+    return otapiJNI.OT_API_checkUser(SERVER_ID, USER_ID, USER_ID_CHECK);
   }
 
-  public static void OT_API_sendUserMessage(String SERVER_ID, String USER_ID, String USER_ID_RECIPIENT, String RECIPIENT_PUBKEY, String THE_MESSAGE) {
-    otapiJNI.OT_API_sendUserMessage(SERVER_ID, USER_ID, USER_ID_RECIPIENT, RECIPIENT_PUBKEY, THE_MESSAGE);
+  public static int OT_API_sendUserMessage(String SERVER_ID, String USER_ID, String USER_ID_RECIPIENT, String RECIPIENT_PUBKEY, String THE_MESSAGE) {
+    return otapiJNI.OT_API_sendUserMessage(SERVER_ID, USER_ID, USER_ID_RECIPIENT, RECIPIENT_PUBKEY, THE_MESSAGE);
   }
 
-  public static void OT_API_sendUserInstrument(String SERVER_ID, String USER_ID, String USER_ID_RECIPIENT, String RECIPIENT_PUBKEY, String THE_INSTRUMENT) {
-    otapiJNI.OT_API_sendUserInstrument(SERVER_ID, USER_ID, USER_ID_RECIPIENT, RECIPIENT_PUBKEY, THE_INSTRUMENT);
+  public static int OT_API_sendUserInstrument(String SERVER_ID, String USER_ID, String USER_ID_RECIPIENT, String RECIPIENT_PUBKEY, String THE_INSTRUMENT) {
+    return otapiJNI.OT_API_sendUserInstrument(SERVER_ID, USER_ID, USER_ID_RECIPIENT, RECIPIENT_PUBKEY, THE_INSTRUMENT);
   }
 
-  public static void OT_API_getRequest(String SERVER_ID, String USER_ID) {
-    otapiJNI.OT_API_getRequest(SERVER_ID, USER_ID);
+  public static int OT_API_getRequest(String SERVER_ID, String USER_ID) {
+    return otapiJNI.OT_API_getRequest(SERVER_ID, USER_ID);
   }
 
-  public static void OT_API_getTransactionNumber(String SERVER_ID, String USER_ID) {
-    otapiJNI.OT_API_getTransactionNumber(SERVER_ID, USER_ID);
+  public static int OT_API_getTransactionNumber(String SERVER_ID, String USER_ID) {
+    return otapiJNI.OT_API_getTransactionNumber(SERVER_ID, USER_ID);
   }
 
-  public static void OT_API_issueAssetType(String SERVER_ID, String USER_ID, String THE_CONTRACT) {
-    otapiJNI.OT_API_issueAssetType(SERVER_ID, USER_ID, THE_CONTRACT);
+  public static int OT_API_issueAssetType(String SERVER_ID, String USER_ID, String THE_CONTRACT) {
+    return otapiJNI.OT_API_issueAssetType(SERVER_ID, USER_ID, THE_CONTRACT);
   }
 
-  public static void OT_API_getContract(String SERVER_ID, String USER_ID, String ASSET_ID) {
-    otapiJNI.OT_API_getContract(SERVER_ID, USER_ID, ASSET_ID);
+  public static int OT_API_getContract(String SERVER_ID, String USER_ID, String ASSET_ID) {
+    return otapiJNI.OT_API_getContract(SERVER_ID, USER_ID, ASSET_ID);
   }
 
-  public static void OT_API_getMint(String SERVER_ID, String USER_ID, String ASSET_ID) {
-    otapiJNI.OT_API_getMint(SERVER_ID, USER_ID, ASSET_ID);
+  public static int OT_API_getMint(String SERVER_ID, String USER_ID, String ASSET_ID) {
+    return otapiJNI.OT_API_getMint(SERVER_ID, USER_ID, ASSET_ID);
   }
 
-  public static void OT_API_createAssetAccount(String SERVER_ID, String USER_ID, String ASSET_ID) {
-    otapiJNI.OT_API_createAssetAccount(SERVER_ID, USER_ID, ASSET_ID);
+  public static int OT_API_createAssetAccount(String SERVER_ID, String USER_ID, String ASSET_ID) {
+    return otapiJNI.OT_API_createAssetAccount(SERVER_ID, USER_ID, ASSET_ID);
   }
 
-  public static void OT_API_getAccount(String SERVER_ID, String USER_ID, String ACCT_ID) {
-    otapiJNI.OT_API_getAccount(SERVER_ID, USER_ID, ACCT_ID);
+  public static int OT_API_getAccount(String SERVER_ID, String USER_ID, String ACCT_ID) {
+    return otapiJNI.OT_API_getAccount(SERVER_ID, USER_ID, ACCT_ID);
   }
 
   public static String OT_API_GenerateBasketCreation(String USER_ID, String MINIMUM_TRANSFER) {
@@ -693,8 +753,8 @@ public class otapi implements otapiConstants {
     return otapiJNI.OT_API_AddBasketCreationItem(USER_ID, THE_BASKET, ASSET_TYPE_ID, MINIMUM_TRANSFER);
   }
 
-  public static void OT_API_issueBasket(String SERVER_ID, String USER_ID, String THE_BASKET) {
-    otapiJNI.OT_API_issueBasket(SERVER_ID, USER_ID, THE_BASKET);
+  public static int OT_API_issueBasket(String SERVER_ID, String USER_ID, String THE_BASKET) {
+    return otapiJNI.OT_API_issueBasket(SERVER_ID, USER_ID, THE_BASKET);
   }
 
   public static String OT_API_GenerateBasketExchange(String SERVER_ID, String USER_ID, String BASKET_ASSET_TYPE_ID, String BASKET_ASSET_ACCT_ID, int TRANSFER_MULTIPLE) {
@@ -705,32 +765,32 @@ public class otapi implements otapiConstants {
     return otapiJNI.OT_API_AddBasketExchangeItem(SERVER_ID, USER_ID, THE_BASKET, ASSET_TYPE_ID, ASSET_ACCT_ID);
   }
 
-  public static void OT_API_exchangeBasket(String SERVER_ID, String USER_ID, String BASKET_ASSET_ID, String THE_BASKET, int BOOL_EXCHANGE_IN_OR_OUT) {
-    otapiJNI.OT_API_exchangeBasket(SERVER_ID, USER_ID, BASKET_ASSET_ID, THE_BASKET, BOOL_EXCHANGE_IN_OR_OUT);
+  public static int OT_API_exchangeBasket(String SERVER_ID, String USER_ID, String BASKET_ASSET_ID, String THE_BASKET, int BOOL_EXCHANGE_IN_OR_OUT) {
+    return otapiJNI.OT_API_exchangeBasket(SERVER_ID, USER_ID, BASKET_ASSET_ID, THE_BASKET, BOOL_EXCHANGE_IN_OR_OUT);
   }
 
-  public static void OT_API_notarizeWithdrawal(String SERVER_ID, String USER_ID, String ACCT_ID, String AMOUNT) {
-    otapiJNI.OT_API_notarizeWithdrawal(SERVER_ID, USER_ID, ACCT_ID, AMOUNT);
+  public static int OT_API_notarizeWithdrawal(String SERVER_ID, String USER_ID, String ACCT_ID, String AMOUNT) {
+    return otapiJNI.OT_API_notarizeWithdrawal(SERVER_ID, USER_ID, ACCT_ID, AMOUNT);
   }
 
-  public static void OT_API_notarizeDeposit(String SERVER_ID, String USER_ID, String ACCT_ID, String THE_PURSE) {
-    otapiJNI.OT_API_notarizeDeposit(SERVER_ID, USER_ID, ACCT_ID, THE_PURSE);
+  public static int OT_API_notarizeDeposit(String SERVER_ID, String USER_ID, String ACCT_ID, String THE_PURSE) {
+    return otapiJNI.OT_API_notarizeDeposit(SERVER_ID, USER_ID, ACCT_ID, THE_PURSE);
   }
 
-  public static void OT_API_notarizeTransfer(String SERVER_ID, String USER_ID, String ACCT_FROM, String ACCT_TO, String AMOUNT, String NOTE) {
-    otapiJNI.OT_API_notarizeTransfer(SERVER_ID, USER_ID, ACCT_FROM, ACCT_TO, AMOUNT, NOTE);
+  public static int OT_API_notarizeTransfer(String SERVER_ID, String USER_ID, String ACCT_FROM, String ACCT_TO, String AMOUNT, String NOTE) {
+    return otapiJNI.OT_API_notarizeTransfer(SERVER_ID, USER_ID, ACCT_FROM, ACCT_TO, AMOUNT, NOTE);
   }
 
-  public static void OT_API_getInbox(String SERVER_ID, String USER_ID, String ACCT_ID) {
-    otapiJNI.OT_API_getInbox(SERVER_ID, USER_ID, ACCT_ID);
+  public static int OT_API_getInbox(String SERVER_ID, String USER_ID, String ACCT_ID) {
+    return otapiJNI.OT_API_getInbox(SERVER_ID, USER_ID, ACCT_ID);
   }
 
-  public static void OT_API_getOutbox(String SERVER_ID, String USER_ID, String ACCT_ID) {
-    otapiJNI.OT_API_getOutbox(SERVER_ID, USER_ID, ACCT_ID);
+  public static int OT_API_getOutbox(String SERVER_ID, String USER_ID, String ACCT_ID) {
+    return otapiJNI.OT_API_getOutbox(SERVER_ID, USER_ID, ACCT_ID);
   }
 
-  public static void OT_API_getNymbox(String SERVER_ID, String USER_ID) {
-    otapiJNI.OT_API_getNymbox(SERVER_ID, USER_ID);
+  public static int OT_API_getNymbox(String SERVER_ID, String USER_ID) {
+    return otapiJNI.OT_API_getNymbox(SERVER_ID, USER_ID);
   }
 
   public static String OT_API_LoadNymbox(String SERVER_ID, String USER_ID) {
@@ -741,68 +801,84 @@ public class otapi implements otapiConstants {
     return otapiJNI.OT_API_LoadNymboxNoVerify(SERVER_ID, USER_ID);
   }
 
-  public static void OT_API_getBoxReceipt(String SERVER_ID, String USER_ID, String ACCOUNT_ID, int nBoxType, String TRANSACTION_NUMBER) {
-    otapiJNI.OT_API_getBoxReceipt(SERVER_ID, USER_ID, ACCOUNT_ID, nBoxType, TRANSACTION_NUMBER);
+  public static String OT_API_Nymbox_GetReplyNotice(String SERVER_ID, String USER_ID, String REQUEST_NUMBER) {
+    return otapiJNI.OT_API_Nymbox_GetReplyNotice(SERVER_ID, USER_ID, REQUEST_NUMBER);
+  }
+
+  public static int OT_API_getBoxReceipt(String SERVER_ID, String USER_ID, String ACCOUNT_ID, int nBoxType, String TRANSACTION_NUMBER) {
+    return otapiJNI.OT_API_getBoxReceipt(SERVER_ID, USER_ID, ACCOUNT_ID, nBoxType, TRANSACTION_NUMBER);
   }
 
   public static int OT_API_DoesBoxReceiptExist(String SERVER_ID, String USER_ID, String ACCOUNT_ID, int nBoxType, String TRANSACTION_NUMBER) {
     return otapiJNI.OT_API_DoesBoxReceiptExist(SERVER_ID, USER_ID, ACCOUNT_ID, nBoxType, TRANSACTION_NUMBER);
   }
 
-  public static void OT_API_processInbox(String SERVER_ID, String USER_ID, String ACCT_ID, String ACCT_LEDGER) {
-    otapiJNI.OT_API_processInbox(SERVER_ID, USER_ID, ACCT_ID, ACCT_LEDGER);
+  public static int OT_API_processInbox(String SERVER_ID, String USER_ID, String ACCT_ID, String ACCT_LEDGER) {
+    return otapiJNI.OT_API_processInbox(SERVER_ID, USER_ID, ACCT_ID, ACCT_LEDGER);
   }
 
   public static int OT_API_processNymbox(String SERVER_ID, String USER_ID) {
     return otapiJNI.OT_API_processNymbox(SERVER_ID, USER_ID);
   }
 
-  public static void OT_API_withdrawVoucher(String SERVER_ID, String USER_ID, String ACCT_ID, String RECIPIENT_USER_ID, String CHEQUE_MEMO, String AMOUNT) {
-    otapiJNI.OT_API_withdrawVoucher(SERVER_ID, USER_ID, ACCT_ID, RECIPIENT_USER_ID, CHEQUE_MEMO, AMOUNT);
+  public static int OT_API_withdrawVoucher(String SERVER_ID, String USER_ID, String ACCT_ID, String RECIPIENT_USER_ID, String CHEQUE_MEMO, String AMOUNT) {
+    return otapiJNI.OT_API_withdrawVoucher(SERVER_ID, USER_ID, ACCT_ID, RECIPIENT_USER_ID, CHEQUE_MEMO, AMOUNT);
   }
 
-  public static void OT_API_depositCheque(String SERVER_ID, String USER_ID, String ACCT_ID, String THE_CHEQUE) {
-    otapiJNI.OT_API_depositCheque(SERVER_ID, USER_ID, ACCT_ID, THE_CHEQUE);
+  public static int OT_API_depositCheque(String SERVER_ID, String USER_ID, String ACCT_ID, String THE_CHEQUE) {
+    return otapiJNI.OT_API_depositCheque(SERVER_ID, USER_ID, ACCT_ID, THE_CHEQUE);
   }
 
-  public static void OT_API_depositPaymentPlan(String SERVER_ID, String USER_ID, String THE_PAYMENT_PLAN) {
-    otapiJNI.OT_API_depositPaymentPlan(SERVER_ID, USER_ID, THE_PAYMENT_PLAN);
+  public static int OT_API_depositPaymentPlan(String SERVER_ID, String USER_ID, String THE_PAYMENT_PLAN) {
+    return otapiJNI.OT_API_depositPaymentPlan(SERVER_ID, USER_ID, THE_PAYMENT_PLAN);
   }
 
-  public static void OT_API_issueMarketOffer(String SERVER_ID, String USER_ID, String ASSET_TYPE_ID, String ASSET_ACCT_ID, String CURRENCY_TYPE_ID, String CURRENCY_ACCT_ID, String MARKET_SCALE, String MINIMUM_INCREMENT, String TOTAL_ASSETS_ON_OFFER, String PRICE_LIMIT, int bBuyingOrSelling) {
-    otapiJNI.OT_API_issueMarketOffer(SERVER_ID, USER_ID, ASSET_TYPE_ID, ASSET_ACCT_ID, CURRENCY_TYPE_ID, CURRENCY_ACCT_ID, MARKET_SCALE, MINIMUM_INCREMENT, TOTAL_ASSETS_ON_OFFER, PRICE_LIMIT, bBuyingOrSelling);
+  public static int OT_API_issueMarketOffer(String SERVER_ID, String USER_ID, String ASSET_TYPE_ID, String ASSET_ACCT_ID, String CURRENCY_TYPE_ID, String CURRENCY_ACCT_ID, String MARKET_SCALE, String MINIMUM_INCREMENT, String TOTAL_ASSETS_ON_OFFER, String PRICE_LIMIT, int bBuyingOrSelling) {
+    return otapiJNI.OT_API_issueMarketOffer(SERVER_ID, USER_ID, ASSET_TYPE_ID, ASSET_ACCT_ID, CURRENCY_TYPE_ID, CURRENCY_ACCT_ID, MARKET_SCALE, MINIMUM_INCREMENT, TOTAL_ASSETS_ON_OFFER, PRICE_LIMIT, bBuyingOrSelling);
   }
 
-  public static void OT_API_getMarketList(String SERVER_ID, String USER_ID) {
-    otapiJNI.OT_API_getMarketList(SERVER_ID, USER_ID);
+  public static int OT_API_getMarketList(String SERVER_ID, String USER_ID) {
+    return otapiJNI.OT_API_getMarketList(SERVER_ID, USER_ID);
   }
 
-  public static void OT_API_getMarketOffers(String SERVER_ID, String USER_ID, String MARKET_ID, String MAX_DEPTH) {
-    otapiJNI.OT_API_getMarketOffers(SERVER_ID, USER_ID, MARKET_ID, MAX_DEPTH);
+  public static int OT_API_getMarketOffers(String SERVER_ID, String USER_ID, String MARKET_ID, String MAX_DEPTH) {
+    return otapiJNI.OT_API_getMarketOffers(SERVER_ID, USER_ID, MARKET_ID, MAX_DEPTH);
   }
 
-  public static void OT_API_getMarketRecentTrades(String SERVER_ID, String USER_ID, String MARKET_ID) {
-    otapiJNI.OT_API_getMarketRecentTrades(SERVER_ID, USER_ID, MARKET_ID);
+  public static int OT_API_getMarketRecentTrades(String SERVER_ID, String USER_ID, String MARKET_ID) {
+    return otapiJNI.OT_API_getMarketRecentTrades(SERVER_ID, USER_ID, MARKET_ID);
   }
 
-  public static void OT_API_getNym_MarketOffers(String SERVER_ID, String USER_ID) {
-    otapiJNI.OT_API_getNym_MarketOffers(SERVER_ID, USER_ID);
+  public static int OT_API_getNym_MarketOffers(String SERVER_ID, String USER_ID) {
+    return otapiJNI.OT_API_getNym_MarketOffers(SERVER_ID, USER_ID);
   }
 
-  public static void OT_API_cancelMarketOffer(String SERVER_ID, String USER_ID, String ASSET_ACCT_ID, String TRANSACTION_NUMBER) {
-    otapiJNI.OT_API_cancelMarketOffer(SERVER_ID, USER_ID, ASSET_ACCT_ID, TRANSACTION_NUMBER);
+  public static int OT_API_cancelMarketOffer(String SERVER_ID, String USER_ID, String ASSET_ACCT_ID, String TRANSACTION_NUMBER) {
+    return otapiJNI.OT_API_cancelMarketOffer(SERVER_ID, USER_ID, ASSET_ACCT_ID, TRANSACTION_NUMBER);
   }
 
-  public static void OT_API_cancelPaymentPlan(String SERVER_ID, String USER_ID, String FROM_ACCT_ID, String TRANSACTION_NUMBER) {
-    otapiJNI.OT_API_cancelPaymentPlan(SERVER_ID, USER_ID, FROM_ACCT_ID, TRANSACTION_NUMBER);
+  public static int OT_API_cancelPaymentPlan(String SERVER_ID, String USER_ID, String FROM_ACCT_ID, String TRANSACTION_NUMBER) {
+    return otapiJNI.OT_API_cancelPaymentPlan(SERVER_ID, USER_ID, FROM_ACCT_ID, TRANSACTION_NUMBER);
   }
 
-  public static String OT_API_PopMessageBuffer() {
-    return otapiJNI.OT_API_PopMessageBuffer();
+  public static String OT_API_PopMessageBuffer(String REQUEST_NUMBER, String SERVER_ID, String USER_ID) {
+    return otapiJNI.OT_API_PopMessageBuffer(REQUEST_NUMBER, SERVER_ID, USER_ID);
   }
 
   public static void OT_API_FlushMessageBuffer() {
     otapiJNI.OT_API_FlushMessageBuffer();
+  }
+
+  public static String OT_API_GetSentMessage(String REQUEST_NUMBER, String SERVER_ID, String USER_ID) {
+    return otapiJNI.OT_API_GetSentMessage(REQUEST_NUMBER, SERVER_ID, USER_ID);
+  }
+
+  public static int OT_API_RemoveSentMessage(String REQUEST_NUMBER, String SERVER_ID, String USER_ID) {
+    return otapiJNI.OT_API_RemoveSentMessage(REQUEST_NUMBER, SERVER_ID, USER_ID);
+  }
+
+  public static void OT_API_FlushSentMessages(int bHarvestingForRetry, String SERVER_ID, String USER_ID, String THE_NYMBOX) {
+    otapiJNI.OT_API_FlushSentMessages(bHarvestingForRetry, SERVER_ID, USER_ID, THE_NYMBOX);
   }
 
   public static void OT_API_Sleep(String MILLISECONDS) {
@@ -821,8 +897,8 @@ public class otapi implements otapiConstants {
     return otapiJNI.OT_API_Message_GetSuccess(THE_MESSAGE);
   }
 
-  public static void OT_API_queryAssetTypes(String SERVER_ID, String USER_ID, String ENCODED_MAP) {
-    otapiJNI.OT_API_queryAssetTypes(SERVER_ID, USER_ID, ENCODED_MAP);
+  public static int OT_API_queryAssetTypes(String SERVER_ID, String USER_ID, String ENCODED_MAP) {
+    return otapiJNI.OT_API_queryAssetTypes(SERVER_ID, USER_ID, ENCODED_MAP);
   }
 
   public static String OT_API_Message_GetPayload(String THE_MESSAGE) {
@@ -855,6 +931,10 @@ public class otapi implements otapiConstants {
 
   public static String OT_API_Message_GetNewAcctID(String THE_MESSAGE) {
     return otapiJNI.OT_API_Message_GetNewAcctID(THE_MESSAGE);
+  }
+
+  public static String OT_API_Message_GetNymboxHash(String THE_MESSAGE) {
+    return otapiJNI.OT_API_Message_GetNymboxHash(THE_MESSAGE);
   }
 
   public static int OT_API_ConnectServer(String SERVER_ID, String USER_ID, String szCA_FILE, String szKEY_FILE, String szKEY_PASSWORD) {

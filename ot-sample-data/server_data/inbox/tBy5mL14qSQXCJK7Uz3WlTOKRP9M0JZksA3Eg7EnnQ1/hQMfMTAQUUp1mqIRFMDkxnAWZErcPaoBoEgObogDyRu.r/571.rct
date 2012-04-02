@@ -1,0 +1,66 @@
+-----BEGIN SIGNED TRANSACTION-----
+Hash: SAMY
+
+<transaction type="basketReceipt"
+ dateSigned="1333352347"
+ accountID="hQMfMTAQUUp1mqIRFMDkxnAWZErcPaoBoEgObogDyRu"
+ userID="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV"
+ serverID="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1"
+ transactionNum="571"
+ inReferenceTo="559" >
+
+<closingTransactionNumber value="558"/>
+
+<inReferenceTo>
+eJxllcmuozgUhveoHyK626ia+QJXlZKAEGZIGMKwI8QMYZ7C8Fr9gp1ULbpU7ZV9
+fP7fOkf2Z+ifv769ByeIsrGzZdEQjjvHYg2b5R3ZNHayI+g/MyApGrKvnc3qAQR9
+z0dQ7ca1BYcPsMRZVKeAi4YCjB/QbhijcRoOHz3oJjC8I2Mf1UMUj3lTG1N1+CBJ
+5p0H+ifo5ePhY+RWstJQorMvPq+olLvhXumYqnVmdEQJi4HFhZQS6vqCvnTT8Evl
+oBd8Dr0UOG4Tuc+aqdByk1VyrMlZdspt2XrRkOlujK4vVdI3FRvHzVSPb3F20RPd
+YS+u26JVJ1sn/VgsNeuFQh+fo4ZrhNS8NelxtaZ3Ac1v0tc6ry2QgB7UMXCawwfy
+CkXVe/893/14NSgaxyjOKlCPPyCgrGUxYmZTsJfMpnHCLuSRNMKZO3EDQvA5m6rq
+A97jtoAgrI7wKcY7VH4ewUMPFXSAyKqnhq43PyO6y+AHQ8A1pgj+1TE073oyw+Ks
+2Xd+se4TcQ+m6EoHOWJ5xlnQYLrLUxaiy6eiLiZrO4w0nTlaM+PrXJmdtZwKLpP0
+bpjb88kWGy5zNMG0ehJDWDNWy1PWwkZ2hAT7uCyEZbVWDtwnO8Gfq/qs4Q3lw4da
+ErcGiHLExMxwL8Ph8yYqYnWZjkiT3eA1zksfaiZ3eazRePVdMWk7XxB8HN6GteL1
+TUL1WMFthuVuqZ+1jnASiiTWP/FHYun6Y295YA8xyzT7MUzxc6UbR1Y3WQaN1lK+
+dBPs++isBXfj5ul7W1aQfCtE/qwWF+eeeYFKOSpZQ2r66a9wiZ6vzEz7DveJIwR5
+bZbjdtswMdLC2kVPOhFRgwOTorenm4jsxsT3B8Y1yrqFACrJr4MuPaO0GtYH5az7
+nba55IxxI4NKfrPUUYqjgbeRtIC1I0LAkk6eSQKFCQkXoTOAsbCtvXGSDfmJHUuY
+iKprksvePrncBsnBrdjGqzPOBm54ifdyG9epnktXt7P3caFBmbLUossRlh4ENRIg
+kivEVxokSUtZLslX+8hzUJ49cT6yAYlAGp6eU9epZaF1tLt6hPSujGZ+qeicCvrr
+6zZ8rihTykZ9IvFEA+ytMmYXyOX+po7yU2orzQyTHqNF2Xa6+32GRjRAElKpVrt0
+5ws/zq2Ft/ydSl5VK2umR4h0cu7c0dsLPCYgLBXpwwYnx3zLhwyxbxCStFyUjvtC
+qUbsTseijsufImrziDawWb5dby4hajXXwAhmao8HQw0tOdlUByNcCxM0tKWHA/Qd
+/v19vZZvHv2AfkPZnwz7yTbWcS3hF82uoB9eOPramS2od85/gBp2yN8UDfFN9Tb/
+2mXj2H7BcJqP2XT7O24q+ATKsplfkicoQQ+/Db79bgDPeZFDLweWW4RCKp6YKgoh
+laZFkCHPnPWH7BYj2Bml7SZ4RqF5ome77GXef1bjIrWvnGo91pDsUuZJnJXaIOei
+GJT98hzYdsOceHWpS1hZ8sAHgNNHUe3gOo2a0HJuhspPTiVjPR5DIZLGfSeXXjnp
++3U263ss+qvspNHgPahqCWdftFqsq5qY85b48Kt/gvH/H+CP7v0Lhjn/6Q==
+</inReferenceTo>
+
+<item>
+eJxlks9yokAQh0974SkorqkEiP+tJVWDoqKCAoMabggjEmBGmEGUd9x3WoiHtbJz
+6+n+flX9VXN/fr22T9Xmusk7+tzUpjy0gemACdQ3Jq9Dzfie4BY+PY95BxifHPc7
+Zijj2f2CFOHo0wQxGwUovjCB4ynzWUkVwQ8STKoUhRHKEG47rPAx9QMWE2yWmSL0
+BnI7j4orKvSpIjD13svWcjd3rMNkuRq4dWefws3K3o4MaeklFHS0aKBhbLVcSR8U
+lK1O5e0jBF3iu1c8yuS01lc9hnuVDtP6VhdzUx/mzN811KkgGQgCUmLWwmfLOBkQ
+WK57kbNct2fGNLlhsPe0Itj6RCVatDmSaHq3y3YB8oQ2dYxtdEIFwgGCRBGk5svP
+2r4ivEsC/9GIEltTH9yT5J92v60D6Nraw/MOFbQxNOY3F4R5+M8Z5aW3wZCbkKz1
+OebPjF3GohjF7Fwe3wKSiTOUpqRqkCtKUSG2Aa/PAWIVJzHXJAB1KTMXiHsHzulX
+fQi3p6Ukd8CQhXgYyv1MGpGwLuwhy1eoqMutVR9SD6jadSnTAWf3+6MTBafYX4Bp
+f3SMBmrirfVAXkFvVyR9DHOvXNezFy3q33bdfBEvJt51AxHAtGtJa+7za2JOLjvf
+eckPnZSwhfkuWV7e3V8Px/uOGMdhulXDnh0uulW+IcrDn2b+f5s/7P0FDBjkLQ==
+</item>
+
+</transaction>
+-----BEGIN TRANSACTION SIGNATURE-----
+Version: Open Transactions 0.78
+Comment: http://github.com/FellowTraveler/Open-Transactions/wiki
+
+CoABkmq4lJCgbSPX8XGIEARnDUoutp5bmVw9RTnlvR8oJt1acyck25CCPhMcjVYw
+En9/YWon1CbYPEhs6umpBRzlnCUq/0z8C2P1IA5IOl8195mL+wS89pEiQyuTB1Pd
+Dhr0REMgKWWSVjXPB7I8pbVibA1zrITPss+4MmdBHVMh1k4=
+-----END TRANSACTION SIGNATURE-----
+
+MARKED_FOR_DELETION

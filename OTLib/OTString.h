@@ -158,6 +158,11 @@ extern "C" {
 //#endif // _WIN32
 
 
+
+typedef std::map	<std::string, std::string>		mapOfStrings;
+
+
+
 // If you've already strlen'd the string,
 // you can pass the length to str_hsh or str_dup
 // and save it the trouble.

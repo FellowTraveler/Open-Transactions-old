@@ -7,6 +7,45 @@ Hash: SAMY
  version="1.0"
  serverID="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1" >
 
+<market
+ marketID="RXuCUjK2fzzDzOgS9DU3DyKquw2LrUKGDOWutWQQ5qz"
+ assetID="ttHGviJ9hRcijEvWT4f9KpqVcZ7c0UqXYNslvSEa6gJ"
+ currencyID="CvHGtfOOKzQKL5hFL7J4iF5yAodVKhS1rxPzME5R9XA"
+ marketScale="1" >
+
+<cronItem>
+eJzNVMmuo8gW3LN6n3B1t1YXTmMMlPpWi9mAMZjRZseQYGYzGvjW9zEP39slVUst
+dS9frlJxTpwjRWQG8t///PY6DC9K5zdTEs8892YZNMd/wsjR7+7f30xavSHI739M
+ZfE2wrZL6+rjHXzbvv/xY4X71o8g8tcC8nb3Ozrs09HvYfTxHvtFB1e0g+3aJ3Ef
+7z0z4+UJ7BvzcmVlhbAXzC0sTTF0St3KXt7RGJ8QfFVdwMrzuw721vyAn9T+KI6p
+TN2NMM340bX2MaU8Gif0iHBrN9fbuStGk/cPifyTSodh/6LGtSiPy2535p2yC/0k
+Jp42vOuFsEsmgHl4JBLMnlBJwrRXaji0LazC+edidjyKfaxpynJRTvhdOBHyPhXw
+ma4jR7mboJ30ReVxg7rSv7B/7oZqEalqqsSyoZEMOcvZEsKlo6bR7Ikojwq3x7eQ
+ZLmpWtlD96WTBS7Y03MTaNm1b48VVYJikRS8r/CnZBXLtLTiWSKb3ndeO+vyUcBV
+8nNtvWzpPt5fZqwWVZ2/2lFX56H8eMfBCw1b6L8gbvVotQ1bD46B/as0+kUaCW1d
+/h1u1V/oHqPwFX17PYKwqLu0Sqy/LApg+2IM8LURvKP/rnH31VjHMWx/IFCe+jwc
+zDKn7XsVeSRj2jvqoqod/XQzwWokVqlpGUbPpKfo9Bxl4RV6DI5lhm+anoNowbjZ
+jEtFVVqM4YQvam0JNJFqYFXfALG03JjLiSBv2rnaXQdtgwrQm4uYzqckS24RQgZV
+AGNUDpkgUQ/safssEqKnxqyOeXqXK7a11LbwpI0ko09iePBKZm8TCq4IGwq4+y3S
+UQaQdsCKdyI+40RUGZhmyPrWPduGWxeqMNFsc9wQyWmwre5pLlUji6Skj9FyIJui
+Qq7+ISAVVsRiB/RYJLnV40AyrV5yl06lb/WoAzcjG9m0N6d75HbtqTTF4xnI+Zkb
+3AJH+hNvWqQFulYAE8T6s+JvbkzKauEzOV4vNtXccM5R+up267ZH0PblTByeeWoy
+0gUGuYGoZz+ddiWp8glj7mpmJkslkB4sxyn0QTqbR5Y27/IlWtJ8BoMH2+dkiky+
+97as7bKpiSg6eo/HQ9L1hiVqtoB3l+sRL5loJkG8wRpu7jBuFx9QTWJ5DUUDu9oT
+rX6Yamxu5V2NLDO0r2PD8rzmC2pcqSrJJ1h5c7aTmdyNpDaxJ3VyaVvlF1xIhMDJ
+chskaoPymqYJE6LwTjDYPrvDzaDLu9AF1gm/RsLoPsYaTYuzOMZVFO9Is44iRgtW
+JQeO1lKmyCH/aBvEMKW86dSwia8Kf1BKrfDaisLz69ZQAmazWPIcYmE513kf+JSf
+0k8w7Gd/xEkdBHrAIzeREjqL1G76xGxvY+GbnFH5zmKfwmoKgLdB86f7JKFMaRF5
+JTUq6Sc8zjvkd/TPz7DePtP2B/JLan/G9Wd205Zt/Bnczlcaf3/THrB6++W3dW/b
+bwSJsHVZwqr//nbv+8d3FE3S/j4E39b8WJ9/UdTPlTLCArboa8Bvvw5An2meIusE
+mvFEIKdO3WWZz+Tx1DUpUaFYtsAHoR92+TwWLVrpdhl2DXCW1GPCbQxD50repwg5
+JSyXsJk0Pja0OV6EbdYdmT17FGDHPiZwMP0WbiZ3DWxrApJ9CIah50NKzEi4F9Ax
+QPxzf7s8DrG3V5wTMQElvgOr5ib0BDba0doRnFiW2R5Qt5iWJPXjSzT+zP29ZP8n
+mjYm2t9PftZvpuEY+lFY8DQjJIetK/uBMxocdvQcAsTU4GQDgT6TmSjppmwHPTwj
+wlXA69E7NKM5KmoiaZcG94eyztgNo2jkGlsPbw+EdHDFjU7G92Ky6+CCpiV1Idid
+BxBCdMnDqeAnlypbbbxvFLqdoxmXM5rS9ehK92Wd2DDQu23V6uE/aPo/0LKx3g==
+</cronItem>
+
 <transactionNum value="2" />
 
 <transactionNum value="3" />
@@ -1012,7 +1051,7 @@ Hash: SAMY
 Version: Open Transactions 0.78
 Comment: http://github.com/FellowTraveler/Open-Transactions/wiki
 
-CoABYTF5pL4ID2xk33n+RD78phMTtQIFrhxKdtnrQ1WskYNCGZyanpeBxVlwM5n4
-0ME2mPDwUz47isoazSTa8Bx7vUmDnqgQh2otapKkVlhqi+QWFG2I/08Ef7YEoGYG
-FuXSyBGgZ01pI+PMAovahWwHCWRKpmCkmIe++wxzaH7pFB4=
+CoABheqPyrW9ipAGoegYgrAauCYAOpqDoiGfa4xF5s3uv36Iyvo+ewqebQNtukUt
+7wzJuiXgPudM3fuNO+YTg3Z/yD748qdHkWXkjk7sCP/AmVobGlroR7A7++XU/dnv
+ohqifEm3NtnkCkHrf683SXLJQAXdk7nkz5Qadwq32NtuACU=
 -----END CRON SIGNATURE-----

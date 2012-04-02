@@ -271,20 +271,29 @@ public:
 	
 	// ---------------------------------------------------
 	
-	static bool HarvestClosingNumbers(const std::string SERVER_ID,
-									  const std::string NYM_ID,
-									  const std::string THE_CRON_ITEM);
-	
-	static bool HarvestAllNumbers(const std::string SERVER_ID,
-								  const std::string NYM_ID,
-								  const std::string THE_CRON_ITEM);
-		
+	static bool Msg_HarvestTransactionNumbers(const std::string THE_MESSAGE,
+                                              const std::string USER_ID,
+                                              const bool        bHarvestingForRetry,      
+                                              const bool        bReplyWasSuccess,      
+                                              const bool        bReplyWasFailure,      
+                                              const bool        bTransactionWasSuccess,
+                                              const bool        bTransactionWasFailure);
+
+//	static bool HarvestClosingNumbers(const std::string SERVER_ID,
+//									  const std::string NYM_ID,
+//									  const std::string THE_CRON_ITEM);
+//	
+//	static bool HarvestAllNumbers(const std::string SERVER_ID,
+//								  const std::string NYM_ID,
+//								  const std::string THE_CRON_ITEM);
+
 	// --------------------------------------------------
-	static void activateSmartContract(const std::string SERVER_ID,
+    
+	static int activateSmartContract(const std::string SERVER_ID,
 									  const std::string USER_ID,
 									  const std::string THE_SMART_CONTRACT);
 	// --------------------------------------------------
-	static void triggerClause(const std::string SERVER_ID,
+	static int triggerClause(const std::string SERVER_ID,
 							  const std::string USER_ID,
 							  const std::string TRANSACTION_NUMBER,
 							  const std::string CLAUSE_NAME,
@@ -302,7 +311,7 @@ public:
 	static bool PopMemlogBack(); 
 	
 	
-	static const std::string CreateNym();
+	static const std::string CreateNym(int nKeySize);
 	
 	
 	static bool AddServerContract(const std::string szContract); // returns OT_TRUE (1) or OT_FALSE(0)
@@ -328,6 +337,9 @@ public:
 	static const std::string GetAccountWallet_ServerID(const std::string ACCOUNT_ID);	 // returns Server ID of the account
 	static const std::string GetAccountWallet_NymID(const std::string ACCOUNT_ID);	 // returns Nym ID of the account
 	
+	static const std::string GetAccountWallet_InboxHash (const std::string ACCOUNT_ID);	 // returns inbox hash for the account.
+	static const std::string GetAccountWallet_OutboxHash(const std::string ACCOUNT_ID);	 // returns outbox hash for the account.
+	
 	static bool VerifyAccountReceipt(const std::string SERVER_ID, const std::string NYM_ID, const std::string ACCT_ID);
 	
 	static int GetNym_TransactionNumCount(const std::string SERVER_ID, const std::string NYM_ID);
@@ -335,7 +347,12 @@ public:
 	static const std::string GetNym_ID(int nIndex); /// based on Index (above 4 functions) this returns the Nym's ID
 	static const std::string GetNym_Name(const std::string NYM_ID); /// Returns Nym Name (based on NymID)
 	static const std::string GetNym_Stats(const std::string NYM_ID); /// Returns Nym Statistics (based on NymID)
-	
+	static const std::string GetNym_NymboxHash(const std::string SERVER_ID, const std::string NYM_ID); /// Returns NymboxHash  (based on ServerID)	
+    static const std::string GetNym_RecentHash(const std::string SERVER_ID, const std::string NYM_ID); /// Returns RecentHash  (based on ServerID)
+
+    static const std::string GetNym_InboxHash (const std::string ACCOUNT_ID, const std::string NYM_ID); /// Returns InboxHash  (based on AccountID)
+    static const std::string GetNym_OutboxHash(const std::string ACCOUNT_ID, const std::string NYM_ID); /// Returns OutboxHash (based on AccountID)
+
 	static bool IsNym_RegisteredAtServer(const std::string NYM_ID, const std::string SERVER_ID); // actually returns OT_BOOL
 	
 	// ---------------------------------------------------------
@@ -559,15 +576,15 @@ public:
 													const std::string ACCOUNT_ID,
 													const std::string THE_TRANSACTION);
 	// --------------------------------------------------
-	static bool Transaction_GetSuccess(const std::string SERVER_ID,
-									   const std::string USER_ID,
-									   const std::string ACCOUNT_ID,
-									   const std::string THE_TRANSACTION); 
+	static int Transaction_GetSuccess(const std::string SERVER_ID,
+                                      const std::string USER_ID,
+                                      const std::string ACCOUNT_ID,
+                                      const std::string THE_TRANSACTION); 
 	
-	static bool Transaction_GetBlnceAgrmntSuccess(const std::string SERVER_ID,
-												  const std::string USER_ID,
-												  const std::string ACCOUNT_ID,
-												  const std::string THE_TRANSACTION); 
+	static int Transaction_GetBlnceAgrmntSuccess(const std::string SERVER_ID,
+                                                 const std::string USER_ID,
+                                                 const std::string ACCOUNT_ID,
+                                                 const std::string THE_TRANSACTION); 
 	/// --------------------------------------------------
 	static const std::string Transaction_GetDateSigned(const std::string SERVER_ID,
 													   const std::string USER_ID,
@@ -608,6 +625,24 @@ public:
 																  const std::string USER_ID,
 																  const std::string ACCOUNT_ID,
 																  const std::string THE_TRANSACTION);
+    
+	// ---------------------------------------------------------
+    
+    static const std::string Instrument_GetAmount        (const std::string SERVER_ID, const std::string THE_INSTRUMENT);
+    static const std::string Instrument_GetTransNum      (const std::string SERVER_ID, const std::string THE_INSTRUMENT);
+    
+    static const std::string Instrument_GetValidFrom     (const std::string SERVER_ID, const std::string THE_INSTRUMENT);
+    static const std::string Instrument_GetValidTo       (const std::string SERVER_ID, const std::string THE_INSTRUMENT);
+    
+    static const std::string Instrument_GetMemo          (const std::string SERVER_ID, const std::string THE_INSTRUMENT);
+    
+    static const std::string Instrument_GetAssetID       (const std::string SERVER_ID, const std::string THE_INSTRUMENT);
+    
+    static const std::string Instrmnt_GetSenderUserID    (const std::string SERVER_ID, const std::string THE_INSTRUMENT);
+    static const std::string Instrmnt_GetSenderAcctID    (const std::string SERVER_ID, const std::string THE_INSTRUMENT);
+    static const std::string Instrmnt_GetRecipientUserID (const std::string SERVER_ID, const std::string THE_INSTRUMENT);
+    static const std::string Instrmnt_GetRecipientAcctID (const std::string SERVER_ID, const std::string THE_INSTRUMENT);
+
 	// ---------------------------------------------------------
 	static const std::string CreatePurse(const std::string SERVER_ID,
 										 const std::string ASSET_TYPE_ID,
@@ -647,7 +682,7 @@ public:
 								   const std::string USER_ID, // you pass in the purse you're trying to import
 								   const std::string THE_PURSE); // It should either have your User ID on it, or the key should be inside so you can import.
 	
-	static void exchangePurse(const std::string SERVER_ID,
+	static int exchangePurse(const std::string SERVER_ID,
 							  const std::string ASSET_TYPE_ID,
 							  const std::string USER_ID,
 							  const std::string THE_PURSE);
@@ -682,67 +717,67 @@ public:
 	static const std::string Token_GetServerID(const std::string THE_TOKEN);
 	// --------------------------------------------------------------------
 	
-	static void checkServerID(const std::string SERVER_ID, const std::string USER_ID);
+	static int checkServerID(const std::string SERVER_ID, const std::string USER_ID);
 	
-	static void createUserAccount(const std::string SERVER_ID,
+	static int createUserAccount(const std::string SERVER_ID,
 								  const std::string USER_ID);
 	
-	static void deleteUserAccount(const std::string SERVER_ID,
+	static int deleteUserAccount(const std::string SERVER_ID,
 								  const std::string USER_ID);
 	
-	static void deleteAssetAccount(const std::string SERVER_ID,
+	static int deleteAssetAccount(const std::string SERVER_ID,
 								   const std::string USER_ID,
 								   const std::string ACCOUNT_ID);
 	
 	// --------------------------------------------------------------------
-	static void checkUser(const std::string SERVER_ID,
+	static int checkUser(const std::string SERVER_ID,
 						  const std::string USER_ID,
 						  const std::string USER_ID_CHECK);
 	
 	// --------------------------------------------------------------------
-	static void usageCredits(const std::string SERVER_ID,
+	static int usageCredits(const std::string SERVER_ID,
 							 const std::string USER_ID,
 							 const std::string USER_ID_CHECK,
 							 const std::string ADJUSTMENT);
 	
 	// --------------------------------------------------------------------
-	static void sendUserMessage(const std::string SERVER_ID,
+	static int sendUserMessage(const std::string SERVER_ID,
 								const std::string USER_ID,
 								const std::string USER_ID_RECIPIENT,
 								const std::string RECIPIENT_PUBKEY,
 								const std::string THE_MESSAGE);
 	
 	// --------------------------------------------------------------------
-	static void sendUserInstrument(const std::string SERVER_ID,
+	static int sendUserInstrument(const std::string SERVER_ID,
 								   const std::string USER_ID,
 								   const std::string USER_ID_RECIPIENT,
 								   const std::string RECIPIENT_PUBKEY,
 								   const std::string THE_INSTRUMENT);
 	
 	// --------------------------------------------------------------------
-	static void getRequest(const std::string SERVER_ID,
+	static int getRequest(const std::string SERVER_ID,
 						   const std::string USER_ID);
 	
-	static void getTransactionNumber(const std::string SERVER_ID,
+	static int getTransactionNumber(const std::string SERVER_ID,
 									 const std::string USER_ID);
 	// --------------------------------------------------------------------
-	static void issueAssetType(const std::string	SERVER_ID,
+	static int issueAssetType(const std::string	SERVER_ID,
 							   const std::string	USER_ID,
 							   const std::string	THE_CONTRACT);
 	// --------------------------------------------------------------------
-	static void getContract(const std::string SERVER_ID,
+	static int getContract(const std::string SERVER_ID,
 							const std::string USER_ID,
 							const std::string ASSET_ID);
 	// --------------------------------------------------------------------------
-	static void getMint(const std::string SERVER_ID,
+	static int getMint(const std::string SERVER_ID,
 						const std::string USER_ID,
 						const std::string ASSET_ID);
 	// ---------------------------------------------------------------------------
-	static void createAssetAccount(const std::string SERVER_ID,
+	static int createAssetAccount(const std::string SERVER_ID,
 								   const std::string USER_ID,
 								   const std::string ASSET_ID);
 	// --------------------------------------------------------------------------
-	static void getAccount(const std::string SERVER_ID,
+	static int getAccount(const std::string SERVER_ID,
 						   const std::string USER_ID,
 						   const std::string ACCT_ID);
 	// --------------------------------------------------
@@ -755,7 +790,7 @@ public:
 												   const std::string ASSET_TYPE_ID, // Adding an asset type to the new basket.
 												   const std::string MINIMUM_TRANSFER); // If basket is 5=X,X,X then this is an X.
 	
-	static void issueBasket(const std::string SERVER_ID,
+	static int issueBasket(const std::string SERVER_ID,
 							const std::string USER_ID,
 							const std::string THE_BASKET);
 	
@@ -772,39 +807,39 @@ public:
 												   const std::string ASSET_TYPE_ID,
 												   const std::string ASSET_ACCT_ID);
 	// --------------------------------------------------------------------------
-	static void exchangeBasket(const std::string SERVER_ID,
+	static int exchangeBasket(const std::string SERVER_ID,
 							   const std::string USER_ID,
 							   const std::string BASKET_ASSET_ID,
 							   const std::string THE_BASKET,
 							   const bool BOOL_EXCHANGE_IN_OR_OUT); // exchanging in == true, out == false.
 	
-	static void notarizeWithdrawal(const std::string SERVER_ID,
+	static int notarizeWithdrawal(const std::string SERVER_ID,
 								   const std::string USER_ID,
 								   const std::string ACCT_ID,
 								   const std::string AMOUNT);
 	
-	static void notarizeDeposit(const std::string SERVER_ID,
+	static int notarizeDeposit(const std::string SERVER_ID,
 								const std::string USER_ID,
 								const std::string ACCT_ID,
 								const std::string THE_PURSE);
 	
-	static void notarizeTransfer(const std::string SERVER_ID,
+	static int notarizeTransfer(const std::string SERVER_ID,
 								 const std::string USER_ID,
 								 const std::string ACCT_FROM,
 								 const std::string ACCT_TO,
 								 const std::string AMOUNT,
 								 const std::string NOTE);
 	
-	static void getInbox(const std::string SERVER_ID,
+	static int getInbox(const std::string SERVER_ID,
 						 const std::string USER_ID,
 						 const std::string ACCT_ID);
 	
-	static void getOutbox(const std::string SERVER_ID,
+	static int getOutbox(const std::string SERVER_ID,
 						  const std::string USER_ID,
 						  const std::string ACCT_ID);
 	
 	
-	static void getNymbox(const std::string SERVER_ID,
+	static int getNymbox(const std::string SERVER_ID,
 						  const std::string USER_ID);
 	
 	static const std::string LoadNymbox(const std::string SERVER_ID,
@@ -813,7 +848,12 @@ public:
 	static const std::string LoadNymboxNoVerify(const std::string SERVER_ID,
 												const std::string USER_ID); // Returns NULL, or a Nymbox. (Without loading the box receipts.)
 	
-	static void getBoxReceipt(const std::string	SERVER_ID,
+    
+    static const std::string Nymbox_GetReplyNotice(const std::string SERVER_ID,
+                                                   const std::string USER_ID,
+                                                   const std::string REQUEST_NUMBER); // returns replyNotice transaction by requestNumber.
+
+	static int getBoxReceipt(const std::string	SERVER_ID,
 							  const std::string	USER_ID,
 							  const std::string	ACCT_ID,	// If for Nymbox (vs inbox/outbox) then pass USER_ID in this field also.
 							  const int			nBoxType,	// 0/nymbox, 1/inbox, 2/outbox
@@ -825,7 +865,7 @@ public:
 									const int			nBoxType,	// 0/nymbox, 1/inbox, 2/outbox
 									const std::string	TRANSACTION_NUMBER);
 	// --------------------------------------------------------------------------
-	static void processInbox(const std::string SERVER_ID,
+	static int processInbox(const std::string SERVER_ID,
 							 const std::string USER_ID,
 							 const std::string ACCT_ID,
 							 const std::string ACCT_LEDGER);
@@ -834,23 +874,23 @@ public:
 							 const std::string USER_ID);
 	
 	// --------------------------------------------------------------------------
-	static void withdrawVoucher(const std::string SERVER_ID,
+	static int withdrawVoucher(const std::string SERVER_ID,
 								const std::string USER_ID,
 								const std::string ACCT_ID,
 								const std::string RECIPIENT_USER_ID,
 								const std::string CHEQUE_MEMO,
 								const std::string AMOUNT);
 	// --------------------------------------------------------------------------
-	static void depositCheque(const std::string SERVER_ID,
+	static int depositCheque(const std::string SERVER_ID,
 							  const std::string USER_ID,
 							  const std::string ACCT_ID,
 							  const std::string THE_CHEQUE);
 	// --------------------------------------------------
-	static void depositPaymentPlan(const std::string SERVER_ID,
+	static int depositPaymentPlan(const std::string SERVER_ID,
 								   const std::string USER_ID,
 								   const std::string THE_PAYMENT_PLAN);
 	// --------------------------------------------------
-	static void issueMarketOffer(const std::string SERVER_ID,
+	static int issueMarketOffer(const std::string SERVER_ID,
 								 const std::string USER_ID,
 								 // -------------------------------------------
 								 const std::string ASSET_ACCT_ID, // Perhaps this is the wheat market.
@@ -864,30 +904,53 @@ public:
 								 bool	bBuyingOrSelling); // Actually OT_BOOL. SELLING == OT_TRUE, BUYING == OT_FALSE.
 	// --------------------------------------------------
 	
-	static void getMarketList(const std::string SERVER_ID, const std::string USER_ID);
+	static int getMarketList(const std::string SERVER_ID, const std::string USER_ID);
 	
-	static void getMarketOffers(const std::string SERVER_ID, const std::string USER_ID, 
-								const std::string MARKET_ID, const std::string MAX_DEPTH); // Market Depth
+	static int getMarketOffers(const std::string SERVER_ID, const std::string USER_ID, 
+                               const std::string MARKET_ID, const std::string MAX_DEPTH); // Market Depth
 	
-	static void getMarketRecentTrades(const std::string SERVER_ID, const std::string USER_ID, 
-									  const std::string MARKET_ID);
+	static int getMarketRecentTrades(const std::string SERVER_ID, const std::string USER_ID, 
+                                     const std::string MARKET_ID);
 	
-	static void getNym_MarketOffers(const std::string SERVER_ID, const std::string USER_ID); // Offers this Nym has out on market.
+	static int getNym_MarketOffers(const std::string SERVER_ID, const std::string USER_ID); // Offers this Nym has out on market.
 	
-	static void cancelMarketOffer(const std::string SERVER_ID, 
-								  const std::string USER_ID, 
-								  const std::string ASSET_ACCT_ID, 
-								  const std::string TRANSACTION_NUMBER);
+	static int cancelMarketOffer(const std::string SERVER_ID, 
+                                 const std::string USER_ID, 
+                                 const std::string ASSET_ACCT_ID, 
+                                 const std::string TRANSACTION_NUMBER);
 	
-	static void cancelPaymentPlan(const std::string SERVER_ID, 
-								  const std::string USER_ID, 
-								  const std::string FROM_ACCT_ID, 
-								  const std::string TRANSACTION_NUMBER);
+	static int cancelPaymentPlan(const std::string SERVER_ID, 
+                                 const std::string USER_ID, 
+                                 const std::string FROM_ACCT_ID, 
+                                 const std::string TRANSACTION_NUMBER);
 	// -----------------------------------------------------------
-	static const std::string PopMessageBuffer();
+    
+    // Incoming:
+    
+	static  const
+            std::string PopMessageBuffer(const std::string REQUEST_NUMBER,
+                                         const std::string SERVER_ID, 
+                                         const std::string USER_ID);
+	static  void        FlushMessageBuffer();
 	
-	static void FlushMessageBuffer();
-	
+    // -----------------------------------------------------------
+
+    // Outgoing:
+    
+    static  const
+            std::string GetSentMessage(const std::string REQUEST_NUMBER,
+                                       const std::string SERVER_ID, 
+                                       const std::string USER_ID);
+    static  bool        RemoveSentMessage(const std::string REQUEST_NUMBER,
+                                          const std::string SERVER_ID, 
+                                          const std::string USER_ID);
+    static  void        FlushSentMessages(const bool        bHarvestingForRetry,
+                                          const std::string SERVER_ID, 
+                                          const std::string USER_ID,
+                                          const std::string THE_NYMBOX);
+
+	// -----------------------------------------------------------
+    
 	static void Sleep(const std::string MILLISECONDS);
 
 	// -----------------------------------------------------------
@@ -898,7 +961,7 @@ public:
 
 	// -----------------------------------------------------------
 	
-	static void queryAssetTypes(const std::string SERVER_ID,
+	static int queryAssetTypes(const std::string SERVER_ID,
 								const std::string USER_ID,
 								const std::string ENCODED_MAP);
 	
@@ -906,18 +969,18 @@ public:
 	
 	static const std::string Message_GetPayload(const std::string THE_MESSAGE);
 	
-	static bool Message_GetSuccess(const std::string THE_MESSAGE);
+	static int Message_GetSuccess(const std::string THE_MESSAGE);
 	
 	static int Message_GetDepth(const std::string THE_MESSAGE);
 	
 	static const std::string Message_GetUsageCredits(const std::string THE_MESSAGE);
 	
-	static bool Msg_GetTransactionSuccess(const std::string SERVER_ID,
+	static int Msg_GetTransactionSuccess(const std::string SERVER_ID,
 										  const std::string USER_ID,
 										  const std::string ACCOUNT_ID,
 										  const std::string THE_MESSAGE);
-	
-	static bool Msg_GetBlnceAgrmntSuccess(const std::string SERVER_ID,
+	// -1, 0, 1
+	static int Msg_GetBlnceAgrmntSuccess(const std::string SERVER_ID,
 										  const std::string USER_ID,
 										  const std::string ACCOUNT_ID,
 										  const std::string THE_MESSAGE);
@@ -929,7 +992,9 @@ public:
 	static const std::string Message_GetNewIssuerAcctID(const std::string THE_MESSAGE);
 	
 	static const std::string Message_GetNewAcctID(const std::string THE_MESSAGE);
-	
+
+    static const std::string Message_GetNymboxHash(const std::string THE_MESSAGE);
+
 	// -----------------------------------------------------------
 	
 public:

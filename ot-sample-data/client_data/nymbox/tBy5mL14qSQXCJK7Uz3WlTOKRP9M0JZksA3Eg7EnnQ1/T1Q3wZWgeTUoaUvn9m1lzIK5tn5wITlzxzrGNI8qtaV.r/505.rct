@@ -2,7 +2,7 @@
 Hash: SAMY
 
 <transaction type="blank"
- dateSigned="1330080220"
+ dateSigned="1333347118"
  accountID="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV"
  userID="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV"
  serverID="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1"
@@ -15,9 +15,9 @@ Hash: SAMY
 Version: Open Transactions 0.78
 Comment: http://github.com/FellowTraveler/Open-Transactions/wiki
 
-CoABdzFsJgcNvDc2OH7xR23hoMrdRAAFxCbz21M9DWXde7syf6MYJKWzISvEYWSG
-0irkNQNFwhnGRIRYixLdzmjXSxXzjy4S2axOWn/q8v1zr5iPmsbiPuCTtgn3fqV3
-OLOkU8mMl0IXMXckGgqF89rKdJX03HlT3nLdyGs93LJ28pY=
+CoABH+QNJZn3pGLZ2QVkKSRWggdcfUZu/jB0AcG+9HcjGL/0HNXeHYThkpBfJ15g
+02wgmjqre9UrPJJW4LaVqYHWP1VQDLDlOJD/kZNPqWmS8dh+fsq8t9UWYne/RpSs
+mLLUxUlWz45JLdrnr/ccpVgw7s8jDYmioh+DQqLyC76D61E=
 -----END TRANSACTION SIGNATURE-----
 
 MARKED_FOR_DELETION

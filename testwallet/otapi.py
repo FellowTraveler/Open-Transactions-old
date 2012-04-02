@@ -76,6 +76,10 @@ except:
 
 OTPASSWORD_BLOCKSIZE = _otapi.OTPASSWORD_BLOCKSIZE
 OTPASSWORD_MEMSIZE = _otapi.OTPASSWORD_MEMSIZE
+OT_LARGE_BLOCKSIZE = _otapi.OT_LARGE_BLOCKSIZE
+OT_LARGE_MEMSIZE = _otapi.OT_LARGE_MEMSIZE
+OT_DEFAULT_BLOCKSIZE = _otapi.OT_DEFAULT_BLOCKSIZE
+OT_DEFAULT_MEMSIZE = _otapi.OT_DEFAULT_MEMSIZE
 class OTPassword(_object):
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, OTPassword, name, value)
@@ -83,6 +87,7 @@ class OTPassword(_object):
     __getattr__ = lambda self, name: _swig_getattr(self, OTPassword, name)
     __repr__ = _swig_repr
     DEFAULT_SIZE = _otapi.OTPassword_DEFAULT_SIZE
+    LARGER_SIZE = _otapi.OTPassword_LARGER_SIZE
     __swig_getmethods__["blockSize"] = _otapi.OTPassword_blockSize_get
     if _newclass:blockSize = _swig_property(_otapi.OTPassword_blockSize_get)
     def getPassword(self): return _otapi.OTPassword_getPassword(self)
@@ -229,8 +234,8 @@ def OT_API_PopMemlogBack():
   return _otapi.OT_API_PopMemlogBack()
 OT_API_PopMemlogBack = _otapi.OT_API_PopMemlogBack
 
-def OT_API_CreateNym():
-  return _otapi.OT_API_CreateNym()
+def OT_API_CreateNym(*args):
+  return _otapi.OT_API_CreateNym(*args)
 OT_API_CreateNym = _otapi.OT_API_CreateNym
 
 def OT_API_AddServerContract(*args):
@@ -301,6 +306,14 @@ def OT_API_GetAccountWallet_NymID(*args):
   return _otapi.OT_API_GetAccountWallet_NymID(*args)
 OT_API_GetAccountWallet_NymID = _otapi.OT_API_GetAccountWallet_NymID
 
+def OT_API_GetAccountWallet_InboxHash(*args):
+  return _otapi.OT_API_GetAccountWallet_InboxHash(*args)
+OT_API_GetAccountWallet_InboxHash = _otapi.OT_API_GetAccountWallet_InboxHash
+
+def OT_API_GetAccountWallet_OutboxHash(*args):
+  return _otapi.OT_API_GetAccountWallet_OutboxHash(*args)
+OT_API_GetAccountWallet_OutboxHash = _otapi.OT_API_GetAccountWallet_OutboxHash
+
 def OT_API_VerifyAccountReceipt(*args):
   return _otapi.OT_API_VerifyAccountReceipt(*args)
 OT_API_VerifyAccountReceipt = _otapi.OT_API_VerifyAccountReceipt
@@ -320,6 +333,22 @@ OT_API_GetNym_Name = _otapi.OT_API_GetNym_Name
 def OT_API_GetNym_Stats(*args):
   return _otapi.OT_API_GetNym_Stats(*args)
 OT_API_GetNym_Stats = _otapi.OT_API_GetNym_Stats
+
+def OT_API_GetNym_NymboxHash(*args):
+  return _otapi.OT_API_GetNym_NymboxHash(*args)
+OT_API_GetNym_NymboxHash = _otapi.OT_API_GetNym_NymboxHash
+
+def OT_API_GetNym_RecentHash(*args):
+  return _otapi.OT_API_GetNym_RecentHash(*args)
+OT_API_GetNym_RecentHash = _otapi.OT_API_GetNym_RecentHash
+
+def OT_API_GetNym_InboxHash(*args):
+  return _otapi.OT_API_GetNym_InboxHash(*args)
+OT_API_GetNym_InboxHash = _otapi.OT_API_GetNym_InboxHash
+
+def OT_API_GetNym_OutboxHash(*args):
+  return _otapi.OT_API_GetNym_OutboxHash(*args)
+OT_API_GetNym_OutboxHash = _otapi.OT_API_GetNym_OutboxHash
 
 def OT_API_IsNym_RegisteredAtServer(*args):
   return _otapi.OT_API_IsNym_RegisteredAtServer(*args)
@@ -513,13 +542,9 @@ def OT_API_triggerClause(*args):
   return _otapi.OT_API_triggerClause(*args)
 OT_API_triggerClause = _otapi.OT_API_triggerClause
 
-def OT_API_HarvestClosingNumbers(*args):
-  return _otapi.OT_API_HarvestClosingNumbers(*args)
-OT_API_HarvestClosingNumbers = _otapi.OT_API_HarvestClosingNumbers
-
-def OT_API_HarvestAllNumbers(*args):
-  return _otapi.OT_API_HarvestAllNumbers(*args)
-OT_API_HarvestAllNumbers = _otapi.OT_API_HarvestAllNumbers
+def OT_API_Msg_HarvestTransactionNumbers(*args):
+  return _otapi.OT_API_Msg_HarvestTransactionNumbers(*args)
+OT_API_Msg_HarvestTransactionNumbers = _otapi.OT_API_Msg_HarvestTransactionNumbers
 
 def OT_API_LoadUserPubkey(*args):
   return _otapi.OT_API_LoadUserPubkey(*args)
@@ -761,6 +786,46 @@ def OT_API_Token_GetServerID(*args):
   return _otapi.OT_API_Token_GetServerID(*args)
 OT_API_Token_GetServerID = _otapi.OT_API_Token_GetServerID
 
+def OT_API_Instrument_GetAmount(*args):
+  return _otapi.OT_API_Instrument_GetAmount(*args)
+OT_API_Instrument_GetAmount = _otapi.OT_API_Instrument_GetAmount
+
+def OT_API_Instrument_GetTransNum(*args):
+  return _otapi.OT_API_Instrument_GetTransNum(*args)
+OT_API_Instrument_GetTransNum = _otapi.OT_API_Instrument_GetTransNum
+
+def OT_API_Instrument_GetValidFrom(*args):
+  return _otapi.OT_API_Instrument_GetValidFrom(*args)
+OT_API_Instrument_GetValidFrom = _otapi.OT_API_Instrument_GetValidFrom
+
+def OT_API_Instrument_GetValidTo(*args):
+  return _otapi.OT_API_Instrument_GetValidTo(*args)
+OT_API_Instrument_GetValidTo = _otapi.OT_API_Instrument_GetValidTo
+
+def OT_API_Instrument_GetMemo(*args):
+  return _otapi.OT_API_Instrument_GetMemo(*args)
+OT_API_Instrument_GetMemo = _otapi.OT_API_Instrument_GetMemo
+
+def OT_API_Instrument_GetAssetID(*args):
+  return _otapi.OT_API_Instrument_GetAssetID(*args)
+OT_API_Instrument_GetAssetID = _otapi.OT_API_Instrument_GetAssetID
+
+def OT_API_Instrmnt_GetSenderUserID(*args):
+  return _otapi.OT_API_Instrmnt_GetSenderUserID(*args)
+OT_API_Instrmnt_GetSenderUserID = _otapi.OT_API_Instrmnt_GetSenderUserID
+
+def OT_API_Instrmnt_GetSenderAcctID(*args):
+  return _otapi.OT_API_Instrmnt_GetSenderAcctID(*args)
+OT_API_Instrmnt_GetSenderAcctID = _otapi.OT_API_Instrmnt_GetSenderAcctID
+
+def OT_API_Instrmnt_GetRecipientUserID(*args):
+  return _otapi.OT_API_Instrmnt_GetRecipientUserID(*args)
+OT_API_Instrmnt_GetRecipientUserID = _otapi.OT_API_Instrmnt_GetRecipientUserID
+
+def OT_API_Instrmnt_GetRecipientAcctID(*args):
+  return _otapi.OT_API_Instrmnt_GetRecipientAcctID(*args)
+OT_API_Instrmnt_GetRecipientAcctID = _otapi.OT_API_Instrmnt_GetRecipientAcctID
+
 def OT_API_checkServerID(*args):
   return _otapi.OT_API_checkServerID(*args)
 OT_API_checkServerID = _otapi.OT_API_checkServerID
@@ -881,6 +946,10 @@ def OT_API_LoadNymboxNoVerify(*args):
   return _otapi.OT_API_LoadNymboxNoVerify(*args)
 OT_API_LoadNymboxNoVerify = _otapi.OT_API_LoadNymboxNoVerify
 
+def OT_API_Nymbox_GetReplyNotice(*args):
+  return _otapi.OT_API_Nymbox_GetReplyNotice(*args)
+OT_API_Nymbox_GetReplyNotice = _otapi.OT_API_Nymbox_GetReplyNotice
+
 def OT_API_getBoxReceipt(*args):
   return _otapi.OT_API_getBoxReceipt(*args)
 OT_API_getBoxReceipt = _otapi.OT_API_getBoxReceipt
@@ -937,13 +1006,25 @@ def OT_API_cancelPaymentPlan(*args):
   return _otapi.OT_API_cancelPaymentPlan(*args)
 OT_API_cancelPaymentPlan = _otapi.OT_API_cancelPaymentPlan
 
-def OT_API_PopMessageBuffer():
-  return _otapi.OT_API_PopMessageBuffer()
+def OT_API_PopMessageBuffer(*args):
+  return _otapi.OT_API_PopMessageBuffer(*args)
 OT_API_PopMessageBuffer = _otapi.OT_API_PopMessageBuffer
 
 def OT_API_FlushMessageBuffer():
   return _otapi.OT_API_FlushMessageBuffer()
 OT_API_FlushMessageBuffer = _otapi.OT_API_FlushMessageBuffer
+
+def OT_API_GetSentMessage(*args):
+  return _otapi.OT_API_GetSentMessage(*args)
+OT_API_GetSentMessage = _otapi.OT_API_GetSentMessage
+
+def OT_API_RemoveSentMessage(*args):
+  return _otapi.OT_API_RemoveSentMessage(*args)
+OT_API_RemoveSentMessage = _otapi.OT_API_RemoveSentMessage
+
+def OT_API_FlushSentMessages(*args):
+  return _otapi.OT_API_FlushSentMessages(*args)
+OT_API_FlushSentMessages = _otapi.OT_API_FlushSentMessages
 
 def OT_API_Sleep(*args):
   return _otapi.OT_API_Sleep(*args)
@@ -996,6 +1077,10 @@ OT_API_Message_GetNewIssuerAcctID = _otapi.OT_API_Message_GetNewIssuerAcctID
 def OT_API_Message_GetNewAcctID(*args):
   return _otapi.OT_API_Message_GetNewAcctID(*args)
 OT_API_Message_GetNewAcctID = _otapi.OT_API_Message_GetNewAcctID
+
+def OT_API_Message_GetNymboxHash(*args):
+  return _otapi.OT_API_Message_GetNymboxHash(*args)
+OT_API_Message_GetNymboxHash = _otapi.OT_API_Message_GetNymboxHash
 
 def OT_API_ConnectServer(*args):
   return _otapi.OT_API_ConnectServer(*args)

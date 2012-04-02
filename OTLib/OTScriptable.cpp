@@ -490,6 +490,20 @@ bool OTScriptable::AllPartiesHaveSupposedlyConfirmed()
 
 
 
+void OTScriptable::ClearTemporaryPointers()
+{
+	FOR_EACH(mapOfParties, m_mapParties)
+	{
+		OTParty * pParty = (*it).second;
+		OT_ASSERT(NULL != pParty);
+		// -----------------------
+		pParty->ClearTemporaryPointers();
+	}
+}
+
+
+
+
 bool OTScriptable::ExecuteCallback (OTClause & theCallbackClause, mapOfVariables & theParameters, OTVariable & varReturnVal)
 {
 	const std::string str_clause_name	= theCallbackClause.GetName().Exists() ? 
@@ -601,7 +615,8 @@ bool OTScriptable::SendNoticeToAllParties(OTPseudonym & theServerNym,
 //										  const long & lInReferenceTo,	// Each party has its own opening trans #.
 										  const OTString & strReference,
 										  OTString * pstrNote/*=NULL*/,
-										  OTString * pstrAttachment/*=NULL*/)
+										  OTString * pstrAttachment/*=NULL*/,
+                                          OTPseudonym * pActualNym/*=NULL*/)
 {
 	bool bSuccess = true;  // Success is defined as ALL parties receiving a notice
 	
@@ -613,7 +628,7 @@ bool OTScriptable::SendNoticeToAllParties(OTPseudonym & theServerNym,
 		
 		if (false == pParty->SendNoticeToParty(theServerNym, theServerID, lNewTransactionNumber, 
 //											   lInReferenceTo, // each party has its own opening trans #.
-											   strReference, pstrNote, pstrAttachment))
+											   strReference, pstrNote, pstrAttachment, pActualNym))
 			bSuccess = false; // Notice I don't break here -- I still allow it to notice ALL parties, even if one fails.
 	}
 
@@ -643,7 +658,8 @@ bool OTScriptable::DropServerNoticeToNymbox(OTPseudonym & theServerNym,
 											const long & lInReferenceTo,
 											const OTString & strReference,
 											OTString * pstrNote/*=NULL*/,
-											OTString * pstrAttachment/*=NULL*/)
+											OTString * pstrAttachment/*=NULL*/,
+                                            OTPseudonym * pActualNym/*=NULL*/)
 {
     OTLedger theLedger(USER_ID, USER_ID, SERVER_ID);
     
@@ -686,7 +702,7 @@ bool OTScriptable::DropServerNoticeToNymbox(OTPseudonym & theServerNym,
         // This may be unnecessary, I'll have to check CreateItemFromTransaction. I'll leave it for now.
         OT_ASSERT(NULL != pItem1);
         
-        pItem1->SetStatus(OTItem::acknowledgement);
+        pItem1->SetStatus(OTItem::acknowledgement);  // TODO: add an option to drop REJECTION notices too (so client can clawback transaction #s...)
         
         // -------------------------------------------------------------
         //
@@ -743,18 +759,77 @@ bool OTScriptable::DropServerNoticeToNymbox(OTPseudonym & theServerNym,
         
         // TODO: Better rollback capabilities in case of failures here:
         
-        // Save both inboxes to storage. (File, DB, wherever it goes.)
-        theLedger.	SaveNymbox();
+        // --------------------
+        OTIdentifier theNymboxHash;
+        
+        // Save nymbox to storage. (File, DB, wherever it goes.)
+        theLedger.	SaveNymbox(&theNymboxHash);
         
 		// Corresponds to the AddTransaction() call just above. These
 		// are stored in a separate file now.
 		//
 		pTransaction->SaveBoxReceipt(theLedger);
 		
+        // --------------------------------------------------------
+        // Update the NymboxHash (in the nymfile.)
+        //
+        
+        const
+        OTIdentifier    ACTUAL_NYM_ID = USER_ID;
+        OTPseudonym     theActualNym; // unused unless it's really not already loaded. (use pActualNym.)
+        
+        // We couldn't find the Nym among those already loaded--so we have to load
+        // it ourselves (so we can update its NymboxHash value.)
+        
+        if (NULL == pActualNym)
+        {
+            if ( theServerNym.CompareID(ACTUAL_NYM_ID) )
+                pActualNym = &theServerNym;
+            // --------------------------
+            else    
+            {       
+                theActualNym.SetIdentifier(ACTUAL_NYM_ID);
+                
+                if (false == theActualNym.LoadPublicKey()) // Note: this step may be unnecessary since we are only updating his Nymfile, not his key.
+                {
+                    OTString strNymID(ACTUAL_NYM_ID);
+                    OTLog::vError("OTScriptable::DropServerNoticeToNymbox: Failure loading public key for Nym: %s. "
+                                  "(To update his NymboxHash.) \n", strNymID.Get());
+                }
+                else if (theActualNym.VerifyPseudonym()	&& // this line may be unnecessary.
+                         theActualNym.LoadSignedNymfile(theServerNym)) // ServerNym here is not theActualNym's identity, but merely the signer on this file.
+                {
+                    OTLog::Output(0, "OTScriptable::DropServerNoticeToNymbox: Loading actual Nym, since he wasn't already loaded. "
+                                  "(To update his NymboxHash.)\n");
+                    pActualNym = &theActualNym; //  <=====
+                }
+                else
+                {
+                    OTString strNymID(ACTUAL_NYM_ID);
+                    OTLog::vError("OTScriptable::DropServerNoticeToNymbox: Failure loading or verifying Actual Nym public key: %s. "
+                                  "(To update his NymboxHash.)\n", strNymID.Get());
+                }
+            }
+        }
+        // -------------
+        
+        // By this point we've made every possible effort to get the proper Nym loaded,
+        // so that we can update his NymboxHash appropriately.
+        //
+        if (NULL != pActualNym)
+        {
+            pActualNym->SetNymboxHashServerSide( theNymboxHash );
+            pActualNym->SaveSignedNymfile(theServerNym);
+        }
+        
+        // -------------
+        // Really this true should be predicated on ALL the above functions returning true.
+        // Right?
+        // 
         return true;    // Really this true should be predicated on ALL the above functions returning true. Right?
     }
     else
-        OTLog::Error("Failed trying to create Nymbox in OTScriptable::DropServerNoticeToNymbox()\n");
+        OTLog::Error("OTScriptable::DropServerNoticeToNymbox: Failed trying to create Nymbox.\n");
 	
     return false; // unreachable.
 }
@@ -1078,12 +1153,16 @@ bool OTScriptable::VerifyPartyAuthorization(OTParty			& theParty,		// The party 
 											OTPseudonym		& theSignerNym,	// For verifying signature on the authorizing Nym, when loading it
 											const OTString	& strServerID, // For verifying issued num, need the serverID the # goes with.
 											mapOfNyms		* pmap_ALREADY_LOADED/*=NULL*/, // If some nyms are already loaded, pass them here so we don't load them twice on accident.
+											mapOfNyms		* pmap_NEWLY_LOADED/*=NULL*/,   // If some nyms had to be loaded, then they will be deleted, too. UNLESS you pass a map here, in which case they will instead be added to this map. (But if you do that, then you must delete them yourself after calling this function.)
 											const bool		  bBurnTransNo/*=false*/) // In OTServer::VerifySmartContract(), it not only wants to verify the # is properly issued, but it additionally wants to see that it hasn't been USED yet -- AND it wants to burn it, so it can't be used again!  This bool allows you to tell the function whether or not to do that.
 {
 	// This function DOES assume that theParty was initially FOUND on OTScriptable.
 	// Meaning I don't have to verify that much if I got this far.
 	// --------------------------------------------------
 	
+    const bool bNeedToCleanup = (NULL == pmap_NEWLY_LOADED) ? true : false;
+    
+	// --------------------------------------------------	
 	// This party hasn't signed the contract??
 	//
 	if (false == theParty.GetMySignedCopy().Exists())
@@ -1153,7 +1232,21 @@ bool OTScriptable::VerifyPartyAuthorization(OTParty			& theParty,		// The party 
 						   "the authorizing agent's Nym for a party (%s), "
 						   "so I guess it wasn't already available on the list of "
 						   "Nyms that were already loaded.\n", theParty.GetPartyName().c_str());
-			theAgentNymAngel.SetCleanupTarget(*pAuthAgentsNym);  // CLEANUP!!
+            // ----------------------------------------------------
+            // Either I'm DEFINITELY cleaning it up myself, OR I'm adding it to a list
+            // where the CALLER can clean it up.
+            //
+            if (bNeedToCleanup)
+                theAgentNymAngel.SetCleanupTarget(*pAuthAgentsNym);  // CLEANUP!!
+            else
+            {
+                const
+                std::string str_agent_name = pAuthorizingAgent->GetName().Get();
+                
+                mapOfNyms & map_Nyms_Newly_Loaded = (*pmap_NEWLY_LOADED);
+                map_Nyms_Newly_Loaded.insert(map_Nyms_Newly_Loaded.begin(), 
+                                             std::pair<std::string, OTPseudonym *>(str_agent_name, pAuthAgentsNym)); // (Caller must clean these up.)
+            }
 		}
 		else 
 		{
@@ -1184,7 +1277,7 @@ bool OTScriptable::VerifyPartyAuthorization(OTParty			& theParty,		// The party 
 			OTLog::vError("OTScriptable::VerifyPartyAuthorization: Opening trans number %ld doesn't "
 						  "verify for the nym listed as the authorizing agent for party %s.\n", lOpeningNo, 
 						  theParty.GetPartyName().c_str());
-			if (bHadToLoadItMyself)
+			if (bHadToLoadItMyself && bNeedToCleanup)
 				pAuthorizingAgent->ClearTemporaryPointers(); // We loaded the Nym ourselves, which goes out of scope after this function. 				
 			return false;			
 		}
@@ -1198,7 +1291,7 @@ bool OTScriptable::VerifyPartyAuthorization(OTParty			& theParty,		// The party 
 				OTLog::vError("OTScriptable::VerifyPartyAuthorization: Opening trans number %ld doesn't "
 							  "verify as available for use, for the nym listed as the authorizing agent for party: %s.\n", lOpeningNo, 
 							  theParty.GetPartyName().c_str());
-				if (bHadToLoadItMyself)
+				if (bHadToLoadItMyself && bNeedToCleanup)
 					pAuthorizingAgent->ClearTemporaryPointers(); // We loaded the Nym ourselves, which goes out of scope after this function. 				
 				return false;			
 			}
@@ -1214,7 +1307,7 @@ bool OTScriptable::VerifyPartyAuthorization(OTParty			& theParty,		// The party 
 	{						// num. But the number was 0! Therefore, FAILURE!
 		OTLog::vOutput(0, "OTScriptable::VerifyPartyAuthorization: FAILURE. On Party %s, expected to burn a legitimate opening transaction "
 					   "number, but got this instead: %ld\n", theParty.GetPartyName().c_str(), lOpeningNo);
-		if (bHadToLoadItMyself)
+		if (bHadToLoadItMyself && bNeedToCleanup)
 			pAuthorizingAgent->ClearTemporaryPointers(); // We loaded the Nym ourselves, which goes out of scope after this function. 				
 		return false;
 	}
@@ -1239,7 +1332,7 @@ bool OTScriptable::VerifyPartyAuthorization(OTParty			& theParty,		// The party 
 	if (NULL == pPartySignedCopy)
 	{
 		OTLog::Error("OTScriptable::VerifyPartyAuthorization: Error loading party's signed copy of agreement. Has it been executed?\n");
-		if (bHadToLoadItMyself)
+		if (bHadToLoadItMyself && bNeedToCleanup)
 			pAuthorizingAgent->ClearTemporaryPointers(); 
 		return false;
 	}
@@ -1272,7 +1365,7 @@ bool OTScriptable::VerifyPartyAuthorization(OTParty			& theParty,		// The party 
 	
 	// ----------------------------------------------
 	
-	if (bHadToLoadItMyself)
+	if (bHadToLoadItMyself && bNeedToCleanup)
 		pAuthorizingAgent->ClearTemporaryPointers(); // We loaded the Nym ourselves, which goes out of scope after this function. 
 	//The party is done with it now, and we don't want it to keep pointing to something that is now going out of scope.
 	

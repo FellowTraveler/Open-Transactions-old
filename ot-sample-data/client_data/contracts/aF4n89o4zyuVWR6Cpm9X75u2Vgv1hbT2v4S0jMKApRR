@@ -1,0 +1,42 @@
+-----BEGIN SIGNED CONTRACT-----
+Hash: SAMY
+
+<?xml version="1.0"?>
+
+<basketContract version="1.0">
+
+<basketInfo>
+eJyFkc2OokAUhVez4SmI2043ooBoxk4KQfkRaKG0oXdYFlIoFAKC+ua9G7VnEjuT
+ydxl3fpOzj2H+fzxfBtFmxkO6xszR1PZietAD0zgfcPoUZWMWB/YIcP8RMeyxDk6
+K1G1wzWLaF6XEaon9JjX406vw7AZyUl2zGAZ5VWMy3GH73bY1yu6viNGjbO//4hX
+MELopmKo4448iPSDCQSv0VW0kU7+9CA7W0dJFx6MzdLeyv2LbugLXHk3sKrwHZs0
++qyOXde6LKy5mEznA1MgU/EM6GZlJT5fnt4utiZ6wwB0WO5/nnrfPVHeat71QlKT
+1OG7IgzW5iJA4W5a+Lu+FgaVFMix+l5vVsWjp7rWZw0xh4mHSKo171CIh1ZxWKGP
+AeouD0HoVPvG1yJpa/72xH3P+JV5KOhPM/emAFx62ldHK1xWhOYj1i1wzt5vuLZy
+fanY7stAZiY0y3Bej9ikrosRx21JnRzXL4hm3BTv97S9Ig3e45K7CTw/CnAt2RHm
+qgCUs2C1wJ2tgVy1S6+Xb4PUNwBuU7fvc0NlGgkzXaIQX5yC1wIKNXLKYdMFp+a8
+YpZrPOjnF9fqGyoZiNo6dEBvL4X8G2mfLBDKrr3jBWK1fRPCwzKa25LS6nGelcri
+4MdH5oMiWG3Akyq0ZuBuozStoHlO4mHpXnSHBnZGXFEl3RN1wkKzx1+5aY76r9R+
+AV4w9LU=
+</basketInfo>
+
+<key name="contract">
+- -----BEGIN PUBLIC KEY-----
+CpACLS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZk1BMEdDU3FHU0liM0RR
+RUJBUVVBQTRHTkFEQ0JpUUtCZ1FEZ0E2TDkwNzRNN2dzYVVtTE5aVy9aeXFBeApT
+QWJyYnhDU2hYMC94S1Q4SzFiakQ5cjJkR29jdEFhRlFPTGgvaFVNSXkyQ1JBVXlB
+enZpTWJrWE9BY1orTnAxCkNncXdTRUtZclRaUURITCtqNXphd2xjZ0oreGtPZlc0
+bng1RmV6YzFxU3g5TVJhUzhHdXhvbmdndUpNOWhyb1MKdzdHZzZua3RpdlZwVnJh
+WTh3SURBUUFCCi0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQo=
+- -----END PUBLIC KEY-----
+</key>
+
+</basketContract>
+-----BEGIN CONTRACT SIGNATURE-----
+Version: Open Transactions 0.78
+Comment: http://github.com/FellowTraveler/Open-Transactions/wiki
+
+CoABRsGcicJeBtUYPN5dOgBdadihuzhCp6tbt9NYE1hsaTLvR6ykO5qz8+i3oVZ2
+HXo6G4RTdZ7gla36mLrg/s6gqNcarGwM/b7eSJwenWvchtNjoSbvf+HpF/bmyFvt
+63d6zIKsm6EYxeaxE/EGnjcOU+f9HfIKKHRcBlYqOzNalNg=
+-----END CONTRACT SIGNATURE-----

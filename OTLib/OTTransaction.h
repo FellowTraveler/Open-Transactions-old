@@ -501,6 +501,19 @@ protected:
     OTASCIIArmor    m_ascCancellationRequest;	// used by finalReceipt
     
 	// ----------------------------------------------------------------
+	// ONLY the "replyNotice" transaction uses this field.
+    // When replyNotices are dropped into your Nymbox (server notices
+    // of replies to messages you sent in the past) I wanted to put that
+    // they were "in reference to" a specific request number. But I don't
+    // want to muddy the "in reference to" code now which currently only
+    // references transaction numbers, not request numbers. Therefore I
+    // have added a special variable here for request numbers, so that 
+    // replyNotices in the Nymbox can directly finger the messages they
+    // came from.
+    //
+    long    m_lRequestNumber;     // Unused except by "replyNotice" in Nymbox.
+    bool    m_bReplyTransSuccess; // Used only by replyNotice
+	// ----------------------------------------------------------------
 	
 	// Compares m_AcctID in the xml portion of the transaction
 	// with m_ID (supposedly the same number.)
@@ -530,6 +543,8 @@ public:
 							  long	& lAdjustment,
 							  long	& lDisplayValue,
 							  long	& lClosingNum,
+							  long	& lRequestNum,
+                              bool  & bReplyTransSuccess,
                               OTNumList * pNumList=NULL);
 		
     bool IsAbbreviated() const { return m_bIsAbbreviated; }
@@ -543,6 +558,15 @@ public:
     long GetAbbrevInRefDisplay() const { return m_lInRefDisplay; }
     void SetAbbrevInRefDisplay(const long lAmount) { m_lInRefDisplay = lAmount; }
 
+    // -------------------------------------------
+    // These are used exclusively by replyNotice (so you can tell
+    // which reply message it's a notice of.)
+    //
+    const long & GetRequestNum() const            { return m_lRequestNumber; }
+	void         SetRequestNum(const long & lNum) { m_lRequestNumber = lNum; }
+    
+    bool         GetReplyTransSuccess()                { return m_bReplyTransSuccess; }    
+    void         SetReplyTransSuccess(const bool bVal) {  m_bReplyTransSuccess = bVal;  }
     // -------------------------------------------
     // These are used for finalReceipt and basketReceipt
     long GetClosingNum() const;
@@ -580,6 +604,8 @@ public:
 				  const long & lAdjustment,
 				  const long & lDisplayValue,
 				  const long & lClosingNum,
+				  const long & lRequestNum,
+                  bool         bReplyTransSuccess,
                   OTNumList * pNumList=NULL);
 
 	virtual ~OTTransaction();
@@ -730,8 +756,66 @@ public:
 	
 	inline
     const char * GetTypeString() const { return OTTransaction::_GetTypeString(m_Type); }
+    
+    // -----------------------------------------------------------------------------
+    // These functions are fairly smart about which transaction types are harvestable,
+    // in which situations (based on the bools.) As long as you use the bools correctly,
+    // you aren't likely to accidentally harvest an opening number unless you are SUPPOSED
+    // to harvest it, based on its type and the circumstances. Just make sure you are accurate
+    // when you tell it the circumstances (bools!)
+    //
+    bool HarvestOpeningNumber(OTPseudonym & theNym,
+                              const bool    bHarvestingForRetry,     // exchangeBasket, on retry, needs to clawback the opening # because it will be using another opening # the next time OT_API_exchangeBasket() is called.
+                              const bool    bReplyWasSuccess,        // false until positively asserted.
+                              const bool    bReplyWasFailure,        // false until positively asserted.
+                              const bool    bTransactionWasSuccess,  // false until positively asserted.
+                              const bool    bTransactionWasFailure); // false until positively asserted.
+
+    // NOTE: IN CASE it's not obvious, the NYM is harvesting numbers from the TRANSACTION, and
+    // not the other way around!
+    
+    // Normally do this if your transaction ran--and failed--so you can get most of
+    // your transaction numbers back. (The opening number is already gone, but any
+    // others are still salvageable.)
+    //
+    bool HarvestClosingNumbers(OTPseudonym & theNym,
+                               const bool    bHarvestingForRetry,     // exchangeBasket, on retry, needs to clawback the opening # because it will be using another opening # the next time OT_API_exchangeBasket() is called.
+                               const bool    bReplyWasSuccess,        // false until positively asserted.
+                               const bool    bReplyWasFailure,        // false until positively asserted.
+                               const bool    bTransactionWasSuccess,  // false until positively asserted.
+                               const bool    bTransactionWasFailure); // false until positively asserted.
+
 };
 
 
 
+
+
 #endif // __OTTRANSACTION_H__
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

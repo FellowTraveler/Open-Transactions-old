@@ -130,23 +130,138 @@
 #ifndef __OTMESSAGEBUFFER_H__
 #define __OTMESSAGEBUFFER_H__
 
+
+
 #include <list>
+#include <map>
 
+
+class OTString;
+class OTPseudonym;
 class OTMessage;
+class OTTransaction;
 
-typedef std::list<OTMessage *> listOfMessages;
+
+typedef std::list<OTMessage *>       listOfMessages; // Incoming server replies to your messages.
+typedef std::multimap <long, OTMessage *> mapOfMessages;  // Your outgoing messages, mapped by request number.
+
+
+// ------------------------------------
+
+
+// INCOMING SERVER REPLIES.
+
+// The purpose of this class is to cache server replies (internally to OT)
+// so that the developer using the OT API has access to them.
+// 
+// This class is pretty generic and so may be used as an output buffer
+// as well. (If "stack" form is preferable.)
+//
 
 class OTMessageBuffer
 {
 	listOfMessages m_listMessages;
+    // --------------------------------
+    // Just to keep you out of trouble.
+    OTMessageBuffer  (const OTMessageBuffer & rhs) {}
+    OTMessageBuffer & operator=(const OTMessageBuffer & rhs) { return *this; }
 public:
-	OTMessageBuffer();
+	OTMessageBuffer() {}
 	~OTMessageBuffer();
-	
-	void AddToList(OTMessage & theMessage);
-	OTMessage * GetNextMessage();
+	// -------------------------------
+    
+    void        Clear   ();
+	void        Push    (OTMessage & theMessage);     // Push: theMessage must be heap-allocated. Takes ownership.
+	OTMessage * Pop     (const long & lRequestNum,    // Pop:  Caller IS responsible to delete.
+                         const OTString & strServerID,
+                         const OTString & strNymID);
 };
 
 
+// ------------------------------------
+
+
+
+// OUTOING MESSAGES (from me--client--sent to server.)
+
+
+// The purpose of this class is to cache client requests (being sent to the server)
+// so that they can later be queried (using the request number) by the developer
+// using the OTAPI, so that if transaction numbers need to be clawed back from failed
+// messages, etc, they are available.
+//
+// The OT client side also can use this as a mechanism to help separate old-and-dealt-with
+// messages, by explicitly removing messages from this queue once they are dealt with.
+// This way the developer can automatically assume that any reply is old if it carries
+// a request number that cannot be found in this queue.
+//
+// This class is pretty generic and so may be used in other ways, where "map"
+// functionality is required.
+//
+
+class OTMessageOutbuffer
+{
+	mapOfMessages m_mapMessages;
+    // --------------------------------
+    // Just to keep you out of trouble.
+    OTMessageOutbuffer  (const OTMessageOutbuffer & rhs) {}
+    OTMessageOutbuffer & operator=(const OTMessageOutbuffer & rhs) { return *this; }
+public:
+	OTMessageOutbuffer() {}
+	~OTMessageOutbuffer();
+    // Note: AddSentMessage, if it finds a message already on the map with the same request number,
+    // deletes the old one before adding the new one. In the future may contemplate using multimap
+    // here instead (if completeness becomes desired over uniqueness.)
+
+    void        Clear(const OTString * pstrServerID=NULL, const OTString * pstrNymID=NULL, OTPseudonym * pNym=NULL,
+                      const bool     * pbHarvestingForRetry=NULL);
+	void        AddSentMessage      (OTMessage & theMessage);   // Allocate theMsg on the heap (takes ownership.) Mapped by request num.
+	
+    OTMessage * GetSentMessage      (const long & lRequestNum, const OTString & strServerID, const OTString & strNymID); // null == not found. caller NOT responsible to delete.
+	bool        RemoveSentMessage   (const long & lRequestNum, const OTString & strServerID, const OTString & strNymID); // true == it was removed. false == it wasn't found.
+
+	OTMessage * GetSentMessage      (const OTTransaction & theTransaction); // null == not found. caller NOT responsible to delete.
+	bool        RemoveSentMessage   (const OTTransaction & theTransaction); // true == it was removed. false == it wasn't found.
+};
+
+
+
+// ------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
 #endif // __OTMESSAGEBUFFER_H__
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

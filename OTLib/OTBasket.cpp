@@ -132,6 +132,10 @@
 #include "OTStorage.h"
 
 
+#include "OTString.h"
+#include "OTIdentifier.h"
+#include "OTPseudonym.h"
+
 #include "OTBasket.h"
 #include "OTLog.h"
 
@@ -144,6 +148,73 @@ BasketItem::BasketItem() :
 }
 
 // ------------------------------------------------------------
+
+
+// This is a good implementation. Dots all the i's, so to speak.
+// client-side.
+// The basket ONLY stores closing numbers, so this means "harvest 'em all."
+//
+void OTBasket::HarvestClosingNumbers(OTPseudonym & theNym, const OTIdentifier & theServerID, const bool bSave/*=true*/)
+{
+    const OTString strServerID(theServerID);
+    bool bNeedToSave = false;
+    
+    // *************************************************************************
+    // The SUB-CURRENCIES first...
+    //
+    const unsigned int nCount = static_cast<unsigned int>(this->Count());
+    
+    for (unsigned int i = 0; i < nCount; i++)
+    {
+        BasketItem * pRequestItem = this->At(i);
+        OT_ASSERT(NULL != pRequestItem);
+        // --------------------------------
+        const long lClosingTransNo = pRequestItem->lClosingTransactionNo;
+        // --------------------------------
+
+        // This function will only "add it back" if it was really there in the first place.
+        // (Verifies it is on issued list first, before adding to available list.)
+        //
+        const bool bClawedBack = theNym.ClawbackTransactionNumber(theServerID, lClosingTransNo, false); // bSave=false
+
+        if (bClawedBack)
+            bNeedToSave = true;
+//		else 
+//			OTLog::vError("OTBasket::HarvestClosingNumbers: Number (%ld) failed as issued. (Thus didn't bother 'adding it back'.)\n",
+//						  lClosingTransNo);
+    } // for
+    // *************************************************************************
+    // Then the BASKET currency itself...
+    //
+    const long lClosingTransNo = this->GetClosingNum();
+    // --------------------------------
+    
+    // This function will only "add it back" if it was really there in the first place.
+    // (Verifies it is on issued list first, before adding to available list.)
+    //
+    const bool bClawedBack = theNym.ClawbackTransactionNumber(theServerID, lClosingTransNo, false); // bSave=false
+    
+    if (bClawedBack)
+        bNeedToSave = true;
+
+    // *************************************************************************
+    // Until I put this down here, there were subtle cases where the Nym wouldn't get saved.
+    // Therefore another vote for my "dirty instances" theory.
+    //
+    if (bSave && bNeedToSave)
+    {
+        OTPseudonym * pSignerNym = &theNym;// probably unnecessary.
+        theNym.SaveSignedNymfile(*pSignerNym);
+    }
+}
+
+
+
+
+// ------------------------------------------------------------
+
+
+
 
 
 

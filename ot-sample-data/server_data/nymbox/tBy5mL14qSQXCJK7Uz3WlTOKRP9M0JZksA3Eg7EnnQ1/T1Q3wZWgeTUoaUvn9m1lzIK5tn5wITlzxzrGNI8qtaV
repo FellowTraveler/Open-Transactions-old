@@ -3,29 +3,26 @@ Hash: SAMY
 
 <accountLedger version="1.0"
  type="nymbox"
- numPartialRecords="3"
+ numPartialRecords="2"
  accountID="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV"
  userID="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV"
  serverID="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1" >
 
 <nymboxRecord type="replyNotice"
- dateSigned="1330080957"
- receiptHash="2EnorGXdX2dcD3ayKEFOVxLK8PsImlfObopmWpjv8fX"
- transactionNum="558"
+ dateSigned="1333353362"
+ requestNumber="349"
+ transSuccess="true"
+ receiptHash="B1cKfS1046PeQthk3lOQXAobhwcdPyNliXmcdwbSnCq"
+ transactionNum="578"
  inRefDisplay="0"
  inReferenceTo="0" />
 
 <nymboxRecord type="replyNotice"
- dateSigned="1330081416"
- receiptHash="bPrRCtjRePSW3i0KjHOoMKCy3o5u9xfoEsqFvXzmvmz"
- transactionNum="561"
- inRefDisplay="0"
- inReferenceTo="0" />
-
-<nymboxRecord type="replyNotice"
- dateSigned="1330081475"
- receiptHash="r4jANYEvSbpn7YOsc2N9fG6nmSVx5XJ2bnnwn5Hgalx"
- transactionNum="563"
+ dateSigned="1333353396"
+ requestNumber="357"
+ transSuccess="true"
+ receiptHash="Ld5elodbU5B8U5SUpuXW37iyhhsG08XDvfyil6u0kuj"
+ transactionNum="579"
  inRefDisplay="0"
  inReferenceTo="0" />
 
@@ -34,7 +31,7 @@ Hash: SAMY
 Version: Open Transactions 0.78
 Comment: http://github.com/FellowTraveler/Open-Transactions/wiki
 
-CoABHuKDTT61t7EC0RXfysmIJEYMFM2GaRq/To4Ky92sNsyaL5lc8MEGAg+Pr/lB
-ward6ToANn5TsPh9FAdttqNEnOZDsPFaXFFNjOQaq8UjKgD8o7IdRqHit11HTkP4
-vmQu1DCMX5TbBoWLETQXu6rwWPM6jSEDHYywLJXDQALYPoY=
+CoABJwmvvHdZsQpY50GCzMO5UwyUYAXUr/hZouv8zi6HfOylc6CM2tFgcfNyz5Hg
+Iu7WuvQyDMmpHriHBzS6ke8Ul2zhr4otrZ1sSodmsVtWfi8Or0doRfEqlqhMPX7e
+CAoI1nWtBBfp0K9yTi7Of4p0UyyV9lB5e4g+hP/j3m1pYbA=
 -----END LEDGER SIGNATURE-----

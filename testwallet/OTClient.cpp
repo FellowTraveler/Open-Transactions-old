@@ -175,40 +175,89 @@ extern "C"
 
 
 
+
+
+int OTClient::CalcReturnVal(const long & lRequestNumber)
+{
+    m_lMostRecentRequestNumber = lRequestNumber;
+    // --------------------------------------------
+    if ((-1) == lRequestNumber)
+        return (-1);
+    else if (0 == lRequestNumber)
+        return 0;
+    
+    const int nRequestNum = static_cast<int>(lRequestNumber);
+    
+    if (lRequestNumber == nRequestNum) // In this case, it works!
+        return nRequestNum;
+    
+    return (-2); // some other call can return this->m_lMostRecentRequestNumber if needed.
+}
+
+
+
+
 void OTClient::ProcessMessageOut(char *buf, int * pnExpectReply)
 {
 //	OTLog::vError("OTClient::ProcessMessageOut: \n\n%s\n\n",
 //				 buf);
-//	
-//	
+//
 //	const OTString strMessage(buf);
 //	OTMessage tempMsg;
 //	tempMsg.LoadContractFromString(strMessage);
 
 	m_pConnection->ProcessMessageOut(buf, pnExpectReply);
 	
-	
 //	OTLog::Error("OTClient::ProcessMessageOut: FINISHED.\n");
-
 }
+
+
 
 
 void OTClient::ProcessMessageOut(OTMessage & theMessage)
 {
-//	const OTString strMessage(theMessage);
+	const OTString strMessage(theMessage);
 //	OTLog::vError("OTClient::ProcessMessageOut: \n\n%s\n\n",
 //				  strMessage.Get());
 //
-//	OTMessage tempMsg;
-//	tempMsg.LoadContractFromString(strMessage);
-	
-	
-	m_pConnection->ProcessMessageOut(theMessage);
-	
-	
-//	OTLog::Error("OTClient::ProcessMessageOut: FINISHED.\n");
+    // ----------------------------------------
+    
+    // WHAT DOES THIS MEAN?
+    
+    // I means that later, if a message with a certain request number
+    // fails to reply, or show its face in the replies box, then I will
+    // have the option to look it up in the Outbuffer, based on that
+    // same request number, and send a re-try, or claw back any transaction
+    // numbers that might be on that message.
+    
+    // Should probably add an API call for specifically doing this, agnostic
+    // to whatever kind of transaction it actually is. Something like, 
+    // OT_API_Message_HarvestClosingNumbers, and OT_API_Message_HarvestAllNumbers
+    
+    // So I can save the request number when sending a message, check for it later
+    // in the Nymbox, and then worst case, look it up in the Outbuffer and get my
+    // fucking transaction numbers back again!
 
+	OTMessage * pMsg = new OTMessage; // a copy.
+    OT_ASSERT(NULL != pMsg);
+    
+	if (pMsg->LoadContractFromString(strMessage))
+        m_MessageOutbuffer.AddSentMessage(*pMsg);
+    else
+    {
+        // todo, log here.
+        delete pMsg;
+        pMsg = NULL;
+    }
+    // ----------------------------------------
+    
+	m_pConnection->ProcessMessageOut(theMessage);  // <===========
+
+//	OTLog::Error("OTClient::ProcessMessageOut: FINISHED.\n");
 }
+
+
+
 
 bool OTClient::ProcessInBuffer(OTMessage & theServerReply)
 {
@@ -229,13 +278,13 @@ bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox,
 								  OTServerContract		& theServerContract, 
 								  OTPseudonym			& theNym,
 								  OTMessage				& theMessage)
-{	
+{
+    const char * szFunc = "OTClient::AcceptEntireNymbox";
 	// ---------------------------------------
-	
 	if (theNymbox.GetTransactionCount() < 1) 
 	{
 		// If there aren't any notices in the nymbox, no point wasting a # to process an empty box.
-		OTLog::Output(4, "OTClient::AcceptEntireNymbox: Nymbox is empty.\n");
+		OTLog::vOutput(4, "%s: Nymbox is empty.\n", szFunc);
 		
 		return false;
 	}
@@ -243,7 +292,7 @@ bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox,
 	else if (false == theNymbox.VerifyAccount(theNym)) 
 	{
 		// If there aren't any notices in the nymbox, no point wasting a # to process an empty box.
-		OTLog::Error("OTClient::AcceptEntireNymbox: Error: VerifyAccount() failed.\n");
+		OTLog::vError("%s: Error: VerifyAccount() failed.\n", szFunc);
 		return false;
 	}
     // ------------------------------------------------------
@@ -328,7 +377,8 @@ bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox,
 		// ------------------------------------------------------------		
 		if (pTransaction->IsAbbreviated())
 		{
-			OTLog::Error("OTClient::AcceptEntireNymbox: Error: Unexpected abbreviated receipt in Nymbox, even after supposedly loading all box receipts.\n");
+			OTLog::vError("%sx: Error: Unexpected abbreviated receipt in Nymbox, even after supposedly loading all box receipts.\n",
+                          szFunc);
 //			return false;			
 		}
 		// -----------------------------------------------------	
@@ -360,7 +410,7 @@ bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox,
 			pAcceptItem->SignContract(*pNym);
 			pAcceptItem->SaveContract();
 			
-			OTLog::vOutput(2, "OTClient::AcceptEntireNymbox: Received an encrypted message in your Nymbox:\n%s\n", 
+			OTLog::vOutput(2, "%s: Received an encrypted message in your Nymbox:\n%s\n", szFunc,
 						   strRespTo.Get());
 			
 			// Todo: really shouldn't do this until we get a successful REPLY from the server.
@@ -408,8 +458,8 @@ bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox,
 			pAcceptItem->SignContract(*pNym);
 			pAcceptItem->SaveContract();
 			
-			OTLog::vOutput(2, "OTClient::AcceptEntireNymbox: Received an encrypted instrument in your Nymbox:\n%s\n",
-						   strRespTo.Get());
+			OTLog::vOutput(2, "%s: Received an encrypted instrument in your Nymbox:\n%s\n",
+						   szFunc, strRespTo.Get());
 		} // if instrument
 		
 		// ------------------------------------------------------------
@@ -431,8 +481,8 @@ bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox,
 			pAcceptItem->SignContract(*pNym);
 			pAcceptItem->SaveContract();
 			
-			OTLog::vOutput(0, "OTClient::AcceptEntireNymbox: Received a server notification in your Nymbox:\n%s\n", 
-                           strRespTo.Get());
+			OTLog::vOutput(0, "%s: Received a server notification in your Nymbox:\n%s\n", 
+                           szFunc, strRespTo.Get());
 
 			// Todo: stash these somewhere, just like messages are in the pNym->AddMail() feature.
 			// NOTE: Most likely we still stash these in the paymentInbox just the same as instrumentNotice (above)
@@ -472,8 +522,8 @@ bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox,
                 // ----------------------
                 
                 if (false == pNym->VerifyTentativeNum(strServerID, lValue))
-                    OTLog::vOutput(1, "OTClient::AcceptEntireNymbox: OTTransaction::successNotice: This wasn't on my tentative list (%ld), I must have already processed it. "
-                                   "(Or there was dropped message when I did, or the server is trying to slip me an old number.\n)", lValue);
+                    OTLog::vOutput(1, "%s: OTTransaction::successNotice: This wasn't on my tentative list (%ld), I must have already processed it. "
+                                   "(Or there was dropped message when I did, or the server is trying to slip me an old number.\n)", szFunc, lValue);
                 else
                     setNoticeNumbers.insert(lValue); // I only take the numbers that I had been expecting, as tentative numbers, 
             }            
@@ -527,7 +577,8 @@ bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox,
 				
 				if (false == strOriginalReply.Exists())
 				{
-					OTLog::Error("OTClient::AcceptEntireNymbox: Error loading original server reply message from replyNotice. (It appears to be zero length.)\n");
+					OTLog::vError("%s: Error loading original server reply message from replyNotice. (It appears to be zero length.)\n",
+                                  szFunc);
 				}				
 				else // strOriginalReply.Exists() == true.
 				{
@@ -536,8 +587,8 @@ bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox,
 					
 					if (false == pMessage->LoadContractFromString(strOriginalReply))
 					{
-						OTLog::vError("OTClient::AcceptEntireNymbox: Failed loading original server reply message from replyNotice:\n\n%s\n\n",
-									  strOriginalReply.Get());
+						OTLog::vError("%s: Failed loading original server reply message from replyNotice:\n\n%s\n\n",
+									  szFunc, strOriginalReply.Get());
 						delete pMessage;
 						pMessage = NULL;
 					}
@@ -564,7 +615,8 @@ bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox,
 			} // if the replyNotice item is not-NULL and status is "success"
 			else 
 			{	// NULL or "rejected"
-				OTLog::Output(0, "OTClient::AcceptEntireNymbox: the replyNotice item was either NULL, or rejected. (Unexpectedly on either count.)\n");
+				OTLog::vOutput(0, "%s: the replyNotice item was either NULL, or rejected. (Unexpectedly on either count.)\n",
+                               szFunc);
 			}
 			// -------------------------
 			//
@@ -604,12 +656,14 @@ bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox,
                 // Loop FOR EACH TRANSACTION NUMBER in the "blank" (there could be 20 of them...)
                 //
                 if (pNym->VerifyIssuedNum(strServerID, lTransactionNumber)) // Trans number is already issued to this nym (must be an old notice.)
-                    OTLog::vOutput(0, "OTClient::AcceptEntireNymbox: Attempted to accept a blank transaction number that I ALREADY HAD...(Skipping.)\n");
+                    OTLog::vOutput(0, "%s: Attempted to accept a blank transaction number that I "
+                                   "ALREADY HAD...(Skipping.)\n", szFunc);
                 else if (pNym->VerifyTentativeNum(strServerID, lTransactionNumber)) // Trans number is already on the tentative list (meaning it's already been accepted.)
-                    OTLog::vOutput(0, "OTClient::AcceptEntireNymbox: Attempted to accept a blank transaction number that I ALREADY ACCEPTED (it's on my tentative list already; Skipping.)\n");
+                    OTLog::vOutput(0, "%s: Attempted to accept a blank transaction number that I ALREADY "
+                                   "ACCEPTED (it's on my tentative list already; Skipping.)\n", szFunc);
                 else if (bGotHighestNum && (lTransactionNumber <= lHighestNum)) // Man, this is old numbers we've already HAD before!
-                    OTLog::vOutput(0, "OTClient::AcceptEntireNymbox: Attempted to accept a blank transaction number that I've HAD BEFORE, "
-                                   "or at least, is <= to ones I've had before. (Skipping...)\n");
+                    OTLog::vOutput(0, "%s: Attempted to accept a blank transaction number that I've HAD BEFORE, "
+                                   "or at least, is <= to ones I've had before. (Skipping...)\n", szFunc);
                 else
                 {
                     theIssuedNym.AddIssuedNum(strServerID, lTransactionNumber);
@@ -656,11 +710,11 @@ bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox,
 			// my future balance agreements. (The instant a finalReceipt appears, the "in ref to" # is already gone..)
 			//
 			if (pNym->RemoveIssuedNum(*pNym, strServerID, pTransaction->GetReferenceToNum(), true)) // bool bSave=true
-				OTLog::vOutput(1, "OTClient::AcceptEntireNymbox: **** Due to finding a finalReceipt, REMOVING OPENING NUMBER FROM NYM:  %ld \n", 
-							   pTransaction->GetReferenceToNum());
+				OTLog::vOutput(1, "%s: **** Due to finding a finalReceipt, REMOVING OPENING NUMBER FROM NYM:  %ld \n", 
+							   szFunc, pTransaction->GetReferenceToNum());
 			else
-				OTLog::vOutput(1, "OTClient::AcceptEntireNymbox: **** Noticed a finalReceipt, but Opening Number %ld had ALREADY been removed from nym. \n",
-							   pTransaction->GetReferenceToNum());
+				OTLog::vOutput(1, "%s: **** Noticed a finalReceipt, but Opening Number %ld had ALREADY been removed from nym. \n",
+							   szFunc, pTransaction->GetReferenceToNum());
 
 			//
 			// pNym won't actually save unless it actually removes that #. If the #'s already NOT THERE,
@@ -728,7 +782,7 @@ bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox,
 //								*(pAssetContract),
 							   theServerContract,
 //							   *(theConnection.GetServerContract()), 
-							   NULL)) 
+							   NULL) > 0) 
 		{
 			// the message is all set up and ready to go out... it's even signed.
 			// Except the ledger we're sending, still needs to be added, and then the
@@ -782,7 +836,7 @@ bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox,
 			if (NULL != pBalanceItem) // This can't be NULL BTW, since there is an OT_ASSERT in Generate call. But I hate to use a pointer without checking it.
 				pAcceptTransaction->AddItem(*pBalanceItem); // Better not be NULL... message will fail... But better check anyway.
             else
-                OTLog::Error("This should never happen.\n");
+                OTLog::vError("%s: This should never happen.\n", szFunc);
             
 			// ------------------------------------------------------------
 			
@@ -811,7 +865,7 @@ bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox,
 	
 		}
 		else
-			OTLog::Error("Error processing processNymbox command in OTClient::AcceptEntireNymbox\n");
+			OTLog::vError("%s: Error processing processNymbox command.\n", szFunc);
 	}
 	
 	return false;
@@ -1323,12 +1377,12 @@ bool OTClient::AcceptEntireInbox(OTLedger			& theInbox,
 		OTMessage theMessage;
 //		OTAssetContract * pAssetContract	= theConnection.GetWallet()->GetAssetContract(pAccount->GetAssetTypeID());
 		
-		if (pAccount && ProcessUserCommand(OTClient::processInbox, theMessage, 
+		if (pAccount && (ProcessUserCommand(OTClient::processInbox, theMessage, 
 										   *pNym, 
 //										   *(pAssetContract),
 										   theServerContract,
 //										   *(theConnection.GetServerContract()), 
-										   pAccount)) 
+										   pAccount) > 0)) 
 		{
 			// the message is all set up and ready to go out... it's even signed.
 			// Except the ledger we're sending, still needs to be added, and then the
@@ -1579,21 +1633,9 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
                             pOriginalItem->GetAttachment(strBasket);
                             
                             if (strBasket.Exists() && theRequestBasket.LoadContractFromString(strBasket))
-                            {   
-                                for (int i = 0; i < theRequestBasket.Count(); i++)
-                                {
-                                    BasketItem * pRequestItem	= theRequestBasket.At(i);
-                                    
-                                    OT_ASSERT(NULL != pRequestItem);
-                                    
-                                    pNym->AddTransactionNum(*pNym, strServerID, pRequestItem->lClosingTransactionNo, false); // bSave=false
-                                }
-                                pNym->AddTransactionNum(*pNym, strServerID, theRequestBasket.GetClosingNum(), true); // bSave=true
-                            }
+                                theRequestBasket.HarvestClosingNumbers(*pNym, SERVER_ID, true); // bSave=true
                             else
-                            {
                                 OTLog::Error("(atExchangeBasket) Error loading original basket request in OTClient::ProcessIncomingTransactions\n");
-                            }
                         } // if success loading original item.
                         else
                         {
@@ -2071,6 +2113,9 @@ void OTClient::ProcessWithdrawalResponse(OTTransaction & theTransaction, OTServe
 /// THEREFORE -- theReply MUST be allocated on the heap, and is
 /// only passed in as a reference here in order to make sure it's real.
 ///
+/// returns true/false on whether or not the reply was actually 
+/// verified and processed, versus whether 
+///
 bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NULL*/) // IF the Nymbox is passed in, then use that one, where appropriate, instead of loading it internally.
 {
 	OTServerConnection & theConnection = (*m_pConnection);
@@ -2079,8 +2124,8 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 	theConnection.GetServerID(SERVER_ID);
 	    
 	OTPseudonym * pNym = theConnection.GetNym();
-	OTIdentifier USER_ID;
-	pNym->GetIdentifier(USER_ID);
+	OTIdentifier USER_ID(*pNym);
+//	pNym->GetIdentifier(USER_ID);
 	
     const OTString strServerID(SERVER_ID), strNymID(USER_ID);
 
@@ -2101,11 +2146,63 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 		
 		return false;
 	}
-	
+	// ------------------------------------
+    
+    OTMessage * pSentMsg = this->GetMessageOutbuffer().GetSentMessage(atol(theReply.m_strRequestNum.Get()),
+                                                                      strServerID,
+                                                                      strNymID); // doesn't delete.
+	// ------------------------------------
+    // We couldn't find it in the "sent message" outbuffer (todo: persist this buffer on the Nym.)
+    // That means we must have missed the original server reply, even though it DID happen. Then we
+    // downloaded the Nymbox to re-sync after that failure occurred, and found the reply there, and
+    // processed it--removing it from the sent messages outbuffer at the same time, since it was now
+    // definitely handled.
+    // FINALLY the network comes through with the server reply, and here we are trying to process it
+    // twice? But this time, it's NOT in the sent buffer, because we already processed it -- so we
+    // discard it! (todo: in a nice future version, save all of these in the recordbox or something.)
+    //
+    // Here's another plausible scenario:  You RECEIVE the server's reply properly the first time, and
+    // you process it. Of course, you STILL get the Nymbox copy of that same message ("just in case") and
+    // thus ProcessServerReply gets called a second time, again leading us to this block of code right here...
+    //
+    if (NULL == pSentMsg) // 
+    {
+        const OTString strReply(theReply);
+        OTLog::vError("OTClient::ProcessServerReply: FYI: no record of server reply in sent messages buffer. "
+                      "We must have already processed it, and then removed it, earlier. "
+                      "(Discarding.) Reply message:\n\n%s\n\n", strReply.Get());
+        
+        OTMessage * pMessage = &theReply; // I'm responsible to cleanup this object.
+		delete pMessage;
+		pMessage = NULL;
+        // --------------------
+		return false;
+    }
+    // ------------------------------------------------
+    
+    // Below this point, we know we found the original sent message--still cached as though its reply
+    // hasn't been processed yet. We haven't processed it yet! We are now supposedly, processing it for
+    // the first and proper time! Therefore, let's remove it from the "sent messages" outbuffer, so we
+    // are able to tell, next time around, that this has already happened. (After all, we don't want
+    // the next FlushSentMessages call to claw back any transaction numbers when we clearly had a proper
+    // reply come through!)
+    //
+    
+    // ------------------------------------
+    
+    bool bRemoved = this->GetMessageOutbuffer().RemoveSentMessage(atol(theReply.m_strRequestNum.Get()),
+                                                                      strServerID,
+                                                                      strNymID); // deletes.
+	// ------------------------------------
+    
+    // Done:  Do a Get Sent Message based on request number. If we find the
+    // sent message, then process the reply and Remove the sent message.
+    // But if we do NOT find the sent message, then we must have processed it
+    // already -- in which case discard it and return.
+    
 	// Here, the Client takes ownership of the message (so make sure it's heap-allocated.)
-	m_MessageBuffer.AddToList(theReply);
-
-	
+	m_MessageBuffer.Push(theReply);
+    
 	// Once that process is done, everything below that line, in this function,
 	// will be able to assume there is a verified Nym available, and a Server Contract,
 	// and an asset contract where applicable, and an account where applicable.
@@ -2123,9 +2220,34 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 	// Wait a second, I think I have the Nym already cause there's a pointer on
 	// the server connection that was passed in here...
 
+	if (theReply.m_bSuccess && theReply.m_strCommand.Compare("@triggerClause"))
+	{		
+        // -----------------------------
+        OTIdentifier RECENT_HASH;
+        const std::string str_server(strServerID.Get());
+        
+        if (theReply.m_strNymboxHash.Exists())
+        {
+            RECENT_HASH.SetString(theReply.m_strNymboxHash);
+            
+            const bool bRecentHash = pNym->SetRecentHash(str_server, RECENT_HASH);
+            
+            if (!bRecentHash)
+                OTLog::vError("%s: Failed getting NymboxHash (to store as 'recent hash') from Nym for server: %s\n",
+                              theReply.m_strCommand.Get(), str_server.c_str());
+            else
+            {
+                OTPseudonym * pSignerNym = pNym;
+                pNym->SaveSignedNymfile(*pSignerNym);
+            }
+        }
+        // -------------------------------
+        
+		return true;
+	}
 	if (theReply.m_bSuccess && theReply.m_strCommand.Compare("@getRequest"))
 	{
-		long lNewRequestNumber = atol(theReply.m_strRequestNum.Exists() ? theReply.m_strRequestNum.Get() : "0");
+		long lNewRequestNumber = theReply.m_lNewRequestNum;
 		
 		// so the proper request number is sent next time, we take the one that
 		// the server just sent us, and we ask the wallet to save it somewhere safe 
@@ -2140,6 +2262,27 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 		
 		theConnection.OnServerResponseToGetRequestNumber(lNewRequestNumber);
 		
+        // -----------------------------
+        OTIdentifier RECENT_HASH;
+        const std::string str_server(strServerID.Get());
+        
+        if (theReply.m_strNymboxHash.Exists())
+        {
+            RECENT_HASH.SetString(theReply.m_strNymboxHash);
+            
+            const bool bRecentHash = pNym->SetRecentHash(str_server, RECENT_HASH);
+            
+            if (!bRecentHash)
+                OTLog::vError("%s: Failed getting NymboxHash (to store as 'recent hash') from Nym for server: %s\n",
+                              theReply.m_strCommand.Get(), str_server.c_str());
+            else
+            {
+                OTPseudonym * pSignerNym = pNym;
+                pNym->SaveSignedNymfile(*pSignerNym);
+            }
+        }
+        // -------------------------------
+        
 		return true;
 	}
 	if (theReply.m_bSuccess && theReply.m_strCommand.Compare("@checkUser"))
@@ -2168,6 +2311,27 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 		OTLog::Output(0, "Received server response to notarize Transactions message.\n");
 		//		OTLog::vOutput(0, "Received server response to notarize Transactions message:\n%s\n", strReply.Get());
 		
+        // -----------------------------
+        OTIdentifier RECENT_HASH;
+        const std::string str_server(strServerID.Get());
+        
+        if (theReply.m_strNymboxHash.Exists())
+        {
+            RECENT_HASH.SetString(theReply.m_strNymboxHash);
+            
+            const bool bRecentHash = pNym->SetRecentHash(str_server, RECENT_HASH);
+            
+            if (!bRecentHash)
+                OTLog::vError("%s: Failed getting NymboxHash (to store as 'recent hash') from Nym for server: %s\n",
+                              theReply.m_strCommand.Get(), str_server.c_str());
+            else
+            {
+                OTPseudonym * pSignerNym = pNym;
+                pNym->SaveSignedNymfile(*pSignerNym);
+            }
+        }
+        // -------------------------------
+
 		ProcessIncomingTransactions(theConnection, theReply);
 		
 		//todo (gui):
@@ -2219,6 +2383,28 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 		OTLog::Output(0, "Received server response to Get Transaction Num message.\n");
 //		OTLog::vOutput(0, "Received server response to Get Transaction Num message:\n%s\n", strReply.Get());
 
+        // -----------------------------
+        OTIdentifier RECENT_HASH;
+        const std::string str_server(strServerID.Get());
+        
+        if (theReply.m_strNymboxHash.Exists())
+        {
+            RECENT_HASH.SetString(theReply.m_strNymboxHash);
+            
+            const bool bRecentHash = pNym->SetRecentHash(str_server, RECENT_HASH);
+            
+            if (!bRecentHash)
+                OTLog::vError("%s: Failed getting NymboxHash (to store as 'recent hash') from Nym for server: %s\n",
+                              theReply.m_strCommand.Get(), str_server.c_str());
+            else
+            {
+                OTPseudonym * pSignerNym = pNym;
+                pNym->SaveSignedNymfile(*pSignerNym);
+            }
+        }
+        // -------------------------------
+
+        
 		// RIGHT HERE: This will need to fire off a getNymbox, and @getNymbox will fire off a
 		// processNymbox, in the same way that getInbox now fires off a processInbox. 
 		// Basically it will automatically turn around here since the ultimate goal is to 
@@ -2292,7 +2478,33 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 		// Load the ledger object from that string.				
 		OTLedger theNymbox(USER_ID, USER_ID, SERVER_ID);	
 		
-		
+        // -----------------------------
+        OTIdentifier NYMBOX_HASH, RECENT_HASH;
+        const std::string str_server(strServerID.Get());
+        
+        if (theReply.m_strNymboxHash.Exists())
+        {
+            NYMBOX_HASH.SetString(theReply.m_strNymboxHash);
+            RECENT_HASH.SetString(theReply.m_strNymboxHash);
+        
+            const bool bNymboxHash = pNym->SetNymboxHash(str_server, NYMBOX_HASH);
+            const bool bRecentHash = pNym->SetRecentHash(str_server, RECENT_HASH);
+        
+            if (!bNymboxHash)
+                OTLog::vError("Failed setting NymboxHash on Nym for server: %s\n",
+                          str_server.c_str());
+            if (!bRecentHash)
+                OTLog::vError("%s: Failed setting NymboxHash (to store as 'recent hash') from Nym for server: %s\n",
+                              theReply.m_strCommand.Get(), str_server.c_str());
+            // ----------------------------------------------------
+            if (bNymboxHash || bRecentHash)
+            {
+                OTPseudonym * pSignerNym = pNym;
+                pNym->SaveSignedNymfile(*pSignerNym);
+            }
+        }
+        // -------------------------------
+
 		// I receive the nymbox, verify the server's signature, then RE-SIGN IT WITH MY OWN
 		// SIGNATURE, then SAVE it to local storage.  So any FUTURE checks of this nymbox
 		// would require MY signature, not the server's, to verify. But in this one spot, 
@@ -2300,6 +2512,65 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 		// UPDATE: Keeping the server's signature, and just adding my own.
 		if (theNymbox.LoadNymboxFromString(strNymbox)) // && theNymbox.VerifyAccount(*pServerNym)) No point doing this, since the client hasn't even had a chance to download the box receipts yet. (VerifyAccount will fail before then...)
 		{
+            
+            // -----------------------------------------------------------------
+            
+            //
+            // UPDATE: We will have to rely on the Developer using the OT API to call
+            // OT_API_FlushSentMessages IMMEDIATELY after calling getNymbox and receiving
+            // a successful reply. Why? Because that's the only way to give him the chance
+            // to see if certain replies are there or not (before they get removed.) That way
+            // he can do his own harvesting, do a re-try, etc and then finally when he is done
+            // with that, do the flush.
+            //
+//            
+//            // use GetTransactionMap() and then iterate through the nymbox receipts.
+//            // If ANY of them is a REPLY NOTICE, then see if the SENT MESSAGE for that SAME
+//            // request number is in the sent queue.
+//            // If it IS, REMOVE IT from the sent queue. (Since Nymbox clearly already contains
+//            // a reply to it, no need to queue it anymore.)
+//            // At the end of this loop, then FLUSH the sent queue. We KNOW only important
+//            // (nymbox related) messages should be queued there, and once we see the latest Nymbox,
+//            // then we KNOW which ones to remove before flushing.
+//            // 
+//            FOR_EACH(mapOfTransactions, theNymbox.GetTransactionMap())
+//            {
+//                OTTransaction * pTransaction = (*it).second;
+//                OT_ASSERT(NULL != pTransaction);
+//                // --------------------------------
+//                
+//                if (OTTransaction::replyNotice == pTransaction->GetType())
+//                {
+//                    OTMessage * pMessage = this->GetSentMessage(*pTransaction);
+//                    
+//                    if (NULL != pMessage) // It WAS there in my sent buffer!
+//                    {
+//                        // Since it IS in my Nymbox already as a replyNotice,
+//                        // therefore I'm safe to erase it from my sent queue.
+//                        //
+//                        this->RemoveSentMessage(*pTransaction);
+//                    }
+//                    // else do nothing, must have already removed it.
+//                }
+//            }
+//            // -----------------------------------------------------------------
+//            // Clear all "sent message" cached messages for this server and NymID.
+//            // (And harvest their transaction numbers back, since we know for a fact
+//            // the server hasn't replied to them (the reply would be in the Nymbox, which
+//            // we just got.)
+//            //
+//            // UPDATE: We will have to rely on the Developer using the OT API to call
+//            // OT_API_FlushSentMessages IMMEDIATELY after calling getNymbox and receiving
+//            // a successful reply. Why? Because that's the only way to give him the chance
+//            // to see if certain replies are there or not (before they get removed.) That way
+//            // he can do his own harvesting, do a re-try, etc and then finally when he is done
+//            // with that, do the flush.
+//            //
+////          this->GetMessageOutbuffer().Clear(&strServerID, &strNymID, pNym,
+////                                            const bool * pbHarvestingForRetry/*=NULL*/);  
+//            
+            // -----------------------------------------------------------------
+            
 			theNymbox.ReleaseSignatures(); // Now I'm keeping the server signature, and just adding my own.
 			theNymbox.SignContract(*pNym); // UPDATE: Releasing the signature again, since Receipts are now fully functional.
 			theNymbox.SaveContract();		// Thus we can prove the Nymbox using the last signed transaction receipt. This means
@@ -2666,7 +2937,29 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 		
 		OTLog::vOutput(0, "Received server response: %s \n", theReply.m_strCommand.Get());
 //		OTLog::vOutput(0, "Received server response to Get Inbox message:\n%s\n", strReply.Get());
-				
+		
+		
+        // -----------------------------
+        OTIdentifier RECENT_HASH;
+        const std::string str_server(strServerID.Get());
+        
+        if (theReply.m_strNymboxHash.Exists())
+        {
+            RECENT_HASH.SetString(theReply.m_strNymboxHash);
+            
+            const bool bRecentHash = pNym->SetRecentHash(str_server, RECENT_HASH);
+            
+            if (!bRecentHash)
+                OTLog::vError("%s: Failed getting NymboxHash (to store as 'recent hash') from Nym for server: %s\n",
+                              theReply.m_strCommand.Get(), str_server.c_str());
+            else
+            {
+                OTPseudonym * pSignerNym = pNym;
+                pNym->SaveSignedNymfile(*pSignerNym);
+            }
+        }
+        // -------------------------------
+
 		// If the server acknowledges either of the above commands, then my transaction
 		// numbers have changed. I need to read the numbers from my last transaction agreement
 		// (which should be saved in this server reply) and make sure to update my nym accordingly.
@@ -3718,8 +4011,31 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 		// would require MY signature, not the server's, to verify. But in this one spot, 
 		// just before saving, I need to verify the server's first.
 		// UPDATE: Keeping the server's signature, and just adding my own.
-		if (theInbox.LoadInboxFromString(strInbox))// && theInbox.VerifyAccount(*pServerNym)) // Can't do this because client hasn't had a chance yet to download the box receipts that go with this inbox -- and VerifyAccount() tries to load those, which fails...
+		if (theInbox.LoadInboxFromString(strInbox) && theInbox.VerifySignature(*pServerNym)) // No VerifyAccount. Can't, because client hasn't had a chance yet to download the box receipts that go with this inbox -- and VerifyAccount() tries to load those, which would fail here...
 		{
+            // -----------------------------
+            OTIdentifier THE_HASH;
+            const OTString strAcctID(ACCOUNT_ID);
+            const std::string str_acct_id(strAcctID.Get());
+            
+            if (theReply.m_strInboxHash.Exists())
+            {
+                THE_HASH.SetString(theReply.m_strInboxHash);
+                
+                const bool bHash = pNym->SetInboxHash(str_acct_id, THE_HASH);
+                
+                if (!bHash)
+                    OTLog::vError("Failed setting InboxHash on Nym for account: %s\n",
+                                  str_acct_id.c_str());
+                // ----------------------------------------------------
+                else
+                {
+                    OTPseudonym * pSignerNym = pNym;
+                    pNym->SaveSignedNymfile(*pSignerNym);
+                }
+            }
+            // -------------------------------            
+            
             // If I have Transaction #35 signed out, and I use it to start a market offer (or any other cron item)
             // then it's always possible that a finalReceipt will pop into my Inbox while I'm asleep, closing
             // that transaction #. The server officially believes 35 is closed. Unfortunately, I still have it signed
@@ -3840,8 +4156,31 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 		// would require MY signature, not the server's, to verify. But in this one spot, 
 		// just before saving, I need to verify the server's first.
 		// UPDATE: keeping the server's signature, and just adding my own.
-		if (theOutbox.LoadOutboxFromString(strOutbox))// && theOutbox.VerifyAccount(*pServerNym)) No point doing this since the client hasn't even had a chance to download the box receipts yet.
+		if (theOutbox.LoadOutboxFromString(strOutbox) && theOutbox.VerifySignature(*pServerNym)) // No point calling VerifyAccount since the client hasn't even had a chance to download the box receipts yet...
 		{
+            // -----------------------------
+            OTIdentifier THE_HASH;
+            const OTString strAcctID(ACCOUNT_ID);
+            const std::string str_acct_id(strAcctID.Get());
+            
+            if (theReply.m_strOutboxHash.Exists())
+            {
+                THE_HASH.SetString(theReply.m_strOutboxHash);
+                
+                const bool bHash = pNym->SetOutboxHash(str_acct_id, THE_HASH);
+                
+                if (!bHash)
+                    OTLog::vError("Failed setting OutboxHash on Nym for account: %s\n",
+                                  str_acct_id.c_str());
+                // ----------------------------------------------------
+                else
+                {
+                    OTPseudonym * pSignerNym = pNym;
+                    pNym->SaveSignedNymfile(*pSignerNym);
+                }
+            }
+            // -------------------------------            
+            
 			theOutbox.ReleaseSignatures();	// UPDATE: keeping the server's signature, and just adding my own.
 			theOutbox.SignContract(*pNym);	// ANOTHER UPDATE: Removing signature again, since we have receipts functional now.
 			theOutbox.SaveContract();
@@ -4577,7 +4916,14 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 /// This function sets up "theMessage" so that it is ready to be sent out to the server.
 /// If you want to set up a checkServerID command and send it to the server, then
 /// you just call this to get the OTMessage object all set up and ready to be sent.
-bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
+//
+/// returns -1 if error, don't send message.
+/// returns  0 if NO error, but still, don't send message.
+/// returns 1 if message is sent but there's not request number
+/// returns >0 for processInbox, containing the number that was there before processing.
+/// returns >0 for nearly everything else, containing the request number itself.
+///
+int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 								  OTMessage & theMessage,
 								  OTPseudonym & theNym,
 //								  OTAssetContract & theContract,
@@ -4607,7 +4953,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
         {
             OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
                          "(Try adding:  --server SERVER_ID)\n");
-            return false;
+            return CalcReturnVal(-1);;
         }
 	}
     
@@ -4617,6 +4963,8 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 	
 	bool bSendCommand = false;
 	
+    long lReturnValue = 0;
+        
 	if (OTClient::checkServerID == requestedCommand)
 	{
 //		OTLog::vOutput(0, "(User has instructed to send a checkServerID command to the server...)\n");
@@ -4627,6 +4975,8 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theMessage.m_strServerID		= strServerID;
 		theMessage.m_strNymPublicKey	= strNymPublicKey;
 		
+        theMessage.m_strRequestNum.Format("%d", 1); // Request Number, if unused, should be set to 1.
+        
 		// (2) Sign the Message 
 		// When a message is signed, it updates its m_xmlUnsigned contents to
 		// the values in the member variables
@@ -4639,6 +4989,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theMessage.SaveContract();
 		
 		bSendCommand = true;
+        lReturnValue = 1;
 	}
 
 	// ------------------------------------------------------------------------
@@ -4653,6 +5004,8 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theMessage.m_strServerID		= strServerID;
 		theMessage.m_strNymPublicKey	= strNymPublicKey;
 		
+        theMessage.m_strRequestNum.Format("%d", 1); // Request Number, if unused, should be set to 1.
+
 		// (2) Sign the Message 
 		theMessage.SignContract(theNym);		
 		
@@ -4660,6 +5013,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theMessage.SaveContract();
 		
 		bSendCommand = true;
+        lReturnValue = 1;
 	}
 	
 	// ------------------------------------------------------------------------
@@ -4673,6 +5027,8 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theMessage.m_strNymID			= strNymID;
 		theMessage.m_strServerID		= strServerID;
 		
+        theMessage.m_strRequestNum.Format("%d", 1); // Request Number, if unused, should be set to 1.
+
 		// (2) Sign the Message 
 		theMessage.SignContract(theNym);		
 		
@@ -4680,6 +5036,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theMessage.SaveContract();
 		
 		bSendCommand = true;
+        lReturnValue = 1;
 	}
 	
 	// ------------------------------------------------------------------------
@@ -4723,6 +5080,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theMessage.SaveContract();
 		
 		bSendCommand = true;
+        lReturnValue = lRequestNumber;
 	}
 	
 	// ------------------------------------------------------------------------
@@ -4808,7 +5166,8 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			
 			// (Send it)
 			bSendCommand = true;
-			
+            lReturnValue = lRequestNumber;
+
 			// -----------------------------------
 			// store a copy in the outmail.
 			// (not encrypted, since the Nymfile will be encrypted anyway.
@@ -4870,6 +5229,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theMessage.SaveContract();
 		
 		bSendCommand = true;
+        lReturnValue = lRequestNumber;
 	}
 	
 	// ------------------------------------------------------------------------
@@ -4950,6 +5310,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			theMessage.SaveContract();
 			
 			bSendCommand = true;		
+            lReturnValue = lRequestNumber;
 			
 			// ------------------------------------ 
 			// Save the contract to local storage and add to wallet.
@@ -5213,6 +5574,16 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
                             theMessage.m_strAcctID			= str_MAIN_ACCOUNT_ID;
                             theMessage.m_ascPayload			= ascLedger;
                             
+                            OTIdentifier NYMBOX_HASH;
+                            const std::string str_server(strServerID.Get());
+                            const bool bNymboxHash = theNym.GetNymboxHash(str_server, NYMBOX_HASH);
+                            
+                            if (bNymboxHash)
+                                NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
+                            else
+                                OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
+                                              str_server.c_str());
+
                             // (2) Sign the Message 
                             theMessage.SignContract(theNym);		
                             
@@ -5225,6 +5596,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
                 //			OTLog::vError("DEBUG  Transaction message:\n%s\n", DEBUGSTR.Get());
                             
                             bSendCommand = true;
+                            lReturnValue = lRequestNumber;                            
                         } // Inbox loaded.
                     } // successfully got first transaction number.
                     else 
@@ -5338,7 +5710,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theMessage.SaveContract();
 		
 		bSendCommand = true;			
-		
+		lReturnValue = lRequestNumber;
 	}
 	
 	// ------------------------------------------------------------------------
@@ -5369,6 +5741,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theMessage.SaveContract();
 		
 		bSendCommand = true;
+        lReturnValue = lRequestNumber;
 	}
 	
 	// ------------------------------------------------------------------------
@@ -5385,7 +5758,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			strFromAcct.OTfgets(std::cin);
 			
 			if (strFromAcct.GetLength() < 2)
-				return false;
+				return (-1);
 			
 			const OTIdentifier ACCOUNT_ID(strFromAcct);
 			
@@ -5404,7 +5777,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
             else
             {
                 OTLog::Error("Unable to transfer without a 'FROM' account. Try adding:  --myacct ACCOUNT_ID\n");
-                return false;
+                return (-1);
             }
 		}
         else
@@ -5418,7 +5791,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
         {
             OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
                          "(Try adding:  --server SERVER_ID)\n");
-            return false;
+            return (-1);
         }
 
         // -----------------------------------------------------
@@ -5434,7 +5807,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			strRecipientAcct.OTfgets(std::cin);
 			
 			if (strRecipientAcct.GetLength() < 2)
-				return false;			
+				return (-1);			
         }
         else
         {
@@ -5574,6 +5947,16 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 				theMessage.m_strAcctID			= strFromAcct;
 				theMessage.m_ascPayload			= ascLedger;
 				
+                OTIdentifier NYMBOX_HASH;
+                const std::string str_server(strServerID.Get());
+                const bool bNymboxHash = theNym.GetNymboxHash(str_server, NYMBOX_HASH);
+                
+                if (bNymboxHash)
+                    NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
+                else
+                    OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
+                                  str_server.c_str());
+
 				// (2) Sign the Message 
 				theMessage.SignContract(theNym);		
 				
@@ -5586,6 +5969,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 	//			OTLog::vError("DEBUG  Transaction message:\n%s\n", DEBUGSTR.Get());
 				
 				bSendCommand = true;
+                lReturnValue = lRequestNumber;
 			}
 
 		}
@@ -5729,7 +6113,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		strAcctID.OTfgets(std::cin);
 		
 		if (strAcctID.GetLength() < 2)
-			return false;
+			return (-1);
 		
 		const OTIdentifier theAccountID(strAcctID);
 		
@@ -5779,6 +6163,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theMessage.SaveContract();
 		
 		bSendCommand = true;
+        lReturnValue = lRequestNumber;
 	}
 	
 	// ------------------------------------------------------------------------
@@ -5797,7 +6182,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			strFromAcct.OTfgets(std::cin);
 			
 			if (strFromAcct.GetLength() < 2)
-				return false;
+				return (-1);
 			
 			const OTIdentifier ACCOUNT_ID(strFromAcct);
 			
@@ -5816,7 +6201,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
             else
             {
                 OTLog::Error("Unable to download Inbox without an account ID. Try adding:  --myacct ACCOUNT_ID\n");
-                return false;
+                return (-1);
             }
 		}
         else
@@ -5830,7 +6215,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
         {
             OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
                          "(Try adding:  --server SERVER_ID)\n");
-            return false;
+            return (-1);
         }
         
         // ------------------------------------
@@ -5859,6 +6244,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theMessage.SaveContract();
 		
 		bSendCommand = true;
+        lReturnValue = lRequestNumber;
 	}
 	
 	// ------------------------------------------------------------------------
@@ -5877,7 +6263,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			strFromAcct.OTfgets(std::cin);
 			
 			if (strFromAcct.GetLength() < 2)
-				return false;
+				return (-1);
 			
 			const OTIdentifier ACCOUNT_ID(strFromAcct);
 			
@@ -5896,7 +6282,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
             else
             {
                 OTLog::Error("Unable to download outbox without account ID. Try adding:  --myacct ACCOUNT_ID\n");
-                return false;
+                return (-1);
             }
 		}
         else
@@ -5910,7 +6296,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
         {
             OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
                          "(Try adding:  --server SERVER_ID)\n");
-            return false;
+            return (-1);
         }
         
         // ------------------------------------
@@ -5939,6 +6325,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theMessage.SaveContract();
 		
 		bSendCommand = true;
+        lReturnValue = lRequestNumber;
 	}
 	
 	
@@ -6029,6 +6416,14 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theMessage.m_strNymID			= strNymID;
 		theMessage.m_strServerID		= strServerID;
 		
+        OTIdentifier EXISTING_NYMBOX_HASH;
+        const std::string str_server_id(strServerID.Get());
+        
+        const bool bSuccess = theNym.GetNymboxHash(str_server_id, EXISTING_NYMBOX_HASH);
+        
+        if (bSuccess)
+            EXISTING_NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
+
 		// (2) Sign the Message 
 		theMessage.SignContract(theNym);		
 		
@@ -6036,6 +6431,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theMessage.SaveContract();
 		
 		bSendCommand = true;
+        lReturnValue = lRequestNumber;        
 	}
 	
 	// ------------------------------------------------------------------------
@@ -6055,7 +6451,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			strFromAcct.OTfgets(std::cin);
 			
 			if (strFromAcct.GetLength() < 2)
-				return false;
+				return (-1);
 			
 			const OTIdentifier ACCOUNT_ID(strFromAcct);
 			
@@ -6074,7 +6470,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
             else
             {
                 OTLog::Error("Unable to process inbox without account ID. Try adding:  --myacct ACCOUNT_ID\n");
-                return false;
+                return (-1);
             }
 		}
         else
@@ -6088,7 +6484,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
         {
             OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
                          "(Try adding:  --server SERVER_ID)\n");
-            return false;
+            return (-1);
         }
         
         // ------------------------------------
@@ -6143,7 +6539,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			strFromAcct.OTfgets(std::cin);
 			
 			if (strFromAcct.GetLength() < 2)
-				return false;
+				return (-1);
 			
 			const OTIdentifier ACCOUNT_ID(strFromAcct);
 			
@@ -6162,7 +6558,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
             else
             {
                 OTLog::Error("Unable to process inbox without account ID. Try adding:  --myacct ACCOUNT_ID\n");
-                return false;
+                return (-1);
             }
 		}
         else
@@ -6176,7 +6572,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
         {
             OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
                          "(Try adding:  --server SERVER_ID)\n");
-            return false;
+            return (-1);
         }
         
         // ------------------------------------
@@ -6212,6 +6608,16 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theMessage.m_strServerID		= strServerID;
 		theMessage.m_strAcctID			= strAcctID;
 		
+        OTIdentifier NYMBOX_HASH;
+        const std::string str_server(strServerID.Get());
+        const bool bNymboxHash = theNym.GetNymboxHash(str_server, NYMBOX_HASH);
+        
+        if (bNymboxHash)
+            NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
+        else
+            OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
+                          str_server.c_str());
+
 		// (2) Sign the Message 
 		theMessage.SignContract(theNym);		
 		
@@ -6219,6 +6625,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theMessage.SaveContract();
 		
 		bSendCommand = true;
+        lReturnValue = lRequestNumber;        
 	}
 	
 	// ------------------------------------------------------------------------
@@ -6236,7 +6643,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			strFromAcct.OTfgets(std::cin);
 			
 			if (strFromAcct.GetLength() < 2)
-				return false;
+				return (-1);
 			
 			const OTIdentifier ACCOUNT_ID(strFromAcct);
 			
@@ -6255,7 +6662,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
             else
             {
                 OTLog::Error("Unable to download account without account ID. Try adding:  --myacct ACCOUNT_ID\n");
-                return false;
+                return (-1);
             }
 		}
         else
@@ -6269,7 +6676,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
         {
             OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
                          "(Try adding:  --server SERVER_ID)\n");
-            return false;
+            return (-1);
         }
         
         // ------------------------------------
@@ -6299,6 +6706,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theMessage.SaveContract();
 		
 		bSendCommand = true;
+        lReturnValue = lRequestNumber;        
 	}
 	
 	// ------------------------------------------------------------------------
@@ -6313,7 +6721,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		strAssetID.OTfgets(std::cin);
 		
 		if (strAssetID.GetLength() < 2)
-			return false;
+			return (-1);
 				
 		// (0) Set up the REQUEST NUMBER and then INCREMENT IT
 		theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
@@ -6333,6 +6741,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theMessage.SaveContract();
 		
 		bSendCommand = true;
+        lReturnValue = lRequestNumber;        
 	}
 	
 	// ------------------------------------------------------------------------
@@ -6347,7 +6756,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		strAssetID.OTfgets(std::cin);
 		
 		if (strAssetID.GetLength() < 2)
-			return false;
+			return (-1);
 
 		// (0) Set up the REQUEST NUMBER and then INCREMENT IT
 		theNym.GetCurrentRequestNum(strServerID, lRequestNumber);
@@ -6367,6 +6776,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theMessage.SaveContract();
 		
 		bSendCommand = true;
+        lReturnValue = lRequestNumber;        
 	}
 	
     
@@ -6386,7 +6796,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			strFromAcct.OTfgets(std::cin);
 			
 			if (strFromAcct.GetLength() < 2)
-				return false;
+				return (-1);
 			
 			const OTIdentifier ACCOUNT_ID(strFromAcct);
 			
@@ -6405,7 +6815,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
             else
             {
                 OTLog::Error("Unable to deposit tokens without an account. Try adding:  --myacct ACCOUNT_ID\n");
-                return false;
+                return (-1);
             }
 		}
         else
@@ -6419,7 +6829,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
         {
             OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
                          "(Try adding:  --server SERVER_ID)\n");
-            return false;
+            return (-1);
         }
 
 		const OTIdentifier ACCT_FROM_ID(strFromAcct), USER_ID(theNym);
@@ -6595,6 +7005,16 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 				theMessage.m_strAcctID			= strFromAcct;
 				theMessage.m_ascPayload			= ascLedger;
 				
+                OTIdentifier NYMBOX_HASH;
+                const std::string str_server(strServerID.Get());
+                const bool bNymboxHash = theNym.GetNymboxHash(str_server, NYMBOX_HASH);
+                
+                if (bNymboxHash)
+                    NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
+                else
+                    OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
+                                  str_server.c_str());
+
 				// (2) Sign the Message 
 				theMessage.SignContract(theNym);		
 				
@@ -6602,6 +7022,8 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 				theMessage.SaveContract();
 				
 				bSendCommand = true;
+                lReturnValue = lRequestNumber;
+                
 			} // bSuccess
 			else 
 			{
@@ -6634,7 +7056,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			strFromAcct.OTfgets(std::cin);
 			
 			if (strFromAcct.GetLength() < 2)
-				return false;
+				return (-1);
 			
 			const OTIdentifier ACCOUNT_ID(strFromAcct);
 			
@@ -6653,7 +7075,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
             else
             {
                 OTLog::Error("Unable to deposit without an account. Try adding:  --myacct ACCOUNT_ID\n");
-                return false;
+                return (-1);
             }
 		}
         else
@@ -6667,12 +7089,12 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
         {
             OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
                          "(Try adding:  --server SERVER_ID)\n");
-            return false;
+            return (-1);
         }
 
         // ---------------------------------------------------------
-        
-                    // "from acct" is the acct we are depositing this cash to. aka MyAcct.
+        //
+        // "from acct" is the acct we are depositing this cash to. aka MyAcct.
 		const OTIdentifier ACCT_FROM_ID(strFromAcct), USER_ID(theNym);
 		
 		OTPurse thePurse(SERVER_ID, CONTRACT_ID);
@@ -6722,7 +7144,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			if (false == theSourcePurse.LoadContractFromString(strSourcePurse))
             {
                 OTLog::Output(0, "Failure trying to load purse from string provided by user.\n");
-                return false;
+                return (-1);
             }
 
             // todo verify signature?
@@ -6741,7 +7163,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
                 OTLog::vOutput(0, "Deposit purse: Failure trying to load purse from local storage:\n"
                                "Server %s  Nym %s  Asset Type %s\n",
                                strServerID.Get(), strNymID.Get(), strAssetTypeID.Get());
-                return false;
+                return (-1);
             }
             else
                 OTLog::vOutput(0, "WARNING: This operation is very low-level. Once you deposit the purse in local storage,\n"
@@ -6767,7 +7189,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
                           "FYI, if you PREFER to provide the purse from user input, OT *will* ask you to\n"
                           "input a purse when doing this, just as long as --mypurse is NOT provided. (And\n"
                           "that includes the defaultmypurse value stored in ~/.ot/command-line-ot.opt)\n\n");
-            return false;
+            return (-1);
         }
         
         // By this point, I have theSourcePurse loaded, whether from local storage or from 
@@ -6916,6 +7338,16 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 				theMessage.m_strAcctID			= strFromAcct;
 				theMessage.m_ascPayload			= ascLedger;
 				
+                OTIdentifier NYMBOX_HASH;
+                const std::string str_server(strServerID.Get());
+                const bool bNymboxHash = theNym.GetNymboxHash(str_server, NYMBOX_HASH);
+                
+                if (bNymboxHash)
+                    NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
+                else
+                    OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
+                                  str_server.c_str());
+
 				// (2) Sign the Message 
 				theMessage.SignContract(theNym);		
 				
@@ -6923,6 +7355,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 				theMessage.SaveContract();
 				
 				bSendCommand = true;
+                lReturnValue = lRequestNumber;                
 			} // bSuccess
 			else 
 			{
@@ -6955,7 +7388,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			strFromAcct.OTfgets(std::cin);
 			
 			if (strFromAcct.GetLength() < 2)
-				return false;
+				return (-1);
 			
 			const OTIdentifier ACCOUNT_ID(strFromAcct);
 			
@@ -6974,7 +7407,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
             else
             {
                 OTLog::Error("Unable to deposit without an account. Try adding:  --myacct ACCOUNT_ID\n");
-                return false;
+                return (-1);
             }
 		}
         else
@@ -6988,7 +7421,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
         {
             OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
                          "(Try adding:  --server SERVER_ID)\n");
-            return false;
+            return (-1);
         }
 
 		const OTIdentifier ACCT_FROM_ID(strFromAcct), USER_ID(theNym);
@@ -7121,6 +7554,16 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
                     theMessage.m_strAcctID			= strFromAcct;
                     theMessage.m_ascPayload			= ascLedger;
                     
+                    OTIdentifier NYMBOX_HASH;
+                    const std::string str_server(strServerID.Get());
+                    const bool bNymboxHash = theNym.GetNymboxHash(str_server, NYMBOX_HASH);
+                    
+                    if (bNymboxHash)
+                        NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
+                    else
+                        OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
+                                      str_server.c_str());
+
                     // (2) Sign the Message 
                     theMessage.SignContract(theNym);		
                     
@@ -7128,6 +7571,8 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
                     theMessage.SaveContract();
                     
                     bSendCommand = true;
+                    lReturnValue = lRequestNumber;        
+
                 } // inbox/outbox loaded
             } // the cheque is blank, or is made out to me
 		} // cheque loaded
@@ -7158,7 +7603,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			strFromAcct.OTfgets(std::cin);
 			
 			if (strFromAcct.GetLength() < 2)
-				return false;
+				return (-1);
 			
 			const OTIdentifier ACCOUNT_ID(strFromAcct);
 			
@@ -7177,7 +7622,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
             else
             {
                 OTLog::Error("Unable to purchase voucher without a 'FROM' account. Try adding:  --myacct ACCOUNT_ID\n");
-                return false;
+                return (-1);
             }
 		}
         else
@@ -7193,7 +7638,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
         {
             OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
                          "(Try adding:  --server SERVER_ID)\n");
-            return false;
+            return (-1);
         }
 
         // ---------------------------------------------------------
@@ -7209,7 +7654,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			strRecipientNym.OTfgets(std::cin);
 
 //			if (strRecipientNym.GetLength() < 2) // blank cheques are allowed.
-//				return false;			
+//				return (-1);			
         }
         else
         {
@@ -7353,6 +7798,16 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 				theMessage.m_strAcctID			= strFromAcct;
 				theMessage.m_ascPayload			= ascLedger;
 				
+                OTIdentifier NYMBOX_HASH;
+                const std::string str_server(strServerID.Get());
+                const bool bNymboxHash = theNym.GetNymboxHash(str_server, NYMBOX_HASH);
+                
+                if (bNymboxHash)
+                    NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
+                else
+                    OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
+                                  str_server.c_str());
+
 				// (2) Sign the Message 
 				theMessage.SignContract(theNym);		
 				
@@ -7360,6 +7815,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 				theMessage.SaveContract();
 				
 				bSendCommand = true;
+                lReturnValue = lRequestNumber;
 			}
 			else 
 			{
@@ -7400,7 +7856,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			strFromAcct.OTfgets(std::cin);
 			
 			if (strFromAcct.GetLength() < 2)
-				return false;
+				return (-1);
 			
 			const OTIdentifier ACCOUNT_ID(strFromAcct);
 			
@@ -7419,7 +7875,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
             else
             {
                 OTLog::Error("Unable to withdraw without account. Try adding:  --myacct ACCOUNT_ID\n");
-                return false;
+                return (-1);
             }
 		}
         else
@@ -7433,7 +7889,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
         {
             OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
                          "(Try adding:  --server SERVER_ID)\n");
-            return false;
+            return (-1);
         }
 
         // ----------------------------------------------
@@ -7614,6 +8070,16 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 				theMessage.m_strAcctID			= strFromAcct;
 				theMessage.m_ascPayload			= ascLedger;
 				
+                OTIdentifier NYMBOX_HASH;
+                const std::string str_server(strServerID.Get());
+                const bool bNymboxHash = theNym.GetNymboxHash(str_server, NYMBOX_HASH);
+                
+                if (bNymboxHash)
+                    NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
+                else
+                    OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
+                                  str_server.c_str());
+
 				// (2) Sign the Message 
 				theMessage.SignContract(theNym);		
 				
@@ -7621,6 +8087,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 				theMessage.SaveContract();
 				
 				bSendCommand = true;
+                lReturnValue = lRequestNumber;                
 			}
 			else 
 			{
@@ -7649,6 +8116,16 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theMessage.m_strNymID			= strNymID;
 		theMessage.m_strServerID		= strServerID;
 		
+        OTIdentifier NYMBOX_HASH;
+        const std::string str_server(strServerID.Get());
+        const bool bNymboxHash = theNym.GetNymboxHash(str_server, NYMBOX_HASH);
+        
+        if (bNymboxHash)
+            NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
+        else
+            OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
+                          str_server.c_str());
+
 		// (2) Sign the Message 
 		theMessage.SignContract(theNym);		
 		
@@ -7656,6 +8133,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theMessage.SaveContract();
 		
 		bSendCommand = true;
+        lReturnValue = lRequestNumber;        
 	}
 	
 	
@@ -7894,6 +8372,16 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
                     theMessage.m_strAcctID			= str_ASSET_ACCT_ID;
                     theMessage.m_ascPayload			= ascLedger;
                     
+                    OTIdentifier NYMBOX_HASH;
+                    const std::string str_server(strServerID.Get());
+                    const bool bNymboxHash = theNym.GetNymboxHash(str_server, NYMBOX_HASH);
+                    
+                    if (bNymboxHash)
+                        NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
+                    else
+                        OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
+                                      str_server.c_str());
+
                     // (2) Sign the Message 
                     theMessage.SignContract(theNym);		
                     
@@ -7901,6 +8389,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
                     theMessage.SaveContract();
                     
                     bSendCommand = true;
+                    lReturnValue = lRequestNumber;
                 }
                 
                 if (false == bSendCommand)	
@@ -7994,7 +8483,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
         
         // ------------------------------------------------------------------------
 
-        return false;
+        return 0;
     }
     else if (OTClient::writeCheque == requestedCommand) // Write a CHEQUE. (Sends no message to server.)
     {
@@ -8008,7 +8497,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			strFromAcct.OTfgets(std::cin);
 			
 			if (strFromAcct.GetLength() < 2)
-				return false;
+				return (-1);
 			
 			const OTIdentifier ACCOUNT_ID(strFromAcct);
 			
@@ -8027,7 +8516,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
             else
             {
                 OTLog::Error("Unable to write cheque without account to draw from. On comand line, try adding:  --myacct ACCOUNT_ID\n");
-                return false;
+                return (-1);
             }
 		}
         else
@@ -8043,7 +8532,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
         {
             OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
                          "(Try adding:  --server SERVER_ID)\n");
-            return false;
+            return (-1);
         }
 
         // ---------------------------------------------------------
@@ -8059,7 +8548,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			strRecipientNym.OTfgets(std::cin);
 			
 //			if (strRecipientNym.GetLength() < 2) // blank cheques are allowed.
-//				return false;			
+//				return (-1);			
         }
         else
         {
@@ -8098,7 +8587,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
         {
             OTLog::Output(0, "Cheques are written offline, but you still need a transaction number\n"
                           "(and you have none, currently.) Try using 'n' to request another transaction number.\n");
-            return false;
+            return (-1);
         }
         
         
@@ -8172,7 +8661,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
             theNym.AddTransactionNum(theNym, strServerID, lTransactionNumber, true); // bSave=true								
         }
 
-        return false;
+        return -1;
     }
     
 	// ------------------------------------------------------------------------
@@ -8192,7 +8681,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			strMerchantAcct.OTfgets(std::cin);
 			
 			if (strMerchantAcct.GetLength() < 2)
-				return false;
+				return -1;
 			
 			const OTIdentifier ACCOUNT_ID(strMerchantAcct);
 			
@@ -8211,7 +8700,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
             else
             {
                 OTLog::Error("Unable to propose payment plan without account to pay to. Try adding:  --myacct ACCOUNT_ID\n");
-                return false;
+                return -1;
             }
 		}
         else
@@ -8227,7 +8716,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
         {
             OTLog::Error("OTClient::ProcessUserCommand: pAccount->GetPurportedServerID() doesn't match SERVER_ID.\n"
                          "(Try adding:  --server SERVER_ID)\n");
-            return false;
+            return -1;
         }
 
         // pAccount is the MERCHANT's (recipient) account. CONTRACT_ID is its ASSET_TYPE.
@@ -8248,7 +8737,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			strCustomerAcct.OTfgets(std::cin);
 			
 			if (strCustomerAcct.GetLength() < 2)
-				return false;			
+				return -1;			
         }
         else
         {
@@ -8272,7 +8761,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			strCustomerNym.OTfgets(std::cin);
 			
 			if (strCustomerNym.GetLength() < 2)
-				return false;			
+				return -1;			
         }
         else
         {
@@ -8304,7 +8793,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
         {
             OTLog::Output(0, "Payment Plans are written offline, but you still need a 2 transaction numbers\n"
                           "(and you don't, currently.) Try using 'n' to request another transaction number.\n");
-            return false;
+            return -1;
         }
         
         // -----------------------------------------------------------------------
@@ -8366,7 +8855,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
         {
             OTLog::Output(0, "Failed trying to set the proposal!\n");
             
-            return false;
+            return -1;
         }
         // ************************************************************************
         
@@ -8401,7 +8890,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
             // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
             thePlan.HarvestClosingNumbers(theNym); // puts the relevant numbers back onto Nym.
             
-            return false;
+            return -1;
         }
         
         // -----------------------------------------------------------------------
@@ -8465,7 +8954,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
             // IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
             thePlan.HarvestClosingNumbers(theNym); // puts the relevant numbers back onto Nym.
             
-            return false;
+            return -1;
         }
         
         thePlan.SignContract(theNym);
@@ -8478,7 +8967,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 
         std::cout << strPlan.Get() << std::endl;
         
-        return false; // sends no server message in this case.
+        return 0; // sends no server message in this case.
     }
 	
 	// ------------------------------------------------------------------------
@@ -8515,7 +9004,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
         if (!thePlan.LoadContractFromString(strPlan))
         {
             OTLog::Output(0, "Unable to load payment plan from string.\n");
-            return false;
+            return -1;
         }
         
         // -----------------------------------------------------------------------
@@ -8525,7 +9014,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
         if (NULL == pCustomerNym)
         {
             OTLog::Output(0, "The customer Nym on this payment plan (you, supposedly) wasn't found in the wallet. Try 'load'.\n");
-            return false;
+            return -1;
         }
         
         // -----------------------------------------------------------------------
@@ -8536,7 +9025,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
         {
             OTLog::Output(0, "Merchant Nym wasn't found in the wallet. Try 'load'.\n");
             // TODO add lookups from address book here as well?
-            return false;
+            return -1;
         }
         
         // -----------------------------------------------------------------------
@@ -8544,7 +9033,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
         if (false == thePlan.Confirm(*pMerchantNym, *pCustomerNym))
         {
             OTLog::Output(0, "Error while confirming payment plan. Sorry.\n");
-            return false;
+            return -1;
         }
         
         thePlan.SignContract(*pCustomerNym);
@@ -8559,7 +9048,7 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
         //
         std::cout << strOutput.Get() << std::endl;
         
-        return false; // no server message being sent, in this case.
+        return 0; // no server message being sent, in this case.
     }
 	
 	// ------------------------------------------------------------------------
@@ -8672,13 +9161,25 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 				theMessage.m_strAcctID			= strFromAcct;
 				theMessage.m_ascPayload			= ascLedger;
 				
+                OTIdentifier NYMBOX_HASH;
+                const std::string str_server(strServerID.Get());
+                const bool bNymboxHash = theNym.GetNymboxHash(str_server, NYMBOX_HASH);
+                
+                if (bNymboxHash)
+                    NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
+                else
+                    OTLog::vError("Failed getting NymboxHash from Nym for server: %s\n",
+                                  str_server.c_str());
+
 				// (2) Sign the Message 
 				theMessage.SignContract(theNym);		
 				
 				// (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
 				theMessage.SaveContract();
 				
-				bSendCommand = true;				
+				bSendCommand = true;
+                lReturnValue = lRequestNumber;
+                
 			} // pAccount not NULL			
 		} // thePlan.LoadContractFromString()
 		else 
@@ -8724,7 +9225,10 @@ bool OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 				OTLog::Output(0, "\n");
 	}
 	
-	return bSendCommand;
+    
+    return CalcReturnVal(lReturnValue);
+    
+//	return bSendCommand;
 }
 
 
@@ -8821,7 +9325,7 @@ bool OTClient::InitClient(OTWallet & theWallet)
 
 
 
-OTClient::OTClient() : m_pWallet(NULL), m_bRunningAsScript(false), m_pConnection(NULL), m_bInitialized(false)
+OTClient::OTClient() : m_pWallet(NULL), m_bRunningAsScript(false), m_lMostRecentRequestNumber(0), m_pConnection(NULL), m_bInitialized(false)
 {
 
 }

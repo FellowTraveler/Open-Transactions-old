@@ -151,6 +151,7 @@ class OTPaymentPlan;
 class OTMint;
 class OTMessage;
 class OTLedger;
+class OTPayment;
 
 
 // This function is what makes Open Transactions go over XmlRpc/HTTP instead of TCP/SSL
@@ -174,7 +175,7 @@ class OT_API // The C++ high-level interface to the Open Transactions client-sid
 	OTString *		m_pstrWalletFilename;
 	
 	static zmq::context_t	s_ZMQ_Context;
-
+    
 public:
 
 	static void TransportCallback(OTServerContract & theServerContract, OTEnvelope & theEnvelope);
@@ -203,8 +204,8 @@ public:
 	
 	bool LoadWallet(const OTString & strFilename);
 	
-	// Note: these two functions are NOT used in XmlRpc Mode
-	// ONLY for SSL/TCP mode...
+	// Note: these two functions are NOT used in ZMQ Mode
+	// ONLY for SSL/TCP mode (deprecated)...
 	bool ConnectServer(OTIdentifier & SERVER_ID,
 					   OTIdentifier	& USER_ID,
 					   OTString & strCA_FILE, 
@@ -290,7 +291,7 @@ public:
 	OTPseudonym *		LoadPublicNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
 	OTPseudonym *		LoadPrivateNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
 	
-	OTPseudonym *		CreateNym(); // returns a new nym (with key pair) and files created. (Or NULL.)
+	OTPseudonym *		CreateNym(int nKeySize=1024); // returns a new nym (with key pair) and files created. (Or NULL.)
 
 	bool	IsNym_RegisteredAtServer(const OTIdentifier & NYM_ID, const OTIdentifier & SERVER_ID);
 	
@@ -542,15 +543,25 @@ public:
 							 const long			&	lTransactionNum);
 	
 	// ------------------------------------------------------
-	
-	// YOU are responsible to delete the OTMessage object, once
-	// you receive the pointer that comes back from this function.
-	// (It also might return NULL, if there are none there.)
+	// Incoming
 	//
-	OTMessage *	PopMessageBuffer();
-	
+	OTMessage *	PopMessageBuffer(const long         & lRequestNumber,
+                                 const OTIdentifier & SERVER_ID,
+                                 const OTIdentifier & USER_ID);
 	void		FlushMessageBuffer();
-	
+	// ------------------------------------------------------
+    // Outgoing
+    //
+    OTMessage * GetSentMessage(const long         & lRequestNumber, 
+                               const OTIdentifier &	SERVER_ID,
+                               const OTIdentifier &	USER_ID);
+    bool        RemoveSentMessage(const long         & lRequestNumber,
+                                  const OTIdentifier &	SERVER_ID,
+                                  const OTIdentifier &	USER_ID);
+    void        FlushSentMessages(const bool bHarvestingForRetry,
+                                  const OTIdentifier &	SERVER_ID,
+                                  const OTIdentifier &	USER_ID,
+                                        OTLedger     &  THE_NYMBOX);
 	// ------------------------------------------------------
 
 	bool ResyncNymWithServer(OTPseudonym & theNym, OTLedger & theNymbox, OTPseudonym & theMessageNym);
@@ -559,51 +570,51 @@ public:
 	
 	// These commands below send messages to the server:
 	
-	void checkServerID(OTIdentifier & SERVER_ID,
+	int checkServerID(OTIdentifier & SERVER_ID,
 					   OTIdentifier & USER_ID);
 	
-	void createUserAccount(OTIdentifier & SERVER_ID,
+	int createUserAccount(OTIdentifier & SERVER_ID,
 						   OTIdentifier & USER_ID);
-	void deleteUserAccount(OTIdentifier & SERVER_ID,
+	int deleteUserAccount(OTIdentifier & SERVER_ID,
 						   OTIdentifier & USER_ID);
 	
-	void checkUser(OTIdentifier & SERVER_ID,
+	int checkUser(OTIdentifier & SERVER_ID,
 				   OTIdentifier & USER_ID,
 				   OTIdentifier & USER_ID_CHECK);
 	
-	void usageCredits(const OTIdentifier &	SERVER_ID,
+	int usageCredits(const OTIdentifier &	SERVER_ID,
 					  const OTIdentifier &	USER_ID,
 					  const OTIdentifier &	USER_ID_CHECK,
 					  const long			lAdjustment=0);
 	
-	void getRequest(OTIdentifier & SERVER_ID,
+	int getRequest(OTIdentifier & SERVER_ID,
 					OTIdentifier & USER_ID);
 	
-	void sendUserMessage(OTIdentifier	& SERVER_ID,
+	int sendUserMessage(OTIdentifier	& SERVER_ID,
 						 OTIdentifier	& USER_ID,
 						 OTIdentifier	& USER_ID_RECIPIENT,
 						 OTASCIIArmor	& RECIPIENT_PUBKEY,
 						 OTString		& THE_MESSAGE);
 	
-	void sendUserInstrument(OTIdentifier	& SERVER_ID,
-							OTIdentifier	& USER_ID,
-							OTIdentifier	& USER_ID_RECIPIENT,
-							OTASCIIArmor	& RECIPIENT_PUBKEY,
-							OTContract		& THE_INSTRUMENT);
+	int sendUserInstrument(OTIdentifier	& SERVER_ID,
+                           OTIdentifier	& USER_ID,
+                           OTIdentifier	& USER_ID_RECIPIENT,
+                           OTASCIIArmor	& RECIPIENT_PUBKEY,
+                           OTPayment	& THE_INSTRUMENT);
 	
-	void issueAssetType(OTIdentifier	&	SERVER_ID,
+	int issueAssetType(OTIdentifier	&	SERVER_ID,
 						OTIdentifier	&	USER_ID,
 						OTString		&	THE_CONTRACT);
 	
-	void getContract(OTIdentifier & SERVER_ID,
+	int getContract(OTIdentifier & SERVER_ID,
 					 OTIdentifier & USER_ID,
 					 OTIdentifier & ASSET_ID);
 	
-	void getMint(OTIdentifier & SERVER_ID,
+	int getMint(OTIdentifier & SERVER_ID,
 				 OTIdentifier & USER_ID,
 				 OTIdentifier & ASSET_ID);
 	
-	void getBoxReceipt(const OTIdentifier & SERVER_ID,
+	int getBoxReceipt(const OTIdentifier & SERVER_ID,
 					   const OTIdentifier & USER_ID,
 					   const OTIdentifier & ACCOUNT_ID,	// If for Nymbox (vs inbox/outbox) then pass USER_ID in this field also.
 					   const int	 nBoxType,		// 0/nymbox, 1/inbox, 2/outbox
@@ -611,19 +622,19 @@ public:
 	
 	// ----------------------------------------------------
 	
-	void queryAssetTypes(OTIdentifier & SERVER_ID,
+	int queryAssetTypes(OTIdentifier & SERVER_ID,
 						 OTIdentifier & USER_ID,
 						 OTASCIIArmor & ENCODED_MAP);
 	// ----------------------------------------------------
 	
-	void createAssetAccount(OTIdentifier & SERVER_ID,
+	int createAssetAccount(OTIdentifier & SERVER_ID,
 							OTIdentifier & USER_ID,
 							OTIdentifier & ASSET_ID);
-	void deleteAssetAccount(OTIdentifier & SERVER_ID,
+	int deleteAssetAccount(OTIdentifier & SERVER_ID,
 							OTIdentifier & USER_ID,
 							OTIdentifier & ACCOUNT_ID);
 	
-	void getAccount(OTIdentifier & SERVER_ID,
+	int getAccount(OTIdentifier & SERVER_ID,
 					OTIdentifier & USER_ID,
 					OTIdentifier & ACCT_ID);
 	
@@ -637,7 +648,7 @@ public:
 							   const OTIdentifier & ASSET_TYPE_ID, // Adding an asset type to the new basket.
 							   const long MINIMUM_TRANSFER); // The amount of the asset type that is in the basket.
 	
-	void issueBasket(OTIdentifier	& SERVER_ID,
+	int issueBasket(OTIdentifier	& SERVER_ID,
 					 OTIdentifier	& USER_ID,
 					 OTString		& BASKET_INFO);
 	
@@ -656,7 +667,7 @@ public:
 							   const OTIdentifier & ASSET_TYPE_ID,
 							   const OTIdentifier & ASSET_ACCT_ID);
 	
-	void exchangeBasket(OTIdentifier	& SERVER_ID,
+	int exchangeBasket(OTIdentifier	& SERVER_ID,
 						OTIdentifier	& USER_ID,
 						OTIdentifier	& BASKET_ASSET_ID,
 						OTString		& BASKET_INFO,
@@ -664,34 +675,34 @@ public:
 	
 	// ----------------------------------------------------
 
-	void getTransactionNumber(OTIdentifier & SERVER_ID,
+	int getTransactionNumber(OTIdentifier & SERVER_ID,
 							  OTIdentifier & USER_ID);
 	
-	void notarizeWithdrawal(OTIdentifier	& SERVER_ID,
+	int notarizeWithdrawal(OTIdentifier	& SERVER_ID,
 							OTIdentifier	& USER_ID,
 							OTIdentifier	& ACCT_ID,
 							OTString		& AMOUNT);
 	
-	void notarizeDeposit(OTIdentifier	& SERVER_ID,
+	int notarizeDeposit(OTIdentifier	& SERVER_ID,
 						 OTIdentifier	& USER_ID,
 						 OTIdentifier	& ACCT_ID,
 						 OTString		& THE_PURSE);
 	
-	void notarizeTransfer(OTIdentifier	& SERVER_ID,
+	int notarizeTransfer(OTIdentifier	& SERVER_ID,
 						  OTIdentifier	& USER_ID,
 						  OTIdentifier	& ACCT_FROM,
 						  OTIdentifier	& ACCT_TO,
 						  OTString		& AMOUNT,
 						  OTString		& NOTE);
 	
-	void getNymbox(OTIdentifier & SERVER_ID,
+	int getNymbox(OTIdentifier & SERVER_ID,
 				  OTIdentifier & USER_ID);
 	
-	void getInbox(OTIdentifier & SERVER_ID,
+	int getInbox(OTIdentifier & SERVER_ID,
 				  OTIdentifier & USER_ID,
 				  OTIdentifier & ACCT_ID);
 	
-	void getOutbox(OTIdentifier & SERVER_ID,
+	int getOutbox(OTIdentifier & SERVER_ID,
 				   OTIdentifier & USER_ID,
 				   OTIdentifier & ACCT_ID);
 	
@@ -703,24 +714,24 @@ public:
 	int processNymbox(OTIdentifier	& SERVER_ID,
 					  OTIdentifier	& USER_ID);
 	
-	void processInbox(OTIdentifier	& SERVER_ID,
+	int processInbox(OTIdentifier	& SERVER_ID,
 					  OTIdentifier	& USER_ID,
 					  OTIdentifier	& ACCT_ID,
 					  OTString		& ACCT_LEDGER);
 	
-	void withdrawVoucher(OTIdentifier	& SERVER_ID,
+	int withdrawVoucher(OTIdentifier	& SERVER_ID,
 						 OTIdentifier	& USER_ID,
 						 OTIdentifier	& ACCT_ID,
 						 OTIdentifier	& RECIPIENT_USER_ID,
 						 OTString		& CHEQUE_MEMO,
 						 OTString		& AMOUNT);
 	
-	void depositCheque(OTIdentifier	& SERVER_ID,
+	int depositCheque(OTIdentifier	& SERVER_ID,
 					   OTIdentifier	& USER_ID,
 					   OTIdentifier	& ACCT_ID,
 					   OTString		& THE_CHEQUE);
 	
-	void triggerClause(const OTIdentifier	& SERVER_ID,
+	int triggerClause(const OTIdentifier	& SERVER_ID,
 					   const OTIdentifier	& USER_ID,
 					   const long			& lTransactionNum,
 					   const OTString		& strClauseName,
@@ -812,53 +823,64 @@ public:
 									// ----------------------------------------
 									const	OTIdentifier	& NYM_ID,		// Nym ID for the party, the actual owner, 
 											OTString		& strOutput);	// ===> AS WELL AS for the default AGENT of that party. (For now, until I code entities)
+	// ------------------------------------------------------------------------
+    
+    bool Msg_HarvestTransactionNumbers(      OTMessage      & theMsg,
+                                       const OTIdentifier	& USER_ID,
+                                       const bool    bHarvestingForRetry,       
+                                       const bool    bReplyWasSuccess,       
+                                       const bool    bReplyWasFailure,       
+                                       const bool    bTransactionWasSuccess, 
+                                       const bool    bTransactionWasFailure);
+
+//	bool HarvestClosingNumbers(const OTIdentifier	& SERVER_ID,
+//							   const OTIdentifier	& NYM_ID,
+//							   const OTString		& THE_CRON_ITEM);
+//	
+//	bool HarvestAllNumbers(const OTIdentifier	& SERVER_ID,
+//						   const OTIdentifier	& NYM_ID,
+//						   const OTString		& THE_CRON_ITEM);
 	
-	bool HarvestClosingNumbers(const OTIdentifier	& SERVER_ID,
-							   const OTIdentifier	& NYM_ID,
-							   const OTString		& THE_CRON_ITEM);
+	// ------------------------------------------------------------------------
+
+	int activateSmartContract(const OTIdentifier	& SERVER_ID,
+                              const OTIdentifier	& USER_ID,
+                              const OTString		& THE_SMART_CONTRACT);
 	
-	bool HarvestAllNumbers(const OTIdentifier	& SERVER_ID,
-						   const OTIdentifier	& NYM_ID,
-						   const OTString		& THE_CRON_ITEM);
+	int depositPaymentPlan(const OTIdentifier	& SERVER_ID,
+                           const OTIdentifier	& USER_ID,
+                           const OTString		& THE_PAYMENT_PLAN);
 	
-	void activateSmartContract(const OTIdentifier	& SERVER_ID,
-							   const OTIdentifier	& USER_ID,
-							   const OTString		& THE_SMART_CONTRACT);
+	int issueMarketOffer(const OTIdentifier	& SERVER_ID,
+                         const OTIdentifier	& USER_ID,
+                         // -------------------------------------------
+                         const OTIdentifier	& ASSET_TYPE_ID,
+                         const OTIdentifier	& ASSET_ACCT_ID,
+                         // -------------------------------------------
+                         const OTIdentifier	& CURRENCY_TYPE_ID,
+                         const OTIdentifier	& CURRENCY_ACCT_ID,
+                         // -------------------------------------------
+                         const long			& MARKET_SCALE,	// Defaults to minimum of 1. Market granularity.
+                         const long			& MINIMUM_INCREMENT,	// This will be multiplied by the Scale. Min 1.
+                         const long			& TOTAL_ASSETS_ON_OFFER, // Total assets available for sale or purchase. Will be multiplied by minimum increment.
+                         const long			& PRICE_LIMIT,		// Per Minimum Increment...
+                         const bool			bBuyingOrSelling);	//  BUYING == false, SELLING == true.
 	
-	void depositPaymentPlan(const OTIdentifier	& SERVER_ID,
-							const OTIdentifier	& USER_ID,
-							const OTString		& THE_PAYMENT_PLAN);
-	
-	void issueMarketOffer(const OTIdentifier	& SERVER_ID,
-						  const OTIdentifier	& USER_ID,
-						  // -------------------------------------------
-						  const OTIdentifier	& ASSET_TYPE_ID,
-						  const OTIdentifier	& ASSET_ACCT_ID,
-						  // -------------------------------------------
-						  const OTIdentifier	& CURRENCY_TYPE_ID,
-						  const OTIdentifier	& CURRENCY_ACCT_ID,
-						  // -------------------------------------------
-						  const long			& MARKET_SCALE,	// Defaults to minimum of 1. Market granularity.
-						  const long			& MINIMUM_INCREMENT,	// This will be multiplied by the Scale. Min 1.
-						  const long			& TOTAL_ASSETS_ON_OFFER, // Total assets available for sale or purchase. Will be multiplied by minimum increment.
-						  const long			& PRICE_LIMIT,		// Per Minimum Increment...
-						  const bool			bBuyingOrSelling);	//  BUYING == false, SELLING == true.
-	
-	void getMarketList(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID);
-	void getMarketOffers(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID, 
+	int getMarketList(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID);
+	int getMarketOffers(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID, 
 						 const OTIdentifier & MARKET_ID, const long & lDepth);
-	void getMarketRecentTrades(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID, 
+	int getMarketRecentTrades(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID, 
 							   const OTIdentifier & MARKET_ID);
-	void getNym_MarketOffers(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID);
+	int getNym_MarketOffers(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID);
     
 
     // For cancelling market offers and payment plans.
     //
-	void cancelCronItem(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID, 
+	int cancelCronItem(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID, 
                                 const OTIdentifier & ASSET_ACCT_ID, 
                                 const long & lTransactionNum);
     
-    void getOffer_Trades(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID, const long & lTransactionNum);
+    int getOffer_Trades(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID, const long & lTransactionNum);
 
 };
 		

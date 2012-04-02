@@ -311,6 +311,11 @@ void OTData::Assign(const OTData &theSource)
 		Release(); // Otherwise if it's empty, then empty this also.
 }
 
+bool OTData::IsEmpty() const
+{
+    return (m_lSize > 0) ? false : true;
+}
+
 void OTData::Assign(const void * pNewData, uint32_t lNewSize)
 {
 	Release(); // This releases all memory and zeros out all members.

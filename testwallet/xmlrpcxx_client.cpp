@@ -1036,12 +1036,21 @@ void RegisterAPIWithScript(OTScript & theScript)
 		pScript->chai.add(fun(&OTAPI_Wrap::GetAccountWallet_AssetTypeID), "OT_API_GetAccountWallet_AssetTypeID");
 		pScript->chai.add(fun(&OTAPI_Wrap::GetAccountWallet_ServerID), "OT_API_GetAccountWallet_ServerID");
 		pScript->chai.add(fun(&OTAPI_Wrap::GetAccountWallet_NymID), "OT_API_GetAccountWallet_NymID");
+        
+		pScript->chai.add(fun(&OTAPI_Wrap::GetAccountWallet_InboxHash), "OT_API_GetAccountWallet_InboxHash");
+		pScript->chai.add(fun(&OTAPI_Wrap::GetAccountWallet_OutboxHash), "OT_API_GetAccountWallet_OutboxHash");
+
 		pScript->chai.add(fun(&OTAPI_Wrap::VerifyAccountReceipt), "OT_API_VerifyAccountReceipt");
 		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_TransactionNumCount), "OT_API_GetNym_TransactionNumCount");
 		
 		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_ID), "OT_API_GetNym_ID");
 		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_Name), "OT_API_GetNym_Name");
 		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_Stats), "OT_API_GetNym_Stats");
+		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_NymboxHash), "OT_API_GetNym_NymboxHash");
+		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_RecentHash), "OT_API_GetNym_RecentHash");
+		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_InboxHash), "OT_API_GetNym_InboxHash");
+		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_OutboxHash), "OT_API_GetNym_OutboxHash");
+        
 		pScript->chai.add(fun(&OTAPI_Wrap::IsNym_RegisteredAtServer), "OT_API_IsNym_RegisteredAtServer");
 		
 		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_MailCount), "OT_API_GetNym_MailCount");
@@ -1126,7 +1135,19 @@ void RegisterAPIWithScript(OTScript & theScript)
 		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetRecipientUserID), "OT_API_Transaction_GetRecipientUserID");
 		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetRecipientAcctID), "OT_API_Transaction_GetRecipientAcctID");
 		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetDisplayReferenceToNum), "OT_API_Transaction_GetDisplayReferenceToNum");
-		
+        
+		pScript->chai.add(fun(&OTAPI_Wrap::Instrument_GetAmount), "OT_API_Instrument_GetAmount");
+		pScript->chai.add(fun(&OTAPI_Wrap::Instrument_GetTransNum), "OT_API_Instrument_GetTransNum");
+		pScript->chai.add(fun(&OTAPI_Wrap::Instrument_GetValidFrom), "OT_API_Instrument_GetValidFrom");
+		pScript->chai.add(fun(&OTAPI_Wrap::Instrument_GetValidTo), "OT_API_Instrument_GetValidTo");
+		pScript->chai.add(fun(&OTAPI_Wrap::Instrument_GetMemo), "OT_API_Instrument_GetMemo");
+		pScript->chai.add(fun(&OTAPI_Wrap::Instrument_GetAssetID), "OT_API_Instrument_GetAssetID");
+        
+		pScript->chai.add(fun(&OTAPI_Wrap::Instrmnt_GetSenderUserID), "OT_API_Instrmnt_GetSenderUserID");
+		pScript->chai.add(fun(&OTAPI_Wrap::Instrmnt_GetSenderAcctID), "OT_API_Instrmnt_GetSenderAcctID");
+		pScript->chai.add(fun(&OTAPI_Wrap::Instrmnt_GetRecipientUserID), "OT_API_Instrmnt_GetRecipientUserID");
+		pScript->chai.add(fun(&OTAPI_Wrap::Instrmnt_GetRecipientAcctID), "OT_API_Instrmnt_GetRecipientAcctID");
+        
 		pScript->chai.add(fun(&OTAPI_Wrap::CreatePurse), "OT_API_CreatePurse");
 		pScript->chai.add(fun(&OTAPI_Wrap::SavePurse), "OT_API_SavePurse");
 		pScript->chai.add(fun(&OTAPI_Wrap::Purse_GetTotalValue), "OT_API_Purse_GetTotalValue");
@@ -1177,6 +1198,8 @@ void RegisterAPIWithScript(OTScript & theScript)
 		pScript->chai.add(fun(&OTAPI_Wrap::getOutbox), "OT_API_getOutbox");
 		pScript->chai.add(fun(&OTAPI_Wrap::getNymbox), "OT_API_getNymbox");
 		
+		pScript->chai.add(fun(&OTAPI_Wrap::Nymbox_GetReplyNotice), "OT_API_Nymbox_GetReplyNotice");
+		
 		pScript->chai.add(fun(&OTAPI_Wrap::getBoxReceipt), "OT_API_getBoxReceipt");
 		pScript->chai.add(fun(&OTAPI_Wrap::DoesBoxReceiptExist), "OT_API_DoesBoxReceiptExist");
 		
@@ -1199,6 +1222,11 @@ void RegisterAPIWithScript(OTScript & theScript)
 		
 		pScript->chai.add(fun(&OTAPI_Wrap::PopMessageBuffer), "OT_API_PopMessageBuffer");
 		pScript->chai.add(fun(&OTAPI_Wrap::FlushMessageBuffer), "OT_API_FlushMessageBuffer");
+
+		pScript->chai.add(fun(&OTAPI_Wrap::GetSentMessage), "OT_API_GetSentMessage");
+		pScript->chai.add(fun(&OTAPI_Wrap::RemoveSentMessage), "OT_API_RemoveSentMessage");
+		pScript->chai.add(fun(&OTAPI_Wrap::FlushSentMessages), "OT_API_FlushSentMessages");
+
 		pScript->chai.add(fun(&OTAPI_Wrap::Sleep), "OT_API_Sleep");
 
 		pScript->chai.add(fun(&OTAPI_Wrap::ResyncNymWithServer), "OT_API_ResyncNymWithServer");
@@ -1216,6 +1244,7 @@ void RegisterAPIWithScript(OTScript & theScript)
 		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetNewAssetTypeID), "OT_API_Message_GetNewAssetTypeID");
 		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetNewIssuerAcctID), "OT_API_Message_GetNewIssuerAcctID");
 		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetNewAcctID), "OT_API_Message_GetNewAcctID");
+		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetNymboxHash), "OT_API_Message_GetNymboxHash");
 		
 		pScript->chai.add(fun(&OTAPI_Wrap::Create_SmartContract), "OT_API_Create_SmartContract");
 		
@@ -1232,8 +1261,11 @@ void RegisterAPIWithScript(OTScript & theScript)
 		pScript->chai.add(fun(&OTAPI_Wrap::SmartContract_ConfirmParty), "OT_API_SmartContract_ConfirmParty");
 		
 		pScript->chai.add(fun(&OTAPI_Wrap::SmartContract_CountNumsNeeded), "OT_API_SmartContract_CountNumsNeeded");
-		pScript->chai.add(fun(&OTAPI_Wrap::HarvestClosingNumbers), "OT_API_HarvestClosingNumbers");
-		pScript->chai.add(fun(&OTAPI_Wrap::HarvestAllNumbers), "OT_API_HarvestAllNumbers");
+        
+		pScript->chai.add(fun(&OTAPI_Wrap::Msg_HarvestTransactionNumbers), "OT_API_Msg_HarvestTransactionNumbers");
+        
+//		pScript->chai.add(fun(&OTAPI_Wrap::HarvestClosingNumbers), "OT_API_HarvestClosingNumbers");
+//		pScript->chai.add(fun(&OTAPI_Wrap::HarvestAllNumbers), "OT_API_HarvestAllNumbers");
 		
 		pScript->chai.add(fun(&OTAPI_Wrap::activateSmartContract), "OT_API_activateSmartContract");
 		pScript->chai.add(fun(&OTAPI_Wrap::triggerClause), "OT_API_triggerClause");
@@ -2309,7 +2341,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::notarizeWithdrawal, theMessage, 
+            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::notarizeWithdrawal, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          pMyAccount, lAmount))
             {
@@ -2330,7 +2362,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
         
-            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::notarizeTransfer, theMessage, 
+            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::notarizeTransfer, theMessage, 
                                                          *pMyNym,  *pServerContract,
                                                          pMyAccount, lAmount, NULL, // asset contract
                                                          NULL, // his Nym
@@ -2362,7 +2394,7 @@ int main(int argc, char* argv[])
             
             OTIdentifier HIS_NYM_ID ((str_HisNym.size() > 0)  ? str_HisNym.c_str():"aaaaaaaa");
 
-            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::withdrawVoucher, theMessage,
+            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::withdrawVoucher, theMessage,
                                                          *pMyNym, *pServerContract,
                                                          pMyAccount, lAmount, NULL, // asset contract
                                                          (str_HisNym.size() > 0)  ? &HIS_NYM_ID : NULL))
@@ -2382,7 +2414,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::marketOffer, theMessage, 
+            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::marketOffer, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // for now, keeping it simple. Can add options later.
             {
@@ -2434,7 +2466,7 @@ int main(int argc, char* argv[])
         {            
             OTLog::Output(0, "(User has instructed to activate a payment plan...)\n");
             
-            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::paymentPlan, theMessage,
+            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::paymentPlan, theMessage,
                                                      *pMyNym, *pServerContract,
                                                      pMyAccount)) // if user DOES specify an account (unnecessary)
             {                                   // then OT will verify that they match, and error otherwise.
@@ -2452,7 +2484,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::notarizeCheque, theMessage, 
+            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::notarizeCheque, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          pMyAccount))
             {
@@ -2469,7 +2501,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::notarizePurse, theMessage, 
+            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::notarizePurse, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          pMyAccount,
                                                          0, // amount (unused here)
@@ -2488,7 +2520,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::notarizeDeposit, theMessage, 
+            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::notarizeDeposit, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          pMyAccount))
             {
@@ -2546,7 +2578,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::getAccount, theMessage, 
+            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::getAccount, theMessage, 
                                                          *pMyNym,  *pServerContract,
                                                          pMyAccount))
             {
@@ -2563,7 +2595,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::getNymbox, theMessage, 
+            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::getNymbox, theMessage, 
                                                          *pMyNym,  *pServerContract,
                                                          NULL))
             {
@@ -2847,7 +2879,7 @@ int main(int argc, char* argv[])
 
 			OTMessage theMessage;
 			
-			if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::checkServerID, theMessage, 
+			if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::checkServerID, theMessage, 
 														*pMyNym, *(g_OT_API.GetWallet()->GetServerContract(SERVER_ID)),
 														NULL)) // NULL pAccount on this command.
 			{
@@ -3328,7 +3360,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::checkServerID, theMessage, 
+            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::checkServerID, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command (so far).
             {				
@@ -3347,7 +3379,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::createUserAccount, theMessage, 
+            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::createUserAccount, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3369,7 +3401,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::checkUser, theMessage, 
+            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::checkUser, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3388,7 +3420,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::createAccount, theMessage, 
+            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::createAccount, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3407,7 +3439,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::issueAssetType, theMessage, 
+            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::issueAssetType, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3426,7 +3458,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::issueBasket, theMessage, 
+            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::issueBasket, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3445,7 +3477,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::exchangeBasket, theMessage, 
+            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::exchangeBasket, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3464,7 +3496,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::marketOffer, theMessage, 
+            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::marketOffer, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3483,7 +3515,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::setServerName, theMessage, 
+            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::setServerName, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3500,7 +3532,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::setAssetName, theMessage, 
+            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::setAssetName, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3517,7 +3549,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::setNymName, theMessage, 
+            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::setNymName, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3534,7 +3566,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::setAccountName, theMessage, 
+            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::setAccountName, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3564,7 +3596,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::sendUserMessage, theMessage, 
+            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::sendUserMessage, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3583,7 +3615,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::processEntireNymbox, theMessage, 
+            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::processEntireNymbox, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3602,7 +3634,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::getNymbox, theMessage, 
+            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::getNymbox, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3623,7 +3655,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::processEntireInbox, theMessage, 
+            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::processEntireInbox, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // have to allow this to be defaulted at some point...
 			{
@@ -3642,7 +3674,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::getInbox, theMessage, 
+            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::getInbox, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL))
             {
@@ -3661,7 +3693,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::getOutbox, theMessage, 
+            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::getOutbox, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL))
             {
@@ -3680,7 +3712,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::notarizeCheque, theMessage, 
+            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::notarizeCheque, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL))
             {
@@ -3699,7 +3731,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::notarizePurse, theMessage, 
+            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::notarizePurse, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL))
             {
@@ -3718,7 +3750,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::notarizeDeposit, theMessage, 
+            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::notarizeDeposit, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL))
             {
@@ -3737,7 +3769,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::withdrawVoucher, theMessage, 
+            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::withdrawVoucher, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3756,7 +3788,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::notarizeWithdrawal, theMessage, 
+            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::notarizeWithdrawal, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3775,7 +3807,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::paymentPlan, theMessage, 
+            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::paymentPlan, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3794,7 +3826,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::getAccount, theMessage, 
+            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::getAccount, theMessage, 
                                                          *pMyNym,  *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3813,7 +3845,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::getContract, theMessage, 
+            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::getContract, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3866,7 +3898,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::getMint, theMessage, 
+            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::getMint, theMessage, 
                                                          *pMyNym,  *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3885,7 +3917,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::notarizeTransfer, theMessage, 
+            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::notarizeTransfer, theMessage, 
                                                          *pMyNym,  *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3904,7 +3936,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::getRequest, theMessage, 
+            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::getRequest, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3958,7 +3990,7 @@ int main(int argc, char* argv[])
                 // ------------------------------------------------------------------------------			
                 // if successful setting up the command payload...
                 
-                if (g_OT_API.GetClient()->ProcessUserCommand(OTClient::getTransactionNum, theMessage, 
+                if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::getTransactionNum, theMessage, 
                                                              *pMyNym,  *pServerContract,
                                                              NULL)) // NULL pAccount on this command.
                 {

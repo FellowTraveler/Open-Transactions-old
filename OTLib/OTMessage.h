@@ -139,7 +139,7 @@ using namespace io;
 #include "OTContract.h"
 
 
-
+class OTPseudonym;
 
 
 class OTMessage : public OTContract 
@@ -168,9 +168,19 @@ public:
 	// the method here so try and force the issue.
 	virtual bool SignContract(const OTPseudonym & theNym);
 
+    bool HarvestTransactionNumbers(      OTPseudonym &  theNym,
+                                   const bool           bHarvestingForRetry,     // false until positively asserted.
+                                   const bool           bReplyWasSuccess,        // false until positively asserted.
+                                   const bool           bReplyWasFailure,        // false until positively asserted.
+                                   const bool           bTransactionWasSuccess,  // false until positively asserted.
+                                   const bool           bTransactionWasFailure); // false until positively asserted.
+    
 	OTString	m_strCommand;		// perhaps @register is the string for "reply to register" a-ha
 	OTString	m_strServerID;		// This is sent with every message for security reasons.
 	OTString	m_strNymID;			// The hash of the user's public key... or x509 cert.
+	OTString	m_strNymboxHash;	// Sometimes in a server reply as FYI, sometimes in user message for validation purposes.
+	OTString	m_strInboxHash;     // Sometimes in a server reply as FYI, sometimes in user message for validation purposes.
+	OTString	m_strOutboxHash;	// Sometimes in a server reply as FYI, sometimes in user message for validation purposes.
 	OTString	m_strNymID2;		// If the user requests public key of another user. ALSO used for MARKET ID sometimes.
 	OTString	m_strNymPublicKey;  // The user's public key... or x509 cert.
 	OTString	m_strAssetID;		// The hash of the contract for whatever digital asset is referenced.
@@ -185,6 +195,10 @@ public:
 									// or a message envelope or request from another user etc) then
 									// it can be put here in ascii-armored format.
 
+    long        m_lNewRequestNum;   // If you are SENDING a message, you set m_strRequestNum. (For all msgs.)
+                                    // Server Reply for all messages copies that same number into m_strRequestNum;
+                                    // But if this is a SERVER REPLY to the "getRequestNumber" MESSAGE, the
+                                    // "request number" expected in that reply is stored HERE in m_lNewRequestNum;
 	long		m_lDepth;			// For Market-related messages... (Plus for usage credits.) Also used by getBoxReceipt
 	long		m_lTransactionNum;	// For Market-related messages... Also used by getBoxReceipt
 	

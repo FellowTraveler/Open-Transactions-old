@@ -192,8 +192,9 @@ public:
     bool DropFinalReceiptToNymbox(const OTIdentifier & USER_ID,
                                   const long & lNewTransactionNumber,
                                   const OTString & strOrigCronItem,
-                                  OTString * pstrNote=NULL,
-                                  OTString * pstrAttachment=NULL);
+                                  OTString      * pstrNote=NULL,
+                                  OTString      * pstrAttachment=NULL,
+                                  OTPseudonym   * pActualNym=NULL);
 
 	// -----------------------------------------------------------------
 	

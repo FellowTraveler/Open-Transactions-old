@@ -1,0 +1,133 @@
+-----BEGIN SIGNED MINT-----
+Hash: SAMY
+
+<?xml version="1.0"?>
+
+<mint version="1.0"
+ serverID="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1"
+ serverNymID="pc23gUqPu9Bk1Vl0K5lz3Jp1MYIfjGIBXVWDp1gba9C"
+ assetTypeID="aF4n89o4zyuVWR6Cpm9X75u2Vgv1hbT2v4S0jMKApRR"
+ cashAcctID="NP6RLg4ykYqs5pJev82E7g2hNHzgzHxL5pDD2OyDiDm"
+ series="0"
+ expiration="1341131564"
+ validFrom="1333355564"
+ validTo="1348907564" >
+
+<mintPublicKey>
+CpACLS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlHZk1BMEdDU3FHU0liM0RR
+RUJBUVVBQTRHTkFEQ0JpUUtCZ1FEZ0E2TDkwNzRNN2dzYVVtTE5aVy9aeXFBeApT
+QWJyYnhDU2hYMC94S1Q4SzFiakQ5cjJkR29jdEFhRlFPTGgvaFVNSXkyQ1JBVXlB
+enZpTWJrWE9BY1orTnAxCkNncXdTRUtZclRaUURITCtqNXphd2xjZ0oreGtPZlc0
+bng1RmV6YzFxU3g5TVJhUzhHdXhvbmdndUpNOWhyb1MKdzdHZzZua3RpdlZwVnJh
+WTh3SURBUUFCCi0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQo=
+</mintPublicKey>
+
+<mintPublicInfo denomination="1">
+eJwNkT3OFkAIhBur9zT8LxRfscByEC2MiYWN5/DK0i0bMjwz8/n37eeXfv58NbFk
+mColy5SpO172Ha542YkBfoR1osTe/joWmL6OUFQ46gqBFyIQvehWX7ijE6uRL6nt
+6UUm7XcsWfmWpIC1nSoYeNweOk2PThhR4UNSMWFxiFuET1Vmkab8SjnXY77+9uFD
+N5tRkPjIHivUmQYUEsjgsncLMQ91JZ8M7PtanDon9Vos0+fP3++/f/34MhYNbliK
+hamjx+nOcCJjE85mtAaHO/3xWynhtXtKi95NUqRzJgelQtPDW7j48Aly4EgpkKe+
+XjbAkVITEOT7SsCboBHJLh4qeCExdyOYSffJtZyACzZutLua17YEtniLUut5S6B4
+lFuJ3Th2IGX4Ts07uUIGGlGDjcppbigQQgMweoaSsqE//wFLf3iA
+</mintPublicInfo>
+
+<mintPublicInfo denomination="5">
+eJwVkTlyXTEMBBNF/zRYCSL4ATYeRA5crnKgROfQlcXHlMRguvn6+fj71tfX+xgR
+cMgKA6aikhzsLJXlpaeO9x4SYjlrvEMDGoOzaYKYuZl1dz5vFrAe7sDRDJ/eqC0C
+9+xVnM5xDFWCW52XhgcQINw8kbDNHFOAFTsIGZuV8vizuiFXoeIAuHiEuh0hx7PH
+zUdNE8t0iBLaES3r3HYxK1hiYbHZoCqUscjwyn1pfDg8X1/fn////XlLBF5Wl5Wt
+ad7TtXSOW14RbrCz2TuF18QCKB3l1fvmZa6z7eJHkIl6m1O3B0HojhuAsFaqS672
+vGiUhFEjs1kUD5A+94ot5rZxdV0fZV6VFHzKCAv9Zj9OY0TJAE6elBZ8Jg9GHDi+
+j9f1vO4PHb0UNnpbHD/7zlysPUvoVoZb6y7tMsF9VUHX6xdZv3jW
+</mintPublicInfo>
+
+<mintPublicInfo denomination="10">
+eJwVkTuSEEAIRBOjPQ3/T7ABA8xBNLCsMtjEc3hlxwyoapp+fPz99vNTP74+Q7xh
+IlP4QlT4vZWpMbQ6k9wu6H7KvRPiHr+9NI6BrusBtmUjGW9HYPEuuS21o+WctTxZ
+Tp2OaAGcxhAsi3w1q+NCSrMFAmh5Y0WnKKuwTOIgLOy4HofGnEwa7DV7Rs9+ukyl
+jjU8IcWpRrgk1VzXSl7veeBpVVC3gwkw1dvAxgZyG/nj68/3379+fKqr4faGLh/z
+I6W3s/2pKROUxA0qUen6OZ1EL95soCFnoZSBLBCBW2ds9kGUYSnSLgYmHu5bMG53
+9Jk/ko4K583eabFhp9Lzttz/WPhaX7uLi+9gIQgfxVnFiFfryRZjOv+RHpJLKKIr
+80IQvp+xzwNx3oOM0A6SPuyZmDajVQ2P3Vs/xoUdhz/+AVaLeGY=
+</mintPublicInfo>
+
+<mintPublicInfo denomination="25">
+eJwVkTuyEDAIRRurtxogAULxCr4L0cJxxuI1rsMti1WKhJtzDx9/v/385I+vz0pp
+sYIDyYjFPBwDqaCkWmqdRjR2cJ7ZtdfuHS54NcT9DdaMUtbwrRKHYL5mgaezbKKk
+/MhstgMHdOHxewDANJ7SINt7o/usLwGfJ56na6INnAhKcNynGzYNA73yQKXewLIQ
+xksddYK8q2dOCJZAkZMHxG26XjAWro/Ua5wXOQWj0OgtxMfXn++/f/34PD1ocGV9
+mCQ34CQ2m5rBZL7hl3dICHXLOSx6qBvjwFFjbit8kLfhCZ55vKwid1HZ4WKuw3kS
+dvy8V7WlY+80/QXUoaALJ92jNdWdyihSQmYYzDPhvumV8a5ut53XEzlB2/Ehr2re
+PXFtjOnuZpF3FQ6HXMb3F7Y4J+L/CautYpUJ3IWm9RJ9P/4Bqv16iw==
+</mintPublicInfo>
+
+<mintPublicInfo denomination="100">
+eJwVkTuSEEAIRBOjPQ2/gSHYgO9BNLCsMtjEc3hlx4yCgtfdfPz99vPzfHx9zs70
+sLSwzh7F3PaU4dRB0ECv0aIDHTqB68zK6jerexw5BU+GnQBXd7uJDn00KobfcMyu
+6V4O4lVvOixM3AdFXmmWSDhZFK/LQDw36f/RbvOHPGRdxJ5xekpED0BdhJhwHw3C
+jjRI5hV8gtmYlGdrRxYp9BaqgeOU0UmHiAaVe7jxPp/78fXn++9fPz5TnFjUTzAA
+CNJZeWz0iHWDyAFjFXOz5svVN3eCrijObrip3icx1EWVfMgBXyT6BOaBx6XaxuqR
+Ar8+l9xfhrhUKpTKYbtQeANp8LiUQVk+dy//U4LCxV52Md8uvFiF9FoLwY4/bnc0
+8jQcPE/+SMZjZS541zlFCbfWCbwq931yNklLausG3I9/s9V5OQ==
+</mintPublicInfo>
+
+<mintPublicInfo denomination="500">
+eJwVkTtOBDAMRBuqPY3jxL9ii/h3ECgQEgUN5+DKeJUi0tgZ+00ef2+fT3r8PM3l
+UlpDVfpKwUBSsX000/BYS9dxWbT5Ghcn5/XYp5ObBWm5TlU92QXsqnqcHdxz78Xa
+pOzBPE4coJYnS51Pm1yJKZxcJNW2vGqrGiiUElmiTKvfRWsmH8XYwrMk+ypCHH/k
+EePiltK1U8PQon2veWK5D9NF92GJe6cSEufG7DmrpJNaZJDI4+f3/fvr48mIzlsU
+KI7EGCU1Mpg4bF16s8yXk20g7ZTIVbxOCIJch1RWALiVQ4FDpi9NtRbVhrPoZrya
+8yZ5zOTeJYwEXhSBmoSwyrCHtFwOWObEOlBYMp9zE3zOoB44h6x71O0FJNu8B3Oi
+paPjurWyZ4avfuXZfOAGcMvO8dTNk7kdGw3LFnNiobY+/gEGV3ow
+</mintPublicInfo>
+
+<mintPublicInfo denomination="1000">
+eJwVkTuOEEAMQxuqPU3+kxRbZPI5CBQIiWIbzsGVGdrYku2Xj7/ffn7qx9fnQtCJ
+nV72sgI5xyN3Ga4ftKkuJIlpuKr3Rt0SRQGKEwewHJUJpEqcTGOuhyXhJIQ7nKNd
+fMHnEhhwjXZzI640ysuFMhoLU3Pe3dsle7jWs9FhE1fXbJR2s+hZJ8wDyYpqTtJN
+WcWBZU7EO/qGABKjhDWU2N49yFeGghrCriKCDeb/8un34+vP99+/fnxGvqJq6mkM
++ERBc6moStizeujlvFZ00kcFT54GGBn1PUPCYu0uUsunsjgXdmIfKHVtoJnjdfeV
+uBqefHz3TSYyu0QiD6GJN5tJeE+LjUT7G6NZkHPzHWZIiR+CN3f4SN+hbbpr/3/l
+TFHHUKEfw8d+2fzSkuTmYSNcW6ctxicOgF1v4mcPkY9/BD54+Q==
+</mintPublicInfo>
+
+<mintPublicInfo denomination="2000">
+eJwNkTvSFjAIRRurbzUEwqv4CwiwEC0cZyxsXIdbli6TkJtzbj7/vv384s+fLxs1
+ijj3pbq952EjMWnM0JeU5tyI10BiT1EoCV3MPOY9yGG8Bh43K3ZmtFWZvGncBZTM
+JJzsEU48AAm5h0YO75J3Yw4gpHU97jgYzIKAc8Evy4R0uDDsSZ16NNCRHPoSvHXq
+oOI7YnOpK92cCbBqIIHgHCObSnlzMQ6w5NA0q9QoENba9Xz+/P3++9ePr0W4YUch
+uFroTdVrX/QtZGPiWDS/lJYXHNvBVtUD03a1aR9svItdYwYZExcazLUxaryIijA0
+LvuFxyWZynu7NlHXZe0SArXCVWd5nZ+ugnGeoENs6DV4enPPsDzpwzaoEQs9Gno5
+W2UdMxpPYRO+21PXWezgcOJZu/3j9O1EFzUHrxpO7cR8/gNjLHmx
+</mintPublicInfo>
+
+<mintPublicInfo denomination="10000">
+eJwVkTuSEEAIRBOjPQ2fYYBgA4bPQTSwrDLYxHN4ZZGQorqbfh9/v/38lI+vz2ym
+Kz1TWUFw7OJ1E6cLRHXUAOgFDAqaexuTnDwZOaKIcLPhmgaKcflRR4KrOugYIIkz
+VKyv+eWb9wjEG0RTVBD/mwjm3BDcs7IidkF2mOdrAAlYK5znBvTtiU55b7jz3i7I
+I2GC08jaTaCqdMqvX8G3qqOU8LTBHDhO7R9Rx6k0QkyOZr+Prz/ff//68alMT10A
+YUMfus4sk8KN7XEyCXgboJ3yxpNCcqUYbKiPdwSQmOEEMtCglQMq1hWbkHILAy/t
+ejyQ80DJMjPegWd7uZ2cGXPhx6Q4uF39f70Zs7a0eK/7mFaCruaubSON8xPSBdC1
+iV6e8Yj1EV40cciR83I0kshMBtM4xVEJ8qUli4Z9mV78+AfOOngI
+</mintPublicInfo>
+
+<mintPublicInfo denomination="100000">
+eJwVkTuOEEAIhhurPQ0Mj4FiCxjgIFoYE4ttPIdXFquZhPD9Dz7+fvv5KR9fn42O
+h3JOnjFIjFfIXSXmKuJoV3FIKdVLwgH0YbaZFOLlYXM+D2TqPM0iVfO0nrCYA/uZ
+gMl5ZKh+OBEXBIQicDL/y7pXKabX85aCAyKBy+yx1OS+Ahp49ul4rLKY60EnBxEf
+QxWOqfiplRd41pYhoWn4dtg7myOEyhJCN/2F9vXdPx1AH19/vv/+9ePzRQuDPWC9
+2twc0dQbnUZpXY/fGHZHEEOjdCjdleEpgOhjI1VgGD6vKM5Aqg1S02ayitlUxLnI
+zCf++i2RwIoy1hyyveVeREtG3lq3NPa423fikRYUWttb1QWoc5W6rwHmAbpvb7Ue
+4PnZQ9CpdnJfdbzPJuE0DbPq3XKmEOAGH4S4c3nNEbh//APqOHiz
+</mintPublicInfo>
+
+</mint>
+-----BEGIN MINT SIGNATURE-----
+Version: Open Transactions 0.78
+Comment: http://github.com/FellowTraveler/Open-Transactions/wiki
+
+CoAB0bGyqMx8AfQAErHVmSipxeSrc5R8HIcKIxn8xKEVb95EnypmSWubd0Flf4AH
+MzYmeEehBwWOhorZ0rRQBjdWVzsgGGIXif0YdpCQLtFg9jBu8gK9rENIMjSAhvmN
+p8cDePqegxNz1PiTcL1+Wsvh2Xrk5F3MgLw7KRA9OY+lLok=
+-----END MINT SIGNATURE-----

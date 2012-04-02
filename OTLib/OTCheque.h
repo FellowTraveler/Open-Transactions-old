@@ -131,6 +131,7 @@
 #define __OT_CHEQUE_H__
 
 
+#include <ctime>
 #include <fstream>
 
 
@@ -152,11 +153,15 @@ protected:
 	
 public:
 	inline void				SetAsVoucher() { m_strContractType = "VOUCHER"; }
-	inline OTString &		GetMemo() { return m_strMemo; }
+	inline const OTString &	GetMemo() const { return m_strMemo; }
 	inline const long &		GetAmount() const { return m_lAmount; }
-	inline OTIdentifier &	GetRecipientUserID()	{ return m_RECIPIENT_USER_ID; }
+	inline const OTIdentifier &	GetRecipientUserID() const { return m_RECIPIENT_USER_ID; }
 	inline bool				HasRecipient() const { return m_bHasRecipient; }
 
+    // A cheque HAS NO "Recipient Asset Acct ID", since the recipient's account (where he deposits
+    // the cheque) is not known UNTIL the time of the deposit. It's certain not known at the time 
+    // that the cheque is written...
+    // --------------------------------------------------
 	
 	// Calling this function is like writing a check...
 	bool IssueCheque(const long	& lAmount,	const long & lTransactionNum,

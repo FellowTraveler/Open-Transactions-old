@@ -343,7 +343,7 @@ public:
 	 inline void			SetRecipientAcctID(OTIdentifier & ACCT_ID)	{ m_RECIPIENT_ACCT_ID = ACCT_ID; }
 	 inline void			SetRecipientUserID(OTIdentifier & USER_ID)	{ m_RECIPIENT_USER_ID = USER_ID; }
 
-	 OTString		m_strConsideration;	// Presumably an agreement is in return for some consideration. Memo here.
+     const OTString &  GetConsideration() const { return m_strConsideration; }
 	 */
 	// Return True if should stay on OTCron's list for more processing.
 	// Return False if expired or otherwise should be removed.

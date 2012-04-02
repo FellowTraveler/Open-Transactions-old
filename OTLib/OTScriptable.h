@@ -256,10 +256,11 @@ public:
 	// -----------------------------------------------------------------
 	// 
 	bool VerifyPartyAuthorization(OTParty			& theParty,		// The party that supposedly is authorized for this supposedly executed agreement.
-								  OTPseudonym		& theSignerNym,	// For verifying signature on the authorizing Nym, when loading it
-								  const OTString	& strServerID,	// For verifying issued num, (need the serverID the # goes with.)
-								  mapOfNyms			* pmap_ALREADY_LOADED=NULL, // If some nyms are already loaded, pass them here so we don't load them twice on accident.
-								  const bool		  bBurnTransNo=false); // In OTServer::VerifySmartContract(), it not only wants to verify the # is properly issued, but it additionally wants to see that it hasn't been USED yet -- AND it wants to burn it, so it can't be used again!  This bool allows you to tell the function whether or not to do that.
+                                  OTPseudonym		& theSignerNym,	// For verifying signature on the authorizing Nym, when loading it
+                                  const OTString	& strServerID, // For verifying issued num, need the serverID the # goes with.
+                                  mapOfNyms		* pmap_ALREADY_LOADED=NULL, // If some nyms are already loaded, pass them here so we don't load them twice on accident.
+                                  mapOfNyms		* pmap_NEWLY_LOADED=NULL,   // If some nyms had to be loaded, then they will be deleted, too. UNLESS you pass a map here, in which case they will instead be added to this map. (But if you do that, then you must delete them yourself after calling this function.)
+                                  const bool		  bBurnTransNo=false); // In OTServer::VerifySmartContract(), it not only wants to verify the # is properly issued, but it additionally wants to see that it hasn't been USED yet -- AND it wants to burn it, so it can't be used again!  This bool allows you to tell the function whether or not to do that.
 	
 	bool VerifyPartyAcctAuthorization(OTPartyAccount	& thePartyAcct,	// The party is assumed to have been verified already via VerifyPartyAuthorization()
 									  OTPseudonym		& theSignerNym,	// For verifying signature on the authorized Nym
@@ -279,6 +280,8 @@ public:
 	//
 	void RetrieveNymPointers(mapOfNyms & map_Nyms_Already_Loaded);
 	
+    void ClearTemporaryPointers();
+    
 	// ----------------
 	// Look up all clauses matching a specific hook.
 	// (Across all Bylaws) Automatically removes any duplicates.
@@ -309,7 +312,8 @@ public:
 //								const long & lInReferenceTo, // each party has its own opening trans #.
 								const OTString & strReference,
 								OTString * pstrNote=NULL,
-								OTString * pstrAttachment=NULL);
+								OTString * pstrAttachment=NULL,
+                                OTPseudonym * pActualNym=NULL);
 	
 	bool DropServerNoticeToNymbox(OTPseudonym & theServerNym,
 								  const OTIdentifier & SERVER_ID,
@@ -318,7 +322,8 @@ public:
 								  const long & lInReferenceTo,
                                   const OTString & strReference,
                                   OTString * pstrNote=NULL,
-                                  OTString * pstrAttachment=NULL);
+                                  OTString * pstrAttachment=NULL,
+                                  OTPseudonym * pActualNym=NULL);
 	
 	// ----------------
 

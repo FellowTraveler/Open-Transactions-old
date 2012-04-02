@@ -586,7 +586,13 @@ public:
 	bool Contains(const OTString & strContains);	// Allows you to string-search the raw contract.
 	bool Contains(const char * szContains);			// Allows you to string-search the raw contract.
     // -------------------------------------------
-	
+	// OTAccount, OTTransaction, OTItem, and OTLedger are all derived from
+    // this class (OTTransactionType). Therefore they can all quickly identify
+    // whether one of the other components belongs to the same account.
+    //
+    bool IsSameAccount(const OTTransactionType & rhs) const;
+    
+    // -------------------------------------------
 	// This means, "I don't know the 'Real' IDs when I'm about to load this contract, so just
 	// read the purported IDs (the ones inside the contract itself) and set the real IDs to match."
 	//

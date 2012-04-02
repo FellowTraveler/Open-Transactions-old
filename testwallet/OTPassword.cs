@@ -71,14 +71,21 @@ public class OTPassword : IDisposable {
     otapiPINVOKE.OTPassword_zeroMemory(swigCPtr);
   }
 
-  public OTPassword() : this(otapiPINVOKE.new_OTPassword__SWIG_0(), true) {
+  public OTPassword(OTPassword.BlockSize theBlockSize) : this(otapiPINVOKE.new_OTPassword__SWIG_0((int)theBlockSize), true) {
   }
 
-  public OTPassword(string szInput, int nInputSize) : this(otapiPINVOKE.new_OTPassword__SWIG_1(szInput, nInputSize), true) {
+  public OTPassword() : this(otapiPINVOKE.new_OTPassword__SWIG_1(), true) {
+  }
+
+  public OTPassword(string szInput, int nInputSize, OTPassword.BlockSize theBlockSize) : this(otapiPINVOKE.new_OTPassword__SWIG_2(szInput, nInputSize, (int)theBlockSize), true) {
+  }
+
+  public OTPassword(string szInput, int nInputSize) : this(otapiPINVOKE.new_OTPassword__SWIG_3(szInput, nInputSize), true) {
   }
 
   public enum BlockSize {
-    DEFAULT_SIZE = 128
+    DEFAULT_SIZE = 128,
+    LARGER_SIZE = 32767
   }
 
 }

@@ -169,7 +169,8 @@ bool OTAgreement::VerifyNymAsAgentForAccount(OTPseudonym & theNym, const OTAccou
 // This is called by OTCronItem::HookRemovalFromCron
 // (After calling this method, HookRemovalFromCron then calls onRemovalFromCron.)
 //
-void OTAgreement::onFinalReceipt(OTCronItem & theOrigCronItem, const long & lNewTransactionNumber,
+void OTAgreement::onFinalReceipt(OTCronItem & theOrigCronItem,
+                                 const long & lNewTransactionNumber,
                                  OTPseudonym & theOriginator,
                                  OTPseudonym * pRemover)
 {    
@@ -282,12 +283,51 @@ void OTAgreement::onFinalReceipt(OTCronItem & theOrigCronItem, const long & lNew
         //
         theOriginator.RemoveIssuedNum(*pServerNym, strServerID, lSenderOpeningNumber, false); //bSave=false
         theOriginator.SaveSignedNymfile(*pServerNym);
+        // ------------------------------------
+        
+        OTPseudonym *   pActualNym = NULL;  // use this. DON'T use theActualNym.
+        OTPseudonym     theActualNym; // unused unless it's really not already loaded. (use pActualNym.)
+        const OTIdentifier ACTUAL_NYM_ID = GetSenderUserID();
+        
+        if ( (NULL != pServerNym) && pServerNym->CompareID(ACTUAL_NYM_ID) )
+            pActualNym = pServerNym;
+        else if (theOriginator.CompareID(ACTUAL_NYM_ID))
+            pActualNym = &theOriginator;
+        else if ( (NULL != pRemover) && pRemover->CompareID(ACTUAL_NYM_ID) )
+            pActualNym = pRemover;
+        // --------------------------
+        else    // We couldn't find the Nym among those already loaded--so we have to load
+        {       // it ourselves (so we can update its NymboxHash value.)
+            theActualNym.SetIdentifier(ACTUAL_NYM_ID);
+            
+            if (false == theActualNym.LoadPublicKey()) // Note: this step may be unnecessary since we are only updating his Nymfile, not his key.
+            {
+                OTString strNymID(ACTUAL_NYM_ID);
+                OTLog::vError("OTAgreement::onFinalReceipt: Failure loading public key for Nym: %s. "
+                              "(To update his NymboxHash.) \n", strNymID.Get());
+            }
+            else if (theActualNym.VerifyPseudonym()	&& // this line may be unnecessary.
+                     theActualNym.LoadSignedNymfile(*pServerNym)) // ServerNym here is not theActualNym's identity, but merely the signer on this file.
+            {
+                OTLog::Output(0, "OTAgreement::onFinalReceipt: Loading actual Nym, since he wasn't already loaded. "
+                              "(To update his NymboxHash.)\n");
+                pActualNym = &theActualNym; //  <=====
+            }
+            else
+            {
+                OTString strNymID(ACTUAL_NYM_ID);
+                OTLog::vError("OTAgreement::onFinalReceipt: Failure loading or verifying Actual Nym public key: %s. "
+                              "(To update his NymboxHash.)\n", strNymID.Get());
+            }
+        }
+        // -------------
         
         if (false == this->DropFinalReceiptToNymbox(GetSenderUserID(),
                                                     lNewTransactionNumber,
                                                     strOrigCronItem,
                                                     NULL,
-                                                    pstrAttachment))
+                                                    pstrAttachment,
+                                                    pActualNym))
         {
             OTLog::Error("OTAgreement::onFinalReceipt: Failure dropping sender final receipt into nymbox.\n");
         }        
@@ -342,16 +382,27 @@ void OTAgreement::onFinalReceipt(OTCronItem & theOrigCronItem, const long & lNew
         // remains ISSUED, until the final receipt itself is accepted during a process inbox.
         //
         pRecipient->RemoveIssuedNum(*pServerNym, strServerID, lRecipientOpeningNumber, false); //bSave=false       
-        pRecipient->SaveSignedNymfile(*pServerNym);
+//      pRecipient->SaveSignedNymfile(*pServerNym); // Moved lower.
+        // -----------------------------------------------------
         
         if (false == this->DropFinalReceiptToNymbox(GetRecipientUserID(),
                                                     lNewTransactionNumber,
                                                     strOrigCronItem,
                                                     NULL,
-                                                    pstrAttachment))
+                                                    pstrAttachment,
+                                                    pRecipient)) // NymboxHash is updated here in pRecipient.
         {
             OTLog::Error("OTAgreement::onFinalReceipt: Failure dropping recipient final receipt into nymbox.\n");
         }
+        // -----------------------------------------------------
+
+        // Saving both the Removed Issued Number, as well as the new NymboxHash.
+        // NOTE: Todo: if the NymboxHash WAS updated (as it should have been) then
+        // it was probably saved at that time. Below is therefore a redundant save.
+        // Need to fix by making certain objects savable and dirty, and then let them
+        // autosave before destruction, IF they are dirty.
+        //
+        pRecipient->SaveSignedNymfile(*pServerNym); 
     }
     else
     {
@@ -471,21 +522,32 @@ void OTAgreement::onRemovalFromCron()
 void OTAgreement::HarvestOpeningNumber(OTPseudonym & theNym)
 {
     // since we overrode the parent, we give it a chance to harvest also.
+    // IF theNym is the original sender, the opening number will be harvested
+    // inside this call.
     //
     OTCronItem::HarvestOpeningNumber(theNym);
 
-    // The Nym is the original sender. (If Compares true).
+    // The Nym is the original recipient. (If Compares true).
     // IN CASES where GetTransactionNum() isn't already burned, we can harvest it here.
-    // Subclasses will have to override this function for recipients, etc.
     //
     if (theNym.CompareID(GetRecipientUserID()))
     {
-        const OTString strServerID(GetServerID());
-		
-		if (theNym.VerifyIssuedNum(strServerID, GetRecipientOpeningNum())) // we only "add it back" if it was really there in the first place.
-			theNym.AddTransactionNum(theNym, strServerID, GetRecipientOpeningNum(), true); // bSave=true
+        // This function will only "add it back" if it was really there in the first place.
+        // (Verifies it is on issued list first, before adding to available list.)
+        //
+        theNym.ClawbackTransactionNumber(GetServerID(), GetRecipientOpeningNum(), true); //bSave=true
     }
+    
+    // NOTE: if the message failed (transaction never actually ran) then the sender AND recipient
+    // can both reclaim their opening numbers. But if the message SUCCEEDED and the transaction FAILED,
+    // then only the recipient can claim his opening number -- the sender's is already burned. So then,
+    // what if you mistakenly call this function and pass the sender, when that number is already burned?
+    // There's nothing this function can do, because we have no way of telling, from inside here,
+    // whether the message succeeded or not, and whether the transaction succeeded or not. Therefore,
+    // ==> we MUST rely on the CALLER to know this, and to avoid calling this function in the first place, 
+    // if he's sitting on a sender with a failed transaction.
 }
+
 
 
 // Used for adding transaction numbers back to a Nym, after deciding not to use this agreement
@@ -493,7 +555,14 @@ void OTAgreement::HarvestOpeningNumber(OTPseudonym & theNym)
 //
 void OTAgreement::HarvestClosingNumbers(OTPseudonym & theNym)
 {
-    // since we overrode the parent, we give it a chance to harvest also.
+    // Since we overrode the parent, we give it a chance to harvest also.
+    // If theNym is the sender, then his closing numbers will be harvested
+    // inside here. But what if the transaction was a success? The numbers
+    // will still be harvested, since they are still on the sender's issued
+    // list, but they should not have been harvested, regardless, since the
+    // transaction was a success and the server therefore has them marked as
+    // "used." So clearly you cannot just blindly call this function unless
+    // you know beforehand whether the message and transaction were a success.
     //
     OTCronItem::HarvestClosingNumbers(theNym);
 
@@ -506,16 +575,24 @@ void OTAgreement::HarvestClosingNumbers(OTPseudonym & theNym)
     //
     if (theNym.CompareID(GetRecipientUserID()))
     {
-        const OTString strServerID(GetServerID());
-        
         for (int i = 0; i < GetRecipientCountClosingNumbers(); i++)
         {
-			if (theNym.VerifyIssuedNum(strServerID, GetRecipientClosingTransactionNoAt(i))) // we only "add it back" if it was really there in the first place.
-				theNym.AddTransactionNum(theNym, strServerID, GetRecipientClosingTransactionNoAt(i), 
-                                     (i == (GetRecipientCountClosingNumbers()-1) ? true : false)); // bSave=true only on the last iteration.
+            // This function will only "add it back" if it was really there in the first place.
+            // (Verifies it is on issued list first, before adding to available list.)
+            //
+            const bool bClawedBack = 
+                theNym.ClawbackTransactionNumber(GetServerID(), 
+                                                 GetRecipientClosingTransactionNoAt(i), 
+                                                 (i == (GetRecipientCountClosingNumbers()-1) ? true : false)); // bSave=true only on the last iteration.
+			if (!bClawedBack)
+            {
+//				OTLog::vError("OTAgreement::HarvestClosingNumbers: Number (%ld) failed as issued. (Thus didn't bother 'adding it back'.)\n",
+//							  GetRecipientClosingTransactionNoAt(i));
+            }
         }
     }
 }
+
 
 
 

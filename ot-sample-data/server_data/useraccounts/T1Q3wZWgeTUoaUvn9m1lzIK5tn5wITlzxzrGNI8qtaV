@@ -7,6 +7,7 @@ Hash: SAMY
  version="1.0">
 
 <createUserAccount
+ requestNum="1"
  nymID="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV"
  serverID="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1">
 
@@ -28,7 +29,7 @@ VHVRSURBUUFCCi0tLS0tRU5EIFBVQkxJQyBLRVktLS0tLQo=
 Version: Open Transactions 0.78
 Comment: http://github.com/FellowTraveler/Open-Transactions/wiki
 
-CoABLBK37D8xZHSQd4URxB4BA9X0sRoUxr8+CpQA0x5qqrurvoeUS5T/t6YQgrjr
-Dy17vgOQ1inBW4sUiQCDb9/cBffr+fpMp5Xc9HFw6oLRs3PAW6HM1QOTt5Z4L09+
-3fpjfbgW2bnNO8Yk2Q72JorqD4XxDiZ6owWkrSffz2BZKy4=
+CoABtDdqFvU7c3nd/hHKhrx3ILPf0IEA9yH097eK04vKFSNW3YSJnJIPbmhY8qq/
+2+zZrLbHYH2YFNQaJPvkT7zOMfRLiHD6myfkPVWwBtA3/vehCjV8PUYF6xEEJHEs
+c/+iWURbKW97CUTwZH6PK7ADsJdPXjDwW+2Bv/ptUhYRhNk=
 -----END MESSAGE SIGNATURE-----

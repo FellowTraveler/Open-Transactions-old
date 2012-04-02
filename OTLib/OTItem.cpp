@@ -369,8 +369,10 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 	
 	if ((THE_ACCOUNT.GetBalance() + lActualAdjustment) != this->GetAmount()) // this->GetAmount() contains what the balance WOULD be AFTER successful transaction.
 	{
-		OTLog::vOutput(0, "OTItem::VerifyBalanceStatement: Wrong balance %ld (expected %ld).\n",
-					   this->GetAmount(), (THE_ACCOUNT.GetBalance() + lActualAdjustment));
+		OTLog::vOutput(0, "OTItem::VerifyBalanceStatement: This balance statement has a value of %ld, but expected %ld. "
+                       "(Acct balance of %ld plus actualAdjustment of %ld.)\n",
+					   this->GetAmount(), (THE_ACCOUNT.GetBalance() + lActualAdjustment), 
+                       THE_ACCOUNT.GetBalance(), lActualAdjustment);
 		return false;
 	}
 	
@@ -1243,12 +1245,7 @@ OTItem::itemType GetItemTypeFromString(const OTString & strType)
 {
 	OTItem::itemType theType = OTItem::error_state;
 	
-	if (strType.Compare("transaction"))
-		theType = OTItem::transaction;
-	else if (strType.Compare("atTransaction"))
-		theType = OTItem::atTransaction;
-	// --------------------------------------------------------------
-	else if (strType.Compare("transfer"))
+    if (strType.Compare("transfer"))
 		theType = OTItem::transfer;
 	else if (strType.Compare("atTransfer"))
 		theType = OTItem::atTransfer;
@@ -1615,9 +1612,6 @@ void OTItem::GetStringFromType(OTItem::itemType theType, OTString & strType)
 {
 	switch (theType) 
 	{
-		case OTItem::transaction:
-			strType.Set("transaction");
-			break;
 		case OTItem::transfer:
 			strType.Set("transfer");
 			break;
@@ -1740,9 +1734,6 @@ void OTItem::GetStringFromType(OTItem::itemType theType, OTString & strType)
 			
 			
 			
-		case OTItem::atTransaction:
-			strType.Set("atTransaction");
-			break;
 		case OTItem::atTransfer:
 			strType.Set("atTransfer");
 			break;

@@ -988,12 +988,51 @@ void OTTrade::onFinalReceipt(OTCronItem & theOrigCronItem, const long & lNewTran
         
         theOriginator.RemoveIssuedNum(*pServerNym, strServerID, lOpeningNumber, false); //bSave=false
         theOriginator.SaveSignedNymfile(*pServerNym); // forcing a save here, since multiple things have changed.
+        // -----------------------
+        
+        OTPseudonym *   pActualNym = NULL;  // use this. DON'T use theActualNym.
+        OTPseudonym     theActualNym; // unused unless it's really not already loaded. (use pActualNym.)
+        const OTIdentifier ACTUAL_NYM_ID = GetSenderUserID();
+        
+        if ( (NULL != pServerNym) && pServerNym->CompareID(ACTUAL_NYM_ID) )
+            pActualNym = pServerNym;
+        else if (theOriginator.CompareID(ACTUAL_NYM_ID))
+            pActualNym = &theOriginator;
+        else if ( (NULL != pRemover) && pRemover->CompareID(ACTUAL_NYM_ID) )
+            pActualNym = pRemover;
+        // --------------------------
+        else    // We couldn't find the Nym among those already loaded--so we have to load
+        {       // it ourselves (so we can update its NymboxHash value.)
+            theActualNym.SetIdentifier(ACTUAL_NYM_ID);
+            
+            if (false == theActualNym.LoadPublicKey()) // Note: this step may be unnecessary since we are only updating his Nymfile, not his key.
+            {
+                OTString strNymID(ACTUAL_NYM_ID);
+                OTLog::vError("OTTrade::onFinalReceipt: Failure loading public key for Nym: %s. "
+                              "(To update his NymboxHash.) \n", strNymID.Get());
+            }
+            else if (theActualNym.VerifyPseudonym()	&& // this line may be unnecessary.
+                     theActualNym.LoadSignedNymfile(*pServerNym)) // ServerNym here is not theActualNym's identity, but merely the signer on this file.
+            {
+                OTLog::Output(0, "OTTrade::onFinalReceipt: Loading actual Nym, since he wasn't already loaded. "
+                              "(To update his NymboxHash.)\n");
+                pActualNym = &theActualNym; //  <=====
+            }
+            else
+            {
+                OTString strNymID(ACTUAL_NYM_ID);
+                OTLog::vError("OTTrade::onFinalReceipt: Failure loading or verifying Actual Nym public key: %s. "
+                              "(To update his NymboxHash.)\n", strNymID.Get());
+            }
+        }
+        // -------------
 
         if (false == this->DropFinalReceiptToNymbox(GetSenderUserID(),
                                                     lNewTransactionNumber,
                                                     strOrigCronItem,
                                                     pstrNote,
-                                                    pstrAttachment))
+                                                    pstrAttachment,
+                                                    pActualNym))
         {
             OTLog::Error("OTTrade::onFinalReceipt: Failure dropping receipt into nymbox.\n");
         }

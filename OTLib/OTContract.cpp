@@ -166,6 +166,7 @@ using namespace io;
 
 #include "OTAgreement.h"
 #include "OTPaymentPlan.h"
+#include "OTSmartContract.h"
 #include "OTTrade.h"
 #include "OTOffer.h"
 #include "OTAccount.h"
@@ -226,6 +227,9 @@ OTContract * OTContract::InstantiateContract(const OTString & strInputContract)
 //	if (strFirstLine.Contains("-----BEGIN SIGNED AGREEMENT-----"))  // this string is 32 chars long.
 //	{	pContract = new OTAgreement();		OT_ASSERT(NULL != pContract); }
 	
+	if (strFirstLine.Contains("-----BEGIN SIGNED SMART CONTRACT-----"))  // this string is 37 chars long.
+	{	pContract = new OTSmartContract();	OT_ASSERT(NULL != pContract); }
+	
 	if (strFirstLine.Contains("-----BEGIN SIGNED PAYMENT PLAN-----"))  // this string is 35 chars long.
 	{	pContract = new OTPaymentPlan();	OT_ASSERT(NULL != pContract); }
 	
@@ -234,7 +238,6 @@ OTContract * OTContract::InstantiateContract(const OTString & strInputContract)
 	
 	else if (strFirstLine.Contains("-----BEGIN SIGNED OFFER-----")) 
 	{	pContract = new OTOffer();			OT_ASSERT(NULL != pContract); }
-	
 	
 	else if (strFirstLine.Contains("-----BEGIN SIGNED INVOICE-----")) 
 	{	pContract = new OTCheque();			OT_ASSERT(NULL != pContract); }
@@ -2930,7 +2933,9 @@ int OTContract::ProcessXMLNode(IrrXMLReader*& xml)
 	OTString strKeyName;
 	OTString strKeyValue;
 	
-	if (!strcmp("entity", xml->getNodeName()))
+    const OTString strNodeName(xml->getNodeName());
+    
+	if (strNodeName.Compare("entity"))
 	{					
 //		strEntityShortName = xml->getAttributeValue("shortname");
 		if (!m_strName.Exists()) // only set it if it's not already set, since the wallet may have already had a user label set.
@@ -2943,7 +2948,7 @@ int OTContract::ProcessXMLNode(IrrXMLReader*& xml)
 
 		return 1;
 	}
-	else if (!strcmp("condition", xml->getNodeName()))
+	else if (strNodeName.Compare("condition"))
 	{
 		strConditionName  = xml->getAttributeValue("name");
 		
@@ -2975,7 +2980,7 @@ int OTContract::ProcessXMLNode(IrrXMLReader*& xml)
 		
 		return 1;
 	}
-	else if (!strcmp("key", xml->getNodeName()))
+	else if (strNodeName.Compare("key"))
 	{
 		strKeyName  = xml->getAttributeValue("name");
 		
@@ -2983,8 +2988,8 @@ int OTContract::ProcessXMLNode(IrrXMLReader*& xml)
 		// ------------------		
 		if (false == SkipToTextField(xml))
 		{
-			OTLog::vOutput(0, "OTContract::ProcessXMLNode: Failure: Unable to find expected text field for xml node named: %s\n",
-						   xml->getNodeName());
+			OTLog::vOutput(0, "OTContract::ProcessXMLNode: Failure: Unable to find expected text "
+                           "field for xml node named: %s\n", xml->getNodeName());
 			return (-1); // error condition
 		}
 		// ------------------
@@ -2993,7 +2998,8 @@ int OTContract::ProcessXMLNode(IrrXMLReader*& xml)
 		{
 			strKeyValue = xml->getNodeData();
 		}
-		else {
+		else 
+        {
 			OTLog::vError("Error in OTContract::ProcessXMLNode: Key without value: %s\n",
 					strKeyName.Get());
 			return (-1); // error condition

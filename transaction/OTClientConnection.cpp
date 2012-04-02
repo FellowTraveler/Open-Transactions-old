@@ -792,26 +792,39 @@ void OTClientConnection::ProcessReply(OTMessage &theReply)
 
 void OTClientConnection::AddToInputList(OTMessage & theMessage)
 {
-	m_listIn.AddToList(theMessage);
+	m_listIn.Push(theMessage);
 }
 
 OTMessage * OTClientConnection::GetNextInputMessage()
 {
-	return m_listIn.GetNextMessage();
+#if !defined(OT_ZMQ_MODE)    
+	return m_listIn.Pop();
+#else
+    OT_ASSERT_MSG(false, "OTClientConnection::GetNextInputMessage: ASSERT: Should not be calling this...");
+#endif
+    
+    return NULL;
 }
 
 
 void OTClientConnection::AddToOutputList(OTMessage & theMessage)
 {
-	m_listOut.AddToList(theMessage);
+	m_listOut.Push(theMessage);
 
 }
 
 
 OTMessage * OTClientConnection::GetNextOutputMessage()
 {
-	return m_listOut.GetNextMessage();
+#if !defined(OT_ZMQ_MODE)    
+	return m_listOut.Pop();
+#else
+    OT_ASSERT_MSG(false, "OTClientConnection::GetNextOutputMessage: ASSERT: Should not be calling this...");
+#endif
+    
+    return  NULL;
 }
+
 
 // For TCP / SSL mode.
 OTClientConnection::OTClientConnection(SFSocket & theSocket, OTServer & theServer)

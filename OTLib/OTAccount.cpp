@@ -244,8 +244,127 @@ OTLedger * OTAccount::LoadOutbox(OTPseudonym & theNym)
 	
 	return NULL;
 }
- 
 
+
+// pHash is optional, the account will update its internal copy of the hash anyway.
+//
+bool OTAccount::SaveInbox (OTLedger &theBox, OTIdentifier * pHash/*=NULL*/)  
+{
+    if (!IsSameAccount(theBox))
+    {
+        const OTString  strAcctID(GetRealAccountID()),              strServerID(GetRealServerID()),
+                        strBoxAcctID(theBox.GetRealAccountID()),    strBoxSvrID(theBox.GetRealServerID());
+        OTLog::vError("OTAccount::SaveInbox: ERROR: The ledger passed in, isn't even for this account!\n"
+                      "   Acct ID: %s\n  Other ID: %s\n Server ID: %s\n Other ID: %s\n",
+                      strAcctID.Get(), strBoxAcctID.Get(), strServerID.Get(), strBoxSvrID.Get());
+        return false;
+    }
+    
+    OTIdentifier theHash; // Use pHash.
+    if (NULL == pHash)
+        pHash = &theHash;
+    // ------------------------------------------
+    bool bSuccess = theBox.SaveInbox(pHash);
+    
+    if (bSuccess)
+        this->SetInboxHash(*pHash);
+        
+    return bSuccess;
+}
+
+// pHash is optional, the account will update its internal copy of the hash anyway.
+//
+bool OTAccount::SaveOutbox(OTLedger &theBox, OTIdentifier * pHash/*=NULL*/)  // If you pass the identifier in, the hash is recorded there
+{
+    if (!IsSameAccount(theBox))
+    {
+        const OTString  strAcctID(GetRealAccountID()),              strServerID(GetRealServerID()),
+                        strBoxAcctID(theBox.GetRealAccountID()),    strBoxSvrID(theBox.GetRealServerID());
+        OTLog::vError("OTAccount::SaveOutbox: ERROR: The ledger passed in, isn't even for this account!\n"
+                      "   Acct ID: %s\n  Other ID: %s\n Server ID: %s\n Other ID: %s\n",
+                      strAcctID.Get(), strBoxAcctID.Get(), strServerID.Get(), strBoxSvrID.Get());
+        return false;
+    }
+    
+    OTIdentifier theHash; // Use pHash.
+    if (NULL == pHash)
+        pHash = &theHash;
+    // ------------------------------------------
+    bool bSuccess = theBox.SaveOutbox(pHash);
+    
+    if (bSuccess)
+        this->SetOutboxHash(*pHash);
+    
+    return bSuccess;    
+}
+
+
+// --------------------------------------------------------------
+
+void  OTAccount::SetInboxHash(const OTIdentifier & theInput)
+{
+    m_InboxHash = theInput;    
+}
+
+bool  OTAccount::GetInboxHash(OTIdentifier & theOutput)
+{
+    theOutput.Release();
+    
+    if (!m_InboxHash.IsEmpty())
+    {
+        theOutput = m_InboxHash;
+        return true;        
+    }
+    
+    else if(!GetUserID().IsEmpty() && 
+            !GetRealAccountID().IsEmpty() && 
+            !GetRealServerID().IsEmpty()
+            )
+    {
+        OTLedger theInbox(GetUserID(), GetRealAccountID(), GetRealServerID());
+        
+        if (theInbox.LoadInbox() && theInbox.CalculateInboxHash(theOutput))
+        {
+            SetInboxHash(theOutput);
+            return true;
+        }
+    }
+    
+    return false;    
+}
+
+void  OTAccount::SetOutboxHash(const OTIdentifier & theInput)
+{
+    m_OutboxHash = theInput;  
+}
+
+bool  OTAccount::GetOutboxHash(OTIdentifier & theOutput)
+{
+    theOutput.Release();
+    
+    if (!m_OutboxHash.IsEmpty())
+    {
+        theOutput = m_OutboxHash;
+        return true;        
+    }
+    else if (!GetUserID().IsEmpty() && 
+             !GetRealAccountID().IsEmpty() && 
+             !GetRealServerID().IsEmpty()
+             )
+    {
+        OTLedger theOutbox(GetUserID(), GetRealAccountID(), GetRealServerID());
+        
+        if (theOutbox.LoadOutbox() && theOutbox.CalculateOutboxHash(theOutput))
+        {
+            SetOutboxHash(theOutput);
+            return true;
+        }
+    }
+    
+    return false;    
+}
+
+// --------------------------------------------------------------
 
 
 // TODO:  add an override so that OTAccount, when it loads up, it performs the check to
@@ -714,47 +833,6 @@ void TranslateAccountTypeToString(OTAccount::AccountType theType, OTString & str
 	}	
 }
 
-// Most contracts do not override this function...
-// But OTAccount does, because IF THE SIGNER has chosen to SIGN the account based on 
-// the current balances, then we need to update the m_xmlUnsigned member with the
-// current balances and other updated information before the signing occurs. (Presumably
-// this is the whole reason why the account is being re-signed.)
-//
-// Normally, in other OTContract and derived classes, m_xmlUnsigned is read
-// from the file and then kept read-only, since contracts do not normally change.
-// But as accounts change in balance, they must be re-signed to keep the signatures valid.
-
-void OTAccount::UpdateContents()
-{
-	OTString strAssetTYPEID(m_AcctAssetTypeID); // asset type
-	
-	OTString ACCOUNT_ID(GetPurportedAccountID()), SERVER_ID(GetPurportedServerID()), USER_ID(GetUserID());
-	
-	OTString strAcctType;
-	TranslateAccountTypeToString(m_AcctType, strAcctType);
-
-	// I release this because I'm about to repopulate it.
-	m_xmlUnsigned.Release();
-	
-	m_xmlUnsigned.Concatenate("<?xml version=\"%s\"?>\n\n", "1.0");		
-	
-	m_xmlUnsigned.Concatenate("<assetAccount\n version=\"%s\"\n type=\"%s\"\n accountID=\"%s\"\n userID=\"%s\"\n"
-							  " serverID=\"%s\"\n assetTypeID=\"%s\" >\n\n", m_strVersion.Get(), strAcctType.Get(),
-							  ACCOUNT_ID.Get(), USER_ID.Get(), SERVER_ID.Get(), strAssetTYPEID.Get());
-	if (IsStashAcct())
-		m_xmlUnsigned.Concatenate("<stashinfo cronItemNum=\"%ld\"/>\n\n", m_lStashTransNum);
-
-//	m_xmlUnsigned.Concatenate("<balance amount=\"%s\"/>\n\n", m_BalanceAmount.Get());
-	m_xmlUnsigned.Concatenate("<balance date=\"%s\" amount=\"%s\"/>\n\n", m_BalanceDate.Get(), m_BalanceAmount.Get());
-	
-    if (m_bMarkForDeletion)
-        m_xmlUnsigned.Concatenate("<MARKED_FOR_DELETION>\n"
-                                  "%s</MARKED_FOR_DELETION>\n\n", 
-                                  "THIS ACCOUNT HAS BEEN MARKED FOR DELETION AT ITS OWN REQUEST");
-
-	m_xmlUnsigned.Concatenate("</assetAccount>\n");			
-}
-
 
 
 bool OTAccount::DisplayStatistics(OTString & strContents) const
@@ -851,12 +929,68 @@ bool OTAccount::SaveContractWallet(FILE * fl)
 */
 
 
+// Most contracts do not override this function...
+// But OTAccount does, because IF THE SIGNER has chosen to SIGN the account based on 
+// the current balances, then we need to update the m_xmlUnsigned member with the
+// current balances and other updated information before the signing occurs. (Presumably
+// this is the whole reason why the account is being re-signed.)
+//
+// Normally, in other OTContract and derived classes, m_xmlUnsigned is read
+// from the file and then kept read-only, since contracts do not normally change.
+// But as accounts change in balance, they must be re-signed to keep the signatures valid.
+
+void OTAccount::UpdateContents()
+{
+	OTString strAssetTYPEID(m_AcctAssetTypeID); // asset type
+	
+	OTString ACCOUNT_ID(GetPurportedAccountID()), SERVER_ID(GetPurportedServerID()), USER_ID(GetUserID());
+	
+	OTString strAcctType;
+	TranslateAccountTypeToString(m_AcctType, strAcctType);
+
+	// I release this because I'm about to repopulate it.
+	m_xmlUnsigned.Release();
+	
+	m_xmlUnsigned.Concatenate("<?xml version=\"%s\"?>\n\n", "1.0");		
+	
+	m_xmlUnsigned.Concatenate("<assetAccount\n version=\"%s\"\n type=\"%s\"\n accountID=\"%s\"\n userID=\"%s\"\n"
+							  " serverID=\"%s\"\n assetTypeID=\"%s\" >\n\n", m_strVersion.Get(), strAcctType.Get(),
+							  ACCOUNT_ID.Get(), USER_ID.Get(), SERVER_ID.Get(), strAssetTYPEID.Get());
+	if (IsStashAcct())
+		m_xmlUnsigned.Concatenate("<stashinfo cronItemNum=\"%ld\"/>\n\n", m_lStashTransNum);
+
+    // -------------------------------------------------
+	if (!m_InboxHash.IsEmpty())
+    {
+        const OTString strHash(m_InboxHash);
+		m_xmlUnsigned.Concatenate("<inboxHash value=\"%s\"/>\n\n", strHash.Get());
+    }
+	if (!m_OutboxHash.IsEmpty())
+    {
+        const OTString strHash(m_OutboxHash);
+		m_xmlUnsigned.Concatenate("<outboxHash value=\"%s\"/>\n\n", strHash.Get());
+    }
+    // -------------------------------------------------
+
+//	m_xmlUnsigned.Concatenate("<balance amount=\"%s\"/>\n\n", m_BalanceAmount.Get());
+	m_xmlUnsigned.Concatenate("<balance date=\"%s\" amount=\"%s\"/>\n\n", m_BalanceDate.Get(), m_BalanceAmount.Get());
+	
+    if (m_bMarkForDeletion)
+        m_xmlUnsigned.Concatenate("<MARKED_FOR_DELETION>\n"
+                                  "%s</MARKED_FOR_DELETION>\n\n", 
+                                  "THIS ACCOUNT HAS BEEN MARKED FOR DELETION AT ITS OWN REQUEST");
+
+	m_xmlUnsigned.Concatenate("</assetAccount>\n");			
+}
+
 
 // return -1 if error, 0 if nothing, and 1 if the node was processed.
 int OTAccount::ProcessXMLNode(IrrXMLReader*& xml)
 {
 	int nReturnVal = 0;
 
+    const OTString strNodeName(xml->getNodeName());
+    
 	// Here we call the parent class first.
 	// If the node is found there, or there is some error,
 	// then we just return either way.  But if it comes back
@@ -868,7 +1002,7 @@ int OTAccount::ProcessXMLNode(IrrXMLReader*& xml)
 	//if (nReturnVal = OTTransactionType::ProcessXMLNode(xml))
 	//	return nReturnVal;
 
-	if (!strcmp("assetAccount", xml->getNodeName())) 
+	if (strNodeName.Compare("assetAccount")) 
 	{
 		OTString strAcctType;
 		
@@ -882,38 +1016,68 @@ int OTAccount::ProcessXMLNode(IrrXMLReader*& xml)
 		}
 		
 		m_AcctType = TranslateAccountTypeStringToEnum(strAcctType);
-
+        
 		if (OTAccount::err_acct == m_AcctType)
 		{
 			OTLog::Error("OTAccount::ProcessXMLNode: Failed: assetAccount 'type' attribute contains unknown value.\n");
 			return (-1);
 		}
-				
-		m_AcctAssetTypeID.SetString(xml->getAttributeValue("assetTypeID"));
-		
+        
+		// -------------------------------------------------
+        const OTString strAcctAssetType	= xml->getAttributeValue("assetTypeID");
+        
+        if (strAcctAssetType.Exists())
+            m_AcctAssetTypeID.SetString(strAcctAssetType);
+		// -------------------------------------------------
+        
 		OTString	strAccountID(xml->getAttributeValue("accountID")),
-					strServerID(xml->getAttributeValue("serverID")),
-					strAcctUserID(xml->getAttributeValue("userID"));
+        strServerID(xml->getAttributeValue("serverID")),
+        strAcctUserID(xml->getAttributeValue("userID"));
 		
 		OTIdentifier	ACCOUNT_ID(strAccountID), 
-						SERVER_ID(strServerID),
-						USER_ID(strAcctUserID);
+                        SERVER_ID(strServerID),
+                        USER_ID(strAcctUserID);
 		
 		SetPurportedAccountID(ACCOUNT_ID);
 		SetPurportedServerID(SERVER_ID);
 		SetUserID(USER_ID);
-
+        
 		OTString strAssetTypeID(m_AcctAssetTypeID);
 		OTLog::vOutput(3,
-			//	"\n===> Loading XML for Account into memory structures..."
-				"\n\nAccount Type: %s\nAccountID: %s\nUserID: %s\n"
-				"AssetTypeID: %s\nServerID: %s\n", 
-				strAcctType.Get(), strAccountID.Get(), strAcctUserID.Get(),
-				strAssetTypeID.Get(), strServerID.Get());
+                       //	"\n===> Loading XML for Account into memory structures..."
+                       "\n\nAccount Type: %s\nAccountID: %s\nUserID: %s\n"
+                       "AssetTypeID: %s\nServerID: %s\n", 
+                       strAcctType.Get(), strAccountID.Get(), strAcctUserID.Get(),
+                       strAssetTypeID.Get(), strServerID.Get());
 		
 		nReturnVal = 1;
 	}
-    else if (!strcmp("MARKED_FOR_DELETION", xml->getNodeName()))
+    
+	else if (strNodeName.Compare("inboxHash")) 
+	{
+		// -------------------------------------------------
+        const OTString strHash	= xml->getAttributeValue("value");
+        if (strHash.Exists())
+            m_InboxHash.SetString(strHash);
+		// -------------------------------------------------
+		OTLog::vOutput(3, "Account inboxHash: %s\n", strHash.Get());
+		// -------------------------------------------------
+		nReturnVal = 1;
+	}
+    
+	else if (strNodeName.Compare("outboxHash")) 
+	{
+		// -------------------------------------------------
+        const OTString strHash	= xml->getAttributeValue("value");
+        if (strHash.Exists())
+            m_OutboxHash.SetString(strHash);
+		// -------------------------------------------------
+		OTLog::vOutput(3, "Account outboxHash: %s\n", strHash.Get());
+		// -------------------------------------------------
+		nReturnVal = 1;
+	}
+    
+    else if (strNodeName.Compare("MARKED_FOR_DELETION")) 
     {
         m_bMarkForDeletion = true;  
         OTLog::vOutput(3, "This asset account has been MARKED_FOR_DELETION (at some point prior.)\n");
@@ -921,7 +1085,7 @@ int OTAccount::ProcessXMLNode(IrrXMLReader*& xml)
         nReturnVal = 1;
     }
     
-	else if (!strcmp("balance", xml->getNodeName())) 
+    else if (strNodeName.Compare("balance")) 
 	{
 		m_BalanceDate	= xml->getAttributeValue("date");
 		m_BalanceAmount	= xml->getAttributeValue("amount");
@@ -943,7 +1107,7 @@ int OTAccount::ProcessXMLNode(IrrXMLReader*& xml)
 		nReturnVal = 1;
 	}
 
-	else if (!strcmp("stashinfo", xml->getNodeName())) 
+    else if (strNodeName.Compare("stashinfo")) 
 	{
 		if (!IsStashAcct())
 		{
@@ -1190,7 +1354,20 @@ int OTAcctList::ReadFromXMLNode(irr::io::IrrXMLReader*& xml, const OTString & st
 	return 1;
 }
 
+// -----------------------------
 
+
+void OTAccount::Release()
+{
+    m_BalanceDate.Release();
+	m_BalanceAmount.Release();
+    
+    m_InboxHash.Release();
+    m_OutboxHash.Release();
+    
+    // -----------------------------
+    OTTransactionType::Release();
+}
 
 // **************************************************************
 
@@ -1199,7 +1376,7 @@ int OTAcctList::ReadFromXMLNode(irr::io::IrrXMLReader*& xml, const OTString & st
 void OTAcctList::Release()
 {
 	m_mapAcctIDs.clear();
-	m_mapWeakAccts.clear();
+	m_mapWeakAccts.clear();    
 }
 
 

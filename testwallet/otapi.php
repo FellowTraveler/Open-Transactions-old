@@ -31,6 +31,14 @@ abstract class otapi {
 
 	const OTPASSWORD_MEMSIZE = OTPASSWORD_MEMSIZE;
 
+	const OT_LARGE_BLOCKSIZE = OT_LARGE_BLOCKSIZE;
+
+	const OT_LARGE_MEMSIZE = OT_LARGE_MEMSIZE;
+
+	const OT_DEFAULT_BLOCKSIZE = OT_DEFAULT_BLOCKSIZE;
+
+	const OT_DEFAULT_MEMSIZE = OT_DEFAULT_MEMSIZE;
+
 	static function OT_API_Set_PasswordCallback($theCaller) {
 		return OT_API_Set_PasswordCallback($theCaller);
 	}
@@ -111,8 +119,8 @@ abstract class otapi {
 		return OT_API_PopMemlogBack();
 	}
 
-	static function OT_API_CreateNym() {
-		return OT_API_CreateNym();
+	static function OT_API_CreateNym($nKeySize) {
+		return OT_API_CreateNym($nKeySize);
 	}
 
 	static function OT_API_AddServerContract($szContract) {
@@ -183,6 +191,14 @@ abstract class otapi {
 		return OT_API_GetAccountWallet_NymID($ACCOUNT_ID);
 	}
 
+	static function OT_API_GetAccountWallet_InboxHash($ACCOUNT_ID) {
+		return OT_API_GetAccountWallet_InboxHash($ACCOUNT_ID);
+	}
+
+	static function OT_API_GetAccountWallet_OutboxHash($ACCOUNT_ID) {
+		return OT_API_GetAccountWallet_OutboxHash($ACCOUNT_ID);
+	}
+
 	static function OT_API_VerifyAccountReceipt($SERVER_ID,$NYM_ID,$ACCT_ID) {
 		return OT_API_VerifyAccountReceipt($SERVER_ID,$NYM_ID,$ACCT_ID);
 	}
@@ -201,6 +217,22 @@ abstract class otapi {
 
 	static function OT_API_GetNym_Stats($NYM_ID) {
 		return OT_API_GetNym_Stats($NYM_ID);
+	}
+
+	static function OT_API_GetNym_NymboxHash($SERVER_ID,$NYM_ID) {
+		return OT_API_GetNym_NymboxHash($SERVER_ID,$NYM_ID);
+	}
+
+	static function OT_API_GetNym_RecentHash($SERVER_ID,$NYM_ID) {
+		return OT_API_GetNym_RecentHash($SERVER_ID,$NYM_ID);
+	}
+
+	static function OT_API_GetNym_InboxHash($ACCOUNT_ID,$NYM_ID) {
+		return OT_API_GetNym_InboxHash($ACCOUNT_ID,$NYM_ID);
+	}
+
+	static function OT_API_GetNym_OutboxHash($ACCOUNT_ID,$NYM_ID) {
+		return OT_API_GetNym_OutboxHash($ACCOUNT_ID,$NYM_ID);
 	}
 
 	static function OT_API_IsNym_RegisteredAtServer($NYM_ID,$SERVER_ID) {
@@ -388,19 +420,15 @@ abstract class otapi {
 	}
 
 	static function OT_API_activateSmartContract($SERVER_ID,$USER_ID,$THE_SMART_CONTRACT) {
-		OT_API_activateSmartContract($SERVER_ID,$USER_ID,$THE_SMART_CONTRACT);
+		return OT_API_activateSmartContract($SERVER_ID,$USER_ID,$THE_SMART_CONTRACT);
 	}
 
 	static function OT_API_triggerClause($SERVER_ID,$USER_ID,$TRANSACTION_NUMBER,$CLAUSE_NAME,$STR_PARAM) {
-		OT_API_triggerClause($SERVER_ID,$USER_ID,$TRANSACTION_NUMBER,$CLAUSE_NAME,$STR_PARAM);
+		return OT_API_triggerClause($SERVER_ID,$USER_ID,$TRANSACTION_NUMBER,$CLAUSE_NAME,$STR_PARAM);
 	}
 
-	static function OT_API_HarvestClosingNumbers($SERVER_ID,$NYM_ID,$THE_CRON_ITEM) {
-		return OT_API_HarvestClosingNumbers($SERVER_ID,$NYM_ID,$THE_CRON_ITEM);
-	}
-
-	static function OT_API_HarvestAllNumbers($SERVER_ID,$NYM_ID,$THE_CRON_ITEM) {
-		return OT_API_HarvestAllNumbers($SERVER_ID,$NYM_ID,$THE_CRON_ITEM);
+	static function OT_API_Msg_HarvestTransactionNumbers($THE_MESSAGE,$USER_ID,$bHarvestingForRetry,$bReplyWasSuccess,$bReplyWasFailure,$bTransactionWasSuccess,$bTransactionWasFailure) {
+		return OT_API_Msg_HarvestTransactionNumbers($THE_MESSAGE,$USER_ID,$bHarvestingForRetry,$bReplyWasSuccess,$bReplyWasFailure,$bTransactionWasSuccess,$bTransactionWasFailure);
 	}
 
 	static function OT_API_LoadUserPubkey($USER_ID) {
@@ -608,7 +636,7 @@ abstract class otapi {
 	}
 
 	static function OT_API_exchangePurse($SERVER_ID,$ASSET_TYPE_ID,$USER_ID,$THE_PURSE) {
-		OT_API_exchangePurse($SERVER_ID,$ASSET_TYPE_ID,$USER_ID,$THE_PURSE);
+		return OT_API_exchangePurse($SERVER_ID,$ASSET_TYPE_ID,$USER_ID,$THE_PURSE);
 	}
 
 	static function OT_API_Token_ChangeOwner($SERVER_ID,$ASSET_TYPE_ID,$THE_TOKEN,$OLD_OWNER_NYM_ID,$NEW_OWNER_NYM_ID) {
@@ -643,24 +671,64 @@ abstract class otapi {
 		return OT_API_Token_GetServerID($THE_TOKEN);
 	}
 
+	static function OT_API_Instrument_GetAmount($SERVER_ID,$THE_INSTRUMENT) {
+		return OT_API_Instrument_GetAmount($SERVER_ID,$THE_INSTRUMENT);
+	}
+
+	static function OT_API_Instrument_GetTransNum($SERVER_ID,$THE_INSTRUMENT) {
+		return OT_API_Instrument_GetTransNum($SERVER_ID,$THE_INSTRUMENT);
+	}
+
+	static function OT_API_Instrument_GetValidFrom($SERVER_ID,$THE_INSTRUMENT) {
+		return OT_API_Instrument_GetValidFrom($SERVER_ID,$THE_INSTRUMENT);
+	}
+
+	static function OT_API_Instrument_GetValidTo($SERVER_ID,$THE_INSTRUMENT) {
+		return OT_API_Instrument_GetValidTo($SERVER_ID,$THE_INSTRUMENT);
+	}
+
+	static function OT_API_Instrument_GetMemo($SERVER_ID,$THE_INSTRUMENT) {
+		return OT_API_Instrument_GetMemo($SERVER_ID,$THE_INSTRUMENT);
+	}
+
+	static function OT_API_Instrument_GetAssetID($SERVER_ID,$THE_INSTRUMENT) {
+		return OT_API_Instrument_GetAssetID($SERVER_ID,$THE_INSTRUMENT);
+	}
+
+	static function OT_API_Instrmnt_GetSenderUserID($SERVER_ID,$THE_INSTRUMENT) {
+		return OT_API_Instrmnt_GetSenderUserID($SERVER_ID,$THE_INSTRUMENT);
+	}
+
+	static function OT_API_Instrmnt_GetSenderAcctID($SERVER_ID,$THE_INSTRUMENT) {
+		return OT_API_Instrmnt_GetSenderAcctID($SERVER_ID,$THE_INSTRUMENT);
+	}
+
+	static function OT_API_Instrmnt_GetRecipientUserID($SERVER_ID,$THE_INSTRUMENT) {
+		return OT_API_Instrmnt_GetRecipientUserID($SERVER_ID,$THE_INSTRUMENT);
+	}
+
+	static function OT_API_Instrmnt_GetRecipientAcctID($SERVER_ID,$THE_INSTRUMENT) {
+		return OT_API_Instrmnt_GetRecipientAcctID($SERVER_ID,$THE_INSTRUMENT);
+	}
+
 	static function OT_API_checkServerID($SERVER_ID,$USER_ID) {
-		OT_API_checkServerID($SERVER_ID,$USER_ID);
+		return OT_API_checkServerID($SERVER_ID,$USER_ID);
 	}
 
 	static function OT_API_createUserAccount($SERVER_ID,$USER_ID) {
-		OT_API_createUserAccount($SERVER_ID,$USER_ID);
+		return OT_API_createUserAccount($SERVER_ID,$USER_ID);
 	}
 
 	static function OT_API_deleteUserAccount($SERVER_ID,$USER_ID) {
-		OT_API_deleteUserAccount($SERVER_ID,$USER_ID);
+		return OT_API_deleteUserAccount($SERVER_ID,$USER_ID);
 	}
 
 	static function OT_API_deleteAssetAccount($SERVER_ID,$USER_ID,$ACCOUNT_ID) {
-		OT_API_deleteAssetAccount($SERVER_ID,$USER_ID,$ACCOUNT_ID);
+		return OT_API_deleteAssetAccount($SERVER_ID,$USER_ID,$ACCOUNT_ID);
 	}
 
 	static function OT_API_usageCredits($SERVER_ID,$USER_ID,$USER_ID_CHECK,$ADJUSTMENT) {
-		OT_API_usageCredits($SERVER_ID,$USER_ID,$USER_ID_CHECK,$ADJUSTMENT);
+		return OT_API_usageCredits($SERVER_ID,$USER_ID,$USER_ID_CHECK,$ADJUSTMENT);
 	}
 
 	static function OT_API_Message_GetUsageCredits($THE_MESSAGE) {
@@ -668,43 +736,43 @@ abstract class otapi {
 	}
 
 	static function OT_API_checkUser($SERVER_ID,$USER_ID,$USER_ID_CHECK) {
-		OT_API_checkUser($SERVER_ID,$USER_ID,$USER_ID_CHECK);
+		return OT_API_checkUser($SERVER_ID,$USER_ID,$USER_ID_CHECK);
 	}
 
 	static function OT_API_sendUserMessage($SERVER_ID,$USER_ID,$USER_ID_RECIPIENT,$RECIPIENT_PUBKEY,$THE_MESSAGE) {
-		OT_API_sendUserMessage($SERVER_ID,$USER_ID,$USER_ID_RECIPIENT,$RECIPIENT_PUBKEY,$THE_MESSAGE);
+		return OT_API_sendUserMessage($SERVER_ID,$USER_ID,$USER_ID_RECIPIENT,$RECIPIENT_PUBKEY,$THE_MESSAGE);
 	}
 
 	static function OT_API_sendUserInstrument($SERVER_ID,$USER_ID,$USER_ID_RECIPIENT,$RECIPIENT_PUBKEY,$THE_INSTRUMENT) {
-		OT_API_sendUserInstrument($SERVER_ID,$USER_ID,$USER_ID_RECIPIENT,$RECIPIENT_PUBKEY,$THE_INSTRUMENT);
+		return OT_API_sendUserInstrument($SERVER_ID,$USER_ID,$USER_ID_RECIPIENT,$RECIPIENT_PUBKEY,$THE_INSTRUMENT);
 	}
 
 	static function OT_API_getRequest($SERVER_ID,$USER_ID) {
-		OT_API_getRequest($SERVER_ID,$USER_ID);
+		return OT_API_getRequest($SERVER_ID,$USER_ID);
 	}
 
 	static function OT_API_getTransactionNumber($SERVER_ID,$USER_ID) {
-		OT_API_getTransactionNumber($SERVER_ID,$USER_ID);
+		return OT_API_getTransactionNumber($SERVER_ID,$USER_ID);
 	}
 
 	static function OT_API_issueAssetType($SERVER_ID,$USER_ID,$THE_CONTRACT) {
-		OT_API_issueAssetType($SERVER_ID,$USER_ID,$THE_CONTRACT);
+		return OT_API_issueAssetType($SERVER_ID,$USER_ID,$THE_CONTRACT);
 	}
 
 	static function OT_API_getContract($SERVER_ID,$USER_ID,$ASSET_ID) {
-		OT_API_getContract($SERVER_ID,$USER_ID,$ASSET_ID);
+		return OT_API_getContract($SERVER_ID,$USER_ID,$ASSET_ID);
 	}
 
 	static function OT_API_getMint($SERVER_ID,$USER_ID,$ASSET_ID) {
-		OT_API_getMint($SERVER_ID,$USER_ID,$ASSET_ID);
+		return OT_API_getMint($SERVER_ID,$USER_ID,$ASSET_ID);
 	}
 
 	static function OT_API_createAssetAccount($SERVER_ID,$USER_ID,$ASSET_ID) {
-		OT_API_createAssetAccount($SERVER_ID,$USER_ID,$ASSET_ID);
+		return OT_API_createAssetAccount($SERVER_ID,$USER_ID,$ASSET_ID);
 	}
 
 	static function OT_API_getAccount($SERVER_ID,$USER_ID,$ACCT_ID) {
-		OT_API_getAccount($SERVER_ID,$USER_ID,$ACCT_ID);
+		return OT_API_getAccount($SERVER_ID,$USER_ID,$ACCT_ID);
 	}
 
 	static function OT_API_GenerateBasketCreation($USER_ID,$MINIMUM_TRANSFER) {
@@ -716,7 +784,7 @@ abstract class otapi {
 	}
 
 	static function OT_API_issueBasket($SERVER_ID,$USER_ID,$THE_BASKET) {
-		OT_API_issueBasket($SERVER_ID,$USER_ID,$THE_BASKET);
+		return OT_API_issueBasket($SERVER_ID,$USER_ID,$THE_BASKET);
 	}
 
 	static function OT_API_GenerateBasketExchange($SERVER_ID,$USER_ID,$BASKET_ASSET_TYPE_ID,$BASKET_ASSET_ACCT_ID,$TRANSFER_MULTIPLE) {
@@ -728,31 +796,31 @@ abstract class otapi {
 	}
 
 	static function OT_API_exchangeBasket($SERVER_ID,$USER_ID,$BASKET_ASSET_ID,$THE_BASKET,$BOOL_EXCHANGE_IN_OR_OUT) {
-		OT_API_exchangeBasket($SERVER_ID,$USER_ID,$BASKET_ASSET_ID,$THE_BASKET,$BOOL_EXCHANGE_IN_OR_OUT);
+		return OT_API_exchangeBasket($SERVER_ID,$USER_ID,$BASKET_ASSET_ID,$THE_BASKET,$BOOL_EXCHANGE_IN_OR_OUT);
 	}
 
 	static function OT_API_notarizeWithdrawal($SERVER_ID,$USER_ID,$ACCT_ID,$AMOUNT) {
-		OT_API_notarizeWithdrawal($SERVER_ID,$USER_ID,$ACCT_ID,$AMOUNT);
+		return OT_API_notarizeWithdrawal($SERVER_ID,$USER_ID,$ACCT_ID,$AMOUNT);
 	}
 
 	static function OT_API_notarizeDeposit($SERVER_ID,$USER_ID,$ACCT_ID,$THE_PURSE) {
-		OT_API_notarizeDeposit($SERVER_ID,$USER_ID,$ACCT_ID,$THE_PURSE);
+		return OT_API_notarizeDeposit($SERVER_ID,$USER_ID,$ACCT_ID,$THE_PURSE);
 	}
 
 	static function OT_API_notarizeTransfer($SERVER_ID,$USER_ID,$ACCT_FROM,$ACCT_TO,$AMOUNT,$NOTE) {
-		OT_API_notarizeTransfer($SERVER_ID,$USER_ID,$ACCT_FROM,$ACCT_TO,$AMOUNT,$NOTE);
+		return OT_API_notarizeTransfer($SERVER_ID,$USER_ID,$ACCT_FROM,$ACCT_TO,$AMOUNT,$NOTE);
 	}
 
 	static function OT_API_getInbox($SERVER_ID,$USER_ID,$ACCT_ID) {
-		OT_API_getInbox($SERVER_ID,$USER_ID,$ACCT_ID);
+		return OT_API_getInbox($SERVER_ID,$USER_ID,$ACCT_ID);
 	}
 
 	static function OT_API_getOutbox($SERVER_ID,$USER_ID,$ACCT_ID) {
-		OT_API_getOutbox($SERVER_ID,$USER_ID,$ACCT_ID);
+		return OT_API_getOutbox($SERVER_ID,$USER_ID,$ACCT_ID);
 	}
 
 	static function OT_API_getNymbox($SERVER_ID,$USER_ID) {
-		OT_API_getNymbox($SERVER_ID,$USER_ID);
+		return OT_API_getNymbox($SERVER_ID,$USER_ID);
 	}
 
 	static function OT_API_LoadNymbox($SERVER_ID,$USER_ID) {
@@ -763,8 +831,12 @@ abstract class otapi {
 		return OT_API_LoadNymboxNoVerify($SERVER_ID,$USER_ID);
 	}
 
+	static function OT_API_Nymbox_GetReplyNotice($SERVER_ID,$USER_ID,$REQUEST_NUMBER) {
+		return OT_API_Nymbox_GetReplyNotice($SERVER_ID,$USER_ID,$REQUEST_NUMBER);
+	}
+
 	static function OT_API_getBoxReceipt($SERVER_ID,$USER_ID,$ACCOUNT_ID,$nBoxType,$TRANSACTION_NUMBER) {
-		OT_API_getBoxReceipt($SERVER_ID,$USER_ID,$ACCOUNT_ID,$nBoxType,$TRANSACTION_NUMBER);
+		return OT_API_getBoxReceipt($SERVER_ID,$USER_ID,$ACCOUNT_ID,$nBoxType,$TRANSACTION_NUMBER);
 	}
 
 	static function OT_API_DoesBoxReceiptExist($SERVER_ID,$USER_ID,$ACCOUNT_ID,$nBoxType,$TRANSACTION_NUMBER) {
@@ -772,7 +844,7 @@ abstract class otapi {
 	}
 
 	static function OT_API_processInbox($SERVER_ID,$USER_ID,$ACCT_ID,$ACCT_LEDGER) {
-		OT_API_processInbox($SERVER_ID,$USER_ID,$ACCT_ID,$ACCT_LEDGER);
+		return OT_API_processInbox($SERVER_ID,$USER_ID,$ACCT_ID,$ACCT_LEDGER);
 	}
 
 	static function OT_API_processNymbox($SERVER_ID,$USER_ID) {
@@ -780,51 +852,63 @@ abstract class otapi {
 	}
 
 	static function OT_API_withdrawVoucher($SERVER_ID,$USER_ID,$ACCT_ID,$RECIPIENT_USER_ID,$CHEQUE_MEMO,$AMOUNT) {
-		OT_API_withdrawVoucher($SERVER_ID,$USER_ID,$ACCT_ID,$RECIPIENT_USER_ID,$CHEQUE_MEMO,$AMOUNT);
+		return OT_API_withdrawVoucher($SERVER_ID,$USER_ID,$ACCT_ID,$RECIPIENT_USER_ID,$CHEQUE_MEMO,$AMOUNT);
 	}
 
 	static function OT_API_depositCheque($SERVER_ID,$USER_ID,$ACCT_ID,$THE_CHEQUE) {
-		OT_API_depositCheque($SERVER_ID,$USER_ID,$ACCT_ID,$THE_CHEQUE);
+		return OT_API_depositCheque($SERVER_ID,$USER_ID,$ACCT_ID,$THE_CHEQUE);
 	}
 
 	static function OT_API_depositPaymentPlan($SERVER_ID,$USER_ID,$THE_PAYMENT_PLAN) {
-		OT_API_depositPaymentPlan($SERVER_ID,$USER_ID,$THE_PAYMENT_PLAN);
+		return OT_API_depositPaymentPlan($SERVER_ID,$USER_ID,$THE_PAYMENT_PLAN);
 	}
 
 	static function OT_API_issueMarketOffer($SERVER_ID,$USER_ID,$ASSET_TYPE_ID,$ASSET_ACCT_ID,$CURRENCY_TYPE_ID,$CURRENCY_ACCT_ID,$MARKET_SCALE,$MINIMUM_INCREMENT,$TOTAL_ASSETS_ON_OFFER,$PRICE_LIMIT,$bBuyingOrSelling) {
-		OT_API_issueMarketOffer($SERVER_ID,$USER_ID,$ASSET_TYPE_ID,$ASSET_ACCT_ID,$CURRENCY_TYPE_ID,$CURRENCY_ACCT_ID,$MARKET_SCALE,$MINIMUM_INCREMENT,$TOTAL_ASSETS_ON_OFFER,$PRICE_LIMIT,$bBuyingOrSelling);
+		return OT_API_issueMarketOffer($SERVER_ID,$USER_ID,$ASSET_TYPE_ID,$ASSET_ACCT_ID,$CURRENCY_TYPE_ID,$CURRENCY_ACCT_ID,$MARKET_SCALE,$MINIMUM_INCREMENT,$TOTAL_ASSETS_ON_OFFER,$PRICE_LIMIT,$bBuyingOrSelling);
 	}
 
 	static function OT_API_getMarketList($SERVER_ID,$USER_ID) {
-		OT_API_getMarketList($SERVER_ID,$USER_ID);
+		return OT_API_getMarketList($SERVER_ID,$USER_ID);
 	}
 
 	static function OT_API_getMarketOffers($SERVER_ID,$USER_ID,$MARKET_ID,$MAX_DEPTH) {
-		OT_API_getMarketOffers($SERVER_ID,$USER_ID,$MARKET_ID,$MAX_DEPTH);
+		return OT_API_getMarketOffers($SERVER_ID,$USER_ID,$MARKET_ID,$MAX_DEPTH);
 	}
 
 	static function OT_API_getMarketRecentTrades($SERVER_ID,$USER_ID,$MARKET_ID) {
-		OT_API_getMarketRecentTrades($SERVER_ID,$USER_ID,$MARKET_ID);
+		return OT_API_getMarketRecentTrades($SERVER_ID,$USER_ID,$MARKET_ID);
 	}
 
 	static function OT_API_getNym_MarketOffers($SERVER_ID,$USER_ID) {
-		OT_API_getNym_MarketOffers($SERVER_ID,$USER_ID);
+		return OT_API_getNym_MarketOffers($SERVER_ID,$USER_ID);
 	}
 
 	static function OT_API_cancelMarketOffer($SERVER_ID,$USER_ID,$ASSET_ACCT_ID,$TRANSACTION_NUMBER) {
-		OT_API_cancelMarketOffer($SERVER_ID,$USER_ID,$ASSET_ACCT_ID,$TRANSACTION_NUMBER);
+		return OT_API_cancelMarketOffer($SERVER_ID,$USER_ID,$ASSET_ACCT_ID,$TRANSACTION_NUMBER);
 	}
 
 	static function OT_API_cancelPaymentPlan($SERVER_ID,$USER_ID,$FROM_ACCT_ID,$TRANSACTION_NUMBER) {
-		OT_API_cancelPaymentPlan($SERVER_ID,$USER_ID,$FROM_ACCT_ID,$TRANSACTION_NUMBER);
+		return OT_API_cancelPaymentPlan($SERVER_ID,$USER_ID,$FROM_ACCT_ID,$TRANSACTION_NUMBER);
 	}
 
-	static function OT_API_PopMessageBuffer() {
-		return OT_API_PopMessageBuffer();
+	static function OT_API_PopMessageBuffer($REQUEST_NUMBER,$SERVER_ID,$USER_ID) {
+		return OT_API_PopMessageBuffer($REQUEST_NUMBER,$SERVER_ID,$USER_ID);
 	}
 
 	static function OT_API_FlushMessageBuffer() {
 		OT_API_FlushMessageBuffer();
+	}
+
+	static function OT_API_GetSentMessage($REQUEST_NUMBER,$SERVER_ID,$USER_ID) {
+		return OT_API_GetSentMessage($REQUEST_NUMBER,$SERVER_ID,$USER_ID);
+	}
+
+	static function OT_API_RemoveSentMessage($REQUEST_NUMBER,$SERVER_ID,$USER_ID) {
+		return OT_API_RemoveSentMessage($REQUEST_NUMBER,$SERVER_ID,$USER_ID);
+	}
+
+	static function OT_API_FlushSentMessages($bHarvestingForRetry,$SERVER_ID,$USER_ID,$THE_NYMBOX) {
+		OT_API_FlushSentMessages($bHarvestingForRetry,$SERVER_ID,$USER_ID,$THE_NYMBOX);
 	}
 
 	static function OT_API_Sleep($MILLISECONDS) {
@@ -844,7 +928,7 @@ abstract class otapi {
 	}
 
 	static function OT_API_queryAssetTypes($SERVER_ID,$USER_ID,$ENCODED_MAP) {
-		OT_API_queryAssetTypes($SERVER_ID,$USER_ID,$ENCODED_MAP);
+		return OT_API_queryAssetTypes($SERVER_ID,$USER_ID,$ENCODED_MAP);
 	}
 
 	static function OT_API_Message_GetPayload($THE_MESSAGE) {
@@ -877,6 +961,10 @@ abstract class otapi {
 
 	static function OT_API_Message_GetNewAcctID($THE_MESSAGE) {
 		return OT_API_Message_GetNewAcctID($THE_MESSAGE);
+	}
+
+	static function OT_API_Message_GetNymboxHash($THE_MESSAGE) {
+		return OT_API_Message_GetNymboxHash($THE_MESSAGE);
 	}
 
 	static function OT_API_ConnectServer($SERVER_ID,$USER_ID,$szCA_FILE,$szKEY_FILE,$szKEY_PASSWORD) {
@@ -1116,6 +1204,8 @@ class OTPassword {
 
 	const DEFAULT_SIZE = 128;
 
+	const LARGER_SIZE = 32767;
+
 	function getPassword() {
 		return OTPassword_getPassword($this->_cPtr);
 	}
@@ -1136,15 +1226,16 @@ class OTPassword {
 		OTPassword_zeroMemory($this->_cPtr);
 	}
 
-	function __construct($szInput=null,$nInputSize=null) {
-		if (is_resource($szInput) && get_resource_type($szInput) === '_p_OTPassword') {
-			$this->_cPtr=$szInput;
+	function __construct($theBlockSize_or_szInput=null,$nInputSize=null,$theBlockSize=null) {
+		if (is_resource($theBlockSize_or_szInput) && get_resource_type($theBlockSize_or_szInput) === '_p_OTPassword') {
+			$this->_cPtr=$theBlockSize_or_szInput;
 			return;
 		}
 		switch (func_num_args()) {
 		case 0: $this->_cPtr=new_OTPassword(); break;
-		case 1: $this->_cPtr=new_OTPassword($szInput); break;
-		default: $this->_cPtr=new_OTPassword($szInput,$nInputSize);
+		case 1: $this->_cPtr=new_OTPassword($theBlockSize_or_szInput); break;
+		case 2: $this->_cPtr=new_OTPassword($theBlockSize_or_szInput,$nInputSize); break;
+		default: $this->_cPtr=new_OTPassword($theBlockSize_or_szInput,$nInputSize,$theBlockSize);
 		}
 	}
 }

@@ -174,8 +174,12 @@ size_t strnlen(const char *s, size_t max)
 
 void OTPassword::zeroMemory()
 {
+    // -------------------
+
 	m_nPasswordSize = 0;
 	
+    // -------------------
+    
 #ifdef _WIN32
 	// ------
 	//
@@ -199,21 +203,23 @@ void OTPassword::zeroMemory()
 
 
 
-OTPassword::OTPassword() 
+OTPassword::OTPassword(OTPassword::BlockSize theBlockSize/*=DEFAULT_SIZE*/)
 :	m_nPasswordSize(0),
-	blockSize(OTPassword::DEFAULT_SIZE)
+	blockSize(theBlockSize) // The buffer has this size+1 as its static size.
 {
 	m_szPassword[0] = '\0';
 }
+// ---------------------------------------------------------
 
-OTPassword::OTPassword(const char * szInput, int nInputSize)
+OTPassword::OTPassword(const char * szInput, int nInputSize, OTPassword::BlockSize theBlockSize/*=DEFAULT_SIZE*/)
 :	m_nPasswordSize(0),
-	blockSize(OTPassword::DEFAULT_SIZE)
+	blockSize(theBlockSize) // The buffer has this size+1 as its static size.
 {
 	m_szPassword[0] = '\0';
 	
 	setPassword(szInput, nInputSize);
 }
+// ---------------------------------------------------------
 
 
 OTPassword::~OTPassword() 

@@ -55,16 +55,25 @@ public class OTPassword {
     otapiJNI.OTPassword_zeroMemory(swigCPtr, this);
   }
 
+  public OTPassword(int theBlockSize) {
+    this(otapiJNI.new_OTPassword__SWIG_0(theBlockSize), true);
+  }
+
   public OTPassword() {
-    this(otapiJNI.new_OTPassword__SWIG_0(), true);
+    this(otapiJNI.new_OTPassword__SWIG_1(), true);
+  }
+
+  public OTPassword(String szInput, int nInputSize, int theBlockSize) {
+    this(otapiJNI.new_OTPassword__SWIG_2(szInput, nInputSize, theBlockSize), true);
   }
 
   public OTPassword(String szInput, int nInputSize) {
-    this(otapiJNI.new_OTPassword__SWIG_1(szInput, nInputSize), true);
+    this(otapiJNI.new_OTPassword__SWIG_3(szInput, nInputSize), true);
   }
 
   public final static class BlockSize {
     public final static int DEFAULT_SIZE = otapiJNI.OTPassword_DEFAULT_SIZE_get();
+    public final static int LARGER_SIZE = otapiJNI.OTPassword_LARGER_SIZE_get();
   }
 
 }

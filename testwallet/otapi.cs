@@ -111,8 +111,8 @@ public class otapi {
     return ret;
   }
 
-  public static string OT_API_CreateNym() {
-    string ret = otapiPINVOKE.OT_API_CreateNym();
+  public static string OT_API_CreateNym(int nKeySize) {
+    string ret = otapiPINVOKE.OT_API_CreateNym(nKeySize);
     return ret;
   }
 
@@ -201,6 +201,16 @@ public class otapi {
     return ret;
   }
 
+  public static string OT_API_GetAccountWallet_InboxHash(string ACCOUNT_ID) {
+    string ret = otapiPINVOKE.OT_API_GetAccountWallet_InboxHash(ACCOUNT_ID);
+    return ret;
+  }
+
+  public static string OT_API_GetAccountWallet_OutboxHash(string ACCOUNT_ID) {
+    string ret = otapiPINVOKE.OT_API_GetAccountWallet_OutboxHash(ACCOUNT_ID);
+    return ret;
+  }
+
   public static int OT_API_VerifyAccountReceipt(string SERVER_ID, string NYM_ID, string ACCT_ID) {
     int ret = otapiPINVOKE.OT_API_VerifyAccountReceipt(SERVER_ID, NYM_ID, ACCT_ID);
     return ret;
@@ -223,6 +233,26 @@ public class otapi {
 
   public static string OT_API_GetNym_Stats(string NYM_ID) {
     string ret = otapiPINVOKE.OT_API_GetNym_Stats(NYM_ID);
+    return ret;
+  }
+
+  public static string OT_API_GetNym_NymboxHash(string SERVER_ID, string NYM_ID) {
+    string ret = otapiPINVOKE.OT_API_GetNym_NymboxHash(SERVER_ID, NYM_ID);
+    return ret;
+  }
+
+  public static string OT_API_GetNym_RecentHash(string SERVER_ID, string NYM_ID) {
+    string ret = otapiPINVOKE.OT_API_GetNym_RecentHash(SERVER_ID, NYM_ID);
+    return ret;
+  }
+
+  public static string OT_API_GetNym_InboxHash(string ACCOUNT_ID, string NYM_ID) {
+    string ret = otapiPINVOKE.OT_API_GetNym_InboxHash(ACCOUNT_ID, NYM_ID);
+    return ret;
+  }
+
+  public static string OT_API_GetNym_OutboxHash(string ACCOUNT_ID, string NYM_ID) {
+    string ret = otapiPINVOKE.OT_API_GetNym_OutboxHash(ACCOUNT_ID, NYM_ID);
     return ret;
   }
 
@@ -456,21 +486,18 @@ public class otapi {
     return ret;
   }
 
-  public static void OT_API_activateSmartContract(string SERVER_ID, string USER_ID, string THE_SMART_CONTRACT) {
-    otapiPINVOKE.OT_API_activateSmartContract(SERVER_ID, USER_ID, THE_SMART_CONTRACT);
-  }
-
-  public static void OT_API_triggerClause(string SERVER_ID, string USER_ID, string TRANSACTION_NUMBER, string CLAUSE_NAME, string STR_PARAM) {
-    otapiPINVOKE.OT_API_triggerClause(SERVER_ID, USER_ID, TRANSACTION_NUMBER, CLAUSE_NAME, STR_PARAM);
-  }
-
-  public static int OT_API_HarvestClosingNumbers(string SERVER_ID, string NYM_ID, string THE_CRON_ITEM) {
-    int ret = otapiPINVOKE.OT_API_HarvestClosingNumbers(SERVER_ID, NYM_ID, THE_CRON_ITEM);
+  public static int OT_API_activateSmartContract(string SERVER_ID, string USER_ID, string THE_SMART_CONTRACT) {
+    int ret = otapiPINVOKE.OT_API_activateSmartContract(SERVER_ID, USER_ID, THE_SMART_CONTRACT);
     return ret;
   }
 
-  public static int OT_API_HarvestAllNumbers(string SERVER_ID, string NYM_ID, string THE_CRON_ITEM) {
-    int ret = otapiPINVOKE.OT_API_HarvestAllNumbers(SERVER_ID, NYM_ID, THE_CRON_ITEM);
+  public static int OT_API_triggerClause(string SERVER_ID, string USER_ID, string TRANSACTION_NUMBER, string CLAUSE_NAME, string STR_PARAM) {
+    int ret = otapiPINVOKE.OT_API_triggerClause(SERVER_ID, USER_ID, TRANSACTION_NUMBER, CLAUSE_NAME, STR_PARAM);
+    return ret;
+  }
+
+  public static int OT_API_Msg_HarvestTransactionNumbers(string THE_MESSAGE, string USER_ID, int bHarvestingForRetry, int bReplyWasSuccess, int bReplyWasFailure, int bTransactionWasSuccess, int bTransactionWasFailure) {
+    int ret = otapiPINVOKE.OT_API_Msg_HarvestTransactionNumbers(THE_MESSAGE, USER_ID, bHarvestingForRetry, bReplyWasSuccess, bReplyWasFailure, bTransactionWasSuccess, bTransactionWasFailure);
     return ret;
   }
 
@@ -729,8 +756,9 @@ public class otapi {
     return ret;
   }
 
-  public static void OT_API_exchangePurse(string SERVER_ID, string ASSET_TYPE_ID, string USER_ID, string THE_PURSE) {
-    otapiPINVOKE.OT_API_exchangePurse(SERVER_ID, ASSET_TYPE_ID, USER_ID, THE_PURSE);
+  public static int OT_API_exchangePurse(string SERVER_ID, string ASSET_TYPE_ID, string USER_ID, string THE_PURSE) {
+    int ret = otapiPINVOKE.OT_API_exchangePurse(SERVER_ID, ASSET_TYPE_ID, USER_ID, THE_PURSE);
+    return ret;
   }
 
   public static string OT_API_Token_ChangeOwner(string SERVER_ID, string ASSET_TYPE_ID, string THE_TOKEN, string OLD_OWNER_NYM_ID, string NEW_OWNER_NYM_ID) {
@@ -773,24 +801,79 @@ public class otapi {
     return ret;
   }
 
-  public static void OT_API_checkServerID(string SERVER_ID, string USER_ID) {
-    otapiPINVOKE.OT_API_checkServerID(SERVER_ID, USER_ID);
+  public static string OT_API_Instrument_GetAmount(string SERVER_ID, string THE_INSTRUMENT) {
+    string ret = otapiPINVOKE.OT_API_Instrument_GetAmount(SERVER_ID, THE_INSTRUMENT);
+    return ret;
   }
 
-  public static void OT_API_createUserAccount(string SERVER_ID, string USER_ID) {
-    otapiPINVOKE.OT_API_createUserAccount(SERVER_ID, USER_ID);
+  public static string OT_API_Instrument_GetTransNum(string SERVER_ID, string THE_INSTRUMENT) {
+    string ret = otapiPINVOKE.OT_API_Instrument_GetTransNum(SERVER_ID, THE_INSTRUMENT);
+    return ret;
   }
 
-  public static void OT_API_deleteUserAccount(string SERVER_ID, string USER_ID) {
-    otapiPINVOKE.OT_API_deleteUserAccount(SERVER_ID, USER_ID);
+  public static string OT_API_Instrument_GetValidFrom(string SERVER_ID, string THE_INSTRUMENT) {
+    string ret = otapiPINVOKE.OT_API_Instrument_GetValidFrom(SERVER_ID, THE_INSTRUMENT);
+    return ret;
   }
 
-  public static void OT_API_deleteAssetAccount(string SERVER_ID, string USER_ID, string ACCOUNT_ID) {
-    otapiPINVOKE.OT_API_deleteAssetAccount(SERVER_ID, USER_ID, ACCOUNT_ID);
+  public static string OT_API_Instrument_GetValidTo(string SERVER_ID, string THE_INSTRUMENT) {
+    string ret = otapiPINVOKE.OT_API_Instrument_GetValidTo(SERVER_ID, THE_INSTRUMENT);
+    return ret;
   }
 
-  public static void OT_API_usageCredits(string SERVER_ID, string USER_ID, string USER_ID_CHECK, string ADJUSTMENT) {
-    otapiPINVOKE.OT_API_usageCredits(SERVER_ID, USER_ID, USER_ID_CHECK, ADJUSTMENT);
+  public static string OT_API_Instrument_GetMemo(string SERVER_ID, string THE_INSTRUMENT) {
+    string ret = otapiPINVOKE.OT_API_Instrument_GetMemo(SERVER_ID, THE_INSTRUMENT);
+    return ret;
+  }
+
+  public static string OT_API_Instrument_GetAssetID(string SERVER_ID, string THE_INSTRUMENT) {
+    string ret = otapiPINVOKE.OT_API_Instrument_GetAssetID(SERVER_ID, THE_INSTRUMENT);
+    return ret;
+  }
+
+  public static string OT_API_Instrmnt_GetSenderUserID(string SERVER_ID, string THE_INSTRUMENT) {
+    string ret = otapiPINVOKE.OT_API_Instrmnt_GetSenderUserID(SERVER_ID, THE_INSTRUMENT);
+    return ret;
+  }
+
+  public static string OT_API_Instrmnt_GetSenderAcctID(string SERVER_ID, string THE_INSTRUMENT) {
+    string ret = otapiPINVOKE.OT_API_Instrmnt_GetSenderAcctID(SERVER_ID, THE_INSTRUMENT);
+    return ret;
+  }
+
+  public static string OT_API_Instrmnt_GetRecipientUserID(string SERVER_ID, string THE_INSTRUMENT) {
+    string ret = otapiPINVOKE.OT_API_Instrmnt_GetRecipientUserID(SERVER_ID, THE_INSTRUMENT);
+    return ret;
+  }
+
+  public static string OT_API_Instrmnt_GetRecipientAcctID(string SERVER_ID, string THE_INSTRUMENT) {
+    string ret = otapiPINVOKE.OT_API_Instrmnt_GetRecipientAcctID(SERVER_ID, THE_INSTRUMENT);
+    return ret;
+  }
+
+  public static int OT_API_checkServerID(string SERVER_ID, string USER_ID) {
+    int ret = otapiPINVOKE.OT_API_checkServerID(SERVER_ID, USER_ID);
+    return ret;
+  }
+
+  public static int OT_API_createUserAccount(string SERVER_ID, string USER_ID) {
+    int ret = otapiPINVOKE.OT_API_createUserAccount(SERVER_ID, USER_ID);
+    return ret;
+  }
+
+  public static int OT_API_deleteUserAccount(string SERVER_ID, string USER_ID) {
+    int ret = otapiPINVOKE.OT_API_deleteUserAccount(SERVER_ID, USER_ID);
+    return ret;
+  }
+
+  public static int OT_API_deleteAssetAccount(string SERVER_ID, string USER_ID, string ACCOUNT_ID) {
+    int ret = otapiPINVOKE.OT_API_deleteAssetAccount(SERVER_ID, USER_ID, ACCOUNT_ID);
+    return ret;
+  }
+
+  public static int OT_API_usageCredits(string SERVER_ID, string USER_ID, string USER_ID_CHECK, string ADJUSTMENT) {
+    int ret = otapiPINVOKE.OT_API_usageCredits(SERVER_ID, USER_ID, USER_ID_CHECK, ADJUSTMENT);
+    return ret;
   }
 
   public static string OT_API_Message_GetUsageCredits(string THE_MESSAGE) {
@@ -798,44 +881,54 @@ public class otapi {
     return ret;
   }
 
-  public static void OT_API_checkUser(string SERVER_ID, string USER_ID, string USER_ID_CHECK) {
-    otapiPINVOKE.OT_API_checkUser(SERVER_ID, USER_ID, USER_ID_CHECK);
+  public static int OT_API_checkUser(string SERVER_ID, string USER_ID, string USER_ID_CHECK) {
+    int ret = otapiPINVOKE.OT_API_checkUser(SERVER_ID, USER_ID, USER_ID_CHECK);
+    return ret;
   }
 
-  public static void OT_API_sendUserMessage(string SERVER_ID, string USER_ID, string USER_ID_RECIPIENT, string RECIPIENT_PUBKEY, string THE_MESSAGE) {
-    otapiPINVOKE.OT_API_sendUserMessage(SERVER_ID, USER_ID, USER_ID_RECIPIENT, RECIPIENT_PUBKEY, THE_MESSAGE);
+  public static int OT_API_sendUserMessage(string SERVER_ID, string USER_ID, string USER_ID_RECIPIENT, string RECIPIENT_PUBKEY, string THE_MESSAGE) {
+    int ret = otapiPINVOKE.OT_API_sendUserMessage(SERVER_ID, USER_ID, USER_ID_RECIPIENT, RECIPIENT_PUBKEY, THE_MESSAGE);
+    return ret;
   }
 
-  public static void OT_API_sendUserInstrument(string SERVER_ID, string USER_ID, string USER_ID_RECIPIENT, string RECIPIENT_PUBKEY, string THE_INSTRUMENT) {
-    otapiPINVOKE.OT_API_sendUserInstrument(SERVER_ID, USER_ID, USER_ID_RECIPIENT, RECIPIENT_PUBKEY, THE_INSTRUMENT);
+  public static int OT_API_sendUserInstrument(string SERVER_ID, string USER_ID, string USER_ID_RECIPIENT, string RECIPIENT_PUBKEY, string THE_INSTRUMENT) {
+    int ret = otapiPINVOKE.OT_API_sendUserInstrument(SERVER_ID, USER_ID, USER_ID_RECIPIENT, RECIPIENT_PUBKEY, THE_INSTRUMENT);
+    return ret;
   }
 
-  public static void OT_API_getRequest(string SERVER_ID, string USER_ID) {
-    otapiPINVOKE.OT_API_getRequest(SERVER_ID, USER_ID);
+  public static int OT_API_getRequest(string SERVER_ID, string USER_ID) {
+    int ret = otapiPINVOKE.OT_API_getRequest(SERVER_ID, USER_ID);
+    return ret;
   }
 
-  public static void OT_API_getTransactionNumber(string SERVER_ID, string USER_ID) {
-    otapiPINVOKE.OT_API_getTransactionNumber(SERVER_ID, USER_ID);
+  public static int OT_API_getTransactionNumber(string SERVER_ID, string USER_ID) {
+    int ret = otapiPINVOKE.OT_API_getTransactionNumber(SERVER_ID, USER_ID);
+    return ret;
   }
 
-  public static void OT_API_issueAssetType(string SERVER_ID, string USER_ID, string THE_CONTRACT) {
-    otapiPINVOKE.OT_API_issueAssetType(SERVER_ID, USER_ID, THE_CONTRACT);
+  public static int OT_API_issueAssetType(string SERVER_ID, string USER_ID, string THE_CONTRACT) {
+    int ret = otapiPINVOKE.OT_API_issueAssetType(SERVER_ID, USER_ID, THE_CONTRACT);
+    return ret;
   }
 
-  public static void OT_API_getContract(string SERVER_ID, string USER_ID, string ASSET_ID) {
-    otapiPINVOKE.OT_API_getContract(SERVER_ID, USER_ID, ASSET_ID);
+  public static int OT_API_getContract(string SERVER_ID, string USER_ID, string ASSET_ID) {
+    int ret = otapiPINVOKE.OT_API_getContract(SERVER_ID, USER_ID, ASSET_ID);
+    return ret;
   }
 
-  public static void OT_API_getMint(string SERVER_ID, string USER_ID, string ASSET_ID) {
-    otapiPINVOKE.OT_API_getMint(SERVER_ID, USER_ID, ASSET_ID);
+  public static int OT_API_getMint(string SERVER_ID, string USER_ID, string ASSET_ID) {
+    int ret = otapiPINVOKE.OT_API_getMint(SERVER_ID, USER_ID, ASSET_ID);
+    return ret;
   }
 
-  public static void OT_API_createAssetAccount(string SERVER_ID, string USER_ID, string ASSET_ID) {
-    otapiPINVOKE.OT_API_createAssetAccount(SERVER_ID, USER_ID, ASSET_ID);
+  public static int OT_API_createAssetAccount(string SERVER_ID, string USER_ID, string ASSET_ID) {
+    int ret = otapiPINVOKE.OT_API_createAssetAccount(SERVER_ID, USER_ID, ASSET_ID);
+    return ret;
   }
 
-  public static void OT_API_getAccount(string SERVER_ID, string USER_ID, string ACCT_ID) {
-    otapiPINVOKE.OT_API_getAccount(SERVER_ID, USER_ID, ACCT_ID);
+  public static int OT_API_getAccount(string SERVER_ID, string USER_ID, string ACCT_ID) {
+    int ret = otapiPINVOKE.OT_API_getAccount(SERVER_ID, USER_ID, ACCT_ID);
+    return ret;
   }
 
   public static string OT_API_GenerateBasketCreation(string USER_ID, string MINIMUM_TRANSFER) {
@@ -848,8 +941,9 @@ public class otapi {
     return ret;
   }
 
-  public static void OT_API_issueBasket(string SERVER_ID, string USER_ID, string THE_BASKET) {
-    otapiPINVOKE.OT_API_issueBasket(SERVER_ID, USER_ID, THE_BASKET);
+  public static int OT_API_issueBasket(string SERVER_ID, string USER_ID, string THE_BASKET) {
+    int ret = otapiPINVOKE.OT_API_issueBasket(SERVER_ID, USER_ID, THE_BASKET);
+    return ret;
   }
 
   public static string OT_API_GenerateBasketExchange(string SERVER_ID, string USER_ID, string BASKET_ASSET_TYPE_ID, string BASKET_ASSET_ACCT_ID, int TRANSFER_MULTIPLE) {
@@ -862,32 +956,39 @@ public class otapi {
     return ret;
   }
 
-  public static void OT_API_exchangeBasket(string SERVER_ID, string USER_ID, string BASKET_ASSET_ID, string THE_BASKET, int BOOL_EXCHANGE_IN_OR_OUT) {
-    otapiPINVOKE.OT_API_exchangeBasket(SERVER_ID, USER_ID, BASKET_ASSET_ID, THE_BASKET, BOOL_EXCHANGE_IN_OR_OUT);
+  public static int OT_API_exchangeBasket(string SERVER_ID, string USER_ID, string BASKET_ASSET_ID, string THE_BASKET, int BOOL_EXCHANGE_IN_OR_OUT) {
+    int ret = otapiPINVOKE.OT_API_exchangeBasket(SERVER_ID, USER_ID, BASKET_ASSET_ID, THE_BASKET, BOOL_EXCHANGE_IN_OR_OUT);
+    return ret;
   }
 
-  public static void OT_API_notarizeWithdrawal(string SERVER_ID, string USER_ID, string ACCT_ID, string AMOUNT) {
-    otapiPINVOKE.OT_API_notarizeWithdrawal(SERVER_ID, USER_ID, ACCT_ID, AMOUNT);
+  public static int OT_API_notarizeWithdrawal(string SERVER_ID, string USER_ID, string ACCT_ID, string AMOUNT) {
+    int ret = otapiPINVOKE.OT_API_notarizeWithdrawal(SERVER_ID, USER_ID, ACCT_ID, AMOUNT);
+    return ret;
   }
 
-  public static void OT_API_notarizeDeposit(string SERVER_ID, string USER_ID, string ACCT_ID, string THE_PURSE) {
-    otapiPINVOKE.OT_API_notarizeDeposit(SERVER_ID, USER_ID, ACCT_ID, THE_PURSE);
+  public static int OT_API_notarizeDeposit(string SERVER_ID, string USER_ID, string ACCT_ID, string THE_PURSE) {
+    int ret = otapiPINVOKE.OT_API_notarizeDeposit(SERVER_ID, USER_ID, ACCT_ID, THE_PURSE);
+    return ret;
   }
 
-  public static void OT_API_notarizeTransfer(string SERVER_ID, string USER_ID, string ACCT_FROM, string ACCT_TO, string AMOUNT, string NOTE) {
-    otapiPINVOKE.OT_API_notarizeTransfer(SERVER_ID, USER_ID, ACCT_FROM, ACCT_TO, AMOUNT, NOTE);
+  public static int OT_API_notarizeTransfer(string SERVER_ID, string USER_ID, string ACCT_FROM, string ACCT_TO, string AMOUNT, string NOTE) {
+    int ret = otapiPINVOKE.OT_API_notarizeTransfer(SERVER_ID, USER_ID, ACCT_FROM, ACCT_TO, AMOUNT, NOTE);
+    return ret;
   }
 
-  public static void OT_API_getInbox(string SERVER_ID, string USER_ID, string ACCT_ID) {
-    otapiPINVOKE.OT_API_getInbox(SERVER_ID, USER_ID, ACCT_ID);
+  public static int OT_API_getInbox(string SERVER_ID, string USER_ID, string ACCT_ID) {
+    int ret = otapiPINVOKE.OT_API_getInbox(SERVER_ID, USER_ID, ACCT_ID);
+    return ret;
   }
 
-  public static void OT_API_getOutbox(string SERVER_ID, string USER_ID, string ACCT_ID) {
-    otapiPINVOKE.OT_API_getOutbox(SERVER_ID, USER_ID, ACCT_ID);
+  public static int OT_API_getOutbox(string SERVER_ID, string USER_ID, string ACCT_ID) {
+    int ret = otapiPINVOKE.OT_API_getOutbox(SERVER_ID, USER_ID, ACCT_ID);
+    return ret;
   }
 
-  public static void OT_API_getNymbox(string SERVER_ID, string USER_ID) {
-    otapiPINVOKE.OT_API_getNymbox(SERVER_ID, USER_ID);
+  public static int OT_API_getNymbox(string SERVER_ID, string USER_ID) {
+    int ret = otapiPINVOKE.OT_API_getNymbox(SERVER_ID, USER_ID);
+    return ret;
   }
 
   public static string OT_API_LoadNymbox(string SERVER_ID, string USER_ID) {
@@ -900,8 +1001,14 @@ public class otapi {
     return ret;
   }
 
-  public static void OT_API_getBoxReceipt(string SERVER_ID, string USER_ID, string ACCOUNT_ID, int nBoxType, string TRANSACTION_NUMBER) {
-    otapiPINVOKE.OT_API_getBoxReceipt(SERVER_ID, USER_ID, ACCOUNT_ID, nBoxType, TRANSACTION_NUMBER);
+  public static string OT_API_Nymbox_GetReplyNotice(string SERVER_ID, string USER_ID, string REQUEST_NUMBER) {
+    string ret = otapiPINVOKE.OT_API_Nymbox_GetReplyNotice(SERVER_ID, USER_ID, REQUEST_NUMBER);
+    return ret;
+  }
+
+  public static int OT_API_getBoxReceipt(string SERVER_ID, string USER_ID, string ACCOUNT_ID, int nBoxType, string TRANSACTION_NUMBER) {
+    int ret = otapiPINVOKE.OT_API_getBoxReceipt(SERVER_ID, USER_ID, ACCOUNT_ID, nBoxType, TRANSACTION_NUMBER);
+    return ret;
   }
 
   public static int OT_API_DoesBoxReceiptExist(string SERVER_ID, string USER_ID, string ACCOUNT_ID, int nBoxType, string TRANSACTION_NUMBER) {
@@ -909,8 +1016,9 @@ public class otapi {
     return ret;
   }
 
-  public static void OT_API_processInbox(string SERVER_ID, string USER_ID, string ACCT_ID, string ACCT_LEDGER) {
-    otapiPINVOKE.OT_API_processInbox(SERVER_ID, USER_ID, ACCT_ID, ACCT_LEDGER);
+  public static int OT_API_processInbox(string SERVER_ID, string USER_ID, string ACCT_ID, string ACCT_LEDGER) {
+    int ret = otapiPINVOKE.OT_API_processInbox(SERVER_ID, USER_ID, ACCT_ID, ACCT_LEDGER);
+    return ret;
   }
 
   public static int OT_API_processNymbox(string SERVER_ID, string USER_ID) {
@@ -918,53 +1026,77 @@ public class otapi {
     return ret;
   }
 
-  public static void OT_API_withdrawVoucher(string SERVER_ID, string USER_ID, string ACCT_ID, string RECIPIENT_USER_ID, string CHEQUE_MEMO, string AMOUNT) {
-    otapiPINVOKE.OT_API_withdrawVoucher(SERVER_ID, USER_ID, ACCT_ID, RECIPIENT_USER_ID, CHEQUE_MEMO, AMOUNT);
+  public static int OT_API_withdrawVoucher(string SERVER_ID, string USER_ID, string ACCT_ID, string RECIPIENT_USER_ID, string CHEQUE_MEMO, string AMOUNT) {
+    int ret = otapiPINVOKE.OT_API_withdrawVoucher(SERVER_ID, USER_ID, ACCT_ID, RECIPIENT_USER_ID, CHEQUE_MEMO, AMOUNT);
+    return ret;
   }
 
-  public static void OT_API_depositCheque(string SERVER_ID, string USER_ID, string ACCT_ID, string THE_CHEQUE) {
-    otapiPINVOKE.OT_API_depositCheque(SERVER_ID, USER_ID, ACCT_ID, THE_CHEQUE);
+  public static int OT_API_depositCheque(string SERVER_ID, string USER_ID, string ACCT_ID, string THE_CHEQUE) {
+    int ret = otapiPINVOKE.OT_API_depositCheque(SERVER_ID, USER_ID, ACCT_ID, THE_CHEQUE);
+    return ret;
   }
 
-  public static void OT_API_depositPaymentPlan(string SERVER_ID, string USER_ID, string THE_PAYMENT_PLAN) {
-    otapiPINVOKE.OT_API_depositPaymentPlan(SERVER_ID, USER_ID, THE_PAYMENT_PLAN);
+  public static int OT_API_depositPaymentPlan(string SERVER_ID, string USER_ID, string THE_PAYMENT_PLAN) {
+    int ret = otapiPINVOKE.OT_API_depositPaymentPlan(SERVER_ID, USER_ID, THE_PAYMENT_PLAN);
+    return ret;
   }
 
-  public static void OT_API_issueMarketOffer(string SERVER_ID, string USER_ID, string ASSET_TYPE_ID, string ASSET_ACCT_ID, string CURRENCY_TYPE_ID, string CURRENCY_ACCT_ID, string MARKET_SCALE, string MINIMUM_INCREMENT, string TOTAL_ASSETS_ON_OFFER, string PRICE_LIMIT, int bBuyingOrSelling) {
-    otapiPINVOKE.OT_API_issueMarketOffer(SERVER_ID, USER_ID, ASSET_TYPE_ID, ASSET_ACCT_ID, CURRENCY_TYPE_ID, CURRENCY_ACCT_ID, MARKET_SCALE, MINIMUM_INCREMENT, TOTAL_ASSETS_ON_OFFER, PRICE_LIMIT, bBuyingOrSelling);
+  public static int OT_API_issueMarketOffer(string SERVER_ID, string USER_ID, string ASSET_TYPE_ID, string ASSET_ACCT_ID, string CURRENCY_TYPE_ID, string CURRENCY_ACCT_ID, string MARKET_SCALE, string MINIMUM_INCREMENT, string TOTAL_ASSETS_ON_OFFER, string PRICE_LIMIT, int bBuyingOrSelling) {
+    int ret = otapiPINVOKE.OT_API_issueMarketOffer(SERVER_ID, USER_ID, ASSET_TYPE_ID, ASSET_ACCT_ID, CURRENCY_TYPE_ID, CURRENCY_ACCT_ID, MARKET_SCALE, MINIMUM_INCREMENT, TOTAL_ASSETS_ON_OFFER, PRICE_LIMIT, bBuyingOrSelling);
+    return ret;
   }
 
-  public static void OT_API_getMarketList(string SERVER_ID, string USER_ID) {
-    otapiPINVOKE.OT_API_getMarketList(SERVER_ID, USER_ID);
+  public static int OT_API_getMarketList(string SERVER_ID, string USER_ID) {
+    int ret = otapiPINVOKE.OT_API_getMarketList(SERVER_ID, USER_ID);
+    return ret;
   }
 
-  public static void OT_API_getMarketOffers(string SERVER_ID, string USER_ID, string MARKET_ID, string MAX_DEPTH) {
-    otapiPINVOKE.OT_API_getMarketOffers(SERVER_ID, USER_ID, MARKET_ID, MAX_DEPTH);
+  public static int OT_API_getMarketOffers(string SERVER_ID, string USER_ID, string MARKET_ID, string MAX_DEPTH) {
+    int ret = otapiPINVOKE.OT_API_getMarketOffers(SERVER_ID, USER_ID, MARKET_ID, MAX_DEPTH);
+    return ret;
   }
 
-  public static void OT_API_getMarketRecentTrades(string SERVER_ID, string USER_ID, string MARKET_ID) {
-    otapiPINVOKE.OT_API_getMarketRecentTrades(SERVER_ID, USER_ID, MARKET_ID);
+  public static int OT_API_getMarketRecentTrades(string SERVER_ID, string USER_ID, string MARKET_ID) {
+    int ret = otapiPINVOKE.OT_API_getMarketRecentTrades(SERVER_ID, USER_ID, MARKET_ID);
+    return ret;
   }
 
-  public static void OT_API_getNym_MarketOffers(string SERVER_ID, string USER_ID) {
-    otapiPINVOKE.OT_API_getNym_MarketOffers(SERVER_ID, USER_ID);
+  public static int OT_API_getNym_MarketOffers(string SERVER_ID, string USER_ID) {
+    int ret = otapiPINVOKE.OT_API_getNym_MarketOffers(SERVER_ID, USER_ID);
+    return ret;
   }
 
-  public static void OT_API_cancelMarketOffer(string SERVER_ID, string USER_ID, string ASSET_ACCT_ID, string TRANSACTION_NUMBER) {
-    otapiPINVOKE.OT_API_cancelMarketOffer(SERVER_ID, USER_ID, ASSET_ACCT_ID, TRANSACTION_NUMBER);
+  public static int OT_API_cancelMarketOffer(string SERVER_ID, string USER_ID, string ASSET_ACCT_ID, string TRANSACTION_NUMBER) {
+    int ret = otapiPINVOKE.OT_API_cancelMarketOffer(SERVER_ID, USER_ID, ASSET_ACCT_ID, TRANSACTION_NUMBER);
+    return ret;
   }
 
-  public static void OT_API_cancelPaymentPlan(string SERVER_ID, string USER_ID, string FROM_ACCT_ID, string TRANSACTION_NUMBER) {
-    otapiPINVOKE.OT_API_cancelPaymentPlan(SERVER_ID, USER_ID, FROM_ACCT_ID, TRANSACTION_NUMBER);
+  public static int OT_API_cancelPaymentPlan(string SERVER_ID, string USER_ID, string FROM_ACCT_ID, string TRANSACTION_NUMBER) {
+    int ret = otapiPINVOKE.OT_API_cancelPaymentPlan(SERVER_ID, USER_ID, FROM_ACCT_ID, TRANSACTION_NUMBER);
+    return ret;
   }
 
-  public static string OT_API_PopMessageBuffer() {
-    string ret = otapiPINVOKE.OT_API_PopMessageBuffer();
+  public static string OT_API_PopMessageBuffer(string REQUEST_NUMBER, string SERVER_ID, string USER_ID) {
+    string ret = otapiPINVOKE.OT_API_PopMessageBuffer(REQUEST_NUMBER, SERVER_ID, USER_ID);
     return ret;
   }
 
   public static void OT_API_FlushMessageBuffer() {
     otapiPINVOKE.OT_API_FlushMessageBuffer();
+  }
+
+  public static string OT_API_GetSentMessage(string REQUEST_NUMBER, string SERVER_ID, string USER_ID) {
+    string ret = otapiPINVOKE.OT_API_GetSentMessage(REQUEST_NUMBER, SERVER_ID, USER_ID);
+    return ret;
+  }
+
+  public static int OT_API_RemoveSentMessage(string REQUEST_NUMBER, string SERVER_ID, string USER_ID) {
+    int ret = otapiPINVOKE.OT_API_RemoveSentMessage(REQUEST_NUMBER, SERVER_ID, USER_ID);
+    return ret;
+  }
+
+  public static void OT_API_FlushSentMessages(int bHarvestingForRetry, string SERVER_ID, string USER_ID, string THE_NYMBOX) {
+    otapiPINVOKE.OT_API_FlushSentMessages(bHarvestingForRetry, SERVER_ID, USER_ID, THE_NYMBOX);
   }
 
   public static void OT_API_Sleep(string MILLISECONDS) {
@@ -986,8 +1118,9 @@ public class otapi {
     return ret;
   }
 
-  public static void OT_API_queryAssetTypes(string SERVER_ID, string USER_ID, string ENCODED_MAP) {
-    otapiPINVOKE.OT_API_queryAssetTypes(SERVER_ID, USER_ID, ENCODED_MAP);
+  public static int OT_API_queryAssetTypes(string SERVER_ID, string USER_ID, string ENCODED_MAP) {
+    int ret = otapiPINVOKE.OT_API_queryAssetTypes(SERVER_ID, USER_ID, ENCODED_MAP);
+    return ret;
   }
 
   public static string OT_API_Message_GetPayload(string THE_MESSAGE) {
@@ -1027,6 +1160,11 @@ public class otapi {
 
   public static string OT_API_Message_GetNewAcctID(string THE_MESSAGE) {
     string ret = otapiPINVOKE.OT_API_Message_GetNewAcctID(THE_MESSAGE);
+    return ret;
+  }
+
+  public static string OT_API_Message_GetNymboxHash(string THE_MESSAGE) {
+    string ret = otapiPINVOKE.OT_API_Message_GetNymboxHash(THE_MESSAGE);
     return ret;
   }
 
@@ -1316,4 +1454,8 @@ public class otapi {
 
   public static readonly int OTPASSWORD_BLOCKSIZE = otapiPINVOKE.OTPASSWORD_BLOCKSIZE_get();
   public static readonly int OTPASSWORD_MEMSIZE = otapiPINVOKE.OTPASSWORD_MEMSIZE_get();
+  public static readonly int OT_LARGE_BLOCKSIZE = otapiPINVOKE.OT_LARGE_BLOCKSIZE_get();
+  public static readonly int OT_LARGE_MEMSIZE = otapiPINVOKE.OT_LARGE_MEMSIZE_get();
+  public static readonly int OT_DEFAULT_BLOCKSIZE = otapiPINVOKE.OT_DEFAULT_BLOCKSIZE_get();
+  public static readonly int OT_DEFAULT_MEMSIZE = otapiPINVOKE.OT_DEFAULT_MEMSIZE_get();
 }

@@ -161,10 +161,6 @@ class OTItem : public OTTransactionType
 public:
 	enum itemType 
 	{
-		// TRANSACTION NUMBERS ARE REQUIRED FOR EVERY TRANSACTION
-		transaction,	// this item is request for a transaction number
-		atTransaction,	// this item contains a response to a request for a transaction number
-						// (If successful, the actual number(s) will be dropped into the Nymbox for pickup.)
 // ------------------------------------------------------------------------------
 		// TRANSFER
 		transfer,	// this item is an outgoing transfer, probably part of an outoing transaction.

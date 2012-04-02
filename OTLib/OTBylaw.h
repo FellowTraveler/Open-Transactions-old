@@ -240,7 +240,9 @@ public:
 	bool RemoveIssuedNumber(const long & lNumber, const OTString & strServerID, OTPseudonym & SIGNER_NYM, bool bSave=true);
 	bool RemoveTransactionNumber(const long & lNumber, const OTString & strServerID, OTPseudonym & SIGNER_NYM, bool bSave=true);
 	
-	bool HarvestTransactionNumber(const long & lNumber, const OTString & strServerID, bool bSave=false);
+	bool HarvestTransactionNumber(const long & lNumber, const OTString & strServerID, 
+                                  bool bSave=false, // Each agent's nym is used if pSignerNym is NULL, whereas the server
+                                  OTPseudonym * pSignerNym=NULL); // uses this optional arg to substitute serverNym as signer.
 	
     // ---------------------------------
 	bool ReserveOpeningTransNum(const OTString & strServerID);
@@ -372,8 +374,9 @@ public:
 	bool DropFinalReceiptToNymbox(OTSmartContract & theSmartContract,
 								  const long & lNewTransactionNumber,
 								  const OTString & strOrigCronItem,
-								  OTString * pstrNote=NULL,
-								  OTString * pstrAttachment=NULL);
+								  OTString      * pstrNote=NULL,
+								  OTString      * pstrAttachment=NULL,
+                                  OTPseudonym   * pActualNym=NULL);
 
 	bool DropFinalReceiptToInbox(mapOfNyms * pNymMap,
 								 const OTString & strServerID,
@@ -394,8 +397,9 @@ public:
 								  const long & lNewTransactionNumber,
 								  const long & lInReferenceTo,
 								  const OTString & strReference,
-								  OTString * pstrNote=NULL,
-								  OTString * pstrAttachment=NULL);
+								  OTString      * pstrNote=NULL,
+								  OTString      * pstrAttachment=NULL,
+                                  OTPseudonym   * pActualNym=NULL);
 	
 };
 
@@ -618,7 +622,8 @@ public:
 	void HarvestOpeningNumber(OTAgent & theAgent,		const OTString & strServerID);
 	void HarvestOpeningNumber(OTPseudonym & theNym,		const OTString & strServerID);
 	// ---------------------------------------------------------------------------------
-	void HarvestClosingNumbers(const OTString & strServerID);
+	void HarvestClosingNumbers(const OTString & strServerID, bool bSave=false,
+                               OTPseudonym * pSignerNym=NULL);
 	void HarvestClosingNumbers(OTAgent & theAgent,		const OTString & strServerID);
 	void HarvestClosingNumbers(OTPseudonym & theNym,	const OTString & strServerID);
 	// ---------------------------------------------------------------------------------
@@ -628,8 +633,9 @@ public:
 	//
 	bool DropFinalReceiptToNymboxes(const long & lNewTransactionNumber,
 									const OTString & strOrigCronItem,
-									OTString * pstrNote=NULL,
-									OTString * pstrAttachment=NULL);
+									OTString      * pstrNote=NULL,
+									OTString      * pstrAttachment=NULL,
+                                    OTPseudonym   * pActualNym=NULL);
 	// -------------------------------------------
 	// Iterates through the accounts.
 	//
@@ -647,8 +653,9 @@ public:
 						   const long & lNewTransactionNumber,
 //						   const long & lInReferenceTo,  // We use GetOpenTransNo() now.
 						   const OTString & strReference,
-						   OTString * pstrNote=NULL,
-						   OTString * pstrAttachment=NULL);
+						   OTString      * pstrNote=NULL,
+						   OTString      * pstrAttachment=NULL,
+                           OTPseudonym   * pActualNym=NULL);
 	// ---------------------
 	
 	// This pointer isn't owned -- just stored for convenience.

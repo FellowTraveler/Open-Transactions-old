@@ -2094,6 +2094,27 @@ fail:
 
 SWIGINTERN int
 _wrap_new_OTPassword__SWIG_0(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  OTPassword::BlockSize arg1 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  OTPassword *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"o:new_OTPassword theBlockSize ",(void *)0) == TCL_ERROR) SWIG_fail;
+  ecode1 = SWIG_AsVal_int SWIG_TCL_CALL_ARGS_2(objv[1], &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "new_OTPassword" "', argument " "1"" of type '" "OTPassword::BlockSize""'");
+  } 
+  arg1 = static_cast< OTPassword::BlockSize >(val1);
+  result = (OTPassword *)new OTPassword(arg1);
+  Tcl_SetObjResult(interp, SWIG_NewInstanceObj( SWIG_as_voidptr(result), SWIGTYPE_p_OTPassword,0));
+  return TCL_OK;
+fail:
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_new_OTPassword__SWIG_1(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   OTPassword *result = 0 ;
   
   if (SWIG_GetArgs(interp, objc, objv,":new_OTPassword ") == TCL_ERROR) SWIG_fail;
@@ -2106,7 +2127,47 @@ fail:
 
 
 SWIGINTERN int
-_wrap_new_OTPassword__SWIG_1(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+_wrap_new_OTPassword__SWIG_2(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  char *arg1 = (char *) 0 ;
+  int arg2 ;
+  OTPassword::BlockSize arg3 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  int val3 ;
+  int ecode3 = 0 ;
+  OTPassword *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"ooo:new_OTPassword szInput nInputSize theBlockSize ",(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_OTPassword" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  ecode2 = SWIG_AsVal_int SWIG_TCL_CALL_ARGS_2(objv[2], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "new_OTPassword" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  ecode3 = SWIG_AsVal_int SWIG_TCL_CALL_ARGS_2(objv[3], &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "new_OTPassword" "', argument " "3"" of type '" "OTPassword::BlockSize""'");
+  } 
+  arg3 = static_cast< OTPassword::BlockSize >(val3);
+  result = (OTPassword *)new OTPassword((char const *)arg1,arg2,arg3);
+  Tcl_SetObjResult(interp, SWIG_NewInstanceObj( SWIG_as_voidptr(result), SWIGTYPE_p_OTPassword,0));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return TCL_OK;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_new_OTPassword__SWIG_3(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   char *arg1 = (char *) 0 ;
   int arg2 ;
   int res1 ;
@@ -2142,7 +2203,17 @@ _wrap_new_OTPassword(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int o
   Tcl_Obj *CONST *argv = objv+1;
   int argc = objc-1;
   if (argc == 0) {
-    return _wrap_new_OTPassword__SWIG_0(clientData, interp, objc, argv - 1);
+    return _wrap_new_OTPassword__SWIG_1(clientData, interp, objc, argv - 1);
+  }
+  if (argc == 1) {
+    int _v;
+    {
+      int res = SWIG_AsVal_int SWIG_TCL_CALL_ARGS_2(argv[0], NULL);
+      _v = SWIG_CheckState(res);
+    }
+    if (_v) {
+      return _wrap_new_OTPassword__SWIG_0(clientData, interp, objc, argv - 1);
+    }
   }
   if (argc == 2) {
     int _v;
@@ -2154,14 +2225,36 @@ _wrap_new_OTPassword(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int o
         _v = SWIG_CheckState(res);
       }
       if (_v) {
-        return _wrap_new_OTPassword__SWIG_1(clientData, interp, objc, argv - 1);
+        return _wrap_new_OTPassword__SWIG_3(clientData, interp, objc, argv - 1);
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    int res = SWIG_AsCharPtrAndSize(argv[0], 0, NULL, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        int res = SWIG_AsVal_int SWIG_TCL_CALL_ARGS_2(argv[1], NULL);
+        _v = SWIG_CheckState(res);
+      }
+      if (_v) {
+        {
+          int res = SWIG_AsVal_int SWIG_TCL_CALL_ARGS_2(argv[2], NULL);
+          _v = SWIG_CheckState(res);
+        }
+        if (_v) {
+          return _wrap_new_OTPassword__SWIG_2(clientData, interp, objc, argv - 1);
+        }
       }
     }
   }
   
   Tcl_SetResult(interp,(char *) "Wrong number or type of arguments for overloaded function 'new_OTPassword'.\n"
     "  Possible C/C++ prototypes are:\n"
+    "    OTPassword::OTPassword(OTPassword::BlockSize)\n"
     "    OTPassword::OTPassword()\n"
+    "    OTPassword::OTPassword(char const *,int,OTPassword::BlockSize)\n"
     "    OTPassword::OTPassword(char const *,int)\n", TCL_STATIC);
   return TCL_ERROR;
 }
@@ -3127,10 +3220,18 @@ fail:
 
 SWIGINTERN int
 _wrap_OT_API_CreateNym(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  int arg1 ;
+  int val1 ;
+  int ecode1 = 0 ;
   char *result = 0 ;
   
-  if (SWIG_GetArgs(interp, objc, objv,":OT_API_CreateNym ") == TCL_ERROR) SWIG_fail;
-  result = (char *)OT_API_CreateNym();
+  if (SWIG_GetArgs(interp, objc, objv,"o:OT_API_CreateNym nKeySize ",(void *)0) == TCL_ERROR) SWIG_fail;
+  ecode1 = SWIG_AsVal_int SWIG_TCL_CALL_ARGS_2(objv[1], &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "OT_API_CreateNym" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  result = (char *)OT_API_CreateNym(arg1);
   Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
   return TCL_OK;
 fail:
@@ -3494,6 +3595,54 @@ fail:
 
 
 SWIGINTERN int
+_wrap_OT_API_GetAccountWallet_InboxHash(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  char *arg1 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  char *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"o:OT_API_GetAccountWallet_InboxHash ACCOUNT_ID ",(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_GetAccountWallet_InboxHash" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  result = (char *)OT_API_GetAccountWallet_InboxHash((char const *)arg1);
+  Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return TCL_OK;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OT_API_GetAccountWallet_OutboxHash(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  char *arg1 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  char *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"o:OT_API_GetAccountWallet_OutboxHash ACCOUNT_ID ",(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_GetAccountWallet_OutboxHash" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  result = (char *)OT_API_GetAccountWallet_OutboxHash((char const *)arg1);
+  Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return TCL_OK;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
 _wrap_OT_API_VerifyAccountReceipt(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
@@ -3639,6 +3788,146 @@ _wrap_OT_API_GetNym_Stats(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, 
   return TCL_OK;
 fail:
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OT_API_GetNym_NymboxHash(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  char *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oo:OT_API_GetNym_NymboxHash SERVER_ID NYM_ID ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_GetNym_NymboxHash" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(objv[2], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_GetNym_NymboxHash" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  result = (char *)OT_API_GetNym_NymboxHash((char const *)arg1,(char const *)arg2);
+  Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return TCL_OK;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OT_API_GetNym_RecentHash(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  char *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oo:OT_API_GetNym_RecentHash SERVER_ID NYM_ID ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_GetNym_RecentHash" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(objv[2], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_GetNym_RecentHash" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  result = (char *)OT_API_GetNym_RecentHash((char const *)arg1,(char const *)arg2);
+  Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return TCL_OK;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OT_API_GetNym_InboxHash(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  char *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oo:OT_API_GetNym_InboxHash ACCOUNT_ID NYM_ID ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_GetNym_InboxHash" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(objv[2], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_GetNym_InboxHash" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  result = (char *)OT_API_GetNym_InboxHash((char const *)arg1,(char const *)arg2);
+  Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return TCL_OK;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OT_API_GetNym_OutboxHash(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  char *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oo:OT_API_GetNym_OutboxHash ACCOUNT_ID NYM_ID ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_GetNym_OutboxHash" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(objv[2], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_GetNym_OutboxHash" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  result = (char *)OT_API_GetNym_OutboxHash((char const *)arg1,(char const *)arg2);
+  Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return TCL_OK;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   return TCL_ERROR;
 }
 
@@ -5695,6 +5984,7 @@ _wrap_OT_API_activateSmartContract(ClientData clientData SWIGUNUSED, Tcl_Interp 
   int res3 ;
   char *buf3 = 0 ;
   int alloc3 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"ooo:OT_API_activateSmartContract SERVER_ID USER_ID THE_SMART_CONTRACT ",(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -5712,8 +6002,8 @@ _wrap_OT_API_activateSmartContract(ClientData clientData SWIGUNUSED, Tcl_Interp 
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OT_API_activateSmartContract" "', argument " "3"" of type '" "char const *""'");
   }
   arg3 = reinterpret_cast< char * >(buf3);
-  OT_API_activateSmartContract((char const *)arg1,(char const *)arg2,(char const *)arg3);
-  
+  result = (int)OT_API_activateSmartContract((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
@@ -5748,6 +6038,7 @@ _wrap_OT_API_triggerClause(ClientData clientData SWIGUNUSED, Tcl_Interp *interp,
   int res5 ;
   char *buf5 = 0 ;
   int alloc5 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"ooooo:OT_API_triggerClause SERVER_ID USER_ID TRANSACTION_NUMBER CLAUSE_NAME STR_PARAM ",(void *)0,(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -5775,8 +6066,8 @@ _wrap_OT_API_triggerClause(ClientData clientData SWIGUNUSED, Tcl_Interp *interp,
     SWIG_exception_fail(SWIG_ArgError(res5), "in method '" "OT_API_triggerClause" "', argument " "5"" of type '" "char const *""'");
   }
   arg5 = reinterpret_cast< char * >(buf5);
-  OT_API_triggerClause((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5);
-  
+  result = (int)OT_API_triggerClause((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
@@ -5794,93 +6085,76 @@ fail:
 
 
 SWIGINTERN int
-_wrap_OT_API_HarvestClosingNumbers(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+_wrap_OT_API_Msg_HarvestTransactionNumbers(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
-  char *arg3 = (char *) 0 ;
+  int arg3 ;
+  int arg4 ;
+  int arg5 ;
+  int arg6 ;
+  int arg7 ;
   int res1 ;
   char *buf1 = 0 ;
   int alloc1 = 0 ;
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
-  int res3 ;
-  char *buf3 = 0 ;
-  int alloc3 = 0 ;
+  int val3 ;
+  int ecode3 = 0 ;
+  int val4 ;
+  int ecode4 = 0 ;
+  int val5 ;
+  int ecode5 = 0 ;
+  int val6 ;
+  int ecode6 = 0 ;
+  int val7 ;
+  int ecode7 = 0 ;
   int result;
   
-  if (SWIG_GetArgs(interp, objc, objv,"ooo:OT_API_HarvestClosingNumbers SERVER_ID NYM_ID THE_CRON_ITEM ",(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  if (SWIG_GetArgs(interp, objc, objv,"ooooooo:OT_API_Msg_HarvestTransactionNumbers THE_MESSAGE USER_ID bHarvestingForRetry bReplyWasSuccess bReplyWasFailure bTransactionWasSuccess bTransactionWasFailure ",(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_HarvestClosingNumbers" "', argument " "1"" of type '" "char const *""'");
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Msg_HarvestTransactionNumbers" "', argument " "1"" of type '" "char const *""'");
   }
   arg1 = reinterpret_cast< char * >(buf1);
   res2 = SWIG_AsCharPtrAndSize(objv[2], &buf2, NULL, &alloc2);
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_HarvestClosingNumbers" "', argument " "2"" of type '" "char const *""'");
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_Msg_HarvestTransactionNumbers" "', argument " "2"" of type '" "char const *""'");
   }
   arg2 = reinterpret_cast< char * >(buf2);
-  res3 = SWIG_AsCharPtrAndSize(objv[3], &buf3, NULL, &alloc3);
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OT_API_HarvestClosingNumbers" "', argument " "3"" of type '" "char const *""'");
-  }
-  arg3 = reinterpret_cast< char * >(buf3);
-  result = (int)OT_API_HarvestClosingNumbers((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  ecode3 = SWIG_AsVal_int SWIG_TCL_CALL_ARGS_2(objv[3], &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "OT_API_Msg_HarvestTransactionNumbers" "', argument " "3"" of type '" "int""'");
+  } 
+  arg3 = static_cast< int >(val3);
+  ecode4 = SWIG_AsVal_int SWIG_TCL_CALL_ARGS_2(objv[4], &val4);
+  if (!SWIG_IsOK(ecode4)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "OT_API_Msg_HarvestTransactionNumbers" "', argument " "4"" of type '" "int""'");
+  } 
+  arg4 = static_cast< int >(val4);
+  ecode5 = SWIG_AsVal_int SWIG_TCL_CALL_ARGS_2(objv[5], &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "OT_API_Msg_HarvestTransactionNumbers" "', argument " "5"" of type '" "int""'");
+  } 
+  arg5 = static_cast< int >(val5);
+  ecode6 = SWIG_AsVal_int SWIG_TCL_CALL_ARGS_2(objv[6], &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "OT_API_Msg_HarvestTransactionNumbers" "', argument " "6"" of type '" "int""'");
+  } 
+  arg6 = static_cast< int >(val6);
+  ecode7 = SWIG_AsVal_int SWIG_TCL_CALL_ARGS_2(objv[7], &val7);
+  if (!SWIG_IsOK(ecode7)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "OT_API_Msg_HarvestTransactionNumbers" "', argument " "7"" of type '" "int""'");
+  } 
+  arg7 = static_cast< int >(val7);
+  result = (int)OT_API_Msg_HarvestTransactionNumbers((char const *)arg1,(char const *)arg2,arg3,arg4,arg5,arg6,arg7);
   Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
-  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
   return TCL_OK;
 fail:
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
-  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
-  return TCL_ERROR;
-}
-
-
-SWIGINTERN int
-_wrap_OT_API_HarvestAllNumbers(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
-  char *arg1 = (char *) 0 ;
-  char *arg2 = (char *) 0 ;
-  char *arg3 = (char *) 0 ;
-  int res1 ;
-  char *buf1 = 0 ;
-  int alloc1 = 0 ;
-  int res2 ;
-  char *buf2 = 0 ;
-  int alloc2 = 0 ;
-  int res3 ;
-  char *buf3 = 0 ;
-  int alloc3 = 0 ;
-  int result;
-  
-  if (SWIG_GetArgs(interp, objc, objv,"ooo:OT_API_HarvestAllNumbers SERVER_ID NYM_ID THE_CRON_ITEM ",(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
-  res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_HarvestAllNumbers" "', argument " "1"" of type '" "char const *""'");
-  }
-  arg1 = reinterpret_cast< char * >(buf1);
-  res2 = SWIG_AsCharPtrAndSize(objv[2], &buf2, NULL, &alloc2);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_HarvestAllNumbers" "', argument " "2"" of type '" "char const *""'");
-  }
-  arg2 = reinterpret_cast< char * >(buf2);
-  res3 = SWIG_AsCharPtrAndSize(objv[3], &buf3, NULL, &alloc3);
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OT_API_HarvestAllNumbers" "', argument " "3"" of type '" "char const *""'");
-  }
-  arg3 = reinterpret_cast< char * >(buf3);
-  result = (int)OT_API_HarvestAllNumbers((char const *)arg1,(char const *)arg2,(char const *)arg3);
-  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
-  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
-  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
-  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
-  return TCL_OK;
-fail:
-  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
-  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
-  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
   return TCL_ERROR;
 }
 
@@ -8374,6 +8648,7 @@ _wrap_OT_API_exchangePurse(ClientData clientData SWIGUNUSED, Tcl_Interp *interp,
   int res4 ;
   char *buf4 = 0 ;
   int alloc4 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"oooo:OT_API_exchangePurse SERVER_ID ASSET_TYPE_ID USER_ID THE_PURSE ",(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -8396,8 +8671,8 @@ _wrap_OT_API_exchangePurse(ClientData clientData SWIGUNUSED, Tcl_Interp *interp,
     SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OT_API_exchangePurse" "', argument " "4"" of type '" "char const *""'");
   }
   arg4 = reinterpret_cast< char * >(buf4);
-  OT_API_exchangePurse((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
-  
+  result = (int)OT_API_exchangePurse((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
@@ -8759,6 +9034,356 @@ fail:
 
 
 SWIGINTERN int
+_wrap_OT_API_Instrument_GetAmount(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  char *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oo:OT_API_Instrument_GetAmount SERVER_ID THE_INSTRUMENT ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Instrument_GetAmount" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(objv[2], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_Instrument_GetAmount" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  result = (char *)OT_API_Instrument_GetAmount((char const *)arg1,(char const *)arg2);
+  Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return TCL_OK;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OT_API_Instrument_GetTransNum(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  char *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oo:OT_API_Instrument_GetTransNum SERVER_ID THE_INSTRUMENT ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Instrument_GetTransNum" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(objv[2], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_Instrument_GetTransNum" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  result = (char *)OT_API_Instrument_GetTransNum((char const *)arg1,(char const *)arg2);
+  Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return TCL_OK;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OT_API_Instrument_GetValidFrom(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  char *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oo:OT_API_Instrument_GetValidFrom SERVER_ID THE_INSTRUMENT ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Instrument_GetValidFrom" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(objv[2], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_Instrument_GetValidFrom" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  result = (char *)OT_API_Instrument_GetValidFrom((char const *)arg1,(char const *)arg2);
+  Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return TCL_OK;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OT_API_Instrument_GetValidTo(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  char *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oo:OT_API_Instrument_GetValidTo SERVER_ID THE_INSTRUMENT ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Instrument_GetValidTo" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(objv[2], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_Instrument_GetValidTo" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  result = (char *)OT_API_Instrument_GetValidTo((char const *)arg1,(char const *)arg2);
+  Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return TCL_OK;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OT_API_Instrument_GetMemo(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  char *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oo:OT_API_Instrument_GetMemo SERVER_ID THE_INSTRUMENT ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Instrument_GetMemo" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(objv[2], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_Instrument_GetMemo" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  result = (char *)OT_API_Instrument_GetMemo((char const *)arg1,(char const *)arg2);
+  Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return TCL_OK;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OT_API_Instrument_GetAssetID(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  char *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oo:OT_API_Instrument_GetAssetID SERVER_ID THE_INSTRUMENT ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Instrument_GetAssetID" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(objv[2], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_Instrument_GetAssetID" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  result = (char *)OT_API_Instrument_GetAssetID((char const *)arg1,(char const *)arg2);
+  Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return TCL_OK;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OT_API_Instrmnt_GetSenderUserID(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  char *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oo:OT_API_Instrmnt_GetSenderUserID SERVER_ID THE_INSTRUMENT ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Instrmnt_GetSenderUserID" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(objv[2], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_Instrmnt_GetSenderUserID" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  result = (char *)OT_API_Instrmnt_GetSenderUserID((char const *)arg1,(char const *)arg2);
+  Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return TCL_OK;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OT_API_Instrmnt_GetSenderAcctID(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  char *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oo:OT_API_Instrmnt_GetSenderAcctID SERVER_ID THE_INSTRUMENT ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Instrmnt_GetSenderAcctID" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(objv[2], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_Instrmnt_GetSenderAcctID" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  result = (char *)OT_API_Instrmnt_GetSenderAcctID((char const *)arg1,(char const *)arg2);
+  Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return TCL_OK;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OT_API_Instrmnt_GetRecipientUserID(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  char *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oo:OT_API_Instrmnt_GetRecipientUserID SERVER_ID THE_INSTRUMENT ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Instrmnt_GetRecipientUserID" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(objv[2], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_Instrmnt_GetRecipientUserID" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  result = (char *)OT_API_Instrmnt_GetRecipientUserID((char const *)arg1,(char const *)arg2);
+  Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return TCL_OK;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OT_API_Instrmnt_GetRecipientAcctID(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  char *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oo:OT_API_Instrmnt_GetRecipientAcctID SERVER_ID THE_INSTRUMENT ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Instrmnt_GetRecipientAcctID" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(objv[2], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_Instrmnt_GetRecipientAcctID" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  result = (char *)OT_API_Instrmnt_GetRecipientAcctID((char const *)arg1,(char const *)arg2);
+  Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return TCL_OK;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
 _wrap_OT_API_checkServerID(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
@@ -8768,6 +9393,7 @@ _wrap_OT_API_checkServerID(ClientData clientData SWIGUNUSED, Tcl_Interp *interp,
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"oo:OT_API_checkServerID SERVER_ID USER_ID ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -8780,8 +9406,8 @@ _wrap_OT_API_checkServerID(ClientData clientData SWIGUNUSED, Tcl_Interp *interp,
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_checkServerID" "', argument " "2"" of type '" "char const *""'");
   }
   arg2 = reinterpret_cast< char * >(buf2);
-  OT_API_checkServerID((char const *)arg1,(char const *)arg2);
-  
+  result = (int)OT_API_checkServerID((char const *)arg1,(char const *)arg2);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   return TCL_OK;
@@ -8802,6 +9428,7 @@ _wrap_OT_API_createUserAccount(ClientData clientData SWIGUNUSED, Tcl_Interp *int
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"oo:OT_API_createUserAccount SERVER_ID USER_ID ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -8814,8 +9441,8 @@ _wrap_OT_API_createUserAccount(ClientData clientData SWIGUNUSED, Tcl_Interp *int
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_createUserAccount" "', argument " "2"" of type '" "char const *""'");
   }
   arg2 = reinterpret_cast< char * >(buf2);
-  OT_API_createUserAccount((char const *)arg1,(char const *)arg2);
-  
+  result = (int)OT_API_createUserAccount((char const *)arg1,(char const *)arg2);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   return TCL_OK;
@@ -8836,6 +9463,7 @@ _wrap_OT_API_deleteUserAccount(ClientData clientData SWIGUNUSED, Tcl_Interp *int
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"oo:OT_API_deleteUserAccount SERVER_ID USER_ID ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -8848,8 +9476,8 @@ _wrap_OT_API_deleteUserAccount(ClientData clientData SWIGUNUSED, Tcl_Interp *int
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_deleteUserAccount" "', argument " "2"" of type '" "char const *""'");
   }
   arg2 = reinterpret_cast< char * >(buf2);
-  OT_API_deleteUserAccount((char const *)arg1,(char const *)arg2);
-  
+  result = (int)OT_API_deleteUserAccount((char const *)arg1,(char const *)arg2);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   return TCL_OK;
@@ -8874,6 +9502,7 @@ _wrap_OT_API_deleteAssetAccount(ClientData clientData SWIGUNUSED, Tcl_Interp *in
   int res3 ;
   char *buf3 = 0 ;
   int alloc3 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"ooo:OT_API_deleteAssetAccount SERVER_ID USER_ID ACCOUNT_ID ",(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -8891,8 +9520,8 @@ _wrap_OT_API_deleteAssetAccount(ClientData clientData SWIGUNUSED, Tcl_Interp *in
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OT_API_deleteAssetAccount" "', argument " "3"" of type '" "char const *""'");
   }
   arg3 = reinterpret_cast< char * >(buf3);
-  OT_API_deleteAssetAccount((char const *)arg1,(char const *)arg2,(char const *)arg3);
-  
+  result = (int)OT_API_deleteAssetAccount((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
@@ -8923,6 +9552,7 @@ _wrap_OT_API_usageCredits(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, 
   int res4 ;
   char *buf4 = 0 ;
   int alloc4 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"oooo:OT_API_usageCredits SERVER_ID USER_ID USER_ID_CHECK ADJUSTMENT ",(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -8945,8 +9575,8 @@ _wrap_OT_API_usageCredits(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, 
     SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OT_API_usageCredits" "', argument " "4"" of type '" "char const *""'");
   }
   arg4 = reinterpret_cast< char * >(buf4);
-  OT_API_usageCredits((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
-  
+  result = (int)OT_API_usageCredits((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
@@ -8999,6 +9629,7 @@ _wrap_OT_API_checkUser(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int
   int res3 ;
   char *buf3 = 0 ;
   int alloc3 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"ooo:OT_API_checkUser SERVER_ID USER_ID USER_ID_CHECK ",(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -9016,8 +9647,8 @@ _wrap_OT_API_checkUser(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OT_API_checkUser" "', argument " "3"" of type '" "char const *""'");
   }
   arg3 = reinterpret_cast< char * >(buf3);
-  OT_API_checkUser((char const *)arg1,(char const *)arg2,(char const *)arg3);
-  
+  result = (int)OT_API_checkUser((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
@@ -9052,6 +9683,7 @@ _wrap_OT_API_sendUserMessage(ClientData clientData SWIGUNUSED, Tcl_Interp *inter
   int res5 ;
   char *buf5 = 0 ;
   int alloc5 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"ooooo:OT_API_sendUserMessage SERVER_ID USER_ID USER_ID_RECIPIENT RECIPIENT_PUBKEY THE_MESSAGE ",(void *)0,(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -9079,8 +9711,8 @@ _wrap_OT_API_sendUserMessage(ClientData clientData SWIGUNUSED, Tcl_Interp *inter
     SWIG_exception_fail(SWIG_ArgError(res5), "in method '" "OT_API_sendUserMessage" "', argument " "5"" of type '" "char const *""'");
   }
   arg5 = reinterpret_cast< char * >(buf5);
-  OT_API_sendUserMessage((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5);
-  
+  result = (int)OT_API_sendUserMessage((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
@@ -9119,6 +9751,7 @@ _wrap_OT_API_sendUserInstrument(ClientData clientData SWIGUNUSED, Tcl_Interp *in
   int res5 ;
   char *buf5 = 0 ;
   int alloc5 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"ooooo:OT_API_sendUserInstrument SERVER_ID USER_ID USER_ID_RECIPIENT RECIPIENT_PUBKEY THE_INSTRUMENT ",(void *)0,(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -9146,8 +9779,8 @@ _wrap_OT_API_sendUserInstrument(ClientData clientData SWIGUNUSED, Tcl_Interp *in
     SWIG_exception_fail(SWIG_ArgError(res5), "in method '" "OT_API_sendUserInstrument" "', argument " "5"" of type '" "char const *""'");
   }
   arg5 = reinterpret_cast< char * >(buf5);
-  OT_API_sendUserInstrument((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5);
-  
+  result = (int)OT_API_sendUserInstrument((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
@@ -9174,6 +9807,7 @@ _wrap_OT_API_getRequest(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, in
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"oo:OT_API_getRequest SERVER_ID USER_ID ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -9186,8 +9820,8 @@ _wrap_OT_API_getRequest(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, in
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_getRequest" "', argument " "2"" of type '" "char const *""'");
   }
   arg2 = reinterpret_cast< char * >(buf2);
-  OT_API_getRequest((char const *)arg1,(char const *)arg2);
-  
+  result = (int)OT_API_getRequest((char const *)arg1,(char const *)arg2);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   return TCL_OK;
@@ -9208,6 +9842,7 @@ _wrap_OT_API_getTransactionNumber(ClientData clientData SWIGUNUSED, Tcl_Interp *
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"oo:OT_API_getTransactionNumber SERVER_ID USER_ID ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -9220,8 +9855,8 @@ _wrap_OT_API_getTransactionNumber(ClientData clientData SWIGUNUSED, Tcl_Interp *
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_getTransactionNumber" "', argument " "2"" of type '" "char const *""'");
   }
   arg2 = reinterpret_cast< char * >(buf2);
-  OT_API_getTransactionNumber((char const *)arg1,(char const *)arg2);
-  
+  result = (int)OT_API_getTransactionNumber((char const *)arg1,(char const *)arg2);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   return TCL_OK;
@@ -9246,6 +9881,7 @@ _wrap_OT_API_issueAssetType(ClientData clientData SWIGUNUSED, Tcl_Interp *interp
   int res3 ;
   char *buf3 = 0 ;
   int alloc3 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"ooo:OT_API_issueAssetType SERVER_ID USER_ID THE_CONTRACT ",(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -9263,8 +9899,8 @@ _wrap_OT_API_issueAssetType(ClientData clientData SWIGUNUSED, Tcl_Interp *interp
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OT_API_issueAssetType" "', argument " "3"" of type '" "char const *""'");
   }
   arg3 = reinterpret_cast< char * >(buf3);
-  OT_API_issueAssetType((char const *)arg1,(char const *)arg2,(char const *)arg3);
-  
+  result = (int)OT_API_issueAssetType((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
@@ -9291,6 +9927,7 @@ _wrap_OT_API_getContract(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, i
   int res3 ;
   char *buf3 = 0 ;
   int alloc3 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"ooo:OT_API_getContract SERVER_ID USER_ID ASSET_ID ",(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -9308,8 +9945,8 @@ _wrap_OT_API_getContract(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, i
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OT_API_getContract" "', argument " "3"" of type '" "char const *""'");
   }
   arg3 = reinterpret_cast< char * >(buf3);
-  OT_API_getContract((char const *)arg1,(char const *)arg2,(char const *)arg3);
-  
+  result = (int)OT_API_getContract((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
@@ -9336,6 +9973,7 @@ _wrap_OT_API_getMint(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int o
   int res3 ;
   char *buf3 = 0 ;
   int alloc3 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"ooo:OT_API_getMint SERVER_ID USER_ID ASSET_ID ",(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -9353,8 +9991,8 @@ _wrap_OT_API_getMint(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int o
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OT_API_getMint" "', argument " "3"" of type '" "char const *""'");
   }
   arg3 = reinterpret_cast< char * >(buf3);
-  OT_API_getMint((char const *)arg1,(char const *)arg2,(char const *)arg3);
-  
+  result = (int)OT_API_getMint((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
@@ -9381,6 +10019,7 @@ _wrap_OT_API_createAssetAccount(ClientData clientData SWIGUNUSED, Tcl_Interp *in
   int res3 ;
   char *buf3 = 0 ;
   int alloc3 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"ooo:OT_API_createAssetAccount SERVER_ID USER_ID ASSET_ID ",(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -9398,8 +10037,8 @@ _wrap_OT_API_createAssetAccount(ClientData clientData SWIGUNUSED, Tcl_Interp *in
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OT_API_createAssetAccount" "', argument " "3"" of type '" "char const *""'");
   }
   arg3 = reinterpret_cast< char * >(buf3);
-  OT_API_createAssetAccount((char const *)arg1,(char const *)arg2,(char const *)arg3);
-  
+  result = (int)OT_API_createAssetAccount((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
@@ -9426,6 +10065,7 @@ _wrap_OT_API_getAccount(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, in
   int res3 ;
   char *buf3 = 0 ;
   int alloc3 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"ooo:OT_API_getAccount SERVER_ID USER_ID ACCT_ID ",(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -9443,8 +10083,8 @@ _wrap_OT_API_getAccount(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, in
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OT_API_getAccount" "', argument " "3"" of type '" "char const *""'");
   }
   arg3 = reinterpret_cast< char * >(buf3);
-  OT_API_getAccount((char const *)arg1,(char const *)arg2,(char const *)arg3);
-  
+  result = (int)OT_API_getAccount((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
@@ -9563,6 +10203,7 @@ _wrap_OT_API_issueBasket(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, i
   int res3 ;
   char *buf3 = 0 ;
   int alloc3 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"ooo:OT_API_issueBasket SERVER_ID USER_ID THE_BASKET ",(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -9580,8 +10221,8 @@ _wrap_OT_API_issueBasket(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, i
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OT_API_issueBasket" "', argument " "3"" of type '" "char const *""'");
   }
   arg3 = reinterpret_cast< char * >(buf3);
-  OT_API_issueBasket((char const *)arg1,(char const *)arg2,(char const *)arg3);
-  
+  result = (int)OT_API_issueBasket((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
@@ -9748,6 +10389,7 @@ _wrap_OT_API_exchangeBasket(ClientData clientData SWIGUNUSED, Tcl_Interp *interp
   int alloc4 = 0 ;
   int val5 ;
   int ecode5 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"ooooo:OT_API_exchangeBasket SERVER_ID USER_ID BASKET_ASSET_ID THE_BASKET BOOL_EXCHANGE_IN_OR_OUT ",(void *)0,(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -9775,8 +10417,8 @@ _wrap_OT_API_exchangeBasket(ClientData clientData SWIGUNUSED, Tcl_Interp *interp
     SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "OT_API_exchangeBasket" "', argument " "5"" of type '" "int""'");
   } 
   arg5 = static_cast< int >(val5);
-  OT_API_exchangeBasket((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,arg5);
-  
+  result = (int)OT_API_exchangeBasket((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,arg5);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
@@ -9809,6 +10451,7 @@ _wrap_OT_API_notarizeWithdrawal(ClientData clientData SWIGUNUSED, Tcl_Interp *in
   int res4 ;
   char *buf4 = 0 ;
   int alloc4 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"oooo:OT_API_notarizeWithdrawal SERVER_ID USER_ID ACCT_ID AMOUNT ",(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -9831,8 +10474,8 @@ _wrap_OT_API_notarizeWithdrawal(ClientData clientData SWIGUNUSED, Tcl_Interp *in
     SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OT_API_notarizeWithdrawal" "', argument " "4"" of type '" "char const *""'");
   }
   arg4 = reinterpret_cast< char * >(buf4);
-  OT_API_notarizeWithdrawal((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
-  
+  result = (int)OT_API_notarizeWithdrawal((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
@@ -9865,6 +10508,7 @@ _wrap_OT_API_notarizeDeposit(ClientData clientData SWIGUNUSED, Tcl_Interp *inter
   int res4 ;
   char *buf4 = 0 ;
   int alloc4 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"oooo:OT_API_notarizeDeposit SERVER_ID USER_ID ACCT_ID THE_PURSE ",(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -9887,8 +10531,8 @@ _wrap_OT_API_notarizeDeposit(ClientData clientData SWIGUNUSED, Tcl_Interp *inter
     SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OT_API_notarizeDeposit" "', argument " "4"" of type '" "char const *""'");
   }
   arg4 = reinterpret_cast< char * >(buf4);
-  OT_API_notarizeDeposit((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
-  
+  result = (int)OT_API_notarizeDeposit((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
@@ -9929,6 +10573,7 @@ _wrap_OT_API_notarizeTransfer(ClientData clientData SWIGUNUSED, Tcl_Interp *inte
   int res6 ;
   char *buf6 = 0 ;
   int alloc6 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"oooooo:OT_API_notarizeTransfer SERVER_ID USER_ID ACCT_FROM ACCT_TO AMOUNT NOTE ",(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -9961,8 +10606,8 @@ _wrap_OT_API_notarizeTransfer(ClientData clientData SWIGUNUSED, Tcl_Interp *inte
     SWIG_exception_fail(SWIG_ArgError(res6), "in method '" "OT_API_notarizeTransfer" "', argument " "6"" of type '" "char const *""'");
   }
   arg6 = reinterpret_cast< char * >(buf6);
-  OT_API_notarizeTransfer((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5,(char const *)arg6);
-  
+  result = (int)OT_API_notarizeTransfer((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5,(char const *)arg6);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
@@ -9995,6 +10640,7 @@ _wrap_OT_API_getInbox(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int 
   int res3 ;
   char *buf3 = 0 ;
   int alloc3 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"ooo:OT_API_getInbox SERVER_ID USER_ID ACCT_ID ",(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -10012,8 +10658,8 @@ _wrap_OT_API_getInbox(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int 
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OT_API_getInbox" "', argument " "3"" of type '" "char const *""'");
   }
   arg3 = reinterpret_cast< char * >(buf3);
-  OT_API_getInbox((char const *)arg1,(char const *)arg2,(char const *)arg3);
-  
+  result = (int)OT_API_getInbox((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
@@ -10040,6 +10686,7 @@ _wrap_OT_API_getOutbox(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int
   int res3 ;
   char *buf3 = 0 ;
   int alloc3 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"ooo:OT_API_getOutbox SERVER_ID USER_ID ACCT_ID ",(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -10057,8 +10704,8 @@ _wrap_OT_API_getOutbox(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OT_API_getOutbox" "', argument " "3"" of type '" "char const *""'");
   }
   arg3 = reinterpret_cast< char * >(buf3);
-  OT_API_getOutbox((char const *)arg1,(char const *)arg2,(char const *)arg3);
-  
+  result = (int)OT_API_getOutbox((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
@@ -10081,6 +10728,7 @@ _wrap_OT_API_getNymbox(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"oo:OT_API_getNymbox SERVER_ID USER_ID ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -10093,8 +10741,8 @@ _wrap_OT_API_getNymbox(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_getNymbox" "', argument " "2"" of type '" "char const *""'");
   }
   arg2 = reinterpret_cast< char * >(buf2);
-  OT_API_getNymbox((char const *)arg1,(char const *)arg2);
-  
+  result = (int)OT_API_getNymbox((char const *)arg1,(char const *)arg2);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   return TCL_OK;
@@ -10176,6 +10824,52 @@ fail:
 
 
 SWIGINTERN int
+_wrap_OT_API_Nymbox_GetReplyNotice(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  int res3 ;
+  char *buf3 = 0 ;
+  int alloc3 = 0 ;
+  char *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"ooo:OT_API_Nymbox_GetReplyNotice SERVER_ID USER_ID REQUEST_NUMBER ",(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Nymbox_GetReplyNotice" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(objv[2], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_Nymbox_GetReplyNotice" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  res3 = SWIG_AsCharPtrAndSize(objv[3], &buf3, NULL, &alloc3);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OT_API_Nymbox_GetReplyNotice" "', argument " "3"" of type '" "char const *""'");
+  }
+  arg3 = reinterpret_cast< char * >(buf3);
+  result = (char *)OT_API_Nymbox_GetReplyNotice((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  return TCL_OK;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
 _wrap_OT_API_getBoxReceipt(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
@@ -10196,6 +10890,7 @@ _wrap_OT_API_getBoxReceipt(ClientData clientData SWIGUNUSED, Tcl_Interp *interp,
   int res5 ;
   char *buf5 = 0 ;
   int alloc5 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"ooooo:OT_API_getBoxReceipt SERVER_ID USER_ID ACCOUNT_ID nBoxType TRANSACTION_NUMBER ",(void *)0,(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -10223,8 +10918,8 @@ _wrap_OT_API_getBoxReceipt(ClientData clientData SWIGUNUSED, Tcl_Interp *interp,
     SWIG_exception_fail(SWIG_ArgError(res5), "in method '" "OT_API_getBoxReceipt" "', argument " "5"" of type '" "char const *""'");
   }
   arg5 = reinterpret_cast< char * >(buf5);
-  OT_API_getBoxReceipt((char const *)arg1,(char const *)arg2,(char const *)arg3,arg4,(char const *)arg5);
-  
+  result = (int)OT_API_getBoxReceipt((char const *)arg1,(char const *)arg2,(char const *)arg3,arg4,(char const *)arg5);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
@@ -10322,6 +11017,7 @@ _wrap_OT_API_processInbox(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, 
   int res4 ;
   char *buf4 = 0 ;
   int alloc4 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"oooo:OT_API_processInbox SERVER_ID USER_ID ACCT_ID ACCT_LEDGER ",(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -10344,8 +11040,8 @@ _wrap_OT_API_processInbox(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, 
     SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OT_API_processInbox" "', argument " "4"" of type '" "char const *""'");
   }
   arg4 = reinterpret_cast< char * >(buf4);
-  OT_API_processInbox((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
-  
+  result = (int)OT_API_processInbox((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
@@ -10421,6 +11117,7 @@ _wrap_OT_API_withdrawVoucher(ClientData clientData SWIGUNUSED, Tcl_Interp *inter
   int res6 ;
   char *buf6 = 0 ;
   int alloc6 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"oooooo:OT_API_withdrawVoucher SERVER_ID USER_ID ACCT_ID RECIPIENT_USER_ID CHEQUE_MEMO AMOUNT ",(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -10453,8 +11150,8 @@ _wrap_OT_API_withdrawVoucher(ClientData clientData SWIGUNUSED, Tcl_Interp *inter
     SWIG_exception_fail(SWIG_ArgError(res6), "in method '" "OT_API_withdrawVoucher" "', argument " "6"" of type '" "char const *""'");
   }
   arg6 = reinterpret_cast< char * >(buf6);
-  OT_API_withdrawVoucher((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5,(char const *)arg6);
-  
+  result = (int)OT_API_withdrawVoucher((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5,(char const *)arg6);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
@@ -10491,6 +11188,7 @@ _wrap_OT_API_depositCheque(ClientData clientData SWIGUNUSED, Tcl_Interp *interp,
   int res4 ;
   char *buf4 = 0 ;
   int alloc4 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"oooo:OT_API_depositCheque SERVER_ID USER_ID ACCT_ID THE_CHEQUE ",(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -10513,8 +11211,8 @@ _wrap_OT_API_depositCheque(ClientData clientData SWIGUNUSED, Tcl_Interp *interp,
     SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OT_API_depositCheque" "', argument " "4"" of type '" "char const *""'");
   }
   arg4 = reinterpret_cast< char * >(buf4);
-  OT_API_depositCheque((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
-  
+  result = (int)OT_API_depositCheque((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
@@ -10543,6 +11241,7 @@ _wrap_OT_API_depositPaymentPlan(ClientData clientData SWIGUNUSED, Tcl_Interp *in
   int res3 ;
   char *buf3 = 0 ;
   int alloc3 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"ooo:OT_API_depositPaymentPlan SERVER_ID USER_ID THE_PAYMENT_PLAN ",(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -10560,8 +11259,8 @@ _wrap_OT_API_depositPaymentPlan(ClientData clientData SWIGUNUSED, Tcl_Interp *in
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OT_API_depositPaymentPlan" "', argument " "3"" of type '" "char const *""'");
   }
   arg3 = reinterpret_cast< char * >(buf3);
-  OT_API_depositPaymentPlan((char const *)arg1,(char const *)arg2,(char const *)arg3);
-  
+  result = (int)OT_API_depositPaymentPlan((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
@@ -10619,6 +11318,7 @@ _wrap_OT_API_issueMarketOffer(ClientData clientData SWIGUNUSED, Tcl_Interp *inte
   int alloc10 = 0 ;
   int val11 ;
   int ecode11 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"ooooooooooo:OT_API_issueMarketOffer SERVER_ID USER_ID ASSET_TYPE_ID ASSET_ACCT_ID CURRENCY_TYPE_ID CURRENCY_ACCT_ID MARKET_SCALE MINIMUM_INCREMENT TOTAL_ASSETS_ON_OFFER PRICE_LIMIT bBuyingOrSelling ",(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -10676,8 +11376,8 @@ _wrap_OT_API_issueMarketOffer(ClientData clientData SWIGUNUSED, Tcl_Interp *inte
     SWIG_exception_fail(SWIG_ArgError(ecode11), "in method '" "OT_API_issueMarketOffer" "', argument " "11"" of type '" "int""'");
   } 
   arg11 = static_cast< int >(val11);
-  OT_API_issueMarketOffer((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5,(char const *)arg6,(char const *)arg7,(char const *)arg8,(char const *)arg9,(char const *)arg10,arg11);
-  
+  result = (int)OT_API_issueMarketOffer((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5,(char const *)arg6,(char const *)arg7,(char const *)arg8,(char const *)arg9,(char const *)arg10,arg11);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
@@ -10714,6 +11414,7 @@ _wrap_OT_API_getMarketList(ClientData clientData SWIGUNUSED, Tcl_Interp *interp,
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"oo:OT_API_getMarketList SERVER_ID USER_ID ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -10726,8 +11427,8 @@ _wrap_OT_API_getMarketList(ClientData clientData SWIGUNUSED, Tcl_Interp *interp,
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_getMarketList" "', argument " "2"" of type '" "char const *""'");
   }
   arg2 = reinterpret_cast< char * >(buf2);
-  OT_API_getMarketList((char const *)arg1,(char const *)arg2);
-  
+  result = (int)OT_API_getMarketList((char const *)arg1,(char const *)arg2);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   return TCL_OK;
@@ -10756,6 +11457,7 @@ _wrap_OT_API_getMarketOffers(ClientData clientData SWIGUNUSED, Tcl_Interp *inter
   int res4 ;
   char *buf4 = 0 ;
   int alloc4 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"oooo:OT_API_getMarketOffers SERVER_ID USER_ID MARKET_ID MAX_DEPTH ",(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -10778,8 +11480,8 @@ _wrap_OT_API_getMarketOffers(ClientData clientData SWIGUNUSED, Tcl_Interp *inter
     SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OT_API_getMarketOffers" "', argument " "4"" of type '" "char const *""'");
   }
   arg4 = reinterpret_cast< char * >(buf4);
-  OT_API_getMarketOffers((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
-  
+  result = (int)OT_API_getMarketOffers((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
@@ -10808,6 +11510,7 @@ _wrap_OT_API_getMarketRecentTrades(ClientData clientData SWIGUNUSED, Tcl_Interp 
   int res3 ;
   char *buf3 = 0 ;
   int alloc3 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"ooo:OT_API_getMarketRecentTrades SERVER_ID USER_ID MARKET_ID ",(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -10825,8 +11528,8 @@ _wrap_OT_API_getMarketRecentTrades(ClientData clientData SWIGUNUSED, Tcl_Interp 
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OT_API_getMarketRecentTrades" "', argument " "3"" of type '" "char const *""'");
   }
   arg3 = reinterpret_cast< char * >(buf3);
-  OT_API_getMarketRecentTrades((char const *)arg1,(char const *)arg2,(char const *)arg3);
-  
+  result = (int)OT_API_getMarketRecentTrades((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
@@ -10849,6 +11552,7 @@ _wrap_OT_API_getNym_MarketOffers(ClientData clientData SWIGUNUSED, Tcl_Interp *i
   int res2 ;
   char *buf2 = 0 ;
   int alloc2 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"oo:OT_API_getNym_MarketOffers SERVER_ID USER_ID ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -10861,8 +11565,8 @@ _wrap_OT_API_getNym_MarketOffers(ClientData clientData SWIGUNUSED, Tcl_Interp *i
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_getNym_MarketOffers" "', argument " "2"" of type '" "char const *""'");
   }
   arg2 = reinterpret_cast< char * >(buf2);
-  OT_API_getNym_MarketOffers((char const *)arg1,(char const *)arg2);
-  
+  result = (int)OT_API_getNym_MarketOffers((char const *)arg1,(char const *)arg2);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   return TCL_OK;
@@ -10891,6 +11595,7 @@ _wrap_OT_API_cancelMarketOffer(ClientData clientData SWIGUNUSED, Tcl_Interp *int
   int res4 ;
   char *buf4 = 0 ;
   int alloc4 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"oooo:OT_API_cancelMarketOffer SERVER_ID USER_ID ASSET_ACCT_ID TRANSACTION_NUMBER ",(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -10913,8 +11618,8 @@ _wrap_OT_API_cancelMarketOffer(ClientData clientData SWIGUNUSED, Tcl_Interp *int
     SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OT_API_cancelMarketOffer" "', argument " "4"" of type '" "char const *""'");
   }
   arg4 = reinterpret_cast< char * >(buf4);
-  OT_API_cancelMarketOffer((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
-  
+  result = (int)OT_API_cancelMarketOffer((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
@@ -10947,6 +11652,7 @@ _wrap_OT_API_cancelPaymentPlan(ClientData clientData SWIGUNUSED, Tcl_Interp *int
   int res4 ;
   char *buf4 = 0 ;
   int alloc4 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"oooo:OT_API_cancelPaymentPlan SERVER_ID USER_ID FROM_ACCT_ID TRANSACTION_NUMBER ",(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -10969,8 +11675,8 @@ _wrap_OT_API_cancelPaymentPlan(ClientData clientData SWIGUNUSED, Tcl_Interp *int
     SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OT_API_cancelPaymentPlan" "', argument " "4"" of type '" "char const *""'");
   }
   arg4 = reinterpret_cast< char * >(buf4);
-  OT_API_cancelPaymentPlan((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
-  
+  result = (int)OT_API_cancelPaymentPlan((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
@@ -10987,13 +11693,46 @@ fail:
 
 SWIGINTERN int
 _wrap_OT_API_PopMessageBuffer(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  int res3 ;
+  char *buf3 = 0 ;
+  int alloc3 = 0 ;
   char *result = 0 ;
   
-  if (SWIG_GetArgs(interp, objc, objv,":OT_API_PopMessageBuffer ") == TCL_ERROR) SWIG_fail;
-  result = (char *)OT_API_PopMessageBuffer();
+  if (SWIG_GetArgs(interp, objc, objv,"ooo:OT_API_PopMessageBuffer REQUEST_NUMBER SERVER_ID USER_ID ",(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_PopMessageBuffer" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(objv[2], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_PopMessageBuffer" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  res3 = SWIG_AsCharPtrAndSize(objv[3], &buf3, NULL, &alloc3);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OT_API_PopMessageBuffer" "', argument " "3"" of type '" "char const *""'");
+  }
+  arg3 = reinterpret_cast< char * >(buf3);
+  result = (char *)OT_API_PopMessageBuffer((char const *)arg1,(char const *)arg2,(char const *)arg3);
   Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
   return TCL_OK;
 fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
   return TCL_ERROR;
 }
 
@@ -11005,6 +11744,151 @@ _wrap_OT_API_FlushMessageBuffer(ClientData clientData SWIGUNUSED, Tcl_Interp *in
   
   return TCL_OK;
 fail:
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OT_API_GetSentMessage(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  int res3 ;
+  char *buf3 = 0 ;
+  int alloc3 = 0 ;
+  char *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"ooo:OT_API_GetSentMessage REQUEST_NUMBER SERVER_ID USER_ID ",(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_GetSentMessage" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(objv[2], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_GetSentMessage" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  res3 = SWIG_AsCharPtrAndSize(objv[3], &buf3, NULL, &alloc3);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OT_API_GetSentMessage" "', argument " "3"" of type '" "char const *""'");
+  }
+  arg3 = reinterpret_cast< char * >(buf3);
+  result = (char *)OT_API_GetSentMessage((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  return TCL_OK;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OT_API_RemoveSentMessage(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  int res3 ;
+  char *buf3 = 0 ;
+  int alloc3 = 0 ;
+  int result;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"ooo:OT_API_RemoveSentMessage REQUEST_NUMBER SERVER_ID USER_ID ",(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_RemoveSentMessage" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(objv[2], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_RemoveSentMessage" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  res3 = SWIG_AsCharPtrAndSize(objv[3], &buf3, NULL, &alloc3);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OT_API_RemoveSentMessage" "', argument " "3"" of type '" "char const *""'");
+  }
+  arg3 = reinterpret_cast< char * >(buf3);
+  result = (int)OT_API_RemoveSentMessage((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  return TCL_OK;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OT_API_FlushSentMessages(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  int arg1 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  char *arg4 = (char *) 0 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  int res3 ;
+  char *buf3 = 0 ;
+  int alloc3 = 0 ;
+  int res4 ;
+  char *buf4 = 0 ;
+  int alloc4 = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oooo:OT_API_FlushSentMessages bHarvestingForRetry SERVER_ID USER_ID THE_NYMBOX ",(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  ecode1 = SWIG_AsVal_int SWIG_TCL_CALL_ARGS_2(objv[1], &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "OT_API_FlushSentMessages" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  res2 = SWIG_AsCharPtrAndSize(objv[2], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_FlushSentMessages" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  res3 = SWIG_AsCharPtrAndSize(objv[3], &buf3, NULL, &alloc3);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OT_API_FlushSentMessages" "', argument " "3"" of type '" "char const *""'");
+  }
+  arg3 = reinterpret_cast< char * >(buf3);
+  res4 = SWIG_AsCharPtrAndSize(objv[4], &buf4, NULL, &alloc4);
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OT_API_FlushSentMessages" "', argument " "4"" of type '" "char const *""'");
+  }
+  arg4 = reinterpret_cast< char * >(buf4);
+  OT_API_FlushSentMessages(arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4);
+  
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+  return TCL_OK;
+fail:
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+  if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
   return TCL_ERROR;
 }
 
@@ -11140,6 +12024,7 @@ _wrap_OT_API_queryAssetTypes(ClientData clientData SWIGUNUSED, Tcl_Interp *inter
   int res3 ;
   char *buf3 = 0 ;
   int alloc3 = 0 ;
+  int result;
   
   if (SWIG_GetArgs(interp, objc, objv,"ooo:OT_API_queryAssetTypes SERVER_ID USER_ID ENCODED_MAP ",(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
@@ -11157,8 +12042,8 @@ _wrap_OT_API_queryAssetTypes(ClientData clientData SWIGUNUSED, Tcl_Interp *inter
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OT_API_queryAssetTypes" "', argument " "3"" of type '" "char const *""'");
   }
   arg3 = reinterpret_cast< char * >(buf3);
-  OT_API_queryAssetTypes((char const *)arg1,(char const *)arg2,(char const *)arg3);
-  
+  result = (int)OT_API_queryAssetTypes((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  Tcl_SetObjResult(interp,SWIG_From_int(static_cast< int >(result)));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
   if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
@@ -11420,6 +12305,30 @@ _wrap_OT_API_Message_GetNewAcctID(ClientData clientData SWIGUNUSED, Tcl_Interp *
   }
   arg1 = reinterpret_cast< char * >(buf1);
   result = (char *)OT_API_Message_GetNewAcctID((char const *)arg1);
+  Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return TCL_OK;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OT_API_Message_GetNymboxHash(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  char *arg1 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  char *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"o:OT_API_Message_GetNymboxHash THE_MESSAGE ",(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_Message_GetNymboxHash" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  result = (char *)OT_API_Message_GetNymboxHash((char const *)arg1);
   Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   return TCL_OK;
@@ -27753,11 +28662,17 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "OT_API_GetAccountWallet_AssetTypeID", (swig_wrapper_func) _wrap_OT_API_GetAccountWallet_AssetTypeID, NULL},
     { SWIG_prefix "OT_API_GetAccountWallet_ServerID", (swig_wrapper_func) _wrap_OT_API_GetAccountWallet_ServerID, NULL},
     { SWIG_prefix "OT_API_GetAccountWallet_NymID", (swig_wrapper_func) _wrap_OT_API_GetAccountWallet_NymID, NULL},
+    { SWIG_prefix "OT_API_GetAccountWallet_InboxHash", (swig_wrapper_func) _wrap_OT_API_GetAccountWallet_InboxHash, NULL},
+    { SWIG_prefix "OT_API_GetAccountWallet_OutboxHash", (swig_wrapper_func) _wrap_OT_API_GetAccountWallet_OutboxHash, NULL},
     { SWIG_prefix "OT_API_VerifyAccountReceipt", (swig_wrapper_func) _wrap_OT_API_VerifyAccountReceipt, NULL},
     { SWIG_prefix "OT_API_GetNym_TransactionNumCount", (swig_wrapper_func) _wrap_OT_API_GetNym_TransactionNumCount, NULL},
     { SWIG_prefix "OT_API_GetNym_ID", (swig_wrapper_func) _wrap_OT_API_GetNym_ID, NULL},
     { SWIG_prefix "OT_API_GetNym_Name", (swig_wrapper_func) _wrap_OT_API_GetNym_Name, NULL},
     { SWIG_prefix "OT_API_GetNym_Stats", (swig_wrapper_func) _wrap_OT_API_GetNym_Stats, NULL},
+    { SWIG_prefix "OT_API_GetNym_NymboxHash", (swig_wrapper_func) _wrap_OT_API_GetNym_NymboxHash, NULL},
+    { SWIG_prefix "OT_API_GetNym_RecentHash", (swig_wrapper_func) _wrap_OT_API_GetNym_RecentHash, NULL},
+    { SWIG_prefix "OT_API_GetNym_InboxHash", (swig_wrapper_func) _wrap_OT_API_GetNym_InboxHash, NULL},
+    { SWIG_prefix "OT_API_GetNym_OutboxHash", (swig_wrapper_func) _wrap_OT_API_GetNym_OutboxHash, NULL},
     { SWIG_prefix "OT_API_IsNym_RegisteredAtServer", (swig_wrapper_func) _wrap_OT_API_IsNym_RegisteredAtServer, NULL},
     { SWIG_prefix "OT_API_GetNym_MailCount", (swig_wrapper_func) _wrap_OT_API_GetNym_MailCount, NULL},
     { SWIG_prefix "OT_API_GetNym_MailContentsByIndex", (swig_wrapper_func) _wrap_OT_API_GetNym_MailContentsByIndex, NULL},
@@ -27806,8 +28721,7 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "OT_API_SmartContract_ConfirmParty", (swig_wrapper_func) _wrap_OT_API_SmartContract_ConfirmParty, NULL},
     { SWIG_prefix "OT_API_activateSmartContract", (swig_wrapper_func) _wrap_OT_API_activateSmartContract, NULL},
     { SWIG_prefix "OT_API_triggerClause", (swig_wrapper_func) _wrap_OT_API_triggerClause, NULL},
-    { SWIG_prefix "OT_API_HarvestClosingNumbers", (swig_wrapper_func) _wrap_OT_API_HarvestClosingNumbers, NULL},
-    { SWIG_prefix "OT_API_HarvestAllNumbers", (swig_wrapper_func) _wrap_OT_API_HarvestAllNumbers, NULL},
+    { SWIG_prefix "OT_API_Msg_HarvestTransactionNumbers", (swig_wrapper_func) _wrap_OT_API_Msg_HarvestTransactionNumbers, NULL},
     { SWIG_prefix "OT_API_LoadUserPubkey", (swig_wrapper_func) _wrap_OT_API_LoadUserPubkey, NULL},
     { SWIG_prefix "OT_API_LoadPubkey", (swig_wrapper_func) _wrap_OT_API_LoadPubkey, NULL},
     { SWIG_prefix "OT_API_VerifyUserPrivateKey", (swig_wrapper_func) _wrap_OT_API_VerifyUserPrivateKey, NULL},
@@ -27868,6 +28782,16 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "OT_API_Token_GetValidTo", (swig_wrapper_func) _wrap_OT_API_Token_GetValidTo, NULL},
     { SWIG_prefix "OT_API_Token_GetAssetID", (swig_wrapper_func) _wrap_OT_API_Token_GetAssetID, NULL},
     { SWIG_prefix "OT_API_Token_GetServerID", (swig_wrapper_func) _wrap_OT_API_Token_GetServerID, NULL},
+    { SWIG_prefix "OT_API_Instrument_GetAmount", (swig_wrapper_func) _wrap_OT_API_Instrument_GetAmount, NULL},
+    { SWIG_prefix "OT_API_Instrument_GetTransNum", (swig_wrapper_func) _wrap_OT_API_Instrument_GetTransNum, NULL},
+    { SWIG_prefix "OT_API_Instrument_GetValidFrom", (swig_wrapper_func) _wrap_OT_API_Instrument_GetValidFrom, NULL},
+    { SWIG_prefix "OT_API_Instrument_GetValidTo", (swig_wrapper_func) _wrap_OT_API_Instrument_GetValidTo, NULL},
+    { SWIG_prefix "OT_API_Instrument_GetMemo", (swig_wrapper_func) _wrap_OT_API_Instrument_GetMemo, NULL},
+    { SWIG_prefix "OT_API_Instrument_GetAssetID", (swig_wrapper_func) _wrap_OT_API_Instrument_GetAssetID, NULL},
+    { SWIG_prefix "OT_API_Instrmnt_GetSenderUserID", (swig_wrapper_func) _wrap_OT_API_Instrmnt_GetSenderUserID, NULL},
+    { SWIG_prefix "OT_API_Instrmnt_GetSenderAcctID", (swig_wrapper_func) _wrap_OT_API_Instrmnt_GetSenderAcctID, NULL},
+    { SWIG_prefix "OT_API_Instrmnt_GetRecipientUserID", (swig_wrapper_func) _wrap_OT_API_Instrmnt_GetRecipientUserID, NULL},
+    { SWIG_prefix "OT_API_Instrmnt_GetRecipientAcctID", (swig_wrapper_func) _wrap_OT_API_Instrmnt_GetRecipientAcctID, NULL},
     { SWIG_prefix "OT_API_checkServerID", (swig_wrapper_func) _wrap_OT_API_checkServerID, NULL},
     { SWIG_prefix "OT_API_createUserAccount", (swig_wrapper_func) _wrap_OT_API_createUserAccount, NULL},
     { SWIG_prefix "OT_API_deleteUserAccount", (swig_wrapper_func) _wrap_OT_API_deleteUserAccount, NULL},
@@ -27898,6 +28822,7 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "OT_API_getNymbox", (swig_wrapper_func) _wrap_OT_API_getNymbox, NULL},
     { SWIG_prefix "OT_API_LoadNymbox", (swig_wrapper_func) _wrap_OT_API_LoadNymbox, NULL},
     { SWIG_prefix "OT_API_LoadNymboxNoVerify", (swig_wrapper_func) _wrap_OT_API_LoadNymboxNoVerify, NULL},
+    { SWIG_prefix "OT_API_Nymbox_GetReplyNotice", (swig_wrapper_func) _wrap_OT_API_Nymbox_GetReplyNotice, NULL},
     { SWIG_prefix "OT_API_getBoxReceipt", (swig_wrapper_func) _wrap_OT_API_getBoxReceipt, NULL},
     { SWIG_prefix "OT_API_DoesBoxReceiptExist", (swig_wrapper_func) _wrap_OT_API_DoesBoxReceiptExist, NULL},
     { SWIG_prefix "OT_API_processInbox", (swig_wrapper_func) _wrap_OT_API_processInbox, NULL},
@@ -27914,6 +28839,9 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "OT_API_cancelPaymentPlan", (swig_wrapper_func) _wrap_OT_API_cancelPaymentPlan, NULL},
     { SWIG_prefix "OT_API_PopMessageBuffer", (swig_wrapper_func) _wrap_OT_API_PopMessageBuffer, NULL},
     { SWIG_prefix "OT_API_FlushMessageBuffer", (swig_wrapper_func) _wrap_OT_API_FlushMessageBuffer, NULL},
+    { SWIG_prefix "OT_API_GetSentMessage", (swig_wrapper_func) _wrap_OT_API_GetSentMessage, NULL},
+    { SWIG_prefix "OT_API_RemoveSentMessage", (swig_wrapper_func) _wrap_OT_API_RemoveSentMessage, NULL},
+    { SWIG_prefix "OT_API_FlushSentMessages", (swig_wrapper_func) _wrap_OT_API_FlushSentMessages, NULL},
     { SWIG_prefix "OT_API_Sleep", (swig_wrapper_func) _wrap_OT_API_Sleep, NULL},
     { SWIG_prefix "OT_API_ResyncNymWithServer", (swig_wrapper_func) _wrap_OT_API_ResyncNymWithServer, NULL},
     { SWIG_prefix "OT_API_Message_GetCommand", (swig_wrapper_func) _wrap_OT_API_Message_GetCommand, NULL},
@@ -27927,6 +28855,7 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "OT_API_Message_GetNewAssetTypeID", (swig_wrapper_func) _wrap_OT_API_Message_GetNewAssetTypeID, NULL},
     { SWIG_prefix "OT_API_Message_GetNewIssuerAcctID", (swig_wrapper_func) _wrap_OT_API_Message_GetNewIssuerAcctID, NULL},
     { SWIG_prefix "OT_API_Message_GetNewAcctID", (swig_wrapper_func) _wrap_OT_API_Message_GetNewAcctID, NULL},
+    { SWIG_prefix "OT_API_Message_GetNymboxHash", (swig_wrapper_func) _wrap_OT_API_Message_GetNymboxHash, NULL},
     { SWIG_prefix "OT_API_ConnectServer", (swig_wrapper_func) _wrap_OT_API_ConnectServer, NULL},
     { SWIG_prefix "OT_API_ProcessSockets", (swig_wrapper_func) _wrap_OT_API_ProcessSockets, NULL},
     { SWIG_prefix "delete_Storable", (swig_wrapper_func) _wrap_delete_Storable, NULL},
@@ -29034,7 +29963,12 @@ SWIGEXPORT int SWIG_init(Tcl_Interp *interp) {
   
   SWIG_Tcl_SetConstantObj(interp, "OTPASSWORD_BLOCKSIZE", SWIG_From_int(static_cast< int >(128)));
   SWIG_Tcl_SetConstantObj(interp, "OTPASSWORD_MEMSIZE", SWIG_From_int(static_cast< int >(129)));
+  SWIG_Tcl_SetConstantObj(interp, "OT_LARGE_BLOCKSIZE", SWIG_From_int(static_cast< int >(32767)));
+  SWIG_Tcl_SetConstantObj(interp, "OT_LARGE_MEMSIZE", SWIG_From_int(static_cast< int >(32768)));
+  SWIG_Tcl_SetConstantObj(interp, "OT_DEFAULT_BLOCKSIZE", SWIG_From_int(static_cast< int >(128)));
+  SWIG_Tcl_SetConstantObj(interp, "OT_DEFAULT_MEMSIZE", SWIG_From_int(static_cast< int >(129)));
   SWIG_Tcl_SetConstantObj(interp, "OTPassword_DEFAULT_SIZE", SWIG_From_int(static_cast< int >(OTPassword::DEFAULT_SIZE)));
+  SWIG_Tcl_SetConstantObj(interp, "OTPassword_LARGER_SIZE", SWIG_From_int(static_cast< int >(OTPassword::LARGER_SIZE)));
   SWIG_Tcl_SetConstantObj(interp, "PACK_MESSAGE_PACK", SWIG_From_int(static_cast< int >(OTDB::PACK_MESSAGE_PACK)));
   SWIG_Tcl_SetConstantObj(interp, "PACK_PROTOCOL_BUFFERS", SWIG_From_int(static_cast< int >(OTDB::PACK_PROTOCOL_BUFFERS)));
   SWIG_Tcl_SetConstantObj(interp, "PACK_TYPE_ERROR", SWIG_From_int(static_cast< int >(OTDB::PACK_TYPE_ERROR)));

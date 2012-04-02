@@ -182,6 +182,7 @@ CXXSOURCES = $(BIGINTSOURCES) $(LUCRESOURCES) $(IRRXMLSOURCES) \
 			 OTInstrument.cpp \
 			 OTCheque.cpp \
 			 OTPurse.cpp \
+			 OTPayment.cpp \
 			 OTLog.cpp \
 			 OTToken.cpp \
 			 OTTransactionType.cpp \
@@ -320,6 +321,8 @@ OTToken.o: OTToken.cpp OTToken.h
 	$(CXX) $(CXXFLAGS) -c -o OTToken.o OTToken.cpp
 OTPurse.o: OTPurse.cpp OTPurse.h
 	$(CXX) $(CXXFLAGS) -c -o OTPurse.o OTPurse.cpp
+OTPayment.o: OTPayment.cpp OTPayment.h
+	$(CXX) $(CXXFLAGS) -c -o OTPayment.o OTPayment.cpp
 OTMint.o: OTMint.cpp OTMint.h
 	$(CXX) $(CXXFLAGS) -c -o OTMint.o OTMint.cpp
 OTTransactionType.o: OTTransactionType.cpp OTTransactionType.h

@@ -1894,49 +1894,38 @@ void OTMarket::ProcessTrade(OTTrade & theTrade, OTOffer & theOffer, OTOffer & th
 				theFirstCurrencyInbox.		AddTransaction(*pTrans2);
 				theOtherAssetInbox.			AddTransaction(*pTrans3);
 				theOtherCurrencyInbox.		AddTransaction(*pTrans4);
-				
+                // -------------------------------------------------------------------
+
 				// Release any signatures that were there before (They won't
 				// verify anymore anyway, since the content has changed.)
 				theFirstAssetInbox.		ReleaseSignatures();
 				theFirstCurrencyInbox.	ReleaseSignatures();
 				theOtherAssetInbox.		ReleaseSignatures();
 				theOtherCurrencyInbox.	ReleaseSignatures();
-				
-				pFirstAssetAcct->		ReleaseSignatures();	
-				pFirstCurrencyAcct->	ReleaseSignatures();
-				pOtherAssetAcct->		ReleaseSignatures();	
-				pOtherCurrencyAcct->	ReleaseSignatures();
-				
+								
 				// Sign all four of them.				
 				theFirstAssetInbox.		SignContract(*pServerNym);
 				theFirstCurrencyInbox.	SignContract(*pServerNym);
 				theOtherAssetInbox.		SignContract(*pServerNym);
 				theOtherCurrencyInbox.	SignContract(*pServerNym);
 				
-				pFirstAssetAcct->		SignContract(*pServerNym);	
-				pFirstCurrencyAcct->	SignContract(*pServerNym);
-				pOtherAssetAcct->		SignContract(*pServerNym);	
-				pOtherCurrencyAcct->	SignContract(*pServerNym);
 				
 				// Save all four of them internally
 				theFirstAssetInbox.		SaveContract();
 				theFirstCurrencyInbox.	SaveContract();
 				theOtherAssetInbox.		SaveContract();
 				theOtherCurrencyInbox.	SaveContract();
-				
-				pFirstAssetAcct->		SaveContract();	
-				pFirstCurrencyAcct->	SaveContract();
-				pOtherAssetAcct->		SaveContract();	
-				pOtherCurrencyAcct->	SaveContract();
-				
+								
 				// TODO: Better rollback capabilities in case of failures here:
 				
 				// Save the four inboxes to storage. (File, DB, wherever it goes.)
-				theFirstAssetInbox.		SaveInbox();
-				theFirstCurrencyInbox.	SaveInbox();
-				theOtherAssetInbox.		SaveInbox();
-				theOtherCurrencyInbox.	SaveInbox();
 				
+                pFirstAssetAcct->		SaveInbox(theFirstAssetInbox);	
+				pFirstCurrencyAcct->	SaveInbox(theFirstCurrencyInbox);
+				pOtherAssetAcct->		SaveInbox(theOtherAssetInbox);	
+				pOtherCurrencyAcct->	SaveInbox(theOtherCurrencyInbox);
+
+                // -------------------------------------------------------------------
 				// These correspond to the AddTransaction() calls just above.
 				// The actual receipts are stored in separate files now.
 				//
@@ -1945,11 +1934,25 @@ void OTMarket::ProcessTrade(OTTrade & theTrade, OTOffer & theOffer, OTOffer & th
 				pTrans3->SaveBoxReceipt(theOtherAssetInbox);
 				pTrans4->SaveBoxReceipt(theOtherCurrencyInbox);
 				
+                // -------------------------------------------------------------------
+                
 				// Save the four accounts.
-				pFirstAssetAcct->	SaveAccount();	
-				pFirstCurrencyAcct->SaveAccount();
-				pOtherAssetAcct->	SaveAccount();	
-				pOtherCurrencyAcct->SaveAccount();
+				pFirstAssetAcct->		ReleaseSignatures();	
+				pFirstCurrencyAcct->	ReleaseSignatures();
+				pOtherAssetAcct->		ReleaseSignatures();	
+				pOtherCurrencyAcct->	ReleaseSignatures();
+				pFirstAssetAcct->		SignContract(*pServerNym);	
+				pFirstCurrencyAcct->	SignContract(*pServerNym);
+				pOtherAssetAcct->		SignContract(*pServerNym);	
+				pOtherCurrencyAcct->	SignContract(*pServerNym);
+				pFirstAssetAcct->		SaveContract();	
+				pFirstCurrencyAcct->	SaveContract();
+				pOtherAssetAcct->		SaveContract();	
+				pOtherCurrencyAcct->	SaveContract();
+				pFirstAssetAcct->       SaveAccount();	
+				pFirstCurrencyAcct->    SaveAccount();
+				pOtherAssetAcct->       SaveAccount();	
+				pOtherCurrencyAcct->    SaveAccount();
 			}
 			// If money was short, let's see WHO was short so we can remove his trade.
 			// Also, if money was short, inbox notices only go to the rejectees. 

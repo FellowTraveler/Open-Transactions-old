@@ -201,19 +201,32 @@ public:
 	OTAsymmetricKey & operator=(const OTAsymmetricKey & rhs);
 	
 	void Release();
+    // ***************************************************************
+
+	const
+    EVP_PKEY *  GetKey() const;
+	void        SetKey(EVP_PKEY * pKey, bool bIsPrivateKey=false);
 	
-	const EVP_PKEY * GetKey() const;
-	
-	void SetKey(EVP_PKEY * pKey, bool bIsPrivateKey=false);
-	
+    // ***************************************************************
+
 	bool LoadPrivateKey(const OTString & strFoldername, const OTString & strFilename);
-	bool LoadPublicKey(const OTString & strFoldername, const OTString & strFilename);
+	bool LoadPublicKey (const OTString & strFoldername, const OTString & strFilename);
 	
-	bool LoadPublicKeyFromPGPKey(const OTASCIIArmor & strKey); // does NOT handle bookends.
+    // ***************************************************************
 
-	bool LoadPublicKeyFromCertFile(const OTString & strFoldername, const OTString & strFilename); // DOES handle bookends.
+    // "escaped" means pre-pended with "- " as in:   - -----BEGIN CERTIFICATE....
+    //
+    bool LoadPrivateKeyFromCertString(const OTString & strCert, bool bEscaped=true);
+
+    // ***************************************************************
+
 	bool LoadPublicKeyFromCertString(const OTString & strCert, bool bEscaped=true); // DOES handle bookends, AND escapes.
+	bool LoadPublicKeyFromCertFile  (const OTString & strFoldername, const OTString & strFilename); // DOES handle bookends.
+    // ---------------------------------------------------------------
+	bool LoadPublicKeyFromPGPKey    (const OTASCIIArmor & strKey); // does NOT handle bookends.
 
+    // ***************************************************************
+    // PUBLIC KEY
 	// Get the public key in ASCII-armored format with bookends 
 	// - ------- BEGIN PUBLIC KEY --------
 	// Notice the "- " before the rest of the bookend starts.
@@ -225,12 +238,74 @@ public:
 	
 	// Decodes a public key from ASCII armor into an actual key pointer
 	// and sets that as the m_pKey on this object.
-	// This is the version that will handle the bookends ( --------- BEGIN PUBLIC KEY -------)
+	// This is the version that will handle the bookends ( -----BEGIN PUBLIC KEY-----)
 	bool SetPublicKey(const OTString & strKey, bool bEscaped=false);
 
 	// Decodes a public key from ASCII armor into an actual key pointer
 	// and sets that as the m_pKey on this object.
 	bool SetPublicKey(const OTASCIIArmor & strKey);
+    // ***************************************************************
+    // PRIVATE KEY
+	// Get the private key in ASCII-armored format with bookends 
+	// - ------- BEGIN ENCRYPTED PRIVATE KEY --------
+	// Notice the "- " before the rest of the bookend starts.
+	bool GetPrivateKey(OTString & strKey, bool bEscaped=true) const;
+    
+	// Get the private key in ASCII-armored format
+	bool GetPrivateKey(OTASCIIArmor & strKey) const;
+	
+	// Decodes a private key from ASCII armor into an actual key pointer
+	// and sets that as the m_pKey on this object.
+	// This is the version that will handle the bookends ( -----BEGIN ENCRYPTED PRIVATE KEY-----)
+	bool SetPrivateKey(const OTString & strKey, bool bEscaped=false);
+    
+	// Decodes a private key from ASCII armor into an actual key pointer
+	// and sets that as the m_pKey on this object.
+    //
+	bool SetPrivateKey(const OTASCIIArmor & strKey);
+    // ***************************************************************
 };
 
+
+
+
+
+
+
+
+
 #endif // __OT_ASYMMETRIC_KEY_H__
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

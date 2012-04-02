@@ -1,0 +1,19 @@
+-----BEGIN SIGNED LEDGER-----
+Hash: SAMY
+
+<accountLedger version="1.0"
+ type="outbox"
+ numPartialRecords="0"
+ accountID="foGJvz22NEVmscagf7wUehPlF2gx13Z5dG7B47M87SU"
+ userID="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV"
+ serverID="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1" >
+
+</accountLedger>
+-----BEGIN LEDGER SIGNATURE-----
+Version: Open Transactions 0.78
+Comment: http://github.com/FellowTraveler/Open-Transactions/wiki
+
+CoABWGMYzf84TACMhTWRufkTKL0U38IyOkKI9ZFxxlzARiudVaRoZ5XZ4QQQ8TsO
+mtRdqaKpcBwmmPxjxDK4uSJmv4oT1N5moM4j+RfY0G67sJM+/4jXIRo9zp2dfdbQ
+RTplAL86UOc2emLB+nUMA4vlSDOLcYLiMwBEU29h9XpUmOc=
+-----END LEDGER SIGNATURE-----

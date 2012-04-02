@@ -140,6 +140,7 @@
 #include "OTASCIIArmor.h"
 
 class OTPurse;
+class OTPseudonym;
 
 // A token has no User ID, or Account ID, or even a traceable TokenID (the tokenID only becomes relevant
 // after it is spent.)
@@ -155,8 +156,8 @@ class OTPurse;
 // The interface of this class is that of a simple stack.
 // Imagine a stack of poker chips.
 
-typedef std::deque <OTASCIIArmor *> dequeOfTokens;
-typedef std::map<std::string, OTToken *>	mapOfTokenPointers;
+typedef std::deque  <OTASCIIArmor *>            dequeOfTokens;
+typedef std::map    <std::string, OTToken *>    mapOfTokenPointers;
 
 class OTPurse : public OTContract 
 {
@@ -165,16 +166,42 @@ protected:
 
 	dequeOfTokens	m_dequeTokens;
 	
-	OTIdentifier	m_UserID;	// Optional
-	OTIdentifier	m_ServerID;	// Mandatory
-	OTIdentifier	m_AssetID;	// Mandatory
-	
-	long	m_lTotalValue; // Push increments this by denomination, and Pop decrements it by denomination.
-	
+    // Todo: Add a boolean value, so that the UserID is either for a real user, or is for a temp Nym
+    // which must be ATTACHED to the purse, if that boolean is set to true.
+    
+	OTIdentifier	m_UserID;     // Optional
+	OTIdentifier	m_ServerID;   // Mandatory
+	OTIdentifier	m_AssetID;    // Mandatory
+	// ----------------------------------------------
+	long            m_lTotalValue;   // Push increments this by denomination, and Pop decrements it by denomination.
+	// ----------------------------------------------
+    // If this is true, then a "temp nym" must actually be ATTACHED to this purse. 
+    bool            m_bUsingTempNym; // Default is false, which assumes m_UserID is a real Nym in my wallet. If true, then the Nym needs to be attached to this purse.
+    bool            m_bIsNymIDIncluded; // It's possible to use a purse WITHOUT attaching the relevant NymID. (The holder of the purse just has to "know" what the correct NymID is, or it won't work.) This bool tells us whether the ID is attached, or not.
+    // ----------------------------------------------
+    OTPseudonym *   m_pTempNym; // If this purse contains its own temp nym, then this member will be not-NULL.
+    
 public:
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
-	
-
+	// ----------------------------------------------
+    // What if you DON'T want to encrypt the purse to your Nym??
+    // What if you just want to use a passphrase instead?
+    // That's what these functions are for. OT just generates
+    // a dummy Nym and stores it INSIDE THE PURSE. You set the
+    // passphrase for the dummy nym, and thereafter your 
+    // experience is one of a password-protected purse. (But
+    // in reality, there is a dummy nym inside that purse.)
+    //
+    bool          GenerateInternalNym(int nBits=1024); // todo hardcoding security.
+    OTPseudonym * GetInternalNym() { return m_pTempNym; }
+	// ----------------------------------------------
+    bool        IsNymIDIncluded() const { return m_bIsNymIDIncluded; } // NymID may be left blank, with user left guessing.
+    bool        IsUsingATempNym() const { return m_bUsingTempNym;    } // Nym may be a temp nym, ATTACHED to the purse itself, created solely for this purse, infact.
+	// ----------------------------------------------
+    // This will return false every time, if IsNymIDIncluded() is false.
+    //
+    bool        GetNymID(OTIdentifier & theOutput) const;
+	// ----------------------------------------------
 	OTToken *	Pop(const OTPseudonym & theOwner);		// Caller is responsible to delete
 	// OTPurse::Push makes it's own copy of theToken and does NOT take ownership of the one passed in.
 	bool		Push(const OTPseudonym & theOwner, const OTToken & theToken);	
@@ -182,9 +209,11 @@ public:
 	bool		IsEmpty() const;
 	
 	inline long	GetTotalValue() const { return m_lTotalValue; }
+	// ----------------------------------------------
 	
-	bool Merge(OTPseudonym & theNym, OTPurse & theNewPurse);
+	bool Merge(OTPseudonym & theOldNym, OTPseudonym & theNewNym, OTPurse & theNewPurse);
 	
+	// ----------------------------------------------
 	OTPurse(const OTPurse & thePurse); // just for copy another purse's Server and Asset ID
 	OTPurse(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID); // similar thing
 	OTPurse(const OTIdentifier & SERVER_ID); // Don't use this unless you really don't know the asset type
@@ -192,6 +221,7 @@ public:
 											// Normally you really really want to set the asset type.
 	OTPurse(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID, const OTIdentifier & USER_ID); // UserID optional
 	virtual ~OTPurse();
+	// ----------------------------------------------
 
 	bool LoadPurse(const char * szServerID=NULL, const char * szUserID=NULL, const char * szAssetTypeID=NULL);
 	bool SavePurse(const char * szServerID=NULL, const char * szUserID=NULL, const char * szAssetTypeID=NULL);
@@ -201,6 +231,7 @@ public:
 	inline const OTIdentifier & GetServerID() const { return m_ServerID; }
 	inline const OTIdentifier & GetAssetID() const { return m_AssetID; }
 	
+    // ----------------------------------------------
 	void InitPurse();
 	virtual void Release();
 	void ReleaseTokens();

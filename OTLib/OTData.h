@@ -137,6 +137,7 @@ extern "C" {
 
 class OTASCIIArmor;
 
+
 class OTData
 {
 	friend class OTASCIIArmor;
@@ -172,9 +173,9 @@ public:
 	bool		operator!=(const OTData &s2) const;
 	OTData &	operator+=(const OTData & rhs);
 	
-	
+	bool IsEmpty() const;
+    
 	inline uint32_t	GetSize() const { return m_lSize; } 
-	inline bool		IsEmpty() const { return (m_lSize > 0) ? false : true; }
 
 	void Assign(const OTData &theSource);
 	void Assign(const void * pNewData, uint32_t lNewSize);

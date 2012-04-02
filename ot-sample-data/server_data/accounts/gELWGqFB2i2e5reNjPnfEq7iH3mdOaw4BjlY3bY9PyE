@@ -1,0 +1,24 @@
+-----BEGIN SIGNED ACCOUNT-----
+Hash: SAMY
+
+<?xml version="1.0"?>
+
+<assetAccount
+ version="1.0"
+ type="mint"
+ accountID="gELWGqFB2i2e5reNjPnfEq7iH3mdOaw4BjlY3bY9PyE"
+ userID="pc23gUqPu9Bk1Vl0K5lz3Jp1MYIfjGIBXVWDp1gba9C"
+ serverID="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1"
+ assetTypeID="ttHGviJ9hRcijEvWT4f9KpqVcZ7c0UqXYNslvSEa6gJ" >
+
+<balance date="1333354850" amount="0"/>
+
+</assetAccount>
+-----BEGIN ACCOUNT SIGNATURE-----
+Version: Open Transactions 0.78
+Comment: http://github.com/FellowTraveler/Open-Transactions/wiki
+
+CoABPaX1J9qVIxYas4BMu3Cv736KhIHBi1m1qI8xyr7ACFT/hp8x2lrqCZIeejGX
+SNp1YtVeaDFMvrkLIKQrjlVPL3+4SzSsZs/7+/t5FVSjcOwotA1cFGzKGCtbhUMC
+4crArs0p+PO2v1REcdBKQEdKoUQ/WC7mQS5VgWCThMe8tM4=
+-----END ACCOUNT SIGNATURE-----
