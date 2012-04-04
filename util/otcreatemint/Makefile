@@ -186,13 +186,8 @@ DEBUG_LIBS = $(API_DEBUG_LIBS)
 
 # --- LDFLAGS
 #
-LDFLAGS = $(API_LDFLAGS) $(LIBDIRS) $(LIBS)
-DEBUG_LDFLAGS =  $(API_LDFLAGS) $(LIBDIRS) $(DEBUG_LIBS)
-
-
-
-
-
+LDFLAGS = $(LIBDIRS) $(LIBS) $(API_LDFLAGS)
+DEBUG_LDFLAGS =  $(LIBDIRS) $(DEBUG_LIBS) $(API_LDFLAGS)
 
 
 # ---------------------------------------------------------------------
