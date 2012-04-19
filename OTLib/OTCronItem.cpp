@@ -155,6 +155,10 @@ using namespace io;
 // OTCron contains lists of these for regular processing.
 
 
+
+//extern const char * OT_BEGIN_SIGNED_escaped  = "- -----BEGIN SIGNED";
+// const char * OT_BEGIN_ARMORED   = "-----BEGIN OT ARMORED";
+
 // static -- class factory.
 //
 // I just realized, I don't have to use this only for CronItems.
@@ -169,9 +173,74 @@ OTCronItem * OTCronItem::NewCronItem(const OTString & strCronItem)
 	OTCronItem *	pItem = NULL;
 	
 	if (!strCronItem.Exists())
+    {
+		OTLog::Error("OTCronItem::NewCronItem: Empty string was passed in (returning NULL.)\n");
 		return NULL;
-	
-	OTString strContract(strCronItem);
+	}
+    // --------------------------------------------------------------------
+	//
+    // To support legacy data, we check here to see if it's armored or not.
+    // If it's not, we support it. But if it IS, we ALSO support it (we de-armor it here.)
+    //
+    bool bArmoredAndALSOescaped = false;    // "- -----BEGIN OT ARMORED"
+    bool bArmoredButNOTescaped  = false;    // "-----BEGIN OT ARMORED"
+    
+    if (strCronItem.Contains(OT_BEGIN_ARMORED_escaped)) // check this one first...
+    {
+        bArmoredAndALSOescaped = true;
+        
+        OTLog::Error("OTCronItem::NewCronItem: Armored and escaped value passed in, but escaped are forbidden here. (Returning NULL.)\n");
+		return NULL;
+    }
+    else if (strCronItem.Contains(OT_BEGIN_ARMORED))
+    {
+        bArmoredButNOTescaped = true;
+    }
+    // ----------------------------------------
+    const bool bArmored = (bArmoredAndALSOescaped || bArmoredButNOTescaped);
+    // ----------------------------------------
+    
+    // Whether the string is armored or not, (-----BEGIN OT ARMORED)
+    // either way, we'll end up with the decoded version in this variable:
+    //
+    std::string str_Trim;
+    
+    // ------------------------------------------------
+    if (bArmored) // it's armored, we have to decode it first.
+    {
+        OTASCIIArmor ascTemp;
+        OTString strCronItemTemp(strCronItem);
+        
+        if (false == (ascTemp.LoadFromString(strCronItemTemp, 
+                                             bArmoredAndALSOescaped, // if it IS escaped or not, this variable will be true or false to show it.
+                                             // The below szOverride sub-string determines where the content starts, when loading.
+                                             OT_BEGIN_ARMORED)))     // Default is:       "-----BEGIN" 
+                                                                     // We're doing this: "-----BEGIN OT ARMORED" (Should worked for escaped as well, here.)
+        {
+            OTLog::vError("OTCronItem::NewCronItem: Error loading file contents from ascii-armored encoding. Contents: \n%s\n", 
+                          strCronItem.Get());
+            return NULL;
+        }
+        else // success loading the actual contents out of the ascii-armored version.
+        {
+            OTString strTemp(ascTemp); // <=== ascii-decoded here.
+            std::string str_temp(strTemp.Get(), strTemp.GetLength());
+            
+            str_Trim = OTString::trim(str_temp); // This is the std::string for the trim process.
+        } 
+    }
+    else
+    {
+        std::string str_temp(strCronItem.Get(), strCronItem.GetLength());
+        str_Trim = OTString::trim(str_temp); // This is the std::string for the trim process. (Wasn't armored, so here we use it as passed in.)
+    }
+    // ------------------------------------------------
+    
+    // At this point, str_Trim contains the actual contents, whether they
+    // were originally ascii-armored OR NOT. (And they are also now trimmed, either way.)
+    // ------------------------------------------
+    
+    OTString strContract(str_Trim.c_str());
 	
 	strContract.reset(); // for sgets
 	buf[0] = 0; // probably unnecessary.
@@ -189,11 +258,16 @@ OTCronItem * OTCronItem::NewCronItem(const OTString & strCronItem)
 	// it contains the proper sequence, I will instantiate that type.
 	if (!strFirstLine.Exists() || strFirstLine.Contains("- -"))
 		return NULL;
-		
+	// -------------------------------------------------------	
+    
+    // By this point we know already that it's not escaped.
+    // BUT it might still be ARMORED!
+        
+	// -------------------------------------------------------	
 //	if (strFirstLine.Contains("-----BEGIN SIGNED AGREEMENT-----"))  // this string is 32 chars long.
 //	{	pItem = new OTAgreement();		OT_ASSERT(NULL != pItem); }
 	
-	else if (strFirstLine.Contains("-----BEGIN SIGNED PAYMENT PLAN-----"))  // this string is 35 chars long.
+	if (strFirstLine.Contains("-----BEGIN SIGNED PAYMENT PLAN-----"))  // this string is 35 chars long.
 	{	pItem = new OTPaymentPlan();	OT_ASSERT(NULL != pItem); }
 	
 	else if (strFirstLine.Contains("-----BEGIN SIGNED TRADE-----"))  // this string is 28 chars long.
@@ -248,6 +322,10 @@ OTCronItem * OTCronItem::LoadCronReceipt(const long & lTransactionNum)
 		return NULL;
 	}
 	else
+        // NOTE: NewCronItem can handle the normal cron item contracts, as well as the OT ARMORED version
+        // (It will decode the armor before instantiating the contract.) Therefore there's no need HERE in
+        // THIS function to do any decoding...
+        //
 		return OTCronItem::NewCronItem(strFileContents);
 }
 
@@ -273,16 +351,24 @@ bool OTCronItem::SaveCronReceipt()
 	
 	if (OTDB::Exists(szFoldername, szFilename))
 	{
-		OTLog::vError("Cron Record exists for transaction %ld %s%s%s,\nyet attempted to record it again.\n",
+		OTLog::vError("OTCronItem::SaveCronReceipt: Cron Record already exists for transaction %ld %s%s%s,\n"
+                      "yet inexplicably attempted to record it again.\n",
 					  GetTransactionNum(), szFoldername, OTLog::PathSeparator(), szFilename);
 		return false;
 	}
 	
 	// --------------------------------------------------------------------
-	
+
 	OTString strFinal;
-	SaveContractRaw(strFinal);
-	
+    OTASCIIArmor ascTemp(m_strRawFile);
+    
+    if (false == ascTemp.WriteArmoredString(strFinal, m_strContractType.Get()))
+    {
+		OTLog::vError("OTCronItem::SaveCronReceipt: Error saving file (failed writing armored string): %s%s%s\n", 
+					  szFoldername, OTLog::PathSeparator(), szFilename);
+		return false;
+    }
+    // --------------------------------------------------------------------
 	bool bSaved = OTDB::StorePlainString(strFinal.Get(), szFoldername, szFilename);
 	
 	if (!bSaved)

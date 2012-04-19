@@ -558,6 +558,9 @@ bool OTPurse::LoadPurse(const char * szServerID/*=NULL*/, const char * szUserID/
 	}
 	// --------------------------------------------------------------------
 	
+    // NOTE: No need here to deal with OT ARMORED file format, since LoadContractFromString
+    // already handles it internally.
+    
 	OTString strRawFile(strFileContents.c_str());
 	
 	return LoadContractFromString(strRawFile);
@@ -597,15 +600,27 @@ bool OTPurse::SavePurse(const char * szServerID/*=NULL*/, const char * szUserID/
 	
 	if (!SaveContractRaw(strRawFile))
 	{
-		OTLog::vError("OTPurse::SavePurse: Error saving Pursefile (to string):\n%s%s%s%s%s%s%s\n", szFolder1name,
+		OTLog::vError("OTPurse::SavePurse: Error saving Pursefile (to string):\n%s%s%s%s%s%s%s\n", 
+                      szFolder1name,
 					  OTLog::PathSeparator(), szFolder2name, OTLog::PathSeparator(), 
 					  szFolder3name, OTLog::PathSeparator(), szFilename);
 		return false;
 	}
-	
 	// --------------------------------------------------------------------
 	//
-	bool bSaved = OTDB::StorePlainString(strRawFile.Get(), szFolder1name, szFolder2name,  
+	OTString strFinal;
+    OTASCIIArmor ascTemp(strRawFile);
+    
+    if (false == ascTemp.WriteArmoredString(strFinal, m_strContractType.Get()))
+    {
+		OTLog::vError("OTPurse::SavePurse: Error saving Pursefile (failed writing armored string):\n%s%s%s%s%s%s%s\n", 
+                      szFolder1name,
+					  OTLog::PathSeparator(), szFolder2name, OTLog::PathSeparator(), 
+					  szFolder3name, OTLog::PathSeparator(), szFilename);
+		return false;
+    }
+    // --------------------------------------------------------------------
+	bool bSaved = OTDB::StorePlainString(strFinal.Get(), szFolder1name, szFolder2name,  
 										 szFolder3name, szFilename); // <=== SAVING TO DATA STORE.
 	if (!bSaved)
 	{

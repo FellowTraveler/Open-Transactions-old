@@ -594,6 +594,8 @@ bool OTLedger::LoadGeneric(OTLedger::ledgerType theType, const OTString * pStrin
 		// --------------------------------------------------------------------
 		strRawFile.Set(strFileContents.c_str());
 	}
+    // NOTE: No need to deal with OT ARMORED INBOX file format here, since 
+    //       LoadContractFromString already handles that automatically.
 	// --------------------------------------------------------------------	
 	if (false == strRawFile.Exists())
 	{
@@ -677,7 +679,17 @@ bool OTLedger::SaveGeneric(OTLedger::ledgerType theType)
 	}
 	// --------------------------------------------------------------------
 	//
-	bool bSaved = OTDB::StorePlainString(strRawFile.Get(), szFolder1name, 
+	OTString strFinal;
+    OTASCIIArmor ascTemp(strRawFile);
+    
+    if (false == ascTemp.WriteArmoredString(strFinal, m_strContractType.Get()))
+    {
+		OTLog::vError("OTLedger::SaveGeneric: Error saving %s (failed writing armored string):\n%s%s%s%s%s\n", pszType,
+					  szFolder1name, OTLog::PathSeparator(), szFolder2name, OTLog::PathSeparator(), szFilename);
+		return false;
+    }
+    // --------------------------------------------------------------------
+	bool bSaved = OTDB::StorePlainString(strFinal.Get(), szFolder1name, 
 										 szFolder2name, szFilename); // <=== SAVING TO DATA STORE.
 	if (!bSaved)
 	{

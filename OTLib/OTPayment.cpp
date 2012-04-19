@@ -328,7 +328,7 @@ bool OTPayment::SetTempValuesFromCheque(const OTCheque & theInput)
         m_AssetTypeID   = theInput.GetAssetID();     
         m_ServerID      = theInput.GetServerID();     
         // ----------------------------
-        m_SenderUserID  = theInput.GetSenderUserID();    
+        m_SenderUserID  = theInput.GetSenderUserID();
         m_SenderAcctID  = theInput.GetSenderAcctID();    
         // ----------------------------        
         if (theInput.HasRecipient())
@@ -1052,23 +1052,91 @@ OTPurse * OTPayment::InstantiatePurse(const OTIdentifier & SERVER_ID, const OTSt
 
 bool OTPayment::SetPayment(const OTString & strPayment)
 {
+    if (!strPayment.Exists())
+		return false;
+    // --------------------------------------------------------------------
+	//
+    // To support legacy data, we check here to see if it's armored or not.
+    // If it's not, we support it. But if it IS, we ALSO support it (we de-armor it here.)
+    //
+    bool bArmoredAndALSOescaped = false;    // "- -----BEGIN OT ARMORED"
+    bool bArmoredButNOTescaped  = false;    // "-----BEGIN OT ARMORED"
+    
+    if (strPayment.Contains(OT_BEGIN_ARMORED_escaped)) // check this one first...
+    {
+        bArmoredAndALSOescaped = true;
+        
+        OTLog::Error("OTPayment::SetPayment: Armored and escaped value passed in, but escaped are forbidden here. (Returning false.)\n");
+		return false;
+    }
+    else if (strPayment.Contains(OT_BEGIN_ARMORED))
+    {
+        bArmoredButNOTescaped = true;
+    }
+    // ----------------------------------------
+    const bool bArmored = (bArmoredAndALSOescaped || bArmoredButNOTescaped);
+    // ----------------------------------------
+    
+    // Whether the string is armored or not, (-----BEGIN OT ARMORED)
+    // either way, we'll end up with the decoded version in this variable:
+    //
+    std::string str_Trim;
+    
+    // ------------------------------------------------
+    if (bArmored) // it's armored, we have to decode it first.
+    {
+        OTASCIIArmor ascTemp;
+        OTString strPaymentTemp(strPayment);
+        
+        if (false == (ascTemp.LoadFromString(strPaymentTemp, 
+                                             bArmoredAndALSOescaped, // if it IS escaped or not, this variable will be true or false to show it.
+                                             // The below szOverride sub-string determines where the content starts, when loading.
+                                             OT_BEGIN_ARMORED)))     // Default is:       "-----BEGIN" 
+                                                                     // We're doing this: "-----BEGIN OT ARMORED" (Should worked for escaped as well, here.)
+        {
+            OTLog::vError("OTPayment::SetPayment: Error loading string contents from ascii-armored encoding. Contents: \n%s\n", 
+                          strPayment.Get());
+            return false;
+        }
+        else // success loading the actual contents out of the ascii-armored version.
+        {
+            OTString strTemp(ascTemp); // <=== ascii-decoded here.
+            
+            std::string str_temp(strTemp.Get(), strTemp.GetLength());
+            
+            str_Trim = OTString::trim(str_temp); // This is the std::string for the trim process.
+        } 
+    }
+    else
+    {
+        std::string str_temp(strPayment.Get(), strPayment.GetLength());
+        str_Trim = OTString::trim(str_temp); // This is the std::string for the trim process. (Wasn't armored, so here we use it as passed in.)
+    }
+    // ------------------------------------------------
+    
+    // At this point, str_Trim contains the actual contents, whether they
+    // were originally ascii-armored OR NOT. (And they are also now trimmed, either way.)
+    // ------------------------------------------
+    
+    OTString strContract(str_Trim.c_str());
+    
     m_strPayment.Release();
     // ----------------------
     // todo: should be "starts with" and perhaps with a trim first
     //
-    if (strPayment.Contains("-----BEGIN SIGNED CHEQUE-----"))
+    if (strContract.Contains("-----BEGIN SIGNED CHEQUE-----"))
         m_Type  = OTPayment::CHEQUE;
-    else if (strPayment.Contains("-----BEGIN SIGNED VOUCHER-----"))
+    else if (strContract.Contains("-----BEGIN SIGNED VOUCHER-----"))
         m_Type  = OTPayment::VOUCHER;
-    else if (strPayment.Contains("-----BEGIN SIGNED INVOICE-----"))
+    else if (strContract.Contains("-----BEGIN SIGNED INVOICE-----"))
         m_Type  = OTPayment::INVOICE;
     // -------------------
-    else if (strPayment.Contains("-----BEGIN SIGNED PAYMENT PLAN-----"))
+    else if (strContract.Contains("-----BEGIN SIGNED PAYMENT PLAN-----"))
         m_Type  = OTPayment::PAYMENT_PLAN;
-    else if (strPayment.Contains("-----BEGIN SIGNED SMART CONTRACT-----"))
+    else if (strContract.Contains("-----BEGIN SIGNED SMART CONTRACT-----"))
         m_Type  = OTPayment::SMART_CONTRACT;
     // -------------------
-    else if (strPayment.Contains("-----BEGIN SIGNED PURSE-----"))
+    else if (strContract.Contains("-----BEGIN SIGNED PURSE-----"))
         m_Type  = OTPayment::PURSE;
     else
         m_Type  = OTPayment::ERROR_STATE;
@@ -1078,7 +1146,7 @@ bool OTPayment::SetPayment(const OTString & strPayment)
 
     // *********************************
     
-    m_strPayment.Set(strPayment);
+    m_strPayment.Set(strContract);
     
     // *********************************
     

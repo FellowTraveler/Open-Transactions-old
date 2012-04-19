@@ -3081,17 +3081,41 @@ bool OTTransaction::DeleteBoxReceipt(OTLedger & theLedger)
 		return false;
 	}
 	// --------------------------------------------------------------------
-	// Try to save the deleted box receipt to local storage.
+
+	OTString strFinal;
+    OTASCIIArmor ascTemp;
+    
+	if (m_strRawFile.Exists())
+    {
+        ascTemp.SetString(m_strRawFile);
+    
+        if (false == ascTemp.WriteArmoredString(strFinal, m_strContractType.Get()))
+        {
+            OTLog::vError("OTTransaction::DeleteBoxReceipt: Error deleting (writing over) box receipt (failed writing armored string):\n%s%s%s%s%s%s%s\n", 
+                          strFolder1name.Get(),
+                          OTLog::PathSeparator(), strFolder2name.Get(), OTLog::PathSeparator(), 
+                          strFolder3name.Get(), OTLog::PathSeparator(), strFilename.Get());
+            return false;
+        }
+    }
+    // --------------------------------------------------------------------
+
+    // NOTE: I do the armored string FIRST, THEN add the "marked for deletion" 
+    // part as I save it. (This way, it's still searchable with grep.)
+    
+    //
+    // Try to save the deleted box receipt to local storage.
 	//
 	OTString strOutput;
 	
 	if (m_strRawFile.Exists())
-		strOutput.Format("%s\n\n%s\n", m_strRawFile.Get(), "MARKED_FOR_DELETION"); // todo hardcoded.
+		strOutput.Format("%s\n\n%s\n", strFinal.Get(), "MARKED_FOR_DELETION"); // todo hardcoded.
 	else 
 		strOutput.Format("%s\n\n%s\n", 
 						 "(Transaction was already empty -- strange.)", 
 						 "MARKED_FOR_DELETION"); // todo hardcoded.
 	// --------------------------------------------------------------------
+    
 	bool bDeleted = OTDB::StorePlainString(strOutput.Get(), strFolder1name.Get(), 
 										   strFolder2name.Get(), strFolder3name.Get(),
 										   strFilename.Get());
@@ -3141,7 +3165,20 @@ bool OTTransaction::SaveBoxReceipt(const long lLedgerType)
 	// --------------------------------------------------------------------
 	// Try to save the box receipt to local storage.
 	//
-	bool bSaved = OTDB::StorePlainString(m_strRawFile.Get(), strFolder1name.Get(),
+	OTString strFinal;
+    OTASCIIArmor ascTemp(m_strRawFile);
+    
+    if (false == ascTemp.WriteArmoredString(strFinal, m_strContractType.Get()))
+    {
+		OTLog::vError("OTTransaction::SaveBoxReceipt: Error saving box receipt (failed writing armored string):\n%s%s%s%s%s%s%s\n", 
+                      strFolder1name.Get(), OTLog::PathSeparator(), 
+                      strFolder2name.Get(), OTLog::PathSeparator(), strFolder3name.Get(), OTLog::PathSeparator(),
+                      strFilename.Get());
+		return false;
+    }
+    // --------------------------------------------------------------------
+    
+	bool bSaved = OTDB::StorePlainString(strFinal.Get(), strFolder1name.Get(),
 										 strFolder2name.Get(), strFolder3name.Get(),
 										 strFilename.Get()); 
 	

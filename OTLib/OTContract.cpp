@@ -194,24 +194,87 @@ using namespace io;
 //
 // CALLER IS RESPONSIBLE to cleanup!
 //
-OTContract * OTContract::InstantiateContract(const OTString & strInputContract)
+OTContract * OTContract::InstantiateContract(OTString strInput)
 {
-	static char		buf[45] = "";
+	static char	buf[45] = "";
 	
-	if (!strInputContract.Exists())
+	if (!strInput.Exists())
 		return NULL;
 
-	OTString strInput(strInputContract);
-	
+    // --------------------------------------------------------------------
+	//
+    // To support legacy data, we check here to see if it's armored or not.
+    // If it's not, we support it. But if it IS, we ALSO support it (we de-armor it here.)
+    //
+    bool bArmoredAndALSOescaped = false;    // "- -----BEGIN OT ARMORED"
+    bool bArmoredButNOTescaped  = false;    // "-----BEGIN OT ARMORED"
+    
+    if (strInput.Contains(OT_BEGIN_ARMORED_escaped)) // check this one first...
+    {
+        bArmoredAndALSOescaped = true;
+        
+        OTLog::Error("OTContract::InstantiateContract: Armored and escaped value passed in, but escaped are forbidden here. (Returning NULL.)\n");
+		return NULL;
+    }
+    else if (strInput.Contains(OT_BEGIN_ARMORED))
+    {
+        bArmoredButNOTescaped = true;
+    }
+    // ----------------------------------------
+    const bool bArmored = (bArmoredAndALSOescaped || bArmoredButNOTescaped);
+    // ----------------------------------------
+    
+    // Whether the string is armored or not, (-----BEGIN OT ARMORED)
+    // either way, we'll end up with the decoded version in this variable:
+    //
+    std::string str_Trim;
+    
+    // ------------------------------------------------
+    if (bArmored) // it's armored, we have to decode it first.
+    {
+        OTASCIIArmor ascTemp;
+        
+        if (false == (ascTemp.LoadFromString(strInput, 
+                                             bArmoredAndALSOescaped, // if it IS escaped or not, this variable will be true or false to show it.
+                                             // The below szOverride sub-string determines where the content starts, when loading.
+                                             OT_BEGIN_ARMORED)))     // Default is:       "-----BEGIN" 
+                                                                     // We're doing this: "-----BEGIN OT ARMORED" (Should worked for escaped as well, here.)
+        {
+            OTLog::vError("OTContract::InstantiateContract: Error loading string contents from ascii-armored encoding. Contents: \n%s\n", 
+                          strInput.Get());
+            return NULL;
+        }
+        else // success loading the actual contents out of the ascii-armored version.
+        {
+            OTString strTemp(ascTemp); // <=== ascii-decoded here.
+            
+            std::string str_temp(strTemp.Get(), strTemp.GetLength());
+            str_Trim = OTString::trim(str_temp); // This is the std::string for the trim process.
+        } 
+    }
+    else
+    {
+        std::string str_temp(strInput.Get(), strInput.GetLength());
+
+        str_Trim = OTString::trim(str_temp); // This is the std::string for the trim process. (Wasn't armored, so here we use it as passed in.)
+    }
+    // ------------------------------------------------
+    
+    // At this point, str_Trim contains the actual contents, whether they
+    // were originally ascii-armored OR NOT. (And they are also now trimmed, either way.)
+    // ------------------------------------------
+    
+    OTString strContract(str_Trim);
+    
 	buf[0] = 0; // probably unnecessary.
-	strInput.reset(); // for sgets
-	bool bGotLine = strInput.sgets(buf, 40);
+	strContract.reset(); // for sgets
+	bool bGotLine = strContract.sgets(buf, 40);
 	
 	if (!bGotLine)
 		return NULL;
 	
 	OTString strFirstLine(buf);
-	strInput.reset(); // set the "file" pointer within this string back to index 0.
+	strContract.reset(); // set the "file" pointer within this string back to index 0.
 	
 	// Now I feel pretty safe -- the string I'm examining is within
 	// the first 45 characters of the beginning of the contract, and
@@ -292,25 +355,23 @@ OTContract * OTContract::InstantiateContract(const OTString & strInputContract)
 	//
 	else if (strFirstLine.Contains("-----BEGIN SIGNED CONTRACT-----"))
 	{
-		if (strInput.Contains("<notaryProviderContract version=\"1.0\">")) 
+		if (strContract.Contains("<notaryProviderContract version=\"1.0\">")) 
 		{	pContract = new OTServerContract();		OT_ASSERT(NULL != pContract); }
-		else if (strInput.Contains("<digitalAssetContract version=\"1.0\">")) 
+		else if (strContract.Contains("<digitalAssetContract version=\"1.0\">")) 
 		{	pContract = new OTAssetContract();		OT_ASSERT(NULL != pContract); }
 	}
 	
-	// might be redundant... 
-	std::string str_Trim(strInput.Get());
-	std::string str_Trim2 = OTString::trim(str_Trim);
-	strInput.Set(str_Trim2.c_str());
 	// ----------------------------------------------
 	
 	// The string didn't match any of the options in the factory.
 	if (NULL == pContract)
-		OTLog::vOutput(0, "Object type not yet supported by class factory: %s\n", strFirstLine.Get());
+		OTLog::vOutput(0, "OTContract::InstantiateContract: Object type not yet supported by class factory: %s\n",
+                       strFirstLine.Get());
 	// Does the contract successfully load from the string passed in?
-	else if (false == pContract->LoadContractFromString(strInput))
+	else if (false == pContract->LoadContractFromString(strContract))
 	{
-		OTLog::vOutput(0, "Failed loading contract from string (first line): %s\n", strFirstLine.Get());
+		OTLog::vOutput(0, "OTContract::InstantiateContract: Failed loading contract from string (first line): %s\n", 
+                       strFirstLine.Get());
 		delete pContract;
 		pContract = NULL;
 	}
@@ -1731,7 +1792,7 @@ bool OTContract::SignContract(const char * szFoldername, const char * szFilename
 	
 	// --------------------------------------------------------------------
 	//
-	std::string strFileContents(OTDB::QueryPlainString(szFoldername, szFilename)); // <=== LOADING FROM DATA STORE.
+    std::string strFileContents(OTDB::QueryPlainString(szFoldername, szFilename)); // <=== LOADING FROM DATA STORE.
 	
 	if (strFileContents.length() < 2)
 	{
@@ -1740,13 +1801,11 @@ bool OTContract::SignContract(const char * szFoldername, const char * szFilename
 		return false;
 	}
 	// --------------------------------------------------------------------
-
 	// Create a new memory buffer on the OpenSSL side
 	BIO * bio = BIO_new_mem_buf((void*)strFileContents.c_str(), strFileContents.length()); 
 //	BIO *bio = BIO_new(BIO_s_mem());
 	OT_ASSERT(NULL != bio);
-	//BIO_puts(bmem, Get());
-	
+//  BIO_puts(bmem, Get());	
 //	int nPutsResult = BIO_puts(bio, strFileContents.c_str());
 
 	// --------------------------------------------------------------------
@@ -1854,6 +1913,7 @@ bool OTContract::VerifySignature(const OTAsymmetricKey & theKey, const OTSignatu
 
 // Presumably the Signature passed in here was just loaded as part of this contract and is
 // somewhere in m_listSignatures. Now it is being verified.
+//
 bool OTContract::VerifySignature(const char * szFoldername, const char * szFilename, const OTSignature & theSignature) const
 {
 	OT_ASSERT_MSG(NULL != szFoldername, "Null foldername pointer passed to OTContract::VerifySignature");
@@ -2154,8 +2214,26 @@ bool OTContract::SaveContract(const char * szFoldername, const char * szFilename
 	OT_ASSERT(m_strFilename.GetLength() > 2);
 	
 	// --------------------------------------------------------------------
-	OTString strFinal(m_strRawFile);
-	
+    
+    if (!m_strRawFile.Exists())
+    {
+		OTLog::vError("OTContract::SaveContract: Error saving file (contract contents are empty): %s%s%s\n", 
+					  szFoldername, OTLog::PathSeparator(), szFilename);
+		return false;
+    }
+    // --------------------------------------------------------------------
+
+	OTString strFinal;
+//	OTString strFinal(m_strRawFile);
+    OTASCIIArmor ascTemp(m_strRawFile);
+    
+    if (false == ascTemp.WriteArmoredString(strFinal, m_strContractType.Get()))
+    {
+		OTLog::vError("OTContract::SaveContract: Error saving file (failed writing armored string): %s%s%s\n", 
+					  szFoldername, OTLog::PathSeparator(), szFilename);
+		return false;
+    }
+    // --------------------------------------------------------------------
 	bool bSaved = OTDB::StorePlainString(strFinal.Get(), szFoldername, szFilename);
 	
 	if (!bSaved)
@@ -2231,37 +2309,78 @@ bool OTContract::LoadContractRawFile()
 					  szFoldername, OTLog::PathSeparator(), szFilename);
 		return false;
 	}
-	
-	// --------------------------------------------------------------------
+    // --------------------------------------------------------------------
 	//
-	std::string strFileContents(OTDB::QueryPlainString(szFoldername, szFilename)); // <=== LOADING FROM DATA STORE.
-	
-	if (strFileContents.length() < 2)
+	OTString strFileContents(OTDB::QueryPlainString(szFoldername, szFilename)); // <=== LOADING FROM DATA STORE.
+
+	if (strFileContents.GetLength() < 2)
 	{
 		OTLog::vError("OTContract::LoadContractRawFile: Error reading file: %s%s%s\n", 
 					  szFoldername, OTLog::PathSeparator(), szFilename);
 		return false;
 	}
 	// --------------------------------------------------------------------
-/*
-	std::ifstream in(m_strFilename.Get(), std::ios::binary);
-	
-	if (in.fail())
-	{
-		OTLog::vError("Error opening file in OTContract::LoadContractRawFile: %s\n",
-					  m_strFilename.Get());
-		return false;
-	}
-	
-	std::stringstream buffer;
-	buffer << in.rdbuf();
-	
-	std::string contents(buffer.str());
-*/
-	std::string str_Trim = OTString::trim(strFileContents);
+    // To support legacy data, we check here to see if it's armored or not.
+    // If it's not, we support it. But if it IS, we ALSO support it (we de-armor it here.)
+    //
+    bool bArmoredAndALSOescaped = false;    // "- -----BEGIN OT ARMORED"
+    bool bArmoredButNOTescaped  = false;    // "-----BEGIN OT ARMORED"
+    
+    if (strFileContents.Contains(OT_BEGIN_ARMORED_escaped)) // check this one first...
+    {
+        bArmoredAndALSOescaped = true;
+    }
+    else if (strFileContents.Contains(OT_BEGIN_ARMORED))
+    {
+        bArmoredButNOTescaped = true;
+    }
+    // ----------------------------------------
+    const bool bArmored = (bArmoredAndALSOescaped || bArmoredButNOTescaped);
+    // ----------------------------------------
+    
+    // Whether the string is armored or not, (-----BEGIN OT ARMORED)
+    // either way, we'll end up with the decoded version in this variable:
+    //
+    std::string str_Trim;
+    
+    // ------------------------------------------------
+    if (bArmored) // it's armored, we have to decode it first.
+    {
+        OTASCIIArmor ascTemp;
+        
+        if (false == (ascTemp.LoadFromString(strFileContents, 
+                                             bArmoredAndALSOescaped, // if it IS escaped or not, this variable will be true or false to show it.
+                                             // The below szOverride sub-string determines where the content starts, when loading.
+                                             OT_BEGIN_ARMORED)))     // Default is:       "-----BEGIN" 
+                                                                     // We're doing this: "-----BEGIN OT ARMORED" (Should worked for escaped as well, here.)
+        {
+            OTLog::vError("OTContract::LoadContractRawFile: Error loading file contents from "
+                          "ascii-armored encoding: %s%s%s.\n Contents: \n%s\n", 
+                          szFoldername, OTLog::PathSeparator(), szFilename, strFileContents.Get());
+            return false;
+        }
+        else // success loading the actual contents out of the ascii-armored version.
+        {
+            OTString strTemp(ascTemp); // <=== ascii-decoded here.
+            
+            std::string str_temp(strTemp.Get(), strTemp.GetLength());
+            
+            str_Trim = OTString::trim(str_temp); // This is the std::string for the trim process.
+        } 
+    }
+    else
+    {
+        std::string str_temp(strFileContents.Get(), strFileContents.GetLength());
+        
+        str_Trim = OTString::trim(str_temp); // This is the std::string for the trim process. (Wasn't armored, so here we use it as passed in.)
+    }
+    // ------------------------------------------------
+    
+    // At this point, str_Trim contains the actual contents, whether they
+    // were originally ascii-armored OR NOT. (And they are also now trimmed, either way.)
+    // ------------------------------------------
 
 	m_strRawFile.Set(str_Trim.c_str());
-//	m_strRawFile = strFileContents.c_str();
 	
 	if (m_strRawFile.GetLength())
 		return true;
@@ -2319,15 +2438,81 @@ bool OTContract::LoadContractFromString(const OTString & theStr)
 		return false;
 	}
 	
+    // --------------------------------------------------------------------
+    // To support legacy data, we check here to see if it's armored or not.
+    // If it's not, we support it. But if it IS, we ALSO support it (we de-armor it here.)
+    //
+    bool bArmoredAndALSOescaped = false;    // "- -----BEGIN OT ARMORED"
+    bool bArmoredButNOTescaped  = false;    // "-----BEGIN OT ARMORED"
+    
+    if (theStr.Contains(OT_BEGIN_ARMORED_escaped)) // check this one first...
+    {
+        bArmoredAndALSOescaped = true;
+    }
+    else if (theStr.Contains(OT_BEGIN_ARMORED))
+    {
+        bArmoredButNOTescaped = true;
+    }
+    // ----------------------------------------
+    const bool bArmored = (bArmoredAndALSOescaped || bArmoredButNOTescaped);
+    // ----------------------------------------
+
+    // Whether the string is armored or not, (-----BEGIN OT ARMORED)
+    // either way, we'll end up with the decoded version in this variable:
+    //
+    std::string str;
+
+    // ------------------------------------------------
+    if (bArmored) // it's armored, we have to decode it first.
+    {
+        OTASCIIArmor ascTemp;
+        OTString strNotConst(theStr);
+        
+        if (false == (ascTemp.LoadFromString(strNotConst, 
+                                             bArmoredAndALSOescaped, // if it IS escaped or not, this variable will be true or false to show it.
+                                             // The below szOverride sub-string determines where the content starts, when loading.
+                                             OT_BEGIN_ARMORED)))     // Default is:       "-----BEGIN" 
+                                                                     // We're doing this: "-----BEGIN OT ARMORED" (Should worked for escaped as well, here.)
+        {
+            OTLog::vError("OTContract::LoadContractFromString: Error loading file contents from ascii-armored encoding: %s\n", 
+                          theStr.Get());
+            return false;
+        }
+        else // success loading the actual contents out of the ascii-armored version.
+        {
+//            OTLog::vError("DEBUGGING OTCONTRACT: ascTemp: \n%s\n",
+//                         ascTemp.Get());
+            
+            if (ascTemp.GetLength() > 2)
+            {
+                OTString strTemp(ascTemp); // <=== ascii-decoded here.
+                
+                str = strTemp.Get(); // This is the std::string for the trim process.
+            }
+            else
+            {
+                OTLog::vError("OTContract::LoadContractFromString: Error loading file contents from empty or near-empty "
+                              "ascii-armored encoding: %s\n", theStr.Get());
+                return false;
+            }
+        } 
+    }
+    else
+        str = theStr.Get(); // This is the std::string for the trim process. (Wasn't armored, so here we use it as passed in.)
+    // ------------------------------------------------
+    
 	// This populates the internal "raw file" member as if we had actually read it from a file.	
-	std::string str(theStr.Get());
-	std::string str2 = OTString::trim(str);
-	m_strRawFile.Set(str2.c_str());
-//	m_strRawFile = theStr.Get();
+//	std::string str(theStr.Get());
+	std::string str_trim = OTString::trim(str);
+	m_strRawFile.Set(str_trim.c_str());
 	
+    // todo: would like to avoid so many string copies. Optimize.
+    
 	// This populates m_xmlUnsigned with the contents of m_strRawFile (minus bookends, signatures, etc. JUST the XML.)
 	bool bSuccess = ParseRawFile(); // It also parses into the various member variables.
 	
+    // (I think this was the bug where the version changed from 75 to 75c, and suddenly contract ID was wrong...)
+    //
 	// If it was a success, save back to m_strRawFile again so 
 	// the format is consistent and hashes will calculate properly.
 //	if (bSuccess)
@@ -2336,14 +2521,13 @@ bool OTContract::LoadContractFromString(const OTString & theStr)
 //		// then we use that to generate the raw file again, re-attaching the signatures.
 //		// This function does that.
 //		SaveContract();
-//	} // I think this was the bug where the version changed from 75 to 75c, and suddenly contract ID was wrong...
+//	} 
 	
 	return bSuccess;
 }
 
 
 
-// TODO: PUT THE TRIM HERE:
 
 bool OTContract::ParseRawFile()
 {

@@ -3699,8 +3699,8 @@ bool OTPseudonym::LoadSignedNymfile(OTPseudonym & SIGNER_NYM)
 	// 3. That the signature matches for the signer nym who was passed in.
 	//
 	if (	true					// Also see OTWallet.cpp where it says:   //pNym->SaveSignedNymfile(*pNym); // Uncomment this if you want to generate a new nym by hand. NORMALLY LEAVE IT COMMENTED OUT!!!! IT'S DANGEROUS!!!
-		&&	theNymfile.VerifyFile()			// TODO TEMP TEMPORARY RESUME  (These two lines can be commented out to allow you to load a nymfile with no sig.
-		&&	theNymfile.VerifySignature(SIGNER_NYM)	// These are ONLY commented-out so I can reload a bad nymfile. UNCOMMENT THESE IF YOU SEE THIS.
+		&&	theNymfile.VerifyFile()			// TODO TEMP TEMPORARY RESUME  (These two lines can be commented out to allow you to load a nymfile with no sig.)
+		&&	theNymfile.VerifySignature(SIGNER_NYM)	// These are ONLY commented-out so I can reload a bad nymfile. (UNCOMMENT THESE IF YOU SEE THIS COMMENTED OUT.)
 		)
 	{
 		OTLog::Output(2, "Loaded and verified signed nymfile. Reading from string...\n");

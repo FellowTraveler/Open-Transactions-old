@@ -5118,7 +5118,7 @@ bool OTSmartContract::LoadEditable(const OTString & strName)
 	{
 		const OTString strSmartContract(str_contract.c_str());
 		
-		if (false == this->LoadContractFromString(strSmartContract))
+		if (false == this->LoadContractFromString(strSmartContract)) // Handles OT ARMORED file formats.
 		{
 			OTLog::vError("OTSmartContract::LoadEditable: Failed attempt to load (editable), smart contract from storage: %s \n",
 						  strName.Get());
@@ -5181,14 +5181,28 @@ bool OTSmartContract::SaveEditable(const OTString & strName)
 	{
 		if (m_strRawFile.Exists())
 		{
-			if  (false == OTDB::StorePlainString(m_strRawFile.Get(),
-											 OTLog::SmartContractsFolder(),
-											 strServerID.Get(),
-											 "editing", // todo stop hardcoding.
-											 str_asc_name)) // encoded version of name.
+            OTString strFinal;
+            OTASCIIArmor ascTemp(m_strRawFile);
+            
+            if (false == ascTemp.WriteArmoredString(strFinal, m_strContractType.Get()))
+            {
+                OTLog::vError("OTSmartContract::SaveEditable: Error saving editable smart contract (failed writing armored string):\n%s%s%s%s%s%s%s\n", 
+                              OTLog::SmartContractsFolder(), OTLog::PathSeparator(),
+                              strServerID.Get(), OTLog::PathSeparator(), "editing", 
+                              OTLog::PathSeparator(), str_asc_name.c_str());
+                return false;
+            }
+            // ----------------------------------------------------
+			if  (false == OTDB::StorePlainString(strFinal.Get(),
+                                                 OTLog::SmartContractsFolder(),
+                                                 strServerID.Get(),
+                                                 "editing", // todo stop hardcoding.
+                                                 str_asc_name)) // encoded version of name.
 			{
-				OTLog::vError("OTSmartContract::SaveEditable: Failed saving (editable) smart contract: %s \n", 
-							  str_name.c_str());
+				OTLog::vError("OTSmartContract::SaveEditable: Failed saving (editable) smart contract: %s \n to path: %s%s%s%s%s%s%s", 
+							  str_name.c_str(), OTLog::SmartContractsFolder(), OTLog::PathSeparator(),
+                              strServerID.Get(), OTLog::PathSeparator(), "editing", 
+                              OTLog::PathSeparator(), str_asc_name.c_str());
 			}
 			else 
 			{
@@ -5291,7 +5305,7 @@ bool OTSmartContract::LoadTemplate(const OTIdentifier & SERVER_ID, const OTIdent
 	
 	OTString strRawFile(strFileContents.c_str());
 	
-	bool bSuccess = LoadContractFromString(strRawFile);
+	bool bSuccess = LoadContractFromString(strRawFile); // Handles OT ARMORED file formats...
 	
 	return bSuccess;	
 }
@@ -5322,14 +5336,24 @@ bool OTSmartContract::SaveTemplate(const OTIdentifier & SERVER_ID)
 	
 	if (!SaveContractRaw(strRawFile))
 	{
-		OTLog::vError("OTSmartContract::SaveTemplate: Error saving smart contract template (to string):\n%s%s%s%s%s\n", szFolder1name,
-					  OTLog::PathSeparator(), szFolder2name, OTLog::PathSeparator(), szFilename);
+		OTLog::vError("OTSmartContract::SaveTemplate: Error saving smart contract template (to string):\n%s%s%s%s%s\n", 
+                      szFolder1name, OTLog::PathSeparator(), szFolder2name, OTLog::PathSeparator(), szFilename);
 		return false;
 	}
-	
-	// --------------------------------------------------------------------
+    // --------------------------------------------------------------------
 	//
-	bool bSaved = OTDB::StorePlainString(strRawFile.Get(), szFolder1name, 
+	OTString strFinal;
+    OTASCIIArmor ascTemp(strRawFile);
+    
+    if (false == ascTemp.WriteArmoredString(strFinal, m_strContractType.Get()))
+    {
+		OTLog::vError("OTSmartContract::SaveTemplate: Error saving smart contract template (failed writing armored string):\n%s%s%s%s%s\n",
+					  szFolder1name, OTLog::PathSeparator(), szFolder2name, OTLog::PathSeparator(), szFilename);
+		return false;
+    }
+    // --------------------------------------------------------------------
+	//
+	bool bSaved = OTDB::StorePlainString(strFinal.Get(), szFolder1name, 
 										 szFolder2name, szFilename); // <=== SAVING TO DATA STORE.
 	
 	if (!bSaved)

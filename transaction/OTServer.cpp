@@ -861,34 +861,51 @@ bool OTServer::SaveMainFileToString(OTString & strMainFile)
 	return true;	
 }
 
+
+
+
 bool OTServer::SaveMainFile()
 {
 	static OTString strMainFilePath;
 	
+    const char * szFolderName   = ".";
+    const char * szFunc         = "OTServer::SaveMainFile";
+    
 	if (!strMainFilePath.Exists())
 	{
 		strMainFilePath = "notaryServer.xml"; // todo fix hardcoding
 	}
-
-	// ---------------------------------------------------------------	
-	
+	// ---------------------------------------------------------------
 	OTString strMainFile;
 	
 	if (false == SaveMainFileToString(strMainFile))
 	{
-		OTLog::Error("Error saving to string in OTServer::SaveMainFile.\n");
+		OTLog::vError("%s: Error saving to string. (Giving up on save attempt.)\n", szFunc);
 		return false;
 	}	
-	
-	// ---------------------------------------------------------------
-	
-	bool bSaved = OTDB::StorePlainString(strMainFile.Get(), ".", strMainFilePath.Get());
+    // --------------------------------------------------------------------
+    // Try to save the notary server's main datafile to local storage...
+    //
+    OTString strFinal;
+    OTASCIIArmor ascTemp(strMainFile);
+    
+    if (false == ascTemp.WriteArmoredString(strFinal, "NOTARY")) // todo hardcoding.
+    {
+        OTLog::vError("%s: Error saving notary (failed writing armored string):\n%s%s%s\n", szFunc,
+                      szFolderName, OTLog::PathSeparator(), strMainFilePath.Get());
+        return false;
+    }
+    // --------------------------------------------------------------------
+
+	const bool bSaved = OTDB::StorePlainString(strFinal.Get(), szFolderName, strMainFilePath.Get());
 	
 	if (!bSaved)
-		OTLog::vError("Error saving main file: %s\n", strMainFilePath.Get());
+		OTLog::vError("%s: Error saving main file: %s\n", szFunc, strMainFilePath.Get());
 	
 	return bSaved;
 }
+
+
 
 
 
@@ -1192,26 +1209,93 @@ bool OTServer::LoadMainFile()
 					  OTLog::PathSeparator(), szFilename);
 		return false;
 	}
-	
+    
 	// --------------------------------------------------------------------
 	//
-	std::string strFileContents(OTDB::QueryPlainString(szFoldername, szFilename)); // <=== LOADING FROM DATA STORE.
+	OTString strFileContents(OTDB::QueryPlainString(szFoldername, szFilename)); // <=== LOADING FROM DATA STORE.
 	
-	if (strFileContents.length() < 2)
+	if (strFileContents.GetLength() < 2)
 	{
 		OTLog::vError("OTServer::LoadMainFile: Error reading file: %s%s%s\n", 
 					  szFoldername, OTLog::PathSeparator(), szFilename);
 		return false;
 	}
+    
 	// --------------------------------------------------------------------
+    // To support legacy data, we check here to see if it's armored or not.
+    // If it's not, we support it. But if it IS, we ALSO support it (we de-armor it here.)
+    //
+    bool bArmoredAndALSOescaped = false;    // "- -----BEGIN OT ARMORED"
+    bool bArmoredButNOTescaped  = false;    // "-----BEGIN OT ARMORED"
+    
+    if (strFileContents.Contains(OT_BEGIN_ARMORED_escaped)) // check this one first...
+    {
+        bArmoredAndALSOescaped = true;
+    }
+    else if (strFileContents.Contains(OT_BEGIN_ARMORED))
+    {
+        bArmoredButNOTescaped = true;
+    }
+    
+    // ----------------------------------------
+    const bool bArmored = (bArmoredAndALSOescaped || bArmoredButNOTescaped);
+    // ----------------------------------------
+    
+    // Whether the string is armored or not, (-----BEGIN OT ARMORED)
+    // either way, we'll end up with the decoded version in this variable:
+    //
+    std::string str_Trim;
+    
+    // ------------------------------------------------
+    if (bArmored) // it's armored, we have to decode it first.
+    {
+        OTASCIIArmor ascTemp;
 
-	OTStringXML xmlFileContents(strFileContents.c_str());
-
-	IrrXMLReader* xml = createIrrXMLReader(&xmlFileContents);
+        if (false == (ascTemp.LoadFromString(strFileContents, 
+                                             bArmoredAndALSOescaped, // if it IS escaped or not, this variable will be true or false to show it.
+                                             // The below szOverride sub-string determines where the content starts, when loading.
+                                             OT_BEGIN_ARMORED)))     // Default is:       "-----BEGIN" 
+                                                                     // We're doing this: "-----BEGIN OT ARMORED" (Should worked for escaped as well, here.)
+        {
+            OTLog::vError("OTServer::LoadMainFile: Error loading file contents from ascii-armored encoding: %s%s%s.\n Contents: \n%s\n", 
+                          szFoldername, OTLog::PathSeparator(), szFilename, strFileContents.Get());
+            return false;
+        }
+        else // success loading the actual contents out of the ascii-armored version.
+        {
+            OTString strTemp(ascTemp); // <=== ascii-decoded here.
+            
+            std::string str_temp(strTemp.Get(), strTemp.GetLength());
+            
+            str_Trim = OTString::trim(str_temp); // This is the std::string for the trim process.
+        }
+    }
+    else
+    {
+        std::string str_temp(strFileContents.Get(), strFileContents.GetLength());
+        
+        str_Trim = OTString::trim(str_temp); // This is the std::string for the trim process. (Wasn't armored, so here we use it as passed in.)
+    }
+    
+    // ------------------------------------------------
+    
+    // At this point, str_Trim contains the actual contents, whether they
+    // were originally ascii-armored OR NOT. (And they are also now trimmed, either way.)
+    // ------------------------------------------
+    
+    OTStringXML xmlFileContents(str_Trim.c_str());
+    
+	if (xmlFileContents.GetLength() < 2)
+	{
+		OTLog::vError("OTServer::LoadMainFile: Error reading notary server file: %s\n", szFilename);
+		return false;
+	}
+	// --------------------------------------------------------------------
 	
+	IrrXMLReader* xml = createIrrXMLReader(&xmlFileContents);
 	OTCleanup<IrrXMLReader> theXMLGuardian(xml); // So I don't have to clean it up later.
 	
-	
+	// --------------------------------------------------------------------
 	// parse the file until end reached
 	while(xml && xml->read())
 	{
@@ -1229,7 +1313,8 @@ bool OTServer::LoadMainFile()
 //		OTString ServerName;
 //		OTString ServerID;
 		
-		
+		const OTString strNodeName(xml->getNodeName());
+        
 		switch(xml->getNodeType())
 		{
 			case EXN_TEXT:
@@ -1238,7 +1323,7 @@ bool OTServer::LoadMainFile()
 				break;
 			case EXN_ELEMENT:
 			{
-				if (!strcmp("notaryServer", xml->getNodeName()))
+				if (strNodeName.Compare("notaryServer"))
 				{
 					m_strVersion			= xml->getAttributeValue("version");					
 					m_strServerID			= xml->getAttributeValue("serverID");
@@ -1320,7 +1405,7 @@ bool OTServer::LoadMainFile()
 						}						
 					}					
 				}
-				else if (!strcmp("accountList", xml->getNodeName())) // the voucher reserve account IDs.
+				else if (strNodeName.Compare("accountList")) // the voucher reserve account IDs.
 				{
 					const OTString strAcctType	= xml->getAttributeValue("type");					
 					const OTString strAcctCount	= xml->getAttributeValue("count");
@@ -1328,7 +1413,7 @@ bool OTServer::LoadMainFile()
 					if ((-1) == m_VoucherAccts.ReadFromXMLNode(xml, strAcctType, strAcctCount))
 						OTLog::Error("OTServer::LoadMainFile: Error loading voucher accountList.\n");
 				}
-				else if (!strcmp("basketInfo", xml->getNodeName()))
+				else if (strNodeName.Compare("basketInfo"))
 				{
 					OTString strBasketID			= xml->getAttributeValue("basketID");					
 					OTString strBasketAcctID		= xml->getAttributeValue("basketAcctID");
@@ -1346,7 +1431,7 @@ bool OTServer::LoadMainFile()
 
 				// Create an OTAssetContract and load them from file, (for each asset type),
 				// and add them to the internal map.
-				else if (!strcmp("assetType", xml->getNodeName()))
+				else if (strNodeName.Compare("assetType"))
 				{
 					OTASCIIArmor ascAssetName = xml->getAttributeValue("name");	
 					
@@ -1399,7 +1484,7 @@ bool OTServer::LoadMainFile()
 				// Todo: Server should also then immediately connect to itself BASED ON THE INFO IN THE CONTRACT
 				// in order to verify that whatever is running at that port IS, IN FACT, ITSELF!
 				/*
-				else if (!strcmp("notaryProvider", xml->getNodeName()))
+                else if (strNodeName.Compare("notaryProvider"))
 				{
 					ServerName		= xml->getAttributeValue("name");			
 					ServerID		= xml->getAttributeValue("serverID");	// hash of contract itself
@@ -1450,7 +1535,7 @@ bool OTServer::LoadMainFile()
 				 // the serverID. THEN I will use that serverID to open the Certfile and get my private key.
 				 //
 				 // In the meantime I don't need this yet, serverID is setup in the config file (that I'm reading now.)
-				else if (!strcmp("pseudonym", xml->getNodeName())) // The server has to sign things, too.
+                else if (strNodeName.Compare("pseudonym")) // The server has to sign things, too.
 				{
 					NymName = xml->getAttributeValue("name");// user-assigned name for GUI usage				
 					NymID = xml->getAttributeValue("nymID"); // message digest from hash of x.509 cert, used to look up certfile.

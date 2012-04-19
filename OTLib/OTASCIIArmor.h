@@ -141,6 +141,20 @@
 #include "OTString.h"
 //#include "OTStorage.h"
 
+// ----------------
+
+extern const char * OT_BEGIN_ARMORED;
+extern const char * OT_END_ARMORED;
+
+extern const char * OT_BEGIN_ARMORED_escaped;
+extern const char * OT_END_ARMORED_escaped;
+
+// ----------------
+
+extern const char * OT_BEGIN_SIGNED;
+extern const char * OT_BEGIN_SIGNED_escaped;
+
+// ----------------
 
 class OTEnvelope;
 
@@ -179,6 +193,11 @@ public:
                         const // This sub-string determines where the content starts, when loading.
                         std::string str_override="-----BEGIN"); // "-----BEGIN" is the default "content start" substr. Todo: hardcoding.
 
+    bool WriteArmoredString(OTString & strOutput,
+                            const // for "-----BEGIN OT LEDGER-----", str_type would contain "LEDGER"
+                            std::string str_type, // There's no default, to force you to enter the right string.
+                            bool bEscaped=false);
+    
 	// This function will base64 DECODE the string contents (This class is a string)
 	// and return them as BINARY in theData
 	// Should be called "Get From Internal String Into Data"

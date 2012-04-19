@@ -166,14 +166,29 @@ extern "C"
 #include "OTLog.h"
 
 
+// ----------------------------------------------------------------------
 
 
+const char * OT_BEGIN_ARMORED   = "-----BEGIN OT ARMORED";
+const char * OT_END_ARMORED     =   "-----END OT ARMORED";
 
-;
+const char * OT_BEGIN_ARMORED_escaped   = "- -----BEGIN OT ARMORED";
+const char * OT_END_ARMORED_escaped     =   "- -----END OT ARMORED";
+
+// ----------------------------------------------------------------------
+
+const char * OT_BEGIN_SIGNED          = "-----BEGIN SIGNED";
+const char * OT_BEGIN_SIGNED_escaped  = "- -----BEGIN SIGNED";
+
+// ----------------------------------------------------------------------
+
+
 
 OTCleanup<OTDB::OTPacker> g_thePackerAngel; // Make sure the pointer below gets cleaned up properly at shutdown.
 
 OTDB::OTPacker * OTASCIIArmor::s_pPacker = NULL;
+
+
 
 
 OTDB::OTPacker * OTASCIIArmor::GetPacker() 
@@ -1398,10 +1413,45 @@ bool OTASCIIArmor::LoadFromifstream(const std::ifstream & fin)
 }
 
 
-// This code reads up the file, discards the bookends, and saves only the gibberish itself.
+
+//const char * OT_BEGIN_ARMORED   = "-----BEGIN OT ARMORED";
+//const char * OT_END_ARMORED     =   "-----END OT ARMORED";
+
+bool OTASCIIArmor::WriteArmoredString(OTString & strOutput,
+                                      const // for "-----BEGIN OT LEDGER-----", str_type would contain "LEDGER"
+                                      std::string str_type, // There's no default, to force you to enter the right string.
+                                      bool bEscaped/*=false*/)
+{   
+    const char * szEscape = "- ";
+    
+    OTString strTemp;
+    strTemp.Format("%s%s %s-----\n"    // "%s-----BEGIN OT ARMORED %s-----\n"
+                   "Version: Open Transactions %s\n"
+                   "Comment: http://github.com/FellowTraveler/Open-Transactions/wiki\n\n" // todo hardcoding.
+                   "%s"                // Should already have a newline at the bottom.
+                   "%s%s %s-----\n\n", // "%s-----END OT ARMORED %s-----\n"
+                   bEscaped ? szEscape : "",
+                   OT_BEGIN_ARMORED, 
+                   str_type.c_str(),   // "%s%s %s-----\n"
+                   OTLog::Version(),   // "Version: Open Transactions %s\n"
+                   /* No variable */   // "Comment: http://github.com/FellowTraveler/Open-Transactions/wiki\n\n", 
+                   this->Get(),        //  "%s"     <==== CONTENTS OF THIS OBJECT BEING WRITTEN...
+                   bEscaped ? szEscape : "", 
+                   OT_END_ARMORED, 
+                   str_type.c_str());  // "%s%s %s-----\n"
+    // -----------------------
+    strOutput.Concatenate("%s", strTemp.Get());    
+    // -----------------------
+    return true;
+}
+
+
+
+// This code reads up the string, discards the bookends, and saves only the gibberish itself.
 // the bEscaped option allows you to load a normal ASCII-Armored file if off, and allows
 // you to load an escaped ASCII-armored file (such as inside the contracts when the public keys
 // are escaped with a "- " before the rest of the ------- starts.)
+//
 bool OTASCIIArmor::LoadFromString(OTString & theStr, 
                                   bool bEscaped/*=false*/, 
                                   const // This szOverride sub-string determines where the content starts, when loading.
@@ -1503,6 +1553,11 @@ bool OTASCIIArmor::LoadFromString(OTString & theStr,
 //					OTLog::Error("Skipping version line...\n");
 					continue;
 				}
+				if (line.compare(0,8,"Comment:") == 0)
+				{
+//					OTLog::Error("Skipping comment line...\n");
+					continue;
+				}
 			}
 			
 		}
@@ -1538,4 +1593,48 @@ OTASCIIArmor::~OTASCIIArmor()
 {
 	// ~OTString called automatically, which calls Release().
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

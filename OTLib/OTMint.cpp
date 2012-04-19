@@ -328,10 +328,12 @@ bool OTMint::LoadMint(const char * szAppend/*=NULL*/)
 		return false;
 	}
 	// --------------------------------------------------------------------
-	
+	// NOTE: No need to worry about the OT ARMORED file format, since
+    // LoadContractFromString already handles that internally.
+    
 	OTString strRawFile(strFileContents.c_str());
 	
-	bool bSuccess = LoadContractFromString(strRawFile);
+	bool bSuccess = LoadContractFromString(strRawFile); // Note: This handles OT ARMORED file format.
 	
 	return bSuccess;
 }
@@ -369,16 +371,24 @@ bool OTMint::SaveMint(const char * szAppend/*=NULL*/)
 
 	if (!SaveContractRaw(strRawFile))
 	{
-		OTLog::vError("Error saving Mintfile (to string):\n%s%s%s%s%s\n", szFolder1name,
+		OTLog::vError("OTMint::SaveMint: Error saving Mintfile (to string):\n%s%s%s%s%s\n", szFolder1name,
 					  OTLog::PathSeparator(), szFolder2name, OTLog::PathSeparator(), szFilename);
 		return false;
 	}
-
 	// --------------------------------------------------------------------
 	//
-	bool bSaved = OTDB::StorePlainString(strRawFile.Get(), szFolder1name, 
+	OTString strFinal;
+    OTASCIIArmor ascTemp(strRawFile);
+    
+    if (false == ascTemp.WriteArmoredString(strFinal, m_strContractType.Get()))
+    {
+		OTLog::vError("OTMint::SaveMint: Error saving mint (failed writing armored string):\n%s%s%s%s%s\n",
+					  szFolder1name, OTLog::PathSeparator(), szFolder2name, OTLog::PathSeparator(), szFilename);
+		return false;
+    }
+    // --------------------------------------------------------------------
+	bool bSaved = OTDB::StorePlainString(strFinal.Get(), szFolder1name, 
 										 szFolder2name, szFilename); // <=== SAVING TO DATA STORE.
-	
 	if (!bSaved)
 	{
 		if (NULL != szAppend) 

@@ -1706,7 +1706,7 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
                         //
 						if (false == pNym->RemoveIssuedNum(*pNym, strServerID, pTransaction->GetTransactionNum(), true)) // bool bSave=true
 						{
-							OTLog::Error("Error removing issued number from user nym (for a transfer) in OTClient::ProcessIncomingTransactions\n");
+							OTLog::Error("OTClient::ProcessIncomingTransactions: Error removing issued number from user nym (for a transfer.)\n");
 						}
 					}
 				}
@@ -1733,7 +1733,7 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
                         //
 						if (false == pNym->RemoveIssuedNum(*pNym, strServerID, pTransaction->GetTransactionNum(), true)) // bool bSave=true
 						{
-							OTLog::Error("Error removing issued number from user nym (for a cron item) in OTClient::ProcessIncomingTransactions\n");
+							OTLog::Error("OTClient::ProcessIncomingTransactions: Error removing issued number from user nym (for a cron item.)\n");
 						}
                         // ----------------------------------------------------------
                         
@@ -1765,12 +1765,12 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
                             }
                             else
                             {
-                                OTLog::Error("(cron items) Error loading cronitem from original item, from string, in OTClient::ProcessIncomingTransactions\n");
+                                OTLog::Error("OTClient::ProcessIncomingTransactions: (cron items) Error loading cronitem from original item, from string.\n");
                             }                        
                         }
                         else
                         {
-                            OTLog::Error("(cron items) Error loading original item from string in OTClient::ProcessIncomingTransactions\n");
+                            OTLog::Error("OTClient::ProcessIncomingTransactions: (cron items) Error loading original item from string.\n");
                         }                        
 					} // pItem is the server's reply item, and it is a rejection.
 				}
@@ -1812,28 +1812,46 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
 				strReceiptID = theReply.m_strAcctID; // If a balance statement, then the receipt ID is the Account ID.
 			}
 			
-			// ---------------------------------------------------------
-			
+            // --------------------------------------------------------------------
+            // Try to save the transaction receipt to local storage.
+            //
 			OTString strTransaction;
 			pTransaction->SaveContractRaw(strTransaction);
-			
+            // --------------------------------------------------------------------
+            OTString strFinal;
+            OTASCIIArmor ascTemp(strTransaction);
+            
+            if (false == ascTemp.WriteArmoredString(strFinal, "TRANSACTION")) // todo hardcoding.
+            {
+                OTLog::vError("OTClient::ProcessIncomingTransactions: Error saving transaction receipt "
+                              "(failed writing armored string):\n%s%s%s%s%s\n", 
+                              OTLog::ReceiptFolder(), OTLog::PathSeparator(),
+                              strServerID.Get(), OTLog::PathSeparator(), strReceiptFilename.Get());
+                return;
+            }
+            // ------------------------------------------------------------------------
 			if (NULL != pItem)
 			{
+                // --------------------------------------------------------------------
+                // Filename is based on transaction success/failure.
+                //
 				if (pTransaction->GetSuccess())
 					strReceiptFilename.Format("%s.success", strReceiptID.Get());
 				else
-					strReceiptFilename.Format("%s.fail", strReceiptID.Get());
-				
-				OTDB::StorePlainString(strTransaction.Get(), OTLog::ReceiptFolder(), 
+					strReceiptFilename.Format("%s.fail",    strReceiptID.Get());
+                // --------------------------------------------------------------------
+
+				OTDB::StorePlainString(strFinal.Get(),    OTLog::ReceiptFolder(), 
 									   strServerID.Get(), strReceiptFilename.Get());
 			}
 			else // This should never happen...
 			{
 				strReceiptFilename.Format("%s.error", strReceiptID.Get());
 				
-				OTLog::vError("Error saving transaction receipt: %s\n", strReceiptFilename.Get());
+				OTLog::vError("OTClient::ProcessIncomingTransactions: Error saving transaction receipt, since pItem was NULL: %s\n",
+                              strReceiptFilename.Get());
 				
-				OTDB::StorePlainString(strTransaction.Get(), OTLog::ReceiptFolder(), 
+				OTDB::StorePlainString(strFinal.Get(),    OTLog::ReceiptFolder(), 
 									   strServerID.Get(), strReceiptFilename.Get());				
 			}
 			
@@ -1845,7 +1863,7 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
 		}
 		else 
 		{
-			OTLog::Output(0, "Failed verifying server ownership of this transaction.\n");
+			OTLog::Output(0, "OTClient::ProcessIncomingTransactions: Failed verifying server ownership of this transaction.\n");
 		}		
 	}
 }
@@ -3895,73 +3913,82 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 					{
 						strReceiptID = theReply.m_strAcctID; // If a balance statement, then the receipt ID is the Account ID.
 					}
-					
-					// ---------------------------------------------------------
-					
-					OTString strReceiptFilename;
-					
-					if (NULL != pReplyItem)
-					{
-						if (pReplyTransaction->GetSuccess())					
-							strReceiptFilename.Format("%s.success", strReceiptID.Get());
-						else
-							strReceiptFilename.Format("%s.fail", strReceiptID.Get());
-						
-						OTString strTransaction;
-						pReplyTransaction->SaveContractRaw(strTransaction); // <=========== Save that receipt!
-						
-						OTDB::StorePlainString(strTransaction.Get(), OTLog::ReceiptFolder(), 
-											   strServerID.Get(), strReceiptFilename.Get());
-						
-						// -------------------------------------------------
-						
-						// If this was a successful processInbox, then I go ahead and getAccount again, since it's probably changed.
-						// Careful in case this might infinite loop  :P
-						
+                    // --------------------------------------------------------------------
+                    OTString strTransaction;
+                    pReplyTransaction->SaveContractRaw(strTransaction); // <=========== Save that receipt!
+                    // --------------------------------------------------------------------
+                    OTString strReceiptFilename;
+                    
+                    if (pReplyTransaction->GetSuccess())					
+                        strReceiptFilename.Format("%s.success", strReceiptID.Get());
+                    else
+                        strReceiptFilename.Format("%s.fail", strReceiptID.Get());
+                    // --------------------------------------------------------------------
+                    OTString strFinal;
+                    OTASCIIArmor ascTemp(strTransaction);
+                    
+                    if (false == ascTemp.WriteArmoredString(strFinal, "TRANSACTION")) // todo hardcoding.
+                    {
+                        OTLog::vError("OTClient::ProcessServerReply: Error saving transaction receipt "
+                                      "(failed writing armored string):\n%s%s%s%s%s\n Contents:\n%s\n", 
+                                      OTLog::ReceiptFolder(), OTLog::PathSeparator(),
+                                      strServerID.Get(), OTLog::PathSeparator(), strReceiptFilename.Get(),
+                                      strTransaction.Get());
+                    }
+                    // ------------------------------------------------------------------------
+                    else // success writing armored string
+                    {                        
+                        if (NULL != pReplyItem)
+                        {
+                            // -------------------------------------------------
+                            OTDB::StorePlainString(strFinal.Get(),    OTLog::ReceiptFolder(), 
+                                                   strServerID.Get(), strReceiptFilename.Get());
+                            // -------------------------------------------------
+                            // If this was a successful processInbox, then I go ahead and getAccount again, since it's probably changed.
+                            // Careful in case this might infinite loop  :P
 #if defined (TEST_CLIENT)
-						if (!IsRunningAsScript() &&
-							(OTItem::acknowledgement == pReplyItem->GetStatus()) &&
-							(theReply.m_strCommand.Compare("@processInbox")))
-						{
-							OTAccount * pAccount = m_pWallet->GetAccount(ACCOUNT_ID);
-							const OTString strAcctID(*pAccount);
-							
-							OTLog::vOutput(0, "\n SUGGEST you next do a 'get' command (getAccount: %s)\n\n",
-										   strAcctID.Get());
-//							OTLog::vOutput(0, "%s%s%s", theReply.m_bSuccess ? "\n SUGGEST you next 'get' (account): " : "",
-//										  theReply.m_bSuccess ? theReply.m_strAcctID.Get() : "", theReply.m_bSuccess ? "\n\n" : "");
+                            if (!IsRunningAsScript() &&
+                                (OTItem::acknowledgement == pReplyItem->GetStatus()) &&
+                                (theReply.m_strCommand.Compare("@processInbox")))
+                            {
+                                OTAccount * pAccount = m_pWallet->GetAccount(ACCOUNT_ID);
+                                const OTString strAcctID(*pAccount);
+                                
+                                OTLog::vOutput(0, "\n SUGGEST you next do a 'get' command (getAccount: %s)\n\n",
+                                               strAcctID.Get());
+//                              OTLog::vOutput(0, "%s%s%s", theReply.m_bSuccess ? "\n SUGGEST you next 'get' (account): " : "",
+//                                          theReply.m_bSuccess ? theReply.m_strAcctID.Get() : "", theReply.m_bSuccess ? "\n\n" : "");
 //
-							
-//							OTMessage theMessage;
+                            
+//                              OTMessage theMessage;
 //							
-//							if ( (NULL != pAccount) && 
-//								ProcessUserCommand(OTClient::getAccount, theMessage, 
-//												   *pNym, 
-////												*(pAssetContract),
-//												   *(theConnection.GetServerContract()), 
-//												   pAccount)) 
-//							{
-//								// Sign it and send it out.
-//								theConnection.ProcessMessageOut(theMessage);
-//							}
-//							else
-//								OTLog::Error("Error processing getAccount command in OTClient::ProcessServerReply\n");
-						}
+//                              if ( (NULL != pAccount) && 
+//                                  ProcessUserCommand(OTClient::getAccount, theMessage, 
+//                                                     *pNym, 
+////                                                   *(pAssetContract),
+//                                                     *(theConnection.GetServerContract()), 
+//                                                     pAccount)) 
+//                              {
+//                                  // Sign it and send it out.
+//                                  theConnection.ProcessMessageOut(theMessage);
+//                              }
+//                              else
+//                                  OTLog::Error("Error processing getAccount command in OTClient::ProcessServerReply\n");
+                            }
 #endif
-					}
-					else // This should never happen...
-					{
-						strReceiptFilename.Format("%s.error", strReceiptID.Get());
-						
-						OTLog::vError("OTClient::ProcessServerReply: Error saving transaction receipt:  %s%s%s\n", 
-									  strServerID.Get(), OTLog::PathSeparator(), strReceiptFilename.Get());
-						
-						OTString strTransaction;
-						pReplyTransaction->SaveContractRaw(strTransaction); // <=========== Save that receipt!
-						
-						OTDB::StorePlainString(strTransaction.Get(), OTLog::ReceiptFolder(), 
-											   strServerID.Get(), strReceiptFilename.Get());
-					}
+                        }
+                        else // This should never happen...
+                        {
+                            strReceiptFilename.Format("%s.error", strReceiptID.Get());
+                            
+                            OTLog::vError("OTClient::ProcessServerReply: Error saving transaction receipt:  %s%s%s\n", 
+                                          strServerID.Get(), OTLog::PathSeparator(), strReceiptFilename.Get());
+                            
+                            OTDB::StorePlainString(strFinal.Get(),    OTLog::ReceiptFolder(), 
+                                                   strServerID.Get(), strReceiptFilename.Get());
+                        }
+                    } // success writing armored string
+                    // ------------------------------------------------------------------------
 				}
 				else 
 				{

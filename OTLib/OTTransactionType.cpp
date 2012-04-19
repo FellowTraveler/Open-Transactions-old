@@ -151,8 +151,70 @@ OTTransactionType * OTTransactionType::TransactionFactory(const OTString & strIn
 	
 	if (!strInput.Exists())
 		return NULL;
-	
-	OTString strContract(strInput);
+    
+    // --------------------------------------------------------------------
+	//
+    // To support legacy data, we check here to see if it's armored or not.
+    // If it's not, we support it. But if it IS, we ALSO support it (we de-armor it here.)
+    //
+    bool bArmoredAndALSOescaped = false;    // "- -----BEGIN OT ARMORED"
+    bool bArmoredButNOTescaped  = false;    // "-----BEGIN OT ARMORED"
+    
+    if (strInput.Contains(OT_BEGIN_ARMORED_escaped)) // check this one first...
+    {
+        bArmoredAndALSOescaped = true;
+        
+        OTLog::Error("OTTransactionType::TransactionFactory: Armored and escaped value passed in, but escaped are forbidden here. (Returning NULL.)\n");
+		return NULL;
+    }
+    else if (strInput.Contains(OT_BEGIN_ARMORED))
+    {
+        bArmoredButNOTescaped = true;
+    }
+    // ----------------------------------------
+    const bool bArmored = (bArmoredAndALSOescaped || bArmoredButNOTescaped);
+    // ----------------------------------------
+    
+    // Whether the string is armored or not, (-----BEGIN OT ARMORED)
+    // either way, we'll end up with the decoded version in this variable:
+    //
+    std::string str_Trim;
+    
+    // ------------------------------------------------
+    if (bArmored) // it's armored, we have to decode it first.
+    {
+        OTASCIIArmor ascTemp;
+        OTString strInputTemp(strInput);
+        
+        if (false == (ascTemp.LoadFromString(strInputTemp, 
+                                             bArmoredAndALSOescaped, // if it IS escaped or not, this variable will be true or false to show it.
+                                             // The below szOverride sub-string determines where the content starts, when loading.
+                                             OT_BEGIN_ARMORED)))     // Default is:       "-----BEGIN" 
+                                                                     // We're doing this: "-----BEGIN OT ARMORED" (Should worked for escaped as well, here.)
+        {
+            OTLog::vError("OTTransactionType::TransactionFactory: Error loading string contents from ascii-armored encoding. Contents: \n%s\n", 
+                          strInput.Get());
+            return NULL;
+        }
+        else // success loading the actual contents out of the ascii-armored version.
+        {
+            OTString strTemp(ascTemp); // <=== ascii-decoded here.
+            std::string str_temp(strTemp.Get(), strTemp.GetLength());
+            str_Trim = OTString::trim(str_temp); // This is the std::string for the trim process.
+        } 
+    }
+    else
+    {
+        std::string str_temp(strInput.Get(), strInput.GetLength());
+        str_Trim = OTString::trim(str_temp); // This is the std::string for the trim process. (Wasn't armored, so here we use it as passed in.)
+    }
+    // ------------------------------------------------
+    
+    // At this point, str_Trim contains the actual contents, whether they
+    // were originally ascii-armored OR NOT. (And they are also now trimmed, either way.)
+    // ------------------------------------------
+    
+    OTString strContract(str_Trim.c_str());
 	
 	strContract.reset(); // for sgets
 	buf[0] = 0; // probably unnecessary.

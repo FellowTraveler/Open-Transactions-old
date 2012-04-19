@@ -192,7 +192,7 @@ bool OTCron::LoadCron()
 	bSuccess = LoadContract(szFoldername, szFilename);
 		
 	if (bSuccess)
-		bSuccess = VerifySignature(*GetServerNym());
+		bSuccess = VerifySignature(*(GetServerNym()));
 	
 	return bSuccess;
 }

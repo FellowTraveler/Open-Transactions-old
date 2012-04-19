@@ -363,11 +363,22 @@ bool OTToken::RecordTokenAsSpent(OTString & theCleartextToken)
 	// on a hash of the Lucre data.
 	// The success of that operation is also now the success of this one.
 	
-	OTString strToken;
-	SaveContractRaw(strToken);
-	
-	bool bSaved = OTDB::StorePlainString(strToken.Get(), OTLog::SpentFolder(), 
-										 strAssetFolder.Get(), strTokenHash.Get());
+    // --------------------------------------------------------------------
+	//
+	OTString strFinal;
+    OTASCIIArmor ascTemp(m_strRawFile);
+    
+    if (false == ascTemp.WriteArmoredString(strFinal, m_strContractType.Get()))
+    {
+		OTLog::vError("OTToken::RecordTokenAsSpent: Error recording token as spent (failed writing armored string):\n%s%s%s%s%s\n",
+					  OTLog::SpentFolder(), OTLog::PathSeparator(), strAssetFolder.Get(), 
+					  OTLog::PathSeparator(), strTokenHash.Get());
+		return false;
+    }
+    // --------------------------------------------------------------------
+
+	const bool bSaved = OTDB::StorePlainString(strFinal.Get(), OTLog::SpentFolder(), 
+                                               strAssetFolder.Get(), strTokenHash.Get());
 	if (!bSaved)
 	{
 		OTLog::vError("OTToken::RecordTokenAsSpent: Error saving file: %s%s%s%s%s\n", 

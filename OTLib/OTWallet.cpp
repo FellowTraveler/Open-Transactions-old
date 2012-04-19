@@ -1272,25 +1272,34 @@ bool OTWallet::SaveContract(OTString & strContract)
 //
 bool OTWallet::SaveWallet(const char * szFilename/*=NULL*/)
 {	
-	char * szFilenameToUse = NULL;
-	
 	if (NULL != szFilename)
 		m_strFilename.Set(szFilename);
 	
-	szFilenameToUse = (char *)m_strFilename.Get();
-	
-	OT_ASSERT_MSG(NULL != szFilenameToUse, "Null filename in OTWallet::SaveWallet\n");
+	OT_ASSERT_MSG(NULL != m_strFilename.Get(), "Null filename in OTWallet::SaveWallet\n");
 	
 	// ---------------------------------------------------------------
-	
-	bool bSuccess = false;
-	
-	OTString strContract;
+	bool        bSuccess = false;
+	OTString    strContract;
 	
 	if (this->SaveContract(strContract))
+    {
+        // --------------------------------------------------------------------
+        // Try to save the wallet to local storage.
+        //
+        OTString strFinal;
+        OTASCIIArmor ascTemp(strContract);
+        
+        if (false == ascTemp.WriteArmoredString(strFinal, "WALLET")) // todo hardcoding.
+        {
+            OTLog::vError("OTWallet::SaveWallet: Error saving wallet (failed writing armored string):\n%s%s%s\n", 
+                          ".", OTLog::PathSeparator(), m_strFilename.Get());
+            return false;
+        }
+        // --------------------------------------------------------------------
+
 		// Wallet file is the only one in data_folder (".") and not a subfolder of that.
-		bSuccess = OTDB::StorePlainString(strContract.Get(), ".", szFilenameToUse); // <==== Store Plain String
-	
+		bSuccess = OTDB::StorePlainString(strFinal.Get(), ".", m_strFilename.Get()); // <==== Store Plain String
+	}
 	// ---------------------------------------------------------------
 	
 	return bSuccess;
@@ -1300,12 +1309,18 @@ bool OTWallet::SaveWallet(const char * szFilename/*=NULL*/)
 
 bool OTWallet::LoadWallet(const char * szFilename)
 {
-	OT_ASSERT_MSG(NULL != szFilename, "NULL filename in OTWallet::LoadWallet.\n");
+	OT_ASSERT_MSG(NULL != szFilename, "OTWallet::LoadWallet: NULL filename.\n");
 			
 	Release();
 	
 	// --------------------------------------------------------------------
-	
+    // The directory is "." because unlike every other OT file, the wallet file
+	// doesn't go into a subdirectory, but it goes into the main data_folder itself.
+	// Every other file, however, needs to specify its folder AND filename (and both
+	// of those will be appended to the local path to form the complete file path.)
+	//
+    const char * szFolderName = ".";
+    
 	// Save this for later... (the full path to this file.)
 //	m_strFilename.Format("%s%s%s", OTLog::Path(), OTLog::PathSeparator(), szFilename);
 	
@@ -1315,25 +1330,88 @@ bool OTWallet::LoadWallet(const char * szFilename)
 	
 	if (false == OTDB::Exists(szFilename))
 	{
-		OTLog::vError("Wallet file does not exist: %s\n", szFilename);
+		OTLog::vError("OTWallet::LoadWallet: Wallet file does not exist: %s\n", szFilename);
 		return false;
 	}
 	
 	// --------------------------------------------------------------------
 
-	// The directory is "." because unlike every other OT file, the wallet file
-	// doesn't go into a subdirectory, but it goes into the main data_folder itself.
-	// Every other file, however, needs to specify its folder AND filename (and both
-	// of those will be appended to the local path to form the complete file path.)
-	//
-	OTStringXML xmlFileContents(OTDB::QueryPlainString(".", szFilename)); // <=== LOADING FROM DATA STORE.
+	OTString strFileContents(OTDB::QueryPlainString(szFolderName, szFilename)); // <=== LOADING FROM DATA STORE.
+	
+	if (strFileContents.GetLength() < 2)
+	{
+		OTLog::vError("OTWallet::LoadWallet: Error reading wallet file: %s\n",szFilename);
+		return false;
+	}
+    
+	// --------------------------------------------------------------------
+	
+    // To support legacy data, we check here to see if it's armored or not.
+    // If it's not, we support it. But if it IS, we ALSO support it (we de-armor it here.)
+    //
+    bool bArmoredAndALSOescaped = false;    // "- -----BEGIN OT ARMORED"
+    bool bArmoredButNOTescaped  = false;    // "-----BEGIN OT ARMORED"
+    
+    if (strFileContents.Contains(OT_BEGIN_ARMORED_escaped)) // check this one first...
+    {
+        bArmoredAndALSOescaped = true;
+    }
+    else if (strFileContents.Contains(OT_BEGIN_ARMORED))
+    {
+        bArmoredButNOTescaped = true;
+    }
+    // ----------------------------------------
+    const bool bArmored = (bArmoredAndALSOescaped || bArmoredButNOTescaped);
+    // ----------------------------------------
+    
+    // Whether the string is armored or not, (-----BEGIN OT ARMORED)
+    // either way, we'll end up with the decoded version in this variable:
+    //
+    std::string str_Trim;
+    
+    // ------------------------------------------------
+    if (bArmored) // it's armored, we have to decode it first.
+    {
+        OTASCIIArmor ascTemp;
+        
+        if (false == (ascTemp.LoadFromString(strFileContents, 
+                                             bArmoredAndALSOescaped, // if it IS escaped or not, this variable will be true or false to show it.
+                                             // The below szOverride sub-string determines where the content starts, when loading.
+                                             OT_BEGIN_ARMORED)))     // Default is:       "-----BEGIN" 
+                                                                     // We're doing this: "-----BEGIN OT ARMORED" (Should worked for escaped as well, here.)
+        {
+            OTLog::vError("OTWallet::LoadWallet: Error loading file contents from ascii-armored encoding: %s%s%s.\n Contents: \n%s\n", 
+                          szFolderName, OTLog::PathSeparator(), szFilename, strFileContents.Get());
+            return false;
+        }
+        else // success loading the actual contents out of the ascii-armored version.
+        {
+            OTString strTemp(ascTemp); // <=== ascii-decoded here.
+            
+            std::string str_temp(strTemp.Get(), strTemp.GetLength());
+            
+            str_Trim = OTString::trim(str_temp); // This is the std::string for the trim process.
+        } 
+    }
+    else
+    {
+        std::string str_temp(strFileContents.Get(), strFileContents.GetLength());
+        
+        str_Trim = OTString::trim(str_temp); // This is the std::string for the trim process. (Wasn't armored, so here we use it as passed in.)
+    }
+    // ------------------------------------------------
+    
+    // At this point, str_Trim contains the actual contents, whether they
+    // were originally ascii-armored OR NOT. (And they are also now trimmed, either way.)
+    // ------------------------------------------
+    
+    OTStringXML xmlFileContents(str_Trim.c_str());
 	
 	if (xmlFileContents.GetLength() < 2)
 	{
-		OTLog::vError("Error reading wallet file: %s\n",szFilename);
+		OTLog::vError("OTWallet::LoadWallet: Error reading wallet file: %s\n", szFilename);
 		return false;
 	}
-
 	// --------------------------------------------------------------------
 	
 	IrrXMLReader* xml = createIrrXMLReader(&xmlFileContents);
@@ -1357,6 +1435,8 @@ bool OTWallet::LoadWallet(const char * szFilename)
 		OTString AcctFile;
 		OTString AcctID;
 		
+        const OTString strNodeName(xml->getNodeName());
+        
 		switch(xml->getNodeType())
 		{
 			case EXN_NONE:
@@ -1369,7 +1449,7 @@ bool OTWallet::LoadWallet(const char * szFilename)
 				break;
 			case EXN_ELEMENT:
 			{
-				if (!strcmp("wallet", xml->getNodeName()))	// -------------------------------------------------------------
+				if (strNodeName.Compare("wallet"))	// -------------------------------------------------------------
 				{
 					OTASCIIArmor ascWalletName = xml->getAttributeValue("name");
 					
@@ -1382,7 +1462,7 @@ bool OTWallet::LoadWallet(const char * szFilename)
 					
 					OTLog::vOutput(1, "\nLoading wallet: %s, version: %s\n", m_strName.Get(), m_strVersion.Get());
 				}
-				else if (!strcmp("pseudonym", xml->getNodeName()))  // -------------------------------------------------------------
+				else if (strNodeName.Compare("pseudonym"))	// -------------------------------------------------------------
 				{
 					OTASCIIArmor ascNymName = xml->getAttributeValue("name");
 					if (ascNymName.Exists())
@@ -1406,7 +1486,7 @@ bool OTWallet::LoadWallet(const char * szFilename)
 					else 
 						this->AddNym(*pNym); // Nym loaded. Insert to wallet's list of Nyms.
 				}
-				else if (!strcmp("assetType", xml->getNodeName()))	// -------------------------------------------------------------
+                else if (strNodeName.Compare("assetType"))	// -------------------------------------------------------------
 				{
 					OTASCIIArmor ascAssetName = xml->getAttributeValue("name");	
 					
@@ -1448,7 +1528,7 @@ bool OTWallet::LoadWallet(const char * szFilename)
 					}
 
 				}
-				else if (!strcmp("notaryProvider", xml->getNodeName()))	// -------------------------------------------------------------
+                else if (strNodeName.Compare("notaryProvider"))	// -------------------------------------------------------------                
 				{
 					OTASCIIArmor ascServerName = xml->getAttributeValue("name");	
 					
@@ -1490,7 +1570,7 @@ bool OTWallet::LoadWallet(const char * szFilename)
 						OTLog::Error("Error reading file for Transaction Server in OTWallet::LoadWallet\n");
 					}
 				}
-				else if (!strcmp("assetAccount", xml->getNodeName()))	// -------------------------------------------------------------
+                else if (strNodeName.Compare("assetAccount"))	// -------------------------------------------------------------                
 				{
 					OTASCIIArmor ascAcctName = xml->getAttributeValue("name");	
 					
