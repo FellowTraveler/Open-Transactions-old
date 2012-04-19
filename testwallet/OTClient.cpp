@@ -2186,9 +2186,9 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
     if (NULL == pSentMsg) // 
     {
         const OTString strReply(theReply);
-        OTLog::vError("OTClient::ProcessServerReply: FYI: no record of server reply in sent messages buffer. "
-                      "We must have already processed it, and then removed it, earlier. "
-                      "(Discarding.) Reply message:\n\n%s\n\n", strReply.Get());
+        OTLog::vOutput(3, "OTClient::ProcessServerReply: FYI: no record of server reply in sent messages buffer. "
+                       "We must have already processed it, and then removed it, earlier. "
+                       "(Discarding.) Reply message:\n\n%s\n\n", strReply.Get());
         
         OTMessage * pMessage = &theReply; // I'm responsible to cleanup this object.
 		delete pMessage;

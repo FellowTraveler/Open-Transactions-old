@@ -4738,13 +4738,20 @@ int OT_API::getTransactionNumber(OTIdentifier & SERVER_ID,
 	if (NULL == pServer) return (-1);
 	// By this point, pServer is a good pointer.  (No need to cleanup.)
 	// -----------------------------------------------------
-	const int nCount	= pNym->GetTransactionNumCount(SERVER_ID);
+	
+    const int nCount	= pNym->GetTransactionNumCount(SERVER_ID);
 	const int nMaxCount	= 50; // todo no hardcoding. (max transaction nums allowed out at a single time.)
+    
 	if (nCount > nMaxCount) 
 	{
 		OTLog::vOutput(0, "OT_API::getTransactionNumber: Failure: That Nym already has "
 					  "more than %d transaction numbers signed out. (Use those first.)\n", nMaxCount);
-        return (-1);
+        return 0; // Java code needs to know that no msg went out, BUT it's because we already have TOO
+        // MANY numbers (i.e. "a good reason.") This means "process your Nymbox and grab your intermediary
+        // files, and try again!" So, we return 0 to indicate this.
+        //
+        return   0;
+//      return (-1);
 	}
 	// -----------------------------------------------------
 	OTMessage theMessage;
