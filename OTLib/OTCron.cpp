@@ -685,7 +685,7 @@ void OTCron::UpdateContents()
 	
 	long lTransactionNumber = 0;
 	
-	FOR_EACH(listOfTransactionNumbers, m_listTransactionNumbers)
+	FOR_EACH(listOfLongNumbers, m_listTransactionNumbers)
 	{	
 		lTransactionNumber = *it;
 		

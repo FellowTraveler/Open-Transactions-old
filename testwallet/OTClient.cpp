@@ -375,10 +375,14 @@ bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox,
 		OTTransaction * pTransaction = (*it).second;
 		OT_ASSERT(NULL != pTransaction);
 		// ------------------------------------------------------------		
-		if (pTransaction->IsAbbreviated())
+        // This is now possible (abbreviated notices in the box), since we try to avoid 
+        // downloading replyNotices if we can help it. So we only error if it's abbreviated
+        // but NOT a replyNotice.
+        //
+		if (pTransaction->IsAbbreviated() && (pTransaction->GetType() != OTTransaction::replyNotice))
 		{
-			OTLog::vError("%sx: Error: Unexpected abbreviated receipt in Nymbox, even after supposedly loading all box receipts.\n",
-                          szFunc);
+			OTLog::vError("%sx: Error: Unexpected abbreviated receipt in Nymbox, even after supposedly "
+                          "loading all box receipts. (And it's not a replyNotice, either!)\n", szFunc);
 //			return false;			
 		}
 		// -----------------------------------------------------	
@@ -550,80 +554,99 @@ bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox,
 				 //
 				 (OTTransaction::replyNotice == pTransaction->GetType()) 
 				 )
+                // UPDATE: Clearly if I ALREADY processed the server reply, then I don't need to process it AGAIN, right?
+                // This replyNotice is only here JUST IN CASE. (In case I missed the reply originally.) Well, guess what?
+                // Now I have a list of request numbers stored on the Nym, that tells me definitively whether or not that
+                // Nym has seen the reply. (Clearly if the Nym has processed the reply already, he doesn't have to do it 
+                // AGAIN, now does he? This notice was "just in case.") 
+                //
+                // Therefore I will check to see if the request number for this replyNotice is in my list of "replies I've
+                // already seen." If it is, I can entirely skip this step, which would otherwise end up trying erroneously
+                // to process a server reply even though I had already processed it before.
 		{	// -----------------------------------------------
-			OTItem * pAcceptItem = OTItem::CreateItemFromTransaction(*pAcceptTransaction, OTItem::acceptNotice);
-			OT_ASSERT_MSG(NULL != pAcceptItem, "OTItem * pAcceptItem = OTItem::CreateItemFromTransaction(*pAcceptTransaction, OTItem::acceptNotice); for replyNotice.");
-			
-			// the transaction will handle cleaning up the transaction item.
-			pAcceptTransaction->AddItem(*pAcceptItem);
-			
-			pAcceptItem->SetReferenceToNum(pTransaction->GetTransactionNum()); // This is critical. Server needs this to look up the original.
-			// Don't need to set transaction num on item since the constructor already got it off the owner transaction.
-			
-			// Load up the server's original reply message (from the server's transaction item, on the receipt from my Nymbox.)
-			// The whole reason that notice was placed in the Nymbox is so we would be guaranteed to receive and process it, in
-			// case the original reply was lost due to network problems. Some messages are too important to just "get lost."
-			// Therefore, even though we most likely ALREADY processed this server reply, we're still going to give it a shot
-			// to process right here and now, just as we're also telling the server to go ahead and clear it out of the Nymbox.
-			// The server's conscience is clear: he knows for SURE that I DID receive notice.
-			
-			OTItem * pItem	= pTransaction->GetItem(OTItem::replyNotice);
-			
-			if ((NULL != pItem) &&
-				OTItem::acknowledgement == pItem->GetStatus())
-			{
-				OTString strOriginalReply;
-				pItem->GetAttachment(strOriginalReply);
-				
-				if (false == strOriginalReply.Exists())
-				{
-					OTLog::vError("%s: Error loading original server reply message from replyNotice. (It appears to be zero length.)\n",
-                                  szFunc);
-				}				
-				else // strOriginalReply.Exists() == true.
-				{
-					OTMessage * pMessage = new OTMessage;
-					OT_ASSERT_MSG(pMessage != NULL, "OTClient::AcceptEntireNymbox: OTMessage * pMessage = new OTMessage;");
-					
-					if (false == pMessage->LoadContractFromString(strOriginalReply))
-					{
-						OTLog::vError("%s: Failed loading original server reply message from replyNotice:\n\n%s\n\n",
-									  szFunc, strOriginalReply.Get());
-						delete pMessage;
-						pMessage = NULL;
-					}
-					else // Success loading the server's original reply up into an OTMessage, from a string.
-					{
-						//
-						// pMessage needs to be allocated on the heap since ProcessServerReply takes ownership of it.
-						// theNymbox is passed in as a pointer because it's an optional parameter, precisely meant for this
-						// situation, where theNymbox happens to be already loaded and we don't want it loading it again,
-						// with one copy ending up overwriting the other.
-						//
-						const bool bProcessed =
-							ProcessServerReply(*pMessage, &theNymbox); // ProcessServerReply sometimes has to load the Nymbox. Since we already have it loaded here, we pass it in so it won't get loaded twice.
-						
-						pMessage = NULL; // We're done with it now.
+            
+            const bool bAlreadySeenIt = pNym->VerifyAcknowledgedNum(strServerID, pTransaction->GetRequestNum()); // Client verifies it has already seen a server reply. 
+            
+            if (bAlreadySeenIt) // if we've already seen the reply, then we're already signalling the server to remove this
+                continue;       // replyNotice on its side anyway, since the notification is clearly accomplished.
+                    //
+            else    // But if we HAVEN'T already seen the server's reply, then lucky for us he dropped a copy into the Nymbox! Now we can process it!
+            {
+                OTItem * pAcceptItem = OTItem::CreateItemFromTransaction(*pAcceptTransaction, OTItem::acceptNotice);
+                OT_ASSERT_MSG(NULL != pAcceptItem, "OTItem * pAcceptItem = OTItem::CreateItemFromTransaction(*pAcceptTransaction, OTItem::acceptNotice); for replyNotice.");
+                
+                // the transaction will handle cleaning up the transaction item.
+                pAcceptTransaction->AddItem(*pAcceptItem);
+                
+                pAcceptItem->SetReferenceToNum(pTransaction->GetTransactionNum()); // This is critical. Server needs this to look up the original.
+                // Don't need to set transaction num on item since the constructor already got it off the owner transaction.
+                
+                // Load up the server's original reply message (from the server's transaction item, on the receipt from my Nymbox.)
+                // The whole reason that notice was placed in the Nymbox is so we would be guaranteed to receive and process it, in
+                // case the original reply was lost due to network problems. Some messages are too important to just "get lost."
+                // Therefore, even though we most likely ALREADY processed this server reply, we're still going to give it a shot
+                // to process right here and now, just as we're also telling the server to go ahead and clear it out of the Nymbox.
+                // The server's conscience is clear: he knows for SURE that I DID receive notice.
+                
+                OTItem * pItem	= pTransaction->GetItem(OTItem::replyNotice);
+                
+                if ((NULL != pItem) &&
+                    OTItem::acknowledgement == pItem->GetStatus())
+                {
+                    OTString strOriginalReply;
+                    pItem->GetAttachment(strOriginalReply);
+                    
+                    if (false == strOriginalReply.Exists())
+                    {
+                        OTLog::vError("%s: Error loading original server reply message from replyNotice. (It appears to be zero length.)\n",
+                                      szFunc);
+                    }				
+                    else // strOriginalReply.Exists() == true.
+                    {
+                        OTMessage * pMessage = new OTMessage;
+                        OT_ASSERT_MSG(pMessage != NULL, "OTClient::AcceptEntireNymbox: OTMessage * pMessage = new OTMessage;");
+                        
+                        if (false == pMessage->LoadContractFromString(strOriginalReply))
+                        {
+                            OTLog::vError("%s: Failed loading original server reply message from replyNotice:\n\n%s\n\n",
+                                          szFunc, strOriginalReply.Get());
+                            delete pMessage;
+                            pMessage = NULL;
+                        }
+                        else // Success loading the server's original reply up into an OTMessage, from a string.
+                        {
+                            //
+                            // pMessage needs to be allocated on the heap since ProcessServerReply takes ownership of it.
+                            // theNymbox is passed in as a pointer because it's an optional parameter, precisely meant for this
+                            // situation, where theNymbox happens to be already loaded and we don't want it loading it again,
+                            // with one copy ending up overwriting the other.
+                            //
+                            const bool bProcessed =
+                                ProcessServerReply(*pMessage, &theNymbox); // ProcessServerReply sometimes has to load the Nymbox. Since we already have it loaded here, we pass it in so it won't get loaded twice.
+                            
+                            pMessage = NULL; // We're done with it now.
 
-						// By this point, I KNOW FOR A FACT that IF there was some network problem that caused a Nym to 
-						// lose an important server message, that by now, the Nym HAS received and processed that server
-						// reply as appropriate, using the exact same function that would have been called, had the reply
-						// been properly received in the first place. It's as if it was never lost. (Vital for syncing.)
-						// --------------------------------------------------------------------------
-					} // if success loading original reply message from server.
-				} // if strOriginalReply.Exists()
-			} // if the replyNotice item is not-NULL and status is "success"
-			else 
-			{	// NULL or "rejected"
-				OTLog::vOutput(0, "%s: the replyNotice item was either NULL, or rejected. (Unexpectedly on either count.)\n",
-                               szFunc);
-			}
-			// -------------------------
-			//
-			// sign the item
-			pAcceptItem->SignContract(*pNym);
-			pAcceptItem->SaveContract();
-			
+                            // By this point, I KNOW FOR A FACT that IF there was some network problem that caused a Nym to 
+                            // lose an important server message, that by now, the Nym HAS received and processed that server
+                            // reply as appropriate, using the exact same function that would have been called, had the reply
+                            // been properly received in the first place. It's as if it was never lost. (Vital for syncing.)
+                            // --------------------------------------------------------------------------
+                        } // if success loading original reply message from server.
+                    } // if strOriginalReply.Exists()
+                } // if the replyNotice item is not-NULL and status is "success"
+                else 
+                {	// NULL or "rejected"
+                    OTLog::vOutput(0, "%s: the replyNotice item was either NULL, or rejected. (Unexpectedly on either count.)\n",
+                                   szFunc);
+                }
+                // -------------------------
+                //
+                // sign the item
+                pAcceptItem->SignContract(*pNym);
+                pAcceptItem->SaveContract();
+			} // If we haven't "already seen it" then we loaded it up (above) and processed the server reply.
+            // -----------------------------------------
+            
 			// Todo: notice that we remove the replyNotice from the Nymbox, whether we are actually able to successfully
 			// load the original message or not. But what if that fails? We have now just discarded the message. In the
 			// future, perhaps have a place where "failed messages go to die" so that vital data isn't lost in the event
@@ -2207,10 +2230,56 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
     //
     
     // ------------------------------------
+    const long lReplyRequestNum = atol(theReply.m_strRequestNum.Get());
     
-    bool bRemoved = this->GetMessageOutbuffer().RemoveSentMessage(atol(theReply.m_strRequestNum.Get()),
-                                                                      strServerID,
-                                                                      strNymID); // deletes.
+    bool bRemoved = this->GetMessageOutbuffer().RemoveSentMessage(lReplyRequestNum,
+                                                                  strServerID,
+                                                                  strNymID); // deletes.
+    // ------------------------------------
+
+    bool bDirtyNym = false;
+    
+    // Similarly we keep a client side list of all the request numbers that we KNOW we have
+    // a server reply for. (Each ID is maintained until we see a mirror of it appear in the server's
+    // copy of that same list, and then we go ahead and remove it. This is basically an optimization
+    // trick that enables us to avoid downloading many box receipts -- the replyNotices, specifically.)
+    //
+    if (pNym->AddAcknowledgedNum(strServerID, lReplyRequestNum)) // doesn't save (here).
+    {
+        bDirtyNym = true;
+    }
+    
+    // Okay, we received a reply, so we added its request number to our list of "replies we have definitely received."
+    // But what about when the server sees that, and mirrors our list? It will send its own list, containing that mirror.
+    // Any number that appears there, can be removed from the local list (confirmation is total by that point.)
+    // Clearly the server KNOWS I saw his reply, since he copied my ack into his ack mirror list. Therefore I have no
+    // more reason to continue telling him that I got the reply -- he already knows it!  So I can remove the number from
+    // my ack list, which will cause the server to do the same to match, once he gets my next message.
+    //
+    // So next step: Loop through the ack list on the server reply, and any numbers there can be REMOVED from the local
+    // list...
+    //
+    std::set<long> numlist_ack_reply;    
+    if (theReply.m_AcknowledgedReplies.Output(numlist_ack_reply)) // returns false if the numlist was empty.
+    {
+        FOR_EACH(std::set<long>, numlist_ack_reply)
+        {
+            const long lTempRequestNum = *it;
+            // ----------------------------
+            OTPseudonym * pSignerNym = pNym;
+            
+            if (pNym->RemoveAcknowledgedNum(*pSignerNym, strServerID, lTempRequestNum, false)) // bSave=false
+                bDirtyNym = true;
+        }
+    }
+	// ------------------------------------
+    
+    if (bDirtyNym)
+    {
+        OTPseudonym * pSignerNym = pNym;
+        pNym->SaveSignedNymfile(*pSignerNym);
+    }
+    
 	// ------------------------------------
     
     // Done:  Do a Get Sent Message based on request number. If we find the
@@ -5099,7 +5168,8 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theMessage.m_strCommand			= "deleteUserAccount";
 		theMessage.m_strNymID			= strNymID;
 		theMessage.m_strServerID		= strServerID;
-		
+		theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 		// (2) Sign the Message 
 		theMessage.SignContract(theNym);		
 		
@@ -5173,7 +5243,8 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theMessage.m_strNymID			= strNymID;
 		theMessage.m_strNymID2			= strNymID2;
 		theMessage.m_strServerID		= strServerID;
-		
+        theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 		OTEnvelope theEnvelope;
 		OTAsymmetricKey thePubkey;
 		
@@ -5209,6 +5280,8 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			pMessage->m_strServerID		= strServerID;			
 			pMessage->m_strRequestNum.Format("%ld", lRequestNumber);
 			
+            pMessage->SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 			pMessage->m_ascPayload.SetString(strPlaintext);
 			
 			pMessage->SignContract(theNym);		
@@ -5248,7 +5321,8 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theMessage.m_strNymID			= strNymID;
 		theMessage.m_strNymID2			= strNymID2;
 		theMessage.m_strServerID		= strServerID;
-		
+        theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 		// (2) Sign the Message 
 		theMessage.SignContract(theNym);		
 		
@@ -5326,6 +5400,8 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			theMessage.m_strCommand			= "issueAssetType";
 			theMessage.m_strNymID			= strNymID;
 			theMessage.m_strServerID		= strServerID;
+            theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 			newID.GetString(theMessage.m_strAssetID); // I've calculated the ID, and now put it on the message...
 			OTString strAssetContract(theAssetContract);
 			theMessage.m_ascPayload.SetString(strAssetContract);
@@ -5598,6 +5674,8 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
                             theMessage.m_strCommand			= "notarizeTransactions";
                             theMessage.m_strNymID			= strNymID;
                             theMessage.m_strServerID		= strServerID;
+                            theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
                             theMessage.m_strAcctID			= str_MAIN_ACCOUNT_ID;
                             theMessage.m_ascPayload			= ascLedger;
                             
@@ -5727,7 +5805,8 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theMessage.m_strCommand			= "issueBasket";
 		theMessage.m_strNymID			= strNymID;
 		theMessage.m_strServerID		= strServerID;
-		
+        theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 		theMessage.m_ascPayload.SetString(strBasketInfo);
 		
 		// (2) Sign the Message 
@@ -5759,6 +5838,8 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theMessage.m_strCommand			= "createAccount";
 		theMessage.m_strNymID			= strNymID;
 		theMessage.m_strServerID		= strServerID;
+        theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 		theMessage.m_strAssetID			= strAssetID;// the hash of the contract is the AssetID
 		
 		// (2) Sign the Message 
@@ -5971,6 +6052,8 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 				theMessage.m_strCommand			= "notarizeTransactions";
 				theMessage.m_strNymID			= strNymID;
 				theMessage.m_strServerID		= strServerID;
+                theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 				theMessage.m_strAcctID			= strFromAcct;
 				theMessage.m_ascPayload			= ascLedger;
 				
@@ -6182,7 +6265,8 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theMessage.m_strCommand			= "getNymbox";
 		theMessage.m_strNymID			= strNymID;
 		theMessage.m_strServerID		= strServerID;
-		
+        theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 		// (2) Sign the Message 
 		theMessage.SignContract(theNym);		
 		
@@ -6262,6 +6346,8 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theMessage.m_strCommand			= "getInbox";
 		theMessage.m_strNymID			= strNymID;
 		theMessage.m_strServerID		= strServerID;
+        theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 		theMessage.m_strAcctID			= strAcctID;
 		
 		// (2) Sign the Message 
@@ -6343,6 +6429,8 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theMessage.m_strCommand			= "getOutbox";
 		theMessage.m_strNymID			= strNymID;
 		theMessage.m_strServerID		= strServerID;
+        theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 		theMessage.m_strAcctID			= strAcctID;
 		
 		// (2) Sign the Message 
@@ -6442,7 +6530,8 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theMessage.m_strCommand			= "processNymbox";
 		theMessage.m_strNymID			= strNymID;
 		theMessage.m_strServerID		= strServerID;
-		
+        theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
         OTIdentifier EXISTING_NYMBOX_HASH;
         const std::string str_server_id(strServerID.Get());
         
@@ -6633,6 +6722,8 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theMessage.m_strCommand			= "processInbox";
 		theMessage.m_strNymID			= strNymID;
 		theMessage.m_strServerID		= strServerID;
+        theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 		theMessage.m_strAcctID			= strAcctID;
 		
         OTIdentifier NYMBOX_HASH;
@@ -6724,6 +6815,8 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theMessage.m_strCommand			= "getAccount";
 		theMessage.m_strNymID			= strNymID;
 		theMessage.m_strServerID		= strServerID;
+        theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 		theMessage.m_strAcctID			= strAcctID;
 		
 		// (2) Sign the Message 
@@ -6759,6 +6852,8 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theMessage.m_strCommand			= "getContract";
 		theMessage.m_strNymID			= strNymID;
 		theMessage.m_strServerID		= strServerID;
+        theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 		theMessage.m_strAssetID			= strAssetID;
 		
 		// (2) Sign the Message 
@@ -6794,6 +6889,8 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theMessage.m_strCommand			= "getMint";
 		theMessage.m_strNymID			= strNymID;
 		theMessage.m_strServerID		= strServerID;
+        theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 		theMessage.m_strAssetID			= strAssetID;
 		
 		// (2) Sign the Message 
@@ -7029,6 +7126,8 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 				theMessage.m_strCommand			= "notarizeTransactions";
 				theMessage.m_strNymID			= strNymID;
 				theMessage.m_strServerID		= strServerID;
+                theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 				theMessage.m_strAcctID			= strFromAcct;
 				theMessage.m_ascPayload			= ascLedger;
 				
@@ -7362,6 +7461,8 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 				theMessage.m_strCommand			= "notarizeTransactions";
 				theMessage.m_strNymID			= strNymID;
 				theMessage.m_strServerID		= strServerID;
+                theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 				theMessage.m_strAcctID			= strFromAcct;
 				theMessage.m_ascPayload			= ascLedger;
 				
@@ -7578,6 +7679,8 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
                     theMessage.m_strCommand			= "notarizeTransactions";
                     theMessage.m_strNymID			= strNymID;
                     theMessage.m_strServerID		= strServerID;
+                    theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
                     theMessage.m_strAcctID			= strFromAcct;
                     theMessage.m_ascPayload			= ascLedger;
                     
@@ -7822,6 +7925,8 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 				theMessage.m_strCommand			= "notarizeTransactions";
 				theMessage.m_strNymID			= strNymID;
 				theMessage.m_strServerID		= strServerID;
+                theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 				theMessage.m_strAcctID			= strFromAcct;
 				theMessage.m_ascPayload			= ascLedger;
 				
@@ -8094,6 +8199,8 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 				theMessage.m_strCommand			= "notarizeTransactions";
 				theMessage.m_strNymID			= strNymID;
 				theMessage.m_strServerID		= strServerID;
+                theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 				theMessage.m_strAcctID			= strFromAcct;
 				theMessage.m_ascPayload			= ascLedger;
 				
@@ -8142,7 +8249,8 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theMessage.m_strCommand			= "getTransactionNum";
 		theMessage.m_strNymID			= strNymID;
 		theMessage.m_strServerID		= strServerID;
-		
+        theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
         OTIdentifier NYMBOX_HASH;
         const std::string str_server(strServerID.Get());
         const bool bNymboxHash = theNym.GetNymboxHash(str_server, NYMBOX_HASH);
@@ -8396,6 +8504,8 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
                     theMessage.m_strCommand			= "notarizeTransactions";
                     theMessage.m_strNymID			= strNymID;
                     theMessage.m_strServerID		= strServerID;
+                    theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
                     theMessage.m_strAcctID			= str_ASSET_ACCT_ID;
                     theMessage.m_ascPayload			= ascLedger;
                     
@@ -9185,6 +9295,8 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 				theMessage.m_strCommand			= "notarizeTransactions";
 				theMessage.m_strNymID			= strNymID;
 				theMessage.m_strServerID		= strServerID;
+                theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 				theMessage.m_strAcctID			= strFromAcct;
 				theMessage.m_ascPayload			= ascLedger;
 				
@@ -9231,6 +9343,8 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 		theMessage.m_strCommand			= "debitAccount";
 		theMessage.m_strNymID			= strNymID;
 		theMessage.m_strServerID		= strServerID;
+        theMessage.SetAcknowledgments(theNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 		theMessage.m_strAssetID			= strContractID;// the hash of the contract is the AssetID
 		
 		// (2) Sign the Message 

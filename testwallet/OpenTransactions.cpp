@@ -3834,6 +3834,21 @@ void OT_API::FlushSentMessages(const bool bHarvestingForRetry,
 
 
 
+bool OT_API::HaveAlreadySeenReply(OTIdentifier & SERVER_ID, OTIdentifier & USER_ID, const long & lRequestNumber)
+{
+    const char * szFuncName = "OT_API::HaveAlreadySeenReply";
+	// -----------------------------------------------------
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(USER_ID, szFuncName);
+	if (NULL == pNym) return false;
+	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
+	// -----------------------------------------------------
+
+    // "Client verifies it has already seen a server reply."
+//  bool OTPseudonym:::VerifyAcknowledgedNum(const OTString & strServerID, const long & lRequestNum); 
+    //
+    const OTString strServerID(SERVER_ID);    
+    return pNym->VerifyAcknowledgedNum(strServerID, lRequestNumber);
+}
 
 
 
@@ -4229,7 +4244,8 @@ int OT_API::issueBasket(OTIdentifier	& SERVER_ID,
 	theMessage.m_strCommand			= "issueBasket";
 	theMessage.m_strNymID			= strNymID;
 	theMessage.m_strServerID		= strServerID;
-	
+    theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 	theMessage.m_ascPayload.SetString(BASKET_INFO);
 	
 	// (2) Sign the Message 
@@ -4688,6 +4704,8 @@ int OT_API::exchangeBasket(OTIdentifier	& SERVER_ID,
                     theMessage.m_strCommand			= "notarizeTransactions";
                     theMessage.m_strNymID			= strUserID;
                     theMessage.m_strServerID		= strServerID;
+                    theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
                     BASKET_ASSET_ACCT_ID.GetString(theMessage.m_strAcctID);
                     theMessage.m_ascPayload			= ascLedger;
                     
@@ -4973,6 +4991,8 @@ int OT_API::notarizeWithdrawal(OTIdentifier	& SERVER_ID,
 			theMessage.m_strCommand			= "notarizeTransactions";
 			theMessage.m_strNymID			= strNymID;
 			theMessage.m_strServerID		= strServerID;
+            theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 			theMessage.m_strAcctID			= strFromAcct;
 			theMessage.m_ascPayload			= ascLedger;
 			
@@ -5181,6 +5201,8 @@ int OT_API::notarizeDeposit(OTIdentifier	& SERVER_ID,
 			theMessage.m_strCommand			= "notarizeTransactions";
 			theMessage.m_strNymID			= strNymID;
 			theMessage.m_strServerID		= strServerID;
+            theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 			theMessage.m_strAcctID			= strFromAcct;
 			theMessage.m_ascPayload			= ascLedger;
 			
@@ -5361,6 +5383,8 @@ int OT_API::withdrawVoucher(OTIdentifier	& SERVER_ID,
 			theMessage.m_strCommand			= "notarizeTransactions";
 			theMessage.m_strNymID			= strNymID;
 			theMessage.m_strServerID		= strServerID;
+            theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 			theMessage.m_strAcctID			= strFromAcct;
 			theMessage.m_ascPayload			= ascLedger;
 			
@@ -5600,6 +5624,8 @@ int OT_API::depositCheque(OTIdentifier	& SERVER_ID,
 			theMessage.m_strCommand			= "notarizeTransactions";
 			theMessage.m_strNymID			= strNymID;
 			theMessage.m_strServerID		= strServerID;
+            theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 			theMessage.m_strAcctID			= strFromAcct;
 			theMessage.m_ascPayload			= ascLedger;
 			
@@ -5734,6 +5760,8 @@ int OT_API::depositPaymentPlan(const OTIdentifier	& SERVER_ID,
 		theMessage.m_strCommand			= "notarizeTransactions";
 		theMessage.m_strNymID			= strNymID;
 		theMessage.m_strServerID		= strServerID;
+        theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 		theMessage.m_strAcctID			= strFromAcct;
 		theMessage.m_ascPayload			= ascLedger;
 		
@@ -5805,6 +5833,8 @@ int OT_API::triggerClause(const OTIdentifier	& SERVER_ID,
 	theMessage.m_strCommand			= "triggerClause";
 	theMessage.m_strNymID			= strNymID;
 	theMessage.m_strServerID		= strServerID;
+    theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 	theMessage.m_lTransactionNum	= lTransactionNum;
 	theMessage.m_strNymID2			= strClauseName;
 	
@@ -6083,6 +6113,8 @@ int OT_API::activateSmartContract(const OTIdentifier	& SERVER_ID,
 		theMessage.m_strCommand			= "notarizeTransactions";
 		theMessage.m_strNymID			= strNymID;
 		theMessage.m_strServerID		= strServerID;
+        theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 		theAcctID.GetString(theMessage.m_strAcctID);
 		theMessage.m_ascPayload			= ascLedger;
 		
@@ -6247,6 +6279,8 @@ int OT_API::cancelCronItem(const OTIdentifier & SERVER_ID,
         theMessage.m_strCommand			= "notarizeTransactions";
         theMessage.m_strNymID			= strNymID;
         theMessage.m_strServerID		= strServerID;
+        theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
         theMessage.m_strAcctID			= str_ASSET_ACCT_ID;
         theMessage.m_ascPayload			= ascLedger;
         
@@ -6490,6 +6524,8 @@ int OT_API::issueMarketOffer(const OTIdentifier	& SERVER_ID,
 			theMessage.m_strCommand			= "notarizeTransactions";
 			theMessage.m_strNymID			= strNymID;
 			theMessage.m_strServerID		= strServerID;
+            theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 			theMessage.m_strAcctID			= str_ASSET_ACCT_ID;
 			theMessage.m_ascPayload			= ascLedger;
 			
@@ -6571,7 +6607,8 @@ int OT_API::getMarketList(const OTIdentifier & SERVER_ID, const OTIdentifier & U
 	theMessage.m_strCommand			= "getMarketList";
 	theMessage.m_strNymID			= strNymID;
 	theMessage.m_strServerID		= strServerID;
-	
+    theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 	// (2) Sign the Message 
 	theMessage.SignContract(*pNym);		
 	
@@ -6626,6 +6663,8 @@ int OT_API::getMarketOffers(const OTIdentifier & SERVER_ID, const OTIdentifier &
 	theMessage.m_strCommand			= "getMarketOffers";
 	theMessage.m_strNymID			= strNymID;
 	theMessage.m_strServerID		= strServerID;
+    theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 	theMessage.m_strNymID2			= strMarketID;
 	theMessage.m_lDepth				= lDepth;
 	
@@ -6683,6 +6722,8 @@ int OT_API::getMarketRecentTrades(const OTIdentifier & SERVER_ID, const OTIdenti
 	theMessage.m_strCommand			= "getMarketRecentTrades";
 	theMessage.m_strNymID			= strNymID;
 	theMessage.m_strServerID		= strServerID;
+    theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 	theMessage.m_strNymID2			= strMarketID;
 	
 	// (2) Sign the Message 
@@ -6739,6 +6780,7 @@ int OT_API::getNym_MarketOffers(const OTIdentifier & SERVER_ID, const OTIdentifi
 	theMessage.m_strCommand			= "getNym_MarketOffers";
 	theMessage.m_strNymID			= strNymID;
 	theMessage.m_strServerID		= strServerID;
+    theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
 	
 	// (2) Sign the Message 
 	theMessage.SignContract(*pNym);		
@@ -6894,6 +6936,8 @@ int OT_API::notarizeTransfer(OTIdentifier	& SERVER_ID,
 			theMessage.m_strCommand			= "notarizeTransactions";
 			theMessage.m_strNymID			= strNymID;
 			theMessage.m_strServerID		= strServerID;
+            theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 			theMessage.m_strAcctID			= strFromAcct;
 			theMessage.m_ascPayload			= ascLedger;
 			
@@ -6963,6 +7007,7 @@ int OT_API::getNymbox(OTIdentifier & SERVER_ID,
 	theMessage.m_strCommand			= "getNymbox";
 	theMessage.m_strNymID			= strNymID;
 	theMessage.m_strServerID		= strServerID;
+    theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
 	
 	// (2) Sign the Message 
 	theMessage.SignContract(*pNym);		
@@ -7014,6 +7059,8 @@ int OT_API::getInbox(OTIdentifier & SERVER_ID,
 	theMessage.m_strCommand			= "getInbox";
 	theMessage.m_strNymID			= strNymID;
 	theMessage.m_strServerID		= strServerID;
+    theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 	theMessage.m_strAcctID			= strAcctID;
 	
 	// (2) Sign the Message 
@@ -7067,6 +7114,8 @@ int OT_API::getOutbox(OTIdentifier & SERVER_ID,
 	theMessage.m_strCommand			= "getOutbox";
 	theMessage.m_strNymID			= strNymID;
 	theMessage.m_strServerID		= strServerID;
+    theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 	theMessage.m_strAcctID			= strAcctID;
 	
 	// (2) Sign the Message 
@@ -7231,6 +7280,8 @@ int OT_API::processInbox(OTIdentifier	& SERVER_ID,
 	theMessage.m_strCommand			= "processInbox";
 	theMessage.m_strNymID			= strNymID;
 	theMessage.m_strServerID		= strServerID;
+    theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 	theMessage.m_strAcctID			= strAcctID;
 	
 	// Presumably ACCT_LEDGER was already set up before this function was called...
@@ -7311,7 +7362,8 @@ int OT_API::issueAssetType(OTIdentifier	&	SERVER_ID,
 		theMessage.m_strCommand			= "issueAssetType";
 		theMessage.m_strNymID			= strNymID;
 		theMessage.m_strServerID		= strServerID;
-		
+        theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 		newID.GetString(theMessage.m_strAssetID);
 		OTString strAssetContract(theAssetContract);
 		theMessage.m_ascPayload.SetString(strAssetContract);
@@ -7396,6 +7448,8 @@ int OT_API::getContract(OTIdentifier & SERVER_ID,
 	theMessage.m_strCommand			= "getContract";
 	theMessage.m_strNymID			= strNymID;
 	theMessage.m_strServerID		= strServerID;
+    theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 	theMessage.m_strAssetID			= strAssetTypeID;
 	
 	// (2) Sign the Message 
@@ -7451,6 +7505,8 @@ int OT_API::getMint(OTIdentifier & SERVER_ID,
 	theMessage.m_strCommand			= "getMint";
 	theMessage.m_strNymID			= strNymID;
 	theMessage.m_strServerID		= strServerID;
+    theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 	theMessage.m_strAssetID			= strAssetTypeID;
 	
 	// (2) Sign the Message 
@@ -7577,6 +7633,8 @@ int OT_API::queryAssetTypes(OTIdentifier & SERVER_ID,
 	theMessage.m_strCommand			= "queryAssetTypes";
 	theMessage.m_strNymID			= strNymID;
 	theMessage.m_strServerID		= strServerID;
+    theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 	theMessage.m_ascPayload			= ENCODED_MAP;
 	
 	// (2) Sign the Message 
@@ -7629,6 +7687,8 @@ int OT_API::createAssetAccount(OTIdentifier & SERVER_ID,
 	theMessage.m_strCommand			= "createAccount";
 	theMessage.m_strNymID			= strNymID;
 	theMessage.m_strServerID		= strServerID;
+    theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 	theMessage.m_strAssetID			= strAssetTypeID;
 	
 	// (2) Sign the Message 
@@ -7681,6 +7741,8 @@ int OT_API::deleteAssetAccount(OTIdentifier & SERVER_ID,
 	theMessage.m_strCommand			= "deleteAssetAccount";
 	theMessage.m_strNymID			= strNymID;
 	theMessage.m_strServerID		= strServerID;
+    theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 	theMessage.m_strAcctID			= strAcctID;
 	
 	// (2) Sign the Message 
@@ -7762,6 +7824,8 @@ int OT_API::getBoxReceipt(const OTIdentifier & SERVER_ID,
 	theMessage.m_strCommand			= "getBoxReceipt";
 	theMessage.m_strNymID			= strNymID;
 	theMessage.m_strServerID		= strServerID;
+    theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 	theMessage.m_strAcctID			= strAcctID;
 	theMessage.m_lDepth				= static_cast<long>(nBoxType);
 	theMessage.m_lTransactionNum	= lTransactionNum;
@@ -7818,6 +7882,8 @@ int OT_API::getAccount(OTIdentifier	& SERVER_ID,
 	theMessage.m_strCommand			= "getAccount";
 	theMessage.m_strNymID			= strNymID;
 	theMessage.m_strServerID		= strServerID;
+    theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
 	theMessage.m_strAcctID			= strAcctID;
 	
 	// (2) Sign the Message 
@@ -7908,6 +7974,7 @@ int OT_API::usageCredits(const OTIdentifier &	SERVER_ID,
 	theMessage.m_strNymID			= strNymID;
 	theMessage.m_strNymID2			= strNymID2;
 	theMessage.m_strServerID		= strServerID;
+    theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
 	
 	theMessage.m_lDepth				= lAdjustment; // Default is "no adjustment" (@usageCredits returns current balance regardless.)
 	
@@ -7958,6 +8025,7 @@ int OT_API::checkUser(OTIdentifier & SERVER_ID,
 	theMessage.m_strNymID			= strNymID;
 	theMessage.m_strNymID2			= strNymID2;
 	theMessage.m_strServerID		= strServerID;
+    theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
 	
 	// (2) Sign the Message 
 	theMessage.SignContract(*pNym);		
@@ -8008,6 +8076,7 @@ int OT_API::sendUserMessage(OTIdentifier	& SERVER_ID,
 	theMessage.m_strNymID			= strNymID;
 	theMessage.m_strNymID2			= strNymID2;
 	theMessage.m_strServerID		= strServerID;
+    theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
 	
 	OTEnvelope theEnvelope;
 	OTAsymmetricKey thePubkey;
@@ -8105,6 +8174,7 @@ int OT_API::sendUserInstrument(OTIdentifier	& SERVER_ID,
 	theMessage.m_strNymID			= strNymID;
 	theMessage.m_strNymID2			= strNymID2;
 	theMessage.m_strServerID		= strServerID;
+    theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
 	
 	OTEnvelope theEnvelope;
 	OTAsymmetricKey thePubkey;

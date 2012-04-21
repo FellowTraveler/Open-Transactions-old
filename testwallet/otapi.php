@@ -559,6 +559,10 @@ abstract class otapi {
 		return OT_API_Transaction_GetType($SERVER_ID,$USER_ID,$ACCOUNT_ID,$THE_TRANSACTION);
 	}
 
+	static function OT_API_ReplyNotice_GetRequestNum($SERVER_ID,$USER_ID,$THE_TRANSACTION) {
+		return OT_API_ReplyNotice_GetRequestNum($SERVER_ID,$USER_ID,$THE_TRANSACTION);
+	}
+
 	static function OT_API_Transaction_GetVoucher($SERVER_ID,$USER_ID,$ACCOUNT_ID,$THE_TRANSACTION) {
 		return OT_API_Transaction_GetVoucher($SERVER_ID,$USER_ID,$ACCOUNT_ID,$THE_TRANSACTION);
 	}
@@ -833,6 +837,10 @@ abstract class otapi {
 
 	static function OT_API_Nymbox_GetReplyNotice($SERVER_ID,$USER_ID,$REQUEST_NUMBER) {
 		return OT_API_Nymbox_GetReplyNotice($SERVER_ID,$USER_ID,$REQUEST_NUMBER);
+	}
+
+	static function OT_API_HaveAlreadySeenReply($SERVER_ID,$USER_ID,$REQUEST_NUMBER) {
+		return OT_API_HaveAlreadySeenReply($SERVER_ID,$USER_ID,$REQUEST_NUMBER);
 	}
 
 	static function OT_API_getBoxReceipt($SERVER_ID,$USER_ID,$ACCOUNT_ID,$nBoxType,$TRANSACTION_NUMBER) {

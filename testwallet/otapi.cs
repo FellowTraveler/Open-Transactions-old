@@ -661,6 +661,11 @@ public class otapi {
     return ret;
   }
 
+  public static string OT_API_ReplyNotice_GetRequestNum(string SERVER_ID, string USER_ID, string THE_TRANSACTION) {
+    string ret = otapiPINVOKE.OT_API_ReplyNotice_GetRequestNum(SERVER_ID, USER_ID, THE_TRANSACTION);
+    return ret;
+  }
+
   public static string OT_API_Transaction_GetVoucher(string SERVER_ID, string USER_ID, string ACCOUNT_ID, string THE_TRANSACTION) {
     string ret = otapiPINVOKE.OT_API_Transaction_GetVoucher(SERVER_ID, USER_ID, ACCOUNT_ID, THE_TRANSACTION);
     return ret;
@@ -1003,6 +1008,11 @@ public class otapi {
 
   public static string OT_API_Nymbox_GetReplyNotice(string SERVER_ID, string USER_ID, string REQUEST_NUMBER) {
     string ret = otapiPINVOKE.OT_API_Nymbox_GetReplyNotice(SERVER_ID, USER_ID, REQUEST_NUMBER);
+    return ret;
+  }
+
+  public static int OT_API_HaveAlreadySeenReply(string SERVER_ID, string USER_ID, string REQUEST_NUMBER) {
+    int ret = otapiPINVOKE.OT_API_HaveAlreadySeenReply(SERVER_ID, USER_ID, REQUEST_NUMBER);
     return ret;
   }
 

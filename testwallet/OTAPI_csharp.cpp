@@ -2693,6 +2693,22 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_Transaction_GetType(char * jarg1, ch
 }
 
 
+SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_ReplyNotice_GetRequestNum(char * jarg1, char * jarg2, char * jarg3) {
+  char * jresult ;
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  char *result = 0 ;
+  
+  arg1 = (char *)jarg1; 
+  arg2 = (char *)jarg2; 
+  arg3 = (char *)jarg3; 
+  result = (char *)OT_API_ReplyNotice_GetRequestNum((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  jresult = SWIG_csharp_string_callback((const char *)result); 
+  return jresult;
+}
+
+
 SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_Transaction_GetVoucher(char * jarg1, char * jarg2, char * jarg3, char * jarg4) {
   char * jresult ;
   char *arg1 = (char *) 0 ;
@@ -3817,6 +3833,22 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_Nymbox_GetReplyNotice(char * jarg1, 
   arg3 = (char *)jarg3; 
   result = (char *)OT_API_Nymbox_GetReplyNotice((char const *)arg1,(char const *)arg2,(char const *)arg3);
   jresult = SWIG_csharp_string_callback((const char *)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT int SWIGSTDCALL CSharp_OT_API_HaveAlreadySeenReply(char * jarg1, char * jarg2, char * jarg3) {
+  int jresult ;
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  int result;
+  
+  arg1 = (char *)jarg1; 
+  arg2 = (char *)jarg2; 
+  arg3 = (char *)jarg3; 
+  result = (int)OT_API_HaveAlreadySeenReply((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  jresult = result; 
   return jresult;
 }
 

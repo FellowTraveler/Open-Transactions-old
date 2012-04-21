@@ -529,6 +529,10 @@ public class otapi implements otapiConstants {
     return otapiJNI.OT_API_Transaction_GetType(SERVER_ID, USER_ID, ACCOUNT_ID, THE_TRANSACTION);
   }
 
+  public static String OT_API_ReplyNotice_GetRequestNum(String SERVER_ID, String USER_ID, String THE_TRANSACTION) {
+    return otapiJNI.OT_API_ReplyNotice_GetRequestNum(SERVER_ID, USER_ID, THE_TRANSACTION);
+  }
+
   public static String OT_API_Transaction_GetVoucher(String SERVER_ID, String USER_ID, String ACCOUNT_ID, String THE_TRANSACTION) {
     return otapiJNI.OT_API_Transaction_GetVoucher(SERVER_ID, USER_ID, ACCOUNT_ID, THE_TRANSACTION);
   }
@@ -803,6 +807,10 @@ public class otapi implements otapiConstants {
 
   public static String OT_API_Nymbox_GetReplyNotice(String SERVER_ID, String USER_ID, String REQUEST_NUMBER) {
     return otapiJNI.OT_API_Nymbox_GetReplyNotice(SERVER_ID, USER_ID, REQUEST_NUMBER);
+  }
+
+  public static int OT_API_HaveAlreadySeenReply(String SERVER_ID, String USER_ID, String REQUEST_NUMBER) {
+    return otapiJNI.OT_API_HaveAlreadySeenReply(SERVER_ID, USER_ID, REQUEST_NUMBER);
   }
 
   public static int OT_API_getBoxReceipt(String SERVER_ID, String USER_ID, String ACCOUNT_ID, int nBoxType, String TRANSACTION_NUMBER) {

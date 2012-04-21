@@ -1086,7 +1086,7 @@ mapOfTransactions & OTLedger::GetTransactionMap()
 }
 
 /// If transaction #87, in reference to #74, is in the inbox, you can remove it
-/// by calling this function and passing in 87.
+/// by calling this function and passing in 87. Deletes.
 ///
 bool OTLedger::RemoveTransaction(long lTransactionNum) // if false, transaction wasn't found.
 {

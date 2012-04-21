@@ -564,6 +564,8 @@ public:
                                         OTLedger     &  THE_NYMBOX);
 	// ------------------------------------------------------
 
+    bool HaveAlreadySeenReply(OTIdentifier & SERVER_ID, OTIdentifier & USER_ID, const long & lRequestNumber);
+
 	bool ResyncNymWithServer(OTPseudonym & theNym, OTLedger & theNymbox, OTPseudonym & theMessageNym);
 
 	// ****************************************************

@@ -1435,6 +1435,18 @@ const char * OT_API_Transaction_GetType(const char * SERVER_ID,
 										const char * THE_TRANSACTION);
 
 
+// Transactions do not have request numbers. However, if you have a replyNotice
+// in your Nymbox, which is an OTTransaction object, it will CONTAIN a server
+// reply to some previous message. This function will only work on a replyNotice,
+// and it returns the actual request number of the server reply inside that notice.
+// Used for calling OT_API_HaveAlreadySeenReply() in order to see if we've already
+// processed the reply for that message.
+//
+const char * OT_API_ReplyNotice_GetRequestNum(const char * SERVER_ID,
+                                              const char * USER_ID,
+                                              const char * THE_TRANSACTION);
+
+
 
 // --------------------------------------------------------------------
 /// Retrieve Voucher from Transaction
@@ -2547,6 +2559,29 @@ const char * OT_API_Nymbox_GetReplyNotice(const char * SERVER_ID,
                                           const char * REQUEST_NUMBER); // returns replyNotice transaction by requestNumber.
 
 
+// If the client-side has ALREADY seen the server's reply to a specific
+// request number, he stores that number in a list which can be queried
+// using this function.  A copy of that list is sent with nearly every request
+// message sent to the server.  This way the server can see which replies you
+// have already received. The server will mirror every number it sees (it sends
+// its own list in all its replies.) Whenever you see a number mirrored in the
+// server's reply, that means the server now knows you got its original reply
+// (the one referenced by the number) and the server removed any replyNotice
+// of that from your Nymbox (so you don't have to download it.) Basically that
+// means you can go ahead and remove it from your list, and once you do, the server
+// will remove its matching copy as well.
+// When you are downloading your box receipts, you can skip any receipts where
+// you have ALREADY seen the reply. So you can use this function to see if you already
+// saw it, and if you did, then you can skip downloading that box receipt.
+// Warning: this function isn't "perfect", in the sense that it cannot tell you definitively
+// whether you have actually seen a server reply, but it CAN tell you if you have seen
+// one until it finishes the above-described protocol (it will work in that way, which is
+// how it was intended.) But after that, it will no longer know if you got the reply since
+// it has removed it from its list.
+// returns OT_BOOL.
+int OT_API_HaveAlreadySeenReply(const char * SERVER_ID,
+                                const char * USER_ID,
+                                const char * REQUEST_NUMBER); // returns OT_BOOL
 
 /// The Nymbox/Inbox/Outbox only contain abbreviated receipts, with a hash for zero-knowledge
 /// proof of the entire receipt. (Messages were getting too big, it couldn't be helped. Sorry.)

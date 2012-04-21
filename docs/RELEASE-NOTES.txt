@@ -3,12 +3,16 @@ NOTES on the Version:
 
 // --------------------------------------------------------------------
 
+   0.80c--- Added synchronization code to reduce the number of box receipts
+            needing to be downloaded. (Should speed things up a bit.)
+            Download the latest Moneychanger!
+
    0.80 --- Contracts are now serialized in ascii-armored form, instead 
             of clear-signed form (for cross-platform capabilities.)
             OT is still able to read the clear-signed versions, so it 
             should support old data.
             Some more hiccups were fixed since the big synchronization
-            changes were added. Download latest Moneychanger!
+            changes were added.
 
    0.79 --- * Inbox, Outbox, and Nymbox now are hashed, with the hashes
             sent to the client on certain server reply messages. The client

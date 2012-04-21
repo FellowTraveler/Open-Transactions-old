@@ -249,6 +249,49 @@ bool OTMessage::HarvestTransactionNumbers(      OTPseudonym &  theNym,
 }
 
 
+
+
+// So the message can get the list of numbers from the Nym, before sending,
+// that should be listed as acknowledged that the server reply has already been
+// seen for those request numbers.
+// IMPORTANT NOTE: The Server ID is used to lookup the numbers from the Nym. Therefore,
+// make sure that OTMessage::m_strServerID is set BEFORE calling this function. (It will
+// ASSERT if you don't...)
+//
+void OTMessage::SetAcknowledgments(OTPseudonym & theNym)
+{
+    m_AcknowledgedReplies.Release();
+    // -------------------
+    
+    const OTIdentifier theServerID(m_strServerID);
+    
+    FOR_EACH(mapOfTransNums, theNym.GetMapAcknowledgedNum())
+	{	
+        std::string	strServerID		= (*it).first;
+		dequeOfTransNums * pDeque	= (it->second);
+		
+        OT_ASSERT(NULL != pDeque);
+		
+        OTString OTstrServerID = strServerID.c_str();
+        const OTIdentifier theTempID(OTstrServerID);
+		
+		if (!(pDeque->empty()) && (theServerID == theTempID) ) // only for the matching serverID.
+		{
+			for (unsigned i = 0; i < pDeque->size(); i++)
+			{
+				const long lAckRequestNumber = pDeque->at(i);
+				
+                m_AcknowledgedReplies.Add(lAckRequestNumber);
+			}
+            break;  // We found it! Might as well break out.
+		}
+	} // for
+	// ----------------------------------
+}
+
+
+
+
 // The framework (OTContract) will call this function at the appropriate time.
 // OTMessage is special because it actually does something here, when most contracts
 // are read-only and thus never update their contents. 
@@ -1833,12 +1876,32 @@ void OTMessage::UpdateContents()
 
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
 	} 
+	// ------------------------------------------------------------------------
+	
+    // ACKNOWLEDGED REQUEST NUMBERS
+    //
+    // (For reducing the number of box receipts for replyNotices that must be downloaded.)
+    //
+    // Client keeps a list of server replies he's already seen.
+    // Server keeps a list of numbers the client has provided on HIS list (server has removed those from Nymbox).
+    //
+    // (Each sends his respective list in every message.)
+    //
+    // Client removes any number he sees on the server's list.
+    // Server removes any number he sees the client has also removed.
+    //
+    
+    if (m_AcknowledgedReplies.Count() > 0)
+    {
+        OTString strAck;
+        if (m_AcknowledgedReplies.Output(strAck))
+            m_xmlUnsigned.Concatenate("<acknowledgedReplies>%s</acknowledgedReplies>\n\n", strAck.Get());
+    }
+	
 	
 	// ------------------------------------------------------------------------
 	
-	
-	
-	m_xmlUnsigned.Concatenate("</OTmessage>\n");
+    m_xmlUnsigned.Concatenate("</OTmessage>\n");
 }
 
 
@@ -1865,10 +1928,35 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	// -- Note you can choose not to call the parent if
 	// you don't want to use any of those xml tags.
 	// As I do below, in the case of OTAccount.
-	//if (nReturnVal = OTContract::ProcessXMLNode(xml))
-	//	return nReturnVal;
+    //
+	// if (nReturnVal = OTContract::ProcessXMLNode(xml))
+    //	  return nReturnVal;
 	
-	if (!strcmp("OTmessage", xml->getNodeName())) 
+    // --------------------------------------------------
+    
+    const OTString strNodeName(xml->getNodeName());
+    
+    // *******************************************************************************************
+    
+	if (strNodeName.Compare("acknowledgedReplies")) 
+    {        
+        xml->read();
+        
+        if (EXN_TEXT == xml->getNodeType())
+        {
+            const OTString strNodeData = xml->getNodeData();
+            m_AcknowledgedReplies.Release();
+            if (strNodeData.Exists())
+                m_AcknowledgedReplies.Add(strNodeData);
+        }
+        // else log: unexpected missing string of comma-separated request numbers.
+        
+		nReturnVal = 1;        
+    }
+
+    // *******************************************************************************************
+    
+	else if (strNodeName.Compare("OTmessage")) 
 	{
 		m_strVersion = xml->getAttributeValue("version");
 		
@@ -1878,7 +1966,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	}
 	// -------------------------------------------------------------------------------------------
 		
-	else if (!strcmp("getMarketList", xml->getNodeName())) 
+	else if (strNodeName.Compare("getMarketList")) 
 	{		
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strNymID		= xml->getAttributeValue("nymID");
@@ -1893,7 +1981,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// -------------------------------------------------------------------------------------------
 	
-	else if (!strcmp("@getMarketList", xml->getNodeName())) 
+	else if (strNodeName.Compare("@getMarketList")) 
 	{		
 //        std::cerr << m_xmlUnsigned.Get() << std::endl;
 
@@ -1957,7 +2045,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// -------------------------------------------------------------------------------------------
 		
-	else if (!strcmp("getMarketOffers", xml->getNodeName())) 
+	else if (strNodeName.Compare("getMarketOffers")) 
 	{		
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strNymID		= xml->getAttributeValue("nymID");
@@ -1979,7 +2067,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// -------------------------------------------------------------------------------------------
 	
-	else if (!strcmp("@getMarketOffers", xml->getNodeName())) 
+	else if (strNodeName.Compare("@getMarketOffers")) 
 	{		
 		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
@@ -2043,7 +2131,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// -------------------------------------------------------------------------------------------
 	
-	else if (!strcmp("getMarketRecentTrades", xml->getNodeName())) 
+	else if (strNodeName.Compare("getMarketRecentTrades")) 
 	{		
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strNymID		= xml->getAttributeValue("nymID");
@@ -2060,7 +2148,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// -------------------------------------------------------------------------------------------
 	
-	else if (!strcmp("@getMarketRecentTrades", xml->getNodeName())) 
+	else if (strNodeName.Compare("@getMarketRecentTrades")) 
 	{		
 		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
@@ -2125,7 +2213,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// -------------------------------------------------------------------------------------------
 	
-	else if (!strcmp("getNym_MarketOffers", xml->getNodeName())) 
+	else if (strNodeName.Compare("getNym_MarketOffers")) 
 	{		
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strNymID		= xml->getAttributeValue("nymID");
@@ -2140,7 +2228,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// -------------------------------------------------------------------------------------------
 	
-	else if (!strcmp("@getNym_MarketOffers", xml->getNodeName())) 
+	else if (strNodeName.Compare("@getNym_MarketOffers")) 
 	{		
 		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
@@ -2206,7 +2294,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
     // NOTE: the below two messages are not going to be used. TODO: remove them.
 	// ------------------------------------------------------------------------
 	/*
-	else if (!strcmp("getOffer_Trades", xml->getNodeName())) 
+	else if (strNodeName.Compare("getOffer_Trades")) 
 	{		
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strNymID		= xml->getAttributeValue("nymID");
@@ -2226,7 +2314,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// -------------------------------------------------------------------------------------------
 	
-	else if (!strcmp("@getOffer_Trades", xml->getNodeName())) 
+	else if (strNodeName.Compare("@getOffer_Trades")) 
 	{		
 		OTString strSuccess, strTransactionNum;
 		strSuccess		= xml->getAttributeValue("success");
@@ -2286,7 +2374,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
     
 	// -------------------------------------------------------------------------------------------
 
-	else if (!strcmp("checkServerID", xml->getNodeName())) 
+	else if (strNodeName.Compare("checkServerID")) 
 	{		
 		m_strCommand	= xml->getNodeName();  // Command
         m_strRequestNum = xml->getAttributeValue("requestNum");
@@ -2318,7 +2406,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// -------------------------------------------------------------------------------------------
 
-	else if (!strcmp("@checkServerID", xml->getNodeName())) 
+	else if (strNodeName.Compare("@checkServerID")) 
 	{	
 		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
@@ -2342,7 +2430,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// -------------------------------------------------------------------------------------------
 	
-	else if (!strcmp("createUserAccount", xml->getNodeName())) 
+	else if (strNodeName.Compare("createUserAccount")) 
 	{		
 		m_strCommand	= xml->getNodeName();  // Command
         m_strRequestNum = xml->getAttributeValue("requestNum");
@@ -2375,7 +2463,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	// -------------------------------------------------------------------------------------------
 	
 	
-	else if (!strcmp("@createUserAccount", xml->getNodeName())) 
+	else if (strNodeName.Compare("@createUserAccount")) 
 	{		
 		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
@@ -2429,7 +2517,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
     
 	// -------------------------------------------------------------------------------------------
 	
-	else if (!strcmp("deleteUserAccount", xml->getNodeName())) 
+	else if (strNodeName.Compare("deleteUserAccount")) 
 	{		
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strNymID		= xml->getAttributeValue("nymID");
@@ -2447,7 +2535,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	// -------------------------------------------------------------------------------------------
 	
 	
-	else if (!strcmp("@deleteUserAccount", xml->getNodeName())) 
+	else if (strNodeName.Compare("@deleteUserAccount")) 
 	{		
 		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
@@ -2486,7 +2574,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	// -------------------------------------------------------------------------------------------
 
 	
-	else if (!strcmp("getRequest", xml->getNodeName())) 
+	else if (strNodeName.Compare("getRequest")) 
 	{		
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strRequestNum	= xml->getAttributeValue("requestNum");
@@ -2501,7 +2589,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// -------------------------------------------------------------------------------------------
 	
-	else if (!strcmp("@getRequest", xml->getNodeName())) 
+	else if (strNodeName.Compare("@getRequest")) 
 	{	
 		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
@@ -2530,8 +2618,8 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// -------------------------------------------------------------------------------------------
 	
-	else if (!strcmp("outmailMessage",      xml->getNodeName()) ||
-             !strcmp("outpaymentsMessage",  xml->getNodeName()))
+	else if (strNodeName.Compare("outmailMessage") ||
+             strNodeName.Compare("outpaymentsMessage"))
 	{		
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strNymID		= xml->getAttributeValue("nymID");
@@ -2563,7 +2651,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	// -------------------------------------------------------------------------------------------
 	
 	
-	else if (!strcmp("sendUserMessage", xml->getNodeName())) 
+	else if (strNodeName.Compare("sendUserMessage")) 
 	{		
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strNymID		= xml->getAttributeValue("nymID");
@@ -2590,7 +2678,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// -------------------------------------------------------------------------------------------
 	
-	else if (!strcmp("@sendUserMessage", xml->getNodeName())) 
+	else if (strNodeName.Compare("@sendUserMessage")) 
 	{		
 		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
@@ -2616,7 +2704,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// -------------------------------------------------------------------------------------------
 	
-	else if (!strcmp("sendUserInstrument", xml->getNodeName())) 
+	else if (strNodeName.Compare("sendUserInstrument")) 
 	{		
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strNymID		= xml->getAttributeValue("nymID");
@@ -2643,7 +2731,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// -------------------------------------------------------------------------------------------
 	
-	else if (!strcmp("@sendUserInstrument", xml->getNodeName())) 
+	else if (strNodeName.Compare("@sendUserInstrument")) 
 	{		
 		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
@@ -2669,7 +2757,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// -------------------------------------------------------------------------------------------
 	
-	else if (!strcmp("usageCredits", xml->getNodeName())) 
+	else if (strNodeName.Compare("usageCredits")) 
 	{		
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strNymID		= xml->getAttributeValue("nymID");
@@ -2692,7 +2780,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	}
 	// -------------------------------------------------------------------------------------------
 	
-	else if (!strcmp("@usageCredits", xml->getNodeName())) 
+	else if (strNodeName.Compare("@usageCredits")) 
 	{		
 		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
@@ -2724,7 +2812,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// -------------------------------------------------------------------------------------------
 	
-	else if (!strcmp("checkUser", xml->getNodeName())) 
+	else if (strNodeName.Compare("checkUser")) 
 	{		
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strNymID		= xml->getAttributeValue("nymID");
@@ -2740,7 +2828,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// -------------------------------------------------------------------------------------------
 	
-	else if (!strcmp("@checkUser", xml->getNodeName())) 
+	else if (strNodeName.Compare("@checkUser")) 
 	{		
 		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
@@ -2799,7 +2887,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	// -------------------------------------------------------------------------------------------
 	
 	
-	else if (!strcmp("issueAssetType", xml->getNodeName())) 
+	else if (strNodeName.Compare("issueAssetType")) 
 	{	
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strNymID		= xml->getAttributeValue("nymID");
@@ -2832,7 +2920,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// -------------------------------------------------------------------------------------------
 	
-	else if (!strcmp("@issueAssetType", xml->getNodeName())) 
+	else if (strNodeName.Compare("@issueAssetType")) 
 	{	
 		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
@@ -2911,7 +2999,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	// -------------------------------------------------------------------------------------------
 	
 	
-	else if (!strcmp("queryAssetTypes", xml->getNodeName())) 
+	else if (strNodeName.Compare("queryAssetTypes")) 
 	{	
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strNymID		= xml->getAttributeValue("nymID");
@@ -2944,7 +3032,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// -------------------------------------------------------------------------------------------
 	
-	else if (!strcmp("@queryAssetTypes", xml->getNodeName())) 
+	else if (strNodeName.Compare("@queryAssetTypes")) 
 	{	
 		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
@@ -3015,7 +3103,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	// -------------------------------------------------------------------------------------------
 	
 	
-	else if (!strcmp("createAccount", xml->getNodeName())) 
+	else if (strNodeName.Compare("createAccount")) 
 	{	
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strNymID		= xml->getAttributeValue("nymID");
@@ -3033,7 +3121,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// -------------------------------------------------------------------------------------------
 	
-	else if (!strcmp("@createAccount", xml->getNodeName())) 
+	else if (strNodeName.Compare("@createAccount")) 
 	{	
 		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
@@ -3107,7 +3195,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// -------------------------------------------------------------------------------------------
 	
-	else if (!strcmp("getBoxReceipt", xml->getNodeName())) 
+	else if (strNodeName.Compare("getBoxReceipt")) 
 	{	
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strNymID		= xml->getAttributeValue("nymID");
@@ -3147,7 +3235,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// -------------------------------------------------------------------------------------------
 	
-	else if (!strcmp("@getBoxReceipt", xml->getNodeName())) 
+	else if (strNodeName.Compare("@getBoxReceipt")) 
 	{	
 		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
@@ -3237,7 +3325,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	
 	// -------------------------------------------------------------------------------------------
-	else if (!strcmp("deleteAssetAccount", xml->getNodeName())) 
+	else if (strNodeName.Compare("deleteAssetAccount")) 
 	{	
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strNymID		= xml->getAttributeValue("nymID");
@@ -3257,7 +3345,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// -------------------------------------------------------------------------------------------
 	
-	else if (!strcmp("@deleteAssetAccount", xml->getNodeName())) 
+	else if (strNodeName.Compare("@deleteAssetAccount")) 
 	{	
 		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
@@ -3316,7 +3404,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// -------------------------------------------------------------------------------------------
 	
-	else if (!strcmp("issueBasket", xml->getNodeName())) 
+	else if (strNodeName.Compare("issueBasket")) 
 	{	
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strNymID		= xml->getAttributeValue("nymID");
@@ -3358,7 +3446,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// -------------------------------------------------------------------------------------------
 	
-	else if (!strcmp("@issueBasket", xml->getNodeName())) 
+	else if (strNodeName.Compare("@issueBasket")) 
 	{	
 		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
@@ -3418,7 +3506,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// ------------------------------------------------------------------------
 	
-	else if (!strcmp("getTransactionNum", xml->getNodeName())) 
+	else if (strNodeName.Compare("getTransactionNum")) 
 	{	
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strNymID		= xml->getAttributeValue("nymID");
@@ -3437,7 +3525,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	// -------------------------------------------------------------------------------------------
 	
 		
-	else if (!strcmp("@getTransactionNum", xml->getNodeName())) 
+	else if (strNodeName.Compare("@getTransactionNum")) 
 	{	
 		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
@@ -3464,7 +3552,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// -------------------------------------------------------------------------------------------
 	
-	else if (!strcmp("notarizeTransactions", xml->getNodeName())) 
+	else if (strNodeName.Compare("notarizeTransactions")) 
 	{	
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strNymID		= xml->getAttributeValue("nymID");
@@ -3498,7 +3586,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// -------------------------------------------------------------------------------------------
 	
-	else if (!strcmp("@notarizeTransactions", xml->getNodeName())) 
+	else if (strNodeName.Compare("@notarizeTransactions")) 
 	{	
 		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
@@ -3571,7 +3659,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// -------------------------------------------------------------------------------------------
 	
-	else if (!strcmp("getInbox", xml->getNodeName())) 
+	else if (strNodeName.Compare("getInbox")) 
 	{		
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strNymID		= xml->getAttributeValue("nymID");
@@ -3589,7 +3677,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	// -------------------------------------------------------------------------------------------
 	
 	
-	else if (!strcmp("getNymbox", xml->getNodeName())) 
+	else if (strNodeName.Compare("getNymbox")) 
 	{		
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strNymID		= xml->getAttributeValue("nymID");
@@ -3606,7 +3694,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	// -------------------------------------------------------------------------------------------
 	
 	
-	else if (!strcmp("@getInbox", xml->getNodeName())) 
+	else if (strNodeName.Compare("@getInbox")) 
 	{		
 		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
@@ -3659,7 +3747,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	
 	
-	else if (!strcmp("@getNymbox", xml->getNodeName())) 
+	else if (strNodeName.Compare("@getNymbox")) 
 	{		
 		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
@@ -3711,7 +3799,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	
 	
-	else if (!strcmp("getOutbox", xml->getNodeName())) 
+	else if (strNodeName.Compare("getOutbox")) 
 	{		
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strNymID		= xml->getAttributeValue("nymID");
@@ -3729,7 +3817,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	// -------------------------------------------------------------------------------------------
 	
 	
-	else if (!strcmp("@getOutbox", xml->getNodeName())) 
+	else if (strNodeName.Compare("@getOutbox")) 
 	{		
 		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
@@ -3781,7 +3869,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	// -------------------------------------------------------------------------------------------
 
 	
-	else if (!strcmp("getAccount", xml->getNodeName())) 
+	else if (strNodeName.Compare("getAccount")) 
 	{		
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strNymID		= xml->getAttributeValue("nymID");
@@ -3799,7 +3887,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	// -------------------------------------------------------------------------------------------
 	
 	
-	else if (!strcmp("@getAccount", xml->getNodeName())) 
+	else if (strNodeName.Compare("@getAccount")) 
 	{		
 		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
@@ -3852,7 +3940,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// ------------------------------------------------------------------------
 	
-	else if (!strcmp("getContract", xml->getNodeName())) 
+	else if (strNodeName.Compare("getContract")) 
 	{		
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strNymID		= xml->getAttributeValue("nymID");
@@ -3870,7 +3958,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	// -------------------------------------------------------------------------------------------
 	
 	
-	else if (!strcmp("@getContract", xml->getNodeName())) 
+	else if (strNodeName.Compare("@getContract")) 
 	{		
 		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
@@ -3923,7 +4011,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// ------------------------------------------------------------------------
 	
-	else if (!strcmp("getMint", xml->getNodeName())) 
+	else if (strNodeName.Compare("getMint")) 
 	{		
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strNymID		= xml->getAttributeValue("nymID");
@@ -3942,7 +4030,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// the Payload contains an ascii-armored OTMint object.
 	
-	else if (!strcmp("@getMint", xml->getNodeName())) 
+	else if (strNodeName.Compare("@getMint")) 
 	{		
 		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
@@ -3991,7 +4079,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// -------------------------------------------------------------------------------------------
 		
-	else if (!strcmp("triggerClause", xml->getNodeName())) 
+	else if (strNodeName.Compare("triggerClause")) 
 	{		
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strNymID		= xml->getAttributeValue("nymID");
@@ -4032,7 +4120,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// ------------------------------------------------------------------------
 
-	else if (!strcmp("@triggerClause", xml->getNodeName())) 
+	else if (strNodeName.Compare("@triggerClause")) 
 	{		
 		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
@@ -4078,7 +4166,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	// -------------------------------------------------------------------------------------------
 	
 	
-	else if (!strcmp("processInbox", xml->getNodeName())) 
+	else if (strNodeName.Compare("processInbox")) 
 	{	
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strNymID		= xml->getAttributeValue("nymID");
@@ -4114,7 +4202,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	// -------------------------------------------------------------------------------------------
 	
 	
-	else if (!strcmp("processNymbox", xml->getNodeName())) 
+	else if (strNodeName.Compare("processNymbox")) 
 	{	
 		m_strCommand	= xml->getNodeName();  // Command
 		m_strNymID		= xml->getAttributeValue("nymID");
@@ -4147,7 +4235,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	// -------------------------------------------------------------------------------------------
 	
-	else if (!strcmp("@processInbox", xml->getNodeName())) 
+	else if (strNodeName.Compare("@processInbox")) 
 	{	
 		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
@@ -4218,7 +4306,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	// -------------------------------------------------------------------------------------------
 	
 	
-	else if (!strcmp("@processNymbox", xml->getNodeName())) 
+	else if (strNodeName.Compare("@processNymbox")) 
 	{	
 		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
@@ -4403,7 +4491,7 @@ bool OTMessage::SaveContractWallet(FILE * fl)
 */
 
 /*
- else if (!strcmp("condition", xml->getNodeName()))
+ else if (strNodeName.Compare("condition"))
  {
  strConditionName  = xml->getAttributeValue("name");
  

@@ -175,6 +175,17 @@ public:
                                    const bool           bTransactionWasSuccess,  // false until positively asserted.
                                    const bool           bTransactionWasFailure); // false until positively asserted.
     
+    // So the message can get the list of numbers from the Nym, before sending,
+    // that should be listed as acknowledged that the server reply has already been
+    // seen for those request numbers.
+    // IMPORTANT NOTE: The Server ID is used to lookup the numbers from the Nym. Therefore,
+    // make sure that OTMessage::m_strServerID is set BEFORE calling this function. (It will
+    // ASSERT if you don't...)
+    //
+    void SetAcknowledgments(OTPseudonym & theNym);
+    
+    // ----------------------------------------------------------
+    
 	OTString	m_strCommand;		// perhaps @register is the string for "reply to register" a-ha
 	OTString	m_strServerID;		// This is sent with every message for security reasons.
 	OTString	m_strNymID;			// The hash of the user's public key... or x509 cert.
@@ -195,6 +206,12 @@ public:
 									// or a message envelope or request from another user etc) then
 									// it can be put here in ascii-armored format.
 
+    // This list of request numbers is stored for optimization, so client/server can communicate about
+    // which messages have been received, and can avoid certain downloads, such as replyNotice Box Receipts.
+    //
+    OTNumList   m_AcknowledgedReplies;  // Client request: list of server replies client has already seen.
+                                        // Server reply:   list of client-acknowledged replies (so client knows that server knows.)
+    
     long        m_lNewRequestNum;   // If you are SENDING a message, you set m_strRequestNum. (For all msgs.)
                                     // Server Reply for all messages copies that same number into m_strRequestNum;
                                     // But if this is a SERVER REPLY to the "getRequestNumber" MESSAGE, the

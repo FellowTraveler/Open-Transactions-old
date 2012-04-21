@@ -5164,6 +5164,51 @@ const char * OT_API_Nymbox_GetReplyNotice(const char * SERVER_ID,
 
 
 
+// If the client-side has ALREADY seen the server's reply to a specific
+// request number, he stores that number in a list which can be queried
+// using this function.  A copy of that list is sent with nearly every request
+// message sent to the server.  This way the server can see which replies you
+// have already received. The server will mirror every number it sees (it sends
+// its own list in all its replies.) Whenever you see a number mirrored in the
+// server's reply, that means the server now knows you got its original reply
+// (the one referenced by the number) and the server removed any replyNotice
+// of that from your Nymbox (so you don't have to download it.) Basically that
+// means you can go ahead and remove it from your list, and once you do, the server
+// will remove its matching copy as well.
+// When you are downloading your box receipts, you can skip any receipts where
+// you have ALREADY seen the reply. So you can use this function to see if you already
+// saw it, and if you did, then you can skip downloading that box receipt.
+// Warning: this function isn't "perfect", in the sense that it cannot tell you definitively
+// whether you have actually seen a server reply, but it CAN tell you if you have seen
+// one until it finishes the above-described protocol (it will work in that way, which is
+// how it was intended.) But after that, it will no longer know if you got the reply since
+// it has removed it from its list.
+//
+OT_BOOL OT_API_HaveAlreadySeenReply(const char * SERVER_ID,
+                                    const char * USER_ID,
+                                    const char * REQUEST_NUMBER) // returns OT_BOOL
+{
+	OT_ASSERT_MSG(NULL != SERVER_ID,        "OT_API_HaveAlreadySeenReply: Null SERVER_ID passed in.");
+	OT_ASSERT_MSG(NULL != USER_ID,          "OT_API_HaveAlreadySeenReply: Null USER_ID passed in.");
+	OT_ASSERT_MSG(NULL != REQUEST_NUMBER,   "OT_API_HaveAlreadySeenReply: Null REQUEST_NUMBER passed in.");
+	
+	OTIdentifier theServerID(SERVER_ID);
+	OTIdentifier theUserID(USER_ID);
+	
+    const long lRequestNumber = atol(REQUEST_NUMBER);
+    
+    const char * szFunc = "OT_API_HaveAlreadySeenReply";
+    // -----------------------------------------
+    
+	// There is an OT_ASSERT in here for memory failure,
+	// but it still might return NULL if various verification fails.
+    
+	const bool bTemp = g_OT_API.HaveAlreadySeenReply(theServerID, theUserID, lRequestNumber);
+    
+	return bTemp ? OT_TRUE : OT_FALSE;
+}
+
+
 // -----------------------------------------------------------------------------
 
 
@@ -8159,6 +8204,73 @@ const char * OT_API_Transaction_GetType(const char * SERVER_ID,
 	// NO need to load abbreviated version, since it already stores this number.
 	
 	const char * pBuf = theTransaction.GetTypeString(); 
+	
+#ifdef _WIN32
+	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+	
+	return g_tempBuf;		
+}
+
+
+// Transactions do not have request numbers. However, if you have a replyNotice
+// in your Nymbox, which is an OTTransaction object, it will CONTAIN a server
+// reply to some previous message. This function will only work on a replyNotice,
+// and it returns the actual request number of the server reply inside that notice.
+// Used for calling OT_API_HaveAlreadySeenReply() in order to see if we've already
+// processed the reply for that message.
+// Returns NULL on Error.
+//
+const char * OT_API_ReplyNotice_GetRequestNum(const char * SERVER_ID,
+                                              const char * USER_ID,
+                                              const char * THE_TRANSACTION)
+{
+	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_ReplyNotice_GetRequestNum: Null SERVER_ID passed in.");
+	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_ReplyNotice_GetRequestNum: Null USER_ID passed in.");
+	OT_ASSERT_MSG(NULL != THE_TRANSACTION, "OT_API_ReplyNotice_GetRequestNum: NULL THE_TRANSACTION passed in.");
+	
+	const OTIdentifier  theServerID(SERVER_ID),
+                        theUserID(USER_ID), 
+                        theAccountID(USER_ID); // account IS user, for Nymbox (the only box that carries replyNotices...)
+	
+	OTString strTransaction(THE_TRANSACTION);
+	
+	const char * szFuncName = "OT_API_ReplyNotice_GetRequestNum";
+	// -----------------------------------------------------
+	OTPseudonym * pNym = g_OT_API.GetOrLoadPrivateNym(theUserID, szFuncName); // These copiously log, and ASSERT.
+	if (NULL == pNym) return NULL;
+	// -----------------------------------------------------
+	
+	OTTransaction theTransaction(theUserID, theAccountID, theServerID);
+	
+	if (false == theTransaction.LoadContractFromString(strTransaction))
+	{
+		OTString strUserID(theUserID);
+		OTLog::vError("%s: Error loading transaction from string. User ID: %s\n",
+					  szFuncName, strUserID.Get());
+		return NULL;
+	}
+	
+	// -----------------------------------------------------
+	if (OTTransaction::replyNotice != theTransaction.GetType())
+	{
+		OTString strUserID(theUserID);
+		OTLog::vError("%s: Unexpected transaction type: %s. (Expected: %s) User: %s\n",
+					  szFuncName, theTransaction.GetTypeString(), "replyNotice",
+                      strUserID.Get());
+		return NULL;
+	}
+	// -----------------------------------------------------
+	// NO need to load abbreviated version, since it already stores this number.
+	
+    const long lRequestNumber = theTransaction.GetRequestNum();
+    
+    OTString strOutput;
+    strOutput.Format("%ld", lRequestNumber);
+    
+	const char * pBuf = strOutput.Get(); 
 	
 #ifdef _WIN32
 	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);

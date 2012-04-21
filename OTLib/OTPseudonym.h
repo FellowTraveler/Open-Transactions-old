@@ -237,6 +237,15 @@ private:
     mapOfHighestNums m_mapHighTransNo;  // Mapped, a single long to each server (just like request numbers are.)
 	// -----------------------------
     
+    // Although it says "mapOfTransNums", in this case, request numbers are stored. I used mapOfTransNums and its associated
+    // generic manipulation functions, since they already existed. The AcknowledgedNums are for optimization only, as they enable
+    // us to avoid downloading many Box Receipts we'd other have to download. (Specifically, replyNotices, which are referenced
+    // by their request number.)
+    //
+    mapOfTransNums	m_mapAcknowledgedNum; 
+
+	// -----------------------------
+
     // (SERVER side)
     std::set<long> m_setOpenCronItems; // Until these Cron Items are closed out, the server-side Nym keeps a list of them handy.
     
@@ -438,9 +447,10 @@ public:
                           std::set<long> & setOutputGood,
                           std::set<long> & setOutputBad, bool bSave=false); // Returns 0 if success, otherwise # of the violator.
 
-	inline mapOfTransNums & GetMapTransNum() { return m_mapTransNum; }
-	inline mapOfTransNums & GetMapIssuedNum() { return m_mapIssuedNum; }
-	inline mapOfTransNums & GetMapTentativeNum() { return m_mapTentativeNum; }
+	inline mapOfTransNums & GetMapTransNum()        { return m_mapTransNum;         }
+	inline mapOfTransNums & GetMapIssuedNum()       { return m_mapIssuedNum;        }
+	inline mapOfTransNums & GetMapTentativeNum()    { return m_mapTentativeNum;     }
+	inline mapOfTransNums & GetMapAcknowledgedNum() { return m_mapAcknowledgedNum;  } // This one actually stores request numbers.
 
 	void RemoveAllNumbers(const OTString * pstrServerID=NULL, const bool bRemoveHighestNum=true); // for transaction numbers
 	void RemoveReqNumbers(const OTString * pstrServerID=NULL); // for request numbers (entirely different animal)
@@ -468,22 +478,27 @@ public:
 	bool	AddTransactionNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, long lTransNum, bool bSave); // We have received a new trans num from server. Store it.
 	bool	GetNextTransactionNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, long &lTransNum,
                                   bool bSave=true); // Get the next available transaction number for the serverID passed. Saves by default.
-	bool	RemoveIssuedNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, const long & lTransNum, bool bSave); // SAVE OR NOT (your choice)
-
-	bool	RemoveTentativeNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, const long & lTransNum, bool bSave);
-	
-	bool	VerifyIssuedNum(const OTString & strServerID, const long & lTransNum); // verify user is still responsible for (signed for) a certain trans# that was previous issued to him. (i.e. it's been used, but not yet accepted receipt through inbox.)
-	bool	VerifyTransactionNum(const OTString & strServerID, const long & lTransNum); // server verifies that nym has this TransNum available for use.
-	bool	VerifyTentativeNum(const OTString & strServerID, const long & lTransNum); // Client-side verifies that it actually tried to sign for this number (so it knows if the reply is valid.)
+    // --------------------
+	bool	RemoveIssuedNum      (OTPseudonym & SIGNER_NYM, const OTString & strServerID, const long & lTransNum,   bool bSave); // SAVE OR NOT (your choice)
+	bool	RemoveTentativeNum   (OTPseudonym & SIGNER_NYM, const OTString & strServerID, const long & lTransNum,   bool bSave);
+	bool	RemoveAcknowledgedNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, const long & lRequestNum, bool bSave); // Used on both client and server sides for optimization.
+    // --------------------	
+	bool	VerifyIssuedNum      (const OTString & strServerID, const long & lTransNum);   // verify user is still responsible for (signed for) a certain trans# that was previous issued to him. (i.e. it's been used, but not yet accepted receipt through inbox.)
+	bool	VerifyTransactionNum (const OTString & strServerID, const long & lTransNum);   // server verifies that nym has this TransNum available for use.
+	bool	VerifyTentativeNum   (const OTString & strServerID, const long & lTransNum);   // Client-side verifies that it actually tried to sign for this number (so it knows if the reply is valid.)
+	bool	VerifyAcknowledgedNum(const OTString & strServerID, const long & lRequestNum); // Client verifies it has already seen a server reply. Server acknowledges client has seen reply (so client can remove from list, so server can as well.)
+    // --------------------
 
 	// These two functions are for when you re-download your nym/account/inbox/outbox, and you
 	// need to verify it against the last signed receipt to make sure you aren't getting screwed.
+    //
 	bool VerifyIssuedNumbersOnNym(OTPseudonym & THE_NYM);
 	bool VerifyTransactionStatementNumbersOnNym(OTPseudonym & THE_NYM);
 
 	// -------------------------------------
 	// These functions are for transaction numbers that were assigned to me, 
 	// until I accept the receipts or put stop payment onto them.
+    //
 	int		GetIssuedNumCount(const OTIdentifier & theServerID); // count
 	long	GetIssuedNum(const OTIdentifier & theServerID, int nIndex); // index
 	
@@ -528,8 +543,38 @@ public:
 	
 	// ---------------------------------------------
 	
+    // On the client side, whenever the client is DEFINITELY made aware of the existence of a 
+    // server reply, he adds its request number to this list, which is sent along with all client-side
+    // requests to the server.
+    // The server reads the list on the incoming client message (and it uses these same functions
+    // to store its own internal list.) If the # already appears on its internal list, then it does
+    // nothing. Otherwise, it loads up the Nymbox and removes the replyNotice, and then adds the #
+    // to its internal list.
+    // For any numbers on the internal list but NOT on the client's list, the server removes from
+    // the internal list. (The client removed them when it saw the server's internal list, which the
+    // server sends with its replies.)
+    //
+    // This entire protocol, densely described, is unnecessary for OT to function, but is great for
+    // optimization, as it enables OT to avoid downloading all Box Receipts containing replyNotices,
+    // as long as the original reply was properly received when the request was originally sent (which
+    // is MOST of the time...)
+    // Thus we can eliminate most replyNotice downloads, and likely a large % of box receipt downloads
+    // as well.
+    //
+	int GetAcknowledgedNumCount(const OTIdentifier & theServerID); // count
+	long GetAcknowledgedNum(const OTIdentifier & theServerID, int nIndex); // index
+	
+	bool AddAcknowledgedNum(const OTString & strServerID, const long &lRequestNum); // doesn't save
+	
+	bool RemoveAcknowledgedNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, const long & lRequestNum);
+	bool RemoveAcknowledgedNum(const OTString & strServerID, const long & lRequestNum); // doesn't save.
+	
+	// ---------------------------------------------
+	
 	// The "issued" numbers and the "transaction" numbers both use these functions
-	// to do the actual work (just avoiding code duplication.)
+	// to do the actual work (just avoiding code duplication.) "tentative" as well,
+    // and "Acknowledged". (For acknowledged replies.)
+    //
 	bool VerifyGenericNum(mapOfTransNums & THE_MAP, const OTString & strServerID, const long & lTransNum);
 	
 	bool RemoveGenericNum(mapOfTransNums & THE_MAP, OTPseudonym & SIGNER_NYM, const OTString & strServerID, const long & lTransNum); // saves

@@ -386,6 +386,279 @@ OTContract * OTContract::InstantiateContract(OTString strInput)
 
 
 
+
+// ----------------------------------------------------------------------------------------
+//
+// OTNumList (helper class.)
+//
+
+//    std::set<long>  m_setData;
+
+OTNumList::OTNumList(const std::set<long> & theNumbers)
+{
+    Add(theNumbers);
+}
+// -------------------
+
+// removed, security reasons.
+//OTNumList::OTNumList(const char * szNumbers)
+//{
+//    Add(szNumbers);
+//}
+// -------------------
+
+
+OTNumList::OTNumList(const OTString & strNumbers)
+{
+    Add(strNumbers);
+}
+
+// -------------------
+
+OTNumList::OTNumList()
+{
+    
+}
+
+// -------------------
+OTNumList::~OTNumList()
+{
+    
+}
+
+// -------------------
+
+bool OTNumList::Add(const OTString & strNumbers)  // if false, means the numbers were already there. (At least one of them.)
+{
+    return Add(strNumbers.Get());
+}
+
+// -------------------
+// This function is private, so you can't use it without passing an OTString.
+// (For security reasons.) It takes a comma-separated list of numbers, and adds
+// them to *this.
+//
+bool OTNumList::Add(const char * szNumbers)       // if false, means the numbers were already there. (At least one of them.)
+{
+    OT_ASSERT(NULL != szNumbers); // Should never happen.
+    
+    bool    bSuccess    = true;
+    long    lNum        = 0;
+    const 
+    char *  pChar       = szNumbers;
+    
+    // Skip any whitespace.
+    while(std::isspace(*pChar))
+        pChar++;
+    
+    // -------------------------------------
+    
+    while (1) // We already know it's not null, due to the assert. (So at least one iteration will happen.)
+    {
+        if (std::isdigit(*pChar))
+        {
+            int nDigit = (*pChar - '0');
+            
+            lNum *= 10;  // Move it up a decimal place.
+            lNum += nDigit;
+        }
+        // if separator, or end of string, either way, add lNum to *this. 
+        else if ((',' == *pChar) || ('\0' == *pChar) || std::isspace(*pChar)) // first sign of a space, and we are done with current number. (On to the next.)
+        {
+            if ((lNum > 0) && (false == this->Add(lNum))) // <=========
+                bSuccess = false; // We still go ahead and try to add them all, and then return this sort of status when it's all done.
+            // ------------------
+            lNum = 0;   // reset for the next transaction number (in the comma-separated list.)
+        }
+        else
+            OTLog::vError("OTNumList::Add: Error: Unexpected character found in erstwhile comma-separated list of longs: %c\n",
+                          *pChar);
+        // ---------------------------------
+        // End of the road.
+        if ('\0' == *pChar)
+            break;
+        // -----------
+        pChar++;
+        // -----------
+        // Skip any whitespace.
+        while(std::isspace(*pChar))
+            pChar++;
+        // -------------------------------------
+    } // while
+    
+    return bSuccess;
+}
+// -------------------
+
+bool OTNumList::Add(const long & theValue)    // if false, means the value was already there.
+{
+    std::set<long>::iterator it = m_setData.find(theValue);
+    
+    if (m_setData.end() == it) // it's not already there, so add it.
+    {
+        m_setData.insert(theValue);
+        return true;
+    }
+    return false; // it was already there.
+}
+// -------------------
+
+
+bool OTNumList::Remove(const long & theValue) // if false, means the value was NOT already there.
+{
+    std::set<long>::iterator it = m_setData.find(theValue);
+    
+    if (m_setData.end() != it) // it's there.
+    {
+        m_setData.erase(it);
+        return true;
+    }
+    return false; // it wasn't there (so how could you remove it then?)
+}
+// -------------------
+
+bool OTNumList::Verify(const long & theValue) const // returns true/false (whether value is already there.)
+{
+    std::set<long>::iterator it = m_setData.find(theValue);
+    
+    return (m_setData.end() == it) ? false : true;
+}
+
+// -------------------
+
+bool OTNumList::Add(const OTNumList & theNumList)    // if false, means the numbers were already there. (At least one of them.)
+{
+    std::set<long> theOutput;
+    theNumList.Output(theOutput); // returns false if the numlist was empty.
+    
+    return this->Add(theOutput);
+}
+// -------------------
+
+bool OTNumList::Add(const std::set<long> & theNumbers)    // if false, means the numbers were already there. (At least one of them.)
+{
+    bool bSuccess = true;
+    
+    FOR_EACH_CONST(std::set<long>, theNumbers)
+    {
+        const long lValue = *it;
+        
+        if (!this->Add(lValue)) // It must have already been there.
+            bSuccess = false;
+    }
+    
+    return bSuccess;
+}
+// -------------------
+
+bool OTNumList::Remove(const std::set<long> & theNumbers) // if false, means the numbers were NOT already there. (At least one of them.)
+{
+    bool bSuccess = true;
+    
+    FOR_EACH_CONST(std::set<long>, theNumbers)
+    {
+        const long lValue = *it;
+        
+        if (!this->Remove(lValue)) // It must have NOT already been there.
+            bSuccess = false;
+    }
+    
+    return bSuccess;
+}
+// -------------------
+
+bool OTNumList::Verify(const std::set<long> & theNumbers) const // True/False, based on whether values are already there. (ALL must be present.)
+{
+    bool bSuccess = true;
+    
+    FOR_EACH_CONST(std::set<long>, theNumbers)
+    {
+        const long lValue = *it;
+        
+        if (!this->Verify(lValue)) // It must have NOT already been there.
+            bSuccess = false;
+    }
+    
+    return bSuccess;
+}
+// -------------------
+
+// Outputs the numlist as a set of numbers.
+// (To iterate OTNumList, call this, then iterate the output.)
+//
+bool OTNumList::Output(std::set<long> & theOutput) const // returns false if the numlist was empty.
+{
+    theOutput = m_setData;
+    
+    return (m_setData.size() > 0) ? true : false;
+}
+// -------------------
+
+// Outputs the numlist as a comma-separated string (for serialization, usually.)
+//
+bool OTNumList::Output(OTString & strOutput) const // returns false if the numlist was empty.
+{
+    int nIterationCount = 0;
+    
+    FOR_EACH(std::set<long>, m_setData)
+    {
+        const long lValue = *it;
+        nIterationCount ++;
+        // ----------
+        
+        strOutput.Concatenate("%s%ld",
+                              // If first iteration, prepend a blank string (instead of a comma.)
+                              // Like this:  "%ld"
+                              // But for all subsequent iterations, concatenate: ",%ld"
+                              (1 == nIterationCount) ? "" : ",", lValue);
+    }
+    
+    return (m_setData.size() > 0) ? true : false;
+}
+
+// -------------------
+
+
+// True/False, based on whether OTNumLists MATCH in COUNT and CONTENT (NOT ORDER.)
+//
+bool OTNumList::Verify(const OTNumList & rhs) const
+{
+    // Verify they have the same number of elements.
+    //
+    if (this->Count() != rhs.Count())
+        return false;
+    // -------------------
+    
+    // Verify each value on *this is also found on rhs.
+    //
+    FOR_EACH(std::set<long>, m_setData)
+    {
+        const long lValue = *it;
+        // ----------
+        if (false == rhs.Verify(lValue))
+            return false;
+    }
+    
+    return true;
+}
+
+
+int OTNumList::Count() const 
+{ 
+    return m_setData.size(); 
+}
+
+// -------------------
+
+void OTNumList::Release() 
+{ 
+    m_setData.clear(); 
+}
+
+// -----------------------------------------------------------------------------
+
+
+
 OTContract::OTContract()
 {
 	Initialize();

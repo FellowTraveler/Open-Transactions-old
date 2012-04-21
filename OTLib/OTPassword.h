@@ -170,6 +170,48 @@
 // -------------------------------------------
 
 
+// TODO:  Although we have good memory ZEROING code (for destruction)
+// we don't have code yet that will keep the contents SECURE while they
+// are in memory. For example, that will prevent them from being paged 
+// to the hard drive during swapping. Such code would make OTPassword much
+// more appropriate for use cases such as storing passphrases and private
+// keys, and would even allow timeout procedures...
+//
+// NOTE: For Windows, use VirtualLock instead of mlock.
+//
+/*
+ #include <sys/mman.h>
+ 
+ void *locking_alloc(size_t numbytes) 
+ {
+    static short have_warned = 0;
+ 
+    void *mem = malloc(numbytes);
+ 
+    if (mlock(mem, numbytes) && !have_warned)
+    {
+ 
+        // We probably do not have permission.
+        // Sometimes, it might not be possible to lock enough memory.
+ 
+        fprintf(stderr, "Warning: Using insecure memory!\n");
+
+        have_warned = 1;
+
+    }     
+
+    return mem;
+ }
+
+The mlock() call generally locks more memory than you want. Locking is done on a per-page basis. All of the pages the memory spans will be locked in RAM, and will not be swapped out under any circumstances, until the process unlocks something in the same page by using mlock().
+
+There are some potentially negative consequences here. First, If your process locks two buffers that happen to live on the same page, then unlocking either one will unlock the entire page, causing both buffers to unlock. Second, when locking lots of data, it is easy to lock more pages than necessary (the operating system doesn't move data around once it has been allocated), which can slow down machine performance significantly.
+
+Unlocking a chunk of memory looks exactly the same as locking it, except that you call munlock():
+        munlock(mem, numbytes);
+
+ */
+
 class OTPassword
 {
 public:
@@ -263,7 +305,118 @@ public:
 
 
 
+/*
+ 
+ 
+ HOW TO PREVENT MEMORY FROM GOING INTO CORE DUMPS
+ 
+ 
+#include <sys/time.h>
 
+#include <sys/resource.h>
+
+#include <unistd.h>
+
+
+
+int  main(int argc, char **argv){
+
+  struct rlimit rlim;
+
+
+
+  getrlimit(RLIMIT_CORE, &rlim);
+
+  rlim.rlim_max = rlim.rlim_cur = 0;
+
+  if(setrlimit(RLIMIT_CORE, &rlim)) {
+
+    exit(-1);
+
+  }
+
+  ...
+
+  return 0;
+
+}
+
+ 
+ 
+ http://www.drdobbs.com/cpp/184401646
+ 
+ 
+ 
+ 
+ MORE CODE FOR MEMLOCK:
+ 
+ namespace Botan
+ {
+ 
+    bool has_mlock();
+ 
+    bool lock_mem(void* addr, size_t length);
+ 
+    void unlock_mem(void* addr, size_t length);
+ }
+ 
+ 
+//
+// Memory Locking Functions
+// (C) 1999-2007 Jack Lloyd
+//
+// Distributed under the terms of the Botan license
+//
+
+#include <botan/internal/mlock.h>
+
+#if defined(BOTAN_TARGET_OS_HAS_POSIX_MLOCK)
+  #include <sys/types.h>
+  #include <sys/mman.h>
+#elif defined(BOTAN_TARGET_OS_HAS_WIN32_VIRTUAL_LOCK)
+  #include <windows.h>
+#endif
+
+namespace Botan {
+
+bool has_mlock()
+   {
+   byte buf[4096];
+   if(!lock_mem(&buf, sizeof(buf)))
+      return false;
+   unlock_mem(&buf, sizeof(buf));
+   return true;
+   }
+
+//
+// Lock an area of memory into RAM
+//
+bool lock_mem(void* ptr, size_t bytes)
+   {
+#if defined(BOTAN_TARGET_OS_HAS_POSIX_MLOCK)
+   return (::mlock(static_cast<char*>(ptr), bytes) == 0);
+#elif defined(BOTAN_TARGET_OS_HAS_WIN32_VIRTUAL_LOCK)
+   return (::VirtualLock(ptr, bytes) != 0);
+#else
+   return false;
+#endif
+   }
+
+//
+// Unlock a previously locked region of memory
+//
+void unlock_mem(void* ptr, size_t bytes)
+   {
+#if defined(BOTAN_TARGET_OS_HAS_POSIX_MLOCK)
+   ::munlock(static_cast<char*>(ptr), bytes);
+#elif defined(BOTAN_TARGET_OS_HAS_WIN32_VIRTUAL_LOCK)
+   ::VirtualUnlock(ptr, bytes);
+#endif
+   }
+
+}
+ 
+ */
 
 
 

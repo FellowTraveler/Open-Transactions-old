@@ -674,6 +674,10 @@ def OT_API_Transaction_GetType(*args):
   return _otapi.OT_API_Transaction_GetType(*args)
 OT_API_Transaction_GetType = _otapi.OT_API_Transaction_GetType
 
+def OT_API_ReplyNotice_GetRequestNum(*args):
+  return _otapi.OT_API_ReplyNotice_GetRequestNum(*args)
+OT_API_ReplyNotice_GetRequestNum = _otapi.OT_API_ReplyNotice_GetRequestNum
+
 def OT_API_Transaction_GetVoucher(*args):
   return _otapi.OT_API_Transaction_GetVoucher(*args)
 OT_API_Transaction_GetVoucher = _otapi.OT_API_Transaction_GetVoucher
@@ -949,6 +953,10 @@ OT_API_LoadNymboxNoVerify = _otapi.OT_API_LoadNymboxNoVerify
 def OT_API_Nymbox_GetReplyNotice(*args):
   return _otapi.OT_API_Nymbox_GetReplyNotice(*args)
 OT_API_Nymbox_GetReplyNotice = _otapi.OT_API_Nymbox_GetReplyNotice
+
+def OT_API_HaveAlreadySeenReply(*args):
+  return _otapi.OT_API_HaveAlreadySeenReply(*args)
+OT_API_HaveAlreadySeenReply = _otapi.OT_API_HaveAlreadySeenReply
 
 def OT_API_getBoxReceipt(*args):
   return _otapi.OT_API_getBoxReceipt(*args)

@@ -795,6 +795,22 @@ bool OTPseudonym::GenerateNym(int nBits/*=1024*/, bool bCreateFile/*=true*/) // 
 
 
 
+// If an ID is passed in, that means remove all numbers FOR THAT SERVER ID.
+// If passed in, and current map doesn't match, then skip it (continue).
+
+#ifndef CLEAR_MAP_AND_DEQUE
+#define CLEAR_MAP_AND_DEQUE(the_map) \
+    \
+FOR_EACH(mapOfTransNums, the_map) \
+{ \
+if ((NULL != pstrServerID) && (str_ServerID != it->first)) \
+        continue; \
+    dequeOfTransNums * pDeque = (it->second); \
+    OT_ASSERT(NULL != pDeque); \
+    if (!(pDeque->empty())) \
+        pDeque->clear(); \
+}
+#endif // CLEAR_MAP_AND_DEQUE
 
 
 // Sometimes for testing I need to clear out all the transaction numbers from a nym.
@@ -803,39 +819,15 @@ bool OTPseudonym::GenerateNym(int nBits/*=1024*/, bool bCreateFile/*=true*/) // 
 void OTPseudonym::RemoveAllNumbers(const OTString * pstrServerID/*=NULL*/, const bool bRemoveHighestNum/*=true*/) // Some callers don't want to wipe the highest num. Some do.
 {
 	const std::string str_ServerID((NULL != pstrServerID) ? pstrServerID->Get() : "");		
-		
-	FOR_EACH(mapOfTransNums, m_mapIssuedNum)
-	{
-		// If an ID is passed in, that means remove all numbers FOR THAT SERVER ID.
-		if ((NULL != pstrServerID) && (str_ServerID != it->first)) // If passed in, and current map doesn't match, then skip it (continue).
-			continue;
-		
-		// -------------------------
-		dequeOfTransNums * pDeque = (it->second);
-		OT_ASSERT(NULL != pDeque);
-		
-		if (!(pDeque->empty()))
-		{
-			pDeque->clear();
-		}
-	}	
-	
-	FOR_EACH(mapOfTransNums, m_mapTransNum)
-	{
-		// If an ID is passed in, that means remove all numbers FOR THAT SERVER ID.
-		if ((NULL != pstrServerID) && (str_ServerID != it->first)) // If passed in, and current map doesn't match, then skip it (continue).
-			continue;
-		
-		// -------------------------
-		dequeOfTransNums * pDeque = (it->second);
-		OT_ASSERT(NULL != pDeque);
-		
-		if (!(pDeque->empty()))
-		{
-			pDeque->clear();
-		}
-	}
-	// ------
+
+    // --------------------------
+    
+    CLEAR_MAP_AND_DEQUE(m_mapIssuedNum)
+    CLEAR_MAP_AND_DEQUE(m_mapTransNum)
+    CLEAR_MAP_AND_DEQUE(m_mapTentativeNum)
+    CLEAR_MAP_AND_DEQUE(m_mapAcknowledgedNum)
+    
+    // ----------------------------
 	
 	if (bRemoveHighestNum)
 	{
@@ -847,23 +839,6 @@ void OTPseudonym::RemoveAllNumbers(const OTString * pstrServerID/*=NULL*/, const
 			m_mapHighTransNo.erase(it);		
 		}	
 	}	
-	// ------
-	
-	FOR_EACH(mapOfTransNums, m_mapTentativeNum)
-	{
-		// If an ID is passed in, that means remove all numbers FOR THAT SERVER ID.
-		if ((NULL != pstrServerID) && (str_ServerID != it->first)) // If passed in, and current map doesn't match, then skip it (continue).
-			continue;
-		
-		// -------------------------
-		dequeOfTransNums * pDeque = (it->second);
-		OT_ASSERT(NULL != pDeque);
-		
-		if (!(pDeque->empty()))
-		{
-			pDeque->clear();
-		}
-	}
     // ----------------------------
     
     FOR_EACH(mapOfIdentifiers, m_mapNymboxHash)
@@ -1114,42 +1089,30 @@ bool OTPseudonym::UnRegisterAtServer(const OTString & strServerID)
 }
 
 
+// -----------------------------------------------------
+
+#ifndef WIPE_MAP_AND_DEQUE
+#define WIPE_MAP_AND_DEQUE(the_map) \
+while (!the_map.empty()) \
+{ \
+    dequeOfTransNums * pDeque = the_map.begin()->second; \
+    OT_ASSERT(NULL != pDeque); \
+    the_map.erase(the_map.begin()); \
+    delete pDeque; pDeque = NULL; \
+}
+#endif // WIPE_MAP_AND_DEQUE
 
 
 void OTPseudonym::ReleaseTransactionNumbers()
 {
-	// -------------------------------------------
-	while (!m_mapTransNum.empty())
-	{		
-		dequeOfTransNums * pDeque = m_mapTransNum.begin()->second;
-		OT_ASSERT(NULL != pDeque);
-		// ------------------------
-		m_mapTransNum.erase(m_mapTransNum.begin());
-		// ------------------------
-		delete pDeque; pDeque = NULL;
-	}	
-	// -------------------------------------------
-	while (!m_mapIssuedNum.empty())
-	{		
-		dequeOfTransNums * pDeque = m_mapIssuedNum.begin()->second;
-		OT_ASSERT(NULL != pDeque);
-		// ------------------------
-		m_mapIssuedNum.erase(m_mapIssuedNum.begin());
-		// ------------------------
-		delete pDeque; pDeque = NULL;
-	}	
-	// -------------------------------------------
-	while (!m_mapTentativeNum.empty())
-	{		
-		dequeOfTransNums * pDeque = m_mapTentativeNum.begin()->second;
-		OT_ASSERT(NULL != pDeque);
-		// ------------------------
-		m_mapTentativeNum.erase(m_mapTentativeNum.begin());
-		// ------------------------
-		delete pDeque; pDeque = NULL;
-	}	
-	// -------------------------------------------
+    WIPE_MAP_AND_DEQUE(m_mapTransNum)
+    WIPE_MAP_AND_DEQUE(m_mapIssuedNum)
+    WIPE_MAP_AND_DEQUE(m_mapTentativeNum)
+    WIPE_MAP_AND_DEQUE(m_mapAcknowledgedNum)
 }
+// -----------------------------------------------------
+
+
 
 
 // -----------------------------------------------------
@@ -1567,8 +1530,16 @@ long OTPseudonym::GetTransactionNum(const OTIdentifier & theServerID, int nIndex
 	return GetGenericNum(m_mapTransNum, theServerID, nIndex);
 }
 
+// by index.
+long OTPseudonym::GetAcknowledgedNum(const OTIdentifier & theServerID, int nIndex)
+{
+	return GetGenericNum(m_mapAcknowledgedNum, theServerID, nIndex);
+}
+
+
 // ------------------------------------
 
+// TRANSACTION NUM
 
 // On the server side: A user has submitted a specific transaction number. 
 // Verify whether he actually has a right to use it.
@@ -1607,6 +1578,7 @@ bool OTPseudonym::AddTransactionNum(const OTString & strServerID, const long lTr
 
 // ----------------------------------------------------------------------
 
+// ISSUED NUM
 
 // On the server side: A user has submitted a specific transaction number. 
 // Verify whether it was issued to him and still awaiting final closing.
@@ -1647,7 +1619,7 @@ bool OTPseudonym::AddIssuedNum(const OTString & strServerID, const long & lTrans
 
 // ----------------------------------------------------------------------
 
-
+// TENTATIVE NUM
 
 // On the server side: A user has submitted a specific transaction number. 
 // Verify whether it was issued to him and still awaiting final closing.
@@ -1685,8 +1657,60 @@ bool OTPseudonym::AddTentativeNum(const OTString & strServerID, const long & lTr
 }
 
 
+// ----------------------------------------------------------------------
+
+// ACKNOWLEDGED NUM
+
+// These are actually used for request numbers, so both sides can determine which
+// replies are already acknowledged. Used purely for optimization, to avoid downloading
+// a large number of box receipts (specifically the replyNotices.)
+
+
+// Client side: See if I've already seen the server's reply to a certain request num.
+// Server side: See if I've already seen the client's acknowledgment of a reply I sent.
+//
+bool OTPseudonym::VerifyAcknowledgedNum(const OTString & strServerID, const long & lRequestNum)
+{
+	return VerifyGenericNum(m_mapAcknowledgedNum, strServerID, lRequestNum);
+}
+
+// On client side: server acknowledgment has been spotted in a reply message, so I can remove it from my ack list.
+// On server side: client has removed acknowledgment from his list (as evident since its sent with client messages), so server can remove it as well.
+//
+bool OTPseudonym::RemoveAcknowledgedNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, const long & lRequestNum) // saves
+{
+	return RemoveGenericNum(m_mapAcknowledgedNum, SIGNER_NYM, strServerID, lRequestNum);
+}
+
+bool OTPseudonym::RemoveAcknowledgedNum(const OTString & strServerID, const long & lRequestNum) // doesn't save
+{
+	return RemoveGenericNum(m_mapAcknowledgedNum, strServerID, lRequestNum);
+}
+
+
+// Returns count of request numbers that the client has already seen the reply to
+// (Or in the case of server-side, the list of request numbers that the client has
+// told me he has already seen the reply to.)
+//
+int OTPseudonym::GetAcknowledgedNumCount(const OTIdentifier & theServerID) 
+{
+	return GetGenericNumCount(m_mapAcknowledgedNum, theServerID);
+}
+
+
+// No signer needed for this one, and save is false.
+// This version is ONLY for cases where we're not saving inside this function.
+bool OTPseudonym::AddAcknowledgedNum(const OTString & strServerID, const long & lRequestNum)  // doesn't save.
+{
+	return AddGenericNum(m_mapAcknowledgedNum, strServerID, lRequestNum);
+}
+
+
 
 // ----------------------------------------------------------------------
+
+
+// HIGHER LEVEL...
 
 
 // Client side: We have received a new trans num from server. Store it.
@@ -1743,6 +1767,27 @@ bool OTPseudonym::RemoveIssuedNum(OTPseudonym & SIGNER_NYM, const OTString & str
 	return (bSuccess && bSave);
 }
 
+
+// Client keeps track of server replies it's already seen.
+// Server keeps track of these client acknowledgments.
+// (Server also removes from Nymbox, any acknowledged message
+// that wasn't already on his list based on request num.)
+// Server already removes from his list, any number the client
+// has removed from his.
+// This is all purely for optimization, since it allows us to avoid
+// downloading all the box receipts that contain replyNotices.
+//
+bool OTPseudonym::RemoveAcknowledgedNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, const long & lRequestNum, bool bSave) // SAVE OR NOT (your choice) High-Level.
+{
+	bool bSuccess = RemoveAcknowledgedNum(strServerID, lRequestNum);		// Remove from list of acknowledged request numbers.
+	// -----------------------------------
+	if (bSuccess && bSave)
+		bSave = SaveSignedNymfile(SIGNER_NYM);
+	else 
+		bSave = true; // so the return at the bottom calculates correctly.
+	// -----------------------------------
+	return (bSuccess && bSave);
+}
 
 
 
@@ -2838,7 +2883,7 @@ void OTPseudonym::DisplayStatistics(OTString & strOutput)
 		}
 	} // for
 	
-	FOR_EACH(mapOfTransNums, m_mapTentativeNum)
+	FOR_EACH(mapOfTransNums, m_mapAcknowledgedNum)
 	{	
 		std::string strServerID		= (*it).first;
 		dequeOfTransNums * pDeque	= (it->second);
@@ -2849,10 +2894,10 @@ void OTPseudonym::DisplayStatistics(OTString & strOutput)
 		{
 			for (unsigned i = 0; i < pDeque->size(); i++)
 			{
-				long lTransactionNumber = pDeque->at(i);
+				long lRequestNumber = pDeque->at(i);
 				
-				strOutput.Concatenate("Transaction# %ld is tentatively signed out (waiting for server acknowledgment): %s\n", 
-									  lTransactionNumber, strServerID.c_str());
+				strOutput.Concatenate("Server reply to Request# %ld has already been received: %s\n", 
+									  lRequestNumber, strServerID.c_str());
 			}
 		}
 	} // for
@@ -3061,6 +3106,38 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
 								   "/>\n\n", 
 								   strServerID.c_str(),
 								   lTransactionNumber
+								   );
+			}
+		}
+	} // for
+	
+	// -------------------------------------
+	
+    // although mapOfTransNums is used, in this case,
+    // request numbers are what is actually being stored.
+    // The data structure just happened to be appropriate 
+    // in this case, with generic manipulation functions
+    // already written, so I used that pre-existing system.
+    //
+	FOR_EACH(mapOfTransNums, m_mapAcknowledgedNum)
+	{	
+		std::string	strServerID		= (*it).first;
+		dequeOfTransNums * pDeque	= (it->second);
+		
+		OT_ASSERT(NULL != pDeque);
+		
+		if (!(pDeque->empty()) && (strServerID.size() > 0) )
+		{
+			for (unsigned i = 0; i < pDeque->size(); i++)
+			{
+				const long lRequestNumber = pDeque->at(i);
+				
+				strNym.Concatenate("<acknowledgedNum\n"
+								   " serverID=\"%s\"\n"
+								   " requestNum=\"%ld\""
+								   "/>\n\n", 
+								   strServerID.c_str(),
+								   lRequestNumber
 								   );
 			}
 		}
@@ -3470,10 +3547,20 @@ bool OTPseudonym::LoadFromString(const OTString & strNym)
 					const OTString TransNumServerID	= xml->getAttributeValue("serverID");				
 					const OTString TransNumAvailable	= xml->getAttributeValue("transactionNum");
 					
-					OTLog::vOutput(3, "Currently waiting on server success notice,  accepting Transaction Number %s, for ServerID: %s\n",
+					OTLog::vOutput(3, "Currently waiting on server success notice, accepting Transaction Number %s, for ServerID: %s\n",
 								   TransNumAvailable.Get(), TransNumServerID.Get());
 					
 					AddTentativeNum(TransNumServerID, atol(TransNumAvailable.Get())); // This version doesn't save to disk. (Why save to disk AS WE'RE LOADING?)
+				}                
+				else if (strNodeName.Compare("acknowledgedNum"))
+				{
+					const OTString AckNumServerID = xml->getAttributeValue("serverID");				
+					const OTString AckNumValue    = xml->getAttributeValue("requestNum");
+					
+					OTLog::vOutput(3, "Acknowledgment record exists for server reply, for Request Number %s, for ServerID: %s\n",
+								   AckNumValue.Get(), AckNumServerID.Get());
+					
+					AddAcknowledgedNum(AckNumServerID, atol(AckNumValue.Get())); // This version doesn't save to disk. (Why save to disk AS WE'RE LOADING?)
 				}                
                 else if (strNodeName.Compare("MARKED_FOR_DELETION"))
 				{

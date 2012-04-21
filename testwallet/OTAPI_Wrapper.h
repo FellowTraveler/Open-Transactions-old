@@ -571,6 +571,10 @@ public:
 												 const std::string ACCOUNT_ID,
 												 const std::string THE_TRANSACTION);
 	// --------------------------------------------------------------------
+	static const std::string ReplyNotice_GetRequestNum(const std::string SERVER_ID,
+                                                       const std::string USER_ID,
+                                                       const std::string THE_TRANSACTION);
+	// --------------------------------------------------------------------
 	static const std::string Transaction_GetVoucher(const std::string SERVER_ID,
 													const std::string USER_ID,
 													const std::string ACCOUNT_ID,
@@ -949,6 +953,11 @@ public:
                                           const std::string USER_ID,
                                           const std::string THE_NYMBOX);
 
+    static bool HaveAlreadySeenReply(const std::string SERVER_ID, 
+                                     const std::string USER_ID, 
+                                     const std::string REQUEST_NUMBER);
+
+    
 	// -----------------------------------------------------------
     
 	static void Sleep(const std::string MILLISECONDS);

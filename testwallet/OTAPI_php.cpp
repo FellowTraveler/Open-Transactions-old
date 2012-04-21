@@ -8497,6 +8497,62 @@ fail:
 }
 
 
+ZEND_NAMED_FUNCTION(_wrap_OT_API_ReplyNotice_GetRequestNum) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  zval **args[3];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[2])->type==IS_NULL) {
+    arg3 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[2]);
+    arg3 = (char *) Z_STRVAL_PP(args[2]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_ReplyNotice_GetRequestNum((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
 ZEND_NAMED_FUNCTION(_wrap_OT_API_Transaction_GetVoucher) {
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
@@ -12358,6 +12414,58 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_Nymbox_GetReplyNotice) {
     } else {
       ZVAL_STRING(return_value, (char *)result, 1);
     }
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),"%s",SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_HaveAlreadySeenReply) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  zval **args[3];
+  int result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:/opt/local/share/swig/2.0.4/php/utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[2])->type==IS_NULL) {
+    arg3 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[2]);
+    arg3 = (char *) Z_STRVAL_PP(args[2]);
+  }
+  /*@SWIG@*/;
+  
+  result = (int)OT_API_HaveAlreadySeenReply((char const *)arg1,(char const *)arg2,(char const *)arg3);
+  {
+    ZVAL_LONG(return_value,result);
   }
   return;
 fail:
@@ -29683,6 +29791,7 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(ot_api_ledger_finalizeresponse,_wrap_OT_API_Ledger_FinalizeResponse,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_ledger_getinstrument,_wrap_OT_API_Ledger_GetInstrument,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_transaction_gettype,_wrap_OT_API_Transaction_GetType,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_replynotice_getrequestnum,_wrap_OT_API_ReplyNotice_GetRequestNum,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_transaction_getvoucher,_wrap_OT_API_Transaction_GetVoucher,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_transaction_getsuccess,_wrap_OT_API_Transaction_GetSuccess,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_transaction_getbalanceagreementsuccess,_wrap_OT_API_Transaction_GetBalanceAgreementSuccess,NULL)
@@ -29752,6 +29861,7 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(ot_api_loadnymbox,_wrap_OT_API_LoadNymbox,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_loadnymboxnoverify,_wrap_OT_API_LoadNymboxNoVerify,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_nymbox_getreplynotice,_wrap_OT_API_Nymbox_GetReplyNotice,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_havealreadyseenreply,_wrap_OT_API_HaveAlreadySeenReply,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_getboxreceipt,_wrap_OT_API_getBoxReceipt,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_doesboxreceiptexist,_wrap_OT_API_DoesBoxReceiptExist,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_processinbox,_wrap_OT_API_processInbox,NULL)

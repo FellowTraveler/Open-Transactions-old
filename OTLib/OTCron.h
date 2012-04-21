@@ -155,7 +155,7 @@ typedef std::map  <std::string, OTMarket *>	mapOfMarkets;
 
 // Cron stores a bunch of these on this list, 
 // which the server refreshes from time to time.
-typedef std::list<long> listOfTransactionNumbers;
+typedef std::list<long> listOfLongNumbers;
 
 
 
@@ -168,7 +168,7 @@ private:
 
 	OTPseudonym *	m_pServerNym;	// I'll need this for later.
 	
-	listOfTransactionNumbers	m_listTransactionNumbers; // I can't put receipts in people's inboxes without a supply of these.
+	listOfLongNumbers	m_listTransactionNumbers; // I can't put receipts in people's inboxes without a supply of these.
    
 	bool			m_bIsActivated; // I don't want to start Cron processing until everything else is all loaded up and ready to go.
 	

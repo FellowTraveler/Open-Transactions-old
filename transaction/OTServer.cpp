@@ -1596,7 +1596,7 @@ void OTServer::UserCmdGetMarketList(OTPseudonym & theNym, OTMessage & MsgIn, OTM
 	// (1) set up member variables 
 	msgOut.m_strCommand		= "@getMarketList";	// reply to getMarketList
 	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
-	msgOut.m_strServerID	= m_strServerID;	// ServerID, a hash of the server contract.
+//	msgOut.m_strServerID	= m_strServerID;	// This is already set in ProcessUserCommand.
 
 	OTASCIIArmor ascOutput;
 	int nMarketCount = 0;
@@ -1637,7 +1637,7 @@ void OTServer::UserCmdGetMarketOffers(OTPseudonym & theNym, OTMessage & MsgIn, O
 	msgOut.m_strCommand		= "@getMarketOffers";	// reply to getMarketOffers
 	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
 	msgOut.m_strNymID2		= MsgIn.m_strNymID2;// Market ID.
-	msgOut.m_strServerID	= m_strServerID;	// ServerID, a hash of the server contract.
+//	msgOut.m_strServerID	= m_strServerID;	// This is already set in ProcessUserCommand.
 	
 	long lDepth = MsgIn.m_lDepth;
 	if (lDepth < 0)
@@ -1689,7 +1689,7 @@ void OTServer::UserCmdGetMarketRecentTrades(OTPseudonym & theNym, OTMessage & Ms
 	msgOut.m_strCommand		= "@getMarketRecentTrades";	// reply to getMarketRecentTrades
 	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
 	msgOut.m_strNymID2		= MsgIn.m_strNymID2;// Market ID.
-	msgOut.m_strServerID	= m_strServerID;	// ServerID, a hash of the server contract.
+//	msgOut.m_strServerID	= m_strServerID;	// This is already set in ProcessUserCommand.
 	
 	const OTIdentifier MARKET_ID(MsgIn.m_strNymID2);
 
@@ -1743,7 +1743,7 @@ void OTServer::UserCmdGetNym_MarketOffers(OTPseudonym & theNym, OTMessage & MsgI
 	// (1) set up member variables 
 	msgOut.m_strCommand		= "@getNym_MarketOffers";	// reply to getMarketOffers
 	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
-	msgOut.m_strServerID	= m_strServerID;	// ServerID, a hash of the server contract.
+//	msgOut.m_strServerID	= m_strServerID;	// This is already set in ProcessUserCommand.
 
 	OTIdentifier NYM_ID; theNym.GetIdentifier(NYM_ID);
 	
@@ -1788,7 +1788,7 @@ void OTServer::UserCmdCheckServerID(OTPseudonym & theNym, OTMessage & MsgIn, OTM
 	// (1) set up member variables 
 	msgOut.m_strCommand		= "@checkServerID";	// reply to checkServerID
 	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
-	msgOut.m_strServerID	= m_strServerID;	// ServerID, a hash of the server contract.
+//	msgOut.m_strServerID	= m_strServerID;	// This is already set in ProcessUserCommand.
 
     // already done at the top of ProcessUserCommand.
 //    msgOut.m_strRequestNum  = MsgIn.m_strRequestNum;
@@ -1818,7 +1818,7 @@ void OTServer::UserCmdGetTransactionNum(OTPseudonym & theNym, OTMessage & MsgIn,
 	// (1) set up member variables 
 	msgOut.m_strCommand		= "@getTransactionNum";	// reply to getTransactionNum
 	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
-	msgOut.m_strServerID	= m_strServerID;	// ServerID, a hash of the server contract.
+//	msgOut.m_strServerID	= m_strServerID;	// This is already set in ProcessUserCommand.
 	
 	// already at the top of ProcessUserCommand, which calls this.
 //  msgOut.m_strRequestNum.Set(MsgIn.m_strRequestNum);
@@ -2011,7 +2011,7 @@ void OTServer::UserCmdGetRequest(OTPseudonym & theNym, OTMessage & MsgIn, OTMess
 	// (1) set up member variables 
 	msgOut.m_strCommand		= "@getRequest";	// reply to getRequest
 	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
-	msgOut.m_strServerID	= m_strServerID;	// ServerID, a hash of the server contract.
+//	msgOut.m_strServerID	= m_strServerID;	// This is already set in ProcessUserCommand.
     
     msgOut.m_strRequestNum.Set(MsgIn.m_strRequestNum); // Outoing reply contains same request num coming in (1). 
 
@@ -2074,7 +2074,7 @@ void OTServer::UserCmdSendUserMessage(OTPseudonym & theNym, OTMessage & MsgIn, O
 	msgOut.m_strCommand		= "@sendUserMessage";	// reply to sendUserMessage
 	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
 	msgOut.m_strNymID2		= MsgIn.m_strNymID2;// UserID of recipient pubkey
-	msgOut.m_strServerID	= m_strServerID;	// ServerID, a hash of the server contract.
+//	msgOut.m_strServerID	= m_strServerID;	// This is already set in ProcessUserCommand.
 		
 	bool bGotNextTransNum	= IssueNextTransactionNumber(m_nymServer, lTransNum, false); // bool bStoreTheNumber = false
 
@@ -2155,7 +2155,7 @@ void OTServer::UserCmdSendUserInstrument(OTPseudonym & theNym, OTMessage & MsgIn
 	msgOut.m_strCommand		= "@sendUserInstrument";	// reply to sendUserInstrument
 	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
 	msgOut.m_strNymID2		= MsgIn.m_strNymID2;// UserID of recipient pubkey
-	msgOut.m_strServerID	= m_strServerID;	// ServerID, a hash of the server contract.
+//	msgOut.m_strServerID	= m_strServerID;	// This is already set in ProcessUserCommand.
 	
 	bool bGotNextTransNum	= IssueNextTransactionNumber(m_nymServer, lTransNum, false); // bool bStoreTheNumber = false
 	
@@ -2238,7 +2238,7 @@ void OTServer::UserCmdCheckUser(OTPseudonym & theNym, OTMessage & MsgIn, OTMessa
 	msgOut.m_strCommand		= "@checkUser";		// reply to checkUser
 	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
 	msgOut.m_strNymID2		= MsgIn.m_strNymID2;// UserID of public key requested by user.
-	msgOut.m_strServerID	= m_strServerID;	// ServerID, a hash of the server contract.
+//	msgOut.m_strServerID	= m_strServerID;	// This is already set in ProcessUserCommand.
 	
 	OTPseudonym nym2;	
 	nym2.SetIdentifier(MsgIn.m_strNymID2);
@@ -2280,7 +2280,7 @@ void OTServer::UserCmdUsageCredits(OTPseudonym & theNym, OTMessage & MsgIn, OTMe
 	msgOut.m_strCommand		= "@usageCredits";	// reply to usageCredits
 	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
 	msgOut.m_strNymID2		= MsgIn.m_strNymID2;// UserID of user whose usage credits are being examined / adjusted.
-	msgOut.m_strServerID	= m_strServerID;	// ServerID, a hash of the server contract.
+//	msgOut.m_strServerID	= m_strServerID;	// This is already set in ProcessUserCommand.
 	
 	const long lAdjustment = MsgIn.m_lDepth;	// The amount the usage credits are being ADJUSTED by.
 
@@ -2369,7 +2369,7 @@ void OTServer::UserCmdIssueAssetType(OTPseudonym & theNym, OTMessage & MsgIn, OT
 	msgOut.m_strCommand		= "@issueAssetType";// reply to issueAssetType
 	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
 	msgOut.m_strAssetID		= MsgIn.m_strAssetID;	// Asset Type ID, a hash of the asset contract.
-	msgOut.m_strServerID	= m_strServerID;	// ServerID, a hash of the server contract.
+//	msgOut.m_strServerID	= m_strServerID;	// This is already set in ProcessUserCommand.
 	
     // already at the top of ProcessUserCommand, which calls this.
 //  msgOut.m_strRequestNum.Set(MsgIn.m_strRequestNum);
@@ -2640,7 +2640,7 @@ void OTServer::UserCmdIssueBasket(OTPseudonym & theNym, OTMessage & MsgIn, OTMes
 	// (1) set up member variables 
 	msgOut.m_strCommand		= "@issueBasket";	// reply to issueBasket
 	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
-	msgOut.m_strServerID	= m_strServerID;	// ServerID, a hash of the server contract.
+//	msgOut.m_strServerID	= m_strServerID;	// This is already set in ProcessUserCommand.
 	
 	// Either way, we need to send the user's command back to him as well.
 	{
@@ -2839,7 +2839,7 @@ void OTServer::UserCmdCreateAccount(OTPseudonym & theNym, OTMessage & MsgIn, OTM
 	// (1) set up member variables 
 	msgOut.m_strCommand		= "@createAccount";	// reply to createAccount
 	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
-	msgOut.m_strServerID	= m_strServerID;	// ServerID, a hash of the server contract.
+//	msgOut.m_strServerID	= m_strServerID;	// This is already set in ProcessUserCommand.
 	
 	const OTIdentifier USER_ID(theNym), SERVER_ID(m_strServerID);
 	
@@ -6414,7 +6414,7 @@ void OTServer::UserCmdExchangeBasket(OTPseudonym & theNym, OTMessage & MsgIn, OT
 	// (1) set up member variables 
 	msgOut.m_strCommand		= "@exchangeBasket";// reply to exchangeBasket
 	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
-	msgOut.m_strServerID	= m_strServerID;	// ServerID, a hash of the server contract.
+//	msgOut.m_strServerID	= m_strServerID;	// This is already set in ProcessUserCommand.
 	msgOut.m_strAssetID		= MsgIn.m_strAssetID;// basket asset type ID
 	msgOut.m_bBool			= MsgIn.m_bBool;	// exchange in or out?
 	
@@ -7328,7 +7328,7 @@ void OTServer::UserCmdNotarizeTransactions(OTPseudonym & theNym, OTMessage & Msg
 	// (1) set up member variables 
 	msgOut.m_strCommand		= "@notarizeTransactions";	// reply to notarizeTransactions
 	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
-	msgOut.m_strServerID	= m_strServerID;	// ServerID, a hash of the server contract.
+//	msgOut.m_strServerID	= m_strServerID;	// This is already set in ProcessUserCommand.
 	msgOut.m_strAcctID		= MsgIn.m_strAcctID;	// The Account ID in question
 	
 	const OTIdentifier	USER_ID(MsgIn.m_strNymID), 
@@ -7615,7 +7615,7 @@ void OTServer::UserCmdGetAccount(OTPseudonym & theNym, OTMessage & MsgIn, OTMess
 	// (1) set up member variables 
 	msgOut.m_strCommand		= "@getAccount";	// reply to getAccount
 	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
-	msgOut.m_strServerID	= m_strServerID;	// ServerID, a hash of the server contract.
+//	msgOut.m_strServerID	= m_strServerID;	// This is already set in ProcessUserCommand.
 	msgOut.m_strAcctID		= MsgIn.m_strAcctID;	// The Account ID in question
 	
 	const OTIdentifier USER_ID(MsgIn.m_strNymID), ACCOUNT_ID(MsgIn.m_strAcctID), SERVER_ID(MsgIn.m_strServerID);
@@ -7680,7 +7680,7 @@ void OTServer::UserCmdQueryAssetTypes(OTPseudonym & theNym, OTMessage & MsgIn, O
 	// (1) set up member variables 
 	msgOut.m_strCommand		= "@queryAssetTypes";	// reply to queryAssetTypes
 	msgOut.m_strNymID		= MsgIn.m_strNymID;		// UserID
-	msgOut.m_strServerID	= m_strServerID;		// ServerID, a hash of the server contract.
+//	msgOut.m_strServerID	= m_strServerID;	// This is already set in ProcessUserCommand.
 	msgOut.m_bSuccess		= false;				// so far.
 	
 	// Send the user's command back to him whether success or failure.
@@ -7760,7 +7760,7 @@ void OTServer::UserCmdGetContract(OTPseudonym & theNym, OTMessage & MsgIn, OTMes
 	// (1) set up member variables 
 	msgOut.m_strCommand		= "@getContract";	// reply to getContract
 	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
-	msgOut.m_strServerID	= m_strServerID;	// ServerID, a hash of the server contract.
+//	msgOut.m_strServerID	= m_strServerID;	// This is already set in ProcessUserCommand.
 	msgOut.m_strAssetID		= MsgIn.m_strAssetID;	// The Asset Type ID in question
 	
 	const OTIdentifier ASSET_TYPE_ID(MsgIn.m_strAssetID);
@@ -7810,7 +7810,7 @@ void OTServer::UserCmdTriggerClause(OTPseudonym & theNym, OTMessage & MsgIn, OTM
 	// (1) set up member variables 
 	msgOut.m_strCommand		= "@triggerClause";	// reply to triggerClause
 	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
-	msgOut.m_strServerID	= m_strServerID;	// ServerID, a hash of the server contract.
+//	msgOut.m_strServerID	= m_strServerID;	// This is already set in ProcessUserCommand.
 	msgOut.m_bSuccess		= false;			// Default value.
     
     // ------------------------------------------------------------
@@ -7953,7 +7953,7 @@ void OTServer::UserCmdGetMint(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage
 	// (1) set up member variables 
 	msgOut.m_strCommand		= "@getMint";	// reply to getMint
 	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
-	msgOut.m_strServerID	= m_strServerID;	// ServerID, a hash of the server contract.
+//	msgOut.m_strServerID	= m_strServerID;	// This is already set in ProcessUserCommand.
 	msgOut.m_strAssetID		= MsgIn.m_strAssetID;	// The Asset Type ID in question
 	
 	const OTIdentifier ASSET_TYPE_ID(MsgIn.m_strAssetID);	
@@ -8015,7 +8015,7 @@ void OTServer::UserCmdDeleteUser(OTPseudonym & theNym, OTMessage & MsgIn, OTMess
 	// (1) set up member variables 
 	msgOut.m_strCommand		= "@deleteUserAccount";	// reply to deleteUserAccount
 	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
-	msgOut.m_strServerID	= m_strServerID;	// ServerID, a hash of the server contract.
+//	msgOut.m_strServerID	= m_strServerID;	// This is already set in ProcessUserCommand.
 	
 	const OTIdentifier USER_ID(MsgIn.m_strNymID), SERVER_ID(MsgIn.m_strServerID);
 	
@@ -8138,7 +8138,7 @@ void OTServer::UserCmdGetBoxReceipt(OTPseudonym & theNym, OTMessage & MsgIn, OTM
 	// (1) set up member variables 
 	msgOut.m_strCommand			= "@getBoxReceipt";			// reply to getBoxReceipt
 	msgOut.m_strNymID			= MsgIn.m_strNymID;         // UserID
-	msgOut.m_strServerID		= m_strServerID;            // ServerID, a hash of the server contract.
+//	msgOut.m_strServerID        = m_strServerID;            // This is already set in ProcessUserCommand.
 	msgOut.m_strAcctID			= MsgIn.m_strAcctID;        // the asset account ID (inbox/outbox), or Nym ID (nymbox)
 	msgOut.m_lTransactionNum	= MsgIn.m_lTransactionNum;	// TransactionNumber for the receipt in the box (unique to the box.)
 	msgOut.m_lDepth				= MsgIn.m_lDepth;
@@ -8312,7 +8312,7 @@ void OTServer::UserCmdDeleteAssetAcct(OTPseudonym & theNym, OTMessage & MsgIn, O
 	// (1) set up member variables 
 	msgOut.m_strCommand		= "@deleteAssetAccount";    // reply to deleteAssetAccount
 	msgOut.m_strNymID		= MsgIn.m_strNymID;         // UserID
-	msgOut.m_strServerID	= m_strServerID;            // ServerID, a hash of the server contract.
+//	msgOut.m_strServerID	= m_strServerID;	// This is already set in ProcessUserCommand.
 	msgOut.m_strAcctID      = MsgIn.m_strAcctID;        // the asset account being deleted.
 	
 	const OTIdentifier  USER_ID(MsgIn.m_strNymID),
@@ -8429,7 +8429,7 @@ void OTServer::UserCmdGetNymbox(OTPseudonym & theNym, OTMessage & MsgIn, OTMessa
 	// (1) set up member variables 
 	msgOut.m_strCommand		= "@getNymbox";	// reply to getNymbox
 	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
-	msgOut.m_strServerID	= m_strServerID;	// ServerID, a hash of the server contract.
+//	msgOut.m_strServerID	= m_strServerID;	// This is already set in ProcessUserCommand.
 	
 	const
     OTIdentifier USER_ID(MsgIn.m_strNymID), SERVER_ID(MsgIn.m_strServerID);
@@ -8526,7 +8526,7 @@ void OTServer::UserCmdGetInbox(OTPseudonym & theNym, OTMessage & MsgIn, OTMessag
 	// (1) set up member variables 
 	msgOut.m_strCommand		= "@getInbox";	// reply to getInbox
 	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
-	msgOut.m_strServerID	= m_strServerID;	// ServerID, a hash of the server contract.
+//	msgOut.m_strServerID	= m_strServerID;	// This is already set in ProcessUserCommand.
 	msgOut.m_strAcctID		= MsgIn.m_strAcctID;	// The Account ID in question
 	
 	const OTIdentifier USER_ID(MsgIn.m_strNymID), ACCOUNT_ID(MsgIn.m_strAcctID), SERVER_ID(MsgIn.m_strServerID);
@@ -8595,7 +8595,7 @@ void OTServer::UserCmdGetOutbox(OTPseudonym & theNym, OTMessage & MsgIn, OTMessa
 	// (1) set up member variables 
 	msgOut.m_strCommand		= "@getOutbox";	// reply to getOutbox
 	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
-	msgOut.m_strServerID	= m_strServerID;	// ServerID, a hash of the server contract.
+//	msgOut.m_strServerID	= m_strServerID;	// This is already set in ProcessUserCommand.
 	msgOut.m_strAcctID		= MsgIn.m_strAcctID;	// The Account ID in question
 	
 	const OTIdentifier USER_ID(MsgIn.m_strNymID), ACCOUNT_ID(MsgIn.m_strAcctID), SERVER_ID(MsgIn.m_strServerID);
@@ -8667,7 +8667,7 @@ void OTServer::UserCmdProcessNymbox(OTPseudonym & theNym, OTMessage & MsgIn, OTM
 	// (1) set up member variables 
 	msgOut.m_strCommand		= "@processNymbox";	// reply to processNymbox
 	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
-	msgOut.m_strServerID	= m_strServerID;	// ServerID, a hash of the server contract.
+//	msgOut.m_strServerID	= m_strServerID;	// This is already set in ProcessUserCommand.
 	
 	const OTIdentifier	USER_ID(msgOut.m_strNymID), 
 						SERVER_ID(m_strServerID),
@@ -9421,7 +9421,7 @@ void OTServer::UserCmdProcessInbox(OTPseudonym & theNym, OTMessage & MsgIn, OTMe
 	// (1) set up member variables 
 	msgOut.m_strCommand		= "@processInbox";	// reply to processInbox
 	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
-	msgOut.m_strServerID	= m_strServerID;	// ServerID, a hash of the server contract.
+//	msgOut.m_strServerID	= m_strServerID;	// This is already set in ProcessUserCommand.
 	msgOut.m_strAcctID		= MsgIn.m_strAcctID;	// The Account ID in question
 	
 	const OTIdentifier	USER_ID(msgOut.m_strNymID), 
@@ -11468,7 +11468,166 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 	// ALL commands below can assume the Nym is real, and that the NymID and Public Key are
 	// available for use -- and that they verify -- without having to check again and again.
 
-	
+    // ----------------------------------------------------------------------------------------
+
+    // ACKNOWLEDGMENTS OF REPLIES ALREADY RECEIVED (FOR OPTIMIZATION.)
+    
+    // On the client side, whenever the client is DEFINITELY made aware of the existence of a 
+    // server reply, he adds its request number to this list, which is sent along with all client-side
+    // requests to the server.
+    // The server reads the list on the incoming client message (and it uses these same functions
+    // to store its own internal list.) If the # already appears on its internal list, then it does
+    // nothing. Otherwise, it loads up the Nymbox and removes the replyNotice, and then adds the #
+    // to its internal list.
+    // For any numbers on the internal list but NOT on the client's list, the server removes from
+    // the internal list. (The client removed them when it saw the server's internal list, which the
+    // server sends with its replies.)
+    //
+    // This entire protocol, densely described, is unnecessary for OT to function, but is great for
+    // optimization, as it enables OT to avoid downloading all Box Receipts containing replyNotices,
+    // as long as the original reply was properly received when the request was originally sent (which
+    // is MOST of the time...)
+    // Thus we can eliminate most replyNotice downloads, and likely a large % of box receipt downloads
+    // as well.
+    //
+
+    const OTIdentifier SERVER_ID(m_strServerID);
+    
+    // The server reads the list of acknowledged replies from the incoming client message...
+    //
+    bool bIsDirtyNym    = false; // if we add any acknowledged replies to the server-side list, we will want to save (at the end.)
+    bool bIsDirtyNymbox = false; // if we remove any replyNotices from the Nymbox, then we will want to save the Nymbox (at the end.)
+
+    std::set<long> numlist_ack_reply;    
+    if (theMessage.m_AcknowledgedReplies.Output(numlist_ack_reply)) // returns false if the numlist was empty.
+    {
+        // Load Nymbox
+        //
+        OTLedger theNymbox(pNym->GetConstID(), pNym->GetConstID(), SERVER_ID);
+        
+        if (theNymbox.LoadNymbox() && theNymbox.VerifySignature(m_nymServer))
+        {
+            FOR_EACH(std::set<long>, numlist_ack_reply)
+            {
+                const long lRequestNum = *it;
+                // ----------------------------
+                // If the # already appears on its internal list, then it does nothing. (It must have already done
+                // whatever it needed to do, since it already has the number recorded as acknowledged.)
+                //
+                // Otherwise, if the # does NOT already appear on server's internal list, then it loads up the
+                // Nymbox and removes the replyNotice, and then adds the # to its internal list for safe-keeping.
+                //
+                if (false == pNym->VerifyAcknowledgedNum(m_strServerID, lRequestNum))
+                {
+                    // Verify whether a replyNotice exists in the Nymbox, with that lRequestNum
+                    //
+                    OTTransaction * pReplyNotice = theNymbox.GetReplyNotice(lRequestNum);
+                    
+                    if (NULL != pReplyNotice)
+                    {
+                        // If so, remove it...
+                        //
+                        const bool bDeleted = pReplyNotice->DeleteBoxReceipt(theNymbox);
+                        const bool bRemoved = theNymbox.RemoveTransaction(pReplyNotice->GetTransactionNum()); // deletes
+                        pReplyNotice = NULL;
+                        // (pReplyNotice is deleted, below this point, automatically by the above Remove call.)
+                        
+                        if (!bDeleted || !bRemoved)
+                            OTLog::Error("OTServer::ProcessUserCommand: Failed trying to delete a box receipt, or "
+                                         "while removing its stub from the Nymbox.\n");
+                            
+                        // ...and add lRequestNum to server's acknowledgment list. (So this can't happen twice with same #.)
+                        //
+                        if (pNym->AddAcknowledgedNum(m_strServerID, lRequestNum)) // doesn't save (here).
+                            bIsDirtyNym    = true; // So we don't have to save EACH iteration, but instead just once at the bottom.
+                        
+                        if (bRemoved)
+                            bIsDirtyNymbox = true; // So we don't have to save EACH iteration, but instead just once at the bottom.
+                    }
+                } // If server didn't already have a record of this acknowledged request #.
+            } // FOR_EACH
+            // --------------------------
+            
+            if (bIsDirtyNymbox)
+            {
+                theNymbox.ReleaseSignatures();
+                theNymbox.SignContract(m_nymServer);
+                theNymbox.SaveContract();
+                theNymbox.SaveNymbox();
+            }
+        } // If nymbox loaded and verified.
+    }
+    // ------------------------------------
+    
+    // For any numbers on the server's internal list but NOT on the client's list, the server removes from
+    // the internal list. (Because the client must have seen my acknowledgment and thus removed the number
+    // from its own list, so the server doesn't need to display it anymore.)
+    //
+    // Thus: iterate through the server's list of numbers, and see if each is on the client's list. If not,
+    // then remove it from my own (server's) internal list as well.
+    //
+    OTNumList numlist_to_remove; // a temp variable where we will put the numbers "to be removed" (so we can remove them all at once, after the loop.)
+    const int nAcknowledgedNumCount = pNym->GetAcknowledgedNumCount(SERVER_ID);
+    
+    if (nAcknowledgedNumCount > 0)
+    {
+        for (int i = 0; i < nAcknowledgedNumCount; i++)
+        {	
+            const long lAcknowledgedNum = pNym->GetAcknowledgedNum(SERVER_ID, i); // index
+
+            // For any numbers on the server's internal list but NOT on the client's list (according
+            // to the incoming message) the server removes them from its internal list. (If the client
+            // is done with them, then so is the server.)
+            //
+            if (false == theMessage.m_AcknowledgedReplies.Verify(lAcknowledgedNum))
+            {
+                numlist_to_remove.Add(lAcknowledgedNum);
+            }
+        } // for
+        // ---------------------------------
+        
+        if (numlist_to_remove.Count() > 0)
+        {
+            std::set<long> set_server_ack;
+            // -----------------------------------
+            if (numlist_to_remove.Output(set_server_ack))
+                FOR_EACH(std::set<long>, set_server_ack)
+                {
+                    const long lRequestNum = *it;
+                    // --------------------------
+                    
+                    if (pNym->RemoveAcknowledgedNum(m_nymServer, m_strServerID, lRequestNum, false)) // bSave=false
+                        bIsDirtyNym = true;
+                }
+        }
+    } // if there are server-side ack numbers that could potentially be removed, if client's message doesn't list them.
+    // -------------------------------------------
+    
+    if (bIsDirtyNym)
+    {
+        pNym->SaveSignedNymfile(m_nymServer); // we save here.
+    }
+    
+    // Note: in the ultimate future, we wouldn't even save the Nym down here, but we'll let the entire message process
+    // and then save the Nym at the end.
+    // Then again -- you'd still want to know if the Nym was locked, at each "save attempt" along the way. Because even
+    // though the Nym might not actually save at each of those signposts, it should still CANCEL OUT IF IT WOULD FAIL TRYING.
+    // Of course we still only want to save the Nym once, but we still want each step along the way -- each vital step that
+    // would normally have saved each time -- to know whether or not it will actually work, and if not, to fail the message
+    // AT THAT POINT and not somewhere much later, at the bottom, after all kinds of other processing has been done.
+    //
+    // Therefore in the new version we will probably still "Save" the Nym at each critical point, but INTERNALLY, it won't
+    // actually save until the bottom. BUT, even though it won't actually save, it will still know if the TIMESTAMP IS WITHIN
+    // VALID RANGE (each time), and it will still know that it has definitely locked the resource (which happens the first time)
+    // and it will still want to set the resource as dirty, internally, even when it doesn't save it right away, because otherwise
+    // it wouldn't know to save it later, either.
+
+    msgOut.m_strServerID	= m_strServerID;
+    msgOut.SetAcknowledgments(*pNym); // Must be called AFTER msgOut.m_strServerID is already set. (It uses it.)
+    
+    // ****************************************************************************************************
+                    
+
 	if (theMessage.m_strCommand.Compare("getRequest")) // This command is special because it's the only one that doesn't require a request number.
 													   // All of the other commands, below, will fail above if the proper request number isn't included
 													   // in the message.  They will already have failed by this point if they didn't verify.

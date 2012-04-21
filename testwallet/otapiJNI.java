@@ -177,6 +177,7 @@ public class otapiJNI {
   public final static native String OT_API_Ledger_FinalizeResponse(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native String OT_API_Ledger_GetInstrument(String jarg1, String jarg2, String jarg3, String jarg4, int jarg5);
   public final static native String OT_API_Transaction_GetType(String jarg1, String jarg2, String jarg3, String jarg4);
+  public final static native String OT_API_ReplyNotice_GetRequestNum(String jarg1, String jarg2, String jarg3);
   public final static native String OT_API_Transaction_GetVoucher(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native int OT_API_Transaction_GetSuccess(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native int OT_API_Transaction_GetBalanceAgreementSuccess(String jarg1, String jarg2, String jarg3, String jarg4);
@@ -246,6 +247,7 @@ public class otapiJNI {
   public final static native String OT_API_LoadNymbox(String jarg1, String jarg2);
   public final static native String OT_API_LoadNymboxNoVerify(String jarg1, String jarg2);
   public final static native String OT_API_Nymbox_GetReplyNotice(String jarg1, String jarg2, String jarg3);
+  public final static native int OT_API_HaveAlreadySeenReply(String jarg1, String jarg2, String jarg3);
   public final static native int OT_API_getBoxReceipt(String jarg1, String jarg2, String jarg3, int jarg4, String jarg5);
   public final static native int OT_API_DoesBoxReceiptExist(String jarg1, String jarg2, String jarg3, int jarg4, String jarg5);
   public final static native int OT_API_processInbox(String jarg1, String jarg2, String jarg3, String jarg4);

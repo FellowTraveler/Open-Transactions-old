@@ -131,7 +131,6 @@
 #define __OTTRANSACTION_TYPE_H__
 
 #include <fstream>
-#include <set>
 
 #include "OTASCIIArmor.h"
 #include "OTContract.h"
@@ -139,51 +138,6 @@
 class OTString;
 class OTIdentifier;
 
-// --------------------------------------------------
-// Useful for storing a std::set of longs, 
-// serializing to/from comma-separated string,
-// And easily being able to add/remove/verify the 
-// individual transaction numbers that are there.
-// (Used by OTTransaction::blank and
-// OTTransaction::successNotice.)
-//
-class OTNumList
-{
-    std::set<long>  m_setData;
-    
-    // private for security reasons, used internally only by a function that knows the string length already.
-    bool Add(const char * szNumbers);   // if false, means the numbers were already there. (At least one of them.)
-
-public:
-    OTNumList(const std::set<long> & theNumbers);
-//  OTNumList(const char * szNumbers); // removed for security reasons.
-    OTNumList(const OTString & strNumbers);
-    OTNumList();
-    ~OTNumList();
-    // -------------------
-    bool Add(const OTString & strNumbers);  // if false, means the numbers were already there. (At least one of them.)
-    // -------------------
-    bool Add(const long & theValue);    // if false, means the value was already there.
-    bool Remove(const long & theValue); // if false, means the value was NOT already there.
-    bool Verify(const long & theValue) const; // returns true/false (whether value is already there.)
-    // -------------------
-    bool Add(const OTNumList & theNumList);    // if false, means the numbers were already there. (At least one of them.)
-    bool Add(const std::set<long> & theNumbers);    // if false, means the numbers were already there. (At least one of them.)
-    bool Remove(const std::set<long> & theNumbers); // if false, means the numbers were NOT already there. (At least one of them.)
-    bool Verify(const std::set<long> & theNumbers) const; // True/False, based on whether values are already there. (ALL must be present.)
-    // -------------------
-    bool Verify(const OTNumList & rhs) const; // True/False, based on whether OTNumLists MATCH in COUNT and CONTENT (NOT ORDER.)
-    // -------------------
-    int Count() const;
-    // -------------------
-    // Outputs the numlist as set of numbers. (To iterate OTNumList, call this, then iterate the output.)
-    bool Output(std::set<long> & theOutput) const; // returns false if the numlist was empty.
-    // Outputs the numlist as a comma-separated string (for serialization, usually.)
-    bool Output(OTString & strOutput) const; // returns false if the numlist was empty.
-    // -------------------
-    void Release();
-};
-// -----------------------------------------------------
 
 // OTTransactionType is a base class for OTLedger, OTTransaction, and OTItem.
 //

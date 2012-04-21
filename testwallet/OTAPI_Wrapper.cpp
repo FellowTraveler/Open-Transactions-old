@@ -1083,6 +1083,15 @@ const std::string OTAPI_Wrap::Transaction_GetType(const std::string SERVER_ID,
 	return OT_API_Transaction_GetType(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), THE_TRANSACTION.c_str());
 }
 // --------------------------------------------------------------------
+
+const std::string OTAPI_Wrap::ReplyNotice_GetRequestNum(const std::string SERVER_ID,
+                                                        const std::string USER_ID,
+                                                        const std::string THE_TRANSACTION)
+{
+	return OT_API_ReplyNotice_GetRequestNum(SERVER_ID.c_str(), USER_ID.c_str(), THE_TRANSACTION.c_str());
+}
+// --------------------------------------------------------------------
+
 const std::string OTAPI_Wrap::Transaction_GetVoucher(const std::string SERVER_ID,
 													 const std::string USER_ID,
 													 const std::string ACCOUNT_ID,
@@ -1835,8 +1844,20 @@ void OTAPI_Wrap::FlushSentMessages(const bool        bHarvestingForRetry,
                              SERVER_ID.c_str(), USER_ID.c_str(), THE_NYMBOX.c_str());
 }
 
+
 // -----------------------------------------------------------
 
+bool OTAPI_Wrap::HaveAlreadySeenReply(const std::string SERVER_ID, 
+                                      const std::string USER_ID, 
+                                      const std::string REQUEST_NUMBER)
+{
+	const OT_BOOL bResult = OT_API_HaveAlreadySeenReply(SERVER_ID.c_str(), USER_ID.c_str(), REQUEST_NUMBER.c_str());
+    
+    return (OT_TRUE == bResult) ? true : false;
+}
+
+
+// -----------------------------------------------------------
 
 void OTAPI_Wrap::Sleep(const std::string MILLISECONDS)
 {
