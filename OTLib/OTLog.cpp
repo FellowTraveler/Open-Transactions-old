@@ -160,11 +160,23 @@ extern "C"
 	
 #ifdef _WIN32
 #include <direct.h>
+#include <sys/timeb.h>
 #else
 #include <wordexp.h>
+#include <unistd.h>
+#include <sys/time.h>
+#include <sys/resource.h>
 #endif
 
-#include <sys/stat.h>	
+#include <sys/stat.h>
+
+// -----------------------
+#include <openssl/ssl.h>
+#include <openssl/err.h>
+#include <openssl/evp.h>
+#include <openssl/conf.h>
+#include <openssl/rand.h>
+// -----------------------
 }
 
 
@@ -214,7 +226,7 @@ int     OTLog::__latency_receive_ms = 5000; // number of ms to wait before retry
 long	OTLog::__minimum_market_scale = 1;	// Server admin can configure this to any higher power-of-ten.
 
 
-OTString OTLog::__Version = "0.80c";
+OTString OTLog::__Version = "0.80d";
 
 
 
@@ -313,6 +325,320 @@ void OTLog::TransformFilePath(const char * szInput, OTString & strOutput)
 	strOutput.Set(szInput);
 #endif  
 }
+
+
+
+
+
+/*
+ #include <openssl/ssl.h>
+ void SSL_load_error_strings(void);
+ 
+ #include <openssl/err.h>
+ void ERR_free_strings(void);
+ //void ERR_load_crypto_strings(void);
+ 
+ 
+ #include <openssl/ssl.h>
+ int SSL_library_init(void);
+ //#define OpenSSL_add_ssl_algorithms()    SSL_library_init()
+ //#define SSLeay_add_ssl_algorithms()     SSL_library_init()
+ 
+ 
+ #include <openssl/evp.h>
+ void OpenSSL_add_all_algorithms(void);
+ //void OpenSSL_add_all_ciphers(void);
+ //void OpenSSL_add_all_digests(void);
+ void EVP_cleanup(void);
+ 
+ 
+ #include <openssl/conf.h>
+ void OPENSSL_config(const char *config_name);
+ //void OPENSSL_no_config(void);
+ //Applications should free up configuration at application closedown by calling CONF_modules_free().
+ 
+ #include <openssl/conf.h>
+ void CONF_modules_free(void);
+ //void CONF_modules_finish(void);
+ //void CONF_modules_unload(int all);
+ */
+
+
+
+// I wanted a global OT_Init function where I could set up OpenSSL,
+// load the error strings, etc.  I chose to put it in OTLog for now
+// because the header is usually expected in every other file, so it's
+// available, and it's in the library, so it's available to BOTH client
+// and server from this spot.
+//
+// -------------------------------------------
+//static
+void OTLog::OT_Init()
+{
+    static bool __OT_LowLevel_Initialized = false;
+    // -------------------------------------------
+
+    // This way it can only happen once -- the first time.
+    //
+    if (false == __OT_LowLevel_Initialized)
+    {
+        __OT_LowLevel_Initialized = true;
+        
+        OTLog::Output(1, "OT_Init: Setting up rlimits, SSL_library_init, error strings and algorithms, and OpenSSL config...\n");
+        
+        // *********************************************************************************
+        
+        // Here is a security measure intended to make it more difficult to capture a core
+        // dump. (Not used in debug mode, obviously.)
+        //
+#if !defined(PREDEF_MODE_DEBUG) && defined(PREDEF_PLATFORM_UNIX)
+        struct rlimit rlim;
+        getrlimit(RLIMIT_CORE, &rlim);
+        rlim.rlim_max = rlim.rlim_cur = 0;
+        if (setrlimit(RLIMIT_CORE, &rlim))
+        {
+            OT_ASSERT_MSG(false, "ASSERT: setrlimit failed. (Used for preventing core dumps.)\n");
+        }
+#endif
+        
+        // *********************************************************************************
+        /* Todo FYI:
+         - One final comment about compiling applications linked to the OpenSSL library.
+         - If you don't use the multithreaded DLL runtime library (/MD option) your
+         - program will almost certainly crash because malloc gets confused -- the
+         - OpenSSL DLLs are statically linked to one version, the application must
+         - not use a different one.  You might be able to work around such problems
+         - by adding CRYPTO_malloc_init() to your program before any calls to the
+         - OpenSSL libraries: This tells the OpenSSL libraries to use the same
+         - malloc(), free() and realloc() as the application.  However there are many
+         - standard library functions used by OpenSSL that call malloc() internally
+         - (e.g. fopen()), and OpenSSL cannot change these; so in general you cannot
+         - rely on CRYPTO_malloc_init() solving your problem, and you should
+         - consistently use the multithreaded library.
+         */
+#ifdef _WIN32
+		CRYPTO_malloc_init();                           //      # -1
+        // FYI: this call appeared in the client version, not the server version.
+        // but now it will obviously appear in both, since they both will just call this (OT_Init.)
+        // Therefore if any weird errors crop in the server, just be aware. This call might have been
+        // specifically for DLLs or something.
+#endif
+        // *********************************************************************************
+        // SSL_library_init() must be called before any other action takes place.
+        // SSL_library_init() is not reentrant.
+        //
+        SSL_library_init();                               //     #0
+
+        // *********************************************************************************
+        
+        /*
+         We all owe a debt of gratitude to the OpenSSL team but fuck is their documentation
+         difficult!! In this case I am trying to figure out whether I should call SSL_library_init()
+         first, or SSL_load_error_strings() first.
+         Docs say:
+         
+         EXAMPLES   (http://www.openssl.org/docs/ssl/SSL_library_init.html#)
+         
+         A typical TLS/SSL application will start with the library initialization, 
+         and provide readable error messages.
+         
+            SSL_load_error_strings();               // readable error messages
+            SSL_library_init();                      // initialize library
+        -----------
+         ===> NOTICE it said "START" with library initialization, "AND" provide
+              readable error messages... But then what order does it PUT them in?
+         
+            SSL_load_error_strings();        // readable error messages
+            SSL_library_init();              // initialize library
+         -------
+         
+         ON THE SAME PAGE, as if things weren't confusing enough, see THIS:
+         
+         NOTES
+         SSL_library_init() must be called before any other action takes place.
+         SSL_library_init() is not reentrant.
+         -------------------
+         Then, on http://www.openssl.org/docs/crypto/ERR_load_crypto_strings.html#, in
+         reference to SSL_load_error_strings and ERR_load_crypto_strings, it says:
+         
+            One of these functions should be called BEFORE generating textual error messages.
+         
+         ====>  ?? Huh?? So which should I call first? Ben Laurie, if you are ever googling your
+         own name on the Internet, please drop me a line and lemme know:
+                fellowtraveler around rayservers cough net
+         */
+        // ---------------------------------------------
+        
+        // NOTE: the below sections are numbered #1, #2, #3, etc so that they can be UNROLLED
+        // IN THE OPPOSITE ORDER when we get to OT_Cleanup().
+        
+        // *********************************************************************************
+        /*
+         - ERR_load_crypto_strings() registers the error strings for all libcrypto functions.
+         - SSL_load_error_strings() does the same, but also registers the libssl error strings.
+         One of these functions should be called before generating textual error messages.
+         - ERR_free_strings() frees all previously loaded error strings.
+         */
+        SSL_load_error_strings();    // DONE -- corresponds to ERR_free_strings in OT_Cleanup()   #1
+//      ERR_load_crypto_strings();   // Redundant -- SSL_load_error_strings does this already.
+        // *********************************************************************************
+        //
+        /*
+         OpenSSL keeps an internal table of digest algorithms and ciphers. 
+         It uses this table to lookup ciphers via functions such as EVP_get_cipher_byname().
+         
+         OpenSSL_add_all_algorithms() adds all algorithms to the table (digests and ciphers).
+         
+         OpenSSL_add_all_digests() adds all digest algorithms to the table.
+         OpenSSL_add_all_ciphers() adds all encryption algorithms to the table including password based encryption algorithms.
+         // ---------------------
+         TODO optimization:
+         Calling OpenSSL_add_all_algorithms() links in all algorithms: as a result a statically linked executable
+         can be quite large. If this is important it is possible to just add the required ciphers and digests.
+         -- Thought: I will probably have different optimization options. Some things will be done no matter what, but
+         other things will be compile-flags for optimizing specifically for speed, or size, or use of RAM, or CPU cycles,
+         or security options, etc. This is one example of something where I would optimize it out, if possible, when trying
+         to conserve RAM.
+         Note: However it seems from the docs, that this table needs to be populated anyway due to problems in
+         OpenSSL when it's not.
+         */
+        OpenSSL_add_all_algorithms();   // DONE -- corresponds to EVP_cleanup() in OT_Cleanup().    #2
+        //
+        // *********************************************************************************
+        //
+        // RAND
+        //
+        /*
+        RAND_bytes() automatically calls RAND_poll() if it has not already been done at least once.
+         So you do not have to call it yourself. RAND_poll() feeds on what the operating system provides: 
+         on Linux, Solaris, FreeBSD and similar Unix-like systems, it will use /dev/urandom (or /dev/random 
+         if there is no /dev/urandom) to obtain a cryptographically secure initial seed; on Windows, it will
+         call CryptGenRandom() for the same effect.
+            
+            RAND_screen() is provided by OpenSSL only for backward compatibility with (much) older code which
+         may call it (that was before OpenSSL used proper OS-based seed initialization).
+                
+         So the "normal" way of dealing with RAND_poll() and RAND_screen() is to call neither. Just use RAND_bytes() 
+         and be happy.
+         
+         RESPONSE: Thanks for the detailed answer. In regards to your suggestion to call neither, the problem
+         under Windows is that RAND_poll can take some time and will block our UI. So we call it upon initialization,
+         which works for us. 
+        */
+        // I guess Windows will seed the PRNG whenever someone tries to get
+        // some RAND_bytes() the first time...
+        //
+//#ifdef _WIN32
+        // CORRESPONDS to RAND_cleanup in OT_Cleanup().
+//      RAND_screen();
+//#else
+        // note: optimization: might want to remove this, since supposedly it happens anyway
+        // when you use RAND_bytes. So the "lazy evaluation" rule would seem to imply, not bothering
+        // to slow things down NOW, since it's not really needed until THEN.
+        //
+#if defined(USE_RAND_POLL)
+            RAND_poll();           //                                   #3
+#endif
+        // *********************************************************************************
+
+        // OPENSSL_config()                                             #4
+        //
+        // OPENSSL_config configures OpenSSL using the standard openssl.cnf configuration file name 
+        // using config_name. If config_name is NULL then the default name openssl_conf will be used. 
+        // Any errors are ignored. Further calls to OPENSSL_config() will have no effect. The configuration
+        // file format is documented in the conf(5) manual page.
+        //
+        OPENSSL_config(NULL); // const char *config_name = NULL: the default name openssl_conf will be used.
+        //
+        // Corresponds to CONF_modules_free() in OT_Cleanup().
+        //
+        // *********************************************************************************
+        
+        
+        
+        // *********************************************************************************
+        //
+        // Let's see 'em!
+        //
+        ERR_print_errors_fp(stderr);
+    }
+
+}
+
+
+// RAND_status() and RAND_event() return 1 if the PRNG has been seeded with enough data, 0 otherwise.
+
+
+/*
+ 13. I think I've detected a memory leak, is this a bug?
+ 
+ In most cases the cause of an apparent memory leak is an OpenSSL internal
+ table that is allocated when an application starts up. Since such tables do
+ not grow in size over time they are harmless.
+ 
+ These internal tables can be freed up when an application closes using
+ various functions. Currently these include following:
+ 
+    Thread-local cleanup functions:
+ 
+        ERR_remove_state()
+ 
+ Application-global cleanup functions that are aware of usage (and therefore thread-safe):
+
+        ENGINE_cleanup() and CONF_modules_unload()
+ 
+ "Brutal" (thread-unsafe) Application-global cleanup functions:
+        
+        ERR_free_strings(), EVP_cleanup() and CRYPTO_cleanup_all_ex_data().
+ */
+//static
+void OTLog::OT_Cleanup()
+{
+// In the future if we start using ENGINEs, then do the cleanup here:
+//#ifndef OPENSSL_NO_ENGINE
+//  void ENGINE_cleanup(void);
+//#endif
+    //
+    // ------------------------------------------
+            
+    /*
+     CONF_modules_free()
+     
+     OpenSSL configuration cleanup function. CONF_modules_free() closes down and frees
+     up all memory allocated by all configuration modules.
+     Normally applications will only call CONF_modules_free() at application [shutdown]
+     to tidy up any configuration performed.
+     */
+    CONF_modules_free(); // CORRESPONDS to: OPENSSL_config() in OT_Init().   #4
+    
+    RAND_cleanup();      // Corresponds to RAND_screen / RAND_poll in OT_Init()  #3
+
+	EVP_cleanup();       // DONE (brutal) -- corresponds to OpenSSL_add_all_algorithms in OT_Init(). #2
+    // -------------------------------------------------
+    
+    CRYPTO_cleanup_all_ex_data(); // (brutal)
+    
+    // -------------------------------------------------
+    
+	ERR_free_strings(); // DONE (brutal) -- corresponds to SSL_load_error_strings in OT_Init().  #1
+	
+    // ----------------------------------
+    // ERR_remove_state - free a thread's error queue "prevents memory leaks..."
+    //
+    // ERR_remove_state() frees the error queue associated with thread pid. If pid == 0, 
+    // the current thread will have its error queue removed.
+    //
+    // Since error queue data structures are allocated automatically for new threads,
+    // they must be freed when threads are terminated in order to avoid memory leaks.
+    //
+    ERR_remove_state(0);
+    
+    // NOTE: You must call SSL_shutdown() before you call SSL_free().
+    // Update: these are for SSL sockets, they must be called per socket.
+    // (IOW: Not needed here for app cleanup.)
+}
+
+
 
 
 

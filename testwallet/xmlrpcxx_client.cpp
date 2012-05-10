@@ -250,9 +250,7 @@ void OT_Sleep(int nMS);
 //
 //#include "OTAPI_funcdef.h"
 
-
 #include "OTAPI_Wrapper.h"
-
 
 // ---------------------------------------------------------------------------
 
@@ -261,9 +259,12 @@ void OT_Sleep(int nMS);
 // This global variable contains an OTWallet, an OTClient, etc. 
 // It's the C++ high-level interace to OT. 
 // Any client software will have an instance of this.
+//
 extern OT_API g_OT_API; 
-// Note: Must call OT_API::Init() followed by g_OT_API.Init() in the main function, before using OT.
-
+//
+// Note: In the main function, before using OT, must call OT_API::InitOTAPI--(which
+// calls OTLog::OT_Init())--then after calling that, must call g_OT_API.Init() in
+// the main function.
 
 // ---------------------------------------------------------------------------
 
@@ -284,7 +285,6 @@ extern OT_API g_OT_API;
  */
 
 
-
 #include "anyoption.h"
 
 
@@ -303,15 +303,6 @@ void HandleCommandLineArguments( int argc, char* argv[], AnyOption * opt );
   ot -t 100 --from qwer --to j43k  (TRANSFER 100 from ACCT STARTING WITH qwer TO ACCT starting j43k)
 
  */
-
-
-void OT_Main_Cleanup()
-{
-#ifdef _WIN32
-	WSACleanup();
-#endif
-}
-
 
 
 
@@ -1581,7 +1572,10 @@ void CollectDefaultedCLValues(AnyOption *opt,
 
 
 
-// --------- MAIN FUNCTION -------------
+
+
+// *************************************   MAIN FUNCTION   *************************************
+
 
 
 int main(int argc, char* argv[])
@@ -1590,8 +1584,26 @@ int main(int argc, char* argv[])
 				   "(transport build: OTMessage -> OTEnvelope -> ZMQ )\n", 
 				   OTLog::Version());
 	
-	OT_API::InitOTAPI();
-	
+    // --------------------------------------------
+    class __OTclient_RAII
+    {
+    public:
+        __OTclient_RAII()
+        {
+            OT_API::InitOTAPI();     // SSL gets initialized in here, before any keys are loaded.       
+        }
+        ~__OTclient_RAII()
+        {
+            OT_API::CleanupOTAPI();
+        }
+    };
+    // --------------------------------------------
+	//
+    // This makes SURE that CleanupOTAPI() gets called before main() exits (without any
+    // twisted logic being necessary below, for that to happen.)
+    //
+    __OTclient_RAII   the_client_cleanup;
+    
 	// **************************************************************************
 	// The beginnings of an INI file!!
 
@@ -1602,7 +1614,9 @@ int main(int argc, char* argv[])
     strIniRAWFileDefault.Format("%s%s%s", OT_FOLDER_DEFAULT, OTLog::PathSeparator(), OT_INI_FILE_DEFAULT);
     OTLog::TransformFilePath(strIniRAWFileDefault.Get(), strIniFileDefault);
     // -------------------------------------------------------------------
-	
+	//
+    // 
+    //
     OTString strPath, strRawPath(MAIN_PATH_DEFAULT);
 	
 	{
@@ -1632,31 +1646,42 @@ int main(int argc, char* argv[])
 		else 
 		{
 			strRawPath.Set(MAIN_PATH_DEFAULT);
-			OTLog::vOutput(0, "Unable to load ini file (%s) to find client_data path. \n Will assume that client data_folder is at path: %s \n", 
+			OTLog::vOutput(0, "Unable to load ini file (%s) to find client_data path. \n "
+                           "Will assume that client data_folder is at path: %s \n", 
 						   strIniFileDefault.Get(), strRawPath.Get());
 		}
 	}
 	// **************************************************************************
 	
-    
-	OTString strCAFile, strKeyFile; //, strSSLPassword;
-	
     OTLog::TransformFilePath(strRawPath.Get(), strPath);
-    // -------------------------------------------------------------------
     
-    g_OT_API.Init(strPath);  // SSL gets initialized in here, before any keys are loaded.
-	
+    // -------------------------------------------------------------------
+    // 
+    // OT context INIT...
+    //
+    // Theoretically in the future (we don't support it yet) there could be
+    // many instances of this object, even though there is only a single instance
+    // of the application. We'll get there.
+    //
+    g_OT_API.Init(strPath);   
+    
 	OTLog::vOutput(0, "Using client_data path:  %s\n", OTLog::Path());
-
-	strCAFile. Format("%s%s%s", OTLog::Path(), OTLog::PathSeparator(), CA_FILE);
-	strKeyFile.Format("%s%s%s", OTLog::Path(), OTLog::PathSeparator(), KEY_FILE);
+    // -------------------------------------------------------------------
 	
+//  OTString strCAFile, strKeyFile; //, strSSLPassword;
+//	strCAFile. Format("%s%s%s", OTLog::Path(), OTLog::PathSeparator(), CA_FILE);
+//	strKeyFile.Format("%s%s%s", OTLog::Path(), OTLog::PathSeparator(), KEY_FILE);
 	
+	// -----------------------------------------------------------------------
+	//
     //  Prepare our network context
+    //
 	OTSocket theSocket;
 	
 	// -----------------------------------------------------------------------
     
+    // COMMAND-LINE OPTIONS (and default values from files.)
+    //
     AnyOption *opt = new AnyOption();
     OT_ASSERT(NULL != opt);
     OTCleanup<AnyOption> theOptionAngel(opt);
@@ -1703,7 +1728,6 @@ int main(int argc, char* argv[])
     {
         opt->printUsage();
 
-        OT_Main_Cleanup();
         return 0;
     }
     // -----------------------------------------------------
@@ -1799,7 +1823,6 @@ int main(int argc, char* argv[])
 		
 		// --------------------------------------------------------------------					
 		
-		OT_Main_Cleanup();
 		return 0;
 	}
     else // Else a command WAS provided at the command line, so we execute a single time, once just for that command.
@@ -1814,7 +1837,6 @@ int main(int argc, char* argv[])
         if (false == SetupPointersForWalletMyNymAndServerContract(str_ServerID, str_MyNym, 
                                                                   pMyNym, pWallet, pServerContract))
         {
-            OT_Main_Cleanup();
             return 0;
         }
         
@@ -1831,7 +1853,6 @@ int main(int argc, char* argv[])
             OTLog::Output(0, "Unable to find a server contract to use. Please use the option: --server SERVER_ID\n"
                           "(Where SERVER_ID is the Server's ID. Partial matches ARE accepted.)\n");
             
-            OT_Main_Cleanup();
             return 0;
         }
 
@@ -1853,7 +1874,6 @@ int main(int argc, char* argv[])
         {
             OTLog::vError("Failed retrieving connection info from server contract: %s\n", 
                           strServerID.Get());
-            OT_Main_Cleanup();
             return 0;
         }
 
@@ -1890,7 +1910,6 @@ int main(int argc, char* argv[])
             else
             {
                 OTLog::vOutput(0, "Unable to find myacct: %s\n", str_MyAcct.c_str());
-                OT_Main_Cleanup();
                 return 0;
             }
         }
@@ -1928,7 +1947,6 @@ int main(int argc, char* argv[])
         {
             OTLog::Output(0, "Unable to find My Nym. Please use the option:   --mynym USER_ID\n"
                           "(Where USER_ID is the Nym's ID. Partial matches ARE accepted.)\n");
-            OT_Main_Cleanup();
             return 0;
         }
 
@@ -1979,7 +1997,6 @@ int main(int argc, char* argv[])
             if (NULL == pMyAssetContract)
             {
                 OTLog::vOutput(0, "Unable to find My Asset Type: %s\n", str_MyPurse.c_str());
-                OT_Main_Cleanup();
                 return 0;
             }
 
@@ -2013,7 +2030,6 @@ int main(int argc, char* argv[])
             if (NULL == pHisAssetContract)
             {
                 OTLog::vOutput(0, "Unable to find His Asset Type: %s\n", str_HisPurse.c_str());
-                OT_Main_Cleanup();
                 return 0;
             }
 			
@@ -2332,8 +2348,6 @@ int main(int argc, char* argv[])
             if (OTVariable::Var_Integer == the_return_value.GetType())
                 nReturnValue = the_return_value.CopyValueInteger();
             // --------------------------------------------
-			OT_Main_Cleanup();
-            // --------------------------------------------
 			return nReturnValue;
             // ------------------------------------------------------------------------
         }
@@ -2618,7 +2632,6 @@ int main(int argc, char* argv[])
         {
             OTLog::vOutput(0, "The server Nym was NULL or failed to verify on contract: %s\n", 
                            strServerID.Get());
-            OT_Main_Cleanup();
             return 0;
         }
         //
@@ -2687,7 +2700,6 @@ int main(int argc, char* argv[])
 		
 		if ( !opt->getFlag( "prompt" ) ) // If the user selected to enter the OT prompt, then we drop down below... (otherwise return.)
 		{
-			OT_Main_Cleanup();
 			return 0;
 		}
     } // Command line interface (versus below, which is the PROMPT interface.)
@@ -2751,7 +2763,6 @@ int main(int argc, char* argv[])
         if (false == SetupPointersForWalletMyNymAndServerContract(str_ServerID, str_MyNym, 
                                                                   pMyNym, pWallet, pServerContract))
         {
-            OT_Main_Cleanup();
             return 0;
         }
     }
@@ -2810,7 +2821,6 @@ int main(int argc, char* argv[])
             if (false == SetupPointersForWalletMyNymAndServerContract(str_ServerID, str_MyNym, 
                                                                       pMyNym, pWallet, pServerContract))
             {            
-                OT_Main_Cleanup();
                 return 0;
             }
             
@@ -4090,9 +4100,9 @@ int main(int argc, char* argv[])
 
 		
 	OTLog::Output(0, "Exiting OT prompt.\n");
-	
-    OT_Main_Cleanup();
-	
+
+	// NOTE: Cleanup is handled via a nested class at the top of this main function.
+    
 	return 0;
 }
 

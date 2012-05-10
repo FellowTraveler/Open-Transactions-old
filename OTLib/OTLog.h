@@ -140,6 +140,37 @@
 
 #include <deque>
 
+/*
+#if __APPLE__
+    #include "TargetConditionals.h"
+    #ifdef TARGET_OS_IPHONE
+         // iOS
+    #elif TARGET_IPHONE_SIMULATOR
+        // iOS Simulator
+    #elif TARGET_OS_MAC
+        // Other kinds of Mac OS
+    #else
+        // Unsupported platform
+    #endif
+#elif __linux
+    // linux
+#elif __unix // all unices not caught above
+    // Unix
+#elif __posix
+    // POSIX
+#endif 
+*/
+
+#if defined(unix) || defined(__unix__) || defined(__unix) || defined(__APPLE__) || defined(linux) || defined(__linux) || defined(__linux__)
+#define PREDEF_PLATFORM_UNIX 1
+#endif
+
+
+#if defined(debug) || defined(_DEBUG) || defined(DEBUG)
+#define PREDEF_MODE_DEBUG 1
+#endif
+
+
 #include "OTString.h"
 
 typedef std::deque <OTString *> dequeOfStrings;
@@ -196,6 +227,11 @@ private:
     // -------------------------------------------------
 
 public:	
+    
+    static void OT_Init();
+    static void OT_Cleanup();
+    
+    // -------------------------------------------------
 	~OTLog();
 	
     // Changes ~/blah to /Users/au/blah

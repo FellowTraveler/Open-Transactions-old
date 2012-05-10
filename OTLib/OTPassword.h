@@ -170,7 +170,9 @@
 // -------------------------------------------
 
 
-// TODO:  Although we have good memory ZEROING code (for destruction)
+// https://github.com/lorf/keepassx/blob/master/src/lib/SecString.cpp
+
+// Done:  Although we have good memory ZEROING code (for destruction)
 // we don't have code yet that will keep the contents SECURE while they
 // are in memory. For example, that will prevent them from being paged 
 // to the hard drive during swapping. Such code would make OTPassword much
@@ -210,7 +212,102 @@ There are some potentially negative consequences here. First, If your process lo
 Unlocking a chunk of memory looks exactly the same as locking it, except that you call munlock():
         munlock(mem, numbytes);
 
+ 
+ // TODO: Work in some usage of CryptProtectMemory and CryptUnprotectMemory (Windows only)
+ // with sample code below.  Also should make some kind of UNIX version.
+ 
+ 
+#include <windows.h>
+#include <stdio.h>
+#include <Wincrypt.h>
+
+#define SSN_STR_LEN 12  // includes null
+
+void main()
+{
+    HRESULT hr = S_OK;
+    LPWSTR pSensitiveText = NULL;
+    DWORD cbSensitiveText = 0;
+    DWORD cbPlainText = SSN_STR_LEN*sizeof(WCHAR);
+    DWORD dwMod = 0;
+
+    //  Memory to encrypt must be a multiple of CRYPTPROTECTMEMORY_BLOCK_SIZE.
+    if (dwMod = cbPlainText % CRYPTPROTECTMEMORY_BLOCK_SIZE)
+        cbSensitiveText = cbPlainText +
+		(CRYPTPROTECTMEMORY_BLOCK_SIZE - dwMod);
+    else
+        cbSensitiveText = cbPlainText;
+
+    pSensitiveText = (LPWSTR)LocalAlloc(LPTR, cbSensitiveText);
+    if (NULL == pSensitiveText)
+    {
+        wprintf(L"Memory allocation failed.\n");
+        return E_OUTOFMEMORY;
+    }
+
+    //  Place sensitive string to encrypt in pSensitiveText.
+
+    if (!CryptProtectMemory(pSensitiveText, cbSensitiveText,
+		CRYPTPROTECTMEMORY_SAME_PROCESS))
+    {
+        wprintf(L"CryptProtectMemory failed: %d\n", GetLastError());
+        SecureZeroMemory(pSensitiveText, cbSensitiveText);
+        LocalFree(pSensitiveText);
+        pSensitiveText = NULL;
+        return E_FAIL;
+    }
+
+    //  Call CryptUnprotectMemory to decrypt and use the memory.
+
+    SecureZeroMemory(pSensitiveText, cbSensitiveText);
+    LocalFree(pSensitiveText);
+    pSensitiveText = NULL;
+
+    return hr;
+}
+ 
+ 
+ 
+ 
+#include <windows.h>
+#include <stdio.h>
+#include <Wincrypt.h>
+#include <strsafe.h>
+#pragma comment(lib, "crypt32.lib")
+
+void main()
+{
+    LPWSTR pEncryptedText;  // contains the encrypted text
+    DWORD cbEncryptedText;  // number of bytes to which 
+	                        // pEncryptedText points
+
+    if (CryptUnprotectMemory(pEncryptedText, cbEncryptedText, 
+		CRYPTPROTECTMEMORY_SAME_PROCESS))
+    {
+        // Use the decrypted string.
+    }
+    else
+    {
+        wprintf(L"CryptUnprotectMemory failed: %d\n", 
+			GetLastError());
+    }
+
+    // Clear and free memory after using
+    // the decrypted string or if an error occurs. 
+    SecureZeroMemory(pEncryptedText, cbEncryptedText);
+    LocalFree(pEncryptedText);
+    pEncryptedText = NULL;
+}
+ 
+ 
  */
+
+// Originally written for the safe storage of passwords.
+// Now used for symmetric keys as well.
+// Specifically: when the clear version of a password or key must be stored
+// usually for temporary reasons, it must be stored in memory locked from swapping
+// to disk, and in an object like OTPassword that zeros the memory as soon as we're done.
+// 
 
 class OTPassword
 {
@@ -223,24 +320,66 @@ public:
 
 private:
 	int		m_nPasswordSize; // [ 0..128 ]  Update: [ 0..9000 ]
-//	char	m_szPassword[OT_DEFAULT_MEMSIZE]; // a 129-byte block of char. (128 + 1 for null terminator)
-	char	m_szPassword[OT_LARGE_MEMSIZE];   // Update: now 32767 bytes. (32768 + 1 for null terminator) todo: in optimization phase, revisit this array size.
+	char	m_szPassword[OT_DEFAULT_MEMSIZE]; // a 129-byte block of char. (128 + 1 for null terminator)
+//	char	m_szPassword[OT_LARGE_MEMSIZE];   // 32767 bytes. (32768 + 1 for null terminator) todo: in optimization phase, revisit this array size.
 
+    // OTPassword tries to store a piece of data more securely.
+    // During the time I have to take a password from the user and pass it to OpenSSL,
+    // I want it stored as securely as possible, and that's what this class was written for.
+    // Now I'm adding the ability to store binary data in here, not just a text-based password.
+    // That way, OTSymmetricKey can store its plain key in an OTPassword. Well, it actually stores
+    // its key in an encrypted format, but whenever, for what brief moments that key is decrypted and
+    // USED, the decrypted form of it will be stored in an OTPassword (in binary mode.)
+    // This is basically just to save me from duplicating work that's already done here in OTPassword.
+    // 
+    bool    m_bIsText;          // storing a text passphrase?
+    bool    m_bIsBinary;        // storing binary memory?
+    bool    m_bIsPageLocked;    // is the page locked to prevent us from swapping this secret memory to disk?
+    
 public:
 	const
-	BlockSize	blockSize;		
+	BlockSize	m_theBlockSize;		
     // -----------------
+    bool    isPassword() const;
 	const
-	char *	getPassword() const;
+	char *	getPassword() const; // asserts if m_bIsText is false.
 	int		setPassword(const char * szInput, int nInputSize); // (FYI, truncates if nInputSize larger than getBlockSize.)
     // -----------------
+    bool    isMemory() const;
+	const
+	void *	getMemory() const; // asserts if m_bIsBinary is false.
+	void *	getMemoryWritable(); // asserts if m_bIsBinary is false.
+	int		setMemory(const void * vInput,  int nInputSize);  // (FYI, truncates if nInputSize larger than getBlockSize.)
+	int		addMemory(const void * vAppend, int nAppendSize); // (FYI, truncates if nInputSize + getPasswordSize() is larger than getBlockSize.)
+    // ---------------------
+    int     randomizeMemory(size_t nNewSize=DEFAULT_SIZE);
+    // -----------------
+    static
+    bool    randomizeMemory(char * szDestination, size_t nNewSize);
+    // -----------------
 	int		getBlockSize()    const;
-	int		getPasswordSize() const;
+    // ----------------------
+	int		getPasswordSize() const; // asserts if m_bIsText is false.
+	int		getMemorySize()   const; // asserts if m_bIsBinary is false.
     // -----------------
 	void	zeroMemory();
     // -----------------
+    static
+    void    zeroMemory(char * szMemory, size_t theSize);
+    static
+    void    zeroMemory(void * vMemory,  size_t theSize);
+    // -----------------
+    static
+    void * safe_memcpy(void   * dest,
+                       size_t   dest_size,
+                       const
+                       void   * src,
+                       size_t   src_length,
+                       bool     bZeroSource=false); // if true, sets the source buffer to zero after copying is done.    
+    // ---------------------------------------
 	OTPassword(BlockSize theBlockSize=DEFAULT_SIZE);
-	OTPassword(const char * szInput, int nInputSize, BlockSize theBlockSize=DEFAULT_SIZE);
+	OTPassword(const char * szInput, int nInputSize, BlockSize theBlockSize=DEFAULT_SIZE);  // text   / password stored.
+	OTPassword(const void * vInput,  int nInputSize, BlockSize theBlockSize=DEFAULT_SIZE);  // binary / symmetric key stored.
     // -----------------
 	~OTPassword();
 };
@@ -319,7 +458,9 @@ public:
 
 
 
-int  main(int argc, char **argv){
+int  main(int argc, char **argv)
+ 
+ {
 
   struct rlimit rlim;
 

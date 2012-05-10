@@ -628,7 +628,7 @@ SWIGEXPORT jint JNICALL Java_com_wrapper_core_jni_otapiJNI_OTPassword_1LARGER_1S
 }
 
 
-SWIGEXPORT jint JNICALL Java_com_wrapper_core_jni_otapiJNI_OTPassword_1blockSize_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+SWIGEXPORT jint JNICALL Java_com_wrapper_core_jni_otapiJNI_OTPassword_1m_1theBlockSize_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
   jint jresult = 0 ;
   OTPassword *arg1 = (OTPassword *) 0 ;
   OTPassword::BlockSize result;
@@ -637,8 +637,23 @@ SWIGEXPORT jint JNICALL Java_com_wrapper_core_jni_otapiJNI_OTPassword_1blockSize
   (void)jcls;
   (void)jarg1_;
   arg1 = *(OTPassword **)&jarg1; 
-  result = (OTPassword::BlockSize)(OTPassword::BlockSize) ((arg1)->blockSize);
+  result = (OTPassword::BlockSize)(OTPassword::BlockSize) ((arg1)->m_theBlockSize);
   jresult = (jint)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jboolean JNICALL Java_com_wrapper_core_jni_otapiJNI_OTPassword_1isPassword(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jboolean jresult = 0 ;
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  bool result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTPassword **)&jarg1; 
+  result = (bool)((OTPassword const *)arg1)->isPassword();
+  jresult = (jboolean)result; 
   return jresult;
 }
 
@@ -682,6 +697,142 @@ SWIGEXPORT jint JNICALL Java_com_wrapper_core_jni_otapiJNI_OTPassword_1setPasswo
 }
 
 
+SWIGEXPORT jboolean JNICALL Java_com_wrapper_core_jni_otapiJNI_OTPassword_1isMemory(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jboolean jresult = 0 ;
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  bool result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTPassword **)&jarg1; 
+  result = (bool)((OTPassword const *)arg1)->isMemory();
+  jresult = (jboolean)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_com_wrapper_core_jni_otapiJNI_OTPassword_1getMemory(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  void *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTPassword **)&jarg1; 
+  result = (void *)((OTPassword const *)arg1)->getMemory();
+  *(void **)&jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_com_wrapper_core_jni_otapiJNI_OTPassword_1getMemoryWritable(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  void *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTPassword **)&jarg1; 
+  result = (void *)(arg1)->getMemoryWritable();
+  *(void **)&jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jint JNICALL Java_com_wrapper_core_jni_otapiJNI_OTPassword_1setMemory(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2, jint jarg3) {
+  jint jresult = 0 ;
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  void *arg2 = (void *) 0 ;
+  int arg3 ;
+  int result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTPassword **)&jarg1; 
+  arg2 = *(void **)&jarg2; 
+  arg3 = (int)jarg3; 
+  result = (int)(arg1)->setMemory((void const *)arg2,arg3);
+  jresult = (jint)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jint JNICALL Java_com_wrapper_core_jni_otapiJNI_OTPassword_1addMemory(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2, jint jarg3) {
+  jint jresult = 0 ;
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  void *arg2 = (void *) 0 ;
+  int arg3 ;
+  int result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTPassword **)&jarg1; 
+  arg2 = *(void **)&jarg2; 
+  arg3 = (int)jarg3; 
+  result = (int)(arg1)->addMemory((void const *)arg2,arg3);
+  jresult = (jint)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jint JNICALL Java_com_wrapper_core_jni_otapiJNI_OTPassword_1randomizeMemory_1_1SWIG_10(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2) {
+  jint jresult = 0 ;
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  size_t arg2 ;
+  int result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTPassword **)&jarg1; 
+  arg2 = (size_t)jarg2; 
+  result = (int)(arg1)->randomizeMemory(arg2);
+  jresult = (jint)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jint JNICALL Java_com_wrapper_core_jni_otapiJNI_OTPassword_1randomizeMemory_1_1SWIG_11(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jint jresult = 0 ;
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  int result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTPassword **)&jarg1; 
+  result = (int)(arg1)->randomizeMemory();
+  jresult = (jint)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jboolean JNICALL Java_com_wrapper_core_jni_otapiJNI_OTPassword_1randomizeMemory_1_1SWIG_12(JNIEnv *jenv, jclass jcls, jstring jarg1, jlong jarg2) {
+  jboolean jresult = 0 ;
+  char *arg1 = (char *) 0 ;
+  size_t arg2 ;
+  bool result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = 0;
+  if (jarg1) {
+    arg1 = (char *)jenv->GetStringUTFChars(jarg1, 0);
+    if (!arg1) return 0;
+  }
+  arg2 = (size_t)jarg2; 
+  result = (bool)OTPassword::randomizeMemory(arg1,arg2);
+  jresult = (jboolean)result; 
+  if (arg1) jenv->ReleaseStringUTFChars(jarg1, (const char *)arg1);
+  return jresult;
+}
+
+
 SWIGEXPORT jint JNICALL Java_com_wrapper_core_jni_otapiJNI_OTPassword_1getBlockSize(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
   jint jresult = 0 ;
   OTPassword *arg1 = (OTPassword *) 0 ;
@@ -712,7 +863,22 @@ SWIGEXPORT jint JNICALL Java_com_wrapper_core_jni_otapiJNI_OTPassword_1getPasswo
 }
 
 
-SWIGEXPORT void JNICALL Java_com_wrapper_core_jni_otapiJNI_OTPassword_1zeroMemory(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+SWIGEXPORT jint JNICALL Java_com_wrapper_core_jni_otapiJNI_OTPassword_1getMemorySize(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jint jresult = 0 ;
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  int result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTPassword **)&jarg1; 
+  result = (int)((OTPassword const *)arg1)->getMemorySize();
+  jresult = (jint)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void JNICALL Java_com_wrapper_core_jni_otapiJNI_OTPassword_1zeroMemory_1_1SWIG_10(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
   OTPassword *arg1 = (OTPassword *) 0 ;
   
   (void)jenv;
@@ -720,6 +886,77 @@ SWIGEXPORT void JNICALL Java_com_wrapper_core_jni_otapiJNI_OTPassword_1zeroMemor
   (void)jarg1_;
   arg1 = *(OTPassword **)&jarg1; 
   (arg1)->zeroMemory();
+}
+
+
+SWIGEXPORT void JNICALL Java_com_wrapper_core_jni_otapiJNI_OTPassword_1zeroMemory_1_1SWIG_11(JNIEnv *jenv, jclass jcls, jstring jarg1, jlong jarg2) {
+  char *arg1 = (char *) 0 ;
+  size_t arg2 ;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = 0;
+  if (jarg1) {
+    arg1 = (char *)jenv->GetStringUTFChars(jarg1, 0);
+    if (!arg1) return ;
+  }
+  arg2 = (size_t)jarg2; 
+  OTPassword::zeroMemory(arg1,arg2);
+  if (arg1) jenv->ReleaseStringUTFChars(jarg1, (const char *)arg1);
+}
+
+
+SWIGEXPORT void JNICALL Java_com_wrapper_core_jni_otapiJNI_OTPassword_1zeroMemory_1_1SWIG_12(JNIEnv *jenv, jclass jcls, jlong jarg1, jlong jarg2) {
+  void *arg1 = (void *) 0 ;
+  size_t arg2 ;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(void **)&jarg1; 
+  arg2 = (size_t)jarg2; 
+  OTPassword::zeroMemory(arg1,arg2);
+}
+
+
+SWIGEXPORT jlong JNICALL Java_com_wrapper_core_jni_otapiJNI_OTPassword_1safe_1memcpy_1_1SWIG_10(JNIEnv *jenv, jclass jcls, jlong jarg1, jlong jarg2, jlong jarg3, jlong jarg4, jboolean jarg5) {
+  jlong jresult = 0 ;
+  void *arg1 = (void *) 0 ;
+  size_t arg2 ;
+  void *arg3 = (void *) 0 ;
+  size_t arg4 ;
+  bool arg5 ;
+  void *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(void **)&jarg1; 
+  arg2 = (size_t)jarg2; 
+  arg3 = *(void **)&jarg3; 
+  arg4 = (size_t)jarg4; 
+  arg5 = jarg5 ? true : false; 
+  result = (void *)OTPassword::safe_memcpy(arg1,arg2,(void const *)arg3,arg4,arg5);
+  *(void **)&jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_com_wrapper_core_jni_otapiJNI_OTPassword_1safe_1memcpy_1_1SWIG_11(JNIEnv *jenv, jclass jcls, jlong jarg1, jlong jarg2, jlong jarg3, jlong jarg4) {
+  jlong jresult = 0 ;
+  void *arg1 = (void *) 0 ;
+  size_t arg2 ;
+  void *arg3 = (void *) 0 ;
+  size_t arg4 ;
+  void *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(void **)&jarg1; 
+  arg2 = (size_t)jarg2; 
+  arg3 = *(void **)&jarg3; 
+  arg4 = (size_t)jarg4; 
+  result = (void *)OTPassword::safe_memcpy(arg1,arg2,(void const *)arg3,arg4);
+  *(void **)&jresult = result; 
+  return jresult;
 }
 
 
@@ -789,6 +1026,40 @@ SWIGEXPORT jlong JNICALL Java_com_wrapper_core_jni_otapiJNI_new_1OTPassword_1_1S
   result = (OTPassword *)new OTPassword((char const *)arg1,arg2);
   *(OTPassword **)&jresult = result; 
   if (arg1) jenv->ReleaseStringUTFChars(jarg1, (const char *)arg1);
+  return jresult;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_com_wrapper_core_jni_otapiJNI_new_1OTPassword_1_1SWIG_14(JNIEnv *jenv, jclass jcls, jlong jarg1, jint jarg2, jint jarg3) {
+  jlong jresult = 0 ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  OTPassword::BlockSize arg3 ;
+  OTPassword *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(void **)&jarg1; 
+  arg2 = (int)jarg2; 
+  arg3 = (OTPassword::BlockSize)jarg3; 
+  result = (OTPassword *)new OTPassword((void const *)arg1,arg2,arg3);
+  *(OTPassword **)&jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_com_wrapper_core_jni_otapiJNI_new_1OTPassword_1_1SWIG_15(JNIEnv *jenv, jclass jcls, jlong jarg1, jint jarg2) {
+  jlong jresult = 0 ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  OTPassword *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(void **)&jarg1; 
+  arg2 = (int)jarg2; 
+  result = (OTPassword *)new OTPassword((void const *)arg1,arg2);
+  *(OTPassword **)&jresult = result; 
   return jresult;
 }
 

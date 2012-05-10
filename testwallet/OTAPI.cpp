@@ -444,19 +444,16 @@ const char * OT_API_CreateNym(int nKeySize) // must be 1024, 2048, 4096, or 8192
 	// By this point, pNym is a good pointer, and is on the wallet.
 	//  (No need to cleanup.)
 	// -----------------------------------------------------		
-	OTString strOutput;
-	
+	OTString strOutput;	
 	pNym->GetIdentifier(strOutput); // We're returning the new Nym ID.
-	
-	const char * pBuf = strOutput.Get(); 
-	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
-	
-	return g_tempBuf;	
+    // --------------------------------
+    if (OTString::safe_strcpy(g_tempBuf,        // destination
+                              strOutput.Get(), // source
+                              // -----------------
+                              MAX_STRING_LENGTH))
+        return g_tempBuf;
+    // --------------------------------
+    return NULL;
 }
 
 

@@ -130,47 +130,252 @@
 #ifndef __OTENVELOPE_H__
 #define __OTENVELOPE_H__
 
-#include "OTData.h"
+#include "OTPayload.h"
 
 class OTPseudonym;
 class OTString;
 class OTASCIIArmor;
 class OTAsymmetricKey;
-class OTPayload;
+class OTPassword;
+
+// ------------------------------------------------------------------------
+
+
+/*
+ int PKCS5_PBKDF2_HMAC_SHA1	(
+    const void * 	password,
+    size_t          password_len,
+ 
+    const void * 	salt,
+    size_t          salt_len,
+ 
+    unsigned long 	iter,
+ 
+    size_t          keylen,
+    void *          key 
+)	
+*/
+
+// ------------------------------------------------------------------------
+
+// TODO: this should be CONFIGURABLE. (In config file...)
+// When that is added, these values will just become nothing more
+// that defaults.
+//
+// todo optimzation maybe this should be 10000 instead of 65535
+//
+#define OT_DEFAULT_ITERATION_COUNT 65535
+
+// in bytes
+#define OT_DEFAULT_SYMMETRIC_SALT_SIZE 8
+
+// in bytes
+#define OT_DEFAULT_SYMMETRIC_KEY_SIZE 16
+// in bits
+#define OT_DEFAULT_SYMMETRIC_KEY_SIZE_BITS 128
+
+// in bytes
+#define OT_DEFAULT_SYMMETRIC_IV_SIZE 16
+
+// in bytes
+#define OT_DEFAULT_SYMMETRIC_BUFFER_SIZE 4096
+
+// This class stores the iteration count, the salt, and the encrypted key.
+// These are all generated or set when you call GenerateKey.
+
+class OTSymmetricKey
+{
+private:
+    bool            m_bIsGenerated;     // GetKey asserts if this is false; GenerateKey asserts if it's true.
+    // ---------------------------------------------
+    unsigned int    m_nKeySize;         // The size, in bits. For example, 128 bit key, 256 bit key, etc.
+    // ---------------------------------------------
+    int             m_nIterationCount;  // Stores the iteration count, which should probably be at least 2000. (Number of iterations used while generating key from passphrase.)
+    // ---------------------------------------------
+	OTPayload       m_dataSalt;         // Stores the SALT (which is used with the password for generating / retrieving the key from m_dataEncryptedKey)
+	OTPayload       m_dataIV;           // Stores the IV used internally for encrypting / decrypting the actual key (using the derived key) from m_dataEncryptedKey.
+	OTPayload       m_dataEncryptedKey; // Stores only encrypted version of symmetric key.    
+public:
+    // ------------------------------------------------------------------------
+    bool SerializeTo   (OTPayload & theOutput) const;
+    bool SerializeFrom (OTPayload & theInput);
+    
+    bool SerializeTo   (OTASCIIArmor & ascOutput) const;
+    bool SerializeFrom (const OTASCIIArmor & ascInput);
+    
+    bool SerializeTo   (OTString & strOutput, bool bEscaped=false) const;
+    bool SerializeFrom (const OTString & strInput, bool bEscaped=false);
+    // ------------------------------------------------------------------------
+    inline bool IsGenerated() const { return m_bIsGenerated; }
+    // ------------------------------------------------------------------------    
+    bool GetRawKey  (const OTPassword & thePassword, OTPassword & theRawKeyOutput) const; // Assumes key is already generated. Tries to get the raw clear key from its encrypted form, via its password.
+    bool GenerateKey(const OTPassword & thePassword);  // Generates this OTSymmetricKey based on an OTPassword. The generated key is stored in encrypted form, based on a derived key from that password.
+    // ------------------------------------------------------------------------
+	OTSymmetricKey();
+	OTSymmetricKey(const OTPassword & thePassword);
+	virtual ~OTSymmetricKey();
+    
+    void Release();
+    // ------------------------------------------------------------------------
+};
+
+/*
+ ftp://ftp.rsasecurity.com/pub/pkcs/pkcs-5v2/pkcs5v2_1.pdf 
+
+    4.2 Iteration count 
+
+    An iteration count has traditionally served the purpose of increasing 
+    the cost of producing keys from a password, thereby also increasing 
+    the difficulty of attack. For the methods in this document, a minimum 
+    of 1000 iterations is recommended. This will increase the cost of 
+    exhaustive search for passwords significantly, without a noticeable 
+    impact in the cost of deriving individual keys. 
+
+Time the KDF on your systems and see how many iterations are practical 
+without signficant resource impact on legitimate use cases. If it is 
+practical to make the count configurable, do so, otherwise hard-code 
+a sensible value that is at least 1000. 
+
+The iteration count is a multiplier on the CPU cost of brute-force 
+dictionary attacks. If you are not sure that users are choosing "strong" 
+passwords (they rarely do), you want to make dictionary attacks difficult 
+by making individual password->key calculations sufficiently slow thereby 
+limiting the throughput of brute-force attacks. 
+
+If no legitimate system is computing multiple password-based keys per 
+second, you could set the iteration count to consume 10-100ms of CPU 
+on 2008 processors, this is likely much more than 1000 iterations. 
+At a guess 1000 iterations will be O(1ms) per key on a typical modern CPU. 
+This is based on "openssl speed sha1" reporting: 
+
+type             16 bytes     64 bytes    256 bytes   1024 bytes   8192 bytes 
+sha1             18701.67k    49726.06k   104600.90k   141349.84k   157502.27k 
+
+or about 10^6 16-byte SHA1 ops per second, doing 1000 iterations of HMAC 
+is approximately 2000 SHA1 ops and so should take about 2ms. In many 
+applications 10,000 or even 100,000 may be practical provided no 
+legitimate "actor" needs to perform password->key comptutations at 
+a moderately high rate. 
+ 
+ */
+// ------------------------------------------------------------------------
+
+// Sometimes I want to decrypt into an OTPassword (for encrypted symmetric
+// keys being decrypted) and sometimes I want to decrypt into an OTPayload
+// (For most other types of data.) This class allows me to do it either way
+// without duplicating the static Decrypt() function, by wrapping both
+// types.
+//
+class OTEnvelope_Decrypt_Output
+{
+private:
+    OTPassword * m_pPassword;
+    OTPayload  * m_pPayload;
+    
+    OTEnvelope_Decrypt_Output();
+public:
+    ~OTEnvelope_Decrypt_Output();
+    
+    OTEnvelope_Decrypt_Output(const OTEnvelope_Decrypt_Output & rhs);
+    
+    OTEnvelope_Decrypt_Output(OTPassword & thePassword);
+    OTEnvelope_Decrypt_Output(OTPayload  & thePayload);
+    
+    void swap(OTEnvelope_Decrypt_Output & other);
+
+    OTEnvelope_Decrypt_Output & operator = (OTEnvelope_Decrypt_Output other); // passed by value.
+    
+    bool Concatenate(const void * pAppendData, uint32_t lAppendSize);
+
+    void Release();
+
+};
+
+// ------------------------------------------------------------------------
+
+typedef std::set<OTPseudonym *>         setOfNyms;
+typedef std::set<OTAsymmetricKey *>		setOfAsymmetricKeys;
+
+// ------------------------------------------------------------------------
 
 class OTEnvelope
 {
 	friend class OTPayload;
 
 	OTData m_dataContents; // Stores only encrypted contents.
-						    
-	
+
 public:
+    // ------------------------------------------------------------------------
 	OTEnvelope();
 	OTEnvelope(const OTASCIIArmor & theArmoredText);
 	virtual ~OTEnvelope();
 	
-	bool Seal(const OTPseudonym & theRecipient, const OTString & theContents);		// Put data into this object with Seal().
-	bool Seal(const OTAsymmetricKey & RecipPubKey, const OTString & theContents);	// Currently supports strings only.
-
-	bool Open(const OTPseudonym & theRecipient, OTString & theContents);			// Read it back out with Open(). 
-
+    // ------------------------------------------------------------------------
+	// SYMMETRIC CRYPTO  (AES)
+    
+    bool Encrypt(const OTString & theInput,        OTSymmetricKey & theKey, const OTPassword & thePassword);
+    bool Decrypt(      OTString & theOutput, const OTSymmetricKey & theKey, const OTPassword & thePassword);
+    
+    // ------------------------------------------------------------------------
+    static
+    bool Encrypt(const OTPassword & theRawSymmetricKey,  // The symmetric key, in clear form.
+                 // -------------------------------
+                 const char *       szInput,             // This is the Plaintext.
+                 const uint32_t     lInputLength,
+                 // -------------------------------
+                 const OTPayload &  theIV,               // (We assume this IV is already generated and passed in.)
+                 // -------------------------------
+                       OTPayload &  theEncryptedOutput); // OUTPUT. (Ciphertext.)    
+    // ------------------------------------------------------------------------
+    static
+    bool Decrypt(const OTPassword & theRawSymmetricKey,  // The symmetric key, in clear form.
+                 // -------------------------------
+                 const char *       szInput,             // This is the Ciphertext.
+                 const uint32_t     lInputLength,
+                 // -------------------------------
+                 const OTPayload &  theIV,               // (We assume this IV is already generated and passed in.)
+                 // -------------------------------
+                 OTEnvelope_Decrypt_Output theDecryptedOutput); // OUTPUT. (Recovered plaintext.) You can pass OTPassword& OR OTPayload& here (either will work.)
+    // ------------------------------------------------------------------------
+    // ASYMMETRIC CRYPTO (RSA / AES)
+    
+    // Single recipient:
+    //
+	bool Seal(const OTPseudonym     & theRecipient, const OTString & theInput);  // Put data into this object with Seal().
+	bool Seal(const OTAsymmetricKey & RecipPubKey,  const OTString & theInput);  // Currently supports strings only.
+    // ------------------------------------------------------------------------
+    // Multiple recipients:
+    //
+	bool Seal(setOfNyms           & theRecipients,  const OTString & theInput);  // Same as above, except supports multiple recipients.
+	bool Seal(setOfAsymmetricKeys & RecipPubKeys,   const OTString & theInput);  // Same as above, except supports multiple recipients.
+    // ------------------------------------------------------------------------
+    // (Opposite of Seal.)
+    //
+	bool Open(const OTPseudonym & theRecipient, OTString & theOutput);			// Read it back out with Open(). 
+    // ------------------------------------------------------------------------
+    //
+    // Should be called "Get Envelope's binary Ciphertext data into an Ascii-Armored output String."
+    //
 	// Presumably this Envelope contains encrypted data (in binary form.)
 	// If you would like an ASCII-armored version of that data, just call this
 	// function.
-	// Should be called "Get Binary Envelope Encrypted Contents Into Ascii-Armored Form"
 	// (Bookends not included.)
+    //
 	bool GetAsciiArmoredData(OTASCIIArmor & theArmoredText) const;
 
+    // ------------------------------------------------------------------------
+	//
+	// Should be called "Set This Envelope's binary ciphertext data, from an ascii-armored input string."
+    //
 	// Let's say you just retrieved the ASCII-armored contents of an encrypted envelope.
 	// Perhaps someone sent it to you, and you just read it out of his message.
 	// And let's say you want to get those contents back into binary form in an
 	// Envelope object again, so that they can be decrypted and extracted back as
 	// plaintext. Fear not, just call this function.
-	//
-	// Should be called "Set This Envelope Via Ascii Armored Data"
+    //
 	bool SetAsciiArmoredData(const OTASCIIArmor & theArmoredText);
-
+    
+    // ------------------------------------------------------------------------
 };
 
 

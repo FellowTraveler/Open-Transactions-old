@@ -132,6 +132,8 @@
 
 #include <string>
 
+#include "Timer.h"
+
 
 extern "C"
 {
@@ -166,20 +168,32 @@ typedef int OT_OPENSSL_CALLBACK(char *buf, int size, int rwflag, void *userdata)
 // ------------------------------------------------
 
 class OTString;
+class OTIdentifier;
 class OTASCIIArmor;
 
 
 class OTAsymmetricKey
 {
 private:
-	EVP_PKEY *	m_pKey; 
+    OTASCIIArmor * m_p_ascKey; // base64-encoded, string form of key. (Encrypted too, for private keys. Should store it in this form most of the time.)
+	// --------------------------------------------
+	EVP_PKEY     *	m_pKey;    // Instantiated form of key. (For private keys especially, we don't want it instantiated for any longer than absolutely necessary, when we have to use it.)
+	// --------------------------------------------
 	bool		m_bIsPublicKey;
 	bool		m_bIsPrivateKey;
-	// --------------------------------------------
-	
+	// --------------------------------------------	
+    Timer       m_timer;       // Useful for keeping track how long since I last entered my passphrase...
+	// --------------------------------------------		
 	static OT_OPENSSL_CALLBACK	* s_pwCallback; 
 	static OTCaller				* s_pCaller;
-	
+	// --------------------------------------------
+    
+    EVP_PKEY *  InstantiateKey();
+    EVP_PKEY *  InstantiatePublicKey();
+    EVP_PKEY *  InstantiatePrivateKey();
+    
+    void ReleaseKeyLowLevel();
+
 public:
 	
 	static void SetPasswordCallback(OT_OPENSSL_CALLBACK * pCallback);
@@ -190,8 +204,8 @@ public:
 	static OTCaller * GetPasswordCaller();
 	// -------------------------------------
 
-	inline bool IsPublic()	{ return m_bIsPublicKey;  }
-	inline bool IsPrivate() { return m_bIsPrivateKey; }
+	inline bool IsPublic()  const  { return m_bIsPublicKey;  }
+	inline bool IsPrivate() const  { return m_bIsPrivateKey; }
 	
 	// -------------------------------------
 	OTAsymmetricKey();
@@ -201,12 +215,63 @@ public:
 	OTAsymmetricKey & operator=(const OTAsymmetricKey & rhs);
 	
 	void Release();
+	void ReleaseKey();
+    
     // ***************************************************************
 
 	const
-    EVP_PKEY *  GetKey() const;
+    EVP_PKEY *  GetKey();
 	void        SetKey(EVP_PKEY * pKey, bool bIsPrivateKey=false);
 	
+    // We're moving to a system where the actual key isn't kept loaded in
+    // memory except under 2 circumstances:   1. We are using it currently,
+    // and we're going to destroy it when we're done with it.  2. A timer
+    // is running, and until the 10 minutes are up, the private key is available.
+    // But: Presumably it's stored in PROTECTED MEMORY, either with specific
+    // tricks used to prevent swapping and to zero after we're done, and to 
+    // prevent core dumps, or it's stored in ssh-agent or some similar standard
+    // API (gpg-agent, keychain Mac Keychain, etc) or Windows protected memory
+    // etc etc. Inside OT I can also give the option to go with our own security
+    // tricks (listed above...) or to keep the timer length at 0, forcing the
+    // password to be entered over and over again. IDEA: When the user enters
+    // the passphrase for a specific Nym, hash it (so your plaintext passphrase isn't
+    // stored in memory anywhere) and then USE that hash as the passphrase on 
+    // the actual key. (Meaning also that the user will not be able to use his
+    // passphrase outside of OT, until he EXPORTS the Nym, since he would also have
+    // to hash the passphrase before manipulating the raw key file.)
+    // At this point, we have the hash of the user's passphrase, which is what we
+    // actually use for opening his private key (which is also normally kept in
+    // an encrypted form, on the hard drive AND in RAM!!) So everything from above
+    // still applies: I don't want to reveal that hash, so I store it using tricks
+    // to secure the memory (I have to do this part anyway, ANYTIME I touch certain
+    // forms of data), or in ssh-agent, and so on, except a timer can be set after
+    // the user first enters his passphrase. For ultimate security, just set the
+    // timer to 0 and type your passphrase every single time. But instead let's 
+    // say you set it to 10 minutes. I don't want to store that password hash,
+    // either. (The hash protects the plaintext password, but the hash IS the ACTUAL
+    // password, so while the plaintext PW is protected, the actual one is still not.)
+    // Therefore I will select some random data from OpenSSL for use as a TEMPORARY
+    // password, a session key, and then encrypt all the hashes to that session key.
+    // This way, the actual passphrases (hashed version) do NOT appear in memory, AND
+    // NEITHER DO the plaintext versions! You might ask, well then why not just encrypt
+    // the plaintext passphrase itself and use that? The answer is, to prevent making
+    // it recoverable. You don't even want someone to get that session key and then
+    // recover your PLAINTEXT password! Maybe he'll go use it on a thousand websites!
+    // 
+    // Next: How to protect the session key (an OTSymmetricKey) from being found?
+    // First: destroy it often. Make a new session key EVERY time the timeout happens.
+    // Also: use it in protected memory as before. This could ALWAYS have a timeout
+    // of 0! If it's in ssh-agent, what more can you do? At least OT will make this
+    // configurable, and will be pretty damned secure in its own right. Ultimately
+    // the best solution here is an extern hardware such as a smart card.
+    // -----------------------------------------------------
+    
+    // Create base64-encoded version of an EVP_PKEY
+    // (Without bookends.)
+    //
+    static bool ArmorPrivateKey(EVP_PKEY & theKey, OTASCIIArmor & ascKey, Timer & theTimer);
+    static bool ArmorPublicKey (EVP_PKEY & theKey, OTASCIIArmor & ascKey);
+
     // ***************************************************************
 
 	bool LoadPrivateKey(const OTString & strFoldername, const OTString & strFilename);
@@ -225,7 +290,9 @@ public:
     // ---------------------------------------------------------------
 	bool LoadPublicKeyFromPGPKey    (const OTASCIIArmor & strKey); // does NOT handle bookends.
 
-    // ***************************************************************
+    // ---------------------------------------------------------------
+    bool CalculateID(OTIdentifier & theOutput) const; // Only works for public keys.
+    // ***************************************************************************************
     // PUBLIC KEY
 	// Get the public key in ASCII-armored format with bookends 
 	// - ------- BEGIN PUBLIC KEY --------
@@ -233,7 +300,7 @@ public:
 	bool GetPublicKey(OTString & strKey, bool bEscaped=true) const;
 
 	// Get the public key in ASCII-armored format
-	// i2d == EVP_PKEY* converted to normal binary in RAM
+    //
 	bool GetPublicKey(OTASCIIArmor & strKey) const;
 	
 	// Decodes a public key from ASCII armor into an actual key pointer
@@ -244,7 +311,7 @@ public:
 	// Decodes a public key from ASCII armor into an actual key pointer
 	// and sets that as the m_pKey on this object.
 	bool SetPublicKey(const OTASCIIArmor & strKey);
-    // ***************************************************************
+    // ***************************************************************************************
     // PRIVATE KEY
 	// Get the private key in ASCII-armored format with bookends 
 	// - ------- BEGIN ENCRYPTED PRIVATE KEY --------
@@ -263,7 +330,7 @@ public:
 	// and sets that as the m_pKey on this object.
     //
 	bool SetPrivateKey(const OTASCIIArmor & strKey);
-    // ***************************************************************
+    // ***************************************************************************************
 };
 
 

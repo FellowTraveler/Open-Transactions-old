@@ -152,11 +152,27 @@
 #include "OTStorage.h"
 
 #include "OTString.h"
+#include "OTPassword.h"
 #include "OTIdentifier.h"
 #include "OTContract.h"
 #include "OTPseudonym.h"
+
 #include "OTLog.h"
 
+
+
+#ifndef __linux__
+extern "C" { 
+    size_t strnlen(const char *s, size_t max) 
+    {
+        register const char *p;
+        for(p = s; *p && max--; ++p);
+        return(p - s);
+    }
+}
+#endif
+
+// ---------------------------------------------------------
 
 
 // TODO  Make sure I follow this advice.
@@ -209,11 +225,72 @@ size_t strlcat(char *d, const char *s, size_t bufsize)
 	}
 	return ret;
 }
- 
- 
  */
 
 
+// TODO: Security: should change OTString to use size_t and MAX_SIZE instead of whatever it uses now. Safer.
+
+
+/* 
+ WINDOWS:
+errno_t strcpy_s(
+                 char *strDestination,
+                 size_t numberOfElements,   // MAX SIZE of destination.
+                 const char *strSource);
+ 
+ UNIX:
+ size_t strlcpy(char * restrict dst,
+                const char * restrict src,
+                size_t size); // MAX SIZE of destination.
+
+ extern "C" size_t strnlen(const char *s, size_t max); // Moved the definition of this function to OTPassword.cpp
+ */
+// ---------------------------------------------------------
+
+//static
+bool OTString::safe_strcpy(char * dest,
+                           const
+                           char * src,
+                           // -----------------
+                           size_t dest_size,
+                           bool   bZeroSource/*=false*/) // if true, initializes the source buffer to zero after the copying is done.
+{
+    // Make sure they don't overlap.
+    //
+    OT_ASSERT_MSG(false == ((src > dest) && (src < (dest + dest_size))), "ASSERT: safe_strcpy: Unexpected memory overlap.\n");
+    // ---------------------------------
+    bool bSuccess = false;
+
+    const size_t src_length = OTString::safe_strlen(src, MAX_STRING_LENGTH); 
+    // ---------------------------------------
+    OT_ASSERT_MSG(dest_size > src_length, "OTString::safe_strcpy: ASSERT: src_length must be less than dest_size.\n");
+    
+#ifdef _WIN32
+    bSuccess = (0 == strcpy_s(dest, dest_size, src));
+#else
+    size_t src_cpy_length = strlcpy(dest, src, dest_size);
+    bSuccess = (src_length == src_cpy_length); // If the size it DID copy is equal to the size it TRIED to copy, then it was a succcess.
+#endif
+    
+    // Notice: we don't zero out the source unless we were successful (AND unless we were asked to.)
+    //
+    if (bSuccess && bZeroSource)
+        OTPassword::zeroMemory(const_cast<char *>(src), src_length);
+        
+    return bSuccess;
+}
+// ---------------------------------------------------------
+
+//static
+size_t OTString::safe_strlen(const char * s, size_t max)
+{
+    OT_ASSERT_MSG(max <= MAX_STRING_LENGTH, "OT_String::safe_strlen: ASSERT: max length passed in is longer than allowed.\n");
+    
+    return strnlen(s, max); 
+}
+
+
+// ---------------------------------------------------------
 
 //static
 std::string & OTString::trim(std::string& str)
@@ -498,18 +575,17 @@ void OTString::Release(void)
 	if (NULL != m_strBuffer)
 	{
 		// for security purposes. 
-		memset(m_strBuffer, 0, m_lLength); // TODO security: MAKE SURE this line doesn't get OPTIMIZED OUT. (What if a private key or password was stored here?)
-		delete [] m_strBuffer;				// TODO security: make sure all other cases where private keys and passwords are handled throughout OT, the memory is kept secure!
+        //
+        OTPassword::zeroMemory(m_strBuffer, m_lLength);
+//		memset(m_strBuffer, 0, m_lLength);
+		delete [] m_strBuffer;
 	}
 	m_strBuffer = NULL;
 	m_lPosition = 0;
-	m_lLength  = 0;
+	m_lLength   = 0;
 }
 
 
-#ifndef linux
-extern "C" size_t strnlen(const char *s, size_t max); // Moved the definition of this function to OTPassword.cpp
-#endif
 
 
 

@@ -1147,7 +1147,7 @@ OTCron::OTCron() : OTContract()
 	m_bIsActivated = false;
 	m_pServerNym	= NULL;  // just here for convenience, not responsible to cleanup this pointer.
 	InitCron();
-	OTLog::Output(3, "Finished calling InitCron.\n");
+	OTLog::Output(3, "OTCron::OTCron: Finished calling InitCron 0.\n");
 }
 
 OTCron::OTCron(const OTIdentifier & SERVER_ID) : OTContract()
@@ -1157,7 +1157,7 @@ OTCron::OTCron(const OTIdentifier & SERVER_ID) : OTContract()
 	InitCron();
 	
 	SetServerID(SERVER_ID);
-	OTLog::Output(3, "Finished calling InitCron.\n");
+	OTLog::Output(3, "OTCron::OTCron: Finished calling InitCron 1.\n");
 }
 
 OTCron::OTCron(const char * szFilename) : OTContract()
@@ -1170,7 +1170,7 @@ OTCron::OTCron(const char * szFilename) : OTContract()
 	
 	m_strFoldername.Set(OTLog::CronFolder());
 	m_strFilename.Set(szFilename);
-	OTLog::Output(3, "Finished calling InitCron.\n");
+	OTLog::Output(3, "OTCron::OTCron: Finished calling InitCron 2.\n");
 }
 
 
@@ -1208,10 +1208,10 @@ void OTCron::Release()
 		pMarket = NULL;		
 	}
 	
-	
 	OTContract::Release(); // since I've overridden the base class, I call it now...
 	
 	// Then I call this to re-initialize everything for myself.
+    //
 	InitCron(); 		
 }
 

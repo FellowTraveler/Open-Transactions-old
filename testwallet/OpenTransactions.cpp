@@ -271,7 +271,7 @@ void OT_API::TransportCallback(OTServerContract & theServerContract, OTEnvelope 
 		
 		// Here's our connection...
 		/*
-#if defined (linux)
+#if defined (__linux__)
 		XmlRpcClient theXmlRpcClient(strServerHostname.Get(), nServerPort, 0); // serverhost, port.
 #elif defined (_WIN32) 
 		XmlRpcClient theXmlRpcClient(strServerHostname.Get(), nServerPort, "fellowtraveler"); // serverhost, port, value that crashes if NULL.
@@ -366,8 +366,12 @@ OT_API::OT_API() : m_pWallet(NULL), m_pClient(NULL), m_bInitialized(false),
 
 }
 
+
+
 OT_API::~OT_API()
 {
+    // DELETE
+    //
 	if (NULL != m_pWallet)
 		delete m_pWallet;
 	if (NULL != m_pClient)
@@ -376,13 +380,17 @@ OT_API::~OT_API()
 		delete m_pstrStoragePath;
 	if (NULL != m_pstrWalletFilename)
 		delete m_pstrWalletFilename;
-	
+	// --------------------------------
+    // SET NULL
+    //
 	m_pWallet = NULL;
 	m_pClient = NULL;
 	
 	m_pstrStoragePath		= NULL;
 	m_pstrWalletFilename	= NULL;
 }
+
+
 
 
 // Load the configuration file.
@@ -506,15 +514,17 @@ bool OT_API::LoadConfigFile(const OTString & strMainPath)
 }
 
 
+// ------------------------------------
 
-
-// Call this once per run of the software. Static.
+// Call this once per run of the software.
+//
 // TODO: add a boolean variable to enforce this, and then
 // just call it from the above function.  Currently this only
 // even works because the below function is empty, and there
 // may be Windows problems in the TCP version for the API builds.
 // (No big deal -- none of them will use TCP anyway...)
 //
+//static
 bool OT_API::InitOTAPI()
 {
 #ifdef _WIN32
@@ -522,16 +532,46 @@ bool OT_API::InitOTAPI()
 	WORD wVersionRequested = MAKEWORD( 2, 2 );
 	int err = WSAStartup( wVersionRequested, &wsaData );
 #endif
-	
-	// TODO: probably put all the OpenSSL init stuff here now. We'll see.
-	
+    // ------------------------------------
+		
+    OTLog::OT_Init();  // (OpenSSL gets initialized here.)
+
+    // ------------------------------------
 	// TODO in the case of Windows, figure err into this return val somehow.
+    // (Or log it or something.)
+    //
 	return true;
 }
+// ------------------------------------
+
+//static
+bool OT_API::CleanupOTAPI()
+{
+    // We clean these up in reverse order from the Init function, which just seems
+    // like the best default, in absence of any brighter ideas.
+    //
+    OTLog::OT_Cleanup();  // (OpenSSL gets cleaned up here.)
+    
+    // ------------------------------------
+#ifdef _WIN32
+        WSACleanup(); // Corresponds to WSAStartup() in InitOTAPI().
+#endif
+    // ------------------------------------
+	return true;   
+}
+
+// ------------------------------------
 
 
 
-// Call this once per instance of OT_API.
+// Call this once per INSTANCE of OT_API.
+//
+// Theoretically, someday OTAPI can be the "OT_CTX" and we will be able to instantiate
+// multiple instances of it within a single application.
+//
+// So you use OT_API::InitOTAPI to initialize the entire application, and then you use
+// OT_API::Init() to initialize THIS "OT_CTX" (the OT_API object.)
+//
 bool OT_API::Init(OTString & strClientPath)
 {
 	// TODO: Main path needs to be stored in OT_API global, not OTLog static.
@@ -543,10 +583,12 @@ bool OT_API::Init(OTString & strClientPath)
 	
 	OT_ASSERT_MSG(strClientPath.Exists(), "OT_API::Init: Empty path passed in.");
 	
+    const char * szFunc = "OT_API::Init";
+    
 	if (true == m_bInitialized)
 	{
-		OTLog::vError("OT_API::Init: OTAPI was already initialized. (Skipping.) Ignoring path %s because already using path: %s\n", 
-					  strClientPath.Get(), GetStoragePath());
+		OTLog::vError("%s: OTAPI was already initialized. (Skipping.) Ignoring path %s because already using path: %s\n", 
+					  szFunc, strClientPath.Get(), GetStoragePath());
 		return true;
 	}
 //	OT_ASSERT_MSG(false == m_bInitialized, "OTAPI was already initialized, please do not call it twice.");
@@ -602,25 +644,26 @@ bool OT_API::Init(OTString & strClientPath)
 	
 	if (bDefaultStore) // success initializing default storage on OTDB.
 	{
-		OTLog::vOutput(1, "OT_API::Init: Success invoking OTDB::InitDefaultStorage with path: %s\n",
-					   strPath.c_str());
+		OTLog::vOutput(1, "%s: Success invoking OTDB::InitDefaultStorage with path: %s\n",
+					   szFunc, strPath.c_str());
 		
 		if (m_bInitialized)
-			OTLog::Output(1, "OT_API::Init: m_pClient->InitClient() was already initialized. (Skipping.)\n");
+			OTLog::vOutput(1, "%s: m_pClient->InitClient() was already initialized. (Skipping.)\n", szFunc);
 		else
 		{
 			m_bInitialized = m_pClient->InitClient(*m_pWallet);
 			// -----------------------------
 			if (m_bInitialized)
-				OTLog::Output(1, "OT_API::Init: Success invoking m_pClient->InitClient()\n");
+				OTLog::vOutput(1, "%s: Success invoking m_pClient->InitClient()\n", szFunc);
 			else
-				OTLog::vError("OT_API::Init: Failed invoking m_pClient->InitClient() with path: %s \n", 
-							  strPATH_OUTPUT.Get());
+				OTLog::vError("%s: Failed invoking m_pClient->InitClient() with path: %s \n", 
+							  szFunc, strPATH_OUTPUT.Get());
 		}
 		return m_bInitialized;
 	}
 	else
-		OTLog::vError("OT_API::Init: Failed invoking OTDB::InitDefaultStorage with path: %s\n", strPath.c_str());
+		OTLog::vError("%s: Failed invoking OTDB::InitDefaultStorage with path: %s\n", 
+                      szFunc, strPath.c_str());
 
 	// -------------------------------------
 	
@@ -636,6 +679,8 @@ bool OT_API::LoadWallet(const OTString & strFilename)
 	OT_ASSERT(strFilename.Exists());
 	OT_ASSERT(NULL != m_pWallet);
 	
+    const char * szFunc = "OT_API::LoadWallet";
+    
 	// ----------------------------
 	// Grab the old name for safe keeping..
 	//
@@ -656,9 +701,9 @@ bool OT_API::LoadWallet(const OTString & strFilename)
 	const char * pstrWalletFilename	= GetWalletFilename();
 	
 	if (NULL == pstrStoragePath)
-		OTLog::Error("OT_API::LoadWallet: StoragePath is NULL. Have you called OT_API_Init() yet?\n");
+		OTLog::vError("%s: StoragePath is NULL. Have you called OT_API_Init() yet?\n", szFunc);
 	else if (NULL == pstrWalletFilename || !strFilename.Exists())
-		OTLog::Error("OT_API::LoadWallet: WalletFilename is NULL or otherwise nonexistent.\n");
+		OTLog::vError("%s: WalletFilename is NULL or otherwise nonexistent.\n", szFunc);
 	// ------------------------------------------
 	else // NAMES ARE IN ORDER, so let's INIT DEFAULT STORAGE...
 	{
@@ -670,19 +715,19 @@ bool OT_API::LoadWallet(const OTString & strFilename)
 		bool bSuccessInitDefault = OTDB::InitDefaultStorage(OTDB_DEFAULT_STORAGE, OTDB_DEFAULT_PACKER, strDataFolderPath, strWalletFilename);
 
 		if (!bSuccessInitDefault)
-			OTLog::vError("OT_API::Init: Failed invoking OTDB::InitDefaultStorage with path: %s and wallet filename: %s\n",
-						  strDataFolderPath.c_str(), strWalletFilename.c_str());
+			OTLog::vError("%s: Failed invoking OTDB::InitDefaultStorage with path: %s and wallet filename: %s\n",
+						  szFunc, strDataFolderPath.c_str(), strWalletFilename.c_str());
 		// ------------------------------------------
 		else // Success initializing default storage.
 		{
 			bSuccess = m_pWallet->LoadWallet(GetWalletFilename());
 			
 			if (false == bSuccess)
-				OTLog::vError("OT_API::LoadWallet: Failed invoking m_pWallet->LoadWallet() with filename: %s\n", 
-							  GetWalletFilename());
+				OTLog::vError("%s: Failed invoking m_pWallet->LoadWallet() with filename: %s\n", 
+							  szFunc, GetWalletFilename());
 			else // success
-				OTLog::vOutput(1, "OT_API::LoadWallet: Success invoking m_pWallet->LoadWallet() with filename: %s\n", 
-							   GetWalletFilename());
+				OTLog::vOutput(1, "%s: Success invoking m_pWallet->LoadWallet() with filename: %s\n", 
+							   szFunc, GetWalletFilename());
 		}
 	}
 	// ------------------------------------------
@@ -690,7 +735,7 @@ bool OT_API::LoadWallet(const OTString & strFilename)
 	//
 	if (false == bSuccess)
 	{
-		OTLog::vError("OT_API::LoadWallet: Failed with filename: %s\n", 
+		OTLog::vError("%s: Failed with filename: %s\n", szFunc,
 					  GetWalletFilename());
 		SetWalletFilename(strOldName);  // However we failed, set back to old filename.
 	}

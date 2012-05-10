@@ -156,6 +156,7 @@ extern "C" {
 //#else
 #define MAX_STRING_LENGTH   1262144
 //#endif // _WIN32
+// TODO: consider how MAX_SIZE affects the above hard-coded number...
 
 
 
@@ -326,6 +327,17 @@ private:
 	
 	// Operations
 public:	
+	
+    static bool safe_strcpy(char * dest,
+                            const
+                            char * src,
+                            // -----------------
+                            size_t dest_size, // max size of destination must be passed here.
+                            bool   bZeroSource=false); // if true, sets the source buffer to zero after copying is done.
+    
+    static size_t safe_strlen(const char * s, size_t max);
+    
+	// ----------------------------
 	bool At(uint32_t lIndex, char &c);
 	
 	bool Exists(void) const;
@@ -341,10 +353,16 @@ public:
 	const char * Get(void) const;
 	
 	// ----------------------------
+	// new_string MUST be at least nEnforcedMaxLength in size if 
+    // nEnforcedMaxLength is passed in at all.
+    //
+	// That's because this function forces the null terminator at 
+    // that length, minus 1. For example, if the max is set to 10, then
+    // the valid range is 0..9. Therefore 9 (10 minus 1) is where the 
+    // NULL terminator goes.
+    //
 	void Set(const char * new_string, uint32_t nEnforcedMaxLength=0);
-	
-	// new_string MUST be at least nEnforcedMaxLength in size if nEnforcedMaxLength is passed in at all.
-	// That's because this function forces the null terminator at that length of the string minus 1.
+	    
 	void Set(const OTString & strBuf);
 	// ----------------------------
 

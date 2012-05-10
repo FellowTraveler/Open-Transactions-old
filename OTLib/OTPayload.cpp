@@ -151,6 +151,11 @@ OTPayload::OTPayload() : OTData()
 	
 }
 
+OTPayload::OTPayload(const void * pNewData, uint32_t nNewSize) : OTData(pNewData, nNewSize)
+{
+    
+}
+
 OTPayload::OTPayload(const OTPayload & rhs) : OTData(rhs)
 {
 	
@@ -171,11 +176,13 @@ OTPayload::~OTPayload()
 
 uint32_t OTPayload::ReadBytesFrom(OTData & theData, uint32_t lSize)
 {
+    OT_ASSERT(theData.GetSize() >= lSize);
+    
 	// The size requested to read MUST be less or equal to size of theData
 	if (theData.GetSize() < lSize)
 		abort();
 
-	OTPayload & refPayload = (OTPayload &)theData;
+	OTPayload & refPayload = (OTPayload &)theData; // todo fix this cast.
 	
 	// Copy from theData to this, up until lSize
 	Assign(refPayload.GetPayloadPointer(), lSize);

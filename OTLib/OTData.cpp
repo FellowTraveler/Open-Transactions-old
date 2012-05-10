@@ -129,21 +129,20 @@
 
 #include <algorithm>
 
-extern "C"
-{
-#include <openssl/evp.h>
-}
-
 #include <cstdio>
 #include <cstring>
+
 
 #include "OTStorage.h"
 
 #include "OTASCIIArmor.h"
 #include "OTData.h"
-
+#include "OTPassword.h"
 
 #include "OTLog.h"
+
+
+
 
 
 
@@ -179,7 +178,7 @@ bool OTData::operator!=(const OTData &s2) const
 		return true;
 	}
 	
-	if (0 == memcmp(m_pData, s2.m_pData, m_lSize) ) 
+	if (0 == memcmp(m_pData, s2.m_pData, m_lSize) )  // TODO security: replace memcmp with a more secure version. Still, though, I am managing it internal to the class.
 	{
 		return false;
 	}
@@ -208,7 +207,10 @@ int OTData::OTfread(char * buf, int buflen)
 		if (buflen < nSizeToRead)
 			nSizeToRead = buflen;
 		
-		memcpy(buf, ((char*)m_pData)+m_lPosition, nSizeToRead); 
+        OTPassword::safe_memcpy(buf, buflen, 
+                                (static_cast<char*>(m_pData))+m_lPosition,
+                                nSizeToRead);
+//		memcpy(buf, (static_cast<char*>(m_pData))+m_lPosition, nSizeToRead); 
 		m_lPosition += nSizeToRead;
 	}
 	
@@ -216,53 +218,6 @@ int OTData::OTfread(char * buf, int buflen)
 }
 
 
-/* The initialization vector needs to be known to Alice AND Bob.
-   And it needs to be transmitted at the time the session key is negotiated.
- 
- So there should probably be a "OTEnvelope" class which stores the IV
- as well as the session key, and which can be encrypted with a public key 
- and decrypted with a private key. The keys can just be passed in or whatever.
-
-void OTData::AESEncrypt(OTData & theKey)
-{
-	const unsigned char *iv="blahfuckheadfixthis";
-	
-	EVP_CIPHER_CTX ctx;
-	EVP_CIPHER_CTX_init(&ctx);
-	
-	const EVP_CIPHER * cipher = EVP_aes_128_cbc();
-	
-	EVP_EncryptInit(&ctx, cipher, theKey.GetPointer(), iv);
-	
-	EVP_EncryptUpdate(&ctx, out, &outlen, in, inlen);
-	
-	// unsigned char * out
-	EVP_EncryptFinal(&ctx, out, &outlen);
-	
-	EVP_CIPHER_CTX_cleanup(&ctx);
-}
-
-
-void OTData::AESDecrypt(OTData & theKey)
-{
-	const unsigned char *iv="blahfuckheadfixthis";
-	
-	EVP_CIPHER_CTX ctx;
-	EVP_CIPHER_CTX_init(&ctx);
-	
-	const EVP_CIPHER * cipher = EVP_aes_128_cbc();
-	
-	EVP_DecryptInit(&ctx, cipher, theKey.GetPointer(), iv);
-	
-	EVP_DecryptUpdate(&ctx, out, &outlen, in, inlen);
-	
-	// unsigned char * out
-	EVP_DecryptFinal(&ctx, out, &outlen);
-	
-	EVP_CIPHER_CTX_cleanup(&ctx);
-}
-
-*/
 
 OTData::OTData() : m_pData(NULL), m_lPosition(0), m_lSize(0)
 {
@@ -316,6 +271,7 @@ bool OTData::IsEmpty() const
     return (m_lSize > 0) ? false : true;
 }
 
+
 void OTData::Assign(const void * pNewData, uint32_t lNewSize)
 {
 	Release(); // This releases all memory and zeros out all members.
@@ -323,13 +279,101 @@ void OTData::Assign(const void * pNewData, uint32_t lNewSize)
 	if ((pNewData != NULL) && (lNewSize > 0))
 	{
 		m_pData = static_cast<void*>(new char[lNewSize]);
-		
 		OT_ASSERT(NULL != m_pData);
 		
-		memcpy(m_pData, pNewData, lNewSize); // todo security: replace memcpy with more secure version. Still though, I'm allocating it, and size is passed in.
+        OTPassword::safe_memcpy(m_pData, lNewSize, pNewData, lNewSize);
+        //		memcpy(m_pData, pNewData, lNewSize);
 		m_lSize = lNewSize;
 	}
 	// else error condition.  Could just ASSERT() this.
+}
+
+
+
+bool OTData::Randomize(uint32_t lNewSize)
+{
+	Release(); // This releases all memory and zeros out all members.
+	if (lNewSize > 0)
+	{
+		m_pData = static_cast<void*>(new char[lNewSize]);
+		OT_ASSERT(NULL != m_pData);
+        // ---------------------------------        
+        if (!OTPassword::randomizeMemory(static_cast<char*>(m_pData), static_cast<size_t>(lNewSize)))
+        {
+            // randomizeMemory already logs, so I'm not logging again twice here.
+            //
+            delete [] static_cast<char *>(m_pData);
+            m_pData = NULL;
+            return false;
+        }
+        // --------------------------------------------------
+        m_lSize  = lNewSize;
+        return true;        
+	}
+	// else error condition.  Could just ASSERT() this.
+    return false;
+}
+
+
+
+void OTData::Concatenate(const void * pAppendData, uint32_t lAppendSize)
+{
+    OT_ASSERT(NULL != pAppendData);
+    // -------------------------
+    if (lAppendSize == 0) // It's unsigned, so it CAN'T be less than 0.
+    {
+        OTLog::Error("OTData::Concatenate: Error: lAppendSize is unexpectedly 0.\n");
+        return;
+    }
+    // -------------------------
+    if (0 == m_lSize)
+    {
+        this->Assign(pAppendData, lAppendSize);
+        return;
+    }
+    // -------------------------
+	void * pNewData		= NULL;
+	uint32_t lTotalSize	= GetSize() + lAppendSize;
+	
+	if (lTotalSize > 0)
+	{
+		pNewData = static_cast<void*>(new char[lTotalSize]);
+		OT_ASSERT(NULL != pNewData);
+        OTPassword::zeroMemory(pNewData, lTotalSize);
+	}
+    // -----------------------------------
+    
+	if (NULL != pNewData) // If there's a new memory buffer (for the combined..)
+	{
+        // if THIS object has data inside of it...
+        //
+		if (!IsEmpty()) 
+		{
+            OTPassword::safe_memcpy(pNewData, lTotalSize, m_pData, GetSize()); // Copy THIS object into the new buffer, starting at the beginning.
+		}
+		
+        // Next we copy the data being appended...
+        //
+        OTPassword::safe_memcpy((static_cast<char*>(pNewData)) + GetSize(),
+                                lTotalSize - GetSize(),
+                                pAppendData, lAppendSize);	
+	}
+    // ---------------------------------------
+	if (NULL != m_pData) // If I wasn't already empty, then erase whatever I had in there before...
+		delete [] static_cast<char *>(m_pData);
+        
+	m_pData = pNewData;		// Set my internal memory to the new buffer (or NULL, but unlikely.)
+	m_lSize = lTotalSize;	// Set my internal size to the new size.
+}
+
+
+
+
+OTData & OTData::operator+=(const OTData & rhs)
+{
+    this->Concatenate(rhs.m_pData, rhs.GetSize());
+	
+	return *this;
 }
 
 
@@ -338,10 +382,16 @@ void OTData::Release()
    if (m_pData != NULL)
    {
 	   // For security reasons, we clear the memory to 0 when deleting the object. (Seems smart.)
-	   memset(m_pData, 0, m_lSize);
-      
+       //
+       OTPassword::zeroMemory(m_pData, m_lSize);
+//	   memset(m_pData, 0, m_lSize);
+       // --------------------------------------
+       
 	   delete [] (static_cast<char *>(m_pData));
 	   
+       // --------------------------------------
+       // inline void Initialize() { m_pData = NULL; m_lSize = 0; m_lPosition = 0; }
+       //
 	   Initialize(); // If m_pData was already NULL, no need to re-Initialize().
    }
 }
@@ -353,51 +403,16 @@ void OTData::SetSize(uint32_t lNewSize)
 	
 	if (lNewSize > 0)
 	{
-		m_pData = (void*)new char[lNewSize];
-		
+		m_pData = static_cast<void*>(new char[lNewSize]);
 		OT_ASSERT(NULL != m_pData);
 		
-		memset(m_pData, 0, lNewSize);
+        OTPassword::zeroMemory(m_pData, lNewSize);
+//		memset(m_pData, 0, lNewSize);
+        
 		m_lSize = lNewSize;
 	}
 }
 
-
-OTData & OTData::operator+=(const OTData & rhs)
-{
-	void * pNewData		= NULL;
-	uint32_t lTotalSize	= GetSize() + rhs.GetSize();
-	
-	if (lTotalSize)
-	{
-		pNewData = (void*)new char[lTotalSize];
-		
-		OT_ASSERT(NULL != pNewData);
-		
-		memset(pNewData, 0, lTotalSize);
-	}
-	
-	if (NULL != pNewData) // If there's a new memory buffer (for the combined..)
-	{
-		if (!IsEmpty()) // if THIS object has data inside of it...
-		{
-			memcpy(pNewData, m_pData, GetSize()); // Copy THIS object into the new buffer, starting at the beginning.
-		}
-		
-		if (!rhs.IsEmpty()) // If the rhs object has data inside of it...
-		{
-			memcpy((static_cast<char*>(pNewData))+GetSize(), rhs.m_pData, rhs.GetSize());	
-		}
-	}
-
-	if (m_pData) // If I wasn't already empty, then erase whatever I had in there before...
-		delete [] (char *)m_pData;
-
-	m_pData = pNewData;		// Set my internal memory to the new buffer.
-	m_lSize = lTotalSize;	// Set my internal size to the new size.
-	
-	return *this;
-}
 
 
 

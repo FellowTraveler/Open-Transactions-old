@@ -129,8 +129,7 @@
 
 extern "C" 
 {
-#include <openssl/rand.h>
-
+    
 #ifdef _WIN32
 #include <sys/timeb.h>
 #include <sys/types.h>
@@ -664,27 +663,33 @@ bool OTAccount::GenerateNewAccount(const OTPseudonym & theServer, const OTMessag
 								   const OTAccount::AccountType eAcctType/*=OTAccount::simple*/,
 								   long lStashTransNum/*=0*/)
 {
-	// First we generate a secure random number into a binary object.
-	OTPayload thePayload;
-	thePayload.SetPayloadSize(100);
-	if (!RAND_bytes((unsigned char*)thePayload.GetPayloadPointer(), 100)) 
-	{
-		OTLog::Error("The PRNG is not seeded!\n");
-//		abort(  );
+    const char *szFunc = "OTAccount::GenerateNewAccount";
+    // -----------------------------------------------
+	// First we generate a secure random number into a binary object...
+    //
+    OTPayload thePayload;
+    
+    if (false == thePayload.Randomize(100)) // todo hardcoding. Plus: is 100 bytes of random a little much here?
+    {
+		OTLog::vError("%s: Failed trying to acquire random numbers.\n", szFunc);
 		return false;	
-	}
-	
+    }
+	// --------------------------------------------------
+    //
 	// Next we calculate that binary object into a message digest (an OTIdentifier).
+    //
 	OTIdentifier newID;
 	if (!newID.CalculateDigest(thePayload))
 	{
-		OTLog::Error("Error generating new account ID.\n");
+		OTLog::vError("%s: Error generating new account ID.\n", szFunc);
 		return false;	
 	}		
-	
+    // --------------------------------------------------
+    //
 	// Next we get that digest (which is a binary hash number)
 	// and extract a human-readable standard string format of that hash,
 	// into an OTString.
+    //
 	OTString strID(newID);
 	
 	SetRealAccountID(newID);		// Set the account number based on what we just generated.
@@ -693,6 +698,7 @@ bool OTAccount::GenerateNewAccount(const OTPseudonym & theServer, const OTMessag
 	m_strName.Set(strID); // So it's not blank. The user can always change it.
 	
 	// Next we create the full path filename for the account using the ID.
+    //
 	m_strFoldername = OTLog::AccountFolder();
 	m_strFilename = strID.Get();
 	
@@ -701,7 +707,7 @@ bool OTAccount::GenerateNewAccount(const OTPseudonym & theServer, const OTMessag
 	
 	if (OTDB::Exists(m_strFoldername.Get(), m_strFilename.Get()))
 	{
-		OTLog::vError("OTAccount::GenerateNewAccount: Account already exists: %s\n", 
+		OTLog::vError("%s: Account already exists: %s\n", szFunc,
 					  m_strFilename.Get());
 		return false;
 	}
@@ -725,7 +731,7 @@ bool OTAccount::GenerateNewAccount(const OTPseudonym & theServer, const OTMessag
 	// --------------------------------------------------------------------
 	m_AcctAssetTypeID.SetString(theMessage.m_strAssetID);
 	
-	OTLog::vOutput(3, "Creating new account, type:\n%s\n", 
+	OTLog::vOutput(3, "%s: Creating new account, type:\n%s\n", szFunc,
 				   theMessage.m_strAssetID.Get());
 	
 	OTIdentifier SERVER_ID(theMessage.m_strServerID);	

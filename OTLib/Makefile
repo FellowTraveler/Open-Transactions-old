@@ -191,7 +191,6 @@ CXXSOURCES = $(BIGINTSOURCES) $(LUCRESOURCES) $(IRRXMLSOURCES) \
 			 OTTransaction.cpp \
 			 OTLedger.cpp \
 			 OTAccount.cpp \
-			 OTEnvelope.cpp \
 			 OTAssetContract.cpp \
 			 OTServerContract.cpp \
 			 OTOffer.cpp \
@@ -213,6 +212,7 @@ CXXSOURCES = $(BIGINTSOURCES) $(LUCRESOURCES) $(IRRXMLSOURCES) \
 			 OTBylaw.cpp \
 			 OTStorage.cpp \
 			 OTDataCheck.cpp \
+			 OTEnvelope.cpp \
 			 Generics.pb.cpp \
 			 Markets.pb.cpp \
 			 Bitcoin.pb.cpp \
@@ -337,8 +337,6 @@ OTLedger.o: OTLedger.cpp OTLedger.h
 	$(CXX) $(CXXFLAGS) -c -o OTLedger.o OTLedger.cpp
 OTAccount.o: OTAccount.cpp OTAccount.h
 	$(CXX) $(CXXFLAGS) -c -o OTAccount.o OTAccount.cpp
-OTEnvelope.o: OTEnvelope.cpp OTEnvelope.h
-	$(CXX) $(CXXFLAGS) -c -o OTEnvelope.o OTEnvelope.cpp
 OTAssetContract.o: OTAssetContract.cpp OTAssetContract.h
 	$(CXX) $(CXXFLAGS) -c -o OTAssetContract.o OTAssetContract.cpp
 OTServerContract.o: OTServerContract.cpp OTServerContract.h
@@ -377,6 +375,8 @@ OTScriptable.o: OTScriptable.cpp OTScriptable.h
 	$(CXX) $(CXXFLAGS) -c -o OTScriptable.o OTScriptable.cpp
 OTScript.o: OTScript.cpp OTScript.h
 	$(CXX) $(CXXFLAGS) -c -o OTScript.o OTScript.cpp
+OTEnvelope.o: OTEnvelope.cpp OTEnvelope.h
+	$(CXX) $(CXXFLAGS) -c -o OTEnvelope.o OTEnvelope.cpp
 Generics.pb.o: Generics.pb.cpp Generics.pb.h
 	$(CXX) $(CXXFLAGS) -c -o Generics.pb.o Generics.pb.cpp
 Markets.pb.o: Markets.pb.cpp Markets.pb.h

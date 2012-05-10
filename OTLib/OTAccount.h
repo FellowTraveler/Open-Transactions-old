@@ -319,9 +319,9 @@ class OTAcctList
 {
 	OTAccount::AccountType	m_AcctType;
 		
-	mapOfStrings		m_mapAcctIDs; // AcctIDs as second mapped by ASSET TYPE ID as first.
-	mapOfWeakAccounts	m_mapWeakAccts; // If someone calls GetAccount(), we pass them a shared pointer. 
-										// We store the weak pointer here to make sure account doesn't get loaded twice.
+	mapOfStrings		m_mapAcctIDs; // AcctIDs as second mapped by ASSET TYPE ID as first. 
+	mapOfWeakAccounts	m_mapWeakAccts; // If someone calls GetOrCreateAccount(), we pass them a shared pointer. We 
+										// store the weak pointer here only to make sure accounts don't get loaded twice.
 public:	
 	OTAcctList();
 	OTAcctList(OTAccount::AccountType eAcctType);

@@ -756,6 +756,7 @@ OTAssetContract * OTServer::GetAssetContract(const OTIdentifier & ASSET_TYPE_ID)
 
 /// OTServer will take ownership of theContract from this point on,
 /// and will be responsible for deleting it. MUST be allocated on the heap.
+//
 bool OTServer::AddAssetContract(OTAssetContract & theContract)
 {
 	OTAssetContract * pContract = NULL;
@@ -1140,14 +1141,82 @@ bool OTServer::LoadConfigFile()
 	return true;
 }
 
+// -----------------------------------------------------
 
 
+OTServer::OTServer() : m_bShutdownFlag(false), m_pServerContract(NULL), m_lTransactionNumber(0)
+{
+	
+    //	m_lTransactionNumber = 0;	// This will be set when the server main xml file is loaded. For now, initialize to 0.
+    //
+    //	m_bShutdownFlag = false;	// If I ever set this to true, then the caller will shutdown gracefully.	
+    // (Caller must regularly check the flag and shutdown when it sees the change.)
+}
+
+
+OTServer::~OTServer()
+{
+    // NOTE: In most normal OT classes, which are derived from OTContract, you would NOT
+    // call Release here, since it is ALREADY called by the framework. But in this case, 
+    // OTServer is NOT OTContract-derived, so there is no "framework" in this case. So 
+    // we have to call it ourselves here...
+    //
+    Release();
+}
+
+// -----------------------------------------------------
+
+
+void OTServer::Release()
+{	
+    // -------------------------------
+    if (NULL == m_pServerContract)
+		delete m_pServerContract;
+	m_pServerContract = NULL;
+    // -------------------------------
+    // Erase various dynamically-allocated objects...
+    // (asset contracts, and mints, for example.)
+    //
+    while (m_mapContracts.size() > 0)
+    {
+        mapOfContracts::iterator it = m_mapContracts.begin();
+		OTAssetContract * pContract = (*it).second;
+		OT_ASSERT(NULL != pContract);
+        // --------------------------
+        m_mapContracts.erase(it);
+        // --------------------------
+        delete pContract; 
+        pContract = NULL;
+    }
+    // -------------------------------
+    // Mints...
+    //
+    while (m_mapMints.size() > 0)
+    {
+        mapOfMints::iterator it = m_mapMints.begin();
+		OTMint * pMint = (*it).second;
+		OT_ASSERT(NULL != pMint);
+        // --------------------------
+        m_mapMints.erase(it);
+        // --------------------------
+        delete pMint; 
+        pMint = NULL;
+    }
+    // -------------------------------
+}
+
+// -----------------------------------------------------
+
+// Loads the config file,
+// Initializes OTDB:: default storage,
+// Sets up the data folders,
+// Loads the main file,
+// and validates the server ID (for the Nym)
+//
 void OTServer::Init()
 {
 	LoadConfigFile(); // assumes main path is set.
-	
 	// ----------------------
-	
 	bool bSuccessInitDefault = 
 		OTDB::InitDefaultStorage(OTDB_DEFAULT_STORAGE, 
 								 OTDB_DEFAULT_PACKER, OTLog::Path(), 
@@ -1182,9 +1251,9 @@ void OTServer::Init()
 	// -------------------------------------------------------
 
 
-
 	// --------------------------------
-	// Load up the transaction number.
+	// Load up the transaction number and other OTServer data members.
+    //
 	LoadMainFile();
 	
 	// We just want to call this function once in order to make sure that the
@@ -1193,8 +1262,9 @@ void OTServer::Init()
 	ValidateServerIDfromUser(m_strServerID);
 		
 	// With the Server's private key loaded, and the latest transaction number loaded,
-	// the server is now ready for operation!
+    // and all the various other data (contracts, etc) the server is now ready for operation!
 }
+// -----------------------------------------------------
 
 
 
@@ -10848,28 +10918,6 @@ bool OTServer::ValidateServerIDfromUser(OTString & strServerID)
 	
 	return false;
 }	
-
-
-
-
-		
-OTServer::OTServer() : m_bShutdownFlag(false), m_pServerContract(NULL), m_lTransactionNumber(0)
-{
-	
-//	m_lTransactionNumber = 0;	// This will be set when the server main xml file is loaded. For now, initialize to 0.
-//
-//	m_bShutdownFlag = false;	// If I ever set this to true, then the caller will shutdown gracefully.	
-								// (Caller must regularly check the flag and shutdown when it sees the change.)
-}
-
-
-OTServer::~OTServer()
-{
-	if (m_pServerContract)
-		delete m_pServerContract;
-	
-	m_pServerContract = NULL;
-}
 
 
 

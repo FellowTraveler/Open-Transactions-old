@@ -221,7 +221,7 @@ extern "C"
 #include "OTLog.h"
 
 
-void ProcessMessage_ZMQ(const std::string & str_Message, std::string & str_Reply);
+void ProcessMessage_ZMQ(OTServer & theServer, const std::string & str_Message, std::string & str_Reply);
 
 // -------------------------------------------------------------
 
@@ -233,7 +233,7 @@ void ProcessMessage_ZMQ(const std::string & str_Message, std::string & str_Reply
 
 
 // The Open Transactions server
-OTServer * g_pServer = NULL;  // This object handles all the actual OT notarization processing.
+//OTServer * g_pServer = NULL;  // This object handles all the actual OT notarization processing.
 
 
 // -------------------------------------------------------------
@@ -420,6 +420,7 @@ void OTSocket::Listen(const OTString &strBind)
  */
 
 // The bool means true == try again soon, false == don't try again.
+//
 bool OTSocket::HandlePollingError()
 {
 	bool bRetVal = false;
@@ -685,109 +686,169 @@ bool OTSocket::Receive(std::string & str_Message)
 
 
 
-// ----------------------------------------------------------------------
-
-
-// The MAIN function for the server software, which starts up the XmlRpc (http server), 
-// as well as Open Transactions.
+// *********************************************************************************************************
+//
+//
+//             *** SERVER MAIN ***
+//
+//
+// The MAIN function for the server software, which starts up the ZMQ listener, as well
+// as well as the Open Transactions library and the OT Server object.
+//
+// After initialization, this function becomes the "main loop" of OT server.
 //
 int main(int argc, char* argv[])
 {
 	OTLog::vOutput(0, "\n\nWelcome to Open Transactions... Test Server -- version %s\n"
 				   "(transport build: OTMessage -> OTEnvelope -> ZMQ )\n\n", OTLog::Version());
-	// -----------------------------------------------------------------------
-
+	// ***********************************************************************
+    // INITIALIZATION and CLEANUP (for the OT library, and for this server application.)
+    //
+    class __ot_server_
+    {
+        OTServer * m_pServer;
+    public:
+        OTServer * GetServer() { return m_pServer; }
+        // -----------------------------------
+        __ot_server_() : m_pServer(NULL) // INIT 
+        {
+            // -----------------------------------------------------------------------    
 #ifdef _WIN32
-	WSADATA wsaData;
-	WORD wVersionRequested = MAKEWORD( 2, 2 );
-	int nWSA = WSAStartup( wVersionRequested, &wsaData );
-	OT_ASSERT_MSG(0 != nWSA, "Error calling WSAStartup.\n");	
+            WSADATA wsaData;
+            WORD wVersionRequested = MAKEWORD( 2, 2 );
+            int nWSA = WSAStartup( wVersionRequested, &wsaData );
+            OT_ASSERT_MSG(0 != nWSA, "server main(): ASSERT: Error calling WSAStartup. (Windows only.)\n");	
 #endif
-	
-	// -----------------------------------------------------------------------
-	// I instantiate this here (instead of globally) so that I am assured all the globals
-	// are ready to go before the server is created.  I still have it as a global pointer, though,
-	// so I can get to it wherever I need to.
-	g_pServer = new OTServer;
-	// (This file you are reading is a wrapper for OTServer, which adds the transport layer.)
+            // -----------------------------------------------------------------------
+            // I instantiate this here (instead of globally) so that I am assured that any globals and other
+            // setup is already done before we instantiate the server object itself.
+            //
+            OT_ASSERT_MSG(NULL == m_pServer, "server main(): ASSERT: NULL == m_pServer.");
+            m_pServer = new OTServer;
+            //
+            // (This .cpp file you are currently reading is a wrapper for OTServer,
+            // which adds the transport layer.)
+            //
+            OT_ASSERT_MSG(NULL != m_pServer, "server main(): ASSERT: Unable to instantiate OT server.\n");
 
-	OT_ASSERT_MSG(NULL != g_pServer, "Unable to instantiate OT server...\n");
-	
-	// -----------------------------------------------------------------------
-	// The beginnings of an INI file!!
-	
-    OTString strIniFileDefault;
-    OTLog::TransformFilePath(OT_INI_FILE_DEFAULT, strIniFileDefault);
-	
-	OTString strPath, strRawPath(SERVER_PATH_DEFAULT);
-	
-	{
-		CSimpleIniA ini;
-		
-		SI_Error rc = ini.LoadFile(strIniFileDefault.Get());
-		
-		if (rc >=0)
-		{
+            // ***********************************************************************
+            //
+            // INI FILE
+            //
+            OTString strIniFileDefault;
+            OTLog::TransformFilePath(OT_INI_FILE_DEFAULT, strIniFileDefault);
+            
+            OTString strPath, strRawPath(SERVER_PATH_DEFAULT);
+            // -----------------------------------------------------------------------
             {
-                const char * pVal = ini.GetValue("paths", "server_path", SERVER_PATH_DEFAULT); // todo stop hardcoding.
-                
-                if (NULL != pVal)
+                CSimpleIniA ini;
+                SI_Error rc = ini.LoadFile(strIniFileDefault.Get());
+                if (rc >=0)
                 {
-                    strRawPath.Set(pVal);
-                    OTLog::vOutput(0, "Reading ini file (%s). \n Found Server data_folder path: %s \n", 
-                                   strIniFileDefault.Get(), strRawPath.Get());
+                    {
+                        const char * pVal = ini.GetValue("paths", "server_path", SERVER_PATH_DEFAULT); // todo stop hardcoding.
+                        
+                        if (NULL != pVal)
+                        {
+                            strRawPath.Set(pVal);
+                            OTLog::vOutput(0, "server main: Reading ini file (%s). \n Found Server data_folder path: %s \n", 
+                                           strIniFileDefault.Get(), strRawPath.Get());
+                        }
+                        else
+                        {
+                            strRawPath.Set(SERVER_PATH_DEFAULT);
+                            OTLog::vOutput(0, "server main: Reading ini file (%s): \n Failed reading Server data_folder path. Using: %s \n", 
+                                           strIniFileDefault.Get(), strRawPath.Get());
+                        }
+                    }            
                 }
-                else
+                else 
                 {
                     strRawPath.Set(SERVER_PATH_DEFAULT);
-                    OTLog::vOutput(0, "Reading ini file (%s): \n Failed reading Server data_folder path. Using: %s \n", 
+                    OTLog::vOutput(0, "server main: Unable to load ini file (%s) to find data_folder path\n "
+                                   "Will assume that server data_folder is at path: %s \n", 
                                    strIniFileDefault.Get(), strRawPath.Get());
                 }
-            }            
-		}
-		else 
-		{
-			strRawPath.Set(SERVER_PATH_DEFAULT);
-			OTLog::vOutput(0, "Unable to load ini file (%s) to find data_folder path\n Will assume that server data_folder is at path: %s \n", 
-						   strIniFileDefault.Get(), strRawPath.Get());
-		}
-	}
-        
-	// -----------------------------------------------------------------------
+            }
+            // ***********************************************************************
+            //
+            // SET MAIN PATH 
+            //
+            // (OTServer::Init, when called, will expect the main path to already be set...)
+            
+            OTLog::TransformFilePath(strRawPath.Get(), strPath);
+            OTLog::SetMainPath(strPath.Get());              // <============ SET MAIN PATH
+            OTLog::vOutput(0, "Using data_folder path:  %s\n",
+                           OTLog::Path());
+            
+            // -----------------------------------------------------------------------    
+            
+            OTLog::OT_Init();  // <========== (OpenSSL gets initialized here.)
 
-	OTString strCAFile, strDHFile, strKeyFile;  //, strSSLPassword;
-	
-    OTLog::TransformFilePath(strRawPath.Get(), strPath);
-    
-    OTLog::SetMainPath(strPath.Get());
-    	
-	OTLog::vOutput(0, "Using data_folder path:  %s\n", OTLog::Path());
-	
-	strCAFile. Format("%s%s%s", OTLog::Path(), OTLog::PathSeparator(), CA_FILE);
-	strDHFile. Format("%s%s%s", OTLog::Path(), OTLog::PathSeparator(), DH_FILE);
-	strKeyFile.Format("%s%s%s", OTLog::Path(), OTLog::PathSeparator(), KEY_FILE);
-	
-	
+            
+        }
+        // ****************************************
+        //
+        ~__ot_server_()  // CLEANUP
+        {
+            OTLog::vOutput(0, "\n\n OT version %s, shutting down and cleaning up.\n",
+                           OTLog::Version());
+
+            // ------------------------------
+            if (NULL != m_pServer)
+                delete m_pServer;
+            m_pServer = NULL;
+            // ------------------------------
+            // We clean these up in reverse order from the Init function, which just seems
+            // like the best default, in absence of any brighter ideas.
+            //
+            OTLog::OT_Cleanup();  // <=============== (OpenSSL gets cleaned up here.)
+
+            // -------------------------
+            // (This is at the bottom, since we do the cleanup in the 
+            // reverse order from initialization.)
+#ifdef _WIN32
+            WSACleanup();
+#endif
+        }
+    };	
+	// ***********************************************************************
+    //
+    // INSTANTIATE and INITIALIZE...
+    //
+    // (Cleanup happens automatically when this object goes out of scope.)
+    //
+    __ot_server_  the_server_obj;
+    OTServer * pServer = the_server_obj.GetServer();
+    OT_ASSERT(NULL != pServer);
+    // -----------------------------------------------------------------------
+//	OTString strCAFile, strDHFile, strKeyFile;  //, strSSLPassword;
+//	strCAFile. Format("%s%s%s", OTLog::Path(), OTLog::PathSeparator(), CA_FILE);
+//	strDHFile. Format("%s%s%s", OTLog::Path(), OTLog::PathSeparator(), DH_FILE);
+//	strKeyFile.Format("%s%s%s", OTLog::Path(), OTLog::PathSeparator(), KEY_FILE);
+	// -----------------------------------------------------------------------
+    //
+    // UPDATE: This was moved to OTLog::OT_Init(), which is called above, by the
+    // nested cleanup class.
+    //
+	// Initialize SSL -- This MUST occur before any Private Keys are loaded!
+//	SSL_library_init();
+//	SSL_load_error_strings();
 	
 	// -----------------------------------------------------------------------
-	
-	// Initialize SSL -- This MUST occur before any Private Keys are loaded!
-	SSL_library_init();
-	SSL_load_error_strings();
-	
-	// Init loads up server's nym so it can decrypt messages sent in envelopes.
-	// It also does various other initialization work.
+	// OTServer::Init loads up server's nym so it can decrypt messages sent in
+    // envelopes. It also does various other initialization work.
 	//
 	// (Envelopes prove that ONLY someone who actually had the server contract,
-	// and had loaded it into his wallet, could ever connect to the server or 
-	// communicate with it. And if that person is following the contract, there
-	// is only one server he can connect to, and one key he can use to talk to it.)
-	
+	//  and had loaded it into his wallet, could ever connect to the server or 
+	//  communicate with it. And if that person is following the contract, there
+	//  is only one server he can connect to, and one key he can use to talk to it.)
+	//
 	OTLog::vOutput(0, 
 				   "\nNow loading the server nym, which will also ask you for a password, to unlock\n"
 				   "its private key. (Default password is \"%s\".)\n", KEY_PASSWORD);
 	
-	g_pServer->Init(); // Keys, etc are loaded here.
+	pServer->Init(); // Keys, etc are loaded here. ===> Assumes main path is set! <===
 	
 	// -----------------------------------------------------------------------
 	// We're going to listen on the same port that is listed in our server contract.
@@ -796,38 +857,57 @@ int main(int argc, char* argv[])
 	OTString	strHostname;	// The hostname of this server, according to its own contract.
 	int			nPort=0;		// The port of this server, according to its own contract.
 	
-	OT_ASSERT_MSG(g_pServer->GetConnectInfo(strHostname, nPort),
-				  "Unable to find my own connect info (which is in my server contract BTW.)\n");
+    const bool bConnectInfo = pServer->GetConnectInfo(strHostname, nPort);
+    
+	OT_ASSERT_MSG(bConnectInfo, "server main: Unable to find my own connect info (which SHOULD be in my server contract, BTW.)\n");
 	
-	const int	nServerPort = nPort;
+	const int   nServerPort = nPort;
 	
 	// -----------------------------------------------------------------------
-	// For re-occuring actions (like markets and payment plans.)
-	//
-	g_pServer->ActivateCron();
+    // OT CRON
+    //
+    // A heartbeat for recurring transactions, such as markets, payment plans,
+    // and smart contracts.
 
+	pServer->ActivateCron();
+
+    // NOTE: Currently we trigger OT Cron's processing internally, but there's no reason why, in the
+    // future, we can't make an actual cron job that triggers a script, that fires a message
+    // to OT, causing OT to process its Cron (even if we were single-threaded we could do this...)
+    //
+    // Have to put some thought into it...
+    //
+    // Wouldn't require much security, since OT can still be smart enough not to process cron any
+    // more often than X minutes, no matter HOW many times the ProcessCron script fires.
+    // Thing is, though, that with this setup, we can't really guarantee that cron will EVER be
+    // triggered -- whereas the way OT is now, at least we know it WILL fire every X seconds.
+    //
+    
 	// --------------------------------------
-	//  Prepare our context and socket
+    //
+    // NETWORK
+    //
+	// Prepare our context and listening socket...
+
 	OTSocket theSocket;
 	OTString strBindPath; strBindPath.Format("%s%d", "tcp://*:", nServerPort);
 	theSocket.Listen(strBindPath);
-	// -----------------------------------------------------------------------
-
-
-
-	// ******************************************************************************************
-	do  // THE HEARTBEAT LOOP FOR THE OPEN-TRANSACTIONS SERVER! 
+    
+    // ******************************************************************************************
+    //
+    //      *** MAIN LOOP ***
+    //
+	do // ---------------------------
 	{
+        // =-=-=- HEARTBEAT -=-=-=
 		//
 		// The Server now processes certain things on a regular basis.
 		// ProcessCron is what gives it the opportunity to do that.
-		// All of the Cron Items (including market trades, and payment plans...) 
+		// All of the Cron Items (including market trades, payment plans, smart contracts...) 
 		// they all have their hooks here...
 		//
-
-		g_pServer->ProcessCron();  // Internally this is smart enough to know how often to actually activate itself. Most often it just returns doing nothing (waiting for its timer.)
-
-		
+		pServer->ProcessCron();  // Internally this is smart enough to know how often to actually activate itself.
+                                   // Most often it just returns doing nothing (waiting for its timer.)		
 		// -----------------------------------------------------------------------
 		// Wait for client http requests (and process replies out to them.)
 		// ----------------------------------------------------------------------
@@ -848,7 +928,12 @@ int main(int argc, char* argv[])
 		t.start();
 		const double tick1 = t.getElapsedTimeInMilliSec();
 		// -----------------------------------------------------
-		
+		//
+        // PROCESS X NUMBER OF REQUESTS (THIS PULSE.)
+        //
+        // Theoretically the "number of requests" that we process EACH PULSE.
+        // (The timing code here is still pretty new, need to do some load testing.)
+        //
 		for (int i = 0; i < /*10*/OTServer::GetHeartbeatNoRequests(); i++) 
 		{
 			std::string	str_Message;
@@ -858,24 +943,25 @@ int main(int argc, char* argv[])
 			// to trigger every 10 seconds, I need to set the cron interval to roll over every 15 heartbeats.
 			// Therefore I will be using a real Timer for Cron, instead of the damn intervals.
 			//
-			bool		bReceived = theSocket.Receive(str_Message);  
+			bool bReceived = theSocket.Receive(str_Message);  
 			
-			if (bReceived)
+			if  (bReceived)
 			{
 				std::string str_Reply; // Output.
 				
 				if (str_Message.length() <= 0)
 				{
-					OTLog::Error("main function: Received a message, but of 0 length or less. Weird. (Skipping it.)\n");
+					OTLog::Error("server main: Received a message, but of 0 length or less. Weird. (Skipping it.)\n");
 				}
 				else // ------------------------------------
 				{
-					ProcessMessage_ZMQ(str_Message, str_Reply); // <================== PROCESS the message!
+					ProcessMessage_ZMQ(*pServer, str_Message, str_Reply); // <================== PROCESS the message!
 					// --------------------------------------------------
 
 					if (str_Reply.length() <= 0)
 					{
-						OTLog::vOutput(0, "Main function: Unfortunately, not every client request is legible or worthy of a server response. :-)  "
+						OTLog::vOutput(0, "server main: Unfortunately, not every client request is "
+                                       "legible or worthy of a server response. :-)  "
 									   "Msg:\n\n%s\n\n", str_Message.c_str());
 					}
 					else
@@ -883,7 +969,8 @@ int main(int argc, char* argv[])
 						bool bSuccessSending = theSocket.Send(str_Reply); // <===== SEND THE REPLY
 						
 						if (false == bSuccessSending)
-							OTLog::vError("Socket error: failed while trying to send reply back to client! \n\n MESSAGE:\n%s\n\nREPLY:\n%s\n\n", 
+							OTLog::vError("server main: Socket error: failed while trying to send reply "
+                                          "back to client! \n\n MESSAGE:\n%s\n\nREPLY:\n%s\n\n", 
 										  str_Message.c_str(), str_Reply.c_str());
 						// --------------------------------------------------
 					}
@@ -892,7 +979,12 @@ int main(int argc, char* argv[])
 		} //  for
 		
 		// -----------------------------------------------------------------------
-		
+		//
+        // IF the time we had available wasn't all used up -- if some of it is still
+        // available, then SLEEP until we reach the NEXT PULSE. (In practice, we will 
+        // probably use TOO MUCH time, not too little--but then again OT isn't ALWAYS
+        // processing a message. There could be plenty of dead time in between...)
+        //
 		const	double tick2	= t.getElapsedTimeInMilliSec();
 		const	long elapsed	= static_cast<long>(tick2 - tick1);
 		long	lSleepMS		= 0;
@@ -914,37 +1006,32 @@ int main(int argc, char* argv[])
 		// 
 		//     6000 PER MINUTE == 360,000 PER HOUR == 8,640,000 PER DAY***
 		//
-		// Speeding it up is just a matter of adjusting the above numbers, and TESTING to see if OT can handle it.
-		// (Not counting optimization of course.)
+		// Speeding it up is just a matter of adjusting the above numbers, and LOAD TESTING,
+        // to see if OT can handle it. (Not counting optimization of course.)
 		//
 		// -----------------------------------------------------------------------
 
-		if (g_pServer->IsFlaggedForShutdown())
+		if (pServer->IsFlaggedForShutdown())
 		{
-			OTLog::Output(0, "Server is shutting down gracefully....\n");
+			OTLog::Output(0, "main: OT Server is shutting down gracefully....\n");
 			break;
 		}
-    } while (1);
-	
-	
-	// TODO: cleanup OpenSSL here.
-	
-#ifdef _WIN32
-	WSACleanup();
-#endif
-	
+        
+    } while (1);  // (MAIN LOOP)
+    
+	// ------------------------------------
+    
 	return 0;
 }
 
 
 
-void ProcessMessage_ZMQ(const std::string & str_Message, std::string & str_Reply)
+void ProcessMessage_ZMQ(OTServer & theServer, const std::string & str_Message, std::string & str_Reply)
 {
-	OT_ASSERT(NULL != g_pServer);
-	
 	if (str_Message.size() < 1)
 		return;
 	
+    const char * szFunc = "ProcessMessage_ZMQ";
 	// --------------------
 	
 	// return value.
@@ -970,19 +1057,19 @@ void ProcessMessage_ZMQ(const std::string & str_Message, std::string & str_Reply
 	OTEnvelope theEnvelope; 
 	
 	if (false == theEnvelope.SetAsciiArmoredData(ascMessage))
-		OTLog::Error("Error retrieving envelope from ProcessMessage_ZMQ.\n");
+		OTLog::vError("%s: Error retrieving envelope.\n", szFunc);
 	else
 	{	// Now the base64 is decoded and the envelope is in binary form again.
-		OTLog::Output(2, "Successfully retrieved envelope from ZMQ message...\n");
+		OTLog::vOutput(2, "%s: Successfully retrieved envelope from ZMQ message...\n", szFunc);
 		
 		OTString strEnvelopeContents;
 		
 //		OTString strPubkeyPath("TESTPUBKEY.txt");
-//		g_pServer->GetServerNym().SavePublicKey(strPubkeyPath);
+//		theServer.GetServerNym().SavePublicKey(strPubkeyPath);
 		
 		// Decrypt the Envelope.    
-		if (false == theEnvelope.Open(g_pServer->GetServerNym(), strEnvelopeContents)) // now strEnvelopeContents contains the decoded message.
-			OTLog::Error("Unable to open envelope. ProcessMessage_ZMQ.\n");
+		if (false == theEnvelope.Open(theServer.GetServerNym(), strEnvelopeContents)) // now strEnvelopeContents contains the decoded message.
+			OTLog::vError("%s: Unable to open envelope.\n", szFunc);
 		else
 		{
 			// All decrypted--now let's load the results into an OTMessage.
@@ -1000,14 +1087,14 @@ void ProcessMessage_ZMQ(const std::string & str_Message, std::string & str_Reply
 //				OTLog::vOutput(0, "%s\n\n", strEnvelopeContents.Get());
 				
 				// By constructing this without a socket, I put it in ZMQ mode, instead of tcp/ssl.
-				OTClientConnection theClient(*g_pServer); 
+				OTClientConnection theClient(theServer); 
 								
 				// By optionally passing in &theClient, the client Nym's public key will be
 				// set on it whenever verification is complete. (So for the reply, I'll 
 				// have the key and thus I'll be able to encrypt reply to the recipient.)
-				if (false == g_pServer->ProcessUserCommand(theMsg, theReply, &theClient))
+				if (false == theServer.ProcessUserCommand(theMsg, theReply, &theClient))
 				{
-					OTLog::Output(0, "Unable to process user command in ProcessMessage_ZMQ.\n");
+					OTLog::vOutput(0, "%s: Unable to process user command.\n", szFunc);
 					
 					// NOTE: normally you would even HAVE a true or false if we're in this block. ProcessUserCommand()
 					// is what tries to process a command and then sets false if/when it fails. Until that point, you
@@ -1019,11 +1106,11 @@ void ProcessMessage_ZMQ(const std::string & str_Message, std::string & str_Reply
 					// ProcessUserCommand() is a success, by the time that call returns.
 					
 					theReply.m_bSuccess = false; // Since the process call definitely failed, I'm making sure this here is definitely set to false (even though it probably was already.)
-					theReply.SignContract(g_pServer->GetServerNym());
+					theReply.SignContract(theServer.GetServerNym());
 					theReply.SaveContract();
 				}
 				else	// At this point the reply is ready to go, and theClient has the public key of the recipient...
-					OTLog::vOutput(1, "Successfully processed user command: %s.\n", theMsg.m_strCommand.Get());
+					OTLog::vOutput(1, "%s: Successfully processed user command: %s.\n", szFunc, theMsg.m_strCommand.Get());
 				
 				// -------------------------------------------------
 				// The transaction is now processed (or not), and the server's reply message is in theReply.
@@ -1033,7 +1120,7 @@ void ProcessMessage_ZMQ(const std::string & str_Message, std::string & str_Reply
 				bool bSealed = theClient.SealMessageForRecipient(theReply, theRecipientEnvelope);
 				
 				if (false == bSealed)
-					OTLog::Output(0, "Unable to seal envelope in ProcessMessage_ZMQ. (No reply will be sent.)\n");
+					OTLog::vOutput(0, "%s: Unable to seal envelope. (No reply will be sent.)\n", szFunc);
 				else
 				{
 //					OTPayload theReplyPayload;
@@ -1047,15 +1134,14 @@ void ProcessMessage_ZMQ(const std::string & str_Message, std::string & str_Reply
 				}
 			}
 			else 
-				OTLog::vError("ProcessMessage_ZMQ: Error loading message from envelope contents:\n\n%s\n\n",
-							  strEnvelopeContents.Get());
+				OTLog::vError("%s: Error loading message from envelope contents:\n\n%s\n\n",
+							  szFunc, strEnvelopeContents.Get());
 		}
 	}
-
 	// ----------------------------------------------------------------------
 	
 	str_Reply = resultString;	
-}
+} // ProcessMessage_ZMQ
 
 
 

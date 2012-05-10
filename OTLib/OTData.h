@@ -146,9 +146,9 @@ class OTData
 	friend class OTEnvelope;
 	
 private:
-	void *	m_pData;
+	void *	 m_pData;
 	uint32_t m_lPosition;
-	uint32_t m_lSize;
+	uint32_t m_lSize;  // TODO... MAX_SIZE ?? security.
 
 protected:
 	inline const void * GetPointer() const { return m_pData; }
@@ -180,6 +180,10 @@ public:
 	void Assign(const OTData &theSource);
 	void Assign(const void * pNewData, uint32_t lNewSize);
 	
+	void Concatenate(const void * pAppendData, uint32_t lAppendSize);
+	
+    bool Randomize(uint32_t lNewSize);
+
 	int OTfread(char * buf, int buflen);
 	inline void reset() { m_lPosition = 0; };
 };

@@ -935,7 +935,7 @@ int verify (char *certfile, char * keyfile)
 	printf ("verifyCert_N_Key: Key File %s\n", keyfile); 
 	
 	// Just load the crypto library error strings, 
-	/SSL_load_error_strings() loads the crypto AND the SSL ones
+	//SSL_load_error_strings() loads the crypto AND the SSL ones
 	// SSL_load_error_strings();
 	ERR_load_crypto_strings(); 
 	
@@ -1057,7 +1057,7 @@ bool OTContract::SignContract(const OTPseudonym & theNym, OTSignature & theSigna
 // It is NOT attached to the contract.  This is just a utility function.
 bool OTContract::SignContract(const OTAsymmetricKey & theKey, OTSignature & theSignature, const OTString & strHashType)
 {
-	return SignContract(theKey.GetKey(), theSignature, strHashType);
+	return SignContract((const_cast<OTAsymmetricKey &>(theKey)).GetKey(), theSignature, strHashType);
 }
 
 
@@ -1101,6 +1101,8 @@ bool OTContract::SignContract(const OTAsymmetricKey & theKey, OTSignature & theS
 
 bool OTContract::SignContractDefaultHash(const EVP_PKEY * pkey, OTSignature & theSignature)
 {
+    const char * szFunc = "OTContract::SignContractDefaultHash";
+    // -------------------------------
 	bool bReturnValue = false;
 	
 	RSA* pRsaKey = NULL;
@@ -1129,7 +1131,7 @@ bool OTContract::SignContractDefaultHash(const EVP_PKEY * pkey, OTSignature & th
 	
 	if (!pRsaKey)
 	{
-		OTLog::vError("SignContractDefaultHash: EVP_PKEY_get1_RSA failed with error %s\n", 
+		OTLog::vError("%s: EVP_PKEY_get1_RSA failed with error %s\n", szFunc,
 					  ERR_error_string(ERR_get_error(), NULL));
 		return false;
 	}
@@ -1142,7 +1144,7 @@ bool OTContract::SignContractDefaultHash(const EVP_PKEY * pkey, OTSignature & th
 	
 	if (NULL == digest1)
 	{
-		OTLog::Error("SignContractDefaultHash: Failure to load message digest algorithm in OTContract::SignContractDefaultHash\n");
+		OTLog::vError("%s: Failure to load message digest algorithm in OTContract::SignContractDefaultHash\n", szFunc);
 		RSA_free(pRsaKey);	pRsaKey = NULL;
 		return false;
 	}
@@ -1166,7 +1168,7 @@ bool OTContract::SignContractDefaultHash(const EVP_PKEY * pkey, OTSignature & th
 	
 	if (NULL == digest2)
 	{
-		OTLog::Error("SignContractDefaultHash: Failure to load message digest algorithm in OTContract::SignContractDefaultHash\n");
+		OTLog::vError("%s: Failure to load message digest algorithm in OTContract::SignContractDefaultHash\n", szFunc);
 		RSA_free(pRsaKey);	pRsaKey = NULL;
 		return false;
 	}
@@ -1252,7 +1254,7 @@ bool OTContract::SignContractDefaultHash(const EVP_PKEY * pkey, OTSignature & th
 	
 	if (!status)  // 1 or 0.
 	{
-		OTLog::vError("SignContractDefaultHash: RSA_padding_add_PKCS1_PSS failure: %s\n", 
+		OTLog::vError("%s: RSA_padding_add_PKCS1_PSS failure: %s\n", 
 					  ERR_error_string(ERR_get_error(), NULL));
 		RSA_free(pRsaKey);	pRsaKey = NULL;
 		return false;
@@ -1282,7 +1284,7 @@ bool OTContract::SignContractDefaultHash(const EVP_PKEY * pkey, OTSignature & th
 		
 	if (status == -1)
 	{
-		OTLog::vError("SignContractDefaultHash: RSA_private_encrypt failure: %s\n", 
+		OTLog::vError("%s: RSA_private_encrypt failure: %s\n", szFunc,
 					  ERR_error_string(ERR_get_error(), NULL));
 		RSA_free(pRsaKey);	pRsaKey = NULL;
 		return false;
@@ -1318,6 +1320,8 @@ bool OTContract::SignContractDefaultHash(const EVP_PKEY * pkey, OTSignature & th
 
 bool OTContract::VerifyContractDefaultHash(const EVP_PKEY * pkey, const OTSignature & theSignature) const
 {
+    const char * szFunc = "OTContract::VerifyContractDefaultHash";
+    // ----------------------------
 	bool bReturnValue = false;
 	
 	RSA* pRsaKey = NULL;
@@ -1344,7 +1348,8 @@ bool OTContract::VerifyContractDefaultHash(const EVP_PKEY * pkey, const OTSignat
 	
 	if (!pRsaKey)
 	{
-		OTLog::vError("VerifyContractDefaultHash: EVP_PKEY_get1_RSA failed with error %s\n", ERR_error_string(ERR_get_error(), NULL));
+		OTLog::vError("%s: EVP_PKEY_get1_RSA failed with error %s\n", szFunc,
+                      ERR_error_string(ERR_get_error(), NULL));
 		return false;
 	}
 	
@@ -1353,7 +1358,7 @@ bool OTContract::VerifyContractDefaultHash(const EVP_PKEY * pkey, const OTSignat
 	const EVP_MD * digest1 = OTIdentifier::GetOpenSSLDigestByName(OTIdentifier::HashAlgorithm1); // SHA-256
 	if (NULL == digest1)
 	{
-		OTLog::Error("VerifyContractDefaultHash: Failure to load message digest algorithm.\n");
+		OTLog::vError("%s: Failure to load message digest algorithm.\n", szFunc);
 		RSA_free(pRsaKey); pRsaKey = NULL;
 		return false;
 	}
@@ -1369,7 +1374,7 @@ bool OTContract::VerifyContractDefaultHash(const EVP_PKEY * pkey, const OTSignat
 	const EVP_MD * digest2 = OTIdentifier::GetOpenSSLDigestByName(OTIdentifier::HashAlgorithm2); // WHIRLPOOL
 	if (NULL == digest2)
 	{
-		OTLog::Error("VerifyContractDefaultHash: Failure to load message digest algorithm.\n");
+		OTLog::vError("%s: Failure to load message digest algorithm.\n", szFunc);
 		RSA_free(pRsaKey); pRsaKey = NULL;
 		return false;
 	}
@@ -1412,7 +1417,7 @@ bool OTContract::VerifyContractDefaultHash(const EVP_PKEY * pkey, const OTSignat
 	//
 	if ((theSignature.GetLength() < 10) || (false == theSignature.GetData(binSignature)))
 	{
-		OTLog::Error("OTContract::VerifyContractDefaultHash: Error decoding base64 data for Signature.\n");
+		OTLog::vError("%s: Error decoding base64 data for Signature.\n", szFunc);
 		RSA_free(pRsaKey); pRsaKey = NULL;
 		return false;
 	}
@@ -1423,8 +1428,8 @@ bool OTContract::VerifyContractDefaultHash(const EVP_PKEY * pkey, const OTSignat
 	if ((binSignature.GetSize()	< static_cast<unsigned int>(RSA_size(pRsaKey))) || 
 		(nSignatureSize			< RSA_size(pRsaKey))) // this one probably unnecessary.
 	{		
-		OTLog::vError("OTContract::VerifyContractDefaultHash: Decoded base64-encoded data for signature, but resulting size was < RSA_size(pRsaKey): "
-					  "Signed: %d. Unsigned: %u.\n", nSignatureSize, binSignature.GetSize());
+		OTLog::vError("%s: Decoded base64-encoded data for signature, but resulting size was < RSA_size(pRsaKey): "
+					  "Signed: %d. Unsigned: %u.\n", szFunc, nSignatureSize, binSignature.GetSize());
 		RSA_free(pRsaKey); pRsaKey = NULL;
 		return false;
 	}
@@ -1465,7 +1470,7 @@ bool OTContract::VerifyContractDefaultHash(const EVP_PKEY * pkey, const OTSignat
 	
 	if (status == -1) // Error
 	{
-		OTLog::vError("VerifyContractDefaultHash: RSA_public_decrypt failed with error %s\n",
+		OTLog::vError("%s: RSA_public_decrypt failed with error %s\n", szFunc,
 					  ERR_error_string(ERR_get_error(), NULL));
 		RSA_free(pRsaKey); pRsaKey = NULL;
 		return false;
@@ -1489,7 +1494,7 @@ bool OTContract::VerifyContractDefaultHash(const EVP_PKEY * pkey, const OTSignat
 	}
 	else
 	{
-		OTLog::vOutput(5, "VerifyContractDefaultHash: RSA_verify_PKCS1_PSS failed with error: %s\n",
+		OTLog::vOutput(5, "%s: RSA_verify_PKCS1_PSS failed with error: %s\n", szFunc,
 					   ERR_error_string(ERR_get_error(), NULL));
 		RSA_free(pRsaKey); pRsaKey = NULL;
 		return false;
@@ -1869,16 +1874,43 @@ be "RSA_R_DATA_TOO_LARGE_FOR_KEY_SIZE".
 
 
 // All the other various versions eventually call this one, where the actual work is done.
+//
 bool OTContract::SignContract(const EVP_PKEY * pkey, OTSignature & theSignature, const OTString & strHashType)
 {
-	int err, sig_len; 
-	unsigned char sig_buf [4096]; // Safe since we pass the size when we use it.
-	EVP_MD_CTX md_ctx; 
-	
-	OTString strDoubleHash;
-	
-	OT_ASSERT_MSG(NULL != pkey, "Null private key sent to OTContract::SignContract.\n");
-	
+    OT_ASSERT_MSG(NULL != pkey, "Null private key sent to OTContract::SignContract.\n");
+    // ---------------------------------------------------
+    const char * szFunc = "OTContract::SignContract";
+    // ---------------------------------------------------
+    
+    class _OTCont_SignCont1
+    {
+    private:
+        const char  *  m_szFunc;
+        EVP_MD_CTX  &  m_ctx;
+        
+    public:
+        _OTCont_SignCont1(const char * param_szFunc, EVP_MD_CTX & param_ctx) :
+            m_szFunc(param_szFunc),
+            m_ctx(param_ctx)
+        {
+            OT_ASSERT(NULL != m_szFunc);
+            
+            EVP_MD_CTX_init(&m_ctx);
+        }
+        ~_OTCont_SignCont1()
+        {
+            if (0 == EVP_MD_CTX_cleanup(&m_ctx))
+                OTLog::vError("%s: Failure in cleanup. (It returned 0.)\n", m_szFunc);
+        }
+    };
+    // ------------------------------------
+    // Moving this lower...
+    
+//  _OTCont_SignCont1 theInstance(szFunc, md_ctx);
+    
+    // ------------------------------------
+    
+//	OTString strDoubleHash;
 
 	// Update the contents, (not always necessary, many contracts are read-only)
 	// This is where we provide an overridable function for the child classes that
@@ -1906,25 +1938,45 @@ bool OTContract::SignContract(const EVP_PKEY * pkey, OTSignature & theSignature,
 //		md = (EVP_MD *)OTIdentifier::GetOpenSSLDigestByName(OTIdentifier::HashAlgorithm1);
 		return SignContractDefaultHash(pkey, theSignature);
 	}
+    // ---------------------------------------------------
 //	else 
 	{
 		md = (EVP_MD *)OTIdentifier::GetOpenSSLDigestByName(strHashType);
 	}
-
+    // ---------------------------------------------------
 	
 	// If it's not the default hash, then it's just a normal hash.
 	// Either way then we process it, first by getting the message digest pointer for signing.
 	
 	if (NULL == md)
 	{
-		OTLog::vError("Unable to decipher Hash algorithm in OTContract::SignContract: %s\n", 
-					  strHashType.Get()); 
+		OTLog::vError("%s: Unable to decipher Hash algorithm: %s\n", 
+					  szFunc, strHashType.Get()); 
 		return false; 
 	}
+    // ---------------------------------------------------
+	int err, sig_len; 
+	unsigned char sig_buf [4096]; // Safe since we pass the size when we use it.
+    
+    // RE: EVP_SignInit() or EVP_MD_CTX_init()...
+    //
+    // Since only a copy of the digest context is ever finalized the 
+    // context MUST be cleaned up after use by calling EVP_MD_CTX_cleanup() 
+    // or a memory leak will occur.
+    //
+	EVP_MD_CTX   md_ctx;     
+    // ---------------------------------------------------
+    
+    _OTCont_SignCont1 theInstance(szFunc, md_ctx);
 
+    // ----------------------
 	// Do the signature
-	EVP_SignInit (&md_ctx, md); 
-	
+    // Note: I just changed this to the _ex version (in case I'm debugging later
+    // and find a problem here.)
+    //
+	EVP_SignInit_ex(&md_ctx, md, NULL);
+
+    // ---------------------------------------------------
 //	if (bUsesDefaultHashAlgorithm)
 //	{
 //		EVP_SignUpdate (&md_ctx, strDoubleHash.Get(), strDoubleHash.GetLength());
@@ -1933,18 +1985,19 @@ bool OTContract::SignContract(const EVP_PKEY * pkey, OTSignature & theSignature,
 	{
 		EVP_SignUpdate (&md_ctx, m_xmlUnsigned.Get(), m_xmlUnsigned.GetLength());
 	}
-
+    // ----------------------------------------------
 
 	sig_len = sizeof(sig_buf); 
 	err = EVP_SignFinal (&md_ctx, sig_buf, (unsigned int *)&sig_len, (EVP_PKEY *)pkey); 
 		
 	if (err != 1) 
 	{ 
-		OTLog::Error("Error signing xml contents in OTContract::SignContract.\n"); 
+		OTLog::vError("%s: Error signing xml contents.\n", szFunc); 
 		return false; 
 	}
-	else {
-		OTLog::Output(3, "Successfully signed xml contents.\n");
+	else
+    {
+		OTLog::vOutput(3, "%s: Successfully signed xml contents.\n", szFunc);
 		
 		// We put the signature data into the signature object that
 		// was passed in for that purpose.
@@ -1960,7 +2013,7 @@ bool OTContract::SignContract(const EVP_PKEY * pkey, OTSignature & theSignature,
 // All the other various versions eventually call this one, where the actual work is done.
 bool OTContract::VerifySignature(const EVP_PKEY * pkey, const OTSignature & theSignature, const OTString & strHashType) const
 {	
-	OTString strDoubleHash;
+//	OTString strDoubleHash;
 	
 	OT_ASSERT_MSG(NULL != pkey, "Null key in OTContract::VerifySignature.\n");
 	
@@ -2179,7 +2232,7 @@ openssl dgst -sha1 -verify clientpub.pem -signature cheesy2.sig  cheesy2.xml
 
 bool OTContract::VerifySignature(const OTAsymmetricKey & theKey, const OTSignature & theSignature, const OTString & strHashType) const
 {
-	return VerifySignature(theKey.GetKey(), theSignature, strHashType);
+	return VerifySignature((const_cast<OTAsymmetricKey &>(theKey)).GetKey(), theSignature, strHashType);
 }
 
 

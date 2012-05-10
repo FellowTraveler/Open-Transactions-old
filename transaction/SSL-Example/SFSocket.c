@@ -121,12 +121,15 @@ static int __SFSocketCheckCert (SFSocket *socket, const char *host) {
 
 static char __globalInit = 0;
 
-void SFSocketGlobalInit (void) {
+void SFSocketGlobalInit (void) 
+{
     if (!__globalInit) {
         __globalInit = 1;
 
-        SSL_library_init();
-        SSL_load_error_strings();
+        // FT: Moved to OT_Init() as part of phasing out this code....
+        
+//        SSL_library_init();
+//        SSL_load_error_strings();
     }
 }
 

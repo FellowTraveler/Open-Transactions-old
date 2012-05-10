@@ -272,10 +272,15 @@ public:
     // -----------------------
     
 	OTServer();
-	~OTServer();
+	~OTServer(); // Calls Release();
 	
-	void ActivateCron();
-	
+    // delete various dynamically allocated things such as the map of Mints, 
+    // and the map of asset contracts.
+    //
+	void Release();   
+    
+    // -----------------------
+    
 	inline bool IsFlaggedForShutdown() const { return m_bShutdownFlag; }
 	
 	// ---------------------------------------------------------------------------------
@@ -320,21 +325,31 @@ public:
 
 	const OTPseudonym & GetServerNym() const;
 	
+    // -------------------------------
+    // Init():
+    //
+    // Loads the config file,
+    // Initializes OTDB:: default storage,
+    // Sets up the data folders,
+    // Loads the main file,
+    // and validates the server ID (for the Nym)
+    //
 	void Init(); // Loads the main file...
-	
-	bool LoadConfigFile(); // loads the config file.
-
+    // -------------------------------
+	bool LoadConfigFile(); // loads the config file. (Called by Init.)
 	// -------------------------------
-	
-	void ProcessCron(); // Call this periodically so Cron has a chance to process Trades, Payment Plans, etc.
-	
-	bool LoadMainFile(); // Called in Init. Loads transaction number.
-	bool SaveMainFile(); // Called in IssueNextTransactionNumber.
+	void ActivateCron();   // Starts up OT Cron, which processes recurring transactions,
+                           // such as market offers, payment plans, and smart contracts.
+                           // -------------------------------------------------------------
+	void ProcessCron();    // Call this periodically, so Cron will have the chance to process its recurring transactions.
+	// -------------------------------
+	bool LoadMainFile();   // Called in Init. Loads latest transaction number, and any other server data members.
+    // -------------------------------
+	bool SaveMainFile();   // Called in IssueNextTransactionNumber.
 	bool SaveMainFileToString(OTString & strMainFile);
-
+    // -------------------------------
 	bool ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OTClientConnection * pConnection=NULL);
-	bool ValidateServerIDfromUser(OTString & strServerID);
-	
+	bool ValidateServerIDfromUser(OTString & strServerID);	
 	// --------------------------------------------------------------
 	// After EVERY / ANY transaction, plus certain messages, we drop a copy of the server's reply into
 	// the Nymbox.  This way we are GUARANTEED that the Nym will receive and process it. (And thus

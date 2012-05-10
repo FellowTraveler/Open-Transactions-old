@@ -20,19 +20,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 Timer::Timer(bool bStart/*=false*/)
 {
-#ifdef WIN32
-    QueryPerformanceFrequency(&frequency);
-    startCount.QuadPart = 0;
-    endCount.QuadPart = 0;
-#else
-    startCount.tv_sec = startCount.tv_usec = 0;
-    endCount.tv_sec = endCount.tv_usec = 0;
-#endif
-
-    stopped = 0;
-    startTimeInMicroSec = 0;
-    endTimeInMicroSec = 0;
-	
+    clear();
+    
 	// -------------------------
 	// FT: Added this part:
 	//
@@ -74,12 +63,32 @@ void Timer::start()
 void Timer::stop()
 {
     stopped = 1; // set timer stopped flag
-
+    
 #ifdef WIN32
     QueryPerformanceCounter(&endCount);
 #else
     gettimeofday(&endCount, NULL);
 #endif
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Clear: stop the timer and clear the contents.
+///////////////////////////////////////////////////////////////////////////////
+void Timer::clear()
+{
+#ifdef WIN32
+    QueryPerformanceFrequency(&frequency);
+    startCount.QuadPart = 0;
+    endCount.QuadPart = 0;
+#else
+    startCount.tv_sec = startCount.tv_usec = 0;
+    endCount.tv_sec = endCount.tv_usec = 0;
+#endif
+    
+    stopped = 0;
+    startTimeInMicroSec = 0;
+    endTimeInMicroSec = 0;
 }
 
 

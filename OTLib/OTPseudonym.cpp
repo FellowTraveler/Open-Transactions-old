@@ -582,6 +582,8 @@ bool OTPseudonym::GenerateNym(int nBits/*=1024*/, bool bCreateFile/*=true*/) // 
 {
 	bool bSuccess = false;
 	
+    const char * szFunc = "OTPseudonym::GenerateNym";
+    
 //	BIO			*	bio_err	=	NULL;
 	X509		*	x509	=	NULL;
 	EVP_PKEY	*	pNewKey	=	NULL;
@@ -592,7 +594,7 @@ bool OTPseudonym::GenerateNym(int nBits/*=1024*/, bool bCreateFile/*=true*/) // 
 	
 	
 	// actually generate the things. // TODO THESE PARAMETERS...(mkcert)
-	mkcert(&x509, &pNewKey, nBits, 0, 3650); // 10 years.
+	mkcert(&x509, &pNewKey, nBits, 0, 3650); // 3650=10 years. Todo hardcoded.
 	// Note: 512 bit key CRASHES
 	// 1024 is apparently a minimum requirement, if not an only requirement.
 	// Will need to go over just what sorts of keys are involved here... todo.
@@ -600,7 +602,7 @@ bool OTPseudonym::GenerateNym(int nBits/*=1024*/, bool bCreateFile/*=true*/) // 
 	
 	if (NULL == pNewKey)
 	{
-		OTLog::Error("OTPseudonym::GenerateNym: Failed attempting to generate new private key.\n");
+		OTLog::vError("%s: Failed attempting to generate new private key.\n", szFunc);
 		
 		if (NULL != x509)
 			X509_free(x509);
@@ -610,7 +612,7 @@ bool OTPseudonym::GenerateNym(int nBits/*=1024*/, bool bCreateFile/*=true*/) // 
 	
 	if (NULL ==  x509)
 	{
-		OTLog::Error("OTPseudonym::GenerateNym: Failed attempting to generate new x509 cert.\n");
+		OTLog::vError("%s: Failed attempting to generate new x509 cert.\n", szFunc);
 
 		if (NULL != pNewKey)
 			EVP_PKEY_free(pNewKey);
@@ -720,7 +722,7 @@ bool OTPseudonym::GenerateNym(int nBits/*=1024*/, bool bCreateFile/*=true*/) // 
 		
 		if (false == OTDB::StorePlainString(strFinal.Get(), OTLog::CertFolder(), strFilename.Get()))
 		{
-			OTLog::vError("Failure storing cert for new nym in OTPseudonym::GenerateNym: %s\n", strFilename.Get());
+			OTLog::vError("%s: Failure storing cert for new nym: %s\n", szFunc, strFilename.Get());
 			return false;
 		}
 		
@@ -734,54 +736,41 @@ bool OTPseudonym::GenerateNym(int nBits/*=1024*/, bool bCreateFile/*=true*/) // 
 		
 		if (!bPublic)
 		{
-			OTLog::vError("Although the ascii-armored file (%s) was read, LoadPublicKeyFromCert "
-						  "returned false.\n", strFilename.Get());
+			OTLog::vError("%s: Although the ascii-armored file (%s) was read, LoadPublicKeyFromCert "
+						  "returned false.\n", szFunc, strFilename.Get());
 			return false;
 		}
 		else
 		{
-			OTLog::vOutput(2, "Successfully loaded public key from Certfile: %s\n", strFilename.Get());
+			OTLog::vOutput(2, "%s: Successfully loaded public key from Certfile: %s\n", szFunc, strFilename.Get());
 		}
 		
 		
 		if (!bPrivate)
 		{
-			OTLog::vError("Although the ascii-armored file (%s) was read, LoadPrivateKey returned false.\n",
-						  strFilename.Get());
+			OTLog::vError("%s: Although the ascii-armored file (%s) was read, LoadPrivateKey returned false.\n",
+						  szFunc, strFilename.Get());
 			return false;
 		}
 		else
 		{
-			OTLog::vOutput(2, "Successfully loaded private key from certfile: %s\n", strFilename.Get());
+			OTLog::vOutput(2, "%s: Successfully loaded private key from certfile: %s\n", szFunc, strFilename.Get());
 		}
 		// -----------------------------------------
 
-		OTString strPublicKey;
-		bool bGotPublicKey = GetPublicKey().GetPublicKey(strPublicKey);
-		
-		if (!bGotPublicKey)
-		{
-			OTLog::Error("Error getting public key in OTPseudonym::VerifyPseudonym.\n");
+        if (false == this->SetIdentifierByPubkey())
+        {
+			OTLog::vError("%s: Error calculating Nym ID (as a digest of nym's public key.)\n", szFunc);
 			return false;	
-		}
-        // -----------------------------------------
-		OTIdentifier newID;
-		bool bSuccessCalculateDigest = newID.CalculateDigest(strPublicKey);
-		
-		if (!bSuccessCalculateDigest)
-		{
-			OTLog::Error("Error calculating Certificate digest.\n");
-			return false;	
-		}
-		
-		m_nymID = newID;
+        }
+        // ---------------------------------------
 		OTString strID(m_nymID);
 		// ---------------------------------------
 		
         if (bCreateFile &&
             (false == OTDB::StorePlainString(strFinal.Get(), OTLog::CertFolder(), strID.Get())))
 		{
-			OTLog::vError("Failure storing cert for new nym in OTPseudonym::GenerateNym: %s\n", strID.Get());
+			OTLog::vError("%s: Failure storing cert for new nym: %s\n", szFunc, strID.Get());
 			return false;
 		}
 		// ****************************************************************************
@@ -791,6 +780,22 @@ bool OTPseudonym::GenerateNym(int nBits/*=1024*/, bool bCreateFile/*=true*/) // 
 	}
 	
 	return bSuccess;
+}
+
+
+bool OTPseudonym::SetIdentifierByPubkey()
+{
+    const char * szFunc = "OTPseudonym::SetIdentifierByPubkey";
+    // --------------------------------------------------------------
+    const bool bCalculated = GetPublicKey().CalculateID(m_nymID); // OTAsymmetricKey::CalculateID only works with public keys.
+    
+	if (!bCalculated)
+	{
+		OTLog::vError("%s: Error calculating Nym ID in OTAsymmetricKey::CalculateID().\n", szFunc);
+		return false;	
+	}
+	
+	return true;
 }
 
 
@@ -2510,31 +2515,6 @@ bool OTPseudonym::LoadPseudonym()
  AccountID="bw9834lkjs5jf6" />
  */
 
-
-bool OTPseudonym::SetIdentifierByPubkey()
-{
-	OTString strPublicKey;
-	bool bGotPublicKey = GetPublicKey().GetPublicKey(strPublicKey);
-	
-	if (!bGotPublicKey)
-	{
-		OTLog::Error("Error getting public key in OTPseudonym::SetIdentifierByPubkey.\n");
-		return false;	
-	}
-	
-	OTIdentifier newID;
-	bool bSuccessCalculateDigest = newID.CalculateDigest(strPublicKey);
-	
-	if (!bSuccessCalculateDigest)
-	{
-		OTLog::Error("Error calculating digest in SetIdentifierByPubkey.\n");
-		return false;	
-	}
-	
-	m_nymID = newID;
-	
-	return true;
-}
 
 bool OTPseudonym::VerifyPseudonym() const
 {

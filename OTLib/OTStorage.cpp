@@ -3231,7 +3231,7 @@ namespace OTDB
 			return false;
 		}
 		else
-			m_strFullPath = strPATH_OUTPUT.Get();		
+			m_strFullPath = strPATH_OUTPUT.Get();
 		// --------------------------------
 		// By this point, data_folder was successfully located.
 		

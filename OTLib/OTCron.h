@@ -162,16 +162,15 @@ typedef std::list<long> listOfLongNumbers;
 class OTCron : public OTContract
 {
 private:
-	mapOfMarkets	m_mapMarkets;	// A list of all valid markets.
-	mapOfCronItems	m_mapCronItems;
-	OTIdentifier	m_SERVER_ID;	// Always store this in any object that's associated with a specific server.
+	mapOfMarkets        m_mapMarkets;       // A list of all valid markets.
+	mapOfCronItems      m_mapCronItems;
+	OTIdentifier        m_SERVER_ID;        // Always store this in any object that's associated with a specific server.
 
-	OTPseudonym *	m_pServerNym;	// I'll need this for later.
+	OTPseudonym *       m_pServerNym;       // I'll need this for later.
 	
 	listOfLongNumbers	m_listTransactionNumbers; // I can't put receipts in people's inboxes without a supply of these.
    
-	bool			m_bIsActivated; // I don't want to start Cron processing until everything else is all loaded up and ready to go.
-	
+	bool                m_bIsActivated;     // I don't want to start Cron processing until everything else is all loaded up and ready to go.
 	
 	// ---------------------------------------
 	static int			__trans_refill_amount;		// The number of transaction numbers Cron will grab for itself, when it gets low, before each round.
@@ -182,27 +181,35 @@ public:
 	static void		SetCronMsBetweenProcess(long lMS) { __cron_ms_between_process = lMS; }
 	
 	static int		GetCronRefillAmount() { return __trans_refill_amount; }
-	static void		SetCronRefillAmount(int nAmount) { __trans_refill_amount = nAmount; }
-	
+	static void		SetCronRefillAmount(int nAmount) { __trans_refill_amount = nAmount; }	
 	// ---------------------------------------
+    
 	inline bool		IsActivated() const { return m_bIsActivated; }
 	inline bool		ActivateCron() { if (!m_bIsActivated) return m_bIsActivated = true; else return false; }
+    
+    // ---------------------------------------
+    // RECURRING TRANSACTIONS
+    //
 	bool			AddCronItem(OTCronItem & theItem, OTPseudonym * pActivator=NULL, bool bSaveReceipt=true);
 	bool			RemoveCronItem(long lTransactionNum, OTPseudonym & theRemover); // if returns false, CronItem wasn't found.
+	// ---------------------------------------
 	OTCronItem *	GetCronItem(long lTransactionNum);
-
+	// ---------------------------------------
+    // MARKETS
+    //
 	bool AddMarket(OTMarket & theMarket, bool bSaveMarketFile=true);
 	bool RemoveMarket(const OTIdentifier & MARKET_ID); // if returns false, market wasn't found.
 	OTMarket * GetMarket(const OTIdentifier & MARKET_ID);
 	OTMarket * GetOrCreateMarket(const OTIdentifier & ASSET_ID, 
 								 const OTIdentifier & CURRENCY_ID, const long & lScale);
-	
-	
+    // ---------------------------------------
 	// This is informational only. It returns OTStorage-type data objects, packed in a string.
 	//
 	bool GetMarketList(OTASCIIArmor & ascOutput, int & nMarketCount);
 	bool GetNym_OfferList(OTASCIIArmor & ascOutput, const OTIdentifier & NYM_ID, int & nOfferCount);
-	
+    // ---------------------------------------
+    // TRANSACTION NUMBERS
+    //
 	// The server starts out putting a bunch of numbers in here so Cron can use them.
 	// Then the internal trades and payment plans get numbers from here as needed.
 	// Server MUST replenish from time-to-time, or Cron will stop working.
@@ -212,13 +219,16 @@ public:
 	void	AddTransactionNumber(const long & lTransactionNum);
 	long	GetNextTransactionNumber();
 	int		GetTransactionCount() const; // How many numbers do I currently have on the list?
+	// ---------------------------------------
 
 	// Make sure every time you call this, you check the GetTransactionCount() first and replenish it
 	// to whatever your minimum supply is. (The transaction numbers in there must be enough to last for
 	// the entire ProcessCronItems() call, and all the trades and payment plans within, since it will not
 	// be replenished again at least until the call has finished.) 
+    //
 	void	ProcessCronItems();
-	
+    // ---------------------------------------
+
 	inline void SetServerID(const OTIdentifier & SERVER_ID)	{ m_SERVER_ID = SERVER_ID; }
 	inline const OTIdentifier & GetServerID()	const		{ return m_SERVER_ID; }	
 
@@ -235,13 +245,15 @@ public:
 	OTCron();
 	OTCron(const OTIdentifier & SERVER_ID);
 	OTCron(const char * szFilename);
+    
 	virtual ~OTCron();
-	
-	
+    
+    // -----------------------------------------------------
 	void InitCron();
 	
 	virtual void Release();
-	
+    // -----------------------------------------------------
+
 	// return -1 if error, 0 if nothing, and 1 if the node was processed.
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
 	

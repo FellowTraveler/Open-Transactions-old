@@ -126,15 +126,47 @@
  -----END PGP SIGNATURE-----
  **************************************************************/
 
+
+
 // size_t
 #include <cstddef>
 
 #include <iostream>
 
+// ------------------------------
 // For SecureZeroMemory
 #ifdef _WIN32
+
 #include "Windows.h"
-#endif // _WIN32
+// ------------------------------
+#else // not _WIN32
+
+// for mlock and munlock
+#include <sys/types.h>
+#include <sys/mman.h>
+#include <limits.h>
+
+#ifndef PAGESIZE
+    #include <unistd.h>
+    #define PAGESIZE sysconf(_SC_PAGESIZE)
+#endif
+
+// FT: Credit to the Bitcoin team for the mlock / munlock defines.
+
+#define mlock(a,b) \
+  mlock(((void *)(((size_t)(a)) & (~((PAGESIZE)-1)))),\
+  (((((size_t)(a)) + (b) - 1) | ((PAGESIZE) - 1)) + 1) - (((size_t)(a)) & (~((PAGESIZE) - 1))))
+#define munlock(a,b) \
+  munlock(((void *)(((size_t)(a)) & (~((PAGESIZE)-1)))),\
+  (((((size_t)(a)) + (b) - 1) | ((PAGESIZE) - 1)) + 1) - (((size_t)(a)) & (~((PAGESIZE) - 1))))
+#endif
+// ------------------------------
+
+extern "C"
+{	
+#include <openssl/err.h>
+#include <openssl/rand.h>
+}
 
 // ---------------------------------------------------------
 
@@ -144,9 +176,13 @@
 
 // ---------------------------------------------------------
 // For everything but Windows:
+//
 #ifndef _WIN32
 extern "C" void *ot_secure_memset(void *v, int c, size_t n);
 
+// This function securely overwrites the contents of a memory buffer
+// (which can otherwise be optimized out by an overzealous compiler...)
+//
 void *ot_secure_memset(void *v, int c, size_t n) 
 {
 	volatile unsigned char * p = static_cast<volatile unsigned char *>(v);
@@ -158,54 +194,224 @@ void *ot_secure_memset(void *v, int c, size_t n)
 #endif // _WIN32
 // ---------------------------------------------------------
 
-#ifndef linux
-extern "C" { 
-size_t strnlen(const char *s, size_t max) 
-{
-    register const char *p;
-    for(p = s; *p && max--; ++p);
-    return(p - s);
-}
-}
-#endif
+
+// TODO, security: Generate a session key, and encrypt the password string to that key whenever setting it,
+// and decrypt it using that key whenever getting it. Also make sure to use the lock / unlock functions
+// at that time (below). Also change so that the contents are dynamically allocated.
+// NOTE: Given that OTSymmetricKey works with OTPassword, this is a bit circular in logic. Therefore might
+// need to add a function to OTEnvelope so that it takes a const char * instead of an OTPassword, in order
+// to handle this specific case! Might also need to duplicate some code between OTSymmetricKey and OTPassword
+// in order to make sure both have the same protections. I'll see if there's a way to do this without duplication,
+// as I get deeper into it.
 
 
 // ---------------------------------------------------------
+/*
+#ifdef _WIN64
+   //define something for Windows (64-bit)
+#elif _WIN32
+   //define something for Windows (32-bit)
+#elif __APPLE__
+    #include "TargetConditionals.h"
+    #ifdef TARGET_OS_IPHONE
+         // iOS
+    #elif TARGET_IPHONE_SIMULATOR
+        // iOS Simulator
+    #elif TARGET_OS_MAC
+        // Other kinds of Mac OS
+    #else
+        // Unsupported platform
+    #endif
+#elif __linux
+    // linux
+#elif __unix // all unices not caught above
+    // Unix
+#elif __posix
+    // POSIX
+#endif 
+ */
+
+
+
+
+// THE PURPOSE OF LOCKING A PAGE:
+//
+// "So that it won't get swapped to disk, where the secret
+// could be recovered maliciously from the swap file."
+//
+bool ot_lockPage(void* addr, int len)
+{
+    static bool bWarned = false;
+    
+#ifdef _WIN32
+	return VirtualLock(addr, len);
+#elif defined(PREDEF_PLATFORM_UNIX)
+	if (mlock(addr, len) && !bWarned)
+    {
+        bWarned = true;
+        OTLog::Error("ot_lockPage: WARNING: unable to lock memory. \n"
+                     "   (Passwords / secret keys may be swapped to disk!)\n");
+    }
+    return true;
+#else
+	OT_ASSERT_MSG(false, "ASSERT: ot_lockPage unable to lock memory.");
+#endif
+    return false;
+}
+
+// TODO:  Note: may need to add directives here so that mlock and munlock are not
+// used except where the user is running as a privileged process. (Because that
+// may be the only way we CAN use those functions...)
+
+bool ot_unlockPage(void* addr, int len)
+{
+    static bool bWarned = false;
+
+#ifdef _WIN32
+	return VirtualUnlock(addr, len);
+#elif defined(PREDEF_PLATFORM_UNIX)
+	if (munlock(addr, len) && !bWarned)
+    {
+        bWarned = true;
+        OTLog::Error("ot_unlockPage: WARNING: unable to unlock memory used for storing secrets.\n");
+    }
+    return true;        
+#else
+	OT_ASSERT_MSG(false, "ASSERT: ot_unlockPage unable to unlock secret memory.");
+#endif
+    return false;
+}
+
+// ---------------------------------------------------------
+
+
+// PURPOSE OF ZERO'ING MEMORY:
+//
+// So the secret is not stored in memory any longer than absolutely necessary.
+// Once it has been used, we want to wipe it from memory ASAP. (The least amount
+// of time spent in memory, the better.)
 
 void OTPassword::zeroMemory()
 {
-    // -------------------
-
 	m_nPasswordSize = 0;
-	
     // -------------------
-    
+    OTPassword::zeroMemory(m_szPassword, sizeof(m_szPassword));    
+    // -------------------
+    //
+    // UNLOCK the page, now that we're AFTER the point where
+    // the memory was safely ZERO'd out.
+    //
+    if (m_bIsPageLocked)
+    {
+        if (ot_unlockPage(static_cast<void *>(&(m_szPassword[0])), getBlockSize()))
+        {
+            m_bIsPageLocked = false;
+        }
+        else
+            OTLog::Error("OTPassword::zeroMemory: Error: Memory page was locked, but then failed to unlock it.\n");
+    }    
+    // -------------------
+}
+
+// ----------------------------------------------------------
+//static
+void OTPassword::zeroMemory(void * vMemory, size_t theSize)
+{
+    char * szMemory = static_cast<char *>(vMemory);
+    OTPassword::zeroMemory(szMemory, theSize);
+}
+// ----------------------------------------------------------
+//static
+void OTPassword::zeroMemory(char * szMemory, size_t theSize)
+{
 #ifdef _WIN32
 	// ------
 	//
-	SecureZeroMemory(m_szPassword, sizeof(m_szPassword));
+	SecureZeroMemory(szMemory, theSize);
 	
 	// NOTE: Both SecureZeroMemory, and the pragma solution commented-out below,
 	// are acceptable for Windows. I put both here for my notes.
 	//
 //#pragma optimize("", off)
-//	memset(m_szPassword, 0, sizeof(m_szPassword));
+//	memset(szMemory, 0, theSize);
 //#pragma optimize("", on)	
 	// -------------------------
 	// Dr. UNIX, I presume? So, we meet again...
 #else	
-	
-	ot_secure_memset(m_szPassword, 0, sizeof(m_szPassword));
-	
+	ot_secure_memset(szMemory, 0, theSize);
 #endif
 }
 // ---------------------------------------------------------
 
 
 
+/* WINDOWS:
+ errno_t memcpy_s(
+ void   * dest,
+ size_t   numberOfElements,
+ const
+ void   * src,
+ size_t   count 
+ );
+ 
+ FT: Apparently numberOfElements is similar to strcpy_s (where it's the maximum size of destination buffer.)
+ "numberOfElements is the Maximum number of characters destination string can accomodate including the NULL character"
+ (Then count is the actual size being copied.)
+ */
+// UNIX:
+//    void * memcpy(void *restrict s1, const void *restrict s2, size_t n);
+//
+//static
+void * OTPassword::safe_memcpy(void   * dest,
+                               size_t   dest_size,
+                               const
+                               void   * src,
+                               size_t   src_length,
+                               bool     bZeroSource/*=false*/) // if true, sets the source buffer to zero after copying is done.
+{
+    bool bSuccess = false;
+    
+    // Make sure they don't overlap.
+    //
+    OT_ASSERT_MSG(false == ((static_cast<const unsigned char *>(src) >  static_cast<unsigned char *>(dest)) &&
+                            (static_cast<const unsigned char *>(src) < (static_cast<unsigned char *>(dest) + dest_size))),
+                  "ASSERT: safe_memcpy: Unexpected memory overlap.\n");
+    
+#ifdef _WIN32
+    bSuccess = (0 == memcpy_s(dest,         // destination
+                              dest_size,    // size of destination buffer.
+                              src,          // source
+                              src_length)); // length of source.
+#else
+    // Make sure it will fit.
+    // Note: I'm assuming Windows version already does this assert.
+    //
+    OT_ASSERT_MSG(src_length <= dest_size,
+                  "ASSERT: safe_memcpy: destination buffer too small.\n");
+    
+    bSuccess = (memcpy(dest, src, src_length) == dest);
+#endif
+    
+    if (bSuccess)
+    {
+        if (bZeroSource)
+        {
+            OTPassword::zeroMemory(const_cast<void *>(src), src_length);
+        }
+        // ------------------------
+        return dest;
+    }
+    
+    return NULL;
+}
+// ---------------------------------------------------------
+
 OTPassword::OTPassword(OTPassword::BlockSize theBlockSize/*=DEFAULT_SIZE*/)
 :	m_nPasswordSize(0),
-	blockSize(theBlockSize) // The buffer has this size+1 as its static size.
+    m_bIsText(true),
+    m_bIsBinary(false),
+    m_bIsPageLocked(false),
+	m_theBlockSize(theBlockSize) // The buffer has this size+1 as its static size.
 {
 	m_szPassword[0] = '\0';
 }
@@ -213,11 +419,24 @@ OTPassword::OTPassword(OTPassword::BlockSize theBlockSize/*=DEFAULT_SIZE*/)
 
 OTPassword::OTPassword(const char * szInput, int nInputSize, OTPassword::BlockSize theBlockSize/*=DEFAULT_SIZE*/)
 :	m_nPasswordSize(0),
-	blockSize(theBlockSize) // The buffer has this size+1 as its static size.
+    m_bIsText(true),
+    m_bIsBinary(false),
+    m_bIsPageLocked(false),
+    m_theBlockSize(theBlockSize) // The buffer has this size+1 as its static size.
 {
 	m_szPassword[0] = '\0';
 	
 	setPassword(szInput, nInputSize);
+}
+// ---------------------------------------------------------
+OTPassword::OTPassword(const void * vInput, int nInputSize, OTPassword::BlockSize theBlockSize/*=DEFAULT_SIZE*/)
+:	m_nPasswordSize(0),
+    m_bIsText(false),
+    m_bIsBinary(true),
+    m_bIsPageLocked(false),
+    m_theBlockSize(theBlockSize) // The buffer has this size+1 as its static size.
+{
+	setMemory(vInput, nInputSize);
 }
 // ---------------------------------------------------------
 
@@ -228,23 +447,64 @@ OTPassword::~OTPassword()
 		zeroMemory();
 }
 
+// ---------------------------------------------------------
+
+
+bool OTPassword::isPassword() const
+{
+    return m_bIsText;
+}
+
+bool OTPassword::isMemory() const
+{
+    return m_bIsBinary;
+}
+
 
 // ---------------------------------------------------------
 // getPassword returns "" if empty, otherwise returns the password.
+//
 const char * OTPassword::getPassword() const
 {
+    OT_ASSERT(m_bIsText);
 	return (m_nPasswordSize <= 0) ? "" : &(m_szPassword[0]); 
+}
+
+// ---------------------------------------------------------
+// getMemory returns NULL if empty, otherwise returns the password.
+//
+const void * OTPassword::getMemory() const
+{
+    OT_ASSERT(m_bIsBinary);
+	return (m_nPasswordSize <= 0) ? NULL : static_cast<const void *>(&(m_szPassword[0])); 
+}
+
+// ---------------------------------------------------------
+// getMemoryWritable returns NULL if empty, otherwise returns the password.
+//
+void * OTPassword::getMemoryWritable()
+{
+    OT_ASSERT(m_bIsBinary);
+	return (m_nPasswordSize <= 0) ? NULL : static_cast<void *>(&(m_szPassword[0])); 
 }
 
 // ---------------------------------------------------------
 int OTPassword::getBlockSize() const	
 { 
-	return static_cast<int> (blockSize); 
+	return static_cast<int> (m_theBlockSize); 
 }
 
 // ---------------------------------------------------------
 int OTPassword::getPasswordSize() const
 { 
+    OT_ASSERT(m_bIsText);
+	return m_nPasswordSize; 
+}
+
+// ---------------------------------------------------------
+int OTPassword::getMemorySize() const
+{ 
+    OT_ASSERT(m_bIsBinary);
 	return m_nPasswordSize; 
 }
 
@@ -253,17 +513,24 @@ int OTPassword::getPasswordSize() const
 // Returns -1 in case of error.
 //
 int OTPassword::setPassword(const char * szInput, int nInputSize)
-{		
-	// ---------------------------------
+{
+    const char * szFunc = "OTPassword::setPassword";
+    // ---------------------------------
 	// Wipe whatever was in there before.
+    //
 	if (m_nPasswordSize > 0)
 		zeroMemory();
 	// ---------------------------------
 	if (0 > nInputSize)
 		return (-1);
-	else if (0 == nInputSize)
+    // ---------------------------------
+    m_bIsBinary = false;
+    m_bIsText   = true;
+	// ---------------------------------
+	if (0 == nInputSize)
 		return 0;
 	// ---------------------------------
+
 	// Make sure no input size is larger than our block size
 	//
 	if (nInputSize > getBlockSize())
@@ -275,28 +542,262 @@ int OTPassword::setPassword(const char * szInput, int nInputSize)
 	//
 	if (strnlen(szInput, static_cast<size_t>(nInputSize)) < static_cast<size_t>(nInputSize))
 	{
-		std::cerr << "OTPassword::setPassword: ERROR: string length of szInput did not match nInputSize." << std::endl;
+        OTLog::vError("%s: ERROR: string length of szInput did not match nInputSize.\n", szFunc);
+//		std::cerr << "OTPassword::setPassword: ERROR: string length of szInput did not match nInputSize." << std::endl;
 		return (-1);
 	}
-	// ---------------------------------
-	
-	m_nPasswordSize = nInputSize;
-	
+	// ---------------------------------	
+    //
+    // Lock the memory page, before we copy the data over.
+    // (If it's not already locked, which I doubt it will be.)
+    //
+    if (!m_bIsPageLocked) // it won't be locked already, since we just zero'd it (above.) But I check this anyway...
+    {
+        if (ot_lockPage(static_cast<void *>(&(m_szPassword[0])), getBlockSize()))
+        {
+            m_bIsPageLocked = true;
+        }
+        else
+            OTLog::vError("%s: Error: Failed attempting to lock memory page.\n", szFunc);
+    }    
 	// ---------------------------------
 #ifdef _WIN32
 	strncpy_s(m_szPassword, (1 + nInputSize), szInput, nInputSize);
 #else
 	strncpy(m_szPassword, szInput, nInputSize);
 #endif
-	
+
 	// ---------------------------------	
 	// force a null terminator in the 129th byte (at index 128.)
 	// (Or at the 6th byte (at index 5), if the size is 5 bytes long.)
 	//
-	m_szPassword[nInputSize] = '\0'; 
-	
+	m_szPassword[nInputSize] = '\0'; 	
+    m_nPasswordSize          = nInputSize;
 	// ---------------------------------	
 
+	return m_nPasswordSize;
+}
+
+
+
+
+/*
+void OTPassword::zeroMemory()
+{
+	m_nPasswordSize = 0;
+    // -------------------
+    OTPassword::zeroMemory(m_szPassword, sizeof(m_szPassword));    
+    // -------------------
+    //
+    // UNLOCK the page, now that we're AFTER the point where
+    // the memory was safely ZERO'd out.
+    //
+    if (m_bIsPageLocked)
+    {
+        if (ot_unlockPage(static_cast<void *>(&(m_szPassword[0])), getBlockSize()))
+        {
+            m_bIsPageLocked = false;
+        }
+        else
+            OTLog::Error("OTPassword::zeroMemory: Error: Memory page was locked, but then failed to unlock it.\n");
+    }    
+    // -------------------
+}
+*/
+
+
+//static
+bool OTPassword::randomizeMemory(char * szDestination, size_t nNewSize)
+{
+    OT_ASSERT(NULL != szDestination);
+    OT_ASSERT(nNewSize > 0);
+	// ---------------------------------
+    const char * szFunc = "OTPassword::randomizeMemory(static)";
+	// ---------------------------------
+    /*
+     RAND_bytes() returns 1 on success, 0 otherwise. The error code can be obtained by ERR_get_error(3). 
+     RAND_pseudo_bytes() returns 1 if the bytes generated are cryptographically strong, 0 otherwise. 
+     Both functions return -1 if they are not supported by the current RAND method.
+     */
+    const int nRAND_bytes = RAND_bytes(reinterpret_cast<unsigned char*>(szDestination), static_cast<int>(nNewSize));
+    
+	if ((-1) == nRAND_bytes)
+	{
+		OTLog::vError("%s: ERROR: RAND_bytes is apparently not supported by the current "
+                      "RAND method. OpenSSL: %s\n", szFunc, ERR_error_string(ERR_get_error(), NULL));
+		return false;
+	}
+	else if (0 == nRAND_bytes)
+	{
+		OTLog::vError("%s: Failed: The PRNG is apparently not seeded. OpenSSL error: %s\n",
+                      szFunc, ERR_error_string(ERR_get_error(), NULL));
+		return false;
+	}
+	// --------------------------------------------------
+    return true;
+}
+
+
+// ---------------------------------------------------------
+// Returns size of memory (in case truncation is necessary.)
+// Returns -1 in case of error.
+//
+int OTPassword::randomizeMemory(size_t nNewSize/*=DEFAULT_SIZE*/)
+{
+    const char * szFunc = "OTPassword::randomizeMemory";
+    int nSize = static_cast<int>(nNewSize);
+    // ---------------------------------
+	// Wipe whatever was in there before.
+    //
+	if (m_nPasswordSize > 0)
+		zeroMemory();
+	// ---------------------------------
+	if (0 > nSize)
+		return (-1);
+    // ---------------------------------
+    m_bIsBinary = true;
+    m_bIsText   = false;
+	// ---------------------------------
+	if (0 == nSize)
+		return 0;
+	// ---------------------------------
+	// Make sure no input size is larger than our block size
+	//
+	if (nSize > getBlockSize())
+		nSize = getBlockSize(); // Truncated password beyond max size.
+    //
+    // Lock the memory page, before we randomize 'size bytes' of the data.
+    // (If it's not already locked, which I doubt it will be.)
+    //
+    if (!m_bIsPageLocked) // it won't be locked already, since we just zero'd it (above.) But I check this anyway...
+    {
+        if (ot_lockPage(static_cast<void *>(&(m_szPassword[0])), getBlockSize()))
+        {
+            m_bIsPageLocked = true;
+        }
+        else
+            OTLog::vError("%s: Error: Failed attempting to lock memory page.\n", szFunc);
+    }    
+	// ---------------------------------
+    //
+	if (!OTPassword::randomizeMemory(&(m_szPassword[0]), static_cast<size_t>(nSize)))
+    {
+        // randomizeMemory (above) already logs, so I'm not logging again twice here.
+        //
+        zeroMemory();
+		return -1;
+	}
+	// --------------------------------------------------
+	m_nPasswordSize = nSize;
+
+	return m_nPasswordSize;
+}
+
+
+// (FYI, truncates if nAppendSize + getPasswordSize() is larger than getBlockSize.)
+// Returns number of bytes appended, or -1 for error.
+//
+int OTPassword::addMemory(const void * vAppend, int nAppendSize) 
+{
+    OT_ASSERT(NULL != vAppend);
+
+//  const char * szFunc = "OTPassword::addMemory";
+    // ---------------------------------
+	if (0 > nAppendSize)
+		return (-1);
+    // ---------------------------------
+	if (0 == nAppendSize)
+		return 0;
+	// ---------------------------------
+	// If I'm currently at a 0 size, then call setMemory instead.
+    //
+	if (m_nPasswordSize == 0)
+		return this->setMemory(vAppend, nAppendSize);
+    // ***********************************************
+    //
+    // By this point, I know I already have some memory allocated,
+    // and I'm actually appending some other memory onto the end of it.
+    //
+    OT_ASSERT(m_bIsBinary); // Should already be set from the above setMemory call.
+	// ---------------------------------
+	// Make sure total new size isn't larger than our block size
+	//
+	if ((nAppendSize + m_nPasswordSize) > getBlockSize())
+		nAppendSize = (getBlockSize() - m_nPasswordSize); // Truncated password beyond max size.
+	// ---------------------------------
+    OT_ASSERT(nAppendSize >= 0);
+    
+    if (0 == nAppendSize)
+        return 0;
+    // ------------------------------------
+    // By this point, I know nAppendSize is larger than 0, AND that appending it onto the
+    // existing memory of this object will not exceed the total allowed block size.
+    //
+    // Because we use setMemory when empty, and only use addMemory when we KNOW something
+    // is already there, therefore we know the page is already locked, so no need to go
+    // trying to lock it again.
+	// ---------------------------------    
+    OTPassword::safe_memcpy(static_cast<void *>(&(m_szPassword[m_nPasswordSize])),
+                            static_cast<size_t>(nAppendSize), // dest size is based on the source size, but guaranteed to be >0 and <=getBlockSize
+                            vAppend,
+                            static_cast<size_t>(nAppendSize)); // Since dest size is known to be src size or less (and >0) we use it as src size. (We may have truncated... and we certainly don't want to copy beyond our own truncation.)    
+	// ---------------------------------
+    m_nPasswordSize += nAppendSize;
+	// ---------------------------------
+	return nAppendSize;
+}
+
+
+// ---------------------------------------------------------
+// Returns size of memory (in case truncation is necessary.)
+// Returns -1 in case of error.
+//
+int OTPassword::setMemory(const void * vInput, int nInputSize)
+{		
+    OT_ASSERT(NULL != vInput);
+    
+    const char * szFunc = "OTPassword::setMemory";
+    // ---------------------------------
+	// Wipe whatever was in there before.
+    //
+	if (m_nPasswordSize > 0)
+		zeroMemory();
+	// ---------------------------------
+	if (0 > nInputSize)
+		return (-1);
+    // ---------------------------------
+    m_bIsBinary = true;
+    m_bIsText   = false;
+	// ---------------------------------
+	if (0 == nInputSize)
+		return 0;
+	// ---------------------------------
+	// Make sure no input size is larger than our block size
+	//
+	if (nInputSize > getBlockSize())
+		nInputSize = getBlockSize(); // Truncated password beyond max size.
+	// ---------------------------------
+    //
+    // Lock the memory page, before we copy the data over.
+    // (If it's not already locked, which I doubt it will be.)
+    //
+    if (!m_bIsPageLocked) // it won't be locked already, since we just zero'd it (above.) But I check this anyway...
+    {
+        if (ot_lockPage(static_cast<void *>(&(m_szPassword[0])), getBlockSize()))
+        {
+            m_bIsPageLocked = true;
+        }
+        else
+            OTLog::vError("%s: Error: Failed attempting to lock memory page.\n", szFunc);
+    }    
+	// ---------------------------------    
+    OTPassword::safe_memcpy(static_cast<void *>(&(m_szPassword[0])),
+                            static_cast<size_t>(nInputSize), // dest size is based on the source size, but guaranteed to be >0 and <=getBlockSize
+                            vInput,
+                            static_cast<size_t>(nInputSize)); // Since dest size is known to be src size or less (and >0) we use it as src size. (We may have truncated... and we certainly don't want to copy beyond our own truncation.)    
+	// ---------------------------------
+    m_nPasswordSize = nInputSize;
+	// ---------------------------------
 	return m_nPasswordSize;
 }
 
@@ -311,8 +812,8 @@ int OTPassword::setPassword(const char * szInput, int nInputSize)
 
 OTCallback::~OTCallback() 
 {
-	OTLog::vOutput(0, "OTCallback::~OTCallback:  (This should only happen ONCE -- as the application is closing.)\n");
-	//	std::cout << "OTCallback::~OTCallback()" << std:: endl; 
+	OTLog::vError("OTCallback::~OTCallback:  (This should only happen ONCE ONLY -- as the application is closing.)\n");
+//	std::cout << "OTCallback::~OTCallback()" << std:: endl; 
 }
 
 

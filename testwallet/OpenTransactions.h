@@ -194,12 +194,17 @@ public:
 	
 	OT_API();
 	~OT_API();
-	
+    // --------------------------------------------------	
 	bool LoadConfigFile(const OTString & strMainPath);
-
+    // --------------------------------------------------
 			bool Init(OTString & strClientPath);	// Per instance.
-	static	bool InitOTAPI();						// Once per run.
-
+    // --------------------------------------------------
+    // calls OTLog::OT_Init();
+    static	bool InitOTAPI();						// Once per run.
+    
+    // calls OTLog::OT_Cleanup();
+	static	bool CleanupOTAPI();                    // As the application shuts down gracefully...
+    // --------------------------------------------------
 	bool IsInitialized() const { return m_bInitialized; }
 	
 	bool LoadWallet(const OTString & strFilename);

@@ -217,6 +217,9 @@ void OTServerConnection::Initialize()
 	s_bInitialized = true; // set this to true so the function can't run again. It only runs the first time.
 	
 	// Initialize SSL -- MUST happen before any Private keys are loaded, if you want it to work.
+    // Update: this no longer initializes OpenSSL, which I do in OTLog::OT_Init() now.
+    // Just make sure you call that early on.
+    //
     SFSocketGlobalInit();
 }
 

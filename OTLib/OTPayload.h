@@ -144,9 +144,9 @@ class OTPayload : public OTData
 {
 public:
 	OTPayload();
+	OTPayload(const void * pNewData, uint32_t nNewSize);
 	OTPayload(const OTPayload & rhs);
 	OTPayload(const OTASCIIArmor & theSource);
-	
 	
 	virtual ~OTPayload();
 

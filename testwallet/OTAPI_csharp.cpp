@@ -460,13 +460,25 @@ SWIGEXPORT int SWIGSTDCALL CSharp_OT_DEFAULT_MEMSIZE_get() {
 }
 
 
-SWIGEXPORT int SWIGSTDCALL CSharp_OTPassword_blockSize_get(void * jarg1) {
+SWIGEXPORT int SWIGSTDCALL CSharp_OTPassword_m_theBlockSize_get(void * jarg1) {
   int jresult ;
   OTPassword *arg1 = (OTPassword *) 0 ;
   OTPassword::BlockSize result;
   
   arg1 = (OTPassword *)jarg1; 
-  result = (OTPassword::BlockSize)(OTPassword::BlockSize) ((arg1)->blockSize);
+  result = (OTPassword::BlockSize)(OTPassword::BlockSize) ((arg1)->m_theBlockSize);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_OTPassword_isPassword(void * jarg1) {
+  unsigned int jresult ;
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  bool result;
+  
+  arg1 = (OTPassword *)jarg1; 
+  result = (bool)((OTPassword const *)arg1)->isPassword();
   jresult = result; 
   return jresult;
 }
@@ -500,6 +512,114 @@ SWIGEXPORT int SWIGSTDCALL CSharp_OTPassword_setPassword(void * jarg1, char * ja
 }
 
 
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_OTPassword_isMemory(void * jarg1) {
+  unsigned int jresult ;
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  bool result;
+  
+  arg1 = (OTPassword *)jarg1; 
+  result = (bool)((OTPassword const *)arg1)->isMemory();
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_OTPassword_getMemory(void * jarg1) {
+  void * jresult ;
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  void *result = 0 ;
+  
+  arg1 = (OTPassword *)jarg1; 
+  result = (void *)((OTPassword const *)arg1)->getMemory();
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_OTPassword_getMemoryWritable(void * jarg1) {
+  void * jresult ;
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  void *result = 0 ;
+  
+  arg1 = (OTPassword *)jarg1; 
+  result = (void *)(arg1)->getMemoryWritable();
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT int SWIGSTDCALL CSharp_OTPassword_setMemory(void * jarg1, void * jarg2, int jarg3) {
+  int jresult ;
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  void *arg2 = (void *) 0 ;
+  int arg3 ;
+  int result;
+  
+  arg1 = (OTPassword *)jarg1; 
+  arg2 = (void *)jarg2; 
+  arg3 = (int)jarg3; 
+  result = (int)(arg1)->setMemory((void const *)arg2,arg3);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT int SWIGSTDCALL CSharp_OTPassword_addMemory(void * jarg1, void * jarg2, int jarg3) {
+  int jresult ;
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  void *arg2 = (void *) 0 ;
+  int arg3 ;
+  int result;
+  
+  arg1 = (OTPassword *)jarg1; 
+  arg2 = (void *)jarg2; 
+  arg3 = (int)jarg3; 
+  result = (int)(arg1)->addMemory((void const *)arg2,arg3);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT int SWIGSTDCALL CSharp_OTPassword_randomizeMemory__SWIG_0(void * jarg1, unsigned long jarg2) {
+  int jresult ;
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  size_t arg2 ;
+  int result;
+  
+  arg1 = (OTPassword *)jarg1; 
+  arg2 = (size_t)jarg2; 
+  result = (int)(arg1)->randomizeMemory(arg2);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT int SWIGSTDCALL CSharp_OTPassword_randomizeMemory__SWIG_1(void * jarg1) {
+  int jresult ;
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  int result;
+  
+  arg1 = (OTPassword *)jarg1; 
+  result = (int)(arg1)->randomizeMemory();
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_OTPassword_randomizeMemory__SWIG_2(char * jarg1, unsigned long jarg2) {
+  unsigned int jresult ;
+  char *arg1 = (char *) 0 ;
+  size_t arg2 ;
+  bool result;
+  
+  arg1 = (char *)jarg1; 
+  arg2 = (size_t)jarg2; 
+  result = (bool)OTPassword::randomizeMemory(arg1,arg2);
+  jresult = result; 
+  return jresult;
+}
+
+
 SWIGEXPORT int SWIGSTDCALL CSharp_OTPassword_getBlockSize(void * jarg1) {
   int jresult ;
   OTPassword *arg1 = (OTPassword *) 0 ;
@@ -524,11 +644,81 @@ SWIGEXPORT int SWIGSTDCALL CSharp_OTPassword_getPasswordSize(void * jarg1) {
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_OTPassword_zeroMemory(void * jarg1) {
+SWIGEXPORT int SWIGSTDCALL CSharp_OTPassword_getMemorySize(void * jarg1) {
+  int jresult ;
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  int result;
+  
+  arg1 = (OTPassword *)jarg1; 
+  result = (int)((OTPassword const *)arg1)->getMemorySize();
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_OTPassword_zeroMemory__SWIG_0(void * jarg1) {
   OTPassword *arg1 = (OTPassword *) 0 ;
   
   arg1 = (OTPassword *)jarg1; 
   (arg1)->zeroMemory();
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_OTPassword_zeroMemory__SWIG_1(char * jarg1, unsigned long jarg2) {
+  char *arg1 = (char *) 0 ;
+  size_t arg2 ;
+  
+  arg1 = (char *)jarg1; 
+  arg2 = (size_t)jarg2; 
+  OTPassword::zeroMemory(arg1,arg2);
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_OTPassword_zeroMemory__SWIG_2(void * jarg1, unsigned long jarg2) {
+  void *arg1 = (void *) 0 ;
+  size_t arg2 ;
+  
+  arg1 = (void *)jarg1; 
+  arg2 = (size_t)jarg2; 
+  OTPassword::zeroMemory(arg1,arg2);
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_OTPassword_safe_memcpy__SWIG_0(void * jarg1, unsigned long jarg2, void * jarg3, unsigned long jarg4, unsigned int jarg5) {
+  void * jresult ;
+  void *arg1 = (void *) 0 ;
+  size_t arg2 ;
+  void *arg3 = (void *) 0 ;
+  size_t arg4 ;
+  bool arg5 ;
+  void *result = 0 ;
+  
+  arg1 = (void *)jarg1; 
+  arg2 = (size_t)jarg2; 
+  arg3 = (void *)jarg3; 
+  arg4 = (size_t)jarg4; 
+  arg5 = jarg5 ? true : false; 
+  result = (void *)OTPassword::safe_memcpy(arg1,arg2,(void const *)arg3,arg4,arg5);
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_OTPassword_safe_memcpy__SWIG_1(void * jarg1, unsigned long jarg2, void * jarg3, unsigned long jarg4) {
+  void * jresult ;
+  void *arg1 = (void *) 0 ;
+  size_t arg2 ;
+  void *arg3 = (void *) 0 ;
+  size_t arg4 ;
+  void *result = 0 ;
+  
+  arg1 = (void *)jarg1; 
+  arg2 = (size_t)jarg2; 
+  arg3 = (void *)jarg3; 
+  arg4 = (size_t)jarg4; 
+  result = (void *)OTPassword::safe_memcpy(arg1,arg2,(void const *)arg3,arg4);
+  jresult = (void *)result; 
+  return jresult;
 }
 
 
@@ -579,6 +769,36 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_new_OTPassword__SWIG_3(char * jarg1, int ja
   arg1 = (char *)jarg1; 
   arg2 = (int)jarg2; 
   result = (OTPassword *)new OTPassword((char const *)arg1,arg2);
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_new_OTPassword__SWIG_4(void * jarg1, int jarg2, int jarg3) {
+  void * jresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  OTPassword::BlockSize arg3 ;
+  OTPassword *result = 0 ;
+  
+  arg1 = (void *)jarg1; 
+  arg2 = (int)jarg2; 
+  arg3 = (OTPassword::BlockSize)jarg3; 
+  result = (OTPassword *)new OTPassword((void const *)arg1,arg2,arg3);
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_new_OTPassword__SWIG_5(void * jarg1, int jarg2) {
+  void * jresult ;
+  void *arg1 = (void *) 0 ;
+  int arg2 ;
+  OTPassword *result = 0 ;
+  
+  arg1 = (void *)jarg1; 
+  arg2 = (int)jarg2; 
+  result = (OTPassword *)new OTPassword((void const *)arg1,arg2);
   jresult = (void *)result; 
   return jresult;
 }

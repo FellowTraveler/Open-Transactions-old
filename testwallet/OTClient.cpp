@@ -9373,6 +9373,8 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 }
 
 
+
+
 /// used for testing.
 /// Once the wallet is loaded, we are assuming there is at least one server
 /// contract in the wallet, and we are asking the wallet to look it up,
@@ -9410,28 +9412,50 @@ bool OTClient::SetFocusToServerAndNym(OTServerContract & theServerContract, OTPs
 }
 
 
+
+
+
+
 /// Need to call this before using.
 bool OTClient::InitClient(OTWallet & theWallet)
 {
 	// already done
+    //
 	if (m_bInitialized)
 		return false;
-	
+	// -----------------------
+    
 	m_bInitialized	= true;
 	
+
+    
+    // UPDATE: SSL is now initialized in OTLog::OT_Init(), not in OTServerConnection.
+    //
+    // Old:
 	// SSL gets initialized in the OTServerConnection, so no need to do it here twice.
 	// BUT warning: don't load any private keys until this happens, or that won't work.
 //	SSL_library_init();
-//	SSL_load_error_strings();   // These happen here:
+//	SSL_load_error_strings();   // UPDATE: Moved to OTLog::OT_Init();
+    
+    
+    
+    
 	m_pConnection	= new OTServerConnection(theWallet, *this);
 	m_pWallet		= &theWallet;
 
+    
+    
 	// openssl initialization
-	ERR_load_crypto_strings();  // Todo deal with error logging mechanism later.
-	OpenSSL_add_all_algorithms();  // Is this really necessary to make these function calls? I'll leave it.
-	
-	// -------------------------------------------------------
-	// These storage locations are client-only
+    // UPDATE: Moved to OTLog::OT_Init()
+    //
+//	ERR_load_crypto_strings();  // Todo deal with error logging mechanism later.
+//	OpenSSL_add_all_algorithms();  
+
+    
+    
+    
+	// --------------------------------------------------------
+    // These storage locations are client-only
 	//
 	OTLog::ConfirmOrCreateFolder(OTLog::PaymentInboxFolder());
 	OTLog::ConfirmOrCreateFolder(OTLog::RecordBoxFolder());
@@ -9466,7 +9490,12 @@ bool OTClient::InitClient(OTWallet & theWallet)
 
 
 
-OTClient::OTClient() : m_pWallet(NULL), m_bRunningAsScript(false), m_lMostRecentRequestNumber(0), m_pConnection(NULL), m_bInitialized(false)
+OTClient::OTClient() :
+    m_pWallet(NULL), 
+    m_bRunningAsScript(false), 
+    m_lMostRecentRequestNumber(0), 
+    m_pConnection(NULL), 
+    m_bInitialized(false)
 {
 
 }
@@ -9474,17 +9503,10 @@ OTClient::OTClient() : m_pWallet(NULL), m_bRunningAsScript(false), m_lMostRecent
 OTClient::~OTClient()
 {
 	if (NULL != m_pConnection)
-	{
 		delete m_pConnection;
-		m_pConnection = NULL;
-	}
-	
-	// openssl cleanup
-	CRYPTO_cleanup_all_ex_data();
-	RAND_cleanup();
-	EVP_cleanup();
-	ERR_free_strings();
-	ERR_remove_state(0);	
+    m_pConnection = NULL;
+
+	// (FYI, Moved openssl cleanup to OT_Cleanup.)
 }
 
 

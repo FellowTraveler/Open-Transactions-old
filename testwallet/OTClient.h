@@ -154,7 +154,7 @@ class OTWallet;
 class OTClient
 {
 private:
-	OTWallet * m_pWallet;
+	OTWallet * m_pWallet;   // NOT owned, but this pointer is here for convenience.
 	
 	OTMessageBuffer     m_MessageBuffer;    // Incoming server replies are copied here for easy access.
 	OTMessageOutbuffer  m_MessageOutbuffer; // Outgoing messages are copied here for easy access. 
