@@ -1,0 +1,114 @@
+#
+# The PROGRAM macro defines the name of the program or project.  It
+# allows the program name to be changed by editing in only one
+# location
+#
+
+PROGRAM = createmint.exe
+
+DEBUG_PROGRAM = createmint.debug
+
+#
+# Command line parameters: Edit these parameters so that you can 
+# easily run the sample by typing "make -f Makefile.Linux run".
+#
+
+#
+# The INCLUDEDIRS macro contains a list of include directories
+# to pass to the compiler so it can find necessary header files.
+#
+# The LIBDIRS macro contains a list of library directories
+# to pass to the linker so it can find necessary libraries.
+#
+# The LIBS macro contains a list of libraries that the the
+# executable must be linked against.
+#
+
+INCLUDEDIRS = \
+	-I/usr/local/ssl/include \
+	-I../../OTLib/irrxml \
+	-I../../OTLib \
+	-I./
+
+
+LIBDIRS = \
+	-L../../OTLib
+
+
+LIBS = -ldl $(LIBDIRS) -lssl $(LIBDIRS) -lcrypto $(LIBDIRS) -lOTLib $(LIBDIRS) -lssl $(LIBDIRS) -lcrypto $(LIBDIRS) -lOTLib 
+DEBUG_LIBS = -ldl $(LIBDIRS) -lssl $(LIBDIRS) -lcrypto $(LIBDIRS) -lOTLibd $(LIBDIRS) -lssl $(LIBDIRS) -lcrypto $(LIBDIRS) -lOTLibd 
+
+#
+# The CXXSOURCES macro contains a list of source files.
+#
+# The CXXOBJECTS macro converts the CXXSOURCES macro into a list
+# of object files.
+#
+# The CXXFLAGS macro contains a list of options to be passed to
+# the compiler.  Adding "-g" to this line will cause the compiler
+# to add debugging information to the executable.
+#
+# The CXX macro defines the C++ compiler.
+#
+# The LDFLAGS macro contains all of the library and library
+# directory information to be passed to the linker.
+#
+
+CXXSOURCES = \
+			 main.cpp
+			 
+CXXOBJECTS = $(CXXSOURCES:.cpp=.o)  # expands to list of object files
+CXXFLAGS   = $(INCLUDEDIRS)
+DEBUG_FLAGS = -g
+CXX = g++
+LDFLAGS = $(LIBDIRS) $(LIBS)
+DEBUG_LDFLAGS = $(LIBDIRS) $(DEBUG_LIBS)
+
+#
+# Default target: the first target is the default target.
+# Just type "make -f Makefile.Linux" to build it.
+#
+
+all: $(PROGRAM)
+
+debug: CXXFLAGS += $(DEBUG_FLAGS)
+debug: LIBS = $(DEBUG_LIBS)
+debug: LDFLAGS = $(DEBUG_LDFLAGS)
+debug: $(DEBUG_PROGRAM)
+
+#
+# Link target: automatically builds its object dependencies before
+# executing its link command.
+#
+
+$(DEBUG_PROGRAM): $(CXXOBJECTS)
+	$(CXX) $(CXXOBJECTS) $(DEBUG_LIBS) -o $@
+
+$(PROGRAM): $(CXXOBJECTS)
+	$(CXX) $(CXXOBJECTS) $(LIBS) -o $@
+
+#
+# Object targets: rules that define objects, their dependencies, and
+# a list of commands for compilation.
+#
+
+main.o: main.cpp
+	$(CXX) $(CXXFLAGS) -c -o main.o main.cpp
+
+
+#
+# Clean target: "make -f Makefile.Linux clean" to remove unwanted objects and executables.
+#
+RM=rm
+
+clean:
+	$(RM) -f $(CXXOBJECTS) $(PROGRAM) $(DEBUG_PROGRAM)
+
+#
+# Run target: "make -f Makefile.Linux run" to execute the application
+#             You will need to add $(VARIABLE_NAME) for any command line parameters 
+#             that you defined earlier in this file.
+# 
+
+run:
+	./$(PROGRAM) 
