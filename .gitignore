@@ -13,6 +13,10 @@ build/*
 *.perspectivev3
 *.jnilib
 *.exe
+*.user
+*.suo
+*.sdf
+*.opensdf
 
 *.jar
 
@@ -26,78 +30,28 @@ profile
 # emacs noise
 *~
 
+# autoreconf noise
+autom4te.cache
+
+# visual studio noise
+*.user
+*.sdf
+*ipch/
+
 # targets
-testwallet/testwallet.exe
-transaction/transaction.exe
-OTLib/build/Debug/libOTLib.dylib
-OTLib/build/OTLib.build/Debug/OTLib.build/OTLib.dep
-OTLib/build/OTLib.build/Debug/OTLib.build/OTLib~.dep
-OTLib/build/OTLib.build/Debug/OTLib.build/Objects-normal/x86_64/libOTLib.LinkFileList
-OTLib/build/OTLib.build/Debug/OTLib.build/build-state.dat
-OTLib/build/OTLib.build/Debug/OTLib.build/build-state~.dat
-OTLib/build/OTLib.build/Debug/OTLib.build/libOTLib-all-target-headers.hmap
-OTLib/build/OTLib.build/Debug/OTLib.build/libOTLib-generated-files.hmap
-OTLib/build/OTLib.build/Debug/OTLib.build/libOTLib-own-target-headers.hmap
-OTLib/build/OTLib.build/Debug/OTLib.build/libOTLib-project-headers.hmap
-OTLib/build/OTLib.build/Debug/OTLib.build/libOTLib.hmap
-OTLib/build/OTLib.build/OTLib.pbxindex/categories.pbxbtree
-OTLib/build/OTLib.build/OTLib.pbxindex/cdecls.pbxbtree
-OTLib/build/OTLib.build/OTLib.pbxindex/decls.pbxbtree
-OTLib/build/OTLib.build/OTLib.pbxindex/files.pbxbtree
-OTLib/build/OTLib.build/OTLib.pbxindex/imports.pbxbtree
-OTLib/build/OTLib.build/OTLib.pbxindex/pbxindex.header
-OTLib/build/OTLib.build/OTLib.pbxindex/protocols.pbxbtree
-OTLib/build/OTLib.build/OTLib.pbxindex/refs.pbxbtree
-OTLib/build/OTLib.build/OTLib.pbxindex/strings.pbxstrings/control
-OTLib/build/OTLib.build/OTLib.pbxindex/strings.pbxstrings/strings
-OTLib/build/OTLib.build/OTLib.pbxindex/subclasses.pbxbtree
-OTLib/build/OTLib.build/OTLib.pbxindex/symbols0.pbxsymbols
-testwallet/build/Debug/testwallet
-testwallet/build/testwallet.build/Debug/testwallet.build/Objects-normal/x86_64/testwallet.LinkFileList
-testwallet/build/testwallet.build/Debug/testwallet.build/build-state.dat
-testwallet/build/testwallet.build/Debug/testwallet.build/build-state~.dat
-testwallet/build/testwallet.build/Debug/testwallet.build/testwallet-all-target-headers.hmap
-testwallet/build/testwallet.build/Debug/testwallet.build/testwallet-generated-files.hmap
-testwallet/build/testwallet.build/Debug/testwallet.build/testwallet-own-target-headers.hmap
-testwallet/build/testwallet.build/Debug/testwallet.build/testwallet-project-headers.hmap
-testwallet/build/testwallet.build/Debug/testwallet.build/testwallet.dep
-testwallet/build/testwallet.build/Debug/testwallet.build/testwallet.hmap
-testwallet/build/testwallet.build/Debug/testwallet.build/testwallet~.dep
-testwallet/build/testwallet.build/testwallet.pbxindex/categories.pbxbtree
-testwallet/build/testwallet.build/testwallet.pbxindex/cdecls.pbxbtree
-testwallet/build/testwallet.build/testwallet.pbxindex/decls.pbxbtree
-testwallet/build/testwallet.build/testwallet.pbxindex/files.pbxbtree
-testwallet/build/testwallet.build/testwallet.pbxindex/imports.pbxbtree
-testwallet/build/testwallet.build/testwallet.pbxindex/pbxindex.header
-testwallet/build/testwallet.build/testwallet.pbxindex/protocols.pbxbtree
-testwallet/build/testwallet.build/testwallet.pbxindex/refs.pbxbtree
-testwallet/build/testwallet.build/testwallet.pbxindex/strings.pbxstrings/control
-testwallet/build/testwallet.build/testwallet.pbxindex/strings.pbxstrings/strings
-testwallet/build/testwallet.build/testwallet.pbxindex/subclasses.pbxbtree
-testwallet/build/testwallet.build/testwallet.pbxindex/symbols0.pbxsymbols
-transaction/build/transaction.build/Debug/transaction.build/Objects-normal/x86_64/OTClientConnection.o~$
-transaction/build/transaction.build/Debug/transaction.build/Objects-normal/x86_64/OTClientConnection.o~>
-transaction/build/transaction.build/Debug/transaction.build/Objects-normal/x86_64/OTServer.o~$
-transaction/build/transaction.build/Debug/transaction.build/Objects-normal/x86_64/OTServer.o~>
-transaction/build/transaction.build/Debug/transaction.build/Objects-normal/x86_64/OTServer.o~?
-transaction/build/transaction.build/Debug/transaction.build/Objects-normal/x86_64/testserver.o~$
-transaction/build/transaction.build/Debug/transaction.build/Objects-normal/x86_64/testserver.o~>
-transaction/build/transaction.build/Debug/transaction.build/Objects-normal/x86_64/testserver.o~?
-transaction/build/transaction.build/transaction.pbxindex/categories.pbxbtree
-transaction/build/transaction.build/transaction.pbxindex/cdecls.pbxbtree
-transaction/build/transaction.build/transaction.pbxindex/decls.pbxbtree
-transaction/build/transaction.build/transaction.pbxindex/files.pbxbtree
-transaction/build/transaction.build/transaction.pbxindex/imports.pbxbtree
-transaction/build/transaction.build/transaction.pbxindex/pbxindex.header
-transaction/build/transaction.build/transaction.pbxindex/protocols.pbxbtree
-transaction/build/transaction.build/transaction.pbxindex/refs.pbxbtree
-transaction/build/transaction.build/transaction.pbxindex/strings.pbxstrings/control
-transaction/build/transaction.build/transaction.pbxindex/strings.pbxstrings/strings
-transaction/build/transaction.build/transaction.pbxindex/subclasses.pbxbtree
-transaction/build/transaction.build/transaction.pbxindex/symbols0.pbxsymbols
-testwallet/libOTAPI.jnilib
-testwallet/libOTAPI.so
-testwallet/_OTAPI.so
-testwallet/OTAPI.so
-testwallet/OTAPI.pyc
-testwallet/OTAPI.bundle
+
+lib/
+obj/
+
+
+# includes
+include/chaiscript/
+include/zeromq/
+include/otapi/OTAPI_wrap.h
+include/zmq.h
+include/zmq.hpp
+include/zmq_utils.h
+include/google
+
+# swig temp files
+swig/otapi/OTAPI_wrap.h
