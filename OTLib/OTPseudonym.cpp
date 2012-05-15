@@ -152,6 +152,7 @@ extern "C"
 #include <openssl/sha.h>
 	
 #include <openssl/pem.h>
+#include <openssl/evp.h>
 #include <openssl/conf.h>
 #include <openssl/x509v3.h>
 	
@@ -177,10 +178,14 @@ using namespace io;
 #include "OTString.h"
 #include "OTStringXML.h"
 #include "OTIdentifier.h"
+
+#include "OTPassword.h"
+
 #include "OTAsymmetricKey.h"
 
 #include "OTASCIIArmor.h"
 #include "OTPseudonym.h"
+#include "OTEnvelope.h"
 #include "OTSignedFile.h"
 #include "OTItem.h"
 #include "OTTransaction.h"
@@ -576,137 +581,115 @@ OTItem * OTPseudonym::GenerateTransactionStatement(const OTTransaction & theOwne
 
 
 
-// use this to actually generate a new key pair and assorted nym files.
-//
-bool OTPseudonym::GenerateNym(int nBits/*=1024*/, bool bCreateFile/*=true*/) // By default, it creates the various nym files and certs in local storage. (Pass false when creating a temp Nym, like for OTPurse.)
+bool OTPseudonym::ConvertToMasterKey()
 {
-	bool bSuccess = false;
-	
-    const char * szFunc = "OTPseudonym::GenerateNym";
+    const char * szFunc = "OTPseudonym::ConvertToMasterKey";
     
-//	BIO			*	bio_err	=	NULL;
-	X509		*	x509	=	NULL;
-	EVP_PKEY	*	pNewKey	=	NULL;
-	
-//	CRYPTO_mem_ctrl(CRYPTO_MEM_CHECK_ON); // memory leak detection. Leaving this for now.
-	
-//	bio_err	=	BIO_new_fp(stderr, BIO_NOCLOSE);
-	
-	
-	// actually generate the things. // TODO THESE PARAMETERS...(mkcert)
-	mkcert(&x509, &pNewKey, nBits, 0, 3650); // 3650=10 years. Todo hardcoded.
-	// Note: 512 bit key CRASHES
-	// 1024 is apparently a minimum requirement, if not an only requirement.
-	// Will need to go over just what sorts of keys are involved here... todo.
-	
-	
-	if (NULL == pNewKey)
-	{
-		OTLog::vError("%s: Failed attempting to generate new private key.\n", szFunc);
-		
-		if (NULL != x509)
-			X509_free(x509);
+    X509         * x509        = m_pkeyPublic->GetX509();
+	EVP_PKEY     * pPrivateKey = m_pkeyPrivate->GetKeyLowLevel();
+    
+    if (NULL == x509)
+    {
+        OTLog::vError("%s: Error: Unexpected NULL x509. (Returning false.)\n", szFunc);
+        return false;
+    }
+    
+    if (NULL == pPrivateKey)
+    {
+        OTLog::vError("%s: Error: Unexpected NULL pPrivateKey. (Returning false.)\n", szFunc);
+        return false;
+    }
+    
+    return this->Savex509CertAndPrivateKey(x509, pPrivateKey, true); //bool bCreateFile=true
+ }
 
-		return false;
-	}
-	
-	if (NULL ==  x509)
-	{
-		OTLog::vError("%s: Failed attempting to generate new x509 cert.\n", szFunc);
 
-		if (NULL != pNewKey)
-			EVP_PKEY_free(pNewKey);
 
-		return false;
-	}
-	
-	
-	// --------COMMENT THIS OUT FOR PRODUCTION --------  TODO security
-	//                  (Debug only.)
-	RSA_print_fp(stdout, pNewKey->pkey.rsa, 0); // human readable
-	X509_print_fp(stdout, x509); // human readable
-	
-	// --------COMMENT THIS OUT FOR PRODUCTION --------  TODO security
-	//                  (Debug only.)
-	// write the private key, then the x509, to stdout.
-	PEM_write_PrivateKey(stdout, pNewKey, EVP_des_ede3_cbc(), NULL, 0, OTAsymmetricKey::GetPasswordCallback(), NULL);
-	PEM_write_X509(stdout, x509);
-	// ------------------------------------------------
-	
-	
-	BIO	*	bio_out_pri  = BIO_new(BIO_s_mem());
-	BIO	*	bio_out_x509 = BIO_new(BIO_s_mem());
+bool OTPseudonym::Savex509CertAndPrivateKey(X509 * x509, EVP_PKEY * pPrivateKey, bool bCreateFile/*=true*/)
+{
+    OT_ASSERT(NULL != x509);
+    OT_ASSERT(NULL != pPrivateKey);
+    // ---------------------------------------
+    const char * szFunc = "OTPseudonym::Savex509CertAndPrivateKey";
+    // ---------------------------------------    
+    class _Nym__saveCert_
+    {
+        BIO	**	m_bio_out_pri;
+        BIO	**	m_bio_out_x509;
+    public:
+        _Nym__saveCert_(BIO	** param_bio_out_pri, 
+                        BIO ** param_bio_out_x509) 
+        : m_bio_out_pri(param_bio_out_pri), 
+          m_bio_out_x509(param_bio_out_x509)
+        {
+            OT_ASSERT(NULL != m_bio_out_pri);
+            OT_ASSERT(NULL != m_bio_out_x509);
 
-	PEM_write_bio_PrivateKey(bio_out_pri, pNewKey,  EVP_des_ede3_cbc(), NULL, 0, OTAsymmetricKey::GetPasswordCallback(), NULL);
+            *m_bio_out_pri  = BIO_new(BIO_s_mem());
+            *m_bio_out_x509 = BIO_new(BIO_s_mem());
+        }
+        ~_Nym__saveCert_()
+        {            
+            if (NULL != *m_bio_out_pri)
+                BIO_free(*m_bio_out_pri);
+            *m_bio_out_pri = NULL;
+            m_bio_out_pri  = NULL;
+            if (NULL != *m_bio_out_x509)
+                BIO_free(*m_bio_out_x509);
+            *m_bio_out_x509 = NULL;
+            m_bio_out_x509  = NULL;
+        }
+    };
+    // ---------------------------------------
+    BIO	*	bio_out_pri  = NULL;
+	BIO	*	bio_out_x509 = NULL;
+    // ---------------------------------------
+    _Nym__saveCert_ theInstance(&bio_out_pri, &bio_out_x509);
+    // ---------------------------------------
+    
+    OTPasswordData thePWData("OTPseudonym::Savex509CertAndPrivateKey is calling PEM_write_bio_PrivateKey...");
+    
+	PEM_write_bio_PrivateKey(bio_out_pri, pPrivateKey,  EVP_des_ede3_cbc(), NULL, 0, OTAsymmetricKey::GetPasswordCallback(), &thePWData);
 	PEM_write_bio_X509(bio_out_x509, x509);
+    
+    // ---------------------------------------
 
-	
+    bool bSuccess = false;
+    
 	unsigned char buffer_pri[4096] = ""; // todo hardcoded
 	unsigned char buffer_x509[8192] = ""; // todo hardcoded
 	
 	OTString strx509;
 	OTString strPrivateKey;
-
+    
 	int len = 0;
 	
-	 // todo hardcoded 4080 (see array above.)
+    // todo hardcoded 4080 (see array above.)
+    //
 	if (0 < (len = BIO_read(bio_out_x509, buffer_x509, 8100))) // returns number of bytes successfully read.
 	{
 		buffer_x509[len] = '\0';
 		
 		strx509.Set((const char*)buffer_x509);
-
+        
 		EVP_PKEY * pPublicKey = X509_get_pubkey(x509); 
 		
 		if (NULL != pPublicKey)
 			m_pkeyPublic->SetKey(pPublicKey, false); // bool bIsPrivateKey=false;
 		// else?
-				
+        
 		// todo hardcoded 4080 (see array above.)
 		if (0 < (len = BIO_read(bio_out_pri, buffer_pri, 4080))) // returns number of bytes successfully read.
 		{
 			buffer_pri[len] = '\0';
 			
 			strPrivateKey.Set((const char *)buffer_pri); // so I can write this string to file in a sec...
-
-			// private key itself... might as well keep it loaded for now.
-			//
-			m_pkeyPrivate->SetKey(pNewKey, true); // bool bIsPrivateKey=true; (Default is false)
-			
+            			
 			bSuccess = true;
 		}
 	}
 	// ---------------------------------------
-	
-	
-	// cleanup
-	X509_free(x509);
-	x509 = NULL;
-	
-	if (false == bSuccess) // if we failed, then free the key.
-	{
-		EVP_PKEY_free(pNewKey);
-	}
-	// if bsuccess is true, we do NOT free the key, since we just  
-	// called SetKey() and thus gave ownership of it to m_keyPrivate.
-
-	pNewKey = NULL;
-	
-	
-	//#ifndef OPENSSL_NO_ENGINE
-	//	ENGINE_cleanup();
-	//#endif
-	//	CRYPTO_cleanup_all_ex_data();
-	//	
-	//	CRYPTO_mem_leaks(bio_err);
-	
-	
-	//	BIO_free(bio_err);
-	
-	
-	BIO_free(bio_out_pri);
-	BIO_free(bio_out_x509);
-
+    //
 	
 	// At this point, the Nym's private key is set, and its public key is also set.
 	// So the object in memory is good to go.
@@ -716,7 +699,7 @@ bool OTPseudonym::GenerateNym(int nBits/*=1024*/, bool bCreateFile/*=true*/) // 
 	if (bSuccess)
 	{
 		const OTString strFilename("temp.nym"); // todo stop hardcoding. Plus this should select a random number too.
-							 
+        
 		OTString strFinal;
 		strFinal.Format((char*)"%s%s", strPrivateKey.Get(), strx509.Get());
 		
@@ -727,7 +710,7 @@ bool OTPseudonym::GenerateNym(int nBits/*=1024*/, bool bCreateFile/*=true*/) // 
 		}
 		
 		// ------------------------------------------
-
+        
 		bool bPublic  = false;
 		bool bPrivate = false;
 		
@@ -757,7 +740,7 @@ bool OTPseudonym::GenerateNym(int nBits/*=1024*/, bool bCreateFile/*=true*/) // 
 			OTLog::vOutput(2, "%s: Successfully loaded private key from certfile: %s\n", szFunc, strFilename.Get());
 		}
 		// -----------------------------------------
-
+        
         if (false == this->SetIdentifierByPubkey())
         {
 			OTLog::vError("%s: Error calculating Nym ID (as a digest of nym's public key.)\n", szFunc);
@@ -773,13 +756,85 @@ bool OTPseudonym::GenerateNym(int nBits/*=1024*/, bool bCreateFile/*=true*/) // 
 			OTLog::vError("%s: Failure storing cert for new nym: %s\n", szFunc, strID.Get());
 			return false;
 		}
-		// ****************************************************************************
-		
-        if (bCreateFile)
-            bSuccess = SaveSignedNymfile(*this); // Now we'll generate the NymFile as well! (bCreateFile will be false for temp Nyms..)
 	}
 	
 	return bSuccess;
+}
+
+
+
+// use this to actually generate a new key pair and assorted nym files.
+//
+bool OTPseudonym::GenerateNym(int nBits/*=1024*/, bool bCreateFile/*=true*/) // By default, it creates the various nym files and certs in local storage. (Pass false when creating a temp Nym, like for OTPurse.)
+{
+    const char * szFunc = "OTPseudonym::GenerateNym";
+    
+//	BIO			*	bio_err	=	NULL;
+	X509		*	x509	=	NULL;
+	EVP_PKEY	*	pNewKey	=	NULL;
+	
+//	CRYPTO_mem_ctrl(CRYPTO_MEM_CHECK_ON); // memory leak detection. Leaving this for now.
+//	bio_err	=	BIO_new_fp(stderr, BIO_NOCLOSE);
+	
+	// actually generate the things. // TODO THESE PARAMETERS...(mkcert)
+	mkcert(&x509, &pNewKey, nBits, 0, 3650); // 3650=10 years. Todo hardcoded.
+	// Note: 512 bit key CRASHES
+	// 1024 is apparently a minimum requirement, if not an only requirement.
+	// Will need to go over just what sorts of keys are involved here... todo.
+	
+	if (NULL == pNewKey)
+	{
+		OTLog::vError("%s: Failed attempting to generate new private key.\n", szFunc);
+		
+		if (NULL != x509)
+			X509_free(x509);
+
+		return false;
+	}
+	// ------------------------------------------------------------
+	if (NULL == x509)
+	{
+		OTLog::vError("%s: Failed attempting to generate new x509 cert.\n", szFunc);
+
+		if (NULL != pNewKey)
+			EVP_PKEY_free(pNewKey);
+
+		return false;
+	}
+	// ---------------------------------------------------------------
+	// Below this point, x509 and pNewKey will need to be cleaned up properly.
+    
+    
+	// --------COMMENT THIS OUT FOR PRODUCTION --------  TODO security
+	//                  (Debug only.)
+//	RSA_print_fp(stdout, pNewKey->pkey.rsa, 0); // human readable
+//	X509_print_fp(stdout, x509); // human readable
+	
+	// --------COMMENT THIS OUT FOR PRODUCTION --------  TODO security
+	//                  (Debug only.)
+	// write the private key, then the x509, to stdout.
+    
+//    OTPasswordData thePWData2("OTPseudonym::GenerateNym is calling PEM_write_PrivateKey...");
+//
+//	PEM_write_PrivateKey(stdout, pNewKey, EVP_des_ede3_cbc(), NULL, 0, OTAsymmetricKey::GetPasswordCallback(), &thePWData2);
+//	PEM_write_X509(stdout, x509);
+	
+    // ---------------------------------------------------------------    
+    // private key itself... might as well keep it loaded for now.
+    // (Therefore it's now owned by m_pkeyPrivate, no need to cleanup after this.)
+    //
+    m_pkeyPrivate->SetKey(pNewKey, true); // bool bIsPrivateKey=true; (Default is false)
+    m_pkeyPublic->SetX509(x509); // x509 is now owned.
+    // ---------------------------------------------------------------    
+    bool bSaved = this->Savex509CertAndPrivateKey(x509, pNewKey, bCreateFile);
+    pNewKey = NULL;    
+    // ---------------------------------------------------------------
+	if (bSaved && bCreateFile)
+	{		
+        bSaved = this->SaveSignedNymfile(*this); // Now we'll generate the NymFile as well! (bCreateFile will be false for temp Nyms..)
+	}
+	
+	return bSaved;
 }
 
 

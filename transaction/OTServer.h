@@ -343,9 +343,10 @@ public:
                            // -------------------------------------------------------------
 	void ProcessCron();    // Call this periodically, so Cron will have the chance to process its recurring transactions.
 	// -------------------------------
-	bool LoadMainFile();   // Called in Init. Loads latest transaction number, and any other server data members.
+	bool LoadMainFile();              // Called in Init. Loads latest transaction number, and any other server data members.
+    bool LoadServerUserAndContract(); // Called by LoadMainFile().
     // -------------------------------
-	bool SaveMainFile();   // Called in IssueNextTransactionNumber.
+	bool SaveMainFile();              // Called in IssueNextTransactionNumber.
 	bool SaveMainFileToString(OTString & strMainFile);
     // -------------------------------
 	bool ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OTClientConnection * pConnection=NULL);

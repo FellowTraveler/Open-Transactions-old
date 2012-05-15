@@ -376,7 +376,7 @@ int OTAssetContract::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	else if (!strcmp("basketInfo", xml->getNodeName())) 
 	{		
-		if (false == LoadEncodedTextField(xml, m_strBasketInfo))
+		if (false == OTContract::LoadEncodedTextField(xml, m_strBasketInfo))
 		{
 			OTLog::Error("Error in OTAssetContract::ProcessXMLNode: basketInfo field without value.\n");
 			return (-1); // error condition

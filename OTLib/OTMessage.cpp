@@ -2015,7 +2015,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
         {
             OTASCIIArmor 	ascTextExpected;
             
-            if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+            if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
             {
                 OTLog::vError("Error in OTMessage::ProcessXMLNode: "
                               "Expected %s element with text field, for %s.\n", 
@@ -2100,7 +2100,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
         {
             OTASCIIArmor 	ascTextExpected;
 		
-            if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+            if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
             {
                 OTLog::vError("Error in OTMessage::ProcessXMLNode: "
                               "Expected %s element with text field, for %s.\n", 
@@ -2181,7 +2181,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
         {
             OTASCIIArmor 	ascTextExpected;
             
-            if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+            if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
             {
                 OTLog::vError("Error in OTMessage::ProcessXMLNode: "
                               "Expected %s element with text field, for %s.\n", 
@@ -2260,7 +2260,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
         {
             OTASCIIArmor 	ascTextExpected;
             
-            if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+            if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
             {
                 OTLog::vError("Error in OTMessage::ProcessXMLNode: "
                               "Expected %s element with text field, for %s.\n", 
@@ -2343,7 +2343,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		
 		OTASCIIArmor 	ascTextExpected;
 		
-		if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+		if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 		{
 			OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 						  "Expected %s element with text field, for %s.\n", 
@@ -2386,7 +2386,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		const char *	pElementExpected	= "nymPublicKey";
 		OTASCIIArmor 	ascTextExpected;
 		
-		if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+		if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 		{
 			OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 						  "Expected %s element with text field, for %s.\n", 
@@ -2442,7 +2442,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		const char *	pElementExpected	= "nymPublicKey";
 		OTASCIIArmor 	ascTextExpected;
 		
-		if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+		if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 		{
 			OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 						  "Expected %s element with text field, for %s.\n", 
@@ -2483,7 +2483,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			const char *	pElementExpected	= "nymfile";
 			OTASCIIArmor &	ascTextExpected		= m_ascPayload;
 			
-			if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 			{
 				OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 							  "Expected %s element with text field, for %s.\n", 
@@ -2495,7 +2495,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		const char *	pElementExpected	= "inReferenceTo";
 		OTASCIIArmor &	ascTextExpected		= m_ascInReferenceTo;
 		
-		if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+		if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 		{
 			OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 						  "Expected %s element with text field, for %s.\n", 
@@ -2554,7 +2554,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		const char *	pElementExpected	= "inReferenceTo";
 		OTASCIIArmor &	ascTextExpected		= m_ascInReferenceTo;
 		
-		if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+		if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 		{
 			OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 						  "Expected %s element with text field, for %s.\n", 
@@ -2632,7 +2632,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		const char *	pElementExpected	= "messagePayload";
 		OTASCIIArmor &	ascTextExpected		= m_ascPayload;
 		
-		if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+		if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 		{
 			OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 						  "Expected %s element with text field, for %s.\n", 
@@ -2662,7 +2662,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		const char *	pElementExpected	= "messagePayload";
 		OTASCIIArmor &	ascTextExpected		= m_ascPayload;
 		
-		if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+		if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 		{
 			OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 						  "Expected %s element with text field, for %s.\n", 
@@ -2715,7 +2715,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		const char *	pElementExpected	= "messagePayload";
 		OTASCIIArmor &	ascTextExpected		= m_ascPayload;
 		
-		if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+		if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 		{
 			OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 						  "Expected %s element with text field, for %s.\n", 
@@ -2853,7 +2853,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 
 		OTASCIIArmor 	ascTextExpected;
 		
-		if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+		if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 		{
 			OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 						  "Expected %s element with text field, for %s.\n", 
@@ -2900,7 +2900,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		const char *	pElementExpected	= "assetContract";
 		OTASCIIArmor &	ascTextExpected		= m_ascPayload;
 		
-		if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+		if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 		{
 			OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 						  "Expected %s element with text field, for %s.\n", 
@@ -2945,7 +2945,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			const char *	pElementExpected	= "inReferenceTo";
 			OTASCIIArmor &	ascTextExpected		= m_ascInReferenceTo;
 			
-			if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 			{
 				OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 							  "Expected %s element with text field, for %s.\n", 
@@ -2959,7 +2959,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			const char *	pElementExpected	= "issuerAccount";
 			OTASCIIArmor &	ascTextExpected		= m_ascPayload;
 			
-			if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 			{
 				OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 							  "Expected %s element with text field, for %s.\n", 
@@ -3012,7 +3012,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		OTASCIIArmor &	ascTextExpected		= m_ascPayload;
 		
 		
-		if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+		if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 		{
 			OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 						  "Expected %s element with text field, for %s.\n", 
@@ -3055,7 +3055,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			const char *	pElementExpected	= "inReferenceTo";
 			OTASCIIArmor &	ascTextExpected		= m_ascInReferenceTo;
 			
-			if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 			{
 				OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 							  "Expected %s element with text field, for %s.\n", 
@@ -3069,7 +3069,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			const char *	pElementExpected	= "stringMap";
 			OTASCIIArmor &	ascTextExpected		= m_ascPayload;
 			
-			if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 			{
 				OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 							  "Expected %s element with text field, for %s.\n", 
@@ -3146,7 +3146,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			const char *	pElementExpected	= "inReferenceTo";
 			OTASCIIArmor &	ascTextExpected		= m_ascInReferenceTo;
 			
-			if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 			{
 				OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 							  "Expected %s element with text field, for %s.\n", 
@@ -3160,7 +3160,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			const char *	pElementExpected	= "newAccount";
 			OTASCIIArmor &	ascTextExpected		= m_ascPayload;
 			
-			if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 			{
 				OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 							  "Expected %s element with text field, for %s.\n", 
@@ -3277,7 +3277,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			const char *	pElementExpected	= "inReferenceTo";
 			OTASCIIArmor &	ascTextExpected		= m_ascInReferenceTo;
 			
-			if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 			{
 				OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 							  "Expected %s element with text field, for %s.\n", 
@@ -3291,7 +3291,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			const char *	pElementExpected	= "boxReceipt";
 			OTASCIIArmor &	ascTextExpected		= m_ascPayload;
 			
-			if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 			{
 				OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 							  "Expected %s element with text field, for %s.\n", 
@@ -3368,7 +3368,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			const char *	pElementExpected	= "inReferenceTo";
 			OTASCIIArmor &	ascTextExpected		= m_ascInReferenceTo;
 			
-			if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 			{
 				OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 							  "Expected %s element with text field, for %s.\n", 
@@ -3416,7 +3416,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			const char *	pElementExpected	= "currencyBasket";
 			OTASCIIArmor &	ascTextExpected		= m_ascPayload;
 			
-			if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 			{
 				OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 							  "Expected %s element with text field, for %s.\n", 
@@ -3467,7 +3467,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			const char *	pElementExpected	= "inReferenceTo";
 			OTASCIIArmor &	ascTextExpected		= m_ascInReferenceTo;
 			
-			if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 			{
 				OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 							  "Expected %s element with text field, for %s.\n", 
@@ -3566,7 +3566,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			const char *	pElementExpected	= "accountLedger";
 			OTASCIIArmor &	ascTextExpected		= m_ascPayload;
 			
-			if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 			{
 				OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 							  "Expected %s element with text field, for %s.\n", 
@@ -3610,7 +3610,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			const char *	pElementExpected	= "inReferenceTo";
 			OTASCIIArmor &	ascTextExpected		= m_ascInReferenceTo;
 			
-			if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 			{
 				OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 							  "Expected %s element with text field, for %s.\n", 
@@ -3623,7 +3623,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			const char *	pElementExpected	= "responseLedger";
 			OTASCIIArmor &	ascTextExpected		= m_ascPayload;
 			
-			if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 			{
 				OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 							  "Expected %s element with text field, for %s.\n", 
@@ -3720,7 +3720,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		
 		OTASCIIArmor 	ascTextExpected;
 		
-		if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+		if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 		{
 			OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 						  "Expected %s element with text field, for %s.\n", 
@@ -3772,7 +3772,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		
 		OTASCIIArmor 	ascTextExpected;
 		
-		if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+		if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 		{
 			OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 						  "Expected %s element with text field, for %s.\n", 
@@ -3843,7 +3843,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		
 		OTASCIIArmor 	ascTextExpected;
 		
-		if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+		if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 		{
 			OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 						  "Expected %s element with text field, for %s.\n", 
@@ -3912,7 +3912,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		
 		OTASCIIArmor 	ascTextExpected;
 		
-		if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+		if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 		{
 			OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 						  "Expected %s element with text field, for %s.\n", 
@@ -3983,7 +3983,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		
 		OTASCIIArmor 	ascTextExpected;
 		
-		if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+		if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 		{
 			OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 						  "Expected %s element with text field, for %s.\n", 
@@ -4054,7 +4054,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		
 		OTASCIIArmor 	ascTextExpected;
 		
-		if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+		if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 		{
 			OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 						  "Expected %s element with text field, for %s.\n", 
@@ -4099,7 +4099,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			const char *	pElementExpected = "parameter";
 			OTASCIIArmor	ascTextExpected;
 			
-			if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 			{
 				OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 							  "Expected %s element with text field, for %s.\n", 
@@ -4140,7 +4140,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		
 		OTASCIIArmor 	ascTextExpected;
 		
-		if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+		if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 		{
 			OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 						  "Expected %s element with text field, for %s.\n", 
@@ -4180,7 +4180,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			const char *	pElementExpected	= "processLedger";
 			OTASCIIArmor &	ascTextExpected		= m_ascPayload;
 			
-			if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 			{
 				OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 							  "Expected %s element with text field, for %s.\n", 
@@ -4215,7 +4215,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			const char *	pElementExpected	= "processLedger";
 			OTASCIIArmor &	ascTextExpected		= m_ascPayload;
 			
-			if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 			{
 				OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 							  "Expected %s element with text field, for %s.\n", 
@@ -4259,7 +4259,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			const char *	pElementExpected	= "inReferenceTo";
 			OTASCIIArmor &	ascTextExpected		= m_ascInReferenceTo;
 			
-			if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 			{
 				OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 							  "Expected %s element with text field, for %s.\n", 
@@ -4272,7 +4272,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			const char *	pElementExpected	= "responseLedger";
 			OTASCIIArmor &	ascTextExpected		= m_ascPayload;
 			
-			if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 			{
 				OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 							  "Expected %s element with text field, for %s.\n", 
@@ -4329,7 +4329,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			const char *	pElementExpected	= "inReferenceTo";
 			OTASCIIArmor &	ascTextExpected		= m_ascInReferenceTo;
 			
-			if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 			{
 				OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 							  "Expected %s element with text field, for %s.\n", 
@@ -4342,7 +4342,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			const char *	pElementExpected	= "responseLedger";
 			OTASCIIArmor &	ascTextExpected		= m_ascPayload;
 			
-			if (false == LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
+			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
 			{
 				OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 							  "Expected %s element with text field, for %s.\n", 

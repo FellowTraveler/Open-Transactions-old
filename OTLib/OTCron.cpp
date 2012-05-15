@@ -535,7 +535,7 @@ int OTCron::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 	{		
 		OTString strData;
 		
-		if (!LoadEncodedTextField(xml, strData) || !strData.Exists())
+		if (!OTContract::LoadEncodedTextField(xml, strData) || !strData.Exists())
 		{
 			OTLog::Error("Error in OTCron::ProcessXMLNode: cronItem field without value.\n");
 			return (-1); // error condition

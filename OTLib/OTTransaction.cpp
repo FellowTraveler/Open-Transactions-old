@@ -4658,7 +4658,7 @@ int OTTransaction::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 	}
 	else if (!strcmp("cancelRequest", xml->getNodeName())) 
 	{		
-		if (false == LoadEncodedTextField(xml, m_ascCancellationRequest))
+		if (false == OTContract::LoadEncodedTextField(xml, m_ascCancellationRequest))
 		{
 			OTLog::Error("Error in OTTransaction::ProcessXMLNode: cancelRequest field without value.\n");
 			return (-1); // error condition
@@ -4668,7 +4668,7 @@ int OTTransaction::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 	}
 	else if (!strcmp("inReferenceTo", xml->getNodeName())) 
 	{		
-		if (false == LoadEncodedTextField(xml, m_ascInReferenceTo))
+		if (false == OTContract::LoadEncodedTextField(xml, m_ascInReferenceTo))
 		{
 			OTLog::Error("Error in OTTransaction::ProcessXMLNode: inReferenceTo field without value.\n");
 			return (-1); // error condition
@@ -4680,7 +4680,7 @@ int OTTransaction::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 	{		
 		OTString strData;
 
-		if (!LoadEncodedTextField(xml, strData) || !strData.Exists())
+		if (!OTContract::LoadEncodedTextField(xml, strData) || !strData.Exists())
 		{
 			OTLog::Error("Error in OTTransaction::ProcessXMLNode: transaction item field without value.\n");
 			return (-1); // error condition

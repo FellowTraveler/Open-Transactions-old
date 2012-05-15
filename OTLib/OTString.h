@@ -402,9 +402,9 @@ protected:
    char * m_strBuffer;
 };
 
-bool operator >(const OTString& s1, const OTString& s2);
-bool operator <(const OTString& s1, const OTString& s2);
-bool operator >=(const OTString &s1, const OTString& s2);
-bool operator <=(const OTString &s1, const OTString& s2);
+//bool operator >(const OTString& s1, const OTString& s2);
+//bool operator <(const OTString& s1, const OTString& s2);
+//bool operator >=(const OTString &s1, const OTString& s2);
+//bool operator <=(const OTString &s1, const OTString& s2);
 
 #endif    // __STRING_H__

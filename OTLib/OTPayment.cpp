@@ -1257,7 +1257,7 @@ int OTPayment::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 	{
         OTString strContents;
 		
-		if (!LoadEncodedTextField(xml, strContents) || 
+		if (!OTContract::LoadEncodedTextField(xml, strContents) || 
             !strContents.Exists() ||
             !SetPayment(strContents))
 		{

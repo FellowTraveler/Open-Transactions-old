@@ -136,6 +136,7 @@ class OTPseudonym;
 class OTString;
 class OTASCIIArmor;
 class OTAsymmetricKey;
+class OTSymmetricKey;
 class OTPassword;
 
 // ------------------------------------------------------------------------
@@ -183,6 +184,88 @@ class OTPassword;
 // This class stores the iteration count, the salt, and the encrypted key.
 // These are all generated or set when you call GenerateKey.
 
+
+// ----------------------------
+
+// TinyThread++
+//
+#include "tinythread.h"
+//#include "fast_mutex.h" // Not using this currently.
+
+//using namespace tthread; // in the C++ file
+
+// ----------------------------
+
+// This class handles the functionality of caching the master key for X seconds
+// as an OTPassword, and then deleting it. It also caches the encrypted version
+// in an OTSymmetricKey, which can be unlocked to an OTPassword again for X more
+// seconds (by entering the passphrase...)
+
+
+#define OT_MASTER_KEY_TIMEOUT  300
+
+
+class OTSymmetricKey;
+class OTMasterKey;
+
+
+class OTMasterKey
+{
+private:
+    tthread::thread * m_pThread;         // The thread used for destroying the password after the timeout period.
+    int               m_nTimeoutSeconds; // The master password will be stored internally for X seconds, and then destroyed.
+    OTPassword     *  m_pMasterPassword; // Created when password is passed in; destroyed by Timer after X seconds.
+    
+    
+    OTSymmetricKey *  m_pSymmetricKey;   // Serialized by OTWallet or OTServer.
+
+    tthread::mutex    m_Mutex;           // Mutex used for serializing access to this instance.
+    
+    OTMasterKey(int nTimeoutSeconds=OT_MASTER_KEY_TIMEOUT);
+
+    bool              m_bPaused;        // If you want to force the old system, PAUSE the master key (REMEMBER to Unpause when done!)
+public:
+    static OTMasterKey * It();
+        
+    ~OTMasterKey();
+
+    // --------------------------------
+    bool IsGenerated();
+    // --------------------------------
+
+    bool Pause();
+    bool Unpause();
+    bool isPaused();
+    
+    // --------------------------------
+    bool SerializeTo   (OTASCIIArmor & ascOutput);
+    bool SerializeFrom (const OTASCIIArmor & ascInput);
+    // --------------------------------
+
+    // These two functions are used by the OTServer or OTWallet that actually keeps
+    // the master key. The owner sets the master key pointer on initialization, and then
+    // later when the password callback code in OTAsymmetricKey needs to access the master
+    // key, it can use OTSymmetricKey::GetMasterKey to access it.
+    //
+    void SetMasterKey(const OTASCIIArmor & ascMasterKey); // OTServer/OTWallet calls this, I instantiate.
+    
+    int  GetTimeoutSeconds(); 
+    void SetTimeoutSeconds(int nTimeoutSeconds); // So we can load from the config file.
+    
+    bool GetMasterPassword(OTPassword & theOutput, const char * szDisplay=NULL, bool bVerifyTwice=false);  // The password callback uses this to get the password for any individual Nym.
+    void DestroyMasterPassword(); // The thread, when the time comes, calls this method using the instance pointer that was passed into the thread originally. 
+
+    void LowLevelReleaseThread();
+
+    // The cleartext version (m_pMasterPassword) is deleted and set NULL after a Timer of X seconds. (Timer thread calls this.)
+    // The INSTANCE that owns the thread also passes a pointer to ITSELF.
+    // (So we can access password, mutex, timeout value, etc.) This function calls DestroyMasterPassword.
+    //    
+    static void ThreadTimeout(void * pArg); 
+};
+
+// -----------------------------------
+
 class OTSymmetricKey
 {
 private:
@@ -194,7 +277,8 @@ private:
     // ---------------------------------------------
 	OTPayload       m_dataSalt;         // Stores the SALT (which is used with the password for generating / retrieving the key from m_dataEncryptedKey)
 	OTPayload       m_dataIV;           // Stores the IV used internally for encrypting / decrypting the actual key (using the derived key) from m_dataEncryptedKey.
-	OTPayload       m_dataEncryptedKey; // Stores only encrypted version of symmetric key.    
+	OTPayload       m_dataEncryptedKey; // Stores only encrypted version of symmetric key.
+    // ---------------------------------------------
 public:
     // ------------------------------------------------------------------------
     bool SerializeTo   (OTPayload & theOutput) const;
@@ -210,6 +294,7 @@ public:
     // ------------------------------------------------------------------------    
     bool GetRawKey  (const OTPassword & thePassword, OTPassword & theRawKeyOutput) const; // Assumes key is already generated. Tries to get the raw clear key from its encrypted form, via its password.
     bool GenerateKey(const OTPassword & thePassword);  // Generates this OTSymmetricKey based on an OTPassword. The generated key is stored in encrypted form, based on a derived key from that password.
+    
     // ------------------------------------------------------------------------
 	OTSymmetricKey();
 	OTSymmetricKey(const OTPassword & thePassword);

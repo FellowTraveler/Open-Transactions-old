@@ -149,6 +149,18 @@ extern "C"
 #endif
 }
 
+// ----------------------------
+
+// TinyThread++
+//
+#include "tinythread.h"   // these are in the header.
+//#include "fast_mutex.h"
+
+using namespace tthread;
+
+// ----------------------------
+
+
 #include "OTStorage.h"
 
 #include "OTAsymmetricKey.h"
@@ -273,10 +285,441 @@ int PKCS5_PBKDF2_HMAC_SHA1	(
  */
 
 
+bool OTMasterKey::IsGenerated()
+{
+    lock_guard<mutex> lock(m_Mutex);
+    // ----------------------------
+    
+    bool bReturnVal = false;
+
+    if (NULL != m_pSymmetricKey)
+    {
+        bReturnVal = m_pSymmetricKey->IsGenerated();
+    }
+    
+    return bReturnVal;
+}
+
+
+//static
+OTMasterKey * OTMasterKey::It()
+{
+    static OTMasterKey s_theSingleton;    // For now we're only allowing a single instance.
+
+    return &s_theSingleton;
+}
+
+
+OTMasterKey::OTMasterKey(int nTimeoutSeconds/*=OT_MASTER_KEY_TIMEOUT*/) :
+    m_pThread(NULL),
+    m_nTimeoutSeconds(nTimeoutSeconds), 
+    m_pMasterPassword(NULL), // This is created in GetMasterPassword, and destroyed by a timer thread sometime soon after.   
+    m_pSymmetricKey(NULL),       // OTServer OR OTWallet owns this key, and sets this pointer. It's the encrypted form of s_pMasterPassword.
+    m_bPaused(false)
+{
+
+}
+
+// We don't lock the mutex here because otherwise we'll freeze ourselves.
+//
+bool OTMasterKey::isPaused()
+{
+    return m_bPaused;
+}
+
+
+// When the master key is on pause, it won't work (Nyms will just use their
+// own passwords instead of the master password.) This is important, for example,
+// if you are loading up a bunch of Old Nyms. You pause before and after each one,
+// and THEN convert them to the master key.
+//
+bool OTMasterKey::Pause()
+{
+    lock_guard<mutex> lock(m_Mutex);
+    // ----------------------------
+
+    if (!m_bPaused)
+    {
+        m_bPaused = true;
+        return true;
+    }
+    return false;
+}
+
+bool OTMasterKey::Unpause()
+{
+    lock_guard<mutex> lock(m_Mutex);
+    // ----------------------------
+
+    if (m_bPaused)
+    {
+        m_bPaused = false;
+        return true;
+    }
+    return false;
+}
+
+
+// This should ONLY be called from a function that locks the Mutex first!
+//
+void OTMasterKey::LowLevelReleaseThread()
+{ 
+    // NO NEED TO LOCK THIS ONE -- BUT ONLY CALL IT FROM A LOCKED FUNCTION.
+    if (NULL != m_pThread)
+    {
+        if (m_pThread->joinable())
+        {
+            m_pThread->detach();
+        }
+        delete m_pThread;
+        m_pThread = NULL;
+    }
+}
+
+
+OTMasterKey::~OTMasterKey()
+{
+    lock_guard<mutex> lock(m_Mutex);  // I figured this would cause some kind of problem but how else can I mess with the members unless I lock this?
+    // --------------------
+    if (NULL != m_pMasterPassword)  // Only stored temporarily, the purpose of this class is to destoy it after a timer.
+    {
+        delete m_pMasterPassword;
+        m_pMasterPassword = NULL;
+    }
+    // -----
+    LowLevelReleaseThread();
+    // -----
+    if (NULL != m_pSymmetricKey)       // Owned / based on a string passed in. Stored somewhere else (OTServer, OTWallet...)
+        delete m_pSymmetricKey;
+    m_pSymmetricKey = NULL;
+    // -----
+}
+
+
+int OTMasterKey::GetTimeoutSeconds()
+{
+    int nTimeout = 0;
+    
+    {
+        lock_guard<mutex> lock(m_Mutex); // Multiple threads can't get inside here at the same time.
+
+        nTimeout = m_nTimeoutSeconds;
+    }
+    
+    return nTimeout;
+}
+
+void OTMasterKey::SetTimeoutSeconds(int nTimeoutSeconds) // So we can load from the config file.
+{
+    OT_ASSERT_MSG(nTimeoutSeconds > 0, "OTMasterKey::SetTimeoutSeconds: ASSERT: nTimeoutSeconds must be >0.\n");
+    
+    lock_guard<mutex> lock(m_Mutex); // Multiple threads can't get inside here at the same time.
+
+    m_nTimeoutSeconds = nTimeoutSeconds;
+}
+
+
 
 // ------------------------------------------------------------------------
 
 
+bool OTMasterKey::SerializeTo(OTASCIIArmor & ascOutput)
+{
+    lock_guard<mutex> lock(m_Mutex);
+    
+    if (NULL == m_pSymmetricKey)
+        return false;
+    
+    return m_pSymmetricKey->SerializeTo(ascOutput);
+}
+
+bool OTMasterKey::SerializeFrom(const OTASCIIArmor & ascInput)
+{
+    lock_guard<mutex> lock(m_Mutex);
+    
+    if (NULL == m_pSymmetricKey)
+        return false;
+
+    return m_pSymmetricKey->SerializeFrom(ascInput);
+}
+
+
+// ------------------------------------------------------------------------
+
+
+/*
+class OTMasterKey
+{
+private:
+    tthread::thread * m_pThread;         // The thread used for destroying the password after the timeout period.
+    int               m_nTimeoutSeconds; // The master password will be stored internally for X seconds, and then destroyed.
+    OTPassword     *  m_pMasterPassword; // Created when password is passed in; destroyed by Timer after X seconds.
+    OTSymmetricKey *  m_pSymmetricKey;      // Serialized by OTWallet or OTServer. Here for reference only.
+
+public:
+    tthread::mutex    m_Mutex;           // Mutex used for serializing access to this instance.
+
+    OTMasterKey(int nTimeoutSeconds=OT_MASTER_KEY_TIMEOUT);
+    ~OTMasterKey();
+
+    // These two functions are used by the OTServer or OTWallet that actually keeps
+    // the master key. The owner sets the master key pointer on initialization, and then
+    // later when the password callback code in OTAsymmetricKey needs to access the master
+    // key, it can use OTSymmetricKey::GetMasterKey to access it.
+    //
+    void SetMasterKey(const OTString & strMasterKey); // OTServer/OTWallet calls this, I instantiate.
+    
+    int  GetTimeoutSeconds(); 
+    void SetTimeoutSeconds(int nTimeoutSeconds); // So we can load from the config file.
+    
+    bool GetMasterPassword(OTPassword & theOutput);  // The password callback uses this to get the password for any individual Nym.
+    void DestroyMasterPassword(); // The thread, when the time comes, calls this method using the instance pointer that was passed into the thread originally. 
+
+    // The cleartext version (m_pMasterPassword) is deleted and set NULL after a Timer of X seconds. (Timer thread calls this.)
+    // The INSTANCE that owns the thread also passes a pointer to ITSELF.
+    // (So we can access password, mutex, timeout value, etc.) This function calls DestroyMasterPassword.
+    //
+    static void ThreadTimeout(void * pArg); 
+};
+*/
+
+
+// Called by OTServer or OTWallet, or whatever instantiates those.
+//
+void OTMasterKey::SetMasterKey(const OTASCIIArmor & ascMasterKey)
+{
+    OT_ASSERT(ascMasterKey.Exists());
+    
+    lock_guard<mutex> lock(m_Mutex); // Multiple threads can't get inside here at the same time.    
+    // ----------------------------------------
+    
+    if (NULL != m_pSymmetricKey)
+    {
+        OTLog::Error("OTMasterKey::SetMasterKey: Warning: This was already set. (Re-setting.)\n");
+        delete m_pSymmetricKey;
+        m_pSymmetricKey = NULL;
+    }
+    // -----------------------------------------
+    m_pSymmetricKey = new OTSymmetricKey;
+    OT_ASSERT(NULL != m_pSymmetricKey);
+    // ----------------------------------
+    
+    //const bool bSerialized = 
+        m_pSymmetricKey->SerializeFrom(ascMasterKey);
+}
+
+
+// Called by the password callback function.
+// The password callback uses this to get the password for any individual Nym.
+// This will also generate the master password, if one does not already exist.
+//
+bool OTMasterKey::GetMasterPassword(OTPassword & theOutput, const char * szDisplay, bool bVerifyTwice/*=false*/)
+{
+    lock_guard<mutex> lock(m_Mutex); // Multiple threads can't get inside here at the same time.
+    
+    const char * szFunc = "OTMasterKey::GetMasterPassword";
+    
+//  OT_ASSERT(NULL != m_pSymmetricKey); // (This had better be set already.) // Took this out because calling Generate inside here now.
+    // ----------------------------------------
+    //
+    if (NULL != m_pMasterPassword)
+    {
+        OTLog::vOutput(2, "%s: Master password was available. (Returning it now.)\n", szFunc);
+        
+        theOutput = *m_pMasterPassword;
+        return true;
+    }
+    // --------------------------------------------
+
+    OTLog::vOutput(2, "%s: Master password wasn't loaded. Instantiating...\n", szFunc);
+
+    // If m_pMasterPassword is NULL, (which below this point it is) then...
+    //
+    // Either it hasn't been created yet, in which case we need to instantiate it,
+    // OR it expired, in which case m_pMasterPassword is NULL,
+    // but m_pThread isn't, and still needs cleaning up before we instantiate another one!
+    //
+    LowLevelReleaseThread();
+    
+    unsigned char temp_memory[OT_DEFAULT_SYMMETRIC_KEY_SIZE]; // (This insures we create it in binary/memory mode instead of text mode.)
+    m_pMasterPassword = new OTPassword(static_cast<void *>(&temp_memory[0]), OT_DEFAULT_SYMMETRIC_KEY_SIZE);
+    OT_ASSERT(NULL != m_pMasterPassword);    
+    
+    /*
+     How does this work?
+     
+     When trying to open a normal nym, the password callback realizes we are calling it 
+     in "NOT master mode", so instead of just collecting the passphrase and giving it
+     back to OpenSSL, it calls this function first, which returns the master password
+     (so that IT can be given to OpenSSL instead.)
+     
+     If the master wasn't already loaded (common) then we call the callback here. Notice
+     it's recursive! This time, the callback sees we ARE in master mode, so it doesn't
+     call this function (which would be an infinite loop.) Instead, it collects the password
+     as normal, only instead of passing it back to the caller via the buffer, it uses the
+     passUserInput by attaching it to thePWData before the call. That way the callback function
+     can set passUserInput with whatever it retrieved from the user, and then back in this function
+     we can get the passUserInput and use it to unlock the MASTER passphrase, which we set
+     onto theOutput.
+     
+     When this function returns true, the callback (0th level of recursion) uses theOutput
+     as the "passphrase" for all Nyms, passing it to OpenSSL.
+     
+     This way, OpenSSL gets a random key instead of a passphrase, and the passphrase is just used
+     for encrypting that random key whenever its timer has run out.
+     
+     */
+    
+    bool bReturnVal = false;
+    
+    // CALL the callback directly. (To retrieve a passphrase so I can use it in GenerateKey
+    // and GetRawKey.
+    //
+    //int OT_OPENSSL_CALLBACK (char *buf, int size, int rwflag, void *userdata);
+    //
+    // For us, it will set passUserInput to the password from the user, and return
+    // a simple 1 or 0 (instead of the length.) buf and size can be NULL / 0, and
+    // rwflag should be passed in from somewhere.
+    //
+    
+    if (NULL == m_pSymmetricKey)
+    {
+        m_pSymmetricKey = new OTSymmetricKey;
+        OT_ASSERT(NULL != m_pSymmetricKey);        
+    }
+    
+    if (false == m_pSymmetricKey->IsGenerated())
+    {
+        OTLog::vOutput(2, "%s: Master key didn't exist. Need to collect a password from the user, "
+                       "so we can generate a master key...\n ", szFunc);
+
+        bVerifyTwice = true; // we force it, in this case.
+    }
+    
+//  OTLog::vOutput(2, "*********Begin OTMasterKey::GetMasterPassword: Calling souped-up password cb...\n * *  * *  * *  * *  * ");
+    
+    OTPassword      passUserInput; // text mode.
+    OTPasswordData  thePWData(szDisplay, &passUserInput); // this pointer is only passed in the case where it's for the master key.
+    
+    const int nCallback = souped_up_pass_cb(NULL,  //passUserInput.getPasswordWritable(),
+                                            0,     //passUserInput.getBlockSize(),
+                                            bVerifyTwice ? 1 : 0, static_cast<void *>(&thePWData));
+
+//  OTLog::vOutput(2, "*********End OTMasterKey::GetMasterPassword: FINISHED CALLING souped-up password cb. Result: %s ------\n",
+//                 (nCallback > 0) ? "success" : "failure");
+
+    if (nCallback > 0) // Success retrieving the passphrase from the user. (Now let's see if the key is good, or generate it...)
+    {
+        // It's possible this is the first time this is happening, and the master key 
+        // hasn't evem been generated yet. In which case, we generate it here...
+        //
+        bool bGenerated = m_pSymmetricKey->IsGenerated();
+        
+        if (false == bGenerated)
+        {
+            OTLog::vOutput(3, "%s: Calling m_pSymmetricKey->GenerateKey()...\n", szFunc);
+            bGenerated = m_pSymmetricKey->GenerateKey(passUserInput);
+//          OTLog::vOutput(0, "%s: Finished calling m_pSymmetricKey->GenerateKey()...\n", szFunc);
+        }
+        
+        if (bGenerated)
+        {
+            OTLog::vOutput(3, "%s: Calling m_pSymmetricKey->GetRawKey()...\n", szFunc);
+
+            // Once we have the user's password, then we use it to GetKey from the OTSymmetricKey (which
+            // is encrypted) and that retrieves the cleartext master password which we set here and also
+            // return a copy of.
+            //
+            const bool bMasterKey = m_pSymmetricKey->GetRawKey(passUserInput, *m_pMasterPassword);
+            
+            if (bMasterKey)
+            {
+//              OTLog::vOutput(0, "%s: Finished calling m_pSymmetricKey->GetRawKey (Success.)\n", szFunc);
+                theOutput  = *m_pMasterPassword;
+                bReturnVal = true;
+            }
+            else
+                OTLog::vOutput(0, "%s: m_pSymmetricKey->GetRawKey() failed.\n", szFunc);
+        }
+    }
+    // -------------------------------------------
+    
+    if (bReturnVal) // Start the thread!
+    {
+//      OTLog::vOutput(4, "%s: starting up new thread, so we can expire the master key from RAM.\n", szFunc);
+
+        m_pThread = new thread(OTMasterKey::ThreadTimeout, static_cast<void *>(this));
+    }
+    else
+    {
+        delete m_pMasterPassword;
+        m_pMasterPassword = NULL;
+    }
+    // Since we have set the cleartext master password, We also have to fire up the thread
+    // so it can timeout and be destroyed. In the meantime, it'll be stored in an OTPassword
+    // which has these security precautions:
+    /*
+       1. Zeros memory in a secure and cross-platform way, in its destructor.
+       2. OT_Init() uses setrlimit to prevent core dumps.
+       3. Uses VirtualLock and mlock to reduce/prevent swapping RAM to hard drive.
+       4. (SOON) will use VirtualProtect on Windows (standard API for protected memory)
+       5. (SOON) and similarly have option in config file for ssh-agent, gpg-agent, etc.
+       6. Even without those things,the master password is stored in an encrypted form after it times out.
+       7. While decrypted (while timer is going) it's still got the above security mechanisms,
+          plus options for standard protected-memory APIs are made available wherever possible.
+       8. The actual passphrase the user types is not stored in memory, except just long enough to 
+          use it to derive another key, used to unlock the actual key (for a temporary period of time.)
+       9. Meanwhile the actual key is stored in encrypted form on disk, and the derived key isn't stored anywhere.
+      10. Ultimately external hardware, and smart cards, are the way to go. But OT should still do the best possible.
+    */
+    
+    return bReturnVal;
+}
+
+
+//static 
+// This is the thread itself.
+// This function never locks the Mutex because it never needs to.
+// Instead, it just calls functions that lock the mutex.
+//
+void OTMasterKey::ThreadTimeout(void * pArg)
+{
+    OTMasterKey * pMyself = static_cast<OTMasterKey *>(pArg);
+    OT_ASSERT_MSG(NULL != pMyself, "OTMasterKey::ThreadTimeout: Need ptr to master key here, that activated this thread.\n");
+    // --------------------------------------
+    int nTimeoutSeconds = pMyself->GetTimeoutSeconds(); // locks mutex internally.
+    
+    this_thread::sleep_for(chrono::seconds( nTimeoutSeconds )); // <===== ASLEEP!
+    // --------------------------------------
+
+    pMyself->DestroyMasterPassword(); // locks mutex internally.
+}
+
+
+// Called by the thread.
+// The cleartext version (m_pMasterPassword) is deleted and set NULL after a Timer of X seconds. 
+// (Timer thread calls this.) The instance that owns each thread will pass its instance pointer
+// as pArg so we can access the timeout seconds and the mutex, and the password we're destroying.
+//
+void OTMasterKey::DestroyMasterPassword()
+{
+    lock_guard<mutex> lock(m_Mutex); // Multiple threads can't get inside here at the same time.
+    //
+    // (m_pSymmetricKey stays. 
+    //  m_pMasterPassword only is destroyed.)
+    //
+    if (NULL != m_pMasterPassword)
+        delete m_pMasterPassword;
+    m_pMasterPassword = NULL;
+    
+    // (We do NOT call LowLevelReleaseThread(); here, since the thread is
+    // what CALLED this function. Instead, we destroy / NULL the master password,
+    // so that next time around we will see it is NULL and THEN we will know to 
+    // call LowLevelReleaseThread(); before instantiating a new one.)
+}
+
+
+// ------------------------------------------------------------------------
 
 /*
  // TOdo: make this so you can pass in a password, or you can pass NULL
@@ -297,6 +740,8 @@ bool OTSymmetricKey::GenerateKey(const OTPassword & thePassword)
     OT_ASSERT(!m_bIsGenerated);
     OT_ASSERT(thePassword.isPassword());
 
+    OTLog::vOutput(2, "  Begin: %s: GENERATING keys and passwords...\n", szFunc);
+    
     // This derived_key memory is unused, except to help us allocate a 16-byte derived key OTPassword
     // object. (OTPassword stores its own memory internally, and merely copies the derived key, which
     // we then overwrite in the call to PKCS5_PBKDF2_HMAC_SHA1.)
@@ -361,6 +806,9 @@ bool OTSymmetricKey::GenerateKey(const OTPassword & thePassword)
                                                    // -------------------------------
                                                    m_dataEncryptedKey); // OUTPUT. (Ciphertext.)    
     m_bIsGenerated = bEncryptedKey;
+    
+    OTLog::vOutput(2, "  End: %s: (GENERATING keys and passwords...)\n", szFunc);
+
     return m_bIsGenerated;
 }
 
@@ -394,11 +842,13 @@ bool OTSymmetricKey::GenerateKey(const OTPassword & thePassword)
 //
 bool OTSymmetricKey::GetRawKey(const OTPassword & thePassword, OTPassword & theRawKeyOutput) const
 {
-//    const char * szFunc = "OTSymmetricKey::GetKey";
+    const char * szFunc = "OTSymmetricKey::GetRawKey";    
     
     OT_ASSERT(m_bIsGenerated);
     OT_ASSERT(thePassword.isPassword());
     
+    OTLog::vOutput(2, "%s: Attempting to recover actual key using derived key...\n", szFunc);
+
     // ------------------------------------
     // This derived_key memory is unused, except to help us allocate a 16-byte derived key OTPassword
     // object. (OTPassword stores its own memory internally, and merely copies derived_key, which
@@ -445,6 +895,7 @@ bool OTSymmetricKey::GetRawKey(const OTPassword & thePassword, OTPassword & theR
                                                    m_dataIV,
                                                    // -------------------------------
                                                    theRawKeyOutput); // OUTPUT. (Recovered plaintext of symmetric key.) You can pass OTPassword& OR OTPayload& here (either will work.)
+    OTLog::vOutput(2, "%s: (End) attempt to recover actual key using derived key...\n", szFunc);
     return bDecryptedKey;
 }
 

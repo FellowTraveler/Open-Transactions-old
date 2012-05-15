@@ -178,6 +178,11 @@ public:
 	bool operator==(const OTIdentifier &s2) const;
 	bool operator!=(const OTIdentifier &s2) const;
 	
+    bool operator >(const OTIdentifier &s2) const;
+    bool operator <(const OTIdentifier &s2) const;
+    bool operator <=(const OTIdentifier &s2) const;
+    bool operator >=(const OTIdentifier &s2) const;
+
 	bool CalculateDigest(const OTData & dataInput);
 	bool CalculateDigest(const OTString & strInput);
 	
@@ -200,6 +205,12 @@ public:
 	// theStr will contain pretty hex string after call.
 	void GetString(OTString & theStr) const;
 };
+
+
+//bool operator > (const OTIdentifier &s1, const OTIdentifier& s2);
+//bool operator < (const OTIdentifier &s1, const OTIdentifier& s2);
+//bool operator >=(const OTIdentifier &s1, const OTIdentifier& s2);
+//bool operator <=(const OTIdentifier &s1, const OTIdentifier& s2);
 
 
 #endif // __OTIDENTIFIER_H__

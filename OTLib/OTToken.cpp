@@ -604,7 +604,7 @@ int OTToken::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	else if (!strcmp("tokenID", xml->getNodeName())) 
 	{		
-		if (false == LoadEncodedTextField(xml, m_ascSpendable))
+		if (false == OTContract::LoadEncodedTextField(xml, m_ascSpendable))
 		{
 			OTLog::Error("Error in OTToken::ProcessXMLNode: token ID without value.\n");
 			return (-1); // error condition
@@ -615,7 +615,7 @@ int OTToken::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	else if (!strcmp("tokenSignature", xml->getNodeName())) 
 	{		
-		if (false == LoadEncodedTextField(xml, m_Signature))
+		if (false == OTContract::LoadEncodedTextField(xml, m_Signature))
 		{
 			OTLog::Error("Error in OTToken::ProcessXMLNode: token Signature without value.\n");
 			return (-1); // error condition
@@ -641,7 +641,7 @@ int OTToken::ProcessXMLNode(IrrXMLReader*& xml)
 		
 		OT_ASSERT(NULL != pArmoredPrototoken);
 		
-		if (!LoadEncodedTextField(xml, *pArmoredPrototoken) || !pArmoredPrototoken->Exists())
+		if (!OTContract::LoadEncodedTextField(xml, *pArmoredPrototoken) || !pArmoredPrototoken->Exists())
 		{
 			OTLog::Error("Error in OTToken::ProcessXMLNode: prototoken field without value.\n");
 			
@@ -672,7 +672,7 @@ int OTToken::ProcessXMLNode(IrrXMLReader*& xml)
 		
 		OT_ASSERT(NULL != pArmoredPrototoken);
 		
-		if (!LoadEncodedTextField(xml, *pArmoredPrototoken) || !pArmoredPrototoken->Exists())
+		if (!OTContract::LoadEncodedTextField(xml, *pArmoredPrototoken) || !pArmoredPrototoken->Exists())
 		{
 			OTLog::Error("Error in OTToken::ProcessXMLNode: privatePrototoken field without value.\n");
 			

@@ -122,9 +122,13 @@ int mkcert(X509 **x509p, EVP_PKEY **pkeyp, int bits, int serial, int days)
          * Normally we'd check the return value for errors...
          */
         X509_NAME_add_entry_by_txt(name,"C",
-                                MBSTRING_ASC, "UK", -1, -1, 0);
+                                MBSTRING_ASC, 
+                                   (const unsigned char *)"UK", 
+                                   -1, -1, 0);
         X509_NAME_add_entry_by_txt(name,"CN",
-                                MBSTRING_ASC, "OpenSSL Group", -1, -1, 0);
+                                MBSTRING_ASC,
+                                   (const unsigned char *)"OpenSSL Group",
+                                   -1, -1, 0);
 
         /* Its self signed so set the issuer name to be the same as the
          * subject.

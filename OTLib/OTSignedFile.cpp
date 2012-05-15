@@ -199,7 +199,7 @@ int OTSignedFile::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 	
 	else if (!strcmp("filePayload", xml->getNodeName())) 
 	{		
-		if (false == LoadEncodedTextField(xml, m_strSignedFilePayload))
+		if (false == OTContract::LoadEncodedTextField(xml, m_strSignedFilePayload))
 		{
 			OTLog::Error("Error in OTSignedFile::ProcessXMLNode: filePayload field without value.\n");
 			return (-1); // error condition

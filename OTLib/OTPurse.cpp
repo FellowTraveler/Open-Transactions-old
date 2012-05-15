@@ -836,7 +836,7 @@ int OTPurse::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
         const char	*	pElementExpected1	= "nymfile";
         OTString		strNymfile; // The actual Nymfile is here.
         
-        if (false == LoadEncodedTextFieldByName(xml, strNymfile, pElementExpected1))
+        if (false == OTContract::LoadEncodedTextFieldByName(xml, strNymfile, pElementExpected1))
         {
             OTLog::vError("OTPurse::ProcessXMLNode: Error: Expected %s element with text field.\n", 
                           pElementExpected1);
@@ -846,7 +846,7 @@ int OTPurse::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
         const char	*	pElementExpected2	= "publicKey";
         OTString		strPublicKey; // The public key is here.
         
-        if (false == LoadEncodedTextFieldByName(xml, strPublicKey, pElementExpected2))
+        if (false == OTContract::LoadEncodedTextFieldByName(xml, strPublicKey, pElementExpected2))
         {
             OTLog::vError("OTPurse::ProcessXMLNode: Error: Expected %s element with text field.\n", 
                           pElementExpected2);
@@ -856,7 +856,7 @@ int OTPurse::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
         const char	*	pElementExpected3	= "privateKey";
         OTString		strPrivateKey; // The private key is here.
         
-        if (false == LoadEncodedTextFieldByName(xml, strPrivateKey, pElementExpected3))
+        if (false == OTContract::LoadEncodedTextFieldByName(xml, strPrivateKey, pElementExpected3))
         {
             OTLog::vError("OTPurse::ProcessXMLNode: Error: Expected %s element with text field.\n", 
                           pElementExpected3);
@@ -963,7 +963,7 @@ int OTPurse::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		OTASCIIArmor * pArmor = new OTASCIIArmor;
 		OT_ASSERT(NULL != pArmor);
 		
-		if (!LoadEncodedTextField(xml, *pArmor) || !pArmor->Exists())
+		if (!OTContract::LoadEncodedTextField(xml, *pArmor) || !pArmor->Exists())
 		{
 			OTLog::Error("Error in OTPurse::ProcessXMLNode: token field without value.\n");
 			

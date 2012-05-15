@@ -1007,6 +1007,20 @@ bool OTWallet::RemoveNym(const OTIdentifier & theTargetID)
 
 		if (pNym->CompareID(theTargetID))
 		{
+            // ------------------
+            // We have a set of NymIDs for Nyms in the wallet who are using the Master key.
+            // So if we're removing the Nym from the wallet, we also remove its ID from that set.
+            //
+            FOR_EACH_IT_CONST(setOfIdentifiers, m_setNymsOnMasterKey, it_master)
+            {
+                const OTIdentifier & theNymID = *it_master;
+                if (theTargetID == theNymID)
+                {
+                    m_setNymsOnMasterKey.erase(it_master);
+                    break;
+                }
+            }            
+            // ------------------
 			m_mapNyms.erase(it);
 			delete pNym;
 			return true;
@@ -1142,15 +1156,40 @@ bool OTWallet::SaveContract(OTString & strContract)
 		ascName.SetString(m_strName, false); // linebreaks == false
 	}
 	
-	
 	strContract.Concatenate("<?xml version=\"1.0\"?>\n<wallet name=\"%s\" version=\"%s\">\n\n", 
-							ascName.Get(), m_strVersion.Get());
+							ascName.Get(), OTMasterKey::It()->IsGenerated() ? "2.0" : m_strVersion.Get());
 	
 	//mapOfNyms			m_mapNyms;		// So far no file writing for these (and none needed...)
 	//mapOfContracts	m_mapContracts; // This is what I'm testing now, which includes the other 3.
 	//mapOfServers		m_mapServers;
 	//mapOfAccounts		m_mapAccounts; 
 	
+    if (OTMasterKey::It()->IsGenerated()) // If it exists, then serialize it.
+    {
+        OTASCIIArmor ascMasterContents;
+        
+        if (OTMasterKey::It()->SerializeTo(ascMasterContents))
+        {
+            strContract.Concatenate("<masterKey>\n%s</masterKey>\n\n", ascMasterContents.Get());
+        }        
+        else
+            OTLog::Error("OTWallet::SaveContract: Failed trying to write master key to wallet.\n");
+    }
+    // ---------------------------------------------------------------
+    //
+    // We want to save the NymIDs for the Nyms on the master key. I save those
+    // before the Nyms themselves, so that they are all loaded up and available
+    // in LoadWallet before the Nyms themselves are loaded.
+    //
+    FOR_EACH_CONST(setOfIdentifiers, m_setNymsOnMasterKey)
+    {
+        const OTIdentifier & theNymID = *it;
+        OTString strNymID(theNymID);
+        
+        strContract.Concatenate("<nymUsingMasterKey id=\"%s\" />\n\n", strNymID.Get());
+    }
+    // ---------------------------------------------------------------
+    //
 	FOR_EACH(mapOfNyms, m_mapNyms)
 	{	
 		OTPseudonym * pNym = (*it).second;
@@ -1158,7 +1197,6 @@ bool OTWallet::SaveContract(OTString & strContract)
 		
 		pNym->SavePseudonymWallet(strContract);
 	}
-	
 	// ---------------------------------------------------------------
 	
 	FOR_EACH(mapOfContracts, m_mapContracts)
@@ -1265,7 +1303,6 @@ bool OTWallet::SaveContract(OTString & strContract)
 
 
 
-
 // Pass in the name only, NOT the full path.
 // If you pass NULL, it remembers full path from last time.
 // (Better to do that.)
@@ -1345,312 +1382,397 @@ bool OTWallet::LoadWallet(const char * szFilename)
 	}
     
 	// --------------------------------------------------------------------
-	
-    // To support legacy data, we check here to see if it's armored or not.
-    // If it's not, we support it. But if it IS, we ALSO support it (we de-armor it here.)
-    //
-    bool bArmoredAndALSOescaped = false;    // "- -----BEGIN OT ARMORED"
-    bool bArmoredButNOTescaped  = false;    // "-----BEGIN OT ARMORED"
-    
-    if (strFileContents.Contains(OT_BEGIN_ARMORED_escaped)) // check this one first...
-    {
-        bArmoredAndALSOescaped = true;
-    }
-    else if (strFileContents.Contains(OT_BEGIN_ARMORED))
-    {
-        bArmoredButNOTescaped = true;
-    }
-    // ----------------------------------------
-    const bool bArmored = (bArmoredAndALSOescaped || bArmoredButNOTescaped);
-    // ----------------------------------------
-    
-    // Whether the string is armored or not, (-----BEGIN OT ARMORED)
-    // either way, we'll end up with the decoded version in this variable:
-    //
-    std::string str_Trim;
-    
-    // ------------------------------------------------
-    if (bArmored) // it's armored, we have to decode it first.
-    {
-        OTASCIIArmor ascTemp;
+    bool bNeedToSaveAgain = false;
+
+	{
+        // To support legacy data, we check here to see if it's armored or not.
+        // If it's not, we support it. But if it IS, we ALSO support it (we de-armor it here.)
+        //
+        bool bArmoredAndALSOescaped = false;    // "- -----BEGIN OT ARMORED"
+        bool bArmoredButNOTescaped  = false;    // "-----BEGIN OT ARMORED"
         
-        if (false == (ascTemp.LoadFromString(strFileContents, 
-                                             bArmoredAndALSOescaped, // if it IS escaped or not, this variable will be true or false to show it.
-                                             // The below szOverride sub-string determines where the content starts, when loading.
-                                             OT_BEGIN_ARMORED)))     // Default is:       "-----BEGIN" 
-                                                                     // We're doing this: "-----BEGIN OT ARMORED" (Should worked for escaped as well, here.)
+        if (strFileContents.Contains(OT_BEGIN_ARMORED_escaped)) // check this one first...
         {
-            OTLog::vError("OTWallet::LoadWallet: Error loading file contents from ascii-armored encoding: %s%s%s.\n Contents: \n%s\n", 
-                          szFolderName, OTLog::PathSeparator(), szFilename, strFileContents.Get());
+            bArmoredAndALSOescaped = true;
+        }
+        else if (strFileContents.Contains(OT_BEGIN_ARMORED))
+        {
+            bArmoredButNOTescaped = true;
+        }
+        // ----------------------------------------
+        const bool bArmored = (bArmoredAndALSOescaped || bArmoredButNOTescaped);
+        // ----------------------------------------
+        
+        // Whether the string is armored or not, (-----BEGIN OT ARMORED)
+        // either way, we'll end up with the decoded version in this variable:
+        //
+        std::string str_Trim;
+        
+        // ------------------------------------------------
+        if (bArmored) // it's armored, we have to decode it first.
+        {
+            OTASCIIArmor ascTemp;
+            
+            if (false == (ascTemp.LoadFromString(strFileContents, 
+                                                 bArmoredAndALSOescaped, // if it IS escaped or not, this variable will be true or false to show it.
+                                                 // The below szOverride sub-string determines where the content starts, when loading.
+                                                 OT_BEGIN_ARMORED)))     // Default is:       "-----BEGIN" 
+                                                                         // We're doing this: "-----BEGIN OT ARMORED" (Should worked for escaped as well, here.)
+            {
+                OTLog::vError("OTWallet::LoadWallet: Error loading file contents from ascii-armored encoding: %s%s%s.\n Contents: \n%s\n", 
+                              szFolderName, OTLog::PathSeparator(), szFilename, strFileContents.Get());
+                return false;
+            }
+            else // success loading the actual contents out of the ascii-armored version.
+            {
+                OTString strTemp(ascTemp); // <=== ascii-decoded here.
+                
+                std::string str_temp(strTemp.Get(), strTemp.GetLength());
+                
+                str_Trim = OTString::trim(str_temp); // This is the std::string for the trim process.
+            } 
+        }
+        else
+        {
+            std::string str_temp(strFileContents.Get(), strFileContents.GetLength());
+            
+            str_Trim = OTString::trim(str_temp); // This is the std::string for the trim process. (Wasn't armored, so here we use it as passed in.)
+        }
+        // ------------------------------------------------
+        
+        // At this point, str_Trim contains the actual contents, whether they
+        // were originally ascii-armored OR NOT. (And they are also now trimmed, either way.)
+        // ------------------------------------------
+        
+        OTStringXML xmlFileContents(str_Trim.c_str());
+        
+        if (xmlFileContents.GetLength() < 2)
+        {
+            OTLog::vError("OTWallet::LoadWallet: Error reading wallet file: %s\n", szFilename);
             return false;
         }
-        else // success loading the actual contents out of the ascii-armored version.
+        // --------------------------------------------------------------------
+        
+        IrrXMLReader* xml = createIrrXMLReader(&xmlFileContents);
+
+        // parse the file until end reached
+        while(xml && xml->read())
         {
-            OTString strTemp(ascTemp); // <=== ascii-decoded here.
+            // strings for storing the data that we want to read out of the file
+            OTString NymName;
+            OTString NymID;
             
-            std::string str_temp(strTemp.Get(), strTemp.GetLength());
+            OTString AssetName;
+            OTString AssetContract;
+            OTString AssetID;
             
-            str_Trim = OTString::trim(str_temp); // This is the std::string for the trim process.
-        } 
-    }
-    else
-    {
-        std::string str_temp(strFileContents.Get(), strFileContents.GetLength());
+            OTString ServerName;
+            OTString ServerContract;
+            OTString ServerID;
+            
+            OTString AcctName;
+            OTString AcctFile;
+            OTString AcctID;
+            
+            const OTString strNodeName(xml->getNodeName());
+            
+            switch(xml->getNodeType())
+            {
+                case EXN_NONE:
+                case EXN_TEXT:
+                case EXN_COMMENT:
+                case EXN_ELEMENT_END:
+                case EXN_CDATA:
+                    // in this xml file, the only text which occurs is the messageText
+                    //messageText = xml->getNodeData();
+                    break;
+                case EXN_ELEMENT:
+                {
+                    if (strNodeName.Compare("wallet"))	// -------------------------------------------------------------
+                    {
+                        OTASCIIArmor ascWalletName = xml->getAttributeValue("name");
+                        
+                        if (ascWalletName.Exists())
+                            ascWalletName.GetString(m_strName, false); // linebreaks == false
+
+    //					m_strName			= xml->getAttributeValue("name");					
+    //					OTLog::OTPath		= xml->getAttributeValue("path");					
+                        m_strVersion		= xml->getAttributeValue("version");					
+                        
+                        OTLog::vOutput(1, "\nLoading wallet: %s, version: %s\n", m_strName.Get(), m_strVersion.Get());
+                    }
+                    
+                    
+                    else if (strNodeName.Compare("masterKey"))	// -------------------------------------------------------------
+                    {
+                        OTASCIIArmor ascMasterKey;
+
+                        if (OTContract::LoadEncodedTextField(xml, ascMasterKey))
+                        {
+                            // We successfully loaded the masterKey from file, so let's SET it
+                            // as the master key globally...
+                            //
+                            OTMasterKey::It()->SetMasterKey(ascMasterKey);
+                        }
+                        
+                        OTLog::vOutput(1, "\nLoading masterKey:\n%s\n", ascMasterKey.Get());
+                    }
+                    
+                    
+                    else if (strNodeName.Compare("nymUsingMasterKey"))	// -------------------------------------------------------------
+                    {
+                        NymID = xml->getAttributeValue("id"); // message digest from hash of x.509 cert or public key.
+                        
+                        OTLog::vOutput(0, "\n\n NymID using Master Key: %s\n", NymID.Get());
+                        OT_ASSERT_MSG(NymID.Exists(), "OTWallet::LoadWallet: NymID using Master Key was empty when loading wallet!\n");
+                        // ----------------------
+                        const OTIdentifier theNymID(NymID);
+                        
+                        m_setNymsOnMasterKey.insert(theNymID);
+                    }
+
+                    
+                    else if (strNodeName.Compare("pseudonym"))	// -------------------------------------------------------------
+                    {
+                        OTASCIIArmor ascNymName = xml->getAttributeValue("name");
+                        if (ascNymName.Exists())
+                            ascNymName.GetString(NymName, false); // linebreaks == false
+
+                        NymID = xml->getAttributeValue("nymID"); // message digest from hash of x.509 cert or public key.
+                        
+                        OTLog::vOutput(2, "\n\n** Pseudonym ** (wallet listing): %s\nID: %s\n",
+                                       NymName.Get(), NymID.Get());
+                        OT_ASSERT_MSG(NymID.Exists(), "OTWallet::LoadWallet: NymID was empty when loading wallet!\n");
+                        // ----------------------
+                        const OTIdentifier theNymID(NymID);
+
+                        // What's going on here? We need to see if the MASTER KEY exists at this point. If it's GENERATED.
+                        // If not, that means the Nyms are all still encrypted to their own passphrases, not to the master key.
+                        // In which case we need to generate one and re-encrypt each private key to that new master key.
+                        //
+    //                  bool OTWallet::IsNymOnMasterKey(const OTIdentifier & needle) const // needle and haystack.
+
+                        const bool bIsOldStyleNym = (false == this->IsNymOnMasterKey(theNymID));
+                        
+                        if (bIsOldStyleNym && !(OTMasterKey::It()->isPaused()))
+    //                  if (m_strVersion.Compare("1.0")) // This means this Nym has not been converted yet to master password.
+                        {
+                            OTMasterKey::It()->Pause();
+                        }
+                        // ----------------------
+                        OTPseudonym * pNym = OTPseudonym::LoadPrivateNym(theNymID, &NymName);
+                        // If it fails loading as a private Nym, then maybe it's a public one...
+                        if (NULL == pNym)
+                            pNym = OTPseudonym::LoadPublicNym(theNymID, &NymName);
+                        // --------------------------------------------
+                        if (NULL == pNym) // STILL null ??
+                            OTLog::vOutput(0, "OTWallet::LoadWallet: Failed loading Nym (%s) with ID: %s\n",
+                                           NymName.Get(), NymID.Get());
+                        else 
+                            this->AddNym(*pNym); // Nym loaded. Insert to wallet's list of Nyms.
+                        // -------------------------------------------------------------
+                        if (bIsOldStyleNym && OTMasterKey::It()->isPaused())
+                        {
+                            OTMasterKey::It()->Unpause();
+                        }
+                        // (Here we set it back again, so any new-style Nyms will still load properly, when they come around.)
+                    }
+                    
+                    
+                    // NOTE: It's only by THIS point (assetType) that we KNOW we loaded all the Nyms.
+                    // If we are version 1.0, NOW we should convert them all to the new master key!!
+                    
+                    else if (strNodeName.Compare("assetType"))	// -------------------------------------------------------------
+                    {
+                        // -------------------------------------------------------
+                        OTASCIIArmor ascAssetName = xml->getAttributeValue("name");	
+                        
+                        if (ascAssetName.Exists())
+                            ascAssetName.GetString(AssetName, false); // linebreaks == false
+
+    //					AssetName		= xml->getAttributeValue("name");			
+                        AssetID			= xml->getAttributeValue("assetTypeID");	// hash of contract itself
+                        
+                        OTLog::vOutput(2, "\n\n****Asset Contract**** (server listing) Name: %s\nContract ID:\n%s\n",
+                                       AssetName.Get(), AssetID.Get());
+                        
+                        OTString strContractPath;
+                        strContractPath.Format(OTLog::ContractFolder());
+                        OTAssetContract * pContract = new OTAssetContract(AssetName, strContractPath, AssetID, AssetID);
+
+                        OT_ASSERT_MSG(NULL != pContract, "Error allocating memory for Asset Contract in OTWallet::LoadWallet\n");
+                
+                        if (pContract->LoadContract()) 
+                        {
+                            if (pContract->VerifyContract())
+                            {
+                                OTLog::Output(1, "** Asset Contract Verified **\n-----------------------------------------------------------------------------\n\n");
+                                
+                                pContract->SetName(AssetName);
+                                
+                                m_mapContracts[AssetID.Get()] = pContract;
+                            }
+                            else
+                            {
+                                delete pContract; pContract = NULL;
+                                OTLog::Output(0, "Contract FAILED to verify.\n");
+                            }							
+                        }
+                        else 
+                        {
+                            delete pContract; pContract = NULL;
+                            OTLog::Error("Error reading file for Asset Contract in OTWallet::LoadWallet\n");
+                        }
+
+                    }
+                    else if (strNodeName.Compare("notaryProvider"))	// -------------------------------------------------------------                
+                    {
+                        OTASCIIArmor ascServerName = xml->getAttributeValue("name");	
+                        
+                        if (ascServerName.Exists())
+                            ascServerName.GetString(ServerName, false); // linebreaks == false
         
-        str_Trim = OTString::trim(str_temp); // This is the std::string for the trim process. (Wasn't armored, so here we use it as passed in.)
-    }
-    // ------------------------------------------------
-    
-    // At this point, str_Trim contains the actual contents, whether they
-    // were originally ascii-armored OR NOT. (And they are also now trimmed, either way.)
-    // ------------------------------------------
-    
-    OTStringXML xmlFileContents(str_Trim.c_str());
-	
-	if (xmlFileContents.GetLength() < 2)
-	{
-		OTLog::vError("OTWallet::LoadWallet: Error reading wallet file: %s\n", szFilename);
-		return false;
-	}
-	// --------------------------------------------------------------------
-	
-	IrrXMLReader* xml = createIrrXMLReader(&xmlFileContents);
+    //					ServerName = xml->getAttributeValue("name");					
+                        ServerID = xml->getAttributeValue("serverID"); // hash of contract
+                        
+                        OTLog::vOutput(2, "\n\n\n****Notary Server (contract)**** (wallet listing): %s\n ServerID:\n%s\n",
+                                ServerName.Get(), ServerID.Get());
+                    
+                        OTString strContractPath(OTLog::ContractFolder());
+                        
+                        OTServerContract * pContract = new OTServerContract(ServerName, strContractPath, ServerID, ServerID);
+                        
+                        OT_ASSERT_MSG(NULL != pContract, "Error allocating memory for Server Contract in OTWallet::LoadWallet\n");
+                        
+                        if (pContract->LoadContract()) 
+                        {
+                            if (pContract->VerifyContract())
+                            {
+                                pContract->SetName(ServerName); // This isn't needed, but it's proper.
+                                
+                                OTLog::Output(1, "** Server Contract Verified **\n-----------------------------------------------------------------------------\n\n");
+                                // Uncomment : Move these lines back above the 'if' block to regenerate some newly-signed contracts.
+                                // (for testing only.) Otherwise leave here where it belongs.
+                                m_mapServers[ServerID.Get()] = pContract;							
+                            }
+                            else
+                            {
+                                delete pContract; pContract = NULL;
+                                OTLog::Output(0, "Server contract failed to verify.\n");
+                            }
+                        }
+                        else 
+                        {
+                            delete pContract; pContract = NULL;
+                            OTLog::Error("Error reading file for Transaction Server in OTWallet::LoadWallet\n");
+                        }
+                    }
+                    else if (strNodeName.Compare("assetAccount"))	// -------------------------------------------------------------                
+                    {
+                        OTASCIIArmor ascAcctName = xml->getAttributeValue("name");	
+                        
+                        if (ascAcctName.Exists())
+                            ascAcctName.GetString(AcctName, false); // linebreaks == false
+                        
+                        AcctID	 = xml->getAttributeValue("accountID");
+                        ServerID = xml->getAttributeValue("serverID");
+                                            
+                        OTLog::vOutput(2, "\n--------------------------------------------------------------------------\n"
+                                "****Account**** (wallet listing) "
+                                "name: %s\n AccountID: %s\n ServerID: %s\n", 
+                                AcctName.Get(), AcctID.Get(), ServerID.Get());
+                        
+                        const OTIdentifier ACCOUNT_ID(AcctID), SERVER_ID(ServerID);
+                        
+                        OTAccount * pAccount =  OTAccount::LoadExistingAccount(ACCOUNT_ID, SERVER_ID);
+                        
+                        if (pAccount)
+                        {
+                            pAccount->SetName(AcctName);
+                            this->AddAccount(*pAccount);
+                        }
+                        else 
+                        {
+                            OTLog::Error("Error loading existing Asset Account in OTWallet::LoadWallet\n");
+                        }
+                    }
+                    else
+                    {
+                        // unknown element type
+                        OTLog::vError("unknown element type: %s\n", xml->getNodeName());
+                    }
+                }
+                    break;
+                default:
+                    OTLog::vOutput(5, "Unknown XML type in OTWallet::LoadWallet: %s\n", xml->getNodeName());
+                    break;
+            }
+        } // while xml->read()
+        // ---------------------------------------------
 
-	// parse the file until end reached
-	while(xml && xml->read())
-	{
-		// strings for storing the data that we want to read out of the file
-		OTString NymName;
-		OTString NymID;
-		
-		OTString AssetName;
-		OTString AssetContract;
-		OTString AssetID;
-		
-		OTString ServerName;
-		OTString ServerContract;
-		OTString ServerID;
-		
-		OTString AcctName;
-		OTString AcctFile;
-		OTString AcctID;
-		
-        const OTString strNodeName(xml->getNodeName());
+        // After we've loaded all the old-format Nyms that don't use the master key,
+        // NOW we can go through and convert them all, now that they're all loaded.
+        // -------------------------------------------------------------------------
         
-		switch(xml->getNodeType())
-		{
-			case EXN_NONE:
-			case EXN_TEXT:
-			case EXN_COMMENT:
-			case EXN_ELEMENT_END:
-			case EXN_CDATA:
-				// in this xml file, the only text which occurs is the messageText
-				//messageText = xml->getNodeData();
-				break;
-			case EXN_ELEMENT:
-			{
-				if (strNodeName.Compare("wallet"))	// -------------------------------------------------------------
-				{
-					OTASCIIArmor ascWalletName = xml->getAttributeValue("name");
-					
-					if (ascWalletName.Exists())
-						ascWalletName.GetString(m_strName, false); // linebreaks == false
-
-//					m_strName			= xml->getAttributeValue("name");					
-//					OTLog::OTPath		= xml->getAttributeValue("path");					
-					m_strVersion		= xml->getAttributeValue("version");					
-					
-					OTLog::vOutput(1, "\nLoading wallet: %s, version: %s\n", m_strName.Get(), m_strVersion.Get());
-				}
-				else if (strNodeName.Compare("pseudonym"))	// -------------------------------------------------------------
-				{
-					OTASCIIArmor ascNymName = xml->getAttributeValue("name");
-					if (ascNymName.Exists())
-						ascNymName.GetString(NymName, false); // linebreaks == false
-
-					NymID = xml->getAttributeValue("nymID"); // message digest from hash of x.509 cert
-					
-					OTLog::vOutput(2, "\n\n** Pseudonym ** (wallet listing): %s\nID: %s\n",
-								   NymName.Get(), NymID.Get());
-					OT_ASSERT_MSG(NymID.Exists(), "OTWallet::LoadWallet: NymID was empty when loading wallet!\n");
-					// ----------------------
-					const OTIdentifier theNymID(NymID);
-					OTPseudonym * pNym = OTPseudonym::LoadPrivateNym(theNymID, &NymName);
-					// If it fails loading as a private Nym, then maybe it's a public one...
-					if (NULL == pNym)
-						pNym = OTPseudonym::LoadPublicNym(theNymID, &NymName);
-					// --------------------------------------------
-					if (NULL == pNym) // STILL null ??
-						OTLog::vOutput(0, "OTWallet::LoadWallet: Failed loading Nym (%s) with ID: %s\n",
-									   NymName.Get(), NymID.Get());
-					else 
-						this->AddNym(*pNym); // Nym loaded. Insert to wallet's list of Nyms.
-				}
-                else if (strNodeName.Compare("assetType"))	// -------------------------------------------------------------
-				{
-					OTASCIIArmor ascAssetName = xml->getAttributeValue("name");	
-					
-					if (ascAssetName.Exists())
-						ascAssetName.GetString(AssetName, false); // linebreaks == false
-
-//					AssetName		= xml->getAttributeValue("name");			
-					AssetID			= xml->getAttributeValue("assetTypeID");	// hash of contract itself
-					
-					OTLog::vOutput(2, "\n\n****Asset Contract**** (server listing) Name: %s\nContract ID:\n%s\n",
-								   AssetName.Get(), AssetID.Get());
-					
-					OTString strContractPath;
-					strContractPath.Format(OTLog::ContractFolder());
-					OTAssetContract * pContract = new OTAssetContract(AssetName, strContractPath, AssetID, AssetID);
-
-					OT_ASSERT_MSG(NULL != pContract, "Error allocating memory for Asset Contract in OTWallet::LoadWallet\n");
-			
-					if (pContract->LoadContract()) 
-					{
-						if (pContract->VerifyContract())
-						{
-							OTLog::Output(1, "** Asset Contract Verified **\n-----------------------------------------------------------------------------\n\n");
-							
-							pContract->SetName(AssetName);
-							
-							m_mapContracts[AssetID.Get()] = pContract;
-						}
-						else
-						{
-							delete pContract; pContract = NULL;
-							OTLog::Output(0, "Contract FAILED to verify.\n");
-						}							
-					}
-					else 
-					{
-						delete pContract; pContract = NULL;
-						OTLog::Error("Error reading file for Asset Contract in OTWallet::LoadWallet\n");
-					}
-
-				}
-                else if (strNodeName.Compare("notaryProvider"))	// -------------------------------------------------------------                
-				{
-					OTASCIIArmor ascServerName = xml->getAttributeValue("name");	
-					
-					if (ascServerName.Exists())
-						ascServerName.GetString(ServerName, false); // linebreaks == false
-	
-//					ServerName = xml->getAttributeValue("name");					
-					ServerID = xml->getAttributeValue("serverID"); // hash of contract
-					
-					OTLog::vOutput(2, "\n\n\n****Notary Server (contract)**** (wallet listing): %s\n ServerID:\n%s\n",
-							ServerName.Get(), ServerID.Get());
-				
-					OTString strContractPath(OTLog::ContractFolder());
-					
-					OTServerContract * pContract = new OTServerContract(ServerName, strContractPath, ServerID, ServerID);
-					
-					OT_ASSERT_MSG(NULL != pContract, "Error allocating memory for Server Contract in OTWallet::LoadWallet\n");
-					
-					if (pContract->LoadContract()) 
-					{
-						if (pContract->VerifyContract())
-						{
-							pContract->SetName(ServerName); // This isn't needed, but it's proper.
-							
-							OTLog::Output(1, "** Server Contract Verified **\n-----------------------------------------------------------------------------\n\n");
-							// Uncomment : Move these lines back above the 'if' block to regenerate some newly-signed contracts.
-							// (for testing only.) Otherwise leave here where it belongs.
-							m_mapServers[ServerID.Get()] = pContract;							
-						}
-						else
-						{
-							delete pContract; pContract = NULL;
-							OTLog::Output(0, "Server contract failed to verify.\n");
-						}
-					}
-					else 
-					{
-						delete pContract; pContract = NULL;
-						OTLog::Error("Error reading file for Transaction Server in OTWallet::LoadWallet\n");
-					}
-				}
-                else if (strNodeName.Compare("assetAccount"))	// -------------------------------------------------------------                
-				{
-					OTASCIIArmor ascAcctName = xml->getAttributeValue("name");	
-					
-					if (ascAcctName.Exists())
-						ascAcctName.GetString(AcctName, false); // linebreaks == false
-					
-					AcctID	 = xml->getAttributeValue("accountID");
-					ServerID = xml->getAttributeValue("serverID");
-										
-					OTLog::vOutput(2, "\n--------------------------------------------------------------------------\n"
-							"****Account**** (wallet listing) "
-							"name: %s\n AccountID: %s\n ServerID: %s\n", 
-							AcctName.Get(), AcctID.Get(), ServerID.Get());
-					
-					const OTIdentifier ACCOUNT_ID(AcctID), SERVER_ID(ServerID);
-					
-					OTAccount * pAccount =  OTAccount::LoadExistingAccount(ACCOUNT_ID, SERVER_ID);
-					
-					if (pAccount)
-					{
-						pAccount->SetName(AcctName);
-						this->AddAccount(*pAccount);
-					}
-					else 
-					{
-						OTLog::Error("Error loading existing Asset Account in OTWallet::LoadWallet\n");
-					}
-				}
-				else
-				{
-					// unknown element type
-					OTLog::vError("unknown element type: %s\n", xml->getNodeName());
-				}
-			}
-				break;
-			default:
-				OTLog::vOutput(5, "Unknown XML type in OTWallet::LoadWallet: %s\n", xml->getNodeName());
-				break;
-		}
-	}
-	
-	
-	
-	
-	
-	
-	// TODO remove this test code
-	//bool GetAsciiArmoredData(OTASCIIArmor & theArmoredText) const;
-	//bool SetAsciiArmoredData(const OTASCIIArmor & theArmoredText)
-	
-	/*
-	OTString strPlaintext("Testing testing testing testing blah blah blah");
-	OTLog::vError("\n\nTesting new RSA ENVELOPES (public key crypto).\n\nPlaintext: %s\n", strPlaintext.Get());
-	
-	OTEnvelope theEVP;
-	theEVP.Seal(*g_pTemporaryNym, strPlaintext);
-	
-	
-	OTASCIIArmor ascCiphertext;
-	theEVP.GetAsciiArmoredData(ascCiphertext); // Now the contents of encrypted envelope are ascii-encoded
-	
-	OTLog::vError("\nASCII-ARMORED Ciphertext:\n%s\n", ascCiphertext.Get());
-
-	
-	// Now decrypt it
-	OTEnvelope evpReceived;
-	evpReceived.SetAsciiArmoredData(ascCiphertext);
-	
-	OTString strDecrypted;
-	evpReceived.Open(*g_pTemporaryNym, strDecrypted);
-	
-	OTLog::vError("Decrypted text: %s\n\n\n", strDecrypted.Get());
-	*/
-		
-
-	// delete the xml parser after usage
-	if (xml)
-		delete xml;
-	
+        FOR_EACH(mapOfNyms, m_mapNyms)
+        {		
+            OTPseudonym * pNym = (*it).second;
+            OT_ASSERT_MSG((NULL != pNym), "NULL pseudonym pointer in OTWallet::LoadWallet.");
+            
+            if (this->ConvertNymToMasterKey(*pNym)) // Internally this is smart enough to only convert the unconverted.
+                bNeedToSaveAgain = true;
+        }	
+        // ---------------------------------------------
+        //
+        // delete the xml parser after usage
+        if (xml)
+            delete xml;
+    }
+	// -----------------------
+    // In case we converted any of the Nyms to the new "master key" encryption.
+    if (bNeedToSaveAgain)
+        SaveWallet(szFilename);
+	// -----------------------
 	return true;
+}
+
+
+
+
+bool OTWallet::ConvertNymToMasterKey(OTPseudonym & theNym)
+{
+    // If he's not ALREADY on the master key...
+    //
+    if (false == IsNymOnMasterKey(theNym.GetConstID()))
+    {
+        const bool bConverted = theNym.ConvertToMasterKey();
+        
+        if (bConverted)
+        {
+            m_setNymsOnMasterKey.insert(theNym.GetConstID());
+        }
+        
+        return bConverted;
+    }
+    
+    return false;
+}
+
+
+
+//     setOfIdentifiers m_setNymsOnMasterKey;  // All the Nyms that use the Master key are listed here (makes it easy to see which ones are converted already.)
+// Todo: serialize?
+//
+bool OTWallet::IsNymOnMasterKey(const OTIdentifier & needle) const // needle and haystack.
+{
+    FOR_EACH_CONST(setOfIdentifiers, m_setNymsOnMasterKey)
+    {
+        const OTIdentifier & theNymID = *it;
+        
+        if (needle == theNymID)
+            return true;
+    }
+    return false;
 }
 
 
@@ -1661,6 +1783,34 @@ bool OTWallet::LoadWallet(const char * szFilename)
 
 
 
+
+// TODO remove this test code
+//bool GetAsciiArmoredData(OTASCIIArmor & theArmoredText) const;
+//bool SetAsciiArmoredData(const OTASCIIArmor & theArmoredText)
+
+/*
+ OTString strPlaintext("Testing testing testing testing blah blah blah");
+ OTLog::vError("\n\nTesting new RSA ENVELOPES (public key crypto).\n\nPlaintext: %s\n", strPlaintext.Get());
+ 
+ OTEnvelope theEVP;
+ theEVP.Seal(*g_pTemporaryNym, strPlaintext);
+ 
+ 
+ OTASCIIArmor ascCiphertext;
+ theEVP.GetAsciiArmoredData(ascCiphertext); // Now the contents of encrypted envelope are ascii-encoded
+ 
+ OTLog::vError("\nASCII-ARMORED Ciphertext:\n%s\n", ascCiphertext.Get());
+ 
+ 
+ // Now decrypt it
+ OTEnvelope evpReceived;
+ evpReceived.SetAsciiArmoredData(ascCiphertext);
+ 
+ OTString strDecrypted;
+ evpReceived.Open(*g_pTemporaryNym, strDecrypted);
+ 
+ OTLog::vError("Decrypted text: %s\n\n\n", strDecrypted.Get());
+ */
 
 
 

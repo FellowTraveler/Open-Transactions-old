@@ -795,7 +795,7 @@ int OTMint::ProcessXMLNode(IrrXMLReader*& xml)
 	{		
 		OTASCIIArmor armorPublicKey;
 
-		if (false == LoadEncodedTextField(xml, armorPublicKey) || !armorPublicKey.Exists())
+		if (false == OTContract::LoadEncodedTextField(xml, armorPublicKey) || !armorPublicKey.Exists())
 		{
 			OTLog::Error("Error in OTMint::ProcessXMLNode: mintPublicKey field without value.\n");
 			return (-1); // error condition
@@ -816,7 +816,7 @@ int OTMint::ProcessXMLNode(IrrXMLReader*& xml)
 		
 		OT_ASSERT(NULL != pArmor);
 		
-		if (!LoadEncodedTextField(xml, *pArmor) || !pArmor->Exists())
+		if (!OTContract::LoadEncodedTextField(xml, *pArmor) || !pArmor->Exists())
 		{
 			OTLog::Error("Error in OTMint::ProcessXMLNode: mintPrivateInfo field without value.\n");
 			
@@ -841,7 +841,7 @@ int OTMint::ProcessXMLNode(IrrXMLReader*& xml)
 		
 		OT_ASSERT(NULL != pArmor);
 		
-		if (!LoadEncodedTextField(xml, *pArmor) || !pArmor->Exists())
+		if (!OTContract::LoadEncodedTextField(xml, *pArmor) || !pArmor->Exists())
 		{
 			OTLog::Error("Error in OTMint::ProcessXMLNode: mintPublicInfo field without value.\n");
 			

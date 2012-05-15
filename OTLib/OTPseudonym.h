@@ -139,6 +139,15 @@
 #include <fstream>
 #include <set>
 
+
+extern "C"
+{
+#include <openssl/pem.h>
+#include <openssl/evp.h>
+#include <openssl/x509v3.h>
+}
+
+
 #include "OTString.h"
 #include "OTData.h"
 #include "OTIdentifier.h"
@@ -158,15 +167,22 @@ class OTTransaction;
 class OTLedger;
 class OTMessage;
 
-typedef std::deque<OTMessage *>		dequeOfMail;
+class OTPasswordData;
 
-typedef std::map<std::string, long>	mapOfRequestNums;
-typedef std::map<std::string, long>	mapOfHighestNums;
+
+typedef std::deque<OTMessage *>                     dequeOfMail;
+
+typedef std::map<std::string, long>                 mapOfRequestNums;
+typedef std::map<std::string, long>                 mapOfHighestNums;
 
 typedef std::deque<long>							dequeOfTransNums;
+
 typedef std::map<std::string, dequeOfTransNums *>	mapOfTransNums;
 
 typedef std::map<std::string, OTIdentifier>         mapOfIdentifiers;
+
+typedef std::set<OTIdentifier>                      setOfIdentifiers;
+
 
 
 class OTPseudonym
@@ -318,7 +334,25 @@ public:
 	
 	inline OTString &	GetNymName() { return m_strName; }
 	inline void			SetNymName(const OTString & strName) { m_strName = strName; }
+	// ------------------------------------------------
 	
+    // Old style: the user enters a passphrase for using the Nym.
+    // New style: the user enters a passphrase which is used to derive a key,
+    // which is used to decrypt the master key, which is used for using the Nym.
+    // To convert an "old style" Nym to a "new style" Nym, just call this function
+    // after loading "old style" and it will save in the "new style."
+    // THIS WILL OVERWRITE THE CERT (with the new master key passphrase.) meaning
+    // that you will no longer be able to use the Nym OUTSIDE of OT, since OpenSSL
+    // will be expecting the master key, not the user's actual passphrase.
+    //
+    // THEREFORE: Nyms will be "imported" into the master key mode, and then if you want
+    // to use them outside of your wallet, you will have to "export" the Nym, which will 
+    // have to call a function that reverses the one below. (ConvertBackOutOfMasterKey or
+    // some such thing.)
+    //
+    bool ConvertToMasterKey();
+    
+	// ------------------------------------------------
 	OTPseudonym();
 	OTPseudonym(const OTIdentifier & nymID);
 	OTPseudonym(const OTString & strNymID);
@@ -327,6 +361,7 @@ public:
 	
 	void Initialize();
 	void ReleaseTransactionNumbers();
+	// ------------------------------------------------
 	
 	bool VerifyPseudonym() const;
 
@@ -370,8 +405,10 @@ public:
 	// CALLER is responsible to delete the Nym ptr being returned
 	// in these functions!
 	//
-	static OTPseudonym * LoadPublicNym(const OTIdentifier & NYM_ID, OTString * pstrName=NULL, const char * szFuncName=NULL);
-	static OTPseudonym * LoadPrivateNym(const OTIdentifier & NYM_ID, OTString * pstrName=NULL, const char * szFuncName=NULL);
+	static OTPseudonym * LoadPublicNym(const OTIdentifier & NYM_ID, OTString * pstrName=NULL, 
+                                       const char * szFuncName=NULL);
+	static OTPseudonym * LoadPrivateNym(const OTIdentifier & NYM_ID, OTString * pstrName=NULL, 
+                                        const char * szFuncName=NULL);
 
 	// ------------------------------------------
 
@@ -388,7 +425,8 @@ public:
 
 	bool LoadPublicKey();
 	bool Loadx509CertAndPrivateKey();
-	
+	bool Savex509CertAndPrivateKey(X509 * x509, EVP_PKEY * pPrivateKey, bool bCreateFile/*=true*/);
+    
 //	bool SavePseudonymWallet(FILE * fl) const;
 	bool SavePseudonymWallet(OTString & strOutput) const;
 	bool SavePseudonymWallet(std::ofstream & ofs) const;

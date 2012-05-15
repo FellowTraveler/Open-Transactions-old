@@ -226,7 +226,7 @@ int     OTLog::__latency_receive_ms = 5000; // number of ms to wait before retry
 long	OTLog::__minimum_market_scale = 1;	// Server admin can configure this to any higher power-of-ten.
 
 
-OTString OTLog::__Version = "0.80d";
+OTString OTLog::__Version = "0.80e";
 
 
 
@@ -617,7 +617,8 @@ void OTLog::OT_Cleanup()
     // -------------------------------------------------
     
     CRYPTO_cleanup_all_ex_data(); // (brutal)
-    
+//	CRYPTO_mem_leaks(bio_err);
+
     // -------------------------------------------------
     
 	ERR_free_strings(); // DONE (brutal) -- corresponds to SSL_load_error_strings in OT_Init().  #1
@@ -637,7 +638,6 @@ void OTLog::OT_Cleanup()
     // Update: these are for SSL sockets, they must be called per socket.
     // (IOW: Not needed here for app cleanup.)
 }
-
 
 
 

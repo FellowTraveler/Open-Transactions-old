@@ -149,11 +149,13 @@ typedef std::map<std::string, OTServerContract *>	mapOfServers;
 class OTWallet
 {
 private:
-	mapOfNyms		m_mapNyms;
-	mapOfContracts	m_mapContracts;
-	mapOfServers	m_mapServers;
-	mapOfAccounts	m_mapAccounts;
+	mapOfNyms		 m_mapNyms;
+	mapOfContracts	 m_mapContracts;
+	mapOfServers	 m_mapServers;
+	mapOfAccounts	 m_mapAccounts;
 
+    setOfIdentifiers m_setNymsOnMasterKey;  // All the Nyms that use the Master key are listed here (makes it easy to see which ones are converted already.)
+    
 	OTString m_strName;
 	OTString m_strVersion;
 	
@@ -165,7 +167,13 @@ public:
 	virtual ~OTWallet();
 	void Release();
 	//------------------------------------------------------------	
+    
+    bool IsNymOnMasterKey(const OTIdentifier & needle) const; // needle and haystack.
+    
+    bool ConvertNymToMasterKey(OTPseudonym & theNym);
 
+	//------------------------------------------------------------	
+    
 	OTPseudonym * GetOrLoadNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
 	OTPseudonym * GetOrLoadPublicNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
 	OTPseudonym * GetOrLoadPrivateNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);

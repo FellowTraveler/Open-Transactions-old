@@ -137,12 +137,40 @@
 
 extern "C"
 {
-#include <openssl/evp.h>	
+#include <openssl/evp.h>
+#include <openssl/x509v3.h>
 }
 
 #include "OTPassword.h"
 
-// ------------------------------------------------
+// --------------------------------------------------------
+
+// Todo:
+// 1. Add this value to the config file so it becomes merely a default value here.
+// 2. This timer solution isn't the full solution but only a stopgap measure.
+//    See notes in ReleaseKeyLowLevel for more -- ultimate solution will involve
+//    the callback itself, and some kind of encrypted storage of hashed passwords,
+//    using session keys, as well as an option to use ssh-agent and other standard
+//    APIs for protected memory.
+//
+// UPDATE: Am in the process now of adding the actual Master key. Therefore OT_MASTER_KEY_TIMEOUT
+// was added for the actual mechanism, while OT_KEY_TIMER (a stopgap measure) was set to 0, which
+// makes it of no effect. Probably OT_KEY_TIMER will be removed entirely (we'll see.)
+//
+#ifndef OT_KEY_TIMER
+
+#define OT_KEY_TIMER 30
+
+// TODO: Next release, as users get converted to file format 2.0 (master key)
+// then reduce this timer from 30 to 0. (30 is just to help them convert.)
+
+//#define OT_KEY_TIMER 0
+
+//#define OT_MASTER_KEY_TIMEOUT 300  // This is in OTEnvelope.h
+
+// FYI: 1800 seconds is 30 minutes, 300 seconds is 5 mins.
+#endif // OT_KEY_TIMER
+// --------------------------------------------------------
 
 // This is the only part of the API that actually accepts objects as parameters,
 // since the above objects have SWIG C++ wrappers. 
@@ -175,6 +203,7 @@ class OTASCIIArmor;
 class OTAsymmetricKey
 {
 private:
+    X509         * m_pX509;
     OTASCIIArmor * m_p_ascKey; // base64-encoded, string form of key. (Encrypted too, for private keys. Should store it in this form most of the time.)
 	// --------------------------------------------
 	EVP_PKEY     *	m_pKey;    // Instantiated form of key. (For private keys especially, we don't want it instantiated for any longer than absolutely necessary, when we have to use it.)
@@ -203,6 +232,9 @@ public:
 	static bool SetPasswordCaller(OTCaller & theCaller);
 	static OTCaller * GetPasswordCaller();
 	// -------------------------------------
+    static bool GetPasswordFromConsoleLowLevel(OTPassword & theOutput, const char * szPrompt);
+    static bool GetPasswordFromConsole(OTPassword & theOutput, bool bRepeat=false);
+	// -------------------------------------
 
 	inline bool IsPublic()  const  { return m_bIsPublicKey;  }
 	inline bool IsPrivate() const  { return m_bIsPrivateKey; }
@@ -217,8 +249,17 @@ public:
 	void Release();
 	void ReleaseKey();
     
-    // ***************************************************************
+	// -------------------------------------
+    // LOW LEVEL
+    //
+    EVP_PKEY *  GetKeyLowLevel();
 
+    X509     *  GetX509() { return m_pX509; } 
+    void        SetX509(X509 * x509);
+    
+    // ***************************************************************
+    // HIGH LEVEL
+    //
 	const
     EVP_PKEY *  GetKey();
 	void        SetKey(EVP_PKEY * pKey, bool bIsPrivateKey=false);

@@ -3,6 +3,32 @@ NOTES on the Version:
 
 // --------------------------------------------------------------------
 
+   0.80e--- Added the OTMasterKey class. The user's passphrase is no longer
+            used to directly open his private keys for his Nyms. Instead,
+            the passphrase is used to derive a key, which is used to unlock
+            a MASTER key, and THAT is used for the private keys. This master
+            key is stored in protected memory for X minutes, and then is 
+            destroyed. During the X minutes, you will NOT have to type your
+            passphrase (more than once.) But once the X minutes are over,
+            then you WILL be forced to enter your passphrase once again.
+
+   0.80d--- Fixed up some of the CRYPTO code. OTPayload and OTPassword now
+            have a Randomize() method. OTAsymmetricKey now has a "timer"
+            mechanism for keys, and takes pains to wipe them when done.
+            Some memory is securely zeroed out, such as OTString, OTData,
+            OTPayload, and OTPassword. A new OTSymmetricKey class was added
+            for passphrase-protection as a new alternative to public keys.
+            OTEnvelope was significantly re-written and now supports multiple
+            recipients, as well as password-protected envelopes. OTSymmetricKey
+            uses a random key for all encryption/decryption, and this random
+            key is then encrypted to another key that's generated using a 
+            key-derivation algorithm with passphrase input.
+            
+            The Init/Cleanup code was also significantly upgraded. Special
+            tricks are now used to reduce occurances of memory being written
+            to swap files, as well as to prevent core dumps. Functions were 
+            added such as safe_memcpy, safe_strlen, safe_strcopy, etc.
+
    0.80c--- Added synchronization code to reduce the number of box receipts
             needing to be downloaded. (Should speed things up a bit.)
             Download the latest Moneychanger!

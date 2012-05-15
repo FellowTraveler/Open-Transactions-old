@@ -2667,7 +2667,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 			const char	*	pElementExpected	= "mySignedCopy";
 			OTString		strTextExpected; // signed copy will go here.
 					
-			if (false == LoadEncodedTextFieldByName(xml, strTextExpected, pElementExpected))
+			if (false == OTContract::LoadEncodedTextFieldByName(xml, strTextExpected, pElementExpected))
 			{
 				OTLog::vError("Error in OTScriptable::ProcessXMLNode: "
 							  "Expected %s element with text field.\n", 
@@ -2848,7 +2848,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 							if (strVarValue.Exists() && strVarValue.Compare("exists"))
 							{
 								strVarValue.Release(); // probably unnecessary.
-								if (false == LoadEncodedTextField(xml, strVarValue))
+								if (false == OTContract::LoadEncodedTextField(xml, strVarValue))
 								{
 									OTLog::vError("OTScriptable::ProcessXMLNode: No value found for string variable: %s\n",
 												  strVarName.Get());
@@ -2910,7 +2910,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		{
 			while (nCount-- > 0)
 			{
-				// LoadEncodedTextFieldByName() (below) does this stuff already. Commented out.
+				// OTContract::LoadEncodedTextFieldByName() (below) does this stuff already. Commented out.
 				//
 //				xml->read(); // <==================
 //				if (false == OTContract::SkipToElement(xml))
@@ -2927,7 +2927,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 				mapOfStrings	temp_MapAttributes;
 				//
 				// This map contains values we will also want, when we read the clause... 
-				// (The LoadEncodedTextField call below will read all the values
+				// (The OTContract::LoadEncodedTextField call below will read all the values
 				// as specified in this map.)
 				// 
 				//
@@ -2939,7 +2939,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 //				temp_MapAttributes.insert(std::pair<std::string, std::string>("name", ""));
 //				temp_MapAttributes.insert(std::pair<std::string, std::string>("name", ""));
 				
-				if (false == LoadEncodedTextFieldByName(xml, strTextExpected, pElementExpected, &temp_MapAttributes)) // </clause>
+				if (false == OTContract::LoadEncodedTextFieldByName(xml, strTextExpected, pElementExpected, &temp_MapAttributes)) // </clause>
 				{
 					OTLog::vError("Error in OTScriptable::ProcessXMLNode: "
 								  "Expected %s element with text field.\n", 

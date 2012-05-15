@@ -213,7 +213,7 @@ int OTMarket::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 	{		
 		OTString strData;
 		
-		if (!LoadEncodedTextField(xml, strData) || !strData.Exists())
+		if (!OTContract::LoadEncodedTextField(xml, strData) || !strData.Exists())
 		{
 			OTLog::Error("Error in OTMarket::ProcessXMLNode: offer field without value.\n");
 			return (-1); // error condition

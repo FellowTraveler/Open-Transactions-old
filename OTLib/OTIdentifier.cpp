@@ -248,25 +248,6 @@ OTIdentifier::OTIdentifier(const OTMarket &theMarket)  : OTData() // Get the Mar
 	(const_cast<OTMarket &>(theMarket)).GetIdentifier(*this);
 }
 
-
-
-
-bool OTIdentifier::operator==(const OTIdentifier &s2) const
-{
-	OTString ots1(*this), ots2(s2);
-	
-	return ots1.Compare(ots2);	
-}
-
-bool OTIdentifier::operator!=(const OTIdentifier &s2) const
-{
-	OTString ots1(*this), ots2(s2);
-	
-	return !(ots1.Compare(ots2));	
-}
-
-
-
 void OTIdentifier::SetString(const char * szString)
 {
 	OT_ASSERT(NULL != szString);
@@ -275,6 +256,54 @@ void OTIdentifier::SetString(const char * szString)
 	
 	SetString(theStr);
 }
+
+
+
+bool OTIdentifier::operator==(const OTIdentifier &s2) const
+{
+	const OTString ots1(*this), ots2(s2);
+	
+	return ots1.Compare(ots2);	
+}
+
+
+bool OTIdentifier::operator!=(const OTIdentifier &s2) const
+{
+	const OTString ots1(*this), ots2(s2);
+	
+	return !(ots1.Compare(ots2));	
+}
+
+
+bool OTIdentifier::operator >(const OTIdentifier &s2) const 
+{
+    const OTString ots1(*this), ots2(s2);
+	
+	return ots1.operator>(ots2);
+}
+    
+
+bool OTIdentifier::operator <(const OTIdentifier &s2)  const 
+{
+    const OTString ots1(*this), ots2(s2);
+	
+	return ots1.operator<(ots2);
+}
+
+bool OTIdentifier::operator <=(const OTIdentifier &s2)  const
+{
+    const OTString ots1(*this), ots2(s2);
+	
+	return ots1.operator<=(ots2);
+}
+
+bool OTIdentifier::operator >=(const OTIdentifier &s2)  const
+{
+    const OTString ots1(*this), ots2(s2);
+	
+	return ots1.operator>=(ots2);
+}
+
 
 
 OTIdentifier::~OTIdentifier()

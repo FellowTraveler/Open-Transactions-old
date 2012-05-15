@@ -2146,7 +2146,9 @@ bool OTContract::SignContract(const char * szFoldername, const char * szFilename
  		   NOTE: The PrivateKey read routines can be used in all applications because they handle all formats transparently.
 		 */
 		
-		pkey = PEM_read_bio_PrivateKey( bio, NULL, OTAsymmetricKey::GetPasswordCallback(), NULL);
+        OTPasswordData thePWData("(OTContract::SignContract is trying to read the private key...)");
+        
+		pkey = PEM_read_bio_PrivateKey( bio, NULL, OTAsymmetricKey::GetPasswordCallback(), &thePWData);
 		
 		if (NULL == pkey) 
 		{ 
@@ -2294,7 +2296,9 @@ bool OTContract::VerifySignature(const char * szFoldername, const char * szFilen
 //		return false;
 //	}
 	
-	x509 = PEM_read_bio_X509(bio, NULL, OTAsymmetricKey::GetPasswordCallback(), NULL); 
+    OTPasswordData thePWData("(OTContract::VerifySignature is trying to read the private key...)");
+
+	x509 = PEM_read_bio_X509(bio, NULL, OTAsymmetricKey::GetPasswordCallback(), &thePWData); 
 	BIO_free_all(bio);
 	
 	// --------------------------
@@ -3246,7 +3250,7 @@ bool OTContract::LoadEncodedTextField(IrrXMLReader*& xml, OTString & strOutput)
 {
 	OTASCIIArmor ascOutput;
 	
-	if (LoadEncodedTextField(xml, ascOutput) && ascOutput.GetLength() > 2)
+	if (OTContract::LoadEncodedTextField(xml, ascOutput) && ascOutput.GetLength() > 2)
 	{
 		return ascOutput.GetString(strOutput, true); // linebreaks = true
 	}
@@ -3324,7 +3328,7 @@ bool OTContract::LoadEncodedTextFieldByName(IrrXMLReader*& xml, OTString & strOu
 	
 	OTASCIIArmor ascOutput;
 	
-	if (LoadEncodedTextFieldByName(xml, ascOutput, szName, pmapExtraVars) && ascOutput.GetLength() > 2)
+	if (OTContract::LoadEncodedTextFieldByName(xml, ascOutput, szName, pmapExtraVars) && ascOutput.GetLength() > 2)
 	{
 		return ascOutput.GetString(strOutput, true); // linebreaks = true
 	}
@@ -3386,7 +3390,7 @@ bool OTContract::LoadEncodedTextFieldByName(IrrXMLReader*& xml, OTASCIIArmor & a
 			
 			// ----------------------------------------
 			
-			if (false == LoadEncodedTextField(xml, ascOutput)) // <====================================================
+			if (false == OTContract::LoadEncodedTextField(xml, ascOutput)) // <====================================================
 			{
 				OTLog::vError("OTContract::LoadEncodedTextFieldByName: Error loading %s field.\n",
 							  pElementExpected);

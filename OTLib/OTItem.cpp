@@ -1490,7 +1490,7 @@ int OTItem::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 	}
 	else if (!strcmp("note", xml->getNodeName())) 
 	{		
-		if (false == LoadEncodedTextField(xml, m_ascNote))
+		if (false == OTContract::LoadEncodedTextField(xml, m_ascNote))
 		{
 			OTLog::Error("Error in OTItem::ProcessXMLNode: note field without value.\n");
 			return (-1); // error condition
@@ -1500,7 +1500,7 @@ int OTItem::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 	}
 	else if (!strcmp("inReferenceTo", xml->getNodeName())) 
 	{		
-		if (false == LoadEncodedTextField(xml, m_ascInReferenceTo))
+		if (false == OTContract::LoadEncodedTextField(xml, m_ascInReferenceTo))
 		{
 			OTLog::Error("Error in OTItem::ProcessXMLNode: inReferenceTo field without value.\n");
 			return (-1); // error condition
@@ -1510,7 +1510,7 @@ int OTItem::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 	}
 	else if (!strcmp("attachment", xml->getNodeName())) 
 	{		
-		if (false == LoadEncodedTextField(xml, m_ascAttachment))
+		if (false == OTContract::LoadEncodedTextField(xml, m_ascAttachment))
 		{
 			OTLog::Error("Error in OTItem::ProcessXMLNode: attachment field without value.\n");
 			return (-1); // error condition

@@ -316,7 +316,7 @@ int OTTrade::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 
 	else if (!strcmp("offer", xml->getNodeName())) 
 	{		
-		if (false == LoadEncodedTextField(xml, m_strOffer))
+		if (false == OTContract::LoadEncodedTextField(xml, m_strOffer))
 		{
 			OTLog::Error("Error in OTTrade::ProcessXMLNode: offer field without value.\n");
 			return (-1); // error condition

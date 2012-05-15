@@ -129,6 +129,10 @@
 #ifndef __OT_PASSWORD_H__
 #define __OT_PASSWORD_H__
 
+
+#include <string>
+
+
 /*
  To use:
  
@@ -302,6 +306,60 @@ void main()
  
  */
 
+class OTString;
+
+
+/* 
+ OTPasswordData
+ This class is used for passing user data to the password callback.
+ Whenever actually doing some OpenSSL call that involves a private key,
+ just instantiate one of these and pass its address as the userdata for
+ the OpenSSL call.  Then when the OT password callback is activated by
+ OpenSSL, that pointer will be passed into the callback, so the user string
+ can be displayed on the password dialog. (And also so the callback knows
+ whether it was activated for a normal key or for a master key.) If it was
+ activated for a normal key, then it will use the cached master key, or
+ if that's timed out then it will try to decrypt a copy of it using the
+ master Nym. Whereas if it WAS activated for the Master Nym, then it will
+ just pop up the passphrase dialog and get his passphrase, and use that to
+ decrypt the master key.
+ 
+ NOTE: For internationalization later, we can add an OTPasswordData constructor
+ that takes a STRING CODE instead of an actual string. We can use an enum for
+ this. Then we just pass the code there, instead of the string itself, and 
+ the class will do the work of looking up the actual string based on that code.
+ */
+
+class OTPassword;
+
+
+
+
+class OTPasswordData
+{
+private:
+    OTPassword *       m_pMasterPW; // Used only when isForMasterKey is true.
+    const std::string  m_strDisplay;
+    bool               m_bUsingOldSystem; // "Do NOT use MasterKey if this is true."
+public:
+    // --------------------------------
+    bool            isForNormalNym()   const;
+    bool            isForMasterKey()   const;
+    const char *    GetDisplayString() const;
+    
+    bool            isUsingOldSystem() const;
+    void            setUsingOldSystem(bool bUsing=true);
+    // --------------------------------
+    OTPassword *    GetMasterPW() { return m_pMasterPW; }
+    // --------------------------------
+    OTPasswordData(const char        *   szDisplay, OTPassword * pMasterPW=NULL);  
+    OTPasswordData(const std::string & str_Display, OTPassword * pMasterPW=NULL);  
+    OTPasswordData(const OTString    &  strDisplay, OTPassword * pMasterPW=NULL);  
+    ~OTPasswordData();
+};
+
+
+
 // Originally written for the safe storage of passwords.
 // Now used for symmetric keys as well.
 // Specifically: when the clear version of a password or key must be stored
@@ -343,7 +401,14 @@ public:
     bool    isPassword() const;
 	const
 	char *	getPassword() const; // asserts if m_bIsText is false.
+	char *	getPasswordWritable(); // asserts if m_bIsText is false.
 	int		setPassword(const char * szInput, int nInputSize); // (FYI, truncates if nInputSize larger than getBlockSize.)
+    bool    addChar(char theChar);
+    // ---------------------
+    int     randomizePassword(size_t nNewSize=DEFAULT_SIZE);
+    // -----------------
+    static
+    bool    randomizePassword(char * szDestination, size_t nNewSize);
     // -----------------
     bool    isMemory() const;
 	const
@@ -358,6 +423,7 @@ public:
     bool    randomizeMemory(char * szDestination, size_t nNewSize);
     // -----------------
 	int		getBlockSize()    const;
+	bool	Compare(OTPassword & rhs) const;
     // ----------------------
 	int		getPasswordSize() const; // asserts if m_bIsText is false.
 	int		getMemorySize()   const; // asserts if m_bIsBinary is false.
@@ -377,7 +443,9 @@ public:
                        size_t   src_length,
                        bool     bZeroSource=false); // if true, sets the source buffer to zero after copying is done.    
     // ---------------------------------------
+    OTPassword & operator=(const OTPassword & rhs);
 	OTPassword(BlockSize theBlockSize=DEFAULT_SIZE);
+	OTPassword(const OTPassword & rhs);
 	OTPassword(const char * szInput, int nInputSize, BlockSize theBlockSize=DEFAULT_SIZE);  // text   / password stored.
 	OTPassword(const void * vInput,  int nInputSize, BlockSize theBlockSize=DEFAULT_SIZE);  // binary / symmetric key stored.
     // -----------------

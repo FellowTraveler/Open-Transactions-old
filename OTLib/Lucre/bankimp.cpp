@@ -9,8 +9,8 @@ extern "C"
 #include <openssl/asn1.h>
 }
 
-static BIO *dout;
-static BIO *mout;
+static BIO *dout = NULL;
+static BIO *mout = NULL;
 
 const char _NL[]="\n";
 
@@ -132,7 +132,10 @@ void Bank::cb(int n, int, void * /*arg*/)
     if (n == 2) c='*';
     if (n == 3) c='\n';
     BIO_write(mout,&c,1);
-    BIO_flush(mout);
+        
+        // FT: I added nTemp to get rid of annoying compiler warning.
+    int nTemp = BIO_flush(mout);
+        ++nTemp;
     }
 
 /*const*/ BIGNUM *Bank::SignRequest(PublicCoinRequest &req)

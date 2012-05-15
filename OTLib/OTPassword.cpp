@@ -172,6 +172,8 @@ extern "C"
 
 #include "OTPassword.h"
 
+#include "OTString.h"
+
 #include "OTLog.h"
 
 // ---------------------------------------------------------
@@ -282,8 +284,95 @@ bool ot_unlockPage(void* addr, int len)
     return false;
 }
 
+
+
 // ---------------------------------------------------------
 
+// Instantiate one of these whenever you do an action that may
+// require a passphrase. When you call the OpenSSL private key
+// using function, just pass in the address to this instance along
+// as one of the parameters. That way when the actual password
+// callback is activated, you'll get that pointer as the userdata
+// parameter to the callback.
+// This enables you to easily pass data to the callback about
+// which Nym is doing the action, or what string should be displayed
+// on the screen, etc. You'll also be able to use the same mechanism
+// for determining whether it's a wallet-Nym doing the action, or
+// a real Nym. (Thus making it possible to skip any "password caching"
+// code that normally happens for real nyms, when it's the wallet nym.)
+//
+/*
+ 
+class OTPasswordData
+{
+private:
+    OTPassword *       m_pMasterPW; // Used only when isForMasterKey is true.
+    const std::string  m_strDisplay;
+    
+public:
+    // --------------------------------
+    bool            isForMasterKey()   const;
+    const char *    GetDisplayString() const;
+    // --------------------------------
+    OTPasswordData(const char        *   szDisplay, OTPassword * pMasterPW=NULL);  
+    OTPasswordData(const std::string & str_Display, OTPassword * pMasterPW=NULL);  
+    OTPasswordData(const OTString    &  strDisplay, OTPassword * pMasterPW=NULL);  
+    ~OTPasswordData();
+};
+ */
+
+
+bool OTPasswordData::isUsingOldSystem() const
+{
+    return m_bUsingOldSystem;
+}
+
+void OTPasswordData::setUsingOldSystem(bool bUsing/*=true*/)
+{
+    m_bUsingOldSystem = bUsing;
+}
+
+
+bool OTPasswordData::isForNormalNym() const
+{
+    return (NULL == m_pMasterPW);
+}
+
+bool OTPasswordData::isForMasterKey() const
+{
+    return (NULL != m_pMasterPW);
+}
+
+const char * OTPasswordData::GetDisplayString() const
+{
+    return m_strDisplay.c_str();
+}
+
+OTPasswordData::OTPasswordData(const char * szDisplay, OTPassword * pMasterPW/*=NULL*/)
+: m_pMasterPW(pMasterPW), m_strDisplay(NULL == szDisplay ? "(Sorry, no user data provided.)" : szDisplay),
+  m_bUsingOldSystem(false)
+{
+    
+}
+
+OTPasswordData::OTPasswordData(const std::string & str_Display, OTPassword * pMasterPW/*=NULL*/)
+: m_pMasterPW(pMasterPW), m_strDisplay(str_Display), m_bUsingOldSystem(false)
+{
+    
+}
+
+OTPasswordData::OTPasswordData(const OTString & strDisplay, OTPassword * pMasterPW/*=NULL*/)
+: m_pMasterPW(pMasterPW), m_strDisplay(strDisplay.Get()),   m_bUsingOldSystem(false)
+{
+    
+}
+
+OTPasswordData::~OTPasswordData()
+{
+    
+}
+
+// ---------------------------------------------------------
 
 // PURPOSE OF ZERO'ING MEMORY:
 //
@@ -414,7 +503,45 @@ OTPassword::OTPassword(OTPassword::BlockSize theBlockSize/*=DEFAULT_SIZE*/)
 	m_theBlockSize(theBlockSize) // The buffer has this size+1 as its static size.
 {
 	m_szPassword[0] = '\0';
+    setPassword("", 0);
 }
+
+// ---------------------------------------------------------
+
+
+OTPassword & OTPassword::operator=(const OTPassword & rhs)
+{
+    if (rhs.isPassword())
+    {
+        setPassword(rhs.getPassword(), rhs.getPasswordSize());
+    }
+    else if (rhs.isMemory())
+    {
+        setMemory(rhs.getMemory(), rhs.getMemorySize());
+    }
+    
+    return *this;
+}
+
+
+OTPassword::OTPassword(const OTPassword & rhs)
+:	m_nPasswordSize(0),
+    m_bIsText(rhs.isPassword()),
+    m_bIsBinary(rhs.isMemory()),
+    m_bIsPageLocked(false),
+    m_theBlockSize(rhs.m_theBlockSize) // The buffer has this size+1 as its static size.
+{
+    if (m_bIsText)
+    {
+        m_szPassword[0] = '\0';
+        setPassword(rhs.getPassword(), rhs.getPasswordSize());
+    }
+    else if (m_bIsBinary)
+    {
+        setMemory(rhs.getMemory(), rhs.getMemorySize());
+    }
+}
+
 // ---------------------------------------------------------
 
 OTPassword::OTPassword(const char * szInput, int nInputSize, OTPassword::BlockSize theBlockSize/*=DEFAULT_SIZE*/)
@@ -470,6 +597,12 @@ const char * OTPassword::getPassword() const
 	return (m_nPasswordSize <= 0) ? "" : &(m_szPassword[0]); 
 }
 
+char * OTPassword::getPasswordWritable()
+{
+    OT_ASSERT(m_bIsText);
+	return (m_nPasswordSize <= 0) ? NULL : static_cast<char *>(static_cast<void *>(&(m_szPassword[0]))); 
+}
+
 // ---------------------------------------------------------
 // getMemory returns NULL if empty, otherwise returns the password.
 //
@@ -507,6 +640,49 @@ int OTPassword::getMemorySize() const
     OT_ASSERT(m_bIsBinary);
 	return m_nPasswordSize; 
 }
+
+
+// ------------------
+
+bool OTPassword::addChar(char theChar)
+{
+    OT_ASSERT(isPassword());
+    if (getPasswordSize() < getBlockSize())
+    {
+        m_szPassword[m_nPasswordSize] = theChar;
+        ++m_nPasswordSize;
+        m_szPassword[m_nPasswordSize] = '\0';
+        return true;
+    }
+    return false;
+}
+
+// -------------------
+
+bool OTPassword::Compare(OTPassword & rhs) const
+{
+    OT_ASSERT(this->isPassword() || this->isMemory());
+    OT_ASSERT(rhs.isPassword()   || rhs.isMemory());
+    
+    if (this->isPassword() && !rhs.isPassword())
+        return false;
+    if (this->isMemory() && !rhs.isMemory())
+        return false;
+    
+    const int nThisSize = this->isPassword() ? this->getPasswordSize() : this->getMemorySize();
+    const int nRhsSize  = rhs.isPassword()   ? rhs.getPasswordSize()   : rhs.getMemorySize();
+    
+    if (nThisSize != nRhsSize)
+        return false;
+    
+    if (0 == memcmp(this->isPassword() ? this->getPassword()   : this->getMemory(), 
+                    rhs.isPassword()   ? rhs.getPassword()     : rhs.getMemory(), 
+                    rhs.isPassword()   ? rhs.getPasswordSize() : rhs.getMemorySize()) )
+        return true;
+    
+    return false;
+}
+
 
 // ---------------------------------------------------------
 // Returns size of password (in case truncation is necessary.)
@@ -604,6 +780,93 @@ void OTPassword::zeroMemory()
     // -------------------
 }
 */
+
+
+//static
+bool OTPassword::randomizePassword(char * szDestination, size_t nNewSize)
+{
+    OT_ASSERT(NULL != szDestination);
+    OT_ASSERT(nNewSize > 0);
+	// ---------------------------------
+//    const char * szFunc = "OTPassword::randomizePassword(static)";
+	// ---------------------------------
+    if (OTPassword::randomizeMemory(szDestination, nNewSize))
+    {
+        // --------------------------------------------------
+        // This loop converts an array of binary bytes into the
+        // same array, where each byte is translated to a byte
+        // between the values of 33 and 122 (visible ASCII.)
+        for (size_t i = 0; i < nNewSize; ++i)
+        {
+            char temp =  (( (szDestination[i]) % 89 ) + 33);
+            szDestination[i] = temp;
+        }
+        // --------------------------------------------------
+        // Add the NULL terminator...
+        //
+        szDestination[nNewSize-1] = '\0';
+        
+        return true;
+    }
+    return false;
+}
+
+
+// ---------------------------------------------------------
+// Returns size of memory (in case truncation is necessary.)
+// Returns -1 in case of error.
+//
+int OTPassword::randomizePassword(size_t nNewSize/*=DEFAULT_SIZE*/)
+{
+    const char * szFunc = "OTPassword::randomizePassword";
+    int nSize = static_cast<int>(nNewSize);
+    // ---------------------------------
+	// Wipe whatever was in there before.
+    //
+	if (m_nPasswordSize > 0)
+		zeroMemory();
+	// ---------------------------------
+	if (0 > nSize)
+		return (-1);
+    // ---------------------------------
+    m_bIsBinary = false;
+    m_bIsText   = true;
+	// ---------------------------------
+	if (0 == nSize)
+		return 0;
+	// ---------------------------------
+	// Make sure no input size is larger than our block size
+	//
+	if (nSize > getBlockSize())
+		nSize = getBlockSize(); // Truncated password beyond max size.
+    //
+    // Lock the memory page, before we randomize 'size bytes' of the data.
+    // (If it's not already locked, which I doubt it will be.)
+    //
+    if (!m_bIsPageLocked) // it won't be locked already, since we just zero'd it (above.) But I check this anyway...
+    {
+        if (ot_lockPage(static_cast<void *>(&(m_szPassword[0])), getBlockSize()))
+        {
+            m_bIsPageLocked = true;
+        }
+        else
+            OTLog::vError("%s: Error: Failed attempting to lock memory page.\n", szFunc);
+    }    
+	// ---------------------------------
+    //
+	if (!OTPassword::randomizePassword(&(m_szPassword[0]), static_cast<size_t>(nSize+1)))
+    {
+        // randomizeMemory (above) already logs, so I'm not logging again twice here.
+        //
+        zeroMemory();
+		return -1;
+	}
+	// --------------------------------------------------
+	m_nPasswordSize = nSize;
+    
+	return m_nPasswordSize;
+}
+
 
 
 //static

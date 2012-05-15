@@ -255,14 +255,6 @@ protected:
 	bool LoadContractXML(); // The XML file is in m_xmlUnsigned. Load it from there into members here.
 	
 	// -------------------------------------------------------------------
-	bool LoadEncodedTextField(irr::io::IrrXMLReader*& xml, OTASCIIArmor &ascOutput);
-	bool LoadEncodedTextField(irr::io::IrrXMLReader*& xml, OTString &strOutput);
-	
-	bool LoadEncodedTextFieldByName(irr::io::IrrXMLReader*& xml, OTASCIIArmor &ascOutput, 
-									const char *& szName, mapOfStrings * pmapExtraVars = NULL);
-	bool LoadEncodedTextFieldByName(irr::io::IrrXMLReader*& xml, OTString &strOutput, 
-									const char *& szName, mapOfStrings * pmapExtraVars = NULL);
-	// -------------------------------------------------------------------
 
 	// return -1 if error, 0 if nothing, and 1 if the node was processed.
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
@@ -284,6 +276,14 @@ protected:
 
 	// -------------------------------------------------------------------
 public:
+    static bool LoadEncodedTextField(irr::io::IrrXMLReader*& xml, OTASCIIArmor &ascOutput);
+    static bool LoadEncodedTextField(irr::io::IrrXMLReader*& xml, OTString &strOutput);
+	
+    static bool LoadEncodedTextFieldByName(irr::io::IrrXMLReader*& xml, OTASCIIArmor &ascOutput, 
+                                           const char *& szName, mapOfStrings * pmapExtraVars = NULL);
+    static bool LoadEncodedTextFieldByName(irr::io::IrrXMLReader*& xml, OTString &strOutput, 
+                                           const char *& szName, mapOfStrings * pmapExtraVars = NULL);
+    // -------------------------------------------------------------------
 	static bool SkipToElement(IrrXMLReader*& xml);
 	static bool SkipToTextField(IrrXMLReader*& xml);
 	static bool SkipAfterLoadingField(IrrXMLReader*& xml);

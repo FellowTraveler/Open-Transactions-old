@@ -218,6 +218,7 @@ CXXSOURCES = $(BIGINTSOURCES) $(LUCRESOURCES) $(IRRXMLSOURCES) \
 			 Bitcoin.pb.cpp \
 			 Moneychanger.pb.cpp \
 			 anyoption.cpp \
+			 tinythread.cpp \
 			 Timer.cpp
 
 CXXOBJECTS = $(CXXSOURCES:.cpp=.o)  # expands to list of object files
