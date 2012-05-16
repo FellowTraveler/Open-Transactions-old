@@ -141,7 +141,7 @@ extern "C"
 #include <netinet/in.h>
 #endif
 
-#include "SSL-Example/SFSocket.h"
+//#include "SSL-Example/SFSocket.h"
 }
 
 #include "OTStorage.h"
@@ -272,8 +272,8 @@ void OTClientConnection::ProcessBuffer()
 		// Read the header
 		for (nread = 0;  nread < OT_CMD_HEADER_SIZE;  nread += err)
 		{
-			err = SFSocketRead(m_pSocket, 
-							   theCMD.buf + nread, OT_CMD_HEADER_SIZE - nread);
+//			err = SFSocketRead(m_pSocket, 
+//							   theCMD.buf + nread, OT_CMD_HEADER_SIZE - nread);
 
 #ifdef _WIN32
 			if (0 == err || SOCKET_ERROR == err) // 0 is a disconnect. error is error. otherwise err contains bytes read.
@@ -361,9 +361,9 @@ void OTClientConnection::ReadBytesIntoBuffer()
 	// actually read the payload from the socket into the buffer.
 	for (nread = 0;  nread < nNumberOfBytesToRead;  nread += err)
 	{
-		err = SFSocketRead(m_pSocket, 
-						   szBuffer + nread,
-						   nNumberOfBytesToRead - nread);
+//		err = SFSocketRead(m_pSocket, 
+//						   szBuffer + nread,
+//						   nNumberOfBytesToRead - nread);
 		
 		// if we don't read anything more, stop reading and move on
 #ifdef _WIN32
@@ -441,7 +441,7 @@ void OTClientConnection::ProcessMessage(u_header & theCMD)
 		
 		while (1)
 		{
-			err = SFSocketRead(m_pSocket, buffer, sizeJunkData);
+//			err = SFSocketRead(m_pSocket, buffer, sizeJunkData);
 			
 			if (err > 0)
 				nread += err;
@@ -757,7 +757,7 @@ void OTClientConnection::ProcessReply(OTMessage &theReply)
 		
 		for (nwritten = 0;  nwritten < nHeaderSize;  nwritten += err)
 		{
-			err = SFSocketWrite(m_pSocket, theCMD.buf + nwritten, nHeaderSize - nwritten);
+//			err = SFSocketWrite(m_pSocket, theCMD.buf + nwritten, nHeaderSize - nwritten);
 
 #ifdef _WIN32
 			if (0 == err || SOCKET_ERROR == err) // 0 means disconnect. error means error. >0 means bytes read.
@@ -776,7 +776,7 @@ void OTClientConnection::ProcessReply(OTMessage &theReply)
 		
 		for (nwritten = 0;  nwritten < nPayloadSize;  nwritten += err)
 		{
-			err = SFSocketWrite(m_pSocket, (unsigned char *)thePayload.GetPayloadPointer() + nwritten, nPayloadSize - nwritten);
+//			err = SFSocketWrite(m_pSocket, (unsigned char *)thePayload.GetPayloadPointer() + nwritten, nPayloadSize - nwritten);
 
 #ifdef _WIN32
 			if (0 == err || SOCKET_ERROR == err) // 0 means disconnect. error means error. >0 means bytes read.
@@ -834,19 +834,19 @@ OTMessage * OTClientConnection::GetNextOutputMessage()
 
 
 // For TCP / SSL mode.
-OTClientConnection::OTClientConnection(SFSocket & theSocket, OTServer & theServer)
-{
-	m_pSocket		= &theSocket;
-	m_pServer		= &theServer;
-	
-	m_bHaveHeader	= false;
-	m_bFocused		= false; // tcp over ssl mode
-}
+//OTClientConnection::OTClientConnection(SFSocket & theSocket, OTServer & theServer)
+//{
+//	m_pSocket		= &theSocket;
+//	m_pServer		= &theServer;
+//	
+//	m_bHaveHeader	= false;
+//	m_bFocused		= false; // tcp over ssl mode
+//}
 
 // For XmlRpc / HTTP mode.
 OTClientConnection::OTClientConnection(OTServer & theServer)
 {
-	m_pSocket		= NULL;
+//	m_pSocket		= NULL;
 	m_pServer		= &theServer;
 	
 	m_bHaveHeader	= false;
@@ -856,11 +856,11 @@ OTClientConnection::OTClientConnection(OTServer & theServer)
 OTClientConnection::~OTClientConnection()
 {
 	// Disconnect Client
-	if (NULL != m_pSocket)
-	{
-		SFSocketRelease(m_pSocket);
-		m_pSocket = NULL;
-	}
+//	if (NULL != m_pSocket)
+//	{
+////		SFSocketRelease(m_pSocket);
+//		m_pSocket = NULL;
+//	}
 }
 
 		
