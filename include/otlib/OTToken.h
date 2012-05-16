@@ -282,7 +282,7 @@ public:
 	inline const OTASCIIArmor & GetSpendable() const { return m_ascSpendable; }
 	inline void SetSpendable(const OTASCIIArmor & theArmor) { m_ascSpendable.Set(theArmor); }
 	
-	bool GetSpendableString(OTPseudonym & theOwner, OTString & theString) const;
+EXPORT	bool GetSpendableString(OTPseudonym & theOwner, OTString & theString) const;
 	
 	inline OTToken::tokenState GetState() const { return m_State; }
 	
@@ -308,13 +308,13 @@ public:
 	// Lucre step 5: token verifies when it is redeemed by merchant.
 	//				 Now including spent token database!
 	bool VerifyToken(OTPseudonym & theNotary, OTMint & theMint);
-	bool IsTokenAlreadySpent(OTString & theCleartextToken); // Spent Token Database
-	bool RecordTokenAsSpent(OTString & theCleartextToken);  // Spent Token Database
+EXPORT	bool IsTokenAlreadySpent(OTString & theCleartextToken); // Spent Token Database
+EXPORT	bool RecordTokenAsSpent(OTString & theCleartextToken);  // Spent Token Database
 	
 
 	// ------------------------------------------------------------------------
 	
-	void SetSignature(const OTASCIIArmor & theSignature, int nTokenIndex);
+EXPORT	void SetSignature(const OTASCIIArmor & theSignature, int nTokenIndex);
 	bool GetSignature(OTASCIIArmor & theSignature) const;
 	
 	// The actual denomination of the token is determined by whether or not it verifies

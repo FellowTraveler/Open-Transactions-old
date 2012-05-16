@@ -688,7 +688,7 @@ public:
     // -------------------------------------------------
     // as used "IN THE SCRIPT."
     //
-    std::string GetPartyName(bool * pBoolSuccess=NULL) const; // "sales_director", "marketer", etc
+EXPORT    std::string GetPartyName(bool * pBoolSuccess=NULL) const; // "sales_director", "marketer", etc
     bool SetPartyName(const std::string & str_party_name_input);
     
 	// --------------------

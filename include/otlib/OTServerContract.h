@@ -157,9 +157,9 @@ protected:
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);	
 public:
 	OTServerContract();
-	OTServerContract(OTString & name, OTString & foldername, OTString & filename, OTString & strID);
+EXPORT	OTServerContract(OTString & name, OTString & foldername, OTString & filename, OTString & strID);
 
-	bool GetConnectInfo(OTString & strHostname, int & nPort);
+EXPORT	bool GetConnectInfo(OTString & strHostname, int & nPort);
 	
 	virtual ~OTServerContract();
 

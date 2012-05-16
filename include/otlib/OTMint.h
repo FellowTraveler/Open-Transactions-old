@@ -200,20 +200,20 @@ public:
 	inline	time_t	GetValidTo()	const { return m_VALID_TO; }	// The token "valid until" date for this series
 	inline	time_t	GetExpiration()	const { return m_EXPIRATION; }	// The date the mint expires (should be halfway
 																	// between the above two dates.)
-	bool Expired() const;	// true or false. Expired? 
+EXPORT	bool Expired() const;	// true or false. Expired? 
 							// Valid range is GetValidFrom() through GetExpiration().
 	
     // Server-side only.
 	inline OTAccount * GetCashReserveAccount() const { return m_pReserveAcct; }
 	
 	OTMint();
-	OTMint(const OTString & strServerID, const OTString & strAssetTypeID);
-	OTMint(const OTString & strServerID, const OTString & strServerNymID, const OTString & strAssetTypeID);
-	virtual ~OTMint();
+EXPORT	OTMint(const OTString & strServerID, const OTString & strAssetTypeID);
+EXPORT	OTMint(const OTString & strServerID, const OTString & strServerNymID, const OTString & strAssetTypeID);
+EXPORT	virtual ~OTMint();
 	virtual void Release();
 	void ReleaseDenominations();
 	
-	bool LoadMint(const char * szAppend=NULL);
+EXPORT	bool LoadMint(const char * szAppend=NULL);
 	bool SaveMint(const char * szAppend=NULL);
 	
 	virtual bool LoadContract();
@@ -234,7 +234,7 @@ public:
 
 	virtual bool VerifyContractID();
 	
-	bool VerifyMint(const OTPseudonym & theOperator);
+EXPORT	bool VerifyMint(const OTPseudonym & theOperator);
 	
 	virtual void UpdateContents(); // Before transmission or serialization, this is where the token saves its contents 
 
@@ -250,12 +250,12 @@ public:
 	// step 2: (coin request is in OTToken)
 	
 	// Lucre step 3: mint signs token
-	bool SignToken(OTPseudonym & theNotary, OTToken & theToken, OTString & theOutput, int nTokenIndex);
+EXPORT	bool SignToken(OTPseudonym & theNotary, OTToken & theToken, OTString & theOutput, int nTokenIndex);
 	
 	// step 4: (unblind coin is in OTToken)
 	
 	// Lucre step 5: mint verifies token when it is redeemed by merchant.
-	bool VerifyToken(OTPseudonym & theNotary, OTString & theCleartextToken, long lDenomination);
+EXPORT	bool VerifyToken(OTPseudonym & theNotary, OTString & theCleartextToken, long lDenomination);
 
 	virtual bool SaveContractWallet(std::ofstream & ofs);
 //	virtual bool SaveContractWallet(FILE * fl);	

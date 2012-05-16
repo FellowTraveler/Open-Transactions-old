@@ -342,7 +342,7 @@ public:
 	// OTSmartContract
 	//
 	//
-	bool VerifySmartContract(OTPseudonym & theNym, OTAccount & theAcct, OTPseudonym & theServerNym,
+EXPORT	bool VerifySmartContract(OTPseudonym & theNym, OTAccount & theAcct, OTPseudonym & theServerNym,
 							 const bool bBurnTransNo=false);
 	// theNym is trying to activate the smart contract, and has 
 	// supplied transaction numbers and a user/acct ID. theNym definitely IS the owner of the account... that is 
@@ -440,7 +440,7 @@ public:
 	OTStash * GetStash(const std::string str_stash_name);
 
 	// Low-level.
-	void ExecuteClauses (mapOfClauses & theClauses, OTString * pParam=NULL);
+EXPORT	void ExecuteClauses (mapOfClauses & theClauses, OTString * pParam=NULL);
 	
     // -------------------------------------
 	// Low level.
@@ -458,7 +458,7 @@ public:
 	// -----------------------------------------------
 	
 	OTSmartContract();
-	OTSmartContract(const OTIdentifier & SERVER_ID);
+EXPORT	OTSmartContract(const OTIdentifier & SERVER_ID);
 	OTSmartContract(const OTIdentifier & SERVER_ID,			const OTIdentifier & ASSET_ID,
 					const OTIdentifier & SENDER_ACCT_ID,	const OTIdentifier & SENDER_USER_ID,
 					const OTIdentifier & RECIPIENT_ACCT_ID,	const OTIdentifier & RECIPIENT_USER_ID);

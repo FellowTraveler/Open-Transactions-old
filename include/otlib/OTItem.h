@@ -381,7 +381,7 @@ public:
 	
 	// Call this on the server side, on a balanceStatement item, to verify
 	// whether the wallet side set it up correctly (and thus it's okay to sign and return with acknowledgement.)
-	bool VerifyBalanceStatement(const long lActualAdjustment, 
+EXPORT	bool VerifyBalanceStatement(const long lActualAdjustment, 
 								OTPseudonym & THE_NYM,
 								OTLedger & THE_INBOX,
 								OTLedger & THE_OUTBOX,
@@ -391,7 +391,7 @@ public:
 																// didn't know the outbox trans# when constructing
 																// the original request.) Unused when 0.
 	// server-side
-	bool VerifyTransactionStatement(OTPseudonym & THE_NYM, OTTransaction & TARGET_TRANSACTION,
+EXPORT	bool VerifyTransactionStatement(OTPseudonym & THE_NYM, OTTransaction & TARGET_TRANSACTION,
                                     const bool bIsRealTransaction=true); // We use this when the trans# is 0 (like when processing Nymbox.)
 	
 	inline OTItem::itemStatus GetStatus() const { return m_Status; }
@@ -402,21 +402,21 @@ public:
 	inline long GetAmount() const { return m_lAmount; }
 	inline void SetAmount(long lAmount) { m_lAmount = lAmount; }
 	
-	void GetNote(OTString & theStr) const;
+EXPORT	void GetNote(OTString & theStr) const;
 	void SetNote(const OTString & theStr);
 
-	void GetAttachment(OTString & theStr) const;
-	void SetAttachment(const OTString & theStr);
+EXPORT	void GetAttachment(OTString & theStr) const;
+EXPORT	void SetAttachment(const OTString & theStr);
 
 	inline const OTIdentifier & GetDestinationAcctID() const { return m_AcctToID; }
 	inline void					SetDestinationAcctID(const OTIdentifier & theID) {  m_AcctToID = theID; }
 	
-	static OTItem * CreateItemFromString(const OTString & strItem, const OTIdentifier & theServerID, long lTransactionNumber);
+EXPORT	static OTItem * CreateItemFromString(const OTString & strItem, const OTIdentifier & theServerID, long lTransactionNumber);
 	
 	
-	static OTItem * CreateItemFromTransaction(const OTTransaction & theOwner, OTItem::itemType theType, OTIdentifier * pDestinationAcctID=NULL);
+EXPORT	static OTItem * CreateItemFromTransaction(const OTTransaction & theOwner, OTItem::itemType theType, OTIdentifier * pDestinationAcctID=NULL);
 	
-	static void GetStringFromType(OTItem::itemType theType, OTString & strType);
+EXPORT	static void GetStringFromType(OTItem::itemType theType, OTString & strType);
 
 	inline void GetTypeString(OTString & strType) { OTItem::GetStringFromType(GetType(), strType); }
 	

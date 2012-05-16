@@ -184,7 +184,7 @@ public:
 	
 	time_t GetCurrentTime() const;
 
-	bool VerifyCurrentDate();	// Verify whether the CURRENT date is WITHIN the VALID FROM / TO dates.
+EXPORT	bool VerifyCurrentDate();	// Verify whether the CURRENT date is WITHIN the VALID FROM / TO dates.
 	bool IsExpired();			// Verify whether the CURRENT date is AFTER the the "VALID TO" date.
 
 	// overridden in child classes, not here.

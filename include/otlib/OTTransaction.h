@@ -539,7 +539,7 @@ public:
     // -------------------------------------------
     // For "OTTransaction::blank" and "OTTransaction::successNotice"
     //
-    bool AddNumbersToTransaction(const OTNumList & theAddition);
+EXPORT    bool AddNumbersToTransaction(const OTNumList & theAddition);
     // -------------------------------------------
 	static
 	int LoadAbbreviatedRecord(irr::io::IrrXMLReader*& xml,
@@ -578,8 +578,8 @@ public:
     void         SetReplyTransSuccess(const bool bVal) {  m_bReplyTransSuccess = bVal;  }
     // -------------------------------------------
     // These are used for finalReceipt and basketReceipt
-    long GetClosingNum() const;
-	void SetClosingNum(const long lClosingNum);
+EXPORT    long GetClosingNum() const;
+EXPORT	void SetClosingNum(const long lClosingNum);
     // -------------------------------------------
 	long GetReferenceNumForDisplay(); /// For display purposes. The "ref #" you actually display (versus the one you use internally) might change based on transaction type. (Like with a cheque receipt you actually have to load up the original cheque.)
 
@@ -591,8 +591,8 @@ public:
 	// ----------------------------------------------------------------
 	inline
     time_t  GetDateSigned()	const { return m_DATE_SIGNED; }
-	bool    GetSuccess(); // Tries to determine, based on items within, whether it was a success or fail.	
-	long    GetReceiptAmount(); // Tries to determine IF there is an amount (depending on type) and return it.
+EXPORT	bool    GetSuccess(); // Tries to determine, based on items within, whether it was a success or fail.	
+EXPORT	long    GetReceiptAmount(); // Tries to determine IF there is an amount (depending on type) and return it.
 	// ----------------------------------------------------------------
 	OTTransaction(const OTLedger & theOwner);
 	OTTransaction(const OTIdentifier & theUserID, const OTIdentifier & theAccountID, const OTIdentifier & theServerID);
@@ -625,7 +625,7 @@ public:
     OTTransaction * GenerateTransaction(const OTIdentifier & theUserID, const OTIdentifier & theAccountID, 
                                         const OTIdentifier & theServerID, transactionType theType, 
                                         long lTransactionNum=0);
-	static
+EXPORT	static
     OTTransaction * GenerateTransaction(const OTLedger & theOwner, transactionType theType, long lTransactionNum=0);
 	// ----------------------------------
 	void InitTransaction();
@@ -640,8 +640,8 @@ public:
     // We pass the ledger in so we can determine the proper directory we're 
     // reading from.
     bool SaveBoxReceipt     (const long lLedgerType);
-    bool SaveBoxReceipt     (OTLedger & theLedger);
-    bool DeleteBoxReceipt   (OTLedger & theLedger);
+EXPORT    bool SaveBoxReceipt     (OTLedger & theLedger);
+EXPORT    bool DeleteBoxReceipt   (OTLedger & theLedger);
     
 	
 	// Caller IS responsible to delete.
@@ -714,7 +714,7 @@ public:
     // they are first loaded up. ServerID and AccountID have been verified.
     // Now we check ownership, and signatures, and transaction #s, etc.
     // (We go deeper.)
-	bool VerifyItems(OTPseudonym & theNym);
+EXPORT	bool VerifyItems(OTPseudonym & theNym);
 	// --------------------------------------------------------------
 	// This calls VerifyContractID() as well as VerifySignature() 
 	// Use this instead of OTContract::VerifyContract, which expects/uses a pubkey from inside the contract.
@@ -726,10 +726,10 @@ public:
 	int GetItemCountInRefTo(const long lReference); // Count the number of items that are IN REFERENCE TO some transaction#.
 
     // While processing a transaction, you may wish to query it for items of a certain type.
-	OTItem * GetItem(const OTItem::itemType theType); 
+EXPORT	OTItem * GetItem(const OTItem::itemType theType); 
 	OTItem * GetItemInRefTo(const long lReference);
 
-	void    AddItem(OTItem & theItem);  // You have to allocate the item on the heap and then pass it in as a reference. 
+EXPORT	void    AddItem(OTItem & theItem);  // You have to allocate the item on the heap and then pass it in as a reference. 
                                         // OTTransaction will take care of it from there and will delete it in destructor.
 	// --------------------------------------------------------------	
     // used for looping through the items in a few places.

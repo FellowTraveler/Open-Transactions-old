@@ -199,15 +199,15 @@ protected:
 	// return -1 if error, 0 if nothing, and 1 if the node was processed.
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
 public:
-	OTBasket();
+EXPORT	OTBasket();
 	OTBasket(int nCount, long lMinimumTransferAmount);
-	virtual ~OTBasket();
+EXPORT	virtual ~OTBasket();
 		
 	virtual void UpdateContents();
 //	virtual bool SaveContractWallet(FILE * fl);	
 	virtual bool SaveContractWallet(std::ofstream & ofs);
 
-	virtual void CalculateContractID(OTIdentifier & newID);
+EXPORT	virtual void CalculateContractID(OTIdentifier & newID);
 	
 	inline long GetMinimumTransfer() const { return m_lMinimumTransfer; }
 	
@@ -217,8 +217,8 @@ public:
     inline bool GetExchangingIn() const { return m_bExchangingIn; }
     inline void SetExchangingIn(const bool bDirection) { m_bExchangingIn = bDirection; } 
     
-	int Count() const;
-	BasketItem * At(unsigned int nIndex);
+EXPORT	int Count() const;
+EXPORT	BasketItem * At(unsigned int nIndex);
 
     long GetClosingTransactionNoAt(unsigned int nIndex);
 

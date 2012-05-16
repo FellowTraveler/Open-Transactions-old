@@ -321,13 +321,13 @@ public:
     // They are numbers used for CLOSING a transaction. (finalReceipt.)
 
     long    GetClosingTransactionNoAt(unsigned int nIndex) const;
-	int     GetCountClosingNumbers() const;
+EXPORT	int     GetCountClosingNumbers() const;
 
     void    AddClosingTransactionNo(const long & lClosingTransactionNo);
     
     // HIGHER LEVEL ABSTRACTIONS:
-    long GetOpeningNum() const;
-    long GetClosingNum() const;
+EXPORT    long GetOpeningNum() const;
+EXPORT    long GetClosingNum() const;
     // ------------------------------------------------------
 	
 	virtual bool IsValidOpeningNumber(const long & lOpeningNum) const;

@@ -221,9 +221,9 @@ public:
 	// ----------------------------------------------------
 	OTParty		* GetParty	(const std::string str_party_name);
 	OTBylaw		* GetBylaw	(const std::string str_bylaw_name);
-	OTClause	* GetClause	(const std::string str_clause_name);
+EXPORT	OTClause	* GetClause	(const std::string str_clause_name);
 	// ----------------------------------------------------
-	OTParty * FindPartyBasedOnNymAsAgent(OTPseudonym & theNym, OTAgent ** ppAgent=NULL);
+EXPORT	OTParty * FindPartyBasedOnNymAsAgent(OTPseudonym & theNym, OTAgent ** ppAgent=NULL);
 	OTParty * FindPartyBasedOnNymAsAuthAgent(OTPseudonym & theNym, OTAgent ** ppAgent=NULL);
 	OTParty * FindPartyBasedOnAccount(OTAccount & theAccount, OTPartyAccount ** ppPartyAccount=NULL);
 	// ----------------------------------------------------
@@ -315,7 +315,7 @@ public:
 	void SetAsClean();		// Sets the variables as clean, so you can check later and see if any have been changed (if it's DIRTY again.)
 	// --------------------------------------------------------------------
 	
-	bool SendNoticeToAllParties(OTPseudonym & theServerNym,
+EXPORT	bool SendNoticeToAllParties(OTPseudonym & theServerNym,
 								const OTIdentifier & theServerID,
 								const long & lNewTransactionNumber,
 //								const long & lInReferenceTo, // each party has its own opening trans #.
@@ -342,7 +342,7 @@ public:
 	// If you want to override that behavior, add a script callback named callback_party_may_execute_clause to your OTScriptable.
 	// CanExecuteClause will call ExecuteCallback() if that script exists, so the script can reply true/false.
 	//
-	bool CanExecuteClause(const std::string str_party_name, const std::string str_clause_name); // This calls (if available) the scripted clause: bool party_may_execute_clause(party_name, clause_name)
+EXPORT	bool CanExecuteClause(const std::string str_party_name, const std::string str_clause_name); // This calls (if available) the scripted clause: bool party_may_execute_clause(party_name, clause_name)
 
 	//
 	// Also: callback_party_may_execute_clause should expect two parameters: param_party_name and param_clause_name, both strings.

@@ -204,8 +204,8 @@ public:
 	// -----------------------------------------------------
 
 	// returns general information about offers on the market
-	bool GetOfferList(OTASCIIArmor & ascOutput, long lDepth, int & nOfferCount);
-	bool GetRecentTradeList(OTASCIIArmor & ascOutput, int & nTradeCount);
+EXPORT	bool GetOfferList(OTASCIIArmor & ascOutput, long lDepth, int & nOfferCount);
+EXPORT	bool GetRecentTradeList(OTASCIIArmor & ascOutput, int & nTradeCount);
 	
 	// Returns more detailed information about offers for a specific Nym.
 	bool GetNym_OfferList(const OTIdentifier & NYM_ID, OTDB::OfferListNym & theOutputList, int & nNymOfferCount);

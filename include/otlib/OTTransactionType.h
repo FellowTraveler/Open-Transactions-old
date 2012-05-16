@@ -541,7 +541,7 @@ protected:
     // numbers, I am able to list them in the accept item.
     // ----------------------------------------------------------------
 public:
-	void GetNumList(OTNumList & theOutput);
+EXPORT	void GetNumList(OTNumList & theOutput);
     // ------------------------------------------------------------------
     static OTTransactionType * TransactionFactory(const OTString & strInput);
 
@@ -591,7 +591,7 @@ public:
 	// Compares the m_AcctID from the xml portion of the contract
 	// with m_ID (supposedly the same number.)
 	// Also Verifies the ServerID, since this object type is all about the both of those IDs.
-	virtual bool VerifyContractID();  
+EXPORT	virtual bool VerifyContractID();  
 	
 	// This calls VerifyContractID() as well as VerifySignature() 
 	// Use this instead of OTContract::VerifyContract, which expects/uses a pubkey from inside the contract.
@@ -612,14 +612,14 @@ public:
 	virtual void Release();
 
 	// need to know the transaction number of this transaction? Call this.
-	long GetTransactionNum() const;
+EXPORT	long GetTransactionNum() const;
 	void SetTransactionNum(const long lTransactionNum);
 	
-	long GetReferenceToNum() const;
-	void SetReferenceToNum(const long lTransactionNum);	
+EXPORT	long GetReferenceToNum() const;
+EXPORT	void SetReferenceToNum(const long lTransactionNum);	
 	
-	void GetReferenceString(OTString & theStr) const;
-	void SetReferenceString(const OTString & theStr);
+EXPORT	void GetReferenceString(OTString & theStr) const;
+EXPORT	void SetReferenceString(const OTString & theStr);
 	
 //	virtual bool SaveContractWallet(FILE * fl);
 	virtual bool SaveContractWallet(std::ofstream & ofs);

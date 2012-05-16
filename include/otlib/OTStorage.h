@@ -638,10 +638,10 @@ public: \
 		std::string QueryString(std::string strFolder, std::string oneStr="",
 								std::string twoStr="", std::string threeStr="");
 		
-		bool StorePlainString(std::string strContents, std::string strFolder, 
+EXPORT		bool StorePlainString(std::string strContents, std::string strFolder, 
 							  std::string oneStr="", std::string twoStr="", std::string threeStr="");
 		
-		std::string QueryPlainString(std::string strFolder, std::string oneStr="",
+EXPORT		std::string QueryPlainString(std::string strFolder, std::string oneStr="",
 									 std::string twoStr="", std::string threeStr="");
 		
 		// -----------------------------------------
@@ -695,7 +695,7 @@ public: \
 	//
 	//
 	
-	bool InitDefaultStorage(StorageType eStoreType, PackType ePackType,
+EXPORT	bool InitDefaultStorage(StorageType eStoreType, PackType ePackType,
 							std::string oneStr="", std::string twoStr="", std::string threeStr="", 
 							std::string fourStr="", std::string fiveStr="", std::string sixStr="");
 	
@@ -716,7 +716,7 @@ public: \
 	// --------
 	// See if the file is there.
 	//
-	bool Exists(std::string strFolder, 
+EXPORT	bool Exists(std::string strFolder, 
 				std::string oneStr="", std::string twoStr="", std::string threeStr="");
 	
 	// --------
@@ -728,10 +728,10 @@ public: \
 	std::string QueryString(std::string strFolder, std::string oneStr="",
 							std::string twoStr="", std::string threeStr="");
 	
-	bool StorePlainString(std::string strContents, std::string strFolder, 
+EXPORT	bool StorePlainString(std::string strContents, std::string strFolder, 
 						  std::string oneStr="", std::string twoStr="", std::string threeStr="");
 	
-	std::string QueryPlainString(std::string strFolder, std::string oneStr="",
+EXPORT	std::string QueryPlainString(std::string strFolder, std::string oneStr="",
 								 std::string twoStr="", std::string threeStr="");
 	
 	// --------
@@ -747,10 +747,10 @@ public: \
 	// -----------------------------------------
 	// Store/Retrieve a Storable object inside an OTASCIIArmor object.
 	
-	std::string EncodeObject(Storable & theContents);
+EXPORT	std::string EncodeObject(Storable & theContents);
 	
 	// Use %newobject OTDB::Storage::DecodeObject();
-	Storable * DecodeObject(StoredObjectType theObjectType, std::string strInput);
+EXPORT	Storable * DecodeObject(StoredObjectType theObjectType, std::string strInput);
 	
 	// -----------------------------------------
     // Erase any value based on its location.

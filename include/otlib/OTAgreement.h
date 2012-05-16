@@ -306,7 +306,7 @@ public:
     // The recipient must also provide an opening and closing transaction number(s).
     //
     long    GetRecipientClosingTransactionNoAt(unsigned int nIndex) const;
-    int     GetRecipientCountClosingNumbers() const;
+EXPORT    int     GetRecipientCountClosingNumbers() const;
     
     void    AddRecipientClosingTransactionNo(const long & lClosingTransactionNo);
     // ----------------------------------------------------------------------------
@@ -314,8 +314,8 @@ public:
     // This is a higher-level than the above functions. It calls them.
     // Below is the abstraction, above is the implementation.
     
-    long    GetRecipientOpeningNum() const;
-    long    GetRecipientClosingNum() const;
+EXPORT    long    GetRecipientOpeningNum() const;
+EXPORT    long    GetRecipientClosingNum() const;
     
     // ----------------------------------------------------------------------------
 	// From OTCronItem (parent class of this)

@@ -171,12 +171,12 @@ protected:
 	// return -1 if error, 0 if nothing, and 1 if the node was processed.
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
 public:
-	bool CreateBasket(OTBasket & theBasket, OTPseudonym & theSigner);
+EXPORT	bool CreateBasket(OTBasket & theBasket, OTPseudonym & theSigner);
 
 	inline const OTString & GetBasketInfo() const { return m_strBasketInfo; }
 	
-	OTAssetContract();
-	OTAssetContract(OTString & name, OTString & foldername, OTString & filename, OTString & strID);
+EXPORT	OTAssetContract();
+EXPORT	OTAssetContract(OTString & name, OTString & foldername, OTString & filename, OTString & strID);
 	virtual ~OTAssetContract();
 	
 	virtual bool CreateContract(OTString & strContract, OTPseudonym & theSigner);
