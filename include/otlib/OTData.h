@@ -131,6 +131,15 @@
 #ifndef __OTDATA_H__
 #define __OTDATA_H__
 
+// DLL Export for Win32
+
+#undef EXPORT
+#ifdef _WINDLL
+  #define EXPORT __declspec(dllexport)
+#else
+  #define EXPORT
+#endif
+
 extern "C" {
 #include <stdint.h>	
 }

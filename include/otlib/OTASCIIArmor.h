@@ -131,6 +131,16 @@
 #ifndef __OT_ASCII_ARMOR_H__
 #define __OT_ASCII_ARMOR_H__
 
+// DLL Export for Win32
+
+#undef EXPORT
+#ifdef _WINDLL
+  #define EXPORT __declspec(dllexport)
+#else
+  #define EXPORT
+#endif
+
+
 #include <WinsockWrapper.h>
 
 

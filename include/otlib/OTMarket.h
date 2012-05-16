@@ -134,6 +134,15 @@
 #ifndef __OTMARKET_H__
 #define __OTMARKET_H__
 
+// DLL Export for Win32
+
+#undef EXPORT
+#ifdef _WINDLL
+  #define EXPORT __declspec(dllexport)
+#else
+  #define EXPORT
+#endif
+
 #include "OTContract.h"
 #include "OTOffer.h"
 #include "OTStorage.h"
