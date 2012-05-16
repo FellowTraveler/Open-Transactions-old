@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /************************************************************************************
  *    
  *  xmlrpcxx_client.cpp  (the XmlRpc++ version of the client -- Web Services version.)
@@ -185,7 +184,7 @@ extern "C"
 
 
 
-#include "SimpleIni.h"
+#include "simpleini/SimpleIni.h"
 
 
 
@@ -3861,3 +3860,4 @@ int main(int argc, char* argv[])
     
 	return 0;
 }
+

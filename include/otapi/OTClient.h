@@ -130,6 +130,8 @@
 #ifndef __OTCLIENT_H__
 #define __OTCLIENT_H__
 
+#include <WinsockWrapper.h>
+
 class OTPseudonym;
 class OTAssetContract;
 class OTServerContract;
@@ -326,7 +328,7 @@ public:
 	inline OTMessageBuffer    & GetMessageBuffer()    { return m_MessageBuffer;    }
 	inline OTMessageOutbuffer & GetMessageOutbuffer() { return m_MessageOutbuffer; }
 
-	inline bool IsConnected() { return m_pConnection->IsConnected(); }
+//	inline bool IsConnected() { return m_pConnection->IsConnected(); }
 
 	// For RPC mode
 	bool SetFocusToServerAndNym(OTServerContract & theServerContract, OTPseudonym & theNym, OT_CALLBACK_MSG pCallback);

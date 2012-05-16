@@ -131,6 +131,8 @@
 #include <string>
 #include <iostream>
 
+#include <WinsockWrapper.h>
+
 #if defined (OT_ZMQ_MODE)
 #include <zmq.hpp>
 #endif
@@ -143,13 +145,12 @@ extern "C"
 #include <netinet/in.h>
 #endif
 	
-#include "SSL-Example/SFSocket.h"
+//#include "SSL-Example/SFSocket.h"
 }
 
 
-// -----------------------
 
-#include "SimpleIni.h"
+#include "simpleini/SimpleIni.h"
 
 // ----------------------------
 
