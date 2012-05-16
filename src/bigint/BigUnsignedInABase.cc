@@ -14,7 +14,7 @@
  
  */
 
-#include "BigUnsignedInABase.hh"
+#include "BigUnsignedInABase.h"
 
 BigUnsignedInABase::BigUnsignedInABase(const Digit *d, Index l, Base base)
 	: NumberlikeArray<Digit>(d, l), base(base) {

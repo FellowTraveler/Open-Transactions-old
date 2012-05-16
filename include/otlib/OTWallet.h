@@ -129,6 +129,8 @@
 #ifndef __OTWALLET_H__
 #define __OTWALLET_H__
 
+#include <WinsockWrapper.h>
+
 #include <string>
 #include <map>
 

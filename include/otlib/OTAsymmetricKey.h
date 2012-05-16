@@ -130,6 +130,8 @@
 #ifndef __OT_ASYMMETRIC_KEY_H__
 #define __OT_ASYMMETRIC_KEY_H__
 
+#include <WinsockWrapper.h>
+
 #include <string>
 
 #include "Timer.h"

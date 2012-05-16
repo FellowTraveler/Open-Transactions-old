@@ -17,8 +17,8 @@
 #ifndef BIGUNSIGNEDINABASE_H
 #define BIGUNSIGNEDINABASE_H
 
-#include "NumberlikeArray.hh"
-#include "BigUnsigned.hh"
+#include "NumberlikeArray.h"
+#include "BigUnsigned.h"
 #include <string>
 
 /*

@@ -178,18 +178,19 @@
 #include <iostream>
 #include <list>
 #include <string>
-#include <unistd.h>
+//#include <unistd.h>
 
 
 #include <zmq.hpp>
 
 //#include "zhelpers.hpp"
 
+#include <WinsockWrapper.h>	
 
 extern "C" 
 {
 #ifdef _WIN32
-#include <WinSock.h>
+//#include <WinSock.h>
 #else
 #include <netinet/in.h>
 #endif
@@ -201,7 +202,7 @@ extern "C"
 // ------------------------------------
 
 
-#include "SimpleIni.h"
+#include "SimpleIni\SimpleIni.h"
 #include "Timer.h"
 
 

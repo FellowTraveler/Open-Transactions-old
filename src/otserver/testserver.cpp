@@ -133,10 +133,12 @@
 #include <cstring>
 #include <cstdio>
 
+#include <WinsockWrapper.h>	
+
 extern "C" 
 {
 #ifdef _WIN32
-#include <WinSock.h>
+//#include <WinSock.h>
 #else
 #include <netinet/in.h>
 #include <wordexp.h>

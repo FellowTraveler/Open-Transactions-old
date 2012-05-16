@@ -5,7 +5,7 @@
  * NOTE: For now, the test suite expects a 32-bit system.  On others, some tests
  * may fail, and it may be ineffective at catching bugs.  TODO: Remedy this. */
 
-#include "BigIntegerLibrary.hh"
+#include "BigIntegerLibrary.h"
 
 #include <string>
 #include <iostream>

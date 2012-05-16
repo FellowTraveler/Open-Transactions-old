@@ -200,7 +200,7 @@ extern "C"
 
 
 // `BigIntegerLibrary.hh' includes all of the library headers for bigint
-#include "BigIntegerLibrary.hh"
+#include <bigint\BigIntegerLibrary.h>
 
 
 

@@ -27,8 +27,8 @@ do
     fi
 
     if [ "$x" == "java" ]; then
-	echo swig -c++ -$x -package org.ot.wrapper.jni -outdir glue/$x otapi/otapi.i
-	swig -c++ -$x -package org.ot.wrapper.jni -outdir glue/$x otapi/otapi.i
+	echo swig -c++ -$x -package com.wrapper.core.jni -outdir glue/$x otapi/otapi.i
+	swig -c++ -$x -package com.wrapper.core.jni -outdir glue/$x otapi/otapi.i
     fi
 
 

@@ -130,7 +130,11 @@
 #ifndef __OTENVELOPE_H__
 #define __OTENVELOPE_H__
 
+#include <WinsockWrapper.h>
+
 #include "OTPayload.h"
+#include <set>
+
 
 class OTPseudonym;
 class OTString;

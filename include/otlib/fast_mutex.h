@@ -24,6 +24,8 @@ freely, subject to the following restrictions:
 #ifndef _FAST_MUTEX_H_
 #define _FAST_MUTEX_H_
 
+#include <WinsockWrapper.h>
+
 /// @file
 
 // Which platform are we on?

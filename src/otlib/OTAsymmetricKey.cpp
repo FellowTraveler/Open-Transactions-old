@@ -151,7 +151,7 @@ extern "C"
 extern "C" 
 {
 #ifdef _WIN32
-#include "Windows.h"
+//#include "Windows.h"
 #include <conio.h>
 #else
 #include <pwd.h>

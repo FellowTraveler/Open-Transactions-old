@@ -6,8 +6,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <WinsockWrapper.h>	
+
 #ifdef _WIN32 // Including this so it'll be above the openssl/ssl.h
-#include <winsock.h> // So there won't be a conflict with WinCrypt.h due to Windows sucking
+//#include <winsock.h> // So there won't be a conflict with WinCrypt.h due to Windows sucking
 #endif
 
 #include <openssl/crypto.h>

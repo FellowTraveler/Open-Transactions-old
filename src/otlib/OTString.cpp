@@ -161,16 +161,16 @@
 
 
 
-#ifndef __linux__
-extern "C" { 
-    size_t strnlen(const char *s, size_t max) 
-    {
-        register const char *p;
-        for(p = s; *p && max--; ++p);
-        return(p - s);
-    }
-}
-#endif
+//#ifndef __linux__
+//extern "C" { 
+//    size_t strnlen(const char *s, size_t max) 
+//    {
+//        register const char *p;
+//        for(p = s; *p && max--; ++p);
+//        return(p - s);
+//    }
+//}
+//#endif
 
 // ---------------------------------------------------------
 
