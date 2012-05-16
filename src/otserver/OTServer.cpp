@@ -145,7 +145,7 @@ using namespace std;
 
 
 
-#include "SimpleIni.h"
+#include "simpleini/SimpleIni.h"
 
 
 // ------------------------

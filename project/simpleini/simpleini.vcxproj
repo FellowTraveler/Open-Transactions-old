@@ -23,7 +23,7 @@
     <ClInclude Include="..\..\include\simpleini\SimpleIni.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\simpleini\ConvertUTF.c" />
+    <ClCompile Include="..\..\src\simpleini\ConvertUTF.cpp" />
     <ClCompile Include="..\..\src\simpleini\snippets.cpp" />
     <ClCompile Include="..\..\src\simpleini\test1.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

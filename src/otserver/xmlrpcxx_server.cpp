@@ -168,7 +168,7 @@
 // ----------------------------------------------------------------
 
 #ifdef _WIN32
-#include "OTLib/stdafx.h"
+//#include "OTLib/stdafx.h"
 #endif
 
 #include <cstdio>
