@@ -254,9 +254,9 @@ public:
 	
 	// ----------------------------------------------------------
 	
-	OTOffer();		// The constructor contains the 3 variables needed to identify any market.
+EXPORT	OTOffer();		// The constructor contains the 3 variables needed to identify any market.
 	OTOffer(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID, const OTIdentifier & CURRENCY_ID, const long & MARKET_SCALE);
-	virtual ~OTOffer();
+EXPORT	virtual ~OTOffer();
 
 	// Overridden from OTContract.
 	virtual void GetIdentifier(OTIdentifier & theIdentifier);

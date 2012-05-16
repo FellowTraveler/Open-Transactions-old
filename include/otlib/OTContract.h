@@ -187,32 +187,32 @@ class OTNumList
     std::set<long>  m_setData;
     
     // private for security reasons, used internally only by a function that knows the string length already.
-    bool Add(const char * szNumbers);   // if false, means the numbers were already there. (At least one of them.)
+    bool Add(const char * szfNumbers);   // if false, means the numbers were already there. (At least one of them.)
     
 public:
     OTNumList(const std::set<long> & theNumbers);
     //  OTNumList(const char * szNumbers); // removed for security reasons.
     OTNumList(const OTString & strNumbers);
-    OTNumList();
-    ~OTNumList();
+EXPORT    OTNumList();
+EXPORT    ~OTNumList();
     // -------------------
     bool Add(const OTString & strNumbers);  // if false, means the numbers were already there. (At least one of them.)
     // -------------------
-    bool Add(const long & theValue);    // if false, means the value was already there.
+EXPORT    bool Add(const long & theValue);    // if false, means the value was already there.
     bool Remove(const long & theValue); // if false, means the value was NOT already there.
-    bool Verify(const long & theValue) const; // returns true/false (whether value is already there.)
+EXPORT    bool Verify(const long & theValue) const; // returns true/false (whether value is already there.)
     // -------------------
     bool Add(const OTNumList & theNumList);    // if false, means the numbers were already there. (At least one of them.)
     bool Add(const std::set<long> & theNumbers);    // if false, means the numbers were already there. (At least one of them.)
     bool Remove(const std::set<long> & theNumbers); // if false, means the numbers were NOT already there. (At least one of them.)
     bool Verify(const std::set<long> & theNumbers) const; // True/False, based on whether values are already there. (ALL must be present.)
     // -------------------
-    bool Verify(const OTNumList & rhs) const; // True/False, based on whether OTNumLists MATCH in COUNT and CONTENT (NOT ORDER.)
+EXPORT    bool Verify(const OTNumList & rhs) const; // True/False, based on whether OTNumLists MATCH in COUNT and CONTENT (NOT ORDER.)
     // -------------------
-    int Count() const;
+EXPORT    int Count() const;
     // -------------------
     // Outputs the numlist as set of numbers. (To iterate OTNumList, call this, then iterate the output.)
-    bool Output(std::set<long> & theOutput) const; // returns false if the numlist was empty.
+EXPORT    bool Output(std::set<long> & theOutput) const; // returns false if the numlist was empty.
     
     // Outputs the numlist as a comma-separated string (for serialization, usually.)
     bool Output(OTString & strOutput) const; // returns false if the numlist was empty.
@@ -285,7 +285,7 @@ protected:
 
 	// -------------------------------------------------------------------
 public:
-    static bool LoadEncodedTextField(irr::io::IrrXMLReader*& xml, OTASCIIArmor &ascOutput);
+EXPORT    static bool LoadEncodedTextField(irr::io::IrrXMLReader*& xml, OTASCIIArmor &ascOutput);
     static bool LoadEncodedTextField(irr::io::IrrXMLReader*& xml, OTString &strOutput);
 	
     static bool LoadEncodedTextFieldByName(irr::io::IrrXMLReader*& xml, OTASCIIArmor &ascOutput, 
@@ -344,7 +344,7 @@ public:
 	
 	virtual ~OTContract();
 	virtual void Release();
-	void ReleaseSignatures();
+EXPORT	void ReleaseSignatures();
 
 	// This function is for those times when you already have the unsigned version 
 	// of the contract, and you have the signer, and you just want to sign it and
@@ -383,24 +383,24 @@ public:
 //	bool LoadContract(const char * szFilename);
 	bool LoadContract(const char * szFoldername, const char * szFilename);
 	
-	bool LoadContractFromString(const OTString & theStr); // Just like it says. If you have a contract in
+EXPORT	bool LoadContractFromString(const OTString & theStr); // Just like it says. If you have a contract in
 														  // string form, pass it in here to import it.
 	bool LoadContractRawFile(); // fopens m_strFilename and reads it off the disk into m_strRawFile
-	bool ParseRawFile();		// parses m_strRawFile into the various member variables.
+EXPORT	bool ParseRawFile();		// parses m_strRawFile into the various member variables.
 								// Separating these into two steps allows us to load contracts
 								// from other sources besides files.
 	
 	bool SaveToContractFolder(); // data_folder/contracts/Contract-ID
 
 	
-	bool SaveContractRaw(OTString & strOutput) const; // Saves the raw (pre-existing) contract text to any string you want to pass in.
+EXPORT	bool SaveContractRaw(OTString & strOutput) const; // Saves the raw (pre-existing) contract text to any string you want to pass in.
 	bool RewriteContract(OTString & strOutput) const; // Takes the pre-existing XML contents (WITHOUT signatures) and re-writes the Raw data, adding the pre-existing signatures along with new signature bookends. 
 
 	
-	bool SaveContract(); // This saves the Contract to its own internal member string, m_strRawFile (and does
+EXPORT	bool SaveContract(); // This saves the Contract to its own internal member string, m_strRawFile (and does
 						 // NOT actually save it to a file.)
 //	bool SaveContract(OTString & strContract); // Saves the contract to any string you want to pass in.
-	bool SaveContract(const char * szFoldername, const char * szFilename); // Saves the contract to a specific filename
+EXPORT	bool SaveContract(const char * szFoldername, const char * szFilename); // Saves the contract to a specific filename
 	
 	// Update the internal unsigned contents based on the member variables
 	virtual void UpdateContents(); // default behavior does nothing.
@@ -419,7 +419,7 @@ public:
 	// Save m_xmlUnsigned to a string that's passed in
 	virtual bool SaveContents(OTString & strContents) const;
 		
-	virtual bool SignContract(const OTPseudonym & theNym);
+EXPORT	virtual bool SignContract(const OTPseudonym & theNym);
 	
 	bool SignContract(const OTPseudonym & theNym, OTSignature & theSignature);
 	bool SignContract(const OTAsymmetricKey & theKey, OTSignature & theSignature, 
@@ -443,7 +443,7 @@ public:
 	virtual void CalculateContractID(OTIdentifier & newID) const;
 	
 	// So far not overridden anywhere (used to be OTTrade.)
-	virtual bool VerifySignature(const OTPseudonym & theNym);
+EXPORT	virtual bool VerifySignature(const OTPseudonym & theNym);
 	bool VerifySignature(const OTPseudonym & theNym, const OTSignature & theSignature) const;
 	bool VerifySignature(const OTAsymmetricKey & theKey, const OTSignature & theSignature,
 						 const OTString & strHashType) const;
@@ -456,7 +456,7 @@ public:
 							 // it, and that the contract hasn't been tampered with since
 							 // it was signed.
 	const OTAsymmetricKey * GetContractPublicKey();
-	const OTPseudonym	  * GetContractPublicNym();	
+EXPORT	const OTPseudonym	  * GetContractPublicNym();	
 };
 
 #endif // __OTCONTRACT_H__

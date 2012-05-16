@@ -246,7 +246,7 @@ public:
 	
     // Changes ~/blah to /Users/au/blah
     //
-    static void TransformFilePath(const char * szInput, OTString & strOutput);
+EXPORT    static void TransformFilePath(const char * szInput, OTString & strOutput);
     
 	static void LogToFile(const char * szOutput);
 
@@ -269,11 +269,11 @@ public:
 	// --------------------------------------------------
 	
 	static void SleepSeconds(long lSeconds);
-	static void SleepMilliseconds(long lMilliseconds);
+EXPORT	static void SleepMilliseconds(long lMilliseconds);
 	
 	// Used for making sure that certain necessary folders actually exist. (Creates them otherwise.)
 	// Creates inside Path(). IE:  <path>/szFolderName
-	static bool ConfirmOrCreateFolder(const char * szFolderName);
+EXPORT	static bool ConfirmOrCreateFolder(const char * szFolderName);
 	static bool ConfirmFile(const char * szFileName);
 	static bool ConfirmExactPath(const char * szFileName); // This one expects fully-qualified path.
 	
@@ -388,8 +388,8 @@ public:
 	// For things that represent internal inconsistency in the code. 
 	// Normally should NEVER happen even with bad input from user.
 	// (Don't call this directly. Use the above #defined macro instead.)
-	static int Assert(const char * szFilename, int nLinenumber); // assert
-	static int Assert(const char * szFilename, int nLinenumber, const char * szMessage); // assert
+EXPORT	static int Assert(const char * szFilename, int nLinenumber); // assert
+EXPORT	static int Assert(const char * szFilename, int nLinenumber, const char * szMessage); // assert
 
 	// Output() logs normal output, which carries a verbosity level.
 	//
@@ -405,17 +405,17 @@ public:
 	// set it up to 1. Set it up even higher for the really verbose stuff (e.g. only if you
 	// really want to see EVERYTHING.)
 	
-	static void Output(int nVerbosity, const char * szOutput); // stdout
+EXPORT	static void Output(int nVerbosity, const char * szOutput); // stdout
 	static void Output(int nVerbosity, OTString & strOutput); // stdout
-	static void vOutput(int nVerbosity, const char *szOutput, ...);
+EXPORT	static void vOutput(int nVerbosity, const char *szOutput, ...);
 
 	// This logs an error condition, which usually means bad input from the user, or a file wouldn't open,
 	// or something like that.  This contrasted with Assert() which should NEVER actually happen. The software
 	// expects bad user input from time to time. But it never expects a loaded mint to have a NULL pointer.
 	// The bad input would log with Error(), whereas the NULL pointer would log with Assert();
-	static void Error(const char * szError); // stderr
+EXPORT	static void Error(const char * szError); // stderr
 	static void Error(OTString & strError); // stderr
-	static void vError(const char * szError, ...); // stderr
+EXPORT	static void vError(const char * szError, ...); // stderr
 };
 
 #endif // __OTLOG_H__

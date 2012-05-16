@@ -215,7 +215,7 @@ public:
 	
     // ---------------------------------------
 	
-	bool IsInternalServerAcct() const;
+EXPORT	bool IsInternalServerAcct() const;
 	
 	bool IsOwnedByUser() const;
 	bool IsOwnedByEntity() const;
@@ -234,15 +234,15 @@ public:
     // ---------------------------------------
 	
     OTAccount(const OTIdentifier & theUserID, const OTIdentifier & theAccountID, const OTIdentifier & theServerID, const OTString & name);
-	OTAccount(const OTIdentifier & theUserID, const OTIdentifier & theAccountID, const OTIdentifier & theServerID);
+EXPORT	OTAccount(const OTIdentifier & theUserID, const OTIdentifier & theAccountID, const OTIdentifier & theServerID);
 	void InitAccount();
-	virtual ~OTAccount();
+EXPORT	virtual ~OTAccount();
     
     virtual void Release();
 
     // -----------------------------------------------------------------------
 	
-	static OTAccount * GenerateNewAccount(const OTIdentifier & theUserID, const OTIdentifier & theServerID, 
+EXPORT	static OTAccount * GenerateNewAccount(const OTIdentifier & theUserID, const OTIdentifier & theServerID, 
 										  const OTPseudonym & theServerNym, const OTMessage & theMessage,
 										  const AccountType eAcctType=simple,
 										  long lStashTransNum=0);
@@ -253,30 +253,30 @@ public:
 
 	// Let's say you don't have or know the UserID, and you just want to load the damn thing up.
 	// Then call this function. It will set userID for you.
-	static OTAccount * LoadExistingAccount(const OTIdentifier & theAccountID, const OTIdentifier & theServerID);
+EXPORT	static OTAccount * LoadExistingAccount(const OTIdentifier & theAccountID, const OTIdentifier & theServerID);
     
     // -----------------------------------------------------------------------
-	OTLedger * LoadInbox (OTPseudonym & theNym); // Caller responsible to delete.
-	OTLedger * LoadOutbox(OTPseudonym & theNym); // Caller responsible to delete.
+EXPORT	OTLedger * LoadInbox (OTPseudonym & theNym); // Caller responsible to delete.
+EXPORT	OTLedger * LoadOutbox(OTPseudonym & theNym); // Caller responsible to delete.
 	
-    bool SaveInbox (OTLedger &theBox, OTIdentifier * pHash=NULL);  // If you pass the identifier in, the inbox hash is recorded there
-	bool SaveOutbox(OTLedger &theBox, OTIdentifier * pHash=NULL);  // If you pass the identifier in, the outbox hash is recorded there
+EXPORT    bool SaveInbox (OTLedger &theBox, OTIdentifier * pHash=NULL);  // If you pass the identifier in, the inbox hash is recorded there
+EXPORT	bool SaveOutbox(OTLedger &theBox, OTIdentifier * pHash=NULL);  // If you pass the identifier in, the outbox hash is recorded there
     // -----------------------------------------------------------------------
     
 	// gives you the asset type ID of this account. (the asset contract hash.)
-	const OTIdentifier & GetAssetTypeID() const;
+EXPORT	const OTIdentifier & GetAssetTypeID() const;
 	
-	long GetBalance() const;
+EXPORT	long GetBalance() const;
 	
-	bool Debit(const long & lAmount); // Debit a certain amount from the account (presumably the same amount is being added somewhere)
-	bool Credit(const long & lAmount); // Credit a certain amount from the account (presumably the same amount is being subtracted somewhere)
+EXPORT	bool Debit(const long & lAmount); // Debit a certain amount from the account (presumably the same amount is being added somewhere)
+EXPORT	bool Credit(const long & lAmount); // Credit a certain amount from the account (presumably the same amount is being subtracted somewhere)
 		
 	// Compares the NymID loaded from the account file with whatever Nym the programmer wants to verify.
-	bool VerifyOwner(const OTPseudonym & theCandidate) const;
+EXPORT	bool VerifyOwner(const OTPseudonym & theCandidate) const;
 	bool VerifyOwnerByID(const OTIdentifier & theNymID) const;
 	
-	virtual bool LoadContract(); // overriding this so I can set the filename automatically inside based on ID.
-	bool SaveAccount(); // generates filename based on accounts path and account ID. Saves to the standard location for an acct.
+EXPORT	virtual bool LoadContract(); // overriding this so I can set the filename automatically inside based on ID.
+EXPORT	bool SaveAccount(); // generates filename based on accounts path and account ID. Saves to the standard location for an acct.
 		
 //	virtual bool SaveContractWallet(FILE * fl);
 	virtual bool SaveContractWallet(std::ofstream & ofs);
@@ -332,20 +332,20 @@ class OTAcctList
 	mapOfWeakAccounts	m_mapWeakAccts; // If someone calls GetOrCreateAccount(), we pass them a shared pointer. We 
 										// store the weak pointer here only to make sure accounts don't get loaded twice.
 public:	
-	OTAcctList();
+EXPORT	OTAcctList();
 	OTAcctList(OTAccount::AccountType eAcctType);
-	~OTAcctList();
+EXPORT	~OTAcctList();
 
 	int GetCountAccountIDs() const { return m_mapAcctIDs.size(); }
 	
 	void Release();
 	
-	void Serialize(OTString & strAppend);
-	int ReadFromXMLNode(irr::io::IrrXMLReader*& xml, const OTString & strAcctType, const OTString & strAcctCount);
+EXPORT	void Serialize(OTString & strAppend);
+EXPORT	int ReadFromXMLNode(irr::io::IrrXMLReader*& xml, const OTString & strAcctType, const OTString & strAcctCount);
 	
 	void SetType(OTAccount::AccountType eAcctType) { m_AcctType = eAcctType; }
 	
-	OTAccount_SharedPtr GetOrCreateAccount(OTPseudonym			& theServerNym, 
+EXPORT	OTAccount_SharedPtr GetOrCreateAccount(OTPseudonym			& theServerNym, 
 										   const OTIdentifier	& ACCOUNT_OWNER_ID, 
 										   const OTIdentifier	& ASSET_TYPE_ID, 
 										   const OTIdentifier	& SERVER_ID,

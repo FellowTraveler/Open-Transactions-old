@@ -293,22 +293,22 @@ class OTString
 {
    // Construction -- Destruction
 public:
-	OTString();
-	OTString(const OTString & strValue);
-	OTString(const OTASCIIArmor & strValue);
+EXPORT	OTString();
+EXPORT	OTString(const OTString & strValue);
+EXPORT	OTString(const OTASCIIArmor & strValue);
 	OTString(const OTSignature & strValue);
-	OTString(const OTContract & theValue);
-	OTString(const OTIdentifier & theValue);
+EXPORT	OTString(const OTContract & theValue);
+EXPORT	OTString(const OTIdentifier & theValue);
 	OTString(OTPseudonym & theValue);
-	OTString(const char * new_string);
+EXPORT	OTString(const char * new_string);
 	OTString(const char * new_string, size_t sizeLength);
-	OTString(const std::string & new_string);
+EXPORT	OTString(const std::string & new_string);
    
-	virtual ~OTString();
+EXPORT	virtual ~OTString();
 
    void Initialize();
 
-	OTString& operator=(OTString rhs);
+EXPORT	OTString& operator=(OTString rhs);
 //	OTString& operator=(const char * new_string);
 //	OTString& operator=(const std::string & strValue);
 
@@ -318,9 +318,9 @@ public:
    bool operator <(const OTString &s2) const;
    bool operator <=(const OTString &s2) const;
    bool operator >=(const OTString &s2) const;
-   bool operator ==(const OTString &s2) const;
+EXPORT   bool operator ==(const OTString &s2) const;
 
-	static std::string & trim(std::string& str);
+EXPORT	static std::string & trim(std::string& str);
 
    // Attributes
 public:
@@ -349,17 +349,17 @@ public:
 	// ----------------------------
 	bool At(uint32_t lIndex, char &c);
 	
-	bool Exists(void) const;
+EXPORT	bool Exists(void) const;
    
-	uint32_t GetLength(void) const;
+EXPORT	uint32_t GetLength(void) const;
 
-	bool Compare(const char * strCompare) const;
-	bool Compare(const OTString& strCompare) const;
+EXPORT	bool Compare(const char * strCompare) const;
+EXPORT	bool Compare(const OTString& strCompare) const;
 	
-	bool Contains(const char * strCompare) const;
+EXPORT	bool Contains(const char * strCompare) const;
 	bool Contains(const OTString& strCompare) const;
 	
-	const char * Get(void) const;
+EXPORT	const char * Get(void) const;
 	
 	// ----------------------------
 	// new_string MUST be at least nEnforcedMaxLength in size if 
@@ -370,18 +370,18 @@ public:
     // the valid range is 0..9. Therefore 9 (10 minus 1) is where the 
     // NULL terminator goes.
     //
-	void Set(const char * new_string, uint32_t nEnforcedMaxLength=0);
+EXPORT	void Set(const char * new_string, uint32_t nEnforcedMaxLength=0);
 	    
-	void Set(const OTString & strBuf);
+EXPORT	void Set(const OTString & strBuf);
 	// ----------------------------
 
 //	void   Concatenate(const char *arg);
-	void   Concatenate(const char *arg, ...);
+EXPORT	void   Concatenate(const char *arg, ...);
 	void   Concatenate(const OTString & strBuf);
 	
 	void   Truncate(uint32_t lAt);
 	
-	void   Format(const char *arg, ...);
+EXPORT	void   Format(const char *arg, ...);
    
 	void ConvertToLowerCase();
 	void ConvertToUpperCase();
@@ -402,7 +402,7 @@ public:
 	void WriteToFile(std::ostream & ofs) const;
 //	void WriteToFile(FILE * fl = NULL) const;
 
-   virtual void Release(void);
+EXPORT   virtual void Release(void);
 
    // Internal properties
 protected:

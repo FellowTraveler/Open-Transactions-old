@@ -183,30 +183,30 @@ public:
 	static OTDB::OTPacker * GetPacker();
 	static OTDB::OTPacker * s_pPacker;
 	
-	OTASCIIArmor();
-	OTASCIIArmor(const char * szValue);
+EXPORT	OTASCIIArmor();
+EXPORT	OTASCIIArmor(const char * szValue);
 	OTASCIIArmor(const OTData & theValue);
 	OTASCIIArmor(const OTPayload & theValue);
-	OTASCIIArmor(const OTString & strValue);
+EXPORT	OTASCIIArmor(const OTString & strValue);
 	OTASCIIArmor(const OTASCIIArmor & strValue);
 	OTASCIIArmor(const OTEnvelope & theEnvelope);
-	virtual ~OTASCIIArmor();
+EXPORT	virtual ~OTASCIIArmor();
 	
 	using OTString::swap;
 	
-	OTASCIIArmor & operator=(const char * szValue);
+EXPORT	OTASCIIArmor & operator=(const char * szValue);
 	OTASCIIArmor & operator=(const OTData & theValue);
 	OTASCIIArmor & operator=(const OTString & strValue);
-	OTASCIIArmor & operator=(const OTASCIIArmor & strValue);
+EXPORT	OTASCIIArmor & operator=(const OTASCIIArmor & strValue);
 	
 	bool LoadFromFile(const OTString & foldername, const OTString & filename);
 	bool LoadFromifstream(const std::ifstream & fin);
-	bool LoadFromString(OTString & theStr,
+EXPORT	bool LoadFromString(OTString & theStr,
                         bool bEscaped=false, 
                         const // This sub-string determines where the content starts, when loading.
                         std::string str_override="-----BEGIN"); // "-----BEGIN" is the default "content start" substr. Todo: hardcoding.
 
-    bool WriteArmoredString(OTString & strOutput,
+EXPORT    bool WriteArmoredString(OTString & strOutput,
                             const // for "-----BEGIN OT LEDGER-----", str_type would contain "LEDGER"
                             std::string str_type, // There's no default, to force you to enter the right string.
                             bool bEscaped=false);
@@ -225,12 +225,12 @@ public:
 	
 	// This function will base64 DECODE the string contents
 	// and return them as a STRING in theData
-	bool GetString(OTString & theData, bool bLineBreaks=true) const;
+EXPORT	bool GetString(OTString & theData, bool bLineBreaks=true) const;
 	bool GetAndUnpackString(OTString & theData, bool bLineBreaks=true) const;
 
 	// This function will base64 ENCODE the STRING stored in theData,
 	// and then Set() that as this string contents.
-	bool SetString(const OTString & theData, bool bLineBreaks=true);
+EXPORT	bool SetString(const OTString & theData, bool bLineBreaks=true);
 	bool SetAndPackString(const OTString & theData, bool bLineBreaks=true);
 
 	
@@ -242,7 +242,7 @@ public:
 	
 	// For a straight-across, exact-size copy of bytes that you KNOW
 	// are base64-encoded properly by an OTASCIIArmor.
-	bool MemSet(const char * pMem, uint32_t theSize);
+EXPORT	bool MemSet(const char * pMem, uint32_t theSize);
 };
 
 typedef std::map <long, OTASCIIArmor *> mapOfArmor;

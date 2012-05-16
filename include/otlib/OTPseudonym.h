@@ -283,8 +283,8 @@ private:
 	
 public:
 	// ------------------------------------------------
-    bool            GetNymboxHashServerSide(const OTIdentifier & theServerID, OTIdentifier & theOutput);    // server-side
-    void            SetNymboxHashServerSide(const OTIdentifier & theInput); // server-side    
+EXPORT    bool            GetNymboxHashServerSide(const OTIdentifier & theServerID, OTIdentifier & theOutput);    // server-side
+EXPORT    void            SetNymboxHashServerSide(const OTIdentifier & theInput); // server-side    
 private:
 	// ------------------------------------------------
     // Generic function used by the below functions.
@@ -359,20 +359,21 @@ public:
     // have to call a function that reverses the one below. (ConvertBackOutOfMasterKey or
     // some such thing.)
     //
-//    bool ConvertToMasterKey();  // Replaced by Savex509CertAndPrivateKey().
+
+//EXPORT    bool ConvertToMasterKey();  // Replaced by Savex509CertAndPrivateKey().
     
 	// ------------------------------------------------
-	OTPseudonym();
-	OTPseudonym(const OTIdentifier & nymID);
-	OTPseudonym(const OTString & strNymID);
+EXPORT	OTPseudonym();
+EXPORT	OTPseudonym(const OTIdentifier & nymID);
+EXPORT	OTPseudonym(const OTString & strNymID);
 	OTPseudonym(const OTString & name, const OTString & filename, const OTString & nymID);
-	virtual ~OTPseudonym();
+EXPORT	virtual ~OTPseudonym();
 	
 	void Initialize();
 	void ReleaseTransactionNumbers();
 	// ------------------------------------------------
 	
-	bool VerifyPseudonym() const;
+EXPORT	bool VerifyPseudonym() const;
 
 	
 	// use this to actually generate a new key pair and assorted nym files.
@@ -426,27 +427,27 @@ public:
 	
 	// The signer is whoever wanted to make sure these nym files haven't changed.
 	// Usually that means the server nym.  Most of the time, m_nymServer will be used as signer.
-	bool LoadSignedNymfile(OTPseudonym & SIGNER_NYM);
-	bool SaveSignedNymfile(OTPseudonym & SIGNER_NYM);
+EXPORT	bool LoadSignedNymfile(OTPseudonym & SIGNER_NYM);
+EXPORT	bool SaveSignedNymfile(OTPseudonym & SIGNER_NYM);
 	
 	bool LoadNymfile(const char * szFilename=NULL);
 	bool LoadFromString(const OTString & strNym);
 
-	bool LoadPublicKey();
-	bool Loadx509CertAndPrivateKey();
-	bool Savex509CertAndPrivateKey(bool bCreateFile=true);
+EXPORT	bool LoadPublicKey();
+EXPORT	bool Loadx509CertAndPrivateKey();
+EXPORT	bool Savex509CertAndPrivateKey(bool bCreateFile=true);
     
 //	bool SavePseudonymWallet(FILE * fl) const;
 	bool SavePseudonymWallet(OTString & strOutput) const;
 	bool SavePseudonymWallet(std::ofstream & ofs) const;
 
-	bool SavePublicKey(const OTString & strPath) const;
+EXPORT	bool SavePublicKey(const OTString & strPath) const;
 //	bool SavePublicKey(FILE * fl) const;
 	bool SavePublicKey(std::ofstream & ofs) const;
 
 	bool SavePseudonym(); // saves to filename m_strNymfile
 	bool SavePseudonym(const char * szFoldername, const char * szFilename);
-	bool SavePseudonym(OTString & strNym);
+EXPORT	bool SavePseudonym(OTString & strNym);
 //	bool SavePseudonym(FILE * fl);
 	bool SavePseudonym(std::ofstream & ofs);
 
@@ -455,15 +456,15 @@ public:
     bool CompareID(const OTIdentifier & theIdentifier) const 
 	{ return (theIdentifier == m_nymID); }
 	
-    bool CompareID(const OTPseudonym & RHS) const;
+EXPORT    bool CompareID(const OTPseudonym & RHS) const;
     
 	const OTIdentifier & GetConstID() const { return m_nymID; }
 	
-	void GetIdentifier(OTIdentifier & theIdentifier) const;
-	void SetIdentifier(const OTIdentifier & theIdentifier);
+EXPORT	void GetIdentifier(OTIdentifier & theIdentifier) const;
+EXPORT	void SetIdentifier(const OTIdentifier & theIdentifier);
 	
-	void GetIdentifier(OTString & theIdentifier) const;
-	void SetIdentifier(const OTString & theIdentifier);
+EXPORT	void GetIdentifier(OTString & theIdentifier) const;
+EXPORT	void SetIdentifier(const OTString & theIdentifier);
 
     // --------------------------------------------
     
@@ -471,7 +472,7 @@ public:
                                    OTPseudonym & theOtherNym, // OtherNym is used as a container for the server to send
                                    bool bSave=true);          // us new transaction numbers.
     
-	void HarvestIssuedNumbers(const OTIdentifier & theServerID, OTPseudonym & SIGNER_NYM,
+EXPORT	void HarvestIssuedNumbers(const OTIdentifier & theServerID, OTPseudonym & SIGNER_NYM,
                               OTPseudonym & theOtherNym, // OtherNym is used as container for us to send a list
                               bool bSave=false);         // of issued numbers to the server (for balance agreement)
 
@@ -483,9 +484,9 @@ public:
     
 	// ---------------------------------------------
     
-    void IncrementRequestNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID); // Increment the counter or create a new one for this serverID starting at 1
+EXPORT    void IncrementRequestNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID); // Increment the counter or create a new one for this serverID starting at 1
 	void OnUpdateRequestNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, long lNewRequestNumber); // if the server sends us a @getRequest
-	bool GetCurrentRequestNum(const OTString & strServerID, long &lReqNum); // get the current request number for the serverID
+EXPORT	bool GetCurrentRequestNum(const OTString & strServerID, long &lReqNum); // get the current request number for the serverID
 	
 	bool GetHighestNum(const OTString & strServerID, long &lHighestNum); // get the last/current highest transaction number for the serverID.
 	long UpdateHighestNum(OTPseudonym & SIGNER_NYM, 
@@ -522,18 +523,18 @@ public:
 	
 	// -----------------------------------------------------
 	// HIGH LEVEL:
-	bool	AddTransactionNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, long lTransNum, bool bSave); // We have received a new trans num from server. Store it.
+EXPORT	bool	AddTransactionNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, long lTransNum, bool bSave); // We have received a new trans num from server. Store it.
 	bool	GetNextTransactionNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, long &lTransNum,
                                   bool bSave=true); // Get the next available transaction number for the serverID passed. Saves by default.
     // --------------------
-	bool	RemoveIssuedNum      (OTPseudonym & SIGNER_NYM, const OTString & strServerID, const long & lTransNum,   bool bSave); // SAVE OR NOT (your choice)
+EXPORT	bool	RemoveIssuedNum      (OTPseudonym & SIGNER_NYM, const OTString & strServerID, const long & lTransNum,   bool bSave); // SAVE OR NOT (your choice)
 	bool	RemoveTentativeNum   (OTPseudonym & SIGNER_NYM, const OTString & strServerID, const long & lTransNum,   bool bSave);
-	bool	RemoveAcknowledgedNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, const long & lRequestNum, bool bSave); // Used on both client and server sides for optimization.
+EXPORT	bool	RemoveAcknowledgedNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, const long & lRequestNum, bool bSave); // Used on both client and server sides for optimization.
     // --------------------	
-	bool	VerifyIssuedNum      (const OTString & strServerID, const long & lTransNum);   // verify user is still responsible for (signed for) a certain trans# that was previous issued to him. (i.e. it's been used, but not yet accepted receipt through inbox.)
-	bool	VerifyTransactionNum (const OTString & strServerID, const long & lTransNum);   // server verifies that nym has this TransNum available for use.
+EXPORT	bool	VerifyIssuedNum      (const OTString & strServerID, const long & lTransNum);   // verify user is still responsible for (signed for) a certain trans# that was previous issued to him. (i.e. it's been used, but not yet accepted receipt through inbox.)
+EXPORT	bool	VerifyTransactionNum (const OTString & strServerID, const long & lTransNum);   // server verifies that nym has this TransNum available for use.
 	bool	VerifyTentativeNum   (const OTString & strServerID, const long & lTransNum);   // Client-side verifies that it actually tried to sign for this number (so it knows if the reply is valid.)
-	bool	VerifyAcknowledgedNum(const OTString & strServerID, const long & lRequestNum); // Client verifies it has already seen a server reply. Server acknowledges client has seen reply (so client can remove from list, so server can as well.)
+EXPORT	bool	VerifyAcknowledgedNum(const OTString & strServerID, const long & lRequestNum); // Client verifies it has already seen a server reply. Server acknowledges client has seen reply (so client can remove from list, so server can as well.)
     // --------------------
 
 	// These two functions are for when you re-download your nym/account/inbox/outbox, and you
@@ -546,24 +547,24 @@ public:
 	// These functions are for transaction numbers that were assigned to me, 
 	// until I accept the receipts or put stop payment onto them.
     //
-	int		GetIssuedNumCount(const OTIdentifier & theServerID); // count
-	long	GetIssuedNum(const OTIdentifier & theServerID, int nIndex); // index
+EXPORT	int		GetIssuedNumCount(const OTIdentifier & theServerID); // count
+EXPORT	long	GetIssuedNum(const OTIdentifier & theServerID, int nIndex); // index
 	
-	bool	AddIssuedNum(const OTString & strServerID, const long & lTransNum); // doesn't save
+EXPORT	bool	AddIssuedNum(const OTString & strServerID, const long & lTransNum); // doesn't save
 	
 	bool	RemoveIssuedNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, const long & lTransNum); // saves
-	bool	RemoveIssuedNum(const OTString & strServerID, const long & lTransNum); // doesn't save
+EXPORT	bool	RemoveIssuedNum(const OTString & strServerID, const long & lTransNum); // doesn't save
 
 	// -------------------------------------
 	// These functions are for transaction numbers that I still have available to use.
 	//
-	int GetTransactionNumCount(const OTIdentifier & theServerID); // count
-	long GetTransactionNum(const OTIdentifier & theServerID, int nIndex); // index
+EXPORT	int GetTransactionNumCount(const OTIdentifier & theServerID); // count
+EXPORT	long GetTransactionNum(const OTIdentifier & theServerID, int nIndex); // index
 	
 	bool AddTransactionNum(const OTString & strServerID, const long lTransNum); // doesn't save
 	
-	bool RemoveTransactionNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, const long & lTransNum); // server removes spent number from nym file. Saves.
-	bool RemoveTransactionNum(const OTString & strServerID, const long & lTransNum); // doesn't save.
+EXPORT	bool RemoveTransactionNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, const long & lTransNum); // server removes spent number from nym file. Saves.
+EXPORT	bool RemoveTransactionNum(const OTString & strServerID, const long & lTransNum); // doesn't save.
 	
 	// -------------------------------------
 	// These functions are for tentative transaction numbers that I am trying to sign for.
@@ -608,10 +609,10 @@ public:
     // Thus we can eliminate most replyNotice downloads, and likely a large % of box receipt downloads
     // as well.
     //
-	int GetAcknowledgedNumCount(const OTIdentifier & theServerID); // count
-	long GetAcknowledgedNum(const OTIdentifier & theServerID, int nIndex); // index
+EXPORT	int GetAcknowledgedNumCount(const OTIdentifier & theServerID); // count
+EXPORT	long GetAcknowledgedNum(const OTIdentifier & theServerID, int nIndex); // index
 	
-	bool AddAcknowledgedNum(const OTString & strServerID, const long &lRequestNum); // doesn't save
+EXPORT	bool AddAcknowledgedNum(const OTString & strServerID, const long &lRequestNum); // doesn't save
 	
 	bool RemoveAcknowledgedNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, const long & lRequestNum);
 	bool RemoveAcknowledgedNum(const OTString & strServerID, const long & lRequestNum); // doesn't save.
@@ -668,7 +669,7 @@ public:
 	
 	// -------------------------------------
 	
-	const OTAsymmetricKey & GetPublicKey() const;
+EXPORT	const OTAsymmetricKey & GetPublicKey() const;
 	const OTAsymmetricKey & GetPrivateKey() const;
 	
 	// -------------------------------------

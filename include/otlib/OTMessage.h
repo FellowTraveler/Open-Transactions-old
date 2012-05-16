@@ -167,15 +167,15 @@ protected:
 	bool m_bIsSigned;
 	
 public:
-	OTMessage();
-	virtual ~OTMessage();
+EXPORT	OTMessage();
+EXPORT	virtual ~OTMessage();
 
 	bool VerifyContractID();
 
 	// for some inexplicable reason, polymorphism appears to fail and I can't sign
 	// a message without casting it as a contract first. So I'm explicitly overriding
 	// the method here so try and force the issue.
-	virtual bool SignContract(const OTPseudonym & theNym);
+EXPORT	virtual bool SignContract(const OTPseudonym & theNym);
 
     bool HarvestTransactionNumbers(      OTPseudonym &  theNym,
                                    const bool           bHarvestingForRetry,     // false until positively asserted.
@@ -191,7 +191,7 @@ public:
     // make sure that OTMessage::m_strServerID is set BEFORE calling this function. (It will
     // ASSERT if you don't...)
     //
-    void SetAcknowledgments(OTPseudonym & theNym);
+EXPORT    void SetAcknowledgments(OTPseudonym & theNym);
     
     // ----------------------------------------------------------
     

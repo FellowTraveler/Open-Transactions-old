@@ -199,23 +199,23 @@ public:
     // ---------------------------------------
     // RECURRING TRANSACTIONS
     //
-	bool			AddCronItem(OTCronItem & theItem, OTPseudonym * pActivator=NULL, bool bSaveReceipt=true);
-	bool			RemoveCronItem(long lTransactionNum, OTPseudonym & theRemover); // if returns false, CronItem wasn't found.
+EXPORT	bool			AddCronItem(OTCronItem & theItem, OTPseudonym * pActivator=NULL, bool bSaveReceipt=true);
+EXPORT	bool			RemoveCronItem(long lTransactionNum, OTPseudonym & theRemover); // if returns false, CronItem wasn't found.
 	// ---------------------------------------
-	OTCronItem *	GetCronItem(long lTransactionNum);
+EXPORT	OTCronItem *	GetCronItem(long lTransactionNum);
 	// ---------------------------------------
     // MARKETS
     //
 	bool AddMarket(OTMarket & theMarket, bool bSaveMarketFile=true);
 	bool RemoveMarket(const OTIdentifier & MARKET_ID); // if returns false, market wasn't found.
-	OTMarket * GetMarket(const OTIdentifier & MARKET_ID);
+EXPORT	OTMarket * GetMarket(const OTIdentifier & MARKET_ID);
 	OTMarket * GetOrCreateMarket(const OTIdentifier & ASSET_ID, 
 								 const OTIdentifier & CURRENCY_ID, const long & lScale);
     // ---------------------------------------
 	// This is informational only. It returns OTStorage-type data objects, packed in a string.
 	//
-	bool GetMarketList(OTASCIIArmor & ascOutput, int & nMarketCount);
-	bool GetNym_OfferList(OTASCIIArmor & ascOutput, const OTIdentifier & NYM_ID, int & nOfferCount);
+EXPORT	bool GetMarketList(OTASCIIArmor & ascOutput, int & nMarketCount);
+EXPORT	bool GetNym_OfferList(OTASCIIArmor & ascOutput, const OTIdentifier & NYM_ID, int & nOfferCount);
     // ---------------------------------------
     // TRANSACTION NUMBERS
     //
@@ -225,9 +225,9 @@ public:
 	// Part of using Cron properly is to call ProcessCron() regularly, as well
 	// as to call AddTransactionNumber() regularly, in order to keep GetTransactionCount()
 	// at some minimum threshold.
-	void	AddTransactionNumber(const long & lTransactionNum);
+EXPORT	void	AddTransactionNumber(const long & lTransactionNum);
 	long	GetNextTransactionNumber();
-	int		GetTransactionCount() const; // How many numbers do I currently have on the list?
+EXPORT	int		GetTransactionCount() const; // How many numbers do I currently have on the list?
 	// ---------------------------------------
 
 	// Make sure every time you call this, you check the GetTransactionCount() first and replenish it
@@ -235,7 +235,7 @@ public:
 	// the entire ProcessCronItems() call, and all the trades and payment plans within, since it will not
 	// be replenished again at least until the call has finished.) 
     //
-	void	ProcessCronItems();
+EXPORT	void	ProcessCronItems();
     // ---------------------------------------
 
 	inline void SetServerID(const OTIdentifier & SERVER_ID)	{ m_SERVER_ID = SERVER_ID; }
@@ -246,16 +246,16 @@ public:
 	
 	// -----------------------------------------------------
 	
-	bool LoadCron();
-	bool SaveCron();
+EXPORT	bool LoadCron();
+EXPORT	bool SaveCron();
 	
 	// -----------------------------------------------------
 	
-	OTCron();
+EXPORT	OTCron();
 	OTCron(const OTIdentifier & SERVER_ID);
 	OTCron(const char * szFilename);
     
-	virtual ~OTCron();
+EXPORT	virtual ~OTCron();
     
     // -----------------------------------------------------
 	void InitCron();

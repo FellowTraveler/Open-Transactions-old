@@ -171,21 +171,21 @@ public:
 
 	static const EVP_MD * GetOpenSSLDigestByName(const OTString & theName);
 
-	OTIdentifier();
-	OTIdentifier(const OTIdentifier &theID);
-	OTIdentifier(const char * szStr);
-	OTIdentifier(const OTString &theStr);
-	OTIdentifier(const OTPseudonym &theNym);
-	OTIdentifier(const OTContract &theContract); // Get the contract's ID into this identifier.
+EXPORT	OTIdentifier();
+EXPORT	OTIdentifier(const OTIdentifier &theID);
+EXPORT	OTIdentifier(const char * szStr);
+EXPORT	OTIdentifier(const OTString &theStr);
+EXPORT	OTIdentifier(const OTPseudonym &theNym);
+EXPORT	OTIdentifier(const OTContract &theContract); // Get the contract's ID into this identifier.
 	OTIdentifier(const OTOffer &theOffer);
 	OTIdentifier(const OTMarket &theMarket);
-	virtual ~OTIdentifier();
+EXPORT	virtual ~OTIdentifier();
 				
 	using OTData::swap;
 	using OTData::operator=;
 	
-	bool operator==(const OTIdentifier &s2) const;
-	bool operator!=(const OTIdentifier &s2) const;
+EXPORT	bool operator==(const OTIdentifier &s2) const;
+EXPORT	bool operator!=(const OTIdentifier &s2) const;
 	
     bool operator >(const OTIdentifier &s2) const;
     bool operator <(const OTIdentifier &s2) const;
@@ -193,7 +193,7 @@ public:
     bool operator >=(const OTIdentifier &s2) const;
 
 	bool CalculateDigest(const OTData & dataInput);
-	bool CalculateDigest(const OTString & strInput);
+EXPORT	bool CalculateDigest(const OTString & strInput);
 	
 	bool CalculateDigest(const OTString & strInput, const OTString & strHashAlgorithm);
 	bool CalculateDigest(const OTData & dataInput, const OTString & strHashAlgorithm);
@@ -212,7 +212,7 @@ public:
 	void SetString(const OTString & theStr);
 	
 	// theStr will contain pretty hex string after call.
-	void GetString(OTString & theStr) const;
+EXPORT	void GetString(OTString & theStr) const;
 };
 
 

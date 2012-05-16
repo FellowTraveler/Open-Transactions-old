@@ -167,21 +167,21 @@ protected:
 	inline void Initialize() { m_pData = NULL; m_lSize = 0; m_lPosition = 0; }
 	
 public:
-	OTData();
-	OTData(const void * pNewData, uint32_t nNewSize);
-	OTData(const OTData &theSource);
+EXPORT	OTData();
+EXPORT	OTData(const void * pNewData, uint32_t nNewSize);
+EXPORT	OTData(const OTData &theSource);
 	OTData(const OTASCIIArmor &theSource);
 
-	virtual void Release();
+EXPORT	virtual void Release();
 	virtual ~OTData() { Release(); }
 
-	OTData & operator=(OTData rhs);
+EXPORT	OTData & operator=(OTData rhs);
 	
 	void swap (OTData & rhs);
 		
 	bool		operator==(const OTData &s2) const;
 	bool		operator!=(const OTData &s2) const;
-	OTData &	operator+=(const OTData & rhs);
+EXPORT	OTData &	operator+=(const OTData & rhs);
 	
 	bool IsEmpty() const;
     

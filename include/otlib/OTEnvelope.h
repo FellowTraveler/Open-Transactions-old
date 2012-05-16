@@ -187,8 +187,8 @@ public:
     
     static OTCrypto * It();
     
-    void Init();     
-    void Cleanup();    
+EXPORT    void Init();     
+EXPORT    void Cleanup();    
 };
 
 // ------------------------------------------------------------------------
@@ -292,20 +292,20 @@ private:
 
     bool              m_bPaused;        // If you want to force the old system, PAUSE the master key (REMEMBER to Unpause when done!)
 public:
-    static OTMasterKey * It();
+EXPORT    static OTMasterKey * It();
         
     ~OTMasterKey();
 
     // --------------------------------
-    bool IsGenerated();
+EXPORT    bool IsGenerated();
     // --------------------------------
 
-    bool Pause();
-    bool Unpause();
-    bool isPaused();
+EXPORT    bool Pause();
+EXPORT    bool Unpause();
+EXPORT    bool isPaused();
     
     // --------------------------------
-    bool SerializeTo   (OTASCIIArmor & ascOutput);
+EXPORT    bool SerializeTo   (OTASCIIArmor & ascOutput);
     bool SerializeFrom (const OTASCIIArmor & ascInput);
     // --------------------------------
 
@@ -314,7 +314,7 @@ public:
     // later when the password callback code in OTAsymmetricKey needs to access the master
     // key, it can use OTSymmetricKey::GetMasterKey to access it.
     //
-    void SetMasterKey(const OTASCIIArmor & ascMasterKey); // OTServer/OTWallet calls this, I instantiate.
+EXPORT    void SetMasterKey(const OTASCIIArmor & ascMasterKey); // OTServer/OTWallet calls this, I instantiate.
     
     int  GetTimeoutSeconds(); 
     void SetTimeoutSeconds(int nTimeoutSeconds); // So we can load from the config file.
@@ -426,7 +426,7 @@ private:
     
     OTEnvelope_Decrypt_Output();
 public:
-    ~OTEnvelope_Decrypt_Output();
+EXPORT    ~OTEnvelope_Decrypt_Output();
     
     OTEnvelope_Decrypt_Output(const OTEnvelope_Decrypt_Output & rhs);
     
@@ -458,9 +458,9 @@ class OTEnvelope
 
 public:
     // ------------------------------------------------------------------------
-	OTEnvelope();
+EXPORT	OTEnvelope();
 	OTEnvelope(const OTASCIIArmor & theArmoredText);
-	virtual ~OTEnvelope();
+EXPORT	virtual ~OTEnvelope();
 	
     // ------------------------------------------------------------------------
 	// SYMMETRIC CRYPTO  (AES)
@@ -494,7 +494,7 @@ public:
     // Single recipient:
     //
 	bool Seal(const OTPseudonym     & theRecipient, const OTString & theInput);  // Put data into this object with Seal().
-	bool Seal(const OTAsymmetricKey & RecipPubKey,  const OTString & theInput);  // Currently supports strings only.
+EXPORT	bool Seal(const OTAsymmetricKey & RecipPubKey,  const OTString & theInput);  // Currently supports strings only.
     // ------------------------------------------------------------------------
     // Multiple recipients:
     //
@@ -503,7 +503,7 @@ public:
     // ------------------------------------------------------------------------
     // (Opposite of Seal.)
     //
-	bool Open(const OTPseudonym & theRecipient, OTString & theOutput);			// Read it back out with Open(). 
+EXPORT	bool Open(const OTPseudonym & theRecipient, OTString & theOutput);			// Read it back out with Open(). 
     // ------------------------------------------------------------------------
     //
     // Should be called "Get Envelope's binary Ciphertext data into an Ascii-Armored output String."
@@ -513,7 +513,7 @@ public:
 	// function.
 	// (Bookends not included.)
     //
-	bool GetAsciiArmoredData(OTASCIIArmor & theArmoredText) const;
+EXPORT	bool GetAsciiArmoredData(OTASCIIArmor & theArmoredText) const;
 
     // ------------------------------------------------------------------------
 	//
@@ -525,7 +525,7 @@ public:
 	// Envelope object again, so that they can be decrypted and extracted back as
 	// plaintext. Fear not, just call this function.
     //
-	bool SetAsciiArmoredData(const OTASCIIArmor & theArmoredText);
+EXPORT	bool SetAsciiArmoredData(const OTASCIIArmor & theArmoredText);
     
     // ------------------------------------------------------------------------
 };

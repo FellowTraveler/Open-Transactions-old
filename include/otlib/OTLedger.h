@@ -212,18 +212,18 @@ public:
 	void ProduceOutboxReport(OTItem & theBalanceItem);  
 
 	// ------------------------------------
-	bool AddTransaction(OTTransaction & theTransaction);
-	bool RemoveTransaction(long lTransactionNum); // if false, transaction wasn't found.
+EXPORT	bool AddTransaction(OTTransaction & theTransaction);
+EXPORT	bool RemoveTransaction(long lTransactionNum); // if false, transaction wasn't found.
 	bool RemovePendingTransaction(long lTransactionNum); // if false, transaction wasn't found.
 	
-	OTTransaction * GetTransaction(const OTTransaction::transactionType theType);
-	OTTransaction * GetTransaction(long lTransactionNum);
+EXPORT	OTTransaction * GetTransaction(const OTTransaction::transactionType theType);
+EXPORT	OTTransaction * GetTransaction(long lTransactionNum);
 	OTTransaction * GetTransactionByIndex(int nIndex);
-	OTTransaction * GetPendingTransaction(long lTransactionNum);
+EXPORT	OTTransaction * GetPendingTransaction(long lTransactionNum);
 	OTTransaction * GetFinalReceipt(long lReferenceNum);
 	OTTransaction * GetTransferReceipt(long lTransactionNum);
 	// ------------------------------------
-	OTTransaction * GetReplyNotice(const long & lRequestNum);
+EXPORT	OTTransaction * GetReplyNotice(const long & lRequestNum);
 	// ------------------------------------
 	// This calls OTTransactionType::VerifyAccount(), which calls 
 	// VerifyContractID() as well as VerifySignature().
@@ -235,7 +235,7 @@ public:
 	// expects/uses a pubkey from inside the contract in order to verify
 	// it.
 	//
-	virtual bool VerifyAccount(OTPseudonym & theNym); 
+EXPORT	virtual bool VerifyAccount(OTPseudonym & theNym); 
 	// ------------------------------------
 	// For ALL abbreviated transactions, load the actual box receipt for each.
 	bool LoadBoxReceipts(std::set<long> * psetUnloaded=NULL); // if psetUnloaded passed in, then use it to return the #s that weren't there.
@@ -244,23 +244,23 @@ public:
 	// Verifies the abbreviated form exists first, and then loads the 
 	// full version and compares the two. Returns success / fail.
 	//
-	bool LoadBoxReceipt(const long & lTransactionNum);
+EXPORT	bool LoadBoxReceipt(const long & lTransactionNum);
 	// Saves the Box Receipt separately.
 	bool SaveBoxReceipt(const long & lTransactionNum);
 	// "Deletes" it by adding MARKED_FOR_DELETION to the bottom of the file.
 	bool DeleteBoxReceipt(const long & lTransactionNum);
 	// ------------------------------------
-	bool LoadInbox();
-	bool SaveInbox(OTIdentifier * pInboxHash=NULL);  // If you pass the identifier in, the hash is recorded there
-	bool LoadNymbox();
-	bool SaveNymbox(OTIdentifier * pNymboxHash=NULL); // If you pass the identifier in, the hash is recorded there.
-	bool LoadOutbox();
-	bool SaveOutbox(OTIdentifier * pOutboxHash=NULL);  // If you pass the identifier in, the hash is recorded there
+EXPORT	bool LoadInbox();
+EXPORT	bool SaveInbox(OTIdentifier * pInboxHash=NULL);  // If you pass the identifier in, the hash is recorded there
+EXPORT	bool LoadNymbox();
+EXPORT	bool SaveNymbox(OTIdentifier * pNymboxHash=NULL); // If you pass the identifier in, the hash is recorded there.
+EXPORT	bool LoadOutbox();
+EXPORT	bool SaveOutbox(OTIdentifier * pOutboxHash=NULL);  // If you pass the identifier in, the hash is recorded there
     
     bool CalculateHash       (OTIdentifier & theOutput);
-    bool CalculateInboxHash  (OTIdentifier & theOutput);
-    bool CalculateOutboxHash (OTIdentifier & theOutput);
-    bool CalculateNymboxHash (OTIdentifier & theOutput);
+EXPORT    bool CalculateInboxHash  (OTIdentifier & theOutput);
+EXPORT    bool CalculateOutboxHash (OTIdentifier & theOutput);
+EXPORT    bool CalculateNymboxHash (OTIdentifier & theOutput);
 
 	// ------------------------------------
 	bool SavePaymentInbox();
@@ -269,7 +269,7 @@ public:
 	bool SaveRecordBox();
 	bool LoadRecordBox();
 	// ------------------------------------
-	bool LoadLedgerFromString(const OTString & theStr); // Auto-detects ledger type. (message/nymbox/inbox/outbox)
+EXPORT	bool LoadLedgerFromString(const OTString & theStr); // Auto-detects ledger type. (message/nymbox/inbox/outbox)
 	// ------------------------------------
 	bool LoadInboxFromString(const OTString & strBox);
 	bool LoadOutboxFromString(const OTString & strBox);
@@ -280,13 +280,13 @@ public:
 	// ------------------------------------
 	inline // just the top one.
 	int		GetTransactionCount() const { return m_mapTransactions.size(); }
-	int		GetTransactionCountInRefTo(const long lReferenceNum);
+EXPORT	int		GetTransactionCountInRefTo(const long lReferenceNum);
 	long	GetTotalPendingValue(); // for inbox only, allows you to lookup the total value of pending transfers within.
 	// ------------------------------------		
-	mapOfTransactions & GetTransactionMap();
+EXPORT	mapOfTransactions & GetTransactionMap();
 	// ------------------------------------
-	OTLedger(const OTIdentifier & theUserID, const OTIdentifier & theAccountID, const OTIdentifier & theServerID);	
-	virtual ~OTLedger();
+EXPORT	OTLedger(const OTIdentifier & theUserID, const OTIdentifier & theAccountID, const OTIdentifier & theServerID);	
+EXPORT	virtual ~OTLedger();
 	
 	virtual void Release();
 	
@@ -296,16 +296,16 @@ public:
 	// For example, if you need to load someone ELSE's inbox in order to send them a transfer, then
 	// you only know their account number, not their user ID. So you call this function to get it
 	// loaded up, and the UserID will hopefully be loaded up with the rest of it.
-	OTLedger(const OTIdentifier & theAccountID, const OTIdentifier & theServerID);
+EXPORT	OTLedger(const OTIdentifier & theAccountID, const OTIdentifier & theServerID);
 	
 	void InitLedger();
 	
-	static OTLedger * GenerateLedger(const OTIdentifier & theUserID, const OTIdentifier & theAcctID, 
+EXPORT	static OTLedger * GenerateLedger(const OTIdentifier & theUserID, const OTIdentifier & theAcctID, 
 									 const OTIdentifier & theServerID, 
 									 const ledgerType theType, bool bCreateFile=false);
 
 		
-	bool GenerateLedger(const OTIdentifier & theAcctID, const OTIdentifier & theServerID, 
+EXPORT	bool GenerateLedger(const OTIdentifier & theAcctID, const OTIdentifier & theServerID, 
 						const ledgerType theType, bool bCreateFile=false); 
 
 	virtual bool SaveContractWallet(std::ofstream & ofs);

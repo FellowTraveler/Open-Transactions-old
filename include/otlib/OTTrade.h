@@ -204,7 +204,7 @@ protected:
     virtual void onRemovalFromCron();
 
 public:
-	bool	VerifyOffer(OTOffer & theOffer);
+EXPORT	bool	VerifyOffer(OTOffer & theOffer);
 	
 	bool	IssueTrade(OTOffer & theOffer, char cStopSign=0, long lStopPrice=0);
 	
@@ -239,8 +239,8 @@ public:
 	
 	// --------------------------------------------------------------------------
 
-    long GetAssetAcctClosingNum() const;
-    long GetCurrencyAcctClosingNum() const;
+EXPORT    long GetAssetAcctClosingNum() const;
+EXPORT    long GetCurrencyAcctClosingNum() const;
 
 	// From OTCronItem (parent class of this)
 	/*
@@ -303,7 +303,7 @@ public:
 
 	//----------------------------------------------------------------------
 	
-	OTTrade();
+EXPORT	OTTrade();
 	OTTrade(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID);
 	OTTrade(const OTIdentifier & SERVER_ID, 
 			const OTIdentifier & ASSET_ID, const OTIdentifier & ASSET_ACCT_ID, 

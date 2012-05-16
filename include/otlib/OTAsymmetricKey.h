@@ -251,9 +251,9 @@ public:
 	inline bool IsPrivate() const  { return m_bIsPrivateKey; }
 	
 	// -------------------------------------
-	OTAsymmetricKey();
+EXPORT	OTAsymmetricKey();
 	OTAsymmetricKey(const OTAsymmetricKey & rhs);
-	virtual ~OTAsymmetricKey();
+EXPORT	virtual ~OTAsymmetricKey();
 	
 	OTAsymmetricKey & operator=(const OTAsymmetricKey & rhs);
 	
@@ -271,7 +271,7 @@ public:
     // ***************************************************************
     // HIGH LEVEL
     //
-	const
+EXPORT	const
     EVP_PKEY *  GetKey();
 	void        SetKeyAsCopyOf(EVP_PKEY & theKey, bool bIsPrivateKey=false);
 	
@@ -354,7 +354,7 @@ public:
 	// Get the public key in ASCII-armored format with bookends 
 	// - ------- BEGIN PUBLIC KEY --------
 	// Notice the "- " before the rest of the bookend starts.
-	bool GetPublicKey(OTString & strKey, bool bEscaped=true) const;
+EXPORT	bool GetPublicKey(OTString & strKey, bool bEscaped=true) const;
 
 	// Get the public key in ASCII-armored format
     //
@@ -363,7 +363,7 @@ public:
 	// Decodes a public key from ASCII armor into an actual key pointer
 	// and sets that as the m_pKey on this object.
 	// This is the version that will handle the bookends ( -----BEGIN PUBLIC KEY-----)
-	bool SetPublicKey(const OTString & strKey, bool bEscaped=false);
+EXPORT	bool SetPublicKey(const OTString & strKey, bool bEscaped=false);
 
 	// Decodes a public key from ASCII armor into an actual key pointer
 	// and sets that as the m_pKey on this object.

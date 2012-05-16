@@ -174,11 +174,11 @@ class OTMessageBuffer
     OTMessageBuffer & operator=(const OTMessageBuffer & rhs) { return *this; }
 public:
 	OTMessageBuffer() {}
-	~OTMessageBuffer();
+EXPORT	~OTMessageBuffer();
 	// -------------------------------
     
     void        Clear   ();
-	void        Push    (OTMessage & theMessage);     // Push: theMessage must be heap-allocated. Takes ownership.
+EXPORT	void        Push    (OTMessage & theMessage);     // Push: theMessage must be heap-allocated. Takes ownership.
 	OTMessage * Pop     (const long & lRequestNum,    // Pop:  Caller IS responsible to delete.
                          const OTString & strServerID,
                          const OTString & strNymID);

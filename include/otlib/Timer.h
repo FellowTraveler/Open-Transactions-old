@@ -15,6 +15,15 @@
 #ifndef TIMER_H_DEF
 #define TIMER_H_DEF
 
+// DLL Export for Win32
+
+#undef EXPORT
+#ifdef _WINDLL
+  #define EXPORT __declspec(dllexport)
+#else
+  #define EXPORT
+#endif
+
 #include <WinsockWrapper.h>
 
 #ifdef _WIN32   // Windows system specific
@@ -26,17 +35,17 @@
 class Timer
 {
 public:
-    Timer(bool bStart=false);                   // default constructor // FT: added default argument.
-    ~Timer();                                   // default destructor
+EXPORT    Timer(bool bStart=false);                   // default constructor // FT: added default argument.
+EXPORT    ~Timer();                                   // default destructor
 
-    void   start();                             // start timer
+EXPORT    void   start();                             // start timer
     void   stop();                              // stop the timer
     void   clear();                             // stop the timer and clear the contents.
     
     
     double getElapsedTime();                    // get elapsed time in second
     double getElapsedTimeInSec();               // get elapsed time in second (same as getElapsedTime)
-    double getElapsedTimeInMilliSec();          // get elapsed time in milli-second
+EXPORT    double getElapsedTimeInMilliSec();          // get elapsed time in milli-second
     double getElapsedTimeInMicroSec();          // get elapsed time in micro-second
 
 

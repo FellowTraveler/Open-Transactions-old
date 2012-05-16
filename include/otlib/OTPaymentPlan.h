@@ -411,7 +411,7 @@ protected:
 	void ProcessPaymentPlan();
 
 public:	
-	OTPaymentPlan();
+EXPORT	OTPaymentPlan();
 	OTPaymentPlan(const OTIdentifier & SERVER_ID,			const OTIdentifier & ASSET_ID);
 	OTPaymentPlan(const OTIdentifier & SERVER_ID,			const OTIdentifier & ASSET_ID,
 				  const OTIdentifier & SENDER_ACCT_ID,		const OTIdentifier & SENDER_USER_ID,
