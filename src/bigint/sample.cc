@@ -5,7 +5,7 @@
 #include <iostream>
 
 // `BigIntegerLibrary.hh' includes all of the library headers.
-#include "BigIntegerLibrary.hh"
+#include "BigIntegerLibrary.h"
 
 int main() {
 	/* The library throws `const char *' error messages when things go

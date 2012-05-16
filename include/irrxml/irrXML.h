@@ -6,6 +6,7 @@
 #define __IRR_XML_H_INCLUDED__
 
 #include <cstdio>
+#include <WinsockWrapper.h>
 
 /** \mainpage irrXML 1.2 API documentation
  <div align="center"><img src="logobig.png" ></div>

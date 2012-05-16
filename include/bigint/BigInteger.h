@@ -17,7 +17,7 @@
 #ifndef BIGINTEGER_H
 #define BIGINTEGER_H
 
-#include "BigUnsigned.hh"
+#include "BigUnsigned.h"
 
 /* A BigInteger object represents a signed integer of size limited only by
  * available memory.  BigUnsigneds support most mathematical operators and can

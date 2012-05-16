@@ -22,7 +22,8 @@ extern "C"
 #include <assert.h>
 }
 
-#include "BigInteger.hh"
+#include "BigInteger.h"
+
 #include <string>
 #include <iostream>
 

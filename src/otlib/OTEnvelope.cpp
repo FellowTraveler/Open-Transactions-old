@@ -134,6 +134,8 @@
 
 #include <algorithm>
 
+#include <WinsockWrapper.h>	
+
 extern "C"
 {
 // -----------------------
@@ -155,8 +157,9 @@ extern "C"
 // -----------------------
 
 #ifdef _WIN32
-#include <WinSock.h>
+//#include <WinSock.h>
 #include <sys/timeb.h>
+
 #else
 #include <arpa/inet.h>          // For htonl()
 #include <unistd.h>

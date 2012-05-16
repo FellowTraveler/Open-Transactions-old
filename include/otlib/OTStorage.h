@@ -123,6 +123,8 @@
 #ifndef __OT_STORAGE_H__
 #define __OT_STORAGE_H__
 
+#include <WinsockWrapper.h>
+
 #include <typeinfo>
 
 #include <iostream>
@@ -137,7 +139,7 @@
 // Use Win or Posix
 // IF I need this while porting, then uncomment it.
 #ifdef _WIN32
-#include <windows.h>
+//#include <windows.h>
 //#else
 //#ifndef POSIX
 //#warning POSIX will be used (but you did not define it)

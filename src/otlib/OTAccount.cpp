@@ -126,14 +126,18 @@
  -----END PGP SIGNATURE-----
  **************************************************************/
 
+#include <WinsockWrapper.h>	
+
+
 
 extern "C" 
 {
-    
+
 #ifdef _WIN32
 #include <sys/timeb.h>
 #include <sys/types.h>
-#include <winsock.h>
+#include <Mmsystem.h>
+//#include <winsock.h>
 	/*
 void gettimeofday(struct timeval* t,void* timezone)
 {       struct _timeb timebuffer;

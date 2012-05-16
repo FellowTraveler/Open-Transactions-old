@@ -131,6 +131,9 @@
 #ifndef __OT_ASCII_ARMOR_H__
 #define __OT_ASCII_ARMOR_H__
 
+#include <WinsockWrapper.h>
+
+
 #include <iostream>
 #include <fstream>
 #include <string>

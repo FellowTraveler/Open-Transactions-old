@@ -34,8 +34,8 @@ IF NOT %%x == java (
 )
 
 IF %%x == java (
-	ECHO ..\..\swigwin-2.0.4\swig.exe -c++ -%%x -package org.ot.wrapper.jni -outdir glue\%%x otapi\otapi.i
-	 ..\..\swigwin-2.0.4\swig.exe -c++ -%%x -package org.ot.wrapper.jni -outdir glue\%%x otapi\otapi.i
+	ECHO ..\..\swigwin-2.0.4\swig.exe -c++ -%%x -package com.wrapper.core.jni -outdir glue\%%x otapi\otapi.i
+	 ..\..\swigwin-2.0.4\swig.exe -c++ -%%x -package com.wrapper.core.jni -outdir glue\%%x otapi\otapi.i
 )
 
 

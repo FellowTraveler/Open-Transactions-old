@@ -136,7 +136,7 @@
 
 extern "C"
 {
-#include <inttypes.h>  //uint8_t
+#include <stdint.h>  //uint8_t
 
 #include <openssl/evp.h>
 #include <openssl/bio.h>

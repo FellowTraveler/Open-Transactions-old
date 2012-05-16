@@ -1,0 +1,277 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\bigint\bigint.vcxproj">
+      <Project>{7fbb7fb9-ae41-457c-8672-8919695ab198}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\irrxml\irrxml.vcxproj">
+      <Project>{ff4e2f12-89af-42af-9630-66931cae610a}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\lucre\lucre.vcxproj">
+      <Project>{07476ed4-1047-4bd1-bbf2-cc396fcaeceb}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\include\otlib\anyoption.h" />
+    <ClInclude Include="..\..\include\otlib\Bitcoin.pb.h" />
+    <ClInclude Include="..\..\include\otlib\easyzlib.h" />
+    <ClInclude Include="..\..\include\otlib\fast_mutex.h" />
+    <ClInclude Include="..\..\include\otlib\Generics.pb.h" />
+    <ClInclude Include="..\..\include\otlib\Markets.pb.h" />
+    <ClInclude Include="..\..\include\otlib\Moneychanger.pb.h" />
+    <ClInclude Include="..\..\include\otlib\OTAccount.h" />
+    <ClInclude Include="..\..\include\otlib\OTAgreement.h" />
+    <ClInclude Include="..\..\include\otlib\OTASCIIArmor.h" />
+    <ClInclude Include="..\..\include\otlib\OTAssetContract.h" />
+    <ClInclude Include="..\..\include\otlib\OTAsymmetricKey.h" />
+    <ClInclude Include="..\..\include\otlib\OTBasket.h" />
+    <ClInclude Include="..\..\include\otlib\OTBylaw.h" />
+    <ClInclude Include="..\..\include\otlib\OTCheque.h" />
+    <ClInclude Include="..\..\include\otlib\OTContract.h" />
+    <ClInclude Include="..\..\include\otlib\OTCron.h" />
+    <ClInclude Include="..\..\include\otlib\OTCronItem.h" />
+    <ClInclude Include="..\..\include\otlib\OTData.h" />
+    <ClInclude Include="..\..\include\otlib\OTDataCheck.h" />
+    <ClInclude Include="..\..\include\otlib\OTEnvelope.h" />
+    <ClInclude Include="..\..\include\otlib\OTglobal.h" />
+    <ClInclude Include="..\..\include\otlib\OTIdentifier.h" />
+    <ClInclude Include="..\..\include\otlib\OTInstrument.h" />
+    <ClInclude Include="..\..\include\otlib\OTItem.h" />
+    <ClInclude Include="..\..\include\otlib\OTLedger.h" />
+    <ClInclude Include="..\..\include\otlib\OTLib.h" />
+    <ClInclude Include="..\..\include\otlib\OTLibPriv.h" />
+    <ClInclude Include="..\..\include\otlib\OTLog.h" />
+    <ClInclude Include="..\..\include\otlib\OTMarket.h" />
+    <ClInclude Include="..\..\include\otlib\OTMessage.h" />
+    <ClInclude Include="..\..\include\otlib\OTMessageBuffer.h" />
+    <ClInclude Include="..\..\include\otlib\OTMint.h" />
+    <ClInclude Include="..\..\include\otlib\OTOffer.h" />
+    <ClInclude Include="..\..\include\otlib\OTPassword.h" />
+    <ClInclude Include="..\..\include\otlib\OTPayload.h" />
+    <ClInclude Include="..\..\include\otlib\OTPayment.h" />
+    <ClInclude Include="..\..\include\otlib\OTPaymentPlan.h" />
+    <ClInclude Include="..\..\include\otlib\OTPseudonym.h" />
+    <ClInclude Include="..\..\include\otlib\OTPurse.h" />
+    <ClInclude Include="..\..\include\otlib\OTScript.h" />
+    <ClInclude Include="..\..\include\otlib\OTScriptable.h" />
+    <ClInclude Include="..\..\include\otlib\OTServerContract.h" />
+    <ClInclude Include="..\..\include\otlib\OTSignature.h" />
+    <ClInclude Include="..\..\include\otlib\OTSignedFile.h" />
+    <ClInclude Include="..\..\include\otlib\OTSmartContract.h" />
+    <ClInclude Include="..\..\include\otlib\OTStorage.h" />
+    <ClInclude Include="..\..\include\otlib\OTString.h" />
+    <ClInclude Include="..\..\include\otlib\OTStringXML.h" />
+    <ClInclude Include="..\..\include\otlib\OTToken.h" />
+    <ClInclude Include="..\..\include\otlib\OTTrackable.h" />
+    <ClInclude Include="..\..\include\otlib\OTTrade.h" />
+    <ClInclude Include="..\..\include\otlib\OTTransaction.h" />
+    <ClInclude Include="..\..\include\otlib\OTTransactionType.h" />
+    <ClInclude Include="..\..\include\otlib\OTWallet.h" />
+    <ClInclude Include="..\..\include\otlib\stacktrace.h" />
+    <ClInclude Include="..\..\include\otlib\Timer.h" />
+    <ClInclude Include="..\..\include\otlib\tinythread.h" />
+    <ClInclude Include="..\..\include\otlib\win32_utf8conv.h" />
+    <ClInclude Include="..\..\include\otlib\win32_utf8conv_inl.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\otlib\anyoption.cpp" />
+    <ClCompile Include="..\..\src\otlib\Bitcoin.pb.cpp" />
+    <ClCompile Include="..\..\src\otlib\easyzlib.c" />
+    <ClCompile Include="..\..\src\otlib\Generics.pb.cpp" />
+    <ClCompile Include="..\..\src\otlib\Markets.pb.cpp" />
+    <ClCompile Include="..\..\src\otlib\mkcert.c" />
+    <ClCompile Include="..\..\src\otlib\Moneychanger.pb.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTAccount.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTAgreement.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTASCIIArmor.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTAssetContract.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTAsymmetricKey.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTBasket.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTBylaw.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTCheque.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTContract.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTCron.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTCronItem.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTData.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTDataCheck.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTEnvelope.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTIdentifier.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTInstrument.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTItem.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTLedger.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTLog.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTMarket.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTMessage.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTMessageBuffer.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTMint.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTOffer.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTPassword.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTPayload.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTPayment.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTPaymentPlan.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTPseudonym.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTPurse.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTScript.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTScriptable.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTServerContract.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTSignature.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTSignedFile.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTSmartContract.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTStorage.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTString.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTStringXML.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTToken.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTTrackable.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTTrade.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTTransaction.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTTransactionType.cpp" />
+    <ClCompile Include="..\..\src\otlib\OTWallet.cpp" />
+    <ClCompile Include="..\..\src\otlib\Timer.cpp" />
+    <ClCompile Include="..\..\src\otlib\tinythread.cpp" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{0455E434-A635-448A-996E-448583FD3A37}</ProjectGuid>
+    <RootNamespace>otlib</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>$(SolutionDir)..\include;$(SolutionDir)..\include\$(ProjectName);$(SolutionDir)..\include\otlib;$(SystemDrive)\boost_1_48_0;$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)..\lib\$(PlatformName)\$(Configuration)\;$(SystemDrive)\boost_1_48_0\stage\lib\$(PlatformName);$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\lib\VC;$(LibraryPath)</LibraryPath>
+    <IntDir>$(SolutionDir)..\obj\$(PlatformName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir>$(SolutionDir)..\lib\$(PlatformName)\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(SolutionDir)..\include;$(SolutionDir)..\include\$(ProjectName);$(SolutionDir)..\include\otlib;$(SystemDrive)\boost_1_48_0;$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)..\lib\$(PlatformName)\$(Configuration)\;$(SystemDrive)\boost_1_48_0\stage\lib\$(PlatformName);$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\lib\VC;$(LibraryPath)</LibraryPath>
+    <IntDir>$(SolutionDir)..\obj\$(PlatformName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir>$(SolutionDir)..\lib\$(PlatformName)\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>$(SolutionDir)..\include;$(SolutionDir)..\include\$(ProjectName);$(SolutionDir)..\include\otlib;$(SystemDrive)\boost_1_48_0;$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)..\lib\$(PlatformName)\$(Configuration)\;$(SystemDrive)\boost_1_48_0\stage\lib\$(PlatformName);$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\lib\VC;$(LibraryPath)</LibraryPath>
+    <IntDir>$(SolutionDir)..\obj\$(PlatformName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir>$(SolutionDir)..\lib\$(PlatformName)\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(SolutionDir)..\include;$(SolutionDir)..\include\$(ProjectName);$(SolutionDir)..\include\otlib;$(SystemDrive)\boost_1_48_0;$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)..\lib\$(PlatformName)\$(Configuration)\;$(SystemDrive)\boost_1_48_0\stage\lib\$(PlatformName);$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\lib\VC;$(LibraryPath)</LibraryPath>
+    <IntDir>$(SolutionDir)..\obj\$(PlatformName)\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir>$(SolutionDir)..\lib\$(PlatformName)\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <AdditionalOptions>/bigobj /wd4244 /wd4267 /wd4018 /wd4355 /wd4800 /wd4251 /wd4996 /wd4146 /wd4305 %(AdditionalOptions)</AdditionalOptions>
+      <PreprocessorDefinitions>_DEBUG;_WINDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>libprotobuf.lib;ws2_32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <AdditionalOptions>/bigobj /wd4244 /wd4267 /wd4018 /wd4355 /wd4800 /wd4251 /wd4996 /wd4146 /wd4305 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>libprotobuf.lib;ws2_32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalOptions>/bigobj /wd4244 /wd4267 /wd4018 /wd4355 /wd4800 /wd4251 /wd4996 /wd4146 /wd4305 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>libprotobuf.lib;ws2_32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalOptions>/bigobj /wd4244 /wd4267 /wd4018 /wd4355 /wd4800 /wd4251 /wd4996 /wd4146 /wd4305 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>libprotobuf.lib;ws2_32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

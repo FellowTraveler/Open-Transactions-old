@@ -126,11 +126,10 @@
  -----END PGP SIGNATURE-----
  **************************************************************/
 
+#include <WinsockWrapper.h>	
 
 extern "C"
 {
-
-
 #include <openssl/pem.h>	
 #include <openssl/err.h>
 #include <openssl/evp.h>

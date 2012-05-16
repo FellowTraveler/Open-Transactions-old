@@ -141,20 +141,23 @@
 
 #include <string> // The C++ one 
 
+#include <WinsockWrapper.h>
+
 
 // ----------------------------------------
 // Use Win or Posix
 //
 #ifdef _WIN32
-#include <windows.h>
 
-// IF I need this while porting, then uncomment it.
-//#else
+#ifdef _DEBUG
+#pragma comment( lib, "libeay32MDd.lib" )
+#pragma comment( lib, "ssleay32MDd.lib" )
+#else
+#pragma comment( lib, "libeay32MD.lib" )
+#pragma comment( lib, "ssleay32MD.lib" )
+#endif
 
-//#ifndef POSIX
-//#warning POSIX will be used (but you did not define it)
-//#endif
-//#include <unistd.h>
+
 #endif
 // ----------------------------------------
 

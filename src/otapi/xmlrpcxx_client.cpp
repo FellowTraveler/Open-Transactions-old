@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /************************************************************************************
  *    
  *  xmlrpcxx_client.cpp  (the XmlRpc++ version of the client -- Web Services version.)
@@ -172,11 +173,11 @@
 #include <ostream>
 #include <iterator>
 
+#include <WinsockWrapper.h> 
 
 extern "C" 
 {
 #ifdef _WIN32
-#include <WinSock.h>
 #else
 #include <netinet/in.h>
 #endif
@@ -3860,6 +3861,3 @@ int main(int argc, char* argv[])
     
 	return 0;
 }
-
-
-
