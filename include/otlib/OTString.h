@@ -130,6 +130,15 @@
 #ifndef  __STRING_H__
 #define  __STRING_H__
 
+// DLL Export for Win32
+
+#undef EXPORT
+#ifdef _WINDLL
+  #define EXPORT __declspec(dllexport)
+#else
+  #define EXPORT
+#endif
+
 // #include "whatever.h" -- all necessary #includes go here.
 // Be sure to use 'extern "C" {   }' as a wrapper for straight 'C' headers.
 

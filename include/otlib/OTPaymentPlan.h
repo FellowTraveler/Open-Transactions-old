@@ -130,7 +130,14 @@
 #ifndef __OT_PAYMENT_PLAN__
 #define __OT_PAYMENT_PLAN__
 
+// DLL Export for Win32
 
+#undef EXPORT
+#ifdef _WINDLL
+  #define EXPORT __declspec(dllexport)
+#else
+  #define EXPORT
+#endif
 
 #ifndef LENGTH_OF_DAY_IN_SECONDS
 

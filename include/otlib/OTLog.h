@@ -132,6 +132,16 @@
 #ifndef __OTLOG_H__
 #define __OTLOG_H__
 
+// DLL Export for Win32
+
+#undef EXPORT
+#ifdef _WINDLL
+  #define EXPORT __declspec(dllexport)
+#else
+  #define EXPORT
+#endif
+
+
 // x must be a boolean expression
 
 #define    OT_ASSERT(x)			( (false == (x)) ? OTLog::Assert(__FILE__, __LINE__)		: (1))
