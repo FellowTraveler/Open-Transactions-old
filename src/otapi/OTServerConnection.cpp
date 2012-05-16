@@ -222,7 +222,7 @@ void OTServerConnection::Initialize()
     // Update: this no longer initializes OpenSSL, which I do in OTLog::OT_Init() now.
     // Just make sure you call that early on.
     //
-    SFSocketGlobalInit();
+//    SFSocketGlobalInit();
 }
 
 
@@ -236,9 +236,9 @@ bool OTServerConnection::SetFocus(OTPseudonym & theNym, OTServerContract & theSe
 	OT_ASSERT(NULL != pCallback); // We need the callback for processing out messages to the server (in RPC Mode)...
 	
 	// We're already connected! You can't use SetFocus if you're in connection mode (TCP instead of HTTP.)
-	if (IsConnected())
-		return false;
-	
+	//if (IsConnected())
+	//	return false;
+	//
 	// This call initializes OpenSSL (only the first time it's called.)
 	Initialize();
 
@@ -262,56 +262,56 @@ bool OTServerConnection::SetFocus(OTPseudonym & theNym, OTServerContract & theSe
 }
 
 
-bool OTServerConnection::Connect(OTPseudonym & theNym, OTServerContract & theServerContract,
-								 OTString & strCA_FILE, OTString & strKEY_FILE, OTString & strKEY_PASSWORD)
-{
-	// We're already connected!
-	if (IsConnected())
-		return false;
-	
-	// Make sure all the socket stuff is initialized and set up.
-	Initialize();
-	
-	// You can't just pass in a hostname and port.
-	// Instead, you pass in the Nym and Contract, and *I'll* look up all that stuff.
-	OTString strHostname;
-	int nPort = 0;
-	
-	if (false == theServerContract.GetConnectInfo(strHostname, nPort))
-	{
-		OTLog::Output(0,  "Failed retrieving connection info from server contract.\n");
-		return false;
-	}
-	
-    SFSocket * socket;
-	
-    // Alloc Socket
-	socket = SFSocketAlloc();
-	
-	OT_ASSERT_MSG(NULL != socket, "SFSocketAlloc Failed\n");
-	
-    // Initialize SSL client Socket
-    if (SFSocketInit(socket, strCA_FILE.Get(), NULL, strKEY_FILE.Get(), strKEY_PASSWORD.Get(), NULL) < 0) {
-	    OTLog::Error("Init Failed\n");
-        return false;
-    }
-	
-	// TODO: Note, I had to go intside this function and comment out the Cert-checking portion
-	// in order to get this program running.
-	// So I need to go back and revisit that later, but at least now we have client/server.
-	
-    // Connect to Host
-    if (SFSocketConnectToHost(socket, strHostname.Get(), nPort) < 0) {
-        OTLog::Output(0, "Connect to Host Failed\n");
-        return false;
-    }	
-	
-	m_pSocket			= socket;
-	m_pNym				= &theNym;
-	m_pServerContract	= &theServerContract;
-	
-	return true;
-}
+//bool OTServerConnection::Connect(OTPseudonym & theNym, OTServerContract & theServerContract,
+//								 OTString & strCA_FILE, OTString & strKEY_FILE, OTString & strKEY_PASSWORD)
+//{
+//	// We're already connected!
+//	if (IsConnected())
+//		return false;
+//	
+//	// Make sure all the socket stuff is initialized and set up.
+//	Initialize();
+//	
+//	// You can't just pass in a hostname and port.
+//	// Instead, you pass in the Nym and Contract, and *I'll* look up all that stuff.
+//	OTString strHostname;
+//	int nPort = 0;
+//	
+//	if (false == theServerContract.GetConnectInfo(strHostname, nPort))
+//	{
+//		OTLog::Output(0,  "Failed retrieving connection info from server contract.\n");
+//		return false;
+//	}
+//	
+//    SFSocket * socket;
+//	
+//    // Alloc Socket
+//	socket = SFSocketAlloc();
+//	
+//	OT_ASSERT_MSG(NULL != socket, "SFSocketAlloc Failed\n");
+//	
+//    // Initialize SSL client Socket
+//    if (SFSocketInit(socket, strCA_FILE.Get(), NULL, strKEY_FILE.Get(), strKEY_PASSWORD.Get(), NULL) < 0) {
+//	    OTLog::Error("Init Failed\n");
+//        return false;
+//    }
+//	
+//	// TODO: Note, I had to go intside this function and comment out the Cert-checking portion
+//	// in order to get this program running.
+//	// So I need to go back and revisit that later, but at least now we have client/server.
+//	
+//    // Connect to Host
+//    if (SFSocketConnectToHost(socket, strHostname.Get(), nPort) < 0) {
+//        OTLog::Output(0, "Connect to Host Failed\n");
+//        return false;
+//    }	
+//	
+//	m_pSocket			= socket;
+//	m_pNym				= &theNym;
+//	m_pServerContract	= &theServerContract;
+//	
+//	return true;
+//}
 
 
 
@@ -357,20 +357,20 @@ bool OTServerConnection::GetServerID(OTIdentifier & theID)
 // There might be MORE THAN ONE connection per wallet, or only one,
 // but either way the connections need a pointer to the wallet
 // they are associated with, so they can access those accounts.
-OTServerConnection::OTServerConnection(OTWallet & theWallet, OTClient & theClient, SFSocket * pSock)
-{
-	m_pSocket			= pSock;
-	m_pCallback			= NULL;
-	m_bFocused			= false;
-	m_pNym				= NULL;
-	m_pServerContract	= NULL;
-	m_pWallet			= &theWallet;
-	m_pClient			= &theClient;
-}
+//OTServerConnection::OTServerConnection(OTWallet & theWallet, OTClient & theClient, SFSocket * pSock)
+//{
+//	m_pSocket			= pSock;
+//	m_pCallback			= NULL;
+//	m_bFocused			= false;
+//	m_pNym				= NULL;
+//	m_pServerContract	= NULL;
+//	m_pWallet			= &theWallet;
+//	m_pClient			= &theClient;
+//}
 
 OTServerConnection::OTServerConnection(OTWallet & theWallet, OTClient & theClient)
 {
-	m_pSocket			= NULL;
+	//m_pSocket			= NULL;
 	m_pCallback			= NULL;
 	m_bFocused			= false;
 	m_pNym				= NULL;
@@ -379,56 +379,56 @@ OTServerConnection::OTServerConnection(OTWallet & theWallet, OTClient & theClien
 	m_pClient			= &theClient;
 }
 
-OTServerConnection::~OTServerConnection()
-{
-	if (m_pSocket)
-	{
-	    // Close and Release Socket Resources
-		SFSocketRelease(m_pSocket);	
-	}
-}
+//OTServerConnection::~OTServerConnection()
+//{
+//	if (m_pSocket)
+//	{
+//	    // Close and Release Socket Resources
+//		SFSocketRelease(m_pSocket);	
+//	}
+//}
 
 
 // This function returns true if we received a full and proper reply from the server.
 // theServerReply will contain that message after a successful call to this function.
 // TCP / SSL mode.
-bool OTServerConnection::ProcessInBuffer(OTMessage & theServerReply)
-{
-	int  err;
-	uint32_t nread;
-	u_header theCMD;
-	
-	OT_ASSERT(NULL != m_pSocket);
-	
-	// clear the header
-	memset((void *)theCMD.buf, 0, OT_CMD_HEADER_SIZE);
-	
-	for (nread = 0;  nread < OT_CMD_HEADER_SIZE;  nread += err)
-	{
-		err = SFSocketRead(m_pSocket, theCMD.buf + nread, OT_CMD_HEADER_SIZE - nread);
-
-#ifdef _WIN32
-		if (0 == err || SOCKET_ERROR == err) // 0 is a disconnect. error is error. otherwise err contains bytes read.
-#else
-		if (err <= 0)
-#endif
-		{
-			break;
-		}
-	}
-	
-	if (OT_CMD_HEADER_SIZE == nread)
-	{
-		OTLog::vOutput(4, "\n**************************************************************\n"
-				"===> Processing header from server reply. First 5 bytes are: %d %d %d %d %d...\n",
-				theCMD.buf[0],theCMD.buf[1],theCMD.buf[2],theCMD.buf[3],theCMD.buf[4]);	
-		
-		
-		return ProcessReply(theCMD, theServerReply);
-	}
-	
-	return false;
-}
+//bool OTServerConnection::ProcessInBuffer(OTMessage & theServerReply)
+//{
+//	int  err;
+//	uint32_t nread;
+//	u_header theCMD;
+//	
+//	OT_ASSERT(NULL != m_pSocket);
+//	
+//	// clear the header
+//	memset((void *)theCMD.buf, 0, OT_CMD_HEADER_SIZE);
+//	
+//	for (nread = 0;  nread < OT_CMD_HEADER_SIZE;  nread += err)
+//	{
+//		err = SFSocketRead(m_pSocket, theCMD.buf + nread, OT_CMD_HEADER_SIZE - nread);
+//
+//#ifdef _WIN32
+//		if (0 == err || SOCKET_ERROR == err) // 0 is a disconnect. error is error. otherwise err contains bytes read.
+//#else
+//		if (err <= 0)
+//#endif
+//		{
+//			break;
+//		}
+//	}
+//	
+//	if (OT_CMD_HEADER_SIZE == nread)
+//	{
+//		OTLog::vOutput(4, "\n**************************************************************\n"
+//				"===> Processing header from server reply. First 5 bytes are: %d %d %d %d %d...\n",
+//				theCMD.buf[0],theCMD.buf[1],theCMD.buf[2],theCMD.buf[3],theCMD.buf[4]);	
+//		
+//		
+//		return ProcessReply(theCMD, theServerReply);
+//	}
+//	
+//	return false;
+//}
 
 // ProcessInBuffer calls this function, once it has verified the header,
 // this function gets the payload.  If successful, returns true and theServerReply
@@ -438,7 +438,7 @@ bool OTServerConnection::ProcessReply(u_header & theCMD, OTMessage & theServerRe
 {
 	bool bSuccess = false;
 
-	OT_ASSERT(NULL != m_pSocket);
+	//OT_ASSERT(NULL != m_pSocket);
 
 	OTLog::vOutput(4, "\n****************************************************************\n"
 			"===> Processing header from server response.\nFirst 9 bytes are: %d %d %d %d %d %d %d %d %d...\n",
@@ -480,7 +480,7 @@ bool OTServerConnection::ProcessReply(u_header & theCMD, OTMessage & theServerRe
 		
 		while (1)
 		{
-			err = SFSocketRead(m_pSocket, buffer, sizeJunkData);
+			//err = SFSocketRead(m_pSocket, buffer, sizeJunkData);
 			
 			if (err > 0) // _WIN32
 				nread += err;
@@ -510,7 +510,7 @@ bool OTServerConnection::ProcessType1Cmd(u_header & theCMD, OTMessage & theServe
 	int  err;
 	uint32_t nread;
 	
-	OT_ASSERT(NULL != m_pSocket);
+//	OT_ASSERT(NULL != m_pSocket);
 
 	// Make sure our byte-order is correct here.
 	theCMD.fields.size = ntohl(theCMD.fields.size); // think this is causing problems... maybe not...
@@ -520,7 +520,7 @@ bool OTServerConnection::ProcessType1Cmd(u_header & theCMD, OTMessage & theServe
 	
 	for (nread = 0;  nread < theCMD.fields.size;  nread += err)
 	{
-		err = SFSocketRead(m_pSocket, (unsigned char *)thePayload.GetPayloadPointer() + nread, theCMD.fields.size - nread);
+//		err = SFSocketRead(m_pSocket, (unsigned char *)thePayload.GetPayloadPointer() + nread, theCMD.fields.size - nread);
 
 #ifdef _WIN32
 		if (0 == err || SOCKET_ERROR == 0) // 0 means disconnect. error means error. otherwise, err contains bytes read.
@@ -688,7 +688,7 @@ bool OTServerConnection::SignAndSend(OTMessage & theMessage)
 {
 	if (m_pNym && 
 		m_pWallet && 
-		(IsConnected() || IsFocused()) && 
+//		(IsConnected() || IsFocused()) && 
 		theMessage.SignContract(*m_pNym) && 
 		theMessage.SaveContract())
 	{
@@ -711,7 +711,7 @@ void OTServerConnection::ProcessMessageOut(OTMessage & theMessage)
 	OTPayload thePayload;
 	
 	
-	OT_ASSERT(IsConnected() || IsFocused());
+//	OT_ASSERT(IsConnected() || IsFocused());
 	
 	// clear the header
 	memset((void *)theCMD.buf, 0, OT_CMD_HEADER_SIZE);
@@ -772,7 +772,7 @@ void OTServerConnection::ProcessMessageOut(OTMessage & theMessage)
 		
 		for (nwritten = 0;  nwritten < nHeaderSize;  nwritten += err)
 		{
-			err = SFSocketWrite(m_pSocket, theCMD.buf + nwritten, nHeaderSize - nwritten);
+//			err = SFSocketWrite(m_pSocket, theCMD.buf + nwritten, nHeaderSize - nwritten);
 
 #ifdef _WIN32
 			if (0 == err || SOCKET_ERROR == err) //  0 is disonnect. error is error. >0 is bytes written.
@@ -789,7 +789,7 @@ void OTServerConnection::ProcessMessageOut(OTMessage & theMessage)
 		
 		for (nwritten = 0;  nwritten < nPayloadSize;  nwritten += err)
 		{
-			err = SFSocketWrite(m_pSocket, (unsigned char *)thePayload.GetPayloadPointer() + nwritten, nPayloadSize - nwritten);
+//			err = SFSocketWrite(m_pSocket, (unsigned char *)thePayload.GetPayloadPointer() + nwritten, nPayloadSize - nwritten);
 
 #ifdef _WIN32
 			if (0 == err || SOCKET_ERROR == err) //  0 is disonnect. error is error. >0 is bytes written.
@@ -826,7 +826,7 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 	u_header theCMD; 
 	
 	
-	OT_ASSERT(IsConnected() || IsFocused());
+//	OT_ASSERT(IsConnected() || IsFocused());
 
 	
 	// clear the header
@@ -1657,31 +1657,32 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 		// Voila -- it's sent. (If there was a payload involved.)
 		ProcessMessageOut(theMessage);
 	} // Otherwise... if it's a "header only" ...
-	else if (bSendCommand && IsConnected()) // I only write to a socket if I'm in socket mode...
-	{
-		unsigned int nHeaderSize = OT_CMD_HEADER_SIZE;
-		
-		// TODO: REMOVE THIS. FOR TESTING ONLY (testing malformed headers, and headers without payloads...)
-		if (buf[0] == '2') {
-			nHeaderSize += 3;
-		}
-		
-		for (nwritten = 0;  nwritten < nHeaderSize;  nwritten += err)
-		{
-			err = SFSocketWrite(m_pSocket, theCMD.buf + nwritten, nHeaderSize - nwritten);
 
-#ifdef _WIN32
-		if (0 == err || SOCKET_ERROR == err) //  0 is disonnect. error is error. >0 is bytes written.
-#else
-		if (err <= 0)
-#endif				
-			break;
-		}
-		
-		int n0 = theCMD.buf[0], n1 = theCMD.buf[1], n2 = theCMD.buf[2], n3 = theCMD.buf[3], n4 = theCMD.buf[4], n5 = theCMD.buf[5], n6 = theCMD.buf[6];
-		
-		OTLog::vOutput(4, "Sent: %d %d %d %d %d %d %d\n", n0, n1, n2, n3, n4, n5, n6);
-	}
+//	else if (bSendCommand && IsConnected()) // I only write to a socket if I'm in socket mode...
+//	{
+//		unsigned int nHeaderSize = OT_CMD_HEADER_SIZE;
+//		
+//		// TODO: REMOVE THIS. FOR TESTING ONLY (testing malformed headers, and headers without payloads...)
+//		if (buf[0] == '2') {
+//			nHeaderSize += 3;
+//		}
+//		
+//		for (nwritten = 0;  nwritten < nHeaderSize;  nwritten += err)
+//		{
+//			err = SFSocketWrite(m_pSocket, theCMD.buf + nwritten, nHeaderSize - nwritten);
+//
+//#ifdef _WIN32
+//		if (0 == err || SOCKET_ERROR == err) //  0 is disonnect. error is error. >0 is bytes written.
+//#else
+//		if (err <= 0)
+//#endif				
+//			break;
+//		}
+//		
+//		int n0 = theCMD.buf[0], n1 = theCMD.buf[1], n2 = theCMD.buf[2], n3 = theCMD.buf[3], n4 = theCMD.buf[4], n5 = theCMD.buf[5], n6 = theCMD.buf[6];
+//		
+//		OTLog::vOutput(4, "Sent: %d %d %d %d %d %d %d\n", n0, n1, n2, n3, n4, n5, n6);
+//	}
 	// At this point, we have sent the header across the pipe.
 }
 

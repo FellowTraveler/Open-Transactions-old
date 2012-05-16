@@ -135,7 +135,7 @@ extern "C"
 {
 #include <stdint.h>	
 
-#include "SSL-Example/SFSocket.h"	
+//#include "SSL-Example/SFSocket.h"	
 }
 
 extern "C" 
@@ -204,7 +204,7 @@ class OTServerConnection
 	OTMessageBuffer m_listIn;
 	OTMessageBuffer m_listOut;
 
-	SFSocket *				m_pSocket;	 // For TCP / SSL mode.
+//	SFSocket *				m_pSocket;	 // For TCP / SSL mode.
 	
 	bool					m_bFocused;	 // For RPC / HTTP mode.
 	OT_CALLBACK_MSG			m_pCallback; // --------------------
@@ -216,7 +216,7 @@ class OTServerConnection
 	
 public:
 	OTServerConnection(OTWallet & theWallet, OTClient & theClient);
-	OTServerConnection(OTWallet & theWallet, OTClient & theClient, SFSocket * pSock);
+//	OTServerConnection(OTWallet & theWallet, OTClient & theClient, SFSocket * pSock);
 	~OTServerConnection();
 	
 	bool GetServerID(OTIdentifier & theID);
@@ -225,7 +225,7 @@ public:
 	inline OTServerContract	*	GetServerContract()	{ return m_pServerContract; }
 	inline OTWallet			*	GetWallet()			{ return m_pWallet; }
 	
-	inline bool IsConnected()	{ return ((NULL == m_pSocket)?false:true); }	// for socket mode				-- TCP / SSL
+//	inline bool IsConnected()	{ return ((NULL == m_pSocket)?false:true); }	// for socket mode				-- TCP / SSL
 	inline bool IsFocused()		{ return m_bFocused; }							// for request/response mode	-- RPC / HTTP
 	
 	// SetFocus() is for RPC / HTTP mode.

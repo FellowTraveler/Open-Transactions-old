@@ -126,7 +126,7 @@
  -----END PGP SIGNATURE-----
  **************************************************************/
 
-
+#include <WinsockWrapper.h>
 
 extern "C"
 {
