@@ -355,19 +355,19 @@ private:
     bool               m_bUsingOldSystem; // "Do NOT use MasterKey if this is true."
 public:
     // --------------------------------
-    bool            isForNormalNym()   const;
-    bool            isForMasterKey()   const;
-    const char *    GetDisplayString() const;
+EXPORT    bool            isForNormalNym()   const;
+EXPORT    bool            isForMasterKey()   const;
+EXPORT    const char *    GetDisplayString() const;
     
-    bool            isUsingOldSystem() const;
-    void            setUsingOldSystem(bool bUsing=true);
+EXPORT    bool            isUsingOldSystem() const;
+EXPORT    void            setUsingOldSystem(bool bUsing=true);
     // --------------------------------
     OTPassword *    GetMasterPW() { return m_pMasterPW; }
     // --------------------------------
-    OTPasswordData(const char        *   szDisplay, OTPassword * pMasterPW=NULL);  
+EXPORT    OTPasswordData(const char        *   szDisplay, OTPassword * pMasterPW=NULL);  
     OTPasswordData(const std::string & str_Display, OTPassword * pMasterPW=NULL);  
-    OTPasswordData(const OTString    &  strDisplay, OTPassword * pMasterPW=NULL);  
-    ~OTPasswordData();
+EXPORT    OTPasswordData(const OTString    &  strDisplay, OTPassword * pMasterPW=NULL);  
+EXPORT    ~OTPasswordData();
 };
 
 
@@ -407,73 +407,61 @@ private:
     bool    m_bIsPageLocked;    // is the page locked to prevent us from swapping this secret memory to disk?
     
 public:
-	const
-	BlockSize m_theBlockSize;		
+		const		BlockSize	m_theBlockSize;		
     // -----------------
-    bool     isPassword() const;
-	const
-	uint8_t * getPassword_uint8() const; // asserts if m_bIsText is false.
-	const
-	char    * getPassword() const; // asserts if m_bIsText is false.
-	uint8_t * getPasswordWritable(); // asserts if m_bIsText is false.
+EXPORT	bool		isPassword() const;
+EXPORT	const		uint8_t *	getPassword_uint8() const; // asserts if m_bIsText is false.
+EXPORT	const
+EXPORT	char *		getPassword()	const; // asserts if m_bIsText is false.
+EXPORT				uint8_t *	getPasswordWritable(); // asserts if m_bIsText is false.
     
-	int      setPassword(const char * szInput, int nInputSize); // (FYI, truncates if nInputSize larger than getBlockSize.)
-	int32_t  setPassword_uint8(const uint8_t * szInput, uint32_t nInputSize); // (FYI, truncates if nInputSize larger than getBlockSize.)
-    bool     addChar(uint8_t theChar);
+EXPORT				int			setPassword(const char * szInput, int nInputSize); // (FYI, truncates if nInputSize larger than getBlockSize.)
+EXPORT				int32_t		setPassword_uint8(const uint8_t * szInput, uint32_t nInputSize); // (FYI, truncates if nInputSize larger than getBlockSize.)
+EXPORT				bool		addChar(uint8_t theChar);
     // ---------------------
-    int32_t randomizePassword(uint32_t nNewSize=DEFAULT_SIZE);
+EXPORT				int32_t		randomizePassword(uint32_t nNewSize=DEFAULT_SIZE);
     // -----------------
-    static
-    bool     randomizePassword_uint8(uint8_t * szDestination, uint32_t nNewSize);
-    static
-    bool     randomizePassword(char * szDestination, uint32_t nNewSize);
+EXPORT	static	    bool		randomizePassword_uint8(uint8_t * szDestination, uint32_t nNewSize);
+EXPORT	static		bool		randomizePassword(char * szDestination, uint32_t nNewSize);
     // -----------------
-    bool     isMemory() const;
-	const
-	void *	 getMemory() const; // asserts if m_bIsBinary is false.
-	const
-	uint8_t* getMemory_uint8() const; // asserts if m_bIsBinary is false.
-	void *	 getMemoryWritable(); // asserts if m_bIsBinary is false.
-	int32_t  setMemory(const void * vInput,  uint32_t nInputSize);  // (FYI, truncates if nInputSize larger than getBlockSize.)
-	int32_t  addMemory(const void * vAppend, uint32_t nAppendSize); // (FYI, truncates if nInputSize + getPasswordSize() is larger than getBlockSize.)
+EXPORT				bool		isMemory()	const;
+EXPORT	const		void *		getMemory() const; // asserts if m_bIsBinary is false.
+EXPORT	const		uint8_t *	getMemory_uint8() const; // asserts if m_bIsBinary is false.
+EXPORT				void *		getMemoryWritable(); // asserts if m_bIsBinary is false.
+EXPORT				int32_t		setMemory(const void * vInput,  uint32_t nInputSize);  // (FYI, truncates if nInputSize larger than getBlockSize.)
+EXPORT				int32_t		addMemory(const void * vAppend, uint32_t nAppendSize); // (FYI, truncates if nInputSize + getPasswordSize() is larger than getBlockSize.)
     // ---------------------
-    int32_t  randomizeMemory(uint32_t nNewSize=DEFAULT_SIZE);
+EXPORT				int32_t		randomizeMemory(uint32_t nNewSize=DEFAULT_SIZE);
     // -----------------
-    static
-    bool     randomizeMemory_uint8(uint8_t * szDestination, uint32_t nNewSize);
+EXPORT	static		bool		randomizeMemory_uint8(uint8_t * szDestination, uint32_t nNewSize);
     // -----------------
-    static
-    bool     randomizeMemory(void * szDestination, uint32_t nNewSize);
+EXPORT	static		bool		randomizeMemory(void * szDestination, uint32_t nNewSize);
     // -----------------
-	uint32_t getBlockSize()    const;
-	bool	 Compare(OTPassword & rhs) const;
+EXPORT				uint32_t	getBlockSize()    const;
+EXPORT				bool		Compare(OTPassword & rhs) const;
     // ----------------------
-	uint32_t getPasswordSize() const; // asserts if m_bIsText is false.
-	uint32_t getMemorySize()   const; // asserts if m_bIsBinary is false.
+EXPORT				uint32_t	getPasswordSize() const; // asserts if m_bIsText is false.
+EXPORT				uint32_t	getMemorySize()   const; // asserts if m_bIsBinary is false.
     // -----------------
-	void	zeroMemory();
+EXPORT				void		zeroMemory();
     // -----------------
-    static
-    void    zeroMemory(uint8_t * szMemory, uint32_t theSize);
-    static
-    void    zeroMemory(void * vMemory,     uint32_t theSize);
+EXPORT	static		void		zeroMemory(uint8_t * szMemory, uint32_t theSize);
+EXPORT	static		void		zeroMemory(void * vMemory,     uint32_t theSize);
     // -----------------
-    static
-    void * safe_memcpy(void   * dest,
-                       uint32_t dest_size,
-                       const
-                       void   * src,
-                       uint32_t src_length,
-                       bool     bZeroSource=false); // if true, sets the source buffer to zero after copying is done.    
+EXPORT	static		void *		safe_memcpy(void *			dest,
+											uint32_t		dest_size,
+											const void *	src,
+											uint32_t		src_length,
+											bool			bZeroSource=false); // if true, sets the source buffer to zero after copying is done.    
     // ---------------------------------------
-    OTPassword & operator=(const OTPassword & rhs);
-	OTPassword(BlockSize theBlockSize=DEFAULT_SIZE);
-	OTPassword(const OTPassword & rhs);
-	OTPassword(const char    * szInput, uint32_t nInputSize, BlockSize theBlockSize=DEFAULT_SIZE);  // text   / password stored.
-	OTPassword(const uint8_t * szInput, uint32_t nInputSize, BlockSize theBlockSize=DEFAULT_SIZE);  // text   / password stored.
-	OTPassword(const void    * vInput,  uint32_t nInputSize, BlockSize theBlockSize=DEFAULT_SIZE);  // binary / symmetric key stored.
+EXPORT	OTPassword & operator=(const OTPassword & rhs);
+EXPORT	OTPassword(BlockSize theBlockSize=DEFAULT_SIZE);
+EXPORT	OTPassword(const OTPassword & rhs);
+EXPORT	OTPassword(const char    * szInput, uint32_t nInputSize, BlockSize theBlockSize=DEFAULT_SIZE);  // text   / password stored.
+EXPORT	OTPassword(const uint8_t * szInput, uint32_t nInputSize, BlockSize theBlockSize=DEFAULT_SIZE);  // text   / password stored.
+EXPORT	OTPassword(const void    * vInput,  uint32_t nInputSize, BlockSize theBlockSize=DEFAULT_SIZE);  // binary / symmetric key stored.
     // -----------------
-	~OTPassword();
+EXPORT	~OTPassword();
 };
 
 //#undef OTPASSWORD_BLOCKSIZE
@@ -493,9 +481,9 @@ class OTCallback
 {
 public:
 	OTCallback() {}
-	virtual ~OTCallback();
-	virtual void runOne(const char * szDisplay, OTPassword & theOutput); // Asks for password once. (For authentication when using nym.)
-	virtual void runTwo(const char * szDisplay, OTPassword & theOutput); // Asks for password twice. (For confirmation when changing password or creating nym.)
+EXPORT	virtual ~OTCallback();
+EXPORT	virtual void runOne(const char * szDisplay, OTPassword & theOutput); // Asks for password once. (For authentication when using nym.)
+EXPORT	virtual void runTwo(const char * szDisplay, OTPassword & theOutput); // Asks for password twice. (For confirmation when changing password or creating nym.)
 };
 
 // ------------------------------------------------
@@ -510,20 +498,20 @@ protected:
 	
 public:
 	OTCaller() : _callback(NULL) { }
-	~OTCaller();
+EXPORT	~OTCaller();
 	
-	bool	GetPassword(OTPassword & theOutput) const;	// Grab the password when it is needed.
-	void	ZeroOutPassword();	// Then ZERO IT OUT so copies aren't floating around...
+EXPORT	bool	GetPassword(OTPassword & theOutput) const;	// Grab the password when it is needed.
+EXPORT	void	ZeroOutPassword();	// Then ZERO IT OUT so copies aren't floating around...
 	
-	const char * GetDisplay() const;
-	void SetDisplay(const char * szDisplay, int nLength);
+EXPORT	const char * GetDisplay() const;
+EXPORT	void SetDisplay(const char * szDisplay, int nLength);
 	
-	void delCallback();
-	void setCallback(OTCallback *cb);
-	bool isCallbackSet() const;
+EXPORT	void delCallback();
+EXPORT	void setCallback(OTCallback *cb);
+EXPORT	bool isCallbackSet() const;
 	
-	void callOne(); // Asks for password once. (For authentication when using the Nym's private key.)
-	void callTwo(); // Asks for password twice. (For confirmation during nym creation and password change.)
+EXPORT	void callOne(); // Asks for password once. (For authentication when using the Nym's private key.)
+EXPORT	void callTwo(); // Asks for password twice. (For confirmation during nym creation and password change.)
 };
 
 

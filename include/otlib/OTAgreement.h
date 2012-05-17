@@ -202,10 +202,10 @@ public:
 //	bool	SetAgreement(const long & lTransactionNum,	const OTString & strConsideration,
 //							 const time_t & VALID_FROM=0,	const time_t & VALID_TO=0);
 
-    bool    SetProposal(OTPseudonym & MERCHANT_NYM, const OTString & strConsideration,
+EXPORT    bool    SetProposal(OTPseudonym & MERCHANT_NYM, const OTString & strConsideration,
                         const time_t VALID_FROM=0,	const time_t VALID_TO=0);
     
-    bool    Confirm(OTPseudonym & MERCHANT_NYM, OTPseudonym & PAYER_NYM);  // Merchant Nym is passed here so we can verify the signature before confirming.
+EXPORT    bool    Confirm(OTPseudonym & MERCHANT_NYM, OTPseudonym & PAYER_NYM);  // Merchant Nym is passed here so we can verify the signature before confirming.
     
     
     // What should be the process here?
@@ -305,7 +305,7 @@ public:
 
     // The recipient must also provide an opening and closing transaction number(s).
     //
-    long    GetRecipientClosingTransactionNoAt(unsigned int nIndex) const;
+EXPORT    long    GetRecipientClosingTransactionNoAt(unsigned int nIndex) const;
 EXPORT    int     GetRecipientCountClosingNumbers() const;
     
     void    AddRecipientClosingTransactionNo(const long & lClosingTransactionNo);
@@ -339,7 +339,7 @@ EXPORT    long    GetRecipientClosingNum() const;
     virtual bool CanRemoveItemFromCron(OTPseudonym & theNym);
 	
     virtual void HarvestOpeningNumber(OTPseudonym & theNym);
-    virtual void HarvestClosingNumbers(OTPseudonym & theNym);
+EXPORT    virtual void HarvestClosingNumbers(OTPseudonym & theNym);
     
     // Return True if should stay on OTCron's list for more processing.
 	// Return False if expired or otherwise should be removed.

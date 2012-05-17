@@ -164,8 +164,8 @@ EXPORT	virtual ~OTPayload();
 
 EXPORT	uint32_t ReadBytesFrom(OTData & theData, uint32_t lSize);
 	
-	void SetPayloadSize(uint32_t lNewSize);
-	const void * GetPayloadPointer() const;
+EXPORT	void SetPayloadSize(uint32_t lNewSize);
+EXPORT	const void * GetPayloadPointer() const;
 	
 	// pass in an OTMessage and if the Payload
 	// contains a message, and checksum validates,

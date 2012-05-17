@@ -208,8 +208,8 @@ EXPORT	bool CalculateDigest(const OTString & strInput);
 
 	// If someone passes in the pretty string of hex digits,
 	// convert it to the actual binary hash and set it internally.
-	void SetString(const char * szString);
-	void SetString(const OTString & theStr);
+EXPORT	void SetString(const char * szString);
+EXPORT	void SetString(const OTString & theStr);
 	
 	// theStr will contain pretty hex string after call.
 EXPORT	void GetString(OTString & theStr) const;

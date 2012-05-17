@@ -459,7 +459,7 @@ class OTEnvelope
 public:
     // ------------------------------------------------------------------------
 EXPORT	OTEnvelope();
-	OTEnvelope(const OTASCIIArmor & theArmoredText);
+EXPORT	OTEnvelope(const OTASCIIArmor & theArmoredText);
 EXPORT	virtual ~OTEnvelope();
 	
     // ------------------------------------------------------------------------
@@ -493,7 +493,7 @@ EXPORT	virtual ~OTEnvelope();
     
     // Single recipient:
     //
-	bool Seal(const OTPseudonym     & theRecipient, const OTString & theInput);  // Put data into this object with Seal().
+EXPORT	bool Seal(const OTPseudonym     & theRecipient, const OTString & theInput);  // Put data into this object with Seal().
 EXPORT	bool Seal(const OTAsymmetricKey & RecipPubKey,  const OTString & theInput);  // Currently supports strings only.
     // ------------------------------------------------------------------------
     // Multiple recipients:

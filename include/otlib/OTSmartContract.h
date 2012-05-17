@@ -370,7 +370,7 @@ EXPORT	bool VerifySmartContract(OTPseudonym & theNym, OTAccount & theAcct, OTPse
 	// to make sure that certain IDs and transaction #s are set, so the smart contract
 	// will interoperate with the old Cron Item system of doing things.
 	//
-	void PrepareToActivate(const long & lOpeningTransNo,	const long & lClosingTransNo,
+EXPORT	void PrepareToActivate(const long & lOpeningTransNo,	const long & lClosingTransNo,
 						   const OTIdentifier & theUserID,	const OTIdentifier & theAcctID);
 	
 	// --------------------------------------------------------------------------
@@ -477,7 +477,7 @@ EXPORT	OTSmartContract(const OTIdentifier & SERVER_ID);
 	bool LoadTemplate(const OTIdentifier & SERVER_ID, const OTIdentifier & CONTRACT_ID);
 	bool SaveTemplate(const OTIdentifier & SERVER_ID);
 	
-	virtual ~OTSmartContract();
+EXPORT	virtual ~OTSmartContract();
 	
 	void InitSmartContract();
 

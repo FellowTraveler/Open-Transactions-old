@@ -216,12 +216,12 @@ public:
 	
 	// Then call one (or both) of these:
     
-	bool		SetInitialPayment(const long & lAmount, time_t tTimeUntilInitialPayment=0); // default: now.
+EXPORT	bool		SetInitialPayment(const long & lAmount, time_t tTimeUntilInitialPayment=0); // default: now.
 	
 	// These two can be called independent of each other. You can 
 	// have an initial payment, AND/OR a payment plan.
 	
-	bool		SetPaymentPlan(const long & lPaymentAmount, time_t tTimeUntilPlanStart=LENGTH_OF_MONTH_IN_SECONDS,
+EXPORT	bool		SetPaymentPlan(const long & lPaymentAmount, time_t tTimeUntilPlanStart=LENGTH_OF_MONTH_IN_SECONDS,
 							   time_t tBetweenPayments=LENGTH_OF_MONTH_IN_SECONDS, // Default: 30 days.
 							   time_t tPlanLength=0, int nMaxPayments=0);
 	
@@ -413,10 +413,10 @@ protected:
 public:	
 EXPORT	OTPaymentPlan();
 	OTPaymentPlan(const OTIdentifier & SERVER_ID,			const OTIdentifier & ASSET_ID);
-	OTPaymentPlan(const OTIdentifier & SERVER_ID,			const OTIdentifier & ASSET_ID,
+EXPORT	OTPaymentPlan(const OTIdentifier & SERVER_ID,			const OTIdentifier & ASSET_ID,
 				  const OTIdentifier & SENDER_ACCT_ID,		const OTIdentifier & SENDER_USER_ID,
 				  const OTIdentifier & RECIPIENT_ACCT_ID,	const OTIdentifier & RECIPIENT_USER_ID);
-	virtual ~OTPaymentPlan();
+EXPORT	virtual ~OTPaymentPlan();
 	
 	void InitPaymentPlan();
 	

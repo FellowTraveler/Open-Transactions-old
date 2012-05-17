@@ -351,7 +351,7 @@ public:
     // therefore the "accept" must contain the same list. Otherwise you haven't signed off!!
     //
     //
-    bool AddBlankNumbersToItem(const OTNumList & theAddition);
+EXPORT    bool AddBlankNumbersToItem(const OTNumList & theAddition);
     // -------------------------------------------
 
     long GetClosingNum() const;
@@ -403,7 +403,7 @@ EXPORT	bool VerifyTransactionStatement(OTPseudonym & THE_NYM, OTTransaction & TA
 	inline void SetAmount(long lAmount) { m_lAmount = lAmount; }
 	
 EXPORT	void GetNote(OTString & theStr) const;
-	void SetNote(const OTString & theStr);
+EXPORT	void SetNote(const OTString & theStr);
 
 EXPORT	void GetAttachment(OTString & theStr) const;
 EXPORT	void SetAttachment(const OTString & theStr);

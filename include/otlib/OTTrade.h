@@ -206,7 +206,7 @@ protected:
 public:
 EXPORT	bool	VerifyOffer(OTOffer & theOffer);
 	
-	bool	IssueTrade(OTOffer & theOffer, char cStopSign=0, long lStopPrice=0);
+EXPORT	bool	IssueTrade(OTOffer & theOffer, char cStopSign=0, long lStopPrice=0);
 	
 	// The Trade always stores the original, signed version of its Offer.
 	// This method allows you to grab a copy of it.
@@ -305,11 +305,11 @@ EXPORT    long GetCurrencyAcctClosingNum() const;
 	
 EXPORT	OTTrade();
 	OTTrade(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID);
-	OTTrade(const OTIdentifier & SERVER_ID, 
+EXPORT	OTTrade(const OTIdentifier & SERVER_ID, 
 			const OTIdentifier & ASSET_ID, const OTIdentifier & ASSET_ACCT_ID, 
 			const OTIdentifier & USER_ID, 
 			const OTIdentifier & CURRENCY_ID, const OTIdentifier & CURRENCY_ACCT_ID);
-	virtual ~OTTrade();
+EXPORT	virtual ~OTTrade();
 
 	void InitTrade();
 	

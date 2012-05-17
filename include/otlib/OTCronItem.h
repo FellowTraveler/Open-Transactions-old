@@ -233,13 +233,13 @@ public:
     
 	inline void SetCronPointer(OTCron & theCron) { m_pCron = &theCron; }
 
-	static OTCronItem * NewCronItem(const OTString & strCronItem);
+EXPORT	static OTCronItem * NewCronItem(const OTString & strCronItem);
 	static OTCronItem * LoadCronReceipt(const long & lTransactionNum);
 	
 	inline void SetCreationDate(const time_t & CREATION_DATE) { m_CREATION_DATE = CREATION_DATE; }
 	inline const time_t & GetCreationDate() const { return m_CREATION_DATE; }
 	
-	bool SetDateRange(const time_t VALID_FROM=0,  const time_t VALID_TO=0);
+EXPORT	bool SetDateRange(const time_t VALID_FROM=0,  const time_t VALID_TO=0);
 	// --------------------------------------------
 
 	inline void SetLastProcessDate(const time_t & THE_DATE) { m_LAST_PROCESS_DATE = THE_DATE; }
@@ -320,10 +320,10 @@ public:
 	// These are for     std::deque<long> m_dequeClosingNumbers; 
     // They are numbers used for CLOSING a transaction. (finalReceipt.)
 
-    long    GetClosingTransactionNoAt(unsigned int nIndex) const;
+EXPORT    long    GetClosingTransactionNoAt(unsigned int nIndex) const;
 EXPORT	int     GetCountClosingNumbers() const;
 
-    void    AddClosingTransactionNo(const long & lClosingTransactionNo);
+EXPORT    void    AddClosingTransactionNo(const long & lClosingTransactionNo);
     
     // HIGHER LEVEL ABSTRACTIONS:
 EXPORT    long GetOpeningNum() const;

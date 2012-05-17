@@ -214,7 +214,7 @@ EXPORT	virtual ~OTMint();
 	void ReleaseDenominations();
 	
 EXPORT	bool LoadMint(const char * szAppend=NULL);
-	bool SaveMint(const char * szAppend=NULL);
+EXPORT	bool SaveMint(const char * szAppend=NULL);
 	
 	virtual bool LoadContract();
 	
@@ -228,7 +228,7 @@ EXPORT	bool LoadMint(const char * szAppend=NULL);
 	bool GetPublic(OTASCIIArmor & theArmor, long lDenomination);
 	
 	long GetDenomination(int nIndex);
-	long GetLargestDenomination(long lAmount);
+EXPORT	long GetLargestDenomination(long lAmount);
 	bool AddDenomination(OTPseudonym & theNotary, long lDenomination, int nPrimeLength=1024);
 	inline int GetDenominationCount() const { return m_nDenominationCount; }
 

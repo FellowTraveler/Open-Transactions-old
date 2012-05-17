@@ -253,15 +253,15 @@ EXPORT    static void TransformFilePath(const char * szInput, OTString & strOutp
 	// --------------------------------------------------
 	// We keep 1024 logs in memory, to make them available via the API.
 	
-	static int GetMemlogSize();
+EXPORT	static int GetMemlogSize();
 	
-	static const char * GetMemlogAtIndex(int nIndex);
+EXPORT	static const char * GetMemlogAtIndex(int nIndex);
 
-	static const char * PeekMemlogFront();
-	static const char * PeekMemlogBack();
+EXPORT	static const char * PeekMemlogFront();
+EXPORT	static const char * PeekMemlogBack();
 	
-	static bool PopMemlogFront();
-	static bool PopMemlogBack();
+EXPORT	static bool PopMemlogFront();
+EXPORT	static bool PopMemlogBack();
 	
 	static bool PushMemlogFront(const char * szLog);
 	static bool PushMemlogBack(const char * szLog);
