@@ -8,7 +8,7 @@ if ! swig -version > /dev/null; then
 fi
 
 
-for x in csharp java perl5 php python ruby tcl
+for x in csharp java perl5 php python ruby tcl d
 do
     echo Generating for $x ...
 

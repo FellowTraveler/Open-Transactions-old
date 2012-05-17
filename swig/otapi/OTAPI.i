@@ -2,9 +2,9 @@
 %{
 #include <string>
 #include <map>
-#include "../OTLib/OTAsymmetricKey.h"
-#include "OTAPI_funcdef.h"
-#include "../OTLib/OTStorage.h"
+#include "../../include/otlib/OTAsymmetricKey.h"
+#include "../../include/otapi/OTAPI_funcdef.h"
+#include "../../include/otlib/OTStorage.h"
 %}
 
 
@@ -116,7 +116,7 @@ JAVA_TYPEMAP(size_t, long, jlong)
 //
 
 
-%include "../OTLib/OTPassword.h"
+%include "../../include/otlib/OTPassword.h"
 
 
 
@@ -749,7 +749,7 @@ OT_IS_ELEMENT_TYPE(TradeListNym)
 
 
 /* Parse the header file to generate wrappers */
-%include "OTAPI_funcdef.h"
+%include "../../include/otapi/OTAPI_funcdef.h"
 
 
 
