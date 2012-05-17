@@ -7,3 +7,7 @@ var strInput = OT_CLI_ReadLine()
 
 print("\n\n You entered: " + strInput) 
 
+// Note: the '1' is because OT expects a "return value" from the script.
+
+1
+

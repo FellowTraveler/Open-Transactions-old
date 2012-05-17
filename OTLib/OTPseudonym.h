@@ -350,7 +350,7 @@ public:
     // have to call a function that reverses the one below. (ConvertBackOutOfMasterKey or
     // some such thing.)
     //
-    bool ConvertToMasterKey();
+//    bool ConvertToMasterKey();  // Replaced by Savex509CertAndPrivateKey().
     
 	// ------------------------------------------------
 	OTPseudonym();
@@ -425,7 +425,7 @@ public:
 
 	bool LoadPublicKey();
 	bool Loadx509CertAndPrivateKey();
-	bool Savex509CertAndPrivateKey(X509 * x509, EVP_PKEY * pPrivateKey, bool bCreateFile/*=true*/);
+	bool Savex509CertAndPrivateKey(bool bCreateFile=true);
     
 //	bool SavePseudonymWallet(FILE * fl) const;
 	bool SavePseudonymWallet(OTString & strOutput) const;

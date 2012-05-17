@@ -581,10 +581,10 @@ OTItem * OTPseudonym::GenerateTransactionStatement(const OTTransaction & theOwne
 
 
 
-bool OTPseudonym::ConvertToMasterKey()
+bool OTPseudonym::Savex509CertAndPrivateKey(bool bCreateFile/*=true*/)
 {
-    const char * szFunc = "OTPseudonym::ConvertToMasterKey";
-    
+    const char * szFunc = "OTPseudonym::Savex509CertAndPrivateKey";
+    // ---------------------------------------
     X509         * x509        = m_pkeyPublic->GetX509();
 	EVP_PKEY     * pPrivateKey = m_pkeyPrivate->GetKeyLowLevel();
     
@@ -599,18 +599,6 @@ bool OTPseudonym::ConvertToMasterKey()
         OTLog::vError("%s: Error: Unexpected NULL pPrivateKey. (Returning false.)\n", szFunc);
         return false;
     }
-    
-    return this->Savex509CertAndPrivateKey(x509, pPrivateKey, true); //bool bCreateFile=true
- }
-
-
-
-bool OTPseudonym::Savex509CertAndPrivateKey(X509 * x509, EVP_PKEY * pPrivateKey, bool bCreateFile/*=true*/)
-{
-    OT_ASSERT(NULL != x509);
-    OT_ASSERT(NULL != pPrivateKey);
-    // ---------------------------------------
-    const char * szFunc = "OTPseudonym::Savex509CertAndPrivateKey";
     // ---------------------------------------    
     class _Nym__saveCert_
     {
@@ -656,7 +644,7 @@ bool OTPseudonym::Savex509CertAndPrivateKey(X509 * x509, EVP_PKEY * pPrivateKey,
 
     bool bSuccess = false;
     
-	unsigned char buffer_pri[4096] = ""; // todo hardcoded
+	unsigned char buffer_pri [4096] = ""; // todo hardcoded
 	unsigned char buffer_x509[8192] = ""; // todo hardcoded
 	
 	OTString strx509;
@@ -675,7 +663,11 @@ bool OTPseudonym::Savex509CertAndPrivateKey(X509 * x509, EVP_PKEY * pPrivateKey,
 		EVP_PKEY * pPublicKey = X509_get_pubkey(x509); 
 		
 		if (NULL != pPublicKey)
-			m_pkeyPublic->SetKey(pPublicKey, false); // bool bIsPrivateKey=false;
+        {
+			m_pkeyPublic->SetKeyAsCopyOf(*pPublicKey, false); // bool bIsPrivateKey=false;
+            EVP_PKEY_free(pPublicKey);
+            pPublicKey = NULL;
+        }
 		// else?
         
 		// todo hardcoded 4080 (see array above.)
@@ -705,7 +697,7 @@ bool OTPseudonym::Savex509CertAndPrivateKey(X509 * x509, EVP_PKEY * pPrivateKey,
 		
 		if (false == OTDB::StorePlainString(strFinal.Get(), OTLog::CertFolder(), strFilename.Get()))
 		{
-			OTLog::vError("%s: Failure storing cert for new nym: %s\n", szFunc, strFilename.Get());
+			OTLog::vError("%s: Failure storing new cert for nym: %s\n", szFunc, strFilename.Get());
 			return false;
 		}
 		
@@ -782,22 +774,23 @@ bool OTPseudonym::GenerateNym(int nBits/*=1024*/, bool bCreateFile/*=true*/) // 
 	// 1024 is apparently a minimum requirement, if not an only requirement.
 	// Will need to go over just what sorts of keys are involved here... todo.
 	
+	// ------------------------------------------------------------
+	if (NULL == x509)
+	{
+		OTLog::vError("%s: Failed attempting to generate new x509 cert.\n", szFunc);
+        
+		if (NULL != pNewKey)
+			EVP_PKEY_free(pNewKey);
+        
+		return false;
+	}
+	// ---------------------------------------------------------------
 	if (NULL == pNewKey)
 	{
 		OTLog::vError("%s: Failed attempting to generate new private key.\n", szFunc);
 		
 		if (NULL != x509)
 			X509_free(x509);
-
-		return false;
-	}
-	// ------------------------------------------------------------
-	if (NULL == x509)
-	{
-		OTLog::vError("%s: Failed attempting to generate new x509 cert.\n", szFunc);
-
-		if (NULL != pNewKey)
-			EVP_PKEY_free(pNewKey);
 
 		return false;
 	}
@@ -823,11 +816,15 @@ bool OTPseudonym::GenerateNym(int nBits/*=1024*/, bool bCreateFile/*=true*/) // 
     // private key itself... might as well keep it loaded for now.
     // (Therefore it's now owned by m_pkeyPrivate, no need to cleanup after this.)
     //
-    m_pkeyPrivate->SetKey(pNewKey, true); // bool bIsPrivateKey=true; (Default is false)
-    m_pkeyPublic->SetX509(x509); // x509 is now owned.
+    m_pkeyPrivate->SetKeyAsCopyOf(*pNewKey, true); // bool bIsPrivateKey=true; (Default is false)
+    EVP_PKEY_free(pNewKey);
+    pNewKey = NULL;
+    
+    m_pkeyPublic->SetX509(x509); // x509 is now owned by m_pkeyPublic. (No need to free it here.)
     // ---------------------------------------------------------------    
-    bool bSaved = this->Savex509CertAndPrivateKey(x509, pNewKey, bCreateFile);
-    pNewKey = NULL;    
+    bool bSaved = this->Savex509CertAndPrivateKey(bCreateFile);
+                    // NOTE: cannot reference x509 and pNewKey below this point, since they
+                    // were probably destroyed and re-loaded during Savex509CertAndPrivateKey...
     // ---------------------------------------------------------------
 	if (bSaved && bCreateFile)
 	{		

@@ -1106,6 +1106,18 @@ bool OTServer::LoadConfigFile()
                     OTLog::SetMinMarketScale(lScale);
                 }
             }
+            // ---------------------------------------------
+			// SECURITY (beginnings of..)
+            {
+                const char * pVal = ini.GetValue("security", "master_key_timeout");
+                int nTimeout = 0;
+                if (NULL != pVal)
+                {
+                    nTimeout = atoi(pVal);
+                    OTLog::vOutput(0, "Setting security master_key_timeout: %d\n", nTimeout);
+                    OTMasterKey::It()->SetTimeoutSeconds(nTimeout);
+                }
+            }
 			// ---------------------------------------------
 			// (#defined right above this function.)
 			//
@@ -1737,7 +1749,7 @@ bool OTServer::LoadMainFile()
         } // while xml->read
 	}
     // --------------------------------
-    if (bNeedToConvertUser && m_nymServer.ConvertToMasterKey())
+    if (bNeedToConvertUser && m_nymServer.Savex509CertAndPrivateKey())
         SaveMainFile();
 
 	return true;	

@@ -195,13 +195,14 @@ class OTPassword;
 //using namespace tthread; // in the C++ file
 
 // ----------------------------
-
+// OTMasterKey
 // This class handles the functionality of caching the master key for X seconds
 // as an OTPassword, and then deleting it. It also caches the encrypted version
 // in an OTSymmetricKey, which can be unlocked to an OTPassword again for X more
 // seconds (by entering the passphrase...)
 
-
+// This is only the hard-coded default; it's also in the config file.
+//
 #define OT_MASTER_KEY_TIMEOUT  300
 
 

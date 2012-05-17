@@ -3,6 +3,13 @@ NOTES on the Version:
 
 // --------------------------------------------------------------------
 
+   0.80f--- OTAsymmetricKey now creates its own copy of the EVP_PKEY when
+            setting it, to fix an openssl-related segfault.
+
+            master_key_timeout was added to the config files.
+
+            _PASSWORD_LEN bug was fixed. (#ifndef, #define'd as 128.)
+
    0.80e--- Added the OTMasterKey class. The user's passphrase is no longer
             used to directly open his private keys for his Nyms. Instead,
             the passphrase is used to derive a key, which is used to unlock

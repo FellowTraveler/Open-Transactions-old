@@ -1,4 +1,11 @@
 #!/usr/local/bin/ot --script
 
-print( "The current time (in seconds) is: " + OT_API_GetTime() )
+var current_time = OT_API_GetTime()
+
+print( "The current time (in seconds) is: " + current_time )
+
+// Without the below '1', we'd see a boxed_cast exception, 
+// since OT expects a return value.
+
+1
 

@@ -1515,7 +1515,7 @@ bool OTWallet::LoadWallet(const char * szFilename)
                             OTMasterKey::It()->SetMasterKey(ascMasterKey);
                         }
                         
-                        OTLog::vOutput(1, "\nLoading masterKey:\n%s\n", ascMasterKey.Get());
+                        OTLog::vOutput(1, "Loading masterKey:\n%s\n", ascMasterKey.Get());
                     }
                     
                     
@@ -1523,7 +1523,7 @@ bool OTWallet::LoadWallet(const char * szFilename)
                     {
                         NymID = xml->getAttributeValue("id"); // message digest from hash of x.509 cert or public key.
                         
-                        OTLog::vOutput(0, "\n\n NymID using Master Key: %s\n", NymID.Get());
+                        OTLog::vOutput(0, "NymID using Master Key: %s\n", NymID.Get());
                         OT_ASSERT_MSG(NymID.Exists(), "OTWallet::LoadWallet: NymID using Master Key was empty when loading wallet!\n");
                         // ----------------------
                         const OTIdentifier theNymID(NymID);
@@ -1745,7 +1745,7 @@ bool OTWallet::ConvertNymToMasterKey(OTPseudonym & theNym)
     //
     if (false == IsNymOnMasterKey(theNym.GetConstID()))
     {
-        const bool bConverted = theNym.ConvertToMasterKey();
+        const bool bConverted = theNym.Savex509CertAndPrivateKey();
         
         if (bConverted)
         {

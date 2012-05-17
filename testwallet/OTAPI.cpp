@@ -4901,7 +4901,7 @@ const char * OT_API_LoadMint(const char * SERVER_ID,
 	OTCleanup<OTMint>	theMintAngel(pMint); // I pass the pointer, in case it's NULL.
 	
 	if (NULL == pMint)
-		OTLog::vOutput(0, "OT_API_LoadMint: Failure calling OT_API::LoadMin.\n "
+		OTLog::vOutput(0, "OT_API_LoadMint: Failure calling OT_API::LoadMint.\n "
 					   "Server: %s\n Asset Type: %s\n", SERVER_ID, ASSET_TYPE_ID);
 	else // success 
 	{

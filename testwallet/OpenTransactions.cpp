@@ -505,6 +505,18 @@ bool OT_API::LoadConfigFile(const OTString & strMainPath)
                 }
             }
             // ----------------------------------------------------------------
+			// SECURITY (beginnings of..)
+            {
+                const char * pVal = ini.GetValue("security", "master_key_timeout");
+                int nTimeout = 0;
+                if (NULL != pVal)
+                {
+                    nTimeout = atoi(pVal);
+                    OTLog::vOutput(0, "Setting security master_key_timeout: %d\n", nTimeout);
+                    OTMasterKey::It()->SetTimeoutSeconds(nTimeout);
+                }
+            }
+            // ----------------------------------------------------------------
 		}
         else
             OTLog::vError("Failed loading the ini file: %s\n", strFilepath.Get());

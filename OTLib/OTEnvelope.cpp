@@ -411,7 +411,7 @@ int OTMasterKey::GetTimeoutSeconds()
 
 void OTMasterKey::SetTimeoutSeconds(int nTimeoutSeconds) // So we can load from the config file.
 {
-    OT_ASSERT_MSG(nTimeoutSeconds > 0, "OTMasterKey::SetTimeoutSeconds: ASSERT: nTimeoutSeconds must be >0.\n");
+    OT_ASSERT_MSG(nTimeoutSeconds >= (-1), "OTMasterKey::SetTimeoutSeconds: ASSERT: nTimeoutSeconds must be >= (-1)\n");
     
     lock_guard<mutex> lock(m_Mutex); // Multiple threads can't get inside here at the same time.
 
@@ -689,10 +689,12 @@ void OTMasterKey::ThreadTimeout(void * pArg)
     // --------------------------------------
     int nTimeoutSeconds = pMyself->GetTimeoutSeconds(); // locks mutex internally.
     
-    this_thread::sleep_for(chrono::seconds( nTimeoutSeconds )); // <===== ASLEEP!
+    if (nTimeoutSeconds > 0)
+        this_thread::sleep_for(chrono::seconds( nTimeoutSeconds )); // <===== ASLEEP!
     // --------------------------------------
 
-    pMyself->DestroyMasterPassword(); // locks mutex internally.
+    if (nTimeoutSeconds != (-1))
+        pMyself->DestroyMasterPassword(); // locks mutex internally.
 }
 
 

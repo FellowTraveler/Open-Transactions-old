@@ -15,3 +15,6 @@ var strOutput = OT_API_Encrypt(MyNym, strInput)
  
 print("Encrypted:\n\n" + strOutput + "\n\n")
 
+// Note: the '1' is because OT expects a "return value" from the script.
+
+1

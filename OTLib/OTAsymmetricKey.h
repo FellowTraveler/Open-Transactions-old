@@ -262,8 +262,13 @@ public:
     //
 	const
     EVP_PKEY *  GetKey();
-	void        SetKey(EVP_PKEY * pKey, bool bIsPrivateKey=false);
+	void        SetKeyAsCopyOf(EVP_PKEY & theKey, bool bIsPrivateKey=false);
 	
+    static      // CALLER must EVP_pkey_free!
+    EVP_PKEY *  CopyPublicKey (EVP_PKEY & theKey);
+    static
+    EVP_PKEY *  CopyPrivateKey(EVP_PKEY & theKey);
+    
     // We're moving to a system where the actual key isn't kept loaded in
     // memory except under 2 circumstances:   1. We are using it currently,
     // and we're going to destroy it when we're done with it.  2. A timer
