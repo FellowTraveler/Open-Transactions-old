@@ -684,9 +684,6 @@ bool OTSocket::Receive(std::string & str_Message)
 }
 
 
-
-
-
 // *********************************************************************************************************
 //
 //
@@ -702,6 +699,51 @@ int main(int argc, char* argv[])
 {
 	OTLog::vOutput(0, "\n\nWelcome to Open Transactions... Test Server -- version %s\n"
 				   "(transport build: OTMessage -> OTEnvelope -> ZMQ )\n\n", OTLog::Version());
+
+		// WINSOCK WINDOWS
+	// -----------------------------------------------------------------------
+	#ifdef _WIN32
+
+	WORD wVersionRequested;
+	WSADATA wsaData;
+	int err;
+
+	/* Use the MAKEWORD(lowbyte, highbyte) macro declared in Windef.h */
+	wVersionRequested = MAKEWORD(2, 2);
+
+	err = WSAStartup(wVersionRequested, &wsaData);
+	if (err != 0) {
+	/* Tell the user that we could not find a usable		*/
+	/* Winsock DLL.											*/
+		printf("WSAStartup failed with error: %d\n", err);
+		return 1;
+	}
+
+	/*	Confirm that the WinSock DLL supports 2.2.			*/
+	/*	Note that if the DLL supports versions greater		*/
+	/*	than 2.2 in addition to 2.2, it will still return	*/
+	/*	2.2 in wVersion since that is the version we		*/
+	/*	requested.											*/
+
+	if (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2) {
+		/* Tell the user that we could not find a usable */
+		/* WinSock DLL.                                  */
+		printf("Could not find a usable version of Winsock.dll\n");
+		WSACleanup();
+		return 1;
+	}
+	else
+		printf("The Winsock 2.2 dll was found okay\n");
+
+	/* The Winsock DLL is acceptable. Proceed to use it. */
+	/* Add network programming using Winsock here */
+	/* then call WSACleanup when done using the Winsock dll */
+	#endif
+
+
+
+
+
 	// ***********************************************************************
     // INITIALIZATION and CLEANUP (for the OT library, and for this server application.)
     //
@@ -713,13 +755,8 @@ int main(int argc, char* argv[])
         // -----------------------------------
         __ot_server_() : m_pServer(NULL) // INIT 
         {
-            // -----------------------------------------------------------------------    
-#ifdef _WIN32
-            WSADATA wsaData;
-            WORD wVersionRequested = MAKEWORD( 2, 2 );
-            int nWSA = WSAStartup( wVersionRequested, &wsaData );
-            OT_ASSERT_MSG(0 != nWSA, "server main(): ASSERT: Error calling WSAStartup. (Windows only.)\n");	
-#endif
+            // -----------------------------------------------------------------------   
+	
             // -----------------------------------------------------------------------
             // OTLog class exists on both client and server sides.
             // #define OT_NO_SIGNAL_HANDLING if you want to turn off OT's signal handling.
