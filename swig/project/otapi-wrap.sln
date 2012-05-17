@@ -15,6 +15,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "otapi-tcl", "otapi-tcl\otap
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "otapi-java", "otapi-java\otapi-java.vcxproj", "{E8139EBB-BFA3-4B1B-96CF-733A7922CD7F}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "otapi-d", "otapi-d\otapi-d.vcxproj", "{CBC12C18-FF5E-4B7F-8C26-FDA2FCD226F8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -79,6 +81,14 @@ Global
 		{E8139EBB-BFA3-4B1B-96CF-733A7922CD7F}.Release|Win32.Build.0 = Release|Win32
 		{E8139EBB-BFA3-4B1B-96CF-733A7922CD7F}.Release|x64.ActiveCfg = Release|x64
 		{E8139EBB-BFA3-4B1B-96CF-733A7922CD7F}.Release|x64.Build.0 = Release|x64
+		{CBC12C18-FF5E-4B7F-8C26-FDA2FCD226F8}.Debug|Win32.ActiveCfg = Debug|Win32
+		{CBC12C18-FF5E-4B7F-8C26-FDA2FCD226F8}.Debug|Win32.Build.0 = Debug|Win32
+		{CBC12C18-FF5E-4B7F-8C26-FDA2FCD226F8}.Debug|x64.ActiveCfg = Debug|x64
+		{CBC12C18-FF5E-4B7F-8C26-FDA2FCD226F8}.Debug|x64.Build.0 = Debug|x64
+		{CBC12C18-FF5E-4B7F-8C26-FDA2FCD226F8}.Release|Win32.ActiveCfg = Release|Win32
+		{CBC12C18-FF5E-4B7F-8C26-FDA2FCD226F8}.Release|Win32.Build.0 = Release|Win32
+		{CBC12C18-FF5E-4B7F-8C26-FDA2FCD226F8}.Release|x64.ActiveCfg = Release|x64
+		{CBC12C18-FF5E-4B7F-8C26-FDA2FCD226F8}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

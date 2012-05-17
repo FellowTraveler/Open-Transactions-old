@@ -3,9 +3,9 @@
 :: files for connecting OT to other langurages.
 ECHO.
 
-ECHO Checking if ..\..\swigwin-2.0.4\swig.exe exist: 
-IF NOT EXIST "..\..\swigwin-2.0.4\swig.exe" (
-	ECHO cannot find swigwin-2.0.4...
+ECHO Checking if ..\..\swigwin-2.0.7\swig.exe exist: 
+IF NOT EXIST "..\..\swigwin-2.0.7\swig.exe" (
+	ECHO cannot find swigwin-2.0.7...
 	GOTO END
 )
 
@@ -14,7 +14,7 @@ ECHO swigwin-2.0.4 exits! Good :)
 ECHO.
 ECHO.
 
-FOR %%x IN (csharp java perl5 php python ruby tcl) DO (
+FOR %%x IN (csharp java perl5 php python ruby tcl d) DO (
 
 ECHO.
 ECHO Generating for %%x ...
@@ -29,13 +29,13 @@ IF EXIST otapi\OTAPI_wrap.h        DEL                              otapi\OTAPI_
 
 
 IF NOT %%x == java (
-	ECHO ..\..\swigwin-2.0.4\swig.exe -c++ -%%x -outdir glue\%%x otapi\OTAPI.i
-	..\..\swigwin-2.0.4\swig.exe -c++ -%%x -outdir glue\%%x otapi\OTAPI.i
+	ECHO ..\..\swigwin-2.0.7\swig.exe -c++ -%%x -outdir glue\%%x otapi\OTAPI.i
+	..\..\swigwin-2.0.7\swig.exe -c++ -%%x -outdir glue\%%x otapi\OTAPI.i
 )
 
 IF %%x == java (
-	ECHO ..\..\swigwin-2.0.4\swig.exe -c++ -%%x -package com.wrapper.core.jni -outdir glue\%%x otapi\otapi.i
-	 ..\..\swigwin-2.0.4\swig.exe -c++ -%%x -package com.wrapper.core.jni -outdir glue\%%x otapi\otapi.i
+	ECHO ..\..\swigwin-2.0.7\swig.exe -c++ -%%x -package com.wrapper.core.jni -outdir glue\%%x otapi\otapi.i
+	 ..\..\swigwin-2.0.7\swig.exe -c++ -%%x -package com.wrapper.core.jni -outdir glue\%%x otapi\otapi.i
 )
 
 
