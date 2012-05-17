@@ -200,7 +200,7 @@ protected:
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
 public:
 EXPORT	OTBasket();
-	OTBasket(int nCount, long lMinimumTransferAmount);
+EXPORT	OTBasket(int nCount, long lMinimumTransferAmount);
 EXPORT	virtual ~OTBasket();
 		
 	virtual void UpdateContents();
@@ -227,12 +227,12 @@ EXPORT	BasketItem * At(unsigned int nIndex);
     
 	// For generating a real basket.  The user does this part, and the server creates Account ID later
 	// (That's why you don't see the account ID being passed in to the method.)
-	void AddSubContract(const OTIdentifier & SUB_CONTRACT_ID, long lMinimumTransferAmount);
+EXPORT	void AddSubContract(const OTIdentifier & SUB_CONTRACT_ID, long lMinimumTransferAmount);
 	inline void IncrementSubCount() { m_nSubCount++; } // Used to abstract away this detail in the API.
 	
 	// For generating a user request to exchange in/out of a basket.
 	// Assumes that SetTransferMultiple has already been called.
-	void AddRequestSubContract(const OTIdentifier & SUB_CONTRACT_ID, 
+EXPORT	void AddRequestSubContract(const OTIdentifier & SUB_CONTRACT_ID, 
                                const OTIdentifier & SUB_ACCOUNT_ID,
                                const long & lClosingTransactionNo);
 	
@@ -252,7 +252,7 @@ EXPORT	BasketItem * At(unsigned int nIndex);
     
     // Normally do this if your transaction failed so you can get most of your numbers back
     //
-    void HarvestClosingNumbers(OTPseudonym & theNym, const OTIdentifier & theServerID, const bool bSave=true);
+EXPORT    void HarvestClosingNumbers(OTPseudonym & theNym, const OTIdentifier & theServerID, const bool bSave=true);
 };
 
 

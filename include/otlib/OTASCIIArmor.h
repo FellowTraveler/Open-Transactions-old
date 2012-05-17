@@ -189,7 +189,7 @@ EXPORT	OTASCIIArmor(const char * szValue);
 	OTASCIIArmor(const OTPayload & theValue);
 EXPORT	OTASCIIArmor(const OTString & strValue);
 	OTASCIIArmor(const OTASCIIArmor & strValue);
-	OTASCIIArmor(const OTEnvelope & theEnvelope);
+EXPORT	OTASCIIArmor(const OTEnvelope & theEnvelope);
 EXPORT	virtual ~OTASCIIArmor();
 	
 	using OTString::swap;
@@ -214,7 +214,7 @@ EXPORT    bool WriteArmoredString(OTString & strOutput,
 	// This function will base64 DECODE the string contents (This class is a string)
 	// and return them as BINARY in theData
 	// Should be called "Get From Internal String Into Data"
-	bool GetData(OTData & theData, bool bLineBreaks=true) const;
+EXPORT	bool GetData(OTData & theData, bool bLineBreaks=true) const;
 	bool GetAndUnpackData(OTData & theData, bool bLineBreaks=true) const;
 	
 	// This function will base64 ENCODE theData,

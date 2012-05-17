@@ -177,7 +177,7 @@ EXPORT	bool CreateBasket(OTBasket & theBasket, OTPseudonym & theSigner);
 	
 EXPORT	OTAssetContract();
 EXPORT	OTAssetContract(OTString & name, OTString & foldername, OTString & filename, OTString & strID);
-	virtual ~OTAssetContract();
+EXPORT	virtual ~OTAssetContract();
 	
 	virtual bool CreateContract(OTString & strContract, OTPseudonym & theSigner);
 

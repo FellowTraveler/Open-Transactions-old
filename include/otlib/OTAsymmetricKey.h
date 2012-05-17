@@ -186,7 +186,7 @@ extern "C"
 // This is the only part of the API that actually accepts objects as parameters,
 // since the above objects have SWIG C++ wrappers. 
 //
-bool OT_API_Set_PasswordCallback(OTCaller & theCaller); // Caller must have Callback attached already.
+EXPORT bool OT_API_Set_PasswordCallback(OTCaller & theCaller); // Caller must have Callback attached already.
 
 
 // ------------------------------------------------
@@ -367,7 +367,7 @@ EXPORT	bool SetPublicKey(const OTString & strKey, bool bEscaped=false);
 
 	// Decodes a public key from ASCII armor into an actual key pointer
 	// and sets that as the m_pKey on this object.
-	bool SetPublicKey(const OTASCIIArmor & strKey);
+EXPORT	bool SetPublicKey(const OTASCIIArmor & strKey);
     // ***************************************************************************************
     // PRIVATE KEY
 	// Get the private key in ASCII-armored format with bookends 

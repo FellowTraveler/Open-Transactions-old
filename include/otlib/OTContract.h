@@ -374,7 +374,7 @@ EXPORT	void ReleaseSignatures();
 	// but you still want to instantiate it, and load it up properly, then call this
 	// class method.
 	//
-	static OTContract * InstantiateContract(OTString strInput);
+EXPORT	static OTContract * InstantiateContract(OTString strInput);
 
 	
 	// assumes m_strFilename is already set. Then it reads that file into a string.
@@ -440,7 +440,7 @@ EXPORT	virtual bool SignContract(const OTPseudonym & theNym);
 	// copies of the account file and wallet file are the only records of that account ID
 	// which is a giant long number.
 	virtual bool VerifyContractID();  
-	virtual void CalculateContractID(OTIdentifier & newID) const;
+EXPORT	virtual void CalculateContractID(OTIdentifier & newID) const;
 	
 	// So far not overridden anywhere (used to be OTTrade.)
 EXPORT	virtual bool VerifySignature(const OTPseudonym & theNym);

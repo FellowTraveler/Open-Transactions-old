@@ -274,8 +274,8 @@ public:
     // then-delete a payment instrument. Instead, just call this, and then the temp values will
     // be available thereafter.
     //
-    bool SetTempValues();
-    bool SetTempValuesPurse(const OTIdentifier & SERVER_ID); // This version is for purses, since we need the server ID to instantiate it.
+EXPORT    bool SetTempValues();
+EXPORT    bool SetTempValuesPurse(const OTIdentifier & SERVER_ID); // This version is for purses, since we need the server ID to instantiate it.
     
     bool SetTempValuesFromCheque        (const OTCheque         & theInput);
     bool SetTempValuesFromPaymentPlan   (const OTPaymentPlan    & theInput);
@@ -286,26 +286,26 @@ public:
     // set, if available, and can be queried thereafter from *this.
     // Otherwise, these functions will return false.
     //
-    bool GetAmount(long & lOutput)                      const;
-    bool GetTransactionNum(long & lOutput)              const;
+EXPORT    bool GetAmount(long & lOutput)                      const;
+EXPORT    bool GetTransactionNum(long & lOutput)              const;
 
-    bool GetMemo(OTString & strOutput)                  const;
+EXPORT    bool GetMemo(OTString & strOutput)                  const;
 
-    bool GetAssetTypeID(OTIdentifier & theOutput)       const;
+EXPORT    bool GetAssetTypeID(OTIdentifier & theOutput)       const;
     bool GetServerID(OTIdentifier & theOutput)          const;
 
-    bool GetSenderUserID(OTIdentifier & theOutput)      const;
-    bool GetSenderAcctID(OTIdentifier & theOutput)      const;
-    bool GetRecipientUserID(OTIdentifier & theOutput)   const;
-    bool GetRecipientAcctID(OTIdentifier & theOutput)   const;
+EXPORT    bool GetSenderUserID(OTIdentifier & theOutput)      const;
+EXPORT    bool GetSenderAcctID(OTIdentifier & theOutput)      const;
+EXPORT    bool GetRecipientUserID(OTIdentifier & theOutput)   const;
+EXPORT    bool GetRecipientAcctID(OTIdentifier & theOutput)   const;
     
-    bool GetValidFrom(time_t & tOutput)                 const;
-    bool GetValidTo  (time_t & tOutput)                 const;
+EXPORT    bool GetValidFrom(time_t & tOutput)                 const;
+EXPORT    bool GetValidTo  (time_t & tOutput)                 const;
 
     // ----------------------------
-	OTPayment();
-	OTPayment(const OTString & strPayment);
-	virtual ~OTPayment();
+EXPORT	OTPayment();
+EXPORT	OTPayment(const OTString & strPayment);
+EXPORT	virtual ~OTPayment();
     void InitPayment();
 	virtual void Release();
 

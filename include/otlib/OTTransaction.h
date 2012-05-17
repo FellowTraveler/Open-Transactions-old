@@ -581,13 +581,13 @@ EXPORT    bool AddNumbersToTransaction(const OTNumList & theAddition);
 EXPORT    long GetClosingNum() const;
 EXPORT	void SetClosingNum(const long lClosingNum);
     // -------------------------------------------
-	long GetReferenceNumForDisplay(); /// For display purposes. The "ref #" you actually display (versus the one you use internally) might change based on transaction type. (Like with a cheque receipt you actually have to load up the original cheque.)
+EXPORT	long GetReferenceNumForDisplay(); /// For display purposes. The "ref #" you actually display (versus the one you use internally) might change based on transaction type. (Like with a cheque receipt you actually have to load up the original cheque.)
 
-	bool GetSenderUserIDForDisplay(OTIdentifier & theReturnID);
-	bool GetRecipientUserIDForDisplay(OTIdentifier & theReturnID);
+EXPORT	bool GetSenderUserIDForDisplay(OTIdentifier & theReturnID);
+EXPORT	bool GetRecipientUserIDForDisplay(OTIdentifier & theReturnID);
 
-	bool GetSenderAcctIDForDisplay(OTIdentifier & theReturnID);
-	bool GetRecipientAcctIDForDisplay(OTIdentifier & theReturnID);
+EXPORT	bool GetSenderAcctIDForDisplay(OTIdentifier & theReturnID);
+EXPORT	bool GetRecipientAcctIDForDisplay(OTIdentifier & theReturnID);
 	// ----------------------------------------------------------------
 	inline
     time_t  GetDateSigned()	const { return m_DATE_SIGNED; }
@@ -595,7 +595,7 @@ EXPORT	bool    GetSuccess(); // Tries to determine, based on items within, wheth
 EXPORT	long    GetReceiptAmount(); // Tries to determine IF there is an amount (depending on type) and return it.
 	// ----------------------------------------------------------------
 	OTTransaction(const OTLedger & theOwner);
-	OTTransaction(const OTIdentifier & theUserID, const OTIdentifier & theAccountID, const OTIdentifier & theServerID);
+EXPORT	OTTransaction(const OTIdentifier & theUserID, const OTIdentifier & theAccountID, const OTIdentifier & theServerID);
 	OTTransaction(const OTIdentifier & theUserID, const OTIdentifier & theAccountID, const OTIdentifier & theServerID, long lTransactionNum);
 
 	// THIS constructor only used when loading an abbreviated box receipt (inbox, nymbox, or outbox receipt).
@@ -617,11 +617,11 @@ EXPORT	long    GetReceiptAmount(); // Tries to determine IF there is an amount (
                   bool         bReplyTransSuccess,
                   OTNumList * pNumList=NULL);
 
-	virtual ~OTTransaction();
+EXPORT	virtual ~OTTransaction();
 	// ----------------------------------
 	bool GenerateTransaction(const OTIdentifier & theAccountID, const OTIdentifier & theServerID, long lTransactionNum);
 	
-	static
+EXPORT	static
     OTTransaction * GenerateTransaction(const OTIdentifier & theUserID, const OTIdentifier & theAccountID, 
                                         const OTIdentifier & theServerID, transactionType theType, 
                                         long lTransactionNum=0);
@@ -639,7 +639,7 @@ EXPORT	static
     // This function assumes that theLedger is the owner of this transaction.
     // We pass the ledger in so we can determine the proper directory we're 
     // reading from.
-    bool SaveBoxReceipt     (const long lLedgerType);
+EXPORT    bool SaveBoxReceipt     (const long lLedgerType);
 EXPORT    bool SaveBoxReceipt     (OTLedger & theLedger);
 EXPORT    bool DeleteBoxReceipt   (OTLedger & theLedger);
     
@@ -647,14 +647,14 @@ EXPORT    bool DeleteBoxReceipt   (OTLedger & theLedger);
 	// Caller IS responsible to delete.
 	static
 	OTTransaction * LoadBoxReceipt(OTTransaction & theAbbrev, OTLedger & theLedger);
-	static
+EXPORT	static
 	OTTransaction * LoadBoxReceipt(OTTransaction & theAbbrev, const long lLedgerType);
 
     // Call on abbreviated version, and pass in the purported full version.
     bool VerifyBoxReceipt(OTTransaction & theFullVersion);
 	// --------------------------------------------------------------
     static
-    bool VerifyBoxReceiptExists(const OTIdentifier & SERVER_ID,
+EXPORT    bool VerifyBoxReceiptExists(const OTIdentifier & SERVER_ID,
                                 const OTIdentifier & USER_ID,
                                 const OTIdentifier & ACCOUNT_ID,    // If for Nymbox (vs inbox/outbox) then pass USER_ID in this field also.
                                 const int			nBoxType,		// 0/nymbox, 1/inbox, 2/outbox
@@ -691,7 +691,7 @@ EXPORT    bool DeleteBoxReceipt   (OTLedger & theLedger);
 	// --------------------------------------------------------------
     
     // Balance receipts are used in transactions that change an account balance.
-	static
+EXPORT	static
     bool VerifyBalanceReceipt(OTPseudonym & SERVER_NYM,
                               OTPseudonym & THE_NYM,
                               const OTIdentifier & SERVER_ID,
@@ -727,7 +727,7 @@ EXPORT	bool VerifyItems(OTPseudonym & theNym);
 
     // While processing a transaction, you may wish to query it for items of a certain type.
 EXPORT	OTItem * GetItem(const OTItem::itemType theType); 
-	OTItem * GetItemInRefTo(const long lReference);
+EXPORT	OTItem * GetItemInRefTo(const long lReference);
 
 EXPORT	void    AddItem(OTItem & theItem);  // You have to allocate the item on the heap and then pass it in as a reference. 
                                         // OTTransaction will take care of it from there and will delete it in destructor.

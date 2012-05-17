@@ -286,10 +286,10 @@ EXPORT	bool SaveAccount(); // generates filename based on accounts path and acco
 	// --------------------------------------------------------------
     
     void  SetInboxHash(const OTIdentifier & theInput);   
-    bool  GetInboxHash(OTIdentifier & theOutput);
+EXPORT    bool  GetInboxHash(OTIdentifier & theOutput);
     
     void  SetOutboxHash(const OTIdentifier & theInput);   
-    bool  GetOutboxHash(OTIdentifier & theOutput);
+EXPORT    bool  GetOutboxHash(OTIdentifier & theOutput);
     
 	// --------------------------------------------------------------
 

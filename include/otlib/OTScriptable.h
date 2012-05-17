@@ -219,12 +219,12 @@ public:
 
 	virtual bool ConfirmParty(OTParty & theParty); // Takes ownership.
 	// ----------------------------------------------------
-	OTParty		* GetParty	(const std::string str_party_name);
-	OTBylaw		* GetBylaw	(const std::string str_bylaw_name);
+EXPORT	OTParty		* GetParty	(const std::string str_party_name);
+EXPORT	OTBylaw		* GetBylaw	(const std::string str_bylaw_name);
 EXPORT	OTClause	* GetClause	(const std::string str_clause_name);
 	// ----------------------------------------------------
 EXPORT	OTParty * FindPartyBasedOnNymAsAgent(OTPseudonym & theNym, OTAgent ** ppAgent=NULL);
-	OTParty * FindPartyBasedOnNymAsAuthAgent(OTPseudonym & theNym, OTAgent ** ppAgent=NULL);
+EXPORT	OTParty * FindPartyBasedOnNymAsAuthAgent(OTPseudonym & theNym, OTAgent ** ppAgent=NULL);
 	OTParty * FindPartyBasedOnAccount(OTAccount & theAccount, OTPartyAccount ** ppPartyAccount=NULL);
 	// ----------------------------------------------------
 	OTParty * FindPartyBasedOnNymIDAsAgent(const OTIdentifier & theNymID, OTAgent ** ppAgent=NULL) const;
@@ -242,7 +242,7 @@ EXPORT	OTParty * FindPartyBasedOnNymAsAgent(OTPseudonym & theNym, OTAgent ** ppA
 	// agent is the authorizing agent, plus a closing number for every acct of which agent is the
 	// authorized agent.)
 	//
-	int  GetCountTransNumsNeededForAgent(const std::string str_agent_name);
+EXPORT	int  GetCountTransNumsNeededForAgent(const std::string str_agent_name);
 	
 	// ----------------------------------------------------
 	// Verifies that Nym is actually an agent for this agreement.
@@ -278,7 +278,7 @@ EXPORT	OTParty * FindPartyBasedOnNymAsAgent(OTPseudonym & theNym, OTAgent ** ppA
 	
 	bool VerifyThisAgainstAllPartiesSignedCopies();
 
-	bool AllPartiesHaveSupposedlyConfirmed();
+EXPORT	bool AllPartiesHaveSupposedlyConfirmed();
 	
 	// -----------------------------------------------------------------------------------
 	// Often we endeavor to avoid loading the same Nym twice, and a higher-level function
@@ -357,7 +357,7 @@ EXPORT	bool CanExecuteClause(const std::string str_party_name, const std::string
 
 	// ----------------
 
-	static OTScriptable * InstantiateScriptable(const OTString & strInput);
+EXPORT	static OTScriptable * InstantiateScriptable(const OTString & strInput);
 	
 	// Make sure a string contains only alpha, numeric, or '_'
 	// And make sure it's not blank. This is for script variable names, clause names, party names, etc.

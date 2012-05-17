@@ -177,7 +177,7 @@ EXPORT	virtual ~OTMessage();
 	// the method here so try and force the issue.
 EXPORT	virtual bool SignContract(const OTPseudonym & theNym);
 
-    bool HarvestTransactionNumbers(      OTPseudonym &  theNym,
+EXPORT    bool HarvestTransactionNumbers(      OTPseudonym &  theNym,
                                    const bool           bHarvestingForRetry,     // false until positively asserted.
                                    const bool           bReplyWasSuccess,        // false until positively asserted.
                                    const bool           bReplyWasFailure,        // false until positively asserted.

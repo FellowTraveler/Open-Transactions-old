@@ -256,10 +256,10 @@ protected:
 	
 public:
 	
-	OTToken();
-	OTToken(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID);
-	OTToken(const OTPurse & thePurse);
-	virtual ~OTToken();
+EXPORT	OTToken();
+EXPORT	OTToken(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID);
+EXPORT	OTToken(const OTPurse & thePurse);
+EXPORT	virtual ~OTToken();
 	
 	virtual void Release();
 	void ReleasePrototokens();
@@ -277,7 +277,7 @@ public:
     // push them into that purse.
     // From there, you can hand someone the purse, and password-protect it, if you like.
     //
-	bool ReassignOwnership(const OTPseudonym & oldOwner, const OTPseudonym & newOwner);
+EXPORT	bool ReassignOwnership(const OTPseudonym & oldOwner, const OTPseudonym & newOwner);
 
 	inline const OTASCIIArmor & GetSpendable() const { return m_ascSpendable; }
 	inline void SetSpendable(const OTASCIIArmor & theArmor) { m_ascSpendable.Set(theArmor); }
@@ -293,7 +293,7 @@ EXPORT	bool GetSpendableString(OTPseudonym & theOwner, OTString & theString) con
 	// Lucre Step 2: Generate Coin Request
 	// nDenomination MUST be one that the Mint supports.
 	// let nTokenCount default to 1, since that's how Lucre works.
-	bool GenerateTokenRequest(const OTPseudonym & theNym, OTMint & theMint, 
+EXPORT	bool GenerateTokenRequest(const OTPseudonym & theNym, OTMint & theMint, 
 							  long lDenomination, int nTokenCount=nMinimumPrototokenCount);
 
 	// Lucre Step 3: Mint signs token (in OTMint)
@@ -303,7 +303,7 @@ EXPORT	bool GetSpendableString(OTPseudonym & theOwner, OTString & theString) con
 	{	m_nSeries = nSeries; 	m_VALID_FROM = VALID_FROM;	m_VALID_TO = VALID_TO; }
 	
 	// Lucre step 4: client unblinds token -- now it's ready for use.
-	bool ProcessToken(const OTPseudonym & theNym, OTMint & theMint, OTToken & theRequest);
+EXPORT	bool ProcessToken(const OTPseudonym & theNym, OTMint & theMint, OTToken & theRequest);
 
 	// Lucre step 5: token verifies when it is redeemed by merchant.
 	//				 Now including spent token database!

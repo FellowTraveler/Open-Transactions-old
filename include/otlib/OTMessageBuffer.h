@@ -177,9 +177,9 @@ public:
 EXPORT	~OTMessageBuffer();
 	// -------------------------------
     
-    void        Clear   ();
+EXPORT    void        Clear   ();
 EXPORT	void        Push    (OTMessage & theMessage);     // Push: theMessage must be heap-allocated. Takes ownership.
-	OTMessage * Pop     (const long & lRequestNum,    // Pop:  Caller IS responsible to delete.
+EXPORT	OTMessage * Pop     (const long & lRequestNum,    // Pop:  Caller IS responsible to delete.
                          const OTString & strServerID,
                          const OTString & strNymID);
 };
@@ -215,20 +215,20 @@ class OTMessageOutbuffer
     OTMessageOutbuffer & operator=(const OTMessageOutbuffer & rhs) { return *this; }
 public:
 	OTMessageOutbuffer() {}
-	~OTMessageOutbuffer();
+EXPORT	~OTMessageOutbuffer();
     // Note: AddSentMessage, if it finds a message already on the map with the same request number,
     // deletes the old one before adding the new one. In the future may contemplate using multimap
     // here instead (if completeness becomes desired over uniqueness.)
 
-    void        Clear(const OTString * pstrServerID=NULL, const OTString * pstrNymID=NULL, OTPseudonym * pNym=NULL,
+EXPORT    void        Clear(const OTString * pstrServerID=NULL, const OTString * pstrNymID=NULL, OTPseudonym * pNym=NULL,
                       const bool     * pbHarvestingForRetry=NULL);
-	void        AddSentMessage      (OTMessage & theMessage);   // Allocate theMsg on the heap (takes ownership.) Mapped by request num.
+EXPORT	void        AddSentMessage      (OTMessage & theMessage);   // Allocate theMsg on the heap (takes ownership.) Mapped by request num.
 	
-    OTMessage * GetSentMessage      (const long & lRequestNum, const OTString & strServerID, const OTString & strNymID); // null == not found. caller NOT responsible to delete.
-	bool        RemoveSentMessage   (const long & lRequestNum, const OTString & strServerID, const OTString & strNymID); // true == it was removed. false == it wasn't found.
+EXPORT    OTMessage * GetSentMessage      (const long & lRequestNum, const OTString & strServerID, const OTString & strNymID); // null == not found. caller NOT responsible to delete.
+EXPORT	bool        RemoveSentMessage   (const long & lRequestNum, const OTString & strServerID, const OTString & strNymID); // true == it was removed. false == it wasn't found.
 
-	OTMessage * GetSentMessage      (const OTTransaction & theTransaction); // null == not found. caller NOT responsible to delete.
-	bool        RemoveSentMessage   (const OTTransaction & theTransaction); // true == it was removed. false == it wasn't found.
+EXPORT	OTMessage * GetSentMessage      (const OTTransaction & theTransaction); // null == not found. caller NOT responsible to delete.
+EXPORT	bool        RemoveSentMessage   (const OTTransaction & theTransaction); // true == it was removed. false == it wasn't found.
 };
 
 

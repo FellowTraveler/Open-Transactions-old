@@ -256,7 +256,7 @@ public:
 	bool ReserveClosingTransNum(const OTString & strServerID, OTPartyAccount & thePartyAcct);
     // ---------------------------------
 	
-	bool SignContract(OTContract & theInput);
+EXPORT	bool SignContract(OTContract & theInput);
 	
 	// Verify that this agent somehow has legitimate agency over this account. (According to the account.)
 	//
@@ -584,8 +584,8 @@ public:
 	
 	// ----------------------
 	OTParty();
-	OTParty(const char * szName, bool bIsOwnerNym, const char * szOwnerID, const char * szAuthAgent, const bool bCreateAgent=false);
-	OTParty(const std::string	str_PartyName,
+EXPORT	OTParty(const char * szName, bool bIsOwnerNym, const char * szOwnerID, const char * szAuthAgent, const bool bCreateAgent=false);
+EXPORT	OTParty(const std::string	str_PartyName,
 			OTPseudonym &		theNym, // Nym is BOTH owner AND agent, when using this constructor.
 			const std::string	str_agent_name, 
 			OTAccount *			pAccount=NULL,
@@ -750,9 +750,9 @@ EXPORT    std::string GetPartyName(bool * pBoolSuccess=NULL) const; // "sales_di
 	// ----------------------------------------
 		
 	bool AddAccount(OTPartyAccount& thePartyAcct);
-	bool AddAccount(const OTString& strAgentName, const OTString& strName, 
+EXPORT	bool AddAccount(const OTString& strAgentName, const OTString& strName, 
 					const OTString & strAcctID, const OTString & strAssetTypeID, const long lClosingTransNo);
-	bool AddAccount(const OTString& strAgentName, const char * szAcctName, 
+EXPORT	bool AddAccount(const OTString& strAgentName, const char * szAcctName, 
 					OTAccount& theAccount, 
 					const long lClosingTransNo);
 	
@@ -768,11 +768,11 @@ EXPORT    std::string GetPartyName(bool * pBoolSuccess=NULL) const; // "sales_di
 	
 	// Get PartyAcct by name.
 	//
-	OTPartyAccount * GetAccount(const std::string & str_acct_name) const;
+EXPORT	OTPartyAccount * GetAccount(const std::string & str_acct_name) const;
 	// by agent name
-	OTPartyAccount * GetAccountByAgent(const std::string & str_agent_name);
+EXPORT	OTPartyAccount * GetAccountByAgent(const std::string & str_agent_name);
 	// by asset acct id
-	OTPartyAccount * GetAccountByID(const OTIdentifier & theAcctID) const;
+EXPORT	OTPartyAccount * GetAccountByID(const OTIdentifier & theAcctID) const;
 	
 	// If account is present for Party, set account's pointer to theAccount and return true.
 	//
@@ -785,7 +785,7 @@ EXPORT    std::string GetPartyName(bool * pBoolSuccess=NULL) const; // "sales_di
 									   const OTString	& strServerID,
 									   const bool		  bBurnTransNo=false);
 
-	bool CopyAcctsToConfirmingParty(OTParty & theParty) const; // When confirming a party, a new version replaces the original. This is part of that process.
+EXPORT	bool CopyAcctsToConfirmingParty(OTParty & theParty) const; // When confirming a party, a new version replaces the original. This is part of that process.
 	
 	void RegisterAccountsForExecution(OTScript& theScript);
 
@@ -1045,14 +1045,14 @@ public:
 	// ---------------------
 
 	bool AddVariable(OTVariable& theVariable);
-	bool AddVariable(const std::string str_Name, const std::string str_Value,	
+EXPORT	bool AddVariable(const std::string str_Name, const std::string str_Value,	
 					 const OTVariable::OTVariable_Access theAccess=OTVariable::Var_Persistent);
-	bool AddVariable(const std::string str_Name, const int nValue,				
+EXPORT	bool AddVariable(const std::string str_Name, const int nValue,				
 					 const OTVariable::OTVariable_Access theAccess=OTVariable::Var_Persistent);
-	bool AddVariable(const std::string str_Name, const bool bValue,				
+EXPORT	bool AddVariable(const std::string str_Name, const bool bValue,				
 					 const OTVariable::OTVariable_Access theAccess=OTVariable::Var_Persistent);
 	
-	OTVariable * GetVariable(const std::string str_Name); // not a reference, so you can pass in char *. Maybe that's bad? todo: research that.
+EXPORT	OTVariable * GetVariable(const std::string str_Name); // not a reference, so you can pass in char *. Maybe that's bad? todo: research that.
 	
 	int GetVariableCount() const { return m_mapVariables.size(); }
 	
@@ -1065,26 +1065,26 @@ public:
 	// ---------------------
 	
 	bool AddClause(OTClause& theClause);
-	bool AddClause(const char * szName, const char * szCode);
+EXPORT	bool AddClause(const char * szName, const char * szCode);
 	
-	OTClause * GetClause(const std::string str_Name);
+EXPORT	OTClause * GetClause(const std::string str_Name);
 	
 	int GetClauseCount() const { return m_mapClauses.size(); }
 	
 	// ---------------------
-	bool AddHook(const std::string str_HookName, 
+EXPORT	bool AddHook(const std::string str_HookName, 
 				 const std::string str_ClauseName); // name of hook such as cron_process or hook_activate, and name of clause, such as sectionA (corresponding to an actual script in the clauses map.)
 	
 	int GetHookCount() const { return m_mapHooks.size(); }
 
 	int GetCallbackCount() const { return m_mapCallbacks.size(); }
 
-	bool AddCallback(const std::string str_CallbackName, 
+EXPORT	bool AddCallback(const std::string str_CallbackName, 
 					 const std::string str_ClauseName); // name of callback such as callback_party_may_execute_clause, and name of clause, such as custom_party_may_execute_clause (corresponding to an actual script in the clauses map.)
 
 	// ---------------------
 	
-	OTClause * GetCallback(const std::string str_CallbackName);
+EXPORT	OTClause * GetCallback(const std::string str_CallbackName);
 
 	bool GetHooks(const std::string str_HookName, mapOfClauses & theResults); // Look up all clauses matching a specific hook.
 
@@ -1097,7 +1097,7 @@ public:
 	// ---------------------
 	
 	OTBylaw();
-	OTBylaw(const char * szName, const char * szLanguage);
+EXPORT	OTBylaw(const char * szName, const char * szLanguage);
 
 	virtual ~OTBylaw();
 	

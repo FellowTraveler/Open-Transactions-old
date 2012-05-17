@@ -413,7 +413,7 @@ namespace OTDB
 		virtual ~Storable() {}
 		
 		// %ignore spam(unsigned short); API users don't need this function, it's for internal purposes.
-		static Storable * Create(StoredObjectType eType, PackType thePackType);
+EXPORT		static Storable * Create(StoredObjectType eType, PackType thePackType);
 		
 		DEFINE_OT_DYNAMIC_CAST(Storable)
 	};
@@ -508,7 +508,7 @@ public: \
 		PackType GetType() const;
 		
 		PackedBuffer *	Pack(Storable& inObj);
-		bool			Unpack(PackedBuffer& inBuf, Storable& outObj);
+EXPORT		bool			Unpack(PackedBuffer& inBuf, Storable& outObj);
 		
 		PackedBuffer *	Pack(std::string& inObj);
 		bool			Unpack(PackedBuffer& inBuf, std::string& outObj);
@@ -614,7 +614,7 @@ public: \
 		// that the right types will be instantiated automatically, with the buffer being
 		// the appropriate subclass for the packer.
 		//
-		OTPacker * GetPacker(PackType ePackType = OTDB_DEFAULT_PACKER);
+EXPORT		OTPacker * GetPacker(PackType ePackType = OTDB_DEFAULT_PACKER);
 
 		
 		virtual bool Init(std::string oneStr="", std::string twoStr="", std::string threeStr="", 
@@ -632,10 +632,10 @@ public: \
 		// -----------------------------------------
 		// Store/Retrieve a string.
 		
-		bool StoreString(std::string strContents, std::string strFolder, 
+EXPORT		bool StoreString(std::string strContents, std::string strFolder, 
 						 std::string oneStr="", std::string twoStr="", std::string threeStr="");
 		
-		std::string QueryString(std::string strFolder, std::string oneStr="",
+EXPORT		std::string QueryString(std::string strFolder, std::string oneStr="",
 								std::string twoStr="", std::string threeStr="");
 		
 EXPORT		bool StorePlainString(std::string strContents, std::string strFolder, 
@@ -647,25 +647,25 @@ EXPORT		std::string QueryPlainString(std::string strFolder, std::string oneStr="
 		// -----------------------------------------
 		// Store/Retrieve an object. (Storable.)
 		
-		bool StoreObject(Storable & theContents, std::string strFolder, 
+EXPORT		bool StoreObject(Storable & theContents, std::string strFolder, 
 						 std::string oneStr="", std::string twoStr="", std::string threeStr="");
 		
 		// Use %newobject OTDB::Storage::QueryObject();
-		Storable * QueryObject(StoredObjectType theObjectType,
+EXPORT		Storable * QueryObject(StoredObjectType theObjectType,
 							   std::string strFolder, std::string oneStr="",
 							   std::string twoStr="", std::string threeStr="");
 		// -----------------------------------------
 		// Store/Retrieve a Storable object inside an OTASCIIArmor object.
 		
-		std::string EncodeObject(Storable & theContents);
+EXPORT		std::string EncodeObject(Storable & theContents);
 		
 		// Use %newobject OTDB::Storage::DecodeObject();
-		Storable * DecodeObject(StoredObjectType theObjectType, std::string strInput);
+EXPORT		Storable * DecodeObject(StoredObjectType theObjectType, std::string strInput);
 		
 		// -----------------------------------------
 		// Erase any value based on its location.
 		
-		bool EraseValueByKey(std::string strFolder, 
+EXPORT		bool EraseValueByKey(std::string strFolder, 
                              std::string oneStr="", std::string twoStr="", std::string threeStr="");
 		
 		// --------------------------
@@ -676,16 +676,16 @@ EXPORT		std::string QueryPlainString(std::string strFolder, std::string oneStr="
 		// (Instead of leaking because it thinks C++ will clean it up.)
 		//
 		// Factory for Storable objects.   %newobject Factory::createObj();
-		Storable * CreateObject(StoredObjectType eType);
+EXPORT		Storable * CreateObject(StoredObjectType eType);
 		
 		// --------------------------
 		
 		// Factory for Storage itself.  %ignore this in OTAPI.i  (It's accessed through 
 		// a namespace-level function, whereas this is for internal purposes.)
 		//
-		static Storage * Create(StorageType eStorageType, PackType ePackType); // FACTORY
+EXPORT		static Storage * Create(StorageType eStorageType, PackType ePackType); // FACTORY
 		
-		StorageType GetType() const;
+EXPORT		StorageType GetType() const;
 	};
 	
 	
@@ -700,12 +700,12 @@ EXPORT	bool InitDefaultStorage(StorageType eStoreType, PackType ePackType,
 							std::string fourStr="", std::string fiveStr="", std::string sixStr="");
 	
 	// Default Storage instance:
-	Storage * GetDefaultStorage();
+EXPORT	Storage * GetDefaultStorage();
 	
 	// %newobject Factory::createObj();
-	Storage * CreateStorageContext(StorageType eStoreType, PackType ePackType=OTDB_DEFAULT_PACKER);
+EXPORT	Storage * CreateStorageContext(StorageType eStoreType, PackType ePackType=OTDB_DEFAULT_PACKER);
 	
-	Storable * CreateObject(StoredObjectType eType);
+EXPORT	Storable * CreateObject(StoredObjectType eType);
 	
 	// bool bSuccess = OTDB::StoreString(strInbox, "inbox", "lkjsdf908w345ljkvd");
 	// bool bSuccess = OTDB::StoreString(strMint,  "mints", SERVER_ID, ASSET_ID);
@@ -722,10 +722,10 @@ EXPORT	bool Exists(std::string strFolder,
 	// --------
 	// Store/Retrieve a string.
 	//
-	bool StoreString(std::string strContents, std::string strFolder, 
+EXPORT	bool StoreString(std::string strContents, std::string strFolder, 
 					 std::string oneStr="", std::string twoStr="", std::string threeStr="");
 	
-	std::string QueryString(std::string strFolder, std::string oneStr="",
+EXPORT	std::string QueryString(std::string strFolder, std::string oneStr="",
 							std::string twoStr="", std::string threeStr="");
 	
 EXPORT	bool StorePlainString(std::string strContents, std::string strFolder, 
@@ -737,11 +737,11 @@ EXPORT	std::string QueryPlainString(std::string strFolder, std::string oneStr=""
 	// --------
 	// Store/Retrieve an object. (Storable.)
 	//
-	bool StoreObject(Storable & theContents, std::string strFolder, 
+EXPORT	bool StoreObject(Storable & theContents, std::string strFolder, 
 					 std::string oneStr="", std::string twoStr="", std::string threeStr="");
 	
 	// Use %newobject OTDB::Storage::Query();
-	Storable * QueryObject(StoredObjectType theObjectType,
+EXPORT	Storable * QueryObject(StoredObjectType theObjectType,
 						   std::string strFolder, std::string oneStr="",
 						   std::string twoStr="", std::string threeStr="");		
 	// -----------------------------------------
@@ -755,7 +755,7 @@ EXPORT	Storable * DecodeObject(StoredObjectType theObjectType, std::string strIn
 	// -----------------------------------------
     // Erase any value based on its location.
     
-    bool EraseValueByKey(std::string strFolder, 
+EXPORT    bool EraseValueByKey(std::string strFolder, 
                          std::string oneStr="", std::string twoStr="", std::string threeStr="");
 
 	// ********************************************************************
@@ -779,10 +779,10 @@ EXPORT	Storable * DecodeObject(StoredObjectType theObjectType, std::string strIn
 protected: \
 	std::deque< stlplus::simple_ptr_clone<name> > list_##name##s; \
 public: \
-	size_t Get##name##Count(); \
-	name * Get##name(size_t nIndex); \
-	bool Remove##name(size_t nIndex##name); \
-	bool Add##name(name & disownObject)
+EXPORT	size_t Get##name##Count(); \
+EXPORT	name * Get##name(size_t nIndex); \
+EXPORT	bool Remove##name(size_t nIndex##name); \
+EXPORT	bool Add##name(name & disownObject)
 	
 	
 	

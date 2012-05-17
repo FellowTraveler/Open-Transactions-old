@@ -206,7 +206,7 @@ public:
 	// reply from the server, KEEP THAT RECEIPT. Well, OT will do that for you.)
 	// You only have to keep the latest receipt, unlike systems that don't store balance
 	// agreement.  We also store a list of issued transactions, the new balance, and the outbox hash.
-	OTItem * GenerateBalanceStatement(const long lAdjustment, const OTTransaction & theOwner, 
+EXPORT	OTItem * GenerateBalanceStatement(const long lAdjustment, const OTTransaction & theOwner, 
 									  OTPseudonym & theNym, const OTAccount & theAccount, OTLedger & theOutbox);
 	
 	void ProduceOutboxReport(OTItem & theBalanceItem);  
@@ -218,7 +218,7 @@ EXPORT	bool RemoveTransaction(long lTransactionNum); // if false, transaction wa
 	
 EXPORT	OTTransaction * GetTransaction(const OTTransaction::transactionType theType);
 EXPORT	OTTransaction * GetTransaction(long lTransactionNum);
-	OTTransaction * GetTransactionByIndex(int nIndex);
+EXPORT	OTTransaction * GetTransactionByIndex(int nIndex);
 EXPORT	OTTransaction * GetPendingTransaction(long lTransactionNum);
 	OTTransaction * GetFinalReceipt(long lReferenceNum);
 	OTTransaction * GetTransferReceipt(long lTransactionNum);
@@ -263,17 +263,17 @@ EXPORT    bool CalculateOutboxHash (OTIdentifier & theOutput);
 EXPORT    bool CalculateNymboxHash (OTIdentifier & theOutput);
 
 	// ------------------------------------
-	bool SavePaymentInbox();
-	bool LoadPaymentInbox();
+EXPORT	bool SavePaymentInbox();
+EXPORT	bool LoadPaymentInbox();
 
-	bool SaveRecordBox();
-	bool LoadRecordBox();
+EXPORT	bool SaveRecordBox();
+EXPORT	bool LoadRecordBox();
 	// ------------------------------------
 EXPORT	bool LoadLedgerFromString(const OTString & theStr); // Auto-detects ledger type. (message/nymbox/inbox/outbox)
 	// ------------------------------------
-	bool LoadInboxFromString(const OTString & strBox);
-	bool LoadOutboxFromString(const OTString & strBox);
-	bool LoadNymboxFromString(const OTString & strBox);
+EXPORT	bool LoadInboxFromString(const OTString & strBox);
+EXPORT	bool LoadOutboxFromString(const OTString & strBox);
+EXPORT	bool LoadNymboxFromString(const OTString & strBox);
 	// ------------------------------------
 	bool LoadPaymentInboxFromString(const OTString & strBox);
 	bool LoadRecordBoxFromString(const OTString & strBox);
@@ -290,7 +290,7 @@ EXPORT	virtual ~OTLedger();
 	
 	virtual void Release();
 	
-	void ReleaseTransactions();
+EXPORT	void ReleaseTransactions();
 
 	// ONLY call this if you need to load a ledger where you don't already know the person's UserID
 	// For example, if you need to load someone ELSE's inbox in order to send them a transfer, then

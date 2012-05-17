@@ -337,7 +337,7 @@ private:
 	// Operations
 public:	
 	
-    static bool safe_strcpy(char * dest,
+EXPORT    static bool safe_strcpy(char * dest,
                             const
                             char * src,
                             // -----------------
@@ -347,7 +347,7 @@ public:
     static size_t safe_strlen(const char * s, size_t max);
     
 	// ----------------------------
-	bool At(uint32_t lIndex, char &c);
+EXPORT	bool At(uint32_t lIndex, char &c);
 	
 EXPORT	bool Exists(void) const;
    
@@ -388,7 +388,7 @@ EXPORT	void   Format(const char *arg, ...);
 	
 	bool TokenizeIntoKeyValuePairs(std::map<std::string, std::string> & mapOutput) const;
 
-	void OTfgets(std::istream & ofs);
+EXPORT	void OTfgets(std::istream & ofs);
 //	void OTfgets(FILE * fl);
 
 	// true  == there are more lines to read.

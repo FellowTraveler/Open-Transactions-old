@@ -156,12 +156,12 @@ protected:
 	// return -1 if error, 0 if nothing, and 1 if the node was processed.
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);	
 public:
-	OTServerContract();
+EXPORT	OTServerContract();
 EXPORT	OTServerContract(OTString & name, OTString & foldername, OTString & filename, OTString & strID);
 
 EXPORT	bool GetConnectInfo(OTString & strHostname, int & nPort);
 	
-	virtual ~OTServerContract();
+EXPORT	virtual ~OTServerContract();
 
 //	virtual bool SaveContractWallet(FILE * fl);
 	virtual bool SaveContractWallet(OTString & strContents) const;

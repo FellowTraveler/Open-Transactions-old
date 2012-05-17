@@ -209,31 +209,31 @@ public:
 	// ----------------------------------------------
     // This will return false every time, if IsNymIDIncluded() is false.
     //
-    bool        GetNymID(OTIdentifier & theOutput) const;
+EXPORT    bool        GetNymID(OTIdentifier & theOutput) const;
 	// ----------------------------------------------
 EXPORT	OTToken *	Pop(const OTPseudonym & theOwner);		// Caller is responsible to delete
 	// OTPurse::Push makes it's own copy of theToken and does NOT take ownership of the one passed in.
 EXPORT	bool		Push(const OTPseudonym & theOwner, const OTToken & theToken);	
-	int			Count() const;
-	bool		IsEmpty() const;
+EXPORT	int			Count() const;
+EXPORT	bool		IsEmpty() const;
 	
 	inline long	GetTotalValue() const { return m_lTotalValue; }
 	// ----------------------------------------------
 	
-	bool Merge(OTPseudonym & theOldNym, OTPseudonym & theNewNym, OTPurse & theNewPurse);
+EXPORT	bool Merge(OTPseudonym & theOldNym, OTPseudonym & theNewNym, OTPurse & theNewPurse);
 	
 	// ----------------------------------------------
-	OTPurse(const OTPurse & thePurse); // just for copy another purse's Server and Asset ID
+EXPORT	OTPurse(const OTPurse & thePurse); // just for copy another purse's Server and Asset ID
 EXPORT	OTPurse(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID); // similar thing
-	OTPurse(const OTIdentifier & SERVER_ID); // Don't use this unless you really don't know the asset type
+EXPORT	OTPurse(const OTIdentifier & SERVER_ID); // Don't use this unless you really don't know the asset type
 											// (Like if you're about to read it out of a string.)
 											// Normally you really really want to set the asset type.
-	OTPurse(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID, const OTIdentifier & USER_ID); // UserID optional
+EXPORT	OTPurse(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID, const OTIdentifier & USER_ID); // UserID optional
 EXPORT	virtual ~OTPurse();
 	// ----------------------------------------------
 
-	bool LoadPurse(const char * szServerID=NULL, const char * szUserID=NULL, const char * szAssetTypeID=NULL);
-	bool SavePurse(const char * szServerID=NULL, const char * szUserID=NULL, const char * szAssetTypeID=NULL);
+EXPORT	bool LoadPurse(const char * szServerID=NULL, const char * szUserID=NULL, const char * szAssetTypeID=NULL);
+EXPORT	bool SavePurse(const char * szServerID=NULL, const char * szUserID=NULL, const char * szAssetTypeID=NULL);
 
 	virtual bool LoadContract();
 

@@ -218,7 +218,7 @@ protected:
 	{ m_lScale = lScale; if (m_lScale < 1) m_lScale = 1; }
 
 public:
-		bool	MakeOffer(bool bBuyingOrSelling,			// True == SELLING, False == BUYING
+EXPORT		bool	MakeOffer(bool bBuyingOrSelling,			// True == SELLING, False == BUYING
 						  const long & lPriceLimit,			// Per Scale...
 						  const long & lTotalAssetsOffer,	// Total assets available for sale or purchase.
 						  const long & lMinimumIncrement,	// The minimum increment that must be bought or sold for each transaction
@@ -255,7 +255,7 @@ public:
 	// ----------------------------------------------------------
 	
 EXPORT	OTOffer();		// The constructor contains the 3 variables needed to identify any market.
-	OTOffer(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID, const OTIdentifier & CURRENCY_ID, const long & MARKET_SCALE);
+EXPORT	OTOffer(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID, const OTIdentifier & CURRENCY_ID, const long & MARKET_SCALE);
 EXPORT	virtual ~OTOffer();
 
 	// Overridden from OTContract.

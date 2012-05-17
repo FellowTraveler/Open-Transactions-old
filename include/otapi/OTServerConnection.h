@@ -131,6 +131,13 @@
 #ifndef __OT_SERVERCONNECTION_H__
 #define __OT_SERVERCONNECTION_H__
 
+#undef EXPORT
+#ifdef _WINDLL
+  #define EXPORT __declspec(dllexport)
+#else
+  #define EXPORT
+#endif
+
 extern "C"
 {
 #include <stdint.h>	
@@ -217,7 +224,7 @@ class OTServerConnection
 public:
 	OTServerConnection(OTWallet & theWallet, OTClient & theClient);
 //	OTServerConnection(OTWallet & theWallet, OTClient & theClient, SFSocket * pSock);
-	~OTServerConnection();
+EXPORT	~OTServerConnection();
 	
 	bool GetServerID(OTIdentifier & theID);
 	
@@ -232,7 +239,7 @@ public:
 	bool SetFocus(OTPseudonym & theNym, OTServerContract & theServerContract, OT_CALLBACK_MSG pCallback);
 
 	// Connect() is for TCP / SSL mode.
-	bool Connect(OTPseudonym & theNym, OTServerContract & theServerContract,
+EXPORT	bool Connect(OTPseudonym & theNym, OTServerContract & theServerContract,
 				 OTString & strCA_FILE, OTString & strKEY_FILE, OTString & strKEY_PASSWORD);
 	
 	void OnServerResponseToGetRequestNumber(long lNewRequestNumber);
@@ -240,7 +247,7 @@ public:
 	void ProcessMessageOut(char *buf, int * pnExpectReply);
 	void ProcessMessageOut(OTMessage & theMessage);
 	
-	bool ProcessInBuffer(OTMessage & theServerReply);
+EXPORT	bool ProcessInBuffer(OTMessage & theServerReply);
 	bool ProcessReply(u_header & theCMD, OTMessage & theServerReply);
 	bool ProcessType1Cmd(u_header & theCMD, OTMessage & theServerReply);
 	
