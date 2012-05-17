@@ -151,16 +151,97 @@ extern "C"
 #include "OTAssetContract.h"
 #include "OTServerContract.h"
 #include "OTAccount.h"
+const char * OTAccount::_TypeStrings[] = 
+{
+	"simple",	// used by users
+	"issuer",	// used by issuers	(these can only go negative.)
+	"basket",	// issuer acct used by basket currencies (these can only go negative)
+	"basketsub",// used by the server (to store backing reserves for basket sub-accounts)
+	"mint",		// used by mints (to store backing reserves for cash)
+	"voucher",	// used by the server (to store backing reserves for vouchers)
+	"stash",	// used by the server (to store backing reserves for stashes, for smart contracts.)
+	"err_acct"
+};
+
+
 #include "OTMessage.h"
 #include "OTPayload.h"
 #include "OTEnvelope.h"
 #include "OTItem.h"
 #include "OTLedger.h"
+const char * OTLedger::_TypeStrings[] = 
+{
+	"nymbox",		// the nymbox is per user account (versus per asset account) and is used to receive new transaction numbers (and messages.)
+	"inbox",		// each asset account has an inbox, with pending transfers as well as receipts inside.
+	"outbox",		// if you SEND a pending transfer, it sits in your outbox until it's accepted, rejected, or canceled.
+	"message",		// used in OTMessages, to send various lists of transactions back and forth.
+	"paymentInbox",		// Used for client-side-only storage of incoming cheques, invoices, payment plan requests, etc. (Coming in from the Nymbox.)
+	"recordBox",		// Used for client-side-only storage of completed items from the inbox, and the paymentInbox.
+	"error_state"
+};
+
 #include "OTMint.h"
+const int OTToken::nMinimumPrototokenCount = 1;
+
 #include "OTPurse.h"
 #include "OTBasket.h"
 
 #include "OTTransaction.h"
+const char * OTTransaction::_TypeStrings[] = 
+{
+	"blank",			// freshly issued, not used yet  // comes from server, stored on Nym. (Nymbox.)
+	"message",			// in nymbox, message from one user to another.
+	"notice",			// in nymbox, notice from the server. Probably contains an updated smart contract.
+	"replyNotice",		// When you send a request to the server, sometimes its reply is so important, 
+						// that it drops a copy into your Nymbox to make you receive and process it.
+	"successNotice",	// A transaction # has successfully been signed out. (Nymbox.)
+	// --------------------------------------------------------------------------------------
+	"pending",			// Pending transfer, in the inbox/outbox.
+	// --------------------------------------------------------------------------------------
+	"transferReceipt",	// the server drops this into your inbox, when someone accepts your transfer.
+	// --------------------------------------------------------------------------------------
+	"chequeReceipt",	// the server drops this into your inbox, when someone cashes your cheque.
+	"marketReceipt",	// server drops this into inbox periodically, if you have an offer on the market.
+	"paymentReceipt",	// the server drops this into people's inboxes, periodically, if they have payment plans.
+	// --------------------------------------------------------------------------------------
+	"finalReceipt",     // the server drops this into your inbox(es), when a CronItem expires or is canceled.
+	"basketReceipt",    // the server drops this into your inboxes, when a basket exchange is processed.
+	// --------------------------------------------------------------------------------------
+	"instrumentNotice",		// Receive these in paymentInbox (by way of Nymbox), and send in Outpayments (like outMail.) (When done, they go to recordBox to await deletion.)
+	"instrumentRejection",	// When someone rejects your invoice from his paymentInbox, you get one of these in YOUR paymentInbox.
+	// --------------------------------------------------------------------------------------
+	"processNymbox",	// process nymbox transaction	 // comes from client
+	"atProcessNymbox",	// process nymbox reply			 // comes from server
+	"processInbox",		// process inbox transaction	 // comes from client
+	"atProcessInbox",	// process inbox reply			 // comes from server
+	// --------------------------------------------------------------------------------------
+	"transfer",			// or "spend". This transaction is a transfer from one account to another
+	"atTransfer",		// reply from the server regarding a transfer request
+	// --------------------------------------------------------------------------------------
+	"deposit",			// this transaction is a deposit of bearer tokens (from client)
+	"atDeposit",		// reply from the server regarding a deposit request
+	// --------------------------------------------------------------------------------------
+	"withdrawal",		// this transaction is a withdrawal of bearer tokens
+	"atWithdrawal",		// reply from the server regarding a withdrawal request
+	// --------------------------------------------------------------------------------------
+	"marketOffer",		// this transaction is a market offer
+	"atMarketOffer",	// reply from the server regarding a market offer
+	// --------------------------------------------------------------------------------------
+	"paymentPlan",		// this transaction is a payment plan
+	"atPaymentPlan",	// reply from the server regarding a payment plan
+	// --------------------------------------------------------------------------------------
+	"smartContract",	// this transaction is a smart contract
+	"atSmartContract",	// reply from the server regarding a smart contract
+	// --------------------------------------------------------------------------------------
+	"cancelCronItem",	// this transaction is a cancellation of a cron item (payment plan etc)
+	"atCancelCronItem",	// reply from the server regarding said cancellation.
+	// --------------------------------------------------------------------------------------
+	"exchangeBasket",	// this transaction is an exchange in/out of a basket currency.
+	"atExchangeBasket",	// reply from the server regarding said exchange.
+	// --------------------------------------------------------------------------------------
+	"error_state"	
+};
+
 #include "OTCheque.h"
 
 #include "OTWallet.h"
@@ -171,6 +252,50 @@ extern "C"
 
 #include "OTClient.h"
 #include "OTLog.h"
+#ifdef _WIN32
+OTString OTLog::__OTPathSeparator = "\\";
+#else
+OTString OTLog::__OTPathSeparator = "/";
+#endif
+
+OTString OTLog::__OTMintFolder				= "mints";
+OTString OTLog::__OTPath("."); // it defaults to '.' but then it is set by the client and server.
+OTString OTLog::__OTLogfile;
+
+#if defined (DSP)					   
+int OTLog::__CurrentLogLevel = 0;	// If you build with DSP=1, it assumes a special location for OpenSSL,
+#else								// and it turns off all the output.
+int OTLog::__CurrentLogLevel = 0;
+#endif
+
+bool	OTLog::__blocking = false;	// Normally false. This means we will wait FOREVER when trying to send or receive.
+int     OTLog::__latency_send_no_tries = 2; // Number of times will try to send a message.
+int     OTLog::__latency_receive_no_tries = 2; // Number of times will try to receive a reply.
+int     OTLog::__latency_send_ms = 5000; // number of ms to wait before retrying send.
+int		OTLog::__latency_send_delay_after = 50;	// It's 50 here after every server request, but also there's a default sleep of 50 in the java GUI after groups of messages.
+int     OTLog::__latency_receive_ms = 5000; // number of ms to wait before retrying receive.
+long	OTLog::__minimum_market_scale = 1;	// Server admin can configure this to any higher power-of-ten.
+
+OTString OTLog::__OTCronFolder				= "cron";
+OTString OTLog::__OTNymFolder				= "nyms";	
+OTString OTLog::__OTReceiptFolder			= "receipts";	
+OTString OTLog::__OTNymboxFolder			= "nymbox";		
+OTString OTLog::__OTAccountFolder			= "accounts";	
+OTString OTLog::__OTUserAcctFolder			= "useraccounts";	
+OTString OTLog::__OTInboxFolder				= "inbox";		
+OTString OTLog::__OTOutboxFolder			= "outbox";	
+OTString OTLog::__OTCertFolder				= "certs";		
+OTString OTLog::__OTPubkeyFolder			= "pubkeys";
+OTString OTLog::__OTContractFolder			= "contracts";
+OTString OTLog::__OTSpentFolder				= "spent";
+OTString OTLog::__OTMarketFolder			= "markets";
+OTString OTLog::__OTSmartContractsFolder	= "smartcontracts";
+OTString OTLog::__OTPaymentInboxFolder		= "paymentInbox";		
+OTString OTLog::__OTRecordBoxFolder			= "recordBox";
+OTString OTLog::__OTPurseFolder				= "purse";
+OTString OTLog::__OTScriptFolder			= "scripts";
+
+OTString OTLog::__Version = "0.80e";
 
 
 

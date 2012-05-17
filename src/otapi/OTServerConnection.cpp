@@ -262,56 +262,56 @@ bool OTServerConnection::SetFocus(OTPseudonym & theNym, OTServerContract & theSe
 }
 
 
-//bool OTServerConnection::Connect(OTPseudonym & theNym, OTServerContract & theServerContract,
-//								 OTString & strCA_FILE, OTString & strKEY_FILE, OTString & strKEY_PASSWORD)
-//{
-//	// We're already connected!
-//	if (IsConnected())
-//		return false;
-//	
-//	// Make sure all the socket stuff is initialized and set up.
-//	Initialize();
-//	
-//	// You can't just pass in a hostname and port.
-//	// Instead, you pass in the Nym and Contract, and *I'll* look up all that stuff.
-//	OTString strHostname;
-//	int nPort = 0;
-//	
-//	if (false == theServerContract.GetConnectInfo(strHostname, nPort))
-//	{
-//		OTLog::Output(0,  "Failed retrieving connection info from server contract.\n");
-//		return false;
-//	}
-//	
-//    SFSocket * socket;
-//	
-//    // Alloc Socket
-//	socket = SFSocketAlloc();
-//	
-//	OT_ASSERT_MSG(NULL != socket, "SFSocketAlloc Failed\n");
-//	
-//    // Initialize SSL client Socket
-//    if (SFSocketInit(socket, strCA_FILE.Get(), NULL, strKEY_FILE.Get(), strKEY_PASSWORD.Get(), NULL) < 0) {
-//	    OTLog::Error("Init Failed\n");
-//        return false;
-//    }
-//	
-//	// TODO: Note, I had to go intside this function and comment out the Cert-checking portion
-//	// in order to get this program running.
-//	// So I need to go back and revisit that later, but at least now we have client/server.
-//	
-//    // Connect to Host
-//    if (SFSocketConnectToHost(socket, strHostname.Get(), nPort) < 0) {
-//        OTLog::Output(0, "Connect to Host Failed\n");
-//        return false;
-//    }	
-//	
-//	m_pSocket			= socket;
-//	m_pNym				= &theNym;
-//	m_pServerContract	= &theServerContract;
-//	
-//	return true;
-//}
+bool OTServerConnection::Connect(OTPseudonym & theNym, OTServerContract & theServerContract,
+								 OTString & strCA_FILE, OTString & strKEY_FILE, OTString & strKEY_PASSWORD)
+{
+	//// We're already connected!
+	//if (IsConnected())
+	//	return false;
+	//
+	//// Make sure all the socket stuff is initialized and set up.
+	//Initialize();
+	//
+	//// You can't just pass in a hostname and port.
+	//// Instead, you pass in the Nym and Contract, and *I'll* look up all that stuff.
+	//OTString strHostname;
+	//int nPort = 0;
+	//
+	//if (false == theServerContract.GetConnectInfo(strHostname, nPort))
+	//{
+	//	OTLog::Output(0,  "Failed retrieving connection info from server contract.\n");
+	//	return false;
+	//}
+	//
+ //   SFSocket * socket;
+	//
+ //   // Alloc Socket
+	//socket = SFSocketAlloc();
+	//
+	//OT_ASSERT_MSG(NULL != socket, "SFSocketAlloc Failed\n");
+	//
+ //   // Initialize SSL client Socket
+ //   if (SFSocketInit(socket, strCA_FILE.Get(), NULL, strKEY_FILE.Get(), strKEY_PASSWORD.Get(), NULL) < 0) {
+	//    OTLog::Error("Init Failed\n");
+ //       return false;
+ //   }
+	//
+	//// TODO: Note, I had to go intside this function and comment out the Cert-checking portion
+	//// in order to get this program running.
+	//// So I need to go back and revisit that later, but at least now we have client/server.
+	//
+ //   // Connect to Host
+ //   if (SFSocketConnectToHost(socket, strHostname.Get(), nPort) < 0) {
+ //       OTLog::Output(0, "Connect to Host Failed\n");
+ //       return false;
+ //   }	
+	//
+	//m_pSocket			= socket;
+	//m_pNym				= &theNym;
+	//m_pServerContract	= &theServerContract;
+	//
+	return true;
+}
 
 
 
@@ -379,21 +379,21 @@ OTServerConnection::OTServerConnection(OTWallet & theWallet, OTClient & theClien
 	m_pClient			= &theClient;
 }
 
-//OTServerConnection::~OTServerConnection()
-//{
-//	if (m_pSocket)
-//	{
-//	    // Close and Release Socket Resources
-//		SFSocketRelease(m_pSocket);	
-//	}
-//}
+OTServerConnection::~OTServerConnection()
+{
+	//if (m_pSocket)
+	//{
+	//    // Close and Release Socket Resources
+	//	SFSocketRelease(m_pSocket);	
+	//}
+}
 
 
 // This function returns true if we received a full and proper reply from the server.
 // theServerReply will contain that message after a successful call to this function.
 // TCP / SSL mode.
-//bool OTServerConnection::ProcessInBuffer(OTMessage & theServerReply)
-//{
+bool OTServerConnection::ProcessInBuffer(OTMessage & theServerReply)
+{
 //	int  err;
 //	uint32_t nread;
 //	u_header theCMD;
@@ -427,8 +427,8 @@ OTServerConnection::OTServerConnection(OTWallet & theWallet, OTClient & theClien
 //		return ProcessReply(theCMD, theServerReply);
 //	}
 //	
-//	return false;
-//}
+	return false;
+}
 
 // ProcessInBuffer calls this function, once it has verified the header,
 // this function gets the payload.  If successful, returns true and theServerReply
