@@ -136,6 +136,7 @@ extern "C"
 #include <openssl/pem.h>
 #include <openssl/dsa.h>
 #include <openssl/err.h>
+#include <openssl/ui.h>
 }
 
 #include <cstdio>
@@ -517,13 +518,21 @@ bool OTAsymmetricKey::GetPasswordFromConsoleLowLevel(OTPassword & theOutput, con
     }
     return true;
 #else
-    char * szPass = getpass(szPrompt);
+    // todo security: might want to allow to set OTPassword's size and copy directly into it,
+    // so that we aren't using this temp buf in between, which, although we're zeroing it, could
+    // technically end up getting swapped to disk.
+    //
+    char buf[_PASSWORD_LEN + 10] = "", buff[_PASSWORD_LEN + 10] = "";
     
-    if (NULL != szPass)
+    int nReadPW = 0;
+        
+//  char * szPass = getpass(szPrompt); // "This function is obsolete. Do not use it."
+	if ((nReadPW = UI_UTIL_read_pw(buf,buff,_PASSWORD_LEN,szPrompt,0)) == 0) // verify=0
     {
-        size_t nPassLength = OTString::safe_strlen(szPass, _PASSWORD_LEN);
-        theOutput.setPassword(szPass, nPassLength);
-        OTPassword::zeroMemory(szPass, _PASSWORD_LEN);
+        size_t nPassLength = OTString::safe_strlen(buf, _PASSWORD_LEN);
+        theOutput.setPassword(buf, nPassLength);
+        OTPassword::zeroMemory(buf, nPassLength);
+        OTPassword::zeroMemory(buff, nPassLength);
         return true;
     }
 #endif
