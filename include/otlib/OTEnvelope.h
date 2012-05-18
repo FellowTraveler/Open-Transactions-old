@@ -317,7 +317,7 @@ EXPORT    bool SerializeTo   (OTASCIIArmor & ascOutput);
 EXPORT    void SetMasterKey(const OTASCIIArmor & ascMasterKey); // OTServer/OTWallet calls this, I instantiate.
     
     int  GetTimeoutSeconds(); 
-    void SetTimeoutSeconds(int nTimeoutSeconds); // So we can load from the config file.
+EXPORT    void SetTimeoutSeconds(int nTimeoutSeconds); // So we can load from the config file.
     
     bool GetMasterPassword(OTPassword & theOutput, const char * szDisplay=NULL, bool bVerifyTwice=false);  // The password callback uses this to get the password for any individual Nym.
     void DestroyMasterPassword(); // The thread, when the time comes, calls this method using the instance pointer that was passed into the thread originally. 

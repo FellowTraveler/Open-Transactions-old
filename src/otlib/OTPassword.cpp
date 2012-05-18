@@ -249,7 +249,7 @@ bool ot_lockPage(void* addr, size_t len)
     static bool bWarned = false;
     
 #ifdef _WIN32
-	return VirtualLock(addr, len);
+	//return VirtualLock(addr, len);
 #elif defined(PREDEF_PLATFORM_UNIX)
 	if (mlock(addr, len) && !bWarned)
     {
@@ -273,7 +273,7 @@ bool ot_unlockPage(void* addr, size_t len)
     static bool bWarned = false;
 
 #ifdef _WIN32
-	return VirtualUnlock(addr, len);
+//	return VirtualUnlock(addr, len);
 #elif defined(PREDEF_PLATFORM_UNIX)
 	if (munlock(addr, len) && !bWarned)
     {
@@ -390,6 +390,7 @@ void OTPassword::zeroMemory()
     OTPassword::zeroMemory(static_cast<void *>(&(m_szPassword[0])), static_cast<uint32_t>(getBlockSize()));
     // -------------------
     //
+#ifndef _WIN32
     // UNLOCK the page, now that we're AFTER the point where
     // the memory was safely ZERO'd out.
     //
@@ -402,6 +403,7 @@ void OTPassword::zeroMemory()
         else
             OTLog::Error("OTPassword::zeroMemory: Error: Memory page was locked, but then failed to unlock it.\n");
     }    
+#endif
     // -------------------
 }
 
@@ -796,6 +798,8 @@ int32_t OTPassword::setPassword_uint8(const uint8_t * szInput, uint32_t nInputSi
 //		std::cerr << "OTPassword::setPassword: ERROR: string length of szInput did not match nInputSize." << std::endl;
 		return (-1);
 	}
+
+#ifndef _WIN32
 	// ---------------------------------	
     //
     // Lock the memory page, before we copy the data over.
@@ -809,7 +813,8 @@ int32_t OTPassword::setPassword_uint8(const uint8_t * szInput, uint32_t nInputSi
         }
         else
             OTLog::vError("%s: Error: Failed attempting to lock memory page.\n", szFunc);
-    }    
+    }   
+#endif
 	// ---------------------------------
 #ifdef _WIN32
 	strncpy_s(reinterpret_cast<char *>(m_szPassword), (1 + nInputSize), reinterpret_cast<const char *>(szInput), nInputSize);
@@ -921,6 +926,7 @@ int32_t OTPassword::randomizePassword(uint32_t nNewSize/*=DEFAULT_SIZE*/)
 	//
 	if (nSize > getBlockSize())
 		nSize = getBlockSize(); // Truncated password beyond max size.
+#ifndef _WIN32
     //
     // Lock the memory page, before we randomize 'size bytes' of the data.
     // (If it's not already locked, which I doubt it will be.)
@@ -934,6 +940,7 @@ int32_t OTPassword::randomizePassword(uint32_t nNewSize/*=DEFAULT_SIZE*/)
         else
             OTLog::vError("%s: Error: Failed attempting to lock memory page.\n", szFunc);
     }    
+#endif
 	// ---------------------------------
     //
 	if (!OTPassword::randomizePassword_uint8(&(m_szPassword[0]), static_cast<int32_t>(nSize+1)))
@@ -1019,6 +1026,8 @@ int32_t OTPassword::randomizeMemory(uint32_t nNewSize/*=DEFAULT_SIZE*/)
 	//
 	if (nSize > getBlockSize())
 		nSize = getBlockSize(); // Truncated password beyond max size.
+
+#ifndef _WIN32
     //
     // Lock the memory page, before we randomize 'size bytes' of the data.
     // (If it's not already locked, which I doubt it will be.)
@@ -1031,7 +1040,8 @@ int32_t OTPassword::randomizeMemory(uint32_t nNewSize/*=DEFAULT_SIZE*/)
         }
         else
             OTLog::vError("%s: Error: Failed attempting to lock memory page.\n", szFunc);
-    }    
+    }  
+#endif
 	// ---------------------------------
     //
 	if (!OTPassword::randomizeMemory_uint8(&(m_szPassword[0]), nSize))
@@ -1131,6 +1141,8 @@ int32_t OTPassword::setMemory(const void * vInput, uint32_t nInputSize)
 	if (nInputSize > getBlockSize())
 		nInputSize = getBlockSize(); // Truncated password beyond max size.
 	// ---------------------------------
+
+#ifndef _WIN32
     //
     // Lock the memory page, before we copy the data over.
     // (If it's not already locked, which I doubt it will be.)
@@ -1144,6 +1156,8 @@ int32_t OTPassword::setMemory(const void * vInput, uint32_t nInputSize)
         else
             OTLog::vError("%s: Error: Failed attempting to lock memory page.\n", szFunc);
     }    
+#endif
+
 	// ---------------------------------    
     OTPassword::safe_memcpy(static_cast<void *>(&(m_szPassword[0])),
                             static_cast<uint32_t>(nInputSize), // dest size is based on the source size, but guaranteed to be >0 and <=getBlockSize

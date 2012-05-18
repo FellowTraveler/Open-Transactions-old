@@ -160,6 +160,15 @@ extern "C" {
 #include <sstream>
 #include <fstream>
 
+//
+// support for changig between std::string and std::wstring
+// std::wstring is very commonly used on Windows
+//
+#ifdef _WIN32
+#include "win32_utf8conv.h" 
+#endif
+
+
 //#ifdef _WIN32
 //#define MAX_STRING_LENGTH   631072
 //#else

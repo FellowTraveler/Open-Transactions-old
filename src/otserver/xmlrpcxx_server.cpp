@@ -141,35 +141,17 @@
 
 // ------------------------------------------------
 
+
 // TODO: what about android for all the defaults here? Are there ini files in android? Revisit.
 // so far, treating it like unix since it is.
-
-#ifdef _WIN32
-
-#define OT_INI_FILE_DEFAULT	"C:\\ot.ini"
-#define SERVER_PATH_DEFAULT	"C:\\~\\Open-Transactions\\transaction\\server_data"
-#define CA_FILE             "certs\\special\\ca.crt"
-#define DH_FILE             "certs\\special\\dh_param_1024.pem"
-#define KEY_FILE            "certs\\special\\server.pem"
-
-#else // UNIX
-
-#define OT_INI_FILE_DEFAULT	"~/.ot/ot_init.cfg"
-#define SERVER_PATH_DEFAULT	"./server_data"
-#define CA_FILE             "certs/special/ca.crt"
-#define DH_FILE             "certs/special/dh_param_1024.pem"
-#define KEY_FILE            "certs/special/server.pem"
-
-#endif
-
-// NOTE: the CA file, DH file, and Key file are most likely not necessary in this XML-RPC version.
-// I left them here for now but so far I don't see that I need them for anything.
+//
+// Paths
+//
+#define OT_INI_FILE_DEFAULT	".ot/ot.ini"  //should get programicaly
+#define SERVER_PATH_DEFAULT	".ot/server_data" //should get programicaly
 
 // ----------------------------------------------------------------
 
-#ifdef _WIN32
-//#include "OTLib/stdafx.h"
-#endif
 
 #include <cstdio>
 #include <cstdlib>
@@ -187,10 +169,13 @@
 
 #include <WinsockWrapper.h>	
 
+#ifdef _WIN32
+#include <Shlobj.h>
+#endif
+
 extern "C" 
 {
 #ifdef _WIN32
-//#include <WinSock.h>
 #else
 #include <netinet/in.h>
 #endif
@@ -684,6 +669,66 @@ bool OTSocket::Receive(std::string & str_Message)
 }
 
 
+// ***********************************************************************
+//
+// EVR PATH
+//
+OTString GetRomingAppDataLocation()
+	{
+#ifdef _WIN32
+
+		wchar_t* roamingAppData = 0;
+		SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, NULL, &roamingAppData);
+
+		std::wstring basicstring(roamingAppData);
+
+		std::string stdstring = utf8util::UTF8FromUTF16(basicstring);
+
+		return stdstring;
+#else
+		return getenv("HOME");
+#endif
+	};
+
+
+// ***********************************************************************
+//
+// INI FILE
+//
+bool GetOTAppDataFolderLocation(OTString strIniFileDefault, OTString & strOTServerDataLocation)
+	{
+		CSimpleIniA ini;
+		SI_Error rc = ini.LoadFile(strIniFileDefault.Get());
+                if (rc >=0)
+                {
+                    {
+                        const char * pVal = ini.GetValue("paths", "server_path", SERVER_PATH_DEFAULT); // todo stop hardcoding.
+                        
+                        if (NULL != pVal)
+                        {
+                            strOTServerDataLocation.Set(pVal);
+                            OTLog::vOutput(0, "server main: Reading ini file (%s). \n Found Server data_folder path: %s \n", 
+                                           strIniFileDefault.Get(), strOTServerDataLocation.Get());
+							return TRUE;
+                        }
+						
+						OTLog::vOutput(0, "server main: Reading ini file (%s) \n", strIniFileDefault.Get());
+						return FALSE;
+                    }            
+                }
+                else 
+                {
+                    OTLog::vOutput(0, "server main: Unable to load ini file (%s) to find data_folder path \n", 
+                                   strIniFileDefault.Get());
+					return FALSE;
+                }
+            };
+
+
+
+
+
+
 // *********************************************************************************************************
 //
 //
@@ -700,7 +745,7 @@ int main(int argc, char* argv[])
 	OTLog::vOutput(0, "\n\nWelcome to Open Transactions... Test Server -- version %s\n"
 				   "(transport build: OTMessage -> OTEnvelope -> ZMQ )\n\n", OTLog::Version());
 
-		// WINSOCK WINDOWS
+	// WINSOCK WINDOWS
 	// -----------------------------------------------------------------------
 	#ifdef _WIN32
 
@@ -776,56 +821,31 @@ int main(int argc, char* argv[])
             //
             OT_ASSERT_MSG(NULL != m_pServer, "server main(): ASSERT: Unable to instantiate OT server.\n");
 
-            // ***********************************************************************
-            //
-            // INI FILE
-            //
-            OTString strIniFileDefault;
-            OTLog::TransformFilePath(OT_INI_FILE_DEFAULT, strIniFileDefault);
-            
-            OTString strPath, strRawPath(SERVER_PATH_DEFAULT);
-            // -----------------------------------------------------------------------
-            {
-                CSimpleIniA ini;
-                SI_Error rc = ini.LoadFile(strIniFileDefault.Get());
-                if (rc >=0)
-                {
-                    {
-                        const char * pVal = ini.GetValue("paths", "server_path", SERVER_PATH_DEFAULT); // todo stop hardcoding.
-                        
-                        if (NULL != pVal)
-                        {
-                            strRawPath.Set(pVal);
-                            OTLog::vOutput(0, "server main: Reading ini file (%s). \n Found Server data_folder path: %s \n", 
-                                           strIniFileDefault.Get(), strRawPath.Get());
-                        }
-                        else
-                        {
-                            strRawPath.Set(SERVER_PATH_DEFAULT);
-                            OTLog::vOutput(0, "server main: Reading ini file (%s): \n Failed reading Server data_folder path. Using: %s \n", 
-                                           strIniFileDefault.Get(), strRawPath.Get());
-                        }
-                    }            
-                }
-                else 
-                {
-                    strRawPath.Set(SERVER_PATH_DEFAULT);
-                    OTLog::vOutput(0, "server main: Unable to load ini file (%s) to find data_folder path\n "
-                                   "Will assume that server data_folder is at path: %s \n", 
-                                   strIniFileDefault.Get(), strRawPath.Get());
-                }
-            }
-            // ***********************************************************************
-            //
-            // SET MAIN PATH 
-            //
-            // (OTServer::Init, when called, will expect the main path to already be set...)
-            
-            OTLog::TransformFilePath(strRawPath.Get(), strPath);
-            OTLog::SetMainPath(strPath.Get());              // <============ SET MAIN PATH
-            OTLog::vOutput(0, "Using data_folder path:  %s\n",
-                           OTLog::Path());
-            
+			OTString pathUserAppDataPath, pathIniFileLocation;
+
+			pathUserAppDataPath = GetRomingAppDataLocation();
+			pathIniFileLocation.Format("%s%s%s", pathUserAppDataPath.Get(), OTLog::PathSeparator(), OT_INI_FILE_DEFAULT);
+
+
+			OTString pathOTServerDataLocation;
+
+			OTLog::vOutput(0, "\nFound ot.ini in: \n     %s \nNow Checking if it contains the OT Server Path...", pathIniFileLocation.Get());
+			// Read the File, If successful use result
+
+			if (FALSE == GetOTAppDataFolderLocation(pathIniFileLocation,pathOTServerDataLocation))
+			{
+				OTLog::vOutput(0, "Path Not Found... Will Atempt Default!... \n");
+				// Not successfull will will assume it is in default location:
+				pathOTServerDataLocation.Format("%s%s%s", pathUserAppDataPath.Get(), OTLog::PathSeparator(), SERVER_PATH_DEFAULT);
+			};
+
+			OTLog::vOutput(0, "     %s \n", pathOTServerDataLocation.Get());
+
+
+			OTLog::SetMainPath(pathOTServerDataLocation.Get());              // <============ SET MAIN PATH
+            OTLog::vOutput(0, "Using data_folder path:  %s\n", OTLog::Path());
+
+
             // -----------------------------------------------------------------------    
             
             OTCrypto::It()->Init();  // <========== (OpenSSL gets initialized here.)
