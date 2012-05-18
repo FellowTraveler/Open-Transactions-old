@@ -1055,15 +1055,11 @@ bool OTAsymmetricKey::SetPublicKey(const OTASCIIArmor & ascKey)
     m_p_ascKey->Set(ascKey);
     // ----------------------
     return true;
-}
+}    
+    
 
-
-
-
-
-
-
-
+    
+    
 //static      // CALLER must EVP_pkey_free!
 EVP_PKEY * OTAsymmetricKey::CopyPublicKey(EVP_PKEY & theKey)
 {
@@ -1097,28 +1093,50 @@ EVP_PKEY * OTAsymmetricKey::CopyPublicKey(EVP_PKEY & theKey)
         
         if (nSize > 0)
         {
-            // -----------------------------------------------
-            // Next, copy theData's contents into a new BIO_mem_buf,
-            // so OpenSSL can load the key out of it.
-            //
-            BIO * keyBio = BIO_new_mem_buf(pChar, nSize); 
-            OT_ASSERT_MSG(NULL != keyBio, "OTAsymmetricKey::CopyPublicKey: Assert: NULL != keyBio \n");
-            // -------------------------------------------
-            // Next we load up the key from the BIO string into an instantiated key object.
-            //
-            OTPasswordData thePWData("OTAsymmetricKey::CopyPublicKey is calling PEM_read_bio_PUBKEY...");
+            OTPayload theData;
+
+            // Set the buffer size in our own memory.
+            theData.SetPayloadSize(nSize);
             
-            pReturnKey = PEM_read_bio_PUBKEY(keyBio, NULL, OTAsymmetricKey::GetPasswordCallback(), &thePWData);
-            // -------------------------------------------
-            // We don't need the BIO anymore.
-            // Free the BIO and related buffers, filters, etc.
-            //
-//          if (theData.GetSize() > 0)
-//              OPENSSL_cleanse(keyBio, theData.GetSize());
-            BIO_free_all(keyBio);
-            keyBio = NULL;
+            void * pv = 
+               OTPassword::safe_memcpy((static_cast<char*>(const_cast<void*>(theData.GetPayloadPointer()))), // destination
+                                    theData.GetSize(),    // size of destination buffer.
+                                    pChar,                // source
+                                    nSize);               // length of source.
+            // bool bZeroSource=false); // if true, sets the source buffer to zero after copying is done.
+
+            if (NULL != pv)
+            {
+                // -----------------------------------------------
+                // Next, copy theData's contents into a new BIO_mem_buf,
+                // so OpenSSL can load the key out of it.
+                //
+                BIO* keyBio	= BIO_new_mem_buf(static_cast<char*>(const_cast<void*>(theData.GetPayloadPointer())), 
+                                              theData.GetSize());
+                OT_ASSERT_MSG(NULL != keyBio, "OTAsymmetricKey::CopyPublicKey: Assert: NULL != keyBio \n");
+                // -------------------------------------------
+                // Next we load up the key from the BIO string into an instantiated key object.
+                //
+                OTPasswordData thePWData("OTAsymmetricKey::CopyPublicKey is calling PEM_read_bio_PUBKEY...");
+                
+                pReturnKey = PEM_read_bio_PUBKEY(keyBio, NULL, OTAsymmetricKey::GetPasswordCallback(), &thePWData);
+                // -------------------------------------------
+                // We don't need the BIO anymore.
+                // Free the BIO and related buffers, filters, etc.
+                //
+//              if (theData.GetSize() > 0)
+//                  OPENSSL_cleanse(keyBio, theData.GetSize());
+                BIO_free_all(keyBio);
+                keyBio = NULL;
+            }
+            else 
+                OTLog::vError("%s: Error: Failed copying memory from BIO into OTPayload.\n");
             // -------------------------------------------            
         }
+        else 
+		{
+			OTLog::vError("%s: Failed copying private key into memory.\n", szFunc);
+		}
     }
     
 	// Free the BIO and related buffers, filters, etc.
@@ -1138,8 +1156,15 @@ EVP_PKEY * OTAsymmetricKey::CopyPublicKey(EVP_PKEY & theKey)
 // static functions here for copying public and private keys, so I am ALWAYS 
 // working with MY OWN copy of any given key, and not OpenSSL's reference-counted
 // one.
-
-
+//
+// Furthermore, BIO_mem_buf doesn't allocate its own memory, but uses the memory
+// you pass to it. You CANNOT free that memory until you destroy the BIO.
+//
+// That's why you see me copying one bio into a payload, before copying it into
+// the next bio. Todo security: copy it into an OTPassword here, instead of an
+// OTPayload, which is safer, and more appropriate for a private key. Make sure
+// OTPassword can accommodate a bit larger size than what it does now.
+//
 //static      // CALLER must EVP_pkey_free!
 EVP_PKEY * OTAsymmetricKey::CopyPrivateKey(EVP_PKEY & theKey)
 {
@@ -1177,27 +1202,49 @@ EVP_PKEY * OTAsymmetricKey::CopyPrivateKey(EVP_PKEY & theKey)
         //
         const long lSize = BIO_get_mem_data(bmem, &pChar);
         const int  nSize = static_cast<int>(lSize);
-
-		if (nSize > 0)
-		{
-            // --------------------------------------
-            // Copy the encrypted binary private key data into an OpenSSL memory BIO...
-            //
-            BIO * keyBio = BIO_new_mem_buf(pChar, nSize); 
-            OT_ASSERT_MSG(NULL != keyBio, "OTAsymmetricKey::CopyPrivateKey: Assert: NULL != keyBio \n");
-            // --------------------------------------
-            OTPasswordData thePWData("OTAsymmetricKey::CopyPrivateKey is calling PEM_read_bio_PrivateKey...");
+        
+        if (nSize > 0)
+        {
+            OTPayload theData;
             
-            pReturnKey = PEM_read_bio_PrivateKey( keyBio, NULL, OTAsymmetricKey::GetPasswordCallback(), &thePWData );
+            // Set the buffer size in our own memory.
+            theData.SetPayloadSize(nSize);
             
-            // Free the BIO and related buffers, filters, etc.
-            //
-//          if (theData.GetSize() > 0)
-//              OPENSSL_cleanse(keyBio, theData.GetSize());
-            BIO_free_all(keyBio);
-            keyBio = NULL;
-            // --------------------------------------
-		}
+            void * pv = 
+               OTPassword::safe_memcpy((static_cast<char*>(const_cast<void*>(theData.GetPayloadPointer()))), // destination
+                                       theData.GetSize(),    // size of destination buffer.
+                                       pChar,                // source
+                                       nSize);               // length of source.
+            // bool bZeroSource=false); // if true, sets the source buffer to zero after copying is done.
+            
+            if (NULL != pv)
+            {
+                // -----------------------------------------------
+                // Next, copy theData's contents into a new BIO_mem_buf,
+                // so OpenSSL can load the key out of it.
+                //
+                BIO* keyBio	= BIO_new_mem_buf(static_cast<char*>(const_cast<void*>(theData.GetPayloadPointer())), 
+                                              theData.GetSize());
+                OT_ASSERT_MSG(NULL != keyBio, "OTAsymmetricKey::CopyPrivateKey: Assert: NULL != keyBio \n");
+                // -------------------------------------------
+                // Next we load up the key from the BIO string into an instantiated key object.
+                //
+                OTPasswordData thePWData("OTAsymmetricKey::CopyPrivateKey is calling PEM_read_bio_PUBKEY...");
+                
+                pReturnKey = PEM_read_bio_PrivateKey( keyBio, NULL, OTAsymmetricKey::GetPasswordCallback(), &thePWData );
+                // -------------------------------------------
+                // We don't need the BIO anymore.
+                // Free the BIO and related buffers, filters, etc.
+                //
+//              if (theData.GetSize() > 0)
+//                  OPENSSL_cleanse(keyBio, theData.GetSize());
+                BIO_free_all(keyBio);
+                keyBio = NULL;
+            }
+            else 
+                OTLog::vError("%s: Error: Failed copying memory from BIO into OTPayload.\n");
+            // -------------------------------------------            
+        }
 		else 
 		{
 			OTLog::vError("%s: Failed copying private key into memory.\n", szFunc);
@@ -1322,37 +1369,41 @@ EVP_PKEY * OTAsymmetricKey::InstantiatePublicKey()
     // binary payload object "theData"
     //
     m_p_ascKey->GetData(theData);
-    // -------------------------------------------
-    // Next, copy theData's contents into a new BIO_mem_buf,
-    // so OpenSSL can load the key out of it.
-    //
-    BIO* keyBio	= BIO_new_mem_buf(static_cast<char*>(const_cast<void*>(theData.GetPayloadPointer())), 
-                                  theData.GetSize());
-	OT_ASSERT_MSG(NULL != keyBio, "OTAsymmetricKey::InstantiatePublicKey: Assert: NULL != keyBio \n");
-    // -------------------------------------------
-    // Next we load up the key from the BIO string into an instantiated key object.
-    //
-    OTPasswordData thePWData("OTAsymmetricKey::InstantiatePublicKey is calling PEM_read_bio_PUBKEY...");
     
-    pReturnKey = PEM_read_bio_PUBKEY(keyBio, NULL, OTAsymmetricKey::GetPasswordCallback(), &thePWData);
-    // -------------------------------------------
-    // We don't need the BIO anymore.
-    // Free the BIO and related buffers, filters, etc.
-    //
-//  if (theData.GetSize() > 0)
-//      OPENSSL_cleanse(keyBio, theData.GetSize());
-    BIO_free_all(keyBio);
-    keyBio = NULL;
-    // -------------------------------------------
-    
-    ReleaseKeyLowLevel(); // Release whatever loaded key I might have already had.
-    
-    if (NULL != pReturnKey)
+    if (theData.GetSize() > 0)
     {
-        m_pKey = pReturnKey;
-        OTLog::vOutput(4, "%s: Success reading public key from ASCII-armored data:\n\n%s\n\n",
-                       szFunc, m_p_ascKey->Get());
-        return m_pKey;
+        // -------------------------------------------
+        // Next, copy theData's contents into a new BIO_mem_buf,
+        // so OpenSSL can load the key out of it.
+        //
+        BIO* keyBio	= BIO_new_mem_buf(static_cast<char*>(const_cast<void*>(theData.GetPayloadPointer())), 
+                                      theData.GetSize());
+        OT_ASSERT_MSG(NULL != keyBio, "OTAsymmetricKey::InstantiatePublicKey: Assert: NULL != keyBio \n");
+        // -------------------------------------------
+        // Next we load up the key from the BIO string into an instantiated key object.
+        //
+        OTPasswordData thePWData("OTAsymmetricKey::InstantiatePublicKey is calling PEM_read_bio_PUBKEY...");
+        
+        pReturnKey = PEM_read_bio_PUBKEY(keyBio, NULL, OTAsymmetricKey::GetPasswordCallback(), &thePWData);
+        // -------------------------------------------
+        // We don't need the BIO anymore.
+        // Free the BIO and related buffers, filters, etc.
+        //
+//      if (theData.GetSize() > 0)
+//          OPENSSL_cleanse(keyBio, theData.GetSize());
+        BIO_free_all(keyBio);
+        keyBio = NULL;
+        // -------------------------------------------
+        
+        ReleaseKeyLowLevel(); // Release whatever loaded key I might have already had.
+        
+        if (NULL != pReturnKey)
+        {
+            m_pKey = pReturnKey;
+            OTLog::vOutput(4, "%s: Success reading public key from ASCII-armored data:\n\n%s\n\n",
+                           szFunc, m_p_ascKey->Get());
+            return m_pKey;
+        }
     }
     
     OTLog::vError("%s: Failed reading public key from ASCII-armored data:\n\n%s\n\n", 
@@ -1510,40 +1561,43 @@ EVP_PKEY * OTAsymmetricKey::InstantiatePrivateKey()
 	// --------------------------------------
     // Copy the encrypted binary private key data into an OpenSSL memory BIO...
     //
-	BIO * keyBio = BIO_new_mem_buf(static_cast<char*>(const_cast<void*>(theData.GetPayloadPointer())), 
-                                   theData.GetSize()); // theData will zeroMemory upon destruction.
-	OT_ASSERT_MSG(NULL != keyBio, "OTAsymmetricKey::InstantiatePrivateKey: Assert: NULL != keyBio \n");
-	// --------------------------------------
-    
-    OTPasswordData thePWData("OTAsymmetricKey::InstantiatePrivateKey is calling PEM_read_bio_PrivateKey...");
+    if (theData.GetSize() > 0)
+    {
+        BIO * keyBio = BIO_new_mem_buf(static_cast<char*>(const_cast<void*>(theData.GetPayloadPointer())), 
+                                       theData.GetSize()); // theData will zeroMemory upon destruction.
+        OT_ASSERT_MSG(NULL != keyBio, "OTAsymmetricKey::InstantiatePrivateKey: Assert: NULL != keyBio \n");
+        // --------------------------------------
+        
+        OTPasswordData thePWData("OTAsymmetricKey::InstantiatePrivateKey is calling PEM_read_bio_PrivateKey...");
 
-	pReturnKey = PEM_read_bio_PrivateKey( keyBio, NULL, OTAsymmetricKey::GetPasswordCallback(), &thePWData );
-    
-	// Free the BIO and related buffers, filters, etc.
-    //
-//    if (theData.GetSize() > 0)
-//        OPENSSL_cleanse(keyBio, theData.GetSize());
-	BIO_free_all(keyBio);
-	keyBio = NULL;
-	// --------------------------------------
-    
-	ReleaseKeyLowLevel();
-	
-	if (NULL != pReturnKey)
-	{
-		m_pKey = pReturnKey;
-        // TODO (remove theTimer entirely. OTMasterKey replaces already.)
-        // I set this timer because the above required a password. But now that master key is working,
-        // the above would flow through even WITHOUT the user typing his passphrase (since master key still
-        // not timed out.) Resulting in THIS timer being reset!  Todo: I already shortened this timer to 30
-        // seconds, but need to phase it down to 0 and then remove it entirely! Master key takes over now!
+        pReturnKey = PEM_read_bio_PrivateKey( keyBio, NULL, OTAsymmetricKey::GetPasswordCallback(), &thePWData );
+        
+        // Free the BIO and related buffers, filters, etc.
         //
+    //    if (theData.GetSize() > 0)
+    //        OPENSSL_cleanse(keyBio, theData.GetSize());
+        BIO_free_all(keyBio);
+        keyBio = NULL;
+        // --------------------------------------
+        
+        ReleaseKeyLowLevel();
+        
+        if (NULL != pReturnKey)
+        {
+            m_pKey = pReturnKey;
+            // TODO (remove theTimer entirely. OTMasterKey replaces already.)
+            // I set this timer because the above required a password. But now that master key is working,
+            // the above would flow through even WITHOUT the user typing his passphrase (since master key still
+            // not timed out.) Resulting in THIS timer being reset!  Todo: I already shortened this timer to 30
+            // seconds, but need to phase it down to 0 and then remove it entirely! Master key takes over now!
+            //
 
-        m_timer.start();  // Note: this isn't the ultimate timer solution. See notes in ReleaseKeyLowLevel.
-		OTLog::vOutput(4, "OTAsymmetricKey::InstantiatePrivateKey: Success reading private key from ASCII-armored data:\n\n%s\n\n",
-                       m_p_ascKey->Get());
-		return m_pKey;
-	}
+            m_timer.start();  // Note: this isn't the ultimate timer solution. See notes in ReleaseKeyLowLevel.
+            OTLog::vOutput(4, "OTAsymmetricKey::InstantiatePrivateKey: Success reading private key from ASCII-armored data:\n\n%s\n\n",
+                           m_p_ascKey->Get());
+            return m_pKey;
+        }
+    }
     OTLog::vError("OTAsymmetricKey::InstantiatePrivateKey: Failed reading private key from ASCII-armored data:\n\n%s\n\n",
                   m_p_ascKey->Get());
     return NULL;
@@ -1874,7 +1928,8 @@ bool OTAsymmetricKey::LoadPublicKeyFromPGPKey(const OTASCIIArmor & strKey)
 	PgpKeys pgpKeys;
 	
 	b64 = BIO_new(BIO_f_base64());
-	bio = BIO_new_mem_buf((void*)strKey.Get(), strKey.GetLength());
+//	bio = BIO_new_mem_buf((void*)strKey.Get(), strKey.GetLength());
+	bio = BIO_new_mem_buf((void*)strKey.Get(), -1);
 	bio_out = BIO_new(BIO_s_mem());
 	bio = BIO_push(b64, bio);
 	
@@ -2351,7 +2406,8 @@ bool OTAsymmetricKey::LoadPrivateKeyFromCertString(const
 	// Create a new memory buffer on the OpenSSL side.
     //
 //	BIO * bio = BIO_new(BIO_s_mem());
-    BIO * bio = BIO_new_mem_buf(static_cast<void*>(const_cast<char*>(strWithBookends.Get())), strWithBookends.GetLength() /*+1*/); 
+//  BIO * bio = BIO_new_mem_buf(static_cast<void*>(const_cast<char*>(strWithBookends.Get())), strWithBookends.GetLength() /*+1*/); 
+    BIO * bio = BIO_new_mem_buf(static_cast<void*>(const_cast<char*>(strWithBookends.Get())), -1); 
 	OT_ASSERT_MSG(NULL != bio, "OTAsymmetricKey::LoadPrivateKeyFromCertString: Assert: NULL != bio \n");	
 
 	// --------------------------------------------------------------------
@@ -2504,7 +2560,8 @@ bool OTAsymmetricKey::LoadPublicKeyFromCertString(const OTString & strCert, bool
 	// took out the +1 on the length since null terminater only
 	// needed in string form, not binary form as OpenSSL treats it.
     //
-	BIO  * keyBio = BIO_new_mem_buf(static_cast<void*>(const_cast<char*>(strWithBookends.Get())), strWithBookends.GetLength() /*+1*/); 
+	BIO  * keyBio = BIO_new_mem_buf(static_cast<void*>(const_cast<char*>(strWithBookends.Get())), -1); 
+//	BIO  * keyBio = BIO_new_mem_buf(static_cast<void*>(const_cast<char*>(strWithBookends.Get())), strWithBookends.GetLength() /*+1*/); 
 //	BIO  * keyBio = BIO_new_mem_buf((void*)strCert.Get(), strCert.GetLength() /*+1*/);
 	OT_ASSERT(NULL != keyBio);
 	// --------------------------------------------------
@@ -2560,8 +2617,8 @@ bool OTAsymmetricKey::LoadPublicKeyFromCertString(const OTString & strCert, bool
     
     // Free the BIO and related buffers, filters, etc.
     //
-//    if (strWithBookends.GetLength() > 0)
-//        OPENSSL_cleanse(keyBio, strWithBookends.GetLength());
+//  if (strWithBookends.GetLength() > 0)
+//      OPENSSL_cleanse(keyBio, strWithBookends.GetLength());
 	BIO_free_all(keyBio);
 	keyBio = NULL;
 	// --------------------------------------------------

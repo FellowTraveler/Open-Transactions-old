@@ -2128,7 +2128,8 @@ bool OTContract::SignContract(const char * szFoldername, const char * szFilename
 	}
 	// --------------------------------------------------------------------
 	// Create a new memory buffer on the OpenSSL side
-	BIO * bio = BIO_new_mem_buf((void*)strFileContents.c_str(), strFileContents.length()); 
+	BIO * bio = BIO_new_mem_buf((void*)strFileContents.c_str(), -1);  // todo cast.
+//	BIO * bio = BIO_new_mem_buf((void*)strFileContents.c_str(), strFileContents.length());  // todo cast.
 //	BIO *bio = BIO_new(BIO_s_mem());
 	OT_ASSERT(NULL != bio);
 //  BIO_puts(bmem, Get());	
@@ -2282,7 +2283,8 @@ bool OTContract::VerifySignature(const char * szFoldername, const char * szFilen
 	// --------------------------------------------------------------------
 	
 	// Create a new memory buffer on the OpenSSL side
-	BIO * bio = BIO_new_mem_buf((void*)strFileContents.c_str(), strFileContents.length()); 
+	BIO * bio = BIO_new_mem_buf((void*)strFileContents.c_str(), -1); // todo cast
+//	BIO * bio = BIO_new_mem_buf((void*)strFileContents.c_str(), strFileContents.length()); // todo cast
 //	BIO *bio = BIO_new(BIO_s_mem());
 	OT_ASSERT(NULL != bio);
 	//BIO_puts(bmem, Get());
