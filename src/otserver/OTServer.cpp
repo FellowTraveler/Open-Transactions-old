@@ -170,9 +170,11 @@ using namespace std;
 
 
 #include "OTMint.h"
+
+#ifdef _WIN32
 const char * OT_BEGIN_ARMORED   = "-----BEGIN OT ARMORED";
 const char * OT_BEGIN_ARMORED_escaped   = "- -----BEGIN OT ARMORED";
-
+#endif
 
 #include "OTPseudonym.h"
 #include "OTCheque.h"
@@ -187,7 +189,9 @@ const char * OT_BEGIN_ARMORED_escaped   = "- -----BEGIN OT ARMORED";
 #include "OTTransactionType.h"
 
 #include "OTItem.h"
+
 #include "OTTransaction.h"
+#ifdef _WIN32
 const char * OTTransaction::_TypeStrings[] = 
 {
 	"blank",			// freshly issued, not used yet  // comes from server, stored on Nym. (Nymbox.)
@@ -242,6 +246,7 @@ const char * OTTransaction::_TypeStrings[] =
 	// --------------------------------------------------------------------------------------
 	"error_state"	
 };
+#endif
 
 #include "OTLedger.h"
 #include "OTToken.h"
@@ -255,6 +260,7 @@ const char * OTTransaction::_TypeStrings[] =
 
 
 #include "OTLog.h"
+#ifdef _WIN32
 #ifdef _WIN32
 OTString OTLog::__OTPathSeparator = "\\";
 #else
@@ -294,13 +300,13 @@ OTString OTLog::__OTMarketFolder			= "markets";
 OTString OTLog::__OTSmartContractsFolder	= "smartcontracts";
 
 OTString OTLog::__Version = "0.80e";
+#endif
 
 #include "OTCron.h"
+#ifdef _WIN32
 int OTCron::__trans_refill_amount		= 500;		// The number of transaction numbers Cron will grab for itself, when it gets low, before each round.
 int OTCron::__cron_ms_between_process	= 10000;	// The number of milliseconds (ideally) between each "Cron Process" event.
-
-
-
+#endif
 
 
 // These are default values. There are configurable in ~/.ot/server.cfg

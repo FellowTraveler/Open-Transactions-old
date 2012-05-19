@@ -199,8 +199,8 @@ extern "C"
 //using namespace CryptoPP;
 
 
-// `BigIntegerLibrary.hh' includes all of the library headers for bigint
-#include <bigint\BigIntegerLibrary.h>
+
+#include <bigint/BigIntegerLibrary.h>
 
 
 

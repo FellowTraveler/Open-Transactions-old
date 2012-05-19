@@ -133,7 +133,10 @@
 
 #include <iostream>
 
+#ifdef _WIN32
 #include <WinsockWrapper.h>
+#endif
+
 // ------------------------------
 // For SecureZeroMemory
 #ifdef _WIN32

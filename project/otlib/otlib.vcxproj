@@ -90,6 +90,7 @@
     <ClInclude Include="..\..\include\otlib\tinythread.h" />
     <ClInclude Include="..\..\include\otlib\win32_utf8conv.h" />
     <ClInclude Include="..\..\include\otlib\win32_utf8conv_inl.h" />
+    <ClInclude Include="..\..\include\otlib\WinsockWrapper.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\otlib\anyoption.cpp" />

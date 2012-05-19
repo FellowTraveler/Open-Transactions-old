@@ -1,6 +1,8 @@
 #ifndef _WINSOCK_WRAPPER_H_
 #define _WINSOCK_WRAPPER_H_
 
+#ifdef _WIN32
+
 #if _MSC_VER > 1000
 #pragma once
 #endif
@@ -15,4 +17,5 @@
  
 #pragma comment(lib, "ws2_32.lib")
  
+#endif
 #endif

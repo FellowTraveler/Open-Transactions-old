@@ -24,7 +24,9 @@ freely, subject to the following restrictions:
 #ifndef _FAST_MUTEX_H_
 #define _FAST_MUTEX_H_
 
+#ifdef _WIN32
 #include <WinsockWrapper.h>
+#endif
 
 /// @file
 

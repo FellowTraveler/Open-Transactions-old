@@ -1,5 +1,5 @@
 # ===========================================================================
-#          http://www.nongnu.org/autoconf-archive/ax_boost_base.html
+#       http://www.gnu.org/software/autoconf-archive/ax_boost_base.html
 # ===========================================================================
 #
 # SYNOPSIS
@@ -33,7 +33,7 @@
 #   and this notice are preserved. This file is offered as-is, without any
 #   warranty.
 
-#serial 12
+#serial 20
 
 AC_DEFUN([AX_BOOST_BASE],
 [
@@ -59,9 +59,9 @@ AC_ARG_WITH([boost],
 
 AC_ARG_WITH([boost-libdir],
         AS_HELP_STRING([--with-boost-libdir=LIB_DIR],
-        [Force given directory for boost libraries. Note that this will overwrite library path detection, so use this parameter only if default library detection fails and you know exactly where your boost libraries are located.]),
+        [Force given directory for boost libraries. Note that this will override library path detection, so use this parameter only if default library detection fails and you know exactly where your boost libraries are located.]),
         [
-        if test -d $withval
+        if test -d "$withval"
         then
                 ac_boost_lib_path="$withval"
         else
@@ -84,20 +84,34 @@ if test "x$want_boost" = "xyes"; then
     AC_MSG_CHECKING(for boostlib >= $boost_lib_version_req)
     succeeded=no
 
-    libsubdir="lib"
-    if test "$(uname -m)" = "x86_64" && test -d "/usr/lib64"; then
-        libsubdir="lib64"
+    dnl On 64-bit systems check for system libraries in both lib64 and lib.
+    dnl The former is specified by FHS, but e.g. Debian does not adhere to
+    dnl this (as it rises problems for generic multi-arch support).
+    dnl The last entry in the list is chosen by default when no libraries
+    dnl are found, e.g. when only header-only libraries are installed!
+    libsubdirs="lib"
+    ax_arch=`uname -m`
+    if test $ax_arch = x86_64 -o $ax_arch = ppc64 -o $ax_arch = s390x -o $ax_arch = sparc64; then
+        libsubdirs="lib64 lib lib64"
     fi
 
     dnl first we check the system location for boost libraries
     dnl this location ist chosen if boost libraries are installed with the --layout=system option
     dnl or if you install boost with RPM
     if test "$ac_boost_path" != ""; then
-        BOOST_LDFLAGS="-L$ac_boost_path/$libsubdir"
         BOOST_CPPFLAGS="-I$ac_boost_path/include"
+        for ac_boost_path_tmp in $libsubdirs; do
+                if test -d "$ac_boost_path"/"$ac_boost_path_tmp" ; then
+                        BOOST_LDFLAGS="-L$ac_boost_path/$ac_boost_path_tmp"
+                        break
+                fi
+        done
     elif test "$cross_compiling" != yes; then
         for ac_boost_path_tmp in /usr /usr/local /opt /opt/local ; do
             if test -d "$ac_boost_path_tmp/include/boost" && test -r "$ac_boost_path_tmp/include/boost"; then
+                for libsubdir in $libsubdirs ; do
+                    if ls "$ac_boost_path_tmp/$libsubdir/libboost_"* >/dev/null 2>&1 ; then break; fi
+                done
                 BOOST_LDFLAGS="-L$ac_boost_path_tmp/$libsubdir"
                 BOOST_CPPFLAGS="-I$ac_boost_path_tmp/include"
                 break;
@@ -172,13 +186,18 @@ if test "x$want_boost" = "xyes"; then
 
                 VERSION_UNDERSCORE=`echo $_version | sed 's/\./_/'`
                 BOOST_CPPFLAGS="-I$best_path/include/boost-$VERSION_UNDERSCORE"
-                if test "$ac_boost_lib_path" = ""
-                then
-                   BOOST_LDFLAGS="-L$best_path/$libsubdir"
+                if test "$ac_boost_lib_path" = ""; then
+                    for libsubdir in $libsubdirs ; do
+                        if ls "$best_path/$libsubdir/libboost_"* >/dev/null 2>&1 ; then break; fi
+                    done
+                    BOOST_LDFLAGS="-L$best_path/$libsubdir"
                 fi
             fi
 
             if test "x$BOOST_ROOT" != "x"; then
+                for libsubdir in $libsubdirs ; do
+                    if ls "$BOOST_ROOT/stage/$libsubdir/libboost_"* >/dev/null 2>&1 ; then break; fi
+                done
                 if test -d "$BOOST_ROOT" && test -r "$BOOST_ROOT" && test -d "$BOOST_ROOT/stage/$libsubdir" && test -r "$BOOST_ROOT/stage/$libsubdir"; then
                     version_dir=`expr //$BOOST_ROOT : '.*/\(.*\)'`
                     stage_version=`echo $version_dir | sed 's/boost_//' | sed 's/_/./g'`

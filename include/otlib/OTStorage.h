@@ -132,7 +132,9 @@
   #define EXPORT
 #endif
 
+#ifdef _WIN32
 #include <WinsockWrapper.h>
+#endif
 
 #include <typeinfo>
 

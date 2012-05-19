@@ -15,7 +15,9 @@
 
 #include <string.h>     // strlen()
 
-#include <WinsockWrapper.h>	
+#ifdef _WIN32
+#include <WinsockWrapper.h>
+#endif	
 
 
 namespace utf8util {
