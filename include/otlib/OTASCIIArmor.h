@@ -141,7 +141,9 @@
 #endif
 
 
+#ifdef _WIN32
 #include <WinsockWrapper.h>
+#endif
 
 
 #include <iostream>

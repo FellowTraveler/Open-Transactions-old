@@ -131,7 +131,9 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include <WinsockWrapper.h>	
+#ifdef _WIN32
+#include <WinsockWrapper.h>
+#endif
 
 extern "C" 
 {

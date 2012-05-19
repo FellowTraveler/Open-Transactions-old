@@ -1,0 +1,44 @@
+# install general developer dependencies
+$ sudo yum install gcc autoconf automake libtool wget cmake
+# install Open-Transactions library dependencies
+$ sudo yum install boost-devel zeromq-devel protobuf-devel openssl-devel
+
+# if your version of Fedora doesn't include OpenSSL 1.0:
+$ wget http://openssl.org/source/openssl-1.0.0g.tar.gz
+$ tar xf openssl-1.0.0g.tar.gz
+$ cd openssl-1.0.0g
+$ ./Configure linux-elf --prefix=$HOME/.local
+$ make
+$ make install
+$cd ..
+
+# fetch msgpack
+$ wget http://msgpack.org/releases/cpp/msgpack-0.5.7.tar.gz
+# build msgpack
+$ tar xf msgpack-0.5. 7.tar.gz
+$ cd msgpack-0.5.7
+$ ./configure --prefix=$HOME/.local
+$ make
+$ make install
+$ cd ..
+
+# now chaiscript
+$ git clone git://github.com/ChaiScript/ChaiScript.git
+$ cd ChaiScript
+$ cmake . -DCMAKE_INSTALL_PREFIX=$HOME/.local
+$ make
+$ make install
+$ cd ..
+
+#fetch O-T and prepare your copy for build
+$ export PKG_CONFIG_PATH=$HOME/.local/lib/pkgconfig:$PKG_CONFIG_PATH
+$ git clone git://github.com/FellowTraveler/Open-Transactions.git
+$ cd Open-Transactions
+$ mkdir build
+$ autoreconf -i -f
+
+# build
+$ cd build
+$ PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH ../configure --prefix=$HOME/.local
+$ make
+$ make install

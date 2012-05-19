@@ -1,4 +1,4 @@
-AC_INIT([Open-Transactions], [0.77.0], [Fellow-Traveler], [Open-Transactions], [https://github.com/FellowTraveler/Open-Transactions])
+AC_INIT([Open-Transactions], [0.80.0], [Fellow-Traveler], [Open-Transactions], [https://github.com/FellowTraveler/Open-Transactions])
 AC_PREREQ(2.61)
 LT_PREREQ([2.2.4])
 AC_CONFIG_AUX_DIR(build-aux)
@@ -29,9 +29,9 @@ AC_ARG_WITH([transport],
 AM_CONDITIONAL([TRANSPORT_ZMQ], [test "$with_transport" == zmq])
 AM_CONDITIONAL([TRANSPORT_TESTCLIENT], [test "$with_transport" == testclient])
 AS_IF([test "$with_transport" == zmq],
-   [PKG_CHECK_MODULES([DEPS], [protobuf openssl >= 1.0.0
+   [PKG_CHECK_MODULES([DEPS], [protobuf >= 2.4.1 openssl >= 1.0.0
                                chaiscript >= 3.1.0 libzmq])],
-   [PKG_CHECK_MODULES([DEPS], [protobuf openssl >= 1.0.0
+   [PKG_CHECK_MODULES([DEPS], [protobuf >= 2.4.1 openssl >= 1.0.0
                                chaiscript ])])
 
 AC_CONFIG_SRCDIR([src/otlib])

@@ -130,7 +130,9 @@
 #ifndef __OTCLIENT_H__
 #define __OTCLIENT_H__
 
+#ifdef _WIN32
 #include <WinsockWrapper.h>
+#endif
 
 class OTPseudonym;
 class OTAssetContract;

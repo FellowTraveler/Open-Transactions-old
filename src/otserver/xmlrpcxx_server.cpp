@@ -141,7 +141,6 @@
 
 // ------------------------------------------------
 
-
 // TODO: what about android for all the defaults here? Are there ini files in android? Revisit.
 // so far, treating it like unix since it is.
 //
@@ -167,7 +166,9 @@
 
 //#include "zhelpers.hpp"
 
-#include <WinsockWrapper.h>	
+#ifdef _WIN32
+#include <WinsockWrapper.h>
+#endif
 
 #ifdef _WIN32
 #include <Shlobj.h>
@@ -187,7 +188,7 @@ extern "C"
 // ------------------------------------
 
 
-#include "SimpleIni\SimpleIni.h"
+#include "simpleini/SimpleIni.h"
 #include "Timer.h"
 
 
@@ -709,18 +710,18 @@ bool GetOTAppDataFolderLocation(OTString strIniFileDefault, OTString & strOTServ
                             strOTServerDataLocation.Set(pVal);
                             OTLog::vOutput(0, "server main: Reading ini file (%s). \n Found Server data_folder path: %s \n", 
                                            strIniFileDefault.Get(), strOTServerDataLocation.Get());
-							return TRUE;
+							return true;
                         }
 						
 						OTLog::vOutput(0, "server main: Reading ini file (%s) \n", strIniFileDefault.Get());
-						return FALSE;
+						return false;
                     }            
                 }
                 else 
                 {
                     OTLog::vOutput(0, "server main: Unable to load ini file (%s) to find data_folder path \n", 
                                    strIniFileDefault.Get());
-					return FALSE;
+					return false;
                 }
             };
 
@@ -832,7 +833,7 @@ int main(int argc, char* argv[])
 			OTLog::vOutput(0, "\nFound ot.ini in: \n     %s \nNow Checking if it contains the OT Server Path...", pathIniFileLocation.Get());
 			// Read the File, If successful use result
 
-			if (FALSE == GetOTAppDataFolderLocation(pathIniFileLocation,pathOTServerDataLocation))
+			if (false == GetOTAppDataFolderLocation(pathIniFileLocation,pathOTServerDataLocation))
 			{
 				OTLog::vOutput(0, "Path Not Found... Will Atempt Default!... \n");
 				// Not successfull will will assume it is in default location:

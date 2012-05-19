@@ -195,6 +195,9 @@
     <ClInclude Include="..\..\include\otlib\tinythread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\otlib\WinsockWrapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\otlib\anyoption.cpp">

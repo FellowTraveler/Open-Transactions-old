@@ -1,0 +1,101 @@
+#########################################################################
+#									#
+#									#
+#	##	INSTALL - Debian, Ubuntu, other debian based	##	#
+#									#
+#									#
+#########################################################################
+
+
+## DEBIAN ONLY ##
+
+# if you are on DEBIAN you need to include backports and sid in your etc settings:
+
+# Create backports and sid lists:
+
+$ sudo mkdir -p /etc/apt/sources.list.d
+$ sudo echo "deb http://ftp.us.debian.org/debian sid main" > /etc/apt/sources.list.d/sid.list
+$ sudo echo "deb http://backports.debian.org/debian-backports squeeze-backports main"  > /etc/apt/sources.list.d/backports.list
+
+# Configure updates for only installed packages:
+# append/ add:
+
+#
+#	/etc/apt/preferences
+#
+
+Package: *
+Pin: release n=squeeze-backports
+Pin-Priority: 300
+
+Package: *
+Pin: release n=sid
+Pin-Priority: 200
+
+
+
+## ALL ##
+
+# install general developer dependencies
+$ sudo aptitude install wget git build-essential libtool automake cmake pkg-config
+
+# install Open-Transactions library dependencies
+$ sudo aptitude install libboost-dev libboost-thread-dev libzmq-dev libmsgpack-dev libssl-dev libprotobuf-dev
+
+# install JAVA for OTAPI-JAVA
+$ sudo aptitude install openjdk-6-jdk openjdk-6-source
+
+
+## DEBIAN ONLY ##
+
+# install libprotobuf-dev from sid
+$ sudo aptitude -t sid install libprotobuf-dev
+
+
+
+## ALL ##
+
+# if your version of Ubuntu doesn't include OpenSSL 1.0:
+$ wget http://www.openssl.org/source/openssl-1.0.0j.tar.gz
+$ tar xf openssl-1.0.0j.tar.gz
+$ cd openssl-1.0.0j
+$ ./Configure linux-x86_64 --prefix=$HOME/.local
+$ make
+$ make tests
+$ make install
+$cd ..
+
+
+# fetch chaiscript
+$ git clone git://github.com/ChaiScript/ChaiScript.git
+
+# build chaiscript
+$ cd ChaiScript
+$ cmake . -DCMAKE_INSTALL_PREFIX=$HOME/.local
+$ make
+$ make install
+$ cd ..
+
+
+#fetch O-T and prepare your copy for build
+$ export PKG_CONFIG_PATH=$HOME/.local/lib/pkgconfig:$PKG_CONFIG_PATH
+$ git clone git://github.com/da2ce7/Open-Transactions.git
+$ cd Open-Transactions
+$ mkdir build
+$ autoreconf -i -f
+
+
+# build
+$ cd build
+$ ../configure --prefix=$HOME/.local --with-java
+$ make
+$ make install
+
+
+### add to .profile ###
+
+# set PATH so it includes user's local root bin if it exists
+if [ -d "$HOME/.local/bin" ] ; then
+    PATH="$HOME/.local/bin:$PATH"
+fi
+

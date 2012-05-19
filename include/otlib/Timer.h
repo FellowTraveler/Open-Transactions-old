@@ -24,7 +24,9 @@
   #define EXPORT
 #endif
 
+#ifdef _WIN32
 #include <WinsockWrapper.h>
+#endif
 
 #ifdef _WIN32   // Windows system specific
 #else          // Unix based system specific

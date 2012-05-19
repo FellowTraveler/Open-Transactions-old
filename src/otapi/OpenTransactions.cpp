@@ -131,7 +131,9 @@
 #include <string>
 #include <iostream>
 
+#ifdef _WIN32
 #include <WinsockWrapper.h>
+#endif
 
 #if defined (OT_ZMQ_MODE)
 #include <zmq.hpp>

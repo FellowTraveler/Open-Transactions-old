@@ -144,7 +144,7 @@ using namespace io;
 #include "OTLog.h"
 
 
-#include "Lucre/bank.h"  // Lucre
+#include "lucre/bank.h"  // Lucre
 
 
 

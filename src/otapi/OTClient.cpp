@@ -126,7 +126,9 @@
  -----END PGP SIGNATURE-----
  **************************************************************/
 
+#ifdef _WIN32
 #include <WinsockWrapper.h>
+#endif
 
 extern "C"
 {
@@ -150,7 +152,9 @@ extern "C"
 #include "OTContract.h"
 #include "OTAssetContract.h"
 #include "OTServerContract.h"
+
 #include "OTAccount.h"
+#ifdef _WIN32
 const char * OTAccount::_TypeStrings[] = 
 {
 	"simple",	// used by users
@@ -162,13 +166,16 @@ const char * OTAccount::_TypeStrings[] =
 	"stash",	// used by the server (to store backing reserves for stashes, for smart contracts.)
 	"err_acct"
 };
+#endif
 
 
 #include "OTMessage.h"
 #include "OTPayload.h"
 #include "OTEnvelope.h"
 #include "OTItem.h"
+
 #include "OTLedger.h"
+#ifdef _WIN32
 const char * OTLedger::_TypeStrings[] = 
 {
 	"nymbox",		// the nymbox is per user account (versus per asset account) and is used to receive new transaction numbers (and messages.)
@@ -179,14 +186,18 @@ const char * OTLedger::_TypeStrings[] =
 	"recordBox",		// Used for client-side-only storage of completed items from the inbox, and the paymentInbox.
 	"error_state"
 };
+#endif
 
 #include "OTMint.h"
+#ifdef _WIN32
 const int OTToken::nMinimumPrototokenCount = 1;
+#endif
 
 #include "OTPurse.h"
 #include "OTBasket.h"
 
 #include "OTTransaction.h"
+#ifdef _WIN32
 const char * OTTransaction::_TypeStrings[] = 
 {
 	"blank",			// freshly issued, not used yet  // comes from server, stored on Nym. (Nymbox.)
@@ -241,6 +252,7 @@ const char * OTTransaction::_TypeStrings[] =
 	// --------------------------------------------------------------------------------------
 	"error_state"	
 };
+#endif
 
 #include "OTCheque.h"
 
@@ -252,6 +264,7 @@ const char * OTTransaction::_TypeStrings[] =
 
 #include "OTClient.h"
 #include "OTLog.h"
+#ifdef _WIN32
 #ifdef _WIN32
 OTString OTLog::__OTPathSeparator = "\\";
 #else
@@ -296,7 +309,7 @@ OTString OTLog::__OTPurseFolder				= "purse";
 OTString OTLog::__OTScriptFolder			= "scripts";
 
 OTString OTLog::__Version = "0.80e";
-
+#endif
 
 
 
