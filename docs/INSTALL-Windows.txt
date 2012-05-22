@@ -1,0 +1,96 @@
+#########################################################################
+#									#
+#									#
+#		##	INSTALL - Windows	##			#
+#									#
+#									#
+#########################################################################
+
+
+## Install for OT on Windows ##
+
+This guide has only been tested on Windows 7 x64.
+
+
+
+## Things to install:  IN THIS ORDER!
+
+Windows 7 SP1
+
+Visual Studio C++ 2010 Express
+
+Visual Studio C++ 2010 Express SP1
+
+Microsoft Windows SDK for Windows 7 and .NET Framework 4
+
+Microsoft Visual C++ 2010 Service Pack 1 Compiler Update for the Windows SDK 7.1 
+
+OpenSSL (Win32 and x64)
+
+Java SE Runtime Environment 6 (Win32 and x64)
+
+Java SE Development Kit 6 (Win32 and x64)
+
+Boost (Win32 and x64)
+
+
+
+# Since Boost is a PITA to compile.  I have uploaded my pre-compiled version to GITHUB:
+
+https://github.com/downloads/da2ce7/Open-Transactions/boost_1_48_0_precompiled.7z
+
+- You need to rename the folder stage\lib\x86\ to stage\lib\Win32\ (as I made an mistake in my original upload)
+
+
+
+
+
+## Dependant LIB's
+
+ChaiScript (Latest GIT Version)
+
+Google Protocol Buffers
+
+ZeroMQ
+
+
+I have supplied Pre-Made Visual Studio Projects for the above programs:
+https://github.com/da2ce7/Open-Transactions/tree/master/project/3rdparty
+
+However I normaly keep-up2pdate binaries in my GITHUB downloads:
+
+https://github.com/da2ce7/Open-Transactions/downloads
+
+
+You need to copy the 'lib' and 'include' dir's of each into the root of your Open-Transactions source folder.
+
+
+
+## Compile OT
+
+Load up the 'Open-Transactions' project that resides in the 'project' folder
+
+Select the mode you want to compile:  eg. Debug, or Release.  Win32 or x64
+
+Use the Build Project option to make the OT.
+
+
+
+## Compile OT SWIG JAVA LIB
+
+Load up the "OTApi-Wrap' project that is in the swig\project folder.
+
+Select the module and mode you want to compile.
+
+Use the Build Project option to make the OT.
+
+
+
+## Using the resulting binaries:
+
+
+The ready folder for your use will be in the lib dir.  eg.  lib\x64\Release
+
+
+
+## Have fun!!!!!
