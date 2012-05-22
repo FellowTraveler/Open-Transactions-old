@@ -141,6 +141,67 @@ class OTPassword;
 
 // ------------------------------------------------------------------------
 
+#ifndef OT_CRYPTO_USING_OPENSSL
+#define OT_CRYPTO_USING_OPENSSL 1
+#endif
+
+// Someday:  OT_CRYPTO_USING_GPG
+
+// --------------------------------------
+// TinyThread++
+//
+#include "tinythread.h"
+//#include "fast_mutex.h" // Not using this currently.
+
+//using namespace tthread; // in the C++ file
+// --------------------------------------
+
+// To someday get us to the point where we can easily swap crypto libs.
+// For now, just for static init / cleanup functions we can call from 
+// OTLog Init/Cleanup, and move the more "crypto" related stuff to this file.
+//
+class OTCrypto
+{
+private:
+    static int   s_nCount;   // Instance count, should never exceed 1.
+protected:
+    OTCrypto();
+    
+    virtual void Init_Override();     
+    virtual void Cleanup_Override();
+public:
+    virtual ~OTCrypto();
+    
+    static OTCrypto * It();
+    
+    void Init();     
+    void Cleanup();    
+};
+
+// ------------------------------------------------------------------------
+
+// Someday: OTCrypto_GPG    }:-)
+
+class OTCrypto_OpenSSL : public OTCrypto
+{
+    friend class OTCrypto;
+    
+protected:
+    OTCrypto_OpenSSL();
+    
+    virtual void Init_Override();     
+    virtual void Cleanup_Override();
+
+public:
+    static tthread::mutex * s_arrayMutex;
+
+    void thread_setup();
+    void thread_cleanup();
+    
+    virtual ~OTCrypto_OpenSSL();
+};
+
+// ------------------------------------------------------------------------
 
 /*
  int PKCS5_PBKDF2_HMAC_SHA1	(
@@ -187,14 +248,6 @@ class OTPassword;
 
 // ----------------------------
 
-// TinyThread++
-//
-#include "tinythread.h"
-//#include "fast_mutex.h" // Not using this currently.
-
-//using namespace tthread; // in the C++ file
-
-// ----------------------------
 // OTMasterKey
 // This class handles the functionality of caching the master key for X seconds
 // as an OTPassword, and then deleting it. It also caches the encrypted version

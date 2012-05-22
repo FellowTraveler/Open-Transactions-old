@@ -251,6 +251,8 @@ void OTClient::ProcessMessageOut(OTMessage & theMessage)
     }
     // ----------------------------------------
     
+    OT_ASSERT_MSG(NULL != m_pConnection, "OTClient::ProcessMessageOut: ASSERT: NULL != m_pConnection\n");
+    
 	m_pConnection->ProcessMessageOut(theMessage);  // <===========
 
 //	OTLog::Error("OTClient::ProcessMessageOut: FINISHED.\n");
@@ -261,6 +263,8 @@ void OTClient::ProcessMessageOut(OTMessage & theMessage)
 
 bool OTClient::ProcessInBuffer(OTMessage & theServerReply)
 {
+    OT_ASSERT_MSG(NULL != m_pConnection, "OTClient::ProcessInBuffer: ASSERT: NULL != m_pConnection\n");
+    
 	return m_pConnection->ProcessInBuffer(theServerReply);
 }
 
@@ -2159,6 +2163,8 @@ void OTClient::ProcessWithdrawalResponse(OTTransaction & theTransaction, OTServe
 ///
 bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NULL*/) // IF the Nymbox is passed in, then use that one, where appropriate, instead of loading it internally.
 {
+    OT_ASSERT(NULL != m_pConnection);
+    
 	OTServerConnection & theConnection = (*m_pConnection);
 	
 	OTIdentifier ACCOUNT_ID(theReply.m_strAcctID), SERVER_ID;
@@ -9395,7 +9401,10 @@ bool OTClient::ConnectToTheFirstServerOnList(OTPseudonym & theNym,
 		OTServerContract *	pServer = m_pWallet->GetServerContract(SERVER_ID);
 		
 		if (NULL != pServer)
+        {
+            OT_ASSERT(NULL != m_pConnection);
 			return m_pConnection->Connect(theNym, *pServer, strCA_FILE, strKEY_FILE, strKEY_PASSWORD);
+        }
 	}
 	
 	return false;
@@ -9407,7 +9416,8 @@ bool OTClient::ConnectToTheFirstServerOnList(OTPseudonym & theNym,
 bool OTClient::SetFocusToServerAndNym(OTServerContract & theServerContract, OTPseudonym & theNym, OT_CALLBACK_MSG pCallback)
 {
 	OT_ASSERT(NULL != pCallback);
-	
+	OT_ASSERT(NULL != m_pConnection);
+    
 	return m_pConnection->SetFocus(theNym, theServerContract, pCallback);
 }
 
@@ -9422,7 +9432,10 @@ bool OTClient::InitClient(OTWallet & theWallet)
 	// already done
     //
 	if (m_bInitialized)
+    {
+        OTLog::vOutput(1, "OTClient::InitClient: Already initialized. (Returning true.)\n");
 		return false;
+    }
 	// -----------------------
     
 	m_bInitialized	= true;
@@ -9436,21 +9449,6 @@ bool OTClient::InitClient(OTWallet & theWallet)
 	// BUT warning: don't load any private keys until this happens, or that won't work.
 //	SSL_library_init();
 //	SSL_load_error_strings();   // UPDATE: Moved to OTLog::OT_Init();
-    
-    
-    
-    
-	m_pConnection	= new OTServerConnection(theWallet, *this);
-	m_pWallet		= &theWallet;
-
-    
-    
-	// openssl initialization
-    // UPDATE: Moved to OTLog::OT_Init()
-    //
-//	ERR_load_crypto_strings();  // Todo deal with error logging mechanism later.
-//	OpenSSL_add_all_algorithms();  
-
     
     
     
@@ -9478,11 +9476,23 @@ bool OTClient::InitClient(OTWallet & theWallet)
 	
 	// This bottom group of storage locations is server-only
 	//
-//	OTLog::ConfirmOrCreateFolder(OTLog::UserAcctFolder());
-//	OTLog::ConfirmOrCreateFolder(OTLog::CronFolder());
-//	OTLog::ConfirmOrCreateFolder(OTLog::SpentFolder());	
+    //	OTLog::ConfirmOrCreateFolder(OTLog::UserAcctFolder());
+    //	OTLog::ConfirmOrCreateFolder(OTLog::CronFolder());
+    //	OTLog::ConfirmOrCreateFolder(OTLog::SpentFolder());	
 	// -------------------------------------------------------
 
+    
+    
+	m_pConnection	= new OTServerConnection(theWallet, *this);
+	m_pWallet		= &theWallet;
+
+    
+    
+	// openssl initialization
+    // UPDATE: Moved to OTLog::OT_Init()
+    //
+//	ERR_load_crypto_strings();  // Todo deal with error logging mechanism later.
+//	OpenSSL_add_all_algorithms();  
 	
 	return true;
 }

@@ -2726,6 +2726,7 @@ namespace OTDB
 						  szFolderName);
 			return false;
 		}
+        OTString strFolderName(szFolderName);
 		// ---------------------------------------------
 		// DIRECTORY IS PRESENT?
 		struct stat st;
@@ -2734,7 +2735,11 @@ namespace OTDB
 			pst = &st;
 		
 		OTString strPath;
-		strPath.Format("%s%s%s", GetFullPath(), PathSeparator(), szFolderName);
+        
+        if (strFolderName.Compare("."))
+            strPath.Format("%s", GetFullPath());
+        else
+            strPath.Format("%s%s%s", GetFullPath(), PathSeparator(), szFolderName);
 		
 		OTString strPATH_OUTPUT;
         OTLog::TransformFilePath(strPath.Get(), strPATH_OUTPUT);
@@ -2824,10 +2829,17 @@ namespace OTDB
 	 1 -- File found.
 	 
 	 */
-	long StorageFS::ConstructAndConfirmPath(std::string & strOutput, 
-											const std::string& strFolder, const std::string& oneStr/*=""*/,  
-											const std::string& twoStr/*=""*/,  const std::string& threeStr/*=""*/)
+	long StorageFS::ConstructAndConfirmPath(      std::string & strOutput, 
+											const std::string & strFolder,      const std::string & oneStr/*=""*/,  
+											const std::string & twoStr/*=""*/,  const std::string & threeStr/*=""*/)
 	{
+        
+        
+//        OTLog::vOutput(1, "StorageFS::ConstructAndConfirmPath:\n strFolder: %s\n oneStr: %s\n twoStr: %s\n threeStr: %s\n",
+//                      strFolder.c_str(), oneStr.c_str(), twoStr.c_str(), threeStr.c_str());
+        
+//      OT_ASSERT_MSG(!(strFolder.compare(".") == 0), "StorageFS::ConstructAndConfirmPath: !(strFolder.compare(\".\") == 0)\n");
+        
 		struct stat st;
 		
 		if (m_strFullPath.size() < 1)

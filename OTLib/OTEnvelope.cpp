@@ -135,17 +135,34 @@
 #include <algorithm>
 
 extern "C"
-{	
+{
+// -----------------------
+#include <openssl/crypto.h>
 #include <openssl/evp.h>
 #include <openssl/pem.h>
 #include <openssl/rsa.h>
 #include <openssl/err.h>
 #include <openssl/rand.h>
+#include <openssl/ssl.h>
+#include <openssl/conf.h>
+ 
+#ifndef OPENSSL_THREAD_DEFINES
+#define OPENSSL_THREAD_DEFINES
+#include <openssl/opensslconf.h>
+#endif
     
+#include <openssl/opensslv.h>
+// -----------------------
+
 #ifdef _WIN32
 #include <WinSock.h>
+#include <sys/timeb.h>
 #else
-#include <arpa/inet.h> /* For htonl() */
+#include <arpa/inet.h>          // For htonl()
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/time.h>           // 
+#include <sys/resource.h>
 #endif
 }
 
@@ -153,7 +170,7 @@ extern "C"
 
 // TinyThread++
 //
-#include "tinythread.h"   // these are in the header.
+#include "tinythread.h"   // These are in the header already.
 //#include "fast_mutex.h"
 
 using namespace tthread;
@@ -168,6 +185,816 @@ using namespace tthread;
 #include "OTPseudonym.h"
 #include "OTEnvelope.h"
 #include "OTLog.h"
+
+// ------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ------------------------------------------------------------------------
+
+// class OTCrypto
+//
+// To someday get us to the point where we can easily swap crypto libs.
+// For now, just for static init / cleanup functions we can call from 
+// OTLog Init/Cleanup, and move the more "crypto" related stuff to this file.
+//
+
+//static
+int OTCrypto::s_nCount = 0;   // Instance count, should never exceed 1. (At this point, anyway.)
+
+
+// -----------------------------
+
+
+OTCrypto::OTCrypto()
+{
+    
+}
+
+OTCrypto::~OTCrypto()
+{
+    
+}
+    
+// -----------------------------
+
+//static
+OTCrypto * OTCrypto::It()
+{
+    // Todo: someday, swapping the crypto lib should be as easy as changing this
+    // compile flag to OT_CRYPTO_USING_GPG. We'll get there.
+    //
+static
+#ifdef OT_CRYPTO_USING_OPENSSL
+    OTCrypto_OpenSSL
+#endif
+    s_theSingleton;    // For now we're only allowing a single instance.
+    
+    return &s_theSingleton;
+}
+
+// -----------------------------
+
+// Currently called by OTLog::OT_Init();
+
+void OTCrypto::Init()
+{
+    // This is only supposed to happen once per run.
+    //
+    if (0 == OTCrypto::s_nCount)
+    {
+        ++(OTCrypto::s_nCount);        
+        // -----------------------------
+        
+        OTLog::Output(1, "OT_Init: Setting up rlimits, and crypto library...\n");
+
+        // Here is a security measure intended to make it more difficult to capture a core
+        // dump. (Not used in debug mode, obviously.)
+        //
+#if !defined(PREDEF_MODE_DEBUG) && defined(PREDEF_PLATFORM_UNIX)
+        struct rlimit rlim;
+        getrlimit(RLIMIT_CORE, &rlim);
+        rlim.rlim_max = rlim.rlim_cur = 0;
+        if (setrlimit(RLIMIT_CORE, &rlim))
+        {
+            OT_ASSERT_MSG(false, "OTCrypto::Init: ASSERT: setrlimit failed. (Used for preventing core dumps.)\n");
+        }
+#endif
+        
+        // -----------------------------
+        this->Init_Override();
+    }
+    else
+        OTLog::Error("OTCrypto::Init: ERROR: Somehow this erroneously got called more than once! (Doing nothing.)\n");
+}
+// -----------------------------
+
+// Currently called by OTLog::OT_Cleanup();
+
+void OTCrypto::Cleanup()
+{
+    // This is only supposed to happen once per run.
+    //
+    if (1 == OTCrypto::s_nCount)
+    {
+        --(OTCrypto::s_nCount);
+        // -----------------------------
+        
+        // Any crypto-related cleanup code NOT specific to OpenSSL (which is
+        // handled in OTCrypto_OpenSSL, a subclass) would go here. 
+        //
+        
+        // -----------------------------
+        this->Cleanup_Override();
+    }
+    else
+        OTLog::Error("OTCrypto::Cleanup: ERROR: Somehow this erroneously got called more than once! (Doing nothing.)\n");
+}
+
+// -----------------------------
+
+//virtual (Should never get called.)
+void OTCrypto::Init_Override()
+{
+    OTLog::Error("OTCrypto::Init_Override: ERROR: This function should NEVER be called (you should be overriding it...)\n");
+}
+
+// -----------------------------
+
+//virtual (Should never get called.)
+void OTCrypto::Cleanup_Override()
+{
+    OTLog::Error("OTCrypto::Cleanup_Override: ERROR: This function should NEVER be called (you should be overriding it...)\n");
+}
+
+
+// ********************************************************************************
+
+
+// Someday: OTCryptoGPG    }:-)
+//
+OTCrypto_OpenSSL::OTCrypto_OpenSSL() : OTCrypto()
+{
+    
+}
+
+OTCrypto_OpenSSL::~OTCrypto_OpenSSL()
+{
+    
+}
+
+// -----------------------------
+
+/*
+ #include <openssl/ssl.h>
+ void SSL_load_error_strings(void);
+ 
+ #include <openssl/err.h>
+ void ERR_free_strings(void);
+ //void ERR_load_crypto_strings(void);
+ 
+ 
+ #include <openssl/ssl.h>
+ int SSL_library_init(void);
+ //#define OpenSSL_add_ssl_algorithms()    SSL_library_init()
+ //#define SSLeay_add_ssl_algorithms()     SSL_library_init()
+ 
+ 
+ #include <openssl/evp.h>
+ void OpenSSL_add_all_algorithms(void);
+ //void OpenSSL_add_all_ciphers(void);
+ //void OpenSSL_add_all_digests(void);
+ void EVP_cleanup(void);
+ 
+ 
+ #include <openssl/conf.h>
+ void OPENSSL_config(const char *config_name);
+ //void OPENSSL_no_config(void);
+ //Applications should free up configuration at application closedown by calling CONF_modules_free().
+ 
+ #include <openssl/conf.h>
+ void CONF_modules_free(void);
+ //void CONF_modules_finish(void);
+ //void CONF_modules_unload(int all);
+ */
+
+// *********************************************************************************
+
+
+/*
+#include <openssl/crypto.h>
+
+/ Don't use this structure directly.
+typedef struct crypto_threadid_st
+        {
+        void *ptr;
+        unsigned long val;
+        } CRYPTO_THREADID;
+ 
+// Only use CRYPTO_THREADID_set_[numeric|pointer]() within callbacks
+void CRYPTO_THREADID_set_numeric(CRYPTO_THREADID *id, unsigned long val);
+void CRYPTO_THREADID_set_pointer(CRYPTO_THREADID *id, void *ptr);
+ 
+int CRYPTO_THREADID_set_callback(void (*threadid_func)(CRYPTO_THREADID *));
+
+void (*CRYPTO_THREADID_get_callback(void))(CRYPTO_THREADID *);
+ 
+void CRYPTO_THREADID_current(CRYPTO_THREADID *id);
+ 
+int CRYPTO_THREADID_cmp(const CRYPTO_THREADID *a,
+                        const CRYPTO_THREADID *b);
+void CRYPTO_THREADID_cpy(CRYPTO_THREADID *dest,
+                         const CRYPTO_THREADID *src);
+
+ unsigned long CRYPTO_THREADID_hash(const CRYPTO_THREADID *id);
+
+int CRYPTO_num_locks(void);
+
+ Description
+ 
+ 
+ OpenSSL can safely be used in multi-threaded applications provided that at least two callback functions are set, 
+ locking_function and threadid_func.
+ 
+ locking_function(int mode, int n, const char *file, int line) is needed to perform locking on shared data structures. 
+ (Note that OpenSSL uses a number of global data structures that will be implicitly shared whenever multiple threads 
+ use OpenSSL.) Multi-threaded applications will crash at random if it is not set.
+ 
+ locking_function() must be able to handle up to CRYPTO_num_locks() different mutex locks. It sets the n-th lock if 
+ mode & CRYPTO_LOCK , and releases it otherwise.
+ 
+ file and line are the file number of the function setting the lock. They can be useful for debugging.
+ 
+ threadid_func( CRYPTO_THREADID *id) is needed to record the currently-executing thread's identifier into id. The
+ implementation of this callback should not fill in id directly, but should use CRYPTO_THREADID_set_numeric() if 
+ thread IDs are numeric, or CRYPTO_THREADID_set_pointer() if they are pointer-based. If the application does not 
+ register such a callback using CRYPTO_THREADID_set_callback(), then a default implementation is used - on Windows 
+ and BeOS this uses the system's default thread identifying APIs, and on all other platforms it uses the address 
+ of errno. The latter is satisfactory for thread-safety if and only if the platform has a thread-local error number
+ facility.
+ */
+
+
+/*
+ 
+// struct CRYPTO_dynlock_value needs to be defined by the user
+struct CRYPTO_dynlock_value;
+
+void CRYPTO_set_dynlock_create_callback(struct CRYPTO_dynlock_value *
+       (*dyn_create_function)(char *file, int line));
+void CRYPTO_set_dynlock_lock_callback(void (*dyn_lock_function)
+       (int mode, struct CRYPTO_dynlock_value *l,
+       const char *file, int line));
+void CRYPTO_set_dynlock_destroy_callback(void (*dyn_destroy_function)
+       (struct CRYPTO_dynlock_value *l, const char *file, int line));
+
+int CRYPTO_get_new_dynlockid(void);
+
+void CRYPTO_destroy_dynlockid(int i);
+
+void CRYPTO_lock(int mode, int n, const char *file, int line);
+
+#define CRYPTO_w_lock(type)    \
+       CRYPTO_lock(CRYPTO_LOCK|CRYPTO_WRITE,type,__FILE__,__LINE__)
+#define CRYPTO_w_unlock(type)  \
+       CRYPTO_lock(CRYPTO_UNLOCK|CRYPTO_WRITE,type,__FILE__,__LINE__)
+#define CRYPTO_r_lock(type)    \
+       CRYPTO_lock(CRYPTO_LOCK|CRYPTO_READ,type,__FILE__,__LINE__)
+#define CRYPTO_r_unlock(type)  \
+       CRYPTO_lock(CRYPTO_UNLOCK|CRYPTO_READ,type,__FILE__,__LINE__)
+#define CRYPTO_add(addr,amount,type)   \
+       CRYPTO_add_lock(addr,amount,type,__FILE__,__LINE__)
+ 
+ */
+
+
+tthread::mutex * OTCrypto_OpenSSL::s_arrayMutex = NULL;
+
+
+// *********************************************************************************
+
+extern "C"
+{    
+#if OPENSSL_VERSION_NUMBER-0 < 0x10000000L
+    unsigned
+    long  ot_openssl_thread_id(void);
+#else
+    void  ot_openssl_thread_id(CRYPTO_THREADID *);
+#endif
+    // ---------------------------------
+    void  ot_openssl_locking_callback( int mode, int type, char *file, int line);
+}
+
+
+// done
+/*
+ threadid_func( CRYPTO_THREADID *id) is needed to record the currently-executing thread's identifier into id. 
+ The implementation of this callback should not fill in id directly, but should use CRYPTO_THREADID_set_numeric() 
+ if thread IDs are numeric, or CRYPTO_THREADID_set_pointer() if they are pointer-based. If the application does 
+ not register such a callback using CRYPTO_THREADID_set_callback(), then a default implementation is used - on 
+ Windows and BeOS this uses the system's default thread identifying APIs, and on all other platforms it uses the 
+ address of errno. The latter is satisfactory for thread-safety if and only if the platform has a thread-local
+ error number facility.
+ 
+ */
+
+// *********************************************************************************
+
+#if OPENSSL_VERSION_NUMBER-0 < 0x10000000L
+unsigned long ot_openssl_thread_id()
+{
+	unsigned long ret = this_thread::get_raw_id();
+    
+	return (ret);
+}
+
+#else
+void ot_openssl_thread_id(CRYPTO_THREADID * id)
+{
+    OT_ASSERT(NULL != id);
+    
+    // TODO: Possibly do this by pointer instead of by unsigned long,
+    // for certain platforms. (OpenSSL provides functions for both.)
+    //
+    
+    unsigned long val = this_thread::get_raw_id();
+
+//    void CRYPTO_THREADID_set_numeric(CRYPTO_THREADID *id, unsigned long val);
+//    void CRYPTO_THREADID_set_pointer(CRYPTO_THREADID *id, void *ptr);
+    
+           CRYPTO_THREADID_set_numeric(id, val);
+}
+#endif
+
+// *********************************************************************************
+
+
+/*
+ locking_function(int mode, int n, const char *file, int line) is needed to perform locking on
+ shared data structures. (Note that OpenSSL uses a number of global data structures that will
+ be implicitly shared whenever multiple threads use OpenSSL.) Multi-threaded applications will
+ crash at random if it is not set.
+ 
+ locking_function() must be able to handle up to CRYPTO_num_locks() different mutex locks. It
+ sets the n-th lock if mode & CRYPTO_LOCK , and releases it otherwise.
+ 
+ file and line are the file number of the function setting the lock. They can be useful for
+ debugging.
+ */
+
+void ot_openssl_locking_callback(int mode, int type, const char *file, int line)
+{
+	if (mode & CRYPTO_LOCK)
+    {
+		OTCrypto_OpenSSL::s_arrayMutex[type].lock();
+    }
+	else
+    {
+		OTCrypto_OpenSSL::s_arrayMutex[type].unlock();
+    }
+}
+
+// *********************************************************************************
+
+
+// done
+
+void OTCrypto_OpenSSL::thread_setup()
+{
+    OTCrypto_OpenSSL::s_arrayMutex = new tthread::mutex[CRYPTO_num_locks()];
+    
+    // ---------------------------------------
+    
+    // NOTE: OpenSSL supposedly has some default implementation for the thread_id, 
+    // so we're going to NOT set that callback here, and see what happens.
+    //
+    // UPDATE: Looks like this works "if and only if the local system provides errno"
+    // and since I already have a supposedly-reliable ID from tinythread++, I'm going
+    // to just use that one for now and see how it works.
+    //
+#if OPENSSL_VERSION_NUMBER-0 < 0x10000000L    
+    CRYPTO_set_id_callback       (ot_openssl_thread_id);
+#else
+    int nResult = 
+    CRYPTO_THREADID_set_callback (ot_openssl_thread_id);
+#endif
+    // ---------------------------------------
+    
+    // Here we set the locking callback function, which is the same for all versions
+    // of OpenSSL. (Unlike thread_id function above.)
+    //
+	CRYPTO_set_locking_callback (ot_openssl_locking_callback);
+
+}
+// *********************************************************************************
+
+// done
+
+void OTCrypto_OpenSSL::thread_cleanup()
+{
+	CRYPTO_set_locking_callback(NULL);
+    
+    if (NULL != OTCrypto_OpenSSL::s_arrayMutex)
+    {
+        delete [] OTCrypto_OpenSSL::s_arrayMutex;
+    }
+
+    OTCrypto_OpenSSL::s_arrayMutex = NULL;
+}
+
+
+// *********************************************************************************
+
+
+void OTCrypto_OpenSSL::Init_Override()
+{
+    const char * szFunc = "OTCrypto_OpenSSL::Init_Override";
+    
+    OTLog::vOutput(1, "%s: Setting up OpenSSL:  SSL_library_init, error strings and algorithms, and OpenSSL config...\n", 
+                   szFunc);
+
+    /*
+     OPENSSL_VERSION_NUMBER is a numeric release version identifier:
+     
+     MMNNFFPPS: major minor fix patch status
+     The status nibble has one of the values 0 for development, 1 to e for betas 1 to 14, and f for release.
+     
+     for example
+     
+     0x000906000 == 0.9.6 dev
+     0x000906023 == 0.9.6b beta 3
+     0x00090605f == 0.9.6e release
+     Versions prior to 0.9.3 have identifiers < 0x0930. Versions between 0.9.3 and 0.9.5 had a version identifier with this interpretation:
+     
+     MMNNFFRBB major minor fix final beta/patch
+     for example
+     
+     0x000904100 == 0.9.4 release
+     0x000905000 == 0.9.5 dev
+     Version 0.9.5a had an interim interpretation that is like the current one, except the patch level got the highest bit set, to keep continuity. The number was therefore 0x0090581f.
+     
+     For backward compatibility, SSLEAY_VERSION_NUMBER is also defined.
+     
+     */
+#if !defined(OPENSSL_VERSION_NUMBER) || OPENSSL_VERSION_NUMBER-0 < 0x10000000L    
+    OT_ASSERT_MSG(false, "ASSERT: Must use OpenSSL version 1.0.0 or higher.\n");
+#endif
+
+    
+    // *********************************************************************************
+    /* Todo FYI:
+     - One final comment about compiling applications linked to the OpenSSL library.
+     - If you don't use the multithreaded DLL runtime library (/MD option) your
+     - program will almost certainly crash because malloc gets confused -- the
+     - OpenSSL DLLs are statically linked to one version, the application must
+     - not use a different one.  You might be able to work around such problems
+     - by adding CRYPTO_malloc_init() to your program before any calls to the
+     - OpenSSL libraries: This tells the OpenSSL libraries to use the same
+     - malloc(), free() and realloc() as the application.  However there are many
+     - standard library functions used by OpenSSL that call malloc() internally
+     - (e.g. fopen()), and OpenSSL cannot change these; so in general you cannot
+     - rely on CRYPTO_malloc_init() solving your problem, and you should
+     - consistently use the multithreaded library.
+     */
+#ifdef _WIN32
+    CRYPTO_malloc_init();                           //      # -1
+    // FYI: this call appeared in the client version, not the server version.
+    // but now it will obviously appear in both, since they both will just call this (OT_Init.)
+    // Therefore if any weird errors crop in the server, just be aware. This call might have been
+    // specifically for DLLs or something.
+#endif
+    // *********************************************************************************
+    // SSL_library_init() must be called before any other action takes place.
+    // SSL_library_init() is not reentrant.
+    //
+    SSL_library_init();                               //     #0
+    
+    // *********************************************************************************
+    
+    /*
+     We all owe a debt of gratitude to the OpenSSL team but fuck is their documentation
+     difficult!! In this case I am trying to figure out whether I should call SSL_library_init()
+     first, or SSL_load_error_strings() first.
+     Docs say:
+     
+     EXAMPLES   (http://www.openssl.org/docs/ssl/SSL_library_init.html#)
+     
+     A typical TLS/SSL application will start with the library initialization, 
+     and provide readable error messages.
+     
+     SSL_load_error_strings();               // readable error messages
+     SSL_library_init();                      // initialize library
+     -----------
+     ===> NOTICE it said "START" with library initialization, "AND" provide
+     readable error messages... But then what order does it PUT them in?
+     
+     SSL_load_error_strings();        // readable error messages
+     SSL_library_init();              // initialize library
+     -------
+     
+     ON THE SAME PAGE, as if things weren't confusing enough, see THIS:
+     
+     NOTES
+     SSL_library_init() must be called before any other action takes place.
+     SSL_library_init() is not reentrant.
+     -------------------
+     Then, on http://www.openssl.org/docs/crypto/ERR_load_crypto_strings.html#, in
+     reference to SSL_load_error_strings and ERR_load_crypto_strings, it says:
+     
+     One of these functions should be called BEFORE generating textual error messages.
+     
+     ====>  ?? Huh?? So which should I call first? Ben Laurie, if you are ever googling your
+     own name on the Internet, please drop me a line and lemme know:
+     fellowtraveler around rayservers cough net
+     */
+    // ---------------------------------------------
+    
+    // NOTE: the below sections are numbered #1, #2, #3, etc so that they can be UNROLLED
+    // IN THE OPPOSITE ORDER when we get to OT_Cleanup().
+    
+    // *********************************************************************************
+    /*
+     - ERR_load_crypto_strings() registers the error strings for all libcrypto functions.
+     - SSL_load_error_strings() does the same, but also registers the libssl error strings.
+     One of these functions should be called before generating textual error messages.
+     - ERR_free_strings() frees all previously loaded error strings.
+     */
+    
+    SSL_load_error_strings();    // DONE -- corresponds to ERR_free_strings in OT_Cleanup()   #1
+    
+//  ERR_load_crypto_strings();   // Redundant -- SSL_load_error_strings does this already.
+    // *********************************************************************************
+    //
+    /*
+     OpenSSL keeps an internal table of digest algorithms and ciphers. 
+     It uses this table to lookup ciphers via functions such as EVP_get_cipher_byname().
+     
+     OpenSSL_add_all_algorithms() adds all algorithms to the table (digests and ciphers).
+     
+     OpenSSL_add_all_digests() adds all digest algorithms to the table.
+     OpenSSL_add_all_ciphers() adds all encryption algorithms to the table including password based encryption algorithms.
+     // ---------------------
+     TODO optimization:
+     Calling OpenSSL_add_all_algorithms() links in all algorithms: as a result a statically linked executable
+     can be quite large. If this is important it is possible to just add the required ciphers and digests.
+     -- Thought: I will probably have different optimization options. Some things will be done no matter what, but
+     other things will be compile-flags for optimizing specifically for speed, or size, or use of RAM, or CPU cycles,
+     or security options, etc. This is one example of something where I would optimize it out, if possible, when trying
+     to conserve RAM.
+     Note: However it seems from the docs, that this table needs to be populated anyway due to problems in
+     OpenSSL when it's not.
+     */
+    
+    /*
+    Try to activate OpenSSL debug memory procedure:
+        BIO *pbio - BIO_new(BIO_s_file());
+        BIO_set_fp(out,stdout,BIO_NOCLOSE);
+        CRYPTO_malloc_debug_init();
+        MemCheck_start();
+        MemCheck_on();
+    
+        .
+        .
+        .
+        MemCheck_off()
+        MemCheck_stop()
+        CRYPTO_mem_leaks(pbio);
+    
+     This will print out to stdout all memory that has been not deallocated.
+     
+     Put starting part before everything ( even before OpenSSL_add_all_algorithms() call) 
+     this way you will see everything.
+     
+     */
+    
+    
+    OpenSSL_add_all_algorithms();   // DONE -- corresponds to EVP_cleanup() in OT_Cleanup().    #2
+    
+    //
+    // *********************************************************************************
+    //
+    // RAND
+    //
+    /*
+     RAND_bytes() automatically calls RAND_poll() if it has not already been done at least once.
+     So you do not have to call it yourself. RAND_poll() feeds on what the operating system provides: 
+     on Linux, Solaris, FreeBSD and similar Unix-like systems, it will use /dev/urandom (or /dev/random 
+     if there is no /dev/urandom) to obtain a cryptographically secure initial seed; on Windows, it will
+     call CryptGenRandom() for the same effect.
+     
+     RAND_screen() is provided by OpenSSL only for backward compatibility with (much) older code which
+     may call it (that was before OpenSSL used proper OS-based seed initialization).
+     
+     So the "normal" way of dealing with RAND_poll() and RAND_screen() is to call neither. Just use RAND_bytes() 
+     and be happy.
+     
+     RESPONSE: Thanks for the detailed answer. In regards to your suggestion to call neither, the problem
+     under Windows is that RAND_poll can take some time and will block our UI. So we call it upon initialization,
+     which works for us. 
+     */
+    // I guess Windows will seed the PRNG whenever someone tries to get
+    // some RAND_bytes() the first time...
+    //
+    //#ifdef _WIN32
+    // CORRESPONDS to RAND_cleanup in OT_Cleanup().
+    //      RAND_screen();
+    //#else
+    // note: optimization: might want to remove this, since supposedly it happens anyway
+    // when you use RAND_bytes. So the "lazy evaluation" rule would seem to imply, not bothering
+    // to slow things down NOW, since it's not really needed until THEN.
+    //
+    
+#if defined(USE_RAND_POLL)
+    
+    RAND_poll();                                //                                   #3
+    
+#endif
+    
+    // *********************************************************************************
+    
+    // OPENSSL_config()                                             #4
+    //
+    // OPENSSL_config configures OpenSSL using the standard openssl.cnf configuration file name 
+    // using config_name. If config_name is NULL then the default name openssl_conf will be used. 
+    // Any errors are ignored. Further calls to OPENSSL_config() will have no effect. The configuration
+    // file format is documented in the conf(5) manual page.
+    //
+    
+    OPENSSL_config(NULL); // const char *config_name = NULL: the default name openssl_conf will be used.
+    
+    //
+    // Corresponds to CONF_modules_free() in OT_Cleanup().
+    //
+    // *********************************************************************************
+    
+    
+    
+    // *********************************************************************************
+    //
+    // Let's see 'em!
+    //
+    ERR_print_errors_fp(stderr);
+    //
+    // *********************************************************************************
+    //
+    //
+    // THREADS
+    //
+    //
+// -------------------------------------------------
+#if defined(OPENSSL_THREADS)
+    // thread support enabled
+    
+    OTLog::vOutput(1, "%s: OpenSSL WAS compiled with thread support, FYI. Setting up mutexes...\n",
+                   szFunc);
+    
+    this->thread_setup();
+    
+#else
+    // no thread support
+    
+    OTLog::vError("%s: WARNING: OpenSSL was NOT compiled with thread support. "
+                 "(Also: Master Key will not expire.)\n", szFunc);
+    
+#endif
+// -------------------------------------------------
+    
+
+    
+}
+
+
+
+
+//
+// *********************************************************************************
+
+
+
+
+// RAND_status() and RAND_event() return 1 if the PRNG has been seeded with enough data, 0 otherwise.
+
+
+/*
+ 13. I think I've detected a memory leak, is this a bug?
+ 
+ In most cases the cause of an apparent memory leak is an OpenSSL internal
+ table that is allocated when an application starts up. Since such tables do
+ not grow in size over time they are harmless.
+ 
+ These internal tables can be freed up when an application closes using
+ various functions. Currently these include following:
+ 
+ Thread-local cleanup functions:
+ 
+ ERR_remove_state()
+ 
+ Application-global cleanup functions that are aware of usage (and therefore thread-safe):
+ 
+ ENGINE_cleanup() and CONF_modules_unload()
+ 
+ "Brutal" (thread-unsafe) Application-global cleanup functions:
+ 
+ ERR_free_strings(), EVP_cleanup() and CRYPTO_cleanup_all_ex_data().
+ */
+
+//
+// *********************************************************************************
+
+
+
+
+void OTCrypto_OpenSSL::Cleanup_Override()
+{
+    const char * szFunc = "OTCrypto_OpenSSL::Cleanup_Override";
+    
+    OTLog::vOutput(1, "%s: Cleaning up OpenSSL...\n", szFunc);
+
+// In the future if we start using ENGINEs, then do the cleanup here:
+//#ifndef OPENSSL_NO_ENGINE
+//  void ENGINE_cleanup(void);
+//#endif
+//
+    
+// -------------------------------------------------
+#if defined(OPENSSL_THREADS)
+    // thread support enabled
+    
+    this->thread_cleanup();
+    
+#else
+    // no thread support
+    
+    
+#endif
+// -------------------------------------------------
+    
+
+    /*
+     CONF_modules_free()
+     
+     OpenSSL configuration cleanup function. CONF_modules_free() closes down and frees
+     up all memory allocated by all configuration modules.
+     Normally applications will only call CONF_modules_free() at application [shutdown]
+     to tidy up any configuration performed.
+     */
+    CONF_modules_free(); // CORRESPONDS to: OPENSSL_config() in OT_Init().   #4
+    
+    RAND_cleanup();      // Corresponds to RAND_screen / RAND_poll in OT_Init()  #3
+    
+	EVP_cleanup();       // DONE (brutal) -- corresponds to OpenSSL_add_all_algorithms in OT_Init(). #2
+    // -------------------------------------------------
+    
+    CRYPTO_cleanup_all_ex_data(); // (brutal)
+//	CRYPTO_mem_leaks(bio_err);
+    
+    // -------------------------------------------------
+    
+	ERR_free_strings(); // DONE (brutal) -- corresponds to SSL_load_error_strings in OT_Init().  #1
+	
+    // ----------------------------------
+    // ERR_remove_state - free a thread's error queue "prevents memory leaks..."
+    //
+    // ERR_remove_state() frees the error queue associated with thread pid. If pid == 0, 
+    // the current thread will have its error queue removed.
+    //
+    // Since error queue data structures are allocated automatically for new threads,
+    // they must be freed when threads are terminated in order to avoid memory leaks.
+    //
+//  ERR_remove_state(0);
+    ERR_remove_thread_state(NULL);
+    
+    /*
+    +     Note that ERR_remove_state() is now deprecated, because it is tied
+    +     to the assumption that thread IDs are numeric.  ERR_remove_state(0)
+    +     to free the current thread's error state should be replaced by
+    +     ERR_remove_thread_state(NULL).
+    */
+
+    
+    // NOTE: You must call SSL_shutdown() before you call SSL_free().
+    // Update: these are for SSL sockets, they must be called per socket.
+    // (IOW: Not needed here for app cleanup.)
+}
+
+
+
+
+// *********************************************************************************
+
+
+
+
+
+
+
+
+// ------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+// ------------------------------------------------------------------------
+
+
+
+
+
 
 
 

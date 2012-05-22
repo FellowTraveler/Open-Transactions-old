@@ -985,8 +985,9 @@ void RegisterAPIWithScript(OTScript & theScript)
 	OTScriptChai * pScript = dynamic_cast<OTScriptChai *> (&theScript);
 
 	if (NULL != pScript)
-	{
-		pScript->chai.add(fun(&OT_CLI_ReadLine), "OT_CLI_ReadLine");			// String OT_CLI_ReadLine()		// Reads from cin until Newline.
+	{		
+        
+        pScript->chai.add(fun(&OT_CLI_ReadLine), "OT_CLI_ReadLine");			// String OT_CLI_ReadLine()		// Reads from cin until Newline.
 		pScript->chai.add(fun(&OT_CLI_ReadUntilEOF), "OT_CLI_ReadUntilEOF");	// String OT_CLI_ReadUntilEOF()	// Reads from cin until EOF or ~ on a line by itself.
 		// ------------------------------------------------------------------
 		// For command-line option (for SCRIPTS):  ot --script <filename> [--args "key value key value ..."]
@@ -1019,7 +1020,7 @@ void RegisterAPIWithScript(OTScript & theScript)
         pScript->chai.add(fun(&OTAPI_Wrap::GetServer_Name), "OT_API_GetServer_Name");
         pScript->chai.add(fun(&OTAPI_Wrap::GetAssetType_ID), "OT_API_GetAssetType_ID");
         pScript->chai.add(fun(&OTAPI_Wrap::GetAssetType_Name), "OT_API_GetAssetType_Name");
-
+        
 		pScript->chai.add(fun(&OTAPI_Wrap::GetAccountWallet_ID), "OT_API_GetAccountWallet_ID");
 		pScript->chai.add(fun(&OTAPI_Wrap::GetAccountWallet_Name), "OT_API_GetAccountWallet_Name");
 		pScript->chai.add(fun(&OTAPI_Wrap::GetAccountWallet_Balance), "OT_API_GetAccountWallet_Balance");
@@ -1030,7 +1031,7 @@ void RegisterAPIWithScript(OTScript & theScript)
         
 		pScript->chai.add(fun(&OTAPI_Wrap::GetAccountWallet_InboxHash), "OT_API_GetAccountWallet_InboxHash");
 		pScript->chai.add(fun(&OTAPI_Wrap::GetAccountWallet_OutboxHash), "OT_API_GetAccountWallet_OutboxHash");
-
+        
 		pScript->chai.add(fun(&OTAPI_Wrap::VerifyAccountReceipt), "OT_API_VerifyAccountReceipt");
 		pScript->chai.add(fun(&OTAPI_Wrap::GetNym_TransactionNumCount), "OT_API_GetNym_TransactionNumCount");
 		
@@ -1070,7 +1071,7 @@ void RegisterAPIWithScript(OTScript & theScript)
 		pScript->chai.add(fun(&OTAPI_Wrap::Wallet_RemoveNym), "OT_API_Wallet_RemoveNym");
 		pScript->chai.add(fun(&OTAPI_Wrap::Wallet_CanRemoveAccount), "OT_API_Wallet_CanRemoveAccount");
 		pScript->chai.add(fun(&OTAPI_Wrap::Wallet_ImportNym), "OT_API_Wallet_ImportNym");
-
+        
 		pScript->chai.add(fun(&OTAPI_Wrap::SetNym_Name), "OT_API_SetNym_Name");
 		pScript->chai.add(fun(&OTAPI_Wrap::SetAccountWallet_Name), "OT_API_SetAccountWallet_Name");
 		pScript->chai.add(fun(&OTAPI_Wrap::SetAssetType_Name), "OT_API_SetAssetType_Name");
@@ -1079,7 +1080,7 @@ void RegisterAPIWithScript(OTScript & theScript)
 		pScript->chai.add(fun(&OTAPI_Wrap::VerifyAndRetrieveXMLContents), "OT_API_VerifyAndRetrieveXMLContents");
 		pScript->chai.add(fun(&OTAPI_Wrap::WriteCheque), "OT_API_WriteCheque");
 		pScript->chai.add(fun(&OTAPI_Wrap::DiscardCheque), "OT_API_DiscardCheque");
-//		pScript->chai.add(fun(&OTAPI_Wrap::ProposePaymentPlan), "OT_API_ProposePaymentPlan");
+        //		pScript->chai.add(fun(&OTAPI_Wrap::ProposePaymentPlan), "OT_API_ProposePaymentPlan");
 		pScript->chai.add(fun(&OTAPI_Wrap::ConfirmPaymentPlan), "OT_API_ConfirmPaymentPlan");
 		
 		pScript->chai.add(fun(&OTAPI_Wrap::LoadUserPubkey), "OT_API_LoadUserPubkey");
@@ -1116,7 +1117,7 @@ void RegisterAPIWithScript(OTScript & theScript)
 		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetType), "OT_API_Transaction_GetType");
 		
         pScript->chai.add(fun(&OTAPI_Wrap::ReplyNotice_GetRequestNum), "OT_API_ReplyNotice_GetRequestNum");
-
+        
 		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetVoucher), "OT_API_Transaction_GetVoucher");
 		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetSuccess), "OT_API_Transaction_GetSuccess");
 		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetBlnceAgrmntSuccess), "OT_API_Transaction_GetBlnceAgrmntSuccess");
@@ -1216,7 +1217,7 @@ void RegisterAPIWithScript(OTScript & theScript)
 		
 		pScript->chai.add(fun(&OTAPI_Wrap::PopMessageBuffer), "OT_API_PopMessageBuffer");
 		pScript->chai.add(fun(&OTAPI_Wrap::FlushMessageBuffer), "OT_API_FlushMessageBuffer");
-
+        
 		pScript->chai.add(fun(&OTAPI_Wrap::GetSentMessage), "OT_API_GetSentMessage");
 		pScript->chai.add(fun(&OTAPI_Wrap::RemoveSentMessage), "OT_API_RemoveSentMessage");
 		pScript->chai.add(fun(&OTAPI_Wrap::FlushSentMessages), "OT_API_FlushSentMessages");
@@ -1224,11 +1225,11 @@ void RegisterAPIWithScript(OTScript & theScript)
 		pScript->chai.add(fun(&OTAPI_Wrap::HaveAlreadySeenReply), "OT_API_HaveAlreadySeenReply");
         
 		pScript->chai.add(fun(&OTAPI_Wrap::Sleep), "OT_API_Sleep");
-
+        
 		pScript->chai.add(fun(&OTAPI_Wrap::ResyncNymWithServer), "OT_API_ResyncNymWithServer");
 		
 		pScript->chai.add(fun(&OTAPI_Wrap::queryAssetTypes), "OT_API_queryAssetTypes");
-
+        
 		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetPayload), "OT_API_Message_GetPayload");
 		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetCommand), "OT_API_Message_GetCommand");
 		pScript->chai.add(fun(&OTAPI_Wrap::Message_GetSuccess), "OT_API_Message_GetSuccess");
@@ -1252,7 +1253,7 @@ void RegisterAPIWithScript(OTScript & theScript)
 		
 		pScript->chai.add(fun(&OTAPI_Wrap::SmartContract_AddParty), "OT_API_SmartContract_AddParty");
 		pScript->chai.add(fun(&OTAPI_Wrap::SmartContract_AddAccount), "OT_API_SmartContract_AddAccount");
-
+        
 		pScript->chai.add(fun(&OTAPI_Wrap::SmartContract_ConfirmAccount), "OT_API_SmartContract_ConfirmAccount");
 		pScript->chai.add(fun(&OTAPI_Wrap::SmartContract_ConfirmParty), "OT_API_SmartContract_ConfirmParty");
 		
@@ -1265,7 +1266,8 @@ void RegisterAPIWithScript(OTScript & theScript)
 		
 		pScript->chai.add(fun(&OTAPI_Wrap::activateSmartContract), "OT_API_activateSmartContract");
 		pScript->chai.add(fun(&OTAPI_Wrap::triggerClause), "OT_API_triggerClause");
-		
+
+        
 		// ******************************************************************
 		/// ABOVE we added the basic OT API functions, as well as a few extras at the top
 		/// which are only useful in a command-line script (such as for parsing arguments.)
@@ -1330,6 +1332,9 @@ void RegisterAPIWithScript(OTScript & theScript)
 		
 		const std::string str_UseFile1(strUseFile1.Get()), str_UseFile2(strUseFile2.Get()), str_UseFile3(strUseFile3.Get());
 
+        OTLog::vOutput(0, "RegisterAPIWithScript: About to try to import script headers:\n   1: %s\n   2: %s\n   3: %s\n",
+                       strUseFile1.Get(), strUseFile2.Get(), strUseFile3.Get());
+        
 		const char * psErr	= "RegisterAPIWithScript: ERROR: Failed trying to include script header:  %s (Does it exist?)\n";
 		// todo fix hardcoding of folder names (below)
 		// --------------------------------
@@ -1347,7 +1352,9 @@ void RegisterAPIWithScript(OTScript & theScript)
 			pScript->chai.use(str_UseFile3);
 		else
 			OTLog::vError(psErr, str_UseFile3.c_str());
-		// -----------------------------------------------------------
+        
+		// ******************************************************************
+        
 	}
 	else 
 	{
@@ -1663,6 +1670,9 @@ int main(int argc, char* argv[])
     // many instances of this object, even though there is only a single instance
     // of the application. We'll get there.
     //
+	OTLog::vOutput(0, "Attempting to use client_data path %s (transformed from %s)\n", 
+                   strPath.Get(), strRawPath.Get());
+
     g_OT_API.Init(strPath);   
     
 	OTLog::vOutput(0, "Using client_data path:  %s\n", OTLog::Path());
@@ -1676,7 +1686,7 @@ int main(int argc, char* argv[])
 	//
     //  Prepare our network context
     //
-	OTSocket theSocket;
+//	OTSocket theSocket;
 	
 	// -----------------------------------------------------------------------
     
@@ -1789,7 +1799,7 @@ int main(int argc, char* argv[])
     else
         bIsCommandProvided = false;
     
-    // -----------------------------------------------------
+    // ---------------------------------------------------------------------------------------
     //
 	if( false == bIsCommandProvided )   // If no command was provided (though other command-line options may have been...) 
     {                           // then we expect a script to come in through stdin, and we run it through the script interpreter!
@@ -1831,7 +1841,7 @@ int main(int argc, char* argv[])
         OTServerContract * pServerContract = NULL;
         OTPseudonym * pMyNym = NULL;
 
-        // This will load the wallet and, if Nym or Server IDs were provided, load those up as well.
+        // This does LoadWallet, andif Nym or Server IDs were provided, loads those up as well.
         // (They may still be NULL after this call, however.)
         //
         if (false == SetupPointersForWalletMyNymAndServerContract(str_ServerID, str_MyNym, 
@@ -1857,7 +1867,7 @@ int main(int argc, char* argv[])
         }
 
         const OTIdentifier theServerID(*pServerContract);
-        const OTString strServerID(theServerID);
+        const OTString     strServerID(theServerID);
 
         // -----------------------------------------------------
     
@@ -2351,7 +2361,19 @@ int main(int argc, char* argv[])
 			return nReturnValue;
             // ------------------------------------------------------------------------
         }
-        else if( opt->getValue( 'w' ) != NULL  || opt->getValue( "withdraw" ) != NULL  )
+        // OT SCRIPT ABOVE.
+        // *******************************************************************
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        if( opt->getValue( 'w' ) != NULL  || opt->getValue( "withdraw" ) != NULL  )
         {
             const long lAmount = atol(opt->getValue( 'w' ));
 			
@@ -2650,6 +2672,9 @@ int main(int argc, char* argv[])
 				OTString strConnectPath; strConnectPath.Format("tcp://%s:%d", // todo stop hardcoding.
                                                                strServerHostname.Get(), nServerPort);
 				// -----------------------------------------------------------------------
+                
+                static OTSocket theSocket;
+
 				bool bSuccessSending = theSocket.Send(ascEnvelope, strConnectPath);  // <========
 
 				if (!bSuccessSending)
@@ -2846,7 +2871,8 @@ int main(int argc, char* argv[])
 				
 				pScript->ExecuteScript();
 			}
-			else {
+			else 
+            {
 				OTLog::Error("Error running script!!\n");
 			}
 
@@ -4048,6 +4074,8 @@ int main(int argc, char* argv[])
 				OTString strConnectPath; strConnectPath.Format("tcp://%s:%d", // todo stop hardcoding.
 															   strServerHostname.Get(), nServerPort);
 				// -----------------------------------------------------------------------
+                static OTSocket theSocket;
+                
 				bool bSuccessSending = theSocket.Send(ascEnvelope, strConnectPath);  // <========
 				
 				if (!bSuccessSending)

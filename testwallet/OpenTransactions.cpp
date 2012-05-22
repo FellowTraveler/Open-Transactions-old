@@ -545,9 +545,8 @@ bool OT_API::InitOTAPI()
 	int err = WSAStartup( wVersionRequested, &wsaData );
 #endif
     // ------------------------------------
-		
-    OTLog::OT_Init();  // (OpenSSL gets initialized here.)
 
+    OTCrypto::It()->Init(); // (OpenSSL gets initialized here.)
     // ------------------------------------
 	// TODO in the case of Windows, figure err into this return val somehow.
     // (Or log it or something.)
@@ -562,8 +561,8 @@ bool OT_API::CleanupOTAPI()
     // We clean these up in reverse order from the Init function, which just seems
     // like the best default, in absence of any brighter ideas.
     //
-    OTLog::OT_Cleanup();  // (OpenSSL gets cleaned up here.)
-    
+    OTCrypto::It()->Cleanup();  // (OpenSSL gets cleaned up here.)
+
     // ------------------------------------
 #ifdef _WIN32
         WSACleanup(); // Corresponds to WSAStartup() in InitOTAPI().
@@ -666,7 +665,7 @@ bool OT_API::Init(OTString & strClientPath)
 			m_bInitialized = m_pClient->InitClient(*m_pWallet);
 			// -----------------------------
 			if (m_bInitialized)
-				OTLog::vOutput(1, "%s: Success invoking m_pClient->InitClient()\n", szFunc);
+				OTLog::vOutput(1, "%s: Success invoking m_pClient->InitClient() with path: %s\n", szFunc, strPATH_OUTPUT.Get());
 			else
 				OTLog::vError("%s: Failed invoking m_pClient->InitClient() with path: %s \n", 
 							  szFunc, strPATH_OUTPUT.Get());
@@ -724,6 +723,7 @@ bool OT_API::LoadWallet(const OTString & strFilename)
 		
 		// This way, everywhere else I can use the default storage context (for now) and it will work
 		// everywhere I put it. (Because it's now set up...)
+        
 		bool bSuccessInitDefault = OTDB::InitDefaultStorage(OTDB_DEFAULT_STORAGE, OTDB_DEFAULT_PACKER, strDataFolderPath, strWalletFilename);
 
 		if (!bSuccessInitDefault)
@@ -735,11 +735,11 @@ bool OT_API::LoadWallet(const OTString & strFilename)
 			bSuccess = m_pWallet->LoadWallet(GetWalletFilename());
 			
 			if (false == bSuccess)
-				OTLog::vError("%s: Failed invoking m_pWallet->LoadWallet() with filename: %s\n", 
-							  szFunc, GetWalletFilename());
+				OTLog::vError("%s: Failed invoking m_pWallet->LoadWallet() with data folder %s and filename: %s\n", 
+							  szFunc, strDataFolderPath.c_str(), GetWalletFilename());
 			else // success
-				OTLog::vOutput(1, "%s: Success invoking m_pWallet->LoadWallet() with filename: %s\n", 
-							   szFunc, GetWalletFilename());
+				OTLog::vOutput(1, "%s: Success invoking m_pWallet->LoadWallet() with data folder %s and filename: %s\n", 
+							   szFunc, strDataFolderPath.c_str(), GetWalletFilename());
 		}
 	}
 	// ------------------------------------------
@@ -747,8 +747,8 @@ bool OT_API::LoadWallet(const OTString & strFilename)
 	//
 	if (false == bSuccess)
 	{
-		OTLog::vError("%s: Failed with filename: %s\n", szFunc,
-					  GetWalletFilename());
+		OTLog::vError("%s: Failed with data folder %s and filename: %s\n", szFunc,
+					   GetStoragePath(), GetWalletFilename());
 		SetWalletFilename(strOldName);  // However we failed, set back to old filename.
 	}
 	// ------------------------------------------

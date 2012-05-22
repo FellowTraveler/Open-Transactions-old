@@ -29,11 +29,12 @@
 	attr OTAPI_Func::CREATE_USER_ACCT			
 	attr OTAPI_Func::DELETE_USER_ACCT			
 	attr OTAPI_Func::CHECK_USER					
-	attr OTAPI_Func::SEND_USER_MESSAGE			
+    attr OTAPI_Func::SEND_USER_MESSAGE			
+    attr OTAPI_Func::SEND_USER_INSTRUMENT			
 	attr OTAPI_Func::ISSUE_ASSET_TYPE			
 	attr OTAPI_Func::ISSUE_BASKET
 	attr OTAPI_Func::CREATE_ASSET_ACCT			
-	attr OTAPI_Func::DELETE_ASSET_ACCT			
+	attr OTAPI_Func::DELETE_ASSET_ACCT		
 	attr OTAPI_Func::EXCHANGE_BASKET			
 	attr OTAPI_Func::PROCESS_INBOX
 	attr OTAPI_Func::DEPOSIT_CASH				
@@ -71,8 +72,10 @@
 	attr OTAPI_Func::strData4
 	attr OTAPI_Func::bBool
 	attr OTAPI_Func::nData
-	attr OTAPI_Func::nTransNumsNeeded
-	// ---------------------------------------
+    attr OTAPI_Func::nTransNumsNeeded
+
+    attr OTAPI_Func::nRequestNum
+// ---------------------------------------
 /*	public String   serverID;
     public String   nymID, nymID2;
     public String   assetID, assetID2;
@@ -83,6 +86,7 @@
     public boolean  bBool;    
     public int      nData;
     public int      nTransNumsNeeded;
+    public int      nRequestNum;
 */
 // -----------------------------------
 
@@ -104,9 +108,11 @@
 //		this.strData2
 //		this.strData3
 //		this.strData4
+        
 		this.bBool						= false
 		this.nData						= 0
 		this.nTransNumsNeeded			= 0
+		this.nRequestNum			    = (-1)
 	// ---------------------------------------
 		this.funcType					= 0
 	// ---------------------------------------
@@ -114,30 +120,31 @@
 		this.DELETE_USER_ACCT			= 2
 		this.CHECK_USER					= 3
 		this.SEND_USER_MESSAGE			= 4
-		this.ISSUE_ASSET_TYPE			= 5
-		this.ISSUE_BASKET				= 6
-		this.CREATE_ASSET_ACCT			= 7
-		this.DELETE_ASSET_ACCT			= 8
-		this.EXCHANGE_BASKET			= 9
-		this.PROCESS_INBOX				= 10
-		this.DEPOSIT_CASH				= 11
-		this.EXCHANGE_CASH				= 12
-		this.DEPOSIT_CHEQUE				= 13
-		this.WITHDRAW_VOUCHER			= 14
-		this.WITHDRAW_CASH				= 15
-		this.GET_CONTRACT				= 16
-		this.SEND_TRANSFER				= 17
-		this.GET_MARKET_LIST			= 18
-		this.CREATE_MARKET_OFFER		= 19
-		this.CANCEL_MARKET_OFFER		= 20
-		this.CANCEL_PAYMENT_PLAN		= 21
-		this.DEPOSIT_PAYMENT_PLAN		= 22 
-		this.GET_NYM_MARKET_OFFERS		= 23
-		this.GET_MARKET_OFFERS			= 24
-		this.GET_MARKET_RECENT_TRADES	= 25
-		this.GET_MINT					= 26
-		this.QUERY_ASSET_TYPES			= 27
-		this.GET_BOX_RECEIPT			= 28
+		this.SEND_USER_INSTRUMENT       = 5
+		this.ISSUE_ASSET_TYPE			= 6
+		this.ISSUE_BASKET				= 7
+		this.CREATE_ASSET_ACCT			= 8
+		this.DELETE_ASSET_ACCT			= 9
+		this.EXCHANGE_BASKET			= 10
+		this.PROCESS_INBOX				= 11
+		this.DEPOSIT_CASH				= 12
+		this.EXCHANGE_CASH				= 13
+		this.DEPOSIT_CHEQUE				= 14
+		this.WITHDRAW_VOUCHER			= 15
+		this.WITHDRAW_CASH				= 16
+		this.GET_CONTRACT				= 17
+		this.SEND_TRANSFER				= 18
+		this.GET_MARKET_LIST			= 19
+		this.CREATE_MARKET_OFFER		= 20
+		this.CANCEL_MARKET_OFFER		= 21
+		this.CANCEL_PAYMENT_PLAN		= 22
+		this.DEPOSIT_PAYMENT_PLAN		= 23 
+		this.GET_NYM_MARKET_OFFERS		= 24
+		this.GET_MARKET_OFFERS			= 25
+		this.GET_MARKET_RECENT_TRADES	= 26
+		this.GET_MINT					= 27
+		this.QUERY_ASSET_TYPES			= 28
+		this.GET_BOX_RECEIPT			= 29
 	}
 // ---------------------------------------
 
@@ -146,6 +153,8 @@
 //		OT_API_Output(0, "(Version of OTAPI_Func with 0 arguments.)\n");	
 		
 		this.InitCustom()
+        // ---------------------------
+        
     }
 // ---------------------------------------
 
@@ -303,6 +312,12 @@
 			this.strData    = p_strData;
 			this.strData2   = p_strData2;			
 		}
+		else if (theType == this.SEND_USER_INSTRUMENT)
+		{
+			this.nymID2     = p_nymID2;
+			this.strData    = p_strData;
+			this.strData2   = p_strData2;			
+		}
 		else if (theType == GET_BOX_RECEIPT)
 		{
 			this.accountID	= p_nymID2;		// accountID (inbox/outbox) or NymID (nymbox) is passed here.
@@ -311,7 +326,7 @@
 		}
 		else
 		{
-			OT_API_Output(0, "ERROR! WRONG TYPE passed to OTAPI_Func.OTAPI_Func() ERROR!!!!!!");
+			OT_API_Output(0, "ERROR! WRONG TYPE passed to OTAPI_Func.OTAPI_Func() ERROR!!!!!!\n");
 		}
 	}
     // ---------------------------------------
@@ -359,7 +374,7 @@
 		}
 		else
 		{
-			OT_API_Output(0, "ERROR! WRONG TYPE passed to OTAPI_Func.OTAPI_Func() ERROR!!!!!!");
+			OT_API_Output(0, "ERROR! WRONG TYPE passed to OTAPI_Func.OTAPI_Func() ERROR!!!!!!\n");
 		}
     }
 	
@@ -440,66 +455,77 @@
         
         this.nTransNumsNeeded = 3; // An opening transaction number, plus another for each asset account, total of 3.
 	}
-// ---------------------------------------
+
+
+    // **********************************************************************
+
 	
 	def OTAPI_Func::Run() 
 	{
+        // -1 means error, no message was sent.
+        //  0 means NO error, yet still no message was sent.
+        // >0 means (usually) the request number is being returned.
+        //
+        var nRetVal = (-1);
+
 		if (this.funcType == this.CHECK_USER)
-		{	OT_API_checkUser(this.serverID, this.nymID, this.nymID2);	}
+		{	nRetVal = OT_API_checkUser(this.serverID, this.nymID, this.nymID2);	}
 		else if (this.funcType == this.CREATE_USER_ACCT)
-		{	OT_API_createUserAccount(this.serverID, this.nymID);	}
+		{	nRetVal = OT_API_createUserAccount(this.serverID, this.nymID);	}
 		else if (this.funcType == this.DELETE_USER_ACCT)
-		{	OT_API_deleteUserAccount(this.serverID, this.nymID);	}
+		{	nRetVal = OT_API_deleteUserAccount(this.serverID, this.nymID);	}
 		else if (this.funcType == this.SEND_USER_MESSAGE)
-		{	OT_API_sendUserMessage(this.serverID, this.nymID, this.nymID2, this.strData, this.strData2);	}
+		{	nRetVal = OT_API_sendUserMessage(this.serverID, this.nymID, this.nymID2, this.strData, this.strData2);	}
+		else if (this.funcType == this.SEND_USER_INSTRUMENT)
+		{	nRetVal = OT_API_sendUserInstrument(this.serverID, this.nymID, this.nymID2, this.strData, this.strData2);	}
 		else if (this.funcType == this.GET_NYM_MARKET_OFFERS)
-		{	OT_API_getNym_MarketOffers(this.serverID, this.nymID);	}
+		{	nRetVal = OT_API_getNym_MarketOffers(this.serverID, this.nymID);	}
 		else if (this.funcType == this.CREATE_ASSET_ACCT)
-		{	OT_API_createAssetAccount(this.serverID, this.nymID, this.assetID);	}
+		{	nRetVal = OT_API_createAssetAccount(this.serverID, this.nymID, this.assetID);	}
 		else if (this.funcType == this.DELETE_ASSET_ACCT)
-		{	OT_API_deleteAssetAccount(this.serverID, this.nymID, this.accountID);	}
+		{	nRetVal = OT_API_deleteAssetAccount(this.serverID, this.nymID, this.accountID);	}
 		else if (this.funcType == this.EXCHANGE_BASKET)
-		{	OT_API_exchangeBasket(this.serverID, this.nymID, this.assetID, this.basket, this.bBool);	}
+		{	nRetVal = OT_API_exchangeBasket(this.serverID, this.nymID, this.assetID, this.basket, this.bBool);	}
 		else if (this.funcType == this.GET_CONTRACT)
-		{	OT_API_getContract(this.serverID, this.nymID, this.assetID);	}
+		{	nRetVal = OT_API_getContract(this.serverID, this.nymID, this.assetID);	}
 		else if (this.funcType == this.GET_MINT)
-		{	OT_API_getMint(this.serverID, this.nymID, this.assetID);	}
+		{	nRetVal = OT_API_getMint(this.serverID, this.nymID, this.assetID);	}
 		else if (this.funcType == this.QUERY_ASSET_TYPES)
-		{	OT_API_queryAssetTypes(this.serverID, this.nymID, this.strData);	}
+		{	nRetVal = OT_API_queryAssetTypes(this.serverID, this.nymID, this.strData);	}
 		else if (this.funcType == this.ISSUE_ASSET_TYPE)
-		{	OT_API_issueAssetType(this.serverID, this.nymID, this.strData);	}
+		{	nRetVal = OT_API_issueAssetType(this.serverID, this.nymID, this.strData);	}
 		else if (this.funcType == this.ISSUE_BASKET)
-		{	OT_API_issueBasket(this.serverID, this.nymID, this.basket);	}
+		{	nRetVal = OT_API_issueBasket(this.serverID, this.nymID, this.basket);	}
 		else if (this.funcType == this.EXCHANGE_CASH)
-		{	OT_API_exchangePurse(this.serverID, this.assetID, this.nymID, this.strData);	}
+		{	nRetVal = OT_API_exchangePurse(this.serverID, this.assetID, this.nymID, this.strData);	}
 		else if (this.funcType == this.CANCEL_MARKET_OFFER)
-		{	OT_API_cancelMarketOffer(this.serverID, this.nymID, this.accountID, this.strData);	}
+		{	nRetVal = OT_API_cancelMarketOffer(this.serverID, this.nymID, this.accountID, this.strData);	}
 		else if (this.funcType == this.CANCEL_PAYMENT_PLAN)
-		{	OT_API_cancelPaymentPlan(this.serverID, this.nymID, this.accountID, this.strData);	}
+		{	nRetVal = OT_API_cancelPaymentPlan(this.serverID, this.nymID, this.accountID, this.strData);	}
 		else if (this.funcType == this.GET_BOX_RECEIPT)
-		{	OT_API_getBoxReceipt(this.serverID, this.nymID, this.accountID, nData, this.strData); }
+		{	nRetVal = OT_API_getBoxReceipt(this.serverID, this.nymID, this.accountID, nData, this.strData); }
 		else if (this.funcType == this.PROCESS_INBOX)
-		{	OT_API_processInbox(this.serverID, this.nymID, this.accountID, this.strData);	}
+		{	nRetVal = OT_API_processInbox(this.serverID, this.nymID, this.accountID, this.strData);	}
 		else if (this.funcType == this.DEPOSIT_CASH)
-		{	OT_API_notarizeDeposit(this.serverID, this.nymID, this.accountID, this.strData);	}
+		{	nRetVal = OT_API_notarizeDeposit(this.serverID, this.nymID, this.accountID, this.strData);	}
 		else if (this.funcType == this.DEPOSIT_CHEQUE)
-		{	OT_API_depositCheque(this.serverID, this.nymID, this.accountID, this.strData);	}
+		{	nRetVal = OT_API_depositCheque(this.serverID, this.nymID, this.accountID, this.strData);	}
 		else if (this.funcType == this.DEPOSIT_PAYMENT_PLAN)
-		{	OT_API_depositPaymentPlan(this.serverID, this.nymID, this.strData);	}
+		{	nRetVal = OT_API_depositPaymentPlan(this.serverID, this.nymID, this.strData);	}
 		else if (this.funcType == this.WITHDRAW_CASH)
-		{	OT_API_notarizeWithdrawal(this.serverID, this.nymID, this.accountID, this.strData);	}
+		{	nRetVal = OT_API_notarizeWithdrawal(this.serverID, this.nymID, this.accountID, this.strData);	}
 		else if (this.funcType == this.WITHDRAW_VOUCHER)
-		{	OT_API_withdrawVoucher(this.serverID, this.nymID, this.accountID, this.nymID2, this.strData, this.strData2);	}
+		{	nRetVal = OT_API_withdrawVoucher(this.serverID, this.nymID, this.accountID, this.nymID2, this.strData, this.strData2);	}
 		else if (this.funcType == this.SEND_TRANSFER)
-		{	OT_API_notarizeTransfer(this.serverID, this.nymID, this.accountID, this.accountID2,   this.strData, this.strData2); } // amount and note, for the last two.
+		{	nRetVal = OT_API_notarizeTransfer(this.serverID, this.nymID, this.accountID, this.accountID2,   this.strData, this.strData2); } // amount and note, for the last two.
 		else if (this.funcType == this.GET_MARKET_LIST)
-		{	OT_API_getMarketList(this.serverID, this.nymID);	}
+		{	nRetVal = OT_API_getMarketList(this.serverID, this.nymID);	}
 		else if (this.funcType == this.GET_MARKET_OFFERS)
-		{	OT_API_getMarketOffers(this.serverID, this.nymID, this.strData, this.strData2);	}
+		{	nRetVal = OT_API_getMarketOffers(this.serverID, this.nymID, this.strData, this.strData2);	}
 		else if (this.funcType == this.GET_MARKET_RECENT_TRADES)
-		{	OT_API_getMarketRecentTrades(this.serverID, this.nymID, this.strData);	}
+		{	nRetVal = OT_API_getMarketRecentTrades(this.serverID, this.nymID, this.strData);	}
 		else if (this.funcType == this.CREATE_MARKET_OFFER)
-		{	OT_API_issueMarketOffer(this.serverID, this.nymID, this.accountID, this.accountID2, 
+		{	nRetVal = OT_API_issueMarketOffer(this.serverID, this.nymID, this.accountID, this.accountID2, 
                         this.strData, this.strData2, this.strData3, this.strData4, this.bBool);
 		}
 		else
@@ -507,218 +533,497 @@
 			OT_API_Output(0, "ERROR! OTAPI_Func.Send() activated, with bad function type: ");
 			OT_API_Output(0, concat(to_string(this.funcType),"\n"));
 		}
-    }
-    
-    // Generic function for any server message.
-    // If you are doing a transaction message, then use SendTransaction instead.
-    // (It will call this one.)
-    // Returns:  null if failure, or the server's response message if success.
-    //
-    def OTAPI_Func::SendRequest(theFunction, IN_FUNCTION)  
-	{
-		var MsgUtil	= Utility();
-
-        var serverResponseMessage = "";
         
-        OT_API_FlushMessageBuffer();
-        theFunction.Run(); // <===== FIRST ATTEMPT
-        MsgUtil.delay();
-
-        serverResponseMessage = OT_API_PopMessageBuffer();
-
-        if (!VerifyMessageSuccess(serverResponseMessage)) 
-		{
-            if (!MsgUtil.getRequestNumber(theFunction.serverID, theFunction.nymID)) 
-			{
-                OT_API_Output(0, "OTAPI_Func::SendRequest (" + IN_FUNCTION + " ): After first failure, getRequestNumber() failed as well. (I give up.) \n");
-                return "";
-            }
-            // getRequestNumber succeeded, so we'll try the Function call again...
-            else 
-			{
-                theFunction.Run(); // <===== SECOND ATTEMPT
-                MsgUtil.delay();
-                serverResponseMessage = OT_API_PopMessageBuffer();
-                if (!VerifyMessageSuccess(serverResponseMessage)) 
-				{
-                    OT_API_Output(0, "OTAPI_Func::SendRequest (" + IN_FUNCTION + " ): Function retry failed, even after getRequestNumber() succeeded. (I give up.) \n");
-                    return "";
-                }
-            }
-        }
-		
-        return serverResponseMessage;
+        // Here we're returning this value.
+        //
+        nRetVal
     }
-    
-	
-	// ---------------------------------------
-	
-	
+
+
+    // **********************************************************************
+
+
+    def OTAPI_Func::SendRequestLowLevel(theFunction, IN_FUNCTION)  
+    {
+        var MsgUtil	= Utility()
+        var strLocation = concat("OTAPI_Func::SendRequestLowLevel: ", IN_FUNCTION)
+        // --------------------------------------------------------------------
+        OT_API_FlushMessageBuffer()
+        // --------------------------------------------------------------------
+        var nRun = theFunction.Run()  // <===== ATTEMPT TO SEND THE MESSAGE HERE...
+        
+        if (nRun == (-1))  // if the requestNumber returned by the send-attempt is -1, that means it DIDN'T SEND (error)
+        {
+            OT_API_Output(0, strLocation + ": Failed to send message due to error.\n")
+            
+            theFunction.nRequestNum  = (-1)
+        }
+        else if (nRun == 0) // if the requestNumber returned by the send-attempt is 0, it means no error, but nothing was sent. (Like processing an empty box.)
+        {
+            OT_API_Output(0, strLocation + ": Didn't send this message, but NO error occurred, either. (For example, a request to process an empty Nymbox will return 0, meaning, nothing was sent, but also no error occurred.)\n")
+            
+            theFunction.nRequestNum  = 0
+        }
+        else if (nRun == (-2)) // -2 is also possible at some future date. (If the request number won't fit in an int, this is returned and then you can retrieve the actual number via a separate call.)
+        {
+            OT_API_Output(0, strLocation + ": ERROR, not supported. (-2 was returned.)\n")
+            
+            // TODO: Have an OT API call here, which retrieves the request number
+            // (It must be too large to fit into an integer, which is why this happened.)
+            
+            theFunction.nRequestNum  = (-1)
+        }
+        else
+        {
+            theFunction.nRequestNum  = nRun
+        }
+        
+        // BY this point, we definitely have the request number, which means the
+        // message was actually SENT. (At least.) This also means we can use nRun
+        // later to query for a copy of that sent message (like if we need to clawback
+        // the transaction numbers from it later, once we confirm whether the server
+        // actually never got it.)
+        //
+        theFunction.nRequestNum
+    }
+
+
+    // **********************************************************************
+
+
     def OTAPI_Func::SendTransaction(theFunction, IN_FUNCTION)  
-	{
+    {
+        var MsgUtil	    = Utility()
+        var strLocation = concat("OTAPI_Func::SendTransaction: ", IN_FUNCTION)
+        // --------------------------------------------------------------------
+        
+        if (!MsgUtil.getIntermediaryFiles(theFunction.serverID, theFunction.nymID, theFunction.accountID, false)) // bForceDownload=false)) 
+        {
+            OT_API_Output(0, strLocation + ", getIntermediaryFiles returned false. (It couldn't download files that it needed.)\n")
+            return ""
+        }
 
-		var MsgUtil	= Utility();
-	
-        var	serverResponseMessage = "";
-        var	bTrue = true;
-		var strLocation = concat("OTAPI_Func::SendTransaction: ", IN_FUNCTION);
+        // **********************************************************************
+        // GET TRANSACTION NUMBERS HERE IF NECESSARY.
+        //
+        var	bTrue = true
 
-		// If the current trans# count is LESS than what's needed...
-		//theFunction needs more than my normal minimum in my configuration
-		// Therefore I will grab that many, instead of however many I would normally grab.
-				
-		var getnym_trnsnum_count = OT_API_GetNym_TransactionNumCount(theFunction.serverID, theFunction.nymID);
-		
-		var configTxnCount = MsgUtil.getNbrTransactionCount();
-
-		var b1 = (theFunction.nTransNumsNeeded > MsgUtil.getNbrTransactionCount());
-		var b2 = (theFunction.nTransNumsNeeded > configTxnCount);
-		
-		var comparative = 0;
-		if (b1)
-		{	comparative = theFunction.nTransNumsNeeded;	}
-		else
-		{	comparative = MsgUtil.getNbrTransactionCount();	}
-		
+        var getnym_trnsnum_count = OT_API_GetNym_TransactionNumCount(theFunction.serverID, theFunction.nymID)
+        var configTxnCount       = MsgUtil.getNbrTransactionCount()
+        var b1                   = (theFunction.nTransNumsNeeded > configTxnCount)
+        var comparative          = 0
+        
+        if (b1)
+        {	comparative = theFunction.nTransNumsNeeded;	}
+        else
+        {	comparative = configTxnCount;	}
+        // -------------------------------------------------------
+        
         if (getnym_trnsnum_count < comparative) 
         {
-		    OT_API_Output(0, "OTAPI_Func::SendTransaction: I don't have enough transaction numbers to perform this transaction. Grabbing more now...\n");
-			if (b2)
-			{	MsgUtil.setNbrTransactionCount(theFunction.nTransNumsNeeded);	}
-			else
-			{	MsgUtil.setNbrTransactionCount(configTxnCount);	}
-            bTrue = MsgUtil.getTransactionNumbers(theFunction.serverID, theFunction.nymID);
-            MsgUtil.setNbrTransactionCount(configTxnCount);
+            OT_API_Output(0, strLocation + ", I don't have enough transaction numbers to perform this transaction. Grabbing more now...\n")        
+            MsgUtil.setNbrTransactionCount(comparative)
+            bTrue = MsgUtil.getTransactionNumbers(theFunction.serverID, theFunction.nymID)
+            MsgUtil.setNbrTransactionCount(configTxnCount)
         }
-		// ---------------------------
-		
-        if (!bTrue || (OT_API_GetNym_TransactionNumCount(theFunction.serverID, theFunction.nymID) < theFunction.nTransNumsNeeded)) 
-		{
-            OT_API_Output(0, concat(concat(concat(strLocation, " , failed to get transaction numbers, OT_API_GetNym_TransactionNumCount:"), 
-                    OT_API_GetNym_TransactionNumCount(theFunction.serverID, theFunction.nymID))), "\n");
-            return "";
-        }
-        // --------------------------------------
-		
-        // BY THIS POINT, I know that I have enough transaction numbers. 
-        // (Although I might NOT have checked my Nymbox yet, so sync issues are still possible.)
-        // I also ran the function, and if it failed, then I successfully ran getRequestNumber(),
-        // and then the function again -- and this time it worked (or I would have returned already.)
-        // At least, the message was success. Now let's check the balance agreement, and the transaction itself.
+        // ---------------------------
         //
-        serverResponseMessage = this.SendRequest(theFunction, IN_FUNCTION);
-
-        if (!VerifyMessage(serverResponseMessage))
-		{
-            OT_API_Output(0, "OTAPI_Func::SendTransaction: OTAPI_Func.SendRequest failed. (I give up.)\n");
-            return "";
+        var f_temp = fun(MsgUtil, strLocation, comparative, configTxnCount, serverID, nymID) 
+        { 
+            var getnym_trnsnum_count = OT_API_GetNym_TransactionNumCount(serverID, nymID)
+            
+            if (getnym_trnsnum_count < comparative) // try a second time.
+            {
+                OT_API_Output(0, strLocation + ", failure: MsgUtil.getTransactionNumbers. (Trying again...)\n")
+                
+                // (the final parameter, the 'false' is us telling getTransNumbers that 
+                // it can skip the first call to getTransNumLowLevel)
+                //
+                MsgUtil.setNbrTransactionCount(comparative)
+                var bTrue = MsgUtil.getTransactionNumbers(serverID, nymID, false)
+                MsgUtil.setNbrTransactionCount(configTxnCount)
+            }
         }
-
-        // *********************************************************************************
-        // Was balance agreement successful?
-        // (Just because the message was successful, doesn't mean the transaction
-        //  was successful, or the balance agreement...)
-		
-		
-        var  bBalanceAgreement = false;
-		
-		if (true == OT_API_Msg_GetBlnceAgrmntSuccess(theFunction.serverID, 
-                    theFunction.nymID, 
-                    theFunction.accountID, 
-                    serverResponseMessage));
-		{	bBalanceAgreement = true;	}
-			
-        if (false == bBalanceAgreement) // Failure
+        // ---------------------------
+        
+        f_temp(MsgUtil, strLocation, comparative, configTxnCount, theFunction.serverID, theFunction.nymID) // second try
+        f_temp(MsgUtil, strLocation, comparative, configTxnCount, theFunction.serverID, theFunction.nymID) // third try
+        
+        // --------------------------------------
+        // Giving up, if still a failure by this point.
+        //
+        getnym_trnsnum_count = OT_API_GetNym_TransactionNumCount(theFunction.serverID, theFunction.nymID)
+        
+        if (getnym_trnsnum_count < comparative)
         {
-        // Hmm -- the message was a success, but the BALANCE AGREEMENT has failed. 
-        // Most likely culprit? There are probably nymbox notices regarding transaction
-        // numbers I added, but missed a server reply confirming. Or, perhaps a market
-        // offer expired, and one of my transaction #s was closed, but I don't know it
-        // yet, because I haven't seen the nymbox notice.
-        // EITHER WAY, this is the time to check the nymbox and process whatever is in
-        // there. Then my balance agreement will probably start working again.
-
-            //
-            // Maybe we have an old Inbox or something.
-            //
-            if (!MsgUtil.getIntermediaryFiles(theFunction.serverID, 
-                    theFunction.nymID, theFunction.accountID)) 
-            {
-                OT_API_Output(0, "OTAPI_Func::SendTransaction: " + IN_FUNCTION + ", getIntermediaryFiles returned false. (I give up.)\n");
-                return "";
-            }
-
-
-
-            // TODO!!  SECURITY:  This is where a GOOD CLIENT (vs. a test client)
-            // will verify these intermediary files against your LAST SIGNED RECEIPT,
-            // using OT_API_VerifySomethingorother().
-            // See verifyFiles() at the bottom of this file.
-            // Add some kind of warning Modal Dialog here, since it's actually
-            // normal for a NEW account (never had any receipts yet.) But for
-            // any other account, this should ALWAYS VERIFY!
-            //
-            // Another note: this should happen INSIDE the getIntermediaryFiles call itself, 
-            // and all similar calls.  You simply should not download those files,
-            // without verifying them also. Otherwise you could end up signing
-            // a future bad receipt, based on malicious, planted intermediary files.
-
-
-
-            // In case any notices have come in about new transaction #s already accepted,
-            // or about old transaction #s that expired lawfully.
-            if ((-1) == MsgUtil.getAndProcessNymbox(theFunction.serverID, theFunction.nymID)) // failure.
-            {
-                OT_API_Output(0, "OTAPI_Func::SendTransaction: " + IN_FUNCTION + ", getAndProcessNymbox failed. (I give up.)\n");
-                return "";
-            }
-            // ----------------------------------------
-            // Now we'll try again..
-            //
-            OT_API_FlushMessageBuffer();
-            OT_API_Output(0, "OTAPI_Func::SendTransaction: " + IN_FUNCTION + ", serverID:"+theFunction.serverID+" nymID:"+theFunction.nymID);
-            theFunction.Run();  // <====== TRYING AGAIN (THIRD TIME)
-            MsgUtil.delay();
-            serverResponseMessage = OT_API_PopMessageBuffer();
-
-            // Balance agreement STILL FAILURE <=========
-            //
-
-            if (!VerifyMessage(serverResponseMessage)) 
-			{
-                OT_API_Output(0, "OTAPI_Func::SendTransaction: " + IN_FUNCTION + ", serverResponseMessage is null after retry after balance agreement failure. (I give up.)\n");
-                return "";
-            } // NOTE: I could check the message here for failure, but the below call would return 0 in
-              // that case as well anyway. Since we already went through the request number stuff above,
-              // there's no point / need in repeating it.
-              //
-            else if (false == OT_API_Msg_GetBlnceAgrmntSuccess(theFunction.serverID,  // Failure
-                    
-                    theFunction.nymID, 
-                    theFunction.accountID, 
-                    serverResponseMessage)) 
-            {
-                OT_API_Output(0, "OTAPI_Func::SendTransaction: " + IN_FUNCTION + ", serverResponseMessage is still FAILURE after retry after balance agreement failure. (I give up.)\n");
-                return "";
-            }
-            OT_API_Output(0, "OTAPI_Func::SendTransaction: " + IN_FUNCTION + ", after balance agreement retry, (success on balance agreement.)\n");
+            OT_API_Output(0, strLocation + ", third failure: MsgUtil.getTransactionNumbers. (Giving up.)\n")
+            return ""
         }
+        // ************************************************************************
+        
+        
+        var bCanRetryAfterThis = OTBool(false)
 
-        // *********************************************************************************
-        // Was transaction successful?
-
-        if (false == OT_API_Msg_GetTransactionSuccess(theFunction.serverID, // Failure. 
-                theFunction.nymID, 
-                theFunction.accountID, 
-                serverResponseMessage)) 
+        var strResult = this.SendRequestOnce(   theFunction,
+                                           IN_FUNCTION,
+                                           true,   // bIsTransaction      = true;
+                                           true,   // bWillRetryAfterThis = true
+                                           bCanRetryAfterThis) // output
+        
+        // -------------------------------------------------------
+        
+        if (VerifyStringVal(strResult))
         {
-            OT_API_Output(0, "OTAPI_Func::SendTransaction: " + IN_FUNCTION + ", serverResponseMessage the TRANSACTION reports FAILURE (though balance agreement was successful.) (I give up.)\n");
-            return "";
+            if (!MsgUtil.getIntermediaryFiles(theFunction.serverID, theFunction.nymID, theFunction.accountID, true)) // bForceDownload=true
+            {
+                OT_API_Output(0, strLocation + ", getIntermediaryFiles returned false. (After a success sending the transaction. Strange...)\n")
+                return ""
+            }
+            // -----------------------------
+            
+            return strResult // success!
         }
         
-        return serverResponseMessage;
+        
+        //
+        // Maybe we have an old Inbox or something.
+        //
+        
+        
+        // TODO!!  SECURITY:  This is where a GOOD CLIENT (vs. a test client)
+        // will verify these intermediary files against your LAST SIGNED RECEIPT,
+        // using OT_API_VerifySomethingorother().
+        // See verifyFiles() at the bottom of this file.
+        // Add some kind of warning Modal Dialog here, since it's actually
+        // normal for a NEW account (never had any receipts yet.) But for
+        // any other account, this should ALWAYS VERIFY!
+        //
+        // Another note: this should happen INSIDE the getIntermediaryFiles call itself,
+        // and all similar calls.  You simply should not download those files,
+        // without verifying them also. Otherwise you could end up signing
+        // a future bad receipt, based on malicious, planted intermediary files.
+        
+        var nRetries = 2;
+        
+        while ((nRetries > 0) && !VerifyStringVal(strResult) && bCanRetryAfterThis.getBooleanValue())
+        {
+            --nRetries
+            // -------------------------------
+            var bWillRetryAfterThis = true
+            
+            if ((nRetries == 0) || !bCanRetryAfterThis.getBooleanValue())
+            {
+                bWillRetryAfterThis = false
+            }
+            
+            strResult = this.SendRequestOnce( theFunction, IN_FUNCTION, true, bWillRetryAfterThis, bCanRetryAfterThis)
+            
+            // ---------------------------
+            // In case of failure, we want to get these before we re-try.
+            // But in case of success, we also want to get these, so we can
+            // see the results of our success. So we get these either way...
+            //
+            if (VerifyStringVal(strResult))
+            {
+                if (!MsgUtil.getIntermediaryFiles(theFunction.serverID, theFunction.nymID, theFunction.accountID, true)) // bForceDownload=true
+                {
+                    OT_API_Output(0, strLocation + ", getIntermediaryFiles (loop) returned false even after successfully sending the transaction.\n")
+                    return ""
+                }
+                break
+            }
+            // -------------------------------
+        } // while
+        
+        // Here we return strResult, for good or ill.
+        //
+        strResult
     }
 
+
+    // **********************************************************************
+    
+
+    def OTAPI_Func::SendRequest(theFunction, IN_FUNCTION)  
+    {
+        var MsgUtil	= Utility()
+        // --------------------------------------------------------------------
+        var bCanRetryAfterThis = OTBool(false)
+        // -------------------------------------------------------
+        var strResult = this.SendRequestOnce( theFunction, IN_FUNCTION, false,/*bIsTransaction=false*/ true, /* bWillRetryAfterThis=true*/ bCanRetryAfterThis)
+        // -------------------------------------------------------
+        
+        if (!VerifyStringVal(strResult) && bCanRetryAfterThis.getBooleanValue())
+        {
+            strResult = this.SendRequestOnce(theFunction, IN_FUNCTION, false, /* bIsTransaction=false;*/ false, /*bWillRetryAfterThis=false*/ bCanRetryAfterThis) // unused in this case, I suppose. It's still returned as output.
+        }
+        // Here we return strResult.
+        //
+        strResult
+    }
+
+
+    // **********************************************************************
+
+
+    def OTAPI_Func::SendRequestOnce(theFunction, IN_FUNCTION, bIsTransaction, bWillRetryAfterThis, bCanRetryAfterThis)
+    {
+        var MsgUtil	= Utility()
+        var strLocation = concat("OTAPI_Func::SendRequestOnce: ", IN_FUNCTION)
+        // --------------------------------------------------------------------
+        if (VerifyOTBoolRef(bCanRetryAfterThis))
+        {
+            OT_API_Output(0, strLocation + ", Error: bCanRetryAfterThis was null.\n")
+            return ""
+        }
+        bCanRetryAfterThis.setBooleanValue(false)
+        // ----------------------------------------------
+        var strReply = ""
+        var nlocalRequestNum = this.SendRequestLowLevel(theFunction, IN_FUNCTION)  // <========   FIRST ATTEMPT!!!!!!
+        
+        if ((nlocalRequestNum == (-1)) || (nlocalRequestNum == 0))
+        {
+            return ""
+        }
+        else // 1 and default.
+        {    
+            if (nlocalRequestNum < (-1))
+                return ""
+            
+            strReply = MsgUtil.ReceiveReplyLowLevel(theFunction.serverID, theFunction.nymID, nlocalRequestNum, IN_FUNCTION)  // <==== Here we RECEIVE the REPLY...
+        }
+
+        // Below this point, we definitely have a request number.
+        // (But not yet necessarily a reply...)
+        //
+        // ----------------------------------------------
+        
+        // nlocalRequestNum is positive and contains the request number from sending.
+        //
+        // nReplySuccess contains status of the REPLY to that sent message.
+        // nReplySuccess contains:
+        //   0 == FAILURE reply msg from server,
+        //   1 == SUCCESS reply msg from server (transaction could be success or fail.)
+        //  -1 == (ERROR)
+        //
+        // strReply contains the reply itself (or null.)
+        //
+        var nReplySuccess      = MsgUtil.VerifyMessageSuccess(strReply)
+        // -----------------------------------------------------------------------------------------------------
+        var bMsgReplyError     = (!MsgUtil.VerifyStringVal(strReply) || (nReplySuccess   < 0))
+        // -----------------------------------------------------------------------------------------------------
+        var bMsgReplySuccess   = (!bMsgReplyError && (nReplySuccess  > 0))
+        var bMsgReplyFailure   = (!bMsgReplyError && (nReplySuccess == 0))
+        // -----------------------------------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------------------------------
+        var bMsgBalanceError
+        var bMsgBalanceSuccess
+        var bMsgBalanceFailure
+        // -----------------------------------------------------------------------------------------------------
+        var bMsgTransError
+        var bMsgTransSuccess
+        var bMsgTransFailure
+        // -----------------------------------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------------------------------
+        var bMsgAnyError
+        var bMsgAnyFailure
+        // -----------------------------------------------------------------------------------------------------
+        var bMsgAllSuccess
+        // -----------------------------------------------------------------------------------------------------
+        
+        // If you EVER are in a situation where you have to harvest numbers
+        // back, it will ONLY be for transactions, not normal messages. (Those
+        // are the only ones that USE transaction numbers.)
+        //
+        var nTransSuccess
+        var nBalanceSuccess
+        //
+        if (bIsTransaction) // This request contains a TRANSACTION...
+        {
+            if (bMsgReplySuccess) // If message was success, then let's see if the transaction was, too.
+            {
+                nBalanceSuccess = OT_API_Message_GetBalanceAgreementSuccess(theFunction.serverID, theFunction.nymID, theFunction.accountID, strReply) 
+
+                if (nBalanceSuccess > 0)
+                {
+                    nTransSuccess   = OT_API_Message_GetTransactionSuccess (theFunction.serverID, theFunction.nymID, theFunction.accountID, strReply)
+                }
+                else
+                {
+                    nTransSuccess = (-1)
+                }
+            }
+            else
+            {
+                nBalanceSuccess = (-1)
+                nTransSuccess   = (-1)
+            }
+            // All of these booleans (except "error") represent RECEIVED ANSWERS from the server.
+            // In other words, "failure" does not mean "failed to find message."
+            // Rather, it means "DEFINITELY got a reply, and that reply says status==failure."
+            //
+            // -----------------------------------------------------------------------------------------------------
+            bMsgBalanceError   = (!MsgUtil.VerifyStringVal(strReply) || (nBalanceSuccess < 0))
+            bMsgBalanceSuccess = (!bMsgReplyError && !bMsgBalanceError && (nBalanceSuccess  > 0))
+            bMsgBalanceFailure = (!bMsgReplyError && !bMsgBalanceError && (nBalanceSuccess == 0))
+            // -----------------------------------------------------------------------------------------------------
+            bMsgTransError     = (!MsgUtil.VerifyStringVal(strReply) || (nTransSuccess   < 0))
+            bMsgTransSuccess   = (!bMsgReplyError && !bMsgBalanceError && !bMsgTransError && (nTransSuccess  > 0))
+            bMsgTransFailure   = (!bMsgReplyError && !bMsgBalanceError && !bMsgTransError && (nTransSuccess == 0))
+            // -----------------------------------------------------------------------------------------------------
+            // -----------------------------------------------------------------------------------------------------
+            bMsgAnyError       = (bMsgReplyError   || bMsgBalanceError   || bMsgTransError)
+            bMsgAnyFailure     = (bMsgReplyFailure || bMsgBalanceFailure || bMsgTransFailure)
+            // -----------------------------------------------------------------------------------------------------
+            bMsgAllSuccess     = (bMsgReplySuccess && bMsgBalanceSuccess && bMsgTransSuccess)
+            // -----------------------------------------------------------------------------------------------------
+        }
+        else // it's NOT a transaction, but a normal message..
+        {
+            nBalanceSuccess = (-1)
+            nTransSuccess   = (-1)
+            // -----------------------------------------------------------------------------------------------------
+            bMsgBalanceError   = false
+            bMsgBalanceSuccess = false
+            bMsgBalanceFailure = false
+            // -----------------------------------------------------------------------------------------------------
+            bMsgTransError     = false
+            bMsgTransSuccess   = false
+            bMsgTransFailure   = false
+            // -----------------------------------------------------------------------------------------------------
+            // -----------------------------------------------------------------------------------------------------
+            bMsgAnyError       = (bMsgReplyError)
+            bMsgAnyFailure     = (bMsgReplyFailure)
+            // -----------------------------------------------------------------------------------------------------
+            bMsgAllSuccess     = (bMsgReplySuccess)
+            // -----------------------------------------------------------------------------------------------------            
+        }
+        // ****************************************************************************
+        
+        // We know the message SENT. The above logic is about figuring out whether the reply message,
+        // the transaction inside it, and the balance agreement inside that transaction, whether
+        // any of those three things is a definite error, a definite failure, or a definite success.
+        // (Any one of those things could be true, OR NOT, and we can only act as if they are, if we
+        // have definitive proof in any of those cases.)
+        //
+        // The below logic is about what sort of REPLY we may have gotten (if anything.)
+        // Without a definite reply we cannot claw back. But the Nymbox can show us this answer,
+        // either now, or later...
+        //
+        if (bMsgAllSuccess)
+        {
+            // the Msg was a complete success, including the message
+            // AND the transaction AND the balance agreement.
+            // Therefore, there's DEFINITELY nothing to clawback.
+            //
+            // (Thus I RemoveSentMessage for the message, since 
+            // I'm totally done with it now. NO NEED TO HARVEST anything, either.)
+            //
+//          var nRemoved = OT_API_RemoveSentMessage(Integer.toString(nlocalRequestNum), theFunction.serverID, theFunction.nymID);
+            //            
+            // NOTE: The above call is unnecessary, since a successful reply means
+            // we already received the successful server reply, and OT's "ProcessServerReply"
+            // already removed the sent message from the sent buffer (so no need to do that here.)
+            
+//          OT_API_Output(0, strLocation + ", SendRequestOnce(): OT_API_RemoveSentMessage: " + nRemoved);
+            
+            return strReply  
+            
+        }
+        // In this case we want to grab the Nymbox and see if the replyNotice is there.
+        // If it IS, then OT server DEFINITELY replied to it (the MESSAGE was a success,
+        // whether the transaction inside of it was success or fail.) So we know bMsgReplySuccess
+        // is true, if we find a replyNotice.
+        // From there, we can also check for transaction success.
+        //
+        else if (bMsgAnyError || bMsgAnyFailure) // let's resync, and clawback whatever transaction numbers we might have used on the Request...
+        {                
+            var bWasGetReqSent = OTBool(false)
+            var nGetRequest    = MsgUtil.getRequestNumber(theFunction.serverID, theFunction.nymID, bWasGetReqSent)  // <==== RE-SYNC ATTEMPT...
+            // ------------------------------------------
+            // GET REQUEST WAS A SUCCESS.
+            //
+            if (bWasGetReqSent.getBooleanValue() && (nGetRequest > 0)) // success
+            {
+                bCanRetryAfterThis.setBooleanValue(true)
+                // ------------------------------------------------------------------------------
+                // But--if it was a TRANSACTION, then we're not done syncing yet!
+                //
+                if (bIsTransaction) 
+                {
+                    bCanRetryAfterThis.setBooleanValue(false)
+                    // -------------------------------------------
+                    //
+                    // Maybe we have an old Inbox or something.
+                    // NEW CODE HERE FOR DEBUGGING (THIS BLOCK)
+                    //
+                    if (!MsgUtil.getIntermediaryFiles(theFunction.serverID, theFunction.nymID, theFunction.accountID, true)) // bForceDownload=true
+                    {
+                        OT_API_Output(0, strLocation + ", getIntermediaryFiles returned false. (After a failure to send the transaction. Thus, I give up.)\n")
+                        return ""
+                    }
+
+                    // -------------------------------------------
+                    
+                    var bWasFound = OTBool(false)
+                    var bWasSent  = OTBool(false)
+                    
+                    var nProcessNymboxResult = MsgUtil.getAndProcessNymbox(theFunction.serverID, theFunction.nymID, bWasSent, false, // bForceDownload=false
+                                                        nlocalRequestNum, bWasFound,
+                                                        bWillRetryAfterThis, // bHarvestingForRetry,    // bHarvestingForRetry is INPUT, in the case nlocalRequestNum needs to be harvested before a flush occurs.
+                                                        // --------------------
+                                                        bMsgReplySuccess,    // bMsgReplySuccess is INPUT, and is in case nlocalRequestNum needs to be HARVESTED before a FLUSH happens.
+                                                        bMsgReplyFailure,    // bMsgReplyFailure is INPUT, and is in case nlocalRequestNum needs to be HARVESTED before a FLUSH happens.
+                                                        bMsgTransSuccess,    // bMsgTransSuccess is INPUT, and is in case nlocalRequestNum needs to be HARVESTED before a FLUSH happens.
+                                                        bMsgTransFailure)   // Etc.
+                    // -------------------------------------------
+                    if ((bWasSent.getBooleanValue() && (1 == nProcessNymboxResult)) || !bWasSent.getBooleanValue() && (0 == nProcessNymboxResult))// success processing Nymbox.
+                    {
+                        bCanRetryAfterThis.setBooleanValue(true)
+                    }
+                    // -------------------------------------------
+                    
+                    // This means a request number was returned, since the processNymbox failed,
+                    // and hasn't been properly harvested, so we either need to harvest it for a re-try,
+                    // or flush it.
+                    //
+                    else if (bWasSent.getBooleanValue() && (nProcessNymboxResult > 1))
+                    {
+                        var strNymbox = OT_API_LoadNymboxNoVerify(theFunction.serverID, theFunction.nymID) // FLUSH SENT MESSAGES!!!!  (AND HARVEST.)
+                        
+                        // *******************************************************
+                        if (MsgUtil.VerifyStringVal(strNymbox))
+                        {
+                            OT_API_FlushSentMessages(0, /*harvesting-for-retry==OT_FALSE*/ theFunction.serverID, theFunction.nymID, strNymbox)
+                        }
+                    }
+                } // if (bIsTransaction)
+                // -----------------------------------------------------------------------                                    
+            } // if getRequest was success.
+            else
+            {
+                OT_API_Output(0, strLocation + ", Failure: Never got reply from server, so tried getRequest, and that failed too. (I give up.)\n")
+                
+                // Note: cannot harvest transaction nums here because I do NOT know for sure
+                // whether the server has replied to the message or not! (Not until I successfully
+                // download my Nymbox.) Therefore, do NOT harvest or flush, but hold back and wait
+                // until the next attempt does a successful getNymbox and THEN do a "flush sent" after
+                // that. (That's the time we'll know for SURE what happened to the original reply.)
+                //
+                // (Therefore LEAVE the sent message in the sent queue.)
+                
+                return ""
+            }
+        } // else if (bMsgAnyError || bMsgAnyFailure)
+        // --------------------------------------------------------
+        
+        // Returning an empty string.
+        
+        ""         
+    }
+
+
+    // **********************************************************************
 
 
 

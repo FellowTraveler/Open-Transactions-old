@@ -912,15 +912,16 @@ bool OTServer::SaveMainFile()
     if (false == ascTemp.WriteArmoredString(strFinal, "NOTARY")) // todo hardcoding.
     {
         OTLog::vError("%s: Error saving notary (failed writing armored string):\n%s%s%s\n", szFunc,
-                      szFolderName, OTLog::PathSeparator(), strMainFilePath.Get());
+                      OTLog::Path(), OTLog::PathSeparator(), strMainFilePath.Get());
         return false;
     }
     // --------------------------------------------------------------------
 
-	const bool bSaved = OTDB::StorePlainString(strFinal.Get(), szFolderName, strMainFilePath.Get());
+	const bool bSaved = OTDB::StorePlainString(strFinal.Get(), strMainFilePath.Get());
 	
 	if (!bSaved)
-		OTLog::vError("%s: Error saving main file: %s\n", szFunc, strMainFilePath.Get());
+		OTLog::vError("%s: Error saving main file: %s%s%s\n", szFunc, 
+                      OTLog::Path(), OTLog::PathSeparator(), strMainFilePath.Get());
 	
 	return bSaved;
 }

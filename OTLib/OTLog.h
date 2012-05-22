@@ -228,9 +228,6 @@ private:
 
 public:	
     
-    static void OT_Init();
-    static void OT_Cleanup();
-    
     // -------------------------------------------------
 	~OTLog();
 	

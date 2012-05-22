@@ -554,19 +554,19 @@
         
         if (nRun == (-1))  // if the requestNumber returned by the send-attempt is -1, that means it DIDN'T SEND (error)
         {
-            OT_API_Output(0, strLocation + " ): Failed to send message due to error.\n")
+            OT_API_Output(0, strLocation + ": Failed to send message due to error.\n")
             
             theFunction.nRequestNum  = (-1)
         }
         else if (nRun == 0) // if the requestNumber returned by the send-attempt is 0, it means no error, but nothing was sent. (Like processing an empty box.)
         {
-            OT_API_Output(0, strLocation + " ): Didn't send this message, but NO error occurred, either. (For example, a request to process an empty Nymbox will return 0, meaning, nothing was sent, but also no error occurred.)\n")
+            OT_API_Output(0, strLocation + ": Didn't send this message, but NO error occurred, either. (For example, a request to process an empty Nymbox will return 0, meaning, nothing was sent, but also no error occurred.)\n")
             
             theFunction.nRequestNum  = 0
         }
         else if (nRun == (-2)) // -2 is also possible at some future date. (If the request number won't fit in an int, this is returned and then you can retrieve the actual number via a separate call.)
         {
-            OT_API_Output(0, strLocation + " ): ERROR, not supported. (-2 was returned.)\n")
+            OT_API_Output(0, strLocation + ": ERROR, not supported. (-2 was returned.)\n")
             
             // TODO: Have an OT API call here, which retrieves the request number
             // (It must be too large to fit into an integer, which is why this happened.)
@@ -593,7 +593,7 @@
 
     def OTAPI_Func::SendTransaction(theFunction, IN_FUNCTION)  
     {
-        var MsgUtil	= Utility()
+        var MsgUtil	    = Utility()
         var strLocation = concat("OTAPI_Func::SendTransaction: ", IN_FUNCTION)
         // --------------------------------------------------------------------
         
@@ -628,7 +628,8 @@
         }
         // ---------------------------
         //
-        var f_temp = fun(MsgUtil, strLocation, comparative, configTxnCount, serverID, nymID) { 
+        var f_temp = fun(MsgUtil, strLocation, comparative, configTxnCount, serverID, nymID) 
+        { 
             var getnym_trnsnum_count = OT_API_GetNym_TransactionNumCount(serverID, nymID)
             
             if (getnym_trnsnum_count < comparative) // try a second time.
@@ -663,7 +664,7 @@
         
         var bCanRetryAfterThis = OTBool(false)
 
-        var strResult = SendRequestOnce(   theFunction,
+        var strResult = this.SendRequestOnce(   theFunction,
                                            IN_FUNCTION,
                                            true,   // bIsTransaction      = true;
                                            true,   // bWillRetryAfterThis = true
@@ -715,7 +716,7 @@
                 bWillRetryAfterThis = false
             }
             
-            strResult = SendRequestOnce( theFunction, IN_FUNCTION, true, bWillRetryAfterThis, bCanRetryAfterThis)
+            strResult = this.SendRequestOnce( theFunction, IN_FUNCTION, true, bWillRetryAfterThis, bCanRetryAfterThis)
             
             // ---------------------------
             // In case of failure, we want to get these before we re-try.
@@ -749,12 +750,12 @@
         // --------------------------------------------------------------------
         var bCanRetryAfterThis = OTBool(false)
         // -------------------------------------------------------
-        var strResult = SendRequestOnce( theFunction, IN_FUNCTION, false,/*bIsTransaction=false*/ true, /* bWillRetryAfterThis=true*/ bCanRetryAfterThis)
+        var strResult = this.SendRequestOnce( theFunction, IN_FUNCTION, false,/*bIsTransaction=false*/ true, /* bWillRetryAfterThis=true*/ bCanRetryAfterThis)
         // -------------------------------------------------------
         
         if (!VerifyStringVal(strResult) && bCanRetryAfterThis.getBooleanValue())
         {
-            strResult = SendRequestOnce(theFunction, IN_FUNCTION, false, /* bIsTransaction=false;*/ false, /*bWillRetryAfterThis=false*/ bCanRetryAfterThis) // unused in this case, I suppose. It's still returned as output.
+            strResult = this.SendRequestOnce(theFunction, IN_FUNCTION, false, /* bIsTransaction=false;*/ false, /*bWillRetryAfterThis=false*/ bCanRetryAfterThis) // unused in this case, I suppose. It's still returned as output.
         }
         // Here we return strResult.
         //
@@ -770,7 +771,7 @@
         var MsgUtil	= Utility()
         var strLocation = concat("OTAPI_Func::SendRequestOnce: ", IN_FUNCTION)
         // --------------------------------------------------------------------
-        if (bCanRetryAfterThis.is_var_null())
+        if (VerifyOTBoolRef(bCanRetryAfterThis))
         {
             OT_API_Output(0, strLocation + ", Error: bCanRetryAfterThis was null.\n")
             return ""
@@ -778,7 +779,7 @@
         bCanRetryAfterThis.setBooleanValue(false)
         // ----------------------------------------------
         var strReply = ""
-        var nlocalRequestNum = SendRequestLowLevel(theFunction, IN_FUNCTION)  // <========   FIRST ATTEMPT!!!!!!
+        var nlocalRequestNum = this.SendRequestLowLevel(theFunction, IN_FUNCTION)  // <========   FIRST ATTEMPT!!!!!!
         
         if ((nlocalRequestNum == (-1)) || (nlocalRequestNum == 0))
         {
@@ -968,16 +969,15 @@
                     var bWasSent  = OTBool(false)
                     
                     var nProcessNymboxResult = MsgUtil.getAndProcessNymbox(theFunction.serverID, theFunction.nymID, bWasSent, false, // bForceDownload=false
-                                                nlocalRequestNum, bWasFound,
-                                                bWillRetryAfterThis, // bHarvestingForRetry,    // bHarvestingForRetry is INPUT, in the case nlocalRequestNum needs to be harvested before a flush occurs.
-                                                // --------------------
-                                                bMsgReplySuccess,    // bMsgReplySuccess is INPUT, and is in case nlocalRequestNum needs to be HARVESTED before a FLUSH happens.
-                                                bMsgReplyFailure,    // bMsgReplyFailure is INPUT, and is in case nlocalRequestNum needs to be HARVESTED before a FLUSH happens.
-                                                bMsgTransSuccess,    // bMsgTransSuccess is INPUT, and is in case nlocalRequestNum needs to be HARVESTED before a FLUSH happens.
-                                                bMsgTransFailure)   // Etc.
+                                                        nlocalRequestNum, bWasFound,
+                                                        bWillRetryAfterThis, // bHarvestingForRetry,    // bHarvestingForRetry is INPUT, in the case nlocalRequestNum needs to be harvested before a flush occurs.
+                                                        // --------------------
+                                                        bMsgReplySuccess,    // bMsgReplySuccess is INPUT, and is in case nlocalRequestNum needs to be HARVESTED before a FLUSH happens.
+                                                        bMsgReplyFailure,    // bMsgReplyFailure is INPUT, and is in case nlocalRequestNum needs to be HARVESTED before a FLUSH happens.
+                                                        bMsgTransSuccess,    // bMsgTransSuccess is INPUT, and is in case nlocalRequestNum needs to be HARVESTED before a FLUSH happens.
+                                                        bMsgTransFailure)   // Etc.
                     // -------------------------------------------
-                    if ((bWasSent.getBooleanValue() && (1 == nProcessNymboxResult)) ||
-                        !bWasSent.getBooleanValue() && (0 == nProcessNymboxResult))// success processing Nymbox.
+                    if ((bWasSent.getBooleanValue() && (1 == nProcessNymboxResult)) || !bWasSent.getBooleanValue() && (0 == nProcessNymboxResult))// success processing Nymbox.
                     {
                         bCanRetryAfterThis.setBooleanValue(true)
                     }

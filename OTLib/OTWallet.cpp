@@ -1329,13 +1329,13 @@ bool OTWallet::SaveWallet(const char * szFilename/*=NULL*/)
         if (false == ascTemp.WriteArmoredString(strFinal, "WALLET")) // todo hardcoding.
         {
             OTLog::vError("OTWallet::SaveWallet: Error saving wallet (failed writing armored string):\n%s%s%s\n", 
-                          ".", OTLog::PathSeparator(), m_strFilename.Get());
+                          OTLog::Path(), OTLog::PathSeparator(), m_strFilename.Get());
             return false;
         }
         // --------------------------------------------------------------------
 
 		// Wallet file is the only one in data_folder (".") and not a subfolder of that.
-		bSuccess = OTDB::StorePlainString(strFinal.Get(), ".", m_strFilename.Get()); // <==== Store Plain String
+		bSuccess = OTDB::StorePlainString(strFinal.Get(), m_strFilename.Get()); // <==== Store Plain String
 	}
 	// ---------------------------------------------------------------
 	
@@ -1356,7 +1356,7 @@ bool OTWallet::LoadWallet(const char * szFilename)
 	// Every other file, however, needs to specify its folder AND filename (and both
 	// of those will be appended to the local path to form the complete file path.)
 	//
-    const char * szFolderName = ".";
+//  const char * szFolderName = ".";
     
 	// Save this for later... (the full path to this file.)
 //	m_strFilename.Format("%s%s%s", OTLog::Path(), OTLog::PathSeparator(), szFilename);
@@ -1373,11 +1373,11 @@ bool OTWallet::LoadWallet(const char * szFilename)
 	
 	// --------------------------------------------------------------------
 
-	OTString strFileContents(OTDB::QueryPlainString(szFolderName, szFilename)); // <=== LOADING FROM DATA STORE.
+	OTString strFileContents(OTDB::QueryPlainString(szFilename)); // <=== LOADING FROM DATA STORE.
 	
 	if (strFileContents.GetLength() < 2)
 	{
-		OTLog::vError("OTWallet::LoadWallet: Error reading wallet file: %s\n",szFilename);
+		OTLog::vError("OTWallet::LoadWallet: Error reading wallet file: %s\n", szFilename);
 		return false;
 	}
     
@@ -1420,7 +1420,7 @@ bool OTWallet::LoadWallet(const char * szFilename)
                                                                          // We're doing this: "-----BEGIN OT ARMORED" (Should worked for escaped as well, here.)
             {
                 OTLog::vError("OTWallet::LoadWallet: Error loading file contents from ascii-armored encoding: %s%s%s.\n Contents: \n%s\n", 
-                              szFolderName, OTLog::PathSeparator(), szFilename, strFileContents.Get());
+                              OTLog::Path(), OTLog::PathSeparator(), szFilename, strFileContents.Get());
                 return false;
             }
             else // success loading the actual contents out of the ascii-armored version.

@@ -783,8 +783,7 @@ int main(int argc, char* argv[])
             
             // -----------------------------------------------------------------------    
             
-            OTLog::OT_Init();  // <========== (OpenSSL gets initialized here.)
-
+            OTCrypto::It()->Init();  // <========== (OpenSSL gets initialized here.)
             
         }
         // ****************************************
@@ -802,7 +801,7 @@ int main(int argc, char* argv[])
             // We clean these up in reverse order from the Init function, which just seems
             // like the best default, in absence of any brighter ideas.
             //
-            OTLog::OT_Cleanup();  // <=============== (OpenSSL gets cleaned up here.)
+            OTCrypto::It()->Cleanup();  // <======= (OpenSSL gets cleaned up here.)
 
             // -------------------------
             // (This is at the bottom, since we do the cleanup in the 
