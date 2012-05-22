@@ -1,14 +1,28 @@
+#########################################################################
+#									#
+#									#
+#	##		INSTALL - Fedora			##	#
+#									#
+#									#
+#########################################################################
+
+
+
 # install general developer dependencies
 $ sudo yum install gcc autoconf automake libtool wget cmake
+
 # install Open-Transactions library dependencies
 $ sudo yum install boost-devel zeromq-devel protobuf-devel openssl-devel
 
+
+
 # if your version of Fedora doesn't include OpenSSL 1.0:
-$ wget http://openssl.org/source/openssl-1.0.0g.tar.gz
-$ tar xf openssl-1.0.0g.tar.gz
-$ cd openssl-1.0.0g
-$ ./Configure linux-elf --prefix=$HOME/.local
+$ wget http://openssl.org/source/openssl-1.0.0j.tar.gz
+$ tar xf openssl-1.0.0j.tar.gz
+$ cd openssl-1.0.0j
+$ ./Configure linux-x86_64 --prefix=$HOME/.local
 $ make
+$ make tests
 $ make install
 $cd ..
 
@@ -39,6 +53,6 @@ $ autoreconf -i -f
 
 # build
 $ cd build
-$ PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH ../configure --prefix=$HOME/.local
+$ PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH LIBS=-lpthread ../configure --prefix=$HOME/.local
 $ make
 $ make install

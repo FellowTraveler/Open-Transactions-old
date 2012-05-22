@@ -1,3 +1,12 @@
+#########################################################################
+#									#
+#									#
+#		##	INSTALL - OSX Homebrew		##		#
+#									#
+#									#
+#########################################################################
+
+
 # configure your environment
 # http://stackoverflow.com/questions/3522248/how-do-i-compile-jzmq-for-zeromq-on-osx
 $ eval `brew --config | grep HOMEBREW_PREFIX | sed 's/: /=/'`
@@ -5,15 +14,16 @@ $ sudo bash -c 'echo '$HOMEBREW_PREFIX/share/aclocal' >> `aclocal --print-ac-dir
 (optional, for non-global brew installs)
 $ export PATH=$PATH:$HOMEBREW_PREFIX/bin
 
+
 # install dependencies
 # homebrew ones
 $ brew install cmake protobuf msgpack zeromq boost git
 
 # homebrew doesn't pack openssl 1.0 yet
 $ mkdir -p ~/Scratch/Sources; cd ~/Scratch/Sources
-$ curl -O http://openssl.org/source/openssl-1.0.0g.tar.gz
-$ tar xf openssl-1.0.0g.tar.gz
-$ cd openssl-1.0.0g
+$ curl -O http://openssl.org/source/openssl-1.0.0j.tar.gz
+$ tar xf openssl-1.0.0j.tar.gz
+$ cd openssl-1.0.0j
 $ ./Configure darwin64-x86_64-cc --prefix=$HOMEBREW_PREFIX
 $ make
 # may need root, depending on where $HOMEBREW_PREFIX points
