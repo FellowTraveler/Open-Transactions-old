@@ -187,7 +187,7 @@ protected:
 public:
     virtual ~OTCrypto();
     
-    static OTCrypto * It();
+EXPORT    static OTCrypto * It();
     
 EXPORT    void Init();     
 EXPORT    void Cleanup();    
