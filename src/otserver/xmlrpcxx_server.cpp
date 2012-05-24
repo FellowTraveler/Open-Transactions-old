@@ -678,14 +678,35 @@ OTString GetRomingAppDataLocation()
 	{
 #ifdef _WIN32
 
-		wchar_t* roamingAppData = 0;
-		SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, NULL, &roamingAppData);
+		
+		TCHAR szPath[MAX_PATH];
 
-		std::wstring basicstring(roamingAppData);
+		if(SUCCEEDED(SHGetFolderPath(NULL, 
+                             CSIDL_APPDATA|CSIDL_FLAG_CREATE, 
+                             NULL, 
+                             0, 
+                             szPath))) ;
 
-		std::string stdstring = utf8util::UTF8FromUTF16(basicstring);
+		#ifdef UNICODE
+		std::string stdpath = utf8util::UTF8FromUTF16(szPath);
+		#else
+		std::string string(szPath);
+		std::string stdpath = szPath;
+		#endif
 
-		return stdstring;
+		return stdpath;
+
+		// Old Code... Good, except worked for Windows Vista or greater only.
+		// We should use this code when we decide to disscontinue Win XP support.
+
+		//wchar_t* roamingAppData = 0;
+		//SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, NULL, &roamingAppData);
+
+		//std::wstring basicstring(roamingAppData);
+
+		//std::string stdstring = utf8util::UTF8FromUTF16(basicstring);
+
+		//return stdstring;
 #else
 		return getenv("HOME");
 #endif
