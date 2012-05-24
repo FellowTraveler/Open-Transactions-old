@@ -15,21 +15,29 @@ This guide has only been tested on Windows 7 x64.
 
 ## Things to install:  IN THIS ORDER!
 
-Windows 7 SP1
+Windows XP SP3 or Windows Vista SP2 or Windows 7 SP1
+
 
 Visual Studio C++ 2010 Express
+http://www.microsoft.com/visualstudio/en-us/products/2010-editions/visual-cpp-express
 
-Visual Studio C++ 2010 Express SP1
+Visual Studio C++ 2010 Express SP1 (via Microsoft Update)
+
 
 Microsoft Windows SDK for Windows 7 and .NET Framework 4
+http://www.microsoft.com/en-us/download/details.aspx?id=8442
 
-Microsoft Visual C++ 2010 Service Pack 1 Compiler Update for the Windows SDK 7.1 
+
+Microsoft Visual C++ 2010 Service Pack 1 Compiler Update for the Windows SDK 7.1
+http://www.microsoft.com/en-us/download/details.aspx?id=4422
 
 OpenSSL (Win32 and x64)
+http://slproweb.com/products/Win32OpenSSL.html
 
 Java SE Runtime Environment 6 (Win32 and x64)
-
 Java SE Development Kit 6 (Win32 and x64)
+http://www.oracle.com/technetwork/java/javase/downloads/index.html
+
 
 Boost (Win32 and x64)
 
