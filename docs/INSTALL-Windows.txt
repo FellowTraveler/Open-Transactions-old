@@ -24,8 +24,8 @@ http://www.microsoft.com/visualstudio/en-us/products/2010-editions/visual-cpp-ex
 Visual Studio C++ 2010 Express SP1 (via Microsoft Update)
 
 
-Microsoft Windows SDK for Windows 7 and .NET Framework 4
-http://www.microsoft.com/en-us/download/details.aspx?id=8442
+Microsoft Windows SDK for Windows 7 and .NET Framework 4  (use web-install, default options are fine)
+http://www.microsoft.com/en-us/download/details.aspx?id=8279
 
 
 Microsoft Visual C++ 2010 Service Pack 1 Compiler Update for the Windows SDK 7.1

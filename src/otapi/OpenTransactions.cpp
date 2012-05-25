@@ -1016,7 +1016,7 @@ bool OT_API::InitOTAPI()
     // ------------------------------------
     // SIGNALS
     //
-#if !defined(OT_NO_SIGNAL_HANDLING) && !defined(__linux__)
+#if defined(OT_SIGNAL_HANDLING)
     //
     OTLog::SetupSignalHandler();  // <===== SIGNALS
     //

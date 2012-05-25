@@ -239,7 +239,7 @@ private:
 
 public:	
     
-    static void SetupSignalHandler();  // OPTIONAL. Therefore I will call it in xmlrpcxx_client.cpp just above OT_Init.
+EXPORT    static void SetupSignalHandler();  // OPTIONAL. Therefore I will call it in xmlrpcxx_client.cpp just above OT_Init.
     
     // -------------------------------------------------
 	~OTLog();

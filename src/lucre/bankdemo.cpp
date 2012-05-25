@@ -28,7 +28,7 @@ static void Hex(const unsigned char *acBuf,int nLength)
     printf("\n");
     }
 
-int LucreBankDemo(int /*argc*/,char **/*argv*/)
+int LucreBankDemo(int /*argc*/,char * /*argv*/)
     {
     DH *a;
     BIO *out;

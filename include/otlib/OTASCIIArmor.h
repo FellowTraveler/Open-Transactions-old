@@ -187,18 +187,18 @@ public:
 	
 EXPORT	OTASCIIArmor();
 EXPORT	OTASCIIArmor(const char * szValue);
-	OTASCIIArmor(const OTData & theValue);
-	OTASCIIArmor(const OTPayload & theValue);
+EXPORT	OTASCIIArmor(const OTData & theValue);
+EXPORT	OTASCIIArmor(const OTPayload & theValue);
 EXPORT	OTASCIIArmor(const OTString & strValue);
-	OTASCIIArmor(const OTASCIIArmor & strValue);
+EXPORT	OTASCIIArmor(const OTASCIIArmor & strValue);
 EXPORT	OTASCIIArmor(const OTEnvelope & theEnvelope);
 EXPORT	virtual ~OTASCIIArmor();
 	
 	using OTString::swap;
 	
 EXPORT	OTASCIIArmor & operator=(const char * szValue);
-	OTASCIIArmor & operator=(const OTData & theValue);
-	OTASCIIArmor & operator=(const OTString & strValue);
+EXPORT	OTASCIIArmor & operator=(const OTData & theValue);
+EXPORT	OTASCIIArmor & operator=(const OTString & strValue);
 EXPORT	OTASCIIArmor & operator=(const OTASCIIArmor & strValue);
 	
 	bool LoadFromFile(const OTString & foldername, const OTString & filename);
