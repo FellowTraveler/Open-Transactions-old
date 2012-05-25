@@ -52,6 +52,9 @@ $ sudo aptitude install openjdk-6-jdk openjdk-6-source
 $ sudo aptitude -t sid install libprotobuf-dev
 
 
+## Make a dir for all the stuff ##
+cd ~ && mkdir -p dev && cd dev
+
 
 ## ALL ##
 
@@ -59,11 +62,11 @@ $ sudo aptitude -t sid install libprotobuf-dev
 $ wget http://www.openssl.org/source/openssl-1.0.0j.tar.gz
 $ tar xf openssl-1.0.0j.tar.gz
 $ cd openssl-1.0.0j
-$ ./Configure linux-x86_64 --prefix=$HOME/.local
+$ ./Configure linux-x86_64 shared --prefix=$HOME/.local
 $ make
 $ make tests
 $ make install
-$cd ..
+$ cd ..
 
 
 # fetch chaiscript
@@ -81,14 +84,38 @@ $ cd ..
 $ export PKG_CONFIG_PATH=$HOME/.local/lib/pkgconfig:$PKG_CONFIG_PATH
 $ git clone git://github.com/da2ce7/Open-Transactions.git
 $ cd Open-Transactions
-$ mkdir build
+
 $ autoreconf -i -f
 
+$ mkdir -p build && cd build
 
-# build
-$ cd build
-$ ../configure --prefix=$HOME/.local --with-java
+$ ../configure --prefix=$HOME/.local
+
+Options:
+
+Enable Configuration for SWIG Java Support:
+--with-java
+
+Enable Configuration in Release Mode:
+--enable-release	
+
+Enable extra (noisy) warnings with compile:
+--enable-warnings
+
+Enable the signal handling for catching segmentation fault's (debug only):
+--enable-sighandler
+
+
+$ make uninstall (to cleanup anthing in you .local folder)
+
 $ make
+
+Options:
+
+Build Multithreaded, need about 1gb of ram per thread.
+-j (int, power of 2)
+
+
 $ make install
 
 

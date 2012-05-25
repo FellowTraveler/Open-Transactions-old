@@ -828,7 +828,7 @@ int main(int argc, char* argv[])
             // OTLog class exists on both client and server sides.
             // #define OT_NO_SIGNAL_HANDLING if you want to turn off OT's signal handling.
             //
-#if !defined(OT_NO_SIGNAL_HANDLING) && !defined(__linux__)
+#if defined(OT_SIGNAL_HANDLING)
             OTLog::SetupSignalHandler(); // This is optional! (I, of course, am using it in this test app...)
 #endif
             // -----------------------------------------------------------------------    

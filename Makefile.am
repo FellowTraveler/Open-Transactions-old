@@ -5,11 +5,40 @@ ACLOCAL_AMFLAGS =		-I build-aux/m4
 ot_include_dir =		$(top_srcdir)/include
 ot_source_dir =			$(top_srcdir)/src
 
-common_includes =		$(DEPS_CFLAGS)					\
-				-I$(ot_include_dir)				\
-				-I$(ot_include_dir)/otlib
+common_includes =		-I$(ot_include_dir)				\
+				-I$(ot_include_dir)/otlib			\
+				$(DEPS_CFLAGS)
 
-AM_CPPFLAGS = 			$(common_includes)
+
+## COMMON FLAGS ###
+
+AM_CPPFLAGS = 			$(common_includes)				\
+				-g3						\
+				-ggdb						\
+				-rdynamic					\
+				-O0						\
+				--param ssp-buffer-size=4
+
+## WARNING FLAGS ###
+
+if WARNINGS
+AM_CPPFLAGS +=			-Waddress					\
+				-Woverloaded-virtual				\
+				-Wshadow					\
+				-Wconversion
+endif
+
+## RELEASE FLAGS ###
+
+if RELEASE
+AM_CPPFLAGS +=			-Wall						\
+				-D_FORTIFY_SOURCE=2				\
+				-fstack-protector-all				\
+				-fstack-check					\
+				-Wstack-protector
+endif
+
+
 
 AM_LDFLAGS = 			$(DEPS_LDFLAGS)
 
@@ -289,22 +318,27 @@ lib_LTLIBRARIES =		libot.la				\
 ####	LIB BigInt
 
 libbigint_la_SOURCES =		$(bigint_sources) $(bigint_headers)
-libbigint_la_CPPFLAGS =		$(DEPS_CFLAGS)  -I$(bigint_headers_dir)
+libbigint_la_CPPFLAGS =		-I$(bigint_headers_dir) $(DEPS_CFLAGS) -fpic
+libbigint_la_LDFLAGS =		-static
 
 ####	LIB IrrXML
 
 libirrxml_la_SOURCES =		$(irrxml_sources) $(irrxml_headers)
-libirrxml_la_CPPFLAGS =		$(DEPS_CFLAGS)  -I$(irrxml_headers_dir)
+libirrxml_la_CPPFLAGS =		-I$(irrxml_headers_dir) $(DEPS_CFLAGS) -fpic
+libirrxml_la_LDFLAGS =		-static
 
 ####	LIB Lucre
 
 liblucre_la_SOURCES =		$(lucre_sources) $(lucre_headers)
-liblucre_la_CPPFLAGS =		$(DEPS_CFLAGS)  -I$(lucre_headers_dir)
+liblucre_la_CPPFLAGS =		-I$(lucre_headers_dir) $(DEPS_CFLAGS) -fpic
+liblucre_la_LDFLAGS =		-static
 
 
 ####	LIB OT
 
-libot_la_SOURCES =		$(otlib_sources) $(otlib_headers)	
+libot_la_SOURCES =		$(otlib_sources) $(otlib_headers)
+
+libot_la_CPPFLAGS = 		$(AM_CPPFLAGS)
 
 libot_la_LIBADD =		$(DEPS_LIBS)				\
 				$(BOOST_LDFLAGS)			\
@@ -313,14 +347,14 @@ libot_la_LIBADD =		$(DEPS_LIBS)				\
 
 libot_la_DEPENDENCIES =		libbigint.la libirrxml.la liblucre.la
 
-libot_la_LDFLAGS =		-static
+libot_la_LDFLAGS =		--no-undefined
 
 
 ####	 LIB OT API
 
 libotapi_la_SOURCES =		$(otapi_sources) $(otapi_headers)
 
-libotapi_la_CPPFLAGS =		$(AM_CPPFLAGS)  -I$(otapi_headers_dir)
+libotapi_la_CPPFLAGS =		-I$(otapi_headers_dir) $(AM_CPPFLAGS) -fpic
 
 libotapi_la_LIBADD =		libot.la
 libotapi_la_DEPENDENCIES =	libot.la
@@ -393,10 +427,10 @@ libotapi_java_la_SOURCES =	swig/otapi/OTAPI-java.cxx
 libotapi_java_la_CPPFLAGS =	$(AM_CPPFLAGS)  $(JNI_CPPFLAGS)		\
 				-I$(top_srcdir)/swig/otapi
 
-libotapi_java_la_LIBADD =	libotapi.la
-libotapi_java_la_DEPENDENCIES =	libotapi.la
+libotapi_java_la_LIBADD =	libotapi.la libot.la
+libotapi_java_la_DEPENDENCIES =	libotapi.la libot.la
 
-libotapi_java_la_LDFLAGS =	-static
+libotapi_java_la_LDFLAGS =	--no-undefined
 
 
 if TRANSPORT_ZMQ

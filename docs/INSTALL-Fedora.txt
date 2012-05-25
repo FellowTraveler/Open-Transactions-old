@@ -53,6 +53,10 @@ $ autoreconf -i -f
 
 # build
 $ cd build
-$ PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH LIBS=-lpthread ../configure --prefix=$HOME/.local
+
+$ PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH LIBS=-lpthread ../configure --prefix=$HOME/.local --with-java --enable-debug
+or
+$ PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH LIBS=-lpthread ../configure --prefix=$HOME/.local --with-java
+
 $ make
 $ make install

@@ -9,6 +9,9 @@ LT_INIT([dlopen])
 AC_CONFIG_MACRO_DIR([build-aux/m4])
 AC_CONFIG_HEADERS([config.h])
 
+: ${CXXFLAGS=""}
+: ${CFLAGS=""}
+
 PKG_PROG_PKG_CONFIG([0.25])
 AC_PROG_CC
 AM_PROG_CC_C_O
@@ -40,6 +43,42 @@ AC_CHECK_HEADERS([msgpack.h], [],
                 [AC_MSG_ERROR([No header files for libmsgpack found.])])
 AC_CHECK_LIB(msgpack, msgpack_unpack)
 
+AC_ARG_ENABLE(
+	sighandler,
+	AS_HELP_STRING(
+		[--enable-sighandler],
+		[enable sighandler, default: no]),
+		[case "${enableval}" in
+			yes)	sighandler=true ;;
+			no)	sighandler=false ;;
+			*)	AC_MSG_ERROR([bad value ${enableval} for --disable-sighandler]) ;;
+			esac],
+		[sighandler=false])
+
+AM_CONDITIONAL(OT_SIGNAL_HANDLING, test x"$sighandler" = x"true")
+
+AC_ARG_ENABLE(warnings,
+AS_HELP_STRING([--enable-warnings],
+               [enable warnings, default: no]),
+[case "${enableval}" in
+             yes) warnings=true ;;
+             no)  warnings=false ;;
+             *)   AC_MSG_ERROR([bad value ${enableval} for --enable-warnings]) ;;
+esac],
+[warnings=false])
+AM_CONDITIONAL(WARNINGS, test x"$warnings" = x"true")
+
+AC_ARG_ENABLE(release,
+AS_HELP_STRING([--enable-release],
+               [enable releasemode, default: no]),
+[case "${enableval}" in
+             yes) release=true ;;
+             no)  release=false ;;
+             *)   AC_MSG_ERROR([bad value ${enableval} for --enable-release]) ;;
+esac],
+[release=false])
+AM_CONDITIONAL(RELEASE, test x"$release" = x"true")
+
 AC_ARG_WITH([java],
          [AS_HELP_STRING([--with-java],
              [build Java JNI wrapper])], [])
@@ -53,6 +92,8 @@ if (test "x$with_java" == "xyes"); then
     done
     AC_SUBST(JNI_CPPFLAGS, $JNI_CPPFLAGS)
 fi
+
+
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
