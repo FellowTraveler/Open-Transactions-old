@@ -1081,13 +1081,13 @@ void OTLog::TransformFilePath(const char * szInput, OTString & strOutput)
         //
         int nCount = -1;
         
-        for (int i = 0; (i < exp_result.we_wordc) && (exp_result.we_wordv[i] != NULL); ++i)
+        for (unsigned int i = 0; (i < exp_result.we_wordc) && (exp_result.we_wordv[i] != NULL); ++i)
         {
             ++nCount; // 0 on first iteration.
             // ---------------
             str_Output += exp_result.we_wordv[i];
             
-            if (nCount < (exp_result.we_wordc)-1) // we don't add a space after the last one.
+            if (static_cast<unsigned int>(nCount) < (exp_result.we_wordc)-1) // we don't add a space after the last one.
                 str_Output += " ";
         }
         

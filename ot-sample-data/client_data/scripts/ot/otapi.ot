@@ -788,7 +788,9 @@
         else // 1 and default.
         {    
             if (nlocalRequestNum < (-1))
+            {
                 return ""
+            }
             
             strReply = MsgUtil.ReceiveReplyLowLevel(theFunction.serverID, theFunction.nymID, nlocalRequestNum, IN_FUNCTION)  // <==== Here we RECEIVE the REPLY...
         }

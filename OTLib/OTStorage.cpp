@@ -444,7 +444,7 @@ namespace OTDB
 		// ------------------------------
 		if (NULL == details::s_pStorage)
 		{
-			OTLog::Output(0, "OTDB::InitDefaultStorage: Existing storage context doesn't already exist. (Creating it.)\n");
+			OTLog::Output(2, "OTDB::InitDefaultStorage: Existing storage context doesn't already exist. (Creating it.)\n");
 			
 			details::s_pStorage = Storage::Create(eStoreType, ePackType);
 		}
@@ -3221,12 +3221,12 @@ namespace OTDB
 			return false;
 		}
 		// --------------------------------
-		OTLog::vOutput(0, "StorageFS::Init: New path segments are: %s %s %s %s %s %s\n", 
+		OTLog::vOutput(3, "StorageFS::Init: New path segments are: %s %s %s %s %s %s\n", 
 					   oneStr.c_str(), twoStr.c_str(), threeStr.c_str(),
 					   fourStr.c_str(), fiveStr.c_str(), sixStr.c_str());
 		// --------------------------------
 		if (twoStr.length() < 1)
-			OTLog::Output(0, " (Make sure to call LoadWallet after this.) \n");
+			OTLog::Output(1, " (Make sure to call LoadWallet after this.) \n");
 		// --------------------------------
         OTString strPATH_OUTPUT;
         OTLog::TransformFilePath(oneStr.c_str(), strPATH_OUTPUT);

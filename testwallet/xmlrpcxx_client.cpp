@@ -307,351 +307,6 @@ void HandleCommandLineArguments( int argc, char* argv[], AnyOption * opt );
 
 
 
-OTSocket::OTSocket() : m_pContext(NULL), m_pSocket(NULL)
-{
-	NewContext();
-}
-
-OTSocket::~OTSocket()
-{
-	// -----------------------------------
-	// Clean up the socket and context.
-	if (NULL != m_pSocket)
-		delete m_pSocket;
-	m_pSocket = NULL;
-	// -----------------------------------
-	if (NULL != m_pContext)
-		delete m_pContext;
-	m_pContext = NULL;
-	// -----------------------------------
-}
-
-
-void OTSocket::NewContext()
-{
-	if (NULL != m_pSocket)
-		delete m_pSocket;
-	m_pSocket = NULL;
-	
-	if (NULL != m_pContext)
-		delete m_pContext;
-	
-	m_pContext = new zmq::context_t(1);
-	OT_ASSERT_MSG(NULL != m_pContext, "OTSocket::NewContext():  Failed creating network context: zmq::context_t * pContext = new zmq::context_t(1);");	
-}
-
-void OTSocket::Connect(const OTString &strConnectPath)
-{
-    OT_ASSERT(NULL != m_pContext);
-    
-	if (NULL != m_pSocket)
-		delete m_pSocket;
-	
-	m_pSocket = new zmq::socket_t(*m_pContext, ZMQ_REQ); // REQUEST socket. (Request / Response.)
-	OT_ASSERT_MSG(NULL != m_pSocket, "OTSocket::ConnectSocket: new zmq::socket(context, ZMQ_REQ)");
-	
-	OTString strTemp(strConnectPath); // In case m_strConnectPath is what was passed in. (It happens.)
-	m_strConnectPath.Set(strTemp); // In case we have to close/reopen the socket to finish a send/receive.
-	
-	m_pSocket->connect(strConnectPath.Get());
-	// ------------------------
-	//  Configure socket to not wait at close time
-	const int linger = 0; // close immediately
-	m_pSocket->setsockopt (ZMQ_LINGER, &linger, sizeof (linger));
-}
-// -----------------------------------
-/*
- typedef struct
- {
- void *socket;
- int fd;
- short events;
- short revents;
- } zmq_pollitem_t; 
- */
-
-// The bool means true == try again soon, false == don't try again.
-bool OTSocket::HandlePollingError()
-{
-	bool bRetVal = false;
-	
-	switch (errno) {
-			// At least one of the members of the items array refers to a socket whose associated ØMQ context was terminated.
-		case ETERM:
-			OTLog::Error("OTSocket::HandlePollingError: Failure: At least one of the members of the items array refers to a socket whose associated ØMQ context was terminated. (Deleting and re-creating the context.)\n");
-			this->NewContext();
-			break;		
-			// The provided items was not valid (NULL).
-		case EFAULT:
-			OTLog::Error("OTSocket::HandlePollingError: Failed: The provided polling items were not valid (NULL).\n");
-			break;
-			// The operation was interrupted by delivery of a signal before any events were available.
-		case EINTR:
-			OTLog::Error("OTSocket::HandlePollingError: The operation was interrupted by delivery of a signal before any events were available. Re-trying...\n");
-			bRetVal = true;
-			break;
-		default:
-			OTLog::Error("OTSocket::HandlePollingError: Default case. Re-trying...\n");
-			bRetVal = true;
-			break;
-	}
-	return bRetVal;
-}
-
-// return value bool, true == try again, false == error, failed.
-//
-bool OTSocket::HandleSendingError()
-{
-	bool bRetVal = false;
-	
-	switch (errno) {
-			// Non-blocking mode was requested and the message cannot be sent at the moment.
-		case EAGAIN:
-			OTLog::vOutput(0, "OTSocket::HandleSendingError: Non-blocking mode was requested and the message cannot be sent at the moment. Re-trying...\n");
-			bRetVal = true;
-			break;
-			// The zmq_send() operation is not supported by this socket type.
-		case ENOTSUP:
-			OTLog::Error("OTSocket::HandleSendingError: failure: The zmq_send() operation is not supported by this socket type.\n");
-			break;
-			// The zmq_send() operation cannot be performed on this socket at the moment due to the socket not being in the appropriate state. This error may occur with socket types that switch between several states, such as ZMQ_REP. See the messaging patterns section of zmq_socket(3) for more information.
-		case EFSM:
-			OTLog::vOutput(0, "OTSocket::HandleSendingError: The zmq_send() operation cannot be performed on this socket at the moment due to the socket not being in the appropriate state. Deleting socket and re-trying...\n");
-			this->Connect(m_strConnectPath);
-			bRetVal = true;
-			break;
-			// The ØMQ context associated with the specified socket was terminated.
-		case ETERM:
-			OTLog::Error("OTSocket::HandleSendingError: The ØMQ context associated with the specified socket was terminated. (Deleting and re-creating the context and the socket, and trying again.)\n");
-			this->NewContext();
-			this->Connect(m_strConnectPath);
-			bRetVal = true;			
-			break;
-			// The provided socket was invalid.
-		case ENOTSOCK:
-			OTLog::Error("OTSocket::HandleSendingError: The provided socket was invalid. (Deleting socket and re-trying...)\n");
-			this->Connect(m_strConnectPath);
-			bRetVal = true;			
-			break;
-			// The operation was interrupted by delivery of a signal before the message was sent. Re-trying...
-		case EINTR:
-			OTLog::Error("OTSocket::HandleSendingError: The operation was interrupted by delivery of a signal before the message was sent. (Re-trying...)\n");
-			bRetVal = true;
-			break;
-			// Invalid message.
-		case EFAULT:
-			OTLog::Error("OTSocket::HandleSendingError: Failure: The provided pollitems were not valid (NULL).\n");
-			break;
-		default:
-			OTLog::Error("OTSocket::HandleSendingError: Default case. Re-trying...\n");
-			bRetVal = true;
-			break;
-	}
-	return bRetVal;
-}
-
-
-bool OTSocket::HandleReceivingError()
-{
-	bool bRetVal = false;
-	
-	switch (errno) {
-			// Non-blocking mode was requested and no messages are available at the moment.
-		case EAGAIN:
-			OTLog::vOutput(0, "OTSocket::HandleReceivingError: Non-blocking mode was requested and no messages are available at the moment. Re-trying...\n");
-			bRetVal = true;
-			break;
-			// The zmq_recv() operation is not supported by this socket type.
-		case ENOTSUP:
-			OTLog::Error("OTSocket::HandleReceivingError: Failure: The zmq_recv() operation is not supported by this socket type.\n");
-			break;
-			// The zmq_recv() operation cannot be performed on this socket at the moment due to the socket not being in the appropriate state. This error may occur with socket types that switch between several states, such as ZMQ_REP. See the messaging patterns section of zmq_socket(3) for more information.
-		case EFSM:
-			OTLog::vOutput(0, "OTSocket::HandleReceivingError: The zmq_recv() operation cannot be performed on this socket at the moment due to the socket not being in the appropriate state. (Deleting socket and re-trying...)\n");
-		{ OTASCIIArmor ascTemp(m_ascLastMsgSent); bRetVal = this->Send(ascTemp, m_strConnectPath); }
-			break;
-			// The ØMQ context associated with the specified socket was terminated.
-		case ETERM:
-			OTLog::Error("OTSocket::HandleReceivingError: The ØMQ context associated with the specified socket was terminated. (Re-creating the context, and trying again...)\n");
-			this->NewContext();
-		{ OTASCIIArmor ascTemp(m_ascLastMsgSent); bRetVal = this->Send(ascTemp, m_strConnectPath); }
-			break;
-			// The provided socket was invalid.
-		case ENOTSOCK:
-			OTLog::Error("OTSocket::HandleReceivingError: The provided socket was invalid. (Deleting socket and re-trying.)\n");
-		{ OTASCIIArmor ascTemp(m_ascLastMsgSent); bRetVal = this->Send(ascTemp, m_strConnectPath); }
-			break;
-			// The operation was interrupted by delivery of a signal before a message was available.
-		case EINTR:
-			OTLog::Error("OTSocket::HandleSendingError: The operation was interrupted by delivery of a signal before the message was sent. (Re-trying...)\n");
-			bRetVal = true;
-			break;
-			// The message passed to the function was invalid.
-		case EFAULT:
-			OTLog::Error("OTSocket::HandleReceivingError: Failure: The message passed to the function was invalid.\n");
-			break;
-		default:
-			OTLog::Error("OTSocket::HandleReceivingError: Default case. Re-trying...\n");
-			bRetVal = true;
-			break;
-	}
-	return bRetVal;
-}
-
-
-bool OTSocket::Send(OTASCIIArmor & ascEnvelope, const OTString &strConnectPath)
-{
-	OT_ASSERT_MSG(NULL != m_pContext, "m_pContext == NULL in OTSocket::Send()");
-	OT_ASSERT_MSG(ascEnvelope.GetLength() > 0, "ascEnvelope.GetLength() > 0");
-	m_ascLastMsgSent.Set(ascEnvelope); // In case we need to re-send.
-	// -----------------------------------
-	this->Connect(strConnectPath);
-	
-	if (NULL == m_pSocket) // This should have been set in the Connect() call just above.
-	{
-		OTLog::Error("OTSocket::Send: Failed connecting socket.\n");
-		return false;
-	}
-	// -----------------------------------	
-	const long lLatencySendMilliSec	= OTLog::GetLatencySendMs();
-	const long lLatencySendMicroSec	= lLatencySendMilliSec*1000; // Microsecond is 1000 times smaller than millisecond.
-	
-	zmq::message_t request(ascEnvelope.GetLength());
-	memcpy((void*)request.data(), ascEnvelope.Get(), ascEnvelope.GetLength());
-	
-	bool bSuccessSending	= false;
-	
-	if (OTLog::IsBlocking())
-	{
-		bSuccessSending = m_pSocket->send(request); // Blocking.
-	}
-	else // not blocking
-	{
-		int		nSendTries	= OTLog::GetLatencySendNoTries();
-		long	lDoubling	= lLatencySendMicroSec;		
-		bool	bKeepTrying = true;
-		
-		while (bKeepTrying && (nSendTries > 0))
-		{
-			zmq::pollitem_t items [] = {
-				{ (*m_pSocket), 0, ZMQ_POLLOUT,	0 }
-			};
-			
-			const int nPoll = zmq::poll(&items[0], 1, lDoubling);	// ZMQ_POLLOUT, 1 item, timeout (microseconds in ZMQ 2.1; changes to milliseconds in 3.0)					
-			lDoubling *= 2;
-			
-			if (items[0].revents & ZMQ_POLLOUT)
-			{
-				bSuccessSending = m_pSocket->send(request, ZMQ_NOBLOCK); // <=========== SEND ===============
-				OTLog::SleepMilliseconds( 1 );
-				
-				if (!bSuccessSending)
-				{
-					if (false == HandleSendingError())
-						bKeepTrying = false;
-				}
-				else
-					break; // (Success -- we're done in this loop.)
-			}
-			else if ((-1) == nPoll) // error.
-			{
-				if (false == HandlePollingError())
-					bKeepTrying = false;
-			}
-			
-			--nSendTries;
-		}
-	}
-	/*
-	 Normally, we try to send...
-	 If the send fails, we wait X ms and then try again (Y times).
-	 
-	 BUT -- what if the failure was an errno==EAGAIN ?
-	 In that case, it's not a REAL failure, but rather, a "failure right now, try again in a sec."
-	 */
-	// ***********************************
-	
-	if (bSuccessSending)
-		OTLog::SleepMilliseconds( OTLog::GetLatencyDelayAfter() > 0 ? OTLog::GetLatencyDelayAfter() : 1 );
-	
-	return bSuccessSending;
-}
-// -----------------------------------
-
-bool OTSocket::Receive(OTASCIIArmor & ascServerReply)
-{
-	OT_ASSERT_MSG(NULL != m_pContext, "m_pContext == NULL in OTSocket::Receive()");
-	OT_ASSERT_MSG(NULL != m_pSocket, "m_pSocket == NULL in OTSocket::Receive()");
-	// -----------------------------------	
-	const long lLatencyRecvMilliSec	= OTLog::GetLatencyReceiveMs();
-	const long lLatencyRecvMicroSec	= lLatencyRecvMilliSec*1000;
-	
-	// ***********************************
-	//  Get the reply.
-	zmq::message_t reply;
-	
-	bool bSuccessReceiving = false;
-	
-	// If failure receiving, re-tries 2 times, with 4000 ms max delay between each (Doubling every time.)
-	//
-	if (OTLog::IsBlocking())
-	{
-		bSuccessReceiving = m_pSocket->recv(&reply); // Blocking.
-	}
-	else	// not blocking
-	{
-		long	lDoubling = lLatencyRecvMicroSec;
-		int		nReceiveTries = OTLog::GetLatencyReceiveNoTries();
-		bool	expect_reply = true;
-		while (expect_reply) 
-		{
-			//  Poll socket for a reply, with timeout
-			zmq::pollitem_t items[] = { { *m_pSocket, 0, ZMQ_POLLIN, 0 } };
-			
-			const int nPoll = zmq::poll (&items[0], 1, lDoubling);
-			lDoubling *= 2;
-			
-			//  If we got a reply, process it
-			if (items[0].revents & ZMQ_POLLIN) 
-			{
-				bSuccessReceiving = m_pSocket->recv(&reply, ZMQ_NOBLOCK); // <=========== RECEIVE ===============
-				OTLog::SleepMilliseconds( 1 );
-				
-				if (!bSuccessReceiving)
-				{
-					if (false == HandleReceivingError())
-						expect_reply = false;
-				}
-				else
-					break; // (Success -- we're done in this loop.)				
-			}
-			else if (nReceiveTries == 0) 
-			{
-				OTLog::Error("OTSocket::Receive: server seems to be offline, abandoning.\n");
-				expect_reply = false;
-				break;
-			}
-			else if ((-1) == nPoll) // error.
-			{
-				if (false == HandlePollingError())
-					expect_reply = false;
-			}
-			
-			--nReceiveTries;
-		}
-	}
-	// ***********************************
-	
-	if (bSuccessReceiving && (reply.size() > 0))
-		ascServerReply.MemSet(static_cast<const char*>(reply.data()), reply.size());
-
-	return (bSuccessReceiving && (reply.size() > 0));
-}
-// -----------------------------------
-
-
-
-
 
 // -------------------------------------------------------------------------------
 // If false, error happened, usually based on what user just attemped.
@@ -1341,7 +996,7 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
 
 		const char * psErr	= "RegisterAPICallWithScript: ERROR: Failed trying to include script header:  %s (Does it exist?)\n";
 
-        OTLog::vOutput(0, "%s: About to try to import script headers:\n 1: %s\n 2: %s\n   3: %s\n", __func__,
+        OTLog::vOutput(2, "%s: About to try to import script headers:\n  1: %s\n  2: %s\n  3: %s\n", __func__,
                        strUseFile1.Get(), strUseFile2.Get(), strUseFile3.Get());
 //        OTLog::vOutput(0, "RegisterAPIWithScript: About to try to import script headers:\n 1_1: %s\n    1_2: %s\n    1_3: %s\n 2-1: %s\n    2_2: %s\n   3: %s\n", strUseFile1_1.Get(), strUseFile1_2.Get(), strUseFile1_3.Get(), strUseFile2_1.Get(), strUseFile2_2.Get(), strUseFile3.Get());
                
@@ -1652,10 +1307,11 @@ void CollectDefaultedCLValues(AnyOption *opt,
 
 int main(int argc, char* argv[])
 {
-	OTLog::vOutput(0, "\n\nWelcome to Open Transactions... Test Client -- version %s\n"
-				   "(transport build: OTMessage -> OTEnvelope -> ZMQ )\n", 
+	OTLog::vOutput(0, "\n\nWelcome to Open Transactions... Test Client -- version %s\n", 
 				   OTLog::Version());
-
+    
+	OTLog::vOutput(1, "(transport build: OTMessage -> OTEnvelope -> ZMQ )\n");
+    
 //    OTString strIniRAWFileDefault;
 //    OTString strIniFileDefault;
 //    strIniRAWFileDefault.Format("%s%s%s", OT_FOLDER_DEFAULT, OTLog::PathSeparator(), OT_INI_FILE_DEFAULT);
@@ -1714,13 +1370,13 @@ int main(int argc, char* argv[])
                 if (NULL != pVal)
                 {
                     strRawPath.Set(pVal);
-                    OTLog::vOutput(0, "Reading the ini file (%s): \n Found OT client_path: %s \n", 
+                    OTLog::vOutput(1, "Reading the ini file (%s): \n      Found OT client_path: %s \n", 
                                    strIniFileDefault.Get(), strRawPath.Get());
                 }
                 else
                 {
                     strRawPath.Set(MAIN_PATH_DEFAULT);
-                    OTLog::vOutput(0, "There's no client_data path in the ini file (%s).\n Therefore, using: %s \n", 
+                    OTLog::vOutput(1, "There's no client_data path in the ini file (%s).\n Therefore, using: %s \n", 
                                    strIniFileDefault.Get(), strRawPath.Get());
                 }
             }
@@ -1745,12 +1401,12 @@ int main(int argc, char* argv[])
     // many instances of this object, even though there is only a single instance
     // of the application. We'll get there.
     //
-	OTLog::vOutput(0, "Attempting to use client_data path %s (transformed from %s)\n", 
+	OTLog::vOutput(2, "Attempting to use client_data path: %s \n      Transformed from: %s\n", 
                    strPath.Get(), strRawPath.Get());
 
     OT_API::It().Init(strPath);   
     
-	OTLog::vOutput(0, "Using client_data path:  %s\n", OTLog::Path());
+	OTLog::vOutput(1, "Using client_data path:  %s\n", OTLog::Path());
     // -------------------------------------------------------------------
 	    
     // COMMAND-LINE OPTIONS (and default values from files.)
@@ -1851,7 +1507,7 @@ int main(int argc, char* argv[])
         else if( opt->getFlag( "prompt" )   )
         { bIsCommandProvided = true; cerr << "prompt flag set "  << endl ; }
         else if( opt->getValue( "script" )  != NULL )
-        { bIsCommandProvided = true; cerr << "script filename = " << opt->getValue( "script" ) << endl ; }
+        { bIsCommandProvided = true; cerr << "script filename: " << opt->getValue( "script" ) << endl ; }
         else if( opt->getFlag( 'r' ) || opt->getFlag( "refresh" )   )
         { bIsCommandProvided = true; cerr << "refresh flag set "  << endl ; }
         else if( opt->getFlag( "refreshnym" )   )
@@ -1866,7 +1522,7 @@ int main(int argc, char* argv[])
     //
 	if( false == bIsCommandProvided )   // If no command was provided (though other command-line options may have been...) 
     {                           // then we expect a script to come in through stdin, and we run it through the script interpreter!
-		OTLog::Output(0, "\n\nYou probably don't want to do this. Use CTRL-C, and try \"ot --help\" for instructions.\n\n "
+		OTLog::Output(0, "\n\nYou probably don't want to do this... Use CTRL-C, and try \"ot --help\" for instructions.\n\n "
 					  "==> Expecting ot script from standard input. (Terminate with CTRL-D):\n\n");
 		
 		// ----------------------------------------
@@ -2215,7 +1871,7 @@ int main(int argc, char* argv[])
 					const std::string str_var_name("Args");
 					const std::string str_var_value(str_Args);
 					
-					OTLog::vOutput(0, "Adding user-defined command line arguments as '%s' containing value: %s\n",
+					OTLog::vOutput(1, "Adding user-defined command line arguments as '%s' containing value: %s\n",
 								   str_var_name.c_str(), str_var_value.c_str());
 					
 					OTVariable * pVar = new OTVariable(str_var_name,		// "Args"
@@ -2228,7 +1884,7 @@ int main(int argc, char* argv[])
 				}
 				else 
 				{
-					OTLog::Error("Args variable (optional user-defined arguments) isn't set...\n");
+					OTLog::Output(2, "Args variable (optional user-defined arguments) isn't set...\n");
 				}
 				
 				// -------------------------
@@ -2237,7 +1893,7 @@ int main(int argc, char* argv[])
 					const std::string str_var_name("Server");
 					const std::string str_var_value(str_ServerID);
 					
-					OTLog::vOutput(0, "Adding constant with name %s and value: %s ...\n", str_var_name.c_str(), str_var_value.c_str());
+					OTLog::vOutput(1, "Adding constant with name %s and value: %s ...\n", str_var_name.c_str(), str_var_value.c_str());
 					
 					OTVariable * pVar = new OTVariable(str_var_name,		// "Server"
 													   str_var_value,		// "lkjsdf09834lk5j34lidf09" (Whatever)
@@ -2249,7 +1905,7 @@ int main(int argc, char* argv[])
 				}
 				else 
 				{
-					OTLog::Error("Server variable isn't set...\n");
+					OTLog::Output(2, "Server variable isn't set...\n");
 				}
 				// -------------------------
 
@@ -2257,7 +1913,7 @@ int main(int argc, char* argv[])
 				{
 					const std::string str_party_name("MyNym");
 					
-					OTLog::vOutput(0, "Adding constant with name %s and value: %s ...\n", str_party_name.c_str(), str_MyNym.c_str());
+					OTLog::vOutput(1, "Adding constant with name %s and value: %s ...\n", str_party_name.c_str(), str_MyNym.c_str());
 					
 					OTVariable * pVar = new OTVariable(str_party_name,	// "MyNym"
 													   str_MyNym,		// "lkjsdf09834lk5j34lidf09" (Whatever)
@@ -2270,7 +1926,7 @@ int main(int argc, char* argv[])
 				}
 				else 
 				{
-					OTLog::Error("MyNym variable isn't set...\n");
+					OTLog::Output(2, "MyNym variable isn't set...\n");
 				}
 				// -------------------------
                 
@@ -2278,7 +1934,7 @@ int main(int argc, char* argv[])
 				{
 					const std::string str_party_name("HisNym");
 
-					OTLog::vOutput(0, "Adding constant with name %s and value: %s ...\n", str_party_name.c_str(), str_HisNym.c_str());
+					OTLog::vOutput(1, "Adding constant with name %s and value: %s ...\n", str_party_name.c_str(), str_HisNym.c_str());
 					
 					OTVariable * pVar = new OTVariable(str_party_name,	// "HisNym"
 													   str_HisNym,		// "lkjsdf09834lk5j34lidf09" (Whatever)
@@ -2290,7 +1946,7 @@ int main(int argc, char* argv[])
 				}
 				else 
 				{
-					OTLog::Error("HisNym variable isn't set...\n");
+					OTLog::Output(2, "HisNym variable isn't set...\n");
 				}				
 				// -------------------------
 				/* // WE NO LONGER PASS THE PARTY DIRECTLY TO THE SCRIPT,
@@ -2332,7 +1988,7 @@ int main(int argc, char* argv[])
 					const std::string str_var_name("MyAcct");
 					const std::string str_var_value(str_MyAcct);
 					
-					OTLog::vOutput(0, "Adding variable with name %s and value: %s ...\n", str_var_name.c_str(), str_var_value.c_str());
+					OTLog::vOutput(1, "Adding variable with name %s and value: %s ...\n", str_var_name.c_str(), str_var_value.c_str());
 					
 					OTVariable * pVar = new OTVariable(str_var_name,		// "MyAcct"
 													   str_var_value,		// "lkjsdf09834lk5j34lidf09" (Whatever)
@@ -2344,7 +2000,7 @@ int main(int argc, char* argv[])
 				}
 				else 
 				{
-					OTLog::Error("MyAcct variable isn't set...\n");
+					OTLog::Output(2, "MyAcct variable isn't set...\n");
 				}
 				// -------------------------
 				
@@ -2353,7 +2009,7 @@ int main(int argc, char* argv[])
 					const std::string str_var_name("MyPurse");
 					const std::string str_var_value(str_MyPurse);
 					
-					OTLog::vOutput(0, "Adding variable with name %s and value: %s ...\n", str_var_name.c_str(), str_var_value.c_str());
+					OTLog::vOutput(1, "Adding variable with name %s and value: %s ...\n", str_var_name.c_str(), str_var_value.c_str());
 					
 					OTVariable * pVar = new OTVariable(str_var_name,		// "MyPurse"
 													   str_var_value,		// "lkjsdf09834lk5j34lidf09" (Whatever)
@@ -2365,7 +2021,7 @@ int main(int argc, char* argv[])
 				}
 				else 
 				{
-					OTLog::Error("MyPurse variable isn't set...\n");
+					OTLog::Output(2, "MyPurse variable isn't set...\n");
 				}
 				// -------------------------
 				
@@ -2374,7 +2030,7 @@ int main(int argc, char* argv[])
 					const std::string str_var_name("HisAcct");
 					const std::string str_var_value(str_HisAcct);
 					
-					OTLog::vOutput(0, "Adding variable with name %s and value: %s ...\n", str_var_name.c_str(), str_var_value.c_str());
+					OTLog::vOutput(1, "Adding variable with name %s and value: %s ...\n", str_var_name.c_str(), str_var_value.c_str());
 					
 					OTVariable * pVar = new OTVariable(str_var_name,		// "HisAcct"
 													   str_var_value,		// "lkjsdf09834lk5j34lidf09" (Whatever)
@@ -2386,7 +2042,7 @@ int main(int argc, char* argv[])
 				}
 				else 
 				{
-					OTLog::Error("HisAcct variable isn't set...\n");
+					OTLog::Output(2, "HisAcct variable isn't set...\n");
 				}
 				// -------------------------
                 
@@ -2395,7 +2051,7 @@ int main(int argc, char* argv[])
 					const std::string str_var_name("HisPurse");
 					const std::string str_var_value(str_HisPurse);
 					
-					OTLog::vOutput(0, "Adding variable with name %s and value: %s ...\n", str_var_name.c_str(), str_var_value.c_str());
+					OTLog::vOutput(1, "Adding variable with name %s and value: %s ...\n", str_var_name.c_str(), str_var_value.c_str());
 					
 					OTVariable * pVar = new OTVariable(str_var_name,		// "HisPurse"
 													   str_var_value,		// "lkjsdf09834lk5j34lidf09" (Whatever)
@@ -2407,11 +2063,11 @@ int main(int argc, char* argv[])
 				}
 				else 
 				{
-					OTLog::Error("MyPurse variable isn't set...\n");
+					OTLog::Output(2, "MyPurse variable isn't set...\n");
 				}
 				// ************************************************
                                 
-				OTLog::Output(0, "Script output:\n\n");
+				OTLog::Output(1, "Script output:\n\n");
 
 				pScript->ExecuteScript(&the_return_value);  // <====== EXECUTE SCRIPT.
                 

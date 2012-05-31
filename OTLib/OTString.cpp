@@ -440,8 +440,10 @@ bool OTString::TokenizeIntoKeyValuePairs(std::map<std::string, std::string> & ma
         // Therefore we need to iterate through the tokens, and create a single string
         // with spaces between the tokens.
         //
-        for (int i = 0; 
-             (i < (exp_result.we_wordc - 1)) && (exp_result.we_wordv[i] != NULL) && (exp_result.we_wordv[i+1] != NULL); // odd man out. Only PAIRS of strings are processed!
+        for (unsigned int i = 0; 
+             (i < (exp_result.we_wordc - 1))      && 
+             (exp_result.we_wordv[i]   != NULL)   && 
+             (exp_result.we_wordv[i+1] != NULL); // odd man out. Only PAIRS of strings are processed!
              i += 2)
         {
             const std::string str_key = exp_result.we_wordv[i];

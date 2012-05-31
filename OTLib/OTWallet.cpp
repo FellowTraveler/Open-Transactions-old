@@ -1523,7 +1523,7 @@ bool OTWallet::LoadWallet(const char * szFilename)
                     {
                         NymID = xml->getAttributeValue("id"); // message digest from hash of x.509 cert or public key.
                         
-                        OTLog::vOutput(0, "NymID using Master Key: %s\n", NymID.Get());
+                        OTLog::vOutput(1, "NymID using Master Key: %s\n", NymID.Get());
                         OT_ASSERT_MSG(NymID.Exists(), "OTWallet::LoadWallet: NymID using Master Key was empty when loading wallet!\n");
                         // ----------------------
                         const OTIdentifier theNymID(NymID);
