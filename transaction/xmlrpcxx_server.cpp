@@ -412,10 +412,10 @@ void OTSocket::Listen(const OTString &strBind)
 /*
  typedef struct
  {
- void //*socket//;
- int //fd//;
- short //events//;
- short //revents//;
+ void *socket;
+ int fd;
+ short events;
+ short revents;
  } zmq_pollitem_t; 
  */
 
@@ -720,6 +720,13 @@ int main(int argc, char* argv[])
             OT_ASSERT_MSG(0 != nWSA, "server main(): ASSERT: Error calling WSAStartup. (Windows only.)\n");	
 #endif
             // -----------------------------------------------------------------------
+            // OTLog class exists on both client and server sides.
+            // #define OT_NO_SIGNAL_HANDLING if you want to turn off OT's signal handling.
+            //
+#if !defined(OT_NO_SIGNAL_HANDLING)
+            OTLog::SetupSignalHandler(); // This is optional! (I, of course, am using it in this test app...)
+#endif
+            // -----------------------------------------------------------------------    
             // I instantiate this here (instead of globally) so that I am assured that any globals and other
             // setup is already done before we instantiate the server object itself.
             //

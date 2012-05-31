@@ -495,6 +495,11 @@ namespace stlplus
       iter.node()->m_next->m_prev = iter.node()->m_prev;
     if (iter.node()->m_prev)
       iter.node()->m_prev->m_next = iter.node()->m_next;
+    // handle the case in which the item is at the beginning/end of the list
+    if (iter.node() == m_nodes_begin)
+      m_nodes_begin = iter.node()->m_next;
+    if (iter.node() == m_nodes_end)
+      m_nodes_end = iter.node()->m_prev;
     digraph_node<NT,AT>* next = iter.node()->m_next;
     delete iter.node();
     // return the next node in the list
@@ -786,6 +791,11 @@ namespace stlplus
       iter.node()->m_next->m_prev = iter.node()->m_prev;
     if (iter.node()->m_prev)
       iter.node()->m_prev->m_next = iter.node()->m_next;
+    // handle the case in which the item is at the beginning/end of the list
+    if (iter.node() == m_arcs_begin)
+      m_arcs_begin = iter.node()->m_next;
+    if (iter.node() == m_arcs_end)
+      m_arcs_end = iter.node()->m_prev;
     digraph_arc<NT,AT>* next = iter.node()->m_next;
     delete iter.node();
     if (next)

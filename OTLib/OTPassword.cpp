@@ -369,7 +369,7 @@ OTPasswordData::OTPasswordData(const OTString & strDisplay, OTPassword * pMaster
 
 OTPasswordData::~OTPasswordData()
 {
-    
+	m_pMasterPW = NULL; // not owned
 }
 
 // ---------------------------------------------------------

@@ -765,8 +765,10 @@ bool OTServer::AddAssetContract(OTAssetContract & theContract)
 	theContract.GetIdentifier(STR_CONTRACT_ID);
 	theContract.GetIdentifier(CONTRACT_ID);
 	
+    pContract = GetAssetContract(CONTRACT_ID);
+    
 	// already exists
-	if (pContract = GetAssetContract(CONTRACT_ID)) // if not null
+	if (NULL != pContract) // if not null
 		return false;
 	
 	m_mapContracts[STR_CONTRACT_ID.Get()] = &theContract;
@@ -888,7 +890,7 @@ bool OTServer::SaveMainFile()
 {
 	static OTString strMainFilePath;
 	
-    const char * szFolderName   = ".";
+//  const char * szFolderName   = ".";
     const char * szFunc         = "OTServer::SaveMainFile";
     
 	if (!strMainFilePath.Exists())
@@ -1249,7 +1251,7 @@ void OTServer::Init()
 {
 	LoadConfigFile(); // assumes main path is set.
 	// ----------------------
-	bool bSuccessInitDefault = 
+//	bool bSuccessInitDefault = 
 		OTDB::InitDefaultStorage(OTDB_DEFAULT_STORAGE, 
 								 OTDB_DEFAULT_PACKER, OTLog::Path(), 
 								 "notaryServer.xml"); // todo stop hardcoding
@@ -1746,7 +1748,10 @@ bool OTServer::LoadMainFile()
                     }
                 }
                     break;
-            }
+                    // --------------------
+                default:
+                    break;
+            } // switch
         } // while xml->read
 	}
     // --------------------------------
@@ -2550,10 +2555,10 @@ void OTServer::UserCmdIssueAssetType(OTPseudonym & theNym, OTMessage & MsgIn, OT
     
 	const OTIdentifier USER_ID(theNym), SERVER_ID(m_strServerID), ASSET_TYPE_ID(MsgIn.m_strAssetID);
 	
-	OTAssetContract * pAssetContract = NULL;
-
+    OTAssetContract * pAssetContract = GetAssetContract(ASSET_TYPE_ID);
+    
 	// Make sure the contract isn't already available on this server.
-	if (pAssetContract = GetAssetContract(ASSET_TYPE_ID))
+	if (NULL != pAssetContract)
 	{
 		OTLog::Error("OTServer::UserCmdIssueAssetType: Error: Attempt to issue asset type that already exists.\n");
 	}
@@ -2570,11 +2575,13 @@ void OTServer::UserCmdIssueAssetType(OTPseudonym & theNym, OTMessage & MsgIn, OT
 		bool			bSuccessCalculateDigest = false;
 		OTPseudonym *	pNym					= NULL;
 
-		if (pAssetContract)
+		if (NULL != pAssetContract)
 		{
 			bSuccessLoadingContract	= pAssetContract->LoadContractFromString(strContract);
 			
-			if (pNym = (OTPseudonym*)pAssetContract->GetContractPublicNym()) // todo fix this cast.
+            pNym = (OTPseudonym*)pAssetContract->GetContractPublicNym(); // todo fix this cast.
+            
+			if (NULL != pNym) 
 			{
 //				pNym->GetIdentifier(ASSET_USER_ID);
 				OTString strPublicKey;
@@ -2618,9 +2625,12 @@ void OTServer::UserCmdIssueAssetType(OTPseudonym & theNym, OTMessage & MsgIn, OT
 					OTAccount * pNewAccount = NULL;
 					OTCleanup<OTAccount> theAcctGuardian;
 					
+                    pNewAccount = OTAccount::GenerateNewAccount(USER_ID, SERVER_ID,
+                                                                m_nymServer, MsgIn, 
+                                                                OTAccount::issuer);
+                    
 					// If we successfully create the account, then bundle it in the message XML payload
-					if (pNewAccount = OTAccount::GenerateNewAccount(USER_ID, SERVER_ID, m_nymServer, MsgIn, 
-																	OTAccount::issuer)) // This last parameter generates an ISSUER account
+					if (NULL != pNewAccount) // This last parameter generates an ISSUER account
 					{																	// instead of the default SIMPLE.
 						theAcctGuardian.SetCleanupTarget(*pNewAccount); // So I don't have to worry about cleaning it up.
 						
@@ -2890,9 +2900,17 @@ void OTServer::UserCmdIssueBasket(OTPseudonym & theNym, OTMessage & MsgIn, OTMes
 				
 				// GenerateNewAccount expects the Asset ID to be in MsgIn. So we'll just put it there to make things easy...
 				pItem->SUB_CONTRACT_ID.GetString(MsgIn.m_strAssetID);
-								
-				// If we successfully create the account, then bundle it in the message XML payload
-				if (pNewAccount = OTAccount::GenerateNewAccount(SERVER_USER_ID, SERVER_ID, m_nymServer, MsgIn, OTAccount::basketsub))
+					
+                pNewAccount = OTAccount::GenerateNewAccount(SERVER_USER_ID,
+                                                            SERVER_ID,
+                                                            m_nymServer,
+                                                            MsgIn,
+                                                            OTAccount::basketsub);
+                
+				// If we successfully create the account, then bundle it 
+                // in the message XML payload
+                //
+				if (NULL != pNewAccount)
 				{
 					msgOut.m_bSuccess = true;
 					
@@ -2964,7 +2982,9 @@ void OTServer::UserCmdIssueBasket(OTPseudonym & theNym, OTMessage & MsgIn, OTMes
 				// GenerateNewAccount expects the Asset ID to be in MsgIn. So we'll just put it there to make things easy...
 				MsgIn.m_strAssetID = STR_BASKET_CONTRACT_ID;
 				
-				if (pBasketAccount = OTAccount::GenerateNewAccount(SERVER_USER_ID, SERVER_ID, m_nymServer, MsgIn, OTAccount::basket))
+                pBasketAccount = OTAccount::GenerateNewAccount(SERVER_USER_ID, SERVER_ID, m_nymServer, MsgIn, OTAccount::basket);
+                
+				if (NULL != pBasketAccount)
 				{			
 					msgOut.m_bSuccess = true;
 					
@@ -3017,10 +3037,10 @@ void OTServer::UserCmdCreateAccount(OTPseudonym & theNym, OTMessage & MsgIn, OTM
 	
 	// ----------------------------------------------
 	
-	OTAccount * pNewAccount = NULL;
+	OTAccount * pNewAccount = OTAccount::GenerateNewAccount(USER_ID, SERVER_ID, m_nymServer, MsgIn);
 	
 	// If we successfully create the account, then bundle it in the message XML payload
-	if (pNewAccount = OTAccount::GenerateNewAccount(USER_ID, SERVER_ID, m_nymServer, MsgIn))
+	if (NULL != pNewAccount)
 	{
 		OTIdentifier theNewAccountID;
 		pNewAccount->GetIdentifier(theNewAccountID);
@@ -3961,7 +3981,7 @@ void OTServer::NotarizeWithdrawal(OTPseudonym & theNym, OTAccount & theAccount,
 				pResponseBalanceItem->SetStatus(OTItem::acknowledgement); // the transaction agreement was successful.
 				
 				// Pull the token(s) out of the purse that was received from the client.
-				while (pToken = thePurse.Pop(m_nymServer))
+				while ((pToken = thePurse.Pop(m_nymServer)) != NULL)
 				{
 					// We are responsible to cleanup pToken
 					// So I grab a copy here for later...
@@ -4845,7 +4865,7 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
 				bool bSuccess = false;
 				
 				// Pull the token(s) out of the purse that was received from the client.
-				while(pToken = thePurse.Pop(m_nymServer))
+				while ((pToken = thePurse.Pop(m_nymServer)) != NULL)
 				{
 					// This way I don't have to worry about cleaning up pToken or leaking memory.
 					OTCleanup<OTToken> theTokenGuardian(*pToken);
@@ -4857,7 +4877,7 @@ void OTServer::NotarizeDeposit(OTPseudonym & theNym, OTAccount & theAccount, OTT
 						OTLog::Error("OTServer::NotarizeDeposit: Unable to get or load Mint.\n");
 						break;
 					}
-					else if (pMintCashReserveAcct = pMint->GetCashReserveAccount())
+					else if ((pMintCashReserveAcct = pMint->GetCashReserveAccount()) != NULL)
 					{
 //						OTString DEBUG_STR(*pToken);
 //						OTLog::vError("\n**************\nEXTRACTED TOKEN FROM PURSE:\n%s\n", DEBUG_STR.Get());
@@ -9119,7 +9139,6 @@ void OTServer::NotarizeProcessNymbox(OTPseudonym & theNym, OTTransaction & tranI
 		//
 		
 		bool bSuccessFindingAllTransactions = true;
-		long lTotalBeingAccepted = 0;
 		
 		FOR_EACH(listOfItems, tranIn.GetItemList())
 		{
@@ -10078,8 +10097,8 @@ void OTServer::NotarizeProcessInbox(OTPseudonym & theNym, OTAccount & theAccount
                     } // for
                     // -------------------
                     
-                    if (pInbox->GetTransactionCountInRefTo(pServerTransaction->GetReferenceToNum()) != 
-                        setOfRefNumbers.size())
+                    if ( pInbox->GetTransactionCountInRefTo(pServerTransaction->GetReferenceToNum()) != 
+                         static_cast<int>(setOfRefNumbers.size()) )
                     {
                         OTLog::Output(0, "OTServer::NotarizeProcessInbox: User tried to close a finalReceipt, "
                                       "without also closing all related receipts. (Those that share the IN REF TO number.)\n");

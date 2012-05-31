@@ -625,7 +625,7 @@ bool OTClient::AcceptEntireNymbox(OTLedger				& theNymbox,
                             // situation, where theNymbox happens to be already loaded and we don't want it loading it again,
                             // with one copy ending up overwriting the other.
                             //
-                            const bool bProcessed =
+//                          const bool bProcessed =
                                 ProcessServerReply(*pMessage, &theNymbox); // ProcessServerReply sometimes has to load the Nymbox. Since we already have it loaded here, we pass it in so it won't get loaded twice.
                             
                             pMessage = NULL; // We're done with it now.
@@ -1944,7 +1944,6 @@ void OTClient::ProcessDepositResponse(OTTransaction & theTransaction, OTServerCo
 //	OTWallet * pWallet = theConnection.GetWallet();
 	
 	// loop through the ALL items that make up this transaction and check to see if a response to deposit.
-	OTItem * pItem = NULL;
 	
 	// if pointer not null, and it's a withdrawal, and it's an acknowledgement (not a rejection or error)
 	FOR_EACH(listOfItems, theTransaction.GetItemList())
@@ -2069,8 +2068,10 @@ void OTClient::ProcessWithdrawalResponse(OTTransaction & theTransaction, OTServe
 				
 				if ((NULL != pRequestPurse) && (NULL != pServerNym) && 
 					theMint.LoadMint() && theMint.VerifyMint(*pServerNym))
-				while (pToken = thePurse.Pop(*pNym))
+				while ((pToken = thePurse.Pop(*pNym)) != NULL)
 				{
+                    OT_ASSERT(NULL != pToken);
+                    
 					pOriginalToken = pRequestPurse->Pop(*pNym);
 					
 					if (NULL == pOriginalToken)
@@ -2114,7 +2115,7 @@ void OTClient::ProcessWithdrawalResponse(OTTransaction & theTransaction, OTServe
 					
 					// The while loop starts by allocating a pToken, so I want to 
 					// delete it for each iteration and keep things clean.
-					if (pToken)
+					if (NULL != pToken)
 					{
 						delete pToken;
 						pToken = NULL;
@@ -2238,9 +2239,10 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
     // ------------------------------------
     const long lReplyRequestNum = atol(theReply.m_strRequestNum.Get());
     
-    bool bRemoved = this->GetMessageOutbuffer().RemoveSentMessage(lReplyRequestNum,
-                                                                  strServerID,
-                                                                  strNymID); // deletes.
+//  bool bRemoved = 
+    this->GetMessageOutbuffer().RemoveSentMessage(lReplyRequestNum,
+                                                  strServerID,
+                                                  strNymID); // deletes.
     // ------------------------------------
 
     bool bDirtyNym = false;
@@ -4344,9 +4346,9 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 		if (pContract->LoadContractFromString(strContract) && pContract->VerifyContract())
 		{
 			// Next make sure the wallet has this contract on its list...
-			OTWallet * pWallet;
+			OTWallet * pWallet = theConnection.GetWallet();
 			
-			if (pWallet = theConnection.GetWallet())
+			if (NULL != pWallet)
 			{
 				pWallet->AddAssetContract(*pContract);
 				pContract = NULL; // Success. The wallet "owns" it now, no need to clean it up.
@@ -4891,9 +4893,9 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
 			pAccount->SaveAccount();
 			
 			// Next let's make sure the wallet's copy of this account is replaced with the new one...
-			OTWallet * pWallet;
+			OTWallet * pWallet = theConnection.GetWallet();
 			
-			if (pWallet = theConnection.GetWallet())
+			if (NULL != pWallet)
 			{
 				pWallet->AddAccount(*pAccount);
 				pWallet->SaveWallet();
@@ -5876,13 +5878,13 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			
 			const OTIdentifier ACCOUNT_ID(strFromAcct);
 			
-			if (pAccount = m_pWallet->GetAccount(ACCOUNT_ID))
+			if ((pAccount = m_pWallet->GetAccount(ACCOUNT_ID)) != NULL)
 			{
                 pAccount->GetIdentifier(strFromAcct);
 				CONTRACT_ID = pAccount->GetAssetTypeID();
 				CONTRACT_ID.GetString(strContractID);
 			}
-			else if (pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get()))
+			else if ((pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get())) != NULL)
 			{
                 pAccount->GetIdentifier(strFromAcct);
 				CONTRACT_ID = pAccount->GetAssetTypeID();
@@ -6303,13 +6305,13 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			
 			const OTIdentifier ACCOUNT_ID(strFromAcct);
 			
-			if (pAccount = m_pWallet->GetAccount(ACCOUNT_ID))
+			if ( (pAccount = m_pWallet->GetAccount(ACCOUNT_ID)) != NULL )
 			{
                 pAccount->GetIdentifier(strFromAcct);
 				CONTRACT_ID = pAccount->GetAssetTypeID();
 				CONTRACT_ID.GetString(strContractID);
 			}
-			else if (pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get()))
+			else if ((pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get())) != NULL)
 			{
                 pAccount->GetIdentifier(strFromAcct);
 				CONTRACT_ID = pAccount->GetAssetTypeID();
@@ -6386,13 +6388,13 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			
 			const OTIdentifier ACCOUNT_ID(strFromAcct);
 			
-			if (pAccount = m_pWallet->GetAccount(ACCOUNT_ID))
+			if ((pAccount = m_pWallet->GetAccount(ACCOUNT_ID)) != NULL)
 			{
                 pAccount->GetIdentifier(strFromAcct);
 				CONTRACT_ID = pAccount->GetAssetTypeID();
 				CONTRACT_ID.GetString(strContractID);
 			}
-			else if (pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get()))
+			else if ((pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get())) != NULL)
 			{
                 pAccount->GetIdentifier(strFromAcct);
 				CONTRACT_ID = pAccount->GetAssetTypeID();
@@ -6577,13 +6579,13 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			
 			const OTIdentifier ACCOUNT_ID(strFromAcct);
 			
-			if (pAccount = m_pWallet->GetAccount(ACCOUNT_ID))
+			if ((pAccount = m_pWallet->GetAccount(ACCOUNT_ID)) != NULL )
 			{
                 pAccount->GetIdentifier(strFromAcct);
 				CONTRACT_ID = pAccount->GetAssetTypeID();
 				CONTRACT_ID.GetString(strContractID);
 			}
-			else if (pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get()))
+			else if ((pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get())) != NULL)
 			{
                 pAccount->GetIdentifier(strFromAcct);
 				CONTRACT_ID = pAccount->GetAssetTypeID();
@@ -6665,13 +6667,13 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			
 			const OTIdentifier ACCOUNT_ID(strFromAcct);
 			
-			if (pAccount = m_pWallet->GetAccount(ACCOUNT_ID))
+			if ((pAccount = m_pWallet->GetAccount(ACCOUNT_ID)) != NULL)
 			{
                 pAccount->GetIdentifier(strFromAcct);
 				CONTRACT_ID = pAccount->GetAssetTypeID();
 				CONTRACT_ID.GetString(strContractID);
 			}
-			else if (pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get()))
+			else if ((pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get())) != NULL)
 			{
                 pAccount->GetIdentifier(strFromAcct);
 				CONTRACT_ID = pAccount->GetAssetTypeID();
@@ -6771,13 +6773,13 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			
 			const OTIdentifier ACCOUNT_ID(strFromAcct);
 			
-			if (pAccount = m_pWallet->GetAccount(ACCOUNT_ID))
+			if ((pAccount = m_pWallet->GetAccount(ACCOUNT_ID)) != NULL)
 			{
                 pAccount->GetIdentifier(strFromAcct);
 				CONTRACT_ID = pAccount->GetAssetTypeID();
 				CONTRACT_ID.GetString(strContractID);
 			}
-			else if (pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get()))
+			else if ((pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get())) != NULL)
 			{
                 pAccount->GetIdentifier(strFromAcct);
 				CONTRACT_ID = pAccount->GetAssetTypeID();
@@ -6930,13 +6932,13 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			
 			const OTIdentifier ACCOUNT_ID(strFromAcct);
 			
-			if (pAccount = m_pWallet->GetAccount(ACCOUNT_ID))
+			if ((pAccount = m_pWallet->GetAccount(ACCOUNT_ID)) != NULL)
 			{
                 pAccount->GetIdentifier(strFromAcct);
 				CONTRACT_ID = pAccount->GetAssetTypeID();
 				CONTRACT_ID.GetString(strContractID);
 			}
-			else if (pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get()))
+			else if ((pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get())) != NULL)
 			{
                 pAccount->GetIdentifier(strFromAcct);
 				CONTRACT_ID = pAccount->GetAssetTypeID();
@@ -7192,13 +7194,13 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			
 			const OTIdentifier ACCOUNT_ID(strFromAcct);
 			
-			if (pAccount = m_pWallet->GetAccount(ACCOUNT_ID))
+			if ((pAccount = m_pWallet->GetAccount(ACCOUNT_ID)) != NULL)
 			{
                 pAccount->GetIdentifier(strFromAcct);
 				CONTRACT_ID = pAccount->GetAssetTypeID();
 				CONTRACT_ID.GetString(strContractID);
 			}
-			else if (pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get()))
+			else if ((pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get())) != NULL)
 			{
                 pAccount->GetIdentifier(strFromAcct);
 				CONTRACT_ID = pAccount->GetAssetTypeID();
@@ -7526,13 +7528,13 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			
 			const OTIdentifier ACCOUNT_ID(strFromAcct);
 			
-			if (pAccount = m_pWallet->GetAccount(ACCOUNT_ID))
+			if ((pAccount = m_pWallet->GetAccount(ACCOUNT_ID)) != NULL)
 			{
                 pAccount->GetIdentifier(strFromAcct);
 				CONTRACT_ID = pAccount->GetAssetTypeID();
 				CONTRACT_ID.GetString(strContractID);
 			}
-			else if (pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get()))
+			else if ((pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get())) != NULL)
 			{
                 pAccount->GetIdentifier(strFromAcct);
 				CONTRACT_ID = pAccount->GetAssetTypeID();
@@ -7743,13 +7745,13 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			
 			const OTIdentifier ACCOUNT_ID(strFromAcct);
 			
-			if (pAccount = m_pWallet->GetAccount(ACCOUNT_ID))
+			if ((pAccount = m_pWallet->GetAccount(ACCOUNT_ID)) != NULL)
 			{
                 pAccount->GetIdentifier(strFromAcct);
 				CONTRACT_ID = pAccount->GetAssetTypeID();
 				CONTRACT_ID.GetString(strContractID);
 			}
-			else if (pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get()))
+			else if ((pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get())) != NULL)
 			{
                 pAccount->GetIdentifier(strFromAcct);
 				CONTRACT_ID = pAccount->GetAssetTypeID();
@@ -7998,13 +8000,13 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			
 			const OTIdentifier ACCOUNT_ID(strFromAcct);
 			
-			if (pAccount = m_pWallet->GetAccount(ACCOUNT_ID))
+			if ((pAccount = m_pWallet->GetAccount(ACCOUNT_ID)) != NULL)
 			{
                 pAccount->GetIdentifier(strFromAcct);
 				CONTRACT_ID = pAccount->GetAssetTypeID();
 				CONTRACT_ID.GetString(strContractID);
 			}
-			else if (pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get()))
+			else if ((pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get())) != NULL)
 			{
                 pAccount->GetIdentifier(strFromAcct);
 				CONTRACT_ID = pAccount->GetAssetTypeID();
@@ -8099,7 +8101,7 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 				// server response.  (Coin private unblinding keys are not sent to
 				// the server, obviously.)
 				long lTokenAmount = 0;
-				while (lTokenAmount = theMint.GetLargestDenomination(lAmount))
+				while ((lTokenAmount = theMint.GetLargestDenomination(lAmount)) > 0)
 				{
 					lAmount -= lTokenAmount;
 					
@@ -8644,13 +8646,13 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			
 			const OTIdentifier ACCOUNT_ID(strFromAcct);
 			
-			if (pAccount = m_pWallet->GetAccount(ACCOUNT_ID))
+			if ((pAccount = m_pWallet->GetAccount(ACCOUNT_ID)) != NULL)
 			{
                 pAccount->GetIdentifier(strFromAcct);
 				CONTRACT_ID = pAccount->GetAssetTypeID();
 				CONTRACT_ID.GetString(strContractID);
 			}
-			else if (pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get()))
+			else if ((pAccount = m_pWallet->GetAccountPartialMatch(strFromAcct.Get())) != NULL)
 			{
                 pAccount->GetIdentifier(strFromAcct);
 				CONTRACT_ID = pAccount->GetAssetTypeID();
@@ -8828,13 +8830,13 @@ int OTClient::ProcessUserCommand(OTClient::OT_CLIENT_CMD_TYPE requestedCommand,
 			
 			const OTIdentifier ACCOUNT_ID(strMerchantAcct);
 			
-			if (pAccount = m_pWallet->GetAccount(ACCOUNT_ID))
+			if ((pAccount = m_pWallet->GetAccount(ACCOUNT_ID)) != NULL)
 			{
                 pAccount->GetIdentifier(strMerchantAcct);
 				CONTRACT_ID = pAccount->GetAssetTypeID();
 				CONTRACT_ID.GetString(strContractID);
 			}
-			else if (pAccount = m_pWallet->GetAccountPartialMatch(strMerchantAcct.Get()))
+			else if ((pAccount = m_pWallet->GetAccountPartialMatch(strMerchantAcct.Get())) != NULL)
 			{
                 pAccount->GetIdentifier(strMerchantAcct);
 				CONTRACT_ID = pAccount->GetAssetTypeID();

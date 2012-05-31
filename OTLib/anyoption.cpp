@@ -62,6 +62,20 @@
 // FellowTraveler: added the below include.
 #include <cstring>
 
+/*
+ * FellowTraveler (Open-Transactions project)
+ * May 2012
+ *
+ * Did some minor bug fixes based on static analysis (Valgrind.)
+ * Doing a big sweep on my own project and this is part of that.
+ * 
+ */
+
+extern "C"
+{
+	#include <assert.h>
+}
+
 #include "anyoption.h"
 
 AnyOption::AnyOption()
@@ -158,7 +172,7 @@ AnyOption::alloc()
 		return false;
 	else
 		mem_allocated  = true;
-	for( i = 0 ; i < max_options ; i++ ){
+	for( i = 0 ; i < (max_options + 1) ; i++ ){
 		options[i] = NULL;
 		optiontype[i] = 0 ;
 		optionindex[i] = -1 ;
@@ -167,13 +181,12 @@ AnyOption::alloc()
 	optchartype = (int*) malloc( (max_char_options+1)*sizeof(int) );	
 	optcharindex = (int*) malloc( (max_char_options+1)*sizeof(int) );	
 	if( optionchars == NULL || 
-            optchartype == NULL || 
-            optcharindex == NULL )
-        {
+        optchartype == NULL || 
+        optcharindex == NULL ){
 		mem_allocated = false;
 		return false;
 	}
-	for( i = 0 ; i < max_char_options ; i++ ){
+	for( i = 0 ; i < (max_char_options + 1) ; i++ ){
 		optionchars[i] = '0';
 		optchartype[i] = 0 ;
 		optcharindex[i] = -1 ;
@@ -186,7 +199,7 @@ AnyOption::alloc()
 		mem_allocated = false;
 		return false;
 	}
-	for( i = 0 ; i < max_usage_lines ; i++ )
+	for( i = 0 ; i < (max_usage_lines + 1) ; i++ )
 		usage[i] = NULL;
 
 	return true;
@@ -204,7 +217,7 @@ AnyOption::doubleOptStorage()
 	if( options == NULL || optiontype == NULL || optionindex == NULL )
 		return false;
 	/* init new storage */
-	for( int i = max_options ; i < 2*max_options ; i++ ){
+	for( int i = max_options ; i < ((2*max_options)+1) ; i++ ){
 		options[i] = NULL;
 		optiontype[i] = 0 ;
 		optionindex[i] = -1 ;
@@ -227,7 +240,7 @@ AnyOption::doubleCharStorage()
 	    optcharindex == NULL )
 		return false;
 	/* init new storage */
-	for( int i = max_char_options ; i < 2*max_char_options ; i++ ){
+	for( int i = max_char_options ; i < ((2*max_char_options)+1) ; i++ ){
 		optionchars[i] = '0';
 		optchartype[i] = 0 ;
 		optcharindex[i] = -1 ;
@@ -243,7 +256,7 @@ AnyOption::doubleUsageStorage()
 			((2*max_usage_lines)+1) * sizeof( const char*) );
 	if ( usage == NULL )
 		return false;
-	for( int i = max_usage_lines ; i < 2*max_usage_lines ; i++ )
+	for( int i = max_usage_lines ; i < ((2*max_usage_lines)+1) ; i++ )
 		usage[i] = NULL;
 	max_usage_lines = 2 * max_usage_lines ;
 	return true;
@@ -254,17 +267,34 @@ AnyOption::doubleUsageStorage()
 void
 AnyOption::cleanup()
 {
-	free (options);
-	free (optiontype);
-	free (optionindex);	
-	free (optionchars);
-	free (optchartype);
-	free (optcharindex);
-	free (usage);
+    if (NULL != options)
+        free (options);
+	options = NULL;
+    if (NULL != optiontype)
+        free (optiontype);
+	optiontype = NULL;
+    if (NULL != optionindex)
+        free (optionindex);	
+	optionindex = NULL;
+    if (NULL != optionchars)
+        free (optionchars);
+	optionchars = NULL;
+    if (NULL != optchartype)
+        free (optchartype);
+	optchartype = NULL;
+    if (NULL != optcharindex)
+        free (optcharindex);
+	optcharindex = NULL;
+    if (NULL != usage)
+        free (usage);
+	usage = NULL;
+
 	if( values != NULL )
 		free (values);
+	values = NULL;
 	if( new_argv != NULL )
 		free (new_argv);
+	new_argv = NULL;
 }
 
 void
@@ -945,6 +975,11 @@ AnyOption::readFile()
  * read the file contents to a character buffer 
  */
 
+// if length is 10, indices are 0-9. If we +1 for NULL,
+// then length is 11, indices are 0-10, with 10 (the 11th index) being the null.
+// Therefore array[length] is where the null pointer goes, and (length+1) must be allocated
+//
+
 char*
 AnyOption::readFile( const char* fname )
 {
@@ -959,8 +994,9 @@ AnyOption::readFile( const char* fname )
         is.seekg (0, ios::end);
         length = is.tellg();
         is.seekg (0, ios::beg);
-        buffer = (char*) malloc(length*sizeof(char));
+        buffer = (char*) malloc((length + 1)*sizeof(char));
         is.read (buffer,length);
+        buffer[length] = nullterminate;
         is.close();
         return buffer;
 }
@@ -972,31 +1008,40 @@ AnyOption::readFile( const char* fname )
 bool
 AnyOption::consumeFile( char *buffer )
 {
-
-        if( buffer == NULL ) 
+    
+    if( buffer == NULL ) 
 		return false;
-
-       	char *cursor = buffer;/* preserve the ptr */
-       	char *pline = NULL ;
-       	int linelength = 0;
-       	bool newline = true;
-       	for( unsigned int i = 0 ; i < strlen( buffer ) ; i++ ){
-       	if( *cursor == endofline ) { /* end of line */
-          	if( pline != NULL ) /* valid line */
-               		processLine( pline, linelength );
-                 	pline = NULL;
-                 	newline = true;
-           	}else if( newline ){ /* start of line */
-                 	newline = false;
-              		if( (*cursor != comment ) ){ /* not a comment */
-		    		pline = cursor ;
-                    		linelength = 0 ;
-                	}
-             	}
-            	cursor++; /* keep moving */
-            	linelength++;
-       	}
-     	free (buffer);
+    
+    char *cursor   = buffer;/* preserve the ptr */
+    char *pline    = NULL ;
+    int linelength = 0;
+    bool newline   = true;
+    
+    bool bFirstLine = true;
+    
+    for( unsigned int i = 0 ; i < strlen( buffer ) ; i++ )
+    {
+       	if( *cursor == endofline ) // end of line
+        { 
+          	if( (pline != NULL) && (0 != linelength) ) // valid line
+                processLine( pline, linelength );
+            pline      = NULL;
+            newline    = true;
+            bFirstLine = false;
+        }
+        else if( newline ) // start of line
+        {
+            newline = false;
+            if( (*cursor != comment ) ) // not a comment
+            {
+                pline = cursor ;
+                linelength = 0 ;
+            }
+        }
+        ++cursor; // keep moving
+        ++linelength;
+    }
+    free (buffer);
 	return true;
 }
 
@@ -1022,30 +1067,46 @@ AnyOption::consumeFile( char *buffer )
  */
 
 void
-AnyOption::processLine( char *theline, int length  )
+AnyOption::processLine( char *theline, int length )
 {
+    if ((NULL == theline) || (0 == length))
+        return;
+    
         bool found = false;
         char *pline = (char*) malloc( (length+1)*sizeof(char) );
-        for( int i = 0 ; i < length ; i ++ )
-                pline[i]= *(theline++);
-        pline[length] = nullterminate;
-        char *cursor = pline ; /* preserve the ptr */
-        if( *cursor == delimiter || *(cursor+length-1) == delimiter ){
-                justValue( pline );/* line with start/end delimiter */
-        }else{
-                for( int i = 1 ; i < length-1 && !found ; i++){/* delimiter */
-                        if( *cursor == delimiter ){
-                                *(cursor-1) = nullterminate; /* two strings */
-                                found = true;
-                                valuePairs( pline , cursor+1 );
-                        }
-                        cursor++;
+    
+    for( int i = 0 ; i < length ; i ++ )
+        pline[i]= *(theline++);
+    
+    pline[length] = nullterminate;
+    char *cursor = pline ; // preserve the ptr as pline, while we use cursor
+    
+    if( *cursor == delimiter || *(cursor+length-1) == delimiter ){
+        justValue( pline );/* line with start/end delimiter */
+    }
+    else{
+        bool bFirstTime = true;
+        
+        for( int i = 1 ; i < length-1 && !found ; i++){// delimiter
+            if( *cursor == delimiter )
+            {
+                if (!bFirstTime)
+                    *(cursor-1) = nullterminate; // two strings
+                else
+                {
+                    *cursor = nullterminate; // cursor-1 could be OUTSIDE the allocation area...
+                    bFirstTime = false;
                 }
-                cursor++;
-                if( !found ) /* not a pair */
-                        justValue( pline );
-        }
-        free (pline);
+                found = true;
+                valuePairs( pline , cursor+1 );
+            }
+            cursor++;
+        } // for
+        cursor++;
+        if( !found ) /* not a pair */
+            justValue( pline );
+    }
+    free (pline);
 }
 
 /*
@@ -1054,6 +1115,7 @@ AnyOption::processLine( char *theline, int length  )
 char*
 AnyOption::chomp( char *str )
 {
+	assert(NULL != str);
         while( *str == whitespace )
                 str++;
         char *end = str+strlen(str)-1;
@@ -1089,7 +1151,7 @@ AnyOption::valuePairs( char *type, char *value )
 			}
 		}
 	}
-        printVerbose( "Unknown option in resourcefile : " );
+    printVerbose( "Unknown option in resourcefile : " );
 	printVerbose( type );
 	printVerbose( );
 }
@@ -1121,7 +1183,7 @@ AnyOption::justValue( char *type )
 			}
 		}
 	}
-        printVerbose( "Unknown option in resourcefile : " );
+    printVerbose( "Unknown option in resourcefile : " );
 	printVerbose( type  );
 	printVerbose( );
 }

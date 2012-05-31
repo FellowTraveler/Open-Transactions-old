@@ -58,7 +58,7 @@ protected:
 	Base base;
 
 	// Creates a BigUnsignedInABase with a capacity; for internal use.
-	BigUnsignedInABase(int, Index c) : NumberlikeArray<Digit>(0, c) {}
+	BigUnsignedInABase(int, Index c) : NumberlikeArray<Digit>(0, c), base(2) {}
 
 	// Decreases len to eliminate any leading zero digits.
 	void zapLeadingZeros() { 
@@ -74,16 +74,17 @@ public:
 	BigUnsignedInABase(const BigUnsignedInABase &x) : NumberlikeArray<Digit>(x), base(x.base) {}
 
 	// Assignment operator
-	void operator =(const BigUnsignedInABase &x) {
+	BigUnsignedInABase & operator =(const BigUnsignedInABase &x) {
 		NumberlikeArray<Digit>::operator =(x);
 		base = x.base;
+        return *this;
 	}
 
 	// Constructor that copies from a given array of digits.
 	BigUnsignedInABase(const Digit *d, Index l, Base base);
 
 	// Destructor.  NumberlikeArray does the delete for us.
-	~BigUnsignedInABase() {}
+	virtual ~BigUnsignedInABase() {}
 
 	// LINKS TO BIGUNSIGNED
 	BigUnsignedInABase(const BigUnsigned &x, Base base);

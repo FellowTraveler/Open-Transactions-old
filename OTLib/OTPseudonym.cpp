@@ -886,6 +886,10 @@ void OTPseudonym::RemoveAllNumbers(const OTString * pstrServerID/*=NULL*/, const
     
     // ----------------------------
 	
+    std::list<mapOfHighestNums::iterator> listOfHighestNums;
+    std::list<mapOfIdentifiers::iterator> listOfNymboxHash;
+    std::list<mapOfIdentifiers::iterator> listOfRecentHash;
+    
 	if (bRemoveHighestNum)
 	{
 		FOR_EACH(mapOfHighestNums, m_mapHighTransNo)
@@ -893,7 +897,8 @@ void OTPseudonym::RemoveAllNumbers(const OTString * pstrServerID/*=NULL*/, const
 			if ((NULL != pstrServerID) && (str_ServerID != it->first)) // If passed in, and current it doesn't match, then skip it (continue).
 				continue;
 			
-			m_mapHighTransNo.erase(it);		
+            listOfHighestNums.push_back(it);
+//			m_mapHighTransNo.erase(it);		
 		}	
 	}	
     // ----------------------------
@@ -903,7 +908,8 @@ void OTPseudonym::RemoveAllNumbers(const OTString * pstrServerID/*=NULL*/, const
         if ((NULL != pstrServerID) && (str_ServerID != it->first)) // If passed in, and current it doesn't match, then skip it (continue).
             continue;
         
-        m_mapNymboxHash.erase(it);		
+        listOfNymboxHash.push_back(it);
+//      m_mapNymboxHash.erase(it);
     }	
     // ----------------------------
     
@@ -912,8 +918,27 @@ void OTPseudonym::RemoveAllNumbers(const OTString * pstrServerID/*=NULL*/, const
         if ((NULL != pstrServerID) && (str_ServerID != it->first)) // If passed in, and current it doesn't match, then skip it (continue).
             continue;
         
-        m_mapRecentHash.erase(it);		
-    }	
+        listOfRecentHash.push_back(it);
+//      m_mapRecentHash.erase(it);		
+    }
+    
+    // ----------------------------------------------------------------
+
+    while (listOfHighestNums.size() > 0)
+    {
+        m_mapHighTransNo.erase(listOfHighestNums.back());
+        listOfHighestNums.pop_back();
+    }
+    while (listOfNymboxHash.size() > 0)
+    {
+        m_mapNymboxHash.erase(listOfNymboxHash.back());
+        listOfNymboxHash.pop_back();
+    }
+    while (listOfRecentHash.size() > 0)
+    {
+        m_mapRecentHash.erase(listOfRecentHash.back());
+        listOfRecentHash.pop_back();
+    }
 }
 
 

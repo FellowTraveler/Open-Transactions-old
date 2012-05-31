@@ -1178,6 +1178,7 @@ OTCron::OTCron(const char * szFilename) : OTContract()
 OTCron::~OTCron()
 {
 // no need to call Release() here, the framework will take care of it.	
+	m_pServerNym = NULL;
 }
 
 

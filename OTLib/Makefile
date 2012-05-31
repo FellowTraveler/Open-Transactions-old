@@ -79,6 +79,9 @@ OT_LIBDIRS = \
 	-L./
 
 
+C_COMPILER = cc
+CPP_COMPILER = g++
+
 # -----------------------------------------
 
 LINUX_LIBDIR = lib
@@ -99,6 +102,11 @@ CHAISCRIPT_INCLUDEDIR = -I/usr/local/include
 SSL_INCLUDEDIRS = -I/opt/local/include $(CHAISCRIPT_INCLUDEDIR)
 SSL_LIBDIRS = -L/opt/local/lib
 
+CPP_COMPILER = g++
+C_COMPILER = cc
+#CPP_COMPILER = clang++
+#C_COMPILER = clang
+
 endif
 
 ifeq ($(OT_PLATFORM), linux)
@@ -106,6 +114,10 @@ CHAISCRIPT_INCLUDEDIR = -I/usr/local/include
 
 SSL_INCLUDEDIRS = -I/usr/local/ssl/include $(CHAISCRIPT_INCLUDEDIR)
 SSL_LIBDIRS = -L/usr/local/ssl/$(LINUX_LIBDIR)
+
+CPP_COMPILER = g++
+C_COMPILER = gcc
+
 endif
 
 ifeq ($(OT_PLATFORM), freebsd)
@@ -221,26 +233,60 @@ CXXSOURCES = $(BIGINTSOURCES) $(LUCRESOURCES) $(IRRXMLSOURCES) \
 			 tinythread.cpp \
 			 Timer.cpp
 
-CXXOBJECTS = $(CXXSOURCES:.cpp=.o)  # expands to list of object files
-COBJECTS   = $(CSOURCES:.c=.o)
+#CXXFLAGS   = $(INCLUDEDIRS) -Wall -Weffc++ -Werror -pedantic
+#CFLAGS     = $(INCLUDEDIRS) -Wall -Weffc++ -Werror -pedantic
 #CXXFLAGS   = $(INCLUDEDIRS) -Wall -Werror
 #CFLAGS     = $(INCLUDEDIRS) -Wall -Werror
-DEBUG_FLAGS = -g
-CXX = g++
-CC = gcc
+#CXXFLAGS   = $(INCLUDEDIRS) -Wall -fPIC
+#CFLAGS     = $(INCLUDEDIRS) -Wall -fPIC
+#CXXFLAGS   = $(INCLUDEDIRS) -Wall
+#CFLAGS     = $(INCLUDEDIRS) -Wall
+#CXXFLAGS   = $(INCLUDEDIRS) $(FT_FLAGS) -Wall -O -Wextra -Wwrite-strings -Winit-self -Wcast-align -Wcast-qual -Wold-style-cast -Wpointer-arith -Wstrict-aliasing -Wformat=2 -Wuninitialized -Woverloaded-virtual -Wnon-virtual-dtor -Wctor-dtor-privacy -Wno-long-long
+#CFLAGS     = $(INCLUDEDIRS) $(FT_FLAGS) -Wall -O -Wextra -Wwrite-strings -Winit-self -Wcast-align -Wcast-qual -Wold-style-cast -Wpointer-arith -Wstrict-aliasing -Wformat=2 -Wuninitialized -Wmissing-declarations -Woverloaded-virtual -Wnon-virtual-dtor -Wctor-dtor-privacy -Wno-long-long
+#CXXFLAGS   = $(INCLUDEDIRS) -O1 -fstack-protector-all -Wsign-compare -Wstack-protector -Wpointer-arith -Waddress -Wuninitialized -Wconversion -fPIC
+#CFLAGS     = $(INCLUDEDIRS) -O1 -fstack-protector-all -Wsign-compare -Wstack-protector -Wpointer-arith -Waddress -Wuninitialized -Wconversion -fPIC
+
+
+CXXOBJECTS = $(CXXSOURCES:.cpp=.o)  # expands to list of object files
+COBJECTS   = $(CSOURCES:.c=.o)
+
+#-fcaller-saves
+#Enable allocation of values to registers that are clobbered by function calls, by emitting 
+#extra instructions to save and restore the registers around such calls. Such allocation is done 
+#only when it seems to result in better code.
+
+
+#-fstack-protector-all -fstack-check -Wstack-protector
+#-fno-stack-protector
+
+DEBUG_FLAGS = -g3 -ggdb -rdynamic -O0 -Wglobal-constructors -Waddress -Woverloaded-virtual -Wshadow -Wconversion -Wshorten-64-to-32 --param ssp-buffer-size=4
+
+CXX = $(CPP_COMPILER)
+CC = $(C_COMPILER)
+
 LDFLAGS = $(LIBDIRS) $(LIBS)
 DEBUG_LDFLAGS = $(LIBDIRS) $(DEBUG_LIBS)
 
 CXXFLAGS   := _____FLAGS_NOT_SET____
 CFLAGS     := _____FLAGS_NOT_SET____ 
 
+
+
 ifeq ($(DYNAMIC_OTLIB), 1)
-CXXFLAGS   = $(INCLUDEDIRS) $(FT_FLAGS) -Wall -fPIC
-CFLAGS     = $(INCLUDEDIRS) $(FT_FLAGS) -Wall -fPIC 
+CXXFLAGS   = $(INCLUDEDIRS) $(FT_FLAGS) -Wall -D_FORTIFY_SOURCE=2 -fstack-protector-all -fstack-check -Wstack-protector -fPIC
+CFLAGS     = $(INCLUDEDIRS) $(FT_FLAGS) -Wall -D_FORTIFY_SOURCE=2 -fstack-protector-all -fstack-check -Wstack-protector -fPIC 
 else
-CXXFLAGS   = $(INCLUDEDIRS) $(FT_FLAGS) -Wall
-CFLAGS     = $(INCLUDEDIRS) $(FT_FLAGS) -Wall
+CXXFLAGS   = $(INCLUDEDIRS) $(FT_FLAGS) -Wall -D_FORTIFY_SOURCE=2 -fstack-protector-all -fstack-check -Wstack-protector 
+CFLAGS     = $(INCLUDEDIRS) $(FT_FLAGS) -Wall -D_FORTIFY_SOURCE=2 -fstack-protector-all -fstack-check -Wstack-protector 
 endif
+
+#-ansi -pedantic
+#
+#-D__STDC_FORMAT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -D_GNU_SOURCE -D_REENTRANT
+#
+#-Wall -Wextra -Wwrite-strings -Winit-self -Wcast-align -Wcast-qual -Wold-style-cast -Wpointer-arith -Wstrict-aliasing -Wformat=2 -Wuninitialized -Wmissing-declarations -Woverloaded-virtual -Wnon-virtual-dtor -Wctor-dtor-privacy -Wno-long-long
+#
+#-O3 -ftree-vectorize -ftree-vectorizer-verbose=2 -ffast-math -fstrict-aliasing -march=native/pentium4/nocona/core2 -msse2 -mfpmath=sse
 
 #
 # Default target: the first target is the default target.
@@ -250,6 +296,7 @@ endif
 all: $(PROGRAM)
 
 debug: CXXFLAGS += $(DEBUG_FLAGS)
+debug: CFLAGS += $(DEBUG_FLAGS)
 debug: LIBS = $(DEBUG_LIBS)
 debug: LDFLAGS = $(DEBUG_LDFLAGS)
 debug: $(CXXOBJECTS) $(COBJECTS) 

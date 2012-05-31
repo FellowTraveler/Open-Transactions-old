@@ -134,6 +134,26 @@
 
 #include <string>
 
+
+// --------------------------------------
+// TinyThread++
+//
+#include "tinythread.h"
+//#include "fast_mutex.h" // Not using this currently.
+
+//using namespace tthread; // in the C++ file
+// --------------------------------------
+
+// This function is what makes Open Transactions go over XmlRpc/HTTP instead of TCP/SSL
+// (If you compile it in rpc mode using "make rpc"
+//
+#if defined(OT_ZMQ_MODE)
+#include <zmq.hpp>
+#endif
+
+// --------------------------------------
+
+
 class OTString;
 class OTASCIIArmor;
 class OTIdentifier;
@@ -154,15 +174,38 @@ class OTLedger;
 class OTPayment;
 
 
-// This function is what makes Open Transactions go over XmlRpc/HTTP instead of TCP/SSL
-// (If you compile it in rpc mode using "make rpc"
+// --------------------------------------------------------------------
+
+// Client-side only. 
+// (OTServer has its own "OTSocket".)
 //
-#if defined(OT_ZMQ_MODE)
-#include <zmq.hpp>
-#endif
+class OTSocket
+{
+	zmq::context_t	* m_pContext;
+	zmq::socket_t	* m_pSocket;
+	
+	OTString m_strConnectPath;
+	OTASCIIArmor m_ascLastMsgSent;
+	
+	void NewContext();
+	void Connect(const OTString & strConnectPath);
+	
+	bool HandlePollingError();
+	bool HandleSendingError();
+	bool HandleReceivingError();
+	
+public:
+	OTSocket();
+	~OTSocket();
+	
+	bool Send(OTASCIIArmor & ascEnvelope, const OTString &strConnectPath);
+	bool Receive(OTASCIIArmor & ascServerReply);
+};
+
 
 
 // --------------------------------------------------------------------
+
 
 class OT_API // The C++ high-level interface to the Open Transactions client-side.
 {
@@ -174,12 +217,19 @@ class OT_API // The C++ high-level interface to the Open Transactions client-sid
 	OTString *		m_pstrStoragePath;
 	OTString *		m_pstrWalletFilename;
 	
-	static zmq::context_t	s_ZMQ_Context;
+    static tthread::mutex * s_p_ZMQ_Mutex;
+	static OTSocket       * s_p_Socket;
     
 public:
 
 	static void TransportCallback(OTServerContract & theServerContract, OTEnvelope & theEnvelope);
-
+    
+    // --------------------------------------------------
+    
+    static OT_API & It();
+    
+    // --------------------------------------------------
+    
 	OTWallet * GetWallet(const char * szFuncName=NULL);
 
 	inline OTClient * GetClient() { return m_pClient; }

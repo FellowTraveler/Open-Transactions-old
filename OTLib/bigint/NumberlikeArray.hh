@@ -17,6 +17,12 @@
 #ifndef NUMBERLIKEARRAY_H
 #define NUMBERLIKEARRAY_H
 
+
+extern "C"
+{
+#include <assert.h>
+}
+
 // Make sure we have NULL.
 #ifndef NULL
 #define NULL 0
@@ -50,7 +56,7 @@ public:
 	Blk *blk;
 
 	// Constructs a ``zero'' NumberlikeArray with the given capacity.
-	NumberlikeArray(Index c) : cap(c), len(0) { 
+	NumberlikeArray(Index c) : cap(c), len(0), blk(NULL) { 
 		blk = (cap > 0) ? (new Blk[cap]) : NULL;
 	}
 
@@ -58,13 +64,13 @@ public:
 	 * A subclass that doesn't know the needed capacity at initialization
 	 * time can use this constructor and then overwrite blk without first
 	 * deleting it. */
-	NumberlikeArray() : cap(0), len(0) {
-		blk = NULL;
-	}
+	NumberlikeArray() : cap(0), len(0), blk(NULL) { }
 
 	// Destructor.  Note that `delete NULL' is a no-op.
-	~NumberlikeArray() {
-		delete [] blk;
+	virtual ~NumberlikeArray() {
+        if (NULL != blk)
+            delete [] blk;
+        blk=NULL;
 	}
 
 	/* Ensures that the array has at least the requested capacity; may
@@ -79,7 +85,7 @@ public:
 	NumberlikeArray(const NumberlikeArray<Blk> &x);
 
 	// Assignment operator
-	void operator=(const NumberlikeArray<Blk> &x);
+	NumberlikeArray<Blk>& operator=(const NumberlikeArray<Blk> &x);
 
 	// Constructor that copies from a given array of blocks
 	NumberlikeArray(const Blk *b, Index blen);
@@ -111,7 +117,8 @@ void NumberlikeArray<Blk>::allocate(Index c) {
 	// If the requested capacity is more than the current capacity...
 	if (c > cap) {
 		// Delete the old number array
-		delete [] blk;
+        if (NULL != blk)
+            delete [] blk;
 		// Allocate the new array
 		cap = c;
 		blk = new Blk[cap];
@@ -131,7 +138,9 @@ void NumberlikeArray<Blk>::allocateAndCopy(Index c) {
 		for (i = 0; i < len; i++)
 			blk[i] = oldBlk[i];
 		// Delete the old array
-		delete [] oldBlk;
+        if (NULL != oldBlk)
+            delete [] oldBlk;
+        oldBlk = NULL;
 	}
 }
 
@@ -148,11 +157,11 @@ NumberlikeArray<Blk>::NumberlikeArray(const NumberlikeArray<Blk> &x)
 }
 
 template <class Blk>
-void NumberlikeArray<Blk>::operator=(const NumberlikeArray<Blk> &x) {
+NumberlikeArray<Blk>& NumberlikeArray<Blk>::operator=(const NumberlikeArray<Blk> &x) {
 	/* Calls like a = a have no effect; catch them before the aliasing
 	 * causes a problem */
 	if (this == &x)
-		return;
+		return *this;
 	// Copy length
 	len = x.len;
 	// Expand array if necessary
@@ -161,11 +170,14 @@ void NumberlikeArray<Blk>::operator=(const NumberlikeArray<Blk> &x) {
 	Index i;
 	for (i = 0; i < len; i++)
 		blk[i] = x.blk[i];
+    return *this;
 }
 
 template <class Blk>
 NumberlikeArray<Blk>::NumberlikeArray(const Blk *b, Index blen)
 		: cap(blen), len(blen) {
+		
+		assert(NULL != b);
 	// Create array
 	blk = new Blk[cap];
 	// Copy blocks

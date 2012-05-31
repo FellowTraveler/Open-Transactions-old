@@ -360,7 +360,9 @@ uint8_t* OT_base64_decode(const char *input, size_t* out_len, int bLineBreaks)
 			BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
 		}
 		bmem = BIO_new_mem_buf((char*)input, in_len);
+		OT_ASSERT(NULL != bmem);
 		b64 = BIO_push(b64, bmem);
+		OT_ASSERT(NULL != b64);
 		*out_len = BIO_read(b64, buf, out_max_len);
 		BIO_free_all(b64);
 	}

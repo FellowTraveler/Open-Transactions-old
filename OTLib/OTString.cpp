@@ -421,30 +421,37 @@ bool OTString::TokenizeIntoKeyValuePairs(std::map<std::string, std::string> & ma
 		return true;
 	// --------------
 	wordexp_t exp_result;
-	
-	if (wordexp(Get(), &exp_result, 0))
+    
+    exp_result.we_wordc = 0;
+    exp_result.we_wordv = NULL;
+    exp_result.we_offs  = 0;
+
+	if (wordexp(Get(), &exp_result, 0)) // non-zero == failure.
 	{
 		OTLog::Error("OTString::TokenizeIntoKeyValuePairs: Error calling wordexp() (to expand user-defined script args.)\n");
-		wordfree(&exp_result); 
+//		wordfree(&exp_result); 
 		return false;
 	}
 	// ----------------------------
 	
-	// wordexp tokenizes by space (as well as expands, which is why I'm using it.)
-	// Therefore we need to iterate through the tokens, and create a single string
-	// with spaces between the tokens.
-	//
-	for (int i = 0; 
-		 (exp_result.we_wordv[i] != NULL) && (exp_result.we_wordv[i+1] != NULL); // odd man out. Only PAIRS of strings are processed!
-		 i += 2)
-	{
-		const std::string str_key = exp_result.we_wordv[i];
-		const std::string str_val = exp_result.we_wordv[i+1];
-		
-		mapOutput.insert(std::pair<std::string, std::string>(str_key, str_val));		
-	}
-	
-	wordfree(&exp_result); 
+    if ((exp_result.we_wordc > 0) && (NULL != exp_result.we_wordv))
+    {
+        // wordexp tokenizes by space (as well as expands, which is why I'm using it.)
+        // Therefore we need to iterate through the tokens, and create a single string
+        // with spaces between the tokens.
+        //
+        for (int i = 0; 
+             (i < (exp_result.we_wordc - 1)) && (exp_result.we_wordv[i] != NULL) && (exp_result.we_wordv[i+1] != NULL); // odd man out. Only PAIRS of strings are processed!
+             i += 2)
+        {
+            const std::string str_key = exp_result.we_wordv[i];
+            const std::string str_val = exp_result.we_wordv[i+1];
+            
+            mapOutput.insert(std::pair<std::string, std::string>(str_key, str_val));		
+        }
+        
+        wordfree(&exp_result); 
+    }
 	// --------------
 	return true;
 #else
@@ -1108,6 +1115,9 @@ void OTString::WriteToFile(FILE * fl) const
 // used for USER INPUT ONLY.  And it's sloppy.
 bool len_cmp(const char *s1, const char *s2)
 {
+	OT_ASSERT(NULL != s1);
+	OT_ASSERT(NULL != s2);
+	
   for( ; *s1 && *s2 && *s1 != ' '; s1++, s2++) 
     if(toupper(*s1) != toupper(*s2))
       return false;

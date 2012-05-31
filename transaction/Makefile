@@ -84,6 +84,7 @@ API_LDFLAGS = # empty
 
 
 C_COMPILER = cc
+CPP_COMPILER = g++
 
 # The LIBS macro contains a list of libraries that the the
 # executable must be linked against.
@@ -147,6 +148,12 @@ endif
 # --- DARWIN
 #
 ifeq ($(PLATFORM), darwin)
+
+C_COMPILER = cc
+CPP_COMPILER = g++
+#C_COMPILER = clang
+#CPP_COMPILER = clang++
+
 endif
 # End DARWIN -------------------------------------------------------------
 
@@ -154,7 +161,10 @@ endif
 
 ifeq ($(PLATFORM), linux)
 API_LDFLAGS += -ldl -lpthread
+
+CPP_COMPILER = g++
 C_COMPILER = gcc
+
 endif
 # End LINUX -------------------------------------------------------------
 
@@ -214,9 +224,13 @@ CXXSOURCES = \
 
 CXXOBJECTS = $(CXXSOURCES:.cpp=.o)  # expands to list of object files
 COBJECTS   = $(CSOURCES:.c=.o)
-CFLAGS     = $(INCLUDEDIRS) $(API_CFLAGS) $(FT_FLAGS) -c 
-DEBUG_FLAGS = -g
-CXX = g++
+
+#CFLAGS     = $(INCLUDEDIRS) $(API_CFLAGS) $(FT_FLAGS) -c -Wall -O -Wextra -Wwrite-strings -Winit-self -Wcast-align -Wcast-qual -Wold-style-cast -Wpointer-arith -Wstrict-aliasing -Wformat=2 -Wuninitialized -Woverloaded-virtual -Wnon-virtual-dtor -Wctor-dtor-privacy -Wno-long-long
+
+CFLAGS     = $(INCLUDEDIRS) $(API_CFLAGS) $(FT_FLAGS) -D_FORTIFY_SOURCE=2 -fstack-protector-all -fstack-check -Wstack-protector -c -Wall
+
+DEBUG_FLAGS = -g3 -ggdb -rdynamic -O0 -Wshadow -Wglobal-constructors -Wshadow -Waddress -Woverloaded-virtual -Wshadow -Wconversion -Wshorten-64-to-32 --param ssp-buffer-size=4
+CXX = $(CPP_COMPILER)
 CC = $(C_COMPILER)
 
 LIBS = $(API_LIBS)

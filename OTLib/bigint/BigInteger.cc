@@ -16,17 +16,18 @@
 
 #include "BigInteger.hh"
 
-void BigInteger::operator =(const BigInteger &x) {
+BigInteger& BigInteger::operator =(const BigInteger &x) {
 	// Calls like a = a have no effect
 	if (this == &x)
-		return;
+		return *this;
 	// Copy sign
 	sign = x.sign;
 	// Copy the rest
 	mag = x.mag;
+    return *this;
 }
 
-BigInteger::BigInteger(const Blk *b, Index blen, Sign s) : mag(b, blen) {
+BigInteger::BigInteger(const Blk *b, Index blen, Sign s) : mag(b, blen), sign(s) {
 	switch (s) {
 	case zero:
 		if (!mag.isZero())
@@ -45,7 +46,7 @@ BigInteger::BigInteger(const Blk *b, Index blen, Sign s) : mag(b, blen) {
 	}
 }
 
-BigInteger::BigInteger(const BigUnsigned &x, Sign s) : mag(x) {
+BigInteger::BigInteger(const BigUnsigned &x, Sign s) : mag(x), sign(s) {
 	switch (s) {
 	case zero:
 		if (!mag.isZero())
@@ -69,9 +70,9 @@ BigInteger::BigInteger(const BigUnsigned &x, Sign s) : mag(x) {
  * negative BigInteger instead of an exception. */
 
 // Done longhand to let us use initialization.
-BigInteger::BigInteger(unsigned long  x) : mag(x) { sign = mag.isZero() ? zero : positive; }
-BigInteger::BigInteger(unsigned int   x) : mag(x) { sign = mag.isZero() ? zero : positive; }
-BigInteger::BigInteger(unsigned short x) : mag(x) { sign = mag.isZero() ? zero : positive; }
+BigInteger::BigInteger(unsigned long  x) : mag(x), sign(mag.isZero() ? zero : positive) { }
+BigInteger::BigInteger(unsigned int   x) : mag(x), sign(mag.isZero() ? zero : positive) { }
+BigInteger::BigInteger(unsigned short x) : mag(x), sign(mag.isZero() ? zero : positive) { }
 
 // For signed input, determine the desired magnitude and sign separately.
 
@@ -90,9 +91,9 @@ namespace {
 	}
 }
 
-BigInteger::BigInteger(long  x) : sign(signOf(x)), mag(magOf<long , unsigned long >(x)) {}
-BigInteger::BigInteger(int   x) : sign(signOf(x)), mag(magOf<int  , unsigned int  >(x)) {}
-BigInteger::BigInteger(short x) : sign(signOf(x)), mag(magOf<short, unsigned short>(x)) {}
+BigInteger::BigInteger(long  x) : mag(magOf<long , unsigned long >(x)), sign(signOf(x)) {}
+BigInteger::BigInteger(int   x) : mag(magOf<int  , unsigned int  >(x)), sign(signOf(x)) {}
+BigInteger::BigInteger(short x) : mag(magOf<short, unsigned short>(x)), sign(signOf(x)) {}
 
 // CONVERSION TO PRIMITIVE INTEGERS
 

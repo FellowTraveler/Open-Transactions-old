@@ -133,11 +133,14 @@
 
 #include "OTDataCheck.h"
 
+#include "OTLog.h"
+
 void AppendChecksum( OT_BYTE* buffer, uint32_t & size )
 {
 	uint32_t i;
 	OT_BYTE total = 0;
 	
+	OT_ASSERT(NULL != buffer);
 //	OTLog::vError("Appending checksum. Size: %d ", size);
 
 	for( i = 0; i < size; i++ )
@@ -157,6 +160,8 @@ OT_BYTE CalcChecksum( OT_BYTE* buffer, uint32_t size )
 	uint32_t i;
 	OT_BYTE total = 0;
 	
+	OT_ASSERT(NULL != buffer);
+
 //	OTLog::vError("Calculating checksum. Size: %d ", size);
 	
 	for( i = 0; i < size; i++ )
@@ -174,6 +179,8 @@ OT_BYTE CalcChecksum( const OT_BYTE * const buffer, const uint32_t size )
 	uint32_t i;
 	OT_BYTE total = 0;
 	
+	OT_ASSERT(NULL != buffer);
+
 //	OTLog::vError("Calculating checksum. Size: %d\n", size);
 	
 	for( i = 0; i < size; i++ )
@@ -190,6 +197,8 @@ OT_BOOL IsChecksumValid( OT_BYTE* buffer, uint32_t size )
 {
 	uint32_t i;
 	OT_BYTE total = 0;
+
+	OT_ASSERT(NULL != buffer);
 
 //	OTLog::vError(Validating checksum. Size: %d\n", size);
 

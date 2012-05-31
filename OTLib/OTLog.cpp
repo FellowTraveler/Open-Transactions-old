@@ -136,39 +136,105 @@
 #include <cctype>
 #include <cassert>
 #include <iostream>
-
+#include <exception>
+#include <stdexcept>
 
 #include <string> // The C++ one 
 
 
-
+// ----------------------------------------
 // Use Win or Posix
-// IF I need this while porting, then uncomment it.
+//
 #ifdef _WIN32
 #include <windows.h>
+
+// IF I need this while porting, then uncomment it.
 //#else
+
 //#ifndef POSIX
 //#warning POSIX will be used (but you did not define it)
 //#endif
 //#include <unistd.h>
 #endif
+// ----------------------------------------
+
+
 
 
 extern "C" 
 {
 	
 #ifdef _WIN32
+    
 #include <direct.h>
 #include <sys/timeb.h>
-#else
-#include <wordexp.h>
-#include <unistd.h>
-#include <sys/time.h>
-#include <sys/resource.h>
+
+    // For signal handling in Windows.
+    //
+    LONG  Win32FaultHandler(struct _EXCEPTION_POINTERS *  ExInfo);
+    void  LogStackFrames(void *FaultAdress, char *);
+
+#else // else if NOT _WIN32
+
+// ----------------------------------------
+// These added for the signal handling:
+//
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+#ifndef __USE_GNU
+#define __USE_GNU
 #endif
 
-#include <sys/stat.h>
+    // This shitty apple section is for struct sigcontext for the signal handling.
+#if defined(__APPLE__)
+#define _XOPEN_SOURCE 600
+    // Fucking Apple!
+struct sigcontext
+{
+	  int eip;
+};
+#endif // defined __APPLE__
+//#define __APPLE_API_OBSOLETE
+//#include <sys/signal.h>
+//#include <sys/ucontext.h>
+//#else
+#include <signal.h>
+#include <ucontext.h>
+//#endif
+    
+#include <wordexp.h>
+#include <sys/time.h>
+#include <sys/resource.h>
 
+#include <execinfo.h>
+//#endif
+// ----------------------------------------
+
+#include <unistd.h>
+
+#endif // not WIN32
+
+    
+    void ot_terminate(void);
+    
+#include <sys/stat.h>
+} // extern C
+// ---------------------------
+
+// TinyThread++
+//
+#include "tinythread.h"   // These are in the header already.
+//#include "fast_mutex.h"
+
+using namespace tthread;
+
+// ----------------------------
+
+
+namespace {
+    // invoke set_terminate as part of global constant initialization
+    static const bool SET_TERMINATE = std::set_terminate(ot_terminate);
 }
 
 
@@ -218,7 +284,7 @@ int     OTLog::__latency_receive_ms = 5000; // number of ms to wait before retry
 long	OTLog::__minimum_market_scale = 1;	// Server admin can configure this to any higher power-of-ten.
 
 
-OTString OTLog::__Version = "0.80j";
+OTString OTLog::__Version = "0.81.a";
 
 
 
@@ -276,20 +342,730 @@ OTString OTLog::__OTLogfile;
 dequeOfStrings OTLog::__logDeque; // Stores the last 1024 logs in memory.
 
 
+// *********************************************************************************
+
+// SIGNALS
+//
+// To get the most mileage out of this signal handler, 
+// compile it with the options:  -g -rdynamic 
+//
+
+// *********************************************************************************
+
+// This is our custom std::terminate handler for SIGABRT
+//
+void ot_terminate() 
+{
+    static tthread::mutex the_Mutex;
+    
+    tthread::lock_guard<tthread::mutex> lock(the_Mutex);
+
+    static bool tried_throw = false;
+    
+    try {
+        // try once to re-throw currently active exception
+        if (!tried_throw) {
+            tried_throw = true;
+            throw;
+        }
+    }
+    catch (const std::exception &e) {
+        std::cerr << "ot_terminate: " << __FUNCTION__ << " caught unhandled exception. type: " << typeid(e).name() << " what(): "
+        << e.what() << std::endl;
+    }
+    catch (...) {
+        std::cerr << "ot_terminate: " << __FUNCTION__ << " caught unknown/unhandled exception." 
+        << std::endl;
+    }
+    
+    /*
+    void * array[50];
+    int size = backtrace(array, 50);    
+    
+    std::cerr << "ot_terminate: " << __FUNCTION__ << " backtrace returned " << size << " frames\n\n";
+    
+    char ** messages = backtrace_symbols(array, size);
+    
+    for (int i = 0; i < size && messages != NULL; ++i) {
+        std::cerr << "[bt]: (" << i << ") " << messages[i] << std::endl;
+    }
+    std::cerr << std::endl;
+    
+    free(messages);
+    
+    abort();
+     */
+    
+    void * array[50];
+    int size = backtrace(array, 50);
+        
+    char ** messages = backtrace_symbols(array, size);    
+    
+    // skip first stack frame (points here)
+    for (int i = 1; i < size && messages != NULL; ++i)
+    {
+        char *mangled_name = 0, *offset_begin = 0, *offset_end = 0;
+        
+        // find parantheses and +address offset surrounding mangled name
+        for (char *p = messages[i]; *p; ++p)
+        {
+            if (*p == '(') 
+            {
+                mangled_name = p; 
+            }
+            else if (*p == '+') 
+            {
+                offset_begin = p;
+            }
+            else if (*p == ')')
+            {
+                offset_end = p;
+                break;
+            }
+        }
+        
+        // if the line could be processed, attempt to demangle the symbol
+        if (mangled_name && offset_begin && offset_end && 
+            mangled_name < offset_begin)
+        {
+            *mangled_name++ = '\0';
+            *offset_begin++ = '\0';
+            *offset_end++ = '\0';
+            
+            int status;
+            char * real_name = abi::__cxa_demangle(mangled_name, 0, 0, &status);
+            
+            // if demangling is successful, output the demangled function name
+            if (status == 0)
+            {    
+                std::cerr << "[bt]: (" << i << ") " << messages[i] << " : " 
+                << real_name << "+" << offset_begin << offset_end 
+                << std::endl;
+                
+            }
+            // otherwise, output the mangled function name
+            else
+            {
+                std::cerr << "[bt]: (" << i << ") " << messages[i] << " : " 
+                << mangled_name << "+" << offset_begin << offset_end 
+                << std::endl;
+            }
+            free(real_name);
+        }
+        // otherwise, print the whole line
+        else
+        {
+            std::cerr << "[bt]: (" << i << ") " << messages[i] << std::endl;
+        }
+    }
+    std::cerr << std::endl;
+    
+    free(messages);
+    
+    abort(); 
+}
+
+
+
+#ifdef WIN32   // Windows SIGNALS
+
+// The windows version is from Stefan Wörthmüller, who wrote an excellent article
+// at Dr. Dobbs Journal here:
+// http://www.drdobbs.com/architecture-and-design/185300443
+//
+
+//static
+void OTLog::SetupSignalHandler()
+{
+    static int nCount = 0;
+    
+    if (0 == nCount)
+    {
+        ++nCount;
+        SetUnhandledExceptionFilter((LPTOP_LEVEL_EXCEPTION_FILTER)Win32FaultHandler);
+    }
+}
+
+LONG Win32FaultHandler(struct _EXCEPTION_POINTERS *  ExInfo)
+{   
+    char  *FaultTx = "";
+    
+    switch(ExInfo->ExceptionRecord->ExceptionCode)
+    {
+        case EXCEPTION_ACCESS_VIOLATION          : FaultTx = "ACCESS VIOLATION"         ; break;
+        case EXCEPTION_DATATYPE_MISALIGNMENT     : FaultTx = "DATATYPE MISALIGNMENT"    ; break;
+        case EXCEPTION_BREAKPOINT                : FaultTx = "BREAKPOINT"               ; break;
+        case EXCEPTION_SINGLE_STEP               : FaultTx = "SINGLE STEP"              ; break;
+        case EXCEPTION_ARRAY_BOUNDS_EXCEEDED     : FaultTx = "ARRAY BOUNDS EXCEEDED"    ; break;
+        case EXCEPTION_FLT_DENORMAL_OPERAND      : FaultTx = "FLT DENORMAL OPERAND"     ; break;
+        case EXCEPTION_FLT_DIVIDE_BY_ZERO        : FaultTx = "FLT DIVIDE BY ZERO"       ; break;
+        case EXCEPTION_FLT_INEXACT_RESULT        : FaultTx = "FLT INEXACT RESULT"       ; break;
+        case EXCEPTION_FLT_INVALID_OPERATION     : FaultTx = "FLT INVALID OPERATION"    ; break;
+        case EXCEPTION_FLT_OVERFLOW              : FaultTx = "FLT OVERFLOW"             ; break;
+        case EXCEPTION_FLT_STACK_CHECK           : FaultTx = "FLT STACK CHECK"          ; break;
+        case EXCEPTION_FLT_UNDERFLOW             : FaultTx = "FLT UNDERFLOW"            ; break;
+        case EXCEPTION_INT_DIVIDE_BY_ZERO        : FaultTx = "INT DIVIDE BY ZERO"       ; break;
+        case EXCEPTION_INT_OVERFLOW              : FaultTx = "INT OVERFLOW"             ; break;
+        case EXCEPTION_PRIV_INSTRUCTION          : FaultTx = "PRIV INSTRUCTION"         ; break;
+        case EXCEPTION_IN_PAGE_ERROR             : FaultTx = "IN PAGE ERROR"            ; break;
+        case EXCEPTION_ILLEGAL_INSTRUCTION       : FaultTx = "ILLEGAL INSTRUCTION"      ; break;
+        case EXCEPTION_NONCONTINUABLE_EXCEPTION  : FaultTx = "NONCONTINUABLE EXCEPTION" ; break;
+        case EXCEPTION_STACK_OVERFLOW            : FaultTx = "STACK OVERFLOW"           ; break;
+        case EXCEPTION_INVALID_DISPOSITION       : FaultTx = "INVALID DISPOSITION"      ; break;
+        case EXCEPTION_GUARD_PAGE                : FaultTx = "GUARD PAGE"               ; break;
+        default: FaultTx = "(unknown)";           break;
+    }
+    int    wsFault    = ExInfo->ExceptionRecord->ExceptionCode;
+    void * CodeAdress = ExInfo->ExceptionRecord->ExceptionAddress;
+    
+    // (using stderr.)
+//  sgLogFile = fopen("Win32Fault.log", "w");
+    
+    if(stderr != NULL)
+    {
+        fprintf(stderr, "****************************************************\n");
+        fprintf(stderr, "*** A Programm Fault occured:\n");
+        fprintf(stderr, "*** Error code %08X: %s\n", wsFault, FaultTx);
+        fprintf(stderr, "****************************************************\n");
+        fprintf(stderr, "***   Address: %08X\n", (int)CodeAdress);
+        fprintf(stderr, "***     Flags: %08X\n", ExInfo->ExceptionRecord->ExceptionFlags);
+        
+#if defined (_CONSOLE)
+        printf("\n");
+        printf("*** A Programm Fault occured:\n");
+        printf("*** Error code %08X: %s\n", wsFault, FaultTx);
+#endif
+        /* This infomation ssems to be wrong
+         if(ExInfo->ExceptionRecord->ExceptionCode == EXCEPTION_ACCESS_VIOLATION)
+         {
+         fprintf(stderr, "****************************************************\n");
+         fprintf(stderr, "*** Attempted to %s to address %08LX \n", 
+         ExInfo->ExceptionRecord->ExceptionInformation[0] ? "write" : "read",
+         ExInfo->ExceptionRecord->ExceptionInformation[1]);
+         
+         }
+         */ 
+        
+        LogStackFrames(CodeAdress, (char *)ExInfo->ContextRecord->Ebp);
+        
+//      fclose(sgLogFile);
+    }
+    
+    
+    
+    /*if(want to continue)
+     {
+     ExInfo->ContextRecord->Eip++;
+     #if defined (_CONSOLE)
+     printf("*** Trying to continue\n");
+     printf("\n");
+     #endif
+     return EXCEPTION_CONTINUE_EXECUTION;
+     }
+     */ 
+    
+    printf("*** Terminating\n");
+    printf("\n");
+    return EXCEPTION_EXECUTE_HANDLER;
+}
+/////////////////////////////////////////////////////////////////////////////
+// Unwind the stack and save its return addresses to the logfile
+/////////////////////////////////////////////////////////////////////////////
+
+void   LogStackFrames(void *FaultAdress, char *eNextBP)
+
+{      
+    char *p = NULL, *pBP = NULL;
+    unsigned i = 0, x = 0, BpPassed = 0;
+    static int  CurrentlyInTheStackDump = 0;
+    
+    if(CurrentlyInTheStackDump)
+    {
+        fprintf(stderr, "\n***\n*** Recursive Stack Dump skipped\n***\n");
+        return;
+    }
+    
+    fprintf(stderr, "****************************************************\n");
+    fprintf(stderr, "*** CallStack:\n");
+    fprintf(stderr, "****************************************************\n");
+    
+    /* ====================================================================== */
+    /*                                                                        */
+    /*      BP +x ...    -> == SP (current top of stack)                      */
+    /*            ...    -> Local data of current function                    */
+    /*      BP +4 0xabcd -> 32 address of calling function                    */
+    /*  +<==BP    0xabcd -> Stack address of next stack frame (0, if end)     */
+    /*  |   BP -1 ...    -> Aruments of function call                         */
+    /*  Y                                                                     */
+    /*  |   BP -x ...    -> Local data of calling function                    */
+    /*  |                                                                     */
+    /*  Y  (BP)+4 0xabcd -> 32 address of calling function                    */
+    /*  +==>BP)   0xabcd -> Stack address of next stack frame (0, if end)     */
+    /*            ...                                                         */
+    /* ====================================================================== */
+    CurrentlyInTheStackDump = 1;
+    
+    
+    BpPassed = (eNextBP != NULL);
+    
+    if(! eNextBP)
+    {
+        _asm mov     eNextBP, eBp   
+    }
+    else 
+        fprintf(stderr, "\n  Fault Occured At $ADDRESS:%08LX\n", (int)FaultAdress);
+    
+    
+    // prevent infinite loops
+    for(i = 0; eNextBP && i < 100; i++)
+    {      
+        pBP = eNextBP;           // keep current BasePointer
+        eNextBP = *(char **)pBP; // dereference next BP 
+        
+        p = pBP + 8; 
+        
+        // Write 20 Bytes of potential arguments
+        fprintf(stderr, "         with ");                                                          
+        for(x = 0; p < eNextBP && x < 20; p++, x++)
+            fprintf(stderr, "%02X ", *(unsigned char *)p);
+        
+        fprintf(stderr, "\n\n");                                                          
+        
+        if(i == 1 && ! BpPassed) 
+            fprintf(stderr, "****************************************************\n"
+                    "         Fault Occured Here:\n");
+        
+        // Write the backjump address
+        fprintf(stderr, "*** %2d called from $ADDRESS:%08X\n", i, *(char **)(pBP + 4));
+        
+        if(*(char **)(pBP + 4) == NULL)
+            break; 
+    }
+    
+    
+    fprintf(stderr, "************************************************************\n");
+    fprintf(stderr, "\n\n");
+    
+    
+    CurrentlyInTheStackDump = 0;
+    
+    fflush(stderr);
+}
+
+
+// *********************************************************************************
+
+#else  // UNIX -- SIGNALS
+
+
+// CREDIT: the Linux / GNU portion of the signal handler comes from StackOverflow,
+// where several answers are combined here.
+// http://stackoverflow.com/questions/77005/how-to-generate-a-stacktrace-when-my-gcc-c-app-crashes
+//
+
+struct sig_ucontext_t {
+//  typedef struct _sig_ucontext {
+    unsigned long     uc_flags;
+    struct ucontext   *uc_link;
+    stack_t           uc_stack;
+    struct sigcontext uc_mcontext;
+    sigset_t          uc_sigmask;
+};
+
+extern "C" {
+    // This structure mirrors the one found in /usr/include/asm/ucontext.h 
+    //
+
+    void crit_err_hdlr(int sig_num, siginfo_t * info, void * ucontext);
+}
+
+#if defined(OT_NO_DEMANGLING_STACK_TRACE)
+
+// this version doesn't do demangling.
+void crit_err_hdlr(int sig_num, siginfo_t * info, void * ucontext)
+{
+    void *             array[50];
+    void *             caller_address;
+    char **            messages;
+    int                size, i;
+    sig_ucontext_t *   uc;
+ 
+    static tthread::mutex the_Mutex;
+    
+    tthread::lock_guard<tthread::mutex> lock(the_Mutex);
+
+    uc = (sig_ucontext_t *)ucontext;
+    
+    // Get the address at the time the signal was raised from the EIP (x86)
+    caller_address = (void *) uc->uc_mcontext.eip;   
+    
+    fprintf(stderr, "signal %d (%s), address is %p from %p\n", 
+            sig_num, strsignal(sig_num), info->si_addr, 
+            (void *)caller_address);
+    
+    size = backtrace(array, 50);
+    
+    // overwrite sigaction with caller's address
+    //
+    array[1] = caller_address;
+    
+    messages = backtrace_symbols(array, size);
+    
+    // skip first stack frame (points here)
+    //
+    for (i = 1; i < size && messages != NULL; ++i)
+    {
+        fprintf(stderr, "[bt]: (%d) %s\n", i, messages[i]);
+    }
+    
+    free(messages);
+    
+    _exit(0);
+}
+
+#else   // #if no demangling, #else...
+/*
+// This version DOES do demangling.
+//
+void crit_err_hdlr(int sig_num, siginfo_t * info, void * ucontext)
+{
+    sig_ucontext_t * uc = (sig_ucontext_t *)ucontext;
+    
+    void * caller_address = (void *) uc->uc_mcontext.eip; // x86 specific
+    
+    std::cerr << "signal " << sig_num 
+    << " (" << strsignal(sig_num) << "), address is " 
+    << info->si_addr << " from " << caller_address 
+    << std::endl << std::endl;
+    
+    void * array[50];
+    int size = backtrace(array, 50);
+    
+    array[1] = caller_address;
+    
+    char ** messages = backtrace_symbols(array, size);    
+    
+    // skip first stack frame (points here)
+    for (int i = 1; i < size && messages != NULL; ++i)
+    {
+        char *mangled_name = 0, *offset_begin = 0, *offset_end = 0;
+        
+        // find parantheses and +address offset surrounding mangled name
+        for (char *p = messages[i]; *p; ++p)
+        {
+            if (*p == '(') 
+            {
+                mangled_name = p; 
+            }
+            else if (*p == '+') 
+            {
+                offset_begin = p;
+            }
+            else if (*p == ')')
+            {
+                offset_end = p;
+                break;
+            }
+        }
+        
+        // if the line could be processed, attempt to demangle the symbol
+        if (mangled_name && offset_begin && offset_end && 
+            mangled_name < offset_begin)
+        {
+            *mangled_name++ = '\0';
+            *offset_begin++ = '\0';
+            *offset_end++ = '\0';
+            
+            int status;
+            char * real_name = abi::__cxa_demangle(mangled_name, 0, 0, &status);
+            
+            // if demangling is successful, output the demangled function name
+            if (status == 0)
+            {    
+                std::cerr << "[bt]: (" << i << ") " << messages[i] << " : " 
+                << real_name << "+" << offset_begin << offset_end 
+                << std::endl;
+                
+            }
+            // otherwise, output the mangled function name
+            else
+            {
+                std::cerr << "[bt]: (" << i << ") " << messages[i] << " : " 
+                << mangled_name << "+" << offset_begin << offset_end 
+                << std::endl;
+            }
+            free(real_name);
+        }
+        // otherwise, print the whole line
+        else
+        {
+            std::cerr << "[bt]: (" << i << ") " << messages[i] << std::endl;
+        }
+    }
+    std::cerr << std::endl;
+    
+    free(messages);
+    
+    _exit(0); 
+}
+*/
+
+void
+crit_err_hdlr(int sig_num, siginfo_t *info, void *v)
+{
+    static tthread::mutex the_Mutex;
+    
+    tthread::lock_guard<tthread::mutex> lock(the_Mutex);
+
+    
+    assert(NULL != v);
+    
+    int read = 0;
+    
+#ifdef _LP64
+    typedef uint64_t ot_ulong;
+#else
+    typedef uint32_t ot_ulong;
+#endif // lp64
+    
+    ot_ulong addr=0,
+             eip=0,
+             esp=0;
+    ucontext_t *uc = (ucontext_t *)v;
+    
+#if defined(__APPLE__)
+    mcontext_t mc;
+    mc = uc->uc_mcontext;
+    addr = (ot_ulong)info->si_addr;
+    read = !(mc->__es.__err&2);
+#ifdef _LP64
+    eip = mc->__ss.__rip;
+    esp = mc->__ss.__rsp;
+#else
+    eip = mc->__ss.__eip;
+    esp = mc->__ss.__esp;
+#endif
+#elif defined(__linux__)
+    mcontext_t *mc;
+    struct sigcontext *ctx;
+    mc = &uc->uc_mcontext;
+    ctx = (struct sigcontext*)mc;
+    addr = (ot_ulong)info->si_addr;
+    read = !(ctx->err&2);
+#ifdef i386
+    eip = ctx->eip;
+    esp = ctx->esp;
+#else
+    eip = ctx->rip;
+    esp = ctx->rsp;
+#endif
+#elif defined(__FreeBSD__)
+    mcontext_t *mc;
+    mc = &uc->uc_mcontext;
+#ifdef __i386__
+    eip = mc->mc_eip;
+    esp = mc->mc_esp;
+#elif defined(__amd64__)
+    eip = mc->mc_rip;
+    esp = mc->mc_rsp;
+#endif
+    addr = (ot_ulong)info->si_addr;
+    if(__FreeBSD__ < 7){
+        /*
+         * FreeBSD /usr/src/sys/i386/i386/trap.c kludgily reuses
+         * frame->tf_err as somewhere to put the faulting address
+         * (cr2) when calling into the generic signal dispatcher.
+         * Unfortunately, that means that the bit in tf_err that says
+         * whether this is a read or write fault is irretrievably gone.
+         * So we have to figure it out.  Let's assume that if the page
+         * is already mapped in core, it is a write fault.  If not, it is a
+         * read fault.  
+         *
+         * This is apparently fixed in FreeBSD 7, but I don't have any
+         * FreeBSD 7 machines on which to verify this.
+         */
+        char vec;
+        int r;
+        
+        vec = 0;
+        r = mincore((void*)addr, 1, &vec);
+        //iprint("FreeBSD fault [%d]: addr=%p[%p] mincore=%d vec=%#x errno=%d\n", signo, addr, (uchar*)addr-uzero, r, vec, errno);
+        if(r < 0 || vec == 0)
+            mc->mc_err = 0; /* read fault */
+        else
+            mc->mc_err = 2; /* write fault */
+    }
+    read = !(mc->mc_err&2);
+#else
+#       error   "Unknown OS in sigsegv"
+#endif
+
+    
+    void * caller_address = (void *) eip; 
+    
+    std::cerr << "signal " << sig_num 
+    << " (" << strsignal(sig_num) << "), address is " 
+    << info->si_addr << " from " << caller_address 
+    << std::endl << std::endl;
+    
+    void * array[50];
+    int size = backtrace(array, 50);
+    
+    array[1] = caller_address;
+    
+    char ** messages = backtrace_symbols(array, size);    
+    
+    // skip first stack frame (points here)
+    for (int i = 1; i < size && messages != NULL; ++i)
+    {
+        char *mangled_name = 0, *offset_begin = 0, *offset_end = 0;
+        
+        // find parantheses and +address offset surrounding mangled name
+        for (char *p = messages[i]; *p; ++p)
+        {
+            if (*p == '(') 
+            {
+                mangled_name = p; 
+            }
+            else if (*p == '+') 
+            {
+                offset_begin = p;
+            }
+            else if (*p == ')')
+            {
+                offset_end = p;
+                break;
+            }
+        }
+        
+        // if the line could be processed, attempt to demangle the symbol
+        if (mangled_name && offset_begin && offset_end && 
+            mangled_name < offset_begin)
+        {
+            *mangled_name++ = '\0';
+            *offset_begin++ = '\0';
+            *offset_end++ = '\0';
+            
+            int status;
+            char * real_name = abi::__cxa_demangle(mangled_name, 0, 0, &status);
+            
+            // if demangling is successful, output the demangled function name
+            if (status == 0)
+            {    
+                std::cerr << "[bt]: (" << i << ") " << messages[i] << " : " 
+                << real_name << "+" << offset_begin << offset_end 
+                << std::endl;
+                
+            }
+            // otherwise, output the mangled function name
+            else
+            {
+                std::cerr << "[bt]: (" << i << ") " << messages[i] << " : " 
+                << mangled_name << "+" << offset_begin << offset_end 
+                << std::endl;
+            }
+            free(real_name);
+        }
+        // otherwise, print the whole line
+        else
+        {
+            std::cerr << "[bt]: (" << i << ") " << messages[i] << std::endl;
+        }
+    }
+    std::cerr << std::endl;
+    
+    free(messages);
+    
+    _exit(0); 
+}
+
+
+#endif // defined(OT_NO_DEMANGLING_STACK_TRACE)
+
+// --------------------------------------
+#ifndef OT_HANDLE_SIGNAL
+#define OT_HANDLE_SIGNAL(OT_SIGNAL_TYPE) \
+{ \
+\
+    struct sigaction new_action, old_action; \
+    new_action.sa_sigaction = crit_err_hdlr; \
+    sigemptyset (&new_action.sa_mask); \
+    new_action.sa_flags = SA_RESTART | SA_SIGINFO;  \
+\
+    sigaction(OT_SIGNAL_TYPE, NULL, &old_action); \
+\
+    if (old_action.sa_handler != SIG_IGN) \
+    { \
+        if (sigaction(OT_SIGNAL_TYPE, &new_action, NULL) != 0) \
+        { \
+            OTLog::vError("OTLog::SetupSignalHandler: Failed setting signal handler for error %d (%s)\n", \
+                          OT_SIGNAL_TYPE, strsignal(OT_SIGNAL_TYPE)); \
+            abort(); \
+        } \
+    } \
+}
+#endif
+// --------------------------------------
+
+//static
+void OTLog::SetupSignalHandler()
+{
+    static int nCount = 0;
+    
+    if (0 == nCount)
+    {
+        ++nCount;
+        // --------------------------------------
+        OT_HANDLE_SIGNAL(SIGINT)  // Ctrl-C. (So we can shutdown gracefully, I suppose, on Ctrl-C.)
+        OT_HANDLE_SIGNAL(SIGSEGV) // Segmentation fault.
+//      OT_HANDLE_SIGNAL(SIGABRT) // Abort.
+        OT_HANDLE_SIGNAL(SIGBUS)  // Bus error
+    //  OT_HANDLE_SIGNAL(SIGHUP)  // I believe this is for sending a "restart" signal to your process, that sort of thing.
+        OT_HANDLE_SIGNAL(SIGTERM) // Used by kill pid (NOT kill -9 pid). Used for "killing softly."
+        OT_HANDLE_SIGNAL(SIGILL)  // Illegal instruction.
+        OT_HANDLE_SIGNAL(SIGTTIN) // SIGTTIN may be sent to a background process that attempts to read from its controlling terminal.
+        OT_HANDLE_SIGNAL(SIGTTOU) // SIGTTOU may be sent to a background process that attempts to write to its controlling terminal.
+    //  OT_HANDLE_SIGNAL(SIGPIPE) // Unix supports the principle of piping. When a pipe is broken, the process writing to it is sent the SIGPIPE.
+    //  OT_HANDLE_SIGNAL(SIGKILL) // kill -9. "The receiving process cannot perform any clean-up upon receiving this signal."
+        OT_HANDLE_SIGNAL(SIGFPE)  // Floating point exception.
+        OT_HANDLE_SIGNAL(SIGXFSZ) // SIGXFSZ is the signal sent to a process when it grows a file larger than the maximum allowed size.
+    //  OT_HANDLE_SIGNAL(SIGQUIT) // SIGQUIT is the signal sent to a process by its controlling terminal when the user requests that the process perform a core dump.
+        OT_HANDLE_SIGNAL(SIGSYS)  // sent when a process supplies an incorrect argument to a system call.
+    //  OT_HANDLE_SIGNAL(SIGTRAP) // used by debuggers
+        // --------------------------------------
+    }
+}
+
+#endif  // #if windows, #else (unix) #endif. (SIGNAL handling.)
+
+// *********************************************************************************
+
+
+
+
+
+
+
+
+
 // static
 // Changes ~/blah to /Users/au/blah
 //
 void OTLog::TransformFilePath(const char * szInput, OTString & strOutput)
 {
     OT_ASSERT(NULL != szInput);
-     	
+    
 #ifndef _WIN32 // if UNIX (NOT windows)
 	wordexp_t exp_result;
 	
-	if (wordexp(szInput, &exp_result, 0))
+    exp_result.we_wordc = 0;
+    exp_result.we_wordv = NULL;
+    exp_result.we_offs  = 0;
+    
+	if (wordexp(szInput, &exp_result, 0))  // If non-zero, then failure.
 	{
-		OTLog::Error("OTLog::TransformFilePath: Error calling wordexp() to expand path.\n");
-		wordfree(&exp_result); 
+		OTLog::vError("%s: Error calling wordexp() to expand path.\n", __func__);
+//		wordfree(&exp_result); 
 		strOutput.Set(szInput);
 		return;
 	}
@@ -297,20 +1073,27 @@ void OTLog::TransformFilePath(const char * szInput, OTString & strOutput)
 	
 	std::string str_Output("");
 	
-	// wordexp tokenizes by space (as well as expands, which is why I'm using it.)
-	// Therefore we need to iterate through the tokens, and create a single string
-	// with spaces between the tokens.
-	//
-	for (int i = 0; exp_result.we_wordv[i] != NULL; i++)
-	{
-		str_Output += exp_result.we_wordv[i];
-		
-		if (exp_result.we_wordv[i+1] != NULL)
-			str_Output += " ";
-	}
-	
-	wordfree(&exp_result); 
-
+    if ((exp_result.we_wordc > 0) && (NULL != exp_result.we_wordv))
+    {
+        // wordexp tokenizes by space (as well as expands, which is why I'm using it.)
+        // Therefore we need to iterate through the tokens, and create a single string
+        // with spaces between the tokens.
+        //
+        int nCount = -1;
+        
+        for (int i = 0; (i < exp_result.we_wordc) && (exp_result.we_wordv[i] != NULL); ++i)
+        {
+            ++nCount; // 0 on first iteration.
+            // ---------------
+            str_Output += exp_result.we_wordv[i];
+            
+            if (nCount < (exp_result.we_wordc)-1) // we don't add a space after the last one.
+                str_Output += " ";
+        }
+        
+        wordfree(&exp_result); 
+    }
+    
     if (str_Output.size() > 0)
         strOutput.Set(str_Output.c_str());
     else
@@ -330,9 +1113,9 @@ const char * OTLog::GetMemlogAtIndex(int nIndex)
 {
 	unsigned int uIndex = static_cast<unsigned int> (nIndex);
 	
-	if ((uIndex < 0) || (uIndex >= __logDeque.size()))
+	if ((nIndex < 0) || (uIndex >= __logDeque.size()))
 	{
-		OTLog::vError("OTLog::GetMemlogAtIndex: index out of bounds: %d\n", nIndex);
+		OTLog::vError("%s: index out of bounds: %d\n", __func__, nIndex);
 		return NULL;
 	}
 	

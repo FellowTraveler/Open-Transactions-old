@@ -175,6 +175,8 @@ extern "C"
 
 void SetupHeader( union u_header * pCMD, int nTypeID, int nCmdID, OTPayload & thePayload)
 {
+	OT_ASSERT(NULL != pCMD);
+	
 	pCMD->fields.type_id	= nTypeID;
 	pCMD->fields.command_id	= nCmdID;
 //	pCMD->fields.size		= thePayload.GetSize();
@@ -345,8 +347,8 @@ void OTClientConnection::ReadBytesIntoBuffer()
 	int			err = 0;
 	uint32_t	nread = 0;
 	
-	const int		nBufferSize = 8192; // todo no hardcoding.
-	unsigned char	szBuffer[8300]; // I made this a little bigger just for safety reasons.
+	const unsigned int  nBufferSize = 8192; // todo no hardcoding.
+	unsigned char       szBuffer[8300]; // I made this a little bigger just for safety reasons.
 	
 	memset(szBuffer, 0, 8299);  // just in case.
 	
@@ -750,7 +752,7 @@ void OTClientConnection::ProcessReply(OTMessage &theReply)
 	if (bSendCommand)
 	{
 		
-		int nHeaderSize = OT_CMD_HEADER_SIZE;
+		const unsigned int nHeaderSize = OT_CMD_HEADER_SIZE;
 		
 		for (nwritten = 0;  nwritten < nHeaderSize;  nwritten += err)
 		{
@@ -797,12 +799,14 @@ void OTClientConnection::AddToInputList(OTMessage & theMessage)
 
 OTMessage * OTClientConnection::GetNextInputMessage()
 {
-#if !defined(OT_ZMQ_MODE)    
-	return m_listIn.Pop();
-#else
+//#if !defined(OT_ZMQ_MODE)    
+//	return m_listIn.Pop();
+//#else
+//    OT_ASSERT_MSG(false, "OTClientConnection::GetNextInputMessage: ASSERT: Should not be calling this...");
+//#endif
+
     OT_ASSERT_MSG(false, "OTClientConnection::GetNextInputMessage: ASSERT: Should not be calling this...");
-#endif
-    
+
     return NULL;
 }
 
@@ -816,12 +820,14 @@ void OTClientConnection::AddToOutputList(OTMessage & theMessage)
 
 OTMessage * OTClientConnection::GetNextOutputMessage()
 {
-#if !defined(OT_ZMQ_MODE)    
-	return m_listOut.Pop();
-#else
+//#if !defined(OT_ZMQ_MODE)    
+//	return m_listOut.Pop();
+//#else
+//    OT_ASSERT_MSG(false, "OTClientConnection::GetNextOutputMessage: ASSERT: Should not be calling this...");
+//#endif
+
     OT_ASSERT_MSG(false, "OTClientConnection::GetNextOutputMessage: ASSERT: Should not be calling this...");
-#endif
-    
+
     return  NULL;
 }
 

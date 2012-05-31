@@ -133,6 +133,7 @@ API_LDFLAGS = #empty
 
 
 C_COMPILER = cc
+CPP_COMPILER = g++
 
 # The LIBS macro contains a list of libraries that the the
 # executable must be linked against.
@@ -159,7 +160,7 @@ endif
 
 # SSL Folders!
 
-# For Darwin I use /opt instead of /usr, since OpenSSL 1.0.0a is
+# For Darwin I use /opt instead of /usr, since OpenSSL 1.0.0i is
 # installed to that location by MacPorts.
 #
 ifeq ($(PLATFORM), darwin)
@@ -175,7 +176,7 @@ endif
 ifeq ($(PLATFORM), freebsd)
 SSL_INCLUDEDIRS = -I/usr/local/include
 SSL_LIBDIRS = -L/usr/local/lib
-#SSL_LIBDIRS = -L/usr/ports/security/openssl/work/openssl-1.0.0c
+#SSL_LIBDIRS = -L/usr/ports/security/openssl/work/openssl-1.0.0i
 endif
 
 
@@ -208,7 +209,10 @@ ifeq ($(PLATFORM), darwin)
 
 DYNAMIC_OTLIB_CONTENTS = # empty
 
-# C_COMPILER = gcc
+CPP_COMPILER = g++
+C_COMPILER = cc
+#CPP_COMPILER = clang++
+#C_COMPILER = clang
 
 
 # --- Common Lisp
@@ -299,6 +303,7 @@ ifeq ($(PLATFORM), linux)
 
 
 C_COMPILER = gcc
+CPP_COMPILER = g++
 
 DYNAMIC_OTLIB_CONTENTS = DYNAMIC_OTLIB=1
 
@@ -668,9 +673,9 @@ CXXSOURCES = $(API_CPPSOURCES) \
 
 CXXOBJECTS = $(CXXSOURCES:.cpp=.o)  # expands to list of object files
 COBJECTS   = $(CSOURCES:.c=.o)
-CFLAGS     = $(INCLUDEDIRS) $(API_CFLAGS) $(FT_FLAGS) -c
-DEBUG_FLAGS = -g
-CXX = g++
+CFLAGS     = $(INCLUDEDIRS) $(API_CFLAGS) $(FT_FLAGS) -D_FORTIFY_SOURCE=2 -fstack-protector-all -fstack-check -Wstack-protector -c
+DEBUG_FLAGS = -g3 -ggdb -rdynamic -O0 -Wglobal-constructors -Wshadow -Waddress -Woverloaded-virtual -Wshadow -Wconversion -Wshorten-64-to-32 --param ssp-buffer-size=4
+CXX = $(CPP_COMPILER)
 CC = $(C_COMPILER)
 
 LIBS = $(API_LIBS)

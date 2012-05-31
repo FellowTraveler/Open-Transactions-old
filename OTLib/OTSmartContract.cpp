@@ -3446,17 +3446,19 @@ void OTSmartContract::ExecuteClauses (mapOfClauses & theClauses, OTString * pPar
 		const std::string str_code		=	pClause->GetCode();		// source code for the script.
 		const std::string str_language	=	pBylaw->GetLanguage();	// language it's in. (Default is "chai")
 		
-		OTScript_SharedPtr pScript = OTScriptFactory(str_code, &str_language);
+		OTScript_AutoPtr pScript = OTScriptFactory(str_code, &str_language);
+
+        OTCleanup<OTVariable> theVarAngel;
 
 		// ---------------------------------------------------------------
 		//
 		// SET UP THE NATIVE CALLS, REGISTER THE PARTIES, REGISTER THE VARIABLES, AND EXECUTE THE SCRIPT.
 		//
-		if (pScript)
+		if (NULL != pScript.get())
 		{
 			// Register the special server-side native OT calls we make available to all scripts.
 			//
-			RegisterOTNativeCallsWithScript(*pScript); 
+			RegisterOTNativeCallsWithScript(*pScript);
 			
 			// ---------------------------------------
 			// Register all the parties with the script.
@@ -3483,7 +3485,6 @@ void OTSmartContract::ExecuteClauses (mapOfClauses & theClauses, OTString * pPar
 			// a string parameter to that clause as input.)
 			//
 			OTVariable * pVar = NULL;
-			OTCleanup<OTVariable> theVarAngel;
 			const std::string str_Name("param_string");
 			std::string str_Value("");
 

@@ -56,8 +56,9 @@ public:
 	BigUnsigned(const BigUnsigned &x) : NumberlikeArray<Blk>(x) {}
 
 	// Assignment operator
-	void operator=(const BigUnsigned &x) {
+	BigUnsigned& operator=(const BigUnsigned &x) {
 		NumberlikeArray<Blk>::operator =(x);
+        return *this;
 	}
 
 	// Constructor that copies from a given array of blocks.
@@ -67,7 +68,7 @@ public:
 	}
 
 	// Destructor.  NumberlikeArray does the delete for us.
-	~BigUnsigned() {}
+	virtual ~BigUnsigned() {}
 	
 	// Constructors from primitive integer types
 	BigUnsigned(unsigned long  x);

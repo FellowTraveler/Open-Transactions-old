@@ -338,11 +338,9 @@ namespace OTDB
 	InitOTDBDetails::InitOTDBDetails() // Constructor for namespace
 	{
 		OT_ASSERT (NULL == details::pFunctionMap);
-		
 		details::pFunctionMap = new mapOfFunctions;
 		
 		OT_ASSERT (NULL != details::pFunctionMap);
-		
 		mapOfFunctions & theMap = *(details::pFunctionMap);
 		
 		// Set up theMap...
@@ -407,9 +405,7 @@ namespace OTDB
 	InitOTDBDetails::~InitOTDBDetails() // Destructor for namespace
 	{
 		OT_ASSERT(NULL != details::pFunctionMap);
-		
 		delete details::pFunctionMap;
-		
 		details::pFunctionMap = NULL;
 		
 		// ------------------------------------------

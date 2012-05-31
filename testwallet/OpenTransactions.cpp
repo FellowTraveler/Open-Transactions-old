@@ -147,10 +147,20 @@ extern "C"
 }
 
 
+// -----------------------
+
 #include "SimpleIni.h"
 
+// ----------------------------
 
-// -----------------------
+// TinyThread++
+//
+#include "tinythread.h"   // These are in the header already.
+//#include "fast_mutex.h"
+
+using namespace tthread;
+
+// ----------------------------
 
 #include "OTString.h"
 
@@ -187,14 +197,6 @@ extern "C"
 #include "OpenTransactions.h"
 
 
-// used for testing.
-OTPseudonym *g_pTemporaryNym=NULL;
-
-
-extern OT_API g_OT_API; 
-
-
-
 
 // -------------------------------------------------------------------------
 // When the server and client (this API being a client) are built in XmlRpc/HTTP
@@ -224,17 +226,106 @@ extern OT_API g_OT_API;
 //typedef bool (*OT_CALLBACK_MSG)(OTPayload & thePayload);
 //
 
-zmq::context_t	OT_API::s_ZMQ_Context(1);
+tthread::mutex * OT_API::s_p_ZMQ_Mutex = NULL;
+OTSocket       * OT_API::s_p_Socket    = NULL;
 
 
 void OT_API::TransportCallback(OTServerContract & theServerContract, OTEnvelope & theEnvelope)
-{	
+{
+    OT_ASSERT(NULL != OT_API::s_p_ZMQ_Mutex); // see OT_API:OTAPIInit.
+    tthread::lock_guard<tthread::mutex>  lock (*s_p_ZMQ_Mutex);
+    // ----------------------------------------------
 	int			nServerPort = 0;
 	OTString	strServerHostname;
 	
-	OT_ASSERT_MSG((NULL != g_OT_API.GetClient()) && 
-			  (NULL != g_OT_API.GetClient()->m_pConnection) && 
-			  (NULL != g_OT_API.GetClient()->m_pConnection->GetNym()), 
+	OT_ASSERT_MSG((NULL != OT_API::It().GetClient()) && 
+			      (NULL != OT_API::It().GetClient()->m_pConnection) && 
+			      (NULL != OT_API::It().GetClient()->m_pConnection->GetNym()), 
+				  "OT_API::TransportCallback: Important things are NULL that shouldn't be.");
+	
+	if (false == theServerContract.GetConnectInfo(strServerHostname, nServerPort))
+	{
+		OTLog::Error("OT_API::TransportCallback: Failed retrieving connection info from server contract.\n");
+		return;
+	}
+    // ----------------------------------------------
+    OTString strConnectPath;         
+    strConnectPath.Format("tcp://%s:%d", strServerHostname.Get(), nServerPort);
+    // --------------------------------------------
+
+	OTASCIIArmor ascEnvelope(theEnvelope);
+	
+	if (ascEnvelope.Exists())
+	{
+        if (NULL == OT_API::s_p_Socket)
+            OT_API::s_p_Socket = new OTSocket;
+        
+        OTSocket & theSocket = *(OT_API::s_p_Socket);
+        // --------------------------------------------
+                
+        bool bSuccessSending = theSocket.Send(ascEnvelope, strConnectPath);  // <========
+        
+        if (!bSuccessSending)
+        {
+            OTLog::vError("OT_API::TransportCallback: Failed, even with error correction and retries, while trying to send message to server.");
+        }
+        else
+        {
+            OTASCIIArmor	ascServerReply;
+            bool			bSuccessReceiving = theSocket.Receive(ascServerReply); // <========
+            
+            if (!bSuccessReceiving)
+            {
+                OTLog::Error("OT_API::TransportCallback: Failed trying to receive expected reply from server.\n");
+            }					
+            // ----------------------------------------------------------
+            else
+            {
+                OTString	strServerReply;				// Maybe should use OT_API::It().GetClient()->GetNym or some such...
+                OTEnvelope theServerEnvelope;
+                
+                if (theServerEnvelope.SetAsciiArmoredData(ascServerReply))
+                {
+                    bool bOpened = theServerEnvelope.Open(*(OT_API::It().GetClient()->m_pConnection->GetNym()), strServerReply);
+                    
+                    OTMessage * pServerReply = new OTMessage;
+                    OT_ASSERT(NULL != pServerReply);
+                    
+                    if (bOpened && strServerReply.Exists() && pServerReply->LoadContractFromString(strServerReply))
+                    {
+                        // Now the fully-loaded message object (from the server, this time) can be processed by the OT library...
+                        OT_API::It().GetClient()->ProcessServerReply(*pServerReply); // Client takes ownership and will handle cleanup.
+                    }
+                    else
+                    {
+                        delete pServerReply;
+                        pServerReply = NULL;
+                        OTLog::Error("OT_API::TransportCallback: Error loading server reply from string.\n");
+                    }
+                }
+            } // !success receiving.
+            // ----------------------------------------------------------
+        } // else (bSuccessSending)
+    } // if envelope exists.    
+} // transport callback.
+
+
+
+
+/*
+void OT_API::TransportCallback(OTServerContract & theServerContract, OTEnvelope & theEnvelope)
+{
+    OT_ASSERT(NULL != OT_API::s_p_ZMQ_Mutex); // see OT_API:OTAPIInit.
+    
+    tthread::lock_guard<tthread::mutex> lock(*s_p_ZMQ_Mutex);
+    
+    // ----------------------------------------------
+	int			nServerPort = 0;
+	OTString	strServerHostname;
+	
+	OT_ASSERT_MSG((NULL != OT_API::It().GetClient()) && 
+			      (NULL != OT_API::It().GetClient()->m_pConnection) && 
+			      (NULL != OT_API::It().GetClient()->m_pConnection->GetNym()), 
 				  "OT_API::TransportCallback: Important things are NULL that shouldn't be.");
 	
 	if (false == theServerContract.GetConnectInfo(strServerHostname, nServerPort))
@@ -247,8 +338,13 @@ void OT_API::TransportCallback(OTServerContract & theServerContract, OTEnvelope 
 	
 	if (ascEnvelope.Exists())
 	{
+        if (NULL == OT_API::s_p_ZMQ_Context)
+            OT_API::s_p_ZMQ_Context = new zmq::context_t(1);
+        
+        // --------------------------------------------
+        
 		//  Prepare our context and socket
-		zmq::context_t & context = s_ZMQ_Context;
+		zmq::context_t & context = *(OT_API::s_p_ZMQ_Context);
 		zmq::socket_t socket(context, ZMQ_REQ);
 
 		OTString strConnectPath; strConnectPath.Format("tcp://%s:%d", strServerHostname.Get(), nServerPort);
@@ -270,15 +366,13 @@ void OT_API::TransportCallback(OTServerContract & theServerContract, OTEnvelope 
 		
 		
 		// Here's our connection...
-		/*
-#if defined (__linux__)
-		XmlRpcClient theXmlRpcClient(strServerHostname.Get(), nServerPort, 0); // serverhost, port.
-#elif defined (_WIN32) 
-		XmlRpcClient theXmlRpcClient(strServerHostname.Get(), nServerPort, "fellowtraveler"); // serverhost, port, value that crashes if NULL.
-#else
-		XmlRpcClient theXmlRpcClient(strServerHostname.Get(), nServerPort); // serverhost, port.
-#endif
-		 */
+//#if defined (__linux__)
+//		XmlRpcClient theXmlRpcClient(strServerHostname.Get(), nServerPort, 0); // serverhost, port.
+//#elif defined (_WIN32) 
+//		XmlRpcClient theXmlRpcClient(strServerHostname.Get(), nServerPort, "fellowtraveler"); // serverhost, port, value that crashes if NULL.
+//#else
+//		XmlRpcClient theXmlRpcClient(strServerHostname.Get(), nServerPort); // serverhost, port.
+//#endif
 		// -----------------------------------------------------------
 		//
 		// Call the OT_XML_RPC method (thus passing the message to the server.)
@@ -321,7 +415,7 @@ void OT_API::TransportCallback(OTServerContract & theServerContract, OTEnvelope 
 				
 				if (theServerEnvelope.SetAsciiArmoredData(ascServerReply))
 				{	
-					bool bOpened = theServerEnvelope.Open(*(g_OT_API.GetClient()->m_pConnection->GetNym()), strServerReply);
+					bool bOpened = theServerEnvelope.Open(*(OT_API::It().GetClient()->m_pConnection->GetNym()), strServerReply);
 					
 					OTMessage * pServerReply = new OTMessage;
 					OT_ASSERT_MSG(NULL != pServerReply, "Error allocating memory in the OT API.");
@@ -329,7 +423,7 @@ void OT_API::TransportCallback(OTServerContract & theServerContract, OTEnvelope 
 					if (bOpened && strServerReply.Exists() && pServerReply->LoadContractFromString(strServerReply))
 					{
 						// Now the fully-loaded message object (from the server, this time) can be processed by the OT library...
-						g_OT_API.GetClient()->ProcessServerReply(*pServerReply); // the Client takes ownership and will handle cleanup.
+						OT_API::It().GetClient()->ProcessServerReply(*pServerReply); // the Client takes ownership and will handle cleanup.
 					}
 					else
 					{
@@ -350,10 +444,25 @@ void OT_API::TransportCallback(OTServerContract & theServerContract, OTEnvelope 
 		}
 	}
 }
+*/
 
 #endif  // (OT_ZMQ_MODE)
 // -------------------------------------------------------------------------
 
+
+
+//static
+OT_API & OT_API::It()
+{
+    static OT_API * pAPI = NULL;
+    
+    if (NULL == pAPI)
+    {
+        pAPI = new OT_API;
+        OT_ASSERT(NULL != pAPI);
+    }
+    return *pAPI;
+}
 
 
 
@@ -402,7 +511,7 @@ bool OT_API::LoadConfigFile(const OTString & strMainPath)
                        OTLog::PathSeparator(), "client.cfg"); // todo: stop hardcoding.
 	
 	{        
-		CSimpleIniA ini; // We're assuming this file is on the path.
+		static CSimpleIniA ini; // We're assuming this file is on the path.
 		SI_Error rc = ini.LoadFile(strFilepath.Get());  
 		
 		if (rc >=0)
@@ -539,13 +648,28 @@ bool OT_API::LoadConfigFile(const OTString & strMainPath)
 //static
 bool OT_API::InitOTAPI()
 {
+    static int nCount = 0;
+    OT_ASSERT_MSG(0 == nCount, "OT_API::InitOTAPI: ASSERT: This function can only be called once.\n");
+    ++nCount;
+    // ------------------------------------    
 #ifdef _WIN32
 	WSADATA wsaData;
 	WORD wVersionRequested = MAKEWORD( 2, 2 );
 	int err = WSAStartup( wVersionRequested, &wsaData );
 #endif
     // ------------------------------------
-
+    // SIGNALS
+    //
+#if !defined(OT_NO_SIGNAL_HANDLING)
+    //
+    OTLog::SetupSignalHandler();  // <===== SIGNALS
+    //
+    // This is optional! You can always remove it using the OT_NO_SIGNAL_HANDLING
+    //  option, and plus, the internals only execute once anyway. (It keeps count.)
+#endif
+    // ------------------------------------
+    OT_API::s_p_ZMQ_Mutex = new tthread::mutex; // This is a new mutex, not a new thread.
+    // ------------------------------------    
     OTCrypto::It()->Init(); // (OpenSSL gets initialized here.)
     // ------------------------------------
 	// TODO in the case of Windows, figure err into this return val somehow.
@@ -553,7 +677,9 @@ bool OT_API::InitOTAPI()
     //
 	return true;
 }
+
 // ------------------------------------
+
 
 //static
 bool OT_API::CleanupOTAPI()
@@ -568,6 +694,17 @@ bool OT_API::CleanupOTAPI()
         WSACleanup(); // Corresponds to WSAStartup() in InitOTAPI().
 #endif
     // ------------------------------------
+    
+    if (NULL != OT_API::s_p_ZMQ_Mutex)
+        delete OT_API::s_p_ZMQ_Mutex;
+    OT_API::s_p_ZMQ_Mutex = NULL;
+
+    if (NULL != OT_API::s_p_Socket)
+        delete OT_API::s_p_Socket;
+    OT_API::s_p_Socket = NULL;
+
+    // ------------------------------------
+
 	return true;   
 }
 
@@ -4949,7 +5086,7 @@ int OT_API::notarizeWithdrawal(OTIdentifier	& SERVER_ID,
 			// server response.  (Coin private unblinding keys are not sent to
 			// the server, obviously.)
 			long lTokenAmount = 0;
-			while (lTokenAmount = theMint.GetLargestDenomination(lAmount))
+			while ((lTokenAmount = theMint.GetLargestDenomination(lAmount)) > 0 )
 			{
 				lAmount -= lTokenAmount;
 				
@@ -6885,7 +7022,8 @@ int OT_API::notarizeTransfer(OTIdentifier	& SERVER_ID,
 	OTMessage theMessage;
 	
 	long lRequestNumber = 0;
-	long lAmount = atol(AMOUNT.Get());
+	const
+    long lAmount = atol(AMOUNT.Get());
 	
 	OTString	strServerID(SERVER_ID), strNymID(USER_ID), 
 				strFromAcct(ACCT_FROM), strToAcct(ACCT_TO);
@@ -6903,7 +7041,7 @@ int OT_API::notarizeTransfer(OTIdentifier	& SERVER_ID,
 		
 		// set up the transaction item (each transaction may have multiple items...)
 		OTItem * pItem		= OTItem::CreateItemFromTransaction(*pTransaction, OTItem::transfer, &ACCT_TO);
-		pItem->SetAmount(atol(AMOUNT.Get()));
+		pItem->SetAmount(lAmount);
 		
 		// The user can include a note here for the recipient.
 		if (NOTE.Exists() && NOTE.GetLength() > 2) 
@@ -6959,7 +7097,7 @@ int OT_API::notarizeTransfer(OTIdentifier	& SERVER_ID,
 
 			// pBalanceItem is signed and saved within this call. No need to do that twice.
 			//
-			OTItem * pBalanceItem = pInbox->GenerateBalanceStatement(atol(AMOUNT.Get())*(-1), *pTransaction, *pNym, *pAccount, *pOutbox);				
+			OTItem * pBalanceItem = pInbox->GenerateBalanceStatement(lAmount*(-1), *pTransaction, *pNym, *pAccount, *pOutbox);				
 			
 			if (NULL != pBalanceItem) // will never be NULL. Will assert above before it gets here.
 				pTransaction->AddItem(*pBalanceItem); // Better not be NULL... message will fail... But better check anyway.

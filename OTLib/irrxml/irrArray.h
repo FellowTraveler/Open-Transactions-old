@@ -51,8 +51,9 @@ public:
 	//! was not set to false by the user before.
 	~array()
 	{
-		if (free_when_destroyed)
+		if (free_when_destroyed && (NULL != data))
 			delete [] data;
+		data = NULL;
 	}
 
 

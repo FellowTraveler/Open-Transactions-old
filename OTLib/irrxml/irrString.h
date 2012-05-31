@@ -19,7 +19,7 @@ so you can assign unicode to string<c8> and ascii to string<wchar_t>
 Note that the conversation between both is not done using an encoding.
 
 Known bugs:
-Special characters like 'Ä', 'Ü' and 'Ö' are ignored in the
+Special characters like '', '' and '' are ignored in the
 methods make_upper, make_lower and equals_ignore_case.
 */
 template <class T>
@@ -127,7 +127,9 @@ public:
 	//! destructor
 	~string()
 	{
-		delete [] array;
+		if (NULL != array)
+			delete [] array;
+		array = NULL;
 	}
 
 

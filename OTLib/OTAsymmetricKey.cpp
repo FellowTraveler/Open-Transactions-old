@@ -1725,6 +1725,8 @@ PgpKeys ExportRsaKey(unsigned char *pbData, int dataLength)
 	PgpKeys pgpKeys;
 	int i;
 	
+	OT_ASSERT(NULL != pbData);
+	
 	memset(&pgpKeys, 0, sizeof(pgpKeys));
 	for (i = 0; i < dataLength; )
 	{

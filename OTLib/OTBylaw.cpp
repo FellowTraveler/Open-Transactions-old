@@ -372,7 +372,9 @@ void OTAgent::SetParty(OTParty & theOwnerParty) // This happens when the agent i
 
 OTAgent::~OTAgent()
 {
-    
+	m_pNym      = NULL;  // this pointer is not owned by this object, and is here for convenience only.
+	m_pForParty = NULL;  // The agent probably has a pointer to the party it acts on behalf of.
+
 }
 
 // If the agent is a Nym acting for himself, this will be true. Otherwise, if agent is a Nym acting in a role for an entity, or if agent is a voting group acting for the entity to which it belongs, either way, this will be false.
@@ -793,7 +795,10 @@ void OTPartyAccount::SetParty(OTParty & theOwnerParty)
 
 OTPartyAccount::~OTPartyAccount()
 {
-	// m_pAccount NOT cleaned up here. pointer is only for convenience.
+	// m_pForParty and m_pAccount NOT cleaned up here. pointer is only for convenience.
+	m_pForParty = NULL;
+	m_pAccount = NULL; 
+
 }
 
 
@@ -1171,14 +1176,14 @@ void OTParty::CleanupAccounts()
 
 OTParty::~OTParty()
 {
-    if (NULL != m_pstr_party_name)
-        delete m_pstr_party_name;
-    
-    // Don't cleanup the nym or account here, since Party doesn't own them.
-    // (He has pointers for reference uses only.)
-
 	CleanupAgents();
 	CleanupAccounts();
+
+    if (NULL != m_pstr_party_name)
+        delete m_pstr_party_name;
+	m_pstr_party_name = NULL;
+	
+	m_pOwnerAgreement = NULL;
 }
 
 
@@ -3141,6 +3146,8 @@ OTClause::OTClause(const char * szName, const char * szCode) : m_pBylaw(NULL)
 OTClause::~OTClause()
 {
 	// nothing to delete.
+
+	m_pBylaw = NULL;  // I wasn't the owner, it was a pointer for convenience only.
 }
 
 
@@ -3399,7 +3406,7 @@ OTVariable::OTVariable(const std::string str_Name, const bool bValue, const OTVa
 
 OTVariable::~OTVariable()
 {
-	
+	m_pBylaw = NULL;  // I wasn't the owner, it was a pointer for convenience only.
 }
 
 
@@ -4557,6 +4564,8 @@ OTBylaw::~OTBylaw()
 	}
 	// --------------------------------
 	
+	m_pOwnerAgreement = NULL; // This Bylaw is owned by an agreement (OTScriptable-derived.)
+
 	// Hooks and Callbacks are maps of std::string to std::string.
 	//
 	// (THEREFORE NO NEED TO CLEAN THEM UP HERE.)

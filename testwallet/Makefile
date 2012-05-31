@@ -99,6 +99,7 @@ API_LDFLAGS = # empty
 
 
 C_COMPILER = cc
+CPP_COMPILER = g++
 
 # The LIBS macro contains a list of libraries that the the
 # executable must be linked against.
@@ -124,7 +125,7 @@ endif
 # ---------------------------------------------------------------------
 # SSL Folders!
 
-# For Darwin I use /opt instead of /usr, since OpenSSL 1.0.0a is
+# For Darwin I use /opt instead of /usr, since OpenSSL 1.0.0i is
 # installed to that location by MacPorts.
 #
 ifeq ($(PLATFORM), darwin)
@@ -140,7 +141,7 @@ endif
 ifeq ($(PLATFORM), freebsd)
 SSL_INCLUDEDIRS = -I/usr/local/include
 SSL_LIBDIRS = -L/usr/local/lib
-#SSL_LIBDIRS = -L/usr/ports/security/openssl/work/openssl-1.0.0c
+#SSL_LIBDIRS = -L/usr/ports/security/openssl/work/openssl-1.0.0i
 endif
 
 # ---------------------------------------------------------------------
@@ -166,6 +167,11 @@ endif
 #
 ifeq ($(PLATFORM), darwin)
 
+#CPP_COMPILER = clang++
+#C_COMPILER = clang
+CPP_COMPILER = g++
+C_COMPILER = cc
+
 endif
 # End DARWIN -------------------------------------------------------------
 
@@ -176,6 +182,7 @@ ifeq ($(PLATFORM), linux)
 API_LDFLAGS += -ldl -lpthread
 
 C_COMPILER = gcc
+CPP_COMPILER = g++
 
 endif
 # End LINUX -------------------------------------------------------------
@@ -243,9 +250,16 @@ COBJECTS   = $(CSOURCES:.c=.o)
 # have to manually go through the inbox items and allow your user
 # the opportunity to accept or reject them.
 #
-CFLAGS     = $(INCLUDEDIRS) $(API_CFLAGS) $(FT_FLAGS) -DTEST_CLIENT -c 
-DEBUG_FLAGS = -g
-CXX = g++
+#CFLAGS     = $(INCLUDEDIRS) $(API_CFLAGS) $(FT_FLAGS) -DTEST_CLIENT -c -Wall -O -Wextra -Wwrite-strings -Winit-self -Wcast-align -Wcast-qual -Wold-style-cast -Wpointer-arith -Wstrict-aliasing -Wformat=2 -Wuninitialized -Woverloaded-virtual -Wnon-virtual-dtor -Wctor-dtor-privacy -Wno-long-long
+
+#CFLAGS     = $(INCLUDEDIRS) $(API_CFLAGS) $(FT_FLAGS) -DTEST_CLIENT -c -O1 -fstack-protector-all -Wsign-compare -Wstack-protector -Wpointer-arith -Waddress -Wuninitialized -Wconversion
+
+CFLAGS     = $(INCLUDEDIRS) $(API_CFLAGS) $(FT_FLAGS) -DTEST_CLIENT -D_FORTIFY_SOURCE=2 -fstack-protector-all -fstack-check -Wstack-protector -c -Wall
+
+
+DEBUG_FLAGS = -g3 -ggdb -rdynamic -O0 -Wshadow -Wglobal-constructors -Waddress -Woverloaded-virtual -Wshadow -Wconversion -Wshorten-64-to-32 --param ssp-buffer-size=4
+
+CXX = $(CPP_COMPILER)
 CC = $(C_COMPILER)
 
 LIBS = $(API_LIBS)

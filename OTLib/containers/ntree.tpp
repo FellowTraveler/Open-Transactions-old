@@ -943,7 +943,7 @@ namespace stlplus
       if (result.m_root)
       {
         result.m_root->m_parent = 0;
-        result.m_root->set_new_owner(&result);
+        result.m_root->change_owner(&result);
       }
     }
     return result;

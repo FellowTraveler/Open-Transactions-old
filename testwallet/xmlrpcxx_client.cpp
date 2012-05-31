@@ -260,10 +260,10 @@ void OT_Sleep(int nMS);
 // It's the C++ high-level interace to OT. 
 // Any client software will have an instance of this.
 //
-extern OT_API g_OT_API; 
+//extern OT_API g_OT_API;  UPDATE: Use OT_API::It(). instead of g_OT_API.
 //
 // Note: In the main function, before using OT, must call OT_API::InitOTAPI--(which
-// calls OTLog::OT_Init())--then after calling that, must call g_OT_API.Init() in
+// calls OTLog::OT_Init())--then after calling that, must call OT_API::It().Init() in
 // the main function.
 
 // ---------------------------------------------------------------------------
@@ -306,29 +306,6 @@ void HandleCommandLineArguments( int argc, char* argv[], AnyOption * opt );
 
 
 
-class OTSocket
-{
-	zmq::context_t	* m_pContext;
-	zmq::socket_t	* m_pSocket;
-	
-	OTString m_strConnectPath;
-	OTASCIIArmor m_ascLastMsgSent;
-	
-	void NewContext();
-	void Connect(const OTString & strConnectPath);
-	
-	bool HandlePollingError();
-	bool HandleSendingError();
-	bool HandleReceivingError();
-	
-public:
-	OTSocket();
-	~OTSocket();
-	
-	bool Send(OTASCIIArmor & ascEnvelope, const OTString &strConnectPath);
-	bool Receive(OTASCIIArmor & ascServerReply);
-};
-
 
 OTSocket::OTSocket() : m_pContext(NULL), m_pSocket(NULL)
 {
@@ -365,6 +342,8 @@ void OTSocket::NewContext()
 
 void OTSocket::Connect(const OTString &strConnectPath)
 {
+    OT_ASSERT(NULL != m_pContext);
+    
 	if (NULL != m_pSocket)
 		delete m_pSocket;
 	
@@ -384,10 +363,10 @@ void OTSocket::Connect(const OTString &strConnectPath)
 /*
  typedef struct
  {
- void //*socket//;
- int //fd//;
- short //events//;
- short //revents//;
+ void *socket;
+ int fd;
+ short events;
+ short revents;
  } zmq_pollitem_t; 
  */
 
@@ -691,12 +670,12 @@ bool SetupPointersForWalletMyNymAndServerContract(std::string & str_ServerID,
     //
     const OTString strTheWalletFilename("wallet.xml"); // todo stop hardcoding.
     
-    g_OT_API.LoadWallet(strTheWalletFilename);
-//	g_OT_API.GetWallet()->SaveWallet("NEWwallet.xml"); // todo remove this test code.
+    OT_API::It().LoadWallet(strTheWalletFilename);
+//	OT_API::It().GetWallet()->SaveWallet("NEWwallet.xml"); // todo remove this test code.
 
     // -----------------------------------------------------        
     //
-    pWallet = g_OT_API.GetWallet();
+    pWallet = OT_API::It().GetWallet();
     
     if (NULL == pWallet)
     {
@@ -830,7 +809,7 @@ std::string OT_CLI_GetValueByIndex(const std::string str_Args, const int nIndex)
 	// ---------------------------------------
 	const bool bTokenized = strArgs.TokenizeIntoKeyValuePairs(map_values);	
 	// ---------------------------------------
-	if (bTokenized && (nIndex < map_values.size()))
+	if (bTokenized && (nIndex < static_cast<int>(map_values.size())))
 	{
 		int nMapIndex = (-1);
 		FOR_EACH(mapOfArguments, map_values)
@@ -870,7 +849,7 @@ std::string OT_CLI_GetKeyByIndex(const std::string str_Args, const int nIndex)
 	// ---------------------------------------
 	const bool bTokenized = strArgs.TokenizeIntoKeyValuePairs(map_values);	
 	// ---------------------------------------
-	if (bTokenized && (nIndex < map_values.size()))
+	if (bTokenized && (nIndex < static_cast<int>(map_values.size())))
 	{
 		int nMapIndex = (-1);
 		FOR_EACH(mapOfArguments, map_values)
@@ -974,18 +953,33 @@ std::string OT_CLI_ReadUntilEOF()
 
 
 // ********************************************************************
-
-void RegisterAPIWithScript(OTScript & theScript)
+/*
+int main() 
+{ 
+    std::shared_ptr<base> sp0(new derived); 
+    std::shared_ptr<derived> sp1 = 
+    std::dynamic_pointer_cast<derived>(sp0); 
+    
+    sp0->val = 3; 
+    std::cout << "sp1->val == " << sp1->val << std::endl; 
+    
+    return (0); 
+} 
+*/
+bool RegisterAPIWithScript(OTScript & theBaseScript)
+//void RegisterAPIWithScript(OTScript & theScript)
 {
 	using namespace chaiscript;
 	
-	// In the future, this will be polymorphic.
+    const char * szFunc = "RegisterAPIWithScript";
+    
+    // In the future, this will be polymorphic.
 	// But for now, I'm forcing things...
-	
-	OTScriptChai * pScript = dynamic_cast<OTScriptChai *> (&theScript);
-
+	    
+	OTScriptChai * pScript = dynamic_cast<OTScriptChai *> (&theBaseScript);
+    
 	if (NULL != pScript)
-	{		
+	{
         
         pScript->chai.add(fun(&OT_CLI_ReadLine), "OT_CLI_ReadLine");			// String OT_CLI_ReadLine()		// Reads from cin until Newline.
 		pScript->chai.add(fun(&OT_CLI_ReadUntilEOF), "OT_CLI_ReadUntilEOF");	// String OT_CLI_ReadUntilEOF()	// Reads from cin until EOF or ~ on a line by itself.
@@ -1080,7 +1074,7 @@ void RegisterAPIWithScript(OTScript & theScript)
 		pScript->chai.add(fun(&OTAPI_Wrap::VerifyAndRetrieveXMLContents), "OT_API_VerifyAndRetrieveXMLContents");
 		pScript->chai.add(fun(&OTAPI_Wrap::WriteCheque), "OT_API_WriteCheque");
 		pScript->chai.add(fun(&OTAPI_Wrap::DiscardCheque), "OT_API_DiscardCheque");
-        //		pScript->chai.add(fun(&OTAPI_Wrap::ProposePaymentPlan), "OT_API_ProposePaymentPlan");
+//		pScript->chai.add(fun(&OTAPI_Wrap::ProposePaymentPlan), "OT_API_ProposePaymentPlan");
 		pScript->chai.add(fun(&OTAPI_Wrap::ConfirmPaymentPlan), "OT_API_ConfirmPaymentPlan");
 		
 		pScript->chai.add(fun(&OTAPI_Wrap::LoadUserPubkey), "OT_API_LoadUserPubkey");
@@ -1308,15 +1302,21 @@ void RegisterAPIWithScript(OTScript & theScript)
 		//
 		//  SCRIPT HEADERS
 		// 
-		static const char * ps0	= "%s%s%s%sot%s%s";
-		static const char * ps1	= "ot_utility.ot";
-		static const char * ps2	= "otapi.ot";
-		static const char * ps3	= "ot_made_easy.ot";
-		static const char * pss	= OTLog::ScriptFolder();	//   "scripts"
-		static const char * ps	= OTLog::PathSeparator();	//   "/"
-		static const char * pot	= "ot";						//   "ot"
+		const char * ps0	= "%s%s%s%sot%s%s";
+		const char * ps1	= "ot_utility.ot"; // todo hardcoding
+//		const char * ps1_1	= "ot_util_one.ot";
+//		const char * ps1_2	= "ot_util_two.ot";
+//		const char * ps1_3	= "ot_util_three.ot";
+		const char * ps2	= "otapi.ot"; // todo hardcoding
+//		const char * ps2_1	= "otapi_one.ot";
+//		const char * ps2_2	= "otapi_two.ot";
+		const char * ps3	= "ot_made_easy.ot"; // todo hardcoding
+		const char * pss	= OTLog::ScriptFolder();	//   "scripts"
+		const char * ps     = OTLog::PathSeparator();	//   "/"
+		const char * pot	= "ot";						//   "ot"
 		
 		OTString strUseFile1, strUseFile2, strUseFile3;
+//		OTString strUseFile1_1, strUseFile1_2, strUseFile1_3, strUseFile2_1,  strUseFile2_2, strUseFile3;
 		/*
 		 > ls ./Open-Transactions/scripts/ot/
 		 INCLUDE IN THIS ORDER:
@@ -1326,41 +1326,106 @@ void RegisterAPIWithScript(OTScript & theScript)
 		 ot_made_easy.ot	ps3
 		 
 		 */			//    ~/.ot/client_data		/	scripts		/	ot	/	  "blah.ot"
-		strUseFile1.Format(ps0, OTLog::Path(), ps,	pss,		ps,		ps,		ps1);
-		strUseFile2.Format(ps0, OTLog::Path(), ps,	pss,		ps,		ps,		ps2);
-		strUseFile3.Format(ps0, OTLog::Path(), ps,	pss,		ps,		ps,		ps3);
+//		strUseFile1_1.Format(ps0, OTLog::Path(), ps,	pss,		ps,		ps,		ps1_1);
+//		strUseFile1_2.Format(ps0, OTLog::Path(), ps,	pss,		ps,		ps,		ps1_2);
+//		strUseFile1_3.Format(ps0, OTLog::Path(), ps,	pss,		ps,		ps,		ps1_3);
+//		strUseFile2_1.Format(ps0, OTLog::Path(), ps,	pss,		ps,		ps,		ps2_1);
+//		strUseFile2_2.Format(ps0, OTLog::Path(), ps,	pss,		ps,		ps,		ps2_2);
+		strUseFile1.Format(ps0,   OTLog::Path(), ps,	pss,		ps,		ps,		ps1);
+		strUseFile2.Format(ps0,   OTLog::Path(), ps,	pss,		ps,		ps,		ps2);
+		strUseFile3.Format(ps0,   OTLog::Path(), ps,	pss,		ps,		ps,		ps3);
 		
 		const std::string str_UseFile1(strUseFile1.Get()), str_UseFile2(strUseFile2.Get()), str_UseFile3(strUseFile3.Get());
+//		const std::string str_UseFile1_1(strUseFile1_1.Get()), str_UseFile1_2(strUseFile1_2.Get()), str_UseFile1_3(strUseFile1_3.Get()), 
+//                          str_UseFile2_1(strUseFile2_1.Get()), str_UseFile2_2(strUseFile2_2.Get()), str_UseFile3(strUseFile3.Get());
 
-        OTLog::vOutput(0, "RegisterAPIWithScript: About to try to import script headers:\n   1: %s\n   2: %s\n   3: %s\n",
+		const char * psErr	= "RegisterAPICallWithScript: ERROR: Failed trying to include script header:  %s (Does it exist?)\n";
+
+        OTLog::vOutput(0, "%s: About to try to import script headers:\n 1: %s\n 2: %s\n   3: %s\n", __func__,
                        strUseFile1.Get(), strUseFile2.Get(), strUseFile3.Get());
+//        OTLog::vOutput(0, "RegisterAPIWithScript: About to try to import script headers:\n 1_1: %s\n    1_2: %s\n    1_3: %s\n 2-1: %s\n    2_2: %s\n   3: %s\n", strUseFile1_1.Get(), strUseFile1_2.Get(), strUseFile1_3.Get(), strUseFile2_1.Get(), strUseFile2_2.Get(), strUseFile3.Get());
+               
+        bool bSuccess = true;
         
-		const char * psErr	= "RegisterAPIWithScript: ERROR: Failed trying to include script header:  %s (Does it exist?)\n";
-		// todo fix hardcoding of folder names (below)
-		// --------------------------------
-		if ( OTDB::Exists(pss, pot, ps1) )
-			pScript->chai.use(str_UseFile1);
-		else
-			OTLog::vError(psErr, str_UseFile1.c_str());
-		// --------------------------------
-		if ( OTDB::Exists(pss, pot, ps2) )
-			pScript->chai.use(str_UseFile2);
-		else
-			OTLog::vError(psErr, str_UseFile2.c_str());
-		// --------------------------------
-		if ( OTDB::Exists(pss, pot, ps3) )
-			pScript->chai.use(str_UseFile3);
-		else
-			OTLog::vError(psErr, str_UseFile3.c_str());
-        
+        try 
+        {
+            // --------------------------------
+            if ( OTDB::Exists(pss, pot, ps1) )
+                pScript->chai.use(str_UseFile1);
+            else
+            {
+                bSuccess = false;
+                OTLog::vError(psErr, str_UseFile1.c_str());
+            }
+            // --------------------------------
+            //		if ( OTDB::Exists(pss, pot, ps1_2) )
+            //			pScript->chai.use(str_UseFile1_2);
+            //		else
+            //			OTLog::vError(psErr, str_UseFile1_2.c_str());
+            //		// --------------------------------
+            //		if ( OTDB::Exists(pss, pot, ps1_3) )
+            //			pScript->chai.use(str_UseFile1_3);
+            //		else
+            //			OTLog::vError(psErr, str_UseFile1_3.c_str());
+            //		// --------------------------------
+            //		if ( OTDB::Exists(pss, pot, ps2_1) )
+            //			pScript->chai.use(str_UseFile2_1);
+            //		else
+            //			OTLog::vError(psErr, str_UseFile2_1.c_str());
+            // --------------------------------
+            if ( OTDB::Exists(pss, pot, ps2) )
+                pScript->chai.use(str_UseFile2);
+            else
+            {
+                bSuccess = false;
+                OTLog::vError(psErr, str_UseFile2.c_str());
+            }
+            // --------------------------------
+            if ( OTDB::Exists(pss, pot, ps3) )
+                pScript->chai.use(str_UseFile3);
+            else
+            {
+                bSuccess = false;
+                OTLog::vError(psErr, str_UseFile3.c_str());
+            }
+        } 
+        catch (const chaiscript::exception::eval_error &e) {
+            // Error in script parsing / execution
+            OTLog::vError("%s: Caught chaiscript::exception::eval_error : %s. \n"
+                   "   File: %s\n"
+                   "   Start position, line: %d column: %d\n"
+                   "   End position,   line: %d column: %d\n", __func__,
+                   e.reason.c_str(), e.filename.c_str(), 
+                   e.start_position.line, e.start_position.column,
+                   e.end_position.line, e.end_position.column);
+            return false;
+        } catch (const chaiscript::exception::bad_boxed_cast &e) {
+            // Error unboxing return value
+            OTLog::vError("%s: Caught chaiscript::exception::bad_boxed_cast : %s.\n", __func__,
+                   (e.what() != NULL) ? e.what() : "e.what() returned null, sorry");
+            return false;
+        } catch (const std::exception &e) {
+            // Error explicitly thrown from script
+            OTLog::vError("%s: Caught std::exception exception: %s\n", __func__,
+                   (e.what() != NULL) ? e.what() : "e.what() returned null, sorry");
+            return false;
+        }
+        //  catch (chaiscript::Boxed_Value bv) 
+        catch (...)
+        {
+            OTLog::vError("%s: Caught exception.\n", __func__);
+            return false;
+        }
 		// ******************************************************************
         
+        return bSuccess; // Success (hopefully!)
 	}
 	else 
 	{
-		OTLog::Error("RegisterAPIWithScript: Failed dynamic casting OTScript to OTScriptChai \n");
+		OTLog::vError("%s: Failed dynamic casting OTScript to OTScriptChai \n", __func__);
 	}
-
+    
+    return false;
 }
 
 
@@ -1590,13 +1655,24 @@ int main(int argc, char* argv[])
 	OTLog::vOutput(0, "\n\nWelcome to Open Transactions... Test Client -- version %s\n"
 				   "(transport build: OTMessage -> OTEnvelope -> ZMQ )\n", 
 				   OTLog::Version());
-	
+
+//    OTString strIniRAWFileDefault;
+//    OTString strIniFileDefault;
+//    strIniRAWFileDefault.Format("%s%s%s", OT_FOLDER_DEFAULT, OTLog::PathSeparator(), OT_INI_FILE_DEFAULT);
+//    OTLog::TransformFilePath(strIniRAWFileDefault.Get(), strIniFileDefault);
+//
+//    // --------------------------------------------
+//
+//    OTString strPath, strRawPath(MAIN_PATH_DEFAULT);
+
     // --------------------------------------------
     class __OTclient_RAII
     {
     public:
         __OTclient_RAII()
         {
+            // OT_API class exists only on the client side.
+            //
             OT_API::InitOTAPI();     // SSL gets initialized in here, before any keys are loaded.       
         }
         ~__OTclient_RAII()
@@ -1616,18 +1692,17 @@ int main(int argc, char* argv[])
 
 //#define OT_FOLDER_DEFAULT   "~/.ot"
 //#define OT_INI_FILE_DEFAULT	"ot_init.cfg"
-//
+
+    
     OTString strIniRAWFileDefault, strIniFileDefault;
     strIniRAWFileDefault.Format("%s%s%s", OT_FOLDER_DEFAULT, OTLog::PathSeparator(), OT_INI_FILE_DEFAULT);
     OTLog::TransformFilePath(strIniRAWFileDefault.Get(), strIniFileDefault);
     // -------------------------------------------------------------------
-	//
     // 
-    //
+    //	
     OTString strPath, strRawPath(MAIN_PATH_DEFAULT);
-	
 	{
-		CSimpleIniA ini;
+		static CSimpleIniA ini;
 				
 		SI_Error rc = ini.LoadFile(strIniFileDefault.Get());
 
@@ -1659,7 +1734,7 @@ int main(int argc, char* argv[])
 		}
 	}
 	// **************************************************************************
-	
+
     OTLog::TransformFilePath(strRawPath.Get(), strPath);
     
     // -------------------------------------------------------------------
@@ -1673,23 +1748,11 @@ int main(int argc, char* argv[])
 	OTLog::vOutput(0, "Attempting to use client_data path %s (transformed from %s)\n", 
                    strPath.Get(), strRawPath.Get());
 
-    g_OT_API.Init(strPath);   
+    OT_API::It().Init(strPath);   
     
 	OTLog::vOutput(0, "Using client_data path:  %s\n", OTLog::Path());
     // -------------------------------------------------------------------
-	
-//  OTString strCAFile, strKeyFile; //, strSSLPassword;
-//	strCAFile. Format("%s%s%s", OTLog::Path(), OTLog::PathSeparator(), CA_FILE);
-//	strKeyFile.Format("%s%s%s", OTLog::Path(), OTLog::PathSeparator(), KEY_FILE);
-	
-	// -----------------------------------------------------------------------
-	//
-    //  Prepare our network context
-    //
-//	OTSocket theSocket;
-	
-	// -----------------------------------------------------------------------
-    
+	    
     // COMMAND-LINE OPTIONS (and default values from files.)
     //
     AnyOption *opt = new AnyOption();
@@ -1819,9 +1882,9 @@ int main(int argc, char* argv[])
 		
 //		std::string strScript ="print(\"Hello, world\")";
 		
-		OTScript_SharedPtr pScript = OTScriptFactory(results);
+		OTScript_AutoPtr pScript = OTScriptFactory(results);
 		
-		if (pScript)
+		if (NULL != pScript.get())
 		{
 			RegisterAPIWithScript(*pScript);
 			
@@ -1836,7 +1899,7 @@ int main(int argc, char* argv[])
 		return 0;
 	}
     else // Else a command WAS provided at the command line, so we execute a single time, once just for that command.
-    {         
+    {
         OTWallet * pWallet = NULL;
         OTServerContract * pServerContract = NULL;
         OTPseudonym * pMyNym = NULL;
@@ -1849,6 +1912,7 @@ int main(int argc, char* argv[])
         {
             return 0;
         }
+        
         
         // Below this point, pWallet is available :-)
         // -----------------------------------------------------
@@ -1871,8 +1935,8 @@ int main(int argc, char* argv[])
 
         // -----------------------------------------------------
     
-        int			nServerPort = 0;
-        OTString	strServerHostname;
+//        int			nServerPort = 0;
+//        OTString	strServerHostname;
         
         // ------------------------------------------------------------------------------			            
         // You can't just connect to any hostname and port.
@@ -1880,12 +1944,12 @@ int main(int argc, char* argv[])
         // (We verify this up here, but use it at the bottom of the function once the message is set up.)
         //
         
-        if (false == pServerContract->GetConnectInfo(strServerHostname, nServerPort))
-        {
-            OTLog::vError("Failed retrieving connection info from server contract: %s\n", 
-                          strServerID.Get());
-            return 0;
-        }
+//        if (false == pServerContract->GetConnectInfo(strServerHostname, nServerPort))
+//        {
+//            OTLog::vError("Failed retrieving connection info from server contract: %s\n", 
+//                          strServerID.Get());
+//            return 0;
+//        }
 
 
         // Below this point, pWallet and pServerContract are both available.
@@ -2082,7 +2146,7 @@ int main(int argc, char* argv[])
         // are in place (since in ZMQ mode, each message could be from a different nym 
         // and to a different server.)
         //
-        g_OT_API.GetClient()->SetFocusToServerAndNym(*pServerContract, *pMyNym, &OT_API::TransportCallback);
+        OT_API::It().GetClient()->SetFocusToServerAndNym(*pServerContract, *pMyNym, &OT_API::TransportCallback);
         // NOTE -- This MAY be unnecessary for ProcessUserCommand (since these args are passed
         // in there already) but it's definitely necessary soon after for ProcessServerReply()
         // (which comes next.)
@@ -2101,14 +2165,13 @@ int main(int argc, char* argv[])
         
         // COMMANDS
         
-		
         if( opt->getValue( "script" )  != NULL  )
         {
             int nReturnValue = 0; // This is what gets returned back to the caller. The Script has a chance to change this.
             
 			// ----------------------------------------
 			
-			g_OT_API.GetClient()->SetRunningAsScript(); // This way it won't go firing off messages automatically based on receiving certain server replies to previous requests.
+			OT_API::It().GetClient()->SetRunningAsScript(); // This way it won't go firing off messages automatically based on receiving certain server replies to previous requests.
 			// Todo: Research whether the above call is still necessary. (OTAPI no longer fires off ANY auto messages based on server replies. API CLIENT MUST do those things itself now.)
 			std::string strFilename = opt->getValue( "script" );
 			
@@ -2117,34 +2180,36 @@ int main(int argc, char* argv[])
 			buffer << t.rdbuf();
 			
 			std::string results = buffer.str();
-									
+
 			// ----------------------------------------
 			
-			OTScript_SharedPtr pScript = OTScriptFactory(results);
-			
+			OTScript_AutoPtr pScript = OTScriptFactory(results);
+
             OTVariable the_return_value("ret_val", nReturnValue);
 			
-			if (pScript)
-			{
-				RegisterAPIWithScript(*pScript); // for the special client-side API functions we make available to all scripts on client-side.
+            
+            OTCleanup<OTVariable>	angelArgs; // For user-defined arguments that may have been passed in.
+				
+//			OTParty		* pPartyMyNym	= NULL;
+//			OTParty		* pPartyHisNym	= NULL;
+            //
+//			OTCleanup<OTParty> angelMyNym;
+//			OTCleanup<OTParty> angelHisNym;
+            OTCleanup<OTVariable> angelMyNymVar;
+            OTCleanup<OTVariable> angelHisNymVar;
+            OTCleanup<OTVariable> angelServer;
+            OTCleanup<OTVariable> angelMyAcct;
+            OTCleanup<OTVariable> angelHisAcct;
+            OTCleanup<OTVariable> angelMyPurse;
+            OTCleanup<OTVariable> angelHisPurse;
+            // -------------------------
 
-				
-				OTCleanup<OTVariable>	angelArgs; // For user-defined arguments that may have been passed in.
-				
-//				OTParty		* pPartyMyNym	= NULL;
-//				OTParty		* pPartyHisNym	= NULL;
-				//
-//				OTCleanup<OTParty> angelMyNym;
-//				OTCleanup<OTParty> angelHisNym;
-				OTCleanup<OTVariable> angelMyNymVar;
-				OTCleanup<OTVariable> angelHisNymVar;
-				OTCleanup<OTVariable> angelServer;
-				OTCleanup<OTVariable> angelMyAcct;
-				OTCleanup<OTVariable> angelHisAcct;
-				OTCleanup<OTVariable> angelMyPurse;
-				OTCleanup<OTVariable> angelHisPurse;
-				// -------------------------
-				
+			if (NULL != pScript.get())
+			{
+//                OTScript & theScript = *pScript;
+
+				RegisterAPIWithScript(*pScript); // for the special client-side API functions we make available to all scripts on client-side.
+                
 				if (str_Args.size() > 0)
 				{
 					const std::string str_var_name("Args");
@@ -2208,6 +2273,7 @@ int main(int argc, char* argv[])
 					OTLog::Error("MyNym variable isn't set...\n");
 				}
 				// -------------------------
+                
 				if (NULL != pHisNym)
 				{
 					const std::string str_party_name("HisNym");
@@ -2323,6 +2389,7 @@ int main(int argc, char* argv[])
 					OTLog::Error("HisAcct variable isn't set...\n");
 				}
 				// -------------------------
+                
 				if (str_HisPurse.size() > 0)
 				{
 					const std::string str_var_name("HisPurse");
@@ -2343,10 +2410,10 @@ int main(int argc, char* argv[])
 					OTLog::Error("MyPurse variable isn't set...\n");
 				}
 				// ************************************************
-                
+                                
 				OTLog::Output(0, "Script output:\n\n");
 
-				pScript->ExecuteScript(&the_return_value);
+				pScript->ExecuteScript(&the_return_value);  // <====== EXECUTE SCRIPT.
                 
 				// ************************************************
 			}
@@ -2357,20 +2424,13 @@ int main(int argc, char* argv[])
 			// --------------------------------------------------------------------					
             if (OTVariable::Var_Integer == the_return_value.GetType())
                 nReturnValue = the_return_value.CopyValueInteger();
+            
             // --------------------------------------------
 			return nReturnValue;
             // ------------------------------------------------------------------------
         }
         // OT SCRIPT ABOVE.
         // *******************************************************************
-        
-        
-        
-        
-        
-        
-        
-        
         
         
         if( opt->getValue( 'w' ) != NULL  || opt->getValue( "withdraw" ) != NULL  )
@@ -2382,7 +2442,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::notarizeWithdrawal, theMessage, 
+            if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::notarizeWithdrawal, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          pMyAccount, lAmount))
             {
@@ -2403,7 +2463,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
         
-            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::notarizeTransfer, theMessage, 
+            if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::notarizeTransfer, theMessage, 
                                                          *pMyNym,  *pServerContract,
                                                          pMyAccount, lAmount, NULL, // asset contract
                                                          NULL, // his Nym
@@ -2422,7 +2482,7 @@ int main(int argc, char* argv[])
             
             OTIdentifier HIS_NYM_ID ((str_HisNym.size() > 0)  ? str_HisNym.c_str():"aaaaaaaa"); // todo hardcoding
 
-            g_OT_API.GetClient()->ProcessUserCommand(OTClient::writeCheque, theMessage,
+            OT_API::It().GetClient()->ProcessUserCommand(OTClient::writeCheque, theMessage,
                                                      *pMyNym, *pServerContract,
                                                      pMyAccount, lAmount, NULL, // asset contract
                                                      (str_HisNym.size() > 0)  ? &HIS_NYM_ID : NULL);
@@ -2435,7 +2495,7 @@ int main(int argc, char* argv[])
             
             OTIdentifier HIS_NYM_ID ((str_HisNym.size() > 0)  ? str_HisNym.c_str():"aaaaaaaa");
 
-            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::withdrawVoucher, theMessage,
+            if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::withdrawVoucher, theMessage,
                                                          *pMyNym, *pServerContract,
                                                          pMyAccount, lAmount, NULL, // asset contract
                                                          (str_HisNym.size() > 0)  ? &HIS_NYM_ID : NULL))
@@ -2455,7 +2515,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::marketOffer, theMessage, 
+            if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::marketOffer, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // for now, keeping it simple. Can add options later.
             {
@@ -2486,7 +2546,7 @@ int main(int argc, char* argv[])
            OTIdentifier HIS_NYM_ID ((str_HisNym.size() > 0)  ? str_HisNym.c_str():"aaaaaaaa");
            OTIdentifier HIS_ACCT_ID((str_HisAcct.size() > 0) ? str_HisAcct.c_str():"aaaaaaaa");
             
-            g_OT_API.GetClient()->ProcessUserCommand(OTClient::proposePaymentPlan, theMessage,
+            OT_API::It().GetClient()->ProcessUserCommand(OTClient::proposePaymentPlan, theMessage,
                                                      *pMyNym, *pServerContract,
                                                      pMyAccount, 0, pMyAssetContract,
                                                      (str_HisNym.size() > 0)  ? &HIS_NYM_ID : NULL,
@@ -2498,7 +2558,7 @@ int main(int argc, char* argv[])
         {            
             OTLog::Output(0, "(User has instructed to confirm a payment plan...)\n");
             
-            g_OT_API.GetClient()->ProcessUserCommand(OTClient::confirmPaymentPlan, theMessage,
+            OT_API::It().GetClient()->ProcessUserCommand(OTClient::confirmPaymentPlan, theMessage,
                                                      *pMyNym, *pServerContract,
                                                      NULL); // the account info is already on the plan, right?
         }
@@ -2507,7 +2567,7 @@ int main(int argc, char* argv[])
         {            
             OTLog::Output(0, "(User has instructed to activate a payment plan...)\n");
             
-            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::paymentPlan, theMessage,
+            if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::paymentPlan, theMessage,
                                                      *pMyNym, *pServerContract,
                                                      pMyAccount)) // if user DOES specify an account (unnecessary)
             {                                   // then OT will verify that they match, and error otherwise.
@@ -2525,7 +2585,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::notarizeCheque, theMessage, 
+            if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::notarizeCheque, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          pMyAccount))
             {
@@ -2542,7 +2602,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::notarizePurse, theMessage, 
+            if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::notarizePurse, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          pMyAccount,
                                                          0, // amount (unused here)
@@ -2561,7 +2621,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::notarizeDeposit, theMessage, 
+            if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::notarizeDeposit, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          pMyAccount))
             {
@@ -2579,7 +2639,7 @@ int main(int argc, char* argv[])
         {
             OTLog::Output(0, "(User has instructed to sign a contract...)\n");
             
-            g_OT_API.GetClient()->ProcessUserCommand(OTClient::signContract, theMessage,
+            OT_API::It().GetClient()->ProcessUserCommand(OTClient::signContract, theMessage,
                                                      *pMyNym, *pServerContract,
                                                      NULL);
         }
@@ -2607,7 +2667,7 @@ int main(int argc, char* argv[])
         {            
             OTLog::vOutput(0, "\n ACCT BALANCE (server-side): %ld\n\n", pMyAccount->GetBalance());
             
-            OTPurse * pPurse = g_OT_API.LoadPurse(theServerID, thePurseAssetTypeID, MY_NYM_ID);
+            OTPurse * pPurse = OT_API::It().LoadPurse(theServerID, thePurseAssetTypeID, MY_NYM_ID);
             OTCleanup<OTPurse> thePurseAngel(pPurse);
             if (NULL != pPurse)
                 OTLog::vOutput(0, " CASH PURSE (client-side): %ld\n", pPurse->GetTotalValue());
@@ -2619,7 +2679,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::getAccount, theMessage, 
+            if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::getAccount, theMessage, 
                                                          *pMyNym,  *pServerContract,
                                                          pMyAccount))
             {
@@ -2636,7 +2696,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::getNymbox, theMessage, 
+            if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::getNymbox, theMessage, 
                                                          *pMyNym,  *pServerContract,
                                                          NULL))
             {
@@ -2665,16 +2725,26 @@ int main(int argc, char* argv[])
 			OTEnvelope theEnvelope;	// Seal the string up into an encrypted Envelope
 			theEnvelope.Seal(*pServerNym, strEnvelopeContents);
 			// -----------------------------------
+
+            OT_API::TransportCallback(*pServerContract, theEnvelope);
+            
+            /*
 			OTASCIIArmor ascEnvelope(theEnvelope); // ascEnvelope now contains the base64-encoded string of the sealed envelope contents.
 
 			if (ascEnvelope.Exists())
 			{
-				OTString strConnectPath; strConnectPath.Format("tcp://%s:%d", // todo stop hardcoding.
-                                                               strServerHostname.Get(), nServerPort);
+				OTString strConnectPath;
+                strConnectPath.Format("tcp://%s:%d", // todo stop hardcoding.
+                                      strServerHostname.Get(), nServerPort);
 				// -----------------------------------------------------------------------
-                
-                static OTSocket theSocket;
+                static OTSocket * pSocket = NULL;
 
+                if (NULL == pSocket)
+                    pSocket = new OTSocket;
+
+                OTSocket & theSocket = *pSocket;
+                // -------------------------                
+                
 				bool bSuccessSending = theSocket.Send(ascEnvelope, strConnectPath);  // <========
 
 				if (!bSuccessSending)
@@ -2694,7 +2764,7 @@ int main(int argc, char* argv[])
 					// ----------------------------------------------------------
 					else // Success. Let's read and process the reply...
 					{						
-						OTString	strServerReply;				// Maybe should use g_OT_API.GetClient()->GetNym or some such...
+						OTString	strServerReply;				// Maybe should use OT_API::It().GetClient()->GetNym or some such...
 						OTEnvelope	theServerEnvelope;
 						
 						if (theServerEnvelope.SetAsciiArmoredData(ascServerReply))
@@ -2707,7 +2777,7 @@ int main(int argc, char* argv[])
 							if (bOpened && strServerReply.Exists() && pServerReply->LoadContractFromString(strServerReply))
 							{
 								// Now the fully-loaded message object (from the server, this time) can be processed by the OT library...
-								g_OT_API.GetClient()->ProcessServerReply(*pServerReply); // Client takes ownership and will handle cleanup.
+								OT_API::It().GetClient()->ProcessServerReply(*pServerReply); // Client takes ownership and will handle cleanup.
 							}
 							else
 							{
@@ -2720,6 +2790,9 @@ int main(int argc, char* argv[])
 					// ----------------------------------------------------------
 				} // else (bSuccessSending)
 			} // if envelope exists.
+            */
+            
+            
 		} // if bSendCommand		
         
 		
@@ -2805,7 +2878,6 @@ int main(int argc, char* argv[])
     // ***********************************************************
     
     char buf[200] = "";
- 	int retVal = 0;
 	
 	int nExpectResponse = 0;
 	
@@ -2863,12 +2935,12 @@ int main(int argc, char* argv[])
 		{			
 			std::string strScript ="print(\"Hello, world\")";
 			
-            OTScript_SharedPtr pScript = OTScriptFactory(strScript);
+            OTScript_AutoPtr pScript = OTScriptFactory(strScript);
 			
-			if (pScript)
+			if (NULL != pScript.get())
 			{
 				RegisterAPIWithScript(*pScript);
-				
+
 				pScript->ExecuteScript();
 			}
 			else 
@@ -2907,12 +2979,12 @@ int main(int argc, char* argv[])
 			
 			OTServerContract * pServerContract = NULL;
 			
-			if (NULL == g_OT_API.GetWallet())
+			if (NULL == OT_API::It().GetWallet())
 			{
 				OTLog::Output(0, "The wallet object is still NULL, somehow. Please load it.\n");
 				continue;
 			}	// Here, for testing, I'm just grabbing the first server in the wallet...
-			else if (false == g_OT_API.GetWallet()->GetServer(0, SERVER_ID, SERVER_NAME))
+			else if (false == OT_API::It().GetWallet()->GetServer(0, SERVER_ID, SERVER_NAME))
 			{
 				OTLog::Output(0, "There are no server contracts in the wallet. Try 'load'.\n");
 				continue;
@@ -2920,8 +2992,8 @@ int main(int argc, char* argv[])
 
 			OTMessage theMessage;
 			
-			if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::checkServerID, theMessage, 
-														*pMyNym, *(g_OT_API.GetWallet()->GetServerContract(SERVER_ID)),
+			if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::checkServerID, theMessage, 
+														*pMyNym, *(OT_API::It().GetWallet()->GetServerContract(SERVER_ID)),
 														NULL)) // NULL pAccount on this command.
 			{
 				OTString strEnvelopeContents(theMessage);
@@ -3347,14 +3419,14 @@ int main(int argc, char* argv[])
 		// Instead, you give me the Server Contract, and *I'll* look up all that stuff FOR you...
 		// (We verify this up here, but use it at the bottom of the function once the message is set up.)
 		//
-		int			nServerPort = 0;
-		OTString	strServerHostname;
-		
-		if (false == pServerContract->GetConnectInfo(strServerHostname, nServerPort))
-		{
-			OTLog::Error("Failed retrieving connection info from server contract.\n");
-			continue;
-		}
+//		int			nServerPort = 0;
+//		OTString	strServerHostname;
+//		
+//		if (false == pServerContract->GetConnectInfo(strServerHostname, nServerPort))
+//		{
+//			OTLog::Error("Failed retrieving connection info from server contract.\n");
+//			continue;
+//		}
 		
 		// ------------------------------------------------------------------------------			
         
@@ -3386,7 +3458,7 @@ int main(int argc, char* argv[])
         // are in place (since in RPC mode, each message could be from a different nym 
         // and to a different server.)
         //
-        g_OT_API.GetClient()->SetFocusToServerAndNym(*pServerContract, *pMyNym, &OT_API::TransportCallback);
+        OT_API::It().GetClient()->SetFocusToServerAndNym(*pServerContract, *pMyNym, &OT_API::TransportCallback);
         // NOTE -- This MAY be unnecessary for ProcessUserCommand (since these args are passed
         // in there already) but it's definitely necessary soon after for ProcessServerReply()
         // (which comes next.)
@@ -3401,7 +3473,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::checkServerID, theMessage, 
+            if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::checkServerID, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command (so far).
             {				
@@ -3420,7 +3492,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::createUserAccount, theMessage, 
+            if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::createUserAccount, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3442,7 +3514,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::checkUser, theMessage, 
+            if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::checkUser, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3461,7 +3533,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::createAccount, theMessage, 
+            if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::createAccount, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3480,7 +3552,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::issueAssetType, theMessage, 
+            if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::issueAssetType, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3499,7 +3571,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::issueBasket, theMessage, 
+            if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::issueBasket, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3518,7 +3590,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::exchangeBasket, theMessage, 
+            if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::exchangeBasket, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3537,7 +3609,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::marketOffer, theMessage, 
+            if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::marketOffer, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3556,7 +3628,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::setServerName, theMessage, 
+            if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::setServerName, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3573,7 +3645,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::setAssetName, theMessage, 
+            if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::setAssetName, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3590,7 +3662,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::setNymName, theMessage, 
+            if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::setNymName, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3607,7 +3679,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::setAccountName, theMessage, 
+            if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::setAccountName, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3623,7 +3695,7 @@ int main(int argc, char* argv[])
         {
             OTLog::Output(0, "(User has instructed to sign a contract...)\n");
             
-            g_OT_API.GetClient()->ProcessUserCommand(OTClient::signContract, theMessage,
+            OT_API::It().GetClient()->ProcessUserCommand(OTClient::signContract, theMessage,
                                                      *pMyNym, *pServerContract,
                                                      NULL);
             continue;            
@@ -3637,7 +3709,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::sendUserMessage, theMessage, 
+            if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::sendUserMessage, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3656,7 +3728,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::processEntireNymbox, theMessage, 
+            if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::processEntireNymbox, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3675,7 +3747,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::getNymbox, theMessage, 
+            if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::getNymbox, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3696,7 +3768,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::processEntireInbox, theMessage, 
+            if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::processEntireInbox, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // have to allow this to be defaulted at some point...
 			{
@@ -3715,7 +3787,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::getInbox, theMessage, 
+            if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::getInbox, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL))
             {
@@ -3734,7 +3806,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::getOutbox, theMessage, 
+            if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::getOutbox, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL))
             {
@@ -3753,7 +3825,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::notarizeCheque, theMessage, 
+            if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::notarizeCheque, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL))
             {
@@ -3772,7 +3844,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::notarizePurse, theMessage, 
+            if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::notarizePurse, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL))
             {
@@ -3791,7 +3863,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::notarizeDeposit, theMessage, 
+            if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::notarizeDeposit, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL))
             {
@@ -3810,7 +3882,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::withdrawVoucher, theMessage, 
+            if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::withdrawVoucher, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3829,7 +3901,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::notarizeWithdrawal, theMessage, 
+            if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::notarizeWithdrawal, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3848,7 +3920,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::paymentPlan, theMessage, 
+            if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::paymentPlan, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3867,7 +3939,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::getAccount, theMessage, 
+            if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::getAccount, theMessage, 
                                                          *pMyNym,  *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3886,7 +3958,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::getContract, theMessage, 
+            if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::getContract, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3903,7 +3975,7 @@ int main(int argc, char* argv[])
         {
             OTLog::Output(0, "(User has instructed to propose a payment plan...)\n");
             
-            g_OT_API.GetClient()->ProcessUserCommand(OTClient::proposePaymentPlan, theMessage,
+            OT_API::It().GetClient()->ProcessUserCommand(OTClient::proposePaymentPlan, theMessage,
                                                      *pMyNym, *pServerContract,
                                                      NULL); // User owns Merchant (recipient) account
             continue;
@@ -3913,7 +3985,7 @@ int main(int argc, char* argv[])
         {
             OTLog::Output(0, "(User has instructed to confirm a payment plan...)\n");
             
-            g_OT_API.GetClient()->ProcessUserCommand(OTClient::confirmPaymentPlan, theMessage,
+            OT_API::It().GetClient()->ProcessUserCommand(OTClient::confirmPaymentPlan, theMessage,
                                                      *pMyNym, *pServerContract,
                                                      NULL); // the account info is already on the plan, right?
             continue;
@@ -3925,7 +3997,7 @@ int main(int argc, char* argv[])
         {
             OTLog::Output(0, "(User has instructed to write a cheque...)\n");
             
-            g_OT_API.GetClient()->ProcessUserCommand(OTClient::writeCheque, theMessage,
+            OT_API::It().GetClient()->ProcessUserCommand(OTClient::writeCheque, theMessage,
                                                      *pMyNym, *pServerContract,
                                                      NULL); // It will ascertain the account inside the call.			
             continue;
@@ -3939,7 +4011,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::getMint, theMessage, 
+            if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::getMint, theMessage, 
                                                          *pMyNym,  *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3958,7 +4030,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::notarizeTransfer, theMessage, 
+            if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::notarizeTransfer, theMessage, 
                                                          *pMyNym,  *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -3977,7 +4049,7 @@ int main(int argc, char* argv[])
             // ------------------------------------------------------------------------------			
             // if successful setting up the command payload...
             
-            if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::getRequest, theMessage, 
+            if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::getRequest, theMessage, 
                                                          *pMyNym, *pServerContract,
                                                          NULL)) // NULL pAccount on this command.
             {
@@ -4031,7 +4103,7 @@ int main(int argc, char* argv[])
                 // ------------------------------------------------------------------------------			
                 // if successful setting up the command payload...
                 
-                if (0 < g_OT_API.GetClient()->ProcessUserCommand(OTClient::getTransactionNum, theMessage, 
+                if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::getTransactionNum, theMessage, 
                                                              *pMyNym,  *pServerContract,
                                                              NULL)) // NULL pAccount on this command.
                 {
@@ -4067,14 +4139,26 @@ int main(int argc, char* argv[])
 			OTEnvelope theEnvelope;
 			theEnvelope.Seal(*pServerNym, strEnvelopeContents);							  
 			// -----------------------------------
+            
+            OT_API::TransportCallback(*pServerContract, theEnvelope);
+
+            /*
+            OTString strConnectPath; 
+            strConnectPath.Format("tcp://%s:%d", // todo stop hardcoding.
+                                  strServerHostname.Get(), nServerPort);
+            // -----------------------------------------------------------------------
+            
 			OTASCIIArmor ascEnvelope(theEnvelope); // ascEnvelope now contains the base64-encoded string of the sealed envelope contents.
 			
 			if (ascEnvelope.Exists())
 			{
-				OTString strConnectPath; strConnectPath.Format("tcp://%s:%d", // todo stop hardcoding.
-															   strServerHostname.Get(), nServerPort);
-				// -----------------------------------------------------------------------
-                static OTSocket theSocket;
+                static OTSocket * pSocket = NULL;
+                
+                if (NULL == pSocket)
+                    pSocket = new OTSocket;
+                
+                OTSocket & theSocket = *pSocket;
+                // -------------------------
                 
 				bool bSuccessSending = theSocket.Send(ascEnvelope, strConnectPath);  // <========
 				
@@ -4095,7 +4179,7 @@ int main(int argc, char* argv[])
 					// ----------------------------------------------------------
 					else
 					{
-						OTString	strServerReply;				// Maybe should use g_OT_API.GetClient()->GetNym or some such...
+						OTString	strServerReply;				// Maybe should use OT_API::It().GetClient()->GetNym or some such...
 						OTEnvelope theServerEnvelope;
 						
 						if (theServerEnvelope.SetAsciiArmoredData(ascServerReply))
@@ -4108,7 +4192,7 @@ int main(int argc, char* argv[])
 							if (bOpened && strServerReply.Exists() && pServerReply->LoadContractFromString(strServerReply))
 							{
 								// Now the fully-loaded message object (from the server, this time) can be processed by the OT library...
-								g_OT_API.GetClient()->ProcessServerReply(*pServerReply); // Client takes ownership and will handle cleanup.
+								OT_API::It().GetClient()->ProcessServerReply(*pServerReply); // Client takes ownership and will handle cleanup.
 							}
 							else
 							{
@@ -4121,7 +4205,9 @@ int main(int argc, char* argv[])
 					// ----------------------------------------------------------
 				} // else (bSuccessSending)
 			} // if envelope exists.
-		} // if bSendCommand		
+            */
+        
+        } // if bSendCommand		
 	} // for
 	
 	// -----------------------------------------------------------

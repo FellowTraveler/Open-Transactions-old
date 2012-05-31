@@ -17,6 +17,11 @@
 #ifndef BIGINTEGERUTILS_H
 #define BIGINTEGERUTILS_H
 
+extern "C"
+{
+#include <assert.h>
+}
+
 #include "BigInteger.hh"
 #include <string>
 #include <iostream>
@@ -73,6 +78,8 @@ std::ostream &operator <<(std::ostream &os, const BigInteger &x);
  */
 template <class T>
 BigInteger dataToBigInteger(const T* data, BigInteger::Index length, BigInteger::Sign sign) {
+	assert (NULL != data);
+	
 	// really ceiling(numBytes / sizeof(BigInteger::Blk))
 	unsigned int pieceSizeInBits = 8 * sizeof(T);
 	unsigned int piecesPerBlock = sizeof(BigInteger::Blk) / sizeof(T);

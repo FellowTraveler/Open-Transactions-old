@@ -1156,8 +1156,7 @@ def Utility::processNymbox(serverID,   nymID,    bWasMsgSent,
     //
     // But was it received?
     //
-    var strReplyProcess =
-        this.ReceiveReplyLowLevel(serverID, nymID, nProcess,
+    var strReplyProcess = this.ReceiveReplyLowLevel(serverID, nymID, nProcess,
                                  "processNymbox / sendProcessNymboxLowLevel / ReceiveReplyLowLevel") // <=============== Here we RECEIVE the REPLY...
     
     // -----------------------------------------------        
@@ -1511,10 +1510,10 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
     
     def Utility::insureHaveAllBoxReceipts(serverID, nymID, accountID, nBoxType, nRequestSeeking, bFoundIt)//int nBoxType, int nRequestSeeking, OTBool bFoundIt
     {
-        var strLocation = "insureHaveAllBoxReceipts"
+        var strLocation = "insureHaveAllBoxReceipts";
         // -------------------
         
-        String ledger = ""
+        var ledger = "";
         
         // -------------------
         if (0 == nBoxType)
@@ -1562,7 +1561,9 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
         
         if (nReceiptCount > 0)
         {
-            for (var i = 0; i < nReceiptCount; i++) 
+            var i = 0;
+
+            for (var i = 0; i < nReceiptCount; ++i) 
             {
                 var strTransactionNum = OT_API_Ledger_GetTransactionIDByIndex(serverID, nymID, accountID, ledger, i)
                 
@@ -1762,7 +1763,7 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
     // even if your request number IS out of sync. Sorry :-)
     //
     
-    public static int getTransactionNumLowLevel(serverID, nymID, bWasSent) // bWasSent is OTBool
+    def Utility::getTransactionNumLowLevel(serverID, nymID, bWasSent) // bWasSent is OTBool
     {
         var strLocation = "getTransactionNumLowLevel"
 

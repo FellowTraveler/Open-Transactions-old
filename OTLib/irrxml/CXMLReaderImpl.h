@@ -60,7 +60,12 @@ public:
 	//! Destructor
 	virtual ~CXMLReaderImpl()
 	{
-		delete [] TextData;
+		if (NULL != TextData)
+			delete [] TextData;
+		
+		TextData  = NULL;
+		       P  = NULL;
+		TextBegin = NULL;
 	}
 
 

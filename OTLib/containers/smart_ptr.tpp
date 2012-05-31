@@ -151,8 +151,11 @@ namespace stlplus
   template <typename T, typename C>
   smart_ptr_base<T,C>::~smart_ptr_base(void)
   {
-    if(m_holder->decrement())
+    if (m_holder && m_holder->decrement())
+    {
       delete m_holder;
+      m_holder = 0;
+    }
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -332,8 +335,11 @@ namespace stlplus
     // assignment if r is either the same object or an alias of it
     if (m_holder != r_holder)
     {
-      if (m_holder->decrement())
+      if (m_holder && m_holder->decrement())
+      {
         delete m_holder;
+        m_holder = 0;
+      }
       m_holder = r_holder;
       m_holder->increment();
     }

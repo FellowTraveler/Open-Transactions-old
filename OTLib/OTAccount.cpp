@@ -541,6 +541,8 @@ bool OTAccount::VerifyOwnerByID(const OTIdentifier & theNymID) const
 char* myGetTimeOfDay(char* buffer, int bufferLength)
 {
 	using namespace std;
+
+	OT_ASSERT(NULL != buffer);
 	
 	// this const was part of a class...
 	const int getTimeOfDayBufferLength = 27;
@@ -565,7 +567,9 @@ char* myGetTimeOfDay(char* buffer, int bufferLength)
 		ostringstream ostr;
 		ostr << ':' << setfill('0') << setw(6) << tv.tv_usec
 		<< ends;
-		const char* sp = ostr.str().c_str();
+        
+        const std::string str_temp = ostr.str();
+		const char* sp = str_temp.c_str();
 
 #ifdef _WIN32
 		strcat_s(buffer, strlen(sp), sp);

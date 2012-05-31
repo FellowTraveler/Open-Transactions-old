@@ -209,9 +209,13 @@ public:
     virtual bool ExecuteScript(OTVariable * pReturnVar=NULL)=0;
 };
 
-typedef std::tr1::shared_ptr<OTScript> OTScript_SharedPtr;
+typedef std::tr1::shared_ptr<OTScript>  OTScript_SharedPtr;
+typedef std::auto_ptr<OTScript>         OTScript_AutoPtr;
 
-OTScript_SharedPtr OTScriptFactory(const std::string & script_contents, const std::string * p_script_type=NULL);
+// -----------------------------------
+
+OTScript_AutoPtr OTScriptFactory(const std::string & script_contents, 
+                                 const std::string * p_script_type=NULL);
 
 
 
@@ -242,6 +246,8 @@ public:
 };
 
 
+typedef std::tr1::shared_ptr<OTScriptChai>  OTScriptChai_SharedPtr;
+typedef std::auto_ptr<OTScriptChai>         OTScriptChai_AutoPtr;
 
 
 

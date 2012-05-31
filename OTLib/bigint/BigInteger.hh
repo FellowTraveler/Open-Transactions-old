@@ -40,33 +40,32 @@ public:
 	enum Sign { negative = -1, zero = 0, positive = 1 };
 
 protected:
-	Sign sign;
 	BigUnsigned mag;
+	Sign sign;
 
 public:
 	// Constructs zero.
-	BigInteger() : sign(zero), mag() {}
+	BigInteger() : mag(), sign(zero) {}
 
 	// Copy constructor
-	BigInteger(const BigInteger &x) : sign(x.sign), mag(x.mag) {};
+	BigInteger(const BigInteger &x) : mag(x.mag), sign(x.sign)  {};
 
 	// Assignment operator
-	void operator=(const BigInteger &x);
+	BigInteger& operator=(const BigInteger &x);
 
 	// Constructor that copies from a given array of blocks with a sign.
 	BigInteger(const Blk *b, Index blen, Sign s);
 
 	// Nonnegative constructor that copies from a given array of blocks.
-	BigInteger(const Blk *b, Index blen) : mag(b, blen) {
-		sign = mag.isZero() ? zero : positive;
+	BigInteger(const Blk *b, Index blen) : mag(b, blen), sign(mag.isZero() ? zero : positive) {
 	}
 
 	// Constructor from a BigUnsigned and a sign
 	BigInteger(const BigUnsigned &x, Sign s);
 
 	// Nonnegative constructor from a BigUnsigned
-	BigInteger(const BigUnsigned &x) : mag(x) {
-		sign = mag.isZero() ? zero : positive;
+	BigInteger(const BigUnsigned &x) :  mag(x), sign(x.isZero() ? zero : positive) {
+//		sign = mag.isZero() ? zero : positive;
 	}
 
 	// Constructors from primitive integer types

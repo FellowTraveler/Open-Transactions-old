@@ -180,10 +180,11 @@ using namespace tthread;
 
 #include "OTStorage.h"
 
+#include "OTEnvelope.h"
+
 #include "OTAsymmetricKey.h"
 #include "OTASCIIArmor.h"
 #include "OTPseudonym.h"
-#include "OTEnvelope.h"
 #include "OTLog.h"
 
 // ------------------------------------------------------------------------
@@ -568,6 +569,7 @@ void OTCrypto_OpenSSL::thread_setup()
 #else
     int nResult = 
     CRYPTO_THREADID_set_callback (ot_openssl_thread_id);
+    ++nResult; --nResult;
 #endif
     // ---------------------------------------
     
@@ -1114,7 +1116,7 @@ int PKCS5_PBKDF2_HMAC_SHA1	(
 
 bool OTMasterKey::IsGenerated()
 {
-    lock_guard<mutex> lock(m_Mutex);
+    tthread::lock_guard<tthread::mutex> lock(m_Mutex);
     // ----------------------------
     
     bool bReturnVal = false;
@@ -1162,7 +1164,7 @@ bool OTMasterKey::isPaused()
 //
 bool OTMasterKey::Pause()
 {
-    lock_guard<mutex> lock(m_Mutex);
+    tthread::lock_guard<tthread::mutex> lock(m_Mutex);
     // ----------------------------
 
     if (!m_bPaused)
@@ -1175,7 +1177,7 @@ bool OTMasterKey::Pause()
 
 bool OTMasterKey::Unpause()
 {
-    lock_guard<mutex> lock(m_Mutex);
+    tthread::lock_guard<tthread::mutex> lock(m_Mutex);
     // ----------------------------
 
     if (m_bPaused)
@@ -1206,15 +1208,15 @@ void OTMasterKey::LowLevelReleaseThread()
 
 OTMasterKey::~OTMasterKey()
 {
-    lock_guard<mutex> lock(m_Mutex);  // I figured this would cause some kind of problem but how else can I mess with the members unless I lock this?
+    tthread::lock_guard<tthread::mutex> lock(m_Mutex);  // I figured this would cause some kind of problem but how else can I mess with the members unless I lock this?
     // --------------------
+    LowLevelReleaseThread();
+    // -----
     if (NULL != m_pMasterPassword)  // Only stored temporarily, the purpose of this class is to destoy it after a timer.
     {
         delete m_pMasterPassword;
         m_pMasterPassword = NULL;
     }
-    // -----
-    LowLevelReleaseThread();
     // -----
     if (NULL != m_pSymmetricKey)       // Owned / based on a string passed in. Stored somewhere else (OTServer, OTWallet...)
         delete m_pSymmetricKey;
@@ -1225,13 +1227,9 @@ OTMasterKey::~OTMasterKey()
 
 int OTMasterKey::GetTimeoutSeconds()
 {
-    int nTimeout = 0;
-    
-    {
-        lock_guard<mutex> lock(m_Mutex); // Multiple threads can't get inside here at the same time.
+    tthread::lock_guard<tthread::mutex> lock(m_Mutex); // Multiple threads can't get inside here at the same time.
 
-        nTimeout = m_nTimeoutSeconds;
-    }
+    const int nTimeout = m_nTimeoutSeconds;
     
     return nTimeout;
 }
@@ -1240,7 +1238,7 @@ void OTMasterKey::SetTimeoutSeconds(int nTimeoutSeconds) // So we can load from 
 {
     OT_ASSERT_MSG(nTimeoutSeconds >= (-1), "OTMasterKey::SetTimeoutSeconds: ASSERT: nTimeoutSeconds must be >= (-1)\n");
     
-    lock_guard<mutex> lock(m_Mutex); // Multiple threads can't get inside here at the same time.
+    tthread::lock_guard<tthread::mutex> lock(m_Mutex); // Multiple threads can't get inside here at the same time.
 
     m_nTimeoutSeconds = nTimeoutSeconds;
 }
@@ -1252,7 +1250,7 @@ void OTMasterKey::SetTimeoutSeconds(int nTimeoutSeconds) // So we can load from 
 
 bool OTMasterKey::SerializeTo(OTASCIIArmor & ascOutput)
 {
-    lock_guard<mutex> lock(m_Mutex);
+    tthread::lock_guard<tthread::mutex> lock(m_Mutex);
     
     if (NULL == m_pSymmetricKey)
         return false;
@@ -1262,7 +1260,7 @@ bool OTMasterKey::SerializeTo(OTASCIIArmor & ascOutput)
 
 bool OTMasterKey::SerializeFrom(const OTASCIIArmor & ascInput)
 {
-    lock_guard<mutex> lock(m_Mutex);
+    tthread::lock_guard<tthread::mutex> lock(m_Mutex);
     
     if (NULL == m_pSymmetricKey)
         return false;
@@ -1315,9 +1313,9 @@ public:
 //
 void OTMasterKey::SetMasterKey(const OTASCIIArmor & ascMasterKey)
 {
-    OT_ASSERT(ascMasterKey.Exists());
-    
-    lock_guard<mutex> lock(m_Mutex); // Multiple threads can't get inside here at the same time.    
+    tthread::lock_guard<tthread::mutex> lock(m_Mutex); // Multiple threads can't get inside here at the same time.    
+
+    OT_ASSERT(ascMasterKey.Exists());    
     // ----------------------------------------
     
     if (NULL != m_pSymmetricKey)
@@ -1342,7 +1340,7 @@ void OTMasterKey::SetMasterKey(const OTASCIIArmor & ascMasterKey)
 //
 bool OTMasterKey::GetMasterPassword(OTPassword & theOutput, const char * szDisplay, bool bVerifyTwice/*=false*/)
 {
-    lock_guard<mutex> lock(m_Mutex); // Multiple threads can't get inside here at the same time.
+    tthread::lock_guard<tthread::mutex> lock(m_Mutex); // Multiple threads can't get inside here at the same time.
     
     const char * szFunc = "OTMasterKey::GetMasterPassword";
     
@@ -1475,11 +1473,28 @@ bool OTMasterKey::GetMasterPassword(OTPassword & theOutput, const char * szDispl
     {
 //      OTLog::vOutput(4, "%s: starting up new thread, so we can expire the master key from RAM.\n", szFunc);
 
+// -------------------------------------------------
+#if defined(OPENSSL_THREADS)
+        // thread support enabled
+        
+        OTLog::vOutput(1, "%s: Starting thread for Master Key...\n", szFunc);
+        
         m_pThread = new thread(OTMasterKey::ThreadTimeout, static_cast<void *>(this));
+        
+#else
+        // no thread support
+        
+        OTLog::vError("%s: WARNING: OpenSSL was NOT compiled with thread support. "
+                      "(Master Key will not expire.)\n", szFunc);
+        
+#endif
+// -------------------------------------------------
+
     }
     else
     {
-        delete m_pMasterPassword;
+        if (NULL != m_pMasterPassword)
+            delete m_pMasterPassword;
         m_pMasterPassword = NULL;
     }
     // Since we have set the cleartext master password, We also have to fire up the thread
@@ -1532,7 +1547,7 @@ void OTMasterKey::ThreadTimeout(void * pArg)
 //
 void OTMasterKey::DestroyMasterPassword()
 {
-    lock_guard<mutex> lock(m_Mutex); // Multiple threads can't get inside here at the same time.
+    tthread::lock_guard<tthread::mutex> lock(m_Mutex); // Multiple threads can't get inside here at the same time.
     //
     // (m_pSymmetricKey stays. 
     //  m_pMasterPassword only is destroyed.)
@@ -2184,6 +2199,8 @@ bool OTEnvelope::Encrypt(const OTPassword & theRawSymmetricKey, // The symmetric
             //
             if (0 == EVP_CIPHER_CTX_cleanup(&m_ctx))
                 OTLog::vError("%s: Failure in EVP_CIPHER_CTX_cleanup. (It returned 0.)\n", m_szFunc);
+			
+			m_szFunc = NULL; // keep the static analyzer happy
         }
     };
     _OTEnv_Enc_stat  theInstance(szFunc, ctx);
@@ -2386,7 +2403,12 @@ public:
 
 OTEnvelope_Decrypt_Output::OTEnvelope_Decrypt_Output() : m_pPassword(NULL), m_pPayload(NULL) {}
 
-OTEnvelope_Decrypt_Output::~OTEnvelope_Decrypt_Output() {}
+OTEnvelope_Decrypt_Output::~OTEnvelope_Decrypt_Output() 
+{
+    m_pPassword = NULL;
+    m_pPayload  = NULL;
+
+}
 
 
 OTEnvelope_Decrypt_Output::OTEnvelope_Decrypt_Output(const OTEnvelope_Decrypt_Output & rhs) // passed 
@@ -2517,6 +2539,7 @@ bool OTEnvelope::Decrypt(const OTPassword & theRawSymmetricKey, // The symmetric
             //
             if (0 == EVP_CIPHER_CTX_cleanup(&m_ctx))
                 OTLog::vError("%s: Failure in EVP_CIPHER_CTX_cleanup. (It returned 0.)\n", m_szFunc);
+			m_szFunc = NULL; // to keep the static analyzer happy.
         }
     };
     _OTEnv_Dec_stat  theInstance(szFunc, ctx);
@@ -3307,6 +3330,8 @@ bool OTEnvelope::Open(const OTPseudonym & theRecipient, OTString & theOutput)
             //
             if (0 == EVP_CIPHER_CTX_cleanup(&m_ctx))
                 OTLog::vError("%s: Failure in EVP_CIPHER_CTX_cleanup. (It returned 0.)\n", m_szFunc);
+			
+			m_szFunc = NULL;
         }
     };
     // ------------------------------------------------

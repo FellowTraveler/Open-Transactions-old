@@ -209,18 +209,25 @@
 
 
 
-OTScript_SharedPtr OTScriptFactory(const std::string & script_contents, const std::string * p_script_type/*=NULL*/)
+OTScript_AutoPtr OTScriptFactory(const std::string & script_contents, 
+                                 const std::string * p_script_type/*=NULL*/)
 {
-//    OTScript::SharedPtr retVal;
-    OTScript_SharedPtr retVal;
+//  OTScript::SharedPtr retVal;
   
     // if the type is explicitly set to "chai", or if the type is 0 length, then 
     // use chaiscript as the default interpreter in that case as well.
-    if ((NULL == p_script_type) || 
-        (0 == p_script_type->size()) || 
-        (0 == p_script_type->compare("chai")) ) // todo no hardcoding.
-        retVal = std::tr1::dynamic_pointer_cast<OTScript> 
-            (std::tr1::shared_ptr<OTScriptChai>(new OTScriptChai(script_contents)));
+    if (  (NULL == p_script_type) || 
+          ( (NULL != p_script_type) &&
+           (
+           (0 == p_script_type->size()) || 
+           (0 == p_script_type->compare("chai")) 
+           )
+          ) 
+       ) // todo no hardcoding.
+    {
+        OTScript_AutoPtr pChaiScript(new OTScriptChai(script_contents));                
+        return pChaiScript;
+    }
     
     // Here's how it would look for various scripting languages:
     //
@@ -232,7 +239,10 @@ OTScript_SharedPtr OTScriptFactory(const std::string & script_contents, const st
 //        retVal = std::dynamic_pointer_cast<OTScript> (std::make_shared<OTScriptGuru>(script_contents));
     else
         OTLog::vError("OTScript::Factory: Script language (%s) not found.\n", p_script_type->c_str());
-        
+    
+    
+    OTScript_AutoPtr retVal;
+
     return retVal;
 }
 

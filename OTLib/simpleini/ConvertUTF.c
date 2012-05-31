@@ -44,6 +44,19 @@
 #include <stdio.h>
 #endif
 
+# ifndef assert
+#  include <assert.h>
+# endif
+
+
+# ifndef NULL
+# define NULL 0 
+# endif
+
+# ifndef SI_ASSERT
+# define SI_ASSERT(x)   assert(x)
+# endif
+
 static const int halfShift  = 10; /* used for shifting by 10 bits */
 
 static const UTF32 halfBase = 0x0010000UL;
@@ -61,6 +74,15 @@ static const UTF32 halfMask = 0x3FFUL;
 ConversionResult ConvertUTF32toUTF16 (
 	const UTF32** sourceStart, const UTF32* sourceEnd, 
 	UTF16** targetStart, UTF16* targetEnd, ConversionFlags flags) {
+	
+	SI_ASSERT(NULL !=  sourceStart);
+	SI_ASSERT(NULL != *sourceStart);
+	SI_ASSERT(NULL !=  targetStart);
+	SI_ASSERT(NULL != *targetStart);
+	// --------------------------------
+	SI_ASSERT(NULL !=  sourceEnd);
+	SI_ASSERT(NULL !=  targetEnd);
+	
     ConversionResult result = conversionOK;
     const UTF32* source = *sourceStart;
     UTF16* target = *targetStart;
@@ -110,6 +132,16 @@ ConversionResult ConvertUTF32toUTF16 (
 ConversionResult ConvertUTF16toUTF32 (
 	const UTF16** sourceStart, const UTF16* sourceEnd, 
 	UTF32** targetStart, UTF32* targetEnd, ConversionFlags flags) {
+	
+	SI_ASSERT(NULL !=  sourceStart);
+	SI_ASSERT(NULL != *sourceStart);
+	SI_ASSERT(NULL !=  targetStart);
+	SI_ASSERT(NULL != *targetStart);
+	// --------------------------------
+	SI_ASSERT(NULL !=  sourceEnd);
+	SI_ASSERT(NULL !=  targetEnd);
+
+	
     ConversionResult result = conversionOK;
     const UTF16* source = *sourceStart;
     UTF32* target = *targetStart;
@@ -214,6 +246,16 @@ static const UTF8 firstByteMark[7] = { 0x00, 0x00, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC 
 ConversionResult ConvertUTF16toUTF8 (
 	const UTF16** sourceStart, const UTF16* sourceEnd, 
 	UTF8** targetStart, UTF8* targetEnd, ConversionFlags flags) {
+	
+	SI_ASSERT(NULL !=  sourceStart);
+	SI_ASSERT(NULL != *sourceStart);
+	SI_ASSERT(NULL !=  targetStart);
+	SI_ASSERT(NULL != *targetStart);
+	// --------------------------------
+	SI_ASSERT(NULL !=  sourceEnd);
+	SI_ASSERT(NULL !=  targetEnd);
+
+	
     ConversionResult result = conversionOK;
     const UTF16* source = *sourceStart;
     UTF8* target = *targetStart;
@@ -293,6 +335,7 @@ ConversionResult ConvertUTF16toUTF8 (
  */
 
 static Boolean isLegalUTF8(const UTF8 *source, int length) {
+	SI_ASSERT(NULL != source);
     UTF8 a;
     const UTF8 *srcptr = source+length;
     switch (length) {
@@ -324,6 +367,8 @@ static Boolean isLegalUTF8(const UTF8 *source, int length) {
  * This is not used here; it's just exported.
  */
 Boolean isLegalUTF8Sequence(const UTF8 *source, const UTF8 *sourceEnd) {
+	SI_ASSERT(NULL != source);
+	SI_ASSERT(NULL != sourceEnd);
     int length = trailingBytesForUTF8[*source]+1;
     if (source+length > sourceEnd) {
 	return false;
@@ -336,6 +381,16 @@ Boolean isLegalUTF8Sequence(const UTF8 *source, const UTF8 *sourceEnd) {
 ConversionResult ConvertUTF8toUTF16 (
 	const UTF8** sourceStart, const UTF8* sourceEnd, 
 	UTF16** targetStart, UTF16* targetEnd, ConversionFlags flags) {
+	
+	SI_ASSERT(NULL !=  sourceStart);
+	SI_ASSERT(NULL != *sourceStart);
+	SI_ASSERT(NULL !=  targetStart);
+	SI_ASSERT(NULL != *targetStart);
+	// --------------------------------
+	SI_ASSERT(NULL !=  sourceEnd);
+	SI_ASSERT(NULL !=  targetEnd);
+
+	
     ConversionResult result = conversionOK;
     const UTF8* source = *sourceStart;
     UTF16* target = *targetStart;
@@ -409,6 +464,16 @@ ConversionResult ConvertUTF8toUTF16 (
 ConversionResult ConvertUTF32toUTF8 (
 	const UTF32** sourceStart, const UTF32* sourceEnd, 
 	UTF8** targetStart, UTF8* targetEnd, ConversionFlags flags) {
+	
+	SI_ASSERT(NULL !=  sourceStart);
+	SI_ASSERT(NULL != *sourceStart);
+	SI_ASSERT(NULL !=  targetStart);
+	SI_ASSERT(NULL != *targetStart);
+	// --------------------------------
+	SI_ASSERT(NULL !=  sourceEnd);
+	SI_ASSERT(NULL !=  targetEnd);
+
+	
     ConversionResult result = conversionOK;
     const UTF32* source = *sourceStart;
     UTF8* target = *targetStart;
@@ -462,6 +527,16 @@ ConversionResult ConvertUTF32toUTF8 (
 ConversionResult ConvertUTF8toUTF32 (
 	const UTF8** sourceStart, const UTF8* sourceEnd, 
 	UTF32** targetStart, UTF32* targetEnd, ConversionFlags flags) {
+	
+	SI_ASSERT(NULL !=  sourceStart);
+	SI_ASSERT(NULL != *sourceStart);
+	SI_ASSERT(NULL !=  targetStart);
+	SI_ASSERT(NULL != *targetStart);
+	// --------------------------------
+	SI_ASSERT(NULL !=  sourceEnd);
+	SI_ASSERT(NULL !=  targetEnd);
+
+	
     ConversionResult result = conversionOK;
     const UTF8* source = *sourceStart;
     UTF32* target = *targetStart;

@@ -766,7 +766,7 @@ void OTServerConnection::ProcessMessageOut(OTMessage & theMessage)
 	}
 	else			// TCP / SSL mode... -----------
 	{
-		int nHeaderSize = OT_CMD_HEADER_SIZE;
+		const unsigned int nHeaderSize = OT_CMD_HEADER_SIZE;
 		
 		for (nwritten = 0;  nwritten < nHeaderSize;  nwritten += err)
 		{
@@ -809,6 +809,9 @@ void OTServerConnection::ProcessMessageOut(OTMessage & theMessage)
 // The buf passed in is simply data collected by fgets from stdin.
 void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 {
+	
+	OT_ASSERT(NULL != buf);
+	
  	bool bSendCommand = false;
 	bool bSendPayload = false;
 	
@@ -1635,7 +1638,7 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 			{
 				//gDebugLog.Write("unknown user command in ProcessMessage in main.cpp");
 				OTLog::Output(0, "\n");
-				//				OTLog::vError( "unknown user command in ProcessMessage in main.cpp: %d\n", buf[0]);
+//				OTLog::vError( "unknown user command in ProcessMessage in main.cpp: %d\n", buf[0]);
 			}		
 			return;
 		}
@@ -1654,7 +1657,7 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 	} // Otherwise... if it's a "header only" ...
 	else if (bSendCommand && IsConnected()) // I only write to a socket if I'm in socket mode...
 	{
-		int nHeaderSize = OT_CMD_HEADER_SIZE;
+		unsigned int nHeaderSize = OT_CMD_HEADER_SIZE;
 		
 		// TODO: REMOVE THIS. FOR TESTING ONLY (testing malformed headers, and headers without payloads...)
 		if (buf[0] == '2') {

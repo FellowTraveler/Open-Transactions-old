@@ -399,7 +399,7 @@ public:
 protected:
    uint32_t  m_lLength;
    uint32_t  m_lPosition;
-   char * m_strBuffer;
+   char    * m_strBuffer;
 };
 
 //bool operator >(const OTString& s1, const OTString& s2);

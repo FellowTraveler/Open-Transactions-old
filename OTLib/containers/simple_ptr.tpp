@@ -154,10 +154,19 @@ namespace stlplus
   void simple_ptr_base<T,C>::set(T* data)
   {
     unsigned& count = *m_count;
-    if (count<=1)
+    if (count==1) {
+    	// The count member can be reused, but the current pointer should be deleted
       delete m_pointer;
-    else
-    {
+    } else if (!count) {
+    	// The count member is indicating that it will be destructed, so assign a new one
+    	// for the given object. This might only happen when a pointer is being destructed
+    	// and the contained object makes a copy of the pointer and then sets it to something.
+    	// Very tenuous I know, but still it's possible. Whatever, the object should NOT
+    	// be deleted, as it is probably in the middle of destruction already.
+      m_count = new unsigned(1);
+    } else {
+    	// Another pointer holds a reference to the current object, so just decrement
+    	// and create a new counter for the given object
       --count;
       m_count = new unsigned(1);
     }
@@ -182,13 +191,26 @@ namespace stlplus
   template <typename T, typename C>
   void simple_ptr_base<T,C>::increment(void)
   {
-    ++(*m_count);
+  	// Do NOT increment a count that has already been decremented to zero
+  	// as the object pointed to by this pointer might be in the middle of destruction
+  	// This can happen if a callback within the destructor of an object held by this
+  	// pointer makes a copy of it's container pointer (this).
+  	// The result of incrementing will be that the object gets double-deleted/destructed
+  	// which can lead to all sorts of errors as destructors are generally not recursive
+  	// A similar check for decrementing is made below
+  	// Note that objects are deleted BEFORE the count container is deleted, so the count
+  	// container will always be valid in the context of the object.
+    unsigned& count = *m_count;
+    if (!count) return;
+    ++count;
   }
 
   template <typename T, typename C>
   bool simple_ptr_base<T,C>::decrement(void)
   {
     unsigned& count = *m_count;
+    // Do NOT destruct if the count is already zero (see increment above)
+    if (!count) return false;
     --count;
     return count == 0;
   }

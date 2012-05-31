@@ -269,6 +269,8 @@ bool OTPurse::Merge(OTPseudonym & theOldNym, OTPseudonym & theNewNym, OTPurse & 
 				
 		const OTASCIIArmor & ascTokenID = pToken->GetSpendable();
 		
+        std::list<mapOfTokenPointers::iterator> listOfTokenMapIterators;
+        
 		// I just popped a Token off of *this. Let's see if it's in my temporary map...
 		// If it's already there, then just delete it (duplicate).
 		//
@@ -284,13 +286,22 @@ bool OTPurse::Merge(OTPseudonym & theOldNym, OTPseudonym & theNewNym, OTPurse & 
 			// (That way we can add it after, whether it was there originally or not.)
 			if (ascTempTokenID == ascTokenID)
 			{
-				theMap.erase(it);
-				delete pTempToken;
-                pTempToken = NULL;
+                listOfTokenMapIterators.push_back(it);
+//				theMap.erase(it);
+//				delete pTempToken;
+//              pTempToken = NULL;
 				//break; // In case there are multiple duplicates, not just one.
 			}
 		}
-		
+        while (listOfTokenMapIterators.size() > 0)
+        {
+            OTToken * pTempToken = (listOfTokenMapIterators.back())->second;
+            theMap.erase(listOfTokenMapIterators.back());
+            delete pTempToken;
+            pTempToken = NULL;
+            listOfTokenMapIterators.pop_back();
+        }
+        
 		// Now we know there aren't any duplicates on the temporary map, let's add the token to it.
 		std::string theKey = ascTokenID.Get();		
 		theMap.insert(std::pair<std::string, OTToken*>(theKey, pToken));
@@ -307,6 +318,8 @@ bool OTPurse::Merge(OTPseudonym & theOldNym, OTPseudonym & theNewNym, OTPurse & 
 		
 		const OTASCIIArmor & ascTokenID = pToken->GetSpendable();
 		
+        std::list<mapOfTokenPointers::iterator> listOfTokenMapIterators;
+
 		// I just popped a Token off of theNewPurse. Let's see if it's in my temporary map...
 		// If it's already there, then just delete it (duplicate).
 		FOR_EACH(mapOfTokenPointers, theMap)
@@ -321,12 +334,22 @@ bool OTPurse::Merge(OTPseudonym & theOldNym, OTPseudonym & theNewNym, OTPurse & 
 			// (That way we can add it after, whether it was there originally or not.)
 			if (ascTempTokenID == ascTokenID)
 			{
-				theMap.erase(it);
-				delete pTempToken;
-                pTempToken = NULL;
+                listOfTokenMapIterators.push_back(it);
+//				theMap.erase(it);
+//				delete pTempToken;
+//              pTempToken = NULL;
 				//break; // In case there are multiple duplicates, not just one.
 			}
 		}
+        while (listOfTokenMapIterators.size() > 0)
+        {
+            OTToken * pTempToken = (listOfTokenMapIterators.back())->second;
+            theMap.erase(listOfTokenMapIterators.back());
+            delete pTempToken;
+            pTempToken = NULL;
+            listOfTokenMapIterators.pop_back();
+        }
+
 		
 		// Now we KNOW there aren't any duplicates on the temporary map, so let's
         // add the token to it...
