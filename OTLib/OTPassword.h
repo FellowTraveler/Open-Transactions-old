@@ -132,6 +132,10 @@
 
 #include <string>
 
+extern "C" {
+#include <stdint.h>	
+}
+
 
 /*
  To use:
@@ -408,7 +412,7 @@ public:
     int     randomizePassword(size_t nNewSize=DEFAULT_SIZE);
     // -----------------
     static
-    bool    randomizePassword(char * szDestination, size_t nNewSize);
+    bool    randomizePassword(char * szDestination, uint32_t nNewSize);
     // -----------------
     bool    isMemory() const;
 	const
@@ -431,35 +435,35 @@ public:
 	void	zeroMemory();
     // -----------------
     static
-    void    zeroMemory(char * szMemory, size_t theSize);
+    void    zeroMemory(char * szMemory, uint32_t theSize);
     static
-    void    zeroMemory(void * vMemory,  size_t theSize);
+    void    zeroMemory(void * vMemory,  uint32_t theSize);
     // -----------------
     static
     void * safe_memcpy(void   * dest,
-                       size_t   dest_size,
+                       uint32_t   dest_size,
                        const
                        void   * src,
-                       size_t   src_length,
+                       uint32_t   src_length,
                        bool     bZeroSource=false); // if true, sets the source buffer to zero after copying is done.    
     // ---------------------------------------
     OTPassword & operator=(const OTPassword & rhs);
 	OTPassword(BlockSize theBlockSize=DEFAULT_SIZE);
 	OTPassword(const OTPassword & rhs);
-	OTPassword(const char * szInput, int nInputSize, BlockSize theBlockSize=DEFAULT_SIZE);  // text   / password stored.
-	OTPassword(const void * vInput,  int nInputSize, BlockSize theBlockSize=DEFAULT_SIZE);  // binary / symmetric key stored.
+	OTPassword(const char * szInput, size_t nInputSize, BlockSize theBlockSize=DEFAULT_SIZE);  // text   / password stored.
+	OTPassword(const void * vInput,  size_t nInputSize, BlockSize theBlockSize=DEFAULT_SIZE);  // binary / symmetric key stored.
     // -----------------
 	~OTPassword();
 };
 
-#undef OTPASSWORD_BLOCKSIZE
-#undef OTPASSWORD_MEMSIZE
-
-#undef OT_LARGE_BLOCKSIZE
-#undef OT_LARGE_MEMSIZE
-
-#undef OT_DEFAULT_BLOCKSIZE
-#undef OT_DEFAULT_MEMSIZE
+//#undef OTPASSWORD_BLOCKSIZE
+//#undef OTPASSWORD_MEMSIZE
+//
+//#undef OT_LARGE_BLOCKSIZE
+//#undef OT_LARGE_MEMSIZE
+//
+//#undef OT_DEFAULT_BLOCKSIZE
+//#undef OT_DEFAULT_MEMSIZE
 
 
 // ---------------------------------------------------------

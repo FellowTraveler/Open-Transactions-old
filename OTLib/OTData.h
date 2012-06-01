@@ -135,6 +135,7 @@ extern "C" {
 #include <stdint.h>	
 }
 
+
 class OTASCIIArmor;
 
 
@@ -184,7 +185,7 @@ public:
 	
     bool Randomize(uint32_t lNewSize);
 
-	int OTfread(char * buf, int buflen);
+	uint32_t OTfread(uint8_t * buf, uint32_t buflen);
 	inline void reset() { m_lPosition = 0; };
 };
 
@@ -205,19 +206,17 @@ class OTCleanup
 {
 protected:
 	T * m_pCharge;
-	
-	
+
 public:
-	
 	inline bool SetCleanupTarget(const T & theTarget) // Use this as much as you can.
 	{ m_pCharge = &((T&)theTarget); return true; }
 	
 	inline bool SetCleanupTargetPointer(const T * pTarget)	// Use this when you want it to work even if pTarget is NULL.
 	{ m_pCharge = (T*)pTarget; return true; }				// (Like, it will accept the NULL pointer, and just be smart 
 															// enough NOT to delete it, since it's already NULL.)
-	OTCleanup() { m_pCharge = NULL; }
-	OTCleanup(const T & theTarget) { SetCleanupTarget(theTarget); }	
-	OTCleanup(const T * pTarget) { SetCleanupTargetPointer(pTarget); }	
+	OTCleanup()                     : m_pCharge(NULL) { }
+	OTCleanup(const T & theTarget)  : m_pCharge(NULL) { SetCleanupTarget(theTarget); }	
+	OTCleanup(const T * pTarget)    : m_pCharge(NULL) { SetCleanupTargetPointer(pTarget); }	
 	
 	~OTCleanup() { if (m_pCharge) delete m_pCharge; m_pCharge = NULL; } 
 };

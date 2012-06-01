@@ -514,7 +514,7 @@ bool OTServerConnection::ProcessType1Cmd(u_header & theCMD, OTMessage & theServe
 	theCMD.fields.size = ntohl(theCMD.fields.size); // think this is causing problems... maybe not...
 
 	OTPayload thePayload;
-	thePayload.SetPayloadSize(theCMD.fields.size);
+	thePayload.SetPayloadSize(static_cast<uint32_t>(theCMD.fields.size));
 	
 	for (nread = 0;  nread < theCMD.fields.size;  nread += err)
 	{

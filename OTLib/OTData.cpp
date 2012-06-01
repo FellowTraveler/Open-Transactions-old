@@ -194,11 +194,13 @@ bool OTData::operator!=(const OTData &s2) const
 // you are now on position 100, and the next OTfread will 
 // proceed from that position. (Unless you reset().)
 //
-int OTData::OTfread(char * buf, int buflen)
+uint32_t OTData::OTfread(uint8_t * buf, uint32_t buflen)
 {
-	int nSizeToRead = 0;
+    OT_ASSERT((NULL != buf) && (buflen > 0));
+    
+	uint32_t nSizeToRead = 0;
 	
-	if (buf && (buflen > 0) && m_pData && (m_lPosition < GetSize()))
+	if ((NULL != m_pData) && (m_lPosition < GetSize()))
 	{
 		// If the size is 20, and position is 5 (I've already read the first 5 bytes)
 		// then the size remaining to read is 15. That is, GetSize() minus m_lPosition.
@@ -371,8 +373,9 @@ void OTData::Concatenate(const void * pAppendData, uint32_t lAppendSize)
 
 OTData & OTData::operator+=(const OTData & rhs)
 {
-    this->Concatenate(rhs.m_pData, rhs.GetSize());
-	
+    if (rhs.GetSize() > 0)
+        this->Concatenate(rhs.m_pData, rhs.GetSize());
+
 	return *this;
 }
 

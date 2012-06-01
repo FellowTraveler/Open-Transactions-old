@@ -157,6 +157,9 @@ extern "C"
 #include <pwd.h>
 #include <unistd.h>
 #endif
+    
+#include <stdint.h>	
+
 }
 
 #include "OTStorage.h"
@@ -375,7 +378,7 @@ OPENSSL_CALLBACK_FUNC(default_pass_cb)
     const char * szFunc = "OPENSSL_CALLBACK_FUNC(default_pass_cb)";
     
 	int len = 0;
-    const size_t theSize = static_cast<const size_t>(size);
+    const uint32_t theSize = static_cast<const uint32_t>(size);
 	// ------------------------------------
 	// We'd probably do something else if 'rwflag' is 1
 
@@ -423,7 +426,7 @@ OPENSSL_CALLBACK_FUNC(default_pass_cb)
 	if (len > size) 
 		len = size;
 	
-    const size_t theLength = static_cast<const size_t>(len);
+    const uint32_t theLength = static_cast<const uint32_t>(len);
     // ------------------------------------------------------
     
     //void * pv = 
@@ -764,8 +767,8 @@ OPENSSL_CALLBACK_FUNC(souped_up_pass_cb)
         if (len > size) 
             len = size;
         
-        const size_t theSize   = static_cast<size_t>(size);
-        const size_t theLength = static_cast<size_t>(len);
+        const uint32_t theSize   = static_cast<uint32_t>(size);
+        const uint32_t theLength = static_cast<uint32_t>(len);
         
         //void * pv = 
         OTPassword::safe_memcpy(buf,                   // destination
@@ -1097,8 +1100,8 @@ EVP_PKEY * OTAsymmetricKey::CopyPublicKey(EVP_PKEY & theKey)
 		// After the below call, pChar will point to the memory buffer where the public key
         // supposedly is, and lSize will contain the size of that memory.
         //
-		const long lSize = BIO_get_mem_data(bmem, &pChar);
-        const int  nSize = static_cast<int>(lSize);
+		const long      lSize = BIO_get_mem_data(bmem, &pChar);
+        const uint32_t  nSize = static_cast<uint32_t>(lSize);
         
         if (nSize > 0)
         {
@@ -1209,8 +1212,8 @@ EVP_PKEY * OTAsymmetricKey::CopyPrivateKey(EVP_PKEY & theKey)
 		// After the below call, pChar will point to the memory buffer where the private key supposedly is,
 		// and lSize will contain the size of that memory.
         //
-        const long lSize = BIO_get_mem_data(bmem, &pChar);
-        const int  nSize = static_cast<int>(lSize);
+        const long      lSize = BIO_get_mem_data(bmem, &pChar);
+        const uint32_t  nSize = static_cast<uint32_t>(lSize);
         
         if (nSize > 0)
         {
@@ -1316,7 +1319,7 @@ bool OTAsymmetricKey::ArmorPublicKey(EVP_PKEY & theKey, OTASCIIArmor & ascKey)
         // supposedly is, and lSize will contain the size of that memory.
         //
 		lSize = BIO_get_mem_data(bmem, &pChar);
-		int  nSize = lSize; // todo security, etc. Fix this assumed type conversion.
+		uint32_t  nSize = static_cast<uint32_t>(lSize); // todo security, etc. Fix this assumed type conversion.
 		
 		if (nSize > 0)
 		{
@@ -1660,7 +1663,7 @@ bool OTAsymmetricKey::ArmorPrivateKey(EVP_PKEY & theKey, OTASCIIArmor & ascKey, 
 		// and lSize will contain the size of that memory.
         //
 		lSize = BIO_get_mem_data(bmem, &pChar);
-		int  nSize = lSize;
+		uint32_t  nSize = static_cast<uint32_t>(lSize);
 		
 		if (nSize > 0)
 		{
