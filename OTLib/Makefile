@@ -258,8 +258,9 @@ COBJECTS   = $(CSOURCES:.c=.o)
 
 #-fstack-protector-all -fstack-check -Wstack-protector
 #-fno-stack-protector
+# mac only? -Wshorten-64-to-32 -Wglobal-constructors
 
-DEBUG_FLAGS = -g3 -ggdb -rdynamic -O0 -Wglobal-constructors -Waddress -Woverloaded-virtual -Wshadow -Wconversion -Wshorten-64-to-32 --param ssp-buffer-size=4
+DEBUG_FLAGS = -g3 -ggdb -rdynamic -O0 -Waddress -Woverloaded-virtual -Wshadow -Wconversion  --param ssp-buffer-size=4
 
 CXX = $(CPP_COMPILER)
 CC = $(C_COMPILER)

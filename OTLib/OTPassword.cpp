@@ -180,13 +180,15 @@ extern "C"
 // For everything but Windows:
 //
 #ifndef _WIN32
-extern "C" void *ot_secure_memset(void *v, int c, uint32_t n);
+extern "C" void *ot_secure_memset(void *v, uint8_t c, uint32_t n);
 
 // This function securely overwrites the contents of a memory buffer
 // (which can otherwise be optimized out by an overzealous compiler...)
 //
-void *ot_secure_memset(void *v, int c, uint32_t n) 
+void *ot_secure_memset(void *v, uint8_t c, uint32_t n) 
 {
+    OT_ASSERT((NULL != v) && (n > 0));
+    
 	volatile uint8_t * p = static_cast<volatile uint8_t *>(v);
 	while (n--)
 		*p++ = c;
@@ -406,12 +408,14 @@ void OTPassword::zeroMemory()
 //static
 void OTPassword::zeroMemory(void * vMemory, uint32_t theSize)
 {
-    char * szMemory = static_cast<char *>(vMemory);
+    OT_ASSERT_MSG((NULL != vMemory) && (theSize > 0),"OTPassword::zeroMemory: ASSERT: vMemory is NULL or theSize is 0.");
+    
+    uint8_t * szMemory = static_cast<uint8_t *>(vMemory);
     OTPassword::zeroMemory(szMemory, theSize);
 }
 // ----------------------------------------------------------
 //static
-void OTPassword::zeroMemory(char * szMemory, uint32_t theSize)
+void OTPassword::zeroMemory(uint8_t * szMemory, uint32_t theSize)
 {
 #ifdef _WIN32
 	// ------
@@ -427,7 +431,7 @@ void OTPassword::zeroMemory(char * szMemory, uint32_t theSize)
 	// -------------------------
 	// Dr. UNIX, I presume? So, we meet again...
 #else	
-	ot_secure_memset(szMemory, 0, theSize);
+	ot_secure_memset(szMemory, static_cast<uint8_t>(0), theSize);
 #endif
 }
 // ---------------------------------------------------------
@@ -452,10 +456,10 @@ void OTPassword::zeroMemory(char * szMemory, uint32_t theSize)
 //
 //static
 void * OTPassword::safe_memcpy(void   * dest,
-                               uint32_t   dest_size,
+                               uint32_t dest_size,
                                const
                                void   * src,
-                               uint32_t   src_length,
+                               uint32_t src_length,
                                bool     bZeroSource/*=false*/) // if true, sets the source buffer to zero after copying is done.
 {
     bool bSuccess = false;
@@ -516,7 +520,8 @@ OTPassword::OTPassword(OTPassword::BlockSize theBlockSize/*=DEFAULT_SIZE*/)
 	m_theBlockSize(theBlockSize) // The buffer has this size+1 as its static size.
 {
 	m_szPassword[0] = '\0';
-    setPassword("", 0);
+    
+    setPassword(reinterpret_cast<const uint8_t*>(""), 0);
 }
 
 // ---------------------------------------------------------
@@ -557,7 +562,7 @@ OTPassword::OTPassword(const OTPassword & rhs)
 
 // ---------------------------------------------------------
 
-OTPassword::OTPassword(const char * szInput, size_t nInputSize, OTPassword::BlockSize theBlockSize/*=DEFAULT_SIZE*/)
+OTPassword::OTPassword(const char * szInput, uint32_t nInputSize, OTPassword::BlockSize theBlockSize/*=DEFAULT_SIZE*/)
 :	m_nPasswordSize(0),
     m_bIsText(true),
     m_bIsBinary(false),
@@ -566,17 +571,29 @@ OTPassword::OTPassword(const char * szInput, size_t nInputSize, OTPassword::Bloc
 {
 	m_szPassword[0] = '\0';
 	
-	setPassword(szInput, static_cast<int>(nInputSize));
+	setPassword(reinterpret_cast<const uint8_t*>(szInput), nInputSize);
 }
 // ---------------------------------------------------------
-OTPassword::OTPassword(const void * vInput, size_t nInputSize, OTPassword::BlockSize theBlockSize/*=DEFAULT_SIZE*/)
+OTPassword::OTPassword(const uint8_t * szInput, uint32_t nInputSize, OTPassword::BlockSize theBlockSize/*=DEFAULT_SIZE*/)
+:	m_nPasswordSize(0),
+    m_bIsText(true),
+    m_bIsBinary(false),
+    m_bIsPageLocked(false),
+    m_theBlockSize(theBlockSize) // The buffer has this size+1 as its static size.
+{
+	m_szPassword[0] = '\0';
+	
+	setPassword(szInput, nInputSize);
+}
+// ---------------------------------------------------------
+OTPassword::OTPassword(const void * vInput, uint32_t nInputSize, OTPassword::BlockSize theBlockSize/*=DEFAULT_SIZE*/)
 :	m_nPasswordSize(0),
     m_bIsText(false),
     m_bIsBinary(true),
     m_bIsPageLocked(false),
     m_theBlockSize(theBlockSize) // The buffer has this size+1 as its static size.
 {
-	setMemory(vInput, static_cast<int>(nInputSize));
+	setMemory(vInput, nInputSize);
 }
 // ---------------------------------------------------------
 
@@ -604,16 +621,16 @@ bool OTPassword::isMemory() const
 // ---------------------------------------------------------
 // getPassword returns "" if empty, otherwise returns the password.
 //
-const char * OTPassword::getPassword() const
+const uint8_t * OTPassword::getPassword() const
 {
     OT_ASSERT(m_bIsText);
-	return (m_nPasswordSize <= 0) ? "" : &(m_szPassword[0]); 
+	return (m_nPasswordSize <= 0) ? reinterpret_cast<const uint8_t *>("") : &(m_szPassword[0]); 
 }
 
-char * OTPassword::getPasswordWritable()
+uint8_t * OTPassword::getPasswordWritable()
 {
     OT_ASSERT(m_bIsText);
-	return (m_nPasswordSize <= 0) ? NULL : static_cast<char *>(static_cast<void *>(&(m_szPassword[0]))); 
+	return (m_nPasswordSize <= 0) ? NULL : static_cast<uint8_t *>(static_cast<void *>(&(m_szPassword[0]))); 
 }
 
 // ---------------------------------------------------------
@@ -635,17 +652,17 @@ void * OTPassword::getMemoryWritable()
 }
 
 // ---------------------------------------------------------
-int OTPassword::getBlockSize() const	
+uint32_t OTPassword::getBlockSize() const	
 {
-    int nReturn = 0;
+    uint32_t nReturn = 0;
     
     switch(m_theBlockSize)
     {
         case OTPassword::DEFAULT_SIZE:
-            nReturn =  static_cast<int>(OT_DEFAULT_BLOCKSIZE);
+            nReturn =  static_cast<uint32_t>(OT_DEFAULT_BLOCKSIZE);
             break;
         case OTPassword::LARGER_SIZE:
-            nReturn =  static_cast<int>(OT_LARGE_BLOCKSIZE);
+            nReturn =  static_cast<uint32_t>(OT_LARGE_BLOCKSIZE);
             break;
         default:
             break;
@@ -655,14 +672,14 @@ int OTPassword::getBlockSize() const
 }
 
 // ---------------------------------------------------------
-int OTPassword::getPasswordSize() const
+uint32_t OTPassword::getPasswordSize() const
 { 
     OT_ASSERT(m_bIsText);
 	return m_nPasswordSize; 
 }
 
 // ---------------------------------------------------------
-int OTPassword::getMemorySize() const
+uint32_t OTPassword::getMemorySize() const
 { 
     OT_ASSERT(m_bIsBinary);
 	return m_nPasswordSize; 
@@ -671,7 +688,7 @@ int OTPassword::getMemorySize() const
 
 // ------------------
 
-bool OTPassword::addChar(char theChar)
+bool OTPassword::addChar(uint8_t theChar)
 {
     OT_ASSERT(isPassword());
     if (getPasswordSize() < getBlockSize())
@@ -696,8 +713,8 @@ bool OTPassword::Compare(OTPassword & rhs) const
     if (this->isMemory() && !rhs.isMemory())
         return false;
     
-    const int nThisSize = this->isPassword() ? this->getPasswordSize() : this->getMemorySize();
-    const int nRhsSize  = rhs.isPassword()   ? rhs.getPasswordSize()   : rhs.getMemorySize();
+    const uint32_t nThisSize = this->isPassword() ? this->getPasswordSize() : this->getMemorySize();
+    const uint32_t nRhsSize  = rhs.isPassword()   ? rhs.getPasswordSize()   : rhs.getMemorySize();
     
     if (nThisSize != nRhsSize)
         return false;
@@ -715,8 +732,10 @@ bool OTPassword::Compare(OTPassword & rhs) const
 // Returns size of password (in case truncation is necessary.)
 // Returns -1 in case of error.
 //
-int OTPassword::setPassword(const char * szInput, int nInputSize)
+int32_t OTPassword::setPassword(const uint8_t * szInput, uint32_t nInputSize)
 {
+    OT_ASSERT(NULL != szInput);
+    
     const char * szFunc = "OTPassword::setPassword";
     // ---------------------------------
 	// Wipe whatever was in there before.
@@ -743,7 +762,7 @@ int OTPassword::setPassword(const char * szInput, int nInputSize)
 	// be a different size than what is passed in. For example it shouldn't
 	// be SMALLER than what the user claims either. If it is, we error out.
 	//
-	if (strnlen(szInput, static_cast<size_t>(nInputSize)) < static_cast<size_t>(nInputSize))
+	if (strnlen(reinterpret_cast<const char *>(szInput), static_cast<size_t>(nInputSize)) < static_cast<size_t>(nInputSize))
 	{
         OTLog::vError("%s: ERROR: string length of szInput did not match nInputSize.\n", szFunc);
 //		std::cerr << "OTPassword::setPassword: ERROR: string length of szInput did not match nInputSize." << std::endl;
@@ -765,9 +784,9 @@ int OTPassword::setPassword(const char * szInput, int nInputSize)
     }    
 	// ---------------------------------
 #ifdef _WIN32
-	strncpy_s(m_szPassword, (1 + nInputSize), szInput, nInputSize);
+	strncpy_s(reinterpret_cast<char *>(m_szPassword), (1 + nInputSize), reinterpret_cast<const char *>(szInput), nInputSize);
 #else
-	strncpy(m_szPassword, szInput, nInputSize);
+	strncpy(reinterpret_cast<char *>(m_szPassword), reinterpret_cast<const char *>(szInput), nInputSize);
 #endif
 
 	// ---------------------------------	
@@ -810,14 +829,14 @@ void OTPassword::zeroMemory()
 
 
 //static
-bool OTPassword::randomizePassword(char * szDestination, uint32_t nNewSize)
+bool OTPassword::randomizePassword(uint8_t * szDestination, uint32_t nNewSize)
 {
     OT_ASSERT(NULL != szDestination);
     OT_ASSERT(nNewSize > 0);
 	// ---------------------------------
 //    const char * szFunc = "OTPassword::randomizePassword(static)";
 	// ---------------------------------
-    if (OTPassword::randomizeMemory(szDestination, static_cast<size_t>(nNewSize)))
+    if (OTPassword::randomizeMemory(szDestination, nNewSize))
     {
         // --------------------------------------------------
         // This loop converts an array of binary bytes into the
@@ -826,7 +845,7 @@ bool OTPassword::randomizePassword(char * szDestination, uint32_t nNewSize)
         //
         for (uint32_t i = 0; i < nNewSize; ++i)
         {
-            char temp =  (( (szDestination[i]) % 89 ) + 33);
+            uint8_t temp     =  (( (szDestination[i]) % 89 ) + 33);
             szDestination[i] = temp;
         }
         // --------------------------------------------------
@@ -844,10 +863,10 @@ bool OTPassword::randomizePassword(char * szDestination, uint32_t nNewSize)
 // Returns size of memory (in case truncation is necessary.)
 // Returns -1 in case of error.
 //
-int OTPassword::randomizePassword(size_t nNewSize/*=DEFAULT_SIZE*/)
+int32_t OTPassword::randomizePassword(uint32_t nNewSize/*=DEFAULT_SIZE*/)
 {
     const char * szFunc = "OTPassword::randomizePassword";
-    int nSize = static_cast<int>(nNewSize);
+    uint32_t nSize = nNewSize;
     // ---------------------------------
 	// Wipe whatever was in there before.
     //
@@ -882,7 +901,7 @@ int OTPassword::randomizePassword(size_t nNewSize/*=DEFAULT_SIZE*/)
     }    
 	// ---------------------------------
     //
-	if (!OTPassword::randomizePassword(&(m_szPassword[0]), static_cast<uint32_t>(nSize+1)))
+	if (!OTPassword::randomizePassword(&(m_szPassword[0]), static_cast<int32_t>(nSize+1)))
     {
         // randomizeMemory (above) already logs, so I'm not logging again twice here.
         //
@@ -898,7 +917,7 @@ int OTPassword::randomizePassword(size_t nNewSize/*=DEFAULT_SIZE*/)
 
 
 //static
-bool OTPassword::randomizeMemory(char * szDestination, size_t nNewSize)
+bool OTPassword::randomizeMemory(uint8_t * szDestination, uint32_t nNewSize)
 {
     OT_ASSERT(NULL != szDestination);
     OT_ASSERT(nNewSize > 0);
@@ -934,10 +953,10 @@ bool OTPassword::randomizeMemory(char * szDestination, size_t nNewSize)
 // Returns size of memory (in case truncation is necessary.)
 // Returns -1 in case of error.
 //
-int OTPassword::randomizeMemory(size_t nNewSize/*=DEFAULT_SIZE*/)
+int32_t OTPassword::randomizeMemory(uint32_t nNewSize/*=DEFAULT_SIZE*/)
 {
     const char * szFunc = "OTPassword::randomizeMemory";
-    int nSize = static_cast<int>(nNewSize);
+    uint32_t nSize = nNewSize;
     // ---------------------------------
 	// Wipe whatever was in there before.
     //
@@ -972,7 +991,7 @@ int OTPassword::randomizeMemory(size_t nNewSize/*=DEFAULT_SIZE*/)
     }    
 	// ---------------------------------
     //
-	if (!OTPassword::randomizeMemory(&(m_szPassword[0]), static_cast<size_t>(nSize)))
+	if (!OTPassword::randomizeMemory(&(m_szPassword[0]), nSize))
     {
         // randomizeMemory (above) already logs, so I'm not logging again twice here.
         //
@@ -989,7 +1008,7 @@ int OTPassword::randomizeMemory(size_t nNewSize/*=DEFAULT_SIZE*/)
 // (FYI, truncates if nAppendSize + getPasswordSize() is larger than getBlockSize.)
 // Returns number of bytes appended, or -1 for error.
 //
-int OTPassword::addMemory(const void * vAppend, int nAppendSize) 
+int32_t OTPassword::addMemory(const void * vAppend, uint32_t nAppendSize) 
 {
     OT_ASSERT(NULL != vAppend);
 
@@ -1017,7 +1036,7 @@ int OTPassword::addMemory(const void * vAppend, int nAppendSize)
 	if ((nAppendSize + m_nPasswordSize) > getBlockSize())
 		nAppendSize = (getBlockSize() - m_nPasswordSize); // Truncated password beyond max size.
 	// ---------------------------------
-    OT_ASSERT(nAppendSize >= 0);
+//  OT_ASSERT(nAppendSize >= 0);
     
     if (0 == nAppendSize)
         return 0;
@@ -1044,7 +1063,7 @@ int OTPassword::addMemory(const void * vAppend, int nAppendSize)
 // Returns size of memory (in case truncation is necessary.)
 // Returns -1 in case of error.
 //
-int OTPassword::setMemory(const void * vInput, int nInputSize)
+int32_t OTPassword::setMemory(const void * vInput, uint32_t nInputSize)
 {		
     OT_ASSERT(NULL != vInput);
     
@@ -1143,7 +1162,7 @@ const char * OTCaller::GetDisplay() const
 	// I'm using the OTPassword class to store the display string, in addition to
 	// storing the password itself. (For convenience.)
 	//
-	return m_Display.getPassword(); 
+	return reinterpret_cast<const char *>(m_Display.getPassword()); 
 }
 
 // A display string is set here before the Java dialog is shown, so that the string can be displayed on that dialog.
@@ -1153,7 +1172,7 @@ void OTCaller::SetDisplay(const char * szDisplay, int nLength)
 	// I'm using the OTPassword class to store the display string, in addition to
 	// storing the password itself. (For convenience.)
 	//
-	m_Display.setPassword(szDisplay, nLength);
+	m_Display.setPassword(reinterpret_cast<const uint8_t *>(szDisplay), nLength);
 }
 
 

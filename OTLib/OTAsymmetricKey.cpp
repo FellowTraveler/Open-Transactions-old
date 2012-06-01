@@ -533,7 +533,7 @@ bool OTAsymmetricKey::GetPasswordFromConsoleLowLevel(OTPassword & theOutput, con
 	if ((nReadPW = UI_UTIL_read_pw(buf,buff,_PASSWORD_LEN,szPrompt,0)) == 0) // verify=0
     {
         size_t nPassLength = OTString::safe_strlen(buf, _PASSWORD_LEN);
-        theOutput.setPassword(buf, nPassLength);
+        theOutput.setPassword(reinterpret_cast<uint8_t*>(buf), nPassLength);
         OTPassword::zeroMemory(buf, nPassLength);
         OTPassword::zeroMemory(buff, nPassLength);
         return true;

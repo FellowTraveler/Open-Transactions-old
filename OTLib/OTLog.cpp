@@ -216,8 +216,6 @@ struct sigcontext
 #endif // not WIN32
 
     
-    void ot_terminate(void);
-    
 #include <sys/stat.h>
 } // extern C
 // ---------------------------
@@ -231,11 +229,18 @@ using namespace tthread;
 
 // ----------------------------
 
+#ifndef _WIN32
+
+void ot_terminate(void);
+
 
 namespace {
     // invoke set_terminate as part of global constant initialization
     static const bool SET_TERMINATE = std::set_terminate(ot_terminate);
 }
+#endif
+
+
 
 
 #ifdef ANDROID
@@ -284,7 +289,7 @@ int     OTLog::__latency_receive_ms = 5000; // number of ms to wait before retry
 long	OTLog::__minimum_market_scale = 1;	// Server admin can configure this to any higher power-of-ten.
 
 
-OTString OTLog::__Version = "0.81.c";
+OTString OTLog::__Version = "0.81.d";
 
 
 
@@ -351,119 +356,6 @@ dequeOfStrings OTLog::__logDeque; // Stores the last 1024 logs in memory.
 //
 
 // *********************************************************************************
-
-// This is our custom std::terminate handler for SIGABRT
-//
-void ot_terminate() 
-{
-    static tthread::mutex the_Mutex;
-    
-    tthread::lock_guard<tthread::mutex> lock(the_Mutex);
-
-    static bool tried_throw = false;
-    
-    try {
-        // try once to re-throw currently active exception
-        if (!tried_throw) {
-            tried_throw = true;
-            throw;
-        }
-    }
-    catch (const std::exception &e) {
-        std::cerr << "ot_terminate: " << __FUNCTION__ << " caught unhandled exception. type: " << typeid(e).name() << " what(): "
-        << e.what() << std::endl;
-    }
-    catch (...) {
-        std::cerr << "ot_terminate: " << __FUNCTION__ << " caught unknown/unhandled exception." 
-        << std::endl;
-    }
-    
-    /*
-    void * array[50];
-    int size = backtrace(array, 50);    
-    
-    std::cerr << "ot_terminate: " << __FUNCTION__ << " backtrace returned " << size << " frames\n\n";
-    
-    char ** messages = backtrace_symbols(array, size);
-    
-    for (int i = 0; i < size && messages != NULL; ++i) {
-        std::cerr << "[bt]: (" << i << ") " << messages[i] << std::endl;
-    }
-    std::cerr << std::endl;
-    
-    free(messages);
-    
-    abort();
-     */
-    
-    void * array[50];
-    int size = backtrace(array, 50);
-        
-    char ** messages = backtrace_symbols(array, size);    
-    
-    // skip first stack frame (points here)
-    for (int i = 1; i < size && messages != NULL; ++i)
-    {
-        char *mangled_name = 0, *offset_begin = 0, *offset_end = 0;
-        
-        // find parantheses and +address offset surrounding mangled name
-        for (char *p = messages[i]; *p; ++p)
-        {
-            if (*p == '(') 
-            {
-                mangled_name = p; 
-            }
-            else if (*p == '+') 
-            {
-                offset_begin = p;
-            }
-            else if (*p == ')')
-            {
-                offset_end = p;
-                break;
-            }
-        }
-        
-        // if the line could be processed, attempt to demangle the symbol
-        if (mangled_name && offset_begin && offset_end && 
-            mangled_name < offset_begin)
-        {
-            *mangled_name++ = '\0';
-            *offset_begin++ = '\0';
-            *offset_end++ = '\0';
-            
-            int status;
-            char * real_name = abi::__cxa_demangle(mangled_name, 0, 0, &status);
-            
-            // if demangling is successful, output the demangled function name
-            if (status == 0)
-            {    
-                std::cerr << "[bt]: (" << i << ") " << messages[i] << " : " 
-                << real_name << "+" << offset_begin << offset_end 
-                << std::endl;
-                
-            }
-            // otherwise, output the mangled function name
-            else
-            {
-                std::cerr << "[bt]: (" << i << ") " << messages[i] << " : " 
-                << mangled_name << "+" << offset_begin << offset_end 
-                << std::endl;
-            }
-            free(real_name);
-        }
-        // otherwise, print the whole line
-        else
-        {
-            std::cerr << "[bt]: (" << i << ") " << messages[i] << std::endl;
-        }
-    }
-    std::cerr << std::endl;
-    
-    free(messages);
-    
-    abort(); 
-}
 
 
 
@@ -656,6 +548,123 @@ void   LogStackFrames(void *FaultAdress, char *eNextBP)
 // *********************************************************************************
 
 #else  // UNIX -- SIGNALS
+
+
+
+// This is our custom std::terminate handler for SIGABRT
+//
+void ot_terminate() 
+{
+    static tthread::mutex the_Mutex;
+    
+    tthread::lock_guard<tthread::mutex> lock(the_Mutex);
+    
+    static bool tried_throw = false;
+    
+    try {
+        // try once to re-throw currently active exception
+        if (!tried_throw) {
+            tried_throw = true;
+            throw;
+        }
+    }
+    catch (const std::exception &e) {
+        std::cerr << "ot_terminate: " << __FUNCTION__ << " caught unhandled exception. type: " << typeid(e).name() << " what(): "
+        << e.what() << std::endl;
+    }
+    catch (...) {
+        std::cerr << "ot_terminate: " << __FUNCTION__ << " caught unknown/unhandled exception." 
+        << std::endl;
+    }
+    
+    /*
+     void * array[50];
+     int size = backtrace(array, 50);    
+     
+     std::cerr << "ot_terminate: " << __FUNCTION__ << " backtrace returned " << size << " frames\n\n";
+     
+     char ** messages = backtrace_symbols(array, size);
+     
+     for (int i = 0; i < size && messages != NULL; ++i) {
+     std::cerr << "[bt]: (" << i << ") " << messages[i] << std::endl;
+     }
+     std::cerr << std::endl;
+     
+     free(messages);
+     
+     abort();
+     */
+    
+    void * array[50];
+    int size = backtrace(array, 50);
+    
+    char ** messages = backtrace_symbols(array, size);    
+    
+    // skip first stack frame (points here)
+    for (int i = 1; i < size && messages != NULL; ++i)
+    {
+        char *mangled_name = 0, *offset_begin = 0, *offset_end = 0;
+        
+        // find parantheses and +address offset surrounding mangled name
+        for (char *p = messages[i]; *p; ++p)
+        {
+            if (*p == '(') 
+            {
+                mangled_name = p; 
+            }
+            else if (*p == '+') 
+            {
+                offset_begin = p;
+            }
+            else if (*p == ')')
+            {
+                offset_end = p;
+                break;
+            }
+        }
+        
+        // if the line could be processed, attempt to demangle the symbol
+        if (mangled_name && offset_begin && offset_end && 
+            mangled_name < offset_begin)
+        {
+            *mangled_name++ = '\0';
+            *offset_begin++ = '\0';
+            *offset_end++ = '\0';
+            
+            int status;
+            char * real_name = abi::__cxa_demangle(mangled_name, 0, 0, &status);
+            
+            // if demangling is successful, output the demangled function name
+            if (status == 0)
+            {    
+                std::cerr << "[bt]: (" << i << ") " << messages[i] << " : " 
+                << real_name << "+" << offset_begin << offset_end 
+                << std::endl;
+                
+            }
+            // otherwise, output the mangled function name
+            else
+            {
+                std::cerr << "[bt]: (" << i << ") " << messages[i] << " : " 
+                << mangled_name << "+" << offset_begin << offset_end 
+                << std::endl;
+            }
+            free(real_name);
+        }
+        // otherwise, print the whole line
+        else
+        {
+            std::cerr << "[bt]: (" << i << ") " << messages[i] << std::endl;
+        }
+    }
+    std::cerr << std::endl;
+    
+    free(messages);
+    
+    abort(); 
+}
+
+
 
 
 // CREDIT: the Linux / GNU portion of the signal handler comes from StackOverflow,
@@ -1064,7 +1073,7 @@ void OTLog::TransformFilePath(const char * szInput, OTString & strOutput)
     
 	if (wordexp(szInput, &exp_result, 0))  // If non-zero, then failure.
 	{
-		OTLog::vError("%s: Error calling wordexp() to expand path.\n", __func__);
+		OTLog::vError("%s: Error calling wordexp() to expand path.\n", __FUNCTION__);
 //		wordfree(&exp_result); 
 		strOutput.Set(szInput);
 		return;
@@ -1115,7 +1124,7 @@ const char * OTLog::GetMemlogAtIndex(int nIndex)
 	
 	if ((nIndex < 0) || (uIndex >= __logDeque.size()))
 	{
-		OTLog::vError("%s: index out of bounds: %d\n", __func__, nIndex);
+		OTLog::vError("%s: index out of bounds: %d\n", __FUNCTION__, nIndex);
 		return NULL;
 	}
 	

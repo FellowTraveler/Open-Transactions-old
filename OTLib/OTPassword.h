@@ -381,9 +381,9 @@ public:
         }; 	
 
 private:
-	int		m_nPasswordSize; // [ 0..128 ]  Update: [ 0..9000 ]
-	char	m_szPassword[OT_DEFAULT_MEMSIZE]; // a 129-byte block of char. (128 + 1 for null terminator)
-//	char	m_szPassword[OT_LARGE_MEMSIZE];   // 32767 bytes. (32768 + 1 for null terminator) todo: in optimization phase, revisit this array size.
+	uint32_t m_nPasswordSize; // [ 0..128 ]  Update: [ 0..9000 ]
+	uint8_t	 m_szPassword[OT_DEFAULT_MEMSIZE]; // a 129-byte block of char. (128 + 1 for null terminator)
+//	uint8_t  m_szPassword[OT_LARGE_MEMSIZE];   // 32767 bytes. (32768 + 1 for null terminator) todo: in optimization phase, revisit this array size.
 
     // OTPassword tries to store a piece of data more securely.
     // During the time I have to take a password from the user and pass it to OpenSSL,
@@ -402,56 +402,58 @@ public:
 	const
 	BlockSize	m_theBlockSize;		
     // -----------------
-    bool    isPassword() const;
+    bool     isPassword() const;
 	const
-	char *	getPassword() const; // asserts if m_bIsText is false.
-	char *	getPasswordWritable(); // asserts if m_bIsText is false.
-	int		setPassword(const char * szInput, int nInputSize); // (FYI, truncates if nInputSize larger than getBlockSize.)
-    bool    addChar(char theChar);
+	uint8_t * getPassword() const; // asserts if m_bIsText is false.
+	uint8_t * getPasswordWritable(); // asserts if m_bIsText is false.
+    
+	int32_t  setPassword(const uint8_t * szInput, uint32_t nInputSize); // (FYI, truncates if nInputSize larger than getBlockSize.)
+    bool     addChar(uint8_t theChar);
     // ---------------------
-    int     randomizePassword(size_t nNewSize=DEFAULT_SIZE);
+    int32_t randomizePassword(uint32_t nNewSize=DEFAULT_SIZE);
     // -----------------
     static
-    bool    randomizePassword(char * szDestination, uint32_t nNewSize);
+    bool     randomizePassword(uint8_t * szDestination, uint32_t nNewSize);
     // -----------------
-    bool    isMemory() const;
+    bool     isMemory() const;
 	const
-	void *	getMemory() const; // asserts if m_bIsBinary is false.
-	void *	getMemoryWritable(); // asserts if m_bIsBinary is false.
-	int		setMemory(const void * vInput,  int nInputSize);  // (FYI, truncates if nInputSize larger than getBlockSize.)
-	int		addMemory(const void * vAppend, int nAppendSize); // (FYI, truncates if nInputSize + getPasswordSize() is larger than getBlockSize.)
+	void *	 getMemory() const; // asserts if m_bIsBinary is false.
+	void *	 getMemoryWritable(); // asserts if m_bIsBinary is false.
+	int32_t  setMemory(const void * vInput,  uint32_t nInputSize);  // (FYI, truncates if nInputSize larger than getBlockSize.)
+	int32_t  addMemory(const void * vAppend, uint32_t nAppendSize); // (FYI, truncates if nInputSize + getPasswordSize() is larger than getBlockSize.)
     // ---------------------
-    int     randomizeMemory(size_t nNewSize=DEFAULT_SIZE);
+    int32_t randomizeMemory(uint32_t nNewSize=DEFAULT_SIZE);
     // -----------------
     static
-    bool    randomizeMemory(char * szDestination, size_t nNewSize);
+    bool     randomizeMemory(uint8_t * szDestination, uint32_t nNewSize);
     // -----------------
-	int		getBlockSize()    const;
-	bool	Compare(OTPassword & rhs) const;
+	uint32_t getBlockSize()    const;
+	bool	 Compare(OTPassword & rhs) const;
     // ----------------------
-	int		getPasswordSize() const; // asserts if m_bIsText is false.
-	int		getMemorySize()   const; // asserts if m_bIsBinary is false.
+	uint32_t getPasswordSize() const; // asserts if m_bIsText is false.
+	uint32_t getMemorySize()   const; // asserts if m_bIsBinary is false.
     // -----------------
 	void	zeroMemory();
     // -----------------
     static
-    void    zeroMemory(char * szMemory, uint32_t theSize);
+    void    zeroMemory(uint8_t * szMemory, uint32_t theSize);
     static
-    void    zeroMemory(void * vMemory,  uint32_t theSize);
+    void    zeroMemory(void * vMemory,     uint32_t theSize);
     // -----------------
     static
     void * safe_memcpy(void   * dest,
-                       uint32_t   dest_size,
+                       uint32_t dest_size,
                        const
                        void   * src,
-                       uint32_t   src_length,
+                       uint32_t src_length,
                        bool     bZeroSource=false); // if true, sets the source buffer to zero after copying is done.    
     // ---------------------------------------
     OTPassword & operator=(const OTPassword & rhs);
 	OTPassword(BlockSize theBlockSize=DEFAULT_SIZE);
 	OTPassword(const OTPassword & rhs);
-	OTPassword(const char * szInput, size_t nInputSize, BlockSize theBlockSize=DEFAULT_SIZE);  // text   / password stored.
-	OTPassword(const void * vInput,  size_t nInputSize, BlockSize theBlockSize=DEFAULT_SIZE);  // binary / symmetric key stored.
+	OTPassword(const char    * szInput, uint32_t nInputSize, BlockSize theBlockSize=DEFAULT_SIZE);  // text   / password stored.
+	OTPassword(const uint8_t * szInput, uint32_t nInputSize, BlockSize theBlockSize=DEFAULT_SIZE);  // text   / password stored.
+	OTPassword(const void    * vInput,  uint32_t nInputSize, BlockSize theBlockSize=DEFAULT_SIZE);  // binary / symmetric key stored.
     // -----------------
 	~OTPassword();
 };

@@ -210,8 +210,8 @@ uint32_t OTData::OTfread(uint8_t * buf, uint32_t buflen)
 			nSizeToRead = buflen;
 		
         OTPassword::safe_memcpy(buf, buflen, 
-                                (static_cast<char*>(m_pData))+m_lPosition,
-                                nSizeToRead);
+                                (static_cast<uint8_t*>(m_pData) + m_lPosition),
+                                 static_cast<uint32_t>(nSizeToRead));
 //		memcpy(buf, (static_cast<char*>(m_pData))+m_lPosition, nSizeToRead); 
 		m_lPosition += nSizeToRead;
 	}
@@ -280,7 +280,7 @@ void OTData::Assign(const void * pNewData, uint32_t lNewSize)
 	
 	if ((pNewData != NULL) && (lNewSize > 0))
 	{
-		m_pData = static_cast<void*>(new char[lNewSize]);
+		m_pData = static_cast<void*>(new uint8_t[lNewSize]);
 		OT_ASSERT(NULL != m_pData);
 		
         OTPassword::safe_memcpy(m_pData, lNewSize, pNewData, lNewSize);
@@ -297,14 +297,14 @@ bool OTData::Randomize(uint32_t lNewSize)
 	Release(); // This releases all memory and zeros out all members.
 	if (lNewSize > 0)
 	{
-		m_pData = static_cast<void*>(new char[lNewSize]);
+		m_pData = static_cast<void*>(new uint8_t[lNewSize]);
 		OT_ASSERT(NULL != m_pData);
         // ---------------------------------        
-        if (!OTPassword::randomizeMemory(static_cast<char*>(m_pData), static_cast<size_t>(lNewSize)))
+        if (!OTPassword::randomizeMemory(static_cast<uint8_t*>(m_pData), lNewSize))
         {
             // randomizeMemory already logs, so I'm not logging again twice here.
             //
-            delete [] static_cast<char *>(m_pData);
+            delete [] static_cast<uint8_t *>(m_pData);
             m_pData = NULL;
             return false;
         }
@@ -321,6 +321,7 @@ bool OTData::Randomize(uint32_t lNewSize)
 void OTData::Concatenate(const void * pAppendData, uint32_t lAppendSize)
 {
     OT_ASSERT(NULL != pAppendData);
+    OT_ASSERT(lAppendSize > 0);
     // -------------------------
     if (lAppendSize == 0) // It's unsigned, so it CAN'T be less than 0.
     {
@@ -334,12 +335,12 @@ void OTData::Concatenate(const void * pAppendData, uint32_t lAppendSize)
         return;
     }
     // -------------------------
-	void * pNewData		= NULL;
+	void *   pNewData   = NULL;
 	uint32_t lTotalSize	= GetSize() + lAppendSize;
 	
 	if (lTotalSize > 0)
 	{
-		pNewData = static_cast<void*>(new char[lTotalSize]);
+		pNewData = static_cast<void*>(new uint8_t[lTotalSize]);
 		OT_ASSERT(NULL != pNewData);
         OTPassword::zeroMemory(pNewData, lTotalSize);
 	}
@@ -356,13 +357,13 @@ void OTData::Concatenate(const void * pAppendData, uint32_t lAppendSize)
 		
         // Next we copy the data being appended...
         //
-        OTPassword::safe_memcpy((static_cast<char*>(pNewData)) + GetSize(),
+        OTPassword::safe_memcpy((static_cast<uint8_t*>(pNewData)) + GetSize(),
                                 lTotalSize - GetSize(),
                                 pAppendData, lAppendSize);	
 	}
     // ---------------------------------------
 	if (NULL != m_pData) // If I wasn't already empty, then erase whatever I had in there before...
-		delete [] static_cast<char *>(m_pData);
+		delete [] static_cast<uint8_t *>(m_pData);
         
 	m_pData = pNewData;		// Set my internal memory to the new buffer (or NULL, but unlikely.)
 	m_lSize = lTotalSize;	// Set my internal size to the new size.
@@ -390,7 +391,7 @@ void OTData::Release()
 //	   memset(m_pData, 0, m_lSize);
        // --------------------------------------
        
-	   delete [] (static_cast<char *>(m_pData));
+	   delete [] (static_cast<uint8_t *>(m_pData));
 	   
        // --------------------------------------
        // inline void Initialize() { m_pData = NULL; m_lSize = 0; m_lPosition = 0; }
@@ -406,7 +407,7 @@ void OTData::SetSize(uint32_t lNewSize)
 	
 	if (lNewSize > 0)
 	{
-		m_pData = static_cast<void*>(new char[lNewSize]);
+		m_pData = static_cast<void*>(new uint8_t[lNewSize]);
 		OT_ASSERT(NULL != m_pData);
 		
         OTPassword::zeroMemory(m_pData, lNewSize);

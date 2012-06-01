@@ -1614,7 +1614,7 @@ bool OTSymmetricKey::GenerateKey(const OTPassword & thePassword)
 		return false;
 	}
 	// --------------------------------------------------
-    const char * char_p_password_contents = thePassword.getPassword();
+    const char * char_p_password_contents = reinterpret_cast<const char *>(thePassword.getPassword());
     const size_t size_t_password_length   = static_cast<const size_t>(thePassword.getPasswordSize());
     
     unsigned char * char_p_derived_contents  = static_cast<unsigned char *>(theDerivedKey.getMemoryWritable());
@@ -1702,7 +1702,7 @@ bool OTSymmetricKey::GetRawKey(const OTPassword & thePassword, OTPassword & theR
     // theDerivedKey will be populated with its actual data in the call to PKCS5_PBKDF2_HMAC_SHA1.
     OTPassword      theDerivedKey(static_cast<void *>(&derived_key[0]), OT_DEFAULT_SYMMETRIC_KEY_SIZE);
 	// --------------------------------------------------
-    const char * char_p_password_contents = const_cast<char *>(thePassword.getPassword());
+    const char * char_p_password_contents = const_cast<char *>(reinterpret_cast<const char *>(thePassword.getPassword()));
     const size_t size_t_password_length   = static_cast<const size_t>(thePassword.getPasswordSize());
     
     unsigned char * uchar_p_derived_contents  = static_cast<unsigned char *>(theDerivedKey.getMemoryWritable());
@@ -1809,35 +1809,49 @@ bool OTSymmetricKey::SerializeTo(OTPayload & theOutput) const
     // -----------------------------------------------
     uint16_t   n_is_generated    = static_cast<uint16_t>(htons(static_cast<uint16_t>(m_bIsGenerated ? 1 : 0))); 
     uint16_t   n_key_size_bits   = static_cast<uint16_t>(htons(static_cast<uint16_t>(m_nKeySize))); 
-    
+    // ----------------------------------------------------------------------------------------
     uint32_t   n_iteration_count = static_cast<uint32_t>(htonl(static_cast<uint32_t>(m_nIterationCount))); 
     
     uint32_t   n_salt_size       = static_cast<uint32_t>(htonl(static_cast<uint32_t>(m_dataSalt.GetSize()))); 
     uint32_t   n_iv_size         = static_cast<uint32_t>(htonl(static_cast<uint32_t>(m_dataIV.GetSize()))); 
     uint32_t   n_enc_key_size    = static_cast<uint32_t>(htonl(static_cast<uint32_t>(m_dataEncryptedKey.GetSize()))); 
+    
+    
+    OTLog::vOutput(5, "%s: is_generated: %d   key_size_bits: %d   iteration_count: %ld   \n  "
+                   "salt_size: %ld   iv_size: %ld   enc_key_size: %ld   \n", 
+                   __FUNCTION__, 
+                   static_cast<int>(ntohs(n_is_generated)),
+                   static_cast<int>(ntohs(n_key_size_bits)),
+                   
+                   static_cast<long>(ntohl(n_iteration_count)),
+                   static_cast<long>(ntohl(n_salt_size)),
+                   static_cast<long>(ntohl(n_iv_size)),
+                   static_cast<long>(ntohl(n_enc_key_size))
+                   );
+    
     // -----------------------------------------------
-    theOutput.Concatenate(static_cast<void *>(&n_is_generated),   
+    theOutput.Concatenate(reinterpret_cast<void *>(&n_is_generated),   
                           static_cast<uint32_t>(sizeof(n_is_generated)));
     
-    theOutput.Concatenate(static_cast<void *>(&n_key_size_bits),   
+    theOutput.Concatenate(reinterpret_cast<void *>(&n_key_size_bits),   
                           static_cast<uint32_t>(sizeof(n_key_size_bits)));
     
-    theOutput.Concatenate(static_cast<void *>(&n_iteration_count),   
+    theOutput.Concatenate(reinterpret_cast<void *>(&n_iteration_count),   
                           static_cast<uint32_t>(sizeof(n_iteration_count)));
     // -------------------------
-    theOutput.Concatenate(static_cast<void *>(&n_salt_size),   
+    theOutput.Concatenate(reinterpret_cast<void *>(&n_salt_size),   
                           static_cast<uint32_t>(sizeof(n_salt_size)));
     
     theOutput.Concatenate(m_dataSalt.GetPayloadPointer(),
                           m_dataSalt.GetSize());
     // -------------------------
-    theOutput.Concatenate(static_cast<void *>(&n_iv_size),   
+    theOutput.Concatenate(reinterpret_cast<void *>(&n_iv_size),   
                           static_cast<uint32_t>(sizeof(n_iv_size)));
     
     theOutput.Concatenate(m_dataIV.GetPayloadPointer(),
                           m_dataIV.GetSize());
     // -------------------------
-    theOutput.Concatenate(static_cast<void *>(&n_enc_key_size),   
+    theOutput.Concatenate(reinterpret_cast<void *>(&n_enc_key_size),   
                           static_cast<uint32_t>(sizeof(n_enc_key_size)));
     
     theOutput.Concatenate(m_dataEncryptedKey.GetPayloadPointer(),
@@ -1890,7 +1904,10 @@ bool OTSymmetricKey::SerializeFrom(OTPayload & theInput)
     }
     // ****************************************************************************
     
-    
+    OTLog::vOutput(5, "%s: is_generated: %d \n", 
+                   __FUNCTION__, 
+                   static_cast<int>(host_is_generated)
+                   );
     
     // ****************************************************************************
     //
@@ -1909,6 +1926,12 @@ bool OTSymmetricKey::SerializeFrom(OTPayload & theInput)
 
     m_nKeySize = static_cast<uint16_t>(ntohs(n_key_size_bits));
     
+    OTLog::vOutput(5, "%s: key_size_bits: %d \n", 
+                   __FUNCTION__, 
+                   static_cast<int>(m_nKeySize)
+                   );
+    
+
     // ****************************************************************************
     
     
@@ -1925,10 +1948,16 @@ bool OTSymmetricKey::SerializeFrom(OTPayload & theInput)
 		OTLog::vError("%s: Error reading n_iteration_count.\n", szFunc);
 		return false;
 	}
+    OT_ASSERT(nRead == static_cast<uint32_t>(sizeof(n_iteration_count)));
     // ----------------------------------------------------------------------------
 	// convert from network to HOST endian.
     
-    m_nIterationCount = ntohl(n_iteration_count);
+    m_nIterationCount = static_cast<uint32_t>(ntohl(n_iteration_count));
+    
+    OTLog::vOutput(5, "%s: iteration_count: %ld \n", 
+                   __FUNCTION__, 
+                   static_cast<long>(m_nIterationCount)
+                   );
     
     // ****************************************************************************
     
@@ -1946,11 +1975,17 @@ bool OTSymmetricKey::SerializeFrom(OTPayload & theInput)
 		OTLog::vError("%s: Error reading n_salt_size.\n", szFunc);
 		return false;
 	}
+    OT_ASSERT(nRead == static_cast<uint32_t>(sizeof(n_salt_size)));
     // ----------------------------------------------------------------------------
 	// convert from network to HOST endian.
     
-    const uint32_t lSaltSize = ntohl(n_salt_size);
+    const uint32_t lSaltSize = static_cast<uint32_t>(ntohl(static_cast<uint32_t>(n_salt_size)));
     
+    OTLog::vOutput(5, "%s: salt_size value: %ld \n", 
+                   __FUNCTION__, 
+                   static_cast<long>(lSaltSize)
+                   );
+
 	// ----------------------------------------------------------------------------
     //
     // Then read the Salt itself.
@@ -1963,9 +1998,12 @@ bool OTSymmetricKey::SerializeFrom(OTPayload & theInput)
         OTLog::vError("%s: Error reading salt for symmetric key.\n", szFunc);
         return false;
     }
+    OTLog::vOutput(5, "%s: salt length actually read: %ld \n", 
+                   __FUNCTION__, 
+                   static_cast<long>(nRead)
+                   );
+    OT_ASSERT(nRead == static_cast<uint32_t>(lSaltSize));
     // ****************************************************************************
-    
-    
     
     
     // ****************************************************************************
@@ -1980,10 +2018,18 @@ bool OTSymmetricKey::SerializeFrom(OTPayload & theInput)
 		OTLog::vError("%s: Error reading n_iv_size.\n", szFunc);
 		return false;
 	}
+    
+    OT_ASSERT(nRead == static_cast<uint32_t>(sizeof(n_iv_size)));
+    
     // ----------------------------------------------------------------------------
 	// convert from network to HOST endian.
     
     const uint32_t lIVSize = ntohl(n_iv_size);
+
+    OTLog::vOutput(5, "%s: iv_size value: %ld \n", 
+                   __FUNCTION__, 
+                   static_cast<long>(lIVSize)
+                   );
     
 	// ----------------------------------------------------------------------------
     //
@@ -1997,6 +2043,13 @@ bool OTSymmetricKey::SerializeFrom(OTPayload & theInput)
         OTLog::vError("%s: Error reading IV for symmetric key.\n", szFunc);
         return false;
     }
+    
+    OTLog::vOutput(5, "%s: iv length actually read: %ld \n", 
+                   __FUNCTION__, 
+                   static_cast<long>(nRead)
+                   );
+
+    OT_ASSERT(nRead == static_cast<uint32_t>(lIVSize));
     // ****************************************************************************
     
 
@@ -2013,11 +2066,17 @@ bool OTSymmetricKey::SerializeFrom(OTPayload & theInput)
 		OTLog::vError("%s: Error reading n_enc_key_size.\n", szFunc);
 		return false;
 	}
+    OT_ASSERT(nRead == static_cast<uint32_t>(sizeof(n_enc_key_size)));
     // ----------------------------------------------------------------------------
 	// convert from network to HOST endian.
     
     const uint32_t lEncKeySize = ntohl(n_enc_key_size);
     
+    OTLog::vOutput(5, "%s: enc_key_size value: %ld \n", 
+                   __FUNCTION__, 
+                   static_cast<long>(lEncKeySize)
+                   );
+
 	// ----------------------------------------------------------------------------
     //
     // Then read the Encrypted Key itself.
@@ -2030,6 +2089,13 @@ bool OTSymmetricKey::SerializeFrom(OTPayload & theInput)
         OTLog::vError("%s: Error reading encrypted symmetric key.\n", szFunc);
         return false;
     }
+    
+    OTLog::vOutput(5, "%s: encrypted key length actually read: %ld \n", 
+                   __FUNCTION__, 
+                   static_cast<long>(nRead)
+                   );
+
+    OT_ASSERT(nRead == static_cast<uint32_t>(lEncKeySize));
     // ****************************************************************************
 
     return true;
@@ -2167,10 +2233,10 @@ bool OTEnvelope::Encrypt(const OTPassword & theRawSymmetricKey, // The symmetric
     // -----------------------------------------------    
 	EVP_CIPHER_CTX	ctx;
     
-	unsigned char	buffer    [ OT_DEFAULT_SYMMETRIC_BUFFER_SIZE ]; // 4096
-    unsigned char	buffer_out[ OT_DEFAULT_SYMMETRIC_BUFFER_SIZE + EVP_MAX_IV_LENGTH];
+	uint8_t	buffer    [ OT_DEFAULT_SYMMETRIC_BUFFER_SIZE ]; // 4096
+    uint8_t	buffer_out[ OT_DEFAULT_SYMMETRIC_BUFFER_SIZE + EVP_MAX_IV_LENGTH];
     
-	size_t			len     = 0;
+	uint32_t		len     = 0;
     int				len_out = 0;
     // -----------------------------------------------
 	memset(buffer,     0, OT_DEFAULT_SYMMETRIC_BUFFER_SIZE );
@@ -2216,8 +2282,8 @@ bool OTEnvelope::Encrypt(const OTPassword & theRawSymmetricKey, // The symmetric
     // -----------------------------------------------
     if (!EVP_EncryptInit(&ctx, 
                          cipher_type, 
-                         static_cast<unsigned char *>(const_cast<void *>(theRawSymmetricKey.getMemory())),
-                         static_cast<unsigned char *>(const_cast<void *>(theIV.GetPayloadPointer()))))
+                         static_cast<uint8_t *>(const_cast<void *>(theRawSymmetricKey.getMemory())),
+                         static_cast<uint8_t *>(const_cast<void *>(theIV.GetPayloadPointer()))))
     {
         OTLog::vError("%s: EVP_EncryptInit: failed.\n", szFunc);
 		return false;
@@ -2236,12 +2302,12 @@ bool OTEnvelope::Encrypt(const OTPassword & theRawSymmetricKey, // The symmetric
         // else if remaining length is larger than or equal to default buffer size, then use the default buffer size.
         // Resulting value stored in len.
         //
-        len = static_cast<size_t>((lRemainingLength < OT_DEFAULT_SYMMETRIC_BUFFER_SIZE) ? lRemainingLength : OT_DEFAULT_SYMMETRIC_BUFFER_SIZE); // 4096
+        len = static_cast<uint32_t>((lRemainingLength < OT_DEFAULT_SYMMETRIC_BUFFER_SIZE) ? lRemainingLength : OT_DEFAULT_SYMMETRIC_BUFFER_SIZE); // 4096
         
         if (!EVP_EncryptUpdate(&ctx,
                                buffer_out,
                                &len_out,
-                               const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(&(szInput [ lCurrentIndex ]))),
+                               const_cast<uint8_t *>(reinterpret_cast<const uint8_t *>(&(szInput [ lCurrentIndex ]))),
                                len))
         {
             OTLog::vError("%s: EVP_EncryptUpdate: failed.\n", szFunc);
@@ -2249,8 +2315,10 @@ bool OTEnvelope::Encrypt(const OTPassword & theRawSymmetricKey, // The symmetric
         }
         lRemainingLength -= len;
         lCurrentIndex    += len;
-        theEncryptedOutput.Concatenate(static_cast<void *>(buffer_out), 
-                                       static_cast<uint32_t>(len_out));
+        
+        if (len_out > 0)
+            theEncryptedOutput.Concatenate(reinterpret_cast<void *>(buffer_out), 
+                                           static_cast<uint32_t>(len_out));
     }
     // -----------------------------------------------
     //
@@ -2262,8 +2330,9 @@ bool OTEnvelope::Encrypt(const OTPassword & theRawSymmetricKey, // The symmetric
     // -----------------------------------------------    
     // This is the "final" piece that is added from EncryptFinal just above.
     //
-    theEncryptedOutput.Concatenate(static_cast<void *>(buffer_out), 
-                                   static_cast<uint32_t>(len_out));    
+    if (len_out > 0)
+        theEncryptedOutput.Concatenate(reinterpret_cast<void *>(buffer_out), 
+                                       static_cast<uint32_t>(len_out));    
     // -----------------------------------------------
     return true;
 }
@@ -2348,7 +2417,7 @@ bool OTEnvelope::Encrypt(const OTString & theInput, OTSymmetricKey & theKey, con
     
     uint16_t   env_type_n = static_cast<uint16_t>(htons(static_cast<uint16_t>(2))); // Calculate "network-order" version of envelope type 2.
     
-    m_dataContents.Concatenate(static_cast<void *>(&env_type_n),   
+    m_dataContents.Concatenate(reinterpret_cast<void *>(&env_type_n),   
                                // (uint32_t here is the 2nd parameter to Concatenate, and has nothing to do with env_type_n being uint16_t)
                                static_cast<uint32_t>(sizeof(env_type_n)));  
     // ------------------------------------------------------------
@@ -2359,7 +2428,7 @@ bool OTEnvelope::Encrypt(const OTString & theInput, OTSymmetricKey & theKey, con
     OT_ASSERT(ivlen >= theIV.GetSize());
     uint32_t  ivlen_n = htonl(theIV.GetSize()); // Calculate "network-order" version of iv length.
     
-	m_dataContents.Concatenate(static_cast<void *>(&ivlen_n),   
+	m_dataContents.Concatenate(reinterpret_cast<void *>(&ivlen_n),   
                                static_cast<uint32_t>(sizeof(ivlen_n)));
 	
     // Write the IV itself.
@@ -2372,6 +2441,11 @@ bool OTEnvelope::Encrypt(const OTString & theInput, OTSymmetricKey & theKey, con
     //
     m_dataContents.Concatenate(theCipherText.GetPayloadPointer(), 
                                static_cast<uint32_t>(theCipherText.GetSize()));
+    
+    // We don't write the size of the ciphertext before the ciphertext itself,
+    // since the decryption is able to deduce the size based on the total envelope
+    // size minus the other pieces. We might still want to add that size here, however.
+    // (for security / safety reasons.)
     
     // -----------------------------------------------
     return true;
@@ -2470,7 +2544,8 @@ bool OTEnvelope_Decrypt_Output::Concatenate(const void * pAppendData, uint32_t l
     
     if (NULL != m_pPassword)
     {
-        if (static_cast<int>(lAppendSize) == m_pPassword->addMemory(pAppendData, static_cast<int>(lAppendSize)))
+        if (static_cast<int32_t>(lAppendSize) == 
+            static_cast<int32_t>(m_pPassword->addMemory(pAppendData, static_cast<uint32_t>(lAppendSize))))
             return true;
         else
             return false;
@@ -2508,10 +2583,10 @@ bool OTEnvelope::Decrypt(const OTPassword & theRawSymmetricKey, // The symmetric
     // -----------------------------------------------    
 	EVP_CIPHER_CTX	ctx;
     
-	unsigned char	buffer    [ OT_DEFAULT_SYMMETRIC_BUFFER_SIZE ]; // 4096
-    unsigned char	buffer_out[ OT_DEFAULT_SYMMETRIC_BUFFER_SIZE + EVP_MAX_IV_LENGTH];
+	uint8_t	buffer    [ OT_DEFAULT_SYMMETRIC_BUFFER_SIZE ]; // 4096
+    uint8_t	buffer_out[ OT_DEFAULT_SYMMETRIC_BUFFER_SIZE + EVP_MAX_IV_LENGTH];
     
-	size_t			len     = 0;
+	uint32_t		len     = 0;
     int				len_out = 0;
     // -----------------------------------------------
 	memset(buffer,     0, OT_DEFAULT_SYMMETRIC_BUFFER_SIZE );
@@ -2556,8 +2631,8 @@ bool OTEnvelope::Decrypt(const OTPassword & theRawSymmetricKey, // The symmetric
     //
     if (!EVP_DecryptInit(&ctx, 
                          cipher_type, 
-                         static_cast<unsigned char *>(const_cast<void *>(theRawSymmetricKey.getMemory())),
-                         static_cast<unsigned char *>(const_cast<void *>(theIV.GetPayloadPointer()))))
+                         static_cast<uint8_t *>(const_cast<void *>(theRawSymmetricKey.getMemory())),
+                         static_cast<uint8_t *>(const_cast<void *>(theIV.GetPayloadPointer()))))
     {
         OTLog::vError("%s: EVP_DecryptInit: failed.\n", szFunc);
 		return false;
@@ -2582,7 +2657,7 @@ bool OTEnvelope::Decrypt(const OTPassword & theRawSymmetricKey, // The symmetric
         if (!EVP_DecryptUpdate(&ctx,
                                buffer_out,
                                &len_out,
-                               const_cast<unsigned char *>(reinterpret_cast<const unsigned char *>(&(szInput [ lCurrentIndex ]))),
+                               const_cast<uint8_t *>(reinterpret_cast<const uint8_t *>(&(szInput [ lCurrentIndex ]))),
                                len))
         {
             OTLog::vError("%s: EVP_DecryptUpdate: failed.\n", szFunc);
@@ -2590,12 +2665,13 @@ bool OTEnvelope::Decrypt(const OTPassword & theRawSymmetricKey, // The symmetric
         }
         lCurrentIndex += len;
         
-        if (false == theDecryptedOutput.Concatenate(static_cast<void *>(buffer_out), 
-                                                    static_cast<uint32_t>(len_out)))
-        {
-            OTLog::vError("%s: Failure: theDecryptedOutput isn't large enough for the decrypted output (1).\n", szFunc);
-            return false;
-        }
+        if (len_out > 0)
+            if (false == theDecryptedOutput.Concatenate(reinterpret_cast<void *>(buffer_out), 
+                                                        static_cast<uint32_t>(len_out)))
+            {
+                OTLog::vError("%s: Failure: theDecryptedOutput isn't large enough for the decrypted output (1).\n", szFunc);
+                return false;
+            }
 
     }
     // -----------------------------------------------
@@ -2608,12 +2684,13 @@ bool OTEnvelope::Decrypt(const OTPassword & theRawSymmetricKey, // The symmetric
     // -----------------------------------------------    
     // This is the "final" piece that is added from DecryptFinal just above.
     //
-    if (false == theDecryptedOutput.Concatenate(static_cast<void *>(buffer_out), 
-                                                static_cast<uint32_t>(len_out)))
-    {
-        OTLog::vError("%s: Failure: theDecryptedOutput isn't large enough for the decrypted output (2).\n", szFunc);
-        return false;
-    }
+    if (len_out > 0)
+        if (false == theDecryptedOutput.Concatenate(reinterpret_cast<void *>(buffer_out), 
+                                                    static_cast<uint32_t>(len_out)))
+        {
+            OTLog::vError("%s: Failure: theDecryptedOutput isn't large enough for the decrypted output (2).\n", szFunc);
+            return false;
+        }
     // -----------------------------------------------
     return true;
 }
@@ -2683,22 +2760,23 @@ bool OTEnvelope::Decrypt(OTString & theOutput, const OTSymmetricKey & theKey, co
 		return false;
 	}
     nRunningTotal += nRead;
+    OT_ASSERT(nRead == static_cast<uint32_t>(sizeof(env_type_n)));
     // ----------------------------------------------------------------------------
 	// convert that envelope type from network to HOST endian.
     //
-    const uint16_t env_type = ntohs(env_type_n);
+    const uint16_t env_type = static_cast<uint16_t>(ntohs(static_cast<uint16_t>(env_type_n)));
 //  nRunningTotal += env_type;    // NOPE! Just because envelope type is 1 or 2, doesn't mean we add 1 or 2 extra bytes to the length here. Nope!
     
     if (2 != env_type)
 	{
         const uint32_t l_env_type = static_cast<uint32_t>(env_type);
-		OTLog::vError("%s: Error: Expected Envelope for Symmetric key (type 2) but instead found type %ld.\n", 
+		OTLog::vError("%s: Error: Expected Envelope for Symmetric key (type 2) but instead found type: %ld.\n", 
                       szFunc, l_env_type);
 		return false;
 	}
     // ****************************************************************************
     //
-    // Read network-order IV size (convert to host version) before then reading IV itself.
+    // Read network-order IV size (and convert to host version) 
     //    
     const uint32_t max_iv_length   = OT_DEFAULT_SYMMETRIC_IV_SIZE; // I believe this is a max length, so it may not match the actual length of the IV.
     
@@ -2713,6 +2791,7 @@ bool OTEnvelope::Decrypt(OTString & theOutput, const OTSymmetricKey & theKey, co
 		return false;
 	}
     nRunningTotal += nRead;
+    OT_ASSERT(nRead == static_cast<uint32_t>(sizeof(iv_size_n)));
     // ----------------------------------------------------------------------------
 	// convert that iv size from network to HOST endian.
     //
@@ -2720,8 +2799,8 @@ bool OTEnvelope::Decrypt(OTString & theOutput, const OTSymmetricKey & theKey, co
     
     if (iv_size_host_order > max_iv_length)
     {
-        OTLog::vError("%s: Error: iv_size (%d) is larger than max_iv_length (%d).\n",
-                      szFunc, static_cast<int>(iv_size_host_order), static_cast<int>(max_iv_length));
+        OTLog::vError("%s: Error: iv_size (%ld) is larger than max_iv_length (%ld).\n",
+                      szFunc, static_cast<long>(iv_size_host_order), static_cast<long>(max_iv_length));
         return false;
     }
 //  nRunningTotal += iv_size_host_order; // Nope!
@@ -2739,13 +2818,17 @@ bool OTEnvelope::Decrypt(OTString & theOutput, const OTSymmetricKey & theKey, co
         return false;
     }
     nRunningTotal += nRead;
+    OT_ASSERT(nRead == static_cast<uint32_t>(iv_size_host_order));
+    
+    OT_ASSERT(nRead <= max_iv_length);
+    
 	// ----------------------------------------------------------------------------    
     // We create an OTPayload object to store the ciphertext itself, which begins AFTER the end of the IV.
     // So we see pointer + nRunningTotal as the starting point for the ciphertext.
     // the size of the ciphertext, meanwhile, is the size of the entire thing, MINUS nRunningTotal.
     //
 	OTPayload theCipherText(static_cast<const void*>( 
-                                               static_cast<const unsigned char *>(m_dataContents.GetPointer()) + nRunningTotal
+                                               static_cast<const uint8_t *>(m_dataContents.GetPointer()) + nRunningTotal
                                                ), 
 					  m_dataContents.GetSize() - nRunningTotal);
     // ----------------------------------------------------------------------------
@@ -2772,7 +2855,7 @@ bool OTEnvelope::Decrypt(OTString & theOutput, const OTSymmetricKey & theKey, co
         // Make sure it's null-terminated...
         //
         uint32_t nIndex = thePlaintext.GetSize()-1;
-        (static_cast<uint8_t*>(const_cast<void *>(thePlaintext.GetPointer())))[nIndex] = 0;
+        (static_cast<uint8_t*>(const_cast<void *>(thePlaintext.GetPointer())))[nIndex] = '\0';
         
         // -----------------------------------------------------
         // Set it into theOutput (to return the plaintext to the caller)
@@ -2846,9 +2929,9 @@ bool OTEnvelope::Seal(setOfAsymmetricKeys & RecipPubKeys, const OTString & theIn
     // -----------------------------------------------
 	EVP_CIPHER_CTX	 ctx;
     
-	unsigned char	 buffer[4096];
-    unsigned char	 buffer_out[4096 + EVP_MAX_IV_LENGTH];
-    unsigned char	 iv[EVP_MAX_IV_LENGTH];
+	uint8_t	 buffer[4096];
+    uint8_t	 buffer_out[4096 + EVP_MAX_IV_LENGTH];
+    uint8_t	 iv[EVP_MAX_IV_LENGTH];
     
 	uint32_t         len     = 0;
     int              len_out = 0;
@@ -2865,8 +2948,11 @@ bool OTEnvelope::Seal(setOfAsymmetricKeys & RecipPubKeys, const OTString & theIn
     // The final array contains integers (sizes.)
     //
     EVP_PKEY      ** array_pubkey = NULL;  // These will be pointers we use, but do NOT need to clean-up.
-    unsigned char ** ek           = NULL;  // These we DO need to cleanup...
+    uint8_t       ** ek           = NULL;  // These we DO need to cleanup...
     int           *  eklen        = NULL;  // This will just be an array of integers.
+    
+    bool             bFinalized   = false; // If this is set true, then we don't bother to cleanup the ctx. (See the destructor below.)
+    
     // -----------------------------------------------
     // This class is used as a nested function, for easier cleanup. (C++ doesn't directly support nested functions.)
     // Basically it translates the incoming RecipPubKeys into the low-level arrays
@@ -2879,24 +2965,27 @@ bool OTEnvelope::Seal(setOfAsymmetricKeys & RecipPubKeys, const OTString & theIn
         const char                  *   m_szFunc;
         EVP_CIPHER_CTX              &   m_ctx;                  // reference to openssl cipher context.
         EVP_PKEY                    *** m_array_pubkey;         // pointer to array of public key pointers.
-        unsigned char               *** m_ek;                   // pointer to array of encrypted symmetric keys.
+        uint8_t                     *** m_ek;                   // pointer to array of encrypted symmetric keys.
         int                         **  m_eklen;                // pointer to array of lengths for each encrypted symmetric key 
         setOfAsymmetricKeys         &   m_RecipPubKeys;         // array of public keys (to initialize the above members with.)
         int                             m_nLastPopulatedIndex;  // We store the highest-populated index (so we can free() up 'til the same index, in destructor.)
+        bool                        &   m_bFinalized;
     public:
         _OTEnv_Seal(const char            * param_szFunc,
                     EVP_CIPHER_CTX        & theCTX,
                     EVP_PKEY            *** param_array_pubkey,
-                    unsigned char       *** param_ek, 
+                    uint8_t             *** param_ek, 
                     int                  ** param_eklen,
-                    setOfAsymmetricKeys   & param_RecipPubKeys) :
+                    setOfAsymmetricKeys   & param_RecipPubKeys,
+                    bool                  & param_Finalized) :
             m_szFunc(param_szFunc),
             m_ctx(theCTX), 
             m_array_pubkey(NULL), 
             m_ek(NULL), 
             m_eklen(NULL), 
             m_RecipPubKeys(param_RecipPubKeys),
-            m_nLastPopulatedIndex(-1)
+            m_nLastPopulatedIndex(-1),
+            m_bFinalized(param_Finalized)
         {
             OT_ASSERT(NULL != param_szFunc);
             OT_ASSERT(NULL != param_array_pubkey);
@@ -2929,13 +3018,13 @@ bool OTEnvelope::Seal(setOfAsymmetricKeys & RecipPubKeys, const OTString & theIn
             // ----------------------------------------------
             // (*m_ek)[] array must have m_RecipPubKeys.size() no. of elements (each will contain a pointer from OpenSSL that we must clean up.)
             //
-            *m_ek = (unsigned char**)malloc(m_RecipPubKeys.size() * sizeof(unsigned char*));  
+            *m_ek = (uint8_t**)malloc(m_RecipPubKeys.size() * sizeof(uint8_t*));  
             OT_ASSERT(NULL != *m_ek);
-            memset(*m_ek, 0, m_RecipPubKeys.size() * sizeof(unsigned char*)); // size of array length * sizeof(pointer)
+            memset(*m_ek, 0, m_RecipPubKeys.size() * sizeof(uint8_t*)); // size of array length * sizeof(pointer)
             // ----------------------------------------------
             // (*m_eklen)[] array must also have m_RecipPubKeys.size() no. of elements (each containing a size as integer.)
             //
-            *m_eklen = (int *)malloc(m_RecipPubKeys.size() * sizeof(int));  
+            *m_eklen = static_cast<int *>(malloc(m_RecipPubKeys.size() * sizeof(int)));
             OT_ASSERT(NULL != *m_eklen);
             memset(*m_eklen, 0, m_RecipPubKeys.size() * sizeof(int)); // size of array length * sizeof(int)
             // ----------------------------------------------
@@ -2967,7 +3056,7 @@ bool OTEnvelope::Seal(setOfAsymmetricKeys & RecipPubKeys, const OTString & theIn
                 // the symmetric key will be encrypted to.) The space is left empty, for OpenSSL
                 // to populate.
                 //
-                (*m_ek)[nKeyIndex] = (unsigned char*)malloc(EVP_PKEY_size(public_key));  // (*m_ek)[i] must have room for EVP_PKEY_size(pubk[i]) bytes. 
+                (*m_ek)[nKeyIndex] = (uint8_t*)malloc(EVP_PKEY_size(public_key));  // (*m_ek)[i] must have room for EVP_PKEY_size(pubk[i]) bytes. 
                 OT_ASSERT(NULL != (*m_ek)[nKeyIndex]);
                 memset((*m_ek)[nKeyIndex], 0, EVP_PKEY_size(public_key)); 
                 // -------------------
@@ -3016,9 +3105,16 @@ bool OTEnvelope::Seal(setOfAsymmetricKeys & RecipPubKeys, const OTString & theIn
             // -------------------------------
   
             // EVP_CIPHER_CTX_cleanup returns 1 for success and 0 for failure.
+            // EVP_EncryptFinal(), EVP_DecryptFinal() and EVP_CipherFinal() behave in a similar way to EVP_EncryptFinal_ex(), EVP_DecryptFinal_ex() and EVP_CipherFinal_ex() except ctx is automatically cleaned up after the call.
             //
-            if (0 == EVP_CIPHER_CTX_cleanup(&m_ctx))
-                OTLog::vError("%s: Failure in EVP_CIPHER_CTX_cleanup. (It returned 0.)\n", m_szFunc);
+            if (!m_bFinalized)
+            {
+                // We only clean this up here, if the "Final" Seal function didn't get called. (It normally
+                // would have done this for us.)
+                
+                if (0 == EVP_CIPHER_CTX_cleanup(&m_ctx))
+                    OTLog::vError("%s: Failure in EVP_CIPHER_CTX_cleanup. (It returned 0.)\n", m_szFunc);
+            }
         }
         // -----------------------------------
     }; // class _OTEnv_Seal
@@ -3027,7 +3123,7 @@ bool OTEnvelope::Seal(setOfAsymmetricKeys & RecipPubKeys, const OTString & theIn
     // INSTANTIATE IT (This does all our setup on construction here, AND cleanup 
     // on destruction, whenever exiting this function.)
     
-    _OTEnv_Seal local_RAII(szFunc, ctx, &array_pubkey, &ek, &eklen, RecipPubKeys);
+    _OTEnv_Seal local_RAII(szFunc, ctx, &array_pubkey, &ek, &eklen, RecipPubKeys, bFinalized);
  
     // --------------------------------
 	// This is where the envelope final contents will be placed.
@@ -3055,7 +3151,8 @@ bool OTEnvelope::Seal(setOfAsymmetricKeys & RecipPubKeys, const OTString & theIn
 //    EVP_PKEY      ** array_pubkey = NULL;  // These will be pointers we use, but do NOT need to clean-up.
 //    unsigned char ** ek           = NULL;  // These we DO need to cleanup...
 //    int           *  eklen        = NULL;  // This will just be an array of integers.
-
+    // **********************************************************
+    
     if (!EVP_SealInit(&ctx, cipher_type, 
                       ek,   eklen, // array of buffers for output of encrypted copies of the symmetric "session key". (Plus array of ints, to receive the size of each key.)
                       iv,          // A buffer where the generated IV is written. Must contain room for the corresponding cipher's IV, as determined by (for example) EVP_CIPHER_iv_length(type).
@@ -3072,17 +3169,25 @@ bool OTEnvelope::Seal(setOfAsymmetricKeys & RecipPubKeys, const OTString & theIn
     // 2 == Symmetric Key   (other functions -- Encrypt / Decrypt use this.)
     // Anything else: error.
     
-    uint16_t   env_type_n = static_cast<uint16_t>(htons(static_cast<uint16_t>(1))); // Calculate "network-order" version of envelope type 1.
+    uint16_t   temp_env_type = 1; // todo hardcoding.
+    uint16_t   env_type_n    = static_cast<uint16_t>(htons( static_cast<uint16_t>(temp_env_type) )); // Calculate "network-order" version of envelope type 1.
     
-    m_dataContents.Concatenate(static_cast<void *>(&env_type_n),   
+    m_dataContents.Concatenate(reinterpret_cast<void *>(&env_type_n),   
                                static_cast<uint32_t>(sizeof(env_type_n))); 
     // ------------------------------------------------------------
     // Write the ARRAY SIZE (network order version.)
     
-    uint32_t   array_size_n = static_cast<uint32_t>(htonl(RecipPubKeys.size())); // Calculate "network-order" version of array size.
+    uint32_t   array_size_n = static_cast<uint32_t>(htonl(static_cast<uint32_t>(RecipPubKeys.size()))); // Calculate "network-order" version of array size.
     
-    m_dataContents.Concatenate(static_cast<void *>(&array_size_n),   
+    m_dataContents.Concatenate(reinterpret_cast<void *>(&array_size_n),   
                                static_cast<uint32_t>(sizeof(array_size_n))); 
+    // ------------------------------------------------------------
+
+    OTLog::vOutput(5, "%s: Envelope type:  %d    Array size: %ld\n", __FUNCTION__,
+                   static_cast<int>(ntohs(env_type_n)),
+                   static_cast<long>(ntohl(array_size_n))
+                   );
+    
     // ------------------------------------------------------------
     OT_ASSERT(NULL != ek);
     OT_ASSERT(NULL != eklen);
@@ -3092,7 +3197,7 @@ bool OTEnvelope::Seal(setOfAsymmetricKeys & RecipPubKeys, const OTString & theIn
     // and its content, to the envelope data contents
     // (that we are currently building...)
     //
-    int ii = -1; // it will be 0 upon first iteration.
+    int32_t ii = -1; // it will be 0 upon first iteration.
     
     FOR_EACH(setOfAsymmetricKeys, RecipPubKeys)
     {
@@ -3112,16 +3217,27 @@ bool OTEnvelope::Seal(setOfAsymmetricKeys & RecipPubKeys, const OTString & theIn
         // -------------------------
         const OTString strNymID(theNymID);
         
-        uint32_t    nymid_len_n = static_cast<uint32_t>(htonl(strNymID.GetLength()+1)); // Calculate "network-order" version of length (+1 for null terminator)
+        uint32_t    nymid_len   = static_cast<uint32_t>(strNymID.GetLength()+1); // +1 for null terminator.
+        uint32_t    nymid_len_n = static_cast<uint32_t>(htonl(nymid_len)); // Calculate "network-order" version of length (+1 for null terminator)
 
         // Write nymid_len_n and strNymID for EACH encrypted symmetric key.
         //
-        m_dataContents.Concatenate(static_cast<void *>(&nymid_len_n),   
+        m_dataContents.Concatenate(reinterpret_cast<void *>(&nymid_len_n),   
                                    static_cast<uint32_t>(sizeof(nymid_len_n))); 
         
-        m_dataContents.Concatenate(static_cast<const void *>(strNymID.Get()),         
-                                   static_cast<uint32_t>(strNymID.GetLength()+1)); // (+1 for null terminator)
-        // -------------------------
+        m_dataContents.Concatenate(reinterpret_cast<const void *>(strNymID.Get()),         
+                                   static_cast<uint32_t>(nymid_len)); // (+1 for null terminator is included here already, from above.)
+        // -----------------------------------------
+        OTLog::vOutput(5, "%s: INDEX: %ld  NymID length:  %ld   Nym ID: %s   Strlen (should be a byte shorter): %ld\n", __FUNCTION__,
+                       static_cast<long>(ii),
+                       static_cast<long>(ntohl(nymid_len_n)),
+                       strNymID.Get(), 
+                       static_cast<long>(strNymID.GetLength())
+                       );
+        
+
+        // **********************************
+        
 //      Write eklen_n and ek for EACH encrypted symmetric key, 
 //        
 //        EVP_PKEY      ** array_pubkey = NULL;  // These will be pointers we use, but do NOT need to clean-up.
@@ -3129,17 +3245,24 @@ bool OTEnvelope::Seal(setOfAsymmetricKeys & RecipPubKeys, const OTString & theIn
 //        int           *  eklen        = NULL;  // This will just be an array of integers.
 
         // --------------------------
-        OT_ASSERT(NULL != ek[ii]);
-        OT_ASSERT(eklen[ii] > 0);
+        OT_ASSERT(NULL != ek[ii]); // assert key pointer not null.
+        OT_ASSERT(eklen[ii] > 0);  // assert key length larger than 0.
         // -----------------
         uint32_t    eklen_n = static_cast<uint32_t>(htonl(static_cast<uint32_t>(eklen[ii]))); // Calculate "network-order" version of length.
         // -----------------        
-        m_dataContents.Concatenate(static_cast<void *>(&eklen_n),   
+        m_dataContents.Concatenate(reinterpret_cast<void *>(&eklen_n),   
                                    static_cast<uint32_t>(sizeof(eklen_n))); 
         
-        m_dataContents.Concatenate(static_cast<void *>(ek[ii]),         
+        m_dataContents.Concatenate(reinterpret_cast<void *>(ek[ii]),         
                                    static_cast<uint32_t>(eklen[ii]));
         
+        OTLog::vOutput(5, "%s: EK length:  %ld     First byte: %d      Last byte: %d\n", __FUNCTION__,
+                       static_cast<long>(ntohl(eklen_n)),
+                       static_cast<int>((ek[ii])[0]),
+                       static_cast<int>((ek[ii])[eklen[ii]-1])
+                       );
+        
+
         // -------------------
     } // FOR_EACH(setOfAsymmetricKeys, m_RecipPubKeys)
     // -----------------------------------------------
@@ -3148,13 +3271,21 @@ bool OTEnvelope::Seal(setOfAsymmetricKeys & RecipPubKeys, const OTString & theIn
     //
     uint32_t       ivlen   = static_cast<uint32_t>(EVP_CIPHER_iv_length(cipher_type)); // Length of IV for this cipher... (TODO: add cipher name to output, and use it for looking up cipher upon Open.)
 //  OT_ASSERT(ivlen > 0);
-    uint32_t  ivlen_n = static_cast<uint32_t>(htonl(ivlen)); // Calculate "network-order" version of iv length.
+    uint32_t  ivlen_n = static_cast<uint32_t>(htonl(static_cast<uint32_t>(ivlen))); // Calculate "network-order" version of iv length.
 
-	m_dataContents.Concatenate(static_cast<void *>(&ivlen_n),   
+	m_dataContents.Concatenate(reinterpret_cast<void *>(&ivlen_n),   
                                static_cast<uint32_t>(sizeof(ivlen_n)));
 	
-	m_dataContents.Concatenate(static_cast<void *>(iv), 
+	m_dataContents.Concatenate(reinterpret_cast<void *>(iv), 
                                static_cast<uint32_t>(ivlen));
+
+    
+    OTLog::vOutput(5, "%s: iv_size: %ld   IV first byte: %d    IV last byte: %d   \n", 
+                   __FUNCTION__, 
+                   static_cast<long>(ntohl(ivlen_n)),
+                   static_cast<int>(iv[0]),
+                   static_cast<int>(iv[ivlen-1])
+                   );
 
     // -----------------------------------------------
 	// Next we put the plaintext into a data object so we can process it via EVP_SealUpdate,
@@ -3170,14 +3301,16 @@ bool OTEnvelope::Seal(setOfAsymmetricKeys & RecipPubKeys, const OTString & theIn
     while (0 < (len = plaintext.OTfread(reinterpret_cast<uint8_t*>(buffer), 
                                         static_cast<uint32_t>(sizeof(buffer)))))
     {
-        if (!EVP_SealUpdate(&ctx, buffer_out, &len_out, buffer, len))
+        if (!EVP_SealUpdate(&ctx, buffer_out, &len_out, buffer, static_cast<int>(len)))
         {
             OTLog::vError("%s: EVP_SealUpdate failed.\n", szFunc);
 			return false;
         }
         // -------------------
-		m_dataContents.Concatenate(static_cast<void *>(buffer_out), 
-                                   static_cast<uint32_t>(len_out));
+        else if (len_out > 0)
+            m_dataContents.Concatenate(reinterpret_cast<void *>(buffer_out), 
+                                       static_cast<uint32_t>(len_out));
+        else break;
 	}
     // -----------------------------------------------
 
@@ -3188,9 +3321,17 @@ bool OTEnvelope::Seal(setOfAsymmetricKeys & RecipPubKeys, const OTString & theIn
     }
     // This is the "final" piece that is added from SealFinal just above.
     //
-    m_dataContents.Concatenate(static_cast<void *>(buffer_out), 
-                               static_cast<uint32_t>(len_out));
+    else if (len_out > 0)
+    {
+        bFinalized = true;
+        m_dataContents.Concatenate(reinterpret_cast<void *>(buffer_out), 
+                                   static_cast<uint32_t>(len_out));
+    }
+    else
+        bFinalized = true;
+
     // -----------------------------------------------
+    
     return true;
 }
 
@@ -3270,12 +3411,14 @@ bool OTEnvelope::Open(const OTPseudonym & theRecipient, OTString & theOutput)
 {
     const char * szFunc = "OTEnvelope::Open";    
 	// ------------------------------------------------
-    unsigned char	buffer[4096];
-    unsigned char	buffer_out[4096 + EVP_MAX_IV_LENGTH];
-    unsigned char	iv[EVP_MAX_IV_LENGTH];
+    uint8_t	buffer[4096];
+    uint8_t	buffer_out[4096 + EVP_MAX_IV_LENGTH];
+    uint8_t	iv[EVP_MAX_IV_LENGTH];
 
     uint32_t		len     = 0;
-    int             len_out = 0;    
+    int             len_out = 0;
+    
+    bool            bFinalized = false;  // We only clean up the ctx if the Open "Final" function hasn't been called, since it does that automatically already.
 	// ------------------------------------------------
     
 	memset(buffer, 0, 4096);
@@ -3302,6 +3445,10 @@ bool OTEnvelope::Open(const OTPseudonym & theRecipient, OTString & theOutput)
 		OTLog::vError("%s: Null private key on recipient. (Returning false.)\n", szFunc);
 		return false;
 	}
+    else
+        OTLog::vOutput(5, "%s: Private key is available for NymID: %s \n", __FUNCTION__,
+                       strNymID.Get()
+                       );
     // ------------------------------------------------
     EVP_CIPHER_CTX	ctx;
     // ----------------------------------------------
@@ -3311,14 +3458,17 @@ bool OTEnvelope::Open(const OTPseudonym & theRecipient, OTString & theOutput)
         const char        *   m_szFunc;
         EVP_CIPHER_CTX    &   m_ctx;        // reference to openssl cipher context.
         OTAsymmetricKey   &   m_privateKey; // reference to OTAsymmetricKey object.
+        bool              &   m_bFinalized;
     public:
         // ------------------------
         _OTEnv_Open(const char       * param_szFunc,
                     EVP_CIPHER_CTX   & theCTX,
-                    OTAsymmetricKey  & param_privateKey) :
+                    OTAsymmetricKey  & param_privateKey,
+                    bool             & param_Finalized) :
             m_szFunc(param_szFunc),
             m_ctx(theCTX),
-            m_privateKey(param_privateKey)
+            m_privateKey(param_privateKey),
+            m_bFinalized(param_Finalized)
         {
             OT_ASSERT(NULL != param_szFunc);
 
@@ -3336,22 +3486,25 @@ bool OTEnvelope::Open(const OTPseudonym & theRecipient, OTString & theOutput)
             
             // EVP_CIPHER_CTX_cleanup returns 1 for success and 0 for failure.
             //
-            if (0 == EVP_CIPHER_CTX_cleanup(&m_ctx))
-                OTLog::vError("%s: Failure in EVP_CIPHER_CTX_cleanup. (It returned 0.)\n", m_szFunc);
-			
+            if (!m_bFinalized)
+            {
+                if (0 == EVP_CIPHER_CTX_cleanup(&m_ctx))
+                    OTLog::vError("%s: Failure in EVP_CIPHER_CTX_cleanup. (It returned 0.)\n", m_szFunc);
+			}
+            
 			m_szFunc = NULL;
         }
     };
     // ------------------------------------------------
     // INSTANTIATE the clean-up object.
     //            
-    _OTEnv_Open     theNestedInstance(szFunc, ctx, privateKey);
+    _OTEnv_Open     theNestedInstance(szFunc, ctx, privateKey, bFinalized);
     //
     // ------------------------------------------------
     //
 	m_dataContents.reset(); // Reset the fread position on this object to 0.
 	
-    uint32_t nRunningTotal = 0; // Everytime we read something, we add the length to this variable.
+    uint32_t nRunningTotal  = 0; // Everytime we read something, we add the length to this variable.
     
 	uint32_t nReadEnvType   = 0;
 	uint32_t nReadArraySize = 0;
@@ -3390,18 +3543,25 @@ bool OTEnvelope::Open(const OTPseudonym & theRecipient, OTString & theOutput)
 		return false;
 	}
     nRunningTotal += nReadEnvType;
+    OT_ASSERT(nReadEnvType == static_cast<uint32_t>(sizeof(env_type_n)));
     // ----------------------------------------------------------------------------
 	// convert that envelope type from network to HOST endian.
     //
-    const uint16_t env_type = ntohs(env_type_n);
+    const uint16_t env_type = static_cast<uint16_t>(ntohs(static_cast<uint16_t>(env_type_n)));
 //  nRunningTotal += env_type;    // NOPE! Just because envelope type is 1 or 2, doesn't mean we add 1 or 2 extra bytes to the length here. Nope!
     
+
     if (1 != env_type)
 	{
-		OTLog::vError("%s: Error: Expected Envelope for Asymmetric key (type 1) but instead found type %ld.\n", 
-                      szFunc, env_type);
+		OTLog::vError("%s: Error: Expected Envelope for Asymmetric key (type 1) but instead found type %d.\n", 
+                      szFunc, static_cast<int>(env_type));
 		return false;
 	}
+    else
+        OTLog::vOutput(5, "%s: Envelope type: %d\n", __FUNCTION__,
+                       static_cast<int>(env_type)
+                       );
+
     // ****************************************************************************
     //
     // Read the ARRAY SIZE (network order version -- convert to host version.)
@@ -3415,10 +3575,16 @@ bool OTEnvelope::Open(const OTPseudonym & theRecipient, OTString & theOutput)
 		return false;
 	}
     nRunningTotal += nReadArraySize;
+    OT_ASSERT(nReadArraySize == static_cast<uint32_t>(sizeof(array_size_n)));
     // ----------------------------------------------------------------------------
 	// convert that array size from network to HOST endian.
     //
     const uint32_t array_size = ntohl(array_size_n);
+    
+    OTLog::vOutput(5, "%s: Array size: %ld\n", __FUNCTION__,
+                   static_cast<long>(array_size)
+                   );
+    
 //  nRunningTotal += array_size;    // NOPE! Just because there are 10 array elements doesn't mean I want to add "10" here to the running total!! Not logical.
     // ****************************************************************************
     //
@@ -3434,7 +3600,7 @@ bool OTEnvelope::Open(const OTPseudonym & theRecipient, OTString & theOutput)
     //      read its network-order NymID size (convert to host version), and then read its NymID,
     //      read its network-order key content size (convert to host), and then read its key content,
     // 
-    for (unsigned int ii = 0; ii < array_size; ++ii)
+    for (uint32_t ii = 0; ii < array_size; ++ii)
     {
         // ****************************************************************************
         //
@@ -3453,30 +3619,47 @@ bool OTEnvelope::Open(const OTPseudonym & theRecipient, OTString & theOutput)
             return false;
         }
         nRunningTotal += nReadNymIDSize;
+        OT_ASSERT(nReadNymIDSize == static_cast<uint32_t>(sizeof(nymid_len_n)));
         // ----------------------------------------------------------------------------
         // convert that array size from network to HOST endian.
         //
-        int nymid_len = static_cast<int>(ntohl(nymid_len_n));    // FYI: ntohl returns uint32_t !!!!!
+        uint32_t nymid_len = static_cast<uint32_t>(ntohl(static_cast<uint32_t>(nymid_len_n)));    // FYI: ntohl returns uint32_t !!!!!
+        
+        
+        OTLog::vOutput(5, "%s: NymID length: %ld\n", __FUNCTION__,
+                       static_cast<long>(nymid_len)
+                       );
+
         
 //      nRunningTotal += nymid_len; // Nope!
         // ----------------------------------------------------------------------------
-        char * nymid = static_cast<char *>(malloc(nymid_len));
+        uint8_t * nymid = static_cast<uint8_t *>(malloc(sizeof(uint8_t) * nymid_len));
         OT_ASSERT(NULL != nymid);
+        nymid[0] = '\0'; // null terminator.
         
         uint32_t  nReadNymID = 0;
         
         if (0 == (nReadNymID = m_dataContents.OTfread(reinterpret_cast<uint8_t *>(nymid), 
-                                                      static_cast<uint32_t>(sizeof(char) * nymid_len))))
+                                                      static_cast<uint32_t>(sizeof(uint8_t) * nymid_len)))) // this length includes the null terminator (it was written that way.)
         {
             OTLog::vError("%s: Error reading NymID for an encrypted symmetric key.\n", szFunc);
             free(nymid); nymid = NULL;
             return false;
         }
         nRunningTotal += nReadNymID;
+        OT_ASSERT(nReadNymID == static_cast<uint32_t>(sizeof(uint8_t) * nymid_len));
+//      OT_ASSERT(nymid_len == nReadNymID);
         // ----------------------------------------------------------------------------
-        const OTString loopStrNymID(nymid);
+        nymid[nymid_len-1] = '\0'; // for null terminator. If string is 10 bytes long, it's from 0-9, and the null terminator is at index 9.
+        const OTString loopStrNymID(reinterpret_cast<char *>(nymid));
         free(nymid); nymid = NULL;
         // ****************************************************************************
+        
+        
+        OTLog::vOutput(5, "%s: (LOOP) Current NymID: %s    Strlen:  %ld\n", __FUNCTION__,
+                       loopStrNymID.Get(),
+                       static_cast<long>(loopStrNymID.GetLength())
+                       );
         //
         // loopStrNymID ... if this matches strNymID then it's the one we're looking for.
         // But we have to load it all either way, just to iterate through them, so might
@@ -3488,8 +3671,8 @@ bool OTEnvelope::Open(const OTPseudonym & theRecipient, OTString & theOutput)
         // Read its network-order key content size (convert to host-order), and then 
         // read its key content.
 
-        unsigned char *	ek          = NULL;
-        int				eklen       = 0;
+        uint8_t      *	ek          = NULL;
+        uint32_t		eklen       = 0;
         uint32_t		eklen_n     = 0;
         uint32_t        nReadLength = 0;
         uint32_t        nReadKey    = 0;
@@ -3503,17 +3686,22 @@ bool OTEnvelope::Open(const OTPseudonym & theRecipient, OTString & theOutput)
             return false;
         }
         nRunningTotal += nReadLength;
+        OT_ASSERT(nReadLength == static_cast<uint32_t>(sizeof(eklen_n)));
         // ----------------------------------------------------------------------------
         // convert that key size from network to host endian.
         //
-        eklen  = static_cast<int>(ntohl(eklen_n));
+        eklen  = static_cast<uint32_t>(ntohl(static_cast<uint32_t>(eklen_n)));
 //      eklen  = EVP_PKEY_size(private_key);  // We read this size from file now...
+        
+        OTLog::vOutput(5, "%s: EK length:  %ld   \n", __FUNCTION__,
+                       static_cast<long>(eklen));
+
         
 //      nRunningTotal += eklen;  // Nope!
         // ----------------------------------------------------------------------------
-        ek     = static_cast<unsigned char*>(malloc(eklen));  // I assume this is for the AES key
+        ek     = static_cast<uint8_t*>(malloc(static_cast<int>(eklen) * sizeof(uint8_t)));  // I assume this is for the AES key
         OT_ASSERT(NULL != ek);
-        memset(ek, 0, eklen);
+        memset(static_cast<void *>(ek), 0, static_cast<int>(eklen));
         // ----------------------------------------------------------------------------
         // Next we read the encrypted key itself...
         //
@@ -3525,6 +3713,14 @@ bool OTEnvelope::Open(const OTPseudonym & theRecipient, OTString & theOutput)
             return false;
         }
         nRunningTotal += nReadKey;
+        
+        OTLog::vOutput(5, "%s:    EK First byte: %d     EK Last byte: %d\n", __FUNCTION__,
+                       static_cast<int>(ek[0]),
+                       static_cast<int>(ek[eklen-1])
+                       );
+
+        
+        OT_ASSERT(nReadKey == static_cast<uint32_t>(eklen));
         // ****************************************************************************
         //
         // If we "found the key already" that means we already found the right key on
@@ -3536,11 +3732,12 @@ bool OTEnvelope::Open(const OTPseudonym & theRecipient, OTString & theOutput)
         {
             // We have NOT found the right key yet, so let's see if this is the one we're looking for.
             
-            if (strNymID == loopStrNymID) // FOUND IT! <==========
+            if (strNymID.Compare(loopStrNymID)) // FOUND IT! <==========
             {
                 bFoundKeyAlready = true;
                 
-                theRawEncryptedKey.Assign(const_cast<const void *>(static_cast<void *>(ek)), eklen);
+                theRawEncryptedKey.Assign(static_cast<void *>(ek), static_cast<uint32_t>(eklen));
+//              theRawEncryptedKey.Assign(const_cast<const void *>(static_cast<void *>(ek)), eklen);
             }
         }        
         
@@ -3576,19 +3773,25 @@ bool OTEnvelope::Open(const OTPseudonym & theRecipient, OTString & theOutput)
 		OTLog::vError("%s: Error reading IV Size for encrypted symmetric keys.\n", szFunc);
 		return false;
 	}
-    nRunningTotal += nReadIVSize;
+    nRunningTotal += nReadIVSize;    
+    OT_ASSERT(nReadIVSize == static_cast<uint32_t>(sizeof(iv_size_n)));
     // ----------------------------------------------------------------------------
 	// convert that iv size from network to HOST endian.
     //
-    const uint32_t iv_size_host_order = ntohl(iv_size_n);
+    const uint32_t iv_size_host_order = ntohl(static_cast<uint32_t>(iv_size_n));
         
     if (iv_size_host_order > max_iv_length)
     {
-        const unsigned long l1 = iv_size_host_order, l2 = max_iv_length;
+        const long l1 = iv_size_host_order, l2 = max_iv_length;
         OTLog::vError("%s: Error: iv_size (%ld) is larger than max_iv_length (%ld).\n",
-                      szFunc, l1, l2);
+                      __FUNCTION__, l1, l2);
         return false;
     }
+    else
+        OTLog::vOutput(5, "%s: IV size: %ld\n", __FUNCTION__,
+                       static_cast<long>(iv_size_host_order)
+                       );
+
     // ****************************************************************************
     //
     // Then read the IV (initialization vector) itself.
@@ -3601,8 +3804,14 @@ bool OTEnvelope::Open(const OTPseudonym & theRecipient, OTString & theOutput)
     }
     
     nRunningTotal += nReadIV;
+    OT_ASSERT(nReadIV == static_cast<uint32_t>(iv_size_host_order));
 	// ----------------------------------------------------------------------------
     
+    OTLog::vOutput(5, "%s:    IV First byte: %d     IV Last byte: %d\n", __FUNCTION__,
+                   static_cast<int>   (iv[0]),
+                   static_cast<int>   (iv[iv_size_host_order-1])
+                   );
+
     // We read the encrypted key size, then we read the encrypted key itself, with nReadKey containing
     // the number of bytes actually read. The IF statement says "if 0 ==" but it should probably say
     // "if eklen !=" (right?) Wrong: because I think it's a max length.
@@ -3612,7 +3821,7 @@ bool OTEnvelope::Open(const OTPseudonym & theRecipient, OTString & theOutput)
     // the size of the ciphertext, meanwhile, is the size of the entire thing, MINUS nRunningTotal.
     //
 	OTData ciphertext(static_cast<const void*>( 
-                                         static_cast<const unsigned char *>(m_dataContents.GetPointer()) + nRunningTotal
+                                         static_cast<const uint8_t *>(m_dataContents.GetPointer()) + nRunningTotal
                                          ), 
 					  m_dataContents.GetSize() - nRunningTotal);
     // ------------------------------------------------
@@ -3636,7 +3845,7 @@ bool OTEnvelope::Open(const OTPseudonym & theRecipient, OTString & theOutput)
 	if (!EVP_OpenInit(&ctx, cipher_type,
                       static_cast<const unsigned char *>(theRawEncryptedKey.GetPayloadPointer()),
                       static_cast<int>(theRawEncryptedKey.GetSize()),
-                      iv,
+                      static_cast<const unsigned char *>(iv),
                       private_key))
 //  if (!EVP_OpenInit(&ctx, cipher_type, ek, eklen, iv, private_key))
     {
@@ -3663,39 +3872,51 @@ bool OTEnvelope::Open(const OTPseudonym & theRecipient, OTString & theOutput)
 
     // We loop through the ciphertext and process it in blocks...
     //
-    while ((len = ciphertext.OTfread(reinterpret_cast<uint8_t*>(buffer), 
-                                     static_cast<uint32_t>(sizeof(buffer))) > 0))
+    while (0 < (len = ciphertext.OTfread(reinterpret_cast<uint8_t*>(buffer), 
+                                     static_cast<uint32_t>(sizeof(buffer)))))
     {
-        if (!EVP_OpenUpdate(&ctx, buffer_out, &len_out, buffer, len))
+        if (!EVP_OpenUpdate(&ctx, buffer_out, &len_out, buffer, static_cast<int>(len)))
         {
             OTLog::vError("%s: EVP_OpenUpdate: failed.\n", szFunc);
             return false;
         }
-
-        plaintext.Concatenate(static_cast<void *>(buffer_out), 
-                              static_cast<uint32_t>(len_out));
+        else if (len_out > 0)
+            plaintext.Concatenate(reinterpret_cast<void *>(buffer_out), 
+                                  static_cast<uint32_t>(len_out));
+        else break;
 	}
-	
+    // -----------------------------------------------------    
+
     if (!EVP_OpenFinal(&ctx, buffer_out, &len_out))
     {
 		OTLog::vError("%s: EVP_OpenFinal: failed.\n", szFunc);
 		return false;
     }
+    else if (len_out > 0)
+    {
+        bFinalized = true;
+        plaintext.Concatenate(reinterpret_cast<void *>(buffer_out), 
+                              static_cast<uint32_t>(len_out));
+        
+    }
+    else
+        bFinalized = true;
+
     // -----------------------------------------------------    
-	
-    plaintext.Concatenate(static_cast<void *>(buffer_out), 
-                          static_cast<uint32_t>(len_out));
 
     
 	// Make sure it's null-terminated...
     //
-	uint32_t nIndex = plaintext.GetSize()-1;
-	(static_cast<unsigned char*>(const_cast<void*>(plaintext.GetPointer())))[nIndex] = 0;
+	uint32_t nIndex = plaintext.GetSize()-1; // null terminator is already part of length here (it was sealed that way.)
+	(static_cast<uint8_t*>(const_cast<void*>(plaintext.GetPointer())))[nIndex] = '\0';
 	
     // -----------------------------------------------------
 	// Set it into theOutput (to return the plaintext to the caller)
     //
-	theOutput.Set(static_cast<const char *>(plaintext.GetPointer()));
+	theOutput.Set(static_cast<const char *>(plaintext.GetPointer()), plaintext.GetSize());
+    
+    OTLog::vOutput(5, "%s: Output:\n\n%s\n\n", __FUNCTION__, theOutput.Get());
+
     // ----------------
     return true;
 }

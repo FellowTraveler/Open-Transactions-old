@@ -771,7 +771,7 @@
         var MsgUtil	= Utility()
         var strLocation = concat("OTAPI_Func::SendRequestOnce: ", IN_FUNCTION)
         // --------------------------------------------------------------------
-        if (VerifyOTBoolRef(bCanRetryAfterThis))
+        if (!VerifyOTBoolRef(bCanRetryAfterThis))
         {
             OT_API_Output(0, strLocation + ", Error: bCanRetryAfterThis was null.\n")
             return ""

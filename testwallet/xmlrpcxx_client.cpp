@@ -996,7 +996,7 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
 
 		const char * psErr	= "RegisterAPICallWithScript: ERROR: Failed trying to include script header:  %s (Does it exist?)\n";
 
-        OTLog::vOutput(2, "%s: About to try to import script headers:\n  1: %s\n  2: %s\n  3: %s\n", __func__,
+        OTLog::vOutput(2, "%s: About to try to import script headers:\n  1: %s\n  2: %s\n  3: %s\n", __FUNCTION__,
                        strUseFile1.Get(), strUseFile2.Get(), strUseFile3.Get());
 //        OTLog::vOutput(0, "RegisterAPIWithScript: About to try to import script headers:\n 1_1: %s\n    1_2: %s\n    1_3: %s\n 2-1: %s\n    2_2: %s\n   3: %s\n", strUseFile1_1.Get(), strUseFile1_2.Get(), strUseFile1_3.Get(), strUseFile2_1.Get(), strUseFile2_2.Get(), strUseFile3.Get());
                
@@ -1049,26 +1049,26 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
             OTLog::vError("%s: Caught chaiscript::exception::eval_error : %s. \n"
                    "   File: %s\n"
                    "   Start position, line: %d column: %d\n"
-                   "   End position,   line: %d column: %d\n", __func__,
+                   "   End position,   line: %d column: %d\n", __FUNCTION__,
                    e.reason.c_str(), e.filename.c_str(), 
                    e.start_position.line, e.start_position.column,
                    e.end_position.line, e.end_position.column);
             return false;
         } catch (const chaiscript::exception::bad_boxed_cast &e) {
             // Error unboxing return value
-            OTLog::vError("%s: Caught chaiscript::exception::bad_boxed_cast : %s.\n", __func__,
+            OTLog::vError("%s: Caught chaiscript::exception::bad_boxed_cast : %s.\n", __FUNCTION__,
                    (e.what() != NULL) ? e.what() : "e.what() returned null, sorry");
             return false;
         } catch (const std::exception &e) {
             // Error explicitly thrown from script
-            OTLog::vError("%s: Caught std::exception exception: %s\n", __func__,
+            OTLog::vError("%s: Caught std::exception exception: %s\n", __FUNCTION__,
                    (e.what() != NULL) ? e.what() : "e.what() returned null, sorry");
             return false;
         }
         //  catch (chaiscript::Boxed_Value bv) 
         catch (...)
         {
-            OTLog::vError("%s: Caught exception.\n", __func__);
+            OTLog::vError("%s: Caught exception.\n", __FUNCTION__);
             return false;
         }
 		// ******************************************************************
@@ -1077,7 +1077,7 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
 	}
 	else 
 	{
-		OTLog::vError("%s: Failed dynamic casting OTScript to OTScriptChai \n", __func__);
+		OTLog::vError("%s: Failed dynamic casting OTScript to OTScriptChai \n", __FUNCTION__);
 	}
     
     return false;

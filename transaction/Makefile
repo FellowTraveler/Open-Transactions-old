@@ -229,7 +229,7 @@ COBJECTS   = $(CSOURCES:.c=.o)
 
 CFLAGS     = $(INCLUDEDIRS) $(API_CFLAGS) $(FT_FLAGS) -D_FORTIFY_SOURCE=2 -fstack-protector-all -fstack-check -Wstack-protector -c -Wall
 
-DEBUG_FLAGS = -g3 -ggdb -rdynamic -O0 -Wshadow -Wglobal-constructors -Wshadow -Waddress -Woverloaded-virtual -Wshadow -Wconversion -Wshorten-64-to-32 --param ssp-buffer-size=4
+DEBUG_FLAGS = -g3 -ggdb -rdynamic -O0 -Wshadow -Wshadow -Waddress -Woverloaded-virtual -Wshadow -Wconversion --param ssp-buffer-size=4
 CXX = $(CPP_COMPILER)
 CC = $(C_COMPILER)
 
