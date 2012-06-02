@@ -1,19 +1,19 @@
------BEGIN SIGNED LEDGER-----
-Hash: SAMY
-
-<accountLedger version="1.0"
- type="inbox"
- numPartialRecords="0"
- accountID="foGJvz22NEVmscagf7wUehPlF2gx13Z5dG7B47M87SU"
- userID="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV"
- serverID="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1" >
-
-</accountLedger>
------BEGIN LEDGER SIGNATURE-----
-Version: Open Transactions 0.78
+-----BEGIN OT ARMORED LEDGER-----
+Version: Open Transactions 0.81.e
 Comment: http://github.com/FellowTraveler/Open-Transactions/wiki
 
-CoABSizYwnRWV9QnfLDaPe5ztcQybe0gRidUfhXsUCeLFeze30AQQNqL1eqvMgL2
-liDnPJeock8bCUEHvYTuFDjn8y9y4Bu+ikFxV5j2al2E6wjl3zHU0Y8W6n1sY93f
-q6+VXdeVjb0TJsFKgK9ttpaePZIqimtDEwYy/St18uNQs/U=
------END LEDGER SIGNATURE-----
+eJxtUtuSojAUfNsHvoLi1RoRUFFrnSoUdBDFC8iobwgRMhMShCCXH97fWJDZ2tmq
+zdvpnO6c7hzm14+X5sy0pW6ylr40NZVda+pSOzxx5s1NwwlrKZszw/x0PY9kmK6B
+H4CEfYAkhQRPOaHb4xiWljGYchBfSVFXOIt2bkKhiw7AI4mf1m01/KWgq1PuRpar
+RyWKpuZEqecGNzk/gnCHFmJQCNJl4C/lWV/ejGTrWBOzFCQNyxb2Un55D4B9JO7x
+gceRgCrdGFA8yHUbVUWVLE19dKeuU7Nq0qPl0Vk5iNZC/27tT/OVIR8r6R3ZW+Ow
+G296q8tnqkhaIGsY7wWOfa29Po20s39Zu0H8dANgTGtt36XAggEGfm1NkkZDcTwc
+i/VF0rY0yU05spHNHbTubroeFlYkZsnZuPSosxaSLHHSk1CY2Bj6YyMfNvH4H1lK
+I4DplGsy9WEaI7d0XJSBFqGJi1PXo3XwZhZNueZBD5EU4uBZD4QmZogP4Ka25Abr
+/cFAArAHbNKCLN845f/51lfm20K0m/DcC8U+HrR2J5z24yfsNgaYtf9OlLK97kjo
+AmZOosbEhA0pjSc8H0AaZteuRyJ+ARAieU16AAQSvpF4+S7B5/ATMrWCMquu6jmU
+ilK9+GdJtstQkYkXpUkmyyfvDca7CIl25z3ux8ewNJcFogmsFkVfWd8UhuznJRp5
+smEF19tV1e7qZaWQBaCujpz8YhlxsMizxf5UzWJzq9xPSubPH7CzJOEadUqRccep
+oMMOVgT+jAcyGNFI235QzSFmft8kwwV/skg+g7pbRGPdm7a5aab6/9R+A/MUF0c=
+-----END OT ARMORED LEDGER-----
+

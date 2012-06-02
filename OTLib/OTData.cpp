@@ -300,7 +300,7 @@ bool OTData::Randomize(uint32_t lNewSize)
 		m_pData = static_cast<void*>(new uint8_t[lNewSize]);
 		OT_ASSERT(NULL != m_pData);
         // ---------------------------------        
-        if (!OTPassword::randomizeMemory(static_cast<uint8_t*>(m_pData), lNewSize))
+        if (!OTPassword::randomizeMemory_uint8(static_cast<uint8_t*>(m_pData), lNewSize))
         {
             // randomizeMemory already logs, so I'm not logging again twice here.
             //

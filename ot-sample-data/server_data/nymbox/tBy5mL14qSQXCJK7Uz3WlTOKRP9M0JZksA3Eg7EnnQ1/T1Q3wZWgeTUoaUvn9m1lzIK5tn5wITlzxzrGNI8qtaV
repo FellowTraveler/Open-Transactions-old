@@ -1,37 +1,21 @@
------BEGIN SIGNED LEDGER-----
-Hash: SAMY
-
-<accountLedger version="1.0"
- type="nymbox"
- numPartialRecords="2"
- accountID="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV"
- userID="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV"
- serverID="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1" >
-
-<nymboxRecord type="replyNotice"
- dateSigned="1333353362"
- requestNumber="349"
- transSuccess="true"
- receiptHash="B1cKfS1046PeQthk3lOQXAobhwcdPyNliXmcdwbSnCq"
- transactionNum="578"
- inRefDisplay="0"
- inReferenceTo="0" />
-
-<nymboxRecord type="replyNotice"
- dateSigned="1333353396"
- requestNumber="357"
- transSuccess="true"
- receiptHash="Ld5elodbU5B8U5SUpuXW37iyhhsG08XDvfyil6u0kuj"
- transactionNum="579"
- inRefDisplay="0"
- inReferenceTo="0" />
-
-</accountLedger>
------BEGIN LEDGER SIGNATURE-----
-Version: Open Transactions 0.78
+-----BEGIN OT ARMORED LEDGER-----
+Version: Open Transactions 0.81.e
 Comment: http://github.com/FellowTraveler/Open-Transactions/wiki
 
-CoABJwmvvHdZsQpY50GCzMO5UwyUYAXUr/hZouv8zi6HfOylc6CM2tFgcfNyz5Hg
-Iu7WuvQyDMmpHriHBzS6ke8Ul2zhr4otrZ1sSodmsVtWfi8Or0doRfEqlqhMPX7e
-CAoI1nWtBBfp0K9yTi7Of4p0UyyV9lB5e4g+hP/j3m1pYbA=
------END LEDGER SIGNATURE-----
+eJylk12TmjAUhu/5FYy3O11ERGCndgaFdV1Z/ACU9Y6PCFlCoiGAeNs/Xlza6Zed
+aae5Oyc5b/K8mZf7zH24rok5m9u8M5/ZpsFbpjEzN+997iko0gfe0V9eOe5jEEWk
+xMwCcQIoXwFaQILHPfG+3+N41hzBuIebPCTntsRlvgoogwHagIjQuBj3pLb9VWJu
+jHuuuJbq/S4BrkcCr8JaLqLLfCEzLNdzF13OFzqz5+qJBdt2sCwA/fepdqjq5tik
+kXNLHJ6ctT99XijeRdohd7nYrLSX/vM+K3TJTBQT47XY4z+1sB1J9/ivcAeI33EA
+PLJWPA4YcGCCQdx6IEnqaKCNtEG7QbsjV+9aR+zXnO4em0Fo00N8qfZ7WTmEsna5
+LGcJbnbiQI+eksdhLYOrizTARRCx1li7zMe9q1yESAFx8l7L4tVriDfgYMDiiILm
+px6gAEfAJV2TF/4AQsERNTZhMAK/c0iSLEmjjuNUgoK1F4eAtv831L690CmjCBTt
+nzJagl+JJ2K0ODhifzhagTVLMwkt175OwrSO4lVjI+jnUVyHDp6ebhDLivob4Q2+
+/6LTRjfoZOWv6KxYBojEoSdPVE92vGPp7yQFNmlazPqqb1SHBqJR2c/Kt5t02r/Q
+CT9F7tOPYe1S+p5Z3fU2ZpfXbRfKB355BJh3v99e8P17VbwH3JTkOcDsgU8ZOz4I
+QgJZWob3EcmFR4AQqduhCiBAhavEhx8lhBpmkGsV9ElCXhzR1Ba++Ri/TOuBc3Gf
+xOTurFouufOGsYRHqbadugfG4OvO8tSkcVJbYEzb6tyBTNriPHyyE5VVPlLs5PnN
+oW/7UsbHxlcMZGW+A4c52Z2SkZC5g/NJrgyIkjSv3H3JWRajpybEqyXR3Now9DqO
+Z7oXW9kuWWf1So7NuT4xqmbwtlK22bjzzbSN2659ARI5nuk=
+-----END OT ARMORED LEDGER-----
+

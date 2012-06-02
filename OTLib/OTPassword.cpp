@@ -521,7 +521,7 @@ OTPassword::OTPassword(OTPassword::BlockSize theBlockSize/*=DEFAULT_SIZE*/)
 {
 	m_szPassword[0] = '\0';
     
-    setPassword(reinterpret_cast<const uint8_t*>(""), 0);
+    setPassword_uint8(reinterpret_cast<const uint8_t*>(""), 0);
 }
 
 // ---------------------------------------------------------
@@ -531,11 +531,11 @@ OTPassword & OTPassword::operator=(const OTPassword & rhs)
 {
     if (rhs.isPassword())
     {
-        setPassword(rhs.getPassword(), rhs.getPasswordSize());
+        setPassword_uint8(rhs.getPassword_uint8(), rhs.getPasswordSize());
     }
     else if (rhs.isMemory())
     {
-        setMemory(rhs.getMemory(), rhs.getMemorySize());
+        setMemory(rhs.getMemory_uint8(), rhs.getMemorySize());
     }
     
     return *this;
@@ -552,11 +552,11 @@ OTPassword::OTPassword(const OTPassword & rhs)
     if (m_bIsText)
     {
         m_szPassword[0] = '\0';
-        setPassword(rhs.getPassword(), rhs.getPasswordSize());
+        setPassword_uint8(rhs.getPassword_uint8(), rhs.getPasswordSize());
     }
     else if (m_bIsBinary)
     {
-        setMemory(rhs.getMemory(), rhs.getMemorySize());
+        setMemory(rhs.getMemory_uint8(), rhs.getMemorySize());
     }
 }
 
@@ -571,7 +571,7 @@ OTPassword::OTPassword(const char * szInput, uint32_t nInputSize, OTPassword::Bl
 {
 	m_szPassword[0] = '\0';
 	
-	setPassword(reinterpret_cast<const uint8_t*>(szInput), nInputSize);
+	setPassword_uint8(reinterpret_cast<const uint8_t*>(szInput), nInputSize);
 }
 // ---------------------------------------------------------
 OTPassword::OTPassword(const uint8_t * szInput, uint32_t nInputSize, OTPassword::BlockSize theBlockSize/*=DEFAULT_SIZE*/)
@@ -583,7 +583,7 @@ OTPassword::OTPassword(const uint8_t * szInput, uint32_t nInputSize, OTPassword:
 {
 	m_szPassword[0] = '\0';
 	
-	setPassword(szInput, nInputSize);
+	setPassword_uint8(szInput, nInputSize);
 }
 // ---------------------------------------------------------
 OTPassword::OTPassword(const void * vInput, uint32_t nInputSize, OTPassword::BlockSize theBlockSize/*=DEFAULT_SIZE*/)
@@ -619,9 +619,19 @@ bool OTPassword::isMemory() const
 
 
 // ---------------------------------------------------------
+
+
+// ---------------------------------------------------------
+//
+const char * OTPassword::getPassword() const // asserts if m_bIsText is false.
+{
+    return reinterpret_cast<const char *>(this->getPassword_uint8());
+
+}
+// ---------------------------------------------------------
 // getPassword returns "" if empty, otherwise returns the password.
 //
-const uint8_t * OTPassword::getPassword() const
+const uint8_t * OTPassword::getPassword_uint8() const
 {
     OT_ASSERT(m_bIsText);
 	return (m_nPasswordSize <= 0) ? reinterpret_cast<const uint8_t *>("") : &(m_szPassword[0]); 
@@ -633,13 +643,19 @@ uint8_t * OTPassword::getPasswordWritable()
 	return (m_nPasswordSize <= 0) ? NULL : static_cast<uint8_t *>(static_cast<void *>(&(m_szPassword[0]))); 
 }
 
+
 // ---------------------------------------------------------
 // getMemory returns NULL if empty, otherwise returns the password.
 //
 const void * OTPassword::getMemory() const
 {
+    return reinterpret_cast<const void *>(this->getMemory_uint8());
+}
+
+const uint8_t * OTPassword::getMemory_uint8() const
+{
     OT_ASSERT(m_bIsBinary);
-	return (m_nPasswordSize <= 0) ? NULL : static_cast<const void *>(&(m_szPassword[0])); 
+	return (m_nPasswordSize <= 0) ? NULL : static_cast<const uint8_t *>(&(m_szPassword[0])); 
 }
 
 // ---------------------------------------------------------
@@ -719,20 +735,29 @@ bool OTPassword::Compare(OTPassword & rhs) const
     if (nThisSize != nRhsSize)
         return false;
     
-    if (0 == memcmp(this->isPassword() ? this->getPassword()   : this->getMemory(), 
-                    rhs.isPassword()   ? rhs.getPassword()     : rhs.getMemory(), 
-                    rhs.isPassword()   ? rhs.getPasswordSize() : rhs.getMemorySize()) )
+    if (0 == memcmp(this->isPassword() ? this->getPassword_uint8() : this->getMemory_uint8(), 
+                    rhs.  isPassword() ? rhs.  getPassword_uint8() : rhs.  getMemory_uint8(), 
+                    rhs.  isPassword() ? rhs.  getPasswordSize()   : rhs.  getMemorySize()) )
         return true;
     
     return false;
 }
 
 
+
+
 // ---------------------------------------------------------
 // Returns size of password (in case truncation is necessary.)
 // Returns -1 in case of error.
 //
-int32_t OTPassword::setPassword(const uint8_t * szInput, uint32_t nInputSize)
+int32_t OTPassword::setPassword(const char * szInput, uint32_t nInputSize)
+{
+    return this->setPassword_uint8(reinterpret_cast<const uint8_t *>(szInput), nInputSize);
+}
+
+
+
+int32_t OTPassword::setPassword_uint8(const uint8_t * szInput, uint32_t nInputSize)
 {
     OT_ASSERT(NULL != szInput);
     
@@ -826,17 +851,24 @@ void OTPassword::zeroMemory()
     // -------------------
 }
 */
+ 
+
+//static
+bool OTPassword::randomizePassword(char * szDestination, uint32_t nNewSize)
+{
+    return OTPassword::randomizePassword_uint8(reinterpret_cast<uint8_t *>(szDestination), nNewSize);
+}
 
 
 //static
-bool OTPassword::randomizePassword(uint8_t * szDestination, uint32_t nNewSize)
+bool OTPassword::randomizePassword_uint8(uint8_t * szDestination, uint32_t nNewSize)
 {
     OT_ASSERT(NULL != szDestination);
     OT_ASSERT(nNewSize > 0);
 	// ---------------------------------
 //    const char * szFunc = "OTPassword::randomizePassword(static)";
 	// ---------------------------------
-    if (OTPassword::randomizeMemory(szDestination, nNewSize))
+    if (OTPassword::randomizeMemory_uint8(szDestination, nNewSize))
     {
         // --------------------------------------------------
         // This loop converts an array of binary bytes into the
@@ -901,7 +933,7 @@ int32_t OTPassword::randomizePassword(uint32_t nNewSize/*=DEFAULT_SIZE*/)
     }    
 	// ---------------------------------
     //
-	if (!OTPassword::randomizePassword(&(m_szPassword[0]), static_cast<int32_t>(nSize+1)))
+	if (!OTPassword::randomizePassword_uint8(&(m_szPassword[0]), static_cast<int32_t>(nSize+1)))
     {
         // randomizeMemory (above) already logs, so I'm not logging again twice here.
         //
@@ -916,8 +948,16 @@ int32_t OTPassword::randomizePassword(uint32_t nNewSize/*=DEFAULT_SIZE*/)
 
 
 
+
 //static
-bool OTPassword::randomizeMemory(uint8_t * szDestination, uint32_t nNewSize)
+bool OTPassword::randomizeMemory(void * szDestination, uint32_t nNewSize)
+{
+    return OTPassword::randomizeMemory_uint8(reinterpret_cast<uint8_t *>(szDestination), nNewSize);
+}
+
+
+//static
+bool OTPassword::randomizeMemory_uint8(uint8_t * szDestination, uint32_t nNewSize)
 {
     OT_ASSERT(NULL != szDestination);
     OT_ASSERT(nNewSize > 0);
@@ -991,7 +1031,7 @@ int32_t OTPassword::randomizeMemory(uint32_t nNewSize/*=DEFAULT_SIZE*/)
     }    
 	// ---------------------------------
     //
-	if (!OTPassword::randomizeMemory(&(m_szPassword[0]), nSize))
+	if (!OTPassword::randomizeMemory_uint8(&(m_szPassword[0]), nSize))
     {
         // randomizeMemory (above) already logs, so I'm not logging again twice here.
         //
@@ -1162,7 +1202,7 @@ const char * OTCaller::GetDisplay() const
 	// I'm using the OTPassword class to store the display string, in addition to
 	// storing the password itself. (For convenience.)
 	//
-	return reinterpret_cast<const char *>(m_Display.getPassword()); 
+	return reinterpret_cast<const char *>(m_Display.getPassword_uint8()); 
 }
 
 // A display string is set here before the Java dialog is shown, so that the string can be displayed on that dialog.
@@ -1172,7 +1212,7 @@ void OTCaller::SetDisplay(const char * szDisplay, int nLength)
 	// I'm using the OTPassword class to store the display string, in addition to
 	// storing the password itself. (For convenience.)
 	//
-	m_Display.setPassword(reinterpret_cast<const uint8_t *>(szDisplay), nLength);
+	m_Display.setPassword_uint8(reinterpret_cast<const uint8_t *>(szDisplay), nLength);
 }
 
 
@@ -1185,7 +1225,7 @@ bool OTCaller::GetPassword(OTPassword & theOutput) const // Get the password....
 { 
 	OTLog::Output(0, "OTCaller::GetPassword: FYI, returning password after invoking a (probably Java) password dialog.\n");
 	
-	theOutput.setPassword(m_Password.getPassword(), m_Password.getPasswordSize());
+	theOutput.setPassword_uint8(m_Password.getPassword_uint8(), m_Password.getPasswordSize());
 	
 	return true; 
 }

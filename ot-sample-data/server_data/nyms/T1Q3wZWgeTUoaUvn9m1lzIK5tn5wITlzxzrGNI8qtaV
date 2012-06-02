@@ -1,31 +1,24 @@
------BEGIN SIGNED FILE-----
-Hash: SAMY
-
-<?xml version="1.0"?>
-
-<signedFile
- version="1.0"
- localDir="nyms"
- filename="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV" >
-
-<filePayload>
-eJy1mMtugkAUhvc8BSHptnKAEUlE01Zbb9VKQY07aidoZMYKg7fX7gtUY21i0q6a
-fz3h+zNnzjdzgvZ5U63vRKpveJYvVtI36NY06jVNqw7CIufZ9YKmy71oN3wjpKG9
-nY4THkarONpIT1B6aHeZkmzbDtPD7pA99duVtYpHxgmW8XXBc9UvhKYfqUfoiXLk
-zYos41IFP+u+YRqlvz9R93smeuSsX4eTh07XjQ72OA0H3eDFezY702V+ZzcTtynl
-kH6n2y6d+SqLZR7P1HFz/8q45vgGc2x0gIMOYOiAMjrARQdU0AEeOICZ6AC0aMxC
-B6BNZmiTGdpkhhbNQrcpoU0mdIkIfciEblNCi2aiHxzz+wwWeV7wd8xAAWE7QDay
-JmUg2wWyK0C2h2NfpgUIm4BsC8gGesmAXjKglwzojgXsQQK6Q0DnCVhvAvYJAfub
-gF4S8D4h4D1IQHdM4Ft8mavkXrytdq04n2v6Jk4L7hvNLmdizSblIJqaSVO20vnH
-47IRLlojFVnJRJSnfaF6QTxKzozS+ZdWTfsC28EEIw==
-</filePayload>
-
-</signedFile>
------BEGIN FILE SIGNATURE-----
-Version: Open Transactions 0.78
+-----BEGIN OT ARMORED FILE-----
+Version: Open Transactions 0.81.e
 Comment: http://github.com/FellowTraveler/Open-Transactions/wiki
 
-CoABPV1ENsBg88LDmtCBg18c/bi/g1ZXRoTbyAwQdeJSmJ/CF6ax7glcS02yX5sa
-DA25jdpEyX39pXNtBT4sL/B1P1BXo8CgYQenkgl3mp+VSuYCuOP/9GWpz8iq2NlE
-IF0RP03IHNs9H1+wPlwfVWGNA+LTR+L+6gFnQM53Kgsk09Q=
------END FILE SIGNATURE-----
+eJxtU9uuolgQfZ3wFcZX0oebKJ60pwMIAgLKXXjjsgVkcxEQkP+c/xntnmS6k6m3
+WlW19q7KWsjff317ByccZH1hyQdd2C9EWRV+oogUdtnnwmI1H0G+/5hKuBhA2+V1
+tVsSH/jyx9cL7vK0AomYQ4D8WUUWsI5DuM/b3bJ6lt0LuL66qrAEu6VNGNQYeCmw
+nTp0hmpbEnCWj3Rf0aNsw3ma24MuM/c+dJeL9zPv0XP4hHWYfCFAeRKlRjzSgnXM
+IWYyS2r6SuWOwVGeYNAWYSM6Zk/dRb3NbInhr2l+TYi8FQiNhJcZaS0Qq9S5qpoi
+ajQ0MvPujGl3zsREUsWfQZR5NBFYxdRluj/RiYqnrmOY3kSbSdyaHaIl2zHZtFST
+Jhl3Mq5q0MG09Lz1hM3+1oi8wRkZL3ryZjRpJ3fSinF/dxXLQnPFGRQPCU1zKvwJ
+IwoiKMIeu9JqLD6nVQPrVeyurmjro2evmamJClZTcqvPxuWxyfvETtbumEvI9Z60
+j6otFVqo/BJ1oTJsXMYnXl8MbEeTCJ3l9hwxZuPGwA2RSORXXrLHU703WC+3kUPS
+FNktDGqHKENddBKls8jS5OHqZmT4XOu5h4dsux7dAzqTbDQ94dUf/SOvdoeA11sk
+TpNijXOkFKdkfJrVnuUygeZ7toesOlWGNUZ4kUqJ4wtbS+Ao/pQyLOj1cb/KfImx
+EVzoeCqPhYF9bSz1dHkhBMGaKTTQLgP+cFMUVJRiX7ihl4EnRb4nC5XNRVsQ2rTH
+V0jgo9E2zymC2Rzn5rol45VCMWttPZSUQ5zXbIqi9NrYId+xP/Tzyv+T7RfymwXe
+2v/pA9Z2zH9d4P5S9efi1IBqYbdh1YVx/0K6Bf7BEB8A4euyBFX/ucj6vvnEsDTv
+s0f0EdclJgII6/E1NAAIWuxN8e13CmzMixx5MbCcqsYjHWl0oXCQLJp7fBGJFO84
+vq1VyadL0Fu3CtTOuSC9PMpo2XEvQAvbTdZqyF1cs9R0zmWjSsGNlqgNl54ue87Q
+fBhEFgOOgWocxu6mM71PreitbdgqsWehX4sTM9aIxz0cyCqO1GxwXMgul4LkN5sx
+UruwOXUYj01yBFBzLxjk/Vitdr+uJuj7/7vZPwVKZcI=
+-----END OT ARMORED FILE-----
+

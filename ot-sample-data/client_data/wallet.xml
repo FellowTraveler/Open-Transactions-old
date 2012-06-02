@@ -1,57 +1,28 @@
-<?xml version="1.0"?>
-<wallet name="" version="1.0">
+-----BEGIN OT ARMORED WALLET-----
+Version: Open Transactions 0.81.e
+Comment: http://github.com/FellowTraveler/Open-Transactions/wiki
 
-<pseudonym name="eJzj4gopSkxJLVJwyk8CABUeA6o="
- nymID="SP8rPHc6GMRPL517UL5J8RK2yOiToyVqMaj3PUHvLzM" />
+eJzdlltzolgQx9/9APvM+jqVlatgKsnUARG5KVc1eUM4IoLcBeEz7odajGYm4+5k
+NzO7VanliUPT53/61326uvf7L3efj/sIqWBeBEl838d+Q/ufH3p3tRNFsERiZw/v
++/2vdryzP/R6d3unKGEuw+ahx4U1ADoHABgPBt0rANuFkdZW637CZqcly8kQIx1j
+LjDVICghcYiJNXtyAOKsqXvTlaUOjiQ5AhHeMi07ZS1jQtO77TR8VHaMKvpZLuF8
+2rsbvJLt3cXN3i6C2FdfPiKBd983NSbXpu5QUA1NoTDaViiJMWS8mQdW0iwy1dkR
+mj2tlFbtI4Pv72NhOlE/LX1o2YljV/Foj0WtKFNlTNWiFbXHNhdmIpOVzuKyT1rA
+g5d0u12wQandkX6SmuFRUhZS3YQMB1gbgmFy3+8h3Y/i+EfO+5c6sa3Y5mjJ8WGp
+RNM6Y+oJYDGBFcArrffH5BQFLK0mha+1gnjecpHSxSQqaK4q+iMQlZqn/PuT1heX
+kyJXTYVyM5/LrS4r1Hai0BIZTKgGJN5C3ppYftRalaeM0Qq8ofjoY3LLFynrA2Hs
+i+K1ijMhY2aUkG1zWCyNIZfuRyuaOuALv8K2awuvSBPdqTJIDeOtuEJKa3lsIaux
+ZhVo3qk5M2CE12plORWqQBptDTfY8dXSIjcjOc0W7hPtona2epwVUWXyztCXXios
+KZ280fKkCjyYv5IMK0uyUFptXL9SIl60AjQzG8x0VVqTm0i2OJIF009jzhVPaAuY
+dzfx+QxsQ+0VjMxMfcVJMm23xDKy5rKhjVRUegoLQPA+zcexjl3O8OvNDaJ0FY7k
+sMwDWEEPWTuRE7vwFrmhUBRJYsRzym6FEd1D0iRFITc3D2dP4LrJIS6RsmNwiwRF
+ceji6KxnkC/Wr4HxsfTMkruwXFRAHfsUNtZFoGm8IF1q5ex4iojBLelxR7IrNjzq
+E9bPgnxq7bclTQnzrW7PDvkwULh656ZZ53gozhzeU9E/w+8ZwqsquEXeUQXPGP8m
+AwRJ/SkDGE7/eAZIn7jcUqUeA3Lu6SgHOJFgRf+K/MQMykbeV7GHxmsSeNg6HbOH
+MFui/LGVPTJdj+f1qswqnvsQ5N/RU/4BeYK4Bk/hHfvvgS+CfRrBN8HHj+dWrNKq
+bBcl8MHC17XNt9ChGnmqGsgbyZgzLNNIu9aFbTE6VmZJe6EXLUsKhQw3Psb/Q+jk
+aPhfQf/Su0/Q4bfQN4kgVS2Oz/jFvnAdf0PXNtxq0QT3jxjxRHkCzZK0ytCm/SGg
+/7s9Br/u8T/NXLzMHLlqNqEA2EkAcP6qu2x1daNaQLftFNtnojFRx+ExBssnPnc1
+J2ET3p+vE3/cGIcPwfwds8SF+eA8LD/0/gArkJWB
+-----END OT ARMORED WALLET-----
 
-<pseudonym name="eJzj4nULUS9WCEktLlHwq8wFAB1GBGA="
- nymID="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV" />
-
-<assetType name="eJzj4inOzClLLVJIL0rMLQYAILwE5g=="
- assetTypeID="CvHGtfOOKzQKL5hFL7J4iF5yAodVKhS1rxPzME5R9XA" />
-
-<assetType name="eJzjYg1KzEspBgAGDgII"
- assetTypeID="aF4n89o4zyuVWR6Cpm9X75u2Vgv1hbT2v4S0jMKApRR" />
-
-<assetType name="eJzj4k5PzE1VKMnPTs0rBgAaNARk"
- assetTypeID="ttHGviJ9hRcijEvWT4f9KpqVcZ7c0UqXYNslvSEa6gJ" />
-
-<notaryProvider name="eJzjkvTJT07MycgvLlEITi0qSy1ScM7PKylKTC4BAH+DCcI="
- serverID="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1" />
-
-<!-- Last retrieved balance: -500 on date: 1333347455 -->
-<!-- Account type: issuer --><assetAccount name="eJzjEnJPzE1VCMnPTs0rVvAMDg51DQIAPPEGJg=="
- accountID="82TJYj4BXBkxQFBgqirHTmht75GOhQUNur6iLCwjcpq"
- userID="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV"
- serverID="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1" />
-<!-- assetTypeID: ttHGviJ9hRcijEvWT4f9KpqVcZ7c0UqXYNslvSEa6gJ -->
-
-<!-- Last retrieved balance: -345 on date: 1333347127 -->
-<!-- Account type: issuer --><assetAccount name="eJzj4g3OzClLLVLwDA4OdQ0CACI3BIg="
- accountID="FSityKmvnd0nb4Ad1bpDBukqW0ExzKd4pbDOwXtqvEC"
- userID="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV"
- serverID="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1" />
-<!-- assetTypeID: CvHGtfOOKzQKL5hFL7J4iF5yAodVKhS1rxPzME5R9XA -->
-
-<!-- Last retrieved balance: 335 on date: 1333352347 -->
-<!-- Account type: simple --><assetAccount name="eJzj4nYLUS9WCM7MKUstAgAVgQPf"
- accountID="eMldMMiKfJRO8B8yJjzcezs9xvSt7dkdlWt50e8CDxn"
- userID="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV"
- serverID="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1" />
-<!-- assetTypeID: CvHGtfOOKzQKL5hFL7J4iF5yAodVKhS1rxPzME5R9XA -->
-
-<!-- Last retrieved balance: 496 on date: 1333352347 -->
-<!-- Account type: simple --><assetAccount name="eJzj4nYLUS9WCMnPTs0rBgAVgQPe"
- accountID="foGJvz22NEVmscagf7wUehPlF2gx13Z5dG7B47M87SU"
- userID="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV"
- serverID="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1" />
-<!-- assetTypeID: ttHGviJ9hRcijEvWT4f9KpqVcZ7c0UqXYNslvSEa6gJ -->
-
-<!-- Last retrieved balance: 20 on date: 1333352347 -->
-<!-- Account type: simple --><assetAccount name="eJzj4nILUS9WCErMSykGABFiA2E="
- accountID="hQMfMTAQUUp1mqIRFMDkxnAWZErcPaoBoEgObogDyRu"
- userID="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV"
- serverID="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1" />
-<!-- assetTypeID: aF4n89o4zyuVWR6Cpm9X75u2Vgv1hbT2v4S0jMKApRR -->
-
-</wallet>

@@ -533,7 +533,7 @@ bool OTAsymmetricKey::GetPasswordFromConsoleLowLevel(OTPassword & theOutput, con
 	if ((nReadPW = UI_UTIL_read_pw(buf,buff,_PASSWORD_LEN,szPrompt,0)) == 0) // verify=0
     {
         size_t nPassLength = OTString::safe_strlen(buf, _PASSWORD_LEN);
-        theOutput.setPassword(reinterpret_cast<uint8_t*>(buf), nPassLength);
+        theOutput.setPassword_uint8(reinterpret_cast<uint8_t*>(buf), nPassLength);
         OTPassword::zeroMemory(buf, nPassLength);
         OTPassword::zeroMemory(buff, nPassLength);
         return true;
@@ -773,7 +773,7 @@ OPENSSL_CALLBACK_FUNC(souped_up_pass_cb)
         //void * pv = 
         OTPassword::safe_memcpy(buf,                   // destination
                                 theSize,               // size of destination buffer.
-                                thePassword.isPassword() ? thePassword.getPassword() : thePassword.getMemory(), // source
+                                thePassword.isPassword() ? thePassword.getPassword_uint8() : thePassword.getMemory_uint8(), // source
                                 theLength); // length of source.
                                //bool bZeroSource=false); // No need to set this true, since OTPassword (source) already zeros its memory automatically.
         

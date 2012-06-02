@@ -1,37 +1,17 @@
------BEGIN SIGNED MARKET-----
-Hash: SAMY
-
-<?xml version="1.0"?>
-
-<market
- version="1.0"
- serverID="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1"
- assetTypeID="ttHGviJ9hRcijEvWT4f9KpqVcZ7c0UqXYNslvSEa6gJ"
- currencyTypeID="CvHGtfOOKzQKL5hFL7J4iF5yAodVKhS1rxPzME5R9XA"
- marketScale="1"
- lastSalePrice="0" >
-
-<offer>
-eJxtkcuSmkAUhndZ8BSU26kMMsgoVswUOiCKwkCjMrNroYGO3GwaEB8kz5tGK8mk
-KmfXX5//3H7u55evfcy15criwWppaa+8Cswb5AxYJVMeqNt3jvv2cslSvkGkwkU+
-G4iPw8HLd4YzSE6I2lGECPfvN8fjCqA0xXk8G1BSI0YqRFjO6pWBeSdnG3F0Bo6/
-WJvj3VU6pJ5tum/Kdrj+OFWqpMVjLc8dkelgVSHqdSW6SamxbPBaSdwA/9CagzeK
-FLM874OPcTDcnf13q0oboMHneM2kQU0IyoPut3rRGEsa2bZ5dcyNnOib8XqEdblT
-i3BvJkAkl7frVpNdxVeZuiQ4QBucYTobyOxNCwpTtZ+msvPb1mzZftcI57hKUAgK
-HTLWo/tpQABTxJJ6wHKyOlvlAUEZyumdUgLzCgaUHc6qM9bmVq+BKQ51UjAgSixk
-SRz94V5xpyNJkRnlBebEJx+ZgTcvVW/nancr93dnprxdopz3/ras+OHjeMItiqyf
-aMonlJZTQYgxTerjY1Bkgs48LFomaVCKiNAX+Pq5gNDiE+ZYBXUO2o9L6zRZE02w
-kMWS2Tzv/eqpUJ2iJuHRX7TjzdCrlsCFtWG923YYXd6k0H9aLgD3oM9Prbg/d76G
-5eOhNOzOWOE4rpFTJJpSOwc9Gl0mR2mOwm3re3kGLoYPF3MEHtQhfObKJp8cUvsh
-bD0AkxSVurRPrF3kuteWwpPjBNenZgN3amf7yjWY3U+mWa//Odgvukz6Ag==
-</offer>
-
-</market>
------BEGIN MARKET SIGNATURE-----
-Version: Open Transactions 0.78
+-----BEGIN OT ARMORED MARKET-----
+Version: Open Transactions 0.81.e
 Comment: http://github.com/FellowTraveler/Open-Transactions/wiki
 
-CoAByXkK//QDfK5VuQeDqEo8OCLWXpdajB+MfgUt4Y6yHYiOjj9eocHFN7NTYkrA
-2ZZYpiA47YiZNxxrvcWW4V36EvTYy6KQsKP+mIH/ukbza2iYrbGomKE0XKY0pyC6
-E+9Z1yJUNVWaxwrwiiG+41XuWH6Hg1WLARXqE4W6VLxS/Hc=
------END MARKET SIGNATURE-----
+eJxtkMuOokAARVez4SuI204LDCBqxu4gIo8CVEBb3WF1CbQ8q0p8fMV88qBkkp5k
+alen6t7kHub3j9fHmeqG5bGBZXj6jHVVH+jhkzNmRJIxG6jujmF+vV/zjG0QJmlZ
+THpCn++9v7U4j/AJUebfF4YlCLfEmk16dHqTc0eQ6mC11WygrO/iRxYugL8cuby9
+PxFV1GNFL4qV0OYiQhANbxV6RqlpNKk9SnyYfunNRygdR6CqN3CvQH5db3ceyZpA
+jwax3UbhGWNUwNvftNaYBj0uFuC+Ao6czB3FltK5fFPLzw1IAgFfl3dXl/3RVm3T
+3Y4ARhlqN7QgiwgN2tsSp7BFfI99zOW6f2/MN3OdsqdANVz7eidv0wkZs4sKFWyI
+o4JEkLaEsHx/KPQRo5V5jgo6ZhNKqzHHxSlNzoc+LHNujrKsvLShBmUIc4+K1+8V
+3CU9pUzboE4vuNGGpDTV4G4JWzgLGxfU0wM2xW1hHAfQSUSvVCXjJ9pPpZfmoOFl
+U74E4HYHBUMIx4kxuC6/qG+B6lM6JcMrjS0Nb/Y1fxaBIm3tczqL7eaLDJQLlBcr
+UW6cwAyAw+9iRuRGgjzaLOYi5IcQrH3BqSxwC4+eXavFJomwkF+StUWJOigyd9J5
+073Z/639AbnRzbU=
+-----END OT ARMORED MARKET-----
+

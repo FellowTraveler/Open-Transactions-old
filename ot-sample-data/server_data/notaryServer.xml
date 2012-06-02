@@ -1,26 +1,20 @@
-<?xml version="1.0"?>
-<notaryServer version="1.0"
- serverID="tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1"
- serverUserID="pc23gUqPu9Bk1Vl0K5lz3Jp1MYIfjGIBXVWDp1gba9C"
- transactionNum="579" >
+-----BEGIN OT ARMORED NOTARY-----
+Version: Open Transactions 0.81.e
+Comment: http://github.com/FellowTraveler/Open-Transactions/wiki
 
-<assetType name="eJzj4inOzClLLVJIL0rMLQYAILwE5g=="
- assetTypeID="CvHGtfOOKzQKL5hFL7J4iF5yAodVKhS1rxPzME5R9XA" />
+eJylk8uSmkAUhrcpnoJiO1WRqwxV6lSDoFy8AeJlh4igQIPQILDPe4dRM5maSjbJ
+rk+f/v7/9OnT2I9vg7c6ifHKz4tzCocE9Z0k3kbYAKbIzRvLz7vM7yzdZTG8uO+q
+4yGBxIZLDIq9WqutpOn8umU2sb3QzaUwI7V9VABGDngZwhX1wa2LB5t5NBOsr8tS
+ECPKiUmdi1tGy6jZTj1dJqq4dTbjjAoOriB1LMpdWLge6sqYl8mQ4F5JAh9h2CBx
+C+Tnut+MMCm6AbCSAADjXq9bAhAqHIeQqUEVBF0oAs2nIonvXV2UvQQZJW348cJ5
+P6lqqY1V40tkFvGLEeg7qTnR0X65ro97xde17W6qHNsy6iUvpYYNep9ssYFbFD6y
+m8zHoZv4Q8LX2gt7hotWig3D0VSDzGfGagdU4yZzwXDY3ecDeW+FVE0n6LRY6O1K
+N7hQMXiNPStcA9Kjo4cWldfLdiZzprAFBN77k+NXRVdh4auQsm1TOhuzL2WJsOW5
+knaCigoPNl2xFnmZ6SAzzb8o3u8QcctWphx9Bpd2QeZiANw5MKOvbghNJ9VZE0LT
+O1/kamOzJ0HPro635z1yfd3u5kVcWbLbD7Sn28EtIh+p8JTiz2Uno+zXV34iQCY4
+1vtzX0wXlHNh+EpswWFerUSk20xiXeJ0oXYVPDjgeXeWtuduvK+hZ7FZ347GtDEN
+YVqXDcfV8wbdrBiZU/8o3MLjByulsBurB/8PDfO8tITIOBcIR10jhkSVll7o5wR+
+T3R/6TGhz4NyZ9b8x7s/Zd65JHEawbrVjN8Pfa6MxCsN5uvZDXFZncmZ0qlkr7Sx
+muq/+t37VO09/vy/R9hPQBJNuw==
+-----END OT ARMORED NOTARY-----
 
-<assetType name=""
- assetTypeID="aF4n89o4zyuVWR6Cpm9X75u2Vgv1hbT2v4S0jMKApRR" />
-
-<assetType name="eJzj4k5PzE1VKMnPTs0rBgAaNARk"
- assetTypeID="ttHGviJ9hRcijEvWT4f9KpqVcZ7c0UqXYNslvSEa6gJ" />
-
-<basketInfo basketID="FZUq7G9n3gdxZi6BoO1Vj37vBzAbNvQBtKT3mSjloOI"
- basketAcctID="2TNalZxncS4p6TkD2LHhnoxuy55xNytwSltRHed9whd"
- basketContractID="aF4n89o4zyuVWR6Cpm9X75u2Vgv1hbT2v4S0jMKApRR" />
-
-<accountList type="voucher" count="1" >
-
-<accountEntry assetTypeID="CvHGtfOOKzQKL5hFL7J4iF5yAodVKhS1rxPzME5R9XA" accountID="mmVy9Swx3e6he5ukBq2ANUMwt5pxpEpFJ4ip82LQHKJ" />
-
-</accountList>
-
-</notaryServer>

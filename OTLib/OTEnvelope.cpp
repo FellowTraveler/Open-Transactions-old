@@ -1614,7 +1614,7 @@ bool OTSymmetricKey::GenerateKey(const OTPassword & thePassword)
 		return false;
 	}
 	// --------------------------------------------------
-    const char * char_p_password_contents = reinterpret_cast<const char *>(thePassword.getPassword());
+    const char * char_p_password_contents = reinterpret_cast<const char *>(thePassword.getPassword_uint8());
     const size_t size_t_password_length   = static_cast<const size_t>(thePassword.getPasswordSize());
     
     unsigned char * char_p_derived_contents  = static_cast<unsigned char *>(theDerivedKey.getMemoryWritable());
@@ -1643,7 +1643,7 @@ bool OTSymmetricKey::GenerateKey(const OTPassword & thePassword)
     //
     const bool bEncryptedKey = OTEnvelope::Encrypt(theDerivedKey,  // theDerivedKey is a symmetric key, in clear form. Used for encrypting theActualKey.
                                                    // -------------------------------
-                                                   static_cast<const char *>(theActualKey.getMemory()), // This is the Plaintext that's being encrypted.
+                                                   reinterpret_cast<const char *>(theActualKey.getMemory_uint8()), // This is the Plaintext that's being encrypted.
                                                    static_cast<uint32_t>(theActualKey.getMemorySize()),
                                                    // -------------------------------
                                                    m_dataIV,
@@ -1702,7 +1702,7 @@ bool OTSymmetricKey::GetRawKey(const OTPassword & thePassword, OTPassword & theR
     // theDerivedKey will be populated with its actual data in the call to PKCS5_PBKDF2_HMAC_SHA1.
     OTPassword      theDerivedKey(static_cast<void *>(&derived_key[0]), OT_DEFAULT_SYMMETRIC_KEY_SIZE);
 	// --------------------------------------------------
-    const char * char_p_password_contents = const_cast<char *>(reinterpret_cast<const char *>(thePassword.getPassword()));
+    const char * char_p_password_contents = const_cast<char *>(reinterpret_cast<const char *>(thePassword.getPassword_uint8()));
     const size_t size_t_password_length   = static_cast<const size_t>(thePassword.getPasswordSize());
     
     unsigned char * uchar_p_derived_contents  = static_cast<unsigned char *>(theDerivedKey.getMemoryWritable());
@@ -2282,7 +2282,7 @@ bool OTEnvelope::Encrypt(const OTPassword & theRawSymmetricKey, // The symmetric
     // -----------------------------------------------
     if (!EVP_EncryptInit(&ctx, 
                          cipher_type, 
-                         static_cast<uint8_t *>(const_cast<void *>(theRawSymmetricKey.getMemory())),
+                         const_cast<uint8_t *>(theRawSymmetricKey.getMemory_uint8()),
                          static_cast<uint8_t *>(const_cast<void *>(theIV.GetPayloadPointer()))))
     {
         OTLog::vError("%s: EVP_EncryptInit: failed.\n", szFunc);
@@ -2631,7 +2631,7 @@ bool OTEnvelope::Decrypt(const OTPassword & theRawSymmetricKey, // The symmetric
     //
     if (!EVP_DecryptInit(&ctx, 
                          cipher_type, 
-                         static_cast<uint8_t *>(const_cast<void *>(theRawSymmetricKey.getMemory())),
+                         const_cast<uint8_t *>(theRawSymmetricKey.getMemory_uint8()),
                          static_cast<uint8_t *>(const_cast<void *>(theIV.GetPayloadPointer()))))
     {
         OTLog::vError("%s: EVP_DecryptInit: failed.\n", szFunc);

@@ -400,32 +400,42 @@ private:
     
 public:
 	const
-	BlockSize	m_theBlockSize;		
+	BlockSize m_theBlockSize;		
     // -----------------
     bool     isPassword() const;
 	const
-	uint8_t * getPassword() const; // asserts if m_bIsText is false.
+	uint8_t * getPassword_uint8() const; // asserts if m_bIsText is false.
+	const
+	char    * getPassword() const; // asserts if m_bIsText is false.
 	uint8_t * getPasswordWritable(); // asserts if m_bIsText is false.
     
-	int32_t  setPassword(const uint8_t * szInput, uint32_t nInputSize); // (FYI, truncates if nInputSize larger than getBlockSize.)
+	int32_t  setPassword(const char * szInput, uint32_t nInputSize); // (FYI, truncates if nInputSize larger than getBlockSize.)
+	int32_t  setPassword_uint8(const uint8_t * szInput, uint32_t nInputSize); // (FYI, truncates if nInputSize larger than getBlockSize.)
     bool     addChar(uint8_t theChar);
     // ---------------------
     int32_t randomizePassword(uint32_t nNewSize=DEFAULT_SIZE);
     // -----------------
     static
-    bool     randomizePassword(uint8_t * szDestination, uint32_t nNewSize);
+    bool     randomizePassword_uint8(uint8_t * szDestination, uint32_t nNewSize);
+    static
+    bool     randomizePassword(char * szDestination, uint32_t nNewSize);
     // -----------------
     bool     isMemory() const;
 	const
 	void *	 getMemory() const; // asserts if m_bIsBinary is false.
+	const
+	uint8_t* getMemory_uint8() const; // asserts if m_bIsBinary is false.
 	void *	 getMemoryWritable(); // asserts if m_bIsBinary is false.
 	int32_t  setMemory(const void * vInput,  uint32_t nInputSize);  // (FYI, truncates if nInputSize larger than getBlockSize.)
 	int32_t  addMemory(const void * vAppend, uint32_t nAppendSize); // (FYI, truncates if nInputSize + getPasswordSize() is larger than getBlockSize.)
     // ---------------------
-    int32_t randomizeMemory(uint32_t nNewSize=DEFAULT_SIZE);
+    int32_t  randomizeMemory(uint32_t nNewSize=DEFAULT_SIZE);
     // -----------------
     static
-    bool     randomizeMemory(uint8_t * szDestination, uint32_t nNewSize);
+    bool     randomizeMemory_uint8(uint8_t * szDestination, uint32_t nNewSize);
+    // -----------------
+    static
+    bool     randomizeMemory(void * szDestination, uint32_t nNewSize);
     // -----------------
 	uint32_t getBlockSize()    const;
 	bool	 Compare(OTPassword & rhs) const;

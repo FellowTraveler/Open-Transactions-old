@@ -1,4 +1,4 @@
-Moneychanger v0.09
+Moneychanger
 /************************************************************
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA256
@@ -96,7 +96,7 @@ BaHXSNVFaEOMa37bWGpt
 
 
 
-Open Transactions v0.79
+Open Transactions
 (Scroll to the bottom to see the complete AGPLv3.)
 /************************************************************
 -----BEGIN PGP SIGNED MESSAGE-----
