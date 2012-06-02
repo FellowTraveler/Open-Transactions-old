@@ -540,13 +540,18 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_OTPasswordData_GetMasterPW(void * jarg1) {
 
 SWIGEXPORT void * SWIGSTDCALL CSharp_new_OTPasswordData__SWIG_0(char * jarg1, void * jarg2) {
   void * jresult ;
-  char *arg1 = (char *) 0 ;
+  std::string *arg1 = 0 ;
   OTPassword *arg2 = (OTPassword *) 0 ;
   OTPasswordData *result = 0 ;
   
-  arg1 = (char *)jarg1; 
+  if (!jarg1) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg1_str(jarg1);
+  arg1 = &arg1_str; 
   arg2 = (OTPassword *)jarg2; 
-  result = (OTPasswordData *)new OTPasswordData((char const *)arg1,arg2);
+  result = (OTPasswordData *)new OTPasswordData((std::string const &)*arg1,arg2);
   jresult = (void *)result; 
   return jresult;
 }
@@ -554,17 +559,22 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_new_OTPasswordData__SWIG_0(char * jarg1, vo
 
 SWIGEXPORT void * SWIGSTDCALL CSharp_new_OTPasswordData__SWIG_1(char * jarg1) {
   void * jresult ;
-  char *arg1 = (char *) 0 ;
+  std::string *arg1 = 0 ;
   OTPasswordData *result = 0 ;
   
-  arg1 = (char *)jarg1; 
-  result = (OTPasswordData *)new OTPasswordData((char const *)arg1);
+  if (!jarg1) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg1_str(jarg1);
+  arg1 = &arg1_str; 
+  result = (OTPasswordData *)new OTPasswordData((std::string const &)*arg1);
   jresult = (void *)result; 
   return jresult;
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_new_OTPasswordData__SWIG_4(void * jarg1, void * jarg2) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_new_OTPasswordData__SWIG_2(void * jarg1, void * jarg2) {
   void * jresult ;
   OTString *arg1 = 0 ;
   OTPassword *arg2 = (OTPassword *) 0 ;
@@ -582,7 +592,7 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_new_OTPasswordData__SWIG_4(void * jarg1, vo
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_new_OTPasswordData__SWIG_5(void * jarg1) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_new_OTPasswordData__SWIG_3(void * jarg1) {
   void * jresult ;
   OTString *arg1 = 0 ;
   OTPasswordData *result = 0 ;

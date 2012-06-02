@@ -442,8 +442,11 @@ LONG Win32FaultHandler(struct _EXCEPTION_POINTERS *  ExInfo)
          
          }
          */ 
-        
+#ifdef _WIN64
+//		LogStackFrames(CodeAdress, (char *)ExInfo->ContextRecord->Rbp);
+#else
         LogStackFrames(CodeAdress, (char *)ExInfo->ContextRecord->Ebp);
+#endif
         
 //      fclose(sgLogFile);
     }
@@ -478,7 +481,8 @@ void   LogStackFrames(void *FaultAdress, char *eNextBP)
     
     typedef USHORT (WINAPI *CaptureStackBackTraceType)(__in ULONG, __in ULONG, __out PVOID*, __out_opt PULONG);
     CaptureStackBackTraceType func = (CaptureStackBackTraceType)
-        (GetProcAddress(LoadLibrary("kernel32.dll"), "RtlCaptureStackBackTrace"));
+        (GetProcAddress(LoadLibrary(L"kernel32.dll"), "RtlCaptureStackBackTrace"));
+
     
     if(func == NULL)
         return;

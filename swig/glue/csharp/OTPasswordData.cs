@@ -74,17 +74,19 @@ public class OTPasswordData : IDisposable {
     return ret;
   }
 
-  public OTPasswordData(string szDisplay, OTPassword pMasterPW) : this(otapiPINVOKE.new_OTPasswordData__SWIG_0(szDisplay, OTPassword.getCPtr(pMasterPW)), true) {
-  }
-
-  public OTPasswordData(string szDisplay) : this(otapiPINVOKE.new_OTPasswordData__SWIG_1(szDisplay), true) {
-  }
-
-  public OTPasswordData(SWIGTYPE_p_OTString strDisplay, OTPassword pMasterPW) : this(otapiPINVOKE.new_OTPasswordData__SWIG_4(SWIGTYPE_p_OTString.getCPtr(strDisplay), OTPassword.getCPtr(pMasterPW)), true) {
+  public OTPasswordData(string str_Display, OTPassword pMasterPW) : this(otapiPINVOKE.new_OTPasswordData__SWIG_0(str_Display, OTPassword.getCPtr(pMasterPW)), true) {
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
   }
 
-  public OTPasswordData(SWIGTYPE_p_OTString strDisplay) : this(otapiPINVOKE.new_OTPasswordData__SWIG_5(SWIGTYPE_p_OTString.getCPtr(strDisplay)), true) {
+  public OTPasswordData(string str_Display) : this(otapiPINVOKE.new_OTPasswordData__SWIG_1(str_Display), true) {
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+  }
+
+  public OTPasswordData(SWIGTYPE_p_OTString strDisplay, OTPassword pMasterPW) : this(otapiPINVOKE.new_OTPasswordData__SWIG_2(SWIGTYPE_p_OTString.getCPtr(strDisplay), OTPassword.getCPtr(pMasterPW)), true) {
+    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
+  }
+
+  public OTPasswordData(SWIGTYPE_p_OTString strDisplay) : this(otapiPINVOKE.new_OTPasswordData__SWIG_3(SWIGTYPE_p_OTString.getCPtr(strDisplay)), true) {
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
   }
 

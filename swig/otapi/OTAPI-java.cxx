@@ -713,46 +713,52 @@ SWIGEXPORT jlong JNICALL Java_com_wrapper_core_jni_otapiJNI_OTPasswordData_1GetM
 
 SWIGEXPORT jlong JNICALL Java_com_wrapper_core_jni_otapiJNI_new_1OTPasswordData_1_1SWIG_10(JNIEnv *jenv, jclass jcls, jstring jarg1, jlong jarg2, jobject jarg2_) {
   jlong jresult = 0 ;
-  char *arg1 = (char *) 0 ;
+  std::string *arg1 = 0 ;
   OTPassword *arg2 = (OTPassword *) 0 ;
   OTPasswordData *result = 0 ;
   
   (void)jenv;
   (void)jcls;
   (void)jarg2_;
-  arg1 = 0;
-  if (jarg1) {
-    arg1 = (char *)jenv->GetStringUTFChars(jarg1, 0);
-    if (!arg1) return 0;
+  if(!jarg1) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
+    return 0;
   }
+  const char *arg1_pstr = (const char *)jenv->GetStringUTFChars(jarg1, 0); 
+  if (!arg1_pstr) return 0;
+  std::string arg1_str(arg1_pstr);
+  arg1 = &arg1_str;
+  jenv->ReleaseStringUTFChars(jarg1, arg1_pstr); 
   arg2 = *(OTPassword **)&jarg2; 
-  result = (OTPasswordData *)new OTPasswordData((char const *)arg1,arg2);
+  result = (OTPasswordData *)new OTPasswordData((std::string const &)*arg1,arg2);
   *(OTPasswordData **)&jresult = result; 
-  if (arg1) jenv->ReleaseStringUTFChars(jarg1, (const char *)arg1);
   return jresult;
 }
 
 
 SWIGEXPORT jlong JNICALL Java_com_wrapper_core_jni_otapiJNI_new_1OTPasswordData_1_1SWIG_11(JNIEnv *jenv, jclass jcls, jstring jarg1) {
   jlong jresult = 0 ;
-  char *arg1 = (char *) 0 ;
+  std::string *arg1 = 0 ;
   OTPasswordData *result = 0 ;
   
   (void)jenv;
   (void)jcls;
-  arg1 = 0;
-  if (jarg1) {
-    arg1 = (char *)jenv->GetStringUTFChars(jarg1, 0);
-    if (!arg1) return 0;
+  if(!jarg1) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
+    return 0;
   }
-  result = (OTPasswordData *)new OTPasswordData((char const *)arg1);
+  const char *arg1_pstr = (const char *)jenv->GetStringUTFChars(jarg1, 0); 
+  if (!arg1_pstr) return 0;
+  std::string arg1_str(arg1_pstr);
+  arg1 = &arg1_str;
+  jenv->ReleaseStringUTFChars(jarg1, arg1_pstr); 
+  result = (OTPasswordData *)new OTPasswordData((std::string const &)*arg1);
   *(OTPasswordData **)&jresult = result; 
-  if (arg1) jenv->ReleaseStringUTFChars(jarg1, (const char *)arg1);
   return jresult;
 }
 
 
-SWIGEXPORT jlong JNICALL Java_com_wrapper_core_jni_otapiJNI_new_1OTPasswordData_1_1SWIG_14(JNIEnv *jenv, jclass jcls, jlong jarg1, jlong jarg2, jobject jarg2_) {
+SWIGEXPORT jlong JNICALL Java_com_wrapper_core_jni_otapiJNI_new_1OTPasswordData_1_1SWIG_12(JNIEnv *jenv, jclass jcls, jlong jarg1, jlong jarg2, jobject jarg2_) {
   jlong jresult = 0 ;
   OTString *arg1 = 0 ;
   OTPassword *arg2 = (OTPassword *) 0 ;
@@ -773,7 +779,7 @@ SWIGEXPORT jlong JNICALL Java_com_wrapper_core_jni_otapiJNI_new_1OTPasswordData_
 }
 
 
-SWIGEXPORT jlong JNICALL Java_com_wrapper_core_jni_otapiJNI_new_1OTPasswordData_1_1SWIG_15(JNIEnv *jenv, jclass jcls, jlong jarg1) {
+SWIGEXPORT jlong JNICALL Java_com_wrapper_core_jni_otapiJNI_new_1OTPasswordData_1_1SWIG_13(JNIEnv *jenv, jclass jcls, jlong jarg1) {
   jlong jresult = 0 ;
   OTString *arg1 = 0 ;
   OTPasswordData *result = 0 ;

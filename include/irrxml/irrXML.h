@@ -5,6 +5,12 @@
 #ifndef __IRR_XML_H_INCLUDED__
 #define __IRR_XML_H_INCLUDED__
 
+#ifdef _WIN32
+#ifndef _WINDOWS_
+#define WIN32_LEAN_AND_MEAN
+#endif
+#endif
+
 #include <cstdio>
 
 /** \mainpage irrXML 1.2 API documentation
