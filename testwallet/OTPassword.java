@@ -43,12 +43,46 @@ public class OTPassword {
     return otapiJNI.OTPassword_isPassword(swigCPtr, this);
   }
 
+  public SWIGTYPE_p_uint8_t getPassword_uint8() {
+    long cPtr = otapiJNI.OTPassword_getPassword_uint8(swigCPtr, this);
+    return (cPtr == 0) ? null : new SWIGTYPE_p_uint8_t(cPtr, false);
+  }
+
   public String getPassword() {
     return otapiJNI.OTPassword_getPassword(swigCPtr, this);
   }
 
+  public SWIGTYPE_p_uint8_t getPasswordWritable() {
+    long cPtr = otapiJNI.OTPassword_getPasswordWritable(swigCPtr, this);
+    return (cPtr == 0) ? null : new SWIGTYPE_p_uint8_t(cPtr, false);
+  }
+
   public int setPassword(String szInput, int nInputSize) {
     return otapiJNI.OTPassword_setPassword(swigCPtr, this, szInput, nInputSize);
+  }
+
+  public SWIGTYPE_p_int32_t setPassword_uint8(SWIGTYPE_p_uint8_t szInput, SWIGTYPE_p_uint32_t nInputSize) {
+    return new SWIGTYPE_p_int32_t(otapiJNI.OTPassword_setPassword_uint8(swigCPtr, this, SWIGTYPE_p_uint8_t.getCPtr(szInput), SWIGTYPE_p_uint32_t.getCPtr(nInputSize)), true);
+  }
+
+  public boolean addChar(SWIGTYPE_p_uint8_t theChar) {
+    return otapiJNI.OTPassword_addChar(swigCPtr, this, SWIGTYPE_p_uint8_t.getCPtr(theChar));
+  }
+
+  public SWIGTYPE_p_int32_t randomizePassword(SWIGTYPE_p_uint32_t nNewSize) {
+    return new SWIGTYPE_p_int32_t(otapiJNI.OTPassword_randomizePassword__SWIG_0(swigCPtr, this, SWIGTYPE_p_uint32_t.getCPtr(nNewSize)), true);
+  }
+
+  public SWIGTYPE_p_int32_t randomizePassword() {
+    return new SWIGTYPE_p_int32_t(otapiJNI.OTPassword_randomizePassword__SWIG_1(swigCPtr, this), true);
+  }
+
+  public static boolean randomizePassword_uint8(SWIGTYPE_p_uint8_t szDestination, SWIGTYPE_p_uint32_t nNewSize) {
+    return otapiJNI.OTPassword_randomizePassword_uint8(SWIGTYPE_p_uint8_t.getCPtr(szDestination), SWIGTYPE_p_uint32_t.getCPtr(nNewSize));
+  }
+
+  public static boolean randomizePassword(String szDestination, SWIGTYPE_p_uint32_t nNewSize) {
+    return otapiJNI.OTPassword_randomizePassword__SWIG_2(szDestination, SWIGTYPE_p_uint32_t.getCPtr(nNewSize));
   }
 
   public boolean isMemory() {
@@ -60,62 +94,75 @@ public class OTPassword {
     return (cPtr == 0) ? null : new SWIGTYPE_p_void(cPtr, false);
   }
 
+  public SWIGTYPE_p_uint8_t getMemory_uint8() {
+    long cPtr = otapiJNI.OTPassword_getMemory_uint8(swigCPtr, this);
+    return (cPtr == 0) ? null : new SWIGTYPE_p_uint8_t(cPtr, false);
+  }
+
   public SWIGTYPE_p_void getMemoryWritable() {
     long cPtr = otapiJNI.OTPassword_getMemoryWritable(swigCPtr, this);
     return (cPtr == 0) ? null : new SWIGTYPE_p_void(cPtr, false);
   }
 
-  public int setMemory(SWIGTYPE_p_void vInput, int nInputSize) {
-    return otapiJNI.OTPassword_setMemory(swigCPtr, this, SWIGTYPE_p_void.getCPtr(vInput), nInputSize);
+  public SWIGTYPE_p_int32_t setMemory(SWIGTYPE_p_void vInput, SWIGTYPE_p_uint32_t nInputSize) {
+    return new SWIGTYPE_p_int32_t(otapiJNI.OTPassword_setMemory(swigCPtr, this, SWIGTYPE_p_void.getCPtr(vInput), SWIGTYPE_p_uint32_t.getCPtr(nInputSize)), true);
   }
 
-  public int addMemory(SWIGTYPE_p_void vAppend, int nAppendSize) {
-    return otapiJNI.OTPassword_addMemory(swigCPtr, this, SWIGTYPE_p_void.getCPtr(vAppend), nAppendSize);
+  public SWIGTYPE_p_int32_t addMemory(SWIGTYPE_p_void vAppend, SWIGTYPE_p_uint32_t nAppendSize) {
+    return new SWIGTYPE_p_int32_t(otapiJNI.OTPassword_addMemory(swigCPtr, this, SWIGTYPE_p_void.getCPtr(vAppend), SWIGTYPE_p_uint32_t.getCPtr(nAppendSize)), true);
   }
 
-  public int randomizeMemory(long nNewSize) {
-    return otapiJNI.OTPassword_randomizeMemory__SWIG_0(swigCPtr, this, nNewSize);
+  public SWIGTYPE_p_int32_t randomizeMemory(SWIGTYPE_p_uint32_t nNewSize) {
+    return new SWIGTYPE_p_int32_t(otapiJNI.OTPassword_randomizeMemory__SWIG_0(swigCPtr, this, SWIGTYPE_p_uint32_t.getCPtr(nNewSize)), true);
   }
 
-  public int randomizeMemory() {
-    return otapiJNI.OTPassword_randomizeMemory__SWIG_1(swigCPtr, this);
+  public SWIGTYPE_p_int32_t randomizeMemory() {
+    return new SWIGTYPE_p_int32_t(otapiJNI.OTPassword_randomizeMemory__SWIG_1(swigCPtr, this), true);
   }
 
-  public static boolean randomizeMemory(String szDestination, long nNewSize) {
-    return otapiJNI.OTPassword_randomizeMemory__SWIG_2(szDestination, nNewSize);
+  public static boolean randomizeMemory_uint8(SWIGTYPE_p_uint8_t szDestination, SWIGTYPE_p_uint32_t nNewSize) {
+    return otapiJNI.OTPassword_randomizeMemory_uint8(SWIGTYPE_p_uint8_t.getCPtr(szDestination), SWIGTYPE_p_uint32_t.getCPtr(nNewSize));
   }
 
-  public int getBlockSize() {
-    return otapiJNI.OTPassword_getBlockSize(swigCPtr, this);
+  public static boolean randomizeMemory(SWIGTYPE_p_void szDestination, SWIGTYPE_p_uint32_t nNewSize) {
+    return otapiJNI.OTPassword_randomizeMemory__SWIG_2(SWIGTYPE_p_void.getCPtr(szDestination), SWIGTYPE_p_uint32_t.getCPtr(nNewSize));
   }
 
-  public int getPasswordSize() {
-    return otapiJNI.OTPassword_getPasswordSize(swigCPtr, this);
+  public SWIGTYPE_p_uint32_t getBlockSize() {
+    return new SWIGTYPE_p_uint32_t(otapiJNI.OTPassword_getBlockSize(swigCPtr, this), true);
   }
 
-  public int getMemorySize() {
-    return otapiJNI.OTPassword_getMemorySize(swigCPtr, this);
+  public boolean Compare(OTPassword rhs) {
+    return otapiJNI.OTPassword_Compare(swigCPtr, this, OTPassword.getCPtr(rhs), rhs);
+  }
+
+  public SWIGTYPE_p_uint32_t getPasswordSize() {
+    return new SWIGTYPE_p_uint32_t(otapiJNI.OTPassword_getPasswordSize(swigCPtr, this), true);
+  }
+
+  public SWIGTYPE_p_uint32_t getMemorySize() {
+    return new SWIGTYPE_p_uint32_t(otapiJNI.OTPassword_getMemorySize(swigCPtr, this), true);
   }
 
   public void zeroMemory() {
     otapiJNI.OTPassword_zeroMemory__SWIG_0(swigCPtr, this);
   }
 
-  public static void zeroMemory(String szMemory, long theSize) {
-    otapiJNI.OTPassword_zeroMemory__SWIG_1(szMemory, theSize);
+  public static void zeroMemory(SWIGTYPE_p_uint8_t szMemory, SWIGTYPE_p_uint32_t theSize) {
+    otapiJNI.OTPassword_zeroMemory__SWIG_1(SWIGTYPE_p_uint8_t.getCPtr(szMemory), SWIGTYPE_p_uint32_t.getCPtr(theSize));
   }
 
-  public static void zeroMemory(SWIGTYPE_p_void vMemory, long theSize) {
-    otapiJNI.OTPassword_zeroMemory__SWIG_2(SWIGTYPE_p_void.getCPtr(vMemory), theSize);
+  public static void zeroMemory(SWIGTYPE_p_void vMemory, SWIGTYPE_p_uint32_t theSize) {
+    otapiJNI.OTPassword_zeroMemory__SWIG_2(SWIGTYPE_p_void.getCPtr(vMemory), SWIGTYPE_p_uint32_t.getCPtr(theSize));
   }
 
-  public static SWIGTYPE_p_void safe_memcpy(SWIGTYPE_p_void dest, long dest_size, SWIGTYPE_p_void src, long src_length, boolean bZeroSource) {
-    long cPtr = otapiJNI.OTPassword_safe_memcpy__SWIG_0(SWIGTYPE_p_void.getCPtr(dest), dest_size, SWIGTYPE_p_void.getCPtr(src), src_length, bZeroSource);
+  public static SWIGTYPE_p_void safe_memcpy(SWIGTYPE_p_void dest, SWIGTYPE_p_uint32_t dest_size, SWIGTYPE_p_void src, SWIGTYPE_p_uint32_t src_length, boolean bZeroSource) {
+    long cPtr = otapiJNI.OTPassword_safe_memcpy__SWIG_0(SWIGTYPE_p_void.getCPtr(dest), SWIGTYPE_p_uint32_t.getCPtr(dest_size), SWIGTYPE_p_void.getCPtr(src), SWIGTYPE_p_uint32_t.getCPtr(src_length), bZeroSource);
     return (cPtr == 0) ? null : new SWIGTYPE_p_void(cPtr, false);
   }
 
-  public static SWIGTYPE_p_void safe_memcpy(SWIGTYPE_p_void dest, long dest_size, SWIGTYPE_p_void src, long src_length) {
-    long cPtr = otapiJNI.OTPassword_safe_memcpy__SWIG_1(SWIGTYPE_p_void.getCPtr(dest), dest_size, SWIGTYPE_p_void.getCPtr(src), src_length);
+  public static SWIGTYPE_p_void safe_memcpy(SWIGTYPE_p_void dest, SWIGTYPE_p_uint32_t dest_size, SWIGTYPE_p_void src, SWIGTYPE_p_uint32_t src_length) {
+    long cPtr = otapiJNI.OTPassword_safe_memcpy__SWIG_1(SWIGTYPE_p_void.getCPtr(dest), SWIGTYPE_p_uint32_t.getCPtr(dest_size), SWIGTYPE_p_void.getCPtr(src), SWIGTYPE_p_uint32_t.getCPtr(src_length));
     return (cPtr == 0) ? null : new SWIGTYPE_p_void(cPtr, false);
   }
 
@@ -127,20 +174,32 @@ public class OTPassword {
     this(otapiJNI.new_OTPassword__SWIG_1(), true);
   }
 
-  public OTPassword(String szInput, int nInputSize, int theBlockSize) {
-    this(otapiJNI.new_OTPassword__SWIG_2(szInput, nInputSize, theBlockSize), true);
+  public OTPassword(OTPassword rhs) {
+    this(otapiJNI.new_OTPassword__SWIG_2(OTPassword.getCPtr(rhs), rhs), true);
   }
 
-  public OTPassword(String szInput, int nInputSize) {
-    this(otapiJNI.new_OTPassword__SWIG_3(szInput, nInputSize), true);
+  public OTPassword(String szInput, SWIGTYPE_p_uint32_t nInputSize, int theBlockSize) {
+    this(otapiJNI.new_OTPassword__SWIG_3(szInput, SWIGTYPE_p_uint32_t.getCPtr(nInputSize), theBlockSize), true);
   }
 
-  public OTPassword(SWIGTYPE_p_void vInput, int nInputSize, int theBlockSize) {
-    this(otapiJNI.new_OTPassword__SWIG_4(SWIGTYPE_p_void.getCPtr(vInput), nInputSize, theBlockSize), true);
+  public OTPassword(String szInput, SWIGTYPE_p_uint32_t nInputSize) {
+    this(otapiJNI.new_OTPassword__SWIG_4(szInput, SWIGTYPE_p_uint32_t.getCPtr(nInputSize)), true);
   }
 
-  public OTPassword(SWIGTYPE_p_void vInput, int nInputSize) {
-    this(otapiJNI.new_OTPassword__SWIG_5(SWIGTYPE_p_void.getCPtr(vInput), nInputSize), true);
+  public OTPassword(SWIGTYPE_p_uint8_t szInput, SWIGTYPE_p_uint32_t nInputSize, int theBlockSize) {
+    this(otapiJNI.new_OTPassword__SWIG_5(SWIGTYPE_p_uint8_t.getCPtr(szInput), SWIGTYPE_p_uint32_t.getCPtr(nInputSize), theBlockSize), true);
+  }
+
+  public OTPassword(SWIGTYPE_p_uint8_t szInput, SWIGTYPE_p_uint32_t nInputSize) {
+    this(otapiJNI.new_OTPassword__SWIG_6(SWIGTYPE_p_uint8_t.getCPtr(szInput), SWIGTYPE_p_uint32_t.getCPtr(nInputSize)), true);
+  }
+
+  public OTPassword(SWIGTYPE_p_void vInput, SWIGTYPE_p_uint32_t nInputSize, int theBlockSize) {
+    this(otapiJNI.new_OTPassword__SWIG_7(SWIGTYPE_p_void.getCPtr(vInput), SWIGTYPE_p_uint32_t.getCPtr(nInputSize), theBlockSize), true);
+  }
+
+  public OTPassword(SWIGTYPE_p_void vInput, SWIGTYPE_p_uint32_t nInputSize) {
+    this(otapiJNI.new_OTPassword__SWIG_8(SWIGTYPE_p_void.getCPtr(vInput), SWIGTYPE_p_uint32_t.getCPtr(nInputSize)), true);
   }
 
   public final static class BlockSize {

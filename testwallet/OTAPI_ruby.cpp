@@ -2229,12 +2229,17 @@ namespace Swig {
 #define SWIGTYPE_p_OTDB__WalletData swig_types[31]
 #define SWIGTYPE_p_OTPacker swig_types[32]
 #define SWIGTYPE_p_OTPassword swig_types[33]
-#define SWIGTYPE_p_char swig_types[34]
-#define SWIGTYPE_p_std__mapT_std__string_std__string_t swig_types[35]
-#define SWIGTYPE_p_std__vectorT_unsigned_char_t swig_types[36]
-#define SWIGTYPE_p_void swig_types[37]
-static swig_type_info *swig_types[39];
-static swig_module_info swig_module = {swig_types, 38, 0, 0, 0, 0};
+#define SWIGTYPE_p_OTPasswordData swig_types[34]
+#define SWIGTYPE_p_OTString swig_types[35]
+#define SWIGTYPE_p_char swig_types[36]
+#define SWIGTYPE_p_int32_t swig_types[37]
+#define SWIGTYPE_p_std__mapT_std__string_std__string_t swig_types[38]
+#define SWIGTYPE_p_std__vectorT_unsigned_char_t swig_types[39]
+#define SWIGTYPE_p_uint32_t swig_types[40]
+#define SWIGTYPE_p_uint8_t swig_types[41]
+#define SWIGTYPE_p_void swig_types[42]
+static swig_type_info *swig_types[44];
+static swig_module_info swig_module = {swig_types, 43, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -2362,47 +2367,6 @@ SWIG_FromCharPtr(const char *cptr)
 }
 
 
-SWIGINTERN int
-SWIG_AsCharPtrAndSize(VALUE obj, char** cptr, size_t* psize, int *alloc)
-{
-  if (TYPE(obj) == T_STRING) {
-    #if defined(StringValuePtr)
-    char *cstr = StringValuePtr(obj); 
-    #else
-    char *cstr = STR2CSTR(obj);
-    #endif
-    size_t size = RSTRING_LEN(obj) + 1;
-    if (cptr)  {
-      if (alloc) {
-	if (*alloc == SWIG_NEWOBJ) {
-	  *cptr = reinterpret_cast< char* >(memcpy((new char[size]), cstr, sizeof(char)*(size)));
-	} else {
-	  *cptr = cstr;
-	  *alloc = SWIG_OLDOBJ;
-	}
-      }
-    }
-    if (psize) *psize = size;
-    return SWIG_OK;
-  } else {
-    swig_type_info* pchar_descriptor = SWIG_pchar_descriptor();
-    if (pchar_descriptor) {
-      void* vptr = 0;
-      if (SWIG_ConvertPtr(obj, &vptr, pchar_descriptor, 0) == SWIG_OK) {
-	if (cptr) *cptr = (char *)vptr;
-	if (psize) *psize = vptr ? (strlen((char*)vptr) + 1) : 0;
-	if (alloc) *alloc = SWIG_OLDOBJ;
-	return SWIG_OK;
-      }
-    }
-  }  
-  return SWIG_TypeError;
-}
-
-
-
-
-
 SWIGINTERN VALUE
 SWIG_ruby_failed(void)
 {
@@ -2455,45 +2419,6 @@ SWIG_AsVal_int (VALUE obj, int *val)
 }
 
 
-/*@SWIG:/opt/local/share/swig/2.0.4/ruby/rubyprimtypes.swg,19,%ruby_aux_method@*/
-SWIGINTERN VALUE SWIG_AUX_NUM2ULONG(VALUE *args)
-{
-  VALUE obj = args[0];
-  VALUE type = TYPE(obj);
-  unsigned long *res = (unsigned long *)(args[1]);
-  *res = type == T_FIXNUM ? NUM2ULONG(obj) : rb_big2ulong(obj);
-  return obj;
-}
-/*@SWIG@*/
-
-SWIGINTERN int
-SWIG_AsVal_unsigned_SS_long (VALUE obj, unsigned long *val) 
-{
-  VALUE type = TYPE(obj);
-  if ((type == T_FIXNUM) || (type == T_BIGNUM)) {
-    unsigned long v;
-    VALUE a[2];
-    a[0] = obj;
-    a[1] = (VALUE)(&v);
-    if (rb_rescue(RUBY_METHOD_FUNC(SWIG_AUX_NUM2ULONG), (VALUE)a, RUBY_METHOD_FUNC(SWIG_ruby_failed), 0) != Qnil) {
-      if (val) *val = v;
-      return SWIG_OK;
-    }
-  }
-  return SWIG_TypeError;
-}
-
-
-SWIGINTERNINLINE int
-SWIG_AsVal_size_t (VALUE obj, size_t *val)
-{
-  unsigned long v;
-  int res = SWIG_AsVal_unsigned_SS_long (obj, val ? &v : 0);
-  if (SWIG_IsOK(res) && val) *val = static_cast< size_t >(v);
-  return res;
-}
-
-
 SWIGINTERN int
 SWIG_AsVal_bool (VALUE obj, bool *val)
 {
@@ -2512,6 +2437,47 @@ SWIG_AsVal_bool (VALUE obj, bool *val)
   }  
   return SWIG_TypeError;
 }
+
+
+SWIGINTERN int
+SWIG_AsCharPtrAndSize(VALUE obj, char** cptr, size_t* psize, int *alloc)
+{
+  if (TYPE(obj) == T_STRING) {
+    #if defined(StringValuePtr)
+    char *cstr = StringValuePtr(obj); 
+    #else
+    char *cstr = STR2CSTR(obj);
+    #endif
+    size_t size = RSTRING_LEN(obj) + 1;
+    if (cptr)  {
+      if (alloc) {
+	if (*alloc == SWIG_NEWOBJ) {
+	  *cptr = reinterpret_cast< char* >(memcpy((new char[size]), cstr, sizeof(char)*(size)));
+	} else {
+	  *cptr = cstr;
+	  *alloc = SWIG_OLDOBJ;
+	}
+      }
+    }
+    if (psize) *psize = size;
+    return SWIG_OK;
+  } else {
+    swig_type_info* pchar_descriptor = SWIG_pchar_descriptor();
+    if (pchar_descriptor) {
+      void* vptr = 0;
+      if (SWIG_ConvertPtr(obj, &vptr, pchar_descriptor, 0) == SWIG_OK) {
+	if (cptr) *cptr = (char *)vptr;
+	if (psize) *psize = vptr ? (strlen((char*)vptr) + 1) : 0;
+	if (alloc) *alloc = SWIG_OLDOBJ;
+	return SWIG_OK;
+      }
+    }
+  }  
+  return SWIG_TypeError;
+}
+
+
+
 
 
 SWIGINTERN int
@@ -2566,6 +2532,45 @@ SWIG_From_size_t  (size_t value)
 }
 
 
+/*@SWIG:/opt/local/share/swig/2.0.4/ruby/rubyprimtypes.swg,19,%ruby_aux_method@*/
+SWIGINTERN VALUE SWIG_AUX_NUM2ULONG(VALUE *args)
+{
+  VALUE obj = args[0];
+  VALUE type = TYPE(obj);
+  unsigned long *res = (unsigned long *)(args[1]);
+  *res = type == T_FIXNUM ? NUM2ULONG(obj) : rb_big2ulong(obj);
+  return obj;
+}
+/*@SWIG@*/
+
+SWIGINTERN int
+SWIG_AsVal_unsigned_SS_long (VALUE obj, unsigned long *val) 
+{
+  VALUE type = TYPE(obj);
+  if ((type == T_FIXNUM) || (type == T_BIGNUM)) {
+    unsigned long v;
+    VALUE a[2];
+    a[0] = obj;
+    a[1] = (VALUE)(&v);
+    if (rb_rescue(RUBY_METHOD_FUNC(SWIG_AUX_NUM2ULONG), (VALUE)a, RUBY_METHOD_FUNC(SWIG_ruby_failed), 0) != Qnil) {
+      if (val) *val = v;
+      return SWIG_OK;
+    }
+  }
+  return SWIG_TypeError;
+}
+
+
+SWIGINTERNINLINE int
+SWIG_AsVal_size_t (VALUE obj, size_t *val)
+{
+  unsigned long v;
+  int res = SWIG_AsVal_unsigned_SS_long (obj, val ? &v : 0);
+  if (SWIG_IsOK(res) && val) *val = static_cast< size_t >(v);
+  return res;
+}
+
+
 	using namespace OTDB;
 	
 /* ---------------------------------------------------
@@ -2610,6 +2615,528 @@ void SwigDirector_OTCallback::runTwo(char const *szDisplay, OTPassword &theOutpu
   result = rb_funcall(swig_get_self(), rb_intern("runTwo"), 2,obj0,obj1);
 }
 
+
+swig_class SwigClassOTPasswordData;
+
+SWIGINTERN VALUE
+_wrap_OTPasswordData_isForNormalNym(int argc, VALUE *argv, VALUE self) {
+  OTPasswordData *arg1 = (OTPasswordData *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  bool result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 0) || (argc > 0)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTPasswordData, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTPasswordData const *","isForNormalNym", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTPasswordData * >(argp1);
+  result = (bool)((OTPasswordData const *)arg1)->isForNormalNym();
+  vresult = SWIG_From_bool(static_cast< bool >(result));
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OTPasswordData_isForMasterKey(int argc, VALUE *argv, VALUE self) {
+  OTPasswordData *arg1 = (OTPasswordData *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  bool result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 0) || (argc > 0)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTPasswordData, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTPasswordData const *","isForMasterKey", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTPasswordData * >(argp1);
+  result = (bool)((OTPasswordData const *)arg1)->isForMasterKey();
+  vresult = SWIG_From_bool(static_cast< bool >(result));
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OTPasswordData_GetDisplayString(int argc, VALUE *argv, VALUE self) {
+  OTPasswordData *arg1 = (OTPasswordData *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  char *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 0) || (argc > 0)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTPasswordData, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTPasswordData const *","GetDisplayString", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTPasswordData * >(argp1);
+  result = (char *)((OTPasswordData const *)arg1)->GetDisplayString();
+  vresult = SWIG_FromCharPtr((const char *)result);
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OTPasswordData_isUsingOldSystem(int argc, VALUE *argv, VALUE self) {
+  OTPasswordData *arg1 = (OTPasswordData *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  bool result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 0) || (argc > 0)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTPasswordData, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTPasswordData const *","isUsingOldSystem", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTPasswordData * >(argp1);
+  result = (bool)((OTPasswordData const *)arg1)->isUsingOldSystem();
+  vresult = SWIG_From_bool(static_cast< bool >(result));
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OTPasswordData_setUsingOldSystem__SWIG_0(int argc, VALUE *argv, VALUE self) {
+  OTPasswordData *arg1 = (OTPasswordData *) 0 ;
+  bool arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  bool val2 ;
+  int ecode2 = 0 ;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTPasswordData, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTPasswordData *","setUsingOldSystem", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTPasswordData * >(argp1);
+  ecode2 = SWIG_AsVal_bool(argv[0], &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), Ruby_Format_TypeError( "", "bool","setUsingOldSystem", 2, argv[0] ));
+  } 
+  arg2 = static_cast< bool >(val2);
+  (arg1)->setUsingOldSystem(arg2);
+  return Qnil;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OTPasswordData_setUsingOldSystem__SWIG_1(int argc, VALUE *argv, VALUE self) {
+  OTPasswordData *arg1 = (OTPasswordData *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  
+  if ((argc < 0) || (argc > 0)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTPasswordData, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTPasswordData *","setUsingOldSystem", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTPasswordData * >(argp1);
+  (arg1)->setUsingOldSystem();
+  return Qnil;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE _wrap_OTPasswordData_setUsingOldSystem(int nargs, VALUE *args, VALUE self) {
+  int argc;
+  VALUE argv[3];
+  int ii;
+  
+  argc = nargs + 1;
+  argv[0] = self;
+  if (argc > 3) SWIG_fail;
+  for (ii = 1; (ii < argc); ++ii) {
+    argv[ii] = args[ii-1];
+  }
+  if (argc == 1) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_OTPasswordData, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      return _wrap_OTPasswordData_setUsingOldSystem__SWIG_1(nargs, args, self);
+    }
+  }
+  if (argc == 2) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_OTPasswordData, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      {
+        int res = SWIG_AsVal_bool(argv[1], NULL);
+        _v = SWIG_CheckState(res);
+      }
+      if (_v) {
+        return _wrap_OTPasswordData_setUsingOldSystem__SWIG_0(nargs, args, self);
+      }
+    }
+  }
+  
+fail:
+  Ruby_Format_OverloadedError( argc, 3, "OTPasswordData.setUsingOldSystem", 
+    "    void OTPasswordData.setUsingOldSystem(bool bUsing)\n"
+    "    void OTPasswordData.setUsingOldSystem()\n");
+  
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OTPasswordData_GetMasterPW(int argc, VALUE *argv, VALUE self) {
+  OTPasswordData *arg1 = (OTPasswordData *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  OTPassword *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 0) || (argc > 0)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTPasswordData, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTPasswordData *","GetMasterPW", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTPasswordData * >(argp1);
+  result = (OTPassword *)(arg1)->GetMasterPW();
+  vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTPassword, 0 |  0 );
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_new_OTPasswordData__SWIG_0(int argc, VALUE *argv, VALUE self) {
+  char *arg1 = (char *) 0 ;
+  OTPassword *arg2 = (OTPassword *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  const char *classname SWIGUNUSED = "Otapi::OTPasswordData";
+  OTPasswordData *result = 0 ;
+  
+  if ((argc < 2) || (argc > 2)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
+  }
+  res1 = SWIG_AsCharPtrAndSize(argv[0], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "char const *","OTPasswordData", 1, argv[0] ));
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_ConvertPtr(argv[1], &argp2,SWIGTYPE_p_OTPassword, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "OTPassword *","OTPasswordData", 2, argv[1] )); 
+  }
+  arg2 = reinterpret_cast< OTPassword * >(argp2);
+  result = (OTPasswordData *)new OTPasswordData((char const *)arg1,arg2);
+  DATA_PTR(self) = result;
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return self;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_new_OTPasswordData__SWIG_1(int argc, VALUE *argv, VALUE self) {
+  char *arg1 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  const char *classname SWIGUNUSED = "Otapi::OTPasswordData";
+  OTPasswordData *result = 0 ;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_AsCharPtrAndSize(argv[0], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "char const *","OTPasswordData", 1, argv[0] ));
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  result = (OTPasswordData *)new OTPasswordData((char const *)arg1);
+  DATA_PTR(self) = result;
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return self;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_new_OTPasswordData__SWIG_2(int argc, VALUE *argv, VALUE self) {
+  std::string *arg1 = 0 ;
+  OTPassword *arg2 = (OTPassword *) 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  const char *classname SWIGUNUSED = "Otapi::OTPasswordData";
+  OTPasswordData *result = 0 ;
+  
+  if ((argc < 2) || (argc > 2)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string(argv[0], &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "std::string const &","OTPasswordData", 1, argv[0] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTPasswordData", 1, argv[0])); 
+    }
+    arg1 = ptr;
+  }
+  res2 = SWIG_ConvertPtr(argv[1], &argp2,SWIGTYPE_p_OTPassword, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "OTPassword *","OTPasswordData", 2, argv[1] )); 
+  }
+  arg2 = reinterpret_cast< OTPassword * >(argp2);
+  result = (OTPasswordData *)new OTPasswordData((std::string const &)*arg1,arg2);
+  DATA_PTR(self) = result;
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return self;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_new_OTPasswordData__SWIG_3(int argc, VALUE *argv, VALUE self) {
+  std::string *arg1 = 0 ;
+  int res1 = SWIG_OLDOBJ ;
+  const char *classname SWIGUNUSED = "Otapi::OTPasswordData";
+  OTPasswordData *result = 0 ;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res1 = SWIG_AsPtr_std_string(argv[0], &ptr);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "std::string const &","OTPasswordData", 1, argv[0] )); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "std::string const &","OTPasswordData", 1, argv[0])); 
+    }
+    arg1 = ptr;
+  }
+  result = (OTPasswordData *)new OTPasswordData((std::string const &)*arg1);
+  DATA_PTR(self) = result;
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return self;
+fail:
+  if (SWIG_IsNewObj(res1)) delete arg1;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_new_OTPasswordData__SWIG_4(int argc, VALUE *argv, VALUE self) {
+  OTString *arg1 = 0 ;
+  OTPassword *arg2 = (OTPassword *) 0 ;
+  void *argp1 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  const char *classname SWIGUNUSED = "Otapi::OTPasswordData";
+  OTPasswordData *result = 0 ;
+  
+  if ((argc < 2) || (argc > 2)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1, SWIGTYPE_p_OTString,  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTString const &","OTPasswordData", 1, argv[0] )); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "OTString const &","OTPasswordData", 1, argv[0])); 
+  }
+  arg1 = reinterpret_cast< OTString * >(argp1);
+  res2 = SWIG_ConvertPtr(argv[1], &argp2,SWIGTYPE_p_OTPassword, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "OTPassword *","OTPasswordData", 2, argv[1] )); 
+  }
+  arg2 = reinterpret_cast< OTPassword * >(argp2);
+  result = (OTPasswordData *)new OTPasswordData((OTString const &)*arg1,arg2);
+  DATA_PTR(self) = result;
+  return self;
+fail:
+  return Qnil;
+}
+
+
+#ifdef HAVE_RB_DEFINE_ALLOC_FUNC
+SWIGINTERN VALUE
+_wrap_OTPasswordData_allocate(VALUE self) {
+#else
+  SWIGINTERN VALUE
+  _wrap_OTPasswordData_allocate(int argc, VALUE *argv, VALUE self) {
+#endif
+    
+    
+    VALUE vresult = SWIG_NewClassInstance(self, SWIGTYPE_p_OTPasswordData);
+#ifndef HAVE_RB_DEFINE_ALLOC_FUNC
+    rb_obj_call_init(vresult, argc, argv);
+#endif
+    return vresult;
+  }
+  
+
+SWIGINTERN VALUE
+_wrap_new_OTPasswordData__SWIG_5(int argc, VALUE *argv, VALUE self) {
+  OTString *arg1 = 0 ;
+  void *argp1 ;
+  int res1 = 0 ;
+  const char *classname SWIGUNUSED = "Otapi::OTPasswordData";
+  OTPasswordData *result = 0 ;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1, SWIGTYPE_p_OTString,  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTString const &","OTPasswordData", 1, argv[0] )); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "OTString const &","OTPasswordData", 1, argv[0])); 
+  }
+  arg1 = reinterpret_cast< OTString * >(argp1);
+  result = (OTPasswordData *)new OTPasswordData((OTString const &)*arg1);
+  DATA_PTR(self) = result;
+  return self;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE _wrap_new_OTPasswordData(int nargs, VALUE *args, VALUE self) {
+  int argc;
+  VALUE argv[2];
+  int ii;
+  
+  argc = nargs;
+  if (argc > 2) SWIG_fail;
+  for (ii = 0; (ii < argc); ++ii) {
+    argv[ii] = args[ii];
+  }
+  if (argc == 1) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_OTString, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      return _wrap_new_OTPasswordData__SWIG_5(nargs, args, self);
+    }
+  }
+  if (argc == 1) {
+    int _v;
+    int res = SWIG_AsPtr_std_string(argv[0], (std::string**)(0));
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      return _wrap_new_OTPasswordData__SWIG_3(nargs, args, self);
+    }
+  }
+  if (argc == 1) {
+    int _v;
+    int res = SWIG_AsCharPtrAndSize(argv[0], 0, NULL, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      return _wrap_new_OTPasswordData__SWIG_1(nargs, args, self);
+    }
+  }
+  if (argc == 2) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_OTString, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_OTPassword, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        return _wrap_new_OTPasswordData__SWIG_4(nargs, args, self);
+      }
+    }
+  }
+  if (argc == 2) {
+    int _v;
+    int res = SWIG_AsPtr_std_string(argv[0], (std::string**)(0));
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_OTPassword, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        return _wrap_new_OTPasswordData__SWIG_2(nargs, args, self);
+      }
+    }
+  }
+  if (argc == 2) {
+    int _v;
+    int res = SWIG_AsCharPtrAndSize(argv[0], 0, NULL, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_OTPassword, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        return _wrap_new_OTPasswordData__SWIG_0(nargs, args, self);
+      }
+    }
+  }
+  
+fail:
+  Ruby_Format_OverloadedError( argc, 2, "OTPasswordData.new", 
+    "    OTPasswordData.new(char const *szDisplay, OTPassword *pMasterPW)\n"
+    "    OTPasswordData.new(char const *szDisplay)\n"
+    "    OTPasswordData.new(std::string const &str_Display, OTPassword *pMasterPW)\n"
+    "    OTPasswordData.new(std::string const &str_Display)\n"
+    "    OTPasswordData.new(OTString const &strDisplay, OTPassword *pMasterPW)\n"
+    "    OTPasswordData.new(OTString const &strDisplay)\n");
+  
+  return Qnil;
+}
+
+
+SWIGINTERN void
+free_OTPasswordData(OTPasswordData *arg1) {
+    delete arg1;
+}
 
 swig_class SwigClassOTPassword;
 
@@ -2662,6 +3189,30 @@ fail:
 
 
 SWIGINTERN VALUE
+_wrap_OTPassword_getPassword_uint8(int argc, VALUE *argv, VALUE self) {
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  uint8_t *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 0) || (argc > 0)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTPassword, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTPassword const *","getPassword_uint8", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTPassword * >(argp1);
+  result = (uint8_t *)((OTPassword const *)arg1)->getPassword_uint8();
+  vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_uint8_t, 0 |  0 );
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
 _wrap_OTPassword_getPassword(int argc, VALUE *argv, VALUE self) {
   OTPassword *arg1 = (OTPassword *) 0 ;
   void *argp1 = 0 ;
@@ -2679,6 +3230,30 @@ _wrap_OTPassword_getPassword(int argc, VALUE *argv, VALUE self) {
   arg1 = reinterpret_cast< OTPassword * >(argp1);
   result = (char *)((OTPassword const *)arg1)->getPassword();
   vresult = SWIG_FromCharPtr((const char *)result);
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OTPassword_getPasswordWritable(int argc, VALUE *argv, VALUE self) {
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  uint8_t *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 0) || (argc > 0)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTPassword, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTPassword *","getPasswordWritable", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTPassword * >(argp1);
+  result = (uint8_t *)(arg1)->getPasswordWritable();
+  vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_uint8_t, 0 |  0 );
   return vresult;
 fail:
   return Qnil;
@@ -2724,6 +3299,288 @@ _wrap_OTPassword_setPassword(int argc, VALUE *argv, VALUE self) {
   return vresult;
 fail:
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OTPassword_setPassword_uint8(int argc, VALUE *argv, VALUE self) {
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  uint8_t *arg2 = (uint8_t *) 0 ;
+  uint32_t arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 ;
+  int res3 = 0 ;
+  int32_t result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 2) || (argc > 2)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTPassword, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTPassword *","setPassword_uint8", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTPassword * >(argp1);
+  res2 = SWIG_ConvertPtr(argv[0], &argp2,SWIGTYPE_p_uint8_t, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "uint8_t const *","setPassword_uint8", 2, argv[0] )); 
+  }
+  arg2 = reinterpret_cast< uint8_t * >(argp2);
+  {
+    res3 = SWIG_ConvertPtr(argv[1], &argp3, SWIGTYPE_p_uint32_t,  0 );
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), Ruby_Format_TypeError( "", "uint32_t","setPassword_uint8", 3, argv[1] )); 
+    }  
+    if (!argp3) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "uint32_t","setPassword_uint8", 3, argv[1]));
+    } else {
+      arg3 = *(reinterpret_cast< uint32_t * >(argp3));
+    }
+  }
+  result = (arg1)->setPassword_uint8((uint8_t const *)arg2,arg3);
+  vresult = SWIG_NewPointerObj((new int32_t(static_cast< const int32_t& >(result))), SWIGTYPE_p_int32_t, SWIG_POINTER_OWN |  0 );
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OTPassword_addChar(int argc, VALUE *argv, VALUE self) {
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  uint8_t arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 ;
+  int res2 = 0 ;
+  bool result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTPassword, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTPassword *","addChar", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTPassword * >(argp1);
+  {
+    res2 = SWIG_ConvertPtr(argv[0], &argp2, SWIGTYPE_p_uint8_t,  0 );
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "uint8_t","addChar", 2, argv[0] )); 
+    }  
+    if (!argp2) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "uint8_t","addChar", 2, argv[0]));
+    } else {
+      arg2 = *(reinterpret_cast< uint8_t * >(argp2));
+    }
+  }
+  result = (bool)(arg1)->addChar(arg2);
+  vresult = SWIG_From_bool(static_cast< bool >(result));
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OTPassword_randomizePassword__SWIG_0(int argc, VALUE *argv, VALUE self) {
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  uint32_t arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 ;
+  int res2 = 0 ;
+  int32_t result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTPassword, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTPassword *","randomizePassword", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTPassword * >(argp1);
+  {
+    res2 = SWIG_ConvertPtr(argv[0], &argp2, SWIGTYPE_p_uint32_t,  0 );
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "uint32_t","randomizePassword", 2, argv[0] )); 
+    }  
+    if (!argp2) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "uint32_t","randomizePassword", 2, argv[0]));
+    } else {
+      arg2 = *(reinterpret_cast< uint32_t * >(argp2));
+    }
+  }
+  result = (arg1)->randomizePassword(arg2);
+  vresult = SWIG_NewPointerObj((new int32_t(static_cast< const int32_t& >(result))), SWIGTYPE_p_int32_t, SWIG_POINTER_OWN |  0 );
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OTPassword_randomizePassword__SWIG_1(int argc, VALUE *argv, VALUE self) {
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int32_t result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 0) || (argc > 0)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTPassword, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTPassword *","randomizePassword", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTPassword * >(argp1);
+  result = (arg1)->randomizePassword();
+  vresult = SWIG_NewPointerObj((new int32_t(static_cast< const int32_t& >(result))), SWIGTYPE_p_int32_t, SWIG_POINTER_OWN |  0 );
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OTPassword_randomizePassword_uint8(int argc, VALUE *argv, VALUE self) {
+  uint8_t *arg1 = (uint8_t *) 0 ;
+  uint32_t arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 ;
+  int res2 = 0 ;
+  bool result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 2) || (argc > 2)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1,SWIGTYPE_p_uint8_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "uint8_t *","OTPassword::randomizePassword_uint8", 1, argv[0] )); 
+  }
+  arg1 = reinterpret_cast< uint8_t * >(argp1);
+  {
+    res2 = SWIG_ConvertPtr(argv[1], &argp2, SWIGTYPE_p_uint32_t,  0 );
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "uint32_t","OTPassword::randomizePassword_uint8", 2, argv[1] )); 
+    }  
+    if (!argp2) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "uint32_t","OTPassword::randomizePassword_uint8", 2, argv[1]));
+    } else {
+      arg2 = *(reinterpret_cast< uint32_t * >(argp2));
+    }
+  }
+  result = (bool)OTPassword::randomizePassword_uint8(arg1,arg2);
+  vresult = SWIG_From_bool(static_cast< bool >(result));
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OTPassword_randomizePassword__SWIG_2(int argc, VALUE *argv, VALUE self) {
+  char *arg1 = (char *) 0 ;
+  uint32_t arg2 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  void *argp2 ;
+  int res2 = 0 ;
+  bool result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 2) || (argc > 2)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
+  }
+  res1 = SWIG_AsCharPtrAndSize(argv[0], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "char *","OTPassword::randomizePassword", 1, argv[0] ));
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  {
+    res2 = SWIG_ConvertPtr(argv[1], &argp2, SWIGTYPE_p_uint32_t,  0 );
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "uint32_t","OTPassword::randomizePassword", 2, argv[1] )); 
+    }  
+    if (!argp2) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "uint32_t","OTPassword::randomizePassword", 2, argv[1]));
+    } else {
+      arg2 = *(reinterpret_cast< uint32_t * >(argp2));
+    }
+  }
+  result = (bool)OTPassword::randomizePassword(arg1,arg2);
+  vresult = SWIG_From_bool(static_cast< bool >(result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return vresult;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE _wrap_OTPassword_randomizePassword(int nargs, VALUE *args, VALUE self) {
+  int argc;
+  VALUE argv[2];
+  int ii;
+  
+  argc = nargs;
+  if (argc > 2) SWIG_fail;
+  for (ii = 0; (ii < argc); ++ii) {
+    argv[ii] = args[ii];
+  }
+  if (argc == 1) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_OTPassword, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      return _wrap_OTPassword_randomizePassword__SWIG_1(nargs, args, self);
+    }
+  }
+  if (argc == 2) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_OTPassword, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_uint32_t, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        return _wrap_OTPassword_randomizePassword__SWIG_0(nargs, args, self);
+      }
+    }
+  }
+  if (argc == 2) {
+    int _v;
+    int res = SWIG_AsCharPtrAndSize(argv[0], 0, NULL, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_uint32_t, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        return _wrap_OTPassword_randomizePassword__SWIG_2(nargs, args, self);
+      }
+    }
+  }
+  
+fail:
+  Ruby_Format_OverloadedError( argc, 2, "OTPassword.randomizePassword", 
+    "    bool OTPassword.randomizePassword(OTPassword *self, uint32_t nNewSize)\n"
+    "    bool OTPassword.randomizePassword(OTPassword *self)\n"
+    "    bool OTPassword.randomizePassword(char *szDestination, uint32_t nNewSize)\n");
+  
   return Qnil;
 }
 
@@ -2777,6 +3634,30 @@ fail:
 
 
 SWIGINTERN VALUE
+_wrap_OTPassword_getMemory_uint8(int argc, VALUE *argv, VALUE self) {
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  uint8_t *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 0) || (argc > 0)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTPassword, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTPassword const *","getMemory_uint8", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTPassword * >(argp1);
+  result = (uint8_t *)((OTPassword const *)arg1)->getMemory_uint8();
+  vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_uint8_t, 0 |  0 );
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
 _wrap_OTPassword_getMemoryWritable(int argc, VALUE *argv, VALUE self) {
   OTPassword *arg1 = (OTPassword *) 0 ;
   void *argp1 = 0 ;
@@ -2804,13 +3685,13 @@ SWIGINTERN VALUE
 _wrap_OTPassword_setMemory(int argc, VALUE *argv, VALUE self) {
   OTPassword *arg1 = (OTPassword *) 0 ;
   void *arg2 = (void *) 0 ;
-  int arg3 ;
+  uint32_t arg3 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   int res2 ;
-  int val3 ;
-  int ecode3 = 0 ;
-  int result;
+  void *argp3 ;
+  int res3 = 0 ;
+  int32_t result;
   VALUE vresult = Qnil;
   
   if ((argc < 2) || (argc > 2)) {
@@ -2825,13 +3706,19 @@ _wrap_OTPassword_setMemory(int argc, VALUE *argv, VALUE self) {
   if (!SWIG_IsOK(res2)) {
     SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "void const *","setMemory", 2, argv[0] )); 
   }
-  ecode3 = SWIG_AsVal_int(argv[1], &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), Ruby_Format_TypeError( "", "int","setMemory", 3, argv[1] ));
-  } 
-  arg3 = static_cast< int >(val3);
-  result = (int)(arg1)->setMemory((void const *)arg2,arg3);
-  vresult = SWIG_From_int(static_cast< int >(result));
+  {
+    res3 = SWIG_ConvertPtr(argv[1], &argp3, SWIGTYPE_p_uint32_t,  0 );
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), Ruby_Format_TypeError( "", "uint32_t","setMemory", 3, argv[1] )); 
+    }  
+    if (!argp3) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "uint32_t","setMemory", 3, argv[1]));
+    } else {
+      arg3 = *(reinterpret_cast< uint32_t * >(argp3));
+    }
+  }
+  result = (arg1)->setMemory((void const *)arg2,arg3);
+  vresult = SWIG_NewPointerObj((new int32_t(static_cast< const int32_t& >(result))), SWIGTYPE_p_int32_t, SWIG_POINTER_OWN |  0 );
   return vresult;
 fail:
   return Qnil;
@@ -2842,13 +3729,13 @@ SWIGINTERN VALUE
 _wrap_OTPassword_addMemory(int argc, VALUE *argv, VALUE self) {
   OTPassword *arg1 = (OTPassword *) 0 ;
   void *arg2 = (void *) 0 ;
-  int arg3 ;
+  uint32_t arg3 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   int res2 ;
-  int val3 ;
-  int ecode3 = 0 ;
-  int result;
+  void *argp3 ;
+  int res3 = 0 ;
+  int32_t result;
   VALUE vresult = Qnil;
   
   if ((argc < 2) || (argc > 2)) {
@@ -2863,13 +3750,19 @@ _wrap_OTPassword_addMemory(int argc, VALUE *argv, VALUE self) {
   if (!SWIG_IsOK(res2)) {
     SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "void const *","addMemory", 2, argv[0] )); 
   }
-  ecode3 = SWIG_AsVal_int(argv[1], &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), Ruby_Format_TypeError( "", "int","addMemory", 3, argv[1] ));
-  } 
-  arg3 = static_cast< int >(val3);
-  result = (int)(arg1)->addMemory((void const *)arg2,arg3);
-  vresult = SWIG_From_int(static_cast< int >(result));
+  {
+    res3 = SWIG_ConvertPtr(argv[1], &argp3, SWIGTYPE_p_uint32_t,  0 );
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), Ruby_Format_TypeError( "", "uint32_t","addMemory", 3, argv[1] )); 
+    }  
+    if (!argp3) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "uint32_t","addMemory", 3, argv[1]));
+    } else {
+      arg3 = *(reinterpret_cast< uint32_t * >(argp3));
+    }
+  }
+  result = (arg1)->addMemory((void const *)arg2,arg3);
+  vresult = SWIG_NewPointerObj((new int32_t(static_cast< const int32_t& >(result))), SWIGTYPE_p_int32_t, SWIG_POINTER_OWN |  0 );
   return vresult;
 fail:
   return Qnil;
@@ -2879,12 +3772,12 @@ fail:
 SWIGINTERN VALUE
 _wrap_OTPassword_randomizeMemory__SWIG_0(int argc, VALUE *argv, VALUE self) {
   OTPassword *arg1 = (OTPassword *) 0 ;
-  size_t arg2 ;
+  uint32_t arg2 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
-  size_t val2 ;
-  int ecode2 = 0 ;
-  int result;
+  void *argp2 ;
+  int res2 = 0 ;
+  int32_t result;
   VALUE vresult = Qnil;
   
   if ((argc < 1) || (argc > 1)) {
@@ -2895,13 +3788,19 @@ _wrap_OTPassword_randomizeMemory__SWIG_0(int argc, VALUE *argv, VALUE self) {
     SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTPassword *","randomizeMemory", 1, self )); 
   }
   arg1 = reinterpret_cast< OTPassword * >(argp1);
-  ecode2 = SWIG_AsVal_size_t(argv[0], &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), Ruby_Format_TypeError( "", "size_t","randomizeMemory", 2, argv[0] ));
-  } 
-  arg2 = static_cast< size_t >(val2);
-  result = (int)(arg1)->randomizeMemory(arg2);
-  vresult = SWIG_From_int(static_cast< int >(result));
+  {
+    res2 = SWIG_ConvertPtr(argv[0], &argp2, SWIGTYPE_p_uint32_t,  0 );
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "uint32_t","randomizeMemory", 2, argv[0] )); 
+    }  
+    if (!argp2) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "uint32_t","randomizeMemory", 2, argv[0]));
+    } else {
+      arg2 = *(reinterpret_cast< uint32_t * >(argp2));
+    }
+  }
+  result = (arg1)->randomizeMemory(arg2);
+  vresult = SWIG_NewPointerObj((new int32_t(static_cast< const int32_t& >(result))), SWIGTYPE_p_int32_t, SWIG_POINTER_OWN |  0 );
   return vresult;
 fail:
   return Qnil;
@@ -2913,7 +3812,7 @@ _wrap_OTPassword_randomizeMemory__SWIG_1(int argc, VALUE *argv, VALUE self) {
   OTPassword *arg1 = (OTPassword *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
-  int result;
+  int32_t result;
   VALUE vresult = Qnil;
   
   if ((argc < 0) || (argc > 0)) {
@@ -2924,8 +3823,46 @@ _wrap_OTPassword_randomizeMemory__SWIG_1(int argc, VALUE *argv, VALUE self) {
     SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTPassword *","randomizeMemory", 1, self )); 
   }
   arg1 = reinterpret_cast< OTPassword * >(argp1);
-  result = (int)(arg1)->randomizeMemory();
-  vresult = SWIG_From_int(static_cast< int >(result));
+  result = (arg1)->randomizeMemory();
+  vresult = SWIG_NewPointerObj((new int32_t(static_cast< const int32_t& >(result))), SWIGTYPE_p_int32_t, SWIG_POINTER_OWN |  0 );
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OTPassword_randomizeMemory_uint8(int argc, VALUE *argv, VALUE self) {
+  uint8_t *arg1 = (uint8_t *) 0 ;
+  uint32_t arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 ;
+  int res2 = 0 ;
+  bool result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 2) || (argc > 2)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1,SWIGTYPE_p_uint8_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "uint8_t *","OTPassword::randomizeMemory_uint8", 1, argv[0] )); 
+  }
+  arg1 = reinterpret_cast< uint8_t * >(argp1);
+  {
+    res2 = SWIG_ConvertPtr(argv[1], &argp2, SWIGTYPE_p_uint32_t,  0 );
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "uint32_t","OTPassword::randomizeMemory_uint8", 2, argv[1] )); 
+    }  
+    if (!argp2) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "uint32_t","OTPassword::randomizeMemory_uint8", 2, argv[1]));
+    } else {
+      arg2 = *(reinterpret_cast< uint32_t * >(argp2));
+    }
+  }
+  result = (bool)OTPassword::randomizeMemory_uint8(arg1,arg2);
+  vresult = SWIG_From_bool(static_cast< bool >(result));
   return vresult;
 fail:
   return Qnil;
@@ -2934,35 +3871,36 @@ fail:
 
 SWIGINTERN VALUE
 _wrap_OTPassword_randomizeMemory__SWIG_2(int argc, VALUE *argv, VALUE self) {
-  char *arg1 = (char *) 0 ;
-  size_t arg2 ;
+  void *arg1 = (void *) 0 ;
+  uint32_t arg2 ;
   int res1 ;
-  char *buf1 = 0 ;
-  int alloc1 = 0 ;
-  size_t val2 ;
-  int ecode2 = 0 ;
+  void *argp2 ;
+  int res2 = 0 ;
   bool result;
   VALUE vresult = Qnil;
   
   if ((argc < 2) || (argc > 2)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
   }
-  res1 = SWIG_AsCharPtrAndSize(argv[0], &buf1, NULL, &alloc1);
+  res1 = SWIG_ConvertPtr(argv[0],SWIG_as_voidptrptr(&arg1), 0, 0);
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "char *","OTPassword::randomizeMemory", 1, argv[0] ));
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "void *","OTPassword::randomizeMemory", 1, argv[0] )); 
   }
-  arg1 = reinterpret_cast< char * >(buf1);
-  ecode2 = SWIG_AsVal_size_t(argv[1], &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), Ruby_Format_TypeError( "", "size_t","OTPassword::randomizeMemory", 2, argv[1] ));
-  } 
-  arg2 = static_cast< size_t >(val2);
+  {
+    res2 = SWIG_ConvertPtr(argv[1], &argp2, SWIGTYPE_p_uint32_t,  0 );
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "uint32_t","OTPassword::randomizeMemory", 2, argv[1] )); 
+    }  
+    if (!argp2) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "uint32_t","OTPassword::randomizeMemory", 2, argv[1]));
+    } else {
+      arg2 = *(reinterpret_cast< uint32_t * >(argp2));
+    }
+  }
   result = (bool)OTPassword::randomizeMemory(arg1,arg2);
   vresult = SWIG_From_bool(static_cast< bool >(result));
-  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   return vresult;
 fail:
-  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   return Qnil;
 }
 
@@ -2992,10 +3930,9 @@ SWIGINTERN VALUE _wrap_OTPassword_randomizeMemory(int nargs, VALUE *args, VALUE 
     int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_OTPassword, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
-      {
-        int res = SWIG_AsVal_size_t(argv[1], NULL);
-        _v = SWIG_CheckState(res);
-      }
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_uint32_t, 0);
+      _v = SWIG_CheckState(res);
       if (_v) {
         return _wrap_OTPassword_randomizeMemory__SWIG_0(nargs, args, self);
       }
@@ -3003,13 +3940,13 @@ SWIGINTERN VALUE _wrap_OTPassword_randomizeMemory(int nargs, VALUE *args, VALUE 
   }
   if (argc == 2) {
     int _v;
-    int res = SWIG_AsCharPtrAndSize(argv[0], 0, NULL, 0);
+    void *ptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &ptr, 0, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
-      {
-        int res = SWIG_AsVal_size_t(argv[1], NULL);
-        _v = SWIG_CheckState(res);
-      }
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_uint32_t, 0);
+      _v = SWIG_CheckState(res);
       if (_v) {
         return _wrap_OTPassword_randomizeMemory__SWIG_2(nargs, args, self);
       }
@@ -3018,9 +3955,9 @@ SWIGINTERN VALUE _wrap_OTPassword_randomizeMemory(int nargs, VALUE *args, VALUE 
   
 fail:
   Ruby_Format_OverloadedError( argc, 2, "OTPassword.randomizeMemory", 
-    "    bool OTPassword.randomizeMemory(OTPassword *self, size_t nNewSize)\n"
+    "    bool OTPassword.randomizeMemory(OTPassword *self, uint32_t nNewSize)\n"
     "    bool OTPassword.randomizeMemory(OTPassword *self)\n"
-    "    bool OTPassword.randomizeMemory(char *szDestination, size_t nNewSize)\n");
+    "    bool OTPassword.randomizeMemory(void *szDestination, uint32_t nNewSize)\n");
   
   return Qnil;
 }
@@ -3031,7 +3968,7 @@ _wrap_OTPassword_getBlockSize(int argc, VALUE *argv, VALUE self) {
   OTPassword *arg1 = (OTPassword *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
-  int result;
+  uint32_t result;
   VALUE vresult = Qnil;
   
   if ((argc < 0) || (argc > 0)) {
@@ -3042,8 +3979,43 @@ _wrap_OTPassword_getBlockSize(int argc, VALUE *argv, VALUE self) {
     SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTPassword const *","getBlockSize", 1, self )); 
   }
   arg1 = reinterpret_cast< OTPassword * >(argp1);
-  result = (int)((OTPassword const *)arg1)->getBlockSize();
-  vresult = SWIG_From_int(static_cast< int >(result));
+  result = ((OTPassword const *)arg1)->getBlockSize();
+  vresult = SWIG_NewPointerObj((new uint32_t(static_cast< const uint32_t& >(result))), SWIGTYPE_p_uint32_t, SWIG_POINTER_OWN |  0 );
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OTPassword_Compare(int argc, VALUE *argv, VALUE self) {
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  OTPassword *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  bool result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTPassword, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTPassword const *","Compare", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTPassword * >(argp1);
+  res2 = SWIG_ConvertPtr(argv[0], &argp2, SWIGTYPE_p_OTPassword,  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "OTPassword &","Compare", 2, argv[0] )); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "OTPassword &","Compare", 2, argv[0])); 
+  }
+  arg2 = reinterpret_cast< OTPassword * >(argp2);
+  result = (bool)((OTPassword const *)arg1)->Compare(*arg2);
+  vresult = SWIG_From_bool(static_cast< bool >(result));
   return vresult;
 fail:
   return Qnil;
@@ -3055,7 +4027,7 @@ _wrap_OTPassword_getPasswordSize(int argc, VALUE *argv, VALUE self) {
   OTPassword *arg1 = (OTPassword *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
-  int result;
+  uint32_t result;
   VALUE vresult = Qnil;
   
   if ((argc < 0) || (argc > 0)) {
@@ -3066,8 +4038,8 @@ _wrap_OTPassword_getPasswordSize(int argc, VALUE *argv, VALUE self) {
     SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTPassword const *","getPasswordSize", 1, self )); 
   }
   arg1 = reinterpret_cast< OTPassword * >(argp1);
-  result = (int)((OTPassword const *)arg1)->getPasswordSize();
-  vresult = SWIG_From_int(static_cast< int >(result));
+  result = ((OTPassword const *)arg1)->getPasswordSize();
+  vresult = SWIG_NewPointerObj((new uint32_t(static_cast< const uint32_t& >(result))), SWIGTYPE_p_uint32_t, SWIG_POINTER_OWN |  0 );
   return vresult;
 fail:
   return Qnil;
@@ -3079,7 +4051,7 @@ _wrap_OTPassword_getMemorySize(int argc, VALUE *argv, VALUE self) {
   OTPassword *arg1 = (OTPassword *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
-  int result;
+  uint32_t result;
   VALUE vresult = Qnil;
   
   if ((argc < 0) || (argc > 0)) {
@@ -3090,8 +4062,8 @@ _wrap_OTPassword_getMemorySize(int argc, VALUE *argv, VALUE self) {
     SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTPassword const *","getMemorySize", 1, self )); 
   }
   arg1 = reinterpret_cast< OTPassword * >(argp1);
-  result = (int)((OTPassword const *)arg1)->getMemorySize();
-  vresult = SWIG_From_int(static_cast< int >(result));
+  result = ((OTPassword const *)arg1)->getMemorySize();
+  vresult = SWIG_NewPointerObj((new uint32_t(static_cast< const uint32_t& >(result))), SWIGTYPE_p_uint32_t, SWIG_POINTER_OWN |  0 );
   return vresult;
 fail:
   return Qnil;
@@ -3121,32 +4093,35 @@ fail:
 
 SWIGINTERN VALUE
 _wrap_OTPassword_zeroMemory__SWIG_1(int argc, VALUE *argv, VALUE self) {
-  char *arg1 = (char *) 0 ;
-  size_t arg2 ;
-  int res1 ;
-  char *buf1 = 0 ;
-  int alloc1 = 0 ;
-  size_t val2 ;
-  int ecode2 = 0 ;
+  uint8_t *arg1 = (uint8_t *) 0 ;
+  uint32_t arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 ;
+  int res2 = 0 ;
   
   if ((argc < 2) || (argc > 2)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
   }
-  res1 = SWIG_AsCharPtrAndSize(argv[0], &buf1, NULL, &alloc1);
+  res1 = SWIG_ConvertPtr(argv[0], &argp1,SWIGTYPE_p_uint8_t, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "char *","OTPassword::zeroMemory", 1, argv[0] ));
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "uint8_t *","OTPassword::zeroMemory", 1, argv[0] )); 
   }
-  arg1 = reinterpret_cast< char * >(buf1);
-  ecode2 = SWIG_AsVal_size_t(argv[1], &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), Ruby_Format_TypeError( "", "size_t","OTPassword::zeroMemory", 2, argv[1] ));
-  } 
-  arg2 = static_cast< size_t >(val2);
+  arg1 = reinterpret_cast< uint8_t * >(argp1);
+  {
+    res2 = SWIG_ConvertPtr(argv[1], &argp2, SWIGTYPE_p_uint32_t,  0 );
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "uint32_t","OTPassword::zeroMemory", 2, argv[1] )); 
+    }  
+    if (!argp2) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "uint32_t","OTPassword::zeroMemory", 2, argv[1]));
+    } else {
+      arg2 = *(reinterpret_cast< uint32_t * >(argp2));
+    }
+  }
   OTPassword::zeroMemory(arg1,arg2);
-  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   return Qnil;
 fail:
-  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   return Qnil;
 }
 
@@ -3154,10 +4129,10 @@ fail:
 SWIGINTERN VALUE
 _wrap_OTPassword_zeroMemory__SWIG_2(int argc, VALUE *argv, VALUE self) {
   void *arg1 = (void *) 0 ;
-  size_t arg2 ;
+  uint32_t arg2 ;
   int res1 ;
-  size_t val2 ;
-  int ecode2 = 0 ;
+  void *argp2 ;
+  int res2 = 0 ;
   
   if ((argc < 2) || (argc > 2)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
@@ -3166,11 +4141,17 @@ _wrap_OTPassword_zeroMemory__SWIG_2(int argc, VALUE *argv, VALUE self) {
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "void *","OTPassword::zeroMemory", 1, argv[0] )); 
   }
-  ecode2 = SWIG_AsVal_size_t(argv[1], &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), Ruby_Format_TypeError( "", "size_t","OTPassword::zeroMemory", 2, argv[1] ));
-  } 
-  arg2 = static_cast< size_t >(val2);
+  {
+    res2 = SWIG_ConvertPtr(argv[1], &argp2, SWIGTYPE_p_uint32_t,  0 );
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "uint32_t","OTPassword::zeroMemory", 2, argv[1] )); 
+    }  
+    if (!argp2) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "uint32_t","OTPassword::zeroMemory", 2, argv[1]));
+    } else {
+      arg2 = *(reinterpret_cast< uint32_t * >(argp2));
+    }
+  }
   OTPassword::zeroMemory(arg1,arg2);
   return Qnil;
 fail:
@@ -3199,30 +4180,29 @@ SWIGINTERN VALUE _wrap_OTPassword_zeroMemory(int nargs, VALUE *args, VALUE self)
   }
   if (argc == 2) {
     int _v;
-    void *ptr = 0;
-    int res = SWIG_ConvertPtr(argv[0], &ptr, 0, 0);
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_uint8_t, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
-      {
-        int res = SWIG_AsVal_size_t(argv[1], NULL);
-        _v = SWIG_CheckState(res);
-      }
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_uint32_t, 0);
+      _v = SWIG_CheckState(res);
       if (_v) {
-        return _wrap_OTPassword_zeroMemory__SWIG_2(nargs, args, self);
+        return _wrap_OTPassword_zeroMemory__SWIG_1(nargs, args, self);
       }
     }
   }
   if (argc == 2) {
     int _v;
-    int res = SWIG_AsCharPtrAndSize(argv[0], 0, NULL, 0);
+    void *ptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &ptr, 0, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
-      {
-        int res = SWIG_AsVal_size_t(argv[1], NULL);
-        _v = SWIG_CheckState(res);
-      }
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_uint32_t, 0);
+      _v = SWIG_CheckState(res);
       if (_v) {
-        return _wrap_OTPassword_zeroMemory__SWIG_1(nargs, args, self);
+        return _wrap_OTPassword_zeroMemory__SWIG_2(nargs, args, self);
       }
     }
   }
@@ -3230,8 +4210,8 @@ SWIGINTERN VALUE _wrap_OTPassword_zeroMemory(int nargs, VALUE *args, VALUE self)
 fail:
   Ruby_Format_OverloadedError( argc, 2, "OTPassword.zeroMemory", 
     "    void OTPassword.zeroMemory(OTPassword *self)\n"
-    "    void OTPassword.zeroMemory(char *szMemory, size_t theSize)\n"
-    "    void OTPassword.zeroMemory(void *vMemory, size_t theSize)\n");
+    "    void OTPassword.zeroMemory(uint8_t *szMemory, uint32_t theSize)\n"
+    "    void OTPassword.zeroMemory(void *vMemory, uint32_t theSize)\n");
   
   return Qnil;
 }
@@ -3240,16 +4220,16 @@ fail:
 SWIGINTERN VALUE
 _wrap_OTPassword_safe_memcpy__SWIG_0(int argc, VALUE *argv, VALUE self) {
   void *arg1 = (void *) 0 ;
-  size_t arg2 ;
+  uint32_t arg2 ;
   void *arg3 = (void *) 0 ;
-  size_t arg4 ;
+  uint32_t arg4 ;
   bool arg5 ;
   int res1 ;
-  size_t val2 ;
-  int ecode2 = 0 ;
+  void *argp2 ;
+  int res2 = 0 ;
   int res3 ;
-  size_t val4 ;
-  int ecode4 = 0 ;
+  void *argp4 ;
+  int res4 = 0 ;
   bool val5 ;
   int ecode5 = 0 ;
   void *result = 0 ;
@@ -3262,20 +4242,32 @@ _wrap_OTPassword_safe_memcpy__SWIG_0(int argc, VALUE *argv, VALUE self) {
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "void *","OTPassword::safe_memcpy", 1, argv[0] )); 
   }
-  ecode2 = SWIG_AsVal_size_t(argv[1], &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), Ruby_Format_TypeError( "", "size_t","OTPassword::safe_memcpy", 2, argv[1] ));
-  } 
-  arg2 = static_cast< size_t >(val2);
+  {
+    res2 = SWIG_ConvertPtr(argv[1], &argp2, SWIGTYPE_p_uint32_t,  0 );
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "uint32_t","OTPassword::safe_memcpy", 2, argv[1] )); 
+    }  
+    if (!argp2) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "uint32_t","OTPassword::safe_memcpy", 2, argv[1]));
+    } else {
+      arg2 = *(reinterpret_cast< uint32_t * >(argp2));
+    }
+  }
   res3 = SWIG_ConvertPtr(argv[2],SWIG_as_voidptrptr(&arg3), 0, 0);
   if (!SWIG_IsOK(res3)) {
     SWIG_exception_fail(SWIG_ArgError(res3), Ruby_Format_TypeError( "", "void const *","OTPassword::safe_memcpy", 3, argv[2] )); 
   }
-  ecode4 = SWIG_AsVal_size_t(argv[3], &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), Ruby_Format_TypeError( "", "size_t","OTPassword::safe_memcpy", 4, argv[3] ));
-  } 
-  arg4 = static_cast< size_t >(val4);
+  {
+    res4 = SWIG_ConvertPtr(argv[3], &argp4, SWIGTYPE_p_uint32_t,  0 );
+    if (!SWIG_IsOK(res4)) {
+      SWIG_exception_fail(SWIG_ArgError(res4), Ruby_Format_TypeError( "", "uint32_t","OTPassword::safe_memcpy", 4, argv[3] )); 
+    }  
+    if (!argp4) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "uint32_t","OTPassword::safe_memcpy", 4, argv[3]));
+    } else {
+      arg4 = *(reinterpret_cast< uint32_t * >(argp4));
+    }
+  }
   ecode5 = SWIG_AsVal_bool(argv[4], &val5);
   if (!SWIG_IsOK(ecode5)) {
     SWIG_exception_fail(SWIG_ArgError(ecode5), Ruby_Format_TypeError( "", "bool","OTPassword::safe_memcpy", 5, argv[4] ));
@@ -3292,15 +4284,15 @@ fail:
 SWIGINTERN VALUE
 _wrap_OTPassword_safe_memcpy__SWIG_1(int argc, VALUE *argv, VALUE self) {
   void *arg1 = (void *) 0 ;
-  size_t arg2 ;
+  uint32_t arg2 ;
   void *arg3 = (void *) 0 ;
-  size_t arg4 ;
+  uint32_t arg4 ;
   int res1 ;
-  size_t val2 ;
-  int ecode2 = 0 ;
+  void *argp2 ;
+  int res2 = 0 ;
   int res3 ;
-  size_t val4 ;
-  int ecode4 = 0 ;
+  void *argp4 ;
+  int res4 = 0 ;
   void *result = 0 ;
   VALUE vresult = Qnil;
   
@@ -3311,20 +4303,32 @@ _wrap_OTPassword_safe_memcpy__SWIG_1(int argc, VALUE *argv, VALUE self) {
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "void *","OTPassword::safe_memcpy", 1, argv[0] )); 
   }
-  ecode2 = SWIG_AsVal_size_t(argv[1], &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), Ruby_Format_TypeError( "", "size_t","OTPassword::safe_memcpy", 2, argv[1] ));
-  } 
-  arg2 = static_cast< size_t >(val2);
+  {
+    res2 = SWIG_ConvertPtr(argv[1], &argp2, SWIGTYPE_p_uint32_t,  0 );
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "uint32_t","OTPassword::safe_memcpy", 2, argv[1] )); 
+    }  
+    if (!argp2) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "uint32_t","OTPassword::safe_memcpy", 2, argv[1]));
+    } else {
+      arg2 = *(reinterpret_cast< uint32_t * >(argp2));
+    }
+  }
   res3 = SWIG_ConvertPtr(argv[2],SWIG_as_voidptrptr(&arg3), 0, 0);
   if (!SWIG_IsOK(res3)) {
     SWIG_exception_fail(SWIG_ArgError(res3), Ruby_Format_TypeError( "", "void const *","OTPassword::safe_memcpy", 3, argv[2] )); 
   }
-  ecode4 = SWIG_AsVal_size_t(argv[3], &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), Ruby_Format_TypeError( "", "size_t","OTPassword::safe_memcpy", 4, argv[3] ));
-  } 
-  arg4 = static_cast< size_t >(val4);
+  {
+    res4 = SWIG_ConvertPtr(argv[3], &argp4, SWIGTYPE_p_uint32_t,  0 );
+    if (!SWIG_IsOK(res4)) {
+      SWIG_exception_fail(SWIG_ArgError(res4), Ruby_Format_TypeError( "", "uint32_t","OTPassword::safe_memcpy", 4, argv[3] )); 
+    }  
+    if (!argp4) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "uint32_t","OTPassword::safe_memcpy", 4, argv[3]));
+    } else {
+      arg4 = *(reinterpret_cast< uint32_t * >(argp4));
+    }
+  }
   result = (void *)OTPassword::safe_memcpy(arg1,arg2,(void const *)arg3,arg4);
   vresult = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_void, 0 |  0 );
   return vresult;
@@ -3349,19 +4353,17 @@ SWIGINTERN VALUE _wrap_OTPassword_safe_memcpy(int nargs, VALUE *args, VALUE self
     int res = SWIG_ConvertPtr(argv[0], &ptr, 0, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
-      {
-        int res = SWIG_AsVal_size_t(argv[1], NULL);
-        _v = SWIG_CheckState(res);
-      }
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_uint32_t, 0);
+      _v = SWIG_CheckState(res);
       if (_v) {
         void *ptr = 0;
         int res = SWIG_ConvertPtr(argv[2], &ptr, 0, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
-          {
-            int res = SWIG_AsVal_size_t(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_uint32_t, 0);
+          _v = SWIG_CheckState(res);
           if (_v) {
             return _wrap_OTPassword_safe_memcpy__SWIG_1(nargs, args, self);
           }
@@ -3375,19 +4377,17 @@ SWIGINTERN VALUE _wrap_OTPassword_safe_memcpy(int nargs, VALUE *args, VALUE self
     int res = SWIG_ConvertPtr(argv[0], &ptr, 0, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
-      {
-        int res = SWIG_AsVal_size_t(argv[1], NULL);
-        _v = SWIG_CheckState(res);
-      }
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_uint32_t, 0);
+      _v = SWIG_CheckState(res);
       if (_v) {
         void *ptr = 0;
         int res = SWIG_ConvertPtr(argv[2], &ptr, 0, 0);
         _v = SWIG_CheckState(res);
         if (_v) {
-          {
-            int res = SWIG_AsVal_size_t(argv[3], NULL);
-            _v = SWIG_CheckState(res);
-          }
+          void *vptr = 0;
+          int res = SWIG_ConvertPtr(argv[3], &vptr, SWIGTYPE_p_uint32_t, 0);
+          _v = SWIG_CheckState(res);
           if (_v) {
             {
               int res = SWIG_AsVal_bool(argv[4], NULL);
@@ -3404,8 +4404,8 @@ SWIGINTERN VALUE _wrap_OTPassword_safe_memcpy(int nargs, VALUE *args, VALUE self
   
 fail:
   Ruby_Format_OverloadedError( argc, 5, "OTPassword.safe_memcpy", 
-    "    void * OTPassword.safe_memcpy(void *dest, size_t dest_size, void const *src, size_t src_length, bool bZeroSource)\n"
-    "    void * OTPassword.safe_memcpy(void *dest, size_t dest_size, void const *src, size_t src_length)\n");
+    "    void * OTPassword.safe_memcpy(void *dest, uint32_t dest_size, void const *src, uint32_t src_length, bool bZeroSource)\n"
+    "    void * OTPassword.safe_memcpy(void *dest, uint32_t dest_size, void const *src, uint32_t src_length)\n");
   
   return Qnil;
 }
@@ -3453,14 +4453,41 @@ fail:
 
 SWIGINTERN VALUE
 _wrap_new_OTPassword__SWIG_2(int argc, VALUE *argv, VALUE self) {
+  OTPassword *arg1 = 0 ;
+  void *argp1 ;
+  int res1 = 0 ;
+  const char *classname SWIGUNUSED = "Otapi::OTPassword";
+  OTPassword *result = 0 ;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1, SWIGTYPE_p_OTPassword,  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTPassword const &","OTPassword", 1, argv[0] )); 
+  }
+  if (!argp1) {
+    SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "OTPassword const &","OTPassword", 1, argv[0])); 
+  }
+  arg1 = reinterpret_cast< OTPassword * >(argp1);
+  result = (OTPassword *)new OTPassword((OTPassword const &)*arg1);
+  DATA_PTR(self) = result;
+  return self;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_new_OTPassword__SWIG_3(int argc, VALUE *argv, VALUE self) {
   char *arg1 = (char *) 0 ;
-  int arg2 ;
+  uint32_t arg2 ;
   OTPassword::BlockSize arg3 ;
   int res1 ;
   char *buf1 = 0 ;
   int alloc1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
+  void *argp2 ;
+  int res2 = 0 ;
   int val3 ;
   int ecode3 = 0 ;
   const char *classname SWIGUNUSED = "Otapi::OTPassword";
@@ -3474,11 +4501,17 @@ _wrap_new_OTPassword__SWIG_2(int argc, VALUE *argv, VALUE self) {
     SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "char const *","OTPassword", 1, argv[0] ));
   }
   arg1 = reinterpret_cast< char * >(buf1);
-  ecode2 = SWIG_AsVal_int(argv[1], &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), Ruby_Format_TypeError( "", "int","OTPassword", 2, argv[1] ));
-  } 
-  arg2 = static_cast< int >(val2);
+  {
+    res2 = SWIG_ConvertPtr(argv[1], &argp2, SWIGTYPE_p_uint32_t,  0 );
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "uint32_t","OTPassword", 2, argv[1] )); 
+    }  
+    if (!argp2) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "uint32_t","OTPassword", 2, argv[1]));
+    } else {
+      arg2 = *(reinterpret_cast< uint32_t * >(argp2));
+    }
+  }
   ecode3 = SWIG_AsVal_int(argv[2], &val3);
   if (!SWIG_IsOK(ecode3)) {
     SWIG_exception_fail(SWIG_ArgError(ecode3), Ruby_Format_TypeError( "", "OTPassword::BlockSize","OTPassword", 3, argv[2] ));
@@ -3495,14 +4528,14 @@ fail:
 
 
 SWIGINTERN VALUE
-_wrap_new_OTPassword__SWIG_3(int argc, VALUE *argv, VALUE self) {
+_wrap_new_OTPassword__SWIG_4(int argc, VALUE *argv, VALUE self) {
   char *arg1 = (char *) 0 ;
-  int arg2 ;
+  uint32_t arg2 ;
   int res1 ;
   char *buf1 = 0 ;
   int alloc1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
+  void *argp2 ;
+  int res2 = 0 ;
   const char *classname SWIGUNUSED = "Otapi::OTPassword";
   OTPassword *result = 0 ;
   
@@ -3514,11 +4547,17 @@ _wrap_new_OTPassword__SWIG_3(int argc, VALUE *argv, VALUE self) {
     SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "char const *","OTPassword", 1, argv[0] ));
   }
   arg1 = reinterpret_cast< char * >(buf1);
-  ecode2 = SWIG_AsVal_int(argv[1], &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), Ruby_Format_TypeError( "", "int","OTPassword", 2, argv[1] ));
-  } 
-  arg2 = static_cast< int >(val2);
+  {
+    res2 = SWIG_ConvertPtr(argv[1], &argp2, SWIGTYPE_p_uint32_t,  0 );
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "uint32_t","OTPassword", 2, argv[1] )); 
+    }  
+    if (!argp2) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "uint32_t","OTPassword", 2, argv[1]));
+    } else {
+      arg2 = *(reinterpret_cast< uint32_t * >(argp2));
+    }
+  }
   result = (OTPassword *)new OTPassword((char const *)arg1,arg2);
   DATA_PTR(self) = result;
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
@@ -3530,13 +4569,97 @@ fail:
 
 
 SWIGINTERN VALUE
-_wrap_new_OTPassword__SWIG_4(int argc, VALUE *argv, VALUE self) {
+_wrap_new_OTPassword__SWIG_5(int argc, VALUE *argv, VALUE self) {
+  uint8_t *arg1 = (uint8_t *) 0 ;
+  uint32_t arg2 ;
+  OTPassword::BlockSize arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 ;
+  int res2 = 0 ;
+  int val3 ;
+  int ecode3 = 0 ;
+  const char *classname SWIGUNUSED = "Otapi::OTPassword";
+  OTPassword *result = 0 ;
+  
+  if ((argc < 3) || (argc > 3)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1,SWIGTYPE_p_uint8_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "uint8_t const *","OTPassword", 1, argv[0] )); 
+  }
+  arg1 = reinterpret_cast< uint8_t * >(argp1);
+  {
+    res2 = SWIG_ConvertPtr(argv[1], &argp2, SWIGTYPE_p_uint32_t,  0 );
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "uint32_t","OTPassword", 2, argv[1] )); 
+    }  
+    if (!argp2) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "uint32_t","OTPassword", 2, argv[1]));
+    } else {
+      arg2 = *(reinterpret_cast< uint32_t * >(argp2));
+    }
+  }
+  ecode3 = SWIG_AsVal_int(argv[2], &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), Ruby_Format_TypeError( "", "OTPassword::BlockSize","OTPassword", 3, argv[2] ));
+  } 
+  arg3 = static_cast< OTPassword::BlockSize >(val3);
+  result = (OTPassword *)new OTPassword((uint8_t const *)arg1,arg2,arg3);
+  DATA_PTR(self) = result;
+  return self;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_new_OTPassword__SWIG_6(int argc, VALUE *argv, VALUE self) {
+  uint8_t *arg1 = (uint8_t *) 0 ;
+  uint32_t arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 ;
+  int res2 = 0 ;
+  const char *classname SWIGUNUSED = "Otapi::OTPassword";
+  OTPassword *result = 0 ;
+  
+  if ((argc < 2) || (argc > 2)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(argv[0], &argp1,SWIGTYPE_p_uint8_t, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "uint8_t const *","OTPassword", 1, argv[0] )); 
+  }
+  arg1 = reinterpret_cast< uint8_t * >(argp1);
+  {
+    res2 = SWIG_ConvertPtr(argv[1], &argp2, SWIGTYPE_p_uint32_t,  0 );
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "uint32_t","OTPassword", 2, argv[1] )); 
+    }  
+    if (!argp2) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "uint32_t","OTPassword", 2, argv[1]));
+    } else {
+      arg2 = *(reinterpret_cast< uint32_t * >(argp2));
+    }
+  }
+  result = (OTPassword *)new OTPassword((uint8_t const *)arg1,arg2);
+  DATA_PTR(self) = result;
+  return self;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_new_OTPassword__SWIG_7(int argc, VALUE *argv, VALUE self) {
   void *arg1 = (void *) 0 ;
-  int arg2 ;
+  uint32_t arg2 ;
   OTPassword::BlockSize arg3 ;
   int res1 ;
-  int val2 ;
-  int ecode2 = 0 ;
+  void *argp2 ;
+  int res2 = 0 ;
   int val3 ;
   int ecode3 = 0 ;
   const char *classname SWIGUNUSED = "Otapi::OTPassword";
@@ -3549,11 +4672,17 @@ _wrap_new_OTPassword__SWIG_4(int argc, VALUE *argv, VALUE self) {
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "void const *","OTPassword", 1, argv[0] )); 
   }
-  ecode2 = SWIG_AsVal_int(argv[1], &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), Ruby_Format_TypeError( "", "int","OTPassword", 2, argv[1] ));
-  } 
-  arg2 = static_cast< int >(val2);
+  {
+    res2 = SWIG_ConvertPtr(argv[1], &argp2, SWIGTYPE_p_uint32_t,  0 );
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "uint32_t","OTPassword", 2, argv[1] )); 
+    }  
+    if (!argp2) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "uint32_t","OTPassword", 2, argv[1]));
+    } else {
+      arg2 = *(reinterpret_cast< uint32_t * >(argp2));
+    }
+  }
   ecode3 = SWIG_AsVal_int(argv[2], &val3);
   if (!SWIG_IsOK(ecode3)) {
     SWIG_exception_fail(SWIG_ArgError(ecode3), Ruby_Format_TypeError( "", "OTPassword::BlockSize","OTPassword", 3, argv[2] ));
@@ -3585,12 +4714,12 @@ _wrap_OTPassword_allocate(VALUE self) {
   
 
 SWIGINTERN VALUE
-_wrap_new_OTPassword__SWIG_5(int argc, VALUE *argv, VALUE self) {
+_wrap_new_OTPassword__SWIG_8(int argc, VALUE *argv, VALUE self) {
   void *arg1 = (void *) 0 ;
-  int arg2 ;
+  uint32_t arg2 ;
   int res1 ;
-  int val2 ;
-  int ecode2 = 0 ;
+  void *argp2 ;
+  int res2 = 0 ;
   const char *classname SWIGUNUSED = "Otapi::OTPassword";
   OTPassword *result = 0 ;
   
@@ -3601,11 +4730,17 @@ _wrap_new_OTPassword__SWIG_5(int argc, VALUE *argv, VALUE self) {
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "void const *","OTPassword", 1, argv[0] )); 
   }
-  ecode2 = SWIG_AsVal_int(argv[1], &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), Ruby_Format_TypeError( "", "int","OTPassword", 2, argv[1] ));
-  } 
-  arg2 = static_cast< int >(val2);
+  {
+    res2 = SWIG_ConvertPtr(argv[1], &argp2, SWIGTYPE_p_uint32_t,  0 );
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "uint32_t","OTPassword", 2, argv[1] )); 
+    }  
+    if (!argp2) {
+      SWIG_exception_fail(SWIG_ValueError, Ruby_Format_TypeError("invalid null reference ", "uint32_t","OTPassword", 2, argv[1]));
+    } else {
+      arg2 = *(reinterpret_cast< uint32_t * >(argp2));
+    }
+  }
   result = (OTPassword *)new OTPassword((void const *)arg1,arg2);
   DATA_PTR(self) = result;
   return self;
@@ -3629,6 +4764,15 @@ SWIGINTERN VALUE _wrap_new_OTPassword(int nargs, VALUE *args, VALUE self) {
   }
   if (argc == 1) {
     int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_OTPassword, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      return _wrap_new_OTPassword__SWIG_2(nargs, args, self);
+    }
+  }
+  if (argc == 1) {
+    int _v;
     {
       int res = SWIG_AsVal_int(argv[0], NULL);
       _v = SWIG_CheckState(res);
@@ -3639,16 +4783,29 @@ SWIGINTERN VALUE _wrap_new_OTPassword(int nargs, VALUE *args, VALUE self) {
   }
   if (argc == 2) {
     int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_uint8_t, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_uint32_t, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        return _wrap_new_OTPassword__SWIG_6(nargs, args, self);
+      }
+    }
+  }
+  if (argc == 2) {
+    int _v;
     void *ptr = 0;
     int res = SWIG_ConvertPtr(argv[0], &ptr, 0, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
-      {
-        int res = SWIG_AsVal_int(argv[1], NULL);
-        _v = SWIG_CheckState(res);
-      }
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_uint32_t, 0);
+      _v = SWIG_CheckState(res);
       if (_v) {
-        return _wrap_new_OTPassword__SWIG_5(nargs, args, self);
+        return _wrap_new_OTPassword__SWIG_8(nargs, args, self);
       }
     }
   }
@@ -3657,12 +4814,31 @@ SWIGINTERN VALUE _wrap_new_OTPassword(int nargs, VALUE *args, VALUE self) {
     int res = SWIG_AsCharPtrAndSize(argv[0], 0, NULL, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
-      {
-        int res = SWIG_AsVal_int(argv[1], NULL);
-        _v = SWIG_CheckState(res);
-      }
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_uint32_t, 0);
+      _v = SWIG_CheckState(res);
       if (_v) {
-        return _wrap_new_OTPassword__SWIG_3(nargs, args, self);
+        return _wrap_new_OTPassword__SWIG_4(nargs, args, self);
+      }
+    }
+  }
+  if (argc == 3) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_uint8_t, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_uint32_t, 0);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        {
+          int res = SWIG_AsVal_int(argv[2], NULL);
+          _v = SWIG_CheckState(res);
+        }
+        if (_v) {
+          return _wrap_new_OTPassword__SWIG_5(nargs, args, self);
+        }
       }
     }
   }
@@ -3672,17 +4848,16 @@ SWIGINTERN VALUE _wrap_new_OTPassword(int nargs, VALUE *args, VALUE self) {
     int res = SWIG_ConvertPtr(argv[0], &ptr, 0, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
-      {
-        int res = SWIG_AsVal_int(argv[1], NULL);
-        _v = SWIG_CheckState(res);
-      }
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_uint32_t, 0);
+      _v = SWIG_CheckState(res);
       if (_v) {
         {
           int res = SWIG_AsVal_int(argv[2], NULL);
           _v = SWIG_CheckState(res);
         }
         if (_v) {
-          return _wrap_new_OTPassword__SWIG_4(nargs, args, self);
+          return _wrap_new_OTPassword__SWIG_7(nargs, args, self);
         }
       }
     }
@@ -3692,17 +4867,16 @@ SWIGINTERN VALUE _wrap_new_OTPassword(int nargs, VALUE *args, VALUE self) {
     int res = SWIG_AsCharPtrAndSize(argv[0], 0, NULL, 0);
     _v = SWIG_CheckState(res);
     if (_v) {
-      {
-        int res = SWIG_AsVal_int(argv[1], NULL);
-        _v = SWIG_CheckState(res);
-      }
+      void *vptr = 0;
+      int res = SWIG_ConvertPtr(argv[1], &vptr, SWIGTYPE_p_uint32_t, 0);
+      _v = SWIG_CheckState(res);
       if (_v) {
         {
           int res = SWIG_AsVal_int(argv[2], NULL);
           _v = SWIG_CheckState(res);
         }
         if (_v) {
-          return _wrap_new_OTPassword__SWIG_2(nargs, args, self);
+          return _wrap_new_OTPassword__SWIG_3(nargs, args, self);
         }
       }
     }
@@ -3712,10 +4886,13 @@ fail:
   Ruby_Format_OverloadedError( argc, 3, "OTPassword.new", 
     "    OTPassword.new(OTPassword::BlockSize theBlockSize)\n"
     "    OTPassword.new()\n"
-    "    OTPassword.new(char const *szInput, int nInputSize, OTPassword::BlockSize theBlockSize)\n"
-    "    OTPassword.new(char const *szInput, int nInputSize)\n"
-    "    OTPassword.new(void const *vInput, int nInputSize, OTPassword::BlockSize theBlockSize)\n"
-    "    OTPassword.new(void const *vInput, int nInputSize)\n");
+    "    OTPassword.new(OTPassword const &rhs)\n"
+    "    OTPassword.new(char const *szInput, uint32_t nInputSize, OTPassword::BlockSize theBlockSize)\n"
+    "    OTPassword.new(char const *szInput, uint32_t nInputSize)\n"
+    "    OTPassword.new(uint8_t const *szInput, uint32_t nInputSize, OTPassword::BlockSize theBlockSize)\n"
+    "    OTPassword.new(uint8_t const *szInput, uint32_t nInputSize)\n"
+    "    OTPassword.new(void const *vInput, uint32_t nInputSize, OTPassword::BlockSize theBlockSize)\n"
+    "    OTPassword.new(void const *vInput, uint32_t nInputSize)\n");
   
   return Qnil;
 }
@@ -31263,9 +32440,14 @@ static swig_type_info _swigt__p_OTDB__TradeListNym = {"_p_OTDB__TradeListNym", "
 static swig_type_info _swigt__p_OTDB__WalletData = {"_p_OTDB__WalletData", "OTDB::WalletData *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_OTPacker = {"_p_OTPacker", "OTPacker *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_OTPassword = {"_p_OTPassword", "OTPassword *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_OTPasswordData = {"_p_OTPasswordData", "OTPasswordData *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_OTString = {"_p_OTString", "OTString *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_char = {"_p_char", "char *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_int32_t = {"_p_int32_t", "int32_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__mapT_std__string_std__string_t = {"_p_std__mapT_std__string_std__string_t", "std::map< std::string,std::string > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__vectorT_unsigned_char_t = {"_p_std__vectorT_unsigned_char_t", "std::vector< unsigned char > *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_uint32_t = {"_p_uint32_t", "uint32_t *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_uint8_t = {"_p_uint8_t", "uint8_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_void = {"_p_void", "void *", 0, 0, (void*)0, 0};
 
 static swig_type_info *swig_type_initial[] = {
@@ -31303,9 +32485,14 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_OTDB__WalletData,
   &_swigt__p_OTPacker,
   &_swigt__p_OTPassword,
+  &_swigt__p_OTPasswordData,
+  &_swigt__p_OTString,
   &_swigt__p_char,
+  &_swigt__p_int32_t,
   &_swigt__p_std__mapT_std__string_std__string_t,
   &_swigt__p_std__vectorT_unsigned_char_t,
+  &_swigt__p_uint32_t,
+  &_swigt__p_uint8_t,
   &_swigt__p_void,
 };
 
@@ -31343,9 +32530,14 @@ static swig_cast_info _swigc__p_OTDB__TradeListNym[] = {  {&_swigt__p_OTDB__Trad
 static swig_cast_info _swigc__p_OTDB__WalletData[] = {  {&_swigt__p_OTDB__WalletData, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_OTPacker[] = {  {&_swigt__p_OTPacker, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_OTPassword[] = {  {&_swigt__p_OTPassword, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_OTPasswordData[] = {  {&_swigt__p_OTPasswordData, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_OTString[] = {  {&_swigt__p_OTString, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_char[] = {  {&_swigt__p_char, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_int32_t[] = {  {&_swigt__p_int32_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__mapT_std__string_std__string_t[] = {  {&_swigt__p_std__mapT_std__string_std__string_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__vectorT_unsigned_char_t[] = {  {&_swigt__p_std__vectorT_unsigned_char_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_uint32_t[] = {  {&_swigt__p_uint32_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_uint8_t[] = {  {&_swigt__p_uint8_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_void[] = {  {&_swigt__p_void, 0, 0, 0},{0, 0, 0, 0}};
 
 static swig_cast_info *swig_cast_initial[] = {
@@ -31383,9 +32575,14 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_OTDB__WalletData,
   _swigc__p_OTPacker,
   _swigc__p_OTPassword,
+  _swigc__p_OTPasswordData,
+  _swigc__p_OTString,
   _swigc__p_char,
+  _swigc__p_int32_t,
   _swigc__p_std__mapT_std__string_std__string_t,
   _swigc__p_std__vectorT_unsigned_char_t,
+  _swigc__p_uint32_t,
+  _swigc__p_uint8_t,
   _swigc__p_void,
 };
 
@@ -31654,6 +32851,20 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_const(mOtapi, "OT_DEFAULT_BLOCKSIZE", SWIG_From_int(static_cast< int >(128)));
   rb_define_const(mOtapi, "OT_DEFAULT_MEMSIZE", SWIG_From_int(static_cast< int >(129)));
   
+  SwigClassOTPasswordData.klass = rb_define_class_under(mOtapi, "OTPasswordData", rb_cObject);
+  SWIG_TypeClientData(SWIGTYPE_p_OTPasswordData, (void *) &SwigClassOTPasswordData);
+  rb_define_alloc_func(SwigClassOTPasswordData.klass, _wrap_OTPasswordData_allocate);
+  rb_define_method(SwigClassOTPasswordData.klass, "initialize", VALUEFUNC(_wrap_new_OTPasswordData), -1);
+  rb_define_method(SwigClassOTPasswordData.klass, "isForNormalNym", VALUEFUNC(_wrap_OTPasswordData_isForNormalNym), -1);
+  rb_define_method(SwigClassOTPasswordData.klass, "isForMasterKey", VALUEFUNC(_wrap_OTPasswordData_isForMasterKey), -1);
+  rb_define_method(SwigClassOTPasswordData.klass, "GetDisplayString", VALUEFUNC(_wrap_OTPasswordData_GetDisplayString), -1);
+  rb_define_method(SwigClassOTPasswordData.klass, "isUsingOldSystem", VALUEFUNC(_wrap_OTPasswordData_isUsingOldSystem), -1);
+  rb_define_method(SwigClassOTPasswordData.klass, "setUsingOldSystem", VALUEFUNC(_wrap_OTPasswordData_setUsingOldSystem), -1);
+  rb_define_method(SwigClassOTPasswordData.klass, "GetMasterPW", VALUEFUNC(_wrap_OTPasswordData_GetMasterPW), -1);
+  SwigClassOTPasswordData.mark = 0;
+  SwigClassOTPasswordData.destroy = (void (*)(void *)) free_OTPasswordData;
+  SwigClassOTPasswordData.trackObjects = 0;
+  
   SwigClassOTPassword.klass = rb_define_class_under(mOtapi, "OTPassword", rb_cObject);
   SWIG_TypeClientData(SWIGTYPE_p_OTPassword, (void *) &SwigClassOTPassword);
   rb_define_alloc_func(SwigClassOTPassword.klass, _wrap_OTPassword_allocate);
@@ -31662,15 +32873,24 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_const(SwigClassOTPassword.klass, "LARGER_SIZE", SWIG_From_int(static_cast< int >(OTPassword::LARGER_SIZE)));
   rb_define_method(SwigClassOTPassword.klass, "m_theBlockSize", VALUEFUNC(_wrap_OTPassword_m_theBlockSize_get), -1);
   rb_define_method(SwigClassOTPassword.klass, "isPassword", VALUEFUNC(_wrap_OTPassword_isPassword), -1);
+  rb_define_method(SwigClassOTPassword.klass, "getPassword_uint8", VALUEFUNC(_wrap_OTPassword_getPassword_uint8), -1);
   rb_define_method(SwigClassOTPassword.klass, "getPassword", VALUEFUNC(_wrap_OTPassword_getPassword), -1);
+  rb_define_method(SwigClassOTPassword.klass, "getPasswordWritable", VALUEFUNC(_wrap_OTPassword_getPasswordWritable), -1);
   rb_define_method(SwigClassOTPassword.klass, "setPassword", VALUEFUNC(_wrap_OTPassword_setPassword), -1);
+  rb_define_method(SwigClassOTPassword.klass, "setPassword_uint8", VALUEFUNC(_wrap_OTPassword_setPassword_uint8), -1);
+  rb_define_method(SwigClassOTPassword.klass, "addChar", VALUEFUNC(_wrap_OTPassword_addChar), -1);
+  rb_define_singleton_method(SwigClassOTPassword.klass, "randomizePassword_uint8", VALUEFUNC(_wrap_OTPassword_randomizePassword_uint8), -1);
+  rb_define_singleton_method(SwigClassOTPassword.klass, "randomizePassword", VALUEFUNC(_wrap_OTPassword_randomizePassword), -1);
   rb_define_method(SwigClassOTPassword.klass, "isMemory", VALUEFUNC(_wrap_OTPassword_isMemory), -1);
   rb_define_method(SwigClassOTPassword.klass, "getMemory", VALUEFUNC(_wrap_OTPassword_getMemory), -1);
+  rb_define_method(SwigClassOTPassword.klass, "getMemory_uint8", VALUEFUNC(_wrap_OTPassword_getMemory_uint8), -1);
   rb_define_method(SwigClassOTPassword.klass, "getMemoryWritable", VALUEFUNC(_wrap_OTPassword_getMemoryWritable), -1);
   rb_define_method(SwigClassOTPassword.klass, "setMemory", VALUEFUNC(_wrap_OTPassword_setMemory), -1);
   rb_define_method(SwigClassOTPassword.klass, "addMemory", VALUEFUNC(_wrap_OTPassword_addMemory), -1);
+  rb_define_singleton_method(SwigClassOTPassword.klass, "randomizeMemory_uint8", VALUEFUNC(_wrap_OTPassword_randomizeMemory_uint8), -1);
   rb_define_singleton_method(SwigClassOTPassword.klass, "randomizeMemory", VALUEFUNC(_wrap_OTPassword_randomizeMemory), -1);
   rb_define_method(SwigClassOTPassword.klass, "getBlockSize", VALUEFUNC(_wrap_OTPassword_getBlockSize), -1);
+  rb_define_method(SwigClassOTPassword.klass, "Compare", VALUEFUNC(_wrap_OTPassword_Compare), -1);
   rb_define_method(SwigClassOTPassword.klass, "getPasswordSize", VALUEFUNC(_wrap_OTPassword_getPasswordSize), -1);
   rb_define_method(SwigClassOTPassword.klass, "getMemorySize", VALUEFUNC(_wrap_OTPassword_getMemorySize), -1);
   rb_define_singleton_method(SwigClassOTPassword.klass, "zeroMemory", VALUEFUNC(_wrap_OTPassword_zeroMemory), -1);

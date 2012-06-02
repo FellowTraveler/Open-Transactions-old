@@ -750,9 +750,11 @@ bool OTPassword::Compare(OTPassword & rhs) const
 // Returns size of password (in case truncation is necessary.)
 // Returns -1 in case of error.
 //
-int32_t OTPassword::setPassword(const char * szInput, uint32_t nInputSize)
+int OTPassword::setPassword(const char * szInput, int nInputSize)
 {
-    return this->setPassword_uint8(reinterpret_cast<const uint8_t *>(szInput), nInputSize);
+    return static_cast<int>(this->setPassword_uint8(
+                reinterpret_cast<const uint8_t *>(szInput),
+                static_cast<uint32_t>(nInputSize)));
 }
 
 

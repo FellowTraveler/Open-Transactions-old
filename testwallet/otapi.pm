@@ -300,6 +300,49 @@ package otapi;
 *DecodeObject = *otapic::DecodeObject;
 *EraseValueByKey = *otapic::EraseValueByKey;
 
+############# Class : otapi::OTPasswordData ##############
+
+package otapi::OTPasswordData;
+use vars qw(@ISA %OWNER %ITERATORS %BLESSEDMEMBERS);
+@ISA = qw( otapi );
+%OWNER = ();
+%ITERATORS = ();
+*isForNormalNym = *otapic::OTPasswordData_isForNormalNym;
+*isForMasterKey = *otapic::OTPasswordData_isForMasterKey;
+*GetDisplayString = *otapic::OTPasswordData_GetDisplayString;
+*isUsingOldSystem = *otapic::OTPasswordData_isUsingOldSystem;
+*setUsingOldSystem = *otapic::OTPasswordData_setUsingOldSystem;
+*GetMasterPW = *otapic::OTPasswordData_GetMasterPW;
+sub new {
+    my $pkg = shift;
+    my $self = otapic::new_OTPasswordData(@_);
+    bless $self, $pkg if defined($self);
+}
+
+sub DESTROY {
+    return unless $_[0]->isa('HASH');
+    my $self = tied(%{$_[0]});
+    return unless defined $self;
+    delete $ITERATORS{$self};
+    if (exists $OWNER{$self}) {
+        otapic::delete_OTPasswordData($self);
+        delete $OWNER{$self};
+    }
+}
+
+sub DISOWN {
+    my $self = shift;
+    my $ptr = tied(%$self);
+    delete $OWNER{$ptr};
+}
+
+sub ACQUIRE {
+    my $self = shift;
+    my $ptr = tied(%$self);
+    $OWNER{$ptr} = 1;
+}
+
+
 ############# Class : otapi::OTPassword ##############
 
 package otapi::OTPassword;
@@ -312,15 +355,24 @@ use vars qw(@ISA %OWNER %ITERATORS %BLESSEDMEMBERS);
 *swig_m_theBlockSize_get = *otapic::OTPassword_m_theBlockSize_get;
 *swig_m_theBlockSize_set = *otapic::OTPassword_m_theBlockSize_set;
 *isPassword = *otapic::OTPassword_isPassword;
+*getPassword_uint8 = *otapic::OTPassword_getPassword_uint8;
 *getPassword = *otapic::OTPassword_getPassword;
+*getPasswordWritable = *otapic::OTPassword_getPasswordWritable;
 *setPassword = *otapic::OTPassword_setPassword;
+*setPassword_uint8 = *otapic::OTPassword_setPassword_uint8;
+*addChar = *otapic::OTPassword_addChar;
+*randomizePassword_uint8 = *otapic::OTPassword_randomizePassword_uint8;
+*randomizePassword = *otapic::OTPassword_randomizePassword;
 *isMemory = *otapic::OTPassword_isMemory;
 *getMemory = *otapic::OTPassword_getMemory;
+*getMemory_uint8 = *otapic::OTPassword_getMemory_uint8;
 *getMemoryWritable = *otapic::OTPassword_getMemoryWritable;
 *setMemory = *otapic::OTPassword_setMemory;
 *addMemory = *otapic::OTPassword_addMemory;
+*randomizeMemory_uint8 = *otapic::OTPassword_randomizeMemory_uint8;
 *randomizeMemory = *otapic::OTPassword_randomizeMemory;
 *getBlockSize = *otapic::OTPassword_getBlockSize;
+*Compare = *otapic::OTPassword_Compare;
 *getPasswordSize = *otapic::OTPassword_getPasswordSize;
 *getMemorySize = *otapic::OTPassword_getMemorySize;
 *zeroMemory = *otapic::OTPassword_zeroMemory;

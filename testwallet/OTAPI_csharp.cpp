@@ -460,6 +460,152 @@ SWIGEXPORT int SWIGSTDCALL CSharp_OT_DEFAULT_MEMSIZE_get() {
 }
 
 
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_OTPasswordData_isForNormalNym(void * jarg1) {
+  unsigned int jresult ;
+  OTPasswordData *arg1 = (OTPasswordData *) 0 ;
+  bool result;
+  
+  arg1 = (OTPasswordData *)jarg1; 
+  result = (bool)((OTPasswordData const *)arg1)->isForNormalNym();
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_OTPasswordData_isForMasterKey(void * jarg1) {
+  unsigned int jresult ;
+  OTPasswordData *arg1 = (OTPasswordData *) 0 ;
+  bool result;
+  
+  arg1 = (OTPasswordData *)jarg1; 
+  result = (bool)((OTPasswordData const *)arg1)->isForMasterKey();
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT char * SWIGSTDCALL CSharp_OTPasswordData_GetDisplayString(void * jarg1) {
+  char * jresult ;
+  OTPasswordData *arg1 = (OTPasswordData *) 0 ;
+  char *result = 0 ;
+  
+  arg1 = (OTPasswordData *)jarg1; 
+  result = (char *)((OTPasswordData const *)arg1)->GetDisplayString();
+  jresult = SWIG_csharp_string_callback((const char *)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_OTPasswordData_isUsingOldSystem(void * jarg1) {
+  unsigned int jresult ;
+  OTPasswordData *arg1 = (OTPasswordData *) 0 ;
+  bool result;
+  
+  arg1 = (OTPasswordData *)jarg1; 
+  result = (bool)((OTPasswordData const *)arg1)->isUsingOldSystem();
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_OTPasswordData_setUsingOldSystem__SWIG_0(void * jarg1, unsigned int jarg2) {
+  OTPasswordData *arg1 = (OTPasswordData *) 0 ;
+  bool arg2 ;
+  
+  arg1 = (OTPasswordData *)jarg1; 
+  arg2 = jarg2 ? true : false; 
+  (arg1)->setUsingOldSystem(arg2);
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_OTPasswordData_setUsingOldSystem__SWIG_1(void * jarg1) {
+  OTPasswordData *arg1 = (OTPasswordData *) 0 ;
+  
+  arg1 = (OTPasswordData *)jarg1; 
+  (arg1)->setUsingOldSystem();
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_OTPasswordData_GetMasterPW(void * jarg1) {
+  void * jresult ;
+  OTPasswordData *arg1 = (OTPasswordData *) 0 ;
+  OTPassword *result = 0 ;
+  
+  arg1 = (OTPasswordData *)jarg1; 
+  result = (OTPassword *)(arg1)->GetMasterPW();
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_new_OTPasswordData__SWIG_0(char * jarg1, void * jarg2) {
+  void * jresult ;
+  char *arg1 = (char *) 0 ;
+  OTPassword *arg2 = (OTPassword *) 0 ;
+  OTPasswordData *result = 0 ;
+  
+  arg1 = (char *)jarg1; 
+  arg2 = (OTPassword *)jarg2; 
+  result = (OTPasswordData *)new OTPasswordData((char const *)arg1,arg2);
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_new_OTPasswordData__SWIG_1(char * jarg1) {
+  void * jresult ;
+  char *arg1 = (char *) 0 ;
+  OTPasswordData *result = 0 ;
+  
+  arg1 = (char *)jarg1; 
+  result = (OTPasswordData *)new OTPasswordData((char const *)arg1);
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_new_OTPasswordData__SWIG_4(void * jarg1, void * jarg2) {
+  void * jresult ;
+  OTString *arg1 = 0 ;
+  OTPassword *arg2 = (OTPassword *) 0 ;
+  OTPasswordData *result = 0 ;
+  
+  arg1 = (OTString *)jarg1;
+  if (!arg1) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "OTString const & type is null", 0);
+    return 0;
+  } 
+  arg2 = (OTPassword *)jarg2; 
+  result = (OTPasswordData *)new OTPasswordData((OTString const &)*arg1,arg2);
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_new_OTPasswordData__SWIG_5(void * jarg1) {
+  void * jresult ;
+  OTString *arg1 = 0 ;
+  OTPasswordData *result = 0 ;
+  
+  arg1 = (OTString *)jarg1;
+  if (!arg1) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "OTString const & type is null", 0);
+    return 0;
+  } 
+  result = (OTPasswordData *)new OTPasswordData((OTString const &)*arg1);
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void SWIGSTDCALL CSharp_delete_OTPasswordData(void * jarg1) {
+  OTPasswordData *arg1 = (OTPasswordData *) 0 ;
+  
+  arg1 = (OTPasswordData *)jarg1; 
+  delete arg1;
+}
+
+
 SWIGEXPORT int SWIGSTDCALL CSharp_OTPassword_m_theBlockSize_get(void * jarg1) {
   int jresult ;
   OTPassword *arg1 = (OTPassword *) 0 ;
@@ -484,6 +630,18 @@ SWIGEXPORT unsigned int SWIGSTDCALL CSharp_OTPassword_isPassword(void * jarg1) {
 }
 
 
+SWIGEXPORT void * SWIGSTDCALL CSharp_OTPassword_getPassword_uint8(void * jarg1) {
+  void * jresult ;
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  uint8_t *result = 0 ;
+  
+  arg1 = (OTPassword *)jarg1; 
+  result = (uint8_t *)((OTPassword const *)arg1)->getPassword_uint8();
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
 SWIGEXPORT char * SWIGSTDCALL CSharp_OTPassword_getPassword(void * jarg1) {
   char * jresult ;
   OTPassword *arg1 = (OTPassword *) 0 ;
@@ -492,6 +650,18 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OTPassword_getPassword(void * jarg1) {
   arg1 = (OTPassword *)jarg1; 
   result = (char *)((OTPassword const *)arg1)->getPassword();
   jresult = SWIG_csharp_string_callback((const char *)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_OTPassword_getPasswordWritable(void * jarg1) {
+  void * jresult ;
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  uint8_t *result = 0 ;
+  
+  arg1 = (OTPassword *)jarg1; 
+  result = (uint8_t *)(arg1)->getPasswordWritable();
+  jresult = (void *)result; 
   return jresult;
 }
 
@@ -507,6 +677,120 @@ SWIGEXPORT int SWIGSTDCALL CSharp_OTPassword_setPassword(void * jarg1, char * ja
   arg2 = (char *)jarg2; 
   arg3 = (int)jarg3; 
   result = (int)(arg1)->setPassword((char const *)arg2,arg3);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_OTPassword_setPassword_uint8(void * jarg1, void * jarg2, void * jarg3) {
+  void * jresult ;
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  uint8_t *arg2 = (uint8_t *) 0 ;
+  uint32_t arg3 ;
+  uint32_t *argp3 ;
+  int32_t result;
+  
+  arg1 = (OTPassword *)jarg1; 
+  arg2 = (uint8_t *)jarg2; 
+  argp3 = (uint32_t *)jarg3; 
+  if (!argp3) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "Attempt to dereference null uint32_t", 0);
+    return 0;
+  }
+  arg3 = *argp3; 
+  result = (arg1)->setPassword_uint8((uint8_t const *)arg2,arg3);
+  jresult = new int32_t((const int32_t &)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_OTPassword_addChar(void * jarg1, void * jarg2) {
+  unsigned int jresult ;
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  uint8_t arg2 ;
+  uint8_t *argp2 ;
+  bool result;
+  
+  arg1 = (OTPassword *)jarg1; 
+  argp2 = (uint8_t *)jarg2; 
+  if (!argp2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "Attempt to dereference null uint8_t", 0);
+    return 0;
+  }
+  arg2 = *argp2; 
+  result = (bool)(arg1)->addChar(arg2);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_OTPassword_randomizePassword__SWIG_0(void * jarg1, void * jarg2) {
+  void * jresult ;
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  uint32_t arg2 ;
+  uint32_t *argp2 ;
+  int32_t result;
+  
+  arg1 = (OTPassword *)jarg1; 
+  argp2 = (uint32_t *)jarg2; 
+  if (!argp2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "Attempt to dereference null uint32_t", 0);
+    return 0;
+  }
+  arg2 = *argp2; 
+  result = (arg1)->randomizePassword(arg2);
+  jresult = new int32_t((const int32_t &)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_OTPassword_randomizePassword__SWIG_1(void * jarg1) {
+  void * jresult ;
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  int32_t result;
+  
+  arg1 = (OTPassword *)jarg1; 
+  result = (arg1)->randomizePassword();
+  jresult = new int32_t((const int32_t &)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_OTPassword_randomizePassword_uint8(void * jarg1, void * jarg2) {
+  unsigned int jresult ;
+  uint8_t *arg1 = (uint8_t *) 0 ;
+  uint32_t arg2 ;
+  uint32_t *argp2 ;
+  bool result;
+  
+  arg1 = (uint8_t *)jarg1; 
+  argp2 = (uint32_t *)jarg2; 
+  if (!argp2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "Attempt to dereference null uint32_t", 0);
+    return 0;
+  }
+  arg2 = *argp2; 
+  result = (bool)OTPassword::randomizePassword_uint8(arg1,arg2);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_OTPassword_randomizePassword__SWIG_2(char * jarg1, void * jarg2) {
+  unsigned int jresult ;
+  char *arg1 = (char *) 0 ;
+  uint32_t arg2 ;
+  uint32_t *argp2 ;
+  bool result;
+  
+  arg1 = (char *)jarg1; 
+  argp2 = (uint32_t *)jarg2; 
+  if (!argp2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "Attempt to dereference null uint32_t", 0);
+    return 0;
+  }
+  arg2 = *argp2; 
+  result = (bool)OTPassword::randomizePassword(arg1,arg2);
   jresult = result; 
   return jresult;
 }
@@ -536,6 +820,18 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_OTPassword_getMemory(void * jarg1) {
 }
 
 
+SWIGEXPORT void * SWIGSTDCALL CSharp_OTPassword_getMemory_uint8(void * jarg1) {
+  void * jresult ;
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  uint8_t *result = 0 ;
+  
+  arg1 = (OTPassword *)jarg1; 
+  result = (uint8_t *)((OTPassword const *)arg1)->getMemory_uint8();
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
 SWIGEXPORT void * SWIGSTDCALL CSharp_OTPassword_getMemoryWritable(void * jarg1) {
   void * jresult ;
   OTPassword *arg1 = (OTPassword *) 0 ;
@@ -548,110 +844,172 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_OTPassword_getMemoryWritable(void * jarg1) 
 }
 
 
-SWIGEXPORT int SWIGSTDCALL CSharp_OTPassword_setMemory(void * jarg1, void * jarg2, int jarg3) {
-  int jresult ;
+SWIGEXPORT void * SWIGSTDCALL CSharp_OTPassword_setMemory(void * jarg1, void * jarg2, void * jarg3) {
+  void * jresult ;
   OTPassword *arg1 = (OTPassword *) 0 ;
   void *arg2 = (void *) 0 ;
-  int arg3 ;
-  int result;
+  uint32_t arg3 ;
+  uint32_t *argp3 ;
+  int32_t result;
   
   arg1 = (OTPassword *)jarg1; 
   arg2 = (void *)jarg2; 
-  arg3 = (int)jarg3; 
-  result = (int)(arg1)->setMemory((void const *)arg2,arg3);
-  jresult = result; 
+  argp3 = (uint32_t *)jarg3; 
+  if (!argp3) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "Attempt to dereference null uint32_t", 0);
+    return 0;
+  }
+  arg3 = *argp3; 
+  result = (arg1)->setMemory((void const *)arg2,arg3);
+  jresult = new int32_t((const int32_t &)result); 
   return jresult;
 }
 
 
-SWIGEXPORT int SWIGSTDCALL CSharp_OTPassword_addMemory(void * jarg1, void * jarg2, int jarg3) {
-  int jresult ;
+SWIGEXPORT void * SWIGSTDCALL CSharp_OTPassword_addMemory(void * jarg1, void * jarg2, void * jarg3) {
+  void * jresult ;
   OTPassword *arg1 = (OTPassword *) 0 ;
   void *arg2 = (void *) 0 ;
-  int arg3 ;
-  int result;
+  uint32_t arg3 ;
+  uint32_t *argp3 ;
+  int32_t result;
   
   arg1 = (OTPassword *)jarg1; 
   arg2 = (void *)jarg2; 
-  arg3 = (int)jarg3; 
-  result = (int)(arg1)->addMemory((void const *)arg2,arg3);
-  jresult = result; 
+  argp3 = (uint32_t *)jarg3; 
+  if (!argp3) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "Attempt to dereference null uint32_t", 0);
+    return 0;
+  }
+  arg3 = *argp3; 
+  result = (arg1)->addMemory((void const *)arg2,arg3);
+  jresult = new int32_t((const int32_t &)result); 
   return jresult;
 }
 
 
-SWIGEXPORT int SWIGSTDCALL CSharp_OTPassword_randomizeMemory__SWIG_0(void * jarg1, unsigned long jarg2) {
-  int jresult ;
+SWIGEXPORT void * SWIGSTDCALL CSharp_OTPassword_randomizeMemory__SWIG_0(void * jarg1, void * jarg2) {
+  void * jresult ;
   OTPassword *arg1 = (OTPassword *) 0 ;
-  size_t arg2 ;
-  int result;
+  uint32_t arg2 ;
+  uint32_t *argp2 ;
+  int32_t result;
   
   arg1 = (OTPassword *)jarg1; 
-  arg2 = (size_t)jarg2; 
-  result = (int)(arg1)->randomizeMemory(arg2);
-  jresult = result; 
+  argp2 = (uint32_t *)jarg2; 
+  if (!argp2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "Attempt to dereference null uint32_t", 0);
+    return 0;
+  }
+  arg2 = *argp2; 
+  result = (arg1)->randomizeMemory(arg2);
+  jresult = new int32_t((const int32_t &)result); 
   return jresult;
 }
 
 
-SWIGEXPORT int SWIGSTDCALL CSharp_OTPassword_randomizeMemory__SWIG_1(void * jarg1) {
-  int jresult ;
+SWIGEXPORT void * SWIGSTDCALL CSharp_OTPassword_randomizeMemory__SWIG_1(void * jarg1) {
+  void * jresult ;
   OTPassword *arg1 = (OTPassword *) 0 ;
-  int result;
+  int32_t result;
   
   arg1 = (OTPassword *)jarg1; 
-  result = (int)(arg1)->randomizeMemory();
-  jresult = result; 
+  result = (arg1)->randomizeMemory();
+  jresult = new int32_t((const int32_t &)result); 
   return jresult;
 }
 
 
-SWIGEXPORT unsigned int SWIGSTDCALL CSharp_OTPassword_randomizeMemory__SWIG_2(char * jarg1, unsigned long jarg2) {
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_OTPassword_randomizeMemory_uint8(void * jarg1, void * jarg2) {
   unsigned int jresult ;
-  char *arg1 = (char *) 0 ;
-  size_t arg2 ;
+  uint8_t *arg1 = (uint8_t *) 0 ;
+  uint32_t arg2 ;
+  uint32_t *argp2 ;
   bool result;
   
-  arg1 = (char *)jarg1; 
-  arg2 = (size_t)jarg2; 
+  arg1 = (uint8_t *)jarg1; 
+  argp2 = (uint32_t *)jarg2; 
+  if (!argp2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "Attempt to dereference null uint32_t", 0);
+    return 0;
+  }
+  arg2 = *argp2; 
+  result = (bool)OTPassword::randomizeMemory_uint8(arg1,arg2);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_OTPassword_randomizeMemory__SWIG_2(void * jarg1, void * jarg2) {
+  unsigned int jresult ;
+  void *arg1 = (void *) 0 ;
+  uint32_t arg2 ;
+  uint32_t *argp2 ;
+  bool result;
+  
+  arg1 = (void *)jarg1; 
+  argp2 = (uint32_t *)jarg2; 
+  if (!argp2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "Attempt to dereference null uint32_t", 0);
+    return 0;
+  }
+  arg2 = *argp2; 
   result = (bool)OTPassword::randomizeMemory(arg1,arg2);
   jresult = result; 
   return jresult;
 }
 
 
-SWIGEXPORT int SWIGSTDCALL CSharp_OTPassword_getBlockSize(void * jarg1) {
-  int jresult ;
+SWIGEXPORT void * SWIGSTDCALL CSharp_OTPassword_getBlockSize(void * jarg1) {
+  void * jresult ;
   OTPassword *arg1 = (OTPassword *) 0 ;
-  int result;
+  uint32_t result;
   
   arg1 = (OTPassword *)jarg1; 
-  result = (int)((OTPassword const *)arg1)->getBlockSize();
+  result = ((OTPassword const *)arg1)->getBlockSize();
+  jresult = new uint32_t((const uint32_t &)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_OTPassword_Compare(void * jarg1, void * jarg2) {
+  unsigned int jresult ;
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  OTPassword *arg2 = 0 ;
+  bool result;
+  
+  arg1 = (OTPassword *)jarg1; 
+  arg2 = (OTPassword *)jarg2;
+  if (!arg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "OTPassword & type is null", 0);
+    return 0;
+  } 
+  result = (bool)((OTPassword const *)arg1)->Compare(*arg2);
   jresult = result; 
   return jresult;
 }
 
 
-SWIGEXPORT int SWIGSTDCALL CSharp_OTPassword_getPasswordSize(void * jarg1) {
-  int jresult ;
+SWIGEXPORT void * SWIGSTDCALL CSharp_OTPassword_getPasswordSize(void * jarg1) {
+  void * jresult ;
   OTPassword *arg1 = (OTPassword *) 0 ;
-  int result;
+  uint32_t result;
   
   arg1 = (OTPassword *)jarg1; 
-  result = (int)((OTPassword const *)arg1)->getPasswordSize();
-  jresult = result; 
+  result = ((OTPassword const *)arg1)->getPasswordSize();
+  jresult = new uint32_t((const uint32_t &)result); 
   return jresult;
 }
 
 
-SWIGEXPORT int SWIGSTDCALL CSharp_OTPassword_getMemorySize(void * jarg1) {
-  int jresult ;
+SWIGEXPORT void * SWIGSTDCALL CSharp_OTPassword_getMemorySize(void * jarg1) {
+  void * jresult ;
   OTPassword *arg1 = (OTPassword *) 0 ;
-  int result;
+  uint32_t result;
   
   arg1 = (OTPassword *)jarg1; 
-  result = (int)((OTPassword const *)arg1)->getMemorySize();
-  jresult = result; 
+  result = ((OTPassword const *)arg1)->getMemorySize();
+  jresult = new uint32_t((const uint32_t &)result); 
   return jresult;
 }
 
@@ -664,39 +1022,63 @@ SWIGEXPORT void SWIGSTDCALL CSharp_OTPassword_zeroMemory__SWIG_0(void * jarg1) {
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_OTPassword_zeroMemory__SWIG_1(char * jarg1, unsigned long jarg2) {
-  char *arg1 = (char *) 0 ;
-  size_t arg2 ;
+SWIGEXPORT void SWIGSTDCALL CSharp_OTPassword_zeroMemory__SWIG_1(void * jarg1, void * jarg2) {
+  uint8_t *arg1 = (uint8_t *) 0 ;
+  uint32_t arg2 ;
+  uint32_t *argp2 ;
   
-  arg1 = (char *)jarg1; 
-  arg2 = (size_t)jarg2; 
+  arg1 = (uint8_t *)jarg1; 
+  argp2 = (uint32_t *)jarg2; 
+  if (!argp2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "Attempt to dereference null uint32_t", 0);
+    return ;
+  }
+  arg2 = *argp2; 
   OTPassword::zeroMemory(arg1,arg2);
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_OTPassword_zeroMemory__SWIG_2(void * jarg1, unsigned long jarg2) {
+SWIGEXPORT void SWIGSTDCALL CSharp_OTPassword_zeroMemory__SWIG_2(void * jarg1, void * jarg2) {
   void *arg1 = (void *) 0 ;
-  size_t arg2 ;
+  uint32_t arg2 ;
+  uint32_t *argp2 ;
   
   arg1 = (void *)jarg1; 
-  arg2 = (size_t)jarg2; 
+  argp2 = (uint32_t *)jarg2; 
+  if (!argp2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "Attempt to dereference null uint32_t", 0);
+    return ;
+  }
+  arg2 = *argp2; 
   OTPassword::zeroMemory(arg1,arg2);
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_OTPassword_safe_memcpy__SWIG_0(void * jarg1, unsigned long jarg2, void * jarg3, unsigned long jarg4, unsigned int jarg5) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_OTPassword_safe_memcpy__SWIG_0(void * jarg1, void * jarg2, void * jarg3, void * jarg4, unsigned int jarg5) {
   void * jresult ;
   void *arg1 = (void *) 0 ;
-  size_t arg2 ;
+  uint32_t arg2 ;
   void *arg3 = (void *) 0 ;
-  size_t arg4 ;
+  uint32_t arg4 ;
   bool arg5 ;
+  uint32_t *argp2 ;
+  uint32_t *argp4 ;
   void *result = 0 ;
   
   arg1 = (void *)jarg1; 
-  arg2 = (size_t)jarg2; 
+  argp2 = (uint32_t *)jarg2; 
+  if (!argp2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "Attempt to dereference null uint32_t", 0);
+    return 0;
+  }
+  arg2 = *argp2; 
   arg3 = (void *)jarg3; 
-  arg4 = (size_t)jarg4; 
+  argp4 = (uint32_t *)jarg4; 
+  if (!argp4) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "Attempt to dereference null uint32_t", 0);
+    return 0;
+  }
+  arg4 = *argp4; 
   arg5 = jarg5 ? true : false; 
   result = (void *)OTPassword::safe_memcpy(arg1,arg2,(void const *)arg3,arg4,arg5);
   jresult = (void *)result; 
@@ -704,18 +1086,30 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_OTPassword_safe_memcpy__SWIG_0(void * jarg1
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_OTPassword_safe_memcpy__SWIG_1(void * jarg1, unsigned long jarg2, void * jarg3, unsigned long jarg4) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_OTPassword_safe_memcpy__SWIG_1(void * jarg1, void * jarg2, void * jarg3, void * jarg4) {
   void * jresult ;
   void *arg1 = (void *) 0 ;
-  size_t arg2 ;
+  uint32_t arg2 ;
   void *arg3 = (void *) 0 ;
-  size_t arg4 ;
+  uint32_t arg4 ;
+  uint32_t *argp2 ;
+  uint32_t *argp4 ;
   void *result = 0 ;
   
   arg1 = (void *)jarg1; 
-  arg2 = (size_t)jarg2; 
+  argp2 = (uint32_t *)jarg2; 
+  if (!argp2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "Attempt to dereference null uint32_t", 0);
+    return 0;
+  }
+  arg2 = *argp2; 
   arg3 = (void *)jarg3; 
-  arg4 = (size_t)jarg4; 
+  argp4 = (uint32_t *)jarg4; 
+  if (!argp4) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "Attempt to dereference null uint32_t", 0);
+    return 0;
+  }
+  arg4 = *argp4; 
   result = (void *)OTPassword::safe_memcpy(arg1,arg2,(void const *)arg3,arg4);
   jresult = (void *)result; 
   return jresult;
@@ -744,15 +1138,37 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_new_OTPassword__SWIG_1() {
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_new_OTPassword__SWIG_2(char * jarg1, int jarg2, int jarg3) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_new_OTPassword__SWIG_2(void * jarg1) {
+  void * jresult ;
+  OTPassword *arg1 = 0 ;
+  OTPassword *result = 0 ;
+  
+  arg1 = (OTPassword *)jarg1;
+  if (!arg1) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "OTPassword const & type is null", 0);
+    return 0;
+  } 
+  result = (OTPassword *)new OTPassword((OTPassword const &)*arg1);
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_new_OTPassword__SWIG_3(char * jarg1, void * jarg2, int jarg3) {
   void * jresult ;
   char *arg1 = (char *) 0 ;
-  int arg2 ;
+  uint32_t arg2 ;
   OTPassword::BlockSize arg3 ;
+  uint32_t *argp2 ;
   OTPassword *result = 0 ;
   
   arg1 = (char *)jarg1; 
-  arg2 = (int)jarg2; 
+  argp2 = (uint32_t *)jarg2; 
+  if (!argp2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "Attempt to dereference null uint32_t", 0);
+    return 0;
+  }
+  arg2 = *argp2; 
   arg3 = (OTPassword::BlockSize)jarg3; 
   result = (OTPassword *)new OTPassword((char const *)arg1,arg2,arg3);
   jresult = (void *)result; 
@@ -760,29 +1176,83 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_new_OTPassword__SWIG_2(char * jarg1, int ja
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_new_OTPassword__SWIG_3(char * jarg1, int jarg2) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_new_OTPassword__SWIG_4(char * jarg1, void * jarg2) {
   void * jresult ;
   char *arg1 = (char *) 0 ;
-  int arg2 ;
+  uint32_t arg2 ;
+  uint32_t *argp2 ;
   OTPassword *result = 0 ;
   
   arg1 = (char *)jarg1; 
-  arg2 = (int)jarg2; 
+  argp2 = (uint32_t *)jarg2; 
+  if (!argp2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "Attempt to dereference null uint32_t", 0);
+    return 0;
+  }
+  arg2 = *argp2; 
   result = (OTPassword *)new OTPassword((char const *)arg1,arg2);
   jresult = (void *)result; 
   return jresult;
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_new_OTPassword__SWIG_4(void * jarg1, int jarg2, int jarg3) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_new_OTPassword__SWIG_5(void * jarg1, void * jarg2, int jarg3) {
+  void * jresult ;
+  uint8_t *arg1 = (uint8_t *) 0 ;
+  uint32_t arg2 ;
+  OTPassword::BlockSize arg3 ;
+  uint32_t *argp2 ;
+  OTPassword *result = 0 ;
+  
+  arg1 = (uint8_t *)jarg1; 
+  argp2 = (uint32_t *)jarg2; 
+  if (!argp2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "Attempt to dereference null uint32_t", 0);
+    return 0;
+  }
+  arg2 = *argp2; 
+  arg3 = (OTPassword::BlockSize)jarg3; 
+  result = (OTPassword *)new OTPassword((uint8_t const *)arg1,arg2,arg3);
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_new_OTPassword__SWIG_6(void * jarg1, void * jarg2) {
+  void * jresult ;
+  uint8_t *arg1 = (uint8_t *) 0 ;
+  uint32_t arg2 ;
+  uint32_t *argp2 ;
+  OTPassword *result = 0 ;
+  
+  arg1 = (uint8_t *)jarg1; 
+  argp2 = (uint32_t *)jarg2; 
+  if (!argp2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "Attempt to dereference null uint32_t", 0);
+    return 0;
+  }
+  arg2 = *argp2; 
+  result = (OTPassword *)new OTPassword((uint8_t const *)arg1,arg2);
+  jresult = (void *)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void * SWIGSTDCALL CSharp_new_OTPassword__SWIG_7(void * jarg1, void * jarg2, int jarg3) {
   void * jresult ;
   void *arg1 = (void *) 0 ;
-  int arg2 ;
+  uint32_t arg2 ;
   OTPassword::BlockSize arg3 ;
+  uint32_t *argp2 ;
   OTPassword *result = 0 ;
   
   arg1 = (void *)jarg1; 
-  arg2 = (int)jarg2; 
+  argp2 = (uint32_t *)jarg2; 
+  if (!argp2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "Attempt to dereference null uint32_t", 0);
+    return 0;
+  }
+  arg2 = *argp2; 
   arg3 = (OTPassword::BlockSize)jarg3; 
   result = (OTPassword *)new OTPassword((void const *)arg1,arg2,arg3);
   jresult = (void *)result; 
@@ -790,14 +1260,20 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_new_OTPassword__SWIG_4(void * jarg1, int ja
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_new_OTPassword__SWIG_5(void * jarg1, int jarg2) {
+SWIGEXPORT void * SWIGSTDCALL CSharp_new_OTPassword__SWIG_8(void * jarg1, void * jarg2) {
   void * jresult ;
   void *arg1 = (void *) 0 ;
-  int arg2 ;
+  uint32_t arg2 ;
+  uint32_t *argp2 ;
   OTPassword *result = 0 ;
   
   arg1 = (void *)jarg1; 
-  arg2 = (int)jarg2; 
+  argp2 = (uint32_t *)jarg2; 
+  if (!argp2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "Attempt to dereference null uint32_t", 0);
+    return 0;
+  }
+  arg2 = *argp2; 
   result = (OTPassword *)new OTPassword((void const *)arg1,arg2);
   jresult = (void *)result; 
   return jresult;

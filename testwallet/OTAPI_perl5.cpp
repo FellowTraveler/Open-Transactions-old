@@ -1558,12 +1558,17 @@ SWIG_Perl_SetModule(swig_module_info *module) {
 #define SWIGTYPE_p_OTDB__WalletData swig_types[31]
 #define SWIGTYPE_p_OTPacker swig_types[32]
 #define SWIGTYPE_p_OTPassword swig_types[33]
-#define SWIGTYPE_p_char swig_types[34]
-#define SWIGTYPE_p_std__mapT_std__string_std__string_t swig_types[35]
-#define SWIGTYPE_p_std__vectorT_unsigned_char_t swig_types[36]
-#define SWIGTYPE_p_void swig_types[37]
-static swig_type_info *swig_types[39];
-static swig_module_info swig_module = {swig_types, 38, 0, 0, 0, 0};
+#define SWIGTYPE_p_OTPasswordData swig_types[34]
+#define SWIGTYPE_p_OTString swig_types[35]
+#define SWIGTYPE_p_char swig_types[36]
+#define SWIGTYPE_p_int32_t swig_types[37]
+#define SWIGTYPE_p_std__mapT_std__string_std__string_t swig_types[38]
+#define SWIGTYPE_p_std__vectorT_unsigned_char_t swig_types[39]
+#define SWIGTYPE_p_uint32_t swig_types[40]
+#define SWIGTYPE_p_uint8_t swig_types[41]
+#define SWIGTYPE_p_void swig_types[42]
+static swig_type_info *swig_types[44];
+static swig_module_info swig_module = {swig_types, 43, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -1658,72 +1663,6 @@ SWIG_FromCharPtr(const char *cptr)
 }
 
 
-SWIGINTERN swig_type_info*
-SWIG_pchar_descriptor(void)
-{
-  static int init = 0;
-  static swig_type_info* info = 0;
-  if (!init) {
-    info = SWIG_TypeQuery("_p_char");
-    init = 1;
-  }
-  return info;
-}
-
-
-SWIGINTERN int
-SWIG_AsCharPtrAndSize(SV *obj, char** cptr, size_t* psize, int *alloc)
-{
-  if (SvMAGICAL(obj)) {
-     SV *tmp = sv_newmortal();
-     SvSetSV(tmp, obj);
-     obj = tmp;
-  }
-  if (SvPOK(obj)) {
-    STRLEN len = 0;
-    char *cstr = SvPV(obj, len); 
-    size_t size = len + 1;
-    if (cptr)  {
-      if (alloc) {
-	if (*alloc == SWIG_NEWOBJ) {
-	  *cptr = reinterpret_cast< char* >(memcpy((new char[size]), cstr, sizeof(char)*(size)));
-	} else {
-	  *cptr = cstr;
-	  *alloc = SWIG_OLDOBJ;
-	}
-      }
-    }
-    if (psize) *psize = size;
-    return SWIG_OK;
-  } else {
-    swig_type_info* pchar_descriptor = SWIG_pchar_descriptor();
-    if (pchar_descriptor) {
-      char* vptr = 0; 
-      if (SWIG_ConvertPtr(obj, (void**)&vptr, pchar_descriptor, 0) == SWIG_OK) {
-	if (cptr) *cptr = vptr;
-	if (psize) *psize = vptr ? (strlen(vptr) + 1) : 0;
-	if (alloc) *alloc = SWIG_OLDOBJ;
-	return SWIG_OK;
-      }
-    }
-  }
-  return SWIG_TypeError;
-}
-
-
-
-
-
-#include <limits.h>
-#if !defined(SWIG_NO_LLONG_MAX)
-# if !defined(LLONG_MAX) && defined(__GNUC__) && defined (__LONG_LONG_MAX__)
-#   define LLONG_MAX __LONG_LONG_MAX__
-#   define LLONG_MIN (-LLONG_MAX - 1LL)
-#   define ULLONG_MAX (LLONG_MAX * 2ULL + 1ULL)
-# endif
-#endif
-
-
 SWIGINTERN int
 SWIG_AsVal_double SWIG_PERL_DECL_ARGS_2(SV *obj, double *val)
 {
@@ -1792,6 +1731,120 @@ SWIG_CanCastAsInteger(double *d, double min, double max) {
 
 
 SWIGINTERN int
+SWIG_AsVal_bool SWIG_PERL_DECL_ARGS_2(SV *obj, bool* val)
+{
+  if (obj == &PL_sv_yes) {
+    if (val) *val = true;
+    return SWIG_OK;
+  } else if (obj == &PL_sv_no) { 
+    if (val) *val = false;
+    return SWIG_OK;
+  } else {
+    if (val) *val = SvTRUE(obj) ? true: false;
+    return SWIG_AddCast(SWIG_OK);    
+  }
+  return SWIG_TypeError;
+}
+
+
+SWIGINTERN swig_type_info*
+SWIG_pchar_descriptor(void)
+{
+  static int init = 0;
+  static swig_type_info* info = 0;
+  if (!init) {
+    info = SWIG_TypeQuery("_p_char");
+    init = 1;
+  }
+  return info;
+}
+
+
+SWIGINTERN int
+SWIG_AsCharPtrAndSize(SV *obj, char** cptr, size_t* psize, int *alloc)
+{
+  if (SvMAGICAL(obj)) {
+     SV *tmp = sv_newmortal();
+     SvSetSV(tmp, obj);
+     obj = tmp;
+  }
+  if (SvPOK(obj)) {
+    STRLEN len = 0;
+    char *cstr = SvPV(obj, len); 
+    size_t size = len + 1;
+    if (cptr)  {
+      if (alloc) {
+	if (*alloc == SWIG_NEWOBJ) {
+	  *cptr = reinterpret_cast< char* >(memcpy((new char[size]), cstr, sizeof(char)*(size)));
+	} else {
+	  *cptr = cstr;
+	  *alloc = SWIG_OLDOBJ;
+	}
+      }
+    }
+    if (psize) *psize = size;
+    return SWIG_OK;
+  } else {
+    swig_type_info* pchar_descriptor = SWIG_pchar_descriptor();
+    if (pchar_descriptor) {
+      char* vptr = 0; 
+      if (SWIG_ConvertPtr(obj, (void**)&vptr, pchar_descriptor, 0) == SWIG_OK) {
+	if (cptr) *cptr = vptr;
+	if (psize) *psize = vptr ? (strlen(vptr) + 1) : 0;
+	if (alloc) *alloc = SWIG_OLDOBJ;
+	return SWIG_OK;
+      }
+    }
+  }
+  return SWIG_TypeError;
+}
+
+
+
+
+
+SWIGINTERN int
+SWIG_AsPtr_std_string SWIG_PERL_DECL_ARGS_2(SV * obj, std::string **val) 
+{
+  char* buf = 0 ; size_t size = 0; int alloc = SWIG_OLDOBJ;
+  if (SWIG_IsOK((SWIG_AsCharPtrAndSize(obj, &buf, &size, &alloc)))) {
+    if (buf) {
+      if (val) *val = new std::string(buf, size - 1);
+      if (alloc == SWIG_NEWOBJ) delete[] buf;
+      return SWIG_NEWOBJ;
+    } else {
+      if (val) *val = 0;
+      return SWIG_OLDOBJ;
+    }
+  } else {
+    static int init = 0;
+    static swig_type_info* descriptor = 0;
+    if (!init) {
+      descriptor = SWIG_TypeQuery("std::string" " *");
+      init = 1;
+    }
+    if (descriptor) {
+      std::string *vptr;
+      int res = SWIG_ConvertPtr(obj, (void**)&vptr, descriptor, 0);
+      if (SWIG_IsOK(res) && val) *val = vptr;
+      return res;
+    }
+  }
+  return SWIG_ERROR;
+}
+
+
+#include <limits.h>
+#if !defined(SWIG_NO_LLONG_MAX)
+# if !defined(LLONG_MAX) && defined(__GNUC__) && defined (__LONG_LONG_MAX__)
+#   define LLONG_MAX __LONG_LONG_MAX__
+#   define LLONG_MIN (-LLONG_MAX - 1LL)
+#   define ULLONG_MAX (LLONG_MAX * 2ULL + 1ULL)
+# endif
+#endif
+
+
+SWIGINTERN int
 SWIG_AsVal_long SWIG_PERL_DECL_ARGS_2(SV *obj, long* val)
 {
   if (SvIOK(obj)) {
@@ -1841,6 +1894,29 @@ SWIG_AsVal_int SWIG_PERL_DECL_ARGS_2(SV * obj, int *val)
     }
   }  
   return res;
+}
+
+
+SWIGINTERNINLINE SV *
+SWIG_From_std_string  SWIG_PERL_DECL_ARGS_1(const std::string& s)
+{
+  return SWIG_FromCharPtrAndSize(s.data(), s.size());
+}
+
+
+SWIGINTERNINLINE SV *
+SWIG_From_unsigned_SS_long  SWIG_PERL_DECL_ARGS_1(unsigned long value)
+{    
+  SV *obj = sv_newmortal();
+  sv_setuv(obj, (UV) value);
+  return obj;
+}
+
+
+SWIGINTERNINLINE SV *
+SWIG_From_size_t  SWIG_PERL_DECL_ARGS_1(size_t value)
+{    
+  return SWIG_From_unsigned_SS_long  SWIG_PERL_CALL_ARGS_1(static_cast< unsigned long >(value));
 }
 
 
@@ -1899,77 +1975,6 @@ SWIG_AsVal_size_t SWIG_PERL_DECL_ARGS_2(SV * obj, size_t *val)
 }
 
 
-SWIGINTERN int
-SWIG_AsVal_bool SWIG_PERL_DECL_ARGS_2(SV *obj, bool* val)
-{
-  if (obj == &PL_sv_yes) {
-    if (val) *val = true;
-    return SWIG_OK;
-  } else if (obj == &PL_sv_no) { 
-    if (val) *val = false;
-    return SWIG_OK;
-  } else {
-    if (val) *val = SvTRUE(obj) ? true: false;
-    return SWIG_AddCast(SWIG_OK);    
-  }
-  return SWIG_TypeError;
-}
-
-
-SWIGINTERN int
-SWIG_AsPtr_std_string SWIG_PERL_DECL_ARGS_2(SV * obj, std::string **val) 
-{
-  char* buf = 0 ; size_t size = 0; int alloc = SWIG_OLDOBJ;
-  if (SWIG_IsOK((SWIG_AsCharPtrAndSize(obj, &buf, &size, &alloc)))) {
-    if (buf) {
-      if (val) *val = new std::string(buf, size - 1);
-      if (alloc == SWIG_NEWOBJ) delete[] buf;
-      return SWIG_NEWOBJ;
-    } else {
-      if (val) *val = 0;
-      return SWIG_OLDOBJ;
-    }
-  } else {
-    static int init = 0;
-    static swig_type_info* descriptor = 0;
-    if (!init) {
-      descriptor = SWIG_TypeQuery("std::string" " *");
-      init = 1;
-    }
-    if (descriptor) {
-      std::string *vptr;
-      int res = SWIG_ConvertPtr(obj, (void**)&vptr, descriptor, 0);
-      if (SWIG_IsOK(res) && val) *val = vptr;
-      return res;
-    }
-  }
-  return SWIG_ERROR;
-}
-
-
-SWIGINTERNINLINE SV *
-SWIG_From_std_string  SWIG_PERL_DECL_ARGS_1(const std::string& s)
-{
-  return SWIG_FromCharPtrAndSize(s.data(), s.size());
-}
-
-
-SWIGINTERNINLINE SV *
-SWIG_From_unsigned_SS_long  SWIG_PERL_DECL_ARGS_1(unsigned long value)
-{    
-  SV *obj = sv_newmortal();
-  sv_setuv(obj, (UV) value);
-  return obj;
-}
-
-
-SWIGINTERNINLINE SV *
-SWIG_From_size_t  SWIG_PERL_DECL_ARGS_1(size_t value)
-{    
-  return SWIG_From_unsigned_SS_long  SWIG_PERL_CALL_ARGS_1(static_cast< unsigned long >(value));
-}
-
-
 	using namespace OTDB;
 	
 #ifdef __cplusplus
@@ -2001,6 +2006,702 @@ SWIGCLASS_STATIC int swig_magic_readonly(pTHX_ SV *SWIGUNUSEDPARM(sv), MAGIC *SW
 #ifdef __cplusplus
 extern "C" {
 #endif
+XS(_wrap_OTPasswordData_isForNormalNym) {
+  {
+    OTPasswordData *arg1 = (OTPasswordData *) 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int argvi = 0;
+    bool result;
+    dXSARGS;
+    
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: OTPasswordData_isForNormalNym(self);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTPasswordData, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTPasswordData_isForNormalNym" "', argument " "1"" of type '" "OTPasswordData const *""'"); 
+    }
+    arg1 = reinterpret_cast< OTPasswordData * >(argp1);
+    result = (bool)((OTPasswordData const *)arg1)->isForNormalNym();
+    ST(argvi) = SWIG_From_bool  SWIG_PERL_CALL_ARGS_1(static_cast< bool >(result)); argvi++ ;
+    
+    XSRETURN(argvi);
+  fail:
+    
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_OTPasswordData_isForMasterKey) {
+  {
+    OTPasswordData *arg1 = (OTPasswordData *) 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int argvi = 0;
+    bool result;
+    dXSARGS;
+    
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: OTPasswordData_isForMasterKey(self);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTPasswordData, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTPasswordData_isForMasterKey" "', argument " "1"" of type '" "OTPasswordData const *""'"); 
+    }
+    arg1 = reinterpret_cast< OTPasswordData * >(argp1);
+    result = (bool)((OTPasswordData const *)arg1)->isForMasterKey();
+    ST(argvi) = SWIG_From_bool  SWIG_PERL_CALL_ARGS_1(static_cast< bool >(result)); argvi++ ;
+    
+    XSRETURN(argvi);
+  fail:
+    
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_OTPasswordData_GetDisplayString) {
+  {
+    OTPasswordData *arg1 = (OTPasswordData *) 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int argvi = 0;
+    char *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: OTPasswordData_GetDisplayString(self);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTPasswordData, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTPasswordData_GetDisplayString" "', argument " "1"" of type '" "OTPasswordData const *""'"); 
+    }
+    arg1 = reinterpret_cast< OTPasswordData * >(argp1);
+    result = (char *)((OTPasswordData const *)arg1)->GetDisplayString();
+    ST(argvi) = SWIG_FromCharPtr((const char *)result); argvi++ ;
+    
+    XSRETURN(argvi);
+  fail:
+    
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_OTPasswordData_isUsingOldSystem) {
+  {
+    OTPasswordData *arg1 = (OTPasswordData *) 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int argvi = 0;
+    bool result;
+    dXSARGS;
+    
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: OTPasswordData_isUsingOldSystem(self);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTPasswordData, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTPasswordData_isUsingOldSystem" "', argument " "1"" of type '" "OTPasswordData const *""'"); 
+    }
+    arg1 = reinterpret_cast< OTPasswordData * >(argp1);
+    result = (bool)((OTPasswordData const *)arg1)->isUsingOldSystem();
+    ST(argvi) = SWIG_From_bool  SWIG_PERL_CALL_ARGS_1(static_cast< bool >(result)); argvi++ ;
+    
+    XSRETURN(argvi);
+  fail:
+    
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_OTPasswordData_setUsingOldSystem__SWIG_0) {
+  {
+    OTPasswordData *arg1 = (OTPasswordData *) 0 ;
+    bool arg2 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    bool val2 ;
+    int ecode2 = 0 ;
+    int argvi = 0;
+    dXSARGS;
+    
+    if ((items < 2) || (items > 2)) {
+      SWIG_croak("Usage: OTPasswordData_setUsingOldSystem(self,bUsing);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTPasswordData, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTPasswordData_setUsingOldSystem" "', argument " "1"" of type '" "OTPasswordData *""'"); 
+    }
+    arg1 = reinterpret_cast< OTPasswordData * >(argp1);
+    ecode2 = SWIG_AsVal_bool SWIG_PERL_CALL_ARGS_2(ST(1), &val2);
+    if (!SWIG_IsOK(ecode2)) {
+      SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "OTPasswordData_setUsingOldSystem" "', argument " "2"" of type '" "bool""'");
+    } 
+    arg2 = static_cast< bool >(val2);
+    (arg1)->setUsingOldSystem(arg2);
+    ST(argvi) = sv_newmortal();
+    
+    
+    XSRETURN(argvi);
+  fail:
+    
+    
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_OTPasswordData_setUsingOldSystem__SWIG_1) {
+  {
+    OTPasswordData *arg1 = (OTPasswordData *) 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int argvi = 0;
+    dXSARGS;
+    
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: OTPasswordData_setUsingOldSystem(self);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTPasswordData, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTPasswordData_setUsingOldSystem" "', argument " "1"" of type '" "OTPasswordData *""'"); 
+    }
+    arg1 = reinterpret_cast< OTPasswordData * >(argp1);
+    (arg1)->setUsingOldSystem();
+    ST(argvi) = sv_newmortal();
+    
+    XSRETURN(argvi);
+  fail:
+    
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_OTPasswordData_setUsingOldSystem) {
+  dXSARGS;
+  
+  {
+    unsigned long _index = 0;
+    SWIG_TypeRank _rank = 0; 
+    if (items == 1) {
+      SWIG_TypeRank _ranki = 0;
+      SWIG_TypeRank _rankm = 0;
+      SWIG_TypeRank _pi = 1;
+      int _v = 0;
+      {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(ST(0), &vptr, SWIGTYPE_p_OTPasswordData, 0);
+        _v = SWIG_CheckState(res);
+      }
+      if (!_v) goto check_1;
+      _ranki += _v*_pi;
+      _rankm += _pi;
+      _pi *= SWIG_MAXCASTRANK;
+      if (!_index || (_ranki < _rank)) {
+        _rank = _ranki; _index = 1;
+        if (_rank == _rankm) goto dispatch;
+      }
+    }
+  check_1:
+    
+    if (items == 2) {
+      SWIG_TypeRank _ranki = 0;
+      SWIG_TypeRank _rankm = 0;
+      SWIG_TypeRank _pi = 1;
+      int _v = 0;
+      {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(ST(0), &vptr, SWIGTYPE_p_OTPasswordData, 0);
+        _v = SWIG_CheckState(res);
+      }
+      if (!_v) goto check_2;
+      _ranki += _v*_pi;
+      _rankm += _pi;
+      _pi *= SWIG_MAXCASTRANK;
+      {
+        {
+          int res = SWIG_AsVal_bool SWIG_PERL_CALL_ARGS_2(ST(1), NULL);
+          _v = SWIG_CheckState(res);
+        }
+      }
+      if (!_v) goto check_2;
+      _ranki += _v*_pi;
+      _rankm += _pi;
+      _pi *= SWIG_MAXCASTRANK;
+      if (!_index || (_ranki < _rank)) {
+        _rank = _ranki; _index = 2;
+        if (_rank == _rankm) goto dispatch;
+      }
+    }
+  check_2:
+    
+  dispatch:
+    switch(_index) {
+    case 1:
+      ++PL_markstack_ptr; SWIG_CALLXS(_wrap_OTPasswordData_setUsingOldSystem__SWIG_1); return;
+    case 2:
+      ++PL_markstack_ptr; SWIG_CALLXS(_wrap_OTPasswordData_setUsingOldSystem__SWIG_0); return;
+    }
+  }
+  
+  croak("No matching function for overloaded 'OTPasswordData_setUsingOldSystem'");
+  XSRETURN(0);
+}
+
+
+XS(_wrap_OTPasswordData_GetMasterPW) {
+  {
+    OTPasswordData *arg1 = (OTPasswordData *) 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int argvi = 0;
+    OTPassword *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: OTPasswordData_GetMasterPW(self);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTPasswordData, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTPasswordData_GetMasterPW" "', argument " "1"" of type '" "OTPasswordData *""'"); 
+    }
+    arg1 = reinterpret_cast< OTPasswordData * >(argp1);
+    result = (OTPassword *)(arg1)->GetMasterPW();
+    ST(argvi) = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTPassword, 0 | SWIG_SHADOW); argvi++ ;
+    
+    XSRETURN(argvi);
+  fail:
+    
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_new_OTPasswordData__SWIG_0) {
+  {
+    char *arg1 = (char *) 0 ;
+    OTPassword *arg2 = (OTPassword *) 0 ;
+    int res1 ;
+    char *buf1 = 0 ;
+    int alloc1 = 0 ;
+    void *argp2 = 0 ;
+    int res2 = 0 ;
+    int argvi = 0;
+    OTPasswordData *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 2) || (items > 2)) {
+      SWIG_croak("Usage: new_OTPasswordData(szDisplay,pMasterPW);");
+    }
+    res1 = SWIG_AsCharPtrAndSize(ST(0), &buf1, NULL, &alloc1);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_OTPasswordData" "', argument " "1"" of type '" "char const *""'");
+    }
+    arg1 = reinterpret_cast< char * >(buf1);
+    res2 = SWIG_ConvertPtr(ST(1), &argp2,SWIGTYPE_p_OTPassword, 0 |  0 );
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "new_OTPasswordData" "', argument " "2"" of type '" "OTPassword *""'"); 
+    }
+    arg2 = reinterpret_cast< OTPassword * >(argp2);
+    result = (OTPasswordData *)new OTPasswordData((char const *)arg1,arg2);
+    ST(argvi) = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTPasswordData, SWIG_OWNER | SWIG_SHADOW); argvi++ ;
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    
+    XSRETURN(argvi);
+  fail:
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_new_OTPasswordData__SWIG_1) {
+  {
+    char *arg1 = (char *) 0 ;
+    int res1 ;
+    char *buf1 = 0 ;
+    int alloc1 = 0 ;
+    int argvi = 0;
+    OTPasswordData *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: new_OTPasswordData(szDisplay);");
+    }
+    res1 = SWIG_AsCharPtrAndSize(ST(0), &buf1, NULL, &alloc1);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_OTPasswordData" "', argument " "1"" of type '" "char const *""'");
+    }
+    arg1 = reinterpret_cast< char * >(buf1);
+    result = (OTPasswordData *)new OTPasswordData((char const *)arg1);
+    ST(argvi) = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTPasswordData, SWIG_OWNER | SWIG_SHADOW); argvi++ ;
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    XSRETURN(argvi);
+  fail:
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_new_OTPasswordData__SWIG_2) {
+  {
+    std::string *arg1 = 0 ;
+    OTPassword *arg2 = (OTPassword *) 0 ;
+    int res1 = SWIG_OLDOBJ ;
+    void *argp2 = 0 ;
+    int res2 = 0 ;
+    int argvi = 0;
+    OTPasswordData *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 2) || (items > 2)) {
+      SWIG_croak("Usage: new_OTPasswordData(str_Display,pMasterPW);");
+    }
+    {
+      std::string *ptr = (std::string *)0;
+      res1 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(0), &ptr);
+      if (!SWIG_IsOK(res1)) {
+        SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_OTPasswordData" "', argument " "1"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "new_OTPasswordData" "', argument " "1"" of type '" "std::string const &""'"); 
+      }
+      arg1 = ptr;
+    }
+    res2 = SWIG_ConvertPtr(ST(1), &argp2,SWIGTYPE_p_OTPassword, 0 |  0 );
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "new_OTPasswordData" "', argument " "2"" of type '" "OTPassword *""'"); 
+    }
+    arg2 = reinterpret_cast< OTPassword * >(argp2);
+    result = (OTPasswordData *)new OTPasswordData((std::string const &)*arg1,arg2);
+    ST(argvi) = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTPasswordData, SWIG_OWNER | SWIG_SHADOW); argvi++ ;
+    if (SWIG_IsNewObj(res1)) delete arg1;
+    
+    XSRETURN(argvi);
+  fail:
+    if (SWIG_IsNewObj(res1)) delete arg1;
+    
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_new_OTPasswordData__SWIG_3) {
+  {
+    std::string *arg1 = 0 ;
+    int res1 = SWIG_OLDOBJ ;
+    int argvi = 0;
+    OTPasswordData *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: new_OTPasswordData(str_Display);");
+    }
+    {
+      std::string *ptr = (std::string *)0;
+      res1 = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(0), &ptr);
+      if (!SWIG_IsOK(res1)) {
+        SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_OTPasswordData" "', argument " "1"" of type '" "std::string const &""'"); 
+      }
+      if (!ptr) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "new_OTPasswordData" "', argument " "1"" of type '" "std::string const &""'"); 
+      }
+      arg1 = ptr;
+    }
+    result = (OTPasswordData *)new OTPasswordData((std::string const &)*arg1);
+    ST(argvi) = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTPasswordData, SWIG_OWNER | SWIG_SHADOW); argvi++ ;
+    if (SWIG_IsNewObj(res1)) delete arg1;
+    XSRETURN(argvi);
+  fail:
+    if (SWIG_IsNewObj(res1)) delete arg1;
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_new_OTPasswordData__SWIG_4) {
+  {
+    OTString *arg1 = 0 ;
+    OTPassword *arg2 = (OTPassword *) 0 ;
+    void *argp1 ;
+    int res1 = 0 ;
+    void *argp2 = 0 ;
+    int res2 = 0 ;
+    int argvi = 0;
+    OTPasswordData *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 2) || (items > 2)) {
+      SWIG_croak("Usage: new_OTPasswordData(strDisplay,pMasterPW);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1, SWIGTYPE_p_OTString,  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_OTPasswordData" "', argument " "1"" of type '" "OTString const &""'"); 
+    }
+    if (!argp1) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "new_OTPasswordData" "', argument " "1"" of type '" "OTString const &""'"); 
+    }
+    arg1 = reinterpret_cast< OTString * >(argp1);
+    res2 = SWIG_ConvertPtr(ST(1), &argp2,SWIGTYPE_p_OTPassword, 0 |  0 );
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "new_OTPasswordData" "', argument " "2"" of type '" "OTPassword *""'"); 
+    }
+    arg2 = reinterpret_cast< OTPassword * >(argp2);
+    result = (OTPasswordData *)new OTPasswordData((OTString const &)*arg1,arg2);
+    ST(argvi) = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTPasswordData, SWIG_OWNER | SWIG_SHADOW); argvi++ ;
+    
+    
+    XSRETURN(argvi);
+  fail:
+    
+    
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_new_OTPasswordData__SWIG_5) {
+  {
+    OTString *arg1 = 0 ;
+    void *argp1 ;
+    int res1 = 0 ;
+    int argvi = 0;
+    OTPasswordData *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: new_OTPasswordData(strDisplay);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1, SWIGTYPE_p_OTString,  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_OTPasswordData" "', argument " "1"" of type '" "OTString const &""'"); 
+    }
+    if (!argp1) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "new_OTPasswordData" "', argument " "1"" of type '" "OTString const &""'"); 
+    }
+    arg1 = reinterpret_cast< OTString * >(argp1);
+    result = (OTPasswordData *)new OTPasswordData((OTString const &)*arg1);
+    ST(argvi) = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTPasswordData, SWIG_OWNER | SWIG_SHADOW); argvi++ ;
+    
+    XSRETURN(argvi);
+  fail:
+    
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_new_OTPasswordData) {
+  dXSARGS;
+  
+  {
+    unsigned long _index = 0;
+    SWIG_TypeRank _rank = 0; 
+    if (items == 1) {
+      SWIG_TypeRank _ranki = 0;
+      SWIG_TypeRank _rankm = 0;
+      SWIG_TypeRank _pi = 1;
+      int _v = 0;
+      {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(ST(0), &vptr, SWIGTYPE_p_OTString, 0);
+        _v = SWIG_CheckState(res);
+      }
+      if (!_v) goto check_1;
+      _ranki += _v*_pi;
+      _rankm += _pi;
+      _pi *= SWIG_MAXCASTRANK;
+      if (!_index || (_ranki < _rank)) {
+        _rank = _ranki; _index = 1;
+        if (_rank == _rankm) goto dispatch;
+      }
+    }
+  check_1:
+    
+    if (items == 1) {
+      SWIG_TypeRank _ranki = 0;
+      SWIG_TypeRank _rankm = 0;
+      SWIG_TypeRank _pi = 1;
+      int _v = 0;
+      {
+        int res = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(0), (std::string**)(0));
+        _v = SWIG_CheckState(res);
+      }
+      if (!_v) goto check_2;
+      _ranki += _v*_pi;
+      _rankm += _pi;
+      _pi *= SWIG_MAXCASTRANK;
+      if (!_index || (_ranki < _rank)) {
+        _rank = _ranki; _index = 2;
+        if (_rank == _rankm) goto dispatch;
+      }
+    }
+  check_2:
+    
+    if (items == 1) {
+      SWIG_TypeRank _ranki = 0;
+      SWIG_TypeRank _rankm = 0;
+      SWIG_TypeRank _pi = 1;
+      int _v = 0;
+      {
+        int res = SWIG_AsCharPtrAndSize(ST(0), 0, NULL, 0);
+        _v = SWIG_CheckState(res);
+      }
+      if (!_v) goto check_3;
+      _ranki += _v*_pi;
+      _rankm += _pi;
+      _pi *= SWIG_MAXCASTRANK;
+      if (!_index || (_ranki < _rank)) {
+        _rank = _ranki; _index = 3;
+        if (_rank == _rankm) goto dispatch;
+      }
+    }
+  check_3:
+    
+    if (items == 2) {
+      SWIG_TypeRank _ranki = 0;
+      SWIG_TypeRank _rankm = 0;
+      SWIG_TypeRank _pi = 1;
+      int _v = 0;
+      {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(ST(0), &vptr, SWIGTYPE_p_OTString, 0);
+        _v = SWIG_CheckState(res);
+      }
+      if (!_v) goto check_4;
+      _ranki += _v*_pi;
+      _rankm += _pi;
+      _pi *= SWIG_MAXCASTRANK;
+      {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(ST(1), &vptr, SWIGTYPE_p_OTPassword, 0);
+        _v = SWIG_CheckState(res);
+      }
+      if (!_v) goto check_4;
+      _ranki += _v*_pi;
+      _rankm += _pi;
+      _pi *= SWIG_MAXCASTRANK;
+      if (!_index || (_ranki < _rank)) {
+        _rank = _ranki; _index = 4;
+        if (_rank == _rankm) goto dispatch;
+      }
+    }
+  check_4:
+    
+    if (items == 2) {
+      SWIG_TypeRank _ranki = 0;
+      SWIG_TypeRank _rankm = 0;
+      SWIG_TypeRank _pi = 1;
+      int _v = 0;
+      {
+        int res = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(0), (std::string**)(0));
+        _v = SWIG_CheckState(res);
+      }
+      if (!_v) goto check_5;
+      _ranki += _v*_pi;
+      _rankm += _pi;
+      _pi *= SWIG_MAXCASTRANK;
+      {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(ST(1), &vptr, SWIGTYPE_p_OTPassword, 0);
+        _v = SWIG_CheckState(res);
+      }
+      if (!_v) goto check_5;
+      _ranki += _v*_pi;
+      _rankm += _pi;
+      _pi *= SWIG_MAXCASTRANK;
+      if (!_index || (_ranki < _rank)) {
+        _rank = _ranki; _index = 5;
+        if (_rank == _rankm) goto dispatch;
+      }
+    }
+  check_5:
+    
+    if (items == 2) {
+      SWIG_TypeRank _ranki = 0;
+      SWIG_TypeRank _rankm = 0;
+      SWIG_TypeRank _pi = 1;
+      int _v = 0;
+      {
+        int res = SWIG_AsCharPtrAndSize(ST(0), 0, NULL, 0);
+        _v = SWIG_CheckState(res);
+      }
+      if (!_v) goto check_6;
+      _ranki += _v*_pi;
+      _rankm += _pi;
+      _pi *= SWIG_MAXCASTRANK;
+      {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(ST(1), &vptr, SWIGTYPE_p_OTPassword, 0);
+        _v = SWIG_CheckState(res);
+      }
+      if (!_v) goto check_6;
+      _ranki += _v*_pi;
+      _rankm += _pi;
+      _pi *= SWIG_MAXCASTRANK;
+      if (!_index || (_ranki < _rank)) {
+        _rank = _ranki; _index = 6;
+        if (_rank == _rankm) goto dispatch;
+      }
+    }
+  check_6:
+    
+  dispatch:
+    switch(_index) {
+    case 1:
+      ++PL_markstack_ptr; SWIG_CALLXS(_wrap_new_OTPasswordData__SWIG_5); return;
+    case 2:
+      ++PL_markstack_ptr; SWIG_CALLXS(_wrap_new_OTPasswordData__SWIG_3); return;
+    case 3:
+      ++PL_markstack_ptr; SWIG_CALLXS(_wrap_new_OTPasswordData__SWIG_1); return;
+    case 4:
+      ++PL_markstack_ptr; SWIG_CALLXS(_wrap_new_OTPasswordData__SWIG_4); return;
+    case 5:
+      ++PL_markstack_ptr; SWIG_CALLXS(_wrap_new_OTPasswordData__SWIG_2); return;
+    case 6:
+      ++PL_markstack_ptr; SWIG_CALLXS(_wrap_new_OTPasswordData__SWIG_0); return;
+    }
+  }
+  
+  croak("No matching function for overloaded 'new_OTPasswordData'");
+  XSRETURN(0);
+}
+
+
+XS(_wrap_delete_OTPasswordData) {
+  {
+    OTPasswordData *arg1 = (OTPasswordData *) 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int argvi = 0;
+    dXSARGS;
+    
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: delete_OTPasswordData(self);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTPasswordData, SWIG_POINTER_DISOWN |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_OTPasswordData" "', argument " "1"" of type '" "OTPasswordData *""'"); 
+    }
+    arg1 = reinterpret_cast< OTPasswordData * >(argp1);
+    delete arg1;
+    ST(argvi) = sv_newmortal();
+    
+    XSRETURN(argvi);
+  fail:
+    
+    SWIG_croak_null();
+  }
+}
+
+
 XS(_wrap_OTPassword_m_theBlockSize_get) {
   {
     OTPassword *arg1 = (OTPassword *) 0 ;
@@ -2057,6 +2758,34 @@ XS(_wrap_OTPassword_isPassword) {
 }
 
 
+XS(_wrap_OTPassword_getPassword_uint8) {
+  {
+    OTPassword *arg1 = (OTPassword *) 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int argvi = 0;
+    uint8_t *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: OTPassword_getPassword_uint8(self);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTPassword, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTPassword_getPassword_uint8" "', argument " "1"" of type '" "OTPassword const *""'"); 
+    }
+    arg1 = reinterpret_cast< OTPassword * >(argp1);
+    result = (uint8_t *)((OTPassword const *)arg1)->getPassword_uint8();
+    ST(argvi) = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_uint8_t, 0 | 0); argvi++ ;
+    
+    XSRETURN(argvi);
+  fail:
+    
+    SWIG_croak_null();
+  }
+}
+
+
 XS(_wrap_OTPassword_getPassword) {
   {
     OTPassword *arg1 = (OTPassword *) 0 ;
@@ -2076,6 +2805,34 @@ XS(_wrap_OTPassword_getPassword) {
     arg1 = reinterpret_cast< OTPassword * >(argp1);
     result = (char *)((OTPassword const *)arg1)->getPassword();
     ST(argvi) = SWIG_FromCharPtr((const char *)result); argvi++ ;
+    
+    XSRETURN(argvi);
+  fail:
+    
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_OTPassword_getPasswordWritable) {
+  {
+    OTPassword *arg1 = (OTPassword *) 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int argvi = 0;
+    uint8_t *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: OTPassword_getPasswordWritable(self);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTPassword, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTPassword_getPasswordWritable" "', argument " "1"" of type '" "OTPassword *""'"); 
+    }
+    arg1 = reinterpret_cast< OTPassword * >(argp1);
+    result = (uint8_t *)(arg1)->getPasswordWritable();
+    ST(argvi) = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_uint8_t, 0 | 0); argvi++ ;
     
     XSRETURN(argvi);
   fail:
@@ -2131,6 +2888,357 @@ XS(_wrap_OTPassword_setPassword) {
     
     SWIG_croak_null();
   }
+}
+
+
+XS(_wrap_OTPassword_setPassword_uint8) {
+  {
+    OTPassword *arg1 = (OTPassword *) 0 ;
+    uint8_t *arg2 = (uint8_t *) 0 ;
+    uint32_t arg3 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    void *argp2 = 0 ;
+    int res2 = 0 ;
+    void *argp3 ;
+    int res3 = 0 ;
+    int argvi = 0;
+    int32_t result;
+    dXSARGS;
+    
+    if ((items < 3) || (items > 3)) {
+      SWIG_croak("Usage: OTPassword_setPassword_uint8(self,szInput,nInputSize);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTPassword, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTPassword_setPassword_uint8" "', argument " "1"" of type '" "OTPassword *""'"); 
+    }
+    arg1 = reinterpret_cast< OTPassword * >(argp1);
+    res2 = SWIG_ConvertPtr(ST(1), &argp2,SWIGTYPE_p_uint8_t, 0 |  0 );
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTPassword_setPassword_uint8" "', argument " "2"" of type '" "uint8_t const *""'"); 
+    }
+    arg2 = reinterpret_cast< uint8_t * >(argp2);
+    {
+      res3 = SWIG_ConvertPtr(ST(2), &argp3, SWIGTYPE_p_uint32_t,  0 );
+      if (!SWIG_IsOK(res3)) {
+        SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTPassword_setPassword_uint8" "', argument " "3"" of type '" "uint32_t""'"); 
+      }  
+      if (!argp3) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTPassword_setPassword_uint8" "', argument " "3"" of type '" "uint32_t""'");
+      } else {
+        arg3 = *(reinterpret_cast< uint32_t * >(argp3));
+      }
+    }
+    result = (arg1)->setPassword_uint8((uint8_t const *)arg2,arg3);
+    ST(argvi) = SWIG_NewPointerObj((new int32_t(static_cast< const int32_t& >(result))), SWIGTYPE_p_int32_t, SWIG_POINTER_OWN | 0); argvi++ ;
+    
+    
+    XSRETURN(argvi);
+  fail:
+    
+    
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_OTPassword_addChar) {
+  {
+    OTPassword *arg1 = (OTPassword *) 0 ;
+    uint8_t arg2 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    void *argp2 ;
+    int res2 = 0 ;
+    int argvi = 0;
+    bool result;
+    dXSARGS;
+    
+    if ((items < 2) || (items > 2)) {
+      SWIG_croak("Usage: OTPassword_addChar(self,theChar);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTPassword, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTPassword_addChar" "', argument " "1"" of type '" "OTPassword *""'"); 
+    }
+    arg1 = reinterpret_cast< OTPassword * >(argp1);
+    {
+      res2 = SWIG_ConvertPtr(ST(1), &argp2, SWIGTYPE_p_uint8_t,  0 );
+      if (!SWIG_IsOK(res2)) {
+        SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTPassword_addChar" "', argument " "2"" of type '" "uint8_t""'"); 
+      }  
+      if (!argp2) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTPassword_addChar" "', argument " "2"" of type '" "uint8_t""'");
+      } else {
+        arg2 = *(reinterpret_cast< uint8_t * >(argp2));
+      }
+    }
+    result = (bool)(arg1)->addChar(arg2);
+    ST(argvi) = SWIG_From_bool  SWIG_PERL_CALL_ARGS_1(static_cast< bool >(result)); argvi++ ;
+    
+    XSRETURN(argvi);
+  fail:
+    
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_OTPassword_randomizePassword__SWIG_0) {
+  {
+    OTPassword *arg1 = (OTPassword *) 0 ;
+    uint32_t arg2 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    void *argp2 ;
+    int res2 = 0 ;
+    int argvi = 0;
+    int32_t result;
+    dXSARGS;
+    
+    if ((items < 2) || (items > 2)) {
+      SWIG_croak("Usage: OTPassword_randomizePassword(self,nNewSize);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTPassword, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTPassword_randomizePassword" "', argument " "1"" of type '" "OTPassword *""'"); 
+    }
+    arg1 = reinterpret_cast< OTPassword * >(argp1);
+    {
+      res2 = SWIG_ConvertPtr(ST(1), &argp2, SWIGTYPE_p_uint32_t,  0 );
+      if (!SWIG_IsOK(res2)) {
+        SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTPassword_randomizePassword" "', argument " "2"" of type '" "uint32_t""'"); 
+      }  
+      if (!argp2) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTPassword_randomizePassword" "', argument " "2"" of type '" "uint32_t""'");
+      } else {
+        arg2 = *(reinterpret_cast< uint32_t * >(argp2));
+      }
+    }
+    result = (arg1)->randomizePassword(arg2);
+    ST(argvi) = SWIG_NewPointerObj((new int32_t(static_cast< const int32_t& >(result))), SWIGTYPE_p_int32_t, SWIG_POINTER_OWN | 0); argvi++ ;
+    
+    XSRETURN(argvi);
+  fail:
+    
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_OTPassword_randomizePassword__SWIG_1) {
+  {
+    OTPassword *arg1 = (OTPassword *) 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int argvi = 0;
+    int32_t result;
+    dXSARGS;
+    
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: OTPassword_randomizePassword(self);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTPassword, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTPassword_randomizePassword" "', argument " "1"" of type '" "OTPassword *""'"); 
+    }
+    arg1 = reinterpret_cast< OTPassword * >(argp1);
+    result = (arg1)->randomizePassword();
+    ST(argvi) = SWIG_NewPointerObj((new int32_t(static_cast< const int32_t& >(result))), SWIGTYPE_p_int32_t, SWIG_POINTER_OWN | 0); argvi++ ;
+    
+    XSRETURN(argvi);
+  fail:
+    
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_OTPassword_randomizePassword_uint8) {
+  {
+    uint8_t *arg1 = (uint8_t *) 0 ;
+    uint32_t arg2 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    void *argp2 ;
+    int res2 = 0 ;
+    int argvi = 0;
+    bool result;
+    dXSARGS;
+    
+    if ((items < 2) || (items > 2)) {
+      SWIG_croak("Usage: OTPassword_randomizePassword_uint8(szDestination,nNewSize);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_uint8_t, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTPassword_randomizePassword_uint8" "', argument " "1"" of type '" "uint8_t *""'"); 
+    }
+    arg1 = reinterpret_cast< uint8_t * >(argp1);
+    {
+      res2 = SWIG_ConvertPtr(ST(1), &argp2, SWIGTYPE_p_uint32_t,  0 );
+      if (!SWIG_IsOK(res2)) {
+        SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTPassword_randomizePassword_uint8" "', argument " "2"" of type '" "uint32_t""'"); 
+      }  
+      if (!argp2) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTPassword_randomizePassword_uint8" "', argument " "2"" of type '" "uint32_t""'");
+      } else {
+        arg2 = *(reinterpret_cast< uint32_t * >(argp2));
+      }
+    }
+    result = (bool)OTPassword::randomizePassword_uint8(arg1,arg2);
+    ST(argvi) = SWIG_From_bool  SWIG_PERL_CALL_ARGS_1(static_cast< bool >(result)); argvi++ ;
+    
+    XSRETURN(argvi);
+  fail:
+    
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_OTPassword_randomizePassword__SWIG_2) {
+  {
+    char *arg1 = (char *) 0 ;
+    uint32_t arg2 ;
+    int res1 ;
+    char *buf1 = 0 ;
+    int alloc1 = 0 ;
+    void *argp2 ;
+    int res2 = 0 ;
+    int argvi = 0;
+    bool result;
+    dXSARGS;
+    
+    if ((items < 2) || (items > 2)) {
+      SWIG_croak("Usage: OTPassword_randomizePassword(szDestination,nNewSize);");
+    }
+    res1 = SWIG_AsCharPtrAndSize(ST(0), &buf1, NULL, &alloc1);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTPassword_randomizePassword" "', argument " "1"" of type '" "char *""'");
+    }
+    arg1 = reinterpret_cast< char * >(buf1);
+    {
+      res2 = SWIG_ConvertPtr(ST(1), &argp2, SWIGTYPE_p_uint32_t,  0 );
+      if (!SWIG_IsOK(res2)) {
+        SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTPassword_randomizePassword" "', argument " "2"" of type '" "uint32_t""'"); 
+      }  
+      if (!argp2) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTPassword_randomizePassword" "', argument " "2"" of type '" "uint32_t""'");
+      } else {
+        arg2 = *(reinterpret_cast< uint32_t * >(argp2));
+      }
+    }
+    result = (bool)OTPassword::randomizePassword(arg1,arg2);
+    ST(argvi) = SWIG_From_bool  SWIG_PERL_CALL_ARGS_1(static_cast< bool >(result)); argvi++ ;
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    XSRETURN(argvi);
+  fail:
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_OTPassword_randomizePassword) {
+  dXSARGS;
+  
+  {
+    unsigned long _index = 0;
+    SWIG_TypeRank _rank = 0; 
+    if (items == 1) {
+      SWIG_TypeRank _ranki = 0;
+      SWIG_TypeRank _rankm = 0;
+      SWIG_TypeRank _pi = 1;
+      int _v = 0;
+      {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(ST(0), &vptr, SWIGTYPE_p_OTPassword, 0);
+        _v = SWIG_CheckState(res);
+      }
+      if (!_v) goto check_1;
+      _ranki += _v*_pi;
+      _rankm += _pi;
+      _pi *= SWIG_MAXCASTRANK;
+      if (!_index || (_ranki < _rank)) {
+        _rank = _ranki; _index = 1;
+        if (_rank == _rankm) goto dispatch;
+      }
+    }
+  check_1:
+    
+    if (items == 2) {
+      SWIG_TypeRank _ranki = 0;
+      SWIG_TypeRank _rankm = 0;
+      SWIG_TypeRank _pi = 1;
+      int _v = 0;
+      {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(ST(0), &vptr, SWIGTYPE_p_OTPassword, 0);
+        _v = SWIG_CheckState(res);
+      }
+      if (!_v) goto check_2;
+      _ranki += _v*_pi;
+      _rankm += _pi;
+      _pi *= SWIG_MAXCASTRANK;
+      {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(ST(1), &vptr, SWIGTYPE_p_uint32_t, 0);
+        _v = SWIG_CheckState(res);
+      }
+      if (!_v) goto check_2;
+      _ranki += _v*_pi;
+      _rankm += _pi;
+      _pi *= SWIG_MAXCASTRANK;
+      if (!_index || (_ranki < _rank)) {
+        _rank = _ranki; _index = 2;
+        if (_rank == _rankm) goto dispatch;
+      }
+    }
+  check_2:
+    
+    if (items == 2) {
+      SWIG_TypeRank _ranki = 0;
+      SWIG_TypeRank _rankm = 0;
+      SWIG_TypeRank _pi = 1;
+      int _v = 0;
+      {
+        int res = SWIG_AsCharPtrAndSize(ST(0), 0, NULL, 0);
+        _v = SWIG_CheckState(res);
+      }
+      if (!_v) goto check_3;
+      _ranki += _v*_pi;
+      _rankm += _pi;
+      _pi *= SWIG_MAXCASTRANK;
+      {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(ST(1), &vptr, SWIGTYPE_p_uint32_t, 0);
+        _v = SWIG_CheckState(res);
+      }
+      if (!_v) goto check_3;
+      _ranki += _v*_pi;
+      _rankm += _pi;
+      _pi *= SWIG_MAXCASTRANK;
+      if (!_index || (_ranki < _rank)) {
+        _rank = _ranki; _index = 3;
+        if (_rank == _rankm) goto dispatch;
+      }
+    }
+  check_3:
+    
+  dispatch:
+    switch(_index) {
+    case 1:
+      ++PL_markstack_ptr; SWIG_CALLXS(_wrap_OTPassword_randomizePassword__SWIG_1); return;
+    case 2:
+      ++PL_markstack_ptr; SWIG_CALLXS(_wrap_OTPassword_randomizePassword__SWIG_0); return;
+    case 3:
+      ++PL_markstack_ptr; SWIG_CALLXS(_wrap_OTPassword_randomizePassword__SWIG_2); return;
+    }
+  }
+  
+  croak("No matching function for overloaded 'OTPassword_randomizePassword'");
+  XSRETURN(0);
 }
 
 
@@ -2190,6 +3298,34 @@ XS(_wrap_OTPassword_getMemory) {
 }
 
 
+XS(_wrap_OTPassword_getMemory_uint8) {
+  {
+    OTPassword *arg1 = (OTPassword *) 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int argvi = 0;
+    uint8_t *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: OTPassword_getMemory_uint8(self);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTPassword, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTPassword_getMemory_uint8" "', argument " "1"" of type '" "OTPassword const *""'"); 
+    }
+    arg1 = reinterpret_cast< OTPassword * >(argp1);
+    result = (uint8_t *)((OTPassword const *)arg1)->getMemory_uint8();
+    ST(argvi) = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_uint8_t, 0 | 0); argvi++ ;
+    
+    XSRETURN(argvi);
+  fail:
+    
+    SWIG_croak_null();
+  }
+}
+
+
 XS(_wrap_OTPassword_getMemoryWritable) {
   {
     OTPassword *arg1 = (OTPassword *) 0 ;
@@ -2222,14 +3358,14 @@ XS(_wrap_OTPassword_setMemory) {
   {
     OTPassword *arg1 = (OTPassword *) 0 ;
     void *arg2 = (void *) 0 ;
-    int arg3 ;
+    uint32_t arg3 ;
     void *argp1 = 0 ;
     int res1 = 0 ;
     int res2 ;
-    int val3 ;
-    int ecode3 = 0 ;
+    void *argp3 ;
+    int res3 = 0 ;
     int argvi = 0;
-    int result;
+    int32_t result;
     dXSARGS;
     
     if ((items < 3) || (items > 3)) {
@@ -2244,19 +3380,23 @@ XS(_wrap_OTPassword_setMemory) {
     if (!SWIG_IsOK(res2)) {
       SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTPassword_setMemory" "', argument " "2"" of type '" "void const *""'"); 
     }
-    ecode3 = SWIG_AsVal_int SWIG_PERL_CALL_ARGS_2(ST(2), &val3);
-    if (!SWIG_IsOK(ecode3)) {
-      SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "OTPassword_setMemory" "', argument " "3"" of type '" "int""'");
-    } 
-    arg3 = static_cast< int >(val3);
-    result = (int)(arg1)->setMemory((void const *)arg2,arg3);
-    ST(argvi) = SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(result)); argvi++ ;
-    
+    {
+      res3 = SWIG_ConvertPtr(ST(2), &argp3, SWIGTYPE_p_uint32_t,  0 );
+      if (!SWIG_IsOK(res3)) {
+        SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTPassword_setMemory" "', argument " "3"" of type '" "uint32_t""'"); 
+      }  
+      if (!argp3) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTPassword_setMemory" "', argument " "3"" of type '" "uint32_t""'");
+      } else {
+        arg3 = *(reinterpret_cast< uint32_t * >(argp3));
+      }
+    }
+    result = (arg1)->setMemory((void const *)arg2,arg3);
+    ST(argvi) = SWIG_NewPointerObj((new int32_t(static_cast< const int32_t& >(result))), SWIGTYPE_p_int32_t, SWIG_POINTER_OWN | 0); argvi++ ;
     
     
     XSRETURN(argvi);
   fail:
-    
     
     
     SWIG_croak_null();
@@ -2268,14 +3408,14 @@ XS(_wrap_OTPassword_addMemory) {
   {
     OTPassword *arg1 = (OTPassword *) 0 ;
     void *arg2 = (void *) 0 ;
-    int arg3 ;
+    uint32_t arg3 ;
     void *argp1 = 0 ;
     int res1 = 0 ;
     int res2 ;
-    int val3 ;
-    int ecode3 = 0 ;
+    void *argp3 ;
+    int res3 = 0 ;
     int argvi = 0;
-    int result;
+    int32_t result;
     dXSARGS;
     
     if ((items < 3) || (items > 3)) {
@@ -2290,19 +3430,23 @@ XS(_wrap_OTPassword_addMemory) {
     if (!SWIG_IsOK(res2)) {
       SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTPassword_addMemory" "', argument " "2"" of type '" "void const *""'"); 
     }
-    ecode3 = SWIG_AsVal_int SWIG_PERL_CALL_ARGS_2(ST(2), &val3);
-    if (!SWIG_IsOK(ecode3)) {
-      SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "OTPassword_addMemory" "', argument " "3"" of type '" "int""'");
-    } 
-    arg3 = static_cast< int >(val3);
-    result = (int)(arg1)->addMemory((void const *)arg2,arg3);
-    ST(argvi) = SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(result)); argvi++ ;
-    
+    {
+      res3 = SWIG_ConvertPtr(ST(2), &argp3, SWIGTYPE_p_uint32_t,  0 );
+      if (!SWIG_IsOK(res3)) {
+        SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTPassword_addMemory" "', argument " "3"" of type '" "uint32_t""'"); 
+      }  
+      if (!argp3) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTPassword_addMemory" "', argument " "3"" of type '" "uint32_t""'");
+      } else {
+        arg3 = *(reinterpret_cast< uint32_t * >(argp3));
+      }
+    }
+    result = (arg1)->addMemory((void const *)arg2,arg3);
+    ST(argvi) = SWIG_NewPointerObj((new int32_t(static_cast< const int32_t& >(result))), SWIGTYPE_p_int32_t, SWIG_POINTER_OWN | 0); argvi++ ;
     
     
     XSRETURN(argvi);
   fail:
-    
     
     
     SWIG_croak_null();
@@ -2313,13 +3457,13 @@ XS(_wrap_OTPassword_addMemory) {
 XS(_wrap_OTPassword_randomizeMemory__SWIG_0) {
   {
     OTPassword *arg1 = (OTPassword *) 0 ;
-    size_t arg2 ;
+    uint32_t arg2 ;
     void *argp1 = 0 ;
     int res1 = 0 ;
-    size_t val2 ;
-    int ecode2 = 0 ;
+    void *argp2 ;
+    int res2 = 0 ;
     int argvi = 0;
-    int result;
+    int32_t result;
     dXSARGS;
     
     if ((items < 2) || (items > 2)) {
@@ -2330,18 +3474,22 @@ XS(_wrap_OTPassword_randomizeMemory__SWIG_0) {
       SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTPassword_randomizeMemory" "', argument " "1"" of type '" "OTPassword *""'"); 
     }
     arg1 = reinterpret_cast< OTPassword * >(argp1);
-    ecode2 = SWIG_AsVal_size_t SWIG_PERL_CALL_ARGS_2(ST(1), &val2);
-    if (!SWIG_IsOK(ecode2)) {
-      SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "OTPassword_randomizeMemory" "', argument " "2"" of type '" "size_t""'");
-    } 
-    arg2 = static_cast< size_t >(val2);
-    result = (int)(arg1)->randomizeMemory(arg2);
-    ST(argvi) = SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(result)); argvi++ ;
-    
+    {
+      res2 = SWIG_ConvertPtr(ST(1), &argp2, SWIGTYPE_p_uint32_t,  0 );
+      if (!SWIG_IsOK(res2)) {
+        SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTPassword_randomizeMemory" "', argument " "2"" of type '" "uint32_t""'"); 
+      }  
+      if (!argp2) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTPassword_randomizeMemory" "', argument " "2"" of type '" "uint32_t""'");
+      } else {
+        arg2 = *(reinterpret_cast< uint32_t * >(argp2));
+      }
+    }
+    result = (arg1)->randomizeMemory(arg2);
+    ST(argvi) = SWIG_NewPointerObj((new int32_t(static_cast< const int32_t& >(result))), SWIGTYPE_p_int32_t, SWIG_POINTER_OWN | 0); argvi++ ;
     
     XSRETURN(argvi);
   fail:
-    
     
     SWIG_croak_null();
   }
@@ -2354,7 +3502,7 @@ XS(_wrap_OTPassword_randomizeMemory__SWIG_1) {
     void *argp1 = 0 ;
     int res1 = 0 ;
     int argvi = 0;
-    int result;
+    int32_t result;
     dXSARGS;
     
     if ((items < 1) || (items > 1)) {
@@ -2365,8 +3513,50 @@ XS(_wrap_OTPassword_randomizeMemory__SWIG_1) {
       SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTPassword_randomizeMemory" "', argument " "1"" of type '" "OTPassword *""'"); 
     }
     arg1 = reinterpret_cast< OTPassword * >(argp1);
-    result = (int)(arg1)->randomizeMemory();
-    ST(argvi) = SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(result)); argvi++ ;
+    result = (arg1)->randomizeMemory();
+    ST(argvi) = SWIG_NewPointerObj((new int32_t(static_cast< const int32_t& >(result))), SWIGTYPE_p_int32_t, SWIG_POINTER_OWN | 0); argvi++ ;
+    
+    XSRETURN(argvi);
+  fail:
+    
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_OTPassword_randomizeMemory_uint8) {
+  {
+    uint8_t *arg1 = (uint8_t *) 0 ;
+    uint32_t arg2 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    void *argp2 ;
+    int res2 = 0 ;
+    int argvi = 0;
+    bool result;
+    dXSARGS;
+    
+    if ((items < 2) || (items > 2)) {
+      SWIG_croak("Usage: OTPassword_randomizeMemory_uint8(szDestination,nNewSize);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_uint8_t, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTPassword_randomizeMemory_uint8" "', argument " "1"" of type '" "uint8_t *""'"); 
+    }
+    arg1 = reinterpret_cast< uint8_t * >(argp1);
+    {
+      res2 = SWIG_ConvertPtr(ST(1), &argp2, SWIGTYPE_p_uint32_t,  0 );
+      if (!SWIG_IsOK(res2)) {
+        SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTPassword_randomizeMemory_uint8" "', argument " "2"" of type '" "uint32_t""'"); 
+      }  
+      if (!argp2) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTPassword_randomizeMemory_uint8" "', argument " "2"" of type '" "uint32_t""'");
+      } else {
+        arg2 = *(reinterpret_cast< uint32_t * >(argp2));
+      }
+    }
+    result = (bool)OTPassword::randomizeMemory_uint8(arg1,arg2);
+    ST(argvi) = SWIG_From_bool  SWIG_PERL_CALL_ARGS_1(static_cast< bool >(result)); argvi++ ;
     
     XSRETURN(argvi);
   fail:
@@ -2378,13 +3568,11 @@ XS(_wrap_OTPassword_randomizeMemory__SWIG_1) {
 
 XS(_wrap_OTPassword_randomizeMemory__SWIG_2) {
   {
-    char *arg1 = (char *) 0 ;
-    size_t arg2 ;
+    void *arg1 = (void *) 0 ;
+    uint32_t arg2 ;
     int res1 ;
-    char *buf1 = 0 ;
-    int alloc1 = 0 ;
-    size_t val2 ;
-    int ecode2 = 0 ;
+    void *argp2 ;
+    int res2 = 0 ;
     int argvi = 0;
     bool result;
     dXSARGS;
@@ -2392,23 +3580,26 @@ XS(_wrap_OTPassword_randomizeMemory__SWIG_2) {
     if ((items < 2) || (items > 2)) {
       SWIG_croak("Usage: OTPassword_randomizeMemory(szDestination,nNewSize);");
     }
-    res1 = SWIG_AsCharPtrAndSize(ST(0), &buf1, NULL, &alloc1);
+    res1 = SWIG_ConvertPtr(ST(0),SWIG_as_voidptrptr(&arg1), 0, 0);
     if (!SWIG_IsOK(res1)) {
-      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTPassword_randomizeMemory" "', argument " "1"" of type '" "char *""'");
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTPassword_randomizeMemory" "', argument " "1"" of type '" "void *""'"); 
     }
-    arg1 = reinterpret_cast< char * >(buf1);
-    ecode2 = SWIG_AsVal_size_t SWIG_PERL_CALL_ARGS_2(ST(1), &val2);
-    if (!SWIG_IsOK(ecode2)) {
-      SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "OTPassword_randomizeMemory" "', argument " "2"" of type '" "size_t""'");
-    } 
-    arg2 = static_cast< size_t >(val2);
+    {
+      res2 = SWIG_ConvertPtr(ST(1), &argp2, SWIGTYPE_p_uint32_t,  0 );
+      if (!SWIG_IsOK(res2)) {
+        SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTPassword_randomizeMemory" "', argument " "2"" of type '" "uint32_t""'"); 
+      }  
+      if (!argp2) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTPassword_randomizeMemory" "', argument " "2"" of type '" "uint32_t""'");
+      } else {
+        arg2 = *(reinterpret_cast< uint32_t * >(argp2));
+      }
+    }
     result = (bool)OTPassword::randomizeMemory(arg1,arg2);
     ST(argvi) = SWIG_From_bool  SWIG_PERL_CALL_ARGS_1(static_cast< bool >(result)); argvi++ ;
-    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
     
     XSRETURN(argvi);
   fail:
-    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
     
     SWIG_croak_null();
   }
@@ -2457,10 +3648,9 @@ XS(_wrap_OTPassword_randomizeMemory) {
       _rankm += _pi;
       _pi *= SWIG_MAXCASTRANK;
       {
-        {
-          int res = SWIG_AsVal_size_t SWIG_PERL_CALL_ARGS_2(ST(1), NULL);
-          _v = SWIG_CheckState(res);
-        }
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(ST(1), &vptr, SWIGTYPE_p_uint32_t, 0);
+        _v = SWIG_CheckState(res);
       }
       if (!_v) goto check_2;
       _ranki += _v*_pi;
@@ -2479,7 +3669,8 @@ XS(_wrap_OTPassword_randomizeMemory) {
       SWIG_TypeRank _pi = 1;
       int _v = 0;
       {
-        int res = SWIG_AsCharPtrAndSize(ST(0), 0, NULL, 0);
+        void *ptr = 0;
+        int res = SWIG_ConvertPtr(ST(0), &ptr, 0, 0);
         _v = SWIG_CheckState(res);
       }
       if (!_v) goto check_3;
@@ -2487,10 +3678,9 @@ XS(_wrap_OTPassword_randomizeMemory) {
       _rankm += _pi;
       _pi *= SWIG_MAXCASTRANK;
       {
-        {
-          int res = SWIG_AsVal_size_t SWIG_PERL_CALL_ARGS_2(ST(1), NULL);
-          _v = SWIG_CheckState(res);
-        }
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(ST(1), &vptr, SWIGTYPE_p_uint32_t, 0);
+        _v = SWIG_CheckState(res);
       }
       if (!_v) goto check_3;
       _ranki += _v*_pi;
@@ -2525,7 +3715,7 @@ XS(_wrap_OTPassword_getBlockSize) {
     void *argp1 = 0 ;
     int res1 = 0 ;
     int argvi = 0;
-    int result;
+    uint32_t result;
     dXSARGS;
     
     if ((items < 1) || (items > 1)) {
@@ -2536,11 +3726,52 @@ XS(_wrap_OTPassword_getBlockSize) {
       SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTPassword_getBlockSize" "', argument " "1"" of type '" "OTPassword const *""'"); 
     }
     arg1 = reinterpret_cast< OTPassword * >(argp1);
-    result = (int)((OTPassword const *)arg1)->getBlockSize();
-    ST(argvi) = SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(result)); argvi++ ;
+    result = ((OTPassword const *)arg1)->getBlockSize();
+    ST(argvi) = SWIG_NewPointerObj((new uint32_t(static_cast< const uint32_t& >(result))), SWIGTYPE_p_uint32_t, SWIG_POINTER_OWN | 0); argvi++ ;
     
     XSRETURN(argvi);
   fail:
+    
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_OTPassword_Compare) {
+  {
+    OTPassword *arg1 = (OTPassword *) 0 ;
+    OTPassword *arg2 = 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    void *argp2 = 0 ;
+    int res2 = 0 ;
+    int argvi = 0;
+    bool result;
+    dXSARGS;
+    
+    if ((items < 2) || (items > 2)) {
+      SWIG_croak("Usage: OTPassword_Compare(self,rhs);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTPassword, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTPassword_Compare" "', argument " "1"" of type '" "OTPassword const *""'"); 
+    }
+    arg1 = reinterpret_cast< OTPassword * >(argp1);
+    res2 = SWIG_ConvertPtr(ST(1), &argp2, SWIGTYPE_p_OTPassword,  0 );
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTPassword_Compare" "', argument " "2"" of type '" "OTPassword &""'"); 
+    }
+    if (!argp2) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTPassword_Compare" "', argument " "2"" of type '" "OTPassword &""'"); 
+    }
+    arg2 = reinterpret_cast< OTPassword * >(argp2);
+    result = (bool)((OTPassword const *)arg1)->Compare(*arg2);
+    ST(argvi) = SWIG_From_bool  SWIG_PERL_CALL_ARGS_1(static_cast< bool >(result)); argvi++ ;
+    
+    
+    XSRETURN(argvi);
+  fail:
+    
     
     SWIG_croak_null();
   }
@@ -2553,7 +3784,7 @@ XS(_wrap_OTPassword_getPasswordSize) {
     void *argp1 = 0 ;
     int res1 = 0 ;
     int argvi = 0;
-    int result;
+    uint32_t result;
     dXSARGS;
     
     if ((items < 1) || (items > 1)) {
@@ -2564,8 +3795,8 @@ XS(_wrap_OTPassword_getPasswordSize) {
       SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTPassword_getPasswordSize" "', argument " "1"" of type '" "OTPassword const *""'"); 
     }
     arg1 = reinterpret_cast< OTPassword * >(argp1);
-    result = (int)((OTPassword const *)arg1)->getPasswordSize();
-    ST(argvi) = SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(result)); argvi++ ;
+    result = ((OTPassword const *)arg1)->getPasswordSize();
+    ST(argvi) = SWIG_NewPointerObj((new uint32_t(static_cast< const uint32_t& >(result))), SWIGTYPE_p_uint32_t, SWIG_POINTER_OWN | 0); argvi++ ;
     
     XSRETURN(argvi);
   fail:
@@ -2581,7 +3812,7 @@ XS(_wrap_OTPassword_getMemorySize) {
     void *argp1 = 0 ;
     int res1 = 0 ;
     int argvi = 0;
-    int result;
+    uint32_t result;
     dXSARGS;
     
     if ((items < 1) || (items > 1)) {
@@ -2592,8 +3823,8 @@ XS(_wrap_OTPassword_getMemorySize) {
       SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTPassword_getMemorySize" "', argument " "1"" of type '" "OTPassword const *""'"); 
     }
     arg1 = reinterpret_cast< OTPassword * >(argp1);
-    result = (int)((OTPassword const *)arg1)->getMemorySize();
-    ST(argvi) = SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(result)); argvi++ ;
+    result = ((OTPassword const *)arg1)->getMemorySize();
+    ST(argvi) = SWIG_NewPointerObj((new uint32_t(static_cast< const uint32_t& >(result))), SWIGTYPE_p_uint32_t, SWIG_POINTER_OWN | 0); argvi++ ;
     
     XSRETURN(argvi);
   fail:
@@ -2632,36 +3863,39 @@ XS(_wrap_OTPassword_zeroMemory__SWIG_0) {
 
 XS(_wrap_OTPassword_zeroMemory__SWIG_1) {
   {
-    char *arg1 = (char *) 0 ;
-    size_t arg2 ;
-    int res1 ;
-    char *buf1 = 0 ;
-    int alloc1 = 0 ;
-    size_t val2 ;
-    int ecode2 = 0 ;
+    uint8_t *arg1 = (uint8_t *) 0 ;
+    uint32_t arg2 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    void *argp2 ;
+    int res2 = 0 ;
     int argvi = 0;
     dXSARGS;
     
     if ((items < 2) || (items > 2)) {
       SWIG_croak("Usage: OTPassword_zeroMemory(szMemory,theSize);");
     }
-    res1 = SWIG_AsCharPtrAndSize(ST(0), &buf1, NULL, &alloc1);
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_uint8_t, 0 |  0 );
     if (!SWIG_IsOK(res1)) {
-      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTPassword_zeroMemory" "', argument " "1"" of type '" "char *""'");
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTPassword_zeroMemory" "', argument " "1"" of type '" "uint8_t *""'"); 
     }
-    arg1 = reinterpret_cast< char * >(buf1);
-    ecode2 = SWIG_AsVal_size_t SWIG_PERL_CALL_ARGS_2(ST(1), &val2);
-    if (!SWIG_IsOK(ecode2)) {
-      SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "OTPassword_zeroMemory" "', argument " "2"" of type '" "size_t""'");
-    } 
-    arg2 = static_cast< size_t >(val2);
+    arg1 = reinterpret_cast< uint8_t * >(argp1);
+    {
+      res2 = SWIG_ConvertPtr(ST(1), &argp2, SWIGTYPE_p_uint32_t,  0 );
+      if (!SWIG_IsOK(res2)) {
+        SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTPassword_zeroMemory" "', argument " "2"" of type '" "uint32_t""'"); 
+      }  
+      if (!argp2) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTPassword_zeroMemory" "', argument " "2"" of type '" "uint32_t""'");
+      } else {
+        arg2 = *(reinterpret_cast< uint32_t * >(argp2));
+      }
+    }
     OTPassword::zeroMemory(arg1,arg2);
     ST(argvi) = sv_newmortal();
-    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
     
     XSRETURN(argvi);
   fail:
-    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
     
     SWIG_croak_null();
   }
@@ -2671,10 +3905,10 @@ XS(_wrap_OTPassword_zeroMemory__SWIG_1) {
 XS(_wrap_OTPassword_zeroMemory__SWIG_2) {
   {
     void *arg1 = (void *) 0 ;
-    size_t arg2 ;
+    uint32_t arg2 ;
     int res1 ;
-    size_t val2 ;
-    int ecode2 = 0 ;
+    void *argp2 ;
+    int res2 = 0 ;
     int argvi = 0;
     dXSARGS;
     
@@ -2685,18 +3919,22 @@ XS(_wrap_OTPassword_zeroMemory__SWIG_2) {
     if (!SWIG_IsOK(res1)) {
       SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTPassword_zeroMemory" "', argument " "1"" of type '" "void *""'"); 
     }
-    ecode2 = SWIG_AsVal_size_t SWIG_PERL_CALL_ARGS_2(ST(1), &val2);
-    if (!SWIG_IsOK(ecode2)) {
-      SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "OTPassword_zeroMemory" "', argument " "2"" of type '" "size_t""'");
-    } 
-    arg2 = static_cast< size_t >(val2);
+    {
+      res2 = SWIG_ConvertPtr(ST(1), &argp2, SWIGTYPE_p_uint32_t,  0 );
+      if (!SWIG_IsOK(res2)) {
+        SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTPassword_zeroMemory" "', argument " "2"" of type '" "uint32_t""'"); 
+      }  
+      if (!argp2) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTPassword_zeroMemory" "', argument " "2"" of type '" "uint32_t""'");
+      } else {
+        arg2 = *(reinterpret_cast< uint32_t * >(argp2));
+      }
+    }
     OTPassword::zeroMemory(arg1,arg2);
     ST(argvi) = sv_newmortal();
     
-    
     XSRETURN(argvi);
   fail:
-    
     
     SWIG_croak_null();
   }
@@ -2736,8 +3974,8 @@ XS(_wrap_OTPassword_zeroMemory) {
       SWIG_TypeRank _pi = 1;
       int _v = 0;
       {
-        void *ptr = 0;
-        int res = SWIG_ConvertPtr(ST(0), &ptr, 0, 0);
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(ST(0), &vptr, SWIGTYPE_p_uint8_t, 0);
         _v = SWIG_CheckState(res);
       }
       if (!_v) goto check_2;
@@ -2745,10 +3983,9 @@ XS(_wrap_OTPassword_zeroMemory) {
       _rankm += _pi;
       _pi *= SWIG_MAXCASTRANK;
       {
-        {
-          int res = SWIG_AsVal_size_t SWIG_PERL_CALL_ARGS_2(ST(1), NULL);
-          _v = SWIG_CheckState(res);
-        }
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(ST(1), &vptr, SWIGTYPE_p_uint32_t, 0);
+        _v = SWIG_CheckState(res);
       }
       if (!_v) goto check_2;
       _ranki += _v*_pi;
@@ -2767,7 +4004,8 @@ XS(_wrap_OTPassword_zeroMemory) {
       SWIG_TypeRank _pi = 1;
       int _v = 0;
       {
-        int res = SWIG_AsCharPtrAndSize(ST(0), 0, NULL, 0);
+        void *ptr = 0;
+        int res = SWIG_ConvertPtr(ST(0), &ptr, 0, 0);
         _v = SWIG_CheckState(res);
       }
       if (!_v) goto check_3;
@@ -2775,10 +4013,9 @@ XS(_wrap_OTPassword_zeroMemory) {
       _rankm += _pi;
       _pi *= SWIG_MAXCASTRANK;
       {
-        {
-          int res = SWIG_AsVal_size_t SWIG_PERL_CALL_ARGS_2(ST(1), NULL);
-          _v = SWIG_CheckState(res);
-        }
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(ST(1), &vptr, SWIGTYPE_p_uint32_t, 0);
+        _v = SWIG_CheckState(res);
       }
       if (!_v) goto check_3;
       _ranki += _v*_pi;
@@ -2796,9 +4033,9 @@ XS(_wrap_OTPassword_zeroMemory) {
     case 1:
       ++PL_markstack_ptr; SWIG_CALLXS(_wrap_OTPassword_zeroMemory__SWIG_0); return;
     case 2:
-      ++PL_markstack_ptr; SWIG_CALLXS(_wrap_OTPassword_zeroMemory__SWIG_2); return;
-    case 3:
       ++PL_markstack_ptr; SWIG_CALLXS(_wrap_OTPassword_zeroMemory__SWIG_1); return;
+    case 3:
+      ++PL_markstack_ptr; SWIG_CALLXS(_wrap_OTPassword_zeroMemory__SWIG_2); return;
     }
   }
   
@@ -2810,16 +4047,16 @@ XS(_wrap_OTPassword_zeroMemory) {
 XS(_wrap_OTPassword_safe_memcpy__SWIG_0) {
   {
     void *arg1 = (void *) 0 ;
-    size_t arg2 ;
+    uint32_t arg2 ;
     void *arg3 = (void *) 0 ;
-    size_t arg4 ;
+    uint32_t arg4 ;
     bool arg5 ;
     int res1 ;
-    size_t val2 ;
-    int ecode2 = 0 ;
+    void *argp2 ;
+    int res2 = 0 ;
     int res3 ;
-    size_t val4 ;
-    int ecode4 = 0 ;
+    void *argp4 ;
+    int res4 = 0 ;
     bool val5 ;
     int ecode5 = 0 ;
     int argvi = 0;
@@ -2833,20 +4070,32 @@ XS(_wrap_OTPassword_safe_memcpy__SWIG_0) {
     if (!SWIG_IsOK(res1)) {
       SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTPassword_safe_memcpy" "', argument " "1"" of type '" "void *""'"); 
     }
-    ecode2 = SWIG_AsVal_size_t SWIG_PERL_CALL_ARGS_2(ST(1), &val2);
-    if (!SWIG_IsOK(ecode2)) {
-      SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "OTPassword_safe_memcpy" "', argument " "2"" of type '" "size_t""'");
-    } 
-    arg2 = static_cast< size_t >(val2);
+    {
+      res2 = SWIG_ConvertPtr(ST(1), &argp2, SWIGTYPE_p_uint32_t,  0 );
+      if (!SWIG_IsOK(res2)) {
+        SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTPassword_safe_memcpy" "', argument " "2"" of type '" "uint32_t""'"); 
+      }  
+      if (!argp2) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTPassword_safe_memcpy" "', argument " "2"" of type '" "uint32_t""'");
+      } else {
+        arg2 = *(reinterpret_cast< uint32_t * >(argp2));
+      }
+    }
     res3 = SWIG_ConvertPtr(ST(2),SWIG_as_voidptrptr(&arg3), 0, 0);
     if (!SWIG_IsOK(res3)) {
       SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTPassword_safe_memcpy" "', argument " "3"" of type '" "void const *""'"); 
     }
-    ecode4 = SWIG_AsVal_size_t SWIG_PERL_CALL_ARGS_2(ST(3), &val4);
-    if (!SWIG_IsOK(ecode4)) {
-      SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "OTPassword_safe_memcpy" "', argument " "4"" of type '" "size_t""'");
-    } 
-    arg4 = static_cast< size_t >(val4);
+    {
+      res4 = SWIG_ConvertPtr(ST(3), &argp4, SWIGTYPE_p_uint32_t,  0 );
+      if (!SWIG_IsOK(res4)) {
+        SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OTPassword_safe_memcpy" "', argument " "4"" of type '" "uint32_t""'"); 
+      }  
+      if (!argp4) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTPassword_safe_memcpy" "', argument " "4"" of type '" "uint32_t""'");
+      } else {
+        arg4 = *(reinterpret_cast< uint32_t * >(argp4));
+      }
+    }
     ecode5 = SWIG_AsVal_bool SWIG_PERL_CALL_ARGS_2(ST(4), &val5);
     if (!SWIG_IsOK(ecode5)) {
       SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "OTPassword_safe_memcpy" "', argument " "5"" of type '" "bool""'");
@@ -2857,12 +4106,8 @@ XS(_wrap_OTPassword_safe_memcpy__SWIG_0) {
     
     
     
-    
-    
     XSRETURN(argvi);
   fail:
-    
-    
     
     
     
@@ -2874,15 +4119,15 @@ XS(_wrap_OTPassword_safe_memcpy__SWIG_0) {
 XS(_wrap_OTPassword_safe_memcpy__SWIG_1) {
   {
     void *arg1 = (void *) 0 ;
-    size_t arg2 ;
+    uint32_t arg2 ;
     void *arg3 = (void *) 0 ;
-    size_t arg4 ;
+    uint32_t arg4 ;
     int res1 ;
-    size_t val2 ;
-    int ecode2 = 0 ;
+    void *argp2 ;
+    int res2 = 0 ;
     int res3 ;
-    size_t val4 ;
-    int ecode4 = 0 ;
+    void *argp4 ;
+    int res4 = 0 ;
     int argvi = 0;
     void *result = 0 ;
     dXSARGS;
@@ -2894,30 +4139,38 @@ XS(_wrap_OTPassword_safe_memcpy__SWIG_1) {
     if (!SWIG_IsOK(res1)) {
       SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTPassword_safe_memcpy" "', argument " "1"" of type '" "void *""'"); 
     }
-    ecode2 = SWIG_AsVal_size_t SWIG_PERL_CALL_ARGS_2(ST(1), &val2);
-    if (!SWIG_IsOK(ecode2)) {
-      SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "OTPassword_safe_memcpy" "', argument " "2"" of type '" "size_t""'");
-    } 
-    arg2 = static_cast< size_t >(val2);
+    {
+      res2 = SWIG_ConvertPtr(ST(1), &argp2, SWIGTYPE_p_uint32_t,  0 );
+      if (!SWIG_IsOK(res2)) {
+        SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OTPassword_safe_memcpy" "', argument " "2"" of type '" "uint32_t""'"); 
+      }  
+      if (!argp2) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTPassword_safe_memcpy" "', argument " "2"" of type '" "uint32_t""'");
+      } else {
+        arg2 = *(reinterpret_cast< uint32_t * >(argp2));
+      }
+    }
     res3 = SWIG_ConvertPtr(ST(2),SWIG_as_voidptrptr(&arg3), 0, 0);
     if (!SWIG_IsOK(res3)) {
       SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OTPassword_safe_memcpy" "', argument " "3"" of type '" "void const *""'"); 
     }
-    ecode4 = SWIG_AsVal_size_t SWIG_PERL_CALL_ARGS_2(ST(3), &val4);
-    if (!SWIG_IsOK(ecode4)) {
-      SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "OTPassword_safe_memcpy" "', argument " "4"" of type '" "size_t""'");
-    } 
-    arg4 = static_cast< size_t >(val4);
+    {
+      res4 = SWIG_ConvertPtr(ST(3), &argp4, SWIGTYPE_p_uint32_t,  0 );
+      if (!SWIG_IsOK(res4)) {
+        SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OTPassword_safe_memcpy" "', argument " "4"" of type '" "uint32_t""'"); 
+      }  
+      if (!argp4) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "OTPassword_safe_memcpy" "', argument " "4"" of type '" "uint32_t""'");
+      } else {
+        arg4 = *(reinterpret_cast< uint32_t * >(argp4));
+      }
+    }
     result = (void *)OTPassword::safe_memcpy(arg1,arg2,(void const *)arg3,arg4);
     ST(argvi) = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_void, 0 | 0); argvi++ ;
     
     
-    
-    
     XSRETURN(argvi);
   fail:
-    
-    
     
     
     SWIG_croak_null();
@@ -2946,10 +4199,9 @@ XS(_wrap_OTPassword_safe_memcpy) {
       _rankm += _pi;
       _pi *= SWIG_MAXCASTRANK;
       {
-        {
-          int res = SWIG_AsVal_size_t SWIG_PERL_CALL_ARGS_2(ST(1), NULL);
-          _v = SWIG_CheckState(res);
-        }
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(ST(1), &vptr, SWIGTYPE_p_uint32_t, 0);
+        _v = SWIG_CheckState(res);
       }
       if (!_v) goto check_1;
       _ranki += _v*_pi;
@@ -2965,10 +4217,9 @@ XS(_wrap_OTPassword_safe_memcpy) {
       _rankm += _pi;
       _pi *= SWIG_MAXCASTRANK;
       {
-        {
-          int res = SWIG_AsVal_size_t SWIG_PERL_CALL_ARGS_2(ST(3), NULL);
-          _v = SWIG_CheckState(res);
-        }
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(ST(3), &vptr, SWIGTYPE_p_uint32_t, 0);
+        _v = SWIG_CheckState(res);
       }
       if (!_v) goto check_1;
       _ranki += _v*_pi;
@@ -2996,10 +4247,9 @@ XS(_wrap_OTPassword_safe_memcpy) {
       _rankm += _pi;
       _pi *= SWIG_MAXCASTRANK;
       {
-        {
-          int res = SWIG_AsVal_size_t SWIG_PERL_CALL_ARGS_2(ST(1), NULL);
-          _v = SWIG_CheckState(res);
-        }
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(ST(1), &vptr, SWIGTYPE_p_uint32_t, 0);
+        _v = SWIG_CheckState(res);
       }
       if (!_v) goto check_2;
       _ranki += _v*_pi;
@@ -3015,10 +4265,9 @@ XS(_wrap_OTPassword_safe_memcpy) {
       _rankm += _pi;
       _pi *= SWIG_MAXCASTRANK;
       {
-        {
-          int res = SWIG_AsVal_size_t SWIG_PERL_CALL_ARGS_2(ST(3), NULL);
-          _v = SWIG_CheckState(res);
-        }
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(ST(3), &vptr, SWIGTYPE_p_uint32_t, 0);
+        _v = SWIG_CheckState(res);
       }
       if (!_v) goto check_2;
       _ranki += _v*_pi;
@@ -3103,14 +4352,45 @@ XS(_wrap_new_OTPassword__SWIG_1) {
 
 XS(_wrap_new_OTPassword__SWIG_2) {
   {
+    OTPassword *arg1 = 0 ;
+    void *argp1 ;
+    int res1 = 0 ;
+    int argvi = 0;
+    OTPassword *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: new_OTPassword(rhs);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1, SWIGTYPE_p_OTPassword,  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_OTPassword" "', argument " "1"" of type '" "OTPassword const &""'"); 
+    }
+    if (!argp1) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "new_OTPassword" "', argument " "1"" of type '" "OTPassword const &""'"); 
+    }
+    arg1 = reinterpret_cast< OTPassword * >(argp1);
+    result = (OTPassword *)new OTPassword((OTPassword const &)*arg1);
+    ST(argvi) = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTPassword, SWIG_OWNER | SWIG_SHADOW); argvi++ ;
+    
+    XSRETURN(argvi);
+  fail:
+    
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_new_OTPassword__SWIG_3) {
+  {
     char *arg1 = (char *) 0 ;
-    int arg2 ;
+    uint32_t arg2 ;
     OTPassword::BlockSize arg3 ;
     int res1 ;
     char *buf1 = 0 ;
     int alloc1 = 0 ;
-    int val2 ;
-    int ecode2 = 0 ;
+    void *argp2 ;
+    int res2 = 0 ;
     int val3 ;
     int ecode3 = 0 ;
     int argvi = 0;
@@ -3125,58 +4405,23 @@ XS(_wrap_new_OTPassword__SWIG_2) {
       SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_OTPassword" "', argument " "1"" of type '" "char const *""'");
     }
     arg1 = reinterpret_cast< char * >(buf1);
-    ecode2 = SWIG_AsVal_int SWIG_PERL_CALL_ARGS_2(ST(1), &val2);
-    if (!SWIG_IsOK(ecode2)) {
-      SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "new_OTPassword" "', argument " "2"" of type '" "int""'");
-    } 
-    arg2 = static_cast< int >(val2);
+    {
+      res2 = SWIG_ConvertPtr(ST(1), &argp2, SWIGTYPE_p_uint32_t,  0 );
+      if (!SWIG_IsOK(res2)) {
+        SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "new_OTPassword" "', argument " "2"" of type '" "uint32_t""'"); 
+      }  
+      if (!argp2) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "new_OTPassword" "', argument " "2"" of type '" "uint32_t""'");
+      } else {
+        arg2 = *(reinterpret_cast< uint32_t * >(argp2));
+      }
+    }
     ecode3 = SWIG_AsVal_int SWIG_PERL_CALL_ARGS_2(ST(2), &val3);
     if (!SWIG_IsOK(ecode3)) {
       SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "new_OTPassword" "', argument " "3"" of type '" "OTPassword::BlockSize""'");
     } 
     arg3 = static_cast< OTPassword::BlockSize >(val3);
     result = (OTPassword *)new OTPassword((char const *)arg1,arg2,arg3);
-    ST(argvi) = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTPassword, SWIG_OWNER | SWIG_SHADOW); argvi++ ;
-    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
-    
-    
-    XSRETURN(argvi);
-  fail:
-    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
-    
-    
-    SWIG_croak_null();
-  }
-}
-
-
-XS(_wrap_new_OTPassword__SWIG_3) {
-  {
-    char *arg1 = (char *) 0 ;
-    int arg2 ;
-    int res1 ;
-    char *buf1 = 0 ;
-    int alloc1 = 0 ;
-    int val2 ;
-    int ecode2 = 0 ;
-    int argvi = 0;
-    OTPassword *result = 0 ;
-    dXSARGS;
-    
-    if ((items < 2) || (items > 2)) {
-      SWIG_croak("Usage: new_OTPassword(szInput,nInputSize);");
-    }
-    res1 = SWIG_AsCharPtrAndSize(ST(0), &buf1, NULL, &alloc1);
-    if (!SWIG_IsOK(res1)) {
-      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_OTPassword" "', argument " "1"" of type '" "char const *""'");
-    }
-    arg1 = reinterpret_cast< char * >(buf1);
-    ecode2 = SWIG_AsVal_int SWIG_PERL_CALL_ARGS_2(ST(1), &val2);
-    if (!SWIG_IsOK(ecode2)) {
-      SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "new_OTPassword" "', argument " "2"" of type '" "int""'");
-    } 
-    arg2 = static_cast< int >(val2);
-    result = (OTPassword *)new OTPassword((char const *)arg1,arg2);
     ST(argvi) = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTPassword, SWIG_OWNER | SWIG_SHADOW); argvi++ ;
     if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
     
@@ -3191,12 +4436,149 @@ XS(_wrap_new_OTPassword__SWIG_3) {
 
 XS(_wrap_new_OTPassword__SWIG_4) {
   {
+    char *arg1 = (char *) 0 ;
+    uint32_t arg2 ;
+    int res1 ;
+    char *buf1 = 0 ;
+    int alloc1 = 0 ;
+    void *argp2 ;
+    int res2 = 0 ;
+    int argvi = 0;
+    OTPassword *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 2) || (items > 2)) {
+      SWIG_croak("Usage: new_OTPassword(szInput,nInputSize);");
+    }
+    res1 = SWIG_AsCharPtrAndSize(ST(0), &buf1, NULL, &alloc1);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_OTPassword" "', argument " "1"" of type '" "char const *""'");
+    }
+    arg1 = reinterpret_cast< char * >(buf1);
+    {
+      res2 = SWIG_ConvertPtr(ST(1), &argp2, SWIGTYPE_p_uint32_t,  0 );
+      if (!SWIG_IsOK(res2)) {
+        SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "new_OTPassword" "', argument " "2"" of type '" "uint32_t""'"); 
+      }  
+      if (!argp2) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "new_OTPassword" "', argument " "2"" of type '" "uint32_t""'");
+      } else {
+        arg2 = *(reinterpret_cast< uint32_t * >(argp2));
+      }
+    }
+    result = (OTPassword *)new OTPassword((char const *)arg1,arg2);
+    ST(argvi) = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTPassword, SWIG_OWNER | SWIG_SHADOW); argvi++ ;
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    XSRETURN(argvi);
+  fail:
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_new_OTPassword__SWIG_5) {
+  {
+    uint8_t *arg1 = (uint8_t *) 0 ;
+    uint32_t arg2 ;
+    OTPassword::BlockSize arg3 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    void *argp2 ;
+    int res2 = 0 ;
+    int val3 ;
+    int ecode3 = 0 ;
+    int argvi = 0;
+    OTPassword *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 3) || (items > 3)) {
+      SWIG_croak("Usage: new_OTPassword(szInput,nInputSize,theBlockSize);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_uint8_t, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_OTPassword" "', argument " "1"" of type '" "uint8_t const *""'"); 
+    }
+    arg1 = reinterpret_cast< uint8_t * >(argp1);
+    {
+      res2 = SWIG_ConvertPtr(ST(1), &argp2, SWIGTYPE_p_uint32_t,  0 );
+      if (!SWIG_IsOK(res2)) {
+        SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "new_OTPassword" "', argument " "2"" of type '" "uint32_t""'"); 
+      }  
+      if (!argp2) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "new_OTPassword" "', argument " "2"" of type '" "uint32_t""'");
+      } else {
+        arg2 = *(reinterpret_cast< uint32_t * >(argp2));
+      }
+    }
+    ecode3 = SWIG_AsVal_int SWIG_PERL_CALL_ARGS_2(ST(2), &val3);
+    if (!SWIG_IsOK(ecode3)) {
+      SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "new_OTPassword" "', argument " "3"" of type '" "OTPassword::BlockSize""'");
+    } 
+    arg3 = static_cast< OTPassword::BlockSize >(val3);
+    result = (OTPassword *)new OTPassword((uint8_t const *)arg1,arg2,arg3);
+    ST(argvi) = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTPassword, SWIG_OWNER | SWIG_SHADOW); argvi++ ;
+    
+    
+    XSRETURN(argvi);
+  fail:
+    
+    
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_new_OTPassword__SWIG_6) {
+  {
+    uint8_t *arg1 = (uint8_t *) 0 ;
+    uint32_t arg2 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    void *argp2 ;
+    int res2 = 0 ;
+    int argvi = 0;
+    OTPassword *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 2) || (items > 2)) {
+      SWIG_croak("Usage: new_OTPassword(szInput,nInputSize);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_uint8_t, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_OTPassword" "', argument " "1"" of type '" "uint8_t const *""'"); 
+    }
+    arg1 = reinterpret_cast< uint8_t * >(argp1);
+    {
+      res2 = SWIG_ConvertPtr(ST(1), &argp2, SWIGTYPE_p_uint32_t,  0 );
+      if (!SWIG_IsOK(res2)) {
+        SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "new_OTPassword" "', argument " "2"" of type '" "uint32_t""'"); 
+      }  
+      if (!argp2) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "new_OTPassword" "', argument " "2"" of type '" "uint32_t""'");
+      } else {
+        arg2 = *(reinterpret_cast< uint32_t * >(argp2));
+      }
+    }
+    result = (OTPassword *)new OTPassword((uint8_t const *)arg1,arg2);
+    ST(argvi) = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTPassword, SWIG_OWNER | SWIG_SHADOW); argvi++ ;
+    
+    XSRETURN(argvi);
+  fail:
+    
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_new_OTPassword__SWIG_7) {
+  {
     void *arg1 = (void *) 0 ;
-    int arg2 ;
+    uint32_t arg2 ;
     OTPassword::BlockSize arg3 ;
     int res1 ;
-    int val2 ;
-    int ecode2 = 0 ;
+    void *argp2 ;
+    int res2 = 0 ;
     int val3 ;
     int ecode3 = 0 ;
     int argvi = 0;
@@ -3210,11 +4592,17 @@ XS(_wrap_new_OTPassword__SWIG_4) {
     if (!SWIG_IsOK(res1)) {
       SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_OTPassword" "', argument " "1"" of type '" "void const *""'"); 
     }
-    ecode2 = SWIG_AsVal_int SWIG_PERL_CALL_ARGS_2(ST(1), &val2);
-    if (!SWIG_IsOK(ecode2)) {
-      SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "new_OTPassword" "', argument " "2"" of type '" "int""'");
-    } 
-    arg2 = static_cast< int >(val2);
+    {
+      res2 = SWIG_ConvertPtr(ST(1), &argp2, SWIGTYPE_p_uint32_t,  0 );
+      if (!SWIG_IsOK(res2)) {
+        SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "new_OTPassword" "', argument " "2"" of type '" "uint32_t""'"); 
+      }  
+      if (!argp2) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "new_OTPassword" "', argument " "2"" of type '" "uint32_t""'");
+      } else {
+        arg2 = *(reinterpret_cast< uint32_t * >(argp2));
+      }
+    }
     ecode3 = SWIG_AsVal_int SWIG_PERL_CALL_ARGS_2(ST(2), &val3);
     if (!SWIG_IsOK(ecode3)) {
       SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "new_OTPassword" "', argument " "3"" of type '" "OTPassword::BlockSize""'");
@@ -3224,10 +4612,8 @@ XS(_wrap_new_OTPassword__SWIG_4) {
     ST(argvi) = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTPassword, SWIG_OWNER | SWIG_SHADOW); argvi++ ;
     
     
-    
     XSRETURN(argvi);
   fail:
-    
     
     
     SWIG_croak_null();
@@ -3235,13 +4621,13 @@ XS(_wrap_new_OTPassword__SWIG_4) {
 }
 
 
-XS(_wrap_new_OTPassword__SWIG_5) {
+XS(_wrap_new_OTPassword__SWIG_8) {
   {
     void *arg1 = (void *) 0 ;
-    int arg2 ;
+    uint32_t arg2 ;
     int res1 ;
-    int val2 ;
-    int ecode2 = 0 ;
+    void *argp2 ;
+    int res2 = 0 ;
     int argvi = 0;
     OTPassword *result = 0 ;
     dXSARGS;
@@ -3253,18 +4639,22 @@ XS(_wrap_new_OTPassword__SWIG_5) {
     if (!SWIG_IsOK(res1)) {
       SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_OTPassword" "', argument " "1"" of type '" "void const *""'"); 
     }
-    ecode2 = SWIG_AsVal_int SWIG_PERL_CALL_ARGS_2(ST(1), &val2);
-    if (!SWIG_IsOK(ecode2)) {
-      SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "new_OTPassword" "', argument " "2"" of type '" "int""'");
-    } 
-    arg2 = static_cast< int >(val2);
+    {
+      res2 = SWIG_ConvertPtr(ST(1), &argp2, SWIGTYPE_p_uint32_t,  0 );
+      if (!SWIG_IsOK(res2)) {
+        SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "new_OTPassword" "', argument " "2"" of type '" "uint32_t""'"); 
+      }  
+      if (!argp2) {
+        SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "new_OTPassword" "', argument " "2"" of type '" "uint32_t""'");
+      } else {
+        arg2 = *(reinterpret_cast< uint32_t * >(argp2));
+      }
+    }
     result = (OTPassword *)new OTPassword((void const *)arg1,arg2);
     ST(argvi) = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTPassword, SWIG_OWNER | SWIG_SHADOW); argvi++ ;
     
-    
     XSRETURN(argvi);
   fail:
-    
     
     SWIG_croak_null();
   }
@@ -3291,10 +4681,9 @@ XS(_wrap_new_OTPassword) {
       SWIG_TypeRank _pi = 1;
       int _v = 0;
       {
-        {
-          int res = SWIG_AsVal_int SWIG_PERL_CALL_ARGS_2(ST(0), NULL);
-          _v = SWIG_CheckState(res);
-        }
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(ST(0), &vptr, SWIGTYPE_p_OTPassword, 0);
+        _v = SWIG_CheckState(res);
       }
       if (!_v) goto check_2;
       _ranki += _v*_pi;
@@ -3307,23 +4696,14 @@ XS(_wrap_new_OTPassword) {
     }
   check_2:
     
-    if (items == 2) {
+    if (items == 1) {
       SWIG_TypeRank _ranki = 0;
       SWIG_TypeRank _rankm = 0;
       SWIG_TypeRank _pi = 1;
       int _v = 0;
       {
-        void *ptr = 0;
-        int res = SWIG_ConvertPtr(ST(0), &ptr, 0, 0);
-        _v = SWIG_CheckState(res);
-      }
-      if (!_v) goto check_3;
-      _ranki += _v*_pi;
-      _rankm += _pi;
-      _pi *= SWIG_MAXCASTRANK;
-      {
         {
-          int res = SWIG_AsVal_int SWIG_PERL_CALL_ARGS_2(ST(1), NULL);
+          int res = SWIG_AsVal_int SWIG_PERL_CALL_ARGS_2(ST(0), NULL);
           _v = SWIG_CheckState(res);
         }
       }
@@ -3344,7 +4724,8 @@ XS(_wrap_new_OTPassword) {
       SWIG_TypeRank _pi = 1;
       int _v = 0;
       {
-        int res = SWIG_AsCharPtrAndSize(ST(0), 0, NULL, 0);
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(ST(0), &vptr, SWIGTYPE_p_uint8_t, 0);
         _v = SWIG_CheckState(res);
       }
       if (!_v) goto check_4;
@@ -3352,10 +4733,9 @@ XS(_wrap_new_OTPassword) {
       _rankm += _pi;
       _pi *= SWIG_MAXCASTRANK;
       {
-        {
-          int res = SWIG_AsVal_int SWIG_PERL_CALL_ARGS_2(ST(1), NULL);
-          _v = SWIG_CheckState(res);
-        }
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(ST(1), &vptr, SWIGTYPE_p_uint32_t, 0);
+        _v = SWIG_CheckState(res);
       }
       if (!_v) goto check_4;
       _ranki += _v*_pi;
@@ -3368,7 +4748,7 @@ XS(_wrap_new_OTPassword) {
     }
   check_4:
     
-    if (items == 3) {
+    if (items == 2) {
       SWIG_TypeRank _ranki = 0;
       SWIG_TypeRank _rankm = 0;
       SWIG_TypeRank _pi = 1;
@@ -3383,20 +4763,9 @@ XS(_wrap_new_OTPassword) {
       _rankm += _pi;
       _pi *= SWIG_MAXCASTRANK;
       {
-        {
-          int res = SWIG_AsVal_int SWIG_PERL_CALL_ARGS_2(ST(1), NULL);
-          _v = SWIG_CheckState(res);
-        }
-      }
-      if (!_v) goto check_5;
-      _ranki += _v*_pi;
-      _rankm += _pi;
-      _pi *= SWIG_MAXCASTRANK;
-      {
-        {
-          int res = SWIG_AsVal_int SWIG_PERL_CALL_ARGS_2(ST(2), NULL);
-          _v = SWIG_CheckState(res);
-        }
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(ST(1), &vptr, SWIGTYPE_p_uint32_t, 0);
+        _v = SWIG_CheckState(res);
       }
       if (!_v) goto check_5;
       _ranki += _v*_pi;
@@ -3409,7 +4778,7 @@ XS(_wrap_new_OTPassword) {
     }
   check_5:
     
-    if (items == 3) {
+    if (items == 2) {
       SWIG_TypeRank _ranki = 0;
       SWIG_TypeRank _rankm = 0;
       SWIG_TypeRank _pi = 1;
@@ -3423,20 +4792,9 @@ XS(_wrap_new_OTPassword) {
       _rankm += _pi;
       _pi *= SWIG_MAXCASTRANK;
       {
-        {
-          int res = SWIG_AsVal_int SWIG_PERL_CALL_ARGS_2(ST(1), NULL);
-          _v = SWIG_CheckState(res);
-        }
-      }
-      if (!_v) goto check_6;
-      _ranki += _v*_pi;
-      _rankm += _pi;
-      _pi *= SWIG_MAXCASTRANK;
-      {
-        {
-          int res = SWIG_AsVal_int SWIG_PERL_CALL_ARGS_2(ST(2), NULL);
-          _v = SWIG_CheckState(res);
-        }
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(ST(1), &vptr, SWIGTYPE_p_uint32_t, 0);
+        _v = SWIG_CheckState(res);
       }
       if (!_v) goto check_6;
       _ranki += _v*_pi;
@@ -3449,20 +4807,145 @@ XS(_wrap_new_OTPassword) {
     }
   check_6:
     
+    if (items == 3) {
+      SWIG_TypeRank _ranki = 0;
+      SWIG_TypeRank _rankm = 0;
+      SWIG_TypeRank _pi = 1;
+      int _v = 0;
+      {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(ST(0), &vptr, SWIGTYPE_p_uint8_t, 0);
+        _v = SWIG_CheckState(res);
+      }
+      if (!_v) goto check_7;
+      _ranki += _v*_pi;
+      _rankm += _pi;
+      _pi *= SWIG_MAXCASTRANK;
+      {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(ST(1), &vptr, SWIGTYPE_p_uint32_t, 0);
+        _v = SWIG_CheckState(res);
+      }
+      if (!_v) goto check_7;
+      _ranki += _v*_pi;
+      _rankm += _pi;
+      _pi *= SWIG_MAXCASTRANK;
+      {
+        {
+          int res = SWIG_AsVal_int SWIG_PERL_CALL_ARGS_2(ST(2), NULL);
+          _v = SWIG_CheckState(res);
+        }
+      }
+      if (!_v) goto check_7;
+      _ranki += _v*_pi;
+      _rankm += _pi;
+      _pi *= SWIG_MAXCASTRANK;
+      if (!_index || (_ranki < _rank)) {
+        _rank = _ranki; _index = 7;
+        if (_rank == _rankm) goto dispatch;
+      }
+    }
+  check_7:
+    
+    if (items == 3) {
+      SWIG_TypeRank _ranki = 0;
+      SWIG_TypeRank _rankm = 0;
+      SWIG_TypeRank _pi = 1;
+      int _v = 0;
+      {
+        void *ptr = 0;
+        int res = SWIG_ConvertPtr(ST(0), &ptr, 0, 0);
+        _v = SWIG_CheckState(res);
+      }
+      if (!_v) goto check_8;
+      _ranki += _v*_pi;
+      _rankm += _pi;
+      _pi *= SWIG_MAXCASTRANK;
+      {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(ST(1), &vptr, SWIGTYPE_p_uint32_t, 0);
+        _v = SWIG_CheckState(res);
+      }
+      if (!_v) goto check_8;
+      _ranki += _v*_pi;
+      _rankm += _pi;
+      _pi *= SWIG_MAXCASTRANK;
+      {
+        {
+          int res = SWIG_AsVal_int SWIG_PERL_CALL_ARGS_2(ST(2), NULL);
+          _v = SWIG_CheckState(res);
+        }
+      }
+      if (!_v) goto check_8;
+      _ranki += _v*_pi;
+      _rankm += _pi;
+      _pi *= SWIG_MAXCASTRANK;
+      if (!_index || (_ranki < _rank)) {
+        _rank = _ranki; _index = 8;
+        if (_rank == _rankm) goto dispatch;
+      }
+    }
+  check_8:
+    
+    if (items == 3) {
+      SWIG_TypeRank _ranki = 0;
+      SWIG_TypeRank _rankm = 0;
+      SWIG_TypeRank _pi = 1;
+      int _v = 0;
+      {
+        int res = SWIG_AsCharPtrAndSize(ST(0), 0, NULL, 0);
+        _v = SWIG_CheckState(res);
+      }
+      if (!_v) goto check_9;
+      _ranki += _v*_pi;
+      _rankm += _pi;
+      _pi *= SWIG_MAXCASTRANK;
+      {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(ST(1), &vptr, SWIGTYPE_p_uint32_t, 0);
+        _v = SWIG_CheckState(res);
+      }
+      if (!_v) goto check_9;
+      _ranki += _v*_pi;
+      _rankm += _pi;
+      _pi *= SWIG_MAXCASTRANK;
+      {
+        {
+          int res = SWIG_AsVal_int SWIG_PERL_CALL_ARGS_2(ST(2), NULL);
+          _v = SWIG_CheckState(res);
+        }
+      }
+      if (!_v) goto check_9;
+      _ranki += _v*_pi;
+      _rankm += _pi;
+      _pi *= SWIG_MAXCASTRANK;
+      if (!_index || (_ranki < _rank)) {
+        _rank = _ranki; _index = 9;
+        if (_rank == _rankm) goto dispatch;
+      }
+    }
+  check_9:
+    
   dispatch:
     switch(_index) {
     case 1:
       ++PL_markstack_ptr; SWIG_CALLXS(_wrap_new_OTPassword__SWIG_1); return;
     case 2:
-      ++PL_markstack_ptr; SWIG_CALLXS(_wrap_new_OTPassword__SWIG_0); return;
-    case 3:
-      ++PL_markstack_ptr; SWIG_CALLXS(_wrap_new_OTPassword__SWIG_5); return;
-    case 4:
-      ++PL_markstack_ptr; SWIG_CALLXS(_wrap_new_OTPassword__SWIG_3); return;
-    case 5:
-      ++PL_markstack_ptr; SWIG_CALLXS(_wrap_new_OTPassword__SWIG_4); return;
-    case 6:
       ++PL_markstack_ptr; SWIG_CALLXS(_wrap_new_OTPassword__SWIG_2); return;
+    case 3:
+      ++PL_markstack_ptr; SWIG_CALLXS(_wrap_new_OTPassword__SWIG_0); return;
+    case 4:
+      ++PL_markstack_ptr; SWIG_CALLXS(_wrap_new_OTPassword__SWIG_6); return;
+    case 5:
+      ++PL_markstack_ptr; SWIG_CALLXS(_wrap_new_OTPassword__SWIG_8); return;
+    case 6:
+      ++PL_markstack_ptr; SWIG_CALLXS(_wrap_new_OTPassword__SWIG_4); return;
+    case 7:
+      ++PL_markstack_ptr; SWIG_CALLXS(_wrap_new_OTPassword__SWIG_5); return;
+    case 8:
+      ++PL_markstack_ptr; SWIG_CALLXS(_wrap_new_OTPassword__SWIG_7); return;
+    case 9:
+      ++PL_markstack_ptr; SWIG_CALLXS(_wrap_new_OTPassword__SWIG_3); return;
     }
   }
   
@@ -36521,9 +38004,14 @@ static swig_type_info _swigt__p_OTDB__TradeListNym = {"_p_OTDB__TradeListNym", "
 static swig_type_info _swigt__p_OTDB__WalletData = {"_p_OTDB__WalletData", "OTDB::WalletData *", 0, 0, (void*)"otapi::WalletData", 0};
 static swig_type_info _swigt__p_OTPacker = {"_p_OTPacker", "OTPacker *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_OTPassword = {"_p_OTPassword", "OTPassword *", 0, 0, (void*)"otapi::OTPassword", 0};
+static swig_type_info _swigt__p_OTPasswordData = {"_p_OTPasswordData", "OTPasswordData *", 0, 0, (void*)"otapi::OTPasswordData", 0};
+static swig_type_info _swigt__p_OTString = {"_p_OTString", "OTString *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_char = {"_p_char", "char *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_int32_t = {"_p_int32_t", "int32_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__mapT_std__string_std__string_t = {"_p_std__mapT_std__string_std__string_t", "std::map< std::string,std::string > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__vectorT_unsigned_char_t = {"_p_std__vectorT_unsigned_char_t", "std::vector< unsigned char > *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_uint32_t = {"_p_uint32_t", "uint32_t *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_uint8_t = {"_p_uint8_t", "uint8_t *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_void = {"_p_void", "void *", 0, 0, (void*)0, 0};
 
 static swig_type_info *swig_type_initial[] = {
@@ -36561,9 +38049,14 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_OTDB__WalletData,
   &_swigt__p_OTPacker,
   &_swigt__p_OTPassword,
+  &_swigt__p_OTPasswordData,
+  &_swigt__p_OTString,
   &_swigt__p_char,
+  &_swigt__p_int32_t,
   &_swigt__p_std__mapT_std__string_std__string_t,
   &_swigt__p_std__vectorT_unsigned_char_t,
+  &_swigt__p_uint32_t,
+  &_swigt__p_uint8_t,
   &_swigt__p_void,
 };
 
@@ -36601,9 +38094,14 @@ static swig_cast_info _swigc__p_OTDB__TradeListNym[] = {  {&_swigt__p_OTDB__Trad
 static swig_cast_info _swigc__p_OTDB__WalletData[] = {  {&_swigt__p_OTDB__WalletData, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_OTPacker[] = {  {&_swigt__p_OTPacker, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_OTPassword[] = {  {&_swigt__p_OTPassword, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_OTPasswordData[] = {  {&_swigt__p_OTPasswordData, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_OTString[] = {  {&_swigt__p_OTString, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_char[] = {  {&_swigt__p_char, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_int32_t[] = {  {&_swigt__p_int32_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__mapT_std__string_std__string_t[] = {  {&_swigt__p_std__mapT_std__string_std__string_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__vectorT_unsigned_char_t[] = {  {&_swigt__p_std__vectorT_unsigned_char_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_uint32_t[] = {  {&_swigt__p_uint32_t, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_uint8_t[] = {  {&_swigt__p_uint8_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_void[] = {  {&_swigt__p_void, 0, 0, 0},{0, 0, 0, 0}};
 
 static swig_cast_info *swig_cast_initial[] = {
@@ -36641,9 +38139,14 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_OTDB__WalletData,
   _swigc__p_OTPacker,
   _swigc__p_OTPassword,
+  _swigc__p_OTPasswordData,
+  _swigc__p_OTString,
   _swigc__p_char,
+  _swigc__p_int32_t,
   _swigc__p_std__mapT_std__string_std__string_t,
   _swigc__p_std__vectorT_unsigned_char_t,
+  _swigc__p_uint32_t,
+  _swigc__p_uint8_t,
   _swigc__p_void,
 };
 
@@ -36660,17 +38163,34 @@ static swig_variable_info swig_variables[] = {
 {0,0,0,0}
 };
 static swig_command_info swig_commands[] = {
+{"otapic::OTPasswordData_isForNormalNym", _wrap_OTPasswordData_isForNormalNym},
+{"otapic::OTPasswordData_isForMasterKey", _wrap_OTPasswordData_isForMasterKey},
+{"otapic::OTPasswordData_GetDisplayString", _wrap_OTPasswordData_GetDisplayString},
+{"otapic::OTPasswordData_isUsingOldSystem", _wrap_OTPasswordData_isUsingOldSystem},
+{"otapic::OTPasswordData_setUsingOldSystem", _wrap_OTPasswordData_setUsingOldSystem},
+{"otapic::OTPasswordData_GetMasterPW", _wrap_OTPasswordData_GetMasterPW},
+{"otapic::new_OTPasswordData", _wrap_new_OTPasswordData},
+{"otapic::delete_OTPasswordData", _wrap_delete_OTPasswordData},
 {"otapic::OTPassword_m_theBlockSize_get", _wrap_OTPassword_m_theBlockSize_get},
 {"otapic::OTPassword_isPassword", _wrap_OTPassword_isPassword},
+{"otapic::OTPassword_getPassword_uint8", _wrap_OTPassword_getPassword_uint8},
 {"otapic::OTPassword_getPassword", _wrap_OTPassword_getPassword},
+{"otapic::OTPassword_getPasswordWritable", _wrap_OTPassword_getPasswordWritable},
 {"otapic::OTPassword_setPassword", _wrap_OTPassword_setPassword},
+{"otapic::OTPassword_setPassword_uint8", _wrap_OTPassword_setPassword_uint8},
+{"otapic::OTPassword_addChar", _wrap_OTPassword_addChar},
+{"otapic::OTPassword_randomizePassword_uint8", _wrap_OTPassword_randomizePassword_uint8},
+{"otapic::OTPassword_randomizePassword", _wrap_OTPassword_randomizePassword},
 {"otapic::OTPassword_isMemory", _wrap_OTPassword_isMemory},
 {"otapic::OTPassword_getMemory", _wrap_OTPassword_getMemory},
+{"otapic::OTPassword_getMemory_uint8", _wrap_OTPassword_getMemory_uint8},
 {"otapic::OTPassword_getMemoryWritable", _wrap_OTPassword_getMemoryWritable},
 {"otapic::OTPassword_setMemory", _wrap_OTPassword_setMemory},
 {"otapic::OTPassword_addMemory", _wrap_OTPassword_addMemory},
+{"otapic::OTPassword_randomizeMemory_uint8", _wrap_OTPassword_randomizeMemory_uint8},
 {"otapic::OTPassword_randomizeMemory", _wrap_OTPassword_randomizeMemory},
 {"otapic::OTPassword_getBlockSize", _wrap_OTPassword_getBlockSize},
+{"otapic::OTPassword_Compare", _wrap_OTPassword_Compare},
 {"otapic::OTPassword_getPasswordSize", _wrap_OTPassword_getPasswordSize},
 {"otapic::OTPassword_getMemorySize", _wrap_OTPassword_getMemorySize},
 {"otapic::OTPassword_zeroMemory", _wrap_OTPassword_zeroMemory},
@@ -37639,6 +39159,7 @@ XS(SWIG_init) {
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(129)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
+  SWIG_TypeClientData(SWIGTYPE_p_OTPasswordData, (void*) "otapi::OTPasswordData");
   /*@SWIG:/opt/local/share/swig/2.0.4/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "OTPassword_DEFAULT_SIZE", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTPassword::DEFAULT_SIZE)));

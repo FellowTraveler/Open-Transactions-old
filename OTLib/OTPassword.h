@@ -409,7 +409,7 @@ public:
 	char    * getPassword() const; // asserts if m_bIsText is false.
 	uint8_t * getPasswordWritable(); // asserts if m_bIsText is false.
     
-	int32_t  setPassword(const char * szInput, uint32_t nInputSize); // (FYI, truncates if nInputSize larger than getBlockSize.)
+	int      setPassword(const char * szInput, int nInputSize); // (FYI, truncates if nInputSize larger than getBlockSize.)
 	int32_t  setPassword_uint8(const uint8_t * szInput, uint32_t nInputSize); // (FYI, truncates if nInputSize larger than getBlockSize.)
     bool     addChar(uint8_t theChar);
     // ---------------------

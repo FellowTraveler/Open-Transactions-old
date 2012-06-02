@@ -1184,6 +1184,66 @@ abstract class otapi {
 }
 
 /* PHP Proxy Classes */
+class OTPasswordData {
+	public $_cPtr=null;
+	protected $_pData=array();
+
+	function __set($var,$value) {
+		if ($var === 'thisown') return swig_otapi_alter_newobject($this->_cPtr,$value);
+		$this->_pData[$var] = $value;
+	}
+
+	function __isset($var) {
+		if ($var === 'thisown') return true;
+		return array_key_exists($var, $this->_pData);
+	}
+
+	function __get($var) {
+		if ($var === 'thisown') return swig_otapi_get_newobject($this->_cPtr);
+		return $this->_pData[$var];
+	}
+
+	function isForNormalNym() {
+		return OTPasswordData_isForNormalNym($this->_cPtr);
+	}
+
+	function isForMasterKey() {
+		return OTPasswordData_isForMasterKey($this->_cPtr);
+	}
+
+	function GetDisplayString() {
+		return OTPasswordData_GetDisplayString($this->_cPtr);
+	}
+
+	function isUsingOldSystem() {
+		return OTPasswordData_isUsingOldSystem($this->_cPtr);
+	}
+
+	function setUsingOldSystem($bUsing=true) {
+		OTPasswordData_setUsingOldSystem($this->_cPtr,$bUsing);
+	}
+
+	function GetMasterPW() {
+		$r=OTPasswordData_GetMasterPW($this->_cPtr);
+		if (is_resource($r)) {
+			$c=substr(get_resource_type($r), (strpos(get_resource_type($r), '__') ? strpos(get_resource_type($r), '__') + 2 : 3));
+			if (!class_exists($c)) {
+				return new OTPassword($r);
+			}
+			return new $c($r);
+		}
+		return $r;
+	}
+
+	function __construct($szDisplay_or_str_Display_or_strDisplay,$pMasterPW=null) {
+		if (is_resource($szDisplay_or_str_Display_or_strDisplay) && get_resource_type($szDisplay_or_str_Display_or_strDisplay) === '_p_OTPasswordData') {
+			$this->_cPtr=$szDisplay_or_str_Display_or_strDisplay;
+			return;
+		}
+		$this->_cPtr=new_OTPasswordData($szDisplay_or_str_Display_or_strDisplay,$pMasterPW);
+	}
+}
+
 class OTPassword {
 	public $_cPtr=null;
 	protected $_pData=array();
@@ -1218,12 +1278,40 @@ class OTPassword {
 		return OTPassword_isPassword($this->_cPtr);
 	}
 
+	function getPassword_uint8() {
+		return OTPassword_getPassword_uint8($this->_cPtr);
+	}
+
 	function getPassword() {
 		return OTPassword_getPassword($this->_cPtr);
 	}
 
+	function getPasswordWritable() {
+		return OTPassword_getPasswordWritable($this->_cPtr);
+	}
+
 	function setPassword($szInput,$nInputSize) {
 		return OTPassword_setPassword($this->_cPtr,$szInput,$nInputSize);
+	}
+
+	function setPassword_uint8($szInput,$nInputSize) {
+		return OTPassword_setPassword_uint8($this->_cPtr,$szInput,$nInputSize);
+	}
+
+	function addChar($theChar) {
+		return OTPassword_addChar($this->_cPtr,$theChar);
+	}
+
+	static function randomizePassword_uint8($szDestination,$nNewSize) {
+		return OTPassword_randomizePassword_uint8($szDestination,$nNewSize);
+	}
+
+	static function randomizePassword($self_or_szDestination,$nNewSize=null) {
+		switch (func_num_args()) {
+		case 1: $r=OTPassword_randomizePassword($self_or_szDestination); break;
+		default: $r=OTPassword_randomizePassword($self_or_szDestination,$nNewSize);
+		}
+		return $r;
 	}
 
 	function isMemory() {
@@ -1232,6 +1320,10 @@ class OTPassword {
 
 	function getMemory() {
 		return OTPassword_getMemory($this->_cPtr);
+	}
+
+	function getMemory_uint8() {
+		return OTPassword_getMemory_uint8($this->_cPtr);
 	}
 
 	function getMemoryWritable() {
@@ -1246,6 +1338,10 @@ class OTPassword {
 		return OTPassword_addMemory($this->_cPtr,$vAppend,$nAppendSize);
 	}
 
+	static function randomizeMemory_uint8($szDestination,$nNewSize) {
+		return OTPassword_randomizeMemory_uint8($szDestination,$nNewSize);
+	}
+
 	static function randomizeMemory($self_or_szDestination,$nNewSize=null) {
 		switch (func_num_args()) {
 		case 1: $r=OTPassword_randomizeMemory($self_or_szDestination); break;
@@ -1256,6 +1352,10 @@ class OTPassword {
 
 	function getBlockSize() {
 		return OTPassword_getBlockSize($this->_cPtr);
+	}
+
+	function Compare($rhs) {
+		return OTPassword_Compare($this->_cPtr,$rhs);
 	}
 
 	function getPasswordSize() {
@@ -1277,16 +1377,16 @@ class OTPassword {
 		return OTPassword_safe_memcpy($dest,$dest_size,$src,$src_length,$bZeroSource);
 	}
 
-	function __construct($theBlockSize_or_szInput_or_vInput=null,$nInputSize=null,$theBlockSize=null) {
-		if (is_resource($theBlockSize_or_szInput_or_vInput) && get_resource_type($theBlockSize_or_szInput_or_vInput) === '_p_OTPassword') {
-			$this->_cPtr=$theBlockSize_or_szInput_or_vInput;
+	function __construct($theBlockSize_or_rhs_or_szInput_or_vInput=null,$nInputSize=null,$theBlockSize=null) {
+		if (is_resource($theBlockSize_or_rhs_or_szInput_or_vInput) && get_resource_type($theBlockSize_or_rhs_or_szInput_or_vInput) === '_p_OTPassword') {
+			$this->_cPtr=$theBlockSize_or_rhs_or_szInput_or_vInput;
 			return;
 		}
 		switch (func_num_args()) {
 		case 0: $this->_cPtr=new_OTPassword(); break;
-		case 1: $this->_cPtr=new_OTPassword($theBlockSize_or_szInput_or_vInput); break;
-		case 2: $this->_cPtr=new_OTPassword($theBlockSize_or_szInput_or_vInput,$nInputSize); break;
-		default: $this->_cPtr=new_OTPassword($theBlockSize_or_szInput_or_vInput,$nInputSize,$theBlockSize);
+		case 1: $this->_cPtr=new_OTPassword($theBlockSize_or_rhs_or_szInput_or_vInput); break;
+		case 2: $this->_cPtr=new_OTPassword($theBlockSize_or_rhs_or_szInput_or_vInput,$nInputSize); break;
+		default: $this->_cPtr=new_OTPassword($theBlockSize_or_rhs_or_szInput_or_vInput,$nInputSize,$theBlockSize);
 		}
 	}
 }

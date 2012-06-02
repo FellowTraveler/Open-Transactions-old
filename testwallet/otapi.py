@@ -80,6 +80,27 @@ OT_LARGE_BLOCKSIZE = _otapi.OT_LARGE_BLOCKSIZE
 OT_LARGE_MEMSIZE = _otapi.OT_LARGE_MEMSIZE
 OT_DEFAULT_BLOCKSIZE = _otapi.OT_DEFAULT_BLOCKSIZE
 OT_DEFAULT_MEMSIZE = _otapi.OT_DEFAULT_MEMSIZE
+class OTPasswordData(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, OTPasswordData, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, OTPasswordData, name)
+    __repr__ = _swig_repr
+    def isForNormalNym(self): return _otapi.OTPasswordData_isForNormalNym(self)
+    def isForMasterKey(self): return _otapi.OTPasswordData_isForMasterKey(self)
+    def GetDisplayString(self): return _otapi.OTPasswordData_GetDisplayString(self)
+    def isUsingOldSystem(self): return _otapi.OTPasswordData_isUsingOldSystem(self)
+    def setUsingOldSystem(self, bUsing = True): return _otapi.OTPasswordData_setUsingOldSystem(self, bUsing)
+    def GetMasterPW(self): return _otapi.OTPasswordData_GetMasterPW(self)
+    def __init__(self, *args): 
+        this = _otapi.new_OTPasswordData(*args)
+        try: self.this.append(this)
+        except: self.this = this
+    __swig_destroy__ = _otapi.delete_OTPasswordData
+    __del__ = lambda self : None;
+OTPasswordData_swigregister = _otapi.OTPasswordData_swigregister
+OTPasswordData_swigregister(OTPasswordData)
+
 class OTPassword(_object):
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, OTPassword, name, value)
@@ -91,16 +112,28 @@ class OTPassword(_object):
     __swig_getmethods__["m_theBlockSize"] = _otapi.OTPassword_m_theBlockSize_get
     if _newclass:m_theBlockSize = _swig_property(_otapi.OTPassword_m_theBlockSize_get)
     def isPassword(self): return _otapi.OTPassword_isPassword(self)
+    def getPassword_uint8(self): return _otapi.OTPassword_getPassword_uint8(self)
     def getPassword(self): return _otapi.OTPassword_getPassword(self)
+    def getPasswordWritable(self): return _otapi.OTPassword_getPasswordWritable(self)
     def setPassword(self, *args): return _otapi.OTPassword_setPassword(self, *args)
+    def setPassword_uint8(self, *args): return _otapi.OTPassword_setPassword_uint8(self, *args)
+    def addChar(self, *args): return _otapi.OTPassword_addChar(self, *args)
+    __swig_getmethods__["randomizePassword_uint8"] = lambda x: _otapi.OTPassword_randomizePassword_uint8
+    if _newclass:randomizePassword_uint8 = staticmethod(_otapi.OTPassword_randomizePassword_uint8)
+    __swig_getmethods__["randomizePassword"] = lambda x: _otapi.OTPassword_randomizePassword
+    if _newclass:randomizePassword = staticmethod(_otapi.OTPassword_randomizePassword)
     def isMemory(self): return _otapi.OTPassword_isMemory(self)
     def getMemory(self): return _otapi.OTPassword_getMemory(self)
+    def getMemory_uint8(self): return _otapi.OTPassword_getMemory_uint8(self)
     def getMemoryWritable(self): return _otapi.OTPassword_getMemoryWritable(self)
     def setMemory(self, *args): return _otapi.OTPassword_setMemory(self, *args)
     def addMemory(self, *args): return _otapi.OTPassword_addMemory(self, *args)
+    __swig_getmethods__["randomizeMemory_uint8"] = lambda x: _otapi.OTPassword_randomizeMemory_uint8
+    if _newclass:randomizeMemory_uint8 = staticmethod(_otapi.OTPassword_randomizeMemory_uint8)
     __swig_getmethods__["randomizeMemory"] = lambda x: _otapi.OTPassword_randomizeMemory
     if _newclass:randomizeMemory = staticmethod(_otapi.OTPassword_randomizeMemory)
     def getBlockSize(self): return _otapi.OTPassword_getBlockSize(self)
+    def Compare(self, *args): return _otapi.OTPassword_Compare(self, *args)
     def getPasswordSize(self): return _otapi.OTPassword_getPasswordSize(self)
     def getMemorySize(self): return _otapi.OTPassword_getMemorySize(self)
     __swig_getmethods__["zeroMemory"] = lambda x: _otapi.OTPassword_zeroMemory
@@ -115,6 +148,18 @@ class OTPassword(_object):
     __del__ = lambda self : None;
 OTPassword_swigregister = _otapi.OTPassword_swigregister
 OTPassword_swigregister(OTPassword)
+
+def OTPassword_randomizePassword_uint8(*args):
+  return _otapi.OTPassword_randomizePassword_uint8(*args)
+OTPassword_randomizePassword_uint8 = _otapi.OTPassword_randomizePassword_uint8
+
+def OTPassword_randomizePassword(*args):
+  return _otapi.OTPassword_randomizePassword(*args)
+OTPassword_randomizePassword = _otapi.OTPassword_randomizePassword
+
+def OTPassword_randomizeMemory_uint8(*args):
+  return _otapi.OTPassword_randomizeMemory_uint8(*args)
+OTPassword_randomizeMemory_uint8 = _otapi.OTPassword_randomizeMemory_uint8
 
 def OTPassword_randomizeMemory(*args):
   return _otapi.OTPassword_randomizeMemory(*args)
