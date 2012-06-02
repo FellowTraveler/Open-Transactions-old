@@ -34,7 +34,7 @@ public class TradeDataNym extends Displayable {
     }
     super.delete();
   }
-/*@SWIG:otapi\otapi.i,379,OT_CAN_BE_CONTAINED_BY@*/
+/*@SWIG:otapi\otapi.i,385,OT_CAN_BE_CONTAINED_BY@*/
 	// Ensure that the GC doesn't collect any OT_CONTAINER instance set from Java
 	private TradeListNym containerRefTradeListNym;
 	// ----------------	

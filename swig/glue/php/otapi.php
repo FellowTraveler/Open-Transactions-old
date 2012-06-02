@@ -1223,12 +1223,12 @@ class OTPasswordData {
 		return $r;
 	}
 
-	function __construct($szDisplay_or_str_Display_or_strDisplay,$pMasterPW=null) {
-		if (is_resource($szDisplay_or_str_Display_or_strDisplay) && get_resource_type($szDisplay_or_str_Display_or_strDisplay) === '_p_OTPasswordData') {
-			$this->_cPtr=$szDisplay_or_str_Display_or_strDisplay;
+	function __construct($str_Display_or_strDisplay,$pMasterPW=null) {
+		if (is_resource($str_Display_or_strDisplay) && get_resource_type($str_Display_or_strDisplay) === '_p_OTPasswordData') {
+			$this->_cPtr=$str_Display_or_strDisplay;
 			return;
 		}
-		$this->_cPtr=new_OTPasswordData($szDisplay_or_str_Display_or_strDisplay,$pMasterPW);
+		$this->_cPtr=new_OTPasswordData($str_Display_or_strDisplay,$pMasterPW);
 	}
 }
 

@@ -64,20 +64,20 @@ public class OTPasswordData {
     return (cPtr == 0) ? null : new OTPassword(cPtr, false);
   }
 
-  public OTPasswordData(String szDisplay, OTPassword pMasterPW) {
-    this(otapiJNI.new_OTPasswordData__SWIG_0(szDisplay, OTPassword.getCPtr(pMasterPW), pMasterPW), true);
+  public OTPasswordData(String str_Display, OTPassword pMasterPW) {
+    this(otapiJNI.new_OTPasswordData__SWIG_0(str_Display, OTPassword.getCPtr(pMasterPW), pMasterPW), true);
   }
 
-  public OTPasswordData(String szDisplay) {
-    this(otapiJNI.new_OTPasswordData__SWIG_1(szDisplay), true);
+  public OTPasswordData(String str_Display) {
+    this(otapiJNI.new_OTPasswordData__SWIG_1(str_Display), true);
   }
 
   public OTPasswordData(SWIGTYPE_p_OTString strDisplay, OTPassword pMasterPW) {
-    this(otapiJNI.new_OTPasswordData__SWIG_4(SWIGTYPE_p_OTString.getCPtr(strDisplay), OTPassword.getCPtr(pMasterPW), pMasterPW), true);
+    this(otapiJNI.new_OTPasswordData__SWIG_2(SWIGTYPE_p_OTString.getCPtr(strDisplay), OTPassword.getCPtr(pMasterPW), pMasterPW), true);
   }
 
   public OTPasswordData(SWIGTYPE_p_OTString strDisplay) {
-    this(otapiJNI.new_OTPasswordData__SWIG_5(SWIGTYPE_p_OTString.getCPtr(strDisplay)), true);
+    this(otapiJNI.new_OTPasswordData__SWIG_3(SWIGTYPE_p_OTString.getCPtr(strDisplay)), true);
   }
 
 }

@@ -24,8 +24,8 @@ public class otapiJNI {
   public final static native long OTPasswordData_GetMasterPW(long jarg1, OTPasswordData jarg1_);
   public final static native long new_OTPasswordData__SWIG_0(String jarg1, long jarg2, OTPassword jarg2_);
   public final static native long new_OTPasswordData__SWIG_1(String jarg1);
-  public final static native long new_OTPasswordData__SWIG_4(long jarg1, long jarg2, OTPassword jarg2_);
-  public final static native long new_OTPasswordData__SWIG_5(long jarg1);
+  public final static native long new_OTPasswordData__SWIG_2(long jarg1, long jarg2, OTPassword jarg2_);
+  public final static native long new_OTPasswordData__SWIG_3(long jarg1);
   public final static native void delete_OTPasswordData(long jarg1);
   public final static native int OTPassword_DEFAULT_SIZE_get();
   public final static native int OTPassword_LARGER_SIZE_get();

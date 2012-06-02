@@ -115,8 +115,14 @@ JAVA_TYPEMAP(size_t, long, jlong)
 // that THEY apply to.
 //
 
+%ignore operator=(const OTPassword & rhs);
+%ignore OTPasswordData::OTPasswordData(char const *,OTPassword *);
+%ignore OTPasswordData::OTPasswordData(char const *);
 
 %include "../../include/otlib/OTPassword.h"
+
+
+
 
 
 

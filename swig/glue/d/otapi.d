@@ -109,21 +109,23 @@ class OTPasswordData {
     return ret;
   }
 
-  public this(char[] szDisplay, OTPassword pMasterPW) {
-    this(otapi_im.new_OTPasswordData__SWIG_0((szDisplay ? tango.stdc.stringz.toStringz(szDisplay) : null), OTPassword.swigGetCPtr(pMasterPW)), true);
+  public this(char[] str_Display, OTPassword pMasterPW) {
+    this(otapi_im.new_OTPasswordData__SWIG_0((str_Display ? tango.stdc.stringz.toStringz(str_Display) : null), OTPassword.swigGetCPtr(pMasterPW)), true);
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
   }
 
-  public this(char[] szDisplay) {
-    this(otapi_im.new_OTPasswordData__SWIG_1((szDisplay ? tango.stdc.stringz.toStringz(szDisplay) : null)), true);
+  public this(char[] str_Display) {
+    this(otapi_im.new_OTPasswordData__SWIG_1((str_Display ? tango.stdc.stringz.toStringz(str_Display) : null)), true);
+    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
   }
 
   public this(SWIGTYPE_p_OTString strDisplay, OTPassword pMasterPW) {
-    this(otapi_im.new_OTPasswordData__SWIG_4(SWIGTYPE_p_OTString.swigGetCPtr(strDisplay), OTPassword.swigGetCPtr(pMasterPW)), true);
+    this(otapi_im.new_OTPasswordData__SWIG_2(SWIGTYPE_p_OTString.swigGetCPtr(strDisplay), OTPassword.swigGetCPtr(pMasterPW)), true);
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
   }
 
   public this(SWIGTYPE_p_OTString strDisplay) {
-    this(otapi_im.new_OTPasswordData__SWIG_5(SWIGTYPE_p_OTString.swigGetCPtr(strDisplay)), true);
+    this(otapi_im.new_OTPasswordData__SWIG_3(SWIGTYPE_p_OTString.swigGetCPtr(strDisplay)), true);
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
   }
 }

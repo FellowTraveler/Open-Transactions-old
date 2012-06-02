@@ -233,11 +233,11 @@ class otapiPINVOKE {
   [DllImport("otapi", EntryPoint="CSharp_new_OTPasswordData__SWIG_1")]
   public static extern IntPtr new_OTPasswordData__SWIG_1(string jarg1);
 
-  [DllImport("otapi", EntryPoint="CSharp_new_OTPasswordData__SWIG_4")]
-  public static extern IntPtr new_OTPasswordData__SWIG_4(HandleRef jarg1, HandleRef jarg2);
+  [DllImport("otapi", EntryPoint="CSharp_new_OTPasswordData__SWIG_2")]
+  public static extern IntPtr new_OTPasswordData__SWIG_2(HandleRef jarg1, HandleRef jarg2);
 
-  [DllImport("otapi", EntryPoint="CSharp_new_OTPasswordData__SWIG_5")]
-  public static extern IntPtr new_OTPasswordData__SWIG_5(HandleRef jarg1);
+  [DllImport("otapi", EntryPoint="CSharp_new_OTPasswordData__SWIG_3")]
+  public static extern IntPtr new_OTPasswordData__SWIG_3(HandleRef jarg1);
 
   [DllImport("otapi", EntryPoint="CSharp_delete_OTPasswordData")]
   public static extern void delete_OTPasswordData(HandleRef jarg1);

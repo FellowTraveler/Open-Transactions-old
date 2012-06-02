@@ -1714,9 +1714,6 @@ SWIG_AsCharPtrAndSize(SV *obj, char** cptr, size_t* psize, int *alloc)
 }
 
 
-
-
-
 SWIGINTERN int
 SWIG_AsPtr_std_string SWIG_PERL_DECL_ARGS_2(SV * obj, std::string **val) 
 {
@@ -1746,6 +1743,9 @@ SWIG_AsPtr_std_string SWIG_PERL_DECL_ARGS_2(SV * obj, std::string **val)
   }
   return SWIG_ERROR;
 }
+
+
+
 
 
 #include <limits.h>
@@ -2282,74 +2282,6 @@ XS(_wrap_OTPasswordData_GetMasterPW) {
 
 XS(_wrap_new_OTPasswordData__SWIG_0) {
   {
-    char *arg1 = (char *) 0 ;
-    OTPassword *arg2 = (OTPassword *) 0 ;
-    int res1 ;
-    char *buf1 = 0 ;
-    int alloc1 = 0 ;
-    void *argp2 = 0 ;
-    int res2 = 0 ;
-    int argvi = 0;
-    OTPasswordData *result = 0 ;
-    dXSARGS;
-    
-    if ((items < 2) || (items > 2)) {
-      SWIG_croak("Usage: new_OTPasswordData(szDisplay,pMasterPW);");
-    }
-    res1 = SWIG_AsCharPtrAndSize(ST(0), &buf1, NULL, &alloc1);
-    if (!SWIG_IsOK(res1)) {
-      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_OTPasswordData" "', argument " "1"" of type '" "char const *""'");
-    }
-    arg1 = reinterpret_cast< char * >(buf1);
-    res2 = SWIG_ConvertPtr(ST(1), &argp2,SWIGTYPE_p_OTPassword, 0 |  0 );
-    if (!SWIG_IsOK(res2)) {
-      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "new_OTPasswordData" "', argument " "2"" of type '" "OTPassword *""'"); 
-    }
-    arg2 = reinterpret_cast< OTPassword * >(argp2);
-    result = (OTPasswordData *)new OTPasswordData((char const *)arg1,arg2);
-    ST(argvi) = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTPasswordData, SWIG_OWNER | SWIG_SHADOW); argvi++ ;
-    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
-    
-    XSRETURN(argvi);
-  fail:
-    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
-    
-    SWIG_croak_null();
-  }
-}
-
-
-XS(_wrap_new_OTPasswordData__SWIG_1) {
-  {
-    char *arg1 = (char *) 0 ;
-    int res1 ;
-    char *buf1 = 0 ;
-    int alloc1 = 0 ;
-    int argvi = 0;
-    OTPasswordData *result = 0 ;
-    dXSARGS;
-    
-    if ((items < 1) || (items > 1)) {
-      SWIG_croak("Usage: new_OTPasswordData(szDisplay);");
-    }
-    res1 = SWIG_AsCharPtrAndSize(ST(0), &buf1, NULL, &alloc1);
-    if (!SWIG_IsOK(res1)) {
-      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "new_OTPasswordData" "', argument " "1"" of type '" "char const *""'");
-    }
-    arg1 = reinterpret_cast< char * >(buf1);
-    result = (OTPasswordData *)new OTPasswordData((char const *)arg1);
-    ST(argvi) = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_OTPasswordData, SWIG_OWNER | SWIG_SHADOW); argvi++ ;
-    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
-    XSRETURN(argvi);
-  fail:
-    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
-    SWIG_croak_null();
-  }
-}
-
-
-XS(_wrap_new_OTPasswordData__SWIG_2) {
-  {
     std::string *arg1 = 0 ;
     OTPassword *arg2 = (OTPassword *) 0 ;
     int res1 = SWIG_OLDOBJ ;
@@ -2391,7 +2323,7 @@ XS(_wrap_new_OTPasswordData__SWIG_2) {
 }
 
 
-XS(_wrap_new_OTPasswordData__SWIG_3) {
+XS(_wrap_new_OTPasswordData__SWIG_1) {
   {
     std::string *arg1 = 0 ;
     int res1 = SWIG_OLDOBJ ;
@@ -2424,7 +2356,7 @@ XS(_wrap_new_OTPasswordData__SWIG_3) {
 }
 
 
-XS(_wrap_new_OTPasswordData__SWIG_4) {
+XS(_wrap_new_OTPasswordData__SWIG_2) {
   {
     OTString *arg1 = 0 ;
     OTPassword *arg2 = (OTPassword *) 0 ;
@@ -2465,7 +2397,7 @@ XS(_wrap_new_OTPasswordData__SWIG_4) {
 }
 
 
-XS(_wrap_new_OTPasswordData__SWIG_5) {
+XS(_wrap_new_OTPasswordData__SWIG_3) {
   {
     OTString *arg1 = 0 ;
     void *argp1 ;
@@ -2543,13 +2475,23 @@ XS(_wrap_new_OTPasswordData) {
     }
   check_2:
     
-    if (items == 1) {
+    if (items == 2) {
       SWIG_TypeRank _ranki = 0;
       SWIG_TypeRank _rankm = 0;
       SWIG_TypeRank _pi = 1;
       int _v = 0;
       {
-        int res = SWIG_AsCharPtrAndSize(ST(0), 0, NULL, 0);
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(ST(0), &vptr, SWIGTYPE_p_OTString, 0);
+        _v = SWIG_CheckState(res);
+      }
+      if (!_v) goto check_3;
+      _ranki += _v*_pi;
+      _rankm += _pi;
+      _pi *= SWIG_MAXCASTRANK;
+      {
+        void *vptr = 0;
+        int res = SWIG_ConvertPtr(ST(1), &vptr, SWIGTYPE_p_OTPassword, 0);
         _v = SWIG_CheckState(res);
       }
       if (!_v) goto check_3;
@@ -2569,8 +2511,7 @@ XS(_wrap_new_OTPasswordData) {
       SWIG_TypeRank _pi = 1;
       int _v = 0;
       {
-        void *vptr = 0;
-        int res = SWIG_ConvertPtr(ST(0), &vptr, SWIGTYPE_p_OTString, 0);
+        int res = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(0), (std::string**)(0));
         _v = SWIG_CheckState(res);
       }
       if (!_v) goto check_4;
@@ -2593,77 +2534,15 @@ XS(_wrap_new_OTPasswordData) {
     }
   check_4:
     
-    if (items == 2) {
-      SWIG_TypeRank _ranki = 0;
-      SWIG_TypeRank _rankm = 0;
-      SWIG_TypeRank _pi = 1;
-      int _v = 0;
-      {
-        int res = SWIG_AsPtr_std_string SWIG_PERL_CALL_ARGS_2(ST(0), (std::string**)(0));
-        _v = SWIG_CheckState(res);
-      }
-      if (!_v) goto check_5;
-      _ranki += _v*_pi;
-      _rankm += _pi;
-      _pi *= SWIG_MAXCASTRANK;
-      {
-        void *vptr = 0;
-        int res = SWIG_ConvertPtr(ST(1), &vptr, SWIGTYPE_p_OTPassword, 0);
-        _v = SWIG_CheckState(res);
-      }
-      if (!_v) goto check_5;
-      _ranki += _v*_pi;
-      _rankm += _pi;
-      _pi *= SWIG_MAXCASTRANK;
-      if (!_index || (_ranki < _rank)) {
-        _rank = _ranki; _index = 5;
-        if (_rank == _rankm) goto dispatch;
-      }
-    }
-  check_5:
-    
-    if (items == 2) {
-      SWIG_TypeRank _ranki = 0;
-      SWIG_TypeRank _rankm = 0;
-      SWIG_TypeRank _pi = 1;
-      int _v = 0;
-      {
-        int res = SWIG_AsCharPtrAndSize(ST(0), 0, NULL, 0);
-        _v = SWIG_CheckState(res);
-      }
-      if (!_v) goto check_6;
-      _ranki += _v*_pi;
-      _rankm += _pi;
-      _pi *= SWIG_MAXCASTRANK;
-      {
-        void *vptr = 0;
-        int res = SWIG_ConvertPtr(ST(1), &vptr, SWIGTYPE_p_OTPassword, 0);
-        _v = SWIG_CheckState(res);
-      }
-      if (!_v) goto check_6;
-      _ranki += _v*_pi;
-      _rankm += _pi;
-      _pi *= SWIG_MAXCASTRANK;
-      if (!_index || (_ranki < _rank)) {
-        _rank = _ranki; _index = 6;
-        if (_rank == _rankm) goto dispatch;
-      }
-    }
-  check_6:
-    
   dispatch:
     switch(_index) {
     case 1:
-      PUSHMARK(MARK); SWIG_CALLXS(_wrap_new_OTPasswordData__SWIG_5); return;
-    case 2:
       PUSHMARK(MARK); SWIG_CALLXS(_wrap_new_OTPasswordData__SWIG_3); return;
-    case 3:
+    case 2:
       PUSHMARK(MARK); SWIG_CALLXS(_wrap_new_OTPasswordData__SWIG_1); return;
-    case 4:
-      PUSHMARK(MARK); SWIG_CALLXS(_wrap_new_OTPasswordData__SWIG_4); return;
-    case 5:
+    case 3:
       PUSHMARK(MARK); SWIG_CALLXS(_wrap_new_OTPasswordData__SWIG_2); return;
-    case 6:
+    case 4:
       PUSHMARK(MARK); SWIG_CALLXS(_wrap_new_OTPasswordData__SWIG_0); return;
     }
   }

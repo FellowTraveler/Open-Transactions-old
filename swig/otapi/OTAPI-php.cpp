@@ -2083,72 +2083,6 @@ fail:
 
 
 ZEND_NAMED_FUNCTION(_wrap_new_OTPasswordData__SWIG_0) {
-  char *arg1 = (char *) 0 ;
-  OTPassword *arg2 = (OTPassword *) 0 ;
-  zval **args[2];
-  OTPasswordData *result = 0 ;
-  
-  SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
-    WRONG_PARAM_COUNT;
-  }
-  
-  
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\php\utils.i,62,CONVERT_STRING_IN@*/
-  if ((*args[0])->type==IS_NULL) {
-    arg1 = (char *) 0;
-  } else {
-    convert_to_string_ex(args[0]);
-    arg1 = (char *) Z_STRVAL_PP(args[0]);
-  }
-  /*@SWIG@*/;
-  
-  {
-    if(SWIG_ConvertPtr(*args[1], (void **) &arg2, SWIGTYPE_p_OTPassword, 0) < 0) {
-      SWIG_PHP_Error(E_ERROR, "Type error in argument 2 of new_OTPasswordData. Expected SWIGTYPE_p_OTPassword");
-    }
-  }
-  result = (OTPasswordData *)new OTPasswordData((char const *)arg1,arg2);
-  
-  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTPasswordData, 1);
-  
-  return;
-fail:
-  SWIG_FAIL();
-}
-
-
-ZEND_NAMED_FUNCTION(_wrap_new_OTPasswordData__SWIG_1) {
-  char *arg1 = (char *) 0 ;
-  zval **args[1];
-  OTPasswordData *result = 0 ;
-  
-  SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
-    WRONG_PARAM_COUNT;
-  }
-  
-  
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\php\utils.i,62,CONVERT_STRING_IN@*/
-  if ((*args[0])->type==IS_NULL) {
-    arg1 = (char *) 0;
-  } else {
-    convert_to_string_ex(args[0]);
-    arg1 = (char *) Z_STRVAL_PP(args[0]);
-  }
-  /*@SWIG@*/;
-  
-  result = (OTPasswordData *)new OTPasswordData((char const *)arg1);
-  
-  SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_OTPasswordData, 1);
-  
-  return;
-fail:
-  SWIG_FAIL();
-}
-
-
-ZEND_NAMED_FUNCTION(_wrap_new_OTPasswordData__SWIG_2) {
   std::string *arg1 = 0 ;
   OTPassword *arg2 = (OTPassword *) 0 ;
   std::string temp1 ;
@@ -2181,7 +2115,7 @@ fail:
 }
 
 
-ZEND_NAMED_FUNCTION(_wrap_new_OTPasswordData__SWIG_3) {
+ZEND_NAMED_FUNCTION(_wrap_new_OTPasswordData__SWIG_1) {
   std::string *arg1 = 0 ;
   std::string temp1 ;
   zval **args[1];
@@ -2208,7 +2142,7 @@ fail:
 }
 
 
-ZEND_NAMED_FUNCTION(_wrap_new_OTPasswordData__SWIG_4) {
+ZEND_NAMED_FUNCTION(_wrap_new_OTPasswordData__SWIG_2) {
   OTString *arg1 = 0 ;
   OTPassword *arg2 = (OTPassword *) 0 ;
   zval **args[2];
@@ -2239,7 +2173,7 @@ fail:
 }
 
 
-ZEND_NAMED_FUNCTION(_wrap_new_OTPasswordData__SWIG_5) {
+ZEND_NAMED_FUNCTION(_wrap_new_OTPasswordData__SWIG_3) {
   OTString *arg1 = 0 ;
   zval **args[1];
   OTPasswordData *result = 0 ;
@@ -2277,7 +2211,7 @@ ZEND_NAMED_FUNCTION(_wrap_new_OTPasswordData) {
       _v = (SWIG_ConvertPtr(*argv[0], (void**)&tmp, SWIGTYPE_p_OTString, 0) >= 0);
     }
     if (_v) {
-      _wrap_new_OTPasswordData__SWIG_5(INTERNAL_FUNCTION_PARAM_PASSTHRU); return;
+      _wrap_new_OTPasswordData__SWIG_3(INTERNAL_FUNCTION_PARAM_PASSTHRU); return;
     }
   }
   if (argc == 1) {
@@ -2285,13 +2219,6 @@ ZEND_NAMED_FUNCTION(_wrap_new_OTPasswordData) {
     
     _v = ( Z_TYPE_PP(argv[0]) == IS_STRING ) ? 1 : 0;
     
-    if (_v) {
-      _wrap_new_OTPasswordData__SWIG_3(INTERNAL_FUNCTION_PARAM_PASSTHRU); return;
-    }
-  }
-  if (argc == 1) {
-    int _v;
-    _v = (Z_TYPE_PP(argv[0]) == IS_STRING); 
     if (_v) {
       _wrap_new_OTPasswordData__SWIG_1(INTERNAL_FUNCTION_PARAM_PASSTHRU); return;
     }
@@ -2308,20 +2235,7 @@ ZEND_NAMED_FUNCTION(_wrap_new_OTPasswordData) {
         _v = (SWIG_ConvertPtr(*argv[1], (void**)&tmp, SWIGTYPE_p_OTPassword, 0) >= 0);
       }
       if (_v) {
-        _wrap_new_OTPasswordData__SWIG_4(INTERNAL_FUNCTION_PARAM_PASSTHRU); return;
-      }
-    }
-  }
-  if (argc == 2) {
-    int _v;
-    _v = (Z_TYPE_PP(argv[0]) == IS_STRING); 
-    if (_v) {
-      {
-        void *tmp;
-        _v = (SWIG_ConvertPtr(*argv[1], (void**)&tmp, SWIGTYPE_p_OTPassword, 0) >= 0);
-      }
-      if (_v) {
-        _wrap_new_OTPasswordData__SWIG_0(INTERNAL_FUNCTION_PARAM_PASSTHRU); return;
+        _wrap_new_OTPasswordData__SWIG_2(INTERNAL_FUNCTION_PARAM_PASSTHRU); return;
       }
     }
   }
@@ -2336,7 +2250,7 @@ ZEND_NAMED_FUNCTION(_wrap_new_OTPasswordData) {
         _v = (SWIG_ConvertPtr(*argv[1], (void**)&tmp, SWIGTYPE_p_OTPassword, 0) >= 0);
       }
       if (_v) {
-        _wrap_new_OTPasswordData__SWIG_2(INTERNAL_FUNCTION_PARAM_PASSTHRU); return;
+        _wrap_new_OTPasswordData__SWIG_0(INTERNAL_FUNCTION_PARAM_PASSTHRU); return;
       }
     }
   }
