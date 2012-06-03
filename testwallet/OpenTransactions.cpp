@@ -999,7 +999,12 @@ bool OT_API::InitOTAPI()
     static int nCount = 0;
     OT_ASSERT_MSG(0 == nCount, "OT_API::InitOTAPI: ASSERT: This function can only be called once.\n");
     ++nCount;
-    // ------------------------------------    
+    // ------------------------------------
+    OTLog::vOutput(0, "\n\nWelcome to Open Transactions -- version %s\n", 
+				   OTLog::Version());
+    
+	OTLog::vOutput(1, "(transport build: OTMessage -> OTEnvelope -> ZMQ )\n");
+    // ------------------------------------
 #ifdef _WIN32
 	WSADATA wsaData;
 	WORD wVersionRequested = MAKEWORD( 2, 2 );
@@ -1008,7 +1013,7 @@ bool OT_API::InitOTAPI()
     // ------------------------------------
     // SIGNALS
     //
-#if !defined(OT_NO_SIGNAL_HANDLING)
+#if !defined(OT_NO_SIGNAL_HANDLING) && !defined(__linux__)
     //
     OTLog::SetupSignalHandler();  // <===== SIGNALS
     //

@@ -1306,21 +1306,7 @@ void CollectDefaultedCLValues(AnyOption *opt,
 
 
 int main(int argc, char* argv[])
-{
-	OTLog::vOutput(0, "\n\nWelcome to Open Transactions... Test Client -- version %s\n", 
-				   OTLog::Version());
-    
-	OTLog::vOutput(1, "(transport build: OTMessage -> OTEnvelope -> ZMQ )\n");
-    
-//    OTString strIniRAWFileDefault;
-//    OTString strIniFileDefault;
-//    strIniRAWFileDefault.Format("%s%s%s", OT_FOLDER_DEFAULT, OTLog::PathSeparator(), OT_INI_FILE_DEFAULT);
-//    OTLog::TransformFilePath(strIniRAWFileDefault.Get(), strIniFileDefault);
-//
-//    // --------------------------------------------
-//
-//    OTString strPath, strRawPath(MAIN_PATH_DEFAULT);
-
+{    
     // --------------------------------------------
     class __OTclient_RAII
     {
@@ -1349,7 +1335,6 @@ int main(int argc, char* argv[])
 //#define OT_FOLDER_DEFAULT   "~/.ot"
 //#define OT_INI_FILE_DEFAULT	"ot_init.cfg"
 
-    
     OTString strIniRAWFileDefault, strIniFileDefault;
     strIniRAWFileDefault.Format("%s%s%s", OT_FOLDER_DEFAULT, OTLog::PathSeparator(), OT_INI_FILE_DEFAULT);
     OTLog::TransformFilePath(strIniRAWFileDefault.Get(), strIniFileDefault);
