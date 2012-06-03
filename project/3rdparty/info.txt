@@ -1,0 +1,13 @@
+these files are project and solutions for the vairous 3rd party libaries that are needed to compile OT
+
+I have inclued them as I have done modifcations so that they compile correcly for both 32bit and 64bit
+
+Extract each of these archives into the root of each of the assioated source code file..
+
+Build;
+
+the result will be in the /lib dir...
+copy the result to the Open-Transactions/lib dir :)
+then you are all good to go...
+
+(you will need to copy the include also)... for the protobuf, there is a script in the vsprojects folder that gathers up all the includes automaticly for you... use it. :)
