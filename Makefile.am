@@ -432,8 +432,28 @@ libotapi_java_la_DEPENDENCIES =	libotapi.la libot.la
 
 libotapi_java_la_LDFLAGS =	--no-undefined
 
-
 if TRANSPORT_ZMQ
 libotapi_java_la_CPPFLAGS +=	-DOT_ZMQ_MODE
 endif
+
+
+#### OT API PYTHON
+
+if WANT_PYTHON
+lib_LTLIBRARIES +=		libotapi-python.la
+endif
+
+libotapi_python_la_SOURCES =	swig/otapi/OTAPI-python.cxx
+libotapi_python_la_CPPFLAGS =	$(AM_CPPFLAGS)  $(JNI_CPPFLAGS)		\
+				-I$(top_srcdir)/swig/otapi
+
+libotapi_python_la_LIBADD =	libotapi.la libot.la
+libotapi_python_la_DEPENDENCIES =	libotapi.la libot.la
+
+libotapi_python_la_LDFLAGS =	--no-undefined
+
+if TRANSPORT_ZMQ
+libotapi_python_la_CPPFLAGS +=	-DOT_ZMQ_MODE
+endif
+
 
