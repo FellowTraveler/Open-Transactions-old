@@ -508,7 +508,7 @@ int main()
 bool OTAsymmetricKey::GetPasswordFromConsoleLowLevel(OTPassword & theOutput, const char * szPrompt)
 {
     OT_ASSERT(NULL != szPrompt);
-#ifdef WIN32
+#ifdef _WIN32
     const char ENTER = 13;
     char ch = ENTER;
     

@@ -213,7 +213,7 @@ struct sigcontext
 
 #include <unistd.h>
 
-#endif // not WIN32
+#endif // not _WIN32
 
     
 #include <sys/stat.h>
@@ -289,7 +289,7 @@ int     OTLog::__latency_receive_ms = 5000; // number of ms to wait before retry
 long	OTLog::__minimum_market_scale = 1;	// Server admin can configure this to any higher power-of-ten.
 
 
-OTString OTLog::__Version = "0.81.g";
+OTString OTLog::__Version = "0.81.h";
 
 
 
@@ -359,7 +359,7 @@ dequeOfStrings OTLog::__logDeque; // Stores the last 1024 logs in memory.
 
 
 
-#ifdef WIN32   // Windows SIGNALS
+#ifdef _WIN32   // Windows SIGNALS
 
 // The windows version is from Stefan Wörthmüller, who wrote an excellent article
 // at Dr. Dobbs Journal here:
@@ -469,10 +469,11 @@ LONG Win32FaultHandler(struct _EXCEPTION_POINTERS *  ExInfo)
 void   LogStackFrames(void *FaultAdress, char *eNextBP)
 
 {      
-#ifdef _WIN64
+#if defined(_WIN64)
     
     typedef USHORT (WINAPI *CaptureStackBackTraceType)(__in ULONG, __in ULONG, __out PVOID*, __out_opt PULONG);
-    CaptureStackBackTraceType func = (CaptureStackBackTraceType)(GetProcAddress(LoadLibrary("kernel32.dll"), "RtlCaptureStackBackTrace"));
+    CaptureStackBackTraceType func = (CaptureStackBackTraceType)
+        (GetProcAddress(LoadLibrary("kernel32.dll"), "RtlCaptureStackBackTrace"));
     
     if(func == NULL)
         return;
@@ -484,10 +485,10 @@ void   LogStackFrames(void *FaultAdress, char *eNextBP)
     
     void* callers[kMaxCallers];
     int count = (func)(0, kMaxCallers, callers, NULL);
-    for(i = 0; i < count; i++)
-        printf(TraceFile, "*** %d called from %016I64LX\n", i, callers[i]);
+    for(int i = 0; i < count; i++)
+        fprintf(stderr, "*** %d called from %016I64LX\n", i, callers[i]);
     
-#else // must be _WIN32
+#elif defined (_WIN32) // not _WIN64 ? Must be _WIN32
     
     char *p = NULL, *pBP = NULL;
     unsigned i = 0, x = 0, BpPassed = 0;
@@ -564,13 +565,13 @@ void   LogStackFrames(void *FaultAdress, char *eNextBP)
     CurrentlyInTheStackDump = 0;
     
     fflush(stderr);
-#endif // _WIN64 else (WIN32) endif
+#endif // _WIN64 else (_WIN32) endif
 }
 
 
 // *********************************************************************************
 
-#else  // if WIN32, else:      UNIX -- SIGNALS
+#else  // if _WIN32, else:      UNIX -- SIGNALS
 
 // UNIX
 

@@ -1936,6 +1936,15 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
     
     const OTString strNodeName(xml->getNodeName());
     
+    OTString    strSuccess; // Many blocks below use this string, and when they declared it individually,
+    // our stack frame got too big. So I'm moving it here, so they can all use it, instead of declaring
+    // so many different copies of it (nearly one for each block.)
+    // Same with these:
+    
+    const char *	pElementExpected;
+    
+    OTString strDepth;
+    OTString strTransactionNum;
     // *******************************************************************************************
     
 	if (strNodeName.Compare("acknowledgedReplies")) 
@@ -1985,7 +1994,6 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	{		
 //        std::cerr << m_xmlUnsigned.Get() << std::endl;
 
-		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
 		if (strSuccess.Compare("true"))
 			m_bSuccess = true;
@@ -1998,7 +2006,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		m_strServerID	= xml->getAttributeValue("serverID");
 		
         
-		OTString strDepth = xml->getAttributeValue("depth");
+		strDepth = xml->getAttributeValue("depth");
 		
 		if (strDepth.GetLength() > 0)
 			m_lDepth = atol(strDepth.Get());
@@ -2053,7 +2061,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		m_strRequestNum = xml->getAttributeValue("requestNum");
 		m_strNymID2		= xml->getAttributeValue("marketID");
 		
-		OTString strDepth = xml->getAttributeValue("depth");
+		strDepth = xml->getAttributeValue("depth");
 		
 		if (strDepth.GetLength() > 0)
 			m_lDepth = atol(strDepth.Get());
@@ -2069,7 +2077,6 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	else if (strNodeName.Compare("@getMarketOffers")) 
 	{		
-		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
 		if (strSuccess.Compare("true"))
 			m_bSuccess = true;
@@ -2083,7 +2090,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		m_strNymID2		= xml->getAttributeValue("marketID");
 		
         
-		OTString strDepth = xml->getAttributeValue("depth");
+		strDepth = xml->getAttributeValue("depth");
 		
 		if (strDepth.GetLength() > 0)
 			m_lDepth = atol(strDepth.Get());
@@ -2150,7 +2157,6 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	else if (strNodeName.Compare("@getMarketRecentTrades")) 
 	{		
-		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
 		if (strSuccess.Compare("true"))
 			m_bSuccess = true;
@@ -2164,7 +2170,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		m_strNymID2		= xml->getAttributeValue("marketID");
 		
         
-		OTString strDepth = xml->getAttributeValue("depth");
+		strDepth = xml->getAttributeValue("depth");
 		
 		if (strDepth.GetLength() > 0)
 			m_lDepth = atol(strDepth.Get());
@@ -2230,7 +2236,6 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	else if (strNodeName.Compare("@getNym_MarketOffers")) 
 	{		
-		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
 		if (strSuccess.Compare("true"))
 			m_bSuccess = true;
@@ -2243,7 +2248,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		m_strServerID	= xml->getAttributeValue("serverID");
 		
         
-		OTString strDepth = xml->getAttributeValue("depth");
+		strDepth = xml->getAttributeValue("depth");
 		
 		if (strDepth.GetLength() > 0)
 			m_lDepth = atol(strDepth.Get());
@@ -2301,7 +2306,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		m_strServerID	= xml->getAttributeValue("serverID");
 		m_strRequestNum = xml->getAttributeValue("requestNum");
 		
-		OTString strTransactionNum;
+		strTransactionNum
 		strTransactionNum = xml->getAttributeValue("inRefToNum");
 		if (strTransactionNum.Exists())
 			m_lTransactionNum = atol(strTransactionNum.Get());
@@ -2383,7 +2388,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		
 		// -----------------------------------------------------
 		
-		const char *	pElementExpected	= "nymPublicKey";
+		pElementExpected	= "nymPublicKey";
 		OTASCIIArmor 	ascTextExpected;
 		
 		if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
@@ -2408,7 +2413,6 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 
 	else if (strNodeName.Compare("@checkServerID")) 
 	{	
-		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
 		if (strSuccess.Compare("true"))
 			m_bSuccess = true;
@@ -2439,7 +2443,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		
 		// -----------------------------------------------------
 		
-		const char *	pElementExpected	= "nymPublicKey";
+		pElementExpected	= "nymPublicKey";
 		OTASCIIArmor 	ascTextExpected;
 		
 		if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
@@ -2465,7 +2469,6 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	else if (strNodeName.Compare("@createUserAccount")) 
 	{		
-		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
 		if (strSuccess.Compare("true"))
 			m_bSuccess = true;
@@ -2480,7 +2483,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		// -----------------------------------------------------
 		if (m_bSuccess)
 		{
-			const char *	pElementExpected	= "nymfile";
+			pElementExpected	= "nymfile";
 			OTASCIIArmor &	ascTextExpected		= m_ascPayload;
 			
 			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
@@ -2492,7 +2495,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 			}
 		}
 		// -----------------------------------------------------
-		const char *	pElementExpected	= "inReferenceTo";
+		pElementExpected	= "inReferenceTo";
 		OTASCIIArmor &	ascTextExpected		= m_ascInReferenceTo;
 		
 		if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
@@ -2537,7 +2540,6 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	else if (strNodeName.Compare("@deleteUserAccount")) 
 	{		
-		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
 		if (strSuccess.Compare("true"))
 			m_bSuccess = true;
@@ -2551,7 +2553,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		
 		// -----------------------------------------------------
 		
-		const char *	pElementExpected	= "inReferenceTo";
+		pElementExpected	= "inReferenceTo";
 		OTASCIIArmor &	ascTextExpected		= m_ascInReferenceTo;
 		
 		if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
@@ -2591,7 +2593,6 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	else if (strNodeName.Compare("@getRequest")) 
 	{	
-		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
 		if (strSuccess.Compare("true"))
 			m_bSuccess = true;
@@ -2629,7 +2630,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		
 		// ----------------------------------------------------
 		
-		const char *	pElementExpected	= "messagePayload";
+		pElementExpected	= "messagePayload";
 		OTASCIIArmor &	ascTextExpected		= m_ascPayload;
 		
 		if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
@@ -2659,7 +2660,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		m_strServerID	= xml->getAttributeValue("serverID");
 		m_strRequestNum = xml->getAttributeValue("requestNum");
 		
-		const char *	pElementExpected	= "messagePayload";
+		pElementExpected	= "messagePayload";
 		OTASCIIArmor &	ascTextExpected		= m_ascPayload;
 		
 		if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
@@ -2680,7 +2681,6 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	else if (strNodeName.Compare("@sendUserMessage")) 
 	{		
-		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
 		if (strSuccess.Compare("true"))
 			m_bSuccess = true;
@@ -2712,7 +2712,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		m_strServerID	= xml->getAttributeValue("serverID");
 		m_strRequestNum = xml->getAttributeValue("requestNum");
 		
-		const char *	pElementExpected	= "messagePayload";
+		pElementExpected	= "messagePayload";
 		OTASCIIArmor &	ascTextExpected		= m_ascPayload;
 		
 		if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
@@ -2733,7 +2733,6 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	else if (strNodeName.Compare("@sendUserInstrument")) 
 	{		
-		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
 		if (strSuccess.Compare("true"))
 			m_bSuccess = true;
@@ -2782,7 +2781,6 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	else if (strNodeName.Compare("@usageCredits")) 
 	{		
-		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
 		if (strSuccess.Compare("true"))
 			m_bSuccess = true;
@@ -2830,7 +2828,6 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	else if (strNodeName.Compare("@checkUser")) 
 	{		
-		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
 		if (strSuccess.Compare("true"))
 			m_bSuccess = true;
@@ -2897,7 +2894,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		
 		// ----------------------------------------------------
 		
-		const char *	pElementExpected	= "assetContract";
+		pElementExpected	= "assetContract";
 		OTASCIIArmor &	ascTextExpected		= m_ascPayload;
 		
 		if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
@@ -2922,7 +2919,6 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	else if (strNodeName.Compare("@issueAssetType")) 
 	{	
-		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
 		if (strSuccess.Compare("true"))
 			m_bSuccess = true;
@@ -2942,7 +2938,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		
 		// ----------------------------------------------------
 		{
-			const char *	pElementExpected	= "inReferenceTo";
+			pElementExpected	= "inReferenceTo";
 			OTASCIIArmor &	ascTextExpected		= m_ascInReferenceTo;
 			
 			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
@@ -2956,7 +2952,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		// ----------------------------------------------------
 		if (m_bSuccess)
 		{
-			const char *	pElementExpected	= "issuerAccount";
+			pElementExpected	= "issuerAccount";
 			OTASCIIArmor &	ascTextExpected		= m_ascPayload;
 			
 			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
@@ -3008,7 +3004,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		
 		// ----------------------------------------------------
 		
-		const char *	pElementExpected	= "stringMap";
+		pElementExpected	= "stringMap";
 		OTASCIIArmor &	ascTextExpected		= m_ascPayload;
 		
 		
@@ -3034,7 +3030,6 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	else if (strNodeName.Compare("@queryAssetTypes")) 
 	{	
-		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
 		if (strSuccess.Compare("true"))
 			m_bSuccess = true;
@@ -3052,7 +3047,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		
 		// ----------------------------------------------------
 		{
-			const char *	pElementExpected	= "inReferenceTo";
+			pElementExpected	= "inReferenceTo";
 			OTASCIIArmor &	ascTextExpected		= m_ascInReferenceTo;
 			
 			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
@@ -3066,7 +3061,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		// ----------------------------------------------------
 		if (m_bSuccess)
 		{
-			const char *	pElementExpected	= "stringMap";
+			pElementExpected	= "stringMap";
 			OTASCIIArmor &	ascTextExpected		= m_ascPayload;
 			
 			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
@@ -3123,7 +3118,6 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	else if (strNodeName.Compare("@createAccount")) 
 	{	
-		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
 		if (strSuccess.Compare("true"))
 			m_bSuccess = true;
@@ -3143,7 +3137,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		
 		// ----------------------------------------------------
 		{
-			const char *	pElementExpected	= "inReferenceTo";
+			pElementExpected	= "inReferenceTo";
 			OTASCIIArmor &	ascTextExpected		= m_ascInReferenceTo;
 			
 			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
@@ -3157,7 +3151,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		// ----------------------------------------------------
 		if (m_bSuccess)
 		{
-			const char *	pElementExpected	= "newAccount";
+			pElementExpected	= "newAccount";
 			OTASCIIArmor &	ascTextExpected		= m_ascPayload;
 			
 			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
@@ -3203,7 +3197,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		m_strAcctID		= xml->getAttributeValue("accountID");
 		m_strRequestNum	= xml->getAttributeValue("requestNum");
 		
-		const OTString strTransactionNum = xml->getAttributeValue("transactionNum");
+		strTransactionNum = xml->getAttributeValue("transactionNum");
 		m_lTransactionNum = strTransactionNum.Exists() ? atol(strTransactionNum.Get()) : 0;
 		// ----------------------------------------------------
 		const OTString strBoxType = xml->getAttributeValue("boxType");
@@ -3237,7 +3231,6 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	else if (strNodeName.Compare("@getBoxReceipt")) 
 	{	
-		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
 		if (strSuccess.Compare("true"))
 			m_bSuccess = true;
@@ -3250,7 +3243,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		m_strServerID	= xml->getAttributeValue("serverID");
 		m_strAcctID		= xml->getAttributeValue("accountID");
 		
-		const OTString strTransactionNum = xml->getAttributeValue("transactionNum");
+		strTransactionNum = xml->getAttributeValue("transactionNum");
 		m_lTransactionNum = strTransactionNum.Exists() ? atol(strTransactionNum.Get()) : 0;
 		// ----------------------------------------------------
 		const OTString strBoxType = xml->getAttributeValue("boxType");
@@ -3274,7 +3267,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		// At this point, we do not send the REASON WHY if it failed.
 		// ----------------------------------------------------
 		{
-			const char *	pElementExpected	= "inReferenceTo";
+			pElementExpected	= "inReferenceTo";
 			OTASCIIArmor &	ascTextExpected		= m_ascInReferenceTo;
 			
 			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
@@ -3288,7 +3281,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		// ----------------------------------------------------
 		if (m_bSuccess)
 		{
-			const char *	pElementExpected	= "boxReceipt";
+			pElementExpected	= "boxReceipt";
 			OTASCIIArmor &	ascTextExpected		= m_ascPayload;
 			
 			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
@@ -3347,7 +3340,6 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	else if (strNodeName.Compare("@deleteAssetAccount")) 
 	{	
-		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
 		if (strSuccess.Compare("true"))
 			m_bSuccess = true;
@@ -3365,7 +3357,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		
 		// ----------------------------------------------------
 		{
-			const char *	pElementExpected	= "inReferenceTo";
+			pElementExpected	= "inReferenceTo";
 			OTASCIIArmor &	ascTextExpected		= m_ascInReferenceTo;
 			
 			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
@@ -3413,7 +3405,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		
 		// ----------------------------------------------------
 		{
-			const char *	pElementExpected	= "currencyBasket";
+			pElementExpected	= "currencyBasket";
 			OTASCIIArmor &	ascTextExpected		= m_ascPayload;
 			
 			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
@@ -3448,7 +3440,6 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	else if (strNodeName.Compare("@issueBasket")) 
 	{	
-		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
 		if (strSuccess.Compare("true"))
 			m_bSuccess = true;
@@ -3464,7 +3455,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		
 		// ----------------------------------------------------
 		{
-			const char *	pElementExpected	= "inReferenceTo";
+			pElementExpected	= "inReferenceTo";
 			OTASCIIArmor &	ascTextExpected		= m_ascInReferenceTo;
 			
 			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
@@ -3527,7 +3518,6 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		
 	else if (strNodeName.Compare("@getTransactionNum")) 
 	{	
-		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
 		if (strSuccess.Compare("true"))
 			m_bSuccess = true;
@@ -3563,7 +3553,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		
 		// ----------------------------------------------------
 		{
-			const char *	pElementExpected	= "accountLedger";
+			pElementExpected	= "accountLedger";
 			OTASCIIArmor &	ascTextExpected		= m_ascPayload;
 			
 			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
@@ -3588,7 +3578,6 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	else if (strNodeName.Compare("@notarizeTransactions")) 
 	{	
-		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
 		if (strSuccess.Compare("true"))
 			m_bSuccess = true;
@@ -3607,7 +3596,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		
 		// ----------------------------------------------------
 		{
-			const char *	pElementExpected	= "inReferenceTo";
+			pElementExpected	= "inReferenceTo";
 			OTASCIIArmor &	ascTextExpected		= m_ascInReferenceTo;
 			
 			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
@@ -3620,7 +3609,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		}
 		// ----------------------------------------------------
 		{
-			const char *	pElementExpected	= "responseLedger";
+			pElementExpected	= "responseLedger";
 			OTASCIIArmor &	ascTextExpected		= m_ascPayload;
 			
 			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
@@ -3696,7 +3685,6 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	else if (strNodeName.Compare("@getInbox")) 
 	{		
-		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
 		if (strSuccess.Compare("true"))
 			m_bSuccess = true;
@@ -3749,7 +3737,6 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	else if (strNodeName.Compare("@getNymbox")) 
 	{		
-		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
 		if (strSuccess.Compare("true"))
 			m_bSuccess = true;
@@ -3819,7 +3806,6 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	else if (strNodeName.Compare("@getOutbox")) 
 	{		
-		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
 		if (strSuccess.Compare("true"))
 			m_bSuccess = true;
@@ -3889,7 +3875,6 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	else if (strNodeName.Compare("@getAccount")) 
 	{		
-		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
 		if (strSuccess.Compare("true"))
 			m_bSuccess = true;
@@ -3960,7 +3945,6 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	else if (strNodeName.Compare("@getContract")) 
 	{		
-		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
 		if (strSuccess.Compare("true"))
 			m_bSuccess = true;
@@ -4032,7 +4016,6 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	else if (strNodeName.Compare("@getMint")) 
 	{		
-		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
 		if (strSuccess.Compare("true"))
 			m_bSuccess = true;
@@ -4089,14 +4072,13 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		m_strRequestNum = xml->getAttributeValue("requestNum");
 		const OTString strHasParam = xml->getAttributeValue("hasParam");
 		
-		OTString strTransactionNum;
 		strTransactionNum = xml->getAttributeValue("smartContractID");
 		if (strTransactionNum.Exists())
 			m_lTransactionNum = atol(strTransactionNum.Get());
 		
 		if (strHasParam.Compare("true"))
 		{
-			const char *	pElementExpected = "parameter";
+			pElementExpected = "parameter";
 			OTASCIIArmor	ascTextExpected;
 			
 			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
@@ -4122,7 +4104,6 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 
 	else if (strNodeName.Compare("@triggerClause")) 
 	{		
-		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
 		if (strSuccess.Compare("true"))
 			m_bSuccess = true;
@@ -4177,7 +4158,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		
 		// ----------------------------------------------------
 		{
-			const char *	pElementExpected	= "processLedger";
+			pElementExpected	= "processLedger";
 			OTASCIIArmor &	ascTextExpected		= m_ascPayload;
 			
 			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
@@ -4212,7 +4193,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		
 		// ----------------------------------------------------
 		{
-			const char *	pElementExpected	= "processLedger";
+			pElementExpected	= "processLedger";
 			OTASCIIArmor &	ascTextExpected		= m_ascPayload;
 			
 			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
@@ -4237,7 +4218,6 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	else if (strNodeName.Compare("@processInbox")) 
 	{	
-		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
 		if (strSuccess.Compare("true"))
 			m_bSuccess = true;
@@ -4256,7 +4236,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		
 		// ----------------------------------------------------
 		{
-			const char *	pElementExpected	= "inReferenceTo";
+			pElementExpected	= "inReferenceTo";
 			OTASCIIArmor &	ascTextExpected		= m_ascInReferenceTo;
 			
 			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
@@ -4269,7 +4249,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		}
 		// ----------------------------------------------------
 		{
-			const char *	pElementExpected	= "responseLedger";
+			pElementExpected	= "responseLedger";
 			OTASCIIArmor &	ascTextExpected		= m_ascPayload;
 			
 			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
@@ -4308,7 +4288,6 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 	
 	else if (strNodeName.Compare("@processNymbox")) 
 	{	
-		OTString strSuccess;
 		strSuccess		= xml->getAttributeValue("success");
 		if (strSuccess.Compare("true"))
 			m_bSuccess = true;
@@ -4326,7 +4305,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		
 		// ----------------------------------------------------
 		{
-			const char *	pElementExpected	= "inReferenceTo";
+			pElementExpected	= "inReferenceTo";
 			OTASCIIArmor &	ascTextExpected		= m_ascInReferenceTo;
 			
 			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
@@ -4339,7 +4318,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		}
 		// ----------------------------------------------------
 		{
-			const char *	pElementExpected	= "responseLedger";
+			pElementExpected	= "responseLedger";
 			OTASCIIArmor &	ascTextExpected		= m_ascPayload;
 			
 			if (false == OTContract::LoadEncodedTextFieldByName(xml, ascTextExpected, pElementExpected))
