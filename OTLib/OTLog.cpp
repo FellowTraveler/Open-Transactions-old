@@ -464,9 +464,31 @@ LONG Win32FaultHandler(struct _EXCEPTION_POINTERS *  ExInfo)
 // Unwind the stack and save its return addresses to the logfile
 /////////////////////////////////////////////////////////////////////////////
 
+
+
 void   LogStackFrames(void *FaultAdress, char *eNextBP)
 
 {      
+#ifdef _WIN64
+    
+    typedef USHORT (WINAPI *CaptureStackBackTraceType)(__in ULONG, __in ULONG, __out PVOID*, __out_opt PULONG);
+    CaptureStackBackTraceType func = (CaptureStackBackTraceType)(GetProcAddress(LoadLibrary("kernel32.dll"), "RtlCaptureStackBackTrace"));
+    
+    if(func == NULL)
+        return;
+    
+    // Quote from Microsoft Documentation:
+    // ## Windows Server 2003 and Windows XP:  
+    // ## The sum of the FramesToSkip and FramesToCapture parameters must be less than 63.
+    const int kMaxCallers = 62; 
+    
+    void* callers[kMaxCallers];
+    int count = (func)(0, kMaxCallers, callers, NULL);
+    for(i = 0; i < count; i++)
+        printf(TraceFile, "*** %d called from %016I64LX\n", i, callers[i]);
+    
+#else // must be _WIN32
+    
     char *p = NULL, *pBP = NULL;
     unsigned i = 0, x = 0, BpPassed = 0;
     static int  CurrentlyInTheStackDump = 0;
@@ -542,14 +564,15 @@ void   LogStackFrames(void *FaultAdress, char *eNextBP)
     CurrentlyInTheStackDump = 0;
     
     fflush(stderr);
+#endif // _WIN64 else (WIN32) endif
 }
 
 
 // *********************************************************************************
 
-#else  // UNIX -- SIGNALS
+#else  // if WIN32, else:      UNIX -- SIGNALS
 
-
+// UNIX
 
 // This is our custom std::terminate handler for SIGABRT
 //
