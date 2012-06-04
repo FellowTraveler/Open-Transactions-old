@@ -93,6 +93,19 @@ if (test "x$with_java" == "xyes"); then
     AC_SUBST(JNI_CPPFLAGS, $JNI_CPPFLAGS)
 fi
 
+AC_ARG_WITH([python],
+         [AS_HELP_STRING([--with-python],
+             [build Python JNI wrapper])], [])
+AM_CONDITIONAL([WANT_PYTHON], [test "x$with_python" == "xyes"], [])
+if (test "x$with_python" == "xyes"); then
+    AX_PROG_PYTHONC
+    AX_JNI_INCLUDE_DIR
+ for JNI_INCLUDE_DIR in $JNI_INCLUDE_DIRS
+    do
+        JNI_CPPFLAGS="$JNI_CPPFLAGS -I$JNI_INCLUDE_DIR"
+    done
+    AC_SUBST(JNI_CPPFLAGS, $JNI_CPPFLAGS)
+fi
 
 
 AC_CONFIG_FILES([Makefile])

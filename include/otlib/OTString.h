@@ -395,7 +395,7 @@ EXPORT	void   Format(const char *arg, ...);
 	void ConvertToLowerCase();
 	void ConvertToUpperCase();
 	
-	bool TokenizeIntoKeyValuePairs(std::map<std::string, std::string> & mapOutput) const;
+EXPORT	bool TokenizeIntoKeyValuePairs(std::map<std::string, std::string> & mapOutput) const;
 
 EXPORT	void OTfgets(std::istream & ofs);
 //	void OTfgets(FILE * fl);

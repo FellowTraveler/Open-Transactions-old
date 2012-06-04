@@ -211,7 +211,7 @@ EXPORT	bool GetAssetType	(const int iIndex, OTIdentifier & THE_ID, OTString & TH
 EXPORT	bool GetAccount		(const int iIndex, OTIdentifier & THE_ID, OTString & THE_NAME);
 	//------------------------------------------------------------
 	
-	void DisplayStatistics(OTString & strOutput);
+EXPORT	void DisplayStatistics(OTString & strOutput);
 	
 EXPORT	OTPseudonym *		GetNymByID(const OTIdentifier & NYM_ID);
 EXPORT	OTPseudonym *		GetNymByIDPartialMatch(const std::string PARTIAL_ID);

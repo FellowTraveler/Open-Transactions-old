@@ -900,11 +900,11 @@ public:
 	bool Compare(OTVariable & rhs);
 
 	OTVariable();
-	OTVariable(const std::string str_Name, const std::string str_Value,	const OTVariable_Access theAccess=Var_Persistent);
-	OTVariable(const std::string str_Name, const int nValue,			const OTVariable_Access theAccess=Var_Persistent);
+EXPORT	OTVariable(const std::string str_Name, const std::string str_Value,	const OTVariable_Access theAccess=Var_Persistent);
+EXPORT	OTVariable(const std::string str_Name, const int nValue,			const OTVariable_Access theAccess=Var_Persistent);
 	OTVariable(const std::string str_Name, const bool bValue,			const OTVariable_Access theAccess=Var_Persistent);
 	
-	virtual ~OTVariable();
+EXPORT	virtual ~OTVariable();
 	
 	void Serialize(OTString & strAppend,
 				   bool bCalculatingID=false);	
