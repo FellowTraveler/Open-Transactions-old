@@ -58,7 +58,7 @@ EXTRA_DIST =			docs/GETTING-STARTED.txt			\
 ####################################################################
 
 
-## BigInt
+####	BigInt
 
 bigint_headers_dir =		$(ot_include_dir)/bigint
 
@@ -78,7 +78,7 @@ bigint_sources =		src/bigint/BigInteger.cc			\
 				src/bigint/BigUnsigned.cc			\
 				src/bigint/BigUnsignedInABase.cc
 
-## Containers
+####	Containers
 
 containers_headers_dir =	$(ot_include_dir)/containers
 
@@ -96,7 +96,7 @@ containers_headers =		include/containers/containers.hpp		\
 				include/containers/smart_ptr.hpp		\
 				include/containers/triple.hpp
 
-## IrrXML
+####	IrrXML
 
 irrxml_headers_dir =		$(ot_include_dir)/irrxml
 
@@ -112,7 +112,8 @@ irrxml_sources_dir = 		$(ot_source_dir)/irrxml
 
 irrxml_sources =		src/irrxml/irrXML.cpp
 
-## Lucre
+
+####	Lucre
 
 lucre_headers_dir =		$(ot_include_dir)/lucre
 
@@ -127,7 +128,15 @@ lucre_sources =			src/lucre/bankdemo.cpp				\
 				src/lucre/bank-verify.cpp			\
 				src/lucre/coin-request.cpp			\
 				src/lucre/coin-unblind.cpp
-## OT API
+
+####	OT
+
+ot__sources_dir = 		$(ot_source_dir)/ot
+
+ot_sources =			src/ot/main.cpp
+
+
+####	OT API
 
 otapi_headers_dir =		$(ot_include_dir)/otapi
 
@@ -147,7 +156,14 @@ otapi_sources =			src/otapi/OpenTransactions.cpp			\
 				src/otapi/OTClient.cpp				\
 				src/otapi/OTServerConnection.cpp
 
-## OT LIB
+####	OT Create Mint
+
+otcreatemint__sources_dir = 	$(ot_source_dir)/otcreatemint
+
+otcreatemint_sources =		src/otcreatemint/main.cpp
+
+
+####	OT LIB
 
 otlib_headers_dir =		$(ot_include_dir)/otlib
 
@@ -267,7 +283,7 @@ otlib_sources =			src/otlib/anyoption.cpp				\
 				src/otlib/Timer.cpp				\
 				src/otlib/tinythread.cpp
 
-## OT Server
+####	OT Server
 
 otserver_headers_dir =		$(ot_include_dir)/otserver
 
@@ -280,6 +296,13 @@ otserver_sources_dir = 		$(ot_source_dir)/otserver
 otserver_sources =		src/otserver/OTClientConnection.cpp		\
 				src/otserver/OTServer.cpp
 
+####	sign Contract
+
+signcontract__sources_dir = 	$(ot_source_dir)/signcontract
+
+signcontract_sources =		src/signcontract/main.cpp
+
+
 ####	Simple Ini
 
 simpleini_headers_dir =		$(ot_include_dir)/simpleini
@@ -291,14 +314,6 @@ simpleini_sources_dir = 	$(ot_source_dir)/simpleini
 
 simpleini_sources =		src/simpleini/ConvertUTF.cpp			\
 				src/simpleini/snippets.cpp
-
-####	OT Createmint
-
-otcreatemint_sources =		util/otcreatemint/main.cpp
-
-####	Sign Contract
-
-signcontract_sources =		util/signcontract/main.cpp
 
 
 
@@ -371,15 +386,26 @@ pkginclude_HEADERS =		$(otlib_headers)
 ## Open Transactions Bin #
 ##########################
 
-bin_PROGRAMS =			otserver				\
+bin_PROGRAMS =			ot					\
+				otserver				\
 				otcreatemint				\
 				signcontract
+
+####	OT
+
+ot_SOURCES =			$(ot_sources) $(otapi_headers)
+
+ot_CPPFLAGS =			-I$(otapi_headers_dir) $(AM_CPPFLAGS) -fpic
+
+ot_LDADD =			libotapi.la libot.la
+ot_DEPENDENCIES =		libotapi.la libot.la
+
 
 ####	OT Server
 
 otserver_SOURCES =		$(otserver_sources) $(otserver_headers)
 
-otserver_CPPFLAGS =		$(AM_CPPFLAGS)  -I$(otserver_headers_dir)
+otserver_CPPFLAGS =		-I$(otserver_headers_dir) $(AM_CPPFLAGS)
 
 otserver_LDADD =		libot.la
 otserver_DEPENDENCIES =		libot.la
@@ -408,8 +434,8 @@ signcontract_DEPENDENCIES =	libot.la
 
 if TRANSPORT_ZMQ
 
-libotapi_la_SOURCES +=		src/otapi/xmlrpcxx_client.cpp
 libotapi_la_CPPFLAGS +=		-DOT_ZMQ_MODE
+ot_CPPFLAGS +=			-DOT_ZMQ_MODE
 
 otserver_SOURCES +=		src/otserver/xmlrpcxx_server.cpp
 otserver_CPPFLAGS +=		-DOT_ZMQ_MODE
@@ -432,8 +458,28 @@ libotapi_java_la_DEPENDENCIES =	libotapi.la libot.la
 
 libotapi_java_la_LDFLAGS =	--no-undefined
 
-
 if TRANSPORT_ZMQ
 libotapi_java_la_CPPFLAGS +=	-DOT_ZMQ_MODE
 endif
+
+
+#### OT API PYTHON
+
+if WANT_PYTHON
+lib_LTLIBRARIES +=		libotapi-python.la
+endif
+
+libotapi_python_la_SOURCES =	swig/otapi/OTAPI-python.cxx
+libotapi_python_la_CPPFLAGS =	$(AM_CPPFLAGS)  $(JNI_CPPFLAGS)		\
+				-I$(top_srcdir)/swig/otapi
+
+libotapi_python_la_LIBADD =	libotapi.la libot.la
+libotapi_python_la_DEPENDENCIES =	libotapi.la libot.la
+
+libotapi_python_la_LDFLAGS =	--no-undefined
+
+if TRANSPORT_ZMQ
+libotapi_python_la_CPPFLAGS +=	-DOT_ZMQ_MODE
+endif
+
 

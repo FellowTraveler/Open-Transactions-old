@@ -62,8 +62,5 @@
     <ClCompile Include="..\..\src\otapi\testwrite.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\otapi\xmlrpcxx_client.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>

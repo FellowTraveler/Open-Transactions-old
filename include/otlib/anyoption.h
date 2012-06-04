@@ -6,6 +6,13 @@
 #include <stdlib.h>
 #include <string>
 
+#undef EXPORT
+#ifdef _WINDLL
+  #define EXPORT __declspec(dllexport)
+#else
+  #define EXPORT
+#endif
+
 #define COMMON_OPT 	1
 #define COMMAND_OPT 	2
 #define FILE_OPT 	3
@@ -33,10 +40,10 @@ class AnyOption
 {
 
 public: /* the public interface */
-	AnyOption();
+EXPORT	AnyOption();
 	AnyOption(int maxoptions ); 
 	AnyOption(int maxoptions , int maxcharoptions); 
-	~AnyOption();
+EXPORT	~AnyOption();
 
 	/* 
          * following set methods specifies the  
@@ -102,15 +109,15 @@ public: /* the public interface */
 	void setFlag( const char *opt_string , char opt_char );
 
 	/* options read from commandline only */
-	void setCommandOption( const char *opt_string );
-	void setCommandOption( char  opt_char );
-	void setCommandOption( const char *opt_string , char opt_char );
-	void setCommandFlag( const char *opt_string );
-	void setCommandFlag( char  opt_char );
-	void setCommandFlag( const char *opt_string , char opt_char );
+EXPORT	void setCommandOption( const char *opt_string );
+EXPORT	void setCommandOption( char  opt_char );
+EXPORT	void setCommandOption( const char *opt_string , char opt_char );
+EXPORT	void setCommandFlag( const char *opt_string );
+EXPORT	void setCommandFlag( char  opt_char );
+EXPORT	void setCommandFlag( const char *opt_string , char opt_char );
 
 	/* options read from an option file only  */
-	void setFileOption( const char *opt_string );
+EXPORT	void setFileOption( const char *opt_string );
 	void setFileOption( char  opt_char );
 	void setFileOption( const char *opt_string , char opt_char );
 	void setFileFlag( const char *opt_string );
@@ -123,31 +130,31 @@ public: /* the public interface */
          */
 	void processOptions();  
 	void processCommandArgs();
-	void processCommandArgs( int max_args );
-	bool processFile();
+EXPORT	void processCommandArgs( int max_args );
+EXPORT	bool processFile();
 
 	/*
          * process the specified options 
          */
-	void processCommandArgs( int _argc, char **_argv );
+EXPORT	void processCommandArgs( int _argc, char **_argv );
 	void processCommandArgs( int _argc, char **_argv, int max_args );
-	bool processFile( const char *_filename );
+EXPORT	bool processFile( const char *_filename );
 	
 	/*
          * get the value of the options 
 	 * will return NULL if no value is set 
          */
-	char *getValue( const char *_option );
-	bool  getFlag( const char *_option );
-	char *getValue( char _optchar );
-	bool  getFlag( char _optchar );
+EXPORT	char *getValue( const char *_option );
+EXPORT	bool  getFlag( const char *_option );
+EXPORT	char *getValue( char _optchar );
+EXPORT	bool  getFlag( char _optchar );
 
 	/*
 	 * Print Usage
 	 */
-	void printUsage();
+EXPORT	void printUsage();
 	void printAutoUsage();
-	void addUsage( const char *line );
+EXPORT	void addUsage( const char *line );
 	void printHelp();
         /* print auto usage printing for unknown options or flag */
 	void autoUsagePrint(bool flag);
@@ -157,7 +164,7 @@ public: /* the public interface */
          */
 	int   getArgc();
 	char* getArgv( int index );
-	bool  hasOptions();
+EXPORT	bool  hasOptions();
 
 private: /* the hidden data structure */
 	int argc;		/* commandline arg count  */

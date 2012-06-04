@@ -96,6 +96,9 @@ Options:
 Enable Configuration for SWIG Java Support:
 --with-java
 
+Enable Configuration for SWIG Python Support:
+--with-python
+
 Enable Configuration in Release Mode:
 --enable-release	
 
@@ -117,6 +120,11 @@ Build Multithreaded, need about 1gb of ram per thread.
 
 
 $ make install
+
+Create your data folder (will reset everything):
+
+$ mkdir -p ~/.ot && cp -R sample-data/ot-sample-data/* ~/.ot
+
 
 
 ### add to .profile ###

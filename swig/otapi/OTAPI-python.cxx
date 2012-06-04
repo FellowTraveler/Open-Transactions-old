@@ -3995,7 +3995,7 @@ SWIG_AsVal_size_t (PyObject * obj, size_t *val)
  * C++ director class methods
  * --------------------------------------------------- */
 
-#include "OTAPI_wrap.h"
+#include "OTAPI-python.h"
 
 SwigDirector_OTCallback::SwigDirector_OTCallback(PyObject *self): OTCallback(), Swig::Director(self) {
   SWIG_DIRECTOR_RGTR((OTCallback *)this, this); 

@@ -500,8 +500,8 @@ EXPORT	bool GetHighestNum(const OTString & strServerID, long &lHighestNum); // g
 	inline mapOfTransNums & GetMapTentativeNum()    { return m_mapTentativeNum;     }
 	inline mapOfTransNums & GetMapAcknowledgedNum() { return m_mapAcknowledgedNum;  } // This one actually stores request numbers.
 
-	void RemoveAllNumbers(const OTString * pstrServerID=NULL, const bool bRemoveHighestNum=true); // for transaction numbers
-	void RemoveReqNumbers(const OTString * pstrServerID=NULL); // for request numbers (entirely different animal)
+EXPORT	void RemoveAllNumbers(const OTString * pstrServerID=NULL, const bool bRemoveHighestNum=true); // for transaction numbers
+EXPORT	void RemoveReqNumbers(const OTString * pstrServerID=NULL); // for request numbers (entirely different animal)
 	// -----------------------------------------------------
 	
 EXPORT	bool	UnRegisterAtServer(const OTString & strServerID); // Removes the request num for a specific server, if it was there before.
