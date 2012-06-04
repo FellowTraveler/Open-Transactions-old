@@ -47,7 +47,8 @@ $ autoreconf -i -f
 # build
 $ cd build
 # Did you install homebrew somewhere other than /usr/local?
-$ CPPFLAGS=-I$HOMEBREW_PREFIX/include LDFLAGS=-L$HOMEBREW_PREFIX/lib ../configure --prefix=$HOMEBREW_PREFIX --with-boost=$HOMEBREW_PREFIX
+../configure --prefix=$HOMEBREW_PREFIX
+../configure --prefix=$HOMEBREW_PREFIX --with-java
 #Otherwise
 $ ../configure
 $ make

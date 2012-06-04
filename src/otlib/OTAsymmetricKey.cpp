@@ -156,6 +156,7 @@ extern "C"
 #else
 #include <pwd.h>
 #include <unistd.h>
+#include "stacktrace.h"
 #endif
     
 #include <stdint.h>	
@@ -842,7 +843,14 @@ EVP_PKEY * OTAsymmetricKey::GetKeyLowLevel()
 
 const EVP_PKEY * OTAsymmetricKey::GetKey()
 {
-    OT_ASSERT_MSG(NULL != m_p_ascKey, "OTAsymmetricKey::GetKey: NULL != m_p_ascKey\n");
+//  OT_ASSERT_MSG(NULL != m_p_ascKey, "OTAsymmetricKey::GetKey: NULL != m_p_ascKey\n");
+    
+    if (NULL == m_p_ascKey)
+    {
+        OTLog::vError("%s: Unexpected NULL m_p_ascKey. Printing stack trace (and failing):\n", __FUNCTION__);
+        print_stacktrace();
+        return NULL;
+    }
     // ----------------------------------------
     
     if (m_timer.getElapsedTimeInSec() > OT_KEY_TIMER)
