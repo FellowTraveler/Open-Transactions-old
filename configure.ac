@@ -152,6 +152,11 @@ AC_ARG_WITH(
 
 AM_CONDITIONAL([WANT_PHP], [test "x$with_php" == "xyes"], [])
 
+if (test "x$with_php" == "xyes"); then
+	AX_PHP_DEVEL
+
+fi
+
 
 ##### (Option) Add SWIG PYTHON #####
 

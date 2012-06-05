@@ -453,7 +453,7 @@ libotapi_java_la_SOURCES =		swig/otapi/OTAPI-java.cxx
 
 libotapi_java_la_CPPFLAGS =		$(AM_CPPFLAGS)			\
 					$(JNI_CPPFLAGS)			\
-					-I$(top_srcdir)/swig/otapi
+					-I$(otapi_headers_dir)
 
 libotapi_java_la_LIBADD =		libotapi.la libot.la
 libotapi_java_la_DEPENDENCIES =		libotapi.la libot.la
@@ -473,7 +473,7 @@ endif
 
 libotapi_perl5_la_SOURCES =		swig/otapi/OTAPI-perl5.cxx
 libotapi_perl5_la_CPPFLAGS =		$(AM_CPPFLAGS)			\
-					-I$(top_srcdir)/swig/otapi
+					-I$(otapi_headers_dir)
 
 libotapi_perl5_la_LIBADD =		libotapi.la libot.la
 libotapi_perl5_la_DEPENDENCIES =	libotapi.la libot.la
@@ -494,12 +494,15 @@ endif
 libotapi_php_la_SOURCES =		swig/otapi/OTAPI-php.cpp
 
 libotapi_php_la_CPPFLAGS =		$(AM_CPPFLAGS)			\
-					-I$(top_srcdir)/swig/otapi
+					-I$(otapi_headers_dir)		\
+					$(PHP_INCLUDES)			\
+					-I$(top_srcdir)/swig/glue/php
 
 libotapi_php_la_LIBADD =		libotapi.la libot.la
 libotapi_php_la_DEPENDENCIES =		libotapi.la libot.la
 
-libotapi_php_la_LDFLAGS =		--no-undefined
+libotapi_php_la_LDFLAGS =		--no-undefined			\
+					$(PHP_LDFLAGS)
 
 if TRANSPORT_ZMQ
 libotapi_php_la_CPPFLAGS +=		-DOT_ZMQ_MODE

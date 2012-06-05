@@ -84,6 +84,8 @@ Enable Configuration for SWIG PHP Support:
 Enable Configuration for SWIG Python Support:
 --with-python
 
+$export PYTHON_PATH=$HOME/.local/lib:$PYTHON_PATH
+
 
 $ make uninstall (to cleanup anthing in you .local folder)
 
