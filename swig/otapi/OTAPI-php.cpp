@@ -4774,6 +4774,118 @@ fail:
 }
 
 
+ZEND_NAMED_FUNCTION(_wrap_OT_API_CreateSymmetricKey) {
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 0) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  result = (char *)OT_API_CreateSymmetricKey();
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_SymmetricEncrypt) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  zval **args[2];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\php\utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\php\utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_SymmetricEncrypt((char const *)arg1,(char const *)arg2);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_SymmetricDecrypt) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  zval **args[2];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\php\utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\php\utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_SymmetricDecrypt((char const *)arg1,(char const *)arg2);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
 ZEND_NAMED_FUNCTION(_wrap_OT_API_SignContract) {
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
@@ -5108,6 +5220,96 @@ fail:
 }
 
 
+ZEND_NAMED_FUNCTION(_wrap_OT_API_CreateServerContract) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  zval **args[2];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\php\utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\php\utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_CreateServerContract((char const *)arg1,(char const *)arg2);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_CreateAssetContract) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  zval **args[2];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\php\utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  
+  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\php\utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[1])->type==IS_NULL) {
+    arg2 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[1]);
+    arg2 = (char *) Z_STRVAL_PP(args[1]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_CreateAssetContract((char const *)arg1,(char const *)arg2);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
 ZEND_NAMED_FUNCTION(_wrap_OT_API_AddServerContract) {
   char *arg1 = (char *) 0 ;
   zval **args[1];
@@ -5304,6 +5506,40 @@ fail:
 }
 
 
+ZEND_NAMED_FUNCTION(_wrap_OT_API_GetServer_Contract) {
+  char *arg1 = (char *) 0 ;
+  zval **args[1];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\php\utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_GetServer_Contract((char const *)arg1);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
 ZEND_NAMED_FUNCTION(_wrap_OT_API_GetAssetType_ID) {
   int arg1 ;
   zval **args[1];
@@ -5355,6 +5591,40 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_GetAssetType_Name) {
   /*@SWIG@*/;
   
   result = (char *)OT_API_GetAssetType_Name((char const *)arg1);
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OT_API_GetAssetType_Contract) {
+  char *arg1 = (char *) 0 ;
+  zval **args[1];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  
+  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\php\utils.i,62,CONVERT_STRING_IN@*/
+  if ((*args[0])->type==IS_NULL) {
+    arg1 = (char *) 0;
+  } else {
+    convert_to_string_ex(args[0]);
+    arg1 = (char *) Z_STRVAL_PP(args[0]);
+  }
+  /*@SWIG@*/;
+  
+  result = (char *)OT_API_GetAssetType_Contract((char const *)arg1);
   {
     if(!result) {
       ZVAL_NULL(return_value);
@@ -31564,6 +31834,9 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(ot_api_decode,_wrap_OT_API_Decode,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_encrypt,_wrap_OT_API_Encrypt,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_decrypt,_wrap_OT_API_Decrypt,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_createsymmetrickey,_wrap_OT_API_CreateSymmetricKey,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_symmetricencrypt,_wrap_OT_API_SymmetricEncrypt,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_symmetricdecrypt,_wrap_OT_API_SymmetricDecrypt,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_signcontract,_wrap_OT_API_SignContract,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_addsignature,_wrap_OT_API_AddSignature,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_verifysignature,_wrap_OT_API_VerifySignature,NULL)
@@ -31575,6 +31848,8 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(ot_api_popmemlogfront,_wrap_OT_API_PopMemlogFront,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_popmemlogback,_wrap_OT_API_PopMemlogBack,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_createnym,_wrap_OT_API_CreateNym,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_createservercontract,_wrap_OT_API_CreateServerContract,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_createassetcontract,_wrap_OT_API_CreateAssetContract,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_addservercontract,_wrap_OT_API_AddServerContract,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_addassetcontract,_wrap_OT_API_AddAssetContract,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_getservercount,_wrap_OT_API_GetServerCount,NULL)
@@ -31583,8 +31858,10 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(ot_api_getnymcount,_wrap_OT_API_GetNymCount,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_getserver_id,_wrap_OT_API_GetServer_ID,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_getserver_name,_wrap_OT_API_GetServer_Name,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_getserver_contract,_wrap_OT_API_GetServer_Contract,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_getassettype_id,_wrap_OT_API_GetAssetType_ID,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_getassettype_name,_wrap_OT_API_GetAssetType_Name,NULL)
+ SWIG_ZEND_NAMED_FE(ot_api_getassettype_contract,_wrap_OT_API_GetAssetType_Contract,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_getaccountwallet_id,_wrap_OT_API_GetAccountWallet_ID,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_getaccountwallet_name,_wrap_OT_API_GetAccountWallet_Name,NULL)
  SWIG_ZEND_NAMED_FE(ot_api_getaccountwallet_balance,_wrap_OT_API_GetAccountWallet_Balance,NULL)

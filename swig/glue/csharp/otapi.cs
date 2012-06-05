@@ -61,6 +61,21 @@ public class otapi {
     return ret;
   }
 
+  public static string OT_API_CreateSymmetricKey() {
+    string ret = otapiPINVOKE.OT_API_CreateSymmetricKey();
+    return ret;
+  }
+
+  public static string OT_API_SymmetricEncrypt(string SYMMETRIC_KEY, string PLAINTEXT) {
+    string ret = otapiPINVOKE.OT_API_SymmetricEncrypt(SYMMETRIC_KEY, PLAINTEXT);
+    return ret;
+  }
+
+  public static string OT_API_SymmetricDecrypt(string SYMMETRIC_KEY, string CIPHERTEXT_ENVELOPE) {
+    string ret = otapiPINVOKE.OT_API_SymmetricDecrypt(SYMMETRIC_KEY, CIPHERTEXT_ENVELOPE);
+    return ret;
+  }
+
   public static string OT_API_SignContract(string SIGNER_NYM_ID, string THE_CONTRACT) {
     string ret = otapiPINVOKE.OT_API_SignContract(SIGNER_NYM_ID, THE_CONTRACT);
     return ret;
@@ -116,6 +131,16 @@ public class otapi {
     return ret;
   }
 
+  public static string OT_API_CreateServerContract(string NYM_ID, string szXMLcontents) {
+    string ret = otapiPINVOKE.OT_API_CreateServerContract(NYM_ID, szXMLcontents);
+    return ret;
+  }
+
+  public static string OT_API_CreateAssetContract(string NYM_ID, string szXMLcontents) {
+    string ret = otapiPINVOKE.OT_API_CreateAssetContract(NYM_ID, szXMLcontents);
+    return ret;
+  }
+
   public static int OT_API_AddServerContract(string szContract) {
     int ret = otapiPINVOKE.OT_API_AddServerContract(szContract);
     return ret;
@@ -156,6 +181,11 @@ public class otapi {
     return ret;
   }
 
+  public static string OT_API_GetServer_Contract(string SERVER_ID) {
+    string ret = otapiPINVOKE.OT_API_GetServer_Contract(SERVER_ID);
+    return ret;
+  }
+
   public static string OT_API_GetAssetType_ID(int nIndex) {
     string ret = otapiPINVOKE.OT_API_GetAssetType_ID(nIndex);
     return ret;
@@ -163,6 +193,11 @@ public class otapi {
 
   public static string OT_API_GetAssetType_Name(string ASSET_TYPE_ID) {
     string ret = otapiPINVOKE.OT_API_GetAssetType_Name(ASSET_TYPE_ID);
+    return ret;
+  }
+
+  public static string OT_API_GetAssetType_Contract(string ASSET_TYPE_ID) {
+    string ret = otapiPINVOKE.OT_API_GetAssetType_Contract(ASSET_TYPE_ID);
     return ret;
   }
 

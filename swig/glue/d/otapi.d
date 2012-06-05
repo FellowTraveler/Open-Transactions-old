@@ -584,6 +584,21 @@ char[] OT_API_Decrypt(char[] RECIPIENT_NYM_ID, char[] szCiphertext) {
   return ret;
 }
 
+char[] OT_API_CreateSymmetricKey() {
+  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_CreateSymmetricKey());
+  return ret;
+}
+
+char[] OT_API_SymmetricEncrypt(char[] SYMMETRIC_KEY, char[] PLAINTEXT) {
+  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_SymmetricEncrypt((SYMMETRIC_KEY ? tango.stdc.stringz.toStringz(SYMMETRIC_KEY) : null), (PLAINTEXT ? tango.stdc.stringz.toStringz(PLAINTEXT) : null)));
+  return ret;
+}
+
+char[] OT_API_SymmetricDecrypt(char[] SYMMETRIC_KEY, char[] CIPHERTEXT_ENVELOPE) {
+  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_SymmetricDecrypt((SYMMETRIC_KEY ? tango.stdc.stringz.toStringz(SYMMETRIC_KEY) : null), (CIPHERTEXT_ENVELOPE ? tango.stdc.stringz.toStringz(CIPHERTEXT_ENVELOPE) : null)));
+  return ret;
+}
+
 char[] OT_API_SignContract(char[] SIGNER_NYM_ID, char[] THE_CONTRACT) {
   char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_SignContract((SIGNER_NYM_ID ? tango.stdc.stringz.toStringz(SIGNER_NYM_ID) : null), (THE_CONTRACT ? tango.stdc.stringz.toStringz(THE_CONTRACT) : null)));
   return ret;
@@ -639,6 +654,16 @@ char[] OT_API_CreateNym(int nKeySize) {
   return ret;
 }
 
+char[] OT_API_CreateServerContract(char[] NYM_ID, char[] szXMLcontents) {
+  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_CreateServerContract((NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (szXMLcontents ? tango.stdc.stringz.toStringz(szXMLcontents) : null)));
+  return ret;
+}
+
+char[] OT_API_CreateAssetContract(char[] NYM_ID, char[] szXMLcontents) {
+  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_CreateAssetContract((NYM_ID ? tango.stdc.stringz.toStringz(NYM_ID) : null), (szXMLcontents ? tango.stdc.stringz.toStringz(szXMLcontents) : null)));
+  return ret;
+}
+
 int OT_API_AddServerContract(char[] szContract) {
   auto ret = otapi_im.OT_API_AddServerContract((szContract ? tango.stdc.stringz.toStringz(szContract) : null));
   return ret;
@@ -679,6 +704,11 @@ char[] OT_API_GetServer_Name(char[] SERVER_ID) {
   return ret;
 }
 
+char[] OT_API_GetServer_Contract(char[] SERVER_ID) {
+  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_GetServer_Contract((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null)));
+  return ret;
+}
+
 char[] OT_API_GetAssetType_ID(int nIndex) {
   char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_GetAssetType_ID(nIndex));
   return ret;
@@ -686,6 +716,11 @@ char[] OT_API_GetAssetType_ID(int nIndex) {
 
 char[] OT_API_GetAssetType_Name(char[] ASSET_TYPE_ID) {
   char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_GetAssetType_Name((ASSET_TYPE_ID ? tango.stdc.stringz.toStringz(ASSET_TYPE_ID) : null)));
+  return ret;
+}
+
+char[] OT_API_GetAssetType_Contract(char[] ASSET_TYPE_ID) {
+  char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OT_API_GetAssetType_Contract((ASSET_TYPE_ID ? tango.stdc.stringz.toStringz(ASSET_TYPE_ID) : null)));
   return ret;
 }
 

@@ -449,6 +449,15 @@ class otapiPINVOKE {
   [DllImport("otapi", EntryPoint="CSharp_OT_API_Decrypt")]
   public static extern string OT_API_Decrypt(string jarg1, string jarg2);
 
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_CreateSymmetricKey")]
+  public static extern string OT_API_CreateSymmetricKey();
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_SymmetricEncrypt")]
+  public static extern string OT_API_SymmetricEncrypt(string jarg1, string jarg2);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_SymmetricDecrypt")]
+  public static extern string OT_API_SymmetricDecrypt(string jarg1, string jarg2);
+
   [DllImport("otapi", EntryPoint="CSharp_OT_API_SignContract")]
   public static extern string OT_API_SignContract(string jarg1, string jarg2);
 
@@ -482,6 +491,12 @@ class otapiPINVOKE {
   [DllImport("otapi", EntryPoint="CSharp_OT_API_CreateNym")]
   public static extern string OT_API_CreateNym(int jarg1);
 
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_CreateServerContract")]
+  public static extern string OT_API_CreateServerContract(string jarg1, string jarg2);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_CreateAssetContract")]
+  public static extern string OT_API_CreateAssetContract(string jarg1, string jarg2);
+
   [DllImport("otapi", EntryPoint="CSharp_OT_API_AddServerContract")]
   public static extern int OT_API_AddServerContract(string jarg1);
 
@@ -506,11 +521,17 @@ class otapiPINVOKE {
   [DllImport("otapi", EntryPoint="CSharp_OT_API_GetServer_Name")]
   public static extern string OT_API_GetServer_Name(string jarg1);
 
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_GetServer_Contract")]
+  public static extern string OT_API_GetServer_Contract(string jarg1);
+
   [DllImport("otapi", EntryPoint="CSharp_OT_API_GetAssetType_ID")]
   public static extern string OT_API_GetAssetType_ID(int jarg1);
 
   [DllImport("otapi", EntryPoint="CSharp_OT_API_GetAssetType_Name")]
   public static extern string OT_API_GetAssetType_Name(string jarg1);
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_GetAssetType_Contract")]
+  public static extern string OT_API_GetAssetType_Contract(string jarg1);
 
   [DllImport("otapi", EntryPoint="CSharp_OT_API_GetAccountWallet_ID")]
   public static extern string OT_API_GetAccountWallet_ID(int jarg1);
