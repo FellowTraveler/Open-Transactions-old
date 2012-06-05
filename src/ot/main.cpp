@@ -653,6 +653,19 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
 		pScript->chai.add(fun(&OTAPI_Wrap::Decode), "OT_API_Decode");
 		pScript->chai.add(fun(&OTAPI_Wrap::Encrypt), "OT_API_Encrypt");
 		pScript->chai.add(fun(&OTAPI_Wrap::Decrypt), "OT_API_Decrypt");
+        
+        // ------------------------------------------------------------------		
+		
+        pScript->chai.add(fun(&OTAPI_Wrap::CreateSymmetricKey), "OT_API_CreateSymmetricKey");
+        pScript->chai.add(fun(&OTAPI_Wrap::SymmetricEncrypt), "OT_API_SymmetricEncrypt");
+        pScript->chai.add(fun(&OTAPI_Wrap::SymmetricDecrypt), "OT_API_SymmetricDecrypt");
+        pScript->chai.add(fun(&OTAPI_Wrap::CreateServerContract), "OT_API_CreateServerContract");
+        pScript->chai.add(fun(&OTAPI_Wrap::CreateAssetContract), "OT_API_CreateAssetContract");
+        pScript->chai.add(fun(&OTAPI_Wrap::GetServer_Contract), "OT_API_GetServer_Contract");
+        pScript->chai.add(fun(&OTAPI_Wrap::GetAssetType_Contract), "OT_API_GetAssetType_Contract");
+
+        // ------------------------------------------------------------------		
+
 		pScript->chai.add(fun(&OTAPI_Wrap::SignContract), "OT_API_SignContract");
 		pScript->chai.add(fun(&OTAPI_Wrap::AddSignature), "OT_API_AddSignature");
 		pScript->chai.add(fun(&OTAPI_Wrap::VerifySignature), "OT_API_VerifySignature");

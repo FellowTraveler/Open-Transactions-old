@@ -270,7 +270,7 @@ const char * OT_API_Decode(const char * szEncoded, int bLineBreaks); // bLineBre
 
 
 // --------------------------------------------------------------------
-/** OT-ENCRYPT a plaintext string.
+/** OT-ENCRYPT a plaintext string.  (ASYMMETRIC)
  
  const char * OT_API_Encrypt(const char * RECIPIENT_NYM_ID, const char * szPlaintext);
  
@@ -292,7 +292,7 @@ const char * OT_API_Encrypt(const char * RECIPIENT_NYM_ID, const char * szPlaint
 
 
 // --------------------------------------------------------------------
-/** OT-DECRYPT an OT-encrypted string back to plaintext.
+/** OT-DECRYPT an OT-encrypted string back to plaintext. (ASYMMETRIC)
  
  const char * OT_API_Decrypt(const char * RECIPIENT_NYM_ID, const char * szCiphertext);
  
@@ -314,8 +314,15 @@ const char * OT_API_Encrypt(const char * RECIPIENT_NYM_ID, const char * szPlaint
 const char * OT_API_Decrypt(const char * RECIPIENT_NYM_ID, const char * szCiphertext);
 
 
+// --------------------------------------------------------------------
 
+// Generates a new symmetric key, based on a passphrase,
+// and returns it (or NULL.)
+//
+const char * OT_API_CreateSymmetricKey();
 
+const char * OT_API_SymmetricEncrypt(const char * SYMMETRIC_KEY, const char * PLAINTEXT);
+const char * OT_API_SymmetricDecrypt(const char * SYMMETRIC_KEY, const char * CIPHERTEXT_ENVELOPE);
 
 
 // --------------------------------------------------------------------
@@ -418,11 +425,101 @@ int OT_API_PopMemlogBack(); // actually returns OT_BOOL
 const char * OT_API_CreateNym(int nKeySize); // must be 1024, 2048, 4096, or 8192 
 
 
+// Creates a contract based on the contents passed in, 
+// then sets the contract key based on the NymID,
+// and signs it with that Nym.
+// This function will also ADD the contract to the wallet.
+// Returns: the new contract ID, or NULL if failure.
+//
+const char * OT_API_CreateServerContract( const char * NYM_ID, const char * szXMLcontents );
+const char * OT_API_CreateAssetContract ( const char * NYM_ID, const char * szXMLcontents );
+
+// Use these below functions to get the new contract ITSELF, using its ID
+// that was returned by the above two functions:
+//
+//const char * OT_API_GetServer_Contract(const char * SERVER_ID); // Return's Server's contract (based on server ID)
+//const char * OT_API_GetAssetType_Contract(const char * ASSET_TYPE_ID); // Returns currency contract based on Asset Type ID
+
+/*
+ ---------------------------------
+ 
+ ASSET CONTRACTS will want to make sure they put something like this at the top:
+ 
+ <?xml version="1.0"?>
+ <digitalAssetContract version="1.0">
+ 
+ <entity shortname="Just testing" 
+  longname="I need user feedback to help design the contract tags the server must support..." 
+  email="F3llowTraveler (at)  gmail.com"/>
+ 
+ <issue company="Chuck-E-Cheese, Inc" 
+  email="games@chuckecheese.com"
+  contractUrl="https://chuckecheese.com/games/contract/"
+  type="currency"/>
+ 
+ <currency name="game tokens" tla="TOKEN" symbol="tks" type="decimal" factor="1" decimal_power="0" fraction="mg"/>
+ 
+ ---------------------------------
+ 
+ SERVER CONTRACTS will want to make sure they put something like this at the top:
+ 
+ <?xml version="1.0"?>
+ <notaryProviderContract version="1.0">
+ 
+ <entity shortname="Transactions.com" 
+  longname="Transactions.com, LLC" 
+  email="serverfarm@cloudcomputing.com"
+  serverURL="https://transactions.com/vers/1/"/>
+ 
+ <notaryServer hostname="localhost" 
+  port="7085"
+  URL="https://transactions.com/vers/1/" />
+
+ ---------------------------------
+
+ 
+ NEITHER has to worry about THIS, which is added automatically:
+ 
+ 
+ <key name="contract">
+ - -----BEGIN CERTIFICATE-----
+ MIICZjCCAc+gAwIBAgIJAO14L19TJgzcMA0GCSqGSIb3DQEBBQUAMFcxCzAJBgNV
+ BAYTAlVTMREwDwYDVQQIEwhWaXJnaW5pYTEQMA4GA1UEBxMHRmFpcmZheDERMA8G
+ A1UEChMIWm9yay5vcmcxEDAOBgNVBAMTB1Jvb3QgQ0EwHhcNMTAwOTI5MDUyMzAx
+ WhcNMjAwOTI2MDUyMzAxWjBeMQswCQYDVQQGEwJVUzERMA8GA1UECBMIVmlyZ2lu
+ aWExEDAOBgNVBAcTB0ZhaXJmYXgxETAPBgNVBAoTCFpvcmsub3JnMRcwFQYDVQQD
+ Ew5zaGVsbC56b3JrLm9yZzCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEA3vD9
+ fO4ov4854L8wXrgfv2tltDz0ieVrTNSLuy1xuQyb//+MwZ0EYwu8jMMQrqbUaYG6
+ y8zJu32yBKrBNPPwJ+fJE+tfgVg860dGVbwMd4KhpkKtppJXmZaGqLqvELaXa4Uw
+ 9N3qg/faj0NMEDIBhv/tD/B5U65vH+U0JlRJ07kCAwEAAaMzMDEwCQYDVR0TBAIw
+ ADAkBgNVHREEHTAbgg5zaGVsbC56b3JrLm9yZ4IJbG9jYWxob3N0MA0GCSqGSIb3
+ DQEBBQUAA4GBALLXPa/naWsiXsw0JwlSiG7aOmvMF2romUkcr6uObhN7sghd38M0
+ l2kKTiptnA8txrri8RhqmQgOgiyKFCKBkxY7/XGot62cE8Y1+lqGXlhu2UHm6NjA
+ pRKvng75J2HTjmmsbCHy+nexn4t44wssfPYlGPD8sGwmO24u9tRfdzJE
+ - -----END CERTIFICATE-----
+ </key>
+
+ */
 
 
 
+/*
+ const char * OT_API_Contract_AddTag(const char * NYM_ID,       const char * THE_CONTRACT,
+                                     const char * TAG_NAME,     const char * SUBTAG_NAME, 
+                                     const char * SUBTAG_VALUE, const char * TAG_VALUE); 
+ key        == TAG_NAME
+ name       == SUBTAG_NAME
+ "contract" == SUBTAG_VALUE
+ <the cert> == TAG_VALUE
+ 
+ */
+
+
+
+                                    
 // --------------------------------------------------
-/// ADD SERVER CONTRACT
+/// ADD SERVER CONTRACT (to wallet)
+//
 /// If you have a server contract that you'd like to add 
 /// to your wallet, call this function.
 ///
@@ -431,9 +528,9 @@ int OT_API_AddServerContract(const char * szContract); // returns OT_TRUE (1) or
 
 
 
-
 // --------------------------------------------------
-/// ADD ASSET CONTRACT
+/// ADD ASSET CONTRACT (to wallet)
+//
 /// If you have an asset contract that you'd like to add 
 /// to your wallet, call this function.
 ///
@@ -460,12 +557,14 @@ int OT_API_GetNymCount(void);
 
 const char * OT_API_GetServer_ID(int nIndex); // based on Index (above 4 functions) this returns the Server's ID
 const char * OT_API_GetServer_Name(const char * SERVER_ID); // Return's Server's name (based on server ID)
+const char * OT_API_GetServer_Contract(const char * SERVER_ID); // Return's Server's contract (based on server ID)
 
 
 
 
 const char * OT_API_GetAssetType_ID(int nIndex); // returns Asset Type ID (based on index from GetAssetTypeCount)
 const char * OT_API_GetAssetType_Name(const char * ASSET_TYPE_ID); // Returns asset type name based on Asset Type ID
+const char * OT_API_GetAssetType_Contract(const char * ASSET_TYPE_ID); // Returns currency contract based on Asset Type ID
 
 
 

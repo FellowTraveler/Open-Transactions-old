@@ -160,6 +160,18 @@ public:
 	static std::string Decode(std::string str_Encoded,		bool bLineBreaks);
 	static std::string Encrypt(std::string RECIPIENT_NYM_ID, std::string str_Plaintext);
 	static std::string Decrypt(std::string RECIPIENT_NYM_ID, std::string str_Ciphertext);
+    
+    static std::string CreateSymmetricKey();
+    
+    static std::string SymmetricEncrypt(std::string SYMMETRIC_KEY, std::string PLAINTEXT);
+    static std::string SymmetricDecrypt(std::string SYMMETRIC_KEY, std::string CIPHERTEXT_ENVELOPE);
+
+    static std::string CreateServerContract( std::string  NYM_ID, std::string  szXMLcontents );
+    static std::string CreateAssetContract ( std::string  NYM_ID, std::string  szXMLcontents );
+    
+    static std::string GetServer_Contract(std::string SERVER_ID); // Return's Server's contract (based on server ID)
+    static std::string GetAssetType_Contract(std::string ASSET_TYPE_ID); // Returns currency contract based on Asset Type ID
+
 	static std::string SignContract(std::string SIGNER_NYM_ID, std::string THE_CONTRACT);
 	static std::string AddSignature(std::string SIGNER_NYM_ID, std::string THE_CONTRACT);
 	static bool VerifySignature(std::string SIGNER_NYM_ID, std::string THE_CONTRACT);

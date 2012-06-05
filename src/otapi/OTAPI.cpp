@@ -323,6 +323,7 @@ OT_BOOL OT_API_LoadWallet(const char * szWalletFilename)
 
 
 
+
 OT_BOOL OT_API_SwitchWallet(const char * szDataFolderPath, const char * szWalletFilename)
 {
 	OT_ASSERT_MSG(NULL != szDataFolderPath, "Null szDataFolderPath passed to OT_API_SwitchWallet");
@@ -426,7 +427,7 @@ OT_BOOL OT_API_PopMemlogBack()
 //
 const char * OT_API_CreateNym(int nKeySize) // must be 1024, 2048, 4096, or 8192 
 {
-	const char * szFuncName = "OT_API_CreateNym";
+	const char * szFuncName = __FUNCTION__; //"OT_API_CreateNym";
 	// -----------------------------------------------------
 	OTWallet * pWallet = OT_API::It().GetWallet(szFuncName); // This logs and ASSERTs already.
 	if (NULL == pWallet) return NULL;
@@ -435,7 +436,7 @@ const char * OT_API_CreateNym(int nKeySize) // must be 1024, 2048, 4096, or 8192
 	OTPseudonym * pNym = OT_API::It().CreateNym(nKeySize);
 	if (NULL == pNym) // Creation failed.
 	{
-		OTLog::Output(0, "OT_API_CreateNym: Failed trying to create Nym.\n");
+		OTLog::vOutput(0, "%s: Failed trying to create Nym.\n", __FUNCTION__);
 		return NULL;		
 	}
 	// -----------------------------------------------------}
@@ -457,12 +458,253 @@ const char * OT_API_CreateNym(int nKeySize) // must be 1024, 2048, 4096, or 8192
 }
 
 
+
+
+// Creates a contract based on the contents passed in, 
+// then sets the contract key based on the NymID,
+// and signs it with that Nym.
+// This function will also ADD the contract to the wallet.
+// Returns: the new contract ID, or NULL if failure.
+//
+const char * OT_API_CreateServerContract( const char * NYM_ID, const char * szXMLcontents )
+{
+    OT_ASSERT_MSG(OT_API::It().IsInitialized(),	"OT_API_CreateServerContract: Not initialized; call OT_API::Init first.");
+	OT_ASSERT_MSG(NULL != NYM_ID,               "OT_API_CreateServerContract: Null NYM_ID passed in!\n");
+	OT_ASSERT_MSG(NULL != szXMLcontents,        "OT_API_CreateServerContract: Null szXMLcontents passed in!\n");
+    // -----------------------------------------------------
+	OTWallet * pWallet = OT_API::It().GetWallet(__FUNCTION__); // This logs and ASSERTs already.
+	if (NULL == pWallet) return NULL;
+	// By this point, pWallet is a good pointer.  (No need to cleanup.)
+	// -----------------------------------------------------
+    const OTIdentifier theNymID(NYM_ID);
+    OTPseudonym * pNym = OT_API::It().GetNym(theNymID, __FUNCTION__);
+    if (NULL == pNym) return NULL;
+	// -------------------------------------------    
+    std::string str_Trim(szXMLcontents);
+	std::string str_Trim2 = OTString::trim(str_Trim);
+	OTString strContract(str_Trim2.c_str());
+
+    if (strContract.GetLength() < 2)
+    {
+        OTLog::vOutput(0, "%s: Empty XML contents passed in! (Failure.)\n", __FUNCTION__);
+        return NULL;
+    }
+    // -------------------------------------------    
+    OTServerContract * pContract = new OTServerContract;
+	OT_ASSERT(NULL != pContract);
+    OTCleanup<OTServerContract> theAngel(*pContract);
+    pContract->CreateContract(strContract, *pNym); // <==========  **** CREATE CONTRACT!! ****
+    // -------------------------------------------
+    // But does it meet our requirements?
+    //
+    const OTPseudonym * pContractKeyNym = pContract->GetContractPublicNym();
+//  const OTAsymmetricKey * pKey = pContract->GetContractPublicKey();
+
+    if (NULL == pContractKeyNym)
+    {
+        OTLog::vOutput(0, "%s: Missing 'key' tag with name=\"contract\" and text value containing "
+                      "the public cert or public key of the signer Nym. (Please add it first. Failure.)\n",
+                       __FUNCTION__);
+        return NULL;
+    }
+    else if (false == pNym->CompareID(*pContractKeyNym))
+    {
+        OTLog::vOutput(0, "%s: Found 'key' tag with name=\"contract\" and text value, but it apparently does NOT contain "
+                      "the public cert or public key of the signer Nym. Please fix that first; see the sample data. (Failure.)\n",
+                       __FUNCTION__);
+        return NULL;
+    }
+    /*
+     <key name="contract">
+     - -----BEGIN CERTIFICATE-----
+     MIICZjCCAc+gAwIBAgIJAO14L19TJgzcMA0GCSqGSIb3DQEBBQUAMFcxCzAJBgNV
+     BAYTAlVTMREwDwYDVQQIEwhWaXJnaW5pYTEQMA4GA1UEBxMHRmFpcmZheDERMA8G
+     A1UEChMIWm9yay5vcmcxEDAOBgNVBAMTB1Jvb3QgQ0EwHhcNMTAwOTI5MDUyMzAx
+     WhcNMjAwOTI2MDUyMzAxWjBeMQswCQYDVQQGEwJVUzERMA8GA1UECBMIVmlyZ2lu
+     aWExEDAOBgNVBAcTB0ZhaXJmYXgxETAPBgNVBAoTCFpvcmsub3JnMRcwFQYDVQQD
+     Ew5zaGVsbC56b3JrLm9yZzCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEA3vD9
+     fO4ov4854L8wXrgfv2tltDz0ieVrTNSLuy1xuQyb//+MwZ0EYwu8jMMQrqbUaYG6
+     y8zJu32yBKrBNPPwJ+fJE+tfgVg860dGVbwMd4KhpkKtppJXmZaGqLqvELaXa4Uw
+     9N3qg/faj0NMEDIBhv/tD/B5U65vH+U0JlRJ07kCAwEAAaMzMDEwCQYDVR0TBAIw
+     ADAkBgNVHREEHTAbgg5zaGVsbC56b3JrLm9yZ4IJbG9jYWxob3N0MA0GCSqGSIb3
+     DQEBBQUAA4GBALLXPa/naWsiXsw0JwlSiG7aOmvMF2romUkcr6uObhN7sghd38M0
+     l2kKTiptnA8txrri8RhqmQgOgiyKFCKBkxY7/XGot62cE8Y1+lqGXlhu2UHm6NjA
+     pRKvng75J2HTjmmsbCHy+nexn4t44wssfPYlGPD8sGwmO24u9tRfdzJE
+     - -----END CERTIFICATE-----
+     </key>
+     */
+    // -------------------------------------------
+    OTString strHostname; int nPort=0;
+    
+    if (false == pContract->GetConnectInfo(strHostname, nPort))
+    {
+        OTLog::vOutput(0, "%s: Unable to retrieve connection info from this contract. Please "
+                      "fix that first; see the sample data. (Failure.)\n", __FUNCTION__);
+        return NULL;
+    }
+    // -------------------------------------------
+    // By this point, we know that the "contract" key is properly attached
+    // to the raw XML contents, AND that the NymID for that key matches
+    // the NymID passed into this function.
+    // We also know that the connect info was properly attached to this
+    // server contract.
+    // So we can proceed to add it to the wallet...
+    //
+	// -----------------------------------------------------
+    OTString strOutput;
+    pContract->GetIdentifier(strOutput);
+
+    pWallet->AddServerContract(*pContract);
+    theAngel.SetCleanupTargetPointer(NULL); // (No need to cleanup anymore.)
+    pContract = NULL; // Success. The wallet "owns" it now, no need to clean it up.
+    // -------------------------------------------
+    const char * pBuf = strOutput.Get();    
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+    return g_tempBuf;
+}
+
+
+const char * OT_API_CreateAssetContract ( const char * NYM_ID, const char * szXMLcontents )
+{
+    OT_ASSERT_MSG(OT_API::It().IsInitialized(),	"OT_API_CreateAssetContract: Not initialized; call OT_API::Init first.");
+	OT_ASSERT_MSG(NULL != NYM_ID,               "OT_API_CreateAssetContract: Null NYM_ID passed in!\n");
+	OT_ASSERT_MSG(NULL != szXMLcontents,        "OT_API_CreateAssetContract: Null szXMLcontents passed in!\n");
+    // -----------------------------------------------------
+	OTWallet * pWallet = OT_API::It().GetWallet(__FUNCTION__); // This logs and ASSERTs already.
+	if (NULL == pWallet) return NULL;
+	// By this point, pWallet is a good pointer.  (No need to cleanup.)
+	// -----------------------------------------------------
+    const OTIdentifier theNymID(NYM_ID);
+    OTPseudonym * pNym = OT_API::It().GetNym(theNymID, __FUNCTION__);
+    if (NULL == pNym) return NULL;
+	// -------------------------------------------    
+    std::string str_Trim(szXMLcontents);
+	std::string str_Trim2 = OTString::trim(str_Trim);
+	OTString strContract(str_Trim2.c_str());
+
+    if (strContract.GetLength() < 2)
+    {
+        OTLog::vOutput(0, "%s: Empty XML contents passed in! (Failure.)\n", __FUNCTION__);
+        return NULL;
+    }
+    // -------------------------------------------    
+    OTAssetContract * pContract = new OTAssetContract;
+	OT_ASSERT(NULL != pContract);
+    OTCleanup<OTAssetContract> theAngel(*pContract);
+    pContract->CreateContract(strContract, *pNym); // <==========  **** CREATE CONTRACT!! ****
+    // -------------------------------------------
+    // But does it meet our requirements?
+    //
+    const OTPseudonym * pContractKeyNym = pContract->GetContractPublicNym();
+//  const OTAsymmetricKey * pKey = pContract->GetContractPublicKey();
+
+    if (NULL == pContractKeyNym)
+    {
+        OTLog::vOutput(0, "%s: Missing 'key' tag with name=\"contract\" and text value containing "
+                      "the public cert or public key of the signer Nym. (Please add it first. Failure.)\n", 
+                       __FUNCTION__);
+        return NULL;
+    }
+    else if (false == pNym->CompareID(*pContractKeyNym))
+    {
+        OTLog::vOutput(0, "%s: Found 'key' tag with name=\"contract\" and text value, but it apparently does NOT contain "
+                      "the public cert or public key of the signer Nym. Please fix that first; see the sample data. (Failure.)\n",
+                       __FUNCTION__);
+        return NULL;
+    }
+    /*
+     <key name="contract">
+     - -----BEGIN CERTIFICATE-----
+     MIICZjCCAc+gAwIBAgIJAO14L19TJgzcMA0GCSqGSIb3DQEBBQUAMFcxCzAJBgNV
+     BAYTAlVTMREwDwYDVQQIEwhWaXJnaW5pYTEQMA4GA1UEBxMHRmFpcmZheDERMA8G
+     A1UEChMIWm9yay5vcmcxEDAOBgNVBAMTB1Jvb3QgQ0EwHhcNMTAwOTI5MDUyMzAx
+     WhcNMjAwOTI2MDUyMzAxWjBeMQswCQYDVQQGEwJVUzERMA8GA1UECBMIVmlyZ2lu
+     aWExEDAOBgNVBAcTB0ZhaXJmYXgxETAPBgNVBAoTCFpvcmsub3JnMRcwFQYDVQQD
+     Ew5zaGVsbC56b3JrLm9yZzCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEA3vD9
+     fO4ov4854L8wXrgfv2tltDz0ieVrTNSLuy1xuQyb//+MwZ0EYwu8jMMQrqbUaYG6
+     y8zJu32yBKrBNPPwJ+fJE+tfgVg860dGVbwMd4KhpkKtppJXmZaGqLqvELaXa4Uw
+     9N3qg/faj0NMEDIBhv/tD/B5U65vH+U0JlRJ07kCAwEAAaMzMDEwCQYDVR0TBAIw
+     ADAkBgNVHREEHTAbgg5zaGVsbC56b3JrLm9yZ4IJbG9jYWxob3N0MA0GCSqGSIb3
+     DQEBBQUAA4GBALLXPa/naWsiXsw0JwlSiG7aOmvMF2romUkcr6uObhN7sghd38M0
+     l2kKTiptnA8txrri8RhqmQgOgiyKFCKBkxY7/XGot62cE8Y1+lqGXlhu2UHm6NjA
+     pRKvng75J2HTjmmsbCHy+nexn4t44wssfPYlGPD8sGwmO24u9tRfdzJE
+     - -----END CERTIFICATE-----
+     </key>
+     */
+    // -------------------------------------------
+    // By this point, we know that the "contract" key is properly attached
+    // to the raw XML contents, AND that the NymID for that key matches
+    // the NymID passed into this function.
+    // So we can proceed to add it to the wallet...
+    //
+	// -----------------------------------------------------
+    OTString strOutput;
+    pContract->GetIdentifier(strOutput);
+
+    pWallet->AddAssetContract(*pContract);
+    theAngel.SetCleanupTargetPointer(NULL); // (No need to cleanup anymore.)
+    pContract = NULL; // Success. The wallet "owns" it now, no need to clean it up.
+    // -------------------------------------------
+    const char * pBuf = strOutput.Get();    
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+    return g_tempBuf;
+}
+
+
+
+// Use these below functions to get the new contract ITSELF, using its ID
+// that was returned by the above two functions:
+//
+//const char * OT_API_GetServer_Contract(const char * SERVER_ID); // Return's Server's contract (based on server ID)
+//const char * OT_API_GetAssetType_Contract(const char * ASSET_TYPE_ID); // Returns currency contract based on Asset Type ID
+
+
+const char * OT_API_GetServer_Contract(const char * SERVER_ID) // Return's Server's contract (based on server ID)
+{
+    OT_ASSERT_MSG(OT_API::It().IsInitialized(),	"OT_API_GetServer_Contract: Not initialized; call OT_API::Init first.");
+	OT_ASSERT_MSG(NULL != SERVER_ID,            "OT_API_GetServer_Contract: Null SERVER_ID passed in!\n");
+	// --------------------------------------------------------------------
+    const OTIdentifier theServerID(SERVER_ID);
+    OTServerContract * pServer = OT_API::It().GetServer(theServerID, __FUNCTION__);
+	if (NULL == pServer) return NULL;
+	// By this point, pServer is a good pointer.  (No need to cleanup.)
+	// --------------------------------------------------------------------
+    const OTString strOutput(*pServer);
+    const char * pBuf = strOutput.Get();    
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+    return g_tempBuf;
+}
+
+
+const char * OT_API_GetAssetType_Contract(const char * ASSET_TYPE_ID) // Returns currency contract based on Asset Type ID
+{
+    OT_ASSERT_MSG(OT_API::It().IsInitialized(),	"OT_API_GetAssetType_Contract: Not initialized; call OT_API::Init first.");
+	OT_ASSERT_MSG(NULL != ASSET_TYPE_ID,        "OT_API_GetAssetType_Contract: Null ASSET_TYPE_ID passed in!\n");
+	// --------------------------------------------------------------------
+    const OTIdentifier theAssetID(ASSET_TYPE_ID);
+	OTAssetContract * pContract = OT_API::It().GetAssetType(theAssetID, __FUNCTION__);
+	if (NULL == pContract) return NULL;
+	// By this point, pContract is a good pointer.  (No need to cleanup.)
+	// --------------------------------------------------------------------
+    const OTString strOutput(*pContract);
+    const char * pBuf = strOutput.Get();    
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+    return g_tempBuf;
+}
+
+
+
+// ---------------------------------------------------------------
+
+
+
+
 // If you have a server contract that you'd like to add 
 // to your wallet, call this function.
 //
 OT_BOOL OT_API_AddServerContract(const char * szContract)
 {
-	const char * szFuncName = "OT_API_AddServerContract";
+	const char * szFuncName = __FUNCTION__; //__FUNCTION__;
 	// -----------------------------------------------------
 	OTWallet * pWallet = OT_API::It().GetWallet(szFuncName); // This logs and ASSERTs already.
 	if (NULL == pWallet) return OT_FALSE;
@@ -495,7 +737,7 @@ OT_BOOL OT_API_AddServerContract(const char * szContract)
 		delete pContract;
 		pContract = NULL;
 		
-		return OT_FALSE;	
+		return OT_FALSE;
 	}
 	
 	return OT_TRUE;		
@@ -507,7 +749,7 @@ OT_BOOL OT_API_AddServerContract(const char * szContract)
 //
 OT_BOOL OT_API_AddAssetContract(const char * szContract)
 {
-	const char * szFuncName = "OT_API_AddAssetContract";
+	const char * szFuncName = __FUNCTION__; //"OT_API_AddAssetContract";
 	// -----------------------------------------------------
 	OTWallet * pWallet = OT_API::It().GetWallet(szFuncName); // This logs and ASSERTs already.
 	if (NULL == pWallet) return OT_FALSE;
@@ -658,7 +900,7 @@ OT_BOOL	OT_API_Wallet_RemoveServer(const char * SERVER_ID)
 	// other alternative is to expire Nyms that have gone unused for some specific
 	// period of time, presumably those terms are described in the server contract.
 	//
-	const char * szFuncName = "OT_API_Wallet_RemoveServer";
+	const char * szFuncName = __FUNCTION__; //"OT_API_Wallet_RemoveServer";
 	// -----------------------------------------------------
 	OTWallet * pWallet = OT_API::It().GetWallet(szFuncName);
 	OT_ASSERT_MSG(NULL != pWallet, "OT_API_Wallet_RemoveServer: No wallet found...\n");
@@ -727,7 +969,7 @@ OT_BOOL	OT_API_Wallet_RemoveAssetType(const char * ASSET_ID)
 	if (OT_FALSE == OT_API_Wallet_CanRemoveAssetType(ASSET_ID))
 		return OT_FALSE;
 	
-	const char * szFuncName = "OT_API_Wallet_RemoveAssetType";
+	const char * szFuncName = __FUNCTION__; //"OT_API_Wallet_RemoveAssetType";
 	// -----------------------------------------------------
 	OTWallet * pWallet = OT_API::It().GetWallet(szFuncName);
 	OT_ASSERT_MSG(NULL != pWallet, "OT_API_Wallet_RemoveAssetType: No wallet found...\n");
@@ -761,7 +1003,7 @@ OT_BOOL	OT_API_Wallet_CanRemoveNym(const char * NYM_ID)
 	
 	OTIdentifier theID(NYM_ID);
 	// ------------------------------------------
-	const char * szFuncName = "OT_API_Wallet_CanRemoveNym";
+	const char * szFuncName = __FUNCTION__; //"OT_API_Wallet_CanRemoveNym";
 	// -----------------------------------------------------
     OTPseudonym * pNym = OT_API::It().GetNym(theID, szFuncName);
     if (NULL == pNym) return OT_FALSE;
@@ -850,7 +1092,7 @@ OT_BOOL	OT_API_Wallet_RemoveNym(const char * NYM_ID)
 	if (OT_FALSE == OT_API_Wallet_CanRemoveNym(NYM_ID))
 		return OT_FALSE;
 
-	const char * szFuncName = "OT_API_Wallet_RemoveNym";
+	const char * szFuncName = __FUNCTION__; //"OT_API_Wallet_RemoveNym";
 	// -----------------------------------------------------
 	OTWallet * pWallet = OT_API::It().GetWallet(szFuncName);
 	OT_ASSERT_MSG(NULL != pWallet, "OT_API_Wallet_RemoveNym: No wallet found...\n");
@@ -887,7 +1129,7 @@ OT_BOOL	OT_API_Wallet_CanRemoveAccount(const char * ACCOUNT_ID)
     // -----------------------------------------------------------------
 	const OTIdentifier theAccountID(ACCOUNT_ID);
 
-	const char * szFuncName = "OT_API_Wallet_CanRemoveAccount";
+	const char * szFuncName = __FUNCTION__; //"OT_API_Wallet_CanRemoveAccount";
 	// -----------------------------------------------------
     OTAccount * pAccount = OT_API::It().GetAccount(theAccountID, szFuncName);
     if (NULL == pAccount) return OT_FALSE;
@@ -1079,11 +1321,7 @@ const char * OT_API_Wallet_ImportNym(const char * DISPLAY_NAME, const char * KEY
 		
 		const char * pBuf = strNymID.Get();
 		
-#ifdef _WIN32
-		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -1112,11 +1350,7 @@ const char * OT_API_GetNym_ID(int nIndex)
 		
 		const char * pBuf = strNymID.Get();
 
-#ifdef _WIN32
-		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 		return g_tempBuf;
 	}
@@ -1138,11 +1372,7 @@ const char * OT_API_GetNym_Name(const char * NYM_ID)
 		OTString & strName = pNym->GetNymName();
 		const char * pBuf = strName.Get();
 		
-#ifdef _WIN32
-		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -1189,11 +1419,7 @@ const char * OT_API_GetNym_Stats(const char * NYM_ID)
 		
 		const char * pBuf = strOutput.Get();
 				
-#ifdef _WIN32
-		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 				
 		return g_tempBuf;
 	}
@@ -1472,11 +1698,7 @@ const char * OT_API_GetNym_MailSenderIDByIndex(const char * NYM_ID, int nIndex)
 		
 		const char * pBuf = pMessage->m_strNymID.Get();
 
-#ifdef _WIN32
-		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		return g_tempBuf;
 	}
 	return NULL;	
@@ -1507,11 +1729,7 @@ const char * OT_API_GetNym_MailServerIDByIndex(const char * NYM_ID, int nIndex)
 			
 		const char * pBuf = pMessage->m_strServerID.Get();
 				
-#ifdef _WIN32
-		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 			
 		return g_tempBuf;
 	}
@@ -1674,11 +1892,7 @@ const char * OT_API_GetNym_OutmailRecipientIDByIndex(const char * NYM_ID, int nI
 			
 		const char * pBuf = pMessage->m_strNymID2.Get();
 			
-#ifdef _WIN32
-		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		return g_tempBuf;
 	}
 	return NULL;	
@@ -1708,11 +1922,7 @@ const char * OT_API_GetNym_OutmailServerIDByIndex(const char * NYM_ID, int nInde
 		// MESSAGE:   pMessage->m_ascPayload 
 		
 		const char * pBuf = pMessage->m_strServerID.Get();
-#ifdef _WIN32
-		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		return g_tempBuf;
 			
 	}
@@ -1893,11 +2103,7 @@ const char * OT_API_GetNym_OutpaymentsRecipientIDByIndex(const char * NYM_ID, in
 			
 		const char * pBuf = pMessage->m_strNymID2.Get();
 			
-#ifdef _WIN32
-		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		return g_tempBuf;
 	}
 	return NULL;	
@@ -1929,11 +2135,7 @@ const char * OT_API_GetNym_OutpaymentsServerIDByIndex(const char * NYM_ID, int n
         OT_ASSERT_MSG(pMessage->m_strServerID.GetLength() > 1, "ASSERT: OT_API_GetNym_OutpaymentsServerIDByIndex: pMessage->m_strServerID.GetLength() > 1");
 
 		const char * pBuf = pMessage->m_strServerID.Get();
-#ifdef _WIN32
-		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		return g_tempBuf;
 			
 	}
@@ -2786,11 +2988,7 @@ const char * OT_API_GetServer_ID(int nIndex)
 		
 		const char * pBuf = strID.Get();
 		
-#ifdef _WIN32
-		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;		
 	}
@@ -2812,11 +3010,7 @@ const char * OT_API_GetServer_Name(const char * THE_ID)
 	OTString strName;
 	pServer->GetName(strName);
 	const char * pBuf = strName.Get();		
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	return g_tempBuf;
 }
 
@@ -2833,15 +3027,8 @@ const char * OT_API_GetAssetType_ID(int nIndex)
 	if (bGetServer)
 	{
 		OTString strID(theID);
-		
 		const char * pBuf = strID.Get();
-		
-#ifdef _WIN32
-		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
-		
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		return g_tempBuf;		
 	}
 	return NULL;
@@ -2862,11 +3049,7 @@ const char * OT_API_GetAssetType_Name(const char * THE_ID)
 	OTString strName;
 	pContract->GetName(strName);
 	const char * pBuf = strName.Get();
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	return g_tempBuf;
 }
 
@@ -2890,11 +3073,7 @@ const char * OT_API_GetAccountWallet_ID(int nIndex)
 		
 		const char * pBuf = strID.Get();
 		
-#ifdef _WIN32
-		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;		
 	}
@@ -2918,11 +3097,7 @@ const char * OT_API_GetAccountWallet_Name(const char * THE_ID)
 	OTString strName;
 	pAccount->GetName(strName);
 	const char * pBuf = strName.Get();
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	return g_tempBuf;
 }
 
@@ -2948,11 +3123,7 @@ const char * OT_API_GetAccountWallet_InboxHash (const char * ACCOUNT_ID)	 // ret
         theOutput.GetString(strOutput);
 
 	const char * pBuf = strOutput.Get();
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	return g_tempBuf;    
 }
 
@@ -2979,11 +3150,7 @@ const char * OT_API_GetAccountWallet_OutboxHash(const char * ACCOUNT_ID)	 // ret
         theOutput.GetString(strOutput);
     
 	const char * pBuf = strOutput.Get();
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	return g_tempBuf;    
 }
 
@@ -3007,11 +3174,7 @@ const char * OT_API_GetTime(void)
 	strTime.Format("%ld", lTime);
 
 	const char * pBuf = strTime.Get();
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	return g_tempBuf;	
 }
 
@@ -3045,11 +3208,7 @@ const char * OT_API_Encode(const char * szPlaintext, OT_BOOL bLineBreaks) // bLi
 		return NULL;
 	
 	const char * pBuf = strOutput.Get();
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	return g_tempBuf;		
 }
 
@@ -3084,11 +3243,7 @@ const char * OT_API_Decode(const char * szEncoded, OT_BOOL bLineBreaks)
 		return NULL;
 	
 	const char * pBuf = strOutput.Get();
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	return g_tempBuf;
 }
 
@@ -3098,7 +3253,7 @@ const char * OT_API_Decode(const char * szEncoded, OT_BOOL bLineBreaks)
 
 
 // --------------------------------------------------------------------
-/** OT-ENCRYPT a plaintext string.
+/** OT-ENCRYPT a plaintext string.  ASYMMETRIC
  
  const char * OT_API_Encrypt(const char * RECIPIENT_NYM_ID, const char * szPlaintext);
  
@@ -3129,11 +3284,7 @@ const char * OT_API_Encrypt(const char * RECIPIENT_NYM_ID, const char * szPlaint
 		return NULL;
 	
 	const char * pBuf = strOutput.Get();
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	return g_tempBuf;				
 }
 
@@ -3143,7 +3294,7 @@ const char * OT_API_Encrypt(const char * RECIPIENT_NYM_ID, const char * szPlaint
 
 
 // --------------------------------------------------------------------
-/** OT-DECRYPT an OT-encrypted string back to plaintext.
+/** OT-DECRYPT an OT-encrypted string back to plaintext.  ASYMMETRIC
  
  const char * OT_API_Decrypt(const char * RECIPIENT_NYM_ID, const char * szCiphertext);
  
@@ -3178,17 +3329,205 @@ const char * OT_API_Decrypt(const char * RECIPIENT_NYM_ID, const char * szCipher
 		return NULL;
 	
 	const char * pBuf = strOutput.Get();
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	return g_tempBuf;	
 }
 
 
 
 
+// Generates a new symmetric key, based on a passphrase,
+// and returns it (or NULL.)
+//
+const char * OT_API_CreateSymmetricKey()
+{
+    OTPassword      passUserInput; // text mode.
+    const char *    szDisplay = "Creating new symmetric Key.";
+    OTPasswordData  thePWData(szDisplay);
+    
+    OTString strOutput;
+    bool bSuccess = false;
+    
+    const int nCallback = souped_up_pass_cb(passUserInput.getPasswordWritable(),
+                                            passUserInput.getBlockSize(),
+                                            1, // bVerifyTwice ? 1 : 0, 
+                                            static_cast<void *>(&thePWData));
+    
+    if (nCallback > 0) // Success retrieving the passphrase from the user. (Now let's generate the key...)
+    {
+        OTSymmetricKey theKey(passUserInput);
+        
+        OTLog::vOutput(3, "%s: Calling OTSymmetricKey theKey.GenerateKey()...\n", __FUNCTION__);
+        bGenerated = theKey.GenerateKey(passUserInput);
+        //      OTLog::vOutput(0, "%s: Finished calling OTSymmetricKey theKey.GenerateKey()...\n", __FUNCTION__);
+        
+        if (bGenerated && theKey.SerializeTo(strOutput))
+            bSuccess = true;
+        else
+            OTLog::vOutput("%s: Sorry, unable to generate key. (Failure.)\n", __FUNCTION__);
+    }
+    else
+        OTLog::vOutput("%s: Sorry, unable to retrieve password from user. (Failure.)\n", __FUNCTION__);
+    
+    if (!bSuccess)
+        return NULL;
+    
+    const char * pBuf = strOutput.Get();    
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+    return g_tempBuf;
+}
+
+
+
+// OTEnvelope:
+//     bool Encrypt(const OTString & theInput,        OTSymmetricKey & theKey, const OTPassword & thePassword);
+//     bool Decrypt(      OTString & theOutput, const OTSymmetricKey & theKey, const OTPassword & thePassword);
+
+
+// Returns the CIPHERTEXT_ENVELOPE (the Envelope encrypted with the Symmetric Key.)
+//
+const char * OT_API_SymmetricEncrypt(const char * SYMMETRIC_KEY, const char * PLAINTEXT)
+{
+	OT_ASSERT_MSG(NULL != SYMMETRIC_KEY, "OT_API_SymmetricEncrypt: Null SYMMETRIC_KEY passed in.");
+	OT_ASSERT_MSG(NULL != PLAINTEXT,     "OT_API_SymmetricEncrypt: Null PLAINTEXT passed in.");
+    // ---------------------------
+    OTASCIIArmor ascOutput;
+    bool bSuccess = false;
+    // ---------------------------
+    const OTString strPlaintext(PLAINTEXT);
+    const OTString strKey(SYMMETRIC_KEY);
+    
+    if (!strKey.Exists() || !strPlaintext.Exists())
+    {
+        OTLog::vOutput("%s: Nonexistent: either the key or the plaintext. Please supply. (Failure.)\n",
+                       __FUNCTION__);
+        return NULL;
+    }
+    // -----------------------------------
+    OTSymmetricKey theKey;
+    
+    if (false == theKey.SerializeFrom(strKey))
+    {    
+        OTLog::vOutput("%s: Failed trying to load symmetric key from string. (Returning NULL.)\n",
+                       __FUNCTION__);
+        return NULL;
+    }
+    // -----------------------------------
+    // By this point, we know we have a plaintext and a symmetric Key.
+    //
+    OTPassword      passUserInput; // text mode.
+    const char *    szDisplay = "OT_API_SymmetricEncrypt";
+    OTPasswordData  thePWData(szDisplay);
+        
+    const int nCallback = souped_up_pass_cb(passUserInput.getPasswordWritable(),
+                                            passUserInput.getBlockSize(),
+                                            0, // bVerifyTwice ? 1 : 0, 
+                                            static_cast<void *>(&thePWData));
+    
+    if (nCallback > 0) // Success retrieving the passphrase from the user. (Now let's encrypt...)
+    {
+        OTEnvelope theEnvelope;
+        
+        if (theEnvelope.Encrypt(strPlaintext, theKey, passUserInput) &&
+            theEnvelope.GetAsciiArmoredData(ascOutput))
+        {
+            bSuccess = true;
+        }
+        else
+        {
+            OTLog::vOutput("%s: Failed trying to encrypt. (Sorry.)\n",
+                           __FUNCTION__);
+            return NULL;
+        }
+    }
+    else
+        OTLog::vOutput("%s: Sorry, unable to retrieve passphrase from user. (Failure.)\n", 
+                       __FUNCTION__);
+    
+    if (!bSuccess)
+        return NULL;
+    
+    const char * pBuf = ascOutput.Get();    
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+    return g_tempBuf;
+}
+
+
+// Returns the PLAINTEXT.
+//
+const char * OT_API_SymmetricDecrypt(const char * SYMMETRIC_KEY, const char * CIPHERTEXT_ENVELOPE)
+{
+	OT_ASSERT_MSG(NULL != SYMMETRIC_KEY,        "OT_API_SymmetricDecrypt: Null SYMMETRIC_KEY passed in.");
+	OT_ASSERT_MSG(NULL != CIPHERTEXT_ENVELOPE,  "OT_API_SymmetricDecrypt: Null CIPHERTEXT_ENVELOPE passed in.");
+    // ---------------------------
+    OTString strOutput;
+    bool bSuccess = false;
+    // ---------------------------
+    OTASCIIArmor ascArmor;
+    ascArmor.Set(CIPHERTEXT_ENVELOPE); // It's already ascii-encoded.
+    
+    if (!ascArmor.Exists())
+    {
+        OTLog::vOutput("%s: Nonexistent: the ciphertext envelope. Please supply. (Failure.)\n",
+                       __FUNCTION__);
+        return NULL;
+    }
+    // -----------------------------------
+    const OTString strKey(SYMMETRIC_KEY);
+    
+    if (!strKey.Exists())
+    {
+        OTLog::vOutput("%s: Nonexistent: The symmetric key. Please supply. (Failure.)\n",
+                       __FUNCTION__);
+        return NULL;
+    }
+    // -----------------------------------
+    OTSymmetricKey theKey;
+    
+    if (false == theKey.SerializeFrom(strKey))
+    {    
+        OTLog::vOutput("%s: Failed trying to load symmetric key from string. (Returning NULL.)\n",
+                       __FUNCTION__);
+        return NULL;
+    }
+    // -----------------------------------
+    // By this point, we know we have a ciphertext envelope and a symmetric Key.
+    //
+    OTPassword      passUserInput; // text mode.
+    const char *    szDisplay = "OT_API_SymmetricDecrypt";
+    OTPasswordData  thePWData(szDisplay);
+    
+    const int nCallback = souped_up_pass_cb(passUserInput.getPasswordWritable(),
+                                            passUserInput.getBlockSize(),
+                                            0, // bVerifyTwice ? 1 : 0, 
+                                            static_cast<void *>(&thePWData));
+    
+    if (nCallback > 0) // Success retrieving the passphrase from the user. (Now let's encrypt...)
+    {
+        OTEnvelope theEnvelope(ascArmor);
+        
+        if (theEnvelope.Decrypt(strOutput, theKey, passUserInput))
+        {
+            bSuccess = true;
+        }
+        else
+        {
+            OTLog::vOutput("%s: Failed trying to decrypt. (Sorry.)\n",
+                           __FUNCTION__);
+            return NULL;
+        }
+    }
+    else
+        OTLog::vOutput("%s: Sorry, unable to retrieve passphrase from user. (Failure.)\n", 
+                       __FUNCTION__);
+    
+    if (!bSuccess)
+        return NULL;
+    
+    const char * pBuf = strOutput.Get();    
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+    return g_tempBuf;
+}
 
 
 
@@ -3224,11 +3563,7 @@ const char * OT_API_SignContract(const char * SIGNER_NYM_ID, const char * THE_CO
 		return NULL;
 	
 	const char * pBuf = strOutput.Get();
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	return g_tempBuf;	
 }
 
@@ -3269,11 +3604,7 @@ const char * OT_API_AddSignature(const char * SIGNER_NYM_ID, const char * THE_CO
 		return NULL;
 	
 	const char * pBuf = strOutput.Get();
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	return g_tempBuf;	
 	
 }
@@ -3332,11 +3663,7 @@ const char * OT_API_VerifyAndRetrieveXMLContents(const char * THE_CONTRACT,
 	// -----------------------------------------------------		
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;	
 }
@@ -3409,11 +3736,7 @@ const char * OT_API_GetAccountWallet_Balance(const char * THE_ID)
 		
 	const char * pBuf = strBalance.Get();
 		
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 	return g_tempBuf;
 }
@@ -3434,11 +3757,7 @@ const char * OT_API_GetAccountWallet_Type(const char * THE_ID)
 	// -------------------------	
 	const char * pBuf = pAccount->GetTypeString();
 		
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	return g_tempBuf;
 }
 
@@ -3465,11 +3784,7 @@ const char * OT_API_GetAccountWallet_AssetTypeID(const char * THE_ID)
 				   strAssetTypeID.Get(), THE_ID);
 	
 	const char * pBuf = strAssetTypeID.Get(); 
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	return g_tempBuf;
 }
 
@@ -3492,11 +3807,7 @@ const char * OT_API_GetAccountWallet_ServerID(const char * THE_ID)
 	OTString strServerID(theServerID);
 		
 	const char * pBuf = strServerID.Get(); 
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	return g_tempBuf;
 }
 
@@ -3520,11 +3831,7 @@ const char * OT_API_GetAccountWallet_NymID(const char * THE_ID)
 	OTString strUserID(theUserID);
 		
 	const char * pBuf = strUserID.Get(); 
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	return g_tempBuf;
 }
 
@@ -3616,11 +3923,7 @@ const char * OT_API_WriteCheque(const char * SERVER_ID,
 	
 	const char * pBuf = strCheque.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;
 }
@@ -3795,11 +4098,7 @@ const char * OT_API_ProposePaymentPlan(const char * SERVER_ID,
 	
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;	
 }
@@ -3852,11 +4151,7 @@ const char * OT_API_ConfirmPaymentPlan(const char * SERVER_ID,
 	
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;	
 }
@@ -3901,11 +4196,7 @@ const char * OT_API_Create_SmartContract(const char * SERVER_ID,
 	//
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;	
 }
@@ -3947,11 +4238,7 @@ const char * OT_API_SmartContract_AddBylaw(const char * THE_CONTRACT,	// The con
 	//
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;
 }
@@ -4000,11 +4287,7 @@ const char * OT_API_SmartContract_AddClause(const char * THE_CONTRACT,	// The co
 	//
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;	
 }
@@ -4057,11 +4340,7 @@ const char * OT_API_SmartContract_AddVariable(const char * THE_CONTRACT,	// The 
 	//
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;	
 }
@@ -4108,11 +4387,7 @@ const char * OT_API_SmartContract_AddCallback(const char * THE_CONTRACT,	// The 
 	//	
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;		
 }
@@ -4160,11 +4435,7 @@ const char * OT_API_SmartContract_AddHook(const char * THE_CONTRACT,	// The cont
 	//	
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;		
 }
@@ -4210,11 +4481,7 @@ const char * OT_API_SmartContract_AddParty(const char * THE_CONTRACT,	// The con
 	//	
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;		
 }
@@ -4267,11 +4534,7 @@ const char * OT_API_SmartContract_AddAccount(const char * THE_CONTRACT,		// The 
 	//	
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;		
 }	
@@ -4348,11 +4611,7 @@ const char * OT_API_SmartContract_ConfirmAccount(const char * THE_CONTRACT,
 	//	
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;		
 }
@@ -4392,11 +4651,7 @@ const char * OT_API_SmartContract_ConfirmParty(const char * THE_CONTRACT,	// The
 	//		
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;		
 }
@@ -4688,11 +4943,7 @@ const char * OT_API_LoadPubkey(const char * USER_ID) // returns NULL, or a publi
 	{
 		const char * pBuf = strPubkey.Get();
 		
-#ifdef _WIN32
-		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -4741,11 +4992,7 @@ const char * OT_API_LoadUserPubkey(const char * USER_ID) // returns NULL, or a p
 	{
 		const char * pBuf = strPubkey.Get(); 
 		
-#ifdef _WIN32
-		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -4827,11 +5074,7 @@ const char * OT_API_LoadPurse(const char * SERVER_ID,
 		
 		const char * pBuf = strOutput.Get(); 
 		
-#ifdef _WIN32
-		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -4909,11 +5152,7 @@ const char * OT_API_LoadMint(const char * SERVER_ID,
 		
 		const char * pBuf = strOutput.Get(); 
 		
-#ifdef _WIN32
-		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -4945,11 +5184,7 @@ const char * OT_API_LoadAssetContract(const char * ASSET_TYPE_ID) // returns NUL
 		
 		const char * pBuf = strOutput.Get(); 
 		
-#ifdef _WIN32
-		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -4982,11 +5217,7 @@ const char * OT_API_LoadServerContract(const char * SERVER_ID) // returns NULL, 
 		
 		const char * pBuf = strOutput.Get(); 
 		
-#ifdef _WIN32
-		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -5031,11 +5262,7 @@ const char * OT_API_LoadAssetAccount(const char * SERVER_ID,
 		
 		const char * pBuf = strOutput.Get(); 
 		
-#ifdef _WIN32
-		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -5150,11 +5377,7 @@ const char * OT_API_Nymbox_GetReplyNotice(const char * SERVER_ID,
     
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;	
 }
@@ -5236,11 +5459,7 @@ const char * OT_API_LoadNymbox(const char * SERVER_ID,
 		
 		const char * pBuf = strOutput.Get(); 
 		
-#ifdef _WIN32
-		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -5276,11 +5495,7 @@ const char * OT_API_LoadNymboxNoVerify(const char * SERVER_ID,
 		
 		const char * pBuf = strOutput.Get(); 
 		
-#ifdef _WIN32
-		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -5321,11 +5536,7 @@ const char * OT_API_LoadInbox(const char * SERVER_ID,
 		
 		const char * pBuf = strOutput.Get(); 
 		
-#ifdef _WIN32
-		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -5366,11 +5577,7 @@ const char * OT_API_LoadInboxNoVerify(const char * SERVER_ID,
 		
 		const char * pBuf = strOutput.Get(); 
 		
-#ifdef _WIN32
-		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -5411,11 +5618,7 @@ const char * OT_API_LoadOutbox(const char * SERVER_ID,
 		
 		const char * pBuf = strOutput.Get(); 
 		
-#ifdef _WIN32
-		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -5456,11 +5659,7 @@ const char * OT_API_LoadOutboxNoVerify(const char * SERVER_ID,
 		
 		const char * pBuf = strOutput.Get(); 
 		
-#ifdef _WIN32
-		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -5506,11 +5705,7 @@ const char * OT_API_LoadPaymentInbox(const char * SERVER_ID,
 		
 		const char * pBuf = strOutput.Get(); 
 		
-#ifdef _WIN32
-		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -5548,11 +5743,7 @@ const char * OT_API_LoadPaymentInboxNoVerify(const char * SERVER_ID,
 		
 		const char * pBuf = strOutput.Get(); 
 		
-#ifdef _WIN32
-		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -5597,11 +5788,7 @@ const char * OT_API_LoadRecordBox(const char * SERVER_ID,
 		
 		const char * pBuf = strOutput.Get(); 
 		
-#ifdef _WIN32
-		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -5638,11 +5825,7 @@ const char * OT_API_LoadRecordBoxNoVerify(const char * SERVER_ID,
 		
 		const char * pBuf = strOutput.Get(); 
 		
-#ifdef _WIN32
-		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -5750,7 +5933,7 @@ const char * OT_API_Ledger_CreateResponse(const char * SERVER_ID,
 	
 	const OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theAccountID(ACCOUNT_ID);
 
-	const char * szFuncName = "OT_API_Ledger_CreateResponse";
+	const char * szFuncName = __FUNCTION__; //"OT_API_Ledger_CreateResponse";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = OT_API::It().GetOrLoadPrivateNym(theUserID, szFuncName); // These copiously log, and ASSERT.
 	if (NULL == pNym) return NULL;
@@ -5796,11 +5979,7 @@ const char * OT_API_Ledger_CreateResponse(const char * SERVER_ID,
 	
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;	
 }
@@ -5903,11 +6082,7 @@ const char * OT_API_Ledger_GetTransactionByIndex(const char * SERVER_ID,
 	
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;	
 }
@@ -5995,11 +6170,7 @@ const char * OT_API_Ledger_GetTransactionByID(const char * SERVER_ID,
 	
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;	
 }
@@ -6310,11 +6481,7 @@ const char * OT_API_Ledger_GetTransactionIDByIndex(const char * SERVER_ID,
 	
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;	
 }
@@ -6341,7 +6508,7 @@ const char * OT_API_Ledger_AddTransaction(const char * SERVER_ID,
 	OTString strLedger(THE_LEDGER);
 	OTString strTransaction(THE_TRANSACTION);
 	
-	const char * szFuncName = "OT_API_Ledger_AddTransaction";
+	const char * szFuncName = __FUNCTION__; //"OT_API_Ledger_AddTransaction";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = OT_API::It().GetOrLoadPrivateNym(theUserID, szFuncName); // These copiously log, and ASSERT.
 	if (NULL == pNym) return NULL;
@@ -6401,11 +6568,7 @@ const char * OT_API_Ledger_AddTransaction(const char * SERVER_ID,
 	
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;	
 }
@@ -6443,7 +6606,7 @@ const char * OT_API_Transaction_CreateResponse(const char * SERVER_ID,
 	OTString strLedger(THE_LEDGER);
 	OTString strTransaction(THE_TRANSACTION);
 	// -----------------------------------------------------
-	const char * szFuncName = "OT_API_Transaction_CreateResponse";
+	const char * szFuncName = __FUNCTION__; //"OT_API_Transaction_CreateResponse";
 	// --------------------------------------------------------------------
 	OTServerContract * pServer = OT_API::It().GetServer(SERVER_ID, szFuncName);
 	if (NULL == pServer) return NULL;
@@ -6737,11 +6900,7 @@ const char * OT_API_Transaction_CreateResponse(const char * SERVER_ID,
 	
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;	
 }
@@ -6779,7 +6938,7 @@ const char * OT_API_Ledger_FinalizeResponse(const char * SERVER_ID,
 	OTString strLedger(THE_LEDGER), strServerID(theServerID);
 	// -----------------------------------------------------
 	
-	const char * szFuncName = "OT_API_Ledger_FinalizeResponse";
+	const char * szFuncName = __FUNCTION__; //"OT_API_Ledger_FinalizeResponse";
 	// --------------------------------------------------------------------
 	OTServerContract * pServer = OT_API::It().GetServer(SERVER_ID, szFuncName);
 	if (NULL == pServer) return NULL;
@@ -7306,11 +7465,7 @@ const char * OT_API_Ledger_FinalizeResponse(const char * SERVER_ID,
 	
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;	
 }
@@ -7365,7 +7520,7 @@ const char * OT_API_Transaction_GetVoucher(const char * SERVER_ID,
 	
 	OTString strOutput;
 	
-	const char * szFuncName = "OT_API_Transaction_GetVoucher";
+	const char * szFuncName = __FUNCTION__; //"OT_API_Transaction_GetVoucher";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = OT_API::It().GetOrLoadPrivateNym(theUserID, szFuncName); // These copiously log, and ASSERT.
 	if (NULL == pNym) return NULL;
@@ -7425,11 +7580,7 @@ const char * OT_API_Transaction_GetVoucher(const char * SERVER_ID,
 	//
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;	
 }
@@ -7455,7 +7606,7 @@ const char * OT_API_Transaction_GetSenderUserID(const char * SERVER_ID,
 	
 	OTString strTransaction(THE_TRANSACTION);
 	
-	const char * szFuncName = "OT_API_Transaction_GetSenderUserID";
+	const char * szFuncName = __FUNCTION__; //"OT_API_Transaction_GetSenderUserID";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = OT_API::It().GetOrLoadPrivateNym(theUserID, szFuncName); // These copiously log, and ASSERT.
 	if (NULL == pNym) return NULL;
@@ -7520,11 +7671,7 @@ const char * OT_API_Transaction_GetSenderUserID(const char * SERVER_ID,
 		//
 		const char * pBuf = strOutput.Get(); 
 		
-#ifdef _WIN32
-		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -7552,7 +7699,7 @@ const char * OT_API_Transaction_GetRecipientUserID(const char * SERVER_ID,
 	OTString strTransaction(THE_TRANSACTION);
 	// -----------------------------------------------------
 	
-	const char * szFuncName = "OT_API_Transaction_GetRecipientUserID";
+	const char * szFuncName = __FUNCTION__; //"OT_API_Transaction_GetRecipientUserID";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = OT_API::It().GetOrLoadPrivateNym(theUserID, szFuncName); // These copiously log, and ASSERT.
 	if (NULL == pNym) return NULL;
@@ -7633,11 +7780,7 @@ const char * OT_API_Transaction_GetRecipientUserID(const char * SERVER_ID,
 		//
 		const char * pBuf = strOutput.Get(); 
 		
-#ifdef _WIN32
-		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -7664,7 +7807,7 @@ const char * OT_API_Transaction_GetSenderAcctID(const char * SERVER_ID,
 	
 	OTString strTransaction(THE_TRANSACTION);
 	
-	const char * szFuncName = "OT_API_Transaction_GetSenderAcctID";
+	const char * szFuncName = __FUNCTION__; //"OT_API_Transaction_GetSenderAcctID";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = OT_API::It().GetOrLoadPrivateNym(theUserID, szFuncName); // These copiously log, and ASSERT.
 	if (NULL == pNym) return NULL;
@@ -7731,11 +7874,7 @@ const char * OT_API_Transaction_GetSenderAcctID(const char * SERVER_ID,
 		//
 		const char * pBuf = strOutput.Get(); 
 		
-#ifdef _WIN32
-		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -7762,7 +7901,7 @@ const char * OT_API_Transaction_GetRecipientAcctID(const char * SERVER_ID,
 	
 	OTString strTransaction(THE_TRANSACTION);
 	
-	const char * szFuncName = "OT_API_Transaction_GetRecipientAcctID";
+	const char * szFuncName = __FUNCTION__; //"OT_API_Transaction_GetRecipientAcctID";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = OT_API::It().GetOrLoadPrivateNym(theUserID, szFuncName); // These copiously log, and ASSERT.
 	if (NULL == pNym) return NULL;
@@ -7829,11 +7968,7 @@ const char * OT_API_Transaction_GetRecipientAcctID(const char * SERVER_ID,
 		//
 		const char * pBuf = strOutput.Get(); 
 		
-#ifdef _WIN32
-		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -7877,7 +8012,7 @@ const char * OT_API_Pending_GetNote(const char * SERVER_ID,
 	
 	OTString strTransaction(THE_TRANSACTION);
 	
-	const char * szFuncName = "OT_API_Pending_GetNote";
+	const char * szFuncName = __FUNCTION__; //"OT_API_Pending_GetNote";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = OT_API::It().GetOrLoadPrivateNym(theUserID, szFuncName); // These copiously log, and ASSERT.
 	if (NULL == pNym) return NULL;
@@ -7984,11 +8119,7 @@ const char * OT_API_Pending_GetNote(const char * SERVER_ID,
 	//
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;	
 }
@@ -8010,7 +8141,7 @@ const char * OT_API_Transaction_GetAmount(const char * SERVER_ID,
 	
 	OTString strTransaction(THE_TRANSACTION);
 	
-	const char * szFuncName = "OT_API_Transaction_GetAmount";
+	const char * szFuncName = __FUNCTION__; //"OT_API_Transaction_GetAmount";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = OT_API::It().GetOrLoadPrivateNym(theUserID, szFuncName); // These copiously log, and ASSERT.
 	if (NULL == pNym) return NULL;
@@ -8075,11 +8206,7 @@ const char * OT_API_Transaction_GetAmount(const char * SERVER_ID,
 	//
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;	
 }
@@ -8112,7 +8239,7 @@ const char * OT_API_Transaction_GetDisplayReferenceToNum(const char * SERVER_ID,
 	
 	OTString strTransaction(THE_TRANSACTION);
 	
-	const char * szFuncName = "OT_API_Transaction_GetDisplayReferenceToNum";
+	const char * szFuncName = __FUNCTION__; //"OT_API_Transaction_GetDisplayReferenceToNum";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = OT_API::It().GetOrLoadPrivateNym(theUserID, szFuncName); // These copiously log, and ASSERT.
 	if (NULL == pNym) return NULL;
@@ -8148,11 +8275,7 @@ const char * OT_API_Transaction_GetDisplayReferenceToNum(const char * SERVER_ID,
 	//
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;	
 }
@@ -8181,7 +8304,7 @@ const char * OT_API_Transaction_GetType(const char * SERVER_ID,
 	
 	OTString strTransaction(THE_TRANSACTION);
 	
-	const char * szFuncName = "OT_API_Transaction_GetType";
+	const char * szFuncName = __FUNCTION__; //"OT_API_Transaction_GetType";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = OT_API::It().GetOrLoadPrivateNym(theUserID, szFuncName); // These copiously log, and ASSERT.
 	if (NULL == pNym) return NULL;
@@ -8202,11 +8325,7 @@ const char * OT_API_Transaction_GetType(const char * SERVER_ID,
 	
 	const char * pBuf = theTransaction.GetTypeString(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;		
 }
@@ -8234,7 +8353,7 @@ const char * OT_API_ReplyNotice_GetRequestNum(const char * SERVER_ID,
 	
 	OTString strTransaction(THE_TRANSACTION);
 	
-	const char * szFuncName = "OT_API_ReplyNotice_GetRequestNum";
+	const char * szFuncName = __FUNCTION__; //"OT_API_ReplyNotice_GetRequestNum";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = OT_API::It().GetOrLoadPrivateNym(theUserID, szFuncName); // These copiously log, and ASSERT.
 	if (NULL == pNym) return NULL;
@@ -8269,11 +8388,7 @@ const char * OT_API_ReplyNotice_GetRequestNum(const char * SERVER_ID,
     
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;		
 }
@@ -8299,7 +8414,7 @@ const char * OT_API_Transaction_GetDateSigned(const char * SERVER_ID,
 	
 	OTString strTransaction(THE_TRANSACTION);
 	
-	const char * szFuncName = "OT_API_Transaction_GetDateSigned";
+	const char * szFuncName = __FUNCTION__; //"OT_API_Transaction_GetDateSigned";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = OT_API::It().GetOrLoadPrivateNym(theUserID, szFuncName); // These copiously log, and ASSERT.
 	if (NULL == pNym) return NULL;
@@ -8324,11 +8439,7 @@ const char * OT_API_Transaction_GetDateSigned(const char * SERVER_ID,
 	
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;		
 }
@@ -8355,7 +8466,7 @@ OT_BOOL OT_API_Transaction_GetSuccess(const char * SERVER_ID,
 	OTString strTransaction(THE_TRANSACTION);
 	// -----------------------------------------------------
 	
-	const char * szFuncName = "OT_API_Transaction_GetSuccess";
+	const char * szFuncName = __FUNCTION__; //"OT_API_Transaction_GetSuccess";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = OT_API::It().GetOrLoadPrivateNym(theUserID, szFuncName); // These copiously log, and ASSERT.
 	if (NULL == pNym) return OT_FALSE;
@@ -8445,7 +8556,7 @@ OT_BOOL OT_API_Transaction_GetBalanceAgreementSuccess(const char * SERVER_ID,
 	OTString strTransaction(THE_TRANSACTION);
 	// -----------------------------------------------------
 	
-	const char * szFuncName = "OT_API_Transaction_GetBalanceAgreementSuccess";
+	const char * szFuncName = __FUNCTION__; //"OT_API_Transaction_GetBalanceAgreementSuccess";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = OT_API::It().GetOrLoadPrivateNym(theUserID, szFuncName); // These copiously log, and ASSERT.
 	if (NULL == pNym) return OT_FALSE;
@@ -8655,11 +8766,7 @@ const char * OT_API_LoadPurse(const char * SERVER_ID,
 		
 		const char * pBuf = strOutput.Get(); 
 		
-#ifdef _WIN32
-		strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-		strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -8716,11 +8823,7 @@ const char * OT_API_Purse_GetTotalValue(const char * SERVER_ID,
 	
 	const char * pBuf = strOutput.Get();
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;			
 }
@@ -8763,7 +8866,7 @@ const char * OT_API_CreatePurse(const char * SERVER_ID,
 	}
 	// -----------------------------------------------------
 	
-	const char * szFuncName = "OT_API_CreatePurse";
+	const char * szFuncName = __FUNCTION__; //"OT_API_CreatePurse";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = OT_API::It().GetOrLoadPrivateNym(theUserID, szFuncName); // These copiously log, and ASSERT.
 	if (NULL == pNym) return NULL;
@@ -8780,11 +8883,7 @@ const char * OT_API_CreatePurse(const char * SERVER_ID,
 	
 	const char * pBuf = strOutput.Get();
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;				
 }
@@ -8889,7 +8988,7 @@ const char * OT_API_Purse_Peek(const char * SERVER_ID,
 	
 	// -------------------------------------------------------------
 	
-	const char * szFuncName = "OT_API_Purse_Peek";
+	const char * szFuncName = __FUNCTION__; //"OT_API_Purse_Peek";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = OT_API::It().GetOrLoadPrivateNym(theUserID, szFuncName); // These copiously log, and ASSERT.
 	if (NULL == pNym) return NULL;
@@ -8928,11 +9027,7 @@ const char * OT_API_Purse_Peek(const char * SERVER_ID,
 		
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;	
 }
@@ -8963,7 +9058,7 @@ const char * OT_API_Purse_Pop(const char * SERVER_ID,
 	const OTString strPurse(THE_PURSE);
 	// -------------------------------------------------------------
 		
-	const char * szFuncName = "OT_API_Purse_Pop";
+	const char * szFuncName = __FUNCTION__; //"OT_API_Purse_Pop";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = OT_API::It().GetOrLoadPrivateNym(theUserID, szFuncName); // These copiously log, and ASSERT.
 	if (NULL == pNym) return NULL;
@@ -9005,11 +9100,7 @@ const char * OT_API_Purse_Pop(const char * SERVER_ID,
 	
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;	
 }
@@ -9045,7 +9136,7 @@ const char * OT_API_Purse_Push(const char * SERVER_ID,
 	
 	const OTString strPurse(THE_PURSE), strToken(THE_TOKEN);
 	
-	const char * szFuncName = "OT_API_Purse_Push";
+	const char * szFuncName = __FUNCTION__; //"OT_API_Purse_Push";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = OT_API::It().GetOrLoadPrivateNym(theUserID, szFuncName); // These copiously log, and ASSERT.
 	if (NULL == pNym) return NULL;
@@ -9092,11 +9183,7 @@ const char * OT_API_Purse_Push(const char * SERVER_ID,
 	
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	OTLog::vError("Purse Push: %s \n", g_tempBuf); 
 
@@ -9131,7 +9218,7 @@ OT_BOOL OT_API_Wallet_ImportPurse(const char * SERVER_ID,
 	const OTString strNewPurse(THE_PURSE);
 	// -----------------------------------------------------
 	
-	const char * szFuncName = "OT_API_Wallet_ImportPurse";
+	const char * szFuncName = __FUNCTION__; //"OT_API_Wallet_ImportPurse";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = OT_API::It().GetOrLoadPrivateNym(theUserID, szFuncName); // These copiously log, and ASSERT.
 	if (NULL == pNym) return OT_FALSE;
@@ -9323,11 +9410,7 @@ const char * OT_API_Token_GetID(const char * SERVER_ID,
 	
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;		
 }
@@ -9359,11 +9442,7 @@ const char * OT_API_Token_GetDenomination(const char * SERVER_ID,
 	
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;		
 }
@@ -9423,11 +9502,7 @@ const char * OT_API_Token_GetValidFrom(const char * SERVER_ID,
 	
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;		
 }
@@ -9459,11 +9534,7 @@ const char * OT_API_Token_GetValidTo(const char * SERVER_ID,
 	
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;		
 }
@@ -9502,7 +9573,7 @@ const char * OT_API_Token_ChangeOwner(const char * SERVER_ID,
 						oldOwnerID(OLD_OWNER_NYM_ID), newOwnerID(NEW_OWNER_NYM_ID);
 	// -----------------------------------------------------
 	
-	const char * szFuncName = "OT_API_Token_ChangeOwner";
+	const char * szFuncName = __FUNCTION__; //"OT_API_Token_ChangeOwner";
 	// -----------------------------------------------------
 	OTPseudonym *			pOldNym = OT_API::It().GetOrLoadPrivateNym(oldOwnerID, szFuncName); // These copiously log, and ASSERT.
 	if (NULL == pOldNym)	return NULL;
@@ -9542,11 +9613,7 @@ const char * OT_API_Token_ChangeOwner(const char * SERVER_ID,
 	
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;		
 }
@@ -9570,11 +9637,7 @@ const char * OT_API_Token_GetAssetID(const char * THE_TOKEN)
 	
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;		
 }
@@ -9595,11 +9658,7 @@ const char * OT_API_Token_GetServerID(const char * THE_TOKEN)
 	
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;		
 }
@@ -9671,11 +9730,7 @@ const char * OT_API_Basket_GetMemberType(const char * BASKET_ASSET_TYPE_ID,
 	
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;	
 }
@@ -9711,11 +9766,7 @@ const char * OT_API_Basket_GetMinimumTransferAmount(const char * BASKET_ASSET_TY
 	
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;	
 }
@@ -9755,11 +9806,7 @@ const char * OT_API_Basket_GetMemberMinimumTransferAmount(const char * BASKET_AS
 	
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;	
 }
@@ -9892,11 +9939,7 @@ const char * OT_API_Message_GetUsageCredits(const char * THE_MESSAGE)
 	
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;		
 }
@@ -10199,11 +10242,7 @@ const char * OT_API_GenerateBasketCreation(const char * USER_ID,
 	
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;	
 }
@@ -10268,11 +10307,7 @@ const char * OT_API_AddBasketCreationItem(const char * USER_ID, // for signature
 	
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;		
 }
@@ -10376,11 +10411,7 @@ const char * OT_API_GenerateBasketExchange(const char * SERVER_ID,
 	
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;	
 }
@@ -10439,11 +10470,7 @@ const char * OT_API_AddBasketExchangeItem(const char * SERVER_ID,
 	
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;		
 }
@@ -11102,11 +11129,7 @@ const char * OT_API_PopMessageBuffer(const char * REQUEST_NUMBER,
 	
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;		
 }
@@ -11173,11 +11196,7 @@ const char * OT_API_GetSentMessage(const char * REQUEST_NUMBER,
 	
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;		
 }
@@ -11309,7 +11328,7 @@ OT_BOOL OT_API_ResyncNymWithServer(const char * SERVER_ID, const char * USER_ID,
 	OTIdentifier	theServerID(SERVER_ID), theNymID(USER_ID);
 	const OTString	strMessage(THE_MESSAGE), strNymID(theNymID);
 	// -----------------------------------------------------
-	const char * szFuncName = "OT_API_ResyncNymWithServer";
+	const char * szFuncName = __FUNCTION__; //"OT_API_ResyncNymWithServer";
 	// -----------------------------------------------------
 	OTPseudonym * pNym = OT_API::It().GetOrLoadPrivateNym(theNymID);
 	if (NULL == pNym) return OT_FALSE;
@@ -11434,11 +11453,7 @@ const char * OT_API_Message_GetPayload(const char * THE_MESSAGE)
 	
 	const char * pBuf = theMessage.m_ascPayload.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;			
 }
@@ -11469,11 +11484,7 @@ const char * OT_API_Message_GetCommand(const char * THE_MESSAGE)
 	
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;			
 }
@@ -11523,11 +11534,7 @@ const char * OT_API_Message_GetLedger(const char * THE_MESSAGE)
 	
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;				
 }
@@ -11577,11 +11584,7 @@ const char * OT_API_Message_GetNewAssetTypeID(const char * THE_MESSAGE)
 	
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;
 }
@@ -11629,11 +11632,7 @@ const char * OT_API_Message_GetNewIssuerAcctID(const char * THE_MESSAGE)
 	
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;
 }
@@ -11685,11 +11684,7 @@ const char * OT_API_Message_GetNewAcctID(const char * THE_MESSAGE)
 	
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;
 }
@@ -11746,11 +11741,7 @@ const char * OT_API_Message_GetNymboxHash(const char * THE_MESSAGE)
 	OTString strOutput(theMessage.m_strNymboxHash);
 	const char * pBuf = strOutput.Get(); 
 	
-#ifdef _WIN32
-	strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
-#else
-	strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-#endif
+    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 	
 	return g_tempBuf;
 }

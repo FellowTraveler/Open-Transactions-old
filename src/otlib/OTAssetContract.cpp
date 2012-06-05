@@ -173,6 +173,7 @@ OTAssetContract::~OTAssetContract()
 // This function expects that's already been done.
 // This function assumes there is only unsigned contents, and not a signed contract.
 // This function is intended to PRODUCE said signed contract.
+//
 bool OTAssetContract::CreateContract(OTString & strContract, OTPseudonym & theSigner)
 {	
 	Release();

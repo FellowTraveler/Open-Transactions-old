@@ -218,6 +218,55 @@ std::string OTAPI_Wrap::Decrypt(std::string RECIPIENT_NYM_ID, std::string str_Ci
 	return OT_API_Decrypt(RECIPIENT_NYM_ID.c_str(), str_Ciphertext.c_str());
 }
 
+
+
+// --------------------------------------------------------------
+
+
+
+std::string OTAPI_Wrap::CreateSymmetricKey()
+{
+	return OT_API_CreateSymmetricKey();
+}
+
+std::string OTAPI_Wrap::SymmetricEncrypt(std::string SYMMETRIC_KEY, std::string PLAINTEXT)
+{
+	return OT_API_SymmetricEncrypt(SYMMETRIC_KEY.c_str(), PLAINTEXT.c_str());
+}
+
+std::string OTAPI_Wrap::SymmetricDecrypt(std::string SYMMETRIC_KEY, std::string CIPHERTEXT_ENVELOPE)
+{
+ 	return OT_API_SymmetricDecrypt(SYMMETRIC_KEY.c_str(), CIPHERTEXT_ENVELOPE.c_str());
+}
+
+
+std::string OTAPI_Wrap::CreateServerContract( std::string  NYM_ID, std::string  szXMLcontents )
+{
+   	return OT_API_CreateServerContract(NYM_ID.c_str(), szXMLcontents.c_str());
+}
+
+std::string OTAPI_Wrap::CreateAssetContract ( std::string  NYM_ID, std::string  szXMLcontents )
+{
+    return OT_API_CreateAssetContract(NYM_ID.c_str(), szXMLcontents.c_str());
+}
+
+
+std::string OTAPI_Wrap::GetServer_Contract(std::string SERVER_ID) // Return's Server's contract (based on server ID)
+{
+   	return OT_API_GetServer_Contract(SERVER_ID.c_str());
+}
+
+std::string OTAPI_Wrap::GetAssetType_Contract(std::string ASSET_TYPE_ID) // Returns currency contract based on Asset Type ID
+{
+   	return OT_API_GetAssetType_Contract(ASSET_TYPE_ID.c_str());
+}
+
+
+
+// --------------------------------------------------------------
+
+
+
 std::string OTAPI_Wrap::SignContract(std::string SIGNER_NYM_ID, std::string THE_CONTRACT)
 {
 	return OT_API_SignContract(SIGNER_NYM_ID.c_str(), THE_CONTRACT.c_str());
