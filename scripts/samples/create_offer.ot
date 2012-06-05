@@ -1,4 +1,4 @@
-#! /usr/local/bin/ot --script
+#!/usr/bin/env ot --script
 
 // --------------------------------------------------------------------
 // NOTE: No further need to include these anymore, since OT includes them
@@ -16,13 +16,37 @@ var madeEasy	= OT_ME()
 
 // Just to show how easy it is now, let's try a "create_market_offer" message.
 // (It creates a market offer.)
-	
-	var strScale		= "100"
-	var strMinIncrement	= "1"
-	var strQuantity		= "100"
-	var strPrice		= "101"
 
-	// false == buying  /  true == selling
+var strUsage = "\n\n FYI, USAGE: create_offer.ot --myacct <YOUR_ASSET_ACCT> --hisacct <YOUR_CURRENCY_ACCT>\n\n"
+
+OT_API_Output(0, strUsage)
+
+if (VerifyExists("Server") && VerifyExists("MyNym") && VerifyExists("MyAcct") && VerifyExists("HisAcct"))
+{
+    OT_API_Output(0, "Enter the market scale (1, 10, 100, etc)[1]: ")
+	var strScale		= OT_CLI_ReadLine()
+        
+    OT_API_Output(0, "Enter the minimum increment[1]: ")
+	var strMinIncrement	= OT_CLI_ReadLine()
+
+    OT_API_Output(0, "Enter the quantity being purchased/sold[100]: ")
+	var strQuantity		= OT_CLI_ReadLine()
+
+    OT_API_Output(0, "Enter the price per scale[101]: ")
+	var strPrice		= OT_CLI_ReadLine()
+
+    if (!VerifyStringVal(strScale))
+        strScale = "1"
+    if (!VerifyStringVal(strMinIncrement))
+        strScale = "1"
+    if (!VerifyStringVal(strQuantity))
+        strScale = "100"
+    if (!VerifyStringVal(strPrice))
+        strScale = "101"
+
+    
+	// false == buying
+    // true  == selling
 	//
 	var bSelling		= false
 	
@@ -34,25 +58,28 @@ var madeEasy	= OT_ME()
 	// syncing transaction number, download / process nymbox, etc! It's all
 	// handled at a lower level!  Instead, simply check for success or failure:
 
-	if (!VerifyMessageSuccess(strResponse))
+	if (1 != VerifyMessageSuccess(strResponse))
 	{
-		OT_API_Output(0, "create_market_offer: Failed.\n");
+		OT_API_Output(0, "\n\ncreate_market_offer: Failed.\n");
 	}
-	else if (!VerifyBalanceAgreementSuccess(Server, MyNym, MyAcct, strResponse))
+	else if (1 != VerifyMsgBalanceAgrmntSuccess(Server, MyNym, MyAcct, strResponse))
 	{
-		OT_API_Output(0, "create_market_offer: Balance agreement failed.\n");
+		OT_API_Output(0, "\n\ncreate_market_offer: Balance agreement failed.\n");
 	}
-	else if (!VerifyTransactionSuccess(Server, MyNym, MyAcct, strResponse))
+	else if (1 != VerifyMsgTrnxSuccess(Server, MyNym, MyAcct, strResponse))
 	{
-		OT_API_Output(0, "create_market_offer: Balance agreement succeeded, but transaction failed.\n");
+		OT_API_Output(0, "\n\ncreate_market_offer: Balance agreement succeeded, but transaction failed.\n");
 	}
 	else
 	{
-		OT_API_Output(0, "Success in create_market_offer! Server response:\n\n");
-		OT_API_Output(0, strResponse);
+		OT_API_Output(0, "\n\nSuccess in create_market_offer! Server response:\n\n");
+		print(strResponse);
 		OT_API_Output(0, "\n\n");
+        return 1
 	}
-	
-// Done!
+}
 
-	
+
+// Done!
+0
+

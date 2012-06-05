@@ -1,4 +1,4 @@
-#!/usr/local/bin/ot --script
+#!/usr/bin/env ot --script
 
 var current_time = OT_API_GetTime()
 

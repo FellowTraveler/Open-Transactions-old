@@ -1,4 +1,4 @@
-#!/usr/local/bin/ot --script
+#!/usr/bin/env ot --script
 
 OT_API_Output(0, "Please enter multiple lines of input, followed by an EOF or a ~ by itself on a blank line:\n\n")
 
@@ -9,9 +9,12 @@ OT_API_Output(0, "Please enter multiple lines of input, followed by an EOF or a 
  
 var strInput = OT_CLI_ReadUntilEOF() 
 
-print("\n\n You entered:\n" + strInput) 
+// stderr
+OT_API_Output(0, "\n\n ---------------------------------- \n\n You entered:\n\n") 
+
+//stdout
+print(strInput) 
 
 // Note: the '1' is because OT expects a "return value" from the script.
-
 1
 

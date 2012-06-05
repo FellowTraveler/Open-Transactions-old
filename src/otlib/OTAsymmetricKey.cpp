@@ -236,7 +236,7 @@ OT_OPENSSL_CALLBACK * OTAsymmetricKey::GetPasswordCallback()
 #else
 	if (IsPasswordCallbackSet())
 	{
-		OTLog::vOutput(2, "%s: FYI, the internal 'C'-based password callback is now being returning to OT, "
+		OTLog::vOutput(4, "%s: FYI, the internal 'C'-based password callback is now being returning to OT, "
 					  "which is passing it to OpenSSL "
 					  "during a crypto operation. (If OpenSSL invokes it, then we should see other logs after this from when it triggers "
 					  "whatever password-collection dialog is provided at startup by the (probably Java) OTAPI client.)\n", szFunc);
@@ -274,7 +274,7 @@ bool OTAsymmetricKey::SetPasswordCaller(OTCaller & theCaller)
 {
     const char * szFunc = "OTAsymmetricKey::SetPasswordCaller";
     
-	OTLog::vOutput(1, "%s: Attempting to set the password caller... "
+	OTLog::vOutput(3, "%s: Attempting to set the password caller... "
 				  "(the Java code has passed us its custom password dialog object for later use if/when the "
 				  "OT 'C'-based password callback is triggered by openssl.)\n", szFunc);
 	
@@ -311,7 +311,7 @@ OTCaller * OTAsymmetricKey::GetPasswordCaller()
 {
     const char * szFunc = "OTAsymmetricKey::GetPasswordCaller";
     
-	OTLog::vOutput(2, "%s: FYI, this was just called by souped_up_pass_cb "
+	OTLog::vOutput(4, "%s: FYI, this was just called by souped_up_pass_cb "
 				   "(which must have just been called by OpenSSL.) "
 				   "Returning s_pCaller == %s (Hopefully NOT NULL, so the "
                    "custom password dialog can be triggered.)\n", szFunc,

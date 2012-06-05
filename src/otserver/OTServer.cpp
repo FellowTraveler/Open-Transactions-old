@@ -4125,16 +4125,25 @@ void OTServer::NotarizeWithdrawal(OTPseudonym & theNym, OTAccount & theAccount,
                     }
                     else
 					{
-						OTString		theStringReturnVal;
+						OTString    theStringReturnVal;
 						
-						// TokenIndex is for cash systems that send multiple proto-tokens, so the Mint
+						if (pToken->GetAssetID() != ASSET_TYPE_ID)
+						{
+                            const OTString str1(pToken->GetAssetID()), str2(ASSET_TYPE_ID);
+							bSuccess = false;
+							OTLog::vError("%s: ERROR while signing token: Expected asset ID %s but found %s instead. (Failure.)\n",
+                                          __FUNCTION__, str2.Get(), str1.Get());
+							break;
+						}
+                        // TokenIndex is for cash systems that send multiple proto-tokens, so the Mint
 						// knows which proto-token has been chosen for signing.
 						// But Lucre only uses a single proto-token, so the token index is always 0.
-						if (!(pToken->GetAssetID() == ASSET_TYPE_ID) ||
-							!(pMint->SignToken(m_nymServer, *pToken, theStringReturnVal, 0))) // nTokenIndex = 0 // ******************************************
+                        //
+						else if (!(pMint->SignToken(m_nymServer, *pToken, theStringReturnVal, 0))) // nTokenIndex = 0 // ******************************************
 						{
 							bSuccess = false;
-							OTLog::Error("ERROR signing token in OTServer::NotarizeWithdrawal\n");
+							OTLog::vError("%s: Failure in call: pMint->SignToken(m_nymServer, *pToken, theStringReturnVal, 0). (Returning.)\n",
+                                          __FUNCTION__);
 							break;
 						}
 						else
@@ -4171,7 +4180,7 @@ void OTServer::NotarizeWithdrawal(OTPseudonym & theNym, OTAccount & theAccount,
 									
 									// Reverse the account debit (even though we're not going to save it anyway.)
 									if (false == theAccount.Credit(pToken->GetDenomination()))
-                                        OTLog::Error("OTServer::NotarizeWithdrawal: Failed crediting user account back.\n");
+                                        OTLog::vError("%s: Failed crediting user account back.\n", __FUNCTION__);
                                     
 									bSuccess = false;
 									break;

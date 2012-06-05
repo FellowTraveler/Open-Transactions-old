@@ -1,4 +1,4 @@
-#! /usr/local/bin/ot --script
+#!/usr/bin/env ot --script
 
 // --------------------------------------------------------------------
 // NOTE: No further need to include these anymore, since OT includes them
@@ -8,34 +8,44 @@
 //use("../ot/otapi.ot")
 //use("../ot/ot_made_easy.ot")
 
-// --------------------------------------------------------------------
-// Instantiate the "OT Made Easy" object.
-//
-var madeEasy	= OT_ME()
-// ------------------------------
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    // ------------------------------
 
-// Just to show how easy it is now, let's try a "check_user" message.
-// (It sends a NymID to the server, and downloads that Nym's public key.)
-	
-	
-	// Send the request.
-	//
-	var strResponse	= madeEasy.check_user(Server, MyNym, HisNym)	// Send the 'check_user' message to the server.
+    // Just to show how easy it is now, let's try a "check_user" message.
+    // (It sends a NymID to the server, and downloads that Nym's public key.)
+        
+        
+    if (VerifyExists("Server") && VerifyExists("MyNym") && VerifyExists("HisNym"))
+    {
+        // Send the request.
+        //
+        var strResponse	= ""
+        
+        strResponse = madeEasy.check_user(Server, MyNym, HisNym)	// Send the 'check_user' message to the server.
 
-	// NOTICE: No need here to deal with retries, timeouts, request number,
-	// syncing transaction number, download / process nymbox, etc! It's all
-	// handled at a lower level!  Instead, simply check for success or failure:
+        // NOTICE: No need here to deal with retries, timeouts, request number,
+        // syncing transaction number, download / process nymbox, etc! It's all
+        // handled at a lower level!  Instead, simply check for success or failure:
 
-	if (!VerifyMessageSuccess(strResponse))
-	{
-		OT_API_Output(0, "check_user: Failed.\n");
-	}
-	else
-	{
-		OT_API_Output(0, "Success in check_user! Server response:\n\n");
-		OT_API_Output(0, strResponse);
-		OT_API_Output(0, "\n\n");
-	}
-	
-// Done!
-	
+        // -1 is error, 
+        //  0 is reply received: failure 
+        //  1 is reply received: success
+        //
+        if (1 == VerifyMessageSuccess(strResponse))
+        {
+            OT_API_Output(0, "\n\nSuccess in check_user! Server response:\n\n");
+            print(strResponse) // stdout
+            OT_API_Output(0, "\n\n") //stderr
+            return 1
+        }
+        else
+        {
+            OT_API_Output(0, "\n\ncheck_user: Failed.\n\n");
+        }
+    }
+    
+    // Done
+    0

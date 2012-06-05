@@ -1,4 +1,4 @@
-#! /usr/local/bin/ot --script
+#!/usr/bin/env ot --script
 
 // --------------------------------------------------------------------
 // NOTE: No further need to include these anymore, since OT includes them
@@ -16,10 +16,17 @@ var madeEasy	= OT_ME()
 
 // Just to show how easy it is, let's try a "send_user_message" message.
 
+var strUsage = "\n\n FYI, USAGE: send_user_msg.ot --mynym <YOUR_NYM_ID> --hisnym <RECIPIENT_NYM_ID>\n\n"
+
+
+if (!VerifyExists("Server") || !VerifyExists("MyNym") || !VerifyExists("HisNym"))
+{  OT_API_Output(0, strUsage)  }
+else
 {
-	var strTestMessage = "Just a test message (to see if the recipient Nym receives it in his nymbox.)"
-	
-	
+    OT_API_Output(0, "Please enter your message on multiple lines, followed by an EOF or a ~ by itself on a blank line:\n\n")
+
+    var strTestMessage = OT_CLI_ReadUntilEOF()
+    
 	// Send the request.
 	//
 	// def OT_ME::send_user_msg(SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, THE_MESSAGE) 
@@ -33,18 +40,20 @@ var madeEasy	= OT_ME()
 	// 
 	// Instead, simply check for success or failure:
 	//
-	if (!VerifyMessageSuccess(strResponse))
+	if (1 != VerifyMessageSuccess(strResponse))
 	{
 		OT_API_Output(0, "send_user_msg: Failed.\n");
 	}
 	else
 	{
-		OT_API_Output(0, "Success in send_user_msg! Server response:\n\n");
-		OT_API_Output(0, strResponse);
-		OT_API_Output(0, "\n\n");
+		OT_API_Output(0, "Success in send_user_msg! Server response:\n\n")
+		OT_API_Output(0, strResponse)
+		OT_API_Output(0, "\n\n")
+        return 1
 	}
 }
 
 // Done!
+0
 
 	

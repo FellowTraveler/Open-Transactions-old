@@ -1,4 +1,4 @@
-#! /usr/local/bin/ot --script
+#!/usr/bin/env ot --script
 
 // --------------------------------------------------------------------
 // NOTE: No further need to include these anymore, since OT includes them
@@ -18,26 +18,32 @@ var madeEasy	= OT_ME()
 // (It sends a NymID to the server, and downloads that Nym's public key.)
 	
 	
+    
+if (VerifyExists("Server") && VerifyExists("MyNym") && VerifyExists("MyPurse"))
+{	
 	// Send the request.
 	//
 	var strResponse	= madeEasy.create_asset_acct(Server, MyNym, MyPurse)	// Send the 'create_asset_acct' message to the server.
-	OT_API_Output(0, strResponse + "\n\n");
 
 	// NOTICE: No need here to deal with retries, timeouts, request number,
 	// syncing transaction number, download / process nymbox, etc! It's all
 	// handled at a lower level!  Instead, simply check for success or failure:
 
-	if (!VerifyMessageSuccess(strResponse))
+    // -1 error, 0 failure, 1 success.
+    //
+	if (1 != VerifyMessageSuccess(strResponse))
 	{
-		OT_API_Output(0, "check_user: Failed.\n");
+		OT_API_Output(0, "\n\ncreate_asset_acct: Failed.\n\n");
+        return 0
 	}
 	else
 	{
-		OT_API_Output(0, "Success in check_user! Server response:\n\n");
-		OT_API_Output(0, strResponse);
-		OT_API_Output(0, "\n\n");
+		OT_API_Output(0, "Success in create_asset_acct! Server response:\n\n") // stderr
+		print(strResponse) // stdout
+		OT_API_Output(0, "\n\n") //stderr
+        return 1
 	}
-	
+}
+    
 // Done!
-
-
+0

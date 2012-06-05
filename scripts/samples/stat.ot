@@ -1,11 +1,11 @@
-#! /usr/local/bin/ot --script
+#!/usr/bin/env ot --script
 
 
 
 def stat_nyms()
 {
     OT_API_Output(0, "------------------------------------------------------------------" + "\n")
-    OT_API_Output(0, "PSEUDONYMS: " + "\n")
+    OT_API_Output(0, " ************* PSEUDONYMS:  ************* " + "\n")
     
     var nNymCount = OT_API_GetNymCount()
     
@@ -22,7 +22,7 @@ def stat_nyms()
 def stat_servers()
 {
     OT_API_Output(0, "------------------------------------------------------------------" + "\n")
-    OT_API_Output(0, "SERVERS: " + "\n")
+    OT_API_Output(0, " ************* SERVERS:  ************* " + "\n")
     var nServerCount = OT_API_GetServerCount()
     
     for (var i = 0; i < nServerCount; ++i)
@@ -38,7 +38,7 @@ def stat_servers()
 def stat_assets()
 {
     OT_API_Output(0, "------------------------------------------------------------------" + "\n")
-    OT_API_Output(0, "ASSET TYPES: " + "\n")
+    OT_API_Output(0, " ************* ASSET TYPES:  ************* " + "\n")
     var nAssetTypeCount = OT_API_GetAssetTypeCount()
     
     for (var i = 0; i < nAssetTypeCount; ++i)
@@ -63,7 +63,7 @@ def stat_assets()
 def stat_accounts()
 {
     OT_API_Output(0, "------------------------------------------------------------------" + "\n")
-    OT_API_Output(0, "ACCOUNTS: " + "\n")
+    OT_API_Output(0, " ************* ACCOUNTS:  ************* " + "\n")
 
     var nAccountCount = OT_API_GetAccountCount()
     

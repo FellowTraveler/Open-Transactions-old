@@ -1,4 +1,4 @@
-#! /usr/local/bin/ot --script
+#!/usr/bin/env ot --script
 
 // --------------------------------------------------------------------
 // NOTE: No further need to include these anymore, since OT includes them
@@ -14,44 +14,55 @@
 var madeEasy	= OT_ME()
 // ------------------------------
 
-// Just to show how easy it is now, let's try a "cancel_market_offer" message.
-// (It cancels a market offer.)
-	
-	var strTransactionNum = "PUT_NUMBER_HERE"
 
-	if (strTransactionNum == "PUT_NUMBER_HERE")
+var strUsage = "\n\n FYI, USAGE: cancel_offer.ot --args \"transnum <transaction_number>\"\n\n"
+
+// Just to show how easy it is now, let's try a "cancel_payment_plan" message.
+// (It cancels a payment plan.)
+
+if (!VerifyExists("Server") || !VerifyExists("MyNym") || !VerifyExists("MyAcct") || !VerifyExists("Args"))
+{  OT_API_Output(0, strUsage)  }
+else
+{	
+	var strTransactionNum = OT_CLI_GetValueByKey(Args, "transnum")
+    
+    if (!VerifyStringVal(strTransactionNum) )
 	{
-		OT_API_Output(0, "\n\n\nYou need to edit this script where it says PUT_NUMBER_HERE.\n\n")
+		OT_API_Output(0, "\n\n\nYou need to provide a transaction number...\n\n")
+        OT_API_Output(0, strUsage)
 	}
 	else
 	{
 		// Send the transaction.
-		//
-		var strResponse	= madeEasy.cancel_market_offer(Server, MyNym, MyAcct, strTransactionNum)
+		//        
+        var strResponse	= madeEasy.cancel_market_offer(Server, MyNym, MyAcct, strTransactionNum)
 
 		// NOTICE: No need here to deal with retries, timeouts, request number,
 		// syncing transaction number, download / process nymbox, etc! It's all
 		// handled at a lower level!  Instead, simply check for success or failure:
-
-		if (!VerifyMessageSuccess(strResponse))
+        
+		if (1 != VerifyMessageSuccess(strResponse))
 		{
-			OT_API_Output(0, "cancel_market_offer: Failed.\n")
+			OT_API_Output(0, "\n\ncancel_market_offer: Failed.\n")
 		}
-		else if (!VerifyBalanceAgreementSuccess(Server, MyNym, MyAcct, strResponse))
+		else if (1 != VerifyMsgBalanceAgrmntSuccess(Server, MyNym, MyAcct, strResponse))
 		{
-			OT_API_Output(0, "cancel_market_offer: Balance agreement failed.\n")
+			OT_API_Output(0, "\n\ncancel_market_offer: Balance agreement failed.\n")
 		}
-		else if (!VerifyTransactionSuccess(Server, MyNym, MyAcct, strResponse))
+		else if (1 != VerifyMsgTrnxSuccess(Server, MyNym, MyAcct, strResponse))
 		{
-			OT_API_Output(0, "cancel_market_offer: Balance agreement succeeded, but transaction failed.\n");
+			OT_API_Output(0, "\n\ncancel_market_offer: Balance agreement succeeded, but transaction failed.\n")
 		}
 		else
 		{
-			OT_API_Output(0, "Success in cancel_market_offer! Server response:\n\n")
-			OT_API_Output(0, strResponse)
-			OT_API_Output(0, "\n\n")
+			OT_API_Output(0, "\n\nSuccess in cancel_market_offer! Server response:\n\n")
+			print(strResponse) // stdout
+			OT_API_Output(0, "\n\n") // stderr
+            return 1
 		}
 	}
-// Done!
+}
 
-	
+// Done!
+0
+

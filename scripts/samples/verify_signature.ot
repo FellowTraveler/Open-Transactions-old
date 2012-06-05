@@ -1,29 +1,32 @@
-#!/usr/local/bin/ot --script
+#!/usr/bin/env ot --script
 
-// SignContract erases all signatures and affixes a new one alone.
-// But AddSignature, on the other hand, leaves all signatures in place, and simply adds yours to the list. 
+    if (VerifyExists("HisNym"))
+    {
+        OT_API_Output(0, "Please enter a contract you wish to verify with HisNym, followed by an EOF or a ~ by itself on a blank line:\n\n")
 
-OT_API_Output(0, "Please enter a contract you wish to verify, followed by an EOF or a ~ by itself on a blank line:\n\n")
+        // The reason we accept the tilde ~ on a blank line by itself, is because
+        // the EOF, while it works, causes us not to be able to read any more input
+        // from stdin. Stdin is considered "closed" for the duration of the run.
+        // So the tilde allows us to read multiple times without closing stdin.
+         
+        var strInput = OT_CLI_ReadUntilEOF() 
 
-// The reason we accept the tilde ~ on a blank line by itself, is because
-// the EOF, while it works, causes us not to be able to read any more input
-// from stdin. Stdin is considered "closed" for the duration of the run.
-// So the tilde allows us to read multiple times without closing stdin.
- 
-var strInput = OT_CLI_ReadUntilEOF() 
+        OT_API_Output(0, "\n\n--------------------------------------\n You entered:\n" + strInput + "\n\n") 
 
-print("\n\n You entered:\n" + strInput) 
+        var bSuccess = false
 
-var bSuccess = false
+        bSuccess = OT_API_VerifySignature(HisNym, strInput) 
+         
+        if (bSuccess)
+        {
+            print("\n\n *** Verified! ***\n\n")
+            return 1
+        }
+        else
+        {
+            print("Failed!\n\n")
+        }
+    }
 
-bSuccess = OT_API_VerifySignature(MyNym, strInput) 
- 
-if (bSuccess)
-{
-	print("\n\nVerified!\n\n")
-}
-else
-{
-	print("Failed!\n\n")
-}
-
+// return value
+0

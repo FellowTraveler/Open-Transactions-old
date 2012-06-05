@@ -168,6 +168,9 @@ extern "C"
 #include <sys/types.h>
 #include <sys/time.h>           // 
 #include <sys/resource.h>
+    
+#include "stacktrace.h"
+    
 #endif
 }
 
@@ -906,7 +909,7 @@ void OTCrypto_OpenSSL::Cleanup_Override()
 {
     const char * szFunc = "OTCrypto_OpenSSL::Cleanup_Override";
     
-    OTLog::vOutput(1, "%s: Cleaning up OpenSSL...\n", szFunc);
+    OTLog::vOutput(4, "%s: Cleaning up OpenSSL...\n", szFunc);
 
 // In the future if we start using ENGINEs, then do the cleanup here:
 //#ifndef OPENSSL_NO_ENGINE
@@ -3560,6 +3563,7 @@ bool OTEnvelope::Open(const OTPseudonym & theRecipient, OTString & theOutput)
 	{
 		OTLog::vError("%s: Error: Expected Envelope for Asymmetric key (type 1) but instead found type %d.\n", 
                       szFunc, static_cast<int>(env_type));
+        print_stacktrace();
 		return false;
 	}
     else

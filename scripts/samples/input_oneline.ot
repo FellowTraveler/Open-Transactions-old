@@ -1,11 +1,15 @@
-#!/usr/local/bin/ot --script
+#!/usr/bin/env ot --script
 
 
 OT_API_Output(0, "Please type some input, followed by a newline: ")
 
 var strInput = OT_CLI_ReadLine()
 
-print("\n\n You entered: " + strInput) 
+// stderr
+OT_API_Output(0, "\n\n ----------------------------------------- \n You entered: ") 
+
+// stdout
+print(strInput) 
 
 // Note: the '1' is because OT expects a "return value" from the script.
 

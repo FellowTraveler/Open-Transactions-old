@@ -1,4 +1,4 @@
-#! /usr/local/bin/ot --script
+#!/usr/bin/env ot --script
 
 // --------------------------------------------------------------------
 // NOTE: No further need to include these anymore, since OT includes them
@@ -18,6 +18,8 @@ var madeEasy	= OT_ME()
 // (Load a public mint from local storage and display it on the screen.
 // If necessary, download it from the server.)
 //
+
+if (VerifyExists("Server") && VerifyExists("MyNym") && VerifyExists("MyPurse"))
 {	
 	// Just to show how easy it is now, let's load up a mint and display it.
 	// If this function is unable to load it, it will download the mint from
@@ -32,17 +34,18 @@ var madeEasy	= OT_ME()
 	//
 	if (!VerifyStringVal(strMint))
 	{
-		OT_API_Output(0, "show_mint: Failed.\n")
+		OT_API_Output(0, "\n\n load_or_retrieve_mint: Failed.\n\n")
+        return 0
 	}
 	else	// Success!
 	{
-		OT_API_Output(0, "\n\n")
-		OT_API_Output(0, strMint)
-		OT_API_Output(0, "\n\n")
+		OT_API_Output(0, "\n\n") // stderr
+		print(strMint)           // stdout
+		OT_API_Output(0, "\n\n") // stderr
 	}
 }
 
 // Done!
+1
 
-	
 

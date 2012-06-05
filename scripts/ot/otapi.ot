@@ -810,9 +810,9 @@
         //
         // strReply contains the reply itself (or null.)
         //
-        var nReplySuccess      = MsgUtil.VerifyMessageSuccess(strReply)
+        var nReplySuccess      = VerifyMessageSuccess(strReply)
         // -----------------------------------------------------------------------------------------------------
-        var bMsgReplyError     = (!MsgUtil.VerifyStringVal(strReply) || (nReplySuccess   < 0))
+        var bMsgReplyError     = (!VerifyStringVal(strReply) || (nReplySuccess < 0))
         // -----------------------------------------------------------------------------------------------------
         var bMsgReplySuccess   = (!bMsgReplyError && (nReplySuccess  > 0))
         var bMsgReplyFailure   = (!bMsgReplyError && (nReplySuccess == 0))
@@ -865,11 +865,11 @@
             // Rather, it means "DEFINITELY got a reply, and that reply says status==failure."
             //
             // -----------------------------------------------------------------------------------------------------
-            bMsgBalanceError   = (!MsgUtil.VerifyStringVal(strReply) || (nBalanceSuccess < 0))
+            bMsgBalanceError   = (!VerifyStringVal(strReply) || (nBalanceSuccess < 0))
             bMsgBalanceSuccess = (!bMsgReplyError && !bMsgBalanceError && (nBalanceSuccess  > 0))
             bMsgBalanceFailure = (!bMsgReplyError && !bMsgBalanceError && (nBalanceSuccess == 0))
             // -----------------------------------------------------------------------------------------------------
-            bMsgTransError     = (!MsgUtil.VerifyStringVal(strReply) || (nTransSuccess   < 0))
+            bMsgTransError     = (!VerifyStringVal(strReply) || (nTransSuccess   < 0))
             bMsgTransSuccess   = (!bMsgReplyError && !bMsgBalanceError && !bMsgTransError && (nTransSuccess  > 0))
             bMsgTransFailure   = (!bMsgReplyError && !bMsgBalanceError && !bMsgTransError && (nTransSuccess == 0))
             // -----------------------------------------------------------------------------------------------------
@@ -994,7 +994,7 @@
                         var strNymbox = OT_API_LoadNymboxNoVerify(theFunction.serverID, theFunction.nymID) // FLUSH SENT MESSAGES!!!!  (AND HARVEST.)
                         
                         // *******************************************************
-                        if (MsgUtil.VerifyStringVal(strNymbox))
+                        if (VerifyStringVal(strNymbox))
                         {
                             OT_API_FlushSentMessages(0, /*harvesting-for-retry==OT_FALSE*/ theFunction.serverID, theFunction.nymID, strNymbox)
                         }

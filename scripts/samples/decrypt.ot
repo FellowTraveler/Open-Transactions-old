@@ -1,20 +1,32 @@
-#!/usr/local/bin/ot --script
+#!/usr/bin/env ot --script
 
-OT_API_Output(0, "Please enter multiple lines of input to be decrypted, followed by an EOF or a ~ by itself on a blank line:\n\n")
+    if (VerifyExists("MyNym"))
+    {
 
-// The reason we accept the tilde ~ on a blank line by itself, is because
-// the EOF, while it works, causes us not to be able to read any more input
-// from stdin. Stdin is considered "closed" for the duration of the run.
-// So the tilde allows us to read multiple times without closing stdin.
- 
-var strInput = OT_CLI_ReadUntilEOF() 
+        OT_API_Output(0, "Please enter multiple lines of input to be decrypted, followed by an EOF or a ~ by itself on a blank line:\n\n")
 
-print("\n\n You entered:\n" + strInput) 
+        // The reason we accept the tilde ~ on a blank line by itself, is because
+        // the EOF, while it works, causes us not to be able to read any more input
+        // from stdin. Stdin is considered "closed" for the duration of the run.
+        // So the tilde allows us to read multiple times without closing stdin.
+         
+        var strInput = OT_CLI_ReadUntilEOF() 
 
-var strOutput = OT_API_Decrypt(MyNym, strInput) 
- 
-print("Decrypted:\n\n" + strOutput + "\n\n")
+        OT_API_Output(0, "\n\n--------------------------------------\n You entered:\n" + strInput + "\n\n") 
 
-// Note: the '1' is because OT expects a "return value" from the script.
+        var strOutput = OT_API_Decrypt(MyNym, strInput)  // bLineBreaks=true 
+         
+        // stderr
+        OT_API_Output(0, "-------------------------------------- \n Decrypted:\n\n")
 
-1
+        // stdout
+        print(strOutput)
+
+        // stderr
+        OT_API_Output(0, "\n\n")
+        
+        return 1
+    }
+
+// "return value"
+0

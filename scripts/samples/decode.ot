@@ -1,4 +1,4 @@
-#!/usr/local/bin/ot --script
+#!/usr/bin/env ot --script
 
 OT_API_Output(0, "Please enter multiple lines of OT-armored text to be decoded, followed by an EOF or a ~ by itself on a blank line:\n\n")
 
@@ -9,9 +9,17 @@ OT_API_Output(0, "Please enter multiple lines of OT-armored text to be decoded, 
  
 var strInput = OT_CLI_ReadUntilEOF() 
 
-print("\n\n You entered:\n" + strInput) 
+OT_API_Output(0, "\n\n--------------------------------------\n You entered:\n" + strInput + "\n\n") 
 
 var strOutput = OT_API_Decode(strInput, true)  // bLineBreaks=true 
  
-print("Decoded:\n\n" + strOutput + "\n\n")
+// stderr
+OT_API_Output(0, "--------------------------------------\n Decoded:\n\n")
 
+// stdout
+print(strOutput)
+
+// stderr
+OT_API_Output(0, "\n\n")
+
+1

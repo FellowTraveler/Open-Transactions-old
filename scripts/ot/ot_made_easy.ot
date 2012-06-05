@@ -102,7 +102,7 @@
 		{
 			var strResponse = this.check_user(SERVER_ID, NYM_ID, TARGET_NYM_ID);
 			
-			if (VerifyMessageSuccess(strResponse))
+			if (1 == VerifyMessageSuccess(strResponse))
 			{
 				strPubkey = this.load_public_key(TARGET_NYM_ID);			
 			}
@@ -271,6 +271,7 @@
 		return strResponse;
     }
 	// --------------------------------------------------------------
+
 
 
 /*
