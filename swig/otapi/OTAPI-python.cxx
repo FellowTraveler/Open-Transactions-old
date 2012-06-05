@@ -3995,7 +3995,7 @@ SWIG_AsVal_size_t (PyObject * obj, size_t *val)
  * C++ director class methods
  * --------------------------------------------------- */
 
-#include "OTAPI-python.h"
+#include "OTAPI_wrap.h"
 
 SwigDirector_OTCallback::SwigDirector_OTCallback(PyObject *self): OTCallback(), Swig::Director(self) {
   SWIG_DIRECTOR_RGTR((OTCallback *)this, this); 
@@ -7002,6 +7002,93 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_OT_API_CreateSymmetricKey(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  char *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)":OT_API_CreateSymmetricKey")) SWIG_fail;
+  result = (char *)OT_API_CreateSymmetricKey();
+  resultobj = SWIG_FromCharPtr((const char *)result);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_OT_API_SymmetricEncrypt(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  char *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:OT_API_SymmetricEncrypt",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_SymmetricEncrypt" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_SymmetricEncrypt" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  result = (char *)OT_API_SymmetricEncrypt((char const *)arg1,(char const *)arg2);
+  resultobj = SWIG_FromCharPtr((const char *)result);
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return resultobj;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_OT_API_SymmetricDecrypt(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  char *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:OT_API_SymmetricDecrypt",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_SymmetricDecrypt" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_SymmetricDecrypt" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  result = (char *)OT_API_SymmetricDecrypt((char const *)arg1,(char const *)arg2);
+  resultobj = SWIG_FromCharPtr((const char *)result);
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return resultobj;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_OT_API_SignContract(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   char *arg1 = (char *) 0 ;
@@ -7259,6 +7346,80 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_OT_API_CreateServerContract(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  char *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:OT_API_CreateServerContract",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_CreateServerContract" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_CreateServerContract" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  result = (char *)OT_API_CreateServerContract((char const *)arg1,(char const *)arg2);
+  resultobj = SWIG_FromCharPtr((const char *)result);
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return resultobj;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_OT_API_CreateAssetContract(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  char *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:OT_API_CreateAssetContract",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_CreateAssetContract" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_CreateAssetContract" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  result = (char *)OT_API_CreateAssetContract((char const *)arg1,(char const *)arg2);
+  resultobj = SWIG_FromCharPtr((const char *)result);
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return resultobj;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_OT_API_AddServerContract(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   char *arg1 = (char *) 0 ;
@@ -7408,6 +7569,31 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_OT_API_GetServer_Contract(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  char *arg1 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  PyObject * obj0 = 0 ;
+  char *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:OT_API_GetServer_Contract",&obj0)) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_GetServer_Contract" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  result = (char *)OT_API_GetServer_Contract((char const *)arg1);
+  resultobj = SWIG_FromCharPtr((const char *)result);
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return resultobj;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_OT_API_GetAssetType_ID(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   int arg1 ;
@@ -7446,6 +7632,31 @@ SWIGINTERN PyObject *_wrap_OT_API_GetAssetType_Name(PyObject *SWIGUNUSEDPARM(sel
   }
   arg1 = reinterpret_cast< char * >(buf1);
   result = (char *)OT_API_GetAssetType_Name((char const *)arg1);
+  resultobj = SWIG_FromCharPtr((const char *)result);
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return resultobj;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_OT_API_GetAssetType_Contract(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  char *arg1 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  PyObject * obj0 = 0 ;
+  char *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:OT_API_GetAssetType_Contract",&obj0)) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(obj0, &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_GetAssetType_Contract" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  result = (char *)OT_API_GetAssetType_Contract((char const *)arg1);
   resultobj = SWIG_FromCharPtr((const char *)result);
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   return resultobj;
@@ -33975,6 +34186,9 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"OT_API_Decode", _wrap_OT_API_Decode, METH_VARARGS, NULL},
 	 { (char *)"OT_API_Encrypt", _wrap_OT_API_Encrypt, METH_VARARGS, NULL},
 	 { (char *)"OT_API_Decrypt", _wrap_OT_API_Decrypt, METH_VARARGS, NULL},
+	 { (char *)"OT_API_CreateSymmetricKey", _wrap_OT_API_CreateSymmetricKey, METH_VARARGS, NULL},
+	 { (char *)"OT_API_SymmetricEncrypt", _wrap_OT_API_SymmetricEncrypt, METH_VARARGS, NULL},
+	 { (char *)"OT_API_SymmetricDecrypt", _wrap_OT_API_SymmetricDecrypt, METH_VARARGS, NULL},
 	 { (char *)"OT_API_SignContract", _wrap_OT_API_SignContract, METH_VARARGS, NULL},
 	 { (char *)"OT_API_AddSignature", _wrap_OT_API_AddSignature, METH_VARARGS, NULL},
 	 { (char *)"OT_API_VerifySignature", _wrap_OT_API_VerifySignature, METH_VARARGS, NULL},
@@ -33986,6 +34200,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"OT_API_PopMemlogFront", _wrap_OT_API_PopMemlogFront, METH_VARARGS, NULL},
 	 { (char *)"OT_API_PopMemlogBack", _wrap_OT_API_PopMemlogBack, METH_VARARGS, NULL},
 	 { (char *)"OT_API_CreateNym", _wrap_OT_API_CreateNym, METH_VARARGS, NULL},
+	 { (char *)"OT_API_CreateServerContract", _wrap_OT_API_CreateServerContract, METH_VARARGS, NULL},
+	 { (char *)"OT_API_CreateAssetContract", _wrap_OT_API_CreateAssetContract, METH_VARARGS, NULL},
 	 { (char *)"OT_API_AddServerContract", _wrap_OT_API_AddServerContract, METH_VARARGS, NULL},
 	 { (char *)"OT_API_AddAssetContract", _wrap_OT_API_AddAssetContract, METH_VARARGS, NULL},
 	 { (char *)"OT_API_GetServerCount", _wrap_OT_API_GetServerCount, METH_VARARGS, NULL},
@@ -33994,8 +34210,10 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"OT_API_GetNymCount", _wrap_OT_API_GetNymCount, METH_VARARGS, NULL},
 	 { (char *)"OT_API_GetServer_ID", _wrap_OT_API_GetServer_ID, METH_VARARGS, NULL},
 	 { (char *)"OT_API_GetServer_Name", _wrap_OT_API_GetServer_Name, METH_VARARGS, NULL},
+	 { (char *)"OT_API_GetServer_Contract", _wrap_OT_API_GetServer_Contract, METH_VARARGS, NULL},
 	 { (char *)"OT_API_GetAssetType_ID", _wrap_OT_API_GetAssetType_ID, METH_VARARGS, NULL},
 	 { (char *)"OT_API_GetAssetType_Name", _wrap_OT_API_GetAssetType_Name, METH_VARARGS, NULL},
+	 { (char *)"OT_API_GetAssetType_Contract", _wrap_OT_API_GetAssetType_Contract, METH_VARARGS, NULL},
 	 { (char *)"OT_API_GetAccountWallet_ID", _wrap_OT_API_GetAccountWallet_ID, METH_VARARGS, NULL},
 	 { (char *)"OT_API_GetAccountWallet_Name", _wrap_OT_API_GetAccountWallet_Name, METH_VARARGS, NULL},
 	 { (char *)"OT_API_GetAccountWallet_Balance", _wrap_OT_API_GetAccountWallet_Balance, METH_VARARGS, NULL},

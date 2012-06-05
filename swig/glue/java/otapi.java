@@ -49,6 +49,18 @@ public class otapi implements otapiConstants {
     return otapiJNI.OT_API_Decrypt(RECIPIENT_NYM_ID, szCiphertext);
   }
 
+  public static String OT_API_CreateSymmetricKey() {
+    return otapiJNI.OT_API_CreateSymmetricKey();
+  }
+
+  public static String OT_API_SymmetricEncrypt(String SYMMETRIC_KEY, String PLAINTEXT) {
+    return otapiJNI.OT_API_SymmetricEncrypt(SYMMETRIC_KEY, PLAINTEXT);
+  }
+
+  public static String OT_API_SymmetricDecrypt(String SYMMETRIC_KEY, String CIPHERTEXT_ENVELOPE) {
+    return otapiJNI.OT_API_SymmetricDecrypt(SYMMETRIC_KEY, CIPHERTEXT_ENVELOPE);
+  }
+
   public static String OT_API_SignContract(String SIGNER_NYM_ID, String THE_CONTRACT) {
     return otapiJNI.OT_API_SignContract(SIGNER_NYM_ID, THE_CONTRACT);
   }
@@ -93,6 +105,14 @@ public class otapi implements otapiConstants {
     return otapiJNI.OT_API_CreateNym(nKeySize);
   }
 
+  public static String OT_API_CreateServerContract(String NYM_ID, String szXMLcontents) {
+    return otapiJNI.OT_API_CreateServerContract(NYM_ID, szXMLcontents);
+  }
+
+  public static String OT_API_CreateAssetContract(String NYM_ID, String szXMLcontents) {
+    return otapiJNI.OT_API_CreateAssetContract(NYM_ID, szXMLcontents);
+  }
+
   public static int OT_API_AddServerContract(String szContract) {
     return otapiJNI.OT_API_AddServerContract(szContract);
   }
@@ -125,12 +145,20 @@ public class otapi implements otapiConstants {
     return otapiJNI.OT_API_GetServer_Name(SERVER_ID);
   }
 
+  public static String OT_API_GetServer_Contract(String SERVER_ID) {
+    return otapiJNI.OT_API_GetServer_Contract(SERVER_ID);
+  }
+
   public static String OT_API_GetAssetType_ID(int nIndex) {
     return otapiJNI.OT_API_GetAssetType_ID(nIndex);
   }
 
   public static String OT_API_GetAssetType_Name(String ASSET_TYPE_ID) {
     return otapiJNI.OT_API_GetAssetType_Name(ASSET_TYPE_ID);
+  }
+
+  public static String OT_API_GetAssetType_Contract(String ASSET_TYPE_ID) {
+    return otapiJNI.OT_API_GetAssetType_Contract(ASSET_TYPE_ID);
   }
 
   public static String OT_API_GetAccountWallet_ID(int nIndex) {

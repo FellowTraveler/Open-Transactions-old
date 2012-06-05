@@ -263,6 +263,18 @@ def OT_API_Decrypt(*args):
   return _otapi.OT_API_Decrypt(*args)
 OT_API_Decrypt = _otapi.OT_API_Decrypt
 
+def OT_API_CreateSymmetricKey():
+  return _otapi.OT_API_CreateSymmetricKey()
+OT_API_CreateSymmetricKey = _otapi.OT_API_CreateSymmetricKey
+
+def OT_API_SymmetricEncrypt(*args):
+  return _otapi.OT_API_SymmetricEncrypt(*args)
+OT_API_SymmetricEncrypt = _otapi.OT_API_SymmetricEncrypt
+
+def OT_API_SymmetricDecrypt(*args):
+  return _otapi.OT_API_SymmetricDecrypt(*args)
+OT_API_SymmetricDecrypt = _otapi.OT_API_SymmetricDecrypt
+
 def OT_API_SignContract(*args):
   return _otapi.OT_API_SignContract(*args)
 OT_API_SignContract = _otapi.OT_API_SignContract
@@ -307,6 +319,14 @@ def OT_API_CreateNym(*args):
   return _otapi.OT_API_CreateNym(*args)
 OT_API_CreateNym = _otapi.OT_API_CreateNym
 
+def OT_API_CreateServerContract(*args):
+  return _otapi.OT_API_CreateServerContract(*args)
+OT_API_CreateServerContract = _otapi.OT_API_CreateServerContract
+
+def OT_API_CreateAssetContract(*args):
+  return _otapi.OT_API_CreateAssetContract(*args)
+OT_API_CreateAssetContract = _otapi.OT_API_CreateAssetContract
+
 def OT_API_AddServerContract(*args):
   return _otapi.OT_API_AddServerContract(*args)
 OT_API_AddServerContract = _otapi.OT_API_AddServerContract
@@ -339,6 +359,10 @@ def OT_API_GetServer_Name(*args):
   return _otapi.OT_API_GetServer_Name(*args)
 OT_API_GetServer_Name = _otapi.OT_API_GetServer_Name
 
+def OT_API_GetServer_Contract(*args):
+  return _otapi.OT_API_GetServer_Contract(*args)
+OT_API_GetServer_Contract = _otapi.OT_API_GetServer_Contract
+
 def OT_API_GetAssetType_ID(*args):
   return _otapi.OT_API_GetAssetType_ID(*args)
 OT_API_GetAssetType_ID = _otapi.OT_API_GetAssetType_ID
@@ -346,6 +370,10 @@ OT_API_GetAssetType_ID = _otapi.OT_API_GetAssetType_ID
 def OT_API_GetAssetType_Name(*args):
   return _otapi.OT_API_GetAssetType_Name(*args)
 OT_API_GetAssetType_Name = _otapi.OT_API_GetAssetType_Name
+
+def OT_API_GetAssetType_Contract(*args):
+  return _otapi.OT_API_GetAssetType_Contract(*args)
+OT_API_GetAssetType_Contract = _otapi.OT_API_GetAssetType_Contract
 
 def OT_API_GetAccountWallet_ID(*args):
   return _otapi.OT_API_GetAccountWallet_ID(*args)

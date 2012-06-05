@@ -1633,6 +1633,44 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_Decrypt(char * jarg1, char * jarg2) 
 }
 
 
+SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_CreateSymmetricKey() {
+  char * jresult ;
+  char *result = 0 ;
+  
+  result = (char *)OT_API_CreateSymmetricKey();
+  jresult = SWIG_csharp_string_callback((const char *)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_SymmetricEncrypt(char * jarg1, char * jarg2) {
+  char * jresult ;
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *result = 0 ;
+  
+  arg1 = (char *)jarg1; 
+  arg2 = (char *)jarg2; 
+  result = (char *)OT_API_SymmetricEncrypt((char const *)arg1,(char const *)arg2);
+  jresult = SWIG_csharp_string_callback((const char *)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_SymmetricDecrypt(char * jarg1, char * jarg2) {
+  char * jresult ;
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *result = 0 ;
+  
+  arg1 = (char *)jarg1; 
+  arg2 = (char *)jarg2; 
+  result = (char *)OT_API_SymmetricDecrypt((char const *)arg1,(char const *)arg2);
+  jresult = SWIG_csharp_string_callback((const char *)result); 
+  return jresult;
+}
+
+
 SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_SignContract(char * jarg1, char * jarg2) {
   char * jresult ;
   char *arg1 = (char *) 0 ;
@@ -1763,6 +1801,34 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_CreateNym(int jarg1) {
 }
 
 
+SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_CreateServerContract(char * jarg1, char * jarg2) {
+  char * jresult ;
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *result = 0 ;
+  
+  arg1 = (char *)jarg1; 
+  arg2 = (char *)jarg2; 
+  result = (char *)OT_API_CreateServerContract((char const *)arg1,(char const *)arg2);
+  jresult = SWIG_csharp_string_callback((const char *)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_CreateAssetContract(char * jarg1, char * jarg2) {
+  char * jresult ;
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *result = 0 ;
+  
+  arg1 = (char *)jarg1; 
+  arg2 = (char *)jarg2; 
+  result = (char *)OT_API_CreateAssetContract((char const *)arg1,(char const *)arg2);
+  jresult = SWIG_csharp_string_callback((const char *)result); 
+  return jresult;
+}
+
+
 SWIGEXPORT int SWIGSTDCALL CSharp_OT_API_AddServerContract(char * jarg1) {
   int jresult ;
   char *arg1 = (char *) 0 ;
@@ -1851,6 +1917,18 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_GetServer_Name(char * jarg1) {
 }
 
 
+SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_GetServer_Contract(char * jarg1) {
+  char * jresult ;
+  char *arg1 = (char *) 0 ;
+  char *result = 0 ;
+  
+  arg1 = (char *)jarg1; 
+  result = (char *)OT_API_GetServer_Contract((char const *)arg1);
+  jresult = SWIG_csharp_string_callback((const char *)result); 
+  return jresult;
+}
+
+
 SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_GetAssetType_ID(int jarg1) {
   char * jresult ;
   int arg1 ;
@@ -1870,6 +1948,18 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_GetAssetType_Name(char * jarg1) {
   
   arg1 = (char *)jarg1; 
   result = (char *)OT_API_GetAssetType_Name((char const *)arg1);
+  jresult = SWIG_csharp_string_callback((const char *)result); 
+  return jresult;
+}
+
+
+SWIGEXPORT char * SWIGSTDCALL CSharp_OT_API_GetAssetType_Contract(char * jarg1) {
+  char * jresult ;
+  char *arg1 = (char *) 0 ;
+  char *result = 0 ;
+  
+  arg1 = (char *)jarg1; 
+  result = (char *)OT_API_GetAssetType_Contract((char const *)arg1);
   jresult = SWIG_csharp_string_callback((const char *)result); 
   return jresult;
 }

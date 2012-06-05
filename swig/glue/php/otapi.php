@@ -79,6 +79,18 @@ abstract class otapi {
 		return OT_API_Decrypt($RECIPIENT_NYM_ID,$szCiphertext);
 	}
 
+	static function OT_API_CreateSymmetricKey() {
+		return OT_API_CreateSymmetricKey();
+	}
+
+	static function OT_API_SymmetricEncrypt($SYMMETRIC_KEY,$PLAINTEXT) {
+		return OT_API_SymmetricEncrypt($SYMMETRIC_KEY,$PLAINTEXT);
+	}
+
+	static function OT_API_SymmetricDecrypt($SYMMETRIC_KEY,$CIPHERTEXT_ENVELOPE) {
+		return OT_API_SymmetricDecrypt($SYMMETRIC_KEY,$CIPHERTEXT_ENVELOPE);
+	}
+
 	static function OT_API_SignContract($SIGNER_NYM_ID,$THE_CONTRACT) {
 		return OT_API_SignContract($SIGNER_NYM_ID,$THE_CONTRACT);
 	}
@@ -123,6 +135,14 @@ abstract class otapi {
 		return OT_API_CreateNym($nKeySize);
 	}
 
+	static function OT_API_CreateServerContract($NYM_ID,$szXMLcontents) {
+		return OT_API_CreateServerContract($NYM_ID,$szXMLcontents);
+	}
+
+	static function OT_API_CreateAssetContract($NYM_ID,$szXMLcontents) {
+		return OT_API_CreateAssetContract($NYM_ID,$szXMLcontents);
+	}
+
 	static function OT_API_AddServerContract($szContract) {
 		return OT_API_AddServerContract($szContract);
 	}
@@ -155,12 +175,20 @@ abstract class otapi {
 		return OT_API_GetServer_Name($SERVER_ID);
 	}
 
+	static function OT_API_GetServer_Contract($SERVER_ID) {
+		return OT_API_GetServer_Contract($SERVER_ID);
+	}
+
 	static function OT_API_GetAssetType_ID($nIndex) {
 		return OT_API_GetAssetType_ID($nIndex);
 	}
 
 	static function OT_API_GetAssetType_Name($ASSET_TYPE_ID) {
 		return OT_API_GetAssetType_Name($ASSET_TYPE_ID);
+	}
+
+	static function OT_API_GetAssetType_Contract($ASSET_TYPE_ID) {
+		return OT_API_GetAssetType_Contract($ASSET_TYPE_ID);
 	}
 
 	static function OT_API_GetAccountWallet_ID($nIndex) {

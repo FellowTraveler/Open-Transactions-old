@@ -4733,6 +4733,89 @@ fail:
 
 
 SWIGINTERN int
+_wrap_OT_API_CreateSymmetricKey(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  char *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,":OT_API_CreateSymmetricKey ") == TCL_ERROR) SWIG_fail;
+  result = (char *)OT_API_CreateSymmetricKey();
+  Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
+  return TCL_OK;
+fail:
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OT_API_SymmetricEncrypt(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  char *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oo:OT_API_SymmetricEncrypt SYMMETRIC_KEY PLAINTEXT ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_SymmetricEncrypt" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(objv[2], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_SymmetricEncrypt" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  result = (char *)OT_API_SymmetricEncrypt((char const *)arg1,(char const *)arg2);
+  Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return TCL_OK;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OT_API_SymmetricDecrypt(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  char *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oo:OT_API_SymmetricDecrypt SYMMETRIC_KEY CIPHERTEXT_ENVELOPE ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_SymmetricDecrypt" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(objv[2], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_SymmetricDecrypt" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  result = (char *)OT_API_SymmetricDecrypt((char const *)arg1,(char const *)arg2);
+  Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return TCL_OK;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
 _wrap_OT_API_SignContract(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
@@ -4980,6 +5063,76 @@ fail:
 
 
 SWIGINTERN int
+_wrap_OT_API_CreateServerContract(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  char *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oo:OT_API_CreateServerContract NYM_ID szXMLcontents ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_CreateServerContract" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(objv[2], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_CreateServerContract" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  result = (char *)OT_API_CreateServerContract((char const *)arg1,(char const *)arg2);
+  Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return TCL_OK;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OT_API_CreateAssetContract(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  char *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"oo:OT_API_CreateAssetContract NYM_ID szXMLcontents ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_CreateAssetContract" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(objv[2], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_CreateAssetContract" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  result = (char *)OT_API_CreateAssetContract((char const *)arg1,(char const *)arg2);
+  Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return TCL_OK;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
 _wrap_OT_API_AddServerContract(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   char *arg1 = (char *) 0 ;
   int res1 ;
@@ -5125,6 +5278,30 @@ fail:
 
 
 SWIGINTERN int
+_wrap_OT_API_GetServer_Contract(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  char *arg1 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  char *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"o:OT_API_GetServer_Contract SERVER_ID ",(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_GetServer_Contract" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  result = (char *)OT_API_GetServer_Contract((char const *)arg1);
+  Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return TCL_OK;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
 _wrap_OT_API_GetAssetType_ID(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   int arg1 ;
   int val1 ;
@@ -5160,6 +5337,30 @@ _wrap_OT_API_GetAssetType_Name(ClientData clientData SWIGUNUSED, Tcl_Interp *int
   }
   arg1 = reinterpret_cast< char * >(buf1);
   result = (char *)OT_API_GetAssetType_Name((char const *)arg1);
+  Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return TCL_OK;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
+_wrap_OT_API_GetAssetType_Contract(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  char *arg1 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  char *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"o:OT_API_GetAssetType_Contract ASSET_TYPE_ID ",(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_AsCharPtrAndSize(objv[1], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_GetAssetType_Contract" "', argument " "1"" of type '" "char const *""'");
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  result = (char *)OT_API_GetAssetType_Contract((char const *)arg1);
   Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   return TCL_OK;
@@ -30494,6 +30695,9 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "OT_API_Decode", (swig_wrapper_func) _wrap_OT_API_Decode, NULL},
     { SWIG_prefix "OT_API_Encrypt", (swig_wrapper_func) _wrap_OT_API_Encrypt, NULL},
     { SWIG_prefix "OT_API_Decrypt", (swig_wrapper_func) _wrap_OT_API_Decrypt, NULL},
+    { SWIG_prefix "OT_API_CreateSymmetricKey", (swig_wrapper_func) _wrap_OT_API_CreateSymmetricKey, NULL},
+    { SWIG_prefix "OT_API_SymmetricEncrypt", (swig_wrapper_func) _wrap_OT_API_SymmetricEncrypt, NULL},
+    { SWIG_prefix "OT_API_SymmetricDecrypt", (swig_wrapper_func) _wrap_OT_API_SymmetricDecrypt, NULL},
     { SWIG_prefix "OT_API_SignContract", (swig_wrapper_func) _wrap_OT_API_SignContract, NULL},
     { SWIG_prefix "OT_API_AddSignature", (swig_wrapper_func) _wrap_OT_API_AddSignature, NULL},
     { SWIG_prefix "OT_API_VerifySignature", (swig_wrapper_func) _wrap_OT_API_VerifySignature, NULL},
@@ -30505,6 +30709,8 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "OT_API_PopMemlogFront", (swig_wrapper_func) _wrap_OT_API_PopMemlogFront, NULL},
     { SWIG_prefix "OT_API_PopMemlogBack", (swig_wrapper_func) _wrap_OT_API_PopMemlogBack, NULL},
     { SWIG_prefix "OT_API_CreateNym", (swig_wrapper_func) _wrap_OT_API_CreateNym, NULL},
+    { SWIG_prefix "OT_API_CreateServerContract", (swig_wrapper_func) _wrap_OT_API_CreateServerContract, NULL},
+    { SWIG_prefix "OT_API_CreateAssetContract", (swig_wrapper_func) _wrap_OT_API_CreateAssetContract, NULL},
     { SWIG_prefix "OT_API_AddServerContract", (swig_wrapper_func) _wrap_OT_API_AddServerContract, NULL},
     { SWIG_prefix "OT_API_AddAssetContract", (swig_wrapper_func) _wrap_OT_API_AddAssetContract, NULL},
     { SWIG_prefix "OT_API_GetServerCount", (swig_wrapper_func) _wrap_OT_API_GetServerCount, NULL},
@@ -30513,8 +30719,10 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "OT_API_GetNymCount", (swig_wrapper_func) _wrap_OT_API_GetNymCount, NULL},
     { SWIG_prefix "OT_API_GetServer_ID", (swig_wrapper_func) _wrap_OT_API_GetServer_ID, NULL},
     { SWIG_prefix "OT_API_GetServer_Name", (swig_wrapper_func) _wrap_OT_API_GetServer_Name, NULL},
+    { SWIG_prefix "OT_API_GetServer_Contract", (swig_wrapper_func) _wrap_OT_API_GetServer_Contract, NULL},
     { SWIG_prefix "OT_API_GetAssetType_ID", (swig_wrapper_func) _wrap_OT_API_GetAssetType_ID, NULL},
     { SWIG_prefix "OT_API_GetAssetType_Name", (swig_wrapper_func) _wrap_OT_API_GetAssetType_Name, NULL},
+    { SWIG_prefix "OT_API_GetAssetType_Contract", (swig_wrapper_func) _wrap_OT_API_GetAssetType_Contract, NULL},
     { SWIG_prefix "OT_API_GetAccountWallet_ID", (swig_wrapper_func) _wrap_OT_API_GetAccountWallet_ID, NULL},
     { SWIG_prefix "OT_API_GetAccountWallet_Name", (swig_wrapper_func) _wrap_OT_API_GetAccountWallet_Name, NULL},
     { SWIG_prefix "OT_API_GetAccountWallet_Balance", (swig_wrapper_func) _wrap_OT_API_GetAccountWallet_Balance, NULL},
