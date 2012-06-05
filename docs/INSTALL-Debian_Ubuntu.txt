@@ -42,8 +42,17 @@ $ sudo aptitude install wget git build-essential libtool automake cmake pkg-conf
 # install Open-Transactions library dependencies
 $ sudo aptitude install libboost-dev libboost-thread-dev libzmq-dev libmsgpack-dev libssl-dev libprotobuf-dev
 
-# install JAVA for OTAPI-JAVA
+# install JAVA for SWIG JAVA
 $ sudo aptitude install openjdk-6-jdk openjdk-6-source
+
+# install JAVA for SWIG PERL5
+$ sudo aptitude install libperl-dev
+
+# install JAVA for SWIG PHP
+$ sudo aptitude install php5-dev
+
+# install JAVA for SWIG PYTHON
+$ sudo aptitude install python-dev
 
 
 ## DEBIAN ONLY ##
@@ -91,13 +100,8 @@ $ mkdir -p build && cd build
 
 $ ../configure --prefix=$HOME/.local
 
-Options:
 
-Enable Configuration for SWIG Java Support:
---with-java
-
-Enable Configuration for SWIG Python Support:
---with-python
+#### Options: ####
 
 Enable Configuration in Release Mode:
 --enable-release	
@@ -109,14 +113,32 @@ Enable the signal handling for catching segmentation fault's (debug only):
 --enable-sighandler
 
 
+#### Swig Options:  ####
+
+Enable Configuration for SWIG Java Support:
+--with-java
+
+
+Enable Configuration for SWIG Perl 5 Support:
+--with-perl5
+
+
+Enable Configuration for SWIG PHP Support:
+--with-php
+
+
+Enable Configuration for SWIG Python Support:
+--with-python
+
+
 $ make uninstall (to cleanup anthing in you .local folder)
 
 $ make
 
-Options:
+#### Options: ####
 
 Build Multithreaded, need about 1gb of ram per thread.
--j (int, power of 2)
+-j (int, mutiple of of 2)
 
 
 $ make install

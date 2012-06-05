@@ -54,9 +54,45 @@ $ autoreconf -i -f
 # build
 $ cd build
 
-$ PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH LIBS=-lpthread ../configure --prefix=$HOME/.local --with-java --enable-debug
-or
-$ PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH LIBS=-lpthread ../configure --prefix=$HOME/.local --with-java
+$ ../configure --prefix=$HOME/.local
+
+#### Options: ####
+
+Enable Configuration in Release Mode:
+--enable-release	
+
+Enable extra (noisy) warnings with compile:
+--enable-warnings
+
+Enable the signal handling for catching segmentation fault's (debug only):
+--enable-sighandler
+
+#### Swig Options:  ####
+
+Enable Configuration for SWIG Java Support:
+--with-java
+
+
+Enable Configuration for SWIG Perl 5 Support:
+--with-perl5
+
+
+Enable Configuration for SWIG PHP Support:
+--with-php
+
+
+Enable Configuration for SWIG Python Support:
+--with-python
+
+
+$ make uninstall (to cleanup anthing in you .local folder)
 
 $ make
+
+#### Options: ####
+
+Build Multithreaded, need about 1gb of ram per thread.
+-j (int, mutiple of of 2)
+
+
 $ make install
