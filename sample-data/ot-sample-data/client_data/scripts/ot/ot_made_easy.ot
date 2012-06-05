@@ -45,15 +45,28 @@
 //	CHECK USER (download a public key)
 //
     def OT_ME::check_user(SERVER_ID, NYM_ID, TARGET_NYM_ID) 
-	{
-		var ot_Msg := OTAPI_Func();
-		// -------------------------
-		var theRequest := OTAPI_Func(ot_Msg.CHECK_USER, SERVER_ID, NYM_ID, TARGET_NYM_ID);
-		var	strResponse = theRequest.SendRequest(theRequest, "CHECK_USER");
-
-		return strResponse;
+    {
+        var ot_Msg := OTAPI_Func();
+        // -------------------------
+        var theRequest := OTAPI_Func(ot_Msg.CHECK_USER, SERVER_ID, NYM_ID, TARGET_NYM_ID);
+        var	strResponse = theRequest.SendRequest(theRequest, "CHECK_USER");
+        
+        return strResponse;
     }
-	
+
+// -----------------------------------------------------------------------------------------------
+//  CREATE ASSET ACCOUNT
+//
+    def OT_ME::create_asset_acct(SERVER_ID, NYM_ID, ASSET_TYPE_ID) 
+    {
+        var ot_Msg := OTAPI_Func();
+        // -------------------------
+        var theRequest := OTAPI_Func(ot_Msg.CREATE_ASSET_ACCT, SERVER_ID, NYM_ID, ASSET_TYPE_ID);
+        var	strResponse = theRequest.SendRequest(theRequest, "CREATE_ASSET_ACCT");
+        
+        return strResponse;
+    }
+
 // -----------------------------------------------------------------------------------------------
 	// load_public_key():
 	//
@@ -89,7 +102,7 @@
 		{
 			var strResponse = this.check_user(SERVER_ID, NYM_ID, TARGET_NYM_ID);
 			
-			if (VerifyMessageSuccess(strResponse))
+			if (1 == VerifyMessageSuccess(strResponse))
 			{
 				strPubkey = this.load_public_key(TARGET_NYM_ID);			
 			}
@@ -258,6 +271,7 @@
 		return strResponse;
     }
 	// --------------------------------------------------------------
+
 
 
 /*
@@ -728,7 +742,7 @@
 	attr OTAPI_Func::SEND_USER_MESSAGE				DONE
 	attr OTAPI_Func::ISSUE_ASSET_TYPE			
 	attr OTAPI_Func::ISSUE_BASKET			
-	attr OTAPI_Func::CREATE_ASSET_ACCT			
+	attr OTAPI_Func::CREATE_ASSET_ACCT				DONE			
 	attr OTAPI_Func::DELETE_ASSET_ACCT			
 	attr OTAPI_Func::EXCHANGE_BASKET			
 	attr OTAPI_Func::PROCESS_INBOX				

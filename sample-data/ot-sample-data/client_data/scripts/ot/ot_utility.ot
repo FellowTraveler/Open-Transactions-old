@@ -14,23 +14,88 @@
 //  http://www.chaiscript.com/doxygen/namespace_chai_script___language.html
 //
 
-// Uncomment this once I get the latest version of ChaiScript.
-//
-//    def exists(theObjectNameAsStr)
-//    {
-//        if (get_objects().count(theObjectNameAsStr) == 0)
-//        {
-//            return false
-//        }
-//        
-//        true
-//    }
+
+    def VerifyExists(theObjectNameAsStr)
+    {
+        if (get_objects().count(theObjectNameAsStr) == 0)
+        {
+            var strDefault = ""
+            
+            switch(theObjectNameAsStr) { 
+                case ("Server") { 
+                    strDefault = "--server <SERVER_ID>" 
+                    break
+                } 
+                case ("MyNym") { 
+                    strDefault = "--mynym <NYM_ID>" 
+                    break
+                } 
+                case ("MyAcct") { 
+                    strDefault = "--myacct <ACCT_ID>" 
+                    break
+                } 
+                case ("MyPurse") { 
+                    strDefault = "--mypurse <ASSET_TYPE_ID>" 
+                    break
+                } 
+                case ("HisNym") { 
+                    strDefault = "--hisnym <NYM_ID>" 
+                    break
+                } 
+                case ("HisAcct") { 
+                    strDefault = "--hisacct <ACCT_ID>" 
+                    break
+                } 
+                case ("HisPurse") { 
+                    strDefault = "--hispurse <ASSET_TYPE_ID>" 
+                    break
+                } 
+                case ("Args") { 
+                    strDefault = "--args \"key1 value1 key2 value2 key3 \\\"Here is value 3\\\"\"" 
+                    break
+                } 
+                default {
+                    break                    
+                }
+            }
+
+//                if ("Server" == theObjectNameAsStr) { 
+//                    strDefault = "--server <SERVER_ID>" 
+//                } 
+//                else if ("MyNym" == theObjectNameAsStr) { 
+//                    strDefault = "--mynym <NYM_ID>" 
+//                } 
+//                else if  ("MyAcct" == theObjectNameAsStr) { 
+//                    strDefault = "--myacct <ACCT_ID>" 
+//                } 
+//                else if  ("MyPurse" == theObjectNameAsStr) { 
+//                    strDefault = "--mypurse <ASSET_TYPE_ID>" 
+//                } 
+//                else if  ("HisNym" == theObjectNameAsStr) { 
+//                    strDefault = "--hisnym <NYM_ID>" 
+//                } 
+//                else if  ("HisAcct" == theObjectNameAsStr) { 
+//                    strDefault = "--hisacct <ACCT_ID>" 
+//                } 
+//                else if  ("HisPurse" == theObjectNameAsStr) { 
+//                    strDefault = "--hispurse <ASSET_TYPE_ID>" 
+//                } 
+//                else if  ("Args" == theObjectNameAsStr) { 
+//                    strDefault = "--args \"key1 value1 key2 value2 key3 \\\"Here is value 3\\\"\"" 
+//                } 
+            
+            OT_API_Output(0, "Missing variable: " + theObjectNameAsStr + ". Try adding it as a parameter, like this: " + strDefault + "\n(Or if you prefer, set the default in ~/.ot/command-line-ot.opt)\n\n")
+            return false
+        }
+        
+        return true
+    }
 
 // ********************************************************************************
 
     def VerifyStringVal(strValue)
 	{
-		if (strValue.is_var_undef() || strValue.is_var_null() || !strValue.is_type("string") || (strValue.size() < 1))
+		if (strValue.is_var_undef() || strValue.is_var_null() || !strValue.is_type("string") || (1 > strValue.size()))
 		{	return false	}
 		else { return true }
 	}
@@ -65,70 +130,92 @@
     // ---------------------------------------
 	def VerifyMessage(strMessage)
 	{
-		if (strMessage.is_var_undef() || strMessage.is_var_null() || !strMessage.is_type("string") || (strMessage.size() < 10))
+		if (strMessage.is_var_undef() || strMessage.is_var_null() || !strMessage.is_type("string") || (10 > strMessage.size()))
 		{	return false	}
 		else { return true	}
 	}
     // ---------------------------------------
 	def VerifyMessageSuccess(strMessage)
 	{
-		if (strMessage.is_var_undef() || strMessage.is_var_null() || !strMessage.is_type("string") || (strMessage.size() < 10) || (false == OT_API_Message_GetSuccess(strMessage)))
-		{	return false	}
-		else { return true	}
-	}
-    // ---------------------------------------
-	def VerifyBalanceAgreementSuccess(SERVER_ID, USER_ID, ACCOUNT_ID, strMessage)
-	{
-		if (strMessage.is_var_undef() || strMessage.is_var_null() || !strMessage.is_type("string") || (strMessage.size() < 10) || (false == OT_API_Msg_GetBlnceAgrmntSuccess(SERVER_ID, USER_ID, ACCOUNT_ID, strMessage)))
-		{	return false	}
-		else { return true	}
-	}
-    // ---------------------------------------
-	def VerifyTransactionSuccess(SERVER_ID, USER_ID, ACCOUNT_ID, strMessage)
-	{
-		if (strMessage.is_var_undef() || strMessage.is_var_null() || !strMessage.is_type("string") || (strMessage.size() < 10) || (false == OT_API_Msg_GetTransactionSuccess(SERVER_ID, USER_ID, ACCOUNT_ID, strMessage)))
-		{	return false	}
-		else { return true	}
+		if (strMessage.is_var_undef() || strMessage.is_var_null() || !strMessage.is_type("string") || (10 > strMessage.size()))
+		{	return (-1)	}
+        
+        var nSuccess = OT_API_Message_GetSuccess(strMessage);
+        
+        switch (nSuccess)
+        {
+            case (-1) {
+                OT_API_Output(0, "VerifyMessageSuccess: Error calling OT_API_Message_GetSuccess, for message:\n\n" + strMessage + "\n");                
+                break;
+            }
+            case (0) {
+                OT_API_Output(0, "VerifyMessageSuccess: Reply received: success == FALSE. Reply message:\n\n" + strMessage + "\n");
+                break;
+            }
+            case (1) {
+                OT_API_Output(0, "VerifyMessageSuccess: Reply received: success == TRUE.\n");
+                break;
+            }
+            default {
+                OT_API_Output(0, "VerifyMessageSuccess: Error. (This should never happen!) Input: " + strMessage + "\n");
+                nSuccess = (-1);
+                break;
+            }
+        }
+        
+        return nSuccess;
 	}
     // ---------------------------------------
 
-    def getMessageSuccess(strInput) 
-    {
-        var strLocation = "getMessageSuccess"
-        
-        if (!Verifymessage(strInput))
-        {
-            OT_API_Output(0, strLocation + ": null or empty input string. (Returning error condition of -1.)\n")
-            return (-1)
-        }
-        // ---------------------------------------------------  
-        
-        var nSuccess = OT_API_Message_GetSuccess(strInput) // <==================
-        
-        // ---------------------------------------------------
-        
-        if ((-1) ==  nSuccess)
-        {
-            OT_API_Output(0, strLocation + ": Error calling OT_API_Message_GetSuccess, for message:\n\n" + strInput + "\n")            
-        }
-        else if (0 ==  nSuccess)
-        {
-            OT_API_Output(0, strLocation + ": Reply received: success == FALSE. Reply message:\n\n" + strInput + "\n")
-        }
-        else if (1 ==  nSuccess)
-        {
-            OT_API_Output(0, strLocation + ": Reply received: success == TRUE.\n")
-        }
-        else
-        {
-            OT_API_Output(0, strLocation + ": Error. (This should never happen!) Input:\n" + strInput + "\n")
-            nSuccess = (-1)
-        }
-        
-        // Returning...
-        nSuccess
-    }
+//pScript->chai.add(fun(&OTAPI_Wrap::Message_GetSuccess), "OT_API_Message_GetSuccess");                 *DONE (just above)
+//pScript->chai.add(fun(&OTAPI_Wrap::Msg_GetBlnceAgrmntSuccess), "OT_API_Msg_GetBlnceAgrmntSuccess");   *DONE (first below)
+//pScript->chai.add(fun(&OTAPI_Wrap::Msg_GetTransactionSuccess), "OT_API_Msg_GetTransactionSuccess");
+//
+//pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetSuccess), "OT_API_Transaction_GetSuccess");
+//pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetBlnceAgrmntSuccess), "OT_API_Transaction_GetBlnceAgrmntSuccess");
 
+
+	def VerifyMsgBalanceAgrmntSuccess(SERVER_ID, USER_ID, ACCOUNT_ID, strMessage)  // For when an OTMessage is the input.
+	{
+		if (strMessage.is_var_undef() || strMessage.is_var_null() || !strMessage.is_type("string") || (10 > strMessage.size()))
+		{	return -1	}
+        
+        
+        
+		else { return 0	}
+	}
+    // ---------------------------------------
+	def VerifyMsgTrnxSuccess(SERVER_ID, USER_ID, ACCOUNT_ID, strMessage)
+	{
+		if (strMessage.is_var_undef() || strMessage.is_var_null() || !strMessage.is_type("string") || (10 > strMessage.size()) || (false == OT_API_Msg_GetTransactionSuccess(SERVER_ID, USER_ID, ACCOUNT_ID, strMessage)))
+		{	return -1	}
+        
+        var nSuccess = OT_API_Message_GetSuccess(strMessage);
+        
+        switch (nSuccess)
+        {
+            case (-1) {
+                OT_API_Output(0, "VerifyMessageSuccess: Error calling OT_API_Message_GetSuccess, for message:\n\n" + strMessage + "\n");                
+                break;
+            }
+            case (0) {
+                OT_API_Output(0, "VerifyMessageSuccess: Reply received: success == FALSE. Reply message:\n\n" + strMessage + "\n");
+                break;
+            }
+            case (1) {
+                OT_API_Output(0, "VerifyMessageSuccess: Reply received: success == TRUE.\n");
+                break;
+            }
+            default {
+                OT_API_Output(0, "VerifyMessageSuccess: Error. (This should never happen!) Input: " + strMessage + "\n");
+                nSuccess = (-1);
+                break;
+            }
+        }
+        
+        return nSuccess;
+	}
+    // ---------------------------------------
 
     // Provides the functionality of the ? : operator.
 
@@ -1167,7 +1254,7 @@ def Utility::processNymbox(serverID,   nymID,    bWasMsgSent,
     // ReceiveReplyLowLevel returns null unless there was a string returned.
     // So we can directly check it for success...
     
-    var nReplySuccess = getMessageSuccess(strReplyProcess) // sendProcessNymboxLowLevel
+    var nReplySuccess = VerifyMessageSuccess(strReplyProcess) // sendProcessNymboxLowLevel
     var nTransSuccess
     var nBalanceSuccess
     
@@ -1276,7 +1363,7 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
         
         // Returning...
         //
-        getMessageSuccess(strReply)
+        VerifyMessageSuccess(strReply)
     }
     // ------------------------------------------------------
     
@@ -1293,7 +1380,7 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
         this.delay()
         this.setLastReplyReceived("")
         // --------------------------------------------------------------------
-        var strResponseMessage = OT_API_PopMessageBuffer(Integer.toString(nRequestNumber), serverID, nymID)
+        var strResponseMessage = OT_API_PopMessageBuffer(nRequestNumber.to_string(), serverID, nymID)
         
         if (!VerifyStringVal(strResponseMessage))
         {
@@ -2372,17 +2459,17 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
     {
         var strLocation = "getIntermediaryFiles"
                                                                           
-        if (!VerifyStringVal(serverID) || serverID.length() < 10) 
+        if (!VerifyStringVal(serverID) || serverID.size() < 10) 
         {
             OT_API_Output(0, strLocation + ": invalid serverID: " + serverID + "\n")
             return false
         }
-        if (!VerifyStringVal(nymID) || nymID.length() < 10) 
+        if (!VerifyStringVal(nymID) || nymID.size() < 10) 
         {
             OT_API_Output(0, strLocation + ": invalid nymID: " + nymID + "\n")
             return false
         }
-        if (!VerifyStringVal(accountID) || accountID.length() < 10) 
+        if (!VerifyStringVal(accountID) || accountID.size() < 10) 
         {
             OT_API_Output(0, strLocation + ": invalid accountID: " + accountID + "\n")
             return false
@@ -2528,7 +2615,7 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
     {
         var strLocation = "getInboxOutboxAccount"
                                                                           
-        if (!VerifyStringVval(accountID) || accountID.length() < 10) 
+        if (!VerifyStringVval(accountID) || accountID.size() < 10) 
         {
             OT_API_Output(0, strLocation + ": invalid accountID: " + accountID + "\n")
             return false
