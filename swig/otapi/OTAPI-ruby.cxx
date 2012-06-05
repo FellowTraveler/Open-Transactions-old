@@ -5593,6 +5593,98 @@ fail:
 
 
 SWIGINTERN VALUE
+_wrap_OT_API_CreateSymmetricKey(int argc, VALUE *argv, VALUE self) {
+  char *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 0) || (argc > 0)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)",argc); SWIG_fail;
+  }
+  result = (char *)OT_API_CreateSymmetricKey();
+  vresult = SWIG_FromCharPtr((const char *)result);
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OT_API_SymmetricEncrypt(int argc, VALUE *argv, VALUE self) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  char *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 2) || (argc > 2)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
+  }
+  res1 = SWIG_AsCharPtrAndSize(argv[0], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "char const *","OT_API_SymmetricEncrypt", 1, argv[0] ));
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(argv[1], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "char const *","OT_API_SymmetricEncrypt", 2, argv[1] ));
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  result = (char *)OT_API_SymmetricEncrypt((char const *)arg1,(char const *)arg2);
+  vresult = SWIG_FromCharPtr((const char *)result);
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return vresult;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OT_API_SymmetricDecrypt(int argc, VALUE *argv, VALUE self) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  char *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 2) || (argc > 2)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
+  }
+  res1 = SWIG_AsCharPtrAndSize(argv[0], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "char const *","OT_API_SymmetricDecrypt", 1, argv[0] ));
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(argv[1], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "char const *","OT_API_SymmetricDecrypt", 2, argv[1] ));
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  result = (char *)OT_API_SymmetricDecrypt((char const *)arg1,(char const *)arg2);
+  vresult = SWIG_FromCharPtr((const char *)result);
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return vresult;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
 _wrap_OT_API_SignContract(int argc, VALUE *argv, VALUE self) {
   char *arg1 = (char *) 0 ;
   char *arg2 = (char *) 0 ;
@@ -5873,6 +5965,82 @@ fail:
 
 
 SWIGINTERN VALUE
+_wrap_OT_API_CreateServerContract(int argc, VALUE *argv, VALUE self) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  char *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 2) || (argc > 2)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
+  }
+  res1 = SWIG_AsCharPtrAndSize(argv[0], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "char const *","OT_API_CreateServerContract", 1, argv[0] ));
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(argv[1], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "char const *","OT_API_CreateServerContract", 2, argv[1] ));
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  result = (char *)OT_API_CreateServerContract((char const *)arg1,(char const *)arg2);
+  vresult = SWIG_FromCharPtr((const char *)result);
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return vresult;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OT_API_CreateAssetContract(int argc, VALUE *argv, VALUE self) {
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  char *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 2) || (argc > 2)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
+  }
+  res1 = SWIG_AsCharPtrAndSize(argv[0], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "char const *","OT_API_CreateAssetContract", 1, argv[0] ));
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  res2 = SWIG_AsCharPtrAndSize(argv[1], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "char const *","OT_API_CreateAssetContract", 2, argv[1] ));
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  result = (char *)OT_API_CreateAssetContract((char const *)arg1,(char const *)arg2);
+  vresult = SWIG_FromCharPtr((const char *)result);
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return vresult;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
 _wrap_OT_API_AddServerContract(int argc, VALUE *argv, VALUE self) {
   char *arg1 = (char *) 0 ;
   int res1 ;
@@ -6042,6 +6210,33 @@ fail:
 
 
 SWIGINTERN VALUE
+_wrap_OT_API_GetServer_Contract(int argc, VALUE *argv, VALUE self) {
+  char *arg1 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  char *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_AsCharPtrAndSize(argv[0], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "char const *","OT_API_GetServer_Contract", 1, argv[0] ));
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  result = (char *)OT_API_GetServer_Contract((char const *)arg1);
+  vresult = SWIG_FromCharPtr((const char *)result);
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return vresult;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
 _wrap_OT_API_GetAssetType_ID(int argc, VALUE *argv, VALUE self) {
   int arg1 ;
   int val1 ;
@@ -6083,6 +6278,33 @@ _wrap_OT_API_GetAssetType_Name(int argc, VALUE *argv, VALUE self) {
   }
   arg1 = reinterpret_cast< char * >(buf1);
   result = (char *)OT_API_GetAssetType_Name((char const *)arg1);
+  vresult = SWIG_FromCharPtr((const char *)result);
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return vresult;
+fail:
+  if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
+_wrap_OT_API_GetAssetType_Contract(int argc, VALUE *argv, VALUE self) {
+  char *arg1 = (char *) 0 ;
+  int res1 ;
+  char *buf1 = 0 ;
+  int alloc1 = 0 ;
+  char *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 1) || (argc > 1)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 1)",argc); SWIG_fail;
+  }
+  res1 = SWIG_AsCharPtrAndSize(argv[0], &buf1, NULL, &alloc1);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "char const *","OT_API_GetAssetType_Contract", 1, argv[0] ));
+  }
+  arg1 = reinterpret_cast< char * >(buf1);
+  result = (char *)OT_API_GetAssetType_Contract((char const *)arg1);
   vresult = SWIG_FromCharPtr((const char *)result);
   if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
   return vresult;
@@ -32851,6 +33073,9 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_module_function(mOtapi, "OT_API_Decode", VALUEFUNC(_wrap_OT_API_Decode), -1);
   rb_define_module_function(mOtapi, "OT_API_Encrypt", VALUEFUNC(_wrap_OT_API_Encrypt), -1);
   rb_define_module_function(mOtapi, "OT_API_Decrypt", VALUEFUNC(_wrap_OT_API_Decrypt), -1);
+  rb_define_module_function(mOtapi, "OT_API_CreateSymmetricKey", VALUEFUNC(_wrap_OT_API_CreateSymmetricKey), -1);
+  rb_define_module_function(mOtapi, "OT_API_SymmetricEncrypt", VALUEFUNC(_wrap_OT_API_SymmetricEncrypt), -1);
+  rb_define_module_function(mOtapi, "OT_API_SymmetricDecrypt", VALUEFUNC(_wrap_OT_API_SymmetricDecrypt), -1);
   rb_define_module_function(mOtapi, "OT_API_SignContract", VALUEFUNC(_wrap_OT_API_SignContract), -1);
   rb_define_module_function(mOtapi, "OT_API_AddSignature", VALUEFUNC(_wrap_OT_API_AddSignature), -1);
   rb_define_module_function(mOtapi, "OT_API_VerifySignature", VALUEFUNC(_wrap_OT_API_VerifySignature), -1);
@@ -32862,6 +33087,8 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_module_function(mOtapi, "OT_API_PopMemlogFront", VALUEFUNC(_wrap_OT_API_PopMemlogFront), -1);
   rb_define_module_function(mOtapi, "OT_API_PopMemlogBack", VALUEFUNC(_wrap_OT_API_PopMemlogBack), -1);
   rb_define_module_function(mOtapi, "OT_API_CreateNym", VALUEFUNC(_wrap_OT_API_CreateNym), -1);
+  rb_define_module_function(mOtapi, "OT_API_CreateServerContract", VALUEFUNC(_wrap_OT_API_CreateServerContract), -1);
+  rb_define_module_function(mOtapi, "OT_API_CreateAssetContract", VALUEFUNC(_wrap_OT_API_CreateAssetContract), -1);
   rb_define_module_function(mOtapi, "OT_API_AddServerContract", VALUEFUNC(_wrap_OT_API_AddServerContract), -1);
   rb_define_module_function(mOtapi, "OT_API_AddAssetContract", VALUEFUNC(_wrap_OT_API_AddAssetContract), -1);
   rb_define_module_function(mOtapi, "OT_API_GetServerCount", VALUEFUNC(_wrap_OT_API_GetServerCount), -1);
@@ -32870,8 +33097,10 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_module_function(mOtapi, "OT_API_GetNymCount", VALUEFUNC(_wrap_OT_API_GetNymCount), -1);
   rb_define_module_function(mOtapi, "OT_API_GetServer_ID", VALUEFUNC(_wrap_OT_API_GetServer_ID), -1);
   rb_define_module_function(mOtapi, "OT_API_GetServer_Name", VALUEFUNC(_wrap_OT_API_GetServer_Name), -1);
+  rb_define_module_function(mOtapi, "OT_API_GetServer_Contract", VALUEFUNC(_wrap_OT_API_GetServer_Contract), -1);
   rb_define_module_function(mOtapi, "OT_API_GetAssetType_ID", VALUEFUNC(_wrap_OT_API_GetAssetType_ID), -1);
   rb_define_module_function(mOtapi, "OT_API_GetAssetType_Name", VALUEFUNC(_wrap_OT_API_GetAssetType_Name), -1);
+  rb_define_module_function(mOtapi, "OT_API_GetAssetType_Contract", VALUEFUNC(_wrap_OT_API_GetAssetType_Contract), -1);
   rb_define_module_function(mOtapi, "OT_API_GetAccountWallet_ID", VALUEFUNC(_wrap_OT_API_GetAccountWallet_ID), -1);
   rb_define_module_function(mOtapi, "OT_API_GetAccountWallet_Name", VALUEFUNC(_wrap_OT_API_GetAccountWallet_Name), -1);
   rb_define_module_function(mOtapi, "OT_API_GetAccountWallet_Balance", VALUEFUNC(_wrap_OT_API_GetAccountWallet_Balance), -1);

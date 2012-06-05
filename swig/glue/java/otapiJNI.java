@@ -99,6 +99,9 @@ public class otapiJNI {
   public final static native String OT_API_Decode(String jarg1, int jarg2);
   public final static native String OT_API_Encrypt(String jarg1, String jarg2);
   public final static native String OT_API_Decrypt(String jarg1, String jarg2);
+  public final static native String OT_API_CreateSymmetricKey();
+  public final static native String OT_API_SymmetricEncrypt(String jarg1, String jarg2);
+  public final static native String OT_API_SymmetricDecrypt(String jarg1, String jarg2);
   public final static native String OT_API_SignContract(String jarg1, String jarg2);
   public final static native String OT_API_AddSignature(String jarg1, String jarg2);
   public final static native int OT_API_VerifySignature(String jarg1, String jarg2);
@@ -110,6 +113,8 @@ public class otapiJNI {
   public final static native int OT_API_PopMemlogFront();
   public final static native int OT_API_PopMemlogBack();
   public final static native String OT_API_CreateNym(int jarg1);
+  public final static native String OT_API_CreateServerContract(String jarg1, String jarg2);
+  public final static native String OT_API_CreateAssetContract(String jarg1, String jarg2);
   public final static native int OT_API_AddServerContract(String jarg1);
   public final static native int OT_API_AddAssetContract(String jarg1);
   public final static native int OT_API_GetServerCount();
@@ -118,8 +123,10 @@ public class otapiJNI {
   public final static native int OT_API_GetNymCount();
   public final static native String OT_API_GetServer_ID(int jarg1);
   public final static native String OT_API_GetServer_Name(String jarg1);
+  public final static native String OT_API_GetServer_Contract(String jarg1);
   public final static native String OT_API_GetAssetType_ID(int jarg1);
   public final static native String OT_API_GetAssetType_Name(String jarg1);
+  public final static native String OT_API_GetAssetType_Contract(String jarg1);
   public final static native String OT_API_GetAccountWallet_ID(int jarg1);
   public final static native String OT_API_GetAccountWallet_Name(String jarg1);
   public final static native String OT_API_GetAccountWallet_Balance(String jarg1);

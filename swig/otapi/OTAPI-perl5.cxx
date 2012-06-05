@@ -5683,6 +5683,104 @@ XS(_wrap_OT_API_Decrypt) {
 }
 
 
+XS(_wrap_OT_API_CreateSymmetricKey) {
+  {
+    int argvi = 0;
+    char *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 0) || (items > 0)) {
+      SWIG_croak("Usage: OT_API_CreateSymmetricKey();");
+    }
+    result = (char *)OT_API_CreateSymmetricKey();
+    ST(argvi) = SWIG_FromCharPtr((const char *)result); argvi++ ;
+    XSRETURN(argvi);
+  fail:
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_OT_API_SymmetricEncrypt) {
+  {
+    char *arg1 = (char *) 0 ;
+    char *arg2 = (char *) 0 ;
+    int res1 ;
+    char *buf1 = 0 ;
+    int alloc1 = 0 ;
+    int res2 ;
+    char *buf2 = 0 ;
+    int alloc2 = 0 ;
+    int argvi = 0;
+    char *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 2) || (items > 2)) {
+      SWIG_croak("Usage: OT_API_SymmetricEncrypt(SYMMETRIC_KEY,PLAINTEXT);");
+    }
+    res1 = SWIG_AsCharPtrAndSize(ST(0), &buf1, NULL, &alloc1);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_SymmetricEncrypt" "', argument " "1"" of type '" "char const *""'");
+    }
+    arg1 = reinterpret_cast< char * >(buf1);
+    res2 = SWIG_AsCharPtrAndSize(ST(1), &buf2, NULL, &alloc2);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_SymmetricEncrypt" "', argument " "2"" of type '" "char const *""'");
+    }
+    arg2 = reinterpret_cast< char * >(buf2);
+    result = (char *)OT_API_SymmetricEncrypt((char const *)arg1,(char const *)arg2);
+    ST(argvi) = SWIG_FromCharPtr((const char *)result); argvi++ ;
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+    XSRETURN(argvi);
+  fail:
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_OT_API_SymmetricDecrypt) {
+  {
+    char *arg1 = (char *) 0 ;
+    char *arg2 = (char *) 0 ;
+    int res1 ;
+    char *buf1 = 0 ;
+    int alloc1 = 0 ;
+    int res2 ;
+    char *buf2 = 0 ;
+    int alloc2 = 0 ;
+    int argvi = 0;
+    char *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 2) || (items > 2)) {
+      SWIG_croak("Usage: OT_API_SymmetricDecrypt(SYMMETRIC_KEY,CIPHERTEXT_ENVELOPE);");
+    }
+    res1 = SWIG_AsCharPtrAndSize(ST(0), &buf1, NULL, &alloc1);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_SymmetricDecrypt" "', argument " "1"" of type '" "char const *""'");
+    }
+    arg1 = reinterpret_cast< char * >(buf1);
+    res2 = SWIG_AsCharPtrAndSize(ST(1), &buf2, NULL, &alloc2);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_SymmetricDecrypt" "', argument " "2"" of type '" "char const *""'");
+    }
+    arg2 = reinterpret_cast< char * >(buf2);
+    result = (char *)OT_API_SymmetricDecrypt((char const *)arg1,(char const *)arg2);
+    ST(argvi) = SWIG_FromCharPtr((const char *)result); argvi++ ;
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+    XSRETURN(argvi);
+  fail:
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+    SWIG_croak_null();
+  }
+}
+
+
 XS(_wrap_OT_API_SignContract) {
   {
     char *arg1 = (char *) 0 ;
@@ -5989,6 +6087,86 @@ XS(_wrap_OT_API_CreateNym) {
 }
 
 
+XS(_wrap_OT_API_CreateServerContract) {
+  {
+    char *arg1 = (char *) 0 ;
+    char *arg2 = (char *) 0 ;
+    int res1 ;
+    char *buf1 = 0 ;
+    int alloc1 = 0 ;
+    int res2 ;
+    char *buf2 = 0 ;
+    int alloc2 = 0 ;
+    int argvi = 0;
+    char *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 2) || (items > 2)) {
+      SWIG_croak("Usage: OT_API_CreateServerContract(NYM_ID,szXMLcontents);");
+    }
+    res1 = SWIG_AsCharPtrAndSize(ST(0), &buf1, NULL, &alloc1);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_CreateServerContract" "', argument " "1"" of type '" "char const *""'");
+    }
+    arg1 = reinterpret_cast< char * >(buf1);
+    res2 = SWIG_AsCharPtrAndSize(ST(1), &buf2, NULL, &alloc2);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_CreateServerContract" "', argument " "2"" of type '" "char const *""'");
+    }
+    arg2 = reinterpret_cast< char * >(buf2);
+    result = (char *)OT_API_CreateServerContract((char const *)arg1,(char const *)arg2);
+    ST(argvi) = SWIG_FromCharPtr((const char *)result); argvi++ ;
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+    XSRETURN(argvi);
+  fail:
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_OT_API_CreateAssetContract) {
+  {
+    char *arg1 = (char *) 0 ;
+    char *arg2 = (char *) 0 ;
+    int res1 ;
+    char *buf1 = 0 ;
+    int alloc1 = 0 ;
+    int res2 ;
+    char *buf2 = 0 ;
+    int alloc2 = 0 ;
+    int argvi = 0;
+    char *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 2) || (items > 2)) {
+      SWIG_croak("Usage: OT_API_CreateAssetContract(NYM_ID,szXMLcontents);");
+    }
+    res1 = SWIG_AsCharPtrAndSize(ST(0), &buf1, NULL, &alloc1);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_CreateAssetContract" "', argument " "1"" of type '" "char const *""'");
+    }
+    arg1 = reinterpret_cast< char * >(buf1);
+    res2 = SWIG_AsCharPtrAndSize(ST(1), &buf2, NULL, &alloc2);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_CreateAssetContract" "', argument " "2"" of type '" "char const *""'");
+    }
+    arg2 = reinterpret_cast< char * >(buf2);
+    result = (char *)OT_API_CreateAssetContract((char const *)arg1,(char const *)arg2);
+    ST(argvi) = SWIG_FromCharPtr((const char *)result); argvi++ ;
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+    XSRETURN(argvi);
+  fail:
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+    SWIG_croak_null();
+  }
+}
+
+
 XS(_wrap_OT_API_AddServerContract) {
   {
     char *arg1 = (char *) 0 ;
@@ -6176,6 +6354,35 @@ XS(_wrap_OT_API_GetServer_Name) {
 }
 
 
+XS(_wrap_OT_API_GetServer_Contract) {
+  {
+    char *arg1 = (char *) 0 ;
+    int res1 ;
+    char *buf1 = 0 ;
+    int alloc1 = 0 ;
+    int argvi = 0;
+    char *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: OT_API_GetServer_Contract(SERVER_ID);");
+    }
+    res1 = SWIG_AsCharPtrAndSize(ST(0), &buf1, NULL, &alloc1);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_GetServer_Contract" "', argument " "1"" of type '" "char const *""'");
+    }
+    arg1 = reinterpret_cast< char * >(buf1);
+    result = (char *)OT_API_GetServer_Contract((char const *)arg1);
+    ST(argvi) = SWIG_FromCharPtr((const char *)result); argvi++ ;
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    XSRETURN(argvi);
+  fail:
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    SWIG_croak_null();
+  }
+}
+
+
 XS(_wrap_OT_API_GetAssetType_ID) {
   {
     int arg1 ;
@@ -6223,6 +6430,35 @@ XS(_wrap_OT_API_GetAssetType_Name) {
     }
     arg1 = reinterpret_cast< char * >(buf1);
     result = (char *)OT_API_GetAssetType_Name((char const *)arg1);
+    ST(argvi) = SWIG_FromCharPtr((const char *)result); argvi++ ;
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    XSRETURN(argvi);
+  fail:
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    SWIG_croak_null();
+  }
+}
+
+
+XS(_wrap_OT_API_GetAssetType_Contract) {
+  {
+    char *arg1 = (char *) 0 ;
+    int res1 ;
+    char *buf1 = 0 ;
+    int alloc1 = 0 ;
+    int argvi = 0;
+    char *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: OT_API_GetAssetType_Contract(ASSET_TYPE_ID);");
+    }
+    res1 = SWIG_AsCharPtrAndSize(ST(0), &buf1, NULL, &alloc1);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_GetAssetType_Contract" "', argument " "1"" of type '" "char const *""'");
+    }
+    arg1 = reinterpret_cast< char * >(buf1);
+    result = (char *)OT_API_GetAssetType_Contract((char const *)arg1);
     ST(argvi) = SWIG_FromCharPtr((const char *)result); argvi++ ;
     if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
     XSRETURN(argvi);
@@ -38099,6 +38335,9 @@ static swig_command_info swig_commands[] = {
 {"otapic::OT_API_Decode", _wrap_OT_API_Decode},
 {"otapic::OT_API_Encrypt", _wrap_OT_API_Encrypt},
 {"otapic::OT_API_Decrypt", _wrap_OT_API_Decrypt},
+{"otapic::OT_API_CreateSymmetricKey", _wrap_OT_API_CreateSymmetricKey},
+{"otapic::OT_API_SymmetricEncrypt", _wrap_OT_API_SymmetricEncrypt},
+{"otapic::OT_API_SymmetricDecrypt", _wrap_OT_API_SymmetricDecrypt},
 {"otapic::OT_API_SignContract", _wrap_OT_API_SignContract},
 {"otapic::OT_API_AddSignature", _wrap_OT_API_AddSignature},
 {"otapic::OT_API_VerifySignature", _wrap_OT_API_VerifySignature},
@@ -38110,6 +38349,8 @@ static swig_command_info swig_commands[] = {
 {"otapic::OT_API_PopMemlogFront", _wrap_OT_API_PopMemlogFront},
 {"otapic::OT_API_PopMemlogBack", _wrap_OT_API_PopMemlogBack},
 {"otapic::OT_API_CreateNym", _wrap_OT_API_CreateNym},
+{"otapic::OT_API_CreateServerContract", _wrap_OT_API_CreateServerContract},
+{"otapic::OT_API_CreateAssetContract", _wrap_OT_API_CreateAssetContract},
 {"otapic::OT_API_AddServerContract", _wrap_OT_API_AddServerContract},
 {"otapic::OT_API_AddAssetContract", _wrap_OT_API_AddAssetContract},
 {"otapic::OT_API_GetServerCount", _wrap_OT_API_GetServerCount},
@@ -38118,8 +38359,10 @@ static swig_command_info swig_commands[] = {
 {"otapic::OT_API_GetNymCount", _wrap_OT_API_GetNymCount},
 {"otapic::OT_API_GetServer_ID", _wrap_OT_API_GetServer_ID},
 {"otapic::OT_API_GetServer_Name", _wrap_OT_API_GetServer_Name},
+{"otapic::OT_API_GetServer_Contract", _wrap_OT_API_GetServer_Contract},
 {"otapic::OT_API_GetAssetType_ID", _wrap_OT_API_GetAssetType_ID},
 {"otapic::OT_API_GetAssetType_Name", _wrap_OT_API_GetAssetType_Name},
+{"otapic::OT_API_GetAssetType_Contract", _wrap_OT_API_GetAssetType_Contract},
 {"otapic::OT_API_GetAccountWallet_ID", _wrap_OT_API_GetAccountWallet_ID},
 {"otapic::OT_API_GetAccountWallet_Name", _wrap_OT_API_GetAccountWallet_Name},
 {"otapic::OT_API_GetAccountWallet_Balance", _wrap_OT_API_GetAccountWallet_Balance},

@@ -8,9 +8,6 @@
 
 package com.wrapper.core.jni;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class ContactNym extends Displayable {
   private long swigCPtr;
 
