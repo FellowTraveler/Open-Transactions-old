@@ -22,7 +22,7 @@
         OT_API_Output(0, "-------------------------------------------\nSigned:\n\n")
 
         // stdout
-        print("strOutput)
+        print(strOutput)
 
         // stderr
         OT_API_Output(0, "\n\n")
