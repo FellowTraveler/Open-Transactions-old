@@ -319,6 +319,7 @@ static this() {
   mixin(bindCode("OTPassword_getPassword_uint8", "D_OTPassword_getPassword_uint8"));
   mixin(bindCode("OTPassword_getPassword", "D_OTPassword_getPassword"));
   mixin(bindCode("OTPassword_getPasswordWritable", "D_OTPassword_getPasswordWritable"));
+  mixin(bindCode("OTPassword_getPasswordWritable_char", "D_OTPassword_getPasswordWritable_char"));
   mixin(bindCode("OTPassword_setPassword", "D_OTPassword_setPassword"));
   mixin(bindCode("OTPassword_setPassword_uint8", "D_OTPassword_setPassword_uint8"));
   mixin(bindCode("OTPassword_addChar", "D_OTPassword_addChar"));
@@ -1301,6 +1302,7 @@ extern(C) uint function(void* jarg1) OTPassword_isPassword;
 extern(C) void* function(void* jarg1) OTPassword_getPassword_uint8;
 extern(C) char* function(void* jarg1) OTPassword_getPassword;
 extern(C) void* function(void* jarg1) OTPassword_getPasswordWritable;
+extern(C) char* function(void* jarg1) OTPassword_getPasswordWritable_char;
 extern(C) int function(void* jarg1, char* jarg2, int jarg3) OTPassword_setPassword;
 extern(C) void* function(void* jarg1, void* jarg2, void* jarg3) OTPassword_setPassword_uint8;
 extern(C) uint function(void* jarg1, void* jarg2) OTPassword_addChar;

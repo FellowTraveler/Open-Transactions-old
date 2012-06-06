@@ -18,6 +18,12 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\otapi\OTAPI-ruby.cxx" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\otapi\OTAPI-ruby.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{C7F61F18-3D7F-4B24-9A92-B67EBC22F49A}</ProjectGuid>
     <RootNamespace>otapiruby</RootNamespace>
@@ -178,12 +184,6 @@
       <Command>del "$(SolutionDir)..\otapi\OTAPI_wrap.h"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\otapi\OTAPI_ruby.cxx" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\otapi\OTAPI_ruby.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -18,6 +18,12 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\otapi\OTAPI-php.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\otapi\OTAPI-php.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{B4E4ABA4-DCE6-4D25-943E-DCE089C53070}</ProjectGuid>
     <RootNamespace>otapiphp</RootNamespace>
@@ -178,12 +184,6 @@
       <Command>del "$(SolutionDir)..\otapi\OTAPI_wrap.h"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\otapi\OTAPI_php.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\otapi\OTAPI_php.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

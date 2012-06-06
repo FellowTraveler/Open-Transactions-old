@@ -42,6 +42,7 @@ ZEND_NAMED_FUNCTION(_wrap_OTPassword_isPassword);
 ZEND_NAMED_FUNCTION(_wrap_OTPassword_getPassword_uint8);
 ZEND_NAMED_FUNCTION(_wrap_OTPassword_getPassword);
 ZEND_NAMED_FUNCTION(_wrap_OTPassword_getPasswordWritable);
+ZEND_NAMED_FUNCTION(_wrap_OTPassword_getPasswordWritable_char);
 ZEND_NAMED_FUNCTION(_wrap_OTPassword_setPassword);
 ZEND_NAMED_FUNCTION(_wrap_OTPassword_setPassword_uint8);
 ZEND_NAMED_FUNCTION(_wrap_OTPassword_addChar);

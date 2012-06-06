@@ -34,6 +34,7 @@ public class otapiJNI {
   public final static native long OTPassword_getPassword_uint8(long jarg1, OTPassword jarg1_);
   public final static native String OTPassword_getPassword(long jarg1, OTPassword jarg1_);
   public final static native long OTPassword_getPasswordWritable(long jarg1, OTPassword jarg1_);
+  public final static native String OTPassword_getPasswordWritable_char(long jarg1, OTPassword jarg1_);
   public final static native int OTPassword_setPassword(long jarg1, OTPassword jarg1_, String jarg2, int jarg3);
   public final static native long OTPassword_setPassword_uint8(long jarg1, OTPassword jarg1_, long jarg2, long jarg3);
   public final static native boolean OTPassword_addChar(long jarg1, OTPassword jarg1_, long jarg2);

@@ -414,6 +414,7 @@ EXPORT	const		uint8_t *	getPassword_uint8() const; // asserts if m_bIsText is fa
 
 EXPORT	const		char *		getPassword()	const; // asserts if m_bIsText is false.
 EXPORT				uint8_t *	getPasswordWritable(); // asserts if m_bIsText is false.
+EXPORT				char *		getPasswordWritable_char(); // asserts if m_bIsText is false.
     
 EXPORT				int			setPassword(const char * szInput, int nInputSize); // (FYI, truncates if nInputSize larger than getBlockSize.)
 EXPORT				int32_t		setPassword_uint8(const uint8_t * szInput, uint32_t nInputSize); // (FYI, truncates if nInputSize larger than getBlockSize.)

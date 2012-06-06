@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\otapi\OTAPI_tcl.cxx">
+    <ClCompile Include="..\..\otapi\OTAPI-tcl.cxx">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

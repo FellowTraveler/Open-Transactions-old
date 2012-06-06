@@ -2469,6 +2469,27 @@ fail:
 
 
 SWIGINTERN int
+_wrap_OTPassword_getPasswordWritable_char(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  char *result = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"o:OTPassword_getPasswordWritable_char self ",(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_OTPassword, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTPassword_getPasswordWritable_char" "', argument " "1"" of type '" "OTPassword *""'"); 
+  }
+  arg1 = reinterpret_cast< OTPassword * >(argp1);
+  result = (char *)(arg1)->getPasswordWritable_char();
+  Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
+  return TCL_OK;
+fail:
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
 _wrap_OTPassword_setPassword(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   OTPassword *arg1 = (OTPassword *) 0 ;
   char *arg2 = (char *) 0 ;
@@ -4016,6 +4037,7 @@ static swig_method swig_OTPassword_methods[] = {
     {"getPassword_uint8", _wrap_OTPassword_getPassword_uint8}, 
     {"getPassword", _wrap_OTPassword_getPassword}, 
     {"getPasswordWritable", _wrap_OTPassword_getPasswordWritable}, 
+    {"getPasswordWritable_char", _wrap_OTPassword_getPasswordWritable_char}, 
     {"setPassword", _wrap_OTPassword_setPassword}, 
     {"setPassword_uint8", _wrap_OTPassword_setPassword_uint8}, 
     {"addChar", _wrap_OTPassword_addChar}, 
@@ -30645,6 +30667,7 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "OTPassword_getPassword_uint8", (swig_wrapper_func) _wrap_OTPassword_getPassword_uint8, NULL},
     { SWIG_prefix "OTPassword_getPassword", (swig_wrapper_func) _wrap_OTPassword_getPassword, NULL},
     { SWIG_prefix "OTPassword_getPasswordWritable", (swig_wrapper_func) _wrap_OTPassword_getPasswordWritable, NULL},
+    { SWIG_prefix "OTPassword_getPasswordWritable_char", (swig_wrapper_func) _wrap_OTPassword_getPasswordWritable_char, NULL},
     { SWIG_prefix "OTPassword_setPassword", (swig_wrapper_func) _wrap_OTPassword_setPassword, NULL},
     { SWIG_prefix "OTPassword_setPassword_uint8", (swig_wrapper_func) _wrap_OTPassword_setPassword_uint8, NULL},
     { SWIG_prefix "OTPassword_addChar", (swig_wrapper_func) _wrap_OTPassword_addChar, NULL},

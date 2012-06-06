@@ -69,6 +69,11 @@ public class OTPassword : IDisposable {
     return ret;
   }
 
+  public string getPasswordWritable_char() {
+    string ret = otapiPINVOKE.OTPassword_getPasswordWritable_char(swigCPtr);
+    return ret;
+  }
+
   public int setPassword(string szInput, int nInputSize) {
     int ret = otapiPINVOKE.OTPassword_setPassword(swigCPtr, szInput, nInputSize);
     return ret;

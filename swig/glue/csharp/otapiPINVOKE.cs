@@ -257,6 +257,9 @@ class otapiPINVOKE {
   [DllImport("otapi", EntryPoint="CSharp_OTPassword_getPasswordWritable")]
   public static extern IntPtr OTPassword_getPasswordWritable(HandleRef jarg1);
 
+  [DllImport("otapi", EntryPoint="CSharp_OTPassword_getPasswordWritable_char")]
+  public static extern string OTPassword_getPasswordWritable_char(HandleRef jarg1);
+
   [DllImport("otapi", EntryPoint="CSharp_OTPassword_setPassword")]
   public static extern int OTPassword_setPassword(HandleRef jarg1, string jarg2, int jarg3);
 

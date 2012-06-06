@@ -57,6 +57,10 @@ public class OTPassword {
     return (cPtr == 0) ? null : new SWIGTYPE_p_uint8_t(cPtr, false);
   }
 
+  public String getPasswordWritable_char() {
+    return otapiJNI.OTPassword_getPasswordWritable_char(swigCPtr, this);
+  }
+
   public int setPassword(String szInput, int nInputSize) {
     return otapiJNI.OTPassword_setPassword(swigCPtr, this, szInput, nInputSize);
   }

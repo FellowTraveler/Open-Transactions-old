@@ -4593,6 +4593,28 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_OTPassword_getPasswordWritable_char(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  char *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:OTPassword_getPasswordWritable_char",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_OTPassword, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTPassword_getPasswordWritable_char" "', argument " "1"" of type '" "OTPassword *""'"); 
+  }
+  arg1 = reinterpret_cast< OTPassword * >(argp1);
+  result = (char *)(arg1)->getPasswordWritable_char();
+  resultobj = SWIG_FromCharPtr((const char *)result);
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_OTPassword_setPassword(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   OTPassword *arg1 = (OTPassword *) 0 ;
@@ -34136,6 +34158,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"OTPassword_getPassword_uint8", _wrap_OTPassword_getPassword_uint8, METH_VARARGS, NULL},
 	 { (char *)"OTPassword_getPassword", _wrap_OTPassword_getPassword, METH_VARARGS, NULL},
 	 { (char *)"OTPassword_getPasswordWritable", _wrap_OTPassword_getPasswordWritable, METH_VARARGS, NULL},
+	 { (char *)"OTPassword_getPasswordWritable_char", _wrap_OTPassword_getPasswordWritable_char, METH_VARARGS, NULL},
 	 { (char *)"OTPassword_setPassword", _wrap_OTPassword_setPassword, METH_VARARGS, NULL},
 	 { (char *)"OTPassword_setPassword_uint8", _wrap_OTPassword_setPassword_uint8, METH_VARARGS, NULL},
 	 { (char *)"OTPassword_addChar", _wrap_OTPassword_addChar, METH_VARARGS, NULL},

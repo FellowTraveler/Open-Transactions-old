@@ -18,6 +18,9 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\otapi\OTAPI-perl5.cxx" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{08926EA6-3903-4217-B562-ECCFE8191F0A}</ProjectGuid>
     <RootNamespace>otapiperl5</RootNamespace>
@@ -174,9 +177,6 @@
       <Command>copy /Y "$(SolutionDir)..\otapi\$(AssemblyName).h" "$(SolutionDir)..\otapi\OTAPI_wrap.h"</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\otapi\OTAPI_perl5.cxx" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
