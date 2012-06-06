@@ -18,6 +18,12 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\otapi\OTAPI-python.cxx" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\otapi\OTAPI-python.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{CDCB29F4-235F-4BC9-B7AA-DE4907E5EE01}</ProjectGuid>
     <RootNamespace>otapipython</RootNamespace>
@@ -178,12 +184,6 @@
       <Command>del "$(SolutionDir)..\otapi\OTAPI_wrap.h"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\otapi\OTAPI_python.cxx" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\otapi\OTAPI_python.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

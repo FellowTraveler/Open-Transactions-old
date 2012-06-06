@@ -156,9 +156,9 @@ extern "C"
 #else
 #include <pwd.h>
 #include <unistd.h>
-#include "stacktrace.h"
 #endif
-    
+
+#include "stacktrace.h"
 #include <stdint.h>	
 
 }

@@ -2719,6 +2719,34 @@ XS(_wrap_OTPassword_getPasswordWritable) {
 }
 
 
+XS(_wrap_OTPassword_getPasswordWritable_char) {
+  {
+    OTPassword *arg1 = (OTPassword *) 0 ;
+    void *argp1 = 0 ;
+    int res1 = 0 ;
+    int argvi = 0;
+    char *result = 0 ;
+    dXSARGS;
+    
+    if ((items < 1) || (items > 1)) {
+      SWIG_croak("Usage: OTPassword_getPasswordWritable_char(self);");
+    }
+    res1 = SWIG_ConvertPtr(ST(0), &argp1,SWIGTYPE_p_OTPassword, 0 |  0 );
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OTPassword_getPasswordWritable_char" "', argument " "1"" of type '" "OTPassword *""'"); 
+    }
+    arg1 = reinterpret_cast< OTPassword * >(argp1);
+    result = (char *)(arg1)->getPasswordWritable_char();
+    ST(argvi) = SWIG_FromCharPtr((const char *)result); argvi++ ;
+    
+    XSRETURN(argvi);
+  fail:
+    
+    SWIG_croak_null();
+  }
+}
+
+
 XS(_wrap_OTPassword_setPassword) {
   {
     OTPassword *arg1 = (OTPassword *) 0 ;
@@ -38289,6 +38317,7 @@ static swig_command_info swig_commands[] = {
 {"otapic::OTPassword_getPassword_uint8", _wrap_OTPassword_getPassword_uint8},
 {"otapic::OTPassword_getPassword", _wrap_OTPassword_getPassword},
 {"otapic::OTPassword_getPasswordWritable", _wrap_OTPassword_getPasswordWritable},
+{"otapic::OTPassword_getPasswordWritable_char", _wrap_OTPassword_getPasswordWritable_char},
 {"otapic::OTPassword_setPassword", _wrap_OTPassword_setPassword},
 {"otapic::OTPassword_setPassword_uint8", _wrap_OTPassword_setPassword_uint8},
 {"otapic::OTPassword_addChar", _wrap_OTPassword_addChar},

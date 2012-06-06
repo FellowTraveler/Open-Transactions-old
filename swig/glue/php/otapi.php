@@ -1300,6 +1300,10 @@ class OTPassword {
 		return OTPassword_getPasswordWritable($this->_cPtr);
 	}
 
+	function getPasswordWritable_char() {
+		return OTPassword_getPasswordWritable_char($this->_cPtr);
+	}
+
 	function setPassword($szInput,$nInputSize) {
 		return OTPassword_setPassword($this->_cPtr,$szInput,$nInputSize);
 	}

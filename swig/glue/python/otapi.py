@@ -115,6 +115,7 @@ class OTPassword(_object):
     def getPassword_uint8(self): return _otapi.OTPassword_getPassword_uint8(self)
     def getPassword(self): return _otapi.OTPassword_getPassword(self)
     def getPasswordWritable(self): return _otapi.OTPassword_getPasswordWritable(self)
+    def getPasswordWritable_char(self): return _otapi.OTPassword_getPasswordWritable_char(self)
     def setPassword(self, *args): return _otapi.OTPassword_setPassword(self, *args)
     def setPassword_uint8(self, *args): return _otapi.OTPassword_setPassword_uint8(self, *args)
     def addChar(self, *args): return _otapi.OTPassword_addChar(self, *args)

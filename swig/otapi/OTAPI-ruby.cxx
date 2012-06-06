@@ -3176,6 +3176,30 @@ fail:
 
 
 SWIGINTERN VALUE
+_wrap_OTPassword_getPasswordWritable_char(int argc, VALUE *argv, VALUE self) {
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  char *result = 0 ;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 0) || (argc > 0)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 0)",argc); SWIG_fail;
+  }
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_OTPassword, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), Ruby_Format_TypeError( "", "OTPassword *","getPasswordWritable_char", 1, self )); 
+  }
+  arg1 = reinterpret_cast< OTPassword * >(argp1);
+  result = (char *)(arg1)->getPasswordWritable_char();
+  vresult = SWIG_FromCharPtr((const char *)result);
+  return vresult;
+fail:
+  return Qnil;
+}
+
+
+SWIGINTERN VALUE
 _wrap_OTPassword_setPassword(int argc, VALUE *argv, VALUE self) {
   OTPassword *arg1 = (OTPassword *) 0 ;
   char *arg2 = (char *) 0 ;
@@ -33013,6 +33037,7 @@ SWIGEXPORT void Init_otapi(void) {
   rb_define_method(SwigClassOTPassword.klass, "getPassword_uint8", VALUEFUNC(_wrap_OTPassword_getPassword_uint8), -1);
   rb_define_method(SwigClassOTPassword.klass, "getPassword", VALUEFUNC(_wrap_OTPassword_getPassword), -1);
   rb_define_method(SwigClassOTPassword.klass, "getPasswordWritable", VALUEFUNC(_wrap_OTPassword_getPasswordWritable), -1);
+  rb_define_method(SwigClassOTPassword.klass, "getPasswordWritable_char", VALUEFUNC(_wrap_OTPassword_getPasswordWritable_char), -1);
   rb_define_method(SwigClassOTPassword.klass, "setPassword", VALUEFUNC(_wrap_OTPassword_setPassword), -1);
   rb_define_method(SwigClassOTPassword.klass, "setPassword_uint8", VALUEFUNC(_wrap_OTPassword_setPassword_uint8), -1);
   rb_define_method(SwigClassOTPassword.klass, "addChar", VALUEFUNC(_wrap_OTPassword_addChar), -1);

@@ -15,12 +15,12 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\otapi\OTAPI_csharp.cxx">
+    <ClCompile Include="..\..\otapi\OTAPI-csharp.cxx">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\otapi\OTAPI_csharp.h">
+    <ClInclude Include="..\..\otapi\OTAPI-csharp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

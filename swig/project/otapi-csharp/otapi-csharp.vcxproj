@@ -18,6 +18,12 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\otapi\OTAPI-csharp.cxx" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\otapi\OTAPI-csharp.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{714475A4-B7C2-455F-BFD1-DE8EE71240E9}</ProjectGuid>
     <RootNamespace>otapicsharp</RootNamespace>
@@ -178,12 +184,6 @@
       <Command>del "$(SolutionDir)..\otapi\OTAPI_wrap.h"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\otapi\OTAPI_csharp.cxx" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\otapi\OTAPI_csharp.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

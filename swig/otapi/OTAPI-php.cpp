@@ -1738,7 +1738,7 @@ static swig_cast_info *swig_cast_initial[] = {
 
 /* end header section */
 
-#include "OTAPI_wrap.h"
+#include "OTAPI-php.h"
 
 SwigDirector_OTCallback::SwigDirector_OTCallback(zval *self TSRMLS_DC): OTCallback(), Swig::Director(self TSRMLS_CC) {
   
@@ -2408,6 +2408,36 @@ ZEND_NAMED_FUNCTION(_wrap_OTPassword_getPasswordWritable) {
   
   SWIG_SetPointerZval(return_value, (void *)result, SWIGTYPE_p_uint8_t, 0);
   
+  return;
+fail:
+  SWIG_FAIL();
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_OTPassword_getPasswordWritable_char) {
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  zval **args[1];
+  char *result = 0 ;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, SWIGTYPE_p_OTPassword, 0) < 0) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of OTPassword_getPasswordWritable_char. Expected SWIGTYPE_p_OTPassword");
+    }
+  }
+  if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+  result = (char *)(arg1)->getPasswordWritable_char();
+  {
+    if(!result) {
+      ZVAL_NULL(return_value);
+    } else {
+      ZVAL_STRING(return_value, (char *)result, 1);
+    }
+  }
   return;
 fail:
   SWIG_FAIL();
@@ -31791,6 +31821,7 @@ static zend_function_entry otapi_functions[] = {
  SWIG_ZEND_NAMED_FE(otpassword_getpassword_uint8,_wrap_OTPassword_getPassword_uint8,NULL)
  SWIG_ZEND_NAMED_FE(otpassword_getpassword,_wrap_OTPassword_getPassword,NULL)
  SWIG_ZEND_NAMED_FE(otpassword_getpasswordwritable,_wrap_OTPassword_getPasswordWritable,NULL)
+ SWIG_ZEND_NAMED_FE(otpassword_getpasswordwritable_char,_wrap_OTPassword_getPasswordWritable_char,NULL)
  SWIG_ZEND_NAMED_FE(otpassword_setpassword,_wrap_OTPassword_setPassword,NULL)
  SWIG_ZEND_NAMED_FE(otpassword_setpassword_uint8,_wrap_OTPassword_setPassword_uint8,NULL)
  SWIG_ZEND_NAMED_FE(otpassword_addchar,_wrap_OTPassword_addChar,NULL)

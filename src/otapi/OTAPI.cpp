@@ -3348,7 +3348,7 @@ const char * OT_API_CreateSymmetricKey()
     OTString strOutput;
     bool bSuccess = false;
     
-    const int nCallback = souped_up_pass_cb(passUserInput.getPasswordWritable(),
+    const int nCallback = souped_up_pass_cb(passUserInput.getPasswordWritable_char(),
                                             passUserInput.getBlockSize(),
                                             1, // bVerifyTwice ? 1 : 0, 
                                             static_cast<void *>(&thePWData));
@@ -3358,16 +3358,16 @@ const char * OT_API_CreateSymmetricKey()
         OTSymmetricKey theKey(passUserInput);
         
         OTLog::vOutput(3, "%s: Calling OTSymmetricKey theKey.GenerateKey()...\n", __FUNCTION__);
-        bGenerated = theKey.GenerateKey(passUserInput);
+        bool bGenerated = theKey.GenerateKey(passUserInput);
         //      OTLog::vOutput(0, "%s: Finished calling OTSymmetricKey theKey.GenerateKey()...\n", __FUNCTION__);
         
         if (bGenerated && theKey.SerializeTo(strOutput))
             bSuccess = true;
         else
-            OTLog::vOutput("%s: Sorry, unable to generate key. (Failure.)\n", __FUNCTION__);
+            OTLog::vOutput(1,"%s: Sorry, unable to generate key. (Failure.)\n", __FUNCTION__);
     }
     else
-        OTLog::vOutput("%s: Sorry, unable to retrieve password from user. (Failure.)\n", __FUNCTION__);
+        OTLog::vOutput(1,"%s: Sorry, unable to retrieve password from user. (Failure.)\n", __FUNCTION__);
     
     if (!bSuccess)
         return NULL;
@@ -3399,7 +3399,7 @@ const char * OT_API_SymmetricEncrypt(const char * SYMMETRIC_KEY, const char * PL
     
     if (!strKey.Exists() || !strPlaintext.Exists())
     {
-        OTLog::vOutput("%s: Nonexistent: either the key or the plaintext. Please supply. (Failure.)\n",
+        OTLog::vOutput(1,"%s: Nonexistent: either the key or the plaintext. Please supply. (Failure.)\n",
                        __FUNCTION__);
         return NULL;
     }
@@ -3408,7 +3408,7 @@ const char * OT_API_SymmetricEncrypt(const char * SYMMETRIC_KEY, const char * PL
     
     if (false == theKey.SerializeFrom(strKey))
     {    
-        OTLog::vOutput("%s: Failed trying to load symmetric key from string. (Returning NULL.)\n",
+        OTLog::vOutput(1,"%s: Failed trying to load symmetric key from string. (Returning NULL.)\n",
                        __FUNCTION__);
         return NULL;
     }
@@ -3419,7 +3419,7 @@ const char * OT_API_SymmetricEncrypt(const char * SYMMETRIC_KEY, const char * PL
     const char *    szDisplay = "OT_API_SymmetricEncrypt";
     OTPasswordData  thePWData(szDisplay);
         
-    const int nCallback = souped_up_pass_cb(passUserInput.getPasswordWritable(),
+    const int nCallback = souped_up_pass_cb(passUserInput.getPasswordWritable_char(),
                                             passUserInput.getBlockSize(),
                                             0, // bVerifyTwice ? 1 : 0, 
                                             static_cast<void *>(&thePWData));
@@ -3435,13 +3435,13 @@ const char * OT_API_SymmetricEncrypt(const char * SYMMETRIC_KEY, const char * PL
         }
         else
         {
-            OTLog::vOutput("%s: Failed trying to encrypt. (Sorry.)\n",
+            OTLog::vOutput(1,"%s: Failed trying to encrypt. (Sorry.)\n",
                            __FUNCTION__);
             return NULL;
         }
     }
     else
-        OTLog::vOutput("%s: Sorry, unable to retrieve passphrase from user. (Failure.)\n", 
+        OTLog::vOutput(1,"%s: Sorry, unable to retrieve passphrase from user. (Failure.)\n", 
                        __FUNCTION__);
     
     if (!bSuccess)
@@ -3468,7 +3468,7 @@ const char * OT_API_SymmetricDecrypt(const char * SYMMETRIC_KEY, const char * CI
     
     if (!ascArmor.Exists())
     {
-        OTLog::vOutput("%s: Nonexistent: the ciphertext envelope. Please supply. (Failure.)\n",
+        OTLog::vOutput(1,"%s: Nonexistent: the ciphertext envelope. Please supply. (Failure.)\n",
                        __FUNCTION__);
         return NULL;
     }
@@ -3477,7 +3477,7 @@ const char * OT_API_SymmetricDecrypt(const char * SYMMETRIC_KEY, const char * CI
     
     if (!strKey.Exists())
     {
-        OTLog::vOutput("%s: Nonexistent: The symmetric key. Please supply. (Failure.)\n",
+        OTLog::vOutput(1,"%s: Nonexistent: The symmetric key. Please supply. (Failure.)\n",
                        __FUNCTION__);
         return NULL;
     }
@@ -3486,7 +3486,7 @@ const char * OT_API_SymmetricDecrypt(const char * SYMMETRIC_KEY, const char * CI
     
     if (false == theKey.SerializeFrom(strKey))
     {    
-        OTLog::vOutput("%s: Failed trying to load symmetric key from string. (Returning NULL.)\n",
+        OTLog::vOutput(1,"%s: Failed trying to load symmetric key from string. (Returning NULL.)\n",
                        __FUNCTION__);
         return NULL;
     }
@@ -3497,7 +3497,7 @@ const char * OT_API_SymmetricDecrypt(const char * SYMMETRIC_KEY, const char * CI
     const char *    szDisplay = "OT_API_SymmetricDecrypt";
     OTPasswordData  thePWData(szDisplay);
     
-    const int nCallback = souped_up_pass_cb(passUserInput.getPasswordWritable(),
+    const int nCallback = souped_up_pass_cb(passUserInput.getPasswordWritable_char(),
                                             passUserInput.getBlockSize(),
                                             0, // bVerifyTwice ? 1 : 0, 
                                             static_cast<void *>(&thePWData));
@@ -3512,13 +3512,13 @@ const char * OT_API_SymmetricDecrypt(const char * SYMMETRIC_KEY, const char * CI
         }
         else
         {
-            OTLog::vOutput("%s: Failed trying to decrypt. (Sorry.)\n",
+            OTLog::vOutput(1,"%s: Failed trying to decrypt. (Sorry.)\n",
                            __FUNCTION__);
             return NULL;
         }
     }
     else
-        OTLog::vOutput("%s: Sorry, unable to retrieve passphrase from user. (Failure.)\n", 
+        OTLog::vOutput(1,"%s: Sorry, unable to retrieve passphrase from user. (Failure.)\n", 
                        __FUNCTION__);
     
     if (!bSuccess)

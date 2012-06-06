@@ -278,7 +278,7 @@ namespace Swig {
  * C++ director class methods
  * --------------------------------------------------- */
 
-#include "OTAPI_wrap.h"
+#include "OTAPI-d.h"
 
 SwigDirector_OTCallback::SwigDirector_OTCallback() : OTCallback(), Swig::Director() {
   swig_init_callbacks();
@@ -604,6 +604,18 @@ SWIGEXPORT void * D_OTPassword_getPasswordWritable(void * jarg1) {
   arg1 = (OTPassword *)jarg1;
   result = (uint8_t *)(arg1)->getPasswordWritable();
   jresult = (void *)result;
+  return jresult;
+}
+
+
+SWIGEXPORT char * D_OTPassword_getPasswordWritable_char(void * jarg1) {
+  char * jresult ;
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  char *result = 0 ;
+  
+  arg1 = (OTPassword *)jarg1;
+  result = (char *)(arg1)->getPasswordWritable_char();
+  jresult = SWIG_d_string_callback((const char *)result); 
   return jresult;
 }
 

@@ -649,6 +649,12 @@ uint8_t * OTPassword::getPasswordWritable()
 	return (m_nPasswordSize <= 0) ? NULL : static_cast<uint8_t *>(static_cast<void *>(&(m_szPassword[0]))); 
 }
 
+char * OTPassword::getPasswordWritable_char()
+{
+    OT_ASSERT(m_bIsText);
+	return (m_nPasswordSize <= 0) ? NULL : static_cast<char *>(static_cast<void *>(&(m_szPassword[0]))); 
+}
+
 
 // ---------------------------------------------------------
 // getMemory returns NULL if empty, otherwise returns the password.

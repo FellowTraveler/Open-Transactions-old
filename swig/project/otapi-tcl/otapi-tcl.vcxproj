@@ -18,6 +18,9 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\otapi\OTAPI-tcl.cxx" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{C41368E9-8656-467E-8F12-40A6F602DF1F}</ProjectGuid>
     <RootNamespace>otapitcl</RootNamespace>
@@ -178,9 +181,6 @@
       <Command>del "$(SolutionDir)..\otapi\OTAPI_wrap.h"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\otapi\OTAPI_tcl.cxx" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

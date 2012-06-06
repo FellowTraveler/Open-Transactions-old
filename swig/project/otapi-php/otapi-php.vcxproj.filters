@@ -15,12 +15,12 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\otapi\OTAPI_php.cpp">
+    <ClCompile Include="..\..\otapi\OTAPI-php.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\otapi\OTAPI_php.h">
+    <ClInclude Include="..\..\otapi\OTAPI-php.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

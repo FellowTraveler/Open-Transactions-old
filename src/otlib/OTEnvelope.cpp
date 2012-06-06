@@ -168,11 +168,10 @@ extern "C"
 #include <sys/types.h>
 #include <sys/time.h>           // 
 #include <sys/resource.h>
-    
-#include "stacktrace.h"
-    
 #endif
 }
+
+#include "stacktrace.h"
 
 // ----------------------------
 

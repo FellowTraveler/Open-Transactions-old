@@ -365,6 +365,7 @@ use vars qw(@ISA %OWNER %ITERATORS %BLESSEDMEMBERS);
 *getPassword_uint8 = *otapic::OTPassword_getPassword_uint8;
 *getPassword = *otapic::OTPassword_getPassword;
 *getPasswordWritable = *otapic::OTPassword_getPasswordWritable;
+*getPasswordWritable_char = *otapic::OTPassword_getPasswordWritable_char;
 *setPassword = *otapic::OTPassword_setPassword;
 *setPassword_uint8 = *otapic::OTPassword_setPassword_uint8;
 *addChar = *otapic::OTPassword_addChar;

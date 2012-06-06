@@ -193,6 +193,11 @@ class OTPassword {
     return ret;
   }
 
+  public char[] getPasswordWritable_char() {
+    char[] ret = tango.stdc.stringz.fromStringz(otapi_im.OTPassword_getPasswordWritable_char(cast(void*)swigCPtr));
+    return ret;
+  }
+
   public int setPassword(char[] szInput, int nInputSize) {
     auto ret = otapi_im.OTPassword_setPassword(cast(void*)swigCPtr, (szInput ? tango.stdc.stringz.toStringz(szInput) : null), nInputSize);
     return ret;

@@ -432,7 +432,7 @@ namespace Swig {
  * C++ director class methods
  * --------------------------------------------------- */
 
-#include "otapi_wrap.h"
+#include "OTAPI-java.h"
 
 SwigDirector_OTCallback::SwigDirector_OTCallback(JNIEnv *jenv) : OTCallback(), Swig::Director(jenv) {
 }
@@ -902,6 +902,21 @@ SWIGEXPORT jlong JNICALL Java_com_wrapper_core_jni_otapiJNI_OTPassword_1getPassw
   arg1 = *(OTPassword **)&jarg1; 
   result = (uint8_t *)(arg1)->getPasswordWritable();
   *(uint8_t **)&jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jstring JNICALL Java_com_wrapper_core_jni_otapiJNI_OTPassword_1getPasswordWritable_1char(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jstring jresult = 0 ;
+  OTPassword *arg1 = (OTPassword *) 0 ;
+  char *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(OTPassword **)&jarg1; 
+  result = (char *)(arg1)->getPasswordWritable_char();
+  if (result) jresult = jenv->NewStringUTF((const char *)result);
   return jresult;
 }
 
