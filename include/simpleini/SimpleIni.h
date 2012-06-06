@@ -1523,9 +1523,6 @@ CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::FindEntry(
 
 	SI_ASSERT(NULL != a_pData);
 	SI_ASSERT(NULL != a_pSection);
-	SI_ASSERT(NULL != a_pKey);
-	SI_ASSERT(NULL != a_pVal);
-	SI_ASSERT(NULL != a_pComment);
 	// --------------------------------
 
     SI_CHAR * pTrail = NULL;
@@ -1629,6 +1626,7 @@ CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::FindEntry(
         if (*a_pData) { // prepare for the next round
             SkipNewLine(a_pData);
         }
+		SI_ASSERT(NULL != a_pVal);
         while (pTrail >= a_pVal && IsSpace(*pTrail)) {
             --pTrail;
         }
@@ -1638,6 +1636,7 @@ CSimpleIniTempl<SI_CHAR,SI_STRLESS,SI_CONVERTER>::FindEntry(
         // check for multi-line entries
         if (m_bAllowMultiLine && IsMultiLineTag(a_pVal)) {
             // skip the "<<<" to get the tag that will end the multiline
+			SI_ASSERT(NULL != a_pVal);
             const SI_CHAR * pTagName = a_pVal + 3;
             return LoadMultiLineText(a_pData, a_pVal, pTagName);
         }
