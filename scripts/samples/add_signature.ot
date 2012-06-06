@@ -1,4 +1,4 @@
-#!/usr/bin/env ot --script
+#!/usr/bin/env ot
 
 // SignContract erases all signatures and affixes a new one alone.
 // But AddSignature, on the other hand, leaves all signatures in place, and simply adds yours to the list. 

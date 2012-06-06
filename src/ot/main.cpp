@@ -1818,8 +1818,10 @@ int main(int argc, char* argv[])
 
         
         // COMMANDS
+
         
-        if( opt->getValue( "script" )  != NULL  )
+       if( ( opt->getValue( "script" ) != NULL ) ||
+		    ( opt->getArgc() > 0) )
         {
             int nReturnValue = 0; // This is what gets returned back to the caller. The Script has a chance to change this.
             
@@ -1827,7 +1829,28 @@ int main(int argc, char* argv[])
 			
 			OT_API::It().GetClient()->SetRunningAsScript(); // This way it won't go firing off messages automatically based on receiving certain server replies to previous requests.
 			// Todo: Research whether the above call is still necessary. (OTAPI no longer fires off ANY auto messages based on server replies. API CLIENT MUST do those things itself now.)
-			std::string strFilename = opt->getValue( "script" );
+
+			std::string strFilename;
+			
+			// If a filename is provided as a normal argument (like this: ot <filename>)
+			// then it will work...
+			//
+			if (opt->getArgc() > 0)
+			{
+				strFilename = opt->getArgv( 0 );
+			}
+			
+			// the --script option will ALSO work for the filename, and will override the above.
+			// so:   ot --script <filename>
+			// also: ot --script <actual_filename> <ignored_filename>
+			//
+			// In this above example, ignored_filename WOULD have been used, but then it got
+			// overridden by the --script actual_filename.
+			
+			if (NULL != opt->getValue( "script" ))
+			{
+				strFilename = opt->getValue( "script" );
+			}
 			
 			std::ifstream t(strFilename.c_str(), ios::in | ios::binary);
 			std::stringstream buffer;

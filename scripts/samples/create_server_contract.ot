@@ -1,4 +1,4 @@
-#!/usr/bin/env ot --script
+#!/usr/bin/env ot
 
 
 if (VerifyExists("MyNym"))

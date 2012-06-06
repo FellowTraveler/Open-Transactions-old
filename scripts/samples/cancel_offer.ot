@@ -1,4 +1,4 @@
-#!/usr/bin/env ot --script
+#!/usr/bin/env ot
 
 // --------------------------------------------------------------------
 // NOTE: No further need to include these anymore, since OT includes them

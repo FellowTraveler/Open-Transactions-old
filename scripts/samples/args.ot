@@ -1,4 +1,4 @@
-#!/usr/bin/env ot --script
+#!/usr/bin/env ot
 
 // int         OT_CLI_GetArgsCount(const std::string str_Args)
 // std::string OT_CLI_GetValueByKey(const std::string str_Args, const std::string str_key)

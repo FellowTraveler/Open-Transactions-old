@@ -1,4 +1,4 @@
-#!/usr/bin/env ot --script
+#!/usr/bin/env ot
 
 	var strKey = OT_API_CreateSymmetricKey()
 	 

@@ -1,4 +1,4 @@
-#!/usr/bin/env ot --script
+#!/usr/bin/env ot
 
 
 OT_API_Output(0, "Please type some input, followed by a newline: ")
