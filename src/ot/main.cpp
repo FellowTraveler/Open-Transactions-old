@@ -1518,7 +1518,8 @@ int main(int argc, char* argv[])
     
     // ---------------------------------------------------------------------------------------
     //
-	if( false == bIsCommandProvided )   // If no command was provided (though other command-line options may have been...) 
+	if(!(opt->getArgc() > 0) &&
+	    (false == bIsCommandProvided) )   // If no command was provided (though other command-line options may have been...) 
     {                           // then we expect a script to come in through stdin, and we run it through the script interpreter!
 		OTLog::Output(0, "\n\nYou probably don't want to do this... Use CTRL-C, and try \"ot --help\" for instructions.\n\n "
 					  "==> Expecting ot script from standard input. (Terminate with CTRL-D):\n\n");
