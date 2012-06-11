@@ -1,0 +1,56 @@
+#########################################################################
+#									#
+#									#
+#	##		INSTALL-MEMO - Linux			##	#
+#									#
+#									#
+#########################################################################
+#
+# Memo and 'quick start' guide for OT install on generic Linux.
+# (assumes dependencies are already satisfied)
+
+# fetch OT and prepare your copy for build
+
+$ git clone git://github.com/FellowTraveler/Open-Transactions.git
+$ cd Open-Transactions
+
+# probably need to tell autoconf to look for dep packages in ~/.local
+
+$ export PKG_CONFIG_PATH=~/.local/lib/pkgconfig:$PKG_CONFIG_PATH
+
+$ autoreconf -i -f
+$ mkdir -p build && cd build
+$ ../configure --prefix=~/.local --with-java
+
+
+$ make uninstall (to cleanup anthing in your .local dir)
+
+$ make
+(can add -j2 option for speedy build)
+
+$ make install
+
+
+# create your data directory (will reset everything):
+
+$ mkdir -p ~/.ot && cp -R sample-data/ot-sample-data/* ~/.ot
+
+# add to .profile (.bash_profile in Fedora, RH, CentOS, etc)
+
+# set PATH so it includes user's .local root bin if it exists
+if [ -d "~/.local/bin" ] ; then
+    PATH="~/.local/bin:$PATH"
+fi
+
+# to avoid logging out and then logging back in again, just do ...
+$ source ~/.*profile
+
+# then to start up OT server 
+$ otserver
+
+
+#### Test OT with Java test client, Moneychanger  ####
+
+# fetch FT's MoneyChanger jar and launch
+$ wget -P ~/.local/jar https://github.com/downloads/FellowTraveler/Moneychanger/MoneyChanger.jar
+$ java -jar ~/.local/jar/MoneyChanger.jar

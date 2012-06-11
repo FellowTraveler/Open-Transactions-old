@@ -107,16 +107,14 @@ AC_ARG_ENABLE(
 AM_CONDITIONAL(RELEASE, test x"$release" = x"true")
 
 
-
-##### (Option) Add SWIG JAvA #####
+##### (Option) Add SWIG JAVA #####
 
 AC_ARG_WITH(
 	[java],
-	[AS_HELP_STRING([--with-java],
-	[build Java SWIG wrapper])],
+	[AS_HELP_STRING([--with-java], [build Java SWIG wrapper])],
 	[])
 
-AM_CONDITIONAL([WANT_JAVA], [test "x$with_java" == "xyes"], [])
+AM_CONDITIONAL([WANT_JAVA], [test "x$with_java" == "xyes"])
 
 if (test "x$with_java" == "xyes"); then
 
@@ -135,40 +133,44 @@ fi
 
 AC_ARG_WITH(
 	[perl5],
-	[AS_HELP_STRING([--with-perl5],
-	[build Perl5 SWIG wrapper])],
+	[AS_HELP_STRING([--with-perl5], [build Perl5 SWIG wrapper])]
 	[])
 
-AM_CONDITIONAL([WANT_PERL5], [test "x$with_perl5" == "xyes"], [])
+AM_CONDITIONAL([WANT_PERL5], [test "x$with_perl5" == "xyes"])
 
+if (test "x$with_perl5" == "xyes"); then
+
+	AX_PERL_EXT
+
+fi
 
 ##### (Option) Add SWIG PHP #####
 
 AC_ARG_WITH(
 	[php],
-	[AS_HELP_STRING([--with-php],
-	[build PHP SWIG wrapper])],
+	[AS_HELP_STRING([--with-php], [build PHP SWIG wrapper])],
 	[])
 
-AM_CONDITIONAL([WANT_PHP], [test "x$with_php" == "xyes"], [])
+AM_CONDITIONAL([WANT_PHP], [test "x$with_php" == "xyes"])
 
 if (test "x$with_php" == "xyes"); then
+
 	AX_PHP_DEVEL
 
 fi
-
 
 ##### (Option) Add SWIG PYTHON #####
 
 AC_ARG_WITH(
 	[python],
-	[AS_HELP_STRING([--with-python],
-	[build Python SWIG wrapper])],
+	[AS_HELP_STRING([--with-python], [build Python SWIG wrapper])],
 	[])
 
-AM_CONDITIONAL([WANT_PYTHON], [test "x$with_python" == "xyes"], [])
+AM_CONDITIONAL([WANT_PYTHON], [test "x$with_python" == "xyes"])
+
 
 if (test "x$with_python" == "xyes"); then
+
 	AX_PYTHON_DEVEL
 
 fi

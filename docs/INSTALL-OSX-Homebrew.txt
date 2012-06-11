@@ -41,6 +41,7 @@ $ make install
 #fetch O-T and prepare your copy for build
 $ git clone <O-T github url>
 $ cd Open-Transactions
+$ export PKG_CONFIG_PATH=$HOMEBREW_PREFIX:$PKG_CONFIG_PATH
 $ mkdir build
 $ autoreconf -i -f
 
