@@ -473,13 +473,15 @@ endif
 
 libotapi_perl5_la_SOURCES =		swig/otapi/OTAPI-perl5.cxx
 libotapi_perl5_la_CPPFLAGS =		$(AM_CPPFLAGS)			\
-					-I$(otapi_headers_dir)
+					$(PERL_EXT_CPPFLAGS)		\
+					-I$(otapi_headers_dir)		\
+					-I$(PERL_EXT_INC)
 
 libotapi_perl5_la_LIBADD =		libotapi.la libot.la
 libotapi_perl5_la_DEPENDENCIES =	libotapi.la libot.la
 
-libotapi_perl5_la_LDFLAGS =		--no-undefined
-
+libotapi_perl5_la_LDFLAGS =		--no-undefined			\
+					$(PERL_EXT_LDFLAGS)
 if TRANSPORT_ZMQ
 libotapi_perl5_la_CPPFLAGS +=		-DOT_ZMQ_MODE
 endif
@@ -495,8 +497,8 @@ libotapi_php_la_SOURCES =		swig/otapi/OTAPI-php.cpp
 
 libotapi_php_la_CPPFLAGS =		$(AM_CPPFLAGS)			\
 					-I$(otapi_headers_dir)		\
-					$(PHP_INCLUDES)			\
-					-I$(top_srcdir)/swig/glue/php
+					-I$(top_srcdir)/swig/glue/php	\
+					$(PHP_INCLUDES)
 
 libotapi_php_la_LIBADD =		libotapi.la libot.la
 libotapi_php_la_DEPENDENCIES =		libotapi.la libot.la
@@ -509,32 +511,6 @@ libotapi_php_la_CPPFLAGS +=		-DOT_ZMQ_MODE
 endif
 
 
-
-#### OT API PYTHON
-
-if WANT_PYTHON
-lib_LTLIBRARIES +=			libotapi_python.la
-endif
-
-libotapi_python_la_SOURCES =		swig/otapi/OTAPI-python.cxx
-
-libotapi_python_la_CPPFLAGS =		$(AM_CPPFLAGS)	-fpic		\
-					-I$(otapi_headers_dir)		\
-					$(PYTHON_CPPFLAGS)		\
-					$(PYTHON_EXTRA_LIBS)
-					
-
-libotapi_python_la_LIBADD =		libotapi.la libot.la
-libotapi_python_la_DEPENDENCIES =	libotapi.la libot.la
-
-libotapi_python_la_LDFLAGS =		--no-undefined			\
-					$(PYTHON_LDFLAGS)		\
-					$(PYTHON_EXTRA_LDFLAGS)
-
-if TRANSPORT_ZMQ
-libotapi_python_la_CPPFLAGS +=		-DOT_ZMQ_MODE
-endif
-
 #### OT API PYTHON
 
 if WANT_PYTHON
@@ -544,8 +520,8 @@ endif
 _otapi_la_SOURCES =             	swig/otapi/OTAPI-python.cxx
 
 _otapi_la_CPPFLAGS =            	$(AM_CPPFLAGS)  -fpic           \
-                                        -I$(otapi_headers_dir)          \
                                         $(PYTHON_CPPFLAGS)              \
+                                        -I$(otapi_headers_dir)          \
                                         $(PYTHON_EXTRA_LIBS)
 
 
