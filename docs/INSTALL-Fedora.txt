@@ -7,14 +7,25 @@
 #########################################################################
 
 
-
 # install general developer dependencies
 $ sudo yum install gcc autoconf automake libtool wget cmake
 
 # install Open-Transactions library dependencies
 $ sudo yum install boost-devel zeromq-devel protobuf-devel openssl-devel
 
+#########    Optional API deps:   #########
+# install dev deps if build for SWIG JAVA
+$ sudo yum install java-1.6.0-openjdk java-1.6.0-openjdk-devel
 
+# install dev deps if build for SWIG PERL5
+$ sudo yum install perl-devel
+
+# install dev deps if build SWIG PHP
+$ sudo yum install php-devel
+
+# install dev deps if buuld for SWIG PYTHON
+$ sudo yum install python-devel
+###########################################
 
 # if your version of Fedora doesn't include OpenSSL 1.0:
 $ wget http://openssl.org/source/openssl-1.0.0j.tar.gz
@@ -24,7 +35,7 @@ $ ./Configure linux-x86_64 --prefix=$HOME/.local
 $ make
 $ make tests
 $ make install
-$cd ..
+$ cd ..
 
 # fetch msgpack
 $ wget http://msgpack.org/releases/cpp/msgpack-0.5.7.tar.gz
@@ -44,20 +55,22 @@ $ make
 $ make install
 $ cd ..
 
-#fetch O-T and prepare your copy for build
+# fetch O-T and prepare your copy for build
 $ export PKG_CONFIG_PATH=$HOME/.local/lib/pkgconfig:$PKG_CONFIG_PATH
 $ git clone git://github.com/FellowTraveler/Open-Transactions.git
 $ cd Open-Transactions
 $ mkdir build
 $ autoreconf -i -f
 
-# build
+
+# OT build
+
 $ cd build
 
 $ ../configure --prefix=$HOME/.local
 
-#### Options: ####
 
+#########   Configure Options:   #########
 Enable Configuration in Release Mode:
 --enable-release	
 
@@ -67,34 +80,55 @@ Enable extra (noisy) warnings with compile:
 Enable the signal handling for catching segmentation fault's (debug only):
 --enable-sighandler
 
-#### Swig Options:  ####
+### Swig API support options:  ###
 
 Enable Configuration for SWIG Java Support:
 --with-java
 
-
 Enable Configuration for SWIG Perl 5 Support:
 --with-perl5
-
 
 Enable Configuration for SWIG PHP Support:
 --with-php
 
-
 Enable Configuration for SWIG Python Support:
 --with-python
-
-$export PYTHON_PATH=$HOME/.local/lib:$PYTHON_PATH
+##########################################
 
 
 $ make uninstall (to cleanup anthing in you .local folder)
 
+
 $ make
 
-#### Options: ####
-
-Build Multithreaded, need about 1gb of ram per thread.
+Build multithreaded, need about 1gb of ram per thread.
 -j (int, mutiple of of 2)
 
 
 $ make install
+
+
+###########   Miscellaneous Notes:   ###########
+
+# Create a wallet data folder (will reset everything):
+
+$ mkdir -p ~/.ot && cp -R sample-data/ot-sample-data/* ~/.ot
+
+# add to ~/.bash_profile
+
+# set PATH so it includes user's .local root bin if it exists
+if [ -d "$HOME/.local/bin" ] ; then
+    PATH="$HOME/.local/bin:$PATH"
+fi
+
+# to avoid logging out and then logging back in again, just do ...
+$ source ~/.bash_profile
+
+# to run otserver
+$ otserver
+
+# for python client api support export env variable
+$ export PYTHONPATH=$HOME/.local/lib:$PYTHONPATH
+
+################################################
+
