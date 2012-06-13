@@ -95,49 +95,49 @@
 
     def VerifyStringVal(strValue)
 	{
-		if (strValue.is_var_undef() || strValue.is_var_null() || !strValue.is_type("string") || (1 > strValue.size()))
+		if ( strValue.is_var_null() || strValue.is_var_undef() || !strValue.is_type("string") || (1 > strValue.size()))
 		{	return false	}
 		else { return true }
 	}
 	// ---------------------------------------
     def VerifyIntVal(nValue) // used for real int
     {
-        if (strValue.is_var_undef() || nValue.is_var_null() || !nValue.is_type("int"))
+        if (nValue.is_var_null() || strValue.is_var_undef() || !nValue.is_type("int"))
         {	return false	}
         else { return true }
     }
     // ---------------------------------------
     def VerifyOTIntegerRef(nValue) // used for OTInteger
     {
-        if (strValue.is_var_undef() || nValue.is_var_null() || !nValue.is_type("OTInteger"))
+        if (nValue.is_var_null() || strValue.is_var_undef() || !nValue.is_type("OTInteger"))
         {	return false	}
         else { return true }
     }
     // ---------------------------------------
     def VerifyBoolVal(bValue) // used for real boolean
     {
-        if (bValue.is_var_undef() || bValue.is_var_null() || !bValue.is_type("bool"))
+        if (bValue.is_var_null() || bValue.is_var_undef() || !bValue.is_type("bool"))
         {	return false	}
         else { return true }
     }
     // ---------------------------------------
     def VerifyOTBoolRef(bValue) // used for OTBool class
     {
-        if (bValue.is_var_undef() || bValue.is_var_null() || !bValue.is_type("OTBool"))
+        if (bValue.is_var_null() || bValue.is_var_undef() || !bValue.is_type("OTBool"))
         {	return false	}
         else { return true }
     }
     // ---------------------------------------
 	def VerifyMessage(strMessage)
 	{
-		if (strMessage.is_var_undef() || strMessage.is_var_null() || !strMessage.is_type("string") || (10 > strMessage.size()))
+		if (strMessage.is_var_null() || strMessage.is_var_undef() || !strMessage.is_type("string") || (10 > strMessage.size()))
 		{	return false	}
 		else { return true	}
 	}
     // ---------------------------------------
 	def VerifyMessageSuccess(strMessage)
 	{
-		if (strMessage.is_var_undef() || strMessage.is_var_null() || !strMessage.is_type("string") || (10 > strMessage.size()))
+		if (strMessage.is_var_null() || strMessage.is_var_undef() || !strMessage.is_type("string") || (10 > strMessage.size()))
 		{	return (-1)	}
         
         var nSuccess = OT_API_Message_GetSuccess(strMessage);
@@ -177,7 +177,7 @@
 
 	def VerifyMsgBalanceAgrmntSuccess(SERVER_ID, USER_ID, ACCOUNT_ID, strMessage)  // For when an OTMessage is the input.
 	{
-		if (strMessage.is_var_undef() || strMessage.is_var_null() || !strMessage.is_type("string") || (10 > strMessage.size()))
+		if (strMessage.is_var_null() || strMessage.is_var_undef() || !strMessage.is_type("string") || (10 > strMessage.size()))
 		{	return -1	}
         
         
@@ -187,7 +187,7 @@
     // ---------------------------------------
 	def VerifyMsgTrnxSuccess(SERVER_ID, USER_ID, ACCOUNT_ID, strMessage)
 	{
-		if (strMessage.is_var_undef() || strMessage.is_var_null() || !strMessage.is_type("string") || (10 > strMessage.size()) || (false == OT_API_Msg_GetTransactionSuccess(SERVER_ID, USER_ID, ACCOUNT_ID, strMessage)))
+		if (strMessage.is_var_null() || strMessage.is_var_undef() || !strMessage.is_type("string") || (10 > strMessage.size()) || (false == OT_API_Msg_GetTransactionSuccess(SERVER_ID, USER_ID, ACCOUNT_ID, strMessage)))
 		{	return -1	}
         
         var nSuccess = OT_API_Message_GetSuccess(strMessage);

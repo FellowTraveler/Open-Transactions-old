@@ -353,23 +353,25 @@ EXPORT	const
     bool CalculateID(OTIdentifier & theOutput) const; // Only works for public keys.
     // ***************************************************************************************
     // PUBLIC KEY
+
+    // Get the public key in ASCII-armored format
+    //
+EXPORT	bool GetPublicKey(OTASCIIArmor & strKey) const;
+
 	// Get the public key in ASCII-armored format with bookends 
 	// - ------- BEGIN PUBLIC KEY --------
 	// Notice the "- " before the rest of the bookend starts.
 EXPORT	bool GetPublicKey(OTString & strKey, bool bEscaped=true) const;
-
-	// Get the public key in ASCII-armored format
-    //
-	bool GetPublicKey(OTASCIIArmor & strKey) const;
 	
+	// Decodes a public key from ASCII armor into an actual key pointer
+	// and sets that as the m_pKey on this object.
+EXPORT	bool SetPublicKey(const OTASCIIArmor & strKey);
+
 	// Decodes a public key from ASCII armor into an actual key pointer
 	// and sets that as the m_pKey on this object.
 	// This is the version that will handle the bookends ( -----BEGIN PUBLIC KEY-----)
 EXPORT	bool SetPublicKey(const OTString & strKey, bool bEscaped=false);
 
-	// Decodes a public key from ASCII armor into an actual key pointer
-	// and sets that as the m_pKey on this object.
-EXPORT	bool SetPublicKey(const OTASCIIArmor & strKey);
     // ***************************************************************************************
     // PRIVATE KEY
 	// Get the private key in ASCII-armored format with bookends 

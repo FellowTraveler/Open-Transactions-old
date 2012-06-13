@@ -3226,7 +3226,7 @@ namespace OTDB
 					   fourStr.c_str(), fiveStr.c_str(), sixStr.c_str());
 		// --------------------------------
 		if (twoStr.length() < 1)
-			OTLog::Output(1, " (Make sure to call LoadWallet after this.) \n");
+			OTLog::Output(1, " (If calling from client API, make sure to call LoadWallet after this.) \n");
 		// --------------------------------
         OTString strPATH_OUTPUT;
         OTLog::TransformFilePath(oneStr.c_str(), strPATH_OUTPUT);
@@ -3255,7 +3255,7 @@ namespace OTDB
 			
 			if (!bWalletFile)
 			{
-				OTLog::vError("Unable to locate wallet: %s\n", strWALLET_PATH.Get());
+				OTLog::vError("Unable to locate main file: %s\n", strWALLET_PATH.Get());
 				return false;
 			}
 			else

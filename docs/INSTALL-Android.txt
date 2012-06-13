@@ -1,3 +1,10 @@
+NOTE: It's been a long while since OT was built on Android.
+Mostly likely these instructions are out of date.
+However if you are seriously looking into doing an Android
+project, it shouldn't be too hard to start with these 
+instructions and then get it cleaned up again for that
+platform. (Ask us and we might clean it up for you.) 
+
 
 OpenTransactions for ANDROID
 

@@ -4,9 +4,9 @@
 // NOTE: No further need to include these anymore, since OT includes them
 // automatically now.
 //
-//use("../ot/ot_utility.ot")
-//use("../ot/otapi.ot")
-//use("../ot/ot_made_easy.ot")
+//use("~/.ot/ot_utility.ot")
+//use("~/.ot/otapi.ot")
+//use("~/.ot/ot_made_easy.ot")
 
 // --------------------------------------------------------------------
 // Instantiate the "OT Made Easy" object.
@@ -20,7 +20,7 @@ var strUsage = "\n\n FYI, USAGE: send_user_msg.ot --mynym <YOUR_NYM_ID> --hisnym
 
 
 if (!VerifyExists("Server") || !VerifyExists("MyNym") || !VerifyExists("HisNym"))
-{  OT_API_Output(0, strUsage)  }
+{  OT_API_Output(0, strUsage);  }
 else
 {
     OT_API_Output(0, "Please enter your message on multiple lines, followed by an EOF or a ~ by itself on a blank line:\n\n")
@@ -29,10 +29,7 @@ else
     
 	// Send the request.
 	//
-	// def OT_ME::send_user_msg(SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, THE_MESSAGE) 
-	//
 	var strResponse	= madeEasy.send_user_msg(Server, MyNym, HisNym, strTestMessage)
-
 
 	// NOTICE: No need here to deal with retries, timeouts, request number,
 	// syncing transaction number, download / process nymbox, etc! It's all
@@ -47,7 +44,7 @@ else
 	else
 	{
 		OT_API_Output(0, "Success in send_user_msg! Server response:\n\n")
-		OT_API_Output(0, strResponse)
+		print(strResponse)
 		OT_API_Output(0, "\n\n")
         return 1
 	}

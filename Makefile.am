@@ -31,7 +31,7 @@ endif
 ## RELEASE FLAGS ###
 
 if RELEASE
-AM_CPPFLAGS +=			-Wall						\
+AM_CPPFLAGS +=		-Wall						\
 				-D_FORTIFY_SOURCE=2				\
 				-fstack-protector-all				\
 				-fstack-check					\
@@ -131,7 +131,7 @@ lucre_sources =			src/lucre/bankdemo.cpp				\
 
 ####	OT
 
-ot__sources_dir = 		$(ot_source_dir)/ot
+ot_sources_dir = 		$(ot_source_dir)/ot
 
 ot_sources =			src/ot/main.cpp
 
@@ -155,13 +155,6 @@ otapi_sources =			src/otapi/OpenTransactions.cpp			\
 				src/otapi/OTAPI_Wrapper.cpp			\
 				src/otapi/OTClient.cpp				\
 				src/otapi/OTServerConnection.cpp
-
-####	OT Create Mint
-
-otcreatemint__sources_dir = 	$(ot_source_dir)/otcreatemint
-
-otcreatemint_sources =		src/otcreatemint/main.cpp
-
 
 ####	OT LIB
 
@@ -285,36 +278,35 @@ otlib_sources =			src/otlib/anyoption.cpp				\
 
 ####	OT Server
 
-otserver_headers_dir =		$(ot_include_dir)/otserver
+otserver_headers_dir =	$(ot_include_dir)/otserver
 
-otserver_headers =		include/otserver/main.h				\
-				include/otserver/OTClientConnection.h		\
-				include/otserver/OTServer.h
+otserver_headers =      include/otserver/main.h                 \
+                        include/otserver/OTClientConnection.h	\
+                        include/otserver/OTServer.h
 
-otserver_sources_dir = 		$(ot_source_dir)/otserver
+otserver_sources_dir =  $(ot_source_dir)/otserver
 
-otserver_sources =		src/otserver/OTClientConnection.cpp		\
-				src/otserver/OTServer.cpp
-
-####	sign Contract
-
-signcontract__sources_dir = 	$(ot_source_dir)/signcontract
-
-signcontract_sources =		src/signcontract/main.cpp
-
+otserver_sources     =  src/otserver/OTClientConnection.cpp		\
+                        src/otserver/OTServer.cpp
 
 ####	Simple Ini
 
 simpleini_headers_dir =		$(ot_include_dir)/simpleini
-
-simpleini_headers =		include/simpleini/ConvertUTF.h			\
-				include/simpleini/SimpleIni.h
-
+simpleini_headers     =		include/simpleini/ConvertUTF.h			\
+                            include/simpleini/SimpleIni.h
 simpleini_sources_dir = 	$(ot_source_dir)/simpleini
+simpleini_sources     =		src/simpleini/ConvertUTF.cpp			\
+                            src/simpleini/snippets.cpp
 
-simpleini_sources =		src/simpleini/ConvertUTF.cpp			\
-				src/simpleini/snippets.cpp
 
+####	OT Create Mint
+
+createmint_sources_dir = 	$(ot_source_dir)/createmint \
+                            $(otserver_sources_dir)     \
+createmint_headers     =    $(otserver_headers)         \
+                            $(simpleini_headers)
+createmint_sources     =	src/createmint/main.cpp     \
+                            $(otserver_sources)
 
 
 ####################################################################
@@ -386,42 +378,32 @@ pkginclude_HEADERS =		$(otlib_headers)
 ## Open Transactions Bin #
 ##########################
 
-bin_PROGRAMS =			ot					\
-				otserver				\
-				otcreatemint				\
-				signcontract
+bin_PROGRAMS =	ot					\
+				otserver			\
+				createmint
 
 ####	OT
 
 ot_SOURCES =			$(ot_sources) $(otapi_headers)
-
 ot_CPPFLAGS =			-I$(otapi_headers_dir) $(AM_CPPFLAGS) -fpic
-
-ot_LDADD =			libotapi.la libot.la
+ot_LDADD =              libotapi.la libot.la
 ot_DEPENDENCIES =		libotapi.la libot.la
 
 
 ####	OT Server
 
 otserver_SOURCES =		$(otserver_sources) $(otserver_headers)
-
 otserver_CPPFLAGS =		-I$(otserver_headers_dir) $(AM_CPPFLAGS)
-
 otserver_LDADD =		libot.la
-otserver_DEPENDENCIES =		libot.la
+otserver_DEPENDENCIES =	libot.la
 
 
 ####	OT Createmint
 
-otcreatemint_SOURCES =		$(otcreatemint_sources)
-otcreatemint_LDADD =		libot.la
-otcreatemint_DEPENDENCIES =	libot.la
-
-####	Sign Contract
-
-signcontract_SOURCES =		$(signcontract_sources)
-signcontract_LDADD =		libot.la
-signcontract_DEPENDENCIES =	libot.la
+createmint_SOURCES  =		$(createmint_sources) $(otserver_headers)
+createmint_CPPFLAGS =		-I$(otserver_headers_dir) $(AM_CPPFLAGS)
+createmint_LDADD    =		libot.la
+createmint_DEPENDENCIES =	libot.la
 
 
 

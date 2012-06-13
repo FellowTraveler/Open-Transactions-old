@@ -134,8 +134,8 @@
 //        or set them to whatever is convenient for you on your system.
 //
 
-#define KEY_PASSWORD        ""
-//#define KEY_PASSWORD        "test"
+#define KEY_PASSWORD        "test"
+//#define KEY_PASSWORD        ""
 
 // password is deprecated. 
 
@@ -146,8 +146,8 @@
 //
 // Paths
 //
-#define OT_INI_FILE_DEFAULT	".ot/ot.ini"  //should get programicaly
-#define SERVER_PATH_DEFAULT	".ot/server_data" //should get programicaly
+#define OT_INI_FILE_DEFAULT	".ot/ot.ini"  // should get programmatically
+#define SERVER_PATH_DEFAULT	".ot/server_data" // should get programmatically
 
 // ----------------------------------------------------------------
 
@@ -674,7 +674,7 @@ bool OTSocket::Receive(std::string & str_Message)
 //
 // EVR PATH
 //
-OTString GetRomingAppDataLocation()
+OTString GetRoamingAppDataLocation()
 	{
 #ifdef _WIN32
 
@@ -718,33 +718,33 @@ OTString GetRomingAppDataLocation()
 // INI FILE
 //
 bool GetOTAppDataFolderLocation(OTString strIniFileDefault, OTString & strOTServerDataLocation)
-	{
-		CSimpleIniA ini;
-		SI_Error rc = ini.LoadFile(strIniFileDefault.Get());
-                if (rc >=0)
-                {
-                    {
-                        const char * pVal = ini.GetValue("paths", "server_path", SERVER_PATH_DEFAULT); // todo stop hardcoding.
-                        
-                        if (NULL != pVal)
-                        {
-                            strOTServerDataLocation.Set(pVal);
-                            OTLog::vOutput(0, "server main: Reading ini file (%s). \n Found Server data_folder path: %s \n", 
-                                           strIniFileDefault.Get(), strOTServerDataLocation.Get());
-							return true;
-                        }
-						
-						OTLog::vOutput(0, "server main: Reading ini file (%s) \n", strIniFileDefault.Get());
-						return false;
-                    }            
-                }
-                else 
-                {
-                    OTLog::vOutput(0, "server main: Unable to load ini file (%s) to find data_folder path \n", 
-                                   strIniFileDefault.Get());
-					return false;
-                }
-            };
+{
+    CSimpleIniA ini;
+    SI_Error rc = ini.LoadFile(strIniFileDefault.Get());
+    if (rc >=0)
+    {
+        {
+            const char * pVal = ini.GetValue("paths", "server_path", SERVER_PATH_DEFAULT); // todo stop hardcoding.
+            
+            if (NULL != pVal)
+            {
+                strOTServerDataLocation.Set(pVal);
+                OTLog::vOutput(0, "server main: Reading ini file (%s). \n Found Server data_folder path: %s \n", 
+                               strIniFileDefault.Get(), strOTServerDataLocation.Get());
+                return true;
+            }
+            
+            OTLog::vOutput(0, "server main: Reading ini file (%s) \n", strIniFileDefault.Get());
+            return false;
+        }            
+    }
+    else 
+    {
+        OTLog::vOutput(0, "server main: Unable to load ini file (%s) to find data_folder path \n", 
+                       strIniFileDefault.Get());
+        return false;
+    }
+}
 
 
 
@@ -845,7 +845,7 @@ int main(int argc, char* argv[])
 
 			OTString pathUserAppDataPath, pathIniFileLocation;
 
-			pathUserAppDataPath = GetRomingAppDataLocation();
+			pathUserAppDataPath = GetRoamingAppDataLocation();
 			pathIniFileLocation.Format("%s%s%s", pathUserAppDataPath.Get(), OTLog::PathSeparator(), OT_INI_FILE_DEFAULT);
 
 
@@ -856,7 +856,7 @@ int main(int argc, char* argv[])
 
 			if (false == GetOTAppDataFolderLocation(pathIniFileLocation,pathOTServerDataLocation))
 			{
-				OTLog::vOutput(0, "Path Not Found... Will Atempt Default!... \n");
+				OTLog::vOutput(0, "Path Not Found... Will Attempt Default!... \n");
 				// Not successfull will will assume it is in default location:
 				pathOTServerDataLocation.Format("%s%s%s", pathUserAppDataPath.Get(), OTLog::PathSeparator(), SERVER_PATH_DEFAULT);
 			};
@@ -865,7 +865,7 @@ int main(int argc, char* argv[])
 
 
 			OTLog::SetMainPath(pathOTServerDataLocation.Get());              // <============ SET MAIN PATH
-            OTLog::vOutput(0, "Using data_folder path:  %s\n", OTLog::Path());
+            OTLog::vOutput(0, "Using server_data path:  %s\n", OTLog::Path());
 
 
             // -----------------------------------------------------------------------    

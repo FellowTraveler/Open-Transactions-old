@@ -650,13 +650,13 @@ public:
 	int sendUserMessage(OTIdentifier	& SERVER_ID,
 						 OTIdentifier	& USER_ID,
 						 OTIdentifier	& USER_ID_RECIPIENT,
-						 OTASCIIArmor	& RECIPIENT_PUBKEY,
+						 OTString       & RECIPIENT_PUBKEY,
 						 OTString		& THE_MESSAGE);
 	
 	int sendUserInstrument(OTIdentifier	& SERVER_ID,
                            OTIdentifier	& USER_ID,
                            OTIdentifier	& USER_ID_RECIPIENT,
-                           OTASCIIArmor	& RECIPIENT_PUBKEY,
+                           OTString     & RECIPIENT_PUBKEY,
                            OTPayment	& THE_INSTRUMENT);
 	
 	int issueAssetType(OTIdentifier	&	SERVER_ID,

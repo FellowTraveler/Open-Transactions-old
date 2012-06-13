@@ -291,14 +291,15 @@
 		if (!VerifyStringVal(p_nymID))
 		{	OT_API_Output(0, concat(strError, "p_nymID")); }
 		if (!VerifyStringVal(p_nymID2))
-		{	OT_API_Output(0, concat(strError, "p_nymID2")); }
-		if ((theType == GET_BOX_RECEIPT) && !VerifyIntVal(p_strData)) // box receipt passes an integer here.
+		{	OT_API_Output(0, concat(strError, "p_nymID2")); }        
+		if ((theType == this.GET_BOX_RECEIPT) && !VerifyIntVal(p_strData)) // box receipt passes an integer here.
 		{	OT_API_Output(0, concat(strError, "p_strData")); }
-		if ((theType != GET_BOX_RECEIPT) && !VerifyStringVal(p_strData)) // Everything else passes a string.
+		if ((theType != this.GET_BOX_RECEIPT) && !VerifyStringVal(p_strData)) // Everything else passes a string.
 		{	OT_API_Output(0, concat(strError, "p_strData")); }
 		if (!VerifyStringVal(p_strData2))
 		{	OT_API_Output(0, concat(strError, "p_strData2")); }
 		// ---------------------------
+
 
         this.funcType   = theType;
         this.serverID   = p_serverID;
@@ -318,7 +319,7 @@
 			this.strData    = p_strData;
 			this.strData2   = p_strData2;			
 		}
-		else if (theType == GET_BOX_RECEIPT)
+		else if (theType == this.GET_BOX_RECEIPT)
 		{
 			this.accountID	= p_nymID2;		// accountID (inbox/outbox) or NymID (nymbox) is passed here.
 			this.nData		= p_strData;	// Integer is passed here in this case. (0, 1, or 2)

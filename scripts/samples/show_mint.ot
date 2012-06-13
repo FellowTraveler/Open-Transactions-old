@@ -35,17 +35,18 @@ if (VerifyExists("Server") && VerifyExists("MyNym") && VerifyExists("MyPurse"))
 	if (!VerifyStringVal(strMint))
 	{
 		OT_API_Output(0, "\n\n load_or_retrieve_mint: Failed.\n\n")
-        return 0
+	        return 0
 	}
 	else	// Success!
 	{
 		OT_API_Output(0, "\n\n") // stderr
 		print(strMint)           // stdout
 		OT_API_Output(0, "\n\n") // stderr
+        return 1
 	}
 }
 
 // Done!
-1
+0
 
 

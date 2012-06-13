@@ -8598,7 +8598,7 @@ int OT_API::checkUser(OTIdentifier & SERVER_ID,
 int OT_API::sendUserMessage(OTIdentifier	& SERVER_ID,
 							 OTIdentifier	& USER_ID,
 							 OTIdentifier	& USER_ID_RECIPIENT,
-							 OTASCIIArmor	& RECIPIENT_PUBKEY,
+							 OTString       & RECIPIENT_PUBKEY, // unescaped and bookended.
 							 OTString		& THE_MESSAGE)
 {	
 	const char * szFuncName = "OT_API::sendUserMessage";
@@ -8694,7 +8694,7 @@ int OT_API::sendUserMessage(OTIdentifier	& SERVER_ID,
 int OT_API::sendUserInstrument(OTIdentifier	& SERVER_ID,
                                OTIdentifier	& USER_ID,
                                OTIdentifier	& USER_ID_RECIPIENT,
-                               OTASCIIArmor	& RECIPIENT_PUBKEY,
+                               OTString     & RECIPIENT_PUBKEY,
                                OTPayment	& THE_INSTRUMENT)
 {	
 	const char * szFuncName = "OT_API::sendUserInstrument";

@@ -192,7 +192,9 @@ void OTAPI_Wrap::Output(const int nLogLevel, const std::string STR_OUTPUT)
 
 std::string OTAPI_Wrap::GetTime()
 {
-	return OT_API_GetTime();
+	 const char * szRetVal = OT_API_GetTime();
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 // --------------------------------------------------------------
 
@@ -200,22 +202,30 @@ std::string OTAPI_Wrap::GetTime()
 
 std::string OTAPI_Wrap::Encode(std::string str_Plaintext, bool bLineBreaks)
 {
-	return OT_API_Encode(str_Plaintext.c_str(), bLineBreaks ? OT_TRUE : OT_FALSE);
+	 const char * szRetVal = OT_API_Encode(str_Plaintext.c_str(), bLineBreaks ? OT_TRUE : OT_FALSE);
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 std::string OTAPI_Wrap::Decode(std::string str_Encoded, bool bLineBreaks)
 {
-	return OT_API_Decode(str_Encoded.c_str(), bLineBreaks ? OT_TRUE : OT_FALSE);
+	 const char * szRetVal = OT_API_Decode(str_Encoded.c_str(), bLineBreaks ? OT_TRUE : OT_FALSE);
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 std::string OTAPI_Wrap::Encrypt(std::string RECIPIENT_NYM_ID, std::string str_Plaintext)
 {
-	return OT_API_Encrypt(RECIPIENT_NYM_ID.c_str(), str_Plaintext.c_str());
+	 const char * szRetVal = OT_API_Encrypt(RECIPIENT_NYM_ID.c_str(), str_Plaintext.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 std::string OTAPI_Wrap::Decrypt(std::string RECIPIENT_NYM_ID, std::string str_Ciphertext)
 {
-	return OT_API_Decrypt(RECIPIENT_NYM_ID.c_str(), str_Ciphertext.c_str());
+	 const char * szRetVal = OT_API_Decrypt(RECIPIENT_NYM_ID.c_str(), str_Ciphertext.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 
@@ -226,39 +236,53 @@ std::string OTAPI_Wrap::Decrypt(std::string RECIPIENT_NYM_ID, std::string str_Ci
 
 std::string OTAPI_Wrap::CreateSymmetricKey()
 {
-	return OT_API_CreateSymmetricKey();
+	 const char * szRetVal = OT_API_CreateSymmetricKey();
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 std::string OTAPI_Wrap::SymmetricEncrypt(std::string SYMMETRIC_KEY, std::string PLAINTEXT)
 {
-	return OT_API_SymmetricEncrypt(SYMMETRIC_KEY.c_str(), PLAINTEXT.c_str());
+	 const char * szRetVal = OT_API_SymmetricEncrypt(SYMMETRIC_KEY.c_str(), PLAINTEXT.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 std::string OTAPI_Wrap::SymmetricDecrypt(std::string SYMMETRIC_KEY, std::string CIPHERTEXT_ENVELOPE)
 {
- 	return OT_API_SymmetricDecrypt(SYMMETRIC_KEY.c_str(), CIPHERTEXT_ENVELOPE.c_str());
+ 	 const char * szRetVal = OT_API_SymmetricDecrypt(SYMMETRIC_KEY.c_str(), CIPHERTEXT_ENVELOPE.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 
 std::string OTAPI_Wrap::CreateServerContract( std::string  NYM_ID, std::string  szXMLcontents )
 {
-   	return OT_API_CreateServerContract(NYM_ID.c_str(), szXMLcontents.c_str());
+   	 const char * szRetVal = OT_API_CreateServerContract(NYM_ID.c_str(), szXMLcontents.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 std::string OTAPI_Wrap::CreateAssetContract ( std::string  NYM_ID, std::string  szXMLcontents )
 {
-    return OT_API_CreateAssetContract(NYM_ID.c_str(), szXMLcontents.c_str());
+     const char * szRetVal = OT_API_CreateAssetContract(NYM_ID.c_str(), szXMLcontents.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 
 std::string OTAPI_Wrap::GetServer_Contract(std::string SERVER_ID) // Return's Server's contract (based on server ID)
 {
-   	return OT_API_GetServer_Contract(SERVER_ID.c_str());
+   	 const char * szRetVal = OT_API_GetServer_Contract(SERVER_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 std::string OTAPI_Wrap::GetAssetType_Contract(std::string ASSET_TYPE_ID) // Returns currency contract based on Asset Type ID
 {
-   	return OT_API_GetAssetType_Contract(ASSET_TYPE_ID.c_str());
+   	 const char * szRetVal = OT_API_GetAssetType_Contract(ASSET_TYPE_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 
@@ -269,12 +293,16 @@ std::string OTAPI_Wrap::GetAssetType_Contract(std::string ASSET_TYPE_ID) // Retu
 
 std::string OTAPI_Wrap::SignContract(std::string SIGNER_NYM_ID, std::string THE_CONTRACT)
 {
-	return OT_API_SignContract(SIGNER_NYM_ID.c_str(), THE_CONTRACT.c_str());
+	 const char * szRetVal = OT_API_SignContract(SIGNER_NYM_ID.c_str(), THE_CONTRACT.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 std::string OTAPI_Wrap::AddSignature(std::string SIGNER_NYM_ID, std::string THE_CONTRACT)
 {
-	return OT_API_AddSignature(SIGNER_NYM_ID.c_str(), THE_CONTRACT.c_str());
+	 const char * szRetVal = OT_API_AddSignature(SIGNER_NYM_ID.c_str(), THE_CONTRACT.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 bool OTAPI_Wrap::VerifySignature(std::string SIGNER_NYM_ID, std::string THE_CONTRACT)
@@ -293,7 +321,9 @@ const std::string OTAPI_Wrap::Create_SmartContract(const std::string SERVER_ID,
 												   const std::string VALID_FROM,	// Default (0 or NULL) == NOW
 												   const std::string VALID_TO)
 {
-	return OT_API_Create_SmartContract(SERVER_ID.c_str(), SIGNER_NYM_ID.c_str(), VALID_FROM.c_str(), VALID_TO.c_str());
+    const char * szRetVal = OT_API_Create_SmartContract(SERVER_ID.c_str(), SIGNER_NYM_ID.c_str(), VALID_FROM.c_str(), VALID_TO.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 
@@ -304,7 +334,9 @@ const std::string OTAPI_Wrap::SmartContract_AddBylaw(const std::string THE_CONTR
 													 // ----------------------------------------
 													 const std::string BYLAW_NAME)	// The Bylaw's NAME as referenced in the smart contract. (And the scripts...)
 {
-	return OT_API_SmartContract_AddBylaw(THE_CONTRACT.c_str(), SIGNER_NYM_ID.c_str(), BYLAW_NAME.c_str());		
+    const char * szRetVal = OT_API_SmartContract_AddBylaw(THE_CONTRACT.c_str(), SIGNER_NYM_ID.c_str(), BYLAW_NAME.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 // returns: the updated smart contract (or NULL)
@@ -316,7 +348,9 @@ const std::string OTAPI_Wrap::SmartContract_AddClause(const std::string THE_CONT
 													  const std::string CLAUSE_NAME,	// The Clause's name as referenced in the smart contract. (And the scripts...)
 													  const std::string SOURCE_CODE)	// The actual source code for the clause.
 {
-	return OT_API_SmartContract_AddClause(THE_CONTRACT.c_str(), SIGNER_NYM_ID.c_str(), BYLAW_NAME.c_str(), CLAUSE_NAME.c_str(), SOURCE_CODE.c_str());	
+    const char * szRetVal = OT_API_SmartContract_AddClause(THE_CONTRACT.c_str(), SIGNER_NYM_ID.c_str(), BYLAW_NAME.c_str(), CLAUSE_NAME.c_str(), SOURCE_CODE.c_str());	
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 // returns: the updated smart contract (or NULL)
@@ -330,9 +364,11 @@ const std::string OTAPI_Wrap::SmartContract_AddVariable(const std::string THE_CO
 														const std::string VAR_TYPE,	// "string", "long", or "bool"
 														const std::string VAR_VALUE)	// Contains a string. If type is long, atol() will be used to convert value to a long. If type is bool, the strings "true" or "false" are expected here in order to convert to a bool.
 {
-	return OT_API_SmartContract_AddVariable(THE_CONTRACT.c_str(), SIGNER_NYM_ID.c_str(), BYLAW_NAME.c_str(), 
-											VAR_NAME.c_str(), VAR_ACCESS.c_str(), 
-											VAR_TYPE.c_str(), VAR_VALUE.c_str());	
+    const char * szRetVal = OT_API_SmartContract_AddVariable(THE_CONTRACT.c_str(), SIGNER_NYM_ID.c_str(), BYLAW_NAME.c_str(), 
+                                                             VAR_NAME.c_str(), VAR_ACCESS.c_str(), 
+                                                             VAR_TYPE.c_str(), VAR_VALUE.c_str());	
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 // returns: the updated smart contract (or NULL)
@@ -344,7 +380,9 @@ const std::string OTAPI_Wrap::SmartContract_AddCallback(const std::string THE_CO
 														const std::string CALLBACK_NAME,	// The Callback's name as referenced in the smart contract. (And the scripts...)
 														const std::string CLAUSE_NAME)	// The actual clause that will be triggered by the callback. (Must exist.)
 {
-	return OT_API_SmartContract_AddCallback(THE_CONTRACT.c_str(), SIGNER_NYM_ID.c_str(), BYLAW_NAME.c_str(), CALLBACK_NAME.c_str(), CLAUSE_NAME.c_str());	
+    const char * szRetVal = OT_API_SmartContract_AddCallback(THE_CONTRACT.c_str(), SIGNER_NYM_ID.c_str(), BYLAW_NAME.c_str(), CALLBACK_NAME.c_str(), CLAUSE_NAME.c_str());		
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 // returns: the updated smart contract (or NULL)
@@ -356,7 +394,9 @@ const std::string OTAPI_Wrap::SmartContract_AddHook(const std::string THE_CONTRA
 													const std::string HOOK_NAME,		// The Hook's name as referenced in the smart contract. (And the scripts...)
 													const std::string CLAUSE_NAME)	// The actual clause that will be triggered by the hook. (You can call this multiple times, and have multiple clauses trigger on the same hook.)
 {
-	return OT_API_SmartContract_AddHook(THE_CONTRACT.c_str(), SIGNER_NYM_ID.c_str(), BYLAW_NAME.c_str(), HOOK_NAME.c_str(), CLAUSE_NAME.c_str());	
+    const char * szRetVal = OT_API_SmartContract_AddHook(THE_CONTRACT.c_str(), SIGNER_NYM_ID.c_str(), BYLAW_NAME.c_str(), HOOK_NAME.c_str(), CLAUSE_NAME.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 // --------------------------------------------------------------
@@ -374,7 +414,9 @@ const std::string OTAPI_Wrap::SmartContract_AddParty(const std::string THE_CONTR
 // (FYI, that is basically the only option, until I code Entities and Roles. Until then, a party can ONLY be
 // a Nym, with himself as the agent representing that same party. Nym ID is supplied on ConfirmParty() below.)
 {
-	return OT_API_SmartContract_AddParty(THE_CONTRACT.c_str(), SIGNER_NYM_ID.c_str(), PARTY_NAME.c_str(), AGENT_NAME.c_str());	
+    const char * szRetVal = OT_API_SmartContract_AddParty(THE_CONTRACT.c_str(), SIGNER_NYM_ID.c_str(), PARTY_NAME.c_str(), AGENT_NAME.c_str());	
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 // ----------------------------------------
@@ -390,7 +432,10 @@ const std::string OTAPI_Wrap::SmartContract_AddAccount(const std::string THE_CON
 													   const std::string ACCT_NAME,		// The Account's name as referenced in the smart contract
 													   const std::string ASSET_TYPE_ID)	// Asset Type ID for the Account.
 {
-	return OT_API_SmartContract_AddAccount(THE_CONTRACT.c_str(), SIGNER_NYM_ID.c_str(), PARTY_NAME.c_str(), ACCT_NAME.c_str(), ASSET_TYPE_ID.c_str());	
+    const char * szRetVal = OT_API_SmartContract_AddAccount(THE_CONTRACT.c_str(), SIGNER_NYM_ID.c_str(), 
+                                                            PARTY_NAME.c_str(), ACCT_NAME.c_str(), ASSET_TYPE_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 // ----------------------------------------
@@ -398,7 +443,7 @@ const std::string OTAPI_Wrap::SmartContract_AddAccount(const std::string THE_CON
 int OTAPI_Wrap::SmartContract_CountNumsNeeded(const std::string THE_CONTRACT,	// The smart contract, about to be queried by this function.
 											  const std::string AGENT_NAME)
 {
-	return OT_API_SmartContract_CountNumsNeeded(THE_CONTRACT.c_str(), AGENT_NAME.c_str());
+   return  OT_API_SmartContract_CountNumsNeeded(THE_CONTRACT.c_str(), AGENT_NAME.c_str());
 }
 
 
@@ -414,8 +459,10 @@ const std::string OTAPI_Wrap::SmartContract_ConfirmAccount(const std::string THE
 														   const std::string AGENT_NAME,	// The agent name for this asset account.
 														   const std::string ACCT_ID)		// AcctID for the asset account. (For acct_name).
 {
-	return OT_API_SmartContract_ConfirmAccount(THE_CONTRACT.c_str(), SIGNER_NYM_ID.c_str(), PARTY_NAME.c_str(), 
-											   ACCT_NAME.c_str(), AGENT_NAME.c_str(), ACCT_ID.c_str());	
+    const char * szRetVal = OT_API_SmartContract_ConfirmAccount(THE_CONTRACT.c_str(), SIGNER_NYM_ID.c_str(), PARTY_NAME.c_str(), 
+                                                               ACCT_NAME.c_str(), AGENT_NAME.c_str(), ACCT_ID.c_str());	
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 // Called by each Party. Pass in the smart contract obtained in the above call.
@@ -428,7 +475,9 @@ std::string OTAPI_Wrap::SmartContract_ConfirmParty(const std::string THE_CONTRAC
                                                    const std::string NYM_ID)		// Nym ID for the party, the actual owner, 
                                                                                     // ===> AS WELL AS for the default AGENT of that party.
 {
-	return OT_API_SmartContract_ConfirmParty(THE_CONTRACT.c_str(), PARTY_NAME.c_str(), NYM_ID.c_str());
+    const char * szRetVal = OT_API_SmartContract_ConfirmParty(THE_CONTRACT.c_str(), PARTY_NAME.c_str(), NYM_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 // --------------------------------------------------
@@ -511,17 +560,23 @@ int OTAPI_Wrap::GetMemlogSize()
 
 const std::string OTAPI_Wrap::GetMemlogAtIndex(int nIndex)
 {
-	return OT_API_GetMemlogAtIndex(nIndex);
+    const char * szRetVal = OT_API_GetMemlogAtIndex(nIndex);
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 const std::string OTAPI_Wrap::PeekMemlogFront()
 {
-	return OT_API_PeekMemlogFront();
+    const char * szRetVal = OT_API_PeekMemlogFront();
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 const std::string OTAPI_Wrap::PeekMemlogBack()
 {
-	return OT_API_PeekMemlogBack();
+    const char * szRetVal = OT_API_PeekMemlogBack();
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 bool OTAPI_Wrap::PopMemlogFront()
@@ -537,7 +592,9 @@ bool OTAPI_Wrap::PopMemlogBack()
 
 const std::string OTAPI_Wrap::CreateNym(int nKeySize)
 {
-	return OT_API_CreateNym(nKeySize);
+    const char * szRetVal = OT_API_CreateNym(nKeySize);
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 
@@ -573,67 +630,93 @@ int OTAPI_Wrap::GetNymCount()
 
 const std::string OTAPI_Wrap::GetServer_ID(int nIndex)
 {
-	return OT_API_GetServer_ID(nIndex);
+    const char * szRetVal =  OT_API_GetServer_ID(nIndex);
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 const std::string OTAPI_Wrap::GetServer_Name(const std::string SERVER_ID)
 {
-	return OT_API_GetServer_Name(SERVER_ID.c_str());	
+    const char * szRetVal = OT_API_GetServer_Name(SERVER_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 const std::string OTAPI_Wrap::GetAssetType_ID(int nIndex)
 {
-	return OT_API_GetAssetType_ID(nIndex);
+    const char * szRetVal = OT_API_GetAssetType_ID(nIndex);
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 const std::string OTAPI_Wrap::GetAssetType_Name(const std::string ASSET_TYPE_ID)
 {
-	return OT_API_GetAssetType_Name(ASSET_TYPE_ID.c_str());	
+    const char * szRetVal =  OT_API_GetAssetType_Name(ASSET_TYPE_ID.c_str());	
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 const std::string OTAPI_Wrap::GetAccountWallet_ID(int nIndex)
 {
-	return OT_API_GetAccountWallet_ID(nIndex);
+    const char * szRetVal =  OT_API_GetAccountWallet_ID(nIndex);
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 const std::string OTAPI_Wrap::GetAccountWallet_Name(const std::string ACCOUNT_ID)
 {
-	return OT_API_GetAccountWallet_Name(ACCOUNT_ID.c_str());
+    const char * szRetVal =  OT_API_GetAccountWallet_Name(ACCOUNT_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 const std::string OTAPI_Wrap::GetAccountWallet_Balance(const std::string ACCOUNT_ID)
 {
-	return OT_API_GetAccountWallet_Balance(ACCOUNT_ID.c_str());
+    const char * szRetVal =  OT_API_GetAccountWallet_Balance(ACCOUNT_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 const std::string OTAPI_Wrap::GetAccountWallet_Type(const std::string ACCOUNT_ID)
 {
-	return OT_API_GetAccountWallet_Type(ACCOUNT_ID.c_str());
+    const char * szRetVal = OT_API_GetAccountWallet_Type(ACCOUNT_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 const std::string OTAPI_Wrap::GetAccountWallet_AssetTypeID(const std::string ACCOUNT_ID)
 {
-	return OT_API_GetAccountWallet_AssetTypeID(ACCOUNT_ID.c_str());
+    const char * szRetVal = OT_API_GetAccountWallet_AssetTypeID(ACCOUNT_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 const std::string OTAPI_Wrap::GetAccountWallet_ServerID(const std::string ACCOUNT_ID)
 {
-	return OT_API_GetAccountWallet_ServerID(ACCOUNT_ID.c_str());
+    const char * szRetVal = OT_API_GetAccountWallet_ServerID(ACCOUNT_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 const std::string OTAPI_Wrap::GetAccountWallet_NymID(const std::string ACCOUNT_ID)
 {
-	return OT_API_GetAccountWallet_NymID(ACCOUNT_ID.c_str());
+    const char * szRetVal = OT_API_GetAccountWallet_NymID(ACCOUNT_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 const std::string OTAPI_Wrap::GetAccountWallet_InboxHash(const std::string ACCOUNT_ID)
 {
-	return OT_API_GetAccountWallet_InboxHash(ACCOUNT_ID.c_str());
+    const char * szRetVal = OT_API_GetAccountWallet_InboxHash(ACCOUNT_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 const std::string OTAPI_Wrap::GetAccountWallet_OutboxHash(const std::string ACCOUNT_ID)
 {
-	return OT_API_GetAccountWallet_OutboxHash(ACCOUNT_ID.c_str());
+    const char * szRetVal = OT_API_GetAccountWallet_OutboxHash(ACCOUNT_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 bool OTAPI_Wrap::VerifyAccountReceipt(const std::string SERVER_ID, const std::string NYM_ID, const std::string ACCT_ID)
@@ -648,37 +731,53 @@ int OTAPI_Wrap::GetNym_TransactionNumCount(const std::string SERVER_ID, const st
 
 const std::string OTAPI_Wrap::GetNym_ID(int nIndex)
 {
-	return OT_API_GetNym_ID(nIndex);
+    const char * szRetVal = OT_API_GetNym_ID(nIndex);
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 const std::string OTAPI_Wrap::GetNym_Name(const std::string NYM_ID)
 {
-	return OT_API_GetNym_Name(NYM_ID.c_str());
+    const char * szRetVal = OT_API_GetNym_Name(NYM_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 const std::string OTAPI_Wrap::GetNym_Stats(const std::string NYM_ID)
 {
-	return OT_API_GetNym_Stats(NYM_ID.c_str());
+    const char * szRetVal = OT_API_GetNym_Stats(NYM_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
+
+
 
 const std::string OTAPI_Wrap::GetNym_NymboxHash(const std::string SERVER_ID, const std::string NYM_ID)
 {
-	return OT_API_GetNym_NymboxHash(SERVER_ID.c_str(), NYM_ID.c_str());
+	 const char * szRetVal =  OT_API_GetNym_NymboxHash(SERVER_ID.c_str(), NYM_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 const std::string OTAPI_Wrap::GetNym_RecentHash(const std::string SERVER_ID, const std::string NYM_ID)
 {
-	return OT_API_GetNym_RecentHash(SERVER_ID.c_str(), NYM_ID.c_str());
+	 const char * szRetVal =  OT_API_GetNym_RecentHash(SERVER_ID.c_str(), NYM_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 const std::string OTAPI_Wrap::GetNym_InboxHash(const std::string ACCOUNT_ID, const std::string NYM_ID)
 {
-	return OT_API_GetNym_InboxHash(ACCOUNT_ID.c_str(), NYM_ID.c_str());
+	 const char * szRetVal = OT_API_GetNym_InboxHash(ACCOUNT_ID.c_str(), NYM_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 const std::string OTAPI_Wrap::GetNym_OutboxHash(const std::string ACCOUNT_ID, const std::string NYM_ID)
 {
-	return OT_API_GetNym_OutboxHash(ACCOUNT_ID.c_str(), NYM_ID.c_str());
+	 const char * szRetVal = OT_API_GetNym_OutboxHash(ACCOUNT_ID.c_str(), NYM_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 bool OTAPI_Wrap::IsNym_RegisteredAtServer(const std::string NYM_ID, const std::string SERVER_ID)
@@ -694,17 +793,23 @@ int	OTAPI_Wrap::GetNym_MailCount(const std::string NYM_ID)
 
 const std::string OTAPI_Wrap::GetNym_MailContentsByIndex(const std::string NYM_ID, int nIndex)
 {
-	return OT_API_GetNym_MailContentsByIndex(NYM_ID.c_str(), nIndex);
+	 const char * szRetVal = OT_API_GetNym_MailContentsByIndex(NYM_ID.c_str(), nIndex);
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 const std::string OTAPI_Wrap::GetNym_MailSenderIDByIndex(const std::string NYM_ID, int nIndex)
 {
-	return OT_API_GetNym_MailSenderIDByIndex(NYM_ID.c_str(), nIndex);
+	 const char * szRetVal = OT_API_GetNym_MailSenderIDByIndex(NYM_ID.c_str(), nIndex);
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 const std::string OTAPI_Wrap::GetNym_MailServerIDByIndex(const std::string NYM_ID, int nIndex)
 {
-	return OT_API_GetNym_MailServerIDByIndex(NYM_ID.c_str(), nIndex);
+	 const char * szRetVal = OT_API_GetNym_MailServerIDByIndex(NYM_ID.c_str(), nIndex);
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 bool OTAPI_Wrap::Nym_RemoveMailByIndex(const std::string NYM_ID, int nIndex)
@@ -725,17 +830,23 @@ int OTAPI_Wrap::GetNym_OutmailCount(const std::string NYM_ID)
 
 const std::string OTAPI_Wrap::GetNym_OutmailContentsByIndex(const std::string NYM_ID, int nIndex)
 {
-	return OT_API_GetNym_OutmailContentsByIndex(NYM_ID.c_str(), nIndex);
+	 const char * szRetVal = OT_API_GetNym_OutmailContentsByIndex(NYM_ID.c_str(), nIndex);
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 const std::string OTAPI_Wrap::GetNym_OutmailRecipientIDByIndex(const std::string NYM_ID, int nIndex)
 {
-	return OT_API_GetNym_OutmailRecipientIDByIndex(NYM_ID.c_str(), nIndex);
+	 const char * szRetVal = OT_API_GetNym_OutmailRecipientIDByIndex(NYM_ID.c_str(), nIndex);
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 const std::string OTAPI_Wrap::GetNym_OutmailServerIDByIndex(const std::string NYM_ID, int nIndex)
 {
-	return OT_API_GetNym_OutmailServerIDByIndex(NYM_ID.c_str(), nIndex);
+	 const char * szRetVal = OT_API_GetNym_OutmailServerIDByIndex(NYM_ID.c_str(), nIndex);
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 bool OTAPI_Wrap::Nym_RemoveOutmailByIndex(const std::string NYM_ID, int nIndex)
@@ -756,17 +867,23 @@ int OTAPI_Wrap::GetNym_OutpaymentsCount(const std::string NYM_ID)
 
 const std::string OTAPI_Wrap::GetNym_OutpaymentsContentsByIndex(const std::string NYM_ID, int nIndex)
 {
-	return OT_API_GetNym_OutpaymentsContentsByIndex(NYM_ID.c_str(), nIndex);
+	 const char * szRetVal = OT_API_GetNym_OutpaymentsContentsByIndex(NYM_ID.c_str(), nIndex);
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 const std::string OTAPI_Wrap::GetNym_OutpaymentsRecipientIDByIndex(const std::string NYM_ID, int nIndex)
 {
-	return OT_API_GetNym_OutpaymentsRecipientIDByIndex(NYM_ID.c_str(), nIndex);
+	 const char * szRetVal = OT_API_GetNym_OutpaymentsRecipientIDByIndex(NYM_ID.c_str(), nIndex);
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 const std::string OTAPI_Wrap::GetNym_OutpaymentsServerIDByIndex(const std::string NYM_ID, int nIndex)
 {
-	return OT_API_GetNym_OutpaymentsServerIDByIndex(NYM_ID.c_str(), nIndex);
+	 const char * szRetVal = OT_API_GetNym_OutpaymentsServerIDByIndex(NYM_ID.c_str(), nIndex);
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 bool OTAPI_Wrap::Nym_RemoveOutpaymentsByIndex(const std::string NYM_ID, int nIndex)
@@ -817,7 +934,9 @@ bool OTAPI_Wrap::Wallet_CanRemoveAccount(const std::string ACCOUNT_ID)
 
 const std::string OTAPI_Wrap::Wallet_ImportNym(const std::string DISPLAY_NAME, const std::string KEY_FILE_CONTENTS)
 {
-	return OT_API_Wallet_ImportNym(DISPLAY_NAME.c_str(), KEY_FILE_CONTENTS.c_str());
+	 const char * szRetVal = OT_API_Wallet_ImportNym(DISPLAY_NAME.c_str(), KEY_FILE_CONTENTS.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 // -----------------------------------
@@ -852,7 +971,9 @@ bool OTAPI_Wrap::SetServer_Name(const std::string SERVER_ID,
 const std::string OTAPI_Wrap::VerifyAndRetrieveXMLContents(const std::string THE_CONTRACT,
 														   const std::string USER_ID)
 {
-	return OT_API_VerifyAndRetrieveXMLContents(THE_CONTRACT.c_str(), USER_ID.c_str());	
+	 const char * szRetVal = OT_API_VerifyAndRetrieveXMLContents(THE_CONTRACT.c_str(), USER_ID.c_str());	
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 // ----------------------------------------------------------------------
@@ -865,7 +986,7 @@ const std::string OTAPI_Wrap::WriteCheque(const std::string SERVER_ID,
 										  const std::string CHEQUE_MEMO, 
 										  const std::string RECIPIENT_USER_ID)
 {
-	return OT_API_WriteCheque(SERVER_ID.c_str(),
+	 const char * szRetVal = OT_API_WriteCheque(SERVER_ID.c_str(),
 							  CHEQUE_AMOUNT.c_str(), 
 							  VALID_FROM.c_str(), 
 							  VALID_TO.c_str(),
@@ -873,6 +994,8 @@ const std::string OTAPI_Wrap::WriteCheque(const std::string SERVER_ID,
 							  SENDER_USER_ID.c_str(),
 							  CHEQUE_MEMO.c_str(), 
 							  RECIPIENT_USER_ID.c_str());	
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 
@@ -920,23 +1043,29 @@ const std::string OTAPI_Wrap::ConfirmPaymentPlan(const std::string SERVER_ID,
 												 const std::string RECIPIENT_USER_ID,
 												 const std::string PAYMENT_PLAN)
 {
-	return OT_API_ConfirmPaymentPlan(SERVER_ID.c_str(),
+	 const char * szRetVal = OT_API_ConfirmPaymentPlan(SERVER_ID.c_str(),
 									 SENDER_USER_ID.c_str(),
 									 SENDER_ACCT_ID.c_str(),
 									 RECIPIENT_USER_ID.c_str(),
 									 PAYMENT_PLAN.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 // -----------------------------------------------------------------
 
 const std::string OTAPI_Wrap::LoadUserPubkey(const std::string USER_ID)
 {
-	return OT_API_LoadUserPubkey(USER_ID.c_str());
+	const char * szRetVal = OT_API_LoadUserPubkey(USER_ID.c_str());
+        
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 const std::string OTAPI_Wrap::LoadPubkey(const std::string USER_ID)
 {
-	return OT_API_LoadPubkey(USER_ID.c_str());
+	const char * szRetVal =  OT_API_LoadPubkey(USER_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 bool OTAPI_Wrap::VerifyUserPrivateKey(const std::string USER_ID)
@@ -948,23 +1077,31 @@ const std::string OTAPI_Wrap::LoadPurse(const std::string SERVER_ID,
 										const std::string ASSET_TYPE_ID,
 										const std::string USER_ID)
 {
-	return OT_API_LoadPurse(SERVER_ID.c_str(), ASSET_TYPE_ID.c_str(), USER_ID.c_str());
+	const char * szRetVal = OT_API_LoadPurse(SERVER_ID.c_str(), ASSET_TYPE_ID.c_str(), USER_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 const std::string OTAPI_Wrap::LoadMint(const std::string SERVER_ID,
 									   const std::string ASSET_TYPE_ID)
 {
-	return OT_API_LoadMint(SERVER_ID.c_str(), ASSET_TYPE_ID.c_str());
+	const char * szRetVal = OT_API_LoadMint(SERVER_ID.c_str(), ASSET_TYPE_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 const std::string OTAPI_Wrap::LoadAssetContract(const std::string ASSET_TYPE_ID)
 {
-	return OT_API_LoadAssetContract(ASSET_TYPE_ID.c_str());
+	const char * szRetVal = OT_API_LoadAssetContract(ASSET_TYPE_ID.c_str());
+
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 const std::string OTAPI_Wrap::LoadServerContract(const std::string SERVER_ID)
 {
-	return OT_API_LoadServerContract(SERVER_ID.c_str());
+	const char * szRetVal = OT_API_LoadServerContract(SERVER_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 bool OTAPI_Wrap::Mint_IsStillGood(const std::string SERVER_ID,
@@ -989,18 +1126,24 @@ int OTAPI_Wrap::Basket_GetMemberCount(const std::string BASKET_ASSET_TYPE_ID)
 const std::string OTAPI_Wrap::Basket_GetMemberType(const std::string BASKET_ASSET_TYPE_ID,
 												   const int nIndex)
 {
-	return OT_API_Basket_GetMemberType(BASKET_ASSET_TYPE_ID.c_str(), nIndex);
+	const char * szRetVal =  OT_API_Basket_GetMemberType(BASKET_ASSET_TYPE_ID.c_str(), nIndex);
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 const std::string OTAPI_Wrap::Basket_GetMinimumTransferAmount(const std::string BASKET_ASSET_TYPE_ID)
 {
-	return OT_API_Basket_GetMinimumTransferAmount(BASKET_ASSET_TYPE_ID.c_str());
+	const char * szRetVal =  OT_API_Basket_GetMinimumTransferAmount(BASKET_ASSET_TYPE_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 const std::string OTAPI_Wrap::Basket_GetMemberMinimumTransferAmount(const std::string BASKET_ASSET_TYPE_ID,
 																	const int nIndex)
 {
-	return OT_API_Basket_GetMemberMinimumTransferAmount(BASKET_ASSET_TYPE_ID.c_str(), nIndex);
+	const char * szRetVal =  OT_API_Basket_GetMemberMinimumTransferAmount(BASKET_ASSET_TYPE_ID.c_str(), nIndex);
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 // --------------------------------------------------------------
@@ -1008,35 +1151,45 @@ const std::string OTAPI_Wrap::LoadAssetAccount(const std::string SERVER_ID,
 											   const std::string USER_ID,
 											   const std::string ACCOUNT_ID)
 {
-	return OT_API_LoadAssetAccount(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str());
+	const char * szRetVal =  OT_API_LoadAssetAccount(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 const std::string OTAPI_Wrap::LoadInbox(const std::string SERVER_ID,
 										const std::string USER_ID,
 										const std::string ACCOUNT_ID)
 {
-	return OT_API_LoadInbox(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str());
+	const char * szRetVal =  OT_API_LoadInbox(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 const std::string OTAPI_Wrap::LoadOutbox(const std::string SERVER_ID,
 										 const std::string USER_ID,
 										 const std::string ACCOUNT_ID)
 {
-	return OT_API_LoadOutbox(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str());
+	const char * szRetVal =  OT_API_LoadOutbox(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 // --------------------------------------------------------------
 const std::string OTAPI_Wrap::LoadInboxNoVerify(const std::string SERVER_ID,
 												const std::string USER_ID,
 												const std::string ACCOUNT_ID)
 {
-	return OT_API_LoadInboxNoVerify(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str());
+	const char * szRetVal =  OT_API_LoadInboxNoVerify(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 const std::string OTAPI_Wrap::LoadOutboxNoVerify(const std::string SERVER_ID,
 												 const std::string USER_ID,
 												 const std::string ACCOUNT_ID)
 {
-	return OT_API_LoadOutboxNoVerify(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str());
+	const char * szRetVal =  OT_API_LoadOutboxNoVerify(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 // --------------------------------------------------------------
 
@@ -1053,7 +1206,9 @@ const std::string OTAPI_Wrap::Ledger_CreateResponse(const std::string SERVER_ID,
 													const std::string ACCOUNT_ID,
 													const std::string ORIGINAL_LEDGER)
 {
-	return OT_API_Ledger_CreateResponse(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), ORIGINAL_LEDGER.c_str());
+	const char * szRetVal =  OT_API_Ledger_CreateResponse(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), ORIGINAL_LEDGER.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 // -------------------------------------------------------------------------
 const std::string OTAPI_Wrap::Ledger_GetTransactionByIndex(const std::string SERVER_ID,
@@ -1062,7 +1217,9 @@ const std::string OTAPI_Wrap::Ledger_GetTransactionByIndex(const std::string SER
 														   const std::string THE_LEDGER,
 														   int nIndex)
 {
-	return OT_API_Ledger_GetTransactionByIndex(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), THE_LEDGER.c_str(), nIndex);
+	const char * szRetVal =  OT_API_Ledger_GetTransactionByIndex(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), THE_LEDGER.c_str(), nIndex);
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 // -------------------------------------------------------------------------
 
@@ -1072,7 +1229,9 @@ const std::string OTAPI_Wrap::Ledger_GetTransactionByID(const std::string SERVER
 														const std::string THE_LEDGER,
 														const std::string TRANSACTION_NUMBER)
 {
-	return OT_API_Ledger_GetTransactionByID(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), THE_LEDGER.c_str(), TRANSACTION_NUMBER.c_str());
+	const char * szRetVal = OT_API_Ledger_GetTransactionByID(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), THE_LEDGER.c_str(), TRANSACTION_NUMBER.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 // -------------------------------------------------------------------------
 
@@ -1082,7 +1241,9 @@ const std::string OTAPI_Wrap::Ledger_GetTransactionIDByIndex(const std::string S
 															 const std::string THE_LEDGER,
 															 int nIndex)
 {
-	return OT_API_Ledger_GetTransactionIDByIndex(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), THE_LEDGER.c_str(), nIndex);
+	const char * szRetVal =  OT_API_Ledger_GetTransactionIDByIndex(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), THE_LEDGER.c_str(), nIndex);
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 // --------------------------------------------------------------
 const std::string OTAPI_Wrap::Ledger_AddTransaction(const std::string SERVER_ID,
@@ -1091,7 +1252,9 @@ const std::string OTAPI_Wrap::Ledger_AddTransaction(const std::string SERVER_ID,
 													const std::string THE_LEDGER,
 													const std::string THE_TRANSACTION)
 {
-	return OT_API_Ledger_AddTransaction(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), THE_LEDGER.c_str(), THE_TRANSACTION.c_str());
+	const char * szRetVal =  OT_API_Ledger_AddTransaction(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), THE_LEDGER.c_str(), THE_TRANSACTION.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 // --------------------------------------------------------------
 const std::string OTAPI_Wrap::Transaction_CreateResponse(const std::string SERVER_ID,
@@ -1101,9 +1264,11 @@ const std::string OTAPI_Wrap::Transaction_CreateResponse(const std::string SERVE
 														 const std::string ORIGINAL_TRANSACTION, // Responding to...?
 														 bool BOOL_DO_I_ACCEPT)
 {
-	return OT_API_Transaction_CreateResponse(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), 
+	const char * szRetVal =  OT_API_Transaction_CreateResponse(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), 
 											 RESPONSE_LEDGER.c_str(), ORIGINAL_TRANSACTION.c_str(),
 											 BOOL_DO_I_ACCEPT ? OT_TRUE : OT_FALSE);
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 // -------------------------------------------------------------------------
 const std::string OTAPI_Wrap::Ledger_FinalizeResponse(const std::string SERVER_ID,
@@ -1111,7 +1276,9 @@ const std::string OTAPI_Wrap::Ledger_FinalizeResponse(const std::string SERVER_I
 													  const std::string ACCOUNT_ID,
 													  const std::string THE_LEDGER)
 {
-	return OT_API_Ledger_FinalizeResponse(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), THE_LEDGER.c_str());
+	const char * szRetVal =  OT_API_Ledger_FinalizeResponse(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), THE_LEDGER.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 // -------------------------------------------------------------------------
 const std::string OTAPI_Wrap::Ledger_GetInstrument(const std::string SERVER_ID,
@@ -1120,7 +1287,9 @@ const std::string OTAPI_Wrap::Ledger_GetInstrument(const std::string SERVER_ID,
 												   const std::string THE_LEDGER,
 												   int nIndex)
 {
-	return OT_API_Ledger_GetInstrument(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), THE_LEDGER.c_str(), nIndex);
+	const char * szRetVal =  OT_API_Ledger_GetInstrument(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), THE_LEDGER.c_str(), nIndex);
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 // -------------------------------------------------------------------------
 
@@ -1129,7 +1298,9 @@ const std::string OTAPI_Wrap::Transaction_GetType(const std::string SERVER_ID,
 												  const std::string ACCOUNT_ID,
 												  const std::string THE_TRANSACTION)
 {
-	return OT_API_Transaction_GetType(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), THE_TRANSACTION.c_str());
+	const char * szRetVal =  OT_API_Transaction_GetType(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), THE_TRANSACTION.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 // --------------------------------------------------------------------
 
@@ -1137,7 +1308,9 @@ const std::string OTAPI_Wrap::ReplyNotice_GetRequestNum(const std::string SERVER
                                                         const std::string USER_ID,
                                                         const std::string THE_TRANSACTION)
 {
-	return OT_API_ReplyNotice_GetRequestNum(SERVER_ID.c_str(), USER_ID.c_str(), THE_TRANSACTION.c_str());
+	const char * szRetVal =  OT_API_ReplyNotice_GetRequestNum(SERVER_ID.c_str(), USER_ID.c_str(), THE_TRANSACTION.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 // --------------------------------------------------------------------
 
@@ -1146,7 +1319,9 @@ const std::string OTAPI_Wrap::Transaction_GetVoucher(const std::string SERVER_ID
 													 const std::string ACCOUNT_ID,
 													 const std::string THE_TRANSACTION)
 {
-	return OT_API_Transaction_GetVoucher(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), THE_TRANSACTION.c_str());
+	const char * szRetVal =  OT_API_Transaction_GetVoucher(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), THE_TRANSACTION.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 // --------------------------------------------------
 int OTAPI_Wrap::Transaction_GetSuccess(const std::string SERVER_ID,
@@ -1175,7 +1350,9 @@ const std::string OTAPI_Wrap::Transaction_GetDateSigned(const std::string SERVER
 														const std::string ACCOUNT_ID,
 														const std::string THE_TRANSACTION)
 {
-	return OT_API_Transaction_GetDateSigned(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), THE_TRANSACTION.c_str());
+	const char * szRetVal =  OT_API_Transaction_GetDateSigned(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), THE_TRANSACTION.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 // --------------------------------------------------
@@ -1185,7 +1362,9 @@ const std::string OTAPI_Wrap::Transaction_GetAmount(const std::string SERVER_ID,
 													const std::string ACCOUNT_ID,
 													const std::string THE_TRANSACTION)
 {
-	return OT_API_Transaction_GetAmount(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), THE_TRANSACTION.c_str());
+	const char * szRetVal =  OT_API_Transaction_GetAmount(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), THE_TRANSACTION.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 // --------------------------------------------------
 const std::string OTAPI_Wrap::Pending_GetNote(const std::string SERVER_ID,
@@ -1193,7 +1372,9 @@ const std::string OTAPI_Wrap::Pending_GetNote(const std::string SERVER_ID,
 											  const std::string ACCOUNT_ID,
 											  const std::string THE_TRANSACTION)
 {
-	return OT_API_Pending_GetNote(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), THE_TRANSACTION.c_str());
+	const char * szRetVal =  OT_API_Pending_GetNote(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), THE_TRANSACTION.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 // --------------------------------------------------
 const std::string OTAPI_Wrap::Transaction_GetSenderUserID(const std::string SERVER_ID,
@@ -1201,7 +1382,9 @@ const std::string OTAPI_Wrap::Transaction_GetSenderUserID(const std::string SERV
 														  const std::string ACCOUNT_ID,
 														  const std::string THE_TRANSACTION)
 {
-	return OT_API_Transaction_GetSenderUserID(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), THE_TRANSACTION.c_str());
+	const char * szRetVal =  OT_API_Transaction_GetSenderUserID(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), THE_TRANSACTION.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 // --------------------------------------------------
 
@@ -1210,7 +1393,9 @@ const std::string OTAPI_Wrap::Transaction_GetSenderAcctID(const std::string SERV
 														  const std::string ACCOUNT_ID,
 														  const std::string THE_TRANSACTION)
 {
-	return OT_API_Transaction_GetSenderAcctID(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), THE_TRANSACTION.c_str());
+	const char * szRetVal =  OT_API_Transaction_GetSenderAcctID(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), THE_TRANSACTION.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 // --------------------------------------------------
 
@@ -1219,7 +1404,9 @@ const std::string OTAPI_Wrap::Transaction_GetRecipientUserID(const std::string S
 															 const std::string ACCOUNT_ID,
 															 const std::string THE_TRANSACTION)
 {
-	return OT_API_Transaction_GetRecipientUserID(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), THE_TRANSACTION.c_str());
+	const char * szRetVal =  OT_API_Transaction_GetRecipientUserID(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), THE_TRANSACTION.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 // --------------------------------------------------
 
@@ -1228,7 +1415,9 @@ const std::string OTAPI_Wrap::Transaction_GetRecipientAcctID(const std::string S
 															 const std::string ACCOUNT_ID,
 															 const std::string THE_TRANSACTION)
 {
-	return OT_API_Transaction_GetRecipientAcctID(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), THE_TRANSACTION.c_str());
+	const char * szRetVal =  OT_API_Transaction_GetRecipientAcctID(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), THE_TRANSACTION.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 // --------------------------------------------------
 
@@ -1237,63 +1426,85 @@ const std::string OTAPI_Wrap::Transaction_GetDisplayReferenceToNum(const std::st
 																   const std::string ACCOUNT_ID,
 																   const std::string THE_TRANSACTION)
 {
-	return OT_API_Transaction_GetDisplayReferenceToNum(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), THE_TRANSACTION.c_str());
+	const char * szRetVal =  OT_API_Transaction_GetDisplayReferenceToNum(SERVER_ID.c_str(), USER_ID.c_str(), ACCOUNT_ID.c_str(), THE_TRANSACTION.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 // ---------------------------------------------------------
 
 
 const std::string OTAPI_Wrap::Instrument_GetAmount        (const std::string SERVER_ID, const std::string THE_INSTRUMENT)
 {
-   	return OT_API_Instrument_GetAmount(SERVER_ID.c_str(), THE_INSTRUMENT.c_str());
+   	const char * szRetVal =  OT_API_Instrument_GetAmount(SERVER_ID.c_str(), THE_INSTRUMENT.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 const std::string OTAPI_Wrap::Instrument_GetTransNum      (const std::string SERVER_ID, const std::string THE_INSTRUMENT)
 {
-   	return OT_API_Instrument_GetTransNum(SERVER_ID.c_str(), THE_INSTRUMENT.c_str());
+   	const char * szRetVal =  OT_API_Instrument_GetTransNum(SERVER_ID.c_str(), THE_INSTRUMENT.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 
 const std::string OTAPI_Wrap::Instrument_GetValidFrom     (const std::string SERVER_ID, const std::string THE_INSTRUMENT)
 {
-   	return OT_API_Instrument_GetValidFrom(SERVER_ID.c_str(), THE_INSTRUMENT.c_str());
+   	const char * szRetVal =  OT_API_Instrument_GetValidFrom(SERVER_ID.c_str(), THE_INSTRUMENT.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 const std::string OTAPI_Wrap::Instrument_GetValidTo       (const std::string SERVER_ID, const std::string THE_INSTRUMENT)
 {
-   	return OT_API_Instrument_GetValidTo(SERVER_ID.c_str(), THE_INSTRUMENT.c_str());
+   	const char * szRetVal =  OT_API_Instrument_GetValidTo(SERVER_ID.c_str(), THE_INSTRUMENT.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 
 const std::string OTAPI_Wrap::Instrument_GetMemo          (const std::string SERVER_ID, const std::string THE_INSTRUMENT)
 {
-   	return OT_API_Instrument_GetMemo(SERVER_ID.c_str(), THE_INSTRUMENT.c_str());
+   	const char * szRetVal =  OT_API_Instrument_GetMemo(SERVER_ID.c_str(), THE_INSTRUMENT.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 
 const std::string OTAPI_Wrap::Instrument_GetAssetID       (const std::string SERVER_ID, const std::string THE_INSTRUMENT)
 {
-   	return OT_API_Instrument_GetAssetID(SERVER_ID.c_str(), THE_INSTRUMENT.c_str());
+   	const char * szRetVal =  OT_API_Instrument_GetAssetID(SERVER_ID.c_str(), THE_INSTRUMENT.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 
 const std::string OTAPI_Wrap::Instrmnt_GetSenderUserID    (const std::string SERVER_ID, const std::string THE_INSTRUMENT)
 {
-   	return OT_API_Instrmnt_GetSenderUserID(SERVER_ID.c_str(), THE_INSTRUMENT.c_str());
+   	const char * szRetVal =  OT_API_Instrmnt_GetSenderUserID(SERVER_ID.c_str(), THE_INSTRUMENT.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 const std::string OTAPI_Wrap::Instrmnt_GetSenderAcctID    (const std::string SERVER_ID, const std::string THE_INSTRUMENT)
 {
-   	return OT_API_Instrmnt_GetSenderAcctID(SERVER_ID.c_str(), THE_INSTRUMENT.c_str());
+   	const char * szRetVal =  OT_API_Instrmnt_GetSenderAcctID(SERVER_ID.c_str(), THE_INSTRUMENT.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 const std::string OTAPI_Wrap::Instrmnt_GetRecipientUserID (const std::string SERVER_ID, const std::string THE_INSTRUMENT)
 {
-   	return OT_API_Instrmnt_GetRecipientUserID(SERVER_ID.c_str(), THE_INSTRUMENT.c_str());
+   	const char * szRetVal =  OT_API_Instrmnt_GetRecipientUserID(SERVER_ID.c_str(), THE_INSTRUMENT.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 const std::string OTAPI_Wrap::Instrmnt_GetRecipientAcctID (const std::string SERVER_ID, const std::string THE_INSTRUMENT)
 {
-   	return OT_API_Instrmnt_GetRecipientAcctID(SERVER_ID.c_str(), THE_INSTRUMENT.c_str());
+   	const char * szRetVal =  OT_API_Instrmnt_GetRecipientAcctID(SERVER_ID.c_str(), THE_INSTRUMENT.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 
@@ -1302,7 +1513,9 @@ const std::string OTAPI_Wrap::CreatePurse(const std::string SERVER_ID,
 										  const std::string ASSET_TYPE_ID,
 										  const std::string USER_ID)
 {
-	return OT_API_CreatePurse(SERVER_ID.c_str(), ASSET_TYPE_ID.c_str(), USER_ID.c_str());
+	const char * szRetVal =  OT_API_CreatePurse(SERVER_ID.c_str(), ASSET_TYPE_ID.c_str(), USER_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 // --------------------------------------------------------------------
@@ -1319,7 +1532,9 @@ const std::string OTAPI_Wrap::Purse_GetTotalValue(const std::string SERVER_ID,
 												  const std::string ASSET_TYPE_ID,
 												  const std::string THE_PURSE)
 {
-	return OT_API_Purse_GetTotalValue(SERVER_ID.c_str(), ASSET_TYPE_ID.c_str(), THE_PURSE.c_str());
+	const char * szRetVal =  OT_API_Purse_GetTotalValue(SERVER_ID.c_str(), ASSET_TYPE_ID.c_str(), THE_PURSE.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 
@@ -1337,7 +1552,9 @@ const std::string OTAPI_Wrap::Purse_Peek(const std::string SERVER_ID,
 										 const std::string USER_ID,
 										 const std::string THE_PURSE)
 {
-	return OT_API_Purse_Peek(SERVER_ID.c_str(), ASSET_TYPE_ID.c_str(), USER_ID.c_str(), THE_PURSE.c_str());
+	const char * szRetVal =  OT_API_Purse_Peek(SERVER_ID.c_str(), ASSET_TYPE_ID.c_str(), USER_ID.c_str(), THE_PURSE.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 // --------------------------------------------------------------------
@@ -1346,7 +1563,9 @@ const std::string OTAPI_Wrap::Purse_Pop(const std::string SERVER_ID,
 										const std::string USER_ID,
 										const std::string THE_PURSE)
 {
-	return OT_API_Purse_Pop(SERVER_ID.c_str(), ASSET_TYPE_ID.c_str(), USER_ID.c_str(), THE_PURSE.c_str());
+	const char * szRetVal =  OT_API_Purse_Pop(SERVER_ID.c_str(), ASSET_TYPE_ID.c_str(), USER_ID.c_str(), THE_PURSE.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 // --------------------------------------------------------------------
@@ -1356,7 +1575,9 @@ const std::string OTAPI_Wrap::Purse_Push(const std::string SERVER_ID,
 										 const std::string THE_PURSE,
 										 const std::string THE_TOKEN)
 {
-	return OT_API_Purse_Push(SERVER_ID.c_str(), ASSET_TYPE_ID.c_str(), USER_ID.c_str(), THE_PURSE.c_str(), THE_TOKEN.c_str());
+	const char * szRetVal =  OT_API_Purse_Push(SERVER_ID.c_str(), ASSET_TYPE_ID.c_str(), USER_ID.c_str(), THE_PURSE.c_str(), THE_TOKEN.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 // --------------------------------------------------------------------
@@ -1384,7 +1605,9 @@ const std::string OTAPI_Wrap::Token_ChangeOwner(const std::string SERVER_ID,
 												const std::string OLD_OWNER_NYM_ID,
 												const std::string NEW_OWNER_NYM_ID)
 {
-	return OT_API_Token_ChangeOwner(SERVER_ID.c_str(), ASSET_TYPE_ID.c_str(), THE_TOKEN.c_str(), OLD_OWNER_NYM_ID.c_str(), NEW_OWNER_NYM_ID.c_str());
+	const char * szRetVal =  OT_API_Token_ChangeOwner(SERVER_ID.c_str(), ASSET_TYPE_ID.c_str(), THE_TOKEN.c_str(), OLD_OWNER_NYM_ID.c_str(), NEW_OWNER_NYM_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 // --------------------------------------------------------------------
@@ -1392,7 +1615,9 @@ const std::string OTAPI_Wrap::Token_GetID(const std::string SERVER_ID,
 										  const std::string ASSET_TYPE_ID,
 										  const std::string THE_TOKEN)
 {
-	return OT_API_Token_GetID(SERVER_ID.c_str(), ASSET_TYPE_ID.c_str(), THE_TOKEN.c_str());
+	const char * szRetVal =  OT_API_Token_GetID(SERVER_ID.c_str(), ASSET_TYPE_ID.c_str(), THE_TOKEN.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 // --------------------------------------------------------------------
@@ -1400,7 +1625,9 @@ const std::string OTAPI_Wrap::Token_GetDenomination(const std::string SERVER_ID,
 													const std::string ASSET_TYPE_ID,
 													const std::string THE_TOKEN)
 {
-	return OT_API_Token_GetDenomination(SERVER_ID.c_str(), ASSET_TYPE_ID.c_str(), THE_TOKEN.c_str());
+	const char * szRetVal =  OT_API_Token_GetDenomination(SERVER_ID.c_str(), ASSET_TYPE_ID.c_str(), THE_TOKEN.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 // --------------------------------------------------------------------
@@ -1416,7 +1643,9 @@ const std::string OTAPI_Wrap::Token_GetValidFrom(const std::string SERVER_ID,
 												 const std::string ASSET_TYPE_ID,
 												 const std::string THE_TOKEN)
 {
-	return OT_API_Token_GetValidFrom(SERVER_ID.c_str(), ASSET_TYPE_ID.c_str(), THE_TOKEN.c_str());
+	const char * szRetVal =  OT_API_Token_GetValidFrom(SERVER_ID.c_str(), ASSET_TYPE_ID.c_str(), THE_TOKEN.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 // --------------------------------------------------------------------
@@ -1424,19 +1653,25 @@ const std::string OTAPI_Wrap::Token_GetValidTo(const std::string SERVER_ID,
 											   const std::string ASSET_TYPE_ID,
 											   const std::string THE_TOKEN)
 {
-	return OT_API_Token_GetValidTo(SERVER_ID.c_str(), ASSET_TYPE_ID.c_str(), THE_TOKEN.c_str());
+	const char * szRetVal =  OT_API_Token_GetValidTo(SERVER_ID.c_str(), ASSET_TYPE_ID.c_str(), THE_TOKEN.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 // --------------------------------------------------------------------
 const std::string OTAPI_Wrap::Token_GetAssetID(const std::string THE_TOKEN)
 {
-	return OT_API_Token_GetAssetID(THE_TOKEN.c_str());
+	const char * szRetVal =  OT_API_Token_GetAssetID(THE_TOKEN.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 // --------------------------------------------------------------------
 const std::string OTAPI_Wrap::Token_GetServerID(const std::string THE_TOKEN)
 {
-	return OT_API_Token_GetServerID(THE_TOKEN.c_str());
+	const char * szRetVal =  OT_API_Token_GetServerID(THE_TOKEN.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 
@@ -1556,7 +1791,9 @@ int OTAPI_Wrap::getAccount(const std::string SERVER_ID,
 const std::string OTAPI_Wrap::GenerateBasketCreation(const std::string USER_ID,
 													 const std::string MINIMUM_TRANSFER)
 {
-	return OT_API_GenerateBasketCreation(USER_ID.c_str(), MINIMUM_TRANSFER.c_str());
+	const char * szRetVal =  OT_API_GenerateBasketCreation(USER_ID.c_str(), MINIMUM_TRANSFER.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 // --------------------------------------------------------------------
@@ -1565,7 +1802,9 @@ const std::string OTAPI_Wrap::AddBasketCreationItem(const std::string USER_ID, /
 													const std::string ASSET_TYPE_ID, // Adding an asset type to the new basket.
 													const std::string MINIMUM_TRANSFER)
 {
-	return OT_API_AddBasketCreationItem(USER_ID.c_str(), THE_BASKET.c_str(), ASSET_TYPE_ID.c_str(), MINIMUM_TRANSFER.c_str());
+	const char * szRetVal =  OT_API_AddBasketCreationItem(USER_ID.c_str(), THE_BASKET.c_str(), ASSET_TYPE_ID.c_str(), MINIMUM_TRANSFER.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 // --------------------------------------------------------------------
@@ -1584,9 +1823,11 @@ const std::string OTAPI_Wrap::GenerateBasketExchange(const std::string SERVER_ID
 													 // -------------------------------------
 													 const int TRANSFER_MULTIPLE)
 {
-	return OT_API_GenerateBasketExchange(SERVER_ID.c_str(), USER_ID.c_str(), 
+	const char * szRetVal =  OT_API_GenerateBasketExchange(SERVER_ID.c_str(), USER_ID.c_str(), 
 										 BASKET_ASSET_TYPE_ID.c_str(), BASKET_ASSET_ACCT_ID.c_str(), 
 										 TRANSFER_MULTIPLE);
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 // --------------------------------------------------------------------
@@ -1596,7 +1837,9 @@ const std::string OTAPI_Wrap::AddBasketExchangeItem(const std::string SERVER_ID,
 													const std::string ASSET_TYPE_ID,
 													const std::string ASSET_ACCT_ID)
 {
-	return OT_API_AddBasketExchangeItem(SERVER_ID.c_str(), USER_ID.c_str(), THE_BASKET.c_str(), ASSET_TYPE_ID.c_str(), ASSET_ACCT_ID.c_str());
+	const char * szRetVal =  OT_API_AddBasketExchangeItem(SERVER_ID.c_str(), USER_ID.c_str(), THE_BASKET.c_str(), ASSET_TYPE_ID.c_str(), ASSET_ACCT_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 // --------------------------------------------------------------------------
 int OTAPI_Wrap::exchangeBasket(const std::string SERVER_ID,
@@ -1667,14 +1910,18 @@ int OTAPI_Wrap::getNymbox(const std::string SERVER_ID,
 const std::string OTAPI_Wrap::LoadNymbox(const std::string SERVER_ID,
 										 const std::string USER_ID)
 {
-	return OT_API_LoadNymbox(SERVER_ID.c_str(), USER_ID.c_str());
+	const char * szRetVal =  OT_API_LoadNymbox(SERVER_ID.c_str(), USER_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 // --------------------------------------------------------------------
 const std::string OTAPI_Wrap::LoadNymboxNoVerify(const std::string SERVER_ID,
 												 const std::string USER_ID)
 {
-	return OT_API_LoadNymboxNoVerify(SERVER_ID.c_str(), USER_ID.c_str());
+	const char * szRetVal =  OT_API_LoadNymboxNoVerify(SERVER_ID.c_str(), USER_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 // --------------------------------------------------------------------
 
@@ -1682,7 +1929,9 @@ const std::string OTAPI_Wrap::Nymbox_GetReplyNotice(const std::string SERVER_ID,
                                                     const std::string USER_ID,
                                                     const std::string REQUEST_NUMBER) // returns replyNotice transaction by requestNumber.
 {
-	return OT_API_Nymbox_GetReplyNotice(SERVER_ID.c_str(), USER_ID.c_str(), REQUEST_NUMBER.c_str());
+	const char * szRetVal =  OT_API_Nymbox_GetReplyNotice(SERVER_ID.c_str(), USER_ID.c_str(), REQUEST_NUMBER.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 // --------------------------------------------------------------------
@@ -1848,7 +2097,9 @@ const std::string OTAPI_Wrap::PopMessageBuffer(const std::string REQUEST_NUMBER,
                                                const std::string SERVER_ID, 
                                                const std::string USER_ID)
 {
-	return OT_API_PopMessageBuffer(REQUEST_NUMBER.c_str(), SERVER_ID.c_str(), USER_ID.c_str());
+	const char * szRetVal =  OT_API_PopMessageBuffer(REQUEST_NUMBER.c_str(), SERVER_ID.c_str(), USER_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 // --------------------------------------------------------------------
@@ -1868,7 +2119,9 @@ std::string OTAPI_Wrap::GetSentMessage(const std::string REQUEST_NUMBER,
                                        const std::string SERVER_ID, 
                                        const std::string USER_ID)
 {
-	return OT_API_GetSentMessage(REQUEST_NUMBER.c_str(), SERVER_ID.c_str(), USER_ID.c_str());
+	const char * szRetVal =  OT_API_GetSentMessage(REQUEST_NUMBER.c_str(), SERVER_ID.c_str(), USER_ID.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 // -----------------------------------------------------------
@@ -1937,13 +2190,17 @@ int OTAPI_Wrap::queryAssetTypes(const std::string SERVER_ID,
 
 const std::string OTAPI_Wrap::Message_GetPayload(const std::string THE_MESSAGE)
 {
-	return OT_API_Message_GetPayload(THE_MESSAGE.c_str());
+	const char * szRetVal =  OT_API_Message_GetPayload(THE_MESSAGE.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 // --------------------------------------------------------------------
 const std::string OTAPI_Wrap::Message_GetCommand(const std::string THE_MESSAGE)
 {
-	return OT_API_Message_GetCommand(THE_MESSAGE.c_str());
+	const char * szRetVal =  OT_API_Message_GetCommand(THE_MESSAGE.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 // --------------------------------------------------------------------
@@ -1961,7 +2218,9 @@ int OTAPI_Wrap::Message_GetDepth(const std::string THE_MESSAGE)
 // --------------------------------------------------------------------
 const std::string OTAPI_Wrap::Message_GetUsageCredits(const std::string THE_MESSAGE)
 {
-	return OT_API_Message_GetUsageCredits(THE_MESSAGE.c_str());
+	const char * szRetVal =  OT_API_Message_GetUsageCredits(THE_MESSAGE.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 // --------------------------------------------------------------------
@@ -1990,32 +2249,42 @@ int OTAPI_Wrap::Msg_GetBlnceAgrmntSuccess(const std::string SERVER_ID,
 // --------------------------------------------------------------------
 const std::string OTAPI_Wrap::Message_GetLedger(const std::string THE_MESSAGE)
 {
-	return OT_API_Message_GetLedger(THE_MESSAGE.c_str());
+	const char * szRetVal =  OT_API_Message_GetLedger(THE_MESSAGE.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 // --------------------------------------------------------------------
 const std::string OTAPI_Wrap::Message_GetNewAssetTypeID(const std::string THE_MESSAGE)
 {
-	return OT_API_Message_GetNewAssetTypeID(THE_MESSAGE.c_str());
+	const char * szRetVal =  OT_API_Message_GetNewAssetTypeID(THE_MESSAGE.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 // --------------------------------------------------------------------
 const std::string OTAPI_Wrap::Message_GetNewIssuerAcctID(const std::string THE_MESSAGE)
 {
-	return OT_API_Message_GetNewIssuerAcctID(THE_MESSAGE.c_str());
+	const char * szRetVal =  OT_API_Message_GetNewIssuerAcctID(THE_MESSAGE.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 // --------------------------------------------------------------------
 const std::string OTAPI_Wrap::Message_GetNewAcctID(const std::string THE_MESSAGE)
 {
-	return OT_API_Message_GetNewAcctID(THE_MESSAGE.c_str());
+	const char * szRetVal =  OT_API_Message_GetNewAcctID(THE_MESSAGE.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 
 // --------------------------------------------------------------------
 const std::string OTAPI_Wrap::Message_GetNymboxHash(const std::string THE_MESSAGE)
 {
-	return OT_API_Message_GetNymboxHash(THE_MESSAGE.c_str());
+	const char * szRetVal =  OT_API_Message_GetNymboxHash(THE_MESSAGE.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
 }
 
 

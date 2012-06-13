@@ -1,5 +1,7 @@
 /************************************************************************************
- *    
+ * NOTE: deprecated. This was for the TCP version but it hasn't been
+ * "kept up".
+ *
  *  server.cpp  (as opposed to OTServer, this is the project's encapsulation.)
  */
 

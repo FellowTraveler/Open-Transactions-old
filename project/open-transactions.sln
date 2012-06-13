@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual C++ Express 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "irrxml", "irrxml\irrxml.vcxproj", "{FF4E2F12-89AF-42AF-9630-66931CAE610A}"
@@ -28,9 +28,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bigint", "bigint\bigint.vcx
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ot", "ot\ot.vcxproj", "{F95521CC-4774-447A-BCD2-8C271513E824}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "signcontract", "signcontract\signcontract.vcxproj", "{404430D8-AE55-48D3-867A-EB9C0E6D73E7}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "otcreatemint", "otcreatemint\otcreatemint.vcxproj", "{F7E29C23-3008-4080-B53E-5BE21B1F6DDC}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "createmint", "createmint\createmint.vcxproj", "{F7E29C23-3008-4080-B53E-5BE21B1F6DDC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -4871,7 +4871,7 @@ OT_BOOL OT_API_Msg_HarvestTransactionNumbers(const char *  THE_MESSAGE,
 // a Private Nym (just to get the pubkey from it.)
 // -- from local storage
 //
-// (return as STRING)
+// Return as STRING (NOT escaped.)
 //
 // Users will most likely store public keys of OTHER users, and they will need
 // to load those from time to time, especially to verify signatures, etc.
@@ -4933,7 +4933,7 @@ const char * OT_API_LoadPubkey(const char * USER_ID) // returns NULL, or a publi
 		OTLog::vOutput(0, "OT_API_LoadPubkey: Failure: %s\n",
 					   strNymID.Get());
 	}
-	else if (false == pNym->GetPublicKey().GetPublicKey(strPubkey))
+	else if (false == pNym->GetPublicKey().GetPublicKey(strPubkey, false)) // bEscaped defaults to true. 6/13/12
 	{	
 		OTString strNymID(NYM_ID);
 		OTLog::vOutput(0, "OT_API_LoadPubkey: Failure retrieving pubkey from Nym: %s\n",
@@ -4943,7 +4943,7 @@ const char * OT_API_LoadPubkey(const char * USER_ID) // returns NULL, or a publi
 	{
 		const char * pBuf = strPubkey.Get();
 		
-    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -10004,7 +10004,7 @@ int OT_API_checkUser(const char * SERVER_ID,
 ///  ...and in fact the requestNum IS the return value!
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
-int OT_API_sendUserMessage(const char * SERVER_ID,
+int OT_API_sendUserMessage( const char * SERVER_ID,
 							const char * USER_ID,
 							const char * USER_ID_RECIPIENT,
 							const char * RECIPIENT_PUBKEY,
@@ -10017,10 +10017,10 @@ int OT_API_sendUserMessage(const char * SERVER_ID,
 	OT_ASSERT_MSG(NULL != THE_MESSAGE, "OT_API_sendUserMessage: Null THE_MESSAGE passed in.");
 	
 	OTIdentifier	theServerID(SERVER_ID), theUserID(USER_ID), theOtherUserID(USER_ID_RECIPIENT);
-	OTASCIIArmor	ascRecipPubkey(RECIPIENT_PUBKEY);
+	OTString        strRecipPubkey(RECIPIENT_PUBKEY);
 	OTString		strMessage(THE_MESSAGE);
 	
-	return OT_API::It().sendUserMessage(theServerID, theUserID, theOtherUserID, ascRecipPubkey, strMessage);	
+	return OT_API::It().sendUserMessage(theServerID, theUserID, theOtherUserID, strRecipPubkey, strMessage);	
 }
 
 

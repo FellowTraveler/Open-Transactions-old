@@ -95,8 +95,10 @@
 	def OT_ME::load_or_retrieve_pubkey(SERVER_ID, NYM_ID, TARGET_NYM_ID)	
 	{
 		var ot_Msg := OTAPI_Func();
-		// -------------------------		
+		// -------------------------
+        
 		var strPubkey = this.load_public_key(TARGET_NYM_ID);
+
 		// -------------------------
 		if (!VerifyStringVal(strPubkey))
 		{
@@ -107,15 +109,16 @@
 				strPubkey = this.load_public_key(TARGET_NYM_ID);			
 			}
 		}
+
 		return strPubkey; // might be null.
 	}
 	// ---------------------------
 	
 	// SEND USER MESSAGE  (requires recipient public key)
 	//
-    def OT_ME::send_user_msg(SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, RECIPIENT_PUBKEY, THE_MESSAGE) 
+    def OT_ME::send_user_msg_pubkey(SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, RECIPIENT_PUBKEY, THE_MESSAGE) 
 	{
-		var ot_Msg := OTAPI_Func();
+		var ot_Msg := OTAPI_Func();        
 		// -------------------------
 		var theRequest := OTAPI_Func(ot_Msg.SEND_USER_MESSAGE, SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, RECIPIENT_PUBKEY, THE_MESSAGE);
 		var	strResponse = theRequest.SendRequest(theRequest, "SEND_USER_MESSAGE");
@@ -129,8 +132,10 @@
     def OT_ME::send_user_msg(SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, THE_MESSAGE) 
 	{
 		var ot_Msg := OTAPI_Func();
-		// -------------------------		
+		// -------------------------
+                
 		var strRecipientPubkey = this.load_or_retrieve_pubkey(SERVER_ID, NYM_ID, RECIPIENT_NYM_ID);		
+        
 		// -------------------------
 		if (!VerifyStringVal(strRecipientPubkey))
 		{
@@ -139,7 +144,10 @@
 			return strRecipientPubkey; // basically this means "return null".
 		}
 		// -------------------------
-		return this.send_user_msg(SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, strRecipientPubkey, THE_MESSAGE);
+        
+        var nTemp = this.send_user_msg_pubkey(SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, strRecipientPubkey, THE_MESSAGE);
+
+		return nTemp;
     }	
 	// --------------------------------------------------------------
 	// GET BOX RECEIPT
@@ -186,32 +194,32 @@
 	
     def OT_ME::load_or_retrieve_mint(SERVER_ID, NYM_ID, ASSET_ID) 
 	{
-		var strMint		= OT_API_LoadMint(SERVER_ID, ASSET_ID);
-		
+		var strMint		= OT_API_LoadMint(SERVER_ID, ASSET_ID)
+                      
 		if (!VerifyStringVal(strMint))
 		{
-			OT_API_Output(1, "OT_ME::load_or_retrieve_mint: Mint file isn't already there. Downloading from server...\n");
+			OT_API_Output(1, "OT_ME::load_or_retrieve_mint: Mint file isn't already there. Downloading from server...\n")
 
-			var strResponse	= this.retrieve_mint(SERVER_ID, NYM_ID, ASSET_ID);
+			var strResponse	= this.retrieve_mint(SERVER_ID, NYM_ID, ASSET_ID)
 			
 			if (!VerifyStringVal(strResponse))
 			{
-				OT_API_Output(0, "OT_ME::load_or_retrieve_mint: Unable to load or retrieve mint for IDs: \n");
-				OT_API_Output(0, concat("Server ID: ", SERVER_ID));	OT_API_Output(0,"\n");
-				OT_API_Output(0, concat(" Asset ID: ", ASSET_ID));	OT_API_Output(0,"\n");
-				return strResponse; // basically this means "return null".			
+				OT_API_Output(0, "OT_ME::load_or_retrieve_mint: Unable to load or retrieve mint for IDs: \n")
+				OT_API_Output(0, "  Server ID: " + SERVER_ID  + "\n")
+				OT_API_Output(0, "   Asset ID: " + ASSET_ID + "\n")
+				return strResponse // basically this means "return null".			
 			}
 			strMint = OT_API_LoadMint(SERVER_ID, ASSET_ID);
 		}
 		
 		if (!VerifyStringVal(strMint))
 		{
-			OT_API_Output(0, "OT_ME::load_or_retrieve_mint: Unable to load mint for IDs: \n");
-			OT_API_Output(0, concat("Server ID: ", SERVER_ID));	OT_API_Output(0,"\n");
-			OT_API_Output(0, concat(" Asset ID: ", ASSET_ID));	OT_API_Output(0,"\n");
+			OT_API_Output(0, "OT_ME::load_or_retrieve_mint: Unable to load mint for IDs: \n")
+			OT_API_Output(0, concat("Server ID: ", SERVER_ID));	OT_API_Output(0,"\n")
+			OT_API_Output(0, concat(" Asset ID: ", ASSET_ID));	OT_API_Output(0,"\n")
 		}
 		
-		return strMint;
+		return strMint
 	}
 	// ---------------------------
 	// QUERY ASSET TYPES
@@ -220,12 +228,12 @@
 	//
 	def OT_ME::query_asset_types(SERVER_ID, NYM_ID, ENCODED_MAP)
 	{
-		var ot_Msg := OTAPI_Func();
+		var ot_Msg := OTAPI_Func()
 		// -------------------------
-		var theRequest := OTAPI_Func(ot_Msg.QUERY_ASSET_TYPES, SERVER_ID, NYM_ID, ENCODED_MAP);
-		var	strResponse = theRequest.SendRequest(theRequest, "QUERY_ASSET_TYPES");
+		var theRequest := OTAPI_Func(ot_Msg.QUERY_ASSET_TYPES, SERVER_ID, NYM_ID, ENCODED_MAP)
+		var	strResponse = theRequest.SendRequest(theRequest, "QUERY_ASSET_TYPES")
 
-		return strResponse;
+		return strResponse
     }
 // -----------------------------------------------------------------------------------------------
 	// CREATE MARKET OFFER

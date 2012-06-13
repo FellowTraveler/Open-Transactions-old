@@ -1355,7 +1355,7 @@ void OTServer::Release()
 // Loads the main file,
 // and validates the server ID (for the Nym)
 //
-void OTServer::Init()
+void OTServer::Init(bool bReadOnly/*=false*/)
 {
 	LoadConfigFile(); // assumes main path is set.
 	// ----------------------
@@ -1396,7 +1396,7 @@ void OTServer::Init()
 	// --------------------------------
 	// Load up the transaction number and other OTServer data members.
     //
-	LoadMainFile();
+	LoadMainFile(bReadOnly);
 	
 	// We just want to call this function once in order to make sure that the
 	// Nym is loaded up and ready for use decrypting messages that are sent to it.
@@ -1490,7 +1490,7 @@ bool OTServer::LoadServerUserAndContract()
 }
 
 
-bool OTServer::LoadMainFile()
+bool OTServer::LoadMainFile(bool bReadOnly/*=false*/)
 {
     const char *szFunc = "OTServer::LoadMainFile";
 	// --------------------------------------------------------------------
@@ -1863,9 +1863,11 @@ bool OTServer::LoadMainFile()
         } // while xml->read
 	}
     // --------------------------------
-    if (bNeedToConvertUser && m_nymServer.Savex509CertAndPrivateKey())
-        SaveMainFile();
-
+    if (!bReadOnly)
+    {
+        if (bNeedToConvertUser && m_nymServer.Savex509CertAndPrivateKey())
+            SaveMainFile();
+    }
 	return true;	
 }
 

@@ -3,6 +3,16 @@ NOTES on the Version:
 
 // --------------------------------------------------------------------
 
+   0.82b--- The createmint utility was fixed; the mints were regenerated; cash
+            withdrawal was fixed in the test GUI. The contents of scripts/ot
+            and scripts/samples were updated. (Make sure, if you are keeping
+            your current data folder, to overwrite the old script headers in
+            ~/.ot/client_data/scripts/ot with the new ones in:
+            Open-Transactions/scripts/ot (Bugs were fixed in the script
+            headers) Also, send_user_msg.ot was fixed.
+
+   0.82a--- Automake support added! Thanks to da2ce7.
+
    0.80f--- OTAsymmetricKey now creates its own copy of the EVP_PKEY when
             setting it, to fix an openssl-related segfault.
 

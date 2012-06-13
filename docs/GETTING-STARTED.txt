@@ -1,3 +1,11 @@
+NOTE:  These instructions are now pretty old, but I'm keeping them for
+now, for posterity.
+
+Here's the updated instructions:  See the INSTALL-* file for your platform.
+
+
+
+
 
 Welcome to Open Transactions.
 

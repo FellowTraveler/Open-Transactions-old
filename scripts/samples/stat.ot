@@ -4,50 +4,50 @@
 
 def stat_nyms()
 {
-    OT_API_Output(0, "------------------------------------------------------------------" + "\n")
-    OT_API_Output(0, " ************* PSEUDONYMS:  ************* " + "\n")
+  OT_API_Output(0, "------------------------------------------------------------------" + "\n")
+    OT_API_Output(0, " ************* PSEUDONYMS:  ************* " + "\n\n")
     
     var nNymCount = OT_API_GetNymCount()
     
     for (var i = 0; i < nNymCount; ++i)
     {
-        OT_API_Output(0, "-----" + "\n")
+        if ((i > 0) && (i != (nNymCount))) { OT_API_Output(0, "-----" + "\n"); }
         var strID   = OT_API_GetNym_ID(i)
         var strName = OT_API_GetNym_Name(strID)
         
-        OT_API_Output(0, strName + " -- " + strID + "\n")
+        OT_API_Output(0, strName + " ( " + strID + " )\n")
     }
 }
 
 def stat_servers()
 {
-    OT_API_Output(0, "------------------------------------------------------------------" + "\n")
-    OT_API_Output(0, " ************* SERVERS:  ************* " + "\n")
+  OT_API_Output(0, "------------------------------------------------------------------" + "\n")
+    OT_API_Output(0, " ************* SERVERS:  ************* " + "\n\n")
     var nServerCount = OT_API_GetServerCount()
     
     for (var i = 0; i < nServerCount; ++i)
     {
-        OT_API_Output(0, "-----" + "\n")
+        if ((i > 0) && (i != (nServerCount))) { OT_API_Output(0, "-----" + "\n"); }
         var strID   = OT_API_GetServer_ID(i)
         var strName = OT_API_GetServer_Name(strID)
         
-        OT_API_Output(0, strName + " -- " + strID + "\n")
+        OT_API_Output(0, strName + " ( " + strID + " )\n")
     }
 }
 
 def stat_assets()
 {
-    OT_API_Output(0, "------------------------------------------------------------------" + "\n")
-    OT_API_Output(0, " ************* ASSET TYPES:  ************* " + "\n")
+  OT_API_Output(0, "------------------------------------------------------------------" + "\n")
+    OT_API_Output(0, " ************* ASSET TYPES:  ************* " + "\n\n")
     var nAssetTypeCount = OT_API_GetAssetTypeCount()
     
     for (var i = 0; i < nAssetTypeCount; ++i)
     {
-        OT_API_Output(0, "-----" + "\n")
+        if ((i > 0) && (i != (nAssetTypeCount))) { OT_API_Output(0, "-----" + "\n"); }
         var strID   = OT_API_GetAssetType_ID(i)
         var strName = OT_API_GetAssetType_Name(strID)
         
-        OT_API_Output(0, strName + " -- " + strID + "\n")
+        OT_API_Output(0, strName + " ( " + strID + " )\n")
     }
 }
 
@@ -62,14 +62,14 @@ def stat_assets()
  */
 def stat_accounts()
 {
-    OT_API_Output(0, "------------------------------------------------------------------" + "\n")
-    OT_API_Output(0, " ************* ACCOUNTS:  ************* " + "\n")
+  OT_API_Output(0, "------------------------------------------------------------------" + "\n")
+    OT_API_Output(0, " ************* ACCOUNTS:  ************* " + "\n\n")
 
     var nAccountCount = OT_API_GetAccountCount()
     
     for (var i = 0; i < nAccountCount; ++i)
     {
-        OT_API_Output(0, "-----" + "\n")
+        if ((i > 0) && (i != (nAccountCount))) { OT_API_Output(0, "-----" + "\n"); }
         var strID       = OT_API_GetAccountWallet_ID(i)
         var strName     = OT_API_GetAccountWallet_Name(strID)
         var strNymID    = OT_API_GetAccountWallet_NymID(strID)
@@ -77,11 +77,11 @@ def stat_accounts()
         var strAssetID  = OT_API_GetAccountWallet_AssetTypeID(strID)
         var strBalance  = OT_API_GetAccountWallet_Balance(strID)
 
-        OT_API_Output(0, strName + " -- " + strID + "\n")
-        OT_API_Output(0, "Balance: " + strBalance + "\n")
-        OT_API_Output(0, "Asset Type: " + OT_API_GetAssetType_Name(strAssetID) + " -- " + strAssetID + "\n")
-        OT_API_Output(0, "Owner Nym: " + OT_API_GetNym_Name(strNymID) + " -- " + strNymID + "\n")
-        OT_API_Output(0, "Server: " + OT_API_GetServer_Name(strServerID) + " -- " + strServerID + "\n")        
+        OT_API_Output(0, strName + " ( " + strID + " )\n")
+        OT_API_Output(0, "Balance: ===> " + strBalance + " <===\n")
+        OT_API_Output(0, "Asset Type: " + OT_API_GetAssetType_Name(strAssetID) + " ( " + strAssetID + " )\n")
+        OT_API_Output(0, "Owner Nym: " + OT_API_GetNym_Name(strNymID) + " ( " + strNymID + " )\n")
+        OT_API_Output(0, "Server: " + OT_API_GetServer_Name(strServerID) + " ( " + strServerID + " )\n")        
     }
     OT_API_Output(0, "------------------------------------------------------------------" + "\n")
 }

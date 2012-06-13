@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\otcreatemint\main.cpp">
+    <ClCompile Include="..\..\src\createmint\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
