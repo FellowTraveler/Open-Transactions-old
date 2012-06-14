@@ -549,7 +549,6 @@ void OTWallet::AddNym(const OTPseudonym & theNym)
 		
 	const OTString	strNymID(NYM_ID);
 	m_mapNyms[strNymID.Get()] = (OTPseudonym *)&theNym; // Insert to wallet's list of Nyms.
-	
 }
 
 
@@ -1717,7 +1716,7 @@ bool OTWallet::LoadWallet(const char * szFilename)
         FOR_EACH(mapOfNyms, m_mapNyms)
         {		
             OTPseudonym * pNym = (*it).second;
-            OT_ASSERT_MSG((NULL != pNym), "NULL pseudonym pointer in OTWallet::LoadWallet.");
+            OT_ASSERT_MSG((NULL != pNym), "ASSERT: OTWallet::LoadWallet: NULL pseudonym pointer.");
             
             if (this->ConvertNymToMasterKey(*pNym)) // Internally this is smart enough to only convert the unconverted.
                 bNeedToSaveAgain = true;

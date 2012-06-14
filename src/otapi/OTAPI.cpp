@@ -427,12 +427,8 @@ OT_BOOL OT_API_PopMemlogBack()
 //
 const char * OT_API_CreateNym(int nKeySize) // must be 1024, 2048, 4096, or 8192 
 {
-	const char * szFuncName = __FUNCTION__; //"OT_API_CreateNym";
+//	const char * szFuncName = __FUNCTION__; //"OT_API_CreateNym";
 	// -----------------------------------------------------
-	OTWallet * pWallet = OT_API::It().GetWallet(szFuncName); // This logs and ASSERTs already.
-	if (NULL == pWallet) return NULL;
-	// By this point, pWallet is a good pointer.  (No need to cleanup.)
-	// -----------------------------------------------------}
 	OTPseudonym * pNym = OT_API::It().CreateNym(nKeySize);
 	if (NULL == pNym) // Creation failed.
 	{
@@ -440,15 +436,10 @@ const char * OT_API_CreateNym(int nKeySize) // must be 1024, 2048, 4096, or 8192
 		return NULL;		
 	}
 	// -----------------------------------------------------}
-	pWallet->AddNym(*pNym); // Add our new nym to the wallet, who "owns" it hereafter.
-	pWallet->SaveWallet(); // Since it just changed.
-	// By this point, pNym is a good pointer, and is on the wallet.
-	//  (No need to cleanup.)
-	// -----------------------------------------------------		
 	OTString strOutput;	
 	pNym->GetIdentifier(strOutput); // We're returning the new Nym ID.
     // --------------------------------
-    if (OTString::safe_strcpy(g_tempBuf,        // destination
+    if (OTString::safe_strcpy(g_tempBuf,       // destination
                               strOutput.Get(), // source
                               // -----------------
                               MAX_STRING_LENGTH))

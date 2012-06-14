@@ -346,7 +346,7 @@ public:
 	OTPseudonym *		LoadPublicNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
 	OTPseudonym *		LoadPrivateNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
 	
-	OTPseudonym *		CreateNym(int nKeySize=1024); // returns a new nym (with key pair) and files created. (Or NULL.)
+	OTPseudonym *		CreateNym(int nKeySize=1024); // returns a new nym (with key pair) and files created. (Or NULL.) Adds to wallet.
 
 	bool	IsNym_RegisteredAtServer(const OTIdentifier & NYM_ID, const OTIdentifier & SERVER_ID);
 	

@@ -649,12 +649,12 @@ OTMint * OTServer::GetMint(const OTIdentifier & ASSET_TYPE_ID, int nSeries) // E
 											// but expiry dates are only enforced on the Mint itself during a withdrawal.)
 			// It's a multimap now...
 			//m_mapMints[ASSET_ID_STR.Get()] = pMint;
-			
+
 			m_mapMints.insert ( pair<std::string, OTMint *>(ASSET_ID_STR.Get(), pMint) );
 			
 			return pMint;
 		}
-		else 
+		else
 		{
 			OTLog::vError("Error verifying Mint in OTServer::GetMint:\n%s%s%s\n", 
 						  szFoldername, OTLog::PathSeparator(), szFilename);
@@ -1049,7 +1049,7 @@ bool OTServer::SaveMainFile()
 		const std::string strVal(pVal); \
 		const bool bResult = (0 == strVal.compare("true")); \
 		\
-		OTLog::vOutput(0, "Setting %s %s to: %s \n", \
+		OTLog::vOutput(1, "Setting %s %s to: %s \n", \
 					   (CATEGORY_STR), (OPTION_STR), \
 					   bResult ? "true" : "false");  \
 		OTServer::STATIC_VAR_NAME = bResult; \
@@ -1082,12 +1082,12 @@ bool OTServer::LoadConfigFile()
 
                     if (strOutput.Exists())
                     {
-                        OTLog::vOutput(0, "Setting logfile: %s\n", strOutput.Get());
+                        OTLog::vOutput(1, "Setting logfile: %s\n", strOutput.Get());
                         OTLog::SetLogfile(strOutput.Get());
                     }
                 }
                 else
-                    OTLog::vOutput(0, "Current Logfile: %s\n", OTLog::Logfile());
+                    OTLog::vOutput(1, "Current Logfile: %s\n", OTLog::Logfile());
                 
                 // ---------------------------------------------
                 // LOG LEVEL
@@ -1095,11 +1095,11 @@ bool OTServer::LoadConfigFile()
                 
                 if (NULL != pVal2)
                 {
-                    OTLog::vOutput(0, "Setting log level: %d\n", atoi(pVal2));
+                    OTLog::vOutput(1, "Setting log level: %d\n", atoi(pVal2));
                     OTLog::SetLogLevel(atoi(pVal2));
                 }
                 else
-                    OTLog::vOutput(0, "Current log level: %d\n", OTLog::GetLogLevel());
+                    OTLog::vOutput(1, "Current log level: %d\n", OTLog::GetLogLevel());
             }
             // ---------------------------------------------
             // CRON
@@ -1108,7 +1108,7 @@ bool OTServer::LoadConfigFile()
                 
                 if ((NULL != pVal) && (atoi(pVal)))
                 {
-                    OTLog::vOutput(0, "Setting cron refill_trans_number: %d\n", atoi(pVal));
+                    OTLog::vOutput(1, "Setting cron refill_trans_number: %d\n", atoi(pVal));
                     OTCron::SetCronRefillAmount(atoi(pVal));
                 }
             }
@@ -1117,7 +1117,7 @@ bool OTServer::LoadConfigFile()
                 
                 if ((NULL != pVal) && (atol(pVal)))
                 {
-                    OTLog::vOutput(0, "Setting cron ms_between_cron_beats: %ld\n", atol(pVal));
+                    OTLog::vOutput(1, "Setting cron ms_between_cron_beats: %ld\n", atol(pVal));
                     OTCron::SetCronMsBetweenProcess(atol(pVal));
                 }
             }
@@ -1128,7 +1128,7 @@ bool OTServer::LoadConfigFile()
                 
                 if ((NULL != pVal) && (atoi(pVal)))
                 {
-                    OTLog::vOutput(0, "Setting heartbeat_no_requests: %d\n", atoi(pVal));
+                    OTLog::vOutput(1, "Setting heartbeat_no_requests: %d\n", atoi(pVal));
                     OTServer::SetHeartbeatNoRequests(atoi(pVal));
                 }
             }
@@ -1137,7 +1137,7 @@ bool OTServer::LoadConfigFile()
                 
                 if ((NULL != pVal) && (atoi(pVal)))
                 {
-                    OTLog::vOutput(0, "Setting heartbeat ms_between_beats: %d\n", atoi(pVal));
+                    OTLog::vOutput(1, "Setting heartbeat ms_between_beats: %d\n", atoi(pVal));
                     OTServer::SetHeartbeatMsBetweenBeats(atoi(pVal));
                 }
             }
@@ -1151,7 +1151,7 @@ bool OTServer::LoadConfigFile()
 					const OTString strBlocking(pVal);
 					const bool bBlocking = strBlocking.Compare("true") ? true : false;
 					
-                    OTLog::vOutput(0, "Setting latency blocking: %s\n",
+                    OTLog::vOutput(1, "Setting latency blocking: %s\n",
 								   bBlocking ? "true" : "false");
                     OTLog::SetBlocking(bBlocking);
                 }
@@ -1161,7 +1161,7 @@ bool OTServer::LoadConfigFile()
                 
                 if ((NULL != pVal) && (atoi(pVal)))
                 {
-                    OTLog::vOutput(0, "Setting latency send_fail_no_tries: %d\n", atoi(pVal));
+                    OTLog::vOutput(1, "Setting latency send_fail_no_tries: %d\n", atoi(pVal));
                     OTLog::SetLatencySendNoTries(atoi(pVal));
                 }
             }
@@ -1170,7 +1170,7 @@ bool OTServer::LoadConfigFile()
                 
                 if ((NULL != pVal) && (atoi(pVal)))
                 {
-                    OTLog::vOutput(0, "Setting latency send_fail_max_ms: %d\n", atoi(pVal));
+                    OTLog::vOutput(1, "Setting latency send_fail_max_ms: %d\n", atoi(pVal));
                     OTLog::SetLatencySendMs(atoi(pVal));
                 }
             }
@@ -1202,7 +1202,7 @@ bool OTServer::LoadConfigFile()
                 if (NULL != pVal)
                 {
 					const std::string strVal(pVal);
-                    OTLog::vOutput(0, "Setting permissions override_nym_id: %s\n", strVal.c_str());
+                    OTLog::vOutput(1, "Setting permissions override_nym_id: %s\n", strVal.c_str());
                     OTServer::SetOverrideNymID(strVal);
                 }
             }
@@ -1213,7 +1213,7 @@ bool OTServer::LoadConfigFile()
                 long lScale = 0;
                 if ((NULL != pVal) && (lScale = atol(pVal)))
                 {
-                    OTLog::vOutput(0, "Setting markets minimum_scale: %ld\n", lScale);
+                    OTLog::vOutput(1, "Setting markets minimum_scale: %ld\n", lScale);
                     OTLog::SetMinMarketScale(lScale);
                 }
             }
@@ -1225,7 +1225,7 @@ bool OTServer::LoadConfigFile()
                 if (NULL != pVal)
                 {
                     nTimeout = atoi(pVal);
-                    OTLog::vOutput(0, "Setting security master_key_timeout: %d\n", nTimeout);
+                    OTLog::vOutput(1, "Setting security master_key_timeout: %d\n", nTimeout);
                     OTMasterKey::It()->SetTimeoutSeconds(nTimeout);
                 }
             }

@@ -1518,13 +1518,13 @@ OTAccount * OT_API::GetAccountPartialMatch(const std::string PARTIAL_ID, const c
 
 // returns a new nym (with key pair) and files created. (Or NULL.)
 //
-// CALLER is responsible to delete!
+// Adds to wallet. (No need to delete.)
 //
 OTPseudonym * OT_API::CreateNym(int nKeySize/*=1024*/)
 {
-	OTPseudonym * pNym = new OTPseudonym;
-	OT_ASSERT(NULL != pNym);
-	
+    OT_ASSERT_MSG(m_bInitialized, "Not initialized; call OT_API::Init first.");
+    const char * szFuncName = __FUNCTION__;
+	// -----------------------------------------------------
     switch (nKeySize) 
     {
         case 1024:
@@ -1533,16 +1533,40 @@ OTPseudonym * OT_API::CreateNym(int nKeySize/*=1024*/)
         case 8192:
             break;            
         default:
-            OTLog::vError("OT_API::CreateNym: Failure: nKeySize must be one of: 1024, 2048, 4096, 8192. (%d was passed...)\n",
-                          nKeySize);
+            OTLog::vError("%s: Failure: nKeySize must be one of: "
+                          "1024, 2048, 4096, 8192. (%d was passed...)\n",
+                          szFuncName, nKeySize);
             return NULL;
     }
-    
+    // ---------------------------    
+	OTWallet * pWallet = this->GetWallet(szFuncName); // This logs and ASSERTs already.
+	if (NULL == pWallet) return NULL;
+	// By this point, pWallet is a good pointer.  (No need to cleanup.)
+	// -----------------------------------------------------
+	OTPseudonym * pNym = new OTPseudonym;
+	OT_ASSERT(NULL != pNym);	
+    // ---------------------------    
 	if (false == pNym->GenerateNym(nKeySize)) 
 	{
-		delete pNym;
+		delete pNym; pNym = NULL;
 		return NULL;
 	}
+    // ---------------------------
+    pWallet->AddNym(*pNym); // Add our new nym to the wallet, who "owns" it hereafter.
+
+    // Note: It's already on the master key. To prevent that, we would have had
+    // to PAUSE the master key before calling GenerateNym above. So the below call
+    // is less about the Nym's encryption, and more about the wallet KNOWING. Because
+    // OTWallet::ConvertNymToMasterKey is what adds this nym to the wallet's list of
+    // "master key nyms". Until that happens, the wallet has no idea.
+    //
+    if (false == pWallet->ConvertNymToMasterKey(*pNym))
+        OTLog::vError("%s: Error: Failed in pWallet->ConvertNymToMasterKey \n",
+                      szFuncName);
+	pWallet->SaveWallet(); // Since it just changed.
+	// By this point, pNym is a good pointer, and is on the wallet.
+	//  (No need to cleanup.)
+    // ---------------------------
 	return pNym;
 }
 
@@ -1560,7 +1584,7 @@ OTPseudonym * OT_API::CreateNym(int nKeySize/*=1024*/)
 bool OT_API::SetAssetType_Name(const OTIdentifier	&	ASSET_ID, 
 							   const OTString		&	STR_NEW_NAME) 
 {
-	const char * szFuncName = "OT_API::SetAssetType_Name";
+	const char * szFuncName = __FUNCTION__; //"OT_API::SetAssetType_Name";
 	// -----------------------------------------------------
 	OTWallet * pWallet = this->GetWallet(szFuncName); // This logs and ASSERTs already.
 	if (NULL == pWallet) return false;
