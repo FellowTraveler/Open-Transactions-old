@@ -745,34 +745,65 @@
  Need to add functions (like check_user above) for all of these:
  
  	attr OTAPI_Func::CREATE_USER_ACCT				DONE
-	attr OTAPI_Func::DELETE_USER_ACCT			
+	attr OTAPI_Func::DELETE_USER_ACCT               
 	attr OTAPI_Func::CHECK_USER						DONE
 	attr OTAPI_Func::SEND_USER_MESSAGE				DONE
-	attr OTAPI_Func::ISSUE_ASSET_TYPE			
-	attr OTAPI_Func::ISSUE_BASKET			
+	attr OTAPI_Func::ISSUE_ASSET_TYPE               
+	attr OTAPI_Func::ISSUE_BASKET                   
 	attr OTAPI_Func::CREATE_ASSET_ACCT				DONE			
-	attr OTAPI_Func::DELETE_ASSET_ACCT			
-	attr OTAPI_Func::EXCHANGE_BASKET			
-	attr OTAPI_Func::PROCESS_INBOX				
-	attr OTAPI_Func::DEPOSIT_CASH				
-	attr OTAPI_Func::EXCHANGE_CASH				
-	attr OTAPI_Func::DEPOSIT_CHEQUE				
-	attr OTAPI_Func::WITHDRAW_VOUCHER			
-	attr OTAPI_Func::WITHDRAW_CASH				
-	attr OTAPI_Func::GET_CONTRACT				
-	attr OTAPI_Func::SEND_TRANSFER				
-	attr OTAPI_Func::GET_MARKET_LIST			
+	attr OTAPI_Func::DELETE_ASSET_ACCT              
+	attr OTAPI_Func::EXCHANGE_BASKET                
+	attr OTAPI_Func::PROCESS_INBOX  -- Selected items, as well as option: "all incoming".                
+	attr OTAPI_Func::DEPOSIT_CASH                   
+	attr OTAPI_Func::EXCHANGE_CASH                  
+	attr OTAPI_Func::DEPOSIT_CHEQUE                 
+	attr OTAPI_Func::WITHDRAW_VOUCHER               
+	attr OTAPI_Func::WITHDRAW_CASH                  
+	attr OTAPI_Func::GET_CONTRACT                   
+	attr OTAPI_Func::SEND_TRANSFER                  
+	attr OTAPI_Func::GET_MARKET_LIST                
 	attr OTAPI_Func::CREATE_MARKET_OFFER			DONE
 	attr OTAPI_Func::CANCEL_MARKET_OFFER			DONE
 	attr OTAPI_Func::CANCEL_PAYMENT_PLAN			DONE
-	attr OTAPI_Func::GET_NYM_MARKET_OFFERS		
-	attr OTAPI_Func::GET_MARKET_OFFERS			
-	attr OTAPI_Func::GET_MARKET_RECENT_TRADES	
+	attr OTAPI_Func::GET_NYM_MARKET_OFFERS          
+	attr OTAPI_Func::GET_MARKET_OFFERS              
+	attr OTAPI_Func::GET_MARKET_RECENT_TRADES       
 	attr OTAPI_Func::GET_MINT						DONE
 	attr OTAPI_Func::QUERY_ASSET_TYPES				DONE
 	attr OTAPI_Func::GET_BOX_RECEIPT				DONE
 
-Here are their parameters (they are called in OTAPI_Func, this code is from there):
+  --- Activate Payment Plan
+  
+  ------ TANGENT -----------------------------------------
+  Use cases that do not require a server message, and thus will have representative
+  functions in ot_made_easy.ot EVEN WHEN there is no corresponding server message
+  in otapi.ot.
+  --- stat wallet               DONE
+  --- Stat cash purse           
+  --- Stat account inbox        
+  --- Stat payment inbox        
+  --- Stat record box           
+  --- encode / decode           DONE
+  --- encrypt/decrypt           DONE
+  --- Password encrypt/decrypt  DONE
+  --- Sign / Verify             DONE
+  --- Create asset contract     DONE
+  --- Create server contract    DONE
+  --- Create symmetric key      DONE
+  --- Write cheque
+  --- Verify last acct receipt  
+  --- Refresh (download latest) 
+  --- Refresh Nym
+  --- Propose Payment Plan
+  --- Confirm Payment Plan
+  --- Balance
+  --- 
+  
+  ------ END TANGENT -------------------------------------
+  
+  
+Here are parameters for the first group above.
+  (They are called in OTAPI_Func, this code is from there):
 
 		else if (this.funcType == this.DELETE_USER_ACCT)
 		{	OT_API_deleteUserAccount(this.serverID, this.nymID);	}

@@ -3,6 +3,14 @@ NOTES on the Version:
 
 // --------------------------------------------------------------------
 
+   0.82c--- Resync script was fixed (in scripts/utils folder.) You should never
+            need to actually use this, but it's there as a tool. I also fixed
+            a bug in ot_utility.ot, so if you are keeping your existing data
+            for any reason, make sure to copy over the new scripts to your
+            ~/.ot/client_data/scripts/ot folder, so you get the updates.
+            
+            Also: "write_cheque.ot" was added to the scripts/samples folder.
+   
    0.82b--- The createmint utility was fixed; the mints were regenerated; cash
             withdrawal was fixed in the test GUI. The contents of scripts/ot
             and scripts/samples were updated. (Make sure, if you are keeping

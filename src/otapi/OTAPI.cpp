@@ -5386,7 +5386,8 @@ const char * OT_API_Nymbox_GetReplyNotice(const char * SERVER_ID,
 // of that from your Nymbox (so you don't have to download it.) Basically that
 // means you can go ahead and remove it from your list, and once you do, the server
 // will remove its matching copy as well.
-// When you are downloading your box receipts, you can skip any receipts where
+//
+// *** When you are downloading your box receipts, you can skip any receipts where
 // you have ALREADY seen the reply. So you can use this function to see if you already
 // saw it, and if you did, then you can skip downloading that box receipt.
 // Warning: this function isn't "perfect", in the sense that it cannot tell you definitively
@@ -6012,8 +6013,9 @@ const char * OT_API_Ledger_GetTransactionByIndex(const char * SERVER_ID,
 	   )
 	{
 		OTString strAcctID(theAccountID);
-		OTLog::vError("OT_API_Ledger_GetTransactionByIndex: Error loading ledger from string, or "
-					  "loading box receipts subsequently. Acct ID: %s\n", strAcctID.Get());
+		OTLog::vError("%s: Error loading ledger from string, or "
+					  "loading box receipts subsequently. Acct ID: %s\n", 
+                      __FUNCTION__, strAcctID.Get());
 		return NULL;
 	}
 	
@@ -6021,7 +6023,7 @@ const char * OT_API_Ledger_GetTransactionByIndex(const char * SERVER_ID,
 	
 	if (nIndex >= theLedger.GetTransactionCount())
 	{
-		OTLog::vError("OT_API_Ledger_GetTransactionByIndex out of bounds: %d\n", nIndex);
+		OTLog::vError("%s: out of bounds: %d\n", __FUNCTION__, nIndex);
 		return NULL; // out of bounds. I'm saving from an OT_ASSERT_MSG() happening here. (Maybe I shouldn't.)
 	}
 	
@@ -6030,8 +6032,8 @@ const char * OT_API_Ledger_GetTransactionByIndex(const char * SERVER_ID,
 	
 	if (NULL == pTransaction)
 	{
-		OTLog::vError("OT_API_Ledger_GetTransactionByIndex good index but uncovered NULL pointer: %d\n", 
-					  nIndex);
+		OTLog::vError("%s: Failure: good index but uncovered NULL pointer: %d\n", 
+                      __FUNCTION__, nIndex);
 		return NULL; // Weird.
 	}
 	
@@ -6053,13 +6055,13 @@ const char * OT_API_Ledger_GetTransactionByIndex(const char * SERVER_ID,
 		// -------------------------
 		if (NULL == pTransaction)
 		{
-			OTLog::vError("OT_API_Ledger_GetTransactionByIndex good index but uncovered NULL "
-						  "pointer after trying to load full version of receipt (from abbreviated): %d\n", 
-						  nIndex);
+			OTLog::vError("%s: good index but uncovered NULL pointer after trying to load full version "
+                          "of receipt (from abbreviated): %d\n", __FUNCTION__, nIndex);
 			return NULL; // Weird.
 		}		
 		// I was doing this when it was abbreviated. But now (above) I just 
-		// load the box receipt itself.
+		// load the box receipt itself. (This code is a hack that creates a
+        // serialized abbreviated version.)
 //		OTPseudonym * pNym = OT_API::It().GetNym(theUserID, "OT_API_Ledger_GetTransactionByIndex");
 //		if (NULL == pNym) return NULL;
 //		// -------------------------	
@@ -6069,8 +6071,7 @@ const char * OT_API_Ledger_GetTransactionByIndex(const char * SERVER_ID,
 	}
 	// ------------------------------------------------
 
-	OTString strOutput(*pTransaction); // For the output
-	
+	const OTString strOutput(*pTransaction); // For the output
 	const char * pBuf = strOutput.Get(); 
 	
     OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
@@ -6082,6 +6083,10 @@ const char * OT_API_Ledger_GetTransactionByIndex(const char * SERVER_ID,
 
 // Returns transaction by ID (transaction numbers are long ints, and thus
 // they are passed as strings in this OT high-level API.)
+// Note: If this function returns NULL for a transaction you KNOW is on
+// the ledger, then you probably just need to download it. (The box receipts
+// are stored in separate files and downloaded separately as well.)
+//
 const char * OT_API_Ledger_GetTransactionByID(const char * SERVER_ID,
 											  const char * USER_ID,
 											  const char * ACCOUNT_ID,
@@ -6094,7 +6099,7 @@ const char * OT_API_Ledger_GetTransactionByID(const char * SERVER_ID,
 	OT_ASSERT_MSG(NULL != THE_LEDGER, "OT_API_Ledger_GetTransactionByID: NULL THE_LEDGER passed in.");
 	OT_ASSERT_MSG(NULL != TRANSACTION_NUMBER, "OT_API_Ledger_GetTransactionByID: NULL TRANSACTION_NUMBER passed in.");
 	
-	long lTransactionNumber = atol(TRANSACTION_NUMBER);
+	const long lTransactionNumber = atol(TRANSACTION_NUMBER);
 	OT_ASSERT_MSG(lTransactionNumber >= 0, "OT_API_Ledger_GetTransactionByID: Bad transaction number passed in (negative value).");
 	
 	const OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theAccountID(ACCOUNT_ID);
@@ -6108,26 +6113,29 @@ const char * OT_API_Ledger_GetTransactionByID(const char * SERVER_ID,
 	if (false == theLedger.LoadLedgerFromString(strLedger))
 	{
 		OTString strAcctID(theAccountID);
-		OTLog::vError("Error loading ledger from string in OT_API_Ledger_GetTransactionByID. Acct ID: %s\n",
-					  strAcctID.Get());
+		OTLog::vError("%s: Error loading ledger from string. Acct ID: %s\n",
+					  __FUNCTION__, strAcctID.Get());
 		return NULL;
 	}
-	
 	// At this point, I know theLedger loaded successfully.
-		
+	// -----------------------------------------------------
+	
 	OTTransaction * pTransaction = theLedger.GetTransaction(lTransactionNumber);
 	// No need to cleanup this transaction, the ledger owns it already.
 	
 	if (NULL == pTransaction)
 	{
-		OTLog::vOutput(0, "OT_API_Ledger_GetTransactionByID: No transactions found "
-					   "in ledger with that number: %ld.\n", lTransactionNumber);
+		OTLog::vOutput(0, "%s: No transaction found in ledger with that number: %ld.\n", 
+                       __FUNCTION__, lTransactionNumber);
 		return NULL; // Maybe he was just looking; this isn't necessarily an error.
 	}
-	
+    // -----------------------------------------------------
+
 	// At this point, I actually have the transaction pointer, so let's return it in string form...
+    //
 	const long lTransactionNum = pTransaction->GetTransactionNum();
-	
+    OT_ASSERT(lTransactionNum == lTransactionNumber);
+    
 	// Update: for transactions in ABBREVIATED form, the string is empty, since it has never actually
 	// been signed (in fact the whole point with abbreviated transactions in a ledger is that they 
 	// take up very little room, and have no signature of their own, but exist merely as XML tags on
@@ -6135,34 +6143,49 @@ const char * OT_API_Ledger_GetTransactionByID(const char * SERVER_ID,
 	//
 	// THEREFORE I must check to see if this transaction is abbreviated and if so, sign it in order to
 	// force the UpdateContents() call, so the programmatic user of this API will be able to load it up.
+    //
 	if (pTransaction->IsAbbreviated())
 	{
-		theLedger.LoadBoxReceipt(lTransactionNum); // I don't check return val here because I still want it to send the abbreviated form, if this fails.
-		pTransaction = theLedger.GetTransaction(lTransactionNum);
+        // First we see if we are able to load the full version of this box receipt.
+        // (Perhaps it has already been downloaded sometime in the past, and simply
+        // needs to be loaded up. Worth a shot.)
+        //
+		const bool bLoadedBoxReceipt = theLedger.LoadBoxReceipt(lTransactionNum); // I still want it to send the abbreviated form, if this fails.
+        
+        // Grab this pointer again, since the object was re-instantiated
+        // in the case of a successful LoadBoxReceipt.
+        //
+        if (bLoadedBoxReceipt)
+            pTransaction = theLedger.GetTransaction(lTransactionNum);
+        
+        // (else if false == bLoadedBoxReceipt, then pTransaction ALREADY points
+        // to the abbreviated version.)
 		// -------------------------
 		if (NULL == pTransaction)
 		{
-			OTLog::vError("OT_API_Ledger_GetTransactionByIndex good index but uncovered NULL "
-						  "pointer after trying to load full version of receipt (from abbreviated)\n");
+			OTLog::vError("%s: good ID, but uncovered NULL pointer after trying to load full version "
+                          "of receipt (from abbreviated.) Probably just need to download this one...\n",
+                          __FUNCTION__);
 			return NULL; // Weird.
-		}		
-		// I was doing this when it was abbreviated. But now (above) I just 
-		// load the box receipt itself.
-		//		OTPseudonym * pNym = OT_API::It().GetNym(theUserID, "OT_API_Ledger_GetTransactionByID");
-		//		if (NULL == pNym) return NULL;
-		//		// -------------------------	
-		//		pTransaction->ReleaseSignatures();
-		//		pTransaction->SignContract(*pNym);
-		//		pTransaction->SaveContract();
+        }
+        // If it's STILL abbreviated after the above efforts, then there's nothing else I can do
+        // except return the abbreviated version. The caller may still need the info available on
+        // the abbreviated version. (And the caller may yet download the full version...)
+        //
+        else if (pTransaction->IsAbbreviated())
+        {
+            OTPseudonym * pNym = OT_API::It().GetNym(theUserID, __FUNCTION__);
+            if (NULL == pNym) return NULL; // Weird.
+            // -------------------------
+            pTransaction->ReleaseSignatures();
+            pTransaction->SignContract(*pNym);
+            pTransaction->SaveContract();
+		}
 	}
 	// ------------------------------------------------
-
-	OTString strOutput(*pTransaction); // For the output
-	
+	const OTString strOutput(*pTransaction); // For the output
 	const char * pBuf = strOutput.Get(); 
-	
     OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
-	
 	return g_tempBuf;	
 }
 
@@ -6426,9 +6449,7 @@ const char * OT_API_Ledger_GetTransactionIDByIndex(const char * SERVER_ID,
 	const OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theAccountID(ACCOUNT_ID);
 	
 	OTString strLedger(THE_LEDGER);
-	
 	// -----------------------------------------------------
-	
 	OTString strOutput("-1"); // For the output
 
 	long lTransactionNumber = 0;
@@ -6439,30 +6460,30 @@ const char * OT_API_Ledger_GetTransactionIDByIndex(const char * SERVER_ID,
 	if (false == theLedger.LoadLedgerFromString(strLedger))
 	{
 		OTString strAcctID(theAccountID);
-		OTLog::vError("Error loading ledger from string in OT_API_Ledger_GetTransactionIDByIndex. Acct ID: %s\n",
-					  strAcctID.Get());
+		OTLog::vError("%s: Error loading ledger from string. Acct ID: %s\n",
+					  __FUNCTION__, strAcctID.Get());
 	}
 	
 	// At this point, I know theLedger loaded successfully.
 	
 	else if (nIndex >= theLedger.GetTransactionCount())
 	{
-		OTLog::vError("OT_API_Ledger_GetTransactionIDByIndex out of bounds: %d\n", nIndex);
+		OTLog::vError("%s: out of bounds: %d\n", __FUNCTION__, nIndex);
 		// out of bounds. I'm saving from an OT_ASSERT_MSG() happening here. (Maybe I shouldn't.)
 	}
 	
 	else if (NULL == (pTransaction = theLedger.GetTransactionByIndex(nIndex)))
 	{
-		OTLog::vError("OT_API_Ledger_GetTransactionIDByIndex good index but uncovered NULL pointer: %d\n", 
-					  nIndex);
+		OTLog::vError("%s: good index but uncovered NULL pointer: %d\n", 
+					  __FUNCTION__, nIndex);
 	} // NO NEED TO CLEANUP the transaction, since it is already "owned" by theLedger.
 	
 	// At this point, I actually have the transaction pointer, so let's get the ID...
 	
-	else if (0 > (lTransactionNumber = pTransaction->GetTransactionNum()))
+	else if (0 >= (lTransactionNumber = pTransaction->GetTransactionNum()))
 	{
-		OTLog::vError("OT_API_Ledger_GetTransactionIDByIndex negative transaction num: %ld\n", 
-					  lTransactionNumber);
+		OTLog::vError("%s: negative or zero transaction num: %ld\n", 
+					  __FUNCTION__, lTransactionNumber);
 		// Bad value.
 	}
 	else // success
@@ -7620,11 +7641,11 @@ const char * OT_API_Transaction_GetSenderUserID(const char * SERVER_ID,
 	{
 		long lBoxType = 0;
 		
-		if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<long>(OTLedger::nymbox);
-		else if (theTransaction.Contains("inboxRecord"))	lBoxType = static_cast<long>(OTLedger::inbox);
-		else if (theTransaction.Contains("outboxRecord"))	lBoxType = static_cast<long>(OTLedger::outbox);
-		else if (theTransaction.Contains("paymentInboxRecord"))		lBoxType = static_cast<long>(OTLedger::paymentInbox);
-		else if (theTransaction.Contains("recordBoxRecord"))		lBoxType = static_cast<long>(OTLedger::recordBox);
+             if (theTransaction.Contains("nymboxRecord"))       lBoxType = static_cast<long>(OTLedger::nymbox);
+		else if (theTransaction.Contains("inboxRecord"))        lBoxType = static_cast<long>(OTLedger::inbox);
+		else if (theTransaction.Contains("outboxRecord"))       lBoxType = static_cast<long>(OTLedger::outbox);
+		else if (theTransaction.Contains("paymentInboxRecord"))	lBoxType = static_cast<long>(OTLedger::paymentInbox);
+		else if (theTransaction.Contains("recordBoxRecord"))	lBoxType = static_cast<long>(OTLedger::recordBox);
 		else
 		{
 			OTLog::vError("OT_API_Transaction_GetSenderUserID: Error loading from abbreviated transaction: "
@@ -7713,11 +7734,11 @@ const char * OT_API_Transaction_GetRecipientUserID(const char * SERVER_ID,
 	{
 		long lBoxType = 0;
 		
-		if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<long>(OTLedger::nymbox);
-		else if (theTransaction.Contains("inboxRecord"))	lBoxType = static_cast<long>(OTLedger::inbox);
-		else if (theTransaction.Contains("outboxRecord"))	lBoxType = static_cast<long>(OTLedger::outbox);
-		else if (theTransaction.Contains("paymentInboxRecord"))		lBoxType = static_cast<long>(OTLedger::paymentInbox);
-		else if (theTransaction.Contains("recordBoxRecord"))		lBoxType = static_cast<long>(OTLedger::recordBox);		
+             if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<long>(OTLedger::nymbox);
+		else if (theTransaction.Contains("inboxRecord"))        lBoxType = static_cast<long>(OTLedger::inbox);
+		else if (theTransaction.Contains("outboxRecord"))       lBoxType = static_cast<long>(OTLedger::outbox);
+		else if (theTransaction.Contains("paymentInboxRecord"))	lBoxType = static_cast<long>(OTLedger::paymentInbox);
+		else if (theTransaction.Contains("recordBoxRecord"))	lBoxType = static_cast<long>(OTLedger::recordBox);		
 		else
 		{
 			OTLog::vError("OT_API_Transaction_GetRecipientUserID: Error loading from abbreviated transaction: "
@@ -7821,11 +7842,11 @@ const char * OT_API_Transaction_GetSenderAcctID(const char * SERVER_ID,
 	{
 		long lBoxType = 0;
 		
-		if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<long>(OTLedger::nymbox);
-		else if (theTransaction.Contains("inboxRecord"))	lBoxType = static_cast<long>(OTLedger::inbox);
-		else if (theTransaction.Contains("outboxRecord"))	lBoxType = static_cast<long>(OTLedger::outbox);
-		else if (theTransaction.Contains("paymentInboxRecord"))		lBoxType = static_cast<long>(OTLedger::paymentInbox);
-		else if (theTransaction.Contains("recordBoxRecord"))		lBoxType = static_cast<long>(OTLedger::recordBox);		
+             if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<long>(OTLedger::nymbox);
+		else if (theTransaction.Contains("inboxRecord"))        lBoxType = static_cast<long>(OTLedger::inbox);
+		else if (theTransaction.Contains("outboxRecord"))       lBoxType = static_cast<long>(OTLedger::outbox);
+		else if (theTransaction.Contains("paymentInboxRecord"))	lBoxType = static_cast<long>(OTLedger::paymentInbox);
+		else if (theTransaction.Contains("recordBoxRecord"))	lBoxType = static_cast<long>(OTLedger::recordBox);		
 		else
 		{
 			OTLog::vError("OT_API_Transaction_GetSenderAcctID: Error loading from abbreviated transaction: "
@@ -7916,11 +7937,11 @@ const char * OT_API_Transaction_GetRecipientAcctID(const char * SERVER_ID,
 	{
 		long lBoxType = 0;
 		
-		if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<long>(OTLedger::nymbox);
-		else if (theTransaction.Contains("inboxRecord"))	lBoxType = static_cast<long>(OTLedger::inbox);
-		else if (theTransaction.Contains("outboxRecord"))	lBoxType = static_cast<long>(OTLedger::outbox);
-		else if (theTransaction.Contains("paymentInboxRecord"))		lBoxType = static_cast<long>(OTLedger::paymentInbox);
-		else if (theTransaction.Contains("recordBoxRecord"))		lBoxType = static_cast<long>(OTLedger::recordBox);
+             if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<long>(OTLedger::nymbox);
+		else if (theTransaction.Contains("inboxRecord"))        lBoxType = static_cast<long>(OTLedger::inbox);
+		else if (theTransaction.Contains("outboxRecord"))       lBoxType = static_cast<long>(OTLedger::outbox);
+		else if (theTransaction.Contains("paymentInboxRecord"))	lBoxType = static_cast<long>(OTLedger::paymentInbox);
+		else if (theTransaction.Contains("recordBoxRecord"))	lBoxType = static_cast<long>(OTLedger::recordBox);
 		else
 		{
 			OTLog::vError("OT_API_Transaction_GetRecipientAcctID: Error loading from abbreviated transaction: "
@@ -8027,11 +8048,11 @@ const char * OT_API_Pending_GetNote(const char * SERVER_ID,
 	{
 		long lBoxType = 0;
 		
-		if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<long>(OTLedger::nymbox);
-		else if (theTransaction.Contains("inboxRecord"))	lBoxType = static_cast<long>(OTLedger::inbox);
-		else if (theTransaction.Contains("outboxRecord"))	lBoxType = static_cast<long>(OTLedger::outbox);
-		else if (theTransaction.Contains("paymentInboxRecord"))		lBoxType = static_cast<long>(OTLedger::paymentInbox);
-		else if (theTransaction.Contains("recordBoxRecord"))		lBoxType = static_cast<long>(OTLedger::recordBox);
+             if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<long>(OTLedger::nymbox);
+		else if (theTransaction.Contains("inboxRecord"))        lBoxType = static_cast<long>(OTLedger::inbox);
+		else if (theTransaction.Contains("outboxRecord"))       lBoxType = static_cast<long>(OTLedger::outbox);
+		else if (theTransaction.Contains("paymentInboxRecord"))	lBoxType = static_cast<long>(OTLedger::paymentInbox);
+		else if (theTransaction.Contains("recordBoxRecord"))	lBoxType = static_cast<long>(OTLedger::recordBox);
 		else
 		{
 			OTLog::vError("OT_API_Pending_GetNote: Error loading from abbreviated transaction: "
@@ -8156,11 +8177,11 @@ const char * OT_API_Transaction_GetAmount(const char * SERVER_ID,
 	{
 		long lBoxType = 0;
 		
-		if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<long>(OTLedger::nymbox);
-		else if (theTransaction.Contains("inboxRecord"))	lBoxType = static_cast<long>(OTLedger::inbox);
-		else if (theTransaction.Contains("outboxRecord"))	lBoxType = static_cast<long>(OTLedger::outbox);
-		else if (theTransaction.Contains("paymentInboxRecord"))		lBoxType = static_cast<long>(OTLedger::paymentInbox);
-		else if (theTransaction.Contains("recordBoxRecord"))		lBoxType = static_cast<long>(OTLedger::recordBox);
+             if (theTransaction.Contains("nymboxRecord"))		lBoxType = static_cast<long>(OTLedger::nymbox);
+		else if (theTransaction.Contains("inboxRecord"))        lBoxType = static_cast<long>(OTLedger::inbox);
+		else if (theTransaction.Contains("outboxRecord"))       lBoxType = static_cast<long>(OTLedger::outbox);
+		else if (theTransaction.Contains("paymentInboxRecord"))	lBoxType = static_cast<long>(OTLedger::paymentInbox);
+		else if (theTransaction.Contains("recordBoxRecord"))	lBoxType = static_cast<long>(OTLedger::recordBox);
 		else
 		{
 			OTLog::vError("OT_API_Transaction_GetAmount: Error loading from abbreviated transaction: "

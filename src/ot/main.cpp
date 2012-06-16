@@ -1026,20 +1026,20 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
                 OTLog::vError(psErr, str_UseFile1.c_str());
             }
             // --------------------------------
-            //		if ( OTDB::Exists(pss, pot, ps1_2) )
-            //			pScript->chai.use(str_UseFile1_2);
-            //		else
-            //			OTLog::vError(psErr, str_UseFile1_2.c_str());
-            //		// --------------------------------
-            //		if ( OTDB::Exists(pss, pot, ps1_3) )
-            //			pScript->chai.use(str_UseFile1_3);
-            //		else
-            //			OTLog::vError(psErr, str_UseFile1_3.c_str());
-            //		// --------------------------------
-            //		if ( OTDB::Exists(pss, pot, ps2_1) )
-            //			pScript->chai.use(str_UseFile2_1);
-            //		else
-            //			OTLog::vError(psErr, str_UseFile2_1.c_str());
+//          if ( OTDB::Exists(pss, pot, ps1_2) )
+//              pScript->chai.use(str_UseFile1_2);
+//          else
+//              OTLog::vError(psErr, str_UseFile1_2.c_str());
+//          // --------------------------------
+//          if ( OTDB::Exists(pss, pot, ps1_3) )
+//              pScript->chai.use(str_UseFile1_3);
+//          else
+//              OTLog::vError(psErr, str_UseFile1_3.c_str());
+//          // --------------------------------
+//          if ( OTDB::Exists(pss, pot, ps2_1) )
+//              pScript->chai.use(str_UseFile2_1);
+//          else
+//              OTLog::vError(psErr, str_UseFile2_1.c_str());
             // --------------------------------
             if ( OTDB::Exists(pss, pot, ps2) )
                 pScript->chai.use(str_UseFile2);
@@ -1057,15 +1057,46 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
                 OTLog::vError(psErr, str_UseFile3.c_str());
             }
         } 
-        catch (const chaiscript::exception::eval_error &e) {
+        catch (const chaiscript::exception::eval_error &ee) {
             // Error in script parsing / execution
             OTLog::vError("%s: Caught chaiscript::exception::eval_error : %s. \n"
                    "   File: %s\n"
                    "   Start position, line: %d column: %d\n"
                    "   End position,   line: %d column: %d\n", __FUNCTION__,
-                   e.reason.c_str(), e.filename.c_str(), 
-                   e.start_position.line, e.start_position.column,
-                   e.end_position.line, e.end_position.column);
+                   ee.reason.c_str(), ee.filename.c_str(), 
+                   ee.start_position.line, ee.start_position.column,
+                   ee.end_position.line, ee.end_position.column);
+            
+            std::cout << ee.what();
+            if (ee.call_stack.size() > 0) {
+                std::cout << "during evaluation at (" << ee.call_stack[0]->start.line << ", " << ee.call_stack[0]->start.column << ")";
+            }
+            std::cout << std::endl;
+            std::cout << std::endl;
+            
+            // ----------------------            
+            //          std::cout << ee.what();
+            if (ee.call_stack.size() > 0) {
+//                std::cout << "during evaluation at (" << *(ee.call_stack[0]->filename) << " " << ee.call_stack[0]->start.line << ", " << ee.call_stack[0]->start.column << ")";
+                
+//                const std::string text;
+//                boost::shared_ptr<const std::string> filename;
+                
+                for (size_t j = 1; j < ee.call_stack.size(); ++j) {
+                    if (ee.call_stack[j]->identifier != chaiscript::AST_Node_Type::Block
+                        && ee.call_stack[j]->identifier != chaiscript::AST_Node_Type::File)
+                    {
+                        std::cout << std::endl;
+                        std::cout << "  from " << *(ee.call_stack[j]->filename) << " (" << ee.call_stack[j]->start.line << ", " << ee.call_stack[j]->start.column << ") : ";
+                        std::cout << ee.call_stack[j]->text << std::endl;
+                    }
+                }
+            }
+            std::cout << std::endl;
+            
+
+            
+            
             return false;
         } catch (const chaiscript::exception::bad_boxed_cast &e) {
             // Error unboxing return value

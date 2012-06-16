@@ -1,0 +1,97 @@
+#!/usr/bin/env ot
+
+// "Write Cheque"
+// This happens offline. OT must know the Server when it signs the cheque, but it doesn't have 
+// to talk to the server. Instead, you just hand the cheque directly to your friend, and the
+// server sees nothing until later when he deposits it. (Just like a real cheque.)
+// Ideally this script will not just output the cheque, but also save a copy of it into the 
+// recordBox so that if it is never cashed, we can still recover the transaction number later
+// and use it somewhere else, discarding the cheque.
+//
+
+
+// TODO:  Add a call or two inside this function, so that it is actually smart enough to grab
+// more transaction numbers if it is low.
+
+
+
+    if (VerifyExists("MyNym") && VerifyExists("MyAcct") && VerifyExists("Server") && VerifyExists("HisNym"))
+    {
+
+        // todo:
+        if (VerifyExists("MyNym"))
+        {
+            // todo:
+            // If MyAcct is selected, use it to look up the Nym.
+            // But if MyNym is also explicitly selected, then STILL
+            // look it up, AND COMPARE THEM, and make SURE they match.
+            // Otherwise, error out.
+        }
+
+        var strAmount = "1"       // smallest possible amount.
+        var strMemo   = ""        // empty
+        var nLength   = 2592000   // 30 days.
+
+        // ------------------------------------
+        if (VerifyExists("Args"))
+        {
+            // std::string OT_CLI_GetValueByKey(const std::string str_Args, 
+            //                                  const std::string str_key)
+            // 
+            // OPTION:   --args "key value key value"
+            // EXAMPLE:  --args "amount 100 memo \"my share for the BBQ\""
+            //
+            var strNewAmount = OT_CLI_GetValueByKey( Args, "amount" )
+            var strNewMemo   = OT_CLI_GetValueByKey( Args, "memo" )
+            var strNewLength = OT_CLI_GetValueByKey( Args, "validfor" )
+            
+            if (VerifyStringVal(strNewMemo)) { strMemo = strNewMemo }
+            
+            if (VerifyStringVal(strNewAmount) && (strNewAmount.to_int() > 0))
+            { strAmount = strNewAmount }
+            
+            if (VerifyStringVal(strNewLength) && (strNewLength.to_int() > 0))
+            { nLength = strNewLength.to_int() }
+        }
+        // ------------------------------------
+
+// Todo: use Args feature here to allow an option to override nLength.
+// If it's not used, go with the default of 30 days (above.)
+        
+
+        var strFrom = OT_API_GetTime()
+        var   nTo   = strFrom.to_int() + nLength
+        var strTo   = nTo.to_string()
+
+//      std::string OT_API_WriteCheque ( const std::string SERVER_ID,
+//										 const std::string CHEQUE_AMOUNT, 
+//										 const std::string VALID_FROM, 
+//										 const std::string VALID_TO,
+//										 const std::string SENDER_ACCT_ID,
+//										 const std::string SENDER_USER_ID,
+//										 const std::string CHEQUE_MEMO, 
+//										 const std::string RECIPIENT_USER_ID);
+
+        var strCheque = OT_API_WriteCheque (Server,
+                                            strAmount, 
+                                            strFrom, 
+                                            strTo,
+                                            MyAcct,
+                                            MyNym,
+                                            strMemo, 
+                                            HisNym)
+         
+        // stderr
+        OT_API_Output(0, "\n-------------------------------------------\n the cheque:\n\n")
+
+        // stdout
+        print(strCheque)
+
+        // stderr
+        OT_API_Output(0, "\n\n")
+        
+        return 1
+    }
+
+// "return value"
+0

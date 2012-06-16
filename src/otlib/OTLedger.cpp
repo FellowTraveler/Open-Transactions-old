@@ -359,7 +359,8 @@ bool OTLedger::LoadBoxReceipts(std::set<long> * psetUnloaded/*=NULL*/) // if pse
         {
 			// WARNING: pTransaction must be re-Get'd below this point if needed, since pointer
 			// is bad if success on LoadBoxReceipt() call.
-			pTransaction	= NULL;	
+            //
+			pTransaction	= NULL;
 			bRetVal			= false;
 			int nLogLevel	= 0;
 			// --------------
@@ -383,7 +384,7 @@ bool OTLedger::LoadBoxReceipts(std::set<long> * psetUnloaded/*=NULL*/) // if pse
     
     // You might ask, why didn't I just iterate through the transactions directly and just call
     // LoadBoxReceipt on each one? Answer: Because that function actually deletes the transaction
-    // and replaces it with a different object, if successful. 
+    // and replaces it with a different object, if successful.
     
     return bRetVal;
 }
@@ -398,6 +399,8 @@ bool OTLedger::LoadBoxReceipts(std::set<long> * psetUnloaded/*=NULL*/) // if pse
 
 bool OTLedger::LoadBoxReceipt(const long & lTransactionNum)
 {
+    const char * szFunc = "OTLedger::LoadBoxReceipt";
+    
     // First, see if the transaction itself exists on this ledger.
     // Get a pointer to it. 
     // Next, see if the appropriate file exists, and load it up from
@@ -408,12 +411,14 @@ bool OTLedger::LoadBoxReceipt(const long & lTransactionNum)
 
     // First, see if the transaction itself exists on this ledger.
     // Get a pointer to it. 
+    //
     OTTransaction * pTransaction  = this->GetTransaction(lTransactionNum);
 
     if (NULL == pTransaction)
     {
-        OTLog::vOutput(0, "OTLedger::LoadBoxReceipt: Unable to load box receipt %ld: "
-                       "couldn't find abbreviated version already on this ledger.\n", lTransactionNum);
+        OTLog::vOutput(0, "%s: Unable to load box receipt %ld: "
+                       "couldn't find abbreviated version already on this ledger.\n", 
+                       szFunc, lTransactionNum);
         return false;
     }
     // ****************************************************************
@@ -440,6 +445,7 @@ bool OTLedger::LoadBoxReceipt(const long & lTransactionNum)
 		//	again.)
 		//
 		this->RemoveTransaction(lTransactionNum); // this deletes pTransaction
+        pTransaction = NULL;
 		this->AddTransaction(*pBoxReceipt); // takes ownership.
 		// -------------------------------------------------
 		return true;
@@ -1090,14 +1096,16 @@ mapOfTransactions & OTLedger::GetTransactionMap()
 ///
 bool OTLedger::RemoveTransaction(long lTransactionNum) // if false, transaction wasn't found.
 {
+    const char * szFunc = "OTLedger::RemoveTransaction";
+    
 	// See if there's something there with that transaction number.
 	mapOfTransactions::iterator it = m_mapTransactions.find(lTransactionNum);
 	
 	// If it's not already on the list, then there's nothing to remove.
 	if ( it == m_mapTransactions.end() )
 	{
-		OTLog::vError("Attempt to remove Transaction from ledger, when not already there: %ld\n",
-					  lTransactionNum);
+		OTLog::vError("%s: Attempt to remove Transaction from ledger, when not already there: %ld\n",
+					  szFunc, lTransactionNum);
 		return false;
 	}
 	// Otherwise, if it WAS already there, remove it properly.
@@ -1119,6 +1127,8 @@ bool OTLedger::RemoveTransaction(long lTransactionNum) // if false, transaction 
 ///
 bool OTLedger::RemovePendingTransaction(long lTransactionNum) // if false, transaction wasn't found.
 {	
+    const char * szFunc = "OTLedger::RemovePendingTransaction";
+    
 	// loop through the items that make up this transaction.
 	OTTransaction * pTransaction = NULL;
 	
@@ -1154,16 +1164,16 @@ bool OTLedger::RemovePendingTransaction(long lTransactionNum) // if false, trans
 	// If it's not already on the list, then there's nothing to remove.
 	if ( NULL == pTransaction )
 	{
-		OTLog::vError("OTLedger::RemovePendingTransaction: Attempt to remove Transaction from ledger,\n"
+		OTLog::vError("%s: Attempt to remove Transaction from ledger,\n"
 					  "when not already there: (the number in reference to) %ld\n",
-					  lTransactionNum);
+					  szFunc, lTransactionNum);
 		return false;
 	}
 	// Otherwise, if it WAS already there, remove it properly.
 	else 
 	{		
 		m_mapTransactions.erase(temp_it);
-		delete pTransaction;
+		delete pTransaction; pTransaction = NULL;
 		return true;		
 	}
 	
@@ -1308,6 +1318,7 @@ OTTransaction * OTLedger::GetTransactionByIndex(int nIndex)
 // IF THE "IN REFERENCE TO" Transaction ID matches the one passed in (such as #1
 // in the example above.
 // If it can't find anything, it will return NULL.
+//
 OTTransaction * OTLedger::GetPendingTransaction(long lTransactionNum)
 {
 	// loop through the transactions that make up this ledger.
@@ -1726,7 +1737,7 @@ void OTLedger::UpdateContents() // Before transmission or serialization, this is
 		{	// Save the FULL version of the receipt inside the box, so no separate files are necessary.
 			//
 			pTransaction->SaveContractRaw(strTransaction);
-			OTASCIIArmor ascTransaction;
+			OTASCIIArmor   ascTransaction;
 			ascTransaction.SetString(strTransaction, true); // linebreaks = true
 			strLedgerContents.Concatenate("<transaction>\n%s</transaction>\n\n", ascTransaction.Get());
 		}
@@ -1783,6 +1794,8 @@ void OTLedger::UpdateContents() // Before transmission or serialization, this is
 // return -1 if error, 0 if nothing, and 1 if the node was processed.
 int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 {	
+    const char * szFunc = "OTLedger::ProcessXMLNode";
+    // -------------------------------
     const OTString strNodeName = xml->getNodeName();
     
 	if (strNodeName.Compare("accountLedger"))
@@ -1815,9 +1828,9 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		strUserID				= xml->getAttributeValue("userID");
 		if (!strLedgerAcctID.Exists() || !strLedgerAcctServerID.Exists() || !strUserID.Exists())
 		{
-			OTLog::vOutput(0, "OTLedger::ProcessXMLNode: Failure: missing strLedgerAcctID (%s) or "
+			OTLog::vOutput(0, "%s: Failure: missing strLedgerAcctID (%s) or "
 						   "strLedgerAcctServerID (%s) or strUserID (%s) while loading transaction "
-						   "from %s ledger. \n", strLedgerAcctID.Get(), strLedgerAcctServerID.Get(), 
+						   "from %s ledger. \n", szFunc, strLedgerAcctID.Get(), strLedgerAcctServerID.Get(), 
 						   strUserID.Get(), strType.Get());
 			return (-1);			
 		}
@@ -1846,18 +1859,18 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
         OTNumList * pNumList = NULL;
 		switch (m_Type) 
 		{
-			case OTLedger::nymbox:	strExpected.Set("nymboxRecord");	pNumList = &theNumList; break;
-			case OTLedger::inbox:	strExpected.Set("inboxRecord");                             break;
-			case OTLedger::outbox:	strExpected.Set("outboxRecord");                            break;
-			case OTLedger::paymentInbox:	strExpected.Set("paymentInboxRecord");              break;
-			case OTLedger::recordBox:		strExpected.Set("recordBoxRecord");                 break;
+			case OTLedger::nymbox:          strExpected.Set("nymboxRecord");pNumList = &theNumList; break;
+			case OTLedger::inbox:           strExpected.Set("inboxRecord");                         break;
+			case OTLedger::outbox:          strExpected.Set("outboxRecord");                        break;
+			case OTLedger::paymentInbox:	strExpected.Set("paymentInboxRecord");                  break;
+			case OTLedger::recordBox:		strExpected.Set("recordBoxRecord");                     break;
 				/* --- BREAK --- */
 			case OTLedger::message:	
                 if (nPartialRecordCount > 0) // -------------------
                 {
-					OTLog::vError("OTLedger::ProcessXMLNode: Error: There are %d unexpected abbreviated records in an "
+					OTLog::vError("%s: Error: There are %d unexpected abbreviated records in an "
                                   "OTLedger::message type ledger. (Failed loading ledger with accountID: %s)\n",
-                                  nPartialRecordCount, strLedgerAcctID.Get());
+                                  szFunc, nPartialRecordCount, strLedgerAcctID.Get());
 					return (-1);
                 }// -----------------------------------------------
 				break;
@@ -1877,8 +1890,9 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 //				xml->read(); // <==================
 				if (false == SkipToElement(xml))
 				{
-					OTLog::vOutput(0, "OTLedger::ProcessXMLNode: Failure: Unable to find element when one was expected (%s) "
-                                   "for abbreviated record of receipt in %s box:\n\n%s\n\n", strExpected.Get(), GetTypeString(),
+					OTLog::vOutput(0, "%s: Failure: Unable to find element when one was expected (%s) "
+                                   "for abbreviated record of receipt in %s box:\n\n%s\n\n", szFunc,
+                                   strExpected.Get(), GetTypeString(),
                                    m_strRawFile.Get());
 					return (-1);
 				}
@@ -1891,7 +1905,9 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
                 //
                 // We're loading here either a nymboxRecord, inboxRecord, or outboxRecord...
                 //
-				if ((xml->getNodeType() == EXN_ELEMENT) && (!strcmp(strExpected.Get(), xml->getNodeName())))
+                const OTString strLoopNodeName = xml->getNodeName();
+                
+				if (strLoopNodeName.Exists() && (xml->getNodeType() == EXN_ELEMENT) && (strExpected.Compare(strLoopNodeName)))
 				{
 					long lTransactionNum	= 0;
 					long lInRefTo			= 0;
@@ -1931,8 +1947,9 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 					OTTransaction * pExistingTrans = this->GetTransaction(lTransactionNum);
 					if (NULL != pExistingTrans) // Uh-oh, it's already there!
 					{
-						OTLog::vOutput(0, "OTLedger::ProcessXMLNode: Error loading transaction %ld (%s), since one was "
-									   "already there, in box for account: %s.\n", lTransactionNum, strExpected.Get(), 
+						OTLog::vOutput(0, "%s: Error loading transaction %ld (%s), since one was "
+									   "already there, in box for account: %s.\n", szFunc, 
+                                       lTransactionNum, strExpected.Get(), 
 									   strLedgerAcctID.Get());
 						return (-1);
 					}
@@ -1981,7 +1998,7 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 					// NOTE: Moved to OTTransaction constructor (for abbreviateds) for now.
 					//
 //                    pTransaction->SetPurportedAccountID(	this->GetPurportedAccountID());
-//                    pTransaction->SetPurportedServerID(		this->GetPurportedServerID());
+//                    pTransaction->SetPurportedServerID(	this->GetPurportedServerID());
                     // --------------------------------------------------------------------
  					// Add it to the ledger's list of transactions...
 					//
@@ -1995,8 +2012,8 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 					}
 					else 
 					{
-						OTLog::vError("ERROR: verifying contract ID on abbreviated transaction %ld in OTLedger::ProcessXMLNode\n",
-									  pTransaction->GetTransactionNum());
+						OTLog::vError("%s: ERROR: verifying contract ID on abbreviated transaction %ld\n",
+									  szFunc, pTransaction->GetTransactionNum());
 						delete pTransaction;
 						pTransaction = NULL;
 						return (-1);
@@ -2008,7 +2025,7 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 				}
 				else 
 				{
-					OTLog::Error("Expected abbreviated record element in OTLedger::ProcessXMLNode\n");
+					OTLog::vError("%s: Expected abbreviated record element.\n", szFunc);
 					return (-1); // error condition
 				}
 			} // while
@@ -2017,7 +2034,7 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		
 		
 		// ------------------------------------------------------------------
-		OTLog::vOutput(2, "Loading account ledger of type \"%s\", version: %s\n",
+		OTLog::vOutput(2, "%s: Loading account ledger of type \"%s\", version: %s\n", szFunc,
 //				"accountID:\n%s\n userID:\n%s\n serverID:\n%s\n----------\n",
 				strType.Get(),
 				m_strVersion.Get()
@@ -2059,8 +2076,8 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 //		xml->read(); // <==================
 		if (false == SkipToTextField(xml))
 		{
-			OTLog::Output(0, "OTLedger::ProcessXMLNode: Failure: Unable to find expected text field "
-						  "containing receipt transaction in box. \n");
+			OTLog::vOutput(0, "%s: Failure: Unable to find expected text field "
+						  "containing receipt transaction in box. \n", szFunc);
 			return (-1);
 		}
 		// -----------------------------------------------
@@ -2069,13 +2086,16 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		{
 			// the ledger contains a series of transactions.
 			// Each transaction is initially stored as an OTASCIIArmor string.
-			ascTransaction.Set(xml->getNodeData());		// Put the ascii-armored node data into the ascii-armor object
+            const OTString strLoopNodeData = xml->getNodeData();
+            
+            if (strLoopNodeData.Exists())
+                ascTransaction.Set(strLoopNodeData);		// Put the ascii-armored node data into the ascii-armor object
 			
 			// Decode that into strTransaction, so we can load the transaction object from that string.
 			if (!ascTransaction.Exists() || !ascTransaction.GetString(strTransaction))
 			{
-				OTLog::vError("ERROR: Missing expected transaction contents in OTLedger::ProcessXMLNode for trans num: %ld (In Reference To: %ld)\n",
-							  GetTransactionNum(), GetReferenceToNum());
+				OTLog::vError("%s: ERROR: Missing expected transaction contents. Ledger contents:\n\n%s\n\n",
+							  szFunc, m_strRawFile.Get());
 				return (-1);
 			}
 			// ------------------------------
@@ -2091,9 +2111,11 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 			// In some cases (Factory...) they definitely have not been. It makes sense here when loading, to set the member
 			// transactions to the same account/server IDs that were actually loaded for their parent ledger. Therefore, changing
 			// back here to Purported values.
-//			OTTransaction * pTransaction = new OTTransaction(GetUserID(), GetRealAccountID(), GetRealServerID());
+            //
+//			OTTransaction * pTransaction = new OTTransaction(GetUserID(), GetRealAccountID(),      GetRealServerID());
 			OTTransaction * pTransaction = new OTTransaction(GetUserID(), GetPurportedAccountID(), GetPurportedServerID());
-			
+            OT_ASSERT(NULL != pTransaction);
+            
 			// Need this set before the LoadContractFromString().
 			//
 			if (false ==  m_bLoadSecurely)
@@ -2102,14 +2124,30 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 			
 			// If we're able to successfully base64-decode the string and load it up as
 			// a transaction, then let's add it to the ledger's list of transactions
-			if ((NULL != pTransaction) && pTransaction->LoadContractFromString(strTransaction)
-				&& pTransaction->VerifyContractID())
+			if (strTransaction.Exists() &&
+                pTransaction->LoadContractFromString(strTransaction) &&
+				pTransaction->VerifyContractID())
 				// I responsible here to call pTransaction->VerifyContractID() since
 				// I am loading it here and adding it to the ledger. (So I do.)
 			{
+                // ------------------------------------------------------------------
+                OTTransaction * pExistingTrans = this->GetTransaction(pTransaction->GetTransactionNum());
+                if (NULL != pExistingTrans) // Uh-oh, it's already there!
+                {
+                    const OTString strPurportedAcctID(this->GetPurportedAccountID());
+                    OTLog::vOutput(0, "%s: Error loading full transaction %ld, since one was "
+                                   "already there, in box for account: %s.\n", szFunc, 
+                                   pTransaction->GetTransactionNum(), strPurportedAcctID.Get());
+                    delete pTransaction; pTransaction = NULL;
+                    return (-1);
+                }
+                // ------------------------------------------------------------------
+                // It's not already there on this ledger -- so add it!
+                // (Below this point, no need to delete pTransaction upon returning.)
+                //
 				m_mapTransactions[pTransaction->GetTransactionNum()] = pTransaction;
 				pTransaction->SetParent(*this);
-//				OTLog::Output(5, "Loaded transaction and adding to m_mapTransactions in OTLedger\n");
+//				OTLog::Output(5, "Loaded full transaction and adding to m_mapTransactions in OTLedger\n");
                 
                 switch (this->GetType())
 				{
@@ -2149,9 +2187,11 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 					}
 						break;
 					default:
-						OTLog::Error("OTLedger::ProcessXMLNode: Unknown ledger type while loading transaction! (Should never happen.)\n");
+						OTLog::vError("%s: Unknown ledger type while loading transaction! (Should never happen.)\n", 
+                                      szFunc); // todo: assert here? "should never happen" ...
 						return (-1);
 				} // switch (this->GetType())
+                // ---------------------------------------------
 			}	// if transaction loads and verifies.
 			else 
 			{

@@ -301,13 +301,7 @@ simpleini_sources     =		src/simpleini/ConvertUTF.cpp			\
 
 ####	OT Create Mint
 
-createmint_sources_dir = 	$(ot_source_dir)/createmint \
-                            $(otserver_sources_dir)     \
-createmint_headers     =    $(otserver_headers)         \
-                            $(simpleini_headers)
-createmint_sources     =	src/createmint/main.cpp     \
-                            $(otserver_sources)
-
+createmint_sources_dir =    $(ot_source_dir)/createmint
 
 ####################################################################
 
@@ -398,13 +392,14 @@ otserver_LDADD =		libot.la
 otserver_DEPENDENCIES =	libot.la
 
 
-####	OT Createmint
+####	Createmint  (includes files from OT Server)
 
-createmint_SOURCES  =		$(createmint_sources) $(otserver_headers)
+createmint_SOURCES  =		$(otserver_sources)  \
+				$(otserver_headers)
+
 createmint_CPPFLAGS =		-I$(otserver_headers_dir) $(AM_CPPFLAGS)
 createmint_LDADD    =		libot.la
 createmint_DEPENDENCIES =	libot.la
-
 
 
 ####################################
@@ -421,6 +416,9 @@ ot_CPPFLAGS +=			-DOT_ZMQ_MODE
 
 otserver_SOURCES +=		src/otserver/xmlrpcxx_server.cpp
 otserver_CPPFLAGS +=		-DOT_ZMQ_MODE
+
+createmint_SOURCES +=		src/createmint/main.cpp
+createmint_CPPFLAGS +=		-DOT_ZMQ_MODE
 
 endif
 
@@ -518,5 +516,3 @@ _otapi_la_LDFLAGS =             	--no-undefined                  \
 if TRANSPORT_ZMQ
 _otapi_la_CPPFLAGS +=			-DOT_ZMQ_MODE
 endif
-
-

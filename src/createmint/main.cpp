@@ -119,7 +119,7 @@ extern "C"
 //
 // Paths
 //
-#define OT_INI_FILE_DEFAULT	".ot/ot.ini"  // should get programmatically
+#define OT_INI_FILE_DEFAULT	".ot/ot_init.cfg"  // should get programmatically
 #define SERVER_PATH_DEFAULT	".ot/server_data" // should get programmatically
 
 // ----------------------------------------------------------------
@@ -288,12 +288,12 @@ int main (int argc, char * const argv[])
             
 			OTString pathOTServerDataLocation;
             
-			OTLog::vOutput(0, "\nFound ot.ini in: \n     %s \nNow Checking if it contains the OT Server Path...", pathIniFileLocation.Get());
+			OTLog::vOutput(0, "\nFound ot_init.cfg in: \n     %s \nNow checking to see if it contains the OT Server path...", pathIniFileLocation.Get());
 			// Read the File, If successful use result
             
 			if (false == GetOTAppDataFolderLocation(pathIniFileLocation,pathOTServerDataLocation))
 			{
-				OTLog::vOutput(0, "Path Not Found... Will Attempt Default!... \n");
+				OTLog::vOutput(0, "Path not found... will attempt default!... \n");
 				// Not successfull will will assume it is in default location:
 				pathOTServerDataLocation.Format("%s%s%s", pathUserAppDataPath.Get(), OTLog::PathSeparator(), SERVER_PATH_DEFAULT);
 			};

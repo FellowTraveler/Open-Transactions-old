@@ -1140,7 +1140,9 @@ bool OTMasterKey::IsGenerated()
 //static
 OTMasterKey * OTMasterKey::It()
 {
-    static OTMasterKey s_theSingleton;    // For now we're only allowing a single instance.
+    // For now we're only allowing a single instance.
+    //
+    static OTMasterKey s_theSingleton;  // Default is 0 ("you have to type your PW a million times"), but it's overridden in config file.
 
     return &s_theSingleton;
 }
@@ -1150,7 +1152,7 @@ OTMasterKey::OTMasterKey(int nTimeoutSeconds/*=OT_MASTER_KEY_TIMEOUT*/) :
     m_pThread(NULL),
     m_nTimeoutSeconds(nTimeoutSeconds), 
     m_pMasterPassword(NULL), // This is created in GetMasterPassword, and destroyed by a timer thread sometime soon after.   
-    m_pSymmetricKey(NULL),       // OTServer OR OTWallet owns this key, and sets this pointer. It's the encrypted form of s_pMasterPassword.
+    m_pSymmetricKey(NULL),   // OTServer OR OTWallet owns this key, and sets this pointer. It's the encrypted form of s_pMasterPassword.
     m_bPaused(false)
 {
 
@@ -1243,10 +1245,10 @@ int OTMasterKey::GetTimeoutSeconds()
 
 void OTMasterKey::SetTimeoutSeconds(int nTimeoutSeconds) // So we can load from the config file.
 {
-    OT_ASSERT_MSG(nTimeoutSeconds >= (-1), "OTMasterKey::SetTimeoutSeconds: ASSERT: nTimeoutSeconds must be >= (-1)\n");
-    
     tthread::lock_guard<tthread::mutex> lock(m_Mutex); // Multiple threads can't get inside here at the same time.
 
+    OT_ASSERT_MSG(nTimeoutSeconds >= (-1), "OTMasterKey::SetTimeoutSeconds: ASSERT: nTimeoutSeconds must be >= (-1)\n");
+    
     m_nTimeoutSeconds = nTimeoutSeconds;
 }
 
@@ -1498,7 +1500,7 @@ bool OTMasterKey::GetMasterPassword(OTPassword & theOutput, const char * szDispl
 // -------------------------------------------------
 
     }
-    else
+    else if (m_nTimeoutSeconds != (-1))
     {
         if (NULL != m_pMasterPassword)
             delete m_pMasterPassword;
@@ -1556,13 +1558,15 @@ void OTMasterKey::DestroyMasterPassword()
 {
     tthread::lock_guard<tthread::mutex> lock(m_Mutex); // Multiple threads can't get inside here at the same time.
     //
-    // (m_pSymmetricKey stays. 
-    //  m_pMasterPassword only is destroyed.)
-    //
-    if (NULL != m_pMasterPassword)
-        delete m_pMasterPassword;
-    m_pMasterPassword = NULL;
-    
+    if (m_nTimeoutSeconds != (-1))
+    {
+        // (m_pSymmetricKey stays. 
+        //  m_pMasterPassword only is destroyed.)
+        //
+        if (NULL != m_pMasterPassword)
+            delete m_pMasterPassword;
+        m_pMasterPassword = NULL;
+    }
     // (We do NOT call LowLevelReleaseThread(); here, since the thread is
     // what CALLED this function. Instead, we destroy / NULL the master password,
     // so that next time around we will see it is NULL and THEN we will know to 

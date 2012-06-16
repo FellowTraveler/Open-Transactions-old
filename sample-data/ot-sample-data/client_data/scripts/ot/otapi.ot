@@ -845,11 +845,11 @@
         {
             if (bMsgReplySuccess) // If message was success, then let's see if the transaction was, too.
             {
-                nBalanceSuccess = OT_API_Message_GetBalanceAgreementSuccess(theFunction.serverID, theFunction.nymID, theFunction.accountID, strReply) 
+                nBalanceSuccess = OT_API_Msg_GetBlnceAgrmntSuccess(theFunction.serverID, theFunction.nymID, theFunction.accountID, strReply) 
 
                 if (nBalanceSuccess > 0)
                 {
-                    nTransSuccess   = OT_API_Message_GetTransactionSuccess (theFunction.serverID, theFunction.nymID, theFunction.accountID, strReply)
+                    nTransSuccess   = OT_API_Msg_GetTransactionSuccess (theFunction.serverID, theFunction.nymID, theFunction.accountID, strReply)
                 }
                 else
                 {
@@ -960,7 +960,8 @@
                     // Maybe we have an old Inbox or something.
                     // NEW CODE HERE FOR DEBUGGING (THIS BLOCK)
                     //
-                    if (!MsgUtil.getIntermediaryFiles(theFunction.serverID, theFunction.nymID, theFunction.accountID, true)) // bForceDownload=true
+                    var bForceDownload = true
+                    if (!MsgUtil.getIntermediaryFiles(theFunction.serverID, theFunction.nymID, theFunction.accountID, bForceDownload)) // bForceDownload=true
                     {
                         OT_API_Output(0, strLocation + ", getIntermediaryFiles returned false. (After a failure to send the transaction. Thus, I give up.)\n")
                         return ""
@@ -968,17 +969,22 @@
 
                     // -------------------------------------------
                     
-                    var bWasFound = OTBool(false)
-                    var bWasSent  = OTBool(false)
+                    var bWasFound    = OTBool(false)
+                    var bWasSent     = OTBool(false)
                     
-                    var nProcessNymboxResult = MsgUtil.getAndProcessNymbox(theFunction.serverID, theFunction.nymID, bWasSent, false, // bForceDownload=false
-                                                        nlocalRequestNum, bWasFound,
-                                                        bWillRetryAfterThis, // bHarvestingForRetry,    // bHarvestingForRetry is INPUT, in the case nlocalRequestNum needs to be harvested before a flush occurs.
+                    var the_foursome = OTfourbool(bMsgReplySuccess, bMsgReplyFailure, bMsgTransSuccess, bMsgTransFailure)
+                    
+                    bForceDownload   = false
+                    
+                    var nProcessNymboxResult = MsgUtil.getAndProcessNymbox_8(theFunction.serverID, theFunction.nymID, bWasSent, bForceDownload, nlocalRequestNum, bWasFound, bWillRetryAfterThis, the_foursome)
+                    
+                                                        // bHarvestingForRetry,// bHarvestingForRetry is INPUT, in the case nlocalRequestNum needs to be harvested before a flush occurs.
                                                         // --------------------
-                                                        bMsgReplySuccess,    // bMsgReplySuccess is INPUT, and is in case nlocalRequestNum needs to be HARVESTED before a FLUSH happens.
-                                                        bMsgReplyFailure,    // bMsgReplyFailure is INPUT, and is in case nlocalRequestNum needs to be HARVESTED before a FLUSH happens.
-                                                        bMsgTransSuccess,    // bMsgTransSuccess is INPUT, and is in case nlocalRequestNum needs to be HARVESTED before a FLUSH happens.
-                                                        bMsgTransFailure)   // Etc.
+                                                        
+//                                                        bMsgReplySuccess,    // bMsgReplySuccess is INPUT, and is in case nlocalRequestNum needs to be HARVESTED before a FLUSH happens.
+//                                                        bMsgReplyFailure,    // bMsgReplyFailure is INPUT, and is in case nlocalRequestNum needs to be HARVESTED before a FLUSH happens.
+//                                                        bMsgTransSuccess,    // bMsgTransSuccess is INPUT, and is in case nlocalRequestNum needs to be HARVESTED before a FLUSH happens.
+//                                                        bMsgTransFailure)    // Etc.
                     // -------------------------------------------
                     if ((bWasSent.getBooleanValue() && (1 == nProcessNymboxResult)) || !bWasSent.getBooleanValue() && (0 == nProcessNymboxResult))// success processing Nymbox.
                     {
@@ -997,7 +1003,7 @@
                         // *******************************************************
                         if (VerifyStringVal(strNymbox))
                         {
-                            OT_API_FlushSentMessages(0, /*harvesting-for-retry==OT_FALSE*/ theFunction.serverID, theFunction.nymID, strNymbox)
+                            OT_API_FlushSentMessages(false, /*harvesting-for-retry==OT_FALSE*/ theFunction.serverID, theFunction.nymID, strNymbox)
                         }
                     }
                 } // if (bIsTransaction)

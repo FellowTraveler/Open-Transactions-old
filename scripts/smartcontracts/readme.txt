@@ -1,11 +1,21 @@
 
-NOTE: These two smart contracts still need to be updated to the new code,
-and they are unlikely to work until they are.
+NOTE: These smart contracts still need to be updated to the new code,
+and they are unlikely to work just yet.
+
+----------------------------------------------------------------------------
+
+create_smartcontract.ot is a script that creates a generic smart-contract,
+as a reference point.
+
+More specialized smart contracts are possible. The escrow and two_way_trade
+folders contain examples of this. They were modeled on create_smartcontract.ot
+but expand greatly on it, to create their own unique financial instruments.
 
 
+----------------------------------------------------------------------------
 
-The escrow folder contains a series of client-side scripts that create a smart
-contract, sign it, and activate it on the server.
+-- The escrow folder contains a series of client-side scripts that create a
+smart contract, sign it, and activate it on the server.
 (Untested thus far.) This version of escrow includes a 3rd party arbitrator.
 When the smart contract is activated, the funds are stashed inside the
 contract, and then transferred to the recipient after X days have passed.
@@ -16,7 +26,7 @@ script form.
 
 
 
-The 'two_way_trade' folder contains a series of client-side scripts which 
+-- The 'two_way_trade' folder contains a series of client-side scripts which 
 generate a smart contract, sign on to it, and activate it on the server. This
 contract simply stashes funds from both parties (likely of different asset 
 types.) If BOTH stashes are successful, then the assets are then exchanged
