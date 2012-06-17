@@ -153,11 +153,11 @@
                 break
             }
             case (0) {
-                OT_API_Output(0, "VerifyMessageSuccess: Reply received: success == FALSE. Reply message:\n\n" + strMessage + "\n")
+                OT_API_Output(1, "VerifyMessageSuccess: Reply received: success == FALSE. Reply message:\n\n" + strMessage + "\n")
                 break
             }
             case (1) {
-                OT_API_Output(0, "VerifyMessageSuccess: Reply received: success == TRUE.\n")
+                OT_API_Output(1, "VerifyMessageSuccess: Reply received: success == TRUE.\n")
                 break
             }
             default {
@@ -193,11 +193,11 @@
                 break
             }
             case (0) {
-                OT_API_Output(0, "VerifyMsgBalanceAgrmntSuccess: Reply received: success == FALSE. Reply message:\n\n" + strMessage + "\n")
+                OT_API_Output(1, "VerifyMsgBalanceAgrmntSuccess: Reply received: success == FALSE. Reply message:\n\n" + strMessage + "\n")
                 break
             }
             case (1) {
-                OT_API_Output(0, "VerifyMsgBalanceAgrmntSuccess: Reply received: success == TRUE.\n")
+                OT_API_Output(1, "VerifyMsgBalanceAgrmntSuccess: Reply received: success == TRUE.\n")
                 break
             }
             default {
@@ -210,7 +210,7 @@
         return nSuccess;
 	}
 
-    // ---------------------------------------
+// ---------------------------------------
 
 	def VerifyMsgTrnxSuccess(SERVER_ID, USER_ID, ACCOUNT_ID, strMessage)
 	{
@@ -226,11 +226,11 @@
                 break;
             }
             case (0) {
-                OT_API_Output(0, "VerifyMsgTrnxSuccess: Reply received: success == FALSE. Reply message:\n\n" + strMessage + "\n");
+                OT_API_Output(1, "VerifyMsgTrnxSuccess: Reply received: success == FALSE. Reply message:\n\n" + strMessage + "\n");
                 break;
             }
             case (1) {
-                OT_API_Output(0, "VerifyMsgTrnxSuccess: Reply received: success == TRUE.\n");
+                OT_API_Output(1, "VerifyMsgTrnxSuccess: Reply received: success == TRUE.\n");
                 break;
             }
             default {
@@ -243,9 +243,64 @@
         // -------------------
         return nSuccess;
 	}
-    // ---------------------------------------
+// ---------------------------------------
+    //
+    // This code was repeating a lot, so I just added a function for it.
+    //
+    def InterpretTransactionMsgReply(SERVER_ID, USER_ID, ACCOUNT_ID, strAttempt, strResponse)
+    {
+        var nMessageSuccess = VerifyMessageSuccess(strResponse)
+        
+        if ((-1) == nMessageSuccess)
+        {
+            OT_API_Output(0, "Message error: "+strAttempt+".\n")
+            return (-1)
+        }
+        else if (0 == nMessageSuccess)
+        {
+            OT_API_Output(0, "Server response ("+strAttempt+"): Message failure.\n")
+            return 0
+        }
+        // (else 1.)
+        // ----------------------------------
+        var nBalanceSuccess = VerifyMsgBalanceAgrmntSuccess(SERVER_ID, USER_ID, ACCOUNT_ID, strResponse)
+        
+        if ((-1) == nBalanceSuccess)
+        {
+            OT_API_Output(0, "Balance agreement error: "+strAttempt+".\n")
+            return (-1)
+        }
+        else if (0 == nBalanceSuccess)
+        {
+            OT_API_Output(0, "Server response ("+strAttempt+"): Balance agreement failure.\n")
+            return 0
+        }
+        // (else 1.)
+        // ----------------------------------
+        var nTransSuccess = VerifyMsgTrnxSuccess(SERVER_ID, USER_ID, ACCOUNT_ID, strResponse)
+        
+        if ((-1) == nTransSuccess)
+        {
+            OT_API_Output(0, "Transaction error: "+strAttempt+".\n")
+            return (-1)
+        }
+        else if (0 == nTransSuccess)
+        {
+            OT_API_Output(0, "Server response ("+strAttempt+"): Transaction failure.\n")
+            return 0
+        }
+        // (else 1.)
+        // ----------------------------------
+        //
+        // Success!
+        //
+        1
+    }
+
+// ---------------------------------------
 
     // Provides the functionality of the ? : operator.
+    // NOTE: the chai team have since added ? :, so this is deprecated now.
 
     def ifB(the_expression, X, Y)
     {

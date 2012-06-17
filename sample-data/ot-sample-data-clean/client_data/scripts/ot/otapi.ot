@@ -34,9 +34,9 @@
 	attr OTAPI_Func::ISSUE_ASSET_TYPE			
 	attr OTAPI_Func::ISSUE_BASKET
 	attr OTAPI_Func::CREATE_ASSET_ACCT			
-	attr OTAPI_Func::DELETE_ASSET_ACCT		
-	attr OTAPI_Func::EXCHANGE_BASKET			
-	attr OTAPI_Func::PROCESS_INBOX
+	attr OTAPI_Func::DELETE_ASSET_ACCT
+    attr OTAPI_Func::PROCESS_INBOX
+    attr OTAPI_Func::EXCHANGE_BASKET			
 	attr OTAPI_Func::DEPOSIT_CASH				
 	attr OTAPI_Func::EXCHANGE_CASH				
 	attr OTAPI_Func::DEPOSIT_CHEQUE				
@@ -125,26 +125,27 @@
 		this.ISSUE_BASKET				= 7
 		this.CREATE_ASSET_ACCT			= 8
 		this.DELETE_ASSET_ACCT			= 9
-		this.EXCHANGE_BASKET			= 10
-		this.PROCESS_INBOX				= 11
-		this.DEPOSIT_CASH				= 12
-		this.EXCHANGE_CASH				= 13
-		this.DEPOSIT_CHEQUE				= 14
-		this.WITHDRAW_VOUCHER			= 15
-		this.WITHDRAW_CASH				= 16
-		this.GET_CONTRACT				= 17
-		this.SEND_TRANSFER				= 18
-		this.GET_MARKET_LIST			= 19
-		this.CREATE_MARKET_OFFER		= 20
-		this.CANCEL_MARKET_OFFER		= 21
-		this.CANCEL_PAYMENT_PLAN		= 22
-		this.DEPOSIT_PAYMENT_PLAN		= 23 
-		this.GET_NYM_MARKET_OFFERS		= 24
-		this.GET_MARKET_OFFERS			= 25
-		this.GET_MARKET_RECENT_TRADES	= 26
-		this.GET_MINT					= 27
-		this.QUERY_ASSET_TYPES			= 28
-		this.GET_BOX_RECEIPT			= 29
+        
+		this.PROCESS_INBOX				= 12
+		this.EXCHANGE_BASKET			= 13
+        this.DEPOSIT_CASH				= 14
+		this.EXCHANGE_CASH				= 15
+		this.DEPOSIT_CHEQUE				= 16
+		this.WITHDRAW_VOUCHER			= 17
+		this.WITHDRAW_CASH				= 18
+		this.GET_CONTRACT				= 19
+		this.SEND_TRANSFER				= 20
+		this.GET_MARKET_LIST			= 21
+		this.CREATE_MARKET_OFFER		= 22
+		this.CANCEL_MARKET_OFFER		= 23
+		this.CANCEL_PAYMENT_PLAN		= 24
+		this.DEPOSIT_PAYMENT_PLAN		= 25 
+		this.GET_NYM_MARKET_OFFERS		= 26
+		this.GET_MARKET_OFFERS			= 27
+		this.GET_MARKET_RECENT_TRADES	= 28
+		this.GET_MINT					= 29
+		this.QUERY_ASSET_TYPES			= 30
+		this.GET_BOX_RECEIPT			= 31
 	}
 // ---------------------------------------
 
@@ -214,7 +215,7 @@
 		{
 			this.nymID2     = p_strParam;
 		}
-		else if (theType == this.DELETE_ASSET_ACCT)
+		else if ((theType == this.DELETE_ASSET_ACCT))
 		{
 			this.accountID     = p_strParam;
 		}
@@ -469,72 +470,76 @@
         //
         var nRetVal = (-1);
 
-		if (this.funcType == this.CHECK_USER)
-		{	nRetVal = OT_API_checkUser(this.serverID, this.nymID, this.nymID2);	}
-		else if (this.funcType == this.CREATE_USER_ACCT)
-		{	nRetVal = OT_API_createUserAccount(this.serverID, this.nymID);	}
-		else if (this.funcType == this.DELETE_USER_ACCT)
-		{	nRetVal = OT_API_deleteUserAccount(this.serverID, this.nymID);	}
-		else if (this.funcType == this.SEND_USER_MESSAGE)
-		{	nRetVal = OT_API_sendUserMessage(this.serverID, this.nymID, this.nymID2, this.strData, this.strData2);	}
-		else if (this.funcType == this.SEND_USER_INSTRUMENT)
-		{	nRetVal = OT_API_sendUserInstrument(this.serverID, this.nymID, this.nymID2, this.strData, this.strData2);	}
-		else if (this.funcType == this.GET_NYM_MARKET_OFFERS)
-		{	nRetVal = OT_API_getNym_MarketOffers(this.serverID, this.nymID);	}
-		else if (this.funcType == this.CREATE_ASSET_ACCT)
-		{	nRetVal = OT_API_createAssetAccount(this.serverID, this.nymID, this.assetID);	}
-		else if (this.funcType == this.DELETE_ASSET_ACCT)
-		{	nRetVal = OT_API_deleteAssetAccount(this.serverID, this.nymID, this.accountID);	}
-		else if (this.funcType == this.EXCHANGE_BASKET)
-		{	nRetVal = OT_API_exchangeBasket(this.serverID, this.nymID, this.assetID, this.basket, this.bBool);	}
-		else if (this.funcType == this.GET_CONTRACT)
-		{	nRetVal = OT_API_getContract(this.serverID, this.nymID, this.assetID);	}
-		else if (this.funcType == this.GET_MINT)
-		{	nRetVal = OT_API_getMint(this.serverID, this.nymID, this.assetID);	}
-		else if (this.funcType == this.QUERY_ASSET_TYPES)
-		{	nRetVal = OT_API_queryAssetTypes(this.serverID, this.nymID, this.strData);	}
-		else if (this.funcType == this.ISSUE_ASSET_TYPE)
-		{	nRetVal = OT_API_issueAssetType(this.serverID, this.nymID, this.strData);	}
-		else if (this.funcType == this.ISSUE_BASKET)
-		{	nRetVal = OT_API_issueBasket(this.serverID, this.nymID, this.basket);	}
-		else if (this.funcType == this.EXCHANGE_CASH)
-		{	nRetVal = OT_API_exchangePurse(this.serverID, this.assetID, this.nymID, this.strData);	}
-		else if (this.funcType == this.CANCEL_MARKET_OFFER)
-		{	nRetVal = OT_API_cancelMarketOffer(this.serverID, this.nymID, this.accountID, this.strData);	}
-		else if (this.funcType == this.CANCEL_PAYMENT_PLAN)
-		{	nRetVal = OT_API_cancelPaymentPlan(this.serverID, this.nymID, this.accountID, this.strData);	}
-		else if (this.funcType == this.GET_BOX_RECEIPT)
-		{	nRetVal = OT_API_getBoxReceipt(this.serverID, this.nymID, this.accountID, nData, this.strData); }
-		else if (this.funcType == this.PROCESS_INBOX)
-		{	nRetVal = OT_API_processInbox(this.serverID, this.nymID, this.accountID, this.strData);	}
-		else if (this.funcType == this.DEPOSIT_CASH)
-		{	nRetVal = OT_API_notarizeDeposit(this.serverID, this.nymID, this.accountID, this.strData);	}
-		else if (this.funcType == this.DEPOSIT_CHEQUE)
-		{	nRetVal = OT_API_depositCheque(this.serverID, this.nymID, this.accountID, this.strData);	}
-		else if (this.funcType == this.DEPOSIT_PAYMENT_PLAN)
-		{	nRetVal = OT_API_depositPaymentPlan(this.serverID, this.nymID, this.strData);	}
-		else if (this.funcType == this.WITHDRAW_CASH)
-		{	nRetVal = OT_API_notarizeWithdrawal(this.serverID, this.nymID, this.accountID, this.strData);	}
-		else if (this.funcType == this.WITHDRAW_VOUCHER)
-		{	nRetVal = OT_API_withdrawVoucher(this.serverID, this.nymID, this.accountID, this.nymID2, this.strData, this.strData2);	}
-		else if (this.funcType == this.SEND_TRANSFER)
-		{	nRetVal = OT_API_notarizeTransfer(this.serverID, this.nymID, this.accountID, this.accountID2,   this.strData, this.strData2); } // amount and note, for the last two.
-		else if (this.funcType == this.GET_MARKET_LIST)
-		{	nRetVal = OT_API_getMarketList(this.serverID, this.nymID);	}
-		else if (this.funcType == this.GET_MARKET_OFFERS)
-		{	nRetVal = OT_API_getMarketOffers(this.serverID, this.nymID, this.strData, this.strData2);	}
-		else if (this.funcType == this.GET_MARKET_RECENT_TRADES)
-		{	nRetVal = OT_API_getMarketRecentTrades(this.serverID, this.nymID, this.strData);	}
-		else if (this.funcType == this.CREATE_MARKET_OFFER)
-		{	nRetVal = OT_API_issueMarketOffer(this.serverID, this.nymID, this.accountID, this.accountID2, 
-                        this.strData, this.strData2, this.strData3, this.strData4, this.bBool);
-		}
-		else
-		{
-			OT_API_Output(0, "ERROR! OTAPI_Func.Send() activated, with bad function type: ");
-			OT_API_Output(0, concat(to_string(this.funcType),"\n"));
-		}
-        
+        switch (this.funcType)
+        {
+            case (this.CHECK_USER)
+            {	nRetVal = OT_API_checkUser(this.serverID, this.nymID, this.nymID2);	 break;}
+            case (this.CREATE_USER_ACCT)
+            {	nRetVal = OT_API_createUserAccount(this.serverID, this.nymID);	 break;}
+            case (this.DELETE_USER_ACCT)
+            {	nRetVal = OT_API_deleteUserAccount(this.serverID, this.nymID);	 break;}
+            case (this.SEND_USER_MESSAGE)
+            {	nRetVal = OT_API_sendUserMessage(this.serverID, this.nymID, this.nymID2, this.strData, this.strData2);	 break;}
+            case (this.SEND_USER_INSTRUMENT)
+            {	nRetVal = OT_API_sendUserInstrument(this.serverID, this.nymID, this.nymID2, this.strData, this.strData2);	 break;}
+            case (this.GET_NYM_MARKET_OFFERS)
+            {	nRetVal = OT_API_getNym_MarketOffers(this.serverID, this.nymID);	 break;}
+            case (this.CREATE_ASSET_ACCT)
+            {	nRetVal = OT_API_createAssetAccount(this.serverID, this.nymID, this.assetID);	 break;}
+            case (this.DELETE_ASSET_ACCT)
+            {	nRetVal = OT_API_deleteAssetAccount(this.serverID, this.nymID, this.accountID);	 break;}
+
+            case (this.EXCHANGE_BASKET)
+            {	nRetVal = OT_API_exchangeBasket(this.serverID, this.nymID, this.assetID, this.basket, this.bBool); break;	}
+            case (this.GET_CONTRACT)
+            {	nRetVal = OT_API_getContract(this.serverID, this.nymID, this.assetID);	 break; }
+            case (this.GET_MINT)
+            {	nRetVal = OT_API_getMint(this.serverID, this.nymID, this.assetID); break;	}
+            case (this.QUERY_ASSET_TYPES)
+            {	nRetVal = OT_API_queryAssetTypes(this.serverID, this.nymID, this.strData);	 break; }
+            case (this.ISSUE_ASSET_TYPE)
+            {	nRetVal = OT_API_issueAssetType(this.serverID, this.nymID, this.strData);  break;	}
+            case (this.ISSUE_BASKET)
+            {	nRetVal = OT_API_issueBasket(this.serverID, this.nymID, this.basket);	 break; }
+            case (this.EXCHANGE_CASH)
+            {	nRetVal = OT_API_exchangePurse(this.serverID, this.assetID, this.nymID, this.strData);	 break; }
+            case (this.CANCEL_MARKET_OFFER)
+            {	nRetVal = OT_API_cancelMarketOffer(this.serverID, this.nymID, this.accountID, this.strData);	 break; }
+            case (this.CANCEL_PAYMENT_PLAN)
+            {	nRetVal = OT_API_cancelPaymentPlan(this.serverID, this.nymID, this.accountID, this.strData);	 break; }
+            case (this.GET_BOX_RECEIPT)
+            {	nRetVal = OT_API_getBoxReceipt(this.serverID, this.nymID, this.accountID, nData, this.strData);  break; }
+            case (this.PROCESS_INBOX)
+            {	nRetVal = OT_API_processInbox(this.serverID, this.nymID, this.accountID, this.strData);	 break; }
+            case (this.DEPOSIT_CASH)
+            {	nRetVal = OT_API_notarizeDeposit(this.serverID, this.nymID, this.accountID, this.strData);	 break; }
+            case (this.DEPOSIT_CHEQUE)
+            {	nRetVal = OT_API_depositCheque(this.serverID, this.nymID, this.accountID, this.strData);	 break; }
+            case (this.DEPOSIT_PAYMENT_PLAN)
+            {	nRetVal = OT_API_depositPaymentPlan(this.serverID, this.nymID, this.strData);	 break; }
+            case (this.WITHDRAW_CASH)
+            {	nRetVal = OT_API_notarizeWithdrawal(this.serverID, this.nymID, this.accountID, this.strData);	 break; }
+            case (this.WITHDRAW_VOUCHER)
+            {	nRetVal = OT_API_withdrawVoucher(this.serverID, this.nymID, this.accountID, this.nymID2, this.strData, this.strData2);	 break; }
+            case (this.SEND_TRANSFER)
+            {	nRetVal = OT_API_notarizeTransfer(this.serverID, this.nymID, this.accountID, this.accountID2,   this.strData, this.strData2);  break; } // amount and note, for the last two.
+            case (this.GET_MARKET_LIST)
+            {	nRetVal = OT_API_getMarketList(this.serverID, this.nymID);	 break; }
+            case (this.GET_MARKET_OFFERS)
+            {	nRetVal = OT_API_getMarketOffers(this.serverID, this.nymID, this.strData, this.strData2); break;  break;	}
+            case (this.GET_MARKET_RECENT_TRADES)
+            {	nRetVal = OT_API_getMarketRecentTrades(this.serverID, this.nymID, this.strData); break;	}
+            case (this.CREATE_MARKET_OFFER)
+            {	nRetVal = OT_API_issueMarketOffer(this.serverID, this.nymID, this.accountID, this.accountID2, 
+                                                  this.strData, this.strData2, this.strData3, this.strData4, this.bBool); break;
+            }
+            default
+            {
+                OT_API_Output(0, "ERROR! OTAPI_Func.Send() activated, with bad function type: ");
+                OT_API_Output(0, concat(to_string(this.funcType),"\n"));
+                 break;
+            }
+        }
         // Here we're returning this value.
         //
         nRetVal

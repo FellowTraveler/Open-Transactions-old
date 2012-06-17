@@ -6,7 +6,7 @@
     if (VerifyExists("MyNym"))
     {
 
-        OT_API_Output(0, "Please enter a contract you wish to add your signature to, followed by an EOF or a ~ by itself on a blank line:\n\n")
+        OT_API_Output(0, "Please enter an already-signed contract you wish to add your signature to, followed by an EOF or a ~ by itself on a blank line:\n\n")
 
         // The reason we accept the tilde ~ on a blank line by itself, is because
         // the EOF, while it works, causes us not to be able to read any more input

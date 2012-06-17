@@ -1,0 +1,149 @@
+#!/usr/bin/env ot
+
+/*
+ call OT_API_LoadInbox() to load the inbox ledger from local storage.
+ 
+ During this time, your user has the opportunity to peruse the inbox, and to decide which transactions therein he wishes to accept or reject. Usually the inbox is display on the screen, then the user selects various items to accept or reject, and then the user clicks “Process Inbox” and then you do this:
+ Then call OT_API_Ledger_CreateResponse() in order to create a ‘response’ ledger for that inbox, which will be sent to the server to signal your responses to the various inbox transactions.
+ Then call OT_API_Ledger_GetCount() (pass it the inbox) to find out how many transactions are inside of it. Use that count to LOOP through them…
+ Use OT_API_Ledger_GetTransactionByIndex() to grab each transaction as you iterate through the inbox. (There are various introspection functions you can use in the API here if you wish to display the inbox items on the screen for the user…) 
+ Next call OT_API_Transaction_CreateResponse() for each transaction in the inbox, to create a response to it, accepting or rejecting it. This function creates the response and adds it to the response ledger.
+ Next, call OT_API_Ledger_FinalizeResponse() which will create a Balance Agreement for the ledger.
+ Finally, call OT_API_processInbox() to send your message to the server and process the various items.
+ 
+ If the message was successful, then use OT_API_Message_GetBalanceAgreementSuccess() and OT_API_Message_GetTransactionSuccess() as described above in the deposit cash instructions.
+ */
+// ------------------------------
+//
+// PROCESS INBOX, ACCEPTING ALL ITEMS WITHIN...
+// 
+// Load an asset account's inbox from local storage and iterate through
+// the items inside, and fire off a server message accepting them all.
+//
+
+def accept_entire_inbox()
+{
+    // ---------------------------------------------
+    
+    var strMyNymID = OT_API_GetAccountWallet_NymID(MyAcct)
+    
+    if (!VerifyStringVal(strMyNymID))
+    {
+        OT_API_Output(0, "Failure: Unable to find NymID based on myacct. Use: --myacct ACCT_ID\n")
+        OT_API_Output(0, "The designated asset account must be yours. OT will find the Nym based on the account.\n\n")
+        return (-1)
+    }
+    // ----------------------------------------------
+    
+    var strInbox = OT_API_LoadInbox(Server, strMyNymID, MyAcct); // Returns NULL, or an inbox.
+
+	if (!VerifyStringVal(strInbox))
+	{
+		OT_API_Output(0, "\n\n OT_API_LoadInbox: Failed.\n\n")
+        return 0
+	}
+	else	// Success!
+	{
+		OT_API_Output(0, "\n\n") // stderr
+//		print(strInbox)          // stdout
+        
+        var nCount = OT_API_Ledger_GetCount(Server, strMyNymID, MyAcct, strInbox)
+
+        if (VerifyIntVal(nCount) && (nCount > 0))
+        {
+            var strResponseLEDGER = OT_API_Ledger_CreateResponse(Server, strMyNymID, MyAcct, strInbox)
+            
+            if (!VerifyStringVal(strResponseLEDGER))
+            {
+                OT_API_Output(0, "\n\nFailure: OT_API_Ledger_CreateResponse returned NULL.\n")
+                return (-1)
+            }
+            // ----------------------------------
+            for (var nIndex = 0; nIndex < nCount; ++nIndex)
+            {
+                var strTrans              = OT_API_Ledger_GetTransactionByIndex(Server, strMyNymID, MyAcct, strInbox, nIndex)                
+                var strNEW_ResponseLEDGER = OT_API_Transaction_CreateResponse(Server, strMyNymID, MyAcct, strResponseLEDGER, strTrans, true) // accept = true  
+                
+                if (!VerifyStringVal(strNEW_ResponseLEDGER))
+                {
+                    OT_API_Output(0, "\n\nFailure: OT_API_Transaction_CreateResponse returned NULL.\n")
+                    return (-1)
+                }
+                strResponseLEDGER = strNEW_ResponseLEDGER
+            } // for
+            // ----------------------------------
+            var strFinalizedResponse = OT_API_Ledger_FinalizeResponse(Server, strMyNymID, MyAcct, strResponseLEDGER)
+            
+            if (!VerifyStringVal(strFinalizedResponse))
+            {
+                OT_API_Output(0, "\n\nFailure: OT_API_Ledger_FinalizeResponse returned NULL.\n")
+                return (-1)
+            }
+            // ***************************************************************
+
+            // Instantiate the "OT Made Easy" object.
+            //
+            var madeEasy	= OT_ME()
+
+            // Server communications are handled here...
+            //
+            var strResponse = madeEasy.process_inbox(Server, strMyNymID, MyAcct, strFinalizedResponse) 
+            var strAttempt  = "process_inbox"
+            
+            // ***************************************************************
+
+            var nInterpretReply = InterpretTransactionMsgReply(Server, strMyNymID, MyAcct, strAttempt, strResponse)
+            
+            if (1 == nInterpretReply)
+            {    
+                // Download all the intermediary files (account balance, inbox, outbox, etc)
+                // since they have probably changed from this operation.
+                //
+                var bRetrieved = madeEasy.retrieve_account(Server, strMyNymID, MyAcct, true) //bForceDownload defaults to false.
+                
+                OT_API_Output(0, "\n\nServer response ("+strAttempt+"): SUCCESS processing/accepting entire inbox!\n")
+                OT_API_Output(0, (bRetrieved ? "Success" : "Failed") + " retrieving intermediary files for account.\n")
+            }
+                
+            // ***************************************************************
+            //
+            // Success!
+            //
+            return nInterpretReply  
+            
+        } // VerifyIntVal (nCount) && nCount > 0     
+        
+        OT_API_Output(0, "(The inbox is empty.)\n\n")
+    }
+    
+    0
+}
+
+
+
+def main_accept_inbox()
+{
+    if (VerifyExists("Server") && VerifyExists("MyAcct"))
+    {	
+        return accept_entire_inbox()
+    } 
+    
+    return 0
+}
+
+
+// Done!
+main_accept_inbox()
+
+
+
+
+
+
+
+
+
+
+
+
+

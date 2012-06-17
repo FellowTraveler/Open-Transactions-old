@@ -2,8 +2,13 @@
 
 var current_time = OT_API_GetTime()
 
-OT_API_Output(0, "The current time (in seconds) is: " + current_time + "\n" )
+if (VerifyStringVal(current_time))
+{ OT_API_Output(0, "\n\nThe current time (in seconds) is: "); print (current_time); }
+else
+{ OT_API_Output(0, "\nError calling OT_API_GetTime!\n")  } 
 
+OT_API_Output(0, "\n")
+ 
 // Without the below '1', we'd see a boxed_cast exception, 
 // since OT expects a return value.
 

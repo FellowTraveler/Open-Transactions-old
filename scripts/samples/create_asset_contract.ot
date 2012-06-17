@@ -1,5 +1,7 @@
 #!/usr/bin/env ot
 
+// bool OTContract::CreateContract(OTString & strContract, OTPseudonym & theSigner)
+
 if (VerifyExists("MyNym"))
 {
 	OT_API_Output(0, "Please enter the XML contents for the contract, followed by an EOF or a ~ by itself on a blank line:\n\n")

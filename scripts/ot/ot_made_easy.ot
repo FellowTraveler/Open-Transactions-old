@@ -33,12 +33,12 @@
 //
     def OT_ME::register_nym(SERVER_ID, NYM_ID) 
 	{
-		var ot_Msg := OTAPI_Func();
+		var ot_Msg := OTAPI_Func()
 		// -------------------------
-		var theRequest := OTAPI_Func(ot_Msg.CREATE_USER_ACCT, SERVER_ID, NYM_ID);
-		var	strResponse = theRequest.SendRequest(theRequest, "CREATE_USER_ACCT");
+		var theRequest := OTAPI_Func(ot_Msg.CREATE_USER_ACCT, SERVER_ID, NYM_ID)
+		var	strResponse = theRequest.SendRequest(theRequest, "CREATE_USER_ACCT")
 
-		return strResponse;
+		return strResponse
     }
 	
 // -----------------------------------------------------------------------------------------------
@@ -46,12 +46,43 @@
 //
     def OT_ME::check_user(SERVER_ID, NYM_ID, TARGET_NYM_ID) 
     {
-        var ot_Msg := OTAPI_Func();
+        var ot_Msg := OTAPI_Func()
         // -------------------------
-        var theRequest := OTAPI_Func(ot_Msg.CHECK_USER, SERVER_ID, NYM_ID, TARGET_NYM_ID);
-        var	strResponse = theRequest.SendRequest(theRequest, "CHECK_USER");
+        var theRequest := OTAPI_Func(ot_Msg.CHECK_USER, SERVER_ID, NYM_ID, TARGET_NYM_ID)
+        var	strResponse = theRequest.SendRequest(theRequest, "CHECK_USER")
         
-        return strResponse;
+        return strResponse
+    }
+
+// -----------------------------------------------------------------------------------------------
+//  CREATE NYM (pseudonym)
+//  returns new Nym ID
+//
+    def OT_ME::create_pseudonym(nKeybits) 
+    {
+        var strLocation = "OT_ME::create_pseudonym"
+        // -------------------        
+        var strNymID = OT_API_CreateNym(nKeybits)  // returns new Nym ID
+        
+        if (!VerifyStringVal(strNymID))
+        {
+            OT_API_Output(0, strLocation+": Failed in OT_API_CreateNym(keybits == " + nKeybits.to_string() + ")\n")
+        }
+        // -------------------    
+        return strNymID
+    }
+
+// -----------------------------------------------------------------------------------------------
+//  ISSUE ASSET TYPE
+//
+    def OT_ME::issue_asset_type(SERVER_ID, NYM_ID, ASSET_TYPE_ID) 
+    {
+        var ot_Msg := OTAPI_Func()
+        // -------------------------
+        var theRequest := OTAPI_Func(ot_Msg.ISSUE_ASSET_TYPE, SERVER_ID, NYM_ID, ASSET_TYPE_ID)
+        var	strResponse = theRequest.SendRequest(theRequest, "ISSUE_ASSET_TYPE")
+        
+        return strResponse
     }
 
 // -----------------------------------------------------------------------------------------------
@@ -59,12 +90,75 @@
 //
     def OT_ME::create_asset_acct(SERVER_ID, NYM_ID, ASSET_TYPE_ID) 
     {
-        var ot_Msg := OTAPI_Func();
+        var ot_Msg := OTAPI_Func()
         // -------------------------
-        var theRequest := OTAPI_Func(ot_Msg.CREATE_ASSET_ACCT, SERVER_ID, NYM_ID, ASSET_TYPE_ID);
-        var	strResponse = theRequest.SendRequest(theRequest, "CREATE_ASSET_ACCT");
+        var theRequest := OTAPI_Func(ot_Msg.CREATE_ASSET_ACCT, SERVER_ID, NYM_ID, ASSET_TYPE_ID)
+        var	strResponse = theRequest.SendRequest(theRequest, "CREATE_ASSET_ACCT")
         
-        return strResponse;
+        return strResponse
+    }
+
+// -----------------------------------------------------------------------------------------------
+
+    def OT_ME::stat_asset_account(ACCOUNT_ID)
+    {    
+        var strName          = OT_API_GetAccountWallet_Name(ACCOUNT_ID)
+        var strNymID         = OT_API_GetAccountWallet_NymID(ACCOUNT_ID)
+        var strServerID      = OT_API_GetAccountWallet_ServerID(ACCOUNT_ID)
+        var strAssetID       = OT_API_GetAccountWallet_AssetTypeID(ACCOUNT_ID)
+        var strBalance       = OT_API_GetAccountWallet_Balance(ACCOUNT_ID)
+        var strAssetTypeName = OT_API_GetAssetType_Name(strAssetID)
+        var strNymName       = OT_API_GetNym_Name(strNymID)
+        var strServerName    = OT_API_GetServer_Name(strServerID)
+        
+        return("   Balance: " + strBalance + "   (" + strName + ")\nAccount ID: " + ACCOUNT_ID + "\nAsset Type: " + strAssetID + " ( " + strAssetTypeName + " )\nOwner Nym:  " + strNymID + " ( " + strNymName + " )\nServer:     " + strServerID + " ( " + strServerName + " )")
+    }
+
+
+// -----------------------------------------------------------------------------------------------
+// DOWNLOAD ACCOUNT FILES  (account balance, inbox, outbox, etc)
+//
+
+    // returns true/false
+    def OT_ME::retrieve_account(SERVER_ID, NYM_ID, ACCOUNT_ID) 
+    {
+        var bForceDownload = false
+        return this.retrieve_account(SERVER_ID, NYM_ID, ACCOUNT_ID, bForceDownload)
+    }
+
+    // returns true/false
+    def OT_ME::retrieve_account(SERVER_ID, NYM_ID, ACCOUNT_ID, bForceDownload) // bForceDownload=false
+    {
+        var MsgUtil	= Utility()
+        // -------------------------
+        var bResponse = MsgUtil.getIntermediaryFiles(SERVER_ID, NYM_ID, ACCOUNT_ID, bForceDownload)
+        return bResponse
+    }
+
+// --------------------------------------------------------------
+// SEND TRANSFER  -- TRANSACTION
+
+    def OT_ME::send_transfer(SERVER_ID, NYM_ID, ACCT_FROM, ACCT_TO, AMOUNT, NOTE) 
+    {
+        var ot_Msg := OTAPI_Func()
+        // -------------------------
+        var theRequest := OTAPI_Func(ot_Msg.SEND_TRANSFER, SERVER_ID, NYM_ID, ACCT_FROM, ACCT_TO, AMOUNT, NOTE)
+        var	strResponse = theRequest.SendTransaction(theRequest, "SEND_TRANSFER")
+        
+        return strResponse
+    }
+
+// -----------------------------------------------------------------------------------------------
+// PROCESS INBOX  -- TRANSACTION
+
+    def OT_ME::process_inbox(SERVER_ID, NYM_ID, ACCOUNT_ID, RESPONSE_LEDGER) 
+    {
+        var ot_Msg := OTAPI_Func()
+        // -------------------------
+        var theRequest := OTAPI_Func(ot_Msg.PROCESS_INBOX, SERVER_ID, NYM_ID, ACCOUNT_ID, RESPONSE_LEDGER)
+        var	strResponse = theRequest.SendTransaction(theRequest, "PROCESS_INBOX")
+        
+        return strResponse
     }
 
 // -----------------------------------------------------------------------------------------------
@@ -74,17 +168,18 @@
 	//
 	def OT_ME::load_public_key(NYM_ID)	// from local storage.
 	{
-		var ot_Msg := OTAPI_Func();
+		var ot_Msg := OTAPI_Func()
 		// -------------------------		
-		var strPubkey = OT_API_LoadPubkey(NYM_ID);		// This version is for "other people"
+		var strPubkey = OT_API_LoadPubkey(NYM_ID)		// This version is for "other people"
 		// -------------------------
 		if (!VerifyStringVal(strPubkey))
 		{
-			strPubkey = OT_API_LoadUserPubkey(NYM_ID);	// This version is for "the user sitting at the machine."
+			strPubkey = OT_API_LoadUserPubkey(NYM_ID)	// This version is for "the user sitting at the machine."
 		}
-		return strPubkey; // might be null.
+		return strPubkey // might be null.
 	}
-	// ---------------------------
+	// -------------------------------------------------------
+    //
 	// load_or_retrieve_pubkey()
 	//
 	// Load TARGET_NYM_ID from local storage. 
@@ -94,60 +189,60 @@
 	//
 	def OT_ME::load_or_retrieve_pubkey(SERVER_ID, NYM_ID, TARGET_NYM_ID)	
 	{
-		var ot_Msg := OTAPI_Func();
+		var ot_Msg := OTAPI_Func()
 		// -------------------------
         
-		var strPubkey = this.load_public_key(TARGET_NYM_ID);
+		var strPubkey = this.load_public_key(TARGET_NYM_ID)
 
 		// -------------------------
 		if (!VerifyStringVal(strPubkey))
 		{
-			var strResponse = this.check_user(SERVER_ID, NYM_ID, TARGET_NYM_ID);
+			var strResponse = this.check_user(SERVER_ID, NYM_ID, TARGET_NYM_ID)
 			
 			if (1 == VerifyMessageSuccess(strResponse))
 			{
-				strPubkey = this.load_public_key(TARGET_NYM_ID);			
+				strPubkey = this.load_public_key(TARGET_NYM_ID)		
 			}
 		}
 
 		return strPubkey; // might be null.
 	}
-	// ---------------------------
+// -----------------------------------------------------------------------------------------------
 	
 	// SEND USER MESSAGE  (requires recipient public key)
 	//
     def OT_ME::send_user_msg_pubkey(SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, RECIPIENT_PUBKEY, THE_MESSAGE) 
 	{
-		var ot_Msg := OTAPI_Func();        
+		var ot_Msg := OTAPI_Func()      
 		// -------------------------
-		var theRequest := OTAPI_Func(ot_Msg.SEND_USER_MESSAGE, SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, RECIPIENT_PUBKEY, THE_MESSAGE);
-		var	strResponse = theRequest.SendRequest(theRequest, "SEND_USER_MESSAGE");
+		var theRequest := OTAPI_Func(ot_Msg.SEND_USER_MESSAGE, SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, RECIPIENT_PUBKEY, THE_MESSAGE)
+		var	strResponse = theRequest.SendRequest(theRequest, "SEND_USER_MESSAGE")
 
-		return strResponse;
+		return strResponse
     }
 	// ---------------------------
 	
-	// SEND USER MESSAGE	(only requires recipient's ID, and retrieves pubkey automatically)
+	// SEND USER MESSAGE  (only requires recipient's ID, and retrieves pubkey automatically)
 	//
     def OT_ME::send_user_msg(SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, THE_MESSAGE) 
 	{
-		var ot_Msg := OTAPI_Func();
+		var ot_Msg := OTAPI_Func()
 		// -------------------------
                 
-		var strRecipientPubkey = this.load_or_retrieve_pubkey(SERVER_ID, NYM_ID, RECIPIENT_NYM_ID);		
+		var strRecipientPubkey = this.load_or_retrieve_pubkey(SERVER_ID, NYM_ID, RECIPIENT_NYM_ID)
         
 		// -------------------------
 		if (!VerifyStringVal(strRecipientPubkey))
 		{
-			OT_API_Output(0, "OT_ME::send_user_msg: Unable to load or retrieve public key for recipient: ");
-			OT_API_Output(0, concat(RECIPIENT_NYM_ID,"\n"));
+			OT_API_Output(0, "OT_ME::send_user_msg: Unable to load or retrieve public key for recipient: ")
+			OT_API_Output(0, concat(RECIPIENT_NYM_ID,"\n"))
 			return strRecipientPubkey; // basically this means "return null".
 		}
 		// -------------------------
         
-        var nTemp = this.send_user_msg_pubkey(SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, strRecipientPubkey, THE_MESSAGE);
+        var nTemp = this.send_user_msg_pubkey(SERVER_ID, NYM_ID, RECIPIENT_NYM_ID, strRecipientPubkey, THE_MESSAGE)
 
-		return nTemp;
+		return nTemp
     }	
 	// --------------------------------------------------------------
 	// GET BOX RECEIPT
@@ -158,10 +253,10 @@
 	//
     def OT_ME::get_box_receipt(SERVER_ID, NYM_ID, ACCT_ID, nBoxType, STR_TRANS_NUM) 
 	{
-		var ot_Msg := OTAPI_Func();
+		var ot_Msg := OTAPI_Func()
 		// -------------------------
-		var theRequest := OTAPI_Func(ot_Msg.GET_BOX_RECEIPT, SERVER_ID, NYM_ID, ACCT_ID, nBoxType, STR_TRANS_NUM);
-		var	strResponse = theRequest.SendRequest(theRequest, "GET_BOX_RECEIPT");
+		var theRequest := OTAPI_Func(ot_Msg.GET_BOX_RECEIPT, SERVER_ID, NYM_ID, ACCT_ID, nBoxType, STR_TRANS_NUM)
+		var	strResponse = theRequest.SendRequest(theRequest, "GET_BOX_RECEIPT")
 
 		return strResponse;
     }
@@ -171,12 +266,12 @@
 	//
     def OT_ME::retrieve_mint(SERVER_ID, NYM_ID, ASSET_ID) 
 	{
-		var ot_Msg := OTAPI_Func();
+		var ot_Msg := OTAPI_Func()
 		// -------------------------
-		var theRequest := OTAPI_Func(ot_Msg.GET_MINT, SERVER_ID, NYM_ID, ASSET_ID);
-		var	strResponse = theRequest.SendRequest(theRequest, "GET_MINT");
+		var theRequest := OTAPI_Func(ot_Msg.GET_MINT, SERVER_ID, NYM_ID, ASSET_ID)
+		var	strResponse = theRequest.SendRequest(theRequest, "GET_MINT")
 
-		return strResponse;
+		return strResponse
     }
 	
 	// --------------------------------------------------------------
@@ -209,7 +304,7 @@
 				OT_API_Output(0, "   Asset ID: " + ASSET_ID + "\n")
 				return strResponse // basically this means "return null".			
 			}
-			strMint = OT_API_LoadMint(SERVER_ID, ASSET_ID);
+			strMint = OT_API_LoadMint(SERVER_ID, ASSET_ID)
 		}
 		
 		if (!VerifyStringVal(strMint))
@@ -221,7 +316,7 @@
 		
 		return strMint
 	}
-	// ---------------------------
+// -----------------------------------------------------------------------------------------------
 	// QUERY ASSET TYPES
 	//
 	// See if some asset types are issued on the server.
@@ -236,49 +331,49 @@
 		return strResponse
     }
 // -----------------------------------------------------------------------------------------------
-	// CREATE MARKET OFFER
+	// CREATE MARKET OFFER  -- TRANSACTION
 
     def OT_ME::create_market_offer(SERVER_ID, NYM_ID, ASSET_ACCT_ID, CURRENCY_ACCT_ID, scale, minIncrement, quantity, price, bSelling) 
 	{
-		var ot_Msg := OTAPI_Func();
+		var ot_Msg := OTAPI_Func()
 		// -------------------------
 //def OTAPI_Func::OTAPI_Func(theType, p_serverID, p_nymID, assetTypeID, assetAccountID, currencyTypeID, currencyAcctID,
 //								scale, minIncrement, quantity, price, bSelling)		// 12 args
 
-		var theRequest := OTAPI_Func(ot_Msg.CREATE_MARKET_OFFER, SERVER_ID, NYM_ID, ASSET_ACCT_ID, CURRENCY_ACCT_ID, scale, minIncrement, quantity, price, bSelling);
-		var	strResponse = theRequest.SendTransaction(theRequest, "CREATE_MARKET_OFFER");
+		var theRequest := OTAPI_Func(ot_Msg.CREATE_MARKET_OFFER, SERVER_ID, NYM_ID, ASSET_ACCT_ID, CURRENCY_ACCT_ID, scale, minIncrement, quantity, price, bSelling)
+		var	strResponse = theRequest.SendTransaction(theRequest, "CREATE_MARKET_OFFER")
 
-		return strResponse;
+		return strResponse
     }
 	
 	// --------------------------------------------------------------
-	// CANCEL MARKET OFFER
+	// CANCEL MARKET OFFER  -- TRANSACTION
 	//	
     def OT_ME::cancel_market_offer(SERVER_ID, NYM_ID, ASSET_ACCT_ID, STR_TRANS_NUM) 
 	{
-		var ot_Msg := OTAPI_Func();
+		var ot_Msg := OTAPI_Func()
 		// -------------------------
 
-		var theRequest := OTAPI_Func(ot_Msg.CANCEL_MARKET_OFFER, SERVER_ID, NYM_ID, ASSET_ACCT_ID, STR_TRANS_NUM);
-		var	strResponse = theRequest.SendTransaction(theRequest, "CANCEL_MARKET_OFFER");
+		var theRequest := OTAPI_Func(ot_Msg.CANCEL_MARKET_OFFER, SERVER_ID, NYM_ID, ASSET_ACCT_ID, STR_TRANS_NUM)
+		var	strResponse = theRequest.SendTransaction(theRequest, "CANCEL_MARKET_OFFER")
 
-		return strResponse;
+		return strResponse
     }
 
 	// --------------------------------------------------------------
-	// CANCEL PAYMENT PLAN
+	// CANCEL PAYMENT PLAN  -- TRANSACTION
 	//
     def OT_ME::cancel_payment_plan(SERVER_ID, NYM_ID, ACCT_ID, STR_TRANS_NUM) 
 	{
-		var ot_Msg := OTAPI_Func();
+		var ot_Msg := OTAPI_Func()
 		// -------------------------
 
-		var theRequest := OTAPI_Func(ot_Msg.CANCEL_PAYMENT_PLAN, SERVER_ID, NYM_ID, ACCT_ID, STR_TRANS_NUM);
-		var	strResponse = theRequest.SendTransaction(theRequest, "CANCEL_PAYMENT_PLAN");
+		var theRequest := OTAPI_Func(ot_Msg.CANCEL_PAYMENT_PLAN, SERVER_ID, NYM_ID, ACCT_ID, STR_TRANS_NUM)
+		var	strResponse = theRequest.SendTransaction(theRequest, "CANCEL_PAYMENT_PLAN")
 
 		return strResponse;
     }
-	// --------------------------------------------------------------
+// -----------------------------------------------------------------------------------------------
 
 
 
@@ -743,27 +838,29 @@
 	 
  /*
   
-  Next ones:  create nym, register nym, issue asset type, send transfer, show purse, withdraw cash, deposit cash, withdraw voucher, deposit cheque, accept entire inbox.
+ DONE:  create nym, register nym, issue asset type, send transfer, accept entire inbox, write cheque.
+  
+  Next ones:  show purse, withdraw cash, deposit cash, withdraw voucher, deposit cheque.
   
  Need to add functions (like check_user above) for all of these:
  
- 	attr OTAPI_Func::CREATE_USER_ACCT (register nym)		
+ 	attr OTAPI_Func::CREATE_USER_ACCT (register nym)DONE		
 	attr OTAPI_Func::DELETE_USER_ACCT               
 	attr OTAPI_Func::CHECK_USER						DONE
 	attr OTAPI_Func::SEND_USER_MESSAGE				DONE
-	attr OTAPI_Func::ISSUE_ASSET_TYPE               
+	attr OTAPI_Func::ISSUE_ASSET_TYPE               DONE
 	attr OTAPI_Func::ISSUE_BASKET                   
 	attr OTAPI_Func::CREATE_ASSET_ACCT				DONE			
 	attr OTAPI_Func::DELETE_ASSET_ACCT              
 	attr OTAPI_Func::EXCHANGE_BASKET                
-	attr OTAPI_Func::PROCESS_INBOX  -- Selected items, as well as option: "all incoming".                
+	attr OTAPI_Func::PROCESS_INBOX                  DONE
 	attr OTAPI_Func::DEPOSIT_CASH                   
 	attr OTAPI_Func::EXCHANGE_CASH                  
 	attr OTAPI_Func::DEPOSIT_CHEQUE                 
 	attr OTAPI_Func::WITHDRAW_VOUCHER               
 	attr OTAPI_Func::WITHDRAW_CASH                  
 	attr OTAPI_Func::GET_CONTRACT                   
-	attr OTAPI_Func::SEND_TRANSFER                  
+	attr OTAPI_Func::SEND_TRANSFER                  DONE
 	attr OTAPI_Func::GET_MARKET_LIST                
 	attr OTAPI_Func::CREATE_MARKET_OFFER			DONE
 	attr OTAPI_Func::CANCEL_MARKET_OFFER			DONE
@@ -785,6 +882,7 @@
   --- Stat cash purse           
   --- Stat account              DONE
   --- Stat account inbox        DONE
+  --- Stat account outbox       DONE
   --- Stat payment inbox        
   --- Stat record box           
   --- encode / decode           DONE
@@ -794,13 +892,13 @@
   --- Create asset contract     DONE
   --- Create server contract    DONE
   --- Create symmetric key      DONE
-  --- Create pseudonym      
+  --- Create pseudonym          DONE
   --- Write cheque              DONE
   --- Verify last acct receipt  
-  --- Refresh (download latest) 
-  --- Refresh Nym
-  --- Propose Payment Plan
-  --- Confirm Payment Plan
+  --- Refresh (download latest) DONE
+  --- Refresh Nym               
+  --- Propose Payment Plan      
+  --- Confirm Payment Plan      
   --- Balance                   DONE
   --- 
   

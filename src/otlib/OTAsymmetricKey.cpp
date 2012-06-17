@@ -620,6 +620,7 @@ OPENSSL_CALLBACK_FUNC(souped_up_pass_cb)
     const char * szFunc = "OPENSSL_CALLBACK_FUNC(souped_up_pass_cb)";
     // -----------------------------------------------------
     OTPasswordData * pPWData = NULL;    
+//  OT_ASSERT(NULL != buf); // apparently it CAN be NULL sometimes.
     OT_ASSERT(NULL != userdata);
     pPWData  = static_cast<OTPasswordData *>(userdata);
     const std::string str_userdata = pPWData->GetDisplayString();    
@@ -762,7 +763,7 @@ OPENSSL_CALLBACK_FUNC(souped_up_pass_cb)
     {
         *pMasterPW = thePassword;
     }
-    else
+    else if (NULL != buf)
     {
         // if too long, truncate
         if (len > size) 
@@ -778,6 +779,10 @@ OPENSSL_CALLBACK_FUNC(souped_up_pass_cb)
                                 theLength); // length of source.
                                //bool bZeroSource=false); // No need to set this true, since OTPassword (source) already zeros its memory automatically.
         
+    }
+    else // should never happen
+    {
+//      OT_ASSERT_MSG(false, "This should never happen. (souped_up_pass_cb");
     }
 	return len;
 }
