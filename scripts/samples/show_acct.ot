@@ -1,0 +1,44 @@
+#!/usr/bin/env ot
+
+
+def stat_account(strID)
+{
+    // stderr
+    OT_API_Output(0, "\n\n------------------------------------------------------------------\n")
+
+    var strName          = OT_API_GetAccountWallet_Name(strID)
+    var strNymID         = OT_API_GetAccountWallet_NymID(strID)
+    var strServerID      = OT_API_GetAccountWallet_ServerID(strID)
+    var strAssetID       = OT_API_GetAccountWallet_AssetTypeID(strID)
+    var strBalance       = OT_API_GetAccountWallet_Balance(strID)
+    var strAssetTypeName = OT_API_GetAssetType_Name(strAssetID)
+    var strNymName       = OT_API_GetNym_Name(strNymID)
+    var strServerName    = OT_API_GetServer_Name(strServerID)
+    
+    // stdout
+    print("   Balance: " + strBalance + "   (" + strName + ")")
+    print("Account ID: " + strID + "")
+    print("Asset Type: " + strAssetID + " ( " + strAssetTypeName + " )")
+    print("Owner Nym:  " + strNymID + " ( " + strNymName + " )")
+    print("Server:     " + strServerID + " ( " + strServerName + " )") 
+    
+    // stderr
+    OT_API_Output(0, "\n")
+}
+
+
+
+def stat_main() 
+{
+    if (VerifyExists("MyAcct"))
+    {	
+        stat_account(MyAcct)
+        return 1
+    }
+    return 0
+}
+
+
+stat_main()
+
+

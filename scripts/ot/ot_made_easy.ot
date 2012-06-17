@@ -742,9 +742,12 @@
 	 
 	 
  /*
+  
+  Next ones:  create nym, register nym, issue asset type, send transfer, show purse, withdraw cash, deposit cash, withdraw voucher, deposit cheque, accept entire inbox.
+  
  Need to add functions (like check_user above) for all of these:
  
- 	attr OTAPI_Func::CREATE_USER_ACCT				DONE
+ 	attr OTAPI_Func::CREATE_USER_ACCT (register nym)		
 	attr OTAPI_Func::DELETE_USER_ACCT               
 	attr OTAPI_Func::CHECK_USER						DONE
 	attr OTAPI_Func::SEND_USER_MESSAGE				DONE
@@ -780,7 +783,8 @@
   in otapi.ot.
   --- stat wallet               DONE
   --- Stat cash purse           
-  --- Stat account inbox        
+  --- Stat account              DONE
+  --- Stat account inbox        DONE
   --- Stat payment inbox        
   --- Stat record box           
   --- encode / decode           DONE
@@ -790,13 +794,14 @@
   --- Create asset contract     DONE
   --- Create server contract    DONE
   --- Create symmetric key      DONE
-  --- Write cheque
+  --- Create pseudonym      
+  --- Write cheque              DONE
   --- Verify last acct receipt  
   --- Refresh (download latest) 
   --- Refresh Nym
   --- Propose Payment Plan
   --- Confirm Payment Plan
-  --- Balance
+  --- Balance                   DONE
   --- 
   
   ------ END TANGENT -------------------------------------

@@ -1,0 +1,26 @@
+#!/usr/bin/env ot
+
+def account_balance(strID)
+{
+    var strName          = OT_API_GetAccountWallet_Name(strID)
+    var strBalance       = OT_API_GetAccountWallet_Balance(strID)
+        
+    OT_API_Output(0, "\n    Balance: ") //stderr
+    print(strBalance) // stdout
+    OT_API_Output(0, strID + "   (" + strName + ")\n\n") //stderr
+}
+
+def balance_main() 
+{
+    if (VerifyExists("MyAcct"))
+    {	
+        account_balance(MyAcct)
+        return 1
+    }
+    return 0
+}
+
+
+balance_main()
+
+

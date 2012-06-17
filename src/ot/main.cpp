@@ -1298,46 +1298,102 @@ void CollectDefaultedCLValues(AnyOption *opt,
 {
     OT_ASSERT(NULL != opt);
     
-    cerr << endl;
+    OT_API_Output(1, "\n");
     
     // First we pre-set all the values based on the defaults from the options file.
     //
     if( opt->getValue( "defaultserver" ) != NULL )
-        cerr << "Server default: " << (str_ServerID = opt->getValue( "defaultserver" )) << endl;
+    {
+//      cerr << "Server default: " << (str_ServerID = opt->getValue( "defaultserver" )) << endl;        
+        str_ServerID = opt->getValue( "defaultserver" );
+        OTLog::vOutput(1, "Server default: %s \n", str_ServerID.c_str());
+    }
 
     if( opt->getValue( "defaultmyacct" ) != NULL )
-        cerr << "MyAcct default: " << (str_MyAcct = opt->getValue( "defaultmyacct" )) << endl;
+    {
+//      cerr << "MyAcct default: " << (str_MyAcct = opt->getValue( "defaultmyacct" )) << endl;
+        str_MyAcct = opt->getValue( "defaultmyacct" );
+        OTLog::vOutput(1, "MyAcct default: %s \n", str_MyAcct.c_str());
+    }
     if( opt->getValue( "defaultmynym" ) != NULL )
-        cerr << "MyNym default: " << (str_MyNym = opt->getValue( "defaultmynym" )) << endl;
+    {
+//      cerr << "MyNym default: " << (str_MyNym = opt->getValue( "defaultmynym" )) << endl;
+        str_MyNym = opt->getValue( "defaultmynym" );
+        OTLog::vOutput(1, "MyNym default: %s \n", str_MyNym.c_str());
+    }
     if( opt->getValue( "defaultmypurse" ) != NULL )
-        cerr << "MyPurse default: " << (str_MyPurse = opt->getValue( "defaultmypurse" )) << endl;
+    {
+//      cerr << "MyPurse default: " << (str_MyPurse = opt->getValue( "defaultmypurse" )) << endl;
+        str_MyPurse = opt->getValue( "defaultmypurse" );
+        OTLog::vOutput(1, "MyPurse default: %s \n", str_MyPurse.c_str());
+    }
 
     if( opt->getValue( "defaulthisacct" ) != NULL )
-        cerr << "HisAcct default: " << (str_HisAcct = opt->getValue( "defaulthisacct" )) << endl;
+    {
+//      cerr << "HisAcct default: " << (str_HisAcct = opt->getValue( "defaulthisacct" )) << endl;
+        str_HisAcct = opt->getValue( "defaulthisacct" );
+        OTLog::vOutput(1, "HisAcct default: %s \n", str_HisAcct.c_str());
+    }
     if( opt->getValue( "defaulthisnym" ) != NULL )
-        cerr << "HisNym default: " << (str_HisNym = opt->getValue( "defaulthisnym" )) << endl;
+    {
+//      cerr << "HisNym default: " << (str_HisNym = opt->getValue( "defaulthisnym" )) << endl;
+        str_HisNym = opt->getValue( "defaulthisnym" );
+        OTLog::vOutput(1, "HisNym default: %s \n", str_HisNym.c_str());
+    }
     if( opt->getValue( "defaulthispurse" ) != NULL )
-        cerr << "HisPurse default: " << (str_HisPurse = opt->getValue( "defaulthispurse" )) << endl;
+    {
+//      cerr << "HisPurse default: " << (str_HisPurse = opt->getValue( "defaulthispurse" )) << endl;
+        str_HisPurse = opt->getValue( "defaulthispurse" );
+        OTLog::vOutput(1, "HisPurse default: %s \n", str_HisPurse.c_str());
+    }
 
     // --------------
     // Next, we overwrite those with any that were passed in on the command line.
 
     if( opt->getValue( "server" ) != NULL )
-        cerr << "Server from command-line: " << (str_ServerID = opt->getValue( "server" )) << endl;
+    {
+//      cerr << "Server from command-line: " << (str_ServerID = opt->getValue( "server" )) << endl;
+        str_ServerID = opt->getValue( "server" );
+        OTLog::vOutput(1, "Server from command-line: %s \n", str_ServerID.c_str());
+    }
 
     if( opt->getValue( "myacct" ) != NULL )
-        cerr << "MyAcct from command-line: " << (str_MyAcct = opt->getValue( "myacct" )) << endl;
+    {        
+//      cerr << "MyAcct from command-line: " << (str_MyAcct = opt->getValue( "myacct" )) << endl;
+        str_MyAcct = opt->getValue( "myacct" );
+        OTLog::vOutput(1, "MyAcct from command-line: %s \n", str_MyAcct.c_str());
+    }
     if( opt->getValue( "mynym" ) != NULL )
-        cerr << "MyNym from command-line: " << (str_MyNym = opt->getValue( "mynym" )) << endl;
+    {
+//      cerr << "MyNym from command-line: " << (str_MyNym = opt->getValue( "mynym" )) << endl;
+        str_MyNym = opt->getValue( "mynym" );
+        OTLog::vOutput(1, "MyNym from command-line: %s \n", str_MyNym.c_str());
+    }
     if( opt->getValue( "mypurse" ) != NULL )
-        cerr << "MyPurse from command-line: " << (str_MyPurse = opt->getValue( "mypurse" )) << endl;
+    {
+//      cerr << "MyPurse from command-line: " << (str_MyPurse = opt->getValue( "mypurse" )) << endl;
+        str_MyPurse = opt->getValue( "mypurse" );
+        OTLog::vOutput(1, "MyPurse from command-line: %s \n", str_MyPurse.c_str());
+    }
 
     if( opt->getValue( "hisacct" ) != NULL )
-        cerr << "HisAcct from command-line: " << (str_HisAcct = opt->getValue( "hisacct" )) << endl;
+    {
+//      cerr << "HisAcct from command-line: " << (str_HisAcct = opt->getValue( "hisacct" )) << endl;
+        str_HisAcct = opt->getValue( "hisacct" );
+        OTLog::vOutput(1, "HisAcct from command-line: %s \n", str_HisAcct.c_str());
+    }
     if( opt->getValue( "hisnym" ) != NULL )
-        cerr << "HisNym from command-line: " << (str_HisNym = opt->getValue( "hisnym" )) << endl;
+    {
+//      cerr << "HisNym from command-line: " << (str_HisNym = opt->getValue( "hisnym" )) << endl;
+        str_HisNym = opt->getValue( "hisnym" );
+        OTLog::vOutput(1, "HisNym from command-line: %s \n", str_HisNym.c_str());
+    }
     if( opt->getValue( "hispurse" ) != NULL )
-        cerr << "HisPurse from command-line: " << (str_HisPurse = opt->getValue( "hispurse" )) << endl;
+    {
+//      cerr << "HisPurse from command-line: " << (str_HisPurse = opt->getValue( "hispurse" )) << endl;
+        str_HisPurse = opt->getValue( "hispurse" );
+        OTLog::vOutput(1, "HisPurse from command-line: %s \n", str_HisPurse.c_str());
+    }
 }
 
 
@@ -1647,12 +1703,7 @@ int main(int argc, char* argv[])
         
         if( str_MyAcct.size() > 0 )
         {			
-//			OTLog::Error("DEBUGGING Before MyAcct ID...\n");
-			
-
          	const OTIdentifier MY_ACCOUNT_ID(str_MyAcct.c_str());
-            
-//			OTLog::Error("DEBUGGING After MyAcct ID...\n");            
 			
 			pMyAccount = pWallet->GetAccount(MY_ACCOUNT_ID);
             // If failure, then we try PARTIAL match.
@@ -1729,7 +1780,7 @@ int main(int argc, char* argv[])
                 pHisNym->GetIdentifier(strTemp);
                 
                 str_HisNym = strTemp.Get();
-                OTLog::vOutput(0, "Using as 'HIS' nym: %s\n", str_HisNym.c_str());
+                OTLog::vOutput(0, "Using as 'his' nym: %s\n", str_HisNym.c_str());
             }
         }
 
