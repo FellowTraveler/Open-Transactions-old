@@ -142,7 +142,11 @@ extern "C"
 
 #include <sstream>
 
-//----------------------------
+// ---------------------------------------------------------------------------
+
+#include "ot_default_paths.h"
+
+// ---------------------------------------------------------------------------
 
 #include "OTStorage.h"
 
@@ -264,16 +268,16 @@ const char * OTTransaction::_TypeStrings[] =
 
 #include "OTClient.h"
 #include "OTLog.h"
-#ifdef _WIN32
-#ifdef _WIN32
-OTString OTLog::__OTPathSeparator = "\\";
-#else
-OTString OTLog::__OTPathSeparator = "/";
-#endif
 
-OTString OTLog::__OTMintFolder				= "mints";
+#ifdef _WIN32
+
+OTString OTLog::__OTPathSeparator = OT_DEFAULT_PATH_SEPARATOR;
+
 OTString OTLog::__OTPath("."); // it defaults to '.' but then it is set by the client and server.
+OTString OTLog::__OTConfigPath(OT_FOLDER_DEFAULT); // it defaults to "~/.ot" but then it is set by the client and server.
+
 OTString OTLog::__OTLogfile;
+
 
 #if defined (DSP)					   
 int OTLog::__CurrentLogLevel = 0;	// If you build with DSP=1, it assumes a special location for OpenSSL,
@@ -300,6 +304,7 @@ OTString OTLog::__OTOutboxFolder			= "outbox";
 OTString OTLog::__OTCertFolder				= "certs";		
 OTString OTLog::__OTPubkeyFolder			= "pubkeys";
 OTString OTLog::__OTContractFolder			= "contracts";
+OTString OTLog::__OTMintFolder				= "mints";
 OTString OTLog::__OTSpentFolder				= "spent";
 OTString OTLog::__OTMarketFolder			= "markets";
 OTString OTLog::__OTSmartContractsFolder	= "smartcontracts";
@@ -308,7 +313,7 @@ OTString OTLog::__OTRecordBoxFolder			= "recordBox";
 OTString OTLog::__OTPurseFolder				= "purse";
 OTString OTLog::__OTScriptFolder			= "scripts";
 
-OTString OTLog::__Version = "0.80e";
+OTString OTLog::__Version = "0.82.d";
 #endif
 
 

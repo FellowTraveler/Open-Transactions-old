@@ -4095,8 +4095,8 @@ bool OTPseudonym::Loadx509CertAndPrivateKey()
 	const char * szFoldername	= OTLog::CertFolder();
 	const char * szFilename		= strID.Get();
 	
-	OT_ASSERT(NULL != szFoldername);
-	OT_ASSERT(NULL != szFilename);
+//	OT_ASSERT(NULL != szFoldername);
+//	OT_ASSERT(NULL != szFilename);
 	
 //	m_strCertfile.Format((char *)"%s%s%s%s%s", OTLog::Path(), OTLog::PathSeparator(),
 //						 OTLog::CertFolder(),
@@ -4104,10 +4104,13 @@ bool OTPseudonym::Loadx509CertAndPrivateKey()
 	
 	// --------------------------------------------------------------------
 	
-	if (false == OTDB::Exists(szFoldername, szFilename))
+	if ((NULL == szFoldername) ||
+        (NULL == szFilename)   ||
+        (false == OTDB::Exists(szFoldername, szFilename)))
 	{
 		OTLog::vError("OTPseudonym::Loadx509CertAndPrivateKey: File does not exist: %s%s%s\n", 
-					  szFoldername, OTLog::PathSeparator(), szFilename);
+					  NULL == szFoldername ? "" : szFoldername, OTLog::PathSeparator(), 
+                      NULL == szFilename   ? "" : szFilename);
 		return false;
 	}
 	

@@ -232,7 +232,11 @@ struct sigcontext
 
 using namespace tthread;
 
-// ----------------------------
+// ---------------------------------------------------------------------------
+
+#include "ot_default_paths.h"
+
+// ---------------------------------------------------------------------------
 
 #ifndef _WIN32
 
@@ -294,7 +298,7 @@ int     OTLog::__latency_receive_ms = 5000; // number of ms to wait before retry
 long	OTLog::__minimum_market_scale = 1;	// Server admin can configure this to any higher power-of-ten.
 
 
-OTString OTLog::__Version = "0.82.c";
+OTString OTLog::__Version = "0.82.d";
 
 
 
@@ -303,16 +307,14 @@ OTString OTLog::__Version = "0.82.c";
 // ---------------------------------------------------------------------------------
 // This is the "global" path to the subdirectories. The wallet file is probably also there.
 OTString OTLog::__OTPath("."); // it defaults to '.' but then it is set by the client and server.
+OTString OTLog::__OTConfigPath(OT_FOLDER_DEFAULT); // it defaults to "~/.ot" but then it can be refreshed with the wordexp translation.
 
 // All my paths now use the global path above, and are constructed using
 // the path separator below. So the filesystem aspect of Open Transactions
 // should be a LOT more portable to Windows, though I haven't actually tried
 // it on Windows.
-#ifdef _WIN32
-OTString OTLog::__OTPathSeparator = "\\";
-#else
-OTString OTLog::__OTPathSeparator = "/";
-#endif
+//
+OTString OTLog::__OTPathSeparator = OT_DEFAULT_PATH_SEPARATOR;
 
 // ---------------------------------------------------------------------------------
 

@@ -1,0 +1,69 @@
+#!/usr/bin/env ot
+
+// ------------------------------
+//
+// DOWNLOAD ACCOUNT FILES FROM SERVER (balance, inbox, outbox, etc)
+// 
+
+
+def download_acct_files()
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+
+    // ---------------------------------------------
+    
+    var strMyNymID = OT_API_GetAccountWallet_NymID(MyAcct)
+    
+    if (!VerifyStringVal(strMyNymID))
+    {
+        OT_API_Output(0, "Failure: Unable to find NymID based on myacct. Use: --myacct ACCT_ID\n")
+        OT_API_Output(0, "The designated asset account must be yours. OT will find the Nym based on the account.\n\n")
+        return (-1)
+    }
+    // ----------------------------------------------
+    
+    // Download all the intermediary files (account balance, inbox, outbox, etc)
+    // since they have probably changed from this operation.
+    //
+    var bRetrieved = madeEasy.retrieve_account(Server, strMyNymID, MyAcct, true) //bForceDownload defaults to false.
+    
+    OT_API_Output(0, "\n\n" + (bRetrieved ? "SUCCESS" : "FAILED") + " retrieving intermediary files for account: "+MyAcct+"\n\n")
+
+    return bRetrieved ? 1 : 0;
+}
+
+
+def main_dl_acct_files()
+{
+    var strUsage = "Usage:  dl_acct_files.ot --server SERVER_ID --myacct YOUR_ACCT_ID\n\n"
+
+    OT_API_Output(0, strUsage)
+    
+    if (VerifyExists("Server") && VerifyExists("MyAcct"))
+    {	
+        return download_acct_files()
+    } 
+    
+    return -1
+}
+
+
+// Started / Finished!
+//
+main_dl_acct_files()
+
+
+
+
+
+
+
+
+
+
+
+
+

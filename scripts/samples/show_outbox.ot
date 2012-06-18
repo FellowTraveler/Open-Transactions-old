@@ -1,0 +1,94 @@
+#!/usr/bin/env ot
+
+// --------------------------------------------------------------------
+// Instantiate the "OT Made Easy" object.
+//
+
+var madeEasy	= OT_ME()
+// ------------------------------
+// SHOW OUTPUT
+// 
+// Load an asset account's outbox from local storage and display it on the screen.
+//
+
+if (VerifyExists("Server") && VerifyExists("MyNym") && VerifyExists("MyAcct"))
+{	
+    
+    var strOutbox = OT_API_LoadOutbox(Server, MyNym, MyAcct); // Returns NULL, or an outbox.
+
+	if (!VerifyStringVal(strOutbox))
+	{
+		OT_API_Output(0, "\n\n OT_API_LoadOutbox: Failed.\n\n")
+        return 0
+	}
+	else	// Success!
+	{
+		OT_API_Output(0, "\n\n") // stderr
+//		print(strOutbox)         // stdout
+        
+        var nCount = OT_API_Ledger_GetCount(Server, MyNym, MyAcct, strOutbox)
+
+        if (VerifyIntVal(nCount))
+        {
+            OT_API_Output(0, "SHOW OUTBOX: \n\n")
+            OT_API_Output(0, "Ind  Amt  Type        Txn# InRef#|User / Acct\n")
+            OT_API_Output(0, "---------------------------------|(from or to)\n")
+
+            for (var nIndex = 0; nIndex < nCount; ++nIndex)
+            {
+                var strTrans           = OT_API_Ledger_GetTransactionByIndex(Server, MyNym, MyAcct, strOutbox, nIndex)
+                var strTransID         = OT_API_Ledger_GetTransactionIDByIndex(Server, MyNym, MyAcct, strOutbox, nIndex)
+                var strRefNum          = OT_API_Transaction_GetDisplayReferenceToNum(Server, MyNym, MyAcct, strTrans)
+                var strAmount          = OT_API_Transaction_GetAmount(Server, MyNym, MyAcct, strTrans)
+                var strType            = OT_API_Transaction_GetType(Server, MyNym, MyAcct, strTrans)
+                var strSenderUserID    = OT_API_Transaction_GetSenderUserID(Server, MyNym, MyAcct, strTrans)
+                var strSenderAcctID    = OT_API_Transaction_GetSenderAcctID(Server, MyNym, MyAcct, strTrans)
+                var strRecipientUserID = OT_API_Transaction_GetRecipientUserID(Server, MyNym, MyAcct, strTrans)
+                var strRecipientAcctID = OT_API_Transaction_GetRecipientAcctID(Server, MyNym, MyAcct, strTrans)
+
+                var strUserID = VerifyStringVal(strSenderUserID) ? strSenderUserID : strRecipientUserID;
+                var strAcctID = VerifyStringVal(strSenderAcctID) ? strSenderAcctID : strRecipientAcctID;
+
+                var bUserIDExists = VerifyStringVal(strUserID)
+                var bAcctIDExists = VerifyStringVal(strAcctID)
+                
+                var strNewlineSeparator = ""
+                
+                if (bUserIDExists || bAcctIDExists)
+                {  strNewlineSeparator = "\n                                 |" }
+                
+                var strSeparator = (!bUserIDExists && !bAcctIDExists) ? "" : strNewlineSeparator;
+                
+                var strUserDenoter = (bUserIDExists ? "U:" : "")
+                var strAcctDenoter = (bAcctIDExists ? "A:" : "")
+                
+                OT_API_Output(0, nIndex.to_string() + "    ")
+                OT_API_Output(0, strAmount + (strAmount.size() < 3 ? "    " : "   "))
+                OT_API_Output(0, strType)
+                OT_API_Output(0, strType.size() > 10 ? " " : "    ")
+                OT_API_Output(0, strTransID + (strTransID.size() < 2 ? "    " : "   "))
+                OT_API_Output(0, strRefNum + (strRefNum.size() > 2 ? "  " : " ") + "|")
+                OT_API_Output(0, strUserDenoter+strUserID + strSeparator + strAcctDenoter+strAcctID + "\n")
+            } // for
+        } // VerifyIntVal (nCount)
+        
+		OT_API_Output(0, "\n\n") // stderr
+        return 1
+	}
+}
+
+// Done!
+0
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -195,6 +195,7 @@ private:
 	static OTString	__Version;			// current version of Open Transactions is stored here.
 
 	static OTString	__OTPath;			// Path to either server or client directory. (Whichever is running.)
+	static OTString	__OTConfigPath;     // Path to the config files. (server.cfg, client.cfg, init_ot.cfg)
 	static OTString	__OTPathSeparator;	// double-backslash in Windows, forward-slash in others.
 	
 	static OTString __OTCronFolder;		// Just the folder name for the cron records (trades, payment plans...)
@@ -284,9 +285,11 @@ EXPORT	static bool ConfirmOrCreateFolder(const char * szFolderName);
 	// ------------------------------------------------------------
 	
 	static const char *	Path()			{ return __OTPath.Get(); }
+	static const char *	ConfigPath()	{ return __OTConfigPath.Get(); }
 	static const char *	PathSeparator()	{ return __OTPathSeparator.Get(); }
 	
 	static void SetMainPath(const char * szPath) { __OTPath.Set(szPath); }
+	static void SetConfigPath(const char * szConfigPath) { __OTConfigPath.Set(szConfigPath); }
 	static void SetPathSeparator(const char * szPathSeparator) { __OTPathSeparator.Set(szPathSeparator); }
 	
 	// ------------------------------------------------------------

@@ -1,0 +1,68 @@
+#!/usr/bin/env ot
+
+    
+
+def main_issue_asset()
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    // ------------------------------
+
+    var strUsage = concat("Usage: issue_asset.ot --server SERVER_ID --mynym NYM_ID --mypurse ASSET_TYPE_ID\n\n",
+                      "(NYM_ID must already be the 'contract' key on the designated ASSET_TYPE.)\n See create_asset_contract.ot before running this script.\n\n")
+
+    OT_API_Output(0, strUsage)
+
+    if (VerifyExists("Server") && VerifyExists("MyNym") && VerifyExists("MyPurse"))
+    {        
+        var strResponse	= madeEasy.issue_asset_type(Server, MyNym, MyPurse)
+        var nSuccess    = VerifyMessageSuccess(strResponse)
+        
+        // NOTICE: No need here to deal with retries, timeouts, request number,
+        // syncing transaction number, download / process nymbox, etc! It's all
+        // handled at a lower level!  Instead, simply check for success or failure:
+        //
+        // -1 is error, 
+        //  0 is reply received: failure 
+        //  1 is reply received: success
+        //
+        switch(nSuccess)
+        {
+            case (1)
+            {
+                OT_API_Output(0, "\n\n SUCCESS in issue_asset! Server response:\n\n");
+                print(strResponse) // stdout
+                break
+            }
+            case (0)
+            {
+                OT_API_Output(0, "\n\n FAILURE in issue_asset! Server response:\n\n");
+                print(strResponse) // stdout
+                break
+            }
+            default
+            {
+                OT_API_Output(0, "\n\nError in issue_asset!\n")
+                
+                if (VerifyStringVal(strResponse))
+                {
+                    OT_API_Output(0, "Server response:\n\n");
+                    print(strResponse) // stdout
+                }
+                break
+            }
+        }
+        OT_API_Output(0, "\n\n") //stderr
+        
+        return nSuccess
+    }
+    
+    return 0
+}
+
+
+main_issue_asset()
+
+

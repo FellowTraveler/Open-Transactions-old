@@ -1,0 +1,157 @@
+#!/usr/bin/env ot
+
+// ------------------------------
+//
+// SEND TRANSFER (From one asset account to another.)
+//
+
+
+def details_send_transfer(strAmount, strNote)
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+
+    // ---------------------------------------------
+    // HERE, WE LOOK UP THE NYM ID, BASED ON THE ACCOUNT ID.
+    //
+    var strMyNymID = OT_API_GetAccountWallet_NymID(MyAcct)
+    
+    if (!VerifyStringVal(strMyNymID))
+    {
+        OT_API_Output(0, "Failure: Unable to find NymID based on myacct. Use: --myacct ACCT_ID\n")
+        OT_API_Output(0, "The designated asset account must be yours. OT will find the Nym based on the account.\n\n")
+        return (-1)
+    }
+    // ***************************************************************
+
+    // HERE, WE SEND THE TRANSFER REQUEST TO THE SERVER
+    //
+    var strResponse = madeEasy.send_transfer(Server, strMyNymID, MyAcct, HisAcct, strAmount, strNote) 
+    var strAttempt  = "send_transfer"
+    /*
+     int notarizeTransfer(   const std::string SERVER_ID,
+                             const std::string USER_ID,
+                             const std::string ACCT_FROM,
+                             const std::string ACCT_TO,
+                             const std::string AMOUNT,
+                             const std::string NOTE);
+     */
+    // ***************************************************************
+    
+    // HERE, WE INTERPRET THE SERVER REPLY, WHETHER SUCCESS, FAIL, OR ERROR...
+    
+    var nInterpretReply = InterpretTransactionMsgReply(Server, strMyNymID, MyAcct, strAttempt, strResponse)
+    
+    if (1 == nInterpretReply)
+    {    
+        // Download all the intermediary files (account balance, inbox, outbox, etc)
+        // since they have probably changed from this operation.
+        //
+        var bRetrieved = madeEasy.retrieve_account(Server, strMyNymID, MyAcct, true) //bForceDownload defaults to false.
+        
+        OT_API_Output(0, "Server response ("+strAttempt+"): SUCCESS sending transfer!\n")
+        OT_API_Output(0, (bRetrieved ? "Success" : "Failed") + " retrieving intermediary files for account.\n")
+    }
+    
+    // ***************************************************************
+    //
+    // Return status to caller.
+    //
+    return nInterpretReply  
+}
+
+
+// HERE, WE GET ALL THE ARGUMENTS TOGETHER,
+// and then call the above function.
+//
+def main_send_transfer()
+{
+    var strUsage1 = concat("\n\n     USAGE: send_transfer.ot --myacct YOUR_ASSET_ACCT --hisacct RECIPIENT_ASSET_ACCT\n\n",
+                           "Also NECESSARY: --args \"amount PUT_AMOUNT_HERE\"\n")
+    var strUsage = concat(strUsage1,
+                          "And OPTIONALLY: --args \"note \\\"Just a memo for the transfer.\\\"\"\n\n")
+
+    OT_API_Output(0, strUsage)
+    // ------------------------------------        
+
+    if (VerifyExists("Server") && VerifyExists("MyAcct") && VerifyExists("HisAcct"))
+    {	
+        // strAmount and strNote...
+        //
+        var strAmount    = "0" // must be >= 1
+        var strNote      = ""  // can be blank
+        // ------------------------------------        
+        var strDefaultAmount  = "10"  // must be >= 1
+        var strDefaultNote    = "(blank memo field)"   // can be blank
+        // ------------------------------------
+        // If custom arguments have been passed on the command line,
+        // then grab them and use them instead of asking the user to enter them
+        // at the command line.
+        //
+        if (VerifyExists("Args"))
+        {
+            // std::string OT_CLI_GetValueByKey(const std::string str_Args, 
+            //                                  const std::string str_key)
+            // 
+            // OPTION:   --args "key value key value"
+            // EXAMPLE:  --args "amount 1"
+            // EXAMPLE:  --args "amount 15 note \"Just a memo for the transfer.\""
+            //
+            var strNewAmount = OT_CLI_GetValueByKey( Args, "amount"    ) // any integer value
+            var strNewNote   = OT_CLI_GetValueByKey( Args, "note"  )     // optional memo field
+            
+            // ----------------------------------------------
+            // Set the values based on the custom arguments, for those found.
+            //
+            if (VerifyStringVal(strNewAmount))
+            {    strAmount = strNewAmount }
+            if (VerifyStringVal(strNewNote))
+            {    strNote = strNewNote }
+        }            
+        // ------------------------------------
+        // If the transfer parameters aren't provided, then we
+        // ask the user to supply them at the command line.
+        //
+        if (!VerifyStringVal(strAmount) || (strAmount.to_int() < 1))
+        {
+            OT_API_Output(0, "Enter the amount as integer["+strDefaultAmount+"]: ")
+            strAmount        = OT_CLI_ReadLine()
+        }
+        if (!VerifyStringVal(strNote))
+        {
+            OT_API_Output(0, "Optionally, enter a note on a single line["+strDefaultNote+"]: ")
+            strNote	= OT_CLI_ReadLine()
+        }
+        // ----------------------------------------------
+        if (!VerifyStringVal(strAmount) || (strAmount.to_int() < 1))
+        {    strAmount = strDefaultAmount }
+        if (!VerifyStringVal(strNote))
+        {    strNote = strDefaultNote }
+        // ----------------------------------------------    
+
+        return details_send_transfer(strAmount, strNote)
+    }
+    
+    return 0
+}
+
+// -----------------------
+
+// Start/Finish!
+//
+main_send_transfer()
+
+
+
+
+
+
+
+
+
+
+
+
+

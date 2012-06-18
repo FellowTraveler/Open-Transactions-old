@@ -126,32 +126,6 @@
  **************************************************************/
 
 
-
-// NOTE:  The PATH and the PASSWORD are configurable on the command line!!!
-//        Path is also now configurable in the ini file.
-//        They are only here as DEFAULTS for convenience, so I don't have to
-//        type them over and over again.  You can blank them out if you want, 
-//        or set them to whatever is convenient for you on your system.
-//
-
-#define KEY_PASSWORD        "test"
-//#define KEY_PASSWORD        ""
-
-// password is deprecated. 
-
-// ------------------------------------------------
-
-// TODO: what about android for all the defaults here? Are there ini files in android? Revisit.
-// so far, treating it like unix since it is.
-//
-// Paths
-//
-#define OT_INI_FILE_DEFAULT	".ot/ot_init.cfg"  // should get programmatically
-#define SERVER_PATH_DEFAULT	".ot/server_data" // should get programmatically
-
-// ----------------------------------------------------------------
-
-
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -191,8 +165,11 @@ extern "C"
 #include "simpleini/SimpleIni.h"
 #include "Timer.h"
 
+// ---------------------------------------------------------------------------
 
-// ------------------------------------
+#include "ot_default_paths.h"
+
+// ---------------------------------------------------------------------------
 
 //#include "XmlRpc.h"
 
@@ -724,6 +701,18 @@ bool GetOTAppDataFolderLocation(OTString strIniFileDefault, OTString & strOTServ
     if (rc >=0)
     {
         {
+            const char * pVal = ini.GetValue("paths", "init_path", OTLog::ConfigPath()); // todo stop hardcoding.
+            
+            if (NULL != pVal)
+            {
+                OTLog::SetConfigPath(pVal);
+                OTLog::vOutput(0, "server main: Reading ini file (%s). \n Found Server init_path: %s \n", 
+                               strIniFileDefault.Get(), OTLog::ConfigPath());
+            }
+            
+            OTLog::vOutput(0, "server main:Ini file: %s: Failed to find init_path. \n", strIniFileDefault.Get());
+        }            
+        {
             const char * pVal = ini.GetValue("paths", "server_path", SERVER_PATH_DEFAULT); // todo stop hardcoding.
             
             if (NULL != pVal)
@@ -846,7 +835,7 @@ int main(int argc, char* argv[])
 			OTString pathUserAppDataPath, pathIniFileLocation;
 
 			pathUserAppDataPath = GetRoamingAppDataLocation();
-			pathIniFileLocation.Format("%s%s%s", pathUserAppDataPath.Get(), OTLog::PathSeparator(), OT_INI_FILE_DEFAULT);
+			pathIniFileLocation.Format("%s%s%s", pathUserAppDataPath.Get(), OTLog::PathSeparator(), SERVER_INI_FILE_DEFAULT);
 
 
 			OTString pathOTServerDataLocation;
