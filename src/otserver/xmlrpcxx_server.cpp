@@ -709,8 +709,8 @@ bool GetOTAppDataFolderLocation(OTString strIniFileDefault, OTString & strOTServ
                 OTLog::vOutput(0, "server main: Reading ini file (%s). \n Found Server init_path: %s \n", 
                                strIniFileDefault.Get(), OTLog::ConfigPath());
             }
-            
-            OTLog::vOutput(0, "server main:Ini file: %s: Failed to find init_path. \n", strIniFileDefault.Get());
+            else
+                OTLog::vOutput(0, "server main:Ini file: %s: Failed to find init_path. \n", strIniFileDefault.Get());
         }            
         {
             const char * pVal = ini.GetValue("paths", "server_path", SERVER_PATH_DEFAULT); // todo stop hardcoding.

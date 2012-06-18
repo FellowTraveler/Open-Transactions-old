@@ -3326,16 +3326,25 @@ const char * OT_API_Decrypt(const char * RECIPIENT_NYM_ID, const char * szCipher
 
 
 
-
 // Generates a new symmetric key, based on a passphrase,
 // and returns it (or NULL.)
 //
 const char * OT_API_CreateSymmetricKey()
 {
-    OTPassword      passUserInput; // text mode.
+    char  throwaway_text[OT_DEFAULT_BLOCKSIZE];
+    for (int tt = 0; tt < OT_DEFAULT_BLOCKSIZE; ++tt)
+    {
+        throwaway_text[tt] = 'A';
+    }
+    throwaway_text[OT_DEFAULT_BLOCKSIZE-1] = '\0';
+    // We don't use the above memory, except to force OTPassword to create itself
+    // at a certain password size, so we can pass that buffer and size on to souped_up_pass_cb
+    //
+    OTPassword  passUserInput(&(throwaway_text[0]), OT_DEFAULT_BLOCKSIZE-1); // text mode.
+    // -----------------------------------------------    
     const char *    szDisplay = "Creating new symmetric Key.";
     OTPasswordData  thePWData(szDisplay);
-    
+    thePWData.setUsingOldSystem(); // So the master key doesn't interfere, since this is for a plain symmetric key.
     OTString strOutput;
     bool bSuccess = false;
     
@@ -3345,12 +3354,11 @@ const char * OT_API_CreateSymmetricKey()
                                             static_cast<void *>(&thePWData));
     
     if (nCallback > 0) // Success retrieving the passphrase from the user. (Now let's generate the key...)
-    {
-        OTSymmetricKey theKey(passUserInput);
-        
+    {        
         OTLog::vOutput(3, "%s: Calling OTSymmetricKey theKey.GenerateKey()...\n", __FUNCTION__);
-        bool bGenerated = theKey.GenerateKey(passUserInput);
-        //      OTLog::vOutput(0, "%s: Finished calling OTSymmetricKey theKey.GenerateKey()...\n", __FUNCTION__);
+        OTSymmetricKey theKey(passUserInput);
+        bool bGenerated = theKey.IsGenerated();
+//      OTLog::vOutput(0, "%s: Finished calling OTSymmetricKey theKey.GenerateKey()...\n", __FUNCTION__);
         
         if (bGenerated && theKey.SerializeTo(strOutput))
             bSuccess = true;
@@ -3406,10 +3414,20 @@ const char * OT_API_SymmetricEncrypt(const char * SYMMETRIC_KEY, const char * PL
     // -----------------------------------
     // By this point, we know we have a plaintext and a symmetric Key.
     //
-    OTPassword      passUserInput; // text mode.
+    char  throwaway_text[OT_DEFAULT_BLOCKSIZE];
+    for (int tt = 0; tt < OT_DEFAULT_BLOCKSIZE; ++tt)
+    {
+        throwaway_text[tt] = 'A';
+    }
+    throwaway_text[OT_DEFAULT_BLOCKSIZE-1] = '\0';
+    // We don't use the above memory, except to force OTPassword to create itself
+    // at a certain password size, so we can pass that buffer and size on to souped_up_pass_cb
+    //
+    OTPassword  passUserInput(&(throwaway_text[0]), OT_DEFAULT_BLOCKSIZE-1); // text mode.
+    // -----------------------------------------------    
     const char *    szDisplay = "OT_API_SymmetricEncrypt";
     OTPasswordData  thePWData(szDisplay);
-        
+    thePWData.setUsingOldSystem(); // So the master key doesn't interfere, since this is for a plain symmetric key.        
     const int nCallback = souped_up_pass_cb(passUserInput.getPasswordWritable_char(),
                                             passUserInput.getBlockSize(),
                                             0, // bVerifyTwice ? 1 : 0, 
@@ -3484,10 +3502,20 @@ const char * OT_API_SymmetricDecrypt(const char * SYMMETRIC_KEY, const char * CI
     // -----------------------------------
     // By this point, we know we have a ciphertext envelope and a symmetric Key.
     //
-    OTPassword      passUserInput; // text mode.
+    char  throwaway_text[OT_DEFAULT_BLOCKSIZE];
+    for (int tt = 0; tt < OT_DEFAULT_BLOCKSIZE; ++tt)
+    {
+        throwaway_text[tt] = 'A';
+    }
+    throwaway_text[OT_DEFAULT_BLOCKSIZE-1] = '\0';
+    // We don't use the above memory, except to force OTPassword to create itself
+    // at a certain password size, so we can pass that buffer and size on to souped_up_pass_cb
+    //
+    OTPassword  passUserInput(&(throwaway_text[0]), OT_DEFAULT_BLOCKSIZE-1); // text mode.
+    // -----------------------------------------------    
     const char *    szDisplay = "OT_API_SymmetricDecrypt";
     OTPasswordData  thePWData(szDisplay);
-    
+    thePWData.setUsingOldSystem(); // So the master key doesn't interfere, since this is for a plain symmetric key.
     const int nCallback = souped_up_pass_cb(passUserInput.getPasswordWritable_char(),
                                             passUserInput.getBlockSize(),
                                             0, // bVerifyTwice ? 1 : 0, 

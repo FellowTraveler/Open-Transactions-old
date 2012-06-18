@@ -1452,6 +1452,7 @@ bool OTMasterKey::GetMasterPassword(OTPassword & theOutput, const char * szDispl
         if (false == bGenerated)
         {
             OTLog::vOutput(3, "%s: Calling m_pSymmetricKey->GenerateKey()...\n", szFunc);
+                        
             bGenerated = m_pSymmetricKey->GenerateKey(passUserInput);
 //          OTLog::vOutput(0, "%s: Finished calling m_pSymmetricKey->GenerateKey()...\n", szFunc);
         }
@@ -1777,7 +1778,9 @@ bool OTSymmetricKey::SerializeFrom(const OTString & strInput, bool bEscaped/*=fa
     if (strInput.Exists() && ascInput.LoadFromString(const_cast<OTString &>(strInput), 
                                                      bEscaped, 
                                                      "-----BEGIN OT ARMORED SYMMETRIC KEY"))
-        return true;
+    {
+        return this->SerializeFrom(ascInput);
+    }
 
     return false;
 }
@@ -1818,7 +1821,8 @@ bool OTSymmetricKey::SerializeFrom(const OTASCIIArmor & ascInput)
 bool OTSymmetricKey::SerializeTo(OTPayload & theOutput) const
 {
     // -----------------------------------------------
-    uint16_t   n_is_generated    = static_cast<uint16_t>(htons(static_cast<uint16_t>(m_bIsGenerated ? 1 : 0))); 
+    uint16_t   from_bool_is_generated = (m_bIsGenerated ? 1 : 0);
+    uint16_t   n_is_generated    = static_cast<uint16_t>(htons(static_cast<uint16_t>(from_bool_is_generated))); 
     uint16_t   n_key_size_bits   = static_cast<uint16_t>(htons(static_cast<uint16_t>(m_nKeySize))); 
     // ----------------------------------------------------------------------------------------
     uint32_t   n_iteration_count = static_cast<uint32_t>(htonl(static_cast<uint32_t>(m_nIterationCount))); 
@@ -1901,7 +1905,7 @@ bool OTSymmetricKey::SerializeFrom(OTPayload & theInput)
     // ----------------------------------------------------------------------------
 	// convert from network to HOST endian.
     //
-    uint16_t host_is_generated = ntohs(n_is_generated);
+    uint16_t host_is_generated = static_cast<uint16_t>(ntohs(static_cast<uint16_t>(n_is_generated)));
     
     if (1 == host_is_generated)
         m_bIsGenerated = true;
@@ -1914,7 +1918,7 @@ bool OTSymmetricKey::SerializeFrom(OTPayload & theInput)
         return false;
     }
     // ****************************************************************************
-    
+        
     OTLog::vOutput(5, "%s: is_generated: %d \n", 
                    __FUNCTION__, 
                    static_cast<int>(host_is_generated)
@@ -1971,7 +1975,6 @@ bool OTSymmetricKey::SerializeFrom(OTPayload & theInput)
                    );
     
     // ****************************************************************************
-    
     
     
     // ****************************************************************************
@@ -2108,7 +2111,7 @@ bool OTSymmetricKey::SerializeFrom(OTPayload & theInput)
 
     OT_ASSERT(nRead == static_cast<uint32_t>(lEncKeySize));
     // ****************************************************************************
-
+    
     return true;
 }
 

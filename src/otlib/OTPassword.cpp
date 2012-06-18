@@ -652,7 +652,7 @@ uint8_t * OTPassword::getPasswordWritable()
 char * OTPassword::getPasswordWritable_char()
 {
     OT_ASSERT(m_bIsText);
-	return (this->getBlockSize() <= 0) ? NULL : static_cast<char *>(static_cast<void *>(&(m_szPassword[0]))); 
+	return (m_nPasswordSize <= 0) ? NULL : static_cast<char *>(static_cast<void *>(&(m_szPassword[0]))); 
 }
 
 

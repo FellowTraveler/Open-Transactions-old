@@ -10,7 +10,7 @@ def main_register_nym()
     var madeEasy	= OT_ME()
     // --------------------------------------------------------------------
 
-    var strUsage = concat("Usage: register_nym.ot --server SERVER_ID --mynym NYM_ID\n\n",
+    var strUsage = concat("\n\nUsage: register_nym.ot --server SERVER_ID --mynym NYM_ID\n\n",
                           "(If you don't have a NymID, then use create_nym.ot first.)\n\n")
 
     OT_API_Output(0, strUsage)

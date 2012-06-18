@@ -320,14 +320,21 @@ bool SetupPointersForWalletMyNymAndServerContract(std::string & str_ServerID,
         if (NULL == pServerContract)
             pServerContract = pWallet->GetServerContractPartialMatch(str_ServerID);
         
-        if (NULL == pServerContract)
+        if (NULL != pServerContract)
+        {
+            OTString strTemp;
+            pServerContract->GetIdentifier(strTemp);
+            
+            str_ServerID = strTemp.Get();
+            OTLog::vOutput(0, "Using as server: %s\n", str_ServerID.c_str());
+        }
+        else
         {
             OTLog::Output(0, "Unable to find a server contract. Please use the option:  --server SERVER_ID\n"
                           "(Where SERVER_ID is the server ID. Partial matches ARE accepted.)\n"
                           "Also, see default values located in ~/.ot/comand-line-ot.opt \n");
             return false;
         }
-        
     }
     // Below this point, pServerContract MAY be available, but also may be NULL.
     //
@@ -342,7 +349,15 @@ bool SetupPointersForWalletMyNymAndServerContract(std::string & str_ServerID,
         if (NULL == pMyNym)
             pMyNym = pWallet->GetNymByIDPartialMatch( str_MyNym );
         
-        if (NULL == pMyNym)
+        if (NULL != pMyNym)
+        {
+            OTString strTemp;
+            pMyNym->GetIdentifier(strTemp);
+            
+            str_MyNym = strTemp.Get();
+            OTLog::vOutput(0, "Using as mynym: %s\n", str_MyNym.c_str());
+        }
+        else
         {
             OTLog::Output(0, "Unable to find My Nym. Please use the option:   --mynym USER_ID\n"
                           "(Where USER_ID is the Nym's ID. Partial matches ARE accepted.)\n"
@@ -942,19 +957,13 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
 		// 
 		const char * ps0	= "%s%s%s%sot%s%s";
 		const char * ps1	= "ot_utility.ot"; // todo hardcoding
-//		const char * ps1_1	= "ot_util_one.ot";
-//		const char * ps1_2	= "ot_util_two.ot";
-//		const char * ps1_3	= "ot_util_three.ot";
 		const char * ps2	= "otapi.ot"; // todo hardcoding
-//		const char * ps2_1	= "otapi_one.ot";
-//		const char * ps2_2	= "otapi_two.ot";
 		const char * ps3	= "ot_made_easy.ot"; // todo hardcoding
 		const char * pss	= OTLog::ScriptFolder();	//   "scripts"
 		const char * ps     = OTLog::PathSeparator();	//   "/"
 		const char * pot	= "ot";						//   "ot"
 		
 		OTString strUseFile1, strUseFile2, strUseFile3;
-//		OTString strUseFile1_1, strUseFile1_2, strUseFile1_3, strUseFile2_1,  strUseFile2_2, strUseFile3;
 		/*
 		 > ls ./Open-Transactions/scripts/ot/
 		 INCLUDE IN THIS ORDER:
@@ -964,24 +973,16 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
 		 ot_made_easy.ot	ps3
 		 
 		 */			//    ~/.ot/client_data		/	scripts		/	ot	/	  "blah.ot"
-//		strUseFile1_1.Format(ps0, OTLog::Path(), ps,	pss,		ps,		ps,		ps1_1);
-//		strUseFile1_2.Format(ps0, OTLog::Path(), ps,	pss,		ps,		ps,		ps1_2);
-//		strUseFile1_3.Format(ps0, OTLog::Path(), ps,	pss,		ps,		ps,		ps1_3);
-//		strUseFile2_1.Format(ps0, OTLog::Path(), ps,	pss,		ps,		ps,		ps2_1);
-//		strUseFile2_2.Format(ps0, OTLog::Path(), ps,	pss,		ps,		ps,		ps2_2);
 		strUseFile1.Format(ps0,   OTLog::Path(), ps,	pss,		ps,		ps,		ps1);
 		strUseFile2.Format(ps0,   OTLog::Path(), ps,	pss,		ps,		ps,		ps2);
 		strUseFile3.Format(ps0,   OTLog::Path(), ps,	pss,		ps,		ps,		ps3);
 		
 		const std::string str_UseFile1(strUseFile1.Get()), str_UseFile2(strUseFile2.Get()), str_UseFile3(strUseFile3.Get());
-//		const std::string str_UseFile1_1(strUseFile1_1.Get()), str_UseFile1_2(strUseFile1_2.Get()), str_UseFile1_3(strUseFile1_3.Get()), 
-//                          str_UseFile2_1(strUseFile2_1.Get()), str_UseFile2_2(strUseFile2_2.Get()), str_UseFile3(strUseFile3.Get());
 
 		const char * psErr	= "RegisterAPICallWithScript: ERROR: Failed trying to include script header:  %s (Does it exist?)\n";
 
         OTLog::vOutput(2, "%s: About to try to import script headers:\n  1: %s\n  2: %s\n  3: %s\n", __FUNCTION__,
                        strUseFile1.Get(), strUseFile2.Get(), strUseFile3.Get());
-//        OTLog::vOutput(0, "RegisterAPIWithScript: About to try to import script headers:\n 1_1: %s\n    1_2: %s\n    1_3: %s\n 2-1: %s\n    2_2: %s\n   3: %s\n", strUseFile1_1.Get(), strUseFile1_2.Get(), strUseFile1_3.Get(), strUseFile2_1.Get(), strUseFile2_2.Get(), strUseFile3.Get());
                
         bool bSuccess = true;
         
@@ -995,21 +996,6 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
                 bSuccess = false;
                 OTLog::vError(psErr, str_UseFile1.c_str());
             }
-            // --------------------------------
-//          if ( OTDB::Exists(pss, pot, ps1_2) )
-//              pScript->chai.use(str_UseFile1_2);
-//          else
-//              OTLog::vError(psErr, str_UseFile1_2.c_str());
-//          // --------------------------------
-//          if ( OTDB::Exists(pss, pot, ps1_3) )
-//              pScript->chai.use(str_UseFile1_3);
-//          else
-//              OTLog::vError(psErr, str_UseFile1_3.c_str());
-//          // --------------------------------
-//          if ( OTDB::Exists(pss, pot, ps2_1) )
-//              pScript->chai.use(str_UseFile2_1);
-//          else
-//              OTLog::vError(psErr, str_UseFile2_1.c_str());
             // --------------------------------
             if ( OTDB::Exists(pss, pot, ps2) )
                 pScript->chai.use(str_UseFile2);
@@ -2023,7 +2009,6 @@ int main(int argc, char* argv[])
 					OT_ASSERT(NULL != pVar);
 					// ------------------------------------------
 					pScript-> AddVariable(str_party_name, *pVar);
-					
 				}
 				else 
 				{

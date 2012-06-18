@@ -144,9 +144,9 @@
 		if (!VerifyMessage(strMessage))
 		{	return (-1)	}
         
-        var nSuccess = OT_API_Message_GetSuccess(strMessage)
+        var nStatus = OT_API_Message_GetSuccess(strMessage)
         
-        switch (nSuccess)
+        switch (nStatus)
         {
             case (-1) {
                 OT_API_Output(0, "VerifyMessageSuccess: Error calling OT_API_Message_GetSuccess, for message:\n\n" + strMessage + "\n")              
@@ -161,13 +161,13 @@
                 break
             }
             default {
-                OT_API_Output(0, "VerifyMessageSuccess: Error. (This should never happen!) Input: " + strMessage + "\n")
-                nSuccess = (-1)
+                OT_API_Output(0, "VerifyMessageSuccess: Error. (This should never happen!) nStatus: "+nStatus.to_string()+", Input: " + strMessage + "\n")
+                nStatus = (-1)
                 break
             }
         }
         
-        return nSuccess
+        return nStatus
 	}
     // ---------------------------------------
 

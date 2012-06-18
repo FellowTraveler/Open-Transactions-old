@@ -1929,8 +1929,8 @@ bool OT_API::AddSignature(const OTIdentifier & theSignerNymID, const OTString & 
 	OTCleanup<OTContract> theAngel(*pContract);
 
 	// -----------------------------------------------------
-	//	pContract->ReleaseSignatures();		// Other than this line, this function is identical to 
-										// OT_API::SignContract(). (It adds signatures without removing existing ones.)
+//	pContract->ReleaseSignatures();		// Other than this line, this function is identical to 
+										// OT_API::SignContract(). (This one adds signatures without removing existing ones.)
 	pContract->SignContract(*pNym);
 	pContract->SaveContract();
 	// -----------------------------------------------------
@@ -7889,9 +7889,9 @@ int OT_API::processInbox(OTIdentifier	& SERVER_ID,
 
 
 
-int OT_API::issueAssetType(OTIdentifier	&	SERVER_ID,
-							OTIdentifier	&	USER_ID,
-							OTString		&	THE_CONTRACT)
+int OT_API::issueAssetType(OTIdentifier	 &	SERVER_ID,
+							OTIdentifier &	USER_ID,
+							OTString	 &	THE_CONTRACT)
 {
 	const char * szFuncName = "OT_API::issueAssetType";
 	// -----------------------------------------------------

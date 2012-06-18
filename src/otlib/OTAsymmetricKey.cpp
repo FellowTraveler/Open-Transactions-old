@@ -631,10 +631,14 @@ OPENSSL_CALLBACK_FUNC(souped_up_pass_cb)
     // -------------------------------------
     
     const bool b1 = pPWData->isForNormalNym();
-//  const bool b2 = !pPWData->isUsingOldSystem();
     const bool b3 = !(OTMasterKey::It()->isPaused());
     
-    
+    // For example, perhaps we need to collect a password for a symmetric key.
+    // In that case, it has nothing to do with any master key, or any public/private
+    // keys. It ONLY wants to do a simple password collect.
+    //
+    const bool bOldSystem = pPWData->isUsingOldSystem();
+
 //    OTLog::vOutput(5, "--------------------------------------------------------------------------------\n"
 //                  "TOP OF SOUPED-UP PASS CB:\n pPWData->isForNormalNym(): %s \n "
 ////                "!pPWData->isUsingOldSystem(): %s \n "
@@ -654,7 +658,7 @@ OPENSSL_CALLBACK_FUNC(souped_up_pass_cb)
     // "passphrase" (a random value) which is then passed back to OpenSSL to use for the Nyms.
     //
     if ( b1 &&  // Normal Nyms, unlike Master passwords, have to look up the master password first.
-//       b2 &&  
+         !bOldSystem &&  
          b3)    // ...Unless they are still using the old system, in which case they do NOT look up the master password...
     {
         // Therefore we need to provide the password from an OTSymmetricKey stored here.

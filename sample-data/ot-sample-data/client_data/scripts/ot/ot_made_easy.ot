@@ -75,12 +75,25 @@
 // -----------------------------------------------------------------------------------------------
 //  ISSUE ASSET TYPE
 //
-    def OT_ME::issue_asset_type(SERVER_ID, NYM_ID, ASSET_TYPE_ID) 
+    def OT_ME::issue_asset_type(SERVER_ID, NYM_ID, THE_CONTRACT) 
     {
         var ot_Msg := OTAPI_Func()
         // -------------------------
-        var theRequest := OTAPI_Func(ot_Msg.ISSUE_ASSET_TYPE, SERVER_ID, NYM_ID, ASSET_TYPE_ID)
+        var theRequest := OTAPI_Func(ot_Msg.ISSUE_ASSET_TYPE, SERVER_ID, NYM_ID, THE_CONTRACT)
         var	strResponse = theRequest.SendRequest(theRequest, "ISSUE_ASSET_TYPE")
+        
+        return strResponse
+    }
+
+// -----------------------------------------------------------------------------------------------
+//  RETRIEVE CONTRACT
+//
+    def OT_ME::retrieve_contract(SERVER_ID, NYM_ID, CONTRACT_ID) 
+    {
+        var ot_Msg := OTAPI_Func()
+        // -------------------------
+        var theRequest := OTAPI_Func(ot_Msg.GET_CONTRACT, SERVER_ID, NYM_ID, CONTRACT_ID)
+        var	strResponse = theRequest.SendRequest(theRequest, "GET_CONTRACT")
         
         return strResponse
     }
@@ -838,7 +851,9 @@
 	 
  /*
   
-  Next ones:  create nym, register nym, issue asset type, send transfer, show purse, withdraw cash, deposit cash, withdraw voucher, deposit cheque, accept entire inbox.
+ DONE:  create nym, register nym, issue asset type, send transfer, accept entire inbox, write cheque.
+  
+  Next ones:  show purse, withdraw cash, deposit cash, withdraw voucher, deposit cheque.
   
  Need to add functions (like check_user above) for all of these:
  

@@ -1,0 +1,97 @@
+#!/usr/bin/env ot
+
+// ------------------------------
+//
+// DOWNLOAD CONTRACT FROM SERVER (BY ID)
+// 
+
+
+def download_contract(strContractID) : strContractID.is_type(string_type)
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+
+    // ---------------------------------------------
+        
+    // Download all the intermediary files (account balance, inbox, outbox, etc)
+    // since they have probably changed from this operation.
+    //
+    var strRetrieved   = madeEasy.retrieve_contract(Server, MyNym, strContractID)
+    var nRetrieved     = VerifyMessageSuccess(strRetrieved)
+    
+    var strSuccess = "ERROR"
+    
+    if (1 == nRetrieved)
+    {   strSuccess = "SUCCESS" }
+    else if (0 == nRetrieved)
+    {   strSuccess = "FAILED" }
+    
+    OT_API_Output(0, "\n\n " + strSuccess + " retrieving contract: "+strContractID+"\n\n")
+    
+    return nRetrieved
+}
+
+
+def main_download_contract()
+{
+    var strUsage = concat("\n\nUsage:  dl_contract.ot --server SERVER_ID --mynym YOUR_NYM_ID \n",
+                          "                    --args \"contract_id CONTRACT_ID_HERE\"\n\n")
+    OT_API_Output(0, strUsage)
+    
+    var strContractID = ""
+    
+    if (VerifyExists("Server") && VerifyExists("MyNym"))
+    {	
+        // ------------------------------------
+        // If custom arguments have been passed on the command line,
+        // then grab them and use them instead of asking the user to enter them
+        // at the command line.
+        //
+        if (VerifyExists("Args"))
+        {
+            // std::string OT_CLI_GetValueByKey(const std::string str_Args, 
+            //                                  const std::string str_key)
+            // 
+            // OPTION:   --args "key value key value"
+            // EXAMPLE:  --args "contract_id CvHGtfOOKzQKL5hFL7J4iF5yAodVKhS1rxPzME5R9XA"
+            //
+            var strNewContractID = OT_CLI_GetValueByKey( Args, "contract_id" ) 
+            
+            // ----------------------------------------------
+            // Set the values based on the custom arguments, for those found.
+            //
+            if (VerifyStringVal(strNewContractID))
+            {    strContractID = strNewContractID }
+            else
+            {
+                OT_API_Output(0, "\n\nMissing --args \"contract_id CONTRACT_ID_HERE\"\n\n")
+                return (-1)
+            }
+            
+            return download_contract(strContractID)
+        }
+        // ------------------------------------
+    } 
+    
+    return -1
+}
+
+
+// Started / Finished!
+//
+main_download_contract()
+
+
+
+
+
+
+
+
+
+
+
+
+
