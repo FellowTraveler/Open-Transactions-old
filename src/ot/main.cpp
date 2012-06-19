@@ -816,7 +816,7 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
 		pScript->chai.add(fun(&OTAPI_Wrap::Ledger_FinalizeResponse), "OT_API_Ledger_FinalizeResponse");
 		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetType), "OT_API_Transaction_GetType");
 		
-        pScript->chai.add(fun(&OTAPI_Wrap::ReplyNotice_GetRequestNum), "OT_API_ReplyNotice_GetRequestNum");
+		pScript->chai.add(fun(&OTAPI_Wrap::ReplyNotice_GetRequestNum), "OT_API_ReplyNotice_GetRequestNum");
         
 		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetVoucher), "OT_API_Transaction_GetVoucher");
 		pScript->chai.add(fun(&OTAPI_Wrap::Transaction_GetSuccess), "OT_API_Transaction_GetSuccess");
@@ -1015,7 +1015,7 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
 		const char * ps3	= "ot_made_easy.ot";        // todo hardcoding
 		const char * ps4	= "ot_commands.ot";         // todo hardcoding
 		const char * pss	= OTLog::ScriptFolder();	//   "scripts"
-		const char * ps     = OTLog::PathSeparator();	//   "/"
+		const char * ps		= OTLog::PathSeparator();	//   "/"
 		const char * pot	= "ot";						//   "ot"
 		
 		OTString strUseFile1, strUseFile2, strUseFile3, strUseFile4;

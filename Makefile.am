@@ -19,6 +19,8 @@ AM_CPPFLAGS = 			$(common_includes)				\
 				-O0						\
 				--param ssp-buffer-size=4
 
+AM_LDFLAGS = 			$(DEPS_LDFLAGS)
+
 ## WARNING FLAGS ###
 
 if WARNINGS
@@ -31,29 +33,12 @@ endif
 ## RELEASE FLAGS ###
 
 if RELEASE
-AM_CPPFLAGS +=		-Wall						\
+AM_CPPFLAGS +=			-Wall						\
 				-D_FORTIFY_SOURCE=2				\
 				-fstack-protector-all				\
 				-fstack-check					\
 				-Wstack-protector
 endif
-
-
-
-AM_LDFLAGS = 			$(DEPS_LDFLAGS)
-
-EXTRA_DIST =			docs/GETTING-STARTED.txt			\
-				docs/INSTALL-Android.txt			\
-				docs/INSTALL-Fedora.txt				\
-				docs/INSTALL-Ubuntu.t				\
-				docs/INSTALL-OSX-Homebrew.txt			\
-				docs/INSTALL-Windows.txt			\
-				docs/LICENSE-AND-CREDITS.txt			\
-				PUBKEY-FellowTraveler.asc			\
-				README.md docs/SSL-NOTES.txt			\
-				docs/WIPE-USERS-ACCOUNTS.txt			\
-				VERSION
-
 
 ####################################################################
 
@@ -221,7 +206,7 @@ otlib_headers =			include/otlib/anyoption.h			\
 
 otlib_sources_dir = 		$(ot_source_dir)/otlib
 
-otlib_sources =			src/otlib/anyoption.cpp				\
+otlib_sources     =		src/otlib/anyoption.cpp				\
 				src/otlib/Bitcoin.pb.cpp			\
 				src/otlib/easyzlib.c				\
 				src/otlib/Generics.pb.cpp			\
@@ -278,30 +263,33 @@ otlib_sources =			src/otlib/anyoption.cpp				\
 
 ####	OT Server
 
-otserver_headers_dir =	$(ot_include_dir)/otserver
+otserver_headers_dir	=	$(ot_include_dir)/otserver
 
-otserver_headers =      include/otserver/main.h                 \
-                        include/otserver/OTClientConnection.h	\
-                        include/otserver/OTServer.h
+otserver_headers	= 	include/otserver/main.h				\
+				include/otserver/OTClientConnection.h		\
+				include/otserver/OTServer.h
 
-otserver_sources_dir =  $(ot_source_dir)/otserver
+otserver_sources_dir	=	$(ot_source_dir)/otserver
 
-otserver_sources     =  src/otserver/OTClientConnection.cpp		\
-                        src/otserver/OTServer.cpp
+otserver_sources	=	src/otserver/OTClientConnection.cpp		\
+				src/otserver/OTServer.cpp
 
 ####	Simple Ini
 
-simpleini_headers_dir =		$(ot_include_dir)/simpleini
-simpleini_headers     =		include/simpleini/ConvertUTF.h			\
-                            include/simpleini/SimpleIni.h
-simpleini_sources_dir = 	$(ot_source_dir)/simpleini
-simpleini_sources     =		src/simpleini/ConvertUTF.cpp			\
-                            src/simpleini/snippets.cpp
+simpleini_headers_dir	=	$(ot_include_dir)/simpleini
+
+simpleini_headers	=	include/simpleini/ConvertUTF.h			\
+				include/simpleini/SimpleIni.h
+
+simpleini_sources_dir	= 	$(ot_source_dir)/simpleini
+
+simpleini_sources	=	src/simpleini/ConvertUTF.cpp			\
+				src/simpleini/snippets.cpp
 
 
 ####	OT Create Mint
 
-createmint_sources_dir =    $(ot_source_dir)/createmint
+createmint_sources_dir	=	$(ot_source_dir)/createmint
 
 ####################################################################
 
@@ -310,95 +298,95 @@ createmint_sources_dir =    $(ot_source_dir)/createmint
 ## Open Transactions Lib #
 ##########################
 
-lib_LTLIBRARIES =		libot.la				\
-				libotapi.la				\
-				libbigint.la				\
-				libirrxml.la				\
+lib_LTLIBRARIES		=	libot.la					\
+				libotapi.la					\
+				libbigint.la					\
+				libirrxml.la					\
 				liblucre.la
 
 ####	LIB BigInt
 
-libbigint_la_SOURCES =		$(bigint_sources) $(bigint_headers)
-libbigint_la_CPPFLAGS =		-I$(bigint_headers_dir) $(DEPS_CFLAGS) -fpic
-libbigint_la_LDFLAGS =		-static
+libbigint_la_SOURCES	=	$(bigint_sources) $(bigint_headers)
+libbigint_la_CPPFLAGS	=	-I$(bigint_headers_dir) $(DEPS_CFLAGS) -fpic
+libbigint_la_LDFLAGS	=	-static
 
 ####	LIB IrrXML
 
-libirrxml_la_SOURCES =		$(irrxml_sources) $(irrxml_headers)
-libirrxml_la_CPPFLAGS =		-I$(irrxml_headers_dir) $(DEPS_CFLAGS) -fpic
-libirrxml_la_LDFLAGS =		-static
+libirrxml_la_SOURCES	=	$(irrxml_sources) $(irrxml_headers)
+libirrxml_la_CPPFLAGS	=	-I$(irrxml_headers_dir) $(DEPS_CFLAGS) -fpic
+libirrxml_la_LDFLAGS	=	-static
 
 ####	LIB Lucre
 
-liblucre_la_SOURCES =		$(lucre_sources) $(lucre_headers)
-liblucre_la_CPPFLAGS =		-I$(lucre_headers_dir) $(DEPS_CFLAGS) -fpic
-liblucre_la_LDFLAGS =		-static
+liblucre_la_SOURCES	=	$(lucre_sources) $(lucre_headers)
+liblucre_la_CPPFLAGS	=	-I$(lucre_headers_dir) $(DEPS_CFLAGS) -fpic
+liblucre_la_LDFLAGS	=	-static
 
 
 ####	LIB OT
 
-libot_la_SOURCES =		$(otlib_sources) $(otlib_headers)
+libot_la_SOURCES	=	$(otlib_sources) $(otlib_headers)
 
-libot_la_CPPFLAGS = 		$(AM_CPPFLAGS)
+libot_la_CPPFLAGS	=	$(AM_CPPFLAGS)
 
-libot_la_LIBADD =		$(DEPS_LIBS)				\
+libot_la_LIBADD		=	$(DEPS_LIBS)				\
 				$(BOOST_LDFLAGS)			\
 				$(BOOST_THREAD_LIB)			\
 				libbigint.la libirrxml.la liblucre.la
 
-libot_la_DEPENDENCIES =		libbigint.la libirrxml.la liblucre.la
+libot_la_DEPENDENCIES	=	libbigint.la libirrxml.la liblucre.la
 
-libot_la_LDFLAGS =		--no-undefined
+libot_la_LDFLAGS	=	--no-undefined
 
 
 ####	 LIB OT API
 
-libotapi_la_SOURCES =		$(otapi_sources) $(otapi_headers)
+libotapi_la_SOURCES	=	$(otapi_sources) $(otapi_headers)
 
-libotapi_la_CPPFLAGS =		-I$(otapi_headers_dir) $(AM_CPPFLAGS) -fpic
+libotapi_la_CPPFLAGS	=	-I$(otapi_headers_dir) $(AM_CPPFLAGS) -fpic
 
-libotapi_la_LIBADD =		libot.la
-libotapi_la_DEPENDENCIES =	libot.la
+libotapi_la_LIBADD	=	libot.la
+libotapi_la_DEPENDENCIES=	libot.la
 
-libotapi_la_LDFLAGS =		-static
+libotapi_la_LDFLAGS	=	-static
 
 
-####	Global Hedders
+####	Global Headers
 
-pkginclude_HEADERS =		$(otlib_headers)
+pkginclude_HEADERS	=	$(otlib_headers)
 
 
 ##########################
 ## Open Transactions Bin #
 ##########################
 
-bin_PROGRAMS =	ot					\
-				otserver			\
+bin_PROGRAMS		=	ot					\
+				otserver				\
 				createmint
 
 ####	OT
 
-ot_SOURCES =			$(ot_sources) $(otapi_headers)
-ot_CPPFLAGS =			-I$(otapi_headers_dir) $(AM_CPPFLAGS) -fpic
-ot_LDADD =              libotapi.la libot.la
-ot_DEPENDENCIES =		libotapi.la libot.la
+ot_SOURCES		=	$(ot_sources) $(otapi_headers)
+ot_CPPFLAGS		=	-I$(otapi_headers_dir) $(AM_CPPFLAGS) -fpic
+ot_LDADD		=	libotapi.la libot.la
+ot_DEPENDENCIES		=	libotapi.la libot.la
 
 
 ####	OT Server
 
-otserver_SOURCES =		$(otserver_sources) $(otserver_headers)
-otserver_CPPFLAGS =		-I$(otserver_headers_dir) $(AM_CPPFLAGS)
-otserver_LDADD =		libot.la
-otserver_DEPENDENCIES =	libot.la
+otserver_SOURCES	=	$(otserver_sources) $(otserver_headers)
+otserver_CPPFLAGS	=	-I$(otserver_headers_dir) $(AM_CPPFLAGS)
+otserver_LDADD		=	libot.la
+otserver_DEPENDENCIES	=	libot.la
 
 
 ####	Createmint  (includes files from OT Server)
 
-createmint_SOURCES  =		$(otserver_sources)  \
+createmint_SOURCES	=	$(otserver_sources)			\
 				$(otserver_headers)
 
-createmint_CPPFLAGS =		-I$(otserver_headers_dir) $(AM_CPPFLAGS)
-createmint_LDADD    =		libot.la
+createmint_CPPFLAGS	=	-I$(otserver_headers_dir) $(AM_CPPFLAGS)
+createmint_LDADD	=	libot.la
 createmint_DEPENDENCIES =	libot.la
 
 
@@ -411,14 +399,14 @@ createmint_DEPENDENCIES =	libot.la
 
 if TRANSPORT_ZMQ
 
-libotapi_la_CPPFLAGS +=		-DOT_ZMQ_MODE
-ot_CPPFLAGS +=			-DOT_ZMQ_MODE
+libotapi_la_CPPFLAGS		+=	-DOT_ZMQ_MODE
+ot_CPPFLAGS			+=	-DOT_ZMQ_MODE
 
-otserver_SOURCES +=		src/otserver/xmlrpcxx_server.cpp
-otserver_CPPFLAGS +=		-DOT_ZMQ_MODE
+otserver_SOURCES		+=	src/otserver/xmlrpcxx_server.cpp
+otserver_CPPFLAGS		+=	-DOT_ZMQ_MODE
 
-createmint_SOURCES +=		src/createmint/main.cpp
-createmint_CPPFLAGS +=		-DOT_ZMQ_MODE
+createmint_SOURCES		+=	src/createmint/main.cpp
+createmint_CPPFLAGS		+=	-DOT_ZMQ_MODE
 
 endif
 
@@ -426,108 +414,193 @@ endif
 #### OT API JAVA
 
 if WANT_JAVA
-lib_LTLIBRARIES +=			libotapi-java.la
+lib_LTLIBRARIES			+=	libotapi-java.la
 endif
 
-libotapi_java_la_SOURCES =		swig/otapi/OTAPI-java.cxx
+libotapi_java_la_SOURCES	=	swig/otapi/OTAPI-java.cxx
 
-libotapi_java_la_CPPFLAGS =		$(AM_CPPFLAGS)			\
+libotapi_java_la_CPPFLAGS	=	$(AM_CPPFLAGS)			\
 					$(JNI_CPPFLAGS)			\
 					-I$(otapi_headers_dir)
 
-libotapi_java_la_LIBADD =		libotapi.la libot.la
-libotapi_java_la_DEPENDENCIES =		libotapi.la libot.la
+libotapi_java_la_LIBADD 	=	libotapi.la libot.la
+libotapi_java_la_DEPENDENCIES 	=	libotapi.la libot.la
 
-libotapi_java_la_LDFLAGS =		--no-undefined
+libotapi_java_la_LDFLAGS 	=	--no-undefined
 
 if TRANSPORT_ZMQ
-libotapi_java_la_CPPFLAGS +=		-DOT_ZMQ_MODE
+libotapi_java_la_CPPFLAGS 	+=	-DOT_ZMQ_MODE
 endif
 
 
 #### OT API PERL5
 
 if WANT_PERL5
-lib_LTLIBRARIES +=			libotapi-perl5.la
+lib_LTLIBRARIES 		+=	libotapi-perl5.la
 endif
 
-libotapi_perl5_la_SOURCES =		swig/otapi/OTAPI-perl5.cxx
-libotapi_perl5_la_CPPFLAGS =		$(AM_CPPFLAGS)			\
+libotapi_perl5_la_SOURCES	=	swig/otapi/OTAPI-perl5.cxx
+libotapi_perl5_la_CPPFLAGS	=	$(AM_CPPFLAGS)			\
 					$(PERL_EXT_CPPFLAGS)		\
 					-I$(otapi_headers_dir)		\
 					-I$(PERL_EXT_INC)
 
-libotapi_perl5_la_LIBADD =		libotapi.la libot.la
-libotapi_perl5_la_DEPENDENCIES =	libotapi.la libot.la
+libotapi_perl5_la_LIBADD	=	libotapi.la libot.la
+libotapi_perl5_la_DEPENDENCIES	=	libotapi.la libot.la
 
-libotapi_perl5_la_LDFLAGS =		--no-undefined			\
+libotapi_perl5_la_LDFLAGS	=	--no-undefined			\
 					$(PERL_EXT_LDFLAGS)
 if TRANSPORT_ZMQ
-libotapi_perl5_la_CPPFLAGS +=		-DOT_ZMQ_MODE
+libotapi_perl5_la_CPPFLAGS	+=	-DOT_ZMQ_MODE
 endif
 
 
 #### OT API PHP
 
 if WANT_PHP
-lib_LTLIBRARIES +=			libotapi-php.la
+lib_LTLIBRARIES			+=	libotapi-php.la
 endif
 
-libotapi_php_la_SOURCES =		swig/otapi/OTAPI-php.cpp
+libotapi_php_la_SOURCES		=	swig/otapi/OTAPI-php.cpp
 
-libotapi_php_la_CPPFLAGS =		$(AM_CPPFLAGS)			\
+libotapi_php_la_CPPFLAGS	=	$(AM_CPPFLAGS)			\
 					-I$(otapi_headers_dir)		\
 					-I$(top_srcdir)/swig/glue/php	\
 					$(PHP_INCLUDES)
 
-libotapi_php_la_LIBADD =		libotapi.la libot.la
-libotapi_php_la_DEPENDENCIES =		libotapi.la libot.la
+libotapi_php_la_LIBADD		=	libotapi.la libot.la
+libotapi_php_la_DEPENDENCIES	=	libotapi.la libot.la
 
-libotapi_php_la_LDFLAGS =		--no-undefined			\
+libotapi_php_la_LDFLAGS		=	--no-undefined			\
 					$(PHP_LDFLAGS)
 
 if TRANSPORT_ZMQ
-libotapi_php_la_CPPFLAGS +=		-DOT_ZMQ_MODE
+libotapi_php_la_CPPFLAGS	+=	-DOT_ZMQ_MODE
 endif
 
 
 #### OT API PYTHON
 
 if WANT_PYTHON
-lib_LTLIBRARIES +=                      _otapi.la
+lib_LTLIBRARIES			+=	_otapi.la
 endif
 
-_otapi_la_SOURCES =             	swig/otapi/OTAPI-python.cxx
+_otapi_la_SOURCES		=	swig/otapi/OTAPI-python.cxx
 
-_otapi_la_CPPFLAGS =            	$(AM_CPPFLAGS)  -fpic           \
-                                        $(PYTHON_CPPFLAGS)              \
-                                        -I$(otapi_headers_dir)          \
-                                        $(PYTHON_EXTRA_LIBS)
+_otapi_la_CPPFLAGS		= 	$(AM_CPPFLAGS)  -fpic           \
+					$(PYTHON_CPPFLAGS)              \
+					-I$(otapi_headers_dir)          \
+					$(PYTHON_EXTRA_LIBS)
 
 
-_otapi_la_LIBADD =              	libotapi.la libot.la
-_otapi_la_DEPENDENCIES =        	libotapi.la libot.la
+_otapi_la_LIBADD		=	libotapi.la libot.la
+_otapi_la_DEPENDENCIES		= 	libotapi.la libot.la
 
-_otapi_la_LDFLAGS =             	--no-undefined                  \
-                                        -module -avoid-version          \
-                                        $(PYTHON_LDFLAGS)               \
-                                        $(PYTHON_EXTRA_LDFLAGS)
+_otapi_la_LDFLAGS		=	--no-undefined                  \
+					-module -avoid-version          \
+					$(PYTHON_LDFLAGS)               \
+					$(PYTHON_EXTRA_LDFLAGS)
 
 if TRANSPORT_ZMQ
-_otapi_la_CPPFLAGS +=			-DOT_ZMQ_MODE
+_otapi_la_CPPFLAGS		+=	-DOT_ZMQ_MODE
 endif
 
 
 
 
+###########################################################################
 
+#######################################
+## Open-Transactions Install Extras  ##
+#######################################
+
+#### OpenTXS script CLI utility
 
 dist_bin_SCRIPTS		=	scripts/opentxs
 
-                    
-                    
-                    
-                    
-                    
-                    
-                    
+#### OT SCRIPT HEADERS
+
+scriptheaderdir			=	$(pkglibdir)
+dist_scriptheader_SCRIPTS	=	scripts/ot/otapi.ot		\
+					scripts/ot/ot_made_easy.ot	\
+					scripts/ot/ot_utility.ot
+
+#### OT SCRIPTS
+
+samplesdir			=	$(pkglibdir)/scripts/samples
+dist_samples_SCRIPTS		=	scripts/samples/accept_inbox.ot			\
+					scripts/samples/add_signature.ot		\
+					scripts/samples/args.ot				\
+					scripts/samples/cancel_offer.ot			\
+					scripts/samples/cancel_plan.ot			\
+					scripts/samples/check_user.ot			\
+					scripts/samples/create_asset_acct.ot		\
+					scripts/samples/create_asset_contract.ot	\
+					scripts/samples/create_nym.ot			\
+					scripts/samples/create_offer.ot			\
+					scripts/samples/create_server_contract.ot	\
+					scripts/samples/create_symmetric_key.ot		\
+					scripts/samples/decode.ot			\
+					scripts/samples/decrypt.ot			\
+					scripts/samples/dl_acct_files.ot		\
+					scripts/samples/dl_contract.ot			\
+					scripts/samples/encode.ot			\
+					scripts/samples/encrypt.ot			\
+					scripts/samples/input_multiline.ot		\
+					scripts/samples/input_oneline.ot		\
+					scripts/samples/issue_asset.ot			\
+					scripts/samples/password_decrypt.ot		\
+					scripts/samples/password_encrypt.ot		\
+					scripts/samples/register_nym.ot			\
+					scripts/samples/send_transfer.ot		\
+					scripts/samples/send_user_msg.ot		\
+					scripts/samples/show_acct.ot			\
+					scripts/samples/show_balance.ot			\
+					scripts/samples/show_inbox.ot			\
+					scripts/samples/show_mint.ot			\
+					scripts/samples/show_outbox.ot			\
+					scripts/samples/sign_contract.ot		\
+					scripts/samples/stat.ot				\
+					scripts/samples/time.ot				\
+					scripts/samples/verify_signature.ot		\
+					scripts/samples/write_cheque.ot
+dist_samples_DATA		=	scripts/samples/README.txt
+
+smartcontractsdir		=	$(pkglibdir)/scripts/smartcontracts
+dist_smartcontracts_SCRIPTS	=	scripts/smartcontracts/create_smartcontract.ot
+dist_smartcontracts_DATA	=	scripts/smartcontracts/readme.txt
+
+escrowdir			=	$(pkglibdir)/scripts/smartcontracts/escrow
+dist_escrow_SCRIPTS		=	scripts/smartcontracts/escrow/activate_escrow.ot		\
+					scripts/smartcontracts/escrow/create_escrow.ot			\
+					scripts/smartcontracts/escrow/sign_escrow_as_alice.ot		\
+					scripts/smartcontracts/escrow/sign_escrow_as_bob.ot		\
+					scripts/smartcontracts/escrow/sign_escrow_as_judge_judy.ot
+dist_escrow_DATA		=	scripts/smartcontracts/escrow/README.txt
+
+two_way_tradedir		=	$(pkglibdir)/scripts/smartcontracts/two_way_trade
+dist_two_way_trade_SCRIPTS	=	scripts/smartcontracts/two_way_trade/activate_two_way_trade.ot	\
+					scripts/smartcontracts/two_way_trade/create_two_way_trade.ot	\
+					scripts/smartcontracts/two_way_trade/sign_trade_as_alice.ot	\
+					scripts/smartcontracts/two_way_trade/sign_trade_as_bob.ot
+dist_two_way_trade_DATA		=	scripts/smartcontracts/two_way_trade/README.txt
+
+utildir				=	$(pkglibdir)/scripts/util
+dist_util_SCRIPTS		=	scripts/util/resync.ot
+dist_util_DATA			=	scripts/util/README.txt
+
+
+#### OT docs, licences, info, etc.
+
+dist_doc_DATA			=	docs/GETTING-STARTED.txt	\
+					docs/INSTALL-Android.txt	\
+					docs/INSTALL-Fedora.txt		\
+					docs/INSTALL-Debian_Ubuntu.txt	\
+					docs/INSTALL-OSX-Homebrew.txt	\
+					docs/INSTALL-Windows.txt	\
+					docs/SSL-NOTES.txt		\
+					docs/WIPE-USERS-ACCOUNTS.txt	\
+					docs/LICENSE-AND-CREDITS.txt	\
+					PUBKEY-FellowTraveler.asc	\
+					README.md 			\
+					VERSION

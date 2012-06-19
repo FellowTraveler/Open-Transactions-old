@@ -337,7 +337,7 @@ OTString OTLog::__OTReceiptFolder			= "receipts";
 OTString OTLog::__OTNymboxFolder			= "nymbox";		
 OTString OTLog::__OTInboxFolder				= "inbox";		
 OTString OTLog::__OTOutboxFolder			= "outbox";	
-OTString OTLog::__OTPaymentInboxFolder		= "paymentInbox";		
+OTString OTLog::__OTPaymentInboxFolder			= "paymentInbox";		
 OTString OTLog::__OTRecordBoxFolder			= "recordBox";
 OTString OTLog::__OTCertFolder				= "certs";		
 OTString OTLog::__OTPubkeyFolder			= "pubkeys";
@@ -347,7 +347,7 @@ OTString OTLog::__OTSpentFolder				= "spent";
 OTString OTLog::__OTPurseFolder				= "purse";
 OTString OTLog::__OTMarketFolder			= "markets";
 OTString OTLog::__OTScriptFolder			= "scripts";
-OTString OTLog::__OTSmartContractsFolder	= "smartcontracts";
+OTString OTLog::__OTSmartContractsFolder		= "smartcontracts";
 
 
 OTString OTLog::__OTLogfile;
