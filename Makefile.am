@@ -2,11 +2,11 @@
 AUTOMAKE_OPTIONS =		subdir-objects
 ACLOCAL_AMFLAGS =		-I build-aux/m4
 
-ot_include_dir =		$(top_srcdir)/include
-ot_source_dir =			$(top_srcdir)/src
+opentxs_include_dir =		$(top_srcdir)/include
+opentxs_source_dir =		$(top_srcdir)/src
 
-common_includes =		-I$(ot_include_dir)				\
-				-I$(ot_include_dir)/otlib			\
+common_includes =		-I$(opentxs_include_dir)			\
+				-I$(opentxs_include_dir)/otlib			\
 				$(DEPS_CFLAGS)
 
 
@@ -45,7 +45,7 @@ endif
 
 ####	BigInt
 
-bigint_headers_dir =		$(ot_include_dir)/bigint
+bigint_headers_dir =		$(opentxs_include_dir)/bigint
 
 bigint_headers =		include/bigint/BigInteger.h			\
 				include/bigint/BigIntegerAlgorithms.h		\
@@ -55,7 +55,7 @@ bigint_headers =		include/bigint/BigInteger.h			\
 				include/bigint/BigUnsignedInABase.h		\
 				include/bigint/NumberlikeArray.h
 
-bigint_sources_dir =		$(ot_source_dir)/bigint
+bigint_sources_dir =		$(opentxs_source_dir)/bigint
 
 bigint_sources =		src/bigint/BigInteger.cc			\
 				src/bigint/BigIntegerAlgorithms.cc		\
@@ -63,27 +63,49 @@ bigint_sources =		src/bigint/BigInteger.cc			\
 				src/bigint/BigUnsigned.cc			\
 				src/bigint/BigUnsignedInABase.cc
 
+####	Simple Ini
+
+simpleini_headers_dir	=	$(opentxs_include_dir)/simpleini
+
+simpleini_headers	=	include/simpleini/ConvertUTF.h			\
+				include/simpleini/SimpleIni.h
+
+simpleini_sources_dir	= 	$(opentxs_source_dir)/simpleini
+
+simpleini_sources	=	src/simpleini/ConvertUTF.cpp			\
+				src/simpleini/snippets.cpp
+
 ####	Containers
 
-containers_headers_dir =	$(ot_include_dir)/containers
+containers_headers_dir	=	$(opentxs_include_dir)/containers
 
-containers_headers =		include/containers/containers.hpp		\
+containers_headers 	=	include/containers/containers.hpp		\
 				include/containers/containers_fixes.hpp		\
 				include/containers/copy_functors.hpp		\
 				include/containers/digraph.hpp			\
+				include/containers/digraph.tpp			\
 				include/containers/exceptions.hpp		\
 				include/containers/foursome.hpp			\
+				include/containers/foursome.tpp			\
 				include/containers/hash.hpp			\
+				include/containers/hash.tpp			\
 				include/containers/matrix.hpp			\
+				include/containers/matrix.tpp			\
 				include/containers/ntree.hpp			\
+				include/containers/ntree.tpp			\
 				include/containers/safe_iterator.hpp		\
+				include/containers/safe_iterator.tpp		\
 				include/containers/simple_ptr.hpp		\
+				include/containers/simple_ptr.tpp		\
 				include/containers/smart_ptr.hpp		\
-				include/containers/triple.hpp
+				include/containers/smart_ptr.tpp		\
+				include/containers/triple.hpp			\
+				include/containers/triple.tpp
+
 
 ####	IrrXML
 
-irrxml_headers_dir =		$(ot_include_dir)/irrxml
+irrxml_headers_dir =		$(opentxs_include_dir)/irrxml
 
 irrxml_headers =		include/irrxml/CXMLReaderImpl.h			\
 				include/irrxml/fast_atof.h			\
@@ -93,18 +115,18 @@ irrxml_headers =		include/irrxml/CXMLReaderImpl.h			\
 				include/irrxml/irrTypes.h			\
 				include/irrxml/irrXML.h
 
-irrxml_sources_dir = 		$(ot_source_dir)/irrxml
+irrxml_sources_dir = 		$(opentxs_source_dir)/irrxml
 
 irrxml_sources =		src/irrxml/irrXML.cpp
 
 
 ####	Lucre
 
-lucre_headers_dir =		$(ot_include_dir)/lucre
+lucre_headers_dir =		$(opentxs_include_dir)/lucre
 
 lucre_headers =			include/lucre/bank.h
 
-lucre_sources_dir = 		$(ot_source_dir)/lucre
+lucre_sources_dir = 		$(opentxs_source_dir)/lucre
 
 lucre_sources =			src/lucre/bankdemo.cpp				\
 				src/lucre/bankimp.cpp				\
@@ -116,14 +138,14 @@ lucre_sources =			src/lucre/bankdemo.cpp				\
 
 ####	OT
 
-ot_sources_dir = 		$(ot_source_dir)/ot
+ot_sources_dir = 		$(opentxs_source_dir)/ot
 
 ot_sources =			src/ot/main.cpp
 
 
 ####	OT API
 
-otapi_headers_dir =		$(ot_include_dir)/otapi
+otapi_headers_dir =		$(opentxs_include_dir)/otapi
 
 otapi_headers =			include/otapi/main.h				\
 				include/otapi/OpenTransactions.h		\
@@ -133,7 +155,7 @@ otapi_headers =			include/otapi/main.h				\
 				include/otapi/OTClient.h			\
 				include/otapi/OTServerConnection.h
 
-otapi_sources_dir = 		$(ot_source_dir)/otapi
+otapi_sources_dir = 		$(opentxs_source_dir)/otapi
 
 otapi_sources =			src/otapi/OpenTransactions.cpp			\
 				src/otapi/OTAPI.cpp				\
@@ -143,7 +165,7 @@ otapi_sources =			src/otapi/OpenTransactions.cpp			\
 
 ####	OT LIB
 
-otlib_headers_dir =		$(ot_include_dir)/otlib
+otlib_headers_dir =		$(opentxs_include_dir)/otlib
 
 otlib_headers =			include/otlib/anyoption.h			\
 				include/otlib/Bitcoin.pb.h			\
@@ -165,6 +187,7 @@ otlib_headers =			include/otlib/anyoption.h			\
 				include/otlib/OTCronItem.h			\
 				include/otlib/OTData.h				\
 				include/otlib/OTDataCheck.h			\
+				include/otlib/ot_default_paths.h		\
 				include/otlib/OTEnvelope.h			\
 				include/otlib/OTglobal.h			\
 				include/otlib/OTIdentifier.h			\
@@ -202,9 +225,10 @@ otlib_headers =			include/otlib/anyoption.h			\
 				include/otlib/OTWallet.h			\
 				include/otlib/stacktrace.h			\
 				include/otlib/Timer.h				\
-				include/otlib/tinythread.h
+				include/otlib/tinythread.h			\
+				include/otlib/WinsockWrapper.h
 
-otlib_sources_dir = 		$(ot_source_dir)/otlib
+otlib_sources_dir = 		$(opentxs_source_dir)/otlib
 
 otlib_sources     =		src/otlib/anyoption.cpp				\
 				src/otlib/Bitcoin.pb.cpp			\
@@ -263,33 +287,20 @@ otlib_sources     =		src/otlib/anyoption.cpp				\
 
 ####	OT Server
 
-otserver_headers_dir	=	$(ot_include_dir)/otserver
+otserver_headers_dir	=	$(opentxs_include_dir)/otserver
 
 otserver_headers	= 	include/otserver/main.h				\
 				include/otserver/OTClientConnection.h		\
 				include/otserver/OTServer.h
 
-otserver_sources_dir	=	$(ot_source_dir)/otserver
+otserver_sources_dir	=	$(opentxs_source_dir)/otserver
 
 otserver_sources	=	src/otserver/OTClientConnection.cpp		\
 				src/otserver/OTServer.cpp
 
-####	Simple Ini
-
-simpleini_headers_dir	=	$(ot_include_dir)/simpleini
-
-simpleini_headers	=	include/simpleini/ConvertUTF.h			\
-				include/simpleini/SimpleIni.h
-
-simpleini_sources_dir	= 	$(ot_source_dir)/simpleini
-
-simpleini_sources	=	src/simpleini/ConvertUTF.cpp			\
-				src/simpleini/snippets.cpp
-
-
 ####	OT Create Mint
 
-createmint_sources_dir	=	$(ot_source_dir)/createmint
+createmint_sources_dir	=	$(opentxs_source_dir)/createmint
 
 ####################################################################
 
@@ -325,7 +336,8 @@ liblucre_la_LDFLAGS	=	-static
 
 ####	LIB OT
 
-libot_la_SOURCES	=	$(otlib_sources) $(otlib_headers)
+libot_la_SOURCES	=	$(otlib_sources) $(otlib_headers)	\
+				$(containers_headers)
 
 libot_la_CPPFLAGS	=	$(AM_CPPFLAGS)
 
@@ -341,7 +353,8 @@ libot_la_LDFLAGS	=	--no-undefined
 
 ####	 LIB OT API
 
-libotapi_la_SOURCES	=	$(otapi_sources) $(otapi_headers)
+libotapi_la_SOURCES	=	$(otapi_sources) $(otapi_headers)	\
+				$(simpleini_headers)
 
 libotapi_la_CPPFLAGS	=	-I$(otapi_headers_dir) $(AM_CPPFLAGS) -fpic
 
@@ -411,16 +424,15 @@ createmint_CPPFLAGS		+=	-DOT_ZMQ_MODE
 endif
 
 
-#### OT API JAVA
-
 if WANT_JAVA
 lib_LTLIBRARIES			+=	libotapi-java.la
 endif
 
-libotapi_java_la_SOURCES	=	swig/otapi/OTAPI-java.cxx
+libotapi_java_la_SOURCES	=	swig/otapi/OTAPI-java.cxx		\
+					swig/otapi/OTAPI-java.h
 
-libotapi_java_la_CPPFLAGS	=	$(AM_CPPFLAGS)			\
-					$(JNI_CPPFLAGS)			\
+libotapi_java_la_CPPFLAGS	=	$(AM_CPPFLAGS)				\
+					$(JNI_CPPFLAGS)				\
 					-I$(otapi_headers_dir)
 
 libotapi_java_la_LIBADD 	=	libotapi.la libot.la
@@ -461,7 +473,8 @@ if WANT_PHP
 lib_LTLIBRARIES			+=	libotapi-php.la
 endif
 
-libotapi_php_la_SOURCES		=	swig/otapi/OTAPI-php.cpp
+libotapi_php_la_SOURCES		=	swig/otapi/OTAPI-php.cpp	\
+					swig/otapi/OTAPI-php.h
 
 libotapi_php_la_CPPFLAGS	=	$(AM_CPPFLAGS)			\
 					-I$(otapi_headers_dir)		\
@@ -485,7 +498,8 @@ if WANT_PYTHON
 lib_LTLIBRARIES			+=	_otapi.la
 endif
 
-_otapi_la_SOURCES		=	swig/otapi/OTAPI-python.cxx
+_otapi_la_SOURCES		=	swig/otapi/OTAPI-python.cxx	\
+					swig/otapi/OTAPI-python.h
 
 _otapi_la_CPPFLAGS		= 	$(AM_CPPFLAGS)  -fpic           \
 					$(PYTHON_CPPFLAGS)              \
@@ -520,15 +534,13 @@ dist_bin_SCRIPTS		=	scripts/opentxs
 
 #### OT SCRIPT HEADERS
 
-scriptheaderdir			=	$(pkglibdir)
-dist_scriptheader_SCRIPTS	=	scripts/ot/otapi.ot		\
+dist_pkglib_SCRIPTS		=	scripts/ot/otapi.ot		\
 					scripts/ot/ot_made_easy.ot	\
 					scripts/ot/ot_utility.ot
 
 #### OT SCRIPTS
 
-samplesdir			=	$(pkglibdir)/scripts/samples
-dist_samples_SCRIPTS		=	scripts/samples/accept_inbox.ot			\
+nobase_dist_pkglib_SCRIPTS	=	scripts/samples/accept_inbox.ot			\
 					scripts/samples/add_signature.ot		\
 					scripts/samples/args.ot				\
 					scripts/samples/cancel_offer.ot			\
@@ -563,31 +575,25 @@ dist_samples_SCRIPTS		=	scripts/samples/accept_inbox.ot			\
 					scripts/samples/stat.ot				\
 					scripts/samples/time.ot				\
 					scripts/samples/verify_signature.ot		\
-					scripts/samples/write_cheque.ot
-dist_samples_DATA		=	scripts/samples/README.txt
-
-smartcontractsdir		=	$(pkglibdir)/scripts/smartcontracts
-dist_smartcontracts_SCRIPTS	=	scripts/smartcontracts/create_smartcontract.ot
-dist_smartcontracts_DATA	=	scripts/smartcontracts/readme.txt
-
-escrowdir			=	$(pkglibdir)/scripts/smartcontracts/escrow
-dist_escrow_SCRIPTS		=	scripts/smartcontracts/escrow/activate_escrow.ot		\
+					scripts/samples/write_cheque.ot			\
+					scripts/smartcontracts/create_smartcontract.ot			\
+					scripts/smartcontracts/escrow/activate_escrow.ot		\
 					scripts/smartcontracts/escrow/create_escrow.ot			\
 					scripts/smartcontracts/escrow/sign_escrow_as_alice.ot		\
 					scripts/smartcontracts/escrow/sign_escrow_as_bob.ot		\
-					scripts/smartcontracts/escrow/sign_escrow_as_judge_judy.ot
-dist_escrow_DATA		=	scripts/smartcontracts/escrow/README.txt
-
-two_way_tradedir		=	$(pkglibdir)/scripts/smartcontracts/two_way_trade
-dist_two_way_trade_SCRIPTS	=	scripts/smartcontracts/two_way_trade/activate_two_way_trade.ot	\
+					scripts/smartcontracts/escrow/sign_escrow_as_judge_judy.ot	\
+					scripts/smartcontracts/two_way_trade/activate_two_way_trade.ot	\
 					scripts/smartcontracts/two_way_trade/create_two_way_trade.ot	\
 					scripts/smartcontracts/two_way_trade/sign_trade_as_alice.ot	\
-					scripts/smartcontracts/two_way_trade/sign_trade_as_bob.ot
-dist_two_way_trade_DATA		=	scripts/smartcontracts/two_way_trade/README.txt
+					scripts/smartcontracts/two_way_trade/sign_trade_as_bob.ot	\
+					scripts/util/resync.ot
 
-utildir				=	$(pkglibdir)/scripts/util
-dist_util_SCRIPTS		=	scripts/util/resync.ot
-dist_util_DATA			=	scripts/util/README.txt
+nobase_dist_pkglib_DATA		=	scripts/README.txt				\
+					scripts/samples/README.txt			\
+					scripts/smartcontracts/readme.txt		\
+					scripts/smartcontracts/escrow/README.txt	\
+					scripts/smartcontracts/two_way_trade/README.txt	\
+					scripts/util/README.txt
 
 
 #### OT docs, licences, info, etc.
