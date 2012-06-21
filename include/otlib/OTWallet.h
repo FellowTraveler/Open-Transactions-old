@@ -178,7 +178,8 @@ public:
 	
 EXPORT	OTWallet();
 	virtual ~OTWallet();
-	void Release();
+	virtual void Release();
+	void Release_Wallet();
 	//------------------------------------------------------------	
     
     bool IsNymOnMasterKey(const OTIdentifier & needle) const; // needle and haystack.

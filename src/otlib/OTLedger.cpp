@@ -2218,7 +2218,7 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 
 OTLedger::~OTLedger()
 {
-// No need to call Release() here, it's called already by the framework.
+    Release_Ledger();
 }
 
 
@@ -2235,11 +2235,16 @@ void OTLedger::ReleaseTransactions()
 	}	
 }
 
-void OTLedger::Release()
+void OTLedger::Release_Ledger()
 {
 	ReleaseTransactions();
+}
+
+void OTLedger::Release()
+{
+	Release_Ledger();
 	
-	OTTransactionType::Release(); // since I've overridden the base class, I call it now...
+	ot_super::Release(); // since I've overridden the base class, I call it now...
 }
 
 

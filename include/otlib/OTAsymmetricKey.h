@@ -259,7 +259,9 @@ EXPORT	virtual ~OTAsymmetricKey();
 	
 	OTAsymmetricKey & operator=(const OTAsymmetricKey & rhs);
 	
-	void Release();
+	virtual void Release();
+	void Release_AsymmetricKey();
+    
 	void ReleaseKey();
     
 	// -------------------------------------

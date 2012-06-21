@@ -172,9 +172,12 @@ EXPORT	OTData(const void * pNewData, uint32_t nNewSize);
 EXPORT	OTData(const OTData &theSource);
 	OTData(const OTASCIIArmor &theSource);
 
-EXPORT	virtual void Release();
-	virtual ~OTData() { Release(); }
+    EXPORT	virtual void Release();
+    void Release_Data();
+	virtual ~OTData();
 
+    
+    
 EXPORT	OTData & operator=(OTData rhs);
 	
 	void swap (OTData & rhs);

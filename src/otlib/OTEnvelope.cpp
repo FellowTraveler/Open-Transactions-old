@@ -2153,11 +2153,11 @@ OTSymmetricKey::OTSymmetricKey(const OTPassword & thePassword)
 
 OTSymmetricKey::~OTSymmetricKey()
 {
-//  Release(); // Unnecessary here, since the two data object members already will destruct.
+    Release_SymmetricKey();
 }
 // ------------------------------------------------------------------------
 
-void OTSymmetricKey::Release()
+void OTSymmetricKey::Release_SymmetricKey()
 {
     m_bIsGenerated    = false;
     m_nIterationCount = OT_DEFAULT_ITERATION_COUNT;
@@ -2166,6 +2166,13 @@ void OTSymmetricKey::Release()
     m_dataSalt.Release();
     m_dataIV.Release();
     m_dataEncryptedKey.Release();    
+}
+
+void OTSymmetricKey::Release()
+{
+    Release_SymmetricKey();
+    
+    // no call to ot_super::Release() here, since this is a base class (currently with no children...)
 }
 
 
@@ -2498,9 +2505,18 @@ OTEnvelope_Decrypt_Output::OTEnvelope_Decrypt_Output() : m_pPassword(NULL), m_pP
 
 OTEnvelope_Decrypt_Output::~OTEnvelope_Decrypt_Output() 
 {
+    // We don't own these objects.
+    // Rather, we own a pointer to ONE of them, since we are a wrapper
+    // for this one or that.
+    //
     m_pPassword = NULL;
     m_pPayload  = NULL;
-
+  
+    // Since this is merely a wrapper class, we don't actually Release() these things.
+    // However, we DO have a release function, since the programmatic USER of this class
+    // MAY wish to Release() whatever it is wrapping.
+    //
+//  Release_Envelope_Decrypt_Output();
 }
 
 
@@ -2543,10 +2559,20 @@ OTEnvelope_Decrypt_Output & OTEnvelope_Decrypt_Output::operator=(OTEnvelope_Decr
 void OTEnvelope_Decrypt_Output::Release()
 {
     OT_ASSERT((m_pPassword != NULL) || (m_pPayload != NULL));
+    
+    Release_Envelope_Decrypt_Output();
+    
+    // no need to call ot_super::Release here, since this class has no superclass.
+}
 
+
+// This is just a wrapper class.
+//
+void OTEnvelope_Decrypt_Output::Release_Envelope_Decrypt_Output()
+{
     if (NULL != m_pPassword)
         m_pPassword->zeroMemory();
-
+    
     if (NULL != m_pPayload)
         m_pPayload->Release();
 }

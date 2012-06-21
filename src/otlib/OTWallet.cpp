@@ -163,10 +163,17 @@ OTWallet::OTWallet()
 
 OTWallet::~OTWallet()
 {	
-	Release();
+	Release_Wallet();
 }
 
 void OTWallet::Release()
+{   
+	Release_Wallet();
+    
+    // no call to ot_super here since there are no child classes.
+}
+
+void OTWallet::Release_Wallet()
 {	
 	//1) Go through the map of Nyms and delete them. (They were dynamically allocated.)
 	while (!m_mapNyms.empty())

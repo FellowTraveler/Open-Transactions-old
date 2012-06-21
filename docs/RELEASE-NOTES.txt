@@ -3,6 +3,11 @@ NOTES on the Version:
 
 // --------------------------------------------------------------------
 
+   0.82e--- Various bugs were fixed: create_asset_contract.ot and create_
+            server_contract.ot were both fixed. An empty passphrase will
+            no longer assert on the client side. Release() is no longer
+            called from inside destructors.
+
    0.82c--- Resync script was fixed (in scripts/utils folder.) You should never
             need to actually use this, but it's there as a tool. I also fixed
             a bug in ot_utility.ot, so if you are keeping your existing data

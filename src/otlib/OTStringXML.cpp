@@ -179,7 +179,7 @@ OTStringXML& OTStringXML::operator=(const OTStringXML & rhs)
 OTStringXML::~OTStringXML()
 {
 	// Base class destructor is called automatically.
-	// (And that calls Release().)
+	// (And that calls Release_String().)
 }
 
 int OTStringXML::read(void* buffer, unsigned sizeToRead)

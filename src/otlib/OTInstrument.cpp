@@ -141,6 +141,9 @@ using namespace std;
 
 
 
+
+
+
 // Verify whether the CURRENT date is AFTER the the VALID TO date.
 // Notice, this will return false, even if the instrument is NOT YET VALID.
 // You have to use VerifyCurrentDate() to make sure you're within the
@@ -187,36 +190,40 @@ void OTInstrument::InitInstrument()
 	m_strContractType.Set("INSTRUMENT");	// should never happen in practice...
 }
 
-OTInstrument::OTInstrument() : OTScriptable()
+OTInstrument::OTInstrument()
+: ot_super(), m_VALID_FROM(0), m_VALID_TO(0)
 {
 	InitInstrument();
-
 
 }
 
-OTInstrument::OTInstrument(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID) : OTScriptable()
+OTInstrument::OTInstrument(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID)
+: ot_super(), m_ServerID(SERVER_ID), m_AssetTypeID(ASSET_ID), m_VALID_FROM(0), m_VALID_TO(0)
 {
 	InitInstrument();
-
-	m_ServerID		= SERVER_ID;
-	m_AssetTypeID	= ASSET_ID;
+//
+//	m_ServerID		= SERVER_ID;
+//	m_AssetTypeID	= ASSET_ID;
 }
 
 OTInstrument::~OTInstrument()
 {
-	//Release();
-	// OTContract::~OTContract is called here automatically, and it calls Release() already.
-	// So I don't need to call Release() here again, since it's already called by the parent.
+    Release_Instrument();
 }
 
 
+void OTInstrument::Release_Instrument()
+{		
+	// Release any dynamically allocated instrument members here.    
+}
+
 void OTInstrument::Release()
 {		
-	// Release any dynamically allocated instrument members here.
-
+	Release_Instrument();
+    
 	// Next give the base class a chance to do the same...
-	OTScriptable::Release(); // since I've overridden the base class, I call it now...
-
+	ot_super::Release(); // since I've overridden the base class, I call it now...
+    
 	// Initialize everything back to 0
 	InitInstrument();
 }
@@ -226,4 +233,70 @@ bool OTInstrument::SaveContractWallet(std::ofstream & ofs)
 {
 	return true;
 }
+
+
+// return -1 if error, 0 if nothing, and 1 if the node was processed.
+int OTInstrument::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
+{
+	int nReturnVal = 0;
+    
+	// Here we call the parent class first.
+	// If the node is found there, or there is some error,
+	// then we just return either way.  But if it comes back
+	// as '0', then nothing happened, and we'll continue executing.
+	//
+	// -- Note you can choose not to call the parent if
+	// you don't want to use any of those xml tags.
+	//
+	
+	nReturnVal = ot_super::ProcessXMLNode(xml);
+	
+	if (nReturnVal != 0) // -1 is error, and 1 is "found it". Either way, return.
+		return nReturnVal;	// 0 means "nothing happened, keep going."
+    
+	// ---------
+	
+    // This is from OTCronItem. It's only here as sample code.
+    //
+//  if (!strcmp("closingTransactionNumber", xml->getNodeName())) 
+//	{		
+//        OTString strClosingNumber = xml->getAttributeValue("value");
+//        
+//        if (strClosingNumber.Exists())
+//        {
+//            const long lClosingNumber = atol(strClosingNumber.Get());					
+//            
+//            this->AddClosingTransactionNo(lClosingNumber);
+//        }
+//        else
+//		{
+//			OTLog::Error("Error in OTCronItem::ProcessXMLNode: closingTransactionNumber field without value.\n");
+//			return (-1); // error condition
+//		}
+//        
+//		nReturnVal = 1;
+//	}
+    
+	return nReturnVal;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

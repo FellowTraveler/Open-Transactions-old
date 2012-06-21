@@ -2255,6 +2255,7 @@ bool OTScriptable::AddBylaw(OTBylaw & theBylaw)
 
 bool OTScriptable::Compare(OTScriptable & rhs)
 {
+    const char * szFunc = "OTScriptable::Compare";
 	//
 	// UPDATE: ALL of the parties should be there, in terms of their
 	// names and account names --- but the actual IDs can remain blank,
@@ -2264,12 +2265,12 @@ bool OTScriptable::Compare(OTScriptable & rhs)
 	//
 	if (this->GetPartyCount() != rhs.GetPartyCount())
 	{
-		OTLog::vOutput(0, "OTScriptable::Compare: The number of parties does not match.\n");
+		OTLog::vOutput(0, "%s: The number of parties does not match.\n", szFunc);
 		return false;
 	}
 	if (this->GetBylawCount() != rhs.GetBylawCount())
 	{
-		OTLog::vOutput(0, "OTScriptable::Compare: The number of bylaws does not match.\n");
+		OTLog::vOutput(0, "%s: The number of bylaws does not match.\n", szFunc);
 		return false;
 	}
 	// ----------------------------------------
@@ -2284,13 +2285,13 @@ bool OTScriptable::Compare(OTScriptable & rhs)
 		
 		if (NULL == p2)
 		{
-			OTLog::vOutput(0, "OTScriptable::Compare: Unable to find bylaw %s on rhs.\n",
+			OTLog::vOutput(0, "%s: Unable to find bylaw %s on rhs.\n", szFunc,
 						   str_bylaw_name.c_str());
 			return false;
 		}
 		else if ( ! pBylaw->Compare(*p2) )
 		{
-			OTLog::vOutput(0, "OTScriptable::Compare: Bylaws don't match: %s.\n",
+			OTLog::vOutput(0, "%s: Bylaws don't match: %s.\n", szFunc,
 						   str_bylaw_name.c_str());
 			return false;
 		}
@@ -2307,13 +2308,13 @@ bool OTScriptable::Compare(OTScriptable & rhs)
 		
 		if (NULL == p2)
 		{
-			OTLog::vOutput(0, "OTScriptable::Compare: Unable to find party %s on rhs.\n",
+			OTLog::vOutput(0, "%s: Unable to find party %s on rhs.\n", szFunc,
 						   str_party_name.c_str());
 			return false;
 		}
 		else if ( ! pParty->Compare(*p2) )
 		{
-			OTLog::vOutput(0, "OTScriptable::Compare: Parties don't match: %s.\n",
+			OTLog::vOutput(0, "%s: Parties don't match: %s.\n", szFunc,
 						   str_party_name.c_str());
 			return false;
 		}
@@ -2398,8 +2399,10 @@ void OTScriptable::UpdateContents() // Before transmission or serialization, thi
 // return -1 if error, 0 if nothing, and 1 if the node was processed.
 int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 {	
+    const char * szFunc = "OTScriptable::ProcessXMLNode";
+    
 	int nReturnVal = 0; // Unless/until I want to add OTContract::Compare(), then people would be able to surreptitiously insert keys and 
-//	int nReturnVal = OTContract::ProcessXMLNode(xml); // conditions, and entities, that passed OTScriptable::Compare() with flying colors 
+//	int nReturnVal = ot_super::ProcessXMLNode(xml); // conditions, and entities, that passed OTScriptable::Compare() with flying colors 
 //  even though they didn't really match. Therefore, here I explicitly disallow loading those things.
 	
 	// Here we call the parent class first.
@@ -2412,8 +2415,10 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 	
 //	if (nReturnVal == 1 || nReturnVal == (-1))
 //		return nReturnVal;
+    
+    const OTString strNodeName(xml->getNodeName());
 	
-	if (!strcmp("scriptableContract", xml->getNodeName()))
+	if (strNodeName.Compare("scriptableContract"))
 	{
 		const OTString strSpecify1 = xml->getAttributeValue("specifyAssetID");
 		const OTString strSpecify2 = xml->getAttributeValue("specifyParties");
@@ -2434,7 +2439,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		nReturnVal = 1; 
 	}
 	
-	else if (!strcmp("party", xml->getNodeName()))
+	else if (strNodeName.Compare("party"))
 	{
 		OTString strName			= xml->getAttributeValue("name"); // Party name (in script code)
 		OTString strOwnerType		= xml->getAttributeValue("ownerType"); // "nym" or "entity"
@@ -2461,7 +2466,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		if (strOpeningTransNo.Exists())
 			lOpeningTransNo = atol(strOpeningTransNo.Get());
 		else
-			OTLog::Error("OTScriptable::ProcessXMLNode: Expected openingTransNo in party.\n");
+			OTLog::vError("%s: Expected openingTransNo in party.\n", szFunc);
 		// ---------------------------------------
 		
 		OTParty * pParty = new 	OTParty(strName.Exists() ? strName.Get() : "PARTY_ERROR_NAME",
@@ -2484,7 +2489,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 //				xml->read(); // <==================
 				if (false == SkipToElement(xml))
 				{
-					OTLog::Output(0, "OTScriptable::ProcessXMLNode: Failure: Unable to find expected element for agent. \n");
+					OTLog::vOutput(0, "%s: Failure: Unable to find expected element for agent. \n", szFunc);
 					delete pParty; pParty=NULL;
 					return (-1);
 				}
@@ -2503,14 +2508,14 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 					
 					if (!strAgentName.Exists() || !strAgentRepSelf.Exists() || !strAgentIndividual.Exists())
 					{
-						OTLog::Error("OTScriptable::ProcessXMLNode: Error loading agent: Either the name, or one of the bool variables was EMPTY.\n");
+						OTLog::vError("%s: Error loading agent: Either the name, or one of the bool variables was EMPTY.\n", szFunc);
 						delete pParty; pParty=NULL;
 						return (-1);
 					}
 					// ----------------------------------
 					if (!OTScriptable::ValidateName(strAgentName.Get()))
 					{
-						OTLog::vError("OTScriptable::ProcessXMLNode: Failed loading agent due to Invalid name: %s\n",
+						OTLog::vError("%s: Failed loading agent due to Invalid name: %s\n", szFunc,
 									  strAgentName.Get());
 						delete pParty; pParty=NULL;
 						return (-1);
@@ -2535,8 +2540,8 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 					
 					if (NULL != pExistingAgent) // Uh-oh, it's already there!
 					{
-						OTLog::vOutput(0, "OTScriptable::ProcessXMLNode: Error loading agent named %s, since one was "
-									   "already there on party %s.\n", strAgentName.Get(), strName.Get());
+						OTLog::vOutput(0, "%s: Error loading agent named %s, since one was "
+									   "already there on party %s.\n", szFunc, strAgentName.Get(), strName.Get());
 						delete pParty; pParty=NULL;
 						return (-1);
 					}
@@ -2553,7 +2558,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 					{
 						delete pAgent; pAgent = NULL;
 						delete pParty; pParty=NULL;
-						OTLog::Error("OTScriptable::ProcessXMLNode: Failed adding agent to party.\n");
+						OTLog::vError("%s: Failed adding agent to party.\n", szFunc);
 						return (-1);
 					}
 					
@@ -2565,7 +2570,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 				}				
 				else 
 				{
-					OTLog::Error("Expected agent element in party, OTScriptable::ProcessXMLNode\n");
+					OTLog::vError("%s: Expected agent element in party.\n", szFunc);
 					delete pParty; pParty=NULL;
 					return (-1); // error condition
 				}
@@ -2583,7 +2588,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 //				xml->read(); // <==================
 				if (false == OTContract::SkipToElement(xml))
 				{
-					OTLog::Error("OTScriptable::ProcessXMLNode: Error finding expected next element for party account.\n");
+					OTLog::vError("%s: Error finding expected next element for party account.\n", szFunc);
 					delete pParty; pParty=NULL;
 					return (-1);
 				}
@@ -2603,7 +2608,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 						lClosingTransNo = atol(strClosingTransNo.Get());
 					else
 					{
-						OTLog::Error("OTScriptable::ProcessXMLNode: Expected closingTransNo in partyaccount.\n");
+						OTLog::vError("%s: Expected closingTransNo in partyaccount.\n", szFunc);
 						delete pParty; pParty=NULL;
 						return (-1);
 					}
@@ -2614,7 +2619,8 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 					if (!strAcctName.Exists() || !strAssetTypeID.Exists())
 //					if (!strAcctName.Exists() || !strAcctID.Exists() || !strAgentName.Exists() || !strAssetTypeID.Exists())
 					{
-						OTLog::Error("OTScriptable::ProcessXMLNode: Expected missing AcctID or AssetTypeID or Name or AgentName in partyaccount.\n");
+						OTLog::vError("%s: Expected missing AcctID or AssetTypeID or Name or AgentName in partyaccount.\n", 
+                                      szFunc);
 						delete pParty; pParty=NULL;
 						return (-1);
 					}
@@ -2626,8 +2632,8 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 
 					if (NULL != pAcct) // Uh-oh, it's already there!
 					{
-						OTLog::vOutput(0, "OTScriptable::ProcessXMLNode: Error loading partyacct named %s, since one was "
-									   "already there on party %s.\n", strAcctName.Get(), strName.Get());
+						OTLog::vOutput(0, "%s: Error loading partyacct named %s, since one was "
+									   "already there on party %s.\n", szFunc, strAcctName.Get(), strName.Get());
 						delete pParty; pParty=NULL;
 						return (-1);
 					}
@@ -2638,7 +2644,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 					
 					if (false == pParty->AddAccount(strAgentName, strAcctName, strAcctID, strAssetTypeID, lClosingTransNo))
 					{
-						OTLog::Error("OTScriptable::ProcessXMLNode: Failed adding account to party.\n");
+						OTLog::vError("%s: Failed adding account to party.\n", szFunc);
 						delete pParty; pParty=NULL;
 						return (-1);
 					}
@@ -2653,7 +2659,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 				}				
 				else 
 				{
-					OTLog::Error("Expected assetAccount element in party, OTScriptable::ProcessXMLNode\n");
+					OTLog::vError("%s: Expected assetAccount element in party.\n", szFunc);
 					delete pParty; pParty=NULL;
 					return (-1); // error condition
 				}
@@ -2669,8 +2675,8 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 					
 			if (false == OTContract::LoadEncodedTextFieldByName(xml, strTextExpected, pElementExpected))
 			{
-				OTLog::vError("Error in OTScriptable::ProcessXMLNode: "
-							  "Expected %s element with text field.\n", 
+				OTLog::vError("%s: "
+							  "Expected %s element with text field.\n", szFunc, 
 							  pElementExpected);
 				delete pParty; pParty = NULL;
 				return (-1); // error condition
@@ -2683,18 +2689,18 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		// --------------------------------
 		if (false == SkipAfterLoadingField(xml))  // </party>
 		{ 
-			OTLog::Output(0, "*** OTScriptable::ProcessXMLNode: Bad data? Expected EXN_ELEMENT_END here, but "
-						  "didn't get it. Failure.\n"); 
+			OTLog::vOutput(0, "*** %s: Bad data? Expected EXN_ELEMENT_END here, but "
+						  "didn't get it. Failure.\n", szFunc); 
 			delete pParty; pParty=NULL;
 			return (-1);
 		}
 		// --------------------------------
 		
 		if (AddParty(*pParty))
-			OTLog::vOutput(2, "OTScriptable: Loaded Party: %s\n", pParty->GetPartyName().c_str());
+			OTLog::vOutput(2, "%s: Loaded Party: %s\n", szFunc, pParty->GetPartyName().c_str());
 		else 
 		{
-			OTLog::vError("OTScriptable: Failed loading Party: %s\n", pParty->GetPartyName().c_str());
+			OTLog::vError("%s: Failed loading Party: %s\n", szFunc, pParty->GetPartyName().c_str());
 			delete pParty; pParty = NULL;
 			return (-1); // error condition
 		}
@@ -2704,7 +2710,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 	
 	// ----------------------------------------------------------------------------------
 	
-	else if (!strcmp("bylaw", xml->getNodeName())) 
+	else if (strNodeName.Compare("bylaw")) 
 	{
 		OTString strName		= xml->getAttributeValue("name"); // bylaw name
 		OTString strLanguage	= xml->getAttributeValue("language"); // The script language used in this bylaw.
@@ -2730,7 +2736,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 //				xml->read(); // <==================
 				if (false == OTContract::SkipToElement(xml))
 				{
-					OTLog::Error("OTScriptable::ProcessXMLNode: Error finding expected next element for variable.\n");
+					OTLog::vError("%s: Error finding expected next element for variable.\n", szFunc);
 					delete pBylaw; pBylaw=NULL;
 					return (-1);
 				}
@@ -2747,7 +2753,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 					
 					if (!strVarName.Exists() || !strVarType.Exists() || !strVarAccess.Exists())
 					{
-						OTLog::Error("OTScriptable::ProcessXMLNode: Expected missing name, type, or access type in variable.\n");
+						OTLog::vError("%s: Expected missing name, type, or access type in variable.\n", szFunc);
 						delete pBylaw; pBylaw=NULL;
 						return (-1);
 					}
@@ -2759,8 +2765,8 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 					
 					if (NULL != pVar) // Uh-oh, it's already there!
 					{
-						OTLog::vOutput(0, "OTScriptable::ProcessXMLNode: Error loading variable named %s, since one was "
-									   "already there on one of the bylaws.\n", strVarName.Get());
+						OTLog::vOutput(0, "%s: Error loading variable named %s, since one was "
+									   "already there on one of the bylaws.\n", szFunc, strVarName.Get());
 						delete pBylaw; pBylaw=NULL;
 						return (-1);
 					}
@@ -2780,7 +2786,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 					else if (strVarType.Compare("bool"))
 						theVarType = OTVariable::Var_Bool;
 					else
-						OTLog::vError("OTScriptable::ProcessXMLNode: Bad variable type: %s.\n", strVarType.Get());
+						OTLog::vError("%s: Bad variable type: %s.\n", szFunc, strVarType.Get());
 
 					// ---------
 					
@@ -2793,15 +2799,16 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 					else if (strVarAccess.Compare("important"))
 						theVarAccess = OTVariable::Var_Important;
 					else
-						OTLog::vError("OTScriptable::ProcessXMLNode: Bad variable access type: %s.\n", strVarAccess.Get());
+						OTLog::vError("%s: Bad variable access type: %s.\n", szFunc, strVarAccess.Get());
 
 					// ---------
 					
 					if ((OTVariable::Var_Error_Access == theVarAccess) || 
 						(OTVariable::Var_Error_Type == theVarType))
 					{
-						OTLog::vError("OTScriptable::ProcessXMLNode: Error loading variable to bylaw: "
-									  "bad type (%s) or access type (%s).\n", strVarType.Get(), strVarAccess.Get());
+						OTLog::vError("%s: Error loading variable to bylaw: "
+									  "bad type (%s) or access type (%s).\n", 
+                                      szFunc, strVarType.Get(), strVarAccess.Get());
 						delete pBylaw; pBylaw=NULL;
 						return (-1);
 					}
@@ -2820,7 +2827,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 							}
 							else
 							{
-								OTLog::vError("OTScriptable::ProcessXMLNode: No value found for integer variable: %s\n",
+								OTLog::vError("%s: No value found for integer variable: %s\n", szFunc,
 											 strVarName.Get());
 								delete pBylaw; pBylaw=NULL;
 								return (-1);
@@ -2835,7 +2842,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 							}
 							else
 							{
-								OTLog::vError("OTScriptable::ProcessXMLNode: No value found for bool variable: %s\n",
+								OTLog::vError("%s: No value found for bool variable: %s\n", szFunc,
 											 strVarName.Get());
 								delete pBylaw; pBylaw=NULL;
 								return (-1);
@@ -2850,7 +2857,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 								strVarValue.Release(); // probably unnecessary.
 								if (false == OTContract::LoadEncodedTextField(xml, strVarValue))
 								{
-									OTLog::vError("OTScriptable::ProcessXMLNode: No value found for string variable: %s\n",
+									OTLog::vError("%s: No value found for string variable: %s\n", szFunc,
 												  strVarName.Get());
 									delete pBylaw; pBylaw=NULL;
 									return (-1);
@@ -2865,8 +2872,8 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 						}
 							break;
 						default:
-							OTLog::Error("OTScriptable::ProcessXMLNode: Wrong variable type... "
-										 "somehow AFTER I should have already detected it...\n");
+							OTLog::vError("%s: Wrong variable type... "
+										 "somehow AFTER I should have already detected it...\n", szFunc);
 							delete pBylaw; pBylaw=NULL;
 							return (-1);							
 					}
@@ -2874,7 +2881,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 
 					if (false == bAddedVar)
 					{
-						OTLog::Error("OTScriptable::ProcessXMLNode: Failed adding variable to bylaw.\n");
+						OTLog::vError("%s: Failed adding variable to bylaw.\n", szFunc);
 						delete pBylaw; pBylaw=NULL;
 						return (-1);
 					}
@@ -2895,7 +2902,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 				}				
 				else 
 				{
-					OTLog::Error("Expected variable element in bylaw, OTScriptable::ProcessXMLNode\n");
+					OTLog::vError("%s: Expected variable element in bylaw.\n", szFunc);
 					delete pBylaw; pBylaw=NULL;
 					return (-1); // error condition
 				}
@@ -2941,8 +2948,8 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 				
 				if (false == OTContract::LoadEncodedTextFieldByName(xml, strTextExpected, pElementExpected, &temp_MapAttributes)) // </clause>
 				{
-					OTLog::vError("Error in OTScriptable::ProcessXMLNode: "
-								  "Expected %s element with text field.\n", 
+					OTLog::vError("%s: Error: "
+								  "Expected %s element with text field.\n", szFunc, 
 								  pElementExpected);
 					delete pBylaw; pBylaw = NULL;
 					return (-1); // error condition
@@ -2979,8 +2986,8 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 						
 						if (NULL != pClause) // Uh-oh, it's already there!
 						{
-							OTLog::vOutput(0, "OTScriptable::ProcessXMLNode: Error loading clause named %s, since one was already "
-										   "there on one of the bylaws.\n", str_name.c_str());
+							OTLog::vOutput(0, "%s: Error loading clause named %s, since one was already "
+										   "there on one of the bylaws.\n", szFunc, str_name.c_str());
 							delete pBylaw; pBylaw=NULL;
 							return (-1);
 						}
@@ -2988,7 +2995,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 						else if (false == pBylaw->AddClause(str_name.c_str(), 
 															strTextExpected.Get()))
 						{
-							OTLog::Error("OTScriptable::ProcessXMLNode: Failed adding clause to bylaw.\n");
+							OTLog::vError("%s: Failed adding clause to bylaw.\n", szFunc);
 							delete pBylaw; pBylaw=NULL;
 							return (-1); // error condition
 						}
@@ -2997,14 +3004,14 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 					// that we set above for "name" in temp_MapAttributes. 
 					else 
 					{
-						OTLog::Error("Expected clause name in OTScriptable::ProcessXMLNode\n");
+						OTLog::vError("%s: Expected clause name.\n", szFunc);
 						delete pBylaw; pBylaw=NULL;
 						return (-1); // error condition
 					}
 				}
 				else 
 				{
-					OTLog::Error("Strange error in OTScriptable::ProcessXMLNode: couldn't find name AT ALL.\n");
+					OTLog::vError("%s: Strange error: couldn't find name AT ALL.\n", szFunc);
 					delete pBylaw; pBylaw=NULL;
 					return (-1); // error condition
 				}
@@ -3024,7 +3031,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 //				xml->read();
 				if (false == SkipToElement(xml))
 				{
-					OTLog::Output(0, "OTScriptable::ProcessXMLNode: Failure: Unable to find expected element.\n");
+					OTLog::vOutput(0, "%s: Failure: Unable to find expected element.\n", szFunc);
 					delete pBylaw; pBylaw=NULL;
 					return (-1);
 				}
@@ -3039,7 +3046,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 					
 					if (!strHookName.Exists() || !strClause.Exists())
 					{
-						OTLog::Error("OTScriptable::ProcessXMLNode: Expected missing name or clause while loading hook.\n");
+						OTLog::vError("%s: Expected missing name or clause while loading hook.\n", szFunc);
 						delete pBylaw; pBylaw=NULL;
 						return (-1);
 					}
@@ -3047,7 +3054,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 
 					if (false == pBylaw->AddHook(strHookName.Get(), strClause.Get()))
 					{
-						OTLog::Error("OTScriptable::ProcessXMLNode: Failed adding hook to bylaw.\n");
+						OTLog::vError("%s: Failed adding hook to bylaw.\n", szFunc);
 						delete pBylaw; pBylaw=NULL;
 						return (-1);
 					}
@@ -3057,7 +3064,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 				}				
 				else 
 				{
-					OTLog::Error("Expected hook element in bylaw, OTScriptable::ProcessXMLNode\n");
+					OTLog::vError("%s: Expected hook element in bylaw.\n", szFunc);
 					delete pBylaw; pBylaw=NULL;
 					return (-1); // error condition
 				}
@@ -3077,7 +3084,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 //				xml->read();
 				if (false == SkipToElement(xml))
 				{
-					OTLog::Output(0, "OTScriptable::ProcessXMLNode: Failure: Unable to find expected element.\n");
+					OTLog::vOutput(0, "%s: Failure: Unable to find expected element.\n", szFunc);
 					delete pBylaw; pBylaw=NULL;
 					return (-1);
 				}
@@ -3092,8 +3099,8 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 					
 					if (!strCallbackName.Exists() || !strClause.Exists())
 					{
-						OTLog::vError("OTScriptable::ProcessXMLNode: Expected, yet nevertheless missing, name or clause while loading "
-									  "callback for bylaw %s.\n", strName.Get());
+						OTLog::vError("%s: Expected, yet nevertheless missing, name or clause while loading "
+									  "callback for bylaw %s.\n", szFunc, strName.Get());
 						delete pBylaw; pBylaw=NULL;
 						return (-1);
 					}
@@ -3105,7 +3112,8 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 					
 					if (NULL != pClause) // Uh-oh, it's already there!
 					{
-						OTLog::vOutput(0, "OTScriptable::ProcessXMLNode: Error loading callback %s, since one was already there on one of the other bylaws.\n",
+						OTLog::vOutput(0, "%s: Error loading callback %s, since one was already there on one of the other bylaws.\n", 
+                                       szFunc,
 									   strCallbackName.Get());
 						delete pBylaw; pBylaw=NULL;
 						return (-1);
@@ -3116,7 +3124,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 					
 					if (false == pBylaw->AddCallback(strCallbackName.Get(), strClause.Get()))
 					{
-						OTLog::vError("OTScriptable::ProcessXMLNode: Failed adding callback (%s) to bylaw (%s).\n",
+						OTLog::vError("%se: Failed adding callback (%s) to bylaw (%s).\n", szFunc,
 									  strCallbackName.Get(), strName.Get());
 						delete pBylaw; pBylaw=NULL;
 						return (-1);
@@ -3127,7 +3135,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 				}				
 				else 
 				{
-					OTLog::Error("Expected callback element in bylaw, OTScriptable::ProcessXMLNode\n");
+					OTLog::vError("%s: Expected callback element in bylaw.\n", szFunc);
 					delete pBylaw; pBylaw=NULL;
 					return (-1); // error condition
 				}
@@ -3137,8 +3145,8 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		// --------------------------------
 		if (false == SkipAfterLoadingField(xml))  // </bylaw>
 		{ 
-			OTLog::Output(0, "*** OTScriptable::ProcessXMLNode: Bad data? Expected EXN_ELEMENT_END here, but "
-						  "didn't get it. Failure.\n"); 
+			OTLog::vOutput(0, "*** %s: Bad data? Expected EXN_ELEMENT_END here, but "
+						  "didn't get it. Failure.\n", szFunc); 
 			delete pBylaw; pBylaw=NULL;
 			return (-1);
 		}
@@ -3146,13 +3154,13 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		
 		if (AddBylaw(*pBylaw))
 		{
-			OTLog::vOutput(2, "OTScriptable: Loaded Bylaw: %s\n", 
+			OTLog::vOutput(2, "%s: Loaded Bylaw: %s\n", szFunc, 
 						   pBylaw->GetName().Get());
 			
 		}
 		else 
 		{
-			OTLog::vError("OTScriptable: Failed loading Bylaw: %s\n", 
+			OTLog::vError("%s: Failed loading Bylaw: %s\n", szFunc, 
 						  pBylaw->GetName().Get());
 			delete pBylaw; pBylaw = NULL;
 			return (-1); // error condition
@@ -3253,8 +3261,7 @@ bool OTScriptable::GetHooks(const std::string str_HookName, mapOfClauses & theRe
 }
 
 
-
-void OTScriptable::Release()
+void OTScriptable::Release_Scriptable()
 {	
 	// Go through the existing list of parties and bylaws at this point, and delete them all.
 	// (After all, I own them.)
@@ -3281,15 +3288,21 @@ void OTScriptable::Release()
 		
 		m_mapBylaws.erase(m_mapBylaws.begin());
 	}	
+}
+
+
+void OTScriptable::Release()
+{	
+	Release_Scriptable();	
 	
 	// If there were any dynamically allocated objects, clean them up here.
 	
-	OTContract::Release(); // since I've overridden the base class, I call it now...	
+	ot_super::Release(); // since I've overridden the base class, I call it now...	
 }
 
 
 OTScriptable::OTScriptable() 
-:  OTContract(), 
+:  ot_super(), 
 	m_bCalculatingID(false), // This is not serialized.
 	m_bSpecifyAssetID(false), m_bSpecifyParties(false) // These are.
 {
@@ -3298,8 +3311,7 @@ OTScriptable::OTScriptable()
 
 OTScriptable::~OTScriptable()
 {
-	// ~OTContract calls Release already.
-//	Release();
+	Release_Scriptable();
 }
 
 
@@ -3308,5 +3320,20 @@ bool OTScriptable::SaveContractWallet(std::ofstream & ofs)
 {
 	return true;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

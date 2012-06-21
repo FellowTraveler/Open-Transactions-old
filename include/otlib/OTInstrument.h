@@ -147,7 +147,10 @@
 
 
 class OTInstrument : public OTScriptable 
-{	
+{
+private:  // Private prevents erroneous use by other classes.
+    typedef OTScriptable ot_super;
+
 protected:	
 	OTIdentifier		m_AssetTypeID;	// Every cheque or cash note has an Asset Type
 	OTIdentifier		m_ServerID;		// ...As well as a Server ID...
@@ -157,7 +160,7 @@ protected:
 	time_t			m_VALID_TO;		// The date, in seconds, when the instrument expires.
 	
 	
-//	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
+	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
 	
 	inline void SetValidFrom(time_t TIME_FROM)	{ m_VALID_FROM	= TIME_FROM; }
 	inline void SetValidTo(time_t TIME_TO)		{ m_VALID_TO	= TIME_TO; }
@@ -181,6 +184,7 @@ public:
 	virtual ~OTInstrument();
 
 	virtual void Release();
+	void Release_Instrument();
 	
 	time_t GetCurrentTime() const;
 

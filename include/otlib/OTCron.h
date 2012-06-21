@@ -170,6 +170,9 @@ typedef std::list<long> listOfLongNumbers;
 
 class OTCron : public OTContract
 {
+private:  // Private prevents erroneous use by other classes.
+    typedef OTContract ot_super;
+    
 private:
 	mapOfMarkets        m_mapMarkets;       // A list of all valid markets.
 	mapOfCronItems      m_mapCronItems;
@@ -261,6 +264,7 @@ EXPORT	virtual ~OTCron();
 	void InitCron();
 	
 	virtual void Release();
+	void Release_Cron();
     // -----------------------------------------------------
 
 	// return -1 if error, 0 if nothing, and 1 if the node was processed.

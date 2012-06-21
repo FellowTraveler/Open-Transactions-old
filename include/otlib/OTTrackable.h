@@ -152,6 +152,9 @@
 
 class OTTrackable : public OTInstrument
 {
+private:  // Private prevents erroneous use by other classes.
+    typedef OTInstrument ot_super;
+
 protected:
 	long	m_lTransactionNum;	
 	
@@ -197,10 +200,10 @@ public:
 				const OTIdentifier & ACCT_ID, const OTIdentifier & USER_ID);
 	virtual ~OTTrackable();
 	
-	
 	void InitTrackable();
 	
 	virtual void Release();
+	void Release_Trackable();
 
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
 	

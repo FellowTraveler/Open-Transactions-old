@@ -200,6 +200,9 @@ class OTSmartContract;
 
 class OTPayment : public OTContract 
 {
+private:  // Private prevents erroneous use by other classes.
+    typedef OTContract ot_super;
+    
 public:
     enum paymentType
     {
@@ -308,6 +311,7 @@ EXPORT	OTPayment(const OTString & strPayment);
 EXPORT	virtual ~OTPayment();
     void InitPayment();
 	virtual void Release();
+	void Release_Payment();
 
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
 	

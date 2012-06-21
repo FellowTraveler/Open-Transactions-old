@@ -1299,18 +1299,12 @@ OTServer::OTServer() : m_bShutdownFlag(false), m_pServerContract(NULL), m_lTrans
 
 OTServer::~OTServer()
 {
-    // NOTE: In most normal OT classes, which are derived from OTContract, you would NOT
-    // call Release here, since it is ALREADY called by the framework. But in this case, 
-    // OTServer is NOT OTContract-derived, so there is no "framework" in this case. So 
-    // we have to call it ourselves here...
-    //
-    Release();
+    Release_Server();
 }
 
 // -----------------------------------------------------
 
-
-void OTServer::Release()
+void OTServer::Release_Server()
 {	
     // -------------------------------
     if (NULL == m_pServerContract)
@@ -1346,6 +1340,15 @@ void OTServer::Release()
         pMint = NULL;
     }
     // -------------------------------
+}
+
+
+
+void OTServer::Release()
+{	
+    Release_Server();
+    
+    // ot_super::Release() call would normally go here, if we had a super class.
 }
 
 // -----------------------------------------------------

@@ -272,13 +272,15 @@ public:
     // -----------------------
     
 	OTServer();
-	~OTServer(); // Calls Release();
+	virtual ~OTServer(); // Calls Release();
 	
     // delete various dynamically allocated things such as the map of Mints, 
     // and the map of asset contracts.
     //
-	void Release();   
+	virtual void Release();   
     
+	void Release_Server();   
+
     // -----------------------
     
 	inline bool IsFlaggedForShutdown() const { return m_bShutdownFlag; }

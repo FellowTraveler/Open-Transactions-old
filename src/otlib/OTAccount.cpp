@@ -473,7 +473,7 @@ const OTIdentifier & OTAccount::GetAssetTypeID() const
 
 // Used for generating accounts, thus no accountID needed.
 OTAccount::OTAccount(const OTIdentifier & theUserID, const OTIdentifier & theServerID)
-: OTTransactionType(), m_lStashTransNum(0), m_bMarkForDeletion(false)
+: ot_super(), m_lStashTransNum(0), m_bMarkForDeletion(false)
 {
 	InitAccount();
 
@@ -491,7 +491,7 @@ void OTAccount::InitAccount()
 }
 
 // this is private for now. hopefully keep that way.
-OTAccount::OTAccount() : OTTransactionType(), m_lStashTransNum(0), m_bMarkForDeletion(false)
+OTAccount::OTAccount() : ot_super(), m_lStashTransNum(0), m_bMarkForDeletion(false)
 {
 	InitAccount();
 }
@@ -499,7 +499,7 @@ OTAccount::OTAccount() : OTTransactionType(), m_lStashTransNum(0), m_bMarkForDel
 
 OTAccount::OTAccount(const OTIdentifier & theUserID, const OTIdentifier & theAccountID, 
                      const OTIdentifier & theServerID, const OTString & name)
-: OTTransactionType (theUserID, theAccountID, theServerID), m_lStashTransNum(0), m_bMarkForDeletion(false)
+: ot_super (theUserID, theAccountID, theServerID), m_lStashTransNum(0), m_bMarkForDeletion(false)
 {
 	InitAccount();
 
@@ -507,17 +507,11 @@ OTAccount::OTAccount(const OTIdentifier & theUserID, const OTIdentifier & theAcc
 }
 
 OTAccount::OTAccount(const OTIdentifier & theUserID, const OTIdentifier & theAccountID, const OTIdentifier & theServerID)
-: OTTransactionType (theUserID, theAccountID, theServerID), m_lStashTransNum(0), m_bMarkForDeletion(false)
+: ot_super (theUserID, theAccountID, theServerID), m_lStashTransNum(0), m_bMarkForDeletion(false)
 {
 	InitAccount();
 }
 
-
-
-OTAccount::~OTAccount()
-{
-
-}
 
 
 // Verify Contract ID first, THEN Verify Owner.
@@ -1274,12 +1268,6 @@ OTAcctList::OTAcctList(OTAccount::AccountType eAcctType) : m_AcctType(eAcctType)
 
 
 
-OTAcctList::~OTAcctList()
-{
-	
-}
-
-
 void OTAcctList::Serialize(OTString & strAppend)
 {
 	OTString strAcctType;
@@ -1371,30 +1359,58 @@ int OTAcctList::ReadFromXMLNode(irr::io::IrrXMLReader*& xml, const OTString & st
 	return 1;
 }
 
-// -----------------------------
+// **************************************************************
 
 
-void OTAccount::Release()
+
+void OTAccount::Release_Account()
 {
     m_BalanceDate.Release();
 	m_BalanceAmount.Release();
     
     m_InboxHash.Release();
     m_OutboxHash.Release();
-    
+}
+
+void OTAccount::Release()
+{
+    Release_Account();
     // -----------------------------
-    OTTransactionType::Release();
+    ot_super::Release();
 }
 
 // **************************************************************
 
 // So far, no need to call this in the destructor, since these clean themselves up ANYWAY.
 //
-void OTAcctList::Release()
+void OTAcctList::Release_AcctList()
 {
 	m_mapAcctIDs.clear();
 	m_mapWeakAccts.clear();    
 }
+
+
+void OTAcctList::Release()
+{
+	Release_AcctList();
+}
+
+// **************************************************************
+
+OTAccount::~OTAccount()
+{
+    Release_Account();
+}
+
+
+
+OTAcctList::~OTAcctList()
+{
+	Release_AcctList();
+}
+
+// **************************************************************
+
 
 
 OTAccount_SharedPtr OTAcctList::GetOrCreateAccount(OTPseudonym			& theServerNym, 

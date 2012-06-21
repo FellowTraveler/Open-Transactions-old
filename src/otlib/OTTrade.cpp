@@ -204,7 +204,8 @@ int OTTrade::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 	// -- Note you can choose not to call the parent if
 	// you don't want to use any of those xml tags.
 	// As I do below, in the case of OTAccount.
-	if (0 != (nReturnVal = OTCronItem::ProcessXMLNode(xml)))
+    //
+	if (0 != (nReturnVal = ot_super::ProcessXMLNode(xml)))
 		return nReturnVal;
 
 
@@ -1136,7 +1137,7 @@ bool OTTrade::ProcessCron()
 	// PAST END DATE? --------------------------------
 	// First call the parent's version (which this overrides) so it has
 	// a chance to check its stuff. Currently it checks IsExpired().
-	if (false == OTCronItem::ProcessCron())
+	if (false == ot_super::ProcessCron())
 		return false;	// It's expired or flagged for removal--remove it from Cron.
 
     // You might ask, why not check here if this trade is flagged for removal?
@@ -1275,7 +1276,7 @@ bool OTTrade::IssueTrade(OTOffer & theOffer, char cStopSign/*=0*/, long lStopPri
 }
 
 
-OTTrade::OTTrade() : OTCronItem(), m_pOffer(NULL),
+OTTrade::OTTrade() : ot_super(), m_pOffer(NULL),
     m_bHasTradeActivated(false),
     m_lStopPrice(0),
     m_cStopSign(0),
@@ -1290,7 +1291,7 @@ OTTrade::OTTrade() : OTCronItem(), m_pOffer(NULL),
 }
 
 OTTrade::OTTrade(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID) :
-			OTCronItem(SERVER_ID, ASSET_ID), m_pOffer(NULL),
+			ot_super(SERVER_ID, ASSET_ID), m_pOffer(NULL),
     m_bHasTradeActivated(false),
     m_lStopPrice(0),
     m_cStopSign(0),
@@ -1309,7 +1310,7 @@ OTTrade::OTTrade(const OTIdentifier & SERVER_ID,
 				 const OTIdentifier & ASSET_ID, const OTIdentifier & ASSET_ACCT_ID, 
 				 const OTIdentifier & USER_ID, 
 				 const OTIdentifier & CURRENCY_ID, const OTIdentifier & CURRENCY_ACCT_ID) :
-			OTCronItem(SERVER_ID, ASSET_ID, ASSET_ACCT_ID, USER_ID), m_pOffer(NULL),
+			ot_super(SERVER_ID, ASSET_ID, ASSET_ACCT_ID, USER_ID), m_pOffer(NULL),
     m_bHasTradeActivated(false),
     m_lStopPrice(0),
     m_cStopSign(0),
@@ -1328,8 +1329,32 @@ OTTrade::OTTrade(const OTIdentifier & SERVER_ID,
 
 OTTrade::~OTTrade()
 {
-	// no need to call Release(), the framework will call it.
+	Release_Trade();
 }
+
+
+// the framework will call this at the right time.
+void OTTrade::Release_Trade()
+{
+	// If there were any dynamically allocated objects, clean them up here.
+	m_CURRENCY_TYPE_ID.Release();
+	m_CURRENCY_ACCT_ID.Release();
+	
+	m_strOffer.Release();
+}
+
+// the framework will call this at the right time.
+void OTTrade::Release()
+{
+	Release_Trade();
+    
+    ot_super::Release();
+	
+	// Then I call this to re-initialize everything
+	// (Only cause it's convenient...)
+	InitTrade();
+}
+
 
 
 // This CAN have values that are reset 
@@ -1348,22 +1373,6 @@ void OTTrade::InitTrade()
 	m_bHasStopActivated	= false;// Once the Stop Order activates, it puts the order on the market.
 								// I'll put a "HasOrderOnMarket()" bool method that answers this for u.
 	m_bHasTradeActivated = false;// I want to keep track of general activations as well, not just stop orders.
-}
-
-// the framework will call this at the right time.
-void OTTrade::Release()
-{
-	// If there were any dynamically allocated objects, clean them up here.
-	m_CURRENCY_TYPE_ID.Release();
-	m_CURRENCY_ACCT_ID.Release();
-	
-	m_strOffer.Release();
-	
-	OTCronItem::Release(); // since I've overridden the base class, I call it now...
-	
-	// Then I call this to re-initialize everything
-	// (Only cause it's convenient...)
-	InitTrade();
 }
 
 

@@ -311,7 +311,7 @@ OTTransactionType::OTTransactionType() : OTContract(),
  // this function is private to prevent people from using it.	
 	// Should never actually get called.
 	
-	InitTransactionType(); // Just in case.
+//	InitTransactionType(); // Just in case.
 }
 
 
@@ -319,7 +319,7 @@ OTTransactionType::OTTransactionType(const OTIdentifier & theUserID, const OTIde
 									 const OTIdentifier & theServerID) : OTContract(theAccountID), 
     m_lTransactionNum(0), m_lInReferenceToTransaction(0), m_bLoadSecurely(true)
 {
-	InitTransactionType();
+//	InitTransactionType();
 	
 	// m_ID			= theAccountID  -- This happens in OTContract, no need to do it twice.
 	m_ServerID		= theServerID;
@@ -334,7 +334,7 @@ OTTransactionType::OTTransactionType(const OTIdentifier & theUserID, const OTIde
 {
 	// This initializes m_lTransactionNum, so it must come FIRST. 
 	// In fact, that's the general rule with this function.
-	InitTransactionType();
+//	InitTransactionType();
 	
 	// m_ID				= theAccountID  -- This happens in OTContract, no need to do it twice.
 	m_ServerID			= theServerID;
@@ -345,6 +345,7 @@ OTTransactionType::OTTransactionType(const OTIdentifier & theUserID, const OTIde
 }
 
 
+// Note: can probably remove this function entirely...
 void OTTransactionType::InitTransactionType()
 {
 	m_lTransactionNum			= 0;
@@ -353,15 +354,41 @@ void OTTransactionType::InitTransactionType()
 
 OTTransactionType::~OTTransactionType()
 {
-	// No need to call Release() here, it's called already by the framework.
-	
+	Release_TransactionType();
 }
+
+
+
+// We'll see if any new bugs pop up after adding this...
+//
+void OTTransactionType::Release_TransactionType()
+{
+	// If there were any dynamically allocated objects, clean them up here.
+    
+//  m_ID.Release();
+    m_AcctID.Release();         // Compare m_AcctID to m_ID after loading it from string or file. They should match, and signature should verify.
+	
+//	m_ServerID.Release();       // Server ID as used to instantiate the transaction, based on expected ServerID.
+	m_AcctServerID.Release();   // Actual ServerID within the signed portion. (Compare to m_ServerID upon loading.)
+	
+//	m_AcctUserID.Release();
+
+	m_lTransactionNum = 0;	
+	m_lInReferenceToTransaction = 0;  
+    
+	m_ascInReferenceTo.Release();	// This item may be in reference to a different item
+	
+    m_bLoadSecurely = true; // defaults to true.
+    
+	m_Numlist.Release();
+}
+
 
 void OTTransactionType::Release()
 {
-	// If there were any dynamically allocated objects, clean them up here.
-		
-	OTContract::Release(); // since I've overridden the base class, I call it now...
+	Release_TransactionType();
+    
+	ot_super::Release(); // since I've overridden the base class, I call it now...
 }
 
 

@@ -934,7 +934,7 @@ int main(int argc, char* argv[])
 	
     const bool bConnectInfo = pServer->GetConnectInfo(strHostname, nPort);
     
-	OT_ASSERT_MSG(bConnectInfo, "server main: Unable to find my own connect info (which SHOULD be in my server contract, BTW.)\n");
+	OT_ASSERT_MSG(bConnectInfo, "server main: Unable to find my own connect info (which SHOULD be in my server contract, BTW.) Perhaps you failed trying to open that contract? Have you tried the test password? (\"test\")\n");
 	
 	const int   nServerPort = nPort;
 	

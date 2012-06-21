@@ -414,10 +414,13 @@ void OTPassword::zeroMemory()
 //static
 void OTPassword::zeroMemory(void * vMemory, uint32_t theSize)
 {
-    OT_ASSERT_MSG((NULL != vMemory) && (theSize > 0),"OTPassword::zeroMemory: ASSERT: vMemory is NULL or theSize is 0.");
-    
-    uint8_t * szMemory = static_cast<uint8_t *>(vMemory);
-    OTPassword::zeroMemory(szMemory, theSize);
+//  OT_ASSERT_MSG((NULL != vMemory) && (theSize > 0),"OTPassword::zeroMemory: ASSERT: vMemory is NULL or theSize is 0.");
+  
+    if ((NULL != vMemory) && (theSize > 0))
+    {
+        uint8_t * szMemory = static_cast<uint8_t *>(vMemory);
+        OTPassword::zeroMemory(szMemory, theSize);
+    }
 }
 // ----------------------------------------------------------
 //static

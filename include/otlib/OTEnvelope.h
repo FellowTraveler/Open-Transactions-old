@@ -458,9 +458,11 @@ public:
     // ------------------------------------------------------------------------
 	OTSymmetricKey();
 	OTSymmetricKey(const OTPassword & thePassword);
-	virtual ~OTSymmetricKey();
     
-    void Release();
+	virtual ~OTSymmetricKey();
+    virtual void Release();
+    
+    void Release_SymmetricKey();
     // ------------------------------------------------------------------------
 };
 
@@ -532,7 +534,8 @@ EXPORT    ~OTEnvelope_Decrypt_Output();
     
     bool Concatenate(const void * pAppendData, uint32_t lAppendSize);
 
-    void Release();
+    void Release(); // Someday make this virtual, if we ever subclass it.
+    void Release_Envelope_Decrypt_Output();
 
 };
 

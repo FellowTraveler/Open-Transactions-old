@@ -52,8 +52,8 @@
   --- Sign Contract             DONE
   --- Verify Signature          DONE
   --- Add Signature             DEBUGGING
-  --- Create asset contract     DEBUGGING
-  --- Create server contract    DEBUGGING
+  --- Create asset contract     DONE
+  --- Create server contract    DONE
   --- Create symmetric key      DONE
   --- Create pseudonym          DONE
   --- Write cheque              DONE

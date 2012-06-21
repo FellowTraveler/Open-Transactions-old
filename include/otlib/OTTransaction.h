@@ -362,6 +362,9 @@ class OTLedger;
 
 class OTTransaction : public OTTransactionType
 {	
+private:  // Private prevents erroneous use by other classes.
+    typedef OTTransactionType ot_super;
+    
     friend OTTransactionType * OTTransactionType::TransactionFactory(const OTString & strInput);
 
 public:
@@ -630,6 +633,8 @@ EXPORT	static
 	// ----------------------------------
 	void InitTransaction();
 	void ReleaseItems();
+	virtual void Release();
+	void Release_Transaction();
 	// --------------------------------------------------------------
 	inline 
     transactionType  GetType() const { return m_Type; }

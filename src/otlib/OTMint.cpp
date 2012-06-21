@@ -184,7 +184,7 @@ void OTMint::ReleaseDenominations()
 // before loading it, which calls InitMint() to zero out all the important pieces of
 // data.
 //
-void OTMint::Release()
+void OTMint::Release_Mint()
 {
 	ReleaseDenominations();
 	
@@ -195,12 +195,22 @@ void OTMint::Release()
 		delete m_pReserveAcct;
 		m_pReserveAcct = NULL;
 	}
-
-	OTContract::Release(); // I overrode the parent, so now I give him a chance to clean up.
 }
- 
+
+void OTMint::Release()
+{
+	Release_Mint();
+    
+	ot_super::Release(); // I overrode the parent, so now I give him a chance to clean up.
+    
+    InitMint();
+}
 
 
+OTMint::~OTMint()
+{
+    Release_Mint();
+}
 
 void OTMint::InitMint()
 {
@@ -407,11 +417,6 @@ bool OTMint::SaveMint(const char * szAppend/*=NULL*/)
 
 
 
-OTMint::~OTMint()
-{
-	// OTContract::~OTContract is called here automatically, and it calls Release() already.
-	// So I don't need to call Release() here again, since it's already called by the parent.
-}
 
 
 // Make sure this contract checks out. Very high level. 
@@ -743,7 +748,7 @@ int OTMint::ProcessXMLNode(IrrXMLReader*& xml)
 	// -- Note you can choose not to call the parent if
 	// you don't want to use any of those xml tags.
 	// As I do below, in the case of OTAccount.
-	//if (nReturnVal = OTContract::ProcessXMLNode(xml))
+	//if (nReturnVal = ot_super::ProcessXMLNode(xml))
 	//	return nReturnVal;
 	
 	if (!strcmp("mint", xml->getNodeName())) 

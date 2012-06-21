@@ -462,11 +462,57 @@ bool OTString::TokenizeIntoKeyValuePairs(std::map<std::string, std::string> & ma
 }
 
 
+// 
+/*
+ WCHAR szPassword[MAX_PATH];
+ 
+ // Retrieve the password
+ if (GetPasswordFromUser(szPassword, MAX_PATH))    
+ 
+ UsePassword(szPassword); // <===========
+ 
+ // WINDOWS MEMORY ZEROING CODE:
+ SecureZeroMemory(szPassword, sizeof(szPassword));
+ 
+ 
+ // NEED to get linux / etc versions as well, and use them in OTString
+ // as well as anywhere that std::string is used! Todo security!
+ // Can probably write a custom deallocator for the std::string and then
+ // zero it out similarly.
+ */
+
+void OTString::Release_String(void)
+{
+	if (NULL != m_strBuffer)
+	{
+		// for security purposes. 
+        //
+        OTPassword::zeroMemory(m_strBuffer, m_lLength);
+//		memset(m_strBuffer, 0, m_lLength);
+		delete [] m_strBuffer;
+	}
+	m_strBuffer = NULL;
+	m_lPosition = 0;
+	m_lLength   = 0;
+}
+
+
+void OTString::Release(void)
+{
+	Release_String();
+    
+    // no need to use ot_super here, since OTString is a "base class."
+}
+
+
+
 // ***** Construction -- Destruction ***** ------------------------------
 OTString::~OTString()
 {
-	Release();
+	Release_String();
 }
+
+
 
 void OTString::Initialize()
 {
@@ -559,40 +605,6 @@ OTString::OTString(const std::string& new_string) : m_lLength(0), m_lPosition(0)
 	LowLevelSet(new_string.c_str(), new_string.length());
 }
 
-
-// 
-/*
- WCHAR szPassword[MAX_PATH];
- 
- // Retrieve the password
- if (GetPasswordFromUser(szPassword, MAX_PATH))    
- 
- UsePassword(szPassword); // <===========
- 
- // WINDOWS MEMORY ZEROING CODE:
- SecureZeroMemory(szPassword, sizeof(szPassword));
- 
- 
- // NEED to get linux / etc versions as well, and use them in OTString
- // as well as anywhere that std::string is used! Todo security!
- // Can probably write a custom deallocator for the std::string and then
- // zero it out similarly.
- */
-
-void OTString::Release(void)
-{
-	if (NULL != m_strBuffer)
-	{
-		// for security purposes. 
-        //
-        OTPassword::zeroMemory(m_strBuffer, m_lLength);
-//		memset(m_strBuffer, 0, m_lLength);
-		delete [] m_strBuffer;
-	}
-	m_strBuffer = NULL;
-	m_lPosition = 0;
-	m_lLength   = 0;
-}
 
 
 

@@ -151,6 +151,9 @@
 
 class OTCheque : public OTTrackable
 {
+private:  // Private prevents erroneous use by other classes.
+    typedef OTTrackable ot_super;
+
 protected:
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
 
@@ -207,6 +210,7 @@ EXPORT	virtual ~OTCheque();
 	
 			void InitCheque();
 	virtual void Release();
+	void Release_Cheque();
 	virtual void UpdateContents(); // Before transmission or serialization, this is where the token saves its contents 	
 
 //	virtual bool SaveContractWallet(FILE * fl);

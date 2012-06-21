@@ -870,7 +870,7 @@ bool OTPayment::GetRecipientAcctID(OTIdentifier & theOutput) const
 
 
 OTPayment::OTPayment()
-:   OTContract(),
+:   ot_super(),
     m_Type(OTPayment::ERROR_STATE),
     m_bAreTempValuesSet(false),
     m_bHasRecipient(false),
@@ -884,7 +884,7 @@ OTPayment::OTPayment()
 
 
 OTPayment::OTPayment(const OTString & strPayment)
-:   OTContract(),
+:   ot_super(),
     m_Type(OTPayment::ERROR_STATE),
     m_bAreTempValuesSet(false),
     m_bHasRecipient(false),
@@ -1154,13 +1154,6 @@ bool OTPayment::SetPayment(const OTString & strPayment)
 }
 // -------------------------------------------
 
-OTPayment::~OTPayment()
-{
-//	Release();
-	// OTContract::~OTContract is called here automatically, and it calls Release() already.
-	// So I don't need to call Release() here again, since it's already called by the parent.
-
-}
 
 void OTPayment::InitPayment()
 {
@@ -1176,7 +1169,12 @@ void OTPayment::InitPayment()
 
 
 
-void OTPayment::Release()
+OTPayment::~OTPayment()
+{
+    Release_Payment();
+}
+
+void OTPayment::Release_Payment()
 {
     m_Type              = OTPayment::ERROR_STATE;
 	m_lAmount           = 0;
@@ -1199,9 +1197,16 @@ void OTPayment::Release()
     m_RecipientUserID.Release();
     m_RecipientAcctID.Release();
     // --------------------------------
+}
+
+
+void OTPayment::Release()
+{
+    Release_Payment();
+    // --------------------------------
     // Finally, we call the method we overrode:
     //
-	OTContract::Release();
+	ot_super::Release();
 }
 
 

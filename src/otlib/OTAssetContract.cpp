@@ -168,49 +168,6 @@ OTAssetContract::~OTAssetContract()
 	// So I don't need to call it here again when it's already called by the parent.
 }
 
-// Make sure you escape any lines that begin with dashes using "- "
-// So "---BEGIN " at the beginning of a line would change to: "- ---BEGIN"
-// This function expects that's already been done.
-// This function assumes there is only unsigned contents, and not a signed contract.
-// This function is intended to PRODUCE said signed contract.
-//
-bool OTAssetContract::CreateContract(OTString & strContract, OTPseudonym & theSigner)
-{	
-	Release();
-	
-	m_xmlUnsigned = strContract;
-	
-	// This function assumes that m_xmlUnsigned is ready to be processed.
-	// This function only processes that portion of the contract.
-	bool bLoaded = LoadContractXML();
-	
-	if (bLoaded)
-	{
-		OTString strTemp;
-		
-		SignContract(theSigner);
-		RewriteContract(strTemp); // this trims
-		
-		// This is probably redundant...
-//		std::string str_Trim(strTemp.Get());
-//		std::string str_Trim2 = OTString::trim(str_Trim);
-//		strTemp.Set(str_Trim2.c_str());
-		// -----------------------------------
-		Release();
-		LoadContractFromString(strTemp);
-		SaveContract();
-		
-		// -----------------------------------
-		
-		OTIdentifier NEW_ID;
-		CalculateContractID(NEW_ID);
-		m_ID = NEW_ID;	
-		
-		return true;
-	}	
-	
-	return false;
-}
 
 
 // Normally, Asset Contracts do NOT update / rewrite their contents, since their

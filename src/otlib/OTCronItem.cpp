@@ -2160,7 +2160,7 @@ void OTCronItem::HarvestClosingNumbers(OTPseudonym & theNym)
 
 
 
-OTCronItem::OTCronItem() : OTTrackable(), m_pCron(NULL), m_CREATION_DATE(0), m_LAST_PROCESS_DATE(0),
+OTCronItem::OTCronItem() : ot_super(), m_pCron(NULL), m_CREATION_DATE(0), m_LAST_PROCESS_DATE(0),
     m_PROCESS_INTERVAL(1),  // Default for any cron item is to execute once per second.
     m_bRemovalFlag(false)
 {
@@ -2169,7 +2169,7 @@ OTCronItem::OTCronItem() : OTTrackable(), m_pCron(NULL), m_CREATION_DATE(0), m_L
 
 
 OTCronItem::OTCronItem(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID) : 
-    OTTrackable(SERVER_ID, ASSET_ID),
+    ot_super(SERVER_ID, ASSET_ID),
         m_pCron(NULL), m_CREATION_DATE(0), 
         m_LAST_PROCESS_DATE(0), m_PROCESS_INTERVAL(1), // Default for any cron item is to execute once per second.
         m_bRemovalFlag(false)
@@ -2179,7 +2179,7 @@ OTCronItem::OTCronItem(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSE
 
 OTCronItem::OTCronItem(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID,
 					   const OTIdentifier & ACCT_ID, const OTIdentifier & USER_ID) : 
-    OTTrackable(SERVER_ID, ASSET_ID, ACCT_ID, USER_ID),
+    ot_super(SERVER_ID, ASSET_ID, ACCT_ID, USER_ID),
         m_pCron(NULL), m_CREATION_DATE(0), 
         m_LAST_PROCESS_DATE(0), m_PROCESS_INTERVAL(1), // Default for any cron item is to execute once per second.
         m_bRemovalFlag(false)
@@ -2188,13 +2188,6 @@ OTCronItem::OTCronItem(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSE
 	InitCronItem();
 }
 
-
-
-
-OTCronItem::~OTCronItem()
-{
-    // No need to call Release() here, it's handled by the framework.	
-}
 
 void OTCronItem::InitCronItem()
 {
@@ -2207,7 +2200,14 @@ void OTCronItem::ClearClosingNumbers()
 	m_dequeClosingNumbers.clear();
 }
 
-void OTCronItem::Release()
+
+OTCronItem::~OTCronItem()
+{
+    Release_CronItem();	
+}
+
+
+void OTCronItem::Release_CronItem()
 {
 	// If there were any dynamically allocated objects, clean them up here.
 	
@@ -2218,10 +2218,15 @@ void OTCronItem::Release()
     ClearClosingNumbers();
     
     m_bRemovalFlag = false;
+}
 
+void OTCronItem::Release()
+{
+	Release_CronItem();
+    
     // ----------------------------------
     
-	OTTrackable::Release(); // since I've overridden the base class, I call it now...
+	ot_super::Release(); // since I've overridden the base class, I call it now...
 }
 
 
@@ -2240,10 +2245,7 @@ int OTCronItem::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 	// you don't want to use any of those xml tags.
 	//
 	
-	// In this case, I don't need to call the parent. But I'm going to 
-	// call the grand-grand-parent (scriptable.)
-	//
-	nReturnVal = OTScriptable::ProcessXMLNode(xml);
+	nReturnVal = ot_super::ProcessXMLNode(xml);
 	
 	if (nReturnVal != 0) // -1 is error, and 1 is "found it". Either way, return.
 		return nReturnVal;	// 0 means "nothing happened, keep going."

@@ -462,7 +462,7 @@ void OTBasket::CalculateContractID(OTIdentifier & newID)
 
 
 
-OTBasket::OTBasket(int nCount, long lMinimumTransferAmount) :  OTContract(),
+OTBasket::OTBasket(int nCount, long lMinimumTransferAmount) :  ot_super(),
     m_nSubCount(nCount),
     m_lMinimumTransfer(lMinimumTransferAmount),
     m_nTransferMultiple(0),
@@ -473,7 +473,7 @@ OTBasket::OTBasket(int nCount, long lMinimumTransferAmount) :  OTContract(),
 
 }
 
-OTBasket::OTBasket() :  OTContract(),
+OTBasket::OTBasket() :  ot_super(),
     m_nSubCount(0),
     m_lMinimumTransfer(0),
     m_nTransferMultiple(0),
@@ -486,10 +486,10 @@ OTBasket::OTBasket() :  OTContract(),
 
 OTBasket::~OTBasket()
 {
-	ReleaseBasket();
+	Release_Basket();
 }
 
-void OTBasket::ReleaseBasket()
+void OTBasket::Release_Basket()
 {
 	BasketItem * pItem = NULL;
 	
@@ -501,7 +501,7 @@ void OTBasket::ReleaseBasket()
 		m_dequeItems.pop_front();
 		delete pItem;
 	}
-
+    
 	m_nSubCount			= 0;
 	m_lMinimumTransfer	= 0;
 	m_nTransferMultiple	= 0;
@@ -510,11 +510,53 @@ void OTBasket::ReleaseBasket()
     m_lClosingTransactionNo = 0;
 }
 
+void OTBasket::Release()
+{
+    Release_Basket();
+    // ---------------------
+    ot_super::Release();
+}
+
 
 
 bool OTBasket::SaveContractWallet(std::ofstream & ofs)
 {
 	return true;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

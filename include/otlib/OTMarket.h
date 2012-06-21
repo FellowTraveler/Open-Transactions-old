@@ -161,11 +161,12 @@ typedef std::map  <long, OTOffer *>	mapOfOffersTrnsNum;
 
 class OTMarket : public OTContract
 {
-private:
-	
+private:  // Private prevents erroneous use by other classes.
+    typedef OTContract ot_super;
+
+private:	
 	OTCron *	m_pCron;	// The Cron object that owns this Market.
 
-	
 	OTDB::TradeListMarket * m_pTradeList;
 
 	mapOfOffers			m_mapBids;		// The buyers, ordered by price limit
@@ -273,6 +274,7 @@ EXPORT	bool GetRecentTradeList(OTASCIIArmor & ascOutput, int & nTradeCount);
 	void InitMarket();
 	
 	virtual void Release();
+	void Release_Market();
 
 	// return -1 if error, 0 if nothing, and 1 if the node was processed.
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);

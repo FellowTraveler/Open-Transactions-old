@@ -13,6 +13,7 @@ create_symmetric_key.ot*    Create a new password-based symmetric key.
 decode.ot*                  Decode an OT-base64-encoded block.
 decrypt.ot*                 Decrypt an OT-base64-encoded-AND-ENCRYPTED block.
 dl_acct_files.ot*           Download the intermediary files for MyAcct.
+dl_contract.ot*             Download any asset or server contract by ID.
 encode.ot*                  OT-base64-encode a piece of plaintext.
 encrypt.ot*                 Encrypt some data using a Nym's public key.
 input_multiline.ot*         Sample script showing how to input multiple lines.
@@ -21,13 +22,13 @@ issue_asset.ot*             Issue a new asset type onto an OT server.
 password_decrypt.ot*        Decrypt a symmetric-key/password-based ciphertext.
 password_encrypt.ot*        Encrypt a plaintext using a symmetric key and password.
 register_nym.ot*            Register MyNym onto Server.
-send_user_msg.ot*           Send a message to another Nym.
 send_transfer.ot*           Send a transfer from MyAcct to HisAcct.
+send_user_msg.ot*           Send a message to another Nym.
 show_acct.ot*               Show the stats for MyAcct.
 show_balance.ot*            Show the balance for MyAcct.
 show_inbox.ot*              Show the inbox for MyAcct.
-show_outbox.ot*             Show the outbox for MyAcct.
 show_mint.ot*               Display the current mint file for an asset type.
+show_outbox.ot*             Show the outbox for MyAcct.
 sign_contract.ot*           Remove all signatures from a contract and then sign it.
 stat.ot*                    Display wallet contents (servers, asset types, nyms, accts)
 time.ot*                    Returns the current time as a string, in seconds.

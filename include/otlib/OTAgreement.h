@@ -168,6 +168,9 @@ class OTPseudonym;
 
 class OTAgreement : public OTCronItem
 {
+private:  // Private prevents erroneous use by other classes.
+    typedef OTCronItem ot_super;
+
 private:
 	OTIdentifier	m_RECIPIENT_ACCT_ID;
 	OTIdentifier	m_RECIPIENT_USER_ID;
@@ -409,6 +412,7 @@ EXPORT    virtual void HarvestClosingNumbers(OTPseudonym & theNym);
 	void InitAgreement();
 	
 	virtual void Release();
+	void Release_Agreement();
 	
     // ------------------------------------------------------
 	virtual bool IsValidOpeningNumber(const long & lOpeningNum) const;

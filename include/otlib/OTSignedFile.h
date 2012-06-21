@@ -147,6 +147,9 @@
 
 class OTSignedFile : public OTContract 
 {	
+private:  // Private prevents erroneous use by other classes.
+    typedef OTContract ot_super;
+    
 protected:
 	OTString		m_strSignedFilePayload;	// This class exists to wrap another and save it in signed form.
 											// The "payload" (the wrapped contents) are stored in this member.
@@ -185,6 +188,7 @@ public:
 						// (You should still verify the signature on it as well, if you are doing this.)
 	
 	virtual void Release();
+	void Release_SignedFile();
 	virtual void UpdateContents(); 
 	
 	void SetFilename(const OTString & LOCAL_SUBDIR, const OTString & FILE_NAME);

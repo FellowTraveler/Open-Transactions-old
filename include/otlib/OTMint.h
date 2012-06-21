@@ -150,6 +150,9 @@
 
 class OTMint : public OTContract
 {
+private:  // Private prevents erroneous use by other classes.
+    typedef OTContract ot_super;
+
 protected:
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
 		
@@ -211,6 +214,7 @@ EXPORT	OTMint(const OTString & strServerID, const OTString & strAssetTypeID);
 EXPORT	OTMint(const OTString & strServerID, const OTString & strServerNymID, const OTString & strAssetTypeID);
 EXPORT	virtual ~OTMint();
 	virtual void Release();
+	void Release_Mint();
 	void ReleaseDenominations();
 	
 EXPORT	bool LoadMint(const char * szAppend=NULL);

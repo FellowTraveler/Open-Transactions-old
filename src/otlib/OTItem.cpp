@@ -888,20 +888,6 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 
 
 
-void OTItem::ReleaseItems()
-{
-	OTItem * pItem = NULL;
-	
-	while (!m_listItems.empty())
-	{
-		pItem = m_listItems.front();
-		m_listItems.pop_front();
-		delete pItem;
-		pItem = NULL;
-	}
-}
-
-
 
 // You have to allocate the item on the heap and then pass it in as a reference. 
 // OTTransaction will take care of it from there and will delete it in destructor.
@@ -1230,12 +1216,47 @@ OTItem& OTItem::operator=(const OTItem& rhs)
 	return *this;
 }
 */
+
+
 OTItem::~OTItem()
 {
-	ReleaseItems();
+	Release_Item();
 }
 
 
+
+
+void OTItem::Release()
+{
+    Release_Item();
+    // ----------------------
+    ot_super::Release();
+}
+
+
+void OTItem::Release_Item()
+{
+	ReleaseItems();
+    
+    m_AcctToID.Release();
+    m_lAmount = 0;
+    m_lNewOutboxTransNum = 0;
+    m_lClosingTransactionNo = 0;
+}
+
+
+void OTItem::ReleaseItems()
+{
+	OTItem * pItem = NULL;
+	
+	while (!m_listItems.empty())
+	{
+		pItem = m_listItems.front();
+		m_listItems.pop_front();
+		delete pItem;
+		pItem = NULL;
+	}
+}
 
 
 

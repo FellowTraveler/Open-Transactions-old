@@ -321,17 +321,16 @@ void OTCheque::InitCheque()
 	m_strContractType.Set("CHEQUE");
 		
 	m_lAmount			= 0;
-
 	m_bHasRecipient		= false;
 }
 
-OTCheque::OTCheque() : OTTrackable()
+OTCheque::OTCheque() : ot_super(), m_bHasRecipient(false), m_lAmount(0)
 {
 	InitCheque();
 }
 
 OTCheque::OTCheque(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID) : 
-			OTTrackable(SERVER_ID, ASSET_ID)
+			ot_super(SERVER_ID, ASSET_ID), m_bHasRecipient(false), m_lAmount(0)
 {
 	InitCheque();
 	
@@ -340,24 +339,30 @@ OTCheque::OTCheque(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID
 }
 
 
-void OTCheque::Release()
+void OTCheque::Release_Cheque()
 {
 	// If there were any dynamically allocated objects, clean them up here.
 	m_strMemo.Release();
+    
 //	m_SENDER_ACCT_ID.Release();	 // in parent class now.
 //	m_SENDER_USER_ID.Release();	 // in parent class now.
 	m_RECIPIENT_USER_ID.Release();
 	
-	OTTrackable::Release(); // since I've overridden the base class, I call it now...
+	ot_super::Release(); // since I've overridden the base class, I call it now...
 	
 	// Then I call this to re-initialize everything
 	InitCheque(); 
 }
 
+void OTCheque::Release()
+{
+    Release_Cheque();    
+}
+
+
 OTCheque::~OTCheque()
 {
-	// OTTrackable::~OTTrackable is called here automatically, and it calls Release() already.
-	// So I don't need to call Release() here again, since it's already called by the parent.
+    Release_Cheque();    
 }
 
 
@@ -366,4 +371,29 @@ bool OTCheque::SaveContractWallet(std::ofstream & ofs)
 	
 	return true;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

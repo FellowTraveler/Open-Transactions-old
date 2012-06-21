@@ -464,7 +464,7 @@ bool OTOffer::MakeOffer(bool bBuyingOrSelling,		// True == SELLING, False == BUY
 }
 
 OTOffer::OTOffer() 
-: OTInstrument(), m_pTrade(NULL),    // No need to free m_pTrade, not responsible. Only here for convenience.
+: ot_super(), m_pTrade(NULL),    // No need to free m_pTrade, not responsible. Only here for convenience.
     m_bSelling			(false),
     m_lPriceLimit		(0),
     m_lTransactionNum	(0),
@@ -479,7 +479,7 @@ OTOffer::OTOffer()
 
 
 OTOffer::OTOffer(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID, const OTIdentifier & CURRENCY_ID, const long & lScale) 
-: OTInstrument(SERVER_ID, ASSET_ID), m_pTrade(NULL), // No need to free m_pTrade, not responsible. Only here for convenience.
+: ot_super(SERVER_ID, ASSET_ID), m_pTrade(NULL), // No need to free m_pTrade, not responsible. Only here for convenience.
     m_bSelling			(false),
     m_lPriceLimit		(0),
     m_lTransactionNum	(0),
@@ -498,8 +498,28 @@ OTOffer::OTOffer(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID, 
 
 OTOffer::~OTOffer()
 {
-	// No need to call Release() here, it's handled by the framework.	
+	Release_Offer();
 }
+
+
+void OTOffer::Release_Offer()
+{
+	// If there were any dynamically allocated objects, clean them up here.
+	m_CURRENCY_TYPE_ID.Release();
+}
+
+
+void OTOffer::Release()
+{
+	// If there were any dynamically allocated objects, clean them up here.
+	Release_Offer();
+	
+	ot_super::Release(); // since I've overridden the base class, I call it now...
+	
+	// Then I call this to re-initialize everything
+	InitOffer();
+}
+
 
 void OTOffer::InitOffer()
 {
@@ -519,18 +539,6 @@ void OTOffer::InitOffer()
 	m_lFinishedSoFar	= 0;
 	m_lMinimumIncrement	= 1; // This must be 1 or greater. CANNOT be zero. Enforced.
 	m_lScale			= 1; // This must be 1 or greater. CANNOT be zero. Enforced.
-}
-
-
-void OTOffer::Release()
-{
-	// If there were any dynamically allocated objects, clean them up here.
-	m_CURRENCY_TYPE_ID.Release();
-	
-	OTInstrument::Release(); // since I've overridden the base class, I call it now...
-	
-	// Then I call this to re-initialize everything
-	InitOffer();
 }
 
 

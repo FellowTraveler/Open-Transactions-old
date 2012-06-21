@@ -161,6 +161,9 @@ class OTLedger;
 
 class OTAccount : public OTTransactionType 
 {
+private:  // Private prevents erroneous use by other classes.
+    typedef OTTransactionType ot_super;
+
     friend OTTransactionType * OTTransactionType::TransactionFactory(const OTString & strInput);
 
 public:
@@ -239,7 +242,9 @@ EXPORT	OTAccount(const OTIdentifier & theUserID, const OTIdentifier & theAccount
 EXPORT	virtual ~OTAccount();
     
     virtual void Release();
-
+    
+    void Release_Account();
+    
     // -----------------------------------------------------------------------
 	
 EXPORT	static OTAccount * GenerateNewAccount(const OTIdentifier & theUserID, const OTIdentifier & theServerID, 
@@ -339,6 +344,8 @@ EXPORT	~OTAcctList();
 	int GetCountAccountIDs() const { return m_mapAcctIDs.size(); }
 	
 	void Release();
+
+	void Release_AcctList();
 	
 EXPORT	void Serialize(OTString & strAppend);
 EXPORT	int ReadFromXMLNode(irr::io::IrrXMLReader*& xml, const OTString & strAcctType, const OTString & strAcctCount);

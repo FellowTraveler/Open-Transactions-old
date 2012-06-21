@@ -179,7 +179,7 @@ EXPORT	OTAssetContract();
 EXPORT	OTAssetContract(OTString & name, OTString & foldername, OTString & filename, OTString & strID);
 EXPORT	virtual ~OTAssetContract();
 	
-	virtual bool CreateContract(OTString & strContract, OTPseudonym & theSigner);
+//	virtual bool CreateContract(OTString & strContract, OTPseudonym & theSigner);
 
 //	virtual bool SaveContractWallet(FILE * fl);
 	virtual bool SaveContractWallet(OTString & strContents) const;

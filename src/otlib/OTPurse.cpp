@@ -427,7 +427,7 @@ bool OTPurse::Merge(OTPseudonym & theOldNym, OTPseudonym & theNewNym, OTPurse & 
 
 
 
-OTPurse::OTPurse(const OTPurse & thePurse) : OTContract(),
+OTPurse::OTPurse(const OTPurse & thePurse) : ot_super(),
 	m_ServerID(thePurse.GetServerID()),
 	m_AssetID(thePurse.GetAssetID()),
 	m_lTotalValue(0),
@@ -442,7 +442,7 @@ OTPurse::OTPurse(const OTPurse & thePurse) : OTContract(),
 // Don't use this unless you really don't have the asset type handy.
 // Perhaps you know you're about to read this purse from a string and you
 // know the asset type is in there anyway. So you use this constructor.
-OTPurse::OTPurse(const OTIdentifier & SERVER_ID) : OTContract(),
+OTPurse::OTPurse(const OTIdentifier & SERVER_ID) : ot_super(),
 	m_ServerID(SERVER_ID),
     m_lTotalValue(0),
     m_bUsingTempNym(false),
@@ -452,7 +452,7 @@ OTPurse::OTPurse(const OTIdentifier & SERVER_ID) : OTContract(),
 	InitPurse();
 }
 
-OTPurse::OTPurse(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID) : OTContract(),
+OTPurse::OTPurse(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID) : ot_super(),
 	m_ServerID(SERVER_ID),
 	m_AssetID(ASSET_ID),
     m_lTotalValue(0),
@@ -467,7 +467,7 @@ OTPurse::OTPurse(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID) 
 
 OTPurse::OTPurse(const OTIdentifier & SERVER_ID, 
 				 const OTIdentifier & ASSET_ID, 
-				 const OTIdentifier & USER_ID) : OTContract(),
+				 const OTIdentifier & USER_ID) : ot_super(),
 	m_UserID(USER_ID),
 	m_ServerID(SERVER_ID),
 	m_AssetID(ASSET_ID),
@@ -477,14 +477,6 @@ OTPurse::OTPurse(const OTIdentifier & SERVER_ID,
     m_pTempNym(NULL)
 {
 	InitPurse();
-}
-
-OTPurse::~OTPurse()
-{
-//	Release();
-	// OTContract::~OTContract is called here automatically, and it calls Release() already.
-	// So I don't need to call Release() here again, since it's already called by the parent.
-
 }
 
 void OTPurse::InitPurse()
@@ -498,7 +490,14 @@ void OTPurse::InitPurse()
 }
 
 
-void OTPurse::Release()
+OTPurse::~OTPurse()
+{
+    Release_Purse();
+}
+
+
+
+void OTPurse::Release_Purse()
 {
 	// This sets m_lTotalValue to 0 already.
 	ReleaseTokens();
@@ -518,8 +517,18 @@ void OTPurse::Release()
         m_pTempNym = NULL;
     }    
     // -----------------------
-	OTContract::Release();
 }
+
+
+void OTPurse::Release()
+{
+    Release_Purse();
+    // -----------------------
+	ot_super::Release();
+    
+    InitPurse();
+}
+
 
 /*	
  OTIdentifier	m_UserID;	// Optional

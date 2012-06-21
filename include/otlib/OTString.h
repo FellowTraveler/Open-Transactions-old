@@ -411,7 +411,8 @@ EXPORT	void OTfgets(std::istream & ofs);
 	void WriteToFile(std::ostream & ofs) const;
 //	void WriteToFile(FILE * fl = NULL) const;
 
-EXPORT   virtual void Release(void);
+    EXPORT   virtual void Release(void);
+    void Release_String(void);
 
    // Internal properties
 protected:

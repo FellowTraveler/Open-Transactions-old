@@ -192,6 +192,9 @@ typedef std::map  <int, OTASCIIArmor *>	mapOfPrototokens;
 //
 class OTToken : public OTInstrument 
 {
+private:  // Private prevents erroneous use by other classes.
+    typedef OTInstrument ot_super;
+    
 public:
 	enum tokenState {
 		blankToken,
@@ -261,6 +264,7 @@ EXPORT	OTToken(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID);
 EXPORT	OTToken(const OTPurse & thePurse);
 EXPORT	virtual ~OTToken();
 	
+	void Release_Token();
 	virtual void Release();
 	void ReleasePrototokens();
 

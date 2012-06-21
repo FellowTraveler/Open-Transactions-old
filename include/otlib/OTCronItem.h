@@ -155,6 +155,10 @@ class OTString;
 
 class OTCronItem : public OTTrackable
 {
+private:  // Private prevents erroneous use by other classes.
+    typedef OTTrackable ot_super;
+
+private:
 	OTCron *	m_pCron;
 	
 	time_t		m_CREATION_DATE;		// The date, in seconds, when the CronItem was authorized.
@@ -311,10 +315,10 @@ EXPORT	bool SetDateRange(const time_t VALID_FROM=0,  const time_t VALID_TO=0);
 	
 	virtual ~OTCronItem();
 	
-	
 	void InitCronItem();
 	
 	virtual void Release();
+	void Release_CronItem();
 
     // ------------------------------------------------------
 	// These are for     std::deque<long> m_dequeClosingNumbers; 

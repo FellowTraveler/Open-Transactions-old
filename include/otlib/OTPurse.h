@@ -170,6 +170,9 @@ typedef std::map    <std::string, OTToken *>    mapOfTokenPointers;
 
 class OTPurse : public OTContract 
 {
+private:  // Private prevents erroneous use by other classes.
+    typedef OTContract ot_super;
+    
 protected:
 	virtual void UpdateContents(); // Before transmission or serialization, this is where the Purse saves its contents 
 
@@ -243,6 +246,7 @@ EXPORT	bool SavePurse(const char * szServerID=NULL, const char * szUserID=NULL, 
     // ----------------------------------------------
 	void InitPurse();
 	virtual void Release();
+	void Release_Purse();
 	void ReleaseTokens();
 	
 	virtual bool SaveContractWallet(std::ofstream & ofs);

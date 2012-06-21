@@ -1142,30 +1142,22 @@ OTMarket * OTCron::GetMarket(const OTIdentifier & MARKET_ID)
 // ------------------------------------------------------------
 
 
-OTCron::OTCron() : OTContract()
+OTCron::OTCron() : ot_super(), m_bIsActivated(false), m_pServerNym(NULL) // just here for convenience, not responsible to cleanup this pointer.
 {
-	m_bIsActivated = false;
-	m_pServerNym	= NULL;  // just here for convenience, not responsible to cleanup this pointer.
 	InitCron();
 	OTLog::Output(3, "OTCron::OTCron: Finished calling InitCron 0.\n");
 }
 
-OTCron::OTCron(const OTIdentifier & SERVER_ID) : OTContract()
+OTCron::OTCron(const OTIdentifier & SERVER_ID) : ot_super(), m_bIsActivated(false), m_pServerNym(NULL) // just here for convenience, not responsible to cleanup this pointer.
 {
-	m_bIsActivated = false;
-	m_pServerNym	= NULL;  // just here for convenience, not responsible to cleanup this pointer.
-	InitCron();
-	
+	InitCron();	
 	SetServerID(SERVER_ID);
 	OTLog::Output(3, "OTCron::OTCron: Finished calling InitCron 1.\n");
 }
 
-OTCron::OTCron(const char * szFilename) : OTContract()
+OTCron::OTCron(const char * szFilename) : ot_super(), m_bIsActivated(false), m_pServerNym(NULL) // just here for convenience, not responsible to cleanup this pointer.
 {
 	OT_ASSERT(NULL != szFilename);
-	
-	m_bIsActivated = false;
-	m_pServerNym	= NULL;  // just here for convenience, not responsible to cleanup this pointer.
 	InitCron();
 	
 	m_strFoldername.Set(OTLog::CronFolder());
@@ -1177,7 +1169,8 @@ OTCron::OTCron(const char * szFilename) : OTContract()
 
 OTCron::~OTCron()
 {
-// no need to call Release() here, the framework will take care of it.	
+    Release_Cron();
+    
 	m_pServerNym = NULL;
 }
 
@@ -1187,8 +1180,19 @@ void OTCron::InitCron()
 	m_strContractType = "CRON";
 }
 
-
 void OTCron::Release()
+{
+    Release_Cron();
+    // ------------------ 
+    ot_super::Release();
+    // ------------------ 
+	// Then I call this to re-initialize everything for myself.
+    //
+//	InitCron(); 		
+}
+
+
+void OTCron::Release_Cron()
 {
 	// If there were any dynamically allocated objects, clean them up here.
 	while (!m_mapCronItems.empty())
@@ -1208,12 +1212,6 @@ void OTCron::Release()
 		delete pMarket;
 		pMarket = NULL;		
 	}
-	
-	OTContract::Release(); // since I've overridden the base class, I call it now...
-	
-	// Then I call this to re-initialize everything for myself.
-    //
-	InitCron(); 		
 }
 
 
@@ -1223,4 +1221,12 @@ bool OTCron::SaveContractWallet(std::ofstream & ofs)
 {
 	return true;
 }
+
+
+
+
+
+
+
+
 

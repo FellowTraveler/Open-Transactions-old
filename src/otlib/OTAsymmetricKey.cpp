@@ -2295,7 +2295,7 @@ OTAsymmetricKey::OTAsymmetricKey() :
 
 OTAsymmetricKey::~OTAsymmetricKey()
 {
-	Release();
+	Release_AsymmetricKey();
     // -------------------------
     if (NULL != m_pX509)
         X509_free(m_pX509);
@@ -2354,7 +2354,7 @@ void OTAsymmetricKey::ReleaseKey()
 
     // -------------------------    
     
-    if (m_timer.getElapsedTimeInSec() > OT_KEY_TIMER)
+//  if (m_timer.getElapsedTimeInSec() > OT_KEY_TIMER)
         ReleaseKeyLowLevel();
     
     // Programmatic user (developer) may call ReleaseKey, but then we don't actually release it until it's
@@ -2363,8 +2363,8 @@ void OTAsymmetricKey::ReleaseKey()
     // -------------------------
 }
 
-                                
-void OTAsymmetricKey::Release()
+
+void OTAsymmetricKey::Release_AsymmetricKey()
 {
     // -------------------------
     // Release the ascii-armored version of the key (safe to store in this form.)
@@ -2378,7 +2378,12 @@ void OTAsymmetricKey::Release()
     ReleaseKeyLowLevel();
     // -------------------------
 //	m_bIsPrivateKey = false;  // Every time this Releases, I don't want to lose what kind of key it was. (Once we know, we know.)
-    // -------------------------
+    // -------------------------    
+}
+
+void OTAsymmetricKey::Release()
+{
+    Release_AsymmetricKey();
 }
 
 

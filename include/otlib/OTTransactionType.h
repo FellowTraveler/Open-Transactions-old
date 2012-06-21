@@ -152,7 +152,8 @@ class OTIdentifier;
 //
 class OTTransactionType : public OTContract 
 {	
-private:
+private:  // Private prevents erroneous use by other classes.
+    typedef OTContract ot_super;
 	
 protected:
 	// keeping constructor protected in order to force people to use the other constructors and 
@@ -610,6 +611,7 @@ EXPORT	virtual bool VerifyContractID();
 	void InitTransactionType();
 	virtual ~OTTransactionType();
 	virtual void Release();
+	void Release_TransactionType();
 
 	// need to know the transaction number of this transaction? Call this.
 EXPORT	long GetTransactionNum() const;

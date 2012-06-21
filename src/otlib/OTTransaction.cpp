@@ -3541,7 +3541,7 @@ transactionType		m_Type;			// blank, pending, processInbox, transfer, deposit, w
 
 // private and hopefully not needed
 //
-OTTransaction::OTTransaction() : OTTransactionType(),
+OTTransaction::OTTransaction() : ot_super(),
 	m_pParent(NULL),
 	m_bIsAbbreviated(false), m_lAbbrevAmount(0), m_lDisplayAmount(0), m_lInRefDisplay(0),
 	m_DATE_SIGNED(0), m_Type(OTTransaction::error_state),
@@ -3560,7 +3560,7 @@ OTTransaction::OTTransaction() : OTTransactionType(),
 // the inbox itself (which you presumably just read from a file or socket.)
 //
 OTTransaction::OTTransaction(const OTLedger & theOwner)
-: OTTransactionType(theOwner.GetUserID(), theOwner.GetPurportedAccountID(), theOwner.GetPurportedServerID()),
+: ot_super(theOwner.GetUserID(), theOwner.GetPurportedAccountID(), theOwner.GetPurportedServerID()),
 // --------
 	m_pParent(&theOwner),
 	m_bIsAbbreviated(false), m_lAbbrevAmount(0), m_lDisplayAmount(0), m_lInRefDisplay(0),
@@ -3581,7 +3581,7 @@ OTTransaction::OTTransaction(const OTLedger & theOwner)
 // ==> or maybe I might need to add a constructor where another transaction or a ledger is passed in.
 //      Then it can grab whatever it needs from those. I'm doing something similar in OTItem
 OTTransaction::OTTransaction(const OTIdentifier & theUserID, const OTIdentifier & theAccountID, const OTIdentifier & theServerID)
-: OTTransactionType(theUserID, theAccountID, theServerID),
+: ot_super(theUserID, theAccountID, theServerID),
 // --------------------------------------------
 	m_pParent(NULL),
 	m_bIsAbbreviated(false), m_lAbbrevAmount(0), m_lDisplayAmount(0), m_lInRefDisplay(0),
@@ -3601,7 +3601,7 @@ OTTransaction::OTTransaction(const OTIdentifier & theUserID,
 							 const OTIdentifier & theAccountID,
 							 const OTIdentifier & theServerID,
 							 long lTransactionNum)
-: OTTransactionType(theUserID, theAccountID, theServerID, lTransactionNum),
+: ot_super(theUserID, theAccountID, theServerID, lTransactionNum),
 // --------------------------------------------
 	m_pParent(NULL),
 	m_bIsAbbreviated(false), m_lAbbrevAmount(0), m_lDisplayAmount(0), m_lInRefDisplay(0),
@@ -3649,7 +3649,7 @@ OTTransaction::OTTransaction(const OTIdentifier	& theUserID,
                              const long         & lRequestNum,
                              const bool           bReplyTransSuccess,
                              OTNumList          * pNumList/*=NULL*/)
-: OTTransactionType(theUserID, theAccountID, theServerID, lTransactionNum), 
+: ot_super(theUserID, theAccountID, theServerID, lTransactionNum), 
 //--------------------------------------------------------------------------
 	m_pParent(NULL),
 	m_bIsAbbreviated(true), m_lAbbrevAmount(lAdjustment), m_lDisplayAmount(lDisplayValue), 
@@ -3802,7 +3802,7 @@ bool OTTransaction::SaveContractWallet(std::ofstream & ofs)
 
 OTTransaction::~OTTransaction()
 {
-	ReleaseItems();
+	Release_Transaction();
 }
 
 
@@ -3817,6 +3817,24 @@ void OTTransaction::ReleaseItems()
 		delete pItem;
 		pItem = NULL;
 	}
+}
+
+
+
+void OTTransaction::Release()
+{
+	Release_Transaction();
+    // --------------------
+    ot_super::Release();
+}
+
+
+
+void OTTransaction::Release_Transaction()
+{
+    // (Any other dynamically allocated memory is freed here.)
+    
+	ReleaseItems();
 }
 
 

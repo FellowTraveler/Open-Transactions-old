@@ -162,6 +162,9 @@ typedef std::map  <long, OTTransaction *>	mapOfTransactions;
 //
 class OTLedger : public OTTransactionType 
 {	
+private:  // Private prevents erroneous use by other classes.
+    typedef OTTransactionType ot_super;
+
     friend OTTransactionType * OTTransactionType::TransactionFactory(const OTString & strInput);
     
 private:
@@ -289,6 +292,7 @@ EXPORT	OTLedger(const OTIdentifier & theUserID, const OTIdentifier & theAccountI
 EXPORT	virtual ~OTLedger();
 	
 	virtual void Release();
+	void Release_Ledger();
 	
 EXPORT	void ReleaseTransactions();
 
@@ -322,4 +326,24 @@ EXPORT	bool GenerateLedger(const OTIdentifier & theAcctID, const OTIdentifier & 
 	
 };
 
+
+
+
+
+
+
 #endif //  __OTLEDGER_H__
+
+
+
+
+
+
+
+
+
+
+
+
+
+

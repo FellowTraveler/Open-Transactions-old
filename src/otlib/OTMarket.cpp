@@ -2335,7 +2335,7 @@ OTMarket::OTMarket(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_TY
 
 OTMarket::~OTMarket()
 {
-	// No need to call Release() here, the framework will take care of that.
+	Release_Market();
 }
 
 
@@ -2347,20 +2347,20 @@ void OTMarket::InitMarket()
 }
 
 
-void OTMarket::Release()
+void OTMarket::Release_Market()
 {
 	m_ASSET_TYPE_ID.Release();	
 	m_CURRENCY_TYPE_ID.Release();	
 	
 	m_SERVER_ID.Release();
-
+    
 	// Elements of this list are cleaned up automatically.
 	if (NULL != m_pTradeList)
 	{
 		delete m_pTradeList; 
 		m_pTradeList = NULL;
 	}
-
+    
 	// If there were any dynamically allocated objects, clean them up here.
 	while (!m_mapBids.empty())
 	{		
@@ -2376,9 +2376,14 @@ void OTMarket::Release()
 		delete pOffer;
 		pOffer = NULL;
 	}
+}
+
+void OTMarket::Release()
+{
+	Release_Market(); // since I've overridden the base class, I call it now...
 	
-	OTContract::Release(); // since I've overridden the base class, I call it now...
-	
+    ot_super::Release(); // since I've overridden the base class, I call it now...
+
 	// Then I call this to re-initialize everything (just out of convenience. Not always the right move.)
 	InitMarket();	
 }

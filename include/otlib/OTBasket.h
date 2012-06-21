@@ -176,10 +176,10 @@ typedef std::deque <BasketItem *> dequeOfBasketItems;
 
 class OTBasket : public OTContract
 {
-public:
+private:  // Private prevents erroneous use by other classes.
+    typedef OTContract ot_super;
 						 
 protected:
-	
 	int		m_nSubCount;
 	long	m_lMinimumTransfer;			// used in the actual basket
 
@@ -239,7 +239,8 @@ EXPORT	void AddRequestSubContract(const OTIdentifier & SUB_CONTRACT_ID,
 	inline void SetRequestAccountID(const OTIdentifier & theAccountID) { m_RequestAccountID = theAccountID; }
 	inline const OTIdentifier & GetRequestAccountID() { return m_RequestAccountID; }
 
-	void ReleaseBasket();
+	virtual void Release();
+	void Release_Basket();
     
     // -----------------------------------------------------------------------------
     //

@@ -174,6 +174,9 @@ class OTSmartContract;
 
 class OTSmartContract : public OTCronItem
 {
+private:  // Private prevents erroneous use by other classes.
+    typedef OTCronItem ot_super;
+    
 private:
 	// In OTSmartContract, none of this normal crap is used.
 	// The Sender/Recipient are unused. 
@@ -482,6 +485,7 @@ EXPORT	virtual ~OTSmartContract();
 	void InitSmartContract();
 
 	virtual void Release();
+	void Release_SmartContract();
 	void ReleaseStashes();
 
 	static void CleanupNyms(mapOfNyms & theMap);

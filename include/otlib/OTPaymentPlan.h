@@ -206,6 +206,9 @@
 
 class OTPaymentPlan : public OTAgreement
 {
+private:  // Private prevents erroneous use by other classes.
+    typedef OTAgreement ot_super;
+
 	// *************************** Methods for generating a payment plan: ***************************
 	
 public: 
@@ -421,6 +424,7 @@ EXPORT	virtual ~OTPaymentPlan();
 	void InitPaymentPlan();
 	
 	virtual void Release();
+	void Release_PaymentPlan();
 	
 	
 	// return -1 if error, 0 if nothing, and 1 if the node was processed.

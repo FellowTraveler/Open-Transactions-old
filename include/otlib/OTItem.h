@@ -165,6 +165,9 @@ typedef std::list  <OTItem *>	listOfItems;
 // not the item. A transaction contains a list of items.
 class OTItem : public OTTransactionType
 {	
+private:  // Private prevents erroneous use by other classes.
+    typedef OTTransactionType ot_super;
+
     friend OTTransactionType * OTTransactionType::TransactionFactory(const OTString & strInput);
 
 public:
@@ -369,6 +372,8 @@ EXPORT    bool AddBlankNumbersToItem(const OTNumList & theAddition);
 	// OTItem will take care of it from there and will delete it in destructor.
 
 	void ReleaseItems();
+	void Release_Item();
+	virtual void Release();
 
 	// the "From" accountID and the ServerID are now in the parent class. (2 of each.)
 	

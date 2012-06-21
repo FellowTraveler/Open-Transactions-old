@@ -242,6 +242,38 @@ OTData::OTData(const void * pNewData, uint32_t lNewSize) : m_pData(NULL), m_lPos
 	Assign(pNewData, lNewSize);
 }
 
+OTData::~OTData()
+{ 
+    Release_Data(); 
+}
+
+void OTData::Release_Data()
+{
+   if (m_pData != NULL)
+   {
+	   // For security reasons, we clear the memory to 0 when deleting the object. (Seems smart.)
+       //
+       OTPassword::zeroMemory(m_pData, m_lSize);
+//	   memset(m_pData, 0, m_lSize);
+       // --------------------------------------
+       
+	   delete [] (static_cast<uint8_t *>(m_pData));
+	   
+       // --------------------------------------
+       // inline void Initialize() { m_pData = NULL; m_lSize = 0; m_lPosition = 0; }
+       //
+	   Initialize(); // If m_pData was already NULL, no need to re-Initialize().
+   }
+}
+
+void OTData::Release()
+{
+    Release_Data();
+    
+    // no ot_super here since this is a base class.
+}
+
+
 OTData & OTData::operator=(OTData rhs) 
 {
 	this->swap(rhs);
@@ -371,7 +403,6 @@ void OTData::Concatenate(const void * pAppendData, uint32_t lAppendSize)
 
 
 
-
 OTData & OTData::operator+=(const OTData & rhs)
 {
     if (rhs.GetSize() > 0)
@@ -380,25 +411,6 @@ OTData & OTData::operator+=(const OTData & rhs)
 	return *this;
 }
 
-
-void OTData::Release()
-{
-   if (m_pData != NULL)
-   {
-	   // For security reasons, we clear the memory to 0 when deleting the object. (Seems smart.)
-       //
-       OTPassword::zeroMemory(m_pData, m_lSize);
-//	   memset(m_pData, 0, m_lSize);
-       // --------------------------------------
-       
-	   delete [] (static_cast<uint8_t *>(m_pData));
-	   
-       // --------------------------------------
-       // inline void Initialize() { m_pData = NULL; m_lSize = 0; m_lPosition = 0; }
-       //
-	   Initialize(); // If m_pData was already NULL, no need to re-Initialize().
-   }
-}
 
 
 void OTData::SetSize(uint32_t lNewSize)

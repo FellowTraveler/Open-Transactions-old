@@ -460,7 +460,7 @@ bool OTAgreement::IsValidOpeningNumber(const long & lOpeningNum) const
 	if (GetRecipientOpeningNum() == lOpeningNum)
 		return true;
 	
-	return OTCronItem::IsValidOpeningNumber(lOpeningNum);
+	return ot_super::IsValidOpeningNumber(lOpeningNum);
 }
 
 long OTAgreement::GetOpeningNumber(const OTIdentifier & theNymID) const
@@ -470,7 +470,7 @@ long OTAgreement::GetOpeningNumber(const OTIdentifier & theNymID) const
 	if (theNymID == theRecipientNymID)
 		return GetRecipientOpeningNum();
 	// else...
-	return OTCronItem::GetOpeningNumber(theNymID);
+	return ot_super::GetOpeningNumber(theNymID);
 }
 
 
@@ -483,7 +483,7 @@ long OTAgreement::GetClosingNumber(const OTIdentifier & theAcctID) const
 	if (theAcctID == theRecipientAcctID)
 		return GetRecipientClosingNum();
 	// else...
-	return OTCronItem::GetClosingNumber(theAcctID);
+	return ot_super::GetClosingNumber(theAcctID);
 }
 
 // ---------------------------------------------------
@@ -525,7 +525,7 @@ void OTAgreement::HarvestOpeningNumber(OTPseudonym & theNym)
     // IF theNym is the original sender, the opening number will be harvested
     // inside this call.
     //
-    OTCronItem::HarvestOpeningNumber(theNym);
+    ot_super::HarvestOpeningNumber(theNym);
 
     // The Nym is the original recipient. (If Compares true).
     // IN CASES where GetTransactionNum() isn't already burned, we can harvest it here.
@@ -564,7 +564,7 @@ void OTAgreement::HarvestClosingNumbers(OTPseudonym & theNym)
     // "used." So clearly you cannot just blindly call this function unless
     // you know beforehand whether the message and transaction were a success.
     //
-    OTCronItem::HarvestClosingNumbers(theNym);
+    ot_super::HarvestClosingNumbers(theNym);
 
     // The Nym is the original recipient. (If Compares true).
 	// FYI, if Nym is the original sender, then the above call will handle him.
@@ -603,7 +603,7 @@ bool OTAgreement::ProcessCron()
 	// END DATE --------------------------------
 	// First call the parent's version (which this overrides) so it has
 	// a chance to check its stuff. Currently it checks IsExpired().
-	if (!OTCronItem::ProcessCron())
+	if (!ot_super::ProcessCron())
 		return false;	// It's expired or flagged--removed it from Cron.
 	
 	
@@ -637,7 +637,7 @@ bool OTAgreement::CanRemoveItemFromCron(OTPseudonym & theNym)
     // and make sure the Nym who requested it actually has said number (or a related closing number)
     // signed out to him on his last receipt...
     //
-    if (true == OTCronItem::CanRemoveItemFromCron(theNym))
+    if (true == ot_super::CanRemoveItemFromCron(theNym))
         return true;
     
     const OTString strServerID(GetServerID());
@@ -704,7 +704,7 @@ int OTAgreement::GetRecipientCountClosingNumbers() const
 long OTAgreement::GetRecipientClosingTransactionNoAt(unsigned int nIndex) const 
 {
     OT_ASSERT_MSG((nIndex < m_dequeRecipientClosingNumbers.size()) && (nIndex >= 0), 
-                  "OTCronItem::GetClosingTransactionNoAt: index out of bounds.");
+                  "OTAgreement::GetClosingTransactionNoAt: index out of bounds.");
     
     return m_dequeRecipientClosingNumbers.at(nIndex);
 }
@@ -1040,13 +1040,13 @@ bool OTAgreement::SetAgreement(const long & lTransactionNum,	const OTString & st
 
 
 
-OTAgreement::OTAgreement() : OTCronItem()
+OTAgreement::OTAgreement() : ot_super()
 {
 	InitAgreement();
 }
 
 OTAgreement::OTAgreement(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID) :
-			OTCronItem(SERVER_ID, ASSET_ID)
+			ot_super(SERVER_ID, ASSET_ID)
 {
 	InitAgreement();
 }
@@ -1055,7 +1055,7 @@ OTAgreement::OTAgreement(const OTIdentifier & SERVER_ID, const OTIdentifier & AS
 OTAgreement::OTAgreement(const OTIdentifier & SERVER_ID,			const OTIdentifier & ASSET_ID,
 						 const OTIdentifier & SENDER_ACCT_ID,		const OTIdentifier & SENDER_USER_ID,
 						 const OTIdentifier & RECIPIENT_ACCT_ID,	const OTIdentifier & RECIPIENT_USER_ID) :
-			OTCronItem(SERVER_ID, ASSET_ID, SENDER_ACCT_ID, SENDER_USER_ID)
+			ot_super(SERVER_ID, ASSET_ID, SENDER_ACCT_ID, SENDER_USER_ID)
 {
 	InitAgreement();
 	
@@ -1065,7 +1065,7 @@ OTAgreement::OTAgreement(const OTIdentifier & SERVER_ID,			const OTIdentifier & 
 
 OTAgreement::~OTAgreement()
 {
-	// no need to call Release(), the framework will call it.
+	Release_Agreement();
 }
 
 
@@ -1075,10 +1075,10 @@ void OTAgreement::InitAgreement()
 	
 }
 
-// the framework will call this at the right time.
-void OTAgreement::Release()
+void OTAgreement::Release_Agreement()
 {
-	// If there were any dynamically allocated objects, clean them up here.
+    // If there were any dynamically allocated objects, clean them up here.
+    //
 	m_RECIPIENT_ACCT_ID.Release();	
 	m_RECIPIENT_USER_ID.Release();
 	
@@ -1086,10 +1086,21 @@ void OTAgreement::Release()
 	m_strMerchantSignedCopy.Release();
 	
     m_dequeRecipientClosingNumbers.clear();
+}
+
+
+// the framework will call this at the right time.
+//
+void OTAgreement::Release()
+{
+    Release_Agreement();
     
+    // -----------------------
     
-	OTCronItem::Release(); // since I've overridden the base class, I call it now...
+	ot_super::Release(); // since I've overridden the base class (OTCronItem), so I call it now...
 	
+    // -----------------------
+
 	// Then I call this to re-initialize everything
 	InitAgreement();
 }
@@ -1116,7 +1127,7 @@ int OTAgreement::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 	// -- Note you can choose not to call the parent if
 	// you don't want to use any of those xml tags.
 	// As I do below, in the case of OTAccount.
-	if (0 != (nReturnVal = OTCronItem::ProcessXMLNode(xml)))
+	if (0 != (nReturnVal = ot_super::ProcessXMLNode(xml)))
 		return nReturnVal;
 
     // -------------------------------------------------

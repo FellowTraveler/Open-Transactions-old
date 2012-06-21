@@ -182,7 +182,7 @@ int OTSignedFile::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 	// -- Note you can choose not to call the parent if
 	// you don't want to use any of those xml tags.
 	// As I do below, in the case of OTAccount.
-	//if (nReturnVal = OTContract::ProcessXMLNode(xml))
+	//if (nReturnVal = ot_super::ProcessXMLNode(xml))
 	//	return nReturnVal;
 	
 	if (!strcmp("signedFile", xml->getNodeName())) 
@@ -236,14 +236,14 @@ bool OTSignedFile::VerifyFile()
 
 
 
-OTSignedFile::OTSignedFile(const OTString & LOCAL_SUBDIR, const OTString & FILE_NAME) : OTContract()
+OTSignedFile::OTSignedFile(const OTString & LOCAL_SUBDIR, const OTString & FILE_NAME) : ot_super()
 {
 	m_strContractType.Set("FILE");
 	
 	SetFilename(LOCAL_SUBDIR, FILE_NAME);
 }
 
-OTSignedFile::OTSignedFile(const char * LOCAL_SUBDIR, const OTString & FILE_NAME) : OTContract()
+OTSignedFile::OTSignedFile(const char * LOCAL_SUBDIR, const OTString & FILE_NAME) : ot_super()
 {
 	m_strContractType.Set("FILE");
 	
@@ -252,7 +252,7 @@ OTSignedFile::OTSignedFile(const char * LOCAL_SUBDIR, const OTString & FILE_NAME
 	SetFilename(strLocalSubdir, FILE_NAME);
 }
 
-OTSignedFile::OTSignedFile(const char * LOCAL_SUBDIR, const char * FILE_NAME) : OTContract()
+OTSignedFile::OTSignedFile(const char * LOCAL_SUBDIR, const char * FILE_NAME) : ot_super()
 {
 	m_strContractType.Set("FILE");
 	
@@ -313,7 +313,7 @@ void OTSignedFile::SetFilename(const OTString & LOCAL_SUBDIR, const OTString & F
 	// Finished Product:    "transaction/nyms/5bf9a88c.nym"
 }
 
-OTSignedFile::OTSignedFile() : OTContract()
+OTSignedFile::OTSignedFile() : ot_super()
 {
 	m_strContractType.Set("FILE");
 }
@@ -321,11 +321,11 @@ OTSignedFile::OTSignedFile() : OTContract()
 
 OTSignedFile::~OTSignedFile()
 {
-	// No need to call release here -- it's called by the parent.
+	Release_SignedFile();
 }
 
 	
-void OTSignedFile::Release()
+void OTSignedFile::Release_SignedFile()
 {
 	m_strSignedFilePayload.Release();	// This is the file contents we were wrapping. 
 										// We can release this now.
@@ -338,8 +338,13 @@ void OTSignedFile::Release()
 	
 	m_strPurportedLocalDir.Release();	
 	m_strPurportedFilename.Release();
+}
 	
-	OTContract::Release();
+void OTSignedFile::Release()
+{
+    Release_SignedFile();
+	
+	ot_super::Release();
 
 	m_strContractType.Set("FILE");
 }

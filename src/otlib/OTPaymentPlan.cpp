@@ -164,7 +164,7 @@ int OTPaymentPlan::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 	// -- Note you can choose not to call the parent if
 	// you don't want to use any of those xml tags.
 	// As I do below, in the case of OTAccount.
-	if (0 != (nReturnVal = OTAgreement::ProcessXMLNode(xml)))
+	if (0 != (nReturnVal = ot_super::ProcessXMLNode(xml)))
 		return nReturnVal;
     
 	// Note: the closing transaction numbers are read in OTCronItem::ProcessXMLNode,
@@ -432,7 +432,7 @@ bool OTPaymentPlan::SetInitialPayment(const long & lAmount, time_t tTimeUntilIni
 
 bool OTPaymentPlan::Compare(const OTAgreement & rhs) const
 {
-    if (false == OTAgreement::Compare(rhs))
+    if (false == ot_super::Compare(rhs))
         return false;
     
     // Compare OTPaymentPlan specific info here.
@@ -606,14 +606,14 @@ bool OTPaymentPlan::SetPaymentPlan(const long & lPaymentAmount, time_t tTimeUnti
 
 
 
-OTPaymentPlan::OTPaymentPlan() : OTAgreement(), m_bProcessingInitialPayment(false), m_bProcessingPaymentPlan(false)
+OTPaymentPlan::OTPaymentPlan() : ot_super(), m_bProcessingInitialPayment(false), m_bProcessingPaymentPlan(false)
 {
 	InitPaymentPlan();
 }
 
 
 OTPaymentPlan::OTPaymentPlan(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID) :
-				OTAgreement(SERVER_ID, ASSET_ID), m_bProcessingInitialPayment(false), m_bProcessingPaymentPlan(false)
+				ot_super(SERVER_ID, ASSET_ID), m_bProcessingInitialPayment(false), m_bProcessingPaymentPlan(false)
 {
 	InitPaymentPlan();
 }
@@ -622,7 +622,7 @@ OTPaymentPlan::OTPaymentPlan(const OTIdentifier & SERVER_ID, const OTIdentifier 
 OTPaymentPlan::OTPaymentPlan(const OTIdentifier & SERVER_ID,			const OTIdentifier & ASSET_ID,
 							 const OTIdentifier & SENDER_ACCT_ID,		const OTIdentifier & SENDER_USER_ID,
 							 const OTIdentifier & RECIPIENT_ACCT_ID,	const OTIdentifier & RECIPIENT_USER_ID) :
-					OTAgreement(SERVER_ID, ASSET_ID, 
+					ot_super(SERVER_ID, ASSET_ID, 
                                 SENDER_ACCT_ID, SENDER_USER_ID, RECIPIENT_ACCT_ID, RECIPIENT_USER_ID), m_bProcessingInitialPayment(false), m_bProcessingPaymentPlan(false)
 {
 	InitPaymentPlan();
@@ -1412,7 +1412,7 @@ bool OTPaymentPlan::ProcessCron()
 	// a chance to check its stuff. 
     // Currently it calls OTCronItem::ProcessCron, which checks IsExpired().
     //
-	if (false == OTAgreement::ProcessCron())
+	if (false == ot_super::ProcessCron())
 	{
 		OTLog::Output(3, "Cron job has expired.\n");
 		return false;	// It's expired or flagged for removal--remove it from Cron.
@@ -1556,12 +1556,6 @@ bool OTPaymentPlan::ProcessCron()
 
 
 
-OTPaymentPlan::~OTPaymentPlan()
-{
-	// no need to call Release(), the framework will call it.
-}
-
-
 void OTPaymentPlan::InitPaymentPlan()
 {
 	m_strContractType = "PAYMENT PLAN";
@@ -1597,12 +1591,25 @@ void OTPaymentPlan::InitPaymentPlan()
 
 
 
-// the framework will call this at the right time.
+OTPaymentPlan::~OTPaymentPlan()
+{
+	Release_PaymentPlan();
+}
+
+
+
+void OTPaymentPlan::Release_PaymentPlan()
+{
+	// If there were any dynamically allocated objects, clean them up here.	
+}
+
+
 void OTPaymentPlan::Release()
 {
 	// If there were any dynamically allocated objects, clean them up here.
-	
-	OTAgreement::Release(); // since I've overridden the base class, I call it now...
+	Release_PaymentPlan();
+    
+	ot_super::Release(); // since I've overridden the base class, I call it now...
 	
 	// Then I call this to re-initialize everything
 	InitPaymentPlan();
@@ -1615,4 +1622,24 @@ bool OTPaymentPlan::SaveContractWallet(std::ofstream & ofs)
 {
 	return true;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

@@ -168,6 +168,9 @@ class OTTrade;
 
 class OTOffer : public OTInstrument
 {
+private:  // Private prevents erroneous use by other classes.
+    typedef OTInstrument ot_super;
+
 	// From OTInstrument (parent class of this)
 	/*
 public:
@@ -264,6 +267,7 @@ EXPORT	virtual ~OTOffer();
 	void InitOffer();
 
 	virtual void Release();
+	void Release_Offer();
 
 	// return -1 if error, 0 if nothing, and 1 if the node was processed.
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
@@ -273,7 +277,29 @@ EXPORT	virtual ~OTOffer();
 	virtual bool SaveContractWallet(std::ofstream & ofs);
 };
 
+
+
+
+
+
+
+
+
+
+
 #endif // __OTOFFER_H__
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

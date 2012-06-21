@@ -207,12 +207,12 @@ void OTToken::InitToken()
 	m_strContractType.Set("CASH");
 }
 
-OTToken::OTToken() : OTInstrument()
+OTToken::OTToken() : ot_super()
 {
 	InitToken();
 }
 
-OTToken::OTToken(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID) : OTInstrument(SERVER_ID, ASSET_ID)
+OTToken::OTToken(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID) : ot_super(SERVER_ID, ASSET_ID)
 {
 	InitToken();
 	
@@ -220,7 +220,7 @@ OTToken::OTToken(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID) 
 	// So they are initialized there now.
 }
 
-OTToken::OTToken(const OTPurse & thePurse) : OTInstrument()
+OTToken::OTToken(const OTPurse & thePurse) : ot_super()
 {
 	InitToken();
 
@@ -231,33 +231,56 @@ OTToken::OTToken(const OTPurse & thePurse) : OTInstrument()
 	m_AssetTypeID	= thePurse.GetAssetID();
 }
 
-void OTToken::Release()
+void OTToken::Release_Token()
 {
 	m_Signature.Release();
 	m_ascSpendable.Release();
-	
-    m_State			= blankToken;
-	m_nTokenCount	= 0;
-	m_nChosenIndex	= 0;
-	m_lDenomination	= 0; 
-	
-	m_bSavePrivateKeys = false;
-	
-	m_nSeries		= 0;
-	
-	m_strContractType.Set("CASH");
 
+    // -------------------------
+	
+    InitToken();
+    
     // -------------------------
     
 	ReleasePrototokens();
-		
-	OTInstrument::Release(); // since I've overridden the base class, I call it now...
+}
+
+void OTToken::Release()
+{
+	Release_Token();
+    
+	ot_super::Release(); // since I've overridden the base class, I call it now...
 }
 
 OTToken::~OTToken()
 {
-	// OTContract::~OTContract is called here automatically, and it calls Release() already.
-	// So I don't need to call Release() here again, since it's already called by the parent.
+	Release_Token();
+}
+
+
+void OTToken::ReleasePrototokens()
+{
+	FOR_EACH(mapOfPrototokens, m_mapPublic)
+	{		
+		OTASCIIArmor * pPrototoken = (*it).second;
+		OT_ASSERT_MSG(NULL != pPrototoken, "NULL OTASCIIArmor pointer in OTToken::ReleasePrototokens.");
+		
+		delete pPrototoken; pPrototoken	= NULL;
+	}
+	// ------------------------------------------------
+	
+	FOR_EACH(mapOfPrototokens, m_mapPrivate)
+	{		
+		OTASCIIArmor * pPrototoken = (*it).second;
+		OT_ASSERT_MSG(NULL != pPrototoken, "NULL OTASCIIArmor pointer in OTToken::ReleasePrototokens.");
+		
+		delete pPrototoken; pPrototoken	= NULL;
+	}
+	// ------------------------------------------------
+    
+	m_mapPublic.clear();
+	m_mapPrivate.clear();
+	m_nTokenCount	= 0;
 }
 
 
@@ -889,31 +912,6 @@ bool OTToken::GenerateTokenRequest(const OTPseudonym & theNym, OTMint & theMint,
 	return true;
 }
 
-
-void OTToken::ReleasePrototokens()
-{
-	FOR_EACH(mapOfPrototokens, m_mapPublic)
-	{		
-		OTASCIIArmor * pPrototoken = (*it).second;
-		OT_ASSERT_MSG(NULL != pPrototoken, "NULL OTASCIIArmor pointer in OTToken::ReleasePrototokens.");
-		
-		delete pPrototoken; pPrototoken	= NULL;
-	}
-	// ------------------------------------------------
-	
-	FOR_EACH(mapOfPrototokens, m_mapPrivate)
-	{		
-		OTASCIIArmor * pPrototoken = (*it).second;
-		OT_ASSERT_MSG(NULL != pPrototoken, "NULL OTASCIIArmor pointer in OTToken::ReleasePrototokens.");
-		
-		delete pPrototoken; pPrototoken	= NULL;
-	}
-	// ------------------------------------------------
-
-	m_mapPublic.clear();
-	m_mapPrivate.clear();
-	m_nTokenCount	= 0;
-}
 
 
 

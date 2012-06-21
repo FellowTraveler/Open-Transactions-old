@@ -3355,7 +3355,7 @@ bool OTSmartContract::ProcessCron()
 	// a chance to check its stuff. 
     // Currently it calls IsExpired().
     //
-	if (false == OTCronItem::ProcessCron())
+	if (false == ot_super::ProcessCron())
 	{
 		OTLog::Output(3, "Cron job has expired.\n");
 		return false;	// It's expired or flagged for removal--remove it from Cron.
@@ -4810,14 +4810,14 @@ OTStash * OTSmartContract::GetStash(const std::string str_stash_name)
 
 
 
-OTSmartContract::OTSmartContract() : OTCronItem(), m_StashAccts(OTAccount::stash), m_tNextProcessDate(0)
+OTSmartContract::OTSmartContract() : ot_super(), m_StashAccts(OTAccount::stash), m_tNextProcessDate(0)
 {
 	InitSmartContract();
 }
 
 
 OTSmartContract::OTSmartContract(const OTIdentifier & SERVER_ID) :
-	OTCronItem(), m_StashAccts(OTAccount::stash), m_tNextProcessDate(0)
+	ot_super(), m_StashAccts(OTAccount::stash), m_tNextProcessDate(0)
 {
 	OTInstrument::SetServerID(SERVER_ID);
 	InitSmartContract();
@@ -4827,7 +4827,7 @@ OTSmartContract::OTSmartContract(const OTIdentifier & SERVER_ID) :
 OTSmartContract::OTSmartContract(const OTIdentifier & SERVER_ID,	const OTIdentifier & ASSET_ID,
 						 const OTIdentifier & SENDER_ACCT_ID,		const OTIdentifier & SENDER_USER_ID,
 						 const OTIdentifier & RECIPIENT_ACCT_ID,	const OTIdentifier & RECIPIENT_USER_ID) :
-			OTCronItem(SERVER_ID, ASSET_ID, SENDER_ACCT_ID, SENDER_USER_ID),
+			ot_super(SERVER_ID, ASSET_ID, SENDER_ACCT_ID, SENDER_USER_ID),
 			m_StashAccts(OTAccount::stash), m_tNextProcessDate(0)
 {
 	InitSmartContract();
@@ -4838,7 +4838,7 @@ OTSmartContract::OTSmartContract(const OTIdentifier & SERVER_ID,	const OTIdentif
 
 OTSmartContract::~OTSmartContract()
 {
-	// no need to call Release(), the framework will call it.
+	Release_SmartContract();
 }
 
 
@@ -4871,17 +4871,24 @@ void OTSmartContract::ReleaseStashes()
 
 
 
-// the framework will call this at the right time.
-void OTSmartContract::Release()
+void OTSmartContract::Release_SmartContract()
 {	
 	// -------------------------------------
 
 	ReleaseStashes();
 	
 	// -------------------------------------
-	
-	OTCronItem::Release(); // since I've overridden the base class, I call it now...
-	
+}
+
+
+
+
+void OTSmartContract::Release()
+{	
+    Release_SmartContract();
+	// -------------------------------------
+	ot_super::Release(); // since I've overridden the base class, I call it now...
+    // -------------------------------------
 	// Then I call this to re-initialize everything
 	InitSmartContract();
 }
@@ -5422,7 +5429,7 @@ int OTSmartContract::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 	//
 	// NO NEED to explicitly load OTScriptable stuff here!
 	//
-	if (0 != (nReturnVal = OTCronItem::ProcessXMLNode(xml)))
+	if (0 != (nReturnVal = ot_super::ProcessXMLNode(xml)))
 		return nReturnVal;
 
     // -------------------------------------------------

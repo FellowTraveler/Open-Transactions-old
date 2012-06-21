@@ -180,6 +180,9 @@ class OTPseudonym;
 
 class OTTrade : public OTCronItem
 {
+private:  // Private prevents erroneous use by other classes.
+    typedef OTCronItem ot_super;
+    
 private:
 	OTIdentifier	m_CURRENCY_TYPE_ID;	// GOLD (Asset) is trading for DOLLARS (Currency).
 	OTIdentifier	m_CURRENCY_ACCT_ID;	// My Dollar account, used for paying for my Gold (say) trades.
@@ -313,6 +316,7 @@ EXPORT	virtual ~OTTrade();
 
 	void InitTrade();
 	
+	void Release_Trade();
 	virtual void Release();
 	
 	// ------------------------------------------------------

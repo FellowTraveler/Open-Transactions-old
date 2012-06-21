@@ -707,7 +707,7 @@ void OTContract::Initialize()
 // the Release() call in LoadContract(). Really I just want to
 // "Release" the stuff that is about to be loaded, not the stuff
 // that I need to load it!
-void OTContract::Release()
+void OTContract::Release_Contract()
 {
 	// !! Notice I don't release the m_strFilename here!!
 	// Because in LoadContract, we want to release all the members, and then load up from the file.
@@ -735,11 +735,18 @@ void OTContract::Release()
 	}	
 }
 
+void OTContract::Release()
+{	
+	Release_Contract();
+    
+    // No call to ot_super::Release() here, since OTContract
+    // is the base class.
+}
 
 OTContract::~OTContract()
 {	
 	
-	Release();
+	Release_Contract();
 }
 
 
@@ -1032,14 +1039,17 @@ bool OTContract::SignContract(const OTPseudonym & theNym)
 	bool bSigned = false;
 	OTSignature * pSig = NULL;
 
-	OT_ASSERT_MSG(pSig = new OTSignature(), "Error allocating memory for Signature in OTContract::SignContract\n");
+    const char * szFunc = "OTContract::SignContract";
+    
+	OT_ASSERT_MSG(pSig = new OTSignature(), "OTContract::SignContract: Error allocating memory for Signature.\n");
 	
-	bSigned = SignContract(theNym, *pSig);
+	bSigned = this->SignContract(theNym, *pSig);
 
 	if (bSigned)
 		m_listSignatures.push_back(pSig);
 	else 
 	{
+        OTLog::vError("%s: Failure in this->SignContract(theNym, *pSig).\n", szFunc);
 		delete pSig;
 		pSig = NULL;
 	}
@@ -2100,7 +2110,8 @@ bool OTContract::SignContract(const char * szFoldername, const char * szFilename
 	OT_ASSERT(NULL != szFilename);
 	
 	EVP_PKEY * pkey = NULL; 
-		
+    
+    const char * szFunc = "OTContract::SignContract";
 	/*
 	BIO *bio = BIO_new( BIO_s_file() );
 	
@@ -2112,7 +2123,7 @@ bool OTContract::SignContract(const char * szFoldername, const char * szFilename
 	
 	if (false == OTDB::Exists(szFoldername, szFilename))
 	{
-		OTLog::vError("OTContract::SignContract: File does not exist: %s%s%s\n", 
+		OTLog::vError("%s: File does not exist: %s%s%s\n", szFunc,
 					  szFoldername, OTLog::PathSeparator(), szFilename);
 		return false;
 	}
@@ -2123,7 +2134,7 @@ bool OTContract::SignContract(const char * szFoldername, const char * szFilename
 	
 	if (strFileContents.length() < 2)
 	{
-		OTLog::vError("OTContract::SignContract: Error reading file: %s%s%s\n", 
+		OTLog::vError("%s: Error reading file: %s%s%s\n", szFunc,
 					  szFoldername, OTLog::PathSeparator(), szFilename);
 		return false;
 	}
@@ -2154,7 +2165,7 @@ bool OTContract::SignContract(const char * szFoldername, const char * szFilename
 		
 		if (NULL == pkey) 
 		{ 
-			OTLog::Error("Error reading private key from BIO in OTContract::SignContract.\n"); 
+			OTLog::vError("%s: Error reading private key from BIO.\n", szFunc); 
 			BIO_free_all(bio);
 			return false; 
 		} 
@@ -2249,12 +2260,14 @@ bool OTContract::VerifySignature(const char * szFoldername, const char * szFilen
 	OT_ASSERT_MSG(NULL != szFoldername, "Null foldername pointer passed to OTContract::VerifySignature");
 	OT_ASSERT_MSG(NULL != szFilename, "Null filename pointer passed to OTContract::VerifySignature");
 	
+    const char * szFunc = "OTContract::VerifySignature";
+    
 //	FILE	 * fp	= NULL; 
 	X509	 * x509	= NULL; 
 	EVP_PKEY * pkey	= NULL; 
 	
 	// Read public key
-	OTLog::Output(2, "Reading public key from certfile in order to verify signature...\n"); 
+	OTLog::vOutput(2, "%s: Reading public key from certfile in order to verify signature...\n", szFunc); 
 
 	/*
 	BIO * bio = BIO_new( BIO_s_file() );
@@ -2266,7 +2279,7 @@ bool OTContract::VerifySignature(const char * szFoldername, const char * szFilen
 	
 	if (false == OTDB::Exists(szFoldername, szFilename))
 	{
-		OTLog::vError("OTContract::VerifySignature: File does not exist: %s%s%s\n", 
+		OTLog::vError("%s: File does not exist: %s%s%s\n", szFunc,
 					  szFoldername, OTLog::PathSeparator(), szFilename);
 		return false;
 	}
@@ -2277,7 +2290,7 @@ bool OTContract::VerifySignature(const char * szFoldername, const char * szFilen
 	
 	if (strFileContents.length() < 2)
 	{
-		OTLog::vError("OTContract::VerifySignature: Error reading file: %s%s%s\n", 
+		OTLog::vError("%s: Error reading file: %s%s%s\n", szFunc,
 					  szFoldername, OTLog::PathSeparator(), szFilename);
 		return false;
 	}
@@ -2308,7 +2321,7 @@ bool OTContract::VerifySignature(const char * szFoldername, const char * szFilen
 	
 	if (x509 == NULL) 
 	{ 
-		OTLog::vError("OTContract::VerifySignature: Failed reading x509 out of cert file: %s%s%s\n", 
+		OTLog::vError("%s: Failed reading x509 out of cert file: %s%s%s\n", szFunc,
 					  szFoldername, OTLog::PathSeparator(), szFilename);
 		return false; 
 	}
@@ -2319,7 +2332,8 @@ bool OTContract::VerifySignature(const char * szFoldername, const char * szFilen
 	
 	if (pkey == NULL) 
 	{ 
-		OTLog::vError("OTContract::VerifySignature: Failed reading public key from x509 from certfile: %s\n", szFilename); 
+		OTLog::vError("%s: Failed reading public key from x509 from certfile: %s\n",
+                      szFunc, szFilename); 
 	} 
 	else 
 	{
@@ -2332,6 +2346,8 @@ bool OTContract::VerifySignature(const char * szFoldername, const char * szFilen
 	
 	return bVerifySig; 
 }
+
+
 
 
 bool OTContract::DisplayStatistics(OTString & strContents) const
@@ -2410,38 +2426,87 @@ bool OTContract::SaveContract()
 //
 bool OTContract::CreateContract(OTString & strContract, OTPseudonym & theSigner)
 {	
+	const char * szFunc = "OTContract::CreateContract";
+
 	Release();
-	
-	m_xmlUnsigned = strContract;
-	
+    
+    char cNewline = 0;
+    const uint32_t lLength = strContract.GetLength();
+    
+    if ((3 > lLength) || !strContract.At(lLength - 1, cNewline))
+    {
+        OTLog::vError("%s: Invalid input: contract is less than 3 bytes "
+                      "long, or unable to read a byte from the end where a newline is meant to be.\n", szFunc);
+        return false;
+    }
+    // ----------------------
+    // ADD a newline, if necessary.
+    // (The -----BEGIN part needs to start on its OWN LINE...)
+    //
+    // If length is 10, then string goes from 0..9.
+    // Null terminator will be at 10.
+    // Therefore the final newline should be at 9.
+    // Therefore if char_at_index[lLength-1] != '\n'
+    // Concatenate one!
+    
+    if ('\n' == cNewline) // It already has a newline
+        m_xmlUnsigned = strContract;
+    else
+        m_xmlUnsigned.Format("%s\n", strContract.Get());
+    
+    // ----------------------
 	// This function assumes that m_xmlUnsigned is ready to be processed.
 	// This function only processes that portion of the contract.
+    //
 	bool bLoaded = LoadContractXML();
 	
 	if (bLoaded)
 	{
+		// -----------------------------------
+
 		OTString strTemp;
 		
-		SignContract(theSigner);
-		RewriteContract(strTemp); // this trims
-		
-		// This is probably redundant...
-//		std::string str_Trim(strTemp.Get());
-//		std::string str_Trim2 = OTString::trim(str_Trim);
-//		strTemp.Set(str_Trim2.c_str());
-		// -----------------------------------
-		Release();
-		LoadContractFromString(strTemp);
+		if (false == SignContract(theSigner))
+        {
+            OTLog::vError("%s: this->SignContract failed.  strTemp contents:\n\n%s\n\n\n", 
+                          szFunc, strTemp.Get());
+            return false;
+        }
 		SaveContract();
+
 		
+        OTLog::vError("%s: m_xmlUnsigned AFTER SAVING:\n\n%s\n\n", szFunc, m_xmlUnsigned.Get());
+        
+        OTLog::vError("%s: m_strRawFile AFTER SAVING:\n\n%s\n\n", szFunc, m_strRawFile.Get());
+        
+        
+        SaveContractRaw(strTemp);
+        
+        
+        
+        OTLog::vError("%s: STRING AFTER SIGNING:\n\n%s\n\n", szFunc, strTemp.Get());
+        
 		// -----------------------------------
 		
+        Release();
+        LoadContractFromString(strTemp);
+        
+        // -----------------------------------
+
 		OTIdentifier NEW_ID;
 		CalculateContractID(NEW_ID);
 		m_ID = NEW_ID;	
-		
+        
+        // -----------------------------------
+
 		return true;
 	}
+    else
+    {
+        OTLog::vError("%s: this->LoadContractXML failed.  strContract contents:\n\n%s\n\n\n", 
+                      szFunc, strContract.Get());
+        return false;
+    }
 
 	return false;
 }
@@ -2469,7 +2534,7 @@ bool OTContract::RewriteContract(OTString & strOutput) const
 	
 	// ---------------------------------------------------------------
 	
-	SaveContents(strTemp);
+	this->SaveContents(strTemp);
 	
 	// ---------------------------------------------------------------
 	
@@ -2763,9 +2828,11 @@ bool OTContract::LoadContractFromString(const OTString & theStr)
 {
 	Release();
 	
+    const char * szFunc = "OTContract::LoadContractFromString";
+    
 	if (!theStr.Exists())
 	{
-		OTLog::Error("OTContract::LoadContractFromString: Empty string passed in... (Error)\n");
+		OTLog::vError("%s: Empty string passed in... (Error)\n", szFunc);
 		
 //		OT_ASSERT_MSG(false, "Callstack?");
 
@@ -2808,8 +2875,8 @@ bool OTContract::LoadContractFromString(const OTString & theStr)
                                              OT_BEGIN_ARMORED)))     // Default is:       "-----BEGIN" 
                                                                      // We're doing this: "-----BEGIN OT ARMORED" (Should worked for escaped as well, here.)
         {
-            OTLog::vError("OTContract::LoadContractFromString: Error loading file contents from ascii-armored encoding: %s\n", 
-                          theStr.Get());
+            OTLog::vError("%s: Error loading file contents from ascii-armored encoding: %s\n", 
+                          szFunc, theStr.Get());
             return false;
         }
         else // success loading the actual contents out of the ascii-armored version.
@@ -2825,8 +2892,8 @@ bool OTContract::LoadContractFromString(const OTString & theStr)
             }
             else
             {
-                OTLog::vError("OTContract::LoadContractFromString: Error loading file contents from empty or near-empty "
-                              "ascii-armored encoding: %s\n", theStr.Get());
+                OTLog::vError("%s: Error loading file contents from empty or near-empty "
+                              "ascii-armored encoding: %s\n", szFunc, theStr.Get());
                 return false;
             }
         } 
@@ -3061,6 +3128,7 @@ bool OTContract::ParseRawFile()
 	else if (bSignatureMode)
 	{
 		OTLog::Error("Error in OTContract::ParseRawFile: EOF while reading signature.\n");
+        OT_ASSERT_MSG(false, "gimme a call stack!");
 		return false;
 	}
 	else if (!LoadContractXML())
@@ -3093,12 +3161,14 @@ bool OTContract::LoadContractXML()
 		return false;
 	}
 	
+    m_xmlUnsigned.reset();
+    
 	IrrXMLReader* xml = createIrrXMLReader(&m_xmlUnsigned);
-	
 	OT_ASSERT_MSG(NULL != xml, "Memory allocation issue with xml reader in OTContract::LoadContractXML()\n");
-
+    OTCleanup<IrrXMLReader> xmlAngel(*xml);
+    
 	// parse the file until end reached
-	while(xml && xml->read())
+	while(xml->read())
 	{
 		switch(xml->getNodeType())
 		{
@@ -3141,13 +3211,7 @@ bool OTContract::LoadContractXML()
 				
 		}
 	}
-	
-	if (NULL != xml)
-	{
-		delete xml;
-		xml = NULL;
-	}
-	
+		
 	return true;	
 }
 

@@ -344,6 +344,7 @@ EXPORT    static bool LoadEncodedTextField(irr::io::IrrXMLReader*& xml, OTASCIIA
 	
 	virtual ~OTContract();
 	virtual void Release();
+	void Release_Contract();
 EXPORT	void ReleaseSignatures();
 
 	// This function is for those times when you already have the unsigned version 
