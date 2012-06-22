@@ -18,12 +18,12 @@ var madeEasy	= OT_ME()
 
 var strUsage = "\n\n FYI, USAGE: send_user_msg.ot --mynym <YOUR_NYM_ID> --hisnym <RECIPIENT_NYM_ID>\n\n"
 
+OT_API_Output(0, strUsage)
 
-if (!VerifyExists("Server") || !VerifyExists("MyNym") || !VerifyExists("HisNym"))
-{  OT_API_Output(0, strUsage);  }
-else
+if (VerifyExists("Server") && VerifyExists("MyNym") && VerifyExists("HisNym"))
 {
-    OT_API_Output(0, "Please enter your message on multiple lines, followed by an EOF or a ~ by itself on a blank line:\n\n")
+    OT_API_Output(0, "Please enter your message on multiple lines, optionally beginning with a \"Subject: \" line.\n")
+    OT_API_Output(0, "Use Ctrl-C to cancel, otherwise finish your message with an EOF or a ~ by itself on a blank line:\n\n")
 
     var strTestMessage = OT_CLI_ReadUntilEOF()
     

@@ -1599,16 +1599,28 @@ void OTLog::vError(const char *szError, ...)
 void  OTLog::Errno(const char * szLocation/*=NULL*/) // stderr
 {   
     const int errnum = errno;
-    char buf[128]; buf[0] = '\0';    
-    const int nstrerr = strerror_r(errnum, buf, 127); // (strerror_r is threadsafe version of strerror)
+    char buf[128]; buf[0] = '\0';
+    
+    int nstrerr = 0;
+    char * szErrString = NULL;
+    
+//#if((_POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600) && !defined(_GNU_SOURCE))
+#if (_POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600)
+    nstrerr = strerror_r(errnum, buf, 127); // (strerror_r is threadsafe version of strerror)
+#elif defined(_GNU_SOURCE)
+    szErrString = strerror_r(errnum, buf, 127);
+#endif
     
     const char * szFunc = "OTLog::Errno";
     const char * sz_location = (NULL == szLocation) ? "" : szLocation;
     
+    if (NULL == szErrString)
+        szErrString = buf;
+    // ------------------------
     if (0 == nstrerr)
         OTLog::vError("%s %s: errno %d: %s.\n", 
                       szFunc, sz_location,
-                      errnum, buf[0] != '\0' ? buf : "");
+                      errnum, szErrString[0] != '\0' ? szErrString : "");
     else
         OTLog::vError("%s %s: errno: %d. (Unable to retrieve error string for that number.)\n", 
                       szFunc, sz_location,

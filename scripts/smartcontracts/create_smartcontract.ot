@@ -1,481 +1,555 @@
-#! /usr/local/bin/ot --script
+#!/usr/bin/env ot
 
-// This temp variable is used for a running "latest copy" of the smart contract, as we 
-// construct it here inside this client-side OT script. (Don't confuse the server-side
-// scripts, aka the smart contracts, with the client-side scripts :-)
-//
-var strSmartContract = ""
 
 
-// These are all functions that will be available to the smart contract itself (on the
-// server side--so only the actual smart contract clauses can call these.) 
-//
-		// ---------------------------------------------------------
-		// OT NATIVE FUNCTIONS 
-		// (These functions can be called from INSIDE the scripted clauses.)
-		//							// Parameters must match as described below. Return value will be as described below.
-		//							// -------------------------------------------------------------
-//		"set_seconds_until_timer"	// void SetNextProcessTime(String str_seconds_from_now) // if this is <=0, then it sets next process date to 0.
-//		"get_remaining_timer"		// std::string GetRemainingTimer() const
-/*
- " 6 minutes	==      360 seconds\n"
- "10 minutes	==      600 seconds\n"
- " 1 hour		==     3600 seconds\n"
- " 1 day		==    86400 seconds\n"
- "30 days		==  2592000 seconds\n"
- " 3 months		==  7776000 seconds\n"
- " 6 months		== 15552000 seconds\n\n" 
- "12 months		== 31104000 seconds\n\n" 
- */
-//		"move_funds"				// bool MoveAcctFunds(String from_acct_name, String to_acct_name, String str_Amount); // calls OTCronItem::MoveFunds()
-
-//		"get_acct_balance"			// std::string GetAcctBalance(String acct_name);
-//		"get_acct_asset_type_id"	// std::string OTSmartContract::GetAssetTypeIDofAcct(String from_acct_name)
-
-//		"stash_funds"				// bool StashAcctFunds(String from_acct_name, String to_stash_name, String str_Amount); // calls StashFunds()
-//		"unstash_funds"				// bool UnstashAcctFunds(String to_acct_name, String from_stash_name, String str_Amount); // calls StashFunds( lAmount * (-1) )
-//		"get_stash_balance"			// std::string GetStashBalance(String stash_name, String asset_type_id);
-
-//		"send_notice"				// bool SendNoticeToParty(String party_name);
-//		"send_notice_to_parties"	// bool SendANoticeToAllParties();
-
-//		"deactivate_contract"		// void DeactivateSmartContract();
-
-		// ---------------------------------------------------------
-		// CALLBACKS 
-		// (Called by OT at key moments)
-		//
-//		"party_may_execute_clause"		// This is a function already on OT server, that it will call when it needs the answer (and that YOUR may call also, whether you provide a script override or not.) Todo: security ramifications?
-//		"may_execute_clause"			// This is the name of your clause, as provided in THIS example smart contract. (party_may_execute_clause calls this.)
-//		"callback_party_may_execute_clause"   <=== THE CALLBACK WITH THIS NAME must be connected to a script clause (with whatever name you want), and then that clause will trigger when the callback is needed.	
-		
-//		"party_may_cancel_contract"		// This is a function already on OT server, that it will call when it needs the answer (and that you may call also, since the server has a version of it whether you provide the script or not.) Todo: security ramifications?
-//		"may_cancel_contract"			// This is the name of your clause, as provided in THIS example smart contract. (party_may_cancel_contract calls this.)
-//		"callback_party_may_cancel_contract"  <=== THE CALLBACK WITH THIS NAME must be connected to a script clause (with whatever name you want), and then that clause will trigger when the callback is needed.
-//
-		// Callback USAGE:	Your clause, in your smart contract, may have whatever name you want. (Within limits.)
-		//					There must be a callback entry in the smart contract, linking your clause the the appropriate callback.
-		//					The CALLBACK ENTRY uses the names "callback_party_may_execute_clause" and "callback_party_may_cancel_contract".
-		//					If you want to call these from INSIDE YOUR SCRIPT, then use the names "party_may_execute_clause" and "party_may_cancel_contract".
-		//
-		// ---------------------------------------------------------
-		// HOOKS:
-		//
-		// Hooks are not native calls needing to be registered with the script. (Like the above functions are.)
-		// Rather, hooks are SCRIPT CLAUSES, that you have a CHOICE to provide inside your SMART CONTRACT.
-		// *IF* you have provided those clauses, then OT *WILL* call them, at the appropriate times. (When
-		// specific events occur.) Specifically, Hook entries must be in your smartcontract, linking the below 
-		// standard hooks to your clauses.
-		//
-//	"cron_process"		// Called regularly in OTSmartContract::ProcessCron() based on SMART_CONTRACT_PROCESS_INTERVAL.
-//	"cron_activate"		// Done. This is called when the contract is first activated.
-
-
-
-
-// ***************************************************************
-
-// CLIENT-SIDE API CALLS AVAILABLE:
-
-// FYI, here is a list of all the OT API functions that you can call from inside
-// your OT scripts on the CLIENT SIDE...
-
-
-// ***************************************************************
-
-
-
-
-// GETTING STARTED...
-
-// Here are the actual scripts (the CLAUSES) that will be attached to this SMART CONTRACT.
-// There's not much to them -- just testing right now.
-//
-
-// -------------------------------
-// A TYPICAL CLAUSE...
-//
-var strCode_typical_clause = " print(\"Hello world (from typical_clause)\") "
-
-// ------------------------------------------------
-// HOOK: CRON ACTIVATE  (The smart contract is being activated for the FIRST TIME, on the server.)
-//
-var strCode_activate_clause = " print(\"SMART CONTRACT: OnActivate(), FYI, is happening/happened, as of this log. (from cron_activate hook)\") "
-
-// ----------------------------------------------------
-// HOOK: CRON PROCESS (The smart contract is processing regularly, or according to its timer.)
-//
-var strCode_process_clause = " var bVar =  move_funds(alice_acct, bob_acct, \"100\"); " // paymentReceipts should show up in the inboxes...
-
-// ----------------------------------------------------
-// CALLBACK:  MAY EXECUTE?  (One of the parties is trying to trigger a clause directly. The server is asking you whether this is okay. You must return bool.)
-// param_party_name and param_clause_name will be available inside script.
-//
-var strCode_may_execute_clause = " print(\"MAY EXECUTE? (from may_execute_clause callback. Returning true from script.)\"); true; "
-
-// ----------------------------------------------------
-// CALLBACK:  MAY CANCEL?  Server is asking you whether a given party has the power to cancel the contract. You must return bool.
-// param_party_name will be available inside script.
-//
-var strCode_may_cancel_contract = "  print(\"MAY CANCEL? (from may_cancel_contract callback. Returning false from script.)\"); false; "  // need to test this.
-
-
-
-
-// --------------------------------------------------
-
-var BobsUserID = "lMTANg3U97bwGFJAYKljTXAcy5By6JcLdU4di5AoA4z"
-var BobsAcctID = "pFPRBfwtq0cXHgQVdbv0TZZOUlP3exSta4hBZNvVub8"
-
-
-// Just some useful output while running this script:
-
-print("SMART CONTRACT Server: "		+ Server)
-print("SMART CONTRACT MyNym: "		+ MyNym)
-print("SMART CONTRACT MyAcct: "		+ MyAcct)
-print("SMART CONTRACT MyPurse: "	+ MyPurse)
-
-print("SMART CONTRACT Bob's Nym ID: "	+ BobsUserID)
-print("SMART CONTRACT Bob's AcctID: "	+ BobsAcctID + "\n")
-
-// ******************************************************************
-// CREATE the SMART CONTRACT
-//
-var strDate1 = "0"
-var strDate2 = "0"
-
-var strSmart1 = OT_API_Create_SmartContract(Server, MyNym, strDate1, strDate2)
-strSmartContract = strSmart1
-
-// ******************************************************************
-// ADD a BYLAW (Clauses, variables, callbacks, and hooks are all attached
-// to BYLAWS. FYI, you can add multiple bylaws to each contract.)
-//
-var strSmart2 = OT_API_SmartContract_AddBylaw(strSmartContract, MyNym, "main_bylaws") // This name "main_bylaws" is used for all API calls related to this Bylaw.
-
-strSmartContract = strSmart2
-
-// ******************************************************************
-// ** ADD CLAUSE ** (A CONVENTIONAL CLAUSE) named "typical_clause"
-// ...so we can test allowing parties to trigger clauses remotely.
-//
-var strSmart3 = OT_API_SmartContract_AddClause(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
-											// ----------------------------------------
-											"typical_clause",			// The Clause's name as referenced in the smart contract. (And the scripts...)
-											strCode_typical_clause);	// The actual source code for the clause.
-strSmartContract = strSmart3
-
-// ******************************************************************
-// ** ADD CLAUSE ** FOR HOOK (ACTIVATION) (for "cron_activate" hook, to trigger a clause named "activate_clause")
-//
-strSmart3 = OT_API_SmartContract_AddClause(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
-											// ----------------------------------------
-											"activate_clause",			// The Clause's name as referenced in the smart contract. (And the scripts...)
-											strCode_activate_clause);	// The actual source code for the clause.
-strSmartContract = strSmart3
-
-// --------------------------------------------------
-// ** ADD CLAUSE ** FOR HOOK (TIMER PROCESSING) (for "cron_process" hook, to trigger a clause named "process_clause")
-//
-strSmart3 = OT_API_SmartContract_AddClause(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
-											// ----------------------------------------
-											"process_clause",			// The Clause's name as referenced in the smart contract. (And the scripts...)
-											strCode_process_clause);	// The actual source code for the clause.
-strSmartContract = strSmart3
-
-// ******************************************************************
-// ** Add Clause ** for CALLBACK (for "callback_party_may_execute_clause" callback, clause named "may_execute_clause")
-//
-strSmart3 = OT_API_SmartContract_AddClause(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
-											// ----------------------------------------
-											"may_exec_coverage",			// The Clause's name as referenced in the smart contract. (And the scripts...)
-											strCode_may_execute_clause);	// The actual source code for the clause.
-strSmartContract = strSmart3
-
-// --------------------------------------------------
-// ** Add Clause ** for CALLBACK (for "callback_party_may_cancel_contract" callback, clause named "may_cancel_contract")
-//
-strSmart3 = OT_API_SmartContract_AddClause(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
-											// ----------------------------------------
-											"may_cancel_contract",			// The Clause's name as referenced in the smart contract. (And the scripts...)
-											strCode_may_cancel_contract);	// The actual source code for the clause.
-strSmartContract = strSmart3
-
-// ******************************************************************
-
-// ** ADD VARIABLE ** (STRING named str_storage)
-// (WHICH STAYS PERSISTENT INSIDE THE CONTRACT.)
-// 
-var strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
-											  // ----------------------------------------
-											  "strStorage",	// The Variable's NAME as referenced in the smart contract. (And the scripts...)
-											  // ----------------------------------------
-											  "persistent",		// "constant", "persistent", or "important". Variable access type.
-											  "string",			// "string", "long", or "bool".  Variable data type.
-											  "This is the default starting value for a string variable in a smart contract...");	// Contains the initial value.
-strSmartContract = strSmart4
-
-// --------------------------------------------------
-// ** ADD VARIABLE **  (STRING named str_storage2) 
-
-var strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
-											  // ----------------------------------------
-											  "strStorage2",	// The Variable's NAME as referenced in the smart contract. (And the scripts...)
-											  // ----------------------------------------
-											  "persistent",		// "constant", "persistent", or "important". Variable access type.
-											  "string",			// "string", "long", or "bool".  Variable data type.
-											  "");				// Contains the initial value. (Empty in this case.)
-strSmartContract = strSmart4
-
-// --------------------------------------------------
-// ** ADD VARIABLE **  (LONG named lstorage) 
-var strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
-											  // ----------------------------------------
-											  "lStorage",	// The Variable's NAME as referenced in the smart contract. (And the scripts...)
-											  // ----------------------------------------
-											  "persistent",	// "constant", "persistent", or "important". Variable access type.
-											  "long",		// "string", "long", or "bool".  Variable data type.
-											  "155");		// Contains the initial value.
-strSmartContract = strSmart4
-
-// --------------------------------------------------
-// ** ADD VARIABLE **  (BOOL named btest) 
-var strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
-											  // ----------------------------------------
-											  "bStorage",		// The Variable's NAME as referenced in the smart contract. (And the scripts...)
-											  // ----------------------------------------
-											  "persistent",	// "constant", "persistent", or "important". Variable access type.
-											  "bool",		// "string", "long", or "bool".  Variable data type.
-											  "true");		// Contains the initial value.
-strSmartContract = strSmart4
-
-// ******************************************************************
-// Connect a known CALLBACK to a known CLAUSE  (may EXECUTE clause?)
-//
-var strSmart5 = OT_API_SmartContract_AddCallback(strSmartContract, MyNym, "main_bylaws",// Should already be on the contract. (This way we can find it.)
-											  // ----------------------------------------
-											  "callback_party_may_execute_clause",		// The Callback's name as referenced in the smart contract. (And the scripts...)
-											  "may_execute_clause");					// The actual clause that will be triggered by the callback. (Must exist.)
-strSmartContract = strSmart5
-
-// --------------------------------------------------
-// Connect a known CALLBACK to a known CLAUSE  (may CANCEL contract?)
-//
-var strSmart5 = OT_API_SmartContract_AddCallback(strSmartContract, MyNym, "main_bylaws",// Should already be on the contract. (This way we can find it.)
-											  // ----------------------------------------
-											  "callback_party_may_cancel_contract",		// The Callback's name as referenced in the smart contract. (And the scripts...)
-											  "may_cancel_contract");					// The actual clause that will be triggered by the callback. (Must exist.)
-strSmartContract = strSmart5
-
-// ******************************************************************
-// Connect a known HOOK (ACTIVATE aka "cron_activate") to a known CLAUSE aka "activate_clause"
-//
-var strSmart6 = OT_API_SmartContract_AddHook(strSmartContract, MyNym, "main_bylaws",		// Should already be on the contract. (This way we can find it.)
-										  // ----------------------------------------
-										  "cron_activate",		// The Hook's name as referenced in the smart contract. (And the scripts...)
-										  "activate_clause");	// The actual clause that will be triggered by the hook. (You can call this multiple times, and have multiple clauses trigger on the same hook.)
-strSmartContract = strSmart6
-
-// ----------------------------------------
-// Connect a known HOOK (TIMER PROCESSING aka "cron_process") to a known CLAUSE aka "process_clause" 
-//
-strSmart6 = OT_API_SmartContract_AddHook(strSmartContract, MyNym, "main_bylaws",		// Should already be on the contract. (This way we can find it.)
-										  // ----------------------------------------
-										  "cron_process",		// The Hook's name as referenced in the smart contract. (And the scripts...)
-										  "process_clause");	// The actual clause that will be triggered by the hook. (You can call this multiple times, and have multiple clauses trigger on the same hook.)
-strSmartContract = strSmart6
-// ----------------------------------------
-
-
-// ******************************************************************
-// Add a THEORETICAL PARTY to the SMART CONTRACT
-//
-var strSmart7 = OT_API_SmartContract_AddParty(strSmartContract, MyNym, // Need a signer Nym, so it can save. This is unrelated to the party. Use any Nym.
-											"party_alice",		// The Party's NAME as referenced in the smart contract. (And the scripts...)
-										   // ----------------------------------------
-										   "agent_alice");	// An AGENT will be added by default for this party. Need Agent NAME.
-										   // (FYI, that is basically the only option, until I code Entities and Roles. Until then, a party can ONLY be
-										   // a Nym, with himself as the agent representing that same party. Nym ID is supplied on ConfirmParty() below.)
-strSmartContract = strSmart7
-
-
-// ----------------------------------------
-// Add a THEORETICAL ACCOUNT to the SMART CONTRACT
-//
-var strSmart8 = OT_API_SmartContract_AddAccount(strSmartContract, MyNym, 
-												"party_alice",	// The Party's NAME as referenced in the smart contract. (And the scripts...)
-												// ----------------------------------------
-												"alice_acct",	// The Account's name as referenced in the smart contract
-												MyPurse);		// Asset Type ID for the Account.
-strSmartContract = strSmart8
-
-// ******************************************************************
-// Add a THEORETICAL PARTY to the SMART CONTRACT
-//
-var strSmart7 = OT_API_SmartContract_AddParty(strSmartContract, BobsUserID, // Need a signer Nym, so it can save. This is unrelated to the party. Use any Nym.
-											"party_bob",		// The Party's NAME as referenced in the smart contract. (And the scripts...)
-										   // ----------------------------------------
-										   "agent_bob");	// An AGENT will be added by default for this party. Need Agent NAME.
-										   // (FYI, that is basically the only option, until I code Entities and Roles. Until then, a party can ONLY be
-										   // a Nym, with himself as the agent representing that same party. Nym ID is supplied on ConfirmParty() below.)
-strSmartContract = strSmart7
-
-
-// ----------------------------------------
-// Add a THEORETICAL ACCOUNT to the SMART CONTRACT
-//
-var strSmart8 = OT_API_SmartContract_AddAccount(strSmartContract, BobsUserID, 
-												"party_bob",	// The Party's NAME as referenced in the smart contract. (And the scripts...)
-												// ----------------------------------------
-												"bob_acct",		// The Account's name as referenced in the smart contract
-												MyPurse);		// Both accounts, in this script, have the same asset type ID.
-strSmartContract = strSmart8
-
-
-print(strSmartContract)
-
-// ******************************************************************
-
-// This is where we go from creating a generic template, to actually instantiating the
-// contract for specific users in a specific situation!
-//
-
-// BY THIS POINT, if we're going to ACTIVATE this up-until-now purely THEORETICAL 
-// smart contract, using ACTUAL Nyms and Accounts, then we need to check and see
-// if they have enough transaction numbers to move forward!
-//
-// -----------------------------------------------
-//
-// We'll start with Alice...
-
-var numCountNymAlice = OT_API_GetNym_TransactionNumCount(Server, MyNym)
-print("  numCountNymAlice: ")
-print(numCountNymAlice)
-
-var numCountNeededAlice = OT_API_SmartContract_CountNumsNeeded(strSmartContract, "agent_alice") + 1
-print("  numCountNeededAlice: ")
-print(numCountNeededAlice)
-// -----------------------------------------------
-
-if (numCountNymAlice >= numCountNeededAlice)
+def CreateSmartContractAtCLI()
 {
-	print("Confirming account...")
-
-	// CONFIRM A THEORETICAL ACCT BY GIVING IT A REAL ACCT ID. (Alice's account)
-	//
-	var strSmart9 = OT_API_SmartContract_ConfirmAccount(strSmartContract, MyNym, "party_alice",	// Should already be on the contract. (This way we can find it.)
-														// ----------------------------------------
-														"alice_acct",	// Acct name. Should already be added on the contract. (This way we can find it.)
-														"agent_alice",	// The agent name for this asset account.
-														MyAcct);		// AcctID for the asset account. (For acct_name).
-	strSmartContract = strSmart9
-	// --------------------------------------------------
+    // This temp variable is used for a running "latest copy" of the smart contract, as we 
+    // construct it here inside this client-side OT script. (Don't confuse the server-side
+    // scripts, aka the smart contracts, with the client-side scripts :-)
+    //
+    var strSmartContract = ""
 
 
-print("SMART CONTRACT just confirmed alice_acct for party_alice. Output:\n\n\n")
-print(strSmartContract)
-print("\n\n\n Confirming party...")
+    // These are all functions that will be available to the smart contract itself (on the
+    // server side--so only the actual smart contract clauses can call these.) 
+    //
+            // ---------------------------------------------------------
+            // OT NATIVE FUNCTIONS 
+            // (These functions can be called from INSIDE the scripted clauses.)
+            //							// Parameters must match as described below. Return value will be as described below.
+            //							// -------------------------------------------------------------
+    //		"set_seconds_until_timer"	// void SetNextProcessTime(String str_seconds_from_now) // if this is <=0, then it sets next process date to 0.
+    //		"get_remaining_timer"		// std::string GetRemainingTimer() const
+    /*
+     " 6 minutes	==      360 seconds\n"
+     "10 minutes	==      600 seconds\n"
+     " 1 hour		==     3600 seconds\n"
+     " 1 day		==    86400 seconds\n"
+     "30 days		==  2592000 seconds\n"
+     " 3 months		==  7776000 seconds\n"
+     " 6 months		== 15552000 seconds\n\n" 
+     "12 months		== 31104000 seconds\n\n" 
+     */
+    //		"move_funds"				// bool MoveAcctFunds(String from_acct_name, String to_acct_name, String str_Amount); // calls OTCronItem::MoveFunds()
 
-	// --------------------------------------------------
-	// CONFIRM A THEORETICAL PARTY BY GIVING IT A REAL NYM ID
-	//
-	var strSmart10 = OT_API_SmartContract_ConfirmParty(	strSmartContract,	// The smart contract, about to be changed by this function.
-														"party_alice",		// The party should already be on the contract. This way we can find it.
-														// ----------------------------------------
-														MyNym);		// Nym ID for the party, the actual owner, 
-																	// ===> AS WELL AS for the default AGENT of that party.
-	strSmartContract = strSmart10
+    //		"get_acct_balance"			// std::string GetAcctBalance(String acct_name);
+    //		"get_acct_asset_type_id"	// std::string OTSmartContract::GetAssetTypeIDofAcct(String from_acct_name)
 
-	// --------------------------------------------------
+    //		"stash_funds"				// bool StashAcctFunds(String from_acct_name, String to_stash_name, String str_Amount); // calls StashFunds()
+    //		"unstash_funds"				// bool UnstashAcctFunds(String to_acct_name, String from_stash_name, String str_Amount); // calls StashFunds( lAmount * (-1) )
+    //		"get_stash_balance"			// std::string GetStashBalance(String stash_name, String asset_type_id);
+
+    //		"send_notice"				// bool SendNoticeToParty(String party_name);
+    //		"send_notice_to_parties"	// bool SendANoticeToAllParties();
+
+    //		"deactivate_contract"		// void DeactivateSmartContract();
+
+            // ---------------------------------------------------------
+            // CALLBACKS 
+            // (Called by OT at key moments)
+            //
+    //		"party_may_execute_clause"		// This is a function already on OT server, that it will call when it needs the answer (and that YOUR may call also, whether you provide a script override or not.) Todo: security ramifications?
+    //		"may_execute_clause"			// This is the name of your clause, as provided in THIS example smart contract. (party_may_execute_clause calls this.)
+    //		"callback_party_may_execute_clause"   <=== THE CALLBACK WITH THIS NAME must be connected to a script clause (with whatever name you want), and then that clause will trigger when the callback is needed.	
+            
+    //		"party_may_cancel_contract"		// This is a function already on OT server, that it will call when it needs the answer (and that you may call also, since the server has a version of it whether you provide the script or not.) Todo: security ramifications?
+    //		"may_cancel_contract"			// This is the name of your clause, as provided in THIS example smart contract. (party_may_cancel_contract calls this.)
+    //		"callback_party_may_cancel_contract"  <=== THE CALLBACK WITH THIS NAME must be connected to a script clause (with whatever name you want), and then that clause will trigger when the callback is needed.
+    //
+            // Callback USAGE:	Your clause, in your smart contract, may have whatever name you want. (Within limits.)
+            //					There must be a callback entry in the smart contract, linking your clause the the appropriate callback.
+            //					The CALLBACK ENTRY uses the names "callback_party_may_execute_clause" and "callback_party_may_cancel_contract".
+            //					If you want to call these from INSIDE YOUR SCRIPT, then use the names "party_may_execute_clause" and "party_may_cancel_contract".
+            //
+            // ---------------------------------------------------------
+            // HOOKS:
+            //
+            // Hooks are not native calls needing to be registered with the script. (Like the above functions are.)
+            // Rather, hooks are SCRIPT CLAUSES, that you have a CHOICE to provide inside your SMART CONTRACT.
+            // *IF* you have provided those clauses, then OT *WILL* call them, at the appropriate times. (When
+            // specific events occur.) Specifically, Hook entries must be in your smartcontract, linking the below 
+            // standard hooks to your clauses.
+            //
+    //	"cron_process"		// Called regularly in OTSmartContract::ProcessCron() based on SMART_CONTRACT_PROCESS_INTERVAL.
+    //	"cron_activate"		// Done. This is called when the contract is first activated.
+
+
+
+
+    // ***************************************************************
+
+    // CLIENT-SIDE API CALLS AVAILABLE:
+
+    // FYI, here is a list of all the OT API functions that you can call from inside
+    // your OT scripts on the CLIENT SIDE...
+
+
+    // ***************************************************************
+
+
+
+
+    // GETTING STARTED...
+
+    // Here are the actual scripts (the CLAUSES) that will be attached to this SMART CONTRACT.
+    // There's not much to them -- just testing right now.
+    //
+
+    // -------------------------------
+    // A TYPICAL CLAUSE...
+    //
+    var strCode_typical_clause = " print(\"Hello world (from typical_clause)\") "
+
+    // ------------------------------------------------
+    // HOOK: CRON ACTIVATE  (The smart contract is being activated for the FIRST TIME, on the server.)
+    //
+    var strCode_activate_clause = " print(\"SMART CONTRACT: OnActivate(), FYI, is happening/happened, as of this log. (from cron_activate hook)\") "
+
+    // ----------------------------------------------------
+    // HOOK: CRON PROCESS (The smart contract is processing regularly, or according to its timer.)
+    //
+    var strCode_process_clause = " var bVar =  move_funds(alice_acct, bob_acct, \"100\"); " // paymentReceipts should show up in the inboxes...
+
+    // ----------------------------------------------------
+    // CALLBACK:  MAY EXECUTE?  (One of the parties is trying to trigger a clause directly. The server is asking you whether this is okay. You must return bool.)
+    // param_party_name and param_clause_name will be available inside script.
+    //
+    var strCode_may_execute_clause = " print(\"MAY EXECUTE? (from may_execute_clause callback. Returning true from script.)\"); true; "
+
+    // ----------------------------------------------------
+    // CALLBACK:  MAY CANCEL?  Server is asking you whether a given party has the power to cancel the contract. You must return bool.
+    // param_party_name will be available inside script.
+    //
+    var strCode_may_cancel_contract = "  print(\"MAY CANCEL? (from may_cancel_contract callback. Returning false from script.)\"); false; "  // need to test this.
+
+
+
+
+    // --------------------------------------------------
+
+    //var BobsUserID = "lMTANg3U97bwGFJAYKljTXAcy5By6JcLdU4di5AoA4z"
+    //var BobsAcctID = "pFPRBfwtq0cXHgQVdbv0TZZOUlP3exSta4hBZNvVub8"
+    var BobsUserID = HisNym
+    var BobsAcctID = HisAcct
+
+
+    // Just some useful output while running this script:
+
+    print("SMART CONTRACT Server: "		+ Server)
+    print("SMART CONTRACT MyNym: "		+ MyNym)
+    print("SMART CONTRACT MyAcct: "		+ MyAcct)
+    print("SMART CONTRACT MyPurse: "	+ MyPurse)
+
+    print("SMART CONTRACT Bob's Nym ID: "	+ BobsUserID)
+    print("SMART CONTRACT Bob's AcctID: "	+ BobsAcctID + "\n")
+
+    // ******************************************************************
+    // CREATE the SMART CONTRACT
+    //
+    var strDate1 = "0"
+    var strDate2 = "0"
+
+    var strSmart1 = OT_API_Create_SmartContract(Server, MyNym, strDate1, strDate2)
+    strSmartContract = strSmart1
+
+    // ******************************************************************
+    // ADD a BYLAW (Clauses, variables, callbacks, and hooks are all attached
+    // to BYLAWS. FYI, you can add multiple bylaws to each contract.)
+    //
+    var strSmart2 = OT_API_SmartContract_AddBylaw(strSmartContract, MyNym, "main_bylaws") // This name "main_bylaws" is used for all API calls related to this Bylaw.
+
+    strSmartContract = strSmart2
+
+    // ******************************************************************
+    // ** ADD CLAUSE ** (A CONVENTIONAL CLAUSE) named "typical_clause"
+    // ...so we can test allowing parties to trigger clauses remotely.
+    //
+    var strSmart3 = OT_API_SmartContract_AddClause(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+                                                // ----------------------------------------
+                                                "typical_clause",			// The Clause's name as referenced in the smart contract. (And the scripts...)
+                                                strCode_typical_clause);	// The actual source code for the clause.
+    strSmartContract = strSmart3
+
+    // ******************************************************************
+    // ** ADD CLAUSE ** FOR HOOK (ACTIVATION) (for "cron_activate" hook, to trigger a clause named "activate_clause")
+    //
+    strSmart3 = OT_API_SmartContract_AddClause(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+                                                // ----------------------------------------
+                                                "activate_clause",			// The Clause's name as referenced in the smart contract. (And the scripts...)
+                                                strCode_activate_clause);	// The actual source code for the clause.
+    strSmartContract = strSmart3
+
+    // --------------------------------------------------
+    // ** ADD CLAUSE ** FOR HOOK (TIMER PROCESSING) (for "cron_process" hook, to trigger a clause named "process_clause")
+    //
+    strSmart3 = OT_API_SmartContract_AddClause(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+                                                // ----------------------------------------
+                                                "process_clause",			// The Clause's name as referenced in the smart contract. (And the scripts...)
+                                                strCode_process_clause);	// The actual source code for the clause.
+    strSmartContract = strSmart3
+
+    // ******************************************************************
+    // ** Add Clause ** for CALLBACK (for "callback_party_may_execute_clause" callback, clause named "may_execute_clause")
+    //
+    strSmart3 = OT_API_SmartContract_AddClause(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+                                                // ----------------------------------------
+                                                "may_exec_coverage",			// The Clause's name as referenced in the smart contract. (And the scripts...)
+                                                strCode_may_execute_clause);	// The actual source code for the clause.
+    strSmartContract = strSmart3
+
+    // --------------------------------------------------
+    // ** Add Clause ** for CALLBACK (for "callback_party_may_cancel_contract" callback, clause named "may_cancel_contract")
+    //
+    strSmart3 = OT_API_SmartContract_AddClause(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+                                                // ----------------------------------------
+                                                "may_cancel_contract",			// The Clause's name as referenced in the smart contract. (And the scripts...)
+                                                strCode_may_cancel_contract);	// The actual source code for the clause.
+    strSmartContract = strSmart3
+
+    // ******************************************************************
+
+    // ** ADD VARIABLE ** (STRING named str_storage)
+    // (WHICH STAYS PERSISTENT INSIDE THE CONTRACT.)
+    // 
+    var strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+                                                  // ----------------------------------------
+                                                  "strStorage",	// The Variable's NAME as referenced in the smart contract. (And the scripts...)
+                                                  // ----------------------------------------
+                                                  "persistent",		// "constant", "persistent", or "important". Variable access type.
+                                                  "string",			// "string", "long", or "bool".  Variable data type.
+                                                  "This is the default starting value for a string variable in a smart contract...");	// Contains the initial value.
+    strSmartContract = strSmart4
+
+    // --------------------------------------------------
+    // ** ADD VARIABLE **  (STRING named str_storage2) 
+
+    var strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+                                                  // ----------------------------------------
+                                                  "strStorage2",	// The Variable's NAME as referenced in the smart contract. (And the scripts...)
+                                                  // ----------------------------------------
+                                                  "persistent",		// "constant", "persistent", or "important". Variable access type.
+                                                  "string",			// "string", "long", or "bool".  Variable data type.
+                                                  "");				// Contains the initial value. (Empty in this case.)
+    strSmartContract = strSmart4
+
+    // --------------------------------------------------
+    // ** ADD VARIABLE **  (LONG named lstorage) 
+    var strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+                                                  // ----------------------------------------
+                                                  "lStorage",	// The Variable's NAME as referenced in the smart contract. (And the scripts...)
+                                                  // ----------------------------------------
+                                                  "persistent",	// "constant", "persistent", or "important". Variable access type.
+                                                  "long",		// "string", "long", or "bool".  Variable data type.
+                                                  "155");		// Contains the initial value.
+    strSmartContract = strSmart4
+
+    // --------------------------------------------------
+    // ** ADD VARIABLE **  (BOOL named btest) 
+    var strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+                                                  // ----------------------------------------
+                                                  "bStorage",		// The Variable's NAME as referenced in the smart contract. (And the scripts...)
+                                                  // ----------------------------------------
+                                                  "persistent",	// "constant", "persistent", or "important". Variable access type.
+                                                  "bool",		// "string", "long", or "bool".  Variable data type.
+                                                  "true");		// Contains the initial value.
+    strSmartContract = strSmart4
+
+    // ******************************************************************
+    // Connect a known CALLBACK to a known CLAUSE  (may EXECUTE clause?)
+    //
+    var strSmart5 = OT_API_SmartContract_AddCallback(strSmartContract, MyNym, "main_bylaws",// Should already be on the contract. (This way we can find it.)
+                                                  // ----------------------------------------
+                                                  "callback_party_may_execute_clause",		// The Callback's name as referenced in the smart contract. (And the scripts...)
+                                                  "may_execute_clause");					// The actual clause that will be triggered by the callback. (Must exist.)
+    strSmartContract = strSmart5
+
+    // --------------------------------------------------
+    // Connect a known CALLBACK to a known CLAUSE  (may CANCEL contract?)
+    //
+    var strSmart5 = OT_API_SmartContract_AddCallback(strSmartContract, MyNym, "main_bylaws",// Should already be on the contract. (This way we can find it.)
+                                                  // ----------------------------------------
+                                                  "callback_party_may_cancel_contract",		// The Callback's name as referenced in the smart contract. (And the scripts...)
+                                                  "may_cancel_contract");					// The actual clause that will be triggered by the callback. (Must exist.)
+    strSmartContract = strSmart5
+
+    // ******************************************************************
+    // Connect a known HOOK (ACTIVATE aka "cron_activate") to a known CLAUSE aka "activate_clause"
+    //
+    var strSmart6 = OT_API_SmartContract_AddHook(strSmartContract, MyNym, "main_bylaws",		// Should already be on the contract. (This way we can find it.)
+                                              // ----------------------------------------
+                                              "cron_activate",		// The Hook's name as referenced in the smart contract. (And the scripts...)
+                                              "activate_clause");	// The actual clause that will be triggered by the hook. (You can call this multiple times, and have multiple clauses trigger on the same hook.)
+    strSmartContract = strSmart6
+
+    // ----------------------------------------
+    // Connect a known HOOK (TIMER PROCESSING aka "cron_process") to a known CLAUSE aka "process_clause" 
+    //
+    strSmart6 = OT_API_SmartContract_AddHook(strSmartContract, MyNym, "main_bylaws",		// Should already be on the contract. (This way we can find it.)
+                                              // ----------------------------------------
+                                              "cron_process",		// The Hook's name as referenced in the smart contract. (And the scripts...)
+                                              "process_clause");	// The actual clause that will be triggered by the hook. (You can call this multiple times, and have multiple clauses trigger on the same hook.)
+    strSmartContract = strSmart6
+    // ----------------------------------------
+
+
+    // ******************************************************************
+    // Add a THEORETICAL PARTY to the SMART CONTRACT
+    //
+    var strSmart7 = OT_API_SmartContract_AddParty(strSmartContract, MyNym, // Need a signer Nym, so it can save. This is unrelated to the party. Use any Nym.
+                                                "party_alice",		// The Party's NAME as referenced in the smart contract. (And the scripts...)
+                                               // ----------------------------------------
+                                               "agent_alice");	// An AGENT will be added by default for this party. Need Agent NAME.
+                                               // (FYI, that is basically the only option, until I code Entities and Roles. Until then, a party can ONLY be
+                                               // a Nym, with himself as the agent representing that same party. Nym ID is supplied on ConfirmParty() below.)
+    strSmartContract = strSmart7
+
+
+    // ----------------------------------------
+    // Add a THEORETICAL ACCOUNT to the SMART CONTRACT
+    //
+    var strSmart8 = OT_API_SmartContract_AddAccount(strSmartContract, MyNym, 
+                                                    "party_alice",	// The Party's NAME as referenced in the smart contract. (And the scripts...)
+                                                    // ----------------------------------------
+                                                    "alice_acct",	// The Account's name as referenced in the smart contract
+                                                    MyPurse);		// Asset Type ID for the Account.
+    strSmartContract = strSmart8
+
+    // ******************************************************************
+    // Add a THEORETICAL PARTY to the SMART CONTRACT
+    //
+    var strSmart7 = OT_API_SmartContract_AddParty(strSmartContract, BobsUserID, // Need a signer Nym, so it can save. This is unrelated to the party. Use any Nym.
+                                                "party_bob",		// The Party's NAME as referenced in the smart contract. (And the scripts...)
+                                               // ----------------------------------------
+                                               "agent_bob");	// An AGENT will be added by default for this party. Need Agent NAME.
+                                               // (FYI, that is basically the only option, until I code Entities and Roles. Until then, a party can ONLY be
+                                               // a Nym, with himself as the agent representing that same party. Nym ID is supplied on ConfirmParty() below.)
+    strSmartContract = strSmart7
+
+
+    // ----------------------------------------
+    // Add a THEORETICAL ACCOUNT to the SMART CONTRACT
+    //
+    var strSmart8 = OT_API_SmartContract_AddAccount(strSmartContract, BobsUserID, 
+                                                    "party_bob",	// The Party's NAME as referenced in the smart contract. (And the scripts...)
+                                                    // ----------------------------------------
+                                                    "bob_acct",		// The Account's name as referenced in the smart contract
+                                                    MyPurse);		// Both accounts, in this script, have the same asset type ID.
+    strSmartContract = strSmart8
+
+
+    print(strSmartContract)
+
+    // ******************************************************************
+
+    // This is where we go from creating a generic template, to actually instantiating the
+    // contract for specific users in a specific situation!
+    //
+
+    // BY THIS POINT, if we're going to ACTIVATE this up-until-now purely THEORETICAL 
+    // smart contract, using ACTUAL Nyms and Accounts, then we need to check and see
+    // if they have enough transaction numbers to move forward!
+    //
+    // -----------------------------------------------
+    //
+    // We'll start with Alice...
+
+    var numCountNymAlice = OT_API_GetNym_TransactionNumCount(Server, MyNym)
+    print("  numCountNymAlice: ")
+    print(numCountNymAlice)
+
+    var numCountNeededAlice = OT_API_SmartContract_CountNumsNeeded(strSmartContract, "agent_alice") + 1
+    print("  numCountNeededAlice: ")
+    print(numCountNeededAlice)
+    // -----------------------------------------------
+
+    if (!(numCountNymAlice >= numCountNeededAlice))
+    {
+        print("\n\n** Sorry -- Alice doesn't have enough transaction numbers to confirm/activate this smart contract. Come back when you have more.\n\n")
+    }
+    else
+    {
+        print("Confirming account...")
+
+        // CONFIRM A THEORETICAL ACCT BY GIVING IT A REAL ACCT ID. (Alice's account)
+        //
+        var strSmart9 = OT_API_SmartContract_ConfirmAccount(strSmartContract, MyNym, "party_alice",	// Should already be on the contract. (This way we can find it.)
+                                                            // ----------------------------------------
+                                                            "alice_acct",	// Acct name. Should already be added on the contract. (This way we can find it.)
+                                                            "agent_alice",	// The agent name for this asset account.
+                                                            MyAcct);		// AcctID for the asset account. (For acct_name).
+        strSmartContract = strSmart9
+        // --------------------------------------------------
+
+
+        print("SMART CONTRACT just confirmed alice_acct for party_alice. Output:\n\n\n")
+        print(strSmartContract)
+        print("\n\n\n Confirming party...")
+
+        // --------------------------------------------------
+        // CONFIRM A THEORETICAL PARTY BY GIVING IT A REAL NYM ID
+        //
+        var strSmart10 = OT_API_SmartContract_ConfirmParty(	strSmartContract,	// The smart contract, about to be changed by this function.
+                                                            "party_alice",		// The party should already be on the contract. This way we can find it.
+                                                            // ----------------------------------------
+                                                            MyNym);		// Nym ID for the party, the actual owner, 
+                                                                        // ===> AS WELL AS for the default AGENT of that party.
+        strSmartContract = strSmart10
+
+        // --------------------------------------------------
+        
+        // Next we have to check Bob...
+        
+        
+        var numCountNymBob = OT_API_GetNym_TransactionNumCount(Server, BobsUserID)
+        print("  numCountNymBob: ")
+        print(numCountNymBob)
+        
+        var numCountNeededBob = OT_API_SmartContract_CountNumsNeeded(strSmartContract, "agent_bob") + 1
+        print("  numCountNeededBob: ")
+        print(numCountNeededBob)
+        
+        if (!(numCountNymBob >= numCountNeededBob))
+        {
+            print("\n\n** Sorry -- Bob doesn't have enough transaction numbers to confirm/activate this smart contract. Come back when you have more.\n\n")
+        }
+        else
+        {
+            print("Confirming Bob's account...")
+            
+            // CONFIRM A THEORETICAL ACCT BY GIVING IT A REAL ACCT ID. (Bob's account.)
+            //
+            var strSmart9 = OT_API_SmartContract_ConfirmAccount(strSmartContract, BobsUserID, "party_bob",	// Should already be on the contract. (This way we can find it.)
+                                                                // ----------------------------------------
+                                                                "bob_acct",		// Acct name. Should already be added on the contract. (This way we can find it.)
+                                                                "agent_bob",	// The agent name for this asset account.
+                                                                BobsAcctID);	// AcctID for the asset account. (For acct_name).
+            strSmartContract = strSmart9
+            // --------------------------------------------------
+            
+            
+            print("SMART CONTRACT just confirmed bob_acct acct for party_bob. Output:\n\n\n")
+            print(strSmartContract)
+            print("\n\n\n Confirming party...")
+            
+            // --------------------------------------------------
+            // CONFIRM A THEORETICAL PARTY BY GIVING IT A REAL NYM ID
+            //
+            var strSmart10 = OT_API_SmartContract_ConfirmParty(	strSmartContract,	// The smart contract, about to be changed by this function.
+                                                               "party_bob",		// The party should already be on the contract. This way we can find it.
+                                                               // ----------------------------------------
+                                                               BobsUserID);	// Nym ID for the party, the actual owner, 
+            // ===> AS WELL AS for the default AGENT of that party.
+            strSmartContract = strSmart10
+            
+            // ******************************************************************
+            
+            // If BOTH Nyms had enough transaction #s to go through with it, then...
+            //
+            // ...WE ACTIVATE THE SMART CONTRACT!
+            //
+            
+            if ((numCountNymBob >= numCountNeededBob) && (numCountNymAlice >= numCountNeededAlice))
+            {
+                
+                print("SMART CONTRACT:  Final version before activation:\n\n\n")
+                print(strSmartContract)
+                print("\n\n\n Activating...")
+                
+                
+                // --------------------------------------------------
+                // ACTIVATE THE SMART CONTRACT ON A SERVER.
+                
+                OT_API_activateSmartContract(Server, MyNym, strSmartContract);
+                
+                print("Finishing calling activate!!")
+                
+                
+                
+                return 1   ? //
+                
+            }
+            
+            // OTHERWISE, I take the transaction numbers BACK! (Also, if the activation failed,
+            // I'd probably want to take the closing numbers back in that case as well.)
+            
+            else
+            {
+                print("SMART CONTRACT:  I guess someone didn't have enough transaction numbers, so I'm clawing all the numbers BACK now (that way my data stays good.)")
+                
+                OT_API_HarvestAllNumbers(Server, MyNym,			strSmartContract);
+                OT_API_HarvestAllNumbers(Server, BobsUserID,	strSmartContract);
+            }
+        }
+        
+
+    }
+
+
+    // ******************************************************************
+
+
+     
+    0
 }
-else
+
+
+
+def details_activate_smart_contract(strAmount, strNote)
 {
-	print("\n\n** Sorry -- Alice doesn't have enough transaction numbers to confirm/activate this smart contract. Come back when you have more.\n\n")
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    
+    // ---------------------------------------------
+    // HERE, WE LOOK UP THE NYM ID, BASED ON THE ACCOUNT ID.
+    //
+    var strMyNymID = OT_API_GetAccountWallet_NymID(MyAcct)
+    
+    if (!VerifyStringVal(strMyNymID))
+    {
+        OT_API_Output(0, "Failure: Unable to find NymID based on myacct. Use: --myacct ACCT_ID\n")
+        OT_API_Output(0, "The designated asset account must be yours. OT will find the Nym based on the account.\n\n")
+        return (-1)
+    }
+    // ***************************************************************
+    
+    // HERE, WE SEND THE TRANSFER REQUEST TO THE SERVER
+    //
+    var strResponse = madeEasy.send_transfer(Server, strMyNymID, MyAcct, HisAcct, strAmount, strNote) 
+    var strAttempt  = "send_transfer"
+    /*
+     int notarizeTransfer(   const std::string SERVER_ID,
+     const std::string USER_ID,
+     const std::string ACCT_FROM,
+     const std::string ACCT_TO,
+     const std::string AMOUNT,
+     const std::string NOTE);
+     */
+    // ***************************************************************
+    
+    // HERE, WE INTERPRET THE SERVER REPLY, WHETHER SUCCESS, FAIL, OR ERROR...
+    
+    var nInterpretReply = InterpretTransactionMsgReply(Server, strMyNymID, MyAcct, strAttempt, strResponse)
+    
+    if (1 == nInterpretReply)
+    {    
+        // Download all the intermediary files (account balance, inbox, outbox, etc)
+        // since they have probably changed from this operation.
+        //        
+        OT_API_Output(0, "Server response ("+strAttempt+"): SUCCESS sending transfer!\n")
+    }
+    
+    // ***************************************************************
+    //
+    // Return status to caller.
+    //
+    return nInterpretReply  
 }
 
 
-// ******************************************************************
 
-
-// Next we have to check Bob...
-
-
-var numCountNymBob = OT_API_GetNym_TransactionNumCount(Server, BobsUserID)
-print("  numCountNymBob: ")
-print(numCountNymBob)
-
-var numCountNeededBob = OT_API_SmartContract_CountNumsNeeded(strSmartContract, "agent_bob") + 1
-print("  numCountNeededBob: ")
-print(numCountNeededBob)
-
-if (numCountNymBob >= numCountNeededBob)
-{
-	print("Confirming Bob's account...")
-	
-	// CONFIRM A THEORETICAL ACCT BY GIVING IT A REAL ACCT ID. (Bob's account.)
-	//
-	var strSmart9 = OT_API_SmartContract_ConfirmAccount(strSmartContract, BobsUserID, "party_bob",	// Should already be on the contract. (This way we can find it.)
-														// ----------------------------------------
-														"bob_acct",		// Acct name. Should already be added on the contract. (This way we can find it.)
-														"agent_bob",	// The agent name for this asset account.
-														BobsAcctID);	// AcctID for the asset account. (For acct_name).
-	strSmartContract = strSmart9
-	// --------------------------------------------------
-
-
-print("SMART CONTRACT just confirmed bob_acct acct for party_bob. Output:\n\n\n")
-print(strSmartContract)
-print("\n\n\n Confirming party...")
-
-	// --------------------------------------------------
-	// CONFIRM A THEORETICAL PARTY BY GIVING IT A REAL NYM ID
-	//
-	var strSmart10 = OT_API_SmartContract_ConfirmParty(	strSmartContract,	// The smart contract, about to be changed by this function.
-														"party_bob",		// The party should already be on the contract. This way we can find it.
-														// ----------------------------------------
-														BobsUserID);	// Nym ID for the party, the actual owner, 
-																		// ===> AS WELL AS for the default AGENT of that party.
-	strSmartContract = strSmart10
-}
-else
-{
-	print("\n\n** Sorry -- Bob doesn't have enough transaction numbers to confirm/activate this smart contract. Come back when you have more.\n\n")
-}
-
-
-// ******************************************************************
-
-// If BOTH Nyms had enough transaction #s to go through with it, then...
-//
-// ...WE ACTIVATE THE SMART CONTRACT!
-//
-
-if ((numCountNymBob >= numCountNeededBob) && (numCountNymAlice >= numCountNeededAlice))
-{
-
-	print("SMART CONTRACT:  Final version before activation:\n\n\n")
-	print(strSmartContract)
-	print("\n\n\n Activating...")
-
-
-	// --------------------------------------------------
-	// ACTIVATE THE SMART CONTRACT ON A SERVER.
-
-	OT_API_activateSmartContract(Server, MyNym, strSmartContract);
-	
-	print("Finishing calling activate!!")
-}
-
-// OTHERWISE, I take the transaction numbers BACK! (Also, if the activation failed,
-// I'd probably want to take the closing numbers back in that case as well.)
-
-else
-{
-	print("SMART CONTRACT:  I guess someone didn't have enough transaction numbers, so I'm clawing all the numbers BACK now (that way my data stays good.)")
-	
-	OT_API_HarvestAllNumbers(Server, MyNym,			strSmartContract);
-	OT_API_HarvestAllNumbers(Server, BobsUserID,	strSmartContract);
-}
 
 
 /*
@@ -485,6 +559,33 @@ else
 // OT_API_triggerClause(Server, MyNym, const char * TRANSACTION_NUMBER, "typical_clause");
 
 */
+
+
+def main_create_smartcontract()
+{
+    var strUsage = ""
+    OT_API_Output(0, strUsage)
+    
+    // ---------------------------------
+    
+    if (VerifyExists("Server") && VerifyExists("MyNym") && VerifyExists("MyAcct") && VerifyExists("MyPurse") && VerifyExists("HisNym") && VerifyExists("HisAcct"))
+    {
+        return CreateSmartContractAtCLI()
+    }
+    
+    // ---------------------------------
+
+    0
+}
+
+
+// Begin!
+//
+main_create_smartcontract()
+
+
+
+
 
 
 
