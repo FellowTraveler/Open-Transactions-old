@@ -2,6 +2,48 @@
 
 
 
+
+
+
+def details_activate_smart_contract(strContract)
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    
+    // ***************************************************************
+    
+    // HERE, WE SEND THE ACTIVATION REQUEST TO THE SERVER
+    //
+    var strResponse = madeEasy.activate_smart_contract(Server, MyNym, strContract) 
+    var strAttempt  = "activate_smart_contract"
+    
+    // ***************************************************************
+    
+    // HERE, WE INTERPRET THE SERVER REPLY, WHETHER SUCCESS, FAIL, OR ERROR...
+    
+    var nInterpretReply = InterpretTransactionMsgReply(Server, MyNym, MyAcct, strAttempt, strResponse)
+    
+    if (1 == nInterpretReply)
+    {    
+        // Download all the intermediary files (account balance, inbox, outbox, etc)
+        // since they have probably changed from this operation.
+        //        
+        OT_API_Output(0, "Server response ("+strAttempt+"): SUCCESS!\n")
+    }
+    
+    // ***************************************************************
+    //
+    // Return status to caller.
+    //
+    return nInterpretReply  
+}
+
+
+
+
+
 def CreateSmartContractAtCLI()
 {
     // This temp variable is used for a running "latest copy" of the smart contract, as we 
@@ -412,6 +454,7 @@ def CreateSmartContractAtCLI()
         if (!(numCountNymBob >= numCountNeededBob))
         {
             print("\n\n** Sorry -- Bob doesn't have enough transaction numbers to confirm/activate this smart contract. Come back when you have more.\n\n")
+            OT_API_HarvestAllNumbers(Server, MyNym,	strSmartContract) // Grab Alice's numbers back
         }
         else
         {
@@ -460,13 +503,20 @@ def CreateSmartContractAtCLI()
                 // --------------------------------------------------
                 // ACTIVATE THE SMART CONTRACT ON A SERVER.
                 
-                OT_API_activateSmartContract(Server, MyNym, strSmartContract);
-                
+                var nSuccess = details_activate_smart_contract(strSmartContract)
+//              OT_API_activateSmartContract(Server, MyNym, strSmartContract)            
                 print("Finishing calling activate!!")
                 
+                if (1 != nSuccess)
+                {
+                    // The high-level API does this harvesting already for Alice, if
+                    // her send fails.
+                    //
+//                  OT_API_HarvestClosingNumbers(Server, MyNym,		strSmartContract)
+                    OT_API_HarvestAllNumbers(Server, BobsUserID,	strSmartContract) // However, the API didn't think of Bob, so we'll get him here.
+                }
                 
-                
-                return 1   ? //
+                return nSuccess
                 
             }
             
@@ -477,77 +527,17 @@ def CreateSmartContractAtCLI()
             {
                 print("SMART CONTRACT:  I guess someone didn't have enough transaction numbers, so I'm clawing all the numbers BACK now (that way my data stays good.)")
                 
-                OT_API_HarvestAllNumbers(Server, MyNym,			strSmartContract);
-                OT_API_HarvestAllNumbers(Server, BobsUserID,	strSmartContract);
+                OT_API_HarvestAllNumbers(Server, MyNym,			strSmartContract)
+                OT_API_HarvestAllNumbers(Server, BobsUserID,	strSmartContract)
             }
         }
         
 
     }
-
-
     // ******************************************************************
 
-
-     
     0
 }
-
-
-
-def details_activate_smart_contract(strAmount, strNote)
-{
-    // --------------------------------------------------------------------
-    // Instantiate the "OT Made Easy" object.
-    //
-    var madeEasy	= OT_ME()
-    
-    // ---------------------------------------------
-    // HERE, WE LOOK UP THE NYM ID, BASED ON THE ACCOUNT ID.
-    //
-    var strMyNymID = OT_API_GetAccountWallet_NymID(MyAcct)
-    
-    if (!VerifyStringVal(strMyNymID))
-    {
-        OT_API_Output(0, "Failure: Unable to find NymID based on myacct. Use: --myacct ACCT_ID\n")
-        OT_API_Output(0, "The designated asset account must be yours. OT will find the Nym based on the account.\n\n")
-        return (-1)
-    }
-    // ***************************************************************
-    
-    // HERE, WE SEND THE TRANSFER REQUEST TO THE SERVER
-    //
-    var strResponse = madeEasy.send_transfer(Server, strMyNymID, MyAcct, HisAcct, strAmount, strNote) 
-    var strAttempt  = "send_transfer"
-    /*
-     int notarizeTransfer(   const std::string SERVER_ID,
-     const std::string USER_ID,
-     const std::string ACCT_FROM,
-     const std::string ACCT_TO,
-     const std::string AMOUNT,
-     const std::string NOTE);
-     */
-    // ***************************************************************
-    
-    // HERE, WE INTERPRET THE SERVER REPLY, WHETHER SUCCESS, FAIL, OR ERROR...
-    
-    var nInterpretReply = InterpretTransactionMsgReply(Server, strMyNymID, MyAcct, strAttempt, strResponse)
-    
-    if (1 == nInterpretReply)
-    {    
-        // Download all the intermediary files (account balance, inbox, outbox, etc)
-        // since they have probably changed from this operation.
-        //        
-        OT_API_Output(0, "Server response ("+strAttempt+"): SUCCESS sending transfer!\n")
-    }
-    
-    // ***************************************************************
-    //
-    // Return status to caller.
-    //
-    return nInterpretReply  
-}
-
 
 
 
@@ -577,6 +567,8 @@ def main_create_smartcontract()
 
     0
 }
+
+
 
 
 // Begin!

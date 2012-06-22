@@ -388,6 +388,41 @@
     }
 // -----------------------------------------------------------------------------------------------
 
+    // ACTIVATE SMART CONTRACT  -- TRANSACTION
+    //
+    def OT_ME::activate_smart_contract(SERVER_ID, NYM_ID, THE_SMART_CONTRACT) 
+    {
+        var ot_Msg := OTAPI_Func()
+        // -------------------------
+        
+//      int OT_API_activateSmartContract(SERVER_ID, NYM_ID, THE_SMART_CONTRACT)
+
+        var theRequest := OTAPI_Func(ot_Msg.ACTIVATE_SMART_CONTRACT, SERVER_ID, NYM_ID, THE_SMART_CONTRACT)
+        var	strResponse = theRequest.SendTransaction(theRequest, "ACTIVATE_SMART_CONTRACT")
+        
+        return strResponse;
+    }
+// -----------------------------------------------------------------------------------------------
+
+    // TRIGGER CLAUSE (on running smart contract)  -- TRANSACTION
+    //
+    def OT_ME::trigger_clause(SERVER_ID, NYM_ID, STR_TRANS_NUM, CLAUSE_NAME, STR_PARAM) 
+    {
+        var ot_Msg := OTAPI_Func()
+        // -------------------------
+        
+//      int OT_API_triggerClause(const char * SERVER_ID,
+//                               const char * USER_ID,
+//                               const char * TRANSACTION_NUMBER,
+//                               const char * CLAUSE_NAME,
+//                               const char * STR_PARAM);
+
+        var theRequest := OTAPI_Func(ot_Msg.TRIGGER_CLAUSE, SERVER_ID, NYM_ID, STR_TRANS_NUM, CLAUSE_NAME, STR_PARAM)
+        var	strResponse = theRequest.SendTransaction(theRequest, "TRIGGER_CLAUSE")
+        
+        return strResponse;
+    }
+// -----------------------------------------------------------------------------------------------
 
 
 /*

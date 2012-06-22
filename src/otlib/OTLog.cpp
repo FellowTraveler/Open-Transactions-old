@@ -1605,10 +1605,11 @@ void  OTLog::Errno(const char * szLocation/*=NULL*/) // stderr
     char * szErrString = NULL;
     
 //#if((_POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600) && !defined(_GNU_SOURCE))
-#if (_POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600)
-    nstrerr = strerror_r(errnum, buf, 127); // (strerror_r is threadsafe version of strerror)
-#elif defined(_GNU_SOURCE)
+
+#if defined(_GNU_SOURCE) && defined(__linux__)
     szErrString = strerror_r(errnum, buf, 127);
+#elif (_POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600)
+    nstrerr = strerror_r(errnum, buf, 127); // (strerror_r is threadsafe version of strerror)
 #endif
     
     const char * szFunc = "OTLog::Errno";

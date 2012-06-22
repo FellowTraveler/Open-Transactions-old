@@ -33,8 +33,10 @@
     attr OTAPI_Func::SEND_USER_INSTRUMENT			
 	attr OTAPI_Func::ISSUE_ASSET_TYPE			
 	attr OTAPI_Func::ISSUE_BASKET
-	attr OTAPI_Func::CREATE_ASSET_ACCT			
+	attr OTAPI_Func::CREATE_ASSET_ACCT
 	attr OTAPI_Func::DELETE_ASSET_ACCT
+    attr OTAPI_Func::ACTIVATE_SMART_CONTRACT
+    attr OTAPI_Func::TRIGGER_CLAUSE
     attr OTAPI_Func::PROCESS_INBOX
     attr OTAPI_Func::EXCHANGE_BASKET			
 	attr OTAPI_Func::DEPOSIT_CASH				
@@ -54,7 +56,7 @@
 	attr OTAPI_Func::GET_MARKET_RECENT_TRADES
 	attr OTAPI_Func::GET_MINT
 	attr OTAPI_Func::QUERY_ASSET_TYPES
-	attr OTAPI_Func::GET_BOX_RECEIPT
+    attr OTAPI_Func::GET_BOX_RECEIPT
 // -------------------------------------------
 	attr OTAPI_Func::funcType
 // -------------------------------------------
@@ -125,7 +127,8 @@
 		this.ISSUE_BASKET				= 7
 		this.CREATE_ASSET_ACCT			= 8
 		this.DELETE_ASSET_ACCT			= 9
-        
+		this.ACTIVATE_SMART_CONTRACT	= 10
+        this.TRIGGER_CLAUSE             = 11
 		this.PROCESS_INBOX				= 12
 		this.EXCHANGE_BASKET			= 13
         this.DEPOSIT_CASH				= 14
@@ -219,7 +222,7 @@
 		{
 			this.accountID     = p_strParam;
 		}
-		else if ((theType == this.ISSUE_ASSET_TYPE) || (theType == this.DEPOSIT_PAYMENT_PLAN) || (theType == this.GET_MARKET_RECENT_TRADES) || (theType == this.QUERY_ASSET_TYPES))
+		else if ((theType == this.ISSUE_ASSET_TYPE) || (theType == this.DEPOSIT_PAYMENT_PLAN) || (theType == this.GET_MARKET_RECENT_TRADES) || (theType == this.QUERY_ASSET_TYPES) || (theType == this.ACTIVATE_SMART_CONTRACT))
 		{
 			this.strData    = p_strParam;
 		}
@@ -313,6 +316,16 @@
 			this.nymID2     = p_nymID2;
 			this.strData    = p_strData;
 			this.strData2   = p_strData2;			
+		}
+        /*
+         // -------------------------------------------
+         OTAPI_Func(ot_Msg.TRIGGER_CLAUSE, SERVER_ID, NYM_ID, STR_TRANS_NUM, CLAUSE_NAME, STR_PARAM)
+         */
+		else if (theType == this.TRIGGER_CLAUSE)
+		{
+			this.strData    = p_nymID2;
+			this.strData2   = p_strData;
+			this.strData3   = p_strData2;			
 		}
 		else if (theType == this.SEND_USER_INSTRUMENT)
 		{
@@ -488,9 +501,12 @@
             {	nRetVal = OT_API_createAssetAccount(this.serverID, this.nymID, this.assetID);	 break;}
             case (this.DELETE_ASSET_ACCT)
             {	nRetVal = OT_API_deleteAssetAccount(this.serverID, this.nymID, this.accountID);	 break;}
-
+            case (this.ACTIVATE_SMART_CONTRACT)
+            {	nRetVal = OT_API_activateSmartContract(this.serverID, this.nymID, this.strData);  break;}
+            case (this.TRIGGER_CLAUSE)
+            {	nRetVal = OT_API_triggerClause(this.serverID, this.nymID, this.strData, this.strData2, this.strData3);  break; }
             case (this.EXCHANGE_BASKET)
-            {	nRetVal = OT_API_exchangeBasket(this.serverID, this.nymID, this.assetID, this.basket, this.bBool); break;	}
+            {	nRetVal = OT_API_exchangeBasket(this.serverID, this.nymID, this.assetID, this.basket, this.bBool); break;  }
             case (this.GET_CONTRACT)
             {	nRetVal = OT_API_getContract(this.serverID, this.nymID, this.assetID);	 break; }
             case (this.GET_MINT)
