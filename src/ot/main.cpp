@@ -593,6 +593,45 @@ std::string OT_CLI_ReadUntilEOF()
 
 
 // ********************************************************************
+
+// Used in RegisterAPIWithScript.
+// (In D, this would be a nested function, but C++ doesn't support that
+// without using a nested class as a kludge.)
+//
+bool NewScriptHeaderExists(const char * szFilename, OTString * pstrPathOutput/*=NULL*/)
+{
+    OT_ASSERT(NULL != szFilename);
+    // ---------------------------------------
+    struct stat st;
+    struct stat * pst = &st;
+    
+    // FILE IS PRESENT?
+    //            
+    // "so $(prefix)/lib/opentxs for the headers, 
+    // and $(prefix)/lib/opentxs/scripts for the others..."
+    //
+    //
+    OTString strPath;       //   /usr/local   /   lib    /  opentxs  / ot_made_easy.ot
+    strPath.Format("%s%s%s%s%s%s%s", 
+                   OTLog::PrefixPath(),     //   /usr/local
+                   OTLog::PathSeparator(),  //   /
+                   "lib",                   //   lib
+                   OTLog::PathSeparator(),  //   /
+                   "opentxs",               //   opentxs
+                   OTLog::PathSeparator(),  //   /  
+                   szFilename);             //   ot_made_easy.ot
+    
+    OTString strPATH_OUTPUT;
+    
+    if (NULL == pstrPathOutput)
+        pstrPathOutput = &strPATH_OUTPUT;
+    
+    OTLog::TransformFilePath(strPath.Get(), *pstrPathOutput);
+    
+    return (0 == stat(pstrPathOutput->Get(), pst));
+}
+
+
 /*
 int main() 
 { 
@@ -972,105 +1011,127 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
 		 otapi.ot			ps2
 		 ot_made_easy.ot	ps3
 		 
-		 */			//    ~/.ot/client_data		/	scripts		/	ot	/	  "blah.ot"
-		strUseFile1.Format(ps0,   OTLog::Path(), ps,	pss,		ps,		ps,		ps1);
-		strUseFile2.Format(ps0,   OTLog::Path(), ps,	pss,		ps,		ps,		ps2);
-		strUseFile3.Format(ps0,   OTLog::Path(), ps,	pss,		ps,		ps,		ps3);
+		 */			//         ~/.ot/client_data  /	scripts		/	ot	/	  "blah.ot"        
+//		strUseFile1.Format(ps0,   OTLog::Path(), ps,	pss,	ps,		ps,		ps1);
+//		strUseFile2.Format(ps0,   OTLog::Path(), ps,	pss,	ps,		ps,		ps2);
+//		strUseFile3.Format(ps0,   OTLog::Path(), ps,	pss,	ps,		ps,		ps3);
 		
-		const std::string str_UseFile1(strUseFile1.Get()), str_UseFile2(strUseFile2.Get()), str_UseFile3(strUseFile3.Get());
-
-		const char * psErr	= "RegisterAPICallWithScript: ERROR: Failed trying to include script header:  %s (Does it exist?)\n";
-
-        OTLog::vOutput(2, "%s: About to try to import script headers:\n  1: %s\n  2: %s\n  3: %s\n", __FUNCTION__,
-                       strUseFile1.Get(), strUseFile2.Get(), strUseFile3.Get());
-               
+        const char * psErr	= "RegisterAPICallWithScript: ERROR: Failed trying to include script header:  %s (Does it exist?)\n";
         bool bSuccess = true;
-        
-        try 
+
+        // ------------------------------------------------
+        if (NewScriptHeaderExists(ps1, &strUseFile1)) // new style, in the prefix/lib/opentxs folder
         {
+            // intentionally left blank
+        }
+        else if (OTDB::Exists(pss, pot, ps1)) // old style, in the data folder. (deprecated.)
+        {
+            strUseFile1.Format(ps0,   OTLog::Path(), ps,	pss,	ps,		ps,		ps1);
+        }
+        else
+        {
+            bSuccess = false;
+            OTLog::vError(psErr, ps1);
+        }
+        // ------------------------------------------------
+        if (NewScriptHeaderExists(ps2, &strUseFile2)) // new style, in the prefix/lib/opentxs folder
+        {
+            // intentionally left blank
+        }
+        else if (OTDB::Exists(pss, pot, ps2)) // old style, in the data folder. (deprecated.)
+        {
+            strUseFile2.Format(ps0,   OTLog::Path(), ps,	pss,	ps,		ps,		ps2);
+        }
+        else
+        {
+            bSuccess = false;
+            OTLog::vError(psErr, ps2);
+        }
+        // ------------------------------------------------
+        if (NewScriptHeaderExists(ps3, &strUseFile3)) // new style, in the prefix/lib/opentxs folder
+        {
+            // intentionally left blank
+        }
+        else if (OTDB::Exists(pss, pot, ps3)) // old style, in the data folder. (deprecated.)
+        {
+            strUseFile3.Format(ps0,   OTLog::Path(), ps,	pss,	ps,		ps,		ps3);
+        }
+        else
+        {
+            bSuccess = false;
+            OTLog::vError(psErr, ps3);
+        }
+        // ------------------------------------------------
+        
+        if (bSuccess)
+        {
+            const std::string str_UseFile1(strUseFile1.Get()), str_UseFile2(strUseFile2.Get()), str_UseFile3(strUseFile3.Get());
+
+            OTLog::vOutput(1, "%s: About to try to import script headers:\n  1: %s\n  2: %s\n  3: %s\n", __FUNCTION__,
+                           str_UseFile1.c_str(), str_UseFile2.c_str(), str_UseFile3.c_str());
+            
             // --------------------------------
-            if ( OTDB::Exists(pss, pot, ps1) )
+            try 
+            {
                 pScript->chai.use(str_UseFile1);
-            else
-            {
-                bSuccess = false;
-                OTLog::vError(psErr, str_UseFile1.c_str());
-            }
-            // --------------------------------
-            if ( OTDB::Exists(pss, pot, ps2) )
                 pScript->chai.use(str_UseFile2);
-            else
-            {
-                bSuccess = false;
-                OTLog::vError(psErr, str_UseFile2.c_str());
-            }
-            // --------------------------------
-            if ( OTDB::Exists(pss, pot, ps3) )
                 pScript->chai.use(str_UseFile3);
-            else
-            {
-                bSuccess = false;
-                OTLog::vError(psErr, str_UseFile3.c_str());
-            }
-        } 
-        catch (const chaiscript::exception::eval_error &ee) {
-            // Error in script parsing / execution
-            OTLog::vError("%s: Caught chaiscript::exception::eval_error : %s. \n"
-                   "   File: %s\n"
-                   "   Start position, line: %d column: %d\n"
-                   "   End position,   line: %d column: %d\n", __FUNCTION__,
-                   ee.reason.c_str(), ee.filename.c_str(), 
-                   ee.start_position.line, ee.start_position.column,
-                   ee.end_position.line, ee.end_position.column);
-            
-            std::cout << ee.what();
-            if (ee.call_stack.size() > 0) {
-                std::cout << "during evaluation at (" << ee.call_stack[0]->start.line << ", " << ee.call_stack[0]->start.column << ")";
-            }
-            std::cout << std::endl;
-            std::cout << std::endl;
-            
-            // ----------------------            
-            //          std::cout << ee.what();
-            if (ee.call_stack.size() > 0) {
-//                std::cout << "during evaluation at (" << *(ee.call_stack[0]->filename) << " " << ee.call_stack[0]->start.line << ", " << ee.call_stack[0]->start.column << ")";
+            } 
+            // --------------------------------
+            catch (const chaiscript::exception::eval_error &ee) {
+                // Error in script parsing / execution
+                OTLog::vError("%s: Caught chaiscript::exception::eval_error : %s. \n"
+                       "   File: %s\n"
+                       "   Start position, line: %d column: %d\n"
+                       "   End position,   line: %d column: %d\n", __FUNCTION__,
+                       ee.reason.c_str(), ee.filename.c_str(), 
+                       ee.start_position.line, ee.start_position.column,
+                       ee.end_position.line, ee.end_position.column);
                 
-//                const std::string text;
-//                boost::shared_ptr<const std::string> filename;
+                std::cout << ee.what();
+                if (ee.call_stack.size() > 0) {
+                    std::cout << "during evaluation at (" << ee.call_stack[0]->start.line << ", " << ee.call_stack[0]->start.column << ")";
+                }
+                std::cout << std::endl << std::endl;
                 
-                for (size_t j = 1; j < ee.call_stack.size(); ++j) {
-                    if (ee.call_stack[j]->identifier != chaiscript::AST_Node_Type::Block
-                        && ee.call_stack[j]->identifier != chaiscript::AST_Node_Type::File)
-                    {
-                        std::cout << std::endl;
-                        std::cout << "  from " << *(ee.call_stack[j]->filename) << " (" << ee.call_stack[j]->start.line << ", " << ee.call_stack[j]->start.column << ") : ";
-                        std::cout << ee.call_stack[j]->text << std::endl;
+                // ----------------------            
+                //          std::cout << ee.what();
+                if (ee.call_stack.size() > 0) {
+//                  std::cout << "during evaluation at (" << *(ee.call_stack[0]->filename) << " " << ee.call_stack[0]->start.line << ", " << ee.call_stack[0]->start.column << ")";
+                    
+//                  const std::string text;
+//                  boost::shared_ptr<const std::string> filename;
+                    
+                    for (size_t j = 1; j < ee.call_stack.size(); ++j) {
+                        if (ee.call_stack[j]->identifier != chaiscript::AST_Node_Type::Block
+                            && ee.call_stack[j]->identifier != chaiscript::AST_Node_Type::File)
+                        {
+                            std::cout << std::endl;
+                            std::cout << "  from " << *(ee.call_stack[j]->filename) << " (" << ee.call_stack[j]->start.line << ", " << ee.call_stack[j]->start.column << ") : ";
+                            std::cout << ee.call_stack[j]->text << std::endl;
+                        }
                     }
                 }
+                std::cout << std::endl;
+                return false;
+            } catch (const chaiscript::exception::bad_boxed_cast &e) {
+                // Error unboxing return value
+                OTLog::vError("%s: Caught chaiscript::exception::bad_boxed_cast : %s.\n", __FUNCTION__,
+                       (e.what() != NULL) ? e.what() : "e.what() returned null, sorry");
+                return false;
+            } catch (const std::exception &e) {
+                // Error explicitly thrown from script
+                OTLog::vError("%s: Caught std::exception exception: %s\n", __FUNCTION__,
+                       (e.what() != NULL) ? e.what() : "e.what() returned null, sorry");
+                return false;
             }
-            std::cout << std::endl;
-            
-
-            
-            
-            return false;
-        } catch (const chaiscript::exception::bad_boxed_cast &e) {
-            // Error unboxing return value
-            OTLog::vError("%s: Caught chaiscript::exception::bad_boxed_cast : %s.\n", __FUNCTION__,
-                   (e.what() != NULL) ? e.what() : "e.what() returned null, sorry");
-            return false;
-        } catch (const std::exception &e) {
-            // Error explicitly thrown from script
-            OTLog::vError("%s: Caught std::exception exception: %s\n", __FUNCTION__,
-                   (e.what() != NULL) ? e.what() : "e.what() returned null, sorry");
-            return false;
-        }
-        //  catch (chaiscript::Boxed_Value bv) 
-        catch (...)
-        {
-            OTLog::vError("%s: Caught exception.\n", __FUNCTION__);
-            return false;
-        }
+            //  catch (chaiscript::Boxed_Value bv) 
+            catch (...)
+            {
+                OTLog::vError("%s: Caught exception.\n", __FUNCTION__);
+                return false;
+            }
+        } // if bSuccess
 		// ******************************************************************
         
         return bSuccess; // Success (hopefully!)
@@ -1397,7 +1458,10 @@ int main(int argc, char* argv[])
     // -------------------------------------------------------------------
     // 
     //	
-    OTString strPath, strRawPath(CLIENT_PATH_DEFAULT), strConfigPath, strRawConfigPath(OTLog::ConfigPath());
+    OTString 
+        strPath,        strRawPath(CLIENT_PATH_DEFAULT), 
+        strConfigPath,  strRawConfigPath(OTLog::ConfigPath()),
+        strPrefixPath,  strRawPrefixPath(OTLog::PrefixPath());
 	{
 		static CSimpleIniA ini;
 				
@@ -1405,6 +1469,22 @@ int main(int argc, char* argv[])
 
 		if (rc >=0)
 		{
+            {
+                const char * pVal = ini.GetValue("paths", "prefix_path", OTLog::PrefixPath()); // todo stop hardcoding.
+                
+                if (NULL != pVal)
+                {
+                    strRawPrefixPath.Set(pVal);
+                    OTLog::vOutput(1, "Reading the ini file (%s): \n      Found OT prefix_path: %s \n", 
+                                   strIniFileDefault.Get(), strRawPrefixPath.Get());
+                }
+                else
+                {
+                    strRawPrefixPath.Set(OTLog::PrefixPath());
+                    OTLog::vOutput(1, "There's no prefix_path in the ini file (%s).\n Therefore, using: %s \n", 
+                                   strIniFileDefault.Get(), strRawPrefixPath.Get());
+                }
+            }
             {
                 const char * pVal = ini.GetValue("paths", "init_path", OTLog::ConfigPath()); // todo stop hardcoding.
                 
@@ -1442,25 +1522,39 @@ int main(int argc, char* argv[])
 		{
 			strRawPath.Set(CLIENT_PATH_DEFAULT);
 			strRawConfigPath.Set(OTLog::ConfigPath());
+			strRawPrefixPath.Set(OTLog::PrefixPath());
 			OTLog::vOutput(0, "Unable to load ini file (%s) to find client_data path. \n "
-                           "Will assume that client data_folder is at path: %s \n", 
-						   strIniFileDefault.Get(), strRawPath.Get());
+                           "Will assume client_path: %s \n"
+                           "...and init_path:        %s \n", 
+                           "...and prefix_path:      %s \n", 
+						   strIniFileDefault.Get(), 
+                           strRawPath.Get(), 
+                           strRawConfigPath.Get(), 
+                           strRawPrefixPath.Get());
 		}
 	}
 	// **************************************************************************
 
-    OTLog::TransformFilePath(strRawPath.Get(), strPath);
+    OTLog::TransformFilePath(strRawPath.Get(),       strPath);
     OTLog::TransformFilePath(strRawConfigPath.Get(), strConfigPath);
+    OTLog::TransformFilePath(strRawPrefixPath.Get(), strPrefixPath);
     
-    
+    // -------------------------------------------------------------------
     OTLog::vOutput(2, "Attempting to use init_path: %s \n      Transformed from: %s\n", 
-                   strConfigPath.Get(), strRawConfigPath.Get());
+                   strConfigPath.Get(), strRawConfigPath.Get());    
 
     if (strConfigPath.Exists())
     {   
         OTLog::SetConfigPath(strConfigPath.Get());
     }
+    // ---------
+    OTLog::vOutput(2, "Attempting to use prefix_path: %s \n      Transformed from: %s\n", 
+                   strPrefixPath.Get(), strRawPrefixPath.Get());
     
+    if (strPrefixPath.Exists())
+    {   
+        OTLog::SetPrefixPath(strPrefixPath.Get());
+    }
     // -------------------------------------------------------------------
     // 
     // OT context INIT...

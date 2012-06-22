@@ -857,9 +857,11 @@ OT_API::~OT_API()
 // 
 bool OT_API::LoadConfigFile(const OTString & strMainPath)
 {	
-	OTString strFilepath;
-	strFilepath.Format("%s%s%s%s%s", OTLog::Path(), OTLog::PathSeparator(), "..", 
-                       OTLog::PathSeparator(), "client.cfg"); // todo: stop hardcoding.
+    const char * szFunc = "OT_API::LoadConfigFile";
+    
+	OTString strFilepath, strFilepathInput;
+	strFilepathInput.Format("%s%s%s", OTLog::ConfigPath(), OTLog::PathSeparator(), "client.cfg"); // todo: stop hardcoding.
+    OTLog::TransformFilePath(strFilepathInput.Get(), strFilepath);
 	
 	{        
 		static CSimpleIniA ini; // We're assuming this file is on the path.
@@ -979,7 +981,13 @@ bool OT_API::LoadConfigFile(const OTString & strMainPath)
             // ----------------------------------------------------------------
 		}
         else
-            OTLog::vError("Failed loading the ini file: %s\n", strFilepath.Get());
+        {
+            const int nRc = static_cast<int>(rc);
+            OTLog::vError("%s: Failed loading file: %s\n With SI_ERROR: %d.\n", szFunc,
+                          strFilepath.Get(), nRc);
+            if ((-3) == nRc)
+                OTLog::Errno(szFunc);
+        }
 	}
 	
 	return true;

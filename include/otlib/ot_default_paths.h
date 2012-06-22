@@ -147,6 +147,8 @@
 
 // ---------------------------------------------------------------------------
 #ifdef _WIN32
+ 
+#define OT_PREFIX_DEFAULT   "C:\\~"  // from FT, to da2ce7, with love.
 
 #define OT_FOLDER_DEFAULT   "C:\\~\\Open-Transactions"
 #define CLIENT_PATH_DEFAULT	"C:\\~\\Open-Transactions\\client_data"
@@ -156,6 +158,8 @@
 
 // ---------------------------------------------------------------------------
 #else
+
+#define OT_PREFIX_DEFAULT   "/usr/local"
 
 #define OT_FOLDER_DEFAULT   "~/.ot"
 #define CLIENT_PATH_DEFAULT	"~/.ot/client_data"

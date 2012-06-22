@@ -136,6 +136,8 @@
 #include <sstream>
 #include <string>
 
+#include <cerrno>
+
 
 #include "irrxml/irrXML.h"
 
@@ -269,6 +271,7 @@ OTString OTLog::__OTPathSeparator = OT_DEFAULT_PATH_SEPARATOR;
 
 OTString OTLog::__OTPath("."); // it defaults to '.' but then it is set by the client and server.
 OTString OTLog::__OTConfigPath(OT_FOLDER_DEFAULT); // it defaults to "~/.ot" but then it is set by the client and server.
+OTString OTLog::__OTPrefixPath(OT_PREFIX_DEFAULT);
 OTString OTLog::__OTLogfile;
 
 #if defined (DSP)					   
@@ -300,7 +303,7 @@ OTString OTLog::__OTSpentFolder				= "spent";
 OTString OTLog::__OTMarketFolder			= "markets";
 OTString OTLog::__OTSmartContractsFolder	= "smartcontracts";
 
-OTString OTLog::__Version = "0.82.d";
+OTString OTLog::__Version = "0.82.f";
 #endif
 
 #include "OTCron.h"
@@ -1060,9 +1063,12 @@ bool OTServer::SaveMainFile()
 
 bool OTServer::LoadConfigFile()
 {	
-	OTString strFilepath;
-	strFilepath.Format("%s%s%s", OTLog::ConfigPath(), OTLog::PathSeparator(), "server.cfg"); // todo: stop hardcoding.
-	
+    const char * szFunc = "OTServer::LoadConfigFile";
+    
+	OTString strFilepath, strFilepathInput;
+	strFilepathInput.Format("%s%s%s", OTLog::ConfigPath(), OTLog::PathSeparator(), "server.cfg"); // todo: stop hardcoding.
+    OTLog::TransformFilePath(strFilepathInput.Get(), strFilepath);
+    
 	{
 		CSimpleIniA ini; // We're assuming this file is on the path.
 		SI_Error rc = ini.LoadFile(strFilepath.Get());  
@@ -1073,6 +1079,7 @@ bool OTServer::LoadConfigFile()
             // LOG FILE
             {
                 // Read a value from file: (category,	key )
+                //
                 const char * pVal1 = ini.GetValue("logging", "logfile_path"); // todo stop hardcoding.
                 
                 if (NULL != pVal1)
@@ -1278,7 +1285,13 @@ bool OTServer::LoadConfigFile()
 			// ---------------------------------------------
 		}
         else
-            OTLog::vError("OTServer::LoadConfigFile: Failed loading file: %s\n", strFilepath.Get());
+        {
+            const int nRc = static_cast<int>(rc);
+            OTLog::vError("%s: Failed loading file: %s\n With SI_ERROR: %d.\n", szFunc,
+                          strFilepath.Get(), nRc);
+            if ((-3) == nRc)
+                OTLog::Errno(szFunc);
+        }
 	}
 	
 	return true;

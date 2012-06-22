@@ -135,6 +135,8 @@
 #include <cstdlib>
 #include <cctype>
 #include <cassert>
+#include <cerrno>
+
 #include <iostream>
 #include <exception>
 #include <stdexcept>
@@ -298,7 +300,7 @@ int     OTLog::__latency_receive_ms = 5000; // number of ms to wait before retry
 long	OTLog::__minimum_market_scale = 1;	// Server admin can configure this to any higher power-of-ten.
 
 
-OTString OTLog::__Version = "0.82.e";
+OTString OTLog::__Version = "0.82.f";
 
 
 
@@ -306,8 +308,12 @@ OTString OTLog::__Version = "0.82.e";
 
 // ---------------------------------------------------------------------------------
 // This is the "global" path to the subdirectories. The wallet file is probably also there.
+//
 OTString OTLog::__OTPath("."); // it defaults to '.' but then it is set by the client and server.
 OTString OTLog::__OTConfigPath(OT_FOLDER_DEFAULT); // it defaults to "~/.ot" but then it can be refreshed with the wordexp translation.
+OTString OTLog::__OTPrefixPath(OT_PREFIX_DEFAULT); // it defaults to "/usr/local" or "~/.local" but then it can be refreshed with the wordexp translation.
+
+
 
 // All my paths now use the global path above, and are constructed using
 // the path separator below. So the filesystem aspect of Open Transactions
@@ -1585,7 +1591,29 @@ void OTLog::vError(const char *szError, ...)
 }
 
 
-
+// NOTE: if you have problems compiling on certain platforms, due to the use
+// of errno, then just use preprocessor directives to carve those portions out
+// of this function, replacing with a message about the unavailability of errno.
+//
+//static
+void  OTLog::Errno(const char * szLocation/*=NULL*/) // stderr
+{   
+    const int errnum = errno;
+    char buf[128]; buf[0] = '\0';    
+    const int nstrerr = strerror_r(errnum, buf, 127); // (strerror_r is threadsafe version of strerror)
+    
+    const char * szFunc = "OTLog::Errno";
+    const char * sz_location = (NULL == szLocation) ? "" : szLocation;
+    
+    if (0 == nstrerr)
+        OTLog::vError("%s %s: errno %d: %s.\n", 
+                      szFunc, sz_location,
+                      errnum, buf[0] != '\0' ? buf : "");
+    else
+        OTLog::vError("%s %s: errno: %d. (Unable to retrieve error string for that number.)\n", 
+                      szFunc, sz_location,
+                      errnum);
+}
 
 
 

@@ -694,12 +694,24 @@ OTString GetRoamingAppDataLocation()
 //
 // INI FILE
 //
-bool GetOTAppDataFolderLocation(OTString strIniFileDefault, OTString & strOTServerDataLocation)
+bool GetOTAppDataFolderLocation(const OTString & strIniFileDefault, OTString & strOTServerDataLocation)
 {
     CSimpleIniA ini;
     SI_Error rc = ini.LoadFile(strIniFileDefault.Get());
     if (rc >=0)
     {
+        {
+            const char * pVal = ini.GetValue("paths", "prefix_path", OTLog::PrefixPath()); // todo stop hardcoding.
+            
+            if (NULL != pVal)
+            {
+                OTLog::SetPrefixPath(pVal);
+                OTLog::vOutput(0, "server main: Reading ini file (%s). \n Found prefix_path: %s \n", 
+                               strIniFileDefault.Get(), OTLog::PrefixPath());
+            }
+            else
+                OTLog::vOutput(0, "server main:Ini file: %s: Failed to find prefix_path. \n", strIniFileDefault.Get());
+        }            
         {
             const char * pVal = ini.GetValue("paths", "init_path", OTLog::ConfigPath()); // todo stop hardcoding.
             
@@ -843,7 +855,7 @@ int main(int argc, char* argv[])
 			OTLog::vOutput(0, "\nFound ot_init.cfg in: \n     %s \nNow checking to see if it contains the OT Server path...", pathIniFileLocation.Get());
 			// Read the File, If successful use result
 
-			if (false == GetOTAppDataFolderLocation(pathIniFileLocation,pathOTServerDataLocation))
+			if (false == GetOTAppDataFolderLocation(pathIniFileLocation, pathOTServerDataLocation))
 			{
 				OTLog::vOutput(0, "Path not found... Will attempt default!... \n");
 				// Not successfull will will assume it is in default location:

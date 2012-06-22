@@ -275,6 +275,7 @@ OTString OTLog::__OTPathSeparator = OT_DEFAULT_PATH_SEPARATOR;
 
 OTString OTLog::__OTPath("."); // it defaults to '.' but then it is set by the client and server.
 OTString OTLog::__OTConfigPath(OT_FOLDER_DEFAULT); // it defaults to "~/.ot" but then it is set by the client and server.
+OTString OTLog::__OTPrefixPath(OT_PREFIX_DEFAULT); // it defaults to "~/.ot" but then it is set by the client and server.
 
 OTString OTLog::__OTLogfile;
 
@@ -313,7 +314,7 @@ OTString OTLog::__OTRecordBoxFolder			= "recordBox";
 OTString OTLog::__OTPurseFolder				= "purse";
 OTString OTLog::__OTScriptFolder			= "scripts";
 
-OTString OTLog::__Version = "0.82.d";
+OTString OTLog::__Version = "0.82.f";
 #endif
 
 

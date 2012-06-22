@@ -2752,7 +2752,7 @@ namespace OTDB
 #ifdef _WIN32
 			if (_mkdir(strPATH_OUTPUT.Get()) == -1) 
 #else
-				if (mkdir(strPATH_OUTPUT.Get(), 0700) == -1) 
+				if (mkdir(strPATH_OUTPUT.Get(), 0700) == -1) // todo hardcoding of permissions.
 #endif
 				{
 					OTLog::vError("StorageFS::ConfirmOrCreateFolder: Unable to create %s.\n",
@@ -2784,13 +2784,15 @@ namespace OTDB
 	
 	// Returns true or false whether a specific file exists.
 	// Adds the main path prior to checking.
+    //
 	bool StorageFS::ConfirmFile(const char * szFileName, struct stat * pst/*=NULL*/)
 	{
 		OT_ASSERT(NULL != szFileName);
 		
 		if (m_strFullPath.size() < 1)
 		{
-			OTLog::vError("StorageFS::ConfirmFile: m_strFullPath is empty! (Failure.) While trying to confirm file: %s\n",
+			OTLog::vError("StorageFS::ConfirmFile: m_strFullPath is empty! "
+                          "(Failure.) While trying to confirm file: %s\n",
 						  szFileName);
 			return false;
 		}
@@ -2798,6 +2800,7 @@ namespace OTDB
 		struct stat st;
 		
 		// FILE IS PRESENT?
+        //
 		if (NULL == pst)
 			pst = &st;
 		

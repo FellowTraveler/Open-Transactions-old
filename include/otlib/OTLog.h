@@ -195,7 +195,12 @@ private:
 	static OTString	__Version;			// current version of Open Transactions is stored here.
 
 	static OTString	__OTPath;			// Path to either server or client directory. (Whichever is running.)
-	static OTString	__OTConfigPath;     // Path to the config files. (server.cfg, client.cfg, init_ot.cfg)
+                                        // Usually ~/.ot/server_data and ~/.ot/client_data
+	static OTString	__OTConfigPath;     // Path to the config files. (server.cfg, client.cfg, init_ot.cfg) Usually ~/.ot
+	static OTString	__OTPrefixPath;     // Prefix used during configure. "/usr/local" for example.
+                                        // The script headers will be located at $(prefix)/lib/opentxs
+                                        // while $(prefix)/lib/opentxs/scripts will be for the sample scripts.
+    
 	static OTString	__OTPathSeparator;	// double-backslash in Windows, forward-slash in others.
 	
 	static OTString __OTCronFolder;		// Just the folder name for the cron records (trades, payment plans...)
@@ -285,11 +290,13 @@ EXPORT	static bool ConfirmOrCreateFolder(const char * szFolderName);
 	// ------------------------------------------------------------
 	
 	static const char *	Path()			{ return __OTPath.Get(); }
+	static const char *	PrefixPath()	{ return __OTPrefixPath.Get(); }
 	static const char *	ConfigPath()	{ return __OTConfigPath.Get(); }
 	static const char *	PathSeparator()	{ return __OTPathSeparator.Get(); }
 	
 	static void SetMainPath(const char * szPath) { __OTPath.Set(szPath); }
 	static void SetConfigPath(const char * szConfigPath) { __OTConfigPath.Set(szConfigPath); }
+	static void SetPrefixPath(const char * szPrefixPath) { __OTPrefixPath.Set(szPrefixPath); }
 	static void SetPathSeparator(const char * szPathSeparator) { __OTPathSeparator.Set(szPathSeparator); }
 	
 	// ------------------------------------------------------------
@@ -419,6 +426,12 @@ EXPORT	static void vOutput(int nVerbosity, const char *szOutput, ...);
 EXPORT	static void Error(const char * szError); // stderr
 	static void Error(OTString & strError); // stderr
 EXPORT	static void vError(const char * szError, ...); // stderr
+    
+    // This method will print out errno and its associated string.
+    // Optionally you can pass the location you are calling it from,
+    // which will be prepended to the log.
+    //
+    static void Errno(const char * szLocation=NULL); // stderr
 };
 
 #endif // __OTLOG_H__
