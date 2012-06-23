@@ -3018,7 +3018,7 @@ void OTAgent::Serialize(OTString & strAppend)
 {
 //	strAppend.Concatenate("<agent>\n\n");
 	
-	strAppend.Concatenate("<agent name=\"%s\"\n"
+	strAppend.Concatenate("<agent\n name=\"%s\"\n"
 						  " doesAgentRepresentHimself=\"%s\"\n"
 						  " isAgentAnIndividual=\"%s\"\n"
 						  " nymID=\"%s\"\n"
@@ -3042,7 +3042,7 @@ void OTPartyAccount::Serialize(OTString & strAppend,
 {
 //	strAppend.Concatenate("<assetAccount>\n\n");
 	
-	strAppend.Concatenate("<assetAccount name=\"%s\"\n"
+	strAppend.Concatenate("<assetAccount\n name=\"%s\"\n"
 						  " acctID=\"%s\"\n"
 						  " assetTypeID=\"%s\"\n"
 						  " agentName=\"%s\"\n"
@@ -3064,7 +3064,7 @@ void OTParty::Serialize(OTString & strAppend,
 						bool bSpecifyAssetID/*=false*/,
 						bool bSpecifyParties/*=false*/)
 {
-	strAppend.Concatenate("<party name=\"%s\"\n"
+	strAppend.Concatenate("<party\n name=\"%s\"\n"
 						  " ownerType=\"%s\"\n" // "nym" or "entity"
 						  " ownerID=\"%s\"\n"  // Entity or Nym ID.  Perhaps should just have both...
 						  " openingTransNo=\"%ld\"\n"  // fine here.
@@ -3215,7 +3215,7 @@ void OTVariable::Serialize(OTString & strAppend,
 			{
 				OTString strVal(m_str_Value.c_str());
 				OTASCIIArmor ascVal(strVal);
-				strAppend.Concatenate("<variable name=\"%s\"\n"
+				strAppend.Concatenate("<variable\n name=\"%s\"\n"
 									  " value=\"%s\"\n"
 									  " type=\"%s\"\n"
 									  " access=\"%s\" >\n%s</variable>\n\n", 
@@ -3227,7 +3227,7 @@ void OTVariable::Serialize(OTString & strAppend,
 			}
 			else
 			{
-				strAppend.Concatenate("<variable name=\"%s\"\n"
+				strAppend.Concatenate("<variable\n name=\"%s\"\n"
 									  " value=\"%s\"\n"
 									  " type=\"%s\"\n"
 									  " access=\"%s\" />\n\n", 
@@ -3240,7 +3240,7 @@ void OTVariable::Serialize(OTString & strAppend,
 			break;
 		case OTVariable::Var_Integer:
 			str_type = "integer";
-			strAppend.Concatenate("<variable name=\"%s\"\n"
+			strAppend.Concatenate("<variable\n name=\"%s\"\n"
 								  " value=\"%d\"\n"
 								  " type=\"%s\"\n"
 								  " access=\"%s\" />\n\n", 
@@ -3250,7 +3250,7 @@ void OTVariable::Serialize(OTString & strAppend,
 			break;
 		case OTVariable::Var_Bool:
 			str_type = "bool";
-			strAppend.Concatenate("<variable name=\"%s\"\n"
+			strAppend.Concatenate("<variable\n name=\"%s\"\n"
 								  " value=\"%s\"\n"
 								  " type=\"%s\"\n"
 								  " access=\"%s\" />\n\n", 
@@ -3274,13 +3274,13 @@ void OTClause::Serialize(OTString & strAppend)
 		OTASCIIArmor ascCode;
 		ascCode.SetString(m_strCode);
 		
-		strAppend.Concatenate("<clause name=\"%s\">\n%s</clause>\n\n", 
+		strAppend.Concatenate("<clause\n name=\"%s\">\n%s</clause>\n\n", 
 							  m_strName.Get(),
 							  ascCode.Get());		
 	}
 	else
 	{
-		strAppend.Concatenate("<clause name=\"%s\">\n%s</clause>\n\n", 
+		strAppend.Concatenate("<clause\n name=\"%s\">\n%s</clause>\n\n", 
 							  m_strName.Get(),
 							  "ERROR_CLAUSE_CODE_NULL");
 		OTLog::Error("Empty script code in OTClause::Serialize()\n");
@@ -3293,7 +3293,7 @@ void OTClause::Serialize(OTString & strAppend)
 void OTBylaw::Serialize(OTString & strAppend,
 						bool bCalculatingID/*=false*/)
 {	
-	strAppend.Concatenate("<bylaw name=\"%s\"\n"
+	strAppend.Concatenate("<bylaw\n name=\"%s\"\n"
 						  " numVariables=\"%d\"\n"
 						  " numClauses=\"%d\"\n"
 						  " numHooks=\"%d\"\n"
@@ -3330,7 +3330,7 @@ void OTBylaw::Serialize(OTString & strAppend,
 		const std::string & str_hook_name	= (*it).first;
 		const std::string & str_clause_name	= (*it).second;
 		
-		strAppend.Concatenate("<hook name=\"%s\"\n"
+		strAppend.Concatenate("<hook\n name=\"%s\"\n"
 							  " clause=\"%s\" />\n\n", 
 							  str_hook_name.c_str(),
 							  str_clause_name.c_str());
@@ -3342,7 +3342,7 @@ void OTBylaw::Serialize(OTString & strAppend,
 		const std::string & str_callback_name	= (*it).first;
 		const std::string & str_clause_name		= (*it).second;
 		
-		strAppend.Concatenate("<callback name=\"%s\"\n"
+		strAppend.Concatenate("<callback\n name=\"%s\"\n"
 							  " clause=\"%s\" />\n\n", 
 							  str_callback_name.c_str(),
 							  str_clause_name.c_str());

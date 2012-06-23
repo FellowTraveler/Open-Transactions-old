@@ -5417,6 +5417,12 @@ void OTSmartContract::PrepareToActivate(const long & lOpeningTransNo,	const long
 // return -1 if error, 0 if nothing, and 1 if the node was processed.
 int OTSmartContract::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 {
+    const OTString strNodeName(xml->getNodeName());
+
+    
+//    OTLog::vError("-- CALLING SUPER CLASS -- OTSmartContract::ProcessXMLNode. strNodeName: %s \n",
+//                  strNodeName.Get());
+
     int nReturnVal = 0;
 	
 	// Here we call the parent class first.
@@ -5429,12 +5435,24 @@ int OTSmartContract::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 	//
 	// NO NEED to explicitly load OTScriptable stuff here!
 	//
-	if (0 != (nReturnVal = ot_super::ProcessXMLNode(xml)))
-		return nReturnVal;
-
-    // -------------------------------------------------
+    nReturnVal = ot_super::ProcessXMLNode(xml);
     
-    if (!strcmp("smartContract", xml->getNodeName()))
+	if (0 != (nReturnVal))
+    {
+//        if ((-1) == nReturnVal)
+//            OTLog::vError("**** ERROR**** in superclass...\n ");
+            
+		return nReturnVal;
+    }
+    // -------------------------------------------------
+
+    
+    
+//    OTLog::vError("-- FINISHED CALLING SUPER CLASS -- OTSmartContract::ProcessXMLNode:  strNodeName: %s \n", strNodeName.Get());
+    
+
+    
+    if (strNodeName.Compare("smartContract"))
 	{		
 		m_strVersion	= xml->getAttributeValue("version");
 		
@@ -5466,11 +5484,11 @@ int OTSmartContract::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		const OTString strValidTo			= xml->getAttributeValue("validTo");
 		const OTString strNextProcessDate	= xml->getAttributeValue("nextProcessDate");
 		
-		SetTransactionNum(	strTransNum.Exists() ? atol(strTransNum.Get()) : 0 );		
+		SetTransactionNum(	strTransNum.Exists()        ? atol(strTransNum.Get())        : 0 );		
 		// ------------
-		SetCreationDate(	strCreationDate.Exists() ? atoi(strCreationDate.Get()) : 0 );	// todo verify that atoi is appropriate here for time_t.
-		SetValidFrom(		strValidFrom.Exists() ? atoi(strValidFrom.Get()) : 0 );		
-		SetValidTo(			strValidTo.Exists() ? atoi(strValidTo.Get()) : 0 );		
+		SetCreationDate(	strCreationDate.Exists()    ? atoi(strCreationDate.Get())    : 0 );	// todo verify that atoi is appropriate here for time_t.
+		SetValidFrom(		strValidFrom.Exists()       ? atoi(strValidFrom.Get())       : 0 );		
+		SetValidTo(			strValidTo.Exists()         ? atoi(strValidTo.Get())         : 0 );		
 		// ---------------------
 		SetNextProcessDate(	strNextProcessDate.Exists() ? atoi(strNextProcessDate.Get()) : 0 );		
 		// ---------------------
@@ -5498,7 +5516,7 @@ int OTSmartContract::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		nReturnVal = 1;
 	}
 	
-	else if (!strcmp("accountList", xml->getNodeName())) // the stash reserve account IDs.
+	else if (strNodeName.Compare("accountList")) // the stash reserve account IDs.
 	{
 		const OTString strAcctType	= xml->getAttributeValue("type");					
 		const OTString strAcctCount	= xml->getAttributeValue("count");
@@ -5506,13 +5524,13 @@ int OTSmartContract::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		if ((-1) == m_StashAccts.ReadFromXMLNode(xml, strAcctType, strAcctCount))
 		{
 			OTLog::Error("OTSmartContract::ProcessXMLNode: Error loading stash accountList.\n");
-			return (-1);
+			nReturnVal = (-1);
 		}
 		else 
 			nReturnVal = 1;
 	}
 	
-	else if (!strcmp("stash", xml->getNodeName())) // the actual stashes.
+	else if (strNodeName.Compare("stash")) // the actual stashes.
 	{
 		const OTString strStashName	= xml->getAttributeValue("name");					
 		const OTString strItemCount	= xml->getAttributeValue("count");
@@ -5526,7 +5544,7 @@ int OTSmartContract::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 			OTLog::vError("OTSmartContract::ProcessXMLNode: Error loading stash: %s\n", 
 						  strStashName.Get());
 			delete pStash;
-			return (-1);
+			nReturnVal = (-1);
 		}
 		else 
 		{
@@ -5537,6 +5555,9 @@ int OTSmartContract::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 			nReturnVal = 1;
 		}
 	}
+
+//    OTLog::vError("-- FINALLY -- OTSmartContract::ProcessXMLNode:  nReturnVal: %d  strNodeName: %s \n", 
+//                  nReturnVal, strNodeName.Get());
 
 	return nReturnVal;
 }

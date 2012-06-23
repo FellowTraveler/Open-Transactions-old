@@ -701,7 +701,7 @@ bool GetOTAppDataFolderLocation(const OTString & strIniFileDefault, OTString & s
     if (rc >=0)
     {
         {
-            const char * pVal = ini.GetValue("paths", "prefix_path", OTLog::PrefixPath()); // todo stop hardcoding.
+            const char * pVal = ini.GetValue("paths", "prefix_path", OT_PREFIX_DEFAULT); // todo stop hardcoding.
             
             if (NULL != pVal)
             {
@@ -713,7 +713,7 @@ bool GetOTAppDataFolderLocation(const OTString & strIniFileDefault, OTString & s
                 OTLog::vOutput(0, "server main:Ini file: %s: Failed to find prefix_path. \n", strIniFileDefault.Get());
         }            
         {
-            const char * pVal = ini.GetValue("paths", "init_path", OTLog::ConfigPath()); // todo stop hardcoding.
+            const char * pVal = ini.GetValue("paths", "init_path", OT_FOLDER_DEFAULT); // todo stop hardcoding.
             
             if (NULL != pVal)
             {

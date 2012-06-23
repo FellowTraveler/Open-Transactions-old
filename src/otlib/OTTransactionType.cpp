@@ -164,7 +164,8 @@ OTTransactionType * OTTransactionType::TransactionFactory(const OTString & strIn
     {
         bArmoredAndALSOescaped = true;
         
-        OTLog::Error("OTTransactionType::TransactionFactory: Armored and escaped value passed in, but escaped are forbidden here. (Returning NULL.)\n");
+        OTLog::Error("OTTransactionType::TransactionFactory: Armored and escaped value passed in, "
+                     "but escaped are forbidden here. (Returning NULL.)\n");
 		return NULL;
     }
     else if (strInput.Contains(OT_BEGIN_ARMORED))
@@ -192,7 +193,8 @@ OTTransactionType * OTTransactionType::TransactionFactory(const OTString & strIn
                                              OT_BEGIN_ARMORED)))     // Default is:       "-----BEGIN" 
                                                                      // We're doing this: "-----BEGIN OT ARMORED" (Should worked for escaped as well, here.)
         {
-            OTLog::vError("OTTransactionType::TransactionFactory: Error loading string contents from ascii-armored encoding. Contents: \n%s\n", 
+            OTLog::vError("OTTransactionType::TransactionFactory: Error "
+                          "loading string contents from ascii-armored encoding. Contents: \n%s\n", 
                           strInput.Get());
             return NULL;
         }
@@ -328,8 +330,10 @@ OTTransactionType::OTTransactionType(const OTIdentifier & theUserID, const OTIde
 	// do NOT set m_AcctID and m_AcctServerID here.  Let the child classes LOAD them or GENERATE them.
 }
 
-OTTransactionType::OTTransactionType(const OTIdentifier & theUserID, const OTIdentifier & theAccountID, 
-									 const OTIdentifier & theServerID, long lTransactionNum) : OTContract(theAccountID), 
+OTTransactionType::OTTransactionType(const OTIdentifier & theUserID, 
+                                     const OTIdentifier & theAccountID, 
+									 const OTIdentifier & theServerID, 
+                                     long lTransactionNum) : OTContract(theAccountID), 
     m_lTransactionNum(0), m_lInReferenceToTransaction(0), m_bLoadSecurely(true)
 {
 	// This initializes m_lTransactionNum, so it must come FIRST. 
@@ -378,7 +382,12 @@ void OTTransactionType::Release_TransactionType()
     
 	m_ascInReferenceTo.Release();	// This item may be in reference to a different item
 	
-    m_bLoadSecurely = true; // defaults to true.
+    
+    // This was causing OTLedger to fail loading. Can't set this to true until the END
+    // of loading. Todo: Starting reading the END TAGS during load. For example, the OTLedger
+    // END TAG could set this back to true...
+    //
+//  m_bLoadSecurely = true; // defaults to true.
     
 	m_Numlist.Release();
 }
@@ -475,13 +484,14 @@ bool OTTransactionType::VerifyContractID()
 	
 	if ((m_ID		!= m_AcctID)		|| 
 		(m_ServerID	!= m_AcctServerID))
-	{
-//		OT_ASSERT(false);  // I was debugging.
-		
+	{		
 		OTString str1(m_ID), str2(m_AcctID), str3(m_ServerID), str4(m_AcctServerID);
 		OTLog::vError("Identifiers do NOT match in OTTransactionType::VerifyContractID.\n"
 				"m_ID: %s\n m_AcctID: %s\n m_ServerID: %s\n m_AcctServerID: %s\n",
 				str1.Get(), str2.Get(), str3.Get(), str4.Get());
+        
+//        OT_ASSERT(false);  // I was debugging.
+        
 		return false;
 	}
 	else 

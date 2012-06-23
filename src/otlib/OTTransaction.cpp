@@ -3617,6 +3617,7 @@ OTTransaction::OTTransaction(const OTIdentifier & theUserID,
 
 // -------------------------------------------
 
+
 // all common OTTransaction stuff goes here.
 // (I don't like constructor loops, prefer to use a separate function they all call.)
 void OTTransaction::InitTransaction()
@@ -3628,6 +3629,8 @@ void OTTransaction::InitTransaction()
     m_lRequestNumber        = 0;
     m_bReplyTransSuccess    = false;
 }
+
+
 // -------------------------------------------
 // This CONSTRUCTOR is used for instantiating "abbreviated" transactions,
 // each of which separately load their full contents from a separate datafile

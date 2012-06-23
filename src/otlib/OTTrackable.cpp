@@ -208,6 +208,8 @@ void OTTrackable::Release()
 // return -1 if error, 0 if nothing, and 1 if the node was processed.
 int OTTrackable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 {
+//    OTLog::Error("OTTrackable::ProcessXMLNode...\n");
+    
 	int nReturnVal = 0;
     
 	// Here we call the parent class first.

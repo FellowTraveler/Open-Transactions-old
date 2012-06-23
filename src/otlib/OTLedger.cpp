@@ -1847,6 +1847,9 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		{
 			SetRealAccountID(ACCOUNT_ID);
 			SetRealServerID(SERVER_ID);
+//            OTString str1(GetRealAccountID()), str2(GetRealServerID());
+//            OTLog::vError("DEBUGGING:\nReal Acct ID: %s\nReal Server ID: %s\n",
+//                          str1.Get(), str2.Get());            
 		}		
 		// ------------------------------------------------------------------
 		// Load up the partial records, based on the expected count...
@@ -2002,6 +2005,7 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
                     // --------------------------------------------------------------------
  					// Add it to the ledger's list of transactions...
 					//
+                    
 					if (pTransaction->VerifyContractID())
 					{
                         // Add it to the ledger...
@@ -2034,8 +2038,8 @@ int OTLedger::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 		
 		
 		// ------------------------------------------------------------------
-		OTLog::vOutput(2, "%s: Loading account ledger of type \"%s\", version: %s\n", szFunc,
-//				"accountID:\n%s\n userID:\n%s\n serverID:\n%s\n----------\n",
+		OTLog::vOutput(4, "%s: Loading account ledger of type \"%s\", version: %s\n", szFunc,
+//				"accountID: %s\n userID: %s\n serverID: %s\n----------\n",  szFunc,
 				strType.Get(),
 				m_strVersion.Get()
 //				strLedgerAcctID.Get(), strUserID.Get(), strLedgerAcctServerID.Get()

@@ -203,6 +203,9 @@ def CreateSmartContractAtCLI()
 
     strSmartContract = strSmart2
 
+    
+    print (strSmartContract)
+    
     // ******************************************************************
     // ** ADD CLAUSE ** (A CONVENTIONAL CLAUSE) named "typical_clause"
     // ...so we can test allowing parties to trigger clauses remotely.
@@ -211,7 +214,8 @@ def CreateSmartContractAtCLI()
                                                 // ----------------------------------------
                                                 "typical_clause",			// The Clause's name as referenced in the smart contract. (And the scripts...)
                                                 strCode_typical_clause);	// The actual source code for the clause.
-    strSmartContract = strSmart3
+    if (VerifyStringVal(strSmart3))
+    { strSmartContract = strSmart3 }
 
     // ******************************************************************
     // ** ADD CLAUSE ** FOR HOOK (ACTIVATION) (for "cron_activate" hook, to trigger a clause named "activate_clause")
@@ -220,7 +224,8 @@ def CreateSmartContractAtCLI()
                                                 // ----------------------------------------
                                                 "activate_clause",			// The Clause's name as referenced in the smart contract. (And the scripts...)
                                                 strCode_activate_clause);	// The actual source code for the clause.
-    strSmartContract = strSmart3
+    if (VerifyStringVal(strSmart3))
+    { strSmartContract = strSmart3 }
 
     // --------------------------------------------------
     // ** ADD CLAUSE ** FOR HOOK (TIMER PROCESSING) (for "cron_process" hook, to trigger a clause named "process_clause")
@@ -229,7 +234,8 @@ def CreateSmartContractAtCLI()
                                                 // ----------------------------------------
                                                 "process_clause",			// The Clause's name as referenced in the smart contract. (And the scripts...)
                                                 strCode_process_clause);	// The actual source code for the clause.
-    strSmartContract = strSmart3
+    if (VerifyStringVal(strSmart3))
+    { strSmartContract = strSmart3 }
 
     // ******************************************************************
     // ** Add Clause ** for CALLBACK (for "callback_party_may_execute_clause" callback, clause named "may_execute_clause")
@@ -238,7 +244,8 @@ def CreateSmartContractAtCLI()
                                                 // ----------------------------------------
                                                 "may_exec_coverage",			// The Clause's name as referenced in the smart contract. (And the scripts...)
                                                 strCode_may_execute_clause);	// The actual source code for the clause.
-    strSmartContract = strSmart3
+    if (VerifyStringVal(strSmart3))
+    { strSmartContract = strSmart3 }
 
     // --------------------------------------------------
     // ** Add Clause ** for CALLBACK (for "callback_party_may_cancel_contract" callback, clause named "may_cancel_contract")
@@ -247,7 +254,8 @@ def CreateSmartContractAtCLI()
                                                 // ----------------------------------------
                                                 "may_cancel_contract",			// The Clause's name as referenced in the smart contract. (And the scripts...)
                                                 strCode_may_cancel_contract);	// The actual source code for the clause.
-    strSmartContract = strSmart3
+    if (VerifyStringVal(strSmart3))
+    { strSmartContract = strSmart3 }
 
     // ******************************************************************
 
@@ -261,41 +269,45 @@ def CreateSmartContractAtCLI()
                                                   "persistent",		// "constant", "persistent", or "important". Variable access type.
                                                   "string",			// "string", "long", or "bool".  Variable data type.
                                                   "This is the default starting value for a string variable in a smart contract...");	// Contains the initial value.
-    strSmartContract = strSmart4
+    if (VerifyStringVal(strSmart4))
+    { strSmartContract = strSmart4 }
 
     // --------------------------------------------------
     // ** ADD VARIABLE **  (STRING named str_storage2) 
 
-    var strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+    strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
                                                   // ----------------------------------------
                                                   "strStorage2",	// The Variable's NAME as referenced in the smart contract. (And the scripts...)
                                                   // ----------------------------------------
                                                   "persistent",		// "constant", "persistent", or "important". Variable access type.
                                                   "string",			// "string", "long", or "bool".  Variable data type.
                                                   "");				// Contains the initial value. (Empty in this case.)
-    strSmartContract = strSmart4
+    if (VerifyStringVal(strSmart4))
+    { strSmartContract = strSmart4 }
 
     // --------------------------------------------------
     // ** ADD VARIABLE **  (LONG named lstorage) 
-    var strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+    strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
                                                   // ----------------------------------------
                                                   "lStorage",	// The Variable's NAME as referenced in the smart contract. (And the scripts...)
                                                   // ----------------------------------------
                                                   "persistent",	// "constant", "persistent", or "important". Variable access type.
                                                   "long",		// "string", "long", or "bool".  Variable data type.
                                                   "155");		// Contains the initial value.
-    strSmartContract = strSmart4
+    if (VerifyStringVal(strSmart4))
+    { strSmartContract = strSmart4 }
 
     // --------------------------------------------------
     // ** ADD VARIABLE **  (BOOL named btest) 
-    var strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+    strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
                                                   // ----------------------------------------
                                                   "bStorage",		// The Variable's NAME as referenced in the smart contract. (And the scripts...)
                                                   // ----------------------------------------
                                                   "persistent",	// "constant", "persistent", or "important". Variable access type.
                                                   "bool",		// "string", "long", or "bool".  Variable data type.
                                                   "true");		// Contains the initial value.
-    strSmartContract = strSmart4
+    if (VerifyStringVal(strSmart4))
+    { strSmartContract = strSmart4 }
 
     // ******************************************************************
     // Connect a known CALLBACK to a known CLAUSE  (may EXECUTE clause?)
@@ -304,16 +316,18 @@ def CreateSmartContractAtCLI()
                                                   // ----------------------------------------
                                                   "callback_party_may_execute_clause",		// The Callback's name as referenced in the smart contract. (And the scripts...)
                                                   "may_execute_clause");					// The actual clause that will be triggered by the callback. (Must exist.)
-    strSmartContract = strSmart5
+    if (VerifyStringVal(strSmart5))
+    { strSmartContract = strSmart5 }
 
     // --------------------------------------------------
     // Connect a known CALLBACK to a known CLAUSE  (may CANCEL contract?)
     //
-    var strSmart5 = OT_API_SmartContract_AddCallback(strSmartContract, MyNym, "main_bylaws",// Should already be on the contract. (This way we can find it.)
+    strSmart5 = OT_API_SmartContract_AddCallback(strSmartContract, MyNym, "main_bylaws",// Should already be on the contract. (This way we can find it.)
                                                   // ----------------------------------------
                                                   "callback_party_may_cancel_contract",		// The Callback's name as referenced in the smart contract. (And the scripts...)
                                                   "may_cancel_contract");					// The actual clause that will be triggered by the callback. (Must exist.)
-    strSmartContract = strSmart5
+    if (VerifyStringVal(strSmart5))
+    { strSmartContract = strSmart5 }
 
     // ******************************************************************
     // Connect a known HOOK (ACTIVATE aka "cron_activate") to a known CLAUSE aka "activate_clause"
@@ -322,7 +336,8 @@ def CreateSmartContractAtCLI()
                                               // ----------------------------------------
                                               "cron_activate",		// The Hook's name as referenced in the smart contract. (And the scripts...)
                                               "activate_clause");	// The actual clause that will be triggered by the hook. (You can call this multiple times, and have multiple clauses trigger on the same hook.)
-    strSmartContract = strSmart6
+    if (VerifyStringVal(strSmart6))
+    { strSmartContract = strSmart6 }
 
     // ----------------------------------------
     // Connect a known HOOK (TIMER PROCESSING aka "cron_process") to a known CLAUSE aka "process_clause" 
@@ -331,7 +346,8 @@ def CreateSmartContractAtCLI()
                                               // ----------------------------------------
                                               "cron_process",		// The Hook's name as referenced in the smart contract. (And the scripts...)
                                               "process_clause");	// The actual clause that will be triggered by the hook. (You can call this multiple times, and have multiple clauses trigger on the same hook.)
-    strSmartContract = strSmart6
+    if (VerifyStringVal(strSmart6))
+    { strSmartContract = strSmart6 }
     // ----------------------------------------
 
 
@@ -344,8 +360,8 @@ def CreateSmartContractAtCLI()
                                                "agent_alice");	// An AGENT will be added by default for this party. Need Agent NAME.
                                                // (FYI, that is basically the only option, until I code Entities and Roles. Until then, a party can ONLY be
                                                // a Nym, with himself as the agent representing that same party. Nym ID is supplied on ConfirmParty() below.)
-    strSmartContract = strSmart7
-
+    if (VerifyStringVal(strSmart7))
+    { strSmartContract = strSmart7 }
 
     // ----------------------------------------
     // Add a THEORETICAL ACCOUNT to the SMART CONTRACT
@@ -355,30 +371,31 @@ def CreateSmartContractAtCLI()
                                                     // ----------------------------------------
                                                     "alice_acct",	// The Account's name as referenced in the smart contract
                                                     MyPurse);		// Asset Type ID for the Account.
-    strSmartContract = strSmart8
+    if (VerifyStringVal(strSmart8))
+    { strSmartContract = strSmart8 }
 
     // ******************************************************************
     // Add a THEORETICAL PARTY to the SMART CONTRACT
     //
-    var strSmart7 = OT_API_SmartContract_AddParty(strSmartContract, BobsUserID, // Need a signer Nym, so it can save. This is unrelated to the party. Use any Nym.
+    strSmart7 = OT_API_SmartContract_AddParty(strSmartContract, BobsUserID, // Need a signer Nym, so it can save. This is unrelated to the party. Use any Nym.
                                                 "party_bob",		// The Party's NAME as referenced in the smart contract. (And the scripts...)
                                                // ----------------------------------------
                                                "agent_bob");	// An AGENT will be added by default for this party. Need Agent NAME.
                                                // (FYI, that is basically the only option, until I code Entities and Roles. Until then, a party can ONLY be
                                                // a Nym, with himself as the agent representing that same party. Nym ID is supplied on ConfirmParty() below.)
-    strSmartContract = strSmart7
-
+    if (VerifyStringVal(strSmart7))
+    { strSmartContract = strSmart7 }
 
     // ----------------------------------------
     // Add a THEORETICAL ACCOUNT to the SMART CONTRACT
     //
-    var strSmart8 = OT_API_SmartContract_AddAccount(strSmartContract, BobsUserID, 
+    strSmart8 = OT_API_SmartContract_AddAccount(strSmartContract, BobsUserID, 
                                                     "party_bob",	// The Party's NAME as referenced in the smart contract. (And the scripts...)
                                                     // ----------------------------------------
                                                     "bob_acct",		// The Account's name as referenced in the smart contract
                                                     MyPurse);		// Both accounts, in this script, have the same asset type ID.
-    strSmartContract = strSmart8
-
+    if (VerifyStringVal(strSmart8))
+    { strSmartContract = strSmart8 }
 
     print(strSmartContract)
 
@@ -420,7 +437,8 @@ def CreateSmartContractAtCLI()
                                                             "alice_acct",	// Acct name. Should already be added on the contract. (This way we can find it.)
                                                             "agent_alice",	// The agent name for this asset account.
                                                             MyAcct);		// AcctID for the asset account. (For acct_name).
-        strSmartContract = strSmart9
+        if (VerifyStringVal(strSmart9))
+        { strSmartContract = strSmart9 }
         // --------------------------------------------------
 
 
@@ -436,7 +454,8 @@ def CreateSmartContractAtCLI()
                                                             // ----------------------------------------
                                                             MyNym);		// Nym ID for the party, the actual owner, 
                                                                         // ===> AS WELL AS for the default AGENT of that party.
-        strSmartContract = strSmart10
+        if (VerifyStringVal(strSmart10))
+        { strSmartContract = strSmart10 }
 
         // --------------------------------------------------
         
@@ -454,7 +473,18 @@ def CreateSmartContractAtCLI()
         if (!(numCountNymBob >= numCountNeededBob))
         {
             print("\n\n** Sorry -- Bob doesn't have enough transaction numbers to confirm/activate this smart contract. Come back when you have more.\n\n")
-            OT_API_HarvestAllNumbers(Server, MyNym,	strSmartContract) // Grab Alice's numbers back
+            OT_API_Msg_HarvestTransactionNumbers(Server, MyNym,	strSmartContract) // Grab Alice's numbers back
+            
+            /*
+            
+            static bool Msg_HarvestTransactionNumbers(const std::string THE_MESSAGE,
+                                                      const std::string USER_ID,
+                                                      const bool        bHarvestingForRetry,      
+                                                      const bool        bReplyWasSuccess,      
+                                                      const bool        bReplyWasFailure,      
+                                                      const bool        bTransactionWasSuccess,
+                                                      const bool        bTransactionWasFailure);
+             */
         }
         else
         {
@@ -462,12 +492,13 @@ def CreateSmartContractAtCLI()
             
             // CONFIRM A THEORETICAL ACCT BY GIVING IT A REAL ACCT ID. (Bob's account.)
             //
-            var strSmart9 = OT_API_SmartContract_ConfirmAccount(strSmartContract, BobsUserID, "party_bob",	// Should already be on the contract. (This way we can find it.)
+            strSmart9 = OT_API_SmartContract_ConfirmAccount(strSmartContract, BobsUserID, "party_bob",	// Should already be on the contract. (This way we can find it.)
                                                                 // ----------------------------------------
                                                                 "bob_acct",		// Acct name. Should already be added on the contract. (This way we can find it.)
                                                                 "agent_bob",	// The agent name for this asset account.
                                                                 BobsAcctID);	// AcctID for the asset account. (For acct_name).
-            strSmartContract = strSmart9
+            if (VerifyStringVal(strSmart9))
+            { strSmartContract = strSmart9 }
             // --------------------------------------------------
             
             
@@ -478,12 +509,13 @@ def CreateSmartContractAtCLI()
             // --------------------------------------------------
             // CONFIRM A THEORETICAL PARTY BY GIVING IT A REAL NYM ID
             //
-            var strSmart10 = OT_API_SmartContract_ConfirmParty(	strSmartContract,	// The smart contract, about to be changed by this function.
+            strSmart10 = OT_API_SmartContract_ConfirmParty(	strSmartContract,	// The smart contract, about to be changed by this function.
                                                                "party_bob",		// The party should already be on the contract. This way we can find it.
                                                                // ----------------------------------------
                                                                BobsUserID);	// Nym ID for the party, the actual owner, 
             // ===> AS WELL AS for the default AGENT of that party.
-            strSmartContract = strSmart10
+            if (VerifyStringVal(strSmart10))
+            { strSmartContract = strSmart10 }
             
             // ******************************************************************
             

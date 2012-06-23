@@ -2710,8 +2710,8 @@ bool OT_API::SmartContract_AddClause(const	OTString		& THE_CONTRACT,	// The cont
 	
 	if (NULL == pBylaw)
 	{
-		OTLog::vOutput(0, "OT_API::SmartContract_AddClause: Failure: Bylaw doesn't exist: %s \n",
-					   str_bylaw_name.c_str());
+		OTLog::vOutput(0, "OT_API::SmartContract_AddClause: Failure: Bylaw doesn't exist: %s \n Input contract: \n\n%s\n\n",
+					   str_bylaw_name.c_str(), THE_CONTRACT.Get());
 		return false;
 	}
 	// -------------------------------

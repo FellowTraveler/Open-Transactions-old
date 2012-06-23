@@ -2252,7 +2252,9 @@ int OTCronItem::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
     
 	// ---------
 	
-    if (!strcmp("closingTransactionNumber", xml->getNodeName())) 
+    const OTString strNodeName(xml->getNodeName());
+    
+    if (strNodeName.Compare("closingTransactionNumber"))
 	{		
         OTString strClosingNumber = xml->getAttributeValue("value");
         

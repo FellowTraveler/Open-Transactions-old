@@ -2360,8 +2360,11 @@ void OTScriptable::UpdateContentsToString(OTString & strAppend)
 {
 	if ((m_mapParties.size()>0) || (m_mapBylaws.size()>0))
 	{
-		strAppend.Concatenate("<scriptableContract specifyAssetID=%s\n specifyParties=%s>\n\n",
-							  m_bSpecifyAssetID ? "true" : "false", m_bSpecifyParties ? "true" : "false");
+		strAppend.Concatenate("<scriptableContract\n specifyAssetID=\"%s\"\n specifyParties=\"%s\"\n"
+                              " numParties=\"%d\"\n numBylaws=\"%d\" >\n\n",
+							  m_bSpecifyAssetID ? "true" : "false", m_bSpecifyParties ? "true" : "false",
+                              m_mapParties.size(), m_mapBylaws.size()
+                              );
 		
 		FOR_EACH(mapOfParties, m_mapParties)
 		{
@@ -2401,6 +2404,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 {	
     const char * szFunc = "OTScriptable::ProcessXMLNode";
     
+
 	int nReturnVal = 0; // Unless/until I want to add OTContract::Compare(), then people would be able to surreptitiously insert keys and 
 //	int nReturnVal = ot_super::ProcessXMLNode(xml); // conditions, and entities, that passed OTScriptable::Compare() with flying colors 
 //  even though they didn't really match. Therefore, here I explicitly disallow loading those things.
@@ -2418,11 +2422,18 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
     
     const OTString strNodeName(xml->getNodeName());
 	
+    
+//    OTLog::vError("OTScriptable::ProcessXMLNode:  strNodeName: %s \n", strNodeName.Get());
+
+    
 	if (strNodeName.Compare("scriptableContract"))
 	{
-		const OTString strSpecify1 = xml->getAttributeValue("specifyAssetID");
-		const OTString strSpecify2 = xml->getAttributeValue("specifyParties");
+		const OTString strSpecify1  = xml->getAttributeValue("specifyAssetID");
+		const OTString strSpecify2  = xml->getAttributeValue("specifyParties");
 		
+        OTString strNumParties		= xml->getAttributeValue("numParties");
+        OTString strNumBylaws		= xml->getAttributeValue("numBylaws");
+
 		// ---------------------------------------
 		// These determine whether asset IDs and/or party owner IDs
 		// are used on the template for any given smart contract.
@@ -2434,740 +2445,785 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 			m_bSpecifyAssetID = true;
 		if (strSpecify2.Compare("true"))
 			m_bSpecifyParties = true;
-		// ---------------------------------------
-		
+
+        // -----------------------------------------------
+		//
+		// Load up the Parties.
+		//
+		int nPartyCount	= strNumParties.Exists() ? atoi(strNumParties.Get()) : 0;
+		if (nPartyCount > 0)
+		{
+			while (nPartyCount-- > 0)
+			{
+//				xml->read(); // <==================
+				if (false == SkipToElement(xml))
+				{
+					OTLog::vOutput(0, "%s: Failure: Unable to find expected element for party. \n", szFunc);
+					return (-1);
+				}
+				// -----------------------------------------------
+                
+				if ((xml->getNodeType() == EXN_ELEMENT) && (!strcmp("party", xml->getNodeName())))
+				{
+                    OTString strName			= xml->getAttributeValue("name"); // Party name (in script code)
+                    OTString strOwnerType		= xml->getAttributeValue("ownerType"); // "nym" or "entity"
+                    OTString strOwnerID			= xml->getAttributeValue("ownerID"); // Nym or Entity ID. todo security probably make these separate variables.
+                    
+                    OTString strOpeningTransNo	= xml->getAttributeValue("openingTransNo"); // the closing #s are on the asset accounts.
+                    
+                    OTString strAuthAgent		= xml->getAttributeValue("authorizingAgent"); // When an agent activates this contract, it's HIS opening trans# that's used.
+                    
+                    OTString strNumAgents		= xml->getAttributeValue("numAgents"); // number of agents on this party.
+                    OTString strNumAccounts		= xml->getAttributeValue("numAccounts"); // number of accounts for this party.
+                    
+                    OTString strIsCopyProvided	= xml->getAttributeValue("signedCopyProvided");
+                    
+                    // ----------------------------------
+                    bool bIsCopyProvided = false; // default
+                    
+                    if (strIsCopyProvided.Compare("true"))
+                        bIsCopyProvided = true;
+                    
+                    // ---------------------------------------
+                    long lOpeningTransNo = 0;
+                    // -------
+                    if (strOpeningTransNo.Exists())
+                        lOpeningTransNo = atol(strOpeningTransNo.Get());
+                    else
+                        OTLog::vError("%s: Expected openingTransNo in party.\n", szFunc);
+                    // ---------------------------------------
+                    
+                    OTParty * pParty = new 	OTParty(strName.Exists() ? strName.Get() : "PARTY_ERROR_NAME",
+                                                    strOwnerType.Compare("nym") ? true : false, 
+                                                    strOwnerID.Get(),
+                                                    strAuthAgent.Get());
+                    OT_ASSERT(NULL != pParty);
+                    
+                    pParty->SetOpeningTransNo(lOpeningTransNo);	// WARNING:  NEED TO MAKE SURE pParty IS CLEANED UP BELOW THIS POINT, IF FAILURE!!
+                    
+                    // -----------------------------------------------
+                    //
+                    // Load up the agents.
+                    //
+                    int nAgentCount	= strNumAgents.Exists() ? atoi(strNumAgents.Get()) : 0;
+                    if (nAgentCount > 0)
+                    {
+                        while (nAgentCount-- > 0)
+                        {
+//                          xml->read(); // <==================
+                            if (false == SkipToElement(xml))
+                            {
+                                OTLog::vOutput(0, "%s: Failure: Unable to find expected element for agent. \n", szFunc);
+                                delete pParty; pParty=NULL;
+                                return (-1);
+                            }
+                            // -----------------------------------------------
+                            
+                            if ((xml->getNodeType() == EXN_ELEMENT) && (!strcmp("agent", xml->getNodeName())))
+                            {
+                                OTString strAgentName		= xml->getAttributeValue("name"); // Agent name (if needed in script code)
+                                OTString strAgentRepSelf	= xml->getAttributeValue("doesAgentRepresentHimself"); // Agent might also BE the party, and not just party's employee.
+                                OTString strAgentIndividual	= xml->getAttributeValue("isAgentAnIndividual"); // Is the agent a voting group, or an individual nym? (whether employee or not)
+                                OTString strNymID			= xml->getAttributeValue("nymID"); // Nym ID if Nym in role for entity, or if representing himself.
+                                OTString strRoleID			= xml->getAttributeValue("roleID"); // Role ID if Nym in Role.
+                                OTString strGroupName		= xml->getAttributeValue("groupName"); // Group name if voting group. (Relative to entity.)
+                                
+                                // ----------------------------------
+                                
+                                if (!strAgentName.Exists() || !strAgentRepSelf.Exists() || !strAgentIndividual.Exists())
+                                {
+                                    OTLog::vError("%s: Error loading agent: Either the name, or one of the bool variables was EMPTY.\n", szFunc);
+                                    delete pParty; pParty=NULL;
+                                    return (-1);
+                                }
+                                // ----------------------------------
+                                if (!OTScriptable::ValidateName(strAgentName.Get()))
+                                {
+                                    OTLog::vError("%s: Failed loading agent due to Invalid name: %s\n", szFunc,
+                                                  strAgentName.Get());
+                                    delete pParty; pParty=NULL;
+                                    return (-1);
+                                }
+                                // ----------------------------------
+                                bool bRepsHimself = true; // default
+                                
+                                if (strAgentRepSelf.Compare("false"))
+                                    bRepsHimself = false;
+                                
+                                // ----------------------------------
+                                bool bIsIndividual = true; // default
+                                
+                                if (strAgentIndividual.Compare("false"))
+                                    bIsIndividual = false;
+                                
+                                // ---------------------------------------
+                                // See if the same-named agent already exists on ANY of the OTHER PARTIES
+                                // (There can only be one agent on an OTScriptable with a given name.)
+                                //
+                                OTAgent * pExistingAgent = this->GetAgent(strAgentName.Get());
+                                
+                                if (NULL != pExistingAgent) // Uh-oh, it's already there!
+                                {
+                                    OTLog::vOutput(0, "%s: Error loading agent named %s, since one was "
+                                                   "already there on party %s.\n", szFunc, strAgentName.Get(), strName.Get());
+                                    delete pParty; pParty=NULL;
+                                    return (-1);
+                                }
+                                // The AddAgent call below checks to see if it's already there, but only for the
+                                // currently-loading party.
+                                // Whereas the above GetAgent() call checks this OTScriptable for ALL the agents on the already-loaded parties.
+                                // ----------------------------------
+                                
+                                OTAgent * pAgent = 
+                                new OTAgent(bRepsHimself, bIsIndividual, strAgentName, strNymID, strRoleID, strGroupName);
+                                OT_ASSERT(NULL != pAgent);
+                                
+                                if (false == pParty->AddAgent(*pAgent))
+                                {
+                                    delete pAgent; pAgent = NULL;
+                                    delete pParty; pParty=NULL;
+                                    OTLog::vError("%s: Failed adding agent to party.\n", szFunc);
+                                    return (-1);
+                                }
+                                
+                                //					xml->read(); // <==================
+                                
+                                // MIGHT need to add "skip after element" here.
+                                
+                                // Update: Nope.
+                            }				
+                            else 
+                            {
+                                OTLog::vError("%s: Expected agent element in party.\n", szFunc);
+                                delete pParty; pParty=NULL;
+                                return (-1); // error condition
+                            }
+                        } // while
+                    }
+                    // --------------------------------
+                    //
+                    // LOAD PARTY ACCOUNTS.
+                    //
+                    int nAcctCount	= strNumAccounts.Exists() ? atoi(strNumAccounts.Get()) : 0;
+                    if (nAcctCount > 0)
+                    {
+                        while (nAcctCount-- > 0)
+                        {
+//                          xml->read(); // <==================
+                            if (false == OTContract::SkipToElement(xml))
+                            {
+                                OTLog::vError("%s: Error finding expected next element for party account.\n", szFunc);
+                                delete pParty; pParty=NULL;
+                                return (-1);
+                            }
+                            // -----------------------------------------------
+                            
+                            if ((xml->getNodeType() == EXN_ELEMENT) && (!strcmp("assetAccount", xml->getNodeName())))
+                            {
+                                OTString strAcctName		= xml->getAttributeValue("name"); // Acct name (if needed in script code)
+                                OTString strAcctID			= xml->getAttributeValue("acctID"); // Asset Acct ID
+                                OTString strAssetTypeID		= xml->getAttributeValue("assetTypeID"); // Asset Type ID
+                                OTString strAgentName		= xml->getAttributeValue("agentName"); // Name of agent who controls this account.
+                                OTString strClosingTransNo	= xml->getAttributeValue("closingTransNo"); // the closing #s are on the asset accounts.
+                                
+                                long lClosingTransNo = 0;
+                                // -------
+                                if (strClosingTransNo.Exists())
+                                    lClosingTransNo = atol(strClosingTransNo.Get());
+                                else
+                                {
+                                    OTLog::vError("%s: Expected closingTransNo in partyaccount.\n", szFunc);
+                                    delete pParty; pParty=NULL;
+                                    return (-1);
+                                }
+                                // ----------------------------------
+                                
+                                // Missing Account ID is allowed, as well as agent name, since those things may not be decided yet.
+                                //
+                                if (!strAcctName.Exists() || !strAssetTypeID.Exists())
+                                    //					if (!strAcctName.Exists() || !strAcctID.Exists() || !strAgentName.Exists() || !strAssetTypeID.Exists())
+                                {
+                                    OTLog::vError("%s: Expected missing AcctID or AssetTypeID or Name or AgentName in partyaccount.\n", 
+                                                  szFunc);
+                                    delete pParty; pParty=NULL;
+                                    return (-1);
+                                }
+                                // ---------------------------------------
+                                // See if the same-named partyacct already exists on ANY of the OTHER PARTIES
+                                // (There can only be one partyacct on an OTScriptable with a given name.)
+                                //
+                                OTPartyAccount * pAcct = this->GetPartyAccount(strAcctName.Get());
+                                
+                                if (NULL != pAcct) // Uh-oh, it's already there!
+                                {
+                                    OTLog::vOutput(0, "%s: Error loading partyacct named %s, since one was "
+                                                   "already there on party %s.\n", szFunc, strAcctName.Get(), strName.Get());
+                                    delete pParty; pParty=NULL;
+                                    return (-1);
+                                }
+                                // The AddAccount call below checks to see if it's already there, but only for the
+                                // currently-loading party.
+                                // Whereas the above call checks this OTScriptable for all the accounts on the already-loaded parties.
+                                // ----------------------------------
+                                
+                                if (false == pParty->AddAccount(strAgentName, strAcctName, strAcctID, strAssetTypeID, lClosingTransNo))
+                                {
+                                    OTLog::vError("%s: Failed adding account to party.\n", szFunc);
+                                    delete pParty; pParty=NULL;
+                                    return (-1);
+                                }
+                                
+                                //					xml->read(); // <==================
+                                
+                                
+                                // MIGHT need to add "skip after field" call here.
+                                
+                                // UPdate: Nope. Not here.
+                                
+                            }				
+                            else 
+                            {
+                                OTLog::vError("%s: Expected assetAccount element in party.\n", szFunc);
+                                delete pParty; pParty=NULL;
+                                return (-1); // error condition
+                            }
+                        } // while
+                    }
+                    
+                    // **************************************
+                    
+                    if (bIsCopyProvided)
+                    {
+                        const char	*	pElementExpected	= "mySignedCopy";
+                        OTString		strTextExpected; // signed copy will go here.
+                        
+                        if (false == OTContract::LoadEncodedTextFieldByName(xml, strTextExpected, pElementExpected))
+                        {
+                            OTLog::vError("%s: "
+                                          "Expected %s element with text field.\n", szFunc, 
+                                          pElementExpected);
+                            delete pParty; pParty = NULL;
+                            return (-1); // error condition
+                        }
+                        // else ...
+                        
+                        pParty->SetMySignedCopy(strTextExpected);
+                    }
+                    
+                    // --------------------------------
+//                    if (false == SkipAfterLoadingField(xml))  // </party>
+//                    { 
+//                        OTLog::vOutput(0, "*** %s: Bad data? Expected EXN_ELEMENT_END here, but "
+//                                       "didn't get it. Failure.\n", szFunc); 
+//                        delete pParty; pParty=NULL;
+//                        return (-1);
+//                    }
+                    // --------------------------------
+                    
+                    if (AddParty(*pParty))
+                        OTLog::vOutput(2, "%s: Loaded Party: %s\n", szFunc, pParty->GetPartyName().c_str());
+                    else 
+                    {
+                        OTLog::vError("%s: Failed loading Party: %s\n", szFunc, pParty->GetPartyName().c_str());
+                        delete pParty; pParty = NULL;
+                        return (-1); // error condition
+                    }
+				}				
+				else 
+				{
+					OTLog::vError("%s: Expected party element.\n", szFunc);
+					return (-1); // error condition
+				}
+			} // while
+		}
+
+        // -----------------------------------------------
+		//
+		// Load up the Bylaws.
+		//
+		int nBylawCount	= strNumBylaws.Exists() ? atoi(strNumBylaws.Get()) : 0;
+		if (nBylawCount > 0)
+		{
+			while (nBylawCount-- > 0)
+			{
+//				xml->read(); // <==================
+				if (false == SkipToElement(xml))
+				{
+					OTLog::vOutput(0, "%s: Failure: Unable to find expected element for bylaw. \n", szFunc);
+					return (-1);
+				}
+				// -----------------------------------------------
+
+				if ((xml->getNodeType() == EXN_ELEMENT) && (!strcmp("bylaw", xml->getNodeName())))
+				{
+                    OTString strName		= xml->getAttributeValue("name"); // bylaw name
+                    OTString strLanguage	= xml->getAttributeValue("language"); // The script language used in this bylaw.
+                    
+                    OTString strNumVariable		= xml->getAttributeValue("numVariables"); // number of variables on this bylaw.
+                    OTString strNumClauses		= xml->getAttributeValue("numClauses"); // number of clauses on this bylaw.
+                    OTString strNumHooks		= xml->getAttributeValue("numHooks"); // hooks to server events.
+                    OTString strNumCallbacks	= xml->getAttributeValue("numCallbacks"); // Callbacks the server may initiate, when it needs answers.
+                    
+                    OTBylaw * pBylaw = new OTBylaw(strName.Get(), strLanguage.Get());
+                    
+                    OT_ASSERT(NULL != pBylaw);
+                    
+                    // ---------------------------------------------------------------------------
+                    //
+                    // LOAD VARIABLES AND CONSTANTS.
+                    //
+                    int nCount	= strNumVariable.Exists() ? atoi(strNumVariable.Get()) : 0;
+                    if (nCount > 0)
+                    {
+                        while (nCount-- > 0)
+                        {
+                            //				xml->read(); // <==================
+                            if (false == OTContract::SkipToElement(xml))
+                            {
+                                OTLog::vError("%s: Error finding expected next element for variable.\n", szFunc);
+                                delete pBylaw; pBylaw=NULL;
+                                return (-1);
+                            }
+                            // -----------------------------------------------
+                            
+                            if ((xml->getNodeType() == EXN_ELEMENT) && (!strcmp("variable", xml->getNodeName())))
+                            {
+                                OTString strVarName		= xml->getAttributeValue("name"); // Variable name (if needed in script code)
+                                OTString strVarValue	= xml->getAttributeValue("value"); // Value stored in variable (If this is "true" then a real value is expected in a text field below. Otherwise, it's assumed to be a BLANK STRING.)
+                                OTString strVarType		= xml->getAttributeValue("type"); // string or long
+                                OTString strVarAccess	= xml->getAttributeValue("access"); // constant, persistent, or important.
+                                
+                                // ----------------------------------
+                                
+                                if (!strVarName.Exists() || !strVarType.Exists() || !strVarAccess.Exists())
+                                {
+                                    OTLog::vError("%s: Expected missing name, type, or access type in variable.\n", szFunc);
+                                    delete pBylaw; pBylaw=NULL;
+                                    return (-1);
+                                }
+                                // ---------------------------------------
+                                // See if the same-named variable already exists on ANY of the OTHER BYLAWS
+                                // (There can only be one variable on an OTScriptable with a given name.)
+                                //
+                                OTVariable * pVar = this->GetVariable(strVarName.Get());
+                                
+                                if (NULL != pVar) // Uh-oh, it's already there!
+                                {
+                                    OTLog::vOutput(0, "%s: Error loading variable named %s, since one was "
+                                                   "already there on one of the bylaws.\n", szFunc, strVarName.Get());
+                                    delete pBylaw; pBylaw=NULL;
+                                    return (-1);
+                                }
+                                // The AddVariable call below checks to see if it's already there, but only for the
+                                // currently-loading bylaw.
+                                // Whereas the above call checks this OTScriptable for all the variables on the already-loaded bylaws.
+                                // ----------------------------------
+                                //
+                                // VARIABLE TYPE AND ACCESS TYPE
+                                //
+                                OTVariable::OTVariable_Type theVarType = OTVariable::Var_Error_Type;
+                                
+                                if (strVarType.Compare("integer"))
+                                    theVarType = OTVariable::Var_Integer;
+                                else if (strVarType.Compare("string"))
+                                    theVarType = OTVariable::Var_String;
+                                else if (strVarType.Compare("bool"))
+                                    theVarType = OTVariable::Var_Bool;
+                                else
+                                    OTLog::vError("%s: Bad variable type: %s.\n", szFunc, strVarType.Get());
+                                
+                                // ---------
+                                
+                                OTVariable::OTVariable_Access theVarAccess = OTVariable::Var_Error_Access;
+                                
+                                if (strVarAccess.Compare("constant"))
+                                    theVarAccess = OTVariable::Var_Constant;
+                                else if (strVarAccess.Compare("persistent"))
+                                    theVarAccess = OTVariable::Var_Persistent;
+                                else if (strVarAccess.Compare("important"))
+                                    theVarAccess = OTVariable::Var_Important;
+                                else
+                                    OTLog::vError("%s: Bad variable access type: %s.\n", szFunc, strVarAccess.Get());
+                                
+                                // ---------
+                                
+                                if ((OTVariable::Var_Error_Access == theVarAccess) || 
+                                    (OTVariable::Var_Error_Type == theVarType))
+                                {
+                                    OTLog::vError("%s: Error loading variable to bylaw: "
+                                                  "bad type (%s) or access type (%s).\n", 
+                                                  szFunc, strVarType.Get(), strVarAccess.Get());
+                                    delete pBylaw; pBylaw=NULL;
+                                    return (-1);
+                                }
+                                // ---------------------------------------
+                                
+                                bool bAddedVar = false;
+                                const std::string str_var_name = strVarName.Get();
+                                
+                                switch (theVarType) 
+                                {
+                                    case OTVariable::Var_Integer:
+                                        if (strVarValue.Exists())
+                                        {
+                                            const int nVarValue = atoi(strVarValue.Get());
+                                            bAddedVar = pBylaw->AddVariable(str_var_name, nVarValue, theVarAccess);
+                                        }
+                                        else
+                                        {
+                                            OTLog::vError("%s: No value found for integer variable: %s\n", szFunc,
+                                                          strVarName.Get());
+                                            delete pBylaw; pBylaw=NULL;
+                                            return (-1);
+                                        }
+                                        break;
+                                        // ---------------------------------
+                                    case OTVariable::Var_Bool:
+                                        if (strVarValue.Exists())
+                                        {
+                                            const bool bVarValue = strVarValue.Compare("true") ? true : false;
+                                            bAddedVar = pBylaw->AddVariable(str_var_name, bVarValue, theVarAccess);
+                                        }
+                                        else
+                                        {
+                                            OTLog::vError("%s: No value found for bool variable: %s\n", szFunc,
+                                                          strVarName.Get());
+                                            delete pBylaw; pBylaw=NULL;
+                                            return (-1);
+                                        }
+                                        break;
+                                        // ---------------------------------
+                                    case OTVariable::Var_String:
+                                    {
+                                        // I realized I should probably allow empty strings.  :-P
+                                        if (strVarValue.Exists() && strVarValue.Compare("exists"))
+                                        {
+                                            strVarValue.Release(); // probably unnecessary.
+                                            if (false == OTContract::LoadEncodedTextField(xml, strVarValue))
+                                            {
+                                                OTLog::vError("%s: No value found for string variable: %s\n", szFunc,
+                                                              strVarName.Get());
+                                                delete pBylaw; pBylaw=NULL;
+                                                return (-1);
+                                            }
+                                            // (else success)
+                                        }
+                                        else
+                                            strVarValue.Release(); // Necessary. If it's going to be a blank string, then let's make sure.
+                                        
+                                        const std::string str_var_value = strVarValue.Get();
+                                        bAddedVar = pBylaw->AddVariable(str_var_name, str_var_value, theVarAccess);
+                                    }
+                                        break;
+                                    default:
+                                        OTLog::vError("%s: Wrong variable type... "
+                                                      "somehow AFTER I should have already detected it...\n", szFunc);
+                                        delete pBylaw; pBylaw=NULL;
+                                        return (-1);							
+                                }
+                                // -------------------------------------------------
+                                
+                                if (false == bAddedVar)
+                                {
+                                    OTLog::vError("%s: Failed adding variable to bylaw.\n", szFunc);
+                                    delete pBylaw; pBylaw=NULL;
+                                    return (-1);
+                                }
+                                
+                                //					xml->read(); // <==================
+                                
+                                // MIGHT NEED TO HAVE "SKIP AFTER" HERE...
+                                // Update: Nope.
+                                
+                                
+                                //					if (false == SkipAfterLoadingField(xml))
+                                //					{ 
+                                //						OTLog::Output(0, "*** OTScriptable::ProcessXMLNode: Bad data? Expected EXN_ELEMENT_END here, but "
+                                //									"didn't get it. Failure.\n"); 
+                                //						delete pBylaw; pBylaw=NULL;
+                                //						return (-1);
+                                //					}
+                            }				
+                            else 
+                            {
+                                OTLog::vError("%s: Expected variable element in bylaw.\n", szFunc);
+                                delete pBylaw; pBylaw=NULL;
+                                return (-1); // error condition
+                            }
+                        } // while
+                    }
+                    
+                    // ---------------------------------------------------------------------------
+                    // LOAD CLAUSES
+                    //
+                    nCount	= strNumClauses.Exists() ? atoi(strNumClauses.Get()) : 0;
+                    if (nCount > 0)
+                    {
+                        while (nCount-- > 0)
+                        {
+                            // OTContract::LoadEncodedTextFieldByName() (below) does this stuff already. Commented out.
+                            //
+                            //				xml->read(); // <==================
+                            //				if (false == OTContract::SkipToElement(xml))
+                            //				{
+                            //					OTLog::Error("OTScriptable::ProcessXMLNode: Error finding expected next element for variable.\n");
+                            //					delete pBylaw; pBylaw=NULL;
+                            //					return (-1);
+                            //				}
+                            // -----------------------------------------------
+                            
+                            const char	*	pElementExpected	= "clause";
+                            OTString		strTextExpected; // clause's script code will go here.
+                            
+                            mapOfStrings	temp_MapAttributes;
+                            //
+                            // This map contains values we will also want, when we read the clause... 
+                            // (The OTContract::LoadEncodedTextField call below will read all the values
+                            // as specified in this map.)
+                            // 
+                            //
+                            temp_MapAttributes.insert(std::pair<std::string, std::string>("name", ""));
+                            //				temp_MapAttributes.insert(std::pair<std::string, std::string>("name", ""));   // Grab the others this way as well.
+                            //				temp_MapAttributes.insert(std::pair<std::string, std::string>("name", ""));
+                            //				temp_MapAttributes.insert(std::pair<std::string, std::string>("name", ""));
+                            //				temp_MapAttributes.insert(std::pair<std::string, std::string>("name", ""));
+                            //				temp_MapAttributes.insert(std::pair<std::string, std::string>("name", ""));
+                            //				temp_MapAttributes.insert(std::pair<std::string, std::string>("name", ""));
+                            
+                            if (false == OTContract::LoadEncodedTextFieldByName(xml, strTextExpected, pElementExpected, &temp_MapAttributes)) // </clause>
+                            {
+                                OTLog::vError("%s: Error: "
+                                              "Expected %s element with text field.\n", szFunc, 
+                                              pElementExpected);
+                                delete pBylaw; pBylaw = NULL;
+                                return (-1); // error condition
+                            }
+                            
+                            // Okay we now have the script code in strTextExpected. Next, let's read the clause's NAME
+                            // from the map. If it's there, and presumably some kind of harsh validation for both, then
+                            // create a clause object and add to my list here.
+                            // ------------------------------------------
+                            
+                            mapOfStrings::iterator it = temp_MapAttributes.find("name");
+                            
+                            if ((it != temp_MapAttributes.end())) // We expected this much.
+                            {					
+                                std::string & str_name = (*it).second;
+                                
+                                if (str_name.size() > 0) // SUCCESS
+                                {
+                                    // ---------------------------------------
+                                    
+                                    //						if (false == SkipAfterLoadingField(xml))  // NOt sure yet about this block....
+                                    //						{ 
+                                    //							OTLog::Output(0, "*** OTScriptable::ProcessXMLNode: Bad data? Expected EXN_ELEMENT_END here, but "
+                                    //										  "didn't get it. Failure.\n"); 
+                                    //							delete pBylaw; pBylaw=NULL;
+                                    //							return (-1);
+                                    //						}
+                                    // *****************************************************					
+                                    
+                                    // See if the same-named clause already exists on ANY of the OTHER BYLAWS
+                                    // (There can only be one clause on an OTScriptable with a given name.)
+                                    //
+                                    OTClause * pClause = this->GetClause(str_name.c_str());
+                                    
+                                    if (NULL != pClause) // Uh-oh, it's already there!
+                                    {
+                                        OTLog::vOutput(0, "%s: Error loading clause named %s, since one was already "
+                                                       "there on one of the bylaws.\n", szFunc, str_name.c_str());
+                                        delete pBylaw; pBylaw=NULL;
+                                        return (-1);
+                                    }
+                                    // ---------------------------------------------------------
+                                    else if (false == pBylaw->AddClause(str_name.c_str(), 
+                                                                        strTextExpected.Get()))
+                                    {
+                                        OTLog::vError("%s: Failed adding clause to bylaw.\n", szFunc);
+                                        delete pBylaw; pBylaw=NULL;
+                                        return (-1); // error condition
+                                    }
+                                }
+                                // else it's empty, which is expected if nothing was there, since that's the default value
+                                // that we set above for "name" in temp_MapAttributes. 
+                                else 
+                                {
+                                    OTLog::vError("%s: Expected clause name.\n", szFunc);
+                                    delete pBylaw; pBylaw=NULL;
+                                    return (-1); // error condition
+                                }
+                            }
+                            else 
+                            {
+                                OTLog::vError("%s: Strange error: couldn't find name AT ALL.\n", szFunc);
+                                delete pBylaw; pBylaw=NULL;
+                                return (-1); // error condition
+                            }
+                        } // while
+                    } // if strNumClauses.Exists() && nCount > 0		
+                    
+                    
+                    // ---------------------------------------------------------------------------
+                    //
+                    // LOAD HOOKS.
+                    //
+                    nCount	= strNumHooks.Exists() ? atoi(strNumHooks.Get()) : 0;
+                    if (nCount > 0)
+                    {
+                        while (nCount-- > 0)
+                        {
+                            //				xml->read();
+                            if (false == SkipToElement(xml))
+                            {
+                                OTLog::vOutput(0, "%s: Failure: Unable to find expected element.\n", szFunc);
+                                delete pBylaw; pBylaw=NULL;
+                                return (-1);
+                            }
+                            // --------------------------------------
+                            
+                            if ((xml->getNodeType() == EXN_ELEMENT) && (!strcmp("hook", xml->getNodeName())))
+                            {
+                                OTString strHookName	= xml->getAttributeValue("name"); // Name of standard hook such as hook_activate or cron_process, etc
+                                OTString strClause		= xml->getAttributeValue("clause"); // Name of clause on this Bylaw that should trigger when that callback occurs.
+                                
+                                // ----------------------------------
+                                
+                                if (!strHookName.Exists() || !strClause.Exists())
+                                {
+                                    OTLog::vError("%s: Expected missing name or clause while loading hook.\n", szFunc);
+                                    delete pBylaw; pBylaw=NULL;
+                                    return (-1);
+                                }
+                                // ---------------------------------------
+                                
+                                if (false == pBylaw->AddHook(strHookName.Get(), strClause.Get()))
+                                {
+                                    OTLog::vError("%s: Failed adding hook to bylaw.\n", szFunc);
+                                    delete pBylaw; pBylaw=NULL;
+                                    return (-1);
+                                }
+                                // ---------------------------------------
+                                
+                                //					xml->read(); // <==================  NO NEED FOR THIS HERE.
+                            }				
+                            else 
+                            {
+                                OTLog::vError("%s: Expected hook element in bylaw.\n", szFunc);
+                                delete pBylaw; pBylaw=NULL;
+                                return (-1); // error condition
+                            }
+                        } // while
+                    }
+                    
+                    // ---------------------------------------------------------------
+                    //
+                    // LOAD CALLBACKS.
+                    //
+                    nCount	= 0;
+                    nCount	= strNumCallbacks.Exists() ? atoi(strNumCallbacks.Get()) : 0;
+                    if (nCount > 0)
+                    {
+                        while (nCount-- > 0)
+                        {
+                            //				xml->read();
+                            if (false == SkipToElement(xml))
+                            {
+                                OTLog::vOutput(0, "%s: Failure: Unable to find expected element.\n", szFunc);
+                                delete pBylaw; pBylaw=NULL;
+                                return (-1);
+                            }
+                            // --------------------------------------
+                            
+                            if ((xml->getNodeType() == EXN_ELEMENT) && (!strcmp("callback", xml->getNodeName())))
+                            {
+                                OTString strCallbackName	= xml->getAttributeValue("name"); // Name of standard callback such as OnActivate, OnDeactivate, etc
+                                OTString strClause			= xml->getAttributeValue("clause"); // Name of clause on this Bylaw that should trigger when that hook occurs.
+                                
+                                // ----------------------------------
+                                
+                                if (!strCallbackName.Exists() || !strClause.Exists())
+                                {
+                                    OTLog::vError("%s: Expected, yet nevertheless missing, name or clause while loading "
+                                                  "callback for bylaw %s.\n", szFunc, strName.Get());
+                                    delete pBylaw; pBylaw=NULL;
+                                    return (-1);
+                                }
+                                // ---------------------------------------
+                                // See if the same-named callback already exists on ANY of the OTHER BYLAWS
+                                // (There can only be one clause to handle any given callback.)
+                                //
+                                OTClause * pClause = this->GetCallback(strCallbackName.Get());
+                                
+                                if (NULL != pClause) // Uh-oh, it's already there!
+                                {
+                                    OTLog::vOutput(0, "%s: Error loading callback %s, since one was already there on one of the other bylaws.\n", 
+                                                   szFunc,
+                                                   strCallbackName.Get());
+                                    delete pBylaw; pBylaw=NULL;
+                                    return (-1);
+                                }
+                                // The below call checks to see if it's already there, but only for the currently-loading bylaw.
+                                // Whereas the above call checks this OTScriptable for all the already-loaded bylaws.
+                                // ---------------------------------------
+                                
+                                if (false == pBylaw->AddCallback(strCallbackName.Get(), strClause.Get()))
+                                {
+                                    OTLog::vError("%se: Failed adding callback (%s) to bylaw (%s).\n", szFunc,
+                                                  strCallbackName.Get(), strName.Get());
+                                    delete pBylaw; pBylaw=NULL;
+                                    return (-1);
+                                }
+                                // ---------------------------------------
+                                
+//                              xml->read(); // <==================    NO NEED FOR THIS HERE.
+                            }				
+                            else 
+                            {
+                                OTLog::vError("%s: Expected callback element in bylaw.\n", szFunc);
+                                delete pBylaw; pBylaw=NULL;
+                                return (-1); // error condition
+                            }
+                        } // while
+                    }
+                    
+                    // --------------------------------
+//                    if (false == SkipAfterLoadingField(xml))  // </bylaw>
+//                    { 
+//                        OTLog::vOutput(0, "*** %s: Bad data? Expected EXN_ELEMENT_END here, but "
+//                                       "didn't get it. Failure.\n", szFunc); 
+//                        delete pBylaw; pBylaw=NULL;
+//                        return (-1);
+//                    }
+                    // --------------------------------						
+                    
+                    if (AddBylaw(*pBylaw))
+                    {
+                        OTLog::vOutput(2, "%s: Loaded Bylaw: %s\n", szFunc, 
+                                       pBylaw->GetName().Get());
+                    }
+                    else 
+                    {
+                        OTLog::vError("%s: Failed loading Bylaw: %s\n", szFunc, 
+                                      pBylaw->GetName().Get());
+                        delete pBylaw; pBylaw = NULL;
+                        return (-1); // error condition
+                    }                    
+                }
+                else
+				{
+					OTLog::vError("%s: Expected bylaw element.\n", szFunc);
+					return (-1); // error condition
+				}
+                
+            } // while
+        }
+        // -----------------------------------------------
+                
 		nReturnVal = 1; 
 	}
 	
-	else if (strNodeName.Compare("party"))
-	{
-		OTString strName			= xml->getAttributeValue("name"); // Party name (in script code)
-		OTString strOwnerType		= xml->getAttributeValue("ownerType"); // "nym" or "entity"
-		OTString strOwnerID			= xml->getAttributeValue("ownerID"); // Nym or Entity ID. todo security probably make these separate variables.
-		
-		OTString strOpeningTransNo	= xml->getAttributeValue("openingTransNo"); // the closing #s are on the asset accounts.
-		
-		OTString strAuthAgent		= xml->getAttributeValue("authorizingAgent"); // When an agent activates this contract, it's HIS opening trans# that's used.
-		
-		OTString strNumAgents		= xml->getAttributeValue("numAgents"); // number of agents on this party.
-		OTString strNumAccounts		= xml->getAttributeValue("numAccounts"); // number of accounts for this party.
-		
-		OTString strIsCopyProvided	= xml->getAttributeValue("signedCopyProvided");
-		
-		// ----------------------------------
-		bool bIsCopyProvided = false; // default
-		
-		if (strIsCopyProvided.Compare("true"))
-			bIsCopyProvided = true;
-		
-		// ---------------------------------------
-		long lOpeningTransNo = 0;
-		// -------
-		if (strOpeningTransNo.Exists())
-			lOpeningTransNo = atol(strOpeningTransNo.Get());
-		else
-			OTLog::vError("%s: Expected openingTransNo in party.\n", szFunc);
-		// ---------------------------------------
-		
-		OTParty * pParty = new 	OTParty(strName.Exists() ? strName.Get() : "PARTY_ERROR_NAME",
-										strOwnerType.Compare("nym") ? true : false, 
-										strOwnerID.Get(),
-										strAuthAgent.Get());
-		OT_ASSERT(NULL != pParty);
-		
-		pParty->SetOpeningTransNo(lOpeningTransNo);	// WARNING:  NEED TO MAKE SURE pParty IS CLEANED UP BELOW THIS POINT, IF FAILURE!!
-
-		// -----------------------------------------------
-		//
-		// Load up the agents.
-		//
-		int nCount	= strNumAgents.Exists() ? atoi(strNumAgents.Get()) : 0;
-		if (nCount > 0)
-		{
-			while (nCount-- > 0)
-			{
-//				xml->read(); // <==================
-				if (false == SkipToElement(xml))
-				{
-					OTLog::vOutput(0, "%s: Failure: Unable to find expected element for agent. \n", szFunc);
-					delete pParty; pParty=NULL;
-					return (-1);
-				}
-				// -----------------------------------------------
-
-				if ((xml->getNodeType() == EXN_ELEMENT) && (!strcmp("agent", xml->getNodeName())))
-				{
-					OTString strAgentName		= xml->getAttributeValue("name"); // Agent name (if needed in script code)
-					OTString strAgentRepSelf	= xml->getAttributeValue("doesAgentRepresentHimself"); // Agent might also BE the party, and not just party's employee.
-					OTString strAgentIndividual	= xml->getAttributeValue("isAgentAnIndividual"); // Is the agent a voting group, or an individual nym? (whether employee or not)
-					OTString strNymID			= xml->getAttributeValue("nymID"); // Nym ID if Nym in role for entity, or if representing himself.
-					OTString strRoleID			= xml->getAttributeValue("roleID"); // Role ID if Nym in Role.
-					OTString strGroupName		= xml->getAttributeValue("groupName"); // Group name if voting group. (Relative to entity.)
-										
-					// ----------------------------------
-					
-					if (!strAgentName.Exists() || !strAgentRepSelf.Exists() || !strAgentIndividual.Exists())
-					{
-						OTLog::vError("%s: Error loading agent: Either the name, or one of the bool variables was EMPTY.\n", szFunc);
-						delete pParty; pParty=NULL;
-						return (-1);
-					}
-					// ----------------------------------
-					if (!OTScriptable::ValidateName(strAgentName.Get()))
-					{
-						OTLog::vError("%s: Failed loading agent due to Invalid name: %s\n", szFunc,
-									  strAgentName.Get());
-						delete pParty; pParty=NULL;
-						return (-1);
-					}
-					// ----------------------------------
-					bool bRepsHimself = true; // default
-					
-					if (strAgentRepSelf.Compare("false"))
-						bRepsHimself = false;
-					
-					// ----------------------------------
-					bool bIsIndividual = true; // default
-					
-					if (strAgentIndividual.Compare("false"))
-						bIsIndividual = false;
-					
-					// ---------------------------------------
-					// See if the same-named agent already exists on ANY of the OTHER PARTIES
-					// (There can only be one agent on an OTScriptable with a given name.)
-					//
-					OTAgent * pExistingAgent = this->GetAgent(strAgentName.Get());
-					
-					if (NULL != pExistingAgent) // Uh-oh, it's already there!
-					{
-						OTLog::vOutput(0, "%s: Error loading agent named %s, since one was "
-									   "already there on party %s.\n", szFunc, strAgentName.Get(), strName.Get());
-						delete pParty; pParty=NULL;
-						return (-1);
-					}
-					// The AddAgent call below checks to see if it's already there, but only for the
-					// currently-loading party.
-					// Whereas the above GetAgent() call checks this OTScriptable for ALL the agents on the already-loaded parties.
-					// ----------------------------------
-					
-					OTAgent * pAgent = 
-						new OTAgent(bRepsHimself, bIsIndividual, strAgentName, strNymID, strRoleID, strGroupName);
-					OT_ASSERT(NULL != pAgent);
-					
-					if (false == pParty->AddAgent(*pAgent))
-					{
-						delete pAgent; pAgent = NULL;
-						delete pParty; pParty=NULL;
-						OTLog::vError("%s: Failed adding agent to party.\n", szFunc);
-						return (-1);
-					}
-					
-//					xml->read(); // <==================
-					
-					// MIGHT need to add "skip after element" here.
-					
-					// Update: Nope.
-				}				
-				else 
-				{
-					OTLog::vError("%s: Expected agent element in party.\n", szFunc);
-					delete pParty; pParty=NULL;
-					return (-1); // error condition
-				}
-			} // while
-		}
-		// --------------------------------
-		//
-		// LOAD PARTY ACCOUNTS.
-		//
-		nCount	= strNumAccounts.Exists() ? atoi(strNumAccounts.Get()) : 0;
-		if (nCount > 0)
-		{
-			while (nCount-- > 0)
-			{
-//				xml->read(); // <==================
-				if (false == OTContract::SkipToElement(xml))
-				{
-					OTLog::vError("%s: Error finding expected next element for party account.\n", szFunc);
-					delete pParty; pParty=NULL;
-					return (-1);
-				}
-				// -----------------------------------------------
-				
-				if ((xml->getNodeType() == EXN_ELEMENT) && (!strcmp("assetAccount", xml->getNodeName())))
-				{
-					OTString strAcctName		= xml->getAttributeValue("name"); // Acct name (if needed in script code)
-					OTString strAcctID			= xml->getAttributeValue("acctID"); // Asset Acct ID
-					OTString strAssetTypeID		= xml->getAttributeValue("assetTypeID"); // Asset Type ID
-					OTString strAgentName		= xml->getAttributeValue("agentName"); // Name of agent who controls this account.
-					OTString strClosingTransNo	= xml->getAttributeValue("closingTransNo"); // the closing #s are on the asset accounts.
-					
-					long lClosingTransNo = 0;
-					// -------
-					if (strClosingTransNo.Exists())
-						lClosingTransNo = atol(strClosingTransNo.Get());
-					else
-					{
-						OTLog::vError("%s: Expected closingTransNo in partyaccount.\n", szFunc);
-						delete pParty; pParty=NULL;
-						return (-1);
-					}
-					// ----------------------------------
-					
-					// Missing Account ID is allowed, as well as agent name, since those things may not be decided yet.
-					//
-					if (!strAcctName.Exists() || !strAssetTypeID.Exists())
-//					if (!strAcctName.Exists() || !strAcctID.Exists() || !strAgentName.Exists() || !strAssetTypeID.Exists())
-					{
-						OTLog::vError("%s: Expected missing AcctID or AssetTypeID or Name or AgentName in partyaccount.\n", 
-                                      szFunc);
-						delete pParty; pParty=NULL;
-						return (-1);
-					}
-					// ---------------------------------------
-					// See if the same-named partyacct already exists on ANY of the OTHER PARTIES
-					// (There can only be one partyacct on an OTScriptable with a given name.)
-					//
-					OTPartyAccount * pAcct = this->GetPartyAccount(strAcctName.Get());
-
-					if (NULL != pAcct) // Uh-oh, it's already there!
-					{
-						OTLog::vOutput(0, "%s: Error loading partyacct named %s, since one was "
-									   "already there on party %s.\n", szFunc, strAcctName.Get(), strName.Get());
-						delete pParty; pParty=NULL;
-						return (-1);
-					}
-					// The AddAccount call below checks to see if it's already there, but only for the
-					// currently-loading party.
-					// Whereas the above call checks this OTScriptable for all the accounts on the already-loaded parties.
-					// ----------------------------------
-					
-					if (false == pParty->AddAccount(strAgentName, strAcctName, strAcctID, strAssetTypeID, lClosingTransNo))
-					{
-						OTLog::vError("%s: Failed adding account to party.\n", szFunc);
-						delete pParty; pParty=NULL;
-						return (-1);
-					}
-					
-//					xml->read(); // <==================
-					
-					
-					// MIGHT need to add "skip after field" call here.
-					
-					// UPdate: Nope. Not here.
-					
-				}				
-				else 
-				{
-					OTLog::vError("%s: Expected assetAccount element in party.\n", szFunc);
-					delete pParty; pParty=NULL;
-					return (-1); // error condition
-				}
-			} // while
-		}
-		
-		// **************************************
-		
-		if (bIsCopyProvided)
-		{
-			const char	*	pElementExpected	= "mySignedCopy";
-			OTString		strTextExpected; // signed copy will go here.
-					
-			if (false == OTContract::LoadEncodedTextFieldByName(xml, strTextExpected, pElementExpected))
-			{
-				OTLog::vError("%s: "
-							  "Expected %s element with text field.\n", szFunc, 
-							  pElementExpected);
-				delete pParty; pParty = NULL;
-				return (-1); // error condition
-			}
-			// else ...
-			
-			pParty->SetMySignedCopy(strTextExpected);
-		}
-		
-		// --------------------------------
-		if (false == SkipAfterLoadingField(xml))  // </party>
-		{ 
-			OTLog::vOutput(0, "*** %s: Bad data? Expected EXN_ELEMENT_END here, but "
-						  "didn't get it. Failure.\n", szFunc); 
-			delete pParty; pParty=NULL;
-			return (-1);
-		}
-		// --------------------------------
-		
-		if (AddParty(*pParty))
-			OTLog::vOutput(2, "%s: Loaded Party: %s\n", szFunc, pParty->GetPartyName().c_str());
-		else 
-		{
-			OTLog::vError("%s: Failed loading Party: %s\n", szFunc, pParty->GetPartyName().c_str());
-			delete pParty; pParty = NULL;
-			return (-1); // error condition
-		}
-		
-		nReturnVal = 1;
-	} // "party"
-	
 	// ----------------------------------------------------------------------------------
 	
-	else if (strNodeName.Compare("bylaw")) 
-	{
-		OTString strName		= xml->getAttributeValue("name"); // bylaw name
-		OTString strLanguage	= xml->getAttributeValue("language"); // The script language used in this bylaw.
-		
-		OTString strNumVariable		= xml->getAttributeValue("numVariables"); // number of variables on this bylaw.
-		OTString strNumClauses		= xml->getAttributeValue("numClauses"); // number of clauses on this bylaw.
-		OTString strNumHooks		= xml->getAttributeValue("numHooks"); // hooks to server events.
-		OTString strNumCallbacks	= xml->getAttributeValue("numCallbacks"); // Callbacks the server may initiate, when it needs answers.
-		
-		OTBylaw * pBylaw = new OTBylaw(strName.Get(), strLanguage.Get());
-		
-		OT_ASSERT(NULL != pBylaw);
-		
-		// ---------------------------------------------------------------------------
-		//
-		// LOAD VARIABLES AND CONSTANTS.
-		//
-		int nCount	= strNumVariable.Exists() ? atoi(strNumVariable.Get()) : 0;
-		if (nCount > 0)
-		{
-			while (nCount-- > 0)
-			{
-//				xml->read(); // <==================
-				if (false == OTContract::SkipToElement(xml))
-				{
-					OTLog::vError("%s: Error finding expected next element for variable.\n", szFunc);
-					delete pBylaw; pBylaw=NULL;
-					return (-1);
-				}
-				// -----------------------------------------------
-				
-				if ((xml->getNodeType() == EXN_ELEMENT) && (!strcmp("variable", xml->getNodeName())))
-				{
-					OTString strVarName		= xml->getAttributeValue("name"); // Variable name (if needed in script code)
-					OTString strVarValue	= xml->getAttributeValue("value"); // Value stored in variable (If this is "true" then a real value is expected in a text field below. Otherwise, it's assumed to be a BLANK STRING.)
-					OTString strVarType		= xml->getAttributeValue("type"); // string or long
-					OTString strVarAccess	= xml->getAttributeValue("access"); // constant, persistent, or important.
-					
-					// ----------------------------------
-					
-					if (!strVarName.Exists() || !strVarType.Exists() || !strVarAccess.Exists())
-					{
-						OTLog::vError("%s: Expected missing name, type, or access type in variable.\n", szFunc);
-						delete pBylaw; pBylaw=NULL;
-						return (-1);
-					}
-					// ---------------------------------------
-					// See if the same-named variable already exists on ANY of the OTHER BYLAWS
-					// (There can only be one variable on an OTScriptable with a given name.)
-					//
-					OTVariable * pVar = this->GetVariable(strVarName.Get());
-					
-					if (NULL != pVar) // Uh-oh, it's already there!
-					{
-						OTLog::vOutput(0, "%s: Error loading variable named %s, since one was "
-									   "already there on one of the bylaws.\n", szFunc, strVarName.Get());
-						delete pBylaw; pBylaw=NULL;
-						return (-1);
-					}
-					// The AddVariable call below checks to see if it's already there, but only for the
-					// currently-loading bylaw.
-					// Whereas the above call checks this OTScriptable for all the variables on the already-loaded bylaws.
-					// ----------------------------------
-					//
-					// VARIABLE TYPE AND ACCESS TYPE
-					//
-					OTVariable::OTVariable_Type theVarType = OTVariable::Var_Error_Type;
-					
-					if (strVarType.Compare("integer"))
-						theVarType = OTVariable::Var_Integer;
-					else if (strVarType.Compare("string"))
-						theVarType = OTVariable::Var_String;
-					else if (strVarType.Compare("bool"))
-						theVarType = OTVariable::Var_Bool;
-					else
-						OTLog::vError("%s: Bad variable type: %s.\n", szFunc, strVarType.Get());
-
-					// ---------
-					
-					OTVariable::OTVariable_Access theVarAccess = OTVariable::Var_Error_Access;
-					
-					if (strVarAccess.Compare("constant"))
-						theVarAccess = OTVariable::Var_Constant;
-					else if (strVarAccess.Compare("persistent"))
-						theVarAccess = OTVariable::Var_Persistent;
-					else if (strVarAccess.Compare("important"))
-						theVarAccess = OTVariable::Var_Important;
-					else
-						OTLog::vError("%s: Bad variable access type: %s.\n", szFunc, strVarAccess.Get());
-
-					// ---------
-					
-					if ((OTVariable::Var_Error_Access == theVarAccess) || 
-						(OTVariable::Var_Error_Type == theVarType))
-					{
-						OTLog::vError("%s: Error loading variable to bylaw: "
-									  "bad type (%s) or access type (%s).\n", 
-                                      szFunc, strVarType.Get(), strVarAccess.Get());
-						delete pBylaw; pBylaw=NULL;
-						return (-1);
-					}
-					// ---------------------------------------
-
-					bool bAddedVar = false;
-					const std::string str_var_name = strVarName.Get();
-					
-					switch (theVarType) 
-					{
-						case OTVariable::Var_Integer:
-							if (strVarValue.Exists())
-							{
-								const int nVarValue = atoi(strVarValue.Get());
-								bAddedVar = pBylaw->AddVariable(str_var_name, nVarValue, theVarAccess);
-							}
-							else
-							{
-								OTLog::vError("%s: No value found for integer variable: %s\n", szFunc,
-											 strVarName.Get());
-								delete pBylaw; pBylaw=NULL;
-								return (-1);
-							}
-							break;
-							// ---------------------------------
-						case OTVariable::Var_Bool:
-							if (strVarValue.Exists())
-							{
-								const bool bVarValue = strVarValue.Compare("true") ? true : false;
-								bAddedVar = pBylaw->AddVariable(str_var_name, bVarValue, theVarAccess);
-							}
-							else
-							{
-								OTLog::vError("%s: No value found for bool variable: %s\n", szFunc,
-											 strVarName.Get());
-								delete pBylaw; pBylaw=NULL;
-								return (-1);
-							}
-							break;
-							// ---------------------------------
-						case OTVariable::Var_String:
-						{
-							// I realized I should probably allow empty strings.  :-P
-							if (strVarValue.Exists() && strVarValue.Compare("exists"))
-							{
-								strVarValue.Release(); // probably unnecessary.
-								if (false == OTContract::LoadEncodedTextField(xml, strVarValue))
-								{
-									OTLog::vError("%s: No value found for string variable: %s\n", szFunc,
-												  strVarName.Get());
-									delete pBylaw; pBylaw=NULL;
-									return (-1);
-								}
-								// (else success)
-							}
-							else
-								strVarValue.Release(); // Necessary. If it's going to be a blank string, then let's make sure.
-
-							const std::string str_var_value = strVarValue.Get();
-							bAddedVar = pBylaw->AddVariable(str_var_name, str_var_value, theVarAccess);
-						}
-							break;
-						default:
-							OTLog::vError("%s: Wrong variable type... "
-										 "somehow AFTER I should have already detected it...\n", szFunc);
-							delete pBylaw; pBylaw=NULL;
-							return (-1);							
-					}
-					// -------------------------------------------------
-
-					if (false == bAddedVar)
-					{
-						OTLog::vError("%s: Failed adding variable to bylaw.\n", szFunc);
-						delete pBylaw; pBylaw=NULL;
-						return (-1);
-					}
-					
-//					xml->read(); // <==================
-					
-					// MIGHT NEED TO HAVE "SKIP AFTER" HERE...
-					// Update: Nope.
-					
-					
-//					if (false == SkipAfterLoadingField(xml))
-//					{ 
-//						OTLog::Output(0, "*** OTScriptable::ProcessXMLNode: Bad data? Expected EXN_ELEMENT_END here, but "
-//									"didn't get it. Failure.\n"); 
-//						delete pBylaw; pBylaw=NULL;
-//						return (-1);
-//					}
-				}				
-				else 
-				{
-					OTLog::vError("%s: Expected variable element in bylaw.\n", szFunc);
-					delete pBylaw; pBylaw=NULL;
-					return (-1); // error condition
-				}
-			} // while
-		}
-		
-		// ---------------------------------------------------------------------------
-		// LOAD CLAUSES
-		//
-		nCount	= strNumClauses.Exists() ? atoi(strNumClauses.Get()) : 0;
-		if (nCount > 0)
-		{
-			while (nCount-- > 0)
-			{
-				// OTContract::LoadEncodedTextFieldByName() (below) does this stuff already. Commented out.
-				//
-//				xml->read(); // <==================
-//				if (false == OTContract::SkipToElement(xml))
-//				{
-//					OTLog::Error("OTScriptable::ProcessXMLNode: Error finding expected next element for variable.\n");
-//					delete pBylaw; pBylaw=NULL;
-//					return (-1);
-//				}
-				// -----------------------------------------------
-				
-				const char	*	pElementExpected	= "clause";
-				OTString		strTextExpected; // clause's script code will go here.
-				
-				mapOfStrings	temp_MapAttributes;
-				//
-				// This map contains values we will also want, when we read the clause... 
-				// (The OTContract::LoadEncodedTextField call below will read all the values
-				// as specified in this map.)
-				// 
-				//
-				temp_MapAttributes.insert(std::pair<std::string, std::string>("name", ""));
-//				temp_MapAttributes.insert(std::pair<std::string, std::string>("name", ""));   // Grab the others this way as well.
-//				temp_MapAttributes.insert(std::pair<std::string, std::string>("name", ""));
-//				temp_MapAttributes.insert(std::pair<std::string, std::string>("name", ""));
-//				temp_MapAttributes.insert(std::pair<std::string, std::string>("name", ""));
-//				temp_MapAttributes.insert(std::pair<std::string, std::string>("name", ""));
-//				temp_MapAttributes.insert(std::pair<std::string, std::string>("name", ""));
-				
-				if (false == OTContract::LoadEncodedTextFieldByName(xml, strTextExpected, pElementExpected, &temp_MapAttributes)) // </clause>
-				{
-					OTLog::vError("%s: Error: "
-								  "Expected %s element with text field.\n", szFunc, 
-								  pElementExpected);
-					delete pBylaw; pBylaw = NULL;
-					return (-1); // error condition
-				}
-				
-				// Okay we now have the script code in strTextExpected. Next, let's read the clause's NAME
-				// from the map. If it's there, and presumably some kind of harsh validation for both, then
-				// create a clause object and add to my list here.
-				// ------------------------------------------
-				
-				mapOfStrings::iterator it = temp_MapAttributes.find("name");
-				
-				if ((it != temp_MapAttributes.end())) // We expected this much.
-				{					
-					std::string & str_name = (*it).second;
-					
-					if (str_name.size() > 0) // SUCCESS
-					{
-						// ---------------------------------------
-						
-//						if (false == SkipAfterLoadingField(xml))  // NOt sure yet about this block....
-//						{ 
-//							OTLog::Output(0, "*** OTScriptable::ProcessXMLNode: Bad data? Expected EXN_ELEMENT_END here, but "
-//										  "didn't get it. Failure.\n"); 
-//							delete pBylaw; pBylaw=NULL;
-//							return (-1);
-//						}
-						// *****************************************************					
-						
-						// See if the same-named clause already exists on ANY of the OTHER BYLAWS
-						// (There can only be one clause on an OTScriptable with a given name.)
-						//
-						OTClause * pClause = this->GetClause(str_name.c_str());
-						
-						if (NULL != pClause) // Uh-oh, it's already there!
-						{
-							OTLog::vOutput(0, "%s: Error loading clause named %s, since one was already "
-										   "there on one of the bylaws.\n", szFunc, str_name.c_str());
-							delete pBylaw; pBylaw=NULL;
-							return (-1);
-						}
-						// ---------------------------------------------------------
-						else if (false == pBylaw->AddClause(str_name.c_str(), 
-															strTextExpected.Get()))
-						{
-							OTLog::vError("%s: Failed adding clause to bylaw.\n", szFunc);
-							delete pBylaw; pBylaw=NULL;
-							return (-1); // error condition
-						}
-					}
-					// else it's empty, which is expected if nothing was there, since that's the default value
-					// that we set above for "name" in temp_MapAttributes. 
-					else 
-					{
-						OTLog::vError("%s: Expected clause name.\n", szFunc);
-						delete pBylaw; pBylaw=NULL;
-						return (-1); // error condition
-					}
-				}
-				else 
-				{
-					OTLog::vError("%s: Strange error: couldn't find name AT ALL.\n", szFunc);
-					delete pBylaw; pBylaw=NULL;
-					return (-1); // error condition
-				}
-			} // while
-		} // if strNumClauses.Exists() && nCount > 0		
-		
-		
-		// ---------------------------------------------------------------------------
-		//
-		// LOAD HOOKS.
-		//
-		nCount	= strNumHooks.Exists() ? atoi(strNumHooks.Get()) : 0;
-		if (nCount > 0)
-		{
-			while (nCount-- > 0)
-			{
-//				xml->read();
-				if (false == SkipToElement(xml))
-				{
-					OTLog::vOutput(0, "%s: Failure: Unable to find expected element.\n", szFunc);
-					delete pBylaw; pBylaw=NULL;
-					return (-1);
-				}
-				// --------------------------------------
-				
-				if ((xml->getNodeType() == EXN_ELEMENT) && (!strcmp("hook", xml->getNodeName())))
-				{
-					OTString strHookName	= xml->getAttributeValue("name"); // Name of standard hook such as hook_activate or cron_process, etc
-					OTString strClause		= xml->getAttributeValue("clause"); // Name of clause on this Bylaw that should trigger when that callback occurs.
-					
-					// ----------------------------------
-					
-					if (!strHookName.Exists() || !strClause.Exists())
-					{
-						OTLog::vError("%s: Expected missing name or clause while loading hook.\n", szFunc);
-						delete pBylaw; pBylaw=NULL;
-						return (-1);
-					}
-					// ---------------------------------------
-
-					if (false == pBylaw->AddHook(strHookName.Get(), strClause.Get()))
-					{
-						OTLog::vError("%s: Failed adding hook to bylaw.\n", szFunc);
-						delete pBylaw; pBylaw=NULL;
-						return (-1);
-					}
-					// ---------------------------------------
-					
-//					xml->read(); // <==================  NO NEED FOR THIS HERE.
-				}				
-				else 
-				{
-					OTLog::vError("%s: Expected hook element in bylaw.\n", szFunc);
-					delete pBylaw; pBylaw=NULL;
-					return (-1); // error condition
-				}
-			} // while
-		}
-
-		// ---------------------------------------------------------------
-		//
-		// LOAD CALLBACKS.
-		//
-		nCount	= 0;
-		nCount	= strNumCallbacks.Exists() ? atoi(strNumCallbacks.Get()) : 0;
-		if (nCount > 0)
-		{
-			while (nCount-- > 0)
-			{
-//				xml->read();
-				if (false == SkipToElement(xml))
-				{
-					OTLog::vOutput(0, "%s: Failure: Unable to find expected element.\n", szFunc);
-					delete pBylaw; pBylaw=NULL;
-					return (-1);
-				}
-				// --------------------------------------
-				
-				if ((xml->getNodeType() == EXN_ELEMENT) && (!strcmp("callback", xml->getNodeName())))
-				{
-					OTString strCallbackName	= xml->getAttributeValue("name"); // Name of standard callback such as OnActivate, OnDeactivate, etc
-					OTString strClause			= xml->getAttributeValue("clause"); // Name of clause on this Bylaw that should trigger when that hook occurs.
-					
-					// ----------------------------------
-					
-					if (!strCallbackName.Exists() || !strClause.Exists())
-					{
-						OTLog::vError("%s: Expected, yet nevertheless missing, name or clause while loading "
-									  "callback for bylaw %s.\n", szFunc, strName.Get());
-						delete pBylaw; pBylaw=NULL;
-						return (-1);
-					}
-					// ---------------------------------------
-					// See if the same-named callback already exists on ANY of the OTHER BYLAWS
-					// (There can only be one clause to handle any given callback.)
-					//
-					OTClause * pClause = this->GetCallback(strCallbackName.Get());
-					
-					if (NULL != pClause) // Uh-oh, it's already there!
-					{
-						OTLog::vOutput(0, "%s: Error loading callback %s, since one was already there on one of the other bylaws.\n", 
-                                       szFunc,
-									   strCallbackName.Get());
-						delete pBylaw; pBylaw=NULL;
-						return (-1);
-					}
-					// The below call checks to see if it's already there, but only for the currently-loading bylaw.
-					// Whereas the above call checks this OTScriptable for all the already-loaded bylaws.
-					// ---------------------------------------
-					
-					if (false == pBylaw->AddCallback(strCallbackName.Get(), strClause.Get()))
-					{
-						OTLog::vError("%se: Failed adding callback (%s) to bylaw (%s).\n", szFunc,
-									  strCallbackName.Get(), strName.Get());
-						delete pBylaw; pBylaw=NULL;
-						return (-1);
-					}
-					// ---------------------------------------
-					
-//					xml->read(); // <==================    NO NEED FOR THIS HERE.
-				}				
-				else 
-				{
-					OTLog::vError("%s: Expected callback element in bylaw.\n", szFunc);
-					delete pBylaw; pBylaw=NULL;
-					return (-1); // error condition
-				}
-			} // while
-		}
-		
-		// --------------------------------
-		if (false == SkipAfterLoadingField(xml))  // </bylaw>
-		{ 
-			OTLog::vOutput(0, "*** %s: Bad data? Expected EXN_ELEMENT_END here, but "
-						  "didn't get it. Failure.\n", szFunc); 
-			delete pBylaw; pBylaw=NULL;
-			return (-1);
-		}
-		// --------------------------------						
-		
-		if (AddBylaw(*pBylaw))
-		{
-			OTLog::vOutput(2, "%s: Loaded Bylaw: %s\n", szFunc, 
-						   pBylaw->GetName().Get());
-			
-		}
-		else 
-		{
-			OTLog::vError("%s: Failed loading Bylaw: %s\n", szFunc, 
-						  pBylaw->GetName().Get());
-			delete pBylaw; pBylaw = NULL;
-			return (-1); // error condition
-		}
-		
-		nReturnVal = 1;
-	} // "bylaw"
 	
 	return nReturnVal;
 }

@@ -1016,7 +1016,8 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
 //		strUseFile2.Format(ps0,   OTLog::Path(), ps,	pss,	ps,		ps,		ps2);
 //		strUseFile3.Format(ps0,   OTLog::Path(), ps,	pss,	ps,		ps,		ps3);
 		
-        const char * psErr	= "RegisterAPICallWithScript: ERROR: Failed trying to include script header:  %s (Does it exist?)\n";
+        const char * psErr	= "RegisterAPICallWithScript: ERROR: Failed trying to include script header:  %s \n"
+                              "Full path: %s (Does it exist?)\n";
         bool bSuccess = true;
 
         // ------------------------------------------------
@@ -1031,7 +1032,7 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
         else
         {
             bSuccess = false;
-            OTLog::vError(psErr, ps1);
+            OTLog::vError(psErr, ps1, strUseFile1.Get());
         }
         // ------------------------------------------------
         if (NewScriptHeaderExists(ps2, &strUseFile2)) // new style, in the prefix/lib/opentxs folder
@@ -1045,7 +1046,7 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
         else
         {
             bSuccess = false;
-            OTLog::vError(psErr, ps2);
+            OTLog::vError(psErr, ps2, strUseFile2.Get());
         }
         // ------------------------------------------------
         if (NewScriptHeaderExists(ps3, &strUseFile3)) // new style, in the prefix/lib/opentxs folder
@@ -1059,7 +1060,7 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
         else
         {
             bSuccess = false;
-            OTLog::vError(psErr, ps3);
+            OTLog::vError(psErr, ps3, strUseFile3.Get());
         }
         // ------------------------------------------------
         

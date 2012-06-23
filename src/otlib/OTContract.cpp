@@ -3170,19 +3170,27 @@ bool OTContract::LoadContractXML()
 	// parse the file until end reached
 	while(xml->read())
 	{
+        OTString strNodeType;
+        
 		switch(xml->getNodeType())
 		{
-			case EXN_NONE:
-			case EXN_COMMENT:
-			case EXN_ELEMENT_END:
-			case EXN_CDATA:
-				break;
+			case EXN_NONE:         strNodeType.Set("EXN_NONE");        goto switch_log;
+			case EXN_COMMENT:      strNodeType.Set("EXN_COMMENT");     goto switch_log;
+			case EXN_ELEMENT_END:  strNodeType.Set("EXN_ELEMENT_END"); goto switch_log;
+			case EXN_CDATA:        strNodeType.Set("EXN_CDATA");       goto switch_log;
+                
+            switch_log:
+//                OTLog::vError("SKIPPING %s element in OTContract::LoadContractXML: "
+//                              "type: %d, name: %s, value: %s\n", 
+//                              strNodeType.Get(), xml->getNodeType(), xml->getNodeName(), xml->getNodeData());
+				
+                break;
 				
 			case EXN_TEXT:
 			{
 				// unknown element type
-				OTLog::vError( "unknown text element type in OTContract::LoadContractXML: %s, value: %s\n", 
-							  xml->getNodeName(), xml->getNodeData());
+//				OTLog::vError( "SKIPPING unknown text element type in OTContract::LoadContractXML: %s, value: %s\n", 
+//							  xml->getNodeName(), xml->getNodeData());
 			}
 				break;
 			case EXN_ELEMENT:
@@ -3192,6 +3200,7 @@ bool OTContract::LoadContractXML()
 					// an error was returned. file format or whatever.
 					if ((-1) == retProcess)
 					{
+                        OTLog::Error("OTContract::LoadContractXML: (Cancelling this contract load; an error occurred.)\n");
 						return false;
 					}
 					// No error, but also the node wasn't found...
@@ -3206,6 +3215,8 @@ bool OTContract::LoadContractXML()
 				break;
 			default:
 			{
+//                OTLog::vError("SKIPPING (default case) element in OTContract::LoadContractXML: %d, value: %s\n", 
+//                              xml->getNodeType(), xml->getNodeData());                
 			}
 				continue;
 				
