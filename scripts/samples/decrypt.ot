@@ -1,32 +1,10 @@
 #!/usr/bin/env ot
 
-    if (VerifyExists("MyNym"))
-    {
 
-        OT_API_Output(0, "Please enter multiple lines of input to be decrypted, followed by an EOF or a ~ by itself on a blank line:\n\n")
+// See the Open-Transactions/scripts/ot/ot_commands.ot file for the source
+// code for this function.
+//
 
-        // The reason we accept the tilde ~ on a blank line by itself, is because
-        // the EOF, while it works, causes us not to be able to read any more input
-        // from stdin. Stdin is considered "closed" for the duration of the run.
-        // So the tilde allows us to read multiple times without closing stdin.
-         
-        var strInput = OT_CLI_ReadUntilEOF() 
+main_decrypt()
 
-        OT_API_Output(0, "\n\n--------------------------------------\n You entered:\n" + strInput + "\n\n") 
 
-        var strOutput = OT_API_Decrypt(MyNym, strInput)  // bLineBreaks=true 
-         
-        // stderr
-        OT_API_Output(0, "-------------------------------------- \n Decrypted:\n\n")
-
-        // stdout
-        print(strOutput)
-
-        // stderr
-        OT_API_Output(0, "\n\n")
-        
-        return 1
-    }
-
-// "return value"
-0

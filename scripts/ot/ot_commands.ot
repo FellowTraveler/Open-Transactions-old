@@ -1,0 +1,654 @@
+
+
+
+def main_encode()
+{
+    OT_API_Output(0, "Please enter multiple lines of input to be encoded, followed by an EOF or a ~ by itself on a blank line:\n\n")
+
+    // The reason we accept the tilde ~ on a blank line by itself, is because
+    // the EOF, while it works, causes us not to be able to read any more input
+    // from stdin. Stdin is considered "closed" for the duration of the run.
+    // So the tilde allows us to read multiple times without closing stdin.
+     
+    var strInput = OT_CLI_ReadUntilEOF() 
+
+    OT_API_Output(0, "\n\n--------------------------------------\n You entered:\n" + strInput + "\n\n") 
+
+    var strOutput = OT_API_Encode(strInput, true)  // bLineBreaks=true 
+     
+    // stderr
+    OT_API_Output(0, "-------------------------------------- \n Encoded:\n\n")
+
+    // stdout
+    if (VerifyStringVal(strOutput))
+    {
+        print(strOutput)
+        // stderr
+        OT_API_Output(0, "\n\n")
+        return 1
+    }
+
+    // stderr
+    OT_API_Output(0, "\n\n")
+
+    0
+}
+
+
+def main_decode()
+{
+    OT_API_Output(0, "Please enter multiple lines of OT-armored text to be decoded, followed by an EOF or a ~ by itself on a blank line:\n\n")
+    
+    // The reason we accept the tilde ~ on a blank line by itself, is because
+    // the EOF, while it works, causes us not to be able to read any more input
+    // from stdin. Stdin is considered "closed" for the duration of the run.
+    // So the tilde allows us to read multiple times without closing stdin.
+    
+    var strInput = OT_CLI_ReadUntilEOF() 
+    
+    OT_API_Output(0, "\n\n--------------------------------------\n You entered:\n" + strInput + "\n\n") 
+    
+    var strOutput = OT_API_Decode(strInput, true)  // bLineBreaks=true 
+    
+    // stderr
+    OT_API_Output(0, "--------------------------------------\n Decoded:\n\n")
+    
+    // stdout
+    if (VerifyStringVal(strOutput))
+    {
+        print(strOutput)
+        // stderr
+        OT_API_Output(0, "\n\n")
+        return 1
+    }
+    
+    // stderr
+    OT_API_Output(0, "\n\n")
+    
+    0
+}
+
+
+
+
+def main_encrypt()
+{
+    if (VerifyExists("MyNym"))
+    {
+        
+        OT_API_Output(0, "Please enter multiple lines of input to be encrypted, followed by an EOF or a ~ by itself on a blank line:\n\n")
+        
+        // The reason we accept the tilde ~ on a blank line by itself, is because
+        // the EOF, while it works, causes us not to be able to read any more input
+        // from stdin. Stdin is considered "closed" for the duration of the run.
+        // So the tilde allows us to read multiple times without closing stdin.
+        
+        var strInput = OT_CLI_ReadUntilEOF() 
+        
+        OT_API_Output(0, "\n\n--------------------------------------\n You entered:\n" + strInput + "\n\n") 
+        
+        var strOutput = OT_API_Encrypt(MyNym, strInput)  // bLineBreaks=true 
+                
+        // stdout
+        if (VerifyStringVal(strOutput))
+        {
+            // stderr
+            OT_API_Output(0, "-------------------------------------- \n Encrypted:\n\n")
+            
+            print(strOutput)
+            // stderr
+            OT_API_Output(0, "\n\n")
+            return 1
+        }
+    }
+    
+    // "return value"
+    0
+}
+
+
+def main_decrypt()
+{
+    if (VerifyExists("MyNym"))
+    {
+        
+        OT_API_Output(0, "Please enter multiple lines of input to be decrypted, followed by an EOF or a ~ by itself on a blank line:\n\n")
+        
+        // The reason we accept the tilde ~ on a blank line by itself, is because
+        // the EOF, while it works, causes us not to be able to read any more input
+        // from stdin. Stdin is considered "closed" for the duration of the run.
+        // So the tilde allows us to read multiple times without closing stdin.
+        
+        var strInput = OT_CLI_ReadUntilEOF() 
+        
+        OT_API_Output(0, "\n\n--------------------------------------\n You entered:\n" + strInput + "\n\n") 
+        
+        var strOutput = OT_API_Decrypt(MyNym, strInput)  // bLineBreaks=true 
+        
+        // stdout
+        if (VerifyStringVal(strOutput))
+        {
+            // stderr
+            OT_API_Output(0, "-------------------------------------- \n Decrypted:\n\n")
+            
+            print(strOutput)
+            // stderr
+            OT_API_Output(0, "\n\n")
+            return 1
+        }
+    }
+    
+    // "return value"
+    0
+}
+
+
+def main_password_encrypt()
+{
+    OT_API_Output(0, "Please enter a symmetric key, followed by a ~ by itself on a blank line:\n\n")
+    
+	// The reason we accept the tilde ~ on a blank line by itself, is because
+	// the EOF, while it works, causes us not to be able to read any more input
+	// from stdin. Stdin is considered "closed" for the duration of the run.
+	// So the tilde allows us to read multiple times without closing stdin.
+    
+	var strKey = OT_CLI_ReadUntilEOF() 
+	
+	OT_API_Output(0, "Please enter the plaintext, followed by a ~ by itself on a blank line:\n\n")
+    
+	var strPlaintext = OT_CLI_ReadUntilEOF() 
+    
+	if (VerifyStringVal(strKey) && VerifyStringVal(strPlaintext))
+	{
+		var strCiphertext = OT_API_SymmetricEncrypt(strKey, strPlaintext)
+		
+        // stdout
+        if (VerifyStringVal(strCiphertext))
+        {
+            // stderr
+            OT_API_Output(0, "-------------------------------------- \n strCiphertext:\n\n")
+            
+            print(strCiphertext)
+            // stderr
+            OT_API_Output(0, "\n\n")
+            return 1
+        }
+	}
+    
+    // "return value"
+    0
+}
+
+
+
+def main_password_decrypt()
+{
+	OT_API_Output(0, "Please enter a symmetric key, followed by a ~ by itself on a blank line:\n\n")
+    
+	// The reason we accept the tilde ~ on a blank line by itself, is because
+	// the EOF, while it works, causes us not to be able to read any more input
+	// from stdin. Stdin is considered "closed" for the duration of the run.
+	// So the tilde allows us to read multiple times without closing stdin.
+    
+	var strKey = OT_CLI_ReadUntilEOF() 
+	
+	OT_API_Output(0, "Please enter the symmetrically-encrypted ciphertext, followed by a ~ by itself on a blank line:\n\n")
+    
+	var strCiphertext = OT_CLI_ReadUntilEOF() 
+    
+	if (VerifyStringVal(strKey) && VerifyStringVal(strCiphertext))
+	{
+		var strPlaintext = OT_API_SymmetricDecrypt(strKey, strCiphertext)
+		
+        // stdout
+        if (VerifyStringVal(strPlaintext))
+        {
+            // stderr
+            OT_API_Output(0, "-------------------------------------- \n Plaintext:\n\n")
+            
+            print(strPlaintext)
+            // stderr
+            OT_API_Output(0, "\n\n")
+            return 1
+        }
+	}
+    
+    // "return value"
+    0
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ------------------------------
+//
+// SEND TRANSFER (From one asset account to another.)
+//
+
+
+def details_send_transfer(strAmount, strNote)
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+
+    // ---------------------------------------------
+    // HERE, WE LOOK UP THE NYM ID, BASED ON THE ACCOUNT ID.
+    //
+    var strMyNymID = OT_API_GetAccountWallet_NymID(MyAcct)
+    
+    if (!VerifyStringVal(strMyNymID))
+    {
+        OT_API_Output(0, "Failure: Unable to find NymID based on myacct. Use: --myacct ACCT_ID\n")
+        OT_API_Output(0, "The designated asset account must be yours. OT will find the Nym based on the account.\n\n")
+        return (-1)
+    }
+    // ***************************************************************
+
+    // HERE, WE SEND THE TRANSFER REQUEST TO THE SERVER
+    //
+    var strResponse = madeEasy.send_transfer(Server, strMyNymID, MyAcct, HisAcct, strAmount, strNote) 
+    var strAttempt  = "send_transfer"
+    /*
+     int notarizeTransfer(   const std::string SERVER_ID,
+                             const std::string USER_ID,
+                             const std::string ACCT_FROM,
+                             const std::string ACCT_TO,
+                             const std::string AMOUNT,
+                             const std::string NOTE);
+     */
+    // ***************************************************************
+    
+    // HERE, WE INTERPRET THE SERVER REPLY, WHETHER SUCCESS, FAIL, OR ERROR...
+    
+    var nInterpretReply = InterpretTransactionMsgReply(Server, strMyNymID, MyAcct, strAttempt, strResponse)
+    
+    if (1 == nInterpretReply)
+    {    
+        // Download all the intermediary files (account balance, inbox, outbox, etc)
+        // since they have probably changed from this operation.
+        //
+        var bRetrieved = madeEasy.retrieve_account(Server, strMyNymID, MyAcct, true) //bForceDownload defaults to false.
+        
+        OT_API_Output(0, "Server response ("+strAttempt+"): SUCCESS sending transfer!\n")
+        OT_API_Output(0, (bRetrieved ? "Success" : "Failed") + " retrieving intermediary files for account.\n")
+    }
+    
+    // ***************************************************************
+    //
+    // Return status to caller.
+    //
+    return nInterpretReply  
+}
+
+
+// HERE, WE GET ALL THE ARGUMENTS TOGETHER,
+// and then call the above function.
+//
+def main_transfer()
+{
+    var strUsage1 = concat("\n\n     USAGE: transfer --myacct YOUR_ASSET_ACCT --hisacct RECIPIENT_ASSET_ACCT\n\n",
+                           "Also NECESSARY: --args \"amount PUT_AMOUNT_HERE\"\n")
+    var strUsage = concat(strUsage1,
+                          "And OPTIONALLY: --args \"note \\\"Just a memo for the transfer.\\\"\"\n\n")
+
+    OT_API_Output(0, strUsage)
+    // ------------------------------------        
+
+    if (VerifyExists("Server") && VerifyExists("MyAcct") && VerifyExists("HisAcct"))
+    {	
+        // strAmount and strNote...
+        //
+        var strAmount    = "0" // must be >= 1
+        var strNote      = ""  // can be blank
+        // ------------------------------------        
+        var strDefaultAmount  = "10"  // must be >= 1
+        var strDefaultNote    = "(blank memo field)"   // can be blank
+        // ------------------------------------
+        // If custom arguments have been passed on the command line,
+        // then grab them and use them instead of asking the user to enter them
+        // at the command line.
+        //
+        if (VerifyExists("Args"))
+        {
+            // std::string OT_CLI_GetValueByKey(const std::string str_Args, 
+            //                                  const std::string str_key)
+            // 
+            // OPTION:   --args "key value key value"
+            // EXAMPLE:  --args "amount 1"
+            // EXAMPLE:  --args "amount 15 note \"Just a memo for the transfer.\""
+            //
+            var strNewAmount = OT_CLI_GetValueByKey( Args, "amount"    ) // any integer value
+            var strNewNote   = OT_CLI_GetValueByKey( Args, "note"  )     // optional memo field
+            
+            // ----------------------------------------------
+            // Set the values based on the custom arguments, for those found.
+            //
+            if (VerifyStringVal(strNewAmount))
+            {    strAmount = strNewAmount }
+            if (VerifyStringVal(strNewNote))
+            {    strNote = strNewNote }
+        }            
+        // ------------------------------------
+        // If the transfer parameters aren't provided, then we
+        // ask the user to supply them at the command line.
+        //
+        if (!VerifyStringVal(strAmount) || (strAmount.to_int() < 1))
+        {
+            OT_API_Output(0, "Enter the amount as integer["+strDefaultAmount+"]: ")
+            strAmount        = OT_CLI_ReadLine()
+        }
+        if (!VerifyStringVal(strNote))
+        {
+            OT_API_Output(0, "Optionally, enter a note on a single line["+strDefaultNote+"]: ")
+            strNote	= OT_CLI_ReadLine()
+        }
+        // ----------------------------------------------
+        if (!VerifyStringVal(strAmount) || (strAmount.to_int() < 1))
+        {    strAmount = strDefaultAmount }
+        if (!VerifyStringVal(strNote))
+        {    strNote = strDefaultNote }
+        // ----------------------------------------------    
+
+        return details_send_transfer(strAmount, strNote)
+    }
+    
+    return 0
+}
+
+// -----------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+def main_sendmsg()
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    // ------------------------------
+
+    // Just to show how easy it is, let's try a "send_user_message" message.
+
+    var strUsage = "\n\n FYI, USAGE: send_user_msg.ot --mynym <YOUR_NYM_ID> --hisnym <RECIPIENT_NYM_ID>\n\n"
+
+    OT_API_Output(0, strUsage)
+
+    if (VerifyExists("Server") && VerifyExists("MyNym") && VerifyExists("HisNym"))
+    {
+        OT_API_Output(0, "Please enter your message on multiple lines, optionally beginning with a \"Subject: \" line.\n")
+        OT_API_Output(0, "Use Ctrl-C to cancel, otherwise finish your message with an EOF or a ~ by itself on a blank line:\n\n")
+
+        var strTestMessage = OT_CLI_ReadUntilEOF()
+        
+        // Send the request.
+        //
+        var strResponse	= madeEasy.send_user_msg(Server, MyNym, HisNym, strTestMessage)
+
+        // NOTICE: No need here to deal with retries, timeouts, request number,
+        // syncing transaction number, download / process nymbox, etc! It's all
+        // handled at a lower level!  
+        // 
+        // Instead, simply check for success or failure:
+        //
+        if (1 != VerifyMessageSuccess(strResponse))
+        {
+            OT_API_Output(0, "send_user_msg: Failed.\n");
+        }
+        else
+        {
+            OT_API_Output(0, "Success in send_user_msg! Server response:\n\n")
+            print(strResponse)
+            OT_API_Output(0, "\n\n")
+            return 1
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Creates a new Pseudonym and adds it to the wallet.
+// (And sets the display name for the new Nym, in the wallet.)
+// Prints the new NymID to stdout.
+//
+// Returns 1 for success, 0 for failure.
+//
+def create_nym(nKeybits, strName)
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    // ------------------------------
+    
+    var strNymID = madeEasy.create_pseudonym(nKeybits)  // returns new Nym ID
+    
+    if (!VerifyStringVal(strNymID))
+    {
+        OT_API_Output(0, "create_nym: Failed in OT_ME::create_pseudonym(keybits == " + nKeybits.to_string() + ")\n")
+        return (0)
+    }
+    OT_API_Output(0, "Success creating! " + nKeybits.to_string() + " keybits, new ID: ") // stderr
+    print(strNymID) // stdout
+    OT_API_Output(0, "\n") //stderr
+    // -------------------
+    var bSetName = OT_API_SetNym_Name(strNymID, // subject
+                                      strNymID, // signer
+                                      strName)
+    if (!bSetName)
+    {
+        OT_API_Output(0, "Failed in OT_API_SetNym_Name(name == " + strName + ")\n")
+        return (0)
+    }
+    // -------------------    
+    OT_API_Output(0, "Success setting name to: " + strName + "\n\n") // stderr
+    return 1
+}
+
+
+def main_create_nym()
+{
+    var nKeybits = 1024
+    var strName  = "New Nym"
+    // ------------------------------------
+    if (VerifyExists("Args"))
+    {
+        // std::string OT_CLI_GetValueByKey(const std::string str_Args, 
+        //                                  const std::string str_key)
+        // 
+        // OPTION:   --args "key value key value"
+        //
+        // EXAMPLE:  --args "keybits 1024"
+        //
+        var strKeybits = OT_CLI_GetValueByKey( Args, "keybits" )
+        
+        var strNewName = OT_CLI_GetValueByKey( Args, "name" )
+        
+        if (VerifyStringVal(strKeybits) && (strKeybits.to_int() > 0))
+        { nKeybits = strKeybits.to_int() }
+        
+        if (VerifyStringVal(strNewName))
+        { strName = strNewName }
+    }
+    // ------------------------------------
+    
+    return create_nym(nKeybits, strName)
+}
+
+
+
+
+
+
+
+
+
+
+def stat_nyms()
+{
+    print("------------------------------------------------------------------")
+    print(" ** PSEUDONYMS: " + "\n")
+    
+    var nNymCount = OT_API_GetNymCount()
+    
+    for (var i = 0; i < nNymCount; ++i)
+    {
+        var strID   = OT_API_GetNym_ID(i)
+        var strName = OT_API_GetNym_Name(strID)
+        
+        print(strID + " ---  " + strName)
+    }
+}
+
+def stat_servers()
+{
+    print("------------------------------------------------------------------")
+    print(" ** SERVERS: " + "\n")
+    var nServerCount = OT_API_GetServerCount()
+    
+    for (var i = 0; i < nServerCount; ++i)
+    {
+        var strID   = OT_API_GetServer_ID(i)
+        var strName = OT_API_GetServer_Name(strID)
+        
+        print(strID + " ---  " + strName)
+    }
+}
+
+def stat_assets()
+{
+    print("------------------------------------------------------------------")
+    print(" ** ASSET TYPES: " + "\n")
+    var nAssetTypeCount = OT_API_GetAssetTypeCount()
+    
+    for (var i = 0; i < nAssetTypeCount; ++i)
+    {
+        var strID   = OT_API_GetAssetType_ID(i)
+        var strName = OT_API_GetAssetType_Name(strID)
+        
+        print(strID + " ---  " + strName)
+    }
+}
+
+def stat_accounts()
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    
+    
+    print("------------------------------------------------------------------")
+    print(" ** ACCOUNTS: " + "\n")
+    
+    var nAccountCount = OT_API_GetAccountCount()
+    
+    for (var i = 0; i < nAccountCount; ++i)
+    {
+        if ((i > 0) && (i != (nAccountCount))) { print("-------------------------------------"); }
+        var strID            = OT_API_GetAccountWallet_ID(i)
+        
+        var strStatAcct      = madeEasy.stat_asset_account(strID)
+        
+        var bSuccess         = VerifyStringVal(strStatAcct)
+        if (bSuccess)
+        {    
+            print(strStatAcct)  
+        }
+        else
+        {
+            print("Error trying to stat an asset account: "+strID)
+        }
+        // stderr
+        print("")
+    }
+    print("------------------------------------------------------------------")
+}
+
+
+
+def main_stat() 
+{
+    print("");
+    
+    stat_nyms()
+    stat_servers()
+    stat_assets()
+    stat_accounts()
+    
+    1
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

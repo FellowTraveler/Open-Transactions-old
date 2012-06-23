@@ -15,4 +15,15 @@ https://github.com/FellowTraveler/Open-Transactions/wiki/API
 
 The 'util' folder is where we will collect various utility scripts, such
 as the resync script.
+
+----------------------------------
+
+'opentxs' is the beginnings of a high-level command-line interface for OT.
+(The other command-line interface, 'ot' is too low-level for users to use directly.)
+
+Try this: opentxs list
+
+Eventually we will be able to install 'opentxs' in the $(prefix)/bin folder, 
+and then a user will easily be able to reach all the OT use cases via that
+single interface.
  

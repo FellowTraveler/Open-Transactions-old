@@ -995,14 +995,15 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
 		//  SCRIPT HEADERS
 		// 
 		const char * ps0	= "%s%s%s%sot%s%s";
-		const char * ps1	= "ot_utility.ot"; // todo hardcoding
-		const char * ps2	= "otapi.ot"; // todo hardcoding
-		const char * ps3	= "ot_made_easy.ot"; // todo hardcoding
+		const char * ps1	= "ot_utility.ot";          // todo hardcoding
+		const char * ps2	= "otapi.ot";               // todo hardcoding
+		const char * ps3	= "ot_made_easy.ot";        // todo hardcoding
+		const char * ps4	= "ot_commands.ot";         // todo hardcoding
 		const char * pss	= OTLog::ScriptFolder();	//   "scripts"
 		const char * ps     = OTLog::PathSeparator();	//   "/"
 		const char * pot	= "ot";						//   "ot"
 		
-		OTString strUseFile1, strUseFile2, strUseFile3;
+		OTString strUseFile1, strUseFile2, strUseFile3, strUseFile4;
 		/*
 		 > ls ./Open-Transactions/scripts/ot/
 		 INCLUDE IN THIS ORDER:
@@ -1010,6 +1011,7 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
 		 ot_utility.ot		ps1
 		 otapi.ot			ps2
 		 ot_made_easy.ot	ps3
+		 ot_commands.ot	    ps4
 		 
 		 */			//         ~/.ot/client_data  /	scripts		/	ot	/	  "blah.ot"        
 //		strUseFile1.Format(ps0,   OTLog::Path(), ps,	pss,	ps,		ps,		ps1);
@@ -1063,13 +1065,31 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
             OTLog::vError(psErr, ps3, strUseFile3.Get());
         }
         // ------------------------------------------------
+        if (NewScriptHeaderExists(ps4, &strUseFile4)) // new style, in the prefix/lib/opentxs folder
+        {
+            // intentionally left blank
+        }
+        else if (OTDB::Exists(pss, pot, ps4)) // old style, in the data folder. (deprecated.)
+        {
+            strUseFile4.Format(ps0,   OTLog::Path(), ps,	pss,	ps,		ps,		ps4);
+        }
+        else
+        {
+            bSuccess = false;
+            OTLog::vError(psErr, ps4, strUseFile4.Get());
+        }
+        // ------------------------------------------------
         
         if (bSuccess)
         {
-            const std::string str_UseFile1(strUseFile1.Get()), str_UseFile2(strUseFile2.Get()), str_UseFile3(strUseFile3.Get());
+            const std::string   str_UseFile1(strUseFile1.Get()), 
+                                str_UseFile2(strUseFile2.Get()), 
+                                str_UseFile3(strUseFile3.Get()),
+                                str_UseFile4(strUseFile4.Get());
 
-            OTLog::vOutput(1, "%s: About to try to import script headers:\n  1: %s\n  2: %s\n  3: %s\n", __FUNCTION__,
-                           str_UseFile1.c_str(), str_UseFile2.c_str(), str_UseFile3.c_str());
+            OTLog::vOutput(1, "%s: About to try to import script headers:\n  1: %s\n  2: %s\n  3: %s\n  4: %s\n",
+                           __FUNCTION__,
+                           str_UseFile1.c_str(), str_UseFile2.c_str(), str_UseFile3.c_str(), str_UseFile4.c_str());
             
             // --------------------------------
             try 
@@ -1077,6 +1097,7 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
                 pScript->chai.use(str_UseFile1);
                 pScript->chai.use(str_UseFile2);
                 pScript->chai.use(str_UseFile3);
+                pScript->chai.use(str_UseFile4);
             } 
             // --------------------------------
             catch (const chaiscript::exception::eval_error &ee) {
@@ -2048,11 +2069,24 @@ int main(int argc, char* argv[])
 
 				RegisterAPIWithScript(*pScript); // for the special client-side API functions we make available to all scripts on client-side.
                 
-				if (str_Args.size() > 0)
+				if ((str_Args.size() > 0) || (opt->getArgc() > 1))
 				{
 					const std::string str_var_name("Args");
-					const std::string str_var_value(str_Args);
+					std::string str_var_value, str_command;
+                    
+                    if (str_Args.size() > 0)
+                        str_var_value += str_Args;
 					
+                    if (opt->getArgc() > 1)
+                    {
+                        if (str_Args.size() > 0)
+                            str_var_value += " ";
+
+                        str_command = opt->getArgv( 1 );
+                        str_var_value += "ot_cli_command ";
+                        str_var_value += str_command;
+                    }
+                    
 					OTLog::vOutput(1, "Adding user-defined command line arguments as '%s' containing value: %s\n",
 								   str_var_name.c_str(), str_var_value.c_str());
 					

@@ -1,0 +1,178 @@
+#!/usr/bin/env ot
+
+// ---------------------------------
+
+
+def main_not_coded_yet()
+{
+    print("\n\n  Congratulations, you've been selected to add that option! \n It's real easy: just edit scripts/ot/ot_commands.ot, and copy some code\ninto it based on whichever sample script is appropriate.\nThen edit the opentxs script, and add your new main\nfunction to the list map_functions. Done!\n\n")
+}
+
+
+// ---------------------------------
+
+def interpret_command(map_functions, strInput)
+{
+    var the_function
+    
+    if (VerifyStringVal(strInput))
+    {
+        if ("quit" == strInput)
+        {
+            return 1
+        }
+        // -----------------------------
+        else if ("help" == strInput || "list" == strInput)
+        {
+            OT_API_Output(0, "\nCommands: \n\n")
+            // -----------------------------
+            var help_range = map_functions.range()
+            // -----------------------------
+            var nHelpCount = 0
+            
+            while (!help_range.empty())
+            {
+                ++nHelpCount
+                
+                var help_tuple   = help_range.front()
+                var help_command = help_tuple.first()
+                
+                if (0 == (nHelpCount%4)) // 4 rows
+                {
+                    OT_API_Output(0, help_command+"\n")
+                }
+                else
+                {
+                    OT_API_Output(0, help_command+(help_command.size() > 7 ? "\t" : "\t\t"))
+                }
+                help_range.pop_front()
+            }
+            OT_API_Output(0, "\n\n")
+            
+            return 1
+        }
+        // -----------------------------------------
+        else // all other comands.
+        {
+            var the_range = map_functions.range()
+            // -----------------------------
+            while (!the_range.empty())
+            {
+                var the_tuple = the_range.front()
+                if (strInput == the_tuple.first())
+                {
+                    the_function = the_tuple.second()
+                    break
+                }
+                the_range.pop_front()
+            }
+            // -----------------------------------------
+            
+            if (!the_function.is_var_undef()) // found it!
+            {
+                return the_function()
+            }
+            else
+            {
+                OT_API_Output(0, "Undefined command: \"" + strInput + "\" -- Try 'list'.\n\n")
+            }
+        }
+    }
+    
+    (-1)
+}
+
+// ---------------------------------
+
+
+def main_loop(map_functions)
+{
+    // ---------------------------------
+    // See if the command was passed in on the command line.
+    //
+    if (VerifyExists("Args"))
+    {
+        var strCommand = OT_CLI_GetValueByKey(Args, "ot_cli_command")
+        
+        if (VerifyStringVal(strCommand)) // command was passed in on the command line...
+        {
+            return interpret_command(map_functions, strCommand)
+        }
+    }
+
+    // ---------------------------------
+    //
+    // Otherwise, drop into the OT high-level prompt.
+    //
+    else
+    {
+        OT_API_Output(0, ".\n..\n...\n....\n.....\n\n")
+
+        while(true)
+        {
+            OT_API_Output(0, "opentxs> ")
+            var strInput =  OT_CLI_ReadLine()
+            var bDisplayGap = true
+
+            interpret_command(map_functions, strInput)
+            
+            if (bDisplayGap)
+            {
+                OT_API_Output(0, ".\n..\n...\n....\n.....\n\n")
+            }
+        } // while
+    }
+    
+    1
+}
+
+
+// ---------------------------------
+
+// Start and finish.
+//
+def main_opentxs()
+{    
+    // Note: ADDING NEW COMMANDS IS **VERY** EASY!!
+    // Just add the command to the list below, and
+    // then edit the ot/ot_commands.ot file to add
+    // the implementation for your main function!
+    
+    var map_functions = ["sendmsg":main_sendmsg,
+                         "stat":main_stat,
+                         "acct":main_not_coded_yet,
+                         "inbox":main_not_coded_yet,
+                         "outbox":main_not_coded_yet,
+                         "balance":main_not_coded_yet,
+                         "new_nym":main_create_nym,
+                         "transfer":main_transfer,
+                         "encode":main_encode,
+                         "decode":main_decode,
+                         "encrypt":main_encrypt,
+                         "decrypt":main_decrypt,
+                         "pass_encrypt":main_password_encrypt,
+                         "pass_decrypt":main_password_decrypt];
+
+    
+    main_loop(map_functions)
+}
+    
+
+
+
+
+main_opentxs()
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
