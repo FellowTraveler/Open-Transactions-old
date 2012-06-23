@@ -1,4 +1,4 @@
-#! /usr/local/bin/ot --script
+#!/usr/bin/env ot
 
 
 // NOTE: Use create_escrow.ot FIRST, to create your template.
@@ -113,7 +113,8 @@ if (!bSuccess)
 	
 	OT_API_Output(0, "SMART CONTRACT: Since this script failed, I'm clawing BACK all the transaction numbers now (that way my data stays good.)\n")
 	
-	OT_API_HarvestAllNumbers(Server, MyNym,	strSmartContract);
+    OT_API_Msg_HarvestTransactionNumbers(strSmartContract, MyNym, false, false, false, false, false) // Grab Alice's numbers back
+//	OT_API_HarvestAllNumbers(Server, MyNym,	strSmartContract);
 }
 
 // SUCCESS!!!
@@ -122,9 +123,11 @@ else
 	OT_API_Output(0, "\n\n")
 	
 	print(strSmartContract)
+    
+    return 1
 }
 
-
+0
 
 /*
 // ******************************************************************

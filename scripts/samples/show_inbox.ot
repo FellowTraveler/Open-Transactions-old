@@ -11,7 +11,7 @@ var madeEasy	= OT_ME()
 // Load an asset account's inbox from local storage and display it on the screen.
 //
 
-if (VerifyExists("Server") && VerifyExists("MyNym") && VerifyExists("MyAcct"))
+if (VerifyExists("Server") && VerifyExists("MyAcct"))
 {	
     // ---------------------------------------------
     // HERE, WE LOOK UP THE NYM ID, BASED ON THE ACCOUNT ID.

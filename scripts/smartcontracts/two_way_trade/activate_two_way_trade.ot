@@ -1,4 +1,4 @@
-#! /usr/local/bin/ot --script
+#!/usr/bin/env ot
 
 // The goal with this script is to create a GENERIC Escrow smart contract.
 // (I.e. like a template, which might be activated over and over again for
@@ -8,6 +8,50 @@
 // (Those scripts, presumably, must read as their input, the smart contract
 // that will be THIS script's OUTPUT...)
 //
+
+
+
+
+def details_activate_smart_contract(strContract)
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    
+    // ***************************************************************
+    
+    // HERE, WE SEND THE ACTIVATION REQUEST TO THE SERVER
+    //
+    var strResponse = madeEasy.activate_smart_contract(Server, MyNym, strContract)  // Alice's (my) numbers are harvested here, if it failed.
+    var strAttempt  = "activate_smart_contract"
+    
+    // ***************************************************************
+    
+    // HERE, WE INTERPRET THE SERVER REPLY, WHETHER SUCCESS, FAIL, OR ERROR...
+    
+    var nInterpretReply = InterpretTransactionMsgReply(Server, MyNym, MyAcct, strAttempt, strResponse)
+    
+    if (1 == nInterpretReply)
+    {    
+        // Download all the intermediary files (account balance, inbox, outbox, etc)
+        // since they have probably changed from this operation.
+        //        
+        OT_API_Output(0, "Server response ("+strAttempt+"): SUCCESS!\n")
+    }
+    else // Grab Bob's numbers back (TODO: these false's have to contain real data, to synchronize properly. Long term need to use the actual system here, for tracking and harvesting these numbers, and not this kludge here.
+        OT_API_Msg_HarvestTransactionNumbers(strContract, HisNym, false, false, false, false, false) 
+    
+    // ***************************************************************
+    //
+    // Return status to caller.
+    //
+    return nInterpretReply  
+}
+
+
+
+
 
 
 // This temp variable is used for a running "latest copy" of the smart contract, as we 
@@ -98,28 +142,40 @@ print("SMART CONTRACT:  Final version before activation:\n\n\n")
 print(strSmartContract)
 print("\n\n\n Activating...")
 
+
+
 // --------------------------------------------------
 // ACTIVATE THE SMART CONTRACT ON A SERVER.
 
-OT_API_FlushMessageBuffer()
-OT_API_activateSmartContract(Server, MyNym, strSmartContract)
-var strMessage = OT_API_PopMessageBuffer()
 
-print("Finishing calling activate!!")
 
-var bMsgSuccess  = OT_API_Message_GetSuccess(strMessage)
-var bBlncSuccess = OT_API_Msg_GetBlnceAgrmntSuccess(Server, MyNym, MyAcct, strMessage)
-var bTranSuccess = OT_API_Msg_GetTransactionSuccess(Server, MyNym, MyAcct, strMessage)		
-		
-if ((!bMsgSuccess) || (!bBlncSuccess) || (!bTranSuccess))
-{
-	// OTHERWISE, I take the transaction numbers BACK! (Also, if the activation failed,
-	// I'd probably want to take the closing numbers back in that case as well.)
-	print("SMART CONTRACT: Failed somehow, so I'm clawing all the numbers BACK now (that way my data stays good.)")
-	
-	OT_API_HarvestClosingNumbers(Server, MyNym,		strSmartContract);
-	OT_API_HarvestClosingNumbers(Server, HisNym,	strSmartContract);
-}
+
+// This is the return value.
+//
+details_activate_smart_contract(strSmartContract)
+
+
+
+
+//OT_API_FlushMessageBuffer()
+//OT_API_activateSmartContract(Server, MyNym, strSmartContract)
+//var strMessage = OT_API_PopMessageBuffer()
+//
+//print("Finishing calling activate!!")
+//
+//var bMsgSuccess  = OT_API_Message_GetSuccess(strMessage)
+//var bBlncSuccess = OT_API_Msg_GetBlnceAgrmntSuccess(Server, MyNym, MyAcct, strMessage)
+//var bTranSuccess = OT_API_Msg_GetTransactionSuccess(Server, MyNym, MyAcct, strMessage)		
+//		
+//if ((!bMsgSuccess) || (!bBlncSuccess) || (!bTranSuccess))
+//{
+//	// OTHERWISE, I take the transaction numbers BACK! (Also, if the activation failed,
+//	// I'd probably want to take the closing numbers back in that case as well.)
+//	print("SMART CONTRACT: Failed somehow, so I'm clawing all the numbers BACK now (that way my data stays good.)")
+//	
+//	OT_API_HarvestClosingNumbers(Server, MyNym,		strSmartContract);
+//	OT_API_HarvestClosingNumbers(Server, HisNym,	strSmartContract);
+//}
 
 
 /*

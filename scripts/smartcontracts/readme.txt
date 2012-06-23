@@ -1,18 +1,25 @@
 
-NOTE: These smart contracts still need to be updated to the new code,
-and they are unlikely to work just yet.
+NOTE: These smart contracts have been updated to the new high-level API
+But they are untested since being updated (they worked before...)
 
 ----------------------------------------------------------------------------
 
+GENERIC EXAMPLE
+
 create_smartcontract.ot is a script that creates a generic smart-contract,
 as a reference point.
+
+----------------------------------------------------------------------------
+
+(MAKE YOUR OWN)
 
 More specialized smart contracts are possible. The escrow and two_way_trade
 folders contain examples of this. They were modeled on create_smartcontract.ot
 but expand greatly on it, to create their own unique financial instruments.
 
-
 ----------------------------------------------------------------------------
+
+example:    ESCROW
 
 -- The escrow folder contains a series of client-side scripts that create a
 smart contract, sign it, and activate it on the server.
@@ -24,7 +31,9 @@ a notice and becomes responsible to adjudicate based on the criteria as
 described in the contract, within Y days. This is all implemented in 
 script form. 
 
+----------------------------------------------------------------------------
 
+example:    TWO-WAY TRADE
 
 -- The 'two_way_trade' folder contains a series of client-side scripts which 
 generate a smart contract, sign on to it, and activate it on the server. This
@@ -35,4 +44,5 @@ their payment as described on the contract, and that otherwise their funds
 are safely returned back to them. (The trade must be "two-way"... or not
 at all.)
 
+----------------------------------------------------------------------------
 

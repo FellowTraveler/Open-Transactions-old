@@ -11,10 +11,22 @@ var madeEasy	= OT_ME()
 // Load an asset account's outbox from local storage and display it on the screen.
 //
 
-if (VerifyExists("Server") && VerifyExists("MyNym") && VerifyExists("MyAcct"))
+if (VerifyExists("Server") && VerifyExists("MyAcct"))
 {	
+    // ---------------------------------------------
+    // HERE, WE LOOK UP THE NYM ID, BASED ON THE ACCOUNT ID.
+    //
+    var strMyNymID = OT_API_GetAccountWallet_NymID(MyAcct)
     
-    var strOutbox = OT_API_LoadOutbox(Server, MyNym, MyAcct); // Returns NULL, or an outbox.
+    if (!VerifyStringVal(strMyNymID))
+    {
+        OT_API_Output(0, "Failure: Unable to find NymID based on myacct. Use: --myacct ACCT_ID\n")
+        OT_API_Output(0, "The designated asset account must be yours. OT will find the Nym based on the account.\n\n")
+        return (-1)
+    }
+    // ***************************************************************
+    
+    var strOutbox = OT_API_LoadOutbox(Server, strMyNymID, MyAcct); // Returns NULL, or an outbox.
 
 	if (!VerifyStringVal(strOutbox))
 	{
@@ -26,7 +38,7 @@ if (VerifyExists("Server") && VerifyExists("MyNym") && VerifyExists("MyAcct"))
 		OT_API_Output(0, "\n\n") // stderr
 //		print(strOutbox)         // stdout
         
-        var nCount = OT_API_Ledger_GetCount(Server, MyNym, MyAcct, strOutbox)
+        var nCount = OT_API_Ledger_GetCount(Server, strMyNymID, MyAcct, strOutbox)
 
         if (VerifyIntVal(nCount))
         {
@@ -36,15 +48,15 @@ if (VerifyExists("Server") && VerifyExists("MyNym") && VerifyExists("MyAcct"))
 
             for (var nIndex = 0; nIndex < nCount; ++nIndex)
             {
-                var strTrans           = OT_API_Ledger_GetTransactionByIndex(Server, MyNym, MyAcct, strOutbox, nIndex)
-                var strTransID         = OT_API_Ledger_GetTransactionIDByIndex(Server, MyNym, MyAcct, strOutbox, nIndex)
-                var strRefNum          = OT_API_Transaction_GetDisplayReferenceToNum(Server, MyNym, MyAcct, strTrans)
-                var strAmount          = OT_API_Transaction_GetAmount(Server, MyNym, MyAcct, strTrans)
-                var strType            = OT_API_Transaction_GetType(Server, MyNym, MyAcct, strTrans)
-                var strSenderUserID    = OT_API_Transaction_GetSenderUserID(Server, MyNym, MyAcct, strTrans)
-                var strSenderAcctID    = OT_API_Transaction_GetSenderAcctID(Server, MyNym, MyAcct, strTrans)
-                var strRecipientUserID = OT_API_Transaction_GetRecipientUserID(Server, MyNym, MyAcct, strTrans)
-                var strRecipientAcctID = OT_API_Transaction_GetRecipientAcctID(Server, MyNym, MyAcct, strTrans)
+                var strTrans           = OT_API_Ledger_GetTransactionByIndex(Server, strMyNymID, MyAcct, strOutbox, nIndex)
+                var strTransID         = OT_API_Ledger_GetTransactionIDByIndex(Server, strMyNymID, MyAcct, strOutbox, nIndex)
+                var strRefNum          = OT_API_Transaction_GetDisplayReferenceToNum(Server, strMyNymID, MyAcct, strTrans)
+                var strAmount          = OT_API_Transaction_GetAmount(Server, strMyNymID, MyAcct, strTrans)
+                var strType            = OT_API_Transaction_GetType(Server, strMyNymID, MyAcct, strTrans)
+                var strSenderUserID    = OT_API_Transaction_GetSenderUserID(Server, strMyNymID, MyAcct, strTrans)
+                var strSenderAcctID    = OT_API_Transaction_GetSenderAcctID(Server, strMyNymID, MyAcct, strTrans)
+                var strRecipientUserID = OT_API_Transaction_GetRecipientUserID(Server, strMyNymID, MyAcct, strTrans)
+                var strRecipientAcctID = OT_API_Transaction_GetRecipientAcctID(Server, strMyNymID, MyAcct, strTrans)
 
                 var strUserID = strRecipientUserID
                 var strAcctID = strRecipientAcctID

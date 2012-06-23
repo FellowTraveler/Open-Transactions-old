@@ -1,4 +1,4 @@
-#! /usr/local/bin/ot --script
+#!/usr/bin/env ot
 
 
 // The goal with this script is to create a GENERIC ==> Escrow <== smart
@@ -428,7 +428,7 @@ var strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_
 											  "If Alice disputes, her dispute goes here.");	// Contains the initial value.
 strSmartContract = strSmart4
 
-var strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
 											  // ----------------------------------------
 											  "bool_alice_dispute",	// <=== The Variable's NAME as referenced in the smart contract. (And the scripts...)
 											  // ----------------------------------------
@@ -441,7 +441,7 @@ strSmartContract = strSmart4
 // VARIABLE:  str_bob_reply
 //           bool_bob_reply
 
-var strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
 											  // ----------------------------------------
 											  "str_bob_reply",	// <=== The Variable's NAME as referenced in the smart contract. (And the scripts...)
 											  // ----------------------------------------
@@ -450,7 +450,7 @@ var strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_
 											  "Bob's reply to Alice's dispute goes here.");	// Contains the initial value. (Empty in this case.)
 strSmartContract = strSmart4
 
-var strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
 											  // ----------------------------------------
 											  "bool_bob_reply",	// <=== The Variable's NAME as referenced in the smart contract. (And the scripts...)
 											  // ----------------------------------------
@@ -463,7 +463,7 @@ strSmartContract = strSmart4
 // VARIABLE:  str_judy_judgment
 //           bool_judy_judgment
 
-var strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
 											  // ----------------------------------------
 											  "str_judy_judgment",	// <=== The Variable's name. This variable contains the contents of Judy's decision.
 											  // ----------------------------------------
@@ -472,7 +472,7 @@ var strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_
 											  "Judy's final judgment goes here.");	// Contains the initial value. (Empty in this case.)
 strSmartContract = strSmart4
 
-var strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
 											  // ----------------------------------------
 											  "bool_judy_judgment",	// <=== Variable's name. Judy has made a decision?
 											  // ----------------------------------------
@@ -495,7 +495,7 @@ strSmartContract = strSmart4
 
 // VARIABLE:  str_judy_cut
 //
-var strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
 											  // ----------------------------------------
 											  "str_judy_cut",	// The non-refundable (smaller) amount that Judy gets for signing onto this.
 											  // ----------------------------------------
@@ -506,7 +506,7 @@ strSmartContract = strSmart4
 
 // VARIABLE:  str_judy_render_cut
 //
-var strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
 											  // ----------------------------------------
 											  "str_judy_render_cut",	// The additional amount that Judy gets if she actually has to render a judgment.
 											  // (Otherwise Alice gets this money back.)
@@ -519,7 +519,7 @@ strSmartContract = strSmart4
 // --------------------------------------------------
 // VARIABLE:  str_consideration
 //
-var strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
 											  // ----------------------------------------
 											  "str_consideration",	// This is the box that Bob is sending to Alice in return for her money, and describes the criteria by which the deal can be considered "fulfilled" or "reneged."
 											  // ----------------------------------------
@@ -531,7 +531,7 @@ strSmartContract = strSmart4
 // --------------------------------------------------
 // VARIABLE:  str_error_status
 //
-var strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
 											  // ----------------------------------------
 											  "str_error_status",	// This is where the script puts error messages, when necessary, so the participants can see the message on their receipt.
 											  // ----------------------------------------
@@ -548,7 +548,7 @@ strSmartContract = strSmart4
 // 3 == Judy has decided for Alice.
 // 4 == Judy has decided for Bob.
 //
-var strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
 											  // ----------------------------------------
 											  "nState",	
 											  // ----------------------------------------
@@ -569,7 +569,7 @@ strSmartContract = strSmart5
 // --------------------------------------------------
 // Connect a known CALLBACK to a known CLAUSE  (may CANCEL contract?)
 //
-var strSmart5 = OT_API_SmartContract_AddCallback(strSmartContract, MyNym, "main_bylaws",// Should already be on the contract. (This way we can find it.)
+strSmart5 = OT_API_SmartContract_AddCallback(strSmartContract, MyNym, "main_bylaws",// Should already be on the contract. (This way we can find it.)
 											  // ----------------------------------------
 											  "callback_party_may_cancel_contract",		// The Callback's name as referenced in the smart contract. (And the scripts...)
 											  "may_cancel_contract");					// The actual clause that will be triggered by the callback. (Must exist.)
@@ -620,7 +620,7 @@ strSmartContract = strSmart8
 // ************************************************************************************************************************************
 // Add a THEORETICAL PARTY to the SMART CONTRACT
 //
-var strSmart7 = OT_API_SmartContract_AddParty(strSmartContract, MyNym, // Need a signer Nym, so it can save. This is unrelated to the party. Use any Nym.
+strSmart7 = OT_API_SmartContract_AddParty(strSmartContract, MyNym, // Need a signer Nym, so it can save. This is unrelated to the party. Use any Nym.
 											"party_bob",		// The Party's NAME as referenced in the smart contract. (And the scripts...)
 										   // ----------------------------------------
 										   "agent_bob");	// An AGENT will be added by default for this party. Need Agent NAME.
@@ -632,7 +632,7 @@ strSmartContract = strSmart7
 // ----------------------------------------
 // Add a THEORETICAL ACCOUNT to the SMART CONTRACT
 //
-var strSmart8 = OT_API_SmartContract_AddAccount(strSmartContract, MyNym, // Need a signer Nym, so it can save. This is unrelated to the party. Use any Nym.
+strSmart8 = OT_API_SmartContract_AddAccount(strSmartContract, MyNym, // Need a signer Nym, so it can save. This is unrelated to the party. Use any Nym.
 												"party_bob",	// The Party's NAME as referenced in the smart contract. (And the scripts...)
 												// ----------------------------------------
 												"bob_acct",		// The Account's name as referenced in the smart contract
@@ -642,7 +642,7 @@ strSmartContract = strSmart8
 // ************************************************************************************************************************************
 // Add a THEORETICAL PARTY to the SMART CONTRACT
 //
-var strSmart7 = OT_API_SmartContract_AddParty(strSmartContract, MyNym, // Need a signer Nym, so it can save. This is unrelated to the party. Use any Nym.
+strSmart7 = OT_API_SmartContract_AddParty(strSmartContract, MyNym, // Need a signer Nym, so it can save. This is unrelated to the party. Use any Nym.
 											"judge_judy",		// The Party's NAME as referenced in the smart contract. (And the scripts...)
 										   // ----------------------------------------
 										   "agent_judy");	// An AGENT will be added by default for this party. Need Agent NAME.
@@ -654,7 +654,7 @@ strSmartContract = strSmart7
 // ----------------------------------------
 // Add a THEORETICAL ACCOUNT to the SMART CONTRACT
 //
-var strSmart8 = OT_API_SmartContract_AddAccount(strSmartContract, MyNym, // Need a signer Nym, so it can save. This is unrelated to the party. Use any Nym.
+strSmart8 = OT_API_SmartContract_AddAccount(strSmartContract, MyNym, // Need a signer Nym, so it can save. This is unrelated to the party. Use any Nym.
 												"judge_judy",	// The Party's NAME as referenced in the smart contract. (And the scripts...)
 												// ----------------------------------------
 												"judy_acct",	// The Account's name as referenced in the smart contract
@@ -663,6 +663,8 @@ strSmartContract = strSmart8
 
 
 print(strSmartContract)
+
+1
 
 // ************************************************************************************************************************************
 

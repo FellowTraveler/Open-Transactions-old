@@ -1,4 +1,4 @@
-#! /usr/local/bin/ot --script
+#!/usr/bin/env ot
 
 
 // THE SIMPLEST POSSIBLE ESCROW:
@@ -274,7 +274,7 @@ strSmartContract = strSmart8
 // ----------------------------------------
 // Add a THEORETICAL ACCOUNT to the SMART CONTRACT
 //
-var strSmart8 = OT_API_SmartContract_AddAccount(strSmartContract, MyNym, 
+strSmart8 = OT_API_SmartContract_AddAccount(strSmartContract, MyNym, 
 												"party_alice",	// The Party's NAME as referenced in the smart contract. (And the scripts...)
 												// ----------------------------------------
 												"alice_second_acct",	// The Account's name as referenced in the smart contract
@@ -284,7 +284,7 @@ strSmartContract = strSmart8
 // ******************************************************************
 // Add a THEORETICAL PARTY to the SMART CONTRACT
 //
-var strSmart7 = OT_API_SmartContract_AddParty(strSmartContract, MyNym, // Need a signer Nym, so it can save. This is unrelated to the party. Use any Nym.
+strSmart7 = OT_API_SmartContract_AddParty(strSmartContract, MyNym, // Need a signer Nym, so it can save. This is unrelated to the party. Use any Nym.
 											"party_bob",		// The Party's NAME as referenced in the smart contract. (And the scripts...)
 										   // ----------------------------------------
 										   "agent_bob");	// An AGENT will be added by default for this party. Need Agent NAME.
@@ -295,7 +295,7 @@ strSmartContract = strSmart7
 // ----------------------------------------
 // Add a THEORETICAL ACCOUNT to the SMART CONTRACT
 //
-var strSmart8 = OT_API_SmartContract_AddAccount(strSmartContract, MyNym, // Need a signer Nym, so it can save. This is unrelated to the party. Use any Nym.
+strSmart8 = OT_API_SmartContract_AddAccount(strSmartContract, MyNym, // Need a signer Nym, so it can save. This is unrelated to the party. Use any Nym.
 												"party_bob",	// The Party's NAME as referenced in the smart contract. (And the scripts...)
 												// ----------------------------------------
 												"bob_first_acct",		// The Account's name as referenced in the smart contract
@@ -305,7 +305,7 @@ strSmartContract = strSmart8
 // ----------------------------------------
 // Add a THEORETICAL ACCOUNT to the SMART CONTRACT
 //
-var strSmart8 = OT_API_SmartContract_AddAccount(strSmartContract, MyNym, // Need a signer Nym, so it can save. This is unrelated to the party. Use any Nym.
+strSmart8 = OT_API_SmartContract_AddAccount(strSmartContract, MyNym, // Need a signer Nym, so it can save. This is unrelated to the party. Use any Nym.
 												"party_bob",	// The Party's NAME as referenced in the smart contract. (And the scripts...)
 												// ----------------------------------------
 												"bob_second_acct",		// The Account's name as referenced in the smart contract
@@ -319,6 +319,8 @@ strSmartContract = strSmart8
 OT_API_Output(0, "\n\n")
 
 print(strSmartContract)
+
+1
 
 
 /*

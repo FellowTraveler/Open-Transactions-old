@@ -1,4 +1,4 @@
-#! /usr/local/bin/ot --script
+#!/usr/bin/env ot
 
 
 
@@ -226,7 +226,9 @@ if (!bSuccess)
 	
 	OT_API_Output(0, "SMART CONTRACT: Since this script failed, I'm clawing BACK all the transaction numbers now (that way my data stays good.)\n")
 	
-	OT_API_HarvestAllNumbers(Server, HisNym,	strSmartContract);
+    
+    OT_API_Msg_HarvestTransactionNumbers(strSmartContract, HisNym, false, false, false, false, false) // Grab Bob's numbers back
+//	OT_API_HarvestAllNumbers(Server, HisNym,	strSmartContract);
 }
 
 // SUCCESS!!!
@@ -235,7 +237,12 @@ else
 	OT_API_Output(0, "\n\n")
 
 	print(strSmartContract)
+    
+    return 1
 }
+
+
+0
 
 
 /*

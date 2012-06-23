@@ -12,7 +12,7 @@ OT_PROMPT='OpenTXS> '
 while :
 
 do
-  echo -n "$OT_PROMPT"
+  echo "$OT_PROMPT"
   read  OT_INPUT
     if grep "$OT_INPUT" scriptlist
        then eval ./"$OT_INPUT".ot;

@@ -15,22 +15,33 @@
 
 
 
-    if (VerifyExists("MyNym") && VerifyExists("MyAcct") && VerifyExists("Server") && VerifyExists("HisNym"))
+    if (VerifyExists("MyAcct") && VerifyExists("Server") && VerifyExists("HisNym"))
     {
-
-        // todo:
-        if (VerifyExists("MyNym"))
+        // ---------------------------------------------
+        // HERE, WE LOOK UP THE NYM ID, BASED ON THE ACCOUNT ID.
+        //
+        var strMyNymID = OT_API_GetAccountWallet_NymID(MyAcct)
+        
+        if (!VerifyStringVal(strMyNymID))
         {
-            // todo:
-            // If MyAcct is selected, use it to look up the Nym.
-            // But if MyNym is also explicitly selected, then STILL
-            // look it up, AND COMPARE THEM, and make SURE they match.
-            // Otherwise, error out.
+            OT_API_Output(0, "Failure: Unable to find NymID based on myacct. Use: --myacct ACCT_ID\n")
+            OT_API_Output(0, "The designated asset account must be yours. OT will find the Nym based on the account.\n\n")
+            return (-1)
         }
+        if (VerifyExists("MyNym") && !(MyNym == strMyNymID))
+        {
+            OT_API_Output(0, "Failure: MyNym was provided, but didn't match the Nym who owns MyAcct. To override, use: --mynym NYM_ID\n")
+            return (-1)
+        }
+        // ***************************************************************
 
-        var strAmount = "1"       // smallest possible amount.
-        var strMemo   = ""        // empty
-        var nLength   = 2592000   // 30 days.
+        var strDefaultAmount = "1"       // smallest possible amount.
+        var strDefaultMemo   = "(memo field)" 
+        var nDefaultLength   = 2592000   // 30 days
+        
+        var strAmount = "0"
+        var strMemo   = ""  // empty
+        var nLength   = 0   
 
         // ------------------------------------
         if (VerifyExists("Args"))
@@ -45,7 +56,8 @@
             var strNewMemo   = OT_CLI_GetValueByKey( Args, "memo" )
             var strNewLength = OT_CLI_GetValueByKey( Args, "validfor" )
             
-            if (VerifyStringVal(strNewMemo)) { strMemo = strNewMemo }
+            if (VerifyStringVal(strNewMemo)) 
+            { strMemo = strNewMemo }
             
             if (VerifyStringVal(strNewAmount) && (strNewAmount.to_int() > 0))
             { strAmount = strNewAmount }
@@ -53,8 +65,39 @@
             if (VerifyStringVal(strNewLength) && (strNewLength.to_int() > 0))
             { nLength = strNewLength.to_int() }
         }
-        // ------------------------------------
 
+        // ------------------------------------
+        // If the transfer parameters aren't provided, then we
+        // ask the user to supply them at the command line.
+        //
+        if (!VerifyStringVal(strAmount) || (strAmount.to_int() < 1))
+        {
+            OT_API_Output(0, "Enter the amount as integer["+strDefaultAmount+"]: ")
+            strAmount  = OT_CLI_ReadLine()
+        }
+        if (!VerifyStringVal(strMemo))
+        {
+            OT_API_Output(0, "Optionally, enter a note on a single line["+strDefaultMemo+"]: ")
+            strMemo	= OT_CLI_ReadLine()
+        }
+        if (!VerifyIntVal(nLength) || (nLength < 1))
+        {
+            OT_API_Output(0, "Enter the 'valid for' time period, in seconds["+nDefaultLength.to_string()+"]: ")
+            var strTemp	= OT_CLI_ReadLine()
+            nLength = strTemp.to_int()
+        }
+        // ----------------------------------------------
+        if (!VerifyStringVal(strAmount) || (strAmount.to_int() < 1))
+        {    strAmount = strDefaultAmount }
+        
+        if (!VerifyStringVal(strMemo))
+        {    strMemo = strDefaultMemo }
+        
+        if (!VerifyIntVal(nLength) || (nLength < 1))
+        {    nLength = nDefaultLength }
+        // ----------------------------------------------    
+
+        
 // Todo: use Args feature here to allow an option to override nLength.
 // If it's not used, go with the default of 30 days (above.)
         
@@ -77,7 +120,7 @@
                                             strFrom, 
                                             strTo,
                                             MyAcct,
-                                            MyNym,
+                                            strMyNymID,
                                             strMemo, 
                                             HisNym)
          
