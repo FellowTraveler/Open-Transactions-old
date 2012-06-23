@@ -890,13 +890,13 @@ public:
                                        const bool    bTransactionWasSuccess, 
                                        const bool    bTransactionWasFailure);
 
-//	bool HarvestClosingNumbers(const OTIdentifier	& SERVER_ID,
-//							   const OTIdentifier	& NYM_ID,
-//							   const OTString		& THE_CRON_ITEM);
-//	
-//	bool HarvestAllNumbers(const OTIdentifier	& SERVER_ID,
-//						   const OTIdentifier	& NYM_ID,
-//						   const OTString		& THE_CRON_ITEM);
+	bool HarvestClosingNumbers(const OTIdentifier	& SERVER_ID,
+							   const OTIdentifier	& NYM_ID,
+							   const OTString		& THE_CRON_ITEM);
+
+	bool HarvestAllNumbers(const OTIdentifier	& SERVER_ID,
+						   const OTIdentifier	& NYM_ID,
+						   const OTString		& THE_CRON_ITEM);
 	
 	// ------------------------------------------------------------------------
 

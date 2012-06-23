@@ -3105,71 +3105,71 @@ bool OT_API::Msg_HarvestTransactionNumbers(      OTMessage      & theMsg,
 
 
 
-//bool OT_API::HarvestClosingNumbers(const OTIdentifier	& SERVER_ID,
-//								   const OTIdentifier	& NYM_ID,
-//								   const OTString		& THE_CRON_ITEM)
-//{
-//	const char * szFuncName		= "OT_API::HarvestClosingNumbers";
-//	// -----------------------------------------------------
-//	OTPseudonym * pNym = this->GetOrLoadPrivateNym(NYM_ID, szFuncName); // These copiously log, and ASSERT.
-//	if (NULL == pNym) return false;
-//	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
-//	// -----------------------------------------------------			
-//	OTCronItem * pCronItem = OTCronItem::NewCronItem(THE_CRON_ITEM);
-//	OTCleanup<OTCronItem> theContractAngel;
-//	if (NULL == pCronItem)
-//	{
-//		OTLog::vOutput(0, " OT_API::HarvestClosingNumbers: Error loading the cron item (a cron item is a smart contract, or "
-//					   "some other recurring transaction such as a market offer, or a payment plan.) Contents:\n\n%s\n\n",
-//					   THE_CRON_ITEM.Get());
-//		return false;
-//	}
-//	else
-//		theContractAngel.SetCleanupTarget(*pCronItem);  // Auto-cleanup.
-//	// -----------------------------------------------------
-//	pCronItem->HarvestClosingNumbers(*pNym); // <==== the Nym is actually harvesting the numbers from the Cron Item, and not the other way around.
-//	// -------------------------------	
-//	return true;
-//}
+bool OT_API::HarvestClosingNumbers(const OTIdentifier	& SERVER_ID,
+								   const OTIdentifier	& NYM_ID,
+								   const OTString		& THE_CRON_ITEM)
+{
+	const char * szFuncName		= "OT_API::HarvestClosingNumbers";
+	// -----------------------------------------------------
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(NYM_ID, szFuncName); // These copiously log, and ASSERT.
+	if (NULL == pNym) return false;
+	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
+	// -----------------------------------------------------			
+	OTCronItem * pCronItem = OTCronItem::NewCronItem(THE_CRON_ITEM);
+	OTCleanup<OTCronItem> theContractAngel;
+	if (NULL == pCronItem)
+	{
+		OTLog::vOutput(0, "%s: Error loading the cron item (a cron item is a smart contract, or "
+					   "some other recurring transaction such as a market offer, or a payment plan.) Contents:\n\n%s\n\n",
+					   szFuncName, THE_CRON_ITEM.Get());
+		return false;
+	}
+	else
+		theContractAngel.SetCleanupTarget(*pCronItem);  // Auto-cleanup.
+	// -----------------------------------------------------
+	pCronItem->HarvestClosingNumbers(*pNym); // <==== the Nym is actually harvesting the numbers from the Cron Item, and not the other way around.
+	// -------------------------------	
+	return true;
+}
+
+
+// NOTE: usually you will want to call OT_API_HarvestClosingNumbers (above), since the Opening number is usually
+// burned up from some failed transaction or whatever. You don't want to harvest the opening number usually,
+// just the closing numbers. (If the opening number is burned up, yet you still harvest it, then your OT wallet
+// could end up using that number again on some other transaction, which will obviously then fail since the number
+// isn't good anymore. In fact much of OT's design is based on minimizing/eliminating any such sync issues.)
+// This function is only for those cases where you are sure that the opening transaction # hasn't been burned yet,
+// such as when the message failed and the transaction wasn't attempted (because it never got that far) or such as
+// when the contract simply never got signed or activated by one of the other parties, and so you want to claw ALL your
+// #'s back, and since in that case your opening number is still good, you would use the below function to get it back.
 //
-//
-//// NOTE: usually you will want to call OT_API_HarvestClosingNumbers (above), since the Opening number is usually
-//// burned up from some failed transaction or whatever. You don't want to harvest the opening number usually,
-//// just the closing numbers. (If the opening number is burned up, yet you still harvest it, then your OT wallet
-//// could end up using that number again on some other transaction, which will obviously then fail since the number
-//// isn't good anymore. In fact much of OT's design is based on minimizing/eliminating any such sync issues.)
-//// This function is only for those cases where you are sure that the opening transaction # hasn't been burned yet,
-//// such as when the message failed and the transaction wasn't attempted (because it never got that far) or such as
-//// when the contract simply never got signed or activated by one of the other parties, and so you want to claw ALL your
-//// #'s back, and since in that case your opening number is still good, you would use the below function to get it back.
-////
-//bool OT_API::HarvestAllNumbers(const OTIdentifier	& SERVER_ID,
-//							   const OTIdentifier	& NYM_ID,
-//							   const OTString		& THE_CRON_ITEM)
-//{
-//	const char * szFuncName		= "OT_API::HarvestAllNumbers";
-//	// -----------------------------------------------------
-//	OTPseudonym * pNym = this->GetOrLoadPrivateNym(NYM_ID, szFuncName); // These copiously log, and ASSERT.
-//	if (NULL == pNym) return false;
-//	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
-//	// -----------------------------------------------------			
-//	OTCronItem * pCronItem = OTCronItem::NewCronItem(THE_CRON_ITEM);
-//	OTCleanup<OTCronItem> theContractAngel;
-//	if (NULL == pCronItem)
-//	{
-//		OTLog::vOutput(0, " OT_API::HarvestAllNumbers: Error loading the cron item (a cron item is a smart contract, or "
-//					   "some other recurring transaction such as a market offer, or a payment plan.) Contents:\n\n%s\n\n",
-//					   THE_CRON_ITEM.Get());
-//		return false;
-//	}
-//	else
-//		theContractAngel.SetCleanupTarget(*pCronItem);  // Auto-cleanup.
-//	// -----------------------------------------------------
-//	pCronItem->HarvestOpeningNumber (*pNym); // <==== the Nym is actually harvesting the numbers from the Cron Item, and not the other way around.
-//	pCronItem->HarvestClosingNumbers(*pNym); // <==== the Nym is actually harvesting the numbers from the Cron Item, and not the other way around.
-//	// -------------------------------	
-//	return true;
-//}
+bool OT_API::HarvestAllNumbers(const OTIdentifier	& SERVER_ID,
+							   const OTIdentifier	& NYM_ID,
+							   const OTString		& THE_CRON_ITEM)
+{
+	const char * szFuncName		= "OT_API::HarvestAllNumbers";
+	// -----------------------------------------------------
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(NYM_ID, szFuncName); // These copiously log, and ASSERT.
+	if (NULL == pNym) return false;
+	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
+	// -----------------------------------------------------			
+	OTCronItem * pCronItem = OTCronItem::NewCronItem(THE_CRON_ITEM);
+	OTCleanup<OTCronItem> theContractAngel;
+	if (NULL == pCronItem)
+	{
+		OTLog::vOutput(0, "%s: Error loading the cron item (a cron item is a smart contract, or "
+					   "some other recurring transaction such as a market offer, or a payment plan.) Contents:\n\n%s\n\n",
+					   szFuncName, THE_CRON_ITEM.Get());
+		return false;
+	}
+	else
+		theContractAngel.SetCleanupTarget(*pCronItem);  // Auto-cleanup.
+	// -----------------------------------------------------
+	pCronItem->HarvestOpeningNumber (*pNym); // <==== the Nym is actually harvesting the numbers from the Cron Item, and not the other way around.
+	pCronItem->HarvestClosingNumbers(*pNym); // <==== the Nym is actually harvesting the numbers from the Cron Item, and not the other way around.
+	// -------------------------------	
+	return true;
+}
 
     
 

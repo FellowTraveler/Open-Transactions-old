@@ -3233,15 +3233,20 @@ bool OTContract::SkipToElement(IrrXMLReader*& xml)
 {
 	OT_ASSERT_MSG(NULL != xml, "OTContract::SkipToElement -- assert: NULL != xml");
 	
+    const char * szFunc = "OTContract::SkipToElement";
+    
 	// ------------------
 	while(xml->read() && (xml->getNodeType() != EXN_ELEMENT))
 	{
+//      OTLog::vOutput(0, "%s: Looping to skip non-elements: currently on: %s \n", szFunc, xml->getNodeName());
+        
 		if (xml->getNodeType() == EXN_NONE)
 		{ OTLog::Output(0, "*** OTContract::SkipToElement: EXN_NONE  (skipping)\n"); continue; }			// SKIP
 		else if (xml->getNodeType() == EXN_COMMENT)
 		{ OTLog::Output(0, "*** OTContract::SkipToElement: EXN_COMMENT  (skipping)\n"); continue; }			// SKIP
 		else if (xml->getNodeType() == EXN_ELEMENT_END)
-		{ OTLog::Output(0, "*** OTContract::SkipToElement: EXN_ELEMENT_END  (ERROR)\n");  return false; }
+//		{ OTLog::Output(0, "*** OTContract::SkipToElement: EXN_ELEMENT_END  (ERROR)\n");  return false; }
+		{ OTLog::vOutput(1, "*** %s: EXN_ELEMENT_END  (skipping %s)\n", szFunc, xml->getNodeName());  continue; }
 		else if (xml->getNodeType() == EXN_CDATA)
 		{ OTLog::Output(0, "*** OTContract::SkipToElement: EXN_CDATA (ERROR -- unexpected CData)\n"); return false; }
 		else if (xml->getNodeType() == EXN_TEXT)
@@ -3268,6 +3273,7 @@ bool OTContract::SkipToTextField(IrrXMLReader*& xml)
 		else if (xml->getNodeType() == EXN_COMMENT)
 		{ OTLog::Output(0, "*** OTContract::SkipToTextField: EXN_COMMENT  (skipping)\n"); continue; }		// SKIP
 		else if (xml->getNodeType() == EXN_ELEMENT_END)
+//		{ OTLog::Output(0, "*** OTContract::SkipToTextField: EXN_ELEMENT_END  (skipping)\n");  continue; }     // SKIP (debugging...)
 		{ OTLog::Output(0, "*** OTContract::SkipToTextField: EXN_ELEMENT_END  (ERROR)\n");  return false; }
 		else if (xml->getNodeType() == EXN_CDATA)
 		{ OTLog::Output(0, "*** OTContract::SkipToTextField: EXN_CDATA (ERROR -- unexpected CData)\n"); return false; }

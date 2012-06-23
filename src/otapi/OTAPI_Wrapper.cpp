@@ -493,13 +493,13 @@ bool OTAPI_Wrap::Msg_HarvestTransactionNumbers(const std::string THE_MESSAGE,
                                                const bool        bTransactionWasFailure)
 {
 	return (OT_TRUE == OT_API_Msg_HarvestTransactionNumbers(THE_MESSAGE.c_str(),
-                                                            THE_MESSAGE.c_str(),
+                                                            USER_ID.c_str(),
                                                             true == bHarvestingForRetry     ? OT_TRUE : OT_FALSE,
                                                             true == bReplyWasSuccess        ? OT_TRUE : OT_FALSE,
                                                             true == bReplyWasFailure        ? OT_TRUE : OT_FALSE,
                                                             true == bTransactionWasSuccess  ? OT_TRUE : OT_FALSE,
                                                             true == bTransactionWasFailure  ? OT_TRUE : OT_FALSE
-                                                            
+
                                                             )) ? true : false;
 }
 

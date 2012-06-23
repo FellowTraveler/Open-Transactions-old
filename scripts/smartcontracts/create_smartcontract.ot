@@ -289,10 +289,10 @@ def CreateSmartContractAtCLI()
     // ** ADD VARIABLE **  (LONG named lstorage) 
     strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
                                                   // ----------------------------------------
-                                                  "lStorage",	// The Variable's NAME as referenced in the smart contract. (And the scripts...)
+                                                  "nStorage",	// The Variable's NAME as referenced in the smart contract. (And the scripts...)
                                                   // ----------------------------------------
                                                   "persistent",	// "constant", "persistent", or "important". Variable access type.
-                                                  "long",		// "string", "long", or "bool".  Variable data type.
+                                                  "integer",	// "string", "long", or "bool".  Variable data type.
                                                   "155");		// Contains the initial value.
     if (VerifyStringVal(strSmart4))
     { strSmartContract = strSmart4 }
@@ -473,10 +473,9 @@ def CreateSmartContractAtCLI()
         if (!(numCountNymBob >= numCountNeededBob))
         {
             print("\n\n** Sorry -- Bob doesn't have enough transaction numbers to confirm/activate this smart contract. Come back when you have more.\n\n")
-            OT_API_Msg_HarvestTransactionNumbers(Server, MyNym,	strSmartContract) // Grab Alice's numbers back
-            
+//          OT_API_Msg_HarvestTransactionNumbers(Server, MyNym,	strSmartContract) // Grab Alice's numbers back
+            OT_API_Msg_HarvestTransactionNumbers(strSmartContract, MyNym, false, false, false, false, false) // Grab Alice's numbers back
             /*
-            
             static bool Msg_HarvestTransactionNumbers(const std::string THE_MESSAGE,
                                                       const std::string USER_ID,
                                                       const bool        bHarvestingForRetry,      
@@ -484,7 +483,7 @@ def CreateSmartContractAtCLI()
                                                       const bool        bReplyWasFailure,      
                                                       const bool        bTransactionWasSuccess,
                                                       const bool        bTransactionWasFailure);
-             */
+            */
         }
         else
         {
@@ -544,8 +543,8 @@ def CreateSmartContractAtCLI()
                     // The high-level API does this harvesting already for Alice, if
                     // her send fails.
                     //
-//                  OT_API_HarvestClosingNumbers(Server, MyNym,		strSmartContract)
-                    OT_API_HarvestAllNumbers(Server, BobsUserID,	strSmartContract) // However, the API didn't think of Bob, so we'll get him here.
+//                  OT_API_Msg_HarvestTransactionNumbers(strSmartContract, MyNym,      false, false, false, false, false) // Grab Alice's numbers back
+                    OT_API_Msg_HarvestTransactionNumbers(strSmartContract, BobsUserID, false, false, false, false, false) // Grab Bob's numbers back
                 }
                 
                 return nSuccess
@@ -559,8 +558,8 @@ def CreateSmartContractAtCLI()
             {
                 print("SMART CONTRACT:  I guess someone didn't have enough transaction numbers, so I'm clawing all the numbers BACK now (that way my data stays good.)")
                 
-                OT_API_HarvestAllNumbers(Server, MyNym,			strSmartContract)
-                OT_API_HarvestAllNumbers(Server, BobsUserID,	strSmartContract)
+                OT_API_Msg_HarvestTransactionNumbers(strSmartContract, MyNym,      false, false, false, false, false) // Grab Alice's numbers back
+                OT_API_Msg_HarvestTransactionNumbers(strSmartContract, BobsUserID, false, false, false, false, false) // Grab Bob's numbers back
             }
         }
         

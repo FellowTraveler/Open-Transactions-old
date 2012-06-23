@@ -4806,23 +4806,59 @@ OT_BOOL OT_API_Msg_HarvestTransactionNumbers(const char *  THE_MESSAGE,
 	OT_ASSERT_MSG((bTransactionWasSuccess==OT_TRUE)||(bTransactionWasSuccess==OT_FALSE), "OT_API_HarvestTransactionNumbers: Bad: bTransactionWasSuccess.");
 	OT_ASSERT_MSG((bTransactionWasFailure==OT_TRUE)||(bTransactionWasFailure==OT_FALSE), "OT_API_HarvestTransactionNumbers: Bad: bTransactionWasFailure.");
 	// -----------------------------------------------------
+    const OTIdentifier theUserID(USER_ID);
+    
+    const char * szFunc = "OT_API_Msg_HarvestTransactionNumbers";
+	// -----------------------------------------------------
     OTMessage   theMessage;
     const
     OTString    strMsg(THE_MESSAGE);
     
-    if (!strMsg.Exists() || !theMessage.LoadContractFromString(strMsg))
+    if (!strMsg.Exists())
     {
-        OTLog::vError("OT_API_HarvestTransactionNumbers: Failed trying to load message from string:\n\n%s\n\n",
-                      strMsg.Get());
+        OTLog::vError("%s: Failed trying to load message from empty string.\n", szFunc);
         return OT_FALSE;
+    }
+    // -----------------------------------
+    
+    if (!theMessage.LoadContractFromString(strMsg))
+    {
+        // -----------------------------------------------------
+        // Unfortunately the ONLY reason we are loading up this cron item here,
+        // is so we can get the server ID off of it.
+        //
+        OTCronItem * pCronItem = OTCronItem::NewCronItem(strMsg);
+        OTCleanup<OTCronItem> theContractAngel;
+        if (NULL == pCronItem)
+        {
+            OTLog::vError("%s: Failed trying to load message from string.",
+                          szFunc);
+
+            OTLog::vOutput(0, "%s: Error trying to load the cron item from string (a cron item is a smart contract, or "
+                           "some other recurring transaction such as a market offer, or a payment plan.) Contents:\n\n%s\n\n",
+                           szFunc, strMsg.Get());
+            return OT_FALSE;
+        }
+        else
+            theContractAngel.SetCleanupTarget(*pCronItem);  // Auto-cleanup.
+        // -----------------------------------------------------
+                
+        // If a CronItem is passed in here instead of a Message, that means the client
+        // didn't even TRY to send the message. He failed before reaching that point.
+        // Therefore in this one, strange case, we don't really care about all the bools
+        // that were passed in here. We're just going to harvest ALL the numbers, and
+        // ASSUME all the bools were false.
+        // Here goes...
+        //
+        const bool bSuccessCronItem = OT_API::It().HarvestAllNumbers(pCronItem->GetServerID(), theUserID, strMsg);
+        
+        return bSuccessCronItem ? OT_TRUE : OT_FALSE;
     }
     // ---------------------------------------------------
     // By this point, we have the actual message loaded up.
     //
-    
-    const OTIdentifier theUserID(USER_ID);
-    
-	const bool bSuccess = OT_API::It().Msg_HarvestTransactionNumbers(theMessage, theUserID,
+	const bool bSuccess = OT_API::It().Msg_HarvestTransactionNumbers(theMessage,
+                                                                     theUserID,
                                                                  OT_TRUE == bHarvestingForRetry     ? true : false,
                                                                  OT_TRUE == bReplyWasSuccess        ? true : false,
                                                                  OT_TRUE == bReplyWasFailure        ? true : false,

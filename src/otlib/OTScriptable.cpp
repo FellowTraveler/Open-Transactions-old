@@ -2463,7 +2463,9 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 				}
 				// -----------------------------------------------
                 
-				if ((xml->getNodeType() == EXN_ELEMENT) && (!strcmp("party", xml->getNodeName())))
+//                OTLog::vOutput(0, "%s: Looping to load parties: currently on: %s \n", szFunc, xml->getNodeName());
+
+				if ((!strcmp("party", xml->getNodeName())))
 				{
                     OTString strName			= xml->getAttributeValue("name"); // Party name (in script code)
                     OTString strOwnerType		= xml->getAttributeValue("ownerType"); // "nym" or "entity"
@@ -2673,7 +2675,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
                                     return (-1);
                                 }
                                 
-                                //					xml->read(); // <==================
+//                              xml->read(); // <==================
                                 
                                 
                                 // MIGHT need to add "skip after field" call here.
@@ -2754,7 +2756,10 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 				}
 				// -----------------------------------------------
 
-				if ((xml->getNodeType() == EXN_ELEMENT) && (!strcmp("bylaw", xml->getNodeName())))
+//                OTLog::vOutput(0, "%s: Looping to load bylaws: currently on: %s \n", szFunc, xml->getNodeName());
+
+                
+				if (!strcmp("bylaw", xml->getNodeName()))
 				{
                     OTString strName		= xml->getAttributeValue("name"); // bylaw name
                     OTString strLanguage	= xml->getAttributeValue("language"); // The script language used in this bylaw.
@@ -2777,7 +2782,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
                     {
                         while (nCount-- > 0)
                         {
-                            //				xml->read(); // <==================
+//                          xml->read(); // <==================
                             if (false == OTContract::SkipToElement(xml))
                             {
                                 OTLog::vError("%s: Error finding expected next element for variable.\n", szFunc);
@@ -2936,13 +2941,13 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
                                 // Update: Nope.
                                 
                                 
-                                //					if (false == SkipAfterLoadingField(xml))
-                                //					{ 
-                                //						OTLog::Output(0, "*** OTScriptable::ProcessXMLNode: Bad data? Expected EXN_ELEMENT_END here, but "
-                                //									"didn't get it. Failure.\n"); 
-                                //						delete pBylaw; pBylaw=NULL;
-                                //						return (-1);
-                                //					}
+            //					if (false == SkipAfterLoadingField(xml))
+            //					{ 
+            //						OTLog::Output(0, "*** OTScriptable::ProcessXMLNode: Bad data? Expected EXN_ELEMENT_END here, but "
+            //									"didn't get it. Failure.\n"); 
+            //						delete pBylaw; pBylaw=NULL;
+            //						return (-1);
+            //					}
                             }				
                             else 
                             {
@@ -2963,13 +2968,13 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
                         {
                             // OTContract::LoadEncodedTextFieldByName() (below) does this stuff already. Commented out.
                             //
-                            //				xml->read(); // <==================
-                            //				if (false == OTContract::SkipToElement(xml))
-                            //				{
-                            //					OTLog::Error("OTScriptable::ProcessXMLNode: Error finding expected next element for variable.\n");
-                            //					delete pBylaw; pBylaw=NULL;
-                            //					return (-1);
-                            //				}
+            //				xml->read(); // <==================
+            //				if (false == OTContract::SkipToElement(xml))
+            //				{
+            //					OTLog::Error("OTScriptable::ProcessXMLNode: Error finding expected next element for variable.\n");
+            //					delete pBylaw; pBylaw=NULL;
+            //					return (-1);
+            //				}
                             // -----------------------------------------------
                             
                             const char	*	pElementExpected	= "clause";
@@ -3014,13 +3019,13 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
                                 {
                                     // ---------------------------------------
                                     
-                                    //						if (false == SkipAfterLoadingField(xml))  // NOt sure yet about this block....
-                                    //						{ 
-                                    //							OTLog::Output(0, "*** OTScriptable::ProcessXMLNode: Bad data? Expected EXN_ELEMENT_END here, but "
-                                    //										  "didn't get it. Failure.\n"); 
-                                    //							delete pBylaw; pBylaw=NULL;
-                                    //							return (-1);
-                                    //						}
+            //						if (false == SkipAfterLoadingField(xml))  // NOt sure yet about this block....
+            //						{ 
+            //							OTLog::Output(0, "*** OTScriptable::ProcessXMLNode: Bad data? Expected EXN_ELEMENT_END here, but "
+            //										  "didn't get it. Failure.\n"); 
+            //							delete pBylaw; pBylaw=NULL;
+            //							return (-1);
+            //						}
                                     // *****************************************************					
                                     
                                     // See if the same-named clause already exists on ANY of the OTHER BYLAWS
@@ -3072,7 +3077,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
                     {
                         while (nCount-- > 0)
                         {
-                            //				xml->read();
+//                          xml->read();
                             if (false == SkipToElement(xml))
                             {
                                 OTLog::vOutput(0, "%s: Failure: Unable to find expected element.\n", szFunc);
@@ -3104,7 +3109,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
                                 }
                                 // ---------------------------------------
                                 
-                                //					xml->read(); // <==================  NO NEED FOR THIS HERE.
+//                              xml->read(); // <==================  NO NEED FOR THIS HERE.
                             }				
                             else 
                             {
@@ -3125,7 +3130,7 @@ int OTScriptable::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
                     {
                         while (nCount-- > 0)
                         {
-                            //				xml->read();
+//                          xml->read();
                             if (false == SkipToElement(xml))
                             {
                                 OTLog::vOutput(0, "%s: Failure: Unable to find expected element.\n", szFunc);
