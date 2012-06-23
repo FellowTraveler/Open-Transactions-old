@@ -46,8 +46,8 @@ if (VerifyExists("Server") && VerifyExists("MyNym") && VerifyExists("MyAcct"))
                 var strRecipientUserID = OT_API_Transaction_GetRecipientUserID(Server, MyNym, MyAcct, strTrans)
                 var strRecipientAcctID = OT_API_Transaction_GetRecipientAcctID(Server, MyNym, MyAcct, strTrans)
 
-                var strUserID = VerifyStringVal(strSenderUserID) ? strSenderUserID : strRecipientUserID;
-                var strAcctID = VerifyStringVal(strSenderAcctID) ? strSenderAcctID : strRecipientAcctID;
+                var strUserID = strRecipientUserID
+                var strAcctID = strRecipientAcctID
 
                 var bUserIDExists = VerifyStringVal(strUserID)
                 var bAcctIDExists = VerifyStringVal(strAcctID)
