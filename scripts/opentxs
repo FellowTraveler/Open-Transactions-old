@@ -5,7 +5,7 @@
 
 def main_not_coded_yet()
 {
-    print("\n\n  Congratulations, you've been selected to add that option! \n It's real easy: just edit scripts/ot/ot_commands.ot, and copy some code\ninto it based on whichever sample script is appropriate.\nThen edit the opentxs script, and add your new main\nfunction to the list map_functions. Done!\n\n")
+    print("\n\n  Congratulations, you've been selected to add that option to this script! \n It's real easy: just edit scripts/ot/ot_commands.ot, and copy some code\ninto it based on whichever sample script is appropriate.\nThen edit the opentxs script, and add your new main\nfunction to the list map_functions near the bottom. Done!\n\n")
 }
 
 
@@ -138,20 +138,49 @@ def main_opentxs()
     // then edit the ot/ot_commands.ot file to add
     // the implementation for your main function!
     
-    var map_functions = ["sendmsg":main_sendmsg,
-                         "stat":main_stat,
-                         "acct":main_not_coded_yet,
-                         "inbox":main_not_coded_yet,
-                         "outbox":main_not_coded_yet,
-                         "balance":main_not_coded_yet,
-                         "new_nym":main_create_nym,
-                         "transfer":main_transfer,
-                         "encode":main_encode,
-                         "decode":main_decode,
-                         "encrypt":main_encrypt,
-                         "decrypt":main_decrypt,
-                         "pass_encrypt":main_password_encrypt,
-                         "pass_decrypt":main_password_decrypt];
+    var map_functions = ["sendmsg":main_sendmsg,                // send a message to another nym's in-mail.
+                         "stat":main_stat,                      // display wallet contents.
+                         "checknym":main_not_coded_yet,         // download a nym's public key based on his ID.
+                         "cheque":main_not_coded_yet,           // write a cheque.
+                         "voucher":main_not_coded_yet,          // withdraw a voucher (cashier's cheque).
+                         "withdraw":main_not_coded_yet,         // withdraw cash
+                         "deposit":main_not_coded_yet,          // deposit cash, cheque, voucher, or tokens
+                         "showacct":main_not_coded_yet,         // show account stats for a single account.
+                         "showbaskets":main_not_coded_yet,      // show basket currencies issued on a particular server.
+                         "showoffers":main_not_coded_yet,       // show all offers on a particular server and market.
+                         "showmyoffers":main_not_coded_yet,     // show mynym's offers on a particular server and market.
+                         "sign":main_not_coded_yet,             // sign a contract, releasing all other signatures first.
+                         "addsignature":main_not_coded_yet,     // add a signature to a contract without releasing others.
+                         "verify":main_not_coded_yet,           // verify a signature on a contract.
+                         "activate":main_not_coded_yet,         // activate a smart contract or payment plan.
+                         "confirm":main_not_coded_yet,          // confirm a smart contract or payment plan.
+                         "inbox":main_not_coded_yet,            // display inbox of a particular account.
+                         "outbox":main_not_coded_yet,           // display outbox of a particular account.
+                         "inmail":main_not_coded_yet,           // display in-mail for a particular nym.
+                         "outmail":main_not_coded_yet,          // display out-mail for a particular nym.
+                         "delinmail":main_not_coded_yet,        // delete an in-mail item
+                         "deloutmail":main_not_coded_yet,       // delete an out-mail item
+                         "balance":main_not_coded_yet,          // display balance for a specific account.
+                         "newkey":main_not_coded_yet,           // create a new symmetric key.
+                         "pass_encrypt":main_password_encrypt,  // password-encrypt a plaintext using a symmetric key.
+                         "pass_decrypt":main_password_decrypt,  // password-decrypt a ciphertext using a symmetric key.
+                         "newnym":main_create_nym,              // create a new nym.
+                         "issueasset":main_not_coded_yet,       // issue a currency contract onto an OT server.
+                         "newacct":main_not_coded_yet,          // create a new asset account.
+                         "newoffer":main_not_coded_yet,         // create a new market offer.
+                         "newbasket":main_not_coded_yet,        // create a new basket currency.
+                         "exchange":main_not_coded_yet,         // exchange in/out of a basket currency.
+                         "trigger":main_not_coded_yet,          // trigger a clause on a running smart contract.
+                         "discard":main_not_coded_yet,          // discard/cancel a not-yet-cashed, outgoing instrument.
+                         "cancel":main_not_coded_yet,           // cancel a still-running, recurring transaction.
+                         "transfer":main_transfer,              // send a transfer from myacct to hisacct.
+                         "acceptall":main_not_coded_yet,        // accept all receipts in myacct's inbox.
+                         "payments":main_not_coded_yet,         // display contents of payments box.
+                         "records":main_not_coded_yet,          // display contents of record box.
+                         "encode":main_encode,                  // OT-base64-encode into armor.
+                         "decode":main_decode,                  // OT-base64-decode out of armor.
+                         "encrypt":main_encrypt,                // encrypt plaintext to a nym's public key.
+                         "decrypt":main_decrypt];               // decrypt ciphertext using nym's private key.
 
     
     main_loop(map_functions)
