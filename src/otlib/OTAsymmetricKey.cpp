@@ -856,7 +856,7 @@ const EVP_PKEY * OTAsymmetricKey::GetKey()
     
     if (NULL == m_p_ascKey)
     {
-        OTLog::vError("%s: Unexpected NULL m_p_ascKey. Printing stack trace (and failing):\n", __FUNCTION__);
+        OTLog::vError("%s: Unexpected NULL m_p_ascKey. Printing stack trace (and returning NULL):\n", __FUNCTION__);
         print_stacktrace();
         return NULL;
     }
@@ -2279,6 +2279,12 @@ OTAsymmetricKey::OTAsymmetricKey(const OTAsymmetricKey & rhs) :
     else
         OTLog::Error("OTAsymmetricKey::OTAsymmetricKey: Error: Asymmetric key construction attempt either with itself, "
                      "or with a private key (when expecting public.)\n");
+    
+//    if (NULL == m_p_ascKey)
+//    {
+//        m_p_ascKey = new OTASCIIArmor;
+//        OT_ASSERT(NULL != m_p_ascKey);
+//    }
 }
 
 
@@ -2289,8 +2295,12 @@ OTAsymmetricKey::OTAsymmetricKey() :
     m_bIsPublicKey(false),
     m_bIsPrivateKey(false)
 {
-    
-}
+//    if (NULL == m_p_ascKey)
+//    {
+//        m_p_ascKey = new OTASCIIArmor;
+//        OT_ASSERT(NULL != m_p_ascKey);
+//    }   
+//}
 
 
 OTAsymmetricKey::~OTAsymmetricKey()
@@ -2300,6 +2310,12 @@ OTAsymmetricKey::~OTAsymmetricKey()
     if (NULL != m_pX509)
         X509_free(m_pX509);
     m_pX509 = NULL;
+    // -------------------------
+    // Release the ascii-armored version of the key (safe to store in this form.)
+    //
+    if (NULL != m_p_ascKey)
+        delete m_p_ascKey;
+    m_p_ascKey = NULL;
     // -------------------------
 }
 
@@ -2369,9 +2385,10 @@ void OTAsymmetricKey::Release_AsymmetricKey()
     // -------------------------
     // Release the ascii-armored version of the key (safe to store in this form.)
     //
-    if (NULL != m_p_ascKey)
-        delete m_p_ascKey;
-    m_p_ascKey = NULL;
+    // Moving this to the destructor. Shouldn't be going NULL here IMO.
+//    if (NULL != m_p_ascKey)
+//        delete m_p_ascKey;
+//    m_p_ascKey = NULL;
     // -------------------------
     // Release the instantiated OpenSSL key (unsafe to store in this form.)
     //

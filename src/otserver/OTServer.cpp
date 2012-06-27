@@ -11327,8 +11327,7 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 				}
 				else 
 				{
-					OTLog::Output(0, "Signature failed!\nThe message was NOT signed by the Nym, OR the "
-							"message was changed after signing.\n");
+					OTLog::Output(0, "Signature verification failed!\n");
 					return false;
 				}
 			}
@@ -11536,8 +11535,7 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 				}
 				else 
 				{
-					OTLog::Output(0, "Signature failed!\nThe message was NOT signed by the Nym, OR the "
-							"message was changed after signing.\n");
+					OTLog::Output(0, "Signature verification failed!\n");
 					return false;
 				}
 			}
@@ -11743,8 +11741,7 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 		}
 		else 
 		{
-			OTLog::Output(0, "Signature failed!\nThe message was NOT signed by the Nym, OR the "
-					"message was changed after signing.\n");
+			OTLog::Output(0, "Signature verification failed!\n");
 			return false;
 		}
 		

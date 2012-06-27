@@ -185,7 +185,10 @@ extern "C"
 #include "OTLog.h"
 
 
-void ProcessMessage_ZMQ(OTServer & theServer, const std::string & str_Message, std::string & str_Reply);
+// true  == YES, DISCONNECT m_pSocket, something must have gone wrong.
+// false ==  NO, do NOT disconnect m_pSocket, everything went wonderfully!
+//
+bool ProcessMessage_ZMQ(OTServer & theServer, const std::string & str_Message, std::string & str_Reply);
 
 // -------------------------------------------------------------
 
@@ -319,7 +322,8 @@ public:
 	OTSocket();
 	~OTSocket();
 	
-	void Listen(const OTString & strBind);
+	void Listen(); // assumes m_strBindPath is already set.
+	void Listen(const OTString & strBind); // sets m_strBindPath
 
 	bool Receive(std::string & str_Message);
 	bool Send(const std::string & str_Reply);
@@ -354,22 +358,46 @@ void OTSocket::NewContext()
 	
 	if (NULL != m_pContext)
 		delete m_pContext;
-	
+//	m_pContext = NULL;
 	m_pContext = new zmq::context_t(1);
 	OT_ASSERT_MSG(NULL != m_pContext, "OTSocket::NewContext():  Failed creating network context: zmq::context_t * pContext = new zmq::context_t(1);");	
 }
+
+
+
+void OTSocket::Listen() // assumes m_strBindPath is already set.
+{
+    const OTString strBind(m_strBindPath);
+    
+    this->NewContext();
+    this->Listen(strBind);
+}
+
 
 void OTSocket::Listen(const OTString &strBind)
 {
 	if (NULL != m_pSocket)
 		delete m_pSocket;
-	
+//	m_pSocket = NULL;
 	m_pSocket = new zmq::socket_t(*m_pContext, ZMQ_REP);  // RESPONSE socket (Request / Response.)
 	OT_ASSERT_MSG(NULL != m_pSocket, "OTSocket::Listen: new zmq::socket(context, ZMQ_REP)");
 	
 	OTString strTemp(strBind); // In case m_strBindPath is what was passed in. (It happens.)
 	m_strBindPath.Set(strTemp); // In case we have to close/reopen the socket to finish a send/receive.
 	
+	// ------------------------
+	//  Configure socket to not wait at close time
+    //
+	const int linger = 0; // close immediately
+	m_pSocket->setsockopt (ZMQ_LINGER, &linger, sizeof (linger));
+    /*
+     int zmq_setsockopt (void *socket, int option_name, const void *option_value, size_t option_len);
+     
+     Caution: All options, with the exception of ZMQ_SUBSCRIBE, ZMQ_UNSUBSCRIBE and ZMQ_LINGER, only take effect for subsequent socket bind/connects.     
+     */
+    
+	// ------------------------
+    
 	m_pSocket->bind(strBind.Get());
 }
 // -----------------------------------
@@ -770,7 +798,7 @@ int main(int argc, char* argv[])
 
 	// WINSOCK WINDOWS
 	// -----------------------------------------------------------------------
-	#ifdef _WIN32
+#ifdef _WIN32
 
 	WORD wVersionRequested;
 	WSADATA wsaData;
@@ -806,7 +834,7 @@ int main(int argc, char* argv[])
 	/* The Winsock DLL is acceptable. Proceed to use it. */
 	/* Add network programming using Winsock here */
 	/* then call WSACleanup when done using the Winsock dll */
-	#endif
+#endif
 
 
 
@@ -1042,14 +1070,19 @@ int main(int argc, char* argv[])
 				}
 				else // ------------------------------------
 				{
-					ProcessMessage_ZMQ(*pServer, str_Message, str_Reply); // <================== PROCESS the message!
+                    // true  == YES, DISCONNECT m_pSocket, something must have gone wrong.
+                    // false ==  NO, do NOT disconnect m_pSocket, everything went wonderfully!
+                    //
+					const bool bShouldDisconnect = ProcessMessage_ZMQ(*pServer, str_Message, str_Reply); // <================== PROCESS the message!
 					// --------------------------------------------------
 
-					if (str_Reply.length() <= 0)
+					if ((str_Reply.length() <= 0) || bShouldDisconnect)
 					{
 						OTLog::vOutput(0, "server main: Unfortunately, not every client request is "
                                        "legible or worthy of a server response. :-)  "
 									   "Msg:\n\n%s\n\n", str_Message.c_str());
+                        
+                        theSocket.Listen();
 					}
 					else
 					{
@@ -1112,11 +1145,13 @@ int main(int argc, char* argv[])
 }
 
 
-
-void ProcessMessage_ZMQ(OTServer & theServer, const std::string & str_Message, std::string & str_Reply)
+// true  == YES, DISCONNECT m_pSocket, something must have gone wrong.
+// false ==  NO, do NOT disconnect m_pSocket, everything went wonderfully!
+//
+bool ProcessMessage_ZMQ(OTServer & theServer, const std::string & str_Message, std::string & str_Reply)
 {
 	if (str_Message.size() < 1)
-		return;
+		return false;
 	
     const char * szFunc = "ProcessMessage_ZMQ";
 	// --------------------
@@ -1138,13 +1173,19 @@ void ProcessMessage_ZMQ(OTServer & theServer, const std::string & str_Message, s
 	
 //	OTLog::vError("Envelope: \n%s\n Size: %ld\n", ascMessage.Get(), ascMessage.GetLength());
 	
+    
+    bool bReturnVal = false; // "false" == no, do NOT disconnect. No errors. ("True" means YES, DISCONNECT!)
+    
 	OTMessage theMsg, theReply; // we'll need these in a sec...
 	
 //	OTEnvelope theEnvelope(ascMessage);
 	OTEnvelope theEnvelope; 
 	
 	if (false == theEnvelope.SetAsciiArmoredData(ascMessage))
+    {
 		OTLog::vError("%s: Error retrieving envelope.\n", szFunc);
+        bReturnVal = true; // disconnect the socket!
+    }
 	else
 	{	// Now the base64 is decoded and the envelope is in binary form again.
 		OTLog::vOutput(2, "%s: Successfully retrieved envelope from ZMQ message...\n", szFunc);
@@ -1156,7 +1197,10 @@ void ProcessMessage_ZMQ(OTServer & theServer, const std::string & str_Message, s
 		
 		// Decrypt the Envelope.    
 		if (false == theEnvelope.Open(theServer.GetServerNym(), strEnvelopeContents)) // now strEnvelopeContents contains the decoded message.
+        {
 			OTLog::vError("%s: Unable to open envelope.\n", szFunc);
+            bReturnVal = true; // disconnect the socket!
+        }
 		else
 		{
 			// All decrypted--now let's load the results into an OTMessage.
@@ -1202,12 +1246,16 @@ void ProcessMessage_ZMQ(OTServer & theServer, const std::string & str_Message, s
 				// -------------------------------------------------
 				// The transaction is now processed (or not), and the server's reply message is in theReply.
 				// Let's seal it up to the recipient's nym (in an envelope) and send back to the user...
+                //
 				OTEnvelope theRecipientEnvelope;
 				
 				bool bSealed = theClient.SealMessageForRecipient(theReply, theRecipientEnvelope);
 				
 				if (false == bSealed)
+                {
 					OTLog::vOutput(0, "%s: Unable to seal envelope. (No reply will be sent.)\n", szFunc);
+                    bReturnVal = true; // disconnect the socket!
+                }
 				else
 				{
 //					OTPayload theReplyPayload;
@@ -1220,14 +1268,20 @@ void ProcessMessage_ZMQ(OTServer & theServer, const std::string & str_Message, s
 						resultString.assign(ascReply.Get(), ascReply.GetLength());
 				}
 			}
-			else 
+			else
+            {
 				OTLog::vError("%s: Error loading message from envelope contents:\n\n%s\n\n",
 							  szFunc, strEnvelopeContents.Get());
+                bReturnVal = true; // disconnect the socket!
+            }
 		}
 	}
 	// ----------------------------------------------------------------------
 	
-	str_Reply = resultString;	
+	str_Reply = resultString;
+    
+    return bReturnVal;
+    
 } // ProcessMessage_ZMQ
 
 

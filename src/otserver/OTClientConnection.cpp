@@ -668,6 +668,7 @@ void OTClientConnection::SetPublicKey(const OTAsymmetricKey & thePublicKey)
 // you know whether the message was successfully sealed into theEnvelope.
 // (Based on the public key into cached in the OTClientConnection...)
 // This is for XmlRpc / HTTP mode.
+//
 bool OTClientConnection::SealMessageForRecipient(OTMessage & theMsg, OTEnvelope & theEnvelope)
 {
 	if (m_PublicKey.GetKey())
@@ -680,7 +681,8 @@ bool OTClientConnection::SealMessageForRecipient(OTMessage & theMsg, OTEnvelope 
 			return theEnvelope.Seal(m_PublicKey, strEnvelopeContents);
 	}
 	else
-		OTLog::Error("OTClientConnection::SealMessageForRecipient: Unable to seal message, since this->m_PublicKey isn't set. \n");
+		OTLog::Error("OTClientConnection::SealMessageForRecipient: "
+                     "Unable to seal message, since this->m_PublicKey.GetKey() returned false. \n");
 		
 	return false;
 }
