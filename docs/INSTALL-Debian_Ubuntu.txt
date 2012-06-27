@@ -91,17 +91,35 @@ $ make
 $ make install
 $ cd ..
 
-
-#fetch O-T and prepare your copy for build
+# setenv varibale PKG_CONFIG_PATH
 $ export PKG_CONFIG_PATH=$HOME/.local/lib/pkgconfig:$PKG_CONFIG_PATH
+
+
+######## Download opentxs #############
+# fetch O-T and prepare your copy for build
+
+# 'stable' source tar ball method
+$ wget https://github.com/FellowTraveler/downloads/opentxs.*.tar.gz
+$ tar -zxvf opentxs.*.tar.gz
+$ cd opentxs.*.tar.gz
+$ mkdir build && cd build
+
+
+# git pull latest development source method
 $ git clone git://github.com/FellowTraveler/Open-Transactions.git
 $ cd Open-Transactions
-
 $ autoreconf -i -f
+$ mkdir build && cd build
+########################################
 
-$ mkdir -p build && cd build
 
-$ ../configure --prefix=$HOME/.local
+
+$ ../configure --prefix=$HOME/.local --with-java
+
+(NB: Default without the "--prefix=" installs sytem-wide to /usr/local 
+and will require admin priveleges for "$ sudo make install" step below.
+Also, for MoneyChanger support "--with-java" flag is needed)
+
 
 #########   Configure Options:   #########
 Enable Configuration in Release Mode:
