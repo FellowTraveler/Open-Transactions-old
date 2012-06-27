@@ -13,7 +13,11 @@ int LucreCoinUnblind(int argc,char **argv)
     const char *szSignatureFile=argv[3];
     const char *szCoinFile=argv[4];
 
+#ifdef _WIN32
+    SetDumper("openssl.dump");
+#else
     SetDumper(stderr);
+#endif
 
     BIO *bioBank=BIO_new_file(szBankFile,"r");
     BIO *bioPrivateRequest=BIO_new_file(szPrivateRequestFile,"r");

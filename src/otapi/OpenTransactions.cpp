@@ -1659,6 +1659,82 @@ bool OT_API::IsNym_RegisteredAtServer(const OTIdentifier & NYM_ID, const OTIdent
 }
 
 
+// --------------------------------------------------------------------
+
+
+
+//bool  NumList::Peek(long & lPeek) const;
+//bool  NumList::Pop();
+
+
+bool OT_API::NumList_Add(OTNumList & theList, const OTNumList & theNewNumbers)
+{
+    OTNumList tempNewList(theList);
+    
+    const bool bSuccess = tempNewList.Add(theNewNumbers);
+    
+    if (bSuccess)
+    {
+        theList.Release();
+        theList.Add(tempNewList);
+        return true;
+    }
+    return false;
+}
+
+bool OT_API::NumList_Remove(OTNumList & theList, const OTNumList & theOldNumbers)
+{
+    OTNumList   tempNewList(theList), 
+                tempOldList(theOldNumbers);
+    
+    while (tempOldList.Count() > 0)
+    {
+        long lPeek=0;
+        
+        if (!tempOldList.Peek(lPeek) || !tempOldList.Pop())
+            OT_ASSERT(false);
+        
+        if (!tempNewList.Remove(lPeek))
+            return false;
+    }
+    
+    theList.Release();
+    theList.Add(tempNewList);
+    return true;
+}
+
+
+// Verifies the presence of theQueryNumbers on theList (as a subset)
+//
+bool OT_API::NumList_VerifyQuery(OTNumList & theList, const OTNumList & theQueryNumbers)
+{
+    OTNumList theTempQuery(theQueryNumbers);
+
+    while (theTempQuery.Count() > 0)
+    {
+        long lPeek=0;
+        
+        if (!theTempQuery.Peek(lPeek) || !theTempQuery.Pop())
+            OT_ASSERT(false);
+        
+        if (!theList.Verify(lPeek))
+            return false;
+    }
+    
+    return true;
+}
+
+// Verifies the COUNT and CONTENT (but not the order) matches EXACTLY.
+//
+bool OT_API::NumList_VerifyAll(OTNumList & theList, const OTNumList & theQueryNumbers)
+{
+    return theList.Verify(theQueryNumbers);
+}
+
+int OT_API::NumList_Count(OTNumList & theList)
+{
+    return theList.Count();
+}
 
 // --------------------------------------------------------------------
 /** TIME (in seconds, as long)
@@ -1670,8 +1746,11 @@ bool OT_API::IsNym_RegisteredAtServer(const OTIdentifier & NYM_ID, const OTIdent
  */
 long OT_API::GetTime()
 {
-	const	time_t CURRENT_TIME =	time(NULL);
-	long	lTime = CURRENT_TIME;
+	const	
+    time_t  CURRENT_TIME =	time(NULL);
+            
+    long	lTime = CURRENT_TIME;
+    
 	return	lTime;
 }
 

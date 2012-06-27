@@ -227,8 +227,15 @@ const char * OT_API_GetTime(void);
 
 // ********************************************************************
 
-
-
+///OTNumList is a class that encapsulates working with a comma-separated list
+/// of long integers, stored in a std::set and easily serializable in/out of a string.
+/// (It's useful.)
+///
+const char * OT_API_NumList_Add        (const char * szNumList, const char * szNumbers);
+const char * OT_API_NumList_Remove     (const char * szNumList, const char * szNumbers);
+int          OT_API_NumList_VerifyQuery(const char * szNumList, const char * szNumbers); // returns OT_BOOL
+int          OT_API_NumList_VerifyAll  (const char * szNumList, const char * szNumbers); // returns OT_BOOL
+int          OT_API_NumList_Count      (const char * szNumList);
 
 
 // --------------------------------------------------------------------
@@ -751,6 +758,15 @@ int		OT_API_Wallet_CanRemoveAccount(const char * ACCOUNT_ID);
 
 const char * OT_API_Wallet_ImportNym(const char * DISPLAY_NAME, const char * KEY_FILE_CONTENTS);
 
+
+
+// Attempts to find a full ID in the wallet, based on a partial of the same ID.
+// Returns NULL on failure, otherwise returns the full ID.
+// 
+const char * OT_API_Wallet_GetNymIDFromPartial    (const char * PARTIAL_ID);
+const char * OT_API_Wallet_GetServerIDFromPartial (const char * PARTIAL_ID);
+const char * OT_API_Wallet_GetAssetIDFromPartial  (const char * PARTIAL_ID);
+const char * OT_API_Wallet_GetAccountIDFromPartial(const char * PARTIAL_ID);
 
 
 
@@ -1851,6 +1867,8 @@ const char * OT_API_Instrument_GetValidFrom(const char * SERVER_ID, const char *
 const char * OT_API_Instrument_GetValidTo(const char * SERVER_ID, const char * THE_INSTRUMENT);
 
 const char * OT_API_Instrument_GetMemo(const char * SERVER_ID, const char * THE_INSTRUMENT);
+
+const char * OT_API_Instrument_GetType(const char * SERVER_ID, const char * THE_INSTRUMENT);
 
 const char * OT_API_Instrument_GetAssetID(const char * SERVER_ID, const char * THE_INSTRUMENT);
 

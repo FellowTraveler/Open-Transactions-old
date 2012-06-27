@@ -245,7 +245,7 @@ public:
 	OT_API();
 	~OT_API();
     // --------------------------------------------------	
-	bool LoadConfigFile(const OTString & strMainPath);
+            bool LoadConfigFile(const OTString & strMainPath);
     // --------------------------------------------------
 			bool Init(OTString & strClientPath);	// Per instance.
     // --------------------------------------------------
@@ -268,9 +268,15 @@ public:
 					   OTString & strKEY_PASSWORD);
 	bool ProcessSockets();
 	// --------------------------------------------------
-	
-	long GetTime();
-
+	long  GetTime();
+	// --------------------------------------------------
+    
+    bool  NumList_Add        (OTNumList & theList, const OTNumList & theNewNumbers);
+    bool  NumList_Remove     (OTNumList & theList, const OTNumList & theOldNumbers);
+    bool  NumList_VerifyQuery(OTNumList & theList, const OTNumList & theQueryNumbers);
+    bool  NumList_VerifyAll  (OTNumList & theList, const OTNumList & theQueryNumbers);
+    int   NumList_Count      (OTNumList & theList);
+    
 	// --------------------------------------------------
 	// Reading data about the local wallet.. presumably already loaded.
 	

@@ -287,6 +287,13 @@ OTScriptable * OTScriptable::InstantiateScriptable(const OTString & strInput)
 // *************************************************************************
 
 
+//virtual
+void OTScriptable::SetDisplayLabel(const std::string * pstrLabel/*=NULL*/)
+{ 
+    m_strLabel = (NULL != pstrLabel) ? pstrLabel->c_str() : ""; 
+} 
+
+
 
 //
 // VALIDATING IDENTIFIERS IN OTSCRIPTABLE.
@@ -621,25 +628,29 @@ bool OTScriptable::ExecuteCallback (OTClause & theCallbackClause, mapOfVariables
 		// Also need to loop through the Variables on pBylaw and register those as well.
 		//
 		pBylaw->RegisterVariablesForExecution(*pScript); // This sets all the variables as CLEAN so we can check for dirtiness after execution.
-		
+        //
 		// ****************************************
-		
+        
+        this->SetDisplayLabel(&str_clause_name);
+        
+        pScript->SetDisplayFilename(m_strLabel.Get());
+        
 		if (false == pScript->ExecuteScript(&varReturnVal))
 		{
-			OTLog::vError("OTScriptable::ExecuteCallback: Error while running callback script: clause %s \n",
-						 str_clause_name.c_str());
+			OTLog::vError("OTScriptable::ExecuteCallback: Error while running callback on scriptable: %s\n",
+						 m_strLabel.Get());
 		}
 		else
 		{
-			OTLog::vOutput(0, "OTScriptable::ExecuteCallback: Successfully executed callback script: clause %s.\n\n",
-						   str_clause_name.c_str());
+			OTLog::vOutput(0, "OTScriptable::ExecuteCallback: Successfully executed callback on scriptable: %s\n\n",
+						   m_strLabel.Get());
 			return true;
 		}
 	}
 	// ---------------------------------------------------------------
 	else 
 	{
-		OTLog::Error("OTScriptable::ExecuteCallback: Error instantiating script!!\n");
+		OTLog::Error("OTScriptable::ExecuteCallback: Error instantiating script!\n");
 	}
 	
 	// ***************************************************************

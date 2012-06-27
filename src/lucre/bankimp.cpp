@@ -1,4 +1,5 @@
 #include "bank.h"
+#include <fstream>
 
 #ifdef _WIN32
 #include <cstring>
@@ -29,9 +30,47 @@ void SetDumper(FILE *f)
     SetDumper(out);
     }
 
+// Open-Transactions
+// NOTE: review this in security audit...
+// This is da2ce7's fix for the problems that appeared from removing
+// Lucre from the OT source and linking it separately. (Without applink.c
+// which causes cross-boundary issues with file handles.)
+//
+void SetDumper(const char *filepathexact)
+{
+// lets clear the last time we used this file.
+    CleanupDumpFile(filepathexact);
+    BIO *out = new BIO;
+    out = BIO_new_file(filepathexact,"w");
+    assert(out);
+    SetDumper(out);
+}
+
+// Open-Transactions
+// NOTE: review this in security audit...
+// This is da2ce7's fix for the problems that appeared from removing
+// Lucre from the OT source and linking it separately. (Without applink.c
+// which causes cross-boundary issues with file handles.)
+//
+void CleanupDumpFile(const char *filepathexact)
+{
+    std::fstream f(filepathexact, std::ios::in);
+    
+    if (f)
+    {
+        f.close();
+        f.open(filepathexact, std::ios::out | std::ios::trunc );
+        f.close();
+        remove(filepathexact);
+    }
+}
+
 void SetMonitor(BIO *out)
     { mout=out; }
 
+// Todo: need to be saving these BIOs somewhere, and freeing them at
+// the end of the run of the application.
+//
 void SetMonitor(FILE *f)
     {
     BIO *out=BIO_new(BIO_s_file());
@@ -39,6 +78,17 @@ void SetMonitor(FILE *f)
     BIO_set_fp(out,f,BIO_NOCLOSE);
     SetMonitor(out);
     }
+
+// Todo: need to be saving these BIOs somewhere, and freeing them at
+// the end of the run of the application.
+//
+void SetMonitor(const char *filepathexact)
+{
+    BIO *out = new BIO;
+    out = BIO_new_file(filepathexact,"r");
+    assert(out);
+    SetDumper(out);
+}
 
 BIGNUM *ReadNumber(BIO *in,const char *szTitle)
     {

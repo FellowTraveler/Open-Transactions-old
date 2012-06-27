@@ -1,20 +1,6 @@
 #!/usr/bin/env ot
 
-	var strKey = OT_API_CreateSymmetricKey()
-	 
-	if (VerifyStringVal(strKey))
-	{
-		// stderr
-		OT_API_Output(0, "\n")
+// See scripts/ot/ot_commands.ot for the code for this function.
 
-		// stdout
-		print(strKey)
+main_new_symmetric_key()
 
-		// stderr
-		OT_API_Output(0, "\n")
-		
-		return 1
-    }
-
-// "return value"
-0

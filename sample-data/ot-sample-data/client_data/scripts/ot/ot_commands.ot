@@ -319,7 +319,7 @@ def main_transfer()
     var strUsage1 = concat("\n\n     USAGE: transfer --myacct YOUR_ASSET_ACCT --hisacct RECIPIENT_ASSET_ACCT\n\n",
                            "Also NECESSARY: --args \"amount PUT_AMOUNT_HERE\"\n")
     var strUsage = concat(strUsage1,
-                          "And OPTIONALLY: --args \"note \\\"Just a memo for the transfer.\\\"\"\n\n")
+                          "And OPTIONALLY: --args \"memo \\\"Just a memo for the transfer.\\\"\"\n\n")
 
     OT_API_Output(0, strUsage)
     // ------------------------------------        
@@ -338,7 +338,7 @@ def main_transfer()
         // then grab them and use them instead of asking the user to enter them
         // at the command line.
         //
-        if (VerifyExists("Args"))
+        if (VerifyExists("Args", false))
         {
             // std::string OT_CLI_GetValueByKey(const std::string str_Args, 
             //                                  const std::string str_key)
@@ -348,7 +348,7 @@ def main_transfer()
             // EXAMPLE:  --args "amount 15 note \"Just a memo for the transfer.\""
             //
             var strNewAmount = OT_CLI_GetValueByKey( Args, "amount"    ) // any integer value
-            var strNewNote   = OT_CLI_GetValueByKey( Args, "note"  )     // optional memo field
+            var strNewNote   = OT_CLI_GetValueByKey( Args, "memo"  )     // optional memo field
             
             // ----------------------------------------------
             // Set the values based on the custom arguments, for those found.
@@ -369,7 +369,7 @@ def main_transfer()
         }
         if (!VerifyStringVal(strNote))
         {
-            OT_API_Output(0, "Optionally, enter a note on a single line["+strDefaultNote+"]: ")
+            OT_API_Output(0, "Optionally, enter a memo on a single line["+strDefaultNote+"]: ")
             strNote	= OT_CLI_ReadLine()
         }
         // ----------------------------------------------
@@ -442,6 +442,8 @@ def main_sendmsg()
             return 1
         }
     }
+    
+    return 0
 }
 
 
@@ -458,13 +460,155 @@ def main_sendmsg()
 
 
 
-// Creates a new Pseudonym and adds it to the wallet.
-// (And sets the display name for the new Nym, in the wallet.)
-// Prints the new NymID to stdout.
-//
-// Returns 1 for success, 0 for failure.
-//
-def create_nym(nKeybits, strName)
+def main_write_cheque()
+{
+    // TODO:  Add a call or two inside this function, so that it is actually smart enough to grab
+    // more transaction numbers if it is low.
+    
+    if (VerifyExists("MyAcct") && VerifyExists("Server") && VerifyExists("HisNym"))
+    {
+        // ---------------------------------------------
+        // HERE, WE LOOK UP THE NYM ID, BASED ON THE ACCOUNT ID.
+        //
+        var strMyNymID = OT_API_GetAccountWallet_NymID(MyAcct)
+        
+        if (!VerifyStringVal(strMyNymID))
+        {
+            OT_API_Output(0, "Failure: Unable to find NymID based on myacct. Use: --myacct ACCT_ID\n")
+            OT_API_Output(0, "The designated asset account must be yours. OT will find the Nym based on the account.\n\n")
+            return (-1)
+        }
+        if (VerifyExists("MyNym") && !(MyNym == strMyNymID))
+        {
+            OT_API_Output(0, "Failure: MyNym was provided, but didn't match the Nym who owns MyAcct. To override, use: --mynym NYM_ID\n")
+            return (-1)
+        }
+        // ***************************************************************
+        
+        var strDefaultAmount = "1"       // smallest possible amount.
+        var strDefaultMemo   = "(memo field)" 
+        var nDefaultLength   = 2592000   // 30 days
+        
+        var strAmount = "0"
+        var strMemo   = ""  // empty
+        var nLength   = 0   
+        
+        // ------------------------------------
+        if (VerifyExists("Args"))
+        {
+            // std::string OT_CLI_GetValueByKey(const std::string str_Args, 
+            //                                  const std::string str_key)
+            // 
+            // OPTION:   --args "key value key value"
+            // EXAMPLE:  --args "amount 100 memo \"my share for the BBQ\""
+            //
+            var strNewAmount = OT_CLI_GetValueByKey( Args, "amount" )
+            var strNewMemo   = OT_CLI_GetValueByKey( Args, "memo" )
+            var strNewLength = OT_CLI_GetValueByKey( Args, "validfor" )
+            
+            if (VerifyStringVal(strNewMemo)) 
+            { strMemo = strNewMemo }
+            
+            if (VerifyStringVal(strNewAmount) && (strNewAmount.to_int() > 0))
+            { strAmount = strNewAmount }
+            
+            if (VerifyStringVal(strNewLength) && (strNewLength.to_int() > 0))
+            { nLength = strNewLength.to_int() }
+        }
+        
+        // ------------------------------------
+        // If the transfer parameters aren't provided, then we
+        // ask the user to supply them at the command line.
+        //
+        if (!VerifyStringVal(strAmount) || (strAmount.to_int() < 1))
+        {
+            OT_API_Output(0, "Enter the amount as integer["+strDefaultAmount+"]: ")
+            strAmount  = OT_CLI_ReadLine()
+        }
+        if (!VerifyStringVal(strMemo))
+        {
+            OT_API_Output(0, "Optionally, enter a note on a single line["+strDefaultMemo+"]: ")
+            strMemo	= OT_CLI_ReadLine()
+        }
+        if (!VerifyIntVal(nLength) || (nLength < 1))
+        {
+            OT_API_Output(0, "Enter the 'valid for' time period, in seconds["+nDefaultLength.to_string()+"]: ")
+            var strTemp	= OT_CLI_ReadLine()
+            nLength = strTemp.to_int()
+        }
+        // ----------------------------------------------
+        if (!VerifyStringVal(strAmount) || (strAmount.to_int() < 1))
+        {    strAmount = strDefaultAmount }
+        
+        if (!VerifyStringVal(strMemo))
+        {    strMemo = strDefaultMemo }
+        
+        if (!VerifyIntVal(nLength) || (nLength < 1))
+        {    nLength = nDefaultLength }
+        // ----------------------------------------------    
+        
+        
+        // Todo: use Args feature here to allow an option to override nLength.
+        // If it's not used, go with the default of 30 days (above.)
+        
+        
+        var strFrom = OT_API_GetTime()
+        var   nTo   = strFrom.to_int() + nLength
+        var strTo   = nTo.to_string()
+        
+//      std::string OT_API_WriteCheque ( const std::string SERVER_ID,
+//										 const std::string CHEQUE_AMOUNT, 
+//										 const std::string VALID_FROM, 
+//										 const std::string VALID_TO,
+//										 const std::string SENDER_ACCT_ID,
+//										 const std::string SENDER_USER_ID,
+//										 const std::string CHEQUE_MEMO, 
+//										 const std::string RECIPIENT_USER_ID);
+        
+        var strCheque = OT_API_WriteCheque (Server,
+                                            strAmount, 
+                                            strFrom, 
+                                            strTo,
+                                            MyAcct,
+                                            strMyNymID,
+                                            strMemo, 
+                                            HisNym)
+        
+        // stderr
+        OT_API_Output(0, "\n-------------------------------------------\n the cheque:\n\n")
+        
+        // stdout
+        print(strCheque)
+        
+        // stderr
+        OT_API_Output(0, "\n\n")
+        
+        return 1
+    }
+    
+    // "return value"
+    0
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def details_create_offer(strScale, strMinIncrement, strQuantity, strPrice, bSelling) : strScale.is_type(string_type) && strMinIncrement.is_type(string_type) && strQuantity.is_type(string_type) && strPrice.is_type(string_type) && bSelling.is_type(bool_type)
 {
     // --------------------------------------------------------------------
     // Instantiate the "OT Made Easy" object.
@@ -472,61 +616,580 @@ def create_nym(nKeybits, strName)
     var madeEasy	= OT_ME()
     // ------------------------------
     
-    var strNymID = madeEasy.create_pseudonym(nKeybits)  // returns new Nym ID
+    var strMyNymID1 = OT_API_GetAccountWallet_NymID(MyAcct)
+    var strMyNymID2 = OT_API_GetAccountWallet_NymID(HisAcct)
     
-    if (!VerifyStringVal(strNymID))
+    if (!VerifyStringVal(strMyNymID1) || !VerifyStringVal(strMyNymID2) || (strMyNymID1 != strMyNymID2))
     {
-        OT_API_Output(0, "create_nym: Failed in OT_ME::create_pseudonym(keybits == " + nKeybits.to_string() + ")\n")
-        return (0)
+        OT_API_Output(0, "You must supply myacct as your asset account, and hisacct as your currency account.\n")
+        OT_API_Output(0, "Also, both accounts must be owned by the same Nym (you.)\n\n")
+        return (-1)
     }
-    OT_API_Output(0, "Success creating! " + nKeybits.to_string() + " keybits, new ID: ") // stderr
-    print(strNymID) // stdout
-    OT_API_Output(0, "\n") //stderr
-    // -------------------
-    var bSetName = OT_API_SetNym_Name(strNymID, // subject
-                                      strNymID, // signer
-                                      strName)
-    if (!bSetName)
-    {
-        OT_API_Output(0, "Failed in OT_API_SetNym_Name(name == " + strName + ")\n")
-        return (0)
-    }
-    // -------------------    
-    OT_API_Output(0, "Success setting name to: " + strName + "\n\n") // stderr
-    return 1
+    // ----------------------------------------------
+    //
+    // Send the transaction.
+    //
+    var strResponse	= madeEasy.create_market_offer(Server, strMyNymID1, MyAcct, HisAcct, strScale, strMinIncrement, strQuantity, strPrice, bSelling)
+    var strAttempt  = "create_market_offer"
+    // ----------------------------------------------
+    // NOTICE: No need here to deal with retries, timeouts, request number,
+    // syncing transaction number, download / process nymbox, etc! It's all
+    // handled at a lower level!  Instead, simply check for success or failure:
+    
+    // ***************************************************************
+    
+    var nInterpretReply = InterpretTransactionMsgReply(Server, strMyNymID1, MyAcct, strAttempt, strResponse)
+    
+    if (1 == nInterpretReply)
+    {    OT_API_Output(0, "Server response ("+strAttempt+"): SUCCESS placing market offer!\n\n") }
+    
+    return nInterpretReply
 }
 
 
-def main_create_nym()
+
+def main_create_offer()
 {
-    var nKeybits = 1024
-    var strName  = "New Nym"
-    // ------------------------------------
-    if (VerifyExists("Args"))
-    {
-        // std::string OT_CLI_GetValueByKey(const std::string str_Args, 
-        //                                  const std::string str_key)
-        // 
-        // OPTION:   --args "key value key value"
-        //
-        // EXAMPLE:  --args "keybits 1024"
-        //
-        var strKeybits = OT_CLI_GetValueByKey( Args, "keybits" )
-        
-        var strNewName = OT_CLI_GetValueByKey( Args, "name" )
-        
-        if (VerifyStringVal(strKeybits) && (strKeybits.to_int() > 0))
-        { nKeybits = strKeybits.to_int() }
-        
-        if (VerifyStringVal(strNewName))
-        { strName = strNewName }
-    }
-    // ------------------------------------
+    var strUsage = concat("\n\n    USAGE: create_offer.ot --myacct <YOUR_ASSET_ACCT> --hisacct <YOUR_CURRENCY_ACCT>\n\n",
+                          " Optional: --args \"type bid|ask scale 1 quantity 100 price 101\"\n\n")
     
-    return create_nym(nKeybits, strName)
+    OT_API_Output(0, strUsage)
+    // ------------------------------------        
+    
+    if (VerifyExists("Server") && VerifyExists("MyAcct") && VerifyExists("HisAcct"))
+    {
+        var strScale               = "0" // must be 1, 10, 100, etc
+        var strMinIncrement        = "0" // must be 1, 2, 3, etc
+        var strQuantity            = "0" // must be >= 1
+        var strPrice               = "0" // must be >= 1
+        var strType                = ""  // must be bid or ask
+        // ------------------------------------        
+        var strDefaultScale        = "1"    // must be 1, 10, 100, etc
+        var strDefaultMinIncrement = "1"    // must be 1, 2, 3, etc
+        var strDefaultQuantity	   = "100"  // must be >= 1
+        var strDefaultPrice		   = "101"  // must be >= 1
+        var strDefaultType         = "bid"  // must be bid or ask
+        // ------------------------------------
+        // If custom arguments have been passed on the command line,
+        // then grab them and use them instead of asking the user to enter them
+        // at the command line.
+        //
+        if (VerifyExists("Args"))
+        {
+            // std::string OT_CLI_GetValueByKey(const std::string str_Args, 
+            //                                  const std::string str_key)
+            // 
+            // OPTION:   --args "key value key value"
+            // EXAMPLE:  --args "type bid scale 1 quantity 100 price 101"
+            // EXAMPLE:  --args "type ask scale 1 quantity 100 price 101"
+            //
+            var strNewScale    = OT_CLI_GetValueByKey( Args, "scale"    ) // 1, 10, 100, 1000, etc
+            var strNewMinInc   = OT_CLI_GetValueByKey( Args, "min_inc"  ) // 1, 2, 3, 4, etc. Usually 1.
+            var strNewQuantity = OT_CLI_GetValueByKey( Args, "quantity" ) // quantity for sale/purchase. 
+            var strNewPrice    = OT_CLI_GetValueByKey( Args, "price"    ) // per scale
+            var strNewType     = OT_CLI_GetValueByKey( Args, "type"    )  // bid / ask
+            
+            // ----------------------------------------------
+            // Set the values based on the custom arguments, for those found.
+            //
+            if (VerifyStringVal(strNewScale))
+            {    strScale = strNewScale }
+            if (VerifyStringVal(strNewMinInc))
+            {    strMinIncrement = strNewMinInc }
+            if (VerifyStringVal(strNewQuantity))
+            {    strQuantity = strNewQuantity }
+            if (VerifyStringVal(strNewPrice))
+            {    strPrice = strNewPrice }
+            if (VerifyStringVal(strNewType))
+            {    strType = strNewType }
+        }            
+        // ------------------------------------
+        // If the offer parameters aren't satisfied yet, then
+        // ask the user to supply them at the command line.
+        //
+        if (!VerifyStringVal(strScale) || (strScale.to_int() < 1))
+        {
+            OT_API_Output(0, "Enter the market scale (1, 10, 100, etc)["+strDefaultScale+"]: ")
+            strScale        = OT_CLI_ReadLine()
+        }
+        if (!VerifyStringVal(strMinIncrement) || (strMinIncrement.to_int() < 1))
+        {
+            OT_API_Output(0, "Enter the minimum increment["+strDefaultMinIncrement+"]: ")
+            strMinIncrement	= OT_CLI_ReadLine()
+        }
+        if (!VerifyStringVal(strQuantity) || (strQuantity.to_int() < 1))
+        {
+            OT_API_Output(0, "Enter the quantity being purchased/sold["+strDefaultQuantity+"]: ")
+            strQuantity		= OT_CLI_ReadLine()
+        }
+        if (!VerifyStringVal(strPrice) || (strPrice.to_int() < 1))
+        {
+            OT_API_Output(0, "Enter the price per scale["+strDefaultPrice+"]: ")
+            strPrice		= OT_CLI_ReadLine()
+        }
+        if (!VerifyStringVal(strType) || ((strType != "bid") && (strType != "ask")))
+        {
+            OT_API_Output(0, "Enter the order type (bid/ask) ["+strDefaultType+"]: ")
+            strType		= OT_CLI_ReadLine()
+        }
+        // ----------------------------------------------
+        if (!VerifyStringVal(strScale) || (strScale.to_int() < 1))
+        {    strScale = strDefaultScale }
+        if (!VerifyStringVal(strMinIncrement) || (strMinIncrement.to_int() < 1))
+        {    strMinIncrement = strDefaultMinIncrement }
+        if (!VerifyStringVal(strQuantity) || (strQuantity.to_int() < 1))
+        {    strQuantity = strDefaultQuantity }
+        if (!VerifyStringVal(strPrice) || (strPrice.to_int() < 1))
+        {    strPrice = strDefaultPrice }
+        if (!VerifyStringVal(strType)  || ((strType != "bid") && (strType != "ask")))
+        {    strType = strDefaultType }
+        // ----------------------------------------------    
+        //
+        // false == buying    bid
+        // true  == selling   ask
+        //
+        var bType	= ((strType == "bid") ? false : true);
+        // ----------------------------------------------    
+        return details_create_offer(strScale, strMinIncrement, strQuantity, strPrice, bType)
+    }
+    
+    return (-1)
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+def main_create_server_contract()
+{
+    if (VerifyExists("MyNym"))
+    {
+        OT_API_Output(0, "Please enter the XML contents for the contract, followed by an EOF or a ~ by itself on a blank line:\n\n")
+        
+        // The reason we accept the tilde ~ on a blank line by itself, is because
+        // the EOF, while it works, causes us not to be able to read any more input
+        // from stdin. Stdin is considered "closed" for the duration of the run.
+        // So the tilde allows us to read multiple times without closing stdin.
+        
+        var strXML = OT_CLI_ReadUntilEOF() 
+        
+        if (VerifyStringVal(strXML))
+        {
+            var strContractID = OT_API_CreateServerContract(MyNym, strXML)
+            
+            if (VerifyStringVal(strContractID))
+            {
+                // stderr
+                OT_API_Output(0, "-------------------------------------------\nNew Contract ID: " + strContractID + "\n\n")
+                
+                var strContract = OT_API_GetServer_Contract(strContractID)
+                
+                if (VerifyStringVal(strContract))
+                {
+                    // stderr
+                    OT_API_Output(0, "-------------------------------------------\nNew Contract:\n\n")
+                    
+                    // stdout
+                    print(strContract)
+                    
+                    OT_API_Output(0, "\n\n")
+                    
+                    return 1
+                }
+            }
+        }
+    }
+    
+    // "return value"
+    0
+}
+
+
+
+
+
+
+
+
+
+def main_create_asset_contract()
+{
+    // bool OTContract::CreateContract(OTString & strContract, OTPseudonym & theSigner)
+    
+    if (VerifyExists("MyNym"))
+    {
+        OT_API_Output(0, "Please enter the XML contents for the contract, followed by an EOF or a ~ by itself on a blank line:\n\n")
+        
+        // The reason we accept the tilde ~ on a blank line by itself, is because
+        // the EOF, while it works, causes us not to be able to read any more input
+        // from stdin. Stdin is considered "closed" for the duration of the run.
+        // So the tilde allows us to read multiple times without closing stdin.
+        
+        var strXML = OT_CLI_ReadUntilEOF() 
+        
+        if (VerifyStringVal(strXML))
+        {
+            var strContractID = OT_API_CreateAssetContract(MyNym, strXML)
+            
+            if (VerifyStringVal(strContractID))
+            {
+                // stderr
+                OT_API_Output(0, "-------------------------------------------\nNew Contract ID: " + strContractID + "\n\n")
+                
+                var strContract = OT_API_GetAssetType_Contract(strContractID)
+                
+                if (VerifyStringVal(strContract))
+                {
+                    // stderr
+                    OT_API_Output(0, "-------------------------------------------\nNew Contract:\n\n")
+                    
+                    // stdout
+                    print(strContract)
+                    
+                    OT_API_Output(0, "\n\n")
+                    
+                    return 1
+                }
+            }
+        }
+    }
+    
+    // "return value"
+    0
+}
+
+
+
+
+
+
+
+
+
+
+def main_create_acct()
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    // ------------------------------
+    
+    // Just to show how easy it is now, let's try a "create_asset_acct" message.
+    // (It sends a NymID to the server, and downloads that Nym's public key.)
+	
+	
+    
+    if (VerifyExists("Server") && VerifyExists("MyNym") && VerifyExists("MyPurse"))
+    {	
+        // Send the request.
+        //
+        var strResponse	= madeEasy.create_asset_acct(Server, MyNym, MyPurse)	// Send the 'create_asset_acct' message to the server.
+        
+        // NOTICE: No need here to deal with retries, timeouts, request number,
+        // syncing transaction number, download / process nymbox, etc! It's all
+        // handled at a lower level!  Instead, simply check for success or failure:
+        
+        // -1 error, 0 failure, 1 success.
+        //
+        if (1 != VerifyMessageSuccess(strResponse))
+        {
+            OT_API_Output(0, "\n\ncreate_asset_acct: Failed.\n\n");
+            return 0
+        }
+        else
+        {
+            OT_API_Output(0, "Success in create_asset_acct! Server response:\n\n") // stderr
+            print(strResponse) // stdout
+            OT_API_Output(0, "\n\n") //stderr
+            return 1
+        }
+    }
+    
+    // Done!
+    0
+}
+
+
+
+
+
+
+
+
+
+
+
+def main_add_signature()
+{
+    // SignContract erases all signatures and affixes a new one alone.
+    // But AddSignature, on the other hand, leaves all signatures in place, and simply adds yours to the list. 
+    
+    if (VerifyExists("MyNym"))
+    {
+        
+        OT_API_Output(0, "Please enter an already-signed contract you wish to add your signature to, followed by an EOF or a ~ by itself on a blank line:\n\n")
+        
+        // The reason we accept the tilde ~ on a blank line by itself, is because
+        // the EOF, while it works, causes us not to be able to read any more input
+        // from stdin. Stdin is considered "closed" for the duration of the run.
+        // So the tilde allows us to read multiple times without closing stdin.
+        
+        var strInput = OT_CLI_ReadUntilEOF() 
+        
+        OT_API_Output(0, "\n\n You entered:\n" + strInput + "\n\n") 
+        
+        var strOutput = OT_API_AddSignature(MyNym, strInput) 
+        
+        // stderr
+        OT_API_Output(0, "-------------------------------------------\nSigned:\n\n")
+        
+        // stdout
+        print(strOutput)
+        
+        // stderr
+        OT_API_Output(0, "\n\n")
+        
+        return 1
+    }
+    
+    // "return value"
+    0    
+}
+
+
+
+
+
+
+
+
+
+def main_sign_contract()
+{
+    // SignContract erases all signatures and affixes a new one alone.
+    // But AddSignature, on the other hand, leaves all signatures in place, and simply adds yours to the list. 
+    
+    if (VerifyExists("MyNym"))
+    {
+        OT_API_Output(0, "Please enter a contract to be signed, followed by an EOF or a ~ by itself on a blank line:\n\n")
+        
+        // The reason we accept the tilde ~ on a blank line by itself, is because
+        // the EOF, while it works, causes us not to be able to read any more input
+        // from stdin. Stdin is considered "closed" for the duration of the run.
+        // So the tilde allows us to read multiple times without closing stdin.
+        
+        var strInput = OT_CLI_ReadUntilEOF() 
+        
+        OT_API_Output(0, "\n\n You entered:\n" + strInput + "\n\n") 
+        
+        var strOutput = OT_API_SignContract(MyNym, strInput) 
+        
+        // stderr
+        OT_API_Output(0, "-------------------------------------------\nSigned:\n\n")
+        
+        // stdout
+        print(strOutput)
+        
+        // stderr
+        OT_API_Output(0, "\n\n")
+        
+        return 1
+    }
+    
+    // "return value"
+    0
+}
+
+
+
+
+
+
+
+
+
+
+def main_cancel_offer()
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    // ------------------------------
+    
+    
+    var strUsage = "\n\n FYI, USAGE: cancel_offer.ot --args \"transnum <transaction_number>\"\n\n"
+    
+    // Just to show how easy it is now, let's try a "cancel_payment_plan" message.
+    // (It cancels a payment plan.)
+    
+    if (!VerifyExists("Server") || !VerifyExists("MyNym") || !VerifyExists("MyAcct") || !VerifyExists("Args"))
+    {  OT_API_Output(0, strUsage)  }
+    else
+    {	
+        var strTransactionNum = OT_CLI_GetValueByKey(Args, "transnum")
+        
+        if (!VerifyStringVal(strTransactionNum) )
+        {
+            OT_API_Output(0, "\n\n\nYou need to provide a transaction number...\n\n")
+            OT_API_Output(0, strUsage)
+        }
+        else
+        {
+            // Send the transaction.
+            //        
+            var strResponse	= madeEasy.cancel_market_offer(Server, MyNym, MyAcct, strTransactionNum)
+            
+            // NOTICE: No need here to deal with retries, timeouts, request number,
+            // syncing transaction number, download / process nymbox, etc! It's all
+            // handled at a lower level!  Instead, simply check for success or failure:
+            
+            if (1 != VerifyMessageSuccess(strResponse))
+            {
+                OT_API_Output(0, "\n\ncancel_market_offer: Failed.\n")
+            }
+            else if (1 != VerifyMsgBalanceAgrmntSuccess(Server, MyNym, MyAcct, strResponse))
+            {
+                OT_API_Output(0, "\n\ncancel_market_offer: Balance agreement failed.\n")
+            }
+            else if (1 != VerifyMsgTrnxSuccess(Server, MyNym, MyAcct, strResponse))
+            {
+                OT_API_Output(0, "\n\ncancel_market_offer: Balance agreement succeeded, but transaction failed.\n")
+            }
+            else
+            {
+                OT_API_Output(0, "\n\nSuccess in cancel_market_offer! Server response:\n\n")
+                print(strResponse) // stdout
+                OT_API_Output(0, "\n\n") // stderr
+                return 1
+            }
+        }
+    }
+    
+    // Done!
+    0
+}
+
+
+
+
+
+
+
+
+
+def main_cancel_plan()
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    // ------------------------------
+    
+    // string OT_CLI_GetValueByKey(Args, str_key)
+    
+    var strUsage = "\n\n FYI, USAGE: cancel_plan.ot --args \"transnum <transaction_number>\"\n\n"
+    
+    // Just to show how easy it is now, let's try a "cancel_payment_plan" message.
+    // (It cancels a payment plan.)
+    
+    if (!VerifyExists("Server") || !VerifyExists("MyNym") || !VerifyExists("MyAcct") || !VerifyExists("Args"))
+    {  OT_API_Output(0, strUsage)  }
+    else
+    {	
+        var strTransactionNum = OT_CLI_GetValueByKey(Args, "transnum")
+        
+        if (!VerifyStringVal(strTransactionNum) )
+        {
+            OT_API_Output(0, "\n\n\nYou need to provide a transaction number...\n\n")
+            OT_API_Output(0, strUsage)
+        }
+        else
+        {
+            // Send the transaction.
+            //
+            var strResponse	= madeEasy.cancel_payment_plan(Server, MyNym, MyAcct, strTransactionNum)
+            
+            // NOTICE: No need here to deal with retries, timeouts, request number,
+            // syncing transaction number, download / process nymbox, etc! It's all
+            // handled at a lower level!  Instead, simply check for success or failure:
+            
+            if (1 != VerifyMessageSuccess(strResponse))
+            {
+                OT_API_Output(0, "\n\ncancel_payment_plan: Failed.\n")
+            }
+            else if (1 != VerifyMsgBalanceAgrmntSuccess(Server, MyNym, MyAcct, strResponse))
+            {
+                OT_API_Output(0, "\n\ncancel_payment_plan: Balance agreement failed.\n")
+            }
+            else if (1 != VerifyMsgTrnxSuccess(Server, MyNym, MyAcct, strResponse))
+            {
+                OT_API_Output(0, "\n\ncancel_payment_plan: Balance agreement succeeded, but transaction failed.\n")
+            }
+            else
+            {
+                OT_API_Output(0, "\n\nSuccess in cancel_payment_plan! Server response:\n\n")
+                print(strResponse) // stdout
+                OT_API_Output(0, "\n\n") // stderr
+                return 1
+            }
+        }
+    }
+    
+    // Done!
+    0
+}
+
+
+
+
+
+
+
+
+def main_verify_signature()
+{
+    if (VerifyExists("HisNym"))
+    {
+        OT_API_Output(0, "Please enter a contract you wish to verify with HisNym, followed by an EOF or a ~ by itself on a blank line:\n\n")
+        
+        // The reason we accept the tilde ~ on a blank line by itself, is because
+        // the EOF, while it works, causes us not to be able to read any more input
+        // from stdin. Stdin is considered "closed" for the duration of the run.
+        // So the tilde allows us to read multiple times without closing stdin.
+        
+        var strInput = OT_CLI_ReadUntilEOF() 
+        
+        OT_API_Output(0, "\n\n--------------------------------------\n You entered:\n" + strInput + "\n\n") 
+        
+        var bSuccess = false
+        
+        bSuccess = OT_API_VerifySignature(HisNym, strInput) 
+        
+        if (bSuccess)
+        {
+            print("\n\n *** Verified! ***\n\n")
+            return 1
+        }
+        else
+        {
+            print("Failed!\n\n")
+        }
+    }
+    
+    // return value
+    0
+}
 
 
 
@@ -616,8 +1279,6 @@ def stat_accounts()
     print("------------------------------------------------------------------")
 }
 
-
-
 def main_stat() 
 {
     print("");
@@ -629,6 +1290,1931 @@ def main_stat()
     
     1
 }
+
+
+
+
+
+
+
+
+
+
+def details_stat_account(strID)
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    
+    // stderr
+    OT_API_Output(0, "\n\n------------------------------------------------------------------\n")
+    
+    var strStatAcct = madeEasy.stat_asset_account(strID)
+    
+    var bSuccess = VerifyStringVal(strStatAcct)
+    var nSuccess = (bSuccess ? 1 : 0)
+    
+    if (bSuccess)
+    {    
+        print(strStatAcct)  
+    }
+    else
+    {
+        print("Error trying to stat an asset account: "+strID+"\n")
+    }
+    // stderr
+    OT_API_Output(0, "\n")
+    
+    return nSuccess
+}
+
+
+
+def main_stat_acct() 
+{
+    if (VerifyExists("MyAcct"))
+    {	
+        return details_stat_account(MyAcct)
+    }
+    return (-1)
+}
+
+
+
+
+
+
+
+
+
+
+def details_account_balance(strID)
+{
+    var strName          = OT_API_GetAccountWallet_Name(strID)
+    var strBalance       = OT_API_GetAccountWallet_Balance(strID)
+    
+    OT_API_Output(0, "\n    Balance: ") //stderr
+    print(strBalance) // stdout
+    OT_API_Output(0, strID + "   (" + strName + ")\n\n") //stderr
+}
+
+def main_balance() 
+{
+    if (VerifyExists("MyAcct"))
+    {	
+        details_account_balance(MyAcct)
+        return 1
+    }
+    return 0
+}
+
+
+
+
+
+
+
+
+
+
+
+
+def main_show_mint()
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    // ------------------------------
+    // SHOW MINT
+    // 
+    // (Load a public mint from local storage and display it on the screen.
+    // If necessary, download it from the server.)
+    //
+    
+    if (VerifyExists("Server") && VerifyExists("MyNym") && VerifyExists("MyPurse"))
+    {	
+        // Just to show how easy it is now, let's load up a mint and display it.
+        // If this function is unable to load it, it will download the mint from
+        // the server.
+        //
+        var strMint	= madeEasy.load_or_retrieve_mint(Server, MyNym, MyPurse) // <=====
+        
+        // NOTICE -- there's no need here to deal with retries, timeouts, request number, synching 
+        // transaction number, download / process nymbox, etc! It's all handled interally.
+        //
+        // Simply "verify" the return value:
+        //
+        if (!VerifyStringVal(strMint))
+        {
+            OT_API_Output(0, "\n\n load_or_retrieve_mint: Failed.\n\n")
+	        return 0
+        }
+        else	// Success!
+        {
+            OT_API_Output(0, "\n\n") // stderr
+            print(strMint)           // stdout
+            OT_API_Output(0, "\n\n") // stderr
+            return 1
+        }
+    }
+    
+    // Done!
+    0    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Creates a new Pseudonym and adds it to the wallet.
+// (And sets the display name for the new Nym, in the wallet.)
+// Prints the new NymID to stdout.
+//
+// Returns 1 for success, 0 for failure.
+//
+def details_create_nym(nKeybits, strName)
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    // ------------------------------
+    
+    var strNymID = madeEasy.create_pseudonym(nKeybits)  // returns new Nym ID
+    
+    if (!VerifyStringVal(strNymID))
+    {
+        OT_API_Output(0, "details_create_nym: Failed in OT_ME::create_pseudonym(keybits == " + nKeybits.to_string() + ")\n")
+        return (0)
+    }
+    OT_API_Output(0, "Success creating! " + nKeybits.to_string() + " keybits, new ID: ") // stderr
+    print(strNymID) // stdout
+    OT_API_Output(0, "\n") //stderr
+    // -------------------
+    var bSetName = OT_API_SetNym_Name(strNymID, // subject
+                                      strNymID, // signer
+                                      strName)
+    if (!bSetName)
+    {
+        OT_API_Output(0, "Failed in OT_API_SetNym_Name(name == " + strName + ")\n")
+        return (0)
+    }
+    // -------------------    
+    OT_API_Output(0, "Success setting name to: " + strName + "\n\n") // stderr
+    return 1
+}
+
+
+def main_create_nym()
+{
+    var nKeybits = 1024
+    var strName  = "New Nym"
+    // ------------------------------------
+    if (VerifyExists("Args"))
+    {
+        // std::string OT_CLI_GetValueByKey(const std::string str_Args, 
+        //                                  const std::string str_key)
+        // 
+        // OPTION:   --args "key value key value"
+        //
+        // EXAMPLE:  --args "keybits 1024"
+        //
+        var strKeybits = OT_CLI_GetValueByKey( Args, "keybits" )
+        
+        var strNewName = OT_CLI_GetValueByKey( Args, "name" )
+        
+        if (VerifyStringVal(strKeybits) && (strKeybits.to_int() > 0))
+        { nKeybits = strKeybits.to_int() }
+        
+        if (VerifyStringVal(strNewName))
+        { strName = strNewName }
+    }
+    // ------------------------------------
+    
+    return details_create_nym(nKeybits, strName)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+ call OT_API_LoadInbox() to load the inbox ledger from local storage.
+ 
+ During this time, your user has the opportunity to peruse the inbox, and to decide which transactions therein he wishes to accept or reject. Usually the inbox is display on the screen, then the user selects various items to accept or reject, and then the user clicks “Process Inbox” and then you do this:
+ Then call OT_API_Ledger_CreateResponse() in order to create a ‘response’ ledger for that inbox, which will be sent to the server to signal your responses to the various inbox transactions.
+ Then call OT_API_Ledger_GetCount() (pass it the inbox) to find out how many transactions are inside of it. Use that count to LOOP through them…
+ Use OT_API_Ledger_GetTransactionByIndex() to grab each transaction as you iterate through the inbox. (There are various introspection functions you can use in the API here if you wish to display the inbox items on the screen for the user…) 
+ Next call OT_API_Transaction_CreateResponse() for each transaction in the inbox, to create a response to it, accepting or rejecting it. This function creates the response and adds it to the response ledger.
+ Next, call OT_API_Ledger_FinalizeResponse() which will create a Balance Agreement for the ledger.
+ Finally, call OT_API_processInbox() to send your message to the server and process the various items.
+ 
+ If the message was successful, then use OT_API_Message_GetBalanceAgreementSuccess() and OT_API_Message_GetTransactionSuccess() as described above in the deposit cash instructions.
+ */
+// ------------------------------
+//
+// PROCESS INBOX, ACCEPTING ALL ITEMS WITHIN...
+// 
+// Load an asset account's inbox from local storage and iterate through
+// the items inside, and fire off a server message accepting them all.
+//
+
+def accept_entire_inbox()
+{
+    // ---------------------------------------------
+    
+    var strMyNymID = OT_API_GetAccountWallet_NymID(MyAcct)
+    
+    if (!VerifyStringVal(strMyNymID))
+    {
+        OT_API_Output(0, "Failure: Unable to find NymID based on myacct. Use: --myacct ACCT_ID\n")
+        OT_API_Output(0, "The designated asset account must be yours. OT will find the Nym based on the account.\n\n")
+        return (-1)
+    }
+    // ----------------------------------------------
+    
+    var strInbox = OT_API_LoadInbox(Server, strMyNymID, MyAcct); // Returns NULL, or an inbox.
+    
+	if (!VerifyStringVal(strInbox))
+	{
+		OT_API_Output(0, "\n\n OT_API_LoadInbox: Failed.\n\n")
+        return 0
+	}
+	else	// Success!
+	{
+		OT_API_Output(0, "\n\n") // stderr
+        //		print(strInbox)          // stdout
+        
+        var nCount = OT_API_Ledger_GetCount(Server, strMyNymID, MyAcct, strInbox)
+        
+        if (VerifyIntVal(nCount) && (nCount > 0))
+        {
+            var strResponseLEDGER = OT_API_Ledger_CreateResponse(Server, strMyNymID, MyAcct, strInbox)
+            
+            if (!VerifyStringVal(strResponseLEDGER))
+            {
+                OT_API_Output(0, "\n\nFailure: OT_API_Ledger_CreateResponse returned NULL.\n")
+                return (-1)
+            }
+            // ----------------------------------
+            for (var nIndex = 0; nIndex < nCount; ++nIndex)
+            {
+                var strTrans              = OT_API_Ledger_GetTransactionByIndex(Server, strMyNymID, MyAcct, strInbox, nIndex)                
+                var strNEW_ResponseLEDGER = OT_API_Transaction_CreateResponse(Server, strMyNymID, MyAcct, strResponseLEDGER, strTrans, true) // accept = true  
+                
+                if (!VerifyStringVal(strNEW_ResponseLEDGER))
+                {
+                    OT_API_Output(0, "\n\nFailure: OT_API_Transaction_CreateResponse returned NULL.\n")
+                    return (-1)
+                }
+                strResponseLEDGER = strNEW_ResponseLEDGER
+            } // for
+            // ----------------------------------
+            var strFinalizedResponse = OT_API_Ledger_FinalizeResponse(Server, strMyNymID, MyAcct, strResponseLEDGER)
+            
+            if (!VerifyStringVal(strFinalizedResponse))
+            {
+                OT_API_Output(0, "\n\nFailure: OT_API_Ledger_FinalizeResponse returned NULL.\n")
+                return (-1)
+            }
+            // ***************************************************************
+            
+            // Instantiate the "OT Made Easy" object.
+            //
+            var madeEasy	= OT_ME()
+            
+            // Server communications are handled here...
+            //
+            var strResponse = madeEasy.process_inbox(Server, strMyNymID, MyAcct, strFinalizedResponse) 
+            var strAttempt  = "process_inbox"
+            
+            // ***************************************************************
+            
+            var nInterpretReply = InterpretTransactionMsgReply(Server, strMyNymID, MyAcct, strAttempt, strResponse)
+            
+            if (1 == nInterpretReply)
+            {    
+                // Download all the intermediary files (account balance, inbox, outbox, etc)
+                // since they have probably changed from this operation.
+                //
+                var bRetrieved = madeEasy.retrieve_account(Server, strMyNymID, MyAcct, true) //bForceDownload defaults to false.
+                
+                OT_API_Output(0, "\n\nServer response ("+strAttempt+"): SUCCESS processing/accepting entire inbox!\n")
+                OT_API_Output(0, (bRetrieved ? "Success" : "Failed") + " retrieving intermediary files for account.\n")
+            }
+            
+            // ***************************************************************
+            //
+            // Success!
+            //
+            return nInterpretReply  
+            
+        } // VerifyIntVal (nCount) && nCount > 0     
+        
+        OT_API_Output(0, "(The inbox is empty.)\n\n")
+    }
+    
+    0
+}
+
+
+
+def main_accept_inbox()
+{
+    if (VerifyExists("Server") && VerifyExists("MyAcct"))
+    {	
+        return accept_entire_inbox()
+    } 
+    
+    return 0
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+def main_check_user()
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    // ------------------------------
+    
+    // Just to show how easy it is now, let's try a "check_user" message.
+    // (It sends a NymID to the server, and downloads that Nym's public key.)
+    
+    
+    if (VerifyExists("Server") && VerifyExists("MyNym") && VerifyExists("HisNym"))
+    {
+        // Send the request.
+        //
+        var strResponse	= ""
+        
+        strResponse = madeEasy.check_user(Server, MyNym, HisNym)	// Send the 'check_user' message to the server.
+        
+        // NOTICE: No need here to deal with retries, timeouts, request number,
+        // syncing transaction number, download / process nymbox, etc! It's all
+        // handled at a lower level!  Instead, simply check for success or failure:
+        
+        // -1 is error, 
+        //  0 is reply received: failure 
+        //  1 is reply received: success
+        //
+        if (1 == VerifyMessageSuccess(strResponse))
+        {
+            OT_API_Output(0, "\n\nSuccess in check_user! Server response:\n\n");
+            print(strResponse) // stdout
+            OT_API_Output(0, "\n\n") //stderr
+            return 1
+        }
+        else
+        {
+            OT_API_Output(0, "\n\ncheck_user: Failed.\n\n");
+        }
+    }
+    
+    // Done
+    0
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+def download_acct_files()
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    
+    // ---------------------------------------------
+    
+    var strMyNymID = OT_API_GetAccountWallet_NymID(MyAcct)
+    
+    if (!VerifyStringVal(strMyNymID))
+    {
+        OT_API_Output(0, "Failure: Unable to find NymID based on myacct. Use: --myacct ACCT_ID\n")
+        OT_API_Output(0, "The designated asset account must be yours. OT will find the Nym based on the account.\n\n")
+        return (-1)
+    }
+    // ----------------------------------------------
+    
+    // Download all the intermediary files (account balance, inbox, outbox, etc)
+    // since they have probably changed from this operation.
+    //
+    var bRetrieved = madeEasy.retrieve_account(Server, strMyNymID, MyAcct, true) //bForceDownload defaults to false.
+    
+    OT_API_Output(0, "\n\n" + (bRetrieved ? "SUCCESS" : "FAILED") + " retrieving intermediary files for account: "+MyAcct+"\n\n")
+    
+    return bRetrieved ? 1 : 0;
+}
+
+
+def main_dl_acct_files()
+{
+    var strUsage = "Usage:  refresh.ot --server SERVER_ID --myacct YOUR_ACCT_ID\n\n"
+    
+    OT_API_Output(0, strUsage)
+    
+    if (VerifyExists("Server") && VerifyExists("MyAcct"))
+    {	
+        return download_acct_files()
+    } 
+    
+    return -1
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+def details_download_contract(strContractID) : strContractID.is_type(string_type)
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    
+    // ---------------------------------------------
+    
+    // Download all the intermediary files (account balance, inbox, outbox, etc)
+    // since they have probably changed from this operation.
+    //
+    var strRetrieved   = madeEasy.retrieve_contract(Server, MyNym, strContractID)
+    var nRetrieved     = VerifyMessageSuccess(strRetrieved)
+    
+    var strSuccess = "ERROR"
+    
+    if (1 == nRetrieved)
+    {   strSuccess = "SUCCESS" }
+    else if (0 == nRetrieved)
+    {   strSuccess = "FAILED" }
+    
+    OT_API_Output(0, "\n\n " + strSuccess + " retrieving contract: "+strContractID+"\n\n")
+    
+    return nRetrieved
+}
+
+
+def main_download_contract()
+{
+    var strUsage = concat("\n\nUsage:  dl_contract.ot --server SERVER_ID --mynym YOUR_NYM_ID \n",
+                          "                    --args \"contract_id CONTRACT_ID_HERE\"\n\n")
+    OT_API_Output(0, strUsage)
+    
+    var strContractID = ""
+    
+    if (VerifyExists("Server") && VerifyExists("MyNym"))
+    {	
+        // ------------------------------------
+        // If custom arguments have been passed on the command line,
+        // then grab them and use them instead of asking the user to enter them
+        // at the command line.
+        //
+        if (VerifyExists("Args"))
+        {
+            // std::string OT_CLI_GetValueByKey(const std::string str_Args, 
+            //                                  const std::string str_key)
+            // 
+            // OPTION:   --args "key value key value"
+            // EXAMPLE:  --args "contract_id CvHGtfOOKzQKL5hFL7J4iF5yAodVKhS1rxPzME5R9XA"
+            //
+            var strNewContractID = OT_CLI_GetValueByKey( Args, "contract_id" ) 
+            
+            // ----------------------------------------------
+            // Set the values based on the custom arguments, for those found.
+            //
+            if (VerifyStringVal(strNewContractID))
+            {    strContractID = strNewContractID }
+            else
+            {
+                OT_API_Output(0, "\n\nMissing --args \"contract_id CONTRACT_ID_HERE\"\n\n")
+                return (-1)
+            }
+            
+            return details_download_contract(strContractID)
+        }
+        // ------------------------------------
+    } 
+    
+    return -1
+}
+
+
+
+
+
+
+
+
+
+
+
+
+def main_verify_last_receipt()
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    
+    var madeEasy	= OT_ME()
+    // ------------------------------
+    // SHOW INBOX
+    // 
+    // Load an asset account's inbox from local storage and display it on the screen.
+    //
+    
+    if (VerifyExists("Server") && VerifyExists("MyAcct"))
+    {	
+        // ---------------------------------------------
+        // HERE, WE LOOK UP THE NYM ID, BASED ON THE ACCOUNT ID.
+        //
+        var strMyNymID = OT_API_GetAccountWallet_NymID(MyAcct)
+        
+        if (!VerifyStringVal(strMyNymID))
+        {
+            OT_API_Output(0, "Failure: Unable to find NymID based on myacct. Use: --myacct ACCT_ID\n")
+            OT_API_Output(0, "The designated asset account must be yours. OT will find the Nym based on the account.\n\n")
+            return (-1)
+        }
+        // ***************************************************************
+        
+        var bSuccess = OT_API_VerifyAccountReceipt(Server, strMyNymID, MyAcct);
+        
+        if (!bSuccess)
+        {
+            OT_API_Output(0, "\n\n OT_API_VerifyAccountReceipt: Failed. Try using dl_acct_files and then try verifying again.\n\n")
+            return 0
+        }
+        else	// Success!
+        {        
+            OT_API_Output(0, "\n\nVerify receipt:  success!\n\n") // stderr
+            return 1
+        }
+    }
+    
+    // Done!
+    0
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def main_register_nym()
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    // --------------------------------------------------------------------
+    
+    var strUsage = concat("\n\nUsage: register_nym.ot --server SERVER_ID --mynym NYM_ID\n\n",
+                          "(If you don't have a NymID, then use create_nym.ot first.)\n\n")
+    
+    OT_API_Output(0, strUsage)
+    
+    if (VerifyExists("Server") && VerifyExists("MyNym"))
+    {        
+        var strResponse = madeEasy.register_nym(Server, MyNym)
+        var nSuccess    = VerifyMessageSuccess(strResponse)
+        
+        // NOTICE: No need here to deal with retries, timeouts, request number,
+        // syncing transaction number, download / process nymbox, etc! It's all
+        // handled at a lower level!  Instead, simply check for success or failure:
+        //
+        // -1 is error, 
+        //  0 is reply received: failure 
+        //  1 is reply received: success
+        //
+        switch(nSuccess)
+        {
+            case (1)
+            {
+                OT_API_Output(0, "\n\n SUCCESS in register_nym! Server response:\n\n");
+                print(strResponse) // stdout
+                break
+            }
+            case (0)
+            {
+                OT_API_Output(0, "\n\n FAILURE in register_nym! Server response:\n\n");
+                print(strResponse) // stdout
+                break
+            }
+            default
+            {
+                OT_API_Output(0, "\n\nError in register_nym!\n")
+                
+                if (VerifyStringVal(strResponse))
+                {
+                    OT_API_Output(0, "Server response:\n\n");
+                    print(strResponse) // stdout
+                }
+                break
+            }
+        }
+        OT_API_Output(0, "\n\n") //stderr
+        
+        return nSuccess
+    }
+    
+    return 0
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ------------------------------
+//
+// WITHDRAW CASH 
+//
+// (from asset account on server to cash purse on client.)
+//
+def details_withdraw_cash(strAmount)
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+
+    // ---------------------------------------------
+    // HERE, WE LOOK UP THE NYM ID, BASED ON THE ACCOUNT ID.
+    //
+    var strMyNymID = OT_API_GetAccountWallet_NymID(MyAcct)
+    
+    if (!VerifyStringVal(strMyNymID))
+    {
+        OT_API_Output(0, "Failure: Unable to find NymID based on myacct. Use: --myacct ACCT_ID\n")
+        OT_API_Output(0, "The designated asset account must be yours. OT will find the Nym based on the account.\n\n")
+        return (-1)
+    }
+    // ***************************************************************
+
+    // HERE, WE SEND THE WITHDRAWAL REQUEST TO THE SERVER
+    //
+    var strResponse = madeEasy.withdraw_cash(Server, strMyNymID, MyAcct, strAmount) 
+    var strAttempt  = "withdraw_cash"
+    // ***************************************************************
+    
+    // HERE, WE INTERPRET THE SERVER REPLY, WHETHER SUCCESS, FAIL, OR ERROR...
+    
+    var nInterpretReply = InterpretTransactionMsgReply(Server, strMyNymID, MyAcct, strAttempt, strResponse)
+    
+    if (1 == nInterpretReply)
+    {    
+        // Download all the intermediary files (account balance, inbox, outbox, etc)
+        // since they have probably changed from this operation.
+        //
+        var bRetrieved = madeEasy.retrieve_account(Server, strMyNymID, MyAcct) //bForceDownload defaults to false.
+        
+        OT_API_Output(0, "\n\nServer response ("+strAttempt+"): SUCCESS withdrawing cash! (From account on server to local purse.) \n")
+        OT_API_Output(0, (bRetrieved ? "Success" : "Failed") + " retrieving intermediary files for account.\n")
+    }
+    
+    // ***************************************************************
+    //
+    // Return status to caller.
+    //
+    return nInterpretReply  
+}
+
+// HERE, WE GET ALL THE ARGUMENTS TOGETHER,
+// and then call the above function.
+//
+def main_withdraw_cash()
+{
+    var strUsage = concat("\n\n     USAGE: withdraw --myacct YOUR_ASSET_ACCT --server SERVER_ID \n\n",
+                           "Also NECESSARY: --args \"amount PUT_AMOUNT_HERE\"\n")
+
+    OT_API_Output(0, strUsage)
+    // ------------------------------------        
+
+    if (VerifyExists("Server") && VerifyExists("MyAcct"))
+    {	
+        // strAmount
+        //
+        var strAmount    = "0" // must be >= 1
+        // ------------------------------------        
+        var strDefaultAmount  = "1"  // must be >= 1
+        // ------------------------------------
+        // If custom arguments have been passed on the command line,
+        // then grab them and use them instead of asking the user to enter them
+        // at the command line.
+        //
+        if (VerifyExists("Args", false)) // displayErrorMsg=false
+        {
+            // std::string OT_CLI_GetValueByKey(const std::string str_Args, 
+            //                                  const std::string str_key)
+            // 
+            // OPTION:   --args "key value key value"
+            // EXAMPLE:  --args "amount 1"
+            //
+            var strNewAmount = OT_CLI_GetValueByKey( Args, "amount"    ) // any integer value
+            
+            // ----------------------------------------------
+            // Set the values based on the custom arguments, for those found.
+            //
+            if (VerifyStringVal(strNewAmount))
+            {    strAmount = strNewAmount }
+        }            
+        // ------------------------------------
+        // If the withdrawal parameters aren't provided, then we
+        // ask the user to supply them at the command line.
+        //
+        if (!VerifyStringVal(strAmount) || (strAmount.to_int() < 1))
+        {
+            OT_API_Output(0, "Enter the amount as integer["+strDefaultAmount+"]: ")
+            strAmount        = OT_CLI_ReadLine()
+        }
+        // ----------------------------------------------
+        if (!VerifyStringVal(strAmount) || (strAmount.to_int() < 1))
+        {    strAmount = strDefaultAmount }
+        // ----------------------------------------------    
+
+        return details_withdraw_cash(strAmount)
+    }
+    
+    return 0
+}
+
+// -----------------------
+
+
+
+
+
+
+
+
+
+
+
+/*
+ pScript->chai.add(fun(&OTAPI_Wrap::Wallet_GetNymIDFromPartial),     "OT_API_Wallet_GetNymIDFromPartial");
+ pScript->chai.add(fun(&OTAPI_Wrap::Wallet_GetServerIDFromPartial),  "OT_API_Wallet_GetServerIDFromPartial");
+ pScript->chai.add(fun(&OTAPI_Wrap::Wallet_GetAssetIDFromPartial),   "OT_API_Wallet_GetAssetIDFromPartial");
+ pScript->chai.add(fun(&OTAPI_Wrap::Wallet_GetAccountIDFromPartial), "OT_API_Wallet_GetAccountIDFromPartial");
+
+ */
+
+
+// ------------------------------
+//
+// WITHDRAW VOUCHER 
+//
+//(From asset account into instrument form, 
+// like a cashier's cheque.)
+//
+
+
+def details_withdraw_voucher(strAmount, strMemo)
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    
+    // ---------------------------------------------
+    // HERE, WE LOOK UP THE NYM ID, BASED ON THE ACCOUNT ID.
+    //
+    var strMyNymID = OT_API_GetAccountWallet_NymID(MyAcct)
+    
+    if (!VerifyStringVal(strMyNymID))
+    {
+        OT_API_Output(0, "\n\nFailure: Unable to find NymID based on myacct. Use: --myacct ACCT_ID\n")
+        OT_API_Output(0, "The designated asset account must be yours. OT will find the Nym based on the account.\n\n")
+        return (-1)
+    }
+    // ---------------------------------------------
+
+    var strHisNymID
+    
+    if (VerifyExists("HisNym")) // This ID is already validated in the C++ code (in this case.)
+    {
+        strHisNymID = HisNym
+    }
+    else
+    {
+        OT_API_Output(0, "Optionally, enter recipient NymID (abbreviations accepted): ")
+        var strHisPartialNymID = OT_CLI_ReadLine()
+        
+        if (VerifyStringVal(strHisPartialNymID)) // If the user typed something...
+        {
+            strHisNymID = OT_API_Wallet_GetNymIDFromPartial(strHisPartialNymID) // Try to find the associated ID...
+            
+            if (!VerifyStringVal(strHisNymID)) // But if it returned NULL, failure (return.)
+            {
+                OT_API_Output(0, "\n\nFailure: Unable to find HisNym (Recipient) in your wallet. Use: --hisnym NYM_ID\n")
+                return (-1)
+            }
+        }
+        // ------------------------
+        else // The user just hit "enter" so we'll default the recipient Nym to the user himself.
+        {
+            strHisNymID = MyNym
+        }
+        // ------------------------
+    }
+
+    // ***************************************************************
+    
+    // HERE, WE SEND THE VOUCHER WITHDRAWAL REQUEST TO THE SERVER
+    //
+    var strResponse = madeEasy.withdraw_voucher(Server, strMyNymID, MyAcct, strHisNymID, strMemo, strAmount)
+    var strAttempt  = "withdraw_voucher"
+    //  static int withdrawVoucher(const std::string SERVER_ID,
+    //                             const std::string USER_ID,
+    //                             const std::string ACCT_ID,
+    //                             const std::string RECIPIENT_USER_ID,
+    //                             const std::string CHEQUE_MEMO,
+    //                             const std::string AMOUNT);
+    // ***************************************************************
+    
+    // HERE, WE INTERPRET THE SERVER REPLY, WHETHER SUCCESS, FAIL, OR ERROR...
+    
+    var nInterpretReply = InterpretTransactionMsgReply(Server, strMyNymID, MyAcct, strAttempt, strResponse)
+    
+    if (1 == nInterpretReply) // Success!
+    {    
+        // ---------------------------------------------------------
+        var strLedger = OT_API_Message_GetLedger(strResponse)
+        
+        if (!VerifyStringVal(strLedger)) 
+        {
+            OT_API_Output(0, "\n\n details_withdraw_voucher: Error: strLedger is null, returned by OT_API_Message_GetLedger.\n")
+            return (-1)
+        }
+        // ---------------------------------------------------------
+        var strTransReply = OT_API_Ledger_GetTransactionByIndex(Server, strMyNymID, MyAcct, strLedger, 0) // index 0.
+        
+        if (!VerifyStringVal(strTransReply)) 
+        {
+            OT_API_Output(0, concat("details_withdraw_voucher: Error: strTransReply is unexpectedly null, returned by ", 
+                                    "OT_API_Ledger_GetTransactionByIndex, argument passed, index 0 and ledger:\n\n") + strLedger + "\n\n")
+            return (-1)
+        }
+        // ---------------------------------------------------------
+
+        var strOutput = OT_API_Transaction_GetVoucher(Server, strMyNymID, MyAcct, strTransReply)
+        
+        if (!VerifyStringVal(strOutput)) 
+        {
+            OT_API_Output(0, concat("details_withdraw_voucher: Error: Voucher is unexpectedly null, returned by ", 
+                                    "OT_API_Transaction_GetVoucher with strTransReply set to:\n\n") + strTransReply + "\n\n")
+            return (-1)
+        }
+        // ---------------------------------------------------------        
+        // Download all the intermediary files (account balance, inbox, outbox, etc)
+        // since they have probably changed from this operation.
+        //
+        var bRetrieved = madeEasy.retrieve_account(Server, strMyNymID, MyAcct, true) //bForceDownload defaults to false.
+        OT_API_Output(0, (bRetrieved ? "Success" : "Failed") + " retrieving intermediary files for account.\n")
+        // ---------------------------------------------------------
+        OT_API_Output(0, "details_withdraw_voucher: Voucher returned by OT_API_Transaction_GetVoucher:\n\n") // stderr
+        print(strOutput) // stdout
+        OT_API_Output(0, "\n\n") // stderr.
+
+        OT_API_Output(0, "\n\nServer response ("+strAttempt+"): SUCCESS withdrawing voucher (cashier's cheque)!\n")
+        
+        return 1
+}
+    
+    // ***************************************************************
+    //
+    // Return status to caller.
+    //
+    return nInterpretReply  
+}
+
+//  static int withdrawVoucher(const std::string SERVER_ID,
+//                             const std::string USER_ID,
+//                             const std::string ACCT_ID,
+//                             const std::string RECIPIENT_USER_ID,
+//                             const std::string CHEQUE_MEMO,
+//                             const std::string AMOUNT);
+
+// HERE, WE GET ALL THE ARGUMENTS TOGETHER,
+// and then call the above function.
+//
+def main_withdraw_voucher()
+{
+    var strUsage1 = concat("\n\n     USAGE: voucher --myacct YOUR_ASSET_ACCT --hisnym RECIPIENT_NYM_ID\n\n",
+                           "Also NECESSARY: --args \"amount PUT_AMOUNT_HERE\"\n")
+    var strUsage = concat(strUsage1,
+                          "And OPTIONALLY: --args \"memo \\\"Just a memo for the voucher cheque.\\\"\"\n\n")
+    
+    OT_API_Output(0, strUsage)
+    // ------------------------------------        
+    
+    if (VerifyExists("Server") && VerifyExists("MyAcct"))
+    {	
+        // strAmount and strNote...
+        //
+        var strAmount    = "0" // must ultimately be >= 1
+        var strNote      = ""  // can be blank
+        // ------------------------------------        
+        var strDefaultAmount  = "1"  // must be >= 1
+        var strDefaultNote    = "(blank memo field)"   // can be blank
+        // ------------------------------------
+        // If custom arguments have been passed on the command line,
+        // then grab them and use them instead of asking the user to enter them
+        // at the command line.
+        //
+        if (VerifyExists("Args", false))
+        {
+            // std::string OT_CLI_GetValueByKey(const std::string str_Args, 
+            //                                  const std::string str_key)
+            // 
+            // OPTION:   --args "key value key value"
+            // EXAMPLE:  --args "amount 1"
+            // EXAMPLE:  --args "amount 15 note \"Just a memo for the voucher cheque.\""
+            //
+            var strNewAmount = OT_CLI_GetValueByKey( Args, "amount"    ) // any integer value
+            var strNewNote   = OT_CLI_GetValueByKey( Args, "memo"  )     // optional memo field
+            
+            // ----------------------------------------------
+            // Set the values based on the custom arguments, for those found.
+            //
+            if (VerifyStringVal(strNewAmount))
+            {    strAmount = strNewAmount }
+            if (VerifyStringVal(strNewNote))
+            {    strNote = strNewNote }
+        }            
+        // ------------------------------------
+        // If the transfer parameters aren't provided, then we
+        // ask the user to supply them at the command line.
+        //
+        if (!VerifyStringVal(strAmount) || (strAmount.to_int() < 1))
+        {
+            OT_API_Output(0, "Enter the amount as integer["+strDefaultAmount+"]: ")
+            strAmount        = OT_CLI_ReadLine()
+        }
+        if (!VerifyStringVal(strNote))
+        {
+            OT_API_Output(0, "Optionally, enter a memo on a single line["+strDefaultNote+"]: ")
+            strNote	= OT_CLI_ReadLine()
+        }
+        // ----------------------------------------------
+        if (!VerifyStringVal(strAmount) || (strAmount.to_int() < 1))
+        {    strAmount = strDefaultAmount }
+        if (!VerifyStringVal(strNote))
+        {    strNote = strDefaultNote }
+        // ----------------------------------------------    
+                
+        return details_withdraw_voucher(strAmount, strNote)
+    }
+    
+    return 0
+}
+
+// -----------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+def main_show_purse()
+{
+    var strUsage = "\n\n     USAGE: showpurse --mypurse ASSET_TYPE_ID --mynym YOUR_NYM_ID --server SERVER_ID \n\n"    
+    OT_API_Output(0, strUsage)
+    // ------------------------------------        
+    
+    if (VerifyExists("Server") && VerifyExists("MyNym") && VerifyExists("MyPurse"))
+    {	
+        // ------------------------------------
+        
+        var strPurse = OT_API_LoadPurse(Server, MyPurse, MyNym) // returns NULL, or a purse.
+
+        if (!VerifyStringVal(strPurse))
+        {
+            OT_API_Output(0, "\n main_show_purse: Unable to load purse. Does it even exist?\n")
+        }
+        else
+        {
+            var strAmount = OT_API_Purse_GetTotalValue(Server, MyPurse, strPurse)
+
+            print("\n\nTotal value: " + strAmount)
+            
+            // ---------------------------
+            // Loop through purse contents and display tokens.
+            var nCount =  OT_API_Purse_Count(Server, MyPurse, strPurse)
+
+            if (!VerifyIntVal(nCount) || (nCount < 0))
+            {
+                OT_API_Output(0, "\n main_show_purse: Error: Unexpected bad value returned from OT_API_Purse_Count.\n\n")
+                return (-1)
+            }
+            // ----------------------
+            
+            if (nCount > 0)
+            {
+                print("Token count: " + nCount.to_string() + "\n")
+                print("Index\tValue\tSeries\tValidFrom\tValidTo\t\tStatus")
+
+                var nIndex = -1
+                
+                while (nCount > 0)
+                {
+                    --nCount
+                    ++nIndex  // on first iteration, this is now 0.
+                    // -------------------
+                    var strToken = OT_API_Purse_Peek(Server, MyPurse, MyNym, strPurse)
+                    
+                    if (!VerifyStringVal(strToken))
+                    {
+                        OT_API_Output(0, "main_show_purse: Error: OT_API_Purse_Peek unexpectedly returned NULL instead of token.\n")
+                        return (-1)
+                    }
+                    // ------------------------------------------
+                    
+                    var strNewPurse = OT_API_Purse_Pop(Server, MyPurse, MyNym, strPurse)
+                    
+                    if (!VerifyStringVal(strNewPurse))
+                    {
+                        OT_API_Output(0, "main_show_purse: Error: OT_API_Purse_Pop unexpectedly returned NULL instead of updated purse.\n")
+                        return (-1)
+                    }
+                    // ------------------------------------------
+                    strPurse = strNewPurse
+                    // ------------------------------------------
+                    var strDenomination = OT_API_Token_GetDenomination(Server, MyPurse, strToken)
+                    var nSeries         = OT_API_Token_GetSeries      (Server, MyPurse, strToken)
+                    var strValidFrom    = OT_API_Token_GetValidFrom   (Server, MyPurse, strToken)
+                    var strValidTo      = OT_API_Token_GetValidTo     (Server, MyPurse, strToken)
+                    var strTime         = OT_API_GetTime()
+                    // ------------------------------------------
+                    if (!VerifyStringVal(strDenomination))
+                    {
+                        OT_API_Output(0, "Error while showing purse: bad strDenomination.\n")
+                        return (-1)
+                    }
+                    if (!VerifyIntVal(nSeries))
+                    {
+                        OT_API_Output(0, "Error while showing purse: bad nSeries.\n")
+                        return (-1)
+                    }
+                    if (!VerifyStringVal(strValidFrom))
+                    {
+                        OT_API_Output(0, "Error while showing purse: bad strValidFrom.\n")
+                        return (-1)
+                    }
+                    if (!VerifyStringVal(strValidTo))
+                    {
+                        OT_API_Output(0, "Error while showing purse: bad strValidTo.\n")
+                        return (-1)
+                    }
+                    if (!VerifyStringVal(strTime))
+                    {
+                        OT_API_Output(0, "Error while showing purse: bad strTime.\n")
+                        return (-1)
+                    }
+                    // ------------------------------------------
+                    // Output the token...
+                    
+                    var strStatus = (strTime.to_int() > strValidTo.to_int()) ? "expired" : "valid"
+                    
+                    print(nIndex.to_string() + "\t" + strDenomination + "\t" + nSeries.to_string() + "\t" + strValidFrom + "\t" + strValidTo + "\t" + strStatus)
+                    // ------------------------------------------
+                } // while
+            } // if nCount > 0
+            
+            return 1
+            
+        } // valid purse string was loaded.
+        // ------------------------------------
+    }
+    
+    return 0
+}
+
+
+
+
+
+
+
+
+//
+//
+// THESE FUNCTIONS were added for the PAYMENTS screen. (They are fairly new.)
+//
+// Basically there was a need to have DIFFERENT instruments, but to be able to
+// treat them as though they are a single type.
+//
+// In keeping with that, the below functions will work with disparate types.
+// You can pass [ CHEQUES / VOUCHERS / INVOICES ] and PAYMENT PLANS, and
+// SMART CONTRACTS, and PURSEs into these functions, and they should be able
+// to handle any of those types.
+//
+//
+//const char * OT_API_Instrument_GetAmount(const char * SERVER_ID, const char * THE_INSTRUMENT);
+//const char * OT_API_Instrument_GetTransNum(const char * SERVER_ID, const char * THE_INSTRUMENT);
+//
+//const char * OT_API_Instrument_GetValidFrom(const char * SERVER_ID, const char * THE_INSTRUMENT);
+//const char * OT_API_Instrument_GetValidTo(const char * SERVER_ID, const char * THE_INSTRUMENT);
+//
+//const char * OT_API_Instrument_GetMemo(const char * SERVER_ID, const char * THE_INSTRUMENT);
+//
+//const char * OT_API_Instrument_GetAssetID(const char * SERVER_ID, const char * THE_INSTRUMENT);
+//
+//const char * OT_API_Instrmnt_GetSenderUserID(const char * SERVER_ID, const char * THE_INSTRUMENT);
+//const char * OT_API_Instrmnt_GetSenderAcctID(const char * SERVER_ID, const char * THE_INSTRUMENT);
+//const char * OT_API_Instrmnt_GetRecipientUserID(const char * SERVER_ID, const char * THE_INSTRUMENT);
+//const char * OT_API_Instrmnt_GetRecipientAcctID(const char * SERVER_ID, const char * THE_INSTRUMENT);
+//
+
+def details_deposit_cheque(strMyNymID, strInstrument, strType)
+{
+    var strAssetTypeID = OT_API_Instrument_GetAssetID(Server, strInstrument)
+    
+    if (!VerifyStringVal(strAssetTypeID))
+    {
+        OT_API_Output(0, "\n\nFailure: Unable to find Asset Type ID on the instrument.\n\n")
+        return (-1)
+    }
+    // ---------------------------------------------    
+    if (strAssetTypeID != OT_API_GetAccountWallet_AssetTypeID(MyAcct))
+    {
+        OT_API_Output(0, "\n\nFailure: Asset Type ID on the instrument doesn't match the one on MyAcct.\n\n")
+        return (-1)
+    }
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+
+    // ***************************************************************
+    
+    // HERE, WE SEND THE TRANSFER REQUEST TO THE SERVER
+    //
+    var strResponse = madeEasy.deposit_cheque(Server, strMyNymID, MyAcct, strInstrument)
+    var strAttempt  = "deposit_cheque"
+
+    // ***************************************************************
+    
+    // HERE, WE INTERPRET THE SERVER REPLY, WHETHER SUCCESS, FAIL, OR ERROR...
+    
+    var nInterpretReply = InterpretTransactionMsgReply(Server, strMyNymID, MyAcct, strAttempt, strResponse)
+    
+    if (1 == nInterpretReply)
+    {    
+        // Download all the intermediary files (account balance, inbox, outbox, etc)
+        // since they have probably changed from this operation.
+        //
+        var bRetrieved = madeEasy.retrieve_account(Server, strMyNymID, MyAcct, true) //bForceDownload defaults to false.
+        
+        OT_API_Output(0, "Server response ("+strAttempt+"): SUCCESS depositing cheque!\n")
+        OT_API_Output(0, (bRetrieved ? "Success" : "Failed") + " retrieving intermediary files for account.\n")
+    }
+    
+    // ***************************************************************
+    //
+    // Return status to caller.
+    //
+    return nInterpretReply
+
+    // --------------------------------------------------------------------
+}
+
+
+def details_deposit_purse(strFromNymID, strInstrument, strType, strIndices)
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    // ---------------------------------------------
+    // HERE, WE LOOK UP THE asset type ID, BASED ON THE ACCOUNT ID.
+    //
+    var strAssetTypeID = OT_API_GetAccountWallet_AssetTypeID(MyAcct)
+    
+    if (!VerifyStringVal(strAssetTypeID))
+    {
+        OT_API_Output(0, "\n\nFailure: Unable to find Asset Type ID based on myacct. Use: --myacct ACCT_ID\n")
+        OT_API_Output(0, "The designated asset account must be yours. OT will find the asset type based on the account.\n\n")
+        return (-1)
+    }
+    // ---------------------------------------------    
+    if (VerifyExists("MyPurse", false) && (MyPurse != strAssetTypeID))
+    {
+        OT_API_Output(0, "Warning: Depositing to MyAcct, which is NOT the same asset type as the MyPurse asset type specified.\n")
+    }
+    // ---------------------------------------------    
+    
+    var bLoadedPurse = false
+    
+    // If strInstrument wasn't passed, that means we're supposed to load 
+    // the purse ourselves, from local storage.
+    //
+    if (!VerifyStringVal(strInstrument))
+    {
+        // LOAD PURSE
+        
+        strInstrument = OT_API_LoadPurse(Server, strAssetTypeID, strFromNymID) // returns NULL, or a purse.
+        
+        if (!VerifyStringVal(strInstrument))
+        {
+            OT_API_Output(0, "\n details_deposit_purse: Unable to load purse from local storage. Does it even exist?\n")
+            return (-1)
+        }
+        
+        bLoadedPurse = true
+    }
+    // ---------------------------------------------    
+    // Below this point, we know that strInstrument contains either the purse as it was passed in
+    // to us, or it contains the purse as we loaded it from local storage.
+    // If it WAS from local storage, then there's a chance that strIndices contains "all" or "4, 6, 2" etc.
+    // If that's the case, then we need to iterate through the purse, and add the denoted token IDs to 
+    // a vector (selectedTokens) and pass it into depositCashPurse.
+    //
+    // ---------------------------------------------    
+    
+    var vecSelectedTokenIDs = Vector()
+    
+    // If we loaded the purse (vs the user pasting one in...)
+    // then the user might have wanted to deposit only selected indices,
+    // rather than ALL the tokens in that purse.
+    // So we'll loop through the purse and add any relevant IDs to the
+    // "selected" list, since the actual Token IDs must be passed.
+    //
+    if (bLoadedPurse)
+    {
+        // ---------------------------
+        // Loop through purse contents...
+        //
+        var nCount =  OT_API_Purse_Count(Server, strAssetTypeID, strInstrument)
+        
+        if (!VerifyIntVal(nCount) || (nCount < 0))
+        {
+            OT_API_Output(0, "\n main_show_purse: Error: Unexpected bad value returned from OT_API_Purse_Count.\n\n")
+            return (-1)
+        }
+        // ----------------------
+        if (nCount < 1)
+        {
+            OT_API_Output(0, "\n main_show_purse: The purse is empty, so you can't deposit it.\n\n")
+            return 0
+        }
+        // ----------------------
+        else //nCount >= 1
+        {
+            // Make a copy of the purse passed in, so we can iterate it and find the 
+            // appropriate Token IDs...
+            
+            var strPurse = strInstrument
+            var nIndex   = -1
+            
+            while (nCount > 0)
+            {
+                --nCount
+                ++nIndex  // on first iteration, this is now 0.
+                // -------------------
+                var strToken = OT_API_Purse_Peek(Server, strAssetTypeID, strFromNymID, strPurse)
+                
+                if (!VerifyStringVal(strToken))
+                {
+                    OT_API_Output(0, "main_show_purse: Error: OT_API_Purse_Peek unexpectedly returned NULL instead of token.\n")
+                    return (-1)
+                }
+                // ------------------------------------------
+                
+                var strNewPurse = OT_API_Purse_Pop(Server, strAssetTypeID, strFromNymID, strPurse)
+                
+                if (!VerifyStringVal(strNewPurse))
+                {
+                    OT_API_Output(0, "main_show_purse: Error: OT_API_Purse_Pop unexpectedly returned NULL instead of updated purse.\n")
+                    return (-1)
+                }
+                // ------------------------------------------
+                strPurse = strNewPurse
+                // ------------------------------------------
+                
+                var strTokenID  =  OT_API_Token_GetID(Server, strAssetTypeID, strToken)
+
+                if (!VerifyStringVal(strTokenID))
+                {
+                    OT_API_Output(0, "Error while depositing purse: bad strTokenID.\n")
+                    return (-1)
+                }
+                // ------------------------------------------
+//              bool NumList_VerifyQuery(const std::string str_NumList, const std::string str_Numbers);
+
+                if (OT_API_NumList_VerifyQuery(strIndices, nIndex.to_string())) // empty vector should be interpreted already as "all"
+//              if (("all" == strIndices) || OT_API_NumList_VerifyQuery(strIndices, nIndex.to_string()))
+                {
+                    vecSelectedTokenIDs.push_back(strTokenID)
+                }
+                // ------------------------------------------
+            } // while
+        } // if nCount > 0
+    }// if (bLoadedPurse)
+    // ---------------------------------------------    
+
+    var nResult = depositCashPurse( Server,  strAssetTypeID,  strFromNymID,  strInstrument,  vecSelectedTokenIDs,  MyAcct) 
+
+    return nResult;
+    // --------------------------------------------------------------------
+}
+
+//case (this.DEPOSIT_CASH)
+//{	nRetVal = OT_API_notarizeDeposit(this.serverID, this.nymID, this.accountID, this.strData);	 break; }
+//case (this.DEPOSIT_CHEQUE)
+//{	nRetVal = OT_API_depositCheque(this.serverID, this.nymID, this.accountID, this.strData);	 break; }
+//case (this.DEPOSIT_PAYMENT_PLAN)
+//{	nRetVal = OT_API_depositPaymentPlan(this.serverID, this.nymID, this.strData);	 break; }
+
+
+def details_deposit()
+{
+    var strInstrument = ""
+
+    // ---------------------------------------------
+    // HERE, WE LOOK UP THE recipient NYM ID, BASED ON THE ACCOUNT ID.
+    //
+    var strToNymID = OT_API_GetAccountWallet_NymID(MyAcct)
+    
+    if (!VerifyStringVal(strToNymID))
+    {
+        OT_API_Output(0, "\n\nFailure: Unable to find depositor NymID based on myacct. Use: --myacct ACCT_ID\n")
+        OT_API_Output(0, "The designated asset account must be yours. OT will find the Nym based on the account.\n\n")
+        return (-1)
+    }
+    // ---------------------------------------------    
+    // 
+    var strIndices = ""
+
+    if (VerifyExists("Args", false))
+    {
+        // You have the OPTION to pass in indices for tokens in your purse, and deposit
+        // will automatically assume "deposit cash" and deposit those tokens.
+        // You can also specify to deposit ALL tokens in your cash purse.
+        // Without this extra argument, OT will ask you to paste an instrument,
+        // and then will dynamically determine its contract type.
+        //
+        
+        // std::string OT_CLI_GetValueByKey(const std::string str_Args, 
+        //                                  const std::string str_key)
+        // 
+        // OPTION:   --args "key value key value"
+        // EXAMPLE:  --args "indices \"4, 6, 9\" "
+        // EXAMPLE:  --args "indices \"all\" "
+        //
+        strIndices = OT_CLI_GetValueByKey(Args, "indices") // OTNumList will be used for this value.        
+    }            
+    // ----------------------------------------------
+    //
+    if (VerifyStringVal(strIndices)) // He wants to deposit some or all of his local purse.
+    {
+        // Only in the case of cash, it's possible you have some cash in Nym A's purse, but
+        // you want to deposit it into Nym B's account. So we have a "to" Nym and a "from" Nym
+        // even though they will often be the same.
+        //
+        var strFromNymID = ""
+        
+        if (VerifyExists("MyNym", false))
+        {
+            strFromNymID = MyNym
+        }
+        else
+        {
+            strFromNymID = strToNymID
+        }
+        // ---------------------------
+        // In this case, strInstrument is blank.
+        // That's how the callee knows that we're working with the local purse.
+        // Then strIndices tells him either to use "all" tokens in that purse, or
+        // the selected indices.
+        //
+        return details_deposit_purse(strFromNymID, strInstrument, "PURSE", strIndices)
+    }
+    // ---------------------------------------------    
+    
+    else // he wants to paste an instrument.
+    {
+        // 
+        OT_API_Output(0, "You can deposit a PURSE (containing cash tokens) or a CHEQUE / VOUCHER. \n")
+        OT_API_Output(0, "Paste your financial instrument here, followed by a ~ by itself on a blank line: \n")
+        
+        strInstrument = OT_CLI_ReadUntilEOF() 
+        
+        if(!VerifyStringVal(strInstrument))
+        {
+            return (-1)
+        }
+        // -----------------------
+        
+//      const char * OTPayment::_TypeStrings[] = 
+//      {
+//          // ------------------
+//          // OTCheque is derived from OTTrackable, which is derived from OTInstrument, which is
+//          // derived from OTScriptable, which is derived from OTContract.
+//          // ------------------
+//          "CHEQUE",         // A cheque drawn on a user's account.
+//          "VOUCHER",        // A cheque drawn on a server account (cashier's cheque aka banker's cheque)
+//          "INVOICE",        // A cheque with a negative amount. (Depositing this causes a payment out, instead of a deposit in.)
+//          // ------------------
+//          "PAYMENT_PLAN",   // An OTCronItem-derived OTPaymentPlan, related to a recurring payment plan.
+//          "SMART_CONTRACT", // An OTCronItem-derived OTSmartContract, related to a smart contract.
+//          // ------------------
+//          "PURSE",          // An OTContract-derived OTPurse containing a list of cash OTTokens.
+//          // ------------------
+//          "ERROR_STATE"
+//      };
+
+        
+        var strType = OT_API_Instrument_GetType(Server, strInstrument)
+        
+        if (!VerifyStringVal(strType))
+        {
+            OT_API_Output(0, "\n\nFailure: Unable to determine instrument type. Expected CHEQUE, VOUCHER, INVOICE, or (cash) PURSE.\n")
+            return (-1)
+        }
+        // ---------------------------------------------    
+
+        switch(strType)
+        {
+            case ("CHEQUE") 
+            {
+                return details_deposit_cheque(strToNymID, strInstrument, strType)
+            }
+            case ("VOUCHER")
+            {
+                return details_deposit_cheque(strToNymID, strInstrument, strType)
+            }
+            case ("INVOICE")
+            {
+                return details_deposit_cheque(strToNymID, strInstrument, strType)
+            }
+            case ("PURSE")
+            {
+                return details_deposit_purse(strToNymID, strInstrument, strType, "") // strIndices is left blank in this case
+            }
+            default
+            {
+                OT_API_Output(0, "\n\nFailure: Unable to determine instrument type. Expected CHEQUE, VOUCHER, INVOICE, or (cash) PURSE.\n")
+                return (-1)
+            }
+        }
+    }
+    
+    return (-1)
+}
+
+
+def main_deposit()
+{                       
+    var strUsage1 = "\n\n     USAGE: deposit --myacct YOUR_ACCT_ID --mynym YOUR_NYM_ID --server SERVER_ID \n(OT will ask you to paste the instrument.)\n"    
+    var strUsage2 = concat(strUsage1, "Optionally:    --args \"indices \\\"4, 6, 9\\\" \"\n")
+    var strUsage3 = concat(strUsage2, "Optionally:    --args \"indices \\\"all\\\" \"  (To deposit ALL cash tokens in your purse.)\n")
+    var strUsage  = concat(strUsage3, "NymID is often determined based on MyAcct.\nIf you supply optional indices, they must correspond to tokens in your cash purse.\n\n")
+    
+    OT_API_Output(0, strUsage)
+    // ------------------------------------        
+    
+    // A bit complicated:
+    //
+    // If I specify MyPurse and MyAcct, then they MUST have the same asset type.
+    //
+    // If I specify MyNym and MyPurse, that is where we will look for the purse.
+    //
+    // If I specify MyAcct, and it's owned by a different Nym than MyNym, then the cash 
+    // tokens will be reassigned from MyNym to MyAcct's Nym, before depositing.
+    // Basically ALWAYS look up MyAcct's owner, and set HIM as the recipient Nym.
+    // (But still use MyNym, independently, to find the purse being deposited.)
+    // 
+    // Must ALWAYS specify MyAcct because otherwise, where are you depositing to?
+    // 
+    // If MyNym isn't available, should use MyAcct's Nym.
+    //
+    // Shouldn't need to specify MyPurse, since we can ONLY deposit into MyAcct of
+    // the same type as MyAcct. Thus we should ignore any other asset types or purses
+    // since they couldn't possibly be deposited into MyAcct anyway.
+    //
+    
+    if (VerifyExists("Server") && VerifyExists("MyAcct"))
+    {	
+        return details_deposit()
+    }
+    
+    return 0
+}
+
+
+
+
+
+
+
+
+
+
+
+def main_new_symmetric_key()
+{
+	var strKey = OT_API_CreateSymmetricKey()
+    
+	if (VerifyStringVal(strKey))
+	{
+		// stderr
+		OT_API_Output(0, "\n")
+        
+		// stdout
+		print(strKey)
+        
+		// stderr
+		OT_API_Output(0, "\n")
+		
+		return 1
+    }
+    
+    // "return value"
+    0
+}
+
+
+
+
+
+
+
+
+
+
+def main_show_inbox()
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    
+    var madeEasy	= OT_ME()
+    // ------------------------------
+    // SHOW INBOX
+    // 
+    // Load an asset account's inbox from local storage and display it on the screen.
+    //
+    
+    if (VerifyExists("Server") && VerifyExists("MyAcct"))
+    {	
+        // ---------------------------------------------
+        // HERE, WE LOOK UP THE NYM ID, BASED ON THE ACCOUNT ID.
+        //
+        var strMyNymID = OT_API_GetAccountWallet_NymID(MyAcct)
+        
+        if (!VerifyStringVal(strMyNymID))
+        {
+            OT_API_Output(0, "Failure: Unable to find NymID based on myacct. Use: --myacct ACCT_ID\n")
+            OT_API_Output(0, "The designated asset account must be yours. OT will find the Nym based on the account.\n\n")
+            return (-1)
+        }
+        // ***************************************************************
+        
+        var strInbox = OT_API_LoadInbox(Server, strMyNymID, MyAcct); // Returns NULL, or an inbox.
+        
+        if (!VerifyStringVal(strInbox))
+        {
+            OT_API_Output(0, "\n\n OT_API_LoadInbox: Failed.\n\n")
+            return 0
+        }
+        else	// Success!
+        {
+            OT_API_Output(0, "\n\n") // stderr
+            //		print(strInbox)          // stdout
+            
+            var nCount = OT_API_Ledger_GetCount(Server, strMyNymID, MyAcct, strInbox)
+            
+            if (VerifyIntVal(nCount))
+            {
+                OT_API_Output(0, "SHOW INBOX: \n\n")
+                OT_API_Output(0, "Ind  Amt  Type        Txn# InRef#|User / Acct\n")
+                OT_API_Output(0, "---------------------------------|(from or to)\n")
+                
+                for (var nIndex = 0; nIndex < nCount; ++nIndex)
+                {
+                    var strTrans           = OT_API_Ledger_GetTransactionByIndex(Server, strMyNymID, MyAcct, strInbox, nIndex)
+                    var strTransID         = OT_API_Ledger_GetTransactionIDByIndex(Server, strMyNymID, MyAcct, strInbox, nIndex)
+                    var strRefNum          = OT_API_Transaction_GetDisplayReferenceToNum(Server, strMyNymID, MyAcct, strTrans)
+                    var strAmount          = OT_API_Transaction_GetAmount(Server, strMyNymID, MyAcct, strTrans)
+                    var strType            = OT_API_Transaction_GetType(Server, strMyNymID, MyAcct, strTrans)
+                    var strSenderUserID    = OT_API_Transaction_GetSenderUserID(Server, strMyNymID, MyAcct, strTrans)
+                    var strSenderAcctID    = OT_API_Transaction_GetSenderAcctID(Server, strMyNymID, MyAcct, strTrans)
+                    var strRecipientUserID = OT_API_Transaction_GetRecipientUserID(Server, strMyNymID, MyAcct, strTrans)
+                    var strRecipientAcctID = OT_API_Transaction_GetRecipientAcctID(Server, strMyNymID, MyAcct, strTrans)
+                    
+                    var strUserID = VerifyStringVal(strSenderUserID) ? strSenderUserID : strRecipientUserID;
+                    var strAcctID = VerifyStringVal(strSenderAcctID) ? strSenderAcctID : strRecipientAcctID;
+                    
+                    var bUserIDExists = VerifyStringVal(strUserID)
+                    var bAcctIDExists = VerifyStringVal(strAcctID)
+                    
+                    var strNewlineSeparator = ""
+                    
+                    if (bUserIDExists || bAcctIDExists)
+                    {  strNewlineSeparator = "\n                                 |" }
+                    
+                    var strSeparator = (!bUserIDExists && !bAcctIDExists) ? "" : strNewlineSeparator;
+                    
+                    var strUserDenoter = (bUserIDExists ? "U:" : "")
+                    var strAcctDenoter = (bAcctIDExists ? "A:" : "")
+                    
+                    OT_API_Output(0, nIndex.to_string() + "    ")
+                    OT_API_Output(0, strAmount + (strAmount.size() < 3 ? "    " : "   "))
+                    OT_API_Output(0, strType)
+                    OT_API_Output(0, strType.size() > 10 ? " " : "    ")
+                    OT_API_Output(0, strTransID + (strTransID.size() < 2 ? "    " : "   "))
+                    OT_API_Output(0, strRefNum + (strRefNum.size() > 2 ? "  " : " ") + "|")
+                    OT_API_Output(0, strUserDenoter+strUserID + strSeparator + strAcctDenoter+strAcctID + "\n")
+                } // for
+            } // VerifyIntVal (nCount)
+            
+            OT_API_Output(0, "\n\n") // stderr
+            return 1
+        }
+        
+        0
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+def main_show_outbox()
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    
+    var madeEasy	= OT_ME()
+    // ------------------------------
+    // SHOW OUTPUT
+    // 
+    // Load an asset account's outbox from local storage and display it on the screen.
+    //
+    
+    if (VerifyExists("Server") && VerifyExists("MyAcct"))
+    {	
+        // ---------------------------------------------
+        // HERE, WE LOOK UP THE NYM ID, BASED ON THE ACCOUNT ID.
+        //
+        var strMyNymID = OT_API_GetAccountWallet_NymID(MyAcct)
+        
+        if (!VerifyStringVal(strMyNymID))
+        {
+            OT_API_Output(0, "Failure: Unable to find NymID based on myacct. Use: --myacct ACCT_ID\n")
+            OT_API_Output(0, "The designated asset account must be yours. OT will find the Nym based on the account.\n\n")
+            return (-1)
+        }
+        // ***************************************************************
+        
+        var strOutbox = OT_API_LoadOutbox(Server, strMyNymID, MyAcct); // Returns NULL, or an outbox.
+        
+        if (!VerifyStringVal(strOutbox))
+        {
+            OT_API_Output(0, "\n\n OT_API_LoadOutbox: Failed.\n\n")
+            return 0
+        }
+        else	// Success!
+        {
+            OT_API_Output(0, "\n\n") // stderr
+            //		print(strOutbox)         // stdout
+            
+            var nCount = OT_API_Ledger_GetCount(Server, strMyNymID, MyAcct, strOutbox)
+            
+            if (VerifyIntVal(nCount))
+            {
+                OT_API_Output(0, "SHOW OUTBOX: \n\n")
+                OT_API_Output(0, "Ind  Amt  Type        Txn# InRef#|User / Acct\n")
+                OT_API_Output(0, "---------------------------------|(from or to)\n")
+                
+                for (var nIndex = 0; nIndex < nCount; ++nIndex)
+                {
+                    var strTrans           = OT_API_Ledger_GetTransactionByIndex(Server, strMyNymID, MyAcct, strOutbox, nIndex)
+                    var strTransID         = OT_API_Ledger_GetTransactionIDByIndex(Server, strMyNymID, MyAcct, strOutbox, nIndex)
+                    var strRefNum          = OT_API_Transaction_GetDisplayReferenceToNum(Server, strMyNymID, MyAcct, strTrans)
+                    var strAmount          = OT_API_Transaction_GetAmount(Server, strMyNymID, MyAcct, strTrans)
+                    var strType            = OT_API_Transaction_GetType(Server, strMyNymID, MyAcct, strTrans)
+                    var strSenderUserID    = OT_API_Transaction_GetSenderUserID(Server, strMyNymID, MyAcct, strTrans)
+                    var strSenderAcctID    = OT_API_Transaction_GetSenderAcctID(Server, strMyNymID, MyAcct, strTrans)
+                    var strRecipientUserID = OT_API_Transaction_GetRecipientUserID(Server, strMyNymID, MyAcct, strTrans)
+                    var strRecipientAcctID = OT_API_Transaction_GetRecipientAcctID(Server, strMyNymID, MyAcct, strTrans)
+                    
+                    var strUserID = strRecipientUserID
+                    var strAcctID = strRecipientAcctID
+                    
+                    var bUserIDExists = VerifyStringVal(strUserID)
+                    var bAcctIDExists = VerifyStringVal(strAcctID)
+                    
+                    var strNewlineSeparator = ""
+                    
+                    if (bUserIDExists || bAcctIDExists)
+                    {  strNewlineSeparator = "\n                                 |" }
+                    
+                    var strSeparator = (!bUserIDExists && !bAcctIDExists) ? "" : strNewlineSeparator;
+                    
+                    var strUserDenoter = (bUserIDExists ? "U:" : "")
+                    var strAcctDenoter = (bAcctIDExists ? "A:" : "")
+                    
+                    OT_API_Output(0, nIndex.to_string() + "    ")
+                    OT_API_Output(0, strAmount + (strAmount.size() < 3 ? "    " : "   "))
+                    OT_API_Output(0, strType)
+                    OT_API_Output(0, strType.size() > 10 ? " " : "    ")
+                    OT_API_Output(0, strTransID + (strTransID.size() < 2 ? "    " : "   "))
+                    OT_API_Output(0, strRefNum + (strRefNum.size() > 2 ? "  " : " ") + "|")
+                    OT_API_Output(0, strUserDenoter+strUserID + strSeparator + strAcctDenoter+strAcctID + "\n")
+                } // for
+            } // VerifyIntVal (nCount)
+            
+            OT_API_Output(0, "\n\n") // stderr
+            return 1
+        }
+    }
+    return 0
+}
+
+
+
+
+
+
+
+
+
+
+def main_issue_asset()
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    // ------------------------------
+    
+    var strUsage = concat("\n\nUsage: issue_asset.ot --server SERVER_ID --mynym NYM_ID\n\n",
+                          "       (NYM_ID must already be the 'contract' key on the new contract.)\n       See create_asset_contract.ot before running this script.\n\n")
+    
+    OT_API_Output(0, strUsage)
+    
+    // ----------------------------------------------------
+    if (VerifyExists("Server") && VerifyExists("MyNym"))
+    {   
+        OT_API_Output(0, "Please paste a currency contract, followed by an EOF or a ~ by itself on a blank line:\n\n")
+        
+        // The reason we accept the tilde ~ on a blank line by itself, is because
+        // the EOF, while it works, causes us not to be able to read any more input
+        // from stdin. Stdin is considered "closed" for the duration of the run.
+        // So the tilde allows us to read multiple times without closing stdin.
+        
+        var strContract = OT_CLI_ReadUntilEOF() 
+        
+        if (!VerifyStringVal(strContract))
+        {
+            OT_API_Output(0, "\n\n Sorry, You must input a currency contract, in order to issue it on an OT server.\n\n")
+            return (-1)
+        }
+        // ------------
+        
+        var strResponse	= madeEasy.issue_asset_type(Server, MyNym, strContract)
+        var nStatus     = VerifyMessageSuccess(strResponse)
+        
+        // NOTICE: No need here to deal with retries, timeouts, request number,
+        // syncing transaction number, download / process nymbox, etc! It's all
+        // handled at a lower level!  Instead, simply check for success or failure:
+        //
+        // -1 is error, 
+        //  0 is reply received: failure 
+        //  1 is reply received: success
+        //
+        switch(nStatus)
+        {
+            case (1)
+            {
+                OT_API_Output(0, "\n\n SUCCESS in issue_asset! Server response:\n\n");
+                print(strResponse) // stdout
+                break
+            }
+            case (0)
+            {
+                OT_API_Output(0, "\n\n FAILURE in issue_asset! Server response:\n\n");
+                print(strResponse) // stdout
+                break
+            }
+            default
+            {
+                OT_API_Output(0, "\n\nError in issue_asset! nStatus is: "+nStatus.to_string()+"\n")
+                
+                if (VerifyStringVal(strResponse))
+                {
+                    OT_API_Output(0, "Server response:\n\n");
+                    print(strResponse) // stdout
+                }
+                break
+            }
+        }
+        OT_API_Output(0, "\n\n") //stderr
+        
+        return nStatus
+    }
+    
+    return 0
+}
+
+
+
+
+
+
+
+
 
 
 

@@ -3413,7 +3413,7 @@ bool OTTransaction::VerifyBoxReceiptExists(const OTIdentifier & SERVER_ID,
 									  strFolder3name.Get(),
 									  strFilename.Get());
 	
-	OTLog::vOutput(0, "OTTransaction::VerifyBoxReceiptExists: %s: %s%s%s%s%s%s%s\n", bExists ? "(Already have this one)" : "(Need to download this one)",
+	OTLog::vOutput(1, "OTTransaction::VerifyBoxReceiptExists: %s: %s%s%s%s%s%s%s\n", bExists ? "(Already have this one)" : "(Need to download this one)",
 				   strFolder1name.Get(), OTLog::PathSeparator(), 
 				   strFolder2name.Get(), OTLog::PathSeparator(), 
 				   strFolder3name.Get(), OTLog::PathSeparator(), 

@@ -915,7 +915,7 @@ bool OTMint::SignToken(OTPseudonym & theNotary, OTToken & theToken, OTString & t
 	bool bReturnValue = false;
 	
 	//OTLog::Error("%s <bank file> <coin request> <coin signature> [<signature repeats>]\n",
-	SetDumper(stderr);
+    _OT_Lucre_Dumper setDumper;
 	
 //	OTLog::vError("OTMint::SignToken!!\nnTokenIndex: %d\n Denomination: %ld\n", nTokenIndex, theToken.GetDenomination());
 	
@@ -1029,7 +1029,7 @@ bool OTMint::SignToken(OTPseudonym & theNotary, OTToken & theToken, OTString & t
 	BIO_free_all(bioBank);		
     BIO_free_all(bioRequest);	
     BIO_free_all(bioSignature);	
-	
+	    
 	return bReturnValue;
 }
 
@@ -1040,7 +1040,7 @@ bool OTMint::VerifyToken(OTPseudonym & theNotary, OTString & theCleartextToken, 
 {
 	bool bReturnValue = false;
 //	OTLog::Error("%s <bank info> <coin>\n", argv[0]);
-    SetDumper(stderr);
+    _OT_Lucre_Dumper setDumper;
 	
 	BIO *bioBank	= BIO_new(BIO_s_mem()); // input
 	BIO *bioCoin	= BIO_new(BIO_s_mem()); // input

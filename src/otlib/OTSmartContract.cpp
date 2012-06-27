@@ -3425,6 +3425,14 @@ bool OTSmartContract::ProcessCron()
 
 
 
+//virtual
+void OTSmartContract::SetDisplayLabel(const std::string * pstrLabel/*=NULL*/) 
+{ 
+    m_strLabel.Format("smartcontract trans# %ld, clause: %s", 
+                              GetTransactionNum(),
+                              (NULL != pstrLabel) ? pstrLabel->c_str() : "");    
+} 
+
 
 void OTSmartContract::ExecuteClauses (mapOfClauses & theClauses, OTString * pParam/*=NULL*/) // someday pParam could be a stringMap instead of a single param.
 {
@@ -3440,7 +3448,6 @@ void OTSmartContract::ExecuteClauses (mapOfClauses & theClauses, OTString * pPar
 		// -------------------------------------------------
 		// By this point, we have the clause we are executing as pClause, 
 		// and we have the Bylaw it belongs to, as pBylaw.
-				
 		// ----------------------------------------
 		
 		const std::string str_code		=	pClause->GetCode();		// source code for the script.
@@ -3492,9 +3499,9 @@ void OTSmartContract::ExecuteClauses (mapOfClauses & theClauses, OTString * pPar
 			//
 			if (NULL != pBylaw->GetVariable(str_Name)) // disallow duplicate names.
 			{
-				OTLog::vError("OTSmartContract::ExecuteClauses: While preparing to run script: %s.  Error: "
+				OTLog::vError("OTSmartContract::ExecuteClauses: While preparing to run smartcontract trans# %ld, clause: %s.  Error: "
 							  "Parameter variable named %s already exists. (Skipping the parameter actually passed in.)\n",
-							  str_clause_name.c_str(), str_Name.c_str());				
+							  GetTransactionNum(), str_clause_name.c_str(), str_Name.c_str());				
 			}
 			else // The param_string variable isn't already there. (So we add it as blank, if a value wasn't passed in.)
 			{
@@ -3511,16 +3518,20 @@ void OTSmartContract::ExecuteClauses (mapOfClauses & theClauses, OTString * pPar
 			// ****************************************
 			// TEMP FOR TESTING (HARDCODED CLAUSE NAME HERE...)
 //			OTVariable theReturnVal("return_val", false); // initial value is: false.
-			
+			            
+            this->SetDisplayLabel(&str_clause_name);
+            
+            pScript->SetDisplayFilename(m_strLabel.Get());
+            
 			if (false == pScript->ExecuteScript())	// If I passed theReturnVal in here, then it'd be assumed a bool is expected to be returned inside it.
 //			if (false == pScript->ExecuteScript((str_clause_name.compare("process_clause") == 0) ? &theReturnVal : NULL))
 			{
-				OTLog::vError("OTSmartContract::ExecuteClauses: Error while running script: %s \n",
-							 str_clause_name.c_str());
+				OTLog::vError("OTSmartContract::ExecuteClauses: Error while running smartcontract trans# %ld, clause: %s \n\n",
+							 GetTransactionNum(), str_clause_name.c_str());
 			}
 			else
-				OTLog::vOutput(0, "OTSmartContract::ExecuteClauses: Success executing script clause: %s.\n\n", 
-							   str_clause_name.c_str());
+				OTLog::vOutput(0, "OTSmartContract::ExecuteClauses: Success executing smartcontract trans# %ld, clause: %s \n\n", 
+							   GetTransactionNum(), str_clause_name.c_str());
 			// ****************************************
 //			For now, I've decided to allow ALL clauses to trigger on the hook. The flag only matters after
 //			they are done, and not between scripts. Otherwise problems could arise, such as order of execution.
@@ -3537,7 +3548,7 @@ void OTSmartContract::ExecuteClauses (mapOfClauses & theClauses, OTString * pPar
 		// ---------------------------------------------------------------
 		else 
 		{
-			OTLog::Error("OTSmartContract::ExecuteClauses: Error instantiating script!!\n");
+			OTLog::Error("OTSmartContract::ExecuteClauses: Error instantiating script!\n");
 		}
 	} // FOR_EACH clauses...
 	

@@ -14,7 +14,11 @@ int LucreCoinRequest(int argc,char **argv)
     const char *szCoinFile=argv[2];
     const char *szPublicCoinFile=argv[3];
 
+#ifdef _WIN32
+    SetDumper("openssl.dump");
+#else
     SetDumper(stderr);
+#endif
 
     BIO *bioBank=BIO_new_file(szBankFile,"r");
     BIO *bioCoin=BIO_new_file(szCoinFile,"w");

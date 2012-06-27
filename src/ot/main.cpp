@@ -673,6 +673,14 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
 		pScript->chai.add(fun(&OTAPI_Wrap::GetTime), "OT_API_GetTime");
 		// ------------------------------------------------------------------
 		
+		pScript->chai.add(fun(&OTAPI_Wrap::NumList_Add), "OT_API_NumList_Add");
+		pScript->chai.add(fun(&OTAPI_Wrap::NumList_Remove), "OT_API_NumList_Remove");
+		pScript->chai.add(fun(&OTAPI_Wrap::NumList_VerifyQuery), "OT_API_NumList_VerifyQuery");
+		pScript->chai.add(fun(&OTAPI_Wrap::NumList_VerifyAll), "OT_API_NumList_VerifyAll");
+		pScript->chai.add(fun(&OTAPI_Wrap::NumList_Count), "OT_API_NumList_Count");
+        
+		// ------------------------------------------------------------------
+		
 		pScript->chai.add(fun(&OTAPI_Wrap::Encode), "OT_API_Encode");
 		pScript->chai.add(fun(&OTAPI_Wrap::Decode), "OT_API_Decode");
 		pScript->chai.add(fun(&OTAPI_Wrap::Encrypt), "OT_API_Encrypt");
@@ -756,6 +764,12 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
 		pScript->chai.add(fun(&OTAPI_Wrap::Wallet_CanRemoveNym), "OT_API_Wallet_CanRemoveNym");
 		pScript->chai.add(fun(&OTAPI_Wrap::Wallet_RemoveNym), "OT_API_Wallet_RemoveNym");
 		pScript->chai.add(fun(&OTAPI_Wrap::Wallet_CanRemoveAccount), "OT_API_Wallet_CanRemoveAccount");
+        
+		pScript->chai.add(fun(&OTAPI_Wrap::Wallet_GetNymIDFromPartial), "OT_API_Wallet_GetNymIDFromPartial");
+		pScript->chai.add(fun(&OTAPI_Wrap::Wallet_GetServerIDFromPartial), "OT_API_Wallet_GetServerIDFromPartial");
+		pScript->chai.add(fun(&OTAPI_Wrap::Wallet_GetAssetIDFromPartial), "OT_API_Wallet_GetAssetIDFromPartial");
+		pScript->chai.add(fun(&OTAPI_Wrap::Wallet_GetAccountIDFromPartial), "OT_API_Wallet_GetAccountIDFromPartial");
+
 		pScript->chai.add(fun(&OTAPI_Wrap::Wallet_ImportNym), "OT_API_Wallet_ImportNym");
         
 		pScript->chai.add(fun(&OTAPI_Wrap::SetNym_Name), "OT_API_SetNym_Name");
@@ -822,6 +836,7 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
 		pScript->chai.add(fun(&OTAPI_Wrap::Instrument_GetValidFrom), "OT_API_Instrument_GetValidFrom");
 		pScript->chai.add(fun(&OTAPI_Wrap::Instrument_GetValidTo), "OT_API_Instrument_GetValidTo");
 		pScript->chai.add(fun(&OTAPI_Wrap::Instrument_GetMemo), "OT_API_Instrument_GetMemo");
+		pScript->chai.add(fun(&OTAPI_Wrap::Instrument_GetType), "OT_API_Instrument_GetType");
 		pScript->chai.add(fun(&OTAPI_Wrap::Instrument_GetAssetID), "OT_API_Instrument_GetAssetID");
         
 		pScript->chai.add(fun(&OTAPI_Wrap::Instrmnt_GetSenderUserID), "OT_API_Instrmnt_GetSenderUserID");
@@ -1729,6 +1744,7 @@ int main(int argc, char* argv[])
 		{
 			RegisterAPIWithScript(*pScript);
 			
+            pScript->SetDisplayFilename("stdin");
 			pScript->ExecuteScript();
 		}
 		else {
@@ -2284,6 +2300,7 @@ int main(int argc, char* argv[])
                                 
 				OTLog::Output(1, "Script output:\n\n");
 
+                pScript->SetDisplayFilename(strFilename);
 				pScript->ExecuteScript(&the_return_value);  // <====== EXECUTE SCRIPT.
                 
 				// ************************************************
@@ -2812,6 +2829,7 @@ int main(int argc, char* argv[])
 			{
 				RegisterAPIWithScript(*pScript);
 
+                pScript->SetDisplayFilename("hardcoded");
 				pScript->ExecuteScript();
 			}
 			else 

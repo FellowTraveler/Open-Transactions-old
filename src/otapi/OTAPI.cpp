@@ -410,6 +410,116 @@ OT_BOOL OT_API_PopMemlogBack()
 
 
 
+// OpenTransactions.h
+//bool  NumList_Add        (OTNumList & theList, const OTNumList & theNewNumbers);
+//bool  NumList_Remove     (OTNumList & theList, const OTNumList & theOldNumbers);
+//bool  NumList_VerifyQuery(OTNumList & theList, const OTNumList & theQueryNumbers);
+//bool  NumList_VerifyAll  (OTNumList & theList, const OTNumList & theQueryNumbers);
+//int   NumList_Count      (OTNumList & theList);
+
+// OTAPI_funcdef.h
+//const char * OT_API_NumList_Add        (const char * szNumList, const char * szNumbers);
+//const char * OT_API_NumList_Remove     (const char * szNumList, const char * szNumbers);
+//int          OT_API_NumList_VerifyQuery(const char * szNumList, const char * szNumbers); // returns OT_BOOL
+//int          OT_API_NumList_VerifyAll  (const char * szNumList, const char * szNumbers); // returns OT_BOOL
+//int          OT_API_NumList_Count      (const char * szNumList);
+
+
+// Returns new list if ALL szNumbers are successfully added to szNumList.
+// Otherwise returns NULL and doesn't change anything.
+//
+const char * OT_API_NumList_Add(const char * szNumList, const char * szNumbers)
+{
+    OT_ASSERT_MSG(OT_API::It().IsInitialized(),	"OT_API_NumList_Add: Not initialized; call OT_API::Init first.");
+//  OT_ASSERT_MSG(NULL != szNumList, "OT_API_NumList_Add: Null szNumList passed in!\n"); // allowed to be NULL here, for creating a new NumList.
+  	OT_ASSERT_MSG(NULL != szNumbers, "OT_API_NumList_Add: Null szNumbers passed in!\n");
+
+    OTNumList theList, theNewNumbers(szNumbers);
+    
+    if (NULL != szNumList)
+    {
+        const OTString strNumList(szNumList);
+        theList.Add(strNumList);
+    }
+         
+    const bool bAdded = OT_API::It().NumList_Add(theList, theNewNumbers);
+        
+    OTString strOutput;
+    if (bAdded && theList.Output(strOutput))
+    {
+        const char * pBuf = strOutput.Get();    
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        return g_tempBuf;
+    }
+    
+    return NULL;
+}
+
+// Returns new list if ALL szNumbers are successfully removed from szNumList.
+// Otherwise returns NULL and doesn't change anything.
+//
+const char * OT_API_NumList_Remove(const char * szNumList, const char * szNumbers)
+{
+    OT_ASSERT_MSG(OT_API::It().IsInitialized(),	"OT_API_NumList_Remove: Not initialized; call OT_API::Init first.");
+  	OT_ASSERT_MSG(NULL != szNumList, "OT_API_NumList_Remove: Null szNumList passed in!\n");
+  	OT_ASSERT_MSG(NULL != szNumbers, "OT_API_NumList_Remove: Null szNumbers passed in!\n");
+    
+    OTNumList theList(szNumList), theNewNumbers(szNumbers);
+
+    const bool bRemoved = OT_API::It().NumList_Remove(theList, theNewNumbers);
+    
+    OTString strOutput;
+    if (bRemoved && theList.Output(strOutput))
+    {
+        const char * pBuf = strOutput.Get();    
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        return g_tempBuf;
+    }
+    
+    return NULL;
+}
+
+// Verifies szNumbers as a SUBSET of szNumList.
+//
+OT_BOOL OT_API_NumList_VerifyQuery(const char * szNumList, const char * szNumbers)
+{
+    OT_ASSERT_MSG(OT_API::It().IsInitialized(),	"OT_API_NumList_VerifyQuery: Not initialized; call OT_API::Init first.");
+  	OT_ASSERT_MSG(NULL != szNumList, "OT_API_NumList_VerifyQuery: Null szNumList passed in!\n");
+  	OT_ASSERT_MSG(NULL != szNumbers, "OT_API_NumList_VerifyQuery: Null szNumbers passed in!\n");
+    
+    OTNumList theList(szNumList), theNewNumbers(szNumbers);
+    
+    const bool bVerified = OT_API::It().NumList_VerifyQuery(theList, theNewNumbers);
+    
+    return bVerified ? OT_TRUE : OT_FALSE;
+}
+
+// Verifies COUNT and CONTENT but NOT ORDER.
+//
+OT_BOOL OT_API_NumList_VerifyAll(const char * szNumList, const char * szNumbers)
+{
+    OT_ASSERT_MSG(OT_API::It().IsInitialized(),	"OT_API_NumList_VerifyAll: Not initialized; call OT_API::Init first.");
+  	OT_ASSERT_MSG(NULL != szNumList, "OT_API_NumList_VerifyAll: Null szNumList passed in!\n");
+  	OT_ASSERT_MSG(NULL != szNumbers, "OT_API_NumList_VerifyAll: Null szNumbers passed in!\n");
+    
+    OTNumList theList(szNumList), theNewNumbers(szNumbers);
+    
+    const bool bVerified = OT_API::It().NumList_VerifyAll(theList, theNewNumbers);
+    
+    return bVerified ? OT_TRUE : OT_FALSE;
+}
+
+int OT_API_NumList_Count(const char * szNumList)
+{
+    OT_ASSERT_MSG(OT_API::It().IsInitialized(),	"OT_API_NumList_Count: Not initialized; call OT_API::Init first.");
+  	OT_ASSERT_MSG(NULL != szNumList, "OT_API_NumList_Count: Null szNumList passed in!\n");
+    
+    OTNumList theList(szNumList);
+    
+    return OT_API::It().NumList_Count(theList);
+}
+
+
 
 
 // --------------------------------------------------
@@ -1322,10 +1432,184 @@ const char * OT_API_Wallet_ImportNym(const char * DISPLAY_NAME, const char * KEY
 
 
 
+// ------------------------------------------------------------------------------------------------
+
+
+
+
+/// Attempts to find a full ID in the wallet, based on a partial of the same ID.
+/// Returns NULL on failure, otherwise returns the full ID.
+// 
+const char * OT_API_Wallet_GetNymIDFromPartial(const char * PARTIAL_ID)
+{
+//  OTPseudonym *	GetNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
+//  OTPseudonym *	GetNymByIDPartialMatch(const std::string PARTIAL_ID, const char * szFuncName=NULL);
+
+    OT_ASSERT_MSG(OT_API::It().IsInitialized(), "OT_API_Wallet_GetNymIDFromPartial: Not initialized; call OT_API::Init first.");    
+    OT_ASSERT_MSG(NULL != PARTIAL_ID, "ASSERT: OT_API_Wallet_GetNymIDFromPartial: Null PARTIAL_ID passed in.");
+
+	OTIdentifier  thePartialID(PARTIAL_ID);
+    
+    // In this case, the user passed in the FULL ID. 
+    // (We STILL confirm whether he's found in the wallet...)
+    //
+	OTPseudonym * pObject = OT_API::It().GetNym(thePartialID, "OT_API_Wallet_GetNymIDFromPartial"); 
+    
+	if (NULL != pObject) // Found it (as full ID.)
+	{
+        OTString strID_Output(thePartialID);
+		const char * pBuf = strID_Output.Get();
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+		return g_tempBuf;
+	}
+	// ------------------------------------------
+    // Below this point, it definitely wasn't a FULL ID, so now we can
+    // go ahead and search for it as a PARTIAL ID...
+    //
+    pObject = OT_API::It().GetNymByIDPartialMatch(PARTIAL_ID, "OT_API_Wallet_GetNymIDFromPartial"); 
+    
+	if (NULL != pObject) // Found it (as partial ID.)
+	{
+        OTString strID_Output;
+        pObject->GetIdentifier(strID_Output);
+		const char * pBuf = strID_Output.Get();
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+		return g_tempBuf;
+	}
+	
+	return NULL;
+}
+
+/// Attempts to find a full ID in the wallet, based on a partial of the same ID.
+/// Returns NULL on failure, otherwise returns the full ID.
+// 
+const char * OT_API_Wallet_GetServerIDFromPartial(const char * PARTIAL_ID)
+{
+//    OTServerContract *	GetServer(const OTIdentifier & THE_ID, const char * szFuncName=NULL);
+//    OTServerContract *	GetServerContractPartialMatch(const std::string PARTIAL_ID, const char * szFuncName=NULL);
+    
+    OT_ASSERT_MSG(OT_API::It().IsInitialized(), "OT_API_Wallet_GetServerIDFromPartial: Not initialized; call OT_API::Init first.");    
+    OT_ASSERT_MSG(NULL != PARTIAL_ID, "ASSERT: OT_API_Wallet_GetServerIDFromPartial: Null PARTIAL_ID passed in.");
+    
+	OTIdentifier  thePartialID(PARTIAL_ID);
+    
+    // In this case, the user passed in the FULL ID. 
+    // (We STILL confirm whether he's found in the wallet...)
+    //
+	OTServerContract * pObject = OT_API::It().GetServer(thePartialID, "OT_API_Wallet_GetServerIDFromPartial"); 
+    
+	if (NULL != pObject) // Found it (as full ID.)
+	{
+        OTString strID_Output(thePartialID);
+		const char * pBuf = strID_Output.Get();
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+		return g_tempBuf;
+	}
+	// ------------------------------------------
+    // Below this point, it definitely wasn't a FULL ID, so now we can
+    // go ahead and search for it as a PARTIAL ID...
+    //
+    pObject = OT_API::It().GetServerContractPartialMatch(PARTIAL_ID, "OT_API_Wallet_GetServerIDFromPartial"); 
+    
+	if (NULL != pObject) // Found it (as partial ID.)
+	{
+        OTString strID_Output;
+        pObject->GetIdentifier(strID_Output);
+		const char * pBuf = strID_Output.Get();
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+		return g_tempBuf;
+	}
+	
+	return NULL;
+}
+
+/// Attempts to find a full ID in the wallet, based on a partial of the same ID.
+/// Returns NULL on failure, otherwise returns the full ID.
+// 
+const char * OT_API_Wallet_GetAssetIDFromPartial(const char * PARTIAL_ID)
+{
+//    OTAssetContract *	GetAssetType(const OTIdentifier & THE_ID, const char * szFuncName=NULL);
+//    OTAssetContract *	GetAssetContractPartialMatch(const std::string PARTIAL_ID, const char * szFuncName=NULL);
+    
+    OT_ASSERT_MSG(OT_API::It().IsInitialized(), "OT_API_Wallet_GetAssetIDFromPartial: Not initialized; call OT_API::Init first.");    
+    OT_ASSERT_MSG(NULL != PARTIAL_ID, "ASSERT: OT_API_Wallet_GetAssetIDFromPartial: Null PARTIAL_ID passed in.");
+    
+	OTIdentifier  thePartialID(PARTIAL_ID);
+    
+    // In this case, the user passed in the FULL ID. 
+    // (We STILL confirm whether he's found in the wallet...)
+    //
+	OTAssetContract * pObject = OT_API::It().GetAssetType(thePartialID, "OT_API_Wallet_GetAssetIDFromPartial"); 
+    
+	if (NULL != pObject) // Found it (as full ID.)
+	{
+        OTString strID_Output(thePartialID);
+		const char * pBuf = strID_Output.Get();
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+		return g_tempBuf;
+	}
+	// ------------------------------------------
+    // Below this point, it definitely wasn't a FULL ID, so now we can
+    // go ahead and search for it as a PARTIAL ID...
+    //
+    pObject = OT_API::It().GetAssetContractPartialMatch(PARTIAL_ID, "OT_API_Wallet_GetAssetIDFromPartial"); 
+    
+	if (NULL != pObject) // Found it (as partial ID.)
+	{
+        OTString strID_Output;
+        pObject->GetIdentifier(strID_Output);
+		const char * pBuf = strID_Output.Get();
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+		return g_tempBuf;
+	}
+	
+	return NULL;
+}
+
+const char * OT_API_Wallet_GetAccountIDFromPartial(const char * PARTIAL_ID)
+{
+//    OTAccount *   GetAccount(const OTIdentifier & THE_ID, const char * szFuncName=NULL);	
+//    OTAccount *   GetAccountPartialMatch(const std::string PARTIAL_ID, const char * szFuncName=NULL);
+    
+    OT_ASSERT_MSG(OT_API::It().IsInitialized(), "OT_API_Wallet_GetNymIDFromPartial: Not initialized; call OT_API::Init first.");    
+    OT_ASSERT_MSG(NULL != PARTIAL_ID, "ASSERT: OT_API_Wallet_GetNymIDFromPartial: Null PARTIAL_ID passed in.");
+    
+	OTIdentifier  thePartialID(PARTIAL_ID);
+    
+    // In this case, the user passed in the FULL ID. 
+    // (We STILL confirm whether he's found in the wallet...)
+    //
+	OTAccount * pObject = OT_API::It().GetAccount(thePartialID, "OT_API_Wallet_GetNymIDFromPartial"); 
+    
+	if (NULL != pObject) // Found it (as full ID.)
+	{
+        OTString strID_Output(thePartialID);
+		const char * pBuf = strID_Output.Get();
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+		return g_tempBuf;
+	}
+	// ------------------------------------------
+    // Below this point, it definitely wasn't a FULL ID, so now we can
+    // go ahead and search for it as a PARTIAL ID...
+    //
+    pObject = OT_API::It().GetAccountPartialMatch(PARTIAL_ID, "OT_API_Wallet_GetNymIDFromPartial"); 
+    
+	if (NULL != pObject) // Found it (as partial ID.)
+	{
+        OTString strID_Output;
+        pObject->GetIdentifier(strID_Output);
+		const char * pBuf = strID_Output.Get();
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+		return g_tempBuf;
+	}
+	
+	return NULL;
+}
+
 
 // ----------------------------------------------------------------
 
-// based on Index (above 4 functions) this returns the Nym's ID
+// based on Index this returns the Nym's ID
 const char * OT_API_GetNym_ID(int nIndex)
 {
 	OT_ASSERT_MSG(nIndex >= 0, "OT_API_GetNym_ID: Invalid index less than zero.");
@@ -1363,7 +1647,7 @@ const char * OT_API_GetNym_Name(const char * NYM_ID)
 		OTString & strName = pNym->GetNymName();
 		const char * pBuf = strName.Get();
 		
-    OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+        OTString::safe_strcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
 		
 		return g_tempBuf;
 	}
@@ -2482,6 +2766,68 @@ const char * OT_API_Instrument_GetValidTo(const char * SERVER_ID, const char * T
 
 
 
+// ------------------------------------------------
+
+
+
+
+const char * OT_API_Instrument_GetType(const char * SERVER_ID, const char * THE_INSTRUMENT)
+{
+    OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_Instrument_GetType: Null SERVER_ID passed in.");
+    OT_ASSERT_MSG(NULL != THE_INSTRUMENT, "OT_API_Instrument_GetType: Null THE_INSTRUMENT passed in.");
+    // ------------------------------------
+    const char * szFunc = "OT_API_Instrument_GetType";
+    // ------------------------------------
+    const OTIdentifier  theServerID(SERVER_ID);
+    const OTString      strInstrument(THE_INSTRUMENT);
+    // ------------------------------------
+    OTPayment thePayment(strInstrument);
+    
+    if (!thePayment.IsValid())
+    {
+        OTLog::vOutput(0, "%s: Unable to parse instrument:\n\n%s\n\n",
+                       szFunc, strInstrument.Get());
+        return NULL;
+    }
+    // ---------------------------------------
+    bool bSetValues = false;
+    
+    if (thePayment.IsPurse())
+        bSetValues = thePayment.SetTempValuesPurse(theServerID);
+    else
+        bSetValues = thePayment.SetTempValues();
+    // ---------------------------------------
+    if (!bSetValues)
+    {
+        OTLog::vOutput(0, "%s: Unable to load instrument:\n\n%s\n\n",
+                       szFunc, strInstrument.Get());
+        return NULL;
+    }
+    // ---------------------------------------
+    
+    // BY THIS POINT, we have definitely loaded up all the values of the instrument
+    // into the OTPayment object. (Meaning we can now return the requested data...)
+    
+    const OTString strOutput(thePayment.GetTypeString());
+    
+    if (strOutput.Exists())
+    {
+        const char * pBuf = strOutput.Get();
+        
+#ifdef _WIN32
+        strcpy_s(g_tempBuf, MAX_STRING_LENGTH, pBuf);
+#else
+        strlcpy(g_tempBuf, pBuf, MAX_STRING_LENGTH);
+#endif
+        return g_tempBuf;
+    }
+    
+    return NULL;
+}
+
+
+
+// ------------------------------------------------
 
 
 

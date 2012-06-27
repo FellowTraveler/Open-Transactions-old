@@ -516,3 +516,22 @@ _otapi_la_LDFLAGS =             	--no-undefined                  \
 if TRANSPORT_ZMQ
 _otapi_la_CPPFLAGS +=			-DOT_ZMQ_MODE
 endif
+
+
+
+
+
+
+dist_bin_SCRIPTS		=	scripts/opentxs
+
+dist_pkglib_SCRIPTS		=	scripts/ot/otapi.ot		\
+					scripts/ot/ot_made_easy.ot	\
+					scripts/ot/ot_utility.ot
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    

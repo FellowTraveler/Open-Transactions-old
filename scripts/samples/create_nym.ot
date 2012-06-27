@@ -1,81 +1,10 @@
 #!/usr/bin/env ot
 
-
-// Creates a new Pseudonym and adds it to the wallet.
-// (And sets the display name for the new Nym, in the wallet.)
-// Prints the new NymID to stdout.
-//
-// Returns 1 for success, 0 for failure.
-//
-def create_nym(nKeybits, strName)
-{
-    // --------------------------------------------------------------------
-    // Instantiate the "OT Made Easy" object.
-    //
-    var madeEasy	= OT_ME()
-    // ------------------------------
-
-    var strNymID = madeEasy.create_pseudonym(nKeybits)  // returns new Nym ID
-    
-    if (!VerifyStringVal(strNymID))
-    {
-        OT_API_Output(0, "create_nym: Failed in OT_ME::create_pseudonym(keybits == " + nKeybits.to_string() + ")\n")
-        return (0)
-    }
-    OT_API_Output(0, "Success creating! " + nKeybits.to_string() + " keybits, new ID: ") // stderr
-    print(strNymID) // stdout
-    OT_API_Output(0, "\n") //stderr
-    // -------------------
-    var bSetName = OT_API_SetNym_Name(strNymID, // subject
-                                      strNymID, // signer
-                                      strName)
-    if (!bSetName)
-    {
-        OT_API_Output(0, "Failed in OT_API_SetNym_Name(name == " + strName + ")\n")
-        return (0)
-    }
-    // -------------------    
-    OT_API_Output(0, "Success setting name to: " + strName + "\n\n") // stderr
-    return 1
-}
-
-
-def main_create_nym()
-{
-    var nKeybits = 1024
-    var strName  = "New Nym"
-    // ------------------------------------
-    if (VerifyExists("Args"))
-    {
-        // std::string OT_CLI_GetValueByKey(const std::string str_Args, 
-        //                                  const std::string str_key)
-        // 
-        // OPTION:   --args "key value key value"
-        //
-        // EXAMPLE:  --args "keybits 1024"
-        //
-        var strKeybits = OT_CLI_GetValueByKey( Args, "keybits" )
-        
-        var strNewName = OT_CLI_GetValueByKey( Args, "name" )
-        
-        if (VerifyStringVal(strKeybits) && (strKeybits.to_int() > 0))
-        { nKeybits = strKeybits.to_int() }
-        
-        if (VerifyStringVal(strNewName))
-        { strName = strNewName }
-    }
-    // ------------------------------------
-
-    return create_nym(nKeybits, strName)
-}
+// This code is in scripts/ot/ot_commands.ot
 
 
 
 main_create_nym()
-
-
-
-
 
 
 

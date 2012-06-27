@@ -211,6 +211,9 @@ EXPORT    bool Verify(const OTNumList & rhs) const; // True/False, based on whet
     // -------------------
 EXPORT    int Count() const;
     // -------------------
+    bool  Peek(long & lPeek) const;
+    bool  Pop();
+    // -------------------
     // Outputs the numlist as set of numbers. (To iterate OTNumList, call this, then iterate the output.)
 EXPORT    bool Output(std::set<long> & theOutput) const; // returns false if the numlist was empty.
     

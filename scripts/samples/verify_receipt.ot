@@ -1,57 +1,9 @@
 #!/usr/bin/env ot
 
-// --------------------------------------------------------------------
-// Instantiate the "OT Made Easy" object.
-//
-
-var madeEasy	= OT_ME()
-// ------------------------------
-// SHOW INBOX
-// 
-// Load an asset account's inbox from local storage and display it on the screen.
-//
-
-if (VerifyExists("Server") && VerifyExists("MyAcct"))
-{	
-    // ---------------------------------------------
-    // HERE, WE LOOK UP THE NYM ID, BASED ON THE ACCOUNT ID.
-    //
-    var strMyNymID = OT_API_GetAccountWallet_NymID(MyAcct)
-    
-    if (!VerifyStringVal(strMyNymID))
-    {
-        OT_API_Output(0, "Failure: Unable to find NymID based on myacct. Use: --myacct ACCT_ID\n")
-        OT_API_Output(0, "The designated asset account must be yours. OT will find the Nym based on the account.\n\n")
-        return (-1)
-    }
-    // ***************************************************************
-
-    var bSuccess = OT_API_VerifyAccountReceipt(Server, strMyNymID, MyAcct);
-    
-	if (!bSuccess)
-	{
-		OT_API_Output(0, "\n\n OT_API_VerifyAccountReceipt: Failed. Try using dl_acct_files and then try verifying again.\n\n")
-        return 0
-	}
-	else	// Success!
-	{        
-		OT_API_Output(0, "\n\nVerify receipt:  success!\n\n") // stderr
-        return 1
-	}
-}
-
-// Done!
-0
+// This code is in scripts/ot/ot_commands.ot
 
 
 
-
-
-
-
-
-
-
-
+main_verify_last_receipt()
 
 

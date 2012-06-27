@@ -237,6 +237,8 @@ protected:
 	const time_t & GetNextProcessDate() const { return m_tNextProcessDate; }     
 	
 public:
+    virtual void SetDisplayLabel(const std::string * pstrLabel=NULL);
+
 	// --------------------------------------------------------------------------
 	// FOR RECEIPTS
 	// These IDs are stored for cases where this Cron Item is sitting in a receipt

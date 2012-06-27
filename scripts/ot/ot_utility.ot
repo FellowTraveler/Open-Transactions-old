@@ -14,8 +14,12 @@
 //  http://www.chaiscript.com/doxygen/namespace_chai_script___language.html
 //
 
-
     def VerifyExists(theObjectNameAsStr)
+    {
+        return VerifyExists(theObjectNameAsStr, true)
+    }
+
+    def VerifyExists(theObjectNameAsStr, bDisplayError)
     {
         if (get_objects().count(theObjectNameAsStr) == 0)
         {
@@ -85,7 +89,10 @@
 //                    strDefault = "--args \"key1 value1 key2 value2 key3 \\\"Here is value 3\\\"\"" 
 //                } 
             
-            OT_API_Output(0, "Missing variable: " + theObjectNameAsStr + ". Try adding it as a parameter, like this: " + strDefault + "\n(Or if you prefer, set the default in ~/.ot/command-line-ot.opt)\n\n")
+            if (true == bDisplayError)
+            {
+                OT_API_Output(0, "Missing variable: " + theObjectNameAsStr + ". Try adding it as a parameter, like this: " + strDefault + "\n(Or if you prefer, set the default in ~/.ot/command-line-ot.opt)\n\n")
+            }
             return false
         }
         
@@ -3154,6 +3161,14 @@ def Utility::sendProcessNymboxLowLevel(serverID, nymID) // bWasSent is an output
         nReturn
     }
     
+
+
+
+
+
+
+
+
 
 
 

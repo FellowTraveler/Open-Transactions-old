@@ -158,6 +158,14 @@ class OTPseudonym;
 typedef std::map  <int, OTASCIIArmor *>	mapOfPrototokens;
 
 
+class _OT_Lucre_Dumper
+{
+    std::string m_str_dumpfile;
+public:
+    _OT_Lucre_Dumper();
+    ~_OT_Lucre_Dumper();
+};
+
 /*
  
  Here's a rough sketch of the protocol:

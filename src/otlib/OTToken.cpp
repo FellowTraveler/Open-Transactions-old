@@ -161,6 +161,28 @@ using namespace io;
 #include "lucre/bank.h"  // Lucre
 
 
+
+
+_OT_Lucre_Dumper::_OT_Lucre_Dumper()
+{
+#ifdef _WIN32
+    OTString OpenSSLDumpFilename; // todo security. We shouldn't necessarily be dumping this info to file AT ALL.
+    OpenSSLDumpFilename.Format("%s%s%s",OTLog::Path(),OTLog::PathSeparator,"openssl.dumpfile"); // todo hardcoding.
+    SetDumper(OpenSSLDumpFilename.Get()); // We are only dumping this way currently as a temporary solution to the applink.c openssl thing that can cause crashes in Lucre when withdrawing cash. (Caused by da2ce7 removing Lucre from OT and moving it into a dylib.)
+    m_str_dumpfile = OpenSSLDumpFilename.Get();
+#else
+    SetDumper(stderr);
+#endif     
+}
+
+_OT_Lucre_Dumper::~_OT_Lucre_Dumper()
+{
+#ifdef _WIN32
+    CleanupDumpFile(m_str_dumpfile.c_str());
+#endif            
+}
+
+
 // The current implementation for withdrawals (using Lucre) requires only a single proto-token
 // to be sent, signed, and returned. Only the ID of the token is blinded.
 //
@@ -813,7 +835,7 @@ bool OTToken::GenerateTokenRequest(const OTPseudonym & theNym, OTMint & theMint,
 	// But we should still set them since server may choose to reject the request.
 	SetSeriesAndExpiration(theMint.GetSeries(), theMint.GetValidFrom(), theMint.GetValidTo());
 	
-    SetDumper(stderr);
+    _OT_Lucre_Dumper setDumper;
 	
     BIO *bioBank		=	BIO_new(BIO_s_mem()); // Input. We must supply the bank's public lucre info
     BIO *bioCoin		=	BIO_new(BIO_s_mem()); // These two are output. We must write these bios, after
@@ -983,7 +1005,8 @@ bool OTToken::ProcessToken(const OTPseudonym & theNym, OTMint & theMint, OTToken
 	}
 	
 	// Lucre
-    SetDumper(stderr);
+    _OT_Lucre_Dumper setDumper;
+    
     BIO *bioBank			= BIO_new(BIO_s_mem()); // input
     BIO *bioSignature		= BIO_new(BIO_s_mem()); // input
     BIO *bioPrivateRequest	= BIO_new(BIO_s_mem()); // input
@@ -1078,7 +1101,7 @@ bool OTToken::ProcessToken(const OTPseudonym & theNym, OTMint & theMint, OTToken
 	BIO_free_all(bioSignature);	
 	BIO_free_all(bioPrivateRequest);	
 	BIO_free_all(bioCoin);	
-
+    
 	return bReturnValue;	
 }
 
@@ -1095,14 +1118,17 @@ bool OTToken::ProcessToken(const OTPseudonym & theNym, OTMint & theMint, OTToken
 bool OTToken::VerifyToken(OTPseudonym & theNotary, OTMint & theMint)
 {
 	//OTLog::vError("%s <bank info> <coin>\n",argv[0]);
-    SetDumper(stderr);
 	
 	if (OTToken::spendableToken != m_State)
 	{
 		OTLog::Error("Expected spendable token in OTToken::VerifyToken\n");
+        
+
 		return false;
 	}
 	
+    _OT_Lucre_Dumper setDumper;
+
 	// load the bank and coin info into the bios
 	// The Mint private info is encrypted in m_ascPrivate. So I need to extract that
 	// first before I can use it.

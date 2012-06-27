@@ -192,24 +192,61 @@ void OTAPI_Wrap::Output(const int nLogLevel, const std::string STR_OUTPUT)
 
 std::string OTAPI_Wrap::GetTime()
 {
-	 const char * szRetVal = OT_API_GetTime();
+    const char * szRetVal = OT_API_GetTime();
     
     return (NULL != szRetVal) ? szRetVal : "";
 }
 // --------------------------------------------------------------
 
 
+//static 
+std::string OTAPI_Wrap::NumList_Add(const std::string str_NumList, const std::string str_Numbers)
+{
+    const char * szRetVal = OT_API_NumList_Add(str_NumList.c_str(), str_Numbers.c_str());
+    return (NULL != szRetVal) ? szRetVal : "";
+}
+
+//static 
+std::string OTAPI_Wrap::NumList_Remove(const std::string str_NumList, const std::string str_Numbers)
+{
+    const char * szRetVal = OT_API_NumList_Remove(str_NumList.c_str(), str_Numbers.c_str());
+    return (NULL != szRetVal) ? szRetVal : "";
+}
+
+//static 
+bool OTAPI_Wrap::NumList_VerifyQuery(const std::string str_NumList, const std::string str_Numbers)
+{
+    const OT_BOOL bRetVal = OT_API_NumList_VerifyQuery(str_NumList.c_str(), str_Numbers.c_str());
+    return (OT_TRUE == bRetVal) ? true : false;
+}
+
+//static 
+bool OTAPI_Wrap::NumList_VerifyAll(const std::string str_NumList, const std::string str_Numbers)
+{
+    const OT_BOOL bRetVal = OT_API_NumList_VerifyAll(str_NumList.c_str(), str_Numbers.c_str());
+    return (OT_TRUE == bRetVal) ? true : false;
+}
+
+//static
+int OTAPI_Wrap::NumList_Count(const std::string str_NumList)
+{
+    return OT_API_NumList_Count(str_NumList.c_str());
+}
+
+
+// --------------------------------------------------------------
+
 
 std::string OTAPI_Wrap::Encode(std::string str_Plaintext, bool bLineBreaks)
 {
-	 const char * szRetVal = OT_API_Encode(str_Plaintext.c_str(), bLineBreaks ? OT_TRUE : OT_FALSE);
+    const char * szRetVal = OT_API_Encode(str_Plaintext.c_str(), bLineBreaks ? OT_TRUE : OT_FALSE);
     
     return (NULL != szRetVal) ? szRetVal : "";
 }
 
 std::string OTAPI_Wrap::Decode(std::string str_Encoded, bool bLineBreaks)
 {
-	 const char * szRetVal = OT_API_Decode(str_Encoded.c_str(), bLineBreaks ? OT_TRUE : OT_FALSE);
+    const char * szRetVal = OT_API_Decode(str_Encoded.c_str(), bLineBreaks ? OT_TRUE : OT_FALSE);
     
     return (NULL != szRetVal) ? szRetVal : "";
 }
@@ -932,9 +969,35 @@ bool OTAPI_Wrap::Wallet_CanRemoveAccount(const std::string ACCOUNT_ID)
 	return (OT_API_Wallet_CanRemoveAccount(ACCOUNT_ID.c_str()) == OT_TRUE) ? true : false;
 }
 
+
+const std::string OTAPI_Wrap::Wallet_GetNymIDFromPartial(const std::string PARTIAL_ID)
+{
+    const char * szRetVal = OT_API_Wallet_GetNymIDFromPartial(PARTIAL_ID.c_str());
+    return (NULL != szRetVal) ? szRetVal : "";
+}
+
+const std::string OTAPI_Wrap::Wallet_GetServerIDFromPartial(const std::string PARTIAL_ID)
+{
+    const char * szRetVal = OT_API_Wallet_GetServerIDFromPartial(PARTIAL_ID.c_str());
+    return (NULL != szRetVal) ? szRetVal : "";
+}
+
+const std::string OTAPI_Wrap::Wallet_GetAssetIDFromPartial(const std::string PARTIAL_ID)
+{
+    const char * szRetVal = OT_API_Wallet_GetAssetIDFromPartial(PARTIAL_ID.c_str());
+    return (NULL != szRetVal) ? szRetVal : "";
+}
+
+const std::string OTAPI_Wrap::Wallet_GetAccountIDFromPartial(const std::string PARTIAL_ID)
+{
+    const char * szRetVal = OT_API_Wallet_GetAccountIDFromPartial(PARTIAL_ID.c_str());
+    return (NULL != szRetVal) ? szRetVal : "";
+}
+
+
 const std::string OTAPI_Wrap::Wallet_ImportNym(const std::string DISPLAY_NAME, const std::string KEY_FILE_CONTENTS)
 {
-	 const char * szRetVal = OT_API_Wallet_ImportNym(DISPLAY_NAME.c_str(), KEY_FILE_CONTENTS.c_str());
+    const char * szRetVal = OT_API_Wallet_ImportNym(DISPLAY_NAME.c_str(), KEY_FILE_CONTENTS.c_str());
     
     return (NULL != szRetVal) ? szRetVal : "";
 }
@@ -1466,6 +1529,13 @@ const std::string OTAPI_Wrap::Instrument_GetValidTo       (const std::string SER
 const std::string OTAPI_Wrap::Instrument_GetMemo          (const std::string SERVER_ID, const std::string THE_INSTRUMENT)
 {
    	const char * szRetVal =  OT_API_Instrument_GetMemo(SERVER_ID.c_str(), THE_INSTRUMENT.c_str());
+    
+    return (NULL != szRetVal) ? szRetVal : "";
+}
+
+const std::string OTAPI_Wrap::Instrument_GetType          (const std::string SERVER_ID, const std::string THE_INSTRUMENT)
+{
+   	const char * szRetVal =  OT_API_Instrument_GetType(SERVER_ID.c_str(), THE_INSTRUMENT.c_str());
     
     return (NULL != szRetVal) ? szRetVal : "";
 }

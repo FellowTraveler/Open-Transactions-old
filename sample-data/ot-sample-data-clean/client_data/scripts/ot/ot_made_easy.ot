@@ -384,7 +384,7 @@
 		var theRequest := OTAPI_Func(ot_Msg.CANCEL_PAYMENT_PLAN, SERVER_ID, NYM_ID, ACCT_ID, STR_TRANS_NUM)
 		var	strResponse = theRequest.SendTransaction(theRequest, "CANCEL_PAYMENT_PLAN")
 
-		return strResponse;
+		return strResponse
     }
 // -----------------------------------------------------------------------------------------------
 
@@ -400,488 +400,648 @@
         var theRequest := OTAPI_Func(ot_Msg.ACTIVATE_SMART_CONTRACT, SERVER_ID, NYM_ID, THE_SMART_CONTRACT)
         var	strResponse = theRequest.SendTransaction(theRequest, "ACTIVATE_SMART_CONTRACT")
         
-        return strResponse;
+        return strResponse
     }
 // -----------------------------------------------------------------------------------------------
 
-    // TRIGGER CLAUSE (on running smart contract)  -- TRANSACTION
-    //
-    def OT_ME::trigger_clause(SERVER_ID, NYM_ID, STR_TRANS_NUM, CLAUSE_NAME, STR_PARAM) 
+// TRIGGER CLAUSE (on running smart contract)  -- TRANSACTION
+//
+def OT_ME::trigger_clause(SERVER_ID, NYM_ID, STR_TRANS_NUM, CLAUSE_NAME, STR_PARAM) 
+{
+    var ot_Msg := OTAPI_Func()
+    // -------------------------
+    
+    //      int OT_API_triggerClause(const char * SERVER_ID,
+    //                               const char * USER_ID,
+    //                               const char * TRANSACTION_NUMBER,
+    //                               const char * CLAUSE_NAME,
+    //                               const char * STR_PARAM);
+    
+    var theRequest := OTAPI_Func(ot_Msg.TRIGGER_CLAUSE, SERVER_ID, NYM_ID, STR_TRANS_NUM, CLAUSE_NAME, STR_PARAM)
+    var	strResponse = theRequest.SendTransaction(theRequest, "TRIGGER_CLAUSE")
+    
+    return strResponse
+}
+// -----------------------------------------------------------------------------------------------
+
+
+// WITHDRAW CASH  -- TRANSACTION
+//
+def OT_ME::withdraw_cash(SERVER_ID, NYM_ID, ACCT_ID, STR_AMOUNT) 
+{
+    var ot_Msg := OTAPI_Func()
+    // -------------------------
+        
+    var theRequest := OTAPI_Func(ot_Msg.WITHDRAW_CASH, SERVER_ID, NYM_ID, ACCT_ID, STR_AMOUNT)
+    var	strResponse = theRequest.SendTransaction(theRequest, "WITHDRAW_CASH")
+    
+    return strResponse
+}
+// -----------------------------------------------------------------------------------------------
+
+
+// WITHDRAW VOUCHER  -- TRANSACTION
+//
+def OT_ME::withdraw_voucher(SERVER_ID, NYM_ID, ACCT_ID, RECIP_NYM_ID, STR_MEMO, STR_AMOUNT) 
+{
+    var ot_Msg := OTAPI_Func()
+    // -------------------------
+    
+//  static int withdrawVoucher(const std::string SERVER_ID,
+//                             const std::string USER_ID,
+//                             const std::string ACCT_ID,
+//                             const std::string RECIPIENT_USER_ID,
+//                             const std::string CHEQUE_MEMO,
+//                             const std::string AMOUNT);
+    
+    var theRequest := OTAPI_Func(ot_Msg.WITHDRAW_VOUCHER, SERVER_ID, NYM_ID, ACCT_ID, RECIP_NYM_ID, STR_MEMO, STR_AMOUNT)
+    var	strResponse = theRequest.SendTransaction(theRequest, "WITHDRAW_VOUCHER")
+    
+    return strResponse
+}
+// -----------------------------------------------------------------------------------------------
+
+def OT_ME::deposit_cheque(SERVER_ID, NYM_ID, ACCT_ID, STR_CHEQUE)
+{
+    var ot_Msg := OTAPI_Func()
+    // ---------------------------------------------------
+    var theRequest  = OTAPI_Func(ot_Msg.DEPOSIT_CHEQUE, SERVER_ID, NYM_ID, ACCT_ID, STR_CHEQUE)
+    var strResponse = theRequest.SendTransaction(theRequest, "DEPOSIT_CHEQUE") // <========================
+    
+    return strResponse
+}
+
+
+
+// *****************************************************************************************************************************
+
+
+
+// public boolean 
+//def importCashPurse(String serverID, String nymID, String assetID, String userInput, boolean isPurse) 
+
+def importCashPurse(serverID, nymID, assetID, userInput, isPurse) 
+{
+    var isSuccess = true
+    
+//    OT_API_Output(0, "importCashPurse, serverID:" + serverID + " nymID:" + nymID + " assetID:" + assetID);
+//    OT_API_Output(0, "importCashPurse, userInput purse:" + userInput);
+    
+    if (VerifyBoolVal(isPurse) && !isPurse) 
     {
-        var ot_Msg := OTAPI_Func()
-        // -------------------------
+//      OT_API_Output(0, "importCashPurse, isPurse:" + isPurse)
         
-//      int OT_API_triggerClause(const char * SERVER_ID,
-//                               const char * USER_ID,
-//                               const char * TRANSACTION_NUMBER,
-//                               const char * CLAUSE_NAME,
-//                               const char * STR_PARAM);
-
-        var theRequest := OTAPI_Func(ot_Msg.TRIGGER_CLAUSE, SERVER_ID, NYM_ID, STR_TRANS_NUM, CLAUSE_NAME, STR_PARAM)
-        var	strResponse = theRequest.SendTransaction(theRequest, "TRIGGER_CLAUSE")
+        var purse = OT_API_CreatePurse(serverID, assetID, nymID)
         
-        return strResponse;
+        if (!VerifyStringVal(purse)) 
+        {
+            OT_API_Output(0, "importCashPurse: Error: OT_API_CreatePurse returned null\n")
+            return false
+        }
+//      OT_API_Output(0, "importCashPurse, OT_API_CreatePurse return :" + purse);
+        
+        var newPurse = OT_API_Purse_Push(serverID, assetID, nymID, purse, userInput)
+        if (!VerifyStringVal(newPurse)) 
+        {
+            OT_API_Output(0, "importCashPurse: Error: OT_API_Purse_Push returned null\n")
+            return false
+        }
+//      OT_API_Output(0, "importCashPurse, OT_API_Purse_Push returned :" + newPurse);
+        userInput = newPurse
     }
+//    OT_API_Output(0, "importCashPurse, Before calling OT_API_Wallet_ImportPurse, final purse:" + userInput);
+//    OT_API_Output(0, "importCashPurse just before api , serverID:" + serverID + " nymID:" + nymID + " assetID:" + assetID);
+
+    isSuccess = OT_API_Wallet_ImportPurse(serverID, assetID, nymID, userInput) == 1 ? true : false
+    
+    return isSuccess
+}
+
+
 // -----------------------------------------------------------------------------------------------
 
 
-/*
-//	static void notarizeDeposit(const std::string SERVER_ID,
-//								const std::string USER_ID,
-//								const std::string ACCT_ID,
-//								const std::string THE_PURSE);
+//private String 
+//def processCashPurse(String serverID, String assetID, String nymID, String oldPurse, ArrayList selectedTokens, String recipientNymID)
 
-	def OT_ME::deposit_cash(SERVER_ID, NYM_ID, ACCOUNT_ID, THE_PURSE)
-	{
-		
-	}
-	
-	
-	    public boolean importCashPurse(String serverID, String nymID, String assetID, String userInput, boolean isPurse) {
+def processCashPurse( serverID,  assetID,  nymID,  oldPurse,  selectedTokens,  recipientNymID) : serverID.is_type(string_type) && assetID.is_type(string_type) && nymID.is_type(string_type) && oldPurse.is_type(string_type) && selectedTokens.is_type(vector_type) && recipientNymID.is_type(string_type)
+{
+    var newPurse
+    
+    // By this point, we know that "selected tokens" has a size of 0, or MORE THAN ONE. (But NOT 1 exactly.)
+    // (At least, if this function was called by exportCashPurse.)
 
-
-        boolean isSuccess = true;
-        System.out.println("importCashPurse, serverID:" + serverID + " nymID:" + nymID + " assetID:" + assetID);
-        System.out.println("importCashPurse, userInput purse:" + userInput);
-        if (!isPurse) {
-            System.out.println("importCashPurse, isPurse:" + isPurse);
-            String purse = otapi.OT_API_CreatePurse(serverID, assetID, nymID);
-            if (purse == null) {
-                System.out.println("OT_API_CreatePurse returned null");
-                return false;
-            }
-            System.out.println("importCashPurse, OT_API_CreatePurse returne :" + purse);
-
-            String newPurse = otapi.OT_API_Purse_Push(serverID, assetID, nymID, purse, userInput);
-            if (newPurse == null) {
-                System.out.println("OT_API_Purse_Push returned null");
-                return false;
-            }
-            System.out.println("importCashPurse, OT_API_Purse_Push returne :" + newPurse);
-            userInput = newPurse;
-        }
-        System.out.println("importCashPurse, Before calling OT_API_Wallet_ImportPurse, final purse:" + userInput);
-        System.out.println("importCashPurse just before api , serverID:" + serverID + " nymID:" + nymID + " assetID:" + assetID);
-        isSuccess = otapi.OT_API_Wallet_ImportPurse(serverID, assetID, nymID, userInput) == 1 ? true : false;
-        return isSuccess;
-
-    }
-
-    private String processCashPurse(String serverID, String assetID, String nymID, String oldPurse, ArrayList selectedTokens, String recepientNymID) {
-
-        String newPurse = null;
-        //oldPurse = otapi.OT_API_LoadPurse(serverID, assetID, nymID);
-
-        // By this point, we know that "selected tokens" has a size of 0, or MORE THAN ONE. (But NOT 1 exactly.)
-        // (At least, if this function was called by exportCashPurse.)
-
-
-        // This block handles cases where NO TOKENS ARE SELECTED.
-        // (Meaning "PROCESS" THEM ALL.)
-        //
-        if ((selectedTokens == null) || (selectedTokens.size() < 1)) {
-            System.out.println("IN Entire Cash Purse");
-
-            // newPurse is created, OWNED BY RECIPIENT.
-            //
-            newPurse = otapi.OT_API_CreatePurse(serverID, assetID, recepientNymID);
-
-            if (newPurse == null) {
-                System.out.println("IN processCashPurse, OT_API_CreatePurse returned null");
-                return null;
-            }
-
-            // Iterate through the OLD PURSE. (as tempPurse.)
-            //
-            int count = otapi.OT_API_Purse_Count(serverID, assetID, oldPurse);
-            String tempPurse = oldPurse;
-
-            for (int i = 0; i < count; i++) {
-                // Peek into TOKEN, from the top token on the stack. (And it's STILL on top after this call.)
-                //
-                String token = otapi.OT_API_Purse_Peek(serverID, assetID, nymID, tempPurse);
-
-                // Now pop the token off of tempPurse (our iterator for the old purse).
-                // Store updated copy of purse (sans token) into "str1".
-                //
-                String str1 = otapi.OT_API_Purse_Pop(serverID, assetID, nymID, tempPurse);
-
-                if ((token == null) || (str1 == null)) {
-                    System.out.println("IN processCashPurse,OT_API_Purse_Peek or OT_API_Purse_Pop returned null... SHOULD NEVER HAPPEN. Returning null.");
-                    return null;
-                }
-
-                // Since pop succeeded, copy the output to tempPurse (for next iteration, in case any continue's happen below.)
-                // Now tempPurse contains what it did before, MINUS ONE TOKEN. (The exported one.)
-                //
-                tempPurse = str1;
-
-                // -----------------------
-
-                // Change the OWNER on token, from NymID to RECIPIENT.
-                // (In this block, we change ALL the tokens in the purse.)
-                //
-                String exportedToken = otapi.OT_API_Token_ChangeOwner(serverID, assetID, token, nymID, recepientNymID);
-
-                // If change failed, then continue.
-                if (exportedToken == null) {
-                    System.out.println("IN processCashPurse,OT_API_Token_ChangeOwner returned null...(should never happen) Returning null.");
-                    return null;
-                }
-
-                // PUSH the EXPORTED TOKEN (new owner) into the new purse (again, recipient is new owner) and save results in "str".
-                // Results are, FYI, newPurse+exportedToken.
-                //
-                String str = otapi.OT_API_Purse_Push(serverID, assetID, recepientNymID, newPurse, exportedToken);
-
-                // If push failed, then continue.
-                if (str == null) {
-                    System.out.println("IN processCashPurse,OT_API_Purse_Push returned null... (should never happen) Returning null.");
-                    return null;
-                }
-
-                // Since push succeeded, copy "str" (containing newPurse+exportedToken) into newPurse.
-                newPurse = str;
-            } // for
-
-            // Save tempPurse to local storage. (For OLD Owner.)
-            // By now, all of the tokens have been popped off of this purse, so it is EMPTY.
-            // We're now saving the empty purse, since the user exported all of the tokens.
-            //
-            // THERE MAYBE SHOULD BE AN EXTRA MODAL HERE, that says,
-            // "Moneychanger will now save your purse, EMPTY, back to local storage. Are you sure you want to do this?"
-            //
-            
-            if (otapi.OT_API_SavePurse(serverID, assetID, nymID, tempPurse) == 0) // if FAILURE.
-            {
-                // No error message if saving fails??
-                // No modal?
-                //
-                // FT: adding log.
-                System.out.println("IN processCashPurse,IF block OT_API_SavePurse FAILED. SHOULD NEVER HAPPEN!!!!!!");
-            }
-        } // -------------------------------------------------------------------------------------
-        // Else, SPECIFIC TOKENS were selected, so process them...
-        else {
-            System.out.println("Tokens in Cash Purse being processed");
-
-            // ----------------------------------------------------------
-            // newPurseSelectedTokens is created (CORRECTLY) with recepientNymID as owner.
-            // newPurseUnSelectedTokens is created (CORRECTLY) with NymID as owner. (Unselected tokens aren't being exported...)
-            //
-            String newPurseSelectedTokens = otapi.OT_API_CreatePurse(serverID, assetID, recepientNymID);
-            String newPurseUnSelectedTokens = otapi.OT_API_CreatePurse(serverID, assetID, nymID);
-
-            if ((newPurseSelectedTokens == null) || (newPurseUnSelectedTokens == null)) {
-                System.out.println("IN processCashPurse,1st or 2nd OT_API_CreatePurse returned null");
-                return null;
-            }
-
-            // ----------------------------------------------------------
-            // Iterate through oldPurse, using tempPurse as iterator.
-            //
-            int count = otapi.OT_API_Purse_Count(serverID, assetID, oldPurse);
-            String tempPurse = oldPurse;
-
-            for (int i = 0; i < count; i++) {
-                // Peek at the token on top of the stack.
-                // (Without removing it.)
-                //
-                String token = otapi.OT_API_Purse_Peek(serverID, assetID, nymID, tempPurse);
-
-                // Remove the top token from the stack, and return the updated stack in "str1".
-                //
-                String str1 = otapi.OT_API_Purse_Pop(serverID, assetID, nymID, tempPurse);
-
-                if ((str1 == null) || (token == null)) {
-                    System.out.println("IN processCashPurse,OT_API_Purse_Peek or OT_API_Purse_Pop returned null... returning Null. (SHOULD NEVER HAPPEN.)");
-                    return null;
-                }
-
-                // Putting updated purse into iterator, so any subsequent "continue"s will work properly.
-                //
-                tempPurse = str1;
-
-                // ----------------------------------------
-
-                // Grab the TokenID for that token. (Token still has OLD OWNER.)
-                //
-                String tokenID = otapi.OT_API_Token_GetID(serverID, assetID, token);
-
-                if (tokenID == null) {
-                    System.out.println("IN processCashPurse, OT_API_Token_GetID returned null... SHOULD NEVER HAPPEN. Returning now.");
-                    return null;
-                }
-
-                // ----------------------------------------
-
-                // At this point, we check TokenID (identifying the current token) to see if it's on the SELECTED LIST.
-                //
-                if (selectedTokens.contains(tokenID)) // We ARE exporting this token. (Its ID was on the list.)
-                {
-                    // CHANGE OWNER from NYM to RECIPIENT
-                    // "token" now contains EXPORTED TOKEN, with NEW OWNER.
-                    //
-                    String exportedToken = otapi.OT_API_Token_ChangeOwner(serverID, assetID, token, nymID, recepientNymID);
-
-                    if (exportedToken == null) {
-                        System.out.println("IN processCashPurse, OT_API_Token_GetID or OT_API_Token_ChangeOwner returned null... SHOULD NEVER HAPPEN. Returning now.");
-                        return null;
-                    }
-
-                    // Thus, push exported version of token into new purse for recipient (for selected tokens.)
-                    //
-                    String str = otapi.OT_API_Purse_Push(serverID, assetID, recepientNymID, newPurseSelectedTokens, exportedToken);
-                    if (str == null) {
-                        System.out.println("IN processCashPurse,OT_API_Purse_Push newPurseSelectedTokens returned null... SHOULD NEVER HAPPEN (returning.)");
-                        return null;
-                    }
-                    newPurseSelectedTokens = str;
-                } else // The token, this iteration, is NOT being exported, but is remaining with the original owner.
-                {
-                    String str = otapi.OT_API_Purse_Push(serverID, assetID, nymID, newPurseUnSelectedTokens, token);
-
-                    if (str == null) {
-                        System.out.println("IN processCashPurse,OT_API_Purse_Push newPurseUnSelectedTokens returned null... SHOULD NEVER HAPPEN. Returning null.");
-                        return null;
-                    }
-
-                    newPurseUnSelectedTokens = str;
-                }
-            } // for
-
-            // We SAVE newPurseUnSelectedTokens... These remain as the Nym's purse, in local storage.
-            //
-            if (otapi.OT_API_SavePurse(serverID, assetID, nymID, newPurseUnSelectedTokens) == 0) // if FAILURE.
-            {
-                // No error message if saving fails??
-                // No modal?
-                //
-                // FT: adding log.
-                System.out.println("IN processCashPurse, OT_API_SavePurse FAILED. SHOULD NEVER HAPPEN!!!!!!");
-            }
-
-            // The SELECTED ones (with Recipient as owner of purse AND tokens within) are returned as the "newPurse".
-            //
-            newPurse = newPurseSelectedTokens;
-        }
-
-        return newPurse;
-    }
-
-    // Input: server ID, assetID, Nym of current owner, existing purse, list of selected tokens, Nym of Recipient, and bool isPasted.
-    // Returns: "new Purse"
+    
+    // This block handles cases where NO TOKENS ARE SELECTED.
+    // (Meaning "PROCESS" THEM ALL.)
     //
-    public String exportCashPurse(String serverID, String assetID, String nymID, String oldPurse, ArrayList selectedTokens, String recepientNymID, boolean isPasted) {
-        System.out.println("exportCashPurse starts, selectedTokens:" + selectedTokens);
-        Utility.setObj(null);
-
-        // If no recipient, then recipient == Nym.
+    if ((selectedTokens.is_var_null()) || (selectedTokens.size() < 1))
+    {
+//      OT_API_Output(0, "IN Entire Cash Purse")
+        
+        // newPurse is created, OWNED BY RECIPIENT.
         //
-        if (recepientNymID == null || recepientNymID.length() == 0) {
-            System.out.println("exportCashPurse: recepientNym empty--using NymID for recipient instead: " + nymID);
-            recepientNymID = nymID;
+        newPurse = OT_API_CreatePurse(serverID, assetID, recipientNymID)
+        
+        if (!VerifyStringVal(newPurse))
+        {
+            OT_API_Output(0, "IN processCashPurse, OT_API_CreatePurse returned null\n");
+            return ""
         }
-
-        // if "isPasted" AND recipientNymID IS NOT EQUAL TO NymID,
-        // Question: meaning of isPasted ?
+        
+        // Iterate through the OLD PURSE. (as tempPurse.)
         //
-        if (isPasted && !recepientNymID.equals(nymID)) {
-            String recepientPubKey = otapi.OT_API_LoadPubkey(recepientNymID);
-            System.out.println("recepientPubKey:" + recepientPubKey);
-
-            // This whole block is all just about loading the pubkey for the recipient, (if I don't already have it.)
+        var count = OT_API_Purse_Count(serverID, assetID, oldPurse)
+        var tempPurse = oldPurse
+        
+        for (var i = 0; i < count; ++i) 
+        {
+            // Peek into TOKEN, from the top token on the stack. (And it's STILL on top after this call.)
             //
-            if (recepientPubKey == null) {
-                // ----------------------------------------------------------
-                OTAPI_Func  theRequest   = new OTAPI_Func(OTAPI_Func.FT.CHECK_USER, serverID, nymID, recepientNymID);
-                String      strResponse  = OTAPI_Func.SendRequest(theRequest, "CHECK_USER");
-
-                if (null == strResponse)
-                {
-                    System.out.println("IN exportCashPurse: OTAPI_Func.SendRequest() failed. (I give up.) ");
-                    return null;
-                }
-                // ----------------------------------------------------------
-                
-                recepientPubKey = otapi.OT_API_LoadPubkey(recepientNymID);                
-            }
-
-            // Still?
-            if (recepientPubKey == null) {
-                System.out.println("exportCashPurse: recepientPubKey is null");
-                return null;
-            }
-        }
-        // --------------------------------------------------
-
-        // By this point, we have verified that we can load the public key for the recipient.
-        // (At least, as long as "isPasted" is true.)
-
-        String token = null;
-        String exportedToken = null;
-
-        // If a single token is selected, then execute this block.
-        // Otherwise, go below, and processCashPurse.
-        //
-        if (selectedTokens.size() == 1) {
-            // New Purse is created with Nym as the owner (NOT!!!!!! recipient.)
+            var token = OT_API_Purse_Peek(serverID, assetID, nymID, tempPurse)
+            
+            // Now pop the token off of tempPurse (our iterator for the old purse).
+            // Store updated copy of purse (sans token) into "str1".
             //
-            String newPurse = otapi.OT_API_CreatePurse(serverID, assetID, nymID);
-            if (newPurse == null) {
-                System.out.println("OT_API_CreatePurse returned null");
-                return null;
-            }
-
-            // "int count" starts out containing the count of the tokens in OLD PURSE.
-            //
-            int count = otapi.OT_API_Purse_Count(serverID, assetID, oldPurse);
-
-            String tempPurse = oldPurse; // tempPurse now contains a COPY of OLD PURSE. (From old owner...)
-
-            for (int i = 0; i < count; i++) // iterate through tempPurse, all the tokens.
+            var str1 = OT_API_Purse_Pop(serverID, assetID, nymID, tempPurse)
+            
+            if (!VerifyStringVal(token) || !VerifyStringVal(str1)) 
             {
-                // "token" now contains the token for this iteration.
-                token = otapi.OT_API_Purse_Peek(serverID, assetID, nymID, tempPurse); // DOESN'T POP!! Only peeks.
-
-                // Here we explicitly "pop" as well, so we are positioned in case of any "continue"s.
-                //
-                String returnStringVal = otapi.OT_API_Purse_Pop(serverID, assetID, nymID, tempPurse);
-
-                if ((token == null) || (returnStringVal == null)) // this should never happen
-                {
-                    System.out.println("IN export cash, OT_API_Purse_Peek returned null... (should never happen.) ");
-                    return null;
-                }
-
-                // tempPurse now contains its former contents, MINUS the token being EXPORTED.
-                //
-                tempPurse = returnStringVal;
-
-                // -----------------------------------
-
-                // We read the token's ID, so we can see if it is on the list of SELECTED tokens (to be exported...)
-                String tokenID = otapi.OT_API_Token_GetID(serverID, assetID, token);
-
-                // If the Token was selected for export, CHANGE OWNER from NYM to RECIPIENT.
-                // "exportedToken" will contain the output version.
-                //
-                if (selectedTokens.contains(tokenID)) {
-                    exportedToken = otapi.OT_API_Token_ChangeOwner(serverID, assetID, token, nymID, recepientNymID);
-                    // Normally I'd "break" here, since we were only looking to export a single token.
-                    // However, I still need to iterate the rest of the tokens onto the NEW PURSE, and then SAVE IT.
-                    // That's why I don't break here, and instead allow the loop to continue.
-                } // If the token was NOT selected for export, just push it onto the new purse (for OLD owner, since he still owns it.)
-                else // This will happen with ALL TOKENS except ONE.
-                {
-                    returnStringVal = otapi.OT_API_Purse_Push(serverID, assetID, nymID, newPurse, token);
-                    if (returnStringVal == null) // this should never happen
-                    {
-                        System.out.println("IN export cash, OT_API_Purse_Push returned null... (should never happen.) Returning null.");
-                        return null;
-                    }
-                    newPurse = returnStringVal;
-                }
+                OT_API_Output(0, "IN processCashPurse, OT_API_Purse_Peek or OT_API_Purse_Pop returned null... SHOULD NEVER HAPPEN. Returning null.\n")
+                return ""
             }
-
-            // By this point, we looped through all tokens in tempPurse (containing a copy of oldPurse), and we
-            // removed the ONE token being exported, and we called ChangeOwner for that token, and as we looped,
-            // we added all the other tokens (NOT being exported) to "newPurse".
-
-            // Therefore now we save newPurse, which overwrites the oldPurse that was previously stored there,
-            // and contains the remaining, non-exported tokens of the old owner.
+            
+            // Since pop succeeded, copy the output to tempPurse (for next iteration, in case any continue's happen below.)
+            // Now tempPurse contains what it did before, MINUS ONE TOKEN. (The exported one.)
             //
-            if (otapi.OT_API_SavePurse(serverID, assetID, nymID, newPurse) == 0) {
-                // If SAVE FAILS (==0) then set Utility obj to OLD PURSE.
-                Utility.setObj(oldPurse);   // Displays on screen??
-                return null;
+            tempPurse = str1
+            
+            // -----------------------
+            
+            // Change the OWNER on token, from NymID to RECIPIENT.
+            // (In this block, we change ALL the tokens in the purse.)
+            //
+            var exportedToken = OT_API_Token_ChangeOwner(serverID, assetID, token, nymID, recipientNymID)
+            
+            // If change failed, then continue.
+            //
+            if (!VerifyStringVal(exportedToken))
+            {
+                OT_API_Output(0, "IN processCashPurse, OT_API_Token_ChangeOwner returned null...(should never happen) Returning null.\n")
+                return ""
             }
-
-            // This is either null, or contains the "change owner"d (exported) token.
+            
+            // PUSH the EXPORTED TOKEN (new owner) into the new purse (again, recipient is new owner) and save results in "str".
+            // Results are, FYI, newPurse+exportedToken.
             //
-            return exportedToken; // This means a token is sometimes returned (here), and sometimes a purse (below.)
+            var str = OT_API_Purse_Push(serverID, assetID, recipientNymID, newPurse, exportedToken)
+            
+            // If push failed, then continue.
+            if (!VerifyStringVal(str)) 
+            {
+                OT_API_Output(0, "IN processCashPurse, OT_API_Purse_Push returned null... (should never happen) Returning null.\n")
+                return ""
+            }
+            
+            // Since push succeeded, copy "str" (containing newPurse+exportedToken) into newPurse.
+            //
+            newPurse = str
+        } // for
+        
+        // Save tempPurse to local storage. (For OLD Owner.)
+        // By now, all of the tokens have been popped off of this purse, so it is EMPTY.
+        // We're now saving the empty purse, since the user exported all of the tokens.
+        //
+        // THERE MAYBE SHOULD BE AN EXTRA MODAL HERE, that says,
+        // "Moneychanger will now save your purse, EMPTY, back to local storage. Are you sure you want to do this?"
+        //
+//        bool OTAPI_Wrap::SavePurse(const std::string SERVER_ID,
+//                                   const std::string ASSET_TYPE_ID,
+//                                   const std::string USER_ID,
+//                                   const std::string THE_PURSE)
+        
+        if (!OT_API_SavePurse(serverID, assetID, nymID, tempPurse)) // if FAILURE.
+        {
+            // No error message if saving fails??
+            // No modal?
+            //
+            // FT: adding log.
+            OT_API_Output(0, "IN processCashPurse, IF block OT_API_SavePurse FAILED. SHOULD NEVER HAPPEN!!!!!!\n")
         }
-
-        // By this point, we know that "selected tokens" has a size of 0, or MORE THAN ONE.
-
-        // Next I create another "newPurse" by calling this function.
-        // I pass it the server, asset, NYM ID, OLD PURSE, the selected tokens, and the RECIPIENT NYM.
+    } // -------------------------------------------------------------------------------------
+    // Else, SPECIFIC TOKENS were selected, so process them...
+    else 
+    {
+//      OT_API_Output(0, "Tokens in Cash Purse being processed");
+        
+        // ----------------------------------------------------------
+        // newPurseSelectedTokens is created (CORRECTLY) with recipientNymID as owner.
+        // newPurseUnSelectedTokens is created (CORRECTLY) with NymID as owner. (Unselected tokens aren't being exported...)
         //
-        String newPurse = processCashPurse(serverID, assetID, nymID, oldPurse, selectedTokens, recepientNymID);
-
-        // Whatever is returned from that function, I return here also. Presumably a purse...
+        var newPurseSelectedTokens   = OT_API_CreatePurse(serverID, assetID, recipientNymID)
+        var newPurseUnSelectedTokens = OT_API_CreatePurse(serverID, assetID, nymID)
+        
+        if (!VerifyStringVal(newPurseSelectedTokens) || !VerifyStringVal((newPurseUnSelectedTokens))) 
+        {
+            OT_API_Output(0, "IN processCashPurse, 1st or 2nd OT_API_CreatePurse returned null\n")
+            return ""
+        }
+        
+        // ----------------------------------------------------------
+        // Iterate through oldPurse, using tempPurse as iterator.
         //
-        return newPurse;
+        var count = OT_API_Purse_Count(serverID, assetID, oldPurse)
+        var tempPurse = oldPurse
+        
+        for (var i = 0; i < count; ++i) 
+        {
+            // Peek at the token on top of the stack.
+            // (Without removing it.)
+            //
+            var token = OT_API_Purse_Peek(serverID, assetID, nymID, tempPurse)
+            
+            // Remove the top token from the stack, and return the updated stack in "str1".
+            //
+            var str1 = OT_API_Purse_Pop(serverID, assetID, nymID, tempPurse)
+            
+            if (!VerifyStringVal(str1) || !VerifyStringVal(token)) 
+            {
+                OT_API_Output(0, "IN processCashPurse, OT_API_Purse_Peek or OT_API_Purse_Pop returned null... returning Null. (SHOULD NEVER HAPPEN.)\n")
+                return ""
+            }
+            
+            // Putting updated purse into iterator, so any subsequent "continue"s will work properly.
+            //
+            tempPurse = str1
+            
+            // ----------------------------------------
+            
+            // Grab the TokenID for that token. (Token still has OLD OWNER.)
+            //
+            var tokenID = OT_API_Token_GetID(serverID, assetID, token)
+            
+            if (!VerifyStringVal(tokenID)) 
+            {
+                OT_API_Output(0, "IN processCashPurse, OT_API_Token_GetID returned null... SHOULD NEVER HAPPEN. Returning now.\n")
+                return ""
+            }
+            
+            // ----------------------------------------
+            
+            // At this point, we check TokenID (identifying the current token) to see if it's on the SELECTED LIST.
+            //
+            if (selectedTokens.range().contains(tokenID)) // We ARE exporting this token. (Its ID was on the list.)
+            {
+                // CHANGE OWNER from NYM to RECIPIENT
+                // "token" now contains EXPORTED TOKEN, with NEW OWNER.
+                //
+                var exportedToken = OT_API_Token_ChangeOwner(serverID, assetID, token, nymID, recipientNymID)
+                
+                if (!VerifyStringVal(exportedToken))
+                {
+                    OT_API_Output(0, "IN processCashPurse, OT_API_Token_GetID or OT_API_Token_ChangeOwner returned null... SHOULD NEVER HAPPEN. Returning now.\n");
+                    return ""
+                }
+                
+                // Thus, push exported version of token into new purse for recipient (for selected tokens.)
+                //
+                var str = OT_API_Purse_Push(serverID, assetID, recipientNymID, newPurseSelectedTokens, exportedToken)
+                if (!VerifyStringVal(str)) 
+                {
+                    OT_API_Output(0, "IN processCashPurse,OT_API_Purse_Push newPurseSelectedTokens returned null... SHOULD NEVER HAPPEN (returning.)\n")
+                    return ""
+                }
+                newPurseSelectedTokens = str
+            } 
+            else // The token, this iteration, is NOT being exported, but is remaining with the original owner.
+            {
+                var str = OT_API_Purse_Push(serverID, assetID, nymID, newPurseUnSelectedTokens, token)
+                
+                if (!VerifyStringVal(str))
+                {
+                    OT_API_Output(0, "IN processCashPurse,OT_API_Purse_Push newPurseUnSelectedTokens returned null... SHOULD NEVER HAPPEN. Returning null.\n")
+                    return ""
+                }
+                
+                newPurseUnSelectedTokens = str
+            }
+        } // for
+        
+        // We SAVE newPurseUnSelectedTokens... These remain as the Nym's purse, in local storage.
+        //
+        if (!OT_API_SavePurse(serverID, assetID, nymID, newPurseUnSelectedTokens)) // if FAILURE.
+        {
+            // No error message if saving fails??
+            // No modal?
+            //
+            // FT: adding log.
+            OT_API_Output(0, "IN processCashPurse, OT_API_SavePurse FAILED. SHOULD NEVER HAPPEN!!!!!!\n")
+        }
+        
+        // The SELECTED ones (with Recipient as owner of purse AND tokens within) are returned as the "newPurse".
+        //
+        newPurse = newPurseSelectedTokens
+    }
+    
+    return newPurse
+}
+
+
+// -----------------------------------------------------------------------------------------------
+
+
+// Input: server ID, assetID, Nym of current owner, existing purse, list of selected tokens, Nym of Recipient, and bool isPasted.
+// Returns: "new Purse"
+//
+//public String 
+//def exportCashPurse(String serverID, String assetID, String nymID, String oldPurse, ArrayList selectedTokens, String recipientNymID, boolean isPasted) 
+def exportCashPurse( serverID,  assetID,  nymID,  oldPurse,  selectedTokens,  recipientNymID,  isPasted) 
+{
+//  OT_API_Output(0, "exportCashPurse starts, selectedTokens:" + selectedTokens + "\n");
+//  Utility.setObj(null);
+
+    // If no recipient, then recipient == Nym.
+    //
+    if (!VerifyStringVal(recipientNymID) || (recipientNymID.size() == 0))
+    {
+        OT_API_Output(0, "exportCashPurse: recipientNym empty--using NymID for recipient instead: " + nymID + "\n")
+        recipientNymID = nymID
+    }
+    
+    // if "isPasted" AND recipientNymID IS NOT EQUAL TO NymID,
+    // Question: meaning of isPasted ?
+    //
+    if (isPasted && !recipientNymID.equals(nymID)) 
+    {
+        var recipientPubKey = OT_API_LoadPubkey(recipientNymID)
+//      OT_API_Output(0, "recipientPubKey:" + recipientPubKey)
+        
+        // This whole block is all just about loading the pubkey for the recipient, (if I don't already have it.)
+        //
+        if (!VerifyStringVal(recipientPubKey)) 
+        {
+            // ----------------------------------------------------------
+            var  theRequest   = OTAPI_Func(OTAPI_Func.CHECK_USER, serverID, nymID, recipientNymID)
+            var  strResponse  = theRequest.SendRequest(theRequest, "CHECK_USER")
+            
+            if (!VerifyStringVal(strResponse))
+            {
+                OT_API_Output(0, "IN exportCashPurse: theRequest.SendRequest() failed. (I give up.) \n")
+                return ""
+            }
+            // ----------------------------------------------------------
+            
+            recipientPubKey = OT_API_LoadPubkey(recipientNymID)              
+        }
+        
+        // Still?
+        if (!VerifyStringVal(recipientPubKey)) 
+        {
+            OT_API_Output(0, "exportCashPurse: recipientPubKey is null\n");
+            return ""
+        }
+    }
+    // --------------------------------------------------
+    
+    // By this point, we have verified that we can load the public key for the recipient.
+    // (At least, as long as "isPasted" is true.)
+    
+    var token         = ""
+    var exportedToken = ""
+    
+    // If a single token is selected, then execute this block.
+    // Otherwise, go below, and processCashPurse.
+    //
+    if (selectedTokens.size() == 1) 
+    {
+        // New Purse is created with Nym as the owner (NOT!!!!!! recipient.)
+        //
+        var newPurse = OT_API_CreatePurse(serverID, assetID, nymID)
+            
+        if (!VerifyStringVal(newPurse)) 
+        {
+            OT_API_Output(0, "OT_API_CreatePurse returned null\n")
+            return ""
+        }
+        
+        // "int count" starts out containing the count of the tokens in OLD PURSE.
+        //
+        var count = OT_API_Purse_Count(serverID, assetID, oldPurse)
+        
+        var tempPurse = oldPurse // tempPurse now contains a COPY of OLD PURSE. (From old owner...)
+        
+        for (var i = 0; i < count; ++i) // iterate through tempPurse, all the tokens.
+        {
+            // "token" now contains the token for this iteration.
+            token = OT_API_Purse_Peek(serverID, assetID, nymID, tempPurse) // DOESN'T POP!! Only peeks.
+            
+            // Here we explicitly "pop" as well, so we are positioned in case of any "continue"s.
+            //
+            var returnStringVal = OT_API_Purse_Pop(serverID, assetID, nymID, tempPurse)
+            
+            if (!VerifyStringVal(token) || !VerifyStringVal(returnStringVal)) // this should never happen
+            {
+                OT_API_Output(0, "IN export cash, OT_API_Purse_Peek returned null... (should never happen.) \n")
+                return ""
+            }
+            
+            // tempPurse now contains its former contents, MINUS the token being EXPORTED.
+            //
+            tempPurse = returnStringVal
+            
+            // -----------------------------------
+            
+            // We read the token's ID, so we can see if it is on the list of SELECTED tokens (to be exported...)
+            var tokenID = OT_API_Token_GetID(serverID, assetID, token)
+            
+            // If the Token was selected for export, CHANGE OWNER from NYM to RECIPIENT.
+            // "exportedToken" will contain the output version.
+            //
+            if (selectedTokens.range().contains(tokenID)) 
+            {
+                exportedToken = OT_API_Token_ChangeOwner(serverID, assetID, token, nymID, recipientNymID)
+                // Normally I'd "break" here, since we were only looking to export a single token.
+                // However, I still need to iterate the rest of the tokens onto the NEW PURSE, and then SAVE IT.
+                // That's why I don't break here, and instead allow the loop to continue.
+            } // If the token was NOT selected for export, just push it onto the new purse (for OLD owner, since he still owns it.)
+            else // This will happen with ALL TOKENS except ONE.
+            {
+                returnStringVal = OT_API_Purse_Push(serverID, assetID, nymID, newPurse, token)
+                if (!VerifyStringVal(returnStringVal)) // this should never happen
+                {
+                    OT_API_Output(0, "IN export cash, OT_API_Purse_Push returned null... (should never happen.) Returning null.\n")
+                    return ""
+                }
+                newPurse = returnStringVal
+            }
+        }
+        
+        // By this point, we looped through all tokens in tempPurse (containing a copy of oldPurse), and we
+        // removed the ONE token being exported, and we called ChangeOwner for that token, and as we looped,
+        // we added all the other tokens (NOT being exported) to "newPurse".
+        
+        // Therefore now we save newPurse, which overwrites the oldPurse that was previously stored there,
+        // and contains the remaining, non-exported tokens of the old owner.
+        //
+        if (!OT_API_SavePurse(serverID, assetID, nymID, newPurse))
+        {
+            // If SAVE FAILS (==0) then set Utility obj to OLD PURSE.
+//          Utility.setObj(oldPurse);   // Displays on screen??
+            return ""
+        }
+        
+        // This is either null, or contains the "change owner"d (exported) token.
+        //
+        return exportedToken // This means a token is sometimes returned (here), and sometimes a purse (below.)
+    }
+    
+    // By this point, we know that "selected tokens" has a size of 0, or MORE THAN ONE.
+    
+    // Next I create another "newPurse" by calling this function.
+    // I pass it the server, asset, NYM ID, OLD PURSE, the selected tokens, and the RECIPIENT NYM.
+    //
+    var newPurse = processCashPurse(serverID, assetID, nymID, oldPurse, selectedTokens, recipientNymID)
+    
+    // Whatever is returned from that function, I return here also. Presumably a purse...
+    //
+    return newPurse
+}
+
+
+// -----------------------------------------------------------------------------------------------
+
+
+//public boolean
+//def depositCashPurse(String serverID, String assetID, String nymID, String oldPurse, ArrayList selectedTokens, String accountID) 
+def depositCashPurse( serverID,  assetID,  nymID,  oldPurse,  selectedTokens,  accountID) 
+{    
+//  Utility.setObj(null);
+//  OT_API_Output(0, "depositCashPurse starts, selectedTokens:" + selectedTokens + "\n")
+            
+    var recipientNymID  = OT_API_GetAccountWallet_NymID(accountID)
+    if (!VerifyStringVal(recipientNymID)) 
+    {
+        OT_API_Output(0, "\ndepositCashPurse: Unable to find recipient Nym based on myacct. \n")
+        return (-1)
+    }
+    // ----------------------------------------
+    var newPurse   = processCashPurse(serverID, assetID, nymID, oldPurse, selectedTokens, recipientNymID)
+    
+    if (!VerifyStringVal(newPurse)) 
+    {
+        OT_API_Output(0, "Before server OT_API_exchangePurse call, new Purse is empty. \n")
+        return (-1)
+    }
+    // ----------------------------------------
+    var  theRequest   = OTAPI_Func(OTAPI_Func.DEPOSIT_CASH, serverID, recipientNymID, accountID, newPurse)
+    var  strResponse  = theRequest.SendTransaction(theRequest, "DEPOSIT_CASH") // <========================
+    
+    var strAttempt  = "deposit_cash"
+
+    // ***************************************************************
+    
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+            
+            
+    // HERE, WE INTERPRET THE SERVER REPLY, WHETHER SUCCESS, FAIL, OR ERROR...
+    
+    var nInterpretReply = InterpretTransactionMsgReply(serverID, recipientNymID, accountID, strAttempt, strResponse)
+    
+    if (1 == nInterpretReply)
+    {    
+            
+        // Download all the intermediary files (account balance, inbox, outbox, etc)
+        // since they have probably changed from this operation.
+        //
+        var bRetrieved = madeEasy.retrieve_account(serverID, recipientNymID, accountID, true) //bForceDownload defaults to false.
+        
+        OT_API_Output(0, "\nServer response ("+strAttempt+"): SUCCESS depositing cash!\n")
+        OT_API_Output(0, (bRetrieved ? "Success" : "Failed") + " retrieving intermediary files for account.\n")
+    }
+    else // failure. (so we re-import the cash, so as not to lose it...)
+    {
+//      OT_API_Output(0, "IN depositCashPurse: theRequest.SendTransaction(() failed. (I give up.) \n"))
+        // -------------------
+        var importStatus = OT_API_Wallet_ImportPurse(serverID, assetID, recipientNymID, newPurse)
+        OT_API_Output(0, "Since failure in depositCashPurse, OT_API_Wallet_ImportPurse called. Status of import: " + importStatus + "\n")
+        
+        if (VerifyBoolVal(importStatus) && !importStatus) 
+        {
+//          Utility.setObj(newPurse)
+        }
+        
+        return (-1)
     }
 
-    public boolean depositCashPurse(String serverID, String assetID, String nymID, String oldPurse, ArrayList selectedTokens, String accountID) {
+    // ***************************************************************
+    //
+    // Return status to caller.
+    //
+    return nInterpretReply  
+}
 
-        Utility.setObj(null);
-        System.out.println("depositCashPurse starts, selectedTokens:" + selectedTokens);
-        String recepientNymID = otapi.OT_API_GetAccountWallet_NymID(accountID);
-        String newPurse = processCashPurse(serverID, assetID, nymID, oldPurse, selectedTokens, recepientNymID);
 
-        if (newPurse == null) {
-            System.out.println("Before server OT_API_exchangePurse call, new Purse is emtpty.. returning false ");
-            return false;
-        }
-        // ----------------------------------------
-        OTAPI_Func  theRequest   = new OTAPI_Func(OTAPI_Func.FT.DEPOSIT_CASH, serverID, nymID, accountID, newPurse);
-        String      strResponse  = OTAPI_Func.SendTransaction(theRequest, "DEPOSIT_CASH"); // <========================
-        
-        if (null == strResponse)
-        {
-            System.out.println("IN depositCashPurse: OTAPI_Func.SendTransaction(() failed. (I give up.) ");
-            // -------------------
-            boolean importStatus = otapi.OT_API_Wallet_ImportPurse(serverID, assetID, nymID, newPurse) == 1 ? true : false;
-            System.out.println("Since failure in depositCashPurse, OT_API_Wallet_ImportPurse called, status of import:" + importStatus);
-            if (!importStatus) {
-                Utility.setObj(newPurse);
-            }
+// -----------------------------------------------------------------------------------------------
 
-            return false;
-        }
-        // ---------------------------------------        
-        System.out.println("depositCashPurse ends, status: success.");
-        
-        return true;
+
+//public boolean 
+//def exchangeCashPurse(String serverID, String assetID, String nymID, String oldPurse, ArrayList selectedTokens)
+def exchangeCashPurse( serverID,  assetID,  nymID,  oldPurse,  selectedTokens)
+{
+//  Utility.setObj(null);
+//  OT_API_Output(0, " Cash Purse exchange starts, selectedTokens:" + selectedTokens + "\n")
+
+    var newPurse = processCashPurse(serverID, assetID, nymID, oldPurse, selectedTokens, nymID)
+    
+    if (!VerifyStringVal(newPurse)) 
+    {
+        OT_API_Output(0, "exchangeCashPurse: Before server OT_API_exchangePurse call, new Purse is empty.. returning false \n")
+        return false
     }
-
-    public boolean exchangeCashPurse(String serverID, String assetID, String nymID, String oldPurse, ArrayList selectedTokens) throws InterruptedException {
-
-        Utility.setObj(null);
-        System.out.println(" Cash Purse exchange starts, selectedTokens:" + selectedTokens);
-        String newPurse = processCashPurse(serverID, assetID, nymID, oldPurse, selectedTokens, nymID);
-
-        if (newPurse == null) {
-            System.out.println("exchangeCashPurse: Before server OT_API_exchangePurse call, new Purse is empty.. returning false ");
-            return false;
-        }
-        // ------------------------
-        OTAPI_Func  theRequest   = new OTAPI_Func(OTAPI_Func.FT.EXCHANGE_CASH, serverID, nymID, assetID, newPurse);
-        String      strResponse  = OTAPI_Func.SendTransaction(theRequest, "EXCHANGE_CASH"); // <========================
-        
-        if (null == strResponse)
+    // ------------------------
+    var  theRequest   = OTAPI_Func(OTAPI_Func.EXCHANGE_CASH, serverID, nymID, assetID, newPurse)
+    var  strResponse  = theRequest.SendTransaction(theRequest, "EXCHANGE_CASH") // <========================
+    
+    if (!VerifyStringVal(strResponse))
+    {
+        OT_API_Output(0, "IN exchangeCashPurse: theRequest.SendTransaction(() failed. (I give up.) \n")
+        // -------------------
+        var importStatus = OT_API_Wallet_ImportPurse(serverID, assetID, nymID, newPurse);
+        OT_API_Output(0, "Since failure in exchangeCashPurse, OT_API_Wallet_ImportPurse called, status of import: " + importStatus + "\n")
+        if (!importStatus) 
         {
-            System.out.println("IN exchangeCashPurse: OTAPI_Func.SendTransaction(() failed. (I give up.) ");
-            // -------------------
-            boolean importStatus = otapi.OT_API_Wallet_ImportPurse(serverID, assetID, nymID, newPurse) == 1 ? true : false;
-            System.out.println("Since failure in exchangeCashPurse, OT_API_Wallet_ImportPurse called, status of import:" + importStatus);
-            if (!importStatus) {
-                Utility.setObj(newPurse);
-            }
-
-            return false;
+//          Utility.setObj(newPurse)
         }
-        // ---------------------------------------        
-        System.out.println("exchangeCashPurse ends, status: success.");
         
-        return true;
-     }
-	 
-	 */
-	 
-	 
+        return false
+    }
+    // ---------------------------------------        
+//  OT_API_Output(0, "exchangeCashPurse ends, status: success.\n")
+    
+    return true
+}
+
+
+
+
+// -----------------------------------------------------------------------------------------------
+
+
+def OT_ME::deposit_purse(SERVER_ID, NYM_ID, ACCT_ID, STR_PURSE)
+{
+    var ot_Msg := OTAPI_Func()
+    // ---------------------------------------------------
+    var theRequest  = OTAPI_Func(ot_Msg.DEPOSIT_CASH, SERVER_ID, NYM_ID, ACCT_ID, STR_PURSE)
+    var strResponse = theRequest.SendTransaction(theRequest, "DEPOSIT_CASH") // <========================
+    
+    return strResponse
+}
+
+// -----------------------------------------------------------------------------------------------
+
+
 	 
 	 
  /*
@@ -925,7 +1085,7 @@
   ------ TANGENT -----------------------------------------
   Use cases that do not require a server message, and thus will have representative
   functions in ot_made_easy.ot EVEN WHEN there is no corresponding server message
-  in otapi.ot.
+  in ot.
   --- stat wallet               DONE
   --- Stat cash purse           
   --- Stat account              DONE

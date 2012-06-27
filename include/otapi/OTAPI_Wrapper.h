@@ -150,9 +150,15 @@ class OTAPI_Wrap
 {
 public:
 
-	static void Output(const int nLogLevel, const std::string STR_OUTPUT);
-	
+	static void        Output(const int nLogLevel, const std::string STR_OUTPUT);
+    
 	static std::string GetTime();
+
+    static std::string NumList_Add        (const std::string str_NumList, const std::string str_Numbers);
+    static std::string NumList_Remove     (const std::string str_NumList, const std::string str_Numbers);
+    static bool        NumList_VerifyQuery(const std::string str_NumList, const std::string str_Numbers);
+    static bool        NumList_VerifyAll  (const std::string str_NumList, const std::string str_Numbers);
+    static int         NumList_Count      (const std::string str_NumList);
 	
 	// Encode, decode, encrypt, decrypt, signcontract, addsignature, and verify.
 	//
@@ -174,7 +180,7 @@ public:
 
 	static std::string SignContract(std::string SIGNER_NYM_ID, std::string THE_CONTRACT);
 	static std::string AddSignature(std::string SIGNER_NYM_ID, std::string THE_CONTRACT);
-	static bool VerifySignature(std::string SIGNER_NYM_ID, std::string THE_CONTRACT);
+	static bool        VerifySignature(std::string SIGNER_NYM_ID, std::string THE_CONTRACT);
 	
 	/*
 	 static const std::string Create_SmartContract(const std::string SERVER_ID,
@@ -327,7 +333,6 @@ public:
 	
 	
 	static bool AddServerContract(const std::string szContract); // returns OT_TRUE (1) or OT_FALSE(0)
-	
 	static bool AddAssetContract(const std::string szContract); // returns OT_TRUE (1) or OT_FALSE(0)
 	
 	static int GetServerCount();
@@ -409,13 +414,22 @@ public:
 	static bool Wallet_RemoveNym(const std::string NYM_ID);
 	static bool Wallet_CanRemoveAccount(const std::string ACCOUNT_ID);
 
+	// -----------------------------------
+    
+    static const std::string Wallet_GetNymIDFromPartial    (const std::string PARTIAL_ID);
+    static const std::string Wallet_GetServerIDFromPartial (const std::string PARTIAL_ID);
+    static const std::string Wallet_GetAssetIDFromPartial  (const std::string PARTIAL_ID);
+    static const std::string Wallet_GetAccountIDFromPartial(const std::string PARTIAL_ID);
+    
+	// -----------------------------------
+
 	static const std::string Wallet_ImportNym(const std::string DISPLAY_NAME, const std::string KEY_FILE_CONTENTS);
 
 	// -----------------------------------
 
 	static bool SetNym_Name(const std::string NYM_ID, 
-						   const std::string SIGNER_NYM_ID, 
-						   const std::string NYM_NEW_NAME); // actually returns OT_BOOL.
+						    const std::string SIGNER_NYM_ID, 
+						    const std::string NYM_NEW_NAME); // actually returns OT_BOOL.
 	
 	static bool SetAccountWallet_Name(const std::string ACCT_ID, 
 									  const std::string SIGNER_NYM_ID, 
@@ -651,6 +665,7 @@ public:
     static const std::string Instrument_GetValidTo       (const std::string SERVER_ID, const std::string THE_INSTRUMENT);
     
     static const std::string Instrument_GetMemo          (const std::string SERVER_ID, const std::string THE_INSTRUMENT);
+    static const std::string Instrument_GetType          (const std::string SERVER_ID, const std::string THE_INSTRUMENT);
     
     static const std::string Instrument_GetAssetID       (const std::string SERVER_ID, const std::string THE_INSTRUMENT);
     

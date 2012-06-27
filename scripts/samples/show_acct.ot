@@ -2,47 +2,9 @@
 
 // ------------------------------
 
-def stat_account(strID)
-{
-    // --------------------------------------------------------------------
-    // Instantiate the "OT Made Easy" object.
-    //
-    var madeEasy	= OT_ME()
-
-    // stderr
-    OT_API_Output(0, "\n\n------------------------------------------------------------------\n")
-
-    var strStatAcct = madeEasy.stat_asset_account(strID)
-    
-    var bSuccess = VerifyStringVal(strStatAcct)
-    var nSuccess = (bSuccess ? 1 : 0)
-    
-    if (bSuccess)
-    {    
-        print(strStatAcct)  
-    }
-    else
-    {
-        print("Error trying to stat an asset account: "+strID+"\n")
-    }
-    // stderr
-    OT_API_Output(0, "\n")
-    
-    return nSuccess
-}
+// This code moved to scripts/ot/ot_commands.ot
 
 
-
-def stat_main() 
-{
-    if (VerifyExists("MyAcct"))
-    {	
-        return stat_account(MyAcct)
-    }
-    return (-1)
-}
-
-
-stat_main()
+main_stat_acct()
 
 

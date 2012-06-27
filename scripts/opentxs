@@ -6,12 +6,14 @@
 def main_not_coded_yet()
 {
     print("\n\n  Congratulations, you've been selected to add that option to this script! \n It's real easy: just edit scripts/ot/ot_commands.ot, and copy some code\ninto it based on whichever sample script is appropriate.\nThen edit the opentxs script, and add your new main\nfunction to the list map_functions near the bottom. Done!\n\n")
+    
+    return 1
 }
 
 
 // ---------------------------------
 
-def interpret_command(map_functions, strInput)
+def interpret_command(map_functions, map_help, strInput)
 {
     var the_function
     
@@ -19,10 +21,10 @@ def interpret_command(map_functions, strInput)
     {
         if ("quit" == strInput)
         {
-            return 1
+            return (-2)
         }
         // -----------------------------
-        else if ("help" == strInput || "list" == strInput)
+        else if ("list" == strInput)
         {
             OT_API_Output(0, "\nCommands: \n\n")
             // -----------------------------
@@ -45,6 +47,27 @@ def interpret_command(map_functions, strInput)
                 {
                     OT_API_Output(0, help_command+(help_command.size() > 7 ? "\t" : "\t\t"))
                 }
+                help_range.pop_front()
+            }
+            OT_API_Output(0, "\n\n")
+            
+            return 1
+        }
+        // -----------------------------------------
+        else if ("help" == strInput)
+        {
+            OT_API_Output(0, "\nCommands: \n\n")
+            // -----------------------------
+            var help_range = map_help.range()
+            // -----------------------------
+            while (!help_range.empty())
+            {
+                var help_tuple       = help_range.front()
+                var help_command     = help_tuple.first()
+                var help_description = help_tuple.second()
+                
+                OT_API_Output(0, help_command+(help_command.size() > 7 ? "\t" : "\t\t")+help_description+"\n")
+                
                 help_range.pop_front()
             }
             OT_API_Output(0, "\n\n")
@@ -85,18 +108,18 @@ def interpret_command(map_functions, strInput)
 // ---------------------------------
 
 
-def main_loop(map_functions)
+def main_loop(map_functions, map_help)
 {
     // ---------------------------------
     // See if the command was passed in on the command line.
     //
-    if (VerifyExists("Args"))
+    if (VerifyExists("Args", false))
     {
         var strCommand = OT_CLI_GetValueByKey(Args, "ot_cli_command")
         
         if (VerifyStringVal(strCommand)) // command was passed in on the command line...
         {
-            return interpret_command(map_functions, strCommand)
+            return interpret_command(map_functions, map_help, strCommand)
         }
     }
 
@@ -113,13 +136,19 @@ def main_loop(map_functions)
             OT_API_Output(0, "opentxs> ")
             var strInput =  OT_CLI_ReadLine()
             var bDisplayGap = true
-
-            interpret_command(map_functions, strInput)
+            // ------------------------
+            var nInterpreted = interpret_command(map_functions, map_help, strInput)
             
+            if (VerifyIntVal(nInterpreted) && ((-2) == nInterpreted))
+            {
+                break
+            }
+            // ------------------------
             if (bDisplayGap)
             {
                 OT_API_Output(0, ".\n..\n...\n....\n.....\n\n")
             }
+            // ------------------------
         } // while
     }
     
@@ -140,50 +169,116 @@ def main_opentxs()
     
     var map_functions = ["sendmsg":main_sendmsg,                // send a message to another nym's in-mail.
                          "stat":main_stat,                      // display wallet contents.
-                         "checknym":main_not_coded_yet,         // download a nym's public key based on his ID.
-                         "cheque":main_not_coded_yet,           // write a cheque.
-                         "voucher":main_not_coded_yet,          // withdraw a voucher (cashier's cheque).
-                         "withdraw":main_not_coded_yet,         // withdraw cash
-                         "deposit":main_not_coded_yet,          // deposit cash, cheque, voucher, or tokens
-                         "showacct":main_not_coded_yet,         // show account stats for a single account.
+                         "checknym":main_check_user,            // download a nym's public key based on his ID.
+                         "cheque":main_write_cheque,            // write a cheque.
+                         "voucher":main_withdraw_voucher,       // withdraw a voucher (cashier's cheque).
+                         "withdraw":main_withdraw_cash,         // withdraw cash (from acct on server to local purse.)
+                         "deposit":main_deposit,                // deposit cash purse, cheque, voucher, or invoice.
+                         "showacct":main_stat_acct,             // show account stats for a single account.
+                         "showmint":main_show_mint,             // show a mint file for specific asset ID. Download if necessary.
+                         "showpurse":main_show_purse,           // show contents of cash purse.
                          "showbaskets":main_not_coded_yet,      // show basket currencies issued on a particular server.
                          "showoffers":main_not_coded_yet,       // show all offers on a particular server and market.
                          "showmyoffers":main_not_coded_yet,     // show mynym's offers on a particular server and market.
-                         "sign":main_not_coded_yet,             // sign a contract, releasing all other signatures first.
-                         "addsignature":main_not_coded_yet,     // add a signature to a contract without releasing others.
-                         "verify":main_not_coded_yet,           // verify a signature on a contract.
+                         "sign":main_sign_contract,             // sign a contract, releasing all other signatures first.
+                         "addsignature":main_add_signature,     // add a signature to a contract without releasing others.
+                         "verifysig":main_verify_signature,     // verify a signature on a contract.
+                         "verifyreceipt":main_verify_last_receipt, // verify the intermediary files against the last signed receipt.
                          "activate":main_not_coded_yet,         // activate a smart contract or payment plan.
-                         "confirm":main_not_coded_yet,          // confirm a smart contract or payment plan.
-                         "inbox":main_not_coded_yet,            // display inbox of a particular account.
-                         "outbox":main_not_coded_yet,           // display outbox of a particular account.
-                         "inmail":main_not_coded_yet,           // display in-mail for a particular nym.
+                         "confirm":main_not_coded_yet,          // confirm your agreement to a smart contract or payment plan.
+                         "getcontract":main_download_contract,  // download an asset or server contract by its ID.
+                         "refresh":main_dl_acct_files,          // download latest intermediary files for myacct.
+                         "refreshnym":main_not_coded_yet,       // download latest intermediary files for mynym.
+                         "inbox":main_show_inbox,               // display inbox of a particular account.
+                         "outbox":main_show_outbox,             // display outbox of a particular account.
+                         "mail":main_not_coded_yet,             // display in-mail for a particular nym.
                          "outmail":main_not_coded_yet,          // display out-mail for a particular nym.
-                         "delinmail":main_not_coded_yet,        // delete an in-mail item
+                         "delmail":main_not_coded_yet,          // delete an in-mail item
                          "deloutmail":main_not_coded_yet,       // delete an out-mail item
-                         "balance":main_not_coded_yet,          // display balance for a specific account.
-                         "newkey":main_not_coded_yet,           // create a new symmetric key.
+                         "balance":main_balance,                // display balance for a specific account.
+                         "newkey":main_new_symmetric_key,       // create a new symmetric key.
                          "pass_encrypt":main_password_encrypt,  // password-encrypt a plaintext using a symmetric key.
                          "pass_decrypt":main_password_decrypt,  // password-decrypt a ciphertext using a symmetric key.
                          "newnym":main_create_nym,              // create a new nym.
-                         "issueasset":main_not_coded_yet,       // issue a currency contract onto an OT server.
-                         "newacct":main_not_coded_yet,          // create a new asset account.
-                         "newoffer":main_not_coded_yet,         // create a new market offer.
+                         "newasset":main_create_asset_contract, // create a new asset contract.
+                         "newserver":main_create_server_contract,// create a new server contract.
+                         "register":main_register_nym,          // register a nym onto an OT server.
+                         "issueasset":main_issue_asset,         // issue a currency contract onto an OT server.
+                         "newacct":main_create_acct,            // create a new asset account.
+                         "newoffer":main_create_offer,          // create a new market offer.
                          "newbasket":main_not_coded_yet,        // create a new basket currency.
                          "exchange":main_not_coded_yet,         // exchange in/out of a basket currency.
                          "trigger":main_not_coded_yet,          // trigger a clause on a running smart contract.
                          "discard":main_not_coded_yet,          // discard/cancel a not-yet-cashed, outgoing instrument.
-                         "cancel":main_not_coded_yet,           // cancel a still-running, recurring transaction.
+                         "canceloffer":main_cancel_offer,       // cancel a still-running, recurring market offer.
+                         "cancelplan":main_cancel_plan,         // cancel a still-running, recurring payment plan.
                          "transfer":main_transfer,              // send a transfer from myacct to hisacct.
-                         "acceptall":main_not_coded_yet,        // accept all receipts in myacct's inbox.
-                         "payments":main_not_coded_yet,         // display contents of payments box.
+                         "acceptall":main_accept_inbox,         // accept all receipts in myacct's inbox.
+                         "payments":main_not_coded_yet,         // display contents of incoming payments box.
+                         "outpayments":main_not_coded_yet,      // display contents of outgoing payments box.
                          "records":main_not_coded_yet,          // display contents of record box.
                          "encode":main_encode,                  // OT-base64-encode into armor.
                          "decode":main_decode,                  // OT-base64-decode out of armor.
                          "encrypt":main_encrypt,                // encrypt plaintext to a nym's public key.
                          "decrypt":main_decrypt];               // decrypt ciphertext using nym's private key.
 
+    var map_help      = ["sendmsg":                             "send a message to another nym's in-mail.",
+                         "stat":                                "display wallet contents.",
+                         "checknym":                            "download a nym's public key based on his ID.",
+                         "cheque":                              "write a cheque.",
+                         "voucher":                             "withdraw a voucher (cashier's cheque).",
+                         "withdraw":                            "withdraw cash. (From acct on server into local purse.)",
+                         "deposit":                             "deposit cash, cheque, voucher, or tokens.",
+                         "showacct":                            "show account stats for a single account.",
+                         "showmint":                            "show a mint file for specific asset ID. Download if necessary.",
+                         "showpurse":                           "show contents of cash purse.",
+                         "showbaskets":                         "show basket currencies issued on a particular server.",
+                         "showoffers":                          "show all offers on a particular server and market.",
+                         "showmyoffers":                        "show mynym's offers on a particular server and market.",
+                         "sign":                                "sign a contract, releasing all other signatures first.",
+                         "addsignature":                        "add a signature to a contract without releasing others.",
+                         "verifysig":                           "verify a signature on a contract.",
+                         "verifyreceipt":                       "verify your intermediary files against the last signed receipt.",
+                         "activate":                            "activate a smart contract or payment plan.",
+                         "confirm":                             "confirm your agreement to a smart contract or payment plan.",
+                         "getcontract":                         "download an asset or server contract by its ID.",
+                         "refresh":                             "download latest intermediary files for myacct.",
+                         "refreshnym":                          "download latest intermediary files for mynym.",
+                         "inbox":                               "display inbox of a particular account.",
+                         "outbox":                              "display outbox of a particular account.",
+                         "mail":                                "display in-mail for a particular nym.",
+                         "outmail":                             "display out-mail for a particular nym.",
+                         "delmail":                             "delete an in-mail item.",
+                         "deloutmail":                          "delete an out-mail item.",
+                         "balance":                             "display balance for a specific account.",
+                         "newkey":                              "create a new symmetric key.",
+                         "pass_encrypt":                        "password-encrypt a plaintext using a symmetric key.",
+                         "pass_decrypt":                        "password-decrypt a ciphertext using a symmetric key.",
+                         "newnym":                              "create a new nym.",
+                         "newasset":                            "create a new asset contract.",
+                         "newserver":                           "create a new server contract.",
+                         "register":                            "register a nym onto an OT server.",
+                         "issueasset":                          "issue a currency contract onto an OT server.",
+                         "newacct":                             "create a new asset account.",
+                         "newoffer":                            "create a new market offer.",
+                         "newbasket":                           "create a new basket currency.",
+                         "exchange":                            "exchange in/out of a basket currency.",
+                         "trigger":                             "trigger a clause on a running smart contract.",
+                         "discard":                             "discard/cancel a not-yet-cashed, outgoing instrument.",
+                         "canceloffer":                         "cancel a still-running, recurring market offer.",
+                         "cancelplan":                          "cancel a still-running, recurring payment plan.",
+                         "transfer":                            "send a transfer from myacct to hisacct.",
+                         "acceptall":                           "accept all receipts in myacct's inbox.",
+                         "payments":                            "display contents of incoming payments box.",
+                         "outpayments":                         "display contents of outgoing payments box.",
+                         "records":                             "display contents of record box.",
+                         "encode":                              "OT-base64-encode into armor.",
+                         "decode":                              "OT-base64-decode out of armor.",
+                         "encrypt":                             "encrypt plaintext to a nym's public key.",
+                         "decrypt":                             "decrypt ciphertext using nym's private key."];
     
-    main_loop(map_functions)
+    
+    main_loop(map_functions, map_help)
 }
     
 

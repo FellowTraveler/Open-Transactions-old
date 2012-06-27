@@ -212,7 +212,13 @@ protected:
 	
 	// return -1 if error, 0 if nothing, and 1 if the node was processed.
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
+    
+    OTString  m_strLabel; // OTSmartContract can put its trans# here. (Allowing us to use it in the OTScriptable methods where any smart contract would normally want to log its transaction #, not just the clause name.)
+    
 public:
+    
+    virtual void SetDisplayLabel(const std::string * pstrLabel=NULL);
+    
 	// ----------------------------------------------------
 	int GetPartyCount() const { return m_mapParties.size(); }
 	int GetBylawCount() const { return m_mapBylaws.size(); }
@@ -387,7 +393,6 @@ EXPORT	static OTScriptable * InstantiateScriptable(const OTString & strInput);
 	virtual void UpdateContents();
 //	virtual bool SaveContractWallet(FILE * fl);	
 	virtual bool SaveContractWallet(std::ofstream & ofs);
-
 };
 
 

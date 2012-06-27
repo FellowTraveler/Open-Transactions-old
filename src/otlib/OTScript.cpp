@@ -532,7 +532,9 @@ bool OTScriptChai::ExecuteScript(OTVariable * pReturnVar/*=NULL*/)
         try 
         {
             if (NULL == pReturnVar)             // Nothing to return.
-                chai.eval(m_str_script.c_str(), exception_specification<const std::exception &>());
+                chai.eval(m_str_script.c_str(),
+                          exception_specification<const std::exception &>(), 
+                          m_str_display_filename);
             
             else   // There's a return variable.
             {
@@ -541,21 +543,26 @@ bool OTScriptChai::ExecuteScript(OTVariable * pReturnVar/*=NULL*/)
                     case OTVariable::Var_Integer:
                     {
                         int nResult = chai.eval<int>(m_str_script.c_str(), 
-                                                     exception_specification<const std::exception &>());
+                                                     exception_specification<const std::exception &>(),
+                                                     m_str_display_filename);
                         pReturnVar->SetValue(nResult);
                     }
                         break;
                         
                     case OTVariable::Var_Bool:
                     {
-                        bool bResult = chai.eval<bool>(m_str_script.c_str(), exception_specification<const std::exception &>());
+                        bool bResult = chai.eval<bool>(m_str_script.c_str(),
+                                                       exception_specification<const std::exception &>(),
+                                                       m_str_display_filename);
                         pReturnVar->SetValue(bResult);
                     }
                         break;
                         
                     case OTVariable::Var_String:
                     {
-                        std::string str_Result = chai.eval<std::string>(m_str_script.c_str(), exception_specification<const std::exception &>());
+                        std::string str_Result = chai.eval<std::string>(m_str_script.c_str(), 
+                                                                        exception_specification<const std::exception &>(), 
+                                                                        m_str_display_filename);
                         pReturnVar->SetValue(str_Result);
                     }
                         break;

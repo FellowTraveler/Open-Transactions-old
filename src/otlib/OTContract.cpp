@@ -504,6 +504,32 @@ bool OTNumList::Add(const long & theValue)    // if false, means the value was a
 }
 // -------------------
 
+bool OTNumList::Peek(long & lPeek) const
+{
+    std::set<long>::iterator it = m_setData.begin();
+    
+    if (m_setData.end() != it) // it's there.
+    {
+        lPeek = *it;
+        return true;
+    }
+    return false;
+}
+// -------------------
+
+bool OTNumList::Pop()
+{
+    std::set<long>::iterator it = m_setData.begin();
+    
+    if (m_setData.end() != it) // it's there.
+    {
+        m_setData.erase(it);
+        return true;
+    }
+    return false;
+}
+
+// -------------------
 
 bool OTNumList::Remove(const long & theValue) // if false, means the value was NOT already there.
 {
