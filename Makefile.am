@@ -524,10 +524,6 @@ endif
 
 dist_bin_SCRIPTS		=	scripts/opentxs
 
-dist_pkglib_SCRIPTS		=	scripts/ot/otapi.ot		\
-					scripts/ot/ot_made_easy.ot	\
-					scripts/ot/ot_utility.ot
-                    
                     
                     
                     
