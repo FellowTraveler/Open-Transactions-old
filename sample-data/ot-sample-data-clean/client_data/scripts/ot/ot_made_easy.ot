@@ -524,7 +524,7 @@ def importCashPurse(serverID, nymID, assetID, userInput, isPurse)
 //private String 
 //def processCashPurse(String serverID, String assetID, String nymID, String oldPurse, ArrayList selectedTokens, String recipientNymID)
 
-def processCashPurse( serverID,  assetID,  nymID,  oldPurse,  selectedTokens,  recipientNymID) : serverID.is_type(string_type) && assetID.is_type(string_type) && nymID.is_type(string_type) && oldPurse.is_type(string_type) && selectedTokens.is_type(vector_type) && recipientNymID.is_type(string_type)
+def processCashPurse( serverID,  assetID,  nymID,  oldPurse,  selectedTokens,  recipientNymID) : serverID.is_type(string_type) && assetID.is_type(string_type) && nymID.is_type(string_type) && oldPurse.is_type(string_type) && recipientNymID.is_type(string_type)
 {
     var newPurse
     
@@ -781,7 +781,8 @@ def exportCashPurse( serverID,  assetID,  nymID,  oldPurse,  selectedTokens,  re
         if (!VerifyStringVal(recipientPubKey)) 
         {
             // ----------------------------------------------------------
-            var  theRequest   = OTAPI_Func(OTAPI_Func.CHECK_USER, serverID, nymID, recipientNymID)
+            var  ot_Msg := OTAPI_Func()
+            var  theRequest   := OTAPI_Func(ot_Msg.CHECK_USER, serverID, nymID, recipientNymID)
             var  strResponse  = theRequest.SendRequest(theRequest, "CHECK_USER")
             
             if (!VerifyStringVal(strResponse))
@@ -933,7 +934,8 @@ def depositCashPurse( serverID,  assetID,  nymID,  oldPurse,  selectedTokens,  a
         return (-1)
     }
     // ----------------------------------------
-    var  theRequest   = OTAPI_Func(OTAPI_Func.DEPOSIT_CASH, serverID, recipientNymID, accountID, newPurse)
+    var  ot_Msg       := OTAPI_Func()
+    var  theRequest   := OTAPI_Func(ot_Msg.DEPOSIT_CASH, serverID, recipientNymID, accountID, newPurse)
     var  strResponse  = theRequest.SendTransaction(theRequest, "DEPOSIT_CASH") // <========================
     
     var strAttempt  = "deposit_cash"
@@ -1001,7 +1003,8 @@ def exchangeCashPurse( serverID,  assetID,  nymID,  oldPurse,  selectedTokens)
         return false
     }
     // ------------------------
-    var  theRequest   = OTAPI_Func(OTAPI_Func.EXCHANGE_CASH, serverID, nymID, assetID, newPurse)
+    var  ot_Msg := OTAPI_Func()
+    var  theRequest  := OTAPI_Func(ot_Msg.EXCHANGE_CASH, serverID, nymID, assetID, newPurse)
     var  strResponse  = theRequest.SendTransaction(theRequest, "EXCHANGE_CASH") // <========================
     
     if (!VerifyStringVal(strResponse))
@@ -1033,7 +1036,7 @@ def OT_ME::deposit_purse(SERVER_ID, NYM_ID, ACCT_ID, STR_PURSE)
 {
     var ot_Msg := OTAPI_Func()
     // ---------------------------------------------------
-    var theRequest  = OTAPI_Func(ot_Msg.DEPOSIT_CASH, SERVER_ID, NYM_ID, ACCT_ID, STR_PURSE)
+    var theRequest := OTAPI_Func(ot_Msg.DEPOSIT_CASH, SERVER_ID, NYM_ID, ACCT_ID, STR_PURSE)
     var strResponse = theRequest.SendTransaction(theRequest, "DEPOSIT_CASH") // <========================
     
     return strResponse
