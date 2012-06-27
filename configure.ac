@@ -1,4 +1,4 @@
-AC_INIT([opentxs], [0.82.c], [Fellow-Traveler], [opentxs], [https://github.com/FellowTraveler/Open-Transactions])
+AC_INIT([opentxs], [0.82.h], [Fellow-Traveler], [opentxs], [https://github.com/FellowTraveler/Open-Transactions])
 AC_PREREQ(2.61)
 LT_PREREQ([2.2.4])
 AC_CONFIG_AUX_DIR(build-aux)

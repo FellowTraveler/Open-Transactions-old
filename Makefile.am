@@ -521,80 +521,23 @@ endif
 
 
 
-
 ###########################################################################
 
 #######################################
 ## Open-Transactions Install Extras  ##
 #######################################
 
+
 #### OpenTXS script CLI utility
 
 dist_bin_SCRIPTS		=	scripts/opentxs
 
-#### OT SCRIPT HEADERS
+#### OT script HEADERS
 
-dist_pkglib_SCRIPTS		=	scripts/ot/otapi.ot		\
+dist_pkglib_SCRIPTS		=	scripts/ot/ot_commands.ot	\
+					scripts/ot/otapi.ot		\
 					scripts/ot/ot_made_easy.ot	\
 					scripts/ot/ot_utility.ot
-
-#### OT SCRIPTS
-
-nobase_dist_pkglib_SCRIPTS	=	scripts/samples/accept_inbox.ot			\
-					scripts/samples/add_signature.ot		\
-					scripts/samples/args.ot				\
-					scripts/samples/cancel_offer.ot			\
-					scripts/samples/cancel_plan.ot			\
-					scripts/samples/check_user.ot			\
-					scripts/samples/create_asset_acct.ot		\
-					scripts/samples/create_asset_contract.ot	\
-					scripts/samples/create_nym.ot			\
-					scripts/samples/create_offer.ot			\
-					scripts/samples/create_server_contract.ot	\
-					scripts/samples/create_symmetric_key.ot		\
-					scripts/samples/decode.ot			\
-					scripts/samples/decrypt.ot			\
-					scripts/samples/dl_acct_files.ot		\
-					scripts/samples/dl_contract.ot			\
-					scripts/samples/encode.ot			\
-					scripts/samples/encrypt.ot			\
-					scripts/samples/input_multiline.ot		\
-					scripts/samples/input_oneline.ot		\
-					scripts/samples/issue_asset.ot			\
-					scripts/samples/password_decrypt.ot		\
-					scripts/samples/password_encrypt.ot		\
-					scripts/samples/register_nym.ot			\
-					scripts/samples/send_transfer.ot		\
-					scripts/samples/send_user_msg.ot		\
-					scripts/samples/show_acct.ot			\
-					scripts/samples/show_balance.ot			\
-					scripts/samples/show_inbox.ot			\
-					scripts/samples/show_mint.ot			\
-					scripts/samples/show_outbox.ot			\
-					scripts/samples/sign_contract.ot		\
-					scripts/samples/stat.ot				\
-					scripts/samples/time.ot				\
-					scripts/samples/verify_signature.ot		\
-					scripts/samples/write_cheque.ot			\
-					scripts/smartcontracts/create_smartcontract.ot			\
-					scripts/smartcontracts/escrow/activate_escrow.ot		\
-					scripts/smartcontracts/escrow/create_escrow.ot			\
-					scripts/smartcontracts/escrow/sign_escrow_as_alice.ot		\
-					scripts/smartcontracts/escrow/sign_escrow_as_bob.ot		\
-					scripts/smartcontracts/escrow/sign_escrow_as_judge_judy.ot	\
-					scripts/smartcontracts/two_way_trade/activate_two_way_trade.ot	\
-					scripts/smartcontracts/two_way_trade/create_two_way_trade.ot	\
-					scripts/smartcontracts/two_way_trade/sign_trade_as_alice.ot	\
-					scripts/smartcontracts/two_way_trade/sign_trade_as_bob.ot	\
-					scripts/util/resync.ot
-
-nobase_dist_pkglib_DATA		=	scripts/README.txt				\
-					scripts/samples/README.txt			\
-					scripts/smartcontracts/readme.txt		\
-					scripts/smartcontracts/escrow/README.txt	\
-					scripts/smartcontracts/two_way_trade/README.txt	\
-					scripts/util/README.txt
-
 
 #### OT docs, licences, info, etc.
 
@@ -610,3 +553,11 @@ dist_doc_DATA			=	docs/GETTING-STARTED.txt	\
 					PUBKEY-FellowTraveler.asc	\
 					README.md 			\
 					VERSION
+
+nobase_dist_doc_DATA		=	sample-data/ot-sample-data-clean/ot_init.cfg				\
+					sample-data/ot-sample-data-clean/client.cfg				\
+					sample-data/ot-sample-data-clean/CLIENT-COMMANDS.txt			\
+					sample-data/ot-sample-data-clean/command-line-ot.opt			\
+					sample-data/ot-sample-data-clean/client_data/LICENSE-AND-CREDITS.txt	\
+					sample-data/ot-sample-data-clean/server.cfg				\
+					sample-data/ot-sample-data-clean/server_data/notaryServer.xml
