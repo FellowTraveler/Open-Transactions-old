@@ -9,22 +9,30 @@
 # Memo for upgrades/rebuilds and 'quick start' guide for OT install on 
 # generic Linux (assumes dependencies are already satisfied).
 
-# fetch OT and prepare your copy for build
-
-$ git clone git://github.com/FellowTraveler/Open-Transactions.git
-$ cd Open-Transactions
-
 # probably need to tell autoconf to look for dep packages in $HOME/.local
 # if you used the recommended install for chai, etc
-
 $ export PKG_CONFIG_PATH=$HOME/.local/lib/pkgconfig:/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH
 
+
+# fetch OT and prepare your copy for build
+
+# 'stable' source tar ball method
+$ wget https://github.com/FellowTraveler/downloads/opentxs.*.tar.gz
+$ tar -zxvf opentxs.*.tar.gz
+$ cd opentxs.*.tar.gz
+$ mkdir build && cd build
+
+# git pull latest development source method
+$ git clone git://github.com/FellowTraveler/Open-Transactions.git
+$ cd Open-Transactions
 $ autoreconf -i -f
 $ mkdir -p build && cd build
+
+
 $ ../configure --prefix=$HOME/.local --with-java
 
 
-$ make uninstall (to cleanup anthing in your .local dir)
+$ make uninstall (to cleanup anything in your ~/.local dir)
 
 $ make
 (can add -j2 option for speedy build)
@@ -60,7 +68,7 @@ $ java -jar $HOME/.local/jar/MoneyChanger.jar
 
 
 
-########### UPGRADE to latest OT on github ###############
+########### UPGRADE to latest dev. OT on github ###############
 
 $ cd ~/Open-Transactions
 $ git clean -x -f -d

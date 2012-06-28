@@ -1,13 +1,16 @@
-AC_INIT([Open-Transactions], [0.80.0], [Fellow-Traveler], [Open-Transactions], [https://github.com/FellowTraveler/Open-Transactions])
+AC_INIT([opentxs], [0.82.h], [Fellow-Traveler], [opentxs], [https://github.com/FellowTraveler/Open-Transactions])
 AC_PREREQ(2.61)
 LT_PREREQ([2.2.4])
 AC_CONFIG_AUX_DIR(build-aux)
 AM_INIT_AUTOMAKE([1.10 foreign])
+AC_CONFIG_FILES([Makefile])
+
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
 LT_INIT([dlopen])
 AC_CONFIG_MACRO_DIR([build-aux/m4])
 AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_SRCDIR([src/ot/main.cpp])
 
 : ${CXXFLAGS=""}
 : ${CFLAGS=""}
@@ -16,6 +19,7 @@ PKG_PROG_PKG_CONFIG([0.25])
 AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_CXX
+
 AX_BOOST_BASE([1.25.0])
 AX_BOOST_THREAD
 
@@ -41,8 +45,6 @@ AS_IF(	[test "$with_transport" == zmq],
 	[PKG_CHECK_MODULES(
 		[DEPS],
 		[protobuf >= 2.4.1 openssl >= 1.0.0 chaiscript >= 3.1.0 libzmq])])
-
-AC_CONFIG_SRCDIR([src/otlib])
 
 
 ##### MsgPack #####
@@ -175,7 +177,4 @@ if (test "x$with_python" == "xyes"); then
 
 fi
 
-
-
-AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
