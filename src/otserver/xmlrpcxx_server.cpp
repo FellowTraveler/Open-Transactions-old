@@ -1078,7 +1078,7 @@ int main(int argc, char* argv[])
 
 					if ((str_Reply.length() <= 0) || bShouldDisconnect)
 					{
-						OTLog::vOutput(0, "server main: Unfortunately, not every client request is "
+						OTLog::vOutput(0, "server main: ERROR: Unfortunately, not every client request is "
                                        "legible or worthy of a server response. :-)  "
 									   "Msg:\n\n%s\n\n", str_Message.c_str());
                         
@@ -1089,7 +1089,7 @@ int main(int argc, char* argv[])
 						bool bSuccessSending = theSocket.Send(str_Reply); // <===== SEND THE REPLY
 						
 						if (false == bSuccessSending)
-							OTLog::vError("server main: Socket error: failed while trying to send reply "
+							OTLog::vError("server main: Socket ERROR: failed while trying to send reply "
                                           "back to client! \n\n MESSAGE:\n%s\n\nREPLY:\n%s\n\n", 
 										  str_Message.c_str(), str_Reply.c_str());
 						// --------------------------------------------------
@@ -1225,7 +1225,10 @@ bool ProcessMessage_ZMQ(OTServer & theServer, const std::string & str_Message, s
 				// have the key and thus I'll be able to encrypt reply to the recipient.)
 				if (false == theServer.ProcessUserCommand(theMsg, theReply, &theClient))
 				{
-					OTLog::vOutput(0, "%s: Unable to process user command.\n", szFunc);
+                    const OTString s1(theMsg), s2(theReply);
+                    
+					OTLog::vOutput(0, "%s: Unable to process user command.\n\n ********** "
+                                   "REQUEST:\n\n%s\n\n ********** RESPONSE:\n\n%s\n\n", szFunc, s1.Get(), s2.Get());
 					
 					// NOTE: normally you would even HAVE a true or false if we're in this block. ProcessUserCommand()
 					// is what tries to process a command and then sets false if/when it fails. Until that point, you

@@ -300,7 +300,7 @@ int     OTLog::__latency_receive_ms = 5000; // number of ms to wait before retry
 long	OTLog::__minimum_market_scale = 1;	// Server admin can configure this to any higher power-of-ten.
 
 
-OTString OTLog::__Version = "0.82.h";
+OTString OTLog::__Version = "0.82.i";
 
 
 
@@ -1112,10 +1112,43 @@ void OTLog::TransformFilePath(const char * szInput, OTString & strOutput)
     exp_result.we_wordv = NULL;
     exp_result.we_offs  = 0;
     
-	if (wordexp(szInput, &exp_result, 0))  // If non-zero, then failure.
+    OTString strError;
+    
+    const int nWordExp = wordexp(szInput, &exp_result, WRDE_NOCMD|WRDE_SHOWERR|WRDE_UNDEF);
+    
+	if (0 != nWordExp)  // If non-zero, then failure.
 	{
-		OTLog::vError("%s: Error calling wordexp() to expand path.\n", __FUNCTION__);
-//		wordfree(&exp_result); 
+        switch (nWordExp)
+        {
+//          case 0:			// Successful.
+//              break;
+            case WRDE_BADCHAR:
+                strError = "An unquoted metacharacter appeared in the wrong place.";
+                break;
+            case WRDE_BADVAL:
+                strError = "There was an undefined environment variable reference with the WRDE_UNDEF flag set.";
+                break;
+            case WRDE_CMDSUB:
+                strError = "Command substitution was requested with the WRDE_NOCMD flag set.";
+                break;
+            case WRDE_SYNTAX:
+                strError = "There was a sh syntax error.";
+                break;
+            case WRDE_NOSPACE:
+                /* If the error was WRDE_NOSPACE,
+                 then perhaps part of the result was allocated.  */
+//              wordfree (&exp_result);
+                strError = "The process ran out of memory.";
+                break;
+            default:                    /* Some other error.  */
+                strError = "(UNDEFINED!)";
+                break;
+        }
+        
+
+		OTLog::vError("%s: Error calling wordexp() to expand path: %s\nWORDEXP OUTPUT: %s\n", 
+                      __FUNCTION__, szInput, strError.Get());
+		wordfree(&exp_result); 
 		strOutput.Set(szInput);
 		return;
 	}

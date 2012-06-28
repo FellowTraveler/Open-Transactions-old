@@ -3682,7 +3682,7 @@ bool OTPseudonym::LoadFromString(const OTString & strNym)
 							}
 							else										// unfortunately OTNym is like a "basic type" and isn't derived from OTContract.
 							{
-								armorMail.Set(strNodeData.Get());
+								armorMail.Set(strNodeData.Get());       // TODO: OTContract now has STATIC methods for this. (Start using them here...)
 							}
 							
 							if (armorMail.GetLength() > 2)

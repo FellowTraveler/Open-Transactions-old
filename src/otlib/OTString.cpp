@@ -1175,7 +1175,10 @@ bool OTString::sgets(char * szBuffer, unsigned nBufSize)
 	
 	// while *pChar isn't at the end of the source string,
 	// and lIndex hasn't reached the end of the destination buffer,
-	while ( 0 != *pChar && lIndex < (nBufSize-1)) // the -1 leaves room for a forced null terminator.
+    //
+	while ( 0 != *pChar && 
+           (m_lPosition < m_lLength) && 
+           lIndex < (nBufSize-1)) // the -1 leaves room for a forced null terminator.
 	{
 		// If the current character isn't a newline, then copy it...
 		if ( '\n' != *pChar )
@@ -1185,9 +1188,11 @@ bool OTString::sgets(char * szBuffer, unsigned nBufSize)
 			m_lPosition++; // increment the string's internal memory of where it stopped.
 			pChar++; // increment this for convenience (could calcuate from position)
 		}
-
 		// Until we reach a newline...
-		else {
+		else 
+        {
+            // IT'S A NEWLINE!
+            
 			szBuffer[lIndex] = 0;  // destination buffer, this is the end of the line for him.
 			m_lPosition++;        // This still moves past the newline, so the next call will get the next
 								   // string.
@@ -1199,7 +1204,6 @@ bool OTString::sgets(char * szBuffer, unsigned nBufSize)
 			else
 				return true; // there was more to read, but we stopped at the newline.
 		}
-
 	}
 	
 	// Need to add the NULL terminator.

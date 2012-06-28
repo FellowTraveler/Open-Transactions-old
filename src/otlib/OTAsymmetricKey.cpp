@@ -852,7 +852,7 @@ EVP_PKEY * OTAsymmetricKey::GetKeyLowLevel()
 
 const EVP_PKEY * OTAsymmetricKey::GetKey()
 {
-//  OT_ASSERT_MSG(NULL != m_p_ascKey, "OTAsymmetricKey::GetKey: NULL != m_p_ascKey\n");
+  OT_ASSERT_MSG(NULL != m_p_ascKey, "OTAsymmetricKey::GetKey: NULL != m_p_ascKey\n");
     
     if (NULL == m_p_ascKey)
     {

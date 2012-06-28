@@ -1895,7 +1895,12 @@ void OTMessage::UpdateContents()
     {
         OTString strAck;
         if (m_AcknowledgedReplies.Output(strAck))
-            m_xmlUnsigned.Concatenate("<acknowledgedReplies>%s</acknowledgedReplies>\n\n", strAck.Get());
+        {
+            const OTASCIIArmor ascTemp(strAck);
+            
+            if (ascTemp.Exists())
+                m_xmlUnsigned.Concatenate("<ackReplies>\n%s</ackReplies>\n\n", ascTemp.Get());
+        }
     }
 	
 	
@@ -1947,19 +1952,32 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
     OTString strTransactionNum;
     // *******************************************************************************************
     
-	if (strNodeName.Compare("acknowledgedReplies")) 
-    {        
-        xml->read();
+    
+    if (strNodeName.Compare("ackReplies"))
+	{		
+		if (false == OTContract::LoadEncodedTextField(xml, strDepth))
+		{
+			OTLog::Error("Error in OTMessage::ProcessXMLNode: ackReplies field without value.\n");
+			return (-1); // error condition
+		}
+		
+        m_AcknowledgedReplies.Release();
         
-        if (EXN_TEXT == xml->getNodeType())
+        if (strDepth.Exists())
+            m_AcknowledgedReplies.Add(strDepth);
+
+		nReturnVal = 1;        
+	}
+    
+	else if (strNodeName.Compare("acknowledgedReplies")) 
+    {
+        OTLog::Error("OTMessage::ProcessXMLNode: SKIPPING DEPRECATED FIELD: acknowledgedReplies\n");
+
+        while (xml->getNodeType() != EXN_ELEMENT_END)
         {
-            const OTString strNodeData = xml->getNodeData();
-            m_AcknowledgedReplies.Release();
-            if (strNodeData.Exists())
-                m_AcknowledgedReplies.Add(strNodeData);
+            xml->read();
         }
-        // else log: unexpected missing string of comma-separated request numbers.
-        
+
 		nReturnVal = 1;        
     }
 

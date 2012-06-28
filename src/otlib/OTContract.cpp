@@ -2986,7 +2986,7 @@ bool OTContract::ParseRawFile()
 	do
 	{
 		// Just a fresh start at the top of the loop block... probably unnecessary.
-		memset(buffer1, 0, 2100);
+		memset(buffer1, 0, 2100); // todo remove this in optimization. (might be removed already...)
 		
 		// the call returns true if there's more to read, and false if there isn't.
 		bIsEOF = !(m_strRawFile.sgets(buffer1, 2048));
@@ -3087,9 +3087,10 @@ bool OTContract::ParseRawFile()
 					{
 						OTLog::Output(3, "Skipping version section...\n");
 						
-						if (!m_strRawFile.sgets(buffer1, 2048))
+						if (bIsEOF || !m_strRawFile.sgets(buffer1, 2048))
 						{
-							OTLog::vOutput(0, "Error in signature for contract %s: Unexpected EOF after \"Version:\"\n", m_strFilename.Get());
+							OTLog::vOutput(0, "Error in signature for contract %s: Unexpected EOF after \"Version:\"\n", 
+                                           m_strFilename.Get());
 							return false;
 						}
 						
@@ -3106,9 +3107,10 @@ bool OTContract::ParseRawFile()
 						m_strSigHashType = strTemp.c_str();
 						m_strSigHashType.ConvertToUpperCase();
 						
-						if (!m_strRawFile.sgets(buffer1, 2048))
+						if (bIsEOF || !m_strRawFile.sgets(buffer1, 2048))
 						{
-							OTLog::vOutput(0, "Error in contract %s: Unexpected EOF after \"Hash:\"\n", m_strFilename.Get());
+							OTLog::vOutput(0, "Error in contract %s: Unexpected EOF after \"Hash:\"\n", 
+                                           m_strFilename.Get());
 							return false;
 						}
 						continue;
@@ -3116,7 +3118,7 @@ bool OTContract::ParseRawFile()
 				}
 			}
 		}
-
+        // ---------------------------
 		if (bSignatureMode)
 		{
 			OT_ASSERT_MSG(NULL != pSig, "Error: Null Signature pointer WHILE processing signature, in OTContract::ParseRawFile");
@@ -3234,7 +3236,7 @@ bool OTContract::LoadContractXML()
 					{
 						// unknown element type
 						OTLog::vError("UNKNOWN element type in OTContract::LoadContractXML: %s, value: %s\n", 
-								xml->getNodeName(), xml->getNodeData());
+								xml->getNodeName(), xml->getNodeData());                        
 					}
 					// else if 1 was returned, that means the node was processed.
 				}
