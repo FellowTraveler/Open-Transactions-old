@@ -2300,7 +2300,7 @@ OTAsymmetricKey::OTAsymmetricKey() :
 //        m_p_ascKey = new OTASCIIArmor;
 //        OT_ASSERT(NULL != m_p_ascKey);
 //    }   
-//}
+}
 
 
 OTAsymmetricKey::~OTAsymmetricKey()
