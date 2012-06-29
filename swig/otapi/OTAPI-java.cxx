@@ -1968,7 +1968,19 @@ SWIGEXPORT jboolean JNICALL Java_com_wrapper_core_jni_otapiJNI_OT_1API_1Set_1Pas
 }
 
 
-SWIGEXPORT jint JNICALL Java_com_wrapper_core_jni_otapiJNI_OT_1API_1Init(JNIEnv *jenv, jclass jcls, jstring jarg1) {
+SWIGEXPORT jint JNICALL Java_com_wrapper_core_jni_otapiJNI_OT_1API_1Init(JNIEnv *jenv, jclass jcls) {
+  jint jresult = 0 ;
+  int result;
+  
+  (void)jenv;
+  (void)jcls;
+  result = (int)OT_API_Init();
+  jresult = (jint)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jint JNICALL Java_com_wrapper_core_jni_otapiJNI_OT_1API_1SetWallet(JNIEnv *jenv, jclass jcls, jstring jarg1) {
   jint jresult = 0 ;
   char *arg1 = (char *) 0 ;
   int result;
@@ -1980,54 +1992,33 @@ SWIGEXPORT jint JNICALL Java_com_wrapper_core_jni_otapiJNI_OT_1API_1Init(JNIEnv 
     arg1 = (char *)jenv->GetStringUTFChars(jarg1, 0);
     if (!arg1) return 0;
   }
-  result = (int)OT_API_Init((char const *)arg1);
+  result = (int)OT_API_SetWallet((char const *)arg1);
   jresult = (jint)result; 
   if (arg1) jenv->ReleaseStringUTFChars(jarg1, (const char *)arg1);
   return jresult;
 }
 
 
-SWIGEXPORT jint JNICALL Java_com_wrapper_core_jni_otapiJNI_OT_1API_1LoadWallet(JNIEnv *jenv, jclass jcls, jstring jarg1) {
+SWIGEXPORT jint JNICALL Java_com_wrapper_core_jni_otapiJNI_OT_1API_1LoadWallet(JNIEnv *jenv, jclass jcls) {
   jint jresult = 0 ;
-  char *arg1 = (char *) 0 ;
   int result;
   
   (void)jenv;
   (void)jcls;
-  arg1 = 0;
-  if (jarg1) {
-    arg1 = (char *)jenv->GetStringUTFChars(jarg1, 0);
-    if (!arg1) return 0;
-  }
-  result = (int)OT_API_LoadWallet((char const *)arg1);
+  result = (int)OT_API_LoadWallet();
   jresult = (jint)result; 
-  if (arg1) jenv->ReleaseStringUTFChars(jarg1, (const char *)arg1);
   return jresult;
 }
 
 
-SWIGEXPORT jint JNICALL Java_com_wrapper_core_jni_otapiJNI_OT_1API_1SwitchWallet(JNIEnv *jenv, jclass jcls, jstring jarg1, jstring jarg2) {
+SWIGEXPORT jint JNICALL Java_com_wrapper_core_jni_otapiJNI_OT_1API_1SwitchWallet(JNIEnv *jenv, jclass jcls) {
   jint jresult = 0 ;
-  char *arg1 = (char *) 0 ;
-  char *arg2 = (char *) 0 ;
   int result;
   
   (void)jenv;
   (void)jcls;
-  arg1 = 0;
-  if (jarg1) {
-    arg1 = (char *)jenv->GetStringUTFChars(jarg1, 0);
-    if (!arg1) return 0;
-  }
-  arg2 = 0;
-  if (jarg2) {
-    arg2 = (char *)jenv->GetStringUTFChars(jarg2, 0);
-    if (!arg2) return 0;
-  }
-  result = (int)OT_API_SwitchWallet((char const *)arg1,(char const *)arg2);
+  result = (int)OT_API_SwitchWallet();
   jresult = (jint)result; 
-  if (arg1) jenv->ReleaseStringUTFChars(jarg1, (const char *)arg1);
-  if (arg2) jenv->ReleaseStringUTFChars(jarg2, (const char *)arg2);
   return jresult;
 }
 
@@ -9739,300 +9730,6 @@ SWIGEXPORT jlong JNICALL Java_com_wrapper_core_jni_otapiJNI_Storage_1GetPacker_1
 }
 
 
-SWIGEXPORT jboolean JNICALL Java_com_wrapper_core_jni_otapiJNI_Storage_1Init_1_1SWIG_10(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jstring jarg2, jstring jarg3, jstring jarg4, jstring jarg5, jstring jarg6, jstring jarg7) {
-  jboolean jresult = 0 ;
-  OTDB::Storage *arg1 = (OTDB::Storage *) 0 ;
-  std::string arg2 ;
-  std::string arg3 ;
-  std::string arg4 ;
-  std::string arg5 ;
-  std::string arg6 ;
-  std::string arg7 ;
-  bool result;
-  
-  (void)jenv;
-  (void)jcls;
-  (void)jarg1_;
-  arg1 = *(OTDB::Storage **)&jarg1; 
-  if(!jarg2) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg2_pstr = (const char *)jenv->GetStringUTFChars(jarg2, 0); 
-  if (!arg2_pstr) return 0;
-  (&arg2)->assign(arg2_pstr);
-  jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
-  if(!jarg3) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg3_pstr = (const char *)jenv->GetStringUTFChars(jarg3, 0); 
-  if (!arg3_pstr) return 0;
-  (&arg3)->assign(arg3_pstr);
-  jenv->ReleaseStringUTFChars(jarg3, arg3_pstr); 
-  if(!jarg4) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg4_pstr = (const char *)jenv->GetStringUTFChars(jarg4, 0); 
-  if (!arg4_pstr) return 0;
-  (&arg4)->assign(arg4_pstr);
-  jenv->ReleaseStringUTFChars(jarg4, arg4_pstr); 
-  if(!jarg5) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg5_pstr = (const char *)jenv->GetStringUTFChars(jarg5, 0); 
-  if (!arg5_pstr) return 0;
-  (&arg5)->assign(arg5_pstr);
-  jenv->ReleaseStringUTFChars(jarg5, arg5_pstr); 
-  if(!jarg6) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg6_pstr = (const char *)jenv->GetStringUTFChars(jarg6, 0); 
-  if (!arg6_pstr) return 0;
-  (&arg6)->assign(arg6_pstr);
-  jenv->ReleaseStringUTFChars(jarg6, arg6_pstr); 
-  if(!jarg7) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg7_pstr = (const char *)jenv->GetStringUTFChars(jarg7, 0); 
-  if (!arg7_pstr) return 0;
-  (&arg7)->assign(arg7_pstr);
-  jenv->ReleaseStringUTFChars(jarg7, arg7_pstr); 
-  result = (bool)(arg1)->Init(arg2,arg3,arg4,arg5,arg6,arg7);
-  jresult = (jboolean)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jboolean JNICALL Java_com_wrapper_core_jni_otapiJNI_Storage_1Init_1_1SWIG_11(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jstring jarg2, jstring jarg3, jstring jarg4, jstring jarg5, jstring jarg6) {
-  jboolean jresult = 0 ;
-  OTDB::Storage *arg1 = (OTDB::Storage *) 0 ;
-  std::string arg2 ;
-  std::string arg3 ;
-  std::string arg4 ;
-  std::string arg5 ;
-  std::string arg6 ;
-  bool result;
-  
-  (void)jenv;
-  (void)jcls;
-  (void)jarg1_;
-  arg1 = *(OTDB::Storage **)&jarg1; 
-  if(!jarg2) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg2_pstr = (const char *)jenv->GetStringUTFChars(jarg2, 0); 
-  if (!arg2_pstr) return 0;
-  (&arg2)->assign(arg2_pstr);
-  jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
-  if(!jarg3) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg3_pstr = (const char *)jenv->GetStringUTFChars(jarg3, 0); 
-  if (!arg3_pstr) return 0;
-  (&arg3)->assign(arg3_pstr);
-  jenv->ReleaseStringUTFChars(jarg3, arg3_pstr); 
-  if(!jarg4) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg4_pstr = (const char *)jenv->GetStringUTFChars(jarg4, 0); 
-  if (!arg4_pstr) return 0;
-  (&arg4)->assign(arg4_pstr);
-  jenv->ReleaseStringUTFChars(jarg4, arg4_pstr); 
-  if(!jarg5) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg5_pstr = (const char *)jenv->GetStringUTFChars(jarg5, 0); 
-  if (!arg5_pstr) return 0;
-  (&arg5)->assign(arg5_pstr);
-  jenv->ReleaseStringUTFChars(jarg5, arg5_pstr); 
-  if(!jarg6) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg6_pstr = (const char *)jenv->GetStringUTFChars(jarg6, 0); 
-  if (!arg6_pstr) return 0;
-  (&arg6)->assign(arg6_pstr);
-  jenv->ReleaseStringUTFChars(jarg6, arg6_pstr); 
-  result = (bool)(arg1)->Init(arg2,arg3,arg4,arg5,arg6);
-  jresult = (jboolean)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jboolean JNICALL Java_com_wrapper_core_jni_otapiJNI_Storage_1Init_1_1SWIG_12(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jstring jarg2, jstring jarg3, jstring jarg4, jstring jarg5) {
-  jboolean jresult = 0 ;
-  OTDB::Storage *arg1 = (OTDB::Storage *) 0 ;
-  std::string arg2 ;
-  std::string arg3 ;
-  std::string arg4 ;
-  std::string arg5 ;
-  bool result;
-  
-  (void)jenv;
-  (void)jcls;
-  (void)jarg1_;
-  arg1 = *(OTDB::Storage **)&jarg1; 
-  if(!jarg2) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg2_pstr = (const char *)jenv->GetStringUTFChars(jarg2, 0); 
-  if (!arg2_pstr) return 0;
-  (&arg2)->assign(arg2_pstr);
-  jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
-  if(!jarg3) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg3_pstr = (const char *)jenv->GetStringUTFChars(jarg3, 0); 
-  if (!arg3_pstr) return 0;
-  (&arg3)->assign(arg3_pstr);
-  jenv->ReleaseStringUTFChars(jarg3, arg3_pstr); 
-  if(!jarg4) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg4_pstr = (const char *)jenv->GetStringUTFChars(jarg4, 0); 
-  if (!arg4_pstr) return 0;
-  (&arg4)->assign(arg4_pstr);
-  jenv->ReleaseStringUTFChars(jarg4, arg4_pstr); 
-  if(!jarg5) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg5_pstr = (const char *)jenv->GetStringUTFChars(jarg5, 0); 
-  if (!arg5_pstr) return 0;
-  (&arg5)->assign(arg5_pstr);
-  jenv->ReleaseStringUTFChars(jarg5, arg5_pstr); 
-  result = (bool)(arg1)->Init(arg2,arg3,arg4,arg5);
-  jresult = (jboolean)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jboolean JNICALL Java_com_wrapper_core_jni_otapiJNI_Storage_1Init_1_1SWIG_13(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jstring jarg2, jstring jarg3, jstring jarg4) {
-  jboolean jresult = 0 ;
-  OTDB::Storage *arg1 = (OTDB::Storage *) 0 ;
-  std::string arg2 ;
-  std::string arg3 ;
-  std::string arg4 ;
-  bool result;
-  
-  (void)jenv;
-  (void)jcls;
-  (void)jarg1_;
-  arg1 = *(OTDB::Storage **)&jarg1; 
-  if(!jarg2) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg2_pstr = (const char *)jenv->GetStringUTFChars(jarg2, 0); 
-  if (!arg2_pstr) return 0;
-  (&arg2)->assign(arg2_pstr);
-  jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
-  if(!jarg3) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg3_pstr = (const char *)jenv->GetStringUTFChars(jarg3, 0); 
-  if (!arg3_pstr) return 0;
-  (&arg3)->assign(arg3_pstr);
-  jenv->ReleaseStringUTFChars(jarg3, arg3_pstr); 
-  if(!jarg4) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg4_pstr = (const char *)jenv->GetStringUTFChars(jarg4, 0); 
-  if (!arg4_pstr) return 0;
-  (&arg4)->assign(arg4_pstr);
-  jenv->ReleaseStringUTFChars(jarg4, arg4_pstr); 
-  result = (bool)(arg1)->Init(arg2,arg3,arg4);
-  jresult = (jboolean)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jboolean JNICALL Java_com_wrapper_core_jni_otapiJNI_Storage_1Init_1_1SWIG_14(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jstring jarg2, jstring jarg3) {
-  jboolean jresult = 0 ;
-  OTDB::Storage *arg1 = (OTDB::Storage *) 0 ;
-  std::string arg2 ;
-  std::string arg3 ;
-  bool result;
-  
-  (void)jenv;
-  (void)jcls;
-  (void)jarg1_;
-  arg1 = *(OTDB::Storage **)&jarg1; 
-  if(!jarg2) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg2_pstr = (const char *)jenv->GetStringUTFChars(jarg2, 0); 
-  if (!arg2_pstr) return 0;
-  (&arg2)->assign(arg2_pstr);
-  jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
-  if(!jarg3) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg3_pstr = (const char *)jenv->GetStringUTFChars(jarg3, 0); 
-  if (!arg3_pstr) return 0;
-  (&arg3)->assign(arg3_pstr);
-  jenv->ReleaseStringUTFChars(jarg3, arg3_pstr); 
-  result = (bool)(arg1)->Init(arg2,arg3);
-  jresult = (jboolean)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jboolean JNICALL Java_com_wrapper_core_jni_otapiJNI_Storage_1Init_1_1SWIG_15(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jstring jarg2) {
-  jboolean jresult = 0 ;
-  OTDB::Storage *arg1 = (OTDB::Storage *) 0 ;
-  std::string arg2 ;
-  bool result;
-  
-  (void)jenv;
-  (void)jcls;
-  (void)jarg1_;
-  arg1 = *(OTDB::Storage **)&jarg1; 
-  if(!jarg2) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg2_pstr = (const char *)jenv->GetStringUTFChars(jarg2, 0); 
-  if (!arg2_pstr) return 0;
-  (&arg2)->assign(arg2_pstr);
-  jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
-  result = (bool)(arg1)->Init(arg2);
-  jresult = (jboolean)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jboolean JNICALL Java_com_wrapper_core_jni_otapiJNI_Storage_1Init_1_1SWIG_16(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
-  jboolean jresult = 0 ;
-  OTDB::Storage *arg1 = (OTDB::Storage *) 0 ;
-  bool result;
-  
-  (void)jenv;
-  (void)jcls;
-  (void)jarg1_;
-  arg1 = *(OTDB::Storage **)&jarg1; 
-  result = (bool)(arg1)->Init();
-  jresult = (jboolean)result; 
-  return jresult;
-}
-
-
 SWIGEXPORT jboolean JNICALL Java_com_wrapper_core_jni_otapiJNI_Storage_1Exists_1_1SWIG_10(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jstring jarg2, jstring jarg3, jstring jarg4, jstring jarg5) {
   jboolean jresult = 0 ;
   OTDB::Storage *arg1 = (OTDB::Storage *) 0 ;
@@ -11447,292 +11144,7 @@ SWIGEXPORT jint JNICALL Java_com_wrapper_core_jni_otapiJNI_Storage_1GetType(JNIE
 }
 
 
-SWIGEXPORT jboolean JNICALL Java_com_wrapper_core_jni_otapiJNI_InitDefaultStorage_1_1SWIG_10(JNIEnv *jenv, jclass jcls, jint jarg1, jint jarg2, jstring jarg3, jstring jarg4, jstring jarg5, jstring jarg6, jstring jarg7, jstring jarg8) {
-  jboolean jresult = 0 ;
-  OTDB::StorageType arg1 ;
-  OTDB::PackType arg2 ;
-  std::string arg3 ;
-  std::string arg4 ;
-  std::string arg5 ;
-  std::string arg6 ;
-  std::string arg7 ;
-  std::string arg8 ;
-  bool result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = (OTDB::StorageType)jarg1; 
-  arg2 = (OTDB::PackType)jarg2; 
-  if(!jarg3) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg3_pstr = (const char *)jenv->GetStringUTFChars(jarg3, 0); 
-  if (!arg3_pstr) return 0;
-  (&arg3)->assign(arg3_pstr);
-  jenv->ReleaseStringUTFChars(jarg3, arg3_pstr); 
-  if(!jarg4) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg4_pstr = (const char *)jenv->GetStringUTFChars(jarg4, 0); 
-  if (!arg4_pstr) return 0;
-  (&arg4)->assign(arg4_pstr);
-  jenv->ReleaseStringUTFChars(jarg4, arg4_pstr); 
-  if(!jarg5) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg5_pstr = (const char *)jenv->GetStringUTFChars(jarg5, 0); 
-  if (!arg5_pstr) return 0;
-  (&arg5)->assign(arg5_pstr);
-  jenv->ReleaseStringUTFChars(jarg5, arg5_pstr); 
-  if(!jarg6) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg6_pstr = (const char *)jenv->GetStringUTFChars(jarg6, 0); 
-  if (!arg6_pstr) return 0;
-  (&arg6)->assign(arg6_pstr);
-  jenv->ReleaseStringUTFChars(jarg6, arg6_pstr); 
-  if(!jarg7) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg7_pstr = (const char *)jenv->GetStringUTFChars(jarg7, 0); 
-  if (!arg7_pstr) return 0;
-  (&arg7)->assign(arg7_pstr);
-  jenv->ReleaseStringUTFChars(jarg7, arg7_pstr); 
-  if(!jarg8) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg8_pstr = (const char *)jenv->GetStringUTFChars(jarg8, 0); 
-  if (!arg8_pstr) return 0;
-  (&arg8)->assign(arg8_pstr);
-  jenv->ReleaseStringUTFChars(jarg8, arg8_pstr); 
-  result = (bool)OTDB::InitDefaultStorage(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8);
-  jresult = (jboolean)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jboolean JNICALL Java_com_wrapper_core_jni_otapiJNI_InitDefaultStorage_1_1SWIG_11(JNIEnv *jenv, jclass jcls, jint jarg1, jint jarg2, jstring jarg3, jstring jarg4, jstring jarg5, jstring jarg6, jstring jarg7) {
-  jboolean jresult = 0 ;
-  OTDB::StorageType arg1 ;
-  OTDB::PackType arg2 ;
-  std::string arg3 ;
-  std::string arg4 ;
-  std::string arg5 ;
-  std::string arg6 ;
-  std::string arg7 ;
-  bool result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = (OTDB::StorageType)jarg1; 
-  arg2 = (OTDB::PackType)jarg2; 
-  if(!jarg3) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg3_pstr = (const char *)jenv->GetStringUTFChars(jarg3, 0); 
-  if (!arg3_pstr) return 0;
-  (&arg3)->assign(arg3_pstr);
-  jenv->ReleaseStringUTFChars(jarg3, arg3_pstr); 
-  if(!jarg4) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg4_pstr = (const char *)jenv->GetStringUTFChars(jarg4, 0); 
-  if (!arg4_pstr) return 0;
-  (&arg4)->assign(arg4_pstr);
-  jenv->ReleaseStringUTFChars(jarg4, arg4_pstr); 
-  if(!jarg5) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg5_pstr = (const char *)jenv->GetStringUTFChars(jarg5, 0); 
-  if (!arg5_pstr) return 0;
-  (&arg5)->assign(arg5_pstr);
-  jenv->ReleaseStringUTFChars(jarg5, arg5_pstr); 
-  if(!jarg6) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg6_pstr = (const char *)jenv->GetStringUTFChars(jarg6, 0); 
-  if (!arg6_pstr) return 0;
-  (&arg6)->assign(arg6_pstr);
-  jenv->ReleaseStringUTFChars(jarg6, arg6_pstr); 
-  if(!jarg7) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg7_pstr = (const char *)jenv->GetStringUTFChars(jarg7, 0); 
-  if (!arg7_pstr) return 0;
-  (&arg7)->assign(arg7_pstr);
-  jenv->ReleaseStringUTFChars(jarg7, arg7_pstr); 
-  result = (bool)OTDB::InitDefaultStorage(arg1,arg2,arg3,arg4,arg5,arg6,arg7);
-  jresult = (jboolean)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jboolean JNICALL Java_com_wrapper_core_jni_otapiJNI_InitDefaultStorage_1_1SWIG_12(JNIEnv *jenv, jclass jcls, jint jarg1, jint jarg2, jstring jarg3, jstring jarg4, jstring jarg5, jstring jarg6) {
-  jboolean jresult = 0 ;
-  OTDB::StorageType arg1 ;
-  OTDB::PackType arg2 ;
-  std::string arg3 ;
-  std::string arg4 ;
-  std::string arg5 ;
-  std::string arg6 ;
-  bool result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = (OTDB::StorageType)jarg1; 
-  arg2 = (OTDB::PackType)jarg2; 
-  if(!jarg3) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg3_pstr = (const char *)jenv->GetStringUTFChars(jarg3, 0); 
-  if (!arg3_pstr) return 0;
-  (&arg3)->assign(arg3_pstr);
-  jenv->ReleaseStringUTFChars(jarg3, arg3_pstr); 
-  if(!jarg4) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg4_pstr = (const char *)jenv->GetStringUTFChars(jarg4, 0); 
-  if (!arg4_pstr) return 0;
-  (&arg4)->assign(arg4_pstr);
-  jenv->ReleaseStringUTFChars(jarg4, arg4_pstr); 
-  if(!jarg5) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg5_pstr = (const char *)jenv->GetStringUTFChars(jarg5, 0); 
-  if (!arg5_pstr) return 0;
-  (&arg5)->assign(arg5_pstr);
-  jenv->ReleaseStringUTFChars(jarg5, arg5_pstr); 
-  if(!jarg6) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg6_pstr = (const char *)jenv->GetStringUTFChars(jarg6, 0); 
-  if (!arg6_pstr) return 0;
-  (&arg6)->assign(arg6_pstr);
-  jenv->ReleaseStringUTFChars(jarg6, arg6_pstr); 
-  result = (bool)OTDB::InitDefaultStorage(arg1,arg2,arg3,arg4,arg5,arg6);
-  jresult = (jboolean)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jboolean JNICALL Java_com_wrapper_core_jni_otapiJNI_InitDefaultStorage_1_1SWIG_13(JNIEnv *jenv, jclass jcls, jint jarg1, jint jarg2, jstring jarg3, jstring jarg4, jstring jarg5) {
-  jboolean jresult = 0 ;
-  OTDB::StorageType arg1 ;
-  OTDB::PackType arg2 ;
-  std::string arg3 ;
-  std::string arg4 ;
-  std::string arg5 ;
-  bool result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = (OTDB::StorageType)jarg1; 
-  arg2 = (OTDB::PackType)jarg2; 
-  if(!jarg3) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg3_pstr = (const char *)jenv->GetStringUTFChars(jarg3, 0); 
-  if (!arg3_pstr) return 0;
-  (&arg3)->assign(arg3_pstr);
-  jenv->ReleaseStringUTFChars(jarg3, arg3_pstr); 
-  if(!jarg4) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg4_pstr = (const char *)jenv->GetStringUTFChars(jarg4, 0); 
-  if (!arg4_pstr) return 0;
-  (&arg4)->assign(arg4_pstr);
-  jenv->ReleaseStringUTFChars(jarg4, arg4_pstr); 
-  if(!jarg5) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg5_pstr = (const char *)jenv->GetStringUTFChars(jarg5, 0); 
-  if (!arg5_pstr) return 0;
-  (&arg5)->assign(arg5_pstr);
-  jenv->ReleaseStringUTFChars(jarg5, arg5_pstr); 
-  result = (bool)OTDB::InitDefaultStorage(arg1,arg2,arg3,arg4,arg5);
-  jresult = (jboolean)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jboolean JNICALL Java_com_wrapper_core_jni_otapiJNI_InitDefaultStorage_1_1SWIG_14(JNIEnv *jenv, jclass jcls, jint jarg1, jint jarg2, jstring jarg3, jstring jarg4) {
-  jboolean jresult = 0 ;
-  OTDB::StorageType arg1 ;
-  OTDB::PackType arg2 ;
-  std::string arg3 ;
-  std::string arg4 ;
-  bool result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = (OTDB::StorageType)jarg1; 
-  arg2 = (OTDB::PackType)jarg2; 
-  if(!jarg3) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg3_pstr = (const char *)jenv->GetStringUTFChars(jarg3, 0); 
-  if (!arg3_pstr) return 0;
-  (&arg3)->assign(arg3_pstr);
-  jenv->ReleaseStringUTFChars(jarg3, arg3_pstr); 
-  if(!jarg4) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg4_pstr = (const char *)jenv->GetStringUTFChars(jarg4, 0); 
-  if (!arg4_pstr) return 0;
-  (&arg4)->assign(arg4_pstr);
-  jenv->ReleaseStringUTFChars(jarg4, arg4_pstr); 
-  result = (bool)OTDB::InitDefaultStorage(arg1,arg2,arg3,arg4);
-  jresult = (jboolean)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jboolean JNICALL Java_com_wrapper_core_jni_otapiJNI_InitDefaultStorage_1_1SWIG_15(JNIEnv *jenv, jclass jcls, jint jarg1, jint jarg2, jstring jarg3) {
-  jboolean jresult = 0 ;
-  OTDB::StorageType arg1 ;
-  OTDB::PackType arg2 ;
-  std::string arg3 ;
-  bool result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = (OTDB::StorageType)jarg1; 
-  arg2 = (OTDB::PackType)jarg2; 
-  if(!jarg3) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null string");
-    return 0;
-  } 
-  const char *arg3_pstr = (const char *)jenv->GetStringUTFChars(jarg3, 0); 
-  if (!arg3_pstr) return 0;
-  (&arg3)->assign(arg3_pstr);
-  jenv->ReleaseStringUTFChars(jarg3, arg3_pstr); 
-  result = (bool)OTDB::InitDefaultStorage(arg1,arg2,arg3);
-  jresult = (jboolean)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jboolean JNICALL Java_com_wrapper_core_jni_otapiJNI_InitDefaultStorage_1_1SWIG_16(JNIEnv *jenv, jclass jcls, jint jarg1, jint jarg2) {
+SWIGEXPORT jboolean JNICALL Java_com_wrapper_core_jni_otapiJNI_InitDefaultStorage(JNIEnv *jenv, jclass jcls, jint jarg1, jint jarg2) {
   jboolean jresult = 0 ;
   OTDB::StorageType arg1 ;
   OTDB::PackType arg2 ;

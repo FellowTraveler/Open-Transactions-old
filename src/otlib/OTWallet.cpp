@@ -324,22 +324,22 @@ OTPseudonym * OTWallet::GetNymByIDPartialMatch(const std::string PARTIAL_ID)
 // used by high-level wrapper.
 int OTWallet::GetNymCount()
 {
-	return m_mapNyms.size();
+	return static_cast<int> (m_mapNyms.size());
 }
 
 int OTWallet::GetServerCount()
 {
-	return m_mapServers.size();
+	return static_cast<int> (m_mapServers.size());
 }
 
 int OTWallet::GetAssetTypeCount()
 {
-	return m_mapContracts.size();
+	return static_cast<int> (m_mapContracts.size());
 }
 
 int OTWallet::GetAccountCount()
 {
-	return m_mapAccounts.size();
+	return static_cast<int> (m_mapAccounts.size());
 }
 
 
@@ -1334,14 +1334,15 @@ bool OTWallet::SaveWallet(const char * szFilename/*=NULL*/)
         
         if (false == ascTemp.WriteArmoredString(strFinal, "WALLET")) // todo hardcoding.
         {
+			OTString strDataPath; OTLog::Path_GetDataFolder(strDataPath);
             OTLog::vError("OTWallet::SaveWallet: Error saving wallet (failed writing armored string):\n%s%s%s\n", 
-                          OTLog::Path(), OTLog::PathSeparator(), m_strFilename.Get());
+				strDataPath.Get(), OTLog::PathSeparator(), m_strFilename.Get());
             return false;
         }
         // --------------------------------------------------------------------
 
 		// Wallet file is the only one in data_folder (".") and not a subfolder of that.
-		bSuccess = OTDB::StorePlainString(strFinal.Get(), m_strFilename.Get()); // <==== Store Plain String
+		bSuccess = OTDB::StorePlainString(strFinal.Get(),".", m_strFilename.Get()); // <==== Store Plain String
 	}
 	// ---------------------------------------------------------------
 	
@@ -1371,7 +1372,7 @@ bool OTWallet::LoadWallet(const char * szFilename)
 	
 	// --------------------------------------------------------------------
 	
-	if (false == OTDB::Exists(szFilename))
+	if (false == OTDB::Exists(".",szFilename))
 	{
 		OTLog::vError("OTWallet::LoadWallet: Wallet file does not exist: %s\n", szFilename);
 		return false;
@@ -1379,7 +1380,7 @@ bool OTWallet::LoadWallet(const char * szFilename)
 	
 	// --------------------------------------------------------------------
 
-	OTString strFileContents(OTDB::QueryPlainString(szFilename)); // <=== LOADING FROM DATA STORE.
+	OTString strFileContents(OTDB::QueryPlainString(".",szFilename)); // <=== LOADING FROM DATA STORE.
 	
 	if (strFileContents.GetLength() < 2)
 	{
@@ -1425,8 +1426,9 @@ bool OTWallet::LoadWallet(const char * szFilename)
                                                  OT_BEGIN_ARMORED)))     // Default is:       "-----BEGIN" 
                                                                          // We're doing this: "-----BEGIN OT ARMORED" (Should worked for escaped as well, here.)
             {
+				OTString strDataPath; OTLog::Path_GetDataFolder(strDataPath);
                 OTLog::vError("OTWallet::LoadWallet: Error loading file contents from ascii-armored encoding: %s%s%s.\n Contents: \n%s\n", 
-                              OTLog::Path(), OTLog::PathSeparator(), szFilename, strFileContents.Get());
+                              strDataPath.Get(), OTLog::PathSeparator(), szFilename, strFileContents.Get());
                 return false;
             }
             else // success loading the actual contents out of the ascii-armored version.

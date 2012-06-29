@@ -438,7 +438,7 @@ void OTClientConnection::ProcessMessage(u_header & theCMD)
 	{
 		int  err = 0, nread = 0;
 		
-		char buffer[1024];
+//		char buffer[1024];
 		int sizeJunkData = 1024;
 		
 		while (1)

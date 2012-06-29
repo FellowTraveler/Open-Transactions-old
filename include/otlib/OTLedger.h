@@ -130,14 +130,10 @@
 #ifndef __OTLEDGER_H__
 #define __OTLEDGER_H__
 
-// DLL Export for Win32
-
-#undef EXPORT
-#ifdef _WINDLL
-  #define EXPORT __declspec(dllexport)
-#else
-  #define EXPORT
+#ifndef EXPORT
+#define EXPORT
 #endif
+#include <ExportWrapper.h>
 
 #include <set>
 
@@ -282,7 +278,7 @@ EXPORT	bool LoadNymboxFromString(const OTString & strBox);
 	bool LoadRecordBoxFromString(const OTString & strBox);
 	// ------------------------------------
 	inline // just the top one.
-	int		GetTransactionCount() const { return m_mapTransactions.size(); }
+	int		GetTransactionCount() const { return static_cast<int> (m_mapTransactions.size()); }
 EXPORT	int		GetTransactionCountInRefTo(const long lReferenceNum);
 	long	GetTotalPendingValue(); // for inbox only, allows you to lookup the total value of pending transfers within.
 	// ------------------------------------		

@@ -123,10 +123,10 @@ otlib_headers_dir =		$(opentxs_include_dir)/otlib
 otlib_headers =			$(otlib_headers_dir)/anyoption.h		\
 				$(otlib_headers_dir)/easyzlib.h			\
 				$(otlib_headers_dir)/fast_mutex.h		\
-				$(otlib_headers_dir)/ot_default_paths.h		\
 				$(otlib_headers_dir)/stacktrace.h		\
 				$(otlib_headers_dir)/Timer.h			\
 				$(otlib_headers_dir)/tinythread.h		\
+				$(otlib_headers_dir)/ExportWrapper.h		\
 				$(otlib_headers_dir)/WinsockWrapper.h		\
 				$(otlib_headers_dir)/Bitcoin.pb.h		\
 				$(otlib_headers_dir)/Generics.pb.h		\

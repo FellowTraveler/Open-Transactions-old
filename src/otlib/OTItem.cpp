@@ -720,7 +720,7 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 
 		if (!(pDeque->empty()) && (theServerID == this->GetPurportedServerID()))
 		{
-			nNumberOfTransactionNumbers1 += pDeque->size();
+			nNumberOfTransactionNumbers1 += static_cast<int> (pDeque->size());
             break; // There's only one, in this loop, that would/could/should match. (Therefore, break after finding it.)
 		}
 	} // for
@@ -744,7 +744,7 @@ bool OTItem::VerifyBalanceStatement(const long lActualAdjustment,
 						
 			if (!(pDeque->empty()) && (theServerID == this->GetPurportedServerID()))
 			{
-				nNumberOfTransactionNumbers2 += pDeque->size();
+				nNumberOfTransactionNumbers2 += static_cast<int> (pDeque->size());
 				
 				for (unsigned i = 0; i < pDeque->size(); i++)
 				{

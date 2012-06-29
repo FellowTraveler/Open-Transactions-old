@@ -131,14 +131,10 @@
 #ifndef __OTSCRIPTABLE_H__
 #define __OTSCRIPTABLE_H__
 
-// DLL Export for Win32
-
-#undef EXPORT
-#ifdef _WINDLL
-  #define EXPORT __declspec(dllexport)
-#else
-  #define EXPORT
+#ifndef EXPORT
+#define EXPORT
 #endif
+#include <ExportWrapper.h>
 
 #include <string>
 
@@ -220,8 +216,8 @@ public:
     virtual void SetDisplayLabel(const std::string * pstrLabel=NULL);
     
 	// ----------------------------------------------------
-	int GetPartyCount() const { return m_mapParties.size(); }
-	int GetBylawCount() const { return m_mapBylaws.size(); }
+	int GetPartyCount() const { return static_cast<int> (m_mapParties.size()); }
+	int GetBylawCount() const { return static_cast<int> (m_mapBylaws.size()); }
 	
 	virtual bool AddParty(OTParty & theParty); // Takes ownership.
 	virtual bool AddBylaw(OTBylaw & theBylaw); // takes ownership.

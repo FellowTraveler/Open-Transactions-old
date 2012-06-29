@@ -45,34 +45,6 @@ public class Storage {
     return (cPtr == 0) ? null : new SWIGTYPE_p_OTPacker(cPtr, false);
   }
 
-  public boolean Init(String oneStr, String twoStr, String threeStr, String fourStr, String fiveStr, String sixStr) {
-    return otapiJNI.Storage_Init__SWIG_0(swigCPtr, this, oneStr, twoStr, threeStr, fourStr, fiveStr, sixStr);
-  }
-
-  public boolean Init(String oneStr, String twoStr, String threeStr, String fourStr, String fiveStr) {
-    return otapiJNI.Storage_Init__SWIG_1(swigCPtr, this, oneStr, twoStr, threeStr, fourStr, fiveStr);
-  }
-
-  public boolean Init(String oneStr, String twoStr, String threeStr, String fourStr) {
-    return otapiJNI.Storage_Init__SWIG_2(swigCPtr, this, oneStr, twoStr, threeStr, fourStr);
-  }
-
-  public boolean Init(String oneStr, String twoStr, String threeStr) {
-    return otapiJNI.Storage_Init__SWIG_3(swigCPtr, this, oneStr, twoStr, threeStr);
-  }
-
-  public boolean Init(String oneStr, String twoStr) {
-    return otapiJNI.Storage_Init__SWIG_4(swigCPtr, this, oneStr, twoStr);
-  }
-
-  public boolean Init(String oneStr) {
-    return otapiJNI.Storage_Init__SWIG_5(swigCPtr, this, oneStr);
-  }
-
-  public boolean Init() {
-    return otapiJNI.Storage_Init__SWIG_6(swigCPtr, this);
-  }
-
   public boolean Exists(String strFolder, String oneStr, String twoStr, String threeStr) {
     return otapiJNI.Storage_Exists__SWIG_0(swigCPtr, this, strFolder, oneStr, twoStr, threeStr);
   }

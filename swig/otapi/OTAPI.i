@@ -895,8 +895,8 @@ namespace OTDB {
 		//
 		OTPacker * GetPacker(PackType ePackType=OTDB_DEFAULT_PACKER);
 	
-		virtual bool Init(std::string oneStr="", std::string twoStr="", std::string threeStr="", 
-						  std::string fourStr="", std::string fiveStr="", std::string sixStr="")=0;
+		//virtual bool Init(std::string oneStr="", std::string twoStr="", std::string threeStr="", 
+		//				  std::string fourStr="", std::string fiveStr="", std::string sixStr="")=0;
 		
 		// -----------------------------------------
 		// See if the file is there.
@@ -974,9 +974,7 @@ namespace OTDB {
 	//
 	//
 	
-	bool InitDefaultStorage(StorageType eStoreType, PackType ePackType,
-							std::string oneStr="", std::string twoStr="", std::string threeStr="", 
-							std::string fourStr="", std::string fiveStr="", std::string sixStr="");
+	bool InitDefaultStorage(StorageType eStoreType, PackType ePackType);
 	
 	// Default Storage instance:
 	Storage * GetDefaultStorage();

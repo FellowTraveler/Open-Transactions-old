@@ -130,14 +130,10 @@
 #ifndef OTLib_
 #define OTLib_
 
-// DLL Export for Win32
-
-#undef EXPORT
-#ifdef _WINDLL
-  #define EXPORT __declspec(dllexport)
-#else
-  #define EXPORT
+#ifndef EXPORT
+#define EXPORT
 #endif
+#include <ExportWrapper.h>
 
 /* The classes below are exported */
 #pragma GCC visibility push(default)

@@ -335,8 +335,8 @@ int OTOffer::ProcessXMLNode(irr::io::IrrXMLReader*& xml)
 
 		if ((tValidTo < tValidFrom) && (tValidTo != 0))
 		{
-			int nFrom=tValidFrom, nTo=tValidTo;
-			OTLog::vOutput(0, "OTOffer::ProcessXMLNode: Failure: validTo date (%d) cannot be earlier than validFrom date (%d).\n",
+			long nFrom= static_cast<long> (tValidFrom), nTo= static_cast<long> (tValidTo);
+			OTLog::vOutput(0, "OTOffer::ProcessXMLNode: Failure: validTo date (%ld) cannot be earlier than validFrom date (%ld).\n",
 						   nFrom, nTo);
 			return (-1);
 		}
@@ -371,8 +371,8 @@ void OTOffer::UpdateContents()
 	const OTString	SERVER_ID(GetServerID()), ASSET_TYPE_ID(GetAssetID()), 
 					CURRENCY_TYPE_ID(GetCurrencyID());
 	
-	const long	lFrom				= GetValidFrom(), 
-				lTo					= GetValidTo(),
+	const long	lFrom				= static_cast<long> (GetValidFrom()), 
+				lTo					= static_cast<long> (GetValidTo()),
 				lPriceLimit			= GetPriceLimit(),
 				lTotalAssetsOnOffer = GetTotalAssetsOnOffer(),
 				lFinishedSoFar		= GetFinishedSoFar(),

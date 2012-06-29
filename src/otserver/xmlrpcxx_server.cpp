@@ -126,6 +126,19 @@
  **************************************************************/
 
 
+// ------------------------------------------------
+
+// TODO: what about android for all the defaults here? Are there ini files in android? Revisit.
+// so far, treating it like unix since it is.
+//
+// Paths
+//
+#define SERVER_PATH_DEFAULT	"server_data" //should get programmatically
+#define SERVER_CONFIG_KEY	"server" //should get programmatically
+
+// ----------------------------------------------------------------
+
+
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -167,7 +180,7 @@ extern "C"
 
 // ---------------------------------------------------------------------------
 
-#include "ot_default_paths.h"
+//#include "ot_default_paths.h"
 
 // ---------------------------------------------------------------------------
 
@@ -675,110 +688,6 @@ bool OTSocket::Receive(std::string & str_Message)
 }
 
 
-// ***********************************************************************
-//
-// EVR PATH
-//
-OTString GetRoamingAppDataLocation()
-	{
-#ifdef _WIN32
-
-		
-		TCHAR szPath[MAX_PATH];
-
-		if(SUCCEEDED(SHGetFolderPath(NULL, 
-                             CSIDL_APPDATA|CSIDL_FLAG_CREATE, 
-                             NULL, 
-                             0, 
-                             szPath))) ;
-
-		#ifdef UNICODE
-		std::string stdpath = utf8util::UTF8FromUTF16(szPath);
-		#else
-		std::string string(szPath);
-		std::string stdpath = szPath;
-		#endif
-
-		return stdpath;
-
-		// Old Code... Good, except worked for Windows Vista or greater only.
-		// We should use this code when we decide to disscontinue Win XP support.
-
-		//wchar_t* roamingAppData = 0;
-		//SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, NULL, &roamingAppData);
-
-		//std::wstring basicstring(roamingAppData);
-
-		//std::string stdstring = utf8util::UTF8FromUTF16(basicstring);
-
-		//return stdstring;
-#else
-		return getenv("HOME");
-#endif
-	};
-
-
-// ***********************************************************************
-//
-// INI FILE
-//
-bool GetOTAppDataFolderLocation(const OTString & strIniFileDefault, OTString & strOTServerDataLocation)
-{
-    CSimpleIniA ini;
-    SI_Error rc = ini.LoadFile(strIniFileDefault.Get());
-    if (rc >=0)
-    {
-        {
-            const char * pVal = ini.GetValue("paths", "prefix_path", OT_PREFIX_DEFAULT); // todo stop hardcoding.
-            
-            if (NULL != pVal)
-            {
-                OTLog::SetPrefixPath(pVal);
-                OTLog::vOutput(0, "server main: Reading ini file (%s). \n Found prefix_path: %s \n", 
-                               strIniFileDefault.Get(), OTLog::PrefixPath());
-            }
-            else
-                OTLog::vOutput(0, "server main :Ini file: %s: Failed to find prefix_path. \n", strIniFileDefault.Get());
-        }            
-        {
-            const char * pVal = ini.GetValue("paths", "init_path", OT_FOLDER_DEFAULT); // todo stop hardcoding.
-            
-            if (NULL != pVal)
-            {
-                OTLog::SetConfigPath(pVal);
-                OTLog::vOutput(0, "server main: Reading ini file (%s). \n Found Server init_path: %s \n", 
-                               strIniFileDefault.Get(), OTLog::ConfigPath());
-            }
-            else
-                OTLog::vOutput(0, "server main: Ini file: %s: Failed to find init_path. \n", strIniFileDefault.Get());
-        }            
-        {
-            const char * pVal = ini.GetValue("paths", "server_path", SERVER_PATH_DEFAULT); // todo stop hardcoding.
-            
-            if (NULL != pVal)
-            {
-                strOTServerDataLocation.Set(pVal);
-                OTLog::vOutput(0, "server main: Reading ini file (%s). \n Found Server data_folder path: %s \n", 
-                               strIniFileDefault.Get(), strOTServerDataLocation.Get());
-                return true;
-            }
-            
-            OTLog::vOutput(0, "server main: Reading ini file (%s) \n", strIniFileDefault.Get());
-            return false;
-        }            
-    }
-    else 
-    {
-        OTLog::vOutput(0, "server main: Unable to load ini file (%s) to find data_folder path \n", 
-                       strIniFileDefault.Get());
-        return false;
-    }
-}
-
-
-
-
-
 
 // *********************************************************************************************************
 //
@@ -800,20 +709,15 @@ int main(int argc, char* argv[])
 	// -----------------------------------------------------------------------
 #ifdef _WIN32
 
-	WORD wVersionRequested;
 	WSADATA wsaData;
-	int err;
+	WORD wVersionRequested = MAKEWORD( 2, 2 );
+	int err = WSAStartup( wVersionRequested, &wsaData );
 
-	/* Use the MAKEWORD(lowbyte, highbyte) macro declared in Windef.h */
-	wVersionRequested = MAKEWORD(2, 2);
-
-	err = WSAStartup(wVersionRequested, &wsaData);
-	if (err != 0) {
 	/* Tell the user that we could not find a usable		*/
-	/* Winsock DLL.											*/
-		printf("WSAStartup failed with error: %d\n", err);
-		return 1;
-	}
+	/* Winsock DLL.											*/		
+
+	OT_ASSERT_MSG((err == 0), "WSAStartup failed!\n");
+
 
 	/*	Confirm that the WinSock DLL supports 2.2.			*/
 	/*	Note that if the DLL supports versions greater		*/
@@ -821,19 +725,18 @@ int main(int argc, char* argv[])
 	/*	2.2 in wVersion since that is the version we		*/
 	/*	requested.											*/
 
-	if (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2) {
-		/* Tell the user that we could not find a usable */
-		/* WinSock DLL.                                  */
-		printf("Could not find a usable version of Winsock.dll\n");
-		WSACleanup();
-		return 1;
-	}
-	else
-		printf("The Winsock 2.2 dll was found okay\n");
+	bool bWinsock = (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2);
+
+	/* Tell the user that we could not find a usable */
+	/* WinSock DLL.                                  */
+
+	if (!bWinsock) WSACleanup();  // do cleanup.
+	OT_ASSERT_MSG((!bWinsock), "Could not find a usable version of Winsock.dll\n");
 
 	/* The Winsock DLL is acceptable. Proceed to use it. */
 	/* Add network programming using Winsock here */
 	/* then call WSACleanup when done using the Winsock dll */
+	OTLog::vOutput(0,"The Winsock 2.2 dll was found okay\n");
 #endif
 
 
@@ -872,30 +775,15 @@ int main(int argc, char* argv[])
             //
             OT_ASSERT_MSG(NULL != m_pServer, "server main(): ASSERT: Unable to instantiate OT server.\n");
 
-			OTString pathUserAppDataPath, pathIniFileLocation;
 
-			pathUserAppDataPath = GetRoamingAppDataLocation();
-			pathIniFileLocation.Format("%s%s%s", pathUserAppDataPath.Get(), OTLog::PathSeparator(), SERVER_INI_FILE_DEFAULT);
-
-
-			OTString pathOTServerDataLocation;
-
-			OTLog::vOutput(0, "\nFound ot_init.cfg in: \n     %s \nNow checking to see if it contains the OT Server path...", pathIniFileLocation.Get());
-			// Read the File, If successful use result
-
-			if (false == GetOTAppDataFolderLocation(pathIniFileLocation, pathOTServerDataLocation))
+			//
+			// OT Server Path:
+			//
 			{
-				OTLog::vOutput(0, "Path not found... Will attempt default!... \n");
-				// Not successfull will will assume it is in default location:
-				pathOTServerDataLocation.Format("%s%s%s", pathUserAppDataPath.Get(), OTLog::PathSeparator(), SERVER_PATH_DEFAULT);
-			};
-
-			OTLog::vOutput(0, "     %s \n", pathOTServerDataLocation.Get());
-
-
-			OTLog::SetMainPath(pathOTServerDataLocation.Get());              // <============ SET MAIN PATH
-            OTLog::vOutput(0, "Using server_data path:  %s\n", OTLog::Path());
-
+				OTString strServerConfigKey(SERVER_CONFIG_KEY);
+				bool bSetupPathsSuccess = OTLog::Path_Setup(strServerConfigKey);
+				OT_ASSERT_MSG(bSetupPathsSuccess, "main(): Assert failed: Failed to set OT Path");
+			}
 
             // -----------------------------------------------------------------------    
             
@@ -961,7 +849,7 @@ int main(int argc, char* argv[])
 	//
 	OTLog::vOutput(0, 
 				   "\nNow loading the server nym, which will also ask you for a password, to unlock\n"
-				   "its private key. (Default password is \"%s\".)\n", KEY_PASSWORD);
+				   "its private key.\n");
 	
 	pServer->Init(); // Keys, etc are loaded here. ===> Assumes main path is set! <===
 	
@@ -1161,7 +1049,7 @@ bool ProcessMessage_ZMQ(OTServer & theServer, const std::string & str_Message, s
 	
 	// First we grab the client's message
 	OTASCIIArmor ascMessage;
-	ascMessage.MemSet(str_Message.data(), str_Message.size());
+	ascMessage.MemSet(str_Message.data(), static_cast<uint32_t> (str_Message.size()));
 	
 	// ------------------
 //	

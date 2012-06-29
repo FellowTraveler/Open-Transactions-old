@@ -247,7 +247,7 @@ fi
 
 AC_ARG_WITH(
 	[perl5],
-	[AS_HELP_STRING([--with-perl5], [build Perl5 SWIG wrapper])]
+	[AS_HELP_STRING([--with-perl5], [build Perl5 SWIG wrapper])],
 	[])
 
 AM_CONDITIONAL([WANT_PERL5], [test "x$with_perl5" == "xyes"])

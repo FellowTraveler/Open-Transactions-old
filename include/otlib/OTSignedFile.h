@@ -129,14 +129,10 @@
 #ifndef __OT_SIGNED_FILE_H__
 #define __OT_SIGNED_FILE_H__
 
-// DLL Export for Win32
-
-#undef EXPORT
-#ifdef _WINDLL
-  #define EXPORT __declspec(dllexport)
-#else
-  #define EXPORT
+#ifndef EXPORT
+#define EXPORT
 #endif
+#include <ExportWrapper.h>
 
 #include <fstream>
 
@@ -175,14 +171,14 @@ protected:
 public:
 	
 	// These assume SetFilename() was already called, or at least one of the constructors that uses it. 
-	bool LoadFile();
-	bool SaveFile();
+EXPORT	bool LoadFile();
+EXPORT	bool SaveFile();
 	
 	OTSignedFile();
 	OTSignedFile(const OTString & LOCAL_SUBDIR, const OTString & FILE_NAME);
 	OTSignedFile(const char * LOCAL_SUBDIR, const OTString & FILE_NAME);
-	OTSignedFile(const char * LOCAL_SUBDIR, const char * FILE_NAME);
-	virtual ~OTSignedFile();
+EXPORT	OTSignedFile(const char * LOCAL_SUBDIR, const char * FILE_NAME);
+EXPORT	virtual ~OTSignedFile();
 	
 	bool VerifyFile();	// Returns true or false, whether actual subdir/file matches purported subdir/file.
 						// (You should still verify the signature on it as well, if you are doing this.)

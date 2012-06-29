@@ -130,14 +130,10 @@
 #ifndef __OTMINT_H__
 #define __OTMINT_H__
 
-// DLL Export for Win32
-
-#undef EXPORT
-#ifdef _WINDLL
-  #define EXPORT __declspec(dllexport)
-#else
-  #define EXPORT
+#ifndef EXPORT
+#define EXPORT
 #endif
+#include <ExportWrapper.h>
 
 #include <ctime>
 
@@ -245,7 +241,7 @@ EXPORT	bool VerifyMint(const OTPseudonym & theOperator);
 	inline void SetAssetID(const OTIdentifier & newID) { m_AssetID = newID; }
 	
 	// Lucre step 1: generate new mint
-	void GenerateNewMint(int nSeries, time_t VALID_FROM, time_t VALID_TO,  time_t MINT_EXPIRATION, 
+EXPORT	void GenerateNewMint(int nSeries, time_t VALID_FROM, time_t VALID_TO,  time_t MINT_EXPIRATION, 
 						 const OTIdentifier & theAssetID, const OTIdentifier & theServerID, 
 						 OTPseudonym & theNotary, 
 						 long nDenom1=0, long nDenom2=0, long nDenom3=0, long nDenom4=0, long nDenom5=0,

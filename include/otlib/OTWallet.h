@@ -129,14 +129,10 @@
 #ifndef __OTWALLET_H__
 #define __OTWALLET_H__
 
-// DLL Export for Win32
-
-#undef EXPORT
-#ifdef _WINDLL
-  #define EXPORT __declspec(dllexport)
-#else
-  #define EXPORT
+#ifndef EXPORT
+#define EXPORT
 #endif
+#include <ExportWrapper.h>
 
 #ifdef _WIN32
 #include <WinsockWrapper.h>
@@ -182,9 +178,9 @@ EXPORT	OTWallet();
 	void Release_Wallet();
 	//------------------------------------------------------------	
     
-    bool IsNymOnMasterKey(const OTIdentifier & needle) const; // needle and haystack.
+EXPORT    bool IsNymOnMasterKey(const OTIdentifier & needle) const; // needle and haystack.
     
-    bool ConvertNymToMasterKey(OTPseudonym & theNym);
+EXPORT    bool ConvertNymToMasterKey(OTPseudonym & theNym);
 
 	//------------------------------------------------------------	
     

@@ -380,7 +380,7 @@ OPENSSL_CALLBACK_FUNC(default_pass_cb)
     const char * szFunc = "OPENSSL_CALLBACK_FUNC(default_pass_cb)";
     
 	int len = 0;
-    const uint32_t theSize = static_cast<const uint32_t>(size);
+    const uint32_t theSize = uint32_t(size);
 	// ------------------------------------
 	// We'd probably do something else if 'rwflag' is 1
 
@@ -415,7 +415,7 @@ OPENSSL_CALLBACK_FUNC(default_pass_cb)
 	const char *tmp_passwd = "test";
 //	const char *tmp_passwd = str_Password.c_str();
 
-	len = strlen(tmp_passwd);
+	len = static_cast<int> (strlen(tmp_passwd));
 //	len = str_Password.size();
 	
 	if (len <= 0)
@@ -704,7 +704,7 @@ OPENSSL_CALLBACK_FUNC(souped_up_pass_cb)
             // ---------------------------------------
             // The dialog should display this string (so the user knows what he is authorizing.)
             //
-            pCaller->SetDisplay(str_userdata.c_str(), str_userdata.size());
+            pCaller->SetDisplay(str_userdata.c_str(), static_cast<int> (str_userdata.size()));
             
             // ---------------------------------------
             if (1 == rwflag)
@@ -1972,7 +1972,7 @@ bool OTAsymmetricKey::LoadPublicKeyFromPGPKey(const OTASCIIArmor & strKey)
 	
 	BIO_get_mem_ptr(bio_out, &bptr);
 	
-	pgpKeys = ExportRsaKey((unsigned char*)bptr->data, bptr->length);
+	pgpKeys = ExportRsaKey((unsigned char*)bptr->data, static_cast<int> (bptr->length));
 	
 	if(!pgpKeys.pRsa)
 	{  

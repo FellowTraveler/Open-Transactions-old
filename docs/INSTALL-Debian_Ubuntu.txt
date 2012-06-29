@@ -44,6 +44,7 @@ $ sudo aptitude install libboost-dev libboost-thread-dev libzmq-dev libmsgpack-d
 
 
 #########    Optional API deps:   #########
+
 # install dev deps for SWIG JAVA
 $ sudo aptitude install openjdk-6-jdk openjdk-6-source
 

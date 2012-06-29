@@ -291,7 +291,7 @@ BasketItem * OTBasket::At(unsigned int nIndex)
 
 int OTBasket::Count() const
 {
-	return m_dequeItems.size();
+	return static_cast<int> (m_dequeItems.size());
 }
 
 

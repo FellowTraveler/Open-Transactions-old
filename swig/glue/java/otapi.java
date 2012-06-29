@@ -13,16 +13,20 @@ public class otapi implements otapiConstants {
     return otapiJNI.OT_API_Set_PasswordCallback(OTCaller.getCPtr(theCaller), theCaller);
   }
 
-  public static int OT_API_Init(String szClientPath) {
-    return otapiJNI.OT_API_Init(szClientPath);
+  public static int OT_API_Init() {
+    return otapiJNI.OT_API_Init();
   }
 
-  public static int OT_API_LoadWallet(String szWalletFilename) {
-    return otapiJNI.OT_API_LoadWallet(szWalletFilename);
+  public static int OT_API_SetWallet(String szWalletFilename) {
+    return otapiJNI.OT_API_SetWallet(szWalletFilename);
   }
 
-  public static int OT_API_SwitchWallet(String szDataFolderPath, String szWalletFilename) {
-    return otapiJNI.OT_API_SwitchWallet(szDataFolderPath, szWalletFilename);
+  public static int OT_API_LoadWallet() {
+    return otapiJNI.OT_API_LoadWallet();
+  }
+
+  public static int OT_API_SwitchWallet() {
+    return otapiJNI.OT_API_SwitchWallet();
   }
 
   public static void OT_API_Output(int nLogLevel, String szOutput) {
@@ -1021,32 +1025,8 @@ public class otapi implements otapiConstants {
     return otapiJNI.OT_API_ProcessSockets();
   }
 
-  public static boolean InitDefaultStorage(int eStoreType, int ePackType, String oneStr, String twoStr, String threeStr, String fourStr, String fiveStr, String sixStr) {
-    return otapiJNI.InitDefaultStorage__SWIG_0(eStoreType, ePackType, oneStr, twoStr, threeStr, fourStr, fiveStr, sixStr);
-  }
-
-  public static boolean InitDefaultStorage(int eStoreType, int ePackType, String oneStr, String twoStr, String threeStr, String fourStr, String fiveStr) {
-    return otapiJNI.InitDefaultStorage__SWIG_1(eStoreType, ePackType, oneStr, twoStr, threeStr, fourStr, fiveStr);
-  }
-
-  public static boolean InitDefaultStorage(int eStoreType, int ePackType, String oneStr, String twoStr, String threeStr, String fourStr) {
-    return otapiJNI.InitDefaultStorage__SWIG_2(eStoreType, ePackType, oneStr, twoStr, threeStr, fourStr);
-  }
-
-  public static boolean InitDefaultStorage(int eStoreType, int ePackType, String oneStr, String twoStr, String threeStr) {
-    return otapiJNI.InitDefaultStorage__SWIG_3(eStoreType, ePackType, oneStr, twoStr, threeStr);
-  }
-
-  public static boolean InitDefaultStorage(int eStoreType, int ePackType, String oneStr, String twoStr) {
-    return otapiJNI.InitDefaultStorage__SWIG_4(eStoreType, ePackType, oneStr, twoStr);
-  }
-
-  public static boolean InitDefaultStorage(int eStoreType, int ePackType, String oneStr) {
-    return otapiJNI.InitDefaultStorage__SWIG_5(eStoreType, ePackType, oneStr);
-  }
-
   public static boolean InitDefaultStorage(int eStoreType, int ePackType) {
-    return otapiJNI.InitDefaultStorage__SWIG_6(eStoreType, ePackType);
+    return otapiJNI.InitDefaultStorage(eStoreType, ePackType);
   }
 
   public static Storage GetDefaultStorage() {

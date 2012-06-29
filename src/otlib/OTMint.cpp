@@ -596,7 +596,11 @@ bool OTMint::AddDenomination(OTPseudonym & theNotary, long lDenomination, int nP
 		return false;
 	}
 	
-    SetMonitor(stderr);
+#ifdef _WIN32
+	SetMonitor("openssl.dump");
+#else
+	SetMonitor(stderr);
+#endif
 	
     BIO *bio		=	BIO_new(BIO_s_mem());
     BIO *bioPublic	=	BIO_new(BIO_s_mem());
@@ -674,7 +678,7 @@ void OTMint::UpdateContents()
 	OTString	SERVER_ID(m_ServerID), SERVER_NYM_ID(m_ServerNymID), 
 				ASSET_ID(m_AssetID), CASH_ACCOUNT_ID(m_CashAccountID);
 	
-	long lFrom = m_VALID_FROM, lTo = m_VALID_TO, lExpiration = m_EXPIRATION;
+	long lFrom = static_cast<long> (m_VALID_FROM), lTo = static_cast<long> (m_VALID_TO), lExpiration = static_cast<long> (m_EXPIRATION);
 	
 	// I release this because I'm about to repopulate it.
 	m_xmlUnsigned.Release();
@@ -781,16 +785,16 @@ int OTMint::ProcessXMLNode(IrrXMLReader*& xml)
 		if (strCashAcctID.Exists())
 			m_pReserveAcct = OTAccount::LoadExistingAccount(m_CashAccountID, m_ServerID);
 
-		int nValidFrom = m_VALID_FROM, nValidTo = m_VALID_TO;
+		long nValidFrom = static_cast<long> (m_VALID_FROM), nValidTo = static_cast<long> (m_VALID_TO), nExpiration = static_cast<long> (m_EXPIRATION);
 		
 		OTLog::vOutput(1,  
 				//	"\n===> Loading XML for mint into memory structures..."
 				"\n\nMint version: %s\n Server ID: %s\n Asset Type ID: %s\n Cash Acct ID: %s\n"
 				"%s loading Cash Account into memory for pointer: OTMint::m_pReserveAcct\n"
-				" Series: %d\n Expiration: %d\n Valid From: %d\n Valid To: %d\n", 
+				" Series: %d\n Expiration: %ld\n Valid From: %ld\n Valid To: %ld\n", 
 				m_strVersion.Get(), strServerID.Get(), strAssetID.Get(), strCashAcctID.Get(),
 				(m_pReserveAcct != NULL) ? "SUCCESS" : "FAILURE",
-				m_nSeries, m_EXPIRATION, nValidFrom, nValidTo);
+				m_nSeries, nExpiration, nValidFrom, nValidTo);
 		
 		nReturnVal = 1;
 	}
@@ -1028,8 +1032,8 @@ bool OTMint::SignToken(OTPseudonym & theNotary, OTToken & theToken, OTString & t
 
 	BIO_free_all(bioBank);		
     BIO_free_all(bioRequest);	
-    BIO_free_all(bioSignature);	
-	    
+    BIO_free_all(bioSignature);
+
 	return bReturnValue;
 }
 
@@ -1088,7 +1092,8 @@ bool OTMint::VerifyToken(OTPseudonym & theNotary, OTString & theCleartextToken, 
 	
 	// Cleanup openssl resources.
 	BIO_free_all(bioBank);	
-	BIO_free_all(bioCoin);	
+	BIO_free_all(bioCoin);
+
 	
 	return bReturnValue;
 }

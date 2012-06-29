@@ -139,6 +139,10 @@
 
 #include <string>
 
+#ifndef EXPORT
+#define EXPORT
+#endif
+#include <ExportWrapper.h>
 
 #include "OTAPI_funcdef.h"
 //#include "OTAPI.h"

@@ -589,7 +589,8 @@ char* myGetTimeOfDay(char* buffer, int bufferLength)
 
 OTAccount * OTAccount::LoadExistingAccount(const OTIdentifier & theAccountID, const OTIdentifier & theServerID)
 {
-	if (!OTLog::ConfirmOrCreateFolder(OTLog::AccountFolder()))
+	bool bFolderAlreadyExist;
+	if (!OTLog::ConfirmOrCreateFolder(OTLog::AccountFolder(),bFolderAlreadyExist))
 	{
 		OTLog::vError("Unable to find or create accounts folder: %s\n", OTLog::AccountFolder());
 		return NULL;

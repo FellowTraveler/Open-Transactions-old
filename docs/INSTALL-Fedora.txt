@@ -115,9 +115,7 @@ Enable Configuration for SWIG Python Support:
 --with-python
 ##########################################
 
-
 $ make uninstall (to cleanup anything in your .local folder)
-
 
 $ make
 
