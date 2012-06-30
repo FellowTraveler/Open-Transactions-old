@@ -1,9 +1,8 @@
-AC_INIT([opentxs], [0.82.h], [Fellow-Traveler], [opentxs], [https://github.com/FellowTraveler/Open-Transactions])
+AC_INIT([opentxs], m4_esyscmd([tr -d '\n' <VERSION]), [Fellow-Traveler], [opentxs], [https://github.com/FellowTraveler/Open-Transactions])
 AC_PREREQ(2.61)
 LT_PREREQ([2.2.4])
 AC_CONFIG_AUX_DIR(build-aux)
 AM_INIT_AUTOMAKE([1.10 foreign])
-AC_CONFIG_FILES([Makefile])
 
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
@@ -177,4 +176,5 @@ if (test "x$with_python" == "xyes"); then
 
 fi
 
+AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
