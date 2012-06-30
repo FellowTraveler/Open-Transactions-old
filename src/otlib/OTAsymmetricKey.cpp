@@ -236,7 +236,7 @@ OT_OPENSSL_CALLBACK * OTAsymmetricKey::GetPasswordCallback()
 #else
 	if (IsPasswordCallbackSet())
 	{
-		OTLog::vOutput(4, "%s: FYI, the internal 'C'-based password callback is now being returning to OT, "
+		OTLog::vOutput(5, "%s: FYI, the internal 'C'-based password callback is now being returning to OT, "
 					  "which is passing it to OpenSSL "
 					  "during a crypto operation. (If OpenSSL invokes it, then we should see other logs after this from when it triggers "
 					  "whatever password-collection dialog is provided at startup by the (probably Java) OTAPI client.)\n", szFunc);

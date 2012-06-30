@@ -577,35 +577,41 @@ std::string OT_CLI_ReadUntilEOF()
             if (input_line[0] == '~') // This is our special "break" character for multi-line input.
                 break;
             
-            result += input_line;
-            
-            if (std::cin.eof() )
-            {
-//              cout << "IT WAS EOF\n";
-                std::cin.clear();
-                break;
-            }
-            if (std::cin.fail() )
-            {
-//              cout << "IT WAS FAIL\n";
-                std::cin.clear();
-                break;
-            }
-            if (std::cin.bad())
-            {
-//              cout << "IT WAS BAD\n";
-                std::cin.clear();
-                break;
-            }		
+            result += input_line;            
         }
         else
+        {
             OTLog::Error("OT_CLI_ReadUntilEOF: getline() was unable to read a string from std::cin\n");
-        
-//        std::cin.clear();
-//        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-	}
+            break;
+        }
+        // ---------------------------------
+        if (std::cin.eof() )
+        {
+//          cout << "IT WAS EOF\n";
+            std::cin.clear();
+            break;
+        }
+        if (std::cin.fail() )
+        {
+//          cout << "IT WAS FAIL\n";
+            std::cin.clear();
+            break;
+        }
+        if (std::cin.bad())
+        {
+//          cout << "IT WAS BAD\n";
+            std::cin.clear();
+            break;
+        }		
+        // ---------------------------------
+//      std::cin.clear();
+//      std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+	} // while
 		
+    
 	return result;
+    
 }
 
 
