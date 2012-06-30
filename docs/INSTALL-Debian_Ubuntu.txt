@@ -99,7 +99,7 @@ $ export PKG_CONFIG_PATH=$HOME/.local/lib/pkgconfig:$PKG_CONFIG_PATH
 # fetch O-T and prepare your copy for build
 
 # 'stable' source tar ball method
-$ wget https://github.com/FellowTraveler/downloads/opentxs.*.tar.gz
+$ wget https://github.com/randy-waterhouse/opentxs/downloads/opentxs.*.tar.gz
 $ tar -zxvf opentxs.*.tar.gz
 $ cd opentxs.*.tar.gz
 $ mkdir build && cd build
@@ -161,7 +161,7 @@ $ make install
 
 ###########   Miscellaneous Notes:   ###########
 
-# Create a wallet data folder (will reset everything):
+# Create a wallet data folder (will reset all user data):
 
 $ mkdir -p ~/.ot && cp -R sample-data/ot-sample-data/* ~/.ot
 

@@ -534,14 +534,18 @@ dist_bin_SCRIPTS		=	scripts/opentxs
 
 #### OT script HEADERS
 
-dist_pkglib_SCRIPTS		=	scripts/ot/ot_commands.ot	\
+opentxslibdir			=	$(pkglibdir)
+
+dist_opentxslib_SCRIPTS		=	scripts/ot/ot_commands.ot	\
 					scripts/ot/otapi.ot		\
 					scripts/ot/ot_made_easy.ot	\
 					scripts/ot/ot_utility.ot
 
 #### OT docs, licences, info, etc.
 
-dist_doc_DATA			=	docs/GETTING-STARTED.txt	\
+opentxsdocdir			=	$(docdir)
+
+dist_opentxsdoc_DATA		=	docs/GETTING-STARTED.txt	\
 					docs/INSTALL-Android.txt	\
 					docs/INSTALL-Fedora.txt		\
 					docs/INSTALL-Debian_Ubuntu.txt	\
@@ -554,7 +558,7 @@ dist_doc_DATA			=	docs/GETTING-STARTED.txt	\
 					README.md 			\
 					VERSION
 
-nobase_dist_doc_DATA		=	sample-data/ot-sample-data-clean/ot_init.cfg				\
+nobase_dist_opentxsdoc_DATA	=	sample-data/ot-sample-data-clean/ot_init.cfg				\
 					sample-data/ot-sample-data-clean/client.cfg				\
 					sample-data/ot-sample-data-clean/CLIENT-COMMANDS.txt			\
 					sample-data/ot-sample-data-clean/command-line-ot.opt			\
