@@ -1894,7 +1894,7 @@ void OTMessage::UpdateContents()
     if (m_AcknowledgedReplies.Count() > 0)
     {
         OTString strAck;
-        if (m_AcknowledgedReplies.Output(strAck))
+        if (m_AcknowledgedReplies.Output(strAck) && strAck.Exists())
         {
             const OTASCIIArmor ascTemp(strAck);
             

@@ -874,6 +874,9 @@ if ((NULL != pstrServerID) && (str_ServerID != it->first)) \
 #endif // CLEAR_MAP_AND_DEQUE
 
 
+
+
+
 // Sometimes for testing I need to clear out all the transaction numbers from a nym.
 // So I added this method to make such a thing easy to do.
 //
@@ -882,7 +885,8 @@ void OTPseudonym::RemoveAllNumbers(const OTString * pstrServerID/*=NULL*/, const
 	const std::string str_ServerID((NULL != pstrServerID) ? pstrServerID->Get() : "");		
 
     // --------------------------
-    
+    // These use str_ServerID (above)
+    //
     CLEAR_MAP_AND_DEQUE(m_mapIssuedNum)
     CLEAR_MAP_AND_DEQUE(m_mapTransNum)
     CLEAR_MAP_AND_DEQUE(m_mapTentativeNum)
@@ -892,6 +896,8 @@ void OTPseudonym::RemoveAllNumbers(const OTString * pstrServerID/*=NULL*/, const
 	
     std::list<mapOfHighestNums::iterator> listOfHighestNums;
     std::list<mapOfIdentifiers::iterator> listOfNymboxHash;
+    std::list<mapOfIdentifiers::iterator> listOfInboxHash;
+    std::list<mapOfIdentifiers::iterator> listOfOutboxHash;
     std::list<mapOfIdentifiers::iterator> listOfRecentHash;
     
 	if (bRemoveHighestNum)
@@ -916,6 +922,24 @@ void OTPseudonym::RemoveAllNumbers(const OTString * pstrServerID/*=NULL*/, const
 //      m_mapNymboxHash.erase(it);
     }	
     // ----------------------------
+    // This is mapped to acct_id, not server_id.
+    // (So we just wipe them all.)
+    //
+    FOR_EACH(mapOfIdentifiers, m_mapInboxHash)
+    {
+        listOfInboxHash.push_back(it);
+//      m_mapInboxHash.erase(it);
+    }	
+    // ----------------------------
+    // This is mapped to acct_id, not server_id.
+    // (So we just wipe them all.)
+    //    
+    FOR_EACH(mapOfIdentifiers, m_mapOutboxHash)
+    {
+        listOfOutboxHash.push_back(it);
+//      m_mapOutboxHash.erase(it);
+    }	
+    // ----------------------------
     
     FOR_EACH(mapOfIdentifiers, m_mapRecentHash)
     {
@@ -938,13 +962,22 @@ void OTPseudonym::RemoveAllNumbers(const OTString * pstrServerID/*=NULL*/, const
         m_mapNymboxHash.erase(listOfNymboxHash.back());
         listOfNymboxHash.pop_back();
     }
+    while (listOfInboxHash.size() > 0)
+    {
+        m_mapInboxHash.erase(listOfInboxHash.back());
+        listOfInboxHash.pop_back();
+    }
+    while (listOfOutboxHash.size() > 0)
+    {
+        m_mapOutboxHash.erase(listOfOutboxHash.back());
+        listOfOutboxHash.pop_back();
+    }
     while (listOfRecentHash.size() > 0)
     {
         m_mapRecentHash.erase(listOfRecentHash.back());
         listOfRecentHash.pop_back();
     }
 }
-
 
 
 
@@ -1201,6 +1234,92 @@ void OTPseudonym::ReleaseTransactionNumbers()
 
 
 
+
+/*
+ ResyncWithServer:
+    // ----------------------------------------------------
+--	OTIdentifier        m_NymboxHash;       // (Server-side) Hash of the Nymbox
+    // ----------------------------------------------------    
+--    mapOfIdentifiers    m_mapNymboxHash;    // (Client-side) Hash of latest DOWNLOADED Nymbox (OTIdentifier) mapped by ServerID (std::string)
+--    mapOfIdentifiers    m_mapRecentHash;    // (Client-side) Hash of Nymbox according to Server, based on some recent reply. (May be newer...)
+    // ----------------------------------------------------
+--    mapOfIdentifiers    m_mapInboxHash;  
+--    mapOfIdentifiers    m_mapOutboxHash; 
+    // ----------------------------------------------------    
+--	dequeOfMail		m_dequeMail;	// Any mail messages received by this Nym. (And not yet deleted.)
+--	dequeOfMail		m_dequeOutmail;	// Any mail messages sent by this Nym. (And not yet deleted.)
+--	dequeOfMail		m_dequeOutpayments;	// Any outoing payments sent by this Nym. (And not yet deleted.) (payments screen.)
+    // -----------------------------------------------
+--	mapOfRequestNums m_mapRequestNum;	// Whenever this user makes a request to a transaction server
+ 
+**	mapOfTransNums	 m_mapTransNum;	// Each Transaction Request must be accompanied by a fresh transaction #,
+**	mapOfTransNums	 m_mapIssuedNum;	// If the server has issued me (1,2,3,4,5) and I have already used 1-3,
+**	mapOfTransNums	 m_mapTentativeNum; 
+ 
+**  mapOfHighestNums m_mapHighTransNo;  // Mapped, a single long to each server (just like request numbers are.)
+	// -----------------------------
+--    mapOfTransNums	m_mapAcknowledgedNum; // request numbers are stored here.
+	// -----------------------------
+    // (SERVER side)
+--    std::set<long> m_setOpenCronItems; // Until these Cron Items are closed out, the server-side Nym keeps a list of them handy.
+    // -----------------------------
+    // (SERVER side)
+    // Using strings here to avoid juggling memory crap.
+--    std::set<std::string> m_setAccounts; // A list of asset account IDs. Server side only (client side uses wallet; has multiple servers.)
+    // ------------------------------------------
+    // (SERVER side.)
+--	long	m_lUsageCredits;	// Server-side. The usage credits available for this Nym. Infinite if negative.
+ // -----------------------------
+ */
+
+
+/*
+ OTPseudonym::RemoveAllNumbers affects (**):  (-- means doesn't affect)
+ // ----------------------------------------------------
+--	OTIdentifier        m_NymboxHash;       // (Server-side) Hash of the Nymbox
+ // ----------------------------------------------------
+**    mapOfIdentifiers    m_mapNymboxHash;    // (Client-side) Hash of latest DOWNLOADED Nymbox (OTIdentifier) mapped by ServerID (std::string)
+**    mapOfIdentifiers    m_mapRecentHash;    // (Client-side) Hash of Nymbox according to Server, based on some recent reply. (May be newer...)
+ // ----------------------------------------------------
+**    mapOfIdentifiers    m_mapInboxHash; 
+**    mapOfIdentifiers    m_mapOutboxHash;   
+ // ----------------------------------------------------
+--	dequeOfMail		m_dequeMail;	// Any mail messages received by this Nym. (And not yet deleted.)
+--	dequeOfMail		m_dequeOutmail;	// Any mail messages sent by this Nym. (And not yet deleted.)
+--	dequeOfMail		m_dequeOutpayments;	// Any outoing payments sent by this Nym. (And not yet deleted.) (payments screen.)
+    // -----------------------------------------------
+--    mapOfRequestNums m_mapRequestNum;
+ 
+**	mapOfTransNums   m_mapTransNum;
+**	mapOfTransNums   m_mapIssuedNum;
+**	mapOfTransNums	 m_mapTentativeNum; 
+
+**    mapOfHighestNums m_mapHighTransNo;  // Mapped, a single long to each server (just like request numbers are.)
+ // ----------------------------- 
+**  mapOfTransNums	 m_mapAcknowledgedNum;  // request nums are stored.
+	// -----------------------------
+    // (SERVER side)
+--    std::set<long> m_setOpenCronItems; // Until these Cron Items are closed out, the server-side Nym keeps a list of them handy.
+ // ----------------------------------------------------
+    // (SERVER side)
+--    std::set<std::string> m_setAccounts; // A list of asset account IDs. Server side only (client side uses wallet; has multiple servers.)
+    // ------------------------------------------
+    // (SERVER side.)
+--	long	m_lUsageCredits;	// Server-side. The usage credits available for this Nym. Infinite if negative.
+ // ----------------------------------------------------
+ 
+ 
+ CLEAR_MAP_AND_DEQUE(m_mapIssuedNum)
+ CLEAR_MAP_AND_DEQUE(m_mapTransNum)
+ CLEAR_MAP_AND_DEQUE(m_mapTentativeNum)
+ CLEAR_MAP_AND_DEQUE(m_mapAcknowledgedNum)
+ 
+ m_mapHighTransNo.erase(listOfHighestNums.back());
+ m_mapNymboxHash.erase(listOfNymboxHash.back());
+ m_mapRecentHash.erase(listOfRecentHash.back());
+
+*/
+
 // -----------------------------------------------------
 //
 // ** ResyncWithServer **
@@ -1228,6 +1347,7 @@ bool OTPseudonym::ResyncWithServer(OTLedger & theNymbox, OTPseudonym & theMessag
 
 	// --------------------------------------
 	// Remove all issued, transaction, and tentative numbers for a specific server ID,
+    // as well as all acknowledgedNums, and the highest transaction number for that serverID,
 	// from *this nym. Leave our record of the highest trans num received from that server,
 	// since we will want to just keep it when re-syncing. (Server doesn't store that anyway.)
 	//
@@ -1327,6 +1447,7 @@ bool OTPseudonym::ResyncWithServer(OTLedger & theNymbox, OTPseudonym & theMessag
 	{
 		if ( strID == it_high_num->first )	// We found it!
 		{
+            // -------------------------
 			// See if any numbers on the set are higher, and if so, update the record to match.
 			//
 			FOR_EACH(std::set<long>, setTransNumbers)
@@ -1344,6 +1465,7 @@ bool OTPseudonym::ResyncWithServer(OTLedger & theNymbox, OTPseudonym & theMessag
 								   lTransNum, strNymID.Get(), strServerID.Get());	
 				}
 			}
+            // -------------------------
 			// We only needed to do this for the one server, so we can break now.
 			break;
 		}
@@ -3099,20 +3221,40 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
 		
 		OT_ASSERT(NULL != pDeque);
 		
+//		if (!(pDeque->empty()) && (strServerID.size() > 0) )
+//		{
+//			for (unsigned i = 0; i < pDeque->size(); i++)
+//			{
+//				lTransactionNumber = pDeque->at(i);
+//				
+//				strNym.Concatenate("<transactionNum\n"
+//								   " serverID=\"%s\"\n"
+//								   " transactionNum=\"%ld\""
+//								   "/>\n\n", 
+//								   strServerID.c_str(),
+//								   lTransactionNumber
+//								   );
+//			}
+//		}
+        
 		if (!(pDeque->empty()) && (strServerID.size() > 0) )
 		{
+            OTNumList theList;
+            
 			for (unsigned i = 0; i < pDeque->size(); i++)
 			{
 				lTransactionNumber = pDeque->at(i);
-				
-				strNym.Concatenate("<transactionNum\n"
-								   " serverID=\"%s\"\n"
-								   " transactionNum=\"%ld\""
-								   "/>\n\n", 
-								   strServerID.c_str(),
-								   lTransactionNumber
-								   );
+                theList.Add(lTransactionNumber);
 			}
+            OTString strTemp;
+            if (theList.Output(strTemp) && strTemp.Exists())
+            {
+                const OTASCIIArmor ascTemp(strTemp);
+                
+                if (ascTemp.Exists())
+                    strNym.Concatenate("<transactionNums serverID=\"%s\">\n%s</transactionNums>\n\n",
+                                       strServerID.c_str(), ascTemp.Get());
+            }
 		}
 	} // for
 	
@@ -3127,20 +3269,40 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
 		
 		OT_ASSERT(NULL != pDeque);
 		
-		if (!(pDeque->empty()) && (strServerID.size() > 0) )
+//		if (!(pDeque->empty()) && (strServerID.size() > 0) )
+//		{
+//			for (unsigned i = 0; i < pDeque->size(); i++)
+//			{
+//				lTransactionNumber = pDeque->at(i);
+//				
+//				strNym.Concatenate("<issuedNum\n"
+//								   " serverID=\"%s\"\n"
+//								   " transactionNum=\"%ld\""
+//								   "/>\n\n", 
+//								   strServerID.c_str(),
+//								   lTransactionNumber
+//								   );
+//			}
+//		}
+        
+        if (!(pDeque->empty()) && (strServerID.size() > 0) )
 		{
+            OTNumList theList;
+            
 			for (unsigned i = 0; i < pDeque->size(); i++)
 			{
 				lTransactionNumber = pDeque->at(i);
-				
-				strNym.Concatenate("<issuedNum\n"
-								   " serverID=\"%s\"\n"
-								   " transactionNum=\"%ld\""
-								   "/>\n\n", 
-								   strServerID.c_str(),
-								   lTransactionNumber
-								   );
+                theList.Add(lTransactionNumber);
 			}
+            OTString strTemp;
+            if (theList.Output(strTemp) && strTemp.Exists())
+            {
+                const OTASCIIArmor ascTemp(strTemp);
+                
+                if (ascTemp.Exists())
+                    strNym.Concatenate("<issuedNums serverID=\"%s\">\n%s</issuedNums>\n\n",
+                                       strServerID.c_str(), ascTemp.Get());
+            }
 		}
 	} // for
 	
@@ -3155,21 +3317,42 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
 		
 		OT_ASSERT(NULL != pDeque);
 		
-		if (!(pDeque->empty()) && (strServerID.size() > 0) )
+//		if (!(pDeque->empty()) && (strServerID.size() > 0) )
+//		{
+//			for (unsigned i = 0; i < pDeque->size(); i++)
+//			{
+//				lTransactionNumber = pDeque->at(i);
+//				
+//				strNym.Concatenate("<tentativeNum\n"
+//								   " serverID=\"%s\"\n"
+//								   " transactionNum=\"%ld\""
+//								   "/>\n\n", 
+//								   strServerID.c_str(),
+//								   lTransactionNumber
+//								   );
+//			}
+//		}
+        
+        if (!(pDeque->empty()) && (strServerID.size() > 0) )
 		{
+            OTNumList theList;
+            
 			for (unsigned i = 0; i < pDeque->size(); i++)
 			{
 				lTransactionNumber = pDeque->at(i);
-				
-				strNym.Concatenate("<tentativeNum\n"
-								   " serverID=\"%s\"\n"
-								   " transactionNum=\"%ld\""
-								   "/>\n\n", 
-								   strServerID.c_str(),
-								   lTransactionNumber
-								   );
+                theList.Add(lTransactionNumber);
 			}
+            OTString strTemp;
+            if (theList.Output(strTemp) && strTemp.Exists())
+            {
+                const OTASCIIArmor ascTemp(strTemp);
+                
+                if (ascTemp.Exists())
+                    strNym.Concatenate("<tentativeNums serverID=\"%s\">\n%s</tentativeNums>\n\n",
+                                       strServerID.c_str(), ascTemp.Get());
+            }
 		}
+
 	} // for
 	
 	// -------------------------------------
@@ -3187,21 +3370,42 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
 		
 		OT_ASSERT(NULL != pDeque);
 		
-		if (!(pDeque->empty()) && (strServerID.size() > 0) )
+//		if (!(pDeque->empty()) && (strServerID.size() > 0) )
+//		{
+//			for (unsigned i = 0; i < pDeque->size(); i++)
+//			{
+//				const long lRequestNumber = pDeque->at(i);
+//				
+//				strNym.Concatenate("<acknowledgedNum\n"
+//								   " serverID=\"%s\"\n"
+//								   " requestNum=\"%ld\""
+//								   "/>\n\n", 
+//								   strServerID.c_str(),
+//								   lRequestNumber
+//								   );
+//			}
+//		}
+        
+        if (!(pDeque->empty()) && (strServerID.size() > 0) )
 		{
+            OTNumList theList;
+            
 			for (unsigned i = 0; i < pDeque->size(); i++)
 			{
-				const long lRequestNumber = pDeque->at(i);
-				
-				strNym.Concatenate("<acknowledgedNum\n"
-								   " serverID=\"%s\"\n"
-								   " requestNum=\"%ld\""
-								   "/>\n\n", 
-								   strServerID.c_str(),
-								   lRequestNumber
-								   );
+                const long lRequestNumber = pDeque->at(i);
+                theList.Add(lRequestNumber);
 			}
+            OTString strTemp;
+            if (theList.Output(strTemp) && strTemp.Exists())
+            {
+                const OTASCIIArmor ascTemp(strTemp);
+                
+                if (ascTemp.Exists())
+                    strNym.Concatenate("<ackNums serverID=\"%s\">\n%s</ackNums>\n\n",
+                                       strServerID.c_str(), ascTemp.Get());
+            }
 		}
+
 	} // for
 	
 	// -------------------------------------
@@ -3441,7 +3645,8 @@ bool OTPseudonym::LoadFromString(const OTString & strNym)
 	OTStringXML strNymXML(strNym);
 	IrrXMLReader* xml = createIrrXMLReader(&strNymXML);
 	OT_ASSERT(NULL != xml);
-	
+	OTCleanup<IrrXMLReader> theCleanup(*xml);
+    
 	// parse the file until end reached
 	while(xml && xml->read())
 	{
@@ -3583,6 +3788,119 @@ bool OTPseudonym::LoadFromString(const OTString & strNym)
 					// internal map so that it is available for future lookups.
 					m_mapHighTransNo[HighNumServerID.Get()] = atol(HighNumRecent.Get());
 				}
+                // ----------------------------------------------
+                
+                else if (strNodeName.Compare("transactionNums"))
+                {	
+                    const OTString tempServerID	= xml->getAttributeValue("serverID");				
+                    OTString strTemp;
+                    if (!tempServerID.Exists() || !OTContract::LoadEncodedTextField(xml, strTemp))
+                    {
+                        OTLog::Error("OTPseudonym::LoadFromString: Error: transactionNums field without value.\n");
+                        return false; // error condition
+                    }
+                    OTNumList theNumList;
+                    
+                    if (strTemp.Exists())
+                        theNumList.Add(strTemp);
+                    
+                    long lTemp=0;
+                    while(theNumList.Peek(lTemp))
+                    {
+                        theNumList.Pop();
+                        // ------------
+                        OTLog::vOutput(3, "Transaction Number %ld ready-to-use for ServerID: %s\n",
+                                       lTemp, tempServerID.Get());
+                        AddTransactionNum(tempServerID, lTemp); // This version doesn't save to disk. (Why save to disk AS WE'RE LOADING?)
+                    }
+                }
+                
+                // ----------------------------------------------
+                
+                else if (strNodeName.Compare("issuedNums"))
+                {	
+                    const OTString tempServerID	= xml->getAttributeValue("serverID");				
+                    OTString strTemp;
+                    if (!tempServerID.Exists() || !OTContract::LoadEncodedTextField(xml, strTemp))
+                    {
+                        OTLog::Error("OTPseudonym::LoadFromString: Error: issuedNums field without value.\n");
+                        return false; // error condition
+                    }
+                    OTNumList theNumList;
+                    
+                    if (strTemp.Exists())
+                        theNumList.Add(strTemp);
+                    
+                    long lTemp=0;
+                    while(theNumList.Peek(lTemp))
+                    {
+                        theNumList.Pop();
+                        // ------------
+                        OTLog::vOutput(3, "Currently liable for issued trans# %ld at ServerID: %s\n",
+                                       lTemp, tempServerID.Get());
+                        AddIssuedNum(tempServerID, lTemp); // This version doesn't save to disk. (Why save to disk AS WE'RE LOADING?)
+                    }
+                }
+                
+                // ----------------------------------------------
+                
+                else if (strNodeName.Compare("tentativeNums"))
+                {	
+                    const OTString tempServerID	= xml->getAttributeValue("serverID");				
+                    OTString strTemp;
+                    if (!tempServerID.Exists() || !OTContract::LoadEncodedTextField(xml, strTemp))
+                    {
+                        OTLog::Error("OTPseudonym::LoadFromString: Error: tentativeNums field without value.\n");
+                        return false; // error condition
+                    }
+                    OTNumList theNumList;
+                    
+                    if (strTemp.Exists())
+                        theNumList.Add(strTemp);
+                    
+                    long lTemp=0;
+                    while(theNumList.Peek(lTemp))
+                    {
+                        theNumList.Pop();
+                        // ------------
+                        OTLog::vOutput(3, "Tentative: Currently awaiting success notice, "
+                                       "for accepting trans# %ld for ServerID: %s\n",
+                                       lTemp, tempServerID.Get());
+                        AddTentativeNum(tempServerID, lTemp); // This version doesn't save to disk. (Why save to disk AS WE'RE LOADING?)
+                    }
+                }
+                
+                // ----------------------------------------------
+                
+                else if (strNodeName.Compare("ackNums"))
+                {	
+                    const OTString tempServerID	= xml->getAttributeValue("serverID");				
+                    OTString strTemp;
+                    if (!tempServerID.Exists() || !OTContract::LoadEncodedTextField(xml, strTemp))
+                    {
+                        OTLog::Error("OTPseudonym::LoadFromString: Error: ackNums field without value.\n");
+                        return false; // error condition
+                    }
+                    OTNumList theNumList;
+                    
+                    if (strTemp.Exists())
+                        theNumList.Add(strTemp);
+                    
+                    long lTemp=0;
+                    while(theNumList.Peek(lTemp))
+                    {
+                        theNumList.Pop();
+                        // ------------
+                        OTLog::vOutput(3, "Acknowledgment record exists for server reply, for Request Number %ld for ServerID: %s\n",
+                                       lTemp, tempServerID.Get());
+                        AddAcknowledgedNum(tempServerID, lTemp); // This version doesn't save to disk. (Why save to disk AS WE'RE LOADING?)
+                    }
+                }
+                
+                // ----------------------------------------------
+                
+                // THE BELOW FOUR ARE DEPRECATED, AND ARE REPLACED BY THE ABOVE FOUR.
+                
 				else if (!!strNodeName.Compare("transactionNum"))
 				{
 					const OTString TransNumServerID	= xml->getAttributeValue("serverID");				
@@ -3623,12 +3941,12 @@ bool OTPseudonym::LoadFromString(const OTString & strNym)
 					
 					AddAcknowledgedNum(AckNumServerID, atol(AckNumValue.Get())); // This version doesn't save to disk. (Why save to disk AS WE'RE LOADING?)
 				}                
+                // -------------------------------------
                 else if (strNodeName.Compare("MARKED_FOR_DELETION"))
 				{
 					m_bMarkForDeletion = true;  
                     OTLog::vOutput(3, "This nym has been MARKED_FOR_DELETION (at some point prior.)\n");
 				}
-
                 // -------------------------------------
                 
 				else if (!!strNodeName.Compare("hasOpenCronItem"))
@@ -3811,14 +4129,7 @@ bool OTPseudonym::LoadFromString(const OTString & strNym)
 			}
 		} // switch
 	} // while
-		
-	
-	if (NULL != xml)
-	{
-		delete xml;
-		xml = NULL;
-	}
-	
+
 	return bSuccess;
 }
 

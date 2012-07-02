@@ -253,12 +253,14 @@ private:
 	// reason I added this member was so the server could drop notices into my Nymbox about these new transaction numbers
 	// (for cases where the actual network message was lost, the server reply, I realized a good backup plan is to have the
 	// server always drop notices into your nymbox as well, so you won't get out of sync, since the notice is there even if
-	// the network fails before you get the server's reply. I think this is also a GREAT backup plan for withdrawing CASH
+	// the network fails before you get the server's reply.) I think this is also a GREAT backup plan for withdrawing CASH.
+    //
 	mapOfTransNums	m_mapTentativeNum; 
 	
 	// We store the highest transaction number accepted for any given server, and we refuse, in the future, to accept anything lower.
 	// This prevents a sneaky server from sending you an old number, getting you to sign it out again, then then using that to run 
 	// through an old instrument (such as a cheque) that still has your old (valid) signature on it.
+    //
     mapOfHighestNums m_mapHighTransNo;  // Mapped, a single long to each server (just like request numbers are.)
 	// -----------------------------
     
