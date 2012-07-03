@@ -151,32 +151,7 @@ def resync_nym()
 			{
             //	5. Use getNymbox() to download the latest version of your Nymbox from the server:
             //		OT_API_getNymbox(std::string SERVER_ID, std::string USER_ID);
-            //			
-                var nGetNymbox = MsgUtil.getNymbox(temp_Server, temp_MyNym, true) //bForceDownload=true
-                
-                if (!VerifyIntVal(nGetNymbox))
-				{
-                    OT_API_Output(0, "\n Resync failure: MsgUtil.getNymbox returned a bad value.\n\n(Finished.)\n\n")
-                    return false
-                }
-                if (nGetNymbox < 1)
-                {
-                    OT_API_Output(0, "\n Resync failure: MsgUtil.getNymbox returned: " + nGetNymbox.to_string() + "\n\n(Finished.)\n\n")
-                    return false
-                }
-                
-                // By this point, we know for sure that the request number is in sync 
-                // AND we also know that have the most recent Nymbox. So let's grab the
-                // box receipts next...
-                // ---------------------------------------------------
-				var nTheBoxType = 0	// nTheBoxType = 0 aka nymbox
-                
-				if (!MsgUtil.insureHaveAllBoxReceipts(temp_Server, temp_MyNym, temp_MyNym, nTheBoxType))
-				{
-					OT_API_Output(0, "\n Resync: Utility.insureHaveAllBoxReceipts failed. (I give up.)\n\n")
-                    return false
-				}
-                
+            //			                
                 
 // ---------------------------------------------
 //	6. ...NOW call ResyncNymWithServer().
@@ -186,38 +161,79 @@ def resync_nym()
 				if (!VerifyBoolVal(bResyncNymWithServer))
 				{
 					OT_API_Output(0, "\n Resync: I don't know why this happened, but basically, your little 'Re-sync' effort utterly failed, with a bad bool val.\n\n(Finished.)\n\n")
+                    
+                    return false
 				}
 				else if (!bResyncNymWithServer)
-				{
-					OT_API_Output(0, "\n Resync: I don't know why this happened, but basically, your little 'Re-sync' effort utterly failed, returning false.\n\n(Finished.)\n\n")
-				}
-				else
-				{                
-// ------------------------------------------------------------
-//	7. Finally, call: OT_API_processNymbox(std::string SERVER_ID, std::string USER_ID)
-//		As before, flush/call/sleep/pop and check for success.
-//
+                {
+                    var nGetNymbox = MsgUtil.getNymbox(temp_Server, temp_MyNym, true) //bForceDownload=true
                     
-                    var bWasMsgSent = OTBool(false)
-
-                    var bForceDownload = true
-                    
-                    var nGetAndProcessNymbox = MsgUtil.getAndProcessNymbox_4(temp_Server, temp_MyNym, bWasMsgSent, bForceDownload)
-                    
-                    if (!VerifyIntVal(nGetAndProcessNymbox))
+                    if (!VerifyIntVal(nGetNymbox))
                     {
-                        OT_API_Output(0, "\n Resync: Your little 'Re-sync' effort utterly failed in 'getAndProcessNymbox' with a bad int val.\n\n(Finished.)\n\n")
+                        OT_API_Output(0, "\n Resync failure: MsgUtil.getNymbox returned a bad value.\n\n(Finished.)\n\n")
+                        return false
                     }
-                    else if ( ((1 != nGetAndProcessNymbox) && (true == bWasMsgSent.getBooleanValue())) || ( (0 != nGetAndProcessNymbox) && (false == bWasMsgSent.getBooleanValue())))
-					{                        
-						OT_API_Output(0, "\n Failure on getAndProcessNymbox. Perhaps the server is locked? Perhaps our attempt to re-synchronize has utterly failed?\n\n bWasMsgSent: " + bWasMsgSent.getBooleanValue().to_string() + ", nGetAndProcessNymbox: " + nGetAndProcessNymbox.to_string() + "\n\n(Finished.)\n\n")
-					}
-					else if ( ((1 == nGetAndProcessNymbox) && (true == bWasMsgSent.getBooleanValue())) || ((0 == nGetAndProcessNymbox) && (false == bWasMsgSent.getBooleanValue())))	// SUCCESS!!!
-					{
-						bSuccess = true
-					} // processNymbox was a success.
-                     
-				} // getNymbox was a success, AND the Resync call itself was a success!
+                    if (nGetNymbox < 1)
+                    {
+                        OT_API_Output(0, "\n Resync failure: MsgUtil.getNymbox returned: " + nGetNymbox.to_string() + "\n\n(Finished.)\n\n")
+                        return false
+                    }
+                    
+                    // By this point, we know for sure that the request number is in sync 
+                    // AND we also know that have the most recent Nymbox. So let's grab the
+                    // box receipts next...
+                    // ---------------------------------------------------
+                    var nTheBoxType = 0	// nTheBoxType = 0 aka nymbox
+                    
+                    if (!MsgUtil.insureHaveAllBoxReceipts(temp_Server, temp_MyNym, temp_MyNym, nTheBoxType))
+                    {
+                        OT_API_Output(0, "\n Resync: Utility.insureHaveAllBoxReceipts failed. (I give up.)\n\n")
+                        return false
+                    }
+                    // ---------------------------------------------
+                    //	6. ...NOW call ResyncNymWithServer(). (REPEAT...)
+                    //  
+                    var bResyncNymWithServer = OT_API_ResyncNymWithServer(temp_Server, temp_MyNym, strCreateUserReply)
+                    
+                    if (!VerifyBoolVal(bResyncNymWithServer))
+                    {
+                        OT_API_Output(0, "\n Resync: I don't know why this happened, but basically, your little 'Re-sync' effort utterly failed, with a bad bool val.\n\n(Finished.)\n\n")
+                        
+                        return false
+                    }
+                    else if (!bResyncNymWithServer)
+                    {
+                        OT_API_Output(0, "\n Resync: I don't know why this happened, but basically, your little 'Re-sync' effort utterly failed, returning false.\n\n(Finished.)\n\n")
+                        
+                        return false
+                    }
+                }
+                
+                // ------------------------------------------------------------
+                //	7. Finally, call: OT_API_processNymbox(std::string SERVER_ID, std::string USER_ID)
+                //		As before, flush/call/sleep/pop and check for success.
+                //
+                
+                var bWasMsgSent = OTBool(false)
+
+                var bForceDownload = true
+                
+                var nGetAndProcessNymbox = MsgUtil.getAndProcessNymbox_4(temp_Server, temp_MyNym, bWasMsgSent, bForceDownload)
+                
+                if (!VerifyIntVal(nGetAndProcessNymbox))
+                {
+                    OT_API_Output(0, "\n Resync: Your little 'Re-sync' effort utterly failed in 'getAndProcessNymbox' with a bad int val.\n\n(Finished.)\n\n")
+                }
+                else if ( ((1 != nGetAndProcessNymbox) && (true == bWasMsgSent.getBooleanValue())) || ( (0 != nGetAndProcessNymbox) && (false == bWasMsgSent.getBooleanValue())))
+                {                        
+                    OT_API_Output(0, "\n Failure on getAndProcessNymbox. Perhaps the server is locked? Perhaps our attempt to re-synchronize has utterly failed?\n\n bWasMsgSent: " + bWasMsgSent.getBooleanValue().to_string() + ", nGetAndProcessNymbox: " + nGetAndProcessNymbox.to_string() + "\n\n(Finished.)\n\n")
+                }
+                else if ( ((1 == nGetAndProcessNymbox) && (true == bWasMsgSent.getBooleanValue())) || ((0 == nGetAndProcessNymbox) && (false == bWasMsgSent.getBooleanValue())))	// SUCCESS!!!
+                {
+                    bSuccess = true
+                } // processNymbox was a success.
+                 
+            // getNymbox was a success, AND the Resync call itself was a success!
                 // ELSE ^^^^^^
 				// ----------------------------------------------------------
 			} // (request number is in sync.)
