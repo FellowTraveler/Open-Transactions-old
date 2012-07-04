@@ -3,19 +3,21 @@
 # If you don't specify --mynym ID or --myacct ID, then
 # it comes from here instead.
 
-defaultserver : tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1 
-
-defaultmynym : T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV
 
 
+# These are ID's for localhost server supplied with packaged
+# user data to get started. You WILL want to replace these.
+defaultserver : tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1
+defaultmynym  : T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV
 
 
-#TODO: replace these IDs with the new ones
+# USER INPUT : populate these IDs with the new ones
+# Your ID's
+#defaultmypurse :
+#defaultmyacct  :
 
-#defaultmypurse : CvHGtfOOKzQKL5hFL7J4iF5yAodVKhS1rxPzME5R9XA 
-#defaultmyacct : eMldMMiKfJRO8B8yJjzcezs9xvSt7dkdlWt50e8CDxn 
-
-defaulthisnym : SP8rPHc6GMRPL517UL5J8RK2yOiToyVqMaj3PUHvLzM 
-#defaulthispurse : SjSYAUzN1RLjGre0kqDJynFos1MRYzrxOOenHY0Lpjd 
-#defaulthisacct : 3Rk5FkMAMdELCiPJNJuGRde4CURgeY2LzXBtRfVxaXM
+# Your trading partners ID's
+#defaulthisnym :
+#defaulthispurse :
+#defaulthisacct  :
 
