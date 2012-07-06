@@ -342,8 +342,7 @@ libot_la_SOURCES	=	$(otlib_sources) $(otlib_headers)	\
 libot_la_CPPFLAGS	=	$(AM_CPPFLAGS)
 
 libot_la_LIBADD		=	$(DEPS_LIBS)				\
-				$(BOOST_LDFLAGS)			\
-				$(BOOST_THREAD_LIB)			\
+				$(BOOST_LDFLAGS) $(BOOST_THREAD_LIB)	\
 				libbigint.la libirrxml.la liblucre.la
 
 libot_la_DEPENDENCIES	=	libbigint.la libirrxml.la liblucre.la
@@ -381,15 +380,18 @@ bin_PROGRAMS		=	ot					\
 
 ot_SOURCES		=	$(ot_sources) $(otapi_headers)
 ot_CPPFLAGS		=	-I$(otapi_headers_dir) $(AM_CPPFLAGS) -fpic
-ot_LDADD		=	libotapi.la libot.la
+ot_LDADD		=	libotapi.la libot.la			\
+				$(BOOST_LDFLAGS) $(BOOST_THREAD_LIB)
 ot_DEPENDENCIES		=	libotapi.la libot.la
+
 
 
 ####	OT Server
 
 otserver_SOURCES	=	$(otserver_sources) $(otserver_headers)
 otserver_CPPFLAGS	=	-I$(otserver_headers_dir) $(AM_CPPFLAGS)
-otserver_LDADD		=	libot.la
+otserver_LDADD		=	libot.la				\
+				$(BOOST_LDFLAGS) $(BOOST_THREAD_LIB)
 otserver_DEPENDENCIES	=	libot.la
 
 
@@ -399,7 +401,8 @@ createmint_SOURCES	=	$(otserver_sources)			\
 				$(otserver_headers)
 
 createmint_CPPFLAGS	=	-I$(otserver_headers_dir) $(AM_CPPFLAGS)
-createmint_LDADD	=	libot.la
+createmint_LDADD	=	libot.la				\
+				$(BOOST_LDFLAGS) $(BOOST_THREAD_LIB)
 createmint_DEPENDENCIES =	libot.la
 
 
