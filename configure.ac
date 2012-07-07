@@ -52,7 +52,7 @@ AM_CONDITIONAL(	[TRANSPORT_TESTCLIENT], [test "$with_transport" == testclient])
 
 AS_IF(	[test "$with_transport" == zmq],
 	[
-	PKG_CHECK_MODULES([ZMQ],[libzmq >= 2.1.11])
+	PKG_CHECK_MODULES([ZMQ],[libzmq >= 2.1.9])
 	AC_LANG_PUSH([C++])
 		AC_CHECK_HEADERS([zmq.hpp],[],
 			[AC_MSG_ERROR([Header files for libzmq not found or incompatible.])],
