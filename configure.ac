@@ -25,17 +25,15 @@ AX_BOOST_THREAD
 
 ## Transport ##
 
-AC_ARG_WITH(
-	[transport],
-        [AS_HELP_STRING([--with-transport@<:@=zmq@:>@],
-	[Choose a transport backend (available: zmq, testclient)])],
-	[# using 'case' with empty bodies just to catch invalid values for now.
-             case "${withval}" in
-		zmq) true ;;
-		testclient) true ;;
-		*) AC_MSG_ERROR([bad value ${withval} for --with-transport]) ;;
+AC_ARG_WITH(	[transport],
+		[AS_HELP_STRING([--with-transport@<:@=zmq@:>@],
+		[Choose a transport backend (available: zmq, testclient)])],
+		[case "${withval}" in
+			zmq) true ;;
+			testclient) true ;;
+			*) AC_MSG_ERROR([bad value ${withval} for --with-transport]) ;;
 		esac],
-	[with_transport=zmq])
+		[with_transport=zmq])
 
 AM_CONDITIONAL([TRANSPORT_ZMQ], [test "$with_transport" == zmq])
 AM_CONDITIONAL([TRANSPORT_TESTCLIENT], [test "$with_transport" == testclient])
@@ -43,7 +41,13 @@ AM_CONDITIONAL([TRANSPORT_TESTCLIENT], [test "$with_transport" == testclient])
 AS_IF(	[test "$with_transport" == zmq],
 	[PKG_CHECK_MODULES(
 		[DEPS],
-		[protobuf >= 2.4.1 openssl >= 1.0.0 chaiscript >= 3.1.0 libzmq])])
+		[protobuf >= 2.4.1 openssl >= 1.0.0 chaiscript >= 3.1.0 libzmq])]
+	[AC_LANG_PUSH([C++])
+	AC_CHECK_HEADERS([zmq.hpp],[],
+		[AC_MSG_ERROR([Header files for libzmq not found or incompatible.])]
+		)
+	AC_LANG_POP]
+	)
 
 
 ##### MsgPack #####
@@ -67,7 +71,7 @@ AC_ARG_ENABLE(
 			yes)	sighandler=true ;;
 			no)	sighandler=false ;;
 			*)	AC_MSG_ERROR([bad value ${enableval} for --disable-sighandler]) ;;
-			esac],
+		esac],
 		[sighandler=false])
 
 
