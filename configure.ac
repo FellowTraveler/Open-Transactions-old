@@ -7,6 +7,7 @@ AM_INIT_AUTOMAKE([1.10 foreign])
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
 LT_INIT([dlopen])
+
 AC_CONFIG_MACRO_DIR([build-aux/m4])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_SRCDIR([src/ot/main.cpp])
@@ -19,11 +20,13 @@ AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_CXX
 
+## boost_thread lib check, return flags ##
+
 AX_BOOST_BASE([1.25.0])
 AX_BOOST_THREAD
 
 
-## Transport ##
+## Transport Options (ZMQ defaut) and other pkg deps. ##
 
 AC_ARG_WITH(	[transport],
 		[AS_HELP_STRING([--with-transport@<:@=zmq@:>@],
@@ -35,20 +38,22 @@ AC_ARG_WITH(	[transport],
 		esac],
 		[with_transport=zmq])
 
-AM_CONDITIONAL([TRANSPORT_ZMQ], [test "$with_transport" == zmq])
-AM_CONDITIONAL([TRANSPORT_TESTCLIENT], [test "$with_transport" == testclient])
+AM_CONDITIONAL(	[TRANSPORT_ZMQ], [test "$with_transport" == zmq])
+AM_CONDITIONAL(	[TRANSPORT_TESTCLIENT], [test "$with_transport" == testclient])
 
 AS_IF(	[test "$with_transport" == zmq],
 	[PKG_CHECK_MODULES(
 		[DEPS],
 		[protobuf >= 2.4.1 openssl >= 1.0.0 chaiscript >= 3.1.0 libzmq])]
 	[AC_LANG_PUSH([C++])
-	AC_CHECK_HEADERS([zmq.hpp],[],
-		[AC_MSG_ERROR([Header files for libzmq not found or incompatible.])]
-		)
+		AC_CHECK_HEADERS([zmq.hpp],[],
+			[AC_MSG_ERROR([Header files for libzmq not found or incompatible.])],
+			[])
 	AC_LANG_POP]
 	)
 
+AC_SUBST([DEPS_LIBS])
+AC_SUBST([DEPS_CFLAGS])
 
 ##### MsgPack #####
 
