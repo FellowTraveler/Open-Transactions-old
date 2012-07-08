@@ -414,7 +414,7 @@ createmint_DEPENDENCIES =	libot.la
 ####################################
 
 
-####	ZMQ
+#### Transport ZMQ
 
 if TRANSPORT_ZMQ
 
@@ -426,6 +426,36 @@ otserver_SOURCES		+=	src/otserver/xmlrpcxx_server.cpp
 
 createmint_CPPFLAGS		+=	-DOT_ZMQ_MODE
 
+endif
+
+#### KEYRING
+
+if KEYRING_WINDOWS
+libotapi_la_CPPFLAGS		+=	-DOT_KEYRING_WINDOWS
+ot_CPPFLAGS			+=	-DOT_KEYRING_WINDOWS
+otserver_CPPFLAGS		+=	-DOT_KEYRING_WINDOWS
+createmint_CPPFLAGS		+=	-DOT_KEYRING_WINDOWS
+endif
+
+if KEYRING_MAC
+libotapi_la_CPPFLAGS		+=	-DOT_KEYRING_MAC
+ot_CPPFLAGS			+=	-DOT_KEYRING_MAC
+otserver_CPPFLAGS		+=	-DOT_KEYRING_MAC
+createmint_CPPFLAGS		+=	-DOT_KEYRING_MAC
+endif
+
+if KEYRING_GNOME
+libotapi_la_CPPFLAGS		+=	-DOT_KEYRING_GNOME
+ot_CPPFLAGS			+=	-DOT_KEYRING_GNOME
+otserver_CPPFLAGS		+=	-DOT_KEYRING_GNOME
+createmint_CPPFLAGS		+=	-DOT_KEYRING_GNOME
+endif
+
+if KEYRING_KWALLET
+libotapi_la_CPPFLAGS		+=	-DOT_KEYRING_KWALLET
+ot_CPPFLAGS			+=	-DOT_KEYRING_KWALLET
+otserver_CPPFLAGS		+=	-DOT_KEYRING_KWALLET
+createmint_CPPFLAGS		+=	-DOT_KEYRING_KWALLET
 endif
 
 #### OT API JAVA

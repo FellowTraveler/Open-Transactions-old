@@ -160,7 +160,6 @@ AM_CONDITIONAL([WANT_PERL5], [test "x$with_perl5" == "xyes"])
 if (test "x$with_perl5" == "xyes"); then
 
 	AX_PERL_EXT
-
 fi
 
 ## (Option) Add SWIG PHP ##
@@ -175,7 +174,6 @@ AM_CONDITIONAL([WANT_PHP], [test "x$with_php" == "xyes"])
 if (test "x$with_php" == "xyes"); then
 
 	AX_PHP_DEVEL
-
 fi
 
 ## (Option) Add SWIG PYTHON ##
@@ -190,8 +188,62 @@ AM_CONDITIONAL([WANT_PYTHON], [test "x$with_python" == "xyes"])
 if (test "x$with_python" == "xyes"); then
 
 	AX_PYTHON_DEVEL
-
 fi
+
+## Keyring Options ##
+
+AC_ARG_WITH(	[keyring],
+		[AS_HELP_STRING([--with-keyring@<:@=gnome@:>@],
+		[Choose a keyring integrator (available: windows, mac, gnome, kwallet)])],
+		[case "${withval}" in
+			windows) true ;;
+			mac) true ;;
+			gnome) true ;;
+			kwallet) true ;;
+			*) AC_MSG_ERROR([bad value ${withval} for --with-keyring]) ;;
+			esac],
+		[with_keyring=""])
+
+AM_CONDITIONAL([KEYRING_WINDOWS],	[test "$with_keyring" == windows])
+AM_CONDITIONAL([KEYRING_MAC],		[test "$with_keyring" == mac])
+AM_CONDITIONAL([KEYRING_GNOME],		[test "$with_keyring" == gnome])
+AM_CONDITIONAL([KEYRING_KWALLET],	[test "$with_keyring" == kwallet])
+
+#AS_IF(	[test "$with_transport" == windows],
+#	[
+#	AC_SUBST(DEPS_CFLAGS,["$DEPS_CFLAGS $WINDOWS_CFLAGS"])
+#	AC_SUBST(DEPS_LIBS,["$DEPS_LIBS $WINDOWS_LIBS"])
+#	])
+#
+#AC_SUBST(DEPS_CFLAGS)
+#AC_SUBST(DEPS_LIBS)
+
+#AS_IF(	[test "$with_transport" == mac],
+#	[
+#	AC_SUBST(DEPS_CFLAGS,["$DEPS_CFLAGS $MAC_CFLAGS"])
+#	AC_SUBST(DEPS_LIBS,["$DEPS_LIBS $MAC_LIBS"])
+#	])
+#
+#AC_SUBST(DEPS_CFLAGS)
+#AC_SUBST(DEPS_LIBS)
+
+#AS_IF(	[test "$with_transport" == gnome],
+#	[
+#	AC_SUBST(DEPS_CFLAGS,["$DEPS_CFLAGS $GNOME_CFLAGS"])
+#	AC_SUBST(DEPS_LIBS,["$DEPS_LIBS $GNOME_LIBS"])
+#	])
+#
+#AC_SUBST(DEPS_CFLAGS)
+#AC_SUBST(DEPS_LIBS)
+
+#AS_IF(	[test "$with_transport" == kwallet],
+#	[
+#	AC_SUBST(DEPS_CFLAGS,["$DEPS_CFLAGS $KWALLET_CFLAGS"])
+#	AC_SUBST(DEPS_LIBS,["$DEPS_LIBS $KWALLET_LIBS"])
+#	])
+#
+#AC_SUBST(DEPS_CFLAGS)
+#AC_SUBST(DEPS_LIBS)
 
 ##### Options END #####
 
