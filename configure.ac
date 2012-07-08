@@ -12,8 +12,8 @@ AC_CONFIG_MACRO_DIR([build-aux/m4])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_SRCDIR([src/ot/main.cpp])
 
-: ${CXXFLAGS=""	}
-: ${CFLAGS=""	}
+: ${CXXFLAGS=""}
+: ${CFLAGS=""}
 
 PKG_PROG_PKG_CONFIG([0.25])
 AC_PROG_CC
@@ -25,7 +25,6 @@ AC_PROG_CXX
 ## Main deps ##
 
 PKG_CHECK_MODULES([DEPS],[protobuf >= 2.4.1 openssl >= 1.0.0 chaiscript >= 3.1.0])
-
 
 ## boost_thread lib ##
 
@@ -44,7 +43,7 @@ AC_ARG_WITH(	[transport],
 			zmq) true ;;
 			testclient) true ;;
 			*) AC_MSG_ERROR([bad value ${withval} for --with-transport]) ;;
-		esac],
+			esac],
 		[with_transport=zmq])
 
 AM_CONDITIONAL(	[TRANSPORT_ZMQ], [test "$with_transport" == zmq])
@@ -54,7 +53,8 @@ AS_IF(	[test "$with_transport" == zmq],
 	[
 	PKG_CHECK_MODULES([ZMQ],[libzmq >= 2.1.9])
 	AC_LANG_PUSH([C++])
-		AC_CHECK_HEADERS([zmq.hpp],[],
+		AC_CHECK_HEADERS([zmq.hpp],
+			[],
 			[AC_MSG_ERROR([Header files for libzmq not found or incompatible.])],
 			[])
 	AC_LANG_POP
@@ -65,70 +65,68 @@ AS_IF(	[test "$with_transport" == zmq],
 AC_SUBST(DEPS_CFLAGS)
 AC_SUBST(DEPS_LIBS)
 
-
-##### MsgPack #####
+## MsgPack ##
 
 AC_CHECK_HEADERS(
 	[msgpack.h],
 	[],
-	[AC_MSG_ERROR([No header files for libmsgpack found.])])
+	[AC_MSG_ERROR([No header files for libmsgpack found.])]
+	)
 
 AC_CHECK_LIB(msgpack, msgpack_unpack)
 
 
-##### (Option) Signal Handler #####
+#### Configure Options ####
+
+## (Option) Signal Handler ##
 
 AC_ARG_ENABLE(
 	sighandler,
 	AS_HELP_STRING(
 		[--enable-sighandler],
 		[enable sighandler, default: no]),
-		[case "${enableval}" in
-			yes)	sighandler=true ;;
-			no)	sighandler=false ;;
-			*)	AC_MSG_ERROR([bad value ${enableval} for --disable-sighandler]) ;;
+	[case "${enableval}" in
+		yes)	sighandler=true ;;
+		no)	sighandler=false ;;
+		*)	AC_MSG_ERROR([bad value ${enableval} for --disable-sighandler]) ;;
 		esac],
-		[sighandler=false])
-
+	[sighandler=false])
 
 AM_CONDITIONAL(OT_SIGNAL_HANDLING, test x"$sighandler" = x"true")
 
-
-##### (Option) Warnings #####
+## (Option) Warnings ##
 
 AC_ARG_ENABLE(
 	warnings,
 	AS_HELP_STRING(
 		[--enable-warnings],
 		[enable warnings, default: no]),
-		[case "${enableval}" in
-			yes) warnings=true ;;
-			no)  warnings=false ;;
-			*)   AC_MSG_ERROR([bad value ${enableval} for --enable-warnings]) ;;
-			esac],
-		[warnings=false])
+	[case "${enableval}" in
+		yes) warnings=true ;;
+		no)  warnings=false ;;
+		*)   AC_MSG_ERROR([bad value ${enableval} for --enable-warnings]) ;;
+		esac],
+	[warnings=false])
 
 AM_CONDITIONAL(WARNINGS, test x"$warnings" = x"true")
 
-
-##### (Option) Build In Release Mode #####
+## (Option) Build In Release Mode ##
 
 AC_ARG_ENABLE(
 	release,
 	AS_HELP_STRING(
 		[--enable-release],
 		[enable releasemode, default: no]),
-		[case "${enableval}" in
-			yes) release=true ;;
-			no)  release=false ;;
-			*)   AC_MSG_ERROR([bad value ${enableval} for --enable-release]) ;;
-			esac],
-		[release=false])
+	[case "${enableval}" in
+		yes) release=true ;;
+		no)  release=false ;;
+		*)   AC_MSG_ERROR([bad value ${enableval} for --enable-release]) ;;
+		esac],
+	[release=false])
 
 AM_CONDITIONAL(RELEASE, test x"$release" = x"true")
 
-
-##### (Option) Add SWIG JAVA #####
+## (Option) Add SWIG JAVA ##
 
 AC_ARG_WITH(
 	[java],
@@ -150,7 +148,7 @@ if (test "x$with_java" == "xyes"); then
 	AC_SUBST(JNI_CPPFLAGS, $JNI_CPPFLAGS)
 fi
 
-##### (Option) Add SWIG PERL5 #####
+## (Option) Add SWIG PERL5 ##
 
 AC_ARG_WITH(
 	[perl5],
@@ -165,7 +163,7 @@ if (test "x$with_perl5" == "xyes"); then
 
 fi
 
-##### (Option) Add SWIG PHP #####
+## (Option) Add SWIG PHP ##
 
 AC_ARG_WITH(
 	[php],
@@ -180,7 +178,7 @@ if (test "x$with_php" == "xyes"); then
 
 fi
 
-##### (Option) Add SWIG PYTHON #####
+## (Option) Add SWIG PYTHON ##
 
 AC_ARG_WITH(
 	[python],
@@ -189,12 +187,13 @@ AC_ARG_WITH(
 
 AM_CONDITIONAL([WANT_PYTHON], [test "x$with_python" == "xyes"])
 
-
 if (test "x$with_python" == "xyes"); then
 
 	AX_PYTHON_DEVEL
 
 fi
+
+##### Options END #####
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

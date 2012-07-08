@@ -304,6 +304,8 @@ otserver_sources	=	src/otserver/OTClientConnection.cpp		\
 
 createmint_sources_dir	=	$(opentxs_source_dir)/createmint
 
+createmint_sources	=	src/createmint/main.cpp
+
 ####################################################################
 
 
@@ -399,9 +401,8 @@ otserver_DEPENDENCIES	=	libot.la
 
 ####	Createmint  (includes files from OT Server)
 
-createmint_SOURCES	=	$(otserver_sources)			\
-				$(otserver_headers)
-
+createmint_SOURCES	=	$(createmint_sources)			\
+				$(otserver_sources) $(otserver_headers)
 createmint_CPPFLAGS	=	-I$(otserver_headers_dir) $(AM_CPPFLAGS)
 createmint_LDADD	=	$(DEPS_LIBS)				\
 				libot.la
@@ -420,14 +421,14 @@ if TRANSPORT_ZMQ
 libotapi_la_CPPFLAGS		+=	-DOT_ZMQ_MODE
 ot_CPPFLAGS			+=	-DOT_ZMQ_MODE
 
-otserver_SOURCES		+=	src/otserver/xmlrpcxx_server.cpp
 otserver_CPPFLAGS		+=	-DOT_ZMQ_MODE
+otserver_SOURCES		+=	src/otserver/xmlrpcxx_server.cpp
 
-createmint_SOURCES		+=	src/createmint/main.cpp
 createmint_CPPFLAGS		+=	-DOT_ZMQ_MODE
 
 endif
 
+#### OT API JAVA
 
 if WANT_JAVA
 lib_LTLIBRARIES			+=	libotapi-java.la
@@ -523,7 +524,6 @@ _otapi_la_LDFLAGS		=	--no-undefined                  \
 if TRANSPORT_ZMQ
 _otapi_la_CPPFLAGS		+=	-DOT_ZMQ_MODE
 endif
-
 
 
 ###########################################################################
