@@ -347,12 +347,12 @@ public:
 	static const std::string GetAssetType_Name(const std::string ASSET_TYPE_ID); // Returns asset type name based on Asset Type ID
 	
 	static const std::string GetAccountWallet_ID(int nIndex);	 // returns a string containing the account ID, based on index.
-	static const std::string GetAccountWallet_Name(const std::string ACCOUNT_ID);	 // returns the account name, based on account ID.
-	static const std::string GetAccountWallet_Balance(const std::string ACCOUNT_ID);	 // returns the account balance, based on account ID.
-	static const std::string GetAccountWallet_Type(const std::string ACCOUNT_ID);	 // returns the account type (simple, issuer, etc)
-	static const std::string GetAccountWallet_AssetTypeID(const std::string ACCOUNT_ID);	 // returns asset type ID of the account
+	static const std::string GetAccountWallet_Name(const std::string ACCOUNT_ID);        // returns the account name, based on account ID.
+	static const std::string GetAccountWallet_Balance(const std::string ACCOUNT_ID);     // returns the account balance, based on account ID.
+	static const std::string GetAccountWallet_Type(const std::string ACCOUNT_ID);        // returns the account type (simple, issuer, etc)
+	static const std::string GetAccountWallet_AssetTypeID(const std::string ACCOUNT_ID); // returns asset type ID of the account
 	static const std::string GetAccountWallet_ServerID(const std::string ACCOUNT_ID);	 // returns Server ID of the account
-	static const std::string GetAccountWallet_NymID(const std::string ACCOUNT_ID);	 // returns Nym ID of the account
+	static const std::string GetAccountWallet_NymID(const std::string ACCOUNT_ID);       // returns Nym ID of the account
 	
 	static const std::string GetAccountWallet_InboxHash (const std::string ACCOUNT_ID);	 // returns inbox hash for the account.
 	static const std::string GetAccountWallet_OutboxHash(const std::string ACCOUNT_ID);	 // returns outbox hash for the account.

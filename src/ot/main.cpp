@@ -333,7 +333,7 @@ bool SetupPointersForWalletMyNymAndServerContract(std::string & str_ServerID,
             OTLog::Output(0, "Unable to find a server contract. Please use the option:  --server SERVER_ID\n"
                           "(Where SERVER_ID is the server ID. Partial matches ARE accepted.)\n"
                           "Also, see default values located in ~/.ot/comand-line-ot.opt \n");
-            return false;
+//          return false;
         }
     }
     // Below this point, pServerContract MAY be available, but also may be NULL.
@@ -362,7 +362,7 @@ bool SetupPointersForWalletMyNymAndServerContract(std::string & str_ServerID,
             OTLog::Output(0, "Unable to find My Nym. Please use the option:   --mynym USER_ID\n"
                           "(Where USER_ID is the Nym's ID. Partial matches ARE accepted.)\n"
                           "Also, see default values located in ~/.ot/comand-line-ot.opt \n");
-            return false;
+//          return false;
         }
     } // Below this point, pMyNym MIGHT be a valid pointer, or MIGHT be NULL.
         
@@ -1806,12 +1806,17 @@ int main(int argc, char* argv[])
         {
             OTLog::Output(0, "Unable to find a server contract to use. Please use the option: --server SERVER_ID\n"
                           "(Where SERVER_ID is the Server's ID. Partial matches ARE accepted.)\n");
-            
-            return 0;
+//          return 0;
         }
 
-        const OTIdentifier theServerID(*pServerContract);
-        const OTString     strServerID(theServerID);
+        OTIdentifier theServerID;
+        OTString     strServerID;
+
+        if (NULL != pServerContract)
+        {
+            pServerContract->GetIdentifier(theServerID);
+            theServerID.GetString(strServerID);
+        }
 
         // -----------------------------------------------------
     
@@ -1833,6 +1838,7 @@ int main(int argc, char* argv[])
 
 
         // Below this point, pWallet and pServerContract are both available.
+        // UPDATE: Not necessarily... (pServerContract may be NULL...)
         //
         // ***********************************************************
         
@@ -1896,10 +1902,13 @@ int main(int argc, char* argv[])
         {
             OTLog::Output(0, "Unable to find My Nym. Please use the option:   --mynym USER_ID\n"
                           "(Where USER_ID is the Nym's ID. Partial matches ARE accepted.)\n");
-            return 0;
+//          return 0;
         }
 
-        const OTIdentifier MY_NYM_ID(*pMyNym);
+        OTIdentifier MY_NYM_ID;
+        
+        if (NULL != pMyNym)
+            pMyNym->GetIdentifier(MY_NYM_ID);
         
         // -----------------------------------------------
         
@@ -2021,7 +2030,8 @@ int main(int argc, char* argv[])
         // are in place (since in ZMQ mode, each message could be from a different nym 
         // and to a different server.)
         //
-        OT_API::It().GetClient()->SetFocusToServerAndNym(*pServerContract, *pMyNym, &OT_API::TransportCallback);
+        if ((NULL != pServerContract) && (NULL != pMyNym))
+            OT_API::It().GetClient()->SetFocusToServerAndNym(*pServerContract, *pMyNym, &OT_API::TransportCallback);
         // NOTE -- This MAY be unnecessary for ProcessUserCommand (since these args are passed
         // in there already) but it's definitely necessary soon after for ProcessServerReply()
         // (which comes next.)
@@ -2343,8 +2353,13 @@ int main(int argc, char* argv[])
         // OT SCRIPT ABOVE.
         // *******************************************************************
         
-        
-        if( opt->getValue( 'w' ) != NULL  || opt->getValue( "withdraw" ) != NULL  )
+        if ((NULL == pServerContract) || (NULL == pMyNym))
+        {
+            OTLog::vError("Unexpected NULL: %s %s\n", 
+                          (NULL == pServerContract) ? "pServerContract" : "", 
+                          (NULL == pMyNym)          ? "pMyNym"          : "");
+        }
+        else if ( opt->getValue( 'w' ) != NULL  || opt->getValue( "withdraw" ) != NULL  )
         {
             const long lAmount = atol(opt->getValue( 'w' ));
 			
@@ -2363,7 +2378,7 @@ int main(int argc, char* argv[])
                 OTLog::Error("Error processing withdraw command in ProcessMessage.\n");
             // ------------------------------------------------------------------------
         }
-        else if( opt->getValue( 't' ) != NULL  || opt->getValue( "transfer" ) != NULL  )
+        else if ( opt->getValue( 't' ) != NULL  || opt->getValue( "transfer" ) != NULL  )
         {
             const long lAmount = atol(opt->getValue( 't' ));
 
@@ -2514,10 +2529,10 @@ int main(int argc, char* argv[])
             // if successful setting up the command payload...
             
             if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::notarizePurse, theMessage, 
-                                                         *pMyNym, *pServerContract,
-                                                         pMyAccount,
-                                                         0, // amount (unused here)
-                                                         pMyAssetContract))
+                                                                 *pMyNym, *pServerContract,
+                                                                 pMyAccount,
+                                                                 0, // amount (unused here)
+                                                                 pMyAssetContract))
             {
                 bSendCommand = true;
             }
@@ -2533,8 +2548,8 @@ int main(int argc, char* argv[])
             // if successful setting up the command payload...
             
             if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::notarizeDeposit, theMessage, 
-                                                         *pMyNym, *pServerContract,
-                                                         pMyAccount))
+                                                                 *pMyNym, *pServerContract,
+                                                                 pMyAccount))
             {
                 bSendCommand = true;
             }
@@ -2551,8 +2566,8 @@ int main(int argc, char* argv[])
             OTLog::Output(0, "(User has instructed to sign a contract...)\n");
             
             OT_API::It().GetClient()->ProcessUserCommand(OTClient::signContract, theMessage,
-                                                     *pMyNym, *pServerContract,
-                                                     NULL);
+                                                         *pMyNym, *pServerContract,
+                                                         NULL);
         }
         else if( opt->getFlag( 'p' ) || opt->getFlag( "purse" )  )
         {
@@ -2591,8 +2606,8 @@ int main(int argc, char* argv[])
             // if successful setting up the command payload...
             
             if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::getAccount, theMessage, 
-                                                         *pMyNym,  *pServerContract,
-                                                         pMyAccount))
+                                                                 *pMyNym,  *pServerContract,
+                                                                 pMyAccount))
             {
                 bSendCommand = true;
             }
@@ -2608,8 +2623,8 @@ int main(int argc, char* argv[])
             // if successful setting up the command payload...
             
             if (0 < OT_API::It().GetClient()->ProcessUserCommand(OTClient::getNymbox, theMessage, 
-                                                         *pMyNym,  *pServerContract,
-                                                         NULL))
+                                                                 *pMyNym,  *pServerContract,
+                                                                 NULL))
             {
                 bSendCommand = true;
             }
@@ -2623,7 +2638,7 @@ int main(int argc, char* argv[])
 		
 		if ((NULL == pServerNym) || (false == pServerNym->VerifyPseudonym()))
         {
-            OTLog::vOutput(0, "The server Nym was NULL or failed to verify on contract: %s\n", 
+            OTLog::vOutput(0, "The server Nym was NULL or failed to verify on server contract: %s\n", 
                            strServerID.Get());
             return 0;
         }

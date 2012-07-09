@@ -320,10 +320,10 @@ def main_transfer()
                            "Also NECESSARY: --args \"amount PUT_AMOUNT_HERE\"\n")
     var strUsage = concat(strUsage1,
                           "And OPTIONALLY: --args \"memo \\\"Just a memo for the transfer.\\\"\"\n\n")
-
+    
     OT_API_Output(0, strUsage)
     // ------------------------------------        
-
+    
     if (VerifyExists("Server") && VerifyExists("MyAcct") && VerifyExists("HisAcct"))
     {	
         // strAmount and strNote...
@@ -378,7 +378,7 @@ def main_transfer()
         if (!VerifyStringVal(strNote))
         {    strNote = strDefaultNote }
         // ----------------------------------------------    
-
+        
         return details_send_transfer(strAmount, strNote)
     }
     
@@ -388,7 +388,305 @@ def main_transfer()
 // -----------------------
 
 
+// SET NAME!!
 
+
+
+def main_edit_nym()
+{
+    var strUsage = concat("\n\n          USAGE: editnym --mynym YOUR_NYM_ID\n",
+                              "Also optionally:         --args \"label \\\"PUT LABEL HERE\\\"\"\n")
+    
+    OT_API_Output(0, strUsage)
+    // ------------------------------------        
+    
+    if (VerifyExists("MyNym"))
+    {	
+        var strLabel    = ""
+        // ------------------------------------        
+        var strDefaultLabel    = "(blank label)"   // can be blank
+        // ------------------------------------
+        // If custom arguments have been passed on the command line,
+        // then grab them and use them instead of asking the user to enter them
+        // at the command line.
+        //
+        if (VerifyExists("Args", false))
+        {
+            // std::string OT_CLI_GetValueByKey(const std::string str_Args, 
+            //                                  const std::string str_key)
+            // 
+            // OPTION:   --args "key value key value"
+            // EXAMPLE:  --args "label \"FT's test Nym\""
+            //
+            var strNewLabel   = OT_CLI_GetValueByKey( Args, "label"  )  // optional label field
+            // ----------------------------------------------
+            // Set the value based on the custom argument.
+            //
+            if (VerifyStringVal(strNewLabel))
+            {    strLabel = strNewLabel }
+        }            
+        // ------------------------------------
+        // If the label isn't provided, then we ask the
+        // user to supply it at the command line.
+        //
+        if (!VerifyStringVal(strLabel))
+        {
+            OT_API_Output(0, "Enter MyNym's new label ["+strDefaultLabel+"]: ")
+            strLabel        = OT_CLI_ReadLine()
+        }
+        // ----------------------------------------------
+        if (!VerifyStringVal(strLabel))
+        {    strLabel = strDefaultLabel }
+        // ----------------------------------------------    
+        
+        var bSet = OT_API_SetNym_Name(MyNym, MyNym, strLabel)
+        
+        if (false == bSet)
+        {
+            OT_API_Output(0, "\n\n FAILED trying to set MyNym's label to: " + strLabel + "\n")
+            OT_API_Output(0, "MyNym ID: " + MyNym + "\n\n")
+            return (-1)
+        }
+        else
+        {
+            OT_API_Output(0, "\n\n SUCCESS setting MyNym's label to: " + strLabel + "\n")
+            OT_API_Output(0, "MyNym ID: " + MyNym + "\n\n")
+            return 1
+        }
+    }
+    
+    return 0
+}
+
+// -----------------------
+
+
+
+def main_edit_account()
+{
+    var strUsage = concat("\n\n          USAGE: editacct --myacct YOUR_ACCT_ID\n",
+                              "Also optionally:          --args \"label \\\"PUT LABEL HERE\\\"\"\n")
+    
+    OT_API_Output(0, strUsage)
+    // ------------------------------------        
+
+    if (VerifyExists("MyAcct"))
+    {	
+        // ---------------------------------------------
+        // HERE, WE LOOK UP THE NYM ID, BASED ON THE ACCOUNT ID.
+        //
+        var strMyNymID = OT_API_GetAccountWallet_NymID(MyAcct)
+        
+        if (!VerifyStringVal(strMyNymID))
+        {
+            OT_API_Output(0, "\n\nFailure: Unable to find NymID based on myacct. Use: --myacct ACCT_ID\n")
+            OT_API_Output(0, "The designated asset account must be yours. OT will find the Nym based on the account.\n\n")
+            return (-1)
+        }
+        if (VerifyExists("MyNym") && !(MyNym == strMyNymID))
+        {
+            OT_API_Output(0, "\n\nFailure: MyNym was provided, but didn't match the Nym who owns MyAcct. To override, use: --mynym "+strMyNymID+"\n\n")
+            return (-1)
+        }
+        // ***************************************************************
+        //
+        var strLabel    = ""
+        // ------------------------------------        
+        var strDefaultLabel    = "(blank label)"   // can be blank
+        // ------------------------------------
+        // If custom arguments have been passed on the command line,
+        // then grab them and use them instead of asking the user to enter them
+        // at the command line.
+        //
+        if (VerifyExists("Args", false))
+        {
+            // std::string OT_CLI_GetValueByKey(const std::string str_Args, 
+            //                                  const std::string str_key)
+            // 
+            // OPTION:   --args "key value key value"
+            // EXAMPLE:  --args "label \"FT's issuer account\""
+            //
+            var strNewLabel   = OT_CLI_GetValueByKey( Args, "label"  )  // optional label field
+            // ----------------------------------------------
+            // Set the value based on the custom argument.
+            //
+            if (VerifyStringVal(strNewLabel))
+            {    strLabel = strNewLabel }
+        }            
+        // ------------------------------------
+        // If the label isn't provided, then we ask the
+        // user to supply it at the command line.
+        //
+        if (!VerifyStringVal(strLabel))
+        {
+            OT_API_Output(0, "Enter MyAcct's new label ["+strDefaultLabel+"]: ")
+            strLabel        = OT_CLI_ReadLine()
+        }
+        // ----------------------------------------------
+        if (!VerifyStringVal(strLabel))
+        {    strLabel = strDefaultLabel }
+        // ----------------------------------------------    
+        
+        var bSet = OT_API_SetAccountWallet_Name(MyAcct, strMyNymID, strLabel)
+        
+        if (false == bSet)
+        {
+            OT_API_Output(0, "\n\n FAILED trying to set MyAcct's label to: " + strLabel + "\n")
+            OT_API_Output(0, "MyAcct ID: " + MyAcct     + "\n")
+            OT_API_Output(0, " MyNym ID: " + strMyNymID + "\n\n")
+            return (-1)
+        }
+        else
+        {
+            OT_API_Output(0, "\n\n SUCCESS setting MyAcct's label to: " + strLabel + "\n")
+            OT_API_Output(0, "MyAcct ID: " + MyAcct     + "\n")
+            OT_API_Output(0, " MyNym ID: " + strMyNymID + "\n\n")
+            return 1
+        }
+    }
+    
+    return 0
+}
+
+// -----------------------
+
+
+def main_edit_asset()
+{
+    var strUsage = concat("\n\n          USAGE: editasset --mypurse ASSET_TYPE_ID\n",
+                              "Also optionally:           --args \"label \\\"PUT LABEL HERE\\\"\"\n")
+    
+    OT_API_Output(0, strUsage)
+    // ------------------------------------        
+    
+    if (VerifyExists("MyPurse"))
+    {	
+        var strLabel    = ""
+        // ------------------------------------        
+        var strDefaultLabel    = "(blank label)"   // can be blank
+        // ------------------------------------
+        // If custom arguments have been passed on the command line,
+        // then grab them and use them instead of asking the user to enter them
+        // at the command line.
+        //
+        if (VerifyExists("Args", false))
+        {
+            // std::string OT_CLI_GetValueByKey(const std::string str_Args, 
+            //                                  const std::string str_key)
+            // 
+            // OPTION:   --args "key value key value"
+            // EXAMPLE:  --args "label \"Silver Grams\""
+            //
+            var strNewLabel   = OT_CLI_GetValueByKey( Args, "label"  )  // optional label field
+            // ----------------------------------------------
+            // Set the value based on the custom argument.
+            //
+            if (VerifyStringVal(strNewLabel))
+            {    strLabel = strNewLabel }
+        }            
+        // ------------------------------------
+        // If the label isn't provided, then we ask the
+        // user to supply it at the command line.
+        //
+        if (!VerifyStringVal(strLabel))
+        {
+            OT_API_Output(0, "Enter MyPurse's new label ["+strDefaultLabel+"]: ")
+            strLabel        = OT_CLI_ReadLine()
+        }
+        // ----------------------------------------------
+        if (!VerifyStringVal(strLabel))
+        {    strLabel = strDefaultLabel }
+        // ----------------------------------------------    
+        
+        var bSet = OT_API_SetAssetType_Name(MyPurse, strLabel)
+        
+        if (false == bSet)
+        {
+            OT_API_Output(0, "\n\n FAILED trying to set MyPurse's label to: " + strLabel + "\n")
+            OT_API_Output(0, "MyPurse (AssetTypeID): " + MyPurse + "\n\n")
+            return (-1)
+        }
+        else
+        {
+            OT_API_Output(0, "\n\n SUCCESS setting MyPurse's label to: " + strLabel + "\n")
+            OT_API_Output(0, "MyPurse (AssetTypeID): " + MyPurse + "\n\n")
+            return 1
+        }
+    }
+    
+    return 0
+}
+
+// -----------------------
+
+
+def main_edit_server()
+{
+    var strUsage = concat("\n\n          USAGE: editserver --server SERVER_ID\n",
+                              "Also optionally:            --args \"label \\\"PUT LABEL HERE\\\"\"\n")
+    
+    OT_API_Output(0, strUsage)
+    // ------------------------------------        
+    
+    if (VerifyExists("Server"))
+    {	
+        var strLabel    = ""
+        // ------------------------------------        
+        var strDefaultLabel    = "(blank label)"   // can be blank
+        // ------------------------------------
+        // If custom arguments have been passed on the command line,
+        // then grab them and use them instead of asking the user to enter them
+        // at the command line.
+        //
+        if (VerifyExists("Args", false))
+        {
+            // std::string OT_CLI_GetValueByKey(const std::string str_Args, 
+            //                                  const std::string str_key)
+            // 
+            // OPTION:   --args "key value key value"
+            // EXAMPLE:  --args "label \"localhost server\""
+            //
+            var strNewLabel   = OT_CLI_GetValueByKey( Args, "label"  )  // optional label field
+            // ----------------------------------------------
+            // Set the value based on the custom argument.
+            //
+            if (VerifyStringVal(strNewLabel))
+            {    strLabel = strNewLabel }
+        }            
+        // ------------------------------------
+        // If the label isn't provided, then we ask the
+        // user to supply it at the command line.
+        //
+        if (!VerifyStringVal(strLabel))
+        {
+            OT_API_Output(0, "Enter Server's new label ["+strDefaultLabel+"]: ")
+            strLabel        = OT_CLI_ReadLine()
+        }
+        // ----------------------------------------------
+        if (!VerifyStringVal(strLabel))
+        {    strLabel = strDefaultLabel }
+        // ----------------------------------------------    
+        
+        var bSet = OT_API_SetServer_Name(Server, strLabel)
+        
+        if (false == bSet)
+        {
+            OT_API_Output(0, "\n\n FAILED trying to set Server's label to: " + strLabel + "\n")
+            OT_API_Output(0, "Server ID: " + Server + "\n\n")
+            return (-1)
+        }
+        else
+        {
+            OT_API_Output(0, "\n\n SUCCESS setting Server's label to: " + strLabel + "\n")
+            OT_API_Output(0, "Server ID: " + Server + "\n\n")
+            return 1
+        }
+    }
+    
+    return 0
+}
+
+// -----------------------
 
 
 
@@ -480,7 +778,7 @@ def main_write_cheque()
         }
         if (VerifyExists("MyNym") && !(MyNym == strMyNymID))
         {
-            OT_API_Output(0, "Failure: MyNym was provided, but didn't match the Nym who owns MyAcct. To override, use: --mynym NYM_ID\n")
+            OT_API_Output(0, "\n\nFailure: MyNym was provided, but didn't match the Nym who owns MyAcct. To override, use: --mynym "+strMyNymID+"\n\n")
             return (-1)
         }
         // ***************************************************************
@@ -3127,7 +3425,66 @@ def main_show_outbox()
 
 
 
+def main_add_server()
+{
+    OT_API_Output(0, "Please paste a server contract, followed by an EOF or a ~ by itself on a blank line:\n\n")
+    
+    // The reason we accept the tilde ~ on a blank line by itself, is because
+    // the EOF, while it works, causes us not to be able to read any more input
+    // from stdin. Stdin is considered "closed" for the duration of the run.
+    // So the tilde allows us to read multiple times without closing stdin.
+    
+    var strContract = OT_CLI_ReadUntilEOF() 
+    
+    if (!VerifyStringVal(strContract))
+    {
+        OT_API_Output(0, "\n\n Sorry, You must input a server contract, in order to add it to your wallet.\n\n")
+        return (-1)
+    }
+    // ------------
+    
+    var bAdded = OT_API_AddServerContract(strContract)
+    
+    if (false == bAdded)
+    {
+        OT_API_Output(0, "\n\n Sorry, failed. Are you sure that was a server contract?\n\n")
+        return (-1)
+    }
+    
+    OT_API_Output(0, "\n\n Success adding server contract to your wallet.\n\n")
+    1
+}
 
+
+def main_add_asset()
+{
+    OT_API_Output(0, "Please paste a currency contract, followed by an EOF or a ~ by itself on a blank line:\n\n")
+    
+    // The reason we accept the tilde ~ on a blank line by itself, is because
+    // the EOF, while it works, causes us not to be able to read any more input
+    // from stdin. Stdin is considered "closed" for the duration of the run.
+    // So the tilde allows us to read multiple times without closing stdin.
+    
+    var strContract = OT_CLI_ReadUntilEOF() 
+    
+    if (!VerifyStringVal(strContract))
+    {
+        OT_API_Output(0, "\n\n Sorry, You must input a currency contract, in order to add it to your wallet.\n\n")
+        return (-1)
+    }
+    // ------------
+    
+    var bAdded = OT_API_AddAssetContract(strContract)
+    
+    if (false == bAdded)
+    {
+        OT_API_Output(0, "\n\n Sorry, failed. Are you sure that was an asset contract?\n\n")
+        return (-1)
+    }
+    
+    OT_API_Output(0, "\n\n Success adding asset contract to your wallet.\n\n")
+    1
+}
 
 
 

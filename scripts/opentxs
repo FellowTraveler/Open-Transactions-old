@@ -156,6 +156,8 @@ def main_loop(map_functions, map_help)
 }
 
 
+
+
 // ---------------------------------
 
 // Start and finish.
@@ -166,7 +168,7 @@ def main_opentxs()
     // Just add the command to the list below, and
     // then edit the ot/ot_commands.ot file to add
     // the implementation for your main function!
-    
+        
     var map_functions = ["sendmsg":main_sendmsg,                // send a message to another nym's in-mail.
                          "stat":main_stat,                      // display wallet contents.
                          "checknym":main_check_user,            // download a nym's public key based on his ID.
@@ -200,8 +202,14 @@ def main_opentxs()
                          "pass_encrypt":main_password_encrypt,  // password-encrypt a plaintext using a symmetric key.
                          "pass_decrypt":main_password_decrypt,  // password-decrypt a ciphertext using a symmetric key.
                          "newnym":main_create_nym,              // create a new nym.
+                         "addserver":main_add_server,           // paste an existing server contract, import it into your wallet.
+                         "addasset":main_add_asset,             // paste an existing asset contract, import it into your wallet.
                          "newasset":main_create_asset_contract, // create a new asset contract.
                          "newserver":main_create_server_contract,// create a new server contract.
+                         "editnym":main_edit_nym,               // edit the nym's label, as it appears in your wallet.
+                         "editacct":main_edit_account,          // edit an asset account's label, as it appears in your wallet.
+                         "editasset":main_edit_asset,           // edit a currency contract's label, as it appears in your wallet.
+                         "editserver":main_edit_server,         // edit a server contract's label, as it appears in your wallet.
                          "register":main_register_nym,          // register a nym onto an OT server.
                          "issueasset":main_issue_asset,         // issue a currency contract onto an OT server.
                          "newacct":main_create_acct,            // create a new asset account.
@@ -255,8 +263,14 @@ def main_opentxs()
                          "pass_encrypt":                        "password-encrypt a plaintext using a symmetric key.",
                          "pass_decrypt":                        "password-decrypt a ciphertext using a symmetric key.",
                          "newnym":                              "create a new nym.",
+                         "addserver":                           "paste an existing server contract, import it into your wallet.",
+                         "addasset":                            "paste an existing asset contract, import it into your wallet.",                        
                          "newasset":                            "create a new asset contract.",
                          "newserver":                           "create a new server contract.",
+                         "editnym":                             "edit the nym's label, as it appears in your wallet.",
+                         "editacct":                            "edit an asset account's label, as it appears in your wallet.",
+                         "editasset":                           "edit a currency contract's label, as it appears in your wallet.",
+                         "editserver":                          "edit a server contract's label, as it appears in your wallet.",
                          "register":                            "register a nym onto an OT server.",
                          "issueasset":                          "issue a currency contract onto an OT server.",
                          "newacct":                             "create a new asset account.",

@@ -2001,7 +2001,7 @@ bool OTSymmetricKey::GenerateKey(const
 OTPassword * OTSymmetricKey::CalculateDerivedKeyFromPassphrase(const 
                                                                OTPassword & thePassphrase) const
 {
-    OT_ASSERT(m_bIsGenerated);
+//  OT_ASSERT(m_bIsGenerated);
     OT_ASSERT(thePassphrase.isPassword());
     // -------------------------------------------------------------------------------------------------
     OTPassword * pDerivedKey = OTCrypto::It()->DeriveKey(thePassphrase, m_dataSalt, m_uIterationCount);
