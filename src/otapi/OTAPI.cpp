@@ -3680,7 +3680,7 @@ const char * OT_API_CreateSymmetricKey()
     char  throwaway_text[OT_DEFAULT_BLOCKSIZE];
     for (int tt = 0; tt < OT_DEFAULT_BLOCKSIZE; ++tt)
     {
-        throwaway_text[tt] = 'A';
+        throwaway_text[tt] = 'A'; // todo optimization...
     }
     throwaway_text[OT_DEFAULT_BLOCKSIZE-1] = '\0';
     // We don't use the above memory, except to force OTPassword to create itself

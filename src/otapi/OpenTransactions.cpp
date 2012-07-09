@@ -976,6 +976,9 @@ bool OT_API::LoadConfigFile(const OTString & strMainPath)
             }
             // ----------------------------------------------------------------
 			// SECURITY (beginnings of..)
+            //
+            // MASTER KEY TIMEOUT
+            //
             {
                 const char * pVal = ini.GetValue("security", "master_key_timeout");
                 int nTimeout = 0;
@@ -984,6 +987,23 @@ bool OT_API::LoadConfigFile(const OTString & strMainPath)
                     nTimeout = atoi(pVal);
                     OTLog::vOutput(1, "Setting security master_key_timeout: %d\n", nTimeout);
                     OTMasterKey::It()->SetTimeoutSeconds(nTimeout);
+                }
+            }
+            // ----------------------------------------------------------------
+			// SECURITY 
+            //
+            // USE SYSTEM KEYRING (Gnome-Keyring, Mac Keychain, Windows DPAPI, etc)
+            //
+            {
+                const char * pVal = ini.GetValue("security", "use_system_keyring");
+                
+                if (NULL != pVal)
+                {
+					const OTString strUsingKeyring(pVal);
+					const bool bUsingKeyring = strUsingKeyring.Compare("true") ? true : false;
+                    OTLog::vOutput(1, "Setting security use_system_keyring: %s\n",
+								   bUsingKeyring ? "true" : "false");
+                    OTMasterKey::It()->UseSystemKeyring(bUsingKeyring);
                 }
             }
             // ----------------------------------------------------------------

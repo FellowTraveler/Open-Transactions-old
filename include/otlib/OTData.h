@@ -170,20 +170,18 @@ public:
 EXPORT	OTData();
 EXPORT	OTData(const void * pNewData, uint32_t nNewSize);
 EXPORT	OTData(const OTData &theSource);
-	OTData(const OTASCIIArmor &theSource);
+	    OTData(const OTASCIIArmor &theSource);
 
-    EXPORT	virtual void Release();
-    void Release_Data();
-	virtual ~OTData();
+EXPORT	virtual void Release();
+        void Release_Data();
+        virtual ~OTData();
 
     
     
-EXPORT	OTData & operator=(OTData rhs);
-	
-	void swap (OTData & rhs);
-		
-	bool		operator==(const OTData &s2) const;
-	bool		operator!=(const OTData &s2) const;
+EXPORT	OTData &    operator= (OTData rhs);
+        void        swap      (OTData & rhs);
+        bool		operator==(const OTData &s2) const;
+        bool		operator!=(const OTData &s2) const;
 EXPORT	OTData &	operator+=(const OTData & rhs);
 	
 	bool IsEmpty() const;
@@ -197,6 +195,8 @@ EXPORT	OTData &	operator+=(const OTData & rhs);
 	
     bool Randomize(uint32_t lNewSize);
 
+    void zeroMemory();
+    
 	uint32_t OTfread(uint8_t * buf, uint32_t buflen);
 	inline void reset() { m_lPosition = 0; };
 };

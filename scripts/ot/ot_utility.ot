@@ -1408,7 +1408,7 @@ def Utility::processNymbox(serverID, nymID, bWasMsgSent, nMsgSentRequestNumOut, 
 
     if ((-1) == nProcess)
     {
-        OT_API_Output(0, strLocation + ": Failure: insureHaveAllBoxReceipts: error (-1), when calling sendProcessNymboxLowLevel. (It couldn't send. I give up.)\n")
+        OT_API_Output(0, strLocation + ": Failure: insureHaveAllBoxReceipts(2): error (-1), when calling sendProcessNymboxLowLevel. (It couldn't send. I give up.)\n")
         return (-1) // (It didn't even send.)
     }
     // Nymbox was empty. (So we didn't send any process message because there was nothing to process.)

@@ -155,6 +155,9 @@ extern "C"
 class OTPseudonym;
 class OTOffer;
 class OTMarket;
+class OTSymmetricKey;
+
+
 
 class OTIdentifier : public OTData
 {
@@ -177,8 +180,10 @@ EXPORT	OTIdentifier(const char * szStr);
 EXPORT	OTIdentifier(const OTString &theStr);
 EXPORT	OTIdentifier(const OTPseudonym &theNym);
 EXPORT	OTIdentifier(const OTContract &theContract); // Get the contract's ID into this identifier.
-	OTIdentifier(const OTOffer &theOffer);
-	OTIdentifier(const OTMarket &theMarket);
+        OTIdentifier(const OTOffer &theOffer);
+        OTIdentifier(const OTMarket &theMarket);
+        OTIdentifier(const OTSymmetricKey &theKey);
+    
 EXPORT	virtual ~OTIdentifier();
 				
 	using OTData::swap;
@@ -192,7 +197,7 @@ EXPORT	bool operator!=(const OTIdentifier &s2) const;
     bool operator <=(const OTIdentifier &s2) const;
     bool operator >=(const OTIdentifier &s2) const;
 
-	bool CalculateDigest(const OTData & dataInput);
+	    bool CalculateDigest(const OTData & dataInput);
 EXPORT	bool CalculateDigest(const OTString & strInput);
 	
 	bool CalculateDigest(const OTString & strInput, const OTString & strHashAlgorithm);

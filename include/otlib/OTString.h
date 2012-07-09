@@ -414,6 +414,8 @@ EXPORT	void OTfgets(std::istream & ofs);
     EXPORT   virtual void Release(void);
     void Release_String(void);
 
+    void zeroMemory();
+    
    // Internal properties
 protected:
    uint32_t  m_lLength;

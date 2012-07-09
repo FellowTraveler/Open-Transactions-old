@@ -161,6 +161,10 @@ class OTPassword;
 #endif
 
 // Someday:  OT_CRYPTO_USING_GPG
+//
+//#ifndef OT_CRYPTO_USING_GPG
+//#define OT_CRYPTO_USING_GPG 1
+//#endif
 
 // --------------------------------------
 // TinyThread++
@@ -178,7 +182,7 @@ class OTPassword;
 class OTCrypto
 {
 private:
-    static int   s_nCount;   // Instance count, should never exceed 1.
+    static  int  s_nCount;   // Instance count, should never exceed 1.
 protected:
     OTCrypto();
     
@@ -187,10 +191,39 @@ protected:
 public:
     virtual ~OTCrypto();
     
+    // (To instantiate a text secret, just do this: OTPassword thePass;)
+    virtual OTPassword * InstantiateBinarySecret()=0;
+    
+    // DeriveKey derives a 128-bit symmetric key from a passphrase.
+    //
+    // The OTPassword* returned is the actual derived key. (The result.)
+    //
+    // However, you would not use it directly for symmetric-key crypto, but
+    // instead you'd use the OTSymmetricKey class. This is because you still
+    // need an object to manage everything about the symmetric key. It stores
+    // the salt and the iteration count, as well as ONLY the ENCRYPTED version
+    // of the symmetric key, which is a completely random number and is only
+    // decrypted briefly for specific operations. The derived key (below) is
+    // what we use for briefly decrypting that actual (random) symmetric key.
+    //
+    // Therefore this function is mainly used INSIDE OTSymmetricKey as part of
+    // its internal operations.
+    //
+    // userPassword argument contains the user's password which is used to
+    // derive the key. Presumably you already obtained this passphrase...
+    // Then the derived key is returned, or NULL if failure. CALLER
+    // IS RESPONSIBLE TO DELETE!
+    // Todo: return a smart pointer here.
+    //
+    virtual OTPassword * DeriveKey(const OTPassword &   userPassword,
+                                   const OTPayload  &   dataSalt,    
+                                   const uint32_t       uIterations)=0;
+    // ----------------------------------
 EXPORT    static OTCrypto * It();
     
 EXPORT    void Init();     
 EXPORT    void Cleanup();    
+    // ----------------------------------
 };
 
 // ------------------------------------------------------------------------
@@ -209,7 +242,22 @@ protected:
 
 public:
     static tthread::mutex * s_arrayMutex;
+    // ----------------------------------
+    
+    // (To instantiate a text secret, just do this: OTPassword thePass;)
+    virtual OTPassword * InstantiateBinarySecret();
 
+    // ----------------------------------
+    // userPassword argument contains the user's password which is used to
+    // derive the key. Presumably you already obtained this passphrase...
+    // Then the derived key is returned, or NULL if failure. CALLER
+    // IS RESPONSIBLE TO DELETE!
+    // Todo: return a smart pointer here.
+    //
+    virtual OTPassword * DeriveKey(const OTPassword &   userPassword,
+                                   const OTPayload  &   dataSalt,    
+                                   const uint32_t       uIterations); 
+    // ----------------------------------
     void thread_setup();
     void thread_cleanup();
     
@@ -376,8 +424,9 @@ private:
     int               m_nTimeoutSeconds; // The master password will be stored internally for X seconds, and then destroyed.
     OTPassword     *  m_pMasterPassword; // Created when password is passed in; destroyed by Timer after X seconds.
     
+    bool              m_bUse_System_Keyring; // if set to true, then additionally use the local OS's standard API for storing/retrieving secrets. (Store the master key here whenever it's decrypted, and try to retrieve from here whenever it's needed, before resorting to asking the user to type his passphrase.) This is configurable in the config file.
     
-    OTSymmetricKey *  m_pSymmetricKey;   // Serialized by OTWallet or OTServer.
+    OTSymmetricKey *  m_pSymmetricKey;   // Encrypted form of the master key. Serialized by OTWallet or OTServer.
 
     tthread::mutex    m_Mutex;           // Mutex used for serializing access to this instance.
     
@@ -391,6 +440,9 @@ EXPORT    static OTMasterKey * It();
 
     // --------------------------------
 EXPORT    bool IsGenerated();
+    // --------------------------------
+EXPORT    bool IsUsingSystemKeyring() { return m_bUse_System_Keyring; }
+          void UseSystemKeyring(bool bUsing=true) { m_bUse_System_Keyring = bUsing; }
     // --------------------------------
 
 EXPORT    bool Pause();
@@ -433,7 +485,7 @@ private:
     // ---------------------------------------------
     uint16_t        m_nKeySize;         // The size, in bits. For example, 128 bit key, 256 bit key, etc.
     // ---------------------------------------------
-    uint32_t        m_nIterationCount;  // Stores the iteration count, which should probably be at least 2000. (Number of iterations used while generating key from passphrase.)
+    uint32_t        m_uIterationCount;  // Stores the iteration count, which should probably be at least 2000. (Number of iterations used while generating key from passphrase.)
     // ---------------------------------------------
 	OTPayload       m_dataSalt;         // Stores the SALT (which is used with the password for generating / retrieving the key from m_dataEncryptedKey)
 	OTPayload       m_dataIV;           // Stores the IV used internally for encrypting / decrypting the actual key (using the derived key) from m_dataEncryptedKey.
@@ -451,10 +503,37 @@ public:
     bool SerializeFrom (const OTString & strInput, bool bEscaped=false);
     // ------------------------------------------------------------------------
     inline bool IsGenerated() const { return m_bIsGenerated; }
-    // ------------------------------------------------------------------------    
-    bool GetRawKey  (const OTPassword & thePassword, OTPassword & theRawKeyOutput) const; // Assumes key is already generated. Tries to get the raw clear key from its encrypted form, via its password.
-    bool GenerateKey(const OTPassword & thePassword);  // Generates this OTSymmetricKey based on an OTPassword. The generated key is stored in encrypted form, based on a derived key from that password.
+    // ------------------------------------------------------------------------   
+    void GetIdentifier(OTIdentifier & theIdentifier) const;    
+    void GetIdentifier(OTString     & strIdentifier) const;
+    // ------------------------------------------------------------------------ 
+    // The derived key is used for decrypting the actual symmetric key.
+    // It's called the derived key because it is derived from the passphrase.
+    //
+    OTPassword * CalculateDerivedKeyFromPassphrase(const 
+                                                   OTPassword & thePassphrase) const;
+    // ------------------------------------------------------------------------ 
+    // Assumes key is already generated. Tries to get the raw clear key from its 
+    // encrypted form, via its passphrase being used to derive a key for that purpose.
+    //
+    bool GetRawKeyFromPassphrase(const 
+                                 OTPassword & thePassphrase, 
+                                 OTPassword & theRawKeyOutput,
+                                 OTPassword * pDerivedKey=NULL) const;
     
+    // Assumes key is already generated. Tries to get the raw clear key 
+    // from its encrypted form, via a derived key.
+    //
+    bool GetRawKeyFromDerivedKey(const 
+                                 OTPassword & theDerivedKey, 
+                                 OTPassword & theRawKeyOutput) const; 
+    // ------------------------------------------------------------------------    
+    // Generates this OTSymmetricKey based on an OTPassword. The generated key is 
+    // stored in encrypted form, based on a derived key from that password.
+    //
+    bool GenerateKey(const 
+                     OTPassword &  thePassphrase,
+                     OTPassword ** ppDerivedKey=NULL);  // If you want, I can pass this back to you.
     // ------------------------------------------------------------------------
 	OTSymmetricKey();
 	OTSymmetricKey(const OTPassword & thePassword);

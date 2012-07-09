@@ -172,6 +172,7 @@ extern "C"
 #include "OTEnvelope.h"
 #include "OTPayload.h"
 #include "OTASCIIArmor.h"
+
 #include "OTLog.h"
 
 

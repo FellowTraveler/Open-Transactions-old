@@ -2815,24 +2815,24 @@ namespace OTDB
 	
 	/*
 	 - Based on the input, constructs the full path and returns it in strOutput.
+	 - This function will try to create all the folders leading up to the
+       file itself.
 	 - Also returns true/false based on whether the path actually exists.
 	 - If some failure occurs along the way, the path returned will not be the
-	 full path, but the path where the failure occurred.
-	 - This function will also try to create all the folders leading up to the
-	 file itself.
+	   full path, but the path where the failure occurred.
 	 
 	 New return values:
 	 
 	 -1 -- Error
-	 0 -- File not found
-	 1 -- File found.
+	  0 -- File not found
+	  1 -- File found.
 	 
 	 */
 	long StorageFS::ConstructAndConfirmPath(      std::string & strOutput, 
 											const std::string & strFolder,      const std::string & oneStr/*=""*/,  
 											const std::string & twoStr/*=""*/,  const std::string & threeStr/*=""*/)
 	{
-        
+        const char * szFunc = "StorageFS::ConstructAndConfirmPath";
         
 //        OTLog::vOutput(1, "StorageFS::ConstructAndConfirmPath:\n strFolder: %s\n oneStr: %s\n twoStr: %s\n threeStr: %s\n",
 //                      strFolder.c_str(), oneStr.c_str(), twoStr.c_str(), threeStr.c_str());
@@ -2843,8 +2843,9 @@ namespace OTDB
 		
 		if (m_strFullPath.size() < 1)
 		{
-			OTLog::vError("StorageFS::ConstructAndConfirmPath: m_strFullPath is empty! "
+			OTLog::vError("%s: m_strFullPath is empty! "
 						  "(Failure.) While trying to confirm path segments: %s %s %s %s\n",
+                          szFunc,
 						  strFolder.c_str(), oneStr.c_str(), twoStr.c_str(), threeStr.c_str());
 			return (-1);
 		}
@@ -2856,7 +2857,7 @@ namespace OTDB
 		if (strFolder.length() < 1)
 		{
 			// Must at least have a folder name and a file name.
-			OTLog::Error("StorageFS::ConstructAndConfirmPath: Folder has a zero length, unable to construct path.\n");
+			OTLog::vError("%s: Folder has a zero length, unable to construct path.\n", szFunc);
 			
 			return -1;
 		}
@@ -2877,7 +2878,8 @@ namespace OTDB
 			
 			if (!bConfirmMAINFolder)
 			{
-				OTLog::vError("StorageFS::ConstructAndConfirmPath: Unable to confirm or create folder: %s\n", strFolder.c_str());
+				OTLog::vError("%s: Unable to confirm or create folder: %s\n", 
+                              szFunc, strFolder.c_str());
 				return -1;
 			}
 			
@@ -2901,7 +2903,8 @@ namespace OTDB
 				
 				if (!bConfirmFirstFolder)
 				{
-					OTLog::vError("StorageFS::ConstructAndConfirmPath: Unable to confirm or create folder: %s\n", strOnePath.Get());
+					OTLog::vError("%s: Unable to confirm or create folder: %s\n", 
+                                  szFunc, strOnePath.Get());
 					return -1;
 				}
 				// -------------------
@@ -2923,7 +2926,8 @@ namespace OTDB
 					
 					if (!bConfirmSecondFolder)
 					{
-						OTLog::vError("StorageFS::ConstructAndConfirmPath: Unable to confirm or create folder: %s\n", strTwoPath.Get());
+						OTLog::vError("%s: Unable to confirm or create folder: %s\n", 
+                                      szFunc, strTwoPath.Get());
 						return -1;
 					}
 					// -------------------

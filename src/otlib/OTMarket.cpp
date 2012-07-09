@@ -950,6 +950,7 @@ bool OTMarket::SaveMarket()
 								   
 
 // A Market's ID is based on the asset type, the currency type, and the scale.
+//
 void OTMarket::GetIdentifier(OTIdentifier & theIdentifier)
 {	
 	OTString	strTemp, strAsset(GetAssetID()), strCurrency(GetCurrencyID());

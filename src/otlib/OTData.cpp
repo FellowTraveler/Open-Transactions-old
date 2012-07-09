@@ -247,6 +247,14 @@ OTData::~OTData()
     Release_Data(); 
 }
 
+void OTData::zeroMemory()
+{
+    if (m_pData != NULL)
+    {
+        OTPassword::zeroMemory(m_pData, m_lSize);
+    }
+}
+
 void OTData::Release_Data()
 {
    if (m_pData != NULL)

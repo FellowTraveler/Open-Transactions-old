@@ -1400,6 +1400,8 @@ bool OTASCIIArmor::LoadFromFile(const OTString & foldername, const OTString & fi
 	return LoadFromString(strFileContents);	
 }
 
+
+
 // This code reads up the file, discards the bookends, and saves only the gibberish itself.
 bool OTASCIIArmor::LoadFromifstream(const std::ifstream & fin)
 {
@@ -1416,12 +1418,54 @@ bool OTASCIIArmor::LoadFromifstream(const std::ifstream & fin)
 
 
 
+
+
+
+
+//const char * OT_BEGIN_ARMORED   = "-----BEGIN OT ARMORED";
+//const char * OT_END_ARMORED     =   "-----END OT ARMORED";
+
+bool OTASCIIArmor::WriteArmoredFile(const OTString & foldername, const OTString & filename,
+                                    const // for "-----BEGIN OT LEDGER-----", str_type would contain "LEDGER"
+                                        std::string str_type, // There's no default, to force you to enter the right string.
+                                    bool bEscaped/*=false*/)
+{    
+    OT_ASSERT(foldername.Exists());
+    OT_ASSERT(filename.Exists());
+    // ----------------------------------
+    const char * szFunc = "OTASCIIArmor::WriteArmoredFile";
+    // ----------------------------------
+    OTString strOutput;
+    
+    if (this->WriteArmoredString(strOutput, str_type, bEscaped) && strOutput.Exists())
+    {
+        // WRITE IT TO THE FILE
+        // StorePlainString will attempt to create all the folders leading up to the path
+        // for the output file.
+        //
+        bool bSaved = OTDB::StorePlainString(strOutput.Get(), foldername.Get(), filename.Get());
+        
+        if (!bSaved)
+        {
+            OTLog::vError("%s: Failed saving to file: %s%s%s\n\n Contents:\n\n%s\n\n", szFunc,
+                          foldername.Get(), OTLog::PathSeparator(), filename.Get(), strOutput.Get());
+            return false;
+        }        
+        // --------------------------------------------------------------------        
+        return true;
+    }
+    // -----------------------
+    return false;
+}
+
+
+
 //const char * OT_BEGIN_ARMORED   = "-----BEGIN OT ARMORED";
 //const char * OT_END_ARMORED     =   "-----END OT ARMORED";
 
 bool OTASCIIArmor::WriteArmoredString(OTString & strOutput,
                                       const // for "-----BEGIN OT LEDGER-----", str_type would contain "LEDGER"
-                                      std::string str_type, // There's no default, to force you to enter the right string.
+                                        std::string str_type, // There's no default, to force you to enter the right string.
                                       bool bEscaped/*=false*/)
 {   
     const char * szEscape = "- ";
@@ -1454,7 +1498,7 @@ bool OTASCIIArmor::WriteArmoredString(OTString & strOutput,
 // you to load an escaped ASCII-armored file (such as inside the contracts when the public keys
 // are escaped with a "- " before the rest of the ------- starts.)
 //
-bool OTASCIIArmor::LoadFromString(OTString & theStr, 
+bool OTASCIIArmor::LoadFromString(OTString & theStr, // input
                                   bool bEscaped/*=false*/, 
                                   const // This szOverride sub-string determines where the content starts, when loading.
                                   std::string str_override/*="-----BEGIN"*/) // Default is "-----BEGIN"

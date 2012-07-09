@@ -193,6 +193,7 @@ extern "C"
 #include "OTOffer.h"
 #include "OTTrade.h"
 #include "OTMarket.h"
+#include "OTEnvelope.h"
 
 #include "OTLog.h"
 
@@ -246,6 +247,11 @@ OTIdentifier::OTIdentifier(const OTOffer &theOffer)  : OTData() // Get the Offer
 OTIdentifier::OTIdentifier(const OTMarket &theMarket)  : OTData() // Get the Market ID into this identifier.
 {
 	(const_cast<OTMarket &>(theMarket)).GetIdentifier(*this);
+}
+
+OTIdentifier::OTIdentifier(const OTSymmetricKey &theKey)  : OTData() // Get the Symmetric Key's ID into *this. (It's a hash of the encrypted form of the symmetric key.)
+{
+	(const_cast<OTSymmetricKey &>(theKey)).GetIdentifier(*this);
 }
 
 void OTIdentifier::SetString(const char * szString)

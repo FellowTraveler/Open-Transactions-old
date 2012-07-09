@@ -1227,6 +1227,8 @@ bool OTServer::LoadConfigFile()
             }
             // ---------------------------------------------
 			// SECURITY (beginnings of..)
+            //
+            // MASTER KEY TIMEOUT
             {
                 const char * pVal = ini.GetValue("security", "master_key_timeout");
                 int nTimeout = 0;
@@ -1238,6 +1240,23 @@ bool OTServer::LoadConfigFile()
                 }
             }
 			// ---------------------------------------------
+			// SECURITY 
+            //
+            // USE SYSTEM KEYRING (Gnome-Keyring, Mac Keychain, Windows DPAPI, etc)
+            //
+            {
+                const char * pVal = ini.GetValue("security", "use_system_keyring");
+                
+                if (NULL != pVal)
+                {
+					const OTString strUsingKeyring(pVal);
+					const bool bUsingKeyring = strUsingKeyring.Compare("true") ? true : false;
+                    OTLog::vOutput(1, "Setting security use_system_keyring: %s\n",
+								   bUsingKeyring ? "true" : "false");
+                    OTMasterKey::It()->UseSystemKeyring(bUsingKeyring);
+                }
+            }
+            // ----------------------------------------------------------------
 			// (#defined right above this function.)
 			//
 			OT_SVR_CONFIG_OPT_BOOL("permissions", "admin_usage_credits",		__admin_usage_credits);

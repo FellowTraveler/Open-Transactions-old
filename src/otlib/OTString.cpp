@@ -481,6 +481,14 @@ bool OTString::TokenizeIntoKeyValuePairs(std::map<std::string, std::string> & ma
  // zero it out similarly.
  */
 
+void OTString::zeroMemory()
+{
+   	if (NULL != m_strBuffer)
+	{
+        OTPassword::zeroMemory(m_strBuffer, m_lLength);
+    } 
+}
+
 void OTString::Release_String(void)
 {
 	if (NULL != m_strBuffer)

@@ -189,6 +189,7 @@ otlib_headers =			include/otlib/anyoption.h			\
 				include/otlib/OTDataCheck.h			\
 				include/otlib/ot_default_paths.h		\
 				include/otlib/OTEnvelope.h			\
+				include/otlib/OTKeyring.h			\
 				include/otlib/OTglobal.h			\
 				include/otlib/OTIdentifier.h			\
 				include/otlib/OTInstrument.h			\
@@ -251,6 +252,7 @@ otlib_sources     =		src/otlib/anyoption.cpp				\
 				src/otlib/OTData.cpp				\
 				src/otlib/OTDataCheck.cpp			\
 				src/otlib/OTEnvelope.cpp			\
+				src/otlib/OTKeyring.cpp			\
 				src/otlib/OTIdentifier.cpp			\
 				src/otlib/OTInstrument.cpp			\
 				src/otlib/OTItem.cpp				\

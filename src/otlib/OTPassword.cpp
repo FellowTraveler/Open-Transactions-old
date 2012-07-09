@@ -773,7 +773,8 @@ int OTPassword::setPassword(const char * szInput, int nInputSize)
 }
 
 
-
+// This adds a null terminator.
+//
 int32_t OTPassword::setPassword_uint8(const uint8_t * szInput, uint32_t nInputSize)
 {
     OT_ASSERT(NULL != szInput);
