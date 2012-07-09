@@ -12,8 +12,8 @@ AC_CONFIG_MACRO_DIR([build-aux/m4])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_SRCDIR([src/ot/main.cpp])
 
-: ${CXXFLAGS=""	}
-: ${CFLAGS=""	}
+: ${CXXFLAGS=""}
+: ${CFLAGS=""}
 
 PKG_PROG_PKG_CONFIG([0.25])
 AC_PROG_CC
@@ -26,14 +26,13 @@ AC_PROG_CXX
 
 PKG_CHECK_MODULES([DEPS],[protobuf >= 2.4.1 openssl >= 1.0.0 chaiscript >= 3.1.0])
 
-
 ## boost_thread lib ##
 
 AX_BOOST_BASE([1.25.0])
 AX_BOOST_THREAD
 
-AC_SUBST(DEPS_CFLAGS,["$DEPS_CFLAGS $BOOST_CPPFLAGS"])
-AC_SUBST(DEPS_LIBS,["$DEPS_LIBS $BOOST_LDFLAGS $BOOST_THREAD_LIB"])
+AC_SUBST( DEPS_CFLAGS,	["$DEPS_CFLAGS $BOOST_CPPFLAGS"])
+AC_SUBST( DEPS_LIBS,	["$DEPS_LIBS $BOOST_LDFLAGS $BOOST_THREAD_LIB"])
 
 ## Transport Options (ZMQ defaut) ##
 
@@ -44,91 +43,87 @@ AC_ARG_WITH(	[transport],
 			zmq) true ;;
 			testclient) true ;;
 			*) AC_MSG_ERROR([bad value ${withval} for --with-transport]) ;;
-		esac],
+			esac],
 		[with_transport=zmq])
 
-AM_CONDITIONAL(	[TRANSPORT_ZMQ], [test "$with_transport" == zmq])
-AM_CONDITIONAL(	[TRANSPORT_TESTCLIENT], [test "$with_transport" == testclient])
+AM_CONDITIONAL(	[TRANSPORT_ZMQ],	[test "$with_transport" == zmq])
+AM_CONDITIONAL(	[TRANSPORT_TESTCLIENT],	[test "$with_transport" == testclient])
 
 AS_IF(	[test "$with_transport" == zmq],
 	[
 	PKG_CHECK_MODULES([ZMQ],[libzmq >= 2.1.9])
 	AC_LANG_PUSH([C++])
-		AC_CHECK_HEADERS([zmq.hpp],[],
+		AC_CHECK_HEADERS([zmq.hpp],
+			[],
 			[AC_MSG_ERROR([Header files for libzmq not found or incompatible.])],
 			[])
 	AC_LANG_POP
-	AC_SUBST(DEPS_CFLAGS,["$DEPS_CFLAGS $ZMQ_CFLAGS"])
-	AC_SUBST(DEPS_LIBS,["$DEPS_LIBS $ZMQ_LIBS"])
+	AC_SUBST(DEPS_CFLAGS,	["$DEPS_CFLAGS $ZMQ_CFLAGS"])
+	AC_SUBST(DEPS_LIBS,	["$DEPS_LIBS $ZMQ_LIBS"])
 	])
 
-AC_SUBST(DEPS_CFLAGS)
-AC_SUBST(DEPS_LIBS)
-
-
-##### MsgPack #####
+## MsgPack ##
 
 AC_CHECK_HEADERS(
 	[msgpack.h],
 	[],
-	[AC_MSG_ERROR([No header files for libmsgpack found.])])
+	[AC_MSG_ERROR([No header files for libmsgpack found.])]
+	)
 
 AC_CHECK_LIB(msgpack, msgpack_unpack)
 
 
-##### (Option) Signal Handler #####
+#### Configure Options ####
+
+## (Option) Signal Handler ##
 
 AC_ARG_ENABLE(
 	sighandler,
 	AS_HELP_STRING(
 		[--enable-sighandler],
 		[enable sighandler, default: no]),
-		[case "${enableval}" in
-			yes)	sighandler=true ;;
-			no)	sighandler=false ;;
-			*)	AC_MSG_ERROR([bad value ${enableval} for --disable-sighandler]) ;;
+	[case "${enableval}" in
+		yes)	sighandler=true ;;
+		no)	sighandler=false ;;
+		*)	AC_MSG_ERROR([bad value ${enableval} for --disable-sighandler]) ;;
 		esac],
-		[sighandler=false])
-
+	[sighandler=false])
 
 AM_CONDITIONAL(OT_SIGNAL_HANDLING, test x"$sighandler" = x"true")
 
-
-##### (Option) Warnings #####
+## (Option) Warnings ##
 
 AC_ARG_ENABLE(
 	warnings,
 	AS_HELP_STRING(
 		[--enable-warnings],
 		[enable warnings, default: no]),
-		[case "${enableval}" in
-			yes) warnings=true ;;
-			no)  warnings=false ;;
-			*)   AC_MSG_ERROR([bad value ${enableval} for --enable-warnings]) ;;
-			esac],
-		[warnings=false])
+	[case "${enableval}" in
+		yes) warnings=true ;;
+		no)  warnings=false ;;
+		*)   AC_MSG_ERROR([bad value ${enableval} for --enable-warnings]) ;;
+		esac],
+	[warnings=false])
 
 AM_CONDITIONAL(WARNINGS, test x"$warnings" = x"true")
 
-
-##### (Option) Build In Release Mode #####
+## (Option) Build In Release Mode ##
 
 AC_ARG_ENABLE(
 	release,
 	AS_HELP_STRING(
 		[--enable-release],
 		[enable releasemode, default: no]),
-		[case "${enableval}" in
-			yes) release=true ;;
-			no)  release=false ;;
-			*)   AC_MSG_ERROR([bad value ${enableval} for --enable-release]) ;;
-			esac],
-		[release=false])
+	[case "${enableval}" in
+		yes) release=true ;;
+		no)  release=false ;;
+		*)   AC_MSG_ERROR([bad value ${enableval} for --enable-release]) ;;
+		esac],
+	[release=false])
 
 AM_CONDITIONAL(RELEASE, test x"$release" = x"true")
 
-
-##### (Option) Add SWIG JAVA #####
+## (Option) Add SWIG JAVA ##
 
 AC_ARG_WITH(
 	[java],
@@ -150,7 +145,7 @@ if (test "x$with_java" == "xyes"); then
 	AC_SUBST(JNI_CPPFLAGS, $JNI_CPPFLAGS)
 fi
 
-##### (Option) Add SWIG PERL5 #####
+## (Option) Add SWIG PERL5 ##
 
 AC_ARG_WITH(
 	[perl5],
@@ -162,10 +157,9 @@ AM_CONDITIONAL([WANT_PERL5], [test "x$with_perl5" == "xyes"])
 if (test "x$with_perl5" == "xyes"); then
 
 	AX_PERL_EXT
-
 fi
 
-##### (Option) Add SWIG PHP #####
+## (Option) Add SWIG PHP ##
 
 AC_ARG_WITH(
 	[php],
@@ -177,10 +171,9 @@ AM_CONDITIONAL([WANT_PHP], [test "x$with_php" == "xyes"])
 if (test "x$with_php" == "xyes"); then
 
 	AX_PHP_DEVEL
-
 fi
 
-##### (Option) Add SWIG PYTHON #####
+## (Option) Add SWIG PYTHON ##
 
 AC_ARG_WITH(
 	[python],
@@ -189,12 +182,47 @@ AC_ARG_WITH(
 
 AM_CONDITIONAL([WANT_PYTHON], [test "x$with_python" == "xyes"])
 
-
 if (test "x$with_python" == "xyes"); then
 
 	AX_PYTHON_DEVEL
-
 fi
+
+## Keyring Options ##
+
+AC_ARG_WITH(	[keyring],
+		[AS_HELP_STRING([--with-keyring@<:@=@:>@],
+		[Choose a keyring integrator (available: windows, mac, gnome, kwallet)])],
+		[case "${withval}" in
+			windows) true ;;
+			mac) true ;;
+			gnome) true ;;
+			kwallet) true ;;
+			*) AC_MSG_ERROR([bad value ${withval} for --with-keyring]) ;;
+			esac],
+		[])
+
+AM_CONDITIONAL(	[KEYRING_WINDOWS],	[test "$with_keyring" == windows])
+AM_CONDITIONAL(	[KEYRING_MAC],		[test "$with_keyring" == mac])
+AM_CONDITIONAL(	[KEYRING_GNOME],	[test "$with_keyring" == gnome])
+AM_CONDITIONAL(	[KEYRING_KWALLET],	[test "$with_keyring" == kwallet])
+
+AS_IF(	[test "$with_keyring" == gnome],
+	[
+	PKG_CHECK_MODULES([GKRDEPS], [glib-2.0 >= 2.28.6 gnome-keyring-1])
+	AC_SUBST(DEPS_CFLAGS,	["$DEPS_CFLAGS $GKRDEPS_CFLAGS"])
+	AC_SUBST(DEPS_LIBS,	["$DEPS_LIBS $GKRDEPS_LIBS"])
+	])
+
+AS_IF(	[test "$with_keyring" == kwallet],
+	[
+	AC_SUBST(DEPS_CFLAGS,	["$DEPS_CFLAGS -I/usr/include/kde"])
+	AC_SUBST(DEPS_LIBS,	["$DEPS_LIBS -L/usr/lib -lkwalletclient"])
+	])
+
+##### Options END #####
+
+AC_SUBST(DEPS_CFLAGS)
+AC_SUBST(DEPS_LIBS)
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
