@@ -31,8 +31,8 @@ PKG_CHECK_MODULES([DEPS],[protobuf >= 2.4.1 openssl >= 1.0.0 chaiscript >= 3.1.0
 AX_BOOST_BASE([1.25.0])
 AX_BOOST_THREAD
 
-AC_SUBST(DEPS_CFLAGS,["$DEPS_CFLAGS $BOOST_CPPFLAGS"])
-AC_SUBST(DEPS_LIBS,["$DEPS_LIBS $BOOST_LDFLAGS $BOOST_THREAD_LIB"])
+AC_SUBST( DEPS_CFLAGS,	["$DEPS_CFLAGS	$BOOST_CPPFLAGS"])
+AC_SUBST( DEPS_LIBS,	["$DEPS_LIBS	$BOOST_LDFLAGS	$BOOST_THREAD_LIB"])
 
 ## Transport Options (ZMQ defaut) ##
 
@@ -46,8 +46,8 @@ AC_ARG_WITH(	[transport],
 			esac],
 		[with_transport=zmq])
 
-AM_CONDITIONAL(	[TRANSPORT_ZMQ], [test "$with_transport" == zmq])
-AM_CONDITIONAL(	[TRANSPORT_TESTCLIENT], [test "$with_transport" == testclient])
+AM_CONDITIONAL(	[TRANSPORT_ZMQ],	[test "$with_transport" == zmq])
+AM_CONDITIONAL(	[TRANSPORT_TESTCLIENT],	[test "$with_transport" == testclient])
 
 AS_IF(	[test "$with_transport" == zmq],
 	[
@@ -58,8 +58,8 @@ AS_IF(	[test "$with_transport" == zmq],
 			[AC_MSG_ERROR([Header files for libzmq not found or incompatible.])],
 			[])
 	AC_LANG_POP
-	AC_SUBST(DEPS_CFLAGS,["$DEPS_CFLAGS $ZMQ_CFLAGS"])
-	AC_SUBST(DEPS_LIBS,["$DEPS_LIBS $ZMQ_LIBS"])
+	AC_SUBST(DEPS_CFLAGS,	["$DEPS_CFLAGS	$ZMQ_CFLAGS"])
+	AC_SUBST(DEPS_LIBS,	["$DEPS_LIBS	$ZMQ_LIBS"])
 	])
 
 AC_SUBST(DEPS_CFLAGS)
@@ -193,7 +193,7 @@ fi
 ## Keyring Options ##
 
 AC_ARG_WITH(	[keyring],
-		[AS_HELP_STRING([--with-keyring@<:@=gnome@:>@],
+		[AS_HELP_STRING([--with-keyring@<:@=@:>@],
 		[Choose a keyring integrator (available: windows, mac, gnome, kwallet)])],
 		[case "${withval}" in
 			windows) true ;;
@@ -202,48 +202,28 @@ AC_ARG_WITH(	[keyring],
 			kwallet) true ;;
 			*) AC_MSG_ERROR([bad value ${withval} for --with-keyring]) ;;
 			esac],
-		[with_keyring=""])
+		[])
 
-AM_CONDITIONAL([KEYRING_WINDOWS],	[test "$with_keyring" == windows])
-AM_CONDITIONAL([KEYRING_MAC],		[test "$with_keyring" == mac])
-AM_CONDITIONAL([KEYRING_GNOME],		[test "$with_keyring" == gnome])
-AM_CONDITIONAL([KEYRING_KWALLET],	[test "$with_keyring" == kwallet])
+AM_CONDITIONAL(	[KEYRING_WINDOWS],	[test "$with_keyring" == windows])
+AM_CONDITIONAL(	[KEYRING_MAC],		[test "$with_keyring" == mac])
+AM_CONDITIONAL(	[KEYRING_GNOME],	[test "$with_keyring" == gnome])
+AM_CONDITIONAL(	[KEYRING_KWALLET],	[test "$with_keyring" == kwallet])
 
-#AS_IF(	[test "$with_transport" == windows],
-#	[
-#	AC_SUBST(DEPS_CFLAGS,["$DEPS_CFLAGS $WINDOWS_CFLAGS"])
-#	AC_SUBST(DEPS_LIBS,["$DEPS_LIBS $WINDOWS_LIBS"])
-#	])
-#
-#AC_SUBST(DEPS_CFLAGS)
-#AC_SUBST(DEPS_LIBS)
+AS_IF(	[test "$with_keyring" == gnome],
+	[
+	PKG_CHECK_MODULES([GKR],[gnome-keyring-1])
+	AC_SUBST(DEPS_CFLAGS,	["$DEPS_CFLAGS	$GKR_CFLAGS"])
+	AC_SUBST(DEPS_LIBS,	["$DEPS_LIBS	$GKR_LIBS"])
+	])
 
-#AS_IF(	[test "$with_transport" == mac],
-#	[
-#	AC_SUBST(DEPS_CFLAGS,["$DEPS_CFLAGS $MAC_CFLAGS"])
-#	AC_SUBST(DEPS_LIBS,["$DEPS_LIBS $MAC_LIBS"])
-#	])
-#
-#AC_SUBST(DEPS_CFLAGS)
-#AC_SUBST(DEPS_LIBS)
+AS_IF(	[test "$with_keyring" == kwallet],
+	[
+	AC_SUBST(DEPS_CFLAGS,	["$DEPS_CFLAGS	-I/usr/include/kde"])
+	AC_SUBST(DEPS_LIBS,	["$DEPS_LIBS	-L/usr/lib -lkwalletclient"])
+	])
 
-#AS_IF(	[test "$with_transport" == gnome],
-#	[
-#	AC_SUBST(DEPS_CFLAGS,["$DEPS_CFLAGS $GNOME_CFLAGS"])
-#	AC_SUBST(DEPS_LIBS,["$DEPS_LIBS $GNOME_LIBS"])
-#	])
-#
-#AC_SUBST(DEPS_CFLAGS)
-#AC_SUBST(DEPS_LIBS)
-
-#AS_IF(	[test "$with_transport" == kwallet],
-#	[
-#	AC_SUBST(DEPS_CFLAGS,["$DEPS_CFLAGS $KWALLET_CFLAGS"])
-#	AC_SUBST(DEPS_LIBS,["$DEPS_LIBS $KWALLET_LIBS"])
-#	])
-#
-#AC_SUBST(DEPS_CFLAGS)
-#AC_SUBST(DEPS_LIBS)
+AC_SUBST(DEPS_CFLAGS)
+AC_SUBST(DEPS_LIBS)
 
 ##### Options END #####
 
