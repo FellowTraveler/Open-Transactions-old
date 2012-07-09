@@ -31,8 +31,8 @@ PKG_CHECK_MODULES([DEPS],[protobuf >= 2.4.1 openssl >= 1.0.0 chaiscript >= 3.1.0
 AX_BOOST_BASE([1.25.0])
 AX_BOOST_THREAD
 
-AC_SUBST( DEPS_CFLAGS,	["$DEPS_CFLAGS	$BOOST_CPPFLAGS"])
-AC_SUBST( DEPS_LIBS,	["$DEPS_LIBS	$BOOST_LDFLAGS	$BOOST_THREAD_LIB"])
+AC_SUBST( DEPS_CFLAGS,	["$DEPS_CFLAGS $BOOST_CPPFLAGS"])
+AC_SUBST( DEPS_LIBS,	["$DEPS_LIBS $BOOST_LDFLAGS $BOOST_THREAD_LIB"])
 
 ## Transport Options (ZMQ defaut) ##
 
@@ -58,12 +58,9 @@ AS_IF(	[test "$with_transport" == zmq],
 			[AC_MSG_ERROR([Header files for libzmq not found or incompatible.])],
 			[])
 	AC_LANG_POP
-	AC_SUBST(DEPS_CFLAGS,	["$DEPS_CFLAGS	$ZMQ_CFLAGS"])
-	AC_SUBST(DEPS_LIBS,	["$DEPS_LIBS	$ZMQ_LIBS"])
+	AC_SUBST(DEPS_CFLAGS,	["$DEPS_CFLAGS $ZMQ_CFLAGS"])
+	AC_SUBST(DEPS_LIBS,	["$DEPS_LIBS $ZMQ_LIBS"])
 	])
-
-AC_SUBST(DEPS_CFLAGS)
-AC_SUBST(DEPS_LIBS)
 
 ## MsgPack ##
 
@@ -211,21 +208,21 @@ AM_CONDITIONAL(	[KEYRING_KWALLET],	[test "$with_keyring" == kwallet])
 
 AS_IF(	[test "$with_keyring" == gnome],
 	[
-	PKG_CHECK_MODULES([GKR],[gnome-keyring-1])
-	AC_SUBST(DEPS_CFLAGS,	["$DEPS_CFLAGS	$GKR_CFLAGS"])
-	AC_SUBST(DEPS_LIBS,	["$DEPS_LIBS	$GKR_LIBS"])
+	PKG_CHECK_MODULES([GKRDEPS], [glib-2.0 >= 2.28.6 gnome-keyring-1])
+	AC_SUBST(DEPS_CFLAGS,	["$DEPS_CFLAGS $GKRDEPS_CFLAGS"])
+	AC_SUBST(DEPS_LIBS,	["$DEPS_LIBS $GKRDEPS_LIBS"])
 	])
 
 AS_IF(	[test "$with_keyring" == kwallet],
 	[
-	AC_SUBST(DEPS_CFLAGS,	["$DEPS_CFLAGS	-I/usr/include/kde"])
-	AC_SUBST(DEPS_LIBS,	["$DEPS_LIBS	-L/usr/lib -lkwalletclient"])
+	AC_SUBST(DEPS_CFLAGS,	["$DEPS_CFLAGS -I/usr/include/kde"])
+	AC_SUBST(DEPS_LIBS,	["$DEPS_LIBS -L/usr/lib -lkwalletclient"])
 	])
+
+##### Options END #####
 
 AC_SUBST(DEPS_CFLAGS)
 AC_SUBST(DEPS_LIBS)
-
-##### Options END #####
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
