@@ -564,7 +564,18 @@ dist_opentxslib_SCRIPTS		=	scripts/ot/ot_commands.ot	\
 					scripts/ot/ot_made_easy.ot	\
 					scripts/ot/ot_utility.ot
 
-#### OT docs, licences, info, etc.
+#### OT init-user-data for wallet bootstrap.
+
+opentxssharedir			=	$(datadir)
+
+nobase_dist_opentxsshare_DATA	=	init-user-data/command-line-ot.opt			\
+					init-user-data/CLIENT-COMMANDS.txt			\
+					init-user-data/client_data/LICENSE-AND-CREDITS.txt	\
+					init-user-data/client_data/wallet.xml		\
+					init-user-data/client_data/scripts/readme.txt	\
+					init-user-data/server_data/notaryServer.xml
+
+#### OT docs, licences, info, demo data.
 
 opentxsdocdir			=	$(docdir)
 
@@ -581,12 +592,12 @@ dist_opentxsdoc_DATA		=	docs/GETTING-STARTED.txt	\
 					README.md 			\
 					VERSION
 
-nobase_dist_opentxsdoc_DATA	=	sample-data/ot-sample-data-clean/ot_init.cfg				\
-					sample-data/ot-sample-data-clean/client.cfg				\
-					sample-data/ot-sample-data-clean/command-line-ot.opt			\
-					sample-data/ot-sample-data-clean/CLIENT-COMMANDS.txt			\
-					sample-data/ot-sample-data-clean/client_data/LICENSE-AND-CREDITS.txt	\
-					sample-data/ot-sample-data-clean/client_data/wallet.xml			\
-					sample-data/ot-sample-data-clean/client_data/scripts/readme.txt		\
-					sample-data/ot-sample-data-clean/server.cfg				\
-					sample-data/ot-sample-data-clean/server_data/notaryServer.xml
+nobase_dist_opentxsdoc_DATA	=	sample-data/demo-user-data/ot_init.cfg				\
+					sample-data/demo-user-data/client.cfg				\
+					sample-data/demo-user-data/command-line-ot.opt			\
+					sample-data/demo-user-data/CLIENT-COMMANDS.txt			\
+					sample-data/demo-user-data/client_data/LICENSE-AND-CREDITS.txt	\
+					sample-data/demo-user-data/client_data/wallet.xml		\
+					sample-data/demo-user-data/client_data/scripts/readme.txt	\
+					sample-data/demo-user-data/server.cfg				\
+					sample-data/demo-user-data/server_data/notaryServer.xml
