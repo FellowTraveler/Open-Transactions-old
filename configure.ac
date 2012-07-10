@@ -7,7 +7,6 @@ AM_INIT_AUTOMAKE([1.10 foreign])
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
 LT_INIT([dlopen])
-
 AC_CONFIG_MACRO_DIR([build-aux/m4])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_SRCDIR([src/ot/main.cpp])
@@ -15,10 +14,12 @@ AC_CONFIG_SRCDIR([src/ot/main.cpp])
 : ${CXXFLAGS=""}
 : ${CFLAGS=""}
 
-PKG_PROG_PKG_CONFIG([0.25])
 AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_CXX
+
+PKG_PROG_PKG_CONFIG([0.25])
+PKG_CONFIG_PATH="${prefix}/lib/pkgconfig:/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH"
 
 ##### Dependencies, packages, libs ####
 #
@@ -208,7 +209,7 @@ AM_CONDITIONAL(	[KEYRING_KWALLET],	[test "$with_keyring" == kwallet])
 
 AS_IF(	[test "$with_keyring" == gnome],
 	[
-	PKG_CHECK_MODULES([GKRDEPS], [glib-2.0 >= 2.28.6 gnome-keyring-1])
+	PKG_CHECK_MODULES([GKRDEPS],[glib-2.0 >= 2.28.6 gnome-keyring-1])
 	AC_SUBST(DEPS_CFLAGS,	["$DEPS_CFLAGS $GKRDEPS_CFLAGS"])
 	AC_SUBST(DEPS_LIBS,	["$DEPS_LIBS $GKRDEPS_LIBS"])
 	])
