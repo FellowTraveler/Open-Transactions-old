@@ -52,15 +52,15 @@ AM_CONDITIONAL(	[TRANSPORT_TESTCLIENT],	[test "$with_transport" == testclient])
 
 AS_IF(	[test "$with_transport" == zmq],
 	[
-	PKG_CHECK_MODULES([ZMQ],[libzmq >= 2.1.9])
+	PKG_CHECK_MODULES([ZMQDEP],[libzmq >= 2.1.9])
 	AC_LANG_PUSH([C++])
 		AC_CHECK_HEADERS([zmq.hpp],
 			[],
 			[AC_MSG_ERROR([Header files for libzmq not found or incompatible.])],
 			[])
 	AC_LANG_POP
-	AC_SUBST(DEPS_CFLAGS,	["$DEPS_CFLAGS $ZMQ_CFLAGS"])
-	AC_SUBST(DEPS_LIBS,	["$DEPS_LIBS $ZMQ_LIBS"])
+	AC_SUBST(DEPS_CFLAGS,	["$DEPS_CFLAGS $ZMQDEP_CFLAGS"])
+	AC_SUBST(DEPS_LIBS,	["$DEPS_LIBS $ZMQDEP_LIBS"])
 	])
 
 ## MsgPack ##
@@ -209,9 +209,9 @@ AM_CONDITIONAL(	[KEYRING_KWALLET],	[test "$with_keyring" == kwallet])
 
 AS_IF(	[test "$with_keyring" == gnome],
 	[
-	PKG_CHECK_MODULES([GKRDEPS],[glib-2.0 >= 2.28.6 gnome-keyring-1])
-	AC_SUBST(DEPS_CFLAGS,	["$DEPS_CFLAGS $GKRDEPS_CFLAGS"])
-	AC_SUBST(DEPS_LIBS,	["$DEPS_LIBS $GKRDEPS_LIBS"])
+	PKG_CHECK_MODULES([GKRDEP],[glib-2.0 >= 2.28.6 gnome-keyring-1])
+	AC_SUBST(DEPS_CFLAGS,	["$DEPS_CFLAGS $GKRDEP_CFLAGS"])
+	AC_SUBST(DEPS_LIBS,	["$DEPS_LIBS $GKRDEP_LIBS"])
 	])
 
 AS_IF(	[test "$with_keyring" == kwallet],
