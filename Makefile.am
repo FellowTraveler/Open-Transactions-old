@@ -566,7 +566,7 @@ dist_opentxslib_SCRIPTS		=	scripts/ot/ot_commands.ot	\
 
 #### OT init-user-data for wallet bootstrap.
 
-opentxssharedir			=	$(datadir)
+opentxssharedir			=	$(datadir)/opentxs
 
 nobase_dist_opentxsshare_DATA	=	init-user-data/command-line-ot.opt			\
 					init-user-data/CLIENT-COMMANDS.txt			\
@@ -600,4 +600,14 @@ nobase_dist_opentxsdoc_DATA	=	sample-data/demo-user-data/ot_init.cfg				\
 					sample-data/demo-user-data/client_data/wallet.xml		\
 					sample-data/demo-user-data/client_data/scripts/readme.txt	\
 					sample-data/demo-user-data/server.cfg				\
-					sample-data/demo-user-data/server_data/notaryServer.xml
+					sample-data/demo-user-data/server_data/notaryServer.xml		\
+					sample-data/sample-contracts/localhost.otc			\
+					sample-data/sample-contracts/localhost.xml			\
+					sample-data/sample-contracts/NOTES.txt				\
+					sample-data/sample-contracts/silver.otc				\
+					sample-data/sample-contracts/silver.xml				\
+					sample-data/sample-contracts/test-server-contract.otc		\
+					sample-data/sample-contracts/test-server-contract.xml		\
+					sample-data/sample-contracts/tokens.otc				\
+					sample-data/sample-contracts/tokens.xml
+
