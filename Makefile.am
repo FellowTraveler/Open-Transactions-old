@@ -571,8 +571,8 @@ opentxssharedir			=	$(datadir)/opentxs
 nobase_dist_opentxsshare_DATA	=	init-user-data/command-line-ot.opt			\
 					init-user-data/CLIENT-COMMANDS.txt			\
 					init-user-data/client_data/LICENSE-AND-CREDITS.txt	\
-					init-user-data/client_data/wallet.xml		\
-					init-user-data/client_data/scripts/readme.txt	\
+					init-user-data/client_data/wallet.xml			\
+					init-user-data/client_data/scripts/readme.txt		\
 					init-user-data/server_data/notaryServer.xml
 
 #### OT docs, licences, info, demo data.
@@ -592,15 +592,23 @@ dist_opentxsdoc_DATA		=	docs/GETTING-STARTED.txt	\
 					README.md 			\
 					VERSION
 
-nobase_dist_opentxsdoc_DATA	=	sample-data/demo-user-data/ot_init.cfg				\
-					sample-data/demo-user-data/client.cfg				\
+nobase_dist_opentxsdoc_DATA	=	sample-data/demo-user-data/client.cfg				\
+					sample-data/demo-user-data/server.cfg				\
+					sample-data/demo-user-data/ot_init.cfg				\
 					sample-data/demo-user-data/command-line-ot.opt			\
 					sample-data/demo-user-data/CLIENT-COMMANDS.txt			\
 					sample-data/demo-user-data/client_data/LICENSE-AND-CREDITS.txt	\
-					sample-data/demo-user-data/client_data/wallet.xml		\
 					sample-data/demo-user-data/client_data/scripts/readme.txt	\
-					sample-data/demo-user-data/server.cfg				\
-					sample-data/demo-user-data/server_data/notaryServer.xml		\
+					sample-data/demo-user-data/client_data/wallet.xml		\
+					sample-data/demo-user-data/client_data/contracts/tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1\
+					sample-data/demo-user-data/server_data/certs/pc23gUqPu9Bk1Vl0K5lz3Jp1MYIfjGIBXVWDp1gba9C\
+					sample-data/demo-user-data/server_data/certs/special/ca.crt				\
+					sample-data/demo-user-data/server_data/certs/special/dh_param_1024.pem			\
+					sample-data/demo-user-data/server_data/certs/special/server.pem				\
+					sample-data/demo-user-data/server_data/contracts/tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1\
+					sample-data/demo-user-data/server_data/cron/OT-CRON.crn					\
+					sample-data/demo-user-data/server_data/notaryServer.xml					\
+					sample-data/demo-user-data/server_data/nyms/pc23gUqPu9Bk1Vl0K5lz3Jp1MYIfjGIBXVWDp1gba9C	\
 					sample-data/sample-contracts/localhost.otc			\
 					sample-data/sample-contracts/localhost.xml			\
 					sample-data/sample-contracts/NOTES.txt				\
@@ -610,4 +618,3 @@ nobase_dist_opentxsdoc_DATA	=	sample-data/demo-user-data/ot_init.cfg				\
 					sample-data/sample-contracts/test-server-contract.xml		\
 					sample-data/sample-contracts/tokens.otc				\
 					sample-data/sample-contracts/tokens.xml
-
