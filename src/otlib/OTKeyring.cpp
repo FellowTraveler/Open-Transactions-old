@@ -223,7 +223,7 @@ extern "C"
 #include "OTStorage.h"
 
 #include "OTString.h"
-#include "OTASCIIArmor.cpp"
+#include "OTASCIIArmor.h"
 #include "OTEnvelope.h"
 #include "OTAsymmetricKey.h"
 

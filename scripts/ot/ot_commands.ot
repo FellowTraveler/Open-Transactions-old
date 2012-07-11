@@ -73,10 +73,10 @@ def main_decode()
 
 def main_encrypt()
 {
-    if (VerifyExists("MyNym"))
+    if (VerifyExists("HisNym"))
     {
         
-        OT_API_Output(0, "Please enter multiple lines of input to be encrypted, followed by an EOF or a ~ by itself on a blank line:\n\n")
+        OT_API_Output(0, "Please enter multiple lines of input to be encrypted,\nfollowed by an EOF or a ~ by itself on a blank line:\n\n")
         
         // The reason we accept the tilde ~ on a blank line by itself, is because
         // the EOF, while it works, causes us not to be able to read any more input
@@ -87,7 +87,7 @@ def main_encrypt()
         
         OT_API_Output(0, "\n\n--------------------------------------\n You entered:\n" + strInput + "\n\n") 
         
-        var strOutput = OT_API_Encrypt(MyNym, strInput)  // bLineBreaks=true 
+        var strOutput = OT_API_Encrypt(HisNym, strInput)  // bLineBreaks=true 
                 
         // stdout
         if (VerifyStringVal(strOutput))
