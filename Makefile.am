@@ -564,7 +564,18 @@ dist_opentxslib_SCRIPTS		=	scripts/ot/ot_commands.ot	\
 					scripts/ot/ot_made_easy.ot	\
 					scripts/ot/ot_utility.ot
 
-#### OT docs, licences, info, etc.
+#### OT init-user-data for wallet bootstrap.
+
+opentxssharedir			=	$(datadir)/opentxs
+
+nobase_dist_opentxsshare_DATA	=	init-user-data/command-line-ot.opt			\
+					init-user-data/CLIENT-COMMANDS.txt			\
+					init-user-data/client_data/LICENSE-AND-CREDITS.txt	\
+					init-user-data/client_data/wallet.xml			\
+					init-user-data/client_data/scripts/readme.txt		\
+					init-user-data/server_data/notaryServer.xml
+
+#### OT docs, licences, info, demo data.
 
 opentxsdocdir			=	$(docdir)
 
@@ -581,12 +592,29 @@ dist_opentxsdoc_DATA		=	docs/GETTING-STARTED.txt	\
 					README.md 			\
 					VERSION
 
-nobase_dist_opentxsdoc_DATA	=	sample-data/ot-sample-data-clean/ot_init.cfg				\
-					sample-data/ot-sample-data-clean/client.cfg				\
-					sample-data/ot-sample-data-clean/command-line-ot.opt			\
-					sample-data/ot-sample-data-clean/CLIENT-COMMANDS.txt			\
-					sample-data/ot-sample-data-clean/client_data/LICENSE-AND-CREDITS.txt	\
-					sample-data/ot-sample-data-clean/client_data/wallet.xml			\
-					sample-data/ot-sample-data-clean/client_data/scripts/readme.txt		\
-					sample-data/ot-sample-data-clean/server.cfg				\
-					sample-data/ot-sample-data-clean/server_data/notaryServer.xml
+nobase_dist_opentxsdoc_DATA	=	sample-data/demo-user-data/client.cfg				\
+					sample-data/demo-user-data/server.cfg				\
+					sample-data/demo-user-data/ot_init.cfg				\
+					sample-data/demo-user-data/command-line-ot.opt			\
+					sample-data/demo-user-data/CLIENT-COMMANDS.txt			\
+					sample-data/demo-user-data/client_data/LICENSE-AND-CREDITS.txt	\
+					sample-data/demo-user-data/client_data/scripts/readme.txt	\
+					sample-data/demo-user-data/client_data/wallet.xml		\
+					sample-data/demo-user-data/client_data/contracts/tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1\
+					sample-data/demo-user-data/server_data/certs/pc23gUqPu9Bk1Vl0K5lz3Jp1MYIfjGIBXVWDp1gba9C\
+					sample-data/demo-user-data/server_data/certs/special/ca.crt				\
+					sample-data/demo-user-data/server_data/certs/special/dh_param_1024.pem			\
+					sample-data/demo-user-data/server_data/certs/special/server.pem				\
+					sample-data/demo-user-data/server_data/contracts/tBy5mL14qSQXCJK7Uz3WlTOKRP9M0JZksA3Eg7EnnQ1\
+					sample-data/demo-user-data/server_data/cron/OT-CRON.crn					\
+					sample-data/demo-user-data/server_data/notaryServer.xml					\
+					sample-data/demo-user-data/server_data/nyms/pc23gUqPu9Bk1Vl0K5lz3Jp1MYIfjGIBXVWDp1gba9C	\
+					sample-data/sample-contracts/localhost.otc			\
+					sample-data/sample-contracts/localhost.xml			\
+					sample-data/sample-contracts/NOTES.txt				\
+					sample-data/sample-contracts/silver.otc				\
+					sample-data/sample-contracts/silver.xml				\
+					sample-data/sample-contracts/test-server-contract.otc		\
+					sample-data/sample-contracts/test-server-contract.xml		\
+					sample-data/sample-contracts/tokens.otc				\
+					sample-data/sample-contracts/tokens.xml
