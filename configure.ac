@@ -19,7 +19,6 @@ AM_PROG_CC_C_O
 AC_PROG_CXX
 
 PKG_PROG_PKG_CONFIG([0.25])
-PKG_CONFIG_PATH="${prefix}/lib/pkgconfig:/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH"
 
 ##### Dependencies, packages, libs ####
 #
@@ -191,8 +190,8 @@ fi
 ## Keyring Options ##
 
 AC_ARG_WITH(	[keyring],
-		[AS_HELP_STRING([--with-keyring@<:@=@:>@],
-		[Choose a keyring integrator (available: windows, mac, gnome, kwallet)])],
+		[AS_HELP_STRING([--with-keyring@<:@=ARG@:>@],
+		[Choose a keyring ARG from: windows, mac, gnome, kwallet])],
 		[case "${withval}" in
 			windows) true ;;
 			mac) true ;;
