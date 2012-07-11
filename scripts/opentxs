@@ -190,7 +190,7 @@ def main_opentxs()
                          "confirm":main_not_coded_yet,          // confirm your agreement to a smart contract or payment plan.
                          "getcontract":main_download_contract,  // download an asset or server contract by its ID.
                          "refresh":main_dl_acct_files,          // download latest intermediary files for myacct.
-                         "refreshnym":main_not_coded_yet,       // download latest intermediary files for mynym.
+                         "refreshnym":main_refresh_nym,         // download latest intermediary files for mynym.
                          "inbox":main_show_inbox,               // display inbox of a particular account.
                          "outbox":main_show_outbox,             // display outbox of a particular account.
                          "mail":main_not_coded_yet,             // display in-mail for a particular nym.

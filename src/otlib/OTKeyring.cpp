@@ -223,6 +223,7 @@ extern "C"
 #include "OTStorage.h"
 
 #include "OTString.h"
+#include "OTASCIIArmor.cpp"
 #include "OTEnvelope.h"
 #include "OTAsymmetricKey.h"
 
@@ -686,31 +687,40 @@ bool OTKeyring::Gnome_StoreSecret(const OTString    & strUser,
     OT_ASSERT(strUser.Exists());
     OT_ASSERT(thePassword.getMemorySize() > 0);
     // -----------------------------------------
-          OTData       theData(thePassword.getMemory(), thePassword.getMemorySize());
-    const OTASCIIArmor ascData(theData);
+    OTData       theData(thePassword.getMemory(), thePassword.getMemorySize());
+    OTASCIIArmor ascData(theData);
     theData.zeroMemory(); // security reasons.
     // -----------------------------------------
-    GnomeKeyringResult theResult =
-        gnome_keyring_store_password_sync(GNOME_KEYRING_NETWORK_PASSWORD,
-                                          GNOME_KEYRING_DEFAULT, //GNOME_KEYRING_SESSION,
-                                          str_display.c_str(),
-                                          ascData.Get(),
-                                          "user",     strUser.Get(),
-                                          "protocol", "opentxs", // todo: hardcoding.
-                                          NULL);
+    OTString strOutput;
+    const bool bSuccess = ascData.Exists() && 
+                            ascData.WriteArmoredString(strOutput,
+                                                       "DERIVED KEY"); // There's no default, to force you to enter the right string.
     ascData.zeroMemory();
-    
-    if (theResult == GNOME_KEYRING_RESULT_OK)
+    // -----------------------------------------
+    if (bSuccess && strOutput.Exists())
     {
-        return true;
+        GnomeKeyringResult theResult =
+            gnome_keyring_store_password_sync(GNOME_KEYRING_NETWORK_PASSWORD,
+                                              GNOME_KEYRING_DEFAULT, //GNOME_KEYRING_SESSION,
+                                              str_display.c_str(),
+                                              strOutput.Get(),
+                                              "user",     strUser.Get(),
+                                              "protocol", "opentxs", // todo: hardcoding.
+                                              NULL);
+        strOutput.zeroMemory();
+        // ---------------------------
+        if (theResult == GNOME_KEYRING_RESULT_OK)
+        {
+            return true;
+        }
+        else 
+        {
+            OTLog::vError("OTKeyring::Gnome_StoreSecret: "
+                          "Failure in gnome_keyring_store_password_sync: %s.\n",
+                          gnome_keyring_result_to_message (theResult));
+        }
     }
-    else 
-    {
-        OTLog::vError("OTKeyring::Gnome_StoreSecret: "
-                      "Failure in gnome_keyring_store_password_sync: %s.\n",
-                      gnome_keyring_result_to_message (theResult));
-    }
-
+    // -----------------------------------------
     return false;
 }
 
@@ -721,6 +731,7 @@ bool OTKeyring::Gnome_RetrieveSecret(const OTString    & strUser,
                                      const std::string & str_display)
 {
     OT_ASSERT(strUser.Exists());
+    const char * szFunc = "OTKeyring::Gnome_RetrieveSecret";
     // -----------------------------------------
     GnomeKeyringResult theResult = GNOME_KEYRING_RESULT_IO_ERROR;
     gchar * gchar_p_password = NULL;
@@ -728,7 +739,7 @@ bool OTKeyring::Gnome_RetrieveSecret(const OTString    & strUser,
     // if the password exists in the keyring, set it in
     // thePassword (output argument.)
     //
-    GnomeKeyringResult theResult = 
+    theResult = 
         gnome_keyring_find_password_sync(GNOME_KEYRING_NETWORK_PASSWORD,
                                          &gchar_p_password, 
                                          "user",     strUser.Get(),
@@ -747,19 +758,19 @@ bool OTKeyring::Gnome_RetrieveSecret(const OTString    & strUser,
             gchar_p_password = NULL;
 
             OTASCIIArmor ascData;
-            bool bLoaded = strData.Exists() && ascData.LoadFromString(strData);
+            const bool bLoaded = strData.Exists() && ascData.LoadFromString(strData);
             strData.zeroMemory();
-            
+            // -----------------------------
             if (!bLoaded)
-                OTLog::vError("%s: Failed trying to decode secret from Gnome Keyring contents.\n",
-                              szFunc);
+                OTLog::vError("%s: Failed trying to decode secret from Gnome Keyring contents:\n\n%s\n\n",
+                              szFunc, strData.Get());
             else
             {
                 OTPayload thePayload(ascData);
                 ascData.zeroMemory();
                 if (thePayload.IsEmpty())
-                    OTLog::vError("%s: Failed trying to decode secret OTPayload from OTASCIIArmor from Gnome Keyring contents.\n",
-                                  szFunc);
+                    OTLog::vError("%s: Failed trying to decode secret OTPayload from OTASCIIArmor "
+                                  "from Gnome Keyring contents:\n\n%s\n\n", szFunc, strData.Get());
                 else
                 {
                     thePassword.setMemory(thePayload.GetPayloadPointer(), thePayload.GetSize()); 
@@ -770,7 +781,7 @@ bool OTKeyring::Gnome_RetrieveSecret(const OTString    & strUser,
             }
         }
     }
-        
+    // ----------------------------------------------------------------
     // Not an error: what if it just hasn't been set there yet?
     //
     OTLog::vOutput(1, "OTKeyring::Gnome_RetrieveSecret: "
@@ -939,20 +950,27 @@ bool OTKeyring::KWallet_StoreSecret(const OTString    & strUser,
 	{
         const QString qstrKey(strUser.Get());
 
-              OTData       theData(thePassword.getMemory(), thePassword.getMemorySize());
-        const OTASCIIArmor ascData(theData);
+        OTData       theData(thePassword.getMemory(), thePassword.getMemorySize());
+        OTASCIIArmor ascData(theData);
         theData.zeroMemory(); // security reasons.
         // -------------------------------------------
+        OTString strOutput;
+        const bool bSuccess = ascData.Exists() && 
+                                ascData.WriteArmoredString(strOutput,
+                                                           "DERIVED KEY"); // There's no default, to force you to enter the right string.
+        ascData.zeroMemory();
+        // -----------------------------------------
+
 		// Set the password
         //
         bool bReturnVal = false;
         
-		if (ascData.Exists() && pWallet->writePassword(qstrKey, QString::fromUtf8(ascData.Get())) == 0)
+		if (strOutput.Exists() && pWallet->writePassword(qstrKey, QString::fromUtf8(strOutput.Get())) == 0)
 			bReturnVal = true;
 		else
 			OTLog::Error("OTKeyring::KWallet_StoreSecret: Failed trying to store secret into KWallet.\n");
         
-        ascData.zeroMemory();
+        strOutput.zeroMemory();
         
         return bReturnVal;
 	}
@@ -985,7 +1003,7 @@ bool OTKeyring::KWallet_RetrieveSecret(const OTString    & strUser,
             OTString     strData(str_password);
             OTASCIIArmor ascData;
             
-            bool bLoaded = strData.Exists() && ascData.LoadFromString(strData);
+            const bool bLoaded = strData.Exists() && ascData.LoadFromString(strData);
             strData.zeroMemory();
             
             if (!bLoaded)
@@ -1010,6 +1028,11 @@ bool OTKeyring::KWallet_RetrieveSecret(const OTString    & strUser,
 			OTLog::vError("%s: Failed trying to retrieve secret from KWallet.\n", szFunc);
 	}
     
+    // ----------------------------------------------------------------
+    // Not an error: what if it just hasn't been set there yet?
+    //
+    OTLog::Output(1, "OTKeyring::KWallet_RetrieveSecret: No secret found.\n");
+
     return false;
 }
 

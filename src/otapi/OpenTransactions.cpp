@@ -871,6 +871,9 @@ bool OT_API::LoadConfigFile(const OTString & strMainPath)
 	strFilepathInput.Format("%s%s%s", OTLog::ConfigPath(), OTLog::PathSeparator(), "client.cfg"); // todo: stop hardcoding.
     OTLog::TransformFilePath(strFilepathInput.Get(), strFilepath);
 	
+    if (!OTDB::Exists(strFilepath.Get()))
+        return false;
+    // ---------------------------------------
 	{        
 		static CSimpleIniA ini; // We're assuming this file is on the path.
 		SI_Error rc = ini.LoadFile(strFilepath.Get());  

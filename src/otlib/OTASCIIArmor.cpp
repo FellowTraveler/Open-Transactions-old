@@ -1622,12 +1622,14 @@ bool OTASCIIArmor::LoadFromString(OTString & theStr, // input
 	
 	if (!bHaveEnteredContentMode)
 	{
-		OTLog::Error("Error in OTASCIIArmor::LoadFromString: EOF before ascii-armored content found.\n");
+		OTLog::vError("Error in OTASCIIArmor::LoadFromString: EOF before ascii-armored "
+                      "content found, in:\n\n%s\n\n", theStr.Get());
 		return false;
 	}
 	else if (bContentMode)
 	{
-		OTLog::Error("Error in OTASCIIArmor::LoadFromString: EOF while still reading content.\n");
+		OTLog::vError("Error in OTASCIIArmor::LoadFromString: EOF while still reading "
+                      "content, in:\n\n%s\n\n", theStr.Get());
 		return false;
 	}
 	else

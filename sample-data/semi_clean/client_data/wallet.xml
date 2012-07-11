@@ -6,4 +6,9 @@ CkwAAQCAAAD//wAAAAhVRpwTzc+1NAAAABCKe14aROG8v/ite3un3bBCAAAAINyw
 HXTM/x449Al2z8zBHBTRF77jhHkYLj8MIgqrJ2Ep
 </masterKey>
 
+<nymUsingMasterKey id="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV" />
+
+<pseudonym name="eJzj4nULUS9WCEktLlHwq8wFAB1GBGA="
+ nymID="T1Q3wZWgeTUoaUvn9m1lzIK5tn5wITlzxzrGNI8qtaV" />
+
 </wallet>

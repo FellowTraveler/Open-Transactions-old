@@ -3874,11 +3874,52 @@ bool OTPseudonym::LoadFromString(const OTString & strNym)
                 
                 else if (strNodeName.Compare("ackNums"))
                 {	
+//                    switch(xml->getNodeType())
+//                    {
+//                    case(EXN_NONE):
+//                        OTLog::Error("ACK NUMS: EXN_NONE --  No xml node. This is usually the node if you did not read anything yet.\n");
+//                        break;
+//                    case(EXN_ELEMENT):
+//                        OTLog::Error("ACK NUMS: EXN_ELEMENT -- An xml element such as <foo>.\n");
+//                        break;
+//                    case(EXN_ELEMENT_END):
+//                        OTLog::Error("ACK NUMS: EXN_ELEMENT_END -- End of an xml element such as </foo>.\n");
+//                        break;
+//                    case(EXN_TEXT):
+//                        OTLog::Error("ACK NUMS: EXN_TEXT -- Text within an xml element: <foo> this is the text. <foo>.\n");
+//                        break;
+//                    case(EXN_COMMENT):
+//                        OTLog::Error("ACK NUMS: EXN_COMMENT -- An xml comment like <!-- I am a comment --> or a DTD definition.\n");
+//                        break;
+//                    case(EXN_CDATA):
+//                        OTLog::Error("ACK NUMS: EXN_CDATA -- An xml cdata section like <![CDATA[ this is some CDATA ]]>.\n");
+//                        break;
+//                    case(EXN_UNKNOWN):
+//                        OTLog::Error("ACK NUMS: EXN_UNKNOWN -- Unknown element.\n");
+//                        break;
+//                    default:
+//                        OTLog::Error("ACK NUMS: default!! -- SHOULD NEVER HAPPEN...\n");
+//                            break;
+//                    }
+//                    OTLog::vError("ACK NUMS: NODE DATA: %s\n", xml->getNodeData());
+
+                    
                     const OTString tempServerID	= xml->getAttributeValue("serverID");				
                     OTString strTemp;
-                    if (!tempServerID.Exists() || !OTContract::LoadEncodedTextField(xml, strTemp))
+                    if (!tempServerID.Exists())
                     {
-                        OTLog::Error("OTPseudonym::LoadFromString: Error: ackNums field without value.\n");
+                        OTLog::Error("OTPseudonym::LoadFromString: Error: While loading ackNums field: Missing serverID.\n");
+                        return false; // error condition
+                    }
+                    // ----------------------
+                    
+                    xml->read(); // there should be a text field next, with the data for the list of acknowledged numbers.
+
+                    // ----------------------
+                    if (!OTContract::LoadEncodedTextField(xml, strTemp))
+                    {
+                        OTLog::Error("OTPseudonym::LoadFromString: Error: ackNums field without value "
+                                     "(at least, unable to LoadEncodedTextField on that value.)\n");
                         return false; // error condition
                     }
                     OTNumList theNumList;
@@ -3891,7 +3932,7 @@ bool OTPseudonym::LoadFromString(const OTString & strNym)
                     {
                         theNumList.Pop();
                         // ------------
-                        OTLog::vOutput(3, "Acknowledgment record exists for server reply, for Request Number %ld for ServerID: %s\n",
+                        OTLog::vOutput(2, "Acknowledgment record exists for server reply, for Request Number %ld for ServerID: %s\n",
                                        lTemp, tempServerID.Get());
                         AddAcknowledgedNum(tempServerID, lTemp); // This version doesn't save to disk. (Why save to disk AS WE'RE LOADING?)
                     }

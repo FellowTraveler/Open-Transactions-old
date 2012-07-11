@@ -2251,8 +2251,20 @@ def main_register_nym()
         {
             case (1)
             {
-                OT_API_Output(0, "\n\n SUCCESS in register_nym! Server response:\n\n");
-                print(strResponse) // stdout
+                var MsgUtil	= Utility()
+                
+                //	4. Use the getRequest command, thus insuring that the request number is in sync. 
+                //
+                if (1 != MsgUtil.getRequestNumber(Server, MyNym)) 
+                {
+                    OT_API_Output(0, "\n Succeeded in register_nym, but strange: then failed calling getRequest, to sync the request number. (Finished.)\n")
+                }
+                else // If it returns 1, we know for sure that the request number is in sync.
+                {
+                    OT_API_Output(0, "\n\n Server response:\n\n");
+                    print(strResponse) // stdout
+                    OT_API_Output(0, "\n\n SUCCESS in register_nym!\n(Also, success syncronizing the request number.)\n\n")
+                }
                 break
             }
             case (0)
@@ -2285,6 +2297,78 @@ def main_register_nym()
 
 
 
+
+
+
+def main_refresh_nym()
+{
+    // --------------------------------------------------------------------
+    var MsgUtil	= Utility()
+    // --------------------------------------------------------------------
+    
+    var strUsage = concat("\n\nUsage: refreshnym --server SERVER_ID --mynym NYM_ID\n\n",
+                          "(If you don't have a NymID, then use the newnym command first.)\n\n")
+    
+    OT_API_Output(0, strUsage)
+    
+    if (VerifyExists("Server") && VerifyExists("MyNym"))
+    {        
+        if (1 != MsgUtil.getRequestNumber(Server, MyNym)) 
+        {
+            OT_API_Output(0, "\n Failed calling getRequest, to sync the request number. (Finished.)\n")
+            return (-1)
+        }
+        else // If it returns 1, we know for sure that the request number is in sync.
+        {
+            OT_API_Output(0, "\n\n SUCCESS syncronizing the request number.\n")
+        }
+        // -------------------------------------------------------
+        
+        var bWasMsgSent    = OTBool(false)
+        var bForceDownload = true
+        
+        var nGetAndProcessNymbox = MsgUtil.getAndProcessNymbox_4(Server, MyNym, bWasMsgSent, bForceDownload)
+        
+        // NOTICE: No need here to deal with retries, timeouts, request number,
+        // syncing transaction number, download / process nymbox, etc! It's all
+        // handled at a lower level!  Instead, simply check for success or failure:
+        //
+        // -1 is error, 
+        //  0 is reply received: failure 
+        //  1 is reply received: success
+        //
+        switch(nGetAndProcessNymbox)
+        {
+            case (1)
+            {
+                OT_API_Output(0, "\n\n SUCCESS in refresh nym!\n")
+                break
+            }
+            case (0)
+            {
+                if (bWasMsgSent.getBooleanValue()) // the message was sent, and the serve replied "failure".
+                {
+                    OT_API_Output(0, "\n\n FAILURE in refresh nym!\n")
+                }
+                else // the message wasn't sent; the 0 in this case means "nymbox was empty."
+                {
+                    OT_API_Output(0, "\n\n Success in refresh nym! (Skipped processing Nymbox, since it's empty.)\n")
+                }
+                break
+            }
+            default
+            {
+                OT_API_Output(0, "\n\nError in refresh nym! nGetAndProcessNymbox: "+nGetAndProcessNymbox.to_string()+"\n")
+                break
+            }
+        }
+        OT_API_Output(0, "\n") //stderr
+        
+        return nGetAndProcessNymbox
+    }
+    
+    return 0
+}
 
 
 

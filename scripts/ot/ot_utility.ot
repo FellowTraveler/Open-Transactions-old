@@ -968,11 +968,11 @@ def Utility::getAndProcessNymbox_8(serverID, nymID, bWasMsgSent, bForceDownload,
                     OT_API_Output(0, strLocation + ": FYI: Harvesting transaction numbers from failed Msg attempt...\n")
                     // ------------------------------------
                     var nHarvested = OT_API_Msg_HarvestTransactionNumbers(strSentMsg, nymID,
-                                              ifB(bHarvestingForRetry,1,0), // bHarvestingForRetry.
-                                              ifB(bMsgReplySuccess,1,0),    // bReplyWasSuccess,       // RECEIVED server reply: explicit success.
-                                              ifB(bMsgReplyFailure,1,0),    // bReplyWasFailure,       // RECEIVED server reply: explicit failure.
-                                              ifB(bMsgTransSuccess,1,0),    // bTransactionWasSuccess, // MESSAGE success, Transaction success. (Explicit.)
-                                              ifB(bMsgTransFailure,1,0))    // bTransactionWasFailure  // MESSAGE success, Transaction failure. (Explicit.)
+                                              bHarvestingForRetry, // bHarvestingForRetry.
+                                              bMsgReplySuccess,    // bReplyWasSuccess,       // RECEIVED server reply: explicit success.
+                                              bMsgReplyFailure,    // bReplyWasFailure,       // RECEIVED server reply: explicit failure.
+                                              bMsgTransSuccess,    // bTransactionWasSuccess, // MESSAGE success, Transaction success. (Explicit.)
+                                              bMsgTransFailure)    // bTransactionWasFailure  // MESSAGE success, Transaction failure. (Explicit.)
                     OT_API_Output(0, strLocation + ": OT_API_Msg_HarvestTransactionNumbers: " + nHarvested.to_string() + "\n")
                     
                     var nRemovedMsg = OT_API_RemoveSentMessage(nRequestNumber.to_string(), serverID, nymID)
@@ -1227,11 +1227,11 @@ def Utility::getAndProcessNymbox_8(serverID, nymID, bWasMsgSent, bForceDownload,
                         OT_API_Output(0, strLocation + ": FYI: Harvesting transaction numbers from failed processNymbox attempt...\n")
                         // ------------------------------------
                         nHarvested = OT_API_Msg_HarvestTransactionNumbers(strSentProcessNymboxMsg, nymID,
-                                                                                0,   // bHarvestingForRetry == false
-                                                                                ifB(bProcessNymboxReplySuccess,1,0), // bReplyWasSuccess,       // RECEIVED server reply: explicit success.
-                                                                                ifB(bProcessNymboxReplyFailure,1,0), // bReplyWasFailure,       // RECEIVED server reply: explicit failure.
-                                                                                ifB(bProcessNymboxTransSuccess,1,0), // bTransactionWasSuccess, // MESSAGE success, Transaction success. (Explicit.)
-                                                                                ifB(bProcessNymboxTransFailure,1,0))  // bTransactionWasFailure  // MESSAGE success, Transaction failure. (Explicit.)
+                                                                                false,   // bHarvestingForRetry == false
+                                                                                bProcessNymboxReplySuccess, // bReplyWasSuccess,       // RECEIVED server reply: explicit success.
+                                                                                bProcessNymboxReplyFailure, // bReplyWasFailure,       // RECEIVED server reply: explicit failure.
+                                                                                bProcessNymboxTransSuccess, // bTransactionWasSuccess, // MESSAGE success, Transaction success. (Explicit.)
+                                                                                bProcessNymboxTransFailure)  // bTransactionWasFailure  // MESSAGE success, Transaction failure. (Explicit.)
                         
                         OT_API_Output(0, strLocation + ": OT_API_Msg_HarvestTransactionNumbers: " + nHarvested.to_string() + "\n")
                         
@@ -1307,6 +1307,7 @@ def Utility::getAndProcessNymbox_8(serverID, nymID, bWasMsgSent, bForceDownload,
 
 // ------------------------------------------------------------------------------------------------
 //  def Utility::getAndProcessNymbox(String serverID, String nymID, OTBool bWasMsgSent, boolean bForceDownload) 
+//
 def Utility::getAndProcessNymbox_4(serverID, nymID, bWasMsgSent, bForceDownload) : serverID.is_type(string_type) && nymID.is_type(string_type) && bWasMsgSent.is_type("OTBool") && bForceDownload.is_type(bool_type)
 {
     // -------------------------------
