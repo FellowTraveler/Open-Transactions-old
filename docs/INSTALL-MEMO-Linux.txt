@@ -7,7 +7,8 @@
 #########################################################################
 #
 # Memo for upgrades/rebuilds and 'quick start' guide for OT install on 
-# generic Linux (assumes dependencies are already satisfied).
+# generic Linux, assumes dependencies are already satisfied.
+# (NB: Intended for linux savvy users.)
 
 # probably need to tell autoconf to look for dep packages in $HOME/.local
 # if you used the recommended install for chai, etc
@@ -16,10 +17,11 @@ $ export PKG_CONFIG_PATH=$HOME/.local/lib/pkgconfig:/usr/local/lib/pkgconfig:$PK
 
 # fetch OT and prepare your copy for build
 
-# 'stable' source tar ball method
+# 'stable' (alpha) source tar ball method
 $ wget https://github.com/FellowTraveler/downloads/opentxs.*.tar.gz
 $ tar -zxvf opentxs.*.tar.gz
 $ cd opentxs.*.tar.gz
+$ autoreconf -i -f
 $ mkdir build && cd build
 
 # git pull latest development source method
@@ -61,14 +63,17 @@ $ otserver
 
 
 #### Test OT with Java test client, Moneychanger  ####
+# (Replace wildcard * with appropriate version number)
 
 # fetch FT's MoneyChanger jar and launch
-$ wget -P $HOME/.local/jar https://github.com/downloads/FellowTraveler/Moneychanger/MoneyChanger.jar
-$ java -jar $HOME/.local/jar/MoneyChanger.jar
+$ wget -P $HOME/.local/jar https://github.com/downloads/FellowTraveler/Moneychanger/MoneyChanger-*.jar
+$ java -jar $HOME/.local/jar/MoneyChanger-*.jar
 
 
 
 ########### UPGRADE to latest dev. OT on github ###############
+#
+# (NB: might need to $ make uninstall before this if configure or Makefile.am changed)
 
 $ cd ~/Open-Transactions
 $ git clean -x -f -d
@@ -76,6 +81,5 @@ $ git pull
 $ autoreconf -i -f
 $ mkdir build && cd build
 $ ../configure --prefix=$HOME/.local --with-java
-$ make uninstall
 $ make
 $ make install
