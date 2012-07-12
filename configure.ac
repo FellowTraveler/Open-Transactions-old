@@ -190,8 +190,8 @@ fi
 ## Keyring Options ##
 
 AC_ARG_WITH(	[keyring],
-		[AS_HELP_STRING([--with-keyring@<:@=@:>@],
-		[Choose a keyring integrator (available: windows, mac, gnome, kwallet)])],
+		[AS_HELP_STRING([--with-keyring@<:@=ARG@:>@],
+		[Choose a keyring ARG from: windows, mac, gnome, kwallet])],
 		[case "${withval}" in
 			windows) true ;;
 			mac) true ;;
