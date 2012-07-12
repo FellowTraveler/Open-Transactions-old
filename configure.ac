@@ -211,16 +211,13 @@ AS_IF(	[test "$with_keyring" == windows],
 	AC_SUBST(DEPS_CFLAGS,	["$DEPS_CFLAGS"])
 	AC_SUBST(DEPS_LIBS,	["$DEPS_LIBS"])
 	])
-
 ## Extra WINDOWS flags might be needed here ##
 
 AS_IF(	[test "$with_keyring" == mac],
 	[
-	AC_SUBST(DEPS_CFLAGS,	["$DEPS_CFLAGS"]) 
-	AC_SUBST(DEPS_LIBS,	["$DEPS_LIBS"])
+	AC_SUBST(DEPS_CFLAGS,	["$DEPS_CFLAGS -isysroot /Developer/SDKs/MacOSX10.6.sdk -arch ppc -arch i386"]) 
+	AC_SUBST(DEPS_LIBS,	["$DEPS_LIBS -syslibroot /Developer/SDKs/MacOSX10.6.sdk -arch ppc -arch i386"])
 	])
-## Extra MAC flags are needed here ##
-
 
 AS_IF(	[test "$with_keyring" == gnome],
 	[
