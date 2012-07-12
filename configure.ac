@@ -206,6 +206,22 @@ AM_CONDITIONAL(	[KEYRING_MAC],		[test "$with_keyring" == mac])
 AM_CONDITIONAL(	[KEYRING_GNOME],	[test "$with_keyring" == gnome])
 AM_CONDITIONAL(	[KEYRING_KWALLET],	[test "$with_keyring" == kwallet])
 
+AS_IF(	[test "$with_keyring" == windows],
+	[
+	AC_SUBST(DEPS_CFLAGS,	["$DEPS_CFLAGS"])
+	AC_SUBST(DEPS_LIBS,	["$DEPS_LIBS"])
+	])
+
+## Extra WINDOWS flags might be needed here ##
+
+AS_IF(	[test "$with_keyring" == mac],
+	[
+	AC_SUBST(DEPS_CFLAGS,	["$DEPS_CFLAGS"]) 
+	AC_SUBST(DEPS_LIBS,	["$DEPS_LIBS"])
+	])
+## Extra MAC flags are needed here ##
+
+
 AS_IF(	[test "$with_keyring" == gnome],
 	[
 	PKG_CHECK_MODULES([GKRDEP],[glib-2.0 >= 2.28.6 gnome-keyring-1])
