@@ -316,7 +316,7 @@ def details_send_transfer(strAmount, strNote)
 //
 def main_transfer()
 {
-    var strUsage1 = concat("\n\n     USAGE: transfer --myacct YOUR_ASSET_ACCT --hisacct RECIPIENT_ASSET_ACCT\n\n",
+    var strUsage1 = concat("\n\n  USAGE: transfer --myacct YOUR_ASSET_ACCT --hisacct RECIPIENT_ASSET_ACCT\n\n",
                            "Also NECESSARY: --args \"amount PUT_AMOUNT_HERE\"\n")
     var strUsage = concat(strUsage1,
                           "And OPTIONALLY: --args \"memo \\\"Just a memo for the transfer.\\\"\"\n\n")
@@ -394,7 +394,7 @@ def main_transfer()
 
 def main_edit_nym()
 {
-    var strUsage = concat("\n\n          USAGE: editnym --mynym YOUR_NYM_ID\n",
+    var strUsage = concat("\n\n USAGE: editnym --mynym YOUR_NYM_ID\n",
                               "Also optionally:         --args \"label \\\"PUT LABEL HERE\\\"\"\n")
     
     OT_API_Output(0, strUsage)
@@ -464,7 +464,7 @@ def main_edit_nym()
 
 def main_edit_account()
 {
-    var strUsage = concat("\n\n          USAGE: editacct --myacct YOUR_ACCT_ID\n",
+    var strUsage = concat("\n\n USAGE: editacct --myacct YOUR_ACCT_ID\n",
                               "Also optionally:          --args \"label \\\"PUT LABEL HERE\\\"\"\n")
     
     OT_API_Output(0, strUsage)
@@ -553,7 +553,7 @@ def main_edit_account()
 
 def main_edit_asset()
 {
-    var strUsage = concat("\n\n          USAGE: editasset --mypurse ASSET_TYPE_ID\n",
+    var strUsage = concat("\n\n USAGE: editasset --mypurse ASSET_TYPE_ID\n",
                               "Also optionally:           --args \"label \\\"PUT LABEL HERE\\\"\"\n")
     
     OT_API_Output(0, strUsage)
@@ -622,7 +622,7 @@ def main_edit_asset()
 
 def main_edit_server()
 {
-    var strUsage = concat("\n\n          USAGE: editserver --server SERVER_ID\n",
+    var strUsage = concat("\n\n USAGE: editserver --server SERVER_ID\n",
                               "Also optionally:            --args \"label \\\"PUT LABEL HERE\\\"\"\n")
     
     OT_API_Output(0, strUsage)
@@ -948,7 +948,7 @@ def details_create_offer(strScale, strMinIncrement, strQuantity, strPrice, bSell
 
 def main_create_offer()
 {
-    var strUsage = concat("\n\n    USAGE: create_offer.ot --myacct <YOUR_ASSET_ACCT> --hisacct <YOUR_CURRENCY_ACCT>\n\n",
+    var strUsage = concat("\n\n USAGE: create_offer.ot --myacct <YOUR_ASSET_ACCT> --hisacct <YOUR_CURRENCY_ACCT>\n\n",
                           " Optional: --args \"type bid|ask scale 1 quantity 100 price 101\"\n\n")
     
     OT_API_Output(0, strUsage)
@@ -1184,11 +1184,15 @@ def main_create_acct()
     
     // Just to show how easy it is now, let's try a "create_asset_acct" message.
     // (It sends a NymID to the server, and downloads that Nym's public key.)
-	
-	
     
     if (VerifyExists("Server") && VerifyExists("MyNym") && VerifyExists("MyPurse"))
     {	
+        if (!OT_API_IsNym_RegisteredAtServer(MyNym, Server))
+        {
+            // If the Nym's not registered at the server, then register him first.
+            main_register_nym()
+        }
+        // --------------------------
         // Send the request.
         //
         var strResponse	= madeEasy.create_asset_acct(Server, MyNym, MyPurse)	// Send the 'create_asset_acct' message to the server.
@@ -1598,6 +1602,8 @@ def main_stat()
 
 
 
+
+
 def details_stat_account(strID)
 {
     // --------------------------------------------------------------------
@@ -1662,6 +1668,33 @@ def main_balance()
     if (VerifyExists("MyAcct"))
     {	
         details_account_balance(MyAcct)
+        return 1
+    }
+    return 0
+}
+
+
+
+
+
+
+
+
+
+def details_nym_stat(strID)
+{
+//  var strName    = OT_API_GetNym_Name(strID)
+    var strStats   = OT_API_GetNym_Stats(strID)
+    
+    print(strStats) // stdout
+}
+
+
+def main_nym_stat() 
+{
+    if (VerifyExists("MyNym"))
+    {	
+        details_nym_stat(MyNym)
         return 1
     }
     return 0
@@ -2442,7 +2475,7 @@ def details_withdraw_cash(strAmount)
 //
 def main_withdraw_cash()
 {
-    var strUsage = concat("\n\n     USAGE: withdraw --myacct YOUR_ASSET_ACCT --server SERVER_ID \n\n",
+    var strUsage = concat("\n\n  USAGE: withdraw --myacct YOUR_ASSET_ACCT --server SERVER_ID \n\n",
                            "Also NECESSARY: --args \"amount PUT_AMOUNT_HERE\"\n")
 
     OT_API_Output(0, strUsage)
@@ -2657,7 +2690,7 @@ def details_withdraw_voucher(strAmount, strMemo)
 //
 def main_withdraw_voucher()
 {
-    var strUsage1 = concat("\n\n     USAGE: voucher --myacct YOUR_ASSET_ACCT --hisnym RECIPIENT_NYM_ID\n\n",
+    var strUsage1 = concat("\n\n  USAGE: voucher --myacct YOUR_ASSET_ACCT --hisnym RECIPIENT_NYM_ID\n\n",
                            "Also NECESSARY: --args \"amount PUT_AMOUNT_HERE\"\n")
     var strUsage = concat(strUsage1,
                           "And OPTIONALLY: --args \"memo \\\"Just a memo for the voucher cheque.\\\"\"\n\n")
@@ -2742,7 +2775,7 @@ def main_withdraw_voucher()
 
 def main_show_purse()
 {
-    var strUsage = "\n\n     USAGE: showpurse --mypurse ASSET_TYPE_ID --mynym YOUR_NYM_ID --server SERVER_ID \n\n"    
+    var strUsage = "\n\n  USAGE: showpurse --mypurse ASSET_TYPE_ID --mynym YOUR_NYM_ID --server SERVER_ID \n\n"    
     OT_API_Output(0, strUsage)
     // ------------------------------------        
     
@@ -3230,7 +3263,7 @@ def details_deposit()
 
 def main_deposit()
 {                       
-    var strUsage1 = "\n\n     USAGE: deposit --myacct YOUR_ACCT_ID --mynym YOUR_NYM_ID --server SERVER_ID \n(OT will ask you to paste the instrument.)\n"    
+    var strUsage1 = "\n\n  USAGE: deposit --myacct YOUR_ACCT_ID --mynym YOUR_NYM_ID --server SERVER_ID \n(OT will ask you to paste the instrument.)\n"    
     var strUsage2 = concat(strUsage1, "Optionally:    --args \"indices \\\"4, 6, 9\\\" \"\n")
     var strUsage3 = concat(strUsage2, "Optionally:    --args \"indices \\\"all\\\" \"  (To deposit ALL cash tokens in your purse.)\n")
     var strUsage  = concat(strUsage3, "NymID is often determined based on MyAcct.\nIf you supply optional indices, they must correspond to tokens in your cash purse.\n\n")

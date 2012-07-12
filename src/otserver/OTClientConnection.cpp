@@ -671,19 +671,18 @@ void OTClientConnection::SetPublicKey(const OTAsymmetricKey & thePublicKey)
 //
 bool OTClientConnection::SealMessageForRecipient(OTMessage & theMsg, OTEnvelope & theEnvelope)
 {
-	if (m_PublicKey.GetKey())
+	if (!(m_PublicKey.IsEmpty()) && m_PublicKey.GetKey())
 	{
 		// Save the ready-to-go message into a string.
 		OTString strEnvelopeContents(theMsg);
 		
-		// Seal the string up into an encrypted Envelope		
+		// Seal the string up into an encrypted Envelope.
 		if (strEnvelopeContents.Exists())
 			return theEnvelope.Seal(m_PublicKey, strEnvelopeContents);
 	}
 	else
 		OTLog::Error("OTClientConnection::SealMessageForRecipient: "
-                     "Unable to seal message, since this->m_PublicKey.GetKey() returned false. \n");
-		
+                     "Unable to seal message, possibly a missing public key. \n");
 	return false;
 }
 
@@ -729,7 +728,8 @@ void OTClientConnection::ProcessReply(OTMessage &theReply)
 		// Now that the payload is ready, we'll set up the header.
 		SetupHeader(&theCMD, CMD_TYPE_1, TYPE_1_CMD_2, thePayload);
 	}
-	else {
+	else 
+    {
 		thePayload.SetMessage(theReply);
 		
 		// Now that the payload is ready, we'll set up the header.

@@ -3179,6 +3179,10 @@ void OTServer::UserCmdCreateAccount(OTPseudonym & theNym, OTMessage & MsgIn, OTM
 	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
 //	msgOut.m_strServerID	= m_strServerID;	// This is already set in ProcessUserCommand.
 	
+    // Either way, we need to send the user's command back to him as well.
+    OTString tempInMessage(MsgIn);
+    msgOut.m_ascInReferenceTo.SetString(tempInMessage);
+
 	const OTIdentifier USER_ID(theNym), SERVER_ID(m_strServerID);
 	
 	// ----------------------------------------------
@@ -3288,11 +3292,6 @@ void OTServer::UserCmdCreateAccount(OTPseudonym & theNym, OTMessage & MsgIn, OTM
 		pNewAccount = NULL;
 	}
 	
-	// Either way, we need to send the user's command back to him as well.
-	{
-		OTString tempInMessage(MsgIn);
-		msgOut.m_ascInReferenceTo.SetString(tempInMessage);
-	}
 	
 	// (2) Sign the Message 
 	msgOut.SignContract(m_nymServer);		 
@@ -11199,7 +11198,10 @@ bool OTServer::ValidateServerIDfromUser(OTString & strServerID)
 
 
 
-bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OTClientConnection * pConnection/*=NULL*/)
+bool OTServer::ProcessUserCommand(OTMessage & theMessage, 
+                                  OTMessage & msgOut, 
+                                  OTClientConnection * pConnection/*=NULL*/,
+                                  OTPseudonym * pNym/*=NULL*/) // this function will create the Nym if it's not passed in. We pass it in so the caller has the option to query things about the Nym (like if it actually exists.)
 {	
 	msgOut.m_strRequestNum.Set(theMessage.m_strRequestNum); // to prevent replay attacks.
 	
@@ -11211,7 +11213,7 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 		((OTServer::GetOverrideNymID().size() <= 0) ||	// AND (there's no Override Nym ID listed --OR-- the Override Nym ID doesn't
 		 (0 != OTServer::GetOverrideNymID().compare((theMessage.m_strNymID.Get())))))	// match the Nym's ID who sent this message)
 	{
-		OTLog::vOutput(0, "Nym %s: failed attempt to message the server, while server is in **LOCK DOWN MODE**.\n",
+		OTLog::vOutput(0, "OTServer::ProcessUserCommand: Nym %s: failed attempt to message the server, while server is in **LOCK DOWN MODE**.\n",
 					   theMessage.m_strNymID.Get());
 		return false;
 	}
@@ -11221,16 +11223,45 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 	// and sending it to the wrong server.
 	if (false == ValidateServerIDfromUser(theMessage.m_strServerID))
 	{
-		OTLog::Error("Invalid server ID sent in command request.\n");
+		OTLog::Error("OTServer::ProcessUserCommand: Invalid server ID sent in command request.\n");
 		return false;
 	}
 	else 
 	{
 		OTLog::Output(4, "Received valid Server ID with command request.\n");
 	}
+	// ----------------------------------------------
 
+    // NYM WAS PASSED IN
+    
 	OTPseudonym theNym(theMessage.m_strNymID);
 	
+    if (NULL == pNym)
+        pNym = &theNym; // If one wasn't passed in, we'll use the one constructed here. (One line up.)
+    else if (!pNym->CompareID(theNym))
+    {
+        OTString strTempNymID;
+        pNym->GetIdentifier(strTempNymID);
+		OTLog::vError("OTServer::ProcessUserCommand: NymID on the optional Nym passed in (%s) "
+                      "does NOT match the NymID on theMessage (%s). (Returning false.)\n", 
+                      strTempNymID.Get(), theMessage.m_strNymID.Get());
+		return false;
+	}
+	
+	// ----------------------------------------------
+    
+    // NYM IS ACTUALLY SERVER
+    
+    // For special cases where the Nym sending the transaction has the same public key as
+	// the server itself. (IE it IS the server Nym, then we'd want to use the already-loaded
+	// server nym object instead of loading a fresh one, so the two don't overwrite each other.)
+	//
+	const bool bNymIsServerNym = (m_strServerUserID.Compare(theMessage.m_strNymID) ? true : false);
+//	OTPseudonym * pNym = &theNym; // this is now done higher up in this function.
+	
+	if (bNymIsServerNym)
+		pNym = &m_nymServer;
+
 	//**********************************************************************************************
 	 
 	// This command is special because the User sent his public key, not just his ID.
@@ -11315,7 +11346,7 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 		*/
 		// ------------------------------------------------------------
 		
-		OTAsymmetricKey & nymPublicKey = (OTAsymmetricKey &)theNym.GetPublicKey();
+		OTAsymmetricKey & nymPublicKey = (OTAsymmetricKey &)pNym->GetPublicKey();
 		
 		bool bIfNymPublicKey = 
 				nymPublicKey.SetPublicKey(theMessage.m_strNymPublicKey, true/*bEscaped*/);
@@ -11323,11 +11354,11 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 		if (bIfNymPublicKey)
 		{
 			// Now the Nym has his public key set. Let's compare it to a hash of his ID (should match)
-			if (theNym.VerifyPseudonym())
+			if (pNym->VerifyPseudonym())
 			{
 				OTLog::Output(3, "Pseudonym verified! The Nym ID is a perfect hash of the public key.\n");
 				
-				if (theMessage.VerifySignature(theNym)) 
+				if (theMessage.VerifySignature(*pNym)) 
 				{
 					OTLog::Output(3, "Signature verified! The message WAS signed by "
 							"the Nym\'s Private Key.\n");
@@ -11340,7 +11371,7 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 						pConnection->SetPublicKey(theMessage.m_strNymPublicKey);
 					
 					
-					UserCmdCheckServerID(theNym, theMessage, msgOut);
+					UserCmdCheckServerID(*pNym, theMessage, msgOut);
 
 					return true;
 				}
@@ -11372,20 +11403,26 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 		
 		// ------------------------------------------------------------
 		OT_ENFORCE_PERMISSION_MSG(__cmd_create_user_acct);
+		// ------------------------------------------------------------		
+        if (bNymIsServerNym)
+        {
+            OTLog::Output(0, "Sorry, the server Nym is forbidden from using "
+                          "the createUserAccount message as a client.\n");
+            return false;
+        }
 		// ------------------------------------------------------------
-		
-		OTAsymmetricKey & nymPublicKey = (OTAsymmetricKey &)theNym.GetPublicKey();
+		OTAsymmetricKey & nymPublicKey = (OTAsymmetricKey &)pNym->GetPublicKey();
 		bool bIfNymPublicKey = 
 			nymPublicKey.SetPublicKey(theMessage.m_strNymPublicKey, true/*bEscaped*/);
 		
 		if (bIfNymPublicKey)
 		{
 			// Now the Nym has his public key set. Let's compare it to a hash of his ID (should match)
-			if (theNym.VerifyPseudonym())
+			if (pNym->VerifyPseudonym())
 			{
 				OTLog::Output(3, "Pseudonym verified! The Nym ID is a perfect hash of the public key.\n");
 				
-				if (theMessage.VerifySignature(theNym)) 
+				if (theMessage.VerifySignature(*pNym)) 
 				{
 					OTLog::Output(3, "Signature verified! The message WAS signed by "
 							"the Nym\'s Private Key.\n");
@@ -11405,7 +11442,7 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 					// a copy of the Nymfile. Helps prevent sync errors, and gives people
 					// a way to grab the server's copy of their nymfile, if they need it.
 					//
-					theNym.SetIdentifier(theMessage.m_strNymID);
+					pNym->SetIdentifier(theMessage.m_strNymID);
 					
 					OTLog::Output(0, "Verifying account doesn't already exist... (IGNORE ANY ERRORS, IMMEDIATELY BELOW, ABOUT FAILURE OPENING FILES)\n");
 
@@ -11425,20 +11462,20 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 					theMessage.SaveContractRaw(tempInMessage);
 					msgOut.m_ascInReferenceTo.SetString(tempInMessage);
 					
-                    bool bLoadedSignedNymfile	= theNym.LoadSignedNymfile(m_nymServer);
-                    bool bLoadedPublicKey		= theNym.LoadPublicKey();
+                    bool bLoadedSignedNymfile	= pNym->LoadSignedNymfile(m_nymServer);
+                    bool bLoadedPublicKey		= pNym->LoadPublicKey();
                     
 					// He ALREADY exists. We'll set success to true, and send him a copy of his own nymfile.
 					// (Signature is verified already anyway, by this point.)
 					//
 					if (bLoadedSignedNymfile &&
-						(false == theNym.IsMarkedForDeletion()))
+						(false == pNym->IsMarkedForDeletion()))
 					{
 						OTLog::vOutput(0, "(Allowed in order to prevent sync issues) ==> User is registering nym that already exists: %s\n", 
 									   theMessage.m_strNymID.Get());
 						
 						OTString strNymContents;
-						theNym.SavePseudonym(strNymContents);
+						pNym->SavePseudonym(strNymContents);
 						// ------------------
 						msgOut.m_ascPayload.SetString(strNymContents);
 						msgOut.m_bSuccess	= true;
@@ -11448,13 +11485,13 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 					}
 					// --------------------------------------
 					else if (
-                        (theNym.IsMarkedForDeletion()		&&	(true == bLoadedPublicKey)) || // We allow people to resurrect deleted Nyms.
+                        (pNym->IsMarkedForDeletion()		&&	(true == bLoadedPublicKey)) || // We allow people to resurrect deleted Nyms.
 //                      ((false == bLoadedSignedNymfile)	&&	(false == bLoadedPublicKey)) // It's like this now so unregistered Nyms 
 																(false == bLoadedPublicKey)  // can still buy usage credits.
                        )
 					{
-                        if (theNym.IsMarkedForDeletion())
-                            theNym.MarkAsUndeleted();
+                        if (pNym->IsMarkedForDeletion())
+                            pNym->MarkAsUndeleted();
                         
 						// Good -- this means the account doesn't already exist.
 						// Let's create it.
@@ -11467,12 +11504,12 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 							OTString strPath(theMessage.m_strNymID.Get());
 							
 							// Next we save the public key in the pubkeys folder...
-							if (msgOut.m_bSuccess = theNym.SavePublicKey(strPath))
+							if (msgOut.m_bSuccess = pNym->SavePublicKey(strPath))
 							{
 								OTLog::vOutput(0, "Success saving new nym\'s public key file.\n");
 								
 								OTIdentifier theNewNymID, SERVER_ID(m_strServerID);
-								theNym.GetIdentifier(theNewNymID);
+								pNym->GetIdentifier(theNewNymID);
 								
 								OTLedger theNymbox(theNewNymID, theNewNymID, SERVER_ID);
 								
@@ -11504,12 +11541,12 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 									OTLog::vError("Error during user account registration. Failed verifying or generating nymbox for user:\n%s\n",
 												 theMessage.m_strNymID.Get());
 								}
-								else if (true == theNym.SaveSignedNymfile(m_nymServer))
+								else if (true == pNym->SaveSignedNymfile(m_nymServer))
 								{
 									OTLog::vOutput(0, "Success saving new Nymfile. (User account fully created.)\n");
 									
 									OTString strNymContents;
-									theNym.SavePseudonym(strNymContents);
+									pNym->SavePseudonym(strNymContents);
 									// ------------------
 									msgOut.m_ascPayload.SetString(strNymContents);	
 									msgOut.m_bSuccess = true;
@@ -11585,31 +11622,22 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 	
 	// I appear to already be setting this variable near the top of the function.
 	// No idea why I'm setting it twice, probably an oversight. TODO: remove.
-	theNym.SetIdentifier(theMessage.m_strNymID);
+//	pNym->SetIdentifier(theMessage.m_strNymID);
 	
-	// For special cases where the Nym sending the transaction has the same public key as
-	// the server itself. (IE it IS the server Nym, then we'd want to use the already-loaded
-	// server nym object instead of loading a fresh one, so the two don't overwrite each other.)
-	//
-	bool bNymIsServerNym = (m_strServerUserID.Compare(theMessage.m_strNymID) ? true : false);
-	OTPseudonym * pNym = &theNym;
-	
-	if (bNymIsServerNym)
-		pNym = &m_nymServer;
-	
-	if (!bNymIsServerNym && (false == theNym.LoadPublicKey()))
+	// ------------------------------------------------------------------------------------------
+	if (!bNymIsServerNym && (false == pNym->LoadPublicKey()))
 	{
 		OTLog::vError("Failure loading Nym public key: %s\n", theMessage.m_strNymID.Get());
 		return false;
 	}
 	
-    if (theNym.IsMarkedForDeletion())
+    if (!bNymIsServerNym && pNym->IsMarkedForDeletion())
 	{
 		OTLog::vOutput(0, "(Failed) attempt by client to use a deleted Nym: %s\n", 
 					   theMessage.m_strNymID.Get());
 		return false;
 	}
-	
+	// ------------------------------------------------------------------------------------------
 
 	// Okay, the file was read into memory and Public Key was successfully extracted!
 	// Next, let's use that public key to verify (1) the NymID and (2) the signature
@@ -11625,7 +11653,7 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 			OTLog::Output(3, "Signature verified! The message WAS signed by "
 					"the Nym\'s Private Key.\n");
 						
-			// Get the public key from theNym, and set it into the connection.
+			// Get the public key from pNym, and set it into the connection.
 			// This is only for verified Nyms, (and we're verified in here!) We do this so that 
 			// we have the option later to encrypt the replies back to the client...(using the 
 			// client's public key that we set here.)
@@ -11634,7 +11662,7 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 			
 			// Now we might as well load up the rest of the Nym.
 			// Notice I use the || to only load the nymfile if it's NOT the server Nym.
-			if (bNymIsServerNym || theNym.LoadSignedNymfile(m_nymServer))
+			if (bNymIsServerNym || pNym->LoadSignedNymfile(m_nymServer))
 			{
 				OTLog::Output(2,  "Successfully loaded Nymfile into memory.\n");
 				
@@ -11784,7 +11812,7 @@ bool OTServer::ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OT
 	// Now we can process the message.
 	//
 	// All the commands below here, it is assumed that the user account exists and is
-	// referenceable via theNym. (An OTPseudonym object.)
+	// referenceable via pNym. (An OTPseudonym object.)
 	//
 	// ALL commands below can assume the Nym is real, and that the NymID and Public Key are
 	// available for use -- and that they verify -- without having to check again and again.

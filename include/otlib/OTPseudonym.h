@@ -417,10 +417,15 @@ EXPORT	bool SetPublicKey(const OTString & strKey, bool bEscaped=true);
 	// CALLER is responsible to delete the Nym ptr being returned
 	// in these functions!
 	//
-EXPORT	static OTPseudonym * LoadPublicNym(const OTIdentifier & NYM_ID, OTString * pstrName=NULL, 
-                                       const char * szFuncName=NULL);
-EXPORT	static OTPseudonym * LoadPrivateNym(const OTIdentifier & NYM_ID, OTString * pstrName=NULL, 
-                                        const char * szFuncName=NULL);
+EXPORT	static OTPseudonym * LoadPublicNym(const OTIdentifier & NYM_ID, 
+                                                 OTString     * pstrName=NULL, 
+                                           const char         * szFuncName=NULL);
+    
+EXPORT	static OTPseudonym * LoadPrivateNym(const OTIdentifier & NYM_ID,  
+                                                  OTString     * pstrName=NULL, 
+                                            const char         * szFuncName=NULL,
+                                                  OTString     * pstrReason=NULL);
+
 
 	// ------------------------------------------
 
@@ -432,12 +437,14 @@ EXPORT	static OTPseudonym * LoadPrivateNym(const OTIdentifier & NYM_ID, OTString
 EXPORT	bool LoadSignedNymfile(OTPseudonym & SIGNER_NYM);
 EXPORT	bool SaveSignedNymfile(OTPseudonym & SIGNER_NYM);
 	
-	bool LoadNymfile(const char * szFilename=NULL);
+	    bool LoadNymfile(const char * szFilename=NULL);
 EXPORT	bool LoadFromString(const OTString & strNym);
 
-EXPORT	bool LoadPublicKey();
-EXPORT	bool Loadx509CertAndPrivateKey();
-EXPORT	bool Savex509CertAndPrivateKey(bool bCreateFile=true);
+    // pstrID is an output parameter.
+    EXPORT	bool Server_PubKeyExists(OTString * pstrID=NULL); // Only used on server side.
+    EXPORT	bool LoadPublicKey();
+    EXPORT	bool Loadx509CertAndPrivateKey(OTString * pstrReason=NULL);
+    EXPORT	bool Savex509CertAndPrivateKey(bool bCreateFile=true, OTString * pstrReason=NULL);
     
 //	bool SavePseudonymWallet(FILE * fl) const;
 	bool SavePseudonymWallet(OTString & strOutput) const;

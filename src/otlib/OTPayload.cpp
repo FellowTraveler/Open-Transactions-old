@@ -278,7 +278,8 @@ bool OTPayload::GetEnvelope(OTEnvelope & theEnvelope) const
 		theEnvelope.SetAsciiArmoredData(theArmor);
 		return true;
 	}
-	else {
+	else 
+    {
 		OTLog::Error("Invalid Checksum in OTPayload::GetEnvelope\n");
 		return false;
 	}	
@@ -319,7 +320,8 @@ bool OTPayload::GetMessage(OTMessage & theMessage) const
 		theMessage.m_strRawFile.Set((const char *)GetPointer());
 		return true;
 	}
-	else {
+	else 
+    {
 		OTLog::Error("Invalid Checksum in OTPayload::GetMessage\n");
 		return false;
 	}

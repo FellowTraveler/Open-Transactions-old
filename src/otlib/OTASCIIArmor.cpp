@@ -349,7 +349,7 @@ uint8_t* OT_base64_decode(const char *input, size_t* out_len, int bLineBreaks)
 	
 	OT_ASSERT(NULL != buf);
 	
-	memset(buf, 0, out_max_len);
+	memset(buf, 0, out_max_len); // todo security
 
 	b64 = BIO_new(BIO_f_base64());
 	
@@ -715,29 +715,6 @@ bool OTASCIIArmor::SetString(const OTString & theData, bool bLineBreaks) // =tru
 */
 
 
-
-
-bool OTASCIIArmor::MemSet(const char * pMem, uint32_t theSize)
-{
-	Release();
-	
-	if ((NULL == pMem) || (theSize < 1))
-		return true;
-	
-	// -------------------
-	
-	char * str_new = new char [theSize + 1];
-	OT_ASSERT(NULL != str_new);
-	
-	memcpy((void*)str_new, pMem, theSize);
-	
-	str_new[theSize] = 0; // add null-terminator. (I deliberately made this buffer 1 byte larger so I could put the 0 at the end.)
-	
-	m_lLength	= theSize; // the length doesn't count the 0.
-	m_strBuffer	= str_new;
-	
-	return true;
-}
 
 
 

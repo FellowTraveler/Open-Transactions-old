@@ -199,7 +199,7 @@ public:
 	~OTSocket();
 	
 	bool Send(OTASCIIArmor & ascEnvelope, const OTString &strConnectPath);
-	bool Receive(OTASCIIArmor & ascServerReply);
+	bool Receive(OTString & strServerReply); // -----BEGIN OT ARMORED ENVELOPE  (or MESSAGE)
 };
 
 

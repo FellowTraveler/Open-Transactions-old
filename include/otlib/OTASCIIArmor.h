@@ -248,11 +248,7 @@ EXPORT	bool SetString(const OTString & theData, bool bLineBreaks=true);
 	bool GetAndUnpackStringMap(std::map<std::string, std::string> & the_map, bool bLineBreaks=true) const;
 	
 	bool SetStringMap(const std::map<std::string, std::string> & the_map, bool bLineBreaks=true);
-	bool SetAndPackStringMap(const std::map<std::string, std::string> & the_map, bool bLineBreaks=true);
-	
-	// For a straight-across, exact-size copy of bytes that you KNOW
-	// are base64-encoded properly by an OTASCIIArmor.
-EXPORT	bool MemSet(const char * pMem, uint32_t theSize);
+	bool SetAndPackStringMap(const std::map<std::string, std::string> & the_map, bool bLineBreaks=true);	
 };
 
 typedef std::map <long, OTASCIIArmor *> mapOfArmor;

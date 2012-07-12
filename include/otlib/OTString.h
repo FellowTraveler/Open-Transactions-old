@@ -384,6 +384,10 @@ EXPORT	void Set(const char * new_string, uint32_t nEnforcedMaxLength=0);
 EXPORT	void Set(const OTString & strBuf);
 	// ----------------------------
 
+    // For a straight-across, exact-size copy of bytes.
+    // Source not expected to be null-terminated.
+    EXPORT	bool MemSet(const char * pMem, uint32_t theSize);
+
 //	void   Concatenate(const char *arg);
 EXPORT	void   Concatenate(const char *arg, ...);
 	void   Concatenate(const OTString & strBuf);

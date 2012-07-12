@@ -365,7 +365,7 @@ EXPORT    void            setUsingOldSystem(bool bUsing=true);
     OTPassword *    GetMasterPW() { return m_pMasterPW; }
     // --------------------------------
 EXPORT    OTPasswordData(const char        *   szDisplay, OTPassword * pMasterPW=NULL);  
-    OTPasswordData(const std::string & str_Display, OTPassword * pMasterPW=NULL);  
+          OTPasswordData(const std::string & str_Display, OTPassword * pMasterPW=NULL);  
 EXPORT    OTPasswordData(const OTString    &  strDisplay, OTPassword * pMasterPW=NULL);  
 EXPORT    ~OTPasswordData();
 };

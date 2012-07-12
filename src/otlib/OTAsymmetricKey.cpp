@@ -853,7 +853,7 @@ EVP_PKEY * OTAsymmetricKey::GetKeyLowLevel()
 
 const EVP_PKEY * OTAsymmetricKey::GetKey()
 {
-  OT_ASSERT_MSG(NULL != m_p_ascKey, "OTAsymmetricKey::GetKey: NULL != m_p_ascKey\n");
+    OT_ASSERT_MSG(NULL != m_p_ascKey, "OTAsymmetricKey::GetKey: NULL != m_p_ascKey\n");
     
     if (NULL == m_p_ascKey)
     {
@@ -2412,7 +2412,8 @@ void OTAsymmetricKey::Release()
 //
 bool OTAsymmetricKey::LoadPrivateKeyFromCertString(const
                                                    OTString & strCert, // Contains certificate and private key.
-                                                   bool bEscaped/*=true*/) // "escaped" means pre-pended with "- " as in:   - -----BEGIN CER....
+                                                   bool bEscaped/*=true*/, // "escaped" means pre-pended with "- " as in:   - -----BEGIN CER....
+                                                   OTString * pstrReason/*=NULL*/) // This reason is what displays on the passphrase dialog.
 {    
 	Release();
 	
@@ -2473,7 +2474,9 @@ bool OTAsymmetricKey::LoadPrivateKeyFromCertString(const
 		 count of 1) unless compatibility with older versions of OpenSSL is important.
 		 NOTE: The PrivateKey read routines can be used in all applications because they handle all formats transparently.
 		 */
-        OTPasswordData thePWData("OTAsymmetricKey::LoadPrivateKeyFromCertString is calling PEM_read_bio_PrivateKey...");
+        OTPasswordData thePWData((NULL == pstrReason) ? 
+                                 "OTAsymmetricKey::LoadPrivateKeyFromCertString is calling PEM_read_bio_PrivateKey..." : 
+                                 pstrReason->Get());
 
         EVP_PKEY * pkey = PEM_read_bio_PrivateKey( bio, NULL, OTAsymmetricKey::GetPasswordCallback(), &thePWData );
                 
@@ -2518,7 +2521,9 @@ bool OTAsymmetricKey::LoadPrivateKeyFromCertString(const
 
 
 // Load the private key from a .pem file
-bool OTAsymmetricKey::LoadPrivateKey(const OTString & strFoldername, const OTString & strFilename)
+bool OTAsymmetricKey::LoadPrivateKey(const  OTString & strFoldername, 
+                                     const  OTString & strFilename,
+                                            OTString * pstrReason/*=NULL*/) // This reason is what displays on the passphrase dialog.
 {    
 	Release();
 
@@ -2560,7 +2565,7 @@ bool OTAsymmetricKey::LoadPrivateKey(const OTString & strFoldername, const OTStr
 	
     const OTString strCert(strFileContents);
     
-    return this->LoadPrivateKeyFromCertString(strCert, false); // bEscaped=false; "escaped" means pre-pended with "- " as in:   - -----BEGIN CER....
+    return this->LoadPrivateKeyFromCertString(strCert, false, pstrReason); // bEscaped=false; "escaped" means pre-pended with "- " as in:   - -----BEGIN CER....
 }
 
 

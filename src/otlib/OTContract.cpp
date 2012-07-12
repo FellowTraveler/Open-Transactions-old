@@ -3384,7 +3384,7 @@ bool OTContract::LoadEncodedTextField(IrrXMLReader*& xml, OTASCIIArmor & ascOutp
 	//
 	if (EXN_TEXT != xml->getNodeType())  
 	{
-//        OTLog::Error("DEBUGGING 2 \n");
+        OTLog::Output(4, "OTContract::LoadEncodedTextField: Skipping non-text field... \n");
 
 		// move to the next node which SHOULD be the expected text field.
 		//
@@ -3393,7 +3393,7 @@ bool OTContract::LoadEncodedTextField(IrrXMLReader*& xml, OTASCIIArmor & ascOutp
 			OTLog::Output(0, "OTContract::LoadEncodedTextField: Failure: Unable to find expected text field.\n");
 			return false;
 		}
-//        OTLog::Error("DEBUGGING 3 \n");
+        OTLog::Output(4, "OTContract::LoadEncodedTextField: Finished skipping non-text field. (Successfully.)\n");
     }
 
 //    OTLog::Error("DEBUGGING 4 \n");

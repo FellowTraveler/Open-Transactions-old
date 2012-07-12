@@ -249,6 +249,10 @@ public:
     static bool GetPasswordFromConsole(OTPassword & theOutput, bool bRepeat=false);
 	// -------------------------------------
 
+    // m_p_ascKey is the most basic value. m_pKey is derived from it, for example.
+    //
+    inline bool IsEmpty()   const  { return (NULL == m_p_ascKey); } 
+    
 	inline bool IsPublic()  const  { return m_bIsPublicKey;  }
 	inline bool IsPrivate() const  { return m_bIsPrivateKey; }
 	
@@ -275,8 +279,8 @@ EXPORT	virtual ~OTAsymmetricKey();
     // ***************************************************************
     // HIGH LEVEL
     //
-EXPORT	const
-    EVP_PKEY *  GetKey();
+EXPORT	const EVP_PKEY * GetKey();
+
 	void        SetKeyAsCopyOf(EVP_PKEY & theKey, bool bIsPrivateKey=false);
 	
     static      // CALLER must EVP_pkey_free!
@@ -335,14 +339,14 @@ EXPORT	const
 
     // ***************************************************************
 
-	bool LoadPrivateKey(const OTString & strFoldername, const OTString & strFilename);
+	bool LoadPrivateKey(const OTString & strFoldername, const OTString & strFilename, OTString * pstrReason=NULL);
 	bool LoadPublicKey (const OTString & strFoldername, const OTString & strFilename);
 	
     // ***************************************************************
 
     // "escaped" means pre-pended with "- " as in:   - -----BEGIN CERTIFICATE....
     //
-    bool LoadPrivateKeyFromCertString(const OTString & strCert, bool bEscaped=true);
+    bool LoadPrivateKeyFromCertString(const OTString & strCert, bool bEscaped=true, OTString * pstrReason=NULL);
 
     // ***************************************************************
 

@@ -247,10 +247,12 @@ OTPseudonym * OTPseudonym::LoadPublicNym(const OTIdentifier & NYM_ID,
 	return NULL;	
 }
 
+
 //static
 OTPseudonym * OTPseudonym::LoadPrivateNym(const OTIdentifier & NYM_ID,
-										  OTString * pstrName/*=NULL*/,
-										  const char * szFuncName/*=NULL*/)
+										        OTString     * pstrName/*=NULL*/,
+										  const char         * szFuncName/*=NULL*/,
+                                                OTString     * pstrReason/*=NULL*/)
 {	
 	const char * szFunc = (NULL != szFuncName) ? szFuncName : "OTPseudonym::LoadPrivateNym";
 	// ------------------------------------------
@@ -265,7 +267,7 @@ OTPseudonym * OTPseudonym::LoadPrivateNym(const OTIdentifier & NYM_ID,
 	OT_ASSERT_MSG(NULL != pNym, "OTPseudonym::LoadPrivateNym: Error allocating memory.\n");
 	// ---------------------------------
 	// Error loading x509CertAndPrivateKey.
-	if (false == pNym->Loadx509CertAndPrivateKey())
+	if (false == pNym->Loadx509CertAndPrivateKey(pstrReason))
 		OTLog::vError("OTPseudonym::LoadPrivateNym %s: Failure calling Loadx509CertAndPrivateKey: %s\n", 
 					  szFunc, strNymID.Get());
 	// success loading x509CertAndPrivateKey,
@@ -585,7 +587,8 @@ OTItem * OTPseudonym::GenerateTransactionStatement(const OTTransaction & theOwne
 
 
 
-bool OTPseudonym::Savex509CertAndPrivateKey(bool bCreateFile/*=true*/)
+bool OTPseudonym::Savex509CertAndPrivateKey(bool       bCreateFile/*=true*/, 
+                                            OTString * pstrReason/*=NULL*/)
 {
     const char * szFunc = "OTPseudonym::Savex509CertAndPrivateKey";
     // ---------------------------------------
@@ -711,7 +714,8 @@ bool OTPseudonym::Savex509CertAndPrivateKey(bool bCreateFile/*=true*/)
 		bool bPrivate = false;
 		
 		bPublic  = m_pkeyPublic->LoadPublicKeyFromCertFile  (OTLog::CertFolder(), strFilename.Get());
-		bPrivate = m_pkeyPrivate->LoadPrivateKey            (OTLog::CertFolder(), strFilename.Get());
+		bPrivate = m_pkeyPrivate->LoadPrivateKey            (OTLog::CertFolder(), strFilename.Get(), 
+                                                             pstrReason);
 		
 		if (!bPublic)
 		{
@@ -2924,34 +2928,47 @@ bool OTPseudonym::SavePublicKey(FILE * fl) const
 }
 */
 
+// pstrID is an output parameter.
+bool OTPseudonym::Server_PubKeyExists(OTString * pstrID/*=NULL*/) // Only used on server side.
+{
+	// ------------------------------------
+	OTString strID;
+    if (NULL == pstrID)
+    {
+        pstrID = &strID;
+    }
+    this->GetIdentifier(*pstrID);
+	// ------------------------------------
+    // Below this point, pstrID is a GOOD pointer, no matter what. (And no need to delete it.)
 
+	return OTDB::Exists(OTLog::PubkeyFolder(), pstrID->Get());
+}
 
+// ------------------------------------
 
 // This version is run on the server side, and assumes only a Public Key.
 // This code reads up the file, discards the bookends, and saves only the gibberish itself.
 bool OTPseudonym::LoadPublicKey()
 {	
-	// ------------------------------------
-	
 	OTString strID;
-	GetIdentifier(strID);
 	
-	const char * szFoldername	= OTLog::PubkeyFolder();
-	const char * szFilename		= strID.Get();
-
-	// --------------------------------------------------------------------
-	if (false == OTDB::Exists(szFoldername, szFilename))
+	if (false == this->Server_PubKeyExists(&strID)) // strID will contain *this nymID after this call.
 	{
 		// Code will call this in order to see if there is a PublicKey to be loaded.
 		// Therefore I don't want to log a big error here since we expect that sometimes
 		// the key won't be there.
 		// Therefore I log at level 4, the same level as I log the successful outcome.
-		OTLog::Output(4, "Failure in OTPseudonym::LoadPublicKey.\n");
+        //
+		OTLog::Output(4, "OTPseudonym::LoadPublicKey: Failed load: "
+                      "Apparently this Nym doesn't exist. (Returning.)\n");
 		return false;
 	}
 	
 	// --------------------------------------------------------------------
-	
+    const char * szFoldername	= OTLog::PubkeyFolder();
+	const char * szFilename		= strID.Get();
+	// --------------------------------------------------------------------
+
 	const OTString strFoldername(szFoldername), strFilename(szFilename);
 	
 	// This loads up the ascii-armored Public Key.
@@ -3247,7 +3264,7 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
                 theList.Add(lTransactionNumber);
 			}
             OTString strTemp;
-            if (theList.Output(strTemp) && strTemp.Exists())
+            if ((theList.Count() > 0) && theList.Output(strTemp) && strTemp.Exists())
             {
                 const OTASCIIArmor ascTemp(strTemp);
                 
@@ -3295,7 +3312,7 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
                 theList.Add(lTransactionNumber);
 			}
             OTString strTemp;
-            if (theList.Output(strTemp) && strTemp.Exists())
+            if ((theList.Count() > 0) && theList.Output(strTemp) && strTemp.Exists())
             {
                 const OTASCIIArmor ascTemp(strTemp);
                 
@@ -3343,7 +3360,7 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
                 theList.Add(lTransactionNumber);
 			}
             OTString strTemp;
-            if (theList.Output(strTemp) && strTemp.Exists())
+            if ((theList.Count() > 0) && theList.Output(strTemp) && strTemp.Exists())
             {
                 const OTASCIIArmor ascTemp(strTemp);
                 
@@ -3396,7 +3413,7 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
                 theList.Add(lRequestNumber);
 			}
             OTString strTemp;
-            if (theList.Output(strTemp) && strTemp.Exists())
+            if ((theList.Count() > 0) && theList.Output(strTemp) && strTemp.Exists())
             {
                 const OTASCIIArmor ascTemp(strTemp);
                 
@@ -3488,7 +3505,7 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
 		{
             long lCronItemTransNum = *it;
             
-            strNym.Concatenate("<hasOpenCronItem ID=%ld />\n\n",
+            strNym.Concatenate("<hasOpenCronItem ID=\"%ld\" />\n\n",
                                lCronItemTransNum);
 		} 
 	}
@@ -3503,7 +3520,7 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
 		{
             std::string strAcctID = *it;
                         
-            strNym.Concatenate("<ownsAssetAcct ID=%s />\n\n",
+            strNym.Concatenate("<ownsAssetAcct ID=\"%s\" />\n\n",
                                strAcctID.c_str());
 		} 
 	}
@@ -3633,7 +3650,7 @@ bool OTPseudonym::SavePseudonym(OTString & strNym)
  Definition at line 180 of file irrXML.h.
  
  */
-bool OTPseudonym::LoadFromString(const OTString & strNym)
+bool OTPseudonym::LoadFromString(const OTString & strNym) // todo optimize
 {
 	bool bSuccess = false;
 
@@ -3642,7 +3659,7 @@ bool OTPseudonym::LoadFromString(const OTString & strNym)
 
     // ------------------------------------
     
-	OTStringXML strNymXML(strNym);
+	OTStringXML strNymXML(strNym); // todo optimize
 	IrrXMLReader* xml = createIrrXMLReader(&strNymXML);
 	OT_ASSERT(NULL != xml);
 	OTCleanup<IrrXMLReader> theCleanup(*xml);
@@ -3650,6 +3667,38 @@ bool OTPseudonym::LoadFromString(const OTString & strNym)
 	// parse the file until end reached
 	while(xml && xml->read())
 	{
+        
+//        switch(xml->getNodeType())
+//        {
+//            case(EXN_NONE):
+//                OTLog::Error("ACK NUMS: EXN_NONE --  No xml node. This is usually the node if you did not read anything yet.\n");
+//                break;
+//            case(EXN_ELEMENT):
+//                OTLog::Error("ACK NUMS: EXN_ELEMENT -- An xml element such as <foo>.\n");
+//                break;
+//            case(EXN_ELEMENT_END):
+//                OTLog::Error("ACK NUMS: EXN_ELEMENT_END -- End of an xml element such as </foo>.\n");
+//                break;
+//            case(EXN_TEXT):
+//                OTLog::Error("ACK NUMS: EXN_TEXT -- Text within an xml element: <foo> this is the text. <foo>.\n");
+//                break;
+//            case(EXN_COMMENT):
+//                OTLog::Error("ACK NUMS: EXN_COMMENT -- An xml comment like <!-- I am a comment --> or a DTD definition.\n");
+//                break;
+//            case(EXN_CDATA):
+//                OTLog::Error("ACK NUMS: EXN_CDATA -- An xml cdata section like <![CDATA[ this is some CDATA ]]>.\n");
+//                break;
+//            case(EXN_UNKNOWN):
+//                OTLog::Error("ACK NUMS: EXN_UNKNOWN -- Unknown element.\n");
+//                break;
+//            default:
+//                OTLog::Error("ACK NUMS: default!! -- SHOULD NEVER HAPPEN...\n");
+//                break;
+//        }
+//        OTLog::vError("OTPseudonym::LoadFromString: NODE DATA: %s\n", xml->getNodeData());
+
+        
+        
 		// strings for storing the data that we want to read out of the file		
         //
 		switch(xml->getNodeType())
@@ -3661,10 +3710,41 @@ bool OTPseudonym::LoadFromString(const OTString & strNym)
 			case EXN_CDATA:
 				// in this xml file, the only text which occurs is the messageText
 				//messageText = xml->getNodeData();
+                
+//            switch(xml->getNodeType())
+//            {
+//                case(EXN_NONE):
+//                    OTLog::Error("SKIPPING: EXN_NONE --  No xml node. This is usually the node if you did not read anything yet.\n");
+//                    break;
+//                case(EXN_TEXT):
+//                    OTLog::Error("SKIPPING: EXN_TEXT -- Text within an xml element: <foo> this is the text. <foo>.\n");
+//                    break;
+//                case(EXN_COMMENT):
+//                    OTLog::Error("SKIPPING: EXN_COMMENT -- An xml comment like <!-- I am a comment --> or a DTD definition.\n");
+//                    break;
+//                case(EXN_ELEMENT_END):
+//                    OTLog::Error("SKIPPING: EXN_ELEMENT_END -- End of an xml element such as </foo>.\n");
+//                    break;
+//                case(EXN_CDATA):
+//                    OTLog::Error("SKIPPING: EXN_CDATA -- An xml cdata section like <![CDATA[ this is some CDATA ]]>.\n");
+//                    break;
+//                default:
+//                    OTLog::Error("SKIPPING: default!! -- SHOULD NEVER HAPPEN...\n");
+//                    break;
+//            }
+                
 				break;
 			case EXN_ELEMENT:
 			{
                 const OTString strNodeName = xml->getNodeName();
+
+                
+                
+//                OTLog::vError("PROCESSING EXN_ELEMENT: NODE NAME: %s\n", strNodeName.Get());
+                
+                
+                
+                
                 
 				if (strNodeName.Compare("OTuser"))
 				{
@@ -3874,47 +3954,20 @@ bool OTPseudonym::LoadFromString(const OTString & strNym)
                 
                 else if (strNodeName.Compare("ackNums"))
                 {	
-//                    switch(xml->getNodeType())
-//                    {
-//                    case(EXN_NONE):
-//                        OTLog::Error("ACK NUMS: EXN_NONE --  No xml node. This is usually the node if you did not read anything yet.\n");
-//                        break;
-//                    case(EXN_ELEMENT):
-//                        OTLog::Error("ACK NUMS: EXN_ELEMENT -- An xml element such as <foo>.\n");
-//                        break;
-//                    case(EXN_ELEMENT_END):
-//                        OTLog::Error("ACK NUMS: EXN_ELEMENT_END -- End of an xml element such as </foo>.\n");
-//                        break;
-//                    case(EXN_TEXT):
-//                        OTLog::Error("ACK NUMS: EXN_TEXT -- Text within an xml element: <foo> this is the text. <foo>.\n");
-//                        break;
-//                    case(EXN_COMMENT):
-//                        OTLog::Error("ACK NUMS: EXN_COMMENT -- An xml comment like <!-- I am a comment --> or a DTD definition.\n");
-//                        break;
-//                    case(EXN_CDATA):
-//                        OTLog::Error("ACK NUMS: EXN_CDATA -- An xml cdata section like <![CDATA[ this is some CDATA ]]>.\n");
-//                        break;
-//                    case(EXN_UNKNOWN):
-//                        OTLog::Error("ACK NUMS: EXN_UNKNOWN -- Unknown element.\n");
-//                        break;
-//                    default:
-//                        OTLog::Error("ACK NUMS: default!! -- SHOULD NEVER HAPPEN...\n");
-//                            break;
-//                    }
-//                    OTLog::vError("ACK NUMS: NODE DATA: %s\n", xml->getNodeData());
-
-                    
                     const OTString tempServerID	= xml->getAttributeValue("serverID");				
                     OTString strTemp;
                     if (!tempServerID.Exists())
                     {
-                        OTLog::Error("OTPseudonym::LoadFromString: Error: While loading ackNums field: Missing serverID.\n");
+                        OTLog::vError("OTPseudonym::LoadFromString: Error: While loading ackNums "
+                                      "field: Missing serverID. Nym contents:\n\n%s\n\n", strNym.Get());
                         return false; // error condition
                     }
                     // ----------------------
                     
-                    xml->read(); // there should be a text field next, with the data for the list of acknowledged numbers.
-
+//                  xml->read(); // there should be a text field next, with the data for the list of acknowledged numbers.
+                    // Note: I think I was forced to add this when the numlist was empty, one time, so this may come back
+                    // to haunt me, but I want to fix it right, not kludge it.
+                    //
                     // ----------------------
                     if (!OTContract::LoadEncodedTextField(xml, strTemp))
                     {
@@ -4440,7 +4493,7 @@ bool OTPseudonym::LoadNymfile(const char * szFilename/*=NULL*/)
 }
 
 
-bool OTPseudonym::Loadx509CertAndPrivateKey()
+bool OTPseudonym::Loadx509CertAndPrivateKey(OTString * pstrReason/*=NULL*/)
 {
 	OTString strID(m_nymID);
 
@@ -4493,7 +4546,7 @@ bool OTPseudonym::Loadx509CertAndPrivateKey()
 		bool bPrivate = false;
 		
 		bPublic  = m_pkeyPublic->LoadPublicKeyFromCertFile(strFoldername, strFilename);
-		bPrivate = m_pkeyPrivate->LoadPrivateKey(strFoldername, strFilename);
+		bPrivate = m_pkeyPrivate->LoadPrivateKey(strFoldername, strFilename, pstrReason);
 		
 //		bPrivate = true;
 		

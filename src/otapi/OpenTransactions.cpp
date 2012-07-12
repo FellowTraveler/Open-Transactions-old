@@ -241,6 +241,8 @@ void OT_API::TransportCallback(OTServerContract & theServerContract, OTEnvelope 
     OT_ASSERT(NULL != OT_API::s_p_ZMQ_Mutex); // see OT_API:OTAPIInit.
     tthread::lock_guard<tthread::mutex>  lock (*s_p_ZMQ_Mutex);
     // ----------------------------------------------
+    const char * szFunc = "OT_API::TransportCallback";
+    // ----------------------------------------------
 	int			nServerPort = 0;
 	OTString	strServerHostname;
 	
@@ -251,7 +253,7 @@ void OT_API::TransportCallback(OTServerContract & theServerContract, OTEnvelope 
 	
 	if (false == theServerContract.GetConnectInfo(strServerHostname, nServerPort))
 	{
-		OTLog::Error("OT_API::TransportCallback: Failed retrieving connection info from server contract.\n");
+		OTLog::vError("%s: Failed retrieving connection info from server contract.\n", szFunc);
 		return;
 	}
     // ----------------------------------------------
@@ -273,42 +275,89 @@ void OT_API::TransportCallback(OTServerContract & theServerContract, OTEnvelope 
         
         if (!bSuccessSending)
         {
-            OTLog::vError("OT_API::TransportCallback: Failed, even with error correction and retries, while trying to send message to server.");
+            OTLog::vError("%s: Failed, even with error correction and retries, "
+                          "while trying to send message to server.", szFunc);
         }
         else
         {
-            OTASCIIArmor	ascServerReply;
-            bool			bSuccessReceiving = theSocket.Receive(ascServerReply); // <========
+            OTString  strRawServerReply;
+            bool	  bSuccessReceiving = theSocket.Receive(strRawServerReply); // <========
             
-            if (!bSuccessReceiving)
+            if (!bSuccessReceiving || !strRawServerReply.Exists())
             {
-                OTLog::Error("OT_API::TransportCallback: Failed trying to receive expected reply from server.\n");
+                OTLog::vError("%s: Failed trying to receive expected reply from server.\n", szFunc);
             }					
             // ----------------------------------------------------------
             else
-            {
-                OTString	strServerReply;				// Maybe should use OT_API::It().GetClient()->GetNym or some such...
-                OTEnvelope theServerEnvelope;
+            {                
+                OTASCIIArmor ascServerReply;
+                const bool   bLoaded = strRawServerReply.Exists() && ascServerReply.LoadFromString(strRawServerReply);
+                // -----------------------------
+                OTString strServerReply;
+                bool     bRetrievedReply = false;
+                // -----------------------------
+                if (!bLoaded)
+                    OTLog::vError("%s: Failed trying to load OTASCIIArmor object from string:\n\n%s\n\n",
+                                  szFunc, strRawServerReply.Get());
+                // ----------------------------------------------------------
                 
-                if (theServerEnvelope.SetAsciiArmoredData(ascServerReply))
+                else if (strRawServerReply.Contains("ENVELOPE")) // Server sent this encrypted to my public key, in an armored envelope.
                 {
-                    bool bOpened = theServerEnvelope.Open(*(OT_API::It().GetClient()->m_pConnection->GetNym()), strServerReply);
-                    
-                    OTMessage * pServerReply = new OTMessage;
-                    OT_ASSERT(NULL != pServerReply);
-                    
-                    if (bOpened && strServerReply.Exists() && pServerReply->LoadContractFromString(strServerReply))
+                    OTEnvelope  
+                        theServerEnvelope;
+                    if (theServerEnvelope.SetAsciiArmoredData(ascServerReply))
                     {
-                        // Now the fully-loaded message object (from the server, this time) can be processed by the OT library...
-                        OT_API::It().GetClient()->ProcessServerReply(*pServerReply); // Client takes ownership and will handle cleanup.
+                        bRetrievedReply = theServerEnvelope.Open(*(OT_API::It().GetClient()->m_pConnection->GetNym()), 
+                                                                 strServerReply);
                     }
                     else
                     {
-                        delete pServerReply;
-                        pServerReply = NULL;
-                        OTLog::Error("OT_API::TransportCallback: Error loading server reply from string.\n");
-                    }
+                        OTLog::vError("%s: Failed: while setting OTASCIIArmor'd string into an OTEnvelope.\n", szFunc);
+                    }                    
                 }
+                // ----------------------------------------------------------
+                // NOW ABLE TO HANDLE MESSAGES HERE IN ADDITION TO ENVELOPES!!!!
+                // (Sometimes the server HAS to reply with an unencrypted reply,
+                // and this is what makes it possible for the client to RECEIVE
+                // that reply.)
+                //
+                // The Server doesn't have to accept both types, but the client does,
+                // since technically all clients cannot talk to it without knowing its key first.
+                //
+                // ===> A CLIENT could POTENTIALLY have sent a message to server when unregistered, 
+                // leaving server NO WAY to reply! Therefore server HAS to have the OPTION to send
+                // an unencrypted message, in that case, and the client HAS to be able to receive it 
+                // properly!!
+                //
+                // ----------------------------------------------------------
+
+                else if (strRawServerReply.Contains("MESSAGE")) // Server sent this NOT encrypted, in an armored message.
+                {
+                    bRetrievedReply = ascServerReply.GetString(strServerReply);
+                }
+                // ----------------------------------------------------------
+                else
+                {
+                    OTLog::vError("%s: Error: Unknown reply type received from server. (Expected envelope or message.)\n"
+                                  "\n\n PERHAPS YOU ARE RUNNING AN OLD VERSION OF THE SERVER ????? \n\n", szFunc);
+                }                    
+                // **********************************************************************
+                OTMessage * pServerReply = new OTMessage;
+                OT_ASSERT(NULL != pServerReply);
+                
+                if (bRetrievedReply && strServerReply.Exists() && pServerReply->LoadContractFromString(strServerReply))
+                {
+                    // Now the fully-loaded message object (from the server, this time) can be processed by the OT library...
+                    OT_API::It().GetClient()->ProcessServerReply(*pServerReply); // Client takes ownership and will handle cleanup.
+                }
+                else
+                {
+                    delete pServerReply;
+                    pServerReply = NULL;
+                    OTLog::vError("%s: Error loading server reply from string:\n\n%s\n\n", 
+                                  szFunc, strRawServerReply.Get());
+                }
+                // ----------------------------------------------------------
             } // !success receiving.
             // ----------------------------------------------------------
         } // else (bSuccessSending)
@@ -736,7 +785,7 @@ bool OTSocket::Send(OTASCIIArmor & ascEnvelope, const OTString &strConnectPath)
 }
 // -----------------------------------
 
-bool OTSocket::Receive(OTASCIIArmor & ascServerReply)
+bool OTSocket::Receive(OTString & strServerReply)
 {
 	OT_ASSERT_MSG(NULL != m_pContext, "m_pContext == NULL in OTSocket::Receive()");
 	OT_ASSERT_MSG(NULL != m_pSocket, "m_pSocket == NULL in OTSocket::Receive()");
@@ -801,7 +850,7 @@ bool OTSocket::Receive(OTASCIIArmor & ascServerReply)
 	// ***********************************
 	
 	if (bSuccessReceiving && (reply.size() > 0))
-		ascServerReply.MemSet(static_cast<const char*>(reply.data()), reply.size());
+		strServerReply.MemSet(static_cast<const char*>(reply.data()), reply.size());
     
 	return (bSuccessReceiving && (reply.size() > 0));
 }
@@ -3100,7 +3149,10 @@ OTPseudonym * OT_API::LoadPrivateNym(const OTIdentifier & NYM_ID, const char * s
 	strName = (NULL != pNym) ? pNym->GetNymName().Get() : strNymID.Get();
 	// now strName contains either "" or the Nym's name from wallet.
 	// ---------------------------------
-	return OTPseudonym::LoadPrivateNym(NYM_ID, &strName, szFuncName);
+    
+    OTString strReason((NULL == szFuncName) ? "OT_API::LoadPrivateNym" : szFuncName);
+    
+	return OTPseudonym::LoadPrivateNym(NYM_ID, &strName, szFuncName, &strReason);
 }
 
 

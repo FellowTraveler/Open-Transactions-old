@@ -351,7 +351,11 @@ public:
 	bool SaveMainFile();              // Called in IssueNextTransactionNumber.
 	bool SaveMainFileToString(OTString & strMainFile);
     // -------------------------------
-	bool ProcessUserCommand(OTMessage & theMessage, OTMessage & msgOut, OTClientConnection * pConnection=NULL);
+	bool ProcessUserCommand(OTMessage & theMessage, 
+                            OTMessage & msgOut, 
+                            OTClientConnection * pConnection=NULL, 
+                            OTPseudonym * pNym=NULL);
+    
 	bool ValidateServerIDfromUser(OTString & strServerID);	
 	// --------------------------------------------------------------
 	// After EVERY / ANY transaction, plus certain messages, we drop a copy of the server's reply into

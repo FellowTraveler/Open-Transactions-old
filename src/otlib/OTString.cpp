@@ -692,6 +692,33 @@ void OTString::LowLevelSet(const char * new_string, uint32_t nEnforcedMaxLength)
 }
 
 
+// The source is probably NOT null-terminated.
+// Size must be exact (not a max.)
+//
+bool OTString::MemSet(const char * pMem, uint32_t theSize)
+{
+	Release();
+	
+	if ((NULL == pMem) || (theSize < 1))
+		return true;
+	
+	// -------------------
+	
+	char * str_new = new char [theSize + 1];
+	OT_ASSERT(NULL != str_new);
+	
+	memcpy((void*)str_new, pMem, theSize);
+	
+	str_new[theSize] = 0; // add null-terminator. (I deliberately made this buffer 1 byte larger so I could put the 0 at the end.)
+	
+	m_lLength	= theSize; // the length doesn't count the 0.
+	m_strBuffer	= str_new;
+	
+	return true;
+}
+
+
+
 OTString& OTString::operator=(OTString rhs)
 {
 	this->swap(rhs);

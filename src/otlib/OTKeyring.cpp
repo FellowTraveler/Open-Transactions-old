@@ -697,9 +697,11 @@ bool OTKeyring::Gnome_StoreSecret(const OTString    & strUser,
                                                        "DERIVED KEY"); // There's no default, to force you to enter the right string.
     ascData.zeroMemory();
     // -----------------------------------------
+    GnomeKeyringResult theResult = GNOME_KEYRING_RESULT_IO_ERROR;
+
     if (bSuccess && strOutput.Exists())
     {
-        GnomeKeyringResult theResult =
+        theResult =
             gnome_keyring_store_password_sync(GNOME_KEYRING_NETWORK_PASSWORD,
                                               GNOME_KEYRING_DEFAULT, //GNOME_KEYRING_SESSION,
                                               str_display.c_str(),
@@ -709,18 +711,20 @@ bool OTKeyring::Gnome_StoreSecret(const OTString    & strUser,
                                               NULL);
         strOutput.zeroMemory();
         // ---------------------------
+        bool bResult = false;
+        
         if (theResult == GNOME_KEYRING_RESULT_OK)
-        {
-            return true;
-        }
+            bResult = true;
         else 
-        {
             OTLog::vError("OTKeyring::Gnome_StoreSecret: "
                           "Failure in gnome_keyring_store_password_sync: %s.\n",
                           gnome_keyring_result_to_message (theResult));
-        }
+        
+        return bResult;
     }
     // -----------------------------------------
+    OTLog::Output(0, "OTKeyring::Gnome_StoreSecret: No secret to store.\n");
+    
     return false;
 }
 
@@ -784,7 +788,7 @@ bool OTKeyring::Gnome_RetrieveSecret(const OTString    & strUser,
     // ----------------------------------------------------------------
     // Not an error: what if it just hasn't been set there yet?
     //
-    OTLog::vOutput(1, "OTKeyring::Gnome_RetrieveSecret: "
+    OTLog::vOutput(0, "OTKeyring::Gnome_RetrieveSecret: "
                   "No secret found: gnome_keyring_find_password_sync: %s.\n",
                   gnome_keyring_result_to_message (theResult));
 
@@ -965,7 +969,7 @@ bool OTKeyring::KWallet_StoreSecret(const OTString    & strUser,
         //
         bool bReturnVal = false;
         
-		if (strOutput.Exists() && pWallet->writePassword(qstrKey, QString::fromUtf8(strOutput.Get())) == 0)
+		if (bSuccess && strOutput.Exists() && pWallet->writePassword(qstrKey, QString::fromUtf8(strOutput.Get())) == 0)
 			bReturnVal = true;
 		else
 			OTLog::Error("OTKeyring::KWallet_StoreSecret: Failed trying to store secret into KWallet.\n");
@@ -974,6 +978,8 @@ bool OTKeyring::KWallet_StoreSecret(const OTString    & strUser,
         
         return bReturnVal;
 	}
+    
+    OTLog::Error("OTKeyring::KWallet_StoreSecret: Unable to open kwallet.\n");
     
     return false;
 }
@@ -1049,12 +1055,18 @@ bool OTKeyring::KWallet_DeleteSecret(const OTString    & strUser,
         const 
         QString qstrKey(strUser.Get());
 
+        bool bResult = false;
+        
 		if (pWallet->removeEntry(qstrKey) == 0) // delete the entry
-			return true;
+			bResult = true;
 		else
 			OTLog::Error("OTKeyring::KWallet_DeleteSecret: Failed trying to erase secret from KWallet.\n");
+        
+        return bResult;
 	}
 
+    OTLog::Error("OTKeyring::KWallet_DeleteSecret: Unable to open kwallet.\n");
+    
     return false;
 }
 

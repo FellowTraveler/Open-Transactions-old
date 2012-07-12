@@ -500,7 +500,7 @@ namespace OTDB
 		
 		if (NULL == pStorage) 
 		{
-			OTLog::Error("OTDB::Exists: details::s_pStorage is null. (Returning false.)\n");
+			OTLog::vOutput(1, "OTDB::Exists: details::s_pStorage is null. (Returning false.)\n");
 			return false;
 		}
 		

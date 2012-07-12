@@ -182,6 +182,11 @@ def main_opentxs()
                          "showbaskets":main_not_coded_yet,      // show basket currencies issued on a particular server.
                          "showoffers":main_not_coded_yet,       // show all offers on a particular server and market.
                          "showmyoffers":main_not_coded_yet,     // show mynym's offers on a particular server and market.
+                         "shownyms":stat_nyms,                  // show the nyms in the wallet.
+                         "shownym":main_nym_stat,               // show the statistics for a specific nym.
+                         "showaccounts":stat_accounts,          // show the asset accounts in the wallet.
+                         "showassets":stat_assets,              // show the currency contracts in the wallet.
+                         "showservers":stat_servers,            // show the server contracts in the wallet.
                          "sign":main_sign_contract,             // sign a contract, releasing all other signatures first.
                          "addsignature":main_add_signature,     // add a signature to a contract without releasing others.
                          "verifysig":main_verify_signature,     // verify a signature on a contract.
@@ -243,6 +248,11 @@ def main_opentxs()
                          "showbaskets":                         "show basket currencies issued on a particular server.",
                          "showoffers":                          "show all offers on a particular server and market.",
                          "showmyoffers":                        "show mynym's offers on a particular server and market.",
+                         "shownyms":                            "show the nyms in the wallet.",
+                         "shownym":                             "show the statistics for a specific nym.",                         
+                         "showaccounts":                        "show the asset accounts in the wallet.",
+                         "showassets":                          "show the currency contracts in the wallet.",
+                         "showservers":                         "show the server contracts in the wallet.",
                          "sign":                                "sign a contract, releasing all other signatures first.",
                          "addsignature":                        "add a signature to a contract without releasing others.",
                          "verifysig":                           "verify a signature on a contract.",

@@ -588,12 +588,14 @@ bool OTServerConnection::ProcessType1Cmd(u_header & theCMD, OTMessage & theServe
 					{
 						OTLog::Output(0, "VERIFIED -- this message was signed by the Server.\n");
 					}
-					else {
+					else 
+                    {
 						OTLog::Output(0, "Signature verification failed on this message, proportedly from the Server.\n");
 						return false;
 					}
 				}
-				else {
+				else 
+                {
 					OTLog::Output(0, "No server contract loaded, or could not load public key from server contract.\n");
 					return false;
 				}
@@ -649,7 +651,8 @@ bool OTServerConnection::ProcessType1Cmd(u_header & theCMD, OTMessage & theServe
 							return false;
 						}
 					}
-					else {
+					else 
+                    {
 						OTLog::Error("No server contract loaded, or could not load public key from server contract.\n");
 						return false;
 					}
@@ -743,14 +746,15 @@ void OTServerConnection::ProcessMessageOut(OTMessage & theMessage)
 		SetupHeader(theCMD, CMD_TYPE_1, TYPE_1_CMD_2, thePayload);
 	}
 	// else, for whatever reason, we just send an UNencrypted message... (This shouldn't happen anymore...) TODO remove.
-	else {
+	else 
+    {
 		thePayload.SetMessage(theMessage);
 		
 		// Now that the payload is ready, we'll set up the header.
 		SetupHeader(theCMD, CMD_TYPE_1, TYPE_1_CMD_1, thePayload);
 	}
 	
-	// ---------------------------------------------------------
+	// ******************************************************************************
 
 	if (IsFocused()) // RPC / HTTP mode... ----------
 	{
@@ -768,6 +772,8 @@ void OTServerConnection::ProcessMessageOut(OTMessage & theMessage)
                        theMessage.m_strCommand.Get(),
                        atol(theMessage.m_strRequestNum.Get()));
 	}
+	// ******************************************************************************
+    
 	else			// TCP / SSL mode... -----------
 	{
 		const unsigned int nHeaderSize = OT_CMD_HEADER_SIZE;

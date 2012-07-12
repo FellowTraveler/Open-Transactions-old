@@ -1140,10 +1140,11 @@ void OTMessage::UpdateContents()
 								  m_strServerID.Get()
 								  );
 		
-		if (m_ascInReferenceTo.GetLength())
-			m_xmlUnsigned.Concatenate("<inReferenceTo>\n%s</inReferenceTo>\n\n", m_ascInReferenceTo.Get());
+		if (m_ascInReferenceTo.Exists())
+			m_xmlUnsigned.Concatenate("<inReferenceTo>\n%s</inReferenceTo>\n\n",
+                                      m_ascInReferenceTo.Get());
 		
-		if (m_bSuccess && m_ascPayload.GetLength())
+		if (m_bSuccess && m_ascPayload.Exists())
 			m_xmlUnsigned.Concatenate("<newAccount>\n%s</newAccount>\n\n", m_ascPayload.Get());
 		
 		m_xmlUnsigned.Concatenate("</%s>\n\n", m_strCommand.Get());
@@ -3163,7 +3164,7 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 				OTLog::vError("Error in OTMessage::ProcessXMLNode: "
 							  "Expected %s element with text field, for %s.\n", 
 							  pElementExpected, m_strCommand.Get());
-				return (-1); // error condition
+//				return (-1); // error condition
 			}
 		}
 		// ----------------------------------------------------
@@ -3185,10 +3186,11 @@ int OTMessage::ProcessXMLNode(IrrXMLReader*& xml)
 		// Did we find everything we were looking for?
 		// If the "command responding to" isn't there, 
 		// OR if it was successful but the Payload isn't there, then failure.
-		if (!m_ascInReferenceTo.GetLength() || (m_bSuccess && !m_ascPayload.GetLength()))
+        //
+		if (m_bSuccess && !m_ascPayload.GetLength())
 		{
 			OTLog::Error("Error in OTMessage::ProcessXMLNode:\n"
-					"Expected newAccount and/or inReferenceTo elements with text fields in "
+					"Expected newAccount element with text field, in "
 					"@createAccount reply\n");
 			return (-1); // error condition			
 		}
