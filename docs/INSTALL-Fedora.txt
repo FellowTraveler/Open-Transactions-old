@@ -96,6 +96,10 @@ Enable extra (noisy) warnings with compile:
 Enable the signal handling for catching segmentation fault's (debug only):
 --enable-sighandler
 
+Enable system keyring storage of OT passwords:
+--with-keyring=ARG
+(ARG can one of gnome, kwallet, windows, mac.)
+
 ### Swig API support options:  ###
 
 Enable Configuration for SWIG Java Support:
