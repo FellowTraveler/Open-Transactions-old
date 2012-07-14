@@ -381,14 +381,15 @@ if WANT_JAVA
 lib_LTLIBRARIES			+=	libotapi-java.la
 endif
 
-libotapi_java_la_SOURCES	=	swig/otapi/OTAPI-java.cxx		\
+libotapi_java_la_SOURCES	=	swig/otapi/OTAPI-java.cxx	\
 					swig/otapi/OTAPI-java.h
 
-libotapi_java_la_CPPFLAGS	=	$(AM_CPPFLAGS)				\
-					$(JNI_CPPFLAGS)				\
+libotapi_java_la_CPPFLAGS	=	$(AM_CPPFLAGS)			\
+					$(JNI_CPPFLAGS)			\
 					-I$(otapi_headers_dir)
 
-libotapi_java_la_LIBADD 	=	libotapi.la libot.la
+libotapi_java_la_LIBADD 	=	$(DEPS_LIBS)			\
+					libotapi.la libot.la
 libotapi_java_la_DEPENDENCIES 	=	libotapi.la libot.la
 
 libotapi_java_la_LDFLAGS 	=	--no-undefined
@@ -409,7 +410,8 @@ libotapi_perl5_la_CPPFLAGS	=	$(AM_CPPFLAGS)			\
 					-I$(otapi_headers_dir)		\
 					-I$(PERL_EXT_INC)
 
-libotapi_perl5_la_LIBADD	=	libotapi.la libot.la
+libotapi_perl5_la_LIBADD	=	$(DEPS_LIBS)			\
+					libotapi.la libot.la
 libotapi_perl5_la_DEPENDENCIES	=	libotapi.la libot.la
 
 libotapi_perl5_la_LDFLAGS	=	--no-undefined			\
@@ -432,7 +434,8 @@ libotapi_php_la_CPPFLAGS	=	$(AM_CPPFLAGS)			\
 					-I$(top_srcdir)/swig/glue/php	\
 					$(PHP_INCLUDES)
 
-libotapi_php_la_LIBADD		=	libotapi.la libot.la
+libotapi_php_la_LIBADD		=	$(DEPS_LIBS)			\
+					libotapi.la libot.la
 libotapi_php_la_DEPENDENCIES	=	libotapi.la libot.la
 
 libotapi_php_la_LDFLAGS		=	--no-undefined			\
@@ -456,7 +459,8 @@ _otapi_la_CPPFLAGS		= 	$(AM_CPPFLAGS)  -fpic           \
 					-I$(otapi_headers_dir)          \
 					$(PYTHON_EXTRA_LIBS)
 
-_otapi_la_LIBADD		=	libotapi.la libot.la
+_otapi_la_LIBADD		=	$(DEPS_LIBS)			\
+					libotapi.la libot.la
 _otapi_la_DEPENDENCIES		= 	libotapi.la libot.la
 
 _otapi_la_LDFLAGS		=	--no-undefined                  \
