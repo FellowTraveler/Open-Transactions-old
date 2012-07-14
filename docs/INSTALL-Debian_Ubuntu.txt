@@ -98,10 +98,11 @@ $ export PKG_CONFIG_PATH=$HOME/.local/lib/pkgconfig:$PKG_CONFIG_PATH
 ######## Download opentxs #############
 # fetch O-T and prepare your copy for build
 
-# 'stable' source tar ball method
-$ wget https://github.com/randy-waterhouse/opentxs/downloads/opentxs.*.tar.gz
-$ tar -zxvf opentxs.*.tar.gz
-$ cd opentxs.*.tar.gz
+# 'stable' (alpha) source tar ball method
+$ wget https://github.com/randy-waterhouse/opentxs/downloads/opentxs.83.a.tar.gz
+$ tar -zxvf opentxs.83.a.tar.gz
+$ cd opentxs.83.a.tar.gz
+$ autoreconf -i -f
 $ mkdir build && cd build
 
 
@@ -130,6 +131,10 @@ Enable extra (noisy) warnings with compile:
 
 Enable the signal handling for catching segmentation fault's (debug only):
 --enable-sighandler
+
+Enable system keyring storage of OT passwords:
+--with-keyring=ARG
+(ARG can one of gnome, kwallet, windows, mac.)
 
 # Swig API support options: #
 
