@@ -222,7 +222,7 @@
 		{
 			this.accountID     = p_strParam;
 		}
-		else if ((theType == this.ISSUE_ASSET_TYPE) || (theType == this.DEPOSIT_PAYMENT_PLAN) || (theType == this.GET_MARKET_RECENT_TRADES) || (theType == this.QUERY_ASSET_TYPES) || (theType == this.ACTIVATE_SMART_CONTRACT))
+		else if ((theType == this.ISSUE_ASSET_TYPE) || (theType == this.DEPOSIT_PAYMENT_PLAN) || (theType == this.GET_MARKET_RECENT_TRADES) || (theType == this.QUERY_ASSET_TYPES))
 		{
 			this.strData    = p_strParam;
 		}
@@ -305,17 +305,17 @@
 		// ---------------------------
 
 
-        this.funcType   = theType;
-        this.serverID   = p_serverID;
-        this.nymID      = p_nymID;
-        this.nTransNumsNeeded = 1;
-        this.bBool      = false;
+        this.funcType   = theType
+        this.serverID   = p_serverID
+        this.nymID      = p_nymID
+        this.nTransNumsNeeded = 1
+        this.bBool      = false
                 
 		if (theType == this.SEND_USER_MESSAGE)
 		{
-			this.nymID2     = p_nymID2;
-			this.strData    = p_strData;
-			this.strData2   = p_strData2;			
+			this.nymID2     = p_nymID2
+			this.strData    = p_strData
+			this.strData2   = p_strData2			
 		}
         /*
          // -------------------------------------------
@@ -323,21 +323,37 @@
          */
 		else if (theType == this.TRIGGER_CLAUSE)
 		{
-			this.strData    = p_nymID2;
-			this.strData2   = p_strData;
-			this.strData3   = p_strData2;			
+			this.strData    = p_nymID2
+			this.strData2   = p_strData
+			this.strData3   = p_strData2		
+		}
+		else if (theType == this.ACTIVATE_SMART_CONTRACT)
+		{         
+//      OTAPI_Func(ot_Msg.ACTIVATE_SMART_CONTRACT, SERVER_ID, NYM_ID, ACCT_ID, AGENT_NAME, THE_SMART_CONTRACT)
+//          def OTAPI_Func::OTAPI_Func  (theType, p_serverID, p_nymID, p_nymID2, p_strData, p_strData2) // 6 args
+
+            this.accountID  = p_nymID2    // the "official" asset account of the party activating the contract.
+            this.strData    = p_strData   // the agent's name for that party, as listed on the contract.
+            this.strData2   = p_strData2  // the smart contract itself.
+            
+            var nNumsNeeded = OT_API_SmartContract_CountNumsNeeded(p_strData2, p_strData)
+
+            if (VerifyIntVal(nNumsNeeded) && nNumsNeeded > 0)
+            {
+                this.nTransNumsNeeded = nNumsNeeded
+            }
 		}
 		else if (theType == this.SEND_USER_INSTRUMENT)
 		{
-			this.nymID2     = p_nymID2;
-			this.strData    = p_strData;
-			this.strData2   = p_strData2;			
+			this.nymID2     = p_nymID2
+			this.strData    = p_strData
+			this.strData2   = p_strData2		
 		}
 		else if (theType == this.GET_BOX_RECEIPT)
 		{
-			this.accountID	= p_nymID2;		// accountID (inbox/outbox) or NymID (nymbox) is passed here.
-			this.nData		= p_strData;	// Integer is passed here in this case. (0, 1, or 2)
-			this.strData	= p_strData2;	// transaction number passed here as string
+			this.accountID	= p_nymID2		// accountID (inbox/outbox) or NymID (nymbox) is passed here.
+			this.nData		= p_strData     // Integer is passed here in this case. (0, 1, or 2)
+			this.strData	= p_strData2	// transaction number passed here as string
 		}
 		else
 		{
@@ -502,7 +518,7 @@
             case (this.DELETE_ASSET_ACCT)
             {	nRetVal = OT_API_deleteAssetAccount(this.serverID, this.nymID, this.accountID);	 break;}
             case (this.ACTIVATE_SMART_CONTRACT)
-            {	nRetVal = OT_API_activateSmartContract(this.serverID, this.nymID, this.strData);  break;}
+            {	nRetVal = OT_API_activateSmartContract(this.serverID, this.nymID, this.strData2);  break;}
             case (this.TRIGGER_CLAUSE)
             {	nRetVal = OT_API_triggerClause(this.serverID, this.nymID, this.strData, this.strData2, this.strData3);  break; }
             case (this.EXCHANGE_BASKET)

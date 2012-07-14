@@ -5,7 +5,7 @@
 
 
 
-def details_activate_smart_contract(strContract)
+def details_activate_smart_contract(strContract, strAgent)
 {
     // --------------------------------------------------------------------
     // Instantiate the "OT Made Easy" object.
@@ -16,7 +16,7 @@ def details_activate_smart_contract(strContract)
     
     // HERE, WE SEND THE ACTIVATION REQUEST TO THE SERVER
     //
-    var strResponse = madeEasy.activate_smart_contract(Server, MyNym, strContract) 
+    var strResponse = madeEasy.activate_smart_contract(Server, MyNym, MyAcct, strAgent, strContract) 
     var strAttempt  = "activate_smart_contract"
     
     // ***************************************************************
@@ -534,7 +534,7 @@ def CreateSmartContractAtCLI()
                 // --------------------------------------------------
                 // ACTIVATE THE SMART CONTRACT ON A SERVER.
                 
-                var nSuccess = details_activate_smart_contract(strSmartContract)
+                var nSuccess = details_activate_smart_contract(strSmartContract, "agent_alice")
 //              OT_API_activateSmartContract(Server, MyNym, strSmartContract)            
                 print("Finishing calling activate!!")
                 

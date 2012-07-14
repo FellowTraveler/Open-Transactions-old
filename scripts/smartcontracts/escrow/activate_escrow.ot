@@ -14,7 +14,7 @@
 
 
 
-def details_activate_smart_contract(strContract)
+def details_activate_smart_contract(strContract, strAgent)
 {
     // --------------------------------------------------------------------
     // Instantiate the "OT Made Easy" object.
@@ -25,7 +25,7 @@ def details_activate_smart_contract(strContract)
     
     // HERE, WE SEND THE ACTIVATION REQUEST TO THE SERVER
     //
-    var strResponse = madeEasy.activate_smart_contract(Server, MyNym, strContract) 
+    var strResponse = madeEasy.activate_smart_contract(Server, MyNym, MyAcct, strAgent, strContract) 
     var strAttempt  = "activate_smart_contract"
     
     // ***************************************************************
@@ -79,7 +79,7 @@ print("\n\n\n Activating...")
 
 // This is the return value.
 //
-details_activate_smart_contract(strSmartContract)
+details_activate_smart_contract(strSmartContract, "agent_alice")
 
 
 
