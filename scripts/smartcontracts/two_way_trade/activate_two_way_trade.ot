@@ -40,8 +40,9 @@ def details_activate_smart_contract(strContract)
         OT_API_Output(0, "Server response ("+strAttempt+"): SUCCESS!\n")
     }
     else // Grab Bob's numbers back (TODO: these false's have to contain real data, to synchronize properly. Long term need to use the actual system here, for tracking and harvesting these numbers, and not this kludge here.
-        OT_API_Msg_HarvestTransactionNumbers(strContract, HisNym, false, false, false, false, false) 
-    
+        {
+		OT_API_Msg_HarvestTransactionNumbers(strContract, HisNym, false, false, false, false, false) 
+	} 
     // ***************************************************************
     //
     // Return status to caller.

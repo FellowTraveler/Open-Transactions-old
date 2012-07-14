@@ -1514,6 +1514,8 @@ def stat_nyms()
         
         print(strID + " ---  " + strName)
     }
+    
+    1
 }
 
 def stat_servers()
@@ -1529,6 +1531,8 @@ def stat_servers()
         
         print(strID + " ---  " + strName)
     }
+    
+    1
 }
 
 def stat_assets()
@@ -1544,6 +1548,8 @@ def stat_assets()
         
         print(strID + " ---  " + strName)
     }
+    
+    1
 }
 
 def stat_accounts()
@@ -1579,6 +1585,8 @@ def stat_accounts()
         print("")
     }
     print("------------------------------------------------------------------")
+    
+    1
 }
 
 def main_stat() 
@@ -1687,6 +1695,8 @@ def details_nym_stat(strID)
     var strStats   = OT_API_GetNym_Stats(strID)
     
     print(strStats) // stdout
+    
+    1
 }
 
 
