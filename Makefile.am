@@ -322,19 +322,19 @@ lib_LTLIBRARIES		=	libot.la					\
 ####	LIB BigInt
 
 libbigint_la_SOURCES	=	$(bigint_sources) $(bigint_headers)
-libbigint_la_CPPFLAGS	=	-I$(bigint_headers_dir) $(DEPS_CFLAGS) -fpic
+libbigint_la_CPPFLAGS	=	-I$(bigint_headers_dir) -fpic
 libbigint_la_LDFLAGS	=	-static
 
 ####	LIB IrrXML
 
 libirrxml_la_SOURCES	=	$(irrxml_sources) $(irrxml_headers)
-libirrxml_la_CPPFLAGS	=	-I$(irrxml_headers_dir) $(DEPS_CFLAGS) -fpic
+libirrxml_la_CPPFLAGS	=	-I$(irrxml_headers_dir) -fpic
 libirrxml_la_LDFLAGS	=	-static
 
 ####	LIB Lucre
 
 liblucre_la_SOURCES	=	$(lucre_sources) $(lucre_headers)
-liblucre_la_CPPFLAGS	=	-I$(lucre_headers_dir) $(DEPS_CFLAGS) -fpic
+liblucre_la_CPPFLAGS	=	-I$(lucre_headers_dir) -fpic
 liblucre_la_LDFLAGS	=	-static
 
 
@@ -342,14 +342,10 @@ liblucre_la_LDFLAGS	=	-static
 
 libot_la_SOURCES	=	$(otlib_sources) $(otlib_headers)	\
 				$(containers_headers)
-
 libot_la_CPPFLAGS	=	$(AM_CPPFLAGS)
-
-libot_la_LIBADD		=	$(DEPS_LIBS)				\
-				libbigint.la libirrxml.la liblucre.la
-
+libot_la_LIBADD		=	libbigint.la libirrxml.la liblucre.la	\
+				$(DEPS_LIBS)
 libot_la_DEPENDENCIES	=	libbigint.la libirrxml.la liblucre.la
-
 libot_la_LDFLAGS	=	--no-undefined
 
 
@@ -357,14 +353,10 @@ libot_la_LDFLAGS	=	--no-undefined
 
 libotapi_la_SOURCES	=	$(otapi_sources) $(otapi_headers)	\
 				$(simpleini_headers)
-
 libotapi_la_CPPFLAGS	=	-I$(otapi_headers_dir) $(AM_CPPFLAGS) -fpic
-
-libotapi_la_LIBADD	=	$(DEPS_LIBS)				\
-				libot.la
+libotapi_la_LIBADD	=	libot.la $(DEPS_LIBS)
 libotapi_la_DEPENDENCIES=	libot.la
-
-libotapi_la_LDFLAGS	=	-static
+libotapi_la_LDFLAGS	=	--no-undefined
 
 
 ####	Global Headers
@@ -383,19 +375,15 @@ endif
 
 libotapi_java_la_SOURCES	=	swig/otapi/OTAPI-java.cxx	\
 					swig/otapi/OTAPI-java.h
-
-libotapi_java_la_CPPFLAGS	=	$(AM_CPPFLAGS)			\
-					$(JNI_CPPFLAGS)			\
+libotapi_java_la_CPPFLAGS	=	$(AM_CPPFLAGS) $(JNI_CPPFLAGS)	\
 					-I$(otapi_headers_dir)
-
-libotapi_java_la_LIBADD 	=	$(DEPS_LIBS)			\
-					libotapi.la libot.la
+libotapi_java_la_LIBADD 	=	libotapi.la libot.la $(DEPS_LIBS)
 libotapi_java_la_DEPENDENCIES 	=	libotapi.la libot.la
-
 libotapi_java_la_LDFLAGS 	=	--no-undefined
 
 if TRANSPORT_ZMQ
-libotapi_java_la_CPPFLAGS 	+=	-DOT_ZMQ_MODE
+libotapi_java_la_CPPFLAGS 	+=	-DOT_ZMQ_MODE $(ZMQ_CFLAGS)
+libotapi_java_la_LIBADD		+=	$(ZMQ_LIBS)
 endif
 
 #### OT API PERL5
@@ -409,15 +397,13 @@ libotapi_perl5_la_CPPFLAGS	=	$(AM_CPPFLAGS)			\
 					$(PERL_EXT_CPPFLAGS)		\
 					-I$(otapi_headers_dir)		\
 					-I$(PERL_EXT_INC)
-
-libotapi_perl5_la_LIBADD	=	$(DEPS_LIBS)			\
-					libotapi.la libot.la
+libotapi_perl5_la_LIBADD	=	libotapi.la libot.la $(DEPS_LIBS)
 libotapi_perl5_la_DEPENDENCIES	=	libotapi.la libot.la
+libotapi_perl5_la_LDFLAGS	=	$(PERL_EXT_LDFLAGS) --no-undefined
 
-libotapi_perl5_la_LDFLAGS	=	--no-undefined			\
-					$(PERL_EXT_LDFLAGS)
 if TRANSPORT_ZMQ
-libotapi_perl5_la_CPPFLAGS	+=	-DOT_ZMQ_MODE
+libotapi_perl5_la_CPPFLAGS	+=	-DOT_ZMQ_MODE $(ZMQ_CFLAGS)
+libotapi_perl5_la_LIBADD	+=	$(ZMQ_LIBS)
 endif
 
 #### OT API PHP
@@ -428,21 +414,17 @@ endif
 
 libotapi_php_la_SOURCES		=	swig/otapi/OTAPI-php.cpp	\
 					swig/otapi/OTAPI-php.h
-
 libotapi_php_la_CPPFLAGS	=	$(AM_CPPFLAGS)			\
 					-I$(otapi_headers_dir)		\
 					-I$(top_srcdir)/swig/glue/php	\
 					$(PHP_INCLUDES)
-
-libotapi_php_la_LIBADD		=	$(DEPS_LIBS)			\
-					libotapi.la libot.la
+libotapi_php_la_LIBADD		=	libotapi.la libot.la $(DEPS_LIBS)
 libotapi_php_la_DEPENDENCIES	=	libotapi.la libot.la
-
-libotapi_php_la_LDFLAGS		=	--no-undefined			\
-					$(PHP_LDFLAGS)
+libotapi_php_la_LDFLAGS		=	$(PHP_LDFLAGS) --no-undefined
 
 if TRANSPORT_ZMQ
-libotapi_php_la_CPPFLAGS	+=	-DOT_ZMQ_MODE
+libotapi_php_la_CPPFLAGS	+=	-DOT_ZMQ_MODE $(ZMQ_CFLAGS)
+libotapi_php_la_LIBADD		+=	$(ZMQ_LIBS)
 endif
 
 #### OT API PYTHON
@@ -458,18 +440,16 @@ _otapi_la_CPPFLAGS		= 	$(AM_CPPFLAGS)  -fpic           \
 					$(PYTHON_CPPFLAGS)              \
 					-I$(otapi_headers_dir)          \
 					$(PYTHON_EXTRA_LIBS)
-
-_otapi_la_LIBADD		=	$(DEPS_LIBS)			\
-					libotapi.la libot.la
+_otapi_la_LIBADD		=	libotapi.la libot.la $(DEPS_LIBS)
 _otapi_la_DEPENDENCIES		= 	libotapi.la libot.la
-
 _otapi_la_LDFLAGS		=	--no-undefined                  \
 					-module -avoid-version          \
 					$(PYTHON_LDFLAGS)               \
 					$(PYTHON_EXTRA_LDFLAGS)
 
 if TRANSPORT_ZMQ
-_otapi_la_CPPFLAGS		+=	-DOT_ZMQ_MODE
+_otapi_la_CPPFLAGS		+=	-DOT_ZMQ_MODE $(ZMQ_CFLAGS)
+_otapi_la_LIBADD		+=	$(ZMQ_LIBS)
 endif
 
 
@@ -485,8 +465,7 @@ bin_PROGRAMS		=	ot					\
 
 ot_SOURCES		=	$(ot_sources) $(otapi_headers)
 ot_CPPFLAGS		=	-I$(otapi_headers_dir) $(AM_CPPFLAGS) -fpic
-ot_LDADD		=	$(DEPS_LIBS)				\
-				libotapi.la libot.la
+ot_LDADD		=	libotapi.la libot.la $(DEPS_LIBS)
 ot_DEPENDENCIES		=	libotapi.la libot.la
 
 
@@ -495,8 +474,7 @@ ot_DEPENDENCIES		=	libotapi.la libot.la
 
 otserver_SOURCES	=	$(otserver_sources) $(otserver_headers)
 otserver_CPPFLAGS	=	-I$(otserver_headers_dir) $(AM_CPPFLAGS)
-otserver_LDADD		=	$(DEPS_LIBS)				\
-				libot.la
+otserver_LDADD		=	libot.la $(DEPS_LIBS)
 otserver_DEPENDENCIES	=	libot.la
 
 
@@ -505,8 +483,7 @@ otserver_DEPENDENCIES	=	libot.la
 createmint_SOURCES	=	$(createmint_sources)			\
 				$(otserver_sources) $(otserver_headers)
 createmint_CPPFLAGS	=	-I$(otserver_headers_dir) $(AM_CPPFLAGS)
-createmint_LDADD	=	$(DEPS_LIBS)				\
-				libot.la
+createmint_LDADD	=	libot.la $(DEPS_LIBS)
 createmint_DEPENDENCIES =	libot.la
 
 
@@ -518,13 +495,18 @@ createmint_DEPENDENCIES =	libot.la
 
 if TRANSPORT_ZMQ
 
-libotapi_la_CPPFLAGS		+=	-DOT_ZMQ_MODE
-ot_CPPFLAGS			+=	-DOT_ZMQ_MODE
+libotapi_la_CPPFLAGS		+=	-DOT_ZMQ_MODE $(ZMQ_CFLAGS)
+libotapi_la_LIBADD		+=	$(ZMQ_LIBS)
 
-otserver_CPPFLAGS		+=	-DOT_ZMQ_MODE
+ot_CPPFLAGS			+=	-DOT_ZMQ_MODE $(ZMQ_CFLAGS)
+ot_LDADD			+=	$(ZMQ_LIBS)
+
 otserver_SOURCES		+=	src/otserver/xmlrpcxx_server.cpp
+otserver_CPPFLAGS		+=	-DOT_ZMQ_MODE $(ZMQ_CFLAGS)
+otserver_LDADD			+=	$(ZMQ_LIBS)
 
-createmint_CPPFLAGS		+=	-DOT_ZMQ_MODE
+createmint_CPPFLAGS		+=	-DOT_ZMQ_MODE $(ZMQ_CFLAGS)
+createmint_LDADD		+=	$(ZMQ_LIBS)
 
 endif
 
@@ -535,15 +517,18 @@ libot_la_CPPFLAGS		+=	-DOT_KEYRING_WINDOWS
 endif
 
 if KEYRING_MAC
-libot_la_CPPFLAGS		+=	-DOT_KEYRING_MAC
+libot_la_CPPFLAGS		+=	-DOT_KEYRING_MAC $(MAC_CFLAGS)
+libot_la_LIBADD			+=	$(MAC_LIBS)
 endif
 
 if KEYRING_GNOME
-libot_la_CPPFLAGS		+=	-DOT_KEYRING_GNOME
+libot_la_CPPFLAGS		+=	-DOT_KEYRING_GNOME $(GKR_CFLAGS)
+libot_la_LIBADD			+=	$(GKR_LIBS)
 endif
 
 if KEYRING_KWALLET
-libot_la_CPPFLAGS		+=	-DOT_KEYRING_KWALLET
+libot_la_CPPFLAGS		+=	-DOT_KEYRING_KWALLET $(KWAL_CFLAGS)
+libot_la_LIBADD			+=	$(KWAL_LIBS)
 endif
 
 
