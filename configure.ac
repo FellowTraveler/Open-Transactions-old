@@ -34,6 +34,17 @@ AX_BOOST_THREAD
 AC_SUBST( DEPS_CFLAGS,	["$DEPS_CFLAGS $BOOST_CPPFLAGS"])
 AC_SUBST( DEPS_LIBS,	["$DEPS_LIBS $BOOST_LDFLAGS $BOOST_THREAD_LIB"])
 
+## MsgPack ##
+
+AC_CHECK_HEADERS(
+	[msgpack.h],
+	[],
+	[AC_MSG_ERROR([No header files for libmsgpack found.])]
+	)
+
+AC_CHECK_LIB(msgpack, msgpack_unpack)
+
+
 ## Transport Options (ZMQ defaut) ##
 
 AC_ARG_WITH(	[transport],
@@ -51,29 +62,64 @@ AM_CONDITIONAL(	[TRANSPORT_TESTCLIENT],	[test "$with_transport" == testclient])
 
 AS_IF(	[test "$with_transport" == zmq],
 	[
-	PKG_CHECK_MODULES([ZMQDEP],[libzmq >= 2.1.4])
+	PKG_CHECK_MODULES([ZMQ],[libzmq >= 2.1.4])
 	AC_LANG_PUSH([C++])
 		AC_CHECK_HEADERS([zmq.hpp],
 			[],
 			[AC_MSG_ERROR([Header files for libzmq not found or incompatible.])],
 			[])
 	AC_LANG_POP
-	AC_SUBST(DEPS_CFLAGS,	["$DEPS_CFLAGS $ZMQDEP_CFLAGS"])
-	AC_SUBST(DEPS_LIBS,	["$DEPS_LIBS $ZMQDEP_LIBS"])
+	AC_SUBST(ZMQ_CFLAGS)
+	AC_SUBST(ZMQ_LIBS)
 	])
 
-## MsgPack ##
+## Keyring Options ##
 
-AC_CHECK_HEADERS(
-	[msgpack.h],
-	[],
-	[AC_MSG_ERROR([No header files for libmsgpack found.])]
-	)
+AC_ARG_WITH(	[keyring],
+		[AS_HELP_STRING([--with-keyring@<:@=ARG@:>@],
+		[Choose a keyring ARG from: windows, mac, gnome, kwallet])],
+		[case "${withval}" in
+			windows) true ;;
+			mac) true ;;
+			gnome) true ;;
+			kwallet) true ;;
+			*) AC_MSG_ERROR([bad value ${withval} for --with-keyring]) ;;
+			esac],
+		[])
 
-AC_CHECK_LIB(msgpack, msgpack_unpack)
+AM_CONDITIONAL(	[KEYRING_WINDOWS],	[test "$with_keyring" == windows])
+AM_CONDITIONAL(	[KEYRING_MAC],		[test "$with_keyring" == mac])
+AM_CONDITIONAL(	[KEYRING_GNOME],	[test "$with_keyring" == gnome])
+AM_CONDITIONAL(	[KEYRING_KWALLET],	[test "$with_keyring" == kwallet])
+
+AS_IF(	[test "$with_keyring" == windows],
+	[
+	AC_SUBST(DEPS_CFLAGS,	["$DEPS_CFLAGS"])
+	AC_SUBST(DEPS_LIBS,	["$DEPS_LIBS"])
+	])
+# Extra WINDOWS flags might be needed here #
+
+AS_IF(	[test "$with_keyring" == mac],
+	[
+	AC_SUBST(MAC_CFLAGS,	["-isysroot /Developer/SDKs/MacOSX10.6.sdk -arch ppc -arch i386"])
+	AC_SUBST(MAC_LIBS,	["-syslibroot /Developer/SDKs/MacOSX10.6.sdk -arch ppc -arch i386"])
+	])
+
+AS_IF(	[test "$with_keyring" == gnome],
+	[
+	PKG_CHECK_MODULES([GKR],[glib-2.0 >= 2.28.6 gnome-keyring-1])
+	AC_SUBST(GKR_CFLAGS)
+	AC_SUBST(GKR_LIBS)
+	])
+
+AS_IF(	[test "$with_keyring" == kwallet],
+	[
+	AC_SUBST(KWAL_CFLAGS,	["-I/usr/include/kde"])
+	AC_SUBST(KWAL_LIBS,	["-L/usr/lib -lkwalletclient"])
+	])
 
 
-#### Configure Options ####
+#### More Configure Options ####
 
 ## (Option) Signal Handler ##
 
@@ -187,55 +233,7 @@ if (test "x$with_python" == "xyes"); then
 	AX_PYTHON_DEVEL
 fi
 
-## Keyring Options ##
-
-AC_ARG_WITH(	[keyring],
-		[AS_HELP_STRING([--with-keyring@<:@=ARG@:>@],
-		[Choose a keyring ARG from: windows, mac, gnome, kwallet])],
-		[case "${withval}" in
-			windows) true ;;
-			mac) true ;;
-			gnome) true ;;
-			kwallet) true ;;
-			*) AC_MSG_ERROR([bad value ${withval} for --with-keyring]) ;;
-			esac],
-		[])
-
-AM_CONDITIONAL(	[KEYRING_WINDOWS],	[test "$with_keyring" == windows])
-AM_CONDITIONAL(	[KEYRING_MAC],		[test "$with_keyring" == mac])
-AM_CONDITIONAL(	[KEYRING_GNOME],	[test "$with_keyring" == gnome])
-AM_CONDITIONAL(	[KEYRING_KWALLET],	[test "$with_keyring" == kwallet])
-
-AS_IF(	[test "$with_keyring" == windows],
-	[
-	AC_SUBST(DEPS_CFLAGS,	["$DEPS_CFLAGS"])
-	AC_SUBST(DEPS_LIBS,	["$DEPS_LIBS"])
-	])
-## Extra WINDOWS flags might be needed here ##
-
-AS_IF(	[test "$with_keyring" == mac],
-	[
-	AC_SUBST(DEPS_CFLAGS,	["$DEPS_CFLAGS -isysroot /Developer/SDKs/MacOSX10.6.sdk -arch ppc -arch i386"]) 
-	AC_SUBST(DEPS_LIBS,	["$DEPS_LIBS -syslibroot /Developer/SDKs/MacOSX10.6.sdk -arch ppc -arch i386"])
-	])
-
-AS_IF(	[test "$with_keyring" == gnome],
-	[
-	PKG_CHECK_MODULES([GKRDEP],[glib-2.0 >= 2.28.6 gnome-keyring-1])
-	AC_SUBST(DEPS_CFLAGS,	["$DEPS_CFLAGS $GKRDEP_CFLAGS"])
-	AC_SUBST(DEPS_LIBS,	["$DEPS_LIBS $GKRDEP_LIBS"])
-	])
-
-AS_IF(	[test "$with_keyring" == kwallet],
-	[
-	AC_SUBST(DEPS_CFLAGS,	["$DEPS_CFLAGS -I/usr/include/kde"])
-	AC_SUBST(DEPS_LIBS,	["$DEPS_LIBS -L/usr/lib -lkwalletclient"])
-	])
-
 ##### Options END #####
-
-AC_SUBST(DEPS_CFLAGS)
-AC_SUBST(DEPS_LIBS)
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
