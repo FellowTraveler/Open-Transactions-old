@@ -51,7 +51,7 @@ AM_CONDITIONAL(	[TRANSPORT_TESTCLIENT],	[test "$with_transport" == testclient])
 
 AS_IF(	[test "$with_transport" == zmq],
 	[
-	PKG_CHECK_MODULES([ZMQDEP],[libzmq >= 2.1.9])
+	PKG_CHECK_MODULES([ZMQDEP],[libzmq >= 2.1.4])
 	AC_LANG_PUSH([C++])
 		AC_CHECK_HEADERS([zmq.hpp],
 			[],

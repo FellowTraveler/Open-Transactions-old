@@ -18,23 +18,25 @@ $ export PKG_CONFIG_PATH=$HOME/.local/lib/pkgconfig:/usr/local/lib/pkgconfig:$PK
 # fetch OT and prepare your copy for build
 
 # 'stable' (alpha) source tar ball method
-$ wget https://github.com/FellowTraveler/downloads/opentxs.*.tar.gz
+# (Replace wildcard * with appropriate version number)
+#
+$ wget https://github.com/randy-waterhouse/downloads/opentxs.*.tar.gz
 $ tar -zxvf opentxs.*.tar.gz
 $ cd opentxs.*.tar.gz
 $ autoreconf -i -f
 $ mkdir build && cd build
 
+
 # git pull latest development source method
+#
 $ git clone git://github.com/FellowTraveler/Open-Transactions.git
 $ cd Open-Transactions
 $ autoreconf -i -f
 $ mkdir -p build && cd build
 
+$ make uninstall (to cleanup anything in your ~/.local dir)
 
 $ ../configure --prefix=$HOME/.local --with-java
-
-
-$ make uninstall (to cleanup anything in your ~/.local dir)
 
 $ make
 (can add -j2 option for speedy build)
