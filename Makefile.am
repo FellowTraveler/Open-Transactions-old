@@ -386,6 +386,8 @@ libotapi_java_la_CPPFLAGS 	+=	-DOT_ZMQ_MODE $(ZMQ_CFLAGS)
 libotapi_java_la_LIBADD		+=	$(ZMQ_LIBS)
 endif
 
+
+
 #### OT API PERL5
 
 if WANT_PERL5
@@ -524,6 +526,18 @@ endif
 if KEYRING_GNOME
 libot_la_CPPFLAGS		+=	-DOT_KEYRING_GNOME $(GKR_CFLAGS)
 libot_la_LIBADD			+=	$(GKR_LIBS)
+
+libotapi_la_CPPFLAGS		+=	$(GKR_CFLAGS)
+libotapi_la_LIBADD		+=	$(GKR_LIBS)
+
+ot_CPPFLAGS			+=	$(GKR_CFLAGS)
+ot_LDADD			+=	$(GKR_LIBS)
+
+otserver_CPPFLAGS		+=	$(GKR_CFLAGS)
+otserver_LDADD			+=	$(GKR_LIBS)
+
+libotapi_java_la_CPPFLAGS 	+=	$(GKR_CFLAGS)
+libotapi_java_la_LIBADD		+=	$(GKR_LIBS)
 endif
 
 if KEYRING_KWALLET

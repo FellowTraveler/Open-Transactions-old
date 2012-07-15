@@ -1,22 +1,57 @@
+## AC-AM Package Preliminaries
 AC_INIT([opentxs], m4_esyscmd([tr -d '\n' <VERSION]), [Fellow-Traveler], [opentxs], [https://github.com/FellowTraveler/Open-Transactions])
 AC_PREREQ(2.61)
-LT_PREREQ([2.2.4])
+AC_CONFIG_SRCDIR([src/ot/main.cpp])
+AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_MACRO_DIR([build-aux/m4])
 AC_CONFIG_AUX_DIR(build-aux)
 AM_INIT_AUTOMAKE([1.10 foreign])
 
+## special prelims
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
+AC_FUNC_STRNLEN
 
+## libtool prelims
+LT_PREREQ([2.2.4])
 LT_INIT([dlopen])
-AC_CONFIG_MACRO_DIR([build-aux/m4])
-AC_CONFIG_HEADERS([config.h])
-AC_CONFIG_SRCDIR([src/ot/main.cpp])
+
+##### Autoscan suggestions #####
+
+# Checks for programs.
+AC_PROG_CXX
+AC_PROG_CC
+AM_PROG_CC_C_O
+AC_PROG_CPP
 
 : ${CXXFLAGS=""}
 : ${CFLAGS=""}
 
-AC_PROG_CC
-AM_PROG_CC_C_O
-AC_PROG_CXX
+# Checks for header files.
+AC_CHECK_HEADERS([arpa/inet.h float.h limits.h malloc.h memory.h netinet/in.h stddef.h stdint.h stdlib.h string.h sys/time.h sys/timeb.h unistd.h wchar.h])
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_HEADER_STDBOOL
+AC_C_INLINE
+AC_TYPE_INT32_T
+AC_C_RESTRICT
+AC_TYPE_SIZE_T
+AC_TYPE_UINT16_T
+AC_TYPE_UINT32_T
+AC_TYPE_UINT64_T
+AC_TYPE_UINT8_T
+AC_CHECK_TYPES([ptrdiff_t])
+
+# Checks for library functions.
+AC_FUNC_ALLOCA
+AC_FUNC_ERROR_AT_LINE
+AC_FUNC_MALLOC
+AC_FUNC_REALLOC
+AC_FUNC_STRERROR_R
+AC_FUNC_STRTOD
+#AC_FUNC_STRNLEN
+AC_CHECK_FUNCS([floor getpass gettimeofday memmove memset mkdir pow socket strchr strcspn strstr strtol strtoul])
+
+###################################
 
 PKG_PROG_PKG_CONFIG([0.25])
 
@@ -79,7 +114,7 @@ AC_ARG_WITH(	[keyring],
 		[AS_HELP_STRING([--with-keyring@<:@=ARG@:>@],
 		[Choose a keyring ARG from: windows, mac, gnome, kwallet])],
 		[case "${withval}" in
-			windows) true ;;
+##			windows) true ;;
 			mac) true ;;
 			gnome) true ;;
 			kwallet) true ;;
@@ -94,8 +129,8 @@ AM_CONDITIONAL(	[KEYRING_KWALLET],	[test "$with_keyring" == kwallet])
 
 AS_IF(	[test "$with_keyring" == windows],
 	[
-	AC_SUBST(DEPS_CFLAGS,	["$DEPS_CFLAGS"])
-	AC_SUBST(DEPS_LIBS,	["$DEPS_LIBS"])
+	AC_SUBST(DEPS_CFLAGS,	[""])
+	AC_SUBST(DEPS_LIBS,	[""])
 	])
 # Extra WINDOWS flags might be needed here #
 
@@ -232,6 +267,7 @@ if (test "x$with_python" == "xyes"); then
 
 	AX_PYTHON_DEVEL
 fi
+
 
 ##### Options END #####
 
