@@ -382,8 +382,7 @@ libotapi_java_la_DEPENDENCIES 	=	libotapi.la libot.la
 libotapi_java_la_LDFLAGS 	=	--no-undefined
 
 if TRANSPORT_ZMQ
-libotapi_java_la_CPPFLAGS 	+=	-DOT_ZMQ_MODE $(ZMQ_CFLAGS)
-libotapi_java_la_LIBADD		+=	$(ZMQ_LIBS)
+libotapi_java_la_CPPFLAGS 	+=	-DOT_ZMQ_MODE
 endif
 
 
@@ -404,8 +403,7 @@ libotapi_perl5_la_DEPENDENCIES	=	libotapi.la libot.la
 libotapi_perl5_la_LDFLAGS	=	$(PERL_EXT_LDFLAGS) --no-undefined
 
 if TRANSPORT_ZMQ
-libotapi_perl5_la_CPPFLAGS	+=	-DOT_ZMQ_MODE $(ZMQ_CFLAGS)
-libotapi_perl5_la_LIBADD	+=	$(ZMQ_LIBS)
+libotapi_perl5_la_CPPFLAGS	+=	-DOT_ZMQ_MODE
 endif
 
 #### OT API PHP
@@ -425,8 +423,7 @@ libotapi_php_la_DEPENDENCIES	=	libotapi.la libot.la
 libotapi_php_la_LDFLAGS		=	$(PHP_LDFLAGS) --no-undefined
 
 if TRANSPORT_ZMQ
-libotapi_php_la_CPPFLAGS	+=	-DOT_ZMQ_MODE $(ZMQ_CFLAGS)
-libotapi_php_la_LIBADD		+=	$(ZMQ_LIBS)
+libotapi_php_la_CPPFLAGS	+=	-DOT_ZMQ_MODE
 endif
 
 #### OT API PYTHON
@@ -450,8 +447,7 @@ _otapi_la_LDFLAGS		=	--no-undefined                  \
 					$(PYTHON_EXTRA_LDFLAGS)
 
 if TRANSPORT_ZMQ
-_otapi_la_CPPFLAGS		+=	-DOT_ZMQ_MODE $(ZMQ_CFLAGS)
-_otapi_la_LIBADD		+=	$(ZMQ_LIBS)
+_otapi_la_CPPFLAGS		+=	-DOT_ZMQ_MODE
 endif
 
 
@@ -497,19 +493,14 @@ createmint_DEPENDENCIES =	libot.la
 
 if TRANSPORT_ZMQ
 
-libotapi_la_CPPFLAGS		+=	-DOT_ZMQ_MODE $(ZMQ_CFLAGS)
-libotapi_la_LIBADD		+=	$(ZMQ_LIBS)
+libotapi_la_CPPFLAGS		+=	-DOT_ZMQ_MODE
 
-ot_CPPFLAGS			+=	-DOT_ZMQ_MODE $(ZMQ_CFLAGS)
-ot_LDADD			+=	$(ZMQ_LIBS)
+ot_CPPFLAGS			+=	-DOT_ZMQ_MODE
 
 otserver_SOURCES		+=	src/otserver/xmlrpcxx_server.cpp
-otserver_CPPFLAGS		+=	-DOT_ZMQ_MODE $(ZMQ_CFLAGS)
-otserver_LDADD			+=	$(ZMQ_LIBS)
+otserver_CPPFLAGS		+=	-DOT_ZMQ_MODE
 
-createmint_CPPFLAGS		+=	-DOT_ZMQ_MODE $(ZMQ_CFLAGS)
-createmint_LDADD		+=	$(ZMQ_LIBS)
-
+createmint_CPPFLAGS		+=	-DOT_ZMQ_MODE
 endif
 
 #### KEYRING
@@ -519,30 +510,15 @@ libot_la_CPPFLAGS		+=	-DOT_KEYRING_WINDOWS
 endif
 
 if KEYRING_MAC
-libot_la_CPPFLAGS		+=	-DOT_KEYRING_MAC $(MAC_CFLAGS)
-libot_la_LIBADD			+=	$(MAC_LIBS)
+libot_la_CPPFLAGS		+=	-DOT_KEYRING_MAC
 endif
 
 if KEYRING_GNOME
-libot_la_CPPFLAGS		+=	-DOT_KEYRING_GNOME $(GKR_CFLAGS)
-libot_la_LIBADD			+=	$(GKR_LIBS)
-
-libotapi_la_CPPFLAGS		+=	$(GKR_CFLAGS)
-libotapi_la_LIBADD		+=	$(GKR_LIBS)
-
-ot_CPPFLAGS			+=	$(GKR_CFLAGS)
-ot_LDADD			+=	$(GKR_LIBS)
-
-otserver_CPPFLAGS		+=	$(GKR_CFLAGS)
-otserver_LDADD			+=	$(GKR_LIBS)
-
-libotapi_java_la_CPPFLAGS 	+=	$(GKR_CFLAGS)
-libotapi_java_la_LIBADD		+=	$(GKR_LIBS)
+libot_la_CPPFLAGS		+=	-DOT_KEYRING_GNOME
 endif
 
 if KEYRING_KWALLET
-libot_la_CPPFLAGS		+=	-DOT_KEYRING_KWALLET $(KWAL_CFLAGS)
-libot_la_LIBADD			+=	$(KWAL_LIBS)
+libot_la_CPPFLAGS		+=	-DOT_KEYRING_KWALLET
 endif
 
 

@@ -66,9 +66,6 @@ PKG_CHECK_MODULES([DEPS],[protobuf >= 2.4.1 openssl >= 1.0.0 chaiscript >= 3.1.0
 AX_BOOST_BASE([1.25.0])
 AX_BOOST_THREAD
 
-AC_SUBST( DEPS_CFLAGS,	["$DEPS_CFLAGS $BOOST_CPPFLAGS"])
-AC_SUBST( DEPS_LIBS,	["$DEPS_LIBS $BOOST_LDFLAGS $BOOST_THREAD_LIB"])
-
 ## MsgPack ##
 
 AC_CHECK_HEADERS(
@@ -129,28 +126,24 @@ AM_CONDITIONAL(	[KEYRING_KWALLET],	[test "$with_keyring" == kwallet])
 
 AS_IF(	[test "$with_keyring" == windows],
 	[
-	AC_SUBST(DEPS_CFLAGS,	[""])
-	AC_SUBST(DEPS_LIBS,	[""])
 	])
 # Extra WINDOWS flags might be needed here #
 
 AS_IF(	[test "$with_keyring" == mac],
 	[
-	AC_SUBST(MAC_CFLAGS,	["-isysroot /Developer/SDKs/MacOSX10.6.sdk -arch ppc -arch i386"])
-	AC_SUBST(MAC_LIBS,	["-syslibroot /Developer/SDKs/MacOSX10.6.sdk -arch ppc -arch i386"])
+	AC_SUBST(KRG_CFLAGS,["-isysroot /Developer/SDKs/MacOSX10.6.sdk -arch ppc -arch i386"])
+	AC_SUBST(KRG_LIBS,["-syslibroot /Developer/SDKs/MacOSX10.6.sdk -arch ppc -arch i386"])
 	])
 
 AS_IF(	[test "$with_keyring" == gnome],
 	[
-	PKG_CHECK_MODULES([GKR],[glib-2.0 >= 2.28.6 gnome-keyring-1])
-	AC_SUBST(GKR_CFLAGS)
-	AC_SUBST(GKR_LIBS)
+	PKG_CHECK_MODULES([KRG],[glib-2.0 >= 2.28.6 gnome-keyring-1])
 	])
 
 AS_IF(	[test "$with_keyring" == kwallet],
 	[
-	AC_SUBST(KWAL_CFLAGS,	["-I/usr/include/kde"])
-	AC_SUBST(KWAL_LIBS,	["-L/usr/lib -lkwalletclient"])
+	AC_SUBST(KRG_CFLAGS,	["-I/usr/include/kde"])
+	AC_SUBST(KRG_LIBS,	["-L/usr/lib -lkwalletclient"])
 	])
 
 
@@ -270,6 +263,9 @@ fi
 
 
 ##### Options END #####
+
+AC_SUBST(DEPS_CFLAGS,	["$DEPS_CFLAGS $BOOST_CPPFLAGS $ZMQ_CFLAGS $KRG_CFLAGS"])
+AC_SUBST(DEPS_LIBS,	["$DEPS_LIBS $BOOST_LDFLAGS $BOOST_THREAD_LIB $ZMQ_LIBS $KRG_LIBS"])
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
