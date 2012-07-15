@@ -25,6 +25,7 @@ AC_PROG_CPP
 
 : ${CXXFLAGS=""}
 : ${CFLAGS=""}
+: ${CPPFLAGS=""}
 
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h float.h limits.h malloc.h memory.h netinet/in.h stddef.h stdint.h stdlib.h string.h sys/time.h sys/timeb.h unistd.h wchar.h])
@@ -57,9 +58,15 @@ PKG_PROG_PKG_CONFIG([0.25])
 
 ##### Dependencies, packages, libs ####
 #
-## Main deps ##
+## Main packages deps ##
 
-PKG_CHECK_MODULES([DEPS],[protobuf >= 2.4.1 openssl >= 1.0.0 chaiscript >= 3.1.0])
+PKG_CHECK_MODULES([PKGS],[protobuf >= 2.4.1 chaiscript >= 3.1.0 openssl >= 1.0.0])
+
+## OpenSSL  dev ##
+# --with-openssl=ROOTDIR points to openssl headers
+# returns OPENSSL_LDFAGS OPENSSL_LIBS OPENSSL_INCLUDES
+
+# AX_CHECK_OPENSSL
 
 ## boost_thread lib ##
 
@@ -109,7 +116,7 @@ AS_IF(	[test "$with_transport" == zmq],
 
 AC_ARG_WITH(	[keyring],
 		[AS_HELP_STRING([--with-keyring@<:@=ARG@:>@],
-		[Choose a keyring ARG from: windows, mac, gnome, kwallet])],
+		[Choose one keyring ARG from: windows, mac, gnome, kwallet])],
 		[case "${withval}" in
 ##			windows) true ;;
 			mac) true ;;
@@ -119,10 +126,10 @@ AC_ARG_WITH(	[keyring],
 			esac],
 		[])
 
-AM_CONDITIONAL(	[KEYRING_WINDOWS],	[test "$with_keyring" == windows])
-AM_CONDITIONAL(	[KEYRING_MAC],		[test "$with_keyring" == mac])
-AM_CONDITIONAL(	[KEYRING_GNOME],	[test "$with_keyring" == gnome])
-AM_CONDITIONAL(	[KEYRING_KWALLET],	[test "$with_keyring" == kwallet])
+AM_CONDITIONAL([KEYRING_WINDOWS],	[test "$with_keyring" == windows])
+AM_CONDITIONAL([KEYRING_MAC],		[test "$with_keyring" == mac])
+AM_CONDITIONAL([KEYRING_GNOME],		[test "$with_keyring" == gnome])
+AM_CONDITIONAL([KEYRING_KWALLET],	[test "$with_keyring" == kwallet])
 
 AS_IF(	[test "$with_keyring" == windows],
 	[
@@ -264,8 +271,8 @@ fi
 
 ##### Options END #####
 
-AC_SUBST(DEPS_CFLAGS,	["$DEPS_CFLAGS $BOOST_CPPFLAGS $ZMQ_CFLAGS $KRG_CFLAGS"])
-AC_SUBST(DEPS_LIBS,	["$DEPS_LIBS $BOOST_LDFLAGS $BOOST_THREAD_LIB $ZMQ_LIBS $KRG_LIBS"])
+AC_SUBST(DEPS_CFLAGS,	["$PKGS_CFLAGS $BOOST_CPPFLAGS $ZMQ_CFLAGS $KRG_CFLAGS"])
+AC_SUBST(DEPS_LIBS,	["$PKGS_LIBS $BOOST_LDFLAGS $BOOST_THREAD_LIB $ZMQ_LIBS $KRG_LIBS"])
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
