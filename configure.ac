@@ -6,9 +6,9 @@ AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([build-aux/m4])
 AC_CONFIG_AUX_DIR(build-aux)
 AM_INIT_AUTOMAKE([1.10 foreign])
+m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
 ## special prelims
-m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 AC_FUNC_STRNLEN
 
 ## libtool prelims
