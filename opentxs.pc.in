@@ -1,0 +1,12 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: opentxs
+Description: Open_transactions library
+URL: http://www.google.com
+Version: @VERSION@
+Requires: libzmq >= 2.1.4 protobuf >= 2.4.1 chaiscript >= 3.1.0 openssl >= 1.0.0
+Libs: <link flags>
+Cflags: <compile flags>
