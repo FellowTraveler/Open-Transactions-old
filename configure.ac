@@ -1,10 +1,11 @@
-## AC-AM Package Preliminaries
-AC_INIT([opentxs], m4_esyscmd([tr -d '\n' <VERSION]), [Fellow-Traveler], [opentxs], [https://github.com/FellowTraveler/Open-Transactions])
-AC_PREREQ(2.61)
+####### AC-AM Package Preliminaries #######
+AC_INIT([opentxs],m4_esyscmd(tr -d '\n' <VERSION),[Fellow-Traveler],[opentxs],[https://github.com/FellowTraveler/Open-Transactions])
+AC_PREREQ([2.61])
 AC_CONFIG_SRCDIR([src/ot/main.cpp])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([build-aux/m4])
-AC_CONFIG_AUX_DIR(build-aux)
+AC_CONFIG_AUX_DIR([build-aux])
+AC_CONFIG_FILES([src/opentxs.pc])
 AM_INIT_AUTOMAKE([1.10 foreign])
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
@@ -15,13 +16,13 @@ AC_FUNC_STRNLEN
 LT_PREREQ([2.2.4])
 LT_INIT([dlopen])
 
-##### Autoscan suggestions #####
-
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_CPP
+
+PKG_PROG_PKG_CONFIG([0.25])
 
 : ${CXXFLAGS=""}
 : ${CFLAGS=""}
@@ -49,12 +50,9 @@ AC_FUNC_MALLOC
 AC_FUNC_REALLOC
 AC_FUNC_STRERROR_R
 AC_FUNC_STRTOD
-#AC_FUNC_STRNLEN
 AC_CHECK_FUNCS([getpass gettimeofday mkdir socket strtol strtoul])
 
-###################################
-
-PKG_PROG_PKG_CONFIG([0.25])
+######## Prelims end, Custom checks begin #######
 
 ##### Dependencies, packages, libs ####
 #
@@ -272,7 +270,7 @@ if (test "x$with_python" == "xyes"); then
 fi
 
 
-##### Options END #####
+##### Options END, Output Below #####
 
 AC_SUBST(	[DEPS_CFLAGS],
 ["$PKGS_CFLAGS $ZMQ_CFLAGS $KRG_CFLAGS $OPENSSL_CFLAGS $BOOST_CPPFLAGS"])
