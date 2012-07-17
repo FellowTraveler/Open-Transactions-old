@@ -921,7 +921,12 @@ bool OT_API::LoadConfigFile(const OTString & strMainPath)
     OTLog::TransformFilePath(strFilepathInput.Get(), strFilepath);
 	
     if (!OTDB::Exists(strFilepath.Get()))
+    {
+        OTLog::vError("%s: Failed in OTDB::Exists while trying to load config file: %s\n", 
+                      szFunc, strFilepath.Get());
         return false;
+    }
+    // else...
     // ---------------------------------------
 	{        
 		static CSimpleIniA ini; // We're assuming this file is on the path.
@@ -1051,22 +1056,37 @@ bool OT_API::LoadConfigFile(const OTString & strMainPath)
                 
                 if (NULL != pVal)
                 {
-					const OTString strUsingKeyring(pVal);
-					const bool bUsingKeyring = strUsingKeyring.Compare("true") ? true : false;
-                    OTLog::vOutput(1, "Setting security use_system_keyring: %s\n",
+                    const OTString strUsingKeyring(pVal);
+
+                    if (!strUsingKeyring.Exists() || 
+                        
+                        !( /**/  (strUsingKeyring.Contains("true")) || (strUsingKeyring.Contains("false"))  /**/  ) )
+                        
+                    {
+                        OTLog::Error("Error: Found a value for security:use_system_keyring, "
+                                     "but it was neither true nor false.\n");
+
+                    }
+					const bool bUsingKeyring = strUsingKeyring.Contains("true");
+                    OTLog::vOutput(0, "Setting security use_system_keyring: %s\n",
 								   bUsingKeyring ? "true" : "false");
                     OTMasterKey::It()->UseSystemKeyring(bUsingKeyring);
                 }
+                else                    
+                    OTLog::Output(0, "No value found in config file for: security: use_system_keyring.\n");
+
             }
             // ----------------------------------------------------------------
 		}
         else
         {
             const int nRc = static_cast<int>(rc);
-            OTLog::vError("%s: Failed loading file: %s\n With SI_ERROR: %d.\n", szFunc,
+            OTLog::vError("%s: Failed loading config file: %s\n With SI_ERROR: %d.\n", szFunc,
                           strFilepath.Get(), nRc);
             if ((-3) == nRc)
                 OTLog::Errno(szFunc);
+            
+            return false;
         }
 	}
 	

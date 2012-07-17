@@ -484,7 +484,7 @@ strSmartContract = strSmart4
 // --------------------------------------------------
 // VARIABLE:  str_alice_amount
 //
-var strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
+strSmart4 = OT_API_SmartContract_AddVariable(strSmartContract, MyNym, "main_bylaws",	// Should already be on the contract. (This way we can find it.)
 											  // ----------------------------------------
 											  "str_alice_amount",	// The amount that Alice is paying to Bob, through this escrow.
 											  // ----------------------------------------
