@@ -300,7 +300,7 @@ int     OTLog::__latency_receive_ms = 5000; // number of ms to wait before retry
 long	OTLog::__minimum_market_scale = 1;	// Server admin can configure this to any higher power-of-ten.
 
 
-OTString OTLog::__Version = "0.83.b";
+OTString OTLog::__Version = "0.83.c";
 
 
 

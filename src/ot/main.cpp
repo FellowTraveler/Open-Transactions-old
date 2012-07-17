@@ -1626,6 +1626,14 @@ int main(int argc, char* argv[])
 	OTLog::vOutput(2, "Attempting to use client_data path: %s \n      Transformed from: %s\n", 
                    strPath.Get(), strRawPath.Get());
 
+    
+    // WARNING:
+    //
+    // You cannot use OTDB::Exists() or OTDB::QueryString (etc) above this point, since the
+    // OT_API::Init call is where the storage context gets created and initialized. Only after
+    // that point, can any OT database-related calls work successfully.
+    //
+    
     OT_API::It().Init(strPath);   
     
 	OTLog::vOutput(1, "Using client_data path:  %s\n", OTLog::Path());

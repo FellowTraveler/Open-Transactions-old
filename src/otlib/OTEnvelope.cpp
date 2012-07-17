@@ -1534,7 +1534,7 @@ bool OTMasterKey::GetMasterPassword(OTPassword & theOutput,
     // --------------------------------------------------
     if (false == m_pSymmetricKey->IsGenerated()) // doesn't already exist.
     {
-        OTLog::vOutput(0, "%s: Master key didn't exist. Need to collect a passphrase from the user, "
+        OTLog::vOutput(1, "%s: Master key didn't exist. Need to collect a passphrase from the user, "
                        "so we can generate a master key...\n ", szFunc);
 
         bVerifyTwice = true; // we force it, in this case.
@@ -1596,7 +1596,7 @@ bool OTMasterKey::GetMasterPassword(OTPassword & theOutput,
 
             if (bMasterKey) // It works!
             {
-                OTLog::vOutput(0, "%s: Finished calling m_pSymmetricKey->GetRawKeyFromDerivedKey (Success.)\n", szFunc);
+                OTLog::vOutput(1, "%s: Finished calling m_pSymmetricKey->GetRawKeyFromDerivedKey (Success.)\n", szFunc);
                 theOutput  = *m_pMasterPassword; // Return it to the caller.
                 theDerivedAngel.SetCleanupTarget(*pDerivedKey); // Set our own copy to be destroyed later. It continues below as "NOT NULL".
                 bReturnVal = true; // Success.
@@ -1610,7 +1610,9 @@ bool OTMasterKey::GetMasterPassword(OTPassword & theOutput,
         }
         else    // NOT found on keyring.
         {
-            OTLog::vOutput(0, "%s: Unable to find derived key on system keyring.\n", szFunc);
+            if (this->IsUsingSystemKeyring()) // We WERE using the keying, but we DIDN'T find the derived key.
+                OTLog::vOutput(1, "%s: Unable to find derived key on system keyring.\n", szFunc);
+            // (Otherwise if we WEREN'T using the system keyring, then of course we didn't find any derived key cached there.)
             delete pDerivedKey;
             pDerivedKey = NULL; // Below, this function checks pDerivedKey for NULL.
         }
@@ -1629,14 +1631,14 @@ bool OTMasterKey::GetMasterPassword(OTPassword & theOutput,
         //
         OTPassword      passUserInput; // text mode.
         OTPasswordData  thePWData(szDisplay, &passUserInput); // this pointer is only passed in the case where it's for the master key.
-        OTLog::vOutput(2, "*********Begin OTMasterKey::GetMasterPassword: Calling souped-up password cb...\n * *  * *  * *  * *  * ");
+//        OTLog::vOutput(2, "*********Begin OTMasterKey::GetMasterPassword: Calling souped-up password cb...\n * *  * *  * *  * *  * ");
         // ------------------------------------------------------------------------
         const int nCallback = souped_up_pass_cb(NULL,  //passUserInput.getPasswordWritable(),
                                                 0,     //passUserInput.getBlockSize(),
                                                 bVerifyTwice ? 1 : 0, static_cast<void *>(&thePWData));
         
-        OTLog::vOutput(2, "*********End OTMasterKey::GetMasterPassword: FINISHED CALLING souped-up password cb. Result: %s ------\n",
-                    (nCallback > 0) ? "success" : "failure");
+//        OTLog::vOutput(2, "*********End OTMasterKey::GetMasterPassword: FINISHED CALLING souped-up password cb. Result: %s ------\n",
+//                    (nCallback > 0) ? "success" : "failure");
         // -----------------------------------------------------------------
         // SUCCESS retrieving PASSPHRASE from USER.
         //
@@ -1649,7 +1651,7 @@ bool OTMasterKey::GetMasterPassword(OTPassword & theOutput,
             
             if (!bGenerated) // This Symmetric Key hasn't been generated before....
             {
-                OTLog::vOutput(0, "%s: Calling m_pSymmetricKey->GenerateKey()...\n", szFunc);
+//                OTLog::vOutput(0, "%s: Calling m_pSymmetricKey->GenerateKey()...\n", szFunc);
                 
                 bGenerated = m_pSymmetricKey->GenerateKey(passUserInput, &pDerivedKey); // derived key is optional here. 
                 //
@@ -1661,7 +1663,7 @@ bool OTMasterKey::GetMasterPassword(OTPassword & theOutput,
                 else
                     OTLog::vError("%s: FYI: Derived key is still NULL after calling OTSymmetricKey::GenerateKey.\n");
 
-                OTLog::vOutput(0, "%s: Finished calling m_pSymmetricKey->GenerateKey()...\n", szFunc);
+//                OTLog::vOutput(0, "%s: Finished calling m_pSymmetricKey->GenerateKey()...\n", szFunc);
             }
             else // m_pSymmetricKey->IsGenerated() == true. (Symmetric Key is already generated.)
             {
@@ -1680,7 +1682,7 @@ bool OTMasterKey::GetMasterPassword(OTPassword & theOutput,
                 pDerivedKey = m_pSymmetricKey->CalculateDerivedKeyFromPassphrase(passUserInput); // asserts already.
                 theDerivedAngel.SetCleanupTarget(*pDerivedKey);
                 
-                OTLog::vOutput(0, "%s: FYI, symmetric key was already generated. Proceeding to try and use it...\n", szFunc);
+                OTLog::vOutput(1, "%s: FYI, symmetric key was already generated. Proceeding to try and use it...\n", szFunc);
 
                 // bGenerated is true, if we're even in this block in the first place. 
                 // (No need to set it twice.)
@@ -1697,7 +1699,7 @@ bool OTMasterKey::GetMasterPassword(OTPassword & theOutput,
             
             if (bGenerated) // If SymmetricKey (*this) is already generated.
             {
-                OTLog::vOutput(0, "%s: Calling m_pSymmetricKey->GetRawKeyFromPassphrase()...\n", szFunc);
+                OTLog::vOutput(1, "%s: Calling m_pSymmetricKey->GetRawKeyFromPassphrase()...\n", szFunc);
 
                 // Once we have the user's password, then we use it to GetKey from the OTSymmetricKey (which
                 // is encrypted) and that retrieves the cleartext master password which we set here and also
@@ -1715,7 +1717,7 @@ bool OTMasterKey::GetMasterPassword(OTPassword & theOutput,
                                                                                  pDerivedKey);
                 if (bMasterKey)
                 {
-                    OTLog::vOutput(0, "%s: Finished calling m_pSymmetricKey->GetRawKeyFromPassphrase (Success.)\n", szFunc);
+                    OTLog::vOutput(1, "%s: Finished calling m_pSymmetricKey->GetRawKeyFromPassphrase (Success.)\n", szFunc);
                     theOutput  = *m_pMasterPassword; // Success!
                     // ------------------------------
                     // Store the derived key to the system keyring.

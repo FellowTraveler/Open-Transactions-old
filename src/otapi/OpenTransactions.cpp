@@ -920,13 +920,16 @@ bool OT_API::LoadConfigFile(const OTString & strMainPath)
 	strFilepathInput.Format("%s%s%s", OTLog::ConfigPath(), OTLog::PathSeparator(), "client.cfg"); // todo: stop hardcoding.
     OTLog::TransformFilePath(strFilepathInput.Get(), strFilepath);
 	
-    if (!OTDB::Exists(strFilepath.Get()))
-    {
-        OTLog::vError("%s: Failed in OTDB::Exists while trying to load config file: %s\n", 
-                      szFunc, strFilepath.Get());
-        return false;
-    }
-    // else...
+    // NOTE: "Exists" doesn't work unless OTStorage has been initialized.
+    // (Which it hasn't, by the time this function gets called. I'm fixing a
+    // bug by commenting this out.)
+//    if (!OTDB::Exists(strFilepath.Get()))
+//    {
+//        OTLog::vError("%s: Failed in OTDB::Exists while trying to load config file: %s\n", 
+//                      szFunc, strFilepath.Get());
+//        return false;
+//    }
+//    // else...
     // ---------------------------------------
 	{        
 		static CSimpleIniA ini; // We're assuming this file is on the path.
@@ -1199,7 +1202,8 @@ bool OT_API::Init(OTString & strClientPath)
     
 	if (true == m_bInitialized)
 	{
-		OTLog::vError("%s: OTAPI was already initialized. (Skipping.) Ignoring path %s because already using path: %s\n", 
+		OTLog::vError("%s: OTAPI was already initialized. (Skipping.) "
+                      "Ignoring path %s because already using path: %s\n", 
 					  szFunc, strClientPath.Get(), GetStoragePath());
 		return true;
 	}
