@@ -500,7 +500,7 @@ namespace OTDB
 		
 		if (NULL == pStorage) 
 		{
-			OTLog::vOutput(1, "OTDB::Exists: details::s_pStorage is null. (Returning false.)\n");
+			OTLog::vOutput(0, "OTDB::Exists: details::s_pStorage is null. (Returning false.)\n");
 			return false;
 		}
 		
@@ -2788,12 +2788,12 @@ namespace OTDB
 	bool StorageFS::ConfirmFile(const char * szFileName, struct stat * pst/*=NULL*/)
 	{
 		OT_ASSERT(NULL != szFileName);
-		
+        // ---------------------------------------
 		if (m_strFullPath.size() < 1)
 		{
-			OTLog::vError("StorageFS::ConfirmFile: m_strFullPath is empty! "
+			OTLog::vError("%s: m_strFullPath is empty! "
                           "(Failure.) While trying to confirm file: %s\n",
-						  szFileName);
+						  __FUNCTION__, szFileName);
 			return false;
 		}
 		// ---------------------------------------
@@ -2810,7 +2810,13 @@ namespace OTDB
 		OTString strPATH_OUTPUT;
         OTLog::TransformFilePath(strPath.Get(), strPATH_OUTPUT);
 
-		return (0 == stat(strPATH_OUTPUT.Get(), pst));
+        const bool bSuccess = (0 == stat(strPATH_OUTPUT.Get(), pst));
+        
+        if (!bSuccess)
+            OTLog::vOutput(0, "%s: FYI, stat() says the file doesn't exist: %s\n",
+                           __FUNCTION__, strPATH_OUTPUT.Get());
+        
+		return bSuccess;
 	}
 	
 	/*
@@ -2938,6 +2944,10 @@ namespace OTDB
 					
 					strOutput = strThreePath.Get();
 					bConfirmed = ConfirmFile(strThreePath.Get(), &st); // This may fail, that's okay.
+                    
+                    if (!bConfirmed)
+                        OTLog::vOutput(0, "%s: FYI, ConfirmFile failed with parameter: %s\n", 
+                                       szFunc, strThreePath.Get())
 				}
 			}
 		}
@@ -2963,10 +2973,11 @@ namespace OTDB
 										std::string oneStr/*=""*/, std::string twoStr/*=""*/, std::string threeStr/*=""*/)
 	{
 		std::string strOutput;
-		
+		const char * szFunc = "StorageFS::onStorePackedBuffer";
+        
 		if (-1 == ConstructAndConfirmPath(strOutput, strFolder, oneStr, twoStr, threeStr))
 		{
-			OTLog::vError("StorageFS::onStorePackedBuffer: Error writing to %s.\n", strOutput.c_str());
+			OTLog::vError("%s: Error writing to %s.\n", szFunc, strOutput.c_str());
 			return false;
 		}
 		
@@ -2980,8 +2991,8 @@ namespace OTDB
 		
 		if (ofs.fail())
 		{
-			OTLog::vError("Error opening file in StorageFS::onStorePackedBuffer: %s\n", 
-						  strOutput.c_str());
+			OTLog::vError("%s: Error opening file: %s\n", 
+						  szFunc, strOutput.c_str());
 			return false;
 		}
 		
