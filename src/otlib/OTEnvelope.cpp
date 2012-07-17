@@ -1610,7 +1610,7 @@ bool OTMasterKey::GetMasterPassword(OTPassword & theOutput,
         }
         else    // NOT found on keyring.
         {
-            OTLog::vOutput(0, "%s: Unable to find derived key on system keyring.\n", sFunc);
+            OTLog::vOutput(0, "%s: Unable to find derived key on system keyring.\n", szFunc);
             delete pDerivedKey;
             pDerivedKey = NULL; // Below, this function checks pDerivedKey for NULL.
         }
