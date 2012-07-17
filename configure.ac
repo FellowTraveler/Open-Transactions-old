@@ -60,13 +60,15 @@ PKG_PROG_PKG_CONFIG([0.25])
 #
 ## Main packages deps ##
 
-PKG_CHECK_MODULES([PKGS],[protobuf >= 2.4.1 chaiscript >= 3.1.0 openssl >= 1.0.0])
+PKG_CHECK_MODULES([PKGS],[protobuf >= 2.4.1 chaiscript >= 3.1.0])
 
-## OpenSSL  dev ##
-# --with-openssl=ROOTDIR points to openssl headers
-# returns OPENSSL_LDFAGS OPENSSL_LIBS OPENSSL_INCLUDES
+## OpenSSL
+# "--with-openssl=DIR" point to optional openssl package headers (for devs)
 
-# AX_CHECK_OPENSSL
+PKG_CHECK_MODULES([OPENSSL],[openssl >= 1.0.0],
+	[AX_CHECK_OPENSSL],
+	[AC_MSG_RESULT([Warning: openssl version >= 1.0.0 not found!])]
+	)
 
 ## boost_thread lib ##
 
@@ -75,14 +77,14 @@ AX_BOOST_THREAD
 
 ## MsgPack ##
 
-AC_CHECK_HEADERS(
-	[msgpack.h],
-	[],
-	[AC_MSG_ERROR([No header files for libmsgpack found.])]
+AC_CHECK_LIB([msgpack],[msgpack_unpack],
+	[MSG_LIBS="-lmsgpack"
+	AC_CHECK_HEADERS([msgpack.h],[],
+		[AC_MSG_ERROR([No header files for libmsgpack found!])]
+		)
+	],
+	[AC_MSG_RESULT([Warning: libmsgpack not found!])]
 	)
-
-AC_CHECK_LIB(msgpack, msgpack_unpack)
-
 
 ## Transport Options (ZMQ defaut) ##
 
@@ -100,17 +102,16 @@ AM_CONDITIONAL(	[TRANSPORT_ZMQ],	[test "$with_transport" == zmq])
 AM_CONDITIONAL(	[TRANSPORT_TESTCLIENT],	[test "$with_transport" == testclient])
 
 AS_IF(	[test "$with_transport" == zmq],
-	[
-	PKG_CHECK_MODULES([ZMQ],[libzmq >= 2.1.4])
-	AC_LANG_PUSH([C++])
+	[PKG_CHECK_MODULES([ZMQ],[libzmq >= 2.1.4],
+		[AC_LANG_PUSH([C++])
 		AC_CHECK_HEADERS([zmq.hpp],
 			[],
 			[AC_MSG_ERROR([Header files for libzmq not found or incompatible.])],
 			[])
-	AC_LANG_POP
-	AC_SUBST(ZMQ_CFLAGS)
-	AC_SUBST(ZMQ_LIBS)
-	])
+		AC_LANG_POP],
+		[AC_MSG_RESULT([Warning: libzmq version >= 2.1.4 not found!])]
+		)]
+	)
 
 ## Keyring Options ##
 
@@ -223,7 +224,7 @@ if (test "x$with_java" == "xyes"); then
 			JNI_CPPFLAGS="$JNI_CPPFLAGS -I$JNI_INCLUDE_DIR"
     		done
 
-	AC_SUBST(JNI_CPPFLAGS, $JNI_CPPFLAGS)
+	AC_SUBST([JNI_CPPFLAGS],[$JNI_CPPFLAGS])
 fi
 
 ## (Option) Add SWIG PERL5 ##
@@ -271,8 +272,11 @@ fi
 
 ##### Options END #####
 
-AC_SUBST(DEPS_CFLAGS,	["$PKGS_CFLAGS $BOOST_CPPFLAGS $ZMQ_CFLAGS $KRG_CFLAGS"])
-AC_SUBST(DEPS_LIBS,	["$PKGS_LIBS $BOOST_LDFLAGS $BOOST_THREAD_LIB $ZMQ_LIBS $KRG_LIBS"])
+AC_SUBST(	[DEPS_CFLAGS],
+["$PKGS_CFLAGS $ZMQ_CFLAGS $KRG_CFLAGS $OPENSSL_CFLAGS $BOOST_CPPFLAGS"])
+
+AC_SUBST(	[DEPS_LIBS],
+["$PKGS_LIBS $ZMQ_LIBS $MSG_LIBS $KRG_LIBS $OPENSSL_LDFLAGS $OPENSSL_LIBS $BOOST_LDFLAGS $BOOST_THREAD_LIB"])
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
