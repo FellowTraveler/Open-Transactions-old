@@ -2947,7 +2947,7 @@ namespace OTDB
                     
                     if (!bConfirmed)
                         OTLog::vOutput(0, "%s: FYI, ConfirmFile failed with parameter: %s\n", 
-                                       szFunc, strThreePath.Get())
+                                       szFunc, strThreePath.Get());
 				}
 			}
 		}
