@@ -1,38 +1,77 @@
+## AC-AM Package Preliminaries
 AC_INIT([opentxs], m4_esyscmd([tr -d '\n' <VERSION]), [Fellow-Traveler], [opentxs], [https://github.com/FellowTraveler/Open-Transactions])
 AC_PREREQ(2.61)
-LT_PREREQ([2.2.4])
+AC_CONFIG_SRCDIR([src/ot/main.cpp])
+AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_MACRO_DIR([build-aux/m4])
 AC_CONFIG_AUX_DIR(build-aux)
 AM_INIT_AUTOMAKE([1.10 foreign])
-
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
+## special prelims
+AC_FUNC_STRNLEN
+
+## libtool prelims
+LT_PREREQ([2.2.4])
 LT_INIT([dlopen])
-AC_CONFIG_MACRO_DIR([build-aux/m4])
-AC_CONFIG_HEADERS([config.h])
-AC_CONFIG_SRCDIR([src/ot/main.cpp])
+
+##### Autoscan suggestions #####
+
+# Checks for programs.
+AC_PROG_CXX
+AC_PROG_CC
+AM_PROG_CC_C_O
+AC_PROG_CPP
 
 : ${CXXFLAGS=""}
 : ${CFLAGS=""}
+: ${CPPFLAGS=""}
 
-AC_PROG_CC
-AM_PROG_CC_C_O
-AC_PROG_CXX
+# Checks for header files.
+AC_CHECK_HEADERS([arpa/inet.h float.h limits.h malloc.h memory.h netinet/in.h stddef.h stdint.h stdlib.h string.h sys/time.h sys/timeb.h unistd.h wchar.h])
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_HEADER_STDBOOL
+AC_C_INLINE
+AC_TYPE_INT32_T
+AC_C_RESTRICT
+AC_TYPE_SIZE_T
+AC_TYPE_UINT16_T
+AC_TYPE_UINT32_T
+AC_TYPE_UINT64_T
+AC_TYPE_UINT8_T
+AC_CHECK_TYPES([ptrdiff_t])
+
+# Checks for library functions.
+AC_FUNC_ALLOCA
+AC_FUNC_ERROR_AT_LINE
+AC_FUNC_MALLOC
+AC_FUNC_REALLOC
+AC_FUNC_STRERROR_R
+AC_FUNC_STRTOD
+#AC_FUNC_STRNLEN
+AC_CHECK_FUNCS([floor getpass gettimeofday memmove memset mkdir pow socket strchr strcspn strstr strtol strtoul])
+
+###################################
 
 PKG_PROG_PKG_CONFIG([0.25])
 
 ##### Dependencies, packages, libs ####
 #
-## Main deps ##
+## Main packages deps ##
 
-PKG_CHECK_MODULES([DEPS],[protobuf >= 2.4.1 openssl >= 1.0.0 chaiscript >= 3.1.0])
+PKG_CHECK_MODULES([PKGS],[protobuf >= 2.4.1 chaiscript >= 3.1.0 openssl >= 1.0.0])
+
+## OpenSSL  dev ##
+# --with-openssl=ROOTDIR points to openssl headers
+# returns OPENSSL_LDFAGS OPENSSL_LIBS OPENSSL_INCLUDES
+
+# AX_CHECK_OPENSSL
 
 ## boost_thread lib ##
 
 AX_BOOST_BASE([1.25.0])
 AX_BOOST_THREAD
-
-AC_SUBST( DEPS_CFLAGS,	["$DEPS_CFLAGS $BOOST_CPPFLAGS"])
-AC_SUBST( DEPS_LIBS,	["$DEPS_LIBS $BOOST_LDFLAGS $BOOST_THREAD_LIB"])
 
 ## MsgPack ##
 
@@ -77,9 +116,9 @@ AS_IF(	[test "$with_transport" == zmq],
 
 AC_ARG_WITH(	[keyring],
 		[AS_HELP_STRING([--with-keyring@<:@=ARG@:>@],
-		[Choose a keyring ARG from: windows, mac, gnome, kwallet])],
+		[Choose one keyring ARG from: windows, mac, gnome, kwallet])],
 		[case "${withval}" in
-			windows) true ;;
+##			windows) true ;;
 			mac) true ;;
 			gnome) true ;;
 			kwallet) true ;;
@@ -87,35 +126,31 @@ AC_ARG_WITH(	[keyring],
 			esac],
 		[])
 
-AM_CONDITIONAL(	[KEYRING_WINDOWS],	[test "$with_keyring" == windows])
-AM_CONDITIONAL(	[KEYRING_MAC],		[test "$with_keyring" == mac])
-AM_CONDITIONAL(	[KEYRING_GNOME],	[test "$with_keyring" == gnome])
-AM_CONDITIONAL(	[KEYRING_KWALLET],	[test "$with_keyring" == kwallet])
+AM_CONDITIONAL([KEYRING_WINDOWS],	[test "$with_keyring" == windows])
+AM_CONDITIONAL([KEYRING_MAC],		[test "$with_keyring" == mac])
+AM_CONDITIONAL([KEYRING_GNOME],		[test "$with_keyring" == gnome])
+AM_CONDITIONAL([KEYRING_KWALLET],	[test "$with_keyring" == kwallet])
 
 AS_IF(	[test "$with_keyring" == windows],
 	[
-	AC_SUBST(DEPS_CFLAGS,	["$DEPS_CFLAGS"])
-	AC_SUBST(DEPS_LIBS,	["$DEPS_LIBS"])
 	])
 # Extra WINDOWS flags might be needed here #
 
 AS_IF(	[test "$with_keyring" == mac],
 	[
-	AC_SUBST(MAC_CFLAGS,	["-isysroot /Developer/SDKs/MacOSX10.6.sdk -arch ppc -arch i386"])
-	AC_SUBST(MAC_LIBS,	["-syslibroot /Developer/SDKs/MacOSX10.6.sdk -arch ppc -arch i386"])
+	AC_SUBST(KRG_CFLAGS,["-isysroot /Developer/SDKs/MacOSX10.6.sdk -arch ppc -arch i386"])
+	AC_SUBST(KRG_LIBS,["-syslibroot /Developer/SDKs/MacOSX10.6.sdk -arch ppc -arch i386"])
 	])
 
 AS_IF(	[test "$with_keyring" == gnome],
 	[
-	PKG_CHECK_MODULES([GKR],[glib-2.0 >= 2.28.6 gnome-keyring-1])
-	AC_SUBST(GKR_CFLAGS)
-	AC_SUBST(GKR_LIBS)
+	PKG_CHECK_MODULES([KRG],[glib-2.0 >= 2.28.6 gnome-keyring-1])
 	])
 
 AS_IF(	[test "$with_keyring" == kwallet],
 	[
-	AC_SUBST(KWAL_CFLAGS,	["-I/usr/include/kde"])
-	AC_SUBST(KWAL_LIBS,	["-L/usr/lib -lkwalletclient"])
+	AC_SUBST(KRG_CFLAGS,	["-I/usr/include/kde"])
+	AC_SUBST(KRG_LIBS,	["-L/usr/lib -lkwalletclient"])
 	])
 
 
@@ -233,7 +268,11 @@ if (test "x$with_python" == "xyes"); then
 	AX_PYTHON_DEVEL
 fi
 
+
 ##### Options END #####
+
+AC_SUBST(DEPS_CFLAGS,	["$PKGS_CFLAGS $BOOST_CPPFLAGS $ZMQ_CFLAGS $KRG_CFLAGS"])
+AC_SUBST(DEPS_LIBS,	["$PKGS_LIBS $BOOST_LDFLAGS $BOOST_THREAD_LIB $ZMQ_LIBS $KRG_LIBS"])
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

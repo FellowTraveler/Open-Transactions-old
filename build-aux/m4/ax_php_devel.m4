@@ -28,7 +28,7 @@ AU_ALIAS([AC_PHP_DEVEL], [AX_PHP_DEVEL])
 AC_DEFUN([AX_PHP_DEVEL],[
 	AC_ARG_WITH(
 		php-config,
-		AC_HELP_STRING([--with-php-config=PATH],
+		AS_HELP_STRING([--with-php-config=PATH],
 			[path to the php-config script]),
 		[PHP_CONFIG=${withval}],
 		[PHP_CONFIG=php-config])
