@@ -50,7 +50,7 @@ AC_FUNC_REALLOC
 AC_FUNC_STRERROR_R
 AC_FUNC_STRTOD
 #AC_FUNC_STRNLEN
-AC_CHECK_FUNCS([floor getpass gettimeofday memmove memset mkdir pow socket strchr strcspn strstr strtol strtoul])
+AC_CHECK_FUNCS([getpass gettimeofday mkdir socket strtol strtoul])
 
 ###################################
 
@@ -110,8 +110,8 @@ AS_IF(	[test "$with_transport" == zmq],
 			[])
 		AC_LANG_POP],
 		[AC_MSG_RESULT([Warning: libzmq version >= 2.1.4 not found!])]
-		)]
-	)
+		)
+	])
 
 ## Keyring Options ##
 
@@ -134,8 +134,10 @@ AM_CONDITIONAL([KEYRING_KWALLET],	[test "$with_keyring" == kwallet])
 
 AS_IF(	[test "$with_keyring" == windows],
 	[
+	AC_SUBST(KRG_CFLAGS,[""])
+	AC_SUBST(KRG_LIBS,[""])
 	])
-# Extra WINDOWS flags might be needed here #
+##  WINDOWS build flags needed here #
 
 AS_IF(	[test "$with_keyring" == mac],
 	[
