@@ -565,3 +565,6 @@ nobase_dist_opentxsdoc_DATA	=	sample-data/ot-sample-data-clean/ot_init.cfg				\
 					sample-data/ot-sample-data-clean/client_data/wallet.xml			\
 					sample-data/ot-sample-data-clean/server.cfg				\
 					sample-data/ot-sample-data-clean/server_data/notaryServer.xml
+
+pkgconfigdir			=	$(libdir)/pkgconfig
+pkgconfig_DATA			=	src/opentxs.pc

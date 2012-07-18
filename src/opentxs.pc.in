@@ -1,0 +1,19 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: opentxs
+Description: Open-Transactions is an easy-to-use financial crypto, digital cash and transaction library. OT 
+includes a class library (written in C++), a client API (available in many languages as link libraries), and 
+a command-line interface to a script framework. A test GUI, MoneyChanger, is available as a separate package.
+Users can issue and transact a large variety of digital assets: financial instruments, markets, basket 
+currencies, unforgeable account balances, cheques, vouchers, untraceable digital cash, Ricardian contracts, 
+smart contracts (with scriptable clauses), and more.
+
+URL: https://github.com/FellowTraveler/Open-Transactions
+Version: @VERSION@
+Requires: protobuf >= 2.4.1 chaiscript >= 3.1.0 openssl >= 1.0.0 libzmq >= 2.1.4
+Libs: -L${libdir} -lotapi-java -lotapi -lot
+Libs.private: -lbigint -lirrxml -llucre
+Cflags: -I${includedir}/@PACKAGE@ -Wall -D_FORTIFY_SOURCE=2 -fstack-protector-all -fstack-check -Wstack-protector
