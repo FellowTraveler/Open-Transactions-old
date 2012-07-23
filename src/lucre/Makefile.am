@@ -1,0 +1,19 @@
+lib_LTLIBRARIES = liblucre.la
+
+lucre_headers_dir =		$(top_srcdir)/include/lucre
+
+lucre_headers =			bank.h
+
+lucre_sources_dir = 		$(top_srcdir)/src/lucre
+
+lucre_sources =			bankdemo.cpp			\
+				bankimp.cpp			\
+				bank-new.cpp			\
+				bank-sign.cpp			\
+				bank-verify.cpp			\
+				coin-request.cpp		\
+				coin-unblind.cpp
+
+liblucre_la_SOURCES	=	$(lucre_sources) $(lucre_headers)
+liblucre_la_CPPFLAGS	=	-I$(lucre_headers_dir) -fpic
+liblucre_la_LDFLAGS	=	-static

@@ -1,4 +1,5 @@
 # -*- fill-column: 72 -*-
+SUBDIRS			=	src/bigint src/lucre src/irrxml
 AUTOMAKE_OPTIONS =		subdir-objects
 ACLOCAL_AMFLAGS =		-I build-aux/m4
 
@@ -42,27 +43,6 @@ endif
 
 ####################################################################
 
-
-####	BigInt
-
-bigint_headers_dir =		$(opentxs_include_dir)/bigint
-
-bigint_headers =		include/bigint/BigInteger.h			\
-				include/bigint/BigIntegerAlgorithms.h		\
-				include/bigint/BigIntegerLibrary.h		\
-				include/bigint/BigIntegerUtils.h		\
-				include/bigint/BigUnsigned.h			\
-				include/bigint/BigUnsignedInABase.h		\
-				include/bigint/NumberlikeArray.h
-
-bigint_sources_dir =		$(opentxs_source_dir)/bigint
-
-bigint_sources =		src/bigint/BigInteger.cc			\
-				src/bigint/BigIntegerAlgorithms.cc		\
-				src/bigint/BigIntegerUtils.cc			\
-				src/bigint/BigUnsigned.cc			\
-				src/bigint/BigUnsignedInABase.cc
-
 ####	Simple Ini
 
 simpleini_headers_dir	=	$(opentxs_include_dir)/simpleini
@@ -101,40 +81,6 @@ containers_headers 	=	include/containers/containers.hpp		\
 				include/containers/smart_ptr.tpp		\
 				include/containers/triple.hpp			\
 				include/containers/triple.tpp
-
-
-####	IrrXML
-
-irrxml_headers_dir =		$(opentxs_include_dir)/irrxml
-
-irrxml_headers =		include/irrxml/CXMLReaderImpl.h			\
-				include/irrxml/fast_atof.h			\
-				include/irrxml/heapsort.h			\
-				include/irrxml/irrArray.h			\
-				include/irrxml/irrString.h			\
-				include/irrxml/irrTypes.h			\
-				include/irrxml/irrXML.h
-
-irrxml_sources_dir = 		$(opentxs_source_dir)/irrxml
-
-irrxml_sources =		src/irrxml/irrXML.cpp
-
-
-####	Lucre
-
-lucre_headers_dir =		$(opentxs_include_dir)/lucre
-
-lucre_headers =			include/lucre/bank.h
-
-lucre_sources_dir = 		$(opentxs_source_dir)/lucre
-
-lucre_sources =			src/lucre/bankdemo.cpp				\
-				src/lucre/bankimp.cpp				\
-				src/lucre/bank-new.cpp				\
-				src/lucre/bank-sign.cpp				\
-				src/lucre/bank-verify.cpp			\
-				src/lucre/coin-request.cpp			\
-				src/lucre/coin-unblind.cpp
 
 ####	OT
 
@@ -313,30 +259,8 @@ createmint_sources	=	src/createmint/main.cpp
 ## Open Transactions Lib #
 ##########################
 
-lib_LTLIBRARIES		=	libot.la					\
-				libotapi.la					\
-				libbigint.la					\
-				libirrxml.la					\
-				liblucre.la
-
-####	LIB BigInt
-
-libbigint_la_SOURCES	=	$(bigint_sources) $(bigint_headers)
-libbigint_la_CPPFLAGS	=	-I$(bigint_headers_dir) -fpic
-libbigint_la_LDFLAGS	=	-static
-
-####	LIB IrrXML
-
-libirrxml_la_SOURCES	=	$(irrxml_sources) $(irrxml_headers)
-libirrxml_la_CPPFLAGS	=	-I$(irrxml_headers_dir) -fpic
-libirrxml_la_LDFLAGS	=	-static
-
-####	LIB Lucre
-
-liblucre_la_SOURCES	=	$(lucre_sources) $(lucre_headers)
-liblucre_la_CPPFLAGS	=	-I$(lucre_headers_dir) -fpic
-liblucre_la_LDFLAGS	=	-static
-
+lib_LTLIBRARIES		=	libot.la			\
+				libotapi.la
 
 ####	LIB OT
 
@@ -435,7 +359,7 @@ endif
 _otapi_la_SOURCES		=	swig/otapi/OTAPI-python.cxx	\
 					swig/otapi/OTAPI-python.h
 
-_otapi_la_CPPFLAGS		= 	$(AM_CPPFLAGS)  -fpic           \
+_otapi_la_CPPFLAGS		= 	$(AM_CPPFLAGS)  -fpic		\
 					$(PYTHON_CPPFLAGS)              \
 					-I$(otapi_headers_dir)          \
 					$(PYTHON_EXTRA_LIBS)
@@ -455,7 +379,7 @@ endif
 ## Open Transactions Bin #
 ##########################
 
-bin_PROGRAMS		=	ot					\
+bin_PROGRAMS		=	ot				\
 				otserver				\
 				createmint
 
