@@ -1,11 +1,12 @@
 ####### AC-AM Package Preliminaries #######
-AC_INIT([opentxs],m4_esyscmd(tr -d '\n' <VERSION),[Fellow-Traveler],[opentxs],[https://github.com/FellowTraveler/Open-Transactions])
+
 AC_PREREQ([2.61])
+AC_INIT([opentxs],m4_esyscmd(tr -d '\n' <VERSION),[Fellow-Traveler],[opentxs],[https://github.com/FellowTraveler/Open-Transactions])
 AC_CONFIG_SRCDIR([src/ot/main.cpp])
 AC_CONFIG_HEADERS([config.h])
-AC_CONFIG_MACRO_DIR([build-aux/m4])
 AC_CONFIG_AUX_DIR([build-aux])
-AC_CONFIG_FILES([src/opentxs.pc])
+AC_CONFIG_MACRO_DIR([build-aux/m4])
+
 AM_INIT_AUTOMAKE([1.10 foreign])
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
@@ -21,12 +22,11 @@ AC_PROG_CXX
 AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_CPP
-
-PKG_PROG_PKG_CONFIG([0.25])
-
 : ${CXXFLAGS=""}
 : ${CFLAGS=""}
 : ${CPPFLAGS=""}
+
+PKG_PROG_PKG_CONFIG([0.25])
 
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h float.h limits.h malloc.h memory.h netinet/in.h stddef.h stdint.h stdlib.h string.h sys/time.h sys/timeb.h unistd.h wchar.h])
@@ -83,6 +83,10 @@ AC_CHECK_LIB([msgpack],[msgpack_unpack],
 	],
 	[AC_MSG_RESULT([Warning: libmsgpack not found!])]
 	)
+
+## pthread lib ##
+
+AX_PTHREAD
 
 ## Transport Options (ZMQ defaut) ##
 
@@ -189,6 +193,12 @@ AC_ARG_ENABLE(
 
 AM_CONDITIONAL(WARNINGS, test x"$warnings" = x"true")
 
+if (test "x$warnings" == x"true"); then
+
+	AC_SUBST([WARN_CXXFLAGS],
+	["-Waddress -Woverloaded-virtual -Wshadow -Wconversion"])
+fi
+
 ## (Option) Build In Release Mode ##
 
 AC_ARG_ENABLE(
@@ -204,6 +214,12 @@ AC_ARG_ENABLE(
 	[release=false])
 
 AM_CONDITIONAL(RELEASE, test x"$release" = x"true")
+
+if (test "x$release" == x"true"); then
+
+	AC_SUBST([REL_CXXFLAGS],
+	["-Wall -D_FORTIFY_SOURCE=2 -fstack-protector-all -fstack-check -Wstack-protector"])
+fi
 
 ## (Option) Add SWIG JAVA ##
 
@@ -270,13 +286,23 @@ if (test "x$with_python" == "xyes"); then
 fi
 
 
-##### Options END, Output Below #####
+#####   Output to AM   #####
+
+AC_SUBST([AC_CXXFLAGS],["-g3 -ggdb -rdynamic -O0 --param ssp-buffer-size=4 $WARN_CXXFLAGS $REL_CXXFLAGS"])
 
 AC_SUBST(	[DEPS_CFLAGS],
-["$PKGS_CFLAGS $ZMQ_CFLAGS $KRG_CFLAGS $OPENSSL_CFLAGS $BOOST_CPPFLAGS"])
+["$PKGS_CFLAGS $ZMQ_CFLAGS $KRG_CFLAGS $OPENSSL_CFLAGS $BOOST_CPPFLAGS $PTHREAD_CFLAGS"])
 
 AC_SUBST(	[DEPS_LIBS],
-["$PKGS_LIBS $ZMQ_LIBS $MSG_LIBS $KRG_LIBS $OPENSSL_LDFLAGS $OPENSSL_LIBS $BOOST_LDFLAGS $BOOST_THREAD_LIB"])
+["$PKGS_LIBS $ZMQ_LIBS $MSG_LIBS $KRG_LIBS $OPENSSL_LDFLAGS $OPENSSL_LIBS -ldl $BOOST_LDFLAGS $BOOST_THREAD_LIB $PTHREAD_LIBS"])
 
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile
+			src/otlib/bigint/Makefile
+			src/otlib/irrxml/Makefile
+			src/otlib/lucre/Makefile
+			src/otlib/Makefile
+			src/otapi/Makefile
+			src/Makefile
+			src/opentxs.pc])
+
 AC_OUTPUT
