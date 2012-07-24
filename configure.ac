@@ -1,6 +1,7 @@
 ####### AC-AM Package Preliminaries #######
-AC_INIT([opentxs],m4_esyscmd(tr -d '\n' <VERSION),[Fellow-Traveler],[opentxs],[https://github.com/FellowTraveler/Open-Transactions])
+
 AC_PREREQ([2.61])
+AC_INIT([opentxs],m4_esyscmd(tr -d '\n' <VERSION),[Fellow-Traveler],[opentxs],[https://github.com/FellowTraveler/Open-Transactions])
 AC_CONFIG_SRCDIR([src/ot/main.cpp])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([build-aux/m4])
@@ -20,12 +21,11 @@ AC_PROG_CXX
 AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_CPP
-
-PKG_PROG_PKG_CONFIG([0.25])
-
 : ${CXXFLAGS=""}
 : ${CFLAGS=""}
 : ${CPPFLAGS=""}
+
+PKG_PROG_PKG_CONFIG([0.25])
 
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h float.h limits.h malloc.h memory.h netinet/in.h stddef.h stdint.h stdlib.h string.h sys/time.h sys/timeb.h unistd.h wchar.h])
@@ -281,7 +281,7 @@ if (test "x$with_python" == "xyes"); then
 fi
 
 
-##### Options END, Output Below #####
+#####   Output to AM   #####
 
 AC_SUBST([AC_CXXFLAGS],["-g3 -ggdb -rdynamic -O0 --param ssp-buffer-size=4 $WARN_CXXFLAGS $REL_CXXFLAGS"])
 

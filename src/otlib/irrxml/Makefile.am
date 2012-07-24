@@ -1,10 +1,10 @@
 lib_LTLIBRARIES = libirrxml.la
 
-AM_CXXFLAGS = 		$(DEPS_CFLAGS) $(AC_CXXFLAGS)
+AM_CXXFLAGS		=	$(DEPS_CFLAGS) $(AC_CXXFLAGS)
 
-irrxml_headers_dir =		$(top_srcdir)/include/irrxml
+irrxml_headers_dir	=	$(top_srcdir)/include/irrxml
 
-irrxml_headers =		$(irrxml_headers_dir)/CXMLReaderImpl.h		\
+irrxml_headers		=	$(irrxml_headers_dir)/CXMLReaderImpl.h		\
 				$(irrxml_headers_dir)/fast_atof.h		\
 				$(irrxml_headers_dir)/heapsort.h		\
 				$(irrxml_headers_dir)/irrArray.h		\
@@ -12,8 +12,8 @@ irrxml_headers =		$(irrxml_headers_dir)/CXMLReaderImpl.h		\
 				$(irrxml_headers_dir)/irrTypes.h		\
 				$(irrxml_headers_dir)/irrXML.h
 
-irrxml_sources =		irrXML.cpp
+irrxml_sources		=	irrXML.cpp
 
 libirrxml_la_SOURCES	=	$(irrxml_sources) $(irrxml_headers)
-libirrxml_la_CXXFLAGS	=	$(AM_CXXFLAGS) -I$(irrxml_headers_dir) -fpic
+libirrxml_la_CXXFLAGS	=	-I$(irrxml_headers_dir) $(AM_CXXFLAGS)  -fpic
 libirrxml_la_LDFLAGS	=	-static

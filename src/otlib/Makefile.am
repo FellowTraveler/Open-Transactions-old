@@ -7,11 +7,113 @@ opentxs_source_dir =		$(top_srcdir)/src
 
 ## COMMON FLAGS ###
 
-AM_CPPFLAGS		= 	-I$(opentxs_include_dir)		\
-				$(DEPS_CFLAGS)				\
+AM_CPPFLAGS		= 	-I$(opentxs_include_dir)	\
+				$(DEPS_CFLAGS)			\
 				$(AC_CXXFLAGS)
 
-#########
+#### Lib OT build calls
+
+libot_la_SOURCES	=	$(otlib_sources)		\
+				$(otlib_headers)		\
+				$(containers_headers)
+
+libot_la_CPPFLAGS	=	-I$(otlib_headers_dir) 		\
+				-I$(containers_headers_dir)	\
+				$(AM_CPPFLAGS)
+
+libot_la_LIBADD		=	bigint/libbigint.la		\
+				irrxml/libirrxml.la		\
+				lucre/liblucre.la		\
+				$(DEPS_LIBS)
+
+libot_la_DEPENDENCIES	=	bigint/libbigint.la		\
+				irrxml/libirrxml.la		\
+				lucre/liblucre.la
+
+libot_la_LDFLAGS	=	--no-undefined
+
+
+#### KEYRING Options
+
+if KEYRING_WINDOWS
+libot_la_CPPFLAGS		+=	-DOT_KEYRING_WINDOWS
+endif
+
+if KEYRING_MAC
+libot_la_CPPFLAGS		+=	-DOT_KEYRING_MAC
+endif
+
+if KEYRING_GNOME
+libot_la_CPPFLAGS		+=	-DOT_KEYRING_GNOME
+endif
+
+if KEYRING_KWALLET
+libot_la_CPPFLAGS		+=	-DOT_KEYRING_KWALLET
+endif
+
+####	Global Headers for dista
+
+pkginclude_HEADERS	=	$(otlib_headers)
+
+####################################################################
+
+otlib_sources_dir = 		$(opentxs_source_dir)/otlib
+
+otlib_sources     =		easyzlib.c			\
+				mkcert.c			\
+				anyoption.cpp			\
+				tinythread.cpp			\
+				Timer.cpp			\
+				Bitcoin.pb.cpp			\
+				Generics.pb.cpp			\
+				Markets.pb.cpp			\
+				Moneychanger.pb.cpp		\
+				OTAccount.cpp			\
+				OTAgreement.cpp			\
+				OTASCIIArmor.cpp		\
+				OTAssetContract.cpp		\
+				OTAsymmetricKey.cpp		\
+				OTBasket.cpp			\
+				OTBylaw.cpp			\
+				OTCheque.cpp			\
+				OTContract.cpp			\
+				OTCron.cpp			\
+				OTCronItem.cpp			\
+				OTData.cpp			\
+				OTDataCheck.cpp			\
+				OTEnvelope.cpp			\
+				OTKeyring.cpp			\
+				OTIdentifier.cpp		\
+				OTInstrument.cpp		\
+				OTItem.cpp			\
+				OTLedger.cpp			\
+				OTLog.cpp			\
+				OTMarket.cpp			\
+				OTMessage.cpp			\
+				OTMessageBuffer.cpp		\
+				OTMint.cpp			\
+				OTOffer.cpp			\
+				OTPassword.cpp			\
+				OTPayload.cpp			\
+				OTPayment.cpp			\
+				OTPaymentPlan.cpp		\
+				OTPseudonym.cpp			\
+				OTPurse.cpp			\
+				OTScript.cpp			\
+				OTScriptable.cpp		\
+				OTServerContract.cpp		\
+				OTSignature.cpp			\
+				OTSignedFile.cpp		\
+				OTSmartContract.cpp		\
+				OTStorage.cpp			\
+				OTString.cpp			\
+				OTStringXML.cpp			\
+				OTToken.cpp			\
+				OTTrackable.cpp			\
+				OTTrade.cpp			\
+				OTTransaction.cpp		\
+				OTTransactionType.cpp		\
+				OTWallet.cpp
 
 otlib_headers_dir =		$(opentxs_include_dir)/otlib
 
@@ -76,66 +178,7 @@ otlib_headers =			$(otlib_headers_dir)/anyoption.h		\
 				$(otlib_headers_dir)/OTTransaction.h		\
 				$(otlib_headers_dir)/OTTransactionType.h	\
 				$(otlib_headers_dir)/OTWallet.h
-
-otlib_sources_dir = 		$(opentxs_source_dir)/otlib
-
-otlib_sources     =		easyzlib.c			\
-				mkcert.c			\
-				anyoption.cpp			\
-				tinythread.cpp			\
-				Timer.cpp			\
-				Bitcoin.pb.cpp			\
-				Generics.pb.cpp			\
-				Markets.pb.cpp			\
-				Moneychanger.pb.cpp		\
-####
-				OTAccount.cpp			\
-				OTAgreement.cpp			\
-				OTASCIIArmor.cpp		\
-				OTAssetContract.cpp		\
-				OTAsymmetricKey.cpp		\
-				OTBasket.cpp			\
-				OTBylaw.cpp			\
-				OTCheque.cpp			\
-				OTContract.cpp			\
-				OTCron.cpp			\
-				OTCronItem.cpp			\
-				OTData.cpp			\
-				OTDataCheck.cpp			\
-				OTEnvelope.cpp			\
-				OTKeyring.cpp			\
-				OTIdentifier.cpp		\
-				OTInstrument.cpp		\
-				OTItem.cpp			\
-				OTLedger.cpp			\
-				OTLog.cpp			\
-				OTMarket.cpp			\
-				OTMessage.cpp			\
-				OTMessageBuffer.cpp		\
-				OTMint.cpp			\
-				OTOffer.cpp			\
-				OTPassword.cpp			\
-				OTPayload.cpp			\
-				OTPayment.cpp			\
-				OTPaymentPlan.cpp		\
-				OTPseudonym.cpp			\
-				OTPurse.cpp			\
-				OTScript.cpp			\
-				OTScriptable.cpp		\
-				OTServerContract.cpp		\
-				OTSignature.cpp			\
-				OTSignedFile.cpp		\
-				OTSmartContract.cpp		\
-				OTStorage.cpp			\
-				OTString.cpp			\
-				OTStringXML.cpp			\
-				OTToken.cpp			\
-				OTTrackable.cpp			\
-				OTTrade.cpp			\
-				OTTransaction.cpp		\
-				OTTransactionType.cpp		\
-				OTWallet.cpp
-####	Containers
+####   Containers
 
 containers_headers_dir	=	$(opentxs_include_dir)/containers
 
@@ -161,48 +204,4 @@ containers_headers 	=	$(containers_headers_dir)/containers.hpp	\
 				$(containers_headers_dir)/smart_ptr.tpp		\
 				$(containers_headers_dir)/triple.hpp		\
 				$(containers_headers_dir)/triple.tpp
-
-libot_la_SOURCES	=	$(otlib_sources) $(otlib_headers)	\
-				$(containers_headers)
-
-libot_la_CPPFLAGS	=	-I$(opentxs_include_dir)	\
-				-I$(otlib_headers_dir) 		\
-				-I$(containers_headers_dir)	\
-				$(AM_CPPFLAGS)
-
-libot_la_LIBADD		=	bigint/libbigint.la	\
-				irrxml/libirrxml.la	\
-				lucre/liblucre.la	\
-				$(DEPS_LIBS)
-
-libot_la_DEPENDENCIES	=	bigint/libbigint.la	\
-				irrxml/libirrxml.la	\
-				lucre/liblucre.la
-libot_la_LDFLAGS	=	--no-undefined
-
-
-#### KEYRING Options
-
-if KEYRING_WINDOWS
-libot_la_CPPFLAGS		+=	-DOT_KEYRING_WINDOWS
-endif
-
-if KEYRING_MAC
-libot_la_CPPFLAGS		+=	-DOT_KEYRING_MAC
-endif
-
-if KEYRING_GNOME
-libot_la_CPPFLAGS		+=	-DOT_KEYRING_GNOME
-endif
-
-if KEYRING_KWALLET
-libot_la_CPPFLAGS		+=	-DOT_KEYRING_KWALLET
-endif
-
-####	Global Headers
-
-pkginclude_HEADERS	=	$(otlib_headers)
-
-####################################################################
-
 

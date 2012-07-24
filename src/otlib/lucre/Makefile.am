@@ -1,12 +1,12 @@
 lib_LTLIBRARIES = liblucre.la
 
-AM_CXXFLAGS = 		$(DEPS_CFLAGS) $(AC_CXXFLAGS)
+AM_CXXFLAGS		=	$(DEPS_CFLAGS) $(AC_CXXFLAGS)
 
-lucre_headers_dir =		$(top_srcdir)/include/lucre
+lucre_headers_dir	=	$(top_srcdir)/include/lucre
 
-lucre_headers =			$(lucre_headers_dir)/bank.h
+lucre_headers		=	$(lucre_headers_dir)/bank.h
 
-lucre_sources =			bankdemo.cpp			\
+lucre_sources		=	bankdemo.cpp			\
 				bankimp.cpp			\
 				bank-new.cpp			\
 				bank-sign.cpp			\
@@ -15,5 +15,5 @@ lucre_sources =			bankdemo.cpp			\
 				coin-unblind.cpp
 
 liblucre_la_SOURCES	=	$(lucre_sources) $(lucre_headers)
-liblucre_la_CXXFLAGS	=	$(AM_CXXFLAGS) -I$(lucre_headers_dir) -fpic
+liblucre_la_CXXFLAGS	=	-I$(lucre_headers_dir) $(AM_CXXFLAGS) -fpic
 liblucre_la_LDFLAGS	=	-static
