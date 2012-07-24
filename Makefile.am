@@ -2,15 +2,13 @@
 AUTOMAKE_OPTIONS =		subdir-objects
 ACLOCAL_AMFLAGS =		-I build-aux/m4
 
+## Main Automake Call to subdirs     ##
+
 SUBDIRS			=	src
 
-
-#######################################
 ## Open-Transactions Installs        ##
-#######################################
 
-
-#### OpenTXS script CLI utility
+#### opentxs script CLI utility
 
 dist_bin_SCRIPTS		=	scripts/opentxs
 

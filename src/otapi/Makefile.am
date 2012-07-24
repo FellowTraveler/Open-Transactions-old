@@ -6,28 +6,29 @@
 
 lib_LTLIBRARIES = libotapi.la
 
+## Common variables ###
+
+opentxs_include_dir	=	$(top_srcdir)/include
+opentxs_swig_dir	=	$(top_srcdir)/swig
+
+otlib_include_dir =		$(opentxs_include_dir)/otlib
+
+
 ## COMMON FLAGS ###
 
-AM_CXXFLAGS = 		$(DEPS_CFLAGS)			\
-				-g3				\
-				-ggdb				\
-				-rdynamic			\
-				-O0				\
-				--param ssp-buffer-size=4
+AM_CXXFLAGS = 		$(DEPS_CFLAGS) $(AC_CXXFLAGS)
 
-AM_LDFLAGS = 			$(DEPS_LDFLAGS)
 
-otlib_headers_dir =		$(top_srcdir)/include/otlib
 
 ####	Simple Ini
 
-simpleini_headers_dir	=	$(top_srcdir)/include/
+simpleini_headers_dir	=	$(opentxs_include_dir)/
 
 simpleini_headers	=	ConvertUTF.h			\
 				SimpleIni.h
 ####  OTAPI
 
-otapi_headers_dir =		$(top_srcdir)/include/otapi
+otapi_headers_dir =		$(opentxs_include_dir)/otapi
 
 otapi_headers =			main.h				\
 				OpenTransactions.h		\
@@ -49,9 +50,9 @@ otapi_sources =			OpenTransactions.cpp		\
 
 libotapi_la_SOURCES		=	$(otapi_sources) $(otapi_headers)	\
 					$(simpleini_headers)
-libotapi_la_CXXFLAGS		=	-I$(top_srcdir)/include/		\
+libotapi_la_CXXFLAGS		=	-I$(opentxs_include_dir)/		\
 					-I$(otapi_headers_dir)		\
-					-I$(otlib_headers_dir)		\
+					-I$(otlib_include_dir)		\
 					$(AM_CXXFLAGS) -fpic
 
 libotapi_la_LIBADD		=	../otlib/libot.la $(DEPS_LIBS)
@@ -74,9 +75,9 @@ if WANT_JAVA
 lib_LTLIBRARIES		+=	libotapi-java.la
 endif
 
-libotapi_java_la_SOURCES	=	$(top_srcdir)/swig/otapi/OTAPI-java.cxx	\
-					$(top_srcdir)/swig/otapi/OTAPI-java.h
-libotapi_java_la_CXXFLAGS	=	-I$(top_srcdir)/include/			\
+libotapi_java_la_SOURCES	=	$(opentxs_swig_dir)/otapi/OTAPI-java.cxx	\
+					$(opentxs_swig_dir)/otapi/OTAPI-java.h
+libotapi_java_la_CXXFLAGS	=	-I$(opentxs_include_dir)/			\
 					-I$(otapi_headers_dir)			\
 					$(AM_CXXFLAGS) $(JNI_CPPFLAGS)
 					
@@ -96,7 +97,7 @@ if WANT_PERL5
 lib_LTLIBRARIES 	+=	libotapi-perl5.la
 endif
 
-libotapi_perl5_la_SOURCES	=	$(top_srcdir)/swig/otapi/OTAPI-perl5.cxx
+libotapi_perl5_la_SOURCES	=	$(opentxs_swig_dir)/otapi/OTAPI-perl5.cxx
 libotapi_perl5_la_CXXFLAGS	=	-I$(otapi_headers_dir)	\
 					$(AM_CXXFLAGS)		\
 					$(PERL_EXT_CPPFLAGS)		\
@@ -115,11 +116,11 @@ if WANT_PHP
 lib_LTLIBRARIES		+=	libotapi-php.la
 endif
 
-libotapi_php_la_SOURCES	=	$(top_srcdir)/swig/otapi/OTAPI-php.cpp\
-					$(top_srcdir)/swig/otapi/OTAPI-php.h
+libotapi_php_la_SOURCES	=	$(opentxs_swig_dir)/otapi/OTAPI-php.cpp\
+					$(opentxs_swig_dir)/otapi/OTAPI-php.h
 libotapi_php_la_CXXFLAGS	=	-I$(otapi_headers_dir)		\
 					$(AM_CXXFLAGS)			\
-					-I$(top_srcdir)/swig/glue/php		\
+					-I$(opentxs_swig_dir)/glue/php		\
 					$(PHP_INCLUDES)
 libotapi_php_la_LIBADD		=	libotapi.la ../otlib/libot.la $(DEPS_LIBS)
 libotapi_php_la_DEPENDENCIES	=	libotapi.la ../otlib/libot.la
@@ -135,8 +136,8 @@ if WANT_PYTHON
 lib_LTLIBRARIES		+=	_otapi.la
 endif
 
-_otapi_la_SOURCES		=	$(top_srcdir)/swig/otapi/OTAPI-python.cxx	\
-					$(top_srcdir)/swig/otapi/OTAPI-python.h
+_otapi_la_SOURCES		=	$(opentxs_swig_dir)/otapi/OTAPI-python.cxx	\
+					$(opentxs_swig_dir)/otapi/OTAPI-python.h
 
 _otapi_la_CXXFLAGS		= 	-I$(otapi_headers_dir)			\
 					$(AM_CXXFLAGS)  -fpic				\

@@ -188,6 +188,12 @@ AC_ARG_ENABLE(
 
 AM_CONDITIONAL(WARNINGS, test x"$warnings" = x"true")
 
+if (test "x$warnings" == x"true"); then
+
+	AC_SUBST([WARN_CXXFLAGS],
+	["-Waddress -Woverloaded-virtual -Wshadow -Wconversion"])
+fi
+
 ## (Option) Build In Release Mode ##
 
 AC_ARG_ENABLE(
@@ -203,6 +209,12 @@ AC_ARG_ENABLE(
 	[release=false])
 
 AM_CONDITIONAL(RELEASE, test x"$release" = x"true")
+
+if (test "x$release" == x"true"); then
+
+	AC_SUBST([REL_CXXFLAGS],
+	["-Wall -D_FORTIFY_SOURCE=2 -fstack-protector-all -fstack-check -Wstack-protector"])
+fi
 
 ## (Option) Add SWIG JAVA ##
 
@@ -271,19 +283,22 @@ fi
 
 ##### Options END, Output Below #####
 
+AC_SUBST([AC_CXXFLAGS],["-g3 -ggdb -rdynamic -O0 --param ssp-buffer-size=4 $WARN_CXXFLAGS $REL_CXXFLAGS"])
+
 AC_SUBST(	[DEPS_CFLAGS],
 ["$PKGS_CFLAGS $ZMQ_CFLAGS $KRG_CFLAGS $OPENSSL_CFLAGS $BOOST_CPPFLAGS"])
 
 AC_SUBST(	[DEPS_LIBS],
 ["$PKGS_LIBS $ZMQ_LIBS $MSG_LIBS $KRG_LIBS $OPENSSL_LDFLAGS $OPENSSL_LIBS -ldl $BOOST_LDFLAGS $BOOST_THREAD_LIB"])
 
-AC_CONFIG_FILES([src/otlib/bigint/Makefile
+AC_CONFIG_FILES([Makefile
+			src/otlib/bigint/Makefile
 			src/otlib/irrxml/Makefile
 			src/otlib/lucre/Makefile
 			src/otlib/Makefile
 			src/otapi/Makefile
 			src/Makefile
 			src/opentxs.pc
-			Makefile])
+			])
 
 AC_OUTPUT

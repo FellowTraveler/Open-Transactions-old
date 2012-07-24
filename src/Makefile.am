@@ -1,44 +1,13 @@
+SUBDIRS			=	otlib otapi
+
 opentxs_include_dir =		$(top_srcdir)/include
 opentxs_source_dir =		$(top_srcdir)/src
 
-common_includes =		-I$(opentxs_include_dir)			\
+common_includes =		-I$(opentxs_include_dir)		\
+				-I$(opentxs_include_dir)/otlib		\
 				$(DEPS_CFLAGS)
 
-## COMMON FLAGS ###
-
-AM_CXXFLAGS = 		$(common_includes)				\
-				-g3						\
-				-ggdb						\
-				-rdynamic					\
-				-O0						\
-				--param ssp-buffer-size=4
-
-AM_LDFLAGS = 			$(DEPS_LDFLAGS)
-
-## WARNING FLAGS ###
-
-if WARNINGS
-AM_CXXFLAGS +=			-Waddress				\
-				-Woverloaded-virtual				\
-				-Wshadow					\
-				-Wconversion
-endif
-
-## RELEASE FLAGS ###
-
-if RELEASE
-AM_CXXFLAGS +=			-Wall					\
-				-D_FORTIFY_SOURCE=2				\
-				-fstack-protector-all				\
-				-fstack-check					\
-				-Wstack-protector
-endif
-
-############################
-##  Libraries build call  ##
-
-SUBDIRS = otlib otapi
-
+AM_CXXFLAGS		=	$(common_includes) $(AC_CXXFLAGS)
 
 ####	OT
 
@@ -85,16 +54,20 @@ bin_PROGRAMS	=	ot			\
 ####	OT
 
 ot_SOURCES		=	$(ot_sources) $(otapi_headers)
-ot_CXXFLAGS		=	-I$(otapi_headers_dir) $(AM_CXXFLAGS) -fpic
+ot_CXXFLAGS		=	-I$(otapi_headers_dir)			\
+				-I$(opentxs_include_dir)/otlib		\
+				$(AM_CXXFLAGS) -fpic
 ot_LDADD		=	otapi/libotapi.la otlib/libot.la $(DEPS_LIBS)
-ot_DEPENDENCIES	=	otapi/libotapi.la otlib/libot.la
+ot_DEPENDENCIES		=	otapi/libotapi.la otlib/libot.la
 
 
 
 ####	OT Server
 
 otserver_SOURCES	=	$(otserver_sources) $(otserver_headers)
-otserver_CXXFLAGS	=	-I$(otserver_headers_dir) $(AM_CXXFLAGS)
+otserver_CXXFLAGS	=	-I$(otserver_headers_dir)		\
+				-I$(opentxs_include_dir)/otlib		\
+				$(AM_CXXFLAGS)
 otserver_LDADD		=	otlib/libot.la $(DEPS_LIBS)
 otserver_DEPENDENCIES	=	otlib/libot.la
 
@@ -103,7 +76,8 @@ otserver_DEPENDENCIES	=	otlib/libot.la
 
 createmint_SOURCES	=	$(createmint_sources)			\
 				$(otserver_sources) $(otserver_headers)
-createmint_CXXFLAGS	=	-I$(otserver_headers_dir) $(AM_CXXFLAGS)
+createmint_CXXFLAGS	=	-I$(otserver_headers_dir)		\
+				$(AM_CXXFLAGS)
 createmint_LDADD	=	otlib/libot.la $(DEPS_LIBS)
 createmint_DEPENDENCIES =	otlib/libot.la
 

@@ -1,5 +1,7 @@
 lib_LTLIBRARIES = libirrxml.la
 
+AM_CXXFLAGS = 		$(DEPS_CFLAGS) $(AC_CXXFLAGS)
+
 irrxml_headers_dir =		$(top_srcdir)/include/irrxml
 
 irrxml_headers =		CXMLReaderImpl.h		\
@@ -13,5 +15,5 @@ irrxml_headers =		CXMLReaderImpl.h		\
 irrxml_sources =		irrXML.cpp
 
 libirrxml_la_SOURCES	=	$(irrxml_sources) $(irrxml_headers)
-libirrxml_la_CXXFLAGS	=	-I$(irrxml_headers_dir) -fpic
+libirrxml_la_CXXFLAGS	=	$(AM_CXXFLAGS) -I$(irrxml_headers_dir) -fpic
 libirrxml_la_LDFLAGS	=	-static

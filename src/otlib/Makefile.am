@@ -5,23 +5,15 @@ lib_LTLIBRARIES		=	libot.la
 opentxs_include_dir =		$(top_srcdir)/include
 opentxs_source_dir =		$(top_srcdir)/src
 
-common_includes =		-I$(opentxs_include_dir)			\
-				$(DEPS_CFLAGS)
-
 ## COMMON FLAGS ###
 
-AM_CPPFLAGS = 		$(common_includes)				\
-				-g3						\
-				-ggdb						\
-				-rdynamic					\
-				-O0						\
-				--param ssp-buffer-size=4
-
-AM_LDFLAGS = 			$(DEPS_LDFLAGS)
+AM_CPPFLAGS		= 	-I$(opentxs_include_dir)		\
+				$(DEPS_CFLAGS)				\
+				$(AC_CXXFLAGS)
 
 #########
 
-otlib_headers_dir =		$(top_srcdir)/include/otlib
+otlib_headers_dir =		$(opentxs_include_dir)/otlib
 
 otlib_headers =			$(otlib_headers_dir)/anyoption.h			\
 				$(otlib_headers_dir)/easyzlib.h			\
@@ -85,7 +77,7 @@ otlib_headers =			$(otlib_headers_dir)/anyoption.h			\
 				$(otlib_headers_dir)/OTTransactionType.h		\
 				$(otlib_headers_dir)/OTWallet.h
 
-otlib_sources_dir = 		$(top_srcdir)/src/otlib
+otlib_sources_dir = 		$(opentxs_source_dir)/otlib
 
 otlib_sources     =		anyoption.cpp			\
 				Bitcoin.pb.cpp			\
@@ -144,7 +136,7 @@ otlib_sources     =		anyoption.cpp			\
 				tinythread.cpp
 ####	Containers
 
-containers_headers_dir	=	$(top_srcdir)/include/containers
+containers_headers_dir	=	$(opentxs_include_dir)/containers
 
 containers_headers 	=	containers.hpp		\
 				containers_fixes.hpp	\
@@ -172,8 +164,8 @@ containers_headers 	=	containers.hpp		\
 libot_la_SOURCES	=	$(otlib_sources) $(otlib_headers)	\
 				$(containers_headers)
 
-libot_la_CPPFLAGS	=	-I$(top_srcdir)/include	\
-				-I$(otlib_headers_dir) 	\
+libot_la_CPPFLAGS	=	-I$(opentxs_include_dir)	\
+				-I$(otlib_headers_dir) 		\
 				-I$(containers_headers_dir)	\
 				$(AM_CPPFLAGS)
 
