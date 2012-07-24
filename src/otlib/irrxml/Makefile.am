@@ -4,13 +4,13 @@ AM_CXXFLAGS = 		$(DEPS_CFLAGS) $(AC_CXXFLAGS)
 
 irrxml_headers_dir =		$(top_srcdir)/include/irrxml
 
-irrxml_headers =		CXMLReaderImpl.h		\
-				fast_atof.h			\
-				heapsort.h			\
-				irrArray.h			\
-				irrString.h			\
-				irrTypes.h			\
-				irrXML.h
+irrxml_headers =		$(irrxml_headers_dir)/CXMLReaderImpl.h		\
+				$(irrxml_headers_dir)/fast_atof.h		\
+				$(irrxml_headers_dir)/heapsort.h		\
+				$(irrxml_headers_dir)/irrArray.h		\
+				$(irrxml_headers_dir)/irrString.h		\
+				$(irrxml_headers_dir)/irrTypes.h		\
+				$(irrxml_headers_dir)/irrXML.h
 
 irrxml_sources =		irrXML.cpp
 

@@ -15,21 +15,22 @@ ot_sources_dir = 		$(opentxs_source_dir)/ot
 ot_sources =			ot/main.cpp
 
 otapi_headers_dir =		$(opentxs_include_dir)/otapi
-otapi_headers =			main.h				\
-				OpenTransactions.h		\
-				OTAPI.h				\
-				OTAPI_funcdef.h			\
-				OTAPI_Wrapper.h			\
-				OTClient.h			\
-				OTServerConnection.h
+
+otapi_headers =			$(otapi_headers_dir)/main.h			\
+				$(otapi_headers_dir)/OpenTransactions.h		\
+				$(otapi_headers_dir)/OTAPI.h			\
+				$(otapi_headers_dir)/OTAPI_funcdef.h		\
+				$(otapi_headers_dir)/OTAPI_Wrapper.h		\
+				$(otapi_headers_dir)/OTClient.h			\
+				$(otapi_headers_dir)/OTServerConnection.h
 
 ####	OT Server
 
 otserver_headers_dir	=	$(opentxs_include_dir)/otserver
 
-otserver_headers	= 	main.h				\
-				OTClientConnection.h		\
-				OTServer.h
+otserver_headers	= 	$(otserver_headers_dir)/main.h			\
+				$(otserver_headers_dir)/OTClientConnection.h	\
+				$(otserver_headers_dir)/OTServer.h
 
 otserver_sources_dir	=	$(opentxs_source_dir)/otserver
 
@@ -47,7 +48,7 @@ createmint_sources	=	createmint/main.cpp
 ## Open Transactions Bin #
 ##########################
 
-bin_PROGRAMS	=	ot			\
+bin_PROGRAMS		=	ot			\
 				otserver		\
 				createmint	
 

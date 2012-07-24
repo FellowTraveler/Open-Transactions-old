@@ -22,21 +22,21 @@ AM_CXXFLAGS = 		$(DEPS_CFLAGS) $(AC_CXXFLAGS)
 
 ####	Simple Ini
 
-simpleini_headers_dir	=	$(opentxs_include_dir)/
+simpleini_headers_dir	=	$(opentxs_include_dir)/simpleini
 
-simpleini_headers	=	ConvertUTF.h			\
-				SimpleIni.h
+simpleini_headers	=	$(simpleini_headers_dir)/ConvertUTF.h			\
+				$(simpleini_headers_dir)/SimpleIni.h
 ####  OTAPI
 
 otapi_headers_dir =		$(opentxs_include_dir)/otapi
 
-otapi_headers =			main.h				\
-				OpenTransactions.h		\
-				OTAPI.h				\
-				OTAPI_funcdef.h			\
-				OTAPI_Wrapper.h			\
-				OTClient.h			\
-				OTServerConnection.h
+otapi_headers =			$(otapi_headers_dir)/main.h			\
+				$(otapi_headers_dir)/OpenTransactions.h		\
+				$(otapi_headers_dir)/OTAPI.h			\
+				$(otapi_headers_dir)/OTAPI_funcdef.h		\
+				$(otapi_headers_dir)/OTAPI_Wrapper.h		\
+				$(otapi_headers_dir)/OTClient.h			\
+				$(otapi_headers_dir)/OTServerConnection.h
 
 otapi_sources_dir = 		$(top_srcdir)/src/otapi
 
@@ -72,7 +72,7 @@ endif
 #### OT API JAVA
 
 if WANT_JAVA
-lib_LTLIBRARIES		+=	libotapi-java.la
+lib_LTLIBRARIES			+=	libotapi-java.la
 endif
 
 libotapi_java_la_SOURCES	=	$(opentxs_swig_dir)/otapi/OTAPI-java.cxx	\
@@ -94,7 +94,7 @@ endif
 #### OT API PERL5
 
 if WANT_PERL5
-lib_LTLIBRARIES 	+=	libotapi-perl5.la
+lib_LTLIBRARIES 		+=	libotapi-perl5.la
 endif
 
 libotapi_perl5_la_SOURCES	=	$(opentxs_swig_dir)/otapi/OTAPI-perl5.cxx
@@ -113,10 +113,10 @@ endif
 #### OT API PHP
 
 if WANT_PHP
-lib_LTLIBRARIES		+=	libotapi-php.la
+lib_LTLIBRARIES			+=	libotapi-php.la
 endif
 
-libotapi_php_la_SOURCES	=	$(opentxs_swig_dir)/otapi/OTAPI-php.cpp\
+libotapi_php_la_SOURCES		=	$(opentxs_swig_dir)/otapi/OTAPI-php.cpp\
 					$(opentxs_swig_dir)/otapi/OTAPI-php.h
 libotapi_php_la_CXXFLAGS	=	-I$(otapi_headers_dir)		\
 					$(AM_CXXFLAGS)			\
@@ -124,7 +124,7 @@ libotapi_php_la_CXXFLAGS	=	-I$(otapi_headers_dir)		\
 					$(PHP_INCLUDES)
 libotapi_php_la_LIBADD		=	libotapi.la ../otlib/libot.la $(DEPS_LIBS)
 libotapi_php_la_DEPENDENCIES	=	libotapi.la ../otlib/libot.la
-libotapi_php_la_LDFLAGS	=	$(PHP_LDFLAGS) --no-undefined
+libotapi_php_la_LDFLAGS		=	$(PHP_LDFLAGS) --no-undefined
 
 if TRANSPORT_ZMQ
 libotapi_php_la_CXXFLAGS	+=	-DOT_ZMQ_MODE
@@ -133,7 +133,7 @@ endif
 #### OT API PYTHON
 
 if WANT_PYTHON
-lib_LTLIBRARIES		+=	_otapi.la
+lib_LTLIBRARIES			+=	_otapi.la
 endif
 
 _otapi_la_SOURCES		=	$(opentxs_swig_dir)/otapi/OTAPI-python.cxx	\
@@ -144,7 +144,7 @@ _otapi_la_CXXFLAGS		= 	-I$(otapi_headers_dir)			\
 					$(PYTHON_CPPFLAGS)				\
 					$(PYTHON_EXTRA_LIBS)
 _otapi_la_LIBADD		=	libotapi.la ../otlib/libot.la $(DEPS_LIBS)
-_otapi_la_DEPENDENCIES	= 	libotapi.la ../otlib/libot.la
+_otapi_la_DEPENDENCIES		= 	libotapi.la ../otlib/libot.la
 _otapi_la_LDFLAGS		=	--no-undefined                  \
 					-module -avoid-version          \
 					$(PYTHON_LDFLAGS)               \
