@@ -1,11 +1,16 @@
-#AUTOMAKE_OPTIONS =		subdir-objects
 SUBDIRS = bigint irrxml lucre
 
-lib_LTLIBRARIES = libot.la
+lib_LTLIBRARIES		=	libot.la
+
+opentxs_include_dir =		$(top_srcdir)/include
+opentxs_source_dir =		$(top_srcdir)/src
+
+common_includes =		-I$(opentxs_include_dir)			\
+				$(DEPS_CFLAGS)
 
 ## COMMON FLAGS ###
 
-AM_CPPFLAGS = 			$(DEPS_CFLAGS)			\
+AM_CPPFLAGS = 		$(common_includes)				\
 				-g3						\
 				-ggdb						\
 				-rdynamic					\
@@ -21,6 +26,7 @@ otlib_headers_dir =		$(top_srcdir)/include/otlib
 otlib_headers =			$(otlib_headers_dir)/anyoption.h			\
 				$(otlib_headers_dir)/easyzlib.h			\
 				$(otlib_headers_dir)/fast_mutex.h			\
+				$(otlib_headers_dir)/ot_default_paths.h		\
 				$(otlib_headers_dir)/stacktrace.h			\
 				$(otlib_headers_dir)/Timer.h				\
 				$(otlib_headers_dir)/tinythread.h			\
@@ -42,7 +48,6 @@ otlib_headers =			$(otlib_headers_dir)/anyoption.h			\
 				$(otlib_headers_dir)/OTCronItem.h			\
 				$(otlib_headers_dir)/OTData.h			\
 				$(otlib_headers_dir)/OTDataCheck.h			\
-				$(otlib_headers_dir)/ot_default_paths.h		\
 				$(otlib_headers_dir)/OTEnvelope.h			\
 				$(otlib_headers_dir)/OTKeyring.h			\
 				$(otlib_headers_dir)/OTglobal.h			\
@@ -142,43 +147,46 @@ otlib_sources     =		anyoption.cpp			\
 containers_headers_dir	=	$(top_srcdir)/include/containers
 
 containers_headers 	=	containers.hpp		\
-				containers_fixes.hpp		\
-				copy_functors.hpp		\
-				digraph.hpp			\
-				digraph.tpp			\
+				containers_fixes.hpp	\
+				copy_functors.hpp	\
+				digraph.hpp		\
+				digraph.tpp		\
 				exceptions.hpp		\
-				foursome.hpp			\
-				foursome.tpp			\
-				hash.hpp			\
-				hash.tpp			\
-				matrix.hpp			\
-				matrix.tpp			\
-				ntree.hpp			\
-				ntree.tpp			\
-				safe_iterator.hpp		\
-				safe_iterator.tpp		\
+				foursome.hpp		\
+				foursome.tpp		\
+				hash.hpp		\
+				hash.tpp		\
+				matrix.hpp		\
+				matrix.tpp		\
+				ntree.hpp		\
+				ntree.tpp		\
+				safe_iterator.hpp	\
+				safe_iterator.tpp	\
 				simple_ptr.hpp		\
 				simple_ptr.tpp		\
 				smart_ptr.hpp		\
 				smart_ptr.tpp		\
-				triple.hpp			\
+				triple.hpp		\
 				triple.tpp
 
 libot_la_SOURCES	=	$(otlib_sources) $(otlib_headers)	\
 				$(containers_headers)
 
-libot_la_CPPFLAGS	=	-I$(otlib_headers_dir) 		\
-				-I$(containers_headers_dir)		\
+libot_la_CPPFLAGS	=	-I$(top_srcdir)/include	\
+				-I$(otlib_headers_dir) 	\
+				-I$(containers_headers_dir)	\
 				$(AM_CPPFLAGS)
 
-libot_la_LIBADD	=	bigint/libbigint.la \
-				irrxml/libirrxml.la \
+libot_la_LIBADD	=	bigint/libbigint.la	\
+				irrxml/libirrxml.la	\
 				lucre/liblucre.la	\
 				$(DEPS_LIBS)
-#libot_la_DEPENDENCIES	=	libbigint.la libirrxml.la liblucre.la
+
+libot_la_DEPENDENCIES	=	bigint/libbigint.la	\
+				irrxml/libirrxml.la	\
+				lucre/liblucre.la
 libot_la_LDFLAGS	=	--no-undefined
 
-########
 
 #### KEYRING Options
 

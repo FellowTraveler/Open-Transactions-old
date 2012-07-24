@@ -1,4 +1,4 @@
-noinst_LTLIBRARIES = libbigint.la
+lib_LTLIBRARIES = libbigint.la
 
 bigint_headers_dir =		$(top_srcdir)/include/bigint
 
@@ -18,6 +18,6 @@ bigint_sources =		BigInteger.cc			\
 
 
 libbigint_la_SOURCES	=	$(bigint_sources) $(bigint_headers)
-libbigint_la_CPPFLAGS	=	-I$(bigint_headers_dir) -fpic
+libbigint_la_CXXFLAGS	=	-I$(bigint_headers_dir) -fpic
 libbigint_la_LDFLAGS	=	-static
 

@@ -277,11 +277,13 @@ AC_SUBST(	[DEPS_CFLAGS],
 AC_SUBST(	[DEPS_LIBS],
 ["$PKGS_LIBS $ZMQ_LIBS $MSG_LIBS $KRG_LIBS $OPENSSL_LDFLAGS $OPENSSL_LIBS -ldl $BOOST_LDFLAGS $BOOST_THREAD_LIB"])
 
-AC_CONFIG_FILES([Makefile
-			src/otlib/bigint/Makefile
+AC_CONFIG_FILES([src/otlib/bigint/Makefile
 			src/otlib/irrxml/Makefile
 			src/otlib/lucre/Makefile
 			src/otlib/Makefile
-			src/opentxs.pc])
+			src/otapi/Makefile
+			src/Makefile
+			src/opentxs.pc
+			Makefile])
 
 AC_OUTPUT

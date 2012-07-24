@@ -1,4 +1,4 @@
-noinst_LTLIBRARIES = liblucre.la
+lib_LTLIBRARIES = liblucre.la
 
 lucre_headers_dir =		$(top_srcdir)/include/lucre
 
@@ -13,5 +13,5 @@ lucre_sources =			bankdemo.cpp			\
 				coin-unblind.cpp
 
 liblucre_la_SOURCES	=	$(lucre_sources) $(lucre_headers)
-liblucre_la_CPPFLAGS	=	-I$(lucre_headers_dir) -fpic
+liblucre_la_CXXFLAGS	=	-I$(lucre_headers_dir) -fpic
 liblucre_la_LDFLAGS	=	-static
