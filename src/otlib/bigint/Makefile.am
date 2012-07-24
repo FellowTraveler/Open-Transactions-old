@@ -1,4 +1,4 @@
-lib_LTLIBRARIES = libbigint.la
+noinst_LTLIBRARIES = libbigint.la
 
 bigint_headers_dir =		$(top_srcdir)/include/bigint
 
@@ -9,8 +9,6 @@ bigint_headers =		BigInteger.h			\
 				BigUnsigned.h			\
 				BigUnsignedInABase.h		\
 				NumberlikeArray.h
-
-bigint_sources_dir =		$(top_srcdir)/src/bigint
 
 bigint_sources =		BigInteger.cc			\
 				BigIntegerAlgorithms.cc		\

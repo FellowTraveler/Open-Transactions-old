@@ -1,16 +1,14 @@
-lib_LTLIBRARIES = libirrxml.la
+noinst_LTLIBRARIES = libirrxml.la
 
 irrxml_headers_dir =		$(top_srcdir)/include/irrxml
 
-irrxml_headers =		CXMLReaderImpl.h			\
+irrxml_headers =		CXMLReaderImpl.h		\
 				fast_atof.h			\
 				heapsort.h			\
 				irrArray.h			\
 				irrString.h			\
 				irrTypes.h			\
 				irrXML.h
-
-irrxml_sources_dir = 		$(top_srcdir)/src/irrxml
 
 irrxml_sources =		irrXML.cpp
 

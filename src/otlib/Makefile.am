@@ -1,0 +1,207 @@
+#AUTOMAKE_OPTIONS =		subdir-objects
+SUBDIRS = bigint irrxml lucre
+
+lib_LTLIBRARIES = libot.la
+
+## COMMON FLAGS ###
+
+AM_CPPFLAGS = 			$(DEPS_CFLAGS)			\
+				-g3						\
+				-ggdb						\
+				-rdynamic					\
+				-O0						\
+				--param ssp-buffer-size=4
+
+AM_LDFLAGS = 			$(DEPS_LDFLAGS)
+
+#########
+
+otlib_headers_dir =		$(top_srcdir)/include/otlib
+
+otlib_headers =			$(otlib_headers_dir)/anyoption.h			\
+				$(otlib_headers_dir)/easyzlib.h			\
+				$(otlib_headers_dir)/fast_mutex.h			\
+				$(otlib_headers_dir)/stacktrace.h			\
+				$(otlib_headers_dir)/Timer.h				\
+				$(otlib_headers_dir)/tinythread.h			\
+				$(otlib_headers_dir)/WinsockWrapper.h			\
+				$(otlib_headers_dir)/Bitcoin.pb.h			\
+				$(otlib_headers_dir)/Generics.pb.h			\
+				$(otlib_headers_dir)/Markets.pb.h			\
+				$(otlib_headers_dir)/Moneychanger.pb.h		\
+				$(otlib_headers_dir)/OTAccount.h			\
+				$(otlib_headers_dir)/OTAgreement.h			\
+				$(otlib_headers_dir)/OTASCIIArmor.h			\
+				$(otlib_headers_dir)/OTAssetContract.h		\
+				$(otlib_headers_dir)/OTAsymmetricKey.h		\
+				$(otlib_headers_dir)/OTBasket.h			\
+				$(otlib_headers_dir)/OTBylaw.h			\
+				$(otlib_headers_dir)/OTCheque.h			\
+				$(otlib_headers_dir)/OTContract.h			\
+				$(otlib_headers_dir)/OTCron.h			\
+				$(otlib_headers_dir)/OTCronItem.h			\
+				$(otlib_headers_dir)/OTData.h			\
+				$(otlib_headers_dir)/OTDataCheck.h			\
+				$(otlib_headers_dir)/ot_default_paths.h		\
+				$(otlib_headers_dir)/OTEnvelope.h			\
+				$(otlib_headers_dir)/OTKeyring.h			\
+				$(otlib_headers_dir)/OTglobal.h			\
+				$(otlib_headers_dir)/OTIdentifier.h			\
+				$(otlib_headers_dir)/OTInstrument.h			\
+				$(otlib_headers_dir)/OTItem.h			\
+				$(otlib_headers_dir)/OTLedger.h			\
+				$(otlib_headers_dir)/OTLib.h				\
+				$(otlib_headers_dir)/OTLibPriv.h			\
+				$(otlib_headers_dir)/OTLog.h				\
+				$(otlib_headers_dir)/OTMarket.h			\
+				$(otlib_headers_dir)/OTMessage.h			\
+				$(otlib_headers_dir)/OTMessageBuffer.h		\
+				$(otlib_headers_dir)/OTMint.h			\
+				$(otlib_headers_dir)/OTOffer.h			\
+				$(otlib_headers_dir)/OTPassword.h			\
+				$(otlib_headers_dir)/OTPayload.h			\
+				$(otlib_headers_dir)/OTPayment.h			\
+				$(otlib_headers_dir)/OTPaymentPlan.h			\
+				$(otlib_headers_dir)/OTPseudonym.h			\
+				$(otlib_headers_dir)/OTPurse.h			\
+				$(otlib_headers_dir)/OTScript.h			\
+				$(otlib_headers_dir)/OTScriptable.h			\
+				$(otlib_headers_dir)/OTServerContract.h		\
+				$(otlib_headers_dir)/OTSignature.h			\
+				$(otlib_headers_dir)/OTSignedFile.h			\
+				$(otlib_headers_dir)/OTSmartContract.h		\
+				$(otlib_headers_dir)/OTStorage.h			\
+				$(otlib_headers_dir)/OTString.h			\
+				$(otlib_headers_dir)/OTStringXML.h			\
+				$(otlib_headers_dir)/OTToken.h			\
+				$(otlib_headers_dir)/OTTrackable.h			\
+				$(otlib_headers_dir)/OTTrade.h			\
+				$(otlib_headers_dir)/OTTransaction.h			\
+				$(otlib_headers_dir)/OTTransactionType.h		\
+				$(otlib_headers_dir)/OTWallet.h
+
+otlib_sources_dir = 		$(top_srcdir)/src/otlib
+
+otlib_sources     =		anyoption.cpp			\
+				Bitcoin.pb.cpp			\
+				easyzlib.c			\
+				Generics.pb.cpp			\
+				Markets.pb.cpp			\
+				mkcert.c			\
+				Moneychanger.pb.cpp		\
+				OTAccount.cpp			\
+				OTAgreement.cpp			\
+				OTASCIIArmor.cpp		\
+				OTAssetContract.cpp		\
+				OTAsymmetricKey.cpp		\
+				OTBasket.cpp			\
+				OTBylaw.cpp			\
+				OTCheque.cpp			\
+				OTContract.cpp			\
+				OTCron.cpp			\
+				OTCronItem.cpp			\
+				OTData.cpp			\
+				OTDataCheck.cpp			\
+				OTEnvelope.cpp			\
+				OTKeyring.cpp			\
+				OTIdentifier.cpp		\
+				OTInstrument.cpp		\
+				OTItem.cpp			\
+				OTLedger.cpp			\
+				OTLog.cpp			\
+				OTMarket.cpp			\
+				OTMessage.cpp			\
+				OTMessageBuffer.cpp		\
+				OTMint.cpp			\
+				OTOffer.cpp			\
+				OTPassword.cpp			\
+				OTPayload.cpp			\
+				OTPayment.cpp			\
+				OTPaymentPlan.cpp		\
+				OTPseudonym.cpp			\
+				OTPurse.cpp			\
+				OTScript.cpp			\
+				OTScriptable.cpp		\
+				OTServerContract.cpp		\
+				OTSignature.cpp			\
+				OTSignedFile.cpp		\
+				OTSmartContract.cpp		\
+				OTStorage.cpp			\
+				OTString.cpp			\
+				OTStringXML.cpp			\
+				OTToken.cpp			\
+				OTTrackable.cpp			\
+				OTTrade.cpp			\
+				OTTransaction.cpp		\
+				OTTransactionType.cpp		\
+				OTWallet.cpp			\
+				Timer.cpp			\
+				tinythread.cpp
+####	Containers
+
+containers_headers_dir	=	$(top_srcdir)/include/containers
+
+containers_headers 	=	containers.hpp		\
+				containers_fixes.hpp		\
+				copy_functors.hpp		\
+				digraph.hpp			\
+				digraph.tpp			\
+				exceptions.hpp		\
+				foursome.hpp			\
+				foursome.tpp			\
+				hash.hpp			\
+				hash.tpp			\
+				matrix.hpp			\
+				matrix.tpp			\
+				ntree.hpp			\
+				ntree.tpp			\
+				safe_iterator.hpp		\
+				safe_iterator.tpp		\
+				simple_ptr.hpp		\
+				simple_ptr.tpp		\
+				smart_ptr.hpp		\
+				smart_ptr.tpp		\
+				triple.hpp			\
+				triple.tpp
+
+libot_la_SOURCES	=	$(otlib_sources) $(otlib_headers)	\
+				$(containers_headers)
+
+libot_la_CPPFLAGS	=	-I$(otlib_headers_dir) 		\
+				-I$(containers_headers_dir)		\
+				$(AM_CPPFLAGS)
+
+libot_la_LIBADD	=	bigint/libbigint.la \
+				irrxml/libirrxml.la \
+				lucre/liblucre.la	\
+				$(DEPS_LIBS)
+#libot_la_DEPENDENCIES	=	libbigint.la libirrxml.la liblucre.la
+libot_la_LDFLAGS	=	--no-undefined
+
+########
+
+#### KEYRING Options
+
+if KEYRING_WINDOWS
+libot_la_CPPFLAGS		+=	-DOT_KEYRING_WINDOWS
+endif
+
+if KEYRING_MAC
+libot_la_CPPFLAGS		+=	-DOT_KEYRING_MAC
+endif
+
+if KEYRING_GNOME
+libot_la_CPPFLAGS		+=	-DOT_KEYRING_GNOME
+endif
+
+if KEYRING_KWALLET
+libot_la_CPPFLAGS		+=	-DOT_KEYRING_KWALLET
+endif
+
+####	Global Headers
+
+pkginclude_HEADERS	=	$(otlib_headers)
+
+####################################################################
+
+

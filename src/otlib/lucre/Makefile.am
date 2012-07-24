@@ -1,10 +1,8 @@
-lib_LTLIBRARIES = liblucre.la
+noinst_LTLIBRARIES = liblucre.la
 
 lucre_headers_dir =		$(top_srcdir)/include/lucre
 
 lucre_headers =			bank.h
-
-lucre_sources_dir = 		$(top_srcdir)/src/lucre
 
 lucre_sources =			bankdemo.cpp			\
 				bankimp.cpp			\
