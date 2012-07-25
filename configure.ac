@@ -4,8 +4,9 @@ AC_PREREQ([2.61])
 AC_INIT([opentxs],m4_esyscmd(tr -d '\n' <VERSION),[Fellow-Traveler],[opentxs],[https://github.com/FellowTraveler/Open-Transactions])
 AC_CONFIG_SRCDIR([src/ot/main.cpp])
 AC_CONFIG_HEADERS([config.h])
-AC_CONFIG_MACRO_DIR([build-aux/m4])
 AC_CONFIG_AUX_DIR([build-aux])
+AC_CONFIG_MACRO_DIR([build-aux/m4])
+
 AM_INIT_AUTOMAKE([1.10 foreign])
 m4_ifdef([AM_SILENT_RULES],[AM_SILENT_RULES([yes])])
 
@@ -82,6 +83,10 @@ AC_CHECK_LIB([msgpack],[msgpack_unpack],
 	],
 	[AC_MSG_RESULT([Warning: libmsgpack not found!])]
 	)
+
+## pthread lib ##
+
+AX_PTHREAD
 
 ## Transport Options (ZMQ defaut) ##
 
@@ -286,10 +291,10 @@ fi
 AC_SUBST([AC_CXXFLAGS],["-g3 -ggdb -rdynamic -O0 --param ssp-buffer-size=4 $WARN_CXXFLAGS $REL_CXXFLAGS"])
 
 AC_SUBST(	[DEPS_CFLAGS],
-["$PKGS_CFLAGS $ZMQ_CFLAGS $KRG_CFLAGS $OPENSSL_CFLAGS $BOOST_CPPFLAGS"])
+["$PKGS_CFLAGS $ZMQ_CFLAGS $KRG_CFLAGS $OPENSSL_CFLAGS $BOOST_CPPFLAGS $PTHREAD_CFLAGS"])
 
 AC_SUBST(	[DEPS_LIBS],
-["$PKGS_LIBS $ZMQ_LIBS $MSG_LIBS $KRG_LIBS $OPENSSL_LDFLAGS $OPENSSL_LIBS -ldl $BOOST_LDFLAGS $BOOST_THREAD_LIB"])
+["$PKGS_LIBS $ZMQ_LIBS $MSG_LIBS $KRG_LIBS $OPENSSL_LDFLAGS $OPENSSL_LIBS -ldl $BOOST_LDFLAGS $BOOST_THREAD_LIB $PTHREAD_LIBS"])
 
 AC_CONFIG_FILES([Makefile
 			src/otlib/bigint/Makefile
@@ -298,7 +303,6 @@ AC_CONFIG_FILES([Makefile
 			src/otlib/Makefile
 			src/otapi/Makefile
 			src/Makefile
-			src/opentxs.pc
-			])
+			src/opentxs.pc])
 
 AC_OUTPUT
