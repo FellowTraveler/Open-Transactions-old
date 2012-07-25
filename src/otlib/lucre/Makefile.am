@@ -15,5 +15,5 @@ lucre_sources		=	bankdemo.cpp			\
 				coin-unblind.cpp
 
 liblucre_la_SOURCES	=	$(lucre_sources) $(lucre_headers)
-liblucre_la_CXXFLAGS	=	-I$(lucre_headers_dir) $(AM_CXXFLAGS) -fpic
+liblucre_la_CXXFLAGS	=	-I$(lucre_headers_dir) -fpic
 liblucre_la_LDFLAGS	=	-static

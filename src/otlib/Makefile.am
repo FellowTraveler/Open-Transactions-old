@@ -7,9 +7,14 @@ opentxs_source_dir =		$(top_srcdir)/src
 
 ## COMMON FLAGS ###
 
-AM_CPPFLAGS		= 	-I$(opentxs_include_dir)	\
-				$(DEPS_CFLAGS)			\
-				$(AC_CXXFLAGS)
+common_includes		=	-I$(opentxs_include_dir)		\
+				-I$(opentxs_include_dir)/otlib		\
+				-I$(opentxs_include_dir)/containers	\
+				$(DEPS_CFLAGS)
+
+
+AM_CPPFLAGS		= 	$(AC_CXXFLAGS)
+AM_CXXFLAGS		=	$(AC_CXXFLAGS)
 
 #### Lib OT build calls
 
@@ -17,9 +22,7 @@ libot_la_SOURCES	=	$(otlib_sources)		\
 				$(otlib_headers)		\
 				$(containers_headers)
 
-libot_la_CPPFLAGS	=	-I$(otlib_headers_dir) 		\
-				-I$(containers_headers_dir)	\
-				$(AM_CPPFLAGS)
+libot_la_CPPFLAGS	=	$(common_includes)
 
 libot_la_LIBADD		=	bigint/libbigint.la		\
 				irrxml/libirrxml.la		\
