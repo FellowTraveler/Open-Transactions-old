@@ -7,8 +7,8 @@ common_includes		=	-I$(opentxs_include_dir)		\
 				-I$(opentxs_include_dir)/otlib		\
 				$(DEPS_CFLAGS)
 
+AM_CPPFLAGS		= 	$(AC_CXXFLAGS)
 AM_CXXFLAGS		=	$(AC_CXXFLAGS)
-
 
 ## Open Transactions Bin Build  ##
 

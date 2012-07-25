@@ -1,6 +1,7 @@
 lib_LTLIBRARIES = libbigint.la
 
-AM_CXXFLAGS		=	$(DEPS_CFLAGS) $(AC_CXXFLAGS)
+AM_CPPFLAGS		= 	$(AC_CXXFLAGS)
+AM_CXXFLAGS		=	$(AC_CXXFLAGS)
 
 bigint_headers_dir	=	$(top_srcdir)/include/bigint
 
@@ -20,6 +21,6 @@ bigint_sources		=	BigInteger.cc			\
 
 
 libbigint_la_SOURCES	=	$(bigint_sources) $(bigint_headers)
-libbigint_la_CXXFLAGS	=	-I$(bigint_headers_dir) -fpic
+libbigint_la_CXXFLAGS	=	-I$(bigint_headers_dir) $(DEPS_CFLAGS) -fpic
 libbigint_la_LDFLAGS	=	-static
 

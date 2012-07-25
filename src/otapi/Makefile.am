@@ -18,7 +18,8 @@ common_includes		=	-I$(opentxs_include_dir)		\
 				-I$(opentxs_include_dir)/otapi		\
 				$(DEPS_CFLAGS)
 
-AM_CXXFLAGS		= 	$(AC_CXXFLAGS)
+AM_CPPFLAGS		= 	$(AC_CXXFLAGS)
+AM_CXXFLAGS		=	$(AC_CXXFLAGS)
 
 ########################
 
