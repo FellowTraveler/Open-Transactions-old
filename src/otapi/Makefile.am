@@ -131,6 +131,12 @@ simpleini_headers_dir	=	$(opentxs_include_dir)/simpleini
 
 simpleini_headers	=	$(simpleini_headers_dir)/ConvertUTF.h		\
 				$(simpleini_headers_dir)/SimpleIni.h
+
+simpleini_sources_dir	= 	$(opentxs_source_dir)/simpleini
+
+simpleini_sources	=	$(simpleini_sources_dir)/ConvertUTF.cpp		\
+				$(simpleini_sources_dir)/snippets.cpp
+
 ####  OTAPI
 
 otapi_headers_dir	=	$(opentxs_include_dir)/otapi
