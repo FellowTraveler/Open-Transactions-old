@@ -22,13 +22,13 @@ do
 
 
     if [ "$x" != "java" ]; then
-	echo swig -c++ -$x -outdir glue/$x otapi/otapi.i
-	swig -c++ -$x -outdir glue/$x otapi/otapi.i   
+	echo swig -c++ -$x -outdir glue/$x otapi/OTAPI.i
+	swig -c++ -$x -outdir glue/$x otapi/OTAPI.i
     fi
 
     if [ "$x" == "java" ]; then
-	echo swig -c++ -$x -package com.wrapper.core.jni -outdir glue/$x otapi/otapi.i
-	swig -c++ -$x -package com.wrapper.core.jni -outdir glue/$x otapi/otapi.i
+	echo swig -c++ -$x -package com.wrapper.core.jni -outdir glue/$x otapi/OTAPI.i
+	swig -c++ -$x -package com.wrapper.core.jni -outdir glue/$x otapi/OTAPI.i
     fi
 
 
@@ -36,6 +36,10 @@ do
     for ext in cxx cpp h; do
 	if [ -f otapi/OTAPI-$x.$ext ]; then rm otapi/OTAPI-$x.$ext; fi
 	if [ -f otapi/OTAPI_wrap.$ext ]; then mv otapi/OTAPI_wrap.$ext otapi/OTAPI-$x.$ext; fi
+    done
+
+    for ext in cxx cpp; do
+	if [ -f otapi/OTAPI-$x.$ext ]; then sed -i "s/OTAPI_wrap.h/OTAPI-$x.h/1" otapi/OTAPI-$x.$ext; fi
     done
 
 done
