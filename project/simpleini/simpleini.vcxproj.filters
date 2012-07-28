@@ -23,16 +23,10 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\simpleini\snippets.cpp">
+    <ClCompile Include="..\..\src\otlib\simpleini\ConvertUTF.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\simpleini\test1.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\simpleini\testsi.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\simpleini\ConvertUTF.cpp">
+    <ClCompile Include="..\..\src\otlib\simpleini\snippets.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

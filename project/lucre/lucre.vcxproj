@@ -22,25 +22,25 @@
     <ClInclude Include="..\..\include\lucre\bank.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\lucre\bank-new.cpp" />
-    <ClCompile Include="..\..\src\lucre\bank-sign.cpp" />
-    <ClCompile Include="..\..\src\lucre\bank-verify.cpp" />
-    <ClCompile Include="..\..\src\lucre\bankdemo.cpp" />
-    <ClCompile Include="..\..\src\lucre\bankimp.cpp" />
-    <ClCompile Include="..\..\src\lucre\banktest.cpp">
+    <ClCompile Include="..\..\src\otlib\lucre\bank-new.cpp" />
+    <ClCompile Include="..\..\src\otlib\lucre\bank-sign.cpp" />
+    <ClCompile Include="..\..\src\otlib\lucre\bank-verify.cpp" />
+    <ClCompile Include="..\..\src\otlib\lucre\bankdemo.cpp" />
+    <ClCompile Include="..\..\src\otlib\lucre\bankimp.cpp" />
+    <ClCompile Include="..\..\src\otlib\lucre\banktest.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\src\lucre\banktest2.cpp">
+    <ClCompile Include="..\..\src\otlib\lucre\banktest2.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\src\lucre\coin-request.cpp" />
-    <ClCompile Include="..\..\src\lucre\coin-unblind.cpp" />
+    <ClCompile Include="..\..\src\otlib\lucre\coin-request.cpp" />
+    <ClCompile Include="..\..\src\otlib\lucre\coin-unblind.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{07476ED4-1047-4BD1-BBF2-CC396FCAECEB}</ProjectGuid>

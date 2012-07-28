@@ -23,20 +23,8 @@
     <ClInclude Include="..\..\include\simpleini\SimpleIni.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\simpleini\ConvertUTF.cpp" />
-    <ClCompile Include="..\..\src\simpleini\snippets.cpp" />
-    <ClCompile Include="..\..\src\simpleini\test1.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\src\simpleini\testsi.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="..\..\src\otlib\simpleini\ConvertUTF.cpp" />
+    <ClCompile Include="..\..\src\otlib\simpleini\snippets.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{7D7A0B54-E2A9-40CD-81C1-5539218DE60C}</ProjectGuid>

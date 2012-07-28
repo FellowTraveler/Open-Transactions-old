@@ -20,31 +20,31 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\lucre\bankdemo.cpp">
+    <ClCompile Include="..\..\src\otlib\lucre\bankdemo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\lucre\bankimp.cpp">
+    <ClCompile Include="..\..\src\otlib\lucre\bankimp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\lucre\bank-new.cpp">
+    <ClCompile Include="..\..\src\otlib\lucre\bank-new.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\lucre\bank-sign.cpp">
+    <ClCompile Include="..\..\src\otlib\lucre\bank-sign.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\lucre\banktest.cpp">
+    <ClCompile Include="..\..\src\otlib\lucre\banktest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\lucre\banktest2.cpp">
+    <ClCompile Include="..\..\src\otlib\lucre\banktest2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\lucre\bank-verify.cpp">
+    <ClCompile Include="..\..\src\otlib\lucre\bank-verify.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\lucre\coin-request.cpp">
+    <ClCompile Include="..\..\src\otlib\lucre\coin-request.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\lucre\coin-unblind.cpp">
+    <ClCompile Include="..\..\src\otlib\lucre\coin-unblind.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

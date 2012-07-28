@@ -38,7 +38,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\irrxml\irrXML.cpp">
+    <ClCompile Include="..\..\src\otlib\irrxml\irrXML.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

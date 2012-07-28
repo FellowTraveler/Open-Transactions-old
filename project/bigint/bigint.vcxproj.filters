@@ -38,25 +38,25 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\bigint\BigInteger.cc">
+    <ClCompile Include="..\..\src\otlib\bigint\BigInteger.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\bigint\BigIntegerAlgorithms.cc">
+    <ClCompile Include="..\..\src\otlib\bigint\BigIntegerAlgorithms.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\bigint\BigIntegerUtils.cc">
+    <ClCompile Include="..\..\src\otlib\bigint\BigIntegerUtils.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\bigint\BigUnsigned.cc">
+    <ClCompile Include="..\..\src\otlib\bigint\BigUnsigned.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\bigint\BigUnsignedInABase.cc">
+    <ClCompile Include="..\..\src\otlib\bigint\BigUnsignedInABase.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\bigint\sample.cc">
+    <ClCompile Include="..\..\src\otlib\bigint\sample.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\bigint\testsuite.cc">
+    <ClCompile Include="..\..\src\otlib\bigint\testsuite.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
