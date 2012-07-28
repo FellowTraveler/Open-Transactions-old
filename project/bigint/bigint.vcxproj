@@ -149,18 +149,18 @@
     <ClInclude Include="..\..\include\bigint\NumberlikeArray.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\bigint\BigInteger.cc" />
-    <ClCompile Include="..\..\src\bigint\BigIntegerAlgorithms.cc" />
-    <ClCompile Include="..\..\src\bigint\BigIntegerUtils.cc" />
-    <ClCompile Include="..\..\src\bigint\BigUnsigned.cc" />
-    <ClCompile Include="..\..\src\bigint\BigUnsignedInABase.cc" />
-    <ClCompile Include="..\..\src\bigint\sample.cc">
+    <ClCompile Include="..\..\src\otlib\bigint\BigInteger.cc" />
+    <ClCompile Include="..\..\src\otlib\bigint\BigIntegerAlgorithms.cc" />
+    <ClCompile Include="..\..\src\otlib\bigint\BigIntegerUtils.cc" />
+    <ClCompile Include="..\..\src\otlib\bigint\BigUnsigned.cc" />
+    <ClCompile Include="..\..\src\otlib\bigint\BigUnsignedInABase.cc" />
+    <ClCompile Include="..\..\src\otlib\bigint\sample.cc">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\src\bigint\testsuite.cc">
+    <ClCompile Include="..\..\src\otlib\bigint\testsuite.cc">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>

@@ -28,7 +28,7 @@
     <ClInclude Include="..\..\include\irrxml\irrXML.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\irrxml\irrXML.cpp" />
+    <ClCompile Include="..\..\src\otlib\irrxml\irrXML.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{FF4E2F12-89AF-42AF-9630-66931CAE610A}</ProjectGuid>
