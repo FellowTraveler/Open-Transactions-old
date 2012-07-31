@@ -130,14 +130,10 @@
 #ifndef __OTACCOUNT_H__
 #define __OTACCOUNT_H__
 
-// DLL Export for Win32
-
-#undef EXPORT
-#ifdef _WINDLL
-  #define EXPORT __declspec(dllexport)
-#else
-  #define EXPORT
+#ifndef EXPORT
+#define EXPORT
 #endif
+#include <ExportWrapper.h>
 
 #include <list>
 #include <fstream>
@@ -341,7 +337,7 @@ EXPORT	OTAcctList();
 	OTAcctList(OTAccount::AccountType eAcctType);
 EXPORT	~OTAcctList();
 
-	int GetCountAccountIDs() const { return m_mapAcctIDs.size(); }
+	int GetCountAccountIDs() const { return static_cast<int> (m_mapAcctIDs.size()); }
 	
 	void Release();
 

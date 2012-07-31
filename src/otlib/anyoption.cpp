@@ -713,10 +713,10 @@ AnyOption::parseGNU( char *arg )
 {
 	int split_at = 0;
 	/* if has a '=' sign get value */
-	for( unsigned int i = 0 ; i < strlen(arg) ; i++ ){
+	for( unsigned int i = 0 ; i < static_cast<unsigned int>(strlen(arg)) ; i++ ){
 		if(arg[i] ==  equalsign ){
 			split_at = i ; /* store index */
-			i = strlen(arg); /* get out of loop */
+			i = static_cast<unsigned int>(strlen(arg)); /* get out of loop */
 		}
 	}
 	if( split_at > 0 ){ /* it is an option value pair */
@@ -992,7 +992,7 @@ AnyOption::readFile( const char* fname )
                 return NULL;
         }
         is.seekg (0, ios::end);
-        length = is.tellg();
+        length = static_cast<int>(is.tellg());
         is.seekg (0, ios::beg);
         buffer = (char*) malloc((length + 1)*sizeof(char));
         is.read (buffer,length);

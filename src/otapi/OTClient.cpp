@@ -144,9 +144,11 @@ extern "C"
 
 // ---------------------------------------------------------------------------
 
-#include "ot_default_paths.h"
+//#include "ot_default_paths.h"
 
 // ---------------------------------------------------------------------------
+
+#define IMPORT
 
 #include "OTStorage.h"
 
@@ -268,57 +270,6 @@ const char * OTTransaction::_TypeStrings[] =
 
 #include "OTClient.h"
 #include "OTLog.h"
-
-#ifdef _WIN32
-
-OTString OTLog::__OTPathSeparator = OT_DEFAULT_PATH_SEPARATOR;
-
-OTString OTLog::__OTPath("."); // it defaults to '.' but then it is set by the client and server.
-OTString OTLog::__OTConfigPath(OT_FOLDER_DEFAULT); // it defaults to "~/.ot" but then it is set by the client and server.
-OTString OTLog::__OTPrefixPath(OT_PREFIX_DEFAULT); // it defaults to "~/.ot" but then it is set by the client and server.
-
-OTString OTLog::__OTLogfile;
-
-
-#if defined (DSP)					   
-int OTLog::__CurrentLogLevel = 0;	// If you build with DSP=1, it assumes a special location for OpenSSL,
-#else								// and it turns off all the output.
-int OTLog::__CurrentLogLevel = 0;
-#endif
-
-bool	OTLog::__blocking = false;	// Normally false. This means we will wait FOREVER when trying to send or receive.
-int     OTLog::__latency_send_no_tries = 2; // Number of times will try to send a message.
-int     OTLog::__latency_receive_no_tries = 2; // Number of times will try to receive a reply.
-int     OTLog::__latency_send_ms = 5000; // number of ms to wait before retrying send.
-int		OTLog::__latency_send_delay_after = 50;	// It's 50 here after every server request, but also there's a default sleep of 50 in the java GUI after groups of messages.
-int     OTLog::__latency_receive_ms = 5000; // number of ms to wait before retrying receive.
-long	OTLog::__minimum_market_scale = 1;	// Server admin can configure this to any higher power-of-ten.
-
-OTString OTLog::__OTCronFolder				= "cron";
-OTString OTLog::__OTNymFolder				= "nyms";	
-OTString OTLog::__OTReceiptFolder			= "receipts";	
-OTString OTLog::__OTNymboxFolder			= "nymbox";		
-OTString OTLog::__OTAccountFolder			= "accounts";	
-OTString OTLog::__OTUserAcctFolder			= "useraccounts";	
-OTString OTLog::__OTInboxFolder				= "inbox";		
-OTString OTLog::__OTOutboxFolder			= "outbox";	
-OTString OTLog::__OTCertFolder				= "certs";		
-OTString OTLog::__OTPubkeyFolder			= "pubkeys";
-OTString OTLog::__OTContractFolder			= "contracts";
-OTString OTLog::__OTMintFolder				= "mints";
-OTString OTLog::__OTSpentFolder				= "spent";
-OTString OTLog::__OTMarketFolder			= "markets";
-OTString OTLog::__OTSmartContractsFolder	= "smartcontracts";
-OTString OTLog::__OTPaymentInboxFolder		= "paymentInbox";		
-OTString OTLog::__OTRecordBoxFolder			= "recordBox";
-OTString OTLog::__OTPurseFolder				= "purse";
-OTString OTLog::__OTScriptFolder			= "scripts";
-
-OTString OTLog::__Version = "0.82.f";
-#endif
-
-
-
 
 
 int OTClient::CalcReturnVal(const long & lRequestNumber)
@@ -9575,19 +9526,17 @@ bool OTClient::SetFocusToServerAndNym(OTServerContract & theServerContract, OTPs
 /// Need to call this before using.
 bool OTClient::InitClient(OTWallet & theWallet)
 {
-	// already done
+	// only run once.
     //
 	if (m_bInitialized)
     {
         OTLog::vOutput(1, "OTClient::InitClient: Already initialized. (Returning true.)\n");
 		return false;
     }
-	// -----------------------
-    
 	m_bInitialized	= true;
+	// -----------------------
 	
-
-    
+	
     // UPDATE: SSL is now initialized in OTLog::OT_Init(), not in OTServerConnection.
     //
     // Old:
@@ -9596,29 +9545,31 @@ bool OTClient::InitClient(OTWallet & theWallet)
 //	SSL_library_init();
 //	SSL_load_error_strings();   // UPDATE: Moved to OTLog::OT_Init();
     
-    
-    
-	// --------------------------------------------------------
-    // These storage locations are client-only
-	//
-	OTLog::ConfirmOrCreateFolder(OTLog::PaymentInboxFolder());
-	OTLog::ConfirmOrCreateFolder(OTLog::RecordBoxFolder());
-	OTLog::ConfirmOrCreateFolder(OTLog::PurseFolder()); 	
-	OTLog::ConfirmOrCreateFolder(OTLog::ScriptFolder()); 	
-	
-	// These storage locations are common to client and server.
-	OTLog::ConfirmOrCreateFolder(OTLog::NymFolder());
-	OTLog::ConfirmOrCreateFolder(OTLog::ReceiptFolder());
-	OTLog::ConfirmOrCreateFolder(OTLog::NymboxFolder());
-	OTLog::ConfirmOrCreateFolder(OTLog::AccountFolder());
-	OTLog::ConfirmOrCreateFolder(OTLog::InboxFolder());
-	OTLog::ConfirmOrCreateFolder(OTLog::OutboxFolder());
-	OTLog::ConfirmOrCreateFolder(OTLog::CertFolder());
-	OTLog::ConfirmOrCreateFolder(OTLog::PubkeyFolder()); 
-	OTLog::ConfirmOrCreateFolder(OTLog::ContractFolder());
-	OTLog::ConfirmOrCreateFolder(OTLog::MintFolder()); 
-	OTLog::ConfirmOrCreateFolder(OTLog::MarketFolder()); 	
-	OTLog::ConfirmOrCreateFolder(OTLog::SmartContractsFolder()); 	
+	{
+		bool bFolderExist;
+
+		// --------------------------------------------------------
+		// These storage locations are client-only
+		//
+		OTLog::ConfirmOrCreateFolder(OTLog::PaymentInboxFolder(),bFolderExist);
+		OTLog::ConfirmOrCreateFolder(OTLog::RecordBoxFolder(),bFolderExist);
+		OTLog::ConfirmOrCreateFolder(OTLog::PurseFolder(),bFolderExist); 	
+		OTLog::ConfirmOrCreateFolder(OTLog::ScriptFolder(),bFolderExist); 	
+
+		// These storage locations are common to client and server.
+		OTLog::ConfirmOrCreateFolder(OTLog::NymFolder(),bFolderExist);
+		OTLog::ConfirmOrCreateFolder(OTLog::ReceiptFolder(),bFolderExist);
+		OTLog::ConfirmOrCreateFolder(OTLog::NymboxFolder(),bFolderExist);
+		OTLog::ConfirmOrCreateFolder(OTLog::AccountFolder(),bFolderExist);
+		OTLog::ConfirmOrCreateFolder(OTLog::InboxFolder(),bFolderExist);
+		OTLog::ConfirmOrCreateFolder(OTLog::OutboxFolder(),bFolderExist);
+		OTLog::ConfirmOrCreateFolder(OTLog::CertFolder(),bFolderExist);
+		OTLog::ConfirmOrCreateFolder(OTLog::PubkeyFolder(),bFolderExist); 
+		OTLog::ConfirmOrCreateFolder(OTLog::ContractFolder(),bFolderExist);
+		OTLog::ConfirmOrCreateFolder(OTLog::MintFolder(),bFolderExist); 
+		OTLog::ConfirmOrCreateFolder(OTLog::MarketFolder(),bFolderExist); 	
+		OTLog::ConfirmOrCreateFolder(OTLog::SmartContractsFolder(),bFolderExist);
+	}
 	
 	// This bottom group of storage locations is server-only
 	//
@@ -9637,8 +9588,8 @@ bool OTClient::InitClient(OTWallet & theWallet)
 	// openssl initialization
     // UPDATE: Moved to OTLog::OT_Init()
     //
-//	ERR_load_crypto_strings();  // Todo deal with error logging mechanism later.
-//	OpenSSL_add_all_algorithms();  
+	//	ERR_load_crypto_strings();  // Todo deal with error logging mechanism later.
+	//	OpenSSL_add_all_algorithms();  
 	
 	return true;
 }

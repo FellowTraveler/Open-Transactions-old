@@ -275,7 +275,7 @@ bool OTString::safe_strcpy(char * dest,
     // Notice: we don't zero out the source unless we were successful (AND unless we were asked to.)
     //
     if (bSuccess && bZeroSource)
-        OTPassword::zeroMemory(const_cast<char *>(src), src_length);
+        OTPassword::zeroMemory(const_cast<char *>(src), static_cast<uint32_t> (src_length));
         
     return bSuccess;
 }
@@ -604,13 +604,13 @@ OTString::OTString(const char * new_string) : m_lLength(0), m_lPosition(0), m_st
 OTString::OTString(const char * new_string, size_t sizeLength) : m_lLength(0), m_lPosition(0), m_strBuffer(NULL)
 {
 //	Initialize();
-	LowLevelSet(new_string, sizeLength);
+	LowLevelSet(new_string, static_cast<uint32_t> (sizeLength));
 }
 
 OTString::OTString(const std::string& new_string) : m_lLength(0), m_lPosition(0), m_strBuffer(NULL)
 {
 //	Initialize();
-	LowLevelSet(new_string.c_str(), new_string.length());
+	LowLevelSet(new_string.c_str(), static_cast<uint32_t> (new_string.length()));
 }
 
 
@@ -674,9 +674,9 @@ void OTString::LowLevelSet(const char * new_string, uint32_t nEnforcedMaxLength)
 	if (NULL != new_string)
 	{
 		uint32_t nLength = (nEnforcedMaxLength > 0) ?
-			strnlen(new_string, nEnforcedMaxLength)
+			static_cast<uint32_t> (strnlen(new_string, size_t (nEnforcedMaxLength)))
 		  : 
-			strnlen(new_string, MAX_STRING_LENGTH-1);
+			static_cast<uint32_t> (strnlen(new_string, size_t (MAX_STRING_LENGTH-1)));
 
 		// don't bother allocating memory for a 0 length string.
 		if (0 == nLength)

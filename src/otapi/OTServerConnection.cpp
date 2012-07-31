@@ -146,6 +146,8 @@ extern "C"
 //#include "SSL-Example/SFSocket.h"
 }
 
+#define IMPORT
+
 #include "OTStorage.h"
 
 #include "OTServerConnection.h"
@@ -477,7 +479,7 @@ bool OTServerConnection::ProcessReply(u_header & theCMD, OTMessage & theServerRe
 	{
 		int  err = 0, nread = 0;
 		
-		char buffer[1024];
+//		char buffer[1024];
 		int sizeJunkData = 1020; // We'll make this a bit smaller than the buffer, for safety reasons.
 		
 		while (1)
@@ -509,7 +511,7 @@ bool OTServerConnection::ProcessType1Cmd(u_header & theCMD, OTMessage & theServe
 {
 	// At this point, the checksum has already validated. 
 	// Might as well get the PAYLOAD next.
-	int  err;
+	int  err = 0;
 	uint32_t nread;
 	
 //	OT_ASSERT(NULL != m_pSocket);
@@ -709,7 +711,7 @@ bool OTServerConnection::SignAndSend(OTMessage & theMessage)
 
 void OTServerConnection::ProcessMessageOut(OTMessage & theMessage)
 {
-    int  err;
+    int  err = 0;
 	uint32_t nwritten;
 	
 	u_header theCMD; 
@@ -829,8 +831,6 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 	
 	bool bHandledIt = false;
 	
-    int  err;
-	uint32_t nwritten;
 	u_header theCMD; 
 	
 	
@@ -1477,7 +1477,7 @@ void OTServerConnection::ProcessMessageOut(char *buf, int * pnExpectReply)
 					bIsAssetContract = false;
 			}
 			// ----------------------------
-			OTLog::Output(0, "Is the contract properly escaped already? (If escaped, all lines beginning with ----- will instead appear as - ----- ) [y/n]: ");
+			OTLog::Output(0, "Is the contract properly escaped already? (If escaped, all lines beginning with ----- will instead appear as - ----- ) [y\n]: ");
 			// User input.
 			// I need a from account, Yes even in a deposit, it's still the "From" account.
 			// The "To" account is only used for a transfer. (And perhaps for a 2-way trade.)

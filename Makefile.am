@@ -38,13 +38,10 @@ dist_opentxsdoc_DATA		=	docs/GETTING-STARTED.txt	\
 					README.md 			\
 					VERSION
 
-nobase_dist_opentxsdoc_DATA	=	sample-data/ot-sample-data-clean/ot_init.cfg				\
-					sample-data/ot-sample-data-clean/client.cfg				\
-					sample-data/ot-sample-data-clean/command-line-ot.opt			\
+nobase_dist_opentxsdoc_DATA	=	sample-data/ot-sample-data-clean/command-line-ot.opt			\
 					sample-data/ot-sample-data-clean/CLIENT-COMMANDS.txt			\
 					sample-data/ot-sample-data-clean/client_data/LICENSE-AND-CREDITS.txt	\
 					sample-data/ot-sample-data-clean/client_data/wallet.xml			\
-					sample-data/ot-sample-data-clean/server.cfg				\
 					sample-data/ot-sample-data-clean/server_data/notaryServer.xml
 
 pkgconfigdir			=	$(libdir)/pkgconfig

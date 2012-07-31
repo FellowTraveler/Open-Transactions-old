@@ -7,13 +7,15 @@
 #pragma once
 #endif
  
-#ifndef _WINDOWS_
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-//#undef WIN32_LEAN_AND_MEAN
 #endif
  
+#ifndef _WINSOCK_
+#define _WINSOCK_
 #include <winsock2.h>
+#endif
  
 #pragma comment(lib, "ws2_32.lib")
  

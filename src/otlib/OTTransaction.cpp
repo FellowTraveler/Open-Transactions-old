@@ -4812,7 +4812,7 @@ void OTTransaction::UpdateContents()
 					strUserID(GetUserID());	
 	// -----------------------------------------------------
 	m_DATE_SIGNED = time(NULL); // We store the timestamp of when this transaction was signed.
-	const long lDateSigned = m_DATE_SIGNED;
+	const long lDateSigned = static_cast<long> (m_DATE_SIGNED);
 	// -----------------------------------------------------	
 	// I release this because I'm about to repopulate it.
 	m_xmlUnsigned.Release();
@@ -4977,7 +4977,7 @@ void OTTransaction::SaveAbbrevPaymentInboxRecord(OTString & strOutput)
 	strType.Set((NULL != pTypeStr) ? pTypeStr : "error_state");
 	// ----------------------------------------------
 	// DATE SIGNED
-	const long lDateSigned = m_DATE_SIGNED;
+	const long lDateSigned = static_cast<long> (m_DATE_SIGNED);
 	// ----------------------------------------------
 	// HASH OF THE COMPLETE "BOX RECEIPT"
 	// Save abbreviated is only used for receipts in boxes such as inbox, outbox, and nymbox.
@@ -5250,7 +5250,7 @@ void OTTransaction::SaveAbbrevRecordBoxRecord(OTString & strOutput)
 	strType.Set((NULL != pTypeStr) ? pTypeStr : "error_state");
 	// ----------------------------------------------
 	// DATE SIGNED
-	const long lDateSigned = m_DATE_SIGNED;
+	const long lDateSigned = static_cast<long> (m_DATE_SIGNED);
 	// ----------------------------------------------
 	// HASH OF THE COMPLETE "BOX RECEIPT"
 	// Save abbreviated is only used for receipts in boxes such as inbox, outbox, and nymbox.
@@ -5403,7 +5403,7 @@ void OTTransaction::SaveAbbreviatedNymboxRecord(OTString & strOutput)
 	strType.Set((NULL != pTypeStr) ? pTypeStr : "error_state");
 	// ----------------------------------------------
 	// DATE SIGNED
-	const long lDateSigned = m_DATE_SIGNED;
+	const long lDateSigned = static_cast<long> (m_DATE_SIGNED);
 	// ----------------------------------------------
 	// HASH OF THE COMPLETE "BOX RECEIPT"
 	// Save abbreviated is only used for receipts in boxes such as inbox, outbox, and nymbox.
@@ -5498,7 +5498,7 @@ void OTTransaction::SaveAbbreviatedOutboxRecord(OTString & strOutput)
 	strType.Set((NULL != pTypeStr) ? pTypeStr : "error_state");
 	// ----------------------------------------------
 	// DATE SIGNED
-	const long lDateSigned = m_DATE_SIGNED;
+	const long lDateSigned = static_cast<long> (m_DATE_SIGNED);
 	// ----------------------------------------------
 	// HASH OF THE COMPLETE "BOX RECEIPT"
 	// Save abbreviated is only used for receipts in boxes such as inbox, outbox, and nymbox.
@@ -5625,7 +5625,7 @@ void OTTransaction::SaveAbbreviatedInboxRecord(OTString & strOutput)
 	strType.Set((NULL != pTypeStr) ? pTypeStr : "error_state");
 	// ----------------------------------------------
 	// DATE SIGNED
-	const long lDateSigned = m_DATE_SIGNED;
+	const long lDateSigned = static_cast<long> (m_DATE_SIGNED);
 	// ----------------------------------------------
 	// HASH OF THE COMPLETE "BOX RECEIPT"
 	// Save abbreviated is only used for receipts in boxes such as inbox, outbox, and nymbox.

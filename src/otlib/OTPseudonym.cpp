@@ -323,7 +323,7 @@ void OTPseudonym::AddMail(OTMessage & theMessage) // a mail message is a form of
 //
 int OTPseudonym::GetMailCount()
 {
-	return m_dequeMail.size();
+	return static_cast<int> (m_dequeMail.size());
 }
 
 // Look up a piece of mail by index.
@@ -389,7 +389,7 @@ void OTPseudonym::AddOutmail(OTMessage & theMessage) // a mail message is a form
 //
 int OTPseudonym::GetOutmailCount()
 {
-	return m_dequeOutmail.size();
+	return static_cast<int> (m_dequeOutmail.size());
 }
 
 // Look up a transaction by transaction number and see if it is in the ledger.
@@ -455,7 +455,7 @@ void OTPseudonym::AddOutpayments(OTMessage & theMessage) // a payments message i
 //
 int OTPseudonym::GetOutpaymentsCount()
 {
-	return m_dequeOutpayments.size();
+	return static_cast<int> (m_dequeOutpayments.size());
 }
 
 // Look up a transaction by transaction number and see if it is in the ledger.
@@ -1670,7 +1670,7 @@ int OTPseudonym::GetGenericNumCount(mapOfTransNums & THE_MAP, const OTIdentifier
 	// that this nym has already stored for it.
 	if (NULL != pDeque)
 	{		
-		nReturnValue = pDeque->size();
+		nReturnValue = static_cast<int> (pDeque->size());
 	}
 	
 	return nReturnValue;	
@@ -4325,7 +4325,7 @@ bool OTPseudonym::VerifyIssuedNumbersOnNym(OTPseudonym & THE_NYM)
 		
 		if (!(pDeque->empty()))
 		{
-			nNumberOfTransactionNumbers1 += pDeque->size();
+			nNumberOfTransactionNumbers1 += static_cast<int> (pDeque->size());
 		}
 	} // for
 	

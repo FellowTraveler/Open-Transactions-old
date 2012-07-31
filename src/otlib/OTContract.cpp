@@ -672,7 +672,7 @@ bool OTNumList::Verify(const OTNumList & rhs) const
 
 int OTNumList::Count() const 
 { 
-    return m_setData.size(); 
+    return static_cast<int> (m_setData.size()); 
 }
 
 // -------------------
@@ -2678,7 +2678,7 @@ bool OTContract::SaveContract(const char * szFoldername, const char * szFilename
 	}
 	
 	ofs.clear();
-	
+		
 	OTString strFinal;
 	SaveContract(strFinal);
 	

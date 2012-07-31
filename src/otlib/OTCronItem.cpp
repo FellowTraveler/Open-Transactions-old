@@ -1182,7 +1182,7 @@ bool OTCronItem::SetDateRange(const time_t VALID_FROM/*=0*/,  const time_t VALID
 	{
 		if (VALID_TO < VALID_FROM) // If Valid-To date is EARLIER than Valid-From date...
 		{
-			long lValidTo = VALID_TO, lValidFrom = VALID_FROM;
+			long lValidTo = static_cast<long> (VALID_TO), lValidFrom = static_cast<long> (VALID_FROM);
 			OTLog::vError("OTCronItem::SetDateRange: VALID_TO (%ld) is earlier than VALID_FROM (%ld)\n", 
                           lValidTo, lValidFrom);
 			return false;
@@ -1192,7 +1192,7 @@ bool OTCronItem::SetDateRange(const time_t VALID_FROM/*=0*/,  const time_t VALID
 	}
 	else // VALID_TO is a NEGATIVE number... Error.
 	{
-		long lValidTo = VALID_TO;
+		long lValidTo = static_cast<long> (VALID_TO);
 		OTLog::vError("OTCronItem::SetDateRange: Negative value for valid_to: %ld\n", lValidTo);
         
 		return false;
@@ -1213,7 +1213,7 @@ bool OTCronItem::SetDateRange(const time_t VALID_FROM/*=0*/,  const time_t VALID
 //
 int OTCronItem::GetCountClosingNumbers() const
 {
-	return m_dequeClosingNumbers.size();
+	return static_cast<int> (m_dequeClosingNumbers.size());
 }
 
 long OTCronItem::GetClosingTransactionNoAt(unsigned int nIndex) const 

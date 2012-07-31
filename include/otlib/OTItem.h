@@ -130,14 +130,10 @@
 #ifndef __OTITEM_H__
 #define __OTITEM_H__
 
-// DLL Export for Win32
-
-#undef EXPORT
-#ifdef _WINDLL
-  #define EXPORT __declspec(dllexport)
-#else
-  #define EXPORT
+#ifndef EXPORT
+#define EXPORT
 #endif
+#include <ExportWrapper.h>
 
 #include <fstream>
 
@@ -367,7 +363,7 @@ EXPORT    bool AddBlankNumbersToItem(const OTNumList & theAddition);
 	OTItem * GetItemByTransactionNum(const long lTransactionNumber); // While processing an item, you may wish to query it for sub-items
 	OTItem * GetFinalReceiptItemByReferenceNum(const long lReferenceNumber); // The final receipt item MAY be present, and co-relates to others that share its "in reference to" value. (Others such as marketReceipts and paymentReceipts.)
     int	GetItemCountInRefTo(const long lReference); // Count the number of items that are IN REFERENCE TO some transaction#.
-	inline int	GetItemCount() const { return m_listItems.size(); }
+	inline int	GetItemCount() const { return static_cast<int> (m_listItems.size()); }
 	void AddItem(OTItem & theItem); // You have to allocate the item on the heap and then pass it in as a reference. 
 	// OTItem will take care of it from there and will delete it in destructor.
 

@@ -63,7 +63,6 @@ $ source $HOME/.*profile
 # then to start up OT server 
 $ otserver
 
-
 #### Test OT with Java test client, Moneychanger  ####
 # (Replace wildcard * with appropriate version number)
 

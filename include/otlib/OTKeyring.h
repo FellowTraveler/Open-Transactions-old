@@ -133,6 +133,15 @@
 #ifndef __OTKEYRING_H__
 #define __OTKEYRING_H__
 
+// DLL Export for Win32
+
+#undef EXPORT
+#ifdef _WINDLL
+  #define EXPORT __declspec(dllexport)
+#else
+  #define EXPORT
+#endif
+
 #include <string>
 
 // It's better to turn-on one of these, by using the Makefile,
@@ -189,28 +198,28 @@ public:
     // special "OT user" being used instead.) And thus cannot be used to
     // retrieve it, either.
     //
-    static bool StoreSecret(    const OTString      & strUser, 
+EXPORT    static bool StoreSecret(    const OTString      & strUser, 
                                 const OTPassword    & thePassword,
                                 const std::string   & str_display);
     
-    static bool RetrieveSecret( const OTString      & strUser, 
+EXPORT    static bool RetrieveSecret( const OTString      & strUser, 
                                       OTPassword    & thePassword,
                                 const std::string   & str_display);
     
-    static bool DeleteSecret(   const OTString      & strUser,
+EXPORT    static bool DeleteSecret(   const OTString      & strUser,
                                 const std::string   & str_display);
     
     // -------------------------------------------------------
 #if defined(OT_KEYRING_WINDOWS) && defined(_WIN32)
-    static bool Windows_StoreSecret(    const OTString      & strUser, 
+EXPORT    static bool Windows_StoreSecret(    const OTString      & strUser, 
                                         const OTPassword    & thePassword,
                                         const std::string   & str_display);
     
-    static bool Windows_RetrieveSecret( const OTString      & strUser, 
+EXPORT    static bool Windows_RetrieveSecret( const OTString      & strUser, 
                                               OTPassword    & thePassword,
                                         const std::string   & str_display);
     
-    static bool Windows_DeleteSecret(   const OTString      & strUser,
+EXPORT    static bool Windows_DeleteSecret(   const OTString      & strUser,
                                         const std::string   & str_display);
 //#endif
     // -------------------------------------------------------

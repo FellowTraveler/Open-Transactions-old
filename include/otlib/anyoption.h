@@ -6,12 +6,10 @@
 #include <stdlib.h>
 #include <string>
 
-#undef EXPORT
-#ifdef _WINDLL
-  #define EXPORT __declspec(dllexport)
-#else
-  #define EXPORT
+#ifndef EXPORT
+#define EXPORT
 #endif
+#include <ExportWrapper.h>
 
 #define COMMON_OPT 	1
 #define COMMAND_OPT 	2
@@ -162,8 +160,8 @@ EXPORT	void addUsage( const char *line );
 	/* 
          * get the argument count and arguments sans the options
          */
-	int   getArgc();
-	char* getArgv( int index );
+EXPORT	int   getArgc();
+EXPORT	char* getArgv( int index );
 EXPORT	bool  hasOptions();
 
 private: /* the hidden data structure */

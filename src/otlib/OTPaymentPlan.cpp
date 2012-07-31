@@ -345,11 +345,11 @@ void OTPaymentPlan::UpdateContents()
 	if (HasPaymentPlan())
 	{
 		const long	lAmountPerPayment		= GetPaymentPlanAmount(),
-					lTimeBetween			= GetTimeBetweenPayments(),
-					lPlanStartDate			= GetPaymentPlanStartDate(),
-					lPlanLength				= GetPaymentPlanLength(),
-					lDateOfLastPayment		= GetDateOfLastPayment(),
-					lDateOfLastFailedPayment= GetDateOfLastPayment();
+					lTimeBetween			= static_cast<long> (GetTimeBetweenPayments()),
+					lPlanStartDate			= static_cast<long> (GetPaymentPlanStartDate()),
+					lPlanLength				= static_cast<long> (GetPaymentPlanLength()),
+					lDateOfLastPayment		= static_cast<long> (GetDateOfLastPayment()),
+					lDateOfLastFailedPayment= static_cast<long> (GetDateOfLastPayment());
 		
 		const int	nMaxNoPayments		= GetMaximumNoPayments(),
 					nNoPaymentsComplete	= GetNoPaymentsDone(),
@@ -1484,7 +1484,7 @@ bool OTPaymentPlan::ProcessCron()
 		//
 		// Can also just add the TimeBetweenPayments to the DateOfLastPayment...
 		//
-		const int nNoPaymentsThatShouldHaveHappenedByNow = ((DURATION_SINCE_START/GetTimeBetweenPayments()) + 1);
+		const long nNoPaymentsThatShouldHaveHappenedByNow = static_cast<long> ((DURATION_SINCE_START/GetTimeBetweenPayments()) + 1);
 		// The +1 is because it charges on the 1st day of the plan. So 14 days, which is 7 times 2, equals *3* payments, not 2.
 
 //		OTLog::vOutput(3, "Payments that should have happened by now: %d\n"

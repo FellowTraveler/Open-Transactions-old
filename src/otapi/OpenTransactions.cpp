@@ -164,6 +164,7 @@ extern "C"
 using namespace tthread;
 
 // ----------------------------
+#define IMPORT
 
 #include "OTStorage.h"
 
@@ -200,6 +201,33 @@ using namespace tthread;
 #include "OTSmartContract.h"
 
 #include "OTPayment.h"
+#ifdef _WIN32
+const char * OTPayment::_TypeStrings[] = 
+{
+    // ------------------
+    // OTCheque is derived from OTTrackable, which is derived from OTInstrument, which is
+    // derived from OTScriptable, which is derived from OTContract.
+    // ------------------
+    "CHEQUE",         // A cheque drawn on a user's account.
+    "VOUCHER",        // A cheque drawn on a server account (cashier's cheque aka banker's cheque)
+    "INVOICE",        // A cheque with a negative amount. (Depositing this causes a payment out, instead of a deposit in.)
+    // ------------------
+    "PAYMENT_PLAN",   // An OTCronItem-derived OTPaymentPlan, related to a recurring payment plan.
+    "SMART_CONTRACT", // An OTCronItem-derived OTSmartContract, related to a smart contract.
+    // ------------------
+    "PURSE",          // An OTContract-derived OTPurse containing a list of cash OTTokens.
+    // ------------------
+    "ERROR_STATE"
+};
+#endif
+
+
+#define CLIENT_CONFIG_KEY "client"
+#define CLIENT_DATA_DIR "client_data"
+#define CLIENT_LOGFILE_FILENAME "log-client.log"
+#define CLIENT_MASTER_KEY_TIMEOUT_DEFAULT 300
+#define CLIENT_WALLET_FILENAME "wallet.xml"
+#define CLIENT_USE_SYSTEM_KEYRING false
 
 
 
@@ -850,8 +878,8 @@ bool OTSocket::Receive(OTString & strServerReply)
 	// ***********************************
 	
 	if (bSuccessReceiving && (reply.size() > 0))
-		strServerReply.MemSet(static_cast<const char*>(reply.data()), reply.size());
-    
+		strServerReply.MemSet(static_cast<const char*>(reply.data()), static_cast<uint32_t> (reply.size()));
+
 	return (bSuccessReceiving && (reply.size() > 0));
 }
 // ---------------------------------------------------------------------------
@@ -875,12 +903,16 @@ OT_API & OT_API::It()
 
 
 // The API begins here...
-
-
-OT_API::OT_API() : m_pWallet(NULL), m_pClient(NULL), m_bInitialized(false), 
-	m_pstrStoragePath(NULL), m_pstrWalletFilename(NULL)
+OT_API::OT_API() :
+	m_pWallet(NULL),
+	m_pClient(NULL),
+	m_bInitialized(false)
 {
-
+	m_strDataPath = "";
+	m_strWalletFilename = "";
+	m_strWalletFilePath = "";
+	m_strConfigFilename = "";
+	m_strConfigFilePath = "";
 }
 
 
@@ -889,210 +921,238 @@ OT_API::~OT_API()
 {
     // DELETE
     //
-	if (NULL != m_pWallet)
-		delete m_pWallet;
-	if (NULL != m_pClient)
-		delete m_pClient;
-	if (NULL != m_pstrStoragePath)
-		delete m_pstrStoragePath;
-	if (NULL != m_pstrWalletFilename)
-		delete m_pstrWalletFilename;
+	if (NULL != m_pWallet)				delete m_pWallet;
+	if (NULL != m_pClient)				delete m_pClient;
+
 	// --------------------------------
     // SET NULL
     //
 	m_pWallet = NULL;
 	m_pClient = NULL;
 	
-	m_pstrStoragePath		= NULL;
-	m_pstrWalletFilename	= NULL;
 }
 
+	// Get
+bool OT_API::GetWalletFilename(OTString & strPath) { if (m_strWalletFilename.Exists()) { strPath = m_strWalletFilename; return true; } else { strPath.Set(""); return false; } };
 
+	// Set
+bool OT_API::SetWalletFilename(const OTString & strPath) { if (strPath.Exists()) { m_strWalletFilename = strPath; return true; } else return false; };
 
 
 // Load the configuration file.
 // 
-bool OT_API::LoadConfigFile(const OTString & strMainPath)
-{	
-    const char * szFunc = "OT_API::LoadConfigFile";
-    
-	OTString strFilepath, strFilepathInput;
-	strFilepathInput.Format("%s%s%s", OTLog::ConfigPath(), OTLog::PathSeparator(), "client.cfg"); // todo: stop hardcoding.
-    OTLog::TransformFilePath(strFilepathInput.Get(), strFilepath);
+bool OT_API::LoadConfigFile()
+{
+	const char * szFunc = "OT_API::LoadConfigFile()";
+
+	// Setup Config File
+	OTString strConfigPath, strConfigFilename, strConfigFilePath;
+
+	if (!OTLog::Path_GetConfigFolder(strConfigPath)) {
+		OTLog::vError("%s: Error! Unable To Get Config Folder!\n",szFunc);
+		return false;
+	};
+	if (!OTLog::GetMainConfigFilename(strConfigFilename)) {
+		OTLog::vError("%s: Error! Unable to get Main Config Filename!\n",szFunc);
+		return false;
+	};
+	if (!OTLog::Path_RelativeToCanonical(strConfigFilePath,strConfigPath,strConfigFilename)) {
+		OTLog::vError("%s: Error! Unable to Build Config FilePath\n!",szFunc);
+		return false;
+	};
+
+	SI_Error rc = SI_FAIL;
+
+	// check if config file exists:
+	if (!OTLog::ConfirmExactFile(strConfigFilePath)){
+		OTLog::vOutput(0,"%s:  Config File Dosn't Exists ... Making it...\n Saved in: %s\n",szFunc,strConfigFilePath.Get());
+
+		rc = OTLog::Config_Save(strConfigFilePath);
+		OT_ASSERT_MSG(rc >=0, "OT_API::LoadConfigFile(): Assert failed: Unable to save new configuration file!\n");
+
+		if (!OTLog::Config_Reset()) return false; // Reset Config... we are going to try reloading it.
+	};
+
+	// Load, this time it must work... or else fail.
+	rc = OTLog::Config_Load(strConfigFilePath);
+	OT_ASSERT_MSG(rc >=0, "OT_API::LoadConfigFile(): Assert failed: Unable to load config file, file unloadable\n");
 	
-    // NOTE: "Exists" doesn't work unless OTStorage has been initialized.
-    // (Which it hasn't, by the time this function gets called. I'm fixing a
-    // bug by commenting this out.)
-//    if (!OTDB::Exists(strFilepath.Get()))
-//    {
-//        OTLog::vError("%s: Failed in OTDB::Exists while trying to load config file: %s\n", 
-//                      szFunc, strFilepath.Get());
-//        return false;
-//    }
-//    // else...
-    // ---------------------------------------
-	{        
-		static CSimpleIniA ini; // We're assuming this file is on the path.
-		SI_Error rc = ini.LoadFile(strFilepath.Get());  
-		
-		if (rc >=0)
-		{	
-            // ---------------------------------------------
-            // LOGFILE
-            {
-                // Read a value from file: (category,	key )
-                const char * pVal1 = ini.GetValue("logging", "logfile_path"); // todo stop hardcoding.
-                
-                if (NULL != pVal1)
-                {
-                    OTString strOutput;
-                    
-                    OTLog::TransformFilePath(pVal1, strOutput);
-                    
-                    if (strOutput.Exists())
-                    {
-                        OTLog::vOutput(1, "Setting logfile: %s\n", strOutput.Get());
-                        OTLog::SetLogfile(strOutput.Get());
-                    }
-                }
-                else
-                    OTLog::vOutput(1, "Current logfile is: %s\n", OTLog::Logfile());
-                // ---------------------------------------------
-                // LOG LEVEL
-                //
-                const char * pVal2 = ini.GetValue("logging", "log_level"); // todo stop hardcoding.
-                
-                if (NULL != pVal2)
-                {
-                    OTLog::vOutput(1, "Setting log level: %d\n", atoi(pVal2));
-                    OTLog::SetLogLevel(atoi(pVal2));
-                }
-                else
-                    OTLog::vOutput(1, "Current log level is: %d\n", OTLog::GetLogLevel());
-            }
-            // ---------------------------------------------
-            // LATENCY 
-			{
-                const char * pVal = ini.GetValue("latency", "blocking");
-                
-                if (NULL != pVal)
-                {
-					const OTString strBlocking(pVal);
-					const bool bBlocking = strBlocking.Compare("true") ? true : false;
-					
-                    OTLog::vOutput(1, "Setting latency blocking: %s\n",
-								   bBlocking ? "true" : "false");
-                    OTLog::SetBlocking(bBlocking);
-                }
-            }
-            // ------------------------------------------------
-            // LATENCY (SENDING)
-            {
-                const char * pVal = ini.GetValue("latency", "send_delay_after");
-                
-                if ((NULL != pVal) && (atoi(pVal)))
-                {
-                    OTLog::vOutput(1, "Setting latency send_delay_after: %d\n", atoi(pVal));
-                    OTLog::SetLatencyDelayAfter(atoi(pVal));
-                }
-            }
-            {
-                const char * pVal = ini.GetValue("latency", "send_fail_no_tries");
-                
-                if ((NULL != pVal) && (atoi(pVal)))
-                {
-                    OTLog::vOutput(1, "Setting latency send_fail_no_tries: %d\n", atoi(pVal));
-                    OTLog::SetLatencySendNoTries(atoi(pVal));
-                }
-            }
-            {
-                const char * pVal = ini.GetValue("latency", "send_fail_max_ms");
-                
-                if ((NULL != pVal) && (atoi(pVal)))
-                {
-                    OTLog::vOutput(1, "Setting latency send_fail_max_ms: %d\n", atoi(pVal));
-                    OTLog::SetLatencySendMs(atoi(pVal));
-                }
-            }
-            // ------------------------------------------------
-            // LATENCY (RECEIVING)
-            {
-                const char * pVal = ini.GetValue("latency", "recv_fail_no_tries");
-                
-                if ((NULL != pVal) && (atoi(pVal)))
-                {
-                    OTLog::vOutput(1, "Setting latency recv_fail_no_tries: %d\n", atoi(pVal));                    
-                    OTLog::SetLatencyReceiveNoTries(atoi(pVal));
-                }
-            }
-            {
-                const char * pVal = ini.GetValue("latency", "recv_fail_max_ms");
-                
-                if ((NULL != pVal) && (atoi(pVal)))
-                {
-                    OTLog::vOutput(1, "Setting latency recv_fail_max_ms: %d\n", atoi(pVal));
-                    OTLog::SetLatencyReceiveMs(atoi(pVal));
-                }
-            }
-            // ----------------------------------------------------------------
-			// SECURITY (beginnings of..)
-            //
-            // MASTER KEY TIMEOUT
-            //
-            {
-                const char * pVal = ini.GetValue("security", "master_key_timeout");
-                int nTimeout = 0;
-                if (NULL != pVal)
-                {
-                    nTimeout = atoi(pVal);
-                    OTLog::vOutput(1, "Setting security master_key_timeout: %d\n", nTimeout);
-                    OTMasterKey::It()->SetTimeoutSeconds(nTimeout);
-                }
-            }
-            // ----------------------------------------------------------------
-			// SECURITY 
-            //
-            // USE SYSTEM KEYRING (Gnome-Keyring, Mac Keychain, Windows DPAPI, etc)
-            //
-            {
-                const char * pVal = ini.GetValue("security", "use_system_keyring");
-                
-                if (NULL != pVal)
-                {
-                    const OTString strUsingKeyring(pVal);
 
-                    if (!strUsingKeyring.Exists() || 
-                        
-                        !( /**/  (strUsingKeyring.Contains("true")) || (strUsingKeyring.Contains("false"))  /**/  ) )
-                        
-                    {
-                        OTLog::Error("Error: Found a value for security:use_system_keyring, "
-                                     "but it was neither true nor false.\n");
+	// ---------------------------------------------
+	// LOGGING
 
-                    }
-					const bool bUsingKeyring = strUsingKeyring.Contains("true");
-                    OTLog::vOutput(0, "Setting security use_system_keyring: %s\n",
-								   bUsingKeyring ? "true" : "false");
-                    OTMasterKey::It()->UseSystemKeyring(bUsingKeyring);
-                }
-                else                    
-                    OTLog::Output(0, "No value found in config file for: security: use_system_keyring.\n");
-
-            }
-            // ----------------------------------------------------------------
-		}
-        else
-        {
-            const int nRc = static_cast<int>(rc);
-            OTLog::vError("%s: Failed loading config file: %s\n With SI_ERROR: %d.\n", szFunc,
-                          strFilepath.Get(), nRc);
-            if ((-3) == nRc)
-                OTLog::Errno(szFunc);
-            
-            return false;
-        }
+	// LOG FILE
+	{
+		bool bIsNewKey;
+		OTString strValue, strFullPath;
+		OTLog::Config_CheckSet_str("logging","log_filename",CLIENT_LOGFILE_FILENAME,strValue,bIsNewKey);
+		if (!OTLog::Path_RelativeToCanonical(strFullPath,strConfigPath,strValue)) return false;
+		OTLog::SetLogfile(strFullPath.Get());
 	}
-	
+
+	// ---------------------------------------------
+	// LOG LEVEL
+	{
+		bool bIsNewKey;
+		long lValue;
+		OTLog::Config_CheckSet_long("logging","log_level",0,lValue,bIsNewKey);
+		OTLog::SetLogLevel(static_cast<int> (lValue));
+	}
+
+	// ---------------------------------------------
+	// DATA DIRECTORY
+	{
+		bool bNameKeyExist, bIsRelativeKeyExist, bIsRelative, bFolderExist;
+		OTString strValue, strFullPath;
+		OTLog::Config_Check_str("data","directory_name",strValue,bNameKeyExist);
+		OTLog::Config_Check_bool("data","directory_is_relative",bIsRelative,bIsRelativeKeyExist);
+
+		if (!bNameKeyExist || !bIsRelativeKeyExist) {
+
+			strValue = CLIENT_DATA_DIR;
+			bIsRelative = true;
+
+			bool bNewOrUpdateName, bNewOrUpdateIsRelative;
+			OTLog::Config_Set_str("data","directory_name",strValue,bNewOrUpdateName);
+			OTLog::Config_Set_bool("data","directory_is_relative",bIsRelative,bNewOrUpdateIsRelative);
+		};
+
+		if (!bIsRelative) strFullPath = strValue;
+		else if (!OTLog::Path_RelativeToCanonical(strFullPath,strConfigPath,strValue)) return false;
+
+		OTLog::vOutput(0,"%s: Setting Data Path to: %s\n",szFunc,strFullPath.Get());
+		if (!OTLog::Path_SetDataFolder(strFullPath)) return false;
+		if (!OTLog::ConfirmOrCreateExactFolder(strFullPath,bFolderExist)) return false;
+
+		if (!bFolderExist) OTLog::vOutput(0,"%s: Created New Data Folder: %s",szFunc,strFullPath.Get());
+	}
+
+	// ---------------------------------------------
+	// WALLET
+
+	// WALLET FILENAME
+	//
+	// Clean and Set
+	{
+		bool bIsNewKey;
+		OTString strValue;
+		OTLog::Config_CheckSet_str("wallet","wallet_filename",CLIENT_WALLET_FILENAME,strValue,bIsNewKey);
+		OT_API::SetWalletFilename(strValue);
+		OTLog::vOutput(0,"Using Wallet: %s\n",strValue.Get());
+	}
+
+	// -----------------------------------
+	// LATENCY
+	{
+		const char * szComment =
+			";; LATENCY:\n\n"
+			";; For sending and receiving:\n"
+			";; blocking=true (usually not recommended) means OT will hang on the send/receive\n"
+			";; call, and wait indefinitely until the send or receive has actually occurred.\n"
+			";; IF BLOCKING IS FALSE (normal, default):\n"
+			";; - no_tries is the number of times OT will try to send or receive a message.\n"
+			";; - ms is the number of milliseconds it will wait between each attempt.\n"
+			";; UPDATE: send_ms and receive_ms now DOUBLE after each failed attempt! (up to 3 tries)\n"
+			";; Meaning that after 3 tries, it's already waited over 21 seconds trying to get\n"
+			";; the message. \n"
+			";; send_delay_after happens after EVERY SINGLE server request/reply, which can be\n"
+			";; multiple times per use case. (They can add up quick...)\n";
+
+		bool b_SectionExist;
+		OTLog::Config_CheckSetSection("latency",szComment,b_SectionExist);
+	}
+
+	{
+		bool bValue, bIsNewKey;
+		OTLog::Config_CheckSet_bool("latency","blocking",OTLog::IsBlocking(),bValue,bIsNewKey);
+		OTLog::SetBlocking(bValue);
+	}
+
+	// (SENDING)
+	{
+		bool bIsNewKey;
+		long lValue;
+		OTLog::Config_CheckSet_long("latency","send_delay_after",OTLog::GetLatencyDelayAfter(),lValue,bIsNewKey);
+		OTLog::SetLatencyDelayAfter(static_cast<int>(lValue));
+	}
+
+	{
+		bool bIsNewKey;
+		long lValue;
+		OTLog::Config_CheckSet_long("latency","send_fail_no_tries",OTLog::GetLatencySendNoTries(),lValue,bIsNewKey);
+		OTLog::SetLatencySendNoTries(static_cast<int>(lValue));
+	}
+
+	{
+		bool bIsNewKey;
+		long lValue;
+		OTLog::Config_CheckSet_long("latency","send_fail_max_ms",OTLog::GetLatencySendMs(),lValue,bIsNewKey);
+		OTLog::SetLatencySendMs(static_cast<int>(lValue));
+	}
+
+	// (RECEIVING)
+	{
+		bool bIsNewKey;
+		long lValue;
+		OTLog::Config_CheckSet_long("latency","recv_fail_no_tries",OTLog::GetLatencyReceiveNoTries(),lValue,bIsNewKey);
+		OTLog::SetLatencyReceiveNoTries(static_cast<int>(lValue));
+	}
+
+	{
+		bool bIsNewKey;
+		long lValue;
+		OTLog::Config_CheckSet_long("latency","recv_fail_max_ms",OTLog::GetLatencySendMs(),lValue,bIsNewKey);
+		OTLog::SetLatencyReceiveMs(static_cast<int>(lValue));
+	}
+
+
+	// ---------------------------------------------
+	// MARKETS
+
+	// Minimum Scale
+	{
+		const char * szComment =
+			"; minimum_scale is the smallest allowed power-of-ten for the scale, for any market.\n"
+			"; (1oz, 10oz, 100oz, 1000oz.)\n";
+		bool bIsNewKey;
+		long lValue;
+		OTLog::Config_CheckSet_long("markets","minimum_scale",OTLog::GetMinMarketScale(),lValue,bIsNewKey,szComment);
+		OTLog::SetMinMarketScale(lValue);
+	}
+
+
+	// ---------------------------------------------
+	// SECURITY (beginnings of..)
+
+	// Master Key Timeout
+	{
+	const char * szComment =
+		"; master_key_timeout is how long the master key will be in memory until a thread wipes it out.\n"
+		"; 0   : means you have to type your password EVERY time OT uses a private key. (Even multiple times in a single function.)\n"
+		"; 300 : means you only have to type it once per 5 minutes.\n"
+		"; -1  : means you only type it once PER RUN (popular for servers.)\n";
+
+		bool bIsNewKey;
+		long lValue;
+	OTLog::Config_CheckSet_long("security","master_key_timeout",CLIENT_MASTER_KEY_TIMEOUT_DEFAULT,lValue,bIsNewKey,szComment);
+	OTMasterKey::It()->SetTimeoutSeconds(static_cast<int>(lValue));
+	}
+
+	// Use System Keyring
+	{
+	bool bValue, bIsNewKey;
+	OTLog::Config_CheckSet_bool("security","use_system_keyring",CLIENT_USE_SYSTEM_KEYRING,bValue,bIsNewKey);
+	OTMasterKey::It()->UseSystemKeyring(bValue);
+	}
+
+
+	// Done Loading... Lets save any changes...
+	rc = OTLog::Config_Save(strConfigFilePath);
+	OT_ASSERT_MSG(rc >=0, "OT_API::LoadConfigFile(): Assert failed: Unable to Save Configuration");
+
+	// Finsihed Saving... now lets cleanup!
+	if (!OTLog::Config_Reset()) return false;
+
 	return true;
 }
 
@@ -1123,6 +1183,31 @@ bool OT_API::InitOTAPI()
 	WSADATA wsaData;
 	WORD wVersionRequested = MAKEWORD( 2, 2 );
 	int err = WSAStartup( wVersionRequested, &wsaData );
+
+	/* Tell the user that we could not find a usable		*/
+	/* Winsock DLL.											*/		
+
+	OT_ASSERT_MSG((err == 0), "WSAStartup failed!\n");
+
+
+	/*	Confirm that the WinSock DLL supports 2.2.			*/
+	/*	Note that if the DLL supports versions greater		*/
+	/*	than 2.2 in addition to 2.2, it will still return	*/
+	/*	2.2 in wVersion since that is the version we		*/
+	/*	requested.											*/
+
+	bool bWinsock = (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2);
+
+	/* Tell the user that we could not find a usable */
+	/* WinSock DLL.                                  */
+
+	if (!bWinsock) WSACleanup();  // do cleanup.
+	OT_ASSERT_MSG((!bWinsock), "Could not find a usable version of Winsock.dll\n");
+
+	/* The Winsock DLL is acceptable. Proceed to use it. */
+	/* Add network programming using Winsock here */
+	/* then call WSACleanup when done using the Winsock dll */
+	OTLog::vOutput(0,"The Winsock 2.2 dll was found okay\n");
 #endif
     // ------------------------------------
     // SIGNALS
@@ -1142,6 +1227,11 @@ bool OT_API::InitOTAPI()
 	// TODO in the case of Windows, figure err into this return val somehow.
     // (Or log it or something.)
     //
+
+	// Setup OTPath:
+	bool bSetupPathsSuccess = OTLog::Path_Setup(CLIENT_CONFIG_KEY);
+	OT_ASSERT_MSG(bSetupPathsSuccess,"OT_API::InitOTAPI: Failed to Setup Paths");
+
 	return true;
 }
 
@@ -1187,46 +1277,24 @@ bool OT_API::CleanupOTAPI()
 // So you use OT_API::InitOTAPI to initialize the entire application, and then you use
 // OT_API::Init() to initialize THIS "OT_CTX" (the OT_API object.)
 //
-bool OT_API::Init(OTString & strClientPath)
+bool OT_API::Init()
 {
-	// TODO: Main path needs to be stored in OT_API global, not OTLog static.
-	//		 This way, you can have multiple instances of OT_API,
-	//		 Each with their own main path. This is necessary.
-	//		 Now that the OT_API class exists might be time to take
-	//       folders away from OTLog and move it all over. Ugh.
-	// OR!! Maybe just code a mechanism so OTLog tracks the instances of OT_API.
-	
-	OT_ASSERT_MSG(strClientPath.Exists(), "OT_API::Init: Empty path passed in.");
-	
     const char * szFunc = "OT_API::Init";
+
+
+
     
 	if (true == m_bInitialized)
 	{
-		OTLog::vError("%s: OTAPI was already initialized. (Skipping.) "
-                      "Ignoring path %s because already using path: %s\n", 
-					  szFunc, strClientPath.Get(), GetStoragePath());
+		OTString strDataPath;
+		bool bGetDataFolderSuccess = OTLog::Path_GetDataFolder(strDataPath);
+		OT_ASSERT_MSG(bGetDataFolderSuccess,"OT_API::Init(): Error! Data Path Not Set!");
+
+		OTLog::vError("%s: OTAPI was already initialized. (Skipping) and Using path: %s\n", 
+					  szFunc, strDataPath.Get());
 		return true;
 	}
-//	OT_ASSERT_MSG(false == m_bInitialized, "OTAPI was already initialized, please do not call it twice.");
-    // ---------------------------------------
-	
-    OTString strPATH_OUTPUT;
-    
-    OTLog::TransformFilePath(strClientPath.Get(), strPATH_OUTPUT);
-    
-//	OTLog::vError("**** OT_API::Init: strClientPath: %s   strPATH_OUTPUT: %s \n",
-//				  strClientPath.Get(), strPATH_OUTPUT.Get());
-	/*
-	 ****	OT_API::Init:	
-	 strClientPath:		/Users/au/Library/Application Support/.ot/client_data
-	 strPATH_OUTPUT:	/Users/au/Library/Application 
-	 */
-	
-	
-	// At some point, remove this, since each instance of OT API should eventually store its OWN path.
-	OTLog::SetMainPath(strPATH_OUTPUT.Get()); // This currently does NOT support multiple instances of OT_API.  :-(
-	// -------------------------------------
-	
+
 	static bool bConstruct = false;
 	
 	if (false == bConstruct)
@@ -1236,128 +1304,98 @@ bool OT_API::Init(OTString & strClientPath)
 		m_pWallet = new OTWallet;
 		m_pClient = new OTClient;
 		
-		m_pstrStoragePath		= new OTString;
-		m_pstrWalletFilename	= new OTString;
-
-		OT_ASSERT_MSG(NULL != m_pWallet, "Error allocating memory for m_pWallet in OT_API::Init");
-		OT_ASSERT_MSG(NULL != m_pClient, "Error allocating memory for m_pClient in OT_API::Init");
-		OT_ASSERT_MSG(NULL != m_pstrStoragePath, "Error allocating memory for m_pstrStoragePath in OT_API::Init");
-		OT_ASSERT_MSG(NULL != m_pstrWalletFilename, "Error allocating memory for m_pstrWalletFilename in OT_API::Init");
 		// ----------------------------		
-		LoadConfigFile(strPATH_OUTPUT);
-	}
+	};
+
+	OT_API::LoadConfigFile(); // Load Configuration, inc. Default Wallet Filename.
 	
-	// Keep this though.
-	SetStoragePath(strPATH_OUTPUT); // sets m_pstrStoragePath
-
-	// -------------------------------------
-	std::string strPath = strPATH_OUTPUT.Get();
-
 	// This way, everywhere else I can use the default storage context (for now) and it will work
 	// everywhere I put it. (Because it's now set up...)
 	//
-	const bool bDefaultStore = OTDB::InitDefaultStorage(OTDB_DEFAULT_STORAGE, OTDB_DEFAULT_PACKER, strPath); // notice no wallet filename is passed here... InitDefaultStorage() will thus get called again...
+	m_bDefaultStore = OTDB::InitDefaultStorage(OTDB_DEFAULT_STORAGE, OTDB_DEFAULT_PACKER); // We only need to do this once now.
 	
-	if (bDefaultStore) // success initializing default storage on OTDB.
+	if (m_bDefaultStore) // success initializing default storage on OTDB.
 	{
-		OTLog::vOutput(1, "%s: Success invoking OTDB::InitDefaultStorage with path: %s\n",
-					   szFunc, strPath.c_str());
+		OTLog::vOutput(1, "%s: Success invoking OTDB::InitDefaultStorage", szFunc);
 		
-		if (m_bInitialized)
-			OTLog::vOutput(1, "%s: m_pClient->InitClient() was already initialized. (Skipping.)\n", szFunc);
-		else
-		{
+		if (m_bInitialized) OTLog::vOutput(1, "%s: m_pClient->InitClient() was already initialized. (Skipping.)\n", szFunc);
+		else {
 			m_bInitialized = m_pClient->InitClient(*m_pWallet);
 			// -----------------------------
-			if (m_bInitialized)
-				OTLog::vOutput(1, "%s: Success invoking m_pClient->InitClient() with path: %s\n", szFunc, strPATH_OUTPUT.Get());
-			else
-				OTLog::vError("%s: Failed invoking m_pClient->InitClient() with path: %s \n", 
-							  szFunc, strPATH_OUTPUT.Get());
+			if (m_bInitialized) OTLog::vOutput(1, "%s: Success invoking m_pClient->InitClient() \n", szFunc);
+			else OTLog::vError("%s: Failed invoking m_pClient->InitClient()\n", szFunc);
 		}
 		return m_bInitialized;
 	}
-	else
-		OTLog::vError("%s: Failed invoking OTDB::InitDefaultStorage with path: %s\n", 
-                      szFunc, strPath.c_str());
+	else OTLog::vError("%s: Failed invoking OTDB::InitDefaultStorage\n", szFunc);
 
 	// -------------------------------------
-	
 	return false;
 }
 
+bool OT_API::SetWallet(const OTString & strFilename) {
+
+	const char * szFunc = "OT_API::SetWallet";
+
+	OT_ASSERT_MSG((m_bInitialized),"OT_API::SetWalletFilename: Not initialized; call OT_API::Init first.\n");
+
+	OT_ASSERT_MSG(strFilename.Exists(),"OT_API::SetWalletFilename: strFilename dose not exist!\n");
+	OT_ASSERT_MSG((3 < strFilename.GetLength()),"OT_API::SetWalletFilename: strFilename is too short!\n");
+
+	// Set New Wallet Filename
+	OTLog::vOutput(0,"%s: Setting Wallet Filename... \n",szFunc);
+	OTString strWalletFilename; OT_API::GetWalletFilename(strWalletFilename);
+	if (strFilename.Compare(strWalletFilename)) {
+		OTLog::vOutput(0, "%s: Wallet Filename: %s  is same as in configuration. (skipping)\n",szFunc,strFilename.Get());
+		return true;
+	}
+	else strWalletFilename.Set(strWalletFilename);
+
+	SI_Error rc = SI_FAIL;
+
+	OTString strConfigFilePath; OTLog::Path_GetConfigFolder(strConfigFilePath);
+
+	// Load Config
+	rc = OTLog::Config_Load(strConfigFilePath);
+	OT_ASSERT_MSG(rc >=0, "OTServer::LoadConfigFile(): Assert failed: Unable to load config file, file unloadable\n");
+
+	// Set New Wallet Filename
+	{ bool bNewOrUpdated; 
+	OTLog::Config_Set_str("wallet","wallet_filename",strWalletFilename,bNewOrUpdated,"; Wallet Updated\n"); }
+
+	OT_API::SetWalletFilename(strWalletFilename);
+
+	// Save Config and cleanup
+	rc = OTLog::Config_Save(strConfigFilePath);
+	OT_ASSERT_MSG(rc >=0, "OTServer::LoadConfigFile(): Assert failed: Unable to Save Configuration");
+	if (!OTLog::Config_Reset()) return false;
+
+	OTLog::vOutput(0,"%s: Updated Wallet Filename: %s \n",szFunc,strWalletFilename.Get());
+
+	return true;
+};
 
 
-// "wallet.xml" (path set above.)
-bool OT_API::LoadWallet(const OTString & strFilename)
+bool OT_API::LoadWallet()
 {
-	OT_ASSERT_MSG(m_bInitialized, "Not initialized; call OT_API::Init first.");
-	OT_ASSERT(strFilename.Exists());
-	OT_ASSERT(NULL != m_pWallet);
+	const char * szFunc = "OT_API::LoadWallet";
 	
-    const char * szFunc = "OT_API::LoadWallet";
+	OT_ASSERT_MSG(m_bInitialized, "Not initialized; call OT_API::Init first.\n");
+	OT_ASSERT_MSG(m_bDefaultStore, "Default Storage not Initialized; call OT_API::Init first.\n");
     
-	// ----------------------------
-	// Grab the old name for safe keeping..
-	//
-	const char * szOldFilename = GetWalletFilename();
-	
-	const OTString strOldName((NULL == szOldFilename) 
-							  ? 
-							  "wallet.xml" // todo stop hardcoding this DEFAULT VALUE.
-							  : szOldFilename);
-	// ----------------------------
-	// set to new name.
-	//
-	SetWalletFilename(strFilename); 
-	// ------------------------------------------
-	bool bSuccess = false;
+	OTString strWalletFilename;
+	bool bGetWalletFilenameSuccess = OT_API::GetWalletFilename(strWalletFilename);
 
-	const char * pstrStoragePath	= GetStoragePath();
-	const char * pstrWalletFilename	= GetWalletFilename();
-	
-	if (NULL == pstrStoragePath)
-		OTLog::vError("%s: StoragePath is NULL. Have you called OT_API_Init() yet?\n", szFunc);
-	else if (NULL == pstrWalletFilename || !strFilename.Exists())
-		OTLog::vError("%s: WalletFilename is NULL or otherwise nonexistent.\n", szFunc);
-	// ------------------------------------------
-	else // NAMES ARE IN ORDER, so let's INIT DEFAULT STORAGE...
-	{
-		std::string strDataFolderPath(pstrStoragePath);
-		std::string strWalletFilename(pstrWalletFilename);
-		
-		// This way, everywhere else I can use the default storage context (for now) and it will work
-		// everywhere I put it. (Because it's now set up...)
-        
-		bool bSuccessInitDefault = OTDB::InitDefaultStorage(OTDB_DEFAULT_STORAGE, OTDB_DEFAULT_PACKER, strDataFolderPath, strWalletFilename);
+	OT_ASSERT_MSG(bGetWalletFilenameSuccess, "OT_API::GetWalletFilename failed, wallet filename isn't set!");
 
-		if (!bSuccessInitDefault)
-			OTLog::vError("%s: Failed invoking OTDB::InitDefaultStorage with path: %s and wallet filename: %s\n",
-						  szFunc, strDataFolderPath.c_str(), strWalletFilename.c_str());
-		// ------------------------------------------
-		else // Success initializing default storage.
-		{
-			bSuccess = m_pWallet->LoadWallet(GetWalletFilename());
-			
-			if (false == bSuccess)
-				OTLog::vError("%s: Failed invoking m_pWallet->LoadWallet() with data folder %s and filename: %s\n", 
-							  szFunc, strDataFolderPath.c_str(), GetWalletFilename());
-			else // success
-				OTLog::vOutput(1, "%s: Success invoking m_pWallet->LoadWallet() with data folder %s and filename: %s\n", 
-							   szFunc, strDataFolderPath.c_str(), GetWalletFilename());
-		}
-	}
-	// ------------------------------------------
-	// SET THE OLD NAME BACK, IF FAILURE.
-	//
-	if (false == bSuccess)
-	{
-		OTLog::vError("%s: Failed with data folder %s and filename: %s\n", szFunc,
-					   GetStoragePath(), GetWalletFilename());
-		SetWalletFilename(strOldName);  // However we failed, set back to old filename.
-	}
-	// ------------------------------------------
-	
+	// Atempt Load
+	OTLog::vOutput(0,"m_pWallet->LoadWallet() with: %s\n", strWalletFilename.Get());
+	bool bSuccess = m_pWallet->LoadWallet(strWalletFilename.Get());
+
+	if (bSuccess) OTLog::vOutput(0, "%s: Success invoking m_pWallet->LoadWallet() with filename: %s\n", 
+							   szFunc, strWalletFilename.Get());
+	else OTLog::vError("%s: Failed invoking m_pWallet->LoadWallet() with filename: %s\n", 
+							  szFunc, strWalletFilename.Get());
 	return bSuccess;
 }
 
@@ -1853,7 +1891,7 @@ long OT_API::GetTime()
 	const	
     time_t  CURRENT_TIME =	time(NULL);
             
-    long	lTime = CURRENT_TIME;
+    long	lTime = static_cast<long> (CURRENT_TIME);
     
 	return	lTime;
 }

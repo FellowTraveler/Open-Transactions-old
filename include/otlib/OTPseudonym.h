@@ -130,14 +130,10 @@
 #ifndef __OTPSEUDONYM_H__
 #define __OTPSEUDONYM_H__
 
-// DLL Export for Win32
-
-#undef EXPORT
-#ifdef _WINDLL
-  #define EXPORT __declspec(dllexport)
-#else
-  #define EXPORT
+#ifndef EXPORT
+#define EXPORT
 #endif
+#include <ExportWrapper.h>
 
 #include <cstdio>
 
@@ -368,7 +364,7 @@ EXPORT    bool            SetOutboxHash(const std::string & acct_id, const OTIde
 EXPORT	OTPseudonym();
 EXPORT	OTPseudonym(const OTIdentifier & nymID);
 EXPORT	OTPseudonym(const OTString & strNymID);
-	OTPseudonym(const OTString & name, const OTString & filename, const OTString & nymID);
+EXPORT	OTPseudonym(const OTString & name, const OTString & filename, const OTString & nymID);
 EXPORT	virtual ~OTPseudonym();
 	
 	void Initialize();

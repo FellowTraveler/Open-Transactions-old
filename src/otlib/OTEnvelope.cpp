@@ -615,9 +615,9 @@ OTPassword * OTCrypto_OpenSSL::DeriveKey(const OTPassword &   userPassword,
     //
     // int PKCS5_PBKDF2_HMAC_SHA1(const char*, int, const unsigned char*, int, int, int, unsigned char*)
     //
-    PKCS5_PBKDF2_HMAC_SHA1(char_p_password_contents, size_t_password_length,    // input line
-                           uchar_p_salt_contents,    size_t_salt_length,        static_cast<int>(uIterations), // input line
-                           size_t_derived_length,    uchar_p_derived_contents); // output line
+    PKCS5_PBKDF2_HMAC_SHA1(char_p_password_contents, static_cast<int>(size_t_password_length),    // input line
+                           uchar_p_salt_contents,    static_cast<int>(size_t_salt_length),        static_cast<int>(uIterations), // input line
+                           static_cast<int>(size_t_derived_length),    uchar_p_derived_contents); // output line
     
     // todo: Can PKCS5_PBKDF2_HMAC_SHA1 fail??
     // -------------------------------------------------------------------------------------------------
@@ -1884,7 +1884,7 @@ void OTMasterKey::DestroyMasterPassword()
  
  OT_OPENSSL_CALLBACK * OTAsymmetricKey::GetPasswordCallback()
 
- #define OPENSSL_CALLBACK_FUNC(name) extern "C" int (name)(char *buf, int size, int rwflag, void *userdata)
+ #define OPENSSL_CALLBACK_FUNC(name) extern "C" (name)(char *buf, int size, int rwflag, void *userdata)
 
  */
 
@@ -3553,7 +3553,7 @@ bool OTEnvelope::Seal(setOfAsymmetricKeys & RecipPubKeys, const OTString & theIn
     if (!EVP_SealInit(&ctx, cipher_type, 
                       ek,   eklen, // array of buffers for output of encrypted copies of the symmetric "session key". (Plus array of ints, to receive the size of each key.)
                       iv,          // A buffer where the generated IV is written. Must contain room for the corresponding cipher's IV, as determined by (for example) EVP_CIPHER_iv_length(type).
-                      array_pubkey, RecipPubKeys.size())) // array of public keys we are addressing this envelope to.
+                      array_pubkey, static_cast<int> (RecipPubKeys.size()))) // array of public keys we are addressing this envelope to.
     {
         OTLog::vError("%s: EVP_SealInit: failed.\n", szFunc);
 		return false;

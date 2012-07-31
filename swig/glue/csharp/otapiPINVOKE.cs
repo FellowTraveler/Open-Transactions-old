@@ -426,13 +426,16 @@ class otapiPINVOKE {
   public static extern bool OT_API_Set_PasswordCallback(HandleRef jarg1);
 
   [DllImport("otapi", EntryPoint="CSharp_OT_API_Init")]
-  public static extern int OT_API_Init(string jarg1);
+  public static extern int OT_API_Init();
+
+  [DllImport("otapi", EntryPoint="CSharp_OT_API_SetWallet")]
+  public static extern int OT_API_SetWallet(string jarg1);
 
   [DllImport("otapi", EntryPoint="CSharp_OT_API_LoadWallet")]
-  public static extern int OT_API_LoadWallet(string jarg1);
+  public static extern int OT_API_LoadWallet();
 
   [DllImport("otapi", EntryPoint="CSharp_OT_API_SwitchWallet")]
-  public static extern int OT_API_SwitchWallet(string jarg1, string jarg2);
+  public static extern int OT_API_SwitchWallet();
 
   [DllImport("otapi", EntryPoint="CSharp_OT_API_Output")]
   public static extern void OT_API_Output(int jarg1, string jarg2);
@@ -1196,27 +1199,6 @@ class otapiPINVOKE {
   [DllImport("otapi", EntryPoint="CSharp_Storage_GetPacker__SWIG_1")]
   public static extern IntPtr Storage_GetPacker__SWIG_1(HandleRef jarg1);
 
-  [DllImport("otapi", EntryPoint="CSharp_Storage_Init__SWIG_0")]
-  public static extern bool Storage_Init__SWIG_0(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6, string jarg7);
-
-  [DllImport("otapi", EntryPoint="CSharp_Storage_Init__SWIG_1")]
-  public static extern bool Storage_Init__SWIG_1(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5, string jarg6);
-
-  [DllImport("otapi", EntryPoint="CSharp_Storage_Init__SWIG_2")]
-  public static extern bool Storage_Init__SWIG_2(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
-
-  [DllImport("otapi", EntryPoint="CSharp_Storage_Init__SWIG_3")]
-  public static extern bool Storage_Init__SWIG_3(HandleRef jarg1, string jarg2, string jarg3, string jarg4);
-
-  [DllImport("otapi", EntryPoint="CSharp_Storage_Init__SWIG_4")]
-  public static extern bool Storage_Init__SWIG_4(HandleRef jarg1, string jarg2, string jarg3);
-
-  [DllImport("otapi", EntryPoint="CSharp_Storage_Init__SWIG_5")]
-  public static extern bool Storage_Init__SWIG_5(HandleRef jarg1, string jarg2);
-
-  [DllImport("otapi", EntryPoint="CSharp_Storage_Init__SWIG_6")]
-  public static extern bool Storage_Init__SWIG_6(HandleRef jarg1);
-
   [DllImport("otapi", EntryPoint="CSharp_Storage_Exists__SWIG_0")]
   public static extern bool Storage_Exists__SWIG_0(HandleRef jarg1, string jarg2, string jarg3, string jarg4, string jarg5);
 
@@ -1331,26 +1313,8 @@ class otapiPINVOKE {
   [DllImport("otapi", EntryPoint="CSharp_Storage_GetType")]
   public static extern int Storage_GetType(HandleRef jarg1);
 
-  [DllImport("otapi", EntryPoint="CSharp_InitDefaultStorage__SWIG_0")]
-  public static extern bool InitDefaultStorage__SWIG_0(int jarg1, int jarg2, string jarg3, string jarg4, string jarg5, string jarg6, string jarg7, string jarg8);
-
-  [DllImport("otapi", EntryPoint="CSharp_InitDefaultStorage__SWIG_1")]
-  public static extern bool InitDefaultStorage__SWIG_1(int jarg1, int jarg2, string jarg3, string jarg4, string jarg5, string jarg6, string jarg7);
-
-  [DllImport("otapi", EntryPoint="CSharp_InitDefaultStorage__SWIG_2")]
-  public static extern bool InitDefaultStorage__SWIG_2(int jarg1, int jarg2, string jarg3, string jarg4, string jarg5, string jarg6);
-
-  [DllImport("otapi", EntryPoint="CSharp_InitDefaultStorage__SWIG_3")]
-  public static extern bool InitDefaultStorage__SWIG_3(int jarg1, int jarg2, string jarg3, string jarg4, string jarg5);
-
-  [DllImport("otapi", EntryPoint="CSharp_InitDefaultStorage__SWIG_4")]
-  public static extern bool InitDefaultStorage__SWIG_4(int jarg1, int jarg2, string jarg3, string jarg4);
-
-  [DllImport("otapi", EntryPoint="CSharp_InitDefaultStorage__SWIG_5")]
-  public static extern bool InitDefaultStorage__SWIG_5(int jarg1, int jarg2, string jarg3);
-
-  [DllImport("otapi", EntryPoint="CSharp_InitDefaultStorage__SWIG_6")]
-  public static extern bool InitDefaultStorage__SWIG_6(int jarg1, int jarg2);
+  [DllImport("otapi", EntryPoint="CSharp_InitDefaultStorage")]
+  public static extern bool InitDefaultStorage(int jarg1, int jarg2);
 
   [DllImport("otapi", EntryPoint="CSharp_GetDefaultStorage")]
   public static extern IntPtr GetDefaultStorage();

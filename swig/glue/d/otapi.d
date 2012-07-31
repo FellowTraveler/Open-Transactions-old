@@ -545,18 +545,23 @@ bool OT_API_Set_PasswordCallback(OTCaller theCaller) {
   return ret;
 }
 
-int OT_API_Init(char[] szClientPath) {
-  auto ret = otapi_im.OT_API_Init((szClientPath ? tango.stdc.stringz.toStringz(szClientPath) : null));
+int OT_API_Init() {
+  auto ret = otapi_im.OT_API_Init();
   return ret;
 }
 
-int OT_API_LoadWallet(char[] szWalletFilename) {
-  auto ret = otapi_im.OT_API_LoadWallet((szWalletFilename ? tango.stdc.stringz.toStringz(szWalletFilename) : null));
+int OT_API_SetWallet(char[] szWalletFilename) {
+  auto ret = otapi_im.OT_API_SetWallet((szWalletFilename ? tango.stdc.stringz.toStringz(szWalletFilename) : null));
   return ret;
 }
 
-int OT_API_SwitchWallet(char[] szDataFolderPath, char[] szWalletFilename) {
-  auto ret = otapi_im.OT_API_SwitchWallet((szDataFolderPath ? tango.stdc.stringz.toStringz(szDataFolderPath) : null), (szWalletFilename ? tango.stdc.stringz.toStringz(szWalletFilename) : null));
+int OT_API_LoadWallet() {
+  auto ret = otapi_im.OT_API_LoadWallet();
+  return ret;
+}
+
+int OT_API_SwitchWallet() {
+  auto ret = otapi_im.OT_API_SwitchWallet();
   return ret;
 }
 
@@ -1927,47 +1932,6 @@ class Storage {
     return ret;
   }
 
-  public bool Init(char[] oneStr, char[] twoStr, char[] threeStr, char[] fourStr, char[] fiveStr, char[] sixStr) {
-    bool ret = otapi_im.Storage_Init__SWIG_0(cast(void*)swigCPtr, (oneStr ? tango.stdc.stringz.toStringz(oneStr) : null), (twoStr ? tango.stdc.stringz.toStringz(twoStr) : null), (threeStr ? tango.stdc.stringz.toStringz(threeStr) : null), (fourStr ? tango.stdc.stringz.toStringz(fourStr) : null), (fiveStr ? tango.stdc.stringz.toStringz(fiveStr) : null), (sixStr ? tango.stdc.stringz.toStringz(sixStr) : null)) ? true : false;
-    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
-    return ret;
-  }
-
-  public bool Init(char[] oneStr, char[] twoStr, char[] threeStr, char[] fourStr, char[] fiveStr) {
-    bool ret = otapi_im.Storage_Init__SWIG_1(cast(void*)swigCPtr, (oneStr ? tango.stdc.stringz.toStringz(oneStr) : null), (twoStr ? tango.stdc.stringz.toStringz(twoStr) : null), (threeStr ? tango.stdc.stringz.toStringz(threeStr) : null), (fourStr ? tango.stdc.stringz.toStringz(fourStr) : null), (fiveStr ? tango.stdc.stringz.toStringz(fiveStr) : null)) ? true : false;
-    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
-    return ret;
-  }
-
-  public bool Init(char[] oneStr, char[] twoStr, char[] threeStr, char[] fourStr) {
-    bool ret = otapi_im.Storage_Init__SWIG_2(cast(void*)swigCPtr, (oneStr ? tango.stdc.stringz.toStringz(oneStr) : null), (twoStr ? tango.stdc.stringz.toStringz(twoStr) : null), (threeStr ? tango.stdc.stringz.toStringz(threeStr) : null), (fourStr ? tango.stdc.stringz.toStringz(fourStr) : null)) ? true : false;
-    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
-    return ret;
-  }
-
-  public bool Init(char[] oneStr, char[] twoStr, char[] threeStr) {
-    bool ret = otapi_im.Storage_Init__SWIG_3(cast(void*)swigCPtr, (oneStr ? tango.stdc.stringz.toStringz(oneStr) : null), (twoStr ? tango.stdc.stringz.toStringz(twoStr) : null), (threeStr ? tango.stdc.stringz.toStringz(threeStr) : null)) ? true : false;
-    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
-    return ret;
-  }
-
-  public bool Init(char[] oneStr, char[] twoStr) {
-    bool ret = otapi_im.Storage_Init__SWIG_4(cast(void*)swigCPtr, (oneStr ? tango.stdc.stringz.toStringz(oneStr) : null), (twoStr ? tango.stdc.stringz.toStringz(twoStr) : null)) ? true : false;
-    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
-    return ret;
-  }
-
-  public bool Init(char[] oneStr) {
-    bool ret = otapi_im.Storage_Init__SWIG_5(cast(void*)swigCPtr, (oneStr ? tango.stdc.stringz.toStringz(oneStr) : null)) ? true : false;
-    if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
-    return ret;
-  }
-
-  public bool Init() {
-    bool ret = otapi_im.Storage_Init__SWIG_6(cast(void*)swigCPtr) ? true : false;
-    return ret;
-  }
-
   public bool Exists(char[] strFolder, char[] oneStr, char[] twoStr, char[] threeStr) {
     bool ret = otapi_im.Storage_Exists__SWIG_0(cast(void*)swigCPtr, (strFolder ? tango.stdc.stringz.toStringz(strFolder) : null), (oneStr ? tango.stdc.stringz.toStringz(oneStr) : null), (twoStr ? tango.stdc.stringz.toStringz(twoStr) : null), (threeStr ? tango.stdc.stringz.toStringz(threeStr) : null)) ? true : false;
     if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
@@ -2195,44 +2159,8 @@ class Storage {
   }
 }
 
-bool InitDefaultStorage(StorageType eStoreType, PackType ePackType, char[] oneStr, char[] twoStr, char[] threeStr, char[] fourStr, char[] fiveStr, char[] sixStr) {
-  bool ret = otapi_im.InitDefaultStorage__SWIG_0(cast(int)eStoreType, cast(int)ePackType, (oneStr ? tango.stdc.stringz.toStringz(oneStr) : null), (twoStr ? tango.stdc.stringz.toStringz(twoStr) : null), (threeStr ? tango.stdc.stringz.toStringz(threeStr) : null), (fourStr ? tango.stdc.stringz.toStringz(fourStr) : null), (fiveStr ? tango.stdc.stringz.toStringz(fiveStr) : null), (sixStr ? tango.stdc.stringz.toStringz(sixStr) : null)) ? true : false;
-  if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
-  return ret;
-}
-
-bool InitDefaultStorage(StorageType eStoreType, PackType ePackType, char[] oneStr, char[] twoStr, char[] threeStr, char[] fourStr, char[] fiveStr) {
-  bool ret = otapi_im.InitDefaultStorage__SWIG_1(cast(int)eStoreType, cast(int)ePackType, (oneStr ? tango.stdc.stringz.toStringz(oneStr) : null), (twoStr ? tango.stdc.stringz.toStringz(twoStr) : null), (threeStr ? tango.stdc.stringz.toStringz(threeStr) : null), (fourStr ? tango.stdc.stringz.toStringz(fourStr) : null), (fiveStr ? tango.stdc.stringz.toStringz(fiveStr) : null)) ? true : false;
-  if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
-  return ret;
-}
-
-bool InitDefaultStorage(StorageType eStoreType, PackType ePackType, char[] oneStr, char[] twoStr, char[] threeStr, char[] fourStr) {
-  bool ret = otapi_im.InitDefaultStorage__SWIG_2(cast(int)eStoreType, cast(int)ePackType, (oneStr ? tango.stdc.stringz.toStringz(oneStr) : null), (twoStr ? tango.stdc.stringz.toStringz(twoStr) : null), (threeStr ? tango.stdc.stringz.toStringz(threeStr) : null), (fourStr ? tango.stdc.stringz.toStringz(fourStr) : null)) ? true : false;
-  if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
-  return ret;
-}
-
-bool InitDefaultStorage(StorageType eStoreType, PackType ePackType, char[] oneStr, char[] twoStr, char[] threeStr) {
-  bool ret = otapi_im.InitDefaultStorage__SWIG_3(cast(int)eStoreType, cast(int)ePackType, (oneStr ? tango.stdc.stringz.toStringz(oneStr) : null), (twoStr ? tango.stdc.stringz.toStringz(twoStr) : null), (threeStr ? tango.stdc.stringz.toStringz(threeStr) : null)) ? true : false;
-  if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
-  return ret;
-}
-
-bool InitDefaultStorage(StorageType eStoreType, PackType ePackType, char[] oneStr, char[] twoStr) {
-  bool ret = otapi_im.InitDefaultStorage__SWIG_4(cast(int)eStoreType, cast(int)ePackType, (oneStr ? tango.stdc.stringz.toStringz(oneStr) : null), (twoStr ? tango.stdc.stringz.toStringz(twoStr) : null)) ? true : false;
-  if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
-  return ret;
-}
-
-bool InitDefaultStorage(StorageType eStoreType, PackType ePackType, char[] oneStr) {
-  bool ret = otapi_im.InitDefaultStorage__SWIG_5(cast(int)eStoreType, cast(int)ePackType, (oneStr ? tango.stdc.stringz.toStringz(oneStr) : null)) ? true : false;
-  if (otapi_im.SwigPendingException.isPending) throw otapi_im.SwigPendingException.retrieve();
-  return ret;
-}
-
 bool InitDefaultStorage(StorageType eStoreType, PackType ePackType) {
-  bool ret = otapi_im.InitDefaultStorage__SWIG_6(cast(int)eStoreType, cast(int)ePackType) ? true : false;
+  bool ret = otapi_im.InitDefaultStorage(cast(int)eStoreType, cast(int)ePackType) ? true : false;
   return ret;
 }
 

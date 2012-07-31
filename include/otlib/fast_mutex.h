@@ -24,6 +24,11 @@ freely, subject to the following restrictions:
 #ifndef _FAST_MUTEX_H_
 #define _FAST_MUTEX_H_
 
+#ifndef EXPORT
+#define EXPORT
+#endif
+#include <ExportWrapper.h>
+
 #ifdef _WIN32
 #include <WinsockWrapper.h>
 #endif
