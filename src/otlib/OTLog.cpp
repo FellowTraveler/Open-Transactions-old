@@ -173,10 +173,13 @@ yIh+Yp/KBzySU3inzclaAfv102/t5xi1l+GTyWHiwZxlyt5PBVglKWx/Ust9CIvN
 #define OT_APPDATA_DIR ".ot"
 #endif
 
+#ifndef OT_PREFIX_PATH
+#define OT_PREFIX_PATH "/usr/local" //default prefix_path
+#endif
+
 #define OT_INIT_CONFIG_FILENAME "ot_init.cfg"
 #define OT_HOME_DIR "."
 #define OT_CONFIG_DIR "."
-#define OT_PREFIX_PATH "/usr/local"
 #define OT_USER_SCRIPTS_DIR "scripts"
 #define OT_SCRIPTS_DIR "opentxs"
 #define OT_LIB_DIR "lib"
