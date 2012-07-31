@@ -10,7 +10,8 @@ opentxs_source_dir =		$(top_srcdir)/src
 common_includes		=	-I$(opentxs_include_dir)		\
 				-I$(opentxs_include_dir)/otlib		\
 				-I$(opentxs_include_dir)/containers	\
-				$(DEPS_CFLAGS)
+				$(DEPS_CFLAGS)				\
+				-DOT_PREFIX_PATH="\"${prefix}\""
 
 
 AM_CPPFLAGS		= 	$(AC_CXXFLAGS)
