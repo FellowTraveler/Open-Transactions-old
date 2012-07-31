@@ -1490,18 +1490,32 @@ void OTServer::Init(bool bReadOnly/*=false*/)
 
 	}
 	// -------------------------------------------------------
-
-
-	// --------------------------------
 	// Load up the transaction number and other OTServer data members.
     //
-	LoadMainFile(bReadOnly);
-	
-	// We just want to call this function once in order to make sure that the
-	// Nym is loaded up and ready for use decrypting messages that are sent to it.
-	// If you comment this out, the server will be unable to decrypt and open envelopes.
-	ValidateServerIDfromUser(m_strServerID);
-		
+    bool bMainFileExists = OTDB::Exists(".", m_strWalletFilename.Get());
+    
+    if (!bMainFileExists)
+	{
+        if (bReadOnly)
+        {
+            OTLog::vError("OTServer::Init: Error: Main file non-existent (%s). Plus, unable to create, since read-only flag is set.\n",
+                          m_strWalletFilename.Get());
+            OT_ASSERT(false);  // end execution here.
+        }
+        else
+            bMainFileExists = CreateMainFile();
+	}
+    // -----------------------------------
+    if (bMainFileExists)
+    {
+        LoadMainFile(bReadOnly);
+        
+        // We just want to call this function once in order to make sure that the
+        // Nym is loaded up and ready for use decrypting messages that are sent to it.
+        // If you comment this out, the server will be unable to decrypt and open envelopes.
+        ValidateServerIDfromUser(m_strServerID);
+    }
+    
 	// With the Server's private key loaded, and the latest transaction number loaded,
     // and all the various other data (contracts, etc) the server is now ready for operation!
 }
@@ -1553,7 +1567,7 @@ bool OTServer::LoadServerUserAndContract()
         m_Cron.SetServerNym(&m_nymServer);
         
         if (!m_Cron.LoadCron())
-            OTLog::vError("%s: Failed loading Cron file.\n", szFunc);
+            OTLog::vError("%s: Failed loading Cron file. (Did you just create this server?)\n", szFunc);
         // ----------------------------------------------------------------
         OTLog::vOutput(0, "%s: Loading the server contract...\n", szFunc);
         
@@ -1589,6 +1603,276 @@ bool OTServer::LoadServerUserAndContract()
 }
 
 
+
+
+// -------------------------
+// Reads from cin until Newline.
+//
+std::string OT_CLI_ReadLine()
+{
+	std::string line;
+	if (std::getline(std::cin, line))
+	{
+		return line;
+	}
+	
+	return "";
+}
+
+
+// -------------------------
+// Reads from cin until EOF. (Or until the ~ character as the first character on a line.)
+//
+std::string OT_CLI_ReadUntilEOF()
+{
+	// don't skip the whitespace while reading
+    //	std::cin >> std::noskipws;
+	
+    //	std::ostringstream oss;
+    //	
+    //	oss << std::cin;   // Convert value into a string.
+    //	s = outs.str(); 
+	
+	// use stream iterators to copy the stream to a string
+    //	std::istream_iterator<std::string> it(std::cin);
+    //	std::istream_iterator<std::string> end;
+    //	std::istream_iterator<char> it(std::cin);
+    //	std::istream_iterator<char> end;
+    //	std::string results(it, end);
+	
+    //	int onechar;
+	
+	std::string result("");
+	
+	while (true)
+	{
+		std::string input_line("");
+        
+        // -----
+        //        int n;
+        ////      std::string sn;
+        //        std::stringstream ssn;
+        //        
+        //        std::getline(std::cin, input_line);
+        //        ssn << input_line;
+        //        ssn >> n;
+        // -----
+        
+        //		    std::getline(std::cin, input_line, '\n');
+        if (std::getline(std::cin, input_line, '\n'))
+        {
+            input_line += "\n";
+            
+            if (input_line[0] == '~') // This is our special "break" character for multi-line input.
+                break;
+            
+            result += input_line;            
+        }
+        else
+        {
+            OTLog::Error("OT_CLI_ReadUntilEOF: getline() was unable to read a string from std::cin\n");
+            break;
+        }
+        // ---------------------------------
+        if (std::cin.eof() )
+        {
+            //          cout << "IT WAS EOF\n";
+            std::cin.clear();
+            break;
+        }
+        if (std::cin.fail() )
+        {
+            //          cout << "IT WAS FAIL\n";
+            std::cin.clear();
+            break;
+        }
+        if (std::cin.bad())
+        {
+            //          cout << "IT WAS BAD\n";
+            std::cin.clear();
+            break;
+        }		
+        // ---------------------------------
+        //      std::cin.clear();
+        //      std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        
+	} // while
+    
+    
+	return result;
+    
+}
+
+
+bool OTServer::CreateMainFile()
+{
+    const char * szFunc = "OTServer::CreateMainFile";
+    const char * szInstructions = 
+        "\n\n ==> WARNING: Main file not found. To create it, continue this process now...\n\n"
+        "REQUIREMENTS: You must already have a wallet, where you have created one Nym.\n"
+        "(FYI, you can decode an armored wallet by using the 'opentxs decode' command.)\n"
+        "You must also have the NymID, which should be found in the wallet. You must also\n"
+        "have the cert file for that Nym, which can be found in:\n     client_data/certs/[NYM ID]\n"
+        "The cert string must contain the entire public AND private key for that Nym.\n"
+        "You must already have a signed server contract. (*** To get one, copy the\n"
+        "UNSIGNED version of the sample server contract, which is named 'localhost.xml',\n"
+        "and then change the tags as you see fit. Then replace the 'contract' key with\n"
+        "your Nym's public key, PRESERVING THE ESCAPED BOOKENDS...\n"
+        "...This means a DASH-SPACE *PRECEDES* the pgp-style, like so: '- -----BEGIN etc'\n"
+        "notice the dash-space at the beginning, which also appears at '- -----END'. Use\n"
+        "same Nym to sign the server contract, via the 'opentxs newserver' command.***)\n"
+        "You must also have the server ID for the above contract.\n"
+        "=> Note that the Nym who signs the contract MUST be the same Nym whose public\n"
+        "key appears in the contract (and furthermore, must be the same Nym that you\n"
+        "provide HERE, for this process now...)\n"
+        "Finally, you must provide the master key from the same wallet where you brought\n"
+        "the Nym from (In this case, be careful to only copy the base64-encoded portion\n"
+        "of the master key from the wallet, and not the XML tags around it!) We\n"
+        "recommend you create a blank wallet entirely for this purpose (of generating\n"
+        "that master key and Nym, to be used for an OT server.)\n"
+    " ==> WARNING: Main file not found. To create it, continue this process now...\n"
+        ;
+    
+    OTLog::Output(0, szInstructions);
+    // ---------------------------------
+    OTLog::Output(0, "Enter the ServerID for your server contract: ");
+    std::string strServerID = OT_CLI_ReadLine();
+    // ---------------------------------
+    OTLog::Output(0, "Enter the Server User ID (the NymID for the new server): ");
+    std::string strNymID = OT_CLI_ReadLine();
+    // ---------------------------------
+    // 
+    OTLog::Output(0, "Paste the master key for that Nym below. (ONLY the base64-encoded portion.)\n"
+                  "Terminate with '~' on a line by itself.\n\n");
+    
+    std::string strMasterKey = OT_CLI_ReadUntilEOF();
+    // ---------------------------------
+    OTLog::Output(0, "Paste the contents of the server Nym's certfile, including public/PRIVATE, below.\n"
+                  "Terminate with '~' on a line by itself.\n\n");
+    
+    std::string strCert = OT_CLI_ReadUntilEOF();
+    // ---------------------------------
+    // signed server contract
+    OTLog::Output(0, "Paste the complete, signed, server contract below. (You must already have it.)\n"
+                  "Terminate with '~' on a line by itself.\n\n");
+    
+    std::string strContract = OT_CLI_ReadUntilEOF();
+    // ---------------------------------
+    if (!OTDB::StorePlainString(strContract, "contracts", strServerID))
+    {
+        OTLog::Error("Failed trying to store the server contract.\n");
+        return false;
+    }
+    // ---------------------------------
+    if (!OTDB::StorePlainString(strCert, "certs", strNymID))
+    {
+        OTLog::Error("Failed trying to store the server Nym's public/private cert.\n");
+        return false;
+    }
+    // ---------------------------------
+    const char * szBlankFile = // todo hardcoding.
+        "<?xml version=\"1.0\"?>\n"
+        "<notaryServer version=\"2.0\"\n"
+        " serverID=\"%s\"\n"
+        " serverUserID=\"%s\"\n"
+        " transactionNum=\"%ld\" >\n"
+        "\n"
+        "<masterKey>\n"
+        "%s</masterKey>\n"
+        "\n"
+        "<accountList type=\"voucher\" count=\"0\" >\n"
+        "\n"
+        "</accountList>\n"
+        "\n"
+        "</notaryServer>\n\n"
+        ;
+    
+    const long lTransNum = 5; // a starting point, for the new server.
+    
+    OTString strNotaryFile;
+    strNotaryFile.Format(szBlankFile, 
+                         strServerID.c_str(), 
+                         strNymID.c_str(), 
+                         lTransNum,
+                         strMasterKey.c_str());
+    
+    std::string str_Notary(strNotaryFile.Get());
+    
+    if (!OTDB::StorePlainString(str_Notary, ".", "notaryServer.xml")) // todo hardcoding.
+    {
+        OTLog::Error("Failed trying to store the new notaryServer.xml file.\n");
+        return false;
+    }
+    // ---------------------------------------------------------------  
+    
+    OTASCIIArmor ascMasterKey;
+    ascMasterKey.Set(strMasterKey.c_str());
+    OTMasterKey::It()->SetMasterKey(ascMasterKey);
+    
+    // ---------------------------------------------------------------  
+    // At this point, the contract is saved, the cert is saved, and the notaryServer.xml file
+    // is saved. All we have left is the Nymfile, which we'll create.
+    
+    const OTString strServerUserID(strNymID.c_str());
+    
+    m_nymServer.SetIdentifier(strServerUserID);
+    
+    if (!m_nymServer.Loadx509CertAndPrivateKey())
+    {
+        OTLog::vOutput(0, "%s: Error loading server certificate and private key.\n", szFunc);
+    }
+    else if (!m_nymServer.VerifyPseudonym())
+    {
+        OTLog::vOutput(0, "%s: Error verifying server nym. Are you sure you have the right ID?\n", szFunc);
+    }
+    else if (!m_nymServer.SaveSignedNymfile(m_nymServer))
+    {
+        OTLog::vOutput(0, "%s: Error saving new nymfile for server nym.\n", szFunc);
+    }
+    else
+    {
+        OTLog::vOutput(0, "%s: OKAY, we have apparently created the new server. Let's try to load it up...\n");
+        return true;
+    }
+    
+    return false;
+}
+
+
+/*
+ 
+    {
+        OTASCIIArmor ascMasterContents;
+        
+        if (OTMasterKey::It()->SerializeTo(ascMasterContents))
+        {
+            strMainFile.Concatenate("<masterKey>\n%s</masterKey>\n\n", ascMasterContents.Get());
+        }        
+        else
+            OTLog::vError("%s: Failed trying to write master key to notary file.\n", szFunc);
+    }
+
+ 
+ 
+<?xml version="1.0"?>
+<notaryServer version="2.0"
+ serverID="%s"
+ serverUserID="%s"
+ transactionNum="5" >
+
+<masterKey>
+%s</masterKey>
+
+<accountList type="voucher" count="0" >
+
+</accountList>
+
+</notaryServer>
+
+ */
+
+// ------------------------------------------
+
 bool OTServer::LoadMainFile(bool bReadOnly/*=false*/)
 {
     const char *szFunc = "OTServer::LoadMainFile";
@@ -1597,12 +1881,17 @@ bool OTServer::LoadMainFile(bool bReadOnly/*=false*/)
 
 	// --------------------------------------------------------------------
 	//
-	
+    if (!OTDB::Exists(".", m_strWalletFilename.Get()))
+	{
+		OTLog::vError("%s: Error finding file: %s\n", szFunc, m_strWalletFilename.Get());
+		return false;
+	}
+	// --------------------------------------------------------------------
 	OTString strFileContents(OTDB::QueryPlainString(".",m_strWalletFilename.Get())); // <=== LOADING FROM DATA STORE.
 	
-	if (strFileContents.GetLength() < 2)
+	if (!strFileContents.Exists())
 	{
-		OTLog::vError("%s: Error reading file: %s\n", szFunc, m_strWalletFilename.Get());
+		OTLog::vError("%s: Unable to read main file: %s\n", szFunc, m_strWalletFilename.Get());
 		return false;
 	}
     

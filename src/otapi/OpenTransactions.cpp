@@ -1698,6 +1698,7 @@ OTPseudonym * OT_API::CreateNym(int nKeySize/*=1024*/)
     // ---------------------------    
 	if (false == pNym->GenerateNym(nKeySize)) 
 	{
+        OTLog::vError("%s: Failed trying to generate Nym.\n", szFuncName);
 		delete pNym; pNym = NULL;
 		return NULL;
 	}
@@ -1944,8 +1945,25 @@ bool OT_API::Encode(const OTString & strPlaintext, OTString & strOutput, bool bL
  */
 bool OT_API::Decode(const OTString & strEncoded, OTString & strOutput, bool bLineBreaks/*=true*/)
 {
+    const bool bBookends = strEncoded.Contains("-----BEGIN"); 
+    
 	OTASCIIArmor ascArmor;
-	ascArmor.Set(strEncoded.Get());
+
+    if (bBookends)
+    {
+        const bool bEscaped = strEncoded.Contains("- -----BEGIN");
+        
+        OTString strInput(strEncoded);
+        
+        if (!ascArmor.LoadFromString(strInput, bEscaped))
+        {
+            OTLog::vError("OT_API::Decode: Failure loading string into OTASCIIArmor object:\n\n%s\n\n",
+                          strEncoded.Get());
+            return false;
+        }
+    }
+    else
+        ascArmor.Set(strEncoded.Get());
 	// -------------------------------
 	strOutput.Release();
 	const bool bSuccess = ascArmor.GetString(strOutput, bLineBreaks);
@@ -1968,8 +1986,8 @@ bool OT_API::Decode(const OTString & strEncoded, OTString & strOutput, bool bLin
  OTString		strPlain(szPlaintext);
  OTEnvelope		theEnvelope;				
  if (theEnvelope.Seal(RECIPIENT_NYM, strPlain)) {	// Now it's encrypted (in binary form, inside the envelope), to the recipient's nym.
- OTASCIIArmor	ascCiphertext(theEnvelope);		// ascCiphertext now contains the base64-encoded ciphertext (as a string.)
- return ascCiphertext.Get();
+    OTASCIIArmor	ascCiphertext(theEnvelope);		// ascCiphertext now contains the base64-encoded ciphertext (as a string.)
+    return ascCiphertext.Get();
  }
  */
 bool OT_API::Encrypt(const OTIdentifier & theRecipientNymID, const OTString & strPlaintext, OTString & strOutput)
@@ -2008,12 +2026,12 @@ bool OT_API::Encrypt(const OTIdentifier & theRecipientNymID, const OTString & st
  OTEnvelope		theEnvelope;					// Here is the envelope object. (The ciphertext IS the data for an OTEnvelope.)
  OTASCIIArmor	ascCiphertext(szCiphertext);	// The base64-encoded ciphertext passed in. Next we'll try to attach it to envelope object...
  if (theEnvelope.SetAsciiArmoredData(ascCiphertext)) {	// ...so that we can open it using the appropriate Nym, into a plain string object:
- OTString	strServerReply;					// This will contain the output when we're done.
- const bool	bOpened =						// Now we try to decrypt:
- theEnvelope.Open(RECIPIENT_NYM, strServerReply);
- if (bOpened) {
- return strServerReply.Get();
- }
+    OTString	strServerReply;					// This will contain the output when we're done.
+    const bool	bOpened =						// Now we try to decrypt:
+    theEnvelope.Open(RECIPIENT_NYM, strServerReply);
+    if (bOpened) {
+        return strServerReply.Get();
+    }
  }
  */
 bool OT_API::Decrypt(const OTIdentifier & theRecipientNymID, const OTString & strCiphertext, OTString & strOutput)
@@ -2025,8 +2043,25 @@ bool OT_API::Decrypt(const OTIdentifier & theRecipientNymID, const OTString & st
 	// -----------------------------------------------------	
 	OTEnvelope		theEnvelope;
 	OTASCIIArmor	ascCiphertext;
-	ascCiphertext.Set(strCiphertext);
-	
+    
+    const bool bBookends = strCiphertext.Contains("-----BEGIN"); 
+    
+    if (bBookends)
+    {
+        const bool bEscaped = strCiphertext.Contains("- -----BEGIN");
+        
+        OTString strInput(strCiphertext);
+        
+        if (!ascCiphertext.LoadFromString(strInput, bEscaped))
+        {
+            OTLog::vError("%s: Failure loading string into OTASCIIArmor object:\n\n%s\n\n",
+                          szFuncName, strCiphertext.Get());
+            return false;
+        }
+    }
+    else
+        ascCiphertext.Set(strCiphertext.Get());
+	// -------------------------------	
 	if (theEnvelope.SetAsciiArmoredData(ascCiphertext)) 
 	{
 		strOutput.Release();		

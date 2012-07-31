@@ -532,6 +532,8 @@ void OTWallet::AddNym(const OTPseudonym & theNym)
 	const OTIdentifier	NYM_ID(theNym);
 	OTIdentifier aNymID;
 	
+    OTString strName;
+    
 	FOR_EACH(mapOfNyms, m_mapNyms)
 	{	
 		OTPseudonym * pNym = (*it).second;
@@ -541,11 +543,15 @@ void OTWallet::AddNym(const OTPseudonym & theNym)
 		
 		if (aNymID == NYM_ID)
 		{
-			OTString strName(pNym->GetNymName());
-			(const_cast<OTPseudonym &>(theNym)).SetNymName(strName);
+			strName.Set(pNym->GetNymName());
 						
 			m_mapNyms.erase(it);
-			delete pNym;
+            
+            // Don't delete it if they are physically the same object.
+            // (Versus each being separate copies of the same object.)
+            //
+            if (&theNym != pNym)
+                delete pNym;
 			pNym = NULL;
 			
 //			OTLog::Error("Error: Adding Nym to wallet when there was already one there with same ID...\n");
@@ -553,9 +559,11 @@ void OTWallet::AddNym(const OTPseudonym & theNym)
 			break;
 		}
 	}
-		
+    // -----------------------
 	const OTString	strNymID(NYM_ID);
 	m_mapNyms[strNymID.Get()] = (OTPseudonym *)&theNym; // Insert to wallet's list of Nyms.
+    // -----------------------
+    (const_cast<OTPseudonym &>(theNym)).SetNymName(strName);
 }
 
 
@@ -1350,7 +1358,19 @@ bool OTWallet::SaveWallet(const char * szFilename/*=NULL*/)
 }
 
 
+/*
+ 
+<?xml version="1.0"?>
+<wallet name="" version="2.0">
 
+<masterKey>
+CkwAAQCAAAD//wAAAAhVRpwTzc+1NAAAABCKe14aROG8v/ite3un3bBCAAAAINyw
+HXTM/x449Al2z8zBHBTRF77jhHkYLj8MIgqrJ2Ep
+</masterKey>
+
+</wallet>
+ 
+ */
 bool OTWallet::LoadWallet(const char * szFilename)
 {
 	OT_ASSERT_MSG(NULL != szFilename, "OTWallet::LoadWallet: NULL filename.\n");
@@ -1372,17 +1392,39 @@ bool OTWallet::LoadWallet(const char * szFilename)
 	
 	// --------------------------------------------------------------------
 	
-	if (false == OTDB::Exists(".",szFilename))
+	if (false == OTDB::Exists(".", szFilename))
 	{
-		OTLog::vError("OTWallet::LoadWallet: Wallet file does not exist: %s\n", szFilename);
-		return false;
+		OTLog::vError("OTWallet::LoadWallet: Wallet file does not exist: %s. Creating...\n", 
+                      szFilename);
+
+        const char * szContents = 
+//        "<?xml version=\"1.0\"?>\n"
+//        "<wallet name="" version=\"2.0\">\n"
+//        "\n"
+//        "<masterKey>\n"
+//        "CkwAAQCAAAD//wAAAAhVRpwTzc+1NAAAABCKe14aROG8v/ite3un3bBCAAAAINyw\n"
+//        "HXTM/x449Al2z8zBHBTRF77jhHkYLj8MIgqrJ2Ep\n"
+//        "</masterKey>\n"
+//        "\n"
+//        "</wallet>\n"
+//
+        "<?xml version=\"1.0\"?>\n"
+        "<wallet name=\"\" version=\"1.0\">\n"
+        "\n"
+        "</wallet>\n"
+        ;
+        
+        if (!OTDB::StorePlainString(szContents, ".", szFilename))
+        {
+            OTLog::Error("OTWallet::LoadWallet: Error: Unable to create blank wallet file.\n");
+            OT_ASSERT(false); // the end.
+        }
 	}
-	
 	// --------------------------------------------------------------------
 
 	OTString strFileContents(OTDB::QueryPlainString(".",szFilename)); // <=== LOADING FROM DATA STORE.
 	
-	if (strFileContents.GetLength() < 2)
+	if (!strFileContents.Exists())
 	{
 		OTLog::vError("OTWallet::LoadWallet: Error reading wallet file: %s\n", szFilename);
 		return false;

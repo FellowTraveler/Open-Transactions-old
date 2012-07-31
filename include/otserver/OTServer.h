@@ -355,6 +355,7 @@ public:
                            // -------------------------------------------------------------
 	void ProcessCron();    // Call this periodically, so Cron will have the chance to process its recurring transactions.
 	// -------------------------------
+    bool CreateMainFile(); // If the main file doesn't exist, OT will create it. (Asking you to paste some info.)
 	bool LoadMainFile(bool bReadOnly=false); // Called in Init. Loads latest transaction number, and any other server data members.
     bool LoadServerUserAndContract(); // Called by LoadMainFile().
     // -------------------------------

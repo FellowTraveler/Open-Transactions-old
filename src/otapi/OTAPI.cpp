@@ -3789,9 +3789,25 @@ const char * OT_API_SymmetricDecrypt(const char * SYMMETRIC_KEY, const char * CI
     OTString strOutput;
     bool bSuccess = false;
     // ---------------------------
+    OTString strInput(CIPHERTEXT_ENVELOPE);
     OTASCIIArmor ascArmor;
-    ascArmor.Set(CIPHERTEXT_ENVELOPE); // It's already ascii-encoded.
     
+    const bool bBookends = strInput.Contains("-----BEGIN"); 
+        
+    if (bBookends)
+    {
+        const bool bEscaped = strInput.Contains("- -----BEGIN");
+        
+        if (!ascArmor.LoadFromString(strInput, bEscaped))
+        {
+            OTLog::vError("%s: Failure loading string into OTASCIIArmor object:\n\n%s\n\n",
+                          __FUNCTION__, strInput.Get());
+            return NULL;
+        }
+    }
+    else
+        ascArmor.Set(strInput.Get());
+	// -------------------------------    
     if (!ascArmor.Exists())
     {
         OTLog::vOutput(1,"%s: Nonexistent: the ciphertext envelope. Please supply. (Failure.)\n",

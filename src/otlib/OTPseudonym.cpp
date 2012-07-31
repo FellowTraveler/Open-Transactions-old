@@ -838,6 +838,9 @@ bool OTPseudonym::GenerateNym(int nBits/*=1024*/, bool bCreateFile/*=true*/) // 
 	{		
         bSaved = this->SaveSignedNymfile(*this); // Now we'll generate the NymFile as well! (bCreateFile will be false for temp Nyms..)
 	}
+    
+    if (bCreateFile && !bSaved)
+        OTLog::Error("OTPseudonym::GenerateNym: Failed trying to save new Nym's cert or nymfile.\n");
 	
 	return bSaved;
 }

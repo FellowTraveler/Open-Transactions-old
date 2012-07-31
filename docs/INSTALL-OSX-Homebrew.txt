@@ -25,10 +25,10 @@ $ curl -O http://openssl.org/source/openssl-1.0.0j.tar.gz
 $ tar xf openssl-1.0.0j.tar.gz
 $ cd openssl-1.0.0j
 
-(for a x64 PC)
+(for a x64)
 $ ./config darwin64-x86_64-cc shared --prefix=$HOMEBREW_PREFIX
 
-(for a x32 PC)
+(for a x32)
 $ ./config shared --prefix=$HOMEBREW_PREFIX
 
 $ make
@@ -54,6 +54,14 @@ $ git clone git://github.com/FellowTraveler/Open-Transactions.git
 $ cd Open-Transactions
 $ export PKG_CONFIG_PATH=$HOMEBREW_PREFIX:$PKG_CONFIG_PATH
 $ mkdir build
+$ autoreconf -i -f
+
+$ cd build
+# Did you install homebrew somewhere other than /usr/local?
+../configure --prefix=$HOMEBREW_PREFIX
+../configure --prefix=$HOMEBREW_PREFIX --with-java
+#Otherwise
+$ ../configure
 
 ###  Configure Options:  ###
 Enable Configuration in Release Mode:
@@ -86,7 +94,7 @@ $ make uninstall (to cleanup anthing in you .local folder)
 $ make
 
 Build Multithreaded, need about 1gb of ram per thread.
--j (int, mutiple of of 2)
+-j (int, mutiple of of 2)   EXAMPLE: make -j4
 
 $ make install
 
