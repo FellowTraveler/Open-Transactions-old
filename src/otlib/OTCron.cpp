@@ -285,7 +285,7 @@ bool OTCron::GetNym_OfferList(OTASCIIArmor & ascOutput, const OTIdentifier & NYM
         
         if ((NULL != pUint) || (theSize < 2))
         {
-            OTData theData(pUint, theSize);
+            OTData theData(pUint, static_cast<uint32_t> (theSize));
             
             // This function will base64 ENCODE theData,
             // and then Set() that as the string contents.
@@ -420,7 +420,7 @@ bool OTCron::GetMarketList (OTASCIIArmor & ascOutput, int & nMarketCount)
         
         if ((theSize > 0) && (NULL != pUint))
         {
-            OTData theData(pUint, theSize);
+            OTData theData(pUint, static_cast<uint32_t> (theSize));
 
             // This function will base64 ENCODE theData,
             // and then Set() that as the string contents.
@@ -453,7 +453,7 @@ int OTCron::GetTransactionCount() const
 	if (m_listTransactionNumbers.empty())
 		return 0;
 
-	return m_listTransactionNumbers.size();
+	return static_cast<int> (m_listTransactionNumbers.size());
 }
 
 void OTCron::AddTransactionNumber(const long & lTransactionNum)

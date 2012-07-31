@@ -147,8 +147,8 @@ void OTCheque::UpdateContents()
 			SENDER_ACCT_ID(GetSenderAcctID()), SENDER_USER_ID(GetSenderUserID()), 
 			RECIPIENT_USER_ID(m_RECIPIENT_USER_ID);
 		
-	long	lFrom	= GetValidFrom(), 
-			lTo		= GetValidTo();
+	long	lFrom	= static_cast<long> (GetValidFrom()), 
+			lTo		= static_cast<long> (GetValidTo());
 	
 	// I release this because I'm about to repopulate it.
 	m_xmlUnsigned.Release();

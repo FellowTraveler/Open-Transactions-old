@@ -16,8 +16,13 @@
 #include <string.h>     // strlen()
 
 #ifdef _WIN32
-#include <WinsockWrapper.h>
-#endif	
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
+#endif
+
+
 
 
 namespace utf8util {
@@ -89,9 +94,9 @@ inline std::wstring UTF16FromUTF8(const std::string & utf8)
         CP_UTF8,            // convert from UTF-8
         conversionFlags,    // flags
         utf8.data(),        // source UTF-8 string
-        utf8.length(),      // length (in chars) of source UTF-8 string
+        static_cast<int> (utf8.length()),      // length (in chars) of source UTF-8 string
         NULL,               // unused - no conversion done in this step
-        0                   // request size of destination buffer, in wchar_t's
+        static_cast<int> (0)                  // request size of destination buffer, in wchar_t's
         );
     if (utf16Length == 0)
     {
@@ -122,9 +127,9 @@ inline std::wstring UTF16FromUTF8(const std::string & utf8)
         0,                  // validation was done in previous call, 
                             // so speed up things with default flags
         utf8.data(),        // source UTF-8 string
-        utf8.length(),      // length (in chars) of source UTF-8 string
+        static_cast<int> (utf8.length()),      // length (in chars) of source UTF-8 string
         &utf16[0],          // destination buffer
-        utf16.length()      // size of destination buffer, in wchar_t's
+        static_cast<int> (utf16.length())      // size of destination buffer, in wchar_t's
         ) )
     {
         // Error
@@ -198,9 +203,9 @@ inline std::wstring UTF16FromUTF8(const char * utf8)
         0,                  // validation was done in previous call, 
                             // so speed up things with default flags
         utf8,               // source UTF-8 string
-        utf8Length,         // length (in chars) of source UTF-8 string
+        static_cast<int> (utf8Length),         // length (in chars) of source UTF-8 string
         &utf16[0],          // destination buffer
-        utf16.length()      // size of destination buffer, in wchar_t's
+        static_cast<int> (utf16.length())      // size of destination buffer, in wchar_t's
         ) )
     {
         // Error
@@ -236,9 +241,9 @@ inline std::string UTF8FromUTF16(const std::wstring & utf16)
         CP_UTF8,            // convert to UTF-8
         0,                  // default flags
         utf16.data(),       // source UTF-16 string
-        utf16.length(),     // source string length, in wchar_t's,
-        NULL,               // unused - no conversion required in this step
-        0,                  // request buffer size
+        static_cast<int> (utf16.length()),     // source string length, in wchar_t's,
+        NULL,              // unused - no conversion required in this step
+        static_cast<int> (0),                 // request buffer size
         NULL, NULL          // unused
         );
     if (utf8Length == 0)
@@ -266,9 +271,9 @@ inline std::string UTF8FromUTF16(const std::wstring & utf16)
         CP_UTF8,                // convert to UTF-8
         0,                      // default flags
         utf16.data(),           // source UTF-16 string
-        utf16.length(),         // source string length, in wchar_t's,
+        static_cast<int> (utf16.length()),         // source string length, in wchar_t's,
         &utf8[0],               // destination buffer
-        utf8.length(),          // destination buffer size, in chars
+        static_cast<int> (utf8.length()),          // destination buffer size, in chars
         NULL, NULL              // unused
         ) )
     {
@@ -339,9 +344,9 @@ inline std::string UTF8FromUTF16(const wchar_t * utf16)
         CP_UTF8,                // convert to UTF-8
         0,                      // default flags
         utf16,                  // source UTF-16 string
-        utf16Length,            // source string length, in wchar_t's,
+        static_cast<int> (utf16Length),            // source string length, in wchar_t's,
         &utf8[0],               // destination buffer
-        utf8.length(),          // destination buffer size, in chars
+        static_cast<int> (utf8.length()),          // destination buffer size, in chars
         NULL, NULL              // unused
         ) )
     {

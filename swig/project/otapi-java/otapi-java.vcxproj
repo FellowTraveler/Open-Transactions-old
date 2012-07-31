@@ -45,14 +45,14 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>false</WholeProgramOptimization>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>Windows7.1SDK</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>false</WholeProgramOptimization>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>Windows7.1SDK</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -76,40 +76,40 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)..\otapi;$(SolutionDir)..\..\include;$(SolutionDir)..\..\include\otlib;$(SolutionDir)..\..\include\otapi;$(SystemDrive)\boost_1_48_0;$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\include;$(ProgramFiles)\Java\jdk1.6.0_32\include;$(ProgramFiles)\Java\jdk1.6.0_32\include\win32;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\otapi;$(SolutionDir)..\..\include;$(SolutionDir)..\..\include\otlib;$(SolutionDir)..\..\include\otapi;$(SystemDrive)\boost_1_48_0;$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\include;$(ProgramFiles)\Java\jdk1.7.0_05\include;$(ProgramFiles)\Java\jdk1.7.0_05\include\win32;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\..\lib\$(PlatformName)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\..\obj\$(PlatformName)\$(Configuration)\$(ProjectName)\</IntDir>
-    <LibraryPath>$(SolutionDir)..\..\lib\$(PlatformName)\$(Configuration);$(SystemDrive)\boost_1_48_0\stage\lib\$(PlatformName);$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\lib\VC;$(ProgramFiles)\Java\jdk1.6.0_32\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)..\..\lib\$(PlatformName)\$(Configuration);$(SystemDrive)\boost_1_48_0\stage\lib\$(PlatformName);$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\lib\VC;$(ProgramFiles)\Java\jdk1.7.0_05\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(SolutionDir)..\otapi;$(SolutionDir)..\..\include;$(SolutionDir)..\..\include\otlib;$(SolutionDir)..\..\include\otapi;$(SystemDrive)\boost_1_48_0;$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\include;$(ProgramFiles)\Java\jdk1.6.0_32\include;$(ProgramFiles)\Java\jdk1.6.0_32\include\win32;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\otapi;$(SolutionDir)..\..\include;$(SolutionDir)..\..\include\otlib;$(SolutionDir)..\..\include\otapi;$(SystemDrive)\boost_1_48_0;$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\include;$(ProgramFiles)\Java\jdk1.7.0_05\include;$(ProgramFiles)\Java\jdk1.7.0_05\include\win32;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\..\lib\$(PlatformName)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\..\obj\$(PlatformName)\$(Configuration)\$(ProjectName)\</IntDir>
-    <LibraryPath>$(SolutionDir)..\..\lib\$(PlatformName)\$(Configuration);$(SystemDrive)\boost_1_48_0\stage\lib\$(PlatformName);$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\lib\VC;$(ProgramFiles)\Java\jdk1.6.0_32\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)..\..\lib\$(PlatformName)\$(Configuration);$(SystemDrive)\boost_1_48_0\stage\lib\$(PlatformName);$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\lib\VC;$(ProgramFiles)\Java\jdk1.7.0_05\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)..\otapi;$(SolutionDir)..\..\include;$(SolutionDir)..\..\include\otlib;$(SolutionDir)..\..\include\otapi;$(SystemDrive)\boost_1_48_0;$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\include;$(ProgramW6432)\Java\jdk1.6.0_32\include;$(ProgramW6432)\Java\jdk1.6.0_32\include\win32;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\otapi;$(SolutionDir)..\..\include;$(SolutionDir)..\..\include\otlib;$(SolutionDir)..\..\include\otapi;$(SystemDrive)\boost_1_48_0;$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\include;$(ProgramW6432)\Java\jdk1.7.0_05\include;$(ProgramW6432)\Java\jdk1.7.0_05\include\win32;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\..\lib\$(PlatformName)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\..\obj\$(PlatformName)\$(Configuration)\$(ProjectName)\</IntDir>
-    <LibraryPath>$(SolutionDir)..\..\lib\$(PlatformName)\$(Configuration);$(SystemDrive)\boost_1_48_0\stage\lib\$(PlatformName);$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\lib\VC;$(ProgramW6432)\Java\jdk1.6.0_32\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)..\..\lib\$(PlatformName)\$(Configuration);$(SystemDrive)\boost_1_48_0\stage\lib\$(PlatformName);$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\lib\VC;$(ProgramW6432)\Java\jdk1.7.0_05\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)..\otapi;$(SolutionDir)..\..\include;$(SolutionDir)..\..\include\otlib;$(SolutionDir)..\..\include\otapi;$(SystemDrive)\boost_1_48_0;$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\include;$(ProgramW6432)\Java\jdk1.6.0_32\include;$(ProgramW6432)\Java\jdk1.6.0_32\include\win32;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\otapi;$(SolutionDir)..\..\include;$(SolutionDir)..\..\include\otlib;$(SolutionDir)..\..\include\otapi;$(SystemDrive)\boost_1_48_0;$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\include;$(ProgramW6432)\Java\jdk1.7.0_05\include;$(ProgramW6432)\Java\jdk1.7.0_05\include\win32;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\..\lib\$(PlatformName)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\..\obj\$(PlatformName)\$(Configuration)\$(ProjectName)\</IntDir>
-    <LibraryPath>$(SolutionDir)..\..\lib\$(PlatformName)\$(Configuration);$(SystemDrive)\boost_1_48_0\stage\lib\$(PlatformName);$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\lib\VC;$(ProgramW6432)\Java\jdk1.6.0_32\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)..\..\lib\$(PlatformName)\$(Configuration);$(SystemDrive)\boost_1_48_0\stage\lib\$(PlatformName);$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\lib\VC;$(ProgramW6432)\Java\jdk1.7.0_05\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -120,12 +120,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>bigint.lib;irrxml.lib;lucre.lib;simpleini.lib;libzmq.lib;libprotobuf.lib;otapi.lib;otlib.lib;ws2_32.lib;winmm.lib;libeay32MDd.lib;ssleay32MDd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <PreBuildEvent>
-      <Command>copy /Y "$(SolutionDir)..\otapi\$(AssemblyName).h" "$(SolutionDir)..\otapi\OTAPI_wrap.h"</Command>
-    </PreBuildEvent>
-    <PostBuildEvent>
-      <Command>del "$(SolutionDir)..\otapi\OTAPI_wrap.h"</Command>
-    </PostBuildEvent>
+    <PreBuildEvent />
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -136,12 +132,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>bigint.lib;irrxml.lib;lucre.lib;simpleini.lib;libzmq.lib;libprotobuf.lib;otapi.lib;otlib.lib;ws2_32.lib;winmm.lib;libeay32MDd.lib;ssleay32MDd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <PreBuildEvent>
-      <Command>copy /Y "$(SolutionDir)..\otapi\$(AssemblyName).h" "$(SolutionDir)..\otapi\OTAPI_wrap.h"</Command>
-    </PreBuildEvent>
-    <PostBuildEvent>
-      <Command>del "$(SolutionDir)..\otapi\OTAPI_wrap.h"</Command>
-    </PostBuildEvent>
+    <PreBuildEvent />
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -156,12 +148,8 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>bigint.lib;irrxml.lib;lucre.lib;simpleini.lib;libzmq.lib;libprotobuf.lib;otapi.lib;otlib.lib;ws2_32.lib;winmm.lib;libeay32MD.lib;ssleay32MD.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <PreBuildEvent>
-      <Command>copy /Y "$(SolutionDir)..\otapi\$(AssemblyName).h" "$(SolutionDir)..\otapi\OTAPI_wrap.h"</Command>
-    </PreBuildEvent>
-    <PostBuildEvent>
-      <Command>del "$(SolutionDir)..\otapi\OTAPI_wrap.h"</Command>
-    </PostBuildEvent>
+    <PreBuildEvent />
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -176,12 +164,8 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>bigint.lib;irrxml.lib;lucre.lib;simpleini.lib;libzmq.lib;libprotobuf.lib;otapi.lib;otlib.lib;ws2_32.lib;winmm.lib;libeay32MD.lib;ssleay32MD.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <PreBuildEvent>
-      <Command>copy /Y "$(SolutionDir)..\otapi\$(AssemblyName).h" "$(SolutionDir)..\otapi\OTAPI_wrap.h"</Command>
-    </PreBuildEvent>
-    <PostBuildEvent>
-      <Command>del "$(SolutionDir)..\otapi\OTAPI_wrap.h"</Command>
-    </PostBuildEvent>
+    <PreBuildEvent />
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

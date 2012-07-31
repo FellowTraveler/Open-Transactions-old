@@ -448,7 +448,7 @@ bool OTMarket::GetRecentTradeList(OTASCIIArmor & ascOutput, int & nTradeCount)
 	//
     
     const size_t sizeList = m_pTradeList->GetTradeDataMarketCount();
-    nTradeCount = sizeList;
+    nTradeCount = static_cast<int> (sizeList);
     
     if (nTradeCount == 0)
         return true; // Success, but there are 0 trade datas to return. (empty list.)
@@ -482,7 +482,7 @@ bool OTMarket::GetRecentTradeList(OTASCIIArmor & ascOutput, int & nTradeCount)
         
         if ((NULL != pUint) || (theSize < 2))
         {
-            OTData theData(pUint, theSize);
+            OTData theData(pUint, static_cast<uint32_t> (theSize));
             
             // This function will base64 ENCODE theData,
             // and then Set() that as the string contents.
@@ -634,7 +634,7 @@ bool OTMarket::GetOfferList(OTASCIIArmor & ascOutput, long lDepth, int & nOfferC
         
         if (NULL != pUint)
         {
-            OTData theData(pUint, theSize);
+            OTData theData(pUint, static_cast<uint32_t> (theSize));
             
             // This function will base64 ENCODE theData,
             // and then Set() that as the string contents.

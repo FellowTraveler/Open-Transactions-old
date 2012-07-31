@@ -130,14 +130,15 @@
 #ifndef _DATA_CHECK_H_
 #define _DATA_CHECK_H_
 
-// DLL Export for Win32
-
-#undef EXPORT
-#ifdef _WINDLL
-  #define EXPORT __declspec(dllexport)
-#else
-  #define EXPORT
+#ifndef EXPORT
+#define EXPORT
 #endif
+#include <ExportWrapper.h>
+
+#ifdef _WIN32
+#include <WinsockWrapper.h>
+#endif
+
 
 typedef unsigned char OT_BYTE;
 typedef bool OT_BOOL;

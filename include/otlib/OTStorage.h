@@ -123,16 +123,13 @@
 #ifndef __OT_STORAGE_H__
 #define __OT_STORAGE_H__
 
-// DLL Export for Win32
-
-#undef EXPORT
-#ifdef _WINDLL
-  #define EXPORT __declspec(dllexport)
-#else
-  #define EXPORT
+#ifndef EXPORT
+#define EXPORT
 #endif
+#include <ExportWrapper.h>
 
 #ifdef _WIN32
+
 #include <WinsockWrapper.h>
 #endif
 
@@ -567,15 +564,15 @@ EXPORT		bool			Unpack(PackedBuffer& inBuf, Storable& outObj);
 	{
 	private:
 		OTPacker * m_pPacker;
-		
+
 	protected:
 		Storage() : m_pPacker(NULL) {}
-		
+
 		Storage(const Storage & rhs) : m_pPacker(NULL) { } // We don't want to copy the pointer. Let it create its own.
-				
+
 		// This is called once, in the factory.
 		void SetPacker(OTPacker & thePacker) { OT_ASSERT(NULL == m_pPacker); m_pPacker =  &thePacker; }
-		
+
 		// ********************************************************
 		// OVERRIDABLES
 		//
@@ -589,22 +586,22 @@ EXPORT		bool			Unpack(PackedBuffer& inBuf, Storable& outObj);
 		// for this class, it is.
 		//
 		virtual bool onStorePackedBuffer(PackedBuffer & theBuffer, std::string strFolder, std::string oneStr="", 
-										 std::string twoStr="", std::string threeStr="")=0;
-		
+			std::string twoStr="", std::string threeStr="")=0;
+
 		virtual bool onQueryPackedBuffer(PackedBuffer & theBuffer, std::string strFolder, std::string oneStr="",
-										 std::string twoStr="", std::string threeStr="")=0;
-		
+			std::string twoStr="", std::string threeStr="")=0;
+
 		virtual bool onStorePlainString(std::string & theBuffer, std::string strFolder, std::string oneStr="", 
-										std::string twoStr="", std::string threeStr="")=0;
-		
+			std::string twoStr="", std::string threeStr="")=0;
+
 		virtual bool onQueryPlainString(std::string & theBuffer, std::string strFolder, std::string oneStr="",
-										std::string twoStr="", std::string threeStr="")=0;
-		
-        virtual bool onEraseValueByKey(std::string strFolder, std::string oneStr="",
-                                       std::string twoStr="", std::string threeStr="")=0;
-        
+			std::string twoStr="", std::string threeStr="")=0;
+
+		virtual bool onEraseValueByKey(std::string strFolder, std::string oneStr="",
+			std::string twoStr="", std::string threeStr="")=0;
+
 		// -------------------------------------
-		
+
 	public:
 		// Use GetPacker() to access the Packer, throughout duration of this Storage object.
 		// If it doesn't exist yet, this function will create it on the first call. (The 
@@ -616,60 +613,60 @@ EXPORT		bool			Unpack(PackedBuffer& inBuf, Storable& outObj);
 		// that the right types will be instantiated automatically, with the buffer being
 		// the appropriate subclass for the packer.
 		//
-EXPORT		OTPacker * GetPacker(PackType ePackType = OTDB_DEFAULT_PACKER);
+		EXPORT		OTPacker * GetPacker(PackType ePackType = OTDB_DEFAULT_PACKER);
 
-		
-		virtual bool Init(std::string oneStr="", std::string twoStr="", std::string threeStr="", 
-						  std::string fourStr="", std::string fiveStr="", std::string sixStr="")=0;
-		
+
+		//virtual bool Init(std::string oneStr="", std::string twoStr="", std::string threeStr="", 
+		//				  std::string fourStr="", std::string fiveStr="", std::string sixStr="")=0;
+
 		// -----------------------------------------
 		// See if the file is there.
 		virtual bool Exists(std::string strFolder, 
-							std::string oneStr="", std::string twoStr="", std::string threeStr="")=0;
-		
+			std::string oneStr="", std::string twoStr="", std::string threeStr="")=0;
+
 		// ********************************************************
-		
+
 		virtual ~Storage() { if (NULL != m_pPacker) delete m_pPacker; m_pPacker = NULL; }
-		
+
 		// -----------------------------------------
 		// Store/Retrieve a string.
-		
-EXPORT		bool StoreString(std::string strContents, std::string strFolder, 
-						 std::string oneStr="", std::string twoStr="", std::string threeStr="");
-		
-EXPORT		std::string QueryString(std::string strFolder, std::string oneStr="",
-								std::string twoStr="", std::string threeStr="");
-		
-EXPORT		bool StorePlainString(std::string strContents, std::string strFolder, 
-							  std::string oneStr="", std::string twoStr="", std::string threeStr="");
-		
-EXPORT		std::string QueryPlainString(std::string strFolder, std::string oneStr="",
-									 std::string twoStr="", std::string threeStr="");
-		
+
+		EXPORT		bool StoreString(std::string strContents, std::string strFolder, 
+			std::string oneStr="", std::string twoStr="", std::string threeStr="");
+
+		EXPORT		std::string QueryString(std::string strFolder, std::string oneStr="",
+			std::string twoStr="", std::string threeStr="");
+
+		EXPORT		bool StorePlainString(std::string strContents, std::string strFolder, 
+			std::string oneStr="", std::string twoStr="", std::string threeStr="");
+
+		EXPORT		std::string QueryPlainString(std::string strFolder, std::string oneStr="",
+			std::string twoStr="", std::string threeStr="");
+
 		// -----------------------------------------
 		// Store/Retrieve an object. (Storable.)
-		
-EXPORT		bool StoreObject(Storable & theContents, std::string strFolder, 
-						 std::string oneStr="", std::string twoStr="", std::string threeStr="");
-		
+
+		EXPORT		bool StoreObject(Storable & theContents, std::string strFolder, 
+			std::string oneStr="", std::string twoStr="", std::string threeStr="");
+
 		// Use %newobject OTDB::Storage::QueryObject();
-EXPORT		Storable * QueryObject(StoredObjectType theObjectType,
-							   std::string strFolder, std::string oneStr="",
-							   std::string twoStr="", std::string threeStr="");
+		EXPORT		Storable * QueryObject(StoredObjectType theObjectType,
+			std::string strFolder, std::string oneStr="",
+			std::string twoStr="", std::string threeStr="");
 		// -----------------------------------------
 		// Store/Retrieve a Storable object inside an OTASCIIArmor object.
-		
-EXPORT		std::string EncodeObject(Storable & theContents);
-		
+
+		EXPORT		std::string EncodeObject(Storable & theContents);
+
 		// Use %newobject OTDB::Storage::DecodeObject();
-EXPORT		Storable * DecodeObject(StoredObjectType theObjectType, std::string strInput);
-		
+		EXPORT		Storable * DecodeObject(StoredObjectType theObjectType, std::string strInput);
+
 		// -----------------------------------------
 		// Erase any value based on its location.
-		
-EXPORT		bool EraseValueByKey(std::string strFolder, 
-                             std::string oneStr="", std::string twoStr="", std::string threeStr="");
-		
+
+		EXPORT		bool EraseValueByKey(std::string strFolder, 
+			std::string oneStr="", std::string twoStr="", std::string threeStr="");
+
 		// --------------------------
 		// Note:
 		// Make sure to use: %newobject Factory::createObj();  IN OTAPI.i file!
@@ -678,18 +675,18 @@ EXPORT		bool EraseValueByKey(std::string strFolder,
 		// (Instead of leaking because it thinks C++ will clean it up.)
 		//
 		// Factory for Storable objects.   %newobject Factory::createObj();
-EXPORT		Storable * CreateObject(StoredObjectType eType);
-		
+		EXPORT		Storable * CreateObject(StoredObjectType eType);
+
 		// --------------------------
-		
+
 		// Factory for Storage itself.  %ignore this in OTAPI.i  (It's accessed through 
 		// a namespace-level function, whereas this is for internal purposes.)
 		//
-EXPORT		static Storage * Create(StorageType eStorageType, PackType ePackType); // FACTORY
-		
-EXPORT		StorageType GetType() const;
+		EXPORT		static Storage * Create(StorageType eStorageType, PackType ePackType); // FACTORY
+
+		EXPORT		StorageType GetType() const;
 	};
-	
+
 	
 	// ********************************************************************
 	//
@@ -697,9 +694,7 @@ EXPORT		StorageType GetType() const;
 	//
 	//
 	
-EXPORT	bool InitDefaultStorage(StorageType eStoreType, PackType ePackType,
-							std::string oneStr="", std::string twoStr="", std::string threeStr="", 
-							std::string fourStr="", std::string fiveStr="", std::string sixStr="");
+EXPORT	bool InitDefaultStorage(StorageType eStoreType, PackType ePackType);
 	
 	// Default Storage instance:
 EXPORT	Storage * GetDefaultStorage();
@@ -1500,19 +1495,16 @@ namespace OTDB
 	//
 	class StorageFS : public Storage 
 	{
-		std::string m_strFullPath;
-		std::string m_strWalletFile;
-		
+
 	protected:
 		StorageFS();// You have to use the factory to instantiate (so it can create the Packer also.)
 					// But from there, however you Init, Store, Query, etc is entirely up to you.
-		
+
 		long ConstructAndConfirmPath(std::string & strOutput,
 									 const std::string& strFolder, const std::string& oneStr="",  
 									 const std::string& twoStr="",  const std::string& threeStr="");
 		
 		// **********************************************************
-
 		// If you wish to make your own subclass of OTDB::Storage, then use StorageFS as an example.
 		// The below 6 methods are the only overrides you need to copy.
 		//
@@ -1534,13 +1526,18 @@ namespace OTDB
 		// -----------------------------------------------------
 		
 	public:
-		virtual bool Init(std::string oneStr="", std::string twoStr="", std::string threeStr="", 
-						  std::string fourStr="", std::string fiveStr="", std::string sixStr="");
-		
+		//virtual bool Init_Basic(OTString strWalletFilename);  // OTLog::Path must be first set to use this command
+
+		//virtual bool Init(std::string oneStr="", std::string twoStr="", std::string threeStr="", 
+		//	std::string fourStr="", std::string fiveStr="", std::string sixStr="");
+
 		// -----------------------------------------
 		// See if the file is there.
 		virtual bool Exists(std::string strFolder, 
 							std::string oneStr="", std::string twoStr="", std::string threeStr="");
+
+		//virtual	bool GetWalletFilePath(OTString & strWalletFilePath);
+
 		
 		// **********************************************************
 		
@@ -1553,11 +1550,6 @@ namespace OTDB
 		
 		bool ConfirmOrCreateFolder(const char * szFolderName, struct stat *pst=NULL); // local to data_folder
 		bool ConfirmFile(const char * szFileName, struct stat *pst=NULL); // local to data_folder
-		
-		const char * GetFullPath() { return m_strFullPath.c_str(); }  // path to data_folder
-		const char * GetWalletFile() { return m_strWalletFile.c_str(); } // wallet filename
-		
-		const char * PathSeparator();
 		
 		/*
 		 IN BASE CLASS:
@@ -2060,10 +2052,22 @@ namespace OTDB
 // *******************************************************************************************
 
 #if defined(OTDB_PROTOCOL_BUFFERS)
+
+#ifdef _WIN32
+#pragma warning( push )
+#pragma warning( disable : 4244 )
+#pragma warning( disable : 4267 )
+#endif
+
 #include "Generics.pb.h"
 #include "Markets.pb.h"
 #include "Bitcoin.pb.h"
 #include "Moneychanger.pb.h"
+
+#ifdef _WIN32
+#pragma warning( pop )
+#endif
+
 // To make subclasses of the various data objects (for Protocol Buffers):
 //
 // typedef ProtobufSubclass<theBaseType, theInternalType> theType;

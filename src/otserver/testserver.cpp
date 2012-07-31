@@ -241,8 +241,32 @@ int main (int argc, char **argv)
 #ifdef _WIN32
 	WSADATA wsaData;
 	WORD wVersionRequested = MAKEWORD( 2, 2 );
-	int nWSA = WSAStartup( wVersionRequested, &wsaData );
-	OT_ASSERT_MSG(0 != nWSA, "Error calling WSAStartup.\n");	
+	int err = WSAStartup( wVersionRequested, &wsaData );
+
+	/* Tell the user that we could not find a usable		*/
+	/* Winsock DLL.											*/		
+
+	OT_ASSERT_MSG((err == 0), "WSAStartup failed!\n");
+
+
+	/*	Confirm that the WinSock DLL supports 2.2.			*/
+	/*	Note that if the DLL supports versions greater		*/
+	/*	than 2.2 in addition to 2.2, it will still return	*/
+	/*	2.2 in wVersion since that is the version we		*/
+	/*	requested.											*/
+
+	bool bWinsock = (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2);
+
+	/* Tell the user that we could not find a usable */
+	/* WinSock DLL.                                  */
+
+	if (!bWinsock) WSACleanup();  // do cleanup.
+	OT_ASSERT_MSG((!bWinsock), "Could not find a usable version of Winsock.dll\n");
+
+	/* The Winsock DLL is acceptable. Proceed to use it. */
+	/* Add network programming using Winsock here */
+	/* then call WSACleanup when done using the Winsock dll */
+	OTLog::vOutput(0,"The Winsock 2.2 dll was found okay\n");
 #endif
 
 	OTLog::vOutput(0, "\n\nWelcome to Open Transactions, version %s.\n\n", OTLog::Version());

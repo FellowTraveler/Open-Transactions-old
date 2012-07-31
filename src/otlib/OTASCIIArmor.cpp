@@ -343,7 +343,7 @@ uint8_t* OT_base64_decode(const char *input, size_t* out_len, int bLineBreaks)
 	
 	OT_ASSERT(NULL != input);
 	
-    int in_len = strlen(input);
+    int in_len = static_cast<int> (strlen(input));
     int out_max_len=(in_len*6+7)/8;
     unsigned char *buf = new unsigned char [out_max_len];
 	
@@ -463,7 +463,7 @@ bool OTASCIIArmor::GetAndUnpackString(OTString & theData, bool bLineBreaks) cons
 		
 		OT_ASSERT(NULL != pDest);
 		
-		int nErr = ezuncompress( pDest, &nDestLen, pData, outSize );
+		int nErr = ezuncompress( pDest, &nDestLen, pData, static_cast<long> (outSize) );
 		if ( nErr == EZ_BUF_ERROR )
 		{
 			delete [] pDest;
@@ -471,7 +471,7 @@ bool OTASCIIArmor::GetAndUnpackString(OTString & theData, bool bLineBreaks) cons
 			
 			OT_ASSERT(NULL != pDest);
 			
-			nErr = ezuncompress( pDest, &nDestLen, pData, outSize );
+			nErr = ezuncompress( pDest, &nDestLen, pData, static_cast<long> (outSize) );
 		}
 		
 		// Now we're done with this memory, let's free it.
@@ -554,7 +554,7 @@ bool OTASCIIArmor::GetAndUnpackString(OTString & theData, bool bLineBreaks) cons
 		// --------------------------------------------------------
 		
 		// This enforces the null termination. (using the 2nd parameter as nEnforcedMaxLength)
-		theData.Set(pOTDBString->m_string.c_str(), pOTDBString->m_string.length());
+		theData.Set(pOTDBString->m_string.c_str(), static_cast<uint32_t> (pOTDBString->m_string.length()));
 		
 		return true;
 	}
@@ -600,7 +600,7 @@ bool OTASCIIArmor::GetString(OTString & theData, bool bLineBreaks) const //bLine
 		
 		OT_ASSERT(NULL != pDest);
 		
-		int nErr = ezuncompress( pDest, &nDestLen, pData, outSize );
+		int nErr = ezuncompress( pDest, &nDestLen, pData, static_cast<long> (outSize) );
 		if ( nErr == EZ_BUF_ERROR )
 		{
 			delete [] pDest;
@@ -608,7 +608,7 @@ bool OTASCIIArmor::GetString(OTString & theData, bool bLineBreaks) const //bLine
 			
 			OT_ASSERT(NULL != pDest);
 			
-			nErr = ezuncompress( pDest, &nDestLen, pData, outSize );
+			nErr = ezuncompress( pDest, &nDestLen, pData, static_cast<long> (outSize) );
 		}
 		
 		// Now we're done with this memory, let's free it.
@@ -823,7 +823,7 @@ bool OTASCIIArmor::SetAndPackStringMap(const std::map<std::string, std::string> 
 	const size_t theSize = pBuffer->GetSize();
 	
 	if (NULL != pUint)
-		pString = OT_base64_encode(pUint, theSize, (bLineBreaks ? 1 : 0));
+		pString = OT_base64_encode(pUint, static_cast<int> (theSize), (bLineBreaks ? 1 : 0));
 	else 
 	{
 		OTLog::Error("Error while base64_encoding in OTASCIIArmor::SetAndPackStringMap.\n");
@@ -867,7 +867,7 @@ bool OTASCIIArmor::GetData(OTData & theData, bool bLineBreaks) const //linebreak
 	
 	if (pData)
 	{
-		theData.Assign(pData, outSize);
+		theData.Assign(pData, static_cast<uint32_t> (outSize));
 		delete [] pData; pData=NULL;
 		return true;
 	}
@@ -929,7 +929,7 @@ bool OTASCIIArmor::GetAndUnpackData(OTData & theData, bool bLineBreaks) const //
 		
 		// --------------------------------------------------------
 		
-		theData.Assign(pBlob->m_memBuffer.data(), pBlob->m_memBuffer.size());
+		theData.Assign(pBlob->m_memBuffer.data(), static_cast<uint32_t> (pBlob->m_memBuffer.size()));
 		delete [] pData; pData=NULL;
 		return true;
 	}
@@ -1018,7 +1018,7 @@ bool OTASCIIArmor::SetAndPackData(const OTData & theData, bool bLineBreaks/*=tru
 	const size_t theSize = pBuffer->GetSize();
 	
 	if (NULL != pUint)
-		pString = OT_base64_encode(pUint, theSize, (bLineBreaks ? 1 : 0));
+		pString = OT_base64_encode(pUint, static_cast<int> (theSize), (bLineBreaks ? 1 : 0));
 	else 
 	{
 		OTLog::Error("Error while base64_encoding in OTASCIIArmor::SetAndPackData.\n");
@@ -1102,7 +1102,7 @@ bool OTASCIIArmor::SetAndPackString(const OTString & theData, bool bLineBreaks) 
 	
 	// Set up source buffer and destination buffer
 	long nDestLen	= DEFAULT_BUFFER_SIZE_EASYZLIB; // todo stop hardcoding numbers (but this one is OK I think.)
-	const long lSourcelen	= theSize;
+	const long lSourcelen	= static_cast<long> (theSize);
 	
 	unsigned char* pSource	= new unsigned char[lSourcelen+10]; // for safety
 	unsigned char* pDest	= new unsigned char[nDestLen+10]; // for safety

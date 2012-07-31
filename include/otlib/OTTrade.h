@@ -134,14 +134,10 @@
 #ifndef __OTTRADE_H__
 #define __OTTRADE_H__
 
-// DLL Export for Win32
-
-#undef EXPORT
-#ifdef _WINDLL
-  #define EXPORT __declspec(dllexport)
-#else
-  #define EXPORT
+#ifndef EXPORT
+#define EXPORT
 #endif
+#include <ExportWrapper.h>
 
 //#include <ctime> // already included in parent somewhere.
 

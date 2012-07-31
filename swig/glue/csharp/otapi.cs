@@ -17,18 +17,23 @@ public class otapi {
     return ret;
   }
 
-  public static int OT_API_Init(string szClientPath) {
-    int ret = otapiPINVOKE.OT_API_Init(szClientPath);
+  public static int OT_API_Init() {
+    int ret = otapiPINVOKE.OT_API_Init();
     return ret;
   }
 
-  public static int OT_API_LoadWallet(string szWalletFilename) {
-    int ret = otapiPINVOKE.OT_API_LoadWallet(szWalletFilename);
+  public static int OT_API_SetWallet(string szWalletFilename) {
+    int ret = otapiPINVOKE.OT_API_SetWallet(szWalletFilename);
     return ret;
   }
 
-  public static int OT_API_SwitchWallet(string szDataFolderPath, string szWalletFilename) {
-    int ret = otapiPINVOKE.OT_API_SwitchWallet(szDataFolderPath, szWalletFilename);
+  public static int OT_API_LoadWallet() {
+    int ret = otapiPINVOKE.OT_API_LoadWallet();
+    return ret;
+  }
+
+  public static int OT_API_SwitchWallet() {
+    int ret = otapiPINVOKE.OT_API_SwitchWallet();
     return ret;
   }
 
@@ -1273,44 +1278,8 @@ public class otapi {
     return ret;
   }
 
-  public static bool InitDefaultStorage(StorageType eStoreType, PackType ePackType, string oneStr, string twoStr, string threeStr, string fourStr, string fiveStr, string sixStr) {
-    bool ret = otapiPINVOKE.InitDefaultStorage__SWIG_0((int)eStoreType, (int)ePackType, oneStr, twoStr, threeStr, fourStr, fiveStr, sixStr);
-    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
-    return ret;
-  }
-
-  public static bool InitDefaultStorage(StorageType eStoreType, PackType ePackType, string oneStr, string twoStr, string threeStr, string fourStr, string fiveStr) {
-    bool ret = otapiPINVOKE.InitDefaultStorage__SWIG_1((int)eStoreType, (int)ePackType, oneStr, twoStr, threeStr, fourStr, fiveStr);
-    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
-    return ret;
-  }
-
-  public static bool InitDefaultStorage(StorageType eStoreType, PackType ePackType, string oneStr, string twoStr, string threeStr, string fourStr) {
-    bool ret = otapiPINVOKE.InitDefaultStorage__SWIG_2((int)eStoreType, (int)ePackType, oneStr, twoStr, threeStr, fourStr);
-    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
-    return ret;
-  }
-
-  public static bool InitDefaultStorage(StorageType eStoreType, PackType ePackType, string oneStr, string twoStr, string threeStr) {
-    bool ret = otapiPINVOKE.InitDefaultStorage__SWIG_3((int)eStoreType, (int)ePackType, oneStr, twoStr, threeStr);
-    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
-    return ret;
-  }
-
-  public static bool InitDefaultStorage(StorageType eStoreType, PackType ePackType, string oneStr, string twoStr) {
-    bool ret = otapiPINVOKE.InitDefaultStorage__SWIG_4((int)eStoreType, (int)ePackType, oneStr, twoStr);
-    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
-    return ret;
-  }
-
-  public static bool InitDefaultStorage(StorageType eStoreType, PackType ePackType, string oneStr) {
-    bool ret = otapiPINVOKE.InitDefaultStorage__SWIG_5((int)eStoreType, (int)ePackType, oneStr);
-    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
-    return ret;
-  }
-
   public static bool InitDefaultStorage(StorageType eStoreType, PackType ePackType) {
-    bool ret = otapiPINVOKE.InitDefaultStorage__SWIG_6((int)eStoreType, (int)ePackType);
+    bool ret = otapiPINVOKE.InitDefaultStorage((int)eStoreType, (int)ePackType);
     return ret;
   }
 

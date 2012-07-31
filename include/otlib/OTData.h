@@ -131,14 +131,10 @@
 #ifndef __OTDATA_H__
 #define __OTDATA_H__
 
-// DLL Export for Win32
-
-#undef EXPORT
-#ifdef _WINDLL
-  #define EXPORT __declspec(dllexport)
-#else
-  #define EXPORT
+#ifndef EXPORT
+#define EXPORT
 #endif
+#include <ExportWrapper.h>
 
 extern "C" {
 #include <stdint.h>	
@@ -173,8 +169,8 @@ EXPORT	OTData(const OTData &theSource);
 	    OTData(const OTASCIIArmor &theSource);
 
 EXPORT	virtual void Release();
-        void Release_Data();
-        virtual ~OTData();
+EXPORT	void Release_Data();
+EXPORT	virtual ~OTData();
 
     
     

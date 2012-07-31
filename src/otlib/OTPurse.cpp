@@ -1118,7 +1118,7 @@ bool OTPurse::Push(const OTPseudonym & theOwner, const OTToken & theToken)
 
 int OTPurse::Count() const
 {
-	return m_dequeTokens.size();
+	return static_cast<int> (m_dequeTokens.size());
 }
 
 bool OTPurse::IsEmpty() const

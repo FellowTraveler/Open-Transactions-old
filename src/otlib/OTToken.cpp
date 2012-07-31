@@ -166,10 +166,16 @@ using namespace io;
 _OT_Lucre_Dumper::_OT_Lucre_Dumper()
 {
 #ifdef _WIN32
-    OTString OpenSSLDumpFilename; // todo security. We shouldn't necessarily be dumping this info to file AT ALL.
-    OpenSSLDumpFilename.Format("%s%s%s",OTLog::Path(),OTLog::PathSeparator,"openssl.dumpfile"); // todo hardcoding.
-    SetDumper(OpenSSLDumpFilename.Get()); // We are only dumping this way currently as a temporary solution to the applink.c openssl thing that can cause crashes in Lucre when withdrawing cash. (Caused by da2ce7 removing Lucre from OT and moving it into a dylib.)
-    m_str_dumpfile = OpenSSLDumpFilename.Get();
+    OTString strOpenSSLDumpFilename("openssl.dumpfile"),strOpenSSLDumpFilePath, strDataPath; // todo security. We shouldn't necessarily be dumping this info to file AT ALL.
+	bool bGetDataFolderSuccess = OTLog::Path_GetDataFolder(strDataPath);
+	OT_ASSERT_MSG(bGetDataFolderSuccess,"_OT_Lucre_Dumper(): Failed to Get Data Path");
+	bool bRelativeToCanonicalSuccess = OTLog::Path_RelativeToCanonical(strOpenSSLDumpFilePath,strDataPath,strOpenSSLDumpFilename);
+	OT_ASSERT_MSG(bRelativeToCanonicalSuccess,"_OT_Lucre_Dumper(): Unable To Build Full Path");
+
+	strOpenSSLDumpFilename.Set(""); strDataPath.Set("");
+    SetDumper(strOpenSSLDumpFilePath.Get()); // We are only dumping this way currently as a temporary solution to the applink.c openssl thing that can cause crashes in Lucre when withdrawing cash. (Caused by da2ce7 removing Lucre from OT and moving it into a dylib.)
+    m_str_dumpfile = strOpenSSLDumpFilePath.Get();
+	strOpenSSLDumpFilePath.Set("");
 #else
     SetDumper(stderr);
 #endif     
@@ -512,7 +518,7 @@ void OTToken::UpdateContents()
 			break;
 	}
 
-	long lFrom = m_VALID_FROM, lTo = m_VALID_TO;
+	long lFrom = static_cast<long> (m_VALID_FROM), lTo = static_cast<long> (m_VALID_TO);
 
 	
 	// I release this because I'm about to repopulate it.
@@ -930,7 +936,7 @@ bool OTToken::GenerateTokenRequest(const OTPseudonym & theNym, OTMint & theMint,
 	BIO_free_all(bioBank);	
     BIO_free_all(bioCoin);	
     BIO_free_all(bioPublicCoin);
-	
+
 	return true;
 }
 
@@ -1101,7 +1107,7 @@ bool OTToken::ProcessToken(const OTPseudonym & theNym, OTMint & theMint, OTToken
 	BIO_free_all(bioSignature);	
 	BIO_free_all(bioPrivateRequest);	
 	BIO_free_all(bioCoin);	
-    
+
 	return bReturnValue;	
 }
 

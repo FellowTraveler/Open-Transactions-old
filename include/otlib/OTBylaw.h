@@ -130,15 +130,10 @@
 #ifndef __OT_BYLAW_H__
 #define __OT_BYLAW_H__
 
-// DLL Export for Win32
-
-#undef EXPORT
-#ifdef _WINDLL
-  #define EXPORT __declspec(dllexport)
-#else
-  #define EXPORT
+#ifndef EXPORT
+#define EXPORT
 #endif
-
+#include <ExportWrapper.h>
 
 #include <string>
 
@@ -719,7 +714,7 @@ EXPORT    std::string GetPartyName(bool * pBoolSuccess=NULL) const; // "sales_di
     bool		HasActiveAgent() const;	
 	OTAgent *	GetAgent(const std::string & str_agent_name);
 	
-	int  GetAgentCount() const { return m_mapAgents.size(); }
+	int  GetAgentCount() const { return static_cast<int> (m_mapAgents.size()); }
 	bool AddAgent(OTAgent& theAgent);
 	
 	const std::string & GetAuthorizingAgentName() const { return m_str_authorizing_agent; }
@@ -763,7 +758,7 @@ EXPORT	bool AddAccount(const OTString& strAgentName, const char * szAcctName,
 //					const std::string *	pstr_account_name=NULL,
 //					const long			lClosingTransNo=0);
 	
-	int GetAccountCount() const { return m_mapPartyAccounts.size(); } // returns total of all accounts owned by this party.
+	int GetAccountCount() const { return static_cast<int> (m_mapPartyAccounts.size()); } // returns total of all accounts owned by this party.
 	int GetAccountCount(const std::string str_agent_name) const; // Only counts accounts authorized for str_agent_name.
 	
 	// Get PartyAcct by name.
@@ -1054,7 +1049,7 @@ EXPORT	bool AddVariable(const std::string str_Name, const bool bValue,
 	
 EXPORT	OTVariable * GetVariable(const std::string str_Name); // not a reference, so you can pass in char *. Maybe that's bad? todo: research that.
 	
-	int GetVariableCount() const { return m_mapVariables.size(); }
+	int GetVariableCount() const { return static_cast<int> (m_mapVariables.size()); }
 	
 	void RegisterVariablesForExecution(OTScript& theScript);
 	
@@ -1069,15 +1064,15 @@ EXPORT	bool AddClause(const char * szName, const char * szCode);
 	
 EXPORT	OTClause * GetClause(const std::string str_Name);
 	
-	int GetClauseCount() const { return m_mapClauses.size(); }
+	int GetClauseCount() const { return static_cast<int> (m_mapClauses.size()); }
 	
 	// ---------------------
 EXPORT	bool AddHook(const std::string str_HookName, 
 				 const std::string str_ClauseName); // name of hook such as cron_process or hook_activate, and name of clause, such as sectionA (corresponding to an actual script in the clauses map.)
 	
-	int GetHookCount() const { return m_mapHooks.size(); }
+	int GetHookCount() const { return static_cast<int> (m_mapHooks.size()); }
 
-	int GetCallbackCount() const { return m_mapCallbacks.size(); }
+	int GetCallbackCount() const { return static_cast<int> (m_mapCallbacks.size()); }
 
 EXPORT	bool AddCallback(const std::string str_CallbackName, 
 					 const std::string str_ClauseName); // name of callback such as callback_party_may_execute_clause, and name of clause, such as custom_party_may_execute_clause (corresponding to an actual script in the clauses map.)

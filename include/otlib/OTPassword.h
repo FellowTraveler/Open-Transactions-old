@@ -129,14 +129,10 @@
 #ifndef __OT_PASSWORD_H__
 #define __OT_PASSWORD_H__
 
-// DLL Export for Win32
-
-#undef EXPORT
-#ifdef _WINDLL
-  #define EXPORT __declspec(dllexport)
-#else
-  #define EXPORT
+#ifndef EXPORT
+#define EXPORT
 #endif
+#include <ExportWrapper.h>
 
 #include <string>
 
@@ -365,7 +361,7 @@ EXPORT    void            setUsingOldSystem(bool bUsing=true);
     OTPassword *    GetMasterPW() { return m_pMasterPW; }
     // --------------------------------
 EXPORT    OTPasswordData(const char        *   szDisplay, OTPassword * pMasterPW=NULL);  
-          OTPasswordData(const std::string & str_Display, OTPassword * pMasterPW=NULL);  
+EXPORT    OTPasswordData(const std::string & str_Display, OTPassword * pMasterPW=NULL);  
 EXPORT    OTPasswordData(const OTString    &  strDisplay, OTPassword * pMasterPW=NULL);  
 EXPORT    ~OTPasswordData();
 };

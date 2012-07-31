@@ -358,7 +358,7 @@ void OTScriptable::RegisterOTNativeCallsWithScript(OTScript & theScript)
 std::string OTScriptable::GetTime() // Returns a string, containing seconds as int. (Time in seconds.)
 {
 	const	time_t	CURRENT_TIME	=	time(NULL);
-	const	long	lTime			=	CURRENT_TIME;
+	const	long	lTime			=	static_cast<long> (CURRENT_TIME);
 	// ----------------------------------
 	OTString strTime;
 	strTime.Format("%ld", lTime);

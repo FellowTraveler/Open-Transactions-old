@@ -52,47 +52,6 @@ public class Storage : IDisposable {
     return ret;
   }
 
-  public virtual bool Init(string oneStr, string twoStr, string threeStr, string fourStr, string fiveStr, string sixStr) {
-    bool ret = otapiPINVOKE.Storage_Init__SWIG_0(swigCPtr, oneStr, twoStr, threeStr, fourStr, fiveStr, sixStr);
-    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
-    return ret;
-  }
-
-  public virtual bool Init(string oneStr, string twoStr, string threeStr, string fourStr, string fiveStr) {
-    bool ret = otapiPINVOKE.Storage_Init__SWIG_1(swigCPtr, oneStr, twoStr, threeStr, fourStr, fiveStr);
-    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
-    return ret;
-  }
-
-  public virtual bool Init(string oneStr, string twoStr, string threeStr, string fourStr) {
-    bool ret = otapiPINVOKE.Storage_Init__SWIG_2(swigCPtr, oneStr, twoStr, threeStr, fourStr);
-    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
-    return ret;
-  }
-
-  public virtual bool Init(string oneStr, string twoStr, string threeStr) {
-    bool ret = otapiPINVOKE.Storage_Init__SWIG_3(swigCPtr, oneStr, twoStr, threeStr);
-    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
-    return ret;
-  }
-
-  public virtual bool Init(string oneStr, string twoStr) {
-    bool ret = otapiPINVOKE.Storage_Init__SWIG_4(swigCPtr, oneStr, twoStr);
-    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
-    return ret;
-  }
-
-  public virtual bool Init(string oneStr) {
-    bool ret = otapiPINVOKE.Storage_Init__SWIG_5(swigCPtr, oneStr);
-    if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();
-    return ret;
-  }
-
-  public virtual bool Init() {
-    bool ret = otapiPINVOKE.Storage_Init__SWIG_6(swigCPtr);
-    return ret;
-  }
-
   public virtual bool Exists(string strFolder, string oneStr, string twoStr, string threeStr) {
     bool ret = otapiPINVOKE.Storage_Exists__SWIG_0(swigCPtr, strFolder, oneStr, twoStr, threeStr);
     if (otapiPINVOKE.SWIGPendingException.Pending) throw otapiPINVOKE.SWIGPendingException.Retrieve();

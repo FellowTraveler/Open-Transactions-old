@@ -24,37 +24,96 @@ $ mkdir -p ~/Scratch/Sources; cd ~/Scratch/Sources
 $ curl -O http://openssl.org/source/openssl-1.0.0j.tar.gz
 $ tar xf openssl-1.0.0j.tar.gz
 $ cd openssl-1.0.0j
-$ ./Configure darwin64-x86_64-cc --prefix=$HOMEBREW_PREFIX
+
+(for a x64 PC)
+$ ./config darwin64-x86_64-cc shared --prefix=$HOMEBREW_PREFIX
+
+(for a x32 PC)
+$ ./config shared --prefix=$HOMEBREW_PREFIX
+
 $ make
 # may need root, depending on where $HOMEBREW_PREFIX points
 $ make install
 
-# now chaiscript
-$ cd ..
+
+# fetch chaiscript
 $ git clone git://github.com/ChaiScript/ChaiScript.git
-# cd ChaiScript
-$ cmake -DBOOST_ROOT=$HOMEBREW_PREFIX -DCMAKE_INSTALL_PREFIX=$HOMEBREW_PREFIX
+
+# build chaiscript
+$ cd ChaiScript
+$ cmake . -DCMAKE_INSTALL_PREFIX=$HOMEBREW_PREFIX
 $ make
-#again, may need root
 $ make install
+$ cd ..
+
 
 #fetch O-T and prepare your copy for build
-$ git clone <O-T github url>
+
+$ export PKG_CONFIG_PATH=$HOMEBREW_PREFIX/lib/pkgconfig
+$ git clone git://github.com/FellowTraveler/Open-Transactions.git
 $ cd Open-Transactions
 $ export PKG_CONFIG_PATH=$HOMEBREW_PREFIX:$PKG_CONFIG_PATH
 $ mkdir build
-$ autoreconf -i -f
 
-# build
-$ cd build
-# Did you install homebrew somewhere other than /usr/local?
-../configure --prefix=$HOMEBREW_PREFIX
-../configure --prefix=$HOMEBREW_PREFIX --with-java
-#Otherwise
-$ ../configure
+###  Configure Options:  ###
+Enable Configuration in Release Mode:
+--enable-release	
+
+Enable extra (noisy) warnings with compile:
+--enable-warnings
+
+Enable the signal handling for catching segmentation fault's (debug only):
+--enable-sighandler
+
+# Swig API support options:  #
+
+Enable Configuration for SWIG Java Support:
+--with-java
+
+Enable Configuration for SWIG Perl 5 Support:
+--with-perl5
+
+Enable Configuration for SWIG PHP Support:
+--with-php
+
+Enable Configuration for SWIG Python Support:
+--with-python
+
+=============================
+
+$ make uninstall (to cleanup anthing in you .local folder)
+
 $ make
+
+Build Multithreaded, need about 1gb of ram per thread.
+-j (int, mutiple of of 2)
+
 $ make install
 
 
+==============================
+###  Miscellaneous Notes:  ###
 
+# Create a wallet data folder (will reset everything):
 
+$ mkdir -p ~/.ot && cp -R sample-data/ot-sample-data/* ~/.ot
+
+# add to ~/.profile
+
+export PKG_CONFIG_PATH=$HOMEBREW_PREFIX/lib/pkgconfig
+
+# set PATH so it includes user's .local root bin if it exists
+if [ -d "$HOMEBREW_PREFIX/bin" ] ; then
+    PATH="$HOMEBREW_PREFIX/bin:$PATH"
+fi
+
+# to avoid logging out and then logging back in again, just do ...
+$ source ~/.profile
+
+# to run otserver
+$ otserver
+
+# for python client api support export env variable
+$ export PYTHON_PATH=$HOMEBREW_PREFIX/lib:$PYTHON_PATH
+
+==============================

@@ -133,6 +133,8 @@
 
 #include <map>
 
+#define IMPORT
+
 #include "OTString.h"
 #include "OTPseudonym.h"
 //#include "OTMint.h"
@@ -166,6 +168,14 @@ typedef std::map<std::string, OTAccount *>		mapOfAccounts; // server side these 
 
 class OTServer
 {
+	OTString	m_strDataPath;
+
+	OTString	m_strWalletFilename;
+
+	OTString	m_strConfigFilename;
+
+	OTString	m_strLogFilename;
+
 	bool		m_bShutdownFlag;	// If the server wants to be shut down, it can set this flag so the caller knows to do so.
 	
 	OTString	m_strVersion;		// Unused currently.
@@ -198,7 +208,7 @@ class OTServer
 	// -------------------------------------------------------------------------------------------------------------
 	// From server.cfg:
 	//
-	
+
     static int			__heartbeat_no_requests;	// The number of client requests that will be processed per heartbeat.
     static int			__heartbeat_ms_between_beats; // number of ms between each heartbeat.
 	

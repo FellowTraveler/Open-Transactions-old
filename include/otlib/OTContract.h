@@ -130,14 +130,10 @@
 #ifndef __OTCONTRACT_H__
 #define __OTCONTRACT_H__
 
-// DLL Export for Win32
-
-#undef EXPORT
-#ifdef _WINDLL
-  #define EXPORT __declspec(dllexport)
-#else
-  #define EXPORT
+#ifndef EXPORT
+#define EXPORT
 #endif
+#include <ExportWrapper.h>
 
 #include <cstdio>	
 
@@ -190,37 +186,37 @@ class OTNumList
     bool Add(const char * szfNumbers);   // if false, means the numbers were already there. (At least one of them.)
     
 public:
-    OTNumList(const std::set<long> & theNumbers);
+EXPORT    OTNumList(const std::set<long> & theNumbers);
     //  OTNumList(const char * szNumbers); // removed for security reasons.
-    OTNumList(const OTString & strNumbers);
+EXPORT    OTNumList(const OTString & strNumbers);
 EXPORT    OTNumList();
 EXPORT    ~OTNumList();
     // -------------------
-    bool Add(const OTString & strNumbers);  // if false, means the numbers were already there. (At least one of them.)
+EXPORT    bool Add(const OTString & strNumbers);  // if false, means the numbers were already there. (At least one of them.)
     // -------------------
 EXPORT    bool Add(const long & theValue);    // if false, means the value was already there.
-    bool Remove(const long & theValue); // if false, means the value was NOT already there.
+EXPORT    bool Remove(const long & theValue); // if false, means the value was NOT already there.
 EXPORT    bool Verify(const long & theValue) const; // returns true/false (whether value is already there.)
     // -------------------
-    bool Add(const OTNumList & theNumList);    // if false, means the numbers were already there. (At least one of them.)
-    bool Add(const std::set<long> & theNumbers);    // if false, means the numbers were already there. (At least one of them.)
-    bool Remove(const std::set<long> & theNumbers); // if false, means the numbers were NOT already there. (At least one of them.)
-    bool Verify(const std::set<long> & theNumbers) const; // True/False, based on whether values are already there. (ALL must be present.)
+EXPORT    bool Add(const OTNumList & theNumList);    // if false, means the numbers were already there. (At least one of them.)
+EXPORT    bool Add(const std::set<long> & theNumbers);    // if false, means the numbers were already there. (At least one of them.)
+EXPORT    bool Remove(const std::set<long> & theNumbers); // if false, means the numbers were NOT already there. (At least one of them.)
+EXPORT    bool Verify(const std::set<long> & theNumbers) const; // True/False, based on whether values are already there. (ALL must be present.)
     // -------------------
 EXPORT    bool Verify(const OTNumList & rhs) const; // True/False, based on whether OTNumLists MATCH in COUNT and CONTENT (NOT ORDER.)
     // -------------------
 EXPORT    int Count() const;
     // -------------------
-    bool  Peek(long & lPeek) const;
-    bool  Pop();
+EXPORT    bool  Peek(long & lPeek) const;
+EXPORT    bool  Pop();
     // -------------------
     // Outputs the numlist as set of numbers. (To iterate OTNumList, call this, then iterate the output.)
 EXPORT    bool Output(std::set<long> & theOutput) const; // returns false if the numlist was empty.
     
     // Outputs the numlist as a comma-separated string (for serialization, usually.)
-    bool Output(OTString & strOutput) const; // returns false if the numlist was empty.
+EXPORT    bool Output(OTString & strOutput) const; // returns false if the numlist was empty.
     // -------------------
-    void Release();
+EXPORT    void Release();
 };
 // -----------------------------------------------------
 
@@ -353,7 +349,7 @@ EXPORT	void ReleaseSignatures();
 	// This function is for those times when you already have the unsigned version 
 	// of the contract, and you have the signer, and you just want to sign it and
 	// calculate its new ID from the finished result.
-	virtual bool CreateContract(OTString & strContract, OTPseudonym & theSigner);
+EXPORT	virtual bool CreateContract(OTString & strContract, OTPseudonym & theSigner);
 	
 	bool InsertNym(const OTString & strKeyName, const OTString & strKeyValue);
 
@@ -368,7 +364,7 @@ EXPORT	void ReleaseSignatures();
 	
 	// Only overriden in OTOffer so far.
 	virtual void GetIdentifier(OTIdentifier & theIdentifier);// You can get it in string or binary form.
-	virtual void GetIdentifier(OTString & theIdentifier);    // The Contract ID is a hash of the contract raw file.
+EXPORT	virtual void GetIdentifier(OTString & theIdentifier);    // The Contract ID is a hash of the contract raw file.
 	
 	void GetFilename(OTString & strFilename);
 	void GetFoldername(OTString & strFoldername);

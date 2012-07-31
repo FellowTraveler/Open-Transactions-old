@@ -133,6 +133,8 @@
 #include "OTMessage.h"
 #include "OTClientConnection.h"
 
+#define IMPORT
+
 /*
 #define TYPE_1_CMD_1  1
 #define TYPE_1_CMD_2  2

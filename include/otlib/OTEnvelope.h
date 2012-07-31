@@ -130,14 +130,10 @@
 #ifndef __OTENVELOPE_H__
 #define __OTENVELOPE_H__
 
-// DLL Export for Win32
-
-#undef EXPORT
-#ifdef _WINDLL
-  #define EXPORT __declspec(dllexport)
-#else
-  #define EXPORT
+#ifndef EXPORT
+#define EXPORT
 #endif
+#include <ExportWrapper.h>
 
 #ifdef _WIN32
 #include <WinsockWrapper.h>
@@ -451,7 +447,7 @@ EXPORT    bool isPaused();
     
     // --------------------------------
 EXPORT    bool SerializeTo   (OTASCIIArmor & ascOutput);
-    bool SerializeFrom (const OTASCIIArmor & ascInput);
+EXPORT    bool SerializeFrom (const OTASCIIArmor & ascInput);
     // --------------------------------
 
     // These two functions are used by the OTServer or OTWallet that actually keeps
@@ -493,19 +489,19 @@ private:
     // ---------------------------------------------
 public:
     // ------------------------------------------------------------------------
-    bool SerializeTo   (OTPayload & theOutput) const;
+EXPORT    bool SerializeTo   (OTPayload & theOutput) const;
     bool SerializeFrom (OTPayload & theInput);
     
     bool SerializeTo   (OTASCIIArmor & ascOutput) const;
     bool SerializeFrom (const OTASCIIArmor & ascInput);
     
-    bool SerializeTo   (OTString & strOutput, bool bEscaped=false) const;
-    bool SerializeFrom (const OTString & strInput, bool bEscaped=false);
+EXPORT    bool SerializeTo   (OTString & strOutput, bool bEscaped=false) const;
+EXPORT    bool SerializeFrom (const OTString & strInput, bool bEscaped=false);
     // ------------------------------------------------------------------------
     inline bool IsGenerated() const { return m_bIsGenerated; }
     // ------------------------------------------------------------------------   
-    void GetIdentifier(OTIdentifier & theIdentifier) const;    
-    void GetIdentifier(OTString     & strIdentifier) const;
+EXPORT    void GetIdentifier(OTIdentifier & theIdentifier) const;    
+EXPORT    void GetIdentifier(OTString     & strIdentifier) const;
     // ------------------------------------------------------------------------ 
     // The derived key is used for decrypting the actual symmetric key.
     // It's called the derived key because it is derived from the passphrase.
@@ -516,7 +512,7 @@ public:
     // Assumes key is already generated. Tries to get the raw clear key from its 
     // encrypted form, via its passphrase being used to derive a key for that purpose.
     //
-    bool GetRawKeyFromPassphrase(const 
+EXPORT    bool GetRawKeyFromPassphrase(const 
                                  OTPassword & thePassphrase, 
                                  OTPassword & theRawKeyOutput,
                                  OTPassword * pDerivedKey=NULL) const;
@@ -535,11 +531,11 @@ public:
                      OTPassword &  thePassphrase,
                      OTPassword ** ppDerivedKey=NULL);  // If you want, I can pass this back to you.
     // ------------------------------------------------------------------------
-	OTSymmetricKey();
-	OTSymmetricKey(const OTPassword & thePassword);
+EXPORT	OTSymmetricKey();
+EXPORT	OTSymmetricKey(const OTPassword & thePassword);
     
-	virtual ~OTSymmetricKey();
-    virtual void Release();
+EXPORT	virtual ~OTSymmetricKey();
+EXPORT    virtual void Release();
     
     void Release_SymmetricKey();
     // ------------------------------------------------------------------------
@@ -640,8 +636,8 @@ EXPORT	virtual ~OTEnvelope();
     // ------------------------------------------------------------------------
 	// SYMMETRIC CRYPTO  (AES)
     
-    bool Encrypt(const OTString & theInput,        OTSymmetricKey & theKey, const OTPassword & thePassword);
-    bool Decrypt(      OTString & theOutput, const OTSymmetricKey & theKey, const OTPassword & thePassword);
+EXPORT    bool Encrypt(const OTString & theInput,        OTSymmetricKey & theKey, const OTPassword & thePassword);
+EXPORT    bool Decrypt(      OTString & theOutput, const OTSymmetricKey & theKey, const OTPassword & thePassword);
     
     // ------------------------------------------------------------------------
     static

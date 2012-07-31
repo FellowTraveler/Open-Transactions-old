@@ -94,7 +94,7 @@ BIGNUM *ReadNumber(BIO *in,const char *szTitle)
     {
     char szLine[10240];
     unsigned char aucBN[1024];
-    int nTLen=strlen(szTitle);
+    int nTLen=int (strlen(szTitle));
 
     BIO_gets(in,szLine,sizeof szLine-1);
     if(strncmp(szLine,szTitle,nTLen))
@@ -107,7 +107,7 @@ BIGNUM *ReadNumber(BIO *in,const char *szTitle)
 	}
     BIGNUM *bn=BN_new();
 
-    int n=strcspn(szLine+nTLen,"\r\n");
+    int n=int (strcspn(szLine+nTLen,"\r\n"));
     szLine[nTLen+n]='\0';
     if(n&1)
 	{

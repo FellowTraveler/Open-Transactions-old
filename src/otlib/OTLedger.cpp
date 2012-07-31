@@ -1695,7 +1695,7 @@ void OTLedger::UpdateContents() // Before transmission or serialization, this is
 		case OTLedger::paymentInbox:
 		case OTLedger::recordBox:
 			bSavingAbbreviated	= true;
-			nPartialRecordCount	= m_mapTransactions.size(); // We store this, so we know how many abbreviated records to read back later.
+			nPartialRecordCount	= static_cast<int> (m_mapTransactions.size()); // We store this, so we know how many abbreviated records to read back later.
 			break;
 			// -----------------------------
 		default:

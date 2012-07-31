@@ -134,14 +134,10 @@
 #ifndef __OT_SMART_CONTRACT_H__
 #define __OT_SMART_CONTRACT_H__
 
-// DLL Export for Win32
-
-#undef EXPORT
-#ifdef _WINDLL
-  #define EXPORT __declspec(dllexport)
-#else
-  #define EXPORT
+#ifndef EXPORT
+#define EXPORT
 #endif
+#include <ExportWrapper.h>
 
 #include "OTIdentifier.h"
 #include "OTString.h"

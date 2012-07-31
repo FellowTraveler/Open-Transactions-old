@@ -698,7 +698,7 @@ bool OTAgreement::CanRemoveItemFromCron(OTPseudonym & theNym)
 //
 int OTAgreement::GetRecipientCountClosingNumbers() const
 {
-	return m_dequeRecipientClosingNumbers.size();
+	return static_cast<int> (m_dequeRecipientClosingNumbers.size());
 }
 
 long OTAgreement::GetRecipientClosingTransactionNoAt(unsigned int nIndex) const 
@@ -802,7 +802,7 @@ bool OTAgreement::SetProposal(OTPseudonym & MERCHANT_NYM,       const OTString &
 	{
 		if (VALID_TO < VALID_FROM) // If Valid-To date is EARLIER than Valid-From date...
 		{
-			long lValidTo = VALID_TO, lValidFrom = VALID_FROM;
+			long lValidTo = static_cast<long> (VALID_TO), lValidFrom = static_cast<long> (VALID_FROM);
 			OTLog::vError("OTAgreement::SetProposal: VALID_TO (%ld) is earlier than VALID_FROM (%ld)\n", 
                           lValidTo, lValidFrom);
 			return false;
@@ -812,7 +812,7 @@ bool OTAgreement::SetProposal(OTPseudonym & MERCHANT_NYM,       const OTString &
 	}
 	else // VALID_TO is a NEGATIVE number... Error.
 	{
-		long lValidTo = VALID_TO;
+		long lValidTo = static_cast<long> (VALID_TO);
 		OTLog::vError("Negative value for valid_to in SetAgreement: %ld\n", lValidTo);
         
 		return false;

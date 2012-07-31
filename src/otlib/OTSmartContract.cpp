@@ -4911,7 +4911,7 @@ void OTSmartContract::Release()
 
 int OTSmartContract::GetCountStashes() const
 {
-	return m_mapStashes.size();
+	return static_cast<int> (m_mapStashes.size());
 }
 
 

@@ -43,16 +43,20 @@ abstract class otapi {
 		return OT_API_Set_PasswordCallback($theCaller);
 	}
 
-	static function OT_API_Init($szClientPath) {
-		return OT_API_Init($szClientPath);
+	static function OT_API_Init() {
+		return OT_API_Init();
 	}
 
-	static function OT_API_LoadWallet($szWalletFilename) {
-		return OT_API_LoadWallet($szWalletFilename);
+	static function OT_API_SetWallet($szWalletFilename) {
+		return OT_API_SetWallet($szWalletFilename);
 	}
 
-	static function OT_API_SwitchWallet($szDataFolderPath,$szWalletFilename) {
-		return OT_API_SwitchWallet($szDataFolderPath,$szWalletFilename);
+	static function OT_API_LoadWallet() {
+		return OT_API_LoadWallet();
+	}
+
+	static function OT_API_SwitchWallet() {
+		return OT_API_SwitchWallet();
 	}
 
 	static function OT_API_Output($nLogLevel,$szOutput) {
@@ -1111,17 +1115,8 @@ abstract class otapi {
 
 	const STORED_OBJ_ERROR = STORED_OBJ_ERROR;
 
-	static function InitDefaultStorage($eStoreType,$ePackType,$oneStr=null,$twoStr=null,$threeStr=null,$fourStr=null,$fiveStr=null,$sixStr=null) {
-		switch (func_num_args()) {
-		case 2: $r=InitDefaultStorage($eStoreType,$ePackType); break;
-		case 3: $r=InitDefaultStorage($eStoreType,$ePackType,$oneStr); break;
-		case 4: $r=InitDefaultStorage($eStoreType,$ePackType,$oneStr,$twoStr); break;
-		case 5: $r=InitDefaultStorage($eStoreType,$ePackType,$oneStr,$twoStr,$threeStr); break;
-		case 6: $r=InitDefaultStorage($eStoreType,$ePackType,$oneStr,$twoStr,$threeStr,$fourStr); break;
-		case 7: $r=InitDefaultStorage($eStoreType,$ePackType,$oneStr,$twoStr,$threeStr,$fourStr,$fiveStr); break;
-		default: $r=InitDefaultStorage($eStoreType,$ePackType,$oneStr,$twoStr,$threeStr,$fourStr,$fiveStr,$sixStr);
-		}
-		return $r;
+	static function InitDefaultStorage($eStoreType,$ePackType) {
+		return InitDefaultStorage($eStoreType,$ePackType);
 	}
 
 	static function GetDefaultStorage() {
@@ -1619,19 +1614,6 @@ abstract class Storage {
 		switch (func_num_args()) {
 		case 0: $r=Storage_GetPacker($this->_cPtr); break;
 		default: $r=Storage_GetPacker($this->_cPtr,$ePackType);
-		}
-		return $r;
-	}
-
-	function Init($oneStr=null,$twoStr=null,$threeStr=null,$fourStr=null,$fiveStr=null,$sixStr=null) {
-		switch (func_num_args()) {
-		case 0: $r=Storage_Init($this->_cPtr); break;
-		case 1: $r=Storage_Init($this->_cPtr,$oneStr); break;
-		case 2: $r=Storage_Init($this->_cPtr,$oneStr,$twoStr); break;
-		case 3: $r=Storage_Init($this->_cPtr,$oneStr,$twoStr,$threeStr); break;
-		case 4: $r=Storage_Init($this->_cPtr,$oneStr,$twoStr,$threeStr,$fourStr); break;
-		case 5: $r=Storage_Init($this->_cPtr,$oneStr,$twoStr,$threeStr,$fourStr,$fiveStr); break;
-		default: $r=Storage_Init($this->_cPtr,$oneStr,$twoStr,$threeStr,$fourStr,$fiveStr,$sixStr);
 		}
 		return $r;
 	}

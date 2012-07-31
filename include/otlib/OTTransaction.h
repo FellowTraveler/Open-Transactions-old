@@ -130,14 +130,10 @@
 #ifndef __OTTRANSACTION_H__
 #define __OTTRANSACTION_H__
 
-// DLL Export for Win32
-
-#undef EXPORT
-#ifdef _WINDLL
-  #define EXPORT __declspec(dllexport)
-#else
-  #define EXPORT
+#ifndef EXPORT
+#define EXPORT
 #endif
+#include <ExportWrapper.h>
 
 #include <ctime>
 
@@ -727,7 +723,7 @@ EXPORT	bool VerifyItems(OTPseudonym & theNym);
 	// --------------------------------------------------------------
 	
     inline
-    int	GetItemCount() const { return m_listItems.size(); }
+    int	GetItemCount() const { return static_cast<int> (m_listItems.size()); }
 	int GetItemCountInRefTo(const long lReference); // Count the number of items that are IN REFERENCE TO some transaction#.
 
     // While processing a transaction, you may wish to query it for items of a certain type.
