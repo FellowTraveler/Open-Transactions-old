@@ -543,7 +543,8 @@ void OTWallet::AddNym(const OTPseudonym & theNym)
 		
 		if (aNymID == NYM_ID)
 		{
-			strName.Set(pNym->GetNymName());
+            OTString strTemp(pNym->GetNymName());
+			strName = strTemp; // todo optimize. currently am fixing "blank nym name" bug.
 						
 			m_mapNyms.erase(it);
             
@@ -562,9 +563,44 @@ void OTWallet::AddNym(const OTPseudonym & theNym)
     // -----------------------
 	const OTString	strNymID(NYM_ID);
 	m_mapNyms[strNymID.Get()] = (OTPseudonym *)&theNym; // Insert to wallet's list of Nyms.
-    // -----------------------
-    (const_cast<OTPseudonym &>(theNym)).SetNymName(strName);
+    // -----------------------    
+    if (strName.Exists())
+        (const_cast<OTPseudonym &>(theNym)).SetNymName(strName);
 }
+
+/*
+void OTWallet::AddNym(const OTPseudonym & theNym)
+{
+	const OTIdentifier	NYM_ID(theNym);
+	OTIdentifier aNymID;
+    
+	FOR_EACH(mapOfNyms, m_mapNyms)
+	{	
+		OTPseudonym * pNym = (*it).second;
+		OT_ASSERT(NULL != pNym);
+        
+		pNym->GetIdentifier(aNymID);
+        
+		if (aNymID == NYM_ID)
+		{
+			OTString strName(pNym->GetNymName());
+			(const_cast<OTPseudonym &>(theNym)).SetNymName(strName);
+            
+			m_mapNyms.erase(it);
+			delete pNym;
+			pNym = NULL;
+            
+//			OTLog::Error("Error: Adding Nym to wallet when there was already one there with same ID...\n");
+            
+			break;
+		}
+	}
+    
+	const OTString	strNymID(NYM_ID);
+	m_mapNyms[strNymID.Get()] = (OTPseudonym *)&theNym; // Insert to wallet's list of Nyms.
+}
+*/
+
 
 
 void OTWallet::AddAccount(const OTAccount & theAcct)
