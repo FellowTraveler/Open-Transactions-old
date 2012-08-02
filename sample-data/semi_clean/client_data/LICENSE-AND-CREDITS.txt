@@ -1,4 +1,3 @@
-Moneychanger
 /************************************************************
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA256
