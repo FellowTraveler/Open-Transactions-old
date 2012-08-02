@@ -33,16 +33,16 @@ dist_opentxsdoc_DATA		=	docs/GETTING-STARTED.txt	\
 					docs/INSTALL-Windows.txt	\
 					docs/SSL-NOTES.txt		\
 					docs/WIPE-USERS-ACCOUNTS.txt	\
+					docs/CLIENT-COMMANDS.txt	\
 					docs/LICENSE-AND-CREDITS.txt	\
 					PUBKEY-FellowTraveler.asc	\
 					README.md 			\
 					VERSION
 
-nobase_dist_opentxsdoc_DATA	=	sample-data/ot-sample-data-clean/command-line-ot.opt			\
-					sample-data/ot-sample-data-clean/CLIENT-COMMANDS.txt			\
-					sample-data/ot-sample-data-clean/client_data/LICENSE-AND-CREDITS.txt	\
-					sample-data/ot-sample-data-clean/client_data/wallet.xml			\
-					sample-data/ot-sample-data-clean/server_data/notaryServer.xml
+opentxsdatadir			=	$(pkgdatadir)
+dist_opentxsdata_DATA		=	sample-data/command-line-ot.opt	\
+					sample-data/user-samples.tar.gz
+
 
 pkgconfigdir			=	$(libdir)/pkgconfig
 pkgconfig_DATA			=	src/opentxs.pc
