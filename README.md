@@ -31,6 +31,16 @@ Video Walkthru:
 Part 1: http://vimeo.com/28141679
 Part 2: http://vimeo.com/28142096
 
+** NEW ** Videos:
+http://open-transactions-tv.github.com/
+
+** NEW **  GUI mock-ups:
+standard mode:
+https://www.fluidui.com/editor/live/preview/p_8ZN0r9Pbp2XzPC7yL3lDFw5lW2L7vEye.1343824445082
+
+advanced mode:
+https://www.fluidui.com/editor/live/preview/p_XcN9TmQ5FItuPr5QctxES2XfAhinsVPp.1343659566990
+
 Radio Interview:
 Part 1: http://agoristradio.com/?p=234
 Part 2: http://agoristradio.com/?p=246
