@@ -889,10 +889,10 @@ public:
                                                    const std::string REQUEST_NUMBER); // returns replyNotice transaction by requestNumber.
 
 	static int getBoxReceipt(const std::string	SERVER_ID,
-							  const std::string	USER_ID,
-							  const std::string	ACCT_ID,	// If for Nymbox (vs inbox/outbox) then pass USER_ID in this field also.
-							  const int			nBoxType,	// 0/nymbox, 1/inbox, 2/outbox
-							  const std::string	TRANSACTION_NUMBER);
+                             const std::string	USER_ID,
+                             const std::string	ACCT_ID,	// If for Nymbox (vs inbox/outbox) then pass USER_ID in this field also.
+                             const int			nBoxType,	// 0/nymbox, 1/inbox, 2/outbox
+                             const std::string	TRANSACTION_NUMBER);
 	
 	static bool DoesBoxReceiptExist(const std::string	SERVER_ID,
 									const std::string	USER_ID,
@@ -901,42 +901,49 @@ public:
 									const std::string	TRANSACTION_NUMBER);
 	// --------------------------------------------------------------------------
 	static int processInbox(const std::string SERVER_ID,
-							 const std::string USER_ID,
-							 const std::string ACCT_ID,
-							 const std::string ACCT_LEDGER);
+                            const std::string USER_ID,
+                            const std::string ACCT_ID,
+                            const std::string ACCT_LEDGER);
 	
 	static int processNymbox(const std::string SERVER_ID,
 							 const std::string USER_ID);
 	
 	// --------------------------------------------------------------------------
 	static int withdrawVoucher(const std::string SERVER_ID,
-								const std::string USER_ID,
-								const std::string ACCT_ID,
-								const std::string RECIPIENT_USER_ID,
-								const std::string CHEQUE_MEMO,
-								const std::string AMOUNT);
+                               const std::string USER_ID,
+                               const std::string ACCT_ID,
+                               const std::string RECIPIENT_USER_ID,
+                               const std::string CHEQUE_MEMO,
+                               const std::string AMOUNT);
+	// --------------------------------------------------------------------------
+	static int payDividend(const std::string SERVER_ID,
+                           const std::string ISSUER_USER_ID,
+                           const std::string DIVIDEND_FROM_ACCT_ID,
+                           const std::string SHARES_ASSET_TYPE_ID,
+                           const std::string DIVIDEND_MEMO,
+                           const std::string AMOUNT_PER_SHARE);
 	// --------------------------------------------------------------------------
 	static int depositCheque(const std::string SERVER_ID,
-							  const std::string USER_ID,
-							  const std::string ACCT_ID,
-							  const std::string THE_CHEQUE);
+                             const std::string USER_ID,
+                             const std::string ACCT_ID,
+                             const std::string THE_CHEQUE);
 	// --------------------------------------------------
 	static int depositPaymentPlan(const std::string SERVER_ID,
-								   const std::string USER_ID,
-								   const std::string THE_PAYMENT_PLAN);
+                                  const std::string USER_ID,
+                                  const std::string THE_PAYMENT_PLAN);
 	// --------------------------------------------------
 	static int issueMarketOffer(const std::string SERVER_ID,
-								 const std::string USER_ID,
-								 // -------------------------------------------
-								 const std::string ASSET_ACCT_ID, // Perhaps this is the wheat market.
-								 // -------------------------------------------
-								 const std::string CURRENCY_ACCT_ID, // Perhaps I'm buying the wheat with rubles.
-								 // -------------------------------------------
-								 const std::string MARKET_SCALE,				// Defaults to minimum of 1. Market granularity.
-								 const std::string MINIMUM_INCREMENT,		// This will be multiplied by the Scale. Min 1.
-								 const std::string TOTAL_ASSETS_ON_OFFER,	// Total assets available for sale or purchase. Will be multiplied by minimum increment.
-								 const std::string PRICE_LIMIT,				// Per Minimum Increment...
-								 bool	bBuyingOrSelling); // Actually OT_BOOL. SELLING == OT_TRUE, BUYING == OT_FALSE.
+                                const std::string USER_ID,
+                                // -------------------------------------------
+                                const std::string ASSET_ACCT_ID, // Perhaps this is the wheat market.
+                                // -------------------------------------------
+                                const std::string CURRENCY_ACCT_ID, // Perhaps I'm buying the wheat with rubles.
+                                // -------------------------------------------
+                                const std::string MARKET_SCALE,				// Defaults to minimum of 1. Market granularity.
+                                const std::string MINIMUM_INCREMENT,		// This will be multiplied by the Scale. Min 1.
+                                const std::string TOTAL_ASSETS_ON_OFFER,	// Total assets available for sale or purchase. Will be multiplied by minimum increment.
+                                const std::string PRICE_LIMIT,				// Per Minimum Increment...
+                                bool	bBuyingOrSelling); // Actually OT_BOOL. SELLING == OT_TRUE, BUYING == OT_FALSE.
 	// --------------------------------------------------
 	
 	static int getMarketList(const std::string SERVER_ID, const std::string USER_ID);

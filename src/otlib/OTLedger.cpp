@@ -1508,7 +1508,7 @@ OTItem * OTLedger::GenerateBalanceStatement(const long lAdjustment, const OTTran
     
 	switch (theOwner.GetType()) 
 	{
-			// These five options will remove the transaction number from the issued list, SUCCESS OR FAIL.
+			// These six options will remove the transaction number from the issued list, SUCCESS OR FAIL.
 			// Server will expect the number to be missing from the list, in the case of these.
 			// Therefore I remove it here in order to generate a proper balance agreement, acceptable to the server.
 		case OTTransaction::processInbox:
@@ -1516,6 +1516,7 @@ OTItem * OTLedger::GenerateBalanceStatement(const long lAdjustment, const OTTran
 		case OTTransaction::withdrawal:
         case OTTransaction::cancelCronItem:
 		case OTTransaction::exchangeBasket:
+		case OTTransaction::payDividend:
 
 			theMessageNym.RemoveIssuedNum(theOwner.GetRealServerID(), theOwner.GetTransactionNum());  // a transaction number is being used, and REMOVED from my list of responsibility,
 			theMessageNym.RemoveTransactionNum(theOwner.GetRealServerID(), theOwner.GetTransactionNum());  // a transaction number is being used, and REMOVED from my list of  available numbers.

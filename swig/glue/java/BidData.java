@@ -34,7 +34,7 @@ public class BidData extends OfferDataMarket {
     }
     super.delete();
   }
-/*@SWIG:otapi\otapi.i,385,OT_CAN_BE_CONTAINED_BY@*/
+/*@SWIG:otapi/OTAPI.i,385,OT_CAN_BE_CONTAINED_BY@*/
 	// Ensure that the GC doesn't collect any OT_CONTAINER instance set from Java
 	private OfferListMarket containerRefOfferListMarket;
 	// ----------------	

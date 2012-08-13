@@ -300,6 +300,7 @@ ZEND_NAMED_FUNCTION(_wrap_OT_API_DoesBoxReceiptExist);
 ZEND_NAMED_FUNCTION(_wrap_OT_API_processInbox);
 ZEND_NAMED_FUNCTION(_wrap_OT_API_processNymbox);
 ZEND_NAMED_FUNCTION(_wrap_OT_API_withdrawVoucher);
+ZEND_NAMED_FUNCTION(_wrap_OT_API_payDividend);
 ZEND_NAMED_FUNCTION(_wrap_OT_API_depositCheque);
 ZEND_NAMED_FUNCTION(_wrap_OT_API_depositPaymentPlan);
 ZEND_NAMED_FUNCTION(_wrap_OT_API_issueMarketOffer);

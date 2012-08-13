@@ -207,7 +207,6 @@ protected:
     
 	// --------------------------------------------------------------
 public:	
-	// --------
 	
     inline void MarkForDeletion() { m_bMarkForDeletion = true; }
     inline bool IsMarkedForDeletion() const { return m_bMarkForDeletion; }
@@ -216,10 +215,11 @@ public:
 	
 EXPORT	bool IsInternalServerAcct() const;
 	
-	bool IsOwnedByUser() const;
-	bool IsOwnedByEntity() const;
+        bool IsOwnedByUser() const;
+        bool IsOwnedByEntity() const;
 	
-	bool IsAllowedToGoNegative() const;
+        bool IsAllowedToGoNegative() const;
+        bool IsIssuer() const;
 	
     // ---------------------------------------
 	
@@ -232,24 +232,26 @@ EXPORT	bool IsInternalServerAcct() const;
 
     // ---------------------------------------
 	
-    OTAccount(const OTIdentifier & theUserID, const OTIdentifier & theAccountID, const OTIdentifier & theServerID, const OTString & name);
+        OTAccount(const OTIdentifier & theUserID, const OTIdentifier & theAccountID, const OTIdentifier & theServerID, const OTString & name);
 EXPORT	OTAccount(const OTIdentifier & theUserID, const OTIdentifier & theAccountID, const OTIdentifier & theServerID);
-	void InitAccount();
+        void InitAccount();
 EXPORT	virtual ~OTAccount();
     
-    virtual void Release();
+        virtual void Release();
     
-    void Release_Account();
+        void Release_Account();
     
     // -----------------------------------------------------------------------
 	
 EXPORT	static OTAccount * GenerateNewAccount(const OTIdentifier & theUserID, const OTIdentifier & theServerID, 
-										  const OTPseudonym & theServerNym, const OTMessage & theMessage,
-										  const AccountType eAcctType=simple,
-										  long lStashTransNum=0);
+                                              const OTPseudonym & theServerNym, const OTMessage & theMessage,
+                                              const AccountType eAcctType=simple,
+                                              long lStashTransNum=0);
 
-	bool GenerateNewAccount(const OTPseudonym & theServer, const OTMessage & theMessage, const AccountType eAcctType=simple,
-							long lStashTransNum=0);
+	bool GenerateNewAccount(const OTPseudonym & theServer, 
+                            const OTMessage   & theMessage, 
+                            const AccountType   eAcctType=simple,
+							      long          lStashTransNum=0);
     // -----------------------------------------------------------------------
 
 	// Let's say you don't have or know the UserID, and you just want to load the damn thing up.
@@ -260,7 +262,7 @@ EXPORT	static OTAccount * LoadExistingAccount(const OTIdentifier & theAccountID,
 EXPORT	OTLedger * LoadInbox (OTPseudonym & theNym); // Caller responsible to delete.
 EXPORT	OTLedger * LoadOutbox(OTPseudonym & theNym); // Caller responsible to delete.
 	
-EXPORT    bool SaveInbox (OTLedger &theBox, OTIdentifier * pHash=NULL);  // If you pass the identifier in, the inbox hash is recorded there
+EXPORT  bool SaveInbox (OTLedger &theBox, OTIdentifier * pHash=NULL);  // If you pass the identifier in, the inbox hash is recorded there
 EXPORT	bool SaveOutbox(OTLedger &theBox, OTIdentifier * pHash=NULL);  // If you pass the identifier in, the outbox hash is recorded there
     // -----------------------------------------------------------------------
     
@@ -274,7 +276,7 @@ EXPORT	bool Credit(const long & lAmount); // Credit a certain amount from the ac
 		
 	// Compares the NymID loaded from the account file with whatever Nym the programmer wants to verify.
 EXPORT	bool VerifyOwner(const OTPseudonym & theCandidate) const;
-	bool VerifyOwnerByID(const OTIdentifier & theNymID) const;
+        bool VerifyOwnerByID(const OTIdentifier & theNymID) const;
 	
 EXPORT	virtual bool LoadContract(); // overriding this so I can set the filename automatically inside based on ID.
 EXPORT	bool SaveAccount(); // generates filename based on accounts path and account ID. Saves to the standard location for an acct.
@@ -286,10 +288,10 @@ EXPORT	bool SaveAccount(); // generates filename based on accounts path and acco
 	virtual bool DisplayStatistics(OTString & strContents) const;
 	// --------------------------------------------------------------
     
-    void  SetInboxHash(const OTIdentifier & theInput);   
+          void  SetInboxHash(const OTIdentifier & theInput);   
 EXPORT    bool  GetInboxHash(OTIdentifier & theOutput);
     
-    void  SetOutboxHash(const OTIdentifier & theInput);   
+          void  SetOutboxHash(const OTIdentifier & theInput);   
 EXPORT    bool  GetOutboxHash(OTIdentifier & theOutput);
     
 	// --------------------------------------------------------------
@@ -333,27 +335,28 @@ class OTAcctList
 	mapOfWeakAccounts	m_mapWeakAccts; // If someone calls GetOrCreateAccount(), we pass them a shared pointer. We 
 										// store the weak pointer here only to make sure accounts don't get loaded twice.
 public:	
+    
 EXPORT	OTAcctList();
-	OTAcctList(OTAccount::AccountType eAcctType);
+        OTAcctList(OTAccount::AccountType eAcctType);
 EXPORT	~OTAcctList();
 
-	int GetCountAccountIDs() const { return static_cast<int> (m_mapAcctIDs.size()); }
+        int  GetCountAccountIDs() const { return static_cast<int> (m_mapAcctIDs.size()); }
 	
-	void Release();
+        void Release();
 
-	void Release_AcctList();
+        void Release_AcctList();
 	
 EXPORT	void Serialize(OTString & strAppend);
-EXPORT	int ReadFromXMLNode(irr::io::IrrXMLReader*& xml, const OTString & strAcctType, const OTString & strAcctCount);
+EXPORT	int  ReadFromXMLNode(irr::io::IrrXMLReader*& xml, const OTString & strAcctType, const OTString & strAcctCount);
 	
-	void SetType(OTAccount::AccountType eAcctType) { m_AcctType = eAcctType; }
+        void SetType(OTAccount::AccountType eAcctType) { m_AcctType = eAcctType; }
 	
 EXPORT	OTAccount_SharedPtr GetOrCreateAccount(OTPseudonym			& theServerNym, 
-										   const OTIdentifier	& ACCOUNT_OWNER_ID, 
-										   const OTIdentifier	& ASSET_TYPE_ID, 
-										   const OTIdentifier	& SERVER_ID,
-										   bool					& bWasAcctCreated, // this will be set to true if the acct is created here. Otherwise set to false;
-										   const long lStashTransNum=0);
+                                               const OTIdentifier	& ACCOUNT_OWNER_ID, 
+                                               const OTIdentifier	& ASSET_TYPE_ID, 
+                                               const OTIdentifier	& SERVER_ID,
+                                               bool					& bWasAcctCreated, // this will be set to true if the acct is created here. Otherwise set to false;
+                                               const long             lStashTransNum=0);
 };
 
 
@@ -365,45 +368,44 @@ EXPORT	OTAccount_SharedPtr GetOrCreateAccount(OTPseudonym			& theServerNym,
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #endif // __OTACCOUNT_H__
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

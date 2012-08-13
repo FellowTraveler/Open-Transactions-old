@@ -1659,6 +1659,11 @@ int OT_API_withdrawVoucher(char[] SERVER_ID, char[] USER_ID, char[] ACCT_ID, cha
   return ret;
 }
 
+int OT_API_payDividend(char[] SERVER_ID, char[] ISSUER_USER_ID, char[] DIVIDEND_FROM_ACCT_ID, char[] SHARES_ASSET_TYPE_ID, char[] DIVIDEND_MEMO, char[] AMOUNT_PER_SHARE) {
+  auto ret = otapi_im.OT_API_payDividend((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (ISSUER_USER_ID ? tango.stdc.stringz.toStringz(ISSUER_USER_ID) : null), (DIVIDEND_FROM_ACCT_ID ? tango.stdc.stringz.toStringz(DIVIDEND_FROM_ACCT_ID) : null), (SHARES_ASSET_TYPE_ID ? tango.stdc.stringz.toStringz(SHARES_ASSET_TYPE_ID) : null), (DIVIDEND_MEMO ? tango.stdc.stringz.toStringz(DIVIDEND_MEMO) : null), (AMOUNT_PER_SHARE ? tango.stdc.stringz.toStringz(AMOUNT_PER_SHARE) : null));
+  return ret;
+}
+
 int OT_API_depositCheque(char[] SERVER_ID, char[] USER_ID, char[] ACCT_ID, char[] THE_CHEQUE) {
   auto ret = otapi_im.OT_API_depositCheque((SERVER_ID ? tango.stdc.stringz.toStringz(SERVER_ID) : null), (USER_ID ? tango.stdc.stringz.toStringz(USER_ID) : null), (ACCT_ID ? tango.stdc.stringz.toStringz(ACCT_ID) : null), (THE_CHEQUE ? tango.stdc.stringz.toStringz(THE_CHEQUE) : null));
   return ret;

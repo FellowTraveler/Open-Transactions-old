@@ -473,8 +473,8 @@ std::string OT_CLI_GetValueByIndex(const std::string str_Args, const int nIndex)
 		FOR_EACH(mapOfArguments, map_values)
 		{
 			++nMapIndex;
-			//			const std::string str_key = (*it).first;
-			//			const std::string str_val = (*it).second;
+//			const std::string str_key = (*it).first;
+//			const std::string str_val = (*it).second;
 			// -------------------------------------
 			// BY this point, nMapIndex contains the index we're at on map_values
 			// (compare to nIndex.) And str_key and str_val contain the key/value
@@ -513,8 +513,8 @@ std::string OT_CLI_GetKeyByIndex(const std::string str_Args, const int nIndex)
 		FOR_EACH(mapOfArguments, map_values)
 		{
 			++nMapIndex;
-			//			const std::string str_key = (*it).first;
-			//			const std::string str_val = (*it).second;
+//			const std::string str_key = (*it).first;
+//			const std::string str_val = (*it).second;
 			// -------------------------------------
 			// BY this point, nMapIndex contains the index we're at on map_values
 			// (compare to nIndex.) And str_key and str_val contain the key/value
@@ -724,7 +724,318 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
     
 	if (NULL != pScript)
 	{
+        // NOTE: testing with adding some more of the object-oriented stuff to chaiscript.
+        //
         
+        
+        // ----------------------------------------------------------------------
+        
+        // ADD ENUMS
+        pScript->chai.add(user_type<OTDB::StoredObjectType>(), "OTDB_StoredObjectType");
+            
+        pScript->chai.add_global_const(const_var(OTDB::STORED_OBJ_STRING), "STORED_OBJ_STRING");
+        pScript->chai.add_global_const(const_var(OTDB::STORED_OBJ_BLOB), "STORED_OBJ_BLOB");
+        pScript->chai.add_global_const(const_var(OTDB::STORED_OBJ_STRING_MAP), "STORED_OBJ_STRING_MAP");
+        pScript->chai.add_global_const(const_var(OTDB::STORED_OBJ_WALLET_DATA), "STORED_OBJ_WALLET_DATA");
+        pScript->chai.add_global_const(const_var(OTDB::STORED_OBJ_BID_DATA), "STORED_OBJ_BID_DATA");
+        pScript->chai.add_global_const(const_var(OTDB::STORED_OBJ_ASK_DATA), "STORED_OBJ_ASK_DATA");
+        pScript->chai.add_global_const(const_var(OTDB::STORED_OBJ_MARKET_DATA), "STORED_OBJ_MARKET_DATA");
+        pScript->chai.add_global_const(const_var(OTDB::STORED_OBJ_MARKET_LIST), "STORED_OBJ_MARKET_LIST");
+        pScript->chai.add_global_const(const_var(OTDB::STORED_OBJ_OFFER_LIST_MARKET), "STORED_OBJ_OFFER_LIST_MARKET");
+        pScript->chai.add_global_const(const_var(OTDB::STORED_OBJ_TRADE_DATA_MARKET), "STORED_OBJ_TRADE_DATA_MARKET");
+        pScript->chai.add_global_const(const_var(OTDB::STORED_OBJ_TRADE_LIST_MARKET), "STORED_OBJ_TRADE_LIST_MARKET");
+        pScript->chai.add_global_const(const_var(OTDB::STORED_OBJ_OFFER_DATA_NYM), "STORED_OBJ_OFFER_DATA_NYM");
+        pScript->chai.add_global_const(const_var(OTDB::STORED_OBJ_OFFER_LIST_NYM), "STORED_OBJ_OFFER_LIST_NYM");
+        pScript->chai.add_global_const(const_var(OTDB::STORED_OBJ_TRADE_DATA_NYM), "STORED_OBJ_TRADE_DATA_NYM");
+        pScript->chai.add_global_const(const_var(OTDB::STORED_OBJ_TRADE_LIST_NYM), "STORED_OBJ_TRADE_LIST_NYM");
+                
+        // ADD OBJECT TYPES
+        // ----------------------------------------------------------------------
+        pScript->chai.add(user_type<OTDB::Storage>(),            "OTDB_Storage");
+        pScript->chai.add(user_type<OTDB::Storable>(),           "OTDB_Storable");
+        pScript->chai.add(user_type<OTDB::OTDBString>(),         "OTDB_String");
+        pScript->chai.add(user_type<OTDB::Blob>(),               "OTDB_Blob");
+        pScript->chai.add(user_type<OTDB::StringMap>(),          "OTDB_StringMap");
+        pScript->chai.add(user_type<OTDB::Displayable>(),        "OTDB_Displayable");
+        pScript->chai.add(user_type<OTDB::MarketData>(),         "OTDB_MarketData");
+        pScript->chai.add(user_type<OTDB::MarketList>(),         "OTDB_MarketList");
+        pScript->chai.add(user_type<OTDB::OfferDataMarket>(),    "OTDB_OfferDataMarket");
+        pScript->chai.add(user_type<OTDB::BidData>(),            "OTDB_BidData");
+        pScript->chai.add(user_type<OTDB::AskData>(),            "OTDB_AskData");
+        pScript->chai.add(user_type<OTDB::OfferListMarket>(),    "OTDB_OfferListMarket");
+        pScript->chai.add(user_type<OTDB::TradeDataMarket>(),    "OTDB_TradeDataMarket");
+        pScript->chai.add(user_type<OTDB::TradeListMarket>(),    "OTDB_TradeListMarket");
+        pScript->chai.add(user_type<OTDB::OfferDataNym>(),       "OTDB_OfferDataNym");
+        pScript->chai.add(user_type<OTDB::OfferListNym>(),       "OTDB_OfferListNym");
+        pScript->chai.add(user_type<OTDB::TradeDataNym>(),       "OTDB_TradeDataNym");
+        pScript->chai.add(user_type<OTDB::TradeListNym>(),       "OTDB_TradeListNym");
+//        pScript->chai.add(user_type<OTDB::Acct>(),               "OTDB_Acct");
+//        pScript->chai.add(user_type<OTDB::BitcoinAcct>(),        "OTDB_BitcoinAcct");
+//        pScript->chai.add(user_type<OTDB::ServerInfo>(),         "OTDB_ServerInfo");
+//        pScript->chai.add(user_type<OTDB::Server>(),             "OTDB_Server");
+//        pScript->chai.add(user_type<OTDB::BitcoinServer>(),      "OTDB_BitcoinServer");
+//        pScript->chai.add(user_type<OTDB::RippleServer>(),       "OTDB_RippleServer");
+//        pScript->chai.add(user_type<OTDB::LoomServer>(),         "OTDB_LoomServer");
+//        pScript->chai.add(user_type<OTDB::ContactNym>(),         "OTDB_ContactNym");
+//        pScript->chai.add(user_type<OTDB::WalletData>(),         "OTDB_WalletData");
+//        pScript->chai.add(user_type<OTDB::ContactAcct>(),        "OTDB_ContactAcct");
+//        pScript->chai.add(user_type<OTDB::Contact>(),            "OTDB_Contact");        
+//        pScript->chai.add(user_type<OTDB::AddressBook>(),        "OTDB_AddressBook");        
+        
+        
+        // ----------------------------------------------------------------------
+        // SHOW INHERITANCE
+        pScript->chai.add(chaiscript::base_class<OTDB::Storable,         OTDB::OTDBString>());
+        pScript->chai.add(chaiscript::base_class<OTDB::Storable,         OTDB::Blob>());
+        pScript->chai.add(chaiscript::base_class<OTDB::Storable,         OTDB::StringMap>());
+        pScript->chai.add(chaiscript::base_class<OTDB::Storable,         OTDB::Displayable>());
+        pScript->chai.add(chaiscript::base_class<OTDB::Displayable,      OTDB::MarketData>());
+        pScript->chai.add(chaiscript::base_class<OTDB::Storable,         OTDB::MarketList>());
+        pScript->chai.add(chaiscript::base_class<OTDB::Displayable,      OTDB::OfferDataMarket>());
+        pScript->chai.add(chaiscript::base_class<OTDB::OfferDataMarket,  OTDB::BidData>());
+        pScript->chai.add(chaiscript::base_class<OTDB::OfferDataMarket,  OTDB::AskData>());
+        pScript->chai.add(chaiscript::base_class<OTDB::Storable,         OTDB::OfferListMarket>());
+        pScript->chai.add(chaiscript::base_class<OTDB::Displayable,      OTDB::TradeDataMarket>());
+        pScript->chai.add(chaiscript::base_class<OTDB::Storable,         OTDB::TradeListMarket>());
+        pScript->chai.add(chaiscript::base_class<OTDB::Displayable,      OTDB::OfferDataNym>());
+        pScript->chai.add(chaiscript::base_class<OTDB::Storable,         OTDB::OfferListNym>());
+        pScript->chai.add(chaiscript::base_class<OTDB::Displayable,      OTDB::TradeDataNym>());
+        pScript->chai.add(chaiscript::base_class<OTDB::Storable,         OTDB::TradeListNym>());
+//        pScript->chai.add(chaiscript::base_class<OTDB::Displayable,      OTDB::Acct>());
+//        pScript->chai.add(chaiscript::base_class<OTDB::Acct,             OTDB::BitcoinAcct>());
+//        pScript->chai.add(chaiscript::base_class<OTDB::Displayable,      OTDB::ServerInfo>());
+//        pScript->chai.add(chaiscript::base_class<OTDB::ServerInfo,       OTDB::Server>());
+//        pScript->chai.add(chaiscript::base_class<OTDB::Server,           OTDB::BitcoinServer>());
+//        pScript->chai.add(chaiscript::base_class<OTDB::Server,           OTDB::RippleServer>());
+//        pScript->chai.add(chaiscript::base_class<OTDB::Server,           OTDB::LoomServer>());
+//        pScript->chai.add(chaiscript::base_class<OTDB::Displayable,      OTDB::ContactNym>());
+//        pScript->chai.add(chaiscript::base_class<OTDB::Storable,         OTDB::WalletData>());
+//        pScript->chai.add(chaiscript::base_class<OTDB::Displayable,      OTDB::ContactAcct>());
+//        pScript->chai.add(chaiscript::base_class<OTDB::Displayable,      OTDB::Contact>());
+//        pScript->chai.add(chaiscript::base_class<OTDB::Storable,         OTDB::AddressBook>());
+
+        
+        // ----------------------------------------------------------------------
+
+        
+        // ADD STORAGE FUNCTIONS
+        pScript->chai.add(fun(&OTDB::CreateObject),     "OTDB_CreateObject");        
+        
+//      pScript->chai.add(fun(&OTDB::Exists),           "OTDB_Exists");
+        pScript->chai.add(fun<bool (std::string, std::string, std::string, std::string)>(&OTDB::Exists), "OTDB_Exists");
+        pScript->chai.add(fun<bool (std::string, std::string, std::string)>(&OTDB::Exists), "OTDB_Exists");
+        pScript->chai.add(fun<bool (std::string, std::string)>(&OTDB::Exists), "OTDB_Exists");
+        pScript->chai.add(fun<bool (std::string)>(&OTDB::Exists), "OTDB_Exists");
+
+        
+//      pScript->chai.add(fun(&OTDB::StoreString),      "OTDB_StoreString");
+        pScript->chai.add(fun<bool (std::string, std::string, std::string, std::string, std::string)>(&OTDB::StoreString), "OTDB_StoreString");
+        pScript->chai.add(fun<bool (std::string, std::string, std::string, std::string)>(&OTDB::StoreString), "OTDB_StoreString");
+        pScript->chai.add(fun<bool (std::string, std::string, std::string)>(&OTDB::StoreString), "OTDB_StoreString");
+        pScript->chai.add(fun<bool (std::string, std::string)>(&OTDB::StoreString), "OTDB_StoreString");
+        
+        
+//      pScript->chai.add(fun(&OTDB::QueryString),      "OTDB_QueryString");
+        pScript->chai.add(fun<std::string (std::string, std::string, std::string, std::string)>(&OTDB::QueryString), "OTDB_QueryString");
+        pScript->chai.add(fun<std::string (std::string, std::string, std::string)>(&OTDB::QueryString), "OTDB_QueryString");
+        pScript->chai.add(fun<std::string (std::string, std::string)>(&OTDB::QueryString), "OTDB_QueryString");
+        pScript->chai.add(fun<std::string (std::string)>(&OTDB::QueryString), "OTDB_QueryString");
+
+        
+//      pScript->chai.add(fun(&OTDB::StorePlainString), "OTDB_StorePlainString");
+        pScript->chai.add(fun<bool (std::string, std::string, std::string, std::string, std::string)>(&OTDB::StorePlainString), "OTDB_StorePlainString");
+        pScript->chai.add(fun<bool (std::string, std::string, std::string, std::string)>(&OTDB::StorePlainString), "OTDB_StorePlainString");
+        pScript->chai.add(fun<bool (std::string, std::string, std::string)>(&OTDB::StorePlainString), "OTDB_StorePlainString");
+        pScript->chai.add(fun<bool (std::string, std::string)>(&OTDB::StorePlainString), "OTDB_StorePlainString");
+
+
+//      pScript->chai.add(fun(&OTDB::QueryPlainString), "OTDB_QueryPlainString");
+        pScript->chai.add(fun<std::string (std::string, std::string, std::string, std::string)>(&OTDB::QueryPlainString), "OTDB_QueryPlainString");
+        pScript->chai.add(fun<std::string (std::string, std::string, std::string)>(&OTDB::QueryPlainString), "OTDB_QueryPlainString");
+        pScript->chai.add(fun<std::string (std::string, std::string)>(&OTDB::QueryPlainString), "OTDB_QueryPlainString");
+        pScript->chai.add(fun<std::string (std::string)>(&OTDB::QueryPlainString), "OTDB_QueryPlainString");
+
+        
+//      pScript->chai.add(fun(&OTDB::StoreObject),      "OTDB_StoreObject");
+        pScript->chai.add(fun<bool (OTDB::Storable &, std::string, std::string, std::string, std::string)>(&OTDB::StoreObject), "OTDB_StoreObject");
+        pScript->chai.add(fun<bool (OTDB::Storable &, std::string, std::string, std::string)>(&OTDB::StoreObject), "OTDB_StoreObject");
+        pScript->chai.add(fun<bool (OTDB::Storable &, std::string, std::string)>(&OTDB::StoreObject), "OTDB_StoreObject");
+        pScript->chai.add(fun<bool (OTDB::Storable &, std::string)>(&OTDB::StoreObject), "OTDB_StoreObject");
+
+        
+//      pScript->chai.add(fun(&OTDB::QueryObject),      "OTDB_QueryObject");
+        pScript->chai.add(fun<OTDB::Storable * (OTDB::StoredObjectType, std::string, std::string, std::string, std::string)>(&OTDB::QueryObject), "OTDB_QueryObject");
+        pScript->chai.add(fun<OTDB::Storable * (OTDB::StoredObjectType, std::string, std::string, std::string)>(&OTDB::QueryObject), "OTDB_QueryObject");
+        pScript->chai.add(fun<OTDB::Storable * (OTDB::StoredObjectType, std::string, std::string)>(&OTDB::QueryObject), "OTDB_QueryObject");
+        pScript->chai.add(fun<OTDB::Storable * (OTDB::StoredObjectType, std::string)>(&OTDB::QueryObject), "OTDB_QueryObject");
+        
+        
+        pScript->chai.add(fun(&OTDB::EncodeObject),     "OTDB_EncodeObject");
+        pScript->chai.add(fun(&OTDB::DecodeObject),     "OTDB_DecodeObject");
+        
+        
+//      pScript->chai.add(fun(&OTDB::EraseValueByKey),  "OTDB_EraseValueByKey");
+
+        
+        /*
+         using namespace chaiscript;
+         
+         class MyClass {
+           public:
+             int memberdata;
+             void method();
+             void method2(int);
+             static void staticmethod();
+             void overloadedmethod();
+             void overloadedmethod(const std::string &);
+         };
+         
+         ChaiScript chai;
+         pScript->chai.add(fun(&MyClass::memberdata), "memberdata");
+         pScript->chai.add(fun(&MyClass::method), "method");
+         pScript->chai.add(fun(&MyClass::staticmethod), "staticmethod");
+         */
+        
+        // ----------------------------------------------------------------------
+        // ADD DYNAMIC CASTING.
+//      pScript->chai.add(fun<OTDB::OTDBString * (OTDB::Storable *)>(&OTDB::OTDBString::ot_dynamic_cast),       "OTDB_CAST_STRING");
+        pScript->chai.add(fun(&OTDB::OTDBString::ot_dynamic_cast),       "OTDB_CAST_STRING");
+        pScript->chai.add(fun(&OTDB::Blob::ot_dynamic_cast),             "OTDB_CAST_BLOB");
+        pScript->chai.add(fun(&OTDB::StringMap::ot_dynamic_cast),        "OTDB_CAST_STRING_MAP");
+        pScript->chai.add(fun(&OTDB::Displayable::ot_dynamic_cast),      "OTDB_CAST_DISPLAYABLE");
+        pScript->chai.add(fun(&OTDB::MarketData::ot_dynamic_cast),       "OTDB_CAST_MARKET_DATA");
+        
+        
+        
+//      pScript->chai.add(fun<OTDB::MarketList * (OTDB::Storable *)>(&OTDB::MarketList::ot_dynamic_cast),       "OTDB_CAST_MARKET_LIST");
+        pScript->chai.add(fun(&OTDB::MarketList::ot_dynamic_cast),       "OTDB_CAST_MARKET_LIST");
+        pScript->chai.add(fun(&OTDB::OfferDataMarket::ot_dynamic_cast),  "OTDB_CAST_OFFER_DATA_MARKET");
+        pScript->chai.add(fun(&OTDB::BidData::ot_dynamic_cast),          "OTDB_CAST_BID_DATA");
+        pScript->chai.add(fun(&OTDB::AskData::ot_dynamic_cast),          "OTDB_CAST_ASK_DATA");
+        pScript->chai.add(fun(&OTDB::OfferListMarket::ot_dynamic_cast),  "OTDB_CAST_OFFER_LIST_MARKET");
+        pScript->chai.add(fun(&OTDB::TradeDataMarket::ot_dynamic_cast),  "OTDB_CAST_TRADE_DATA_MARKET");
+        pScript->chai.add(fun(&OTDB::TradeListMarket::ot_dynamic_cast),  "OTDB_CAST_TRADE_LIST_MARKET");
+        pScript->chai.add(fun(&OTDB::OfferDataNym::ot_dynamic_cast),     "OTDB_CAST_OFFER_DATA_NYM");
+        pScript->chai.add(fun(&OTDB::OfferListNym::ot_dynamic_cast),     "OTDB_CAST_OFFER_LIST_NYM");
+        pScript->chai.add(fun(&OTDB::TradeDataNym::ot_dynamic_cast),     "OTDB_CAST_TRADE_DATA_NYM");
+        pScript->chai.add(fun(&OTDB::TradeListNym::ot_dynamic_cast),     "OTDB_CAST_TRADE_LIST_NYM");
+        // ----------------------------------------------------------------------
+
+        
+//        pScript->chai.add(fun(&OTDB::MarketList::GetMarketDataCount), "GetMarketDataCount");
+//        pScript->chai.add(fun(&OTDB::MarketList::GetMarketData),      "GetMarketData");
+//        pScript->chai.add(fun(&OTDB::MarketList::RemoveMarketData),   "RemoveMarketData");
+//        pScript->chai.add(fun(&OTDB::MarketList::AddMarketData),      "AddMarketData");
+//        
+//        pScript->chai.add(fun(&OTDB::MarketList::Get##name##Count), "Get" #name "Count");
+//        pScript->chai.add(fun(&OTDB::MarketList::Get##name),      "Get" #name );
+//        pScript->chai.add(fun(&OTDB::MarketList::Remove##name),   "Remove" #name);
+//        pScript->chai.add(fun(&OTDB::MarketList::Add##name),      "Add" #name);
+//
+//        EXPORT	size_t Get##name##Count(); \
+//        EXPORT	name * Get##name(size_t nIndex); \
+//        EXPORT	bool Remove##name(size_t nIndex##name); \
+//        EXPORT	bool Add##name(name & disownObject)
+
+// ----------------------------------------------------------------------        
+#define OT_CHAI_CONTAINER(container, name) \
+pScript->chai.add(fun(&OTDB::container::Get##name##Count),   "Get" #name "Count"); \
+pScript->chai.add(fun(&OTDB::container::Get##name),          "Get" #name ); \
+pScript->chai.add(fun(&OTDB::container::Remove##name),       "Remove" #name); \
+pScript->chai.add(fun(&OTDB::container::Add##name),          "Add" #name)
+// ----------------------------------------------------------------------
+
+        
+        // ADD MEMBERS OF THE VARIOUS OBJECTS
+        
+        pScript->chai.add(fun(&OTDB::OTDBString::m_string),  "m_string");
+        // ----------------------------------------------------------------------
+        pScript->chai.add(fun(&OTDB::Blob::m_memBuffer),     "m_memBuffer");
+        // ----------------------------------------------------------------------
+        pScript->chai.add(fun(&OTDB::StringMap::the_map),    "the_map");
+        pScript->chai.add(fun(&OTDB::StringMap::SetValue),   "SetValue");
+        pScript->chai.add(fun(&OTDB::StringMap::GetValue),   "GetValue");
+        // ----------------------------------------------------------------------
+        pScript->chai.add(fun(&OTDB::Displayable::gui_label), "gui_label");
+        // ----------------------------------------------------------------------
+//        pScript->chai.add(fun(&OTDB::MarketData::gui_label),         "gui_label");
+        pScript->chai.add(fun(&OTDB::MarketData::server_id),         "server_id");
+        pScript->chai.add(fun(&OTDB::MarketData::market_id),         "market_id");
+        pScript->chai.add(fun(&OTDB::MarketData::asset_type_id),     "asset_type_id");
+        pScript->chai.add(fun(&OTDB::MarketData::currency_type_id),  "currency_type_id");
+        pScript->chai.add(fun(&OTDB::MarketData::scale),             "scale");
+        pScript->chai.add(fun(&OTDB::MarketData::total_assets),      "total_assets");
+        pScript->chai.add(fun(&OTDB::MarketData::number_bids),       "number_bids");
+        pScript->chai.add(fun(&OTDB::MarketData::number_asks),       "number_asks");
+        pScript->chai.add(fun(&OTDB::MarketData::last_sale_price),   "last_sale_price");
+        pScript->chai.add(fun(&OTDB::MarketData::current_bid),       "current_bid");
+        pScript->chai.add(fun(&OTDB::MarketData::current_ask),       "current_ask");
+
+        OT_CHAI_CONTAINER(MarketList, MarketData);
+        // ----------------------------------------------------------------------
+//        pScript->chai.add(fun(&OTDB::OfferDataMarket::gui_label),         "gui_label");
+        pScript->chai.add(fun(&OTDB::OfferDataMarket::transaction_id),    "transaction_id");
+        pScript->chai.add(fun(&OTDB::OfferDataMarket::price_per_scale),   "price_per_scale");
+        pScript->chai.add(fun(&OTDB::OfferDataMarket::available_assets),  "available_assets");
+        pScript->chai.add(fun(&OTDB::OfferDataMarket::minimum_increment), "minimum_increment");
+        
+//        pScript->chai.add(fun(&OTDB::BidData::gui_label),         "gui_label");
+//        pScript->chai.add(fun(&OTDB::BidData::transaction_id),    "transaction_id");
+//        pScript->chai.add(fun(&OTDB::BidData::price_per_scale),   "price_per_scale");
+//        pScript->chai.add(fun(&OTDB::BidData::available_assets),  "available_assets");
+//        pScript->chai.add(fun(&OTDB::BidData::minimum_increment), "minimum_increment");
+        
+//        pScript->chai.add(fun(&OTDB::AskData::gui_label),         "gui_label");
+//        pScript->chai.add(fun(&OTDB::AskData::transaction_id),    "transaction_id");
+//        pScript->chai.add(fun(&OTDB::AskData::price_per_scale),   "price_per_scale");
+//        pScript->chai.add(fun(&OTDB::AskData::available_assets),  "available_assets");
+//        pScript->chai.add(fun(&OTDB::AskData::minimum_increment), "minimum_increment");
+        
+        OT_CHAI_CONTAINER(OfferListMarket, BidData);
+        OT_CHAI_CONTAINER(OfferListMarket, AskData);
+        // ----------------------------------------------------------------------
+//        pScript->chai.add(fun(&OTDB::TradeDataMarket::gui_label),      "gui_label");
+        pScript->chai.add(fun(&OTDB::TradeDataMarket::transaction_id), "transaction_id");
+        pScript->chai.add(fun(&OTDB::TradeDataMarket::date),           "date");
+        pScript->chai.add(fun(&OTDB::TradeDataMarket::price),          "price");
+        pScript->chai.add(fun(&OTDB::TradeDataMarket::amount_sold),    "amount_sold");
+        
+        OT_CHAI_CONTAINER(TradeListMarket, TradeDataMarket);
+        // ----------------------------------------------------------------------
+//        pScript->chai.add(fun(&OTDB::OfferDataNym::gui_label),      "gui_label");
+        pScript->chai.add(fun(&OTDB::OfferDataNym::valid_from),     "valid_from");
+        pScript->chai.add(fun(&OTDB::OfferDataNym::valid_to),       "valid_to");
+        pScript->chai.add(fun(&OTDB::OfferDataNym::server_id),      "server_id");
+        pScript->chai.add(fun(&OTDB::OfferDataNym::asset_type_id),  "asset_type_id");
+        pScript->chai.add(fun(&OTDB::OfferDataNym::asset_acct_id),  "asset_acct_id");
+        pScript->chai.add(fun(&OTDB::OfferDataNym::currency_type_id),  "currency_type_id");
+        pScript->chai.add(fun(&OTDB::OfferDataNym::currency_acct_id),  "currency_acct_id");
+        pScript->chai.add(fun(&OTDB::OfferDataNym::selling),        "selling");
+        pScript->chai.add(fun(&OTDB::OfferDataNym::scale),          "scale");
+        pScript->chai.add(fun(&OTDB::OfferDataNym::price_per_scale),"price_per_scale");
+        pScript->chai.add(fun(&OTDB::OfferDataNym::transaction_id), "transaction_id");
+        pScript->chai.add(fun(&OTDB::OfferDataNym::total_assets),   "total_assets");
+        pScript->chai.add(fun(&OTDB::OfferDataNym::finished_so_far),"finished_so_far");
+        pScript->chai.add(fun(&OTDB::OfferDataNym::minimum_increment),  "minimum_increment");
+        pScript->chai.add(fun(&OTDB::OfferDataNym::stop_sign),      "stop_sign");
+        pScript->chai.add(fun(&OTDB::OfferDataNym::stop_price),     "stop_price");
+        
+        OT_CHAI_CONTAINER(OfferListNym, OfferDataNym);
+        // ----------------------------------------------------------------------
+//        pScript->chai.add(fun(&OTDB::TradeDataNym::gui_label),      "gui_label");
+        pScript->chai.add(fun(&OTDB::TradeDataNym::transaction_id), "transaction_id");
+        pScript->chai.add(fun(&OTDB::TradeDataNym::completed_count),"completed_count");
+        pScript->chai.add(fun(&OTDB::TradeDataNym::date),           "date");
+        pScript->chai.add(fun(&OTDB::TradeDataNym::price),          "price");
+        pScript->chai.add(fun(&OTDB::TradeDataNym::amount_sold),    "amount_sold");
+        
+        OT_CHAI_CONTAINER(TradeListNym, TradeDataNym);
+        // ----------------------------------------------------------------------
+
+        // **********************************************************************************
+        
+        // ADD THE OT CLI and API FUNCTIONS
+		// ------------------------------------------------------------------
         pScript->chai.add(fun(&OT_CLI_ReadLine), "OT_CLI_ReadLine");			// String OT_CLI_ReadLine()		// Reads from cin until Newline.
 		pScript->chai.add(fun(&OT_CLI_ReadUntilEOF), "OT_CLI_ReadUntilEOF");	// String OT_CLI_ReadUntilEOF()	// Reads from cin until EOF or ~ on a line by itself.
 		// ------------------------------------------------------------------
@@ -760,9 +1071,9 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
         pScript->chai.add(fun(&OTAPI_Wrap::CreateAssetContract), "OT_API_CreateAssetContract");
         pScript->chai.add(fun(&OTAPI_Wrap::GetServer_Contract), "OT_API_GetServer_Contract");
         pScript->chai.add(fun(&OTAPI_Wrap::GetAssetType_Contract), "OT_API_GetAssetType_Contract");
-
+        
         // ------------------------------------------------------------------		
-
+        
 		pScript->chai.add(fun(&OTAPI_Wrap::SignContract), "OT_API_SignContract");
 		pScript->chai.add(fun(&OTAPI_Wrap::AddSignature), "OT_API_AddSignature");
 		pScript->chai.add(fun(&OTAPI_Wrap::VerifySignature), "OT_API_VerifySignature");
@@ -970,6 +1281,7 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
 		pScript->chai.add(fun(&OTAPI_Wrap::processInbox), "OT_API_processInbox");
 		pScript->chai.add(fun(&OTAPI_Wrap::processNymbox), "OT_API_processNymbox");
 		pScript->chai.add(fun(&OTAPI_Wrap::withdrawVoucher), "OT_API_withdrawVoucher");
+		pScript->chai.add(fun(&OTAPI_Wrap::payDividend), "OT_API_payDividend");
 		
 		pScript->chai.add(fun(&OTAPI_Wrap::depositCheque), "OT_API_depositCheque");
 		pScript->chai.add(fun(&OTAPI_Wrap::depositPaymentPlan), "OT_API_depositPaymentPlan");
@@ -1085,19 +1397,19 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
 		OTString strHeadderFilePath_03;
 		OTString strHeadderFilePath_04;
 
-		OTLog::vOutput(0,"\n%s: Using Script Headers:\n",szFunc);
+		OTLog::vOutput(1,"\n%s: Using Script Headers:\n",szFunc);
 
-		if (NewScriptExists(strHeadderFilename_01,true,strHeadderFilePath_01)) {OTLog::vOutput(0,"	%s\n",strHeadderFilePath_01.Get()); }
-		else { OTLog::vError("%s: Header Script Not Found: %s\n",szFunc,strHeadderFilePath_01.Get()); return false; };
+		if (NewScriptExists(strHeadderFilename_01,true,strHeadderFilePath_01)) {OTLog::vOutput(1,"	%s\n",strHeadderFilePath_01.Get()); }
+		else { OTLog::vError("%s: Header script not found: %s\n",szFunc,strHeadderFilePath_01.Get()); return false; };
 
-		if (NewScriptExists(strHeadderFilename_02,true,strHeadderFilePath_02)) { OTLog::vOutput(0,"	%s\n",strHeadderFilePath_02.Get()); }
-		else { OTLog::vError("%s: Header Script Not Found: %s\n",szFunc,strHeadderFilePath_02.Get()); return false; };
+		if (NewScriptExists(strHeadderFilename_02,true,strHeadderFilePath_02)) { OTLog::vOutput(1,"	%s\n",strHeadderFilePath_02.Get()); }
+		else { OTLog::vError("%s: Header script not found: %s\n",szFunc,strHeadderFilePath_02.Get()); return false; };
 
-		if (NewScriptExists(strHeadderFilename_03,true,strHeadderFilePath_03)) { OTLog::vOutput(0,"	%s\n",strHeadderFilePath_03.Get()); }
-		else { OTLog::vError("%s: Header Script Not Found: %s\n",szFunc,strHeadderFilePath_03.Get()); return false; };
+		if (NewScriptExists(strHeadderFilename_03,true,strHeadderFilePath_03)) { OTLog::vOutput(1,"	%s\n",strHeadderFilePath_03.Get()); }
+		else { OTLog::vError("%s: Header script not found: %s\n",szFunc,strHeadderFilePath_03.Get()); return false; };
 
-		if (NewScriptExists(strHeadderFilename_04,true,strHeadderFilePath_04)) { OTLog::vOutput(0,"	%s\n\n",strHeadderFilePath_04.Get()); }
-		else { OTLog::vError("%s: Header Script Not Found: %s\n",szFunc,strHeadderFilePath_04.Get()); return false; };
+		if (NewScriptExists(strHeadderFilename_04,true,strHeadderFilePath_04)) { OTLog::vOutput(1,"	%s\n\n",strHeadderFilePath_04.Get()); }
+		else { OTLog::vError("%s: Header script not found: %s\n",szFunc,strHeadderFilePath_04.Get()); return false; };
 
 
         const char * psErr	= "RegisterAPICallWithScript: ERROR: Failed trying to include script header:  %s \n"

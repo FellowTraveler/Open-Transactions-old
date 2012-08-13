@@ -2006,10 +2006,10 @@ const std::string OTAPI_Wrap::Nymbox_GetReplyNotice(const std::string SERVER_ID,
 
 // --------------------------------------------------------------------
 int OTAPI_Wrap::getBoxReceipt(const std::string	SERVER_ID,
-							   const std::string	USER_ID,
-							   const std::string	ACCT_ID,	// If for Nymbox (vs inbox/outbox) then pass USER_ID in this field also.
-							   const int			nBoxType,	// 0/nymbox, 1/inbox, 2/outbox
-							   const std::string	TRANSACTION_NUMBER)
+                              const std::string	USER_ID,
+                              const std::string	ACCT_ID,	// If for Nymbox (vs inbox/outbox) then pass USER_ID in this field also.
+                              const int			nBoxType,	// 0/nymbox, 1/inbox, 2/outbox
+                              const std::string	TRANSACTION_NUMBER)
 {
 	return OT_API_getBoxReceipt(SERVER_ID.c_str(), USER_ID.c_str(), ACCT_ID.c_str(), nBoxType, TRANSACTION_NUMBER.c_str());
 }
@@ -2029,9 +2029,9 @@ bool OTAPI_Wrap::DoesBoxReceiptExist(const std::string	SERVER_ID,
 
 // --------------------------------------------------------------------------
 int OTAPI_Wrap::processInbox(const std::string SERVER_ID,
-							  const std::string USER_ID,
-							  const std::string ACCT_ID,
-							  const std::string ACCT_LEDGER)
+                             const std::string USER_ID,
+                             const std::string ACCT_ID,
+                             const std::string ACCT_LEDGER)
 {
 	return OT_API_processInbox(SERVER_ID.c_str(), USER_ID.c_str(), ACCT_ID.c_str(), ACCT_LEDGER.c_str());
 }
@@ -2045,14 +2045,26 @@ int OTAPI_Wrap::processNymbox(const std::string SERVER_ID,
 // --------------------------------------------------------------------
 
 int OTAPI_Wrap::withdrawVoucher(const std::string SERVER_ID,
-								 const std::string USER_ID,
-								 const std::string ACCT_ID,
-								 const std::string RECIPIENT_USER_ID,
-								 const std::string CHEQUE_MEMO,
-								 const std::string AMOUNT)
+                                const std::string USER_ID,
+                                const std::string ACCT_ID,
+                                const std::string RECIPIENT_USER_ID,
+                                const std::string CHEQUE_MEMO,
+                                const std::string AMOUNT)
 {
 	return OT_API_withdrawVoucher(SERVER_ID.c_str(), USER_ID.c_str(), ACCT_ID.c_str(), RECIPIENT_USER_ID.c_str(), CHEQUE_MEMO.c_str(), AMOUNT.c_str());
 }
+
+
+int OTAPI_Wrap::payDividend(const std::string SERVER_ID,
+                            const std::string ISSUER_USER_ID,
+                            const std::string DIVIDEND_FROM_ACCT_ID,
+                            const std::string SHARES_ASSET_TYPE_ID,
+                            const std::string DIVIDEND_MEMO,
+                            const std::string AMOUNT_PER_SHARE)
+{
+	return OT_API_payDividend(SERVER_ID.c_str(), ISSUER_USER_ID.c_str(), DIVIDEND_FROM_ACCT_ID.c_str(), SHARES_ASSET_TYPE_ID.c_str(), DIVIDEND_MEMO.c_str(), AMOUNT_PER_SHARE.c_str());
+}
+
 // --------------------------------------------------------------------------
 
 int OTAPI_Wrap::depositCheque(const std::string SERVER_ID,

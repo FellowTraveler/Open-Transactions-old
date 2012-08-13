@@ -681,6 +681,24 @@ OTAccount * OTWallet::GetAccountPartialMatch(const std::string PARTIAL_ID)
 }
 
 
+OTAccount * OTWallet::GetIssuerAccount(const OTIdentifier & theAssetTypeID)
+{
+	// loop through the accounts and find one with a specific asset type ID. 
+    // (And with the issuer type set.)
+	//
+	FOR_EACH(mapOfAccounts, m_mapAccounts)
+	{
+		OTAccount * pIssuerAccount = (*it).second;
+		OT_ASSERT(NULL != pIssuerAccount);
+				
+		if ((pIssuerAccount->GetAssetTypeID() == theAssetTypeID) && 
+            (pIssuerAccount->IsIssuer()))
+			return pIssuerAccount;
+	}
+	
+	return NULL;
+}
+
 
 // Pass in the Server ID and get the pointer back.
 OTServerContract * OTWallet::GetServerContract(const OTIdentifier & SERVER_ID)

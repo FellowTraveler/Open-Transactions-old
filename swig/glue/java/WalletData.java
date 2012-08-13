@@ -35,10 +35,10 @@ public class WalletData extends Storable {
     super.delete();
   }
 // ------------------------
-	/*@SWIG:otapi\otapi.i,335,OT_CONTAINER_TYPE_MEMBERS@*/
+	/*@SWIG:otapi/OTAPI.i,335,OT_CONTAINER_TYPE_MEMBERS@*/
 	private List elementList = new ArrayList();
 /*@SWIG@*/
-	/*@SWIG:otapi\otapi.i,416,OT_ADD_ELEMENT@*/  // THIS BLOCK CONTAINS JAVA CODE.
+	/*@SWIG:otapi/OTAPI.i,416,OT_ADD_ELEMENT@*/  // THIS BLOCK CONTAINS JAVA CODE.
 private long removeRefBitcoinServer(long lIndex) {
 	// 
 	// loop through the elements in the actual container, in order to find the one
@@ -98,7 +98,7 @@ private long getCPtrAddRefBitcoinServer(BitcoinServer element) {
 	return BitcoinServer.getCPtr(element);
 }	// Hope I get away with overloading this for every type. Otherwise,
 /*@SWIG@*/
-	/*@SWIG:otapi\otapi.i,416,OT_ADD_ELEMENT@*/  // THIS BLOCK CONTAINS JAVA CODE.
+	/*@SWIG:otapi/OTAPI.i,416,OT_ADD_ELEMENT@*/  // THIS BLOCK CONTAINS JAVA CODE.
 private long removeRefBitcoinAcct(long lIndex) {
 	// 
 	// loop through the elements in the actual container, in order to find the one
@@ -158,7 +158,7 @@ private long getCPtrAddRefBitcoinAcct(BitcoinAcct element) {
 	return BitcoinAcct.getCPtr(element);
 }	// Hope I get away with overloading this for every type. Otherwise,
 /*@SWIG@*/
-	/*@SWIG:otapi\otapi.i,416,OT_ADD_ELEMENT@*/  // THIS BLOCK CONTAINS JAVA CODE.
+	/*@SWIG:otapi/OTAPI.i,416,OT_ADD_ELEMENT@*/  // THIS BLOCK CONTAINS JAVA CODE.
 private long removeRefRippleServer(long lIndex) {
 	// 
 	// loop through the elements in the actual container, in order to find the one
@@ -218,7 +218,7 @@ private long getCPtrAddRefRippleServer(RippleServer element) {
 	return RippleServer.getCPtr(element);
 }	// Hope I get away with overloading this for every type. Otherwise,
 /*@SWIG@*/
-	/*@SWIG:otapi\otapi.i,416,OT_ADD_ELEMENT@*/  // THIS BLOCK CONTAINS JAVA CODE.
+	/*@SWIG:otapi/OTAPI.i,416,OT_ADD_ELEMENT@*/  // THIS BLOCK CONTAINS JAVA CODE.
 private long removeRefLoomServer(long lIndex) {
 	// 
 	// loop through the elements in the actual container, in order to find the one

@@ -543,7 +543,7 @@ EXPORT	void GetNumList(OTNumList & theOutput);
 EXPORT    static OTTransactionType * TransactionFactory(const OTString & strInput);
 
     // ------------------------------------------------------------------
-	bool Contains(const OTString & strContains);	// Allows you to string-search the raw contract.
+        bool Contains(const OTString & strContains);	// Allows you to string-search the raw contract.
 EXPORT	bool Contains(const char * szContains);			// Allows you to string-search the raw contract.
     // -------------------------------------------
 	// OTAccount, OTTransaction, OTItem, and OTLedger are all derived from

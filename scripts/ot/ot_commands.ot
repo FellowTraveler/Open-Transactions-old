@@ -949,7 +949,7 @@ def details_create_offer(strScale, strMinIncrement, strQuantity, strPrice, bSell
 def main_create_offer()
 {
     var strUsage = concat("\n\n USAGE: create_offer.ot --myacct <YOUR_ASSET_ACCT> --hisacct <YOUR_CURRENCY_ACCT>\n\n",
-                          " Optional: --args \"type bid|ask scale 1 quantity 100 price 101\"\n\n")
+                          " Optional: --args \"type <bid|ask> scale 1 quantity 100 price 101\"\n\n")
     
     OT_API_Output(0, strUsage)
     // ------------------------------------        
@@ -1053,7 +1053,6 @@ def main_create_offer()
     
     return (-1)
 }
-
 
 
 
@@ -2778,6 +2777,730 @@ def main_withdraw_voucher()
 
 
 
+def loadMarketList(serverID) 
+{
+    var marketList
+    var storable
+    
+    if (OTDB_Exists("markets", serverID, "market_data.bin")) 
+    {
+        OT_API_Output(0, "Markets file exists...Querying list of markets...\n")
+        storable := OTDB_QueryObject(STORED_OBJ_MARKET_LIST, "markets", serverID, "market_data.bin")
+        
+        if (!VerifyStorable(storable))
+        {
+            OT_API_Output(0, "Failed to verify storable object. Probably doesn't exist.\n")
+            return storable // containing null or undef
+        }
+        
+        OT_API_Output(0, "QueryObject worked. Now dynamic casting from storable to marketlist...\n")
+        marketList := OTDB_CAST_MARKET_LIST(storable)
+        
+        if (!VerifyStorable(marketList))
+        {
+            OT_API_Output(0, "Failed while trying to dynamic cast a storable to a marketlist.\n")
+//          return marketList // containing null or undef
+        }
+    }
+    // This WAS a "load or create" sort of function, but I commented out the "create" part because
+    // you will literally NEVER need to create this list.
+    //
+//    else 
+//    {
+//        OT_API_Output(0, "Didn't exist. Creating market list object...\n")
+//        storable := OTDB_CreateObject(STORED_OBJ_MARKET_LIST);
+//        
+//        if (!VerifyStorable(storable))
+//        {
+//            OT_API_Output(0, "Failed trying to create market list object!\n")
+//            return storable  // containing null or undef
+//        }
+//        
+//        OT_API_Output(0, "CreateObject worked. Now dynamic casting from storable to marketlist...\n")
+//        marketList := OTDB_CAST_MARKET_LIST(storable)
+//        
+//        if (!VerifyStorable(marketList))
+//        {
+//            OT_API_Output(0, "Failed to dynamic cast from storable to marketlist.\n")
+//        }
+//    }
+    
+    return marketList  // possibly containing the marketlist (if success), or possibly containing a null/undef value (if failure.)
+}
+
+
+
+
+def main_show_market_list()
+{
+    if (VerifyExists("Server"))
+    {
+        var marketList := loadMarketList(Server)
+        
+        if (!VerifyStorable(marketList))
+        {
+            OT_API_Output(0, "Failed while trying to load up marketlist from local storage.\n")
+            return (-1)
+        }
+        // ----------------------------------
+        
+        // LOOP THROUGH THE MARKETS AND PRINT THEM OUT.
+        
+        var nCount = marketList.GetMarketDataCount()
+        
+        if (VerifyIntVal(nCount) && (nCount > 0))
+        {
+            print("Index\tScale\tMarket\tAsset\tCurrency")
+            
+            for (var nIndex = 0; nIndex < nCount; ++nIndex)
+            {
+                var marketData := marketList.GetMarketData(nIndex)
+                
+                if (!VerifyStorable(marketData))
+                {
+                    OT_API_Output(0, "Failed while trying to reference marketData on marketList, at index: " + nIndex.to_string() + "\n")
+                    return (-1)
+                }
+                
+                // OUTPUT THE MARKET DATA...   
+                //
+                print(nIndex.to_string() + "\t" + marketData.scale + "\tM:" + marketData.market_id + "\tA:" + marketData.asset_type_id + "\tC:" + marketData.currency_type_id)
+            }
+        }
+        // ------------------------------------------------------
+        
+        return 1
+    }
+    
+    (-1)
+}
+
+
+def main_get_market_list()
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    // --------------------------------------------------------------------
+    var strUsage = "\n\n USAGE: getmarketlist --server SERVER_ID --mynym YOUR_NYM_ID\n\n"
+    
+    OT_API_Output(0, strUsage)
+    // ------------------------------------        
+    
+    if (VerifyExists("Server") && VerifyExists("MyNym"))
+    {
+        // ------------------------------
+        // Send the request.
+        //
+        var strResponse	= madeEasy.get_market_list(Server, MyNym)
+        var strAttempt  = "get_market_list"
+        // ----------------------------------------------
+        // NOTICE: No need here to deal with retries, timeouts, request number,
+        // syncing transaction number, download / process nymbox, etc! It's all
+        // handled at a lower level!  Instead, simply check for success or failure:
+        
+        // ***************************************************************
+        
+        var nInterpretReply = VerifyMessageSuccess(strResponse)
+        
+        if (1 == nInterpretReply)
+        {    
+            OT_API_Output(0, "Server response ("+strAttempt+"): SUCCESS getting market list.\n\n") 
+            
+            main_show_market_list()  // if it was successful, then we display the list on the screen.
+        }
+        
+        return nInterpretReply
+    }
+    
+    return (-1)
+}
+
+
+
+
+
+
+
+
+
+
+
+def loadMarketOffers(serverID, marketID) 
+{
+    var offerList
+    var storable
+    
+    if (OTDB_Exists("markets", serverID, "offers", marketID + ".bin")) 
+    {
+        OT_API_Output(0, "Offers file exists...Querying markets...\n")
+        storable := OTDB_QueryObject(STORED_OBJ_OFFER_LIST_MARKET, "markets", serverID, "offers", marketID + ".bin")
+        
+        if (!VerifyStorable(storable))
+        {
+            OT_API_Output(0, "Failed to verify storable object. Probably doesn't exist.\n")
+            return storable // containing null or undef
+        }
+        
+        OT_API_Output(0, "QueryObject worked. Now dynamic casting from storable to a (market) offerList...\n")
+        offerList := OTDB_CAST_OFFER_LIST_MARKET(storable)
+        
+        if (!VerifyStorable(offerList))
+        {
+            OT_API_Output(0, "Failed while trying to dynamic cast a storable to a (market) offerList.\n")
+//          return offerList // containing null or undef
+        }
+    }
+    
+    return offerList  // possibly containing the offerList (if success), or possibly containing a null/undef value (if failure.)
+}
+
+
+
+def details_show_market_offers(strServerID, strMarketID)
+{
+    var offerList := loadMarketOffers(strServerID, strMarketID)
+    
+    if (!VerifyStorable(offerList))
+    {
+        OT_API_Output(0, "Failed while trying to load up a (market) offerList from local storage.\n")
+        return (-1)
+    }
+    // ----------------------------------
+    // LOOP THROUGH THE BIDS AND PRINT THEM OUT.
+    var nBidCount = offerList.GetBidDataCount()
+    
+    if (VerifyIntVal(nBidCount) && (nBidCount > 0))
+    {
+        print("** BIDS **\n\nIndex\tTrans#\tPrice/Scale\tAvailable")
+        
+        for (var nIndex = 0; nIndex < nBidCount; ++nIndex)
+        {
+            var offerData := offerList.GetBidData(nIndex)
+            
+            if (!VerifyStorable(offerData))
+            {
+                OT_API_Output(0, "Failed while trying to reference bid offerData on offerList, at index: " + nIndex.to_string() + "\n")
+                return (-1)
+            }
+            
+            // OUTPUT THE BID OFFER DATA...   
+            //
+            print(nIndex.to_string() + "\t" + offerData.transaction_id + "\t" + offerData.price_per_scale + "\t" + offerData.available_assets)
+        }
+    }
+    // ----------------------------------
+    // LOOP THROUGH THE ASKS AND PRINT THEM OUT.
+    var nAskCount = offerList.GetAskDataCount()
+    
+    if (VerifyIntVal(nAskCount) && (nAskCount > 0))
+    {
+        print("\n** ASKS **\n\nIndex\tTrans#\tPrice/Scale\tAvailable")
+        
+        for (var nIndex = 0; nIndex < nAskCount; ++nIndex)
+        {
+            var offerData := offerList.GetAskData(nIndex)
+            
+            if (!VerifyStorable(offerData))
+            {
+                OT_API_Output(0, "Failed while trying to reference ask offerData on offerList, at index: " + nIndex.to_string() + "\n")
+                return (-1)
+            }
+            
+            // OUTPUT THE ASK OFFER DATA...   
+            //
+            print(nIndex.to_string() + "\t" + offerData.transaction_id + "\t" + offerData.price_per_scale + "\t" + offerData.available_assets)
+        }
+    }
+    // ------------------------------------------------------
+    
+    (1)
+}
+
+
+
+def main_show_market_offers()
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    // --------------------------------------------------------------------
+    var strUsage1 = "\n\n USAGE: showoffers --server SERVER_ID --mynym YOUR_NYM_ID\n"
+    var strUsage = concat(strUsage1, "Also: --args \"market MARKET_ID\"\n")
+    
+    OT_API_Output(0, strUsage)
+    // ------------------------------------        
+    
+    if (VerifyExists("Server"))
+    {
+        var strMarket  // must ultimately be an ID.
+        // ------------------------------------        
+        // If custom arguments have been passed on the command line,
+        // then grab them and use them instead of asking the user to enter them
+        // at the command line.
+        //
+        if (VerifyExists("Args", false))
+        {
+            // std::string OT_CLI_GetValueByKey(const std::string str_Args, 
+            //                                  const std::string str_key)
+            // 
+            // OPTION:   --args "key value key value"
+            // EXAMPLE:  --args "market MARKET_ID"
+            //
+            var strNewMarket = OT_CLI_GetValueByKey( Args, "market" ) // the market ID
+            // ----------------------------------------------
+            // Set the values based on the custom arguments, for those found.
+            //
+            if (VerifyStringVal(strNewMarket))
+            {    strMarket = strNewMarket }
+        }            
+        // ------------------------------------
+        // If the transfer parameters aren't provided, then we
+        // ask the user to supply them at the command line.
+        //
+        if (!VerifyStringVal(strMarket))
+        {
+            OT_API_Output(0, "Enter the market ID: ")
+            strMarket        = OT_CLI_ReadLine()
+        }
+        // ----------------------------------------------
+        if (!VerifyStringVal(strMarket))
+        {
+            return 0
+        }
+        // ----------------------------------------------  
+        
+        return details_show_market_offers(Server, strMarket)
+    }
+    
+    return (-1)
+}
+
+
+
+
+
+
+def main_get_market_offers()
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    // --------------------------------------------------------------------
+    var strUsage1 = "\n\n USAGE: getoffers --server SERVER_ID --mynym YOUR_NYM_ID\n"
+    var strUsage = concat(strUsage1, "Also: --args \"market MARKET_ID depth MAX_DEPTH\"\n")
+    
+    OT_API_Output(0, strUsage)
+    // ------------------------------------        
+    
+    if (VerifyExists("Server") && VerifyExists("MyNym"))
+    {
+        var strMarket    = ""  // must ultimately be an ID.
+        var strDepth     = ""  // can be blank
+        // ------------------------------------        
+        var strDefaultDepth   = "50"   // can be blank
+        // ------------------------------------
+        // If custom arguments have been passed on the command line,
+        // then grab them and use them instead of asking the user to enter them
+        // at the command line.
+        //
+        if (VerifyExists("Args", false))
+        {
+            // std::string OT_CLI_GetValueByKey(const std::string str_Args, 
+            //                                  const std::string str_key)
+            // 
+            // OPTION:   --args "key value key value"
+            // EXAMPLE:  --args "market MARKET_ID depth 50"
+            //
+            var strNewMarket = OT_CLI_GetValueByKey( Args, "market"    ) // the market ID
+            var strNewDepth  = OT_CLI_GetValueByKey( Args, "depth"  )    // how many offers should we retrieve?
+            
+            // ----------------------------------------------
+            // Set the values based on the custom arguments, for those found.
+            //
+            if (VerifyStringVal(strNewMarket))
+            {    strMarket = strNewMarket }
+            if (VerifyStringVal(strNewDepth))
+            {    strDepth = strNewDepth }
+        }            
+        // ------------------------------------
+        // If the transfer parameters aren't provided, then we
+        // ask the user to supply them at the command line.
+        //
+        if (!VerifyStringVal(strMarket))
+        {
+            OT_API_Output(0, "Enter the market ID: ")
+            strMarket        = OT_CLI_ReadLine()
+        }
+        if (!VerifyStringVal(strDepth))
+        {
+            OT_API_Output(0, "Optionally, enter a max depth on a single line["+strDepth+"]: ")
+            strDepth	= OT_CLI_ReadLine()
+        }
+        // ----------------------------------------------
+        if (!VerifyStringVal(strMarket))
+        {    return 0 }
+        if (!VerifyStringVal(strDepth))
+        {    strDepth = strDefaultDepth }
+        // ----------------------------------------------    
+        // Send the request.
+        //
+        var strResponse	= madeEasy.get_market_offers(Server, MyNym, strMarket, strDepth)
+        var strAttempt  = "get_market_offers"
+        // ----------------------------------------------
+        // NOTICE: No need here to deal with retries, timeouts, request number,
+        // syncing transaction number, download / process nymbox, etc! It's all
+        // handled at a lower level!  Instead, simply check for success or failure:
+        
+        // ***************************************************************
+        
+        var nInterpretReply = VerifyMessageSuccess(strResponse)
+        
+        if (1 == nInterpretReply)
+        {    
+            OT_API_Output(0, "Server response ("+strAttempt+"): SUCCESS getting market offers.\n\n") 
+            
+            main_show_market_offers()  // if it was successful, then we display the list on the screen.
+        }
+        
+        return nInterpretReply
+    }
+    
+    return (-1)
+}
+
+
+
+
+
+
+
+
+
+
+
+def loadNymOffers(serverID, nymID) 
+{
+    var offerList
+    var storable
+    
+    if (OTDB_Exists("nyms", serverID, "offers", nymID + ".bin")) 
+    {
+        OT_API_Output(0, "Offers file exists...Querying nyms...\n")
+        storable := OTDB_QueryObject(STORED_OBJ_OFFER_LIST_NYM, "nyms", serverID, "offers", nymID + ".bin")
+        
+        if (!VerifyStorable(storable))
+        {
+            OT_API_Output(0, "Failed to verify storable object. Probably doesn't exist.\n")
+            return storable // containing null or undef
+        }
+        
+        OT_API_Output(0, "QueryObject worked. Now dynamic casting from storable to a (nym) offerList...\n")
+        offerList := OTDB_CAST_OFFER_LIST_NYM(storable)
+        
+        if (!VerifyStorable(offerList))
+        {
+            OT_API_Output(0, "Failed while trying to dynamic cast a storable to a (nym) offerList.\n")
+            //          return offerList // containing null or undef
+        }
+    }
+    
+    return offerList  // possibly containing the offerList (if success), or possibly containing a null/undef value (if failure.)
+}
+
+
+
+def details_show_nym_offers(strServerID, strNymID)
+{
+    var offerList := loadNymOffers(strServerID, strNymID)
+    
+    if (!VerifyStorable(offerList))
+    {
+        OT_API_Output(0, "Failed while trying to load up a (nym) offerList from local storage.\n")
+        return (-1)
+    }
+    // ----------------------------------
+    // LOOP THROUGH THE OFFERS AND PRINT THEM OUT.
+    var nCount = offerList.GetOfferDataNymCount()
+    
+    if (VerifyIntVal(nCount) && (nCount > 0))
+    {
+        print("** MY OFFERS **\n\nIndex\tTrans#\tBuy/Sell\tPrice/Scale\tAvailable")
+        
+        for (var nIndex = 0; nIndex < nCount; ++nIndex)
+        {
+            var offerData := offerList.GetOfferDataNym(nIndex)
+            
+            if (!VerifyStorable(offerData))
+            {
+                OT_API_Output(0, "Failed while trying to reference (nym) offerData on offerList, at index: " + nIndex.to_string() + "\n")
+                return (-1)
+            }
+            
+            // OUTPUT THE (nym) OFFER DATA...   
+            //
+            var strSellStatus = (offerData.selling ? "SELL" : "BUY")            
+            var strAvailableAssets = (offerData.total_assets.to_int() - offerData.finished_so_far.to_int()).to_string()
+            
+            print(nIndex.to_string() + "\t" + offerData.transaction_id + "\t" + strSellStatus + "\t" + offerData.price_per_scale + "\t" + strAvailableAssets)
+        }
+    }
+    
+    (1)
+}
+
+
+
+def main_show_nym_offers()
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    // --------------------------------------------------------------------
+    var strUsage = "\n\n USAGE: showmyoffers --server SERVER_ID --mynym YOUR_NYM_ID\n"
+    
+    OT_API_Output(0, strUsage)
+    // ------------------------------------        
+    
+    if (VerifyExists("Server") && VerifyExists("MyNym"))
+    {        
+        return details_show_nym_offers(Server, MyNym)
+    }
+    
+    return (-1)
+}
+
+
+
+def main_get_nym_market_offers()
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    // --------------------------------------------------------------------
+    var strUsage = "\n\n USAGE: getmyoffers --server SERVER_ID --mynym YOUR_NYM_ID\n"
+    
+    OT_API_Output(0, strUsage)
+    // ------------------------------------        
+    
+    if (VerifyExists("Server") && VerifyExists("MyNym"))
+    {
+        // ----------------------------------------------    
+        // Send the request.
+        //
+        var strResponse	= madeEasy.get_nym_market_offers(Server, MyNym)
+        var strAttempt  = "get_nym_market_offers"
+        // ----------------------------------------------
+        // NOTICE: No need here to deal with retries, timeouts, request number,
+        // syncing transaction number, download / process nymbox, etc! It's all
+        // handled at a lower level!  Instead, simply check for success or failure:
+        
+        // ***************************************************************
+        
+        var nInterpretReply = VerifyMessageSuccess(strResponse)
+        
+        if (1 == nInterpretReply)
+        {    
+            OT_API_Output(0, "Server response ("+strAttempt+"): SUCCESS getting nym's market offers.\n\n") 
+            
+            main_show_nym_offers()  // if it was successful, then we display the list on the screen.
+        }
+        
+        return nInterpretReply
+    }
+    
+    return (-1)
+}
+
+
+
+
+
+
+
+
+
+// ------------------------------
+//
+// PAY DIVIDEND
+//
+// Just like withdraw voucher...except instead of withdrawing a single voucher to yourself,
+// it removes the total dividend payout from your account, and then divides it up amongst the
+// shareholders, sending them EACH a voucher cheque in the amount of strAmount * number of shares owned.
+//
+def details_pay_dividend(strAmount, strMemo)
+{
+    // --------------------------------------------------------------------
+    // Instantiate the "OT Made Easy" object.
+    //
+    var madeEasy	= OT_ME()
+    
+    // ---------------------------------------------
+    // HERE, WE LOOK UP THE NYM ID, BASED ON THE ACCOUNT ID.
+    //
+    var strMyNymID = OT_API_GetAccountWallet_NymID(MyAcct)
+    
+    if (!VerifyStringVal(strMyNymID))
+    {
+        OT_API_Output(0, "\n\nFailure: Unable to find Payer NymID based on myacct. Use: --myacct DIVIDEND_SOURCE_ACCT_ID\n")
+        OT_API_Output(0, "The designated asset account (that the dividends will be paid out of) must be yours. OT will find the Nym based on that account.\n\n")
+        return (-1)
+    }
+    // ---------------------------------------------
+
+    var strHisPurse
+    
+    if (VerifyExists("HisPurse")) // This ID is already validated in the C++ code (in this case.)
+    {
+        strHisPurse = HisPurse
+    }
+    else
+    {
+        while(true)
+        {
+            OT_API_Output(0, "Enter the SHARES asset type ID (Nym must also be the issuer for these shares): ")
+            var strHisPartialPurseID = OT_CLI_ReadLine()
+            
+            if (VerifyStringVal(strHisPartialPurseID)) // If the user typed something...
+            {
+                strHisPurse = OT_API_Wallet_GetAssetIDFromPartial(strHisPartialPurseID) // Try to find the associated ID...
+                
+                if (!VerifyStringVal(strHisPurse)) // But if it returned NULL, failure (return.)
+                {
+                    OT_API_Output(0, "\n\nFailure: Unable to find SHARES_ASSET_TYPE_ID in your wallet. Use: --hispurse SHARES_ASSET_TYPE_ID\n")
+                    return (-1)
+                }
+                break
+            }
+        }
+    }
+
+    // ***************************************************************
+    
+    // HERE, WE SEND THE PAY DIVIDEND REQUEST TO THE SERVER
+    //
+    var strResponse = madeEasy.pay_dividend(Server, strMyNymID, MyAcct, strHisPurse, strMemo, strAmount)
+    var strAttempt  = "pay_dividend"
+    
+//static int payDividend(const std::string SERVER_ID,
+//                       const std::string ISSUER_USER_ID,
+//                       const std::string DIVIDEND_FROM_ACCT_ID,
+//                       const std::string SHARES_ASSET_TYPE_ID,
+//                       const std::string DIVIDEND_MEMO,
+//                       const std::string AMOUNT_PER_SHARE);
+    // ***************************************************************
+    
+    // HERE, WE INTERPRET THE SERVER REPLY, WHETHER SUCCESS, FAIL, OR ERROR...
+    
+    var nInterpretReply = InterpretTransactionMsgReply(Server, strMyNymID, MyAcct, strAttempt, strResponse)
+    
+    if (1 == nInterpretReply) // Success!
+    {    
+        // ---------------------------------------------------------        
+        // Download all the intermediary files (account balance, inbox, outbox, etc)
+        // since they have probably changed from this operation.
+        //
+        var bRetrieved = madeEasy.retrieve_account(Server, strMyNymID, MyAcct, true) //bForceDownload defaults to false.
+        OT_API_Output(0, (bRetrieved ? "Success" : "Failed") + " retrieving intermediary files for account.\n")
+        // ---------------------------------------------------------
+        OT_API_Output(0, "\n\nServer response ("+strAttempt+"): SUCCESS paying out dividends.\n")
+    }
+    
+    return nInterpretReply
+}
+
+
+
+//static int payDividend(const std::string SERVER_ID,
+//                       const std::string ISSUER_USER_ID,
+//                       const std::string DIVIDEND_FROM_ACCT_ID,
+//                       const std::string SHARES_ASSET_TYPE_ID,
+//                       const std::string DIVIDEND_MEMO,
+//                       const std::string AMOUNT_PER_SHARE);
+
+// HERE, WE GET ALL THE ARGUMENTS TOGETHER,
+// and then call the above function.
+//
+def main_pay_dividend()
+{
+    var strUsage1 = concat("\n\n  USAGE: paydividend --server SERVER_ID --mynym SHARES_ISSUER_NYM_ID\n",
+                               "             --myacct DIVIDEND_SOURCE_ACCT_ID --hispurse SHARES_ASSET_TYPE_ID\n\n")
+    
+    var strUsage = concat(strUsage1 + "Also necessary: --args \"amount PAYOUT_AMOUNT_PER_SHARE\"\n",
+                          "And OPTIONALLY: --args \"memo \\\"Just a memo for the dividend payment.\\\"\"\n\n")
+    
+    OT_API_Output(0, strUsage)
+    // ------------------------------------        
+    
+    if (VerifyExists("Server") && VerifyExists("MyAcct"))
+    {	
+        // strAmount and strNote...
+        //
+        var strAmount    = "0" // must ultimately be >= 1  (Payout per share.)
+        var strNote      = ""  // can be blank
+        // ------------------------------------        
+        var strDefaultAmount  = "1"  // must be >= 1
+        var strDefaultNote    = "(blank memo field)"   // can be blank
+        // ------------------------------------
+        // If custom arguments have been passed on the command line,
+        // then grab them and use them instead of asking the user to enter them
+        // at the command line.
+        //
+        if (VerifyExists("Args", false))
+        {
+            // std::string OT_CLI_GetValueByKey(const std::string str_Args, 
+            //                                  const std::string str_key)
+            // 
+            // OPTION:   --args "key value key value"
+            // EXAMPLE:  --args "amount 1"
+            // EXAMPLE:  --args "amount 15 memo \"Just a memo for the dividend payout.\""
+            //
+            var strNewAmount = OT_CLI_GetValueByKey( Args, "amount"    ) // any integer value
+            var strNewNote   = OT_CLI_GetValueByKey( Args, "memo"  )     // optional memo field
+            
+            // ----------------------------------------------
+            // Set the values based on the custom arguments, for those found.
+            //
+            if (VerifyStringVal(strNewAmount))
+            {    strAmount = strNewAmount }
+            if (VerifyStringVal(strNewNote))
+            {    strNote = strNewNote }
+        }            
+        // ------------------------------------
+        // If the transfer parameters aren't provided, then we
+        // ask the user to supply them at the command line.
+        //
+        if (!VerifyStringVal(strAmount) || (strAmount.to_int() < 1))
+        {
+            OT_API_Output(0, "Enter the 'Payout Amount Per-Share' as integer["+strDefaultAmount+"]: ")
+            strAmount        = OT_CLI_ReadLine()
+        }
+        if (!VerifyStringVal(strNote))
+        {
+            OT_API_Output(0, "Optionally, enter a memo on a single line["+strDefaultNote+"]: ")
+            strNote	= OT_CLI_ReadLine()
+        }
+        // ----------------------------------------------
+        if (!VerifyStringVal(strAmount) || (strAmount.to_int() < 1))
+        {    strAmount = strDefaultAmount }
+        if (!VerifyStringVal(strNote))
+        {    strNote = strDefaultNote }
+        // ----------------------------------------------    
+                
+        return details_pay_dividend(strAmount, strNote)
+    }
+    
+    return 0
+}
+
+// -----------------------
+
+
 
 
 
@@ -2803,7 +3526,7 @@ def main_show_purse()
         {
             var strAmount = OT_API_Purse_GetTotalValue(Server, MyPurse, strPurse)
 
-            print("\n\nTotal value: " + strAmount)
+            print("\n\nTOTAL VALUE: " + strAmount)
             
             // ---------------------------
             // Loop through purse contents and display tokens.

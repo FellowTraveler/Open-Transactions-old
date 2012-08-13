@@ -140,6 +140,7 @@
 //#include "OTMint.h"
 #include "OTAssetContract.h"
 
+#include "OTTransaction.h" 
 #include "OTAccount.h" // for OTAcctList
 
 #include "OTCron.h"
@@ -147,7 +148,7 @@
 class OTMessage;
 class OTClientConnection;
 //class OTAccount;
-class OTTransaction;
+class OTPayment;
 class OTMint;
 class OTTrade;
 class OTServerContract;
@@ -169,24 +170,19 @@ typedef std::map<std::string, OTAccount *>		mapOfAccounts; // server side these 
 class OTServer
 {
 	OTString	m_strDataPath;
-
 	OTString	m_strWalletFilename;
-
 	OTString	m_strConfigFilename;
-
 	OTString	m_strLogFilename;
 
 	bool		m_bShutdownFlag;	// If the server wants to be shut down, it can set this flag so the caller knows to do so.
 	
 	OTString	m_strVersion;		// Unused currently.
-	
 	OTString	m_strServerID;		// A hash of the server contract
 	OTString	m_strServerUserID;	// A hash of the public key that signed the server contract.
-	
-	OTServerContract	* m_pServerContract; // This is the server's own contract, containing its public key and connect info.
-	
+	// -----------------------------------------------	
+	OTServerContract * m_pServerContract; // This is the server's own contract, containing its public key and connect info.
+	// -----------------------------------------------
 	long			m_lTransactionNumber;	// This stores the last VALID AND ISSUED transaction number.
-
 	
 	OTPseudonym		m_nymServer; // the Nym for the server, so he can decrypt messages sent to him
 								// by paranoid users :-P  UPDATE: By ALL users. Everything encrypted now by default.
@@ -195,7 +191,7 @@ class OTServer
 	mapOfMints		m_mapMints;		// The mints for each asset type.
 
 	OTAcctList		m_VoucherAccts;	// The list of voucher accounts (see GetVoucherAccount below for details)
-		
+
 	mapOfBaskets	m_mapBaskets;	// this map connects BASKET_ID with BASKET_ACCOUNT_ID (so you can look up the server's
 									// basket issuer account ID, which is *different* on each server, using the Basket Currency's
 									// ID, which is the *same* on every server.)
@@ -248,6 +244,7 @@ class OTServer
 	static bool			__transact_deposit; // Bool. 
 	static bool			__transact_withdraw_voucher; // Bool. 
 	static bool			__transact_deposit_cheque; // Bool. 
+	static bool			__transact_pay_dividend; // Bool. 
 
 	static bool			__cmd_get_mint; // Bool. 
 	static bool			__transact_withdraw_cash; // Bool. 
@@ -375,10 +372,36 @@ public:
 	//
 	void DropReplyNoticeToNymbox(const OTIdentifier & SERVER_ID,
                                  const OTIdentifier & USER_ID,
-                                 const OTString & strMessage,
-                                 const long & lRequestNum,
-                                 const bool   bReplyTransSuccess,
-                                 OTPseudonym * pActualNym=NULL);
+                                 const OTString     & strMessage,
+                                 const long         & lRequestNum,
+                                 const bool           bReplyTransSuccess,
+                                       OTPseudonym  * pActualNym=NULL);
+    
+    // Note: SendInstrumentToNym and SendMessageToNym CALL THIS. 
+    // They are higher-level, this is lower-level.
+    bool DropMessageToNymbox(const OTIdentifier & SERVER_ID,
+                             const OTIdentifier & SENDER_USER_ID,
+                             const OTIdentifier & RECIPIENT_USER_ID,
+                             OTTransaction::transactionType theType,
+                                   OTMessage    * pMsg=NULL,     
+                             const OTString     * pstrMessage=NULL,
+                             const char         * szCommand=NULL);
+    
+    // calls DropMessageToNymbox
+    bool SendInstrumentToNym(const OTIdentifier & SERVER_ID,
+                             const OTIdentifier & SENDER_USER_ID,
+                             const OTIdentifier & RECIPIENT_USER_ID,
+                                   OTMessage    * pMsg=NULL,       // the request msg from payer, which is attached WHOLE to the Nymbox receipt. contains payment already.
+                             const OTPayment    * pPayment=NULL,   // or pass this instead: we will create our own msg here (with payment inside) to be attached to the receipt. 
+                             const char         * szCommand=NULL); // for passing @payDividend (as the message command instead of @sendUserInstrument, the default.)
+    
+    // calls DropMessageToNymbox
+    bool SendMessageToNym(const OTIdentifier & SERVER_ID,
+                          const OTIdentifier & SENDER_USER_ID,
+                          const OTIdentifier & RECIPIENT_USER_ID,
+                                OTMessage    * pMsg=NULL,      // the request msg from payer, which is attached WHOLE to the Nymbox receipt. contains message already.
+                          const OTString     * pstrMessage=NULL); // or pass this instead: we will create our own msg here (with message inside) to be attached to the receipt. 
+    
 	// --------------------------------------------------------------
 
 	void UserCmdCheckServerID(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut);
@@ -449,6 +472,46 @@ public:
 	void NotarizeCancelCronItem(OTPseudonym & theNym, OTAccount & theAssetAccount, OTTransaction & tranIn, OTTransaction & tranOut, bool & bOutSuccess);
 	void NotarizeExchangeBasket(OTPseudonym & theNym, OTAccount & theSourceAccount, OTTransaction & tranIn, OTTransaction & tranOut, bool & bOutSuccess);
 	// ---------------------------------------------------------------------------------
+    void NotarizePayDividend(OTPseudonym & theNym, OTAccount & theAccount, OTTransaction & tranIn, OTTransaction & tranOut, bool & bOutSuccess);
+};
+
+
+// Note: from OTAssetContract.h and .cpp.
+// This is a subclass of OTAcctFunctor, which is used whenever OTAssetContract needs to
+// loop through all the accounts for a given asset type (its own.) This subclass needs to
+// call OTServer method to do its job, so it can't be defined in otlib, but must be defined
+// here in otserver (so it can see the methods that it needs...)
+//
+class OTAcctFunctor_PayDividend : public OTAcctFunctor
+{
+    OTIdentifier * m_pUserID;
+    OTIdentifier * m_pPayoutAssetID;
+    OTIdentifier * m_pVoucherAcctID;
+    OTString     * m_pstrMemo; // contains the original payDividend item from the payDividend transaction request. (Stored in the memo field for each voucher.)
+    OTServer     * m_pServer;  // no need to cleanup. It's here for convenience only.
+    long           m_lPayoutPerShare;
+    long           m_lAmountPaidOut;  // as we pay each voucher out, we keep a running count.
+    long           m_lAmountReturned; // as we pay each voucher out, we keep a running count.
+public:
+    OTAcctFunctor_PayDividend(const OTIdentifier & theServerID, 
+                              const OTIdentifier & theUserID, 
+                              const OTIdentifier & thePayoutAssetID,
+                              const OTIdentifier & theVoucherAcctID,
+                              const OTString     & strMemo,
+                                    OTServer     & theServer, 
+                                    long           lPayoutPerShare);
+    virtual ~OTAcctFunctor_PayDividend();
+    
+    OTIdentifier * GetUserID()         { return m_pUserID; }
+    OTIdentifier * GetPayoutAssetID()  { return m_pPayoutAssetID; }
+    OTIdentifier * GetVoucherAcctID()  { return m_pVoucherAcctID; }
+    OTString     * GetMemo()           { return m_pstrMemo; }
+    OTServer     * GetServer()         { return m_pServer; }
+    long           GetPayoutPerShare() { return m_lPayoutPerShare; }
+    long           GetAmountPaidOut()  { return m_lAmountPaidOut; }
+    long           GetAmountReturned() { return m_lAmountReturned; }
+    
+    virtual bool Trigger(OTAccount & theAccount);
 };
 
 

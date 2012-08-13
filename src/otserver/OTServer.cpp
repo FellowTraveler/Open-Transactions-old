@@ -200,61 +200,66 @@ const char * OT_BEGIN_ARMORED_escaped   = "- -----BEGIN OT ARMORED";
 #include "OTItem.h"
 
 #include "OTTransaction.h"
+
+#include "OTPayment.h"
+
+
 #ifdef _WIN32
-const char * OTTransaction::_TypeStrings[] = 
-{
-	"blank",			// freshly issued, not used yet  // comes from server, stored on Nym. (Nymbox.)
-	"message",			// in nymbox, message from one user to another.
-	"notice",			// in nymbox, notice from the server. Probably contains an updated smart contract.
-	"replyNotice",		// When you send a request to the server, sometimes its reply is so important, 
-						// that it drops a copy into your Nymbox to make you receive and process it.
-	"successNotice",	// A transaction # has successfully been signed out. (Nymbox.)
-	// --------------------------------------------------------------------------------------
-	"pending",			// Pending transfer, in the inbox/outbox.
-	// --------------------------------------------------------------------------------------
-	"transferReceipt",	// the server drops this into your inbox, when someone accepts your transfer.
-	// --------------------------------------------------------------------------------------
-	"chequeReceipt",	// the server drops this into your inbox, when someone cashes your cheque.
-	"marketReceipt",	// server drops this into inbox periodically, if you have an offer on the market.
-	"paymentReceipt",	// the server drops this into people's inboxes, periodically, if they have payment plans.
-	// --------------------------------------------------------------------------------------
-	"finalReceipt",     // the server drops this into your inbox(es), when a CronItem expires or is canceled.
-	"basketReceipt",    // the server drops this into your inboxes, when a basket exchange is processed.
-	// --------------------------------------------------------------------------------------
-	"instrumentNotice",		// Receive these in paymentInbox (by way of Nymbox), and send in Outpayments (like outMail.) (When done, they go to recordBox to await deletion.)
-	"instrumentRejection",	// When someone rejects your invoice from his paymentInbox, you get one of these in YOUR paymentInbox.
-	// --------------------------------------------------------------------------------------
-	"processNymbox",	// process nymbox transaction	 // comes from client
-	"atProcessNymbox",	// process nymbox reply			 // comes from server
-	"processInbox",		// process inbox transaction	 // comes from client
-	"atProcessInbox",	// process inbox reply			 // comes from server
-	// --------------------------------------------------------------------------------------
-	"transfer",			// or "spend". This transaction is a transfer from one account to another
-	"atTransfer",		// reply from the server regarding a transfer request
-	// --------------------------------------------------------------------------------------
-	"deposit",			// this transaction is a deposit of bearer tokens (from client)
-	"atDeposit",		// reply from the server regarding a deposit request
-	// --------------------------------------------------------------------------------------
-	"withdrawal",		// this transaction is a withdrawal of bearer tokens
-	"atWithdrawal",		// reply from the server regarding a withdrawal request
-	// --------------------------------------------------------------------------------------
-	"marketOffer",		// this transaction is a market offer
-	"atMarketOffer",	// reply from the server regarding a market offer
-	// --------------------------------------------------------------------------------------
-	"paymentPlan",		// this transaction is a payment plan
-	"atPaymentPlan",	// reply from the server regarding a payment plan
-	// --------------------------------------------------------------------------------------
-	"smartContract",	// this transaction is a smart contract
-	"atSmartContract",	// reply from the server regarding a smart contract
-	// --------------------------------------------------------------------------------------
-	"cancelCronItem",	// this transaction is a cancellation of a cron item (payment plan etc)
-	"atCancelCronItem",	// reply from the server regarding said cancellation.
-	// --------------------------------------------------------------------------------------
-	"exchangeBasket",	// this transaction is an exchange in/out of a basket currency.
-	"atExchangeBasket",	// reply from the server regarding said exchange.
-	// --------------------------------------------------------------------------------------
-	"error_state"	
-};
+// da2ce7: isn't this fixed now? The cross-boundary static variable Windows crap? -FT
+//const char * OTTransaction::_TypeStrings[] = 
+//{
+//	"blank",			// freshly issued, not used yet  // comes from server, stored on Nym. (Nymbox.)
+//	"message",			// in nymbox, message from one user to another.
+//	"notice",			// in nymbox, notice from the server. Probably contains an updated smart contract.
+//	"replyNotice",		// When you send a request to the server, sometimes its reply is so important, 
+//						// that it drops a copy into your Nymbox to make you receive and process it.
+//	"successNotice",	// A transaction # has successfully been signed out. (Nymbox.)
+//	// --------------------------------------------------------------------------------------
+//	"pending",			// Pending transfer, in the inbox/outbox.
+//	// --------------------------------------------------------------------------------------
+//	"transferReceipt",	// the server drops this into your inbox, when someone accepts your transfer.
+//	// --------------------------------------------------------------------------------------
+//	"chequeReceipt",	// the server drops this into your inbox, when someone cashes your cheque.
+//	"marketReceipt",	// server drops this into inbox periodically, if you have an offer on the market.
+//	"paymentReceipt",	// the server drops this into people's inboxes, periodically, if they have payment plans.
+//	// --------------------------------------------------------------------------------------
+//	"finalReceipt",     // the server drops this into your inbox(es), when a CronItem expires or is canceled.
+//	"basketReceipt",    // the server drops this into your inboxes, when a basket exchange is processed.
+//	// --------------------------------------------------------------------------------------
+//	"instrumentNotice",		// Receive these in paymentInbox (by way of Nymbox), and send in Outpayments (like outMail.) (When done, they go to recordBox to await deletion.)
+//	"instrumentRejection",	// When someone rejects your invoice from his paymentInbox, you get one of these in YOUR paymentInbox.
+//	// --------------------------------------------------------------------------------------
+//	"processNymbox",	// process nymbox transaction	 // comes from client
+//	"atProcessNymbox",	// process nymbox reply			 // comes from server
+//	"processInbox",		// process inbox transaction	 // comes from client
+//	"atProcessInbox",	// process inbox reply			 // comes from server
+//	// --------------------------------------------------------------------------------------
+//	"transfer",			// or "spend". This transaction is a transfer from one account to another
+//	"atTransfer",		// reply from the server regarding a transfer request
+//	// --------------------------------------------------------------------------------------
+//	"deposit",			// this transaction is a deposit of bearer tokens (from client)
+//	"atDeposit",		// reply from the server regarding a deposit request
+//	// --------------------------------------------------------------------------------------
+//	"withdrawal",		// this transaction is a withdrawal of bearer tokens
+//	"atWithdrawal",		// reply from the server regarding a withdrawal request
+//	// --------------------------------------------------------------------------------------
+//	"marketOffer",		// this transaction is a market offer
+//	"atMarketOffer",	// reply from the server regarding a market offer
+//	// --------------------------------------------------------------------------------------
+//	"paymentPlan",		// this transaction is a payment plan
+//	"atPaymentPlan",	// reply from the server regarding a payment plan
+//	// --------------------------------------------------------------------------------------
+//	"smartContract",	// this transaction is a smart contract
+//	"atSmartContract",	// reply from the server regarding a smart contract
+//	// --------------------------------------------------------------------------------------
+//	"cancelCronItem",	// this transaction is a cancellation of a cron item (payment plan etc)
+//	"atCancelCronItem",	// reply from the server regarding said cancellation.
+//	// --------------------------------------------------------------------------------------
+//	"exchangeBasket",	// this transaction is an exchange in/out of a basket currency.
+//	"atExchangeBasket",	// reply from the server regarding said exchange.
+//	// --------------------------------------------------------------------------------------
+//	"error_state"	
+//};
 #endif
 
 #include "OTLedger.h"
@@ -323,6 +328,7 @@ bool	OTServer::__transact_withdrawal = true; // Bool.
 bool	OTServer::__transact_deposit = true; // Bool. 
 bool	OTServer::__transact_withdraw_voucher = true; // Bool. 
 bool	OTServer::__transact_deposit_cheque = true; // Bool. 
+bool	OTServer::__transact_pay_dividend = true; // Bool. 
 
 bool	OTServer::__cmd_get_mint = true; // Bool. 
 bool	OTServer::__transact_withdraw_cash = true; // Bool. 
@@ -626,17 +632,17 @@ OTMint * OTServer::GetMint(const OTIdentifier & ASSET_TYPE_ID, int nSeries) // E
 		{
 			OTLog::vError("Error verifying Mint in OTServer::GetMint:\n%s%s%s\n", 
 						  szFoldername, OTLog::PathSeparator(), szFilename);
-			delete pMint;
-			pMint = NULL;
 		}
 	}
 	else 
 	{
 		OTLog::vError("Error loading Mint in OTServer::GetMint:\n%s%s%s\n", 
 					  szFoldername, OTLog::PathSeparator(), szFilename);
-		delete pMint;
-		pMint = NULL;
 	}
+
+    if (NULL != pMint)
+        delete pMint;
+    pMint = NULL;
 
 	return NULL;
 }
@@ -1314,45 +1320,46 @@ bool OTServer::LoadConfigFile()
 
 	OTLog::Config_SetOption_bool("permissions", "admin_usage_credits",		__admin_usage_credits);
 	OTLog::Config_SetOption_bool("permissions", "admin_server_locked",		__admin_server_locked);
-	OTLog::Config_SetOption_bool("permissions", "cmd_usage_credits",			__cmd_usage_credits);
+	OTLog::Config_SetOption_bool("permissions", "cmd_usage_credits",		__cmd_usage_credits);
 	OTLog::Config_SetOption_bool("permissions", "cmd_issue_asset",			__cmd_issue_asset);
 	OTLog::Config_SetOption_bool("permissions", "cmd_get_contract",			__cmd_get_contract);
 	OTLog::Config_SetOption_bool("permissions", "cmd_check_server_id",		__cmd_check_server_id);
 	OTLog::Config_SetOption_bool("permissions", "cmd_create_user_acct",		__cmd_create_user_acct);
-	OTLog::Config_SetOption_bool("permissions", "cmd_del_user_acct",			__cmd_del_user_acct);
-	OTLog::Config_SetOption_bool("permissions", "cmd_check_user",				__cmd_check_user);
+	OTLog::Config_SetOption_bool("permissions", "cmd_del_user_acct",		__cmd_del_user_acct);
+	OTLog::Config_SetOption_bool("permissions", "cmd_check_user",			__cmd_check_user);
 	OTLog::Config_SetOption_bool("permissions", "cmd_get_request",			__cmd_get_request);
-	OTLog::Config_SetOption_bool("permissions", "cmd_get_trans_num",			__cmd_get_trans_num);
+	OTLog::Config_SetOption_bool("permissions", "cmd_get_trans_num",		__cmd_get_trans_num);
 	OTLog::Config_SetOption_bool("permissions", "cmd_send_message",			__cmd_send_message);
-	OTLog::Config_SetOption_bool("permissions", "cmd_get_nymbox",				__cmd_get_nymbox);
-	OTLog::Config_SetOption_bool("permissions", "cmd_process_nymbox",			__cmd_process_nymbox);
-	OTLog::Config_SetOption_bool("permissions", "cmd_create_asset_acct",		__cmd_create_asset_acct);
-	OTLog::Config_SetOption_bool("permissions", "cmd_del_asset_acct",			__cmd_del_asset_acct);
+	OTLog::Config_SetOption_bool("permissions", "cmd_get_nymbox",			__cmd_get_nymbox);
+	OTLog::Config_SetOption_bool("permissions", "cmd_process_nymbox",		__cmd_process_nymbox);
+	OTLog::Config_SetOption_bool("permissions", "cmd_create_asset_acct",	__cmd_create_asset_acct);
+	OTLog::Config_SetOption_bool("permissions", "cmd_del_asset_acct",		__cmd_del_asset_acct);
 	OTLog::Config_SetOption_bool("permissions", "cmd_get_acct",				__cmd_get_acct);
-	OTLog::Config_SetOption_bool("permissions", "cmd_get_inbox",				__cmd_get_inbox);
-	OTLog::Config_SetOption_bool("permissions", "cmd_get_outbox",				__cmd_get_outbox);
-	OTLog::Config_SetOption_bool("permissions", "cmd_process_inbox",			__cmd_process_inbox);
+	OTLog::Config_SetOption_bool("permissions", "cmd_get_inbox",			__cmd_get_inbox);
+	OTLog::Config_SetOption_bool("permissions", "cmd_get_outbox",			__cmd_get_outbox);
+	OTLog::Config_SetOption_bool("permissions", "cmd_process_inbox",		__cmd_process_inbox);
 	OTLog::Config_SetOption_bool("permissions", "cmd_issue_basket",			__cmd_issue_basket);
 	OTLog::Config_SetOption_bool("permissions", "transact_exchange_basket",	__transact_exchange_basket);
 	OTLog::Config_SetOption_bool("permissions", "cmd_notarize_transaction",	__cmd_notarize_transaction);
-	OTLog::Config_SetOption_bool("permissions", "transact_process_inbox",		__transact_process_inbox);
-	OTLog::Config_SetOption_bool("permissions", "transact_transfer",			__transact_transfer);
+	OTLog::Config_SetOption_bool("permissions", "transact_process_inbox",	__transact_process_inbox);
+	OTLog::Config_SetOption_bool("permissions", "transact_transfer",		__transact_transfer);
 	OTLog::Config_SetOption_bool("permissions", "transact_withdrawal",		__transact_withdrawal);
 	OTLog::Config_SetOption_bool("permissions", "transact_deposit",			__transact_deposit);
-	OTLog::Config_SetOption_bool("permissions", "transact_withdraw_voucher",	__transact_withdraw_voucher);
+	OTLog::Config_SetOption_bool("permissions", "transact_withdraw_voucher",__transact_withdraw_voucher);
+	OTLog::Config_SetOption_bool("permissions", "transact_pay_dividend",    __transact_pay_dividend);
 	OTLog::Config_SetOption_bool("permissions", "transact_deposit_cheque",	__transact_deposit_cheque);
 	OTLog::Config_SetOption_bool("permissions", "cmd_get_mint",				__cmd_get_mint);
-	OTLog::Config_SetOption_bool("permissions", "transact_withdraw_cash",		__transact_withdraw_cash);
-	OTLog::Config_SetOption_bool("permissions", "transact_deposit_cash",		__transact_deposit_cash);
+	OTLog::Config_SetOption_bool("permissions", "transact_withdraw_cash",	__transact_withdraw_cash);
+	OTLog::Config_SetOption_bool("permissions", "transact_deposit_cash",	__transact_deposit_cash);
 	OTLog::Config_SetOption_bool("permissions", "cmd_get_market_list",		__cmd_get_market_list);
-	OTLog::Config_SetOption_bool("permissions", "cmd_get_market_offers",		__cmd_get_market_offers);
+	OTLog::Config_SetOption_bool("permissions", "cmd_get_market_offers",	__cmd_get_market_offers);
 	OTLog::Config_SetOption_bool("permissions", "cmd_get_market_recent_trades",__cmd_get_market_recent_trades);
-	OTLog::Config_SetOption_bool("permissions", "cmd_get_nym_market_offers",	__cmd_get_nym_market_offers);
-	OTLog::Config_SetOption_bool("permissions", "transact_market_offer",		__transact_market_offer);
-	OTLog::Config_SetOption_bool("permissions", "transact_payment_plan",		__transact_payment_plan);
-	OTLog::Config_SetOption_bool("permissions", "transact_cancel_cron_item",	__transact_cancel_cron_item);
+	OTLog::Config_SetOption_bool("permissions", "cmd_get_nym_market_offers",__cmd_get_nym_market_offers);
+	OTLog::Config_SetOption_bool("permissions", "transact_market_offer",	__transact_market_offer);
+	OTLog::Config_SetOption_bool("permissions", "transact_payment_plan",	__transact_payment_plan);
+	OTLog::Config_SetOption_bool("permissions", "transact_cancel_cron_item",__transact_cancel_cron_item);
 	OTLog::Config_SetOption_bool("permissions", "transact_smart_contract",	__transact_smart_contract);
-	OTLog::Config_SetOption_bool("permissions", "cmd_trigger_clause",			__cmd_trigger_clause);
+	OTLog::Config_SetOption_bool("permissions", "cmd_trigger_clause",		__cmd_trigger_clause);
 
 	// Done Loading... Lets save any changes...
 	rc = OTLog::Config_Save(strConfigFilePath);
@@ -2538,7 +2545,7 @@ void OTServer::UserCmdGetTransactionNum(OTPseudonym & theNym, OTMessage & MsgIn,
         bool        bSavedNymbox = false;
 		OTLedger    theLedger(USER_ID, USER_ID, SERVER_ID); // Nymbox
         
-        // We'll store the transactionm numbers here immediately after they're issued, 
+        // We'll store the transaction numbers here immediately after they're issued, 
         // before adding them to the Nymbox.
         //
         OTNumList   theNumlist; 
@@ -2735,73 +2742,67 @@ void OTServer::UserCmdGetRequest(OTPseudonym & theNym, OTMessage & MsgIn, OTMess
 
 void OTServer::UserCmdSendUserMessage(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut)
 {
-	long lTransNum = 0;
-	
 	// (1) set up member variables 
-	msgOut.m_strCommand		= "@sendUserMessage";	// reply to sendUserMessage
-	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
-	msgOut.m_strNymID2		= MsgIn.m_strNymID2;// UserID of recipient pubkey
-//	msgOut.m_strServerID	= m_strServerID;	// This is already set in ProcessUserCommand.
+	msgOut.m_strCommand		= "@sendUserMessage";	// reply to sendUserInstrument
+	msgOut.m_strNymID		= MsgIn.m_strNymID;         // UserID
+	msgOut.m_strNymID2		= MsgIn.m_strNymID2;        // UserID of recipient pubkey
+//	msgOut.m_strServerID	= m_strServerID;            // This is already set in ProcessUserCommand.
 		
-	bool bGotNextTransNum	= IssueNextTransactionNumber(m_nymServer, lTransNum, false); // bool bStoreTheNumber = false
-
-	OTPseudonym nym2;	
-	nym2.SetIdentifier(MsgIn.m_strNymID2);
-	
-	OTIdentifier RECIPIENT_USER_ID(nym2), SERVER_ID(m_strServerID);
-	
-	OTLedger theLedger(RECIPIENT_USER_ID, RECIPIENT_USER_ID, SERVER_ID);
-
-	OTString strInMessage(MsgIn);
-	msgOut.m_ascInReferenceTo.SetString(strInMessage);
-
-	if (!bGotNextTransNum)
+	const OTString      strInMessage(MsgIn);
+	const OTIdentifier  SENDER_USER_ID(theNym),
+                        RECIPIENT_USER_ID(MsgIn.m_strNymID2), 
+                        SERVER_ID(m_strServerID);    
+    msgOut.m_ascInReferenceTo.SetString(strInMessage);
+    // ------------------------------------------------------------
+    const bool bSent = this->SendMessageToNym(SERVER_ID, SENDER_USER_ID, RECIPIENT_USER_ID, &MsgIn); // pstrMessage=NULL
+    
+	if (!bSent)
 	{
-		lTransNum = 0;
-		OTLog::Error("Error getting next transaction number in OTServer::UserCmdSendUserMessage\n");
+		OTLog::vError("OTServer::UserCmdSendUserMessage: Failed while calling SendMessageToNym.\n");
+        msgOut.m_bSuccess = false;
 	}
-	// Drop in the Nymbox 
-	else if (msgOut.m_bSuccess = (theLedger.LoadNymbox()				&&
-//								  theLedger.VerifyAccount(m_nymServer)	&&	// This loads all the Box Receipts, which is unnecessary.
-								  theLedger.VerifyContractID()			&&	// Instead, we'll verify the IDs and Signature only.
-								  theLedger.VerifySignature(m_nymServer)
-								  ) 
-			 )
-	{						
-		OTTransaction * pTransaction = OTTransaction::GenerateTransaction(theLedger, OTTransaction::message, lTransNum);
-		
-		if (NULL != pTransaction) // The above has an OT_ASSERT within, but I just like to check my pointers.
-		{			
-			pTransaction->	SetReferenceToNum(lTransNum);		// <====== Recipient RECEIVES entire incoming message as string here, which includes the sender user ID,
-			pTransaction->	SetReferenceString(strInMessage);	// and has an OTEnvelope in the payload. Message is signed by sender, and envelope is encrypted to recipient.
-			
-			pTransaction->	SignContract(m_nymServer);
-			pTransaction->	SaveContract();
-			
-			theLedger.AddTransaction(*pTransaction); // Add the message transaction to the nymbox.
-			
-			theLedger.ReleaseSignatures();
-			theLedger.SignContract(m_nymServer);
-			theLedger.SaveContract();
-			theLedger.SaveNymbox(); // We don't grab the Nymbox hash here since nothing important changed (just a message being sent.)
+    else
+    {
+        msgOut.m_bSuccess = true;        
+    }
+    // ------------------------------------------------------------
+	// (2) Sign the Message 
+	msgOut.SignContract(m_nymServer);		
+	
+	// (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+	//
+	// FYI, SaveContract takes m_xmlUnsigned and wraps it with the signatures and ------- BEGIN  bookends
+	// If you don't pass a string in, then SaveContract saves the new version to its member, m_strRawFile
+	msgOut.SaveContract();
+}
+// -------------------------------------------------------------------------------------
 
-			// Any inbox/nymbox/outbox ledger will only itself contain
-			// abbreviated versions of the receipts, including their hashes.
-			// 
-			// The rest is stored separately, in the box receipt, which is created
-			// whenever a receipt is added to a box, and deleted after a receipt
-			// is removed from a box.
-			//
-			pTransaction->SaveBoxReceipt(theLedger);
-			
-			msgOut.m_bSuccess = true;
-		}
-		else 
-		{
-			msgOut.m_bSuccess = false;
-		}
-	}	
+void OTServer::UserCmdSendUserInstrument(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut)
+{
+	// (1) set up member variables 
+	msgOut.m_strCommand		= "@sendUserInstrument";	// reply to sendUserInstrument
+	msgOut.m_strNymID		= MsgIn.m_strNymID;         // UserID
+	msgOut.m_strNymID2		= MsgIn.m_strNymID2;        // UserID of recipient pubkey
+//	msgOut.m_strServerID	= m_strServerID;            // This is already set in ProcessUserCommand.
 		
+	const OTString      strInMessage(MsgIn);
+	const OTIdentifier  SENDER_USER_ID(theNym),
+                        RECIPIENT_USER_ID(MsgIn.m_strNymID2), 
+                        SERVER_ID(m_strServerID);    
+    msgOut.m_ascInReferenceTo.SetString(strInMessage);
+    // ------------------------------------------------------------
+    const bool bSent = this->SendInstrumentToNym(SERVER_ID, SENDER_USER_ID, RECIPIENT_USER_ID, &MsgIn); // pPayment=NULL, szCommand=NULL
+    
+	if (!bSent)
+	{
+		OTLog::vError("OTServer::UserCmdSendUserInstrument: Failed while calling SendInstrumentToNym.\n");
+        msgOut.m_bSuccess = false;
+	}
+    else
+    {
+        msgOut.m_bSuccess = true;        
+    }
+    // ------------------------------------------------------------
 	// (2) Sign the Message 
 	msgOut.SignContract(m_nymServer);		
 	
@@ -2813,43 +2814,199 @@ void OTServer::UserCmdSendUserMessage(OTPseudonym & theNym, OTMessage & MsgIn, O
 }
 
 
+// -------------------------------------------------------------------------------------
 
-void OTServer::UserCmdSendUserInstrument(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut)
+bool OTServer::SendInstrumentToNym(const OTIdentifier & SERVER_ID,
+                                   const OTIdentifier & SENDER_USER_ID,
+                                   const OTIdentifier & RECIPIENT_USER_ID,
+                                         OTMessage    * pMsg/*=NULL*/,     // the request msg from payer, which is attached WHOLE to the Nymbox receipt. contains payment already.
+                                   const OTPayment    * pPayment/*=NULL*/, // or pass this instead: we will create our own msg here (with message inside) to be attached to the receipt. 
+                                   const char         * szCommand/*=NULL*/)
 {
+    OT_ASSERT_MSG( !( (NULL == pMsg) && (NULL == pPayment) ), "pMsg and pPayment -- these can't BOTH be NULL.\n"); // must provide one or the other.
+    OT_ASSERT_MSG( !( (NULL != pMsg) && (NULL != pPayment) ), "pMsg and pPayment -- these can't BOTH be not-NULL.\n"); // can't provide both.
+    // ------------------------
+    OT_ASSERT_MSG( ((NULL == pPayment) || ((NULL != pPayment) && pPayment->IsValid())) , "OTServer::SendInstrumentToNym: You can only pass a valid payment here.");    
+    // ------------------------
+    // If a payment was passed in (for us to use it to construct pMsg, which is NULL in the case where payment isn't NULL)
+    // Then we grab it in string form, so we can pass it on...
+    OTString * pstrPayment = NULL;
+    OTCleanup<OTString> theAngel;
+    if (NULL != pPayment)
+    {
+        const OTString strTemp(*pPayment);
+        pstrPayment = new OTString(strTemp);
+        OT_ASSERT(NULL != pstrPayment);
+        theAngel.SetCleanupTarget(*pstrPayment);
+    }
+    // ------------------------
+    return this->DropMessageToNymbox(SERVER_ID, SENDER_USER_ID,
+                                     RECIPIENT_USER_ID,
+                                     OTTransaction::instrumentNotice,
+                                     pMsg, pstrPayment, szCommand);
+}
+
+// -------------------------------------------------------------------------------------
+
+bool OTServer::SendMessageToNym(const OTIdentifier & SERVER_ID,
+                                const OTIdentifier & SENDER_USER_ID,
+                                const OTIdentifier & RECIPIENT_USER_ID,
+                                      OTMessage    * pMsg/*=NULL*/,        // the request msg from payer, which is attached WHOLE to the Nymbox receipt. contains message already.
+                                const OTString     * pstrMessage/*=NULL*/) // or pass this instead: we will create our own msg here (with message inside) to be attached to the receipt. 
+{
+    return this->DropMessageToNymbox(SERVER_ID, SENDER_USER_ID,
+                                     RECIPIENT_USER_ID,
+                                     OTTransaction::message,
+                                     pMsg, pstrMessage); //, szCommand=NULL
+}
+
+// -------------------------------------------------------------------------------------
+
+// Can't be static (this->IssueNextTransactionNumber is called...)
+//
+// About pMsg...
+// (Normally) when you send a cheque to someone, you encrypt it inside an envelope, and that
+// envelope is attached to a OTMessage (sendUserInstrument) and sent to the server. The server
+// takes your entire OTMessage and attaches it to an instrumentNotice (OTTransaction) which is
+// added to the recipient's Nymbox.
+// In that case, just pass the pointer to the incoming message here as pMsg, and the OT Server
+// will attach it as described.
+// But let's say you are paying a dividend. The server can't just attach your dividend request in
+// that case. Normally the recipient's cheque is already in the request. But with a dividend, there 
+// could be a thousand recipients, and their individual vouchers are only generated and sent AFTER
+// the server receives the "pay dividend" request.
+// Therefore in that case, NULL would be passed for pMsg, meaning that inside this function we have
+// to generate our own OTMessage "from the server" instead of "from the sender". After all, the server's
+// private key is the only signer we have in here. And the recipient will be expecting to have to 
+// open a message, so we must create one to give him. So if pMsg is NULL, then this function will
+// create a message "from the server", containing the instrument, and drop it into the recipient's nymbox
+// as though it were some incoming message from a normal user.
+// This message, in the case of payDividend, should be an "@payDividend" message, "from" the server
+// and "to" the recipient. The payment instrument must be attached to that new message, and therefore it
+// must be passed into this function.
+// Of course, if pMsg was not NULL, that means the message (and instrument inside of it) already exist,
+// so no instrument would need to be passed. But if pMsg IS NULL, that means the msg must be generated,
+// and thus the instrument MUST be passed in, so that that can be done.
+// Therefore the instrument will sometimes be passed in, and sometimes not. Therefore the instrument must
+// be passed as a pointer.
+//
+// Conclusion: if pMsg is passed in, then pass a null instrument. (Since the instrument is already on pMsg.)
+//                (And since the instrument defaults to NULL, this makes pMsg the final argument in the call.)
+//         but if pMsg is NULL, then you must pass the payment instrument as the next argument. (So pMsg can be created with it.)
+// Note: you cannot pass BOTH, or the instrument will simply be ignored, since it's already assumed to be in pMsg.
+// You might ask: what about the original request then, doesn't the recipient get a copy of that? Well, maybe we
+// pass it in here and attach it to the new message. Or maybe we just set it as the voucher memo.
+//
+bool OTServer::DropMessageToNymbox(const OTIdentifier & SERVER_ID,
+                                   const OTIdentifier & SENDER_USER_ID,
+                                   const OTIdentifier & RECIPIENT_USER_ID,
+                                   OTTransaction::transactionType theType,
+                                         OTMessage    * pMsg/*=NULL*/,     
+                                   const OTString     * pstrMessage/*=NULL*/,
+                                   const char         * szCommand/*=NULL*/) // If you pass something here, it will replace pMsg->m_strCommand below
+{
+    OT_ASSERT_MSG( !( (NULL == pMsg) && (NULL == pstrMessage) ), "pMsg and pstrMessage -- these can't BOTH be NULL.\n"); // must provide one or the other.
+    OT_ASSERT_MSG( !( (NULL != pMsg) && (NULL != pstrMessage) ), "pMsg and pstrMessage -- these can't BOTH be not-NULL.\n"); // can't provide both.
+    // ------------------------
+    const char * szFunc = "OTServer::DropMessageToNymbox";
+    // ------------------------
 	long lTransNum = 0;
-	
-	// (1) set up member variables 
-	msgOut.m_strCommand		= "@sendUserInstrument";	// reply to sendUserInstrument
-	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
-	msgOut.m_strNymID2		= MsgIn.m_strNymID2;// UserID of recipient pubkey
-//	msgOut.m_strServerID	= m_strServerID;	// This is already set in ProcessUserCommand.
-	
-	bool bGotNextTransNum	= IssueNextTransactionNumber(m_nymServer, lTransNum, false); // bool bStoreTheNumber = false
-	
-	OTPseudonym nym2;	
-	nym2.SetIdentifier(MsgIn.m_strNymID2);
-	
-	OTIdentifier RECIPIENT_USER_ID(nym2), SERVER_ID(m_strServerID);
-	
-	OTLedger theLedger(RECIPIENT_USER_ID, RECIPIENT_USER_ID, SERVER_ID);
-	
-	OTString strInMessage(MsgIn);
-	msgOut.m_ascInReferenceTo.SetString(strInMessage);
-	
-	if (!bGotNextTransNum)
+	const bool bGotNextTransNum = this->IssueNextTransactionNumber(m_nymServer, lTransNum, false); // bool bStoreTheNumber = false
+		
+    if (!bGotNextTransNum)
 	{
-		lTransNum = 0;
-		OTLog::Error("Error getting next transaction number in OTServer::UserCmdSendUserInstrument\n");
+		OTLog::vError("%s: Error: failed trying to get next transaction number.\n");
+        return false;
 	}
+	// ------------------------
+    switch (theType)
+    {
+        case OTTransaction::message:            break;
+        case OTTransaction::instrumentNotice:   break;
+        default:
+            OTLog::vError("%s: Unexpected transactionType passed here (expected message "
+                          "or instrumentNotice.)\n", szFunc);
+            return false;
+    }
+	// ------------------------
+    // If pMsg was not already passed in here, then 
+    // create pMsg using pstrMessage.
+    //
+    OTCleanup<OTMessage> theMsgAngel;
+    
+    if (NULL == pMsg) // we have to create it ourselves.
+    {
+        pMsg = new OTMessage;
+        OT_ASSERT(NULL != pMsg);
+        theMsgAngel.SetCleanupTarget(*pMsg); // In this case we created it, so we clean it up as well.
+        // ---------------------------------
+        if (NULL != szCommand)
+            pMsg->m_strCommand = szCommand;
+        else switch (theType)
+        {
+            case OTTransaction::message:            pMsg->m_strCommand = "@sendUserMessage";    break;
+            case OTTransaction::instrumentNotice:   pMsg->m_strCommand = "@sendUserInstrument"; break;
+            default: break; // should never happen.
+        }
+        // --------------------------------------------------------------
+        pMsg->m_strServerID = this->m_strServerID;
+        pMsg->m_bSuccess    = true;
+        SENDER_USER_ID.   GetString(pMsg->m_strNymID);     
+        RECIPIENT_USER_ID.GetString(pMsg->m_strNymID2); // set the recipient ID in pMsg to match our recipient ID.
+        // ---------------------------------
+        // Load up the recipient's public key (so we can encrypt the envelope 
+        // to him that will contain the payment instrument.)
+        //
+        OTPseudonym nymRecipient;	
+        nymRecipient.SetIdentifier(RECIPIENT_USER_ID);
+        
+        if (!nymRecipient.LoadPublicKey())
+        {
+            OTLog::vError("%s: Failed trying to load public key for recipient.\n", szFunc);
+            return false;
+        }
+        // ---------------------------------
+        // Wrap the message up into an envelope and attach it to pMsg.
+        //
+        OTEnvelope  theEnvelope;
+        
+        if (theEnvelope.Seal(nymRecipient.GetPublicKey(), *pstrMessage) && // Seal pstrMessage into theEnvelope, using nymRecipient's public key.
+            theEnvelope.GetAsciiArmoredData(pMsg->m_ascPayload))           // Grab the sealed version as base64-encoded string, into pMsg->m_ascPayload.
+        {
+            pMsg->SignContract(m_nymServer);
+            pMsg->SaveContract();
+        }
+        else
+        {
+            OTLog::vError("%s: Failed trying to seal envelope containing message "
+                          "(or while grabbing the base64-encoded result.)\n", 
+                          szFunc);
+            return false;
+        }
+        // ---------------------------------
+        // By this point, pMsg is all set up, signed and saved. Its payload contains
+        // the envelope (as base64) containing the encrypted message.
+    }
+//  else // pMsg was passed in, so it's not NULL. No need to create it ourselves like above. (pstrMessage should be NULL anyway in this case.)
+//  {
+//       // Apparently no need to do anything in here at all.
+//  }
+    // --------------------------------------
+    // Grab a string copy of pMsg.
+    //
+    const OTString strInMessage(*pMsg);
+    // --------------------------------------
+    OTLedger theLedger(RECIPIENT_USER_ID, RECIPIENT_USER_ID, SERVER_ID); // The recipient's Nymbox.
+	// ------------------------
 	// Drop in the Nymbox 
-	else if (msgOut.m_bSuccess = (theLedger.LoadNymbox()				&&
-//								  theLedger.VerifyAccount(m_nymServer)	&&	// This loads all the Box Receipts, which is unnecessary.
-								  theLedger.VerifyContractID()			&&	// Instead, we'll verify the IDs and Signature only.
-								  theLedger.VerifySignature(m_nymServer)
-								  ) 
-			 )
+	if ( (theLedger.LoadNymbox()				&&
+//		  theLedger.VerifyAccount(m_nymServer)	&&	// This loads all the Box Receipts, which is unnecessary.
+          theLedger.VerifyContractID()			&&	// Instead, we'll verify the IDs and Signature only.
+          theLedger.VerifySignature(m_nymServer)
+       ) )
 	{						
-		OTTransaction * pTransaction = OTTransaction::GenerateTransaction(theLedger, OTTransaction::instrumentNotice, lTransNum);
+        // Create the instrumentNotice to put in the Nymbox.
+		OTTransaction * pTransaction = OTTransaction::GenerateTransaction(theLedger, theType, lTransNum);
 		
 		if (NULL != pTransaction) // The above has an OT_ASSERT within, but I just like to check my pointers.
 		{
@@ -2862,8 +3019,8 @@ void OTServer::UserCmdSendUserInstrument(OTPseudonym & theNym, OTMessage & MsgIn
 			
 			pTransaction->	SignContract(m_nymServer);
 			pTransaction->	SaveContract();
-			
-			theLedger.AddTransaction(*pTransaction); // Add the message transaction to the nymbox.
+			// -----------------------------------------
+			theLedger.AddTransaction(*pTransaction); // Add the message transaction to the nymbox. (It will cleanup.)
 			
 			theLedger.ReleaseSignatures();
 			theLedger.SignContract(m_nymServer);
@@ -2878,25 +3035,29 @@ void OTServer::UserCmdSendUserInstrument(OTPseudonym & theNym, OTMessage & MsgIn
 			// is removed from a box.
 			//
 			pTransaction->SaveBoxReceipt(theLedger);
-			
-			msgOut.m_bSuccess = true;
+            
+            return true;
 		}
-		else 
+		else // should never happen
 		{
-			msgOut.m_bSuccess = false;
+            const OTString strRecipientUserID(RECIPIENT_USER_ID);
+            OTLog::vError("%s: Failed while trying to generate transaction in order to "
+                          "add a message to Nymbox: %s\n", 
+                          szFunc, strRecipientUserID.Get());
 		}
-	}	
-	
-	// (2) Sign the Message 
-	msgOut.SignContract(m_nymServer);		
-	
-	// (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
-	//
-	// FYI, SaveContract takes m_xmlUnsigned and wraps it with the signatures and ------- BEGIN  bookends
-	// If you don't pass a string in, then SaveContract saves the new version to its member, m_strRawFile
-	msgOut.SaveContract();
+	}
+	else
+    {
+        const OTString strRecipientUserID(RECIPIENT_USER_ID);
+        OTLog::vError("%s: Failed while trying to load or verify Nymbox: %s\n", 
+                      szFunc, strRecipientUserID.Get());
+    }
+
+    return false;
 }
 
+
+// -------------------------------------------------------------------------------------
 
 
 void OTServer::UserCmdCheckUser(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut)
@@ -2931,6 +3092,9 @@ void OTServer::UserCmdCheckUser(OTPseudonym & theNym, OTMessage & MsgIn, OTMessa
 	// If you don't pass a string in, then SaveContract saves the new version to its member, m_strRawFile
 	msgOut.SaveContract();
 }
+
+
+// -------------------------------------------------------------------------------------
 
 
 // Allows ANY Nym to GET AND SET the Usage Credits for ANY other Nym!
@@ -3025,6 +3189,9 @@ void OTServer::UserCmdUsageCredits(OTPseudonym & theNym, OTMessage & MsgIn, OTMe
 	msgOut.SaveContract();
 }
 
+
+
+// -------------------------------------------------------------------------------------
 
 
 
@@ -3518,6 +3685,8 @@ void OTServer::UserCmdIssueBasket(OTPseudonym & theNym, OTMessage & MsgIn, OTMes
 /// An existing user is creating an asset account.
 void OTServer::UserCmdCreateAccount(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut)
 {
+    const char * szFunc = "OTServer::UserCmdCreateAccount";
+    
 	// (1) set up member variables 
 	msgOut.m_strCommand		= "@createAccount";	// reply to createAccount
 	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
@@ -3528,14 +3697,30 @@ void OTServer::UserCmdCreateAccount(OTPseudonym & theNym, OTMessage & MsgIn, OTM
     msgOut.m_ascInReferenceTo.SetString(tempInMessage);
 
 	const OTIdentifier USER_ID(theNym), SERVER_ID(m_strServerID);
-	
 	// ----------------------------------------------
 	
 	OTAccount * pNewAccount = OTAccount::GenerateNewAccount(USER_ID, SERVER_ID, m_nymServer, MsgIn);
-	
+	OTCleanup<OTAccount> theAcctAngel(pNewAccount);
+    
 	// If we successfully create the account, then bundle it in the message XML payload
 	if (NULL != pNewAccount)
 	{
+        OTAssetContract * pContract = GetAssetContract(pNewAccount->GetAssetTypeID());
+        
+        if (NULL == pContract)
+        {
+            const OTString strAssetID(pNewAccount->GetAssetTypeID());
+            OTLog::vError("%s: Error: Unable to get AssetContract for asset type: %s\n", 
+                          szFunc, strAssetID.Get());
+        }
+        else if (pContract->IsShares())
+        {
+            // The asset type keeps a list of all accounts for that type.
+            // (For shares, not for currencies.)
+            //
+            const bool bAdded = pContract->AddAccountRecord(*pNewAccount);
+        }
+		// -----------------------------------------------
 		OTIdentifier theNewAccountID;
 		pNewAccount->GetIdentifier(theNewAccountID);
 		
@@ -3544,9 +3729,9 @@ void OTServer::UserCmdCreateAccount(OTPseudonym & theNym, OTMessage & MsgIn, OTM
 		// -----------------------------------------------
 		
 		OTLedger	theOutbox(USER_ID, theNewAccountID, SERVER_ID), 
-					theInbox(USER_ID, theNewAccountID, SERVER_ID);
+					theInbox (USER_ID, theNewAccountID, SERVER_ID);
 		
-		bool bSuccessLoadingInbox	= theInbox.LoadInbox();
+		bool bSuccessLoadingInbox	= theInbox. LoadInbox();
 		bool bSuccessLoadingOutbox	= theOutbox.LoadOutbox();
 		
 		// --------------------------------------------------------------------
@@ -3601,14 +3786,14 @@ void OTServer::UserCmdCreateAccount(OTPseudonym & theNym, OTMessage & MsgIn, OTM
 		{
 			const OTString strNewAcctID(theNewAccountID);
 			
-			OTLog::vError("ERROR generating inbox ledger in OTServer::UserCmdCreateAccount:\n%s\n",
+			OTLog::vError("%s: ERROR generating inbox ledger: %s\n", szFunc,
 						  strNewAcctID.Get());
 		}
 		else if (false == bSuccessLoadingOutbox)
 		{
 			const OTString strNewAcctID(theNewAccountID);
 
-			OTLog::vError("ERROR generating outbox ledger in OTServer::UserCmdCreateAccount:\n%s\n", 
+			OTLog::vError("%s: ERROR generating outbox ledger: %s\n", szFunc,
 						  strNewAcctID.Get());
 		}
 		else 
@@ -3629,11 +3814,7 @@ void OTServer::UserCmdCreateAccount(OTPseudonym & theNym, OTMessage & MsgIn, OTM
 			OTString tempPayload(*pNewAccount);
 			msgOut.m_ascPayload.SetString(tempPayload);
 		}
-		
 		// --------------------------------------------------------------------
-
-		delete pNewAccount;
-		pNewAccount = NULL;
 	}
 	
 	
@@ -4111,7 +4292,8 @@ void OTServer::NotarizeWithdrawal(OTPseudonym & theNym, OTAccount & theAccount,
 		pItemCash = tranIn.GetItem(OTItem::withdrawal);
 		pItem = pItemCash;
 		// ---------
-		theReplyItemType = OTItem::atWithdrawal;
+        if (NULL != pItem)
+            theReplyItemType = OTItem::atWithdrawal;
 	}
 	else
 	{
@@ -4224,6 +4406,7 @@ void OTServer::NotarizeWithdrawal(OTPseudonym & theNym, OTAccount & theAccount,
 		// one for each asset type. Since this is the normal way of doing business, GetVoucherAccount() will
 		// just create it if it doesn't already exist, and then return the pointer. Therefore, a failure here
 		// is a catastrophic failure!  Should never fail.
+        // 
 		else if ((pVoucherReserveAcct = GetVoucherAccount(ASSET_TYPE_ID)) && // If assignment results in good pointer...
 				 pVoucherReserveAcct->VerifyAccount(m_nymServer))			// and if it points to an acct that verifies...
 		{					
@@ -4677,10 +4860,782 @@ void OTServer::NotarizeWithdrawal(OTPseudonym & theNym, OTAccount & theAccount,
 	pResponseBalanceItem->SignContract(m_nymServer);
 	pResponseBalanceItem->SaveContract();	
 }
+// -------------------------------------------------------------------------------------
+
 												  
 								
 
 
+
+
+/*
+class OTAcctFunctor_PayDividend
+{
+public:
+    OTAcctFunctor_PayDividend(const OTIdentifier & theServerID);
+    virtual ~OTAcctFunctor_PayDividend();
+    
+    virtual bool Trigger(OTAccount & theAccount);
+};
+*/
+
+OTAcctFunctor_PayDividend::OTAcctFunctor_PayDividend(const OTIdentifier & theServerID, 
+                                                     const OTIdentifier & theUserID, 
+                                                     const OTIdentifier & thePayoutAssetID, 
+                                                     const OTIdentifier & theVoucherAcctID,
+                                                     const OTString     & strMemo,
+                                                     OTServer & theServer, 
+                                                     long lPayoutPerShare)
+: OTAcctFunctor(theServerID), 
+  m_pUserID       (new OTIdentifier(theUserID)), 
+  m_pPayoutAssetID(new OTIdentifier(thePayoutAssetID)),
+  m_pVoucherAcctID(new OTIdentifier(theVoucherAcctID)),
+  m_pstrMemo      (new OTString    (strMemo)),
+  m_pServer(&theServer), 
+  m_lPayoutPerShare(lPayoutPerShare),
+  m_lAmountPaidOut (0),
+  m_lAmountReturned(0)
+{
+    
+}
+
+OTAcctFunctor_PayDividend::~OTAcctFunctor_PayDividend()
+{
+    if (NULL != m_pUserID)
+        delete m_pUserID;
+    m_pUserID         = NULL;
+    if (NULL != m_pPayoutAssetID)
+        delete m_pPayoutAssetID;
+    m_pPayoutAssetID  = NULL;
+    if (NULL != m_pVoucherAcctID)
+        delete m_pVoucherAcctID;
+    m_pVoucherAcctID  = NULL;
+    if (NULL != m_pstrMemo)
+        delete m_pstrMemo;
+    m_pstrMemo        = NULL;
+    m_pServer         = NULL; // don't delete this one (I don't own it.)
+    m_lPayoutPerShare = 0;
+    m_lAmountPaidOut  = 0;
+    m_lAmountReturned = 0;
+}
+
+
+// For each "simple" account of a specific asset type, this function
+// is called in order to pay a dividend to the Nym who owns that account.
+//
+bool OTAcctFunctor_PayDividend::Trigger(OTAccount & theSharesAccount) // theSharesAccount is, say, a Pepsi shares account.  Here, we'll send a dollars voucher to its owner.
+{
+    const long lPayoutAmount = (theSharesAccount.GetBalance() * this->GetPayoutPerShare());
+    
+    if (lPayoutAmount <= 0)
+    {
+        return true; // nothing to pay, since this account owns no shares. Success!
+    }
+    // -----------------------------------------
+    OT_ASSERT(NULL != this->GetServerID());
+    const OTIdentifier & theServerID = *(this->GetServerID());
+    // -----------------------------------------
+    OT_ASSERT(NULL != this->GetPayoutAssetID());
+    const OTIdentifier & thePayoutAssetID = *(this->GetPayoutAssetID());
+    // -----------------------------------------
+    OT_ASSERT(NULL != this->GetVoucherAcctID());
+    const OTIdentifier & theVoucherAcctID = *(this->GetVoucherAcctID());
+    // -----------------------------------------
+    OT_ASSERT(NULL != this->GetServer());
+    OTServer & theServer = *(this->GetServer());
+    // -----------------------------------------
+    OTPseudonym & theServerNym = const_cast<OTPseudonym &>(theServer.GetServerNym());
+    // -----------------------------------------
+    const OTIdentifier   theServerNymID(theServerNym);
+    const OTIdentifier & RECIPIENT_ID = theSharesAccount.GetUserID();
+    // -----------------------------------------
+    OT_ASSERT(NULL != this->GetUserID());
+    const OTIdentifier & theSenderUserID = *(this->GetUserID());
+    // -----------------------------------------
+    OT_ASSERT(NULL != this->GetMemo());
+    const OTString & strMemo = *(this->GetMemo());
+    // -----------------------------------------
+    // Note: theSenderUserID is the originator of the Dividend Payout.
+    // However, all the actual vouchers will be from "the server Nym" and
+    // not from theSenderUserID. So then why is it even here? Because anytime
+    // there's an error, the server will send to theSenderUserID instead of 
+    // RECIPIENT_ID (so the original sender can have his money back, instead of
+    // just having it get lost in the ether.)
+    // -----------------------------------------
+    bool bReturnValue = false;
+    
+    OTCheque  theVoucher(theServerID, thePayoutAssetID);
+    
+    // 10 minutes ==    600 Seconds
+    // 1 hour	==     3600 Seconds
+    // 1 day	==    86400 Seconds
+    // 30 days	==  2592000 Seconds
+    // 3 months ==  7776000 Seconds
+    // 6 months == 15552000 Seconds
+    
+    const time_t	VALID_FROM	= time(NULL);			 // This time is set to TODAY NOW
+    const time_t	VALID_TO	= VALID_FROM + 15552000; // This time occurs in 180 days (6 months).  Todo hardcoding.
+    
+    long        lNewTransactionNumber = 0;
+    
+    const bool  bGotNextTransNum = 
+    theServer.IssueNextTransactionNumber(theServerNym, lNewTransactionNumber);    // bStoreTheNumber defaults to true. We save the transaction
+                                                                                  // number on the server Nym (normally we'd discard it) because
+                                                                                  // when the cheque is deposited, the server nym, as the owner of
+                                                                                  // the voucher account, needs to verify the transaction # on the
+                                                                                  // cheque (to prevent double-spending of cheques.)
+    // ----------------------------------------------------------------------------------------------
+    if (bGotNextTransNum)
+    {
+        const bool bIssueVoucher = theVoucher.IssueCheque(lPayoutAmount,            // The amount of the cheque.
+                                                          lNewTransactionNumber,	// Requiring a transaction number prevents double-spending of cheques.
+                                                          VALID_FROM,				// The expiration date (valid from/to dates) of the cheque
+                                                          VALID_TO,                 // Vouchers are automatically starting today and lasting 6 months.
+                                                          theVoucherAcctID,         // The asset account the cheque is drawn on.
+                                                          theServerNymID,			// User ID of the sender (in this case the server nym.)
+                                                          strMemo,                  // Optional memo field. Includes item note and request memo.
+                                                          &RECIPIENT_ID);
+        
+        // All account crediting / debiting happens in the caller, in OTServer.
+        //    (AND it happens only ONCE, to cover ALL vouchers.)
+        // Then in here, the voucher either gets send to the recipient, or if error, sent back home to
+        // the issuer Nym. (ALL the funds are removed, then the vouchers are sent one way or the other.)
+        // Any returned vouchers, obviously serve to notify the dividend payer of where the errors were
+        // (as well as give him the opportunity to get his money back.)
+        //
+        bool bSent = false;
+        if (bIssueVoucher)
+        {
+            theVoucher.SetAsVoucher();	// All this does is set the voucher's internal contract 
+            theVoucher.SignContract(theServerNym); // string to "VOUCHER" instead of "CHEQUE". 
+            theVoucher.SaveContract();
+            
+            // Send the voucher to the payments inbox of the recipient.
+            //
+            const 
+            OTString  strVoucher(theVoucher);
+            OTPayment thePayment(strVoucher);
+            
+            // calls DropMessageToNymbox
+            bSent = theServer.SendInstrumentToNym(theServerID, 
+                                                  theServerNymID,  // sender nym
+                                                  RECIPIENT_ID,    // recipient nym
+                                                  NULL, &thePayment, "@payDividend"); // todo: hardcoding.
+            bReturnValue = bSent; // <======= RETURN VALUE.
+            if (bSent)
+                m_lAmountPaidOut += lPayoutAmount; // At the end of iterating all accounts, if m_lAmountPaidOut is less than lTotalPayoutAmount, then we return to rest to the sender.
+        }	
+        else
+        {
+            const OTString strPayoutAssetID(thePayoutAssetID), strRecipientUserID(RECIPIENT_ID);
+            OTLog::vError("OTAcctFunctor_PayDividend::Trigger: ERROR failed issuing voucher (to send to dividend payout recipient.) "
+                          "WAS TRYING TO PAY %ld of asset type %s to Nym %s.\n",
+                          lPayoutAmount, strPayoutAssetID.Get(), strRecipientUserID.Get());
+        }
+        // --------------------------------------------------------------------------
+        // If we didn't send it, then we need to return the funds to where they came from.
+        //
+        if (!bSent)
+        {
+            OTCheque  theReturnVoucher(theServerID, thePayoutAssetID);
+
+            const bool bIssueReturnVoucher = theReturnVoucher.IssueCheque(lPayoutAmount, // The amount of the cheque.
+                                                              lNewTransactionNumber,	 // Requiring a transaction number prevents double-spending of cheques.
+                                                              VALID_FROM,				 // The expiration date (valid from/to dates) of the cheque
+                                                              VALID_TO,                  // Vouchers are automatically starting today and lasting 6 months.
+                                                              theVoucherAcctID,          // The asset account the cheque is drawn on.
+                                                              theServerNymID,			 // User ID of the sender (in this case the server nym.)
+                                                              strMemo,                   // Optional memo field. Includes item note and request memo.
+                                                              &theSenderUserID);         // We're returning the money to its original sender.
+            if (bIssueReturnVoucher)
+            {
+                theReturnVoucher.SetAsVoucher();	// All this does is set the voucher's internal contract 
+                theReturnVoucher.SignContract(theServerNym); // string to "VOUCHER" instead of "CHEQUE". 
+                theReturnVoucher.SaveContract();
+                
+                // Return the voucher back to the payments inbox of the original sender.
+                //
+                const 
+                OTString  strReturnVoucher(theReturnVoucher);
+                OTPayment theReturnPayment(strReturnVoucher);
+                
+                // calls DropMessageToNymbox
+                bSent = theServer.SendInstrumentToNym(theServerID, 
+                                                      theServerNymID,  // sender nym
+                                                      theSenderUserID, // recipient nym (original sender.)
+                                                      NULL, &theReturnPayment, "@payDividend"); // todo: hardcoding.
+                if (bSent)
+                    m_lAmountReturned += lPayoutAmount; // At the end of iterating all accounts, if m_lAmountPaidOut+m_lAmountReturned is less than lTotalPayoutAmount, then we return the rest to the sender.
+            }	
+            else
+            {
+                const OTString strPayoutAssetID(thePayoutAssetID), strSenderUserID(theSenderUserID);
+                OTLog::vError("OTAcctFunctor_PayDividend::Trigger: ERROR failed issuing voucher (to return back to "
+                              "the dividend payout initiator, after a failed payment attempt to the originally intended "
+                              "recipient.) WAS TRYING TO PAY %ld of asset type %s to Nym %s.\n",
+                              lPayoutAmount, strPayoutAssetID.Get(), strSenderUserID.Get());
+            }
+        } // if !bSent
+    }
+    else // !bGotNextTransNum
+    {
+        const OTString strPayoutAssetID(thePayoutAssetID), strRecipientUserID(RECIPIENT_ID);
+        OTLog::vError("OTAcctFunctor_PayDividend::Trigger: ERROR!! Failed issuing next transaction "
+                      "number while trying to send a voucher (while paying dividends.) "
+                      "WAS TRYING TO PAY %ld of asset type %s to Nym %s.\n",
+                      lPayoutAmount, strPayoutAssetID.Get(), strRecipientUserID.Get());
+    }
+
+    return bReturnValue;
+}
+
+
+/// NotarizePayDividend
+///
+/// Phase 1: Only the signer on the currency contract (the issuer) can pay a dividend. He
+///          must pay the dividend in a currency of a DIFFERENT type. (Such as, a dollar
+///          dividend for shares of Pepsi.) So this transaction is a "dollar" transaction,
+///          using that example, and theAccount is a dollar account. But then how do we know
+///          those dollars are being paid to _Pepsi_ shareholders? Because the asset type
+///          of the shares must be attached to the OTItem::payDividend within tranIn--and
+///          also so must the "dividend payout amount, per share" be included, for the same
+///          reason. This function gets the asset contract for the shares, and passes a functor
+///          to it, so that it can iterate through all the Pepsi asset accounts and form/send a
+///          payout voucher for each one (via the functor.) This function also verifies that
+///          theNym is both signer on the asset contract for Pepsi shares (the calling function
+///          has already verified that theNym is the signer on the dollar account.)
+///
+/// Phase 2: voting groups, hierarchical entities with agents, oversight, corporate asset accounts, etc.
+///
+void OTServer::NotarizePayDividend(OTPseudonym   & theNym, OTAccount     & theSourceAccount, 
+								   OTTransaction & tranIn, OTTransaction & tranOut,    bool & bOutSuccess)
+{
+    const char * szFunc = "OTServer::NotarizePayDividend";
+    
+	// The outgoing transaction is an "atPayDividend", that is, "a reply to the 'pay dividend' request"
+	tranOut.SetType(OTTransaction::atPayDividend);
+	
+	OTItem * pItem                  = NULL;  // This pointer and the following one, are 2 pointers, as a vestige
+	OTItem * pItemPayDividend       = NULL;  // from the withdrawal code, which has two forms: voucher and cash.
+	OTItem * pBalanceItem           = NULL;  // The balance agreement item, which must be on any transaction.
+	OTItem * pResponseItem          = NULL;  // Server's response to pItem.
+	OTItem * pResponseBalanceItem	= NULL;  // Server's response to pBalanceItem.
+	
+	// The incoming transaction may be sent to inboxes and outboxes, and it
+	// will probably be bundled in our reply to the user as well. Therefore,
+	// let's grab it as a string.
+    //
+	OTString  strInReferenceTo;
+	OTString  strBalanceItem;
+
+	// Grab the actual server ID from this object, and use it as the server ID here.
+    //
+	const OTIdentifier	SERVER_ID       (m_strServerID),		
+                        USER_ID         (theNym), 
+                        SOURCE_ACCT_ID  (theSourceAccount),
+						SERVER_USER_ID  (m_nymServer),	
+                        PAYOUT_ASSET_ID (theSourceAccount.GetAssetTypeID()); // Ex: Pepsi shares, Dollar dividend. (PAYOUT_ASSET_ID is Dollars.)
+	
+	const OTString  strUserID      (USER_ID), 
+                    strAccountID   (SOURCE_ACCT_ID), 
+                    strAssetTypeID (PAYOUT_ASSET_ID);
+	// -----------------------------------------------------------------
+
+	// Make sure the appropriate item is attached.
+	//
+	OTItem::itemType theReplyItemType = OTItem::error_state;
+
+	pItemPayDividend = tranIn.GetItem(OTItem::payDividend);
+	
+	if (NULL != pItemPayDividend) // found it.
+    {
+		pItem = pItemPayDividend;
+		// ---------
+		theReplyItemType = OTItem::atPayDividend;
+	}
+	// -----------------------------------------------------------------
+    // Server response item being added to server response transaction (tranOut)
+    // (They're getting SOME sort of response item.)
+    //
+	pResponseItem = OTItem::CreateItemFromTransaction(tranOut, theReplyItemType);	 
+	pResponseItem->SetStatus(OTItem::rejection); // the default.
+	tranOut.AddItem(*pResponseItem); // the Transaction's destructor will cleanup the item. It "owns" it now.		
+	
+	pResponseBalanceItem = OTItem::CreateItemFromTransaction(tranOut, OTItem::atBalanceStatement);	 
+	pResponseBalanceItem->SetStatus(OTItem::rejection); // the default.
+	tranOut.AddItem(*pResponseBalanceItem); // the Transaction's destructor will cleanup the item. It "owns" it now.			
+	// --------------------------------------
+	if (NULL == pItem)
+	{
+		OTString strTemp(tranIn);
+		OTLog::vOutput(0, "%s: Expected OTItem::payDividend in trans# %ld: \n\n%s\n\n", 
+                       szFunc,
+					   tranIn.GetTransactionNum(), 
+                       strTemp.Exists() ? strTemp.Get() : " (ERROR SERIALIZING TRANSACTION INTO A STRING) ");
+	}
+	// Below this point, we know that pItem is good, and that pItemPayDividend is good,
+	// and that pItem points to it. Therefore next, let's verify permissions:
+	// ---------------------------------------------------------------------
+	//
+	// This permission has to do with ALL withdrawals from an account 
+    // (cash / voucher / dividends)
+    
+	else if (false == NYM_IS_ALLOWED(strUserID.Get(), __transact_withdrawal))
+	{
+		OTLog::vOutput(0, "%s: User %s cannot do this transaction (All withdrawals are "
+                       "disallowed in server.cfg, even for paying dividends with.)\n",
+                       szFunc, strUserID.Get());
+	}
+	// -----------------------------------------
+	// This permission has to do with paying dividends.
+    //
+	else if ((NULL != pItemPayDividend) &&
+			 (false == NYM_IS_ALLOWED(strUserID.Get(), __transact_pay_dividend)))
+	{
+		OTLog::vOutput(0, "%s: User %s cannot do this transaction "
+                       "(payDividend is disallowed in server.cfg)\n",
+                       szFunc,
+					   strUserID.Get());
+	}
+    // ----------------------------------------------------------
+    // Check for a balance agreement...
+	//
+    else if (NULL == (pBalanceItem = tranIn.GetItem(OTItem::balanceStatement)))
+    {
+        OTString strTemp(tranIn);
+        OTLog::vOutput(0, "%s: Expected OTItem::balanceStatement, but not found in trans # %ld: \n\n%s\n\n", szFunc,
+                       tranIn.GetTransactionNum(), strTemp.Exists() ? strTemp.Get() : " (ERROR SERIALIZING TRANSACTION INTO A STRING) ");
+    }	
+	// ------------------------------------------------------------------------
+	else if (pItem->GetType() == OTItem::payDividend) // Superfluous by this point. Artifact of withdrawal code.
+	{
+		// The response item will contain a copy of the request item. So I save it into a string 
+		// here so they can all grab a copy of it into their "in reference to" fields.
+        //
+		pItem->SaveContractRaw(strInReferenceTo);
+		pBalanceItem->SaveContractRaw(strBalanceItem);
+		
+        // Make sure the response items know which transaction # they're in response to,
+        // and have a copy of the original request-transaction.
+        //
+		pResponseItem->SetReferenceString(strInReferenceTo); // the response item carries a copy of what it's responding to.
+		pResponseItem->SetReferenceToNum(pItem->GetTransactionNum()); // This response item is IN RESPONSE to pItem and its Owner Transaction.
+		
+		pResponseBalanceItem->SetReferenceString(strBalanceItem); // the response item carries a copy of what it's responding to.
+		pResponseBalanceItem->SetReferenceToNum(pItem->GetTransactionNum()); // This response item is IN RESPONSE to pItem and its Owner Transaction.
+		// ----------------------------------------------------		
+        const long lTotalCostOfDividend = pItem->GetAmount();
+		// ----------------------------------------------------		
+        OTCheque	theVoucherRequest;
+        OTString    strVoucherRequest, strItemNote; // When paying a dividend, you create a voucher request (the same as in withdrawVoucher). It's just for information
+        pItem->GetAttachment(strVoucherRequest);    // passing, since payDividend needs a few bits of info, and this is a convenient way of passing it.
+        pItem->GetNote      (strItemNote);
+        const bool  bLoadContractFromString = theVoucherRequest.LoadContractFromString(strVoucherRequest);
+        
+        if (!bLoadContractFromString)
+        {
+            OTLog::vError("%s: ERROR loading dividend payout's voucher request from string:\n%s\n", 
+                          szFunc, strVoucherRequest.Get());
+        }
+        // ----------------------------------------------------		
+        else if (theVoucherRequest.GetAmount() <= 0)
+        {
+            OTLog::vError("%s: ERROR expected >0 'payout per share' as 'amount' on request voucher:\n%s\n", 
+                          szFunc, strVoucherRequest.Get());
+        }
+        // ----------------------------------------------------		
+        else
+        {
+            // the request voucher (sent from client) contains the payout amount per share.
+            // Whereas pItem contains lTotalCostOfDividend, which is the total cost (the 
+            // payout multiplied by number of shares.)
+            //
+            const long lAmountPerShare = theVoucherRequest.GetAmount(); // already validated, just above.
+            // ----------------------------------------------------
+            const OTIdentifier SHARES_ISSUER_ACCT_ID = theVoucherRequest.GetSenderAcctID();
+            // ----------------------------------------------------
+            // Get the asset contract for the shares type, stored in the voucher request, inside pItem. 
+            //       (Make sure it's NOT the same asset type as theSourceAccount.)
+            //
+            const OTIdentifier    SHARES_ASSET_ID      = theVoucherRequest.GetAssetID();
+            OTAssetContract    *  pSharesContract      = GetAssetContract(SHARES_ASSET_ID);
+            OTAccount          *  pSharesIssuerAccount = NULL;
+            OTCleanup<OTAccount>  theAcctAngel;
+            
+            if (NULL != pSharesContract)
+            {
+                pSharesIssuerAccount = OTAccount::LoadExistingAccount(SHARES_ISSUER_ACCT_ID, SERVER_ID);
+                theAcctAngel.SetCleanupTargetPointer(pSharesIssuerAccount);
+            }
+            
+            // ----------------------------------------------------
+            if (NULL == pSharesContract)
+            {
+                const OTString strSharesType(SHARES_ASSET_ID);
+                OTLog::vError("%s: ERROR unable to find shares contract based on asset type ID: %s\n", szFunc,
+                              strSharesType.Get());
+            }
+            // ----------------------------------------------------		
+            else if (!pSharesContract->IsShares())
+            {
+                const OTString strSharesType(SHARES_ASSET_ID);
+                OTLog::vError("%s: FAILURE: Asset contract is not shares-based. Asset type ID: %s\n", 
+                              szFunc, strSharesType.Get());
+            }
+            // ----------------------------------------------------		
+            else if (false == pSharesContract->VerifySignature(theNym))
+            {
+                const OTString strSharesType(SHARES_ASSET_ID);
+                OTLog::vError("%s: ERROR unable to verify signature for Nym (%s) on shares contract "
+                              "with asset ID: %s\n", szFunc, strUserID.Get(), strSharesType.Get());
+            }
+            // ----------------------------------------------------		
+            else if (NULL == pSharesIssuerAccount)
+            {
+                const OTString strSharesIssuerAcct(SHARES_ISSUER_ACCT_ID);
+                OTLog::vError("%s: ERROR unable to find issuer account for shares: %s\n", szFunc,
+                              strSharesIssuerAcct.Get());
+            }
+            // ----------------------------------------------------		
+            else if (PAYOUT_ASSET_ID == SHARES_ASSET_ID) // these can't be the same
+            {
+                const OTString strSharesType(PAYOUT_ASSET_ID);
+                OTLog::vError("%s: ERROR dividend payout attempted, using shares asset type as payout type also. "
+                              "(It's logically impossible for it to payout to itself, using "
+                              "ITSELF as the asset type for the payout): %s\n", szFunc, strSharesType.Get());                
+            }
+            // ----------------------------------------------------		
+            else if (false == pSharesIssuerAccount->VerifyAccount(m_nymServer)) 
+            {
+                const OTString strIssuerAcctID(SHARES_ISSUER_ACCT_ID);
+                OTLog::vError("%s: ERROR failed trying to verify issuer account: %s\n", 
+                              szFunc, strIssuerAcctID.Get());                
+            }
+            // ----------------------------------------------------		
+            else if (false == pSharesIssuerAccount->VerifyOwner(theNym))
+            {
+                const OTString strIssuerAcctID(SHARES_ISSUER_ACCT_ID);
+                OTLog::vOutput(0, "%s: ERROR verifying signer's ownership of shares issuer account (%s), "
+                               "while trying to pay dividend from source account: %s\n",
+                               szFunc, strIssuerAcctID.Get(), strAccountID.Get());
+            }
+            // ----------------------------------------------------		
+//          const long lTotalCostOfDividend = pItem->GetAmount();
+//          const long lAmountPerShare = theVoucherRequest.GetAmount(); // already validated, just above.
+            //
+            // Make sure the share issuer's account balance (number of shares issued * (-1)), 
+            // when multiplied by the dividend "amount payout per share", equals the "total cost of dividend"
+            // as expected based on the value from pItem->GetAmount.
+            // 
+            //
+            else if ((pSharesIssuerAccount->GetBalance() * (-1) * lAmountPerShare) != lTotalCostOfDividend)
+            {
+                const OTString strIssuerAcctID(SHARES_ISSUER_ACCT_ID);
+                OTLog::vOutput(0, "%s: ERROR: total payout of dividend as calculated (%ld) doesn't match client's request (%ld) for source acct: %s\n",
+                               szFunc, (pSharesIssuerAccount->GetBalance() * (-1) * lAmountPerShare), lTotalCostOfDividend, strAccountID.Get());
+            }
+            // ----------------------------------------------------		
+            else if (theSourceAccount.GetBalance() < lTotalCostOfDividend)
+            {
+                const OTString strIssuerAcctID(SHARES_ISSUER_ACCT_ID);
+                OTLog::vOutput(0, "%s: FAILURE: not enough funds (%ld) to cover total dividend payout (%ld) for source acct: %s\n",
+                               szFunc, theSourceAccount.GetBalance(), lTotalCostOfDividend, strAccountID.Get());
+            }
+            // ----------------------------------------------------		
+            else
+            {
+                // Remove all the funds at once (so the balance agreement matches up.)
+                // Then, iterate through the asset accounts and use a functor to send a voucher to each one. 
+                // (Or back to the issuer, for any that fail.)
+
+                // UPDATE: unfortunately the balance agreement will be a lie unless the complete amount is removed. 
+                // Therefore, failures must be sent back to the issuer as individual receipts, containing the vouchers 
+                // for any failures, so he can have a record of them, and so he can recover the funds.
+                // ----------------------------------------------------		
+                OTLedger * pInbox	= theSourceAccount.LoadInbox (m_nymServer); 
+                OTLedger * pOutbox	= theSourceAccount.LoadOutbox(m_nymServer); 
+                OTCleanup<OTLedger>   theInboxAngel (pInbox);
+                OTCleanup<OTLedger>   theOutboxAngel(pOutbox);		
+                // ----------------------------------------------------
+                OTAccount_SharedPtr	pVoucherReserveAcct;        // contains the server's funds to back vouchers of a specific asset type.
+        //		OTAccount	*       pVoucherReserveAcct	= NULL;
+                // ----------------------------------------------------
+                //
+                // If the ID on the "from" account that was passed in, does
+                // not match the "Acct From" ID on this transaction item...
+                //
+                if (SOURCE_ACCT_ID != pItem->GetPurportedAccountID())
+                {   // TODO see if this is already verified by the caller function and if so, remove.
+                    // (I believe the item would have entirely failed to load, if the account ID, and
+                    // other IDs, hadn't matched up with the transaction when we loaded it.)
+                    //
+                    OTLog::vOutput(0, "%s: Error: Account ID does not match account ID on the 'pay dividend' item.\n", szFunc);
+                }
+                // --------------------------------------------------------------------
+                else if (NULL == pInbox) // || !pInbox->VerifyAccount(m_nymServer)) OTAccount::Load (above) already verifies.
+                {
+                    OTLog::vError("%s: Error loading or verifying inbox.\n", szFunc);
+                }
+                else if (NULL == pOutbox) // || !pOutbox->VerifyAccount(m_nymServer)) OTAccount::Load (above) already verifies.
+                {
+                    OTLog::vError("%s: Error loading or verifying outbox.\n", szFunc);
+                }
+                // --------------------------------------------------------------------
+                // The server will already have a special account for issuing vouchers. Actually, a list of them --
+                // one for each asset type. Since this is the normal way of doing business, GetVoucherAccount() will
+                // just create it if it doesn't already exist, and then return the pointer. Therefore, a failure here
+                // is a catastrophic failure!  Should never fail.
+                // 
+                else if ((pVoucherReserveAcct = GetVoucherAccount(PAYOUT_ASSET_ID)) && // If GetVoucherAccount returns a good pointer...
+                          pVoucherReserveAcct->VerifyAccount(m_nymServer))			   // ...and if it points to an acct that verifies with the server's nym...
+                {
+                    OTAccount    & theVoucherReserveAcct = (*pVoucherReserveAcct);
+                    const 
+                    OTIdentifier   VOUCHER_ACCOUNT_ID(theVoucherReserveAcct);
+                    
+                    // *********************************************************************************
+                    // This amount must be the total amount based on the amount issued.
+                    // For example if 1000 shares of Pepsi were issued, and the dividend is $2 per share,
+                    // then loading the issuer's account will show a balance of -1000, and I must have
+                    // $2000 in my source account if I am going to pay this dividend.
+                    //
+                    // This $2000 is entirely removed from my account at once, and the below balance agreement
+                    // must be for $2000. The vouchers are sent to the owners of each account, in amounts 
+                    // proportionate to the number of shares in the account. For any voucher that fails to be
+                    // sent (for whatever reason) it is sent back to theNym instead.
+                    //
+                    if (!(pBalanceItem->VerifyBalanceStatement(lTotalCostOfDividend * (-1), // My account's balance will go down by this much. 
+                                                               theNym,
+                                                               *pInbox,
+                                                               *pOutbox,
+                                                               theSourceAccount,
+                                                               tranIn)))
+                    {
+                        OTLog::vOutput(0, "%s: ERROR verifying balance statement while trying to pay dividend. Source Acct ID: %s\n",
+                                       szFunc, strAccountID.Get());
+                    }
+                    // *********************************************************************************
+
+                    else // successfully verified the balance agreement.
+                    {
+                        pResponseBalanceItem->SetStatus(OTItem::acknowledgement); // the transaction agreement was successful.
+                        // -------------------------------------------------
+                        //
+                        
+                        // IF we successfully created the voucher, AND the voucher amount is greater than 0,
+                        // AND debited the user's account,
+                        // AND credited the server's voucher account,
+                        //
+                        // THEN save the accounts and pay the dividend out to the shareholders.
+                        //
+                        if ( (lTotalCostOfDividend > 0)	&&
+                             // ----------------
+                             theSourceAccount.Debit(lTotalCostOfDividend) // todo: failsafe: update this code in case of problems in this sensitive area. need better funds transfer code.
+                           )
+                        {
+                            if (false == pVoucherReserveAcct->Credit(lTotalCostOfDividend)) //theVoucherRequest.GetAmount()))
+                            {
+                                const OTString strVoucherAcctID(VOUCHER_ACCOUNT_ID);
+                                
+                                OTLog::vError("%s: Failed crediting %ld units to voucher reserve account: %s\n", 
+                                              szFunc, lTotalCostOfDividend, strVoucherAcctID.Get());
+                                
+                                // Since pVoucherReserveAcct->Credit failed, we have to return
+                                // the funds from theSourceAccount.Debit (Credit them back.)
+                                // 
+                                if (false == theSourceAccount.Credit(lTotalCostOfDividend))
+                                    OTLog::vError("%s: Failed crediting back the user account, after taking his funds "
+                                                  "and failing to credit them to the voucher reserve account.\n", szFunc);                            
+                            }
+                            // --------------------------------------------------------------------------
+                            else    // By this point, we have taken the full funds and moved them to the voucher
+                            {       // reserve account. So now, let's iterate all the accounts for that share type,
+                                    // and send a voucher to the owner of each one, to payout his dividend.
+                                    
+  
+                                // todo: determine whether I need to attach anything here at all...
+                                //
+//                              pResponseItem->SetAttachment(strVoucher);
+                                pResponseItem->SetStatus(OTItem::acknowledgement);
+                                
+                                bOutSuccess = true;  // The paying of the dividends was successful.
+                                //
+                                // --------------------------------------------------------------------------
+                                //
+                                // SAVE THE ACCOUNTS WITH THE NEW BALANCES (FUNDS ARE MOVED)
+                                //
+                                // At this point, we save the accounts, so that the funds transfer is solid before
+                                // we start mailing vouchers out to people.
+                                
+                                // Release any signatures that were there before (They won't
+                                // verify anymore anyway, since the content has changed.)
+                                theSourceAccount.	ReleaseSignatures();
+                                theSourceAccount.	SignContract(m_nymServer);	// Sign 
+                                theSourceAccount.	SaveContract();				// Save 
+                                theSourceAccount.	SaveAccount();				// Save to file
+                                
+                                // We also need to save the Voucher cash reserve account.
+                                // (Any issued voucher cheque is automatically backed by this reserve account.
+                                // If a cheque is deposited, the funds come back out of this account. If the
+                                // cheque expires, then after the expiry period, if it remains in the account,
+                                // it is now the property of the transaction server.)
+                                pVoucherReserveAcct->ReleaseSignatures();
+                                pVoucherReserveAcct->SignContract(m_nymServer);
+                                pVoucherReserveAcct->SaveContract();
+                                pVoucherReserveAcct->SaveAccount();
+
+                                // --------------------------------------------------------------------------
+                                //
+                                // PAY THE SHAREHOLDERS
+                                //
+                                // Here's where we actually loop through the asset accounts for the share type,
+                                // and send a voucher to the owner of each one.
+                                //
+                                OTAcctFunctor_PayDividend  actionPayDividend(SERVER_ID, 
+                                                                             USER_ID,
+                                                                             PAYOUT_ASSET_ID, 
+                                                                             VOUCHER_ACCOUNT_ID,
+                                                                             strInReferenceTo, // Memo for each voucher (containing original payout request pItem)
+                                                                             *this, 
+                                                                             lAmountPerShare);
+
+                                // Loops through all the accounts for a given asset type (PAYOUT_ASSET_ID), and triggers
+                                // actionPayDividend for each one. This sends the owner nym for each, a voucher drawn on
+                                // VOUCHER_ACCOUNT_ID. (In the amount of lAmountPerShare * number of shares in account.)
+                                //
+                                const bool bForEachAcct = pSharesContract->ForEachAccountRecord(actionPayDividend);   // <================== pay all the dividends here.
+
+                                if (!bForEachAcct) // todo failsafe. Handle this better.
+                                {
+                                    OTLog::vError("%s: ERROR: After moving funds for dividend payment, there was some "
+                                                  "error when sending out the vouchers to the payout recipients.\n", szFunc);
+                                }
+                                // ---------------------------------------------------------------------------
+                                //
+                                // REFUND ANY LEFTOVERS
+                                //
+                                const long lLeftovers = lTotalCostOfDividend - (actionPayDividend.GetAmountPaidOut() + actionPayDividend.GetAmountReturned());
+                                if (lLeftovers > 0)
+                                {
+                                    // Of the total amount removed from the sender's account, and after paying all dividends,
+                                    // there was a leftover amount that wasn't paid to anybody. Therefore, we should pay it back
+                                    // to the sender himself, now.
+                                    //
+                                    OTLog::vOutput(0, "%s: After dividend payout, with %ld units removed initially, "
+                                                   "there were %ld units remaining. (Returning them to sender...)\n",
+                                                   szFunc, lTotalCostOfDividend, lLeftovers);
+                                    // ------------------------------------------
+                                    OTCheque  theVoucher(SERVER_ID, PAYOUT_ASSET_ID);
+                                    
+                                    // 10 minutes ==    600 Seconds
+                                    // 1 hour	==     3600 Seconds
+                                    // 1 day	==    86400 Seconds
+                                    // 30 days	==  2592000 Seconds
+                                    // 3 months ==  7776000 Seconds
+                                    // 6 months == 15552000 Seconds
+                                    
+                                    const time_t	VALID_FROM	= time(NULL);			 // This time is set to TODAY NOW
+                                    const time_t	VALID_TO	= VALID_FROM + 15552000; // This time occurs in 180 days (6 months).  Todo hardcoding.
+                                    
+                                    long        lNewTransactionNumber = 0;
+                                    const bool  bGotNextTransNum = 
+                                    IssueNextTransactionNumber(m_nymServer, lNewTransactionNumber);     // bStoreTheNumber defaults to true. We save the transaction
+                                                                                                        // number on the server Nym (normally we'd discard it) because
+                                                                                                        // when the cheque is deposited, the server nym, as the owner of
+                                                                                                        // the voucher account, needs to verify the transaction # on the
+                                                                                                        // cheque (to prevent double-spending of cheques.)
+                                    // ----------------------------------------------------------------------------------------------
+                                    if (bGotNextTransNum)
+                                    {
+                                        const OTIdentifier SERVER_NYM_ID(m_nymServer);
+                                        const bool bIssueVoucher = theVoucher.IssueCheque(lLeftovers,               // The amount of the cheque.
+                                                                                          lNewTransactionNumber,	// Requiring a transaction number prevents double-spending of cheques.
+                                                                                          VALID_FROM,				// The expiration date (valid from/to dates) of the cheque
+                                                                                          VALID_TO,                 // Vouchers are automatically starting today and lasting 6 months.
+                                                                                          VOUCHER_ACCOUNT_ID,       // The asset account the cheque is drawn on.
+                                                                                          SERVER_NYM_ID,			// User ID of the sender (in this case the server nym.)
+                                                                                          strInReferenceTo,         // Optional memo field. Includes item note and request memo.
+                                                                                          &USER_ID);
+                                        
+                                        // All account crediting / debiting happens in the caller, in OTServer.
+                                        //    (AND it happens only ONCE, to cover ALL vouchers.)
+                                        // Then in here, the voucher either gets send to the recipient, or if error, sent back home to
+                                        // the issuer Nym. (ALL the funds are removed, then the vouchers are sent one way or the other.)
+                                        // Any returned vouchers, obviously serve to notify the dividend payer of where the errors were
+                                        // (as well as give him the opportunity to get his money back.)
+                                        //
+                                        bool bSent = false;
+                                        if (bIssueVoucher)
+                                        {
+                                            theVoucher.SetAsVoucher();	// All this does is set the voucher's internal contract 
+                                            theVoucher.SignContract(m_nymServer); // string to "VOUCHER" instead of "CHEQUE". 
+                                            theVoucher.SaveContract();
+                                            
+                                            // Send the voucher to the payments inbox of the recipient.
+                                            //
+                                            const 
+                                            OTString  strVoucher(theVoucher);
+                                            OTPayment thePayment(strVoucher);
+                                            
+                                            // calls DropMessageToNymbox
+                                            bSent = this->SendInstrumentToNym(SERVER_ID, 
+                                                                              SERVER_NYM_ID,  // sender nym
+                                                                              USER_ID,        // recipient nym (returning to original sender.)
+                                                                              NULL, &thePayment, "@payDividend"); // todo: hardcoding.
+                                        }
+                                        // --------------------------------------------------------------------------
+                                        // If we didn't send it, then we need to return the funds to where they came from.
+                                        //
+                                        if (!bSent)
+                                        {
+                                            const OTString strPayoutAssetID(PAYOUT_ASSET_ID), strSenderUserID(USER_ID);
+                                            OTLog::vError("%s: ERROR failed issuing voucher (to return leftovers back to "
+                                                          "the dividend payout initiator.) WAS TRYING TO PAY %ld of asset type %s to Nym %s.\n", 
+                                                          szFunc, lLeftovers, strPayoutAssetID.Get(), strSenderUserID.Get());
+                                        } // if !bSent
+                                    }
+                                    else // !bGotNextTransNum
+                                    {
+                                        const OTString strPayoutAssetID(PAYOUT_ASSET_ID), strRecipientUserID(USER_ID);
+                                        OTLog::vError("%s: ERROR!! Failed issuing next transaction "
+                                                      "number while trying to send a voucher (while returning leftover funds, after paying dividends.) "
+                                                      "WAS TRYING TO PAY %ld of asset type %s to Nym %s.\n", szFunc,
+                                                      lLeftovers, strPayoutAssetID.Get(), strRecipientUserID.Get());
+                                    }
+                                }
+                            } // else
+                            // --------------------------------------------------------------------------
+                        }	
+                        //else{} // TODO log that there was a problem with the amount
+                        
+                    } // voucher request loaded successfully from string
+                } // GetVoucherAccount()
+                else 
+                {
+                    OTLog::vError("%s: GetVoucherAccount() failed. Asset Type:\n%s\n", szFunc,
+                                  strAssetTypeID.Get());
+                }
+            }
+        } // (else bLoadContract is true)
+	}
+	// --------------------------------------------------------------------------------------
+	else 
+	{
+        OTString strTemp(tranIn);
+		OTLog::vOutput(0, "%s: Expected OTItem::payDividend in trans# %ld: \n\n%s\n\n", szFunc,
+                       tranIn.GetTransactionNum(), strTemp.Exists() ? strTemp.Get() : " (ERROR LOADING TRANSACTION INTO STRING) ");
+	}
+	
+	// sign the response item before sending it back (it's already been added to the transaction above)
+	// Now, whether it was rejection or acknowledgement, it is set properly and it is signed, and it
+	// is owned by the transaction, who will take it from here.
+	pResponseItem->SignContract(m_nymServer);
+	pResponseItem->SaveContract(); // the signing was of no effect because I forgot to save.
+	
+	pResponseBalanceItem->SignContract(m_nymServer);
+	pResponseBalanceItem->SaveContract();	
+}
+												  
 
 
 
@@ -7837,8 +8792,19 @@ void OTServer::NotarizeTransaction(OTPseudonym & theNym, OTTransaction & tranIn,
 					bSuccess = true;
 					theReplyItemType = OTItem::atDeposit;
 					break;
-					
-					// MARKET OFFER
+
+					// PAY DIVIDEND
+                    // Bob sends a signed request to the server asking it to pay all shareholders
+                    // of a given asset type at the rate of $X per share, where X and $ are both
+                    // configurable.
+				case OTTransaction::payDividend:
+					OTLog::Output(0, "NotarizeTransaction type: Pay Dividend\n");
+					NotarizePayDividend(theNym, theFromAccount, tranIn, tranOut, bOutSuccess);
+					bSuccess = true;
+					theReplyItemType = OTItem::atPayDividend;
+					break;
+
+                    // MARKET OFFER
 					// Bob sends a signed request to the server asking it to put an offer
 					// on the market. He includes with his request a signed trade listing
 					// the relevant information, asset types and account IDs.
@@ -8396,6 +9362,8 @@ void OTServer::UserCmdQueryAssetTypes(OTPseudonym & theNym, OTMessage & MsgIn, O
 				const std::string & str2 = (*it).second;	// Containing the phrase "exists". (More are possible in the future.)
 				// --------------------------------
 				
+                // todo security: limit on length of this map? (sent through user message...)
+                
 				// "exists" means, "Here's an asset ID. Please tell me 
 				// whether or not it's actually issued on this server."
 				// Future options might include "issue", "audit", "contract",
@@ -8445,12 +9413,13 @@ void OTServer::UserCmdQueryAssetTypes(OTPseudonym & theNym, OTMessage & MsgIn, O
 
 
 
+
 void OTServer::UserCmdGetContract(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut)
 {
 	// (1) set up member variables 
 	msgOut.m_strCommand		= "@getContract";	// reply to getContract
 	msgOut.m_strNymID		= MsgIn.m_strNymID;	// UserID
-//	msgOut.m_strServerID	= m_strServerID;	// This is already set in ProcessUserCommand.
+    //	msgOut.m_strServerID	= m_strServerID;	// This is already set in ProcessUserCommand.
 	msgOut.m_strAssetID		= MsgIn.m_strAssetID;	// The Asset Type ID in question
 	
 	const OTIdentifier ASSET_TYPE_ID(MsgIn.m_strAssetID);
@@ -8476,7 +9445,7 @@ void OTServer::UserCmdGetContract(OTPseudonym & theNym, OTMessage & MsgIn, OTMes
 	}
 	
 	// (2) Sign the Message 
-	msgOut.SignContract((const OTPseudonym &)m_nymServer);
+	msgOut.SignContract((const OTPseudonym &)m_nymServer); /// todo fix cast.
 	
 	// (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
 	//
@@ -8999,14 +9968,16 @@ void OTServer::UserCmdGetBoxReceipt(OTPseudonym & theNym, OTMessage & MsgIn, OTM
 //
 void OTServer::UserCmdDeleteAssetAcct(OTPseudonym & theNym, OTMessage & MsgIn, OTMessage & msgOut)
 {
+    const char * szFunc = "OTServer::UserCmdDeleteAssetAcct";
+    
 	// (1) set up member variables 
 	msgOut.m_strCommand		= "@deleteAssetAccount";    // reply to deleteAssetAccount
 	msgOut.m_strNymID		= MsgIn.m_strNymID;         // UserID
 //	msgOut.m_strServerID	= m_strServerID;	// This is already set in ProcessUserCommand.
 	msgOut.m_strAcctID      = MsgIn.m_strAcctID;        // the asset account being deleted.
 	
-	const OTIdentifier  USER_ID(MsgIn.m_strNymID),
-                        SERVER_ID(MsgIn.m_strServerID),
+	const OTIdentifier  USER_ID   (MsgIn.m_strNymID),
+                        SERVER_ID (MsgIn.m_strServerID),
                         ACCOUNT_ID(MsgIn.m_strAcctID);
 	
     OTAccount * pAccount = OTAccount::LoadExistingAccount(ACCOUNT_ID, SERVER_ID);
@@ -9014,16 +9985,18 @@ void OTServer::UserCmdDeleteAssetAcct(OTPseudonym & theNym, OTMessage & MsgIn, O
     
     if (NULL == pAccount || !pAccount->VerifyAccount(m_nymServer))
     {
-        OTLog::vError("OTServer::UserCmdDeleteAssetAcct: Error loading or verifying account: %s\n", MsgIn.m_strAcctID.Get());
+        OTLog::vError("%s: Error loading or verifying account: %s\n", 
+                      szFunc, MsgIn.m_strAcctID.Get());
     }
     else if (pAccount->GetBalance() != 0)
     {
-        OTLog::vOutput(1, "OTServer::UserCmdDeleteAssetAcct: Failed while trying to delete asset account %s: Balance must be zero to do this!\n", 
-                      MsgIn.m_strAcctID.Get());
+        OTLog::vOutput(1, "%s: Failed while trying to delete asset account %s: "
+                       "Balance must be zero to do this!\n", 
+                       szFunc, MsgIn.m_strAcctID.Get());
     }
     else
     {
-        OTLedger * pInbox	= pAccount->LoadInbox(m_nymServer); 
+        OTLedger * pInbox	= pAccount->LoadInbox (m_nymServer); 
         OTLedger * pOutbox	= pAccount->LoadOutbox(m_nymServer); 
         
         OTCleanup<OTLedger> theInboxAngel(pInbox);
@@ -9031,20 +10004,22 @@ void OTServer::UserCmdDeleteAssetAcct(OTPseudonym & theNym, OTMessage & MsgIn, O
 
         if (NULL == pInbox) // || !pInbox->VerifyAccount(m_nymServer)) // NOTE: OTAccount::LoadInbox already verifies.
         {
-            OTLog::vError("OTServer::UserCmdDeleteAssetAcct: Error loading or verifying inbox.\n", MsgIn.m_strAcctID.Get());
+            OTLog::vError("%s: Error loading or verifying inbox: %s\n", szFunc, MsgIn.m_strAcctID.Get());
         }
         else if (NULL == pOutbox) // || !pOutbox->VerifyAccount(m_nymServer)) // NOTE: OTAccount::LoadOutbox already verifies.
         {
-            OTLog::vError("OTServer::UserCmdDeleteAssetAcct: Error loading or verifying outbox.\n", MsgIn.m_strAcctID.Get());
+            OTLog::vError("%s: Error loading or verifying outbox: %s\n", szFunc, MsgIn.m_strAcctID.Get());
         }
         else if (pInbox->GetTransactionCount() > 0)
         { 		
-            OTLog::Output(3, "Tried to delete asset account, but there are still receipts in the Inbox. (Process them first.)\n");
+            OTLog::vOutput(3, "%s: Tried to delete asset account, but there are still "
+                          "receipts in the Inbox. (Process them first.)\n", szFunc);
             msgOut.m_bSuccess = false;
         }
         else if (pOutbox->GetTransactionCount() > 0)
         { 		
-            OTLog::Output(3, "Tried to delete asset account, but there are still receipts in the Outbox. (Process them first.)\n");
+            OTLog::vOutput(3, "%s: Tried to delete asset account, but there are still "
+                          "receipts in the Outbox. (Process them first.)\n", szFunc);
             msgOut.m_bSuccess = false;
         }
         else // SUCCESS!
@@ -9055,8 +10030,23 @@ void OTServer::UserCmdDeleteAssetAcct(OTPseudonym & theNym, OTMessage & MsgIn, O
             theAccountSet.erase(MsgIn.m_strAcctID.Get());
             
             theNym.SaveSignedNymfile(m_nymServer);
-            
             // --------------------------------
+            OTAssetContract * pContract = GetAssetContract(pAccount->GetAssetTypeID());
+            
+            if (NULL == pContract)
+            {
+                const OTString strAssetID(pAccount->GetAssetTypeID());
+                OTLog::vError("%s: Error: Unable to get AssetContract for asset type: %s\n", 
+                              szFunc, strAssetID.Get());
+            }
+            else if (pContract->IsShares())
+            {
+                // The asset type keeps a list of all accounts for that type.
+                // (For shares, not for currencies.)
+                //
+                const bool bErased = pContract->EraseAccountRecord(pAccount->GetAssetTypeID());
+            }
+            // -----------------------------------------------
             //
             pAccount->MarkForDeletion();    // The account isn't actually deleted yet, just marked for deletion.
                                             //  It will get cleaned up later, during server maintenance.

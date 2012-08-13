@@ -791,17 +791,25 @@ EXPORT	~OT_API();
 					  OTIdentifier	& USER_ID);
 	
 	int processInbox(OTIdentifier	& SERVER_ID,
-					  OTIdentifier	& USER_ID,
-					  OTIdentifier	& ACCT_ID,
-					  OTString		& ACCT_LEDGER);
+                     OTIdentifier	& USER_ID,
+                     OTIdentifier	& ACCT_ID,
+                     OTString		& ACCT_LEDGER);
 	
 	int withdrawVoucher(OTIdentifier	& SERVER_ID,
-						 OTIdentifier	& USER_ID,
-						 OTIdentifier	& ACCT_ID,
-						 OTIdentifier	& RECIPIENT_USER_ID,
-						 OTString		& CHEQUE_MEMO,
-						 OTString		& AMOUNT);
+                        OTIdentifier	& USER_ID,
+                        OTIdentifier	& ACCT_ID,
+                        OTIdentifier	& RECIPIENT_USER_ID,
+                        OTString		& CHEQUE_MEMO,
+                        OTString		& AMOUNT);
 	
+    int payDividend(OTIdentifier	& SERVER_ID,
+                    OTIdentifier	& ISSUER_USER_ID,           // must be issuer of SHARES_ASSET_TYPE_ID
+                    OTIdentifier	& DIVIDEND_FROM_ACCT_ID,    // if dollars paid for pepsi shares, then this is the issuer's dollars account.
+                    OTIdentifier	& SHARES_ASSET_TYPE_ID,     // if dollars paid for pepsi shares, then this is the pepsi shares asset type id.
+                    OTString		& DIVIDEND_MEMO,            // user-configurable note that's added to the payout request message.
+                    OTString		& AMOUNT_PER_SHARE); // number of dollars to be paid out PER SHARE (multiplied by total number of shares issued.)
+
+
 	int depositCheque(OTIdentifier	& SERVER_ID,
 					   OTIdentifier	& USER_ID,
 					   OTIdentifier	& ACCT_ID,

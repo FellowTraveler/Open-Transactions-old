@@ -436,6 +436,9 @@ public:
 		exchangeBasket,	// this transaction is an exchange in/out of a basket currency.
 		atExchangeBasket,// reply from the server regarding said exchange.
 // --------------------------------------------------------------------------------------
+		payDividend,	// this transaction is dividend payment (to all shareholders...)
+		atPayDividend,  // reply from the server regarding said dividend payment.
+// --------------------------------------------------------------------------------------
 		error_state
 	}; // If you add any types to this list, update the list of strings at the top of the .CPP file.
 

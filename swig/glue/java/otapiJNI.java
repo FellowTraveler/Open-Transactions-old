@@ -314,6 +314,7 @@ public class otapiJNI {
   public final static native int OT_API_processInbox(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native int OT_API_processNymbox(String jarg1, String jarg2);
   public final static native int OT_API_withdrawVoucher(String jarg1, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6);
+  public final static native int OT_API_payDividend(String jarg1, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6);
   public final static native int OT_API_depositCheque(String jarg1, String jarg2, String jarg3, String jarg4);
   public final static native int OT_API_depositPaymentPlan(String jarg1, String jarg2, String jarg3);
   public final static native int OT_API_issueMarketOffer(String jarg1, String jarg2, String jarg3, String jarg4, String jarg5, String jarg6, String jarg7, String jarg8, String jarg9, String jarg10, int jarg11);

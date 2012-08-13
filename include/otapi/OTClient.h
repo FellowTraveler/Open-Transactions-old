@@ -380,6 +380,7 @@ public:
 	void ProcessIncomingTransactions(OTServerConnection & theConnection, OTMessage & theReply);
 	void ProcessWithdrawalResponse(OTTransaction & theTransaction, OTServerConnection & theConnection, OTMessage & theReply);
 	void ProcessDepositResponse(OTTransaction & theTransaction, OTServerConnection & theConnection, OTMessage & theReply);
+	void ProcessPayDividendResponse(OTTransaction & theTransaction, OTServerConnection & theConnection, OTMessage & theReply);
 
 	
 //	void AcceptEntireInbox(OTLedger & theInbox, OTServerConnection & theConnection);

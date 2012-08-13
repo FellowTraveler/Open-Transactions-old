@@ -249,6 +249,10 @@ public:
 		depositCheque,	// this item is a request to deposit a cheque
 		atDepositCheque,// this item is a server response to that request.
 // ------------------------------------------------------------------------------
+		// PAYING DIVIDEND ON SHARES OF STOCK
+		payDividend,    // this item is a request to pay a dividend.
+		atPayDividend,  // the server reply to that request.
+// ------------------------------------------------------------------------------
 		// TRADING ON MARKETS
 		marketOffer,	// this item is an offer to be put on a market.
 		atMarketOffer,	// server reply or updated notification regarding a market offer.

@@ -291,7 +291,7 @@ EXPORT    bool GetTransactionNum(long & lOutput)              const;
 EXPORT    bool GetMemo(OTString & strOutput)                  const;
 
 EXPORT    bool GetAssetTypeID(OTIdentifier & theOutput)       const;
-    bool GetServerID(OTIdentifier & theOutput)          const;
+          bool GetServerID(OTIdentifier & theOutput)          const;
 
 EXPORT    bool GetSenderUserID(OTIdentifier & theOutput)      const;
 EXPORT    bool GetSenderAcctID(OTIdentifier & theOutput)      const;

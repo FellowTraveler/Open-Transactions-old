@@ -2812,11 +2812,22 @@ int OT_API_processNymbox(const char * SERVER_ID,
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
 int OT_API_withdrawVoucher(const char * SERVER_ID,
-							const char * USER_ID,
-							const char * ACCT_ID,
-							const char * RECIPIENT_USER_ID,
-							const char * CHEQUE_MEMO,
-							const char * AMOUNT);
+                           const char * USER_ID,
+                           const char * ACCT_ID,
+                           const char * RECIPIENT_USER_ID,
+                           const char * CHEQUE_MEMO,
+                           const char * AMOUNT);
+// --------------------------------------------------
+
+/// PAY DIVIDEND -- to shareholders
+///
+int OT_API_payDividend(const char * SERVER_ID,
+                       const char * ISSUER_USER_ID,           // must be issuer of SHARES_ASSET_TYPE_ID
+                       const char * DIVIDEND_FROM_ACCT_ID,    // if dollars paid for pepsi shares, then this is the issuer's dollars account.
+                       const char * SHARES_ASSET_TYPE_ID,     // if dollars paid for pepsi shares, then this is the pepsi shares asset type id.
+                       const char * DIVIDEND_MEMO,            // user-configurable note that's added to the payout request message.
+                       const char * AMOUNT_PER_SHARE); // number of dollars to be paid out PER SHARE (multiplied by total number of shares issued.)
+
 // --------------------------------------------------
 
 

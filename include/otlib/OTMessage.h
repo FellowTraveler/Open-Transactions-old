@@ -173,12 +173,12 @@ EXPORT	virtual ~OTMessage();
 	// the method here so try and force the issue.
 EXPORT	virtual bool SignContract(const OTPseudonym & theNym);
 
-EXPORT    bool HarvestTransactionNumbers(      OTPseudonym &  theNym,
-                                   const bool           bHarvestingForRetry,     // false until positively asserted.
-                                   const bool           bReplyWasSuccess,        // false until positively asserted.
-                                   const bool           bReplyWasFailure,        // false until positively asserted.
-                                   const bool           bTransactionWasSuccess,  // false until positively asserted.
-                                   const bool           bTransactionWasFailure); // false until positively asserted.
+EXPORT    bool HarvestTransactionNumbers(  OTPseudonym &  theNym,
+                                           const bool           bHarvestingForRetry,     // false until positively asserted.
+                                           const bool           bReplyWasSuccess,        // false until positively asserted.
+                                           const bool           bReplyWasFailure,        // false until positively asserted.
+                                           const bool           bTransactionWasSuccess,  // false until positively asserted.
+                                           const bool           bTransactionWasFailure); // false until positively asserted.
     
     // So the message can get the list of numbers from the Nym, before sending,
     // that should be listed as acknowledged that the server reply has already been

@@ -282,14 +282,16 @@ int main (int argc, char * const argv[])
 	bool bFileIsPresent = false;		
 	int nSeries = 0;
 
-	for (nSeries = 0; nSeries < 10000; nSeries++)
+	for (nSeries = 0; nSeries < 10000; ++nSeries)
 	{
 //		struct stat st;
 
 		OTString strFilename;
-		strFilename.Format("%s%s%s",strAssetTypeID.Get(),".",nSeries);
+		strFilename.Format("%s%s%d", strAssetTypeID.Get(), ".", nSeries);
 
-		bFileIsPresent = OTDB::Exists(OTLog::MintFolder(),strServerID.Get(),strFilename.Get());
+		bFileIsPresent = OTDB::Exists(OTLog::MintFolder(),
+                                      strServerID.Get(),
+                                      strFilename.Get());
 
 		// Old Code
 		//strMintPath.Format("%s%s%s%s%s%s%s%s%d", 

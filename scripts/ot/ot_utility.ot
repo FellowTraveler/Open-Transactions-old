@@ -178,6 +178,21 @@
 	}
     // ---------------------------------------
 
+    def VerifyStorable(theStorableObjectRef)
+    {
+        var bNull  = theStorableObjectRef.is_var_null()
+        var bUndef = theStorableObjectRef.is_var_undef()
+//      var bType  = theStorableObjectRef.is_type("OTDB_Storable")
+        
+//      if (bNull || bUndef || !bType)
+        if (bNull || bUndef)
+        {	
+            return false	
+        }
+        
+        return true 
+    }
+
 //pScript->chai.add(fun(&OTAPI_Wrap::Message_GetSuccess), "OT_API_Message_GetSuccess");                 *DONE (just above)
 //pScript->chai.add(fun(&OTAPI_Wrap::Msg_GetBlnceAgrmntSuccess), "OT_API_Msg_GetBlnceAgrmntSuccess");   *DONE (first below)
 //pScript->chai.add(fun(&OTAPI_Wrap::Msg_GetTransactionSuccess), "OT_API_Msg_GetTransactionSuccess");

@@ -42,7 +42,8 @@
 	attr OTAPI_Func::DEPOSIT_CASH				
 	attr OTAPI_Func::EXCHANGE_CASH				
 	attr OTAPI_Func::DEPOSIT_CHEQUE				
-	attr OTAPI_Func::WITHDRAW_VOUCHER			
+    attr OTAPI_Func::WITHDRAW_VOUCHER			
+    attr OTAPI_Func::PAY_DIVIDEND			
 	attr OTAPI_Func::WITHDRAW_CASH
 	attr OTAPI_Func::GET_CONTRACT
 	attr OTAPI_Func::SEND_TRANSFER
@@ -135,20 +136,21 @@
 		this.EXCHANGE_CASH				= 15
 		this.DEPOSIT_CHEQUE				= 16
 		this.WITHDRAW_VOUCHER			= 17
-		this.WITHDRAW_CASH				= 18
-		this.GET_CONTRACT				= 19
-		this.SEND_TRANSFER				= 20
-		this.GET_MARKET_LIST			= 21
-		this.CREATE_MARKET_OFFER		= 22
-		this.CANCEL_MARKET_OFFER		= 23
-		this.CANCEL_PAYMENT_PLAN		= 24
-		this.DEPOSIT_PAYMENT_PLAN		= 25 
-		this.GET_NYM_MARKET_OFFERS		= 26
-		this.GET_MARKET_OFFERS			= 27
-		this.GET_MARKET_RECENT_TRADES	= 28
-		this.GET_MINT					= 29
-		this.QUERY_ASSET_TYPES			= 30
-		this.GET_BOX_RECEIPT			= 31
+		this.PAY_DIVIDEND               = 18
+		this.WITHDRAW_CASH				= 19
+		this.GET_CONTRACT				= 20
+		this.SEND_TRANSFER				= 21
+		this.GET_MARKET_LIST			= 22
+		this.CREATE_MARKET_OFFER		= 23
+		this.CANCEL_MARKET_OFFER		= 24
+		this.CANCEL_PAYMENT_PLAN		= 25
+		this.DEPOSIT_PAYMENT_PLAN		= 26 
+		this.GET_NYM_MARKET_OFFERS		= 27
+		this.GET_MARKET_OFFERS			= 28
+		this.GET_MARKET_RECENT_TRADES	= 29
+		this.GET_MINT					= 30
+		this.QUERY_ASSET_TYPES			= 31
+		this.GET_BOX_RECEIPT			= 32
 	}
 // ---------------------------------------
 
@@ -385,27 +387,30 @@
 		{	OT_API_Output(0, concat(strError, "p_strData2")); }
 		// ---------------------------
 
-        this.funcType   = theType;
-        this.serverID   = p_serverID;
-        this.nymID      = p_nymID;
-        this.nTransNumsNeeded = 1;
-        this.bBool      = false;
-        this.accountID  = p_accountID;
-        this.strData    = p_strData;
-        this.strData2   = p_strData2;
-        
+        this.funcType   = theType
+        this.serverID   = p_serverID
+        this.nymID      = p_nymID
+        this.nTransNumsNeeded = 1
+        this.bBool      = false
+        this.accountID  = p_accountID
+        this.strData    = p_strData
+        this.strData2   = p_strData2
 		
 		if (theType == this.WITHDRAW_VOUCHER)
 		{
-			this.nymID2     = p_strParam;
+			this.nymID2  = p_strParam
+		}
+		else if (theType == this.PAY_DIVIDEND)
+		{
+			this.assetID = p_strParam
 		}
 		else if (theType == this.SEND_TRANSFER)
 		{
-			this.accountID2 = p_strParam;
+			this.accountID2 = p_strParam
 		}
 		else
 		{
-			OT_API_Output(0, "ERROR! WRONG TYPE passed to OTAPI_Func.OTAPI_Func() ERROR!!!!!!\n");
+			OT_API_Output(0, "ERROR! WRONG TYPE passed to OTAPI_Func.OTAPI_Func() ERROR!!!!!!\n")
 		}
     }
 	
@@ -553,12 +558,14 @@
             {	nRetVal = OT_API_notarizeWithdrawal(this.serverID, this.nymID, this.accountID, this.strData);	 break; }
             case (this.WITHDRAW_VOUCHER)
             {	nRetVal = OT_API_withdrawVoucher(this.serverID, this.nymID, this.accountID, this.nymID2, this.strData, this.strData2);	 break; }
+            case (this.PAY_DIVIDEND)
+            {	nRetVal = OT_API_payDividend(this.serverID, this.nymID, this.accountID, this.assetID, this.strData, this.strData2);	 break; }
             case (this.SEND_TRANSFER)
             {	nRetVal = OT_API_notarizeTransfer(this.serverID, this.nymID, this.accountID, this.accountID2,   this.strData, this.strData2);  break; } // amount and note, for the last two.
             case (this.GET_MARKET_LIST)
             {	nRetVal = OT_API_getMarketList(this.serverID, this.nymID);	 break; }
             case (this.GET_MARKET_OFFERS)
-            {	nRetVal = OT_API_getMarketOffers(this.serverID, this.nymID, this.strData, this.strData2); break;  break;	}
+            {	nRetVal = OT_API_getMarketOffers(this.serverID, this.nymID, this.strData, this.strData2); break; }
             case (this.GET_MARKET_RECENT_TRADES)
             {	nRetVal = OT_API_getMarketRecentTrades(this.serverID, this.nymID, this.strData); break;	}
             case (this.CREATE_MARKET_OFFER)

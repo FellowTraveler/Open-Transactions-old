@@ -217,6 +217,9 @@ const char * OTTransaction::_TypeStrings[] =
 	"exchangeBasket",	// this transaction is an exchange in/out of a basket currency.
 	"atExchangeBasket",	// reply from the server regarding said exchange.
 	// --------------------------------------------------------------------------------------
+	"payDividend",      // this transaction is a dividend payment (to the shareholders.)
+	"atPayDividend",    // reply from the server regarding said dividend payment.
+	// --------------------------------------------------------------------------------------
 	"error_state"	
 };
 
@@ -299,13 +302,15 @@ bool OTTransaction::VerifyAccount(OTPseudonym & theNym)
 // --------------------------------------------------------------------------------------
 		cancelCronItem,	// this transaction is intended to cancel a market offer or payment plan.
 // --------------------------------------------------------------------------------------
-		exchangeBasket,	// this transaction is an exchange in/out of a basket currency.
+        exchangeBasket,	// this transaction is an exchange in/out of a basket currency.
+// --------------------------------------------------------------------------------------
+        payDividend,	// this transaction is a dividend payment (to shareholders.)
 // --------------------------------------------------------------------------------------
  
 
  HarvestOpeningNumber:
  
- processNymbox,     // process nymbox transaction	 // comes from client
+// processNymbox,     // process nymbox transaction	 // comes from client  // HUH?? This message doesn't use a transaction number. That's the whole point of processNymbox is that it doesn't require such a number.
  processInbox,      // process inbox transaction	 // comes from client
  transfer,          // or "spend". This transaction is a request to transfer from one account to another
  deposit,           // this transaction is a deposit (cash or cheque)
@@ -315,17 +320,19 @@ bool OTTransaction::VerifyAccount(OTPseudonym & theNym)
  smartContract,     // this transaction is a smart contract
  cancelCronItem,	// this transaction is intended to cancel a market offer or payment plan.
  exchangeBasket,	// this transaction is an exchange in/out of a basket currency.
+ payDividend,	    // this transaction is dividend payment (to shareholders.)
 
  // --------------------------------------------------------------------------------------
 
  HarvestClosingNumbers:    (The X's means "not needed for closing numbers)
  
- X processNymbox,     // process nymbox transaction	 // comes from client
+// X processNymbox,     // process nymbox transaction	 // comes from client  // HUH?? The whole point of processNymbox is that it uses no transaction numbers.
  X processInbox,      // process inbox transaction	 // comes from client
  X transfer,          // or "spend". This transaction is a request to transfer from one account to another
  X deposit,           // this transaction is a deposit (cash or cheque)
  X withdrawal,        // this transaction is a withdrawal (cash or voucher)
- X cancelCronItem,	// this transaction is intended to cancel a market offer or payment plan.
+ X cancelCronItem,	  // this transaction is intended to cancel a market offer or payment plan.
+ X payDividend,	      // this transaction is a dividend payment (to shareholders.)
  
  // ONLY THESE:
  marketOffer,       // This contains one opening number, and two closing numbers.
@@ -371,11 +378,12 @@ bool OTTransaction::HarvestOpeningNumber(OTPseudonym & theNym,
     switch (m_Type)
     {
             // Note: the below remarks about "success or fail" are specific to TRANSACTION success, not message success.
-        case OTTransaction::processNymbox:  // Uses 1 transaction #, the opening number, and burns it whether transaction is success-or-fail.
+//      case OTTransaction::processNymbox:  // NOTE: why was this here? You don't need trans#s to process a Nymbox--that's the whole point of a Nymbox.
         case OTTransaction::processInbox:   // Uses 1 transaction #, the opening number, and burns it whether transaction is success-or-fail.
         case OTTransaction::deposit:        // Uses 1 transaction #, the opening number, and burns it whether transaction is success-or-fail. 
         case OTTransaction::withdrawal:     // Uses 1 transaction #, the opening number, and burns it whether transaction is success-or-fail. 
         case OTTransaction::cancelCronItem: // Uses 1 transaction #, the opening number, and burns it whether transaction is success-or-fail. 
+        case OTTransaction::payDividend:    // Uses 1 transaction #, the opening number, and burns it whether transaction is success-or-fail. 
             
             // If the server reply message was unambiguously a FAIL, that means the opening number is STILL GOOD.
             // (Because the transaction therefore never even had a chance to run.)
@@ -799,11 +807,12 @@ bool OTTransaction::HarvestClosingNumbers(OTPseudonym & theNym,
     switch (m_Type)
     {   // Note: the below remarks about "success or fail" are specific to TRANSACTION success, not message success.
             
-        case OTTransaction::processNymbox:  // Has no closing numbers.
+//      case OTTransaction::processNymbox:  // Why is this even here? processNymbox uses NO trans#s--that's the purpose of processNymbox.
         case OTTransaction::processInbox:   // Has no closing numbers.
         case OTTransaction::deposit:        // Has no closing numbers.
         case OTTransaction::withdrawal:     // Has no closing numbers.
         case OTTransaction::cancelCronItem: // Has no closing numbers.
+        case OTTransaction::payDividend:    // Has no closing numbers.
         case OTTransaction::transfer:       // Has no closing numbers.
             
             break;
@@ -4157,7 +4166,8 @@ bool OTTransaction::GetSuccess()
 			case OTItem::atWithdrawal:           // notarizeTransaction. server's reply to withdrawal (cash) request.
 			case OTItem::atDeposit:              // notarizeTransaction. server's reply to deposit (cash) request.
 			case OTItem::atWithdrawVoucher:      // notarizeTransaction. server's reply to "withdraw voucher" request.
-			case OTItem::atDepositCheque:        // notarizeTransaction. server's reply to deposit cheque request.
+			case OTItem::atDepositCheque:        // notarizeTransaction. server's reply to "deposit cheque" request.
+			case OTItem::atPayDividend:          // notarizeTransaction. server's reply to "pay dividend" request.
 			case OTItem::atMarketOffer:          // notarizeTransaction. server's reply to request to place a market offer.
 			case OTItem::atPaymentPlan:          // notarizeTransaction. server's reply to request to activate a payment plan.
 			case OTItem::atSmartContract:        // notarizeTransaction. server's reply to request to activate a smart contract.
@@ -4295,6 +4305,10 @@ OTTransaction::transactionType OTTransaction::GetTypeFromString(const OTString &
 		theType = OTTransaction::exchangeBasket;
 	else if (strType.Compare("atExchangeBasket"))
 		theType = OTTransaction::atExchangeBasket;
+	else if (strType.Compare("payDividend"))
+		theType = OTTransaction::payDividend;
+	else if (strType.Compare("atPayDividend"))
+		theType = OTTransaction::atPayDividend;
 	// --------------------------------------------------------------	
 	else
 		theType = OTTransaction::error_state;
@@ -4456,7 +4470,7 @@ int OTTransaction::LoadAbbreviatedRecord(irr::io::IrrXMLReader*& xml,
  long				m_lInRefDisplay;  // The "In Ref For Display" value
  OTIdentifier		m_Hash;			// todo: make this const and force it to be set during construction.
  time_t				m_DATE_SIGNED;	// The date, in seconds, when the instrument was last signed.	
- transactionType	m_Type;			// blank, pending, processInbox, transfer, deposit, withdrawal, trade, etc.
+ transactionType	m_Type;			// blank, pending, processInbox, transfer, deposit, withdrawal, trade, payDividend, etc.
  long				m_lClosingTransactionNo;	// used by finalReceipt
  */
 
@@ -4999,7 +5013,7 @@ void OTTransaction::SaveAbbrevPaymentInboxRecord(OTString & strOutput)
 	/* 
 	 NOTES...
 	 
-	 transactionType		m_Type;				// blank, pending, processInbox, transfer, deposit, withdrawal, trade, etc.
+	 transactionType		m_Type;				// blank, pending, processInbox, transfer, deposit, withdrawal, payDividend, trade, etc.
 	 time_t					m_DATE_SIGNED;		// The date, in seconds, when the instrument was last signed.
 	 OTIdentifier			m_Hash;				// Created while saving abbreviated record, loaded back with it, then verified against actual hash when loading actual box receipt.
 	 long					m_lAbbrevAmount;	// Saved abbreviated from actual calculation, and set upon loading in abbrev mode.
@@ -5272,7 +5286,7 @@ void OTTransaction::SaveAbbrevRecordBoxRecord(OTString & strOutput)
 	/* 
 	 NOTES...
 	 
-	 transactionType		m_Type;				// pending, processInbox, transfer, deposit, withdrawal, trade, etc.
+	 transactionType		m_Type;				// pending, processInbox, transfer, deposit, withdrawal, payDividend, trade, etc.
 	 time_t					m_DATE_SIGNED;		// The date, in seconds, when the instrument was last signed.
 	 OTIdentifier			m_Hash;				// Created while saving abbreviated record, loaded back with it, then verified against actual hash when loading actual box receipt.
 	 long					m_lAbbrevAmount;	// Saved abbreviated from actual calculation, and set upon loading in abbrev mode.
@@ -5647,7 +5661,7 @@ void OTTransaction::SaveAbbreviatedInboxRecord(OTString & strOutput)
 	/* 
 	 NOTES...
 	 
-	 transactionType		m_Type;				// blank, pending, processInbox, transfer, deposit, withdrawal, trade, etc.
+	 transactionType		m_Type;				// blank, pending, processInbox, transfer, deposit, withdrawal, payDividend, trade, etc.
 	 time_t					m_DATE_SIGNED;		// The date, in seconds, when the instrument was last signed.
 	 OTIdentifier			m_Hash;				// Created while saving abbreviated record, loaded back with it, then verified against actual hash when loading actual box receipt.
 	 long					m_lAbbrevAmount;	// Saved abbreviated from actual calculation, and set upon loading in abbrev mode.

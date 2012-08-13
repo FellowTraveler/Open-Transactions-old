@@ -301,12 +301,12 @@ public:
 EXPORT	OTString();
 EXPORT	OTString(const OTString & strValue);
 EXPORT	OTString(const OTASCIIArmor & strValue);
-	OTString(const OTSignature & strValue);
+        OTString(const OTSignature & strValue);
 EXPORT	OTString(const OTContract & theValue);
 EXPORT	OTString(const OTIdentifier & theValue);
-	OTString(OTPseudonym & theValue);
+        OTString(OTPseudonym & theValue);
 EXPORT	OTString(const char * new_string);
-	OTString(const char * new_string, size_t sizeLength);
+        OTString(const char * new_string, size_t sizeLength);
 EXPORT	OTString(const std::string & new_string);
    
 EXPORT	virtual ~OTString();
@@ -317,12 +317,12 @@ EXPORT	OTString& operator=(OTString rhs);
 //	OTString& operator=(const char * new_string);
 //	OTString& operator=(const std::string & strValue);
 
-	void swap(OTString & rhs);
+         void swap(OTString & rhs);
 	
-   bool operator >(const OTString &s2) const;
-   bool operator <(const OTString &s2) const;
-   bool operator <=(const OTString &s2) const;
-   bool operator >=(const OTString &s2) const;
+         bool operator >(const OTString &s2) const;
+         bool operator <(const OTString &s2) const;
+         bool operator <=(const OTString &s2) const;
+         bool operator >=(const OTString &s2) const;
 EXPORT   bool operator ==(const OTString &s2) const;
 
 EXPORT	static std::string & trim(std::string& str);
@@ -358,11 +358,11 @@ EXPORT	bool Exists(void) const;
    
 EXPORT	uint32_t GetLength(void) const;
 
-EXPORT	bool Compare(const char * strCompare) const;
+EXPORT	bool Compare(const char *    strCompare) const;
 EXPORT	bool Compare(const OTString& strCompare) const;
 	
-EXPORT	bool Contains(const char * strCompare) const;
-	bool Contains(const OTString& strCompare) const;
+EXPORT	bool Contains(const char *    strCompare) const;
+        bool Contains(const OTString& strCompare) const;
 	
 EXPORT	const char * Get(void) const;
 	
@@ -375,8 +375,7 @@ EXPORT	const char * Get(void) const;
     // the valid range is 0..9. Therefore 9 (10 minus 1) is where the 
     // NULL terminator goes.
     //
-EXPORT	void Set(const char * new_string, uint32_t nEnforcedMaxLength=0);
-	    
+EXPORT	void Set(const char     * new_string, uint32_t nEnforcedMaxLength=0);
 EXPORT	void Set(const OTString & strBuf);
 	// ----------------------------
 
@@ -386,14 +385,14 @@ EXPORT	void Set(const OTString & strBuf);
 
 //	void   Concatenate(const char *arg);
 EXPORT	void   Concatenate(const char *arg, ...);
-	void   Concatenate(const OTString & strBuf);
+        void   Concatenate(const OTString & strBuf);
 	
-	void   Truncate(uint32_t lAt);
+        void   Truncate(uint32_t lAt);
 	
 EXPORT	void   Format(const char *arg, ...);
    
-	void ConvertToLowerCase();
-	void ConvertToUpperCase();
+        void ConvertToLowerCase();
+        void ConvertToUpperCase();
 	
 EXPORT	bool TokenizeIntoKeyValuePairs(std::map<std::string, std::string> & mapOutput) const;
 

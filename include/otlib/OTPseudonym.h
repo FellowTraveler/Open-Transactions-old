@@ -421,10 +421,7 @@ EXPORT	static OTPseudonym * LoadPrivateNym(const OTIdentifier & NYM_ID,
                                                   OTString     * pstrName=NULL, 
                                             const char         * szFuncName=NULL,
                                                   OTString     * pstrReason=NULL);
-
-
 	// ------------------------------------------
-
 	bool HasPublicKey();
 	bool HasPrivateKey();
 	
@@ -447,14 +444,14 @@ EXPORT	bool LoadFromString(const OTString & strNym);
 	bool SavePseudonymWallet(std::ofstream & ofs) const;
 
 EXPORT	bool SavePublicKey(const OTString & strPath) const;
-//	bool SavePublicKey(FILE * fl) const;
-	bool SavePublicKey(std::ofstream & ofs) const;
+//      bool SavePublicKey(FILE * fl) const;
+        bool SavePublicKey(std::ofstream & ofs) const;
 
-	bool SavePseudonym(); // saves to filename m_strNymfile
-	bool SavePseudonym(const char * szFoldername, const char * szFilename);
+        bool SavePseudonym(); // saves to filename m_strNymfile
+        bool SavePseudonym(const char * szFoldername, const char * szFilename);
 EXPORT	bool SavePseudonym(OTString & strNym);
-//	bool SavePseudonym(FILE * fl);
-	bool SavePseudonym(std::ofstream & ofs);
+//      bool SavePseudonym(FILE * fl);
+        bool SavePseudonym(std::ofstream & ofs);
 
 	bool SetIdentifierByPubkey();
 	
@@ -463,7 +460,7 @@ EXPORT	bool SavePseudonym(OTString & strNym);
 	
 EXPORT    bool CompareID(const OTPseudonym & RHS) const;
     
-	const OTIdentifier & GetConstID() const { return m_nymID; }
+    const OTIdentifier & GetConstID() const { return m_nymID; }
 	
 EXPORT	void GetIdentifier(OTIdentifier & theIdentifier) const;
 EXPORT	void SetIdentifier(const OTIdentifier & theIdentifier);
@@ -474,12 +471,12 @@ EXPORT	void SetIdentifier(const OTString & theIdentifier);
     // --------------------------------------------
     
 EXPORT	void HarvestTransactionNumbers(const OTIdentifier & theServerID, OTPseudonym & SIGNER_NYM,
-                                   OTPseudonym & theOtherNym, // OtherNym is used as a container for the server to send
-                                   bool bSave=true);          // us new transaction numbers.
+                                       OTPseudonym & theOtherNym, // OtherNym is used as a container for the server to send
+                                       bool bSave=true);          // us new transaction numbers.
     
 EXPORT	void HarvestIssuedNumbers(const OTIdentifier & theServerID, OTPseudonym & SIGNER_NYM,
-                              OTPseudonym & theOtherNym, // OtherNym is used as container for us to send a list
-                              bool bSave=false);         // of issued numbers to the server (for balance agreement)
+                                  OTPseudonym & theOtherNym, // OtherNym is used as container for us to send a list
+                                  bool bSave=false);         // of issued numbers to the server (for balance agreement)
 
     
     bool ClawbackTransactionNumber(const OTIdentifier & theServerID,
@@ -489,12 +486,12 @@ EXPORT	void HarvestIssuedNumbers(const OTIdentifier & theServerID, OTPseudonym &
     
 	// ---------------------------------------------
     
-EXPORT    void IncrementRequestNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID); // Increment the counter or create a new one for this serverID starting at 1
+EXPORT  void IncrementRequestNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID); // Increment the counter or create a new one for this serverID starting at 1
 EXPORT	void OnUpdateRequestNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, long lNewRequestNumber); // if the server sends us a @getRequest
 EXPORT	bool GetCurrentRequestNum(const OTString & strServerID, long &lReqNum); // get the current request number for the serverID
 	
 EXPORT	bool GetHighestNum(const OTString & strServerID, long &lHighestNum); // get the last/current highest transaction number for the serverID.
-	long UpdateHighestNum(OTPseudonym & SIGNER_NYM, 
+        long UpdateHighestNum(OTPseudonym & SIGNER_NYM, 
                           const OTString & strServerID, 
                           std::set<long> & setNumbers, 
                           std::set<long> & setOutputGood,
@@ -533,7 +530,7 @@ EXPORT	bool	GetNextTransactionNum(OTPseudonym & SIGNER_NYM, const OTString & str
                                   bool bSave=true); // Get the next available transaction number for the serverID passed. Saves by default.
     // --------------------
 EXPORT	bool	RemoveIssuedNum      (OTPseudonym & SIGNER_NYM, const OTString & strServerID, const long & lTransNum,   bool bSave); // SAVE OR NOT (your choice)
-	bool	RemoveTentativeNum   (OTPseudonym & SIGNER_NYM, const OTString & strServerID, const long & lTransNum,   bool bSave);
+        bool	RemoveTentativeNum   (OTPseudonym & SIGNER_NYM, const OTString & strServerID, const long & lTransNum,   bool bSave);
 EXPORT	bool	RemoveAcknowledgedNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, const long & lRequestNum, bool bSave); // Used on both client and server sides for optimization.
     // --------------------	
 EXPORT	bool	VerifyIssuedNum      (const OTString & strServerID, const long & lTransNum);   // verify user is still responsible for (signed for) a certain trans# that was previous issued to him. (i.e. it's been used, but not yet accepted receipt through inbox.)
@@ -557,16 +554,16 @@ EXPORT	long	GetIssuedNum(const OTIdentifier & theServerID, int nIndex); // index
 	
 EXPORT	bool	AddIssuedNum(const OTString & strServerID, const long & lTransNum); // doesn't save
 	
-	bool	RemoveIssuedNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, const long & lTransNum); // saves
+        bool	RemoveIssuedNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, const long & lTransNum); // saves
 EXPORT	bool	RemoveIssuedNum(const OTString & strServerID, const long & lTransNum); // doesn't save
 
 	// -------------------------------------
 	// These functions are for transaction numbers that I still have available to use.
 	//
-EXPORT	int GetTransactionNumCount(const OTIdentifier & theServerID); // count
+EXPORT	int  GetTransactionNumCount(const OTIdentifier & theServerID); // count
 EXPORT	long GetTransactionNum(const OTIdentifier & theServerID, int nIndex); // index
 	
-	bool AddTransactionNum(const OTString & strServerID, const long lTransNum); // doesn't save
+        bool AddTransactionNum(const OTString & strServerID, const long lTransNum); // doesn't save
 	
 EXPORT	bool RemoveTransactionNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, const long & lTransNum); // server removes spent number from nym file. Saves.
 EXPORT	bool RemoveTransactionNum(const OTString & strServerID, const long & lTransNum); // doesn't save.
@@ -586,12 +583,12 @@ EXPORT	bool RemoveTransactionNum(const OTString & strServerID, const long & lTra
 	// place. After all, my transactions won't work until I do, because my balance agreements
 	// will be wrong.
 	//
-	int GetTentativeNumCount(const OTIdentifier & theServerID); // count
-	long GetTentativeNum(const OTIdentifier & theServerID, int nIndex); // index
+        int  GetTentativeNumCount(const OTIdentifier & theServerID); // count
+        long GetTentativeNum(const OTIdentifier & theServerID, int nIndex); // index
 	
 EXPORT	bool AddTentativeNum(const OTString & strServerID, const long &lTransNum); // doesn't save
 	
-	bool RemoveTentativeNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, const long & lTransNum);
+        bool RemoveTentativeNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, const long & lTransNum);
 EXPORT	bool RemoveTentativeNum(const OTString & strServerID, const long & lTransNum); // doesn't save.
 	
 	// ---------------------------------------------
@@ -614,13 +611,13 @@ EXPORT	bool RemoveTentativeNum(const OTString & strServerID, const long & lTrans
     // Thus we can eliminate most replyNotice downloads, and likely a large % of box receipt downloads
     // as well.
     //
-EXPORT	int GetAcknowledgedNumCount(const OTIdentifier & theServerID); // count
+EXPORT	int  GetAcknowledgedNumCount(const OTIdentifier & theServerID); // count
 EXPORT	long GetAcknowledgedNum(const OTIdentifier & theServerID, int nIndex); // index
 	
 EXPORT	bool AddAcknowledgedNum(const OTString & strServerID, const long &lRequestNum); // doesn't save
 	
-	bool RemoveAcknowledgedNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, const long & lRequestNum);
-	bool RemoveAcknowledgedNum(const OTString & strServerID, const long & lRequestNum); // doesn't save.
+        bool RemoveAcknowledgedNum(OTPseudonym & SIGNER_NYM, const OTString & strServerID, const long & lRequestNum);
+        bool RemoveAcknowledgedNum(const OTString & strServerID, const long & lRequestNum); // doesn't save.
 	
 	// ---------------------------------------------
 	
@@ -648,7 +645,7 @@ EXPORT	int			GetMailCount(); // How many mail messages does this Nym currently s
 EXPORT	OTMessage *	GetMailByIndex(const int nIndex); // Get a specific piece of mail, at a specific index.
 EXPORT	bool		RemoveMailByIndex(const int nIndex); // if returns false, mail index was bad (or something else must have gone seriously wrong.)
 	
-	void		ClearMail(); // called by the destructor. (Not intended to erase messages from local storage.)
+        void		ClearMail(); // called by the destructor. (Not intended to erase messages from local storage.)
 	
 	// -------------------------------------
 	
@@ -659,7 +656,7 @@ EXPORT	int			GetOutmailCount(); // How many outmail messages does this Nym curre
 EXPORT	OTMessage *	GetOutmailByIndex(const int nIndex); // Get a specific piece of outmail, at a specific index.
 EXPORT	bool		RemoveOutmailByIndex(const int nIndex); // if returns false, outmail index was bad (or something else must have gone seriously wrong.)
 	
-	void		ClearOutmail(); // called by the destructor. (Not intended to erase messages from local storage.)
+        void		ClearOutmail(); // called by the destructor. (Not intended to erase messages from local storage.)
 	
 	// -------------------------------------
 	
@@ -670,12 +667,12 @@ EXPORT	int			GetOutpaymentsCount(); // How many outpayments messages does this N
 EXPORT	OTMessage *	GetOutpaymentsByIndex(const int nIndex); // Get a specific piece of outpayments, at a specific index.
 EXPORT	bool		RemoveOutpaymentsByIndex(const int nIndex); // if returns false, outpayments index was bad (or something else must have gone seriously wrong.)
 	
-	void		ClearOutpayments(); // called by the destructor. (Not intended to erase messages from local storage.)
+        void		ClearOutpayments(); // called by the destructor. (Not intended to erase messages from local storage.)
 	
 	// -------------------------------------
 	
 EXPORT	const OTAsymmetricKey & GetPublicKey() const;
-	const OTAsymmetricKey & GetPrivateKey() const;
+        const OTAsymmetricKey & GetPrivateKey() const;
 	
 	// -------------------------------------
 	

@@ -3,6 +3,15 @@ NOTES on the Version:
 
 // --------------------------------------------------------------------
 
+   0.84c--- Market-related commands added to the opentxs CLI tool:
+            getmarkets, showmarkets, getoffers, showoffers, getmyoffers,
+            showmyoffers, and PAY DIVIDEND  :-)
+   
+   0.84a--- OT now creates ALL data files it needs.
+   
+   0.83 --- Added OTKeyring for handling the Mac Keychain, Windows DPAPI,
+            the KDE KWallet, and the Gnome Keyring.
+   
    0.82e--- Various bugs were fixed: create_asset_contract.ot and create_
             server_contract.ot were both fixed. An empty passphrase will
             no longer assert on the client side. Release() is no longer

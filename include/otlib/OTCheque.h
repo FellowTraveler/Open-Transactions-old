@@ -159,11 +159,11 @@ protected:
 	bool			m_bHasRecipient;
 	
 public:
-	inline void				SetAsVoucher() { m_strContractType = "VOUCHER"; }
-	inline const OTString &	GetMemo() const { return m_strMemo; }
-	inline const long &		GetAmount() const { return m_lAmount; }
+	inline void                 SetAsVoucher()             { m_strContractType = "VOUCHER"; }
+	inline const OTString     &	GetMemo()            const { return m_strMemo; }
+	inline const long         & GetAmount()          const { return m_lAmount; }
 	inline const OTIdentifier &	GetRecipientUserID() const { return m_RECIPIENT_USER_ID; }
-	inline bool				HasRecipient() const { return m_bHasRecipient; }
+	inline bool                 HasRecipient()       const { return m_bHasRecipient; }
 
     // A cheque HAS NO "Recipient Asset Acct ID", since the recipient's account (where he deposits
     // the cheque) is not known UNTIL the time of the deposit. It's certain not known at the time 
@@ -172,12 +172,12 @@ public:
 	
 	// Calling this function is like writing a check...
 EXPORT	bool IssueCheque(const long	& lAmount,	const long & lTransactionNum,
-					 const time_t & VALID_FROM, const time_t & VALID_TO,// The expiration date (valid from/to dates) of the cheque
-					 const OTIdentifier & SENDER_ACCT_ID,			// The asset account the cheque is drawn on.
-					 const OTIdentifier & SENDER_USER_ID,			// This ID must match the user ID on the asset account, 
-																	// AND must verify the cheque signature with that user's key.
-					 const OTString & strMemo,	// Optional memo field.
-					 const OTIdentifier * pRECIPIENT_USER_ID=NULL);	// Recipient optional. (Might be a blank cheque.)
+                         const time_t & VALID_FROM, const time_t & VALID_TO, // The expiration date (valid from/to dates) of the cheque
+                         const OTIdentifier & SENDER_ACCT_ID,                // The asset account the cheque is drawn on.
+                         const OTIdentifier & SENDER_USER_ID,                // This ID must match the user ID on the asset account, 
+                                                                             // AND must verify the cheque signature with that user's key.
+                         const OTString & strMemo,	// Optional memo field.
+                         const OTIdentifier * pRECIPIENT_USER_ID=NULL);	// Recipient optional. (Might be a blank cheque.)
 
 	// From OTTrackable (parent class of this)
 	/*

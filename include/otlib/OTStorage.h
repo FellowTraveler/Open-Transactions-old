@@ -296,6 +296,7 @@ namespace OTDB
 		STORED_OBJ_ERROR			// (Should never be.)
 	};
 	
+    
 	// ********************************************************************
 	
 	// OTDB NAMESPACE "CONSTRUCTOR"
@@ -412,7 +413,7 @@ namespace OTDB
 		virtual ~Storable() {}
 		
 		// %ignore spam(unsigned short); API users don't need this function, it's for internal purposes.
-EXPORT		static Storable * Create(StoredObjectType eType, PackType thePackType);
+EXPORT	static Storable * Create(StoredObjectType eType, PackType thePackType);
 		
 		DEFINE_OT_DYNAMIC_CAST(Storable)
 	};
@@ -507,7 +508,7 @@ public: \
 		PackType GetType() const;
 		
 		PackedBuffer *	Pack(Storable& inObj);
-EXPORT		bool			Unpack(PackedBuffer& inBuf, Storable& outObj);
+EXPORT	bool			Unpack(PackedBuffer& inBuf, Storable& outObj);
 		
 		PackedBuffer *	Pack(std::string& inObj);
 		bool			Unpack(PackedBuffer& inBuf, std::string& outObj);
@@ -586,19 +587,19 @@ EXPORT		bool			Unpack(PackedBuffer& inBuf, Storable& outObj);
 		// for this class, it is.
 		//
 		virtual bool onStorePackedBuffer(PackedBuffer & theBuffer, std::string strFolder, std::string oneStr="", 
-			std::string twoStr="", std::string threeStr="")=0;
+                                         std::string twoStr="", std::string threeStr="")=0;
 
 		virtual bool onQueryPackedBuffer(PackedBuffer & theBuffer, std::string strFolder, std::string oneStr="",
-			std::string twoStr="", std::string threeStr="")=0;
+                                         std::string twoStr="", std::string threeStr="")=0;
 
 		virtual bool onStorePlainString(std::string & theBuffer, std::string strFolder, std::string oneStr="", 
-			std::string twoStr="", std::string threeStr="")=0;
+                                        std::string twoStr="", std::string threeStr="")=0;
 
 		virtual bool onQueryPlainString(std::string & theBuffer, std::string strFolder, std::string oneStr="",
-			std::string twoStr="", std::string threeStr="")=0;
+                                        std::string twoStr="", std::string threeStr="")=0;
 
 		virtual bool onEraseValueByKey(std::string strFolder, std::string oneStr="",
-			std::string twoStr="", std::string threeStr="")=0;
+                                       std::string twoStr="", std::string threeStr="")=0;
 
 		// -------------------------------------
 
@@ -622,7 +623,7 @@ EXPORT		bool			Unpack(PackedBuffer& inBuf, Storable& outObj);
 		// -----------------------------------------
 		// See if the file is there.
 		virtual bool Exists(std::string strFolder, 
-			std::string oneStr="", std::string twoStr="", std::string threeStr="")=0;
+                            std::string oneStr="", std::string twoStr="", std::string threeStr="")=0;
 
 		// ********************************************************
 
@@ -632,27 +633,27 @@ EXPORT		bool			Unpack(PackedBuffer& inBuf, Storable& outObj);
 		// Store/Retrieve a string.
 
 		EXPORT		bool StoreString(std::string strContents, std::string strFolder, 
-			std::string oneStr="", std::string twoStr="", std::string threeStr="");
+                                     std::string oneStr="", std::string twoStr="", std::string threeStr="");
 
 		EXPORT		std::string QueryString(std::string strFolder, std::string oneStr="",
-			std::string twoStr="", std::string threeStr="");
+                                            std::string twoStr="", std::string threeStr="");
 
 		EXPORT		bool StorePlainString(std::string strContents, std::string strFolder, 
-			std::string oneStr="", std::string twoStr="", std::string threeStr="");
+                                          std::string oneStr="", std::string twoStr="", std::string threeStr="");
 
 		EXPORT		std::string QueryPlainString(std::string strFolder, std::string oneStr="",
-			std::string twoStr="", std::string threeStr="");
+                                                 std::string twoStr="", std::string threeStr="");
 
 		// -----------------------------------------
 		// Store/Retrieve an object. (Storable.)
 
 		EXPORT		bool StoreObject(Storable & theContents, std::string strFolder, 
-			std::string oneStr="", std::string twoStr="", std::string threeStr="");
+                                     std::string oneStr="", std::string twoStr="", std::string threeStr="");
 
 		// Use %newobject OTDB::Storage::QueryObject();
 		EXPORT		Storable * QueryObject(StoredObjectType theObjectType,
-			std::string strFolder, std::string oneStr="",
-			std::string twoStr="", std::string threeStr="");
+                                           std::string strFolder, std::string oneStr="",
+                                           std::string twoStr="", std::string threeStr="");
 		// -----------------------------------------
 		// Store/Retrieve a Storable object inside an OTASCIIArmor object.
 
@@ -665,7 +666,7 @@ EXPORT		bool			Unpack(PackedBuffer& inBuf, Storable& outObj);
 		// Erase any value based on its location.
 
 		EXPORT		bool EraseValueByKey(std::string strFolder, 
-			std::string oneStr="", std::string twoStr="", std::string threeStr="");
+                                         std::string oneStr="", std::string twoStr="", std::string threeStr="");
 
 		// --------------------------
 		// Note:
@@ -697,10 +698,10 @@ EXPORT		bool			Unpack(PackedBuffer& inBuf, Storable& outObj);
 EXPORT	bool InitDefaultStorage(StorageType eStoreType, PackType ePackType);
 	
 	// Default Storage instance:
-EXPORT	Storage * GetDefaultStorage();
+EXPORT	Storage  * GetDefaultStorage();
 	
 	// %newobject Factory::createObj();
-EXPORT	Storage * CreateStorageContext(StorageType eStoreType, PackType ePackType=OTDB_DEFAULT_PACKER);
+EXPORT	Storage  * CreateStorageContext(StorageType eStoreType, PackType ePackType=OTDB_DEFAULT_PACKER);
 	
 EXPORT	Storable * CreateObject(StoredObjectType eType);
 	
@@ -714,33 +715,33 @@ EXPORT	Storable * CreateObject(StoredObjectType eType);
 	// See if the file is there.
 	//
 EXPORT	bool Exists(std::string strFolder, 
-				std::string oneStr="", std::string twoStr="", std::string threeStr="");
+                    std::string oneStr="", std::string twoStr="", std::string threeStr="");
 	
 	// --------
 	// Store/Retrieve a string.
 	//
 EXPORT	bool StoreString(std::string strContents, std::string strFolder, 
-					 std::string oneStr="", std::string twoStr="", std::string threeStr="");
+                         std::string oneStr="", std::string twoStr="", std::string threeStr="");
 	
 EXPORT	std::string QueryString(std::string strFolder, std::string oneStr="",
-							std::string twoStr="", std::string threeStr="");
+                                std::string twoStr="", std::string threeStr="");
 	
 EXPORT	bool StorePlainString(std::string strContents, std::string strFolder, 
-						  std::string oneStr="", std::string twoStr="", std::string threeStr="");
+                              std::string oneStr="", std::string twoStr="", std::string threeStr="");
 	
 EXPORT	std::string QueryPlainString(std::string strFolder, std::string oneStr="",
-								 std::string twoStr="", std::string threeStr="");
+                                     std::string twoStr="", std::string threeStr="");
 	
 	// --------
 	// Store/Retrieve an object. (Storable.)
 	//
 EXPORT	bool StoreObject(Storable & theContents, std::string strFolder, 
-					 std::string oneStr="", std::string twoStr="", std::string threeStr="");
+                         std::string oneStr="", std::string twoStr="", std::string threeStr="");
 	
 	// Use %newobject OTDB::Storage::Query();
 EXPORT	Storable * QueryObject(StoredObjectType theObjectType,
-						   std::string strFolder, std::string oneStr="",
-						   std::string twoStr="", std::string threeStr="");		
+                               std::string strFolder, std::string oneStr="",
+                               std::string twoStr="", std::string threeStr="");		
 	// -----------------------------------------
 	// Store/Retrieve a Storable object inside an OTASCIIArmor object.
 	
@@ -753,7 +754,7 @@ EXPORT	Storable * DecodeObject(StoredObjectType theObjectType, std::string strIn
     // Erase any value based on its location.
     
 EXPORT    bool EraseValueByKey(std::string strFolder, 
-                         std::string oneStr="", std::string twoStr="", std::string threeStr="");
+                               std::string oneStr="", std::string twoStr="", std::string threeStr="");
 
 	// ********************************************************************
 	/*
@@ -1125,7 +1126,8 @@ EXPORT	bool Add##name(name & disownObject)
 		
 	// ------------------------------------------------------
 	
-	class OfferListNym : public Storable {
+	class OfferListNym : public Storable 
+    {
 		// You never actually get an instance of this, only its subclasses.
 		// Therefore, I don't allow you to access the constructor except through factory.
 	protected:

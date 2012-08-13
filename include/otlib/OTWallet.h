@@ -173,9 +173,9 @@ public:
 	OTString m_strFilename;
 	
 EXPORT	OTWallet();
-	virtual ~OTWallet();
-	virtual void Release();
-	void Release_Wallet();
+        virtual ~OTWallet();
+        virtual void Release();
+        void Release_Wallet();
 	//------------------------------------------------------------	
     
 EXPORT    bool IsNymOnMasterKey(const OTIdentifier & needle) const; // needle and haystack.
@@ -189,11 +189,12 @@ EXPORT	OTPseudonym * GetOrLoadPublicNym(const OTIdentifier & NYM_ID, const char 
 EXPORT	OTPseudonym * GetOrLoadPrivateNym(const OTIdentifier & NYM_ID, const char * szFuncName=NULL);
 	
 EXPORT	OTAccount	* LoadAccount(OTPseudonym & theNym, 
-							  const OTIdentifier & ACCT_ID, 
-							  const OTIdentifier & SERVER_ID, const char * szFuncName=NULL);
+                                  const OTIdentifier & ACCT_ID, 
+                                  const OTIdentifier & SERVER_ID, const char * szFuncName=NULL);
+    
 EXPORT	OTAccount	* GetOrLoadAccount(OTPseudonym & theNym, 
-								   const OTIdentifier & ACCT_ID, 
-								   const OTIdentifier & SERVER_ID, const char * szFuncName=NULL);
+                                       const OTIdentifier & ACCT_ID, 
+                                       const OTIdentifier & SERVER_ID, const char * szFuncName=NULL);
 	//------------------------------------------------------------	
 	// Used by high-level wrapper.
 	
@@ -224,45 +225,49 @@ EXPORT	void				AddAssetContract(const OTAssetContract & theContract);
 EXPORT	OTAssetContract *	GetAssetContract(const OTIdentifier & theContractID);
 EXPORT	OTAssetContract *	GetAssetContractPartialMatch(const std::string PARTIAL_ID);	
 	// --------------------------------------------------------
-	bool VerifyAssetAccount(OTPseudonym & theNym, 
-							OTAccount & theAcct, 
-							const OTIdentifier & SERVER_ID,
-							const OTString & strAcctID,
-							const char * szFuncName =NULL);	
+        bool VerifyAssetAccount(OTPseudonym & theNym, 
+                                OTAccount & theAcct, 
+                                const OTIdentifier & SERVER_ID,
+                                const OTString & strAcctID,
+                                const char * szFuncName =NULL);	
 	// --------------------------------------------------------
 EXPORT	OTAccount * GetAccount(const OTIdentifier & theAccountID);
 EXPORT	OTAccount * GetAccountPartialMatch(const std::string PARTIAL_ID);
+	// --------------------------------------------------------
+EXPORT	OTAccount * GetIssuerAccount(const OTIdentifier & theAssetTypeID);
+	// --------------------------------------------------------
 
 	// While waiting on server response to a withdrawal, we keep the private coin
 	// data here so we can unblind the response.
 	// This information is so important (as important as the digital cash token
 	// itself, until the unblinding is done) that we need to save the file right away.
 EXPORT	void AddPendingWithdrawal(const OTPurse & thePurse);
-	void RemovePendingWithdrawal();
-	inline OTPurse * GetPendingWithdrawal() const { return m_pWithdrawalPurse; }
-	
+        void RemovePendingWithdrawal();
+        inline OTPurse * GetPendingWithdrawal() const { return m_pWithdrawalPurse; }
+    // --------------------------------------------------------
 EXPORT	bool LoadWallet(const char * szFilename);
 EXPORT	bool SaveWallet(const char * szFilename=NULL);
-	bool SaveContract(OTString & strContract); // For saving the wallet to a string.
+        bool SaveContract(OTString & strContract); // For saving the wallet to a string.
 
 EXPORT	bool SignContractWithFirstNymOnList(OTContract & theContract);
-	
 	// ----------------------------------------------------
 	
-	
+    // --------------------------------------------------------
 	// These functions are low-level. They don't check for dependent data before deleting,
 	// and they don't save the wallet after they do.
 	//
 	// (You have to handle that at a higher level.)
 	
-EXPORT	bool RemoveAssetContract(const OTIdentifier & theTargetID);
+EXPORT	bool RemoveAssetContract (const OTIdentifier & theTargetID);
 EXPORT	bool RemoveServerContract(const OTIdentifier & theTargetID);
 	
 	// higher level version of these two will require a server message, 
 	// in addition to removing from wallet. (To delete them on server side.)
 	//
 EXPORT	bool RemoveAccount(const OTIdentifier & theTargetID);
-EXPORT	bool RemoveNym(const OTIdentifier & theTargetID);
+EXPORT	bool RemoveNym    (const OTIdentifier & theTargetID);
+    // --------------------------------------------------------
+
 };
 
 #endif // __OTWALLET_H__

@@ -905,6 +905,10 @@ public class otapi implements otapiConstants {
     return otapiJNI.OT_API_withdrawVoucher(SERVER_ID, USER_ID, ACCT_ID, RECIPIENT_USER_ID, CHEQUE_MEMO, AMOUNT);
   }
 
+  public static int OT_API_payDividend(String SERVER_ID, String ISSUER_USER_ID, String DIVIDEND_FROM_ACCT_ID, String SHARES_ASSET_TYPE_ID, String DIVIDEND_MEMO, String AMOUNT_PER_SHARE) {
+    return otapiJNI.OT_API_payDividend(SERVER_ID, ISSUER_USER_ID, DIVIDEND_FROM_ACCT_ID, SHARES_ASSET_TYPE_ID, DIVIDEND_MEMO, AMOUNT_PER_SHARE);
+  }
+
   public static int OT_API_depositCheque(String SERVER_ID, String USER_ID, String ACCT_ID, String THE_CHEQUE) {
     return otapiJNI.OT_API_depositCheque(SERVER_ID, USER_ID, ACCT_ID, THE_CHEQUE);
   }

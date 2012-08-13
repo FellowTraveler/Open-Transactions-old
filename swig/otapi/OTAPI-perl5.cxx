@@ -15599,6 +15599,90 @@ XS(_wrap_OT_API_withdrawVoucher) {
 }
 
 
+XS(_wrap_OT_API_payDividend) {
+  {
+    char *arg1 = (char *) 0 ;
+    char *arg2 = (char *) 0 ;
+    char *arg3 = (char *) 0 ;
+    char *arg4 = (char *) 0 ;
+    char *arg5 = (char *) 0 ;
+    char *arg6 = (char *) 0 ;
+    int res1 ;
+    char *buf1 = 0 ;
+    int alloc1 = 0 ;
+    int res2 ;
+    char *buf2 = 0 ;
+    int alloc2 = 0 ;
+    int res3 ;
+    char *buf3 = 0 ;
+    int alloc3 = 0 ;
+    int res4 ;
+    char *buf4 = 0 ;
+    int alloc4 = 0 ;
+    int res5 ;
+    char *buf5 = 0 ;
+    int alloc5 = 0 ;
+    int res6 ;
+    char *buf6 = 0 ;
+    int alloc6 = 0 ;
+    int argvi = 0;
+    int result;
+    dXSARGS;
+    
+    if ((items < 6) || (items > 6)) {
+      SWIG_croak("Usage: OT_API_payDividend(SERVER_ID,ISSUER_USER_ID,DIVIDEND_FROM_ACCT_ID,SHARES_ASSET_TYPE_ID,DIVIDEND_MEMO,AMOUNT_PER_SHARE);");
+    }
+    res1 = SWIG_AsCharPtrAndSize(ST(0), &buf1, NULL, &alloc1);
+    if (!SWIG_IsOK(res1)) {
+      SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "OT_API_payDividend" "', argument " "1"" of type '" "char const *""'");
+    }
+    arg1 = reinterpret_cast< char * >(buf1);
+    res2 = SWIG_AsCharPtrAndSize(ST(1), &buf2, NULL, &alloc2);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "OT_API_payDividend" "', argument " "2"" of type '" "char const *""'");
+    }
+    arg2 = reinterpret_cast< char * >(buf2);
+    res3 = SWIG_AsCharPtrAndSize(ST(2), &buf3, NULL, &alloc3);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "OT_API_payDividend" "', argument " "3"" of type '" "char const *""'");
+    }
+    arg3 = reinterpret_cast< char * >(buf3);
+    res4 = SWIG_AsCharPtrAndSize(ST(3), &buf4, NULL, &alloc4);
+    if (!SWIG_IsOK(res4)) {
+      SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "OT_API_payDividend" "', argument " "4"" of type '" "char const *""'");
+    }
+    arg4 = reinterpret_cast< char * >(buf4);
+    res5 = SWIG_AsCharPtrAndSize(ST(4), &buf5, NULL, &alloc5);
+    if (!SWIG_IsOK(res5)) {
+      SWIG_exception_fail(SWIG_ArgError(res5), "in method '" "OT_API_payDividend" "', argument " "5"" of type '" "char const *""'");
+    }
+    arg5 = reinterpret_cast< char * >(buf5);
+    res6 = SWIG_AsCharPtrAndSize(ST(5), &buf6, NULL, &alloc6);
+    if (!SWIG_IsOK(res6)) {
+      SWIG_exception_fail(SWIG_ArgError(res6), "in method '" "OT_API_payDividend" "', argument " "6"" of type '" "char const *""'");
+    }
+    arg6 = reinterpret_cast< char * >(buf6);
+    result = (int)OT_API_payDividend((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5,(char const *)arg6);
+    ST(argvi) = SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(result)); argvi++ ;
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+    if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+    if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+    if (alloc5 == SWIG_NEWOBJ) delete[] buf5;
+    if (alloc6 == SWIG_NEWOBJ) delete[] buf6;
+    XSRETURN(argvi);
+  fail:
+    if (alloc1 == SWIG_NEWOBJ) delete[] buf1;
+    if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+    if (alloc3 == SWIG_NEWOBJ) delete[] buf3;
+    if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+    if (alloc5 == SWIG_NEWOBJ) delete[] buf5;
+    if (alloc6 == SWIG_NEWOBJ) delete[] buf6;
+    SWIG_croak_null();
+  }
+}
+
+
 XS(_wrap_OT_API_depositCheque) {
   {
     char *arg1 = (char *) 0 ;
@@ -37213,6 +37297,7 @@ static swig_command_info swig_commands[] = {
 {"otapic::OT_API_processInbox", _wrap_OT_API_processInbox},
 {"otapic::OT_API_processNymbox", _wrap_OT_API_processNymbox},
 {"otapic::OT_API_withdrawVoucher", _wrap_OT_API_withdrawVoucher},
+{"otapic::OT_API_payDividend", _wrap_OT_API_payDividend},
 {"otapic::OT_API_depositCheque", _wrap_OT_API_depositCheque},
 {"otapic::OT_API_depositPaymentPlan", _wrap_OT_API_depositPaymentPlan},
 {"otapic::OT_API_issueMarketOffer", _wrap_OT_API_issueMarketOffer},
@@ -37928,43 +38013,43 @@ XS(SWIG_init) {
     SvREADONLY_on(sv);
   }
   
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\perl5\perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "OTPASSWORD_BLOCKSIZE", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(128)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\perl5\perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "OTPASSWORD_MEMSIZE", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(129)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\perl5\perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "OT_LARGE_BLOCKSIZE", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(32767)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\perl5\perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "OT_LARGE_MEMSIZE", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(32768)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\perl5\perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "OT_DEFAULT_BLOCKSIZE", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(128)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\perl5\perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "OT_DEFAULT_MEMSIZE", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(129)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
   SWIG_TypeClientData(SWIGTYPE_p_OTPasswordData, (void*) "otapi::OTPasswordData");
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\perl5\perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "OTPassword_DEFAULT_SIZE", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTPassword::DEFAULT_SIZE)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\perl5\perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "OTPassword_LARGER_SIZE", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTPassword::LARGER_SIZE)));
     SvREADONLY_on(sv);
@@ -37972,152 +38057,152 @@ XS(SWIG_init) {
   SWIG_TypeClientData(SWIGTYPE_p_OTPassword, (void*) "otapi::OTPassword");
   SWIG_TypeClientData(SWIGTYPE_p_OTCallback, (void*) "otapi::OTCallback");
   SWIG_TypeClientData(SWIGTYPE_p_OTCaller, (void*) "otapi::OTCaller");
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\perl5\perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "PACK_MESSAGE_PACK", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::PACK_MESSAGE_PACK)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\perl5\perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "PACK_PROTOCOL_BUFFERS", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::PACK_PROTOCOL_BUFFERS)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\perl5\perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "PACK_TYPE_ERROR", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::PACK_TYPE_ERROR)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\perl5\perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORE_FILESYSTEM", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORE_FILESYSTEM)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\perl5\perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORE_TYPE_SUBCLASS", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORE_TYPE_SUBCLASS)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\perl5\perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_STRING", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_STRING)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\perl5\perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_BLOB", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_BLOB)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\perl5\perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_STRING_MAP", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_STRING_MAP)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\perl5\perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_WALLET_DATA", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_WALLET_DATA)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\perl5\perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_BITCOIN_ACCT", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_BITCOIN_ACCT)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\perl5\perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_BITCOIN_SERVER", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_BITCOIN_SERVER)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\perl5\perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_RIPPLE_SERVER", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_RIPPLE_SERVER)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\perl5\perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_LOOM_SERVER", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_LOOM_SERVER)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\perl5\perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_SERVER_INFO", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_SERVER_INFO)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\perl5\perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_CONTACT_NYM", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_CONTACT_NYM)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\perl5\perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_CONTACT_ACCT", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_CONTACT_ACCT)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\perl5\perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_CONTACT", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_CONTACT)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\perl5\perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_ADDRESS_BOOK", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_ADDRESS_BOOK)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\perl5\perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_MARKET_DATA", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_MARKET_DATA)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\perl5\perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_MARKET_LIST", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_MARKET_LIST)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\perl5\perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_BID_DATA", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_BID_DATA)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\perl5\perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_ASK_DATA", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_ASK_DATA)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\perl5\perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_OFFER_LIST_MARKET", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_OFFER_LIST_MARKET)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\perl5\perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_TRADE_DATA_MARKET", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_TRADE_DATA_MARKET)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\perl5\perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_TRADE_LIST_MARKET", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_TRADE_LIST_MARKET)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\perl5\perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_OFFER_DATA_NYM", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_OFFER_DATA_NYM)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\perl5\perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_OFFER_LIST_NYM", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_OFFER_LIST_NYM)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\perl5\perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_TRADE_DATA_NYM", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_TRADE_DATA_NYM)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\perl5\perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_TRADE_LIST_NYM", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_TRADE_LIST_NYM)));
     SvREADONLY_on(sv);
   } while(0) /*@SWIG@*/;
-  /*@SWIG:C:\Users\Cameron Garnham\Documents\dev\swigwin-2.0.7\Lib\perl5\perltypemaps.swg,65,%set_constant@*/ do {
+  /*@SWIG:/usr/local/Cellar/swig/2.0.7/share/swig/2.0.7/perl5/perltypemaps.swg,65,%set_constant@*/ do {
     SV *sv = get_sv((char*) SWIG_prefix "STORED_OBJ_ERROR", TRUE | 0x2 | GV_ADDMULTI);
     sv_setsv(sv, SWIG_From_int  SWIG_PERL_CALL_ARGS_1(static_cast< int >(OTDB::STORED_OBJ_ERROR)));
     SvREADONLY_on(sv);

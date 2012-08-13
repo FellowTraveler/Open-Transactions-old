@@ -11183,11 +11183,11 @@ int OT_API_processNymbox(const char * SERVER_ID,
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
 int OT_API_withdrawVoucher(const char * SERVER_ID,
-							const char * USER_ID,
-							const char * ACCT_ID,
-							const char * RECIPIENT_USER_ID,
-							const char * CHEQUE_MEMO,
-							const char * AMOUNT)
+                           const char * USER_ID,
+                           const char * ACCT_ID,
+                           const char * RECIPIENT_USER_ID,
+                           const char * CHEQUE_MEMO,
+                           const char * AMOUNT)
 {
 	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_withdrawVoucher: Null SERVER_ID passed in.");
 	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_withdrawVoucher: Null USER_ID passed in.");
@@ -11197,11 +11197,44 @@ int OT_API_withdrawVoucher(const char * SERVER_ID,
 	OT_ASSERT_MSG(NULL != AMOUNT, "OT_API_withdrawVoucher: Null AMOUNT passed in.");
 	
 	OTIdentifier	theServerID(SERVER_ID),	theUserID(USER_ID), 
-					theAcctID(ACCT_ID),		theRecipientUserID(RECIPIENT_USER_ID);
-
+                    theAcctID(ACCT_ID),		theRecipientUserID(RECIPIENT_USER_ID);
+    
 	OTString strMemo(CHEQUE_MEMO), strAmount(AMOUNT);
-
+    
 	return OT_API::It().withdrawVoucher(theServerID, theUserID, theAcctID, theRecipientUserID, strMemo, strAmount);
+}
+
+
+/// PAY DIVIDEND -- to shareholders
+///
+int OT_API_payDividend(const char * SERVER_ID,
+                       const char * ISSUER_USER_ID,           // must be issuer of SHARES_ASSET_TYPE_ID
+                       const char * DIVIDEND_FROM_ACCT_ID,    // if dollars paid for pepsi shares, then this is the issuer's dollars account.
+                       const char * SHARES_ASSET_TYPE_ID,     // if dollars paid for pepsi shares, then this is the pepsi shares asset type id.
+                       const char * DIVIDEND_MEMO,            // user-configurable note that's added to the payout request message.
+                       const char * AMOUNT_PER_SHARE) // number of dollars to be paid out PER SHARE (multiplied by total number of shares issued.)
+{
+	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_payDividend: Null SERVER_ID passed in.");
+	OT_ASSERT_MSG(NULL != ISSUER_USER_ID, "OT_API_payDividend: Null ISSUER_USER_ID passed in.");
+	OT_ASSERT_MSG(NULL != DIVIDEND_FROM_ACCT_ID, "OT_API_payDividend: Null DIVIDEND_FROM_ACCT_ID passed in.");
+	OT_ASSERT_MSG(NULL != SHARES_ASSET_TYPE_ID, "OT_API_payDividend: Null SHARES_ASSET_TYPE_ID passed in.");
+	OT_ASSERT_MSG(NULL != DIVIDEND_MEMO, "OT_API_payDividend: Null DIVIDEND_MEMO passed in.");
+	OT_ASSERT_MSG(NULL != AMOUNT_PER_SHARE, "OT_API_payDividend: Null AMOUNT_PER_SHARE passed in.");
+	
+	OTIdentifier	theServerID           (SERVER_ID),                         
+                    theIssuerUserID       (ISSUER_USER_ID), 
+                    theDividendFromAcctID (DIVIDEND_FROM_ACCT_ID),	
+                    theSharesAssetTypeID  (SHARES_ASSET_TYPE_ID);
+    
+	OTString  strMemo  (DIVIDEND_MEMO), 
+              strAmount(AMOUNT_PER_SHARE);
+    
+	return OT_API::It().payDividend(theServerID, 
+                                    theIssuerUserID, 
+                                    theDividendFromAcctID, 
+                                    theSharesAssetTypeID, 
+                                    strMemo, 
+                                    strAmount);
 }
 
 
@@ -11224,8 +11257,11 @@ int OT_API_depositCheque(const char * SERVER_ID,
 	OT_ASSERT_MSG(NULL != ACCT_ID, "OT_API_depositCheque: Null ACCT_ID passed in.");
 	OT_ASSERT_MSG(NULL != THE_CHEQUE, "OT_API_depositCheque: Null THE_CHEQUE passed in.");
 	
-	OTIdentifier theServerID(SERVER_ID), theUserID(USER_ID), theAcctID(ACCT_ID);
-	OTString strCheque(THE_CHEQUE);
+	OTIdentifier theServerID(SERVER_ID), 
+                 theUserID(USER_ID), 
+                 theAcctID(ACCT_ID);
+    
+	OTString     strCheque(THE_CHEQUE);
 	
 	return OT_API::It().depositCheque(theServerID, theUserID, theAcctID, strCheque);
 }
@@ -11399,7 +11435,7 @@ int OT_API_issueMarketOffer(const char * SERVER_ID,
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
 int OT_API_getMarketList(const char * SERVER_ID,
-						  const char * USER_ID) 
+                         const char * USER_ID) 
 {
 	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_getMarketList: Null SERVER_ID passed in.");
 	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_getMarketList: Null USER_ID passed in.");
@@ -11421,9 +11457,9 @@ int OT_API_getMarketList(const char * SERVER_ID,
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
 int OT_API_getMarketOffers(const char * SERVER_ID,
-							const char * USER_ID,
-							const char * MARKET_ID, 
-							const char * MAX_DEPTH) 
+                           const char * USER_ID,
+                           const char * MARKET_ID, 
+                           const char * MAX_DEPTH) 
 {
 	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_getMarketOffers: Null SERVER_ID passed in.");
 	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_getMarketOffers: Null USER_ID passed in.");
@@ -11449,8 +11485,8 @@ int OT_API_getMarketOffers(const char * SERVER_ID,
 ///  ===> In 99% of cases, this LAST option is what actually happens!!
 ///
 int OT_API_getMarketRecentTrades(const char * SERVER_ID,
-								  const char * USER_ID,
-								  const char * MARKET_ID) 
+                                 const char * USER_ID,
+                                 const char * MARKET_ID) 
 {
 	OT_ASSERT_MSG(NULL != SERVER_ID, "OT_API_getMarketRecentTrades: Null SERVER_ID passed in.");
 	OT_ASSERT_MSG(NULL != USER_ID, "OT_API_getMarketRecentTrades: Null USER_ID passed in.");

@@ -273,6 +273,7 @@ package otapi;
 *OT_API_processInbox = *otapic::OT_API_processInbox;
 *OT_API_processNymbox = *otapic::OT_API_processNymbox;
 *OT_API_withdrawVoucher = *otapic::OT_API_withdrawVoucher;
+*OT_API_payDividend = *otapic::OT_API_payDividend;
 *OT_API_depositCheque = *otapic::OT_API_depositCheque;
 *OT_API_depositPaymentPlan = *otapic::OT_API_depositPaymentPlan;
 *OT_API_issueMarketOffer = *otapic::OT_API_issueMarketOffer;

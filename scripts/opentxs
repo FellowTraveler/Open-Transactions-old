@@ -176,12 +176,13 @@ def main_opentxs()
                          "voucher":main_withdraw_voucher,       // withdraw a voucher (cashier's cheque).
                          "withdraw":main_withdraw_cash,         // withdraw cash (from acct on server to local purse.)
                          "deposit":main_deposit,                // deposit cash purse, cheque, voucher, or invoice.
+                         "paydividend":main_pay_dividend,       // dividend payout, sent to all shareholders in voucher form.
                          "showacct":main_stat_acct,             // show account stats for a single account.
                          "showmint":main_show_mint,             // show a mint file for specific asset ID. Download if necessary.
                          "showpurse":main_show_purse,           // show contents of cash purse.
                          "showbaskets":main_not_coded_yet,      // show basket currencies issued on a particular server.
-                         "showoffers":main_not_coded_yet,       // show all offers on a particular server and market.
-                         "showmyoffers":main_not_coded_yet,     // show mynym's offers on a particular server and market.
+                         "showoffers":main_show_market_offers,  // show all offers on a particular server and market.
+                         "showmyoffers":main_show_nym_offers,   // show mynym's offers on a particular server and market.
                          "shownyms":stat_nyms,                  // show the nyms in the wallet.
                          "shownym":main_nym_stat,               // show the statistics for a specific nym.
                          "showaccounts":stat_accounts,          // show the asset accounts in the wallet.
@@ -194,6 +195,10 @@ def main_opentxs()
                          "activate":main_not_coded_yet,         // activate a smart contract or payment plan.
                          "confirm":main_not_coded_yet,          // confirm your agreement to a smart contract or payment plan.
                          "getcontract":main_download_contract,  // download an asset or server contract by its ID.
+                         "getmarkets":main_get_market_list,     // download the list of markets.
+                         "showmarkets":main_show_market_list,   // display the list of markets.
+                         "getoffers":main_get_market_offers,    // download the list of market offers.
+                         "getmyoffers":main_get_nym_market_offers,// download the list of market offers placed by mynym.
                          "refresh":main_dl_acct_files,          // download latest intermediary files for myacct.
                          "refreshnym":main_refresh_nym,         // download latest intermediary files for mynym.
                          "inbox":main_show_inbox,               // display inbox of a particular account.
@@ -242,6 +247,7 @@ def main_opentxs()
                          "voucher":                             "withdraw a voucher (cashier's cheque).",
                          "withdraw":                            "withdraw cash. (From acct on server into local purse.)",
                          "deposit":                             "deposit cash, cheque, voucher, or tokens.",
+                         "paydividend":                         "dividend payout, sent to all shareholders (in voucher form.)",
                          "showacct":                            "show account stats for a single account.",
                          "showmint":                            "show a mint file for specific asset ID. Download if necessary.",
                          "showpurse":                           "show contents of cash purse.",
@@ -260,6 +266,10 @@ def main_opentxs()
                          "activate":                            "activate a smart contract or payment plan.",
                          "confirm":                             "confirm your agreement to a smart contract or payment plan.",
                          "getcontract":                         "download an asset or server contract by its ID.",
+                         "getmarkets":                          "download the list of markets.",
+                         "showmarkets":                         "display the list of markets.",
+                         "getoffers":                           "download the list of market offers.",
+                         "getmyoffers":                         "download mynym's list of market offers.",
                          "refresh":                             "download latest intermediary files for myacct.",
                          "refreshnym":                          "download latest intermediary files for mynym.",
                          "inbox":                               "display inbox of a particular account.",

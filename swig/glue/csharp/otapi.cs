@@ -1131,6 +1131,11 @@ public class otapi {
     return ret;
   }
 
+  public static int OT_API_payDividend(string SERVER_ID, string ISSUER_USER_ID, string DIVIDEND_FROM_ACCT_ID, string SHARES_ASSET_TYPE_ID, string DIVIDEND_MEMO, string AMOUNT_PER_SHARE) {
+    int ret = otapiPINVOKE.OT_API_payDividend(SERVER_ID, ISSUER_USER_ID, DIVIDEND_FROM_ACCT_ID, SHARES_ASSET_TYPE_ID, DIVIDEND_MEMO, AMOUNT_PER_SHARE);
+    return ret;
+  }
+
   public static int OT_API_depositCheque(string SERVER_ID, string USER_ID, string ACCT_ID, string THE_CHEQUE) {
     int ret = otapiPINVOKE.OT_API_depositCheque(SERVER_ID, USER_ID, ACCT_ID, THE_CHEQUE);
     return ret;

@@ -949,15 +949,15 @@ bool OT_API::LoadConfigFile()
 	OTString strConfigPath, strConfigFilename, strConfigFilePath;
 
 	if (!OTLog::Path_GetConfigFolder(strConfigPath)) {
-		OTLog::vError("%s: Error! Unable To Get Config Folder!\n",szFunc);
+		OTLog::vError("%s: Error! Unable To get config folder!\n",szFunc);
 		return false;
 	};
 	if (!OTLog::GetMainConfigFilename(strConfigFilename)) {
-		OTLog::vError("%s: Error! Unable to get Main Config Filename!\n",szFunc);
+		OTLog::vError("%s: Error! Unable to get main config filename!\n",szFunc);
 		return false;
 	};
 	if (!OTLog::Path_RelativeToCanonical(strConfigFilePath,strConfigPath,strConfigFilename)) {
-		OTLog::vError("%s: Error! Unable to Build Config FilePath\n!",szFunc);
+		OTLog::vError("%s: Error! Unable to build config filepath\n!",szFunc);
 		return false;
 	};
 
@@ -965,7 +965,7 @@ bool OT_API::LoadConfigFile()
 
 	// check if config file exists:
 	if (!OTLog::ConfirmExactFile(strConfigFilePath)){
-		OTLog::vOutput(0,"%s:  Config File Dosn't Exists ... Making it...\n Saved in: %s\n",szFunc,strConfigFilePath.Get());
+		OTLog::vOutput(1,"%s:  Config File doesn't exist ... Making it...\n Saved in: %s\n",szFunc,strConfigFilePath.Get());
 
 		rc = OTLog::Config_Save(strConfigFilePath);
 		OT_ASSERT_MSG(rc >=0, "OT_API::LoadConfigFile(): Assert failed: Unable to save new configuration file!\n");
@@ -1020,11 +1020,11 @@ bool OT_API::LoadConfigFile()
 		if (!bIsRelative) strFullPath = strValue;
 		else if (!OTLog::Path_RelativeToCanonical(strFullPath,strConfigPath,strValue)) return false;
 
-		OTLog::vOutput(0,"%s: Setting Data Path to: %s\n",szFunc,strFullPath.Get());
+		OTLog::vOutput(1,"%s: Setting Data Path to: %s\n",szFunc,strFullPath.Get());
 		if (!OTLog::Path_SetDataFolder(strFullPath)) return false;
 		if (!OTLog::ConfirmOrCreateExactFolder(strFullPath,bFolderExist)) return false;
 
-		if (!bFolderExist) OTLog::vOutput(0,"%s: Created New Data Folder: %s",szFunc,strFullPath.Get());
+		if (!bFolderExist) OTLog::vOutput(0,"%s: Created new data folder: %s",szFunc,strFullPath.Get());
 	}
 
 	// ---------------------------------------------
@@ -1038,7 +1038,7 @@ bool OT_API::LoadConfigFile()
 		OTString strValue;
 		OTLog::Config_CheckSet_str("wallet","wallet_filename",CLIENT_WALLET_FILENAME,strValue,bIsNewKey);
 		OT_API::SetWalletFilename(strValue);
-		OTLog::vOutput(0,"Using Wallet: %s\n",strValue.Get());
+		OTLog::vOutput(1,"Using Wallet: %s\n",strValue.Get());
 	}
 
 	// -----------------------------------
@@ -1207,7 +1207,7 @@ bool OT_API::InitOTAPI()
 	/* The Winsock DLL is acceptable. Proceed to use it. */
 	/* Add network programming using Winsock here */
 	/* then call WSACleanup when done using the Winsock dll */
-	OTLog::vOutput(0,"The Winsock 2.2 dll was found okay\n");
+	OTLog::vOutput(1,"The Winsock 2.2 dll was found okay\n");
 #endif
     // ------------------------------------
     // SIGNALS
@@ -1339,17 +1339,19 @@ bool OT_API::SetWallet(const OTString & strFilename) {
 
 	OT_ASSERT_MSG((m_bInitialized),"OT_API::SetWalletFilename: Not initialized; call OT_API::Init first.\n");
 
-	OT_ASSERT_MSG(strFilename.Exists(),"OT_API::SetWalletFilename: strFilename dose not exist!\n");
-	OT_ASSERT_MSG((3 < strFilename.GetLength()),"OT_API::SetWalletFilename: strFilename is too short!\n");
+	OT_ASSERT_MSG(strFilename.Exists(),"OT_API::SetWalletFilename: strFilename does not exist.\n");
+	OT_ASSERT_MSG((3 < strFilename.GetLength()),"OT_API::SetWalletFilename: strFilename is too short.\n");
 
 	// Set New Wallet Filename
 	OTLog::vOutput(0,"%s: Setting Wallet Filename... \n",szFunc);
 	OTString strWalletFilename; OT_API::GetWalletFilename(strWalletFilename);
-	if (strFilename.Compare(strWalletFilename)) {
-		OTLog::vOutput(0, "%s: Wallet Filename: %s  is same as in configuration. (skipping)\n",szFunc,strFilename.Get());
+	if (strFilename.Compare(strWalletFilename)) 
+    {
+		OTLog::vOutput(1, "%s: Wallet Filename: %s  is same as in configuration. (skipping)\n",szFunc,strFilename.Get());
 		return true;
 	}
-	else strWalletFilename.Set(strWalletFilename);
+	else 
+        strWalletFilename.Set(strWalletFilename);
 
 	SI_Error rc = SI_FAIL;
 
@@ -1360,20 +1362,20 @@ bool OT_API::SetWallet(const OTString & strFilename) {
 	OT_ASSERT_MSG(rc >=0, "OTServer::LoadConfigFile(): Assert failed: Unable to load config file, file unloadable\n");
 
 	// Set New Wallet Filename
-	{ bool bNewOrUpdated; 
-	OTLog::Config_Set_str("wallet","wallet_filename",strWalletFilename,bNewOrUpdated,"; Wallet Updated\n"); }
+	bool bNewOrUpdated; 
+	OTLog::Config_Set_str("wallet","wallet_filename",strWalletFilename,bNewOrUpdated,"; Wallet updated\n");
 
 	OT_API::SetWalletFilename(strWalletFilename);
 
 	// Save Config and cleanup
 	rc = OTLog::Config_Save(strConfigFilePath);
-	OT_ASSERT_MSG(rc >=0, "OTServer::LoadConfigFile(): Assert failed: Unable to Save Configuration");
+	OT_ASSERT_MSG(rc >=0, "OTServer::LoadConfigFile(): Assert failed: Unable to save configuration");
 	if (!OTLog::Config_Reset()) return false;
 
-	OTLog::vOutput(0,"%s: Updated Wallet Filename: %s \n",szFunc,strWalletFilename.Get());
+	OTLog::vOutput(0,"%s: Updated Wallet filename: %s \n",szFunc,strWalletFilename.Get());
 
 	return true;
-};
+}
 
 
 bool OT_API::LoadWallet()
@@ -1389,10 +1391,10 @@ bool OT_API::LoadWallet()
 	OT_ASSERT_MSG(bGetWalletFilenameSuccess, "OT_API::GetWalletFilename failed, wallet filename isn't set!");
 
 	// Atempt Load
-	OTLog::vOutput(0,"m_pWallet->LoadWallet() with: %s\n", strWalletFilename.Get());
+	OTLog::vOutput(2,"m_pWallet->LoadWallet() with: %s\n", strWalletFilename.Get());
 	bool bSuccess = m_pWallet->LoadWallet(strWalletFilename.Get());
 
-	if (bSuccess) OTLog::vOutput(0, "%s: Success invoking m_pWallet->LoadWallet() with filename: %s\n", 
+	if (bSuccess) OTLog::vOutput(2, "%s: Success invoking m_pWallet->LoadWallet() with filename: %s\n", 
 							   szFunc, strWalletFilename.Get());
 	else OTLog::vError("%s: Failed invoking m_pWallet->LoadWallet() with filename: %s\n", 
 							  szFunc, strWalletFilename.Get());
@@ -6086,6 +6088,270 @@ int OT_API::notarizeDeposit(OTIdentifier	& SERVER_ID,
 
 
 
+// Let's pretend you are paying a dollar dividend for Pepsi shares...
+// Therefore ACCT_ID needs to be a dollar account, and SHARES_ASSET_ID needs
+// to be the Pepsi asset type ID. (NOT the dollar asset type ID...)
+//
+int OT_API::payDividend(OTIdentifier	& SERVER_ID,
+                        OTIdentifier	& ISSUER_USER_ID,           // must be issuer of SHARES_ASSET_TYPE_ID
+                        OTIdentifier	& DIVIDEND_FROM_ACCT_ID,    // if dollars paid for pepsi shares, then this is the issuer's dollars account.
+                        OTIdentifier	& SHARES_ASSET_TYPE_ID,     // if dollars paid for pepsi shares, then this is the pepsi shares asset type id.
+                        OTString        & DIVIDEND_MEMO,            // a message attached to the payout request.
+                        OTString		& AMOUNT_PER_SHARE) // number of dollars to be paid out PER SHARE (multiplied by total number of shares issued.)
+{
+	const char * szFuncName = "OT_API::payDividend";
+	// -----------------------------------------------------
+	OTPseudonym * pNym = this->GetOrLoadPrivateNym(ISSUER_USER_ID, szFuncName); // These copiously log, and ASSERT.
+	if (NULL == pNym) return (-1);
+	// By this point, pNym is a good pointer, and is on the wallet. (No need to cleanup.)
+	// -----------------------------------------------------
+	OTServerContract *	pServer = this->GetServer(SERVER_ID, szFuncName); // This ASSERTs and logs already.
+	if (NULL == pServer) return (-1);
+	// By this point, pServer is a good pointer.  (No need to cleanup.)
+	// -----------------------------------------------------
+	OTAccount * pDividendSourceAccount = this->GetOrLoadAccount(*pNym, DIVIDEND_FROM_ACCT_ID, SERVER_ID, szFuncName);
+	if (NULL == pDividendSourceAccount) return (-1);
+	// By this point, pDividendSourceAccount is a good pointer, and is on the wallet. (No need to cleanup.)
+	// -----------------------------------------------------
+	OTAssetContract * pSharesContract = this->GetAssetType(SHARES_ASSET_TYPE_ID, szFuncName); // This ASSERTs and logs already.
+	if (NULL == pSharesContract) return (-1);
+	// By this point, pSharesContract is a good pointer.  (No need to cleanup.)
+	// -----------------------------------------------------
+	OTWallet * pWallet = GetWallet(szFuncName); // This logs and ASSERTs already.
+	if (NULL == pWallet) return (-1);
+	// -----------------------------------------------------
+    OTAccount * pSharesIssuerAcct = pWallet->GetIssuerAccount(SHARES_ASSET_TYPE_ID);
+
+	if (NULL == pSharesIssuerAcct)
+    {
+        OTLog::vError("%s: Failure: Unable to find issuer account for the shares asset type. "
+                      "Are you sure you're the issuer?\n", szFuncName);
+        return (-1);
+    }
+    const OTIdentifier SHARES_ISSUER_ACCT_ID(*pSharesIssuerAcct);
+    // -----------------------------------------------------
+	if (!pDividendSourceAccount->VerifyOwner(*pNym))
+    {
+        OTLog::vError("%s: Failure: Nym doesn't verify as owner of the source account for the dividend payout.\n", 
+                      szFuncName);
+        return (-1);
+    }
+    // -----------------------------------------------------
+	if (!pSharesIssuerAcct->VerifyOwner(*pNym))
+    {
+        OTLog::vError("%s: Failure: Nym doesn't verify as owner of issuer account for the shares "
+                      "(the shares we're paying the dividend on...)\n", 
+                      szFuncName);
+        return (-1);
+    }
+    // -----------------------------------------------------
+    OT_ASSERT_MSG(pSharesIssuerAcct->GetBalance() <= 0, "Assert (strange): issuer account should never have a higher-than-zero balance.\n");
+    
+	if (0 == pSharesIssuerAcct->GetBalance())
+    {
+        OTLog::vError("%s: Failure: There are no shares issued for that asset type. "
+                      "(Therefore you cannot pay any dividend...)\n", szFuncName);
+        return (-1);
+    }
+	// -----------------------------------------------------
+    const long lAmountPerShare      = atol(AMOUNT_PER_SHARE.Get());
+    
+    if (lAmountPerShare <= 0)
+    {
+        OTLog::vError("%s: Failure: The amount per share must be larger than zero.\n", szFuncName);
+        return (-1);
+    }
+    // -----------------------------------------------------
+    // If there are 100,000 Pepsi shares, then the Pepsi issuer acct will have -100,000 balance.
+    // Therefore we multiply by -1, resulting in 100,000. Then we multiple that by the amount to be
+    // paid per share, let's say $5, resulting in a lTotalCostOfDividend of $500,000 that must be
+    // available in the dollar account (in order to successfully pay this dividend.)
+    //
+    const long lTotalCostOfDividend = ((-1) * pSharesIssuerAcct->GetBalance()) * lAmountPerShare;
+	// -----------------------------------------------------    
+    // Let's make sure we have enough money in the dividend source account, to pay the total cost..
+    //
+    if (pDividendSourceAccount->GetBalance() < lTotalCostOfDividend)
+    {
+        OTLog::vError("%s: Failure: There's not enough (%ld) in the source account, to cover "
+                      "the total cost of the dividend (%ld.)\n", szFuncName, pDividendSourceAccount->GetBalance(),
+                      lTotalCostOfDividend);
+        return (-1);        
+    }
+	// -----------------------------------------------------    
+    OTMessage theMessage;
+		
+	OTString strServerID(SERVER_ID), strNymID(ISSUER_USER_ID), strFromAcct(DIVIDEND_FROM_ACCT_ID);
+	
+	long lStoredTransactionNumber=0;
+	bool bGotTransNum = pNym->GetNextTransactionNum(*pNym, strServerID, lStoredTransactionNumber);
+	
+	if (bGotTransNum)
+	{
+		// -----------------------------------------------------------------------
+		// Expiration (ignored by server -- it sets its own for its vouchers.)
+		const	time_t	VALID_FROM	= time(NULL); // This time is set to TODAY NOW
+		const	time_t	VALID_TO	= VALID_FROM + 15552000; // 6 months.
+		// -----------------------------------------------------------------------
+		// The server only uses the amount and asset type from this cheque when it
+		// constructs the actual voucher (to the dividend payee.) And remember there
+        // might be a hundred shareholders, so the server would create a hundred
+        // vouchers in that case.
+        //
+		OTCheque theRequestVoucher(SERVER_ID, SHARES_ASSET_TYPE_ID); // <====== Server needs this (SHARES_ASSET_TYPE_ID)
+
+		bool bIssueCheque = theRequestVoucher.IssueCheque(lAmountPerShare, // <====== Server needs this (lAmountPerShare.)
+                                                          lStoredTransactionNumber, // server actually ignores this and supplies its own transaction number for any vouchers.
+														  VALID_FROM, VALID_TO, SHARES_ISSUER_ACCT_ID, ISSUER_USER_ID, DIVIDEND_MEMO);
+        
+        /*
+         NOTE: The above cheque isn't actually USED for anything, except as a vehicle to send additional
+         data to the server. For example, the server will need to know the asset type ID for the shares.
+         It gets that information from this voucher's asset type ID. It will also need to know the amount-
+         per-share, which is also on this voucher, as its amount. The voucher code already does a similar
+         thing, and this code already copied the voucher code since they were so similar, so we're just
+         using the same mechanism here. It's consistent.
+         On the server side, we'll also need to know the issuer account ID for the shares asset type, so
+         we set that as the "from" account on the request voucher (again, just as a way of transmitting it.)
+         */
+		// --------------------------------------------------
+		OTLedger * pInbox	= pDividendSourceAccount->LoadInbox(*pNym);
+		OTLedger * pOutbox	= pDividendSourceAccount->LoadOutbox(*pNym);
+		
+		OTCleanup<OTLedger> theInboxAngel (pInbox );
+		OTCleanup<OTLedger> theOutboxAngel(pOutbox);
+		
+		if (NULL == pInbox)
+		{
+			OTLog::vOutput(0, "%s: Failed loading inbox for acct %s\n", szFuncName, strFromAcct.Get());
+			
+			// IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
+			pNym->AddTransactionNum(*pNym, strServerID, lStoredTransactionNumber, true); // bSave=true								
+		}
+		else if (NULL == pOutbox)
+		{
+			OTLog::vOutput(0, "%s: Failed loading outbox for acct %s\n", szFuncName, strFromAcct.Get());
+			
+			// IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
+			pNym->AddTransactionNum(*pNym, strServerID, lStoredTransactionNumber, true); // bSave=true								
+		}
+		else if (!bIssueCheque)
+		{
+			// IF FAILED, ADD TRANSACTION NUMBER BACK TO LIST OF AVAILABLE NUMBERS.
+			pNym->AddTransactionNum(*pNym, strServerID, lStoredTransactionNumber, true); // bSave=true								
+		}
+		else 
+		{
+			// Create a transaction
+			OTTransaction * pTransaction = OTTransaction::GenerateTransaction (ISSUER_USER_ID, DIVIDEND_FROM_ACCT_ID, SERVER_ID, 
+																			   OTTransaction::payDividend, lStoredTransactionNumber); 
+			// set up the transaction item (each transaction may have multiple items...)
+			OTItem * pItem		= OTItem::CreateItemFromTransaction(*pTransaction, OTItem::payDividend);
+			pItem->SetAmount(lTotalCostOfDividend); // <=== Notice, while the CHEQUE is for lAmountPerShare, the item's AMOUNT is set to lTotalCostOfDividend.
+			OTString strNote("Pay Dividend: ");     // The server just needs both of those, so that's how we send them (Similar to the voucher code.)
+			pItem->SetNote(strNote);
+			
+			// Add the voucher request string as the attachment on the transaction item.
+			theRequestVoucher.SignContract(*pNym);
+			theRequestVoucher.SaveContract();
+			OTString strVoucher(theRequestVoucher);
+			pItem->SetAttachment(strVoucher); // The voucher request is contained in the reference string.
+			
+			// sign the item
+			pItem->SignContract(*pNym);
+			pItem->SaveContract();
+			
+			pTransaction->AddItem(*pItem); // the Transaction's destructor will cleanup the item. It "owns" it now.
+			// ---------------------------------------------
+			// BALANCE AGREEMENT 
+			//
+			// The item is signed and saved within this call as well. No need to do that again.
+			OTItem * pBalanceItem = pInbox->GenerateBalanceStatement(lTotalCostOfDividend*(-1), *pTransaction, *pNym, *pDividendSourceAccount, *pOutbox);
+			
+            // Notice the balance agreement is made for the "total cost of the dividend", which we calculated as the issuer's
+            // account balance, times -1, times the amount per share. So for 100,000 shares of Pepsi, at a dividend payout of
+            // $2 per share, then $200,000 must be removed from my dollar account, in order to cover it. Therefore I sign a
+            // balance agreement for $200,000. The server removes it all at once, and then iterates through a loop, sending
+            // vouchers to people. If any fail, or there is any left over, then vouchers are sent back to pNym again, containing
+            // the difference.
+            // todo failsafe: We can't just loop, long-term, and send a voucher at the end. What if it crashes halfway through
+            // the loop? It seems that the dividend payout still needs to be "REGISTERED" somewhere until successfully completed.
+            // (And therefore, that this concept must be repeated throughout OT for other transactions, not just this example.)
+            // This is already done with Cron, but just thinking about how to best do it for "single action" transactions.
+            
+			if (NULL != pBalanceItem)
+				pTransaction->AddItem(*pBalanceItem); // Better not be NULL... message will fail... But better check anyway.
+			// ---------------------------------------------
+			// sign the transaction
+			pTransaction->SignContract(*pNym);
+			pTransaction->SaveContract();
+			
+			// set up the ledger
+			OTLedger theLedger(ISSUER_USER_ID, DIVIDEND_FROM_ACCT_ID, SERVER_ID);
+			theLedger.GenerateLedger(DIVIDEND_FROM_ACCT_ID, SERVER_ID, OTLedger::message); // bGenerateLedger defaults to false, which is correct.
+			theLedger.AddTransaction(*pTransaction);
+			
+			// sign the ledger
+			theLedger.SignContract(*pNym);
+			theLedger.SaveContract();
+			
+			// extract the ledger in ascii-armored form
+			OTString		strLedger(theLedger);
+			OTASCIIArmor	ascLedger(strLedger);
+			
+			long lRequestNumber = 0;
+			
+			// (0) Set up the REQUEST NUMBER and then INCREMENT IT
+			pNym->GetCurrentRequestNum(strServerID, lRequestNumber);
+			theMessage.m_strRequestNum.Format("%ld", lRequestNumber); // Always have to send this.
+			pNym->IncrementRequestNum(*pNym, strServerID); // since I used it for a server request, I have to increment it
+			
+			// (1) Set up member variables 
+			theMessage.m_strCommand			= "notarizeTransactions";
+			theMessage.m_strNymID			= strNymID;
+			theMessage.m_strServerID		= strServerID;
+            theMessage.SetAcknowledgments(*pNym); // Must be called AFTER theMessage.m_strServerID is already set. (It uses it.)
+
+			theMessage.m_strAcctID			= strFromAcct;
+			theMessage.m_ascPayload			= ascLedger;
+			
+            OTIdentifier NYMBOX_HASH;
+            const std::string str_server(strServerID.Get());
+            const bool bNymboxHash = pNym->GetNymboxHash(str_server, NYMBOX_HASH);
+            NYMBOX_HASH.GetString(theMessage.m_strNymboxHash);
+            
+            if (!bNymboxHash)
+                OTLog::vError("%s: Failed getting NymboxHash from Nym for server: %s\n",
+                              szFuncName, str_server.c_str());
+
+			// (2) Sign the Message 
+			theMessage.SignContract(*pNym);		
+			
+			// (3) Save the Message (with signatures and all, back to its internal member m_strRawFile.)
+			theMessage.SaveContract();
+			
+			// (Send it)
+#if defined(OT_ZMQ_MODE)
+			m_pClient->SetFocusToServerAndNym(*pServer, *pNym, &OT_API::TransportCallback);
+#endif	
+			m_pClient->ProcessMessageOut(theMessage);
+            
+            return m_pClient->CalcReturnVal(lRequestNumber);
+		}
+	}
+	else 
+		OTLog::vOutput(0, "%s: No Transaction Numbers were available. "
+                       "Suggest requesting the server for a new one.\n", szFuncName);
+    
+    return (-1);
+}
+
+
+
+
+
+
+
 int OT_API::withdrawVoucher(OTIdentifier	& SERVER_ID,
 							 OTIdentifier	& USER_ID,
 							 OTIdentifier	& ACCT_ID,
@@ -7534,8 +7800,9 @@ int OT_API::getMarketOffers(const OTIdentifier & SERVER_ID, const OTIdentifier &
 ///
 /// (So this function is not here to usurp that purpose.)
 ///
-int OT_API::getMarketRecentTrades(const OTIdentifier & SERVER_ID, const OTIdentifier & USER_ID, 
-								   const OTIdentifier & MARKET_ID)
+int OT_API::getMarketRecentTrades(const OTIdentifier & SERVER_ID,
+                                  const OTIdentifier & USER_ID, 
+                                  const OTIdentifier & MARKET_ID)
 {
 	const char * szFuncName = "OT_API::getMarketRecentTrades";
 	// -----------------------------------------------------

@@ -461,6 +461,21 @@ def OT_ME::withdraw_voucher(SERVER_ID, NYM_ID, ACCT_ID, RECIP_NYM_ID, STR_MEMO, 
 }
 // -----------------------------------------------------------------------------------------------
 
+// PAY DIVIDEND  -- TRANSACTION
+//
+def OT_ME::pay_dividend(SERVER_ID, NYM_ID, SOURCE_ACCT_ID, SHARES_ASSET_ID, STR_MEMO, STR_AMOUNT_PER_SHARE) 
+{
+    var ot_Msg := OTAPI_Func()
+    // -------------------------
+
+    var theRequest := OTAPI_Func(ot_Msg.PAY_DIVIDEND, SERVER_ID, NYM_ID, SOURCE_ACCT_ID, SHARES_ASSET_ID, STR_MEMO, STR_AMOUNT_PER_SHARE)
+    var	strResponse = theRequest.SendTransaction(theRequest, "PAY_DIVIDEND")
+    
+    return strResponse
+}
+// -----------------------------------------------------------------------------------------------
+
+
 def OT_ME::deposit_cheque(SERVER_ID, NYM_ID, ACCT_ID, STR_CHEQUE)
 {
     var ot_Msg := OTAPI_Func()
@@ -471,6 +486,53 @@ def OT_ME::deposit_cheque(SERVER_ID, NYM_ID, ACCT_ID, STR_CHEQUE)
     return strResponse
 }
 
+// -----------------------------------------------------------------------------------------------
+
+def OT_ME::get_market_list(SERVER_ID, NYM_ID)
+{
+    var ot_Msg := OTAPI_Func()
+    // ---------------------------------------------------
+    var theRequest := OTAPI_Func(ot_Msg.GET_MARKET_LIST, SERVER_ID, NYM_ID)
+    var strResponse = theRequest.SendRequest(theRequest, "GET_MARKET_LIST") // <========================
+    
+    return strResponse
+}
+
+//int OT_API_getMarketOffers(const char * SERVER_ID,
+//                           const char * USER_ID,
+//                           const char * MARKET_ID, 
+//                           const char * MAX_DEPTH) 
+
+def OT_ME::get_market_offers(SERVER_ID, NYM_ID, MARKET_ID, MAX_DEPTH)
+{
+    var ot_Msg := OTAPI_Func()
+    // ---------------------------------------------------
+    var theRequest := OTAPI_Func(ot_Msg.GET_MARKET_OFFERS, SERVER_ID, NYM_ID, MARKET_ID, MAX_DEPTH)
+    var strResponse = theRequest.SendRequest(theRequest, "GET_MARKET_OFFERS") // <========================
+    
+    return strResponse
+}
+
+def OT_ME::get_nym_market_offers(SERVER_ID, NYM_ID)
+{
+    var ot_Msg := OTAPI_Func()
+    // ---------------------------------------------------
+    var theRequest := OTAPI_Func(ot_Msg.GET_NYM_MARKET_OFFERS, SERVER_ID, NYM_ID)
+    var strResponse = theRequest.SendRequest(theRequest, "GET_NYM_MARKET_OFFERS") // <========================
+    
+    return strResponse
+}
+
+
+def OT_ME::get_market_recent_trades(SERVER_ID, NYM_ID, MARKET_ID)
+{
+    var ot_Msg := OTAPI_Func()
+    // ---------------------------------------------------
+    var theRequest := OTAPI_Func(ot_Msg.GET_MARKET_RECENT_TRADES, SERVER_ID, NYM_ID, MARKET_ID)
+    var strResponse = theRequest.SendRequest(theRequest, "GET_MARKET_RECENT_TRADES") // <========================
+    
+    return strResponse
+}
 
 
 // *****************************************************************************************************************************
@@ -1065,12 +1127,13 @@ def OT_ME::deposit_purse(SERVER_ID, NYM_ID, ACCT_ID, STR_PURSE)
 	attr OTAPI_Func::DELETE_ASSET_ACCT              
 	attr OTAPI_Func::EXCHANGE_BASKET                
 	attr OTAPI_Func::PROCESS_INBOX                  DONE
-	attr OTAPI_Func::DEPOSIT_CASH                   
+	attr OTAPI_Func::DEPOSIT_CASH                   DONE
 	attr OTAPI_Func::EXCHANGE_CASH                  
-	attr OTAPI_Func::DEPOSIT_CHEQUE                 
-	attr OTAPI_Func::WITHDRAW_VOUCHER               
-	attr OTAPI_Func::WITHDRAW_CASH                  
-	attr OTAPI_Func::GET_CONTRACT                   
+	attr OTAPI_Func::DEPOSIT_CHEQUE                 DONE
+	attr OTAPI_Func::WITHDRAW_VOUCHER               DONE
+    attr OTAPI_Func::WITHDRAW_CASH                  DONE
+    attr OTAPI_Func::PAY_DIVIDEND                   DONE
+	attr OTAPI_Func::GET_CONTRACT                   DONE
 	attr OTAPI_Func::SEND_TRANSFER                  DONE
 	attr OTAPI_Func::GET_MARKET_LIST                
 	attr OTAPI_Func::CREATE_MARKET_OFFER			DONE

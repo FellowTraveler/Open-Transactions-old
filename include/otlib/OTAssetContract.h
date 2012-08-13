@@ -145,25 +145,40 @@
 class OTBasket;
 class OTPseudonym;
 class OTString;
+class OTIdentifier;
+class OTAccount;
+
+class OTAcctFunctor; // defined below.
 
 class OTAssetContract : public OTContract 
 {
 protected:
+    // basket currencies only:
 	OTString	m_strBasketInfo;	// If this contract is for a basket currency, the OTBasket object is stored here.
 	
-	OTString m_strIssueCompany;
-	OTString m_strIssueEmail;
-	OTString m_strIssueContractURL;
-	OTString m_strIssueType;
+    // currencies and shares:
+	OTString    m_strIssueCompany;
+	OTString    m_strIssueEmail;
+	OTString    m_strIssueContractURL;
+	OTString    m_strIssueType;
+    
+    // shares only:
+    OTString    m_strIssueDate;
+
+    // currencies and shares:
+	OTString    m_strCurrencyName;
+    OTString    m_strCurrencyType;
+	OTString    m_strCurrencySymbol;
+
+    // currencies only:
+	OTString    m_strCurrencyTLA;
+	OTString    m_strCurrencyFactor;
+	OTString    m_strCurrencyDecimalPower;
+	OTString    m_strCurrencyFraction;
 	
-	OTString m_strCurrencyName;
-	OTString m_strCurrencyTLA;
-	OTString m_strCurrencySymbol;
-	OTString m_strCurrencyType;
-	OTString m_strCurrencyFactor;
-	OTString m_strCurrencyDecimalPower;
-	OTString m_strCurrencyFraction;
-	
+    bool        m_bIsCurrency; // default: true.  (default.)
+    bool        m_bIsShares;   // default: false. (defaults to currency, not shares.)
+    
 	// return -1 if error, 0 if nothing, and 1 if the node was processed.
 	virtual int ProcessXMLNode(irr::io::IrrXMLReader*& xml);
 public:
@@ -174,7 +189,20 @@ EXPORT	bool CreateBasket(OTBasket & theBasket, OTPseudonym & theSigner);
 EXPORT	OTAssetContract();
 EXPORT	OTAssetContract(OTString & name, OTString & foldername, OTString & filename, OTString & strID);
 EXPORT	virtual ~OTAssetContract();
-	
+	// ----------------------------------
+
+    bool IsShares() const { return m_bIsShares; }
+    // Some asset types keep a list of "simple" accounts (the complete set of that type.)
+    // This is called when the user creates a new asset account, in order to add it to that list.
+    // (Currently only operational for "shares", not "currencies", since it's used exclusively
+    // for the payment of dividends.)
+    //
+    bool AddAccountRecord  (const OTAccount    & theAccount); // adds the account to the list. (When account is created.)
+    bool EraseAccountRecord(const OTIdentifier & theAcctID);  // removes the account from the list. (When account is deleted.)
+    
+    bool ForEachAccountRecord(OTAcctFunctor & theAction); // Loops through all the accounts for a given asset type, and calls Functor on each.
+    
+	// ----------------------------------    
 //EXPORT	virtual bool CreateContract(OTString & strContract, OTPseudonym & theSigner);
 
 //	virtual bool SaveContractWallet(FILE * fl);
@@ -189,4 +217,81 @@ typedef std::map<std::string, OTAssetContract *>	mapOfContracts;
 
 
 
+// This class is used by ForEachAccountRecord (above) which loops through
+// all the "simple" accounts of a specific asset type, and calls this functor
+// for each one.
+//
+class OTAcctFunctor
+{
+protected:
+    OTIdentifier * m_pServerID;
+public:
+    OTAcctFunctor(const OTIdentifier & theServerID);
+    virtual ~OTAcctFunctor();
+    
+    OTIdentifier * GetServerID() { return m_pServerID; }
+    
+    virtual bool Trigger(OTAccount & theAccount)=0; // We still provide an implementation, however.
+};
+
+// todo: Make an "OTAcctFunctor_Audit" subclass of this.
+
+
+// NOTE: Moved to OTServer.h and .cpp
+// Because the Trigger method needs to be able to call
+// OTServer-specific functions, and thus can't be in the otlib,
+// which doesn't know of the server.
+//
+//class OTAcctFunctor_PayDividend
+//{
+//public:
+//    OTAcctFunctor_PayDividend(const OTIdentifier & theServerID);
+//    virtual ~OTAcctFunctor_PayDividend();
+//    
+//    virtual bool Trigger(OTAccount & theAccount);
+//};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #endif // __OTASSETCONTRACT_H__
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

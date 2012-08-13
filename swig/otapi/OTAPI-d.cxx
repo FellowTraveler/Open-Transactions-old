@@ -4821,6 +4821,28 @@ SWIGEXPORT int D_OT_API_withdrawVoucher(char * jarg1, char * jarg2, char * jarg3
 }
 
 
+SWIGEXPORT int D_OT_API_payDividend(char * jarg1, char * jarg2, char * jarg3, char * jarg4, char * jarg5, char * jarg6) {
+  int jresult ;
+  char *arg1 = (char *) 0 ;
+  char *arg2 = (char *) 0 ;
+  char *arg3 = (char *) 0 ;
+  char *arg4 = (char *) 0 ;
+  char *arg5 = (char *) 0 ;
+  char *arg6 = (char *) 0 ;
+  int result;
+  
+  arg1 = (char *)jarg1; 
+  arg2 = (char *)jarg2; 
+  arg3 = (char *)jarg3; 
+  arg4 = (char *)jarg4; 
+  arg5 = (char *)jarg5; 
+  arg6 = (char *)jarg6; 
+  result = (int)OT_API_payDividend((char const *)arg1,(char const *)arg2,(char const *)arg3,(char const *)arg4,(char const *)arg5,(char const *)arg6);
+  jresult = result;
+  return jresult;
+}
+
+
 SWIGEXPORT int D_OT_API_depositCheque(char * jarg1, char * jarg2, char * jarg3, char * jarg4) {
   int jresult ;
   char *arg1 = (char *) 0 ;

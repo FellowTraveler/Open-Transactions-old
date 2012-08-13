@@ -182,21 +182,21 @@ const char * OTAccount::_TypeStrings[] =
 
 #include "OTLedger.h"
 #ifdef _WIN32
-const char * OTLedger::_TypeStrings[] = 
-{
-	"nymbox",		// the nymbox is per user account (versus per asset account) and is used to receive new transaction numbers (and messages.)
-	"inbox",		// each asset account has an inbox, with pending transfers as well as receipts inside.
-	"outbox",		// if you SEND a pending transfer, it sits in your outbox until it's accepted, rejected, or canceled.
-	"message",		// used in OTMessages, to send various lists of transactions back and forth.
-	"paymentInbox",		// Used for client-side-only storage of incoming cheques, invoices, payment plan requests, etc. (Coming in from the Nymbox.)
-	"recordBox",		// Used for client-side-only storage of completed items from the inbox, and the paymentInbox.
-	"error_state"
-};
+//const char * OTLedger::_TypeStrings[] = 
+//{
+//	"nymbox",		// the nymbox is per user account (versus per asset account) and is used to receive new transaction numbers (and messages.)
+//	"inbox",		// each asset account has an inbox, with pending transfers as well as receipts inside.
+//	"outbox",		// if you SEND a pending transfer, it sits in your outbox until it's accepted, rejected, or canceled.
+//	"message",		// used in OTMessages, to send various lists of transactions back and forth.
+//	"paymentInbox",		// Used for client-side-only storage of incoming cheques, invoices, payment plan requests, etc. (Coming in from the Nymbox.)
+//	"recordBox",		// Used for client-side-only storage of completed items from the inbox, and the paymentInbox.
+//	"error_state"
+//};
 #endif
 
 #include "OTMint.h"
 #ifdef _WIN32
-const int OTToken::nMinimumPrototokenCount = 1;
+//const int OTToken::nMinimumPrototokenCount = 1;
 #endif
 
 #include "OTPurse.h"
@@ -204,60 +204,60 @@ const int OTToken::nMinimumPrototokenCount = 1;
 
 #include "OTTransaction.h"
 #ifdef _WIN32
-const char * OTTransaction::_TypeStrings[] = 
-{
-	"blank",			// freshly issued, not used yet  // comes from server, stored on Nym. (Nymbox.)
-	"message",			// in nymbox, message from one user to another.
-	"notice",			// in nymbox, notice from the server. Probably contains an updated smart contract.
-	"replyNotice",		// When you send a request to the server, sometimes its reply is so important, 
-						// that it drops a copy into your Nymbox to make you receive and process it.
-	"successNotice",	// A transaction # has successfully been signed out. (Nymbox.)
-	// --------------------------------------------------------------------------------------
-	"pending",			// Pending transfer, in the inbox/outbox.
-	// --------------------------------------------------------------------------------------
-	"transferReceipt",	// the server drops this into your inbox, when someone accepts your transfer.
-	// --------------------------------------------------------------------------------------
-	"chequeReceipt",	// the server drops this into your inbox, when someone cashes your cheque.
-	"marketReceipt",	// server drops this into inbox periodically, if you have an offer on the market.
-	"paymentReceipt",	// the server drops this into people's inboxes, periodically, if they have payment plans.
-	// --------------------------------------------------------------------------------------
-	"finalReceipt",     // the server drops this into your inbox(es), when a CronItem expires or is canceled.
-	"basketReceipt",    // the server drops this into your inboxes, when a basket exchange is processed.
-	// --------------------------------------------------------------------------------------
-	"instrumentNotice",		// Receive these in paymentInbox (by way of Nymbox), and send in Outpayments (like outMail.) (When done, they go to recordBox to await deletion.)
-	"instrumentRejection",	// When someone rejects your invoice from his paymentInbox, you get one of these in YOUR paymentInbox.
-	// --------------------------------------------------------------------------------------
-	"processNymbox",	// process nymbox transaction	 // comes from client
-	"atProcessNymbox",	// process nymbox reply			 // comes from server
-	"processInbox",		// process inbox transaction	 // comes from client
-	"atProcessInbox",	// process inbox reply			 // comes from server
-	// --------------------------------------------------------------------------------------
-	"transfer",			// or "spend". This transaction is a transfer from one account to another
-	"atTransfer",		// reply from the server regarding a transfer request
-	// --------------------------------------------------------------------------------------
-	"deposit",			// this transaction is a deposit of bearer tokens (from client)
-	"atDeposit",		// reply from the server regarding a deposit request
-	// --------------------------------------------------------------------------------------
-	"withdrawal",		// this transaction is a withdrawal of bearer tokens
-	"atWithdrawal",		// reply from the server regarding a withdrawal request
-	// --------------------------------------------------------------------------------------
-	"marketOffer",		// this transaction is a market offer
-	"atMarketOffer",	// reply from the server regarding a market offer
-	// --------------------------------------------------------------------------------------
-	"paymentPlan",		// this transaction is a payment plan
-	"atPaymentPlan",	// reply from the server regarding a payment plan
-	// --------------------------------------------------------------------------------------
-	"smartContract",	// this transaction is a smart contract
-	"atSmartContract",	// reply from the server regarding a smart contract
-	// --------------------------------------------------------------------------------------
-	"cancelCronItem",	// this transaction is a cancellation of a cron item (payment plan etc)
-	"atCancelCronItem",	// reply from the server regarding said cancellation.
-	// --------------------------------------------------------------------------------------
-	"exchangeBasket",	// this transaction is an exchange in/out of a basket currency.
-	"atExchangeBasket",	// reply from the server regarding said exchange.
-	// --------------------------------------------------------------------------------------
-	"error_state"	
-};
+//const char * OTTransaction::_TypeStrings[] = 
+//{
+//	"blank",			// freshly issued, not used yet  // comes from server, stored on Nym. (Nymbox.)
+//	"message",			// in nymbox, message from one user to another.
+//	"notice",			// in nymbox, notice from the server. Probably contains an updated smart contract.
+//	"replyNotice",		// When you send a request to the server, sometimes its reply is so important, 
+//						// that it drops a copy into your Nymbox to make you receive and process it.
+//	"successNotice",	// A transaction # has successfully been signed out. (Nymbox.)
+//	// --------------------------------------------------------------------------------------
+//	"pending",			// Pending transfer, in the inbox/outbox.
+//	// --------------------------------------------------------------------------------------
+//	"transferReceipt",	// the server drops this into your inbox, when someone accepts your transfer.
+//	// --------------------------------------------------------------------------------------
+//	"chequeReceipt",	// the server drops this into your inbox, when someone cashes your cheque.
+//	"marketReceipt",	// server drops this into inbox periodically, if you have an offer on the market.
+//	"paymentReceipt",	// the server drops this into people's inboxes, periodically, if they have payment plans.
+//	// --------------------------------------------------------------------------------------
+//	"finalReceipt",     // the server drops this into your inbox(es), when a CronItem expires or is canceled.
+//	"basketReceipt",    // the server drops this into your inboxes, when a basket exchange is processed.
+//	// --------------------------------------------------------------------------------------
+//	"instrumentNotice",		// Receive these in paymentInbox (by way of Nymbox), and send in Outpayments (like outMail.) (When done, they go to recordBox to await deletion.)
+//	"instrumentRejection",	// When someone rejects your invoice from his paymentInbox, you get one of these in YOUR paymentInbox.
+//	// --------------------------------------------------------------------------------------
+//	"processNymbox",	// process nymbox transaction	 // comes from client
+//	"atProcessNymbox",	// process nymbox reply			 // comes from server
+//	"processInbox",		// process inbox transaction	 // comes from client
+//	"atProcessInbox",	// process inbox reply			 // comes from server
+//	// --------------------------------------------------------------------------------------
+//	"transfer",			// or "spend". This transaction is a transfer from one account to another
+//	"atTransfer",		// reply from the server regarding a transfer request
+//	// --------------------------------------------------------------------------------------
+//	"deposit",			// this transaction is a deposit of bearer tokens (from client)
+//	"atDeposit",		// reply from the server regarding a deposit request
+//	// --------------------------------------------------------------------------------------
+//	"withdrawal",		// this transaction is a withdrawal of bearer tokens
+//	"atWithdrawal",		// reply from the server regarding a withdrawal request
+//	// --------------------------------------------------------------------------------------
+//	"marketOffer",		// this transaction is a market offer
+//	"atMarketOffer",	// reply from the server regarding a market offer
+//	// --------------------------------------------------------------------------------------
+//	"paymentPlan",		// this transaction is a payment plan
+//	"atPaymentPlan",	// reply from the server regarding a payment plan
+//	// --------------------------------------------------------------------------------------
+//	"smartContract",	// this transaction is a smart contract
+//	"atSmartContract",	// reply from the server regarding a smart contract
+//	// --------------------------------------------------------------------------------------
+//	"cancelCronItem",	// this transaction is a cancellation of a cron item (payment plan etc)
+//	"atCancelCronItem",	// reply from the server regarding said cancellation.
+//	// --------------------------------------------------------------------------------------
+//	"exchangeBasket",	// this transaction is an exchange in/out of a basket currency.
+//	"atExchangeBasket",	// reply from the server regarding said exchange.
+//	// --------------------------------------------------------------------------------------
+//	"error_state"	
+//};
 #endif
 
 #include "OTCheque.h"
@@ -1686,6 +1686,9 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
 				case OTTransaction::atWithdrawal:
 					theItemType = OTItem::atWithdrawal;
 					break;
+				case OTTransaction::atPayDividend:
+					theItemType = OTItem::atPayDividend;
+					break;
 				case OTTransaction::atTransfer:
 					theItemType = OTItem::atTransfer;
 					break;
@@ -1724,9 +1727,16 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
 					ProcessWithdrawalResponse(*pTransaction, theConnection, theReply);
 					pNym->RemoveIssuedNum(*pNym, strServerID, pTransaction->GetTransactionNum(), true); // bool bSave=true	
 					break;
-
+                    
                 // ********************************************************************
-	
+                    
+                case OTTransaction::atPayDividend:
+                    ProcessPayDividendResponse(*pTransaction, theConnection, theReply);
+					pNym->RemoveIssuedNum(*pNym, strServerID, pTransaction->GetTransactionNum(), true); // bool bSave=true	
+					break;
+                    
+                // ********************************************************************
+                    
 				case OTTransaction::atExchangeBasket:
 					pNym->RemoveIssuedNum(*pNym, strServerID, pTransaction->GetTransactionNum(), true); // bool bSave=true	
                     // If the exchangeBasket FAILS, then I put all the transaction numbers BACK on the Nym,
@@ -2028,6 +2038,41 @@ void OTClient::ProcessIncomingTransactions(OTServerConnection & theConnection, O
 
 
 
+void OTClient::ProcessPayDividendResponse(OTTransaction & theTransaction, OTServerConnection & theConnection, OTMessage & theReply)
+{
+	const OTIdentifier ACCOUNT_ID(theReply.m_strAcctID);
+	OTIdentifier SERVER_ID;
+	theConnection.GetServerID(SERVER_ID);
+	OTPseudonym * pNym = theConnection.GetNym();
+	OTIdentifier USER_ID;
+	pNym->GetIdentifier(USER_ID);
+//	OTWallet * pWallet = theConnection.GetWallet();
+	
+	// loop through the ALL items that make up this transaction and check to see if a response to pay dividend.
+	
+	FOR_EACH(listOfItems, theTransaction.GetItemList())
+	{
+		OTItem * pItem = *it;
+		OT_ASSERT(NULL != pItem);
+		
+        // if pointer not null, and it's a dividend payout, and it's an acknowledgement (not a rejection or error)
+
+		if (OTItem::atPayDividend == pItem->GetType())
+		{ 
+			if (OTItem::acknowledgement == pItem->GetStatus())
+			{
+				OTLog::Output(0, "TRANSACTION SUCCESS -- Server acknowledges dividend payout.\n");
+			}
+			else 
+			{
+				OTLog::Output(0, "TRANSACTION FAILURE -- Server rejects dividend payout.\n");
+			}
+            
+		}
+	}
+}
+
+
 void OTClient::ProcessDepositResponse(OTTransaction & theTransaction, OTServerConnection & theConnection, OTMessage & theReply)
 {
 	const OTIdentifier ACCOUNT_ID(theReply.m_strAcctID);
@@ -2040,21 +2085,22 @@ void OTClient::ProcessDepositResponse(OTTransaction & theTransaction, OTServerCo
 	
 	// loop through the ALL items that make up this transaction and check to see if a response to deposit.
 	
-	// if pointer not null, and it's a withdrawal, and it's an acknowledgement (not a rejection or error)
 	FOR_EACH(listOfItems, theTransaction.GetItemList())
 	{
 		OTItem * pItem = *it;
 		OT_ASSERT(NULL != pItem);
 		
+        // if pointer not null, and it's a deposit, and it's an acknowledgement (not a rejection or error)
+
 		if (OTItem::atDeposit == pItem->GetType())
 		{ 
 			if (OTItem::acknowledgement == pItem->GetStatus())
 			{
-				OTLog::Output(0, "SUCCESS -- Server acknowledges deposit.\n");
+				OTLog::Output(0, "TRANSACTION SUCCESS -- Server acknowledges deposit.\n");
 			}
 			else 
 			{
-				OTLog::Output(0, "FAILURE -- Server rejects deposit.\n");
+				OTLog::Output(0, "TRANSACTION FAILURE -- Server rejects deposit.\n");
 			}
 
 		}
@@ -2961,7 +3007,7 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                         else// --- ELSE --- Success loading the payment inbox and recordBox and verifying their contractID and signature, (OR success generating the ledger.)
                         {
                             // The transaction (which we are putting into the payment inbox) will not
-                            // be removed from the nybox until we receive the server's success reply to
+                            // be removed from the nymbox until we receive the server's success reply to
                             // this "process Nymbox" message. That's why you see me adding it here to
                             // the payment inbox, while not removing it from the Nymbox (because that
                             // will happen once the reply is received.) NOTE: Need to make sure the
@@ -2972,15 +3018,20 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                             class _nested    // I'm doing this so I can declare a local function, INSIDE this function :-)
                             {                // (To avoid duplicating code.)  Watch and learn...
                             public: 
-                                static void load_str_trans_add_to_ledger( const OTIdentifier & the_nym_id,  const OTString & str_trans, const OTString str_box_type, 
-                                                                          const long & lTransNum, OTPseudonym & the_nym, OTLedger & ledger )
+                                static void load_str_trans_add_to_ledger( const OTIdentifier & the_nym_id,  
+                                                                          const OTString & str_trans, 
+                                                                          const OTString str_box_type, 
+                                                                          const long & lTransNum, 
+                                                                          OTPseudonym & the_nym, 
+                                                                          OTLedger & ledger )
                                 {
                                     if (NULL == ledger.GetTransaction(lTransNum)) // (Only add it if it's not already there.)
                                     {
                                         OTTransactionType * pTransType = OTTransactionType::TransactionFactory(str_trans);
                                         
                                         if (NULL == pTransType)
-                                            OTLog::vError("OTClient::ProcessServerReply: @getBoxReceipt: load_str_trans_add_to_ledger: Error instantiating transaction "
+                                            OTLog::vError("OTClient::ProcessServerReply: @getBoxReceipt: "
+                                                          "load_str_trans_add_to_ledger: Error instantiating transaction "
                                                           "type based on str_trans:\n%s\n", str_trans.Get());
                                         else
                                         {
@@ -3000,7 +3051,8 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                                 if (!ledger.AddTransaction(*pCopy))  // if unable to add that transaction, once loaded, signed, and saved, to the paymentInbox or recordBox ledger...
                                                 {
                                                     OTString strUserID(the_nym_id), strAcctID(the_nym_id);
-                                                    OTLog::vOutput(0, "OTClient::ProcessServerReply: @getBoxReceipt: load_str_trans_add_to_ledger: Unable to add the transaction to the %s "
+                                                    OTLog::vOutput(0, "OTClient::ProcessServerReply: @getBoxReceipt: "
+                                                                   "load_str_trans_add_to_ledger: Unable to add the transaction to the %s "
                                                                    "with user/acct IDs: %s / %s, and loading from string:\n\n%s\n\n",
                                                                    str_box_type.Get(), strUserID.Get(), strAcctID.Get(), str_trans.Get());
                                                     delete pCopy; pCopy = NULL;
@@ -3018,7 +3070,8 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                                                     
                                                     if (!pCopy->SaveBoxReceipt(ledger))	// <===================
                                                         OTLog::vError("OTClient::ProcessServerReply: @getBoxReceipt(): load_str_trans_add_to_ledger: %s "
-                                                                      "Failed trying to SaveBoxReceipt. Contents:\n\n%s\n\n", str_box_type.Get(), str_trans.Get());
+                                                                      "Failed trying to SaveBoxReceipt. Contents:\n\n%s\n\n", str_box_type.Get(), 
+                                                                      str_trans.Get());
                                                 }
                                             }
                                         } // else (pCopy not null.)
@@ -3034,7 +3087,8 @@ bool OTClient::ProcessServerReply(OTMessage & theReply, OTLedger * pNymbox/*=NUL
                             // to the paymentInbox and the recordBox.
                             //
                             // QUESTION: what if I ERASE it out of my recordBox. Won't it pop back up again?
-                            // ANSWER: YES, but not if I do this instead at @getBoxReceipt which will only happen once. UPDATE: which I now AM (see our location here...)
+                            // ANSWER: YES, but not if I do this instead at @getBoxReceipt which will only happen once. 
+                            //         UPDATE: which I now AM (see our location here...)
                             // HOWEVER: Most likely not, because this notice will no longer BE in my Nymbox...
                             //
                             // QUESTION: What if I ERASE it out of my paymentInbox? Won't this pop back there again?

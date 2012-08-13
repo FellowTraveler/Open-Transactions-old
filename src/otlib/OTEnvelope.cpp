@@ -1699,7 +1699,7 @@ bool OTMasterKey::GetMasterPassword(OTPassword & theOutput,
             
             if (bGenerated) // If SymmetricKey (*this) is already generated.
             {
-                OTLog::vOutput(1, "%s: Calling m_pSymmetricKey->GetRawKeyFromPassphrase()...\n", szFunc);
+                OTLog::vOutput(2, "%s: Calling m_pSymmetricKey->GetRawKeyFromPassphrase()...\n", szFunc);
 
                 // Once we have the user's password, then we use it to GetKey from the OTSymmetricKey (which
                 // is encrypted) and that retrieves the cleartext master password which we set here and also
@@ -1717,7 +1717,7 @@ bool OTMasterKey::GetMasterPassword(OTPassword & theOutput,
                                                                                  pDerivedKey);
                 if (bMasterKey)
                 {
-                    OTLog::vOutput(1, "%s: Finished calling m_pSymmetricKey->GetRawKeyFromPassphrase (Success.)\n", szFunc);
+                    OTLog::vOutput(2, "%s: Finished calling m_pSymmetricKey->GetRawKeyFromPassphrase (Success.)\n", szFunc);
                     theOutput  = *m_pMasterPassword; // Success!
                     // ------------------------------
                     // Store the derived key to the system keyring.
@@ -1735,7 +1735,7 @@ bool OTMasterKey::GetMasterPassword(OTPassword & theOutput,
                                                    str_display);     // optional display string.
                     }
                     else
-                        OTLog::vOutput(0, "%s: Strange: Problem with either: this->IsUsingSystemKeyring (%s) "
+                        OTLog::vOutput(1, "%s: Strange: Problem with either: this->IsUsingSystemKeyring (%s) "
                                        "or: (NULL != pDerivedKey) (%s)\n", szFunc, this->IsUsingSystemKeyring() ? "true" : "false",
                                        (NULL != pDerivedKey) ? "true" : "false");
                     
@@ -1762,7 +1762,7 @@ bool OTMasterKey::GetMasterPassword(OTPassword & theOutput,
 #if defined(OPENSSL_THREADS)
         // thread support enabled
         
-        OTLog::vOutput(0, "%s: Starting thread for Master Key...\n", szFunc);
+        OTLog::vOutput(2, "%s: Starting thread for Master Key...\n", szFunc);
         
         m_pThread = new thread(OTMasterKey::ThreadTimeout, static_cast<void *>(this));
         

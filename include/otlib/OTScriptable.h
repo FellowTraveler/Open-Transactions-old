@@ -230,15 +230,15 @@ EXPORT	OTClause	* GetClause	(const std::string str_clause_name);
 	// ----------------------------------------------------
 EXPORT	OTParty * FindPartyBasedOnNymAsAgent(OTPseudonym & theNym, OTAgent ** ppAgent=NULL);
 EXPORT	OTParty * FindPartyBasedOnNymAsAuthAgent(OTPseudonym & theNym, OTAgent ** ppAgent=NULL);
-	OTParty * FindPartyBasedOnAccount(OTAccount & theAccount, OTPartyAccount ** ppPartyAccount=NULL);
+        OTParty * FindPartyBasedOnAccount(OTAccount & theAccount, OTPartyAccount ** ppPartyAccount=NULL);
 	// ----------------------------------------------------
-	OTParty * FindPartyBasedOnNymIDAsAgent(const OTIdentifier & theNymID, OTAgent ** ppAgent=NULL) const;
-	OTParty * FindPartyBasedOnNymIDAsAuthAgent(const OTIdentifier & theNymID, OTAgent ** ppAgent=NULL);
-	OTParty * FindPartyBasedOnAccountID(const OTIdentifier & theAcctID, OTPartyAccount ** ppPartyAccount=NULL);
-	// ----------------------------------------------------
-	OTAgent			* GetAgent(const std::string str_agent_name);
-	OTPartyAccount	* GetPartyAccount(const std::string str_acct_name);
-	OTPartyAccount	* GetPartyAccountByID(const OTIdentifier & theAcctID) const;
+        OTParty * FindPartyBasedOnNymIDAsAgent(const OTIdentifier & theNymID, OTAgent ** ppAgent=NULL) const;
+        OTParty * FindPartyBasedOnNymIDAsAuthAgent(const OTIdentifier & theNymID, OTAgent ** ppAgent=NULL);
+        OTParty * FindPartyBasedOnAccountID(const OTIdentifier & theAcctID, OTPartyAccount ** ppPartyAccount=NULL);
+    // ----------------------------------------------------
+        OTAgent			* GetAgent(const std::string str_agent_name);
+        OTPartyAccount	* GetPartyAccount(const std::string str_acct_name);
+        OTPartyAccount	* GetPartyAccountByID(const OTIdentifier & theAcctID) const;
 	// -----------------------------------------------------------------
 
 	// -----------------------------------------------------------------

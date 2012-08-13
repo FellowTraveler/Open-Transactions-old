@@ -674,8 +674,8 @@ DONE cron_activate		(Triggers when the smart contract is first activated.)
 
 // Class member, with string parameter.
 typedef bool (OTSmartContract::*OT_SM_RetBool_ThrStr)(const std::string from_acct_name, 
-													    const std::string to_acct_name, 
-													    const std::string str_Amount);
+                                                      const std::string to_acct_name, 
+                                                      const std::string str_Amount);
 // TEST RESULT: WORKS calling Chaiscript
 //Cron: Processing smart contract clauses for hook: cron_process 
 //OTSmartContract::MoveAcctFunds: error: from_acct (sSBcoTlTkYY8pPv6vh2KD6mIVrRdIwodgsWDoJzIfpV) not found on any party.
@@ -2064,7 +2064,7 @@ bool OTSmartContract::StashFunds(const mapOfNyms	&	map_NymsAlreadyLoaded,
 								 const long			&	lAmount,	// negative amount here means UNstash. Positive means STASH.
 								 const OTIdentifier &	PARTY_ACCT_ID,
 								 const OTIdentifier &	PARTY_USER_ID,
-								 OTStash & theStash) 
+                                       OTStash      &   theStash) 
 {
 	OTCron * pCron = GetCron();
 	OT_ASSERT(NULL != pCron);

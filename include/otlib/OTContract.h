@@ -205,10 +205,10 @@ EXPORT    bool Verify(const std::set<long> & theNumbers) const; // True/False, b
     // -------------------
 EXPORT    bool Verify(const OTNumList & rhs) const; // True/False, based on whether OTNumLists MATCH in COUNT and CONTENT (NOT ORDER.)
     // -------------------
-EXPORT    int Count() const;
+EXPORT    int  Count() const;
     // -------------------
-EXPORT    bool  Peek(long & lPeek) const;
-EXPORT    bool  Pop();
+EXPORT    bool Peek(long & lPeek) const;
+EXPORT    bool Pop();
     // -------------------
     // Outputs the numlist as set of numbers. (To iterate OTNumList, call this, then iterate the output.)
 EXPORT    bool Output(std::set<long> & theOutput) const; // returns false if the numlist was empty.
@@ -256,7 +256,7 @@ protected:
 	
 	listOfSignatures	m_listSignatures;  // The PGP signatures at the bottom of the XML file.
 	
-	OTString			m_strVersion; // The version of this Contract file, in case the format changes in the future.
+	OTString			m_strVersion;      // The version of this Contract file, in case the format changes in the future.
 	
 	// -------------------------------------------------------------------
 	//
@@ -283,9 +283,11 @@ protected:
 	bool VerifyContractDefaultHash(const EVP_PKEY * pkey, const OTSignature & theSignature) const;
 
 	// -------------------------------------------------------------------
+    
 public:
-EXPORT    static bool LoadEncodedTextField(irr::io::IrrXMLReader*& xml, OTASCIIArmor &ascOutput);
-    static bool LoadEncodedTextField(irr::io::IrrXMLReader*& xml, OTString &strOutput);
+    
+EXPORT  static bool LoadEncodedTextField(irr::io::IrrXMLReader*& xml, OTASCIIArmor &ascOutput);
+        static bool LoadEncodedTextField(irr::io::IrrXMLReader*& xml, OTString &strOutput);
 	
     static bool LoadEncodedTextFieldByName(irr::io::IrrXMLReader*& xml, OTASCIIArmor &ascOutput, 
                                            const char *& szName, mapOfStrings * pmapExtraVars = NULL);
@@ -362,9 +364,10 @@ EXPORT	virtual bool CreateContract(OTString & strContract, OTPseudonym & theSign
 	// supported, but soon contracts will also support x509 certs.
 	virtual bool VerifyContract();
 	
-	// Only overriden in OTOffer so far.
-	virtual void GetIdentifier(OTIdentifier & theIdentifier);// You can get it in string or binary form.
-EXPORT	virtual void GetIdentifier(OTString & theIdentifier);    // The Contract ID is a hash of the contract raw file.
+        // Only overriden in OTOffer so far.
+        //
+        virtual void GetIdentifier(OTIdentifier & theIdentifier);// You can get it in string or binary form.
+EXPORT	virtual void GetIdentifier(OTString     & theIdentifier);    // The Contract ID is a hash of the contract raw file.
 	
 	void GetFilename(OTString & strFilename);
 	void GetFoldername(OTString & strFoldername);
@@ -384,17 +387,17 @@ EXPORT	static OTContract * InstantiateContract(OTString strInput);
 	bool LoadContract(const char * szFoldername, const char * szFilename);
 	
 EXPORT	bool LoadContractFromString(const OTString & theStr); // Just like it says. If you have a contract in
-														  // string form, pass it in here to import it.
-	bool LoadContractRawFile(); // fopens m_strFilename and reads it off the disk into m_strRawFile
+                                                              // string form, pass it in here to import it.
+        bool LoadContractRawFile(); // fopens m_strFilename and reads it off the disk into m_strRawFile
 EXPORT	bool ParseRawFile();		// parses m_strRawFile into the various member variables.
-								// Separating these into two steps allows us to load contracts
-								// from other sources besides files.
+                                    // Separating these into two steps allows us to load contracts
+                                    // from other sources besides files.
 	
-	bool SaveToContractFolder(); // data_folder/contracts/Contract-ID
+        bool SaveToContractFolder(); // data_folder/contracts/Contract-ID
 
 	
 EXPORT	bool SaveContractRaw(OTString & strOutput) const; // Saves the raw (pre-existing) contract text to any string you want to pass in.
-	bool RewriteContract(OTString & strOutput) const; // Takes the pre-existing XML contents (WITHOUT signatures) and re-writes the Raw data, adding the pre-existing signatures along with new signature bookends. 
+        bool RewriteContract(OTString & strOutput) const; // Takes the pre-existing XML contents (WITHOUT signatures) and re-writes the Raw data, adding the pre-existing signatures along with new signature bookends. 
 
 	
 EXPORT	bool SaveContract(); // This saves the Contract to its own internal member string, m_strRawFile (and does
@@ -421,10 +424,10 @@ EXPORT	bool SaveContract(const char * szFoldername, const char * szFilename); //
 		
 EXPORT	virtual bool SignContract(const OTPseudonym & theNym);
 	
-	bool SignContract(const OTPseudonym & theNym, OTSignature & theSignature);
-	bool SignContract(const OTAsymmetricKey & theKey, OTSignature & theSignature, 
-					  const OTString & strHashType);
-	bool SignContract(const char * szFoldername, const char * szFilename, OTSignature & theSignature);
+        bool SignContract(const OTPseudonym & theNym, OTSignature & theSignature);
+        bool SignContract(const OTAsymmetricKey & theKey, OTSignature & theSignature, 
+                          const OTString & strHashType);
+        bool SignContract(const char * szFoldername, const char * szFilename, OTSignature & theSignature);
 	
 	// Calculates a hash of m_strRawFile (the xml portion of the contract plus the signatures)
 	// and compares to m_ID (supposedly the same. The ID is calculated by hashing the file.)
@@ -439,23 +442,23 @@ EXPORT	virtual bool SignContract(const OTPseudonym & theNym);
 	// I have no way of re-calculating it from the account file, which changes! So my
 	// copies of the account file and wallet file are the only records of that account ID
 	// which is a giant long number.
-	virtual bool VerifyContractID();  
+        virtual bool VerifyContractID();  
 EXPORT	virtual void CalculateContractID(OTIdentifier & newID) const;
 	
 	// So far not overridden anywhere (used to be OTTrade.)
 EXPORT	virtual bool VerifySignature(const OTPseudonym & theNym);
-	bool VerifySignature(const OTPseudonym & theNym, const OTSignature & theSignature) const;
-	bool VerifySignature(const OTAsymmetricKey & theKey, const OTSignature & theSignature,
-						 const OTString & strHashType) const;
-	bool VerifySignature(const char * szFoldername, const char * szFilename, const OTSignature & theSignature) const;
+        bool VerifySignature(const OTPseudonym & theNym, const OTSignature & theSignature) const;
+        bool VerifySignature(const OTAsymmetricKey & theKey, const OTSignature & theSignature,
+                             const OTString & strHashType) const;
+        bool VerifySignature(const char * szFoldername, const char * szFilename, const OTSignature & theSignature) const;
 	
 	
 	
 	//bool VerifySignatures(); // This function verifies the signatures on the contract.
-							 // If true, it proves that certain entities really did sign
-							 // it, and that the contract hasn't been tampered with since
-							 // it was signed.
-	const OTAsymmetricKey * GetContractPublicKey();
+							   // If true, it proves that certain entities really did sign
+							   // it, and that the contract hasn't been tampered with since
+							   // it was signed.
+        const OTAsymmetricKey * GetContractPublicKey();
 EXPORT	const OTPseudonym	  * GetContractPublicNym();	
 };
 

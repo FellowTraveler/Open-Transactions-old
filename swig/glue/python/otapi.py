@@ -1120,6 +1120,10 @@ def OT_API_withdrawVoucher(*args):
   return _otapi.OT_API_withdrawVoucher(*args)
 OT_API_withdrawVoucher = _otapi.OT_API_withdrawVoucher
 
+def OT_API_payDividend(*args):
+  return _otapi.OT_API_payDividend(*args)
+OT_API_payDividend = _otapi.OT_API_payDividend
+
 def OT_API_depositCheque(*args):
   return _otapi.OT_API_depositCheque(*args)
 OT_API_depositCheque = _otapi.OT_API_depositCheque

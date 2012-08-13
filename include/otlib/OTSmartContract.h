@@ -344,7 +344,7 @@ public:
 	//
 	//
 EXPORT	bool VerifySmartContract(OTPseudonym & theNym, OTAccount & theAcct, OTPseudonym & theServerNym,
-							 const bool bBurnTransNo=false);
+                                 const bool bBurnTransNo=false);
 	// theNym is trying to activate the smart contract, and has 
 	// supplied transaction numbers and a user/acct ID. theNym definitely IS the owner of the account... that is 
 	// verified in OTServer::NotarizeTransaction(), before it even knows what KIND of transaction it is processing! 
@@ -372,7 +372,7 @@ EXPORT	bool VerifySmartContract(OTPseudonym & theNym, OTAccount & theAcct, OTPse
 	// will interoperate with the old Cron Item system of doing things.
 	//
 EXPORT	void PrepareToActivate(const long & lOpeningTransNo,	const long & lClosingTransNo,
-						   const OTIdentifier & theUserID,	const OTIdentifier & theAcctID);
+                               const OTIdentifier & theUserID,	const OTIdentifier & theAcctID);
 	
 	// --------------------------------------------------------------------------
 	//
@@ -458,11 +458,11 @@ EXPORT	void ExecuteClauses (mapOfClauses & theClauses, OTString * pParam=NULL);
 	
 	// -----------------------------------------------
 	
-	OTSmartContract();
+        OTSmartContract();
 EXPORT	OTSmartContract(const OTIdentifier & SERVER_ID);
-	OTSmartContract(const OTIdentifier & SERVER_ID,			const OTIdentifier & ASSET_ID,
-					const OTIdentifier & SENDER_ACCT_ID,	const OTIdentifier & SENDER_USER_ID,
-					const OTIdentifier & RECIPIENT_ACCT_ID,	const OTIdentifier & RECIPIENT_USER_ID);
+        OTSmartContract(const OTIdentifier & SERVER_ID,			const OTIdentifier & ASSET_ID,
+                        const OTIdentifier & SENDER_ACCT_ID,	const OTIdentifier & SENDER_USER_ID,
+                        const OTIdentifier & RECIPIENT_ACCT_ID,	const OTIdentifier & RECIPIENT_USER_ID);
 	
 	// User edits the smart contracts in this folder until they are ISSUED onto a server.
 	//

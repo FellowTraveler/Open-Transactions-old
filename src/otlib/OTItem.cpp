@@ -1368,6 +1368,11 @@ OTItem::itemType GetItemTypeFromString(const OTString & strType)
 	else if (strType.Compare("atDepositCheque"))
 		theType = OTItem::atDepositCheque;
 	// --------------------------------------------------------------
+	else if (strType.Compare("payDividend"))
+		theType = OTItem::payDividend;
+	else if (strType.Compare("atPayDividend"))
+		theType = OTItem::atPayDividend;
+	// --------------------------------------------------------------
 	else if (strType.Compare("marketOffer"))
 		theType = OTItem::marketOffer;
 	else if (strType.Compare("atMarketOffer"))
@@ -1693,6 +1698,9 @@ void OTItem::GetStringFromType(OTItem::itemType theType, OTString & strType)
 		case OTItem::depositCheque:
 			strType.Set("depositCheque");
 			break;
+		case OTItem::payDividend:
+			strType.Set("payDividend");
+			break;
 		case OTItem::marketOffer:
 			strType.Set("marketOffer");
 			break;
@@ -1816,6 +1824,9 @@ void OTItem::GetStringFromType(OTItem::itemType theType, OTString & strType)
 			break;
 		case OTItem::atDepositCheque:
 			strType.Set("atDepositCheque");
+			break;
+		case OTItem::atPayDividend:
+			strType.Set("atPayDividend");
 			break;
 		case OTItem::atMarketOffer:
 			strType.Set("atMarketOffer");

@@ -598,6 +598,7 @@ static this() {
   mixin(bindCode("OT_API_processInbox", "D_OT_API_processInbox"));
   mixin(bindCode("OT_API_processNymbox", "D_OT_API_processNymbox"));
   mixin(bindCode("OT_API_withdrawVoucher", "D_OT_API_withdrawVoucher"));
+  mixin(bindCode("OT_API_payDividend", "D_OT_API_payDividend"));
   mixin(bindCode("OT_API_depositCheque", "D_OT_API_depositCheque"));
   mixin(bindCode("OT_API_depositPaymentPlan", "D_OT_API_depositPaymentPlan"));
   mixin(bindCode("OT_API_issueMarketOffer", "D_OT_API_issueMarketOffer"));
@@ -1581,6 +1582,7 @@ extern(C) int function(char* jarg1, char* jarg2, char* jarg3, int jarg4, char* j
 extern(C) int function(char* jarg1, char* jarg2, char* jarg3, char* jarg4) OT_API_processInbox;
 extern(C) int function(char* jarg1, char* jarg2) OT_API_processNymbox;
 extern(C) int function(char* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5, char* jarg6) OT_API_withdrawVoucher;
+extern(C) int function(char* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5, char* jarg6) OT_API_payDividend;
 extern(C) int function(char* jarg1, char* jarg2, char* jarg3, char* jarg4) OT_API_depositCheque;
 extern(C) int function(char* jarg1, char* jarg2, char* jarg3) OT_API_depositPaymentPlan;
 extern(C) int function(char* jarg1, char* jarg2, char* jarg3, char* jarg4, char* jarg5, char* jarg6, char* jarg7, char* jarg8, char* jarg9, char* jarg10, int jarg11) OT_API_issueMarketOffer;

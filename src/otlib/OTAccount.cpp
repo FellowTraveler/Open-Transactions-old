@@ -1221,6 +1221,11 @@ bool OTAccount::IsOwnedByEntity() const
 	return false;
 }
 
+bool OTAccount::IsIssuer() const
+{
+    return (OTAccount::issuer == m_AcctType);
+}
+
 
 bool OTAccount::IsAllowedToGoNegative() const
 {
@@ -1419,7 +1424,7 @@ OTAccount_SharedPtr OTAcctList::GetOrCreateAccount(OTPseudonym			& theServerNym,
 												   const OTIdentifier	& ASSET_TYPE_ID, 
 												   const OTIdentifier	& SERVER_ID,
 												   bool					& bWasAcctCreated, // this will be set to true if the acct is created here. Otherwise set to false;
-												   const long lStashTransNum/*=0*/)
+												   const long             lStashTransNum/*=0*/)
 {
 	OTAccount_SharedPtr pRetVal;
 	bWasAcctCreated = false;
