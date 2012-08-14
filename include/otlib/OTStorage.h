@@ -737,7 +737,7 @@ EXPORT	std::string QueryPlainString(std::string strFolder, std::string oneStr=""
 	//
 EXPORT	bool StoreObject(Storable & theContents, std::string strFolder, 
                          std::string oneStr="", std::string twoStr="", std::string threeStr="");
-	
+
 	// Use %newobject OTDB::Storage::Query();
 EXPORT	Storable * QueryObject(StoredObjectType theObjectType,
                                std::string strFolder, std::string oneStr="",

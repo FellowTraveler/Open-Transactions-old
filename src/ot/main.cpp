@@ -823,51 +823,51 @@ bool RegisterAPIWithScript(OTScript & theBaseScript)
         
 //      pScript->chai.add(fun(&OTDB::Exists),           "OTDB_Exists");
         pScript->chai.add(fun<bool (std::string, std::string, std::string, std::string)>(&OTDB::Exists), "OTDB_Exists");
-        pScript->chai.add(fun<bool (std::string, std::string, std::string)>(&OTDB::Exists), "OTDB_Exists");
-        pScript->chai.add(fun<bool (std::string, std::string)>(&OTDB::Exists), "OTDB_Exists");
-        pScript->chai.add(fun<bool (std::string)>(&OTDB::Exists), "OTDB_Exists");
+//        pScript->chai.add(fun<bool (std::string, std::string, std::string)>(&OTDB::Exists), "OTDB_Exists");
+//        pScript->chai.add(fun<bool (std::string, std::string)>(&OTDB::Exists), "OTDB_Exists");
+//        pScript->chai.add(fun<bool (std::string)>(&OTDB::Exists), "OTDB_Exists");
 
         
 //      pScript->chai.add(fun(&OTDB::StoreString),      "OTDB_StoreString");
         pScript->chai.add(fun<bool (std::string, std::string, std::string, std::string, std::string)>(&OTDB::StoreString), "OTDB_StoreString");
-        pScript->chai.add(fun<bool (std::string, std::string, std::string, std::string)>(&OTDB::StoreString), "OTDB_StoreString");
-        pScript->chai.add(fun<bool (std::string, std::string, std::string)>(&OTDB::StoreString), "OTDB_StoreString");
-        pScript->chai.add(fun<bool (std::string, std::string)>(&OTDB::StoreString), "OTDB_StoreString");
+//        pScript->chai.add(fun<bool (std::string, std::string, std::string, std::string)>(&OTDB::StoreString), "OTDB_StoreString");
+//        pScript->chai.add(fun<bool (std::string, std::string, std::string)>(&OTDB::StoreString), "OTDB_StoreString");
+//        pScript->chai.add(fun<bool (std::string, std::string)>(&OTDB::StoreString), "OTDB_StoreString");
         
         
 //      pScript->chai.add(fun(&OTDB::QueryString),      "OTDB_QueryString");
         pScript->chai.add(fun<std::string (std::string, std::string, std::string, std::string)>(&OTDB::QueryString), "OTDB_QueryString");
-        pScript->chai.add(fun<std::string (std::string, std::string, std::string)>(&OTDB::QueryString), "OTDB_QueryString");
-        pScript->chai.add(fun<std::string (std::string, std::string)>(&OTDB::QueryString), "OTDB_QueryString");
-        pScript->chai.add(fun<std::string (std::string)>(&OTDB::QueryString), "OTDB_QueryString");
+//        pScript->chai.add(fun<std::string (std::string, std::string, std::string)>(&OTDB::QueryString), "OTDB_QueryString");
+//        pScript->chai.add(fun<std::string (std::string, std::string)>(&OTDB::QueryString), "OTDB_QueryString");
+//        pScript->chai.add(fun<std::string (std::string)>(&OTDB::QueryString), "OTDB_QueryString");
 
         
 //      pScript->chai.add(fun(&OTDB::StorePlainString), "OTDB_StorePlainString");
         pScript->chai.add(fun<bool (std::string, std::string, std::string, std::string, std::string)>(&OTDB::StorePlainString), "OTDB_StorePlainString");
-        pScript->chai.add(fun<bool (std::string, std::string, std::string, std::string)>(&OTDB::StorePlainString), "OTDB_StorePlainString");
-        pScript->chai.add(fun<bool (std::string, std::string, std::string)>(&OTDB::StorePlainString), "OTDB_StorePlainString");
-        pScript->chai.add(fun<bool (std::string, std::string)>(&OTDB::StorePlainString), "OTDB_StorePlainString");
+//        pScript->chai.add(fun<bool (std::string, std::string, std::string, std::string)>(&OTDB::StorePlainString), "OTDB_StorePlainString");
+//        pScript->chai.add(fun<bool (std::string, std::string, std::string)>(&OTDB::StorePlainString), "OTDB_StorePlainString");
+//        pScript->chai.add(fun<bool (std::string, std::string)>(&OTDB::StorePlainString), "OTDB_StorePlainString");
 
 
 //      pScript->chai.add(fun(&OTDB::QueryPlainString), "OTDB_QueryPlainString");
         pScript->chai.add(fun<std::string (std::string, std::string, std::string, std::string)>(&OTDB::QueryPlainString), "OTDB_QueryPlainString");
-        pScript->chai.add(fun<std::string (std::string, std::string, std::string)>(&OTDB::QueryPlainString), "OTDB_QueryPlainString");
-        pScript->chai.add(fun<std::string (std::string, std::string)>(&OTDB::QueryPlainString), "OTDB_QueryPlainString");
-        pScript->chai.add(fun<std::string (std::string)>(&OTDB::QueryPlainString), "OTDB_QueryPlainString");
+//        pScript->chai.add(fun<std::string (std::string, std::string, std::string)>(&OTDB::QueryPlainString), "OTDB_QueryPlainString");
+//        pScript->chai.add(fun<std::string (std::string, std::string)>(&OTDB::QueryPlainString), "OTDB_QueryPlainString");
+//        pScript->chai.add(fun<std::string (std::string)>(&OTDB::QueryPlainString), "OTDB_QueryPlainString");
 
         
 //      pScript->chai.add(fun(&OTDB::StoreObject),      "OTDB_StoreObject");
         pScript->chai.add(fun<bool (OTDB::Storable &, std::string, std::string, std::string, std::string)>(&OTDB::StoreObject), "OTDB_StoreObject");
-        pScript->chai.add(fun<bool (OTDB::Storable &, std::string, std::string, std::string)>(&OTDB::StoreObject), "OTDB_StoreObject");
-        pScript->chai.add(fun<bool (OTDB::Storable &, std::string, std::string)>(&OTDB::StoreObject), "OTDB_StoreObject");
-        pScript->chai.add(fun<bool (OTDB::Storable &, std::string)>(&OTDB::StoreObject), "OTDB_StoreObject");
+//        pScript->chai.add(fun<bool (OTDB::Storable &, std::string, std::string, std::string)>(&OTDB::StoreObject), "OTDB_StoreObject");
+//        pScript->chai.add(fun<bool (OTDB::Storable &, std::string, std::string)>(&OTDB::StoreObject), "OTDB_StoreObject");
+//        pScript->chai.add(fun<bool (OTDB::Storable &, std::string)>(&OTDB::StoreObject), "OTDB_StoreObject");
 
         
 //      pScript->chai.add(fun(&OTDB::QueryObject),      "OTDB_QueryObject");
         pScript->chai.add(fun<OTDB::Storable * (OTDB::StoredObjectType, std::string, std::string, std::string, std::string)>(&OTDB::QueryObject), "OTDB_QueryObject");
-        pScript->chai.add(fun<OTDB::Storable * (OTDB::StoredObjectType, std::string, std::string, std::string)>(&OTDB::QueryObject), "OTDB_QueryObject");
-        pScript->chai.add(fun<OTDB::Storable * (OTDB::StoredObjectType, std::string, std::string)>(&OTDB::QueryObject), "OTDB_QueryObject");
-        pScript->chai.add(fun<OTDB::Storable * (OTDB::StoredObjectType, std::string)>(&OTDB::QueryObject), "OTDB_QueryObject");
+//        pScript->chai.add(fun<OTDB::Storable * (OTDB::StoredObjectType, std::string, std::string, std::string)>(&OTDB::QueryObject), "OTDB_QueryObject");
+//        pScript->chai.add(fun<OTDB::Storable * (OTDB::StoredObjectType, std::string, std::string)>(&OTDB::QueryObject), "OTDB_QueryObject");
+//        pScript->chai.add(fun<OTDB::Storable * (OTDB::StoredObjectType, std::string)>(&OTDB::QueryObject), "OTDB_QueryObject");
         
         
         pScript->chai.add(fun(&OTDB::EncodeObject),     "OTDB_EncodeObject");
