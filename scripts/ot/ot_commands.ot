@@ -2782,10 +2782,10 @@ def loadMarketList(serverID)
     var marketList
     var storable
     
-    if (OTDB_Exists("markets", serverID, "market_data.bin")) 
+    if (OTDB_Exists("markets", serverID, "market_data.bin", "")) 
     {
         OT_API_Output(0, "Markets file exists...Querying list of markets...\n")
-        storable := OTDB_QueryObject(STORED_OBJ_MARKET_LIST, "markets", serverID, "market_data.bin")
+        storable := OTDB_QueryObject(STORED_OBJ_MARKET_LIST, "markets", serverID, "market_data.bin", "")
         
         if (!VerifyStorable(storable))
         {
