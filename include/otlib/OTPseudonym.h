@@ -438,7 +438,7 @@ EXPORT	bool Server_PubKeyExists(OTString * pstrID=NULL); // Only used on server 
 
 EXPORT	bool LoadPublicKey();
 
-static  bool DoesCertfileExist(const OTString & strNymID); // static version of the next function.
+EXPORT	static  bool DoesCertfileExist(const OTString & strNymID); // static version of the next function.
 EXPORT  bool CertfileExists(); // on the client side, this means it's a private Nym.
     
 EXPORT	bool Loadx509CertAndPrivateKey(const OTString * pstrReason=NULL);
@@ -461,7 +461,7 @@ EXPORT	bool SavePseudonym(OTString & strNym);
 //      bool SavePseudonym(FILE * fl);
         bool SavePseudonym(std::ofstream & ofs);
 
-        bool SetIdentifierByPubkey();
+EXPORT	bool SetIdentifierByPubkey();
 	
         bool CompareID(const OTIdentifier & theIdentifier) const 
         { return (theIdentifier == m_nymID); }

@@ -16,11 +16,15 @@
 #include <string.h>     // strlen()
 
 #ifdef _WIN32
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#include <WinsockWrapper.h>
 #endif
-#endif
+
+//#ifdef _WIN32
+//#ifndef WIN32_LEAN_AND_MEAN
+//#define WIN32_LEAN_AND_MEAN
+//#include <windows.h>
+//#endif
+//#endif
 
 
 

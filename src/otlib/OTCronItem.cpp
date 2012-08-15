@@ -1218,8 +1218,8 @@ int OTCronItem::GetCountClosingNumbers() const
 
 long OTCronItem::GetClosingTransactionNoAt(unsigned int nIndex) const 
 {
-    OT_ASSERT_MSG((nIndex < m_dequeClosingNumbers.size()) && (nIndex >= 0), 
-                  "OTCronItem::GetClosingTransactionNoAt: index out of bounds.");
+	if (0 > nIndex)	{ OTLog::vError("%s: %s size is less than 0!\n", __FUNCTION__, "nIndex"	); OT_ASSERT(false); return false; }
+	if (m_dequeClosingNumbers.size() <= nIndex)	{ OTLog::vError("%s: %s is equal or larger than m_dequeClosingNumbers.size()!\n", __FUNCTION__, "nIndex"	); OT_ASSERT(false); return false; }
     
     return m_dequeClosingNumbers.at(nIndex);
 }
@@ -1405,9 +1405,11 @@ void OTCronItem::HookRemovalFromCron(OTPseudonym * pRemover) // sometimes NULL.
         // Note: elsewhere, we verify the Nym's signature. But in this place, we verify the SERVER's
         // signature. (The server signed the cron receipt just before it was first saved, so it has two signatures on it.)
         //
-        OT_ASSERT_MSG(pOrigCronItem->VerifySignature(*pServerNym), 
-                      "Failure verifying signature of server on Cron Item in OTCronItem::HookRemovalFromCron.\n");
-        
+		{
+			bool bValidSignture = pOrigCronItem->VerifySignature(*pServerNym);
+			if (!bValidSignture) { OTLog::vError("%s: Failure verifying signature of server on Cron Item!\n", __FUNCTION__); OT_ASSERT(false); return; }
+		}
+
         // I now have a String copy of the original CronItem...
         const OTString strOrigCronItem(*pOrigCronItem);
         // -------------------------------------------------------

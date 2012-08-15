@@ -216,7 +216,9 @@ public:
 	// One server might require at least 5 prototokens per withdrawal. Another might require 100 because it
 	// needs more security.  Another 1000.  These provide more security but they also cost more in terms of 
 	// resources to process all those prototokens.
-	static const int nMinimumPrototokenCount;
+
+	EXPORT	static const int GetMinimumPrototokenCount();
+
 	
 protected:
     bool                m_bPasswordProtected;  // this token might be encrypted to a passphrase, instead of a Nym.
@@ -263,80 +265,84 @@ protected:
 	
 public:
 	// Preparing to polymorphize tokens. This will allow us to instantiate LucreTokens,
-    // and other types of tokens, dynamically, without having to know beforehand which
-    // OTToken subclass we're dealing with.
-    //
-    static OTToken * TokenFactory( OTString strInput);
-    static OTToken * TokenFactory( OTString strInput, const OTPurse & thePurse);
-    static OTToken * TokenFactory( OTString strInput, const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID);
-    static OTToken * LowLevelInstantiate(const OTString & strFirstLine);
-    static OTToken * LowLevelInstantiate(const OTString & strFirstLine, const OTPurse & thePurse);
-    static OTToken * LowLevelInstantiate(const OTString & strFirstLine, const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID);
+	// and other types of tokens, dynamically, without having to know beforehand which
+	// OTToken subclass we're dealing with.
+	//
+	EXPORT	static OTToken * TokenFactory( OTString strInput);
+	EXPORT	static OTToken * TokenFactory( OTString strInput, const OTPurse & thePurse);
+	EXPORT	static OTToken * TokenFactory( OTString strInput, const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID);
+	EXPORT	static OTToken * LowLevelInstantiate(const OTString & strFirstLine);
+	EXPORT	static OTToken * LowLevelInstantiate(const OTString & strFirstLine, const OTPurse & thePurse);
+	EXPORT	static OTToken * LowLevelInstantiate(const OTString & strFirstLine, const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID);
 
-EXPORT	OTToken();
-EXPORT	OTToken(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID);
-EXPORT	OTToken(const OTPurse & thePurse);
-EXPORT	virtual ~OTToken();
-	
-	void Release_Token();
+	EXPORT	OTToken();
+	EXPORT	OTToken(const OTIdentifier & SERVER_ID, const OTIdentifier & ASSET_ID);
+	EXPORT	OTToken(const OTPurse & thePurse);
+	EXPORT	virtual ~OTToken();
+
+	EXPORT	void Release_Token();
 	virtual void Release();
-	void ReleasePrototokens();
+	EXPORT	void ReleasePrototokens();
 
 	virtual void UpdateContents(); // Before transmission or serialization, this is where the token saves its contents 	
 
 	// Will save the private keys on next serialization (not just public keys)
 	// (SignContract sets m_bSavePrivateKeys back to false again.)
-	inline void SetSavePrivateKeys() { m_bSavePrivateKeys = true; }	
-	
+	inline	void SetSavePrivateKeys() { m_bSavePrivateKeys = true; }	
+
 	// When you send a token to the server, you must decrypt it from your own key,
 	// and re-encrypt it to the server key, before sending. Use this function to do so.
-    // In the case of exporting a token from a purse, you could create a dummy Nym, embed
-    // it inside the purse, and then reassign ownership of each token to that token as you
-    // push them into that purse.
-    // From there, you can hand someone the purse, and password-protect it, if you like.
-    //
+	// In the case of exporting a token from a purse, you could create a dummy Nym, embed
+	// it inside the purse, and then reassign ownership of each token to that token as you
+	// push them into that purse.
+	// From there, you can hand someone the purse, and password-protect it, if you like.
+	//
 
-EXPORT	 bool ReassignOwnership(OTNym_or_SymmetricKey & oldOwner, OTNym_or_SymmetricKey & newOwner);
-//EXPORT bool ReassignOwnership(const OTPseudonym & oldOwner, const OTPseudonym & newOwner);
+	EXPORT	bool ReassignOwnership(OTNym_or_SymmetricKey & oldOwner, OTNym_or_SymmetricKey & newOwner);
+	//EXPORT bool ReassignOwnership(const OTPseudonym & oldOwner, const OTPseudonym & newOwner);
 
-	inline const OTASCIIArmor & GetSpendable() const { return m_ascSpendable; }
-	inline void SetSpendable(const OTASCIIArmor & theArmor) { m_ascSpendable.Set(theArmor); }
-	
-EXPORT	bool GetSpendableString(OTNym_or_SymmetricKey theOwner, OTString & theString) const; // todo potentially return OTPassword here instead of OTString (more secure.)
-//EXPORT	bool GetSpendableString(OTPseudonym & theOwner, OTString & theString) const; // todo potentially return OTPassword here instead of OTString (more secure.)
-	
-	inline OTToken::tokenState GetState() const { return m_State; }
-	
+	inline	const OTASCIIArmor & GetSpendable() const { return m_ascSpendable; }
+	inline	void SetSpendable(const OTASCIIArmor & theArmor) { m_ascSpendable.Set(theArmor); }
+
+	EXPORT	bool GetSpendableString(OTNym_or_SymmetricKey theOwner, OTString & theString) const; // todo potentially return OTPassword here instead of OTString (more secure.)
+	//EXPORT	bool GetSpendableString(OTPseudonym & theOwner, OTString & theString) const; // todo potentially return OTPassword here instead of OTString (more secure.)
+
+	inline	OTToken::tokenState GetState() const { return m_State; }
+
 	// ------------------------------------------------------------------------
 
 	// Lucre step 1 (in OTMint) Generate New Mint
-	
+
 	// Lucre Step 2: Generate Coin Request
 	// nDenomination MUST be one that the Mint supports.
 	// let nTokenCount default to 1, since that's how Lucre works.
-EXPORT	bool GenerateTokenRequest(const OTPseudonym & theNym, OTMint & theMint, 
-                                  long lDenomination, int nTokenCount=nMinimumPrototokenCount);
+	EXPORT	bool GenerateTokenRequest(
+		const OTPseudonym & theNym,
+		OTMint & theMint, 
+		long lDenomination,
+		int nTokenCount=OTToken::GetMinimumPrototokenCount()
+		);
 
 	// Lucre Step 3: Mint signs token (in OTMint)
-	inline int	GetSeries() const { return m_nSeries; }
-	inline void SetSeriesAndExpiration  // (Called by the mint when signing.)
+	inline	int	GetSeries() const { return m_nSeries; }
+	inline	void SetSeriesAndExpiration  // (Called by the mint when signing.)
 		(int nSeries, time_t VALID_FROM, time_t VALID_TO)
 	{	m_nSeries = nSeries; 	m_VALID_FROM = VALID_FROM;	m_VALID_TO = VALID_TO; }
-	
+
 	// Lucre step 4: client unblinds token -- now it's ready for use.
-EXPORT	bool ProcessToken(const OTPseudonym & theNym, OTMint & theMint, OTToken & theRequest);
+	EXPORT	bool ProcessToken(const OTPseudonym & theNym, OTMint & theMint, OTToken & theRequest);
 
 	// Lucre step 5: token verifies when it is redeemed by merchant.
 	//				 Now including spent token database!
-        bool VerifyToken(OTPseudonym & theNotary, OTMint & theMint);
-EXPORT	bool IsTokenAlreadySpent(OTString & theCleartextToken); // Spent Token Database
-EXPORT	bool RecordTokenAsSpent(OTString & theCleartextToken);  // Spent Token Database
-	
+	EXPORT	bool VerifyToken(OTPseudonym & theNotary, OTMint & theMint);
+	EXPORT	bool IsTokenAlreadySpent(OTString & theCleartextToken); // Spent Token Database
+	EXPORT	bool RecordTokenAsSpent(OTString & theCleartextToken);  // Spent Token Database
+
 	// ------------------------------------------------------------------------
-	
-EXPORT	void SetSignature(const OTASCIIArmor & theSignature, int nTokenIndex);
-        bool GetSignature(OTASCIIArmor & theSignature) const;
-	
+
+	EXPORT	void SetSignature(const OTASCIIArmor & theSignature, int nTokenIndex);
+	EXPORT	bool GetSignature(OTASCIIArmor & theSignature) const;
+
 	// The actual denomination of the token is determined by whether or not it verifies
 	// when the server uses the private verify info for THAT denomination. So if you set
 	// the denomination here wrong, all that does is cause the server to try to verify it
@@ -345,18 +351,18 @@ EXPORT	void SetSignature(const OTASCIIArmor & theSignature, int nTokenIndex);
 	// So this value is only here to help you make sure to ask the Mint to use the right
 	// key when verifying the token. And this only works because we have a specific set of
 	// denominations for each digital asset, each with its own key pair in the Mint.
-	inline long GetDenomination() const { return m_lDenomination; }
-	inline void SetDenomination(long lVal) { m_lDenomination = lVal; }
-	
+	inline	long GetDenomination() const { return m_lDenomination; }
+	inline	void SetDenomination(long lVal) { m_lDenomination = lVal; }
+
 	// These are not actually necessary for Lucre itself, which only needs
 	// to send a single blinded proto-token. Index is always 0, and Count is
 	// always 1. But this does mean OTToken supports digital cash schemes that
 	// involve multiple prototokens -- even though Lucre is not one of those.
-	bool GetPrototoken(OTASCIIArmor & ascPrototoken, int nTokenIndex);
-	bool GetPrivatePrototoken(OTASCIIArmor & ascPrototoken, int nTokenIndex);
-	
-	virtual bool SaveContractWallet(std::ofstream & ofs);
-//	virtual bool SaveContractWallet(FILE * fl);
+	EXPORT	bool GetPrototoken(OTASCIIArmor & ascPrototoken, int nTokenIndex);
+	EXPORT	bool GetPrivatePrototoken(OTASCIIArmor & ascPrototoken, int nTokenIndex);
+
+	virtual	bool SaveContractWallet(std::ofstream & ofs);
+	//	virtual bool SaveContractWallet(FILE * fl);
 };
 
 

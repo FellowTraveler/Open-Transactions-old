@@ -522,88 +522,88 @@ typedef std::map<std::string, OTMasterKey*> mapOfMasterKeys;
 class OTMasterKey
 {
 private:
-    tthread::thread * m_pThread;         // The thread used for destroying the password after the timeout period.
-    int               m_nTimeoutSeconds; // The master password will be stored internally for X seconds, and then destroyed.
-    OTPassword     *  m_pMasterPassword; // Created when password is passed in; destroyed by Timer after X seconds.
-    
-    bool              m_bUse_System_Keyring; // if set to true, then additionally use the local OS's standard API for storing/retrieving secrets. (Store the master key here whenever it's decrypted, and try to retrieve from here whenever it's needed, before resorting to asking the user to type his passphrase.) This is configurable in the config file.
-    
-    OTSymmetricKey *  m_pSymmetricKey;   // Encrypted form of the master key. Serialized by OTWallet or OTServer.
-    tthread::mutex    m_Mutex;           // Mutex used for serializing access to this instance.
-    bool              m_bPaused;         // If you want to force the old system, PAUSE the master key (REMEMBER to Unpause when done!)
-    // -----------------------------------------------------------
-    OTMasterKey(int nTimeoutSeconds=OT_MASTER_KEY_TIMEOUT);
-    // -----------------------------------------------------------
-    static mapOfMasterKeys  s_mapMasterKeys;  // Now we have many "master keys," mapped by their symmetric key ID. These are actually temps, just so we can safely cache the passphrases for various symmetric keys, between uses of that symmetric key. Such as Pop'ing tokens off of a purse, over and over again. Normally in the API, this would have to load the key each time. By caching here, we can exploit all the cool master key code, with its security, and threads, and timeouts, etc for every symmetric key we use. Just pass an ID into It() and if it's on the map, a pointer will be returned. Pass NULL into It() (no arguments) to get a pointer to the global Master Key (for Nyms.)
+	tthread::thread * m_pThread;         // The thread used for destroying the password after the timeout period.
+	int               m_nTimeoutSeconds; // The master password will be stored internally for X seconds, and then destroyed.
+	OTPassword     *  m_pMasterPassword; // Created when password is passed in; destroyed by Timer after X seconds.
+
+	bool              m_bUse_System_Keyring; // if set to true, then additionally use the local OS's standard API for storing/retrieving secrets. (Store the master key here whenever it's decrypted, and try to retrieve from here whenever it's needed, before resorting to asking the user to type his passphrase.) This is configurable in the config file.
+
+	OTSymmetricKey *  m_pSymmetricKey;   // Encrypted form of the master key. Serialized by OTWallet or OTServer.
+	tthread::mutex    m_Mutex;           // Mutex used for serializing access to this instance.
+	bool              m_bPaused;         // If you want to force the old system, PAUSE the master key (REMEMBER to Unpause when done!)
+	// -----------------------------------------------------------
+	OTMasterKey(int nTimeoutSeconds=OT_MASTER_KEY_TIMEOUT);
+	// -----------------------------------------------------------
+	static mapOfMasterKeys  s_mapMasterKeys;  // Now we have many "master keys," mapped by their symmetric key ID. These are actually temps, just so we can safely cache the passphrases for various symmetric keys, between uses of that symmetric key. Such as Pop'ing tokens off of a purse, over and over again. Normally in the API, this would have to load the key each time. By caching here, we can exploit all the cool master key code, with its security, and threads, and timeouts, etc for every symmetric key we use. Just pass an ID into It() and if it's on the map, a pointer will be returned. Pass NULL into It() (no arguments) to get a pointer to the global Master Key (for Nyms.)
 public:
-    OTMasterKey(const OTASCIIArmor & ascMasterKey);
-    ~OTMasterKey();
-    // -----------------------------------------------------------
+	EXPORT    OTMasterKey(const OTASCIIArmor & ascMasterKey);
+	EXPORT    ~OTMasterKey();
+	// -----------------------------------------------------------
 
-EXPORT    static OTMasterKey * It(OTIdentifier * pIdentifier=NULL); // if you pass in a master key ID, it will look it up on an existing cached map of master keys. Otherwise it will use "the" global Master Key (the one used for the Nyms.)
-    
-EXPORT    static OTMasterKey * It(const OTMasterKey & theSourceKey); // if you pass in a master key, it will look it up on an existing cached map of master keys, based on the ID of the master key passed in. If not there, it copies the one passed in, and returns a pointer to the copy. (Do NOT delete it.)
+	EXPORT    static OTMasterKey * It(OTIdentifier * pIdentifier=NULL); // if you pass in a master key ID, it will look it up on an existing cached map of master keys. Otherwise it will use "the" global Master Key (the one used for the Nyms.)
 
-          static void Cleanup(); // Call on application shutdown. Called in CleanupOTAPI and also in OTServer wherever it cleans up.
-    // ------------------------------------------------------------------------
-EXPORT    bool   GetIdentifier(OTIdentifier & theIdentifier) const;
-EXPORT    bool   GetIdentifier(OTString     & strIdentifier) const;
-    // ------------------------------------------------------------------------
-EXPORT    bool   IsGenerated();
-    // --------------------------------
-EXPORT    bool   IsUsingSystemKeyring() { return m_bUse_System_Keyring; }
-          void   UseSystemKeyring(bool bUsing=true) { m_bUse_System_Keyring = bUsing; } // Start using system keyring.
-    // --------------------------------
-EXPORT    bool   Pause();
-EXPORT    bool   Unpause();
-EXPORT    bool   isPaused();
-    // --------------------------------
-EXPORT    bool   SerializeTo   (      OTASCIIArmor & ascOutput);
-EXPORT    bool   SerializeFrom (const OTASCIIArmor & ascInput );
-    // --------------------------------
+	EXPORT    static OTMasterKey * It(const OTMasterKey & theSourceKey); // if you pass in a master key, it will look it up on an existing cached map of master keys, based on the ID of the master key passed in. If not there, it copies the one passed in, and returns a pointer to the copy. (Do NOT delete it.)
 
-    // These two functions are used by the OTServer or OTWallet that actually keeps
-    // the master key. The owner sets the master key pointer on initialization, and then
-    // later when the password callback code in OTAsymmetricKey needs to access the master
-    // key, it can use GetMasterPassword to access it.
-    //
-EXPORT    void   SetMasterKey(const OTASCIIArmor & ascMasterKey); // OTServer/OTWallet calls this, I instantiate.
-    // --------------------------------
-    
-          int    GetTimeoutSeconds(); 
-EXPORT    void   SetTimeoutSeconds(int nTimeoutSeconds); // So we can load from the config file.
-    
-    // For Nyms, which have a global master key serving as their "passphrase" (for that wallet),
-    // The password callback uses OTMasterKey::It() to get the instance, and then GetMasterPassword
-    // to get the passphrase for any individual Nym. Otherwise, OTMasterKey::It(OTSymmetricKey *) looks
-    // up a cached master key based on the ID of the key passed in. For example, OTPurse has a symmetric
-    // key and master key (optionally, vs using a Nym.) The symmetric key contains the actual key for the
-    // tokens, and the master key is used for the passphrase, which may be cached, or may have timed out,
-    // and then re-retrieved from the user (either way). The purse, rather than using the global
-    // master key to get the passphrase, (which _would_ happen if the purse is encrypted to a nym) will
-    // instead use its own internal master key to get its passphrase (also retrieving from the user if
-    // necessary.)
-    bool   GetMasterPassword(      OTPassword & theOutput,
-                             const char       * szDisplay=NULL,
-                                   bool         bVerifyTwice=false);
-    
-    // Caller must delete!
-    static OTMasterKey * CreateMasterPassword(OTPassword & theOutput,
-                                              const char * szDisplay=NULL,
-                                              int nTimeoutSeconds=OT_MASTER_KEY_TIMEOUT);
-    // --------------------------------
+	EXPORT    static void Cleanup(); // Call on application shutdown. Called in CleanupOTAPI and also in OTServer wherever it cleans up.
+	// ------------------------------------------------------------------------
+	EXPORT    bool   GetIdentifier(OTIdentifier & theIdentifier) const;
+	EXPORT    bool   GetIdentifier(OTString     & strIdentifier) const;
+	// ------------------------------------------------------------------------
+	EXPORT    bool   IsGenerated();
+	// --------------------------------
+	EXPORT    bool   IsUsingSystemKeyring() { return m_bUse_System_Keyring; }
+	EXPORT    void   UseSystemKeyring(bool bUsing=true) { m_bUse_System_Keyring = bUsing; } // Start using system keyring.
+	// --------------------------------
+	EXPORT    bool   Pause();
+	EXPORT    bool   Unpause();
+	EXPORT    bool   isPaused();
+	// --------------------------------
+	EXPORT    bool   SerializeTo   (      OTASCIIArmor & ascOutput);
+	EXPORT    bool   SerializeFrom (const OTASCIIArmor & ascInput );
+	// --------------------------------
 
-    void DestroyMasterPassword(); // The thread, when the time comes, calls this method using the instance pointer that was passed into the thread originally. The actual encrypted version is kept -- only the temporary cleartext version is destroyed.
+	// These two functions are used by the OTServer or OTWallet that actually keeps
+	// the master key. The owner sets the master key pointer on initialization, and then
+	// later when the password callback code in OTAsymmetricKey needs to access the master
+	// key, it can use GetMasterPassword to access it.
+	//
+	EXPORT    void   SetMasterKey(const OTASCIIArmor & ascMasterKey); // OTServer/OTWallet calls this, I instantiate.
+	// --------------------------------
 
-    void ResetMasterPassword(); // If you actually want to create a new key, and a new passphrase, then use this to destroy every last vestige of the old one. (Which will cause a new one to be automatically generated the next time OT requests the master key.) NOTE: Make SURE you have all your Nyms loaded up and unlocked before you call this. Then Save them all again so they will be properly stored with the new master key.
-    
-    void LowLevelReleaseThread();
+	EXPORT    int    GetTimeoutSeconds(); 
+	EXPORT    void   SetTimeoutSeconds(int nTimeoutSeconds); // So we can load from the config file.
 
-    // The cleartext version (m_pMasterPassword) is deleted and set NULL after a Timer of X seconds. (Timer thread calls this.)
-    // The INSTANCE that owns the thread also passes a pointer to ITSELF.
-    // (So we can access password, mutex, timeout value, etc.) This function calls DestroyMasterPassword.
-    //    
-    static void ThreadTimeout(void * pArg); 
+	// For Nyms, which have a global master key serving as their "passphrase" (for that wallet),
+	// The password callback uses OTMasterKey::It() to get the instance, and then GetMasterPassword
+	// to get the passphrase for any individual Nym. Otherwise, OTMasterKey::It(OTSymmetricKey *) looks
+	// up a cached master key based on the ID of the key passed in. For example, OTPurse has a symmetric
+	// key and master key (optionally, vs using a Nym.) The symmetric key contains the actual key for the
+	// tokens, and the master key is used for the passphrase, which may be cached, or may have timed out,
+	// and then re-retrieved from the user (either way). The purse, rather than using the global
+	// master key to get the passphrase, (which _would_ happen if the purse is encrypted to a nym) will
+	// instead use its own internal master key to get its passphrase (also retrieving from the user if
+	// necessary.)
+	EXPORT    bool   GetMasterPassword(      OTPassword & theOutput,
+		const char       * szDisplay=NULL,
+		bool         bVerifyTwice=false);
+
+	// Caller must delete!
+	EXPORT  static OTMasterKey * CreateMasterPassword(OTPassword & theOutput,
+		const char * szDisplay=NULL,
+		int nTimeoutSeconds=OT_MASTER_KEY_TIMEOUT);
+	// --------------------------------
+
+	EXPORT   void DestroyMasterPassword(); // The thread, when the time comes, calls this method using the instance pointer that was passed into the thread originally. The actual encrypted version is kept -- only the temporary cleartext version is destroyed.
+
+	EXPORT	void ResetMasterPassword(); // If you actually want to create a new key, and a new passphrase, then use this to destroy every last vestige of the old one. (Which will cause a new one to be automatically generated the next time OT requests the master key.) NOTE: Make SURE you have all your Nyms loaded up and unlocked before you call this. Then Save them all again so they will be properly stored with the new master key.
+
+	EXPORT   void LowLevelReleaseThread();
+
+	// The cleartext version (m_pMasterPassword) is deleted and set NULL after a Timer of X seconds. (Timer thread calls this.)
+	// The INSTANCE that owns the thread also passes a pointer to ITSELF.
+	// (So we can access password, mutex, timeout value, etc.) This function calls DestroyMasterPassword.
+	//    
+	EXPORT   static void ThreadTimeout(void * pArg); 
 };
 
 
@@ -613,108 +613,128 @@ EXPORT    void   SetTimeoutSeconds(int nTimeoutSeconds); // So we can load from 
 class OTSymmetricKey
 {
 private:
-    bool            m_bIsGenerated;     // GetKey asserts if this is false; GenerateKey asserts if it's true.
-    // ---------------------------------------------
-    uint16_t        m_nKeySize;         // The size, in bits. For example, 128 bit key, 256 bit key, etc.
-    // ---------------------------------------------
-    uint32_t        m_uIterationCount;  // Stores the iteration count, which should probably be at least 2000. (Number of iterations used while generating key from passphrase.)
-    // ---------------------------------------------
-	OTPayload       m_dataSalt;         // Stores the SALT (which is used with the password for generating / retrieving the key from m_dataEncryptedKey)
-	OTPayload       m_dataIV;           // Stores the IV used internally for encrypting / decrypting the actual key (using the derived key) from m_dataEncryptedKey.
-	OTPayload       m_dataEncryptedKey; // Stores only encrypted version of symmetric key.
-    // ---------------------------------------------
+	bool m_bIsGenerated; // GetKey asserts if this is false; GenerateKey asserts if it's true.
+	// ---------------------------------------------
+	uint16_t m_nKeySize; // The size, in bits. For example, 128 bit key, 256 bit key, etc.
+	// ---------------------------------------------
+	uint32_t m_uIterationCount; // Stores the iteration count, which should probably be at least 2000. (Number of iterations used while generating key from passphrase.)
+	// ---------------------------------------------
+	OTPayload m_dataSalt; // Stores the SALT (which is used with the password for generating / retrieving the key from m_dataEncryptedKey)
+	OTPayload m_dataIV; // Stores the IV used internally for encrypting / decrypting the actual key (using the derived key) from m_dataEncryptedKey.
+	OTPayload m_dataEncryptedKey; // Stores only encrypted version of symmetric key.
+	// ---------------------------------------------
 public:
-    // ------------------------------------------------------------------------
-    // The highest-level possible interface (used by the API)
+	// ------------------------------------------------------------------------
+	// The highest-level possible interface (used by the API)
 
-    // Caller must delete.
-    static OTPassword  * GetPassphraseFromUser(const OTString  * pstrDisplay = NULL,
-                                               const bool        bAskTwice   = false); // returns a text OTPassword, or NULL.
-    // ------------------------------------------------------------------------
-    // If you already have the passphrase, you can pass it in as an optional arg.
-    // That way if you have to use it 100 times in a row, the user doesn't actually have
-    // to TYPE it 100 times in a row.
-    //
-    static bool CreateNewKey(      OTString   & strOutput,
-                             const OTString   * pstrDisplay    = NULL,
-                             const OTPassword * pAlreadyHavePW = NULL);
-    // ------------------------------------------------------------------------
-    static bool Encrypt(const OTString      & strKey,
-                        const OTString      & strPlaintext,
-                              OTString      & strOutput,
-                        const OTString      * pstrDisplay    = NULL,
-                        const bool            bBookends      = true,
-                        const OTPassword    * pAlreadyHavePW = NULL);
-    
-    static bool Decrypt(const OTString   & strKey,
-                              OTString   & strCiphertext,
-                              OTString   & strOutput,
-                        const OTString   * pstrDisplay    = NULL,
-                        const OTPassword * pAlreadyHavePW = NULL);
-    // ------------------------------------------------------------------------
-    static bool Encrypt(const OTSymmetricKey & theKey,
-                        const OTString       & strPlaintext,
-                              OTString       & strOutput,
-                        const OTString       * pstrDisplay    = NULL,
-                        const bool             bBookends      = true,
-                        const OTPassword     * pAlreadyHavePW = NULL);
-    
-    static bool Decrypt(const OTSymmetricKey & theKey,
-                              OTString       & strCiphertext,
-                              OTString       & strOutput,
-                        const OTString       * pstrDisplay    = NULL,
-                        const OTPassword     * pAlreadyHavePW = NULL);
-    // ------------------------------------------------------------------------
-EXPORT    bool SerializeTo   (OTPayload & theOutput) const;
-          bool SerializeFrom (OTPayload & theInput);
-    
-          bool SerializeTo   (OTASCIIArmor & ascOutput) const;
-          bool SerializeFrom (const OTASCIIArmor & ascInput);
-    
-EXPORT    bool SerializeTo   (OTString & strOutput, bool bEscaped=false) const;
-EXPORT    bool SerializeFrom (const OTString & strInput, bool bEscaped=false);
-   // ------------------------------------------------------------------------
-   inline bool IsGenerated() const { return m_bIsGenerated; }
-   // ------------------------------------------------------------------------   
-EXPORT    void GetIdentifier(OTIdentifier & theIdentifier) const;    
-EXPORT    void GetIdentifier(OTString     & strIdentifier) const;
-    // ------------------------------------------------------------------------ 
-    // The derived key is used for decrypting the actual symmetric key.
-    // It's called the derived key because it is derived from the passphrase.
-    //
-    OTPassword * CalculateDerivedKeyFromPassphrase(const 
-                                                   OTPassword & thePassphrase) const;
-    // ------------------------------------------------------------------------ 
-    // Assumes key is already generated. Tries to get the raw clear key from its 
-    // encrypted form, via its passphrase being used to derive a key for that purpose.
-    //
-EXPORT    bool GetRawKeyFromPassphrase(const 
-                                 OTPassword & thePassphrase, 
-                                 OTPassword & theRawKeyOutput,
-                                 OTPassword * pDerivedKey=NULL) const;
-    
-    // Assumes key is already generated. Tries to get the raw clear key 
-    // from its encrypted form, via a derived key.
-    //
-    bool GetRawKeyFromDerivedKey(const 
-                                 OTPassword & theDerivedKey, 
-                                 OTPassword & theRawKeyOutput) const; 
-    // ------------------------------------------------------------------------    
-    // Generates this OTSymmetricKey based on an OTPassword. The generated key is 
-    // stored in encrypted form, based on a derived key from that password.
-    //
-    bool GenerateKey(const 
-                     OTPassword &  thePassphrase,
-                     OTPassword ** ppDerivedKey=NULL);  // If you want, I can pass this back to you.
-    // ------------------------------------------------------------------------
-EXPORT	OTSymmetricKey();
-EXPORT	OTSymmetricKey(const OTPassword & thePassword);
-    
-EXPORT	virtual ~OTSymmetricKey();
-EXPORT  virtual void Release();
-    
-    void Release_SymmetricKey();
-    // ------------------------------------------------------------------------
+	// Caller must delete.
+	EXPORT	static OTPassword * GetPassphraseFromUser(
+		const OTString * pstrDisplay = NULL,
+		const bool		 bAskTwice = false
+		); // returns a text OTPassword, or NULL.
+
+	// ------------------------------------------------------------------------
+	// If you already have the passphrase, you can pass it in as an optional arg.
+	// That way if you have to use it 100 times in a row, the user doesn't actually have
+	// to TYPE it 100 times in a row.
+	//
+	EXPORT	static bool CreateNewKey(
+			  OTString	 & strOutput,
+		const OTString	 * pstrDisplay	  = NULL,
+		const OTPassword * pAlreadyHavePW = NULL
+		);
+	// ------------------------------------------------------------------------
+	EXPORT	static bool Encrypt(
+		const OTString	 & strKey,
+		const OTString	 & strPlaintext,
+			  OTString	 & strOutput,
+		const OTString	 * pstrDisplay	  = NULL,
+		const bool			bBookends	  = true,
+		const OTPassword * pAlreadyHavePW = NULL
+		);
+
+	EXPORT	static bool Decrypt(
+		const OTString	 & strKey,
+			  OTString	 & strCiphertext,
+			  OTString	 & strOutput,
+		const OTString	 * pstrDisplay	  = NULL,
+		const OTPassword * pAlreadyHavePW = NULL
+		);
+
+	// ------------------------------------------------------------------------
+	EXPORT	static bool Encrypt(
+		const OTSymmetricKey & theKey,
+		const OTString		 & strPlaintext,
+			  OTString		 & strOutput,
+		const OTString		 * pstrDisplay	  = NULL,
+		const bool			   bBookends	  = true,
+		const OTPassword	 * pAlreadyHavePW = NULL
+		);
+
+	EXPORT	static bool Decrypt(
+		const OTSymmetricKey & theKey,
+			  OTString		 & strCiphertext,
+			  OTString		 & strOutput,
+		const OTString		 * pstrDisplay	  = NULL,
+		const OTPassword	 * pAlreadyHavePW = NULL
+		);
+
+	// ------------------------------------------------------------------------
+	EXPORT	bool SerializeTo (OTPayload & theOutput) const;
+	EXPORT	bool SerializeFrom (OTPayload & theInput);
+
+	EXPORT	bool SerializeTo (OTASCIIArmor & ascOutput) const;
+	EXPORT	bool SerializeFrom (const OTASCIIArmor & ascInput);
+
+	EXPORT	bool SerializeTo (OTString & strOutput, bool bEscaped=false) const;
+	EXPORT	bool SerializeFrom (const OTString & strInput, bool bEscaped=false);
+	// ------------------------------------------------------------------------
+	inline	bool IsGenerated() const { return m_bIsGenerated; }
+	// ------------------------------------------------------------------------ 
+	EXPORT	void GetIdentifier(OTIdentifier & theIdentifier) const; 
+	EXPORT	void GetIdentifier(OTString & strIdentifier) const;
+	// ------------------------------------------------------------------------ 
+	// The derived key is used for decrypting the actual symmetric key.
+	// It's called the derived key because it is derived from the passphrase.
+	//
+	OTPassword * CalculateDerivedKeyFromPassphrase(
+		const OTPassword & thePassphrase
+		) const;
+	// ------------------------------------------------------------------------ 
+	// Assumes key is already generated. Tries to get the raw clear key from its 
+	// encrypted form, via its passphrase being used to derive a key for that purpose.
+	//
+	EXPORT	bool GetRawKeyFromPassphrase(const 
+		OTPassword & thePassphrase, 
+		OTPassword & theRawKeyOutput,
+		OTPassword * pDerivedKey=NULL
+		) const;
+
+	// Assumes key is already generated. Tries to get the raw clear key 
+	// from its encrypted form, via a derived key.
+	//
+	EXPORT	bool GetRawKeyFromDerivedKey(
+		const OTPassword & theDerivedKey, 
+			  OTPassword & theRawKeyOutput
+		) const; 
+	// ------------------------------------------------------------------------ 
+	// Generates this OTSymmetricKey based on an OTPassword. The generated key is 
+	// stored in encrypted form, based on a derived key from that password.
+	//
+	EXPORT	bool GenerateKey(
+		const OTPassword & thePassphrase,
+			  OTPassword ** ppDerivedKey=NULL // If you want, I can pass this back to you.
+		);
+
+	// ------------------------------------------------------------------------
+	EXPORT	OTSymmetricKey();
+	EXPORT	OTSymmetricKey(const OTPassword & thePassword);
+
+	EXPORT	virtual ~OTSymmetricKey();
+	EXPORT	virtual void Release();
+
+	EXPORT	void Release_SymmetricKey();
+	// ------------------------------------------------------------------------
 };
 
 
@@ -768,26 +788,26 @@ a moderately high rate.
 class OTEnvelope_Decrypt_Output
 {
 private:
-    OTPassword * m_pPassword;
-    OTPayload  * m_pPayload;
-    
-    OTEnvelope_Decrypt_Output();
+	OTPassword * m_pPassword;
+	OTPayload  * m_pPayload;
+
+	OTEnvelope_Decrypt_Output();
 public:
-EXPORT    ~OTEnvelope_Decrypt_Output();
-    
-    OTEnvelope_Decrypt_Output(const OTEnvelope_Decrypt_Output & rhs);
-    
-    OTEnvelope_Decrypt_Output(OTPassword & thePassword);
-    OTEnvelope_Decrypt_Output(OTPayload  & thePayload);
-    
-    void swap(OTEnvelope_Decrypt_Output & other);
+	EXPORT	~OTEnvelope_Decrypt_Output();
 
-    OTEnvelope_Decrypt_Output & operator = (OTEnvelope_Decrypt_Output other); // passed by value.
-    
-    bool Concatenate(const void * pAppendData, uint32_t lAppendSize);
+	EXPORT	OTEnvelope_Decrypt_Output(const OTEnvelope_Decrypt_Output & rhs);
 
-    void Release(); // Someday make this virtual, if we ever subclass it.
-    void Release_Envelope_Decrypt_Output();
+	EXPORT	OTEnvelope_Decrypt_Output(OTPassword & thePassword);
+	EXPORT	OTEnvelope_Decrypt_Output(OTPayload  & thePayload);
+
+	EXPORT	void swap(OTEnvelope_Decrypt_Output & other);
+
+	EXPORT	OTEnvelope_Decrypt_Output & operator = (OTEnvelope_Decrypt_Output other); // passed by value.
+
+	EXPORT	bool Concatenate(const void * pAppendData, uint32_t lAppendSize);
+
+	EXPORT	void Release(); // Someday make this virtual, if we ever subclass it.
+	EXPORT	void Release_Envelope_Decrypt_Output();
 
 };
 
@@ -813,39 +833,39 @@ private:
     // ---------------------------------
 public:
     // ---------------------------------
-    OTPseudonym    * GetNym()      const { return m_pNym;      }
-    OTSymmetricKey * GetKey()      const { return m_pKey;      }
-    OTPassword     * GetPassword() const { return m_pPassword; } // for symmetric key (optional)
-    // ---------------------------------
-    bool  IsNym()       const { return (NULL != m_pNym);      }
-    bool  IsKey()       const { return (NULL != m_pKey);      }
-    bool  HasPassword() const { return (NULL != m_pPassword); } // for symmetric key (optional)
-    // ------------------------------------------------------------------------
-    void GetIdentifier(OTIdentifier & theIdentifier) const;
-    void GetIdentifier(OTString     & strIdentifier) const;
-    // ---------------------------------
-    bool CompareID(const OTNym_or_SymmetricKey & rhs) const;
-    // ------------------------------------------------------------------------
-    // Seal / Open is for public / private key crypto. (With OTPseudonym and OTAsymmetricKey.)
-    // Whereas Encrypt/Decrypt is for symmetric key crypto (With OTSymmetricKey.)
-    //
-    bool Seal_or_Encrypt(      OTEnvelope & outputEnvelope, const OTString   strInput,  const OTString * pstrDisplay=NULL);
-    bool Open_or_Decrypt(const OTEnvelope & inputEnvelope,        OTString & strOutput, const OTString * pstrDisplay=NULL);
-    // ---------------------------------
-EXPORT    ~OTNym_or_SymmetricKey();
-    // ---------------------------------
-    OTNym_or_SymmetricKey(const OTNym_or_SymmetricKey & rhs);
-    // ---------------------------------    
-    OTNym_or_SymmetricKey(const OTPseudonym     & theNym, const OTString  * pstrDisplay=NULL);
-    OTNym_or_SymmetricKey(const OTSymmetricKey  & theKey, const OTString  * pstrDisplay=NULL);
-    OTNym_or_SymmetricKey(const OTSymmetricKey  & theKey, const OTPassword & thePassword, const OTString * pstrDisplay=NULL);
-    // ---------------------------------
-    void swap(OTNym_or_SymmetricKey & other);
-    
-    OTNym_or_SymmetricKey & operator = (OTNym_or_SymmetricKey other); // passed by value.
-    // ---------------------------------
-    void Release(); // Someday make this virtual, if we ever subclass it.
-    void Release_Nym_or_SymmetricKey(); // NOT called in the destructor, since this normally doesn't own its contents.
+	EXPORT	OTPseudonym    * GetNym()      const { return m_pNym;      }
+	EXPORT	OTSymmetricKey * GetKey()      const { return m_pKey;      }
+	EXPORT	OTPassword     * GetPassword() const { return m_pPassword; } // for symmetric key (optional)
+	// ---------------------------------
+	EXPORT	bool  IsNym()       const { return (NULL != m_pNym);      }
+	EXPORT	bool  IsKey()       const { return (NULL != m_pKey);      }
+	EXPORT	bool  HasPassword() const { return (NULL != m_pPassword); } // for symmetric key (optional)
+	// ------------------------------------------------------------------------
+	EXPORT	void GetIdentifier(OTIdentifier & theIdentifier) const;
+	EXPORT	void GetIdentifier(OTString     & strIdentifier) const;
+	// ---------------------------------
+	EXPORT	bool CompareID(const OTNym_or_SymmetricKey & rhs) const;
+	// ------------------------------------------------------------------------
+	// Seal / Open is for public / private key crypto. (With OTPseudonym and OTAsymmetricKey.)
+	// Whereas Encrypt/Decrypt is for symmetric key crypto (With OTSymmetricKey.)
+	//
+	EXPORT	bool Seal_or_Encrypt(      OTEnvelope & outputEnvelope, const OTString   strInput,  const OTString * pstrDisplay=NULL);
+	EXPORT	bool Open_or_Decrypt(const OTEnvelope & inputEnvelope,        OTString & strOutput, const OTString * pstrDisplay=NULL);
+	// ---------------------------------
+	EXPORT	~OTNym_or_SymmetricKey();
+	// ---------------------------------
+	EXPORT	OTNym_or_SymmetricKey(const OTNym_or_SymmetricKey & rhs);
+	// ---------------------------------    
+	EXPORT	OTNym_or_SymmetricKey(const OTPseudonym     & theNym, const OTString  * pstrDisplay=NULL);
+	EXPORT	OTNym_or_SymmetricKey(const OTSymmetricKey  & theKey, const OTString  * pstrDisplay=NULL);
+	EXPORT	OTNym_or_SymmetricKey(const OTSymmetricKey  & theKey, const OTPassword & thePassword, const OTString * pstrDisplay=NULL);
+	// ---------------------------------
+	EXPORT	void swap(OTNym_or_SymmetricKey & other);
+
+	EXPORT	OTNym_or_SymmetricKey & operator = (OTNym_or_SymmetricKey other); // passed by value.
+	// ---------------------------------
+	EXPORT	void Release(); // Someday make this virtual, if we ever subclass it.
+	EXPORT	void Release_Nym_or_SymmetricKey(); // NOT called in the destructor, since this normally doesn't own its contents.
 };
 
 
@@ -907,8 +927,8 @@ EXPORT	bool Seal(const OTAsymmetricKey & RecipPubKey,  const OTString & theInput
         // ------------------------------------------------------------------------
         // Multiple recipients:
         //
-        bool Seal(setOfNyms           & theRecipients,  const OTString & theInput);  // Same as above, except supports multiple recipients.
-        bool Seal(setOfAsymmetricKeys & RecipPubKeys,   const OTString & theInput);  // Same as above, except supports multiple recipients.
+EXPORT	bool Seal(setOfNyms           & theRecipients,  const OTString & theInput);  // Same as above, except supports multiple recipients.
+EXPORT	bool Seal(setOfAsymmetricKeys & RecipPubKeys,   const OTString & theInput);  // Same as above, except supports multiple recipients.
         // ------------------------------------------------------------------------
         // (Opposite of Seal.)
         //

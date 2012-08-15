@@ -76,20 +76,20 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)..\otapi;$(SolutionDir)..\..\include;$(SolutionDir)..\..\include\otlib;$(SolutionDir)..\..\include\otapi;$(SystemDrive)\boost_1_48_0;$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\otapi;$(SolutionDir)..\..\include;$(SolutionDir)..\..\include\otlib;$(SystemDrive)\boost_1_51_0;$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\include;$(SolutionDir)..\..\include\otapi;$(SolutionDir)..\glue\php;$(SolutionDir)..\..\..\php\include;$(SolutionDir)..\..\..\php\include\Zend;$(SolutionDir)..\..\..\php\include\main;$(SolutionDir)..\..\..\php\include\TSRM;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\..\lib\$(PlatformName)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\..\obj\$(PlatformName)\$(Configuration)\$(ProjectName)\</IntDir>
-    <LibraryPath>$(SolutionDir)..\..\lib\$(PlatformName)\$(Configuration);$(SystemDrive)\boost_1_48_0\stage\lib\$(PlatformName);$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\lib\VC;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)..\..\lib\$(PlatformName)\$(Configuration);$(SystemDrive)\boost_1_51_0\stage\lib\$(PlatformName);$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\lib\VC;$(SolutionDir)..\..\..\php\dev;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(SolutionDir)..\otapi;$(SolutionDir)..\..\include;$(SolutionDir)..\..\include\otlib;$(SolutionDir)..\..\include\otapi;$(SystemDrive)\boost_1_48_0;$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\otapi;$(SolutionDir)..\..\include;$(SolutionDir)..\..\include\otlib;$(SystemDrive)\boost_1_51_0;$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\include;$(SolutionDir)..\..\include\otapi;$(SolutionDir)..\glue\php;$(SolutionDir)..\..\..\php\include;$(SolutionDir)..\..\..\php\include\Zend;$(SolutionDir)..\..\..\php\include\main;$(SolutionDir)..\..\..\php\include\TSRM;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\..\lib\$(PlatformName)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\..\obj\$(PlatformName)\$(Configuration)\$(ProjectName)\</IntDir>
-    <LibraryPath>$(SolutionDir)..\..\lib\$(PlatformName)\$(Configuration);$(SystemDrive)\boost_1_48_0\stage\lib\$(PlatformName);$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\lib\VC;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)..\..\lib\$(PlatformName)\$(Configuration);$(SystemDrive)\boost_1_51_0\stage\lib\$(PlatformName);$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\lib\VC;$(SolutionDir)..\..\..\php\dev;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
@@ -101,25 +101,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)..\otapi;$(SolutionDir)..\..\include;$(SolutionDir)..\..\include\otlib;$(SolutionDir)..\..\include\otapi;$(SystemDrive)\boost_1_48_0;$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\otapi;$(SolutionDir)..\..\include;$(SolutionDir)..\..\include\otlib;$(SystemDrive)\boost_1_51_0;$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\include;$(SolutionDir)..\..\include\otapi;$(SolutionDir)..\glue\php;$(SolutionDir)..\..\..\php\include;$(SolutionDir)..\..\..\php\include\Zend;$(SolutionDir)..\..\..\php\include\main;$(SolutionDir)..\..\..\php\include\TSRM;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\..\lib\$(PlatformName)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\..\obj\$(PlatformName)\$(Configuration)\$(ProjectName)\</IntDir>
-    <LibraryPath>$(SolutionDir)..\..\lib\$(PlatformName)\$(Configuration);$(SystemDrive)\boost_1_48_0\stage\lib\$(PlatformName);$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\lib\VC;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)..\..\lib\$(PlatformName)\$(Configuration);$(SystemDrive)\boost_1_51_0\stage\lib\$(PlatformName);$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\lib\VC;$(SolutionDir)..\..\..\php\dev;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)..\otapi;$(SolutionDir)..\..\include;$(SolutionDir)..\..\include\otlib;$(SolutionDir)..\..\include\otapi;$(SystemDrive)\boost_1_48_0;$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\otapi;$(SolutionDir)..\..\include;$(SolutionDir)..\..\include\otlib;$(SystemDrive)\boost_1_51_0;$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\include;$(SolutionDir)..\..\include\otapi;$(SolutionDir)..\glue\php;$(SolutionDir)..\..\..\php\include;$(SolutionDir)..\..\..\php\include\Zend;$(SolutionDir)..\..\..\php\include\main;$(SolutionDir)..\..\..\php\include\TSRM;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\..\lib\$(PlatformName)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\..\obj\$(PlatformName)\$(Configuration)\$(ProjectName)\</IntDir>
-    <LibraryPath>$(SolutionDir)..\..\lib\$(PlatformName)\$(Configuration);$(SystemDrive)\boost_1_48_0\stage\lib\$(PlatformName);$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\lib\VC;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)..\..\lib\$(PlatformName)\$(Configuration);$(SystemDrive)\boost_1_51_0\stage\lib\$(PlatformName);$(SystemDrive)\OpenSSL-Win$(PlatformArchitecture)\lib\VC;$(SolutionDir)..\..\..\php\dev;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_WINDLL;WS;ZEND_WIN32;ZEND_DEBUG;PHP_WIN32;ZEND_WIN32_FORCE_INLINE;_USE_32BIT_TIME_T;NTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>bigint.lib;irrxml.lib;lucre.lib;simpleini.lib;ssl-example.lib;libzmq.lib;libprotobuf.lib;otapi.lib;otlib.lib;ws2_32.lib;winmm.lib;libeay32MDd.lib;ssleay32MDd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>bigint.lib;irrxml.lib;lucre.lib;simpleini.lib;libzmq.lib;libprotobuf.lib;otapi.lib;otlib.lib;ws2_32.lib;winmm.lib;php5.lib;libeay32MDd.lib;ssleay32MDd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent />
     <PostBuildEvent />
@@ -128,10 +129,11 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_WINDLL;WS;ZEND_WIN32;ZEND_DEBUG;PHP_WIN32;ZEND_WIN32_FORCE_INLINE;_USE_32BIT_TIME_T;NTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>bigint.lib;irrxml.lib;lucre.lib;simpleini.lib;ssl-example.lib;libzmq.lib;libprotobuf.lib;otapi.lib;otlib.lib;ws2_32.lib;winmm.lib;libeay32MDd.lib;ssleay32MDd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>bigint.lib;irrxml.lib;lucre.lib;simpleini.lib;libzmq.lib;libprotobuf.lib;otapi.lib;otlib.lib;ws2_32.lib;winmm.lib;php5.lib;libeay32MDd.lib;ssleay32MDd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent />
     <PostBuildEvent />
@@ -142,12 +144,13 @@
       <Optimization>MinSpace</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>_WINDLL;WS;ZEND_WIN32;ZEND_DEBUG;PHP_WIN32;ZEND_WIN32_FORCE_INLINE;_USE_32BIT_TIME_T;NTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>bigint.lib;irrxml.lib;lucre.lib;simpleini.lib;ssl-example.lib;libzmq.lib;libprotobuf.lib;otapi.lib;otlib.lib;ws2_32.lib;winmm.lib;libeay32MD.lib;ssleay32MD.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>bigint.lib;irrxml.lib;lucre.lib;simpleini.lib;libzmq.lib;libprotobuf.lib;otapi.lib;otlib.lib;ws2_32.lib;winmm.lib;php5.lib;libeay32MD.lib;ssleay32MD.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent />
     <PostBuildEvent />
@@ -158,12 +161,13 @@
       <Optimization>MinSpace</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>_WINDLL;WS;ZEND_WIN32;ZEND_DEBUG;PHP_WIN32;ZEND_WIN32_FORCE_INLINE;_USE_32BIT_TIME_T;NTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>bigint.lib;irrxml.lib;lucre.lib;simpleini.lib;ssl-example.lib;libzmq.lib;libprotobuf.lib;otapi.lib;otlib.lib;ws2_32.lib;winmm.lib;libeay32MD.lib;ssleay32MD.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>bigint.lib;irrxml.lib;lucre.lib;simpleini.lib;libzmq.lib;libprotobuf.lib;otapi.lib;otlib.lib;ws2_32.lib;winmm.lib;php5.lib;libeay32MD.lib;ssleay32MD.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent />
     <PostBuildEvent />

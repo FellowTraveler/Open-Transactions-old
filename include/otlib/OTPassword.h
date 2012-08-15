@@ -229,7 +229,12 @@ Unlocking a chunk of memory looks exactly the same as locking it, except that yo
  // with sample code below.  Also should make some kind of UNIX version.
  
  
+#ifndef _WINDOWS_
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
 #include <windows.h>
+#endif
 #include <stdio.h>
 #include <Wincrypt.h>
 
@@ -281,7 +286,12 @@ void main()
  
  
  
+#ifndef _WINDOWS_
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
 #include <windows.h>
+#endif
 #include <stdio.h>
 #include <Wincrypt.h>
 #include <strsafe.h>
@@ -607,7 +617,12 @@ int  main(int argc, char **argv)
   #include <sys/types.h>
   #include <sys/mman.h>
 #elif defined(BOTAN_TARGET_OS_HAS_WIN32_VIRTUAL_LOCK)
-  #include <windows.h>
+#ifndef _WINDOWS_
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <windows.h>
+#endif
 #endif
 
 namespace Botan {

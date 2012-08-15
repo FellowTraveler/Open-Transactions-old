@@ -440,7 +440,7 @@ public:
 		atPayDividend,  // reply from the server regarding said dividend payment.
 // --------------------------------------------------------------------------------------
 		error_state
-	}; // If you add any types to this list, update the list of strings at the top of the .CPP file.
+	};   // If you add any types to this list, update the list of strings at the top of the .CPP file.
 
 	/*
 	 You have to read pointer declarations right-to-left.
@@ -449,6 +449,7 @@ public:
 	    Fred* const p    means "p is a const pointer to a Fred": you can't change the pointer p, but you can change the Fred object via p.
 	    Fred const* const p    means "p is a constant pointer to a constant Fred": you can't change the pointer p itself, nor can you change the Fred object via p.	 
 	 */
+
 protected:
 	// Usually a transaction object is inside a ledger object. 
 	// If this is not NULL, then you can reference that object.
@@ -760,15 +761,11 @@ EXPORT	void    AddItem(OTItem & theItem);  // You have to allocate the item on t
 	static
     transactionType GetTypeFromString(const OTString & strType);
 	// --------------------------------------------------------------
-	static
-    const char * _TypeStrings[]; // for translating transaction type into a string.
+
 	
-	static inline
-    const char * _GetTypeString(transactionType theType)
-		{ int nType = (int)theType; return OTTransaction::_TypeStrings[nType]; }
+EXPORT	static const char * const _GetTypeString(transactionType theType);
 	
-	inline
-    const char * GetTypeString() const { return OTTransaction::_GetTypeString(m_Type); }
+	const char * const GetTypeString() const { return OTTransaction::_GetTypeString(m_Type); }
     
     // -----------------------------------------------------------------------------
     // These functions are fairly smart about which transaction types are harvestable,
@@ -799,10 +796,6 @@ EXPORT	void    AddItem(OTItem & theItem);  // You have to allocate the item on t
                                const bool    bTransactionWasFailure); // false until positively asserted.
 
 };
-
-
-
-
 
 #endif // __OTTRANSACTION_H__
 

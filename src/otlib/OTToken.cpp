@@ -206,7 +206,12 @@ _OT_Lucre_Dumper::~_OT_Lucre_Dumper()
 // Basically this number determines how many blinded prototokens must be sent to the
 // server in order for the server to accept the withdrawal request and sign one of them. 
 // (more prototokens == more resource cost, but more security.)
-const int OTToken::nMinimumPrototokenCount = 1;
+const int OTToken__nMinimumPrototokenCount = 1;
+
+const int OTToken::GetMinimumPrototokenCount()
+{
+	return OTToken__nMinimumPrototokenCount;
+}
 
 // Lucre, in fact, only sends a single blinded token, and the bank signs it blind and returns it.
 // With Chaum, the bank had to open some of the proto-tokens to verify the amount was correct, etc.
@@ -1088,6 +1093,7 @@ bool OTToken::GenerateTokenRequest(const OTPseudonym & theNym, OTMint & theMint,
 	// We will use it to generate all the prototokens in the loop below.
     PublicBank bank;
     bank.ReadBIO(bioBank);
+
     // -----------------------------------------------------------------
 	Release(); // note: why is this here? I guess to release the prototokens, the signature (is there one?) and m_ascSpendable (exists? doubt it.) This WAS also doing "InitToken" (no longer) which WAS setting series and expiration range back to 0 (no longer.) Which was causing problems for all series above 0. I'm leaving this call here, to do the stuff I guess it was put here for. But things such as the series, expiration date range, and token count, etc are no longer (inadvertantly) set to 0 here on this line. I'm also moving the SetSeriesAndExpiration call to be BELOW this line, since it's not apparently needed above this line anyway.
     // -----------------------------------------------------------------
@@ -1104,8 +1110,8 @@ bool OTToken::GenerateTokenRequest(const OTPseudonym & theNym, OTMint & theMint,
     //
 	SetSeriesAndExpiration(theMint.GetSeries(), theMint.GetValidFrom(), theMint.GetValidTo());
     // -----------------------------------------------------------------
-	const int nFinalTokenCount = (nTokenCount < OTToken::nMinimumPrototokenCount) ? 
-					OTToken::nMinimumPrototokenCount : nTokenCount; 
+	const int nFinalTokenCount = (nTokenCount < OTToken::GetMinimumPrototokenCount()) ? 
+					OTToken::GetMinimumPrototokenCount() : nTokenCount; 
 	
 	// Token count is actually 1 (always) with Lucre, although this lib has potential to work with 
 	// multiple proto-tokens, you can see this loop as though it always executes just once.
