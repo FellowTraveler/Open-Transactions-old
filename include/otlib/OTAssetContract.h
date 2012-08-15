@@ -197,10 +197,10 @@ EXPORT	virtual ~OTAssetContract();
     // (Currently only operational for "shares", not "currencies", since it's used exclusively
     // for the payment of dividends.)
     //
-    bool AddAccountRecord  (const OTAccount    & theAccount); // adds the account to the list. (When account is created.)
-    bool EraseAccountRecord(const OTIdentifier & theAcctID);  // removes the account from the list. (When account is deleted.)
+EXPORT    bool AddAccountRecord  (const OTAccount    & theAccount); // adds the account to the list. (When account is created.)
+EXPORT    bool EraseAccountRecord(const OTIdentifier & theAcctID);  // removes the account from the list. (When account is deleted.)
     
-    bool ForEachAccountRecord(OTAcctFunctor & theAction); // Loops through all the accounts for a given asset type, and calls Functor on each.
+EXPORT    bool ForEachAccountRecord(OTAcctFunctor & theAction); // Loops through all the accounts for a given asset type, and calls Functor on each.
     
 	// ----------------------------------    
 //EXPORT	virtual bool CreateContract(OTString & strContract, OTPseudonym & theSigner);
@@ -228,8 +228,8 @@ protected:
     mapOfAccounts * m_pLoadedAccounts; // not owned.
     
 public:
-    OTAcctFunctor(const OTIdentifier & theServerID, mapOfAccounts * pLoadedAccounts=NULL);
-    virtual ~OTAcctFunctor();
+EXPORT    OTAcctFunctor(const OTIdentifier & theServerID, mapOfAccounts * pLoadedAccounts=NULL);
+EXPORT    virtual ~OTAcctFunctor();
     
     OTIdentifier  * GetServerID()    { return m_pServerID; }
     mapOfAccounts * GetLoadedAccts() { return m_pLoadedAccounts; }

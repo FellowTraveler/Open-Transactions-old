@@ -39,7 +39,7 @@ do
     done
 
     for ext in cxx cpp; do
-	if [ -f otapi/OTAPI-$x.$ext ]; then sed -i "s/OTAPI_wrap.h/OTAPI-$x.h/1" otapi/OTAPI-$x.$ext; fi
+	if [ -f otapi/OTAPI-$x.$ext ]; then printf '%s\n' "g/OTAPI_wrap\.h/s//OTAPI-$x.h/g" w | ed -s "otapi/OTAPI-$x.$ext"; fi
     done
 
 done

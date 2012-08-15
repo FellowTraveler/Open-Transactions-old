@@ -165,7 +165,7 @@ using namespace io;
 
 
 
-const char * OTTransaction::_TypeStrings[] = 
+char const * const __TypeStrings[] = 
 {
 	"blank",			// freshly issued, not used yet  // comes from server, stored on Nym. (Nymbox.)
 	"message",			// in nymbox, message from one user to another.
@@ -222,6 +222,11 @@ const char * OTTransaction::_TypeStrings[] =
 	// --------------------------------------------------------------------------------------
 	"error_state"	
 };
+
+const char * const OTTransaction::_GetTypeString(transactionType theType) {
+	int nType = static_cast<int> (theType);
+	return __TypeStrings[nType];
+}
 
 
 

@@ -168,7 +168,7 @@ using namespace io;
 
 
 
-const char * OTLedger::_TypeStrings[] = 
+char const * const __TypeStrings[] = 
 {
 	"nymbox",		// the nymbox is per user account (versus per asset account) and is used to receive new transaction numbers (and messages.)
 	"inbox",		// each asset account has an inbox, with pending transfers as well as receipts inside.
@@ -179,7 +179,10 @@ const char * OTLedger::_TypeStrings[] =
 	"error_state"
 };
 
-
+char const * const OTLedger::_GetTypeString(ledgerType theType) {
+	int nType = static_cast<int> (theType);
+	return __TypeStrings[nType];
+}
 
 // ------------------------------------
 // This calls OTTransactionType::VerifyAccount(), which calls 

@@ -143,6 +143,9 @@
 // --------------------------------------
 // TinyThread++
 //
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
 #include "tinythread.h"
 //#include "fast_mutex.h" // Not using this currently.
 

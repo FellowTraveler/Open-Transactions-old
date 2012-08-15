@@ -154,7 +154,6 @@ class OTMessage;
 class OTLedger;
 
 
-
 class OTAccount : public OTTransactionType 
 {
 private:  // Private prevents erroneous use by other classes.
@@ -296,12 +295,9 @@ EXPORT    bool  GetOutboxHash(OTIdentifier & theOutput);
     
 	// --------------------------------------------------------------
 
-	static const char * _TypeStrings[]; // for translating transaction type into a string.
-	
-	static inline const char * _GetTypeString(AccountType theType)
-	{ int nType = (int)theType; return OTAccount::_TypeStrings[nType]; }
-	
-	inline const char * GetTypeString() { return OTAccount::_GetTypeString(m_AcctType); }
+EXPORT	static char const * const _GetTypeString(AccountType theType);
+	char const * const GetTypeString() { return OTAccount::_GetTypeString(m_AcctType); }
+
 };
 
 

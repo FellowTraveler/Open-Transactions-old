@@ -298,7 +298,17 @@ namespace OTDB
 	
     
 	// ********************************************************************
-	
+
+	// ABSTRACT BASE CLASSES
+	//
+	class Storable;		// A storable object
+	class OTPacker;		// A packer (Could be MsgPack, or Google Protocol Buffers, or a json lib...)
+	class Storage;		// A storage context (database, filesystem, cloud, etc. Swappable.)
+	class PackedBuffer;	// A buffer for containing a PACKED STORABLE. (On its way to/from storage.)
+
+
+
+
 	// OTDB NAMESPACE "CONSTRUCTOR"
 	//
 	class InitOTDBDetails 
@@ -308,15 +318,6 @@ namespace OTDB
 		~InitOTDBDetails(); // Ditto.
 	};
 	// -------------------------------
-	
-	
-	
-	// ABSTRACT BASE CLASSES
-	//
-	class Storable;		// A storable object
-	class OTPacker;		// A packer (Could be MsgPack, or Google Protocol Buffers, or a json lib...)
-	class Storage;		// A storage context (database, filesystem, cloud, etc. Swappable.)
-	class PackedBuffer;	// A buffer for containing a PACKED STORABLE. (On its way to/from storage.)
 	
 	// As far as the USERS of the Storage API are concerned, the above classes are nearly everything.
 	// (In addition to the "Pure Data" classes such as ContactNym, BitcoinAcct, etc.)
@@ -694,7 +695,8 @@ EXPORT	bool			Unpack(PackedBuffer& inBuf, Storable& outObj);
 	// OTDB Namespace PUBLIC INTERFACE
 	//
 	//
-	
+
+
 EXPORT	bool InitDefaultStorage(StorageType eStoreType, PackType ePackType);
 	
 	// Default Storage instance:
@@ -711,6 +713,11 @@ EXPORT	Storable * CreateObject(StoredObjectType eType);
 	
 	// BELOW FUNCTIONS use the DEFAULT Storage context for the OTDB Namespace
 	
+	// --------
+	// Check if the values are good.
+	//
+EXPORT  bool CheckVaildValues(std::string & strFolder, std::string & oneStr, std::string & twoStr, std::string & threeStr, const char * szFuncName = NULL);
+
 	// --------
 	// See if the file is there.
 	//
